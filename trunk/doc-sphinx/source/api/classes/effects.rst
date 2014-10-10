@@ -84,3 +84,9 @@ as distortions, delays, chorus and reverbs.
 .. autoclass:: STRev
    :members:
 
+*SmoothDelay*
+---------------
+
+.. autoclass:: SmoothDelay
+   :members:
+

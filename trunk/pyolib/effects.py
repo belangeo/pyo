@@ -1480,3 +1480,156 @@ class STRev(PyoObject):
         return self._firstRefGain
     @firstRefGain.setter
     def firstRefGain(self, x): self.setFirstRefGain(x)
+
+class SmoothDelay(PyoObject):
+    """
+    Artifact free sweepable recursive delay.
+
+    SmoothDelay implements a delay line that does not produce 
+    clicks or pitch shifting when the delay time is changing.
+
+    :Parent: :py:class:`PyoObject`
+
+    :Args:
+
+        input : PyoObject
+            Input signal to delayed.
+        delay : float or PyoObject, optional
+            Delay time in seconds. Defaults to 0.25.
+        feedback : float or PyoObject, optional
+            Amount of output signal sent back into the delay line.
+            Defaults to 0.
+        crossfade : float, optional
+            Crossfade time, in seconds, between overlaped readers.
+            Defaults to 0.05.
+        maxdelay : float, optional
+            Maximum delay length in seconds. Available only at initialization. 
+            Defaults to 1.
+
+    .. note::
+
+        The minimum delay time allowed with SmoothDelay is one sample. 
+        It can be computed with :
+            
+        onesamp = 1.0 / s.getSamplingRate()
+        
+    .. seealso::
+        
+        :py:class:`Delay`, :py:class:`Waveguide`
+
+    >>> s = Server().boot()
+    >>> s.start()
+    >>> sf = SfPlayer(SNDS_PATH+"/transparent.aif", loop=True, mul=0.3).mix(2).out()
+    >>> lf = Sine(freq=0.1, mul=0.24, add=0.25)
+    >>> sd = SmoothDelay(sf, delay=lf, feedback=0.5, crossfade=0.05, mul=0.7).out()
+
+    """
+    def __init__(self, input, delay=0.25, feedback=0, crossfade=0.05, maxdelay=1, mul=1, add=0):
+        PyoObject.__init__(self, mul, add)
+        self._input = input
+        self._delay = delay
+        self._feedback = feedback
+        self._crossfade = crossfade
+        self._maxdelay = maxdelay
+        self._in_fader = InputFader(input)
+        in_fader, delay, feedback, crossfade, maxdelay, mul, add, lmax = convertArgsToLists(self._in_fader, delay, feedback, crossfade, maxdelay, mul, add)
+        self._base_objs = [SmoothDelay_base(wrap(in_fader,i), wrap(delay,i), wrap(feedback,i), wrap(crossfade,i), wrap(maxdelay,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+
+    def setInput(self, x, fadetime=0.05):
+        """
+        Replace the `input` attribute.
+        
+        :Args:
+
+            x : PyoObject
+                New signal to delayed.
+            fadetime : float, optional
+                Crossfade time between old and new input. Defaults to 0.05.
+
+        """
+        self._input = x
+        self._in_fader.setInput(x, fadetime)
+
+    def setDelay(self, x):
+        """
+        Replace the `delay` attribute.
+        
+        :Args:
+
+            x : float or PyoObject
+                New `delay` attribute.
+
+        """
+        self._delay = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setDelay(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def setFeedback(self, x):
+        """
+        Replace the `feedback` attribute.
+        
+        :Args:
+
+            x : float or PyoObject
+                New `feedback` attribute.
+
+        """
+        self._feedback = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setFeedback(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def setCrossfade(self, x):
+        """
+        Replace the `crossfade` attribute.
+        
+        :Args:
+
+            x : float
+                New `crossfade` attribute.
+
+        """
+        self._crossfade = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setCrossfade(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def reset(self):
+        """
+        Reset the memory buffer to zeros.
+        
+        """
+        [obj.reset() for obj in self._base_objs]
+
+    def ctrl(self, map_list=None, title=None, wxnoserver=False):
+        self._map_list = [SLMap(0.001, self._maxdelay, 'log', 'delay',  self._delay),
+                          SLMap(0., 1., 'lin', 'feedback', self._feedback),
+                          SLMap(0., self._maxdelay, 'lin', 'crossfade', self._crossfade, dataOnly=True),
+                          SLMapMul(self._mul)]
+        PyoObject.ctrl(self, map_list, title, wxnoserver)
+
+    @property
+    def input(self):
+        """PyoObject. Input signal to delayed.""" 
+        return self._input
+    @input.setter
+    def input(self, x): self.setInput(x)
+ 
+    @property
+    def delay(self):
+        """float or PyoObject. Delay time in seconds.""" 
+        return self._delay
+    @delay.setter
+    def delay(self, x): self.setDelay(x)
+
+    @property
+    def feedback(self):
+        """float or PyoObject. Amount of output signal sent back into the delay line.""" 
+        return self._feedback
+    @feedback.setter
+    def feedback(self, x): self.setFeedback(x)
+
+    @property
+    def crossfade(self):
+        """float. Crossfade time, in seconds, between overlaps.""" 
+        return self._crossfade
+    @crossfade.setter
+    def crossfade(self, x): self.setCrossfade(x)

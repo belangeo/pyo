@@ -1,3 +1,8 @@
+2014-10-10 belangeo <belangeo@gmail.com>
+
+    * Added new object : SmoothDelay, a delay line that does not produce clicks or pitch shifting when the delay time is changing.
+    - rev 1239
+
 2014-10-08 belangeo <belangeo@gmail.com>
 
     * Added new object : AttackDetector, audio signal onset detection.

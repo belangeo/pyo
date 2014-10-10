@@ -12,6 +12,7 @@ Alphabetical class reference
 - :py:class:`Allpass` :     Delay line based allpass filter.
 - :py:class:`Atan2` :     Computes the principal value of the arc tangent of b/a.
 - :py:class:`Atone` :     A first-order recursive high-pass filter with variable frequency response.
+- :py:class:`AttackDetector` :     Audio signal onset detection.
 - :py:class:`Average` :     Moving average filter.
 - :py:class:`Balance` :     Adjust rms power of an audio signal according to the rms power of another.
 - :py:class:`BandSplit` :     Splits an input signal into multiple frequency bands.
@@ -30,6 +31,7 @@ Alphabetical class reference
 - :py:class:`CallAfter` :     Calls a Python function after a given time.
 - :py:class:`CarToPol` :     Performs the cartesian to polar conversion.
 - :py:class:`Ceil` :     Rounds to smallest integral value greater than or equal to the input signal.
+- :py:class:`Centroid` :     Computes the spectral centroid of an input signal.
 - :py:class:`CentsToTranspo` :     Returns the transposition factor equivalent of a given cents value.
 - :py:class:`Change` :     Sends trigger that informs when input value has changed.
 - :py:class:`ChebyTable` :     Chebyshev polynomials of the first kind.
