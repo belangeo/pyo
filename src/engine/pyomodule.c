@@ -2440,6 +2440,7 @@ init_pyo64(void)
     module_add_object(m, "Pointer2_base", &Pointer2Type);
     module_add_object(m, "Centroid_base", &CentroidType);
     module_add_object(m, "AttackDetector_base", &AttackDetectorType);
+    module_add_object(m, "SmoothDelay_base", &SmoothDelayType);
 
     PyModule_AddStringConstant(m, "PYO_VERSION", PYO_VERSION);
 #ifdef COMPILE_EXTERNALS

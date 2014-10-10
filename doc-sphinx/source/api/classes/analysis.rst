@@ -40,7 +40,7 @@ can use them for controlling parameters of others objects.
    :members:
 
 *AttackDetector*
-------------
+-----------------
 
 .. autoclass:: AttackDetector
    :members:

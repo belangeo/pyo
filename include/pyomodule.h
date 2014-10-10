@@ -466,6 +466,7 @@ extern PyTypeObject STRevType;
 extern PyTypeObject Pointer2Type;
 extern PyTypeObject CentroidType;
 extern PyTypeObject AttackDetectorType;
+extern PyTypeObject SmoothDelayType;
 
 /* Constants */
 #define E M_E
