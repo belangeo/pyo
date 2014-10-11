@@ -1822,7 +1822,6 @@ class TreeCtrlComboPopup(wx.combo.ComboPopup):
         root = self.tree.GetRootItem()
         if not root:
             return
-        # TODO: where does come from FindItem()
         found = self.FindItem(root, value)
         if found:
             self.value = found

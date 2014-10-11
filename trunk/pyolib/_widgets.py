@@ -38,7 +38,7 @@ try:
 except:
     PYO_USE_WX = False
 
-if hasattr(__builtin__, 'EPYO_APP_OPENED') or hasattr(__builtin__, 'SOUNDGRAIN_APP_OPENED'):
+if hasattr(__builtin__, 'EPYO_APP_OPENED') or hasattr(__builtin__, 'SOUNDGRAIN_APP_OPENED') or hasattr(__builtin__, 'QLIVE_APP_OPENED'):
     PYO_USE_WX = True
 
 PYO_USE_TK = False
