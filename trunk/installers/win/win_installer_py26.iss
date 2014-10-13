@@ -9,7 +9,7 @@
 ; NOTE: The value of AppId uniquely identifies this application.
 ; Do not use the same AppId value in installers for other applications.
 ; (To generate a new GUID, click Tools | Generate GUID inside the IDE.)
-AppId={{4F72B6EF-CFA0-434F-A2B4-B130F94F54EB}
+AppId={{AC79C5C4-BE36-419E-B94A-98C6D0DCF4B9}
 AppName={#appName}
 AppVersion={#appVer}
 AppPublisher=iACT.umontreal.ca
