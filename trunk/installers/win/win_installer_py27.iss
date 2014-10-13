@@ -28,6 +28,7 @@ Compression=lzma
 SolidCompression=yes
 ChangesAssociations=yes
 ChangesEnvironment=yes
+SetupIconFile=C:\Users\olipet\svn\pyo\utils\E-PyoIcon.ico
 
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"
