@@ -98,14 +98,18 @@ var
   InstallPath: string;
   reg1 : string;
   reg2 : string;
+  reg3 : string;
+  reg4 : string;
 begin
   reg1 := 'SOFTWARE\Python\PythonCore\' + '{#PyVer}' + '\InstallPath';
   reg2 := 'SOFTWARE\Wow6432Node\Python\PythonCore\' + '{#PyVer}' + '\InstallPath';
+  reg3 := 'Software\Python\PythonCore\' + '{#PyVer}' + '\InstallPath';
+  reg4 := 'Software\Wow6432Node\Python\PythonCore\' + '{#PyVer}' + '\InstallPath';
   if RegQueryStringValue(HKLM, reg1, '', InstallPath) then
     BEGIN
     Result := InstallPath;
   END else
-  if RegQueryStringValue(HKCU, reg1, '', InstallPath) then
+  if RegQueryStringValue(HKCU, reg3, '', InstallPath) then
     BEGIN
     Result := InstallPath;
   END else
@@ -113,8 +117,12 @@ begin
     BEGIN
     Result := InstallPath;
   END else
+  if RegQueryStringValue(HKCU, reg4, '', InstallPath) then
     BEGIN
-    MsgBox('Could not find Python, please install Python ' + '{#pyVer}' + 'before installing pyo!',mbError,MB_OK);
+    Result := InstallPath;
+  END else
+    BEGIN
+    MsgBox('Could not find Python, please install Python ' + '{#pyVer}' + ' before installing pyo!',mbError,MB_OK);
     ExitProcess(1);
    END
 end;
