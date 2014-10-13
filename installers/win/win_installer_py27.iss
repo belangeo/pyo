@@ -17,7 +17,8 @@ AppPublisherURL=http://code.google.com/p/pyo
 AppSupportURL=http://code.google.com/p/pyo
 AppUpdatesURL=http://code.google.com/p/pyo
 DefaultDirName={code:GetDirName}
-DisableDirPage=yes
+DisableDirPage=no
+AlwaysShowDirOnReadyPage=yes
 DefaultGroupName={#appName}
 AllowNoIcons=yes
 InfoBeforeFile=C:\Users\olipet\svn\pyo\installers\win\\README-win32-py27.txt
@@ -70,7 +71,7 @@ Type: filesandordirs; Name: "{userdocs}\.epyo";
 ;;;;;;;;;;;;;
 
 [Registry]
-Root: HKLM; Subkey: "SYSTEM\CurrentControlSet\Control\Session Manager\Environment"; ValueType: expandsz; ValueName: "Path"; ValueData: "{app};{olddata}"; Check: NeedsAddPath("{app}")
+Root: HKLM; Subkey: "SYSTEM\CurrentControlSet\Control\Session Manager\Environment"; ValueType: expandsz; ValueName: "Path"; ValueData: "{app};{olddata}"; Check: NeedsAddPath('{app}')
 
 [Code]
 procedure ExitProcess(exitCode:integer);
@@ -99,7 +100,7 @@ var
   reg2 : string;
 begin
   reg1 := 'SOFTWARE\Python\PythonCore\' + '{#PyVer}' + '\InstallPath';
-  reg2 := 'SOFTWARE\Python\PythonCore\Wow6432Node\' + '{#PyVer}' + '\InstallPath';
+  reg2 := 'SOFTWARE\Wow6432Node\Python\PythonCore\' + '{#PyVer}' + '\InstallPath';
   if RegQueryStringValue(HKLM, reg1, '', InstallPath) then
     BEGIN
     Result := InstallPath;
