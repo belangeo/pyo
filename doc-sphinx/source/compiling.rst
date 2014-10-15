@@ -27,7 +27,7 @@ Then, install packages:
 
 .. code-block:: bash
 
-    brew install python liblo libsndfile portaudio portmidi
+    brew install python liblo libsndfile portaudio portmidi --universal
 
 Getting sources
 -------------------
@@ -134,7 +134,7 @@ Under OS X, it is very simple to build pyo from sources with the Homebrew packag
 
 .. code-block:: bash
 
-    brew install python liblo libsndfile portaudio portmidi
+    brew install python liblo libsndfile portaudio portmidi --universal
     svn checkout http://pyo.googlecode.com/svn/trunk/ pyo
     cd pyo
     python setup.py install --use-coreaudio --use-double 

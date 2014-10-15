@@ -40,6 +40,12 @@ processes with sample rate timing accuracy.
 .. autoclass:: Counter
    :members:
 
+*Euclide*
+-----------------------------------
+
+.. autoclass:: Euclide
+   :members:
+
 *Iter*
 -----------------------------------
 
