@@ -62,10 +62,3 @@ os.system("sphinx-build -a -b %s ./source %s" % (build_format, build_folder))
 
 if build_format == "latex":
     os.system("cd build_latex; pdflatex -interaction nonstopmode Pyo;  pdflatex -interaction nonstopmode Pyo")
-else:
-    # Upload on iACT server
-    print "Upload documentation (y/n)?"
-    ans = raw_input()
-    if (ans == 'y'):
-        os.system('scp -r %s/* sysop@132.204.178.49:/Library/WebServer/Documents/pyo/manual-dev/' % build_folder)
-

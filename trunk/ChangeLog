@@ -1,3 +1,13 @@
+2014-10-14 belangeo <belangeo@gmail.com>
+
+    * Added new object : Euclide, Euclidean rhythm generator.
+    - rev 1251
+
+2014-10-13 belangeo <belangeo@gmail.com>
+
+    * Windows installers now check for the current python installation directory before installing files.
+    - rev 1244 - 1250
+
 2014-10-10 belangeo <belangeo@gmail.com>
 
     * E-Pyo: Fixed inconsistencies in Find/Replace behaviours.

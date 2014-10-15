@@ -206,6 +206,7 @@ Alphabetical class reference
 - :py:class:`SincTable` :     Generates sinc window function. 
 - :py:class:`SineLoop` :     A simple sine wave oscillator with feedback.
 - :py:class:`Sine` :     A simple sine wave oscillator.
+- :py:class:`SmoothDelay` :     Artifact free sweepable recursive delay.
 - :py:class:`Snap` :     Snap input values on a user's defined midi scale.
 - :py:class:`SndTable` :     Transfers data from a soundfile into a function table.
 - :py:class:`Spectrum` :     Spectrum analyzer and display.
