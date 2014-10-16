@@ -245,7 +245,7 @@ class CallAfter(PyoObject):
         
         CallAfter has no `mul` and `add` attributes.
         
-        The object is not deleted after the call. The User must delete it himself.
+        The object is not deleted after the call. The user must delete it himself.
 
     >>> s = Server().boot()
     >>> s.start()

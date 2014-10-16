@@ -2441,6 +2441,12 @@ init_pyo64(void)
     module_add_object(m, "Centroid_base", &CentroidType);
     module_add_object(m, "AttackDetector_base", &AttackDetectorType);
     module_add_object(m, "SmoothDelay_base", &SmoothDelayType);
+    module_add_object(m, "TrigBurster_base", &TrigBursterType);
+    module_add_object(m, "TrigBurst_base", &TrigBurstType);
+    module_add_object(m, "TrigBurstTapStream_base", &TrigBurstTapStreamType);
+    module_add_object(m, "TrigBurstAmpStream_base", &TrigBurstAmpStreamType);
+    module_add_object(m, "TrigBurstDurStream_base", &TrigBurstDurStreamType);
+    module_add_object(m, "TrigBurstEndStream_base", &TrigBurstEndStreamType);
 
     PyModule_AddStringConstant(m, "PYO_VERSION", PYO_VERSION);
 #ifdef COMPILE_EXTERNALS
