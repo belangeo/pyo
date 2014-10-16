@@ -66,6 +66,15 @@ else
     sudo cp -r /tmp/python27/* .
 fi
 
+# Check if anaconda is already installed and copy files to site-packages directory
+if cd ~/anaconda/lib/python2.6/site-packages/; then  
+    sudo cp -r /tmp/python26/* .
+fi
+
+if cd ~/anaconda/lib/python2.7/site-packages/; then  
+    sudo cp -r /tmp/python27/* .
+fi
+
 sudo rm -rf /tmp/python2*
 
 # Add /usr/local/lib in .bash_profile if not already done
