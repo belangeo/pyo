@@ -1,3 +1,8 @@
+2014-10-16 belangeo <belangeo@gmail.com>
+
+    * Added new object : TrigBurst, generates a time/amplitude expandable trigger pattern.
+    - rev 1252
+
 2014-10-14 belangeo <belangeo@gmail.com>
 
     * Added new object : Euclide, Euclidean rhythm generator.

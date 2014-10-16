@@ -100,6 +100,12 @@ processes with sample rate timing accuracy.
 .. autoclass:: Trig
    :members:
 
+*TrigBurst*
+-----------------------------------
+
+.. autoclass:: TrigBurst
+   :members:
+
 *TrigChoice*
 -----------------------------------
 

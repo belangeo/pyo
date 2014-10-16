@@ -3743,3 +3743,1582 @@ PyTypeObject BeatEndStreamType = {
     0,                         /* tp_alloc */
     BeatEndStream_new,                 /* tp_new */
 };
+
+/****************/
+/**** TrigBurster *****/
+/****************/
+typedef struct {
+    pyo_audio_HEAD
+    PyObject *input;
+    Stream *input_stream;
+    int modebuffer[1];
+    int poly;
+    int voiceCount;
+    MYFLT time;
+    MYFLT a_time;
+    int count;
+    int a_count;
+    MYFLT expand;
+    MYFLT a_expand;
+    MYFLT ampfade;
+    MYFLT a_ampfade;
+    int flag;
+    double sampleToSec;
+    double currentTime;
+    double targetTime;
+    int currentCount;
+    int *currentTap;
+    MYFLT *currentAmp;
+    MYFLT *currentDur;
+    MYFLT *buffer_streams;
+    MYFLT *tap_buffer_streams;
+    MYFLT *amp_buffer_streams;
+    MYFLT *dur_buffer_streams;
+    MYFLT *end_buffer_streams;
+} TrigBurster;
+
+static void
+TrigBurster_generate_i(TrigBurster *self) {
+    int i, j;
+    
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
+    
+    for (i=0; i<(self->poly*self->bufsize); i++) {
+        self->buffer_streams[i] = self->end_buffer_streams[i] = 0.0;
+    }
+    
+    for (i=0; i<self->bufsize; i++) {
+        if (in[i] == 1.0) {
+            self->flag = 1;
+            self->currentCount = 0;
+            self->a_time = self->targetTime = self->currentTime = self->time;
+            self->a_count = self->count;
+            self->a_expand = self->expand;
+            self->a_ampfade = self->ampfade;
+        }
+        if (self->flag == 1) {
+            if (self->currentTime >= self->targetTime) {
+                self->currentTime -= self->targetTime;
+                self->targetTime = self->a_time * MYPOW(self->a_expand, self->currentCount);
+                self->currentTap[self->voiceCount] = self->currentCount;
+                self->currentAmp[self->voiceCount] = MYPOW(self->a_ampfade, self->currentCount);
+                self->currentDur[self->voiceCount] = self->targetTime;
+                self->buffer_streams[i + self->voiceCount * self->bufsize] = 1.0;
+                self->currentCount++;
+                if (self->currentCount == (self->a_count - 1))
+                    self->end_buffer_streams[i + self->voiceCount * self->bufsize] = 1.0;
+                if (self->currentCount == self->a_count)
+                    self->flag = 0;
+                self->voiceCount++;
+                if (self->voiceCount == self->poly)
+                    self->voiceCount = 0;
+            }
+            self->currentTime += self->sampleToSec;
+        }
+        for (j=0; j<self->poly; j++) {
+            self->tap_buffer_streams[i + j * self->bufsize] = (MYFLT)self->currentTap[j];
+            self->amp_buffer_streams[i + j * self->bufsize] = self->currentAmp[j];
+            self->dur_buffer_streams[i + j * self->bufsize] = self->currentDur[j];
+        }
+    }
+}
+
+MYFLT *
+TrigBurster_getSamplesBuffer(TrigBurster *self)
+{
+    return (MYFLT *)self->buffer_streams;
+}    
+
+MYFLT *
+TrigBurster_getTapBuffer(TrigBurster *self)
+{
+    return (MYFLT *)self->tap_buffer_streams;
+}    
+
+MYFLT *
+TrigBurster_getAmpBuffer(TrigBurster *self)
+{
+    return (MYFLT *)self->amp_buffer_streams;
+}    
+
+MYFLT *
+TrigBurster_getDurBuffer(TrigBurster *self)
+{
+    return (MYFLT *)self->dur_buffer_streams;
+}    
+
+MYFLT *
+TrigBurster_getEndBuffer(TrigBurster *self)
+{
+    return (MYFLT *)self->end_buffer_streams;
+}    
+
+static void
+TrigBurster_setProcMode(TrigBurster *self)
+{
+    self->proc_func_ptr = TrigBurster_generate_i;
+}
+
+static void
+TrigBurster_compute_next_data_frame(TrigBurster *self)
+{
+    (*self->proc_func_ptr)(self);    
+}
+
+static int
+TrigBurster_traverse(TrigBurster *self, visitproc visit, void *arg)
+{
+    pyo_VISIT
+    Py_VISIT(self->input);
+    Py_VISIT(self->input_stream);
+    return 0;
+}
+
+static int 
+TrigBurster_clear(TrigBurster *self)
+{
+    pyo_CLEAR
+    Py_CLEAR(self->input);
+    Py_CLEAR(self->input_stream);
+    return 0;
+}
+
+static void
+TrigBurster_dealloc(TrigBurster* self)
+{
+    pyo_DEALLOC
+    free(self->buffer_streams);
+    free(self->tap_buffer_streams);
+    free(self->amp_buffer_streams);
+    free(self->dur_buffer_streams);
+    free(self->end_buffer_streams);
+    free(self->currentTap);
+    free(self->currentAmp);
+    free(self->currentDur);
+    TrigBurster_clear(self);
+    self->ob_type->tp_free((PyObject*)self);
+}
+
+static PyObject *
+TrigBurster_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    int i;
+    PyObject *inputtmp, *input_streamtmp;
+    TrigBurster *self;
+    self = (TrigBurster *)type->tp_alloc(type, 0);
+    
+    
+    self->poly = 1;
+    self->voiceCount = 0;
+    self->time = self->a_time = 0.25;
+    self->count = self->a_count = 10;
+    self->expand = self->a_expand = 1.0;
+    self->ampfade = self->a_ampfade = 1.0;
+    self->currentCount = 0;
+    self->targetTime = 0.0;
+    self->currentTime = -1.0;
+    self->flag = 0;
+    
+    INIT_OBJECT_COMMON
+    Stream_setFunctionPtr(self->stream, TrigBurster_compute_next_data_frame);
+    self->mode_func_ptr = TrigBurster_setProcMode;
+    
+    self->sampleToSec = 1. / self->sr;
+
+    Stream_setStreamActive(self->stream, 1);
+
+    static char *kwlist[] = {"input", "time", "count", "expand", "ampfade", "poly", NULL};
+    
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_O_FIFFI, kwlist, &inputtmp, &self->time, &self->count, &self->expand, &self->ampfade, &self->poly))
+        Py_RETURN_NONE;
+    
+    INIT_INPUT_STREAM
+    
+    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    
+    (*self->mode_func_ptr)(self);
+
+    self->buffer_streams = (MYFLT *)realloc(self->buffer_streams, self->poly * self->bufsize * sizeof(MYFLT));
+    self->tap_buffer_streams = (MYFLT *)realloc(self->tap_buffer_streams, self->poly * self->bufsize * sizeof(MYFLT));
+    self->amp_buffer_streams = (MYFLT *)realloc(self->amp_buffer_streams, self->poly * self->bufsize * sizeof(MYFLT));
+    self->dur_buffer_streams = (MYFLT *)realloc(self->dur_buffer_streams, self->poly * self->bufsize * sizeof(MYFLT));
+    self->end_buffer_streams = (MYFLT *)realloc(self->end_buffer_streams, self->poly * self->bufsize * sizeof(MYFLT));
+    for (i=0; i<(self->poly*self->bufsize); i++) {
+        self->buffer_streams[i] = self->tap_buffer_streams[i] = self->amp_buffer_streams[i] = self->dur_buffer_streams[i] = self->end_buffer_streams[i] = 0.0;
+    }
+
+    self->currentTap = (int *)realloc(self->currentTap, self->poly * sizeof(int));
+    self->currentAmp = (MYFLT *)realloc(self->currentAmp, self->poly * sizeof(MYFLT));
+    self->currentDur = (MYFLT *)realloc(self->currentDur, self->poly * sizeof(MYFLT));
+    for (i=0; i<(self->poly); i++) {
+        self->currentTap[i] = 0;
+        self->currentAmp[i] = self->currentDur[i] = 0.0;
+    }
+
+    return (PyObject *)self;
+}
+
+static PyObject * TrigBurster_getServer(TrigBurster* self) { GET_SERVER };
+static PyObject * TrigBurster_getStream(TrigBurster* self) { GET_STREAM };
+
+static PyObject * TrigBurster_play(TrigBurster *self, PyObject *args, PyObject *kwds) { PLAY };
+static PyObject * TrigBurster_stop(TrigBurster *self) { STOP };
+
+static PyObject *
+TrigBurster_setTime(TrigBurster *self, PyObject *arg)
+{    
+	if (PyNumber_Check(arg))
+        self->time = PyFloat_AS_DOUBLE(PyNumber_Float(arg));
+        if (self->time <= 0.01) 
+            self->time = 0.01;
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
+static PyObject *
+TrigBurster_setCount(TrigBurster *self, PyObject *arg)
+{    
+	if (PyInt_Check(arg))
+        self->count = PyInt_AS_LONG(arg);
+        if (self->count < 1) 
+            self->count = 1;
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
+static PyObject *
+TrigBurster_setExpand(TrigBurster *self, PyObject *arg)
+{    
+	if (PyNumber_Check(arg))
+        self->expand = PyFloat_AS_DOUBLE(PyNumber_Float(arg));
+        if (self->expand <= 0.1) 
+            self->expand = 0.1;
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
+static PyObject *
+TrigBurster_setAmpfade(TrigBurster *self, PyObject *arg)
+{    
+	if (PyNumber_Check(arg))
+        self->ampfade = PyFloat_AS_DOUBLE(PyNumber_Float(arg));
+        if (self->ampfade <= 0.1) 
+            self->ampfade = 0.1;
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
+static PyMemberDef TrigBurster_members[] = {
+    {"server", T_OBJECT_EX, offsetof(TrigBurster, server), 0, "Pyo server."},
+    {"stream", T_OBJECT_EX, offsetof(TrigBurster, stream), 0, "Stream object."},
+    {"input", T_OBJECT_EX, offsetof(TrigBurster, input), 0, "Input sound object."},
+    {NULL}  /* Sentinel */
+};
+
+static PyMethodDef TrigBurster_methods[] = {
+    {"getServer", (PyCFunction)TrigBurster_getServer, METH_NOARGS, "Returns server object."},
+    {"_getStream", (PyCFunction)TrigBurster_getStream, METH_NOARGS, "Returns stream object."},
+    {"play", (PyCFunction)TrigBurster_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+    {"stop", (PyCFunction)TrigBurster_stop, METH_NOARGS, "Stops computing."},
+    {"setTime", (PyCFunction)TrigBurster_setTime, METH_O, "Sets the base time of the serie."},
+    {"setCount", (PyCFunction)TrigBurster_setCount, METH_O, "Sets the number of trigs in the serie."},
+    {"setExpand", (PyCFunction)TrigBurster_setExpand, METH_O, "Sets the time's expansion factor of the serie."},
+    {"setAmpfade", (PyCFunction)TrigBurster_setAmpfade, METH_O, "Sets the amplitude's expansion factor of the serie."},
+    {NULL}  /* Sentinel */
+};
+
+PyTypeObject TrigBursterType = {
+    PyObject_HEAD_INIT(NULL)
+    0,                         /*ob_size*/
+    "_pyo.TrigBurster_base",         /*tp_name*/
+    sizeof(TrigBurster),         /*tp_basicsize*/
+    0,                         /*tp_itemsize*/
+    (destructor)TrigBurster_dealloc, /*tp_dealloc*/
+    0,                         /*tp_print*/
+    0,                         /*tp_getattr*/
+    0,                         /*tp_setattr*/
+    0,                         /*tp_compare*/
+    0,                         /*tp_repr*/
+    0,             /*tp_as_number*/
+    0,                         /*tp_as_sequence*/
+    0,                         /*tp_as_mapping*/
+    0,                         /*tp_hash */
+    0,                         /*tp_call*/
+    0,                         /*tp_str*/
+    0,                         /*tp_getattro*/
+    0,                         /*tp_setattro*/
+    0,                         /*tp_as_buffer*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    "TrigBurster objects. Create an algorithmic beat sequence.",           /* tp_doc */
+    (traverseproc)TrigBurster_traverse,   /* tp_traverse */
+    (inquiry)TrigBurster_clear,           /* tp_clear */
+    0,		               /* tp_richcompare */
+    0,		               /* tp_weaklistoffset */
+    0,		               /* tp_iter */
+    0,		               /* tp_iternext */
+    TrigBurster_methods,             /* tp_methods */
+    TrigBurster_members,             /* tp_members */
+    0,                      /* tp_getset */
+    0,                         /* tp_base */
+    0,                         /* tp_dict */
+    0,                         /* tp_descr_get */
+    0,                         /* tp_descr_set */
+    0,                         /* tp_dictoffset */
+    0,      /* tp_init */
+    0,                         /* tp_alloc */
+    TrigBurster_new,                 /* tp_new */
+};
+
+/************************************************************************************************/
+/* TrigBurst streamer object per channel */
+/************************************************************************************************/
+typedef struct {
+    pyo_audio_HEAD
+    TrigBurster *mainPlayer;
+    int chnl; 
+    int modebuffer[2];
+} TrigBurst;
+
+static void TrigBurst_postprocessing_ii(TrigBurst *self) { POST_PROCESSING_II };
+static void TrigBurst_postprocessing_ai(TrigBurst *self) { POST_PROCESSING_AI };
+static void TrigBurst_postprocessing_ia(TrigBurst *self) { POST_PROCESSING_IA };
+static void TrigBurst_postprocessing_aa(TrigBurst *self) { POST_PROCESSING_AA };
+static void TrigBurst_postprocessing_ireva(TrigBurst *self) { POST_PROCESSING_IREVA };
+static void TrigBurst_postprocessing_areva(TrigBurst *self) { POST_PROCESSING_AREVA };
+static void TrigBurst_postprocessing_revai(TrigBurst *self) { POST_PROCESSING_REVAI };
+static void TrigBurst_postprocessing_revaa(TrigBurst *self) { POST_PROCESSING_REVAA };
+static void TrigBurst_postprocessing_revareva(TrigBurst *self) { POST_PROCESSING_REVAREVA };
+
+static void
+TrigBurst_setProcMode(TrigBurst *self) {
+    int muladdmode;
+    muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
+    
+    switch (muladdmode) {
+        case 0:        
+            self->muladd_func_ptr = TrigBurst_postprocessing_ii;
+            break;
+        case 1:    
+            self->muladd_func_ptr = TrigBurst_postprocessing_ai;
+            break;
+        case 2:    
+            self->muladd_func_ptr = TrigBurst_postprocessing_revai;
+            break;
+        case 10:        
+            self->muladd_func_ptr = TrigBurst_postprocessing_ia;
+            break;
+        case 11:    
+            self->muladd_func_ptr = TrigBurst_postprocessing_aa;
+            break;
+        case 12:    
+            self->muladd_func_ptr = TrigBurst_postprocessing_revaa;
+            break;
+        case 20:        
+            self->muladd_func_ptr = TrigBurst_postprocessing_ireva;
+            break;
+        case 21:    
+            self->muladd_func_ptr = TrigBurst_postprocessing_areva;
+            break;
+        case 22:    
+            self->muladd_func_ptr = TrigBurst_postprocessing_revareva;
+            break;
+    }  
+}
+
+static void
+TrigBurst_compute_next_data_frame(TrigBurst *self)
+{
+    int i;
+    MYFLT *tmp;
+    int offset = self->chnl * self->bufsize;
+    tmp = TrigBurster_getSamplesBuffer((TrigBurster *)self->mainPlayer);
+    for (i=0; i<self->bufsize; i++) {
+        self->data[i] = tmp[i + offset];
+    }    
+    (*self->muladd_func_ptr)(self);
+}
+
+static int
+TrigBurst_traverse(TrigBurst *self, visitproc visit, void *arg)
+{
+    pyo_VISIT
+    Py_VISIT(self->mainPlayer);
+    return 0;
+}
+
+static int 
+TrigBurst_clear(TrigBurst *self)
+{
+    pyo_CLEAR
+    Py_CLEAR(self->mainPlayer);    
+    return 0;
+}
+
+static void
+TrigBurst_dealloc(TrigBurst* self)
+{
+    pyo_DEALLOC
+    TrigBurst_clear(self);
+    self->ob_type->tp_free((PyObject*)self);
+}
+
+static PyObject *
+TrigBurst_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    int i;
+    PyObject *maintmp=NULL;
+    TrigBurst *self;
+    self = (TrigBurst *)type->tp_alloc(type, 0);
+    
+    self->chnl = 0;
+    self->modebuffer[0] = 0;
+    self->modebuffer[1] = 0;
+    
+    INIT_OBJECT_COMMON
+    Stream_setFunctionPtr(self->stream, TrigBurst_compute_next_data_frame);
+    self->mode_func_ptr = TrigBurst_setProcMode;
+
+    static char *kwlist[] = {"mainPlayer", "chnl", NULL};
+    
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|i", kwlist, &maintmp, &self->chnl))
+        Py_RETURN_NONE;
+    
+    Py_XDECREF(self->mainPlayer);
+    Py_INCREF(maintmp);
+    self->mainPlayer = (TrigBurster *)maintmp;
+    
+    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    
+    (*self->mode_func_ptr)(self);
+    
+    return (PyObject *)self;
+}
+
+static PyObject * TrigBurst_getServer(TrigBurst* self) { GET_SERVER };
+static PyObject * TrigBurst_getStream(TrigBurst* self) { GET_STREAM };
+static PyObject * TrigBurst_setMul(TrigBurst *self, PyObject *arg) { SET_MUL };	
+static PyObject * TrigBurst_setAdd(TrigBurst *self, PyObject *arg) { SET_ADD };	
+static PyObject * TrigBurst_setSub(TrigBurst *self, PyObject *arg) { SET_SUB };	
+static PyObject * TrigBurst_setDiv(TrigBurst *self, PyObject *arg) { SET_DIV };	
+
+static PyObject * TrigBurst_play(TrigBurst *self, PyObject *args, PyObject *kwds) { PLAY };
+static PyObject * TrigBurst_out(TrigBurst *self, PyObject *args, PyObject *kwds) { OUT };
+static PyObject * TrigBurst_stop(TrigBurst *self) { STOP };
+
+static PyObject * TrigBurst_multiply(TrigBurst *self, PyObject *arg) { MULTIPLY };
+static PyObject * TrigBurst_inplace_multiply(TrigBurst *self, PyObject *arg) { INPLACE_MULTIPLY };
+static PyObject * TrigBurst_add(TrigBurst *self, PyObject *arg) { ADD };
+static PyObject * TrigBurst_inplace_add(TrigBurst *self, PyObject *arg) { INPLACE_ADD };
+static PyObject * TrigBurst_sub(TrigBurst *self, PyObject *arg) { SUB };
+static PyObject * TrigBurst_inplace_sub(TrigBurst *self, PyObject *arg) { INPLACE_SUB };
+static PyObject * TrigBurst_div(TrigBurst *self, PyObject *arg) { DIV };
+static PyObject * TrigBurst_inplace_div(TrigBurst *self, PyObject *arg) { INPLACE_DIV };
+
+static PyMemberDef TrigBurst_members[] = {
+    {"server", T_OBJECT_EX, offsetof(TrigBurst, server), 0, "Pyo server."},
+    {"stream", T_OBJECT_EX, offsetof(TrigBurst, stream), 0, "Stream object."},
+    {"mul", T_OBJECT_EX, offsetof(TrigBurst, mul), 0, "Mul factor."},
+    {"add", T_OBJECT_EX, offsetof(TrigBurst, add), 0, "Add factor."},
+    {NULL}  /* Sentinel */
+};
+
+static PyMethodDef TrigBurst_methods[] = {
+    {"getServer", (PyCFunction)TrigBurst_getServer, METH_NOARGS, "Returns server object."},
+    {"_getStream", (PyCFunction)TrigBurst_getStream, METH_NOARGS, "Returns stream object."},
+    {"play", (PyCFunction)TrigBurst_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+    {"out", (PyCFunction)TrigBurst_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
+    {"stop", (PyCFunction)TrigBurst_stop, METH_NOARGS, "Stops computing."},
+    {"setMul", (PyCFunction)TrigBurst_setMul, METH_O, "Sets oscillator mul factor."},
+    {"setAdd", (PyCFunction)TrigBurst_setAdd, METH_O, "Sets oscillator add factor."},
+    {"setSub", (PyCFunction)TrigBurst_setSub, METH_O, "Sets inverse add factor."},
+    {"setDiv", (PyCFunction)TrigBurst_setDiv, METH_O, "Sets inverse mul factor."},
+    {NULL}  /* Sentinel */
+};
+
+static PyNumberMethods TrigBurst_as_number = {
+    (binaryfunc)TrigBurst_add,                         /*nb_add*/
+    (binaryfunc)TrigBurst_sub,                         /*nb_subtract*/
+    (binaryfunc)TrigBurst_multiply,                    /*nb_multiply*/
+    (binaryfunc)TrigBurst_div,                                              /*nb_divide*/
+    0,                                              /*nb_remainder*/
+    0,                                              /*nb_divmod*/
+    0,                                              /*nb_power*/
+    0,                                              /*nb_neg*/
+    0,                                              /*nb_pos*/
+    0,                                              /*(unaryfunc)array_abs,*/
+    0,                                              /*nb_nonzero*/
+    0,                                              /*nb_invert*/
+    0,                                              /*nb_lshift*/
+    0,                                              /*nb_rshift*/
+    0,                                              /*nb_and*/
+    0,                                              /*nb_xor*/
+    0,                                              /*nb_or*/
+    0,                                              /*nb_coerce*/
+    0,                                              /*nb_int*/
+    0,                                              /*nb_long*/
+    0,                                              /*nb_float*/
+    0,                                              /*nb_oct*/
+    0,                                              /*nb_hex*/
+    (binaryfunc)TrigBurst_inplace_add,                 /*inplace_add*/
+    (binaryfunc)TrigBurst_inplace_sub,                 /*inplace_subtract*/
+    (binaryfunc)TrigBurst_inplace_multiply,            /*inplace_multiply*/
+    (binaryfunc)TrigBurst_inplace_div,                                              /*inplace_divide*/
+    0,                                              /*inplace_remainder*/
+    0,                                              /*inplace_power*/
+    0,                                              /*inplace_lshift*/
+    0,                                              /*inplace_rshift*/
+    0,                                              /*inplace_and*/
+    0,                                              /*inplace_xor*/
+    0,                                              /*inplace_or*/
+    0,                                              /*nb_floor_divide*/
+    0,                                              /*nb_true_divide*/
+    0,                                              /*nb_inplace_floor_divide*/
+    0,                                              /*nb_inplace_true_divide*/
+    0,                                              /* nb_index */
+};
+
+PyTypeObject TrigBurstType = {
+    PyObject_HEAD_INIT(NULL)
+    0,                         /*ob_size*/
+    "_pyo.TrigBurst_base",         /*tp_name*/
+    sizeof(TrigBurst),         /*tp_basicsize*/
+    0,                         /*tp_itemsize*/
+    (destructor)TrigBurst_dealloc, /*tp_dealloc*/
+    0,                         /*tp_print*/
+    0,                         /*tp_getattr*/
+    0,                         /*tp_setattr*/
+    0,                         /*tp_compare*/
+    0,                         /*tp_repr*/
+    &TrigBurst_as_number,             /*tp_as_number*/
+    0,                         /*tp_as_sequence*/
+    0,                         /*tp_as_mapping*/
+    0,                         /*tp_hash */
+    0,                         /*tp_call*/
+    0,                         /*tp_str*/
+    0,                         /*tp_getattro*/
+    0,                         /*tp_setattro*/
+    0,                         /*tp_as_buffer*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES,  /*tp_flags*/
+    "TrigBurst objects. Reads a channel from a TrigBurster.",           /* tp_doc */
+    (traverseproc)TrigBurst_traverse,   /* tp_traverse */
+    (inquiry)TrigBurst_clear,           /* tp_clear */
+    0,		               /* tp_richcompare */
+    0,		               /* tp_weaklistoffset */
+    0,		               /* tp_iter */
+    0,		               /* tp_iternext */
+    TrigBurst_methods,             /* tp_methods */
+    TrigBurst_members,             /* tp_members */
+    0,                      /* tp_getset */
+    0,                         /* tp_base */
+    0,                         /* tp_dict */
+    0,                         /* tp_descr_get */
+    0,                         /* tp_descr_set */
+    0,                         /* tp_dictoffset */
+    0,      /* tp_init */
+    0,                         /* tp_alloc */
+    TrigBurst_new,                 /* tp_new */
+};
+
+/************************************************************************************************/
+/* TrigBurstTapStream object per channel */
+/************************************************************************************************/
+typedef struct {
+    pyo_audio_HEAD
+    TrigBurster *mainPlayer;
+    int chnl; 
+    int modebuffer[2];
+} TrigBurstTapStream;
+
+static void TrigBurstTapStream_postprocessing_ii(TrigBurstTapStream *self) { POST_PROCESSING_II };
+static void TrigBurstTapStream_postprocessing_ai(TrigBurstTapStream *self) { POST_PROCESSING_AI };
+static void TrigBurstTapStream_postprocessing_ia(TrigBurstTapStream *self) { POST_PROCESSING_IA };
+static void TrigBurstTapStream_postprocessing_aa(TrigBurstTapStream *self) { POST_PROCESSING_AA };
+static void TrigBurstTapStream_postprocessing_ireva(TrigBurstTapStream *self) { POST_PROCESSING_IREVA };
+static void TrigBurstTapStream_postprocessing_areva(TrigBurstTapStream *self) { POST_PROCESSING_AREVA };
+static void TrigBurstTapStream_postprocessing_revai(TrigBurstTapStream *self) { POST_PROCESSING_REVAI };
+static void TrigBurstTapStream_postprocessing_revaa(TrigBurstTapStream *self) { POST_PROCESSING_REVAA };
+static void TrigBurstTapStream_postprocessing_revareva(TrigBurstTapStream *self) { POST_PROCESSING_REVAREVA };
+
+static void
+TrigBurstTapStream_setProcMode(TrigBurstTapStream *self) {
+    int muladdmode;
+    muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
+    
+    switch (muladdmode) {
+        case 0:        
+            self->muladd_func_ptr = TrigBurstTapStream_postprocessing_ii;
+            break;
+        case 1:    
+            self->muladd_func_ptr = TrigBurstTapStream_postprocessing_ai;
+            break;
+        case 2:    
+            self->muladd_func_ptr = TrigBurstTapStream_postprocessing_revai;
+            break;
+        case 10:        
+            self->muladd_func_ptr = TrigBurstTapStream_postprocessing_ia;
+            break;
+        case 11:    
+            self->muladd_func_ptr = TrigBurstTapStream_postprocessing_aa;
+            break;
+        case 12:    
+            self->muladd_func_ptr = TrigBurstTapStream_postprocessing_revaa;
+            break;
+        case 20:        
+            self->muladd_func_ptr = TrigBurstTapStream_postprocessing_ireva;
+            break;
+        case 21:    
+            self->muladd_func_ptr = TrigBurstTapStream_postprocessing_areva;
+            break;
+        case 22:    
+            self->muladd_func_ptr = TrigBurstTapStream_postprocessing_revareva;
+            break;
+    }  
+}
+
+static void
+TrigBurstTapStream_compute_next_data_frame(TrigBurstTapStream *self)
+{
+    int i;
+    MYFLT *tmp;
+    int offset = self->chnl * self->bufsize;
+    tmp = TrigBurster_getTapBuffer((TrigBurster *)self->mainPlayer);
+    for (i=0; i<self->bufsize; i++) {
+        self->data[i] = tmp[i + offset];
+    }    
+    (*self->muladd_func_ptr)(self);
+}
+
+static int
+TrigBurstTapStream_traverse(TrigBurstTapStream *self, visitproc visit, void *arg)
+{
+    pyo_VISIT
+    Py_VISIT(self->mainPlayer);
+    return 0;
+}
+
+static int 
+TrigBurstTapStream_clear(TrigBurstTapStream *self)
+{
+    pyo_CLEAR
+    Py_CLEAR(self->mainPlayer);    
+    return 0;
+}
+
+static void
+TrigBurstTapStream_dealloc(TrigBurstTapStream* self)
+{
+    pyo_DEALLOC
+    TrigBurstTapStream_clear(self);
+    self->ob_type->tp_free((PyObject*)self);
+}
+
+static PyObject *
+TrigBurstTapStream_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    int i;
+    PyObject *maintmp=NULL;
+    TrigBurstTapStream *self;
+    self = (TrigBurstTapStream *)type->tp_alloc(type, 0);
+    
+    self->chnl = 0;
+    self->modebuffer[0] = 0;
+    self->modebuffer[1] = 0;
+    
+    INIT_OBJECT_COMMON
+    Stream_setFunctionPtr(self->stream, TrigBurstTapStream_compute_next_data_frame);
+    self->mode_func_ptr = TrigBurstTapStream_setProcMode;
+
+    static char *kwlist[] = {"mainPlayer", "chnl", NULL};
+    
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|i", kwlist, &maintmp, &self->chnl))
+        Py_RETURN_NONE;
+    
+    Py_XDECREF(self->mainPlayer);
+    Py_INCREF(maintmp);
+    self->mainPlayer = (TrigBurster *)maintmp;
+    
+    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    
+    (*self->mode_func_ptr)(self);
+    
+    return (PyObject *)self;
+}
+
+static PyObject * TrigBurstTapStream_getServer(TrigBurstTapStream* self) { GET_SERVER };
+static PyObject * TrigBurstTapStream_getStream(TrigBurstTapStream* self) { GET_STREAM };
+static PyObject * TrigBurstTapStream_setMul(TrigBurstTapStream *self, PyObject *arg) { SET_MUL };	
+static PyObject * TrigBurstTapStream_setAdd(TrigBurstTapStream *self, PyObject *arg) { SET_ADD };	
+static PyObject * TrigBurstTapStream_setSub(TrigBurstTapStream *self, PyObject *arg) { SET_SUB };	
+static PyObject * TrigBurstTapStream_setDiv(TrigBurstTapStream *self, PyObject *arg) { SET_DIV };	
+
+static PyObject * TrigBurstTapStream_play(TrigBurstTapStream *self, PyObject *args, PyObject *kwds) { PLAY };
+static PyObject * TrigBurstTapStream_out(TrigBurstTapStream *self, PyObject *args, PyObject *kwds) { OUT };
+static PyObject * TrigBurstTapStream_stop(TrigBurstTapStream *self) { STOP };
+
+static PyObject * TrigBurstTapStream_multiply(TrigBurstTapStream *self, PyObject *arg) { MULTIPLY };
+static PyObject * TrigBurstTapStream_inplace_multiply(TrigBurstTapStream *self, PyObject *arg) { INPLACE_MULTIPLY };
+static PyObject * TrigBurstTapStream_add(TrigBurstTapStream *self, PyObject *arg) { ADD };
+static PyObject * TrigBurstTapStream_inplace_add(TrigBurstTapStream *self, PyObject *arg) { INPLACE_ADD };
+static PyObject * TrigBurstTapStream_sub(TrigBurstTapStream *self, PyObject *arg) { SUB };
+static PyObject * TrigBurstTapStream_inplace_sub(TrigBurstTapStream *self, PyObject *arg) { INPLACE_SUB };
+static PyObject * TrigBurstTapStream_div(TrigBurstTapStream *self, PyObject *arg) { DIV };
+static PyObject * TrigBurstTapStream_inplace_div(TrigBurstTapStream *self, PyObject *arg) { INPLACE_DIV };
+
+static PyMemberDef TrigBurstTapStream_members[] = {
+    {"server", T_OBJECT_EX, offsetof(TrigBurstTapStream, server), 0, "Pyo server."},
+    {"stream", T_OBJECT_EX, offsetof(TrigBurstTapStream, stream), 0, "Stream object."},
+    {"mul", T_OBJECT_EX, offsetof(TrigBurstTapStream, mul), 0, "Mul factor."},
+    {"add", T_OBJECT_EX, offsetof(TrigBurstTapStream, add), 0, "Add factor."},
+    {NULL}  /* Sentinel */
+};
+
+static PyMethodDef TrigBurstTapStream_methods[] = {
+    {"getServer", (PyCFunction)TrigBurstTapStream_getServer, METH_NOARGS, "Returns server object."},
+    {"_getStream", (PyCFunction)TrigBurstTapStream_getStream, METH_NOARGS, "Returns stream object."},
+    {"play", (PyCFunction)TrigBurstTapStream_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+    {"out", (PyCFunction)TrigBurstTapStream_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
+    {"stop", (PyCFunction)TrigBurstTapStream_stop, METH_NOARGS, "Stops computing."},
+    {"setMul", (PyCFunction)TrigBurstTapStream_setMul, METH_O, "Sets oscillator mul factor."},
+    {"setAdd", (PyCFunction)TrigBurstTapStream_setAdd, METH_O, "Sets oscillator add factor."},
+    {"setSub", (PyCFunction)TrigBurstTapStream_setSub, METH_O, "Sets inverse add factor."},
+    {"setDiv", (PyCFunction)TrigBurstTapStream_setDiv, METH_O, "Sets inverse mul factor."},    
+    {NULL}  /* Sentinel */
+};
+
+static PyNumberMethods TrigBurstTapStream_as_number = {
+    (binaryfunc)TrigBurstTapStream_add,                         /*nb_add*/
+    (binaryfunc)TrigBurstTapStream_sub,                         /*nb_subtract*/
+    (binaryfunc)TrigBurstTapStream_multiply,                    /*nb_multiply*/
+    (binaryfunc)TrigBurstTapStream_div,                                              /*nb_divide*/
+    0,                                              /*nb_remainder*/
+    0,                                              /*nb_divmod*/
+    0,                                              /*nb_power*/
+    0,                                              /*nb_neg*/
+    0,                                              /*nb_pos*/
+    0,                                              /*(unaryfunc)array_abs,*/
+    0,                                              /*nb_nonzero*/
+    0,                                              /*nb_invert*/
+    0,                                              /*nb_lshift*/
+    0,                                              /*nb_rshift*/
+    0,                                              /*nb_and*/
+    0,                                              /*nb_xor*/
+    0,                                              /*nb_or*/
+    0,                                              /*nb_coerce*/
+    0,                                              /*nb_int*/
+    0,                                              /*nb_long*/
+    0,                                              /*nb_float*/
+    0,                                              /*nb_oct*/
+    0,                                              /*nb_hex*/
+    (binaryfunc)TrigBurstTapStream_inplace_add,                 /*inplace_add*/
+    (binaryfunc)TrigBurstTapStream_inplace_sub,                 /*inplace_subtract*/
+    (binaryfunc)TrigBurstTapStream_inplace_multiply,            /*inplace_multiply*/
+    (binaryfunc)TrigBurstTapStream_inplace_div,                                              /*inplace_divide*/
+    0,                                              /*inplace_remainder*/
+    0,                                              /*inplace_power*/
+    0,                                              /*inplace_lshift*/
+    0,                                              /*inplace_rshift*/
+    0,                                              /*inplace_and*/
+    0,                                              /*inplace_xor*/
+    0,                                              /*inplace_or*/
+    0,                                              /*nb_floor_divide*/
+    0,                                              /*nb_true_divide*/
+    0,                                              /*nb_inplace_floor_divide*/
+    0,                                              /*nb_inplace_true_divide*/
+    0,                                              /* nb_index */
+};
+
+PyTypeObject TrigBurstTapStreamType = {
+    PyObject_HEAD_INIT(NULL)
+    0,                         /*ob_size*/
+    "_pyo.TrigBurstTapStream_base",         /*tp_name*/
+    sizeof(TrigBurstTapStream),         /*tp_basicsize*/
+    0,                         /*tp_itemsize*/
+    (destructor)TrigBurstTapStream_dealloc, /*tp_dealloc*/
+    0,                         /*tp_print*/
+    0,                         /*tp_getattr*/
+    0,                         /*tp_setattr*/
+    0,                         /*tp_compare*/
+    0,                         /*tp_repr*/
+    &TrigBurstTapStream_as_number,             /*tp_as_number*/
+    0,                         /*tp_as_sequence*/
+    0,                         /*tp_as_mapping*/
+    0,                         /*tp_hash */
+    0,                         /*tp_call*/
+    0,                         /*tp_str*/
+    0,                         /*tp_getattro*/
+    0,                         /*tp_setattro*/
+    0,                         /*tp_as_buffer*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES,  /*tp_flags*/
+    "TrigBurstTapStream objects. Reads the current tap from a TrigBurster object.",           /* tp_doc */
+    (traverseproc)TrigBurstTapStream_traverse,   /* tp_traverse */
+    (inquiry)TrigBurstTapStream_clear,           /* tp_clear */
+    0,		               /* tp_richcompare */
+    0,		               /* tp_weaklistoffset */
+    0,		               /* tp_iter */
+    0,		               /* tp_iternext */
+    TrigBurstTapStream_methods,             /* tp_methods */
+    TrigBurstTapStream_members,             /* tp_members */
+    0,                      /* tp_getset */
+    0,                         /* tp_base */
+    0,                         /* tp_dict */
+    0,                         /* tp_descr_get */
+    0,                         /* tp_descr_set */
+    0,                         /* tp_dictoffset */
+    0,      /* tp_init */
+    0,                         /* tp_alloc */
+    TrigBurstTapStream_new,                 /* tp_new */
+};
+
+/************************************************************************************************/
+/* TrigBurstAmpStream object per channel */
+/************************************************************************************************/
+typedef struct {
+    pyo_audio_HEAD
+    TrigBurster *mainPlayer;
+    int chnl; 
+    int modebuffer[2];
+} TrigBurstAmpStream;
+
+static void TrigBurstAmpStream_postprocessing_ii(TrigBurstAmpStream *self) { POST_PROCESSING_II };
+static void TrigBurstAmpStream_postprocessing_ai(TrigBurstAmpStream *self) { POST_PROCESSING_AI };
+static void TrigBurstAmpStream_postprocessing_ia(TrigBurstAmpStream *self) { POST_PROCESSING_IA };
+static void TrigBurstAmpStream_postprocessing_aa(TrigBurstAmpStream *self) { POST_PROCESSING_AA };
+static void TrigBurstAmpStream_postprocessing_ireva(TrigBurstAmpStream *self) { POST_PROCESSING_IREVA };
+static void TrigBurstAmpStream_postprocessing_areva(TrigBurstAmpStream *self) { POST_PROCESSING_AREVA };
+static void TrigBurstAmpStream_postprocessing_revai(TrigBurstAmpStream *self) { POST_PROCESSING_REVAI };
+static void TrigBurstAmpStream_postprocessing_revaa(TrigBurstAmpStream *self) { POST_PROCESSING_REVAA };
+static void TrigBurstAmpStream_postprocessing_revareva(TrigBurstAmpStream *self) { POST_PROCESSING_REVAREVA };
+
+static void
+TrigBurstAmpStream_setProcMode(TrigBurstAmpStream *self) {
+    int muladdmode;
+    muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
+    
+    switch (muladdmode) {
+        case 0:        
+            self->muladd_func_ptr = TrigBurstAmpStream_postprocessing_ii;
+            break;
+        case 1:    
+            self->muladd_func_ptr = TrigBurstAmpStream_postprocessing_ai;
+            break;
+        case 2:    
+            self->muladd_func_ptr = TrigBurstAmpStream_postprocessing_revai;
+            break;
+        case 10:        
+            self->muladd_func_ptr = TrigBurstAmpStream_postprocessing_ia;
+            break;
+        case 11:    
+            self->muladd_func_ptr = TrigBurstAmpStream_postprocessing_aa;
+            break;
+        case 12:    
+            self->muladd_func_ptr = TrigBurstAmpStream_postprocessing_revaa;
+            break;
+        case 20:        
+            self->muladd_func_ptr = TrigBurstAmpStream_postprocessing_ireva;
+            break;
+        case 21:    
+            self->muladd_func_ptr = TrigBurstAmpStream_postprocessing_areva;
+            break;
+        case 22:    
+            self->muladd_func_ptr = TrigBurstAmpStream_postprocessing_revareva;
+            break;
+    }  
+}
+
+static void
+TrigBurstAmpStream_compute_next_data_frame(TrigBurstAmpStream *self)
+{
+    int i;
+    MYFLT *tmp;
+    int offset = self->chnl * self->bufsize;
+    tmp = TrigBurster_getAmpBuffer((TrigBurster *)self->mainPlayer);
+    for (i=0; i<self->bufsize; i++) {
+        self->data[i] = tmp[i + offset];
+    }    
+    (*self->muladd_func_ptr)(self);
+}
+
+static int
+TrigBurstAmpStream_traverse(TrigBurstAmpStream *self, visitproc visit, void *arg)
+{
+    pyo_VISIT
+    Py_VISIT(self->mainPlayer);
+    return 0;
+}
+
+static int 
+TrigBurstAmpStream_clear(TrigBurstAmpStream *self)
+{
+    pyo_CLEAR
+    Py_CLEAR(self->mainPlayer);    
+    return 0;
+}
+
+static void
+TrigBurstAmpStream_dealloc(TrigBurstAmpStream* self)
+{
+    pyo_DEALLOC
+    TrigBurstAmpStream_clear(self);
+    self->ob_type->tp_free((PyObject*)self);
+}
+
+static PyObject *
+TrigBurstAmpStream_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    int i;
+    PyObject *maintmp=NULL;
+    TrigBurstAmpStream *self;
+    self = (TrigBurstAmpStream *)type->tp_alloc(type, 0);
+    
+    self->chnl = 0;
+    self->modebuffer[0] = 0;
+    self->modebuffer[1] = 0;
+    
+    INIT_OBJECT_COMMON
+    Stream_setFunctionPtr(self->stream, TrigBurstAmpStream_compute_next_data_frame);
+    self->mode_func_ptr = TrigBurstAmpStream_setProcMode;
+
+    static char *kwlist[] = {"mainPlayer", "chnl", NULL};
+    
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|i", kwlist, &maintmp, &self->chnl))
+        Py_RETURN_NONE;
+    
+    Py_XDECREF(self->mainPlayer);
+    Py_INCREF(maintmp);
+    self->mainPlayer = (TrigBurster *)maintmp;
+    
+    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    
+    (*self->mode_func_ptr)(self);
+    
+    return (PyObject *)self;
+}
+
+static PyObject * TrigBurstAmpStream_getServer(TrigBurstAmpStream* self) { GET_SERVER };
+static PyObject * TrigBurstAmpStream_getStream(TrigBurstAmpStream* self) { GET_STREAM };
+static PyObject * TrigBurstAmpStream_setMul(TrigBurstAmpStream *self, PyObject *arg) { SET_MUL };	
+static PyObject * TrigBurstAmpStream_setAdd(TrigBurstAmpStream *self, PyObject *arg) { SET_ADD };	
+static PyObject * TrigBurstAmpStream_setSub(TrigBurstAmpStream *self, PyObject *arg) { SET_SUB };	
+static PyObject * TrigBurstAmpStream_setDiv(TrigBurstAmpStream *self, PyObject *arg) { SET_DIV };	
+
+static PyObject * TrigBurstAmpStream_play(TrigBurstAmpStream *self, PyObject *args, PyObject *kwds) { PLAY };
+static PyObject * TrigBurstAmpStream_out(TrigBurstAmpStream *self, PyObject *args, PyObject *kwds) { OUT };
+static PyObject * TrigBurstAmpStream_stop(TrigBurstAmpStream *self) { STOP };
+
+static PyObject * TrigBurstAmpStream_multiply(TrigBurstAmpStream *self, PyObject *arg) { MULTIPLY };
+static PyObject * TrigBurstAmpStream_inplace_multiply(TrigBurstAmpStream *self, PyObject *arg) { INPLACE_MULTIPLY };
+static PyObject * TrigBurstAmpStream_add(TrigBurstAmpStream *self, PyObject *arg) { ADD };
+static PyObject * TrigBurstAmpStream_inplace_add(TrigBurstAmpStream *self, PyObject *arg) { INPLACE_ADD };
+static PyObject * TrigBurstAmpStream_sub(TrigBurstAmpStream *self, PyObject *arg) { SUB };
+static PyObject * TrigBurstAmpStream_inplace_sub(TrigBurstAmpStream *self, PyObject *arg) { INPLACE_SUB };
+static PyObject * TrigBurstAmpStream_div(TrigBurstAmpStream *self, PyObject *arg) { DIV };
+static PyObject * TrigBurstAmpStream_inplace_div(TrigBurstAmpStream *self, PyObject *arg) { INPLACE_DIV };
+
+static PyMemberDef TrigBurstAmpStream_members[] = {
+    {"server", T_OBJECT_EX, offsetof(TrigBurstAmpStream, server), 0, "Pyo server."},
+    {"stream", T_OBJECT_EX, offsetof(TrigBurstAmpStream, stream), 0, "Stream object."},
+    {"mul", T_OBJECT_EX, offsetof(TrigBurstAmpStream, mul), 0, "Mul factor."},
+    {"add", T_OBJECT_EX, offsetof(TrigBurstAmpStream, add), 0, "Add factor."},
+    {NULL}  /* Sentinel */
+};
+
+static PyMethodDef TrigBurstAmpStream_methods[] = {
+    {"getServer", (PyCFunction)TrigBurstAmpStream_getServer, METH_NOARGS, "Returns server object."},
+    {"_getStream", (PyCFunction)TrigBurstAmpStream_getStream, METH_NOARGS, "Returns stream object."},
+    {"play", (PyCFunction)TrigBurstAmpStream_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+    {"out", (PyCFunction)TrigBurstAmpStream_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
+    {"stop", (PyCFunction)TrigBurstAmpStream_stop, METH_NOARGS, "Stops computing."},
+    {"setMul", (PyCFunction)TrigBurstAmpStream_setMul, METH_O, "Sets oscillator mul factor."},
+    {"setAdd", (PyCFunction)TrigBurstAmpStream_setAdd, METH_O, "Sets oscillator add factor."},
+    {"setSub", (PyCFunction)TrigBurstAmpStream_setSub, METH_O, "Sets inverse add factor."},
+    {"setDiv", (PyCFunction)TrigBurstAmpStream_setDiv, METH_O, "Sets inverse mul factor."},    
+    {NULL}  /* Sentinel */
+};
+
+static PyNumberMethods TrigBurstAmpStream_as_number = {
+    (binaryfunc)TrigBurstAmpStream_add,                         /*nb_add*/
+    (binaryfunc)TrigBurstAmpStream_sub,                         /*nb_subtract*/
+    (binaryfunc)TrigBurstAmpStream_multiply,                    /*nb_multiply*/
+    (binaryfunc)TrigBurstAmpStream_div,                                              /*nb_divide*/
+    0,                                              /*nb_remainder*/
+    0,                                              /*nb_divmod*/
+    0,                                              /*nb_power*/
+    0,                                              /*nb_neg*/
+    0,                                              /*nb_pos*/
+    0,                                              /*(unaryfunc)array_abs,*/
+    0,                                              /*nb_nonzero*/
+    0,                                              /*nb_invert*/
+    0,                                              /*nb_lshift*/
+    0,                                              /*nb_rshift*/
+    0,                                              /*nb_and*/
+    0,                                              /*nb_xor*/
+    0,                                              /*nb_or*/
+    0,                                              /*nb_coerce*/
+    0,                                              /*nb_int*/
+    0,                                              /*nb_long*/
+    0,                                              /*nb_float*/
+    0,                                              /*nb_oct*/
+    0,                                              /*nb_hex*/
+    (binaryfunc)TrigBurstAmpStream_inplace_add,                 /*inplace_add*/
+    (binaryfunc)TrigBurstAmpStream_inplace_sub,                 /*inplace_subtract*/
+    (binaryfunc)TrigBurstAmpStream_inplace_multiply,            /*inplace_multiply*/
+    (binaryfunc)TrigBurstAmpStream_inplace_div,                                              /*inplace_divide*/
+    0,                                              /*inplace_remainder*/
+    0,                                              /*inplace_power*/
+    0,                                              /*inplace_lshift*/
+    0,                                              /*inplace_rshift*/
+    0,                                              /*inplace_and*/
+    0,                                              /*inplace_xor*/
+    0,                                              /*inplace_or*/
+    0,                                              /*nb_floor_divide*/
+    0,                                              /*nb_true_divide*/
+    0,                                              /*nb_inplace_floor_divide*/
+    0,                                              /*nb_inplace_true_divide*/
+    0,                                              /* nb_index */
+};
+
+PyTypeObject TrigBurstAmpStreamType = {
+    PyObject_HEAD_INIT(NULL)
+    0,                         /*ob_size*/
+    "_pyo.TrigBurstAmpStream_base",         /*tp_name*/
+    sizeof(TrigBurstAmpStream),         /*tp_basicsize*/
+    0,                         /*tp_itemsize*/
+    (destructor)TrigBurstAmpStream_dealloc, /*tp_dealloc*/
+    0,                         /*tp_print*/
+    0,                         /*tp_getattr*/
+    0,                         /*tp_setattr*/
+    0,                         /*tp_compare*/
+    0,                         /*tp_repr*/
+    &TrigBurstAmpStream_as_number,             /*tp_as_number*/
+    0,                         /*tp_as_sequence*/
+    0,                         /*tp_as_mapping*/
+    0,                         /*tp_hash */
+    0,                         /*tp_call*/
+    0,                         /*tp_str*/
+    0,                         /*tp_getattro*/
+    0,                         /*tp_setattro*/
+    0,                         /*tp_as_buffer*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES,  /*tp_flags*/
+    "TrigBurstAmpStream objects. Reads a amplitude channel from a TrigBurster object.",           /* tp_doc */
+    (traverseproc)TrigBurstAmpStream_traverse,   /* tp_traverse */
+    (inquiry)TrigBurstAmpStream_clear,           /* tp_clear */
+    0,		               /* tp_richcompare */
+    0,		               /* tp_weaklistoffset */
+    0,		               /* tp_iter */
+    0,		               /* tp_iternext */
+    TrigBurstAmpStream_methods,             /* tp_methods */
+    TrigBurstAmpStream_members,             /* tp_members */
+    0,                      /* tp_getset */
+    0,                         /* tp_base */
+    0,                         /* tp_dict */
+    0,                         /* tp_descr_get */
+    0,                         /* tp_descr_set */
+    0,                         /* tp_dictoffset */
+    0,      /* tp_init */
+    0,                         /* tp_alloc */
+    TrigBurstAmpStream_new,                 /* tp_new */
+};
+
+/************************************************************************************************/
+/* TrigBurstDurStream object per channel */
+/************************************************************************************************/
+typedef struct {
+    pyo_audio_HEAD
+    TrigBurster *mainPlayer;
+    int chnl; 
+    int modebuffer[2];
+} TrigBurstDurStream;
+
+static void TrigBurstDurStream_postprocessing_ii(TrigBurstDurStream *self) { POST_PROCESSING_II };
+static void TrigBurstDurStream_postprocessing_ai(TrigBurstDurStream *self) { POST_PROCESSING_AI };
+static void TrigBurstDurStream_postprocessing_ia(TrigBurstDurStream *self) { POST_PROCESSING_IA };
+static void TrigBurstDurStream_postprocessing_aa(TrigBurstDurStream *self) { POST_PROCESSING_AA };
+static void TrigBurstDurStream_postprocessing_ireva(TrigBurstDurStream *self) { POST_PROCESSING_IREVA };
+static void TrigBurstDurStream_postprocessing_areva(TrigBurstDurStream *self) { POST_PROCESSING_AREVA };
+static void TrigBurstDurStream_postprocessing_revai(TrigBurstDurStream *self) { POST_PROCESSING_REVAI };
+static void TrigBurstDurStream_postprocessing_revaa(TrigBurstDurStream *self) { POST_PROCESSING_REVAA };
+static void TrigBurstDurStream_postprocessing_revareva(TrigBurstDurStream *self) { POST_PROCESSING_REVAREVA };
+
+static void
+TrigBurstDurStream_setProcMode(TrigBurstDurStream *self) {
+    int muladdmode;
+    muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
+    
+    switch (muladdmode) {
+        case 0:        
+            self->muladd_func_ptr = TrigBurstDurStream_postprocessing_ii;
+            break;
+        case 1:    
+            self->muladd_func_ptr = TrigBurstDurStream_postprocessing_ai;
+            break;
+        case 2:    
+            self->muladd_func_ptr = TrigBurstDurStream_postprocessing_revai;
+            break;
+        case 10:        
+            self->muladd_func_ptr = TrigBurstDurStream_postprocessing_ia;
+            break;
+        case 11:    
+            self->muladd_func_ptr = TrigBurstDurStream_postprocessing_aa;
+            break;
+        case 12:    
+            self->muladd_func_ptr = TrigBurstDurStream_postprocessing_revaa;
+            break;
+        case 20:        
+            self->muladd_func_ptr = TrigBurstDurStream_postprocessing_ireva;
+            break;
+        case 21:    
+            self->muladd_func_ptr = TrigBurstDurStream_postprocessing_areva;
+            break;
+        case 22:    
+            self->muladd_func_ptr = TrigBurstDurStream_postprocessing_revareva;
+            break;
+    }  
+}
+
+static void
+TrigBurstDurStream_compute_next_data_frame(TrigBurstDurStream *self)
+{
+    int i;
+    MYFLT *tmp;
+    int offset = self->chnl * self->bufsize;
+    tmp = TrigBurster_getDurBuffer((TrigBurster *)self->mainPlayer);
+    for (i=0; i<self->bufsize; i++) {
+        self->data[i] = tmp[i + offset];
+    }    
+    (*self->muladd_func_ptr)(self);
+}
+
+static int
+TrigBurstDurStream_traverse(TrigBurstDurStream *self, visitproc visit, void *arg)
+{
+    pyo_VISIT
+    Py_VISIT(self->mainPlayer);
+    return 0;
+}
+
+static int 
+TrigBurstDurStream_clear(TrigBurstDurStream *self)
+{
+    pyo_CLEAR
+    Py_CLEAR(self->mainPlayer);    
+    return 0;
+}
+
+static void
+TrigBurstDurStream_dealloc(TrigBurstDurStream* self)
+{
+    pyo_DEALLOC
+    TrigBurstDurStream_clear(self);
+    self->ob_type->tp_free((PyObject*)self);
+}
+
+static PyObject *
+TrigBurstDurStream_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    int i;
+    PyObject *maintmp=NULL;
+    TrigBurstDurStream *self;
+    self = (TrigBurstDurStream *)type->tp_alloc(type, 0);
+    
+    self->chnl = 0;
+    self->modebuffer[0] = 0;
+    self->modebuffer[1] = 0;
+    
+    INIT_OBJECT_COMMON
+    Stream_setFunctionPtr(self->stream, TrigBurstDurStream_compute_next_data_frame);
+    self->mode_func_ptr = TrigBurstDurStream_setProcMode;
+
+    static char *kwlist[] = {"mainPlayer", "chnl", NULL};
+    
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|i", kwlist, &maintmp, &self->chnl))
+        Py_RETURN_NONE;
+    
+    Py_XDECREF(self->mainPlayer);
+    Py_INCREF(maintmp);
+    self->mainPlayer = (TrigBurster *)maintmp;
+    
+    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    
+    (*self->mode_func_ptr)(self);
+    
+    return (PyObject *)self;
+}
+
+static PyObject * TrigBurstDurStream_getServer(TrigBurstDurStream* self) { GET_SERVER };
+static PyObject * TrigBurstDurStream_getStream(TrigBurstDurStream* self) { GET_STREAM };
+static PyObject * TrigBurstDurStream_setMul(TrigBurstDurStream *self, PyObject *arg) { SET_MUL };	
+static PyObject * TrigBurstDurStream_setAdd(TrigBurstDurStream *self, PyObject *arg) { SET_ADD };	
+static PyObject * TrigBurstDurStream_setSub(TrigBurstDurStream *self, PyObject *arg) { SET_SUB };	
+static PyObject * TrigBurstDurStream_setDiv(TrigBurstDurStream *self, PyObject *arg) { SET_DIV };	
+
+static PyObject * TrigBurstDurStream_play(TrigBurstDurStream *self, PyObject *args, PyObject *kwds) { PLAY };
+static PyObject * TrigBurstDurStream_out(TrigBurstDurStream *self, PyObject *args, PyObject *kwds) { OUT };
+static PyObject * TrigBurstDurStream_stop(TrigBurstDurStream *self) { STOP };
+
+static PyObject * TrigBurstDurStream_multiply(TrigBurstDurStream *self, PyObject *arg) { MULTIPLY };
+static PyObject * TrigBurstDurStream_inplace_multiply(TrigBurstDurStream *self, PyObject *arg) { INPLACE_MULTIPLY };
+static PyObject * TrigBurstDurStream_add(TrigBurstDurStream *self, PyObject *arg) { ADD };
+static PyObject * TrigBurstDurStream_inplace_add(TrigBurstDurStream *self, PyObject *arg) { INPLACE_ADD };
+static PyObject * TrigBurstDurStream_sub(TrigBurstDurStream *self, PyObject *arg) { SUB };
+static PyObject * TrigBurstDurStream_inplace_sub(TrigBurstDurStream *self, PyObject *arg) { INPLACE_SUB };
+static PyObject * TrigBurstDurStream_div(TrigBurstDurStream *self, PyObject *arg) { DIV };
+static PyObject * TrigBurstDurStream_inplace_div(TrigBurstDurStream *self, PyObject *arg) { INPLACE_DIV };
+
+static PyMemberDef TrigBurstDurStream_members[] = {
+    {"server", T_OBJECT_EX, offsetof(TrigBurstDurStream, server), 0, "Pyo server."},
+    {"stream", T_OBJECT_EX, offsetof(TrigBurstDurStream, stream), 0, "Stream object."},
+    {"mul", T_OBJECT_EX, offsetof(TrigBurstDurStream, mul), 0, "Mul factor."},
+    {"add", T_OBJECT_EX, offsetof(TrigBurstDurStream, add), 0, "Add factor."},
+    {NULL}  /* Sentinel */
+};
+
+static PyMethodDef TrigBurstDurStream_methods[] = {
+    {"getServer", (PyCFunction)TrigBurstDurStream_getServer, METH_NOARGS, "Returns server object."},
+    {"_getStream", (PyCFunction)TrigBurstDurStream_getStream, METH_NOARGS, "Returns stream object."},
+    {"play", (PyCFunction)TrigBurstDurStream_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+    {"out", (PyCFunction)TrigBurstDurStream_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
+    {"stop", (PyCFunction)TrigBurstDurStream_stop, METH_NOARGS, "Stops computing."},
+    {"setMul", (PyCFunction)TrigBurstDurStream_setMul, METH_O, "Sets oscillator mul factor."},
+    {"setAdd", (PyCFunction)TrigBurstDurStream_setAdd, METH_O, "Sets oscillator add factor."},
+    {"setSub", (PyCFunction)TrigBurstDurStream_setSub, METH_O, "Sets inverse add factor."},
+    {"setDiv", (PyCFunction)TrigBurstDurStream_setDiv, METH_O, "Sets inverse mul factor."},
+    {NULL}  /* Sentinel */
+};
+
+static PyNumberMethods TrigBurstDurStream_as_number = {
+    (binaryfunc)TrigBurstDurStream_add,                         /*nb_add*/
+    (binaryfunc)TrigBurstDurStream_sub,                         /*nb_subtract*/
+    (binaryfunc)TrigBurstDurStream_multiply,                    /*nb_multiply*/
+    (binaryfunc)TrigBurstDurStream_div,                                              /*nb_divide*/
+    0,                                              /*nb_remainder*/
+    0,                                              /*nb_divmod*/
+    0,                                              /*nb_power*/
+    0,                                              /*nb_neg*/
+    0,                                              /*nb_pos*/
+    0,                                              /*(unaryfunc)array_abs,*/
+    0,                                              /*nb_nonzero*/
+    0,                                              /*nb_invert*/
+    0,                                              /*nb_lshift*/
+    0,                                              /*nb_rshift*/
+    0,                                              /*nb_and*/
+    0,                                              /*nb_xor*/
+    0,                                              /*nb_or*/
+    0,                                              /*nb_coerce*/
+    0,                                              /*nb_int*/
+    0,                                              /*nb_long*/
+    0,                                              /*nb_float*/
+    0,                                              /*nb_oct*/
+    0,                                              /*nb_hex*/
+    (binaryfunc)TrigBurstDurStream_inplace_add,                 /*inplace_add*/
+    (binaryfunc)TrigBurstDurStream_inplace_sub,                 /*inplace_subtract*/
+    (binaryfunc)TrigBurstDurStream_inplace_multiply,            /*inplace_multiply*/
+    (binaryfunc)TrigBurstDurStream_inplace_div,                                              /*inplace_divide*/
+    0,                                              /*inplace_remainder*/
+    0,                                              /*inplace_power*/
+    0,                                              /*inplace_lshift*/
+    0,                                              /*inplace_rshift*/
+    0,                                              /*inplace_and*/
+    0,                                              /*inplace_xor*/
+    0,                                              /*inplace_or*/
+    0,                                              /*nb_floor_divide*/
+    0,                                              /*nb_true_divide*/
+    0,                                              /*nb_inplace_floor_divide*/
+    0,                                              /*nb_inplace_true_divide*/
+    0,                                              /* nb_index */
+};
+
+PyTypeObject TrigBurstDurStreamType = {
+    PyObject_HEAD_INIT(NULL)
+    0,                         /*ob_size*/
+    "_pyo.TrigBurstDurStream_base",         /*tp_name*/
+    sizeof(TrigBurstDurStream),         /*tp_basicsize*/
+    0,                         /*tp_itemsize*/
+    (destructor)TrigBurstDurStream_dealloc, /*tp_dealloc*/
+    0,                         /*tp_print*/
+    0,                         /*tp_getattr*/
+    0,                         /*tp_setattr*/
+    0,                         /*tp_compare*/
+    0,                         /*tp_repr*/
+    &TrigBurstDurStream_as_number,             /*tp_as_number*/
+    0,                         /*tp_as_sequence*/
+    0,                         /*tp_as_mapping*/
+    0,                         /*tp_hash */
+    0,                         /*tp_call*/
+    0,                         /*tp_str*/
+    0,                         /*tp_getattro*/
+    0,                         /*tp_setattro*/
+    0,                         /*tp_as_buffer*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES,  /*tp_flags*/
+    "TrigBurstDurStream objects. Reads a duration channel from a TrigBurster object.",           /* tp_doc */
+    (traverseproc)TrigBurstDurStream_traverse,   /* tp_traverse */
+    (inquiry)TrigBurstDurStream_clear,           /* tp_clear */
+    0,		               /* tp_richcompare */
+    0,		               /* tp_weaklistoffset */
+    0,		               /* tp_iter */
+    0,		               /* tp_iternext */
+    TrigBurstDurStream_methods,             /* tp_methods */
+    TrigBurstDurStream_members,             /* tp_members */
+    0,                      /* tp_getset */
+    0,                         /* tp_base */
+    0,                         /* tp_dict */
+    0,                         /* tp_descr_get */
+    0,                         /* tp_descr_set */
+    0,                         /* tp_dictoffset */
+    0,      /* tp_init */
+    0,                         /* tp_alloc */
+    TrigBurstDurStream_new,                 /* tp_new */
+};
+
+/************************************************************************************************/
+/* TrigBurstEndStream object per channel */
+/************************************************************************************************/
+typedef struct {
+    pyo_audio_HEAD
+    TrigBurster *mainPlayer;
+    int chnl; 
+    int modebuffer[2];
+} TrigBurstEndStream;
+
+static void TrigBurstEndStream_postprocessing_ii(TrigBurstEndStream *self) { POST_PROCESSING_II };
+static void TrigBurstEndStream_postprocessing_ai(TrigBurstEndStream *self) { POST_PROCESSING_AI };
+static void TrigBurstEndStream_postprocessing_ia(TrigBurstEndStream *self) { POST_PROCESSING_IA };
+static void TrigBurstEndStream_postprocessing_aa(TrigBurstEndStream *self) { POST_PROCESSING_AA };
+static void TrigBurstEndStream_postprocessing_ireva(TrigBurstEndStream *self) { POST_PROCESSING_IREVA };
+static void TrigBurstEndStream_postprocessing_areva(TrigBurstEndStream *self) { POST_PROCESSING_AREVA };
+static void TrigBurstEndStream_postprocessing_revai(TrigBurstEndStream *self) { POST_PROCESSING_REVAI };
+static void TrigBurstEndStream_postprocessing_revaa(TrigBurstEndStream *self) { POST_PROCESSING_REVAA };
+static void TrigBurstEndStream_postprocessing_revareva(TrigBurstEndStream *self) { POST_PROCESSING_REVAREVA };
+
+static void
+TrigBurstEndStream_setProcMode(TrigBurstEndStream *self) {
+    int muladdmode;
+    muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
+    
+    switch (muladdmode) {
+        case 0:        
+            self->muladd_func_ptr = TrigBurstEndStream_postprocessing_ii;
+            break;
+        case 1:    
+            self->muladd_func_ptr = TrigBurstEndStream_postprocessing_ai;
+            break;
+        case 2:    
+            self->muladd_func_ptr = TrigBurstEndStream_postprocessing_revai;
+            break;
+        case 10:        
+            self->muladd_func_ptr = TrigBurstEndStream_postprocessing_ia;
+            break;
+        case 11:    
+            self->muladd_func_ptr = TrigBurstEndStream_postprocessing_aa;
+            break;
+        case 12:    
+            self->muladd_func_ptr = TrigBurstEndStream_postprocessing_revaa;
+            break;
+        case 20:        
+            self->muladd_func_ptr = TrigBurstEndStream_postprocessing_ireva;
+            break;
+        case 21:    
+            self->muladd_func_ptr = TrigBurstEndStream_postprocessing_areva;
+            break;
+        case 22:    
+            self->muladd_func_ptr = TrigBurstEndStream_postprocessing_revareva;
+            break;
+    }  
+}
+
+static void
+TrigBurstEndStream_compute_next_data_frame(TrigBurstEndStream *self)
+{
+    int i;
+    MYFLT *tmp;
+    int offset = self->chnl * self->bufsize;
+    tmp = TrigBurster_getEndBuffer((TrigBurster *)self->mainPlayer);
+    for (i=0; i<self->bufsize; i++) {
+        self->data[i] = tmp[i + offset];
+    }    
+    (*self->muladd_func_ptr)(self);
+}
+
+static int
+TrigBurstEndStream_traverse(TrigBurstEndStream *self, visitproc visit, void *arg)
+{
+    pyo_VISIT
+    Py_VISIT(self->mainPlayer);
+    return 0;
+}
+
+static int 
+TrigBurstEndStream_clear(TrigBurstEndStream *self)
+{
+    pyo_CLEAR
+    Py_CLEAR(self->mainPlayer);    
+    return 0;
+}
+
+static void
+TrigBurstEndStream_dealloc(TrigBurstEndStream* self)
+{
+    pyo_DEALLOC
+    TrigBurstEndStream_clear(self);
+    self->ob_type->tp_free((PyObject*)self);
+}
+
+static PyObject *
+TrigBurstEndStream_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    int i;
+    PyObject *maintmp=NULL;
+    TrigBurstEndStream *self;
+    self = (TrigBurstEndStream *)type->tp_alloc(type, 0);
+    
+    self->chnl = 0;
+    self->modebuffer[0] = 0;
+    self->modebuffer[1] = 0;
+    
+    INIT_OBJECT_COMMON
+    Stream_setFunctionPtr(self->stream, TrigBurstEndStream_compute_next_data_frame);
+    self->mode_func_ptr = TrigBurstEndStream_setProcMode;
+
+    static char *kwlist[] = {"mainPlayer", "chnl", NULL};
+    
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|i", kwlist, &maintmp, &self->chnl))
+        Py_RETURN_NONE;
+    
+    Py_XDECREF(self->mainPlayer);
+    Py_INCREF(maintmp);
+    self->mainPlayer = (TrigBurster *)maintmp;
+    
+    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    
+    (*self->mode_func_ptr)(self);
+    
+    return (PyObject *)self;
+}
+
+static PyObject * TrigBurstEndStream_getServer(TrigBurstEndStream* self) { GET_SERVER };
+static PyObject * TrigBurstEndStream_getStream(TrigBurstEndStream* self) { GET_STREAM };
+static PyObject * TrigBurstEndStream_setMul(TrigBurstEndStream *self, PyObject *arg) { SET_MUL };	
+static PyObject * TrigBurstEndStream_setAdd(TrigBurstEndStream *self, PyObject *arg) { SET_ADD };	
+static PyObject * TrigBurstEndStream_setSub(TrigBurstEndStream *self, PyObject *arg) { SET_SUB };	
+static PyObject * TrigBurstEndStream_setDiv(TrigBurstEndStream *self, PyObject *arg) { SET_DIV };	
+
+static PyObject * TrigBurstEndStream_play(TrigBurstEndStream *self, PyObject *args, PyObject *kwds) { PLAY };
+static PyObject * TrigBurstEndStream_out(TrigBurstEndStream *self, PyObject *args, PyObject *kwds) { OUT };
+static PyObject * TrigBurstEndStream_stop(TrigBurstEndStream *self) { STOP };
+
+static PyObject * TrigBurstEndStream_multiply(TrigBurstEndStream *self, PyObject *arg) { MULTIPLY };
+static PyObject * TrigBurstEndStream_inplace_multiply(TrigBurstEndStream *self, PyObject *arg) { INPLACE_MULTIPLY };
+static PyObject * TrigBurstEndStream_add(TrigBurstEndStream *self, PyObject *arg) { ADD };
+static PyObject * TrigBurstEndStream_inplace_add(TrigBurstEndStream *self, PyObject *arg) { INPLACE_ADD };
+static PyObject * TrigBurstEndStream_sub(TrigBurstEndStream *self, PyObject *arg) { SUB };
+static PyObject * TrigBurstEndStream_inplace_sub(TrigBurstEndStream *self, PyObject *arg) { INPLACE_SUB };
+static PyObject * TrigBurstEndStream_div(TrigBurstEndStream *self, PyObject *arg) { DIV };
+static PyObject * TrigBurstEndStream_inplace_div(TrigBurstEndStream *self, PyObject *arg) { INPLACE_DIV };
+
+static PyMemberDef TrigBurstEndStream_members[] = {
+    {"server", T_OBJECT_EX, offsetof(TrigBurstEndStream, server), 0, "Pyo server."},
+    {"stream", T_OBJECT_EX, offsetof(TrigBurstEndStream, stream), 0, "Stream object."},
+    {"mul", T_OBJECT_EX, offsetof(TrigBurstEndStream, mul), 0, "Mul factor."},
+    {"add", T_OBJECT_EX, offsetof(TrigBurstEndStream, add), 0, "Add factor."},
+    {NULL}  /* Sentinel */
+};
+
+static PyMethodDef TrigBurstEndStream_methods[] = {
+    {"getServer", (PyCFunction)TrigBurstEndStream_getServer, METH_NOARGS, "Returns server object."},
+    {"_getStream", (PyCFunction)TrigBurstEndStream_getStream, METH_NOARGS, "Returns stream object."},
+    {"play", (PyCFunction)TrigBurstEndStream_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+    {"out", (PyCFunction)TrigBurstEndStream_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
+    {"stop", (PyCFunction)TrigBurstEndStream_stop, METH_NOARGS, "Stops computing."},
+    {"setMul", (PyCFunction)TrigBurstEndStream_setMul, METH_O, "Sets oscillator mul factor."},
+    {"setAdd", (PyCFunction)TrigBurstEndStream_setAdd, METH_O, "Sets oscillator add factor."},
+    {"setSub", (PyCFunction)TrigBurstEndStream_setSub, METH_O, "Sets inverse add factor."},
+    {"setDiv", (PyCFunction)TrigBurstEndStream_setDiv, METH_O, "Sets inverse mul factor."},    
+    {NULL}  /* Sentinel */
+};
+
+static PyNumberMethods TrigBurstEndStream_as_number = {
+    (binaryfunc)TrigBurstEndStream_add,                         /*nb_add*/
+    (binaryfunc)TrigBurstEndStream_sub,                         /*nb_subtract*/
+    (binaryfunc)TrigBurstEndStream_multiply,                    /*nb_multiply*/
+    (binaryfunc)TrigBurstEndStream_div,                                              /*nb_divide*/
+    0,                                              /*nb_remainder*/
+    0,                                              /*nb_divmod*/
+    0,                                              /*nb_power*/
+    0,                                              /*nb_neg*/
+    0,                                              /*nb_pos*/
+    0,                                              /*(unaryfunc)array_abs,*/
+    0,                                              /*nb_nonzero*/
+    0,                                              /*nb_invert*/
+    0,                                              /*nb_lshift*/
+    0,                                              /*nb_rshift*/
+    0,                                              /*nb_and*/
+    0,                                              /*nb_xor*/
+    0,                                              /*nb_or*/
+    0,                                              /*nb_coerce*/
+    0,                                              /*nb_int*/
+    0,                                              /*nb_long*/
+    0,                                              /*nb_float*/
+    0,                                              /*nb_oct*/
+    0,                                              /*nb_hex*/
+    (binaryfunc)TrigBurstEndStream_inplace_add,                 /*inplace_add*/
+    (binaryfunc)TrigBurstEndStream_inplace_sub,                 /*inplace_subtract*/
+    (binaryfunc)TrigBurstEndStream_inplace_multiply,            /*inplace_multiply*/
+    (binaryfunc)TrigBurstEndStream_inplace_div,                                              /*inplace_divide*/
+    0,                                              /*inplace_remainder*/
+    0,                                              /*inplace_power*/
+    0,                                              /*inplace_lshift*/
+    0,                                              /*inplace_rshift*/
+    0,                                              /*inplace_and*/
+    0,                                              /*inplace_xor*/
+    0,                                              /*inplace_or*/
+    0,                                              /*nb_floor_divide*/
+    0,                                              /*nb_true_divide*/
+    0,                                              /*nb_inplace_floor_divide*/
+    0,                                              /*nb_inplace_true_divide*/
+    0,                                              /* nb_index */
+};
+
+PyTypeObject TrigBurstEndStreamType = {
+    PyObject_HEAD_INIT(NULL)
+    0,                         /*ob_size*/
+    "_pyo.TrigBurstEndStream_base",         /*tp_name*/
+    sizeof(TrigBurstEndStream),         /*tp_basicsize*/
+    0,                         /*tp_itemsize*/
+    (destructor)TrigBurstEndStream_dealloc, /*tp_dealloc*/
+    0,                         /*tp_print*/
+    0,                         /*tp_getattr*/
+    0,                         /*tp_setattr*/
+    0,                         /*tp_compare*/
+    0,                         /*tp_repr*/
+    &TrigBurstEndStream_as_number,             /*tp_as_number*/
+    0,                         /*tp_as_sequence*/
+    0,                         /*tp_as_mapping*/
+    0,                         /*tp_hash */
+    0,                         /*tp_call*/
+    0,                         /*tp_str*/
+    0,                         /*tp_getattro*/
+    0,                         /*tp_setattro*/
+    0,                         /*tp_as_buffer*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES,  /*tp_flags*/
+    "TrigBurstEndStream objects. Reads a duration channel from a TrigBurster object.",           /* tp_doc */
+    (traverseproc)TrigBurstEndStream_traverse,   /* tp_traverse */
+    (inquiry)TrigBurstEndStream_clear,           /* tp_clear */
+    0,		               /* tp_richcompare */
+    0,		               /* tp_weaklistoffset */
+    0,		               /* tp_iter */
+    0,		               /* tp_iternext */
+    TrigBurstEndStream_methods,             /* tp_methods */
+    TrigBurstEndStream_members,             /* tp_members */
+    0,                      /* tp_getset */
+    0,                         /* tp_base */
+    0,                         /* tp_dict */
+    0,                         /* tp_descr_get */
+    0,                         /* tp_descr_set */
+    0,                         /* tp_dictoffset */
+    0,      /* tp_init */
+    0,                         /* tp_alloc */
+    TrigBurstEndStream_new,                 /* tp_new */
+};

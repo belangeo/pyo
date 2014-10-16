@@ -38,6 +38,7 @@
 #define TYPE__FII "|fii"
 #define TYPE_F_II "f|ii"
 #define TYPE__FFF "|fff"
+#define TYPE_O_FIFFI "O|fiffi"
 #define TYPE_O_F "O|f"
 #define TYPE_O_FO "O|fO"
 #define TYPE__OF "|Of"
@@ -120,6 +121,7 @@
 #define TYPE__FII "|dii"
 #define TYPE_F_II "d|ii"
 #define TYPE__FFF "|ddd"
+#define TYPE_O_FIFFI "O|diddi"
 #define TYPE_O_F "O|d"
 #define TYPE_O_FO "O|dO"
 #define TYPE__OF "|Od"
@@ -467,6 +469,12 @@ extern PyTypeObject Pointer2Type;
 extern PyTypeObject CentroidType;
 extern PyTypeObject AttackDetectorType;
 extern PyTypeObject SmoothDelayType;
+extern PyTypeObject TrigBursterType;
+extern PyTypeObject TrigBurstType;
+extern PyTypeObject TrigBurstTapStreamType;
+extern PyTypeObject TrigBurstAmpStreamType;
+extern PyTypeObject TrigBurstDurStreamType;
+extern PyTypeObject TrigBurstEndStreamType;
 
 /* Constants */
 #define E M_E

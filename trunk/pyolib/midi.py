@@ -442,8 +442,8 @@ class Notein(PyoObject):
         Pitch and velocity are two separated set of streams. 
         The user should call :
         
-        Notein['pitch'] to retrieve pitch streams.
-        Notein['velocity'] to retrieve velocity streams.    
+        |  Notein['pitch'] to retrieve pitch streams.
+        |  Notein['velocity'] to retrieve velocity streams.    
 
         Velocity is automatically scaled between 0 and 1.
         

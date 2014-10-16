@@ -192,8 +192,6 @@ class Adsr(PyoObject):
         The play() method starts the envelope.
         
         The stop() calls the envelope's release phase if `dur` = 0.
-    
-        Shape of a classical Adsr:
 
     >>> s = Server().boot()
     >>> s.start()

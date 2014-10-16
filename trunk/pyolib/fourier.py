@@ -84,9 +84,9 @@ class FFT(PyoObject):
         Real, imaginary and bin_number parts are three separated set 
         of audio streams. The user should call :
         
-        FFT['real'] to retrieve the real part.
-        FFT['imag'] to retrieve the imaginary part.
-        FFT['bin'] to retrieve the bin number part.
+        |  FFT['real'] to retrieve the real part.
+        |  FFT['imag'] to retrieve the imaginary part.
+        |  FFT['bin'] to retrieve the bin number part.
 
     >>> s = Server().boot()
     >>> s.start()
@@ -451,8 +451,8 @@ class CarToPol(PyoObject):
     
         Polar coordinates can be retrieve by calling :
         
-        CarToPol['mag'] to retrieve the magnitude part.
-        CarToPol['ang'] to retrieve the angle part.
+        |  CarToPol['mag'] to retrieve the magnitude part.
+        |  CarToPol['ang'] to retrieve the angle part.
 
         CarToPol has no `out` method. Signal must be converted back to time domain, 
         with IFFT, before being sent to output.
@@ -594,8 +594,8 @@ class PolToCar(PyoObject):
 
         Cartesians coordinates can be retrieve by calling :
         
-        PolToCar['real'] to retrieve the real part.
-        CarToPol['imag'] to retrieve the imaginary part.
+        |  PolToCar['real'] to retrieve the real part.
+        |  CarToPol['imag'] to retrieve the imaginary part.
 
         PolToCar has no `out` method. Signal must be converted back to time domain, 
         with IFFT, before being sent to output.
@@ -1277,6 +1277,7 @@ class Spectrum(PyoObject):
     .. note::
     
         Spectrum has no `out` method.
+        
         Spectrum has no `mul` and `add` attributes.
 
     >>> s = Server().boot()
