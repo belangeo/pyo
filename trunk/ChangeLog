@@ -1,5 +1,10 @@
 2014-10-16 belangeo <belangeo@gmail.com>
 
+    * OSX installer: Also install pyo in anaconda site-packages directory if exist.
+    - rev 1253
+
+2014-10-16 belangeo <belangeo@gmail.com>
+
     * Added new object : TrigBurst, generates a time/amplitude expandable trigger pattern.
     - rev 1252
 
