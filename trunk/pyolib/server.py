@@ -265,6 +265,9 @@ class Server(object):
         """
         Set the Midi input device number. See `pm_list_devices()`.
         
+        A number greater than the highest portmidi device index
+        will opened all available input devices. 
+        
         :Args:
 
             x : int
