@@ -1,5 +1,10 @@
 2014-10-16 belangeo <belangeo@gmail.com>
 
+    * Server.setMidiInputDevice(idx) with `idx` greater than the higher portmidi input index opens all available devices.
+    - rev 1254
+
+2014-10-16 belangeo <belangeo@gmail.com>
+
     * OSX installer: Also install pyo in anaconda site-packages directory if exist.
     - rev 1253
 

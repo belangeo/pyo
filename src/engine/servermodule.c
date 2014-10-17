@@ -127,17 +127,20 @@ Server_debug(Server *self, char * format, ...)
 /* Portmidi get input events */
 static void portmidiGetEvents(Server *self) 
 {
+    int i;
     PmError result;
     PmEvent buffer;
 
-    do {
-        result = Pm_Poll(self->in);
-        if (result) {
-            if (Pm_Read(self->in, &buffer, 1) == pmBufferOverflow) 
-                continue;
-            self->midiEvents[self->midi_count++] = buffer;
-        }    
-    } while (result);
+    for (i=0; i<self->midiin_count; i++) {
+        do {
+            result = Pm_Poll(self->midiin[i]);
+            if (result) {
+                if (Pm_Read(self->midiin[i], &buffer, 1) == pmBufferOverflow) 
+                    continue;
+                self->midiEvents[self->midi_count++] = buffer;
+            }    
+        } while (result);
+    }
 }
 
 /* Portaudio stuff */
@@ -1592,6 +1595,7 @@ Server_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->output = -1;
     self->input_offset = 0;
     self->output_offset = 0;
+    self->midiin_count = 0;
     self->midi_input = -1;
     self->midi_output = -1;
     self->amp = self->resetAmp = 1.;
@@ -2034,6 +2038,7 @@ Server_setStartOffset(Server *self, PyObject *arg)
 int
 Server_pm_init(Server *self)
 {
+    int i = 0;
    /* Initializing MIDI */    
     PmError pmerr;
 
@@ -2053,26 +2058,51 @@ Server_pm_init(Server *self)
     if (self->withPortMidi == 1) {
         int num_devices = Pm_CountDevices();
         if (num_devices > 0) {
-            if (self->midi_input == -1 || self->midi_input >= num_devices)
+            if (self->midi_input == -1) {
                 self->midi_input = Pm_GetDefaultInputDeviceID();
-            Server_debug(self, "Midi input device : %d.\n", self->midi_input);
-            const PmDeviceInfo *info = Pm_GetDeviceInfo(self->midi_input);
-            if (info != NULL) {
-                if (info->input) {
-                    pmerr = Pm_OpenInput(&self->in, self->midi_input, NULL, 100, NULL, NULL);
-                    if (pmerr) {
-                        Server_warning(self, 
+                Server_debug(self, "Midi input device : %d.\n", self->midi_input);
+                const PmDeviceInfo *info = Pm_GetDeviceInfo(self->midi_input);
+                if (info != NULL) {
+                    if (info->input) {
+                        pmerr = Pm_OpenInput(&self->midiin[0], self->midi_input, NULL, 100, NULL, NULL);
+                        if (pmerr) {
+                            Server_warning(self, 
                                  "Portmidi warning: could not open midi input %d (%s): %s\n",
-                                 0, info->name, Pm_GetErrorText(pmerr));
+                                 self->midi_input, info->name, Pm_GetErrorText(pmerr));
+                            self->withPortMidi = 0;
+                        }    
+                        else
+                            Server_debug(self, "Midi input (%s) opened.\n", info->name);
+                    }
+                    else {
+                        Server_warning(self, "Portmidi warning: Midi Device (%s), not an input device!\n", info->name);
                         self->withPortMidi = 0;
-                    }    
-                    else
-                        Server_debug(self, "Midi input (%s) opened.\n", info->name);
+                    }
+                    self->midiin_count = 1;
                 }
-                else {
-                    Server_warning(self, "Portmidi warning: something wrong with midi input device!\n");
+            }
+            else if (self->midi_input >= num_devices) {
+                Server_debug(self, "Midi input device : all!\n");
+                self->midiin_count = 0;
+                for (i=0; i<num_devices; i++) {
+                    const PmDeviceInfo *info = Pm_GetDeviceInfo(i);
+                    if (info != NULL) {
+                        if (info->input) {
+                            pmerr = Pm_OpenInput(&self->midiin[self->midiin_count], i, NULL, 100, NULL, NULL);
+                            if (pmerr) {
+                                Server_warning(self, 
+                                     "Portmidi warning: could not open midi input %d (%s): %s\n",
+                                     0, info->name, Pm_GetErrorText(pmerr));
+                            }    
+                            else {
+                                Server_debug(self, "Midi input (%s) opened.\n", info->name);
+                                self->midiin_count++;
+                            }
+                        }
+                    }
+                }
+                if (self->midiin_count == 0)
                     self->withPortMidi = 0;
-                }
             }
             else {
                     Server_warning(self, "Portmidi warning: no input device!\n");
@@ -2090,14 +2120,14 @@ Server_pm_init(Server *self)
                     if (pmerr) {
                         Server_warning(self, 
                                  "Portmidi warning: could not open midi output %d (%s): %s\n",
-                                 0, outinfo->name, Pm_GetErrorText(pmerr));
+                                 self->midi_output, outinfo->name, Pm_GetErrorText(pmerr));
                         self->withPortMidiOut = 0;
                     }    
                     else
                         Server_debug(self, "Midi output (%s) opened.\n", outinfo->name);
                 }
                 else {
-                    Server_warning(self, "Portmidi warning: something wrong with midi output device!\n");
+                    Server_warning(self, "Portmidi warning: Midi Device (%s), not an output device!\n", outinfo->name);
                     self->withPortMidiOut = 0;
                 }
             }
@@ -2120,7 +2150,9 @@ Server_pm_init(Server *self)
     }
     if (self->withPortMidi == 1) {
         self->midi_count = 0;
-        Pm_SetFilter(self->in, PM_FILT_ACTIVE | PM_FILT_CLOCK);
+        for (i=0; i<self->midiin_count; i++) {
+            Pm_SetFilter(self->midiin[i], PM_FILT_ACTIVE | PM_FILT_CLOCK);
+        }
     } 
     return 0;
 }
@@ -2299,6 +2331,7 @@ Server_start(Server *self)
 static PyObject *
 Server_stop(Server *self)
 {
+    int i;
     int err = -1;
     if (self->server_started == 0) {
         Server_warning(self, "The Server must be started!\n");
@@ -2336,7 +2369,9 @@ Server_stop(Server *self)
     else {
         self->server_stopped = 1;
         if (self->withPortMidi == 1) {
-            Pm_Close(self->in);
+            for (i=0; i<self->midiin_count; i++) {
+                Pm_Close(self->midiin[i]);
+            }
         }
         if (self->withPortMidiOut == 1) {
             Pm_Close(self->out);
