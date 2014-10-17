@@ -78,6 +78,12 @@ in memory and access them quickly.
 .. autoclass:: ParaTable
    :members:
 
+*PartialTable*
+-----------------------------------
+
+.. autoclass:: PartialTable
+   :members:
+
 *SawTable*
 -----------------------------------
 
