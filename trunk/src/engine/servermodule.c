@@ -2057,9 +2057,11 @@ Server_pm_init(Server *self)
 
     if (self->withPortMidi == 1) {
         int num_devices = Pm_CountDevices();
+        Server_debug(self, "Portmidi number of devices: %d.\n", num_devices);
         if (num_devices > 0) {
-            if (self->midi_input == -1) {
-                self->midi_input = Pm_GetDefaultInputDeviceID();
+            if (self->midi_input < num_devices) {
+                if (self->midi_input == -1)
+                    self->midi_input = Pm_GetDefaultInputDeviceID();
                 Server_debug(self, "Midi input device : %d.\n", self->midi_input);
                 const PmDeviceInfo *info = Pm_GetDeviceInfo(self->midi_input);
                 if (info != NULL) {

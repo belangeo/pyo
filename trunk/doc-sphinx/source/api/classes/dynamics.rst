@@ -11,6 +11,12 @@ Objects to modify the dynamic range and sample quality of audio signals.
 .. autoclass:: Clip
    :members:
 
+*Degrade*
+----------
+
+.. autoclass:: Degrade
+   :members:
+
 *Mirror*
 ------------
 

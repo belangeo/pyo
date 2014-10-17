@@ -66,6 +66,7 @@ Alphabetical class reference
 - :py:class:`Disto` :     Arc tangent distortion.
 - :py:class:`Dummy` :     Dummy object used to perform arithmetics on PyoObject.
 - :py:class:`EQ` :     Equalizer filter. 
+- :py:class:`Euclide` :     Euclidean rhythm generator.
 - :py:class:`ExpTable` :     Construct a table from exponential interpolated segments.
 - :py:class:`Expseg` :     Trace a series of exponential segments between specified break-points. 
 - :py:class:`FFT` :     Fast Fourier Transform.
@@ -229,6 +230,7 @@ Alphabetical class reference
 - :py:class:`Touchin` :     Get the current value of an after-touch Midi controller.
 - :py:class:`TrackHold` :     Performs a track-and-hold operation on its input. 
 - :py:class:`TranspoToCents` :     Returns the cents value equivalent of a transposition factor.
+- :py:class:`TrigBurst` :     Generates a time/amplitude expandable trigger pattern.
 - :py:class:`TrigChoice` :     Random generator from user's defined values.
 - :py:class:`TrigEnv` :     Envelope reader generator.
 - :py:class:`TrigExpseg` :     Exponential segments trigger.
