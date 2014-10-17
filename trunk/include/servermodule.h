@@ -72,8 +72,9 @@ typedef struct {
     int jackautoout; /* jack port auto-connection (on by default) */
     PyObject *jackAutoConnectInputPorts; /* list of regex to match for jack auto-connection */
     PyObject *jackAutoConnectOutputPorts; /* list of regex to match for jack auto-connection */
-    PmStream *in;
+    PmStream *midiin[64];
     PmStream *out;
+    int midiin_count;
     PmEvent midiEvents[200];
     int midi_count;
     double samplingRate;
