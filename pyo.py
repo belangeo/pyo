@@ -314,7 +314,7 @@ class PartialTable(PyoTableObject):
 OBJECTS_TREE = {'functions': sorted(['pa_count_devices', 'pa_get_default_input', 'pa_get_default_output', 'pm_get_input_devices',
                                     'pa_list_devices', 'pa_count_host_apis', 'pa_list_host_apis', 'pa_get_default_host_api', 
                                     'pm_count_devices', 'pm_list_devices', 'sndinfo', 'savefile', 'pa_get_output_devices', 
-                                    'pa_get_input_devices', 'midiToHz', 'sampsToSec', 'secToSamps', 'example', 'class_args', 
+                                    'pa_get_input_devices', 'midiToHz', 'hzToMidi', 'sampsToSec', 'secToSamps', 'example', 'class_args', 
                                     'pm_get_default_input', 'pm_get_output_devices', 'pm_get_default_output', 'midiToTranspo',
                                      'getVersion', 'reducePoints', 'serverCreated', 'serverBooted', 'distanceToSegment', 'rescale',
                                      'upsamp', 'downsamp', 'linToCosCurve', 'convertStringToSysEncoding', 'savefileFromTable',
