@@ -56,7 +56,7 @@ FUNCTIONS_INIT_LINES = {"pa_count_host_apis": "pa_count_host_apis()", "pa_list_h
                         "sndinfo": "sndinfo(path, print=False)", "savefile": "savefile(samples, path, sr=44100, channels=1, fileformat=0, sampletype=0)",
                         "savefileFromTable": "savefileFromTable(table, path, fileformat=0, sampletype=0)",
                         "upsamp": "upsamp(path, outfile, up=4, order=128)", "downsamp": "downsamp(path, outfile, down=4, order=128)",
-                        "midiToHz": "midiToHz(x)", "midiToTranspo": "midiToTranspo(x)", "sampsToSec": "sampsToSec(x)",
+                        "midiToHz": "midiToHz(x)", "hzToMidi": "hzToMidi(x)", "midiToTranspo": "midiToTranspo(x)", "sampsToSec": "sampsToSec(x)",
                         "secToSamps": "secToSamps(x)", "linToCosCurve": "linToCosCurve(data, yrange=[0, 1], totaldur=1, points=1024, log=False)",
                         "rescale": "rescale(data, xmin=0.0, xmax=1.0, ymin=0.0, ymax=1.0, xlog=False, ylog=False)",
                         "distanceToSegment": "distanceToSegment(p, p1, p2, xmin=0.0, xmax=1.0, ymin=0.0, ymax=1.0, xlog=False, ylog=False)",

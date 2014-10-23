@@ -1882,13 +1882,13 @@ midiToHz(PyObject *self, PyObject *arg) {
     double x = 0.0;
     PyObject *newseq = NULL;
     if (PyNumber_Check(arg))
-        return Py_BuildValue("d", 8.1757989156437 * pow(1.0594630943593, PyFloat_AsDouble(PyNumber_Float(arg))));
+        return Py_BuildValue("d", 440.0 * MYPOW(2.0, (PyFloat_AsDouble(PyNumber_Float(arg)) - 69) / 12.0));
     else if (PyList_Check(arg)) {
         count = PyList_Size(arg);
         newseq = PyList_New(count);
         for (i=0; i<count; i++) {
             x = PyFloat_AsDouble(PyNumber_Float(PyList_GET_ITEM(arg, i)));
-            PyList_SET_ITEM(newseq, i, PyFloat_FromDouble(8.1757989156437 * pow(1.0594630943593, x)));
+            PyList_SET_ITEM(newseq, i, PyFloat_FromDouble(440.0 * MYPOW(2.0, (x - 69) / 12.0)));
         }
         return newseq;
     }
@@ -1897,7 +1897,52 @@ midiToHz(PyObject *self, PyObject *arg) {
         newseq = PyTuple_New(count);
         for (i=0; i<count; i++) {
             x = PyFloat_AsDouble(PyNumber_Float(PyTuple_GET_ITEM(arg, i)));
-            PyTuple_SET_ITEM(newseq, i, PyFloat_FromDouble(8.1757989156437 * pow(1.0594630943593, x)));
+            PyTuple_SET_ITEM(newseq, i, PyFloat_FromDouble(440.0 * MYPOW(2.0, (x - 69) / 12.0)));
+        }
+        return newseq;
+    }
+    else
+        Py_RETURN_NONE;
+}    
+
+#define hzToMidi_info \
+"\nConverts a frequency in Hertz to a midi note value.\n\n:Args:\n\n    \
+x : float\n        Frequency in Hertz. `x` can be a number, a list or a tuple, otherwise the function returns None.\n\n\
+>>> a = (110.0, 220.0, 440.0, 880.0)\n\
+>>> b = hzToMidi(a)\n\
+>>> print b\n\
+(45.0, 57.0, 69.0, 81.0)\n\
+>>> a = [110.0, 220.0, 440.0, 880.0]\n\
+>>> b = hzToMidi(a)\n\
+>>> print b\n\
+[45.0, 57.0, 69.0, 81.0]\n\
+>>> b = hzToMidi(440.0)\n\
+>>> print b\n\
+69.0\n\n"
+
+static PyObject *
+hzToMidi(PyObject *self, PyObject *arg) {
+    int count = 0;
+    int i = 0;
+    double x = 0.0;
+    PyObject *newseq = NULL;
+    if (PyNumber_Check(arg))
+        return Py_BuildValue("d", 12.0 * MYLOG2(PyFloat_AsDouble(PyNumber_Float(arg)) / 440.0) + 69);
+    else if (PyList_Check(arg)) {
+        count = PyList_Size(arg);
+        newseq = PyList_New(count);
+        for (i=0; i<count; i++) {
+            x = PyFloat_AsDouble(PyNumber_Float(PyList_GET_ITEM(arg, i)));
+            PyList_SET_ITEM(newseq, i, PyFloat_FromDouble(12.0 * MYLOG2(x / 440.0) + 69));
+        }
+        return newseq;
+    }
+    else if (PyTuple_Check(arg)) {
+        count = PyTuple_Size(arg);
+        newseq = PyTuple_New(count);
+        for (i=0; i<count; i++) {
+            x = PyFloat_AsDouble(PyNumber_Float(PyTuple_GET_ITEM(arg, i)));
+            PyTuple_SET_ITEM(newseq, i, PyFloat_FromDouble(12.0 * MYLOG2(x / 440.0) + 69));
         }
         return newseq;
     }
@@ -2129,6 +2174,7 @@ static PyMethodDef pyo_functions[] = {
 {"rescale", (PyCFunction)rescale, METH_VARARGS|METH_KEYWORDS, rescale_info},
 {"linToCosCurve", (PyCFunction)linToCosCurve, METH_VARARGS|METH_KEYWORDS, linToCosCurve_info},
 {"midiToHz", (PyCFunction)midiToHz, METH_O, midiToHz_info},
+{"hzToMidi", (PyCFunction)hzToMidi, METH_O, hzToMidi_info},
 {"midiToTranspo", (PyCFunction)midiToTranspo, METH_O, midiToTranspo_info},
 {"sampsToSec", (PyCFunction)sampsToSec, METH_O, sampsToSec_info},
 {"secToSamps", (PyCFunction)secToSamps, METH_O, secToSamps_info},

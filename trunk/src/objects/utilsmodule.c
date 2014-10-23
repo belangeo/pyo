@@ -4627,7 +4627,7 @@ MToF_process(MToF *self) {
     for (i=0; i<self->bufsize; i++) {
         midi = in[i];
         if (midi != self->lastmidi) {
-            self->data[i] = self->curfreq = 8.1757989156437 * MYPOW(1.0594630943593, midi);
+            self->data[i] = self->curfreq = 440.0 * MYPOW(2.0, (midi - 69) / 12.0);
             self->lastmidi = midi;
         }
         else
