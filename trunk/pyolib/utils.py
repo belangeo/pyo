@@ -1553,6 +1553,61 @@ class MToF(PyoObject):
     @input.setter
     def input(self, x): self.setInput(x)
 
+class FToM(PyoObject):
+    """
+    Returns the midi note equivalent to a frequency in Hz.
+
+    Returns the midi note equivalent to a frequency in Hz, 
+    440.0 (hz) = 69.
+
+    :Parent: :py:class:`PyoObject`
+
+    :Args:
+
+        input : PyoObject
+            Input signal as frequency in Hz.
+
+    >>> s = Server().boot()
+    >>> s.start()
+    >>> lfo = Sine([0.2,0.25], mul=300, add=600)
+    >>> src = SineLoop(freq=lfo, feedback=0.05)
+    >>> hz = Yin(src, minfreq=100, maxfreq=1000, cutoff=500)
+    >>> mid = FToM(hz)
+    >>> fr = Snap(mid, choice=[0,2,5,7,9], scale=1)
+    >>> freq = Port(fr, risetime=0.01, falltime=0.01)
+    >>> syn = SineLoop(freq, feedback=0.05, mul=0.3).out()
+
+    """
+
+    def __init__(self, input, mul=1, add=0):
+        PyoObject.__init__(self, mul, add)
+        self._input = input
+        self._in_fader = InputFader(input)
+        in_fader, mul, add, lmax = convertArgsToLists(self._in_fader, mul, add)
+        self._base_objs = [FToM_base(wrap(in_fader,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+
+    def setInput(self, x, fadetime=0.05):
+        """
+        Replace the `input` attribute.
+
+        :Args:
+
+            x : PyoObject
+                New signal to process.
+            fadetime : float, optional
+                Crossfade time between old and new input. Default to 0.05.
+
+        """
+        self._input = x
+        self._in_fader.setInput(x, fadetime)
+
+    @property
+    def input(self):
+        """PyoObject. Input signal to process.""" 
+        return self._input
+    @input.setter
+    def input(self, x): self.setInput(x)
+
 class MToT(PyoObject):
     """
     Returns the transposition factor equivalent to a midi note.

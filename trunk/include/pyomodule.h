@@ -400,6 +400,7 @@ extern PyTypeObject ScaleType;
 extern PyTypeObject CentsToTranspoType;
 extern PyTypeObject TranspoToCentsType;
 extern PyTypeObject MToFType;
+extern PyTypeObject FToMType;
 extern PyTypeObject MToTType;
 extern PyTypeObject M_SinType;
 extern PyTypeObject M_CosType;
