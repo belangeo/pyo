@@ -2432,6 +2432,7 @@ init_pyo64(void)
     module_add_object(m, "CentsToTranspo_base", &CentsToTranspoType);
     module_add_object(m, "TranspoToCents_base", &TranspoToCentsType);
     module_add_object(m, "MToF_base", &MToFType);
+    module_add_object(m, "FToM_base", &FToMType);
     module_add_object(m, "MToT_base", &MToTType);
     module_add_object(m, "FFTMain_base", &FFTMainType);
     module_add_object(m, "FFT_base", &FFTType);
