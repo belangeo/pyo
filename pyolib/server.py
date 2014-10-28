@@ -576,9 +576,12 @@ class Server(object):
         """
         self._server.recstop()
 
-    def sendMidiNote(self, pitch, velocity, channel=0, timestamp=0):
+    def noteout(self, pitch, velocity, channel=0, timestamp=0):
         """
-        Send a MIDI note message to the selected output device. 
+        Send a MIDI note message to the selected midi output device. 
+        
+        Arguments can be list of values to generate multiple events
+        in one call.
         
         :Args:
         
@@ -589,10 +592,135 @@ class Server(object):
                 with a velocity of 0 is equivalent to a note off.
             channel : int, optional
                 The Midi channel, between 1 and 16, on which the 
-                note is sent. A channel of 0 means all channels. 
-
+                note is sent. A channel of 0 means all channels.
+                Defaults to 0. 
+            timestamp : int, optional
+                The delay time, in milliseconds, before the note
+                is sent on the portmidi stream. A value of 0 means
+                to play the note now. Defaults to 0.
         """
-        self._server.sendMidiNote(pitch, velocity, channel, timestamp)
+        pitch, velocity, channel, timestamp, lmax = convertArgsToLists(pitch, velocity, channel, timestamp)
+        [self._server.noteout(wrap(pitch,i), wrap(velocity,i), wrap(channel,i), wrap(timestamp,i)) for i in range(lmax)]
+
+    def afterout(self, pitch, velocity, channel=0, timestamp=0):
+        """
+        Send an aftertouch message to the selected midi output device. 
+        
+        Arguments can be list of values to generate multiple events
+        in one call.
+        
+        :Args:
+        
+            pitch : int
+                Midi key pressed down, between 0 and 127.
+            velocity : int
+                Velocity of the pressure, between 0 and 127.
+            channel : int, optional
+                The Midi channel, between 1 and 16, on which the 
+                note is sent. A channel of 0 means all channels.
+                Defaults to 0. 
+            timestamp : int, optional
+                The delay time, in milliseconds, before the note
+                is sent on the portmidi stream. A value of 0 means
+                to play the note now. Defaults to 0.
+        """
+        pitch, velocity, channel, timestamp, lmax = convertArgsToLists(pitch, velocity, channel, timestamp)
+        [self._server.afterout(wrap(pitch,i), wrap(velocity,i), wrap(channel,i), wrap(timestamp,i)) for i in range(lmax)]
+
+    def ctlout(self, ctlnum, value, channel=0, timestamp=0):
+        """
+        Send a control change message to the selected midi output device. 
+        
+        Arguments can be list of values to generate multiple events
+        in one call.
+        
+        :Args:
+        
+            ctlnum : int
+                Controller number, between 0 and 127.
+            value : int
+                Value of the controller, between 0 and 127.
+            channel : int, optional
+                The Midi channel, between 1 and 16, on which the 
+                message is sent. A channel of 0 means all channels.
+                Defaults to 0. 
+            timestamp : int, optional
+                The delay time, in milliseconds, before the message
+                is sent on the portmidi stream. A value of 0 means
+                to play the message now. Defaults to 0.
+        """
+        ctlnum, value, channel, timestamp, lmax = convertArgsToLists(ctlnum, value, channel, timestamp)
+        [self._server.ctlout(wrap(ctlnum,i), wrap(value,i), wrap(channel,i), wrap(timestamp,i)) for i in range(lmax)]
+
+    def programout(self, value, channel=0, timestamp=0):
+        """
+        Send a program change message to the selected midi output device. 
+        
+        Arguments can be list of values to generate multiple events
+        in one call.
+        
+        :Args:
+        
+            value : int
+                New program number, between 0 and 127.
+            channel : int, optional
+                The Midi channel, between 1 and 16, on which the 
+                message is sent. A channel of 0 means all channels.
+                Defaults to 0. 
+            timestamp : int, optional
+                The delay time, in milliseconds, before the message
+                is sent on the portmidi stream. A value of 0 means
+                to play the message now. Defaults to 0.
+        """
+        value, channel, timestamp, lmax = convertArgsToLists(value, channel, timestamp)
+        [self._server.programout(wrap(value,i), wrap(channel,i), wrap(timestamp,i)) for i in range(lmax)]
+
+    def pressout(self, value, channel=0, timestamp=0):
+        """
+        Send a channel pressure message to the selected midi output device. 
+        
+        Arguments can be list of values to generate multiple events
+        in one call.
+        
+        :Args:
+
+            value : int
+                Single greatest pressure value, between 0 and 127.
+            channel : int, optional
+                The Midi channel, between 1 and 16, on which the 
+                message is sent. A channel of 0 means all channels.
+                Defaults to 0. 
+            timestamp : int, optional
+                The delay time, in milliseconds, before the message
+                is sent on the portmidi stream. A value of 0 means
+                to play the message now. Defaults to 0.
+        """
+        value, channel, timestamp, lmax = convertArgsToLists(value, channel, timestamp)
+        [self._server.pressout(wrap(value,i), wrap(channel,i), wrap(timestamp,i)) for i in range(lmax)]
+
+    def bendout(self, value, channel=0, timestamp=0):
+        """
+        Send a pitch bend message to the selected midi output device. 
+        
+        Arguments can be list of values to generate multiple events
+        in one call.
+        
+        :Args:
+
+            value : int
+                14 bits pitch bend value. 8192 is where there is no
+                bending, 0 is full down and 16383 is full up bending.
+            channel : int, optional
+                The Midi channel, between 1 and 16, on which the 
+                message is sent. A channel of 0 means all channels.
+                Defaults to 0. 
+            timestamp : int, optional
+                The delay time, in milliseconds, before the message
+                is sent on the portmidi stream. A value of 0 means
+                to play the message now. Defaults to 0.
+        """
+        value, channel, timestamp, lmax = convertArgsToLists(value, channel, timestamp)
+        [self._server.bendout(wrap(value,i), wrap(channel,i), wrap(timestamp,i)) for i in range(lmax)]
 
     def getStreams(self):
         """

@@ -1,4 +1,9 @@
-2014-10-16 belangeo <belangeo@gmail.com>
+2014-10-28 belangeo <belangeo@gmail.com>
+
+    * Added midi output methods to the Server object. noteout, afterout, ctlout, programout, pressout and bendout.
+    - rev 1261
+
+2014-10-28 belangeo <belangeo@gmail.com>
 
     * Server.setMidiOutputDevice(idx) with `idx` greater than the higher portmidi devices index opens all available output devices.
     - rev 1260
