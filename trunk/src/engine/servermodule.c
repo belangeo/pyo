@@ -2633,7 +2633,7 @@ Server_changeStreamPosition(Server *self, PyObject *args)
 }
 
 PyObject *
-Server_sendMidiNote(Server *self, PyObject *args)
+Server_noteout(Server *self, PyObject *args)
 {
     int i, pit, vel, chan, curtime;
     PmEvent buffer[1];
@@ -2642,16 +2642,144 @@ Server_sendMidiNote(Server *self, PyObject *args)
     if (! PyArg_ParseTuple(args, "iiii", &pit, &vel, &chan, &timestamp))
         return PyInt_FromLong(-1); 
 
-    curtime = Pt_Time();
-    buffer[0].timestamp = curtime + timestamp;
-    if (chan == 0)
-        buffer[0].message = Pm_Message(0x90, pit, vel);
-    else
-        buffer[0].message = Pm_Message(0x90 | (chan - 1), pit, vel);
-    for (i=0; i<self->midiout_count; i++) {
-        Pm_Write(self->midiout[i], buffer, 1);
+    if (self->withPortMidiOut) {
+        curtime = Pt_Time();
+        buffer[0].timestamp = curtime + timestamp;
+        if (chan == 0)
+            buffer[0].message = Pm_Message(0x90, pit, vel);
+        else
+            buffer[0].message = Pm_Message(0x90 | (chan - 1), pit, vel);
+        for (i=0; i<self->midiout_count; i++) {
+            Pm_Write(self->midiout[i], buffer, 1);
+        }
     }
+    Py_INCREF(Py_None);
+    return Py_None;    
+}
 
+PyObject *
+Server_afterout(Server *self, PyObject *args)
+{
+    int i, pit, vel, chan, curtime;
+    PmEvent buffer[1];
+    PmTimestamp timestamp;
+
+    if (! PyArg_ParseTuple(args, "iiii", &pit, &vel, &chan, &timestamp))
+        return PyInt_FromLong(-1); 
+
+    if (self->withPortMidiOut) {
+        curtime = Pt_Time();
+        buffer[0].timestamp = curtime + timestamp;
+        if (chan == 0)
+            buffer[0].message = Pm_Message(0xA0, pit, vel);
+        else
+            buffer[0].message = Pm_Message(0xA0 | (chan - 1), pit, vel);
+        for (i=0; i<self->midiout_count; i++) {
+            Pm_Write(self->midiout[i], buffer, 1);
+        }
+    }
+    Py_INCREF(Py_None);
+    return Py_None;    
+}
+
+PyObject *
+Server_ctlout(Server *self, PyObject *args)
+{
+    int i, ctlnum, value, chan, curtime;
+    PmEvent buffer[1];
+    PmTimestamp timestamp;
+
+    if (! PyArg_ParseTuple(args, "iiii", &ctlnum, &value, &chan, &timestamp))
+        return PyInt_FromLong(-1); 
+
+    if (self->withPortMidiOut) {
+        curtime = Pt_Time();
+        buffer[0].timestamp = curtime + timestamp;
+        if (chan == 0)
+            buffer[0].message = Pm_Message(0xB0, ctlnum, value);
+        else
+            buffer[0].message = Pm_Message(0xB0 | (chan - 1), ctlnum, value);
+        for (i=0; i<self->midiout_count; i++) {
+            Pm_Write(self->midiout[i], buffer, 1);
+        }
+    }
+    Py_INCREF(Py_None);
+    return Py_None;    
+}
+
+PyObject *
+Server_programout(Server *self, PyObject *args)
+{
+    int i, value, chan, curtime;
+    PmEvent buffer[1];
+    PmTimestamp timestamp;
+
+    if (! PyArg_ParseTuple(args, "iii", &value, &chan, &timestamp))
+        return PyInt_FromLong(-1); 
+
+    if (self->withPortMidiOut) {
+        curtime = Pt_Time();
+        buffer[0].timestamp = curtime + timestamp;
+        if (chan == 0)
+            buffer[0].message = Pm_Message(0xC0, value, 0);
+        else
+            buffer[0].message = Pm_Message(0xC0 | (chan - 1), value, 0);
+        for (i=0; i<self->midiout_count; i++) {
+            Pm_Write(self->midiout[i], buffer, 1);
+        }
+    }
+    Py_INCREF(Py_None);
+    return Py_None;    
+}
+
+PyObject *
+Server_pressout(Server *self, PyObject *args)
+{
+    int i, value, chan, curtime;
+    PmEvent buffer[1];
+    PmTimestamp timestamp;
+
+    if (! PyArg_ParseTuple(args, "iii", &value, &chan, &timestamp))
+        return PyInt_FromLong(-1); 
+
+    if (self->withPortMidiOut) {
+        curtime = Pt_Time();
+        buffer[0].timestamp = curtime + timestamp;
+        if (chan == 0)
+            buffer[0].message = Pm_Message(0xD0, value, 0);
+        else
+            buffer[0].message = Pm_Message(0xD0 | (chan - 1), value, 0);
+        for (i=0; i<self->midiout_count; i++) {
+            Pm_Write(self->midiout[i], buffer, 1);
+        }
+    }
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+PyObject *
+Server_bendout(Server *self, PyObject *args)
+{
+    int i, lsb, msb, value, chan, curtime;
+    PmEvent buffer[1];
+    PmTimestamp timestamp;
+
+    if (! PyArg_ParseTuple(args, "iii", &value, &chan, &timestamp))
+        return PyInt_FromLong(-1); 
+
+    if (self->withPortMidiOut) {
+        curtime = Pt_Time();
+        buffer[0].timestamp = curtime + timestamp;
+        lsb = value & 0x007F;
+        msb = (value & (0x007F << 7)) >> 7;
+        if (chan == 0)
+            buffer[0].message = Pm_Message(0xE0, lsb, msb);
+        else
+            buffer[0].message = Pm_Message(0xE0 | (chan - 1), lsb, msb);
+        for (i=0; i<self->midiout_count; i++) {
+            Pm_Write(self->midiout[i], buffer, 1);
+        }
+    }
     Py_INCREF(Py_None);
     return Py_None;    
 }
@@ -2818,7 +2946,12 @@ static PyMethodDef Server_methods[] = {
                                                                 This is for internal use and must never be called by the user."},
     {"changeStreamPosition", (PyCFunction)Server_changeStreamPosition, METH_VARARGS, "Puts an audio stream before another in the stack. \
                                                                 This is for internal use and must never be called by the user."},
-    {"sendMidiNote", (PyCFunction)Server_sendMidiNote, METH_VARARGS, "Send a Midi note to Portmidi output stream."},
+    {"noteout", (PyCFunction)Server_noteout, METH_VARARGS, "Send a Midi note event to Portmidi output stream."},
+    {"afterout", (PyCFunction)Server_afterout, METH_VARARGS, "Send an aftertouch event to Portmidi output stream."},
+    {"ctlout", (PyCFunction)Server_ctlout, METH_VARARGS, "Send a control change event to Portmidi output stream."},
+    {"programout", (PyCFunction)Server_programout, METH_VARARGS, "Send a program change event to Portmidi output stream."},
+    {"pressout", (PyCFunction)Server_pressout, METH_VARARGS, "Send a channel pressure event to Portmidi output stream."},
+    {"bendout", (PyCFunction)Server_bendout, METH_VARARGS, "Send a pitch bend event to Portmidi output stream."},
     {"getStreams", (PyCFunction)Server_getStreams, METH_NOARGS, "Returns the list of streams added to the server."},
     {"getSamplingRate", (PyCFunction)Server_getSamplingRate, METH_NOARGS, "Returns the server's sampling rate."},
     {"getNchnls", (PyCFunction)Server_getNchnls, METH_NOARGS, "Returns the server's current number of channels."},
