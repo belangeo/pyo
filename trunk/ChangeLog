@@ -1,3 +1,8 @@
+2014-10-16 belangeo <belangeo@gmail.com>
+
+    * Server.setMidiOutputDevice(idx) with `idx` greater than the higher portmidi devices index opens all available output devices.
+    - rev 1260
+
 2014-10-24 belangeo <belangeo@gmail.com>
 
     * Added new object: FToM, converts an audio stream containning frequencies in hertz to a midi note audio stream.
