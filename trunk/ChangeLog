@@ -1,3 +1,8 @@
+2014-11-02 belangeo <belangeo@gmail.com>
+
+    * Fixed bug in Fader decreasing ramp.
+    - rev 1262
+
 2014-10-28 belangeo <belangeo@gmail.com>
 
     * Added midi output methods to the Server object. noteout, afterout, ctlout, programout, pressout and bendout.
