@@ -29,6 +29,7 @@ typedef struct {
     pyo_audio_HEAD
     int modebuffer[2];
     int fademode;
+    int ended;
     MYFLT topValue;
     MYFLT attack;
     MYFLT release;
@@ -52,12 +53,17 @@ Fader_generate_auto(Fader *self) {
     MYFLT val;
     int i;
 
+    if (self->ended == 1) {
+        Fader_internal_stop((Fader *)self);
+        return;
+    }
+
     for (i=0; i<self->bufsize; i++) {
         if (self->currentTime <= self->attack)
             val = self->currentTime / self->attack;
         else if (self->currentTime > self->duration) {
             val = 0.;
-            Fader_internal_stop((Fader *)self);
+            self->ended = 1;
         }
         else if (self->currentTime >= (self->duration - self->release))
             val = (self->duration - self->currentTime) / self->release;
@@ -73,6 +79,11 @@ static void
 Fader_generate_wait(Fader *self) {
     MYFLT val;
     int i;
+
+    if (self->fademode == 1 && self->currentTime > self->release) {
+        Fader_internal_stop((Fader *)self);
+        return;
+    }
     
     for (i=0; i<self->bufsize; i++) {
         if (self->fademode == 0) {
@@ -92,8 +103,6 @@ Fader_generate_wait(Fader *self) {
         self->data[i] = val;
         self->currentTime += self->sampleToSec;    
     }
-    if (self->fademode == 1 && self->currentTime > self->release)
-        Fader_internal_stop((Fader *)self);
 }
 
 static void Fader_postprocessing_ii(Fader *self) { POST_PROCESSING_II };
@@ -189,6 +198,7 @@ Fader_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 	self->modebuffer[1] = 0;
     self->topValue = 0.0;
     self->fademode = 0;
+    self->ended = 0;
     self->attack = 0.01;
     self->release = 0.1;
     self->duration = 0.0;
@@ -232,6 +242,7 @@ static PyObject * Fader_setDiv(Fader *self, PyObject *arg) { SET_DIV };
 static PyObject * Fader_play(Fader *self, PyObject *args, PyObject *kwds) 
 {
     self->fademode = 0;
+    self->ended = 0;
     self->currentTime = 0.0;
     (*self->mode_func_ptr)(self);
     PLAY
