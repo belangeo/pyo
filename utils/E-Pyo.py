@@ -476,10 +476,23 @@ if not READY:
     s.gui(locals())
 '''
 
-TEMPLATE_NAMES = {93: "Header", 94: "Pyo", 95: "WxPython", 96: "Cecilia5", 97: "Zyne", 98: "Audio Interface", 99: "RadioPyo"}
-TEMPLATE_DICT = {93: HEADER_TEMPLATE, 94: PYO_TEMPLATE, 95: WXPYTHON_TEMPLATE, 96: CECILIA5_TEMPLATE, 
-                97: ZYNE_TEMPLATE, 98: AUDIO_INTERFACE_TEMPLATE, 99: RADIOPYO_TEMPLATE}
+TEMPLATE_NAMES = {98: "Header", 97: "Pyo", 96: "WxPython", 95: "Cecilia5", 94: "Zyne", 93: "Audio Interface", 92: "RadioPyo"}
+TEMPLATE_DICT = {98: HEADER_TEMPLATE, 97: PYO_TEMPLATE, 96: WXPYTHON_TEMPLATE, 95: CECILIA5_TEMPLATE, 
+                94: ZYNE_TEMPLATE, 93: AUDIO_INTERFACE_TEMPLATE, 92: RADIOPYO_TEMPLATE}
 
+TEMPLATE_PATH = os.path.join(RESOURCES_PATH, "templates")
+if not os.path.isdir(TEMPLATE_PATH):
+    os.mkdir(TEMPLATE_PATH)
+
+template_files = sorted([f for f in os.listdir(TEMPLATE_PATH) if f.endswith(".py")])   
+templateid = 91
+for f in template_files:
+    with open(os.path.join(TEMPLATE_PATH, f)) as ftemp:
+        ftext = ftemp.read()
+    TEMPLATE_NAMES[templateid] = f.replace(".py", "")
+    TEMPLATE_DICT[templateid] = ftext
+    templateid -= 1
+    
 ################## BUILTIN KEYWORDS COMPLETION ##################
 FROM_COMP = ''' `module` import `*`
 '''
@@ -1910,7 +1923,7 @@ class MainFrame(wx.Frame):
         menu1.Append(wx.ID_NEW, "New\tCtrl+N")
         self.Bind(wx.EVT_MENU, self.new, id=wx.ID_NEW)
         self.submenu1 = wx.Menu()
-        for key, name in sorted(TEMPLATE_NAMES.items()):
+        for key, name in sorted(TEMPLATE_NAMES.items(), reverse=True):
             self.submenu1.Append(key, "%s Template" % name)
         menu1.AppendMenu(99, "New From Template", self.submenu1)
         self.Bind(wx.EVT_MENU, self.newFromTemplate, id=min(TEMPLATE_NAMES.keys()), id2=max(TEMPLATE_NAMES.keys()))
@@ -1946,6 +1959,8 @@ class MainFrame(wx.Frame):
         self.Bind(wx.EVT_MENU, self.save, id=wx.ID_SAVE)
         menu1.Append(wx.ID_SAVEAS, "Save As...\tShift+Ctrl+S")
         self.Bind(wx.EVT_MENU, self.saveas, id=wx.ID_SAVEAS)
+        menu1.Append(100, "Save As Template...")
+        self.Bind(wx.EVT_MENU, self.saveasTemplate, id=100)
         # TODO : printing not working well enough
         #menu1.AppendSeparator()
         #menu1.Append(wx.ID_PREVIEW, "Print Preview")
@@ -2852,6 +2867,20 @@ class MainFrame(wx.Frame):
             self.panel.notebook.SetPageText(tab, os.path.split(path)[1].split('.')[0])
             self.newRecent(path)
             PREFERENCES["save_file_path"] = os.path.split(path)[0]
+        dlg.Destroy()
+
+    def saveasTemplate(self, event):
+        dlg = wx.TextEntryDialog(self, 'Give a name to your template:', 'Save file as template...')
+        if dlg.ShowModal() == wx.ID_OK:
+            fname = dlg.GetValue()
+            if not fname.endswith(".py"):
+                fname = fname + ".py"
+            try:
+                text = self.panel.editor.GetTextUTF8()
+            except:
+                text = self.panel.editor.GetText()
+            with open(os.path.join(TEMPLATE_PATH, fname), "w") as f:
+                f.write(text)
         dlg.Destroy()
 
     def close(self, event):
