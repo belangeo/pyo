@@ -484,15 +484,18 @@ TEMPLATE_PATH = os.path.join(RESOURCES_PATH, "templates")
 if not os.path.isdir(TEMPLATE_PATH):
     os.mkdir(TEMPLATE_PATH)
 
-template_files = sorted([f for f in os.listdir(TEMPLATE_PATH) if f.endswith(".py")])   
 templateid = 91
+template_files = sorted([f for f in os.listdir(TEMPLATE_PATH) if f.endswith(".py")])   
 for f in template_files:
-    with open(os.path.join(TEMPLATE_PATH, f)) as ftemp:
-        ftext = ftemp.read()
-    TEMPLATE_NAMES[templateid] = f.replace(".py", "")
-    TEMPLATE_DICT[templateid] = ftext
-    templateid -= 1
-    
+    try:
+        with open(os.path.join(TEMPLATE_PATH, f)) as ftemp:
+            ftext = ftemp.read()
+        TEMPLATE_NAMES[templateid] = f.replace(".py", "")
+        TEMPLATE_DICT[templateid] = ftext
+        templateid -= 1
+    except:
+        pass
+
 ################## BUILTIN KEYWORDS COMPLETION ##################
 FROM_COMP = ''' `module` import `*`
 '''
