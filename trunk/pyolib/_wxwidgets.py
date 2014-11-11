@@ -160,8 +160,12 @@ def GetRoundShape( w, h, r ):
     return wx.RegionFromBitmap( GetRoundBitmap(w,h,r) )
 
 class ControlSlider(wx.Panel):
-    def __init__(self, parent, minvalue, maxvalue, init=None, pos=(0,0), size=(200,16), log=False, outFunction=None, integer=False, powoftwo=False, backColour=None):
-        wx.Panel.__init__(self, parent=parent, id=wx.ID_ANY, pos=pos, size=size, style=wx.NO_BORDER | wx.WANTS_CHARS | wx.EXPAND)
+    def __init__(self, parent, minvalue, maxvalue, init=None, pos=(0,0), size=(200,16), log=False, 
+                 outFunction=None, integer=False, powoftwo=False, backColour=None, orient=wx.HORIZONTAL):
+        if size == (200,16) and orient == wx.VERTICAL:
+            size = (40, 200)
+        wx.Panel.__init__(self, parent=parent, id=wx.ID_ANY, pos=pos, size=size, 
+                            style=wx.NO_BORDER | wx.WANTS_CHARS | wx.EXPAND)
         self.parent = parent
         if backColour: 
             self.backgroundColour = backColour
@@ -169,10 +173,16 @@ class ControlSlider(wx.Panel):
             self.backgroundColour = BACKGROUND_COLOUR
         self.SetBackgroundStyle(wx.BG_STYLE_CUSTOM)  
         self.SetBackgroundColour(self.backgroundColour)
-        self.SetMinSize(self.GetSize())
-        self.knobSize = 40
-        self.knobHalfSize = 20
-        self.sliderHeight = size[1] - 5
+        self.orient = orient
+        # self.SetMinSize(self.GetSize())
+        if self.orient == wx.VERTICAL:
+            self.knobSize = 17
+            self.knobHalfSize = 8
+            self.sliderWidth = size[0] - 29
+        else:
+            self.knobSize = 40
+            self.knobHalfSize = 20
+            self.sliderHeight = size[1] - 5
         self.outFunction = outFunction
         self.integer = integer
         self.log = log
@@ -202,8 +212,11 @@ class ControlSlider(wx.Panel):
         self.Bind(wx.EVT_SIZE, self.OnResize)
         self.Bind(wx.EVT_KEY_DOWN, self.keyDown)
         self.Bind(wx.EVT_KILL_FOCUS, self.LooseFocus)
-        self.createSliderBitmap()
-        self.createKnobBitmap()
+
+        if sys.platform == "win32":
+            self.dcref = wx.BufferedPaintDC
+        else:
+            self.dcref = wx.PaintDC
 
     def setMidiCtl(self, x, propagate=True):
         self.propagate = propagate
@@ -229,39 +242,10 @@ class ControlSlider(wx.Panel):
         
     def setSliderHeight(self, height):
         self.sliderHeight = height
-        self.createSliderBitmap()
-        self.createKnobBitmap()
         self.Refresh()
 
-    def createSliderBitmap(self):
-        w, h = self.GetSize()
-        b = wx.EmptyBitmap(w,h)
-        dc = wx.MemoryDC(b)
-        gc = wx.GraphicsContext_Create(dc)
-        dc.SetPen(wx.Pen(self.backgroundColour, width=1))
-        dc.SetBrush(wx.Brush(self.backgroundColour))
-        dc.DrawRectangle(0,0,w,h)
-        gc.SetBrush(wx.Brush("#999999"))
-        gc.SetPen(wx.Pen(self.backgroundColour, width=1))
-        h2 = self.sliderHeight / 4
-        gc.DrawRoundedRectangle(0,h2,w,self.sliderHeight,2)
-        dc.SelectObject(wx.NullBitmap)
-        b.SetMaskColour("#999999")
-        self.sliderMask = b
-
-    def createKnobBitmap(self):
-        w, h = self.knobSize, self.GetSize()[1]
-        b = wx.EmptyBitmap(w,h)
-        dc = wx.MemoryDC(b)
-        gc = wx.GraphicsContext_Create(dc)
-        dc.SetPen(wx.Pen(self.backgroundColour, width=1))
-        dc.SetBrush(wx.Brush(self.backgroundColour))
-        dc.DrawRectangle(0, 0, w, h)
-        gc.SetBrush(wx.Brush("#999999"))
-        gc.DrawRoundedRectangle(0,0,w,h,3)
-        dc.SelectObject(wx.NullBitmap)
-        b.SetMaskColour("#999999")
-        self.knobMask = b
+    def setSliderWidth(self, width):
+        self.sliderWidth = width
 
     def getInit(self):
         return self.init
@@ -274,7 +258,11 @@ class ControlSlider(wx.Panel):
         return [self.minvalue, self.maxvalue]
 
     def scale(self):
-        inter = tFromValue(self.pos, self.knobHalfSize, self.GetSize()[0]-self.knobHalfSize)
+        if self.orient == wx.VERTICAL:
+            h = self.GetSize()[1]
+            inter = tFromValue(h-self.pos, self.knobHalfSize, self.GetSize()[1]-self.knobHalfSize)
+        else:
+            inter = tFromValue(self.pos, self.knobHalfSize, self.GetSize()[0]-self.knobHalfSize)
         if not self.integer:
             return interpFloat(inter, self.minvalue, self.maxvalue)
         elif self.powoftwo:
@@ -346,7 +334,10 @@ class ControlSlider(wx.Panel):
             return
         if self._enable:
             size = self.GetSize()
-            self.pos = clamp(evt.GetPosition()[0], self.knobHalfSize, size[0]-self.knobHalfSize)
+            if self.orient == wx.VERTICAL:
+                self.pos = clamp(evt.GetPosition()[1], self.knobHalfSize, size[1]-self.knobHalfSize)
+            else:
+                self.pos = clamp(evt.GetPosition()[0], self.knobHalfSize, size[0]-self.knobHalfSize)
             self.value = self.scale()
             self.CaptureMouse()
             self.selected = False
@@ -361,8 +352,12 @@ class ControlSlider(wx.Panel):
         if self._enable:
             w, h = self.GetSize()
             pos = event.GetPosition()
-            if wx.Rect(self.pos-self.knobHalfSize, 0, self.knobSize, h).Contains(pos):
-                self.selected = True
+            if self.orient == wx.VERTICAL:
+                if wx.Rect(0, self.pos-self.knobHalfSize, w, self.knobSize).Contains(pos):
+                    self.selected = True
+            else:
+                if wx.Rect(self.pos-self.knobHalfSize, 0, self.knobSize, h).Contains(pos):
+                    self.selected = True
             self.Refresh()
         event.Skip()
             
@@ -370,13 +365,15 @@ class ControlSlider(wx.Panel):
         if self._enable:
             size = self.GetSize()
             if self.HasCapture():
-                self.pos = clamp(evt.GetPosition()[0], self.knobHalfSize, size[0]-self.knobHalfSize)
+                if self.orient == wx.VERTICAL:
+                    self.pos = clamp(evt.GetPosition()[1], self.knobHalfSize, size[1]-self.knobHalfSize)
+                else:
+                    self.pos = clamp(evt.GetPosition()[0], self.knobHalfSize, size[0]-self.knobHalfSize)
                 self.value = self.scale()
                 self.selected = False
                 self.Refresh()
 
     def OnResize(self, evt):
-        self.createSliderBitmap()
         self.clampPos()    
         self.Refresh()
 
@@ -385,20 +382,23 @@ class ControlSlider(wx.Panel):
         if self.powoftwo:
             val = powOfTwoToInt(self.value)
         else:
-            val = self.value    
-        self.pos = tFromValue(val, self.minvalue, self.maxvalue) * (size[0] - self.knobSize) + self.knobHalfSize
-        self.pos = clamp(self.pos, self.knobHalfSize, size[0]-self.knobHalfSize)
+            val = self.value 
+        if self.orient == wx.VERTICAL:
+            self.pos = tFromValue(self.maxvalue-val, self.minvalue, self.maxvalue) * (size[1] - self.knobSize) + self.knobHalfSize
+            self.pos = clamp(self.pos, self.knobHalfSize, size[1]-self.knobHalfSize)
+        else:
+            self.pos = tFromValue(val, self.minvalue, self.maxvalue) * (size[0] - self.knobSize) + self.knobHalfSize
+            self.pos = clamp(self.pos, self.knobHalfSize, size[0]-self.knobHalfSize)
         
     def setBackgroundColour(self, colour):
         self.backgroundColour = colour
         self.SetBackgroundColour(self.backgroundColour)
-        self.createSliderBitmap()
-        self.createKnobBitmap()
         self.Refresh()
 
     def OnPaint(self, evt):
         w,h = self.GetSize()
-        dc = wx.AutoBufferedPaintDC(self)
+        dc = self.dcref(self)
+        gc = wx.GraphicsContext_Create(dc)
 
         dc.SetBrush(wx.Brush(self.backgroundColour, wx.SOLID))
         dc.Clear()
@@ -410,10 +410,16 @@ class ControlSlider(wx.Panel):
         # Draw inner part
         if self._enable: sliderColour =  "#99A7CC"
         else: sliderColour = "#BBBBBB"
-        h2 = self.sliderHeight / 4
-        rec = wx.Rect(0, h2, w, self.sliderHeight)
-        dc.GradientFillLinear(rec, "#646986", sliderColour, wx.BOTTOM)
-        dc.DrawBitmap(self.sliderMask, 0, 0, True)
+        if self.orient == wx.VERTICAL:
+            w2 = (w - self.sliderWidth) / 2
+            rec = wx.Rect(w2, 0, self.sliderWidth, h)
+            brush = gc.CreateLinearGradientBrush(w2, 0, w2+self.sliderWidth, 0, "#646986", sliderColour)
+        else:
+            h2 = self.sliderHeight / 4
+            rec = wx.Rect(0, h2, w, self.sliderHeight)
+            brush = gc.CreateLinearGradientBrush(0, h2, 0, h2+self.sliderHeight, "#646986", sliderColour)
+        gc.SetBrush(brush)
+        gc.DrawRoundedRectangle(rec[0], rec[1], rec[2], rec[3], 2)
 
         if self.midictl != None:
             if sys.platform in ['win32', 'linux2']:
@@ -421,21 +427,32 @@ class ControlSlider(wx.Panel):
             else:    
                 dc.SetFont(wx.Font(9, wx.ROMAN, wx.NORMAL, wx.NORMAL))
             dc.SetTextForeground('#FFFFFF')
-            dc.DrawLabel(str(self.midictl), wx.Rect(2,0,h,h), wx.ALIGN_CENTER)
-            dc.DrawLabel(str(self.midictl), wx.Rect(w-h,0,h,h), wx.ALIGN_CENTER)
+            if self.orient == wx.VERTICAL:
+                dc.DrawLabel(str(self.midictl), wx.Rect(w2,2,self.sliderWidth,12), wx.ALIGN_CENTER)
+                dc.DrawLabel(str(self.midictl), wx.Rect(w2,h-12,self.sliderWidth,12), wx.ALIGN_CENTER)
+            else:
+                dc.DrawLabel(str(self.midictl), wx.Rect(2,0,h,h), wx.ALIGN_CENTER)
+                dc.DrawLabel(str(self.midictl), wx.Rect(w-h,0,h,h), wx.ALIGN_CENTER)
 
         # Draw knob
         if self._enable: knobColour = '#888888'
         else: knobColour = "#DDDDDD"
-        rec = wx.Rect(self.pos-self.knobHalfSize, 0, self.knobSize-1, h)  
-        dc.GradientFillLinear(rec, "#424864", knobColour, wx.RIGHT)
-        dc.DrawBitmap(self.knobMask, rec[0], rec[1], True)
-        
-        if self.selected:
-            rec2 = wx.Rect(self.pos-self.knobHalfSize, 0, self.knobSize, h)  
-            dc.SetBrush(wx.Brush('#333333', wx.SOLID))
-            dc.SetPen(wx.Pen('#333333', width=self.borderWidth, style=wx.SOLID))  
-            dc.DrawRoundedRectangleRect(rec2, 3)
+        if self.orient == wx.VERTICAL:
+            rec = wx.Rect(0, self.pos-self.knobHalfSize, w, self.knobSize-1)
+            if self.selected:
+                brush = wx.Brush('#333333', wx.SOLID)
+            else:
+                brush = gc.CreateLinearGradientBrush(0, 0, w, 0, "#323854", knobColour)
+            gc.SetBrush(brush)
+            gc.DrawRoundedRectangle(rec[0], rec[1], rec[2], rec[3], 3)
+        else:
+            rec = wx.Rect(self.pos-self.knobHalfSize, 0, self.knobSize-1, h)  
+            if self.selected:
+                brush = wx.Brush('#333333', wx.SOLID)
+            else:
+                brush = gc.CreateLinearGradientBrush(self.pos-self.knobHalfSize, 0, self.pos+self.knobHalfSize, 0, "#323854", knobColour)
+            gc.SetBrush(brush)
+            gc.DrawRoundedRectangle(rec[0], rec[1], rec[2], rec[3], 3)
 
         if sys.platform in ['win32', 'linux2']:
             dc.SetFont(wx.Font(7, wx.ROMAN, wx.NORMAL, wx.NORMAL))
@@ -987,10 +1004,6 @@ class ViewTablePanel(wx.Panel):
         self.samples = []
         self.Bind(wx.EVT_PAINT, self.OnPaint)
         self.Bind(wx.EVT_SIZE, self.OnSize)
-        if sys.platform == "win32":
-            self.dcref = wx.BufferedPaintDC
-        else:
-            self.dcref = wx.PaintDC
         
     def draw(self, samples):
         self.samples = samples
