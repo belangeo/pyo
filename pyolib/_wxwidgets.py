@@ -384,8 +384,8 @@ class ControlSlider(wx.Panel):
         else:
             val = self.value 
         if self.orient == wx.VERTICAL:
-            self.pos = tFromValue(self.maxvalue-val, self.minvalue, self.maxvalue) * (size[1] - self.knobSize) + self.knobHalfSize
-            self.pos = clamp(self.pos, self.knobHalfSize, size[1]-self.knobHalfSize)
+            self.pos = tFromValue(val, self.minvalue, self.maxvalue) * (size[1] - self.knobSize) + self.knobHalfSize
+            self.pos = clamp(size[1]-self.pos, self.knobHalfSize, size[1]-self.knobHalfSize)
         else:
             self.pos = tFromValue(val, self.minvalue, self.maxvalue) * (size[0] - self.knobSize) + self.knobHalfSize
             self.pos = clamp(self.pos, self.knobHalfSize, size[0]-self.knobHalfSize)
