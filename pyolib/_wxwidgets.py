@@ -1004,6 +1004,11 @@ class ViewTablePanel(wx.Panel):
         self.samples = []
         self.Bind(wx.EVT_PAINT, self.OnPaint)
         self.Bind(wx.EVT_SIZE, self.OnSize)
+        if sys.platform == "win32":
+            self.dcref = wx.BufferedPaintDC
+        else:
+            self.dcref = wx.PaintDC
+
         
     def draw(self, samples):
         self.samples = samples
