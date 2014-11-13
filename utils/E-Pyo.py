@@ -738,7 +738,9 @@ KEY_COMMANDS = {
 "31. Alt + 'V'": "Line Paste",
 "32. Alt + CLICK + DRAG": "Rectangular selection",
 "33. Shit + Return": "Show the init line of a pyo object in a tooltip",
-"34. Ctrl/Cmd + Return": "Show the __doc__ string of a python object, module or function"
+"34. Ctrl/Cmd + Return": "Show the __doc__ string of a python object, module or function",
+"35. CLICK in the most left margin": "Add a marker to the corresponding line",
+"36. Shift + CLICK on a marker": "Delete the marker"
 }
 
 ############## Allowed Extensions ##############
@@ -4290,12 +4292,8 @@ class Editor(stc.StyledTextCtrl):
 
     def OnMarginClick(self, evt):
         if evt.GetMargin() == 0:
-            if PLATFORM == "darwin":
-                modif = evt.GetAlt
-            else:
-                modif = evt.GetControl
             lineClicked = self.LineFromPosition(evt.GetPosition())
-            if modif():
+            if evt.GetShift():
                 self.deleteMarker(lineClicked)
             else:
                 self.addMarker(lineClicked)
