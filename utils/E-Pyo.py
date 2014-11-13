@@ -2442,7 +2442,6 @@ class MainFrame(wx.Frame):
     def addMarker(self, evt):
         line = self.panel.editor.GetCurrentLine()
         self.panel.editor.addMarker(line)
-        self.panel.editor.addMarkerComment(line)
 
     def deleteMarker(self, evt):
         line = self.panel.editor.GetCurrentLine()
@@ -4019,30 +4018,12 @@ class Editor(stc.StyledTextCtrl):
         except:
             pass
 
-    def navigateMarkers(self, down=True):
-        if self.markers_dict != {}:
-            llen = len(self.markers_dict)
-            keys = sorted(self.markers_dict.keys())
-            if down:
-                self.current_marker += 1
-            else:
-                self.current_marker -= 1
-            if self.current_marker < 0:
-                self.current_marker = llen - 1
-            elif self.current_marker >= llen:
-                self.current_marker = 0
-            line = keys[self.current_marker]
-            self.GotoLine(line)
-            halfNumLinesOnScreen = self.LinesOnScreen() / 2
-            self.ScrollToLine(line - halfNumLinesOnScreen)
-            self.GetParent().GetParent().GetParent().GetParent().markers.setSelected(self.current_marker)
-
     def OnKeyDown(self, evt):
         if PLATFORM == "darwin":
             ControlDown = evt.CmdDown
         else:
             ControlDown = evt.ControlDown
-
+        
         propagate = True
         # Stop propagation on markers navigation --- Shift+Ctrl+Arrows up/down
         if evt.GetKeyCode() in [wx.WXK_DOWN,wx.WXK_UP] and evt.ShiftDown() and ControlDown():
@@ -4209,6 +4190,7 @@ class Editor(stc.StyledTextCtrl):
         #         pos = self.GetLineEndPosition(i)
         #         if self.GetCharAt(pos-1) != 172:
         #             self.InsertTextUTF8(pos, "¬")
+        self.moveMarkers()
         self.checkScrollbar()
         self.OnModified()
         evt.Skip()
@@ -4236,44 +4218,75 @@ class Editor(stc.StyledTextCtrl):
                 self.GotoPos(pos+1)
                 self.DelWordLeft()
 
+    def navigateMarkers(self, down=True):
+        if self.markers_dict != {}:
+            llen = len(self.markers_dict)
+            swap = [(x[1], x[0]) for x in self.markers_dict.items()]
+            handles = [x[1] for x in sorted(swap)]
+            if down:
+                self.current_marker += 1
+            else:
+                self.current_marker -= 1
+            if self.current_marker < 0:
+                self.current_marker = llen - 1
+            elif self.current_marker >= llen:
+                self.current_marker = 0
+            handle = handles[self.current_marker]
+            line = self.markers_dict[handle][0]
+            self.GotoLine(line)
+            halfNumLinesOnScreen = self.LinesOnScreen() / 2
+            self.ScrollToLine(line - halfNumLinesOnScreen)
+            self.GetParent().GetParent().GetParent().GetParent().markers.setSelected(handle)
+
     def setMarkers(self, dic):
+        try:
+            key = dic.keys()[0]
+        except:
+            return
+        if type(dic[key]) != ListType:
+            return
         self.markers_dict = dic
-        for line in self.markers_dict.keys():
+        for handle in self.markers_dict.keys():
+            line = self.markers_dict[handle][0]
             self.MarkerAdd(line, 0)
         self.GetParent().GetParent().GetParent().GetParent().markers.setDict(self.markers_dict)
 
-    def addMarker(self, line):
-        if line not in self.markers_dict.keys():
-            self.MarkerAdd(line, 0)
-            self.markers_dict[line] = ""
+    def moveMarkers(self):
+        dict = {}
+        for handle in self.markers_dict.keys():
+            line = self.MarkerLineFromHandle(handle)
+            comment = self.markers_dict[handle][1]
+            dict[handle] = [line, comment]
+        if dict != self.markers_dict:
+            self.markers_dict = dict
             self.GetParent().GetParent().GetParent().GetParent().markers.setDict(self.markers_dict)
-            return True
+            
+    def addMarker(self, line):
+        if not self.MarkerGet(line):
+            handle = self.MarkerAdd(line, 0)
+            self.markers_dict[handle] = [line, ""]            
+        comment = ""
+        dlg = wx.TextEntryDialog(self, 'Enter a comment for that marker:', 'Marker Comment')
+        if dlg.ShowModal() == wx.ID_OK:
+            comment = dlg.GetValue()
+            dlg.Destroy()
         else:
-            return False
+            dlg.Destroy()
+            return
+        self.markers_dict[handle][1] = comment
+        self.GetParent().GetParent().GetParent().GetParent().markers.setDict(self.markers_dict)
 
     def deleteMarker(self, line):
-        if line in self.markers_dict.keys():
-            del self.markers_dict[line]
-            self.MarkerDelete(line, 0)
-            self.GetParent().GetParent().GetParent().GetParent().markers.setDict(self.markers_dict)
+        for handle in self.markers_dict.keys():
+            if line == self.markers_dict[handle][0]:
+                del self.markers_dict[handle]
+                self.MarkerDeleteHandle(handle)
+                self.GetParent().GetParent().GetParent().GetParent().markers.setDict(self.markers_dict)
 
     def deleteAllMarkers(self):
         self.markers_dict = {}
         self.MarkerDeleteAll(0)
         self.GetParent().GetParent().GetParent().GetParent().markers.setDict(self.markers_dict)
-
-    def addMarkerComment(self, line):
-        if line in self.markers_dict.keys():
-            comment = ""
-            dlg = wx.TextEntryDialog(self, 'Enter a comment for that marker:', 'Marker Comment')
-            if dlg.ShowModal() == wx.ID_OK:
-                comment = dlg.GetValue()
-                dlg.Destroy()
-            else:
-                dlg.Destroy()
-                return
-            self.markers_dict[line] = comment
-            self.GetParent().GetParent().GetParent().GetParent().markers.setDict(self.markers_dict)
 
     def OnMarginClick(self, evt):
         if evt.GetMargin() == 0:
@@ -4284,12 +4297,8 @@ class Editor(stc.StyledTextCtrl):
             lineClicked = self.LineFromPosition(evt.GetPosition())
             if modif():
                 self.deleteMarker(lineClicked)
-            elif evt.GetShift():
-                self.addMarkerComment(lineClicked)
             else:
-                ok = self.addMarker(lineClicked)
-                if ok:
-                    self.addMarkerComment(lineClicked)
+                self.addMarker(lineClicked)
         elif evt.GetMargin() == 2:
             if evt.GetShift() and evt.GetControl():
                 self.ToggleFoldAll()
@@ -4921,16 +4930,18 @@ class MarkersListScroll(scrolled.ScrolledPanel):
     def setDict(self, dic):
         self.row_dict = dic
         self.box.Clear(True)
-        for i, key in enumerate(sorted(self.row_dict.keys())):
+        swap = [(x[1], x[0]) for x in self.row_dict.items()]
+        handles = [x[1] for x in sorted(swap)]
+        for i in handles:
             label = wx.StaticBitmap(self, wx.ID_ANY)
             label.SetBitmap(self.arrow_bit)
-            self.box.Add(label, 0, wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 2, userData=(i,key))
-            line = wx.StaticText(self, wx.ID_ANY, label=str(key+1))
+            self.box.Add(label, 0, wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 2, userData=(i,self.row_dict[i][0]))
+            line = wx.StaticText(self, wx.ID_ANY, label=str(self.row_dict[i][0]+1))
             line.SetFont(self.font)
-            self.box.Add(line, 0, wx.ALIGN_LEFT|wx.TOP, 3, userData=(i,key))
-            comment = wx.StaticText(self, wx.ID_ANY, label=self.row_dict[key])
+            self.box.Add(line, 0, wx.ALIGN_LEFT|wx.TOP, 3, userData=(i,self.row_dict[i][0]))
+            comment = wx.StaticText(self, wx.ID_ANY, label=self.row_dict[i][1])
             comment.SetFont(self.font)
-            self.box.Add(comment, 1, wx.EXPAND|wx.ALIGN_LEFT|wx.TOP, 3, userData=(i,key))
+            self.box.Add(comment, 1, wx.EXPAND|wx.ALIGN_LEFT|wx.TOP, 3, userData=(i,self.row_dict[i][0]))
             self.box.Layout()
             label.Bind(wx.EVT_LEFT_DOWN, self.OnLeftDown)
             line.Bind(wx.EVT_LEFT_DOWN, self.OnLeftDown)

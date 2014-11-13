@@ -928,7 +928,8 @@ class ManualFrame(wx.Frame):
             self.searchMenu.Append(id, txt)
             self.Bind(wx.EVT_MENU, self.onSearchScope, id=id)
 
-        self.search = wx.SearchCtrl(self.toolbar, 200, size=(200,-1), style=wx.WANTS_CHARS | wx.TE_PROCESS_ENTER)
+        tw, th = self.GetTextExtent("Q")
+        self.search = wx.SearchCtrl(self.toolbar, 200, size=(200,th+6), style=wx.WANTS_CHARS | wx.TE_PROCESS_ENTER)
         self.search.ShowCancelButton(True)
         self.search.SetMenu(self.searchMenu)
         self.toolbar.AddControl(self.search)
