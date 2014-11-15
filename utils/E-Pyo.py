@@ -4962,13 +4962,14 @@ class MarkersListScroll(scrolled.ScrolledPanel):
                     halfNumLinesOnScreen = editor.LinesOnScreen() / 2
                     editor.ScrollToLine(line - halfNumLinesOnScreen)
                 else:
-                    line = sorted(self.row_dict.keys())[self.selected]
+                    line = self.row_dict[self.selected][0]
                     self.selected2 = item.GetUserData()[0]
                     line2 = item.GetUserData()[1]
-                    editor.GotoLine(line)
+                    l1, l2 = min(line, line2), max(line, line2)
+                    editor.GotoLine(l1)
                     halfNumLinesOnScreen = editor.LinesOnScreen() / 2
-                    editor.ScrollToLine(line - halfNumLinesOnScreen)
-                    editor.SetSelection(editor.PositionFromLine(line), editor.PositionFromLine(line2+1))
+                    editor.ScrollToLine(l1 - halfNumLinesOnScreen)
+                    editor.SetSelection(editor.PositionFromLine(l1), editor.PositionFromLine(l2+1))
                 break
         self.setColour()
 
