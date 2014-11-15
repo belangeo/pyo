@@ -1,3 +1,8 @@
+2014-11-15 belangeo <belangeo@gmail.com>
+
+    * Added new objet: Scope, an audio waveform display.
+    - rev 1270
+
 2014-11-12 belangeo <belangeo@gmail.com>
 
     * E-Pyo: Fix marker's line numbering.

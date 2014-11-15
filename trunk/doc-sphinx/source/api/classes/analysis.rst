@@ -44,3 +44,15 @@ can use them for controlling parameters of others objects.
 
 .. autoclass:: AttackDetector
    :members:
+
+*Spectrum*
+-----------------------------------
+
+.. autoclass:: Spectrum
+   :members:
+
+*Scope*
+-----------------------------------
+
+.. autoclass:: Scope
+   :members:

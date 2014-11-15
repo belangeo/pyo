@@ -476,6 +476,7 @@ extern PyTypeObject TrigBurstTapStreamType;
 extern PyTypeObject TrigBurstAmpStreamType;
 extern PyTypeObject TrigBurstDurStreamType;
 extern PyTypeObject TrigBurstEndStreamType;
+extern PyTypeObject ScopeType;
 
 /* Constants */
 #define E M_E

@@ -1320,9 +1320,8 @@ class SpectrumDisplay(wx.Frame):
                  valtype='float', log=False, function=self.setZoomH)
         self.box.Add(self.zoomH, 0, wx.EXPAND|wx.LEFT|wx.RIGHT, 5)
         self.dispBox.Add(self.box, 1, wx.EXPAND, 0)
-        self.gainSlider = wx.Slider(self.panel, -1, 0, -24, 24, style=wx.SL_VERTICAL|wx.SL_INVERSE)
-        self.gainSlider.Bind(wx.EVT_SLIDER, self.setGain)
-        self.dispBox.Add(self.gainSlider, 0, wx.EXPAND|wx.BOTTOM, 15)
+        self.gainSlider = ControlSlider(self.panel, -24, 24, 0, outFunction=self.setGain, orient=wx.VERTICAL)
+        self.dispBox.Add(self.gainSlider, 0, wx.EXPAND|wx.TOP, 5)
         self.dispBox.AddSpacer(5)  
         self.mainBox.Add(self.dispBox, 1, wx.EXPAND) 
         self.panel.SetSizer(self.mainBox)
@@ -1356,8 +1355,8 @@ class SpectrumDisplay(wx.Frame):
         size = 1 << (evt.GetInt() + 6)
         self.obj.size = size
 
-    def setGain(self, evt):
-        self.obj.setGain(pow(10.0, evt.GetInt() * 0.05))
+    def setGain(self, gain):
+        self.obj.setGain(pow(10.0, gain * 0.05))
 
     def setZoomH(self, values):
         self.spectrumPanel.setLowFreq(self.obj.setLowbound(values[0]))
@@ -1563,6 +1562,164 @@ class SpectrumPanel(wx.Panel):
                 gc.SetPen(self.pens[i])  
                 gc.SetBrush(self.brushes[i])
                 gc.DrawLines(samples)
+
+######################################################################
+## Spectrum Display
+######################################################################
+class ScopeDisplay(wx.Frame):
+    def __init__(self, parent, obj=None):
+        wx.Frame.__init__(self, parent, size=(600,350))
+        self.SetMinSize((400,240))
+        self.menubar = wx.MenuBar()        
+        self.fileMenu = wx.Menu()
+        closeItem = self.fileMenu.Append(-1, 'Close\tCtrl+W', kind=wx.ITEM_NORMAL)
+        self.Bind(wx.EVT_MENU, self._destroy, closeItem)
+        self.menubar.Append(self.fileMenu, "&File")
+        self.SetMenuBar(self.menubar)
+        self.Bind(wx.EVT_CLOSE, self._destroy)
+        self.obj = obj
+        gain = self.obj.gain
+        length = self.obj.length
+        self.panel = wx.Panel(self)
+        self.panel.SetBackgroundColour(BACKGROUND_COLOUR)
+        self.mainBox = wx.BoxSizer(wx.VERTICAL)
+        self.toolBox = wx.BoxSizer(wx.HORIZONTAL)
+        if sys.platform == "darwin":
+            X_OFF = 24
+        else:
+            X_OFF = 16
+        tw, th = self.GetTextExtent("Start")
+        self.activeTog = wx.ToggleButton(self.panel, -1, label="Start", size=(tw+X_OFF, th+10))
+        self.activeTog.SetValue(1)
+        self.activeTog.Bind(wx.EVT_TOGGLEBUTTON, self.activate)
+        self.toolBox.Add(self.activeTog, 0, wx.TOP|wx.LEFT|wx.RIGHT, 5)
+        self.toolBox.AddSpacer(10)
+        self.toolBox.Add(wx.StaticText(self.panel, -1, label="Window length (ms):"), 0, wx.TOP, 11)
+        self.lenSlider = ControlSlider(self.panel, 10, 60, length * 1000, outFunction=self.setLength)
+        self.toolBox.Add(self.lenSlider, 1, wx.TOP|wx.LEFT|wx.RIGHT, 11)
+        self.toolBox.AddSpacer(40)
+        self.mainBox.Add(self.toolBox, 0, wx.EXPAND)
+        self.dispBox = wx.BoxSizer(wx.HORIZONTAL)
+        self.box = wx.BoxSizer(wx.VERTICAL)
+        self.scopePanel = ScopePanel(self.panel, self.obj)
+        self.box.Add(self.scopePanel, 1, wx.EXPAND|wx.LEFT|wx.RIGHT, 5)
+        self.dispBox.Add(self.box, 1, wx.EXPAND, 0)
+        self.gainSlider = ControlSlider(self.panel, -24, 24, 20.0 * math.log10(gain), outFunction=self.setGain, orient=wx.VERTICAL)
+        self.dispBox.Add(self.gainSlider, 0, wx.EXPAND)
+        self.dispBox.AddSpacer(5)  
+        self.mainBox.Add(self.dispBox, 1, wx.EXPAND) 
+        self.panel.SetSizer(self.mainBox)
+
+    def activate(self, evt):
+        self.obj.poll(evt.GetInt())
+
+    def setLength(self, length):
+        length *= 0.001
+        self.obj.setLength(length)
+        self.scopePanel.setLength(length)
+        
+    def setGain(self, gain):
+        gain = pow(10.0, gain * 0.05)
+        self.scopePanel.setGain(gain)
+        self.obj.setGain(gain)
+
+    def update(self, points):
+        wx.CallAfter(self.scopePanel.setImage, points)
+
+    def _destroy(self, evt):
+        self.obj._setViewFrame(None)
+        self.Destroy()
+
+class ScopePanel(wx.Panel):
+    def __init__(self, parent, obj):
+        wx.Panel.__init__(self, parent)
+        self.SetBackgroundStyle(wx.BG_STYLE_CUSTOM)
+        self.Bind(wx.EVT_PAINT, self.OnPaint)
+        self.Bind(wx.EVT_SIZE, self.OnSize)
+        self.img = [[]]
+        self.obj = obj
+        self.gain = self.obj.gain
+        self.length = self.obj.length
+        self.chnls = len(self.obj)
+        if self.chnls == 1:
+            self.pens = [wx.Pen(wx.Colour(100,0,0), width=2)]
+        else:
+            self.pens = [wx.Pen(wx.Colour(166,4,0), width=2), wx.Pen(wx.Colour(8,11,116), width=2), wx.Pen(wx.Colour(0,204,0), width=2),
+                        wx.Pen(wx.Colour(255,167,0), width=2), wx.Pen(wx.Colour(133,0,75), width=2), wx.Pen(wx.Colour(255,236,0), width=2),
+                        wx.Pen(wx.Colour(1,147,154), width=2), wx.Pen(wx.Colour(162,239,0), width=2)]
+
+        if sys.platform == "win32":
+            self.dcref = wx.BufferedPaintDC
+        else:
+            self.dcref = wx.PaintDC
+
+    def OnSize(self, evt):
+        size = self.GetSize()
+        self.obj.setWidth(size[0])
+        self.obj.setHeight(size[1])
+
+    def setGain(self, gain):
+        self.gain = gain
+        print self.gain
+
+    def setLength(self, length):
+        self.length = length
+
+    def setImage(self, points):
+        self.img = points
+        self.Refresh()
+
+    def OnPaint(self, evt):
+        w,h = self.GetSize()
+        dc = self.dcref(self)
+        gc = wx.GraphicsContext_Create(dc)
+        tw, th = dc.GetTextExtent("0")
+        dc.SetBrush(wx.Brush("#FFFFFF"))
+        dc.Clear()
+        dc.DrawRectangle(0,0,w,h)
+        gc.SetPen(wx.Pen('#000000', width=1, style=wx.SOLID))
+        gc.SetBrush(wx.Brush("#FFFFFF", style=wx.TRANSPARENT))
+        dc.SetTextForeground("#444444")
+        if sys.platform in "darwin":
+            font, ptsize = dc.GetFont(), dc.GetFont().GetPointSize()
+            font.SetPointSize(ptsize - 3)
+            dc.SetFont(font)
+        elif sys.platform == "win32":
+            font = dc.GetFont()
+            font.SetPointSize(8)
+            dc.SetFont(font)
+        
+        dc.SetPen(wx.Pen('#888888', width=1, style=wx.DOT))  
+        # horizontal grid
+        step = h / 6
+        ampstep = 1.0 / 3.0 / self.gain
+        for i in range(1, 6):
+            pos = int(h - i * step)
+            npos = i - 3
+            text = "%.2f" % (ampstep * npos)
+            tw, th = dc.GetTextExtent(text)
+            dc.DrawText(text, w-tw-2, pos-th/2)
+            dc.DrawLine(0, pos, w-tw-10, pos)
+
+        # vertical grid
+        tickstep = w / 4
+        timestep = self.length * 0.25
+        for j in range(4):
+            dc.SetPen(wx.Pen('#888888', width=1, style=wx.DOT))  
+            dc.DrawLine(j*tickstep, 0, j*tickstep, h)
+            dc.DrawText("%.3f" % (j*timestep), j*tickstep+2, h-12)
+        # draw waveforms
+        for i, samples in enumerate(self.img):
+            gc.SetPen(self.pens[i])
+            if len(samples):
+                gc.DrawLines(samples)
+
+        # legend
+        last_tw = tw
+        tw, th = dc.GetTextExtent("chan 8")
+        for i in range(self.chnls):
+            dc.SetTextForeground(self.pens[i].GetColour())
+            dc.DrawText("chan %d" % (i+1), w-tw-20-last_tw, i*th+10)
 
 ######################################################################
 ## Grapher window for PyoTableObject control

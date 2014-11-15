@@ -2431,3 +2431,236 @@ AttackDetector_members,                                 /* tp_members */
 0,                                              /* tp_alloc */
 AttackDetector_new,                                     /* tp_new */
 };
+
+/*********************************************************************************************/
+/* Scope ********************************************************************************/
+/*********************************************************************************************/
+typedef struct {
+    pyo_audio_HEAD
+    PyObject *input;
+    Stream *input_stream;
+    int size;
+    int width;
+    int height;
+    int pointer;
+    MYFLT gain;
+    MYFLT *buffer;
+} Scope;
+
+static void
+Scope_generate(Scope *self) {
+    int i;
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
+    for (i=0; i<self->bufsize; i++) {
+        if (self->pointer >= self->size)
+            self->pointer = 0;
+        self->buffer[self->pointer] = in[i];
+        self->pointer++;
+    }
+}
+
+static PyObject *
+Scope_display(Scope *self) {
+    int i, ipos;
+    MYFLT pos, step, mag, h2;
+    PyObject *points, *tuple;
+    
+    step = self->size / (MYFLT)(self->width);
+    h2 = self->height * 0.5;
+
+    points = PyList_New(self->width);
+
+    for (i=0; i<self->width; i++) {
+        pos = i * step;
+        ipos = (int)pos;
+        tuple = PyTuple_New(2);
+        mag = ((self->buffer[ipos] + (self->buffer[ipos+1] - self->buffer[ipos]) * (pos - ipos)) * self->gain * h2 + h2);
+        PyTuple_SET_ITEM(tuple, 0, PyInt_FromLong(i));
+        PyTuple_SET_ITEM(tuple, 1, PyInt_FromLong(self->height - (int)mag));
+        PyList_SET_ITEM(points, i, tuple);
+    }
+    return points;
+}
+
+static void
+Scope_compute_next_data_frame(Scope *self)
+{
+    Scope_generate(self); 
+}
+
+static int
+Scope_traverse(Scope *self, visitproc visit, void *arg)
+{
+    pyo_VISIT
+    Py_VISIT(self->input);
+    Py_VISIT(self->input_stream);
+    return 0;
+}
+
+static int 
+Scope_clear(Scope *self)
+{
+    pyo_CLEAR
+    Py_CLEAR(self->input);
+    Py_CLEAR(self->input_stream);
+    return 0;
+}
+
+static void
+Scope_dealloc(Scope* self)
+{
+    pyo_DEALLOC
+    free(self->buffer);
+    Scope_clear(self);
+    self->ob_type->tp_free((PyObject*)self);
+}
+
+static PyObject *
+Scope_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    int i, maxsize;
+    MYFLT length = 0.05;
+    PyObject *inputtmp, *input_streamtmp;
+    Scope *self;
+    self = (Scope *)type->tp_alloc(type, 0);
+
+    self->gain = 1.0;
+    self->width = 500;
+    self->height = 400;
+
+    INIT_OBJECT_COMMON
+    Stream_setFunctionPtr(self->stream, Scope_compute_next_data_frame);
+
+    static char *kwlist[] = {"input", "length", NULL};
+    
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_O_F, kwlist, &inputtmp, &length))
+        Py_RETURN_NONE;
+    
+    INIT_INPUT_STREAM
+
+    maxsize = (int)(self->sr * 0.25);
+    self->buffer = (MYFLT *)realloc(self->buffer, maxsize * sizeof(MYFLT)); 
+    self->size = (int)(length * self->sr);
+    if (self->size > maxsize)
+        self->size = maxsize;
+    self->pointer = 0;
+    
+    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+
+    return (PyObject *)self;
+}
+
+static PyObject * Scope_getServer(Scope* self) { GET_SERVER };
+static PyObject * Scope_getStream(Scope* self) { GET_STREAM };
+
+static PyObject * Scope_play(Scope *self, PyObject *args, PyObject *kwds) { PLAY };
+static PyObject * Scope_stop(Scope *self) { STOP };
+
+static PyObject *
+Scope_setLength(Scope *self, PyObject *arg)
+{
+    MYFLT length;
+    int maxsize = (int)(self->sr * 0.25);
+
+    if (PyNumber_Check(arg)) {
+        length = PyFloat_AsDouble(PyNumber_Float(arg));
+        self->size = (int)(length * self->sr);
+        if (self->size > maxsize)
+            self->size = maxsize;
+        self->pointer = 0;
+    }    
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
+static PyObject *
+Scope_setGain(Scope *self, PyObject *arg)
+{
+    if (PyNumber_Check(arg)) {
+        self->gain = PyFloat_AsDouble(PyNumber_Float(arg));
+    }    
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
+static PyObject *
+Scope_setWidth(Scope *self, PyObject *arg)
+{
+    if (PyInt_Check(arg)) {
+        self->width = PyInt_AsLong(arg);
+    }    
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
+static PyObject *
+Scope_setHeight(Scope *self, PyObject *arg)
+{
+    if (PyInt_Check(arg)) {
+        self->height = PyInt_AsLong(arg);
+    }    
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
+static PyMemberDef Scope_members[] = {
+{"server", T_OBJECT_EX, offsetof(Scope, server), 0, "Pyo server."},
+{"stream", T_OBJECT_EX, offsetof(Scope, stream), 0, "Stream object."},
+{"input", T_OBJECT_EX, offsetof(Scope, input), 0, "Input sound object."},
+{NULL}  /* Sentinel */
+};
+
+static PyMethodDef Scope_methods[] = {
+{"getServer", (PyCFunction)Scope_getServer, METH_NOARGS, "Returns server object."},
+{"_getStream", (PyCFunction)Scope_getStream, METH_NOARGS, "Returns stream object."},
+{"play", (PyCFunction)Scope_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+{"stop", (PyCFunction)Scope_stop, METH_NOARGS, "Stops computing."},
+{"display", (PyCFunction)Scope_display, METH_NOARGS, "Computes the samples to draw."},
+{"setLength", (PyCFunction)Scope_setLength, METH_O, "Sets function's argument."},
+{"setGain", (PyCFunction)Scope_setGain, METH_O, "Sets gain compensation."},
+{"setWidth", (PyCFunction)Scope_setWidth, METH_O, "Sets the width of the display."},
+{"setHeight", (PyCFunction)Scope_setHeight, METH_O, "Sets the height of the display."},
+{NULL}  /* Sentinel */
+};
+
+PyTypeObject ScopeType = {
+PyObject_HEAD_INIT(NULL)
+0,                                              /*ob_size*/
+"_pyo.Scope_base",                                   /*tp_name*/
+sizeof(Scope),                                 /*tp_basicsize*/
+0,                                              /*tp_itemsize*/
+(destructor)Scope_dealloc,                     /*tp_dealloc*/
+0,                                              /*tp_print*/
+0,                                              /*tp_getattr*/
+0,                                              /*tp_setattr*/
+0,                                              /*tp_compare*/
+0,                                              /*tp_repr*/
+0,                              /*tp_as_number*/
+0,                                              /*tp_as_sequence*/
+0,                                              /*tp_as_mapping*/
+0,                                              /*tp_hash */
+0,                                              /*tp_call*/
+0,                                              /*tp_str*/
+0,                                              /*tp_getattro*/
+0,                                              /*tp_setattro*/
+0,                                              /*tp_as_buffer*/
+Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+"Scope objects. Show the waveform of an input signal.",           /* tp_doc */
+(traverseproc)Scope_traverse,                  /* tp_traverse */
+(inquiry)Scope_clear,                          /* tp_clear */
+0,                                              /* tp_richcompare */
+0,                                              /* tp_weaklistoffset */
+0,                                              /* tp_iter */
+0,                                              /* tp_iternext */
+Scope_methods,                                 /* tp_methods */
+Scope_members,                                 /* tp_members */
+0,                                              /* tp_getset */
+0,                                              /* tp_base */
+0,                                              /* tp_dict */
+0,                                              /* tp_descr_get */
+0,                                              /* tp_descr_set */
+0,                                              /* tp_dictoffset */
+0,                          /* tp_init */
+0,                                              /* tp_alloc */
+Scope_new,                                     /* tp_new */
+};

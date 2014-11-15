@@ -75,6 +75,7 @@ TABLEWINDOWS = []
 SNDTABLEWINDOWS = []
 MATRIXWINDOWS = []
 SPECTRUMWINDOWS = []
+SCOPEWINDOWS = []
 WX_APP = False
 
 def createRootWindow():
@@ -185,6 +186,15 @@ def wxCreateDelayedMatrixWindows():
 def wxCreateDelayedSpectrumWindows():
     for win in SPECTRUMWINDOWS:
         f = SpectrumDisplay(None, win[0])
+        if win[1] == None: title = win[0].__class__.__name__
+        else: title = win[1]
+        if win[0] != None:
+            win[0]._setViewFrame(f)
+        wxDisplayWindow(f, title)
+
+def wxCreateDelayedScopeWindows():
+    for win in SCOPEWINDOWS:
+        f = ScopeDisplay(None, win[0])
         if win[1] == None: title = win[0].__class__.__name__
         else: title = win[1]
         if win[0] != None:
@@ -302,6 +312,20 @@ def createSpectrumWindow(object, title, wxnoserver=False):
                 object._setViewFrame(f)
         else:
             SPECTRUMWINDOWS.append([object, title])   
+
+def createScopeWindow(object, title, wxnoserver=False):
+    if not PYO_USE_WX:
+        print "WxPython must be installed to use the Scope display."
+    else:
+        if wxnoserver or WX_APP:
+            root = createRootWindow()
+            f = ScopeDisplay(None, object)
+            if title == None: title = object.__class__.__name__
+            wxShowWindow(f, title, root)
+            if object != None:
+                object._setViewFrame(f)
+        else:
+            SCOPEWINDOWS.append([object, title])   
         
 def createServerGUI(nchnls, start, stop, recstart, recstop, setAmp, started, locals, shutdown, meter, timer, amp, exit):
     global X, Y, MAX_X, NEXT_Y
@@ -329,6 +353,7 @@ def createServerGUI(nchnls, start, stop, recstart, recstop, setAmp, started, loc
         wx.CallAfter(wxCreateDelayedMatrixWindows)
         wx.CallAfter(wxCreateDelayedCtrlWindows)
         wx.CallAfter(wxCreateDelayedSpectrumWindows)
+        wx.CallAfter(wxCreateDelayedScopeWindows)
         wx.CallAfter(f.Raise)
     return f, win
         
