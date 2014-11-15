@@ -29,6 +29,8 @@ along with pyo.  If not, see <http://www.gnu.org/licenses/>.
 
 from _core import *
 from _maps import *
+from _widgets import createSpectrumWindow, createScopeWindow
+from pattern import Pattern
 
 class Follower(PyoObject):
     """
@@ -751,3 +753,606 @@ class AttackDetector(PyoObject):
         return self._reltime
     @reltime.setter
     def reltime(self, x): self.setReltime(x)
+
+class Spectrum(PyoObject):
+    """
+    Spectrum analyzer and display.
+
+    Spectrum measures the magnitude of an input signal versus frequency
+    within a user defined range. It can show both magnitude and frequency
+    on linear or logarithmic scale.
+    
+    :Parent: :py:class:`PyoObject`
+    
+    :Args:
+    
+        input : PyoObject
+            Input signal to process.
+        size : int {pow-of-two > 4}, optional
+            FFT size. Must be a power of two greater than 4.
+            The FFT size is the number of samples used in each
+            analysis frame. Defaults to 1024.
+        wintype : int, optional
+            Shape of the envelope used to filter each input frame.
+            Possible shapes are :
+                0. rectangular (no windowing)
+                1. Hamming
+                2. Hanning
+                3. Bartlett (triangular)
+                4. Blackman 3-term
+                5. Blackman-Harris 4-term
+                6. Blackman-Harris 7-term
+                7. Tuckey (alpha = 0.66)
+                8. Sine (half-sine window)
+        function : python callable, optional
+            If set, this function will be called with magnitudes (as
+            list of lists, one list per channel). Useful if someone
+            wants to save the analysis data into a text file.
+            Defaults to None.
+
+    .. note::
+    
+        Spectrum has no `out` method.
+        
+        Spectrum has no `mul` and `add` attributes.
+
+    >>> s = Server().boot()
+    >>> s.start()
+    >>> a = SuperSaw(freq=[500,750], detune=0.6, bal=0.7, mul=0.5).out()
+    >>> spec = Spectrum(a, size=1024)
+
+    """
+    def __init__(self, input, size=1024, wintype=2, function=None):
+        PyoObject.__init__(self)
+        self.points = None
+        self.viewFrame = None
+        self._input = input
+        self._size = size
+        self._wintype = wintype
+        self._function = function
+        self._fscaling = 0
+        self._mscaling = 1
+        self._lowbound = 0
+        self._highbound = 0.5
+        self._width = 500
+        self._height = 400
+        self._gain = 1
+        self._in_fader = InputFader(input)
+        in_fader, size, wintype, lmax = convertArgsToLists(self._in_fader, size, wintype)
+        self._base_objs = [Spectrum_base(wrap(in_fader,i), wrap(size,i), wrap(wintype,i)) for i in range(lmax)]
+        if function == None:
+            self.view()
+        self._timer = Pattern(self.refreshView, 0.05).play()
+ 
+    def setInput(self, x, fadetime=0.05):
+        """
+        Replace the `input` attribute.
+        
+        :Args:
+
+            x : PyoObject
+                New signal to process.
+            fadetime : float, optional
+                Crossfade time between old and new input. Default to 0.05.
+
+        """
+        self._input = x
+        self._in_fader.setInput(x, fadetime)
+
+    def setSize(self, x):
+        """
+        Replace the `size` attribute.
+        
+        :Args:
+
+            x : int
+                new `size` attribute.
+        
+        """
+        self._size = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setSize(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def setWinType(self, x):
+        """
+        Replace the `wintype` attribute.
+        
+        :Args:
+
+            x : int
+                new `wintype` attribute.
+        
+        """
+        self._wintype = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setWinType(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def setFunction(self, function):
+        """
+        Sets the function to be called to retrieve the analysis data.
+        
+        :Args:
+            
+            function : python callable
+                The function called by the internal timer to retrieve the
+                analysis data. The function must be created with one argument
+                and will receive the data as a list of lists (one list per channel).
+
+        """
+        self._function = function
+
+    def poll(self, active):
+        """
+        Turns on and off the analysis polling.
+        
+        :Args:
+            
+            active : boolean
+                If True, starts the analysis polling, False to stop it.
+                defaults to True.
+
+        """
+        if active:
+            self._timer.play()
+        else:
+            self._timer.stop()
+
+    def polltime(self, time):
+        """
+        Sets the polling time in seconds.
+        
+        :Args:
+            
+            time : float
+                Adjusts the frequency of the internal timer used to
+                retrieve the current analysis frame. defaults to 0.05.
+        
+        """
+        self._timer.time = time
+
+    def setLowbound(self, x):
+        """
+        Sets the lower frequency, as multiplier of sr, returned by the analysis.
+        
+        Returns the real low frequency en Hz.
+        
+        :Args:
+
+            x : float {0 <= x <= 0.5}
+                new `lowbound` attribute.
+        
+        """
+        self._lowbound = x
+        x, lmax = convertArgsToLists(x)
+        tmp = [obj.setLowbound(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        return tmp[0]
+
+    def setHighbound(self, x):
+        """
+        Sets the higher frequency, as multiplier of sr, returned by the analysis.
+        
+        Returns the real high frequency en Hz.
+        
+        :Args:
+
+            x : float {0 <= x <= 0.5}
+                new `highbound` attribute.
+        
+        """
+        self._highbound = x
+        x, lmax = convertArgsToLists(x)
+        tmp = [obj.setHighbound(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        return tmp[0]
+
+    def getLowfreq(self):
+        """
+        Returns the current lower frequency, in Hz, used by the analysis.
+        
+        """
+
+        return self._base_objs[0].getLowfreq()
+
+    def getHighfreq(self):
+        """
+        Returns the current higher frequency, in Hz, used by the analysis.
+        
+        """
+        return self._base_objs[0].getHighfreq()
+
+    def setWidth(self, x):
+        """
+        Sets the width, in pixels, of the current display.
+        
+        Used internally to build the list of points to draw.
+        
+        :Args:
+
+            x : int
+                new `width` attribute.
+        
+        """
+        self._width = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setWidth(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def setHeight(self, x):
+        """
+        Sets the height, in pixels, of the current display.
+        
+        Used internally to build the list of points to draw.
+        
+        :Args:
+
+            x : int
+                new `height` attribute.
+        
+        """
+        self._height = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setHeight(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def setFscaling(self, x):
+        """
+        Sets the frequency display to linear or logarithmic.
+        
+        :Args:
+
+            x : boolean
+                If True, the frequency display is logarithmic. False turns
+                it back to linear. Defaults to False.
+        
+        """
+        self._fscaling = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setFscaling(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        if self.viewFrame != None:
+            self.viewFrame.setFscaling(self._fscaling)
+
+    def setMscaling(self, x):
+        """
+        Sets the magnitude display to linear or logarithmic.
+        
+        :Args:
+
+            x : boolean
+                If True, the magnitude display is logarithmic (which means in dB). 
+                False turns it back to linear. Defaults to True.
+        
+        """
+        self._mscaling = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setMscaling(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        if self.viewFrame != None:
+            self.viewFrame.setMscaling(self._mscaling)
+
+    def getFscaling(self):
+        """
+        Returns the scaling of the frequency display.
+        
+        Returns True for logarithmic or False for linear.
+
+        """
+        return self._fscaling
+
+    def getMscaling(self):
+        """
+        Returns the scaling of the magnitude display.
+        
+        Returns True for logarithmic or False for linear.
+
+        """
+        return self._mscaling
+
+    def setGain(self, x):
+        """
+        Set the gain of the analysis data. For drawing purpose.
+        
+        :Args:
+
+            x : float
+                new `gain` attribute, as linear values.
+        
+        """
+        self._gain = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setGain(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def view(self, title="Spectrum", wxnoserver=False):
+        """
+        Opens a window showing the result of the analysis.
+        
+        :Args:
+        
+            title : string, optional
+                Window title. Defaults to "Spectrum". 
+            wxnoserver : boolean, optional
+                With wxPython graphical toolkit, if True, tells the 
+                interpreter that there will be no server window.
+                
+        If `wxnoserver` is set to True, the interpreter will not wait for 
+        the server GUI before showing the controller window. 
+        
+        """
+        createSpectrumWindow(self, title, wxnoserver)
+
+    def _setViewFrame(self, frame):
+        self.viewFrame = frame
+        
+    def refreshView(self):
+        """
+        Updates the graphical display of the spectrum.
+        
+        Called automatically by the internal timer.
+
+        """
+        self.points = [obj.display() for obj in self._base_objs]
+        if self._function != None:
+            self._function(self.points)
+        if self.viewFrame != None:
+            self.viewFrame.update(self.points)
+
+
+    @property
+    def input(self):
+        """PyoObject. Input signal to process.""" 
+        return self._input
+    @input.setter
+    def input(self, x): self.setInput(x)
+
+    @property
+    def size(self):
+        """int. FFT size."""
+        return self._size
+    @size.setter
+    def size(self, x): self.setSize(x)
+
+    @property
+    def wintype(self):
+        """int. Windowing method."""
+        return self._wintype
+    @wintype.setter
+    def wintype(self, x): self.setWinType(x)
+
+    @property
+    def gain(self):
+        """float. Sets the gain of the analysis data."""
+        return self._gain
+    @gain.setter
+    def gain(self, x): self.setGain(x)
+
+    @property
+    def lowbound(self):
+        """float. Lowest frequency (multiplier of sr) to output."""
+        return self._lowbound
+    @lowbound.setter
+    def lowbound(self, x): self.setLowbound(x)
+
+    @property
+    def highbound(self):
+        """float. Highest frequency (multiplier of sr) to output."""
+        return self._highbound
+    @highbound.setter
+    def highbound(self, x): self.setHighbound(x)
+
+    @property
+    def width(self):
+        """int. Width, in pixels, of the current display."""
+        return self._width
+    @width.setter
+    def width(self, x): self.setWidth(x)
+
+    @property
+    def height(self):
+        """int. Height, in pixels, of the current display."""
+        return self._height
+    @height.setter
+    def height(self, x): self.setHeight(x)
+
+    @property
+    def fscaling(self):
+        """boolean. Scaling of the frequency display."""
+        return self._fscaling
+    @fscaling.setter
+    def fscaling(self, x): self.setFscaling(x)
+
+    @property
+    def mscaling(self):
+        """boolean. Scaling of the magnitude display."""
+        return self._mscaling
+    @mscaling.setter
+    def mscaling(self, x): self.setMscaling(x)
+
+class Scope(PyoObject):
+    """
+    Oscilloscope - audio waveform display.
+
+    Oscilloscopes are used to observe the change of an electrical 
+    signal over time.
+    
+    :Parent: :py:class:`PyoObject`
+    
+    :Args:
+    
+        input : PyoObject
+            Input signal to process.
+        length : float, optional
+            Length, in seconds, of the displayed window. Can't be a list.
+            Defaults to 0.05.
+        gain : float, optional
+            Linear gain applied to the signal to be displayed.
+            Can't be a list. Defaults to 0.67.
+
+    .. note::
+    
+        Scope has no `out` method.
+        
+        Scope has no `mul` and `add` attributes.
+
+    >>> s = Server().boot()
+    >>> s.start()
+    >>> a = Sine([100,100.2], mul=0.7)
+    >>> b = Noise(0.1)
+    >>> scope = Scope(a+b)
+
+    """
+    def __init__(self, input, length=0.05, gain=0.67):
+        PyoObject.__init__(self)
+        self.points = None
+        self.viewFrame = None
+        self._input = input
+        self._length = length
+        self._gain = gain
+        self._width = 500
+        self._height = 400
+        self._in_fader = InputFader(input)
+        in_fader, lmax = convertArgsToLists(self._in_fader)
+        self._base_objs = [Scope_base(wrap(in_fader,i), length) for i in range(lmax)]
+        self.view()
+        self._timer = Pattern(self.refreshView, length).play()
+ 
+    def setInput(self, x, fadetime=0.05):
+        """
+        Replace the `input` attribute.
+        
+        :Args:
+
+            x : PyoObject
+                New signal to process.
+            fadetime : float, optional
+                Crossfade time between old and new input. Default to 0.05.
+
+        """
+        self._input = x
+        self._in_fader.setInput(x, fadetime)
+
+    def setLength(self, x):
+        """
+        Replace the `length` attribute.
+        
+        :Args:
+
+            x : float
+                new `length` attribute.
+        
+        """
+        self._length = x
+        self._timer.time = x
+        [obj.setLength(x) for obj in self._base_objs]
+
+    def setGain(self, x):
+        """
+        Set the gain boost applied to the analysed data. For drawing purpose.
+        
+        :Args:
+
+            x : float
+                new `gain` attribute, as linear values.
+        
+        """
+        self._gain = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setGain(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def poll(self, active):
+        """
+        Turns on and off the analysis polling.
+        
+        :Args:
+            
+            active : boolean
+                If True, starts the analysis polling, False to stop it.
+                defaults to True.
+
+        """
+        if active:
+            self._timer.play()
+        else:
+            self._timer.stop()
+
+    def setWidth(self, x):
+        """
+        Gives the width of the display to the analyzer.
+        
+        The analyzer needs this value to construct the list
+        of points to draw on the display.
+        
+        :Args:
+            
+            x : int
+                Width of the display in pixel value. The default
+                width is 500.
+
+        """
+        self._width = x
+        [obj.setWidth(x) for obj in self._base_objs]
+
+    def setHeight(self, x):
+        """
+        Gives the height of the display to the analyzer.
+        
+        The analyzer needs this value to construct the list
+        of points to draw on the display.
+        
+        :Args:
+            
+            x : int
+                Height of the display in pixel value. The default
+                height is 400.
+
+        """
+        self._height = x
+        [obj.setHeight(x) for obj in self._base_objs]
+        
+    def view(self, title="Scope", wxnoserver=False):
+        """
+        Opens a window showing the result of the analysis.
+        
+        :Args:
+        
+            title : string, optional
+                Window title. Defaults to "Spectrum". 
+            wxnoserver : boolean, optional
+                With wxPython graphical toolkit, if True, tells the 
+                interpreter that there will be no server window.
+                
+        If `wxnoserver` is set to True, the interpreter will not wait for 
+        the server GUI before showing the controller window. 
+        
+        """
+        createScopeWindow(self, title, wxnoserver)
+
+    def _setViewFrame(self, frame):
+        self.viewFrame = frame
+        
+    def refreshView(self):
+        """
+        Updates the graphical display of the scope.
+        
+        Called automatically by the internal timer.
+
+        """
+        self.points = [obj.display() for obj in self._base_objs]
+        if self.viewFrame != None:
+            self.viewFrame.update(self.points)
+
+
+    @property
+    def input(self):
+        """PyoObject. Input signal to process.""" 
+        return self._input
+    @input.setter
+    def input(self, x): self.setInput(x)
+
+    @property
+    def length(self):
+        """float. Window length."""
+        return self._length
+    @length.setter
+    def length(self, x): self.setLength(x)
+
+    @property
+    def gain(self):
+        """float. Sets the gain of the analysis data."""
+        return self._gain
+    @gain.setter
+    def gain(self, x): self.setGain(x)

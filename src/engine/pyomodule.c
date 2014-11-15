@@ -2494,6 +2494,7 @@ init_pyo64(void)
     module_add_object(m, "TrigBurstAmpStream_base", &TrigBurstAmpStreamType);
     module_add_object(m, "TrigBurstDurStream_base", &TrigBurstDurStreamType);
     module_add_object(m, "TrigBurstEndStream_base", &TrigBurstEndStreamType);
+    module_add_object(m, "Scope_base", &ScopeType);
 
     PyModule_AddStringConstant(m, "PYO_VERSION", PYO_VERSION);
 #ifdef COMPILE_EXTERNALS

@@ -51,12 +51,6 @@ spectral domain.
 .. autoclass:: CvlVerb
    :members:
 
-*Spectrum*
------------------------------------
-
-.. autoclass:: Spectrum
-   :members:
-
 *Vectral*
 -----------------------------------
 
