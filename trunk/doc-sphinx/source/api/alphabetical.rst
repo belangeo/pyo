@@ -71,6 +71,7 @@ Alphabetical class reference
 - :py:class:`Expseg` :     Trace a series of exponential segments between specified break-points. 
 - :py:class:`FFT` :     Fast Fourier Transform.
 - :py:class:`FM` :     A simple frequency modulation generator.
+- :py:class:`FToM` :     Returns the midi note equivalent to a frequency in Hz.
 - :py:class:`Fader` :     Fadein - fadeout envelope generator.
 - :py:class:`Floor` :     Rounds to largest integral value not greater than audio signal.
 - :py:class:`Follower2` :     Envelope follower with different attack and release times.
@@ -194,6 +195,7 @@ Alphabetical class reference
 - :py:class:`SampHold` :     Performs a sample-and-hold operation on its input. 
 - :py:class:`SawTable` :     Sawtooth waveform generator.
 - :py:class:`Scale` :     Maps an input range of audio values to an output range.
+- :py:class:`Scope` :     Oscilloscope - audio waveform display.
 - :py:class:`Score` :     Calls functions by incrementation of a preformatted name.
 - :py:class:`Select` :     Sends trigger on matching integer values.
 - :py:class:`Selector` :     Audio selector.
