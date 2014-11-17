@@ -3,7 +3,7 @@
 
 #define appName "pyo"
 #define pyVer "2.7"
-#define appVer "0.7.2"
+#define appVer "0.7.3"
 
 [Setup]
 ; NOTE: The value of AppId uniquely identifies this application.
@@ -28,6 +28,7 @@ Compression=lzma
 SolidCompression=yes
 ChangesAssociations=yes
 ChangesEnvironment=yes
+DirExistsWarning=no
 SetupIconFile=C:\Users\olipet\svn\pyo\utils\E-PyoIcon.ico
 
 [Languages]
