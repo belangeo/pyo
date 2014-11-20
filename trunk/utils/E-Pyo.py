@@ -730,7 +730,7 @@ KEY_COMMANDS = {
 "23. Alt + Shift + BACK": "Delete the word to the right of the caret",
 "24. Ctrl/Cmd + BACK": "Delete back from the current position to the start of the line",
 "25. Ctrl/Cmd + Shift + BACK": "Delete forwards from the current position to the end of the line",
-"26. TAB": "If selection is empty or all on one line replace the selection with a tab character. If more than one line selected, indent the lines. In the middle of a word, trig the AutoCompletion of pyo keywords. Just after a complete pyo keyword, insert its default arguments. Just after a complete python builtin keyword, insert a default structure snippet. Just after a variable name, representing a pyo object, followed by a dot, trig the AutoCompletion of the object's attributes.",
+"26. TAB": "If selection is empty or all on one line replace the selection with a tab character. If more than one line selected, indent the lines. In the middle of a word, trig the AutoCompletion of pyo keywords. Just after an open brace following a pyo keyword, insert its default arguments. Just after a complete python builtin keyword, insert a default structure snippet. Just after a variable name, representing a pyo object, followed by a dot, trig the AutoCompletion of the object's attributes.",
 "27. Shift + TAB": "Dedent the selected lines",
 "28. Alt + 'C'": "Line Copy",
 "29. Alt + 'D'": "Line Duplicate",
@@ -3478,6 +3478,10 @@ class Editor(stc.StyledTextCtrl):
                         fline = fline.replace("/", " ")
                         last = fline.split()[-1]
                         ext = {"python": "py", "bash": "sh", "sh": "sh"}.get(last, "")
+                    else:
+                        text = f.read()
+                        if "desc:" in text:
+                            ext = "jsfx"
             except:
                 pass
         if ext in ["py", "pyw", "c5"]:
@@ -3499,7 +3503,7 @@ class Editor(stc.StyledTextCtrl):
             self.StyleSetSpec(stc.STC_P_OPERATOR, buildStyle('operator'))
             self.StyleSetSpec(stc.STC_P_IDENTIFIER, buildStyle('default'))
             self.StyleSetSpec(stc.STC_P_COMMENTBLOCK, buildStyle('commentblock'))
-        elif ext in ["c", "cc", "cpp", "cxx", "cs", "h", "hh", "hpp", "hxx", "jsfx-inc"]:
+        elif ext in ["c", "cc", "cpp", "cxx", "cs", "h", "hh", "hpp", "hxx"]:
             self.SetLexer(stc.STC_LEX_CPP)
             self.SetStyleBits(self.GetStyleBitsNeeded())
             self.SetProperty('fold.comment', '1')
@@ -3537,6 +3541,42 @@ class Editor(stc.StyledTextCtrl):
             self.StyleSetSpec(stc.STC_SH_IDENTIFIER, buildStyle('default'))
             self.StyleSetSpec(stc.STC_SH_PARAM, buildStyle('default'))
             self.StyleSetSpec(stc.STC_SH_SCALAR, buildStyle('function'))
+        elif ext in ["jsfx", "jsfx-inc"]:
+            self.SetLexer(stc.STC_LEX_CPP)
+            self.SetStyleBits(self.GetStyleBitsNeeded())
+            self.SetProperty('fold.comment', '1')
+            self.SetProperty('fold.preprocessor', '1')
+            self.SetProperty('fold.compact', '1')
+            self.SetProperty('styling.within.preprocessor', '0')
+            self.SetKeyWords(1, "abs acos asin atan atan2 atexit ceil convolve_c cos defer eval exp fclose feof fflush \
+                                 fft fft_ipermute fft_permute fgetc floor fopen fprintf fread freembuf fseek ftell fwrite \
+                                 gfx_aaaaa gfx_arc gfx_blit gfx_blit gfx_blitext gfx_blurto gfx_circle gfx_deltablit \
+                                 gfx_drawchar gfx_drawnumber gfx_drawstr gfx_getchar gfx_getfont gfx_getimgdim gfx_getpixel \
+                                 gfx_gradrect gfx_init gfx_line gfx_lineto gfx_loadimg gfx_measurestr gfx_muladdrect gfx_printf \
+                                 gfx_quit gfx_rect gfx_rectto gfx_roundrect gfx_setfont gfx_setimgdim gfx_setpixel gfx_transformblit \
+                                 gfx_update ifft invsqrt log log10 match matchi max memcpy memset min pow printf rand sign sin sleep \
+                                 sprintf sqr sqrt stack_exch stack_peek stack_pop stack_push str_delsub str_getchar str_insert \
+                                 str_setchar str_setlen strcat strcmp strcpy strcpy_from strcpy_substr stricmp strlen strncat strncmp \
+                                 strncpy strnicmp tan tcp_close tcp_connect tcp_listen tcp_listen_end tcp_recv tcp_send tcp_set_block \
+                                 time time_precise")
+            self.SetKeyWords(0, "loop while function local static instance this global globals _global gfx_r gfx_g gfx_b gfx_a gfx_w \
+                                 gfx_h gfx_x gfx_y gfx_mode gfx_clear gfx_dest gfx_texth mouse_x mouse_y mouse_cap mouse_wheel mouse_hwheel \
+                                 @init @slider @sample @block @serialize @gfx import desc slider1 slider2 slider3 slider4 slider5 \
+                                 slider6 slider7 slider8 slider9 slider10 slider11 slider12 slider13 slider14 slider15 slider16 in_pin \
+                                 out_pin filename ")
+            self.StyleSetSpec(stc.STC_C_DEFAULT, buildStyle('default'))
+            self.StyleSetSpec(stc.STC_C_COMMENT, buildStyle('comment'))
+            self.StyleSetSpec(stc.STC_C_COMMENTDOC, buildStyle('comment'))
+            self.StyleSetSpec(stc.STC_C_COMMENTLINE, buildStyle('comment'))
+            self.StyleSetSpec(stc.STC_C_COMMENTLINEDOC, buildStyle('comment'))
+            self.StyleSetSpec(stc.STC_C_NUMBER, buildStyle('number'))
+            self.StyleSetSpec(stc.STC_C_STRING, buildStyle('string'))
+            self.StyleSetSpec(stc.STC_C_CHARACTER, buildStyle('string'))
+            self.StyleSetSpec(stc.STC_C_WORD, buildStyle('keyword'))
+            self.StyleSetSpec(stc.STC_C_WORD2, buildStyle('pyokeyword'))
+            self.StyleSetSpec(stc.STC_C_OPERATOR, buildStyle('operator'))
+            self.StyleSetSpec(stc.STC_C_IDENTIFIER, buildStyle('default'))
+            self.StyleSetSpec(stc.STC_C_PREPROCESSOR, buildStyle('commentblock'))
 
         self.SetEdgeColour(STYLES["lineedge"]['colour'])
         self.SetCaretForeground(STYLES['caret']['colour'])
@@ -3827,15 +3867,21 @@ class Editor(stc.StyledTextCtrl):
                 propagate = False
         return propagate
 
-    def insertDefArgs(self, currentword):
+    def insertDefArgs(self, currentword, charat):
         propagate = True
+        currentword = ""
+        if charat == ord("("):
+            pos = self.GetCurrentPos()
+            startpos = self.WordStartPosition(pos-2, True)
+            endpos = self.WordEndPosition(pos-2, True)
+            currentword = self.GetTextRangeUTF8(startpos, endpos)
         for word in PYO_WORDLIST:
             if word == currentword:
                 text = class_args(eval(word)).replace(word, "")
                 self.args_buffer = text.replace("(", "").replace(")", "").split(",")
                 self.args_buffer = [arg.strip() for arg in self.args_buffer]
                 self.args_line_number = [self.GetCurrentLine(), self.GetCurrentLine()+1]
-                self.insertText(self.GetCurrentPos(), text, False)
+                self.insertText(self.GetCurrentPos(), text[1:], False)
                 self.selection = self.GetSelectedText()
                 wx.CallAfter(self.navigateArgs)
                 propagate = False
@@ -3975,7 +4021,7 @@ class Editor(stc.StyledTextCtrl):
     def processTab(self, currentword, autoCompActive, charat, pos):
         propagate = self.showAutoComp()
         if propagate:
-            propagate = self.insertDefArgs(currentword)
+            propagate = self.insertDefArgs(currentword, charat)
             if propagate:
                 propagate = self.checkForBuiltinComp()
                 if propagate:
