@@ -1987,7 +1987,7 @@ Beater_generate_i(Beater *self) {
         self->dur_buffer_streams[i + self->voiceCount * self->bufsize] = self->durations[self->tapCount];
         if (self->currentTime >= tm) {
             self->currentTime -= tm;
-            if (self->tapCount == (self->last_taps-1))
+            if (self->tapCount == (self->last_taps-2))
                 self->end_buffer_streams[i + self->voiceCount * self->bufsize] = 1.0;
             if (self->sequence[self->tapCount] == 1) {
                 self->currentTap = self->tapCount;
@@ -2057,7 +2057,7 @@ Beater_generate_a(Beater *self) {
         self->dur_buffer_streams[i + self->voiceCount * self->bufsize] = self->durations[self->tapCount];
         if (self->currentTime >= tm) {
             self->currentTime -= tm;
-            if (self->tapCount == (self->last_taps-1))
+            if (self->tapCount == (self->last_taps-2))
                 self->end_buffer_streams[i + self->voiceCount * self->bufsize] = 1.0;
             if (self->sequence[self->tapCount] == 1) {
                 self->currentTap = self->tapCount;
@@ -2301,6 +2301,17 @@ Beater_setTime(Beater *self, PyObject *arg)
 }	
 
 static PyObject *
+Beater_reset(Beater *self)
+{
+    self->voiceCount = 0;
+    self->tapCount = 0;
+    self->currentTap = 0;
+    self->currentTime = -1.0;
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
+static PyObject *
 Beater_setTaps(Beater *self, PyObject *arg)
 {    
 	if (PyInt_Check(arg))
@@ -2449,6 +2460,7 @@ static PyMethodDef Beater_methods[] = {
     {"recall", (PyCFunction)Beater_recallPreset, METH_O, "Recall a pattern previously stored in a memory slot."},
     {"getPresets", (PyCFunction)Beater_getPresets, METH_NOARGS, "Returns the list of stored presets."},
     {"setPresets", (PyCFunction)Beater_setPresets, METH_O, "Store a list of presets."},
+    {"reset", (PyCFunction)Beater_reset, METH_NOARGS, "Resets counters to 0."},
     {NULL}  /* Sentinel */
 };
 

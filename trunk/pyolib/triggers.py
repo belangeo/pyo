@@ -496,6 +496,13 @@ class Beat(PyoObject):
         else:
             return [obj._getStream().getValue() for obj in self.__getitem__(identifier).getBaseObjects()]
 
+    def reset(self):
+        """
+        Reset internal counters to initialization values.
+        
+        """
+        [obj.reset() for obj in self._base_players]
+
     def new(self):
         """
         Generates a new pattern with the current parameters.
@@ -3334,6 +3341,13 @@ class Euclide(PyoObject):
             preset = [wrap(taps,i)] + self.__generate__(wrap(x,i), wrap(taps,i))
             self._base_players[i].setPresets([preset])
             self._base_players[i].recall(0)
+
+    def reset(self):
+        """
+        Reset internal counters to initialization values.
+        
+        """
+        [obj.reset() for obj in self._base_players]
 
     def play(self, dur=0, delay=0):
         dur, delay, lmax = convertArgsToLists(dur, delay)
