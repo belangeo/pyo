@@ -2018,16 +2018,20 @@ class MainFrame(wx.Frame):
         self.Bind(wx.EVT_MENU, self.foldExpandScope, id=105)
         menu2.Append(108, "Un/Comment Selection\tCtrl+J")
         self.Bind(wx.EVT_MENU, self.OnComment, id=108)
-        menu2.Append(114, "Show AutoCompletion\tCtrl+K")
-        self.Bind(wx.EVT_MENU, self.autoComp, id=114)
         menu2.Append(121, "Insert File Path...\tShift+Ctrl+P")
         self.Bind(wx.EVT_MENU, self.insertPath, id=121)
         menu2.AppendSeparator()
-        menu2.Append(170, "Convert Selection to Uppercase\tCtrl+U")
-        menu2.Append(171, "Convert Selection to Lowercase\tShift+Ctrl+U")
+        menu2.Append(114, "Auto Complete container syntax", kind=wx.ITEM_CHECK)
+        self.Bind(wx.EVT_MENU, self.autoCompContainer, id=114)
+        menu2.Check(114, PREFERENCES.get("auto_comp_container", 0))
+        menu2.AppendSeparator()
+        submenu2 = wx.Menu()
+        submenu2.Append(170, "Convert Selection to Uppercase\tCtrl+U")
+        submenu2.Append(171, "Convert Selection to Lowercase\tShift+Ctrl+U")
         self.Bind(wx.EVT_MENU, self.upperLower, id=170, id2=171)
-        menu2.Append(172, "Convert Tabs to Spaces")
+        submenu2.Append(172, "Convert Tabs to Spaces")
         self.Bind(wx.EVT_MENU, self.tabsToSpaces, id=172)
+        menu2.AppendMenu(-1, "Text Converters", submenu2)
         menu2.AppendSeparator()
         menu2.Append(140, "Goto line...\tCtrl+L")
         self.Bind(wx.EVT_MENU, self.gotoLine, id=140)
@@ -2493,11 +2497,10 @@ class MainFrame(wx.Frame):
     def foldExpandScope(self, evt):
         self.panel.editor.foldExpandCurrentScope()
 
-    def autoComp(self, evt):
-        try:
-            self.panel.editor.showAutoComp()
-        except AttributeError:
-            pass
+    def autoCompContainer(self, evt):
+        state = evt.GetInt()
+        PREFERENCES["auto_comp_container"] = state
+        self.panel.editor.showAutoCompContainer(state)
 
     def showFind(self, evt):
         self.panel.editor.OnShowFindReplace()
@@ -3345,6 +3348,8 @@ class Editor(stc.StyledTextCtrl):
         self.markers_dict = {}
         self.current_marker = -1
         self.objs_attr_dict = {}
+        self.auto_comp_container = PREFERENCES.get("auto_comp_container", 0)
+
 
         self.alphaStr = string.lowercase + string.uppercase + '0123456789'
 
@@ -3391,6 +3396,7 @@ class Editor(stc.StyledTextCtrl):
         self.SetMarginSensitive(2, True)
 
         self.Bind(wx.EVT_KEY_DOWN, self.OnKeyDown)
+        self.Bind(wx.EVT_CHAR, self.OnChar)
         self.Bind(stc.EVT_STC_UPDATEUI, self.OnUpdateUI)
         self.Bind(stc.EVT_STC_MARGINCLICK, self.OnMarginClick)
         self.Bind(wx.EVT_CLOSE, self.OnClose)
@@ -3850,6 +3856,9 @@ class Editor(stc.StyledTextCtrl):
         currentword = self.GetTextRangeUTF8(startpos, endpos)
         return currentword
 
+    def showAutoCompContainer(self, state):
+        self.auto_comp_container = state
+        
     def showAutoComp(self):
         propagate = True
         charBefore = " "
@@ -3869,9 +3878,12 @@ class Editor(stc.StyledTextCtrl):
 
     def insertDefArgs(self, currentword, charat):
         propagate = True
+        braceend = True
         currentword = ""
         if charat == ord("("):
             pos = self.GetCurrentPos()
+            if chr(self.GetCharAt(pos)) == ')':
+                braceend = False
             startpos = self.WordStartPosition(pos-2, True)
             endpos = self.WordEndPosition(pos-2, True)
             currentword = self.GetTextRangeUTF8(startpos, endpos)
@@ -3881,7 +3893,10 @@ class Editor(stc.StyledTextCtrl):
                 self.args_buffer = text.replace("(", "").replace(")", "").split(",")
                 self.args_buffer = [arg.strip() for arg in self.args_buffer]
                 self.args_line_number = [self.GetCurrentLine(), self.GetCurrentLine()+1]
-                self.insertText(self.GetCurrentPos(), text[1:], False)
+                if braceend:
+                    self.insertText(self.GetCurrentPos(), text[1:], False)
+                else:
+                    self.insertText(self.GetCurrentPos(), text[1:-1], False)
                 self.selection = self.GetSelectedText()
                 wx.CallAfter(self.navigateArgs)
                 propagate = False
@@ -4066,6 +4081,28 @@ class Editor(stc.StyledTextCtrl):
         except:
             pass
 
+    def OnChar(self, evt):
+        propagate = True
+
+        if chr(evt.GetKeyCode()) in ['[', '{', '(', '"', '`'] and self.auto_comp_container:
+            if chr(evt.GetKeyCode()) == '[':
+                self.AddText('[]')
+            elif chr(evt.GetKeyCode()) == '{':
+                self.AddText('{}')
+            elif chr(evt.GetKeyCode()) == '(':
+                self.AddText('()')
+            elif chr(evt.GetKeyCode()) == '"':
+                self.AddText('""')
+            elif chr(evt.GetKeyCode()) == '`':
+                self.AddText('``')
+            self.CharLeft()
+            propagate = False
+
+        if propagate:
+            evt.Skip()
+        else:
+            evt.StopPropagation()
+        
     def OnKeyDown(self, evt):
         if PLATFORM == "darwin":
             ControlDown = evt.CmdDown
