@@ -2664,3 +2664,283 @@ Scope_members,                                 /* tp_members */
 0,                                              /* tp_alloc */
 Scope_new,                                     /* tp_new */
 };
+
+/************/
+/* PeakAmp */
+/************/
+typedef struct {
+    pyo_audio_HEAD
+    PyObject *input;
+    Stream *input_stream;
+    int modebuffer[2]; // need at least 2 slots for mul & add 
+    MYFLT follow;
+} PeakAmp;
+
+static void
+PeakAmp_filters_i(PeakAmp *self) {
+    MYFLT absin, peak;
+    int i;
+
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
+    
+    peak = 0.0;
+    for (i=0; i<self->bufsize; i++) {
+        absin = in[i];
+        if (absin < 0.0)
+            absin = -absin;
+        if (absin > peak)
+            peak = absin;
+        self->data[i] = self->follow;
+    }
+    self->follow = peak;
+}
+
+static void PeakAmp_postprocessing_ii(PeakAmp *self) { POST_PROCESSING_II };
+static void PeakAmp_postprocessing_ai(PeakAmp *self) { POST_PROCESSING_AI };
+static void PeakAmp_postprocessing_ia(PeakAmp *self) { POST_PROCESSING_IA };
+static void PeakAmp_postprocessing_aa(PeakAmp *self) { POST_PROCESSING_AA };
+static void PeakAmp_postprocessing_ireva(PeakAmp *self) { POST_PROCESSING_IREVA };
+static void PeakAmp_postprocessing_areva(PeakAmp *self) { POST_PROCESSING_AREVA };
+static void PeakAmp_postprocessing_revai(PeakAmp *self) { POST_PROCESSING_REVAI };
+static void PeakAmp_postprocessing_revaa(PeakAmp *self) { POST_PROCESSING_REVAA };
+static void PeakAmp_postprocessing_revareva(PeakAmp *self) { POST_PROCESSING_REVAREVA };
+
+static void
+PeakAmp_setProcMode(PeakAmp *self)
+{
+    int muladdmode;
+    muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
+    
+    self->proc_func_ptr = PeakAmp_filters_i;
+	switch (muladdmode) {
+        case 0:        
+            self->muladd_func_ptr = PeakAmp_postprocessing_ii;
+            break;
+        case 1:    
+            self->muladd_func_ptr = PeakAmp_postprocessing_ai;
+            break;
+        case 2:    
+            self->muladd_func_ptr = PeakAmp_postprocessing_revai;
+            break;
+        case 10:        
+            self->muladd_func_ptr = PeakAmp_postprocessing_ia;
+            break;
+        case 11:    
+            self->muladd_func_ptr = PeakAmp_postprocessing_aa;
+            break;
+        case 12:    
+            self->muladd_func_ptr = PeakAmp_postprocessing_revaa;
+            break;
+        case 20:        
+            self->muladd_func_ptr = PeakAmp_postprocessing_ireva;
+            break;
+        case 21:    
+            self->muladd_func_ptr = PeakAmp_postprocessing_areva;
+            break;
+        case 22:    
+            self->muladd_func_ptr = PeakAmp_postprocessing_revareva;
+            break;
+    }   
+}
+
+static void
+PeakAmp_compute_next_data_frame(PeakAmp *self)
+{
+    (*self->proc_func_ptr)(self); 
+    (*self->muladd_func_ptr)(self);
+}
+
+static int
+PeakAmp_traverse(PeakAmp *self, visitproc visit, void *arg)
+{
+    pyo_VISIT
+    Py_VISIT(self->input);
+    Py_VISIT(self->input_stream);
+    return 0;
+}
+
+static int 
+PeakAmp_clear(PeakAmp *self)
+{
+    pyo_CLEAR
+    Py_CLEAR(self->input);
+    Py_CLEAR(self->input_stream);
+    return 0;
+}
+
+static void
+PeakAmp_dealloc(PeakAmp* self)
+{
+    pyo_DEALLOC
+    PeakAmp_clear(self);
+    self->ob_type->tp_free((PyObject*)self);
+}
+
+static PyObject *
+PeakAmp_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    int i;
+    PyObject *inputtmp, *input_streamtmp, *multmp=NULL, *addtmp=NULL;
+    PeakAmp *self;
+    self = (PeakAmp *)type->tp_alloc(type, 0);
+    
+    self->follow = 0.0;
+	self->modebuffer[0] = 0;
+	self->modebuffer[1] = 0;
+    
+    INIT_OBJECT_COMMON
+    Stream_setFunctionPtr(self->stream, PeakAmp_compute_next_data_frame);
+    self->mode_func_ptr = PeakAmp_setProcMode;
+
+    static char *kwlist[] = {"input", "mul", "add", NULL};
+    
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OO", kwlist, &inputtmp, &multmp, &addtmp))
+        Py_RETURN_NONE; 
+    
+    INIT_INPUT_STREAM
+    
+    if (multmp) {
+        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+    }
+    
+    if (addtmp) {
+        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+    }
+    
+    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    
+    (*self->mode_func_ptr)(self);
+
+    return (PyObject *)self;
+}
+
+static PyObject * PeakAmp_getServer(PeakAmp* self) { GET_SERVER };
+static PyObject * PeakAmp_getStream(PeakAmp* self) { GET_STREAM };
+static PyObject * PeakAmp_setMul(PeakAmp *self, PyObject *arg) { SET_MUL };	
+static PyObject * PeakAmp_setAdd(PeakAmp *self, PyObject *arg) { SET_ADD };	
+static PyObject * PeakAmp_setSub(PeakAmp *self, PyObject *arg) { SET_SUB };	
+static PyObject * PeakAmp_setDiv(PeakAmp *self, PyObject *arg) { SET_DIV };	
+
+static PyObject * PeakAmp_play(PeakAmp *self, PyObject *args, PyObject *kwds) { PLAY };
+static PyObject * PeakAmp_stop(PeakAmp *self) { STOP };
+
+static PyObject * PeakAmp_multiply(PeakAmp *self, PyObject *arg) { MULTIPLY };
+static PyObject * PeakAmp_inplace_multiply(PeakAmp *self, PyObject *arg) { INPLACE_MULTIPLY };
+static PyObject * PeakAmp_add(PeakAmp *self, PyObject *arg) { ADD };
+static PyObject * PeakAmp_inplace_add(PeakAmp *self, PyObject *arg) { INPLACE_ADD };
+static PyObject * PeakAmp_sub(PeakAmp *self, PyObject *arg) { SUB };
+static PyObject * PeakAmp_inplace_sub(PeakAmp *self, PyObject *arg) { INPLACE_SUB };
+static PyObject * PeakAmp_div(PeakAmp *self, PyObject *arg) { DIV };
+static PyObject * PeakAmp_inplace_div(PeakAmp *self, PyObject *arg) { INPLACE_DIV };
+
+static PyObject *
+PeakAmp_getValue(PeakAmp *self)
+{
+    return PyFloat_FromDouble(self->follow);
+}
+
+static PyMemberDef PeakAmp_members[] = {
+{"server", T_OBJECT_EX, offsetof(PeakAmp, server), 0, "Pyo server."},
+{"stream", T_OBJECT_EX, offsetof(PeakAmp, stream), 0, "Stream object."},
+{"input", T_OBJECT_EX, offsetof(PeakAmp, input), 0, "Input sound object."},
+{"mul", T_OBJECT_EX, offsetof(PeakAmp, mul), 0, "Mul factor."},
+{"add", T_OBJECT_EX, offsetof(PeakAmp, add), 0, "Add factor."},
+{NULL}  /* Sentinel */
+};
+
+static PyMethodDef PeakAmp_methods[] = {
+{"getServer", (PyCFunction)PeakAmp_getServer, METH_NOARGS, "Returns server object."},
+{"_getStream", (PyCFunction)PeakAmp_getStream, METH_NOARGS, "Returns stream object."},
+{"play", (PyCFunction)PeakAmp_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+{"stop", (PyCFunction)PeakAmp_stop, METH_NOARGS, "Stops computing."},
+{"getValue", (PyCFunction)PeakAmp_getValue, METH_NOARGS, "Returns the current peaking value."},
+{"setMul", (PyCFunction)PeakAmp_setMul, METH_O, "Sets oscillator mul factor."},
+{"setAdd", (PyCFunction)PeakAmp_setAdd, METH_O, "Sets oscillator add factor."},
+{"setSub", (PyCFunction)PeakAmp_setSub, METH_O, "Sets inverse add factor."},
+{"setDiv", (PyCFunction)PeakAmp_setDiv, METH_O, "Sets inverse mul factor."},
+{NULL}  /* Sentinel */
+};
+
+static PyNumberMethods PeakAmp_as_number = {
+(binaryfunc)PeakAmp_add,                         /*nb_add*/
+(binaryfunc)PeakAmp_sub,                         /*nb_subtract*/
+(binaryfunc)PeakAmp_multiply,                    /*nb_multiply*/
+(binaryfunc)PeakAmp_div,                                              /*nb_divide*/
+0,                                              /*nb_remainder*/
+0,                                              /*nb_divmod*/
+0,                                              /*nb_power*/
+0,                                              /*nb_neg*/
+0,                                              /*nb_pos*/
+0,                                              /*(unaryfunc)array_abs,*/
+0,                                              /*nb_nonzero*/
+0,                                              /*nb_invert*/
+0,                                              /*nb_lshift*/
+0,                                              /*nb_rshift*/
+0,                                              /*nb_and*/
+0,                                              /*nb_xor*/
+0,                                              /*nb_or*/
+0,                                              /*nb_coerce*/
+0,                                              /*nb_int*/
+0,                                              /*nb_long*/
+0,                                              /*nb_float*/
+0,                                              /*nb_oct*/
+0,                                              /*nb_hex*/
+(binaryfunc)PeakAmp_inplace_add,                 /*inplace_add*/
+(binaryfunc)PeakAmp_inplace_sub,                 /*inplace_subtract*/
+(binaryfunc)PeakAmp_inplace_multiply,            /*inplace_multiply*/
+(binaryfunc)PeakAmp_inplace_div,                                              /*inplace_divide*/
+0,                                              /*inplace_remainder*/
+0,                                              /*inplace_power*/
+0,                                              /*inplace_lshift*/
+0,                                              /*inplace_rshift*/
+0,                                              /*inplace_and*/
+0,                                              /*inplace_xor*/
+0,                                              /*inplace_or*/
+0,                                              /*nb_floor_divide*/
+0,                                              /*nb_true_divide*/
+0,                                              /*nb_inplace_floor_divide*/
+0,                                              /*nb_inplace_true_divide*/
+0,                                              /* nb_index */
+};
+
+PyTypeObject PeakAmpType = {
+PyObject_HEAD_INIT(NULL)
+0,                                              /*ob_size*/
+"_pyo.PeakAmp_base",                                   /*tp_name*/
+sizeof(PeakAmp),                                 /*tp_basicsize*/
+0,                                              /*tp_itemsize*/
+(destructor)PeakAmp_dealloc,                     /*tp_dealloc*/
+0,                                              /*tp_print*/
+0,                                              /*tp_getattr*/
+0,                                              /*tp_setattr*/
+0,                                              /*tp_compare*/
+0,                                              /*tp_repr*/
+&PeakAmp_as_number,                              /*tp_as_number*/
+0,                                              /*tp_as_sequence*/
+0,                                              /*tp_as_mapping*/
+0,                                              /*tp_hash */
+0,                                              /*tp_call*/
+0,                                              /*tp_str*/
+0,                                              /*tp_getattro*/
+0,                                              /*tp_setattro*/
+0,                                              /*tp_as_buffer*/
+Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+"PeakAmp objects. Envelope follower.",           /* tp_doc */
+(traverseproc)PeakAmp_traverse,                  /* tp_traverse */
+(inquiry)PeakAmp_clear,                          /* tp_clear */
+0,                                              /* tp_richcompare */
+0,                                              /* tp_weaklistoffset */
+0,                                              /* tp_iter */
+0,                                              /* tp_iternext */
+PeakAmp_methods,                                 /* tp_methods */
+PeakAmp_members,                                 /* tp_members */
+0,                                              /* tp_getset */
+0,                                              /* tp_base */
+0,                                              /* tp_dict */
+0,                                              /* tp_descr_get */
+0,                                              /* tp_descr_set */
+0,                                              /* tp_dictoffset */
+0,                          /* tp_init */
+0,                                              /* tp_alloc */
+PeakAmp_new,                                     /* tp_new */
+};

@@ -1356,3 +1356,106 @@ class Scope(PyoObject):
         return self._gain
     @gain.setter
     def gain(self, x): self.setGain(x)
+
+class PeakAmp(PyoObject):
+    """
+    Peak amplitude follower.
+    
+    Output signal is the continuous peak amplitude of an input signal.
+    A new peaking value is computed every buffer size. If `function`
+    argument is not None, it should be a function that will be called
+    every buffer size with a variable-length argument list containing
+    the peaking values of all object's streams. Useful for meter drawing.
+    Function definition must look like this:
+        
+    >>> def getValues(*args)
+
+    :Parent: :py:class:`PyoObject`
+
+    :Args:
+    
+        input : PyoObject
+            Input signal to process.
+        function : callable, optional
+            Function that will be called with amplitude values in arguments. 
+            Default to None.
+
+    .. note::
+
+        The out() method is bypassed. PeakAmp's signal can not be sent to 
+        audio outs.
+    
+    >>> s = Server().boot()
+    >>> s.start()
+    >>> sf = SfPlayer(SNDS_PATH + "/transparent.aif", loop=True, mul=.4).out()
+    >>> amp = PeakAmp(sf)
+    >>> n = Noise(mul=Port(amp)).out(1)
+
+    """
+    def __init__(self, input, function=None, mul=1, add=0):
+        PyoObject.__init__(self, mul, add)
+        self._input = input
+        if callable(function):
+            self._function = function
+        else:
+            self._function = None
+        self._in_fader = InputFader(input)
+        in_fader, mul, add, lmax = convertArgsToLists(self._in_fader, mul, add)
+        self._base_objs = [PeakAmp_base(wrap(in_fader,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+        sr = self._base_objs[0].getServer().getSamplingRate()
+        bs = self._base_objs[0].getServer().getBufferSize()
+        self._timer = Pattern(self._buildList, bs/sr).play()
+
+    def setInput(self, x, fadetime=0.05):
+        """
+        Replace the `input` attribute.
+        
+        :Args:
+
+            x : PyoObject
+                New signal to process.
+            fadetime : float, optional
+                Crossfade time between old and new input. Default to 0.05.
+
+        """
+        self._input = x
+        self._in_fader.setInput(x, fadetime)
+
+    def setFunction(self, x):
+        """
+        Replace the `function` attribute.
+        
+        :Args:
+
+            x : callable
+                New function to call with amplitude values in arguments.
+
+        """
+        if callable(x):
+            self._function = x
+
+    def out(self, chnl=0, inc=1, dur=0, delay=0):
+        return self.play(dur, delay)
+
+    def _buildList(self):
+        if self._function != None:
+            values = [obj.getValue() for obj in self._base_objs]
+            self._function(*values)
+
+    def ctrl(self, map_list=None, title=None, wxnoserver=False):
+        self._map_list = []
+        PyoObject.ctrl(self, map_list, title, wxnoserver)
+      
+    @property
+    def input(self):
+        """PyoObject. Input signal to process."""
+        return self._input
+    @input.setter
+    def input(self, x): self.setInput(x)
+
+    @property
+    def function(self):
+        """PyoObject. function signal to process."""
+        return self._function
+    @function.setter
+    def function(self, x): self.setFunction(x)

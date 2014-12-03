@@ -56,3 +56,9 @@ can use them for controlling parameters of others objects.
 
 .. autoclass:: Scope
    :members:
+
+*PeakAmp*
+-----------------------------------
+
+.. autoclass:: PeakAmp
+   :members:
