@@ -128,6 +128,7 @@ if not os.path.isfile(PREFERENCES_PATH):
     with open(PREFERENCES_PATH, "w") as f:
         f.write("epyo_prefs = {}")
 
+epyo_prefs = {}
 with open(PREFERENCES_PATH, "r") as f:
     text = f.read()
 exec text in locals()

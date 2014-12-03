@@ -176,6 +176,9 @@ class Server(object):
     def setTimeCallable(self, func):
         self.setTime = func
         self._server.setTimeCallable(self)
+
+    def setMeter(self, meter):
+        self._server.setAmpCallable(meter)
         
     def setInOutDevice(self, x):
         """

@@ -19,7 +19,6 @@ along with pyo.  If not, see <http://www.gnu.org/licenses/>.
 
 import wx, os, sys, math, time, random
 from types import ListType, FloatType, IntType
-from wx.lib.embeddedimage import PyEmbeddedImage
 
 try:
     from PIL import Image, ImageDraw, ImageTk
@@ -27,93 +26,6 @@ except:
     pass
     
 BACKGROUND_COLOUR = "#EBEBEB"
-
-vu_metre = PyEmbeddedImage(
-    "iVBORw0KGgoAAAANSUhEUgAAAMgAAAAFCAIAAACPTDSjAAAAAXNSR0IArs4c6QAAACF0RVh0"
-    "U29mdHdhcmUAR3JhcGhpY0NvbnZlcnRlciAoSW50ZWwpd4f6GQAAAMJJREFUeJxiYBgFo4BG"
-    "wHWbO1bEKc6JS4pXiddxtTNWKTFLMYspVlilpFyk9WsNsUopR6toF+lglVJP0wDKYpUCmiYX"
-    "II9VyqTTFOgSrFI28+0E9YSwSgE9hcfXLNwsZEgBDcQVVkBnAB2DKxi7qg13LHHERIEeMvWF"
-    "ulilYoIUM2JUsUoVp2vGKyjsdbDHRH0G+u4SElilZpkYW4uIYJXaaGNtwMDwHxsaTVijCWs0"
-    "YY0mrNGENZqwRhMWAAAA//8DAHGDnlocOW36AAAAAElFTkSuQmCC")
-
-vu_metre_dark = PyEmbeddedImage(
-    "iVBORw0KGgoAAAANSUhEUgAAAMgAAAAFCAYAAAAALqP0AAAAAXNSR0IArs4c6QAAAAlwSFlz"
-    "AAALEgAACxIB0t1+/AAADst0RVh0Q29tbWVudABwclZXIGNodW5rbGVuIDMwMiBpZ25vcmVk"
-    "Og1BU0NJSTogeJzt0U1WwjAuwPHpLohUKS5tibG3yM4ude11ei4u4OtdvIE4ky76cOVz+/9l"
-    "LuYjaS68f759yKu8nMys6zTPc8rm9Exq1C6nLicuS7UwcS5ljHGMMopEyyQu0S5FJGUuLi4u"
-    "Li5Xdb2pd/cuu1pj899y+6ixrTV+lufcktvvLl7p1ut+8C7r9efnUut2Kb/PhOshu5vK9I5l"
-    "LtrQtiG0wdmmq3IuT7ffLp1vOt9rLnvfaVjprfSNdo69jvy+P5fPjZbDfunZuSYNSEVYOiA3"
-    "ODlDRUREMTRENTZDMjMwMTBDMEYxRTkwNzg4NTQyOTBENkQ4OUIxQjdDOENFMDM3NUVENzU3"
-    "QTE5MEZFMEVCNURCQzgxMzg5MzAyRkE3MEU1NzNGQkZGNjUxQUU2MjM2OTE3QkM3RkJFN0RD"
-    "OEFCQkM5Q0NDQUNFQjM0Q0Y3M0NBRTZGNDRDNkFENDE4QTcxODI3MTE0QkI1MzA3MTFDNjU4"
-    "QzcxOEMzMjhBNDRDQjI0MUFEMTE1NDUyNDY1MDAwMDAwMDAwMA1ta0JGIGNodW5rbGVuIDcy"
-    "IGlnbm9yZWQ6DUFTQ0lJOiD63sr+Li4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4u"
-    "Li4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4NSEVYOiBGQURFQ0FGRTAwMDAw"
-    "MDA0MDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAw"
-    "MDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAw"
-    "MDAwMDAwMDAwMDAwMDAwMDAwMDAwMDANbWtUUyBjaHVua2xlbiA4ODg2IGlnbm9yZWQ6DUFT"
-    "Q0lJOiB4nO1dWXPbSJLG9ozbLd/unph92C5FbGzsU2twLnwuRVHSWC6HpHy9OHjB1rSPLllW"
-    "t5fB/76ZWVUgUCiAOChSni6rW0WiUC6+zPwqqyouOnnWup51ensuM2ve+8cpJKHfLobj+cvj"
-    "vXBmzl+x5MVRO5zZtjk/PC6EM2/e2++Hs4Y97/XPLyC7dS4uhPRv3j0+vp61uvBrb3fweWZs"
-    "LiNjbLwxusbU+C6fLoz386PTLsi5LjkuIccyfobcLuN3uOP9vNc+LmGVuw1IRVg6IDc4OUNF"
-    "RDVENTk3M0RCNDg5MkM2RjY4Q0RCMkRERkVFOUU5ODdERDgxNzQ1NkM2Q0VDNTM2QjcwMTM3"
-    "QzE0NDU1MUQyNTgwNzg3QTQ3Q0JEMzg3OEMxRDZCNDhGMUU1OTU2Qjc5N0MxRkZCRTk5NTk1"
-    "NTIwNTAyODgwMzgyODUyOUUyRUFCNUI0NUEyNTAwN0JFQ0NGQzJBQUIyQTBCM0E3OUQ2QkE5"
-    "RTc1N0E3QjE3MzM2QkRFRkJDNzI5MjRBMURGMDg4NkUzDW1rQlMgY2h1bmtsZW4gMTkwIGln"
-    "bm9yZWQ6DUFTQ0lJOiB4nF1Oyy6CMC7szd/wLi6DwFHKq2GrLmoub2hswlWTJmaz/27Lw4Nz"
-    "mcnMzmZknS4sLj6iTy5wjS71M11FpjEu91QupdGPLmryVqPj9jLag7S0Lb2AoC6DcOgupnV5"
-    "t/GlLkdwlG9kLi5sYC72ZC+2ZT7Jdi452C7PXZPXzshBLi6y/C7dqZg2zfS38NzZ2Z5HlS7D"
-    "g1R7LjH2SC77UYlsxEgnOopp0YOOnqvexY9w1WEuJ0SZOi6kLl+6Ll+mDUhFWDogNzg5QzVE"
-    "NEVDQjBFODIzMDEwRUNDRERGRjAxMzAwODNDMDUxQ0FBQjYxQUIwNjZBMDQ2RjY4NkNDMjU1"
-    "OTMyNjY2QjNGRjZFQ0JDMzgzNzM5OUM5Q0NDRTY2NjQ5RDFBMkMxQTNFQTI0RjFENzA4RDFF"
-    "RjUzMzVENDVBNjMxMDhGNzU0MDlBNUQxOEYwMjZBRjI1NkEzRTNGNjMyREE4M0I0QjQyREJE"
-    "ODBBMDA3ODM3MEU4MERBNjc1NzlCN0YxQTUwMTQ3NzANbWtCVCBjaHVua2xlbiAxMTQ1IGln"
-    "bm9yZWQ6DUFTQ0lJOiD6zsr+Ln84xS4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4u"
-    "Li4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4ueJztmolt6zAuLl1ILkkhKSSN"
-    "pJAukkZSiD82+GM8bEjZsWT4mi4udJDisctDIrXfK6WUUkoppZRSSv3X9/f3/uvra0qF34Oy"
-    "LpdM+y7pX1NVn91uN+Xz83P/+vr6c37LdacuVdYtVb5/eXk52GPr9K+t9P/7+/svSnWseg1I"
-    "RVg6IEZBQ0VDQUZFMDA3RjM4QzUwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAw"
-    "MDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAw"
-    "MDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwNzg5Q0VE"
-    "OUE4OTZERUIzMDEwMDU1RDQ4MUE0OTIxMjkyNDhEQTQ5MDE0OTI0NjUyDW1rQlQgY2h1bmts"
-    "ZW4gMzM5IGlnbm9yZWQ6DUFTQ0lJOiD6zsr+Ln9ViS4uLi4uLi4uLi4uLi4uLi4uLi4uLi4u"
-    "Li4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4ueJzt1uFpg2Au"
-    "hlEucS4ucS4ucS4ucS4usbyBLremIf+KLueBQ5tP++tNbM5TkiRJkiRJkiRJkiRJkiRJkiRJ"
-    "LtFxLue+70/nOcu1d/e/uk/3b13Xcy7Hc5qmx8/sLv0s99S9dS7LsjxexzAuf76HdO+yY5V9"
-    "s2F2rc37PQ1IRVg6IEZBQ0VDQUZFMDA3RjU1ODkwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAw"
-    "MDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAw"
-    "MDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAw"
-    "MDAwNzg5Q0VERDZFMTY5ODM2MDE0ODY1MTA3NzExMTA3NzExMDE3NzExMDA3NzExMTA3DW1r"
-    "QlQgY2h1bmtsZW4gMzc5OSBpZ25vcmVkOg1BU0NJSTog+s7K/i5/n3guLi4uLi4uLi4uLi4u"
-    "Li4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4u"
-    "Lnic7Z2NkS4pLoUuiC5xIC7EiTguLuJELshe6eo+17tnSUDPz/5Yr2pqZ7tpLi4u0IOel5fB"
-    "YDAuLi6DwWAwLi4ug8HgP/z69evl58+ff3ziOveq5+JzpawuZfj3wf9R6fmK/jN8//795dOn"
-    "T3984jr3Mnz58uXfzy6+ffsNSEVYOiBGQUNFQ0FGRTAwN0Y5Rjc4MDAwMDAwMDAwMDAwMDAw"
-    "MDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAw"
-    "MDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAw"
-    "MDAwMDAwMDAwMDAwMDc4OUNFRDlEOEQ5MTFDMjkwQzg1MUQ4ODEzNzEyMDBFQzQ4OTM4MTAw"
-    "N0UyNDQxQw1ta0JUIGNodW5rbGVuIDI3NDEgaWdub3JlZDoNQVNDSUk6IPrOyv4uf69+Li4u"
-    "Li4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4u"
-    "Li4uLi4uLi4uLi54nO2djZHbOC5GU0guSSEpJI2kkC6SRlJIbpCbd/PuLkjJWa8u23gzntXq"
-    "h6QuLqIukPr5cy6GYS6GYS6GYS6GYXhJvn///tvvx48u/y67J1WOe5fh2fnw4cNvv69fv/6q"
-    "99q+Z/1XOaouw/uBvM/i9vCW/rm7to7Vbyd/DUhFWDogRkFDRUNBRkUwMDdGQUY3RTAwMDAw"
-    "MDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAw"
-    "MDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAw"
-    "MDAwMDAwMDAwMDAwMDAwMDAwMDAwMDA3ODlDRUQ5RDhEOTFEQjM4MEM0NjUzNDgxQTQ5MjEy"
-    "OTI0OERBNDkwMTQ5MjQ2NTINbWtCVCBjaHVua2xlbiAxMDc3NSBpZ25vcmVkOg1BU0NJSTog"
-    "+s7K/i5/1PAuLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4u"
-    "Li4uLi4uLi4uLi4uLi4uLi4uLi4uLnic7X0ruOwo1vaSSCwuicQikUgkLi6JxCIjkVgkLi6J"
-    "jYyMjI0smX9R+5zunp7p+dT/1Ihac+k+VXvXLrAu77suVObnfTaeLtqzkS3G10Zgh6PDLnBd"
-    "xS5rLt+FfsPzYi7ggS4uLrYuLtCeJMF33ZPZsYTB8c18c/zxQ28NSEVYOiBGQUNFQ0FGRTAw"
-    "N0ZENEYwMDAwMDAwMDEwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAw"
-    "MDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAw"
-    "MDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDc4OUNFRDdEMkJCOEVDMjhENkY2"
-    "OTI0ODJDMTI4OUM0MjI5MTQ4MjQxNjE5ODlDNIWzHPoAAAAhdEVYdFNvZnR3YXJlAEdyYXBo"
-    "aWNDb252ZXJ0ZXIgKEludGVsKXeH+hkAAADWSURBVHic7JO7CsJAEEVH95UHpFBEhBUTJIpB"
-    "I0GFFDYRBNHSxr/Zn/B/R9c+Ewvt5sLtDswwwwHgcDh06muAVE3Y62TipA+HM80MxgLKoyGZ"
-    "kRWw3GmSsbmEealIJi2Ue3Mk4+dMUukopqj1Z2+KqRqDybBPMv4239xRqt8wflbXP/zOfveu"
-    "n9VVgLcmam1mJew3hmQWmXJFrklmu9K41to94hjbegoCzKQEirmEIVohSOYeRWiVhud0hm1l"
-    "QVgQFoQFYUFYEBaEBWFB/iLICwAA//8DAHqeTXUOgGpTAAAAAElFTkSuQmCC")
 
 def interpFloat(t, v1, v2):
     "interpolator for a single value; interprets t in [0-1] between v1 and v2"
@@ -567,40 +479,95 @@ class MultiSlider(wx.Panel):
             self.Refresh()
         
 class VuMeter(wx.Panel):
-    def __init__(self, parent, size=(200,11), numSliders=2):
+    def __init__(self, parent, size=(200,11), numSliders=2, orient=wx.HORIZONTAL):
+        if orient == wx.HORIZONTAL:
+            size = (size[0], numSliders * 5 + 1)
+        else:
+            size = (numSliders * 5 + 1, size[1])        
         wx.Panel.__init__(self, parent, -1, size=size)
         self.parent = parent
+        self.orient = orient
         self.SetBackgroundColour("#000000")
         self.SetBackgroundStyle(wx.BG_STYLE_CUSTOM)
         self.old_nchnls = numSliders
         self.numSliders = numSliders
-        self.SetMinSize((200,5*self.numSliders+1))
-        self.SetSize((200, 5*self.numSliders+1))
-        self.bitmap = vu_metre.GetBitmap()
-        self.backBitmap = vu_metre_dark.GetBitmap()
         self.amplitude = [0] * self.numSliders
+        self.createBitmaps()
 
         self.Bind(wx.EVT_PAINT, self.OnPaint)
+        self.Bind(wx.EVT_SIZE, self.OnSize)
         self.Bind(wx.EVT_CLOSE, self.OnClose)   
 
+    def OnSize(self, evt):
+        self.createBitmaps()
+        wx.CallAfter(self.Refresh)
+
+    def createBitmaps(self):
+        w, h = self.GetSize()
+        b = wx.EmptyBitmap(w,h)
+        f = wx.EmptyBitmap(w,h)
+        dcb = wx.MemoryDC(b)
+        dcf = wx.MemoryDC(f)
+        dcb.SetPen(wx.Pen("#000000", width=1))
+        dcf.SetPen(wx.Pen("#000000", width=1))
+        if self.orient == wx.HORIZONTAL:
+            height = 6
+            steps = int(w / 10.0 + 0.5)
+        else:
+            width = 6
+            steps = int(h / 10.0 + 0.5)
+        bounds = int(steps / 6.0)
+        for i in range(steps):
+            if i == (steps - 1):
+                dcb.SetBrush(wx.Brush("#770000"))
+                dcf.SetBrush(wx.Brush("#EE0000"))
+            elif i >= (steps - bounds):
+                dcb.SetBrush(wx.Brush("#440000"))
+                dcf.SetBrush(wx.Brush("#AA0000"))
+            elif i >= (steps - (bounds*2)):
+                dcb.SetBrush(wx.Brush("#444400"))
+                dcf.SetBrush(wx.Brush("#AAAA00"))
+            else:
+                dcb.SetBrush(wx.Brush("#004400"))
+                dcf.SetBrush(wx.Brush("#00AA00"))
+            if self.orient == wx.HORIZONTAL:
+                dcb.DrawRectangle(i*10, 0, 11, height)
+                dcf.DrawRectangle(i*10, 0, 11, height)
+            else:
+                ii = steps - 1 - i
+                dcb.DrawRectangle(0, ii*10, width, 11)
+                dcf.DrawRectangle(0, ii*10, width, 11)
+        if self.orient == wx.HORIZONTAL:
+            dcb.DrawLine(w-1, 0, w-1, height)
+            dcf.DrawLine(w-1, 0, w-1, height)
+        else:
+            dcb.DrawLine(0, 0, width, 0)
+            dcf.DrawLine(0, 0, width, 0)
+        dcb.SelectObject(wx.NullBitmap)
+        dcf.SelectObject(wx.NullBitmap)
+        self.backBitmap = b
+        self.bitmap = f
+
     def setNumSliders(self, numSliders):
+        w, h = self.GetSize()
         oldChnls = self.old_nchnls
         self.numSliders = numSliders
         self.amplitude = [0] * self.numSliders
         gap = (self.numSliders - oldChnls) * 5
         parentSize = self.parent.GetSize()
-        if sys.platform == 'linux2':
-            self.SetSize((200, 5*self.numSliders+1))
-            self.SetMinSize((200, 5*self.numSliders+1))
+        if self.orient == wx.HORIZONTAL:
+            self.SetSize((w, self.numSliders * 5 + 1))
+            self.SetMinSize((w, 5*self.numSliders+1))
             self.parent.SetSize((parentSize[0], parentSize[1]+gap))
             self.parent.SetMinSize((parentSize[0], parentSize[1]+gap))
         else:
-            self.SetSize((200, 5*self.numSliders+1))
-            self.SetMinSize((200, 5*self.numSliders+1))
-            self.parent.SetSize((parentSize[0], parentSize[1]+gap))
-            self.parent.SetMinSize((parentSize[0], parentSize[1]+gap))
-        self.Refresh()
-        self.parent.Layout()
+            self.SetSize((self.numSliders * 5 + 1, h))
+            self.SetMinSize((5*self.numSliders+1, h))
+            self.parent.SetSize((parentSize[0]+gap, parentSize[1]))
+            self.parent.SetMinSize((parentSize[0]+gap, parentSize[1]))
+        wx.CallAfter(self.Refresh)
+        wx.CallAfter(self.parent.Layout)
+        wx.CallAfter(self.parent.Refresh)
 
     def setRms(self, *args):
         if args[0] < 0: 
@@ -617,14 +584,28 @@ class VuMeter(wx.Panel):
         dc.SetBrush(wx.Brush("#000000"))
         dc.Clear()
         dc.DrawRectangle(0,0,w,h)
-        for i in range(self.numSliders):
-            db = math.log10(self.amplitude[i]+0.00001) * 0.2 + 1.
-            width = int(db*w)
-            dc.DrawBitmap(self.backBitmap, 0, i*5)
-            if width > 0:
-                dc.SetClippingRegion(0, i*5, width, 5)
-                dc.DrawBitmap(self.bitmap, 0, i*5)
-                dc.DestroyClippingRegion()
+        if self.orient == wx.HORIZONTAL:
+            height = 6
+            for i in range(self.numSliders):
+                y = i * (height - 1)
+                db = math.log10(self.amplitude[i]+0.00001) * 0.2 + 1.
+                width = int(db*w)
+                dc.DrawBitmap(self.backBitmap, 0, y)
+                if width > 0:
+                    dc.SetClippingRegion(0, y, width, height)
+                    dc.DrawBitmap(self.bitmap, 0, y)
+                    dc.DestroyClippingRegion()
+        else:
+            width = 6
+            for i in range(self.numSliders):
+                y = i * (width - 1)
+                db = math.log10(self.amplitude[i]+0.00001) * 0.2 + 1.
+                height = int(db*h)
+                dc.DrawBitmap(self.backBitmap, y, 0)
+                if height > 0:
+                    dc.SetClippingRegion(y, h-height, width, height)
+                    dc.DrawBitmap(self.bitmap, y, 0)
+                    dc.DestroyClippingRegion()
         event.Skip()
         
     def OnClose(self, evt):

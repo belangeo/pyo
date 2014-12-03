@@ -15,12 +15,11 @@ but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
-You should have received a copy of the GNU General Public Licensehack for OSX display
+You should have received a copy of the GNU General Public License
 along with pyo.  If not, see <http://www.gnu.org/licenses/>.
 """
 from types import ListType, FloatType, IntType
 import math, sys, os, random
-import __builtin__
 
 try:
     from PIL import Image, ImageDraw, ImageTk
@@ -29,20 +28,17 @@ except:
     WITH_PIL = False
 
 try:
-    import wxversion
-    if (wxversion.checkInstalled("2.8")):
-        wxversion.ensureMinimal("2.8")
+    try:
+        import wxversion
+        if (wxversion.checkInstalled("2.8")):
+            wxversion.ensureMinimal("2.8")
+    except:
+        pass
     import wx
     from _wxwidgets import *
     PYO_USE_WX = True
 except:
     PYO_USE_WX = False
-
-if hasattr(__builtin__, 'EPYO_APP_OPENED') or \
-   hasattr(__builtin__, 'SOUNDGRAIN_APP_OPENED') or \
-   hasattr(__builtin__, 'ZYNE_APP_OPENED') or \
-   hasattr(__builtin__, 'QLIVE_APP_OPENED'):
-    PYO_USE_WX = True
 
 PYO_USE_TK = False
 if not PYO_USE_WX:
