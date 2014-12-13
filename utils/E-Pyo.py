@@ -2997,6 +2997,7 @@ class MainFrame(wx.Frame):
         self.panel.editor.addText(s.getvalue())
 
     def startStopBackgroundServer(self, evt):
+        # TODO: need to add midi output driver
         if not self.back_server_started:
             outDriverIndex = -1
             preferedDriver = PREFERENCES.get("background_server_out_device", "")

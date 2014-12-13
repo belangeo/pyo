@@ -22,6 +22,7 @@ from _maps import *
 from _widgets import createGraphWindow, createDataGraphWindow, createSndViewTableWindow
 from types import ListType
 from math import pi
+import copy
 
 ######################################################################
 ### Tables
@@ -52,8 +53,8 @@ class HarmTable(PyoTableObject):
     """
     def __init__(self, list=[1., 0.], size=8192):
         PyoTableObject.__init__(self, size)
-        self._list = list
-        self._base_objs = [HarmTable_base(list, size)]
+        self._list = copy.deepcopy(list)
+        self._base_objs = [HarmTable_base(self._list, size)]
     
     def replace(self, list):
         """
@@ -217,8 +218,8 @@ class ChebyTable(PyoTableObject):
     """
     def __init__(self, list=[1., 0.], size=8192):
         PyoTableObject.__init__(self, size)
-        self._list = list
-        self._base_objs = [ChebyTable_base(list, size)]
+        self._list = copy.deepcopy(list)
+        self._base_objs = [ChebyTable_base(self._list, size)]
     
     def replace(self, list):
         """
@@ -466,7 +467,7 @@ class LinTable(PyoTableObject):
             print "                   Increased size to last point position + 1"
             size = list[-1][0] + 1
             self._size = size
-        self._base_objs = [LinTable_base(list, size)]
+        self._base_objs = [LinTable_base(copy.deepcopy(list), size)]
     
     def replace(self, list):
         """
@@ -596,7 +597,7 @@ class LogTable(PyoTableObject):
             print "                   Increased size to last point position + 1"
             size = list[-1][0] + 1
             self._size = size
-        self._base_objs = [LogTable_base(list, size)]
+        self._base_objs = [LogTable_base(copy.deepcopy(list), size)]
 
     def replace(self, list):
         """
@@ -726,7 +727,7 @@ class CosLogTable(PyoTableObject):
             print "                   Increased size to last point position + 1"
             size = list[-1][0] + 1
             self._size = size
-        self._base_objs = [CosLogTable_base(list, size)]
+        self._base_objs = [CosLogTable_base(copy.deepcopy(list), size)]
 
     def replace(self, list):
         """
@@ -855,7 +856,7 @@ class CosTable(PyoTableObject):
             print "                   Increased size to last point position + 1"
             size = list[-1][0] + 1
             self._size = size
-        self._base_objs = [CosTable_base(list, size)]
+        self._base_objs = [CosTable_base(copy.deepcopy(list), size)]
     
     def replace(self, list):
         """
@@ -1002,7 +1003,7 @@ class CurveTable(PyoTableObject):
             self._size = size
         self._tension = tension
         self._bias = bias
-        self._base_objs = [CurveTable_base(list, tension, bias, size)]
+        self._base_objs = [CurveTable_base(copy.deepcopy(list), tension, bias, size)]
 
     def setTension(self, x):
         """
@@ -1185,7 +1186,7 @@ class ExpTable(PyoTableObject):
             self._size = size
         self._exp = exp
         self._inverse = inverse
-        self._base_objs = [ExpTable_base(list, exp, inverse, size)]
+        self._base_objs = [ExpTable_base(copy.deepcopy(list), exp, inverse, size)]
 
     def setExp(self, x):
         """

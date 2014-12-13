@@ -520,16 +520,16 @@ class VuMeter(wx.Panel):
         for i in range(steps):
             if i == (steps - 1):
                 dcb.SetBrush(wx.Brush("#770000"))
-                dcf.SetBrush(wx.Brush("#EE0000"))
+                dcf.SetBrush(wx.Brush("#FF0000"))
             elif i >= (steps - bounds):
                 dcb.SetBrush(wx.Brush("#440000"))
-                dcf.SetBrush(wx.Brush("#AA0000"))
+                dcf.SetBrush(wx.Brush("#CC0000"))
             elif i >= (steps - (bounds*2)):
                 dcb.SetBrush(wx.Brush("#444400"))
-                dcf.SetBrush(wx.Brush("#AAAA00"))
+                dcf.SetBrush(wx.Brush("#CCCC00"))
             else:
                 dcb.SetBrush(wx.Brush("#004400"))
-                dcf.SetBrush(wx.Brush("#00AA00"))
+                dcf.SetBrush(wx.Brush("#00CC00"))
             if self.orient == wx.HORIZONTAL:
                 dcb.DrawRectangle(i*10, 0, 11, height)
                 dcf.DrawRectangle(i*10, 0, 11, height)
