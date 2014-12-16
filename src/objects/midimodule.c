@@ -126,6 +126,14 @@ static PyObject * CtlScan_getStream(CtlScan* self) { GET_STREAM };
 static PyObject * CtlScan_play(CtlScan *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * CtlScan_stop(CtlScan *self) { STOP };
 
+static PyObject * 
+CtlScan_reset(CtlScan *self) 
+{ 
+    self->ctlnumber = -1;
+	Py_INCREF(Py_None);
+	return Py_None;
+};
+
 static PyObject *
 CtlScan_setFunction(CtlScan *self, PyObject *arg)
 {
@@ -168,6 +176,7 @@ static PyMethodDef CtlScan_methods[] = {
     {"_getStream", (PyCFunction)CtlScan_getStream, METH_NOARGS, "Returns stream object."},
     {"play", (PyCFunction)CtlScan_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"stop", (PyCFunction)CtlScan_stop, METH_NOARGS, "Stops computing."},
+    {"reset", (PyCFunction)CtlScan_reset, METH_NOARGS, "Resets the scanned number."},
     {"setFunction", (PyCFunction)CtlScan_setFunction, METH_O, "Sets the function to be called."},
     {"setToprint", (PyCFunction)CtlScan_setToprint, METH_O, "If True, print values to the console."},
     {NULL}  /* Sentinel */
@@ -318,6 +327,14 @@ static PyObject * CtlScan2_getStream(CtlScan2* self) { GET_STREAM };
 static PyObject * CtlScan2_play(CtlScan2 *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * CtlScan2_stop(CtlScan2 *self) { STOP };
 
+static PyObject * 
+CtlScan2_reset(CtlScan2 *self) 
+{ 
+    self->ctlnumber = self->midichnl = -1;
+	Py_INCREF(Py_None);
+	return Py_None;
+};
+
 static PyObject *
 CtlScan2_setFunction(CtlScan2 *self, PyObject *arg)
 {
@@ -360,6 +377,7 @@ static PyMethodDef CtlScan2_methods[] = {
     {"_getStream", (PyCFunction)CtlScan2_getStream, METH_NOARGS, "Returns stream object."},
     {"play", (PyCFunction)CtlScan2_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"stop", (PyCFunction)CtlScan2_stop, METH_NOARGS, "Stops computing."},
+    {"reset", (PyCFunction)CtlScan2_reset, METH_NOARGS, "Reset scanned numbers."},
     {"setFunction", (PyCFunction)CtlScan2_setFunction, METH_O, "Sets the function to be called."},
     {"setToprint", (PyCFunction)CtlScan2_setToprint, METH_O, "If True, print values to the console."},
     {NULL}  /* Sentinel */

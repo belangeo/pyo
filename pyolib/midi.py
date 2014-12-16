@@ -257,6 +257,13 @@ class CtlScan(PyoObject):
     def setDiv(self, x):
         pass
 
+    def reset(self):
+        """
+        Resets the scanner.
+
+        """
+        [obj.reset() for obj in self._base_objs]
+
     def setFunction(self, x):
         """
         Replace the `function` attribute.
@@ -362,6 +369,13 @@ class CtlScan2(PyoObject):
     def setDiv(self, x):
         pass
 
+    def reset(self):
+        """
+        Resets the scanner.
+
+        """
+        [obj.reset() for obj in self._base_objs]
+        
     def setFunction(self, x):
         """
         Replace the `function` attribute.
