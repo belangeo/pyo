@@ -2295,7 +2295,7 @@ PyTypeObject LooperType = {
     Looper_new,                 /* tp_new */
 };
 
-static const MYFLT Granule_MAX_GRAINS = 1024; 
+static const MYFLT Granule_MAX_GRAINS = 4096; 
 typedef struct {
     pyo_audio_HEAD
     PyObject *table;
@@ -2314,16 +2314,17 @@ typedef struct {
     MYFLT *phase;
     int *flags;
     int num;
+    int sync;
     double timer;
     MYFLT oneOnSr;
+    MYFLT srOnRandMax;
     int modebuffer[6];
 } Granule;
 
 static void
 Granule_transform_i(Granule *self) {
     MYFLT dens, inc, index, amp, phase;
-    int i, j, ipart;
-    int flag = 0; 
+    int i, j, ipart, flag = 0; 
     MYFLT pit = 0, pos = 0, dur = 0; 
     
     MYFLT *tablelist = TableStream_getData(self->table);
@@ -2334,18 +2335,24 @@ Granule_transform_i(Granule *self) {
     
     dens = PyFloat_AS_DOUBLE(self->dens);
     if (dens < 0.0)
-        dens = -dens;
+        dens = 0.0;
     
     inc = dens * self->oneOnSr;
     
     for (i=0; i<self->bufsize; i++) {
         self->data[i] = 0.0;
 
-        /* clocker */
-        self->timer += inc;
-        if (self->timer >= 1.0) {
-            self->timer -= 1.0;
-            flag = 1;
+        if (self->sync == 1) {
+            /* synchronous */
+            self->timer += inc;
+            if (self->timer >= 1.0) {
+                self->timer -= 1.0;
+                flag = 1;
+            }
+        } else {
+            /* asynchronous */
+            if ((rand() * self->srOnRandMax) < dens)
+                flag = 1;
         }
 
         /* need to start a new grain */
@@ -2371,6 +2378,8 @@ Granule_transform_i(Granule *self) {
                         pos = 0.0;
                     else if (pos >= size)
                         pos = (MYFLT)size;
+                    if (dur < 0.0001)
+                        dur = 0.0001;
                     self->gpos[j] = pos;
                     self->glen[j] = dur * self->sr * pit;
                     if ((pos + self->glen[j]) >= size || (pos + self->glen[j]) < 0)
@@ -2386,23 +2395,19 @@ Granule_transform_i(Granule *self) {
         for (j=0; j<self->num; j++) {
             if (self->flags[j]) {
                 phase = self->phase[j];
-                if (phase >= 0.0 && phase < 1.0) {
-                    // compute envelope
-                    index = phase * envsize;
-                    ipart = (int)index;
-                    amp = envlist[ipart] + (envlist[ipart+1] - envlist[ipart]) * (index - ipart);
-
-                    // compute sampling
-                    index = phase * self->glen[j] + self->gpos[j];
-                    ipart = (int)index;
-                    self->data[i] += (tablelist[ipart] + (tablelist[ipart+1] - tablelist[ipart]) * (index - ipart)) * amp;
-
-                    phase += self->inc[j];
-                    if (phase >= 1.0)
-                        self->flags[j] = 0;
-                    else
-                        self->phase[j] = phase;
-                }
+                /* compute envelope */
+                index = phase * envsize;
+                ipart = (int)index;
+                amp = envlist[ipart] + (envlist[ipart+1] - envlist[ipart]) * (index - ipart);
+                /* compute sampling */
+                index = phase * self->glen[j] + self->gpos[j];
+                ipart = (int)index;
+                self->data[i] += (tablelist[ipart] + (tablelist[ipart+1] - tablelist[ipart]) * (index - ipart)) * amp;
+                phase += self->inc[j];
+                if (phase >= 1.0)
+                    self->flags[j] = 0;
+                else
+                    self->phase[j] = phase;
             }
         }
         flag = 0;
@@ -2412,8 +2417,7 @@ Granule_transform_i(Granule *self) {
 static void
 Granule_transform_a(Granule *self) {
     MYFLT index, amp, phase;
-    int i, j, ipart;
-    int flag = 0;
+    int i, j, ipart, flag = 0;
     MYFLT pit = 0, pos = 0, dur = 0; 
     
     MYFLT *tablelist = TableStream_getData(self->table);
@@ -2427,11 +2431,17 @@ Granule_transform_a(Granule *self) {
     for (i=0; i<self->bufsize; i++) {
         self->data[i] = 0.0;
 
-        /* clocker */
-        self->timer += density[i] * self->oneOnSr;
-        if (self->timer >= 1.0) {
-            self->timer -= 1.0;
-            flag = 1;
+        if (self->sync == 1) {
+            /* synchronous */
+            self->timer += density[i] * self->oneOnSr;
+            if (self->timer >= 1.0) {
+                self->timer -= 1.0;
+                flag = 1;
+            }
+        } else {
+            /* asynchronous */
+            if ((rand() * self->srOnRandMax) < density[i])
+                flag = 1;
         }
 
         /* need to start a new grain */
@@ -2457,6 +2467,8 @@ Granule_transform_a(Granule *self) {
                         pos = 0.0;
                     else if (pos >= size)
                         pos = (MYFLT)size;
+                    if (dur < 0.0001)
+                        dur = 0.0001;
                     self->gpos[j] = pos;
                     self->glen[j] = dur * self->sr * pit;
                     if ((pos + self->glen[j]) >= size || (pos + self->glen[j]) < 0)
@@ -2472,23 +2484,19 @@ Granule_transform_a(Granule *self) {
         for (j=0; j<self->num; j++) {
             if (self->flags[j]) {
                 phase = self->phase[j];
-                if (phase >= 0.0 && phase < 1.0) {
-                    // compute envelope
-                    index = phase * envsize;
-                    ipart = (int)index;
-                    amp = envlist[ipart] + (envlist[ipart+1] - envlist[ipart]) * (index - ipart);
-
-                    // compute sampling
-                    index = phase * self->glen[j] + self->gpos[j];
-                    ipart = (int)index;
-                    self->data[i] += (tablelist[ipart] + (tablelist[ipart+1] - tablelist[ipart]) * (index - ipart)) * amp;
-
-                    phase += self->inc[j];
-                    if (phase >= 1.0)
-                        self->flags[j] = 0;
-                    else
-                        self->phase[j] = phase;
-                }
+                // compute envelope
+                index = phase * envsize;
+                ipart = (int)index;
+                amp = envlist[ipart] + (envlist[ipart+1] - envlist[ipart]) * (index - ipart);
+                // compute sampling
+                index = phase * self->glen[j] + self->gpos[j];
+                ipart = (int)index;
+                self->data[i] += (tablelist[ipart] + (tablelist[ipart+1] - tablelist[ipart]) * (index - ipart)) * amp;
+                phase += self->inc[j];
+                if (phase >= 1.0)
+                    self->flags[j] = 0;
+                else
+                    self->phase[j] = phase;
             }
         }
         flag = 0;
@@ -2619,6 +2627,7 @@ Granule_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->dur = PyFloat_FromDouble(0.1);
     self->timer = 1.0;
     self->num = 0;
+    self->sync = 1;
 	self->modebuffer[0] = 0;
 	self->modebuffer[1] = 0;
 	self->modebuffer[2] = 0;
@@ -2629,6 +2638,7 @@ Granule_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     INIT_OBJECT_COMMON
     
     self->oneOnSr = 1.0 / self->sr;
+    self->srOnRandMax = self->sr / (MYFLT)RAND_MAX;
 
     Stream_setFunctionPtr(self->stream, Granule_compute_next_data_frame);
     self->mode_func_ptr = Granule_setProcMode;
@@ -2688,7 +2698,9 @@ Granule_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         self->gpos[i] = self->glen[i] = self->inc[i] = self->phase[i] = 0.0;
         self->flags[i] = 0;
     }
-    
+  
+    Server_generateSeed((Server *)self->server, GRANULE_ID);
+  
     (*self->mode_func_ptr)(self);
     
     return (PyObject *)self;
@@ -2894,6 +2906,21 @@ Granule_setEnv(Granule *self, PyObject *arg)
 	return Py_None;
 }	
 
+static PyObject *
+Granule_setSync(Granule *self, PyObject *arg)
+{
+	if (PyLong_Check(arg) || PyInt_Check(arg)) {
+        self->sync = PyLong_AsLong(arg);
+        if (self->sync <= 0)
+            self->sync = 0;
+        else
+            self->sync = 1;
+    }
+
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
 static PyMemberDef Granule_members[] = {
     {"server", T_OBJECT_EX, offsetof(Granule, server), 0, "Pyo server."},
     {"stream", T_OBJECT_EX, offsetof(Granule, stream), 0, "Stream object."},
@@ -2922,6 +2949,7 @@ static PyMethodDef Granule_methods[] = {
 	{"setPitch", (PyCFunction)Granule_setPitch, METH_O, "Sets global pitch factor."},
     {"setPos", (PyCFunction)Granule_setPos, METH_O, "Sets position in the sound table."},
     {"setDur", (PyCFunction)Granule_setDur, METH_O, "Sets the grain duration."},
+    {"setSync", (PyCFunction)Granule_setSync, METH_O, "Sets the granulator mode: synchronous or asynchronous."},
 	{"setMul", (PyCFunction)Granule_setMul, METH_O, "Sets Granule mul factor."},
 	{"setAdd", (PyCFunction)Granule_setAdd, METH_O, "Sets Granule add factor."},
     {"setSub", (PyCFunction)Granule_setSub, METH_O, "Sets inverse add factor."},

@@ -307,6 +307,7 @@ extern PyTypeObject CtlScanType;
 extern PyTypeObject CtlScan2Type;
 extern PyTypeObject MidiNoteType;
 extern PyTypeObject NoteinType;
+extern PyTypeObject NoteinTrigType;
 extern PyTypeObject BendinType;
 extern PyTypeObject TouchinType;
 extern PyTypeObject PrograminType;
@@ -515,6 +516,7 @@ extern PyTypeObject PeakAmpType;
 #define FREEVERB_ID 24
 #define XNOISEDUR_ID 25
 #define URN_ID 26
+#define GRANULE_ID 27
 /* Do not forget to modify Server_generateSeed function */
 
 /* object headers */

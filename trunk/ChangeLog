@@ -1,3 +1,11 @@
+2015-01-24 belangeo <belangeo@gmail.com>
+
+    * Added setSync method to Granule object. Allow to toggle between synchronous 
+    and asynchronous granulation. Added noteon and noteoff trigger streams to Notein 
+    object.
+
+    - rev 1280
+
 2014-12-03 belangeo <belangeo@gmail.com>
 
     * Added new objet: PeakAmp, a peak amplitude follower.

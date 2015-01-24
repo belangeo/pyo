@@ -460,6 +460,12 @@ class Notein(PyoObject):
         |  Notein['velocity'] to retrieve velocity streams.    
 
         Velocity is automatically scaled between 0 and 1.
+
+        Notein also outputs trigger streams on noteon and noteoff. 
+        These streams can be retrieved with :
+        
+        |  Notein['trigon'] to retrieve noteon trigger streams.
+        |  Notein['trigoff'] to retrieve noteoff trigger streams.    
         
         The out() method is bypassed. Notein's signal can not be sent 
         to audio outs.
@@ -477,6 +483,8 @@ class Notein(PyoObject):
         PyoObject.__init__(self, mul, add)
         self._pitch_dummy = []
         self._velocity_dummy = []
+        self._trigon_dummy = []
+        self._trigoff_dummy = []
         self._poly = poly
         self._scale = scale
         self._first = first
@@ -485,17 +493,26 @@ class Notein(PyoObject):
         mul, add, lmax = convertArgsToLists(mul, add)
         self._base_handler = MidiNote_base(self._poly, self._scale, self._first, self._last, self._channel)
         self._base_objs = []
+        self._trig_objs = []
         for i in range(lmax * poly):
             self._base_objs.append(Notein_base(self._base_handler, i, 0, 1, 0))
             self._base_objs.append(Notein_base(self._base_handler, i, 1, wrap(mul,i), wrap(add,i)))
-
+            self._trig_objs.append(NoteinTrig_base(self._base_handler, i, 0, 1, 0))
+            self._trig_objs.append(NoteinTrig_base(self._base_handler, i, 1, 1, 0))
+            
     def __getitem__(self, str):
         if str == 'pitch':
             self._pitch_dummy.append(Dummy([self._base_objs[i*2] for i in range(self._poly)]))
             return self._pitch_dummy[-1]
-        if str == 'velocity':
+        elif str == 'velocity':
             self._velocity_dummy.append(Dummy([self._base_objs[i*2+1] for i in range(self._poly)]))
             return self._velocity_dummy[-1]
+        elif str == 'trigon':
+            self._trigon_dummy.append(Dummy([self._trig_objs[i*2] for i in range(self._poly)]))
+            return self._trigon_dummy[-1]
+        elif str == 'trigoff':
+            self._trigoff_dummy.append(Dummy([self._trig_objs[i*2+1] for i in range(self._poly)]))
+            return self._trigoff_dummy[-1]
 
     def setChannel(self, x):
         """
