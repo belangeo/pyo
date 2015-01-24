@@ -2468,6 +2468,9 @@ class Granule(PyoObject):
     """
     Another granular synthesis generator.
 
+    As of pyo 0.7.4, users can call the `setSync` method to change the 
+    granulation mode (either synchronous or asynchronous) of the object.
+    
     :Parent: :py:class:`PyoObject`
     
     :Args:
@@ -2510,6 +2513,7 @@ class Granule(PyoObject):
         self._pitch = pitch
         self._pos = pos
         self._dur = dur
+        self._sync = 1
         table, env, dens, pitch, pos, dur, mul, add, lmax = convertArgsToLists(table, env, dens, pitch, pos, dur, mul, add)
         self._base_objs = [Granule_base(wrap(table,i), wrap(env,i), wrap(dens,i), wrap(pitch,i), wrap(pos,i), wrap(dur,i), 
                                            wrap(mul,i), wrap(add,i)) for i in range(lmax)]
@@ -2597,6 +2601,21 @@ class Granule(PyoObject):
         self._dur = x
         x, lmax = convertArgsToLists(x)
         [obj.setDur(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def setSync(self, x):
+        """
+        Sets the granulation mode, synchronous or asynchronous.
+        
+        :Args:
+
+            x : boolean
+                True means synchronous granulation (the default) 
+                while False means asynchronous.
+        
+        """
+        self._sync = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setSync(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
         self._map_list = [SLMap(1, 250, 'lin', 'dens', self._dens),

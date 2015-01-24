@@ -2345,6 +2345,7 @@ init_pyo64(void)
     module_add_object(m, "CtlScan2_base", &CtlScan2Type);
     module_add_object(m, "MidiNote_base", &MidiNoteType);
     module_add_object(m, "Notein_base", &NoteinType);
+    module_add_object(m, "NoteinTrig_base", &NoteinTrigType);
     module_add_object(m, "Bendin_base", &BendinType);
     module_add_object(m, "Touchin_base", &TouchinType);
     module_add_object(m, "Programin_base", &PrograminType);

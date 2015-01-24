@@ -1923,6 +1923,7 @@ typedef struct {
     int centralkey;
     int channel;
     int stealing;
+    MYFLT *trigger_streams;
 } MidiNote;
 
 static void
@@ -2018,12 +2019,14 @@ void grabMidiNotes(MidiNote *self, PmEvent *buffer, int count)
                         self->vcount = voice;
                         self->notebuf[voice*2] = pitch;
                         self->notebuf[voice*2+1] = velocity;
+                        self->trigger_streams[self->bufsize*(self->vcount*2)] = 1.0;
                     }
                 }
                 else {
                     self->vcount = (self->vcount + 1) % self->voices;
                     self->notebuf[self->vcount*2] = pitch;
                     self->notebuf[self->vcount*2+1] = velocity;
+                    self->trigger_streams[self->bufsize*(self->vcount*2)] = 1.0;
                 }
             }    
             else if (pitchIsIn(self->notebuf, pitch, self->voices) == 1 && kind == 0 && pitch >= self->first && pitch <= self->last) {
@@ -2031,6 +2034,7 @@ void grabMidiNotes(MidiNote *self, PmEvent *buffer, int count)
                 voice = whichVoice(self->notebuf, pitch, self->voices);
                 self->notebuf[voice*2] = -1;
                 self->notebuf[voice*2+1] = 0.;
+                self->trigger_streams[self->bufsize*(voice*2+1)] = 1.0;
             }
         }
     }    
@@ -2040,7 +2044,11 @@ static void
 MidiNote_compute_next_data_frame(MidiNote *self)
 {   
     PmEvent *tmp;
-    int count;
+    int i, count;
+
+    for (i=0; i<self->bufsize*self->voices*2; i++) {
+        self->trigger_streams[i] = 0.0;
+    }
     
     tmp = Server_getMidiEventBuffer((Server *)self->server);
     count = Server_getMidiEventCount((Server *)self->server);
@@ -2067,8 +2075,15 @@ MidiNote_dealloc(MidiNote* self)
 {
     pyo_DEALLOC
     free(self->notebuf);
+    free(self->trigger_streams);
     MidiNote_clear(self);
     self->ob_type->tp_free((PyObject*)self);
+}
+
+static MYFLT *
+MidiNote_get_trigger_buffer(MidiNote *self)
+{
+    return self->trigger_streams;
 }
 
 static PyObject *
@@ -2099,6 +2114,11 @@ MidiNote_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
     self->notebuf = (int *)realloc(self->notebuf, self->voices * 2 * sizeof(int));
+    self->trigger_streams = (MYFLT *)realloc(self->trigger_streams, self->bufsize * self->voices * 2 * sizeof(MYFLT));
+
+    for (i=0; i<self->bufsize*self->voices*2; i++) {
+        self->trigger_streams[i] = 0.0;
+    }
 
     for (i=0; i<self->voices; i++) {
         self->notebuf[i*2] = -1;
@@ -2519,6 +2539,262 @@ Notein_members,             /* tp_members */
 0,      /* tp_init */
 0,                         /* tp_alloc */
 Notein_new,                 /* tp_new */
+};
+
+/* NoteinTrig trig streamer */
+typedef struct {
+    pyo_audio_HEAD
+    MidiNote *handler;
+    int modebuffer[2];
+    int voice;
+    int mode; /* 0 = noteon, 1 = noteoff */
+} NoteinTrig;
+
+static void NoteinTrig_postprocessing_ii(NoteinTrig *self) { POST_PROCESSING_II };
+static void NoteinTrig_postprocessing_ai(NoteinTrig *self) { POST_PROCESSING_AI };
+static void NoteinTrig_postprocessing_ia(NoteinTrig *self) { POST_PROCESSING_IA };
+static void NoteinTrig_postprocessing_aa(NoteinTrig *self) { POST_PROCESSING_AA };
+static void NoteinTrig_postprocessing_ireva(NoteinTrig *self) { POST_PROCESSING_IREVA };
+static void NoteinTrig_postprocessing_areva(NoteinTrig *self) { POST_PROCESSING_AREVA };
+static void NoteinTrig_postprocessing_revai(NoteinTrig *self) { POST_PROCESSING_REVAI };
+static void NoteinTrig_postprocessing_revaa(NoteinTrig *self) { POST_PROCESSING_REVAA };
+static void NoteinTrig_postprocessing_revareva(NoteinTrig *self) { POST_PROCESSING_REVAREVA };
+
+static void
+NoteinTrig_setProcMode(NoteinTrig *self)
+{
+    int muladdmode;
+    muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
+    
+	switch (muladdmode) {
+        case 0:        
+            self->muladd_func_ptr = NoteinTrig_postprocessing_ii;
+            break;
+        case 1:    
+            self->muladd_func_ptr = NoteinTrig_postprocessing_ai;
+            break;
+        case 2:    
+            self->muladd_func_ptr = NoteinTrig_postprocessing_revai;
+            break;
+        case 10:        
+            self->muladd_func_ptr = NoteinTrig_postprocessing_ia;
+            break;
+        case 11:    
+            self->muladd_func_ptr = NoteinTrig_postprocessing_aa;
+            break;
+        case 12:    
+            self->muladd_func_ptr = NoteinTrig_postprocessing_revaa;
+            break;
+        case 20:        
+            self->muladd_func_ptr = NoteinTrig_postprocessing_ireva;
+            break;
+        case 21:    
+            self->muladd_func_ptr = NoteinTrig_postprocessing_areva;
+            break;
+        case 22:    
+            self->muladd_func_ptr = NoteinTrig_postprocessing_revareva;
+            break;
+    }
+}
+
+static void
+NoteinTrig_compute_next_data_frame(NoteinTrig *self)
+{
+    int i;
+    MYFLT *tmp = MidiNote_get_trigger_buffer(self->handler);
+    
+    for (i=0; i<self->bufsize; i++) {
+        self->data[i] = tmp[self->bufsize*(self->voice*2+self->mode)+i];
+    }    
+    (*self->muladd_func_ptr)(self);
+}
+
+static int
+NoteinTrig_traverse(NoteinTrig *self, visitproc visit, void *arg)
+{
+    pyo_VISIT
+    Py_VISIT(self->handler);
+    return 0;
+}
+
+static int 
+NoteinTrig_clear(NoteinTrig *self)
+{
+    pyo_CLEAR
+    Py_CLEAR(self->handler);    
+    return 0;
+}
+
+static void
+NoteinTrig_dealloc(NoteinTrig* self)
+{
+    pyo_DEALLOC
+    NoteinTrig_clear(self);
+    self->ob_type->tp_free((PyObject*)self);
+}
+
+static PyObject *
+NoteinTrig_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    int i;
+    PyObject *handlertmp=NULL, *multmp=NULL, *addtmp=NULL;
+    NoteinTrig *self;
+    self = (NoteinTrig *)type->tp_alloc(type, 0);
+    
+    self->voice = 0;
+    self->mode = 0;
+    self->modebuffer[0] = 0;
+    self->modebuffer[1] = 0;
+    
+    INIT_OBJECT_COMMON
+    Stream_setFunctionPtr(self->stream, NoteinTrig_compute_next_data_frame);
+    self->mode_func_ptr = NoteinTrig_setProcMode;
+
+    static char *kwlist[] = {"handler", "voice", "mode", "mul", "add", NULL};
+    
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|iiOO", kwlist, &handlertmp, &self->voice, &self->mode, &multmp, &addtmp))
+        Py_RETURN_NONE;
+    
+    Py_XDECREF(self->handler);
+    Py_INCREF(handlertmp);
+    self->handler = (MidiNote *)handlertmp;
+    
+    if (multmp) {
+        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+    }
+    
+    if (addtmp) {
+        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+    }
+    
+    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    
+    (*self->mode_func_ptr)(self);
+    
+    return (PyObject *)self;
+}
+
+static PyObject * NoteinTrig_getServer(NoteinTrig* self) { GET_SERVER };
+static PyObject * NoteinTrig_getStream(NoteinTrig* self) { GET_STREAM };
+static PyObject * NoteinTrig_setMul(NoteinTrig *self, PyObject *arg) { SET_MUL };	
+static PyObject * NoteinTrig_setAdd(NoteinTrig *self, PyObject *arg) { SET_ADD };	
+static PyObject * NoteinTrig_setSub(NoteinTrig *self, PyObject *arg) { SET_SUB };	
+static PyObject * NoteinTrig_setDiv(NoteinTrig *self, PyObject *arg) { SET_DIV };	
+
+static PyObject * NoteinTrig_play(NoteinTrig *self, PyObject *args, PyObject *kwds) { PLAY };
+static PyObject * NoteinTrig_stop(NoteinTrig *self) { STOP };
+
+static PyObject * NoteinTrig_multiply(NoteinTrig *self, PyObject *arg) { MULTIPLY };
+static PyObject * NoteinTrig_inplace_multiply(NoteinTrig *self, PyObject *arg) { INPLACE_MULTIPLY };
+static PyObject * NoteinTrig_add(NoteinTrig *self, PyObject *arg) { ADD };
+static PyObject * NoteinTrig_inplace_add(NoteinTrig *self, PyObject *arg) { INPLACE_ADD };
+static PyObject * NoteinTrig_sub(NoteinTrig *self, PyObject *arg) { SUB };
+static PyObject * NoteinTrig_inplace_sub(NoteinTrig *self, PyObject *arg) { INPLACE_SUB };
+static PyObject * NoteinTrig_div(NoteinTrig *self, PyObject *arg) { DIV };
+static PyObject * NoteinTrig_inplace_div(NoteinTrig *self, PyObject *arg) { INPLACE_DIV };
+
+static PyMemberDef NoteinTrig_members[] = {
+{"server", T_OBJECT_EX, offsetof(NoteinTrig, server), 0, "Pyo server."},
+{"stream", T_OBJECT_EX, offsetof(NoteinTrig, stream), 0, "Stream object."},
+{"mul", T_OBJECT_EX, offsetof(NoteinTrig, mul), 0, "Mul factor."},
+{"add", T_OBJECT_EX, offsetof(NoteinTrig, add), 0, "Add factor."},
+{NULL}  /* Sentinel */
+};
+
+static PyMethodDef NoteinTrig_methods[] = {
+{"getServer", (PyCFunction)NoteinTrig_getServer, METH_NOARGS, "Returns server object."},
+{"_getStream", (PyCFunction)NoteinTrig_getStream, METH_NOARGS, "Returns stream object."},
+{"play", (PyCFunction)NoteinTrig_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+{"stop", (PyCFunction)NoteinTrig_stop, METH_NOARGS, "Stops computing."},
+{"setMul", (PyCFunction)NoteinTrig_setMul, METH_O, "Sets NoteinTrig mul factor."},
+{"setAdd", (PyCFunction)NoteinTrig_setAdd, METH_O, "Sets NoteinTrig add factor."},
+{"setSub", (PyCFunction)NoteinTrig_setSub, METH_O, "Sets inverse add factor."},
+{"setDiv", (PyCFunction)NoteinTrig_setDiv, METH_O, "Sets inverse mul factor."},
+{NULL}  /* Sentinel */
+};
+
+static PyNumberMethods NoteinTrig_as_number = {
+(binaryfunc)NoteinTrig_add,                      /*nb_add*/
+(binaryfunc)NoteinTrig_sub,                 /*nb_subtract*/
+(binaryfunc)NoteinTrig_multiply,                 /*nb_multiply*/
+(binaryfunc)NoteinTrig_div,                   /*nb_divide*/
+0,                /*nb_remainder*/
+0,                   /*nb_divmod*/
+0,                   /*nb_power*/
+0,                  /*nb_neg*/
+0,                /*nb_pos*/
+0,                  /*(unaryfunc)array_abs,*/
+0,                    /*nb_nonzero*/
+0,                    /*nb_invert*/
+0,               /*nb_lshift*/
+0,              /*nb_rshift*/
+0,              /*nb_and*/
+0,              /*nb_xor*/
+0,               /*nb_or*/
+0,                                          /*nb_coerce*/
+0,                       /*nb_int*/
+0,                      /*nb_long*/
+0,                     /*nb_float*/
+0,                       /*nb_oct*/
+0,                       /*nb_hex*/
+(binaryfunc)NoteinTrig_inplace_add,              /*inplace_add*/
+(binaryfunc)NoteinTrig_inplace_sub,         /*inplace_subtract*/
+(binaryfunc)NoteinTrig_inplace_multiply,         /*inplace_multiply*/
+(binaryfunc)NoteinTrig_inplace_div,           /*inplace_divide*/
+0,        /*inplace_remainder*/
+0,           /*inplace_power*/
+0,       /*inplace_lshift*/
+0,      /*inplace_rshift*/
+0,      /*inplace_and*/
+0,      /*inplace_xor*/
+0,       /*inplace_or*/
+0,             /*nb_floor_divide*/
+0,              /*nb_true_divide*/
+0,     /*nb_inplace_floor_divide*/
+0,      /*nb_inplace_true_divide*/
+0,                     /* nb_index */
+};
+
+PyTypeObject NoteinTrigType = {
+PyObject_HEAD_INIT(NULL)
+0,                         /*ob_size*/
+"_pyo.NoteinTrig_base",         /*tp_name*/
+sizeof(NoteinTrig),         /*tp_basicsize*/
+0,                         /*tp_itemsize*/
+(destructor)NoteinTrig_dealloc, /*tp_dealloc*/
+0,                         /*tp_print*/
+0,                         /*tp_getattr*/
+0,                         /*tp_setattr*/
+0,                         /*tp_compare*/
+0,                         /*tp_repr*/
+&NoteinTrig_as_number,             /*tp_as_number*/
+0,                         /*tp_as_sequence*/
+0,                         /*tp_as_mapping*/
+0,                         /*tp_hash */
+0,                         /*tp_call*/
+0,                         /*tp_str*/
+0,                         /*tp_getattro*/
+0,                         /*tp_setattro*/
+0,                         /*tp_as_buffer*/
+Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES,  /*tp_flags*/
+"NoteinTrig objects. Stream noteon or noteoff trigger from a Notein voice.",           /* tp_doc */
+(traverseproc)NoteinTrig_traverse,   /* tp_traverse */
+(inquiry)NoteinTrig_clear,           /* tp_clear */
+0,		               /* tp_richcompare */
+0,		               /* tp_weaklistoffset */
+0,		               /* tp_iter */
+0,		               /* tp_iternext */
+NoteinTrig_methods,             /* tp_methods */
+NoteinTrig_members,             /* tp_members */
+0,                      /* tp_getset */
+0,                         /* tp_base */
+0,                         /* tp_dict */
+0,                         /* tp_descr_get */
+0,                         /* tp_descr_set */
+0,                         /* tp_dictoffset */
+0,      /* tp_init */
+0,                         /* tp_alloc */
+NoteinTrig_new,                 /* tp_new */
 };
 
 typedef struct {

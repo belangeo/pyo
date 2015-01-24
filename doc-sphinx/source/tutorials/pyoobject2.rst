@@ -30,7 +30,7 @@ First of all, we need to import the pyo module
 Step 1 - Declaring the class
 ------------------------------
 
-We will create a new class called RingMod with PyoObject as its parent class. 
+We will create a new class called Flanger with PyoObject as its parent class. 
 Another good habit is to put a __doc__ string at the beginning of our classes. 
 Doing so will allow other users to retrieve the object's documentation with the 
 standard python help() function.
