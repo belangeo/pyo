@@ -2748,3 +2748,260 @@ class TableScale(PyoObject):
         return self._outtable
     @outtable.setter
     def outtable(self, x): self.setOuttable(x)
+
+class Particle(PyoObject):
+    """
+    A full control granular synthesis generator.
+    
+    :Parent: :py:class:`PyoObject`
+    
+    :Args:
+
+        table : PyoTableObject
+            Table containing the waveform samples.
+        env : PyoTableObject
+            Table containing the grain envelope.
+        dens : float or PyoObject, optional
+            Density of grains per second. Defaults to 50.
+        pitch : float or PyoObject, optional
+            Pitch of the grains. Each grain sampled the current value 
+            of this stream at the beginning of its envelope and hold 
+            it until the end of the grain. Defaults to 1.
+        pos : float or PyoObject, optional
+            Pointer position, in samples, in the waveform table. Each 
+            grain sampled the current value of this stream at the beginning 
+            of its envelope and hold it until the end of the grain. 
+            Defaults to 0.
+        dur : float or PyoObject, optional
+            Duration, in seconds, of the grain. Each grain sampled the 
+            current value of this stream at the beginning of its envelope 
+            and hold it until the end of the grain. Defaults to 0.1.
+        dev : float or PyoObject, optional
+            Maximum deviation of the starting time of the grain, between 0 and
+            1 (relative to the current duration of the grain). Each grain sampled 
+            the current value of this stream at the beginning of its envelope 
+            and hold it until the end of the grain. Defaults to 0.01.
+        pan : float or PyoObject, optional
+            Panning factor of the grain (if chnls=1, this value is skipped). 
+            Each grain sampled the current value of this stream at the beginning 
+            of its envelope and hold it until the end of the grain. Defaults to 0.5.
+        chnls : integer, optional
+            Number of output channels per audio stream (if chnls=2 and a stereo sound 
+            table is given at the table argument, the objet will create 4 output 
+            streams, 2 per table channel). Defaults to 1. 
+
+    .. note::
+    
+        Particle object compensate for the difference between sampling rate of the
+        loaded sound and the current sampling rate of the Server. 
+            
+    >>> s = Server().boot()
+    >>> s.start()
+    >>> snd = SndTable(SNDS_PATH+"/transparent.aif")
+    >>> end = snd.getSize() - s.getSamplingRate() * 0.25
+    >>> env = HannTable()
+    >>> dns = Randi(min=5, max=100, freq=.1)
+    >>> pit = Randh(min=0.99, max=1.01, freq=100)
+    >>> pos = Randi(min=0, max=1, freq=0.25, mul=end)
+    >>> dur = Randi(min=0.01, max=0.25, freq=0.15)
+    >>> dev = Randi(min=0, max=1, freq=0.2)
+    >>> pan = Noise(0.5, 0.5)
+    >>> grn = Particle(snd, env, dns, pit, pos, dur, dev, pan, chnls=2, mul=.2).out()
+
+    """
+    def __init__(self, table, env, dens=50, pitch=1, pos=0, dur=.1, dev=0.01, pan=0.5, chnls=1, mul=1, add=0):
+        PyoObject.__init__(self, mul, add)
+        self._table = table
+        self._env = env
+        self._dens = dens
+        self._pitch = pitch
+        self._pos = pos
+        self._dur = dur
+        self._dev = dev
+        self._pan = pan
+        self._chnls = chnls
+        table, env, dens, pitch, pos, dur, dev, pan, mul, add, lmax = convertArgsToLists(table, env, dens, pitch, pos, dur, dev, pan, mul, add)
+        self._base_players = [MainParticle_base(wrap(table,i), wrap(env,i), wrap(dens,i), wrap(pitch,i), wrap(pos,i), wrap(dur,i), wrap(dev,i), wrap(pan,i), chnls) for i in range(lmax)]
+        self._base_objs = []
+        for i in range(lmax):
+            for j in range(chnls):
+                self._base_objs.append(Particle_base(wrap(self._base_players,i), j, wrap(mul,i), wrap(add,i)))
+
+    def setTable(self, x):
+        """
+        Replace the `table` attribute.
+        
+        :Args:
+
+            x : PyoTableObject
+                new `table` attribute.
+        
+        """
+        self._table = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setTable(wrap(x,i)) for i, obj in enumerate(self._base_players)]
+
+    def setEnv(self, x):
+        """
+        Replace the `env` attribute.
+        
+        :Args:
+
+            x : PyoTableObject
+                new `env` attribute.
+        
+        """
+        self._env = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setEnv(wrap(x,i)) for i, obj in enumerate(self._base_players)]
+
+    def setDens(self, x):
+        """
+        Replace the `dens` attribute.
+        
+        :Args:
+
+            x : float or PyoObject
+                new `dens` attribute.
+        
+        """
+        self._dens = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setDens(wrap(x,i)) for i, obj in enumerate(self._base_players)]
+
+    def setPitch(self, x):
+        """
+        Replace the `pitch` attribute.
+        
+        :Args:
+
+            x : float or PyoObject
+                new `pitch` attribute.
+        
+        """
+        self._pitch = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setPitch(wrap(x,i)) for i, obj in enumerate(self._base_players)]
+
+    def setPos(self, x):
+        """
+        Replace the `pos` attribute.
+        
+        :Args:
+
+            x : float or PyoObject
+                new `pos` attribute.
+        
+        """
+        self._pos = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setPos(wrap(x,i)) for i, obj in enumerate(self._base_players)]
+
+    def setDur(self, x):
+        """
+        Replace the `dur` attribute.
+        
+        :Args:
+
+            x : float or PyoObject
+                new `dur` attribute.
+        
+        """
+        self._dur = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setDur(wrap(x,i)) for i, obj in enumerate(self._base_players)]
+
+    def setDev(self, x):
+        """
+        Replace the `dev` attribute.
+        
+        :Args:
+
+            x : float or PyoObject
+                new `dev` attribute.
+        
+        """
+        self._dev = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setDev(wrap(x,i)) for i, obj in enumerate(self._base_players)]
+
+    def setPan(self, x):
+        """
+        Replace the `pan` attribute.
+        
+        :Args:
+
+            x : float or PyoObject
+                new `pan` attribute.
+        
+        """
+        self._pan = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setPan(wrap(x,i)) for i, obj in enumerate(self._base_players)]
+
+    def ctrl(self, map_list=None, title=None, wxnoserver=False):
+        tablesize = self._table.getSize(False)
+        self._map_list = [SLMap(1, 250, 'lin', 'dens', self._dens),
+                          SLMap(0.25, 2., 'lin', 'pitch', self._pitch),
+                          SLMap(0, tablesize, 'lin', 'pos', self._pos),
+                          SLMap(0.001, 1., 'lin', 'dur', self._dur),
+                          SLMap(0., 1., 'lin', 'dev', self._dev),
+                          SLMap(0., 1., 'lin', 'pan', self._pan),
+                          SLMapMul(self._mul)]
+        PyoObject.ctrl(self, map_list, title, wxnoserver)
+
+    @property
+    def table(self):
+        """PyoTableObject. Table containing the waveform samples."""
+        return self._table
+    @table.setter
+    def table(self, x): self.setTable(x)
+
+    @property
+    def env(self):
+        """PyoTableObject. Table containing the grain envelope."""
+        return self._env
+    @env.setter
+    def env(self, x): self.setEnv(x)
+
+    @property
+    def dens(self):
+        """float or PyoObject. Density of grains per second."""
+        return self._dens
+    @dens.setter
+    def dens(self, x): self.setDens(x)
+
+    @property
+    def pitch(self):
+        """float or PyoObject. Transposition factor of the grain."""
+        return self._pitch
+    @pitch.setter
+    def pitch(self, x): self.setPitch(x)
+
+    @property
+    def pos(self):
+        """float or PyoObject. Position of the pointer in the sound table."""
+        return self._pos
+    @pos.setter
+    def pos(self, x): self.setPos(x)
+
+    @property
+    def dur(self):
+        """float or PyoObject. Duration, in seconds, of the grain."""
+        return self._dur
+    @dur.setter
+    def dur(self, x): self.setDur(x)
+
+    @property
+    def dev(self):
+        """float or PyoObject. Deviation of the starting point of the grain in the table."""
+        return self._dev
+    @dev.setter
+    def dev(self, x): self.setDev(x)
+
+    @property
+    def pan(self):
+        """float or PyoObject.Panning of the grain."""
+        return self._pan
+    @pan.setter
+    def pan(self, x): self.setPan(x)
