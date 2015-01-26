@@ -56,6 +56,12 @@ store audio samples or algorithmic sequences for future uses.
 .. autoclass:: OscTrig
    :members:
 
+*Particle*
+-----------------------------------
+
+.. autoclass:: Particle
+   :members:
+
 *Pointer*
 -----------------------------------
 

@@ -2374,6 +2374,8 @@ Granule_transform_i(Granule *self) {
                         dur = PyFloat_AS_DOUBLE(self->dur);
                     else
                         dur = Stream_getData((Stream *)self->dur_stream)[i];
+                    if (pit < 0.0)
+                        pit = -pit;
                     if (pos < 0.0)
                         pos = 0.0;
                     else if (pos >= size)
@@ -2463,6 +2465,8 @@ Granule_transform_a(Granule *self) {
                         dur = PyFloat_AS_DOUBLE(self->dur);
                     else
                         dur = Stream_getData((Stream *)self->dur_stream)[i];
+                    if (pit < 0.0)
+                        pit = -pit;
                     if (pos < 0.0)
                         pos = 0.0;
                     else if (pos >= size)
@@ -3041,3 +3045,1289 @@ PyTypeObject GranuleType = {
     Granule_new,                 /* tp_new */
 };
 
+static const MYFLT MAINPARTICLE_MAX_GRAINS = 4096; 
+typedef struct {
+    pyo_audio_HEAD
+    PyObject *table;
+    PyObject *env;
+    PyObject *dens;
+    Stream *dens_stream;
+    PyObject *pitch;
+    Stream *pitch_stream;
+    PyObject *pos;
+    Stream *pos_stream;
+    PyObject *dur;
+    Stream *dur_stream;
+    PyObject *dev;
+    Stream *dev_stream;
+    PyObject *pan;
+    Stream *pan_stream;
+    MYFLT *gpos;
+    MYFLT *glen;
+    MYFLT *inc;
+    MYFLT *phase;
+    MYFLT *amp1;
+    MYFLT *amp2;
+    int *flags;
+    int *k1;
+    int *k2;
+    int num;
+    int chnls;
+    double timer;
+    double devFactor;
+    double srScale;
+    MYFLT oneOnSr;
+    MYFLT srOnRandMax;
+    MYFLT *buffer_streams;
+    int modebuffer[6];
+} MainParticle;
+
+static void
+MainParticle_transform_mono_i(MainParticle *self) {
+    MYFLT dens, inc, index, amp, phase, val;
+    int i, j, ipart, flag = 0; 
+    MYFLT pit = 0, pos = 0, dur = 0, dev = 0; 
+    
+    MYFLT *tablelist = TableStream_getData(self->table);
+    int size = TableStream_getSize(self->table);
+    
+    MYFLT *envlist = TableStream_getData(self->env);
+    int envsize = TableStream_getSize(self->env);
+    
+    dens = PyFloat_AS_DOUBLE(self->dens);
+    if (dens < 0.0)
+        dens = 0.0;
+    
+    inc = dens * self->oneOnSr * self->devFactor;
+
+    for (i=0; i<self->bufsize*self->chnls; i++) {
+        self->buffer_streams[i] = 0.0;
+    }
+    
+    for (i=0; i<self->bufsize; i++) {
+        self->timer += inc;
+        if (self->timer >= 1.0) {
+            self->timer -= 1.0;
+            flag = 1;
+        }
+
+        /* need to start a new grain */
+        if (flag) {
+            for (j=0; j<MAINPARTICLE_MAX_GRAINS; j++) {
+                if (self->flags[j] == 0) {
+                    self->flags[j] = 1;
+                    if (j >= self->num)
+                        self->num = j + 1;
+                    if (self->modebuffer[1] == 0)
+                        pit = PyFloat_AS_DOUBLE(self->pitch);
+                    else
+                        pit = Stream_getData((Stream *)self->pitch_stream)[i];
+                    if (self->modebuffer[2] == 0)
+                        pos = PyFloat_AS_DOUBLE(self->pos);
+                    else
+                        pos = Stream_getData((Stream *)self->pos_stream)[i];
+                    if (self->modebuffer[3] == 0)
+                        dur = PyFloat_AS_DOUBLE(self->dur);
+                    else
+                        dur = Stream_getData((Stream *)self->dur_stream)[i];
+                    if (self->modebuffer[4] == 0)
+                        dev = PyFloat_AS_DOUBLE(self->dev);
+                    else
+                        dev = Stream_getData((Stream *)self->dev_stream)[i];
+                    if (pit < 0.0)
+                        pit = -pit;
+                    if (pos < 0.0)
+                        pos = 0.0;
+                    else if (pos >= size)
+                        pos = (MYFLT)size;
+                    if (dur < 0.0001)
+                        dur = 0.0001;
+                    if (dev < 0.0)
+                        dev = 0.0;
+                    else if (dev > 1.0)
+                        dev = 1.0;
+                    self->gpos[j] = pos;
+                    self->glen[j] = dur * self->sr * pit * self->srScale;
+                    if ((pos + self->glen[j]) >= size || (pos + self->glen[j]) < 0)
+                        self->flags[j] = 0;
+                    self->phase[j] = 0.0;
+                    self->inc[j] = 1.0 / (dur * self->sr);
+                    self->devFactor = (rand() / (MYFLT)RAND_MAX * 2.0 - 1.0) * dev + 1.0;
+                    break;
+                }
+            }
+        }
+
+        /* compute active grains */
+        for (j=0; j<self->num; j++) {
+            if (self->flags[j]) {
+                phase = self->phase[j];
+                /* compute envelope */
+                index = phase * envsize;
+                ipart = (int)index;
+                amp = envlist[ipart] + (envlist[ipart+1] - envlist[ipart]) * (index - ipart);
+                /* compute sampling */
+                index = phase * self->glen[j] + self->gpos[j];
+                ipart = (int)index;
+                val = (tablelist[ipart] + (tablelist[ipart+1] - tablelist[ipart]) * (index - ipart)) * amp;
+                self->buffer_streams[i] += val;
+                phase += self->inc[j];
+                if (phase >= 1.0)
+                    self->flags[j] = 0;
+                else
+                    self->phase[j] = phase;
+            }
+        }
+        flag = 0;
+    }    
+}
+
+static void
+MainParticle_transform_mono_a(MainParticle *self) {
+    MYFLT dens, index, amp, phase, val;
+    int i, j, ipart, flag = 0; 
+    MYFLT pit = 0, pos = 0, dur = 0, dev = 0; 
+    
+    MYFLT *tablelist = TableStream_getData(self->table);
+    int size = TableStream_getSize(self->table);
+    
+    MYFLT *envlist = TableStream_getData(self->env);
+    int envsize = TableStream_getSize(self->env);
+    
+    MYFLT *density = Stream_getData((Stream *)self->dens_stream);
+
+    for (i=0; i<self->bufsize*self->chnls; i++) {
+        self->buffer_streams[i] = 0.0;
+    }
+    
+    for (i=0; i<self->bufsize; i++) {
+        if (density[i] < 0.0)
+            dens = 0.0;
+        else
+            dens = density[i];
+        self->timer += dens * self->oneOnSr * self->devFactor;
+        if (self->timer >= 1.0) {
+            self->timer -= 1.0;
+            flag = 1;
+        }
+
+        /* need to start a new grain */
+        if (flag) {
+            for (j=0; j<MAINPARTICLE_MAX_GRAINS; j++) {
+                if (self->flags[j] == 0) {
+                    self->flags[j] = 1;
+                    if (j >= self->num)
+                        self->num = j + 1;
+                    if (self->modebuffer[1] == 0)
+                        pit = PyFloat_AS_DOUBLE(self->pitch);
+                    else
+                        pit = Stream_getData((Stream *)self->pitch_stream)[i];
+                    if (self->modebuffer[2] == 0)
+                        pos = PyFloat_AS_DOUBLE(self->pos);
+                    else
+                        pos = Stream_getData((Stream *)self->pos_stream)[i];
+                    if (self->modebuffer[3] == 0)
+                        dur = PyFloat_AS_DOUBLE(self->dur);
+                    else
+                        dur = Stream_getData((Stream *)self->dur_stream)[i];
+                    if (self->modebuffer[4] == 0)
+                        dev = PyFloat_AS_DOUBLE(self->dev);
+                    else
+                        dev = Stream_getData((Stream *)self->dev_stream)[i];
+                    if (pit < 0.0)
+                        pit = -pit;
+                    if (pos < 0.0)
+                        pos = 0.0;
+                    else if (pos >= size)
+                        pos = (MYFLT)size;
+                    if (dur < 0.0001)
+                        dur = 0.0001;
+                    if (dev < 0.0)
+                        dev = 0.0;
+                    else if (dev > 1.0)
+                        dev = 1.0;
+                    self->gpos[j] = pos;
+                    self->glen[j] = dur * self->sr * pit * self->srScale;
+                    if ((pos + self->glen[j]) >= size || (pos + self->glen[j]) < 0)
+                        self->flags[j] = 0;
+                    self->phase[j] = 0.0;
+                    self->inc[j] = 1.0 / (dur * self->sr);
+                    self->devFactor = (rand() / (MYFLT)RAND_MAX * 2.0 - 1.0) * dev + 1.0;
+                    break;
+                }
+            }
+        }
+
+        /* compute active grains */
+        for (j=0; j<self->num; j++) {
+            if (self->flags[j]) {
+                phase = self->phase[j];
+                /* compute envelope */
+                index = phase * envsize;
+                ipart = (int)index;
+                amp = envlist[ipart] + (envlist[ipart+1] - envlist[ipart]) * (index - ipart);
+                /* compute sampling */
+                index = phase * self->glen[j] + self->gpos[j];
+                ipart = (int)index;
+                val = (tablelist[ipart] + (tablelist[ipart+1] - tablelist[ipart]) * (index - ipart)) * amp;
+                self->buffer_streams[i] += val;
+                phase += self->inc[j];
+                if (phase >= 1.0)
+                    self->flags[j] = 0;
+                else
+                    self->phase[j] = phase;
+            }
+        }
+        flag = 0;
+    }    
+}
+
+static void
+MainParticle_transform_i(MainParticle *self) {
+    MYFLT dens, inc, index, amp, phase, val, min = 0;
+    int i, j, l, l1, ipart, flag = 0; 
+    MYFLT pit = 0, pos = 0, dur = 0, dev = 0, pan = 0; 
+    
+    MYFLT *tablelist = TableStream_getData(self->table);
+    int size = TableStream_getSize(self->table);
+    
+    MYFLT *envlist = TableStream_getData(self->env);
+    int envsize = TableStream_getSize(self->env);
+    
+    dens = PyFloat_AS_DOUBLE(self->dens);
+    if (dens < 0.0)
+        dens = 0.0;
+    
+    inc = dens * self->oneOnSr * self->devFactor;
+
+    for (i=0; i<self->bufsize*self->chnls; i++) {
+        self->buffer_streams[i] = 0.0;
+    }
+    
+    for (i=0; i<self->bufsize; i++) {
+        self->timer += inc;
+        if (self->timer >= 1.0) {
+            self->timer -= 1.0;
+            flag = 1;
+        }
+
+        /* need to start a new grain */
+        if (flag) {
+            for (j=0; j<MAINPARTICLE_MAX_GRAINS; j++) {
+                if (self->flags[j] == 0) {
+                    self->flags[j] = 1;
+                    if (j >= self->num)
+                        self->num = j + 1;
+                    if (self->modebuffer[1] == 0)
+                        pit = PyFloat_AS_DOUBLE(self->pitch);
+                    else
+                        pit = Stream_getData((Stream *)self->pitch_stream)[i];
+                    if (self->modebuffer[2] == 0)
+                        pos = PyFloat_AS_DOUBLE(self->pos);
+                    else
+                        pos = Stream_getData((Stream *)self->pos_stream)[i];
+                    if (self->modebuffer[3] == 0)
+                        dur = PyFloat_AS_DOUBLE(self->dur);
+                    else
+                        dur = Stream_getData((Stream *)self->dur_stream)[i];
+                    if (self->modebuffer[4] == 0)
+                        dev = PyFloat_AS_DOUBLE(self->dev);
+                    else
+                        dev = Stream_getData((Stream *)self->dev_stream)[i];
+                    if (self->modebuffer[5] == 0)
+                        pan = PyFloat_AS_DOUBLE(self->pan);
+                    else
+                        pan = Stream_getData((Stream *)self->pan_stream)[i];
+                    if (pit < 0.0)
+                        pit = -pit;
+                    if (pos < 0.0)
+                        pos = 0.0;
+                    else if (pos >= size)
+                        pos = (MYFLT)size;
+                    if (dur < 0.0001)
+                        dur = 0.0001;
+                    if (dev < 0.0)
+                        dev = 0.0;
+                    else if (dev > 1.0)
+                        dev = 1.0;
+                    if (pan < 0.0)
+                        pan = 0.0;
+                    else if (pan > 1.0)
+                        pan = 1.0;
+                    self->gpos[j] = pos;
+                    self->glen[j] = dur * self->sr * pit * self->srScale;
+                    if ((pos + self->glen[j]) >= size || (pos + self->glen[j]) < 0)
+                        self->flags[j] = 0;
+                    self->phase[j] = 0.0;
+                    self->inc[j] = 1.0 / (dur * self->sr);
+                    self->devFactor = (rand() / (MYFLT)RAND_MAX * 2.0 - 1.0) * dev + 1.0;
+                    if (self->chnls == 2) {
+                        self->k1[j] = 0;
+                        self->k2[j] = self->bufsize;
+                        self->amp1[j] = MYSQRT(1.0 - pan);
+                        self->amp2[j] = MYSQRT(pan);
+                    }
+                    else {
+                        self->amp1[j] = MYSQRT(1.0 - pan);
+                        self->amp2[j] = MYSQRT(pan);
+                        min = 0;
+                        self->k1[j] = 0;
+                        self->k2[j] = self->bufsize;
+                        for (l=self->chnls; l>0; l--) {
+                            l1 = l - 1;
+                            min = l1 / (MYFLT)self->chnls;
+                            if (pan > min) {
+                                self->k1[j] = l1 * self->bufsize;
+                                if (l == self->chnls)
+                                    self->k2[j] = 0;
+                                else                    
+                                    self->k2[j] = l * self->bufsize;
+                                break;
+                            }
+                        }
+                    }
+                    break;
+                }
+            }
+        }
+
+        /* compute active grains */
+        for (j=0; j<self->num; j++) {
+            if (self->flags[j]) {
+                phase = self->phase[j];
+                /* compute envelope */
+                index = phase * envsize;
+                ipart = (int)index;
+                amp = envlist[ipart] + (envlist[ipart+1] - envlist[ipart]) * (index - ipart);
+                /* compute sampling */
+                index = phase * self->glen[j] + self->gpos[j];
+                ipart = (int)index;
+                val = (tablelist[ipart] + (tablelist[ipart+1] - tablelist[ipart]) * (index - ipart)) * amp;
+                self->buffer_streams[i+self->k1[j]] += val * self->amp1[j];
+                self->buffer_streams[i+self->k2[j]] += val * self->amp2[j];
+                phase += self->inc[j];
+                if (phase >= 1.0)
+                    self->flags[j] = 0;
+                else
+                    self->phase[j] = phase;
+            }
+        }
+        flag = 0;
+    }    
+}
+
+static void
+MainParticle_transform_a(MainParticle *self) {
+    MYFLT dens, index, amp, phase, val, min = 0;
+    int i, j, l, l1, ipart, flag = 0; 
+    MYFLT pit = 0, pos = 0, dur = 0, dev = 0, pan = 0; 
+    
+    MYFLT *tablelist = TableStream_getData(self->table);
+    int size = TableStream_getSize(self->table);
+    
+    MYFLT *envlist = TableStream_getData(self->env);
+    int envsize = TableStream_getSize(self->env);
+    
+    MYFLT *density = Stream_getData((Stream *)self->dens_stream);
+
+    for (i=0; i<self->bufsize*self->chnls; i++) {
+        self->buffer_streams[i] = 0.0;
+    }
+    
+    for (i=0; i<self->bufsize; i++) {
+        if (density[i] < 0.0)
+            dens = 0.0;
+        else
+            dens = density[i];
+        self->timer += dens * self->oneOnSr * self->devFactor;
+        if (self->timer >= 1.0) {
+            self->timer -= 1.0;
+            flag = 1;
+        }
+
+        /* need to start a new grain */
+        if (flag) {
+            for (j=0; j<MAINPARTICLE_MAX_GRAINS; j++) {
+                if (self->flags[j] == 0) {
+                    self->flags[j] = 1;
+                    if (j >= self->num)
+                        self->num = j + 1;
+                    if (self->modebuffer[1] == 0)
+                        pit = PyFloat_AS_DOUBLE(self->pitch);
+                    else
+                        pit = Stream_getData((Stream *)self->pitch_stream)[i];
+                    if (self->modebuffer[2] == 0)
+                        pos = PyFloat_AS_DOUBLE(self->pos);
+                    else
+                        pos = Stream_getData((Stream *)self->pos_stream)[i];
+                    if (self->modebuffer[3] == 0)
+                        dur = PyFloat_AS_DOUBLE(self->dur);
+                    else
+                        dur = Stream_getData((Stream *)self->dur_stream)[i];
+                    if (self->modebuffer[4] == 0)
+                        dev = PyFloat_AS_DOUBLE(self->dev);
+                    else
+                        dev = Stream_getData((Stream *)self->dev_stream)[i];
+                    if (self->modebuffer[5] == 0)
+                        pan = PyFloat_AS_DOUBLE(self->pan);
+                    else
+                        pan = Stream_getData((Stream *)self->pan_stream)[i];
+                    if (pit < 0.0)
+                        pit = -pit;
+                    if (pos < 0.0)
+                        pos = 0.0;
+                    else if (pos >= size)
+                        pos = (MYFLT)size;
+                    if (dur < 0.0001)
+                        dur = 0.0001;
+                    if (dev < 0.0)
+                        dev = 0.0;
+                    else if (dev > 1.0)
+                        dev = 1.0;
+                    if (pan < 0.0)
+                        pan = 0.0;
+                    else if (pan > 1.0)
+                        pan = 1.0;
+                    self->gpos[j] = pos;
+                    self->glen[j] = dur * self->sr * pit * self->srScale;
+                    if ((pos + self->glen[j]) >= size || (pos + self->glen[j]) < 0)
+                        self->flags[j] = 0;
+                    self->phase[j] = 0.0;
+                    self->inc[j] = 1.0 / (dur * self->sr);
+                    self->devFactor = (rand() / (MYFLT)RAND_MAX * 2.0 - 1.0) * dev + 1.0;
+                    if (self->chnls == 2) {
+                        self->k1[j] = 0;
+                        self->k2[j] = self->bufsize;
+                        self->amp1[j] = MYSQRT(1.0 - pan);
+                        self->amp2[j] = MYSQRT(pan);
+                    }
+                    else {
+                        self->amp1[j] = MYSQRT(1.0 - pan);
+                        self->amp2[j] = MYSQRT(pan);
+                        min = 0;
+                        self->k1[j] = 0;
+                        self->k2[j] = self->bufsize;
+                        for (l=self->chnls; l>0; l--) {
+                            l1 = l - 1;
+                            min = l1 / (MYFLT)self->chnls;
+                            if (pan > min) {
+                                self->k1[j] = l1 * self->bufsize;
+                                if (l == self->chnls)
+                                    self->k2[j] = 0;
+                                else                    
+                                    self->k2[j] = l * self->bufsize;
+                                break;
+                            }
+                        }
+                    }
+                    break;
+                }
+            }
+        }
+
+        /* compute active grains */
+        for (j=0; j<self->num; j++) {
+            if (self->flags[j]) {
+                phase = self->phase[j];
+                /* compute envelope */
+                index = phase * envsize;
+                ipart = (int)index;
+                amp = envlist[ipart] + (envlist[ipart+1] - envlist[ipart]) * (index - ipart);
+                /* compute sampling */
+                index = phase * self->glen[j] + self->gpos[j];
+                ipart = (int)index;
+                val = (tablelist[ipart] + (tablelist[ipart+1] - tablelist[ipart]) * (index - ipart)) * amp;
+                self->buffer_streams[i+self->k1[j]] += val * self->amp1[j];
+                self->buffer_streams[i+self->k2[j]] += val * self->amp2[j];
+                phase += self->inc[j];
+                if (phase >= 1.0)
+                    self->flags[j] = 0;
+                else
+                    self->phase[j] = phase;
+            }
+        }
+        flag = 0;
+    }    
+}
+
+static void
+MainParticle_setProcMode(MainParticle *self)
+{
+    int procmode = self->modebuffer[0];
+
+	switch (procmode) {
+        case 0:
+            if (self->chnls == 1)
+                self->proc_func_ptr = MainParticle_transform_mono_i;
+            else
+                self->proc_func_ptr = MainParticle_transform_i;
+            break;
+        case 1:    
+            if (self->chnls == 1)
+                self->proc_func_ptr = MainParticle_transform_mono_a;
+            else
+                self->proc_func_ptr = MainParticle_transform_a;
+            break;
+    } 
+}
+
+static void
+MainParticle_compute_next_data_frame(MainParticle *self)
+{
+    (*self->proc_func_ptr)(self); 
+}
+
+static int
+MainParticle_traverse(MainParticle *self, visitproc visit, void *arg)
+{
+    pyo_VISIT
+    Py_VISIT(self->table);
+    Py_VISIT(self->env);
+    Py_VISIT(self->dens);    
+    Py_VISIT(self->dens_stream);    
+    Py_VISIT(self->pitch);    
+    Py_VISIT(self->pitch_stream);    
+    Py_VISIT(self->pos);    
+    Py_VISIT(self->pos_stream);    
+    Py_VISIT(self->dur);    
+    Py_VISIT(self->dur_stream);    
+    Py_VISIT(self->dev);    
+    Py_VISIT(self->dev_stream);    
+    Py_VISIT(self->pan);    
+    Py_VISIT(self->pan_stream);    
+    return 0;
+}
+
+static int 
+MainParticle_clear(MainParticle *self)
+{
+    pyo_CLEAR
+    Py_CLEAR(self->table);
+    Py_CLEAR(self->env);
+    Py_CLEAR(self->dens);    
+    Py_CLEAR(self->dens_stream);    
+    Py_CLEAR(self->pitch);    
+    Py_CLEAR(self->pitch_stream);    
+    Py_CLEAR(self->pos);    
+    Py_CLEAR(self->pos_stream);    
+    Py_CLEAR(self->dur);    
+    Py_CLEAR(self->dur_stream);    
+    Py_CLEAR(self->dev);    
+    Py_CLEAR(self->dev_stream);    
+    Py_CLEAR(self->pan);    
+    Py_CLEAR(self->pan_stream);    
+    return 0;
+}
+
+static void
+MainParticle_dealloc(MainParticle* self)
+{
+    pyo_DEALLOC
+    free(self->gpos);   
+    free(self->glen);
+    free(self->inc);
+    free(self->flags);
+    free(self->k1);
+    free(self->k2);
+    free(self->phase);
+    free(self->amp1);
+    free(self->amp2);
+    free(self->buffer_streams);
+    MainParticle_clear(self);
+    self->ob_type->tp_free((PyObject*)self);
+}
+
+MYFLT *
+MainParticle_getSamplesBuffer(MainParticle *self)
+{
+    return (MYFLT *)self->buffer_streams;
+}
+
+static PyObject *
+MainParticle_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    int i;
+    PyObject *tabletmp, *envtmp, *denstmp=NULL, *pitchtmp=NULL, *postmp=NULL, *durtmp=NULL, *devtmp=NULL, *pantmp=NULL;
+    MainParticle *self;
+    self = (MainParticle *)type->tp_alloc(type, 0);
+
+    self->dens = PyFloat_FromDouble(50);
+    self->pitch = PyFloat_FromDouble(1);
+    self->pos = PyFloat_FromDouble(0.0);
+    self->dur = PyFloat_FromDouble(0.1);
+    self->dev = PyFloat_FromDouble(0);
+    self->pan = PyFloat_FromDouble(0.5);
+    self->timer = self->devFactor = 1.0;
+    self->srScale = 1.0;
+    self->num = 0;
+    self->chnls = 1;
+	self->modebuffer[0] = 0;
+	self->modebuffer[1] = 0;
+	self->modebuffer[2] = 0;
+	self->modebuffer[3] = 0;
+	self->modebuffer[4] = 0;
+	self->modebuffer[5] = 0;
+
+    INIT_OBJECT_COMMON
+    
+    self->oneOnSr = 1.0 / self->sr;
+    self->srOnRandMax = self->sr / (MYFLT)RAND_MAX;
+
+    Stream_setFunctionPtr(self->stream, MainParticle_compute_next_data_frame);
+    self->mode_func_ptr = MainParticle_setProcMode;
+
+    static char *kwlist[] = {"table", "env", "dens", "pitch", "pos", "dur", "dev", "pan", "chnls", NULL};
+
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "OO|OOOOOOi", kwlist, &tabletmp, &envtmp, &denstmp, &pitchtmp, &postmp, &durtmp, &devtmp, &pantmp, &self->chnls))
+        Py_RETURN_NONE;
+
+    if ( PyObject_HasAttrString((PyObject *)tabletmp, "getTableStream") == 0 ) {
+        PyErr_SetString(PyExc_TypeError, "\"table\" argument of MainParticle must be a PyoTableObject.\n");
+        Py_RETURN_NONE;
+    }
+    Py_XDECREF(self->table);
+    self->table = PyObject_CallMethod((PyObject *)tabletmp, "getTableStream", "");
+    self->srScale = TableStream_getSamplingRate(self->table) / self->sr;
+
+    if ( PyObject_HasAttrString((PyObject *)envtmp, "getTableStream") == 0 ) {
+        PyErr_SetString(PyExc_TypeError, "\"env\" argument of MainParticle must be a PyoTableObject.\n");
+        Py_RETURN_NONE;
+    }
+    Py_XDECREF(self->env);
+    self->env = PyObject_CallMethod((PyObject *)envtmp, "getTableStream", "");
+
+    if (denstmp) {
+        PyObject_CallMethod((PyObject *)self, "setDens", "O", denstmp);
+    }
+    
+    if (pitchtmp) {
+        PyObject_CallMethod((PyObject *)self, "setPitch", "O", pitchtmp);
+    }
+
+    if (postmp) {
+        PyObject_CallMethod((PyObject *)self, "setPos", "O", postmp);
+    }
+
+    if (durtmp) {
+        PyObject_CallMethod((PyObject *)self, "setDur", "O", durtmp);
+    }
+    
+    if (devtmp) {
+        PyObject_CallMethod((PyObject *)self, "setDev", "O", devtmp);
+    }
+
+    if (pantmp) {
+        PyObject_CallMethod((PyObject *)self, "setPan", "O", pantmp);
+    }
+ 
+    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+
+    if (self->chnls < 1)
+        self->chnls = 1;
+
+    self->gpos = (MYFLT *)realloc(self->gpos, MAINPARTICLE_MAX_GRAINS * sizeof(MYFLT));
+    self->glen = (MYFLT *)realloc(self->glen, MAINPARTICLE_MAX_GRAINS * sizeof(MYFLT));
+    self->inc = (MYFLT *)realloc(self->inc, MAINPARTICLE_MAX_GRAINS * sizeof(MYFLT));
+    self->phase = (MYFLT *)realloc(self->phase, MAINPARTICLE_MAX_GRAINS * sizeof(MYFLT));
+    self->amp1 = (MYFLT *)realloc(self->amp1, MAINPARTICLE_MAX_GRAINS * sizeof(MYFLT));
+    self->amp2 = (MYFLT *)realloc(self->amp2, MAINPARTICLE_MAX_GRAINS * sizeof(MYFLT));
+    self->flags = (int *)realloc(self->flags, MAINPARTICLE_MAX_GRAINS * sizeof(int));
+    self->k1 = (int *)realloc(self->k1, MAINPARTICLE_MAX_GRAINS * sizeof(int));
+    self->k2 = (int *)realloc(self->k2, MAINPARTICLE_MAX_GRAINS * sizeof(int));
+    
+    for (i=0; i<MAINPARTICLE_MAX_GRAINS; i++) {
+        self->gpos[i] = self->glen[i] = self->inc[i] = self->phase[i] = self->amp1[i] = self->amp2[i] = 0.0;
+        self->flags[i] = self->k1[i] = self->k2[i] = 0;
+    }
+  
+    self->buffer_streams = (MYFLT *)realloc(self->buffer_streams, self->bufsize * self->chnls * sizeof(MYFLT));
+    for (i=0; i<self->bufsize*self->chnls; i++) {
+        self->buffer_streams[i] = 0.0;
+    }
+
+    Server_generateSeed((Server *)self->server, MAINPARTICLE_ID);
+  
+    (*self->mode_func_ptr)(self);
+    
+    return (PyObject *)self;
+}
+
+static PyObject * MainParticle_getServer(MainParticle* self) { GET_SERVER };
+static PyObject * MainParticle_getStream(MainParticle* self) { GET_STREAM };
+
+static PyObject * MainParticle_play(MainParticle *self, PyObject *args, PyObject *kwds) { PLAY };
+static PyObject * MainParticle_stop(MainParticle *self) { STOP };
+
+static PyObject *
+MainParticle_setDens(MainParticle *self, PyObject *arg)
+{
+	PyObject *tmp, *streamtmp;
+	
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+	int isNumber = PyNumber_Check(arg);
+	
+	tmp = arg;
+	Py_INCREF(tmp);
+	Py_DECREF(self->dens);
+	if (isNumber == 1) {
+		self->dens = PyNumber_Float(tmp);
+        self->modebuffer[0] = 0;
+	}
+	else {
+		self->dens = tmp;
+        streamtmp = PyObject_CallMethod((PyObject *)self->dens, "_getStream", NULL);
+        Py_INCREF(streamtmp);
+        Py_XDECREF(self->dens_stream);
+        self->dens_stream = (Stream *)streamtmp;
+		self->modebuffer[0] = 1;
+	}
+    
+    (*self->mode_func_ptr)(self);
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
+static PyObject *
+MainParticle_setPitch(MainParticle *self, PyObject *arg)
+{
+	PyObject *tmp, *streamtmp;
+	
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+	int isNumber = PyNumber_Check(arg);
+	
+	tmp = arg;
+	Py_INCREF(tmp);
+	Py_DECREF(self->pitch);
+	if (isNumber == 1) {
+		self->pitch = PyNumber_Float(tmp);
+        self->modebuffer[1] = 0;
+	}
+	else {
+		self->pitch = tmp;
+        streamtmp = PyObject_CallMethod((PyObject *)self->pitch, "_getStream", NULL);
+        Py_INCREF(streamtmp);
+        Py_XDECREF(self->pitch_stream);
+        self->pitch_stream = (Stream *)streamtmp;
+		self->modebuffer[1] = 1;
+	}
+
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
+static PyObject *
+MainParticle_setPos(MainParticle *self, PyObject *arg)
+{
+	PyObject *tmp, *streamtmp;
+	
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+	int isNumber = PyNumber_Check(arg);
+	
+	tmp = arg;
+	Py_INCREF(tmp);
+	Py_DECREF(self->pos);
+	if (isNumber == 1) {
+		self->pos = PyNumber_Float(tmp);
+        self->modebuffer[2] = 0;
+	}
+	else {
+		self->pos = tmp;
+        streamtmp = PyObject_CallMethod((PyObject *)self->pos, "_getStream", NULL);
+        Py_INCREF(streamtmp);
+        Py_XDECREF(self->pos_stream);
+        self->pos_stream = (Stream *)streamtmp;
+		self->modebuffer[2] = 1;
+	}
+
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
+static PyObject *
+MainParticle_setDur(MainParticle *self, PyObject *arg)
+{
+	PyObject *tmp, *streamtmp;
+	
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+	int isNumber = PyNumber_Check(arg);
+	
+	tmp = arg;
+	Py_INCREF(tmp);
+	Py_DECREF(self->dur);
+	if (isNumber == 1) {
+		self->dur = PyNumber_Float(tmp);
+        self->modebuffer[3] = 0;
+	}
+	else {
+		self->dur = tmp;
+        streamtmp = PyObject_CallMethod((PyObject *)self->dur, "_getStream", NULL);
+        Py_INCREF(streamtmp);
+        Py_XDECREF(self->dur_stream);
+        self->dur_stream = (Stream *)streamtmp;
+		self->modebuffer[3] = 1;
+	}
+
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
+static PyObject *
+MainParticle_setDev(MainParticle *self, PyObject *arg)
+{
+	PyObject *tmp, *streamtmp;
+	
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+	int isNumber = PyNumber_Check(arg);
+	
+	tmp = arg;
+	Py_INCREF(tmp);
+	Py_DECREF(self->dev);
+	if (isNumber == 1) {
+		self->dev = PyNumber_Float(tmp);
+        self->modebuffer[4] = 0;
+	}
+	else {
+		self->dev = tmp;
+        streamtmp = PyObject_CallMethod((PyObject *)self->dev, "_getStream", NULL);
+        Py_INCREF(streamtmp);
+        Py_XDECREF(self->dev_stream);
+        self->dev_stream = (Stream *)streamtmp;
+		self->modebuffer[4] = 1;
+	}
+
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
+static PyObject *
+MainParticle_setPan(MainParticle *self, PyObject *arg)
+{
+	PyObject *tmp, *streamtmp;
+	
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+	int isNumber = PyNumber_Check(arg);
+	
+	tmp = arg;
+	Py_INCREF(tmp);
+	Py_DECREF(self->pan);
+	if (isNumber == 1) {
+		self->pan = PyNumber_Float(tmp);
+        self->modebuffer[5] = 0;
+	}
+	else {
+		self->pan = tmp;
+        streamtmp = PyObject_CallMethod((PyObject *)self->pan, "_getStream", NULL);
+        Py_INCREF(streamtmp);
+        Py_XDECREF(self->pan_stream);
+        self->pan_stream = (Stream *)streamtmp;
+		self->modebuffer[5] = 1;
+	}
+
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
+static PyObject *
+MainParticle_getTable(MainParticle* self)
+{
+    Py_INCREF(self->table);
+    return self->table;
+};
+
+static PyObject *
+MainParticle_setTable(MainParticle *self, PyObject *arg)
+{
+	PyObject *tmp;
+	
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+	tmp = arg;
+	Py_DECREF(self->table);
+    self->table = PyObject_CallMethod((PyObject *)tmp, "getTableStream", "");    
+    self->srScale = TableStream_getSamplingRate(self->table) / self->sr;
+
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
+static PyObject *
+MainParticle_getEnv(MainParticle* self)
+{
+    Py_INCREF(self->env);
+    return self->env;
+};
+
+static PyObject *
+MainParticle_setEnv(MainParticle *self, PyObject *arg)
+{
+	PyObject *tmp;
+	
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+	tmp = arg;
+	Py_DECREF(self->env);
+    self->env = PyObject_CallMethod((PyObject *)tmp, "getTableStream", "");
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
+static PyMemberDef MainParticle_members[] = {
+    {"server", T_OBJECT_EX, offsetof(MainParticle, server), 0, "Pyo server."},
+    {"stream", T_OBJECT_EX, offsetof(MainParticle, stream), 0, "Stream object."},
+    {"table", T_OBJECT_EX, offsetof(MainParticle, table), 0, "Sound table."},
+    {"env", T_OBJECT_EX, offsetof(MainParticle, env), 0, "Envelope table."},
+    {"dens", T_OBJECT_EX, offsetof(MainParticle, dens), 0, "Density of grains per second."},
+    {"pitch", T_OBJECT_EX, offsetof(MainParticle, pitch), 0, "Speed of the reading pointer."},
+    {"pos", T_OBJECT_EX, offsetof(MainParticle, pos), 0, "Position in the sound table."},
+    {"dur", T_OBJECT_EX, offsetof(MainParticle, dur), 0, "Duration of each grains."},
+    {"dev", T_OBJECT_EX, offsetof(MainParticle, dev), 0, "Grain start point deviation factor."},
+    {"pan", T_OBJECT_EX, offsetof(MainParticle, pan), 0, "Grain panning factor."},
+    {NULL}  /* Sentinel */
+};
+
+static PyMethodDef MainParticle_methods[] = {
+    {"getTable", (PyCFunction)MainParticle_getTable, METH_NOARGS, "Returns sound table object."},
+    {"setTable", (PyCFunction)MainParticle_setTable, METH_O, "Sets sound table."},
+    {"getEnv", (PyCFunction)MainParticle_getEnv, METH_NOARGS, "Returns envelope table object."},
+    {"setEnv", (PyCFunction)MainParticle_setEnv, METH_O, "Sets envelope table."},
+    {"getServer", (PyCFunction)MainParticle_getServer, METH_NOARGS, "Returns server object."},
+    {"_getStream", (PyCFunction)MainParticle_getStream, METH_NOARGS, "Returns stream object."},
+    {"play", (PyCFunction)MainParticle_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+    {"stop", (PyCFunction)MainParticle_stop, METH_NOARGS, "Stops computing."},
+	{"setDens", (PyCFunction)MainParticle_setDens, METH_O, "Sets the density of grains per second."},
+	{"setPitch", (PyCFunction)MainParticle_setPitch, METH_O, "Sets global pitch factor."},
+    {"setPos", (PyCFunction)MainParticle_setPos, METH_O, "Sets position in the sound table."},
+    {"setDur", (PyCFunction)MainParticle_setDur, METH_O, "Sets the grain duration."},
+	{"setDev", (PyCFunction)MainParticle_setDev, METH_O, "Sets grain start point deviation factor."},
+	{"setPan", (PyCFunction)MainParticle_setPan, METH_O, "Sets grain panning factor."},
+    {NULL}  /* Sentinel */
+};
+
+PyTypeObject MainParticleType = {
+    PyObject_HEAD_INIT(NULL)
+    0,                         /*ob_pitch*/
+    "_pyo.MainParticle_base",         /*tp_name*/
+    sizeof(MainParticle),         /*tp_basicpitch*/
+    0,                         /*tp_itempitch*/
+    (destructor)MainParticle_dealloc, /*tp_dealloc*/
+    0,                         /*tp_print*/
+    0,                         /*tp_getattr*/
+    0,                         /*tp_setattr*/
+    0,                         /*tp_compare*/
+    0,                         /*tp_repr*/
+    0,             /*tp_as_number*/
+    0,                         /*tp_as_sequence*/
+    0,                         /*tp_as_mapping*/
+    0,                         /*tp_hash */
+    0,                         /*tp_call*/
+    0,                         /*tp_str*/
+    0,                         /*tp_getattro*/
+    0,                         /*tp_setattro*/
+    0,                         /*tp_as_buffer*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    "MainParticle objects. Accumulation of multiples grains of sound.",           /* tp_doc */
+    (traverseproc)MainParticle_traverse,   /* tp_traverse */
+    (inquiry)MainParticle_clear,           /* tp_clear */
+    0,		               /* tp_richcompare */
+    0,		               /* tp_weaklistoffset */
+    0,		               /* tp_iter */
+    0,		               /* tp_iternext */
+    MainParticle_methods,             /* tp_methods */
+    MainParticle_members,             /* tp_members */
+    0,                      /* tp_getset */
+    0,                         /* tp_base */
+    0,                         /* tp_dict */
+    0,                         /* tp_descr_get */
+    0,                         /* tp_descr_set */
+    0,                         /* tp_dictoffset */
+    0,      /* tp_init */
+    0,                         /* tp_alloc */
+    MainParticle_new,                 /* tp_new */
+};
+
+typedef struct {
+    pyo_audio_HEAD
+    MainParticle *mainSplitter;
+    int modebuffer[2];
+    int chnl; // panning order
+} Particle;
+
+static void Particle_postprocessing_ii(Particle *self) { POST_PROCESSING_II };
+static void Particle_postprocessing_ai(Particle *self) { POST_PROCESSING_AI };
+static void Particle_postprocessing_ia(Particle *self) { POST_PROCESSING_IA };
+static void Particle_postprocessing_aa(Particle *self) { POST_PROCESSING_AA };
+static void Particle_postprocessing_ireva(Particle *self) { POST_PROCESSING_IREVA };
+static void Particle_postprocessing_areva(Particle *self) { POST_PROCESSING_AREVA };
+static void Particle_postprocessing_revai(Particle *self) { POST_PROCESSING_REVAI };
+static void Particle_postprocessing_revaa(Particle *self) { POST_PROCESSING_REVAA };
+static void Particle_postprocessing_revareva(Particle *self) { POST_PROCESSING_REVAREVA };
+
+static void
+Particle_setProcMode(Particle *self)
+{
+    int muladdmode;
+    muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
+    
+	switch (muladdmode) {
+        case 0:        
+            self->muladd_func_ptr = Particle_postprocessing_ii;
+            break;
+        case 1:    
+            self->muladd_func_ptr = Particle_postprocessing_ai;
+            break;
+        case 2:    
+            self->muladd_func_ptr = Particle_postprocessing_revai;
+            break;
+        case 10:        
+            self->muladd_func_ptr = Particle_postprocessing_ia;
+            break;
+        case 11:    
+            self->muladd_func_ptr = Particle_postprocessing_aa;
+            break;
+        case 12:    
+            self->muladd_func_ptr = Particle_postprocessing_revaa;
+            break;
+        case 20:        
+            self->muladd_func_ptr = Particle_postprocessing_ireva;
+            break;
+        case 21:    
+            self->muladd_func_ptr = Particle_postprocessing_areva;
+            break;
+        case 22:    
+            self->muladd_func_ptr = Particle_postprocessing_revareva;
+            break;
+    }
+}
+
+static void
+Particle_compute_next_data_frame(Particle *self)
+{
+    int i;
+    MYFLT *tmp;
+    int offset = self->chnl * self->bufsize;
+    tmp = MainParticle_getSamplesBuffer((MainParticle *)self->mainSplitter);
+    for (i=0; i<self->bufsize; i++) {
+        self->data[i] = tmp[i + offset];
+    }    
+    (*self->muladd_func_ptr)(self);
+}
+
+static int
+Particle_traverse(Particle *self, visitproc visit, void *arg)
+{
+    pyo_VISIT
+    Py_VISIT(self->mainSplitter);
+    return 0;
+}
+
+static int 
+Particle_clear(Particle *self)
+{
+    pyo_CLEAR
+    Py_CLEAR(self->mainSplitter);    
+    return 0;
+}
+
+static void
+Particle_dealloc(Particle* self)
+{
+    pyo_DEALLOC
+    Particle_clear(self);
+    self->ob_type->tp_free((PyObject*)self);
+}
+
+static PyObject *
+Particle_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    int i;
+    PyObject *maintmp=NULL, *multmp=NULL, *addtmp=NULL;
+    Particle *self;
+    self = (Particle *)type->tp_alloc(type, 0);
+    
+	self->modebuffer[0] = 0;
+	self->modebuffer[1] = 0;
+    
+    INIT_OBJECT_COMMON
+    Stream_setFunctionPtr(self->stream, Particle_compute_next_data_frame);
+    self->mode_func_ptr = Particle_setProcMode;
+
+    static char *kwlist[] = {"mainSplitter", "chnl", "mul", "add", NULL};
+    
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "Oi|OO", kwlist, &maintmp, &self->chnl, &multmp, &addtmp))
+        Py_RETURN_NONE;
+    
+    Py_XDECREF(self->mainSplitter);
+    Py_INCREF(maintmp);
+    self->mainSplitter = (MainParticle *)maintmp;
+    
+    if (multmp) {
+        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+    }
+    
+    if (addtmp) {
+        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+    }
+    
+    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    
+    (*self->mode_func_ptr)(self);
+    
+    return (PyObject *)self;
+}
+
+static PyObject * Particle_getServer(Particle* self) { GET_SERVER };
+static PyObject * Particle_getStream(Particle* self) { GET_STREAM };
+static PyObject * Particle_setMul(Particle *self, PyObject *arg) { SET_MUL };	
+static PyObject * Particle_setAdd(Particle *self, PyObject *arg) { SET_ADD };	
+static PyObject * Particle_setSub(Particle *self, PyObject *arg) { SET_SUB };	
+static PyObject * Particle_setDiv(Particle *self, PyObject *arg) { SET_DIV };	
+
+static PyObject * Particle_play(Particle *self, PyObject *args, PyObject *kwds) { PLAY };
+static PyObject * Particle_out(Particle *self, PyObject *args, PyObject *kwds) { OUT };
+static PyObject * Particle_stop(Particle *self) { STOP };
+
+static PyObject * Particle_multiply(Particle *self, PyObject *arg) { MULTIPLY };
+static PyObject * Particle_inplace_multiply(Particle *self, PyObject *arg) { INPLACE_MULTIPLY };
+static PyObject * Particle_add(Particle *self, PyObject *arg) { ADD };
+static PyObject * Particle_inplace_add(Particle *self, PyObject *arg) { INPLACE_ADD };
+static PyObject * Particle_sub(Particle *self, PyObject *arg) { SUB };
+static PyObject * Particle_inplace_sub(Particle *self, PyObject *arg) { INPLACE_SUB };
+static PyObject * Particle_div(Particle *self, PyObject *arg) { DIV };
+static PyObject * Particle_inplace_div(Particle *self, PyObject *arg) { INPLACE_DIV };
+
+static PyMemberDef Particle_members[] = {
+{"server", T_OBJECT_EX, offsetof(Particle, server), 0, "Pyo server."},
+{"stream", T_OBJECT_EX, offsetof(Particle, stream), 0, "Stream object."},
+{"mul", T_OBJECT_EX, offsetof(Particle, mul), 0, "Mul factor."},
+{"add", T_OBJECT_EX, offsetof(Particle, add), 0, "Add factor."},
+{NULL}  /* Sentinel */
+};
+
+static PyMethodDef Particle_methods[] = {
+{"getServer", (PyCFunction)Particle_getServer, METH_NOARGS, "Returns server object."},
+{"_getStream", (PyCFunction)Particle_getStream, METH_NOARGS, "Returns stream object."},
+{"play", (PyCFunction)Particle_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+{"out", (PyCFunction)Particle_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
+{"stop", (PyCFunction)Particle_stop, METH_NOARGS, "Stops computing."},
+{"setMul", (PyCFunction)Particle_setMul, METH_O, "Sets Particle mul factor."},
+{"setAdd", (PyCFunction)Particle_setAdd, METH_O, "Sets Particle add factor."},
+{"setSub", (PyCFunction)Particle_setSub, METH_O, "Sets inverse add factor."},
+{"setDiv", (PyCFunction)Particle_setDiv, METH_O, "Sets inverse mul factor."},
+{NULL}  /* Sentinel */
+};
+
+static PyNumberMethods Particle_as_number = {
+(binaryfunc)Particle_add,                      /*nb_add*/
+(binaryfunc)Particle_sub,                 /*nb_subtract*/
+(binaryfunc)Particle_multiply,                 /*nb_multiply*/
+(binaryfunc)Particle_div,                   /*nb_divide*/
+0,                /*nb_remainder*/
+0,                   /*nb_divmod*/
+0,                   /*nb_power*/
+0,                  /*nb_neg*/
+0,                /*nb_pos*/
+0,                  /*(unaryfunc)array_abs,*/
+0,                    /*nb_nonzero*/
+0,                    /*nb_invert*/
+0,               /*nb_lshift*/
+0,              /*nb_rshift*/
+0,              /*nb_and*/
+0,              /*nb_xor*/
+0,               /*nb_or*/
+0,                                          /*nb_coerce*/
+0,                       /*nb_int*/
+0,                      /*nb_long*/
+0,                     /*nb_float*/
+0,                       /*nb_oct*/
+0,                       /*nb_hex*/
+(binaryfunc)Particle_inplace_add,              /*inplace_add*/
+(binaryfunc)Particle_inplace_sub,         /*inplace_subtract*/
+(binaryfunc)Particle_inplace_multiply,         /*inplace_multiply*/
+(binaryfunc)Particle_inplace_div,           /*inplace_divide*/
+0,        /*inplace_remainder*/
+0,           /*inplace_power*/
+0,       /*inplace_lshift*/
+0,      /*inplace_rshift*/
+0,      /*inplace_and*/
+0,      /*inplace_xor*/
+0,       /*inplace_or*/
+0,             /*nb_floor_divide*/
+0,              /*nb_true_divide*/
+0,     /*nb_inplace_floor_divide*/
+0,      /*nb_inplace_true_divide*/
+0,                     /* nb_index */
+};
+
+PyTypeObject ParticleType = {
+PyObject_HEAD_INIT(NULL)
+0,                         /*ob_size*/
+"_pyo.Particle_base",         /*tp_name*/
+sizeof(Particle),         /*tp_basicsize*/
+0,                         /*tp_itemsize*/
+(destructor)Particle_dealloc, /*tp_dealloc*/
+0,                         /*tp_print*/
+0,                         /*tp_getattr*/
+0,                         /*tp_setattr*/
+0,                         /*tp_compare*/
+0,                         /*tp_repr*/
+&Particle_as_number,             /*tp_as_number*/
+0,                         /*tp_as_sequence*/
+0,                         /*tp_as_mapping*/
+0,                         /*tp_hash */
+0,                         /*tp_call*/
+0,                         /*tp_str*/
+0,                         /*tp_getattro*/
+0,                         /*tp_setattro*/
+0,                         /*tp_as_buffer*/
+Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES,  /*tp_flags*/
+"Particle objects. Reads one band from a MainParticle object.",           /* tp_doc */
+(traverseproc)Particle_traverse,   /* tp_traverse */
+(inquiry)Particle_clear,           /* tp_clear */
+0,		               /* tp_richcompare */
+0,		               /* tp_weaklistoffset */
+0,		               /* tp_iter */
+0,		               /* tp_iternext */
+Particle_methods,             /* tp_methods */
+Particle_members,             /* tp_members */
+0,                      /* tp_getset */
+0,                         /* tp_base */
+0,                         /* tp_dict */
+0,                         /* tp_descr_get */
+0,                         /* tp_descr_set */
+0,                         /* tp_dictoffset */
+0,      /* tp_init */
+0,                         /* tp_alloc */
+Particle_new,                 /* tp_new */
+};

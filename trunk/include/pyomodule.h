@@ -479,6 +479,8 @@ extern PyTypeObject TrigBurstDurStreamType;
 extern PyTypeObject TrigBurstEndStreamType;
 extern PyTypeObject ScopeType;
 extern PyTypeObject PeakAmpType;
+extern PyTypeObject MainParticleType;
+extern PyTypeObject ParticleType;
 
 /* Constants */
 #define E M_E
@@ -517,6 +519,7 @@ extern PyTypeObject PeakAmpType;
 #define XNOISEDUR_ID 25
 #define URN_ID 26
 #define GRANULE_ID 27
+#define MAINPARTICLE_ID 28
 /* Do not forget to modify Server_generateSeed function */
 
 /* object headers */
