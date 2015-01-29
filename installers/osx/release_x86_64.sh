@@ -8,9 +8,9 @@
 # 5. install python (and wxpython) 2.7 (64-bit)
 # 6. cd installer/osx and build the realease, only x86_64 version
 
-export PACKAGE_NAME=pyo_0.7.3_x86_64.pkg
-export DMG_DIR="pyo 0.7.3 Universal"
-export DMG_NAME="pyo_0.7.3_OSX-universal.dmg"
+export PACKAGE_NAME=pyo_0.7.4_x86_64.pkg
+export DMG_DIR="pyo 0.7.4 Universal"
+export DMG_NAME="pyo_0.7.4_OSX-universal.dmg"
 export INSTALLER_DIR=`pwd`/installer
 export PYO_MODULE_DIR=$INSTALLER_DIR/PyoModule/Package_Contents/tmp
 export SUPPORT_LIBS_DIR=$INSTALLER_DIR/SupportLibs/Package_Contents/usr/local/lib

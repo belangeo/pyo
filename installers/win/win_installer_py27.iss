@@ -3,7 +3,7 @@
 
 #define appName "pyo"
 #define pyVer "2.7"
-#define appVer "0.7.3"
+#define appVer "0.7.4"
 
 [Setup]
 ; NOTE: The value of AppId uniquely identifies this application.
@@ -124,7 +124,6 @@ begin
     Result := InstallPath;
   END else
     BEGIN
-    MsgBox('Could not find Python, please install Python ' + '{#pyVer}' + ' before installing pyo!',mbError,MB_OK);
-    ExitProcess(1);
+    Result := 'C:\Python27';
    END
 end;
