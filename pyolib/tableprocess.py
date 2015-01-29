@@ -2788,7 +2788,7 @@ class Particle(PyoObject):
         chnls : integer, optional
             Number of output channels per audio stream (if chnls=2 and a stereo sound 
             table is given at the table argument, the objet will create 4 output 
-            streams, 2 per table channel). Defaults to 1. 
+            streams, 2 per table channel). Available at initialization only. Defaults to 1. 
 
     .. note::
     

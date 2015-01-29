@@ -1767,9 +1767,10 @@ rescale(PyObject *self, PyObject *args, PyObject *kwds)
         type = 0;
     else if (PyList_Check(data))
         type = 1;
-    else
-        Py_RETURN_NONE;
-
+    else {
+        Py_INCREF(Py_None);
+        return Py_None;
+    }
     if (xlog == 0 && ylog == 0) {
         datascl = xmax - xmin;
         curscl = ymax - ymin;
@@ -1854,9 +1855,47 @@ rescale(PyObject *self, PyObject *args, PyObject *kwds)
         }        
     }
     else {
-        Py_RETURN_NONE;
+        Py_INCREF(Py_None);
+        return Py_None;
     }
-    Py_RETURN_NONE;
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
+#define floatmap_info \
+"\nConverts values from a 0-1 range to an output range.\n\n\
+This function takes data in the range `0` - `1` and returns corresponding values\nin the range `min` - `max`.\n\n\
+:Argss:\n\n    \
+x : float\n        Value to convert, in the range 0 to 1.\n    \
+min : float, optional\n        Minimum value of the output range. Defaults to 0.\n    \
+max : float, optional\n        Maximum value of the output range. Defaults to 1.\n    \
+exp : float, optional\n        Power factor (1 (default) is linear, les than 1 is logarithmic, greter than 1 is exponential).\n\n\
+>>> a = 0.5\n\
+>>> b = floatmap(a, 0, 1, 4)\n\
+>>> print b\n\
+0.0625\n\n"
+
+static PyObject *
+floatmap(PyObject *self, PyObject *args, PyObject *kwds)
+{
+    MYFLT x = 0.0;
+    MYFLT min = 0.0;
+    MYFLT max = 1.0;
+    MYFLT exp = 1.0;
+    
+    static char *kwlist[] = {"x", "min", "max", "exp", NULL};
+    
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_F_FFF, kwlist, &x, &min, &max, &exp))
+        return PyInt_FromLong(-1);
+
+    if (x < 0.0)
+        x = 0.0;
+    else if (x > 1.0)
+        x = 1.0;
+    if (exp != 1.0)
+        x = MYPOW(x, exp);
+
+    return Py_BuildValue("d", x * (max - min) + min);
 }
 
 /****** Conversion utilities ******/
@@ -2172,6 +2211,7 @@ static PyMethodDef pyo_functions[] = {
 {"reducePoints", (PyCFunction)reducePoints, METH_VARARGS|METH_KEYWORDS, reducePoints_info},
 {"distanceToSegment", (PyCFunction)distanceToSegment, METH_VARARGS|METH_KEYWORDS, distanceToSegment_info},
 {"rescale", (PyCFunction)rescale, METH_VARARGS|METH_KEYWORDS, rescale_info},
+{"floatmap", (PyCFunction)floatmap, METH_VARARGS|METH_KEYWORDS, floatmap_info},
 {"linToCosCurve", (PyCFunction)linToCosCurve, METH_VARARGS|METH_KEYWORDS, linToCosCurve_info},
 {"midiToHz", (PyCFunction)midiToHz, METH_O, midiToHz_info},
 {"hzToMidi", (PyCFunction)hzToMidi, METH_O, hzToMidi_info},

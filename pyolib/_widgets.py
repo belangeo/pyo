@@ -149,6 +149,7 @@ def wxCreateDelayedGraphWindows():
 def wxCreateDelayedDataGraphWindows():
     for win in DATAGRAPHWINDOWS:
         f = DataTableGrapher(None, win[0], win[1])
+        win[0]._setGraphFrame(f)
         if win[2] == None: title = win[0].__class__.__name__
         else: title = win[2]
         wxDisplayWindow(f, title)
@@ -235,6 +236,7 @@ def createDataGraphWindow(obj, yrange, title, wxnoserver=False):
             f = DataTableGrapher(None, obj, yrange)
             if title == None: title = obj.__class__.__name__
             wxShowWindow(f, title, root)
+            obj._setGraphFrame(f)
         else:
             DATAGRAPHWINDOWS.append([obj, yrange, title])   
         

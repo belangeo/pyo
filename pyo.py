@@ -319,7 +319,7 @@ OBJECTS_TREE = {'functions': sorted(['pa_count_devices', 'pa_get_default_input',
                                      'getVersion', 'reducePoints', 'serverCreated', 'serverBooted', 'distanceToSegment', 'rescale',
                                      'upsamp', 'downsamp', 'linToCosCurve', 'convertStringToSysEncoding', 'savefileFromTable',
                                     'pa_get_input_max_channels', 'pa_get_output_max_channels', 'pa_get_devices_infos', 'pa_get_version',
-                                    'pa_get_version_text']),
+                                    'pa_get_version_text', 'floatmap']),
                 'PyoObjectBase': {
                     'PyoMatrixObject': sorted(['NewMatrix']),                        
                     'PyoTableObject': sorted(['LinTable', 'NewTable', 'SndTable', 'HannTable', 'HarmTable', 'SawTable', 'ParaTable', 'LogTable', 'CosLogTable',
