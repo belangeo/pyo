@@ -3,7 +3,7 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to the Pyo 0.7.3 documentation
+Welcome to the Pyo 0.7.4 documentation
 ===================================================
 
 .. toctree::

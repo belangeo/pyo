@@ -1,5 +1,10 @@
 2015-01-29 belangeo <belangeo@gmail.com>
 
+    * Release tag: 0.7.4
+    - rev 1284
+
+2015-01-29 belangeo <belangeo@gmail.com>
+
     * Added new function: floatmap, 0-1 range mapper. Fixed bug in DataTable initialization 
     and added an automatic refresh of the DataTable grapher window.
     - rev 1282
@@ -17,10 +22,20 @@
 
     - rev 1280
 
+2014-12-15 belangeo <belangeo@gmail.com>
+
+    * Added reset method to CtlScan and CtlScan2 objects.
+    - rev 1279
+
 2014-12-03 belangeo <belangeo@gmail.com>
 
     * Added new objet: PeakAmp, a peak amplitude follower.
     - rev 1277
+
+2014-11-27 belangeo <belangeo@gmail.com>
+
+    * Added reset method to Beat and Euclide objects.
+    - rev 1275
 
 -------------------------------------------------------------------------------------
 
