@@ -33,6 +33,11 @@ Conversions
 
 .. autofunction:: rescale(data, xmin=0.0, xmax=1.0, ymin=0.0, ymax=1.0, xlog=False, ylog=False)
 
+*floatmap*
+---------------------------------
+
+.. autofunction:: floatmap(x, min=0.0, max=1.0, exp=1.0)
+
 *distanceToSegment*
 ---------------------------------
 
