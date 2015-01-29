@@ -159,7 +159,9 @@ Alphabetical class reference
 - :py:class:`Pan` :     Cosinus panner with control on the spread factor.
 - :py:class:`ParaTable` :     Generates parabola window function. 
 - :py:class:`PartialTable` :     Inharmonic waveform generator.
+- :py:class:`Particle` :     A full control granular synthesis generator.
 - :py:class:`Pattern` :     Periodically calls a Python function.
+- :py:class:`PeakAmp` :     Peak amplitude follower.
 - :py:class:`Percent` :     Lets pass a certain percentage of the input triggers.
 - :py:class:`Phaser` :     Multi-stages second-order phase shifter allpass filters. 
 - :py:class:`Phasor` :     A simple phase incrementor.

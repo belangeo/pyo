@@ -63,7 +63,7 @@ FUNCTIONS_INIT_LINES = {"pa_count_host_apis": "pa_count_host_apis()", "pa_list_h
                         "reducePoints": "reducePoints(pointlist, tolerance=0.02)", "serverCreated": "serverCreated()", "serverBooted": "serverBooted()",
                         "example": "example(cls, dur=5, toprint=True, double=False)", "class_args": "class_args(cls)", "getVersion": "getVersion()",
                         "convertStringToSysEncoding": "convertStringToSysEncoding(str)", "convertArgsToLists": "convertArgsToLists(*args)",
-                        "wrap": "wrap(arg, i)"
+                        "wrap": "wrap(arg, i)", "floatmap": "floatmap(x, min=0, max=1, exp=1)"
                         }
 
 def convertStringToSysEncoding(str):
@@ -917,7 +917,8 @@ class PyoTableObject(PyoObjectBase):
         PyoObjectBase.__init__(self)
         self._size = size
         self.viewFrame = None
-
+        self.graphFrame = None
+        
     def save(self, path, format=0, sampletype=0):
         """
         Writes the content of the table in an audio file.
@@ -1280,6 +1281,9 @@ class PyoTableObject(PyoObjectBase):
 
     def _setViewFrame(self, frame):
         self.viewFrame = frame
+
+    def _setGraphFrame(self, frame):
+        self.graphFrame = frame
         
     def refreshView(self):
         """
@@ -1290,7 +1294,9 @@ class PyoTableObject(PyoObjectBase):
             size = self.viewFrame.wavePanel.GetSize()
             samples = self._base_objs[0].getViewTable((size[0], size[1]))
             self.viewFrame.update(samples)
-
+        if self.graphFrame != None:
+            self.graphFrame.update(self.getTable())
+            
     @property
     def size(self):
         """int. Table size in samples.""" 

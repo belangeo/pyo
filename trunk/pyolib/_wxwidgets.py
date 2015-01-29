@@ -2251,7 +2251,11 @@ class DataMultiSlider(wx.Panel):
     def OnResize(self, event):
         self.Layout()
         self.Refresh()
-        
+
+    def update(self, points):
+        self.values = points
+        self.Refresh()
+
     def OnPaint(self, event):
         w,h = self.GetSize()
         dc = self.dcref(self)
@@ -2351,6 +2355,9 @@ class DataTableGrapher(wx.Frame):
 
     def close(self, evt):
         self.Destroy()
+
+    def update(self, samples):
+        wx.CallAfter(self.multi.update, samples)
 
 class ServerGUI(wx.Frame):
     def __init__(self, parent=None, nchnls=2, startf=None, stopf=None, recstartf=None, 

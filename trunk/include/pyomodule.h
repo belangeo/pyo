@@ -38,6 +38,7 @@
 #define TYPE__FII "|fii"
 #define TYPE_F_II "f|ii"
 #define TYPE__FFF "|fff"
+#define TYPE_F_FFF "f|fff"
 #define TYPE_O_FIFFI "O|fiffi"
 #define TYPE_O_F "O|f"
 #define TYPE_O_FO "O|fO"
@@ -121,6 +122,7 @@
 #define TYPE__FII "|dii"
 #define TYPE_F_II "d|ii"
 #define TYPE__FFF "|ddd"
+#define TYPE_F_FFF "d|ddd"
 #define TYPE_O_FIFFI "O|diddi"
 #define TYPE_O_F "O|d"
 #define TYPE_O_FO "O|dO"
@@ -663,13 +665,14 @@ extern PyTypeObject ParticleType;
         PyErr_SetString(PyExc_TypeError, "The data must be a list of floats."); \
         return PyInt_FromLong(-1); \
     } \
-    self->size = PyList_Size(arg)-1; \
+    self->size = PyList_Size(arg); \
     self->data = (MYFLT *)realloc(self->data, (self->size+1) * sizeof(MYFLT)); \
     TableStream_setSize(self->tablestream, self->size+1); \
  \
-    for (i=0; i<(self->size+1); i++) { \
+    for (i=0; i<(self->size); i++) { \
         self->data[i] = PyFloat_AS_DOUBLE(PyNumber_Float(PyList_GET_ITEM(arg, i))); \
     } \
+    self->data[self->size] = self->data[0]; \
     TableStream_setData(self->tablestream, self->data); \
  \
     Py_INCREF(Py_None); \
