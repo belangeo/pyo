@@ -38,10 +38,8 @@ from _widgets import createCtrlWindow, createViewTableWindow, createViewMatrixWi
 ### Utilities
 ######################################################################
 SNDS_PATH = os.path.join(os.path.dirname(current_pyo.__file__), "pyolib", "snds")
-XNOISE_DICT = {'uniform': 0, 'linear_min': 1, 'linear_max': 2, 'triangle': 3, 
-                'expon_min': 4, 'expon_max': 5, 'biexpon': 6, 'cauchy': 7, 
-                'weibull': 8, 'gaussian': 9, 'poisson': 10, 'walker': 11, 
-                'loopseg': 12}
+XNOISE_DICT = {'uniform': 0, 'linear_min': 1, 'linear_max': 2, 'triangle': 3, 'expon_min': 4, 'expon_max': 5, 
+               'biexpon': 6, 'cauchy': 7, 'weibull': 8, 'gaussian': 9, 'poisson': 10, 'walker': 11, 'loopseg': 12}
 FILE_FORMATS = {'wav': 0, 'wave': 0, 'aif': 1, 'aiff': 1, 'au': 2, '': 3, 'sd2': 4, 'flac': 5, 'caf': 6, 'ogg': 7}
 FUNCTIONS_INIT_LINES = {"pa_count_host_apis": "pa_count_host_apis()", "pa_list_host_apis": "pa_list_host_apis()",
                         "pa_get_default_host_api": "pa_get_default_host_api()", "pa_count_devices": "pa_count_devices()",
@@ -158,10 +156,7 @@ def example(cls, dur=5, toprint=True, double=False):
         ex += line + "\n"
 
     ex += "time.sleep(%f)\ns.stop()\ntime.sleep(0.25)\ns.shutdown()\n" % dur
-    if sys.version_info[:2] <= (2, 5):
-        f = open('/tmp/pyo_example.py', 'w')
-    else:
-        f = tempfile.NamedTemporaryFile(delete=False)
+    f = tempfile.NamedTemporaryFile(delete=False)
     if toprint:
         f.write('print """\n%s\n"""\n' % ex)
     f.write(ex)
