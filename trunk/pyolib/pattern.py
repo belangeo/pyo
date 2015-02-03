@@ -71,10 +71,10 @@ class Pattern(PyoObject):
             if not callable(function):
                 print >> sys.stderr, 'TypeError: "function" argument of %s must be callable.\n' % self.__class__.__name__
                 exit()
-        self._function = function
+        self._function = getWeakMethodRef(function)
         self._time = time
         function, time, lmax = convertArgsToLists(function, time)
-        self._base_objs = [Pattern_base(wrap(function,i), wrap(time,i)) for i in range(lmax)]
+        self._base_objs = [Pattern_base(WeakMethod(wrap(function,i)), wrap(time,i)) for i in range(lmax)]
 
     def setFunction(self, x):
         """
@@ -86,9 +86,9 @@ class Pattern(PyoObject):
                 new `function` attribute.
 
         """
-        self._function = x
+        self._function = getWeakMethodRef(x)
         x, lmax = convertArgsToLists(x)
-        [obj.setFunction(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setFunction(WeakMethod(wrap(x,i))) for i, obj in enumerate(self._base_objs)]
 
     def setTime(self, x):
         """
@@ -267,9 +267,9 @@ class CallAfter(PyoObject):
             if not callable(function):
                 print >> sys.stderr, 'TypeError: "function" argument of %s must be callable.\n' % self.__class__.__name__
                 exit()
-        self._function = function
+        self._function = getWeakMethodRef(function)
         function, time, arg, lmax = convertArgsToLists(function, time, arg)
-        self._base_objs = [CallAfter_base(wrap(function,i), wrap(time,i), wrap(arg,i)) for i in range(lmax)]
+        self._base_objs = [CallAfter_base(WeakMethod(wrap(function,i)), wrap(time,i), wrap(arg,i)) for i in range(lmax)]
 
     def out(self, x=0, inc=1, dur=0, delay=0):
         return self.play(dur, delay)

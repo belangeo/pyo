@@ -809,7 +809,7 @@ class Spectrum(PyoObject):
         self._input = input
         self._size = size
         self._wintype = wintype
-        self._function = function
+        self._function = getWeakMethodRef(function)
         self._fscaling = 0
         self._mscaling = 1
         self._lowbound = 0
@@ -879,7 +879,7 @@ class Spectrum(PyoObject):
                 and will receive the data as a list of lists (one list per channel).
 
         """
-        self._function = function
+        self._function = getWeakMethodRef(function)
 
     def poll(self, active):
         """
@@ -1396,7 +1396,7 @@ class PeakAmp(PyoObject):
         PyoObject.__init__(self, mul, add)
         self._input = input
         if callable(function):
-            self._function = function
+            self._function = getWeakMethodRef(function)
         else:
             self._function = None
         self._in_fader = InputFader(input)
@@ -1432,7 +1432,7 @@ class PeakAmp(PyoObject):
 
         """
         if callable(x):
-            self._function = x
+            self._function = getWeakMethodRef(x)
 
     def out(self, chnl=0, inc=1, dur=0, delay=0):
         return self.play(dur, delay)

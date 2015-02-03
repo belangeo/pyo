@@ -459,7 +459,7 @@ class OscDataReceive(PyoObject):
             Address used on the port to identify values. Address is in 
             the form of a Unix path (ex.: "/pitch"). There can be as many
             addresses as needed on a single port.
-        function : callable
+        function : callable (can't be a list)
             This function will be called whenever a message with a known
             address is received. there can be only one function per 
             OscDataReceive object. Available at initialization time only.
@@ -496,10 +496,10 @@ class OscDataReceive(PyoObject):
         if not callable(function):
             print >> sys.stderr, 'TypeError: "function" argument of %s must be callable.\n' % self.__class__.__name__
             exit()
-        self._function = function
+        self._function = WeakMethod(function)
         self._address, lmax = convertArgsToLists(address)
         # self._address is linked with list at C level
-        self._base_objs = [OscDataReceive_base(port, self._address, function)]
+        self._base_objs = [OscDataReceive_base(port, self._address, self._function)]
 
     def setMul(self, x):
         pass

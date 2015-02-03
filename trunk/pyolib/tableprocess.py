@@ -1623,7 +1623,7 @@ class TableWrite(PyoObject):
     >>> pos = Phasor(.5)
     >>> val = Sine(.25)
     >>> rec = TableWrite(val, pos, tab)
-    >>> pat = Pattern(t.refreshView, 0.05).play()
+    >>> pat = Pattern(tab.refreshView, 0.05).play()
 
     """
     def __init__(self, input, pos, table):

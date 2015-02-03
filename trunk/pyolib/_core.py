@@ -19,9 +19,10 @@ You should have received a copy of the GNU General Public License
 along with pyo.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-from types import ListType, SliceType, FloatType, StringType, UnicodeType, NoneType
+from types import ListType, TupleType, SliceType, FloatType, StringType, UnicodeType, NoneType
 import random, os, sys, inspect, tempfile
 from subprocess import call
+from weakref import proxy
 
 import __builtin__
 if hasattr(__builtin__, 'pyo_use_double'):
@@ -219,8 +220,39 @@ def getVersion():
     major, minor, rev = PYO_VERSION.split('.')
     return (int(major), int(minor), int(rev))
 
-def dumpref():
-    pass
+def getWeakMethodRef(x):
+    if type(x) in [ListType, TupleType]:
+        tmp = []
+        for y in x:
+            if hasattr(y, "__self__"):
+                y = WeakMethod(y)
+            tmp.append(y)
+        x = tmp
+    else:
+        if hasattr(x, "__self__"):
+            x = WeakMethod(x)
+    return x
+
+class WeakMethod(object):
+    """A callable object. Takes one argument to init: 'object.method'.
+    Once created, call this object -- MyWeakMethod() -- 
+    and pass args/kwargs as you normally would.
+    """
+    def __init__(self, callobj):
+        if hasattr(callobj, "__self__"):
+            self.target = proxy(callobj.__self__)
+            self.method = proxy(callobj.__func__)
+            self.isMethod = True
+        else:
+            self.method = callobj
+            self.isMethod = False
+
+    def __call__(self, *args, **kwargs):
+        """Call the method with args and kwargs as needed."""
+        if self.isMethod:
+            return self.method(self.target, *args, **kwargs)
+        else:
+            return self.method(*args, **kwargs)
 
 class PyoError(Exception):
     """Base class for all pyo exceptions."""
@@ -284,20 +316,6 @@ class PyoObjectBase(object):
 
         """
         return self._base_objs
-
-    def cleanFuncRefs(self):
-        """
-        Method used to remove internal references to callback functions.
-        
-        An internal reference to a callback function (ex. the function
-        called by the TrigFunc object) may prevent the object to be
-        properly deleted when its reference count drop to zero. Calling
-        this function just before deleting the last reference will replace
-        the callback reference by a dump ref.
-
-        """
-        if hasattr(self, "_function"):
-            self.setFunction(dumpref)
 
     def __getitem__(self, i):
         if i == 'trig':
@@ -1889,9 +1907,9 @@ class VarPort(PyoObject):
         PyoObject.__init__(self, mul, add)
         self._value = value
         self._time = time
-        self._function = function
+        self._function = getWeakMethodRef(function)
         value, time, init, function, arg, mul ,add, lmax = convertArgsToLists(value, time, init, function, arg, mul, add)
-        self._base_objs = [VarPort_base(wrap(value,i), wrap(time,i), wrap(init,i), wrap(function,i), wrap(arg,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+        self._base_objs = [VarPort_base(wrap(value,i), wrap(time,i), wrap(init,i), WeakMethod(wrap(function,i)), wrap(arg,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
 
     def setValue(self, x):
         """
@@ -1931,9 +1949,9 @@ class VarPort(PyoObject):
                 new `function` attribute.
         
         """
-        self._function = x
+        self._function = getWeakMethodRef(x)
         x, lmax = convertArgsToLists(x)
-        [obj.setFunction(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setFunction(WeakMethod(wrap(x,i))) for i, obj in enumerate(self._base_objs)]
 
     @property
     def value(self):
