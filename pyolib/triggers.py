@@ -32,6 +32,7 @@ from _core import *
 from _maps import *
 from _widgets import createGraphWindow
 from types import SliceType, ListType, TupleType
+import weakref
 
 class Trig(PyoObject):
     """
@@ -1119,11 +1120,11 @@ class TrigFunc(PyoObject):
                 print >> sys.stderr, 'TypeError: "function" argument of %s must be callable.\n' % self.__class__.__name__
                 exit()
         self._input = input
-        self._function = function
+        self._function = getWeakMethodRef(function)
         self._arg = arg
         self._in_fader = InputFader(input)
         in_fader, function, arg, lmax = convertArgsToLists(self._in_fader, function, arg)
-        self._base_objs = [TrigFunc_base(wrap(in_fader,i), wrap(function,i), wrap(arg,i)) for i in range(lmax)]
+        self._base_objs = [TrigFunc_base(wrap(in_fader,i), WeakMethod(wrap(function,i)), wrap(arg,i)) for i in range(lmax)]
 
     def out(self, chnl=0, inc=1, dur=0, delay=0):
         return self.play(dur, delay)
@@ -1159,9 +1160,9 @@ class TrigFunc(PyoObject):
                 new `function` attribute.
         
         """
-        self._function = x
+        self._function = getWeakMethodRef(x)
         x, lmax = convertArgsToLists(x)
-        [obj.setFunction(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setFunction(WeakMethod(wrap(x,i))) for i, obj in enumerate(self._base_objs)]
 
     def setArg(self, x):
         """

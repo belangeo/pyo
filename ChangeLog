@@ -1,3 +1,14 @@
+2015-02-03 belangeo <belangeo@gmail.com>
+
+    * Fixed a bug with class method referenced inside pyo object. Save them as weak reference, 
+    allowing the garbage collector to properly delete the objects when reference count falls to 0.
+    - rev 1289
+
+2015-02-02 belangeo <belangeo@gmail.com>
+
+    * Added new objet: TableWrite, records values in a table at arbitrary location.
+    - rev 1288
+
 2015-01-29 belangeo <belangeo@gmail.com>
 
     * Release tag: 0.7.4

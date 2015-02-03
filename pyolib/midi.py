@@ -208,7 +208,7 @@ class CtlScan(PyoObject):
     
     :Args:
     
-        function : Python function
+        function : Python function (can't be a list)
             Function to be called. The function must be declared
             with an argument for the controller number in input. Ex.: 
                 
@@ -238,7 +238,7 @@ class CtlScan(PyoObject):
         if not callable(function):
             print >> sys.stderr, 'TypeError: "function" argument of %s must be callable.\n' % self.__class__.__name__
             exit()
-        self._function = function
+        self._function = WeakMethod(function)
         self._toprint = toprint
         self._base_objs = [CtlScan_base(self._function, self._toprint)]
 
@@ -274,9 +274,8 @@ class CtlScan(PyoObject):
                 new `function` attribute.
 
         """
-        self._function = x
-        x, lmax = convertArgsToLists(x)
-        [obj.setFunction(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        self._function = WeakMethod(x)
+        [obj.setFunction(self._function) for i, obj in enumerate(self._base_objs)]
 
     def setToprint(self, x):
         """
@@ -319,7 +318,7 @@ class CtlScan2(PyoObject):
 
     :Args:
 
-        function : Python function
+        function : Python function (can't be a list)
             Function to be called. The function must be declared
             with two arguments, one for the controller number and 
             one for the midi channel. Ex.: 
@@ -350,7 +349,7 @@ class CtlScan2(PyoObject):
         if not callable(function):
             print >> sys.stderr, 'TypeError: "function" argument of %s must be callable.\n' % self.__class__.__name__
             exit()
-        self._function = function
+        self._function = WeakMethod(function)
         self._toprint = toprint
         self._base_objs = [CtlScan2_base(self._function, self._toprint)]
 
@@ -386,9 +385,8 @@ class CtlScan2(PyoObject):
                 new `function` attribute.
 
         """
-        self._function = x
-        x, lmax = convertArgsToLists(x)
-        [obj.setFunction(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        self._function = WeakMethod(x)
+        [obj.setFunction(self._function) for i, obj in enumerate(self._base_objs)]
 
     def setToprint(self, x):
         """
