@@ -2293,6 +2293,7 @@ init_pyo64(void)
     module_add_object(m, "TableMorph_base", &TableMorphType);
     module_add_object(m, "TrigTableRec_base", &TrigTableRecType);
     module_add_object(m, "TrigTableRecTimeStream_base", &TrigTableRecTimeStreamType);
+    module_add_object(m, "TableWrite_base", &TableWriteType);
     module_add_object(m, "TablePut_base", &TablePutType);
     module_add_object(m, "NewMatrix_base", &NewMatrixType);
     module_add_object(m, "MatrixPointer_base", &MatrixPointerType);

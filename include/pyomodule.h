@@ -344,6 +344,7 @@ extern PyTypeObject SndTableType;
 extern PyTypeObject DataTableType;
 extern PyTypeObject NewTableType;
 extern PyTypeObject TableRecType;
+extern PyTypeObject TableWriteType;
 extern PyTypeObject TableRecTimeStreamType;
 extern PyTypeObject TableMorphType;
 extern PyTypeObject TrigTableRecType;
@@ -1012,10 +1013,10 @@ extern PyTypeObject ParticleType;
     if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_F_I, kwlist, &val, &pos)) \
         return PyInt_FromLong(-1); \
  \
-    if (pos >= self->size) { \
-        PyErr_SetString(PyExc_TypeError, "position outside of table boundaries!."); \
-        return PyInt_FromLong(-1); \
-    } \
+    if (pos >= self->size) \
+        pos = self->size - 1; \
+    else if (pos < 0) \
+        pos = 0; \
  \
     self->data[pos] = val; \
  \
