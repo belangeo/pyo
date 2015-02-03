@@ -110,6 +110,12 @@ store audio samples or algorithmic sequences for future uses.
 .. autoclass:: TableRec
    :members:
 
+*TableWrite*
+-----------------------------------
+
+.. autoclass:: TableWrite
+   :members:
+
 *TableScale*
 -----------------------------------
 

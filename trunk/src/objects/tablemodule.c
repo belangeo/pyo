@@ -6413,3 +6413,222 @@ TablePut_members,             /* tp_members */
 0,                         /* tp_alloc */
 TablePut_new,                 /* tp_new */
 };
+
+/******************************/
+/* TableWrite object definition */
+/******************************/
+typedef struct {
+    pyo_audio_HEAD
+    PyObject *input;
+    Stream *input_stream;
+    PyObject *pos;
+    Stream *pos_stream;
+    NewTable *table;
+} TableWrite;
+
+static void
+TableWrite_compute_next_data_frame(TableWrite *self)
+{
+    int i, ipos;
+    PyObject *table;
+
+    table = PyObject_CallMethod((PyObject *)self->table, "getTableStream", "");
+    MYFLT *tablelist = TableStream_getData((TableStream *)table);
+    int size = TableStream_getSize((TableStream *)table);
+
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT *pos = Stream_getData((Stream *)self->pos_stream);
+        
+    for (i=0; i<self->bufsize; i++) {
+        ipos = (int)(pos[i] * size);
+        if (ipos < 0)
+            ipos = 0;
+        else if (ipos >= size)
+            ipos = size - 1;
+        tablelist[ipos] = in[i];
+    }
+}
+
+static int
+TableWrite_traverse(TableWrite *self, visitproc visit, void *arg)
+{
+    pyo_VISIT
+    Py_VISIT(self->input);
+    Py_VISIT(self->input_stream);
+    Py_VISIT(self->table);
+    Py_VISIT(self->pos);    
+    Py_VISIT(self->pos_stream);    
+    return 0;
+}
+
+static int 
+TableWrite_clear(TableWrite *self)
+{
+    pyo_CLEAR
+    Py_CLEAR(self->input);
+    Py_CLEAR(self->input_stream);
+    Py_CLEAR(self->table);
+    Py_CLEAR(self->pos);    
+    Py_CLEAR(self->pos_stream);    
+    return 0;
+}
+
+static void
+TableWrite_dealloc(TableWrite* self)
+{
+    pyo_DEALLOC
+    TableWrite_clear(self);
+    self->ob_type->tp_free((PyObject*)self);
+}
+
+static PyObject *
+TableWrite_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    int i;
+    PyObject *inputtmp, *input_streamtmp, *postmp, *tabletmp;
+    TableWrite *self;
+    self = (TableWrite *)type->tp_alloc(type, 0);
+    
+    INIT_OBJECT_COMMON
+
+    Stream_setFunctionPtr(self->stream, TableWrite_compute_next_data_frame);
+    Stream_setStreamActive(self->stream, 1);
+
+    static char *kwlist[] = {"input", "pos", "table", NULL};
+    
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "OOO", kwlist, &inputtmp, &postmp, &tabletmp))
+        Py_RETURN_NONE; 
+    
+    INIT_INPUT_STREAM
+
+    if (postmp) {
+        PyObject_CallMethod((PyObject *)self, "setPos", "O", postmp);
+    }
+    
+    if ( PyObject_HasAttrString((PyObject *)tabletmp, "getTableStream") == 0 ) {
+        PyErr_SetString(PyExc_TypeError, "\"table\" argument of TableWrite must be a PyoTableObject.\n");
+        Py_RETURN_NONE;
+    }
+    Py_XDECREF(self->table);
+    Py_INCREF(tabletmp);
+    self->table = (NewTable *)tabletmp;
+    
+    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+
+    return (PyObject *)self;
+}
+
+static PyObject * TableWrite_getServer(TableWrite* self) { GET_SERVER };
+static PyObject * TableWrite_getStream(TableWrite* self) { GET_STREAM };
+
+static PyObject * TableWrite_play(TableWrite *self, PyObject *args, PyObject *kwds) { PLAY };
+static PyObject * TableWrite_stop(TableWrite *self) { STOP };
+
+static PyObject *
+TableWrite_setPos(TableWrite *self, PyObject *arg)
+{
+	PyObject *tmp, *streamtmp;
+	
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+	tmp = arg;
+	if (PyObject_HasAttrString((PyObject *)tmp, "server") == 0) {
+        PyErr_SetString(PyExc_TypeError, "\"pos\" argument of TableWrite must be a PyoObject.\n");
+        Py_RETURN_NONE;
+	}
+
+	Py_INCREF(tmp);
+	Py_XDECREF(self->pos);
+
+    self->pos = tmp;
+    streamtmp = PyObject_CallMethod((PyObject *)self->pos, "_getStream", NULL);
+    Py_INCREF(streamtmp);
+    Py_XDECREF(self->pos_stream);
+    self->pos_stream = (Stream *)streamtmp;
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
+static PyObject *
+TableWrite_setTable(TableWrite *self, PyObject *arg)
+{
+	PyObject *tmp;
+	
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+	tmp = arg;
+    Py_INCREF(tmp);
+	Py_DECREF(self->table);
+    self->table = (NewTable *)tmp;
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
+static PyMemberDef TableWrite_members[] = {
+{"server", T_OBJECT_EX, offsetof(TableWrite, server), 0, "Pyo server."},
+{"stream", T_OBJECT_EX, offsetof(TableWrite, stream), 0, "Stream object."},
+{"input", T_OBJECT_EX, offsetof(TableWrite, input), 0, "Input sound object."},
+{"table", T_OBJECT_EX, offsetof(TableWrite, table), 0, "Table to record in."},
+{"pos", T_OBJECT_EX, offsetof(TableWrite, pos), 0, "Position in the Table to record in."},
+{NULL}  /* Sentinel */
+};
+
+static PyMethodDef TableWrite_methods[] = {
+{"getServer", (PyCFunction)TableWrite_getServer, METH_NOARGS, "Returns server object."},
+{"_getStream", (PyCFunction)TableWrite_getStream, METH_NOARGS, "Returns stream object."},
+{"setTable", (PyCFunction)TableWrite_setTable, METH_O, "Sets a new table."},
+{"setPos", (PyCFunction)TableWrite_setPos, METH_O, "Sets position in the sound table."},
+{"play", (PyCFunction)TableWrite_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+{"stop", (PyCFunction)TableWrite_stop, METH_NOARGS, "Stops computing."},
+{NULL}  /* Sentinel */
+};
+
+PyTypeObject TableWriteType = {
+PyObject_HEAD_INIT(NULL)
+0,                         /*ob_size*/
+"_pyo.TableWrite_base",         /*tp_name*/
+sizeof(TableWrite),         /*tp_basicsize*/
+0,                         /*tp_itemsize*/
+(destructor)TableWrite_dealloc, /*tp_dealloc*/
+0,                         /*tp_print*/
+0,                         /*tp_getattr*/
+0,                         /*tp_setattr*/
+0,                         /*tp_compare*/
+0,                         /*tp_repr*/
+0,             /*tp_as_number*/
+0,                         /*tp_as_sequence*/
+0,                         /*tp_as_mapping*/
+0,                         /*tp_hash */
+0,                         /*tp_call*/
+0,                         /*tp_str*/
+0,                         /*tp_getattro*/
+0,                         /*tp_setattro*/
+0,                         /*tp_as_buffer*/
+Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+"TableWrite objects. Record audio input in a table object.",           /* tp_doc */
+(traverseproc)TableWrite_traverse,   /* tp_traverse */
+(inquiry)TableWrite_clear,           /* tp_clear */
+0,		               /* tp_richcompare */
+0,		               /* tp_weaklistoffset */
+0,		               /* tp_iter */
+0,		               /* tp_iternext */
+TableWrite_methods,             /* tp_methods */
+TableWrite_members,             /* tp_members */
+0,                      /* tp_getset */
+0,                         /* tp_base */
+0,                         /* tp_dict */
+0,                         /* tp_descr_get */
+0,                         /* tp_descr_set */
+0,                         /* tp_dictoffset */
+0,      /* tp_init */
+0,                         /* tp_alloc */
+TableWrite_new,                 /* tp_new */
+};

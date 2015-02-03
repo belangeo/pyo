@@ -1582,6 +1582,132 @@ class TableRec(PyoObject):
     @table.setter
     def table(self, x): self.setTable(x)
 
+class TableWrite(PyoObject):
+    """
+    TableWrite writes samples into a previously created NewTable.
+
+    See `NewTable` to create an empty table.
+
+    TableWrite takes samples from its `input` stream and writes
+    them at a normalized position given by the `pos` stream. 
+    Position must be an audio stream, ie. a PyoObject. This 
+    object allows fast recording of values coming from an X-Y 
+    pad into a table object.
+    
+    :Parent: :py:class:`PyoObject`
+
+    :Args:
+
+        input : PyoObject
+            Audio signal to write in the table.
+        pos : PyoObject
+            Audio signal specifying the normalized position (in the 
+            range 0 to 1) where to write the `input` samples.
+        table : NewTable
+            The table where to write samples.
+
+    .. note::
+
+        The out() method is bypassed. TableWrite returns no signal.
+
+        TableWrite has no `mul` and `add` attributes.
+
+    .. seealso:: 
+        
+        :py:class:`NewTable`, :py:class:`TableRec`
+
+    >>> s = Server(duplex=1).boot()
+    >>> s.start()
+    >>> tab = NewTable(8192/s.getSamplingRate())
+    >>> tab.view()
+    >>> pos = Phasor(.5)
+    >>> val = Sine(.25)
+    >>> rec = TableWrite(val, pos, tab)
+    >>> pat = Pattern(t.refreshView, 0.05).play()
+
+    """
+    def __init__(self, input, pos, table):
+        PyoObject.__init__(self)
+        self._input = input
+        self._pos = pos
+        self._table = table
+        self._in_fader = InputFader(input)
+        in_fader, pos, table, lmax = convertArgsToLists(self._in_fader, pos, table)
+        self._base_objs = [TableWrite_base(wrap(in_fader,i), wrap(pos,i), wrap(table,i)) for i in range(len(table))]
+
+    def out(self, chnl=0, inc=1, dur=0, delay=0):
+        return self.play(dur, delay)
+
+    def setMul(self, x):
+        pass
+        
+    def setAdd(self, x):
+        pass    
+
+    def setInput(self, x, fadetime=0.05):
+        """
+        Replace the `input` attribute.
+        
+        :Args:
+
+            x : PyoObject
+                New signal to process.
+            fadetime : float, optional
+                Crossfade time between old and new input. Defaults to 0.05.
+
+        """
+        self._input = x
+        self._in_fader.setInput(x, fadetime)
+
+    def setTable(self, x):
+        """
+        Replace the `table` attribute.
+        
+        :Args:
+
+            x : NewTable
+                new `table` attribute.
+        
+        """
+        self._table = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setTable(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def setPos(self, x):
+        """
+        Replace the `pos` attribute.
+        
+        :Args:
+
+            x : PyoObject
+                new `pos` attribute.
+        
+        """
+        self._pos = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setPos(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    @property
+    def input(self):
+        """PyoObject. Audio signal to write in the table.""" 
+        return self._input
+    @input.setter
+    def input(self, x): self.setInput(x)
+
+    @property
+    def table(self):
+        """NewTable. The table where to write samples."""
+        return self._table
+    @table.setter
+    def table(self, x): self.setTable(x)
+
+    @property
+    def pos(self):
+        """PyoObject. Normalized position, as audio stream, where to write samples."""
+        return self._pos
+    @pos.setter
+    def pos(self, x): self.setPos(x)
+
 class TableMorph(PyoObject):
     """
     Morphs between multiple PyoTableObjects.
