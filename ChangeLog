@@ -1,5 +1,11 @@
 2015-02-03 belangeo <belangeo@gmail.com>
 
+    * Added getServer, getSamplingRate and getBufferSize to PyoObjectBase. These methods can be 
+    accessed from any pyo objects.
+    - rev 1290
+
+2015-02-03 belangeo <belangeo@gmail.com>
+
     * Fixed a bug with class method referenced inside pyo object. Save them as weak reference, 
     allowing the garbage collector to properly delete the objects when reference count falls to 0.
     - rev 1289
