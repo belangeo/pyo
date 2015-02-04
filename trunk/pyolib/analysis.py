@@ -1402,8 +1402,8 @@ class PeakAmp(PyoObject):
         self._in_fader = InputFader(input)
         in_fader, mul, add, lmax = convertArgsToLists(self._in_fader, mul, add)
         self._base_objs = [PeakAmp_base(wrap(in_fader,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
-        sr = self._base_objs[0].getServer().getSamplingRate()
-        bs = self._base_objs[0].getServer().getBufferSize()
+        sr = self.getSamplingRate()
+        bs = self.getBufferSize()
         self._timer = Pattern(self._buildList, bs/sr).play()
 
     def setInput(self, x, fadetime=0.05):

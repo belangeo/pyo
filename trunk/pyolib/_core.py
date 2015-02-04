@@ -317,6 +317,27 @@ class PyoObjectBase(object):
         """
         return self._base_objs
 
+    def getServer(self):
+        """
+        Return a reference to the current Server object.
+
+        """
+        return self._base_objs[0].getServer()
+
+    def getSamplingRate(self):
+        """
+        Return the current sampling rate (samples per second), as a float.
+
+        """
+        return self._base_objs[0].getServer().getSamplingRate()
+
+    def getBufferSize(self):
+        """
+        Return the current buffer size (samples per buffer), as an integer.
+
+        """
+        return self._base_objs[0].getServer().getBufferSize()
+
     def __getitem__(self, i):
         if i == 'trig':
             return self._trig_objs
