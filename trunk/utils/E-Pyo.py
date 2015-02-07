@@ -745,7 +745,7 @@ KEY_COMMANDS = {
 }
 
 ############## Allowed Extensions ##############
-ALLOWED_EXT = PREFERENCES.get("allowed_ext", ["py", "c5", "txt", "", "c", "h", "cpp", "hpp", "sh", "rst", "iss", "sg"])
+ALLOWED_EXT = PREFERENCES.get("allowed_ext", ["py", "c5", "txt", "", "c", "h", "cpp", "hpp", "sh", "rst", "iss", "sg", "md"])
 
 ############## Pyo keywords ##############
 tree = OBJECTS_TREE
@@ -1913,6 +1913,7 @@ class MainFrame(wx.Frame):
         self.server_pipe = None
         self.back_server_started = False
 
+        self.master_document = None
         self.processID = 0
         self.processes = {}
         self.filters = {}
@@ -2049,22 +2050,25 @@ class MainFrame(wx.Frame):
         self.Bind(wx.EVT_MENU, self.showFind, id=wx.ID_FIND)
         self.menuBar.Append(menu2, 'Code')
 
-        menu3 = wx.Menu()
-        menu3.Append(300, "Run\tCtrl+R")
+        self.menu3 = wx.Menu()
+        self.menu3.Append(299, "Set Current Document as Master")
+        self.Bind(wx.EVT_MENU, self.setMasterDocument, id=299)
+        self.menu3.AppendSeparator()
+        self.menu3.Append(300, "Run\tCtrl+R")
         self.Bind(wx.EVT_MENU, self.runner, id=300)
-        menu3.Append(301, "Run Selection\tShift+Ctrl+R")
+        self.menu3.Append(301, "Run Selection\tShift+Ctrl+R")
         self.Bind(wx.EVT_MENU, self.runSelection, id=301)
-        menu3.Append(302, "Run Line/Selection as Pyo\tCtrl+E")
+        self.menu3.Append(302, "Run Line/Selection as Pyo\tCtrl+E")
         self.Bind(wx.EVT_MENU, self.runSelectionAsPyo, id=302)
-        menu3.Append(303, "Execute Line/Selection as Python\tShift+Ctrl+E")
+        self.menu3.Append(303, "Execute Line/Selection as Python\tShift+Ctrl+E")
         self.Bind(wx.EVT_MENU, self.execSelection, id=303)
-        menu3.AppendSeparator()
-        self.backServerItem = menu3.Append(304, "Start Pyo Background Server")
+        self.menu3.AppendSeparator()
+        self.backServerItem = self.menu3.Append(304, "Start Pyo Background Server")
         self.Bind(wx.EVT_MENU, self.startStopBackgroundServer, id=304)
-        self.sendToServerItem = menu3.Append(305, "Send Line/Selection to Pyo Background Server\tCtrl+T")
+        self.sendToServerItem = self.menu3.Append(305, "Send Line/Selection to Pyo Background Server\tCtrl+T")
         self.sendToServerItem.Enable(False)
         self.Bind(wx.EVT_MENU, self.sendSelectionToBackgroundServer, id=305)
-        self.menuBar.Append(menu3, 'Process')
+        self.menuBar.Append(self.menu3, 'Process')
 
         menu4 = wx.Menu()
         menu4.Append(wx.ID_ZOOM_IN, "Zoom in\tCtrl+=")
@@ -2241,6 +2245,14 @@ class MainFrame(wx.Frame):
         rect = self.status.GetFieldRect(2)
         if rect.x > self.field1X+160:
             self.cc.SetPosition((rect.x, rect.y+yoff2))
+
+    def setMasterDocument(self, evt):
+        if self.master_document == None:
+            self.master_document = self.panel.editor.path
+            self.menu3.SetLabel(299, "Revert Master Document to None")
+        else:
+            self.master_document = None
+            self.menu3.SetLabel(299, "Set Current Document as Master")                
 
     def StatusOnSize(self, evt):
         self.Reposition()
@@ -2909,7 +2921,10 @@ class MainFrame(wx.Frame):
 
     ### Run actions ###
     def getCurrentWorkingDirectory(self):
-        path = ensureNFD(self.panel.editor.path)
+        if self.master_document != None:
+            path = ensureNFD(self.master_document)
+        else:
+            path = ensureNFD(self.panel.editor.path)
         cwd = os.path.expanduser("~")
         if os.path.isfile(path):
             try:
@@ -2950,7 +2965,11 @@ class MainFrame(wx.Frame):
         th.start()
 
     def runner(self, event):
-        text = self.panel.editor.GetTextUTF8()
+        if self.master_document != None:
+            with open(self.master_document, "r") as f:
+                text = f.read()
+        else:
+            text = self.panel.editor.GetTextUTF8()
         if text != "":
             text = self.addCwdToSysPath(text)
             with open(TEMP_FILE, "w") as f:
