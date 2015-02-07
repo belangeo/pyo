@@ -226,6 +226,7 @@ Alphabetical class reference
 - :py:class:`TableRead` :     Simple waveform table reader.
 - :py:class:`TableRec` :     TableRec is for writing samples into a previously created NewTable.
 - :py:class:`TableScale` :     Scales all the values contained in a PyoTableObject.
+- :py:class:`TableWrite` :     TableWrite writes samples into a previously created NewTable.
 - :py:class:`Tan` :     Performs a tangent function on audio signal.
 - :py:class:`Tanh` :     Performs a hyperbolic tangent function on audio signal.
 - :py:class:`Thresh` :     Informs when a signal crosses a threshold.
