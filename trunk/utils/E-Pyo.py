@@ -615,6 +615,34 @@ folder_add_icon_png = PyEmbeddedImage(
     "P36+7719TjKZnJPvXwAAAP//AwDmNHbvm7mEowAAAABJRU5ErkJggg==")
 catalog['folder_add_icon.png'] = folder_add_icon_png
 
+refresh_tree_icon_png = PyEmbeddedImage(
+    "iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAABmJLR0QA/wD/AP+gvaeTAAAA"
+    "CXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH3wIHETgo92WyxQAABKJJREFUSMfdlVtsVFUY"
+    "hb9zmTNnZtoOLRel3ATkASiYQMI1YkTxQVMaxMQbCGJCAiY8KAY0aIQYb5CoJEo0RlEgaUwD"
+    "clOUWwABBZFIgVKQi3RaZnqdmXbOOXPO2Wf7gFTRQcFH19NO9v7X+ve/VvLDP+C56qP/dM3U"
+    "dfX8GxRuAh/Xtox3jGhFxqNnxlXcDtu9KOpPH/hk3qR2gNtX15FcNJzZH+1n3fwpACzdepI3"
+    "KysKEy7bcwGAlYcb7n73XL72pTqRmfeT8KoO+fKefV4wZqdnD9/htg6qblv1zsSrTQ5+eccf"
+    "9VtrhxX8weI9F1k1dTAvbj0e0vv0W5qP9VhxNguXuyBpSbI5sC0QdgCuABmgOdaRUGvrDOe9"
+    "iibK3jImfDpvX7mae3tj5R2bCo5o+f7LPbqKSjekstaDZxqa6xoz+UxrVkbcrDZM2mYUoYMS"
+    "BTUGgQAEqmefCucS89yS0hfkbUWPxPymys4VE7cB6NeI+wwZw1MffmEmUsnX6r6srj935MBb"
+    "ttQbLMu2AmGEVE/cpvSf9ozoMWqBVDXQwlDcDzSTgNBIO9J/F64fI2HjZdqUgiPqXzE5nk6c"
+    "G9CVbq4DRKFQGKPnTveGzfxM6uE4KlBUDpEykBIUAYog3Fhbla+ZvgVA/XN14uTBTFe6+eQN"
+    "yAGke2LtZr1p3yxFc9JENJApIAU9NCg1oWcUQlp34yr/Ad7hVdvMY2umKyUh6F0MPRUozkJf"
+    "A8ojEOue/B8e3Az6DRlJ44VT9L5nTrh93KxXZWkcYhEwQxDSIepDvARKQ9f/4KHH59yUQOOF"
+    "U5RULYt33FVVE8SLpyphUMij+A6K70C+k7iaJQjcgiarQPgBwAYMIPS7GT7QXoSWGzreuZhs"
+    "N2WvgZNkJKqg6QI9JAgZgpAhZMgQpWUxmbnYWh8c/Cx9ncAr247NzI8bU7MrKchmBOm0oLMj"
+    "T77NQqa7UFsbftXPfTPJ/XZl062MtduDEyk3+LEZMi0BVspDpFxosSDroLZdOqEdWT3XPb+9"
+    "6VYD0S1Q36XK9mawExqyKYCOALpAcXzM0xsWWue3H/8vieuOacLWpNXgI68EkDHAVsGXSFTs"
+    "0YtqYlWfDwKIzFhfkCg+4dnu84BR9/1dwGsLIOVChwOWA0KA9EFYyEDcbkf6fxWdsX6UvWnW"
+    "VcKqDwDoe+8iADLfv8/AKQuifcfNDjfU7v67AHYg6XAgZ6PkLfByELigKBDkCQJvhKWXHQo/"
+    "XL0EILN5IQBX9q4GwJy8+Mlkp7eqvbHOLLhwzPnfVTrGgC1qrvOwmdz/ut1nYrUUfowgfzWs"
+    "0gPhgCJRpe+o0tmJyDfj5gYGrjVN5tqv6Gc3VXotZ44VNFn6gaH57bVm8uijua8XNpgPvHe/"
+    "WzJ0XRCIO8EHLQRGFIwwgaabAVSiBODbaIkfdoZ+2fR8vuVM7V+90a4dSkY8KGTnlTXW1qeT"
+    "AP75HQkjHN2oGGaRDPJjCRxQFTAMMIuguAxN11v1hsNLOL52uZequ3TDndzrsXW0Vs8GoOfw"
+    "qbTV7bnuUUnvQeX5itlPiOLysUTiUUXTknrq573O7jd2SEjzv8ZvVwomHyvQ89AAAAAASUVO"
+    "RK5CYII=")
+catalog['refresh_tree_icon.png'] = refresh_tree_icon_png
+
 file_delete_icon_png = PyEmbeddedImage(
     "iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAAXNSR0IArs4c6QAABEZJREFU"
     "eJyMVG1MW1UYfm57b1vogNLSdbotdJNkyAp+TOrYogZd4uJ+6GaYyg81auLHj7lEEpdFjfqH"
@@ -4746,6 +4774,7 @@ class PastingListEditorFrame(wx.Frame):
  
 TOOL_ADD_FILE_ID = 10
 TOOL_ADD_FOLDER_ID = 11
+TOOL_REFRESH_TREE_ID = 12
 class ProjectTree(wx.Panel):
     """Project panel"""
     def __init__(self, parent, mainPanel, size):
@@ -4761,6 +4790,7 @@ class ProjectTree(wx.Panel):
         file_add_bmp = catalog['file_add_icon.png'].GetBitmap()
         folder_add_bmp = catalog['folder_add_icon.png'].GetBitmap()
         close_panel_bmp = catalog['close_panel_icon.png'].GetBitmap()
+        refresh_tree_bmp = catalog['refresh_tree_icon.png'].GetBitmap()
 
         self.sizer = wx.BoxSizer(wx.VERTICAL)
 
@@ -4770,6 +4800,7 @@ class ProjectTree(wx.Panel):
         self.toolbar.AddLabelTool(TOOL_ADD_FILE_ID, "Add File", file_add_bmp, shortHelp="Add File")
         self.toolbar.EnableTool(TOOL_ADD_FILE_ID, False)
         self.toolbar.AddLabelTool(TOOL_ADD_FOLDER_ID, "Add Folder", folder_add_bmp, shortHelp="Add Folder")
+        self.toolbar.AddLabelTool(TOOL_REFRESH_TREE_ID, "Refresh Tree", refresh_tree_bmp, shortHelp="Refresh Tree")
         self.toolbar.Realize()
         toolbarbox.Add(self.toolbar, 1, wx.ALIGN_LEFT | wx.EXPAND, 0)
 
@@ -4781,6 +4812,7 @@ class ProjectTree(wx.Panel):
 
         wx.EVT_TOOL(self, TOOL_ADD_FILE_ID, self.onAdd)
         wx.EVT_TOOL(self, TOOL_ADD_FOLDER_ID, self.onAdd)
+        wx.EVT_TOOL(self, TOOL_REFRESH_TREE_ID, self.onRefresh)
         wx.EVT_TOOL(self, 15, self.onCloseProjectPanel)
 
         self.sizer.Add(toolbarbox, 0, wx.EXPAND)
@@ -4815,6 +4847,42 @@ class ProjectTree(wx.Panel):
         self.tree.Bind(wx.EVT_RIGHT_DOWN, self.OnRightDown)
         self.tree.Bind(wx.EVT_LEFT_DOWN, self.OnLeftClick)
         self.tree.Bind(wx.EVT_LEFT_DCLICK, self.OnLeftDClick)
+
+    def _tree_analyze(self, item, expanded_list):
+        expanded = False
+        if item != self.root:
+            expanded = self.tree.IsExpanded(item)
+        if self.tree.ItemHasChildren(item):
+            it, cookie = self.tree.GetFirstChild(item)
+            while it.IsOk():
+                if self.tree.ItemHasChildren(it) and self.tree.IsExpanded(it):
+                    parent = self.tree.GetItemText(self.tree.GetItemParent(it))
+                    expanded_list.append((parent, self.tree.GetItemText(it)))
+                    self._tree_analyze(it, expanded_list)
+                it, cookie = self.tree.GetNextChild(item, cookie)
+
+    def _tree_restore(self, item, expanded_list):
+        expanded = False
+        if item != self.root:
+            expanded = self.tree.IsExpanded(item)
+        if self.tree.ItemHasChildren(item):
+            it, cookie = self.tree.GetFirstChild(item)
+            while it.IsOk():
+                if self.tree.ItemHasChildren(it):
+                    parent = self.tree.GetItemText(self.tree.GetItemParent(it))
+                    if (parent, self.tree.GetItemText(it)) in expanded_list:
+                        self.tree.Expand(it)
+                    self._tree_restore(it, expanded_list)
+                it, cookie = self.tree.GetNextChild(item, cookie)
+
+    def onRefresh(self, evt):
+        expanded = []
+        self._tree_analyze(self.root, expanded)
+        self.tree.DeleteAllItems()
+        self.root = self.tree.AddRoot("EPyo_Project_tree", self.fldridx, self.fldropenidx, None)
+        for folder, path in self.projectDict.items():
+            self.loadFolder(path)
+        self._tree_restore(self.root, expanded)
 
     def loadFolder(self, dirPath):
         folderName = os.path.split(dirPath)[1]
@@ -4986,11 +5054,6 @@ class ProjectTree(wx.Panel):
                 filename = os.path.join(parent, filename)
             dirPath = os.path.split(self.projectDict[parent])[0]
             path = os.path.join(dirPath, filename)
-            #for root, dirs, files in os.walk(dirPath):
-            #    if files:
-            #        for file in files:
-            #            if file == self.tree.GetItemText(item):
-            #                path = os.path.join(root, file)
             self.mainPanel.addPage(path)
 
     def select(self, item):
