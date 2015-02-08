@@ -4849,9 +4849,6 @@ class ProjectTree(wx.Panel):
         self.tree.Bind(wx.EVT_LEFT_DCLICK, self.OnLeftDClick)
 
     def _tree_analyze(self, item, expanded_list):
-        expanded = False
-        if item != self.root:
-            expanded = self.tree.IsExpanded(item)
         if self.tree.ItemHasChildren(item):
             it, cookie = self.tree.GetFirstChild(item)
             while it.IsOk():
@@ -4862,9 +4859,6 @@ class ProjectTree(wx.Panel):
                 it, cookie = self.tree.GetNextChild(item, cookie)
 
     def _tree_restore(self, item, expanded_list):
-        expanded = False
-        if item != self.root:
-            expanded = self.tree.IsExpanded(item)
         if self.tree.ItemHasChildren(item):
             it, cookie = self.tree.GetFirstChild(item)
             while it.IsOk():
