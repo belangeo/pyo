@@ -2401,6 +2401,13 @@ class Looper(PyoObject):
         x, lmax = convertArgsToLists(x)
         [obj.setAutoSmooth(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
+    def reset(self):
+        """
+        Resets internal reading pointers to 0.
+
+        """
+        [obj.reset() for obj in self._base_objs]
+
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
         self._map_list = [SLMap(0.1, 2., 'lin', 'pitch', self._pitch),
                           SLMap(0., self._table.getDur(), 'lin', 'start', self._start),
