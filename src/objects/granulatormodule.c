@@ -2174,6 +2174,14 @@ Looper_setAutoSmooth(Looper *self, PyObject *arg)
     return Py_None;
 }
 
+static PyObject * 
+Looper_on_reset(Looper *self) { 
+    self->pointerPos[0] = self->pointerPos[1] = 0.0;
+    self->active[0] = self->active[1] = 0;
+    Py_INCREF(Py_None);
+    return Py_None;
+};
+
 static PyMemberDef Looper_members[] = {
     {"server", T_OBJECT_EX, offsetof(Looper, server), 0, "Pyo server."},
     {"stream", T_OBJECT_EX, offsetof(Looper, stream), 0, "Stream object."},
@@ -2204,6 +2212,7 @@ static PyMethodDef Looper_methods[] = {
     {"setStartFromLoop", (PyCFunction)Looper_setStartFromLoop, METH_O, "Sets init pointer position."},
     {"setInterp", (PyCFunction)Looper_setInterp, METH_O, "Sets oscillator interpolation mode."},
     {"setAutoSmooth", (PyCFunction)Looper_setAutoSmooth, METH_O, "Activate lowpass filter for transposition below 1."},
+    {"reset", (PyCFunction)Looper_on_reset, METH_NOARGS, "Resets internal counters."},
 	{"setMul", (PyCFunction)Looper_setMul, METH_O, "Sets granulator mul factor."},
 	{"setAdd", (PyCFunction)Looper_setAdd, METH_O, "Sets granulator add factor."},
     {"setSub", (PyCFunction)Looper_setSub, METH_O, "Sets inverse add factor."},

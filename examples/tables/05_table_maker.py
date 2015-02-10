@@ -13,7 +13,8 @@ path = "../snds/baseballmajeur_m.aif"
 dur = sndinfo(path)[1]
 
 t = SndTable(path, start=0, stop=1)
-a = Looper(t, pitch=[1.,1.], dur=t.getDur(), xfade=5, mul=.4).out()
+amp = Fader(fadein=0.005, fadeout=0.005, dur=0, mul=0.4).play()
+a = Looper(t, pitch=[1.,1.], dur=t.getDur(), xfade=5, mul=amp).out()
 
 def addsnd():
     start = random.uniform(0, dur*0.7)
@@ -22,14 +23,20 @@ def addsnd():
     cross = random.uniform(0.04, duration/2)
     t.insert(path, pos=pos, crossfade=cross, start=start, stop=start+duration)
 
-def gen():
+def delayed_generation():
     start = random.uniform(0, dur*0.7)
     duration = random.uniform(.1, .3)
     t.setSound(path, start=start, stop=start+duration)
     for i in range(10):
         addsnd()
-
     a.dur = t.getDur()
+    a.reset()
+    amp.play()
+
+caller = CallAfter(function=delayed_generation, time=0.005).stop()
+def gen():
+    amp.stop()
+    caller.play()
 
 gen()
 
