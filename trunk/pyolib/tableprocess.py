@@ -2412,6 +2412,8 @@ class Looper(PyoObject):
         self._map_list = [SLMap(0.1, 2., 'lin', 'pitch', self._pitch),
                           SLMap(0., self._table.getDur(), 'lin', 'start', self._start),
                           SLMap(0.01, self._table.getDur(), 'lin', 'dur', self._dur),
+                          SLMap(1, 50, 'lin', 'xfade', self._xfade),
+                          SLMap(0, 3, 'lin', 'mode', self._mode, res="int", dataOnly=True),
                           SLMap(0, 2, 'lin', 'xfadeshape', self._xfadeshape, res="int", dataOnly=True),
                           SLMap(1, 4, 'lin', 'interp', self._interp, res="int", dataOnly=True),
                           SLMapMul(self._mul)]

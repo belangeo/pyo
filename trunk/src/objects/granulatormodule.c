@@ -1112,8 +1112,9 @@ typedef struct {
     int xfadeshape;
     int startfromloop;
     int init;
-    int mode; /* 0 = no loop, 1 = forward, 2 = backward, 3 = back-and-forth */
+    int mode[2]; /* 0 = no loop, 1 = forward, 2 = backward, 3 = back-and-forth */
     int tmpmode;
+    int direction[2];
     double pointerPos[2];
     int active[2];
     long loopstart[2];
@@ -1133,7 +1134,6 @@ typedef struct {
     MYFLT y2;
     // variables
     MYFLT c1;
-    MYFLT c2;
     
 } Looper;
 
@@ -1177,17 +1177,15 @@ Looper_reset(Looper *self, int x, int which, int init) {
     else
         self->fader = LOOPER_LINEAR_FADE;
     
-    if (self->tmpmode != self->mode) {
-        self->mode = self->tmpmode;
-        self->active[0] = self->active[1] = 0;
-        which = 0;
-    }
+    if (self->tmpmode != self->mode[which])
+        self->mode[which] = self->tmpmode;
     
-    switch (self->mode) {
+    switch (self->mode[which]) {
         case 0:
             self->loopstart[which] = 0;
             self->loopend[which] = (long)size;
-                self->crossfadedur[which] = 5;
+            if (self->crossfadedur[which] < 1)
+                self->crossfadedur[which] = 1;
             self->crossfadescaling[which] = 1.0 / self->crossfadedur[which] * 512.0;
             if (init == 1 && self->startfromloop == 0) {
                 self->minfadepoint[which] = self->crossfadedur[which];
@@ -1197,15 +1195,15 @@ Looper_reset(Looper *self, int x, int which, int init) {
             else {
                 self->minfadepoint[which] = self->loopstart[which] + self->crossfadedur[which];
                 self->maxfadepoint[which] = self->loopend[which] - self->crossfadedur[which];
-                self->pointerPos[which] = self->loopstart[which];        
-            }            
+                self->pointerPos[which] = self->loopstart[which];
+            }
             break;
         case 1:
             self->loopstart[which] = (long)(start * tableSr);
             self->loopend[which] = (long)((start + dur) * tableSr);
             self->crossfadedur[which] = (long)((self->loopend[which] - self->loopstart[which]) * xfade * 0.01);
-            if (self->crossfadedur[which] < 5)
-                self->crossfadedur[which] = 5;
+            if (self->crossfadedur[which] < 1)
+                self->crossfadedur[which] = 1;
             self->crossfadescaling[which] = 1.0 / self->crossfadedur[which] * 512.0;
             if (init == 1 && self->startfromloop == 0) {
                 self->minfadepoint[which] = self->crossfadedur[which];
@@ -1220,10 +1218,10 @@ Looper_reset(Looper *self, int x, int which, int init) {
             break;
         case 2:
             self->loopstart[which] = (long)((start + dur) * tableSr);
-            self->loopend[which] = (long)((start) * tableSr);
+            self->loopend[which] = (long)(start * tableSr);
             self->crossfadedur[which] = (long)((self->loopstart[which] - self->loopend[which]) * xfade * 0.01);
-            if (self->crossfadedur[which] < 5)
-                self->crossfadedur[which] = 5;
+            if (self->crossfadedur[which] < 1)
+                self->crossfadedur[which] = 1;
             self->crossfadescaling[which] = 1.0 / self->crossfadedur[which] * 512.0;
             if (init == 1 && self->startfromloop == 0) {
                 self->minfadepoint[which] = size - self->crossfadedur[which];
@@ -1233,16 +1231,29 @@ Looper_reset(Looper *self, int x, int which, int init) {
             else {
                 self->minfadepoint[which] = self->loopstart[which] - self->crossfadedur[which];
                 self->maxfadepoint[which] = self->loopend[which] + self->crossfadedur[which];
-                self->pointerPos[which] = self->loopstart[which];        
+                self->pointerPos[which] = self->loopstart[which];
             }            
             break;
         case 3:
-            if (which == 0) {
+            if (self->direction[1-which] == 0) {
+                self->direction[which] = 1;
+                self->loopstart[which] = (long)((start + dur) * tableSr);
+                self->loopend[which] = (long)(start * tableSr);
+                self->crossfadedur[which] = (long)((self->loopstart[which] - self->loopend[which]) * xfade * 0.01);
+                if (self->crossfadedur[which] < 1)
+                    self->crossfadedur[which] = 1;
+                self->crossfadescaling[which] = 1.0 / self->crossfadedur[which] * 512.0;
+                self->minfadepoint[which] = self->loopstart[which] - self->crossfadedur[which];
+                self->maxfadepoint[which] = self->loopend[which] + self->crossfadedur[which];
+                self->pointerPos[which] = self->loopstart[which];
+            }
+            else {
+                self->direction[which] = 0;
                 self->loopstart[which] = (long)(start * tableSr);
                 self->loopend[which] = (long)((start + dur) * tableSr);
                 self->crossfadedur[which] = (long)((self->loopend[which] - self->loopstart[which]) * xfade * 0.01);
-                if (self->crossfadedur[which] < 5)
-                    self->crossfadedur[which] = 5;
+                if (self->crossfadedur[which] < 1)
+                    self->crossfadedur[which] = 1;
                 self->crossfadescaling[which] = 1.0 / self->crossfadedur[which] * 512.0;
                 if (init == 1 && self->startfromloop == 0) {
                     self->minfadepoint[which] = self->crossfadedur[which];
@@ -1255,26 +1266,20 @@ Looper_reset(Looper *self, int x, int which, int init) {
                     self->pointerPos[which] = self->loopstart[which];        
                 }
             }
-            else {
-                self->loopstart[which] = (long)((start + dur) * tableSr);
-                self->loopend[which] = (long)(start * tableSr);
-                self->crossfadedur[which] = (long)((self->loopstart[which] - self->loopend[which]) * xfade * 0.01);
-                if (self->crossfadedur[which] < 5)
-                    self->crossfadedur[which] = 5;
-                self->crossfadescaling[which] = 1.0 / self->crossfadedur[which] * 512.0;
-                self->minfadepoint[which] = self->loopstart[which] - self->crossfadedur[which];
-                self->maxfadepoint[which] = self->loopend[which] + self->crossfadedur[which];
-                self->pointerPos[which] = self->loopstart[which];
-            }
             break;
     }
-
     self->active[which] = 1;
+}
+
+static MYFLT
+Looper_get_amp(Looper *self, MYFLT pos) {
+    int ipart = (int)pos;
+    return self->fader[ipart] + (self->fader[ipart+1] - self->fader[ipart]) * (pos - ipart);
 }
 
 static void
 Looper_transform_i(Looper *self) {
-    MYFLT fpart, amp, fr, b;
+    MYFLT fpart, amp, fr;
     double pit;
     int i, j, ipart;
     
@@ -1291,62 +1296,21 @@ Looper_transform_i(Looper *self) {
     if (self->active[0] == 0 && self->active[1] == 0) {
         Looper_reset(self, 0, 0, 1);
     }
-    
-    switch (self->mode) {
-        case 0:            
-            for (i=0; i<self->bufsize; i++) {
-                self->data[i] = 0.0;
-                if (self->active[0] == 1) {
-                    if (self->pointerPos[0] > size)
-                        self->data[i] += 0.0;
-                    else {
-                        if (self->pointerPos[0] < self->minfadepoint[0]) {
-                            fpart = (self->pointerPos[0] - self->loopstart[0]) * self->crossfadescaling[0];
-                            ipart = (int)fpart;
-                            fpart = fpart - ipart;
-                            amp = self->fader[ipart] + (self->fader[ipart+1] - self->fader[ipart]) * fpart;
-                        }
-                        else if (self->pointerPos[0] > self->maxfadepoint[0]) {
-                            fpart = (self->loopend[0] - self->pointerPos[0]) * self->crossfadescaling[0];
-                            ipart = (int)fpart;
-                            fpart = fpart - ipart;
-                            amp = self->fader[ipart] + (self->fader[ipart+1] - self->fader[ipart]) * fpart;
-                        }
-                        else
-                            amp = 1.0;
-                        ipart = (int)self->pointerPos[0];
-                        fpart = self->pointerPos[0] - ipart;
-                        self->data[i] += (*self->interp_func_ptr)(tablelist, ipart, fpart, size) * amp;
-                    }
-                    self->pointerPos[0] += pit;
-                    if (self->pointerPos[0] < 0)
-                        self->pointerPos[0] = 0.0;
-                    else if (self->pointerPos[0] >= self->loopend[0]) {
-                        self->active[0] = 0;
-                        PyObject_CallMethod((PyObject *)self, "stop", NULL);
-                    }
-                }
-            }
-            break;
-        case 1:
-            for (i=0; i<self->bufsize; i++) {
-                self->data[i] = 0.0;
-                for (j=0; j<2; j++) {
-                    if (self->active[j] == 1) {
-                        if (self->pointerPos[j] > size)
-                            self->data[i] += 0.0;
-                        else {
+
+    for (i=0; i<self->bufsize; i++) {
+        self->data[i] = 0.0;
+        for (j=0; j<2; j++) {
+            if (self->active[j] == 1) {
+                switch (self->mode[j]) {
+                    case 0:
+                        if (self->pointerPos[j] >= 0 && self->pointerPos[j] < size) {
                             if (self->pointerPos[j] < self->minfadepoint[j]) {
                                 fpart = (self->pointerPos[j] - self->loopstart[j]) * self->crossfadescaling[j];
-                                ipart = (int)fpart;
-                                fpart = fpart - ipart;
-                                amp = self->fader[ipart] + (self->fader[ipart+1] - self->fader[ipart]) * fpart;
+                                amp = Looper_get_amp(self, fpart);
                             }
                             else if (self->pointerPos[j] > self->maxfadepoint[j]) {
                                 fpart = (self->loopend[j] - self->pointerPos[j]) * self->crossfadescaling[j];
-                                ipart = (int)fpart;
-                                fpart = fpart - ipart;
-                                amp = self->fader[ipart] + (self->fader[ipart+1] - self->fader[ipart]) * fpart;
+                                amp = Looper_get_amp(self, fpart);
                             }
                             else
                                 amp = 1.0;
@@ -1355,35 +1319,46 @@ Looper_transform_i(Looper *self) {
                             self->data[i] += (*self->interp_func_ptr)(tablelist, ipart, fpart, size) * amp;
                         }
                         self->pointerPos[j] += pit;
-                        if (self->pointerPos[j] < 0)
+                        if (self->pointerPos[j] < 0.0)
+                            self->pointerPos[j] = 0.0;
+                        else if (self->pointerPos[j] >= self->loopend[j]) {
+                            self->active[j] = 0;
+                            PyObject_CallMethod((PyObject *)self, "stop", NULL);
+                        }
+                        break;
+                    case 1:
+                        if (self->pointerPos[j] >= 0 && self->pointerPos[j] < size) {
+                            if (self->pointerPos[j] < self->minfadepoint[j]) {
+                                fpart = (self->pointerPos[j] - self->loopstart[j]) * self->crossfadescaling[j];
+                                amp = Looper_get_amp(self, fpart);
+                            }
+                            else if (self->pointerPos[j] > self->maxfadepoint[j]) {
+                                fpart = (self->loopend[j] - self->pointerPos[j]) * self->crossfadescaling[j];
+                                amp = Looper_get_amp(self, fpart);
+                            }
+                            else
+                                amp = 1.0;
+                            ipart = (int)self->pointerPos[j];
+                            fpart = self->pointerPos[j] - ipart;
+                            self->data[i] += (*self->interp_func_ptr)(tablelist, ipart, fpart, size) * amp;
+                        }
+                        self->pointerPos[j] += pit;
+                        if (self->pointerPos[j] < 0.0)
                             self->pointerPos[j] = 0.0;
                         else if (self->pointerPos[j] > self->maxfadepoint[j] && self->active[1-j] == 0)
                             Looper_reset(self, i, 1-j, 0);                    
-                        else if (self->pointerPos[j] >= self->loopend[j])
+                        if (self->pointerPos[j] >= self->loopend[j])
                             self->active[j] = 0;
-                    }
-                }
-            }
-            break;
-        case 2:
-            for (i=0; i<self->bufsize; i++) {
-                self->data[i] = 0.0;
-                for (j=0; j<2; j++) {
-                    if (self->active[j] == 1) {
-                        if (self->pointerPos[j] < 0.0)
-                            self->data[i] += 0.0;
-                        else {
+                        break;
+                    case 2:
+                        if (self->pointerPos[j] >= 0 && self->pointerPos[j] < size) {
                             if (self->pointerPos[j] > self->minfadepoint[j]) {
                                 fpart = (self->loopstart[j] - self->pointerPos[j]) * self->crossfadescaling[j];
-                                ipart = (int)fpart;
-                                fpart = fpart - ipart;
-                                amp = self->fader[ipart] + (self->fader[ipart+1] - self->fader[ipart]) * fpart;
+                                amp = Looper_get_amp(self, fpart);
                             }
                             else if (self->pointerPos[j] < self->maxfadepoint[j]) {
                                 fpart = (self->pointerPos[j] - self->loopend[j]) * self->crossfadescaling[j];
-                                ipart = (int)fpart;
-                                fpart = fpart - ipart;
-                                amp = self->fader[ipart] + (self->fader[ipart+1] - self->fader[ipart]) * fpart;
+                                amp = Looper_get_amp(self, fpart);
                             }
                             else
                                 amp = 1.0;
@@ -1396,91 +1371,76 @@ Looper_transform_i(Looper *self) {
                             self->pointerPos[j] = size-1;
                         else if (self->pointerPos[j] < self->maxfadepoint[j] && self->active[1-j] == 0)
                             Looper_reset(self, i, 1-j, 0);                    
-                        else if (self->pointerPos[j] <= self->loopend[j])
+                        if (self->pointerPos[j] <= self->loopend[j])
                             self->active[j] = 0;
-                    }
-                }
+                        break;
+                    case 3:
+                        if (self->direction[j] == 0) {
+                            if (self->pointerPos[j] >= 0 && self->pointerPos[j] < size) {
+                                if (self->pointerPos[j] < self->minfadepoint[j]) {
+                                    fpart = (self->pointerPos[j] - self->loopstart[j]) * self->crossfadescaling[j];
+                                    amp = Looper_get_amp(self, fpart);
+                                }
+                                else if (self->pointerPos[j] > self->maxfadepoint[j]) {
+                                    fpart = (self->loopend[j] - self->pointerPos[j]) * self->crossfadescaling[j];
+                                    amp = Looper_get_amp(self, fpart);
+                                }
+                                else
+                                    amp = 1.0;
+                                ipart = (int)self->pointerPos[j];
+                                fpart = self->pointerPos[j] - ipart;
+                                self->data[i] += (*self->interp_func_ptr)(tablelist, ipart, fpart, size) * amp;
+                            }
+                            self->pointerPos[j] += pit;
+                            if (self->pointerPos[j] < 0.0)
+                                self->pointerPos[j] = 0.0;
+                            else if (self->pointerPos[j] > self->maxfadepoint[j] && self->active[1-j] == 0)
+                                Looper_reset(self, i, 1-j, 0);                    
+                            if (self->pointerPos[j] >= self->loopend[j])
+                                self->active[j] = 0;
+                        }
+                        else {
+                            if (self->pointerPos[j] >= 0 && self->pointerPos[j] < size) {
+                                if (self->pointerPos[j] > self->minfadepoint[j]) {
+                                    fpart = (self->loopstart[j] - self->pointerPos[j]) * self->crossfadescaling[j];
+                                    amp = Looper_get_amp(self, fpart);
+                                }
+                                else if (self->pointerPos[j] < self->maxfadepoint[j]) {
+                                    fpart = (self->pointerPos[j] - self->loopend[j]) * self->crossfadescaling[j];
+                                    amp = Looper_get_amp(self, fpart);
+                                }
+                                else
+                                    amp = 1.0;
+                                ipart = (int)self->pointerPos[j];
+                                fpart = self->pointerPos[j] - ipart;
+                                self->data[i] += (*self->interp_func_ptr)(tablelist, ipart, fpart, size) * amp;
+                            }
+                            self->pointerPos[j] -= pit;
+                            if (self->pointerPos[j] >= size)
+                                self->pointerPos[j] = size-1;
+                            else if (self->pointerPos[j] < self->maxfadepoint[j] && self->active[1-j] == 0)
+                                Looper_reset(self, i, 1-j, 0);                    
+                            if (self->pointerPos[j] <= self->loopend[j])
+                                self->active[j] = 0;
+                        }
+                        break;
+                } // end of switch
             }
-            break;
-        case 3:
-            for (i=0; i<self->bufsize; i++) {
-                self->data[i] = 0.0;
-                if (self->active[0] == 1) {
-                    if (self->pointerPos[0] > size)
-                        self->data[i] += 0.0;
-                    else {
-                        if (self->pointerPos[0] < self->minfadepoint[0]) {
-                            fpart = (self->pointerPos[0] - self->loopstart[0]) * self->crossfadescaling[0];
-                            ipart = (int)fpart;
-                            fpart = fpart - ipart;
-                            amp = self->fader[ipart] + (self->fader[ipart+1] - self->fader[ipart]) * fpart;
-                        }
-                        else if (self->pointerPos[0] > self->maxfadepoint[0]) {
-                            fpart = (self->loopend[0] - self->pointerPos[0]) * self->crossfadescaling[0];
-                            ipart = (int)fpart;
-                            fpart = fpart - ipart;
-                            amp = self->fader[ipart] + (self->fader[ipart+1] - self->fader[ipart]) * fpart;
-                        }
-                        else
-                            amp = 1.0;
-                        ipart = (int)self->pointerPos[0];
-                        fpart = self->pointerPos[0] - ipart;
-                        self->data[i] += (*self->interp_func_ptr)(tablelist, ipart, fpart, size) * amp;
-                    }
-                    self->pointerPos[0] += pit;
-                    if (self->pointerPos[0] < 0)
-                        self->pointerPos[0] = 0.0;
-                    else if (self->pointerPos[0] > self->maxfadepoint[0] && self->active[1] == 0)
-                        Looper_reset(self, i, 1, 0);                    
-                    else if (self->pointerPos[0] >= self->loopend[0])
-                        self->active[0] = 0;
-                } 
-                if (self->active[1] == 1) {
-                    if (self->pointerPos[1] < 0.0)
-                        self->data[i] += 0.0;
-                    else {
-                        if (self->pointerPos[1] > self->minfadepoint[1]) {
-                            fpart = (self->loopstart[1] - self->pointerPos[1]) * self->crossfadescaling[1];
-                            ipart = (int)fpart;
-                            fpart = fpart - ipart;
-                            amp = self->fader[ipart] + (self->fader[ipart+1] - self->fader[ipart]) * fpart;
-                        }
-                        else if (self->pointerPos[1] < self->maxfadepoint[1]) {
-                            fpart = (self->pointerPos[1] - self->loopend[1]) * self->crossfadescaling[1];
-                            ipart = (int)fpart;
-                            fpart = fpart - ipart;
-                            amp = self->fader[ipart] + (self->fader[ipart+1] - self->fader[ipart]) * fpart;
-                        }
-                        else
-                            amp = 1.0;
-                        ipart = (int)self->pointerPos[1];
-                        fpart = self->pointerPos[1] - ipart;
-                        self->data[i] += (*self->interp_func_ptr)(tablelist, ipart, fpart, size) * amp;
-                    }
-                    self->pointerPos[1] -= pit;
-                    if (self->pointerPos[1] >= size)
-                        self->pointerPos[1] = size-1;
-                    else if (self->pointerPos[1] < self->maxfadepoint[1] && self->active[0] == 0)
-                        Looper_reset(self, i, 0, 0);                    
-                    else if (self->pointerPos[1] <= self->loopend[1])
-                        self->active[1] = 0;
-                }
-            }
-            break;
+        }
     }
 
     /* Automatic smoothering of low transposition */
-    if (self->autosmooth == 1 && pitval < 1.0 && pit > 0.0) {
+    if (self->autosmooth == 1 && pitval < 1.0) {
         if (self->lastpitch != pitval) {
             self->lastpitch = pitval;
-            fr = pitval * tableSr * 0.45;
-            b = 2.0 - MYCOS(TWOPI * fr / self->sr);
-            self->c2 = (b - MYSQRT(b * b - 1.0));
-            self->c1 = 1.0 - self->c2;
+            if (pitval < 0.001)
+                pitval = 0.001;    
+            fr = pitval * self->sr * 0.45;
+            self->c1 = MYEXP(-TWOPI * fr / self->sr);            
         }
         for (i=0; i<self->bufsize; i++) {
-            self->y1 = self->c1 * self->data[i] + self->c2 * self->y1;
-            self->y2 = self->c1 * self->y1 + self->c2 * self->y2;
+            self->y1 = self->data[i] + (self->y1 - self->data[i]) * self->c1;
+            self->y2 = self->y1 + (self->y2 - self->y1) * self->c1;
             self->data[i] = self->y2;
         }
     }
@@ -1488,84 +1448,40 @@ Looper_transform_i(Looper *self) {
 
 static void
 Looper_transform_a(Looper *self) {
-    MYFLT fpart, amp, fr, b;
-    double pit;
+    MYFLT fpart, amp, fr, pitval;
+    double pit, srFactor;
     int i, j, ipart;
     
     MYFLT *tablelist = TableStream_getData(self->table);
     int size = TableStream_getSize(self->table);
     double tableSr = TableStream_getSamplingRate(self->table);
-    double ratio = tableSr / self->sr;
     
     MYFLT *pitch = Stream_getData((Stream *)self->pitch_stream);
-    
+
+    srFactor = tableSr / self->sr;
+
     if (self->active[0] == 0 && self->active[1] == 0) {
         Looper_reset(self, 0, 0, 1);
     }
-    
-    switch (self->mode) {
-        case 0:            
-            for (i=0; i<self->bufsize; i++) {
-                self->data[i] = 0.0;
-                pit = pitch[i];
-                if (pit < 0.0)
-                    pit = 0.0;    
-                pit = pit * ratio;
-                if (self->active[0] == 1) {
-                    if (self->pointerPos[0] > size)
-                        self->data[i] += 0.0;
-                    else {
-                        if (self->pointerPos[0] < self->minfadepoint[0]) {
-                            fpart = (self->pointerPos[0] - self->loopstart[0]) * self->crossfadescaling[0];
-                            ipart = (int)fpart;
-                            fpart = fpart - ipart;
-                            amp = self->fader[ipart] + (self->fader[ipart+1] - self->fader[ipart]) * fpart;
-                        }
-                        else if (self->pointerPos[0] > self->maxfadepoint[0]) {
-                            fpart = (self->loopend[0] - self->pointerPos[0]) * self->crossfadescaling[0];
-                            ipart = (int)fpart;
-                            fpart = fpart - ipart;
-                            amp = self->fader[ipart] + (self->fader[ipart+1] - self->fader[ipart]) * fpart;
-                        }
-                        else
-                            amp = 1.0;
-                        ipart = (int)self->pointerPos[0];
-                        fpart = self->pointerPos[0] - ipart;
-                        self->data[i] += (*self->interp_func_ptr)(tablelist, ipart, fpart, size) * amp;
-                    }
-                    self->pointerPos[0] += pit;
-                    if (self->pointerPos[0] < 0)
-                        self->pointerPos[0] = 0.0;
-                    else if (self->pointerPos[0] >= self->loopend[0]) {
-                        self->active[0] = 0;
-                        PyObject_CallMethod((PyObject *)self, "stop", NULL);
-                    }
-                }
-            }
-            break;
-        case 1:
-            for (i=0; i<self->bufsize; i++) {
-                self->data[i] = 0.0;
-                pit = pitch[i];
-                if (pit < 0.0)
-                    pit = 0.0;    
-                pit = pit * ratio;
-                for (j=0; j<2; j++) {
-                    if (self->active[j] == 1) {
-                        if (self->pointerPos[j] > size)
-                            self->data[i] += 0.0;
-                        else {
+
+    for (i=0; i<self->bufsize; i++) {
+        self->data[i] = 0.0;
+        pitval = pitch[i];
+        if (pitval < 0.0)
+            pitval = 0.0;    
+        pit = pitval * srFactor;
+        for (j=0; j<2; j++) {
+            if (self->active[j] == 1) {
+                switch (self->mode[j]) {
+                    case 0:
+                        if (self->pointerPos[j] >= 0 && self->pointerPos[j] < size) {
                             if (self->pointerPos[j] < self->minfadepoint[j]) {
                                 fpart = (self->pointerPos[j] - self->loopstart[j]) * self->crossfadescaling[j];
-                                ipart = (int)fpart;
-                                fpart = fpart - ipart;
-                                amp = self->fader[ipart] + (self->fader[ipart+1] - self->fader[ipart]) * fpart;
+                                amp = Looper_get_amp(self, fpart);
                             }
                             else if (self->pointerPos[j] > self->maxfadepoint[j]) {
                                 fpart = (self->loopend[j] - self->pointerPos[j]) * self->crossfadescaling[j];
-                                ipart = (int)fpart;
-                                fpart = fpart - ipart;
-                                amp = self->fader[ipart] + (self->fader[ipart+1] - self->fader[ipart]) * fpart;
+                                amp = Looper_get_amp(self, fpart);
                             }
                             else
                                 amp = 1.0;
@@ -1574,39 +1490,46 @@ Looper_transform_a(Looper *self) {
                             self->data[i] += (*self->interp_func_ptr)(tablelist, ipart, fpart, size) * amp;
                         }
                         self->pointerPos[j] += pit;
-                        if (self->pointerPos[j] < 0)
+                        if (self->pointerPos[j] < 0.0)
+                            self->pointerPos[j] = 0.0;
+                        else if (self->pointerPos[j] >= self->loopend[j]) {
+                            self->active[j] = 0;
+                            PyObject_CallMethod((PyObject *)self, "stop", NULL);
+                        }
+                        break;
+                    case 1:
+                        if (self->pointerPos[j] >= 0 && self->pointerPos[j] < size) {
+                            if (self->pointerPos[j] < self->minfadepoint[j]) {
+                                fpart = (self->pointerPos[j] - self->loopstart[j]) * self->crossfadescaling[j];
+                                amp = Looper_get_amp(self, fpart);
+                            }
+                            else if (self->pointerPos[j] > self->maxfadepoint[j]) {
+                                fpart = (self->loopend[j] - self->pointerPos[j]) * self->crossfadescaling[j];
+                                amp = Looper_get_amp(self, fpart);
+                            }
+                            else
+                                amp = 1.0;
+                            ipart = (int)self->pointerPos[j];
+                            fpart = self->pointerPos[j] - ipart;
+                            self->data[i] += (*self->interp_func_ptr)(tablelist, ipart, fpart, size) * amp;
+                        }
+                        self->pointerPos[j] += pit;
+                        if (self->pointerPos[j] < 0.0)
                             self->pointerPos[j] = 0.0;
                         else if (self->pointerPos[j] > self->maxfadepoint[j] && self->active[1-j] == 0)
                             Looper_reset(self, i, 1-j, 0);                    
-                        else if (self->pointerPos[j] >= self->loopend[j])
+                        if (self->pointerPos[j] >= self->loopend[j])
                             self->active[j] = 0;
-                    }
-                }
-            }
-            break;
-        case 2:
-            for (i=0; i<self->bufsize; i++) {
-                self->data[i] = 0.0;
-                pit = pitch[i];
-                if (pit < 0.0)
-                    pit = 0.0;    
-                pit = pit * ratio;
-                for (j=0; j<2; j++) {
-                    if (self->active[j] == 1) {
-                        if (self->pointerPos[j] < 0.0)
-                            self->data[i] += 0.0;
-                        else {
+                        break;
+                    case 2:
+                        if (self->pointerPos[j] >= 0 && self->pointerPos[j] < size) {
                             if (self->pointerPos[j] > self->minfadepoint[j]) {
                                 fpart = (self->loopstart[j] - self->pointerPos[j]) * self->crossfadescaling[j];
-                                ipart = (int)fpart;
-                                fpart = fpart - ipart;
-                                amp = self->fader[ipart] + (self->fader[ipart+1] - self->fader[ipart]) * fpart;
+                                amp = Looper_get_amp(self, fpart);
                             }
                             else if (self->pointerPos[j] < self->maxfadepoint[j]) {
                                 fpart = (self->pointerPos[j] - self->loopend[j]) * self->crossfadescaling[j];
-                                ipart = (int)fpart;
-                                fpart = fpart - ipart;
-                                amp = self->fader[ipart] + (self->fader[ipart+1] - self->fader[ipart]) * fpart;
+                                amp = Looper_get_amp(self, fpart);
                             }
                             else
                                 amp = 1.0;
@@ -1619,101 +1542,79 @@ Looper_transform_a(Looper *self) {
                             self->pointerPos[j] = size-1;
                         else if (self->pointerPos[j] < self->maxfadepoint[j] && self->active[1-j] == 0)
                             Looper_reset(self, i, 1-j, 0);                    
-                        else if (self->pointerPos[j] <= self->loopend[j])
+                        if (self->pointerPos[j] <= self->loopend[j])
                             self->active[j] = 0;
-                    }
-                }
+                        break;
+                    case 3:
+                        if (self->direction[j] == 0) {
+                            if (self->pointerPos[j] >= 0 && self->pointerPos[j] < size) {
+                                if (self->pointerPos[j] < self->minfadepoint[j]) {
+                                    fpart = (self->pointerPos[j] - self->loopstart[j]) * self->crossfadescaling[j];
+                                    amp = Looper_get_amp(self, fpart);
+                                }
+                                else if (self->pointerPos[j] > self->maxfadepoint[j]) {
+                                    fpart = (self->loopend[j] - self->pointerPos[j]) * self->crossfadescaling[j];
+                                    amp = Looper_get_amp(self, fpart);
+                                }
+                                else
+                                    amp = 1.0;
+                                ipart = (int)self->pointerPos[j];
+                                fpart = self->pointerPos[j] - ipart;
+                                self->data[i] += (*self->interp_func_ptr)(tablelist, ipart, fpart, size) * amp;
+                            }
+                            self->pointerPos[j] += pit;
+                            if (self->pointerPos[j] < 0.0)
+                                self->pointerPos[j] = 0.0;
+                            else if (self->pointerPos[j] > self->maxfadepoint[j] && self->active[1-j] == 0)
+                                Looper_reset(self, i, 1-j, 0);                    
+                            if (self->pointerPos[j] >= self->loopend[j])
+                                self->active[j] = 0;
+                        }
+                        else {
+                            if (self->pointerPos[j] >= 0 && self->pointerPos[j] < size) {
+                                if (self->pointerPos[j] > self->minfadepoint[j]) {
+                                    fpart = (self->loopstart[j] - self->pointerPos[j]) * self->crossfadescaling[j];
+                                    amp = Looper_get_amp(self, fpart);
+                                }
+                                else if (self->pointerPos[j] < self->maxfadepoint[j]) {
+                                    fpart = (self->pointerPos[j] - self->loopend[j]) * self->crossfadescaling[j];
+                                    amp = Looper_get_amp(self, fpart);
+                                }
+                                else
+                                    amp = 1.0;
+                                ipart = (int)self->pointerPos[j];
+                                fpart = self->pointerPos[j] - ipart;
+                                self->data[i] += (*self->interp_func_ptr)(tablelist, ipart, fpart, size) * amp;
+                            }
+                            self->pointerPos[j] -= pit;
+                            if (self->pointerPos[j] >= size)
+                                self->pointerPos[j] = size-1;
+                            else if (self->pointerPos[j] < self->maxfadepoint[j] && self->active[1-j] == 0)
+                                Looper_reset(self, i, 1-j, 0);                    
+                            if (self->pointerPos[j] <= self->loopend[j])
+                                self->active[j] = 0;
+                        }
+                        break;
+                } // end of switch
             }
-            break;
-        case 3:
-            for (i=0; i<self->bufsize; i++) {
-                self->data[i] = 0.0;
-                pit = pitch[i];
-                if (pit < 0.0)
-                    pit = 0.0;    
-                pit = pit * ratio;
-                if (self->active[0] == 1) {
-                    if (self->pointerPos[0] > size)
-                        self->data[i] += 0.0;
-                    else {
-                        if (self->pointerPos[0] < self->minfadepoint[0]) {
-                            fpart = (self->pointerPos[0] - self->loopstart[0]) * self->crossfadescaling[0];
-                            ipart = (int)fpart;
-                            fpart = fpart - ipart;
-                            amp = self->fader[ipart] + (self->fader[ipart+1] - self->fader[ipart]) * fpart;
-                        }
-                        else if (self->pointerPos[0] > self->maxfadepoint[0]) {
-                            fpart = (self->loopend[0] - self->pointerPos[0]) * self->crossfadescaling[0];
-                            ipart = (int)fpart;
-                            fpart = fpart - ipart;
-                            amp = self->fader[ipart] + (self->fader[ipart+1] - self->fader[ipart]) * fpart;
-                        }
-                        else
-                            amp = 1.0;
-                        ipart = (int)self->pointerPos[0];
-                        fpart = self->pointerPos[0] - ipart;
-                        self->data[i] += (*self->interp_func_ptr)(tablelist, ipart, fpart, size) * amp;
-                    }
-                    self->pointerPos[0] += pit;
-                    if (self->pointerPos[0] < 0)
-                        self->pointerPos[0] = 0.0;
-                    else if (self->pointerPos[0] > self->maxfadepoint[0] && self->active[1] == 0)
-                        Looper_reset(self, i, 1, 0);                    
-                    else if (self->pointerPos[0] >= self->loopend[0])
-                        self->active[0] = 0;
-                } 
-                if (self->active[1] == 1) {
-                    if (self->pointerPos[1] < 0.0)
-                        self->data[i] += 0.0;
-                    else {
-                        if (self->pointerPos[1] > self->minfadepoint[1]) {
-                            fpart = (self->loopstart[1] - self->pointerPos[1]) * self->crossfadescaling[1];
-                            ipart = (int)fpart;
-                            fpart = fpart - ipart;
-                            amp = self->fader[ipart] + (self->fader[ipart+1] - self->fader[ipart]) * fpart;
-                        }
-                        else if (self->pointerPos[1] < self->maxfadepoint[1]) {
-                            fpart = (self->pointerPos[1] - self->loopend[1]) * self->crossfadescaling[1];
-                            ipart = (int)fpart;
-                            fpart = fpart - ipart;
-                            amp = self->fader[ipart] + (self->fader[ipart+1] - self->fader[ipart]) * fpart;
-                        }
-                        else
-                            amp = 1.0;
-                        ipart = (int)self->pointerPos[1];
-                        fpart = self->pointerPos[1] - ipart;
-                        self->data[i] += (*self->interp_func_ptr)(tablelist, ipart, fpart, size) * amp;
-                    }
-                    self->pointerPos[1] -= pit;
-                    if (self->pointerPos[1] >= size)
-                        self->pointerPos[1] = size-1;
-                    else if (self->pointerPos[1] < self->maxfadepoint[1] && self->active[0] == 0)
-                        Looper_reset(self, i, 0, 0);                    
-                    else if (self->pointerPos[1] <= self->loopend[1])
-                        self->active[1] = 0;
-                }
-            }
-            break;
+        }
     }
+
     /* Automatic smoothering of low transposition */
     if (self->autosmooth == 1) {
         for (i=0; i<self->bufsize; i++) {
-            pit = pitch[i];
-            if (pit < 0.0)
-                pit = 0.0;    
-            if (pit < 1.0 && pit > 0.0) {
-                if (self->lastpitch != pit) {
-                    self->lastpitch = pit;
-                    fr = pit * tableSr * 0.45;
-                    b = 2.0 - MYCOS(TWOPI * fr / self->sr);
-                    self->c2 = (b - MYSQRT(b * b - 1.0));
-                    self->c1 = 1.0 - self->c2;
+            pitval = pitch[i];
+            if (pitval < 0.001)
+                pitval = 0.001;    
+            if (pitval < 1.0) {
+                if (self->lastpitch != pitval) {
+                    self->lastpitch = pitval;
+                    fr = pitval * self->sr * 0.45;
+                    self->c1 = MYEXP(-TWOPI * fr / self->sr);            
                 }
-                for (i=0; i<self->bufsize; i++) {
-                    self->y1 = self->c1 * self->data[i] + self->c2 * self->y1;
-                    self->y2 = self->c1 * self->y1 + self->c2 * self->y2;
-                    self->data[i] = self->y2;
-                }
+                self->y1 = self->data[i] + (self->y1 - self->data[i]) * self->c1;
+                self->y2 = self->y1 + (self->y2 - self->y1) * self->c1;
+                self->data[i] = self->y2;
             }
         }
     }
@@ -1836,12 +1737,13 @@ Looper_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->xfade = PyFloat_FromDouble(20.0);
     self->lastpitch = -1.0;
     self->autosmooth = 0;
-    self->y1 = self->y2 = 0.0;
+    self->y1 = self->y2 = self->c1 = 0.0;
     self->xfadeshape = 0;
     self->startfromloop = 0;
     self->interp = 2;
     self->init = 1;
-    self->mode = self->tmpmode = 1;
+    self->mode[0] = self->mode[1] = self->tmpmode = 1;
+    self->direction[0] = self->direction[1] = 0;
     self->pointerPos[0] = self->pointerPos[1] = 0.0;
     self->active[0] = self->active[1] = 0;
 	self->modebuffer[0] = 0;
@@ -1895,9 +1797,9 @@ Looper_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     (*self->mode_func_ptr)(self);
     
     if (self->tmpmode >= 0 && self->tmpmode < 4)
-        self->mode = self->tmpmode;
+        self->mode[0] = self->mode[1] = self->tmpmode;
     else
-        self->mode = self->tmpmode = 1;
+        self->mode[0] = self->mode[1] = self->tmpmode = 1;
 
     SET_INTERP_POINTER
     
