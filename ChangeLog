@@ -1,3 +1,8 @@
+2015-02-11 belangeo <belangeo@gmail.com>
+
+    * Fixed a bug when changing the looping mode of the Looper objet.
+    - rev 1295
+
 2015-02-09 belangeo <belangeo@gmail.com>
 
     * Added a reset method to the Looper objet.
