@@ -114,3 +114,8 @@ in memory and access them quickly.
 .. autoclass:: WinTable
    :members:
 
+*AtanTable*
+-----------------------------------
+
+.. autoclass:: AtanTable
+   :members:
