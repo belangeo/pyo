@@ -484,6 +484,7 @@ extern PyTypeObject ScopeType;
 extern PyTypeObject PeakAmpType;
 extern PyTypeObject MainParticleType;
 extern PyTypeObject ParticleType;
+extern PyTypeObject AtanTableType;
 
 /* Constants */
 #define E M_E

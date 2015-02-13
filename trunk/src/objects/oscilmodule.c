@@ -4184,10 +4184,10 @@ Lookup_readframes_a(Lookup *self) {
     MYFLT *pha = Stream_getData((Stream *)self->index_stream);
     
     for (i=0; i<self->bufsize; i++) {
-        ph = (Lookup_clip(pha[i]) * 0.5 + 0.5) * size;   
+        ph = (Lookup_clip(pha[i]) * 0.495 + 0.5) * size;   
         ipart = (int)ph;
         fpart = ph - ipart;
-        self->data[i] = tablelist[ipart] * (1.0 - fpart) + tablelist[ipart+1] * fpart;
+        self->data[i] = tablelist[ipart] + (tablelist[ipart+1] - tablelist[ipart]) * fpart;
     }
 }
 

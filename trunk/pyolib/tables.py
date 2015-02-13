@@ -2007,6 +2007,57 @@ class DataTable(PyoTableObject):
     @init.setter
     def init(self, x): print "'init' attribute is read-only."
 
+class AtanTable(PyoTableObject):
+    """
+    Generates an arctangent transfert function.
+    
+    This table allow the creation the classic arctangent transfert functions, 
+    useful in distortion design. See Lookup object for a simple table lookup 
+    process.
+
+    :Parent: :py:class:`PyoTableObject`
+
+    :Args:
+
+        slope : float, optional
+            Slope of the arctangent function, between 0 and 1. Defaults to 0.5.
+        size : int, optional
+            Table size in samples. Defaults to 8192.
+
+    >>> import math
+    >>> s = Server().boot()
+    >>> s.start()
+    >>> t = AtanTable(slope=0.8)
+    >>> a = Sine(freq=[149,150])
+    >>> l = Lookup(table=t, index=a, mul=0.3).out()
+
+    """
+    def __init__(self, slope=0.5, size=8192):
+        PyoTableObject.__init__(self, size)
+        self._slope = slope
+        self._base_objs = [AtanTable_base(slope, size)]
+
+    def setSlope(self, x):
+        """
+        Change the slope of the arctangent function. This will redraw the table.
+
+        :Args:
+
+            x : float
+                New slope between 0 and 1.
+
+        """
+        self._slope = x
+        [obj.setSlope(x) for obj in self._base_objs]
+        self.refreshView()
+
+    @property
+    def slope(self): 
+        """float. slope of the arctangent function."""
+        return self._slope
+    @slope.setter
+    def slope(self, x): self.setSlope(x)
+
 class PartialTable(PyoTableObject):
     """
     Inharmonic waveform generator.

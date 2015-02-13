@@ -1,6 +1,11 @@
+2015-02-13 belangeo <belangeo@gmail.com>
+
+    * Added new objet: AtanTable, generates arctangent transfert functions.
+    - rev 1296
+
 2015-02-11 belangeo <belangeo@gmail.com>
 
-    * Fixed a bug when changing the looping mode of the Looper objet.
+    * Fixed a bug when changing the looping mode of the Looper object.
     - rev 1295
 
 2015-02-09 belangeo <belangeo@gmail.com>

@@ -4894,6 +4894,235 @@ PyTypeObject DataTableType = {
     DataTable_new,                 /* tp_new */
 };
 
+/***********************/
+/* AtanTable structure */
+/***********************/
+typedef struct {
+    pyo_table_HEAD
+    MYFLT slope;
+} AtanTable;
+
+static void
+AtanTable_generate(AtanTable *self) {
+    int i;
+    MYFLT drv, fsize, val, t, fac, mi = 0;
+
+    fsize = (MYFLT)self->size;
+    
+    drv = 1 - self->slope;
+    drv = drv * drv * drv * PI;
+    for(i=0; i<self->size; i++) {
+        t = i / fsize * 2 - 1;
+        val = MYATAN2(t, drv);
+        self->data[i] = val;
+        if (val < mi)
+            mi = val;
+    }        
+    self->data[self->size] = self->data[0];  
+    fac = 1.0 / -mi;
+    for(i=0; i<self->size; i++) {
+        self->data[i] *= fac;
+    }
+}
+
+static int
+AtanTable_traverse(AtanTable *self, visitproc visit, void *arg)
+{
+    pyo_table_VISIT
+    return 0;
+}
+
+static int 
+AtanTable_clear(AtanTable *self)
+{
+    pyo_table_CLEAR
+    return 0;
+}
+
+static void
+AtanTable_dealloc(AtanTable* self)
+{
+    free(self->data);
+    AtanTable_clear(self);
+    self->ob_type->tp_free((PyObject*)self);
+}
+
+static PyObject *
+AtanTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    AtanTable *self;
+    self = (AtanTable *)type->tp_alloc(type, 0);
+    
+    self->server = PyServer_get_server();
+    
+    self->size = 8192;
+    self->slope = 0.5;
+    
+    MAKE_NEW_TABLESTREAM(self->tablestream, &TableStreamType, NULL);
+
+    static char *kwlist[] = {"slope", "size", NULL};
+    
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_F_I, kwlist, &self->slope, &self->size))
+        Py_RETURN_NONE; 
+    
+    self->data = (MYFLT *)realloc(self->data, (self->size+1) * sizeof(MYFLT));
+    TableStream_setSize(self->tablestream, self->size);
+	TableStream_setData(self->tablestream, self->data);
+    AtanTable_generate(self);
+    
+    double sr = PyFloat_AsDouble(PyObject_CallMethod(self->server, "getSamplingRate", NULL));
+    TableStream_setSamplingRate(self->tablestream, sr);
+    
+    return (PyObject *)self;
+}
+
+static PyObject * AtanTable_getServer(AtanTable* self) { GET_SERVER };
+static PyObject * AtanTable_getTableStream(AtanTable* self) { GET_TABLE_STREAM };
+static PyObject * AtanTable_setData(AtanTable *self, PyObject *arg) { SET_TABLE_DATA };
+static PyObject * AtanTable_normalize(AtanTable *self) { NORMALIZE };
+static PyObject * AtanTable_reset(AtanTable *self) { TABLE_RESET };
+static PyObject * AtanTable_removeDC(AtanTable *self) { REMOVE_DC };
+static PyObject * AtanTable_reverse(AtanTable *self) { REVERSE };
+static PyObject * AtanTable_invert(AtanTable *self) { INVERT };
+static PyObject * AtanTable_rectify(AtanTable *self) { RECTIFY };
+static PyObject * AtanTable_bipolarGain(AtanTable *self, PyObject *args, PyObject *kwds) { TABLE_BIPOLAR_GAIN };
+static PyObject * AtanTable_lowpass(AtanTable *self, PyObject *args, PyObject *kwds) { TABLE_LOWPASS };
+static PyObject * AtanTable_fadein(AtanTable *self, PyObject *args, PyObject *kwds) { TABLE_FADEIN };
+static PyObject * AtanTable_fadeout(AtanTable *self, PyObject *args, PyObject *kwds) { TABLE_FADEOUT };
+static PyObject * AtanTable_pow(AtanTable *self, PyObject *args, PyObject *kwds) { TABLE_POWER };
+static PyObject * AtanTable_copy(AtanTable *self, PyObject *arg) { COPY };
+static PyObject * AtanTable_setTable(AtanTable *self, PyObject *arg) { SET_TABLE };
+static PyObject * AtanTable_getTable(AtanTable *self) { GET_TABLE };
+static PyObject * AtanTable_getViewTable(AtanTable *self, PyObject *args, PyObject *kwds) { GET_VIEW_TABLE };
+static PyObject * AtanTable_put(AtanTable *self, PyObject *args, PyObject *kwds) { TABLE_PUT };
+static PyObject * AtanTable_get(AtanTable *self, PyObject *args, PyObject *kwds) { TABLE_GET };
+
+static PyObject *
+AtanTable_setSlope(AtanTable *self, PyObject *value)
+{
+    
+    if (! PyNumber_Check(value)) {
+        PyErr_SetString(PyExc_TypeError, "The slope attribute value must be a number.");
+        return PyInt_FromLong(-1);
+    }
+    
+    self->slope = PyFloat_AsDouble(PyNumber_Float(value)); 
+    if (self->slope < 0.0)
+        self->slope = 0.0;
+    else if (self->slope > 1.0)
+        self->slope = 1.0;
+    
+    AtanTable_generate(self);
+    
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static PyObject *
+AtanTable_setSize(AtanTable *self, PyObject *value)
+{
+    if (value == NULL) {
+        PyErr_SetString(PyExc_TypeError, "Cannot delete the size attribute.");
+        return PyInt_FromLong(-1);
+    }
+    
+    if (! PyInt_Check(value)) {
+        PyErr_SetString(PyExc_TypeError, "The size attribute value must be an integer.");
+        return PyInt_FromLong(-1);
+    }
+    
+    self->size = PyInt_AsLong(value); 
+    
+    self->data = (MYFLT *)realloc(self->data, (self->size+1) * sizeof(MYFLT));
+    TableStream_setSize(self->tablestream, self->size);
+    
+    AtanTable_generate(self);
+    
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static PyObject *
+AtanTable_getSize(AtanTable *self)
+{
+    return PyInt_FromLong(self->size);
+};
+
+static PyMemberDef AtanTable_members[] = {
+    {"server", T_OBJECT_EX, offsetof(AtanTable, server), 0, "Pyo server."},
+    {"tablestream", T_OBJECT_EX, offsetof(AtanTable, tablestream), 0, "Table stream object."},
+    {NULL}  /* Sentinel */
+};
+
+static PyMethodDef AtanTable_methods[] = {
+    {"getServer", (PyCFunction)AtanTable_getServer, METH_NOARGS, "Returns server object."},
+    {"copy", (PyCFunction)AtanTable_copy, METH_O, "Copy data from table given in argument."},
+    {"setTable", (PyCFunction)AtanTable_setTable, METH_O, "Sets the table content from a list of floats (must be the same size as the object size)."},
+    {"getTable", (PyCFunction)AtanTable_getTable, METH_NOARGS, "Returns a list of table samples."},
+    {"getViewTable", (PyCFunction)AtanTable_getViewTable, METH_VARARGS|METH_KEYWORDS, "Returns a list of pixel coordinates for drawing the table."},
+    {"getTableStream", (PyCFunction)AtanTable_getTableStream, METH_NOARGS, "Returns table stream object created by this table."},
+    {"setData", (PyCFunction)AtanTable_setData, METH_O, "Sets the table from samples in a text file."},
+    {"normalize", (PyCFunction)AtanTable_normalize, METH_NOARGS, "Normalize table samples between -1 and 1"},
+    {"reset", (PyCFunction)AtanTable_reset, METH_NOARGS, "Resets table samples to 0.0"},
+    {"removeDC", (PyCFunction)AtanTable_removeDC, METH_NOARGS, "Filter out DC offset from the table's data."},
+    {"reverse", (PyCFunction)AtanTable_reverse, METH_NOARGS, "Reverse the table's data."},
+    {"invert", (PyCFunction)AtanTable_invert, METH_NOARGS, "Reverse the table's data in amplitude."},
+    {"rectify", (PyCFunction)AtanTable_rectify, METH_NOARGS, "Positive rectification of the table's data."},
+    {"bipolarGain", (PyCFunction)AtanTable_bipolarGain, METH_VARARGS|METH_KEYWORDS, "Apply different amp values to positive and negative samples."},
+    {"lowpass", (PyCFunction)AtanTable_lowpass, METH_VARARGS|METH_KEYWORDS, "Apply a one-pole lowpass filter on table's samples."},
+    {"fadein", (PyCFunction)AtanTable_fadein, METH_VARARGS|METH_KEYWORDS, "Apply a gradual increase in the level of the table's samples."},
+    {"fadeout", (PyCFunction)AtanTable_fadeout, METH_VARARGS|METH_KEYWORDS, "Apply a gradual decrease in the level of the table's samples."},
+    {"pow", (PyCFunction)AtanTable_pow, METH_VARARGS|METH_KEYWORDS, "Apply a power function on each sample in the table."},
+    {"setSize", (PyCFunction)AtanTable_setSize, METH_O, "Sets the size of the table in samples"},
+    {"getSize", (PyCFunction)AtanTable_getSize, METH_NOARGS, "Return the size of the table in samples"},
+    {"setSlope", (PyCFunction)AtanTable_setSlope, METH_O, "Sets the slope of the atan function."},
+    {"put", (PyCFunction)AtanTable_put, METH_VARARGS|METH_KEYWORDS, "Puts a value at specified position in the table."},
+    {"get", (PyCFunction)AtanTable_get, METH_VARARGS|METH_KEYWORDS, "Gets the value at specified position in the table."},
+    {NULL}  /* Sentinel */
+};
+
+PyTypeObject AtanTableType = {
+    PyObject_HEAD_INIT(NULL)
+    0,                         /*ob_size*/
+    "_pyo.AtanTable_base",         /*tp_name*/
+    sizeof(AtanTable),         /*tp_basicsize*/
+    0,                         /*tp_itemsize*/
+    (destructor)AtanTable_dealloc, /*tp_dealloc*/
+    0,                         /*tp_print*/
+    0,                         /*tp_getattr*/
+    0,                         /*tp_setattr*/
+    0,                         /*tp_compare*/
+    0,                         /*tp_repr*/
+    0,                         /*tp_as_number*/
+    0,                         /*tp_as_sequence*/
+    0,                         /*tp_as_mapping*/
+    0,                         /*tp_hash */
+    0,                         /*tp_call*/
+    0,                         /*tp_str*/
+    0,                         /*tp_getattro*/
+    0,                         /*tp_setattro*/
+    0,                         /*tp_as_buffer*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
+    "AtanTable objects. Generates a table filled with a sinc function.",  /* tp_doc */
+    (traverseproc)AtanTable_traverse,   /* tp_traverse */
+    (inquiry)AtanTable_clear,           /* tp_clear */
+    0,		               /* tp_richcompare */
+    0,		               /* tp_weaklistoffset */
+    0,		               /* tp_iter */
+    0,		               /* tp_iternext */
+    AtanTable_methods,             /* tp_methods */
+    AtanTable_members,             /* tp_members */
+    0,                      /* tp_getset */
+    0,                         /* tp_base */
+    0,                         /* tp_dict */
+    0,                         /* tp_descr_get */
+    0,                         /* tp_descr_set */
+    0,                         /* tp_dictoffset */
+    0,      /* tp_init */
+    0,                         /* tp_alloc */
+    AtanTable_new,                 /* tp_new */
+};
+
 /******************************/
 /* TableRec object definition */
 /******************************/
@@ -6632,3 +6861,4 @@ TableWrite_members,             /* tp_members */
 0,                         /* tp_alloc */
 TableWrite_new,                 /* tp_new */
 };
+
