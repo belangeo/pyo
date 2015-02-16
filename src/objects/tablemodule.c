@@ -4904,24 +4904,22 @@ typedef struct {
 
 static void
 AtanTable_generate(AtanTable *self) {
-    int i;
-    MYFLT drv, fsize, val, t, fac, mi = 0;
+    int i, hsize;
+    MYFLT drv, invhsize, val, t, fac;
 
-    fsize = (MYFLT)self->size;
+    hsize = self->size / 2;
+    invhsize = 1.0 / hsize;
     
     drv = 1 - self->slope;
     drv = drv * drv * drv * PI;
-    for(i=0; i<self->size; i++) {
-        t = i / fsize * 2 - 1;
+    for(i=0; i<=hsize; i++) {
+        t = i * invhsize - 1;
         val = MYATAN2(t, drv);
+        if (i == 0)
+            fac = 1.0 / -val;
+        val = val * fac;
         self->data[i] = val;
-        if (val < mi)
-            mi = val;
-    }        
-    self->data[self->size] = self->data[0];  
-    fac = 1.0 / -mi;
-    for(i=0; i<self->size; i++) {
-        self->data[i] *= fac;
+        self->data[self->size - i] = -val;
     }
 }
 
