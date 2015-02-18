@@ -1273,6 +1273,78 @@ class PyoTableObject(PyoObjectBase):
         self.refreshView()
         return self
 
+    def add(self, x):
+        """
+        Performs addition on the table values.
+
+        Adds the argument to each table values, position by position 
+        if the argument is a list or another PyoTableObject.
+        
+        :Args:
+
+            x : float, list or PyoTableObject
+                value(s) to add.
+        
+        """
+        if type(x) == ListType:
+            if type(x[0]) == ListType:
+                [obj.add(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+            else:
+                [obj.add(x) for obj in self._base_objs]
+        else:
+            x, lmax = convertArgsToLists(x)
+            [obj.add(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        self.refreshView()
+        return self
+
+    def sub(self, x):
+        """
+        Performs substraction on the table values.
+
+        Substracts the argument to each table values, position by position 
+        if the argument is a list or another PyoTableObject.
+        
+        :Args:
+
+            x : float, list or PyoTableObject
+                value(s) to substract.
+        
+        """
+        if type(x) == ListType:
+            if type(x[0]) == ListType:
+                [obj.sub(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+            else:
+                [obj.sub(x) for obj in self._base_objs]
+        else:
+            x, lmax = convertArgsToLists(x)
+            [obj.sub(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        self.refreshView()
+        return self
+
+    def mul(self, x):
+        """
+        Performs multiplication on the table values.
+
+        Multiply each table values by the argument, position by position 
+        if the argument is a list or another PyoTableObject.
+        
+        :Args:
+
+            x : float, list or PyoTableObject
+                value(s) to multiply.
+        
+        """
+        if type(x) == ListType:
+            if type(x[0]) == ListType:
+                [obj.mul(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+            else:
+                [obj.mul(x) for obj in self._base_objs]
+        else:
+            x, lmax = convertArgsToLists(x)
+            [obj.mul(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        self.refreshView()
+        return self
+
     def copy(self):
         """
         Returns a deep copy of the object.

@@ -773,7 +773,7 @@ KEY_COMMANDS = {
 }
 
 ############## Allowed Extensions ##############
-ALLOWED_EXT = PREFERENCES.get("allowed_ext", ["py", "c5", "txt", "", "c", "h", "cpp", "hpp", "sh", "rst", "iss", "sg", "md"])
+ALLOWED_EXT = PREFERENCES.get("allowed_ext", ["py", "c5", "txt", "", "c", "h", "cpp", "hpp", "sh", "rst", "iss", "sg", "md", "jsfx-inc"])
 
 ############## Pyo keywords ##############
 tree = OBJECTS_TREE

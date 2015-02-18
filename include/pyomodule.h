@@ -717,6 +717,114 @@ extern PyTypeObject AtanTableType;
     } \
     self->data[self->size] = self->data[0]; \
     Py_RETURN_NONE; \
+
+#define TABLE_ADD \
+    int i, tabsize; \
+    MYFLT x = 0.0; \
+    MYFLT *list = NULL; \
+    PyObject *table = NULL; \
+    if (PyNumber_Check(arg)) { \
+        x = PyFloat_AsDouble(PyNumber_Float(arg)); \
+        for (i=0; i<self->size; i++) { \
+            self->data[i] += x; \
+        } \
+    } \
+    else if ( PyObject_HasAttrString((PyObject *)arg, "getTableStream") == 1 ) { \
+        Py_XDECREF(table); \
+        table = PyObject_CallMethod((PyObject *)arg, "getTableStream", ""); \
+        list = TableStream_getData((TableStream *)table); \
+        tabsize = TableStream_getSize((TableStream *)table); \
+        if (self->size < tabsize) \
+            tabsize = self->size; \
+        for (i=0; i<tabsize; i++) { \
+            self->data[i] += list[i]; \
+        } \
+    } \
+    else if (PyList_Check(arg)) { \
+        tabsize = PyList_Size(arg); \
+        if (self->size < tabsize) \
+            tabsize = self->size; \
+        for (i=0; i<tabsize; i++) { \
+            self->data[i] += PyFloat_AS_DOUBLE(PyNumber_Float(PyList_GET_ITEM(arg, i))); \
+        } \
+    } \
+ \
+    self->data[self->size] = self->data[0]; \
+ \
+    Py_INCREF(Py_None); \
+    return Py_None; \
+
+#define TABLE_SUB \
+    int i, tabsize; \
+    MYFLT x = 0.0; \
+    MYFLT *list = NULL; \
+    PyObject *table = NULL; \
+    if (PyNumber_Check(arg)) { \
+        x = PyFloat_AsDouble(PyNumber_Float(arg)); \
+        for (i=0; i<self->size; i++) { \
+            self->data[i] -= x; \
+        } \
+    } \
+    else if ( PyObject_HasAttrString((PyObject *)arg, "getTableStream") == 1 ) { \
+        Py_XDECREF(table); \
+        table = PyObject_CallMethod((PyObject *)arg, "getTableStream", ""); \
+        list = TableStream_getData((TableStream *)table); \
+        tabsize = TableStream_getSize((TableStream *)table); \
+        if (self->size < tabsize) \
+            tabsize = self->size; \
+        for (i=0; i<tabsize; i++) { \
+            self->data[i] -= list[i]; \
+        } \
+    } \
+    else if (PyList_Check(arg)) { \
+        tabsize = PyList_Size(arg); \
+        if (self->size < tabsize) \
+            tabsize = self->size; \
+        for (i=0; i<tabsize; i++) { \
+            self->data[i] -= PyFloat_AS_DOUBLE(PyNumber_Float(PyList_GET_ITEM(arg, i))); \
+        } \
+    } \
+ \
+    self->data[self->size] = self->data[0]; \
+ \
+    Py_INCREF(Py_None); \
+    return Py_None; \
+
+#define TABLE_MUL \
+    int i, tabsize; \
+    MYFLT x = 0.0; \
+    MYFLT *list = NULL; \
+    PyObject *table = NULL; \
+    if (PyNumber_Check(arg)) { \
+        x = PyFloat_AsDouble(PyNumber_Float(arg)); \
+        for (i=0; i<self->size; i++) { \
+            self->data[i] *= x; \
+        } \
+    } \
+    else if ( PyObject_HasAttrString((PyObject *)arg, "getTableStream") == 1 ) { \
+        Py_XDECREF(table); \
+        table = PyObject_CallMethod((PyObject *)arg, "getTableStream", ""); \
+        list = TableStream_getData((TableStream *)table); \
+        tabsize = TableStream_getSize((TableStream *)table); \
+        if (self->size < tabsize) \
+            tabsize = self->size; \
+        for (i=0; i<tabsize; i++) { \
+            self->data[i] *= list[i]; \
+        } \
+    } \
+    else if (PyList_Check(arg)) { \
+        tabsize = PyList_Size(arg); \
+        if (self->size < tabsize) \
+            tabsize = self->size; \
+        for (i=0; i<tabsize; i++) { \
+            self->data[i] *= PyFloat_AS_DOUBLE(PyNumber_Float(PyList_GET_ITEM(arg, i))); \
+        } \
+    } \
+ \
+    self->data[self->size] = self->data[0]; \
+ \
+    Py_INCREF(Py_None); \
+    return Py_None; \
     
 #define SET_TABLE \
     int i; \

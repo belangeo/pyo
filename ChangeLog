@@ -1,3 +1,9 @@
+2015-02-18 belangeo <belangeo@gmail.com>
+
+    * Added mul, add and sub methods to PyoTableObject. These methods can 
+    take float, list or another PyoTableObject as argument.
+    - rev 1298
+
 2015-02-13 belangeo <belangeo@gmail.com>
 
     * Added new objet: AtanTable, generates arctangent transfert functions.
