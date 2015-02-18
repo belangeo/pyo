@@ -244,6 +244,9 @@ static PyObject * HarmTable_getTable(HarmTable *self) { GET_TABLE };
 static PyObject * HarmTable_getViewTable(HarmTable *self, PyObject *args, PyObject *kwds) { GET_VIEW_TABLE };
 static PyObject * HarmTable_put(HarmTable *self, PyObject *args, PyObject *kwds) { TABLE_PUT };
 static PyObject * HarmTable_get(HarmTable *self, PyObject *args, PyObject *kwds) { TABLE_GET };
+static PyObject * HarmTable_add(HarmTable *self, PyObject *arg) { TABLE_ADD };
+static PyObject * HarmTable_sub(HarmTable *self, PyObject *arg) { TABLE_SUB };
+static PyObject * HarmTable_mul(HarmTable *self, PyObject *arg) { TABLE_MUL };
 
 static PyObject *
 HarmTable_setSize(HarmTable *self, PyObject *value)
@@ -329,6 +332,9 @@ static PyMethodDef HarmTable_methods[] = {
 {"put", (PyCFunction)HarmTable_put, METH_VARARGS|METH_KEYWORDS, "Puts a value at specified position in the table."},
 {"get", (PyCFunction)HarmTable_get, METH_VARARGS|METH_KEYWORDS, "Gets the value at specified position in the table."},
 {"replace", (PyCFunction)HarmTable_replace, METH_O, "Sets the harmonics amplitude list and generates a new waveform table."},
+{"add", (PyCFunction)HarmTable_add, METH_O, "Performs table addition."},
+{"sub", (PyCFunction)HarmTable_sub, METH_O, "Performs table substraction."},
+{"mul", (PyCFunction)HarmTable_mul, METH_O, "Performs table multiplication."},
 {NULL}  /* Sentinel */
 };
 
@@ -532,6 +538,9 @@ static PyObject * ChebyTable_getTable(ChebyTable *self) { GET_TABLE };
 static PyObject * ChebyTable_getViewTable(ChebyTable *self, PyObject *args, PyObject *kwds) { GET_VIEW_TABLE };
 static PyObject * ChebyTable_put(ChebyTable *self, PyObject *args, PyObject *kwds) { TABLE_PUT };
 static PyObject * ChebyTable_get(ChebyTable *self, PyObject *args, PyObject *kwds) { TABLE_GET };
+static PyObject * ChebyTable_add(ChebyTable *self, PyObject *arg) { TABLE_ADD };
+static PyObject * ChebyTable_sub(ChebyTable *self, PyObject *arg) { TABLE_SUB };
+static PyObject * ChebyTable_mul(ChebyTable *self, PyObject *arg) { TABLE_MUL };
 
 static PyObject *
 ChebyTable_setSize(ChebyTable *self, PyObject *value)
@@ -691,6 +700,9 @@ static PyMethodDef ChebyTable_methods[] = {
 {"get", (PyCFunction)ChebyTable_get, METH_VARARGS|METH_KEYWORDS, "Gets the value at specified position in the table."},
 {"replace", (PyCFunction)ChebyTable_replace, METH_O, "Sets the harmonics amplitude list and generates a new waveform table."},
 {"getNormTable", (PyCFunction)ChebyTable_getNormTable, METH_O, "Computes and returns the normalization function for the current polynomial"},
+{"add", (PyCFunction)ChebyTable_add, METH_O, "Performs table addition."},
+{"sub", (PyCFunction)ChebyTable_sub, METH_O, "Performs table substraction."},
+{"mul", (PyCFunction)ChebyTable_mul, METH_O, "Performs table multiplication."},
 {NULL}  /* Sentinel */
 };
 
@@ -828,6 +840,9 @@ static PyObject * HannTable_getTable(HannTable *self) { GET_TABLE };
 static PyObject * HannTable_getViewTable(HannTable *self, PyObject *args, PyObject *kwds) { GET_VIEW_TABLE };
 static PyObject * HannTable_put(HannTable *self, PyObject *args, PyObject *kwds) { TABLE_PUT };
 static PyObject * HannTable_get(HannTable *self, PyObject *args, PyObject *kwds) { TABLE_GET };
+static PyObject * HannTable_add(HannTable *self, PyObject *arg) { TABLE_ADD };
+static PyObject * HannTable_sub(HannTable *self, PyObject *arg) { TABLE_SUB };
+static PyObject * HannTable_mul(HannTable *self, PyObject *arg) { TABLE_MUL };
 
 static PyObject *
 HannTable_setSize(HannTable *self, PyObject *value)
@@ -888,6 +903,9 @@ static PyMethodDef HannTable_methods[] = {
 {"getSize", (PyCFunction)HannTable_getSize, METH_NOARGS, "Return the size of the table in samples"},
 {"put", (PyCFunction)HannTable_put, METH_VARARGS|METH_KEYWORDS, "Puts a value at specified position in the table."},
 {"get", (PyCFunction)HannTable_get, METH_VARARGS|METH_KEYWORDS, "Gets the value at specified position in the table."},
+{"add", (PyCFunction)HannTable_add, METH_O, "Performs table addition."},
+{"sub", (PyCFunction)HannTable_sub, METH_O, "Performs table substraction."},
+{"mul", (PyCFunction)HannTable_mul, METH_O, "Performs table multiplication."},
 {NULL}  /* Sentinel */
 };
 
@@ -1046,6 +1064,9 @@ static PyObject * SincTable_getTable(SincTable *self) { GET_TABLE };
 static PyObject * SincTable_getViewTable(SincTable *self, PyObject *args, PyObject *kwds) { GET_VIEW_TABLE };
 static PyObject * SincTable_put(SincTable *self, PyObject *args, PyObject *kwds) { TABLE_PUT };
 static PyObject * SincTable_get(SincTable *self, PyObject *args, PyObject *kwds) { TABLE_GET };
+static PyObject * SincTable_add(SincTable *self, PyObject *arg) { TABLE_ADD };
+static PyObject * SincTable_sub(SincTable *self, PyObject *arg) { TABLE_SUB };
+static PyObject * SincTable_mul(SincTable *self, PyObject *arg) { TABLE_MUL };
 
 static PyObject *
 SincTable_setFreq(SincTable *self, PyObject *value)
@@ -1142,6 +1163,9 @@ static PyMethodDef SincTable_methods[] = {
     {"setWindowed", (PyCFunction)SincTable_setWindowed, METH_O, "If True, an hanning window is applied on the function."},
     {"put", (PyCFunction)SincTable_put, METH_VARARGS|METH_KEYWORDS, "Puts a value at specified position in the table."},
     {"get", (PyCFunction)SincTable_get, METH_VARARGS|METH_KEYWORDS, "Gets the value at specified position in the table."},
+    {"add", (PyCFunction)SincTable_add, METH_O, "Performs table addition."},
+    {"sub", (PyCFunction)SincTable_sub, METH_O, "Performs table substraction."},
+    {"mul", (PyCFunction)SincTable_mul, METH_O, "Performs table multiplication."},
     {NULL}  /* Sentinel */
 };
 
@@ -1272,6 +1296,9 @@ static PyObject * WinTable_getTable(WinTable *self) { GET_TABLE };
 static PyObject * WinTable_getViewTable(WinTable *self, PyObject *args, PyObject *kwds) { GET_VIEW_TABLE };
 static PyObject * WinTable_put(WinTable *self, PyObject *args, PyObject *kwds) { TABLE_PUT };
 static PyObject * WinTable_get(WinTable *self, PyObject *args, PyObject *kwds) { TABLE_GET };
+static PyObject * WinTable_add(WinTable *self, PyObject *arg) { TABLE_ADD };
+static PyObject * WinTable_sub(WinTable *self, PyObject *arg) { TABLE_SUB };
+static PyObject * WinTable_mul(WinTable *self, PyObject *arg) { TABLE_MUL };
 
 static PyObject *
 WinTable_setSize(WinTable *self, PyObject *value)
@@ -1354,6 +1381,9 @@ static PyMethodDef WinTable_methods[] = {
 {"setType", (PyCFunction)WinTable_setType, METH_O, "Sets the type of the table."},
 {"put", (PyCFunction)WinTable_put, METH_VARARGS|METH_KEYWORDS, "Puts a value at specified position in the table."},
 {"get", (PyCFunction)WinTable_get, METH_VARARGS|METH_KEYWORDS, "Gets the value at specified position in the table."},
+{"add", (PyCFunction)WinTable_add, METH_O, "Performs table addition."},
+{"sub", (PyCFunction)WinTable_sub, METH_O, "Performs table substraction."},
+{"mul", (PyCFunction)WinTable_mul, METH_O, "Performs table multiplication."},
 {NULL}  /* Sentinel */
 };
 
@@ -1498,6 +1528,9 @@ static PyObject * ParaTable_getTable(ParaTable *self) { GET_TABLE };
 static PyObject * ParaTable_getViewTable(ParaTable *self, PyObject *args, PyObject *kwds) { GET_VIEW_TABLE };
 static PyObject * ParaTable_put(ParaTable *self, PyObject *args, PyObject *kwds) { TABLE_PUT };
 static PyObject * ParaTable_get(ParaTable *self, PyObject *args, PyObject *kwds) { TABLE_GET };
+static PyObject * ParaTable_add(ParaTable *self, PyObject *arg) { TABLE_ADD };
+static PyObject * ParaTable_sub(ParaTable *self, PyObject *arg) { TABLE_SUB };
+static PyObject * ParaTable_mul(ParaTable *self, PyObject *arg) { TABLE_MUL };
 
 static PyObject *
 ParaTable_setSize(ParaTable *self, PyObject *value)
@@ -1558,6 +1591,9 @@ static PyMethodDef ParaTable_methods[] = {
     {"getSize", (PyCFunction)ParaTable_getSize, METH_NOARGS, "Return the size of the table in samples"},
     {"put", (PyCFunction)ParaTable_put, METH_VARARGS|METH_KEYWORDS, "Puts a value at specified position in the table."},
     {"get", (PyCFunction)ParaTable_get, METH_VARARGS|METH_KEYWORDS, "Gets the value at specified position in the table."},
+    {"add", (PyCFunction)ParaTable_add, METH_O, "Performs table addition."},
+    {"sub", (PyCFunction)ParaTable_sub, METH_O, "Performs table substraction."},
+    {"mul", (PyCFunction)ParaTable_mul, METH_O, "Performs table multiplication."},
     {NULL}  /* Sentinel */
 };
 
@@ -1736,6 +1772,9 @@ static PyObject * LinTable_getTable(LinTable *self) { GET_TABLE };
 static PyObject * LinTable_getViewTable(LinTable *self, PyObject *args, PyObject *kwds) { GET_VIEW_TABLE };
 static PyObject * LinTable_put(LinTable *self, PyObject *args, PyObject *kwds) { TABLE_PUT };
 static PyObject * LinTable_get(LinTable *self, PyObject *args, PyObject *kwds) { TABLE_GET };
+static PyObject * LinTable_add(LinTable *self, PyObject *arg) { TABLE_ADD };
+static PyObject * LinTable_sub(LinTable *self, PyObject *arg) { TABLE_SUB };
+static PyObject * LinTable_mul(LinTable *self, PyObject *arg) { TABLE_MUL };
 
 static PyObject *
 LinTable_setSize(LinTable *self, PyObject *value)
@@ -1852,6 +1891,9 @@ static PyMethodDef LinTable_methods[] = {
 {"get", (PyCFunction)LinTable_get, METH_VARARGS|METH_KEYWORDS, "Gets the value at specified position in the table."},
 {"getPoints", (PyCFunction)LinTable_getPoints, METH_NOARGS, "Return the list of points."},
 {"replace", (PyCFunction)LinTable_replace, METH_O, "Sets the harmonics amplitude list and generates a new waveform table."},
+{"add", (PyCFunction)LinTable_add, METH_O, "Performs table addition."},
+{"sub", (PyCFunction)LinTable_sub, METH_O, "Performs table substraction."},
+{"mul", (PyCFunction)LinTable_mul, METH_O, "Performs table multiplication."},
 {NULL}  /* Sentinel */
 };
 
@@ -2054,6 +2096,9 @@ static PyObject * LogTable_getTable(LogTable *self) { GET_TABLE };
 static PyObject * LogTable_getViewTable(LogTable *self, PyObject *args, PyObject *kwds) { GET_VIEW_TABLE };
 static PyObject * LogTable_put(LogTable *self, PyObject *args, PyObject *kwds) { TABLE_PUT };
 static PyObject * LogTable_get(LogTable *self, PyObject *args, PyObject *kwds) { TABLE_GET };
+static PyObject * LogTable_add(LogTable *self, PyObject *arg) { TABLE_ADD };
+static PyObject * LogTable_sub(LogTable *self, PyObject *arg) { TABLE_SUB };
+static PyObject * LogTable_mul(LogTable *self, PyObject *arg) { TABLE_MUL };
 
 static PyObject *
 LogTable_setSize(LogTable *self, PyObject *value)
@@ -2170,6 +2215,9 @@ static PyMethodDef LogTable_methods[] = {
     {"get", (PyCFunction)LogTable_get, METH_VARARGS|METH_KEYWORDS, "Gets the value at specified position in the table."},
     {"getPoints", (PyCFunction)LogTable_getPoints, METH_NOARGS, "Return the list of points."},
     {"replace", (PyCFunction)LogTable_replace, METH_O, "Sets the harmonics amplitude list and generates a new waveform table."},
+    {"add", (PyCFunction)LogTable_add, METH_O, "Performs table addition."},
+    {"sub", (PyCFunction)LogTable_sub, METH_O, "Performs table substraction."},
+    {"mul", (PyCFunction)LogTable_mul, METH_O, "Performs table multiplication."},
     {NULL}  /* Sentinel */
 };
 
@@ -2350,6 +2398,9 @@ static PyObject * CosTable_getTable(CosTable *self) { GET_TABLE };
 static PyObject * CosTable_getViewTable(CosTable *self, PyObject *args, PyObject *kwds) { GET_VIEW_TABLE };
 static PyObject * CosTable_put(CosTable *self, PyObject *args, PyObject *kwds) { TABLE_PUT };
 static PyObject * CosTable_get(CosTable *self, PyObject *args, PyObject *kwds) { TABLE_GET };
+static PyObject * CosTable_add(CosTable *self, PyObject *arg) { TABLE_ADD };
+static PyObject * CosTable_sub(CosTable *self, PyObject *arg) { TABLE_SUB };
+static PyObject * CosTable_mul(CosTable *self, PyObject *arg) { TABLE_MUL };
 
 static PyObject *
 CosTable_setSize(CosTable *self, PyObject *value)
@@ -2466,6 +2517,9 @@ static PyMethodDef CosTable_methods[] = {
 {"get", (PyCFunction)CosTable_get, METH_VARARGS|METH_KEYWORDS, "Gets the value at specified position in the table."},
 {"getPoints", (PyCFunction)CosTable_getPoints, METH_NOARGS, "Return the list of points."},
 {"replace", (PyCFunction)CosTable_replace, METH_O, "Sets the harmonics amplitude list and generates a new waveform table."},
+{"add", (PyCFunction)CosTable_add, METH_O, "Performs table addition."},
+{"sub", (PyCFunction)CosTable_sub, METH_O, "Performs table substraction."},
+{"mul", (PyCFunction)CosTable_mul, METH_O, "Performs table multiplication."},
 {NULL}  /* Sentinel */
 };
 
@@ -2670,6 +2724,9 @@ static PyObject * CosLogTable_getTable(CosLogTable *self) { GET_TABLE };
 static PyObject * CosLogTable_getViewTable(CosLogTable *self, PyObject *args, PyObject *kwds) { GET_VIEW_TABLE };
 static PyObject * CosLogTable_put(CosLogTable *self, PyObject *args, PyObject *kwds) { TABLE_PUT };
 static PyObject * CosLogTable_get(CosLogTable *self, PyObject *args, PyObject *kwds) { TABLE_GET };
+static PyObject * CosLogTable_add(CosLogTable *self, PyObject *arg) { TABLE_ADD };
+static PyObject * CosLogTable_sub(CosLogTable *self, PyObject *arg) { TABLE_SUB };
+static PyObject * CosLogTable_mul(CosLogTable *self, PyObject *arg) { TABLE_MUL };
 
 static PyObject *
 CosLogTable_setSize(CosLogTable *self, PyObject *value)
@@ -2786,6 +2843,9 @@ static PyMethodDef CosLogTable_methods[] = {
     {"get", (PyCFunction)CosLogTable_get, METH_VARARGS|METH_KEYWORDS, "Gets the value at specified position in the table."},
     {"getPoints", (PyCFunction)CosLogTable_getPoints, METH_NOARGS, "Return the list of points."},
     {"replace", (PyCFunction)CosLogTable_replace, METH_O, "Sets the harmonics amplitude list and generates a new waveform table."},
+    {"add", (PyCFunction)CosLogTable_add, METH_O, "Performs table addition."},
+    {"sub", (PyCFunction)CosLogTable_sub, METH_O, "Performs table substraction."},
+    {"mul", (PyCFunction)CosLogTable_mul, METH_O, "Performs table multiplication."},
     {NULL}  /* Sentinel */
 };
 
@@ -2993,6 +3053,9 @@ static PyObject * CurveTable_getTable(CurveTable *self) { GET_TABLE };
 static PyObject * CurveTable_getViewTable(CurveTable *self, PyObject *args, PyObject *kwds) { GET_VIEW_TABLE };
 static PyObject * CurveTable_put(CurveTable *self, PyObject *args, PyObject *kwds) { TABLE_PUT };
 static PyObject * CurveTable_get(CurveTable *self, PyObject *args, PyObject *kwds) { TABLE_GET };
+static PyObject * CurveTable_add(CurveTable *self, PyObject *arg) { TABLE_ADD };
+static PyObject * CurveTable_sub(CurveTable *self, PyObject *arg) { TABLE_SUB };
+static PyObject * CurveTable_mul(CurveTable *self, PyObject *arg) { TABLE_MUL };
 
 static PyObject *
 CurveTable_setTension(CurveTable *self, PyObject *value)
@@ -3153,6 +3216,9 @@ static PyMethodDef CurveTable_methods[] = {
 {"fadein", (PyCFunction)CurveTable_fadein, METH_VARARGS|METH_KEYWORDS, "Apply a gradual increase in the level of the table's samples."},
 {"fadeout", (PyCFunction)CurveTable_fadeout, METH_VARARGS|METH_KEYWORDS, "Apply a gradual decrease in the level of the table's samples."},
 {"pow", (PyCFunction)CurveTable_pow, METH_VARARGS|METH_KEYWORDS, "Apply a power function on each sample in the table."},
+{"add", (PyCFunction)CurveTable_add, METH_O, "Performs table addition."},
+{"sub", (PyCFunction)CurveTable_sub, METH_O, "Performs table substraction."},
+{"mul", (PyCFunction)CurveTable_mul, METH_O, "Performs table multiplication."},
 {NULL}  /* Sentinel */
 };
 
@@ -3357,6 +3423,9 @@ static PyObject * ExpTable_getTable(ExpTable *self) { GET_TABLE };
 static PyObject * ExpTable_getViewTable(ExpTable *self, PyObject *args, PyObject *kwds) { GET_VIEW_TABLE };
 static PyObject * ExpTable_put(ExpTable *self, PyObject *args, PyObject *kwds) { TABLE_PUT };
 static PyObject * ExpTable_get(ExpTable *self, PyObject *args, PyObject *kwds) { TABLE_GET };
+static PyObject * ExpTable_add(ExpTable *self, PyObject *arg) { TABLE_ADD };
+static PyObject * ExpTable_sub(ExpTable *self, PyObject *arg) { TABLE_SUB };
+static PyObject * ExpTable_mul(ExpTable *self, PyObject *arg) { TABLE_MUL };
 
 static PyObject *
 ExpTable_setExp(ExpTable *self, PyObject *value)
@@ -3516,6 +3585,9 @@ static PyMethodDef ExpTable_methods[] = {
 {"fadein", (PyCFunction)ExpTable_fadein, METH_VARARGS|METH_KEYWORDS, "Apply a gradual increase in the level of the table's samples."},
 {"fadeout", (PyCFunction)ExpTable_fadeout, METH_VARARGS|METH_KEYWORDS, "Apply a gradual decrease in the level of the table's samples."},
 {"pow", (PyCFunction)ExpTable_pow, METH_VARARGS|METH_KEYWORDS, "Apply a power function on each sample in the table."},
+{"add", (PyCFunction)ExpTable_add, METH_O, "Performs table addition."},
+{"sub", (PyCFunction)ExpTable_sub, METH_O, "Performs table substraction."},
+{"mul", (PyCFunction)ExpTable_mul, METH_O, "Performs table multiplication."},
 {NULL}  /* Sentinel */
 };
 
@@ -4036,6 +4108,9 @@ static PyObject * SndTable_setTable(SndTable *self, PyObject *arg) { SET_TABLE }
 static PyObject * SndTable_getTable(SndTable *self) { GET_TABLE };
 static PyObject * SndTable_put(SndTable *self, PyObject *args, PyObject *kwds) { TABLE_PUT };
 static PyObject * SndTable_get(SndTable *self, PyObject *args, PyObject *kwds) { TABLE_GET };
+static PyObject * SndTable_add(SndTable *self, PyObject *arg) { TABLE_ADD };
+static PyObject * SndTable_sub(SndTable *self, PyObject *arg) { TABLE_SUB };
+static PyObject * SndTable_mul(SndTable *self, PyObject *arg) { TABLE_MUL };
 
 static PyObject * 
 SndTable_getViewTable(SndTable *self, PyObject *args, PyObject *kwds) { 
@@ -4322,6 +4397,9 @@ static PyMethodDef SndTable_methods[] = {
 {"setSize", (PyCFunction)SndTable_setSize, METH_O, "Sets the size of the table in samples"},
 {"getSize", (PyCFunction)SndTable_getSize, METH_NOARGS, "Return the size of the table in samples."},
 {"getRate", (PyCFunction)SndTable_getRate, METH_NOARGS, "Return the frequency (in cps) that reads the sound without pitch transposition."},
+{"add", (PyCFunction)SndTable_add, METH_O, "Performs table addition."},
+{"sub", (PyCFunction)SndTable_sub, METH_O, "Performs table substraction."},
+{"mul", (PyCFunction)SndTable_mul, METH_O, "Performs table multiplication."},
 {NULL}  /* Sentinel */
 };
 
@@ -4496,6 +4574,9 @@ static PyObject * NewTable_setTable(NewTable *self, PyObject *arg) { SET_TABLE }
 static PyObject * NewTable_getTable(NewTable *self) { GET_TABLE };
 static PyObject * NewTable_put(NewTable *self, PyObject *args, PyObject *kwds) { TABLE_PUT };
 static PyObject * NewTable_get(NewTable *self, PyObject *args, PyObject *kwds) { TABLE_GET };
+static PyObject * NewTable_add(NewTable *self, PyObject *arg) { TABLE_ADD };
+static PyObject * NewTable_sub(NewTable *self, PyObject *arg) { TABLE_SUB };
+static PyObject * NewTable_mul(NewTable *self, PyObject *arg) { TABLE_MUL };
 
 static PyObject * 
 NewTable_getViewTable(NewTable *self, PyObject *args, PyObject *kwds) { 
@@ -4666,6 +4747,9 @@ static PyMethodDef NewTable_methods[] = {
 {"getSize", (PyCFunction)NewTable_getSize, METH_NOARGS, "Return the size of the table in samples."},
 {"getLength", (PyCFunction)NewTable_getLength, METH_NOARGS, "Return the length of the table in seconds."},
 {"getRate", (PyCFunction)NewTable_getRate, METH_NOARGS, "Return the frequency (in cps) that reads the sound without pitch transposition."},
+{"add", (PyCFunction)NewTable_add, METH_O, "Performs table addition."},
+{"sub", (PyCFunction)NewTable_sub, METH_O, "Performs table substraction."},
+{"mul", (PyCFunction)NewTable_mul, METH_O, "Performs table multiplication."},
 {NULL}  /* Sentinel */
 };
 
@@ -4806,6 +4890,9 @@ static PyObject * DataTable_getTable(DataTable *self) { GET_TABLE };
 static PyObject * DataTable_getViewTable(DataTable *self, PyObject *args, PyObject *kwds) { GET_VIEW_TABLE };
 static PyObject * DataTable_put(DataTable *self, PyObject *args, PyObject *kwds) { TABLE_PUT };
 static PyObject * DataTable_get(DataTable *self, PyObject *args, PyObject *kwds) { TABLE_GET };
+static PyObject * DataTable_add(DataTable *self, PyObject *arg) { TABLE_ADD };
+static PyObject * DataTable_sub(DataTable *self, PyObject *arg) { TABLE_SUB };
+static PyObject * DataTable_mul(DataTable *self, PyObject *arg) { TABLE_MUL };
 
 static PyObject *
 DataTable_getSize(DataTable *self)
@@ -4849,6 +4936,9 @@ static PyMethodDef DataTable_methods[] = {
     {"get", (PyCFunction)DataTable_get, METH_VARARGS|METH_KEYWORDS, "Gets the value at specified position in the table."},
     {"getSize", (PyCFunction)DataTable_getSize, METH_NOARGS, "Return the size of the table in samples."},
     {"getRate", (PyCFunction)DataTable_getRate, METH_NOARGS, "Return the frequency (in cps) that reads the sound without pitch transposition."},
+    {"add", (PyCFunction)DataTable_add, METH_O, "Performs table addition."},
+    {"sub", (PyCFunction)DataTable_sub, METH_O, "Performs table substraction."},
+    {"mul", (PyCFunction)DataTable_mul, METH_O, "Performs table multiplication."},
     {NULL}  /* Sentinel */
 };
 
@@ -4994,6 +5084,9 @@ static PyObject * AtanTable_getTable(AtanTable *self) { GET_TABLE };
 static PyObject * AtanTable_getViewTable(AtanTable *self, PyObject *args, PyObject *kwds) { GET_VIEW_TABLE };
 static PyObject * AtanTable_put(AtanTable *self, PyObject *args, PyObject *kwds) { TABLE_PUT };
 static PyObject * AtanTable_get(AtanTable *self, PyObject *args, PyObject *kwds) { TABLE_GET };
+static PyObject * AtanTable_add(AtanTable *self, PyObject *arg) { TABLE_ADD };
+static PyObject * AtanTable_sub(AtanTable *self, PyObject *arg) { TABLE_SUB };
+static PyObject * AtanTable_mul(AtanTable *self, PyObject *arg) { TABLE_MUL };
 
 static PyObject *
 AtanTable_setSlope(AtanTable *self, PyObject *value)
@@ -5076,6 +5169,9 @@ static PyMethodDef AtanTable_methods[] = {
     {"setSlope", (PyCFunction)AtanTable_setSlope, METH_O, "Sets the slope of the atan function."},
     {"put", (PyCFunction)AtanTable_put, METH_VARARGS|METH_KEYWORDS, "Puts a value at specified position in the table."},
     {"get", (PyCFunction)AtanTable_get, METH_VARARGS|METH_KEYWORDS, "Gets the value at specified position in the table."},
+    {"add", (PyCFunction)AtanTable_add, METH_O, "Performs table addition."},
+    {"sub", (PyCFunction)AtanTable_sub, METH_O, "Performs table substraction."},
+    {"mul", (PyCFunction)AtanTable_mul, METH_O, "Performs table multiplication."},
     {NULL}  /* Sentinel */
 };
 
