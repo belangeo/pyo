@@ -80,6 +80,7 @@ typedef struct {
     int midi_count;
     double samplingRate;
     int nchnls;
+    int ichnls;
     int bufferSize;
     int duplex;
     int input;

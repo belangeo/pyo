@@ -84,9 +84,9 @@ Input_compute_next_data_frame(Input *self)
     int i;
     MYFLT *tmp;
     tmp = Server_getInputBuffer((Server *)self->server);
-    for (i=0; i<self->bufsize*self->nchnls; i++) {
-        if ((i % self->nchnls) == self->chnl)
-            self->data[(int)(i/self->nchnls)] = tmp[i];
+    for (i=0; i<self->bufsize*self->ichnls; i++) {
+        if ((i % self->ichnls) == self->chnl)
+            self->data[(int)(i/self->ichnls)] = tmp[i];
     }    
     (*self->muladd_func_ptr)(self);
 }

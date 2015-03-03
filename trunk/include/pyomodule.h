@@ -540,6 +540,7 @@ extern PyTypeObject AtanTableType;
     Stream *add_stream; \
     int bufsize; \
     int nchnls; \
+    int ichnls; \
     double sr; \
     MYFLT *data; 
 
@@ -639,6 +640,7 @@ extern PyTypeObject AtanTableType;
     self->bufsize = PyInt_AsLong(PyObject_CallMethod(self->server, "getBufferSize", NULL)); \
     self->sr = PyFloat_AsDouble(PyObject_CallMethod(self->server, "getSamplingRate", NULL)); \
     self->nchnls = PyInt_AsLong(PyObject_CallMethod(self->server, "getNchnls", NULL)); \
+    self->ichnls = PyInt_AsLong(PyObject_CallMethod(self->server, "getIchnls", NULL)); \
     self->data = (MYFLT *)realloc(self->data, (self->bufsize) * sizeof(MYFLT)); \
     for (i=0; i<self->bufsize; i++) \
         self->data[i] = 0.0; \

@@ -1,3 +1,18 @@
+2015-03-03 belangeo <belangeo@gmail.com>
+
+    * The Server can be booted with a different number of input and output channels.
+    - rev 1301
+
+2015-03-03 belangeo <belangeo@gmail.com>
+
+    * Wraped input of Record in an InputFader object.
+    - rev 1300
+
+2015-03-03 belangeo <belangeo@gmail.com>
+
+    * Fixed bug in Hilbert object.
+    - rev 1299
+
 2015-02-18 belangeo <belangeo@gmail.com>
 
     * Added mul, add and sub methods to PyoTableObject. These methods can 
