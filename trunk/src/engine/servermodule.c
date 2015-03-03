@@ -200,14 +200,7 @@ pa_callback_interleaved( const void *inputBuffer, void *outputBuffer,
     }
     server->midi_count = 0;
     
-    if (server->server_started == 1) {
-        if (server->server_stopped == 1 && server->currentAmp < 0.0001)
-            server->server_started = 0;
-        return paContinue;
-    }    
-    else {
-        return paComplete;
-    }
+    return paContinue;
 }
 
 static int 
@@ -248,14 +241,7 @@ pa_callback_nonInterleaved( const void *inputBuffer, void *outputBuffer,
     }
     server->midi_count = 0;
     
-    if (server->server_started == 1) {
-        if (server->server_stopped == 1 && server->currentAmp < 0.0001)
-            server->server_started = 0;
-        return paContinue;
-    }    
-    else {
-        return paComplete;
-    }
+    return paContinue;
 }
 
 #ifdef USE_JACK
@@ -388,11 +374,6 @@ OSStatus coreaudio_output_callback(AudioDeviceID device, const AudioTimeStamp* i
         }    
     }
     server->midi_count = 0;
-
-    if (server->server_started == 1) {
-        if (server->server_stopped == 1 && server->currentAmp < 0.0001)
-            coreaudio_stop_callback(server);
-    }        
 
     return kAudioHardwareNoError;
 }    
@@ -565,8 +546,8 @@ Server_pa_deinit(Server *self)
 
     if (Pa_IsStreamActive(be_data->stream) || ! Pa_IsStreamStopped(be_data->stream)) {
         self->server_started = 0;
-        err = Pa_StopStream(be_data->stream);
-        portaudio_assert(err, "Pa_StopStream");
+        err = Pa_AbortStream(be_data->stream);
+        portaudio_assert(err, "Pa_AbortStream");
     }
     
     err = Pa_CloseStream(be_data->stream);
@@ -586,8 +567,8 @@ Server_pa_start(Server *self)
     PyoPaBackendData *be_data = (PyoPaBackendData *) self->audio_be_data;
 
     if (Pa_IsStreamActive(be_data->stream) || ! Pa_IsStreamStopped(be_data->stream)) {
-        err = Pa_StopStream(be_data->stream);
-        portaudio_assert(err, "Pa_StopStream");
+        err = Pa_AbortStream(be_data->stream);
+        portaudio_assert(err, "Pa_AbortStream");
     }
     err = Pa_StartStream(be_data->stream);
     portaudio_assert(err, "Pa_StartStream");
@@ -597,14 +578,19 @@ Server_pa_start(Server *self)
 int 
 Server_pa_stop(Server *self)
 {
-    self->timeStep = (int)(0.1 * self->samplingRate);
-    self->amp = 0.;
+    PaError err;
+    PyoPaBackendData *be_data = (PyoPaBackendData *) self->audio_be_data;
+
+    if (Pa_IsStreamActive(be_data->stream) || ! Pa_IsStreamStopped(be_data->stream)) {
+        err = Pa_AbortStream(be_data->stream);
+        portaudio_assert(err, "Pa_AbortStream");
+    }
+    self->server_started = 0;
     self->server_stopped = 1;
     return 0;
 }
 
 #ifdef USE_JACK
-
 int
 Server_jack_autoconnect (Server *self)
 {
@@ -1163,8 +1149,7 @@ Server_coreaudio_start(Server *self)
 int
 Server_coreaudio_stop(Server *self)
 {
-    self->timeStep = (int)(0.1 * self->samplingRate);
-    self->amp = 0.;
+    coreaudio_stop_callback(self);
     self->server_stopped = 1;
     return 0;
 }
