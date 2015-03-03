@@ -75,8 +75,8 @@ HilbertMain_filters(HilbertMain *self) {
         xn2 = in[i];
         for (j=6; j<12; j++) {
             yn2 = self->coefs[j] * (xn2 - self->y1[j]) + self->x1[j];
-            self->x1[j] = xn1;
-            self->y1[j] = yn1;
+            self->x1[j] = xn2;
+            self->y1[j] = yn2;
             xn2 = yn2;
         }
         self->buffer_streams[i] = yn1;
