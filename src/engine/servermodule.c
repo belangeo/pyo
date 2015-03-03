@@ -179,11 +179,11 @@ pa_callback_interleaved( const void *inputBuffer, void *outputBuffer,
     
     if (server->duplex == 1) {
         float *in = (float *)inputBuffer;
-        bufchnls = server->nchnls + server->input_offset;
+        bufchnls = server->ichnls + server->input_offset;
         for (i=0; i<server->bufferSize; i++) {
-            index1 = i * server->nchnls;
+            index1 = i * server->ichnls;
             index2 = i * bufchnls + server->input_offset;
-            for (j=0; j<server->nchnls; j++) {
+            for (j=0; j<server->ichnls; j++) {
                 server->input_buffer[index1+j] = (MYFLT)in[index2+j];
             }
         }
@@ -234,8 +234,8 @@ pa_callback_nonInterleaved( const void *inputBuffer, void *outputBuffer,
     if (server->duplex == 1) {
         float **in = (float **)inputBuffer;
         for (i=0; i<server->bufferSize; i++) {
-            for (j=0; j<server->nchnls; j++) {
-                server->input_buffer[(i*server->nchnls)+j] = (MYFLT)in[j+server->input_offset][i];
+            for (j=0; j<server->ichnls; j++) {
+                server->input_buffer[(i*server->ichnls)+j] = (MYFLT)in[j+server->input_offset][i];
             }
         }
     }
@@ -267,13 +267,13 @@ jack_callback (jack_nframes_t nframes, void *arg)
     int i, j;
     Server *server = (Server *) arg;
     assert(nframes == server->bufferSize);
-    jack_default_audio_sample_t *in_buffers[server->nchnls], *out_buffers[server->nchnls];
+    jack_default_audio_sample_t *in_buffers[server->ichnls], *out_buffers[server->nchnls];
 
     if (server->withPortMidi == 1) {
         portmidiGetEvents(server);
     }
     PyoJackBackendData *be_data = (PyoJackBackendData *) server->audio_be_data;
-    for (i = 0; i < server->nchnls; i++) {
+    for (i = 0; i < server->ichnls; i++) {
         in_buffers[i] = jack_port_get_buffer (be_data->jack_in_ports[i+server->input_offset], server->bufferSize);
     }
     for (i = 0; i < server->nchnls; i++) {
@@ -283,8 +283,8 @@ jack_callback (jack_nframes_t nframes, void *arg)
     /* jack audio data is not interleaved */
     if (server->duplex == 1) {
         for (i=0; i<server->bufferSize; i++) {
-            for (j=0; j<server->nchnls; j++) {
-                server->input_buffer[(i*server->nchnls)+j] = (MYFLT) in_buffers[j][i];
+            for (j=0; j<server->ichnls; j++) {
+                server->input_buffer[(i*server->ichnls)+j] = (MYFLT) in_buffers[j][i];
             }
         }
     }
@@ -348,7 +348,7 @@ OSStatus coreaudio_input_callback(AudioDeviceID device, const AudioTimeStamp* in
     const AudioBuffer* inputBuf = inInputData->mBuffers;
     float *bufdata = (float*)inputBuf->mData;
     bufchnls = inputBuf->mNumberChannels;
-    servchnls = server->nchnls < bufchnls ? server->nchnls : bufchnls;
+    servchnls = server->ichnls < bufchnls ? server->ichnls : bufchnls;
     for (i=0; i<server->bufferSize; i++) {
         off1chnls = i*bufchnls+server->input_offset;
         off2chnls = i*servchnls;
@@ -503,7 +503,7 @@ Server_pa_init(Server *self)
     if (self->duplex == 1) {
         memset(&inputParameters, 0, sizeof(inputParameters));
         inputParameters.device = inDevice;
-        inputParameters.channelCount = self->nchnls + self->input_offset;
+        inputParameters.channelCount = self->ichnls + self->input_offset;
         inputParameters.sampleFormat = sampleFormat;
         inputParameters.suggestedLatency = Pa_GetDeviceInfo( inputParameters.device )->defaultHighInputLatency ;
         inputParameters.hostApiSpecificStreamInfo = NULL;
@@ -511,15 +511,43 @@ Server_pa_init(Server *self)
 
     if (self->input == -1 && self->output == -1) {
         if (self->duplex == 1)
-            err = Pa_OpenDefaultStream(&be_data->stream, self->nchnls + self->input_offset, self->nchnls + self->output_offset, sampleFormat, self->samplingRate, self->bufferSize, streamCallback, (void *) self);
+            err = Pa_OpenDefaultStream(&be_data->stream, 
+                                       self->ichnls + self->input_offset, 
+                                       self->nchnls + self->output_offset, 
+                                       sampleFormat, 
+                                       self->samplingRate, 
+                                       self->bufferSize, 
+                                       streamCallback, 
+                                       (void *) self);
         else
-            err = Pa_OpenDefaultStream(&be_data->stream, 0, self->nchnls + self->output_offset, sampleFormat, self->samplingRate, self->bufferSize, streamCallback, (void *) self);
+            err = Pa_OpenDefaultStream(&be_data->stream, 
+                                       0, 
+                                       self->nchnls + self->output_offset, 
+                                       sampleFormat, 
+                                       self->samplingRate, 
+                                       self->bufferSize, 
+                                       streamCallback, 
+                                       (void *) self);
     }
     else {
         if (self->duplex == 1)
-            err = Pa_OpenStream(&be_data->stream, &inputParameters, &outputParameters, self->samplingRate, self->bufferSize, paNoFlag, streamCallback,  (void *) self);
+            err = Pa_OpenStream(&be_data->stream, 
+                                &inputParameters, 
+                                &outputParameters, 
+                                self->samplingRate, 
+                                self->bufferSize, 
+                                paNoFlag, 
+                                streamCallback, 
+                                (void *) self);
         else
-            err = Pa_OpenStream(&be_data->stream, (PaStreamParameters *) NULL, &outputParameters, self->samplingRate, self->bufferSize, paNoFlag, streamCallback,  (void *) self);
+            err = Pa_OpenStream(&be_data->stream, 
+                                (PaStreamParameters *) NULL, 
+                                &outputParameters, 
+                                self->samplingRate, 
+                                self->bufferSize, 
+                                paNoFlag, 
+                                streamCallback, 
+                                (void *) self);
     }        
     portaudio_assert(err, "Pa_OpenStream");
     if (err < 0) {
@@ -678,7 +706,7 @@ Server_jack_init (Server *self)
     assert(self->audio_be_data == NULL);
     PyoJackBackendData *be_data = (PyoJackBackendData *) malloc(sizeof(PyoJackBackendData *));
     self->audio_be_data = (void *) be_data;
-    be_data->jack_in_ports = (jack_port_t **) calloc(self->nchnls + self->input_offset, sizeof(jack_port_t *));
+    be_data->jack_in_ports = (jack_port_t **) calloc(self->ichnls + self->input_offset, sizeof(jack_port_t *));
     be_data->jack_out_ports = (jack_port_t **) calloc(self->nchnls + self->output_offset, sizeof(jack_port_t *));
     strncpy(client_name,self->serverName, 32);
     be_data->jack_client = jack_client_open (client_name, options, &status, server_name);
@@ -720,7 +748,7 @@ Server_jack_init (Server *self)
         Server_debug(self, "Jack engine buffer size: %" PRIu32 "\n", bufferSize);
     }
 
-    nchnls = total_nchnls = self->nchnls + self->input_offset;
+    nchnls = total_nchnls = self->ichnls + self->input_offset;
     while (nchnls-- > 0) {
         index = total_nchnls - nchnls - 1;
         ret = sprintf(name, "input_%i", index + 1);
@@ -780,7 +808,6 @@ Server_jack_start (Server *self)
         Server_shut_down(self);
         return -1;
     }
-    //if (self->jackauto)
     Server_jack_autoconnect(self);
     return 0;
 }
@@ -1548,14 +1575,15 @@ Server_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     /* Unused variables to allow the safety check of the embeded audio backend. */
     double samplingRate = 44100.0;
     int  nchnls = 2;
+    int  ichnls = 2;
     int  bufferSize = 256;
     int  duplex = 0;
     char *audioType = "portaudio";
     char *serverName = "pyo";
         
-    static char *kwlist[] = {"sr", "nchnls", "buffersize", "duplex", "audio", "jackname", NULL};
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "|diiiss", kwlist, 
-            &samplingRate, &nchnls, &bufferSize, &duplex, &audioType, &serverName))
+    static char *kwlist[] = {"sr", "nchnls", "buffersize", "duplex", "audio", "jackname", "ichnls", NULL};
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "|diiissi", kwlist, 
+            &samplingRate, &nchnls, &bufferSize, &duplex, &audioType, &serverName, &ichnls))
         Py_RETURN_FALSE;
         
     if (strcmp(audioType, "embedded") != 0)
@@ -1588,6 +1616,7 @@ Server_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->jackAutoConnectOutputPorts = PyList_New(0);
     self->samplingRate = 44100.0;
     self->nchnls = 2;
+    self->ichnls = 2;
     self->record = 0;
     self->bufferSize = 256;
     self->duplex = 0;
@@ -1618,14 +1647,13 @@ Server_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 static int
 Server_init(Server *self, PyObject *args, PyObject *kwds)
 {
-    static char *kwlist[] = {"sr", "nchnls", "buffersize", "duplex", "audio", "jackname", NULL};
+    static char *kwlist[] = {"sr", "nchnls", "buffersize", "duplex", "audio", "jackname", "ichnls", NULL};
     
     char *audioType = "portaudio";
     char *serverName = "pyo";
 
-    //Server_debug(self, "Server_init. Compiled " TIMESTAMP "\n");  // Only for debugging purposes
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "|diiiss", kwlist, 
-            &self->samplingRate, &self->nchnls, &self->bufferSize, &self->duplex, &audioType, &serverName))
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "|diiissi", kwlist, 
+            &self->samplingRate, &self->nchnls, &self->bufferSize, &self->duplex, &audioType, &serverName, &self->ichnls))
         return -1;
     if (strcmp(audioType, "jack") == 0) {
         self->audio_be_type = PyoJack;
@@ -1788,6 +1816,24 @@ Server_setNchnls(Server *self, PyObject *arg)
     }
     else {
         Server_error(self, "Number of channels must be an integer.\n");
+    }
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static PyObject *
+Server_setIchnls(Server *self, PyObject *arg)
+{
+    if (self->server_booted) {
+        Server_warning(self, "Can't change number of input channels for booted server.\n");
+        Py_INCREF(Py_None);
+        return Py_None;
+    }
+    if (arg != NULL && PyInt_Check(arg)) {
+        self->ichnls = PyInt_AsLong(arg);
+    }
+    else {
+        Server_error(self, "Number of input channels must be an integer.\n");
     }
     Py_INCREF(Py_None);
     return Py_None;
@@ -2269,14 +2315,16 @@ Server_boot(Server *self, PyObject *arg)
         if (self->input_buffer) {
             free(self->input_buffer);
         }
-        self->input_buffer = (MYFLT *)calloc(self->bufferSize * self->nchnls, sizeof(MYFLT));
+        self->input_buffer = (MYFLT *)calloc(self->bufferSize * self->ichnls, sizeof(MYFLT));
         if (self->output_buffer) {
             free(self->output_buffer);
         }
         self->output_buffer = (float *)calloc(self->bufferSize * self->nchnls, sizeof(float));
     }
-    for (i=0; i<self->bufferSize*self->nchnls; i++) {
+    for (i=0; i<self->bufferSize*self->ichnls; i++) {
         self->input_buffer[i] = 0.0;
+    }
+    for (i=0; i<self->bufferSize*self->nchnls; i++) {
         self->output_buffer[i] = 0.0;
     }
     if (audioerr == 0) {
@@ -2812,6 +2860,12 @@ Server_getNchnls(Server *self)
 }
 
 static PyObject *
+Server_getIchnls(Server *self)
+{
+    return PyInt_FromLong(self->ichnls);
+}
+
+static PyObject *
 Server_getGlobalSeed(Server *self)
 {
     return PyInt_FromLong(self->globalSeed);
@@ -2922,7 +2976,8 @@ static PyMethodDef Server_methods[] = {
     {"setMidiOutputDevice", (PyCFunction)Server_setMidiOutputDevice, METH_O, "Sets MIDI output device."},
     {"setSamplingRate", (PyCFunction)Server_setSamplingRate, METH_O, "Sets the server's sampling rate."},
     {"setBufferSize", (PyCFunction)Server_setBufferSize, METH_O, "Sets the server's buffer size."},
-    {"setNchnls", (PyCFunction)Server_setNchnls, METH_O, "Sets the server's number of channels."},
+    {"setNchnls", (PyCFunction)Server_setNchnls, METH_O, "Sets the server's number of output/input channels."},
+    {"setIchnls", (PyCFunction)Server_setIchnls, METH_O, "Sets the server's number of input channels."},
     {"setDuplex", (PyCFunction)Server_setDuplex, METH_O, "Sets the server's duplex mode (0 = only out, 1 = in/out)."},
     {"setJackAuto", (PyCFunction)Server_setJackAuto, METH_VARARGS, "Tells the server to auto-connect Jack ports (0 = disable, 1 = enable)."},
     {"setJackAutoConnectInputPorts", (PyCFunction)Server_setJackAutoConnectInputPorts, METH_O, "Sets a list of ports to auto-connect inputs when using Jack."},
@@ -2954,7 +3009,8 @@ static PyMethodDef Server_methods[] = {
     {"bendout", (PyCFunction)Server_bendout, METH_VARARGS, "Send a pitch bend event to Portmidi output stream."},
     {"getStreams", (PyCFunction)Server_getStreams, METH_NOARGS, "Returns the list of streams added to the server."},
     {"getSamplingRate", (PyCFunction)Server_getSamplingRate, METH_NOARGS, "Returns the server's sampling rate."},
-    {"getNchnls", (PyCFunction)Server_getNchnls, METH_NOARGS, "Returns the server's current number of channels."},
+    {"getNchnls", (PyCFunction)Server_getNchnls, METH_NOARGS, "Returns the server's current number of output channels."},
+    {"getIchnls", (PyCFunction)Server_getIchnls, METH_NOARGS, "Returns the server's current number of input channels."},
     {"getGlobalSeed", (PyCFunction)Server_getGlobalSeed, METH_NOARGS, "Returns the server's global seed."},
     {"getBufferSize", (PyCFunction)Server_getBufferSize, METH_NOARGS, "Returns the server's buffer size."},
     {"getIsBooted", (PyCFunction)Server_getIsBooted, METH_NOARGS, "Returns 1 if the server is booted, otherwise returns 0."},

@@ -42,7 +42,8 @@ class Server(object):
             Sampling rate used by Portaudio and the Server to compute samples. 
             Defaults to 44100.
         nchnls : int, optional
-            Number of input and output channels. Defaults to 2.
+            Number of output channels. The number of input channels will be the 
+            same if `ichnls` argument is not defined. Defaults to 2.
         buffersize : int, optional
             Number of samples that Portaudio will request from the callback loop. 
             Defaults to 256.
@@ -71,6 +72,8 @@ class Server(object):
             the computation is done.
         jackname : string, optional
             Name of jack client. Defaults to 'pyo'
+        ichnls : int, optional
+            Number of input channels if different of output channels. If None (default), ichnls = nchnls.
 
     .. note::
 
@@ -86,7 +89,8 @@ class Server(object):
         - setMidiOutputDevice(x) : Set the MIDI output device number. See `pm_list_devices()`.
         - setSamplingRate(x) : Set the sampling rate used by the server.
         - setBufferSize(x) : Set the buffer size used by the server.
-        - setNchnls(x) : Set the number of channels used by the server.
+        - setNchnls(x) : Set the number of output (and input if `ichnls` = None) channels used by the server.
+        - setIchnls(x) : Set the number of input channels (if different of output channels) used by the server.
         - setDuplex(x) : Set the duplex mode used by the server.
         - setVerbosity(x) : Set the server's verbosity.
         - reinit(sr, nchnls, buffersize, duplex, audio, jackname) : Reinit the server's settings.
@@ -97,11 +101,16 @@ class Server(object):
     >>> s.start()
         
     """
-    def __init__(self, sr=44100, nchnls=2, buffersize=256, duplex=1, audio='portaudio', jackname='pyo'):
+    def __init__(self, sr=44100, nchnls=2, buffersize=256, duplex=1, 
+                 audio='portaudio', jackname='pyo', ichnls=None):
         if os.environ.has_key("PYO_SERVER_AUDIO") and "offline" not in audio and "embedded" not in audio:
             audio = os.environ["PYO_SERVER_AUDIO"]
         self._time = time
         self._nchnls = nchnls
+        if ichnls == None:
+            self._ichnls = nchnls
+        else:
+            self._ichnls = ichnls
         self._amp = 1.
         self._verbosity = 7
         self._startoffset = 0
@@ -109,7 +118,7 @@ class Server(object):
         self._filename = None
         self._fileformat = 0
         self._sampletype = 0
-        self._server = Server_base(sr, nchnls, buffersize, duplex, audio, jackname)
+        self._server = Server_base(sr, nchnls, buffersize, duplex, audio, jackname, self._ichnls)
         self._server._setDefaultRecPath(os.path.join(os.path.expanduser("~"), "pyo_rec.wav"))
 
     def __del__(self):
@@ -120,7 +129,8 @@ class Server(object):
             self.shutdown()
             self._time.sleep(.25)
 
-    def reinit(self, sr=44100, nchnls=2, buffersize=256, duplex=1, audio='portaudio', jackname='pyo'):
+    def reinit(self, sr=44100, nchnls=2, buffersize=256, duplex=1, 
+               audio='portaudio', jackname='pyo', ichnls=None):
         """
         Reinit the server'settings. Useful to alternate between real-time and offline server.
         
@@ -130,6 +140,10 @@ class Server(object):
         
         """
         self._nchnls = nchnls
+        if ichnls == None:
+            self._ichnls = nchnls
+        else:
+            self._ichnls = ichnls
         self._amp = 1.
         self._verbosity = 7
         self._startoffset = 0
@@ -138,7 +152,7 @@ class Server(object):
         self._fileformat = 0
         self._sampletype = 0
         self._globalseed = 0
-        self._server.__init__(sr, nchnls, buffersize, duplex, audio, jackname)
+        self._server.__init__(sr, nchnls, buffersize, duplex, audio, jackname, self._ichnls)
 
     def gui(self, locals=None, meter=True, timer=True, exit=True):
         """
@@ -317,7 +331,7 @@ class Server(object):
   
     def setNchnls(self, x):
         """
-        Set the number of channels used by the server.
+        Set the number of output (and input if `ichnls` = None) channels used by the server.
         
         :Args:
 
@@ -327,6 +341,19 @@ class Server(object):
         """
         self._nchnls = x
         self._server.setNchnls(x)
+
+    def setIchnls(self, x):
+        """
+        Set the number of input channels (if different of output channels) used by the server.
+        
+        :Args:
+
+            x : int
+                New number of input channels.
+
+        """
+        self._ichnls = x
+        self._server.setIchnls(x)
 
     def setDuplex(self, x):
         """
