@@ -603,6 +603,7 @@ class Record(PyoObject):
     def __init__(self, input, filename, chnls=2, fileformat=0, sampletype=0, buffering=4):
         PyoObject.__init__(self)
         self._input = input
+        self._in_fader = InputFader(input)
         ext = filename.rsplit('.')
         if len(ext) >= 2:
             ext = ext[-1].lower()
@@ -612,10 +613,32 @@ class Record(PyoObject):
                 print 'Warning: Unknown file extension. Using fileformat value.'
         else:
             print 'Warning: Filename has no extension. Using fileformat value.'
-        self._base_objs = [Record_base(self._input.getBaseObjects(), filename, chnls, fileformat, sampletype, buffering)]
+        self._base_objs = [Record_base(self._in_fader.getBaseObjects(), filename, chnls, fileformat, sampletype, buffering)]
 
     def out(self, chnl=0, inc=1, dur=0, delay=0):
         return self.play(dur, delay)
+
+    def setInput(self, x, fadetime=0.05):
+        """
+        Replace the `input` attribute.
+
+        :Args:
+
+            x : PyoObject
+                New signal to process.
+            fadetime : float, optional
+                Crossfade time between old and new input. Default to 0.05.
+
+        """
+        self._input = x
+        self._in_fader.setInput(x, fadetime)
+
+    @property
+    def input(self):
+        """PyoObject. Input signal to filter.""" 
+        return self._input
+    @input.setter
+    def input(self, x): self.setInput(x)
 
 class Denorm(PyoObject):
     """
