@@ -104,7 +104,7 @@ else:
 extensions = []
 for extension_name, extra_macros in zip(extension_names, extra_macros_per_extension):
     extensions.append(Extension(extension_name, source_files, include_dirs=include_dirs, library_dirs=library_dirs,
-                                libraries=libraries, extra_compile_args=['-Wno-strict-prototypes', '-O3'],
+                                libraries=libraries, extra_compile_args=['-Wno-strict-prototypes', '-O3', '-Wno-strict-aliasing'],
                                 define_macros=macros + extra_macros))
 
 if compile_externals:
