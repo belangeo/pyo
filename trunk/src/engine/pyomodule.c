@@ -2149,10 +2149,14 @@ True\n\n"
 
 static PyObject *
 serverCreated(PyObject *self) {
-    if (PyServer_get_server() != NULL)
-        Py_RETURN_TRUE;
-    else
-        Py_RETURN_FALSE;
+    if (PyServer_get_server() != NULL) {
+        Py_INCREF(Py_True);
+        return Py_True;
+    }
+    else {
+        Py_INCREF(Py_False);
+        return Py_False;
+    }
 }
 
 #define serverBooted_info \
@@ -2171,14 +2175,19 @@ serverBooted(PyObject *self) {
     if (PyServer_get_server() != NULL) {
         server = PyServer_get_server();
         boot = PyInt_AsLong(PyObject_CallMethod(server, "getIsBooted", NULL));
-        if (boot == 0)
-            Py_RETURN_FALSE;
-        else
-            Py_RETURN_TRUE;
+        if (boot == 0) {
+            Py_INCREF(Py_False);
+            return Py_False;
+        }
+        else {
+            Py_INCREF(Py_True);
+            return Py_True;
+        }
     }
     else {
         printf("Warning: A Server must be created before calling `serverBooted` function.\n");
-        Py_RETURN_FALSE;
+        Py_INCREF(Py_False);
+        return Py_False;
     }
 }
 

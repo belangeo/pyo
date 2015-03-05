@@ -152,19 +152,27 @@ Stream_getStreamObject(Stream *self)
 PyObject *
 Stream_isPlaying(Stream *self)
 {
-    if (self->active || self->todac)
-        Py_RETURN_TRUE;
-    else
-        Py_RETURN_FALSE;
+    if (self->active || self->todac) {
+        Py_INCREF(Py_True);
+        return Py_True;
+    }
+    else {
+        Py_INCREF(Py_False);
+        return Py_False;
+    }
 }
 
 PyObject *
 Stream_isOutputting(Stream *self)
 {
-    if (self->todac)
-        Py_RETURN_TRUE;
-    else
-        Py_RETURN_FALSE;
+    if (self->todac) {
+        Py_INCREF(Py_True);
+        return Py_True;
+    }
+    else {
+        Py_INCREF(Py_False);
+        return Py_False;
+    }
 }
 
 static PyMethodDef Stream_methods[] = {
