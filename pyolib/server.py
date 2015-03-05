@@ -122,6 +122,8 @@ class Server(object):
         self._server._setDefaultRecPath(os.path.join(os.path.expanduser("~"), "pyo_rec.wav"))
 
     def __del__(self):
+        self.setTime = None
+        self.setRms = None
         if self.getIsBooted():
             if self.getIsStarted():
                 self.stop()
@@ -188,10 +190,49 @@ class Server(object):
                 win.MainLoop()
 
     def setTimeCallable(self, func):
+        """
+        Set a function callback that will receive the current time as argument.
+        
+        The function will receive four integers in this format:
+                hours, minutes, seconds, milliseconds
+
+        :Args:
+            
+            func : python callable
+                Python function or method to call with current time as argument.
+
+        """
         self.setTime = func
         self._server.setTimeCallable(self)
 
+    def setMeterCallable(self, func):
+        """
+        Set a function callback that will receive the current rms values as argument.
+        
+        The function will receive a list containing the rms value for each audio channel.
+
+        :Args:
+            
+            func : python callable
+                Python function or method to call with current rms values as argument.
+
+        """
+        self.setRms = func
+        self._server.setAmpCallable(self)
+
     def setMeter(self, meter):
+        """
+        Registers a meter object to the server.
+        
+        The object must have a method named `setRms`. This method will be called
+        with the rms values of each audio channel as argument.
+
+        :Args:
+            
+            meter : python object
+                Python object with a `setRms` method.
+
+        """
         self._server.setAmpCallable(meter)
 
     def setInOutDevice(self, x):

@@ -1,5 +1,10 @@
 2015-03-05 belangeo <belangeo@gmail.com>
 
+    * Added documentation for server methods setTimeCallable and setMeterCallable.
+    - rev 1304
+
+2015-03-05 belangeo <belangeo@gmail.com>
+
     * Changed license to the more permissive LGPL version 3.
     - rev 1303
 
