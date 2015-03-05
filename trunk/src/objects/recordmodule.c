@@ -1,21 +1,21 @@
-/*************************************************************************
- * Copyright 2010 Olivier Belanger                                        *                  
- *                                                                        * 
+/**************************************************************************
+ * Copyright 2009-2015 Olivier Belanger                                   *
+ *                                                                        *
  * This file is part of pyo, a python module to help digital signal       *
- * processing script creation.                                            *  
- *                                                                        * 
+ * processing script creation.                                            *
+ *                                                                        *
  * pyo is free software: you can redistribute it and/or modify            *
- * it under the terms of the GNU General Public License as published by   *
- * the Free Software Foundation, either version 3 of the License, or      *
- * (at your option) any later version.                                    * 
+ * it under the terms of the GNU Lesser General Public License as         *
+ * published by the Free Software Foundation, either version 3 of the     *
+ * License, or (at your option) any later version.                        *
  *                                                                        *
  * pyo is distributed in the hope that it will be useful,                 *
- * but WITHOUT ANY WARRANTY; without even the implied warranty of         *    
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of         *
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the          *
- * GNU General Public License for more details.                           *
+ * GNU Lesser General Public License for more details.                    *
  *                                                                        *
- * You should have received a copy of the GNU General Public License      *
- * along with pyo.  If not, see <http://www.gnu.org/licenses/>.           *
+ * You should have received a copy of the GNU Lesser General Public       *
+ * License along with pyo.  If not, see <http://www.gnu.org/licenses/>.   *
  *************************************************************************/
 
 #include <Python.h>
@@ -50,16 +50,16 @@ Record_process(Record *self) {
     MYFLT *in;
 
     totlen = self->chnls*self->bufsize*self->buffering;
-    
+
     if (self->count == self->buffering) {
         self->count = 0;
         for (i=0; i<totlen; i++) {
             self->buffer[i] = 0.0;
         }
-    }    
+    }
 
     offset = self->bufsize * self->chnls * self->count;
-    
+
     for (j=0; j<self->listlen; j++) {
         chnl = j % self->chnls;
         in = Stream_getData((Stream *)PyList_GET_ITEM(self->input_stream_list, j));
@@ -68,21 +68,21 @@ Record_process(Record *self) {
         }
     }
     self->count++;
-    
+
     if (self->count == self->buffering)
         SF_WRITE(self->recfile, self->buffer, totlen);
 }
 
 static void
 Record_setProcMode(Record *self)
-{       
-    self->proc_func_ptr = Record_process;   
+{
+    self->proc_func_ptr = Record_process;
 }
 
 static void
 Record_compute_next_data_frame(Record *self)
 {
-    (*self->proc_func_ptr)(self); 
+    (*self->proc_func_ptr)(self);
 }
 
 static int
@@ -94,7 +94,7 @@ Record_traverse(Record *self, visitproc visit, void *arg)
     return 0;
 }
 
-static int 
+static int
 Record_clear(Record *self)
 {
     pyo_CLEAR
@@ -123,20 +123,20 @@ Record_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *input_listtmp;
     Record *self;
     self = (Record *)type->tp_alloc(type, 0);
-    
+
     self->chnls = 2;
     self->buffering = 4;
     self->count = 0;
-    
+
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, Record_compute_next_data_frame);
     self->mode_func_ptr = Record_setProcMode;
 
     static char *kwlist[] = {"input", "filename", "chnls", "fileformat", "sampletype", "buffering", NULL};
-    
+
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "Os|iiii", kwlist, &input_listtmp, &self->recpath, &self->chnls, &fileformat, &sampletype, &self->buffering))
         Py_RETURN_NONE;
-    
+
     Py_XDECREF(self->input_list);
     self->input_list = input_listtmp;
     self->listlen = PyList_Size(self->input_list);
@@ -148,7 +148,7 @@ Record_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     /* Prepare sfinfo */
     self->recinfo.samplerate = (int)self->sr;
     self->recinfo.channels = self->chnls;
-    
+
     switch (fileformat) {
         case 0:
             self->recinfo.format = SF_FORMAT_WAV;
@@ -200,21 +200,21 @@ Record_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
                 break;
         }
     }
-    
+
     /* Open the output file. */
-    if (! (self->recfile = sf_open(self->recpath, SFM_WRITE, &self->recinfo))) {   
+    if (! (self->recfile = sf_open(self->recpath, SFM_WRITE, &self->recinfo))) {
         printf ("Not able to open output file %s.\n", self->recpath);
         Py_RETURN_NONE;
-    }	
+    }
 
     buflen = self->bufsize * self->chnls * self->buffering;
     self->buffer = (MYFLT *)realloc(self->buffer, buflen * sizeof(MYFLT));
     for (i=0; i<buflen; i++) {
         self->buffer[i] = 0.;
-    }    
-    
+    }
+
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
-    
+
     (*self->mode_func_ptr)(self);
 
     return (PyObject *)self;
@@ -224,8 +224,8 @@ static PyObject * Record_getServer(Record* self) { GET_SERVER };
 static PyObject * Record_getStream(Record* self) { GET_STREAM };
 
 static PyObject * Record_play(Record *self, PyObject *args, PyObject *kwds) { PLAY };
-static PyObject * Record_stop(Record *self) 
-{ 
+static PyObject * Record_stop(Record *self)
+{
     sf_close(self->recfile);
     STOP
 };
@@ -307,9 +307,9 @@ typedef struct {
 static void
 ControlRec_process(ControlRec *self) {
     int i;
-    
+
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
-    
+
     if (self->dur > 0.0) {
         for (i=0; i<self->bufsize; i++) {
             if ((self->time % self->modulo) == 0 && self->count < self->size) {
@@ -319,7 +319,7 @@ ControlRec_process(ControlRec *self) {
             self->time++;
             if (self->count >= self->size)
                 PyObject_CallMethod((PyObject *)self, "stop", NULL);
-        }        
+        }
     }
     else {
         for (i=0; i<self->bufsize; i++) {
@@ -333,14 +333,14 @@ ControlRec_process(ControlRec *self) {
 
 static void
 ControlRec_setProcMode(ControlRec *self)
-{       
-    self->proc_func_ptr = ControlRec_process;   
+{
+    self->proc_func_ptr = ControlRec_process;
 }
 
 static void
 ControlRec_compute_next_data_frame(ControlRec *self)
 {
-    (*self->proc_func_ptr)(self); 
+    (*self->proc_func_ptr)(self);
 }
 
 static int
@@ -353,7 +353,7 @@ ControlRec_traverse(ControlRec *self, visitproc visit, void *arg)
     return 0;
 }
 
-static int 
+static int
 ControlRec_clear(ControlRec *self)
 {
     pyo_CLEAR
@@ -381,33 +381,33 @@ ControlRec_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp;
     ControlRec *self;
     self = (ControlRec *)type->tp_alloc(type, 0);
-    
+
     self->dur = 0.0;
     self->rate = 1000;
     self->tmp_list = PyList_New(0);
-    
+
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, ControlRec_compute_next_data_frame);
     self->mode_func_ptr = ControlRec_setProcMode;
 
     static char *kwlist[] = {"input", "rate", "dur", NULL};
-    
+
     if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_O_IF, kwlist, &inputtmp, &self->rate, &self->dur))
         Py_RETURN_NONE;
-    
+
     INIT_INPUT_STREAM
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
-    
+
     if (self->dur > 0.0) {
         self->size = (long)(self->dur * self->rate + 1);
         self->buffer = (MYFLT *)realloc(self->buffer, self->size * sizeof(MYFLT));
         for (j=0; j<self->size; j++) {
             self->buffer[j] = 0.0;
-        }        
-    }    
+        }
+    }
     self->modulo = (int)(self->sr / self->rate);
-    
+
     (*self->mode_func_ptr)(self);
 
     return (PyObject *)self;
@@ -416,9 +416,9 @@ ControlRec_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 static PyObject * ControlRec_getServer(ControlRec* self) { GET_SERVER };
 static PyObject * ControlRec_getStream(ControlRec* self) { GET_STREAM };
 
-static PyObject * ControlRec_play(ControlRec *self, PyObject *args, PyObject *kwds) { 
+static PyObject * ControlRec_play(ControlRec *self, PyObject *args, PyObject *kwds) {
     self->count = self->time = 0;
-    PLAY 
+    PLAY
 };
 
 static PyObject * ControlRec_stop(ControlRec *self) { STOP };
@@ -428,7 +428,7 @@ ControlRec_getData(ControlRec *self) {
     int i;
     PyObject *data, *point;
     MYFLT time, timescl = 1.0 / self->rate;
-        
+
     if (self->dur > 0.0) {
         data = PyList_New(self->size);
         for (i=0; i<self->size; i++) {
@@ -437,7 +437,7 @@ ControlRec_getData(ControlRec *self) {
             PyTuple_SET_ITEM(point, 0, PyFloat_FromDouble(time));
             PyTuple_SET_ITEM(point, 1, PyFloat_FromDouble(self->buffer[i]));
             PyList_SetItem(data, i, point);
-        }        
+        }
     }
     else {
         Py_ssize_t size = PyList_Size(self->tmp_list);
@@ -448,7 +448,7 @@ ControlRec_getData(ControlRec *self) {
             PyTuple_SET_ITEM(point, 0, PyFloat_FromDouble(time));
             PyTuple_SET_ITEM(point, 1, PyList_GET_ITEM(self->tmp_list, i));
             PyList_SetItem(data, i, point);
-        }        
+        }
     }
 	return data;
 }
@@ -536,16 +536,16 @@ ControlRead_readframes_i(ControlRead *self) {
     MYFLT fpart;
     long i, mod;
     MYFLT invmodulo = 1.0 / self->modulo;
-    
+
     if (self->go == 0)
         PyObject_CallMethod((PyObject *)self, "stop", NULL);
-    
+
     for (i=0; i<self->bufsize; i++) {
         self->trigsBuffer[i] = 0.0;
         if (self->go == 1) {
             mod = self->time % self->modulo;
             fpart = mod * invmodulo;
-            self->data[i] = (*self->interp_func_ptr)(self->values, (int)self->count, fpart, (int)self->size);            
+            self->data[i] = (*self->interp_func_ptr)(self->values, (int)self->count, fpart, (int)self->size);
         }
         else {
             mod = -1;
@@ -581,44 +581,44 @@ ControlRead_setProcMode(ControlRead *self)
 {
     int muladdmode;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
-    
+
     self->proc_func_ptr = ControlRead_readframes_i;
 
 	switch (muladdmode) {
-        case 0:        
+        case 0:
             self->muladd_func_ptr = ControlRead_postprocessing_ii;
             break;
-        case 1:    
+        case 1:
             self->muladd_func_ptr = ControlRead_postprocessing_ai;
             break;
-        case 2:    
+        case 2:
             self->muladd_func_ptr = ControlRead_postprocessing_revai;
             break;
-        case 10:        
+        case 10:
             self->muladd_func_ptr = ControlRead_postprocessing_ia;
             break;
-        case 11:    
+        case 11:
             self->muladd_func_ptr = ControlRead_postprocessing_aa;
             break;
-        case 12:    
+        case 12:
             self->muladd_func_ptr = ControlRead_postprocessing_revaa;
             break;
-        case 20:        
+        case 20:
             self->muladd_func_ptr = ControlRead_postprocessing_ireva;
             break;
-        case 21:    
+        case 21:
             self->muladd_func_ptr = ControlRead_postprocessing_areva;
             break;
-        case 22:    
+        case 22:
             self->muladd_func_ptr = ControlRead_postprocessing_revareva;
             break;
-    } 
+    }
 }
 
 static void
 ControlRead_compute_next_data_frame(ControlRead *self)
 {
-    (*self->proc_func_ptr)(self); 
+    (*self->proc_func_ptr)(self);
     (*self->muladd_func_ptr)(self);
 }
 
@@ -626,15 +626,15 @@ static int
 ControlRead_traverse(ControlRead *self, visitproc visit, void *arg)
 {
     pyo_VISIT
-    Py_VISIT(self->trig_stream);    
+    Py_VISIT(self->trig_stream);
     return 0;
 }
 
-static int 
+static int
 ControlRead_clear(ControlRead *self)
 {
     pyo_CLEAR
-    Py_CLEAR(self->trig_stream);    
+    Py_CLEAR(self->trig_stream);
     return 0;
 }
 
@@ -655,74 +655,74 @@ ControlRead_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *valuestmp, *multmp=NULL, *addtmp=NULL;
     ControlRead *self;
     self = (ControlRead *)type->tp_alloc(type, 0);
-    
+
     self->loop = 0;
     self->rate = 1000;
     self->interp = 2;
     self->go = 1;
 	self->modebuffer[0] = 0;
 	self->modebuffer[1] = 0;
-    
+
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, ControlRead_compute_next_data_frame);
     self->mode_func_ptr = ControlRead_setProcMode;
 
     static char *kwlist[] = {"values", "rate", "loop", "interp", "mul", "add", NULL};
-    
+
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|iiiOO", kwlist, &valuestmp, &self->rate, &self->loop, &self->interp, &multmp, &addtmp))
         Py_RETURN_NONE;
 
     if (valuestmp) {
         PyObject_CallMethod((PyObject *)self, "setValues", "O", valuestmp);
     }
-    
+
     if (multmp) {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
     }
-    
+
     if (addtmp) {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
-    
+
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
-        
+
     self->trigsBuffer = (MYFLT *)realloc(self->trigsBuffer, self->bufsize * sizeof(MYFLT));
-    
+
     for (i=0; i<self->bufsize; i++) {
         self->trigsBuffer[i] = 0.0;
-    }    
+    }
 
     MAKE_NEW_TRIGGER_STREAM(self->trig_stream, &TriggerStreamType, NULL);
     TriggerStream_setData(self->trig_stream, self->trigsBuffer);
-    
+
     self->modulo = (int)(self->sr / self->rate);
 
     (*self->mode_func_ptr)(self);
-    
+
     SET_INTERP_POINTER
-    
+
     return (PyObject *)self;
 }
 
 static PyObject * ControlRead_getServer(ControlRead* self) { GET_SERVER };
 static PyObject * ControlRead_getStream(ControlRead* self) { GET_STREAM };
 static PyObject * ControlRead_getTriggerStream(ControlRead* self) { GET_TRIGGER_STREAM };
-static PyObject * ControlRead_setMul(ControlRead *self, PyObject *arg) { SET_MUL };	
-static PyObject * ControlRead_setAdd(ControlRead *self, PyObject *arg) { SET_ADD };	
-static PyObject * ControlRead_setSub(ControlRead *self, PyObject *arg) { SET_SUB };	
-static PyObject * ControlRead_setDiv(ControlRead *self, PyObject *arg) { SET_DIV };	
+static PyObject * ControlRead_setMul(ControlRead *self, PyObject *arg) { SET_MUL };
+static PyObject * ControlRead_setAdd(ControlRead *self, PyObject *arg) { SET_ADD };
+static PyObject * ControlRead_setSub(ControlRead *self, PyObject *arg) { SET_SUB };
+static PyObject * ControlRead_setDiv(ControlRead *self, PyObject *arg) { SET_DIV };
 
-static PyObject * ControlRead_play(ControlRead *self, PyObject *args, PyObject *kwds) 
-{ 
+static PyObject * ControlRead_play(ControlRead *self, PyObject *args, PyObject *kwds)
+{
     self->count = self->time = 0;
     self->go = 1;
-    PLAY 
+    PLAY
 };
 
-static PyObject * ControlRead_stop(ControlRead *self) 
-{ 
+static PyObject * ControlRead_stop(ControlRead *self)
+{
     self->go = 0;
-    STOP 
+    STOP
 };
 
 static PyObject * ControlRead_multiply(ControlRead *self, PyObject *arg) { MULTIPLY };
@@ -738,21 +738,21 @@ static PyObject *
 ControlRead_setValues(ControlRead *self, PyObject *arg)
 {
     Py_ssize_t i;
-	
+
 	if (arg == NULL) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
     self->size = PyList_Size(arg);
     self->values = (MYFLT *)realloc(self->values, self->size * sizeof(MYFLT));
     for (i=0; i<self->size; i++) {
         self->values[i] = PyFloat_AS_DOUBLE(PyList_GET_ITEM(arg, i));
     }
-    
+
 	Py_INCREF(Py_None);
 	return Py_None;
-}	
+}
 
 static PyObject *
 ControlRead_setRate(ControlRead *self, PyObject *arg)
@@ -761,10 +761,10 @@ ControlRead_setRate(ControlRead *self, PyObject *arg)
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
     self->rate = PyInt_AsLong(arg);
     self->modulo = (int)(self->sr / self->rate);
-    
+
     Py_INCREF(Py_None);
     return Py_None;
 }
@@ -776,9 +776,9 @@ ControlRead_setLoop(ControlRead *self, PyObject *arg)
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
     self->loop = PyInt_AsLong(arg);
-    
+
     Py_INCREF(Py_None);
     return Py_None;
 }
@@ -790,15 +790,15 @@ ControlRead_setInterp(ControlRead *self, PyObject *arg)
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
     int isNumber = PyNumber_Check(arg);
-    
+
 	if (isNumber == 1) {
 		self->interp = PyInt_AsLong(PyNumber_Int(arg));
-    }  
-    
+    }
+
     SET_INTERP_POINTER
-    
+
     Py_INCREF(Py_None);
     return Py_None;
 }
@@ -934,10 +934,10 @@ static void
 NoteinRec_process(NoteinRec *self) {
     int i;
     MYFLT pit, vel;
-    
+
     MYFLT *inp = Stream_getData((Stream *)self->inputp_stream);
     MYFLT *inv = Stream_getData((Stream *)self->inputv_stream);
-    
+
     for (i=0; i<self->bufsize; i++) {
         pit = inp[i];
         vel = inv[i];
@@ -954,14 +954,14 @@ NoteinRec_process(NoteinRec *self) {
 
 static void
 NoteinRec_setProcMode(NoteinRec *self)
-{       
-    self->proc_func_ptr = NoteinRec_process;   
+{
+    self->proc_func_ptr = NoteinRec_process;
 }
 
 static void
 NoteinRec_compute_next_data_frame(NoteinRec *self)
 {
-    (*self->proc_func_ptr)(self); 
+    (*self->proc_func_ptr)(self);
 }
 
 static int
@@ -978,7 +978,7 @@ NoteinRec_traverse(NoteinRec *self, visitproc visit, void *arg)
     return 0;
 }
 
-static int 
+static int
 NoteinRec_clear(NoteinRec *self)
 {
     pyo_CLEAR
@@ -1007,21 +1007,21 @@ NoteinRec_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputptmp, *inputp_streamtmp, *inputvtmp, *inputv_streamtmp;
     NoteinRec *self;
     self = (NoteinRec *)type->tp_alloc(type, 0);
-    
+
     self->tmp_list_p = PyList_New(0);
     self->tmp_list_v = PyList_New(0);
     self->tmp_list_t = PyList_New(0);
     self->last_pitch = self->last_vel = 0.0;
-    
+
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, NoteinRec_compute_next_data_frame);
     self->mode_func_ptr = NoteinRec_setProcMode;
 
     static char *kwlist[] = {"inputp", "inputv", NULL};
-    
+
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "OO", kwlist, &inputptmp, &inputvtmp))
         Py_RETURN_NONE;
-    
+
     Py_XDECREF(self->inputp);
     self->inputp = inputptmp;
     inputp_streamtmp = PyObject_CallMethod((PyObject *)self->inputp, "_getStream", NULL);
@@ -1035,20 +1035,20 @@ NoteinRec_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     Py_INCREF(inputv_streamtmp);
     Py_XDECREF(self->inputv_stream);
     self->inputv_stream = (Stream *)inputv_streamtmp;
-    
+
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
     (*self->mode_func_ptr)(self);
-    
+
     return (PyObject *)self;
 }
 
 static PyObject * NoteinRec_getServer(NoteinRec* self) { GET_SERVER };
 static PyObject * NoteinRec_getStream(NoteinRec* self) { GET_STREAM };
 
-static PyObject * NoteinRec_play(NoteinRec *self, PyObject *args, PyObject *kwds) { 
+static PyObject * NoteinRec_play(NoteinRec *self, PyObject *args, PyObject *kwds) {
     self->time = 0;
-    PLAY 
+    PLAY
 };
 
 static PyObject * NoteinRec_stop(NoteinRec *self) { STOP };
@@ -1057,10 +1057,10 @@ static PyObject *
 NoteinRec_getData(NoteinRec *self) {
     int i;
     PyObject *data, *point;
-    
+
     Py_ssize_t size = PyList_Size(self->tmp_list_p);
     data = PyList_New(size);
-    
+
     for (i=0; i<size; i++) {
         point = PyTuple_New(3);
         PyTuple_SET_ITEM(point, 0, PyList_GET_ITEM(self->tmp_list_t, i));
@@ -1151,17 +1151,17 @@ typedef struct {
 static void
 NoteinRead_readframes_i(NoteinRead *self) {
     long i;
-    
+
     if (self->go == 0)
         PyObject_CallMethod((PyObject *)self, "stop", NULL);
-    
+
     for (i=0; i<self->bufsize; i++) {
         self->trigsBuffer[i] = 0.0;
         if (self->go == 1) {
             if (self->time >= self->timestamps[self->count]) {
                 self->value = self->values[self->count];
                 self->data[i] = self->value;
-                self->count++;            
+                self->count++;
             }
             else
                 self->data[i] = self->value;
@@ -1195,44 +1195,44 @@ NoteinRead_setProcMode(NoteinRead *self)
 {
     int muladdmode;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
-    
+
     self->proc_func_ptr = NoteinRead_readframes_i;
 
 	switch (muladdmode) {
-        case 0:        
+        case 0:
             self->muladd_func_ptr = NoteinRead_postprocessing_ii;
             break;
-        case 1:    
+        case 1:
             self->muladd_func_ptr = NoteinRead_postprocessing_ai;
             break;
-        case 2:    
+        case 2:
             self->muladd_func_ptr = NoteinRead_postprocessing_revai;
             break;
-        case 10:        
+        case 10:
             self->muladd_func_ptr = NoteinRead_postprocessing_ia;
             break;
-        case 11:    
+        case 11:
             self->muladd_func_ptr = NoteinRead_postprocessing_aa;
             break;
-        case 12:    
+        case 12:
             self->muladd_func_ptr = NoteinRead_postprocessing_revaa;
             break;
-        case 20:        
+        case 20:
             self->muladd_func_ptr = NoteinRead_postprocessing_ireva;
             break;
-        case 21:    
+        case 21:
             self->muladd_func_ptr = NoteinRead_postprocessing_areva;
             break;
-        case 22:    
+        case 22:
             self->muladd_func_ptr = NoteinRead_postprocessing_revareva;
             break;
-    } 
+    }
 }
 
 static void
 NoteinRead_compute_next_data_frame(NoteinRead *self)
 {
-    (*self->proc_func_ptr)(self); 
+    (*self->proc_func_ptr)(self);
     (*self->muladd_func_ptr)(self);
 }
 
@@ -1240,15 +1240,15 @@ static int
 NoteinRead_traverse(NoteinRead *self, visitproc visit, void *arg)
 {
     pyo_VISIT
-    Py_VISIT(self->trig_stream);    
+    Py_VISIT(self->trig_stream);
     return 0;
 }
 
-static int 
+static int
 NoteinRead_clear(NoteinRead *self)
 {
     pyo_CLEAR
-    Py_CLEAR(self->trig_stream);    
+    Py_CLEAR(self->trig_stream);
     return 0;
 }
 
@@ -1270,26 +1270,26 @@ NoteinRead_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *valuestmp, *timestampstmp, *multmp=NULL, *addtmp=NULL;
     NoteinRead *self;
     self = (NoteinRead *)type->tp_alloc(type, 0);
-    
+
     self->value = 0.0;
     self->loop = 0;
     self->go = 1;
 	self->modebuffer[0] = 0;
 	self->modebuffer[1] = 0;
-    
+
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, NoteinRead_compute_next_data_frame);
     self->mode_func_ptr = NoteinRead_setProcMode;
 
     static char *kwlist[] = {"values", "timestamps", "loop", "mul", "add", NULL};
-    
+
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "OO|iOO", kwlist, &valuestmp, &timestampstmp, &self->loop, &multmp, &addtmp))
         Py_RETURN_NONE;
 
     if (valuestmp) {
         PyObject_CallMethod((PyObject *)self, "setValues", "O", valuestmp);
     }
-    
+
     if (timestampstmp) {
         PyObject_CallMethod((PyObject *)self, "setTimestamps", "O", timestampstmp);
     }
@@ -1297,46 +1297,46 @@ NoteinRead_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
      if (multmp) {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
     }
-    
+
     if (addtmp) {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
-    
+
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
-        
+
     self->trigsBuffer = (MYFLT *)realloc(self->trigsBuffer, self->bufsize * sizeof(MYFLT));
-    
+
     for (i=0; i<self->bufsize; i++) {
         self->trigsBuffer[i] = 0.0;
-    }    
+    }
 
     MAKE_NEW_TRIGGER_STREAM(self->trig_stream, &TriggerStreamType, NULL);
     TriggerStream_setData(self->trig_stream, self->trigsBuffer);
-    
+
     (*self->mode_func_ptr)(self);
-    
+
     return (PyObject *)self;
 }
 
 static PyObject * NoteinRead_getServer(NoteinRead* self) { GET_SERVER };
 static PyObject * NoteinRead_getStream(NoteinRead* self) { GET_STREAM };
 static PyObject * NoteinRead_getTriggerStream(NoteinRead* self) { GET_TRIGGER_STREAM };
-static PyObject * NoteinRead_setMul(NoteinRead *self, PyObject *arg) { SET_MUL };	
-static PyObject * NoteinRead_setAdd(NoteinRead *self, PyObject *arg) { SET_ADD };	
-static PyObject * NoteinRead_setSub(NoteinRead *self, PyObject *arg) { SET_SUB };	
-static PyObject * NoteinRead_setDiv(NoteinRead *self, PyObject *arg) { SET_DIV };	
+static PyObject * NoteinRead_setMul(NoteinRead *self, PyObject *arg) { SET_MUL };
+static PyObject * NoteinRead_setAdd(NoteinRead *self, PyObject *arg) { SET_ADD };
+static PyObject * NoteinRead_setSub(NoteinRead *self, PyObject *arg) { SET_SUB };
+static PyObject * NoteinRead_setDiv(NoteinRead *self, PyObject *arg) { SET_DIV };
 
-static PyObject * NoteinRead_play(NoteinRead *self, PyObject *args, PyObject *kwds) 
-{ 
+static PyObject * NoteinRead_play(NoteinRead *self, PyObject *args, PyObject *kwds)
+{
     self->count = self->time = 0;
     self->go = 1;
-    PLAY 
+    PLAY
 };
 
-static PyObject * NoteinRead_stop(NoteinRead *self) 
-{ 
+static PyObject * NoteinRead_stop(NoteinRead *self)
+{
     self->go = 0;
-    STOP 
+    STOP
 };
 
 static PyObject * NoteinRead_multiply(NoteinRead *self, PyObject *arg) { MULTIPLY };
@@ -1352,42 +1352,42 @@ static PyObject *
 NoteinRead_setValues(NoteinRead *self, PyObject *arg)
 {
     Py_ssize_t i;
-	
+
 	if (arg == NULL) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
     self->size = PyList_Size(arg);
     self->values = (MYFLT *)realloc(self->values, self->size * sizeof(MYFLT));
     for (i=0; i<self->size; i++) {
         self->values[i] = PyFloat_AS_DOUBLE(PyList_GET_ITEM(arg, i));
     }
-    
+
 	Py_INCREF(Py_None);
 	return Py_None;
-}	
+}
 
 static PyObject *
 NoteinRead_setTimestamps(NoteinRead *self, PyObject *arg)
 {
     Py_ssize_t i;
-	
+
 	if (arg == NULL) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
     self->size = PyList_Size(arg);
     self->timestamps = (long *)realloc(self->timestamps, self->size * sizeof(long));
     for (i=0; i<self->size; i++) {
         self->timestamps[i] = (long)(PyFloat_AS_DOUBLE(PyList_GET_ITEM(arg, i)) * self->sr);
     }
-    
+
 	Py_INCREF(Py_None);
 	return Py_None;
 }
-    
+
 static PyObject *
 NoteinRead_setLoop(NoteinRead *self, PyObject *arg)
 {
@@ -1395,9 +1395,9 @@ NoteinRead_setLoop(NoteinRead *self, PyObject *arg)
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
     self->loop = PyInt_AsLong(arg);
-    
+
     Py_INCREF(Py_None);
     return Py_None;
 }

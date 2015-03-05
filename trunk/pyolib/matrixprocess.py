@@ -8,23 +8,23 @@ are done by giving row and column positions.
 """
 
 """
-Copyright 2010 Olivier Belanger
+Copyright 2009-2015 Olivier Belanger
 
 This file is part of pyo, a python module to help digital signal
 processing script creation.
 
 pyo is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
+it under the terms of the GNU Lesser General Public License as
+published by the Free Software Foundation, either version 3 of the
+License, or (at your option) any later version.
 
 pyo is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
+GNU Lesser General Public License for more details.
 
-You should have received a copy of the GNU General Public License
-along with pyo.  If not, see <http://www.gnu.org/licenses/>.
+You should have received a copy of the GNU Lesser General Public
+License along with pyo.  If not, see <http://www.gnu.org/licenses/>.
 """
 from _core import *
 from _maps import *
@@ -37,9 +37,9 @@ class MatrixRec(PyoObject):
     See :py:class:`NewMatrix` to create an empty matrix.
 
     The play method is not called at the object creation time. It starts
-    the recording into the matrix, row after row, until the matrix is full. 
-    Calling the play method again restarts the recording and overwrites 
-    previously recorded samples. The stop method stops the recording. 
+    the recording into the matrix, row after row, until the matrix is full.
+    Calling the play method again restarts the recording and overwrites
+    previously recorded samples. The stop method stops the recording.
     Otherwise, the default behaviour is to record through the end of the matrix.
 
     :Parent: :py:class:`PyoObject`
@@ -51,10 +51,10 @@ class MatrixRec(PyoObject):
         matrix : PyoMatrixObject
             The matrix where to write samples.
         fadetime : float, optional
-            Fade time at the beginning and the end of the recording 
+            Fade time at the beginning and the end of the recording
             in seconds. Defaults to 0.
         delay : int, optional
-            Delay time, in samples, before the recording begins. 
+            Delay time, in samples, before the recording begins.
             Available at initialization time only. Defaults to 0.
 
     .. note::
@@ -63,12 +63,12 @@ class MatrixRec(PyoObject):
 
         MatrixRec has no `mul` and `add` attributes.
 
-        MatrixRec will sends a trigger signal at the end of the recording. 
+        MatrixRec will sends a trigger signal at the end of the recording.
         User can retreive the trigger streams by calling obj['trig']. See
         `TableRec` documentation for an example.
 
-    .. seealso:: 
-        
+    .. seealso::
+
         :py:class:`NewMatrix`
 
     >>> s = Server().boot()
@@ -100,14 +100,14 @@ class MatrixRec(PyoObject):
 
     def setMul(self, x):
         pass
-        
+
     def setAdd(self, x):
-        pass    
+        pass
 
     def setInput(self, x, fadetime=0.05):
         """
         Replace the `input` attribute.
-        
+
         :Args:
 
             x : PyoObject
@@ -122,12 +122,12 @@ class MatrixRec(PyoObject):
     def setMatrix(self, x):
         """
         Replace the `matrix` attribute.
-        
+
         :Args:
 
             x : NewMatrix
                 new `matrix` attribute.
-        
+
         """
         self._matrix = x
         x, lmax = convertArgsToLists(x)
@@ -135,7 +135,7 @@ class MatrixRec(PyoObject):
 
     @property
     def input(self):
-        """PyoObject. Audio signal to record in the matrix.""" 
+        """PyoObject. Audio signal to record in the matrix."""
         return self._input
     @input.setter
     def input(self, x): self.setInput(x)
@@ -153,8 +153,8 @@ class MatrixRecLoop(PyoObject):
 
     See :py:class:`NewMatrix` to create an empty matrix.
 
-    MatrixRecLoop records samples into the matrix, row after row, until 
-    the matrix is full and then loop back to the beginning. 
+    MatrixRecLoop records samples into the matrix, row after row, until
+    the matrix is full and then loop back to the beginning.
 
     :Parent: :py:class:`PyoObject`
 
@@ -171,12 +171,12 @@ class MatrixRecLoop(PyoObject):
 
         MatrixRecLoop has no `mul` and `add` attributes.
 
-        MatrixRecLoop will sends a trigger signal when reaching the end 
-        of the matrix. User can retreive the trigger streams by calling 
+        MatrixRecLoop will sends a trigger signal when reaching the end
+        of the matrix. User can retreive the trigger streams by calling
         obj['trig']. See `TableRec` documentation for an example.
 
-    .. seealso:: 
-        
+    .. seealso::
+
         :py:class:`NewMatrix`
 
     >>> s = Server().boot()
@@ -209,7 +209,7 @@ class MatrixRecLoop(PyoObject):
         pass
 
     def setAdd(self, x):
-        pass    
+        pass
 
     def setInput(self, x, fadetime=0.05):
         """
@@ -242,7 +242,7 @@ class MatrixRecLoop(PyoObject):
 
     @property
     def input(self):
-        """PyoObject. Audio signal to record in the matrix.""" 
+        """PyoObject. Audio signal to record in the matrix."""
         return self._input
     @input.setter
     def input(self, x): self.setInput(x)
@@ -295,12 +295,12 @@ class MatrixPointer(PyoObject):
     def setMatrix(self, x):
         """
         Replace the `matrix` attribute.
-        
+
         :Args:
 
             x : PyoTableObject
                 new `matrix` attribute.
-        
+
         """
         self._matrix = x
         x, lmax = convertArgsToLists(x)
@@ -309,12 +309,12 @@ class MatrixPointer(PyoObject):
     def setX(self, x):
         """
         Replace the `x` attribute.
-        
+
         :Args:
 
             x : PyoObject
                 new `x` attribute.
-        
+
         """
         self._x = x
         x, lmax = convertArgsToLists(x)
@@ -323,12 +323,12 @@ class MatrixPointer(PyoObject):
     def setY(self, x):
         """
         Replace the `y` attribute.
-        
+
         :Args:
 
             y : PyoObject
                 new `y` attribute.
-        
+
         """
         self._y = x
         x, lmax = convertArgsToLists(x)
@@ -340,21 +340,21 @@ class MatrixPointer(PyoObject):
 
     @property
     def matrix(self):
-        """PyoMatrixObject. Matrix containing the samples.""" 
+        """PyoMatrixObject. Matrix containing the samples."""
         return self._matrix
     @matrix.setter
     def matrix(self, x): self.setMatrix(x)
 
     @property
     def x(self):
-        """PyoObject. Normalized X position in the matrix.""" 
+        """PyoObject. Normalized X position in the matrix."""
         return self._x
     @x.setter
     def x(self, x): self.setX(x)
 
     @property
     def y(self):
-        """PyoObject. Normalized Y position in the matrix.""" 
+        """PyoObject. Normalized Y position in the matrix."""
         return self._y
     @y.setter
     def y(self, x): self.setY(x)
@@ -363,9 +363,9 @@ class MatrixMorph(PyoObject):
     """
     Morphs between multiple PyoMatrixObjects.
 
-    Uses an index into a list of PyoMatrixObjects to morph between adjacent 
-    matrices in the list. The resulting morphed function is written into the 
-    `matrix` object at the beginning of each buffer size. The matrices in the 
+    Uses an index into a list of PyoMatrixObjects to morph between adjacent
+    matrices in the list. The resulting morphed function is written into the
+    `matrix` object at the beginning of each buffer size. The matrices in the
     list and the resulting matrix must be equal in size.
 
     :Parent: :py:class:`PyoObject`
@@ -373,7 +373,7 @@ class MatrixMorph(PyoObject):
     :Args:
 
         input : PyoObject
-            Morphing index between 0 and 1. 0 is the first matrix in the list 
+            Morphing index between 0 and 1. 0 is the first matrix in the list
             and 1 is the last.
         matrix : NewMatrix
             The matrix where to write morphed function.
@@ -417,7 +417,7 @@ class MatrixMorph(PyoObject):
         pass
 
     def setAdd(self, x):
-        pass    
+        pass
 
     def setInput(self, x, fadetime=0.05):
         """
@@ -464,7 +464,7 @@ class MatrixMorph(PyoObject):
 
     @property
     def input(self):
-        """PyoObject. Morphing index between 0 and 1.""" 
+        """PyoObject. Morphing index between 0 and 1."""
         return self._input
     @input.setter
     def input(self, x): self.setInput(x)

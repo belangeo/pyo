@@ -1,21 +1,21 @@
-/*************************************************************************
- * Copyright 2010 Olivier Belanger                                        *                  
- *                                                                        * 
+/**************************************************************************
+ * Copyright 2009-2015 Olivier Belanger                                   *
+ *                                                                        *
  * This file is part of pyo, a python module to help digital signal       *
- * processing script creation.                                            *  
- *                                                                        * 
+ * processing script creation.                                            *
+ *                                                                        *
  * pyo is free software: you can redistribute it and/or modify            *
- * it under the terms of the GNU General Public License as published by   *
- * the Free Software Foundation, either version 3 of the License, or      *
- * (at your option) any later version.                                    * 
+ * it under the terms of the GNU Lesser General Public License as         *
+ * published by the Free Software Foundation, either version 3 of the     *
+ * License, or (at your option) any later version.                        *
  *                                                                        *
  * pyo is distributed in the hope that it will be useful,                 *
- * but WITHOUT ANY WARRANTY; without even the implied warranty of         *    
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of         *
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the          *
- * GNU General Public License for more details.                           *
+ * GNU Lesser General Public License for more details.                    *
  *                                                                        *
- * You should have received a copy of the GNU General Public License      *
- * along with pyo.  If not, see <http://www.gnu.org/licenses/>.           *
+ * You should have received a copy of the GNU Lesser General Public       *
+ * License along with pyo.  If not, see <http://www.gnu.org/licenses/>.   *
  *************************************************************************/
 
 #include <Python.h>
@@ -50,7 +50,7 @@ Delay_process_ii(Delay *self) {
 
     MYFLT del = PyFloat_AS_DOUBLE(self->delay);
     MYFLT feed = PyFloat_AS_DOUBLE(self->feedback);
-    
+
     if (del < self->oneOverSr)
         del = self->oneOverSr;
     else if (del > self->maxdelay)
@@ -61,9 +61,9 @@ Delay_process_ii(Delay *self) {
         feed = 0;
     else if (feed > 1)
         feed = 1;
-    
+
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
-    
+
     for (i=0; i<self->bufsize; i++) {
         xind = self->in_count - sampdel;
         if (xind < 0)
@@ -72,7 +72,7 @@ Delay_process_ii(Delay *self) {
         frac = xind - ind;
         val = self->buffer[ind] * (1.0 - frac) + self->buffer[ind+1] * frac;
         self->data[i] = val;
-        
+
         self->buffer[self->in_count] = in[i] + (val * feed);
         if (self->in_count == 0)
             self->buffer[self->size] = self->buffer[self->in_count];
@@ -88,16 +88,16 @@ Delay_process_ai(Delay *self) {
     int i;
     long ind;
 
-    MYFLT *delobj = Stream_getData((Stream *)self->delay_stream);    
+    MYFLT *delobj = Stream_getData((Stream *)self->delay_stream);
     MYFLT feed = PyFloat_AS_DOUBLE(self->feedback);
 
     if (feed < 0)
         feed = 0;
     else if (feed > 1)
         feed = 1;
-    
+
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
-    
+
     for (i=0; i<self->bufsize; i++) {
         del = delobj[i];
         if (del < self->oneOverSr)
@@ -112,7 +112,7 @@ Delay_process_ai(Delay *self) {
         frac = xind - ind;
         val = self->buffer[ind] * (1.0 - frac) + self->buffer[ind+1] * frac;
         self->data[i] = val;
-        
+
         self->buffer[self->in_count] = in[i]  + (val * feed);
         if (self->in_count == 0)
             self->buffer[self->size] = self->buffer[self->in_count];
@@ -127,18 +127,18 @@ Delay_process_ia(Delay *self) {
     MYFLT val, xind, frac, feed;
     int i;
     long ind;
-    
+
     MYFLT del = PyFloat_AS_DOUBLE(self->delay);
-    MYFLT *fdb = Stream_getData((Stream *)self->feedback_stream);    
-    
+    MYFLT *fdb = Stream_getData((Stream *)self->feedback_stream);
+
     if (del < self->oneOverSr)
         del = self->oneOverSr;
     else if (del > self->maxdelay)
         del = self->maxdelay;
     MYFLT sampdel = del * self->sr;
-       
+
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
-    
+
     for (i=0; i<self->bufsize; i++) {
         xind = self->in_count - sampdel;
         if (xind < 0)
@@ -153,7 +153,7 @@ Delay_process_ia(Delay *self) {
             feed = 0;
         else if (feed > 1)
             feed = 1;
-        
+
         self->buffer[self->in_count] = in[i] + (val * feed);
         if (self->in_count == 0)
             self->buffer[self->size] = self->buffer[self->in_count];
@@ -168,12 +168,12 @@ Delay_process_aa(Delay *self) {
     MYFLT val, xind, frac, sampdel, feed, del;
     int i;
     long ind;
-    
-    MYFLT *delobj = Stream_getData((Stream *)self->delay_stream);    
-    MYFLT *fdb = Stream_getData((Stream *)self->feedback_stream);    
-  
+
+    MYFLT *delobj = Stream_getData((Stream *)self->delay_stream);
+    MYFLT *fdb = Stream_getData((Stream *)self->feedback_stream);
+
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
-    
+
     for (i=0; i<self->bufsize; i++) {
         del = delobj[i];
         if (del < self->oneOverSr)
@@ -188,13 +188,13 @@ Delay_process_aa(Delay *self) {
         frac = xind - ind;
         val = self->buffer[ind] * (1.0 - frac) + self->buffer[ind+1] * frac;
         self->data[i] = val;
-        
+
         feed = fdb[i];
         if (feed < 0)
             feed = 0;
         else if (feed > 1)
             feed = 1;
-        
+
         self->buffer[self->in_count] = in[i] + (val * feed);
         if (self->in_count == 0)
             self->buffer[self->size] = self->buffer[self->in_count];
@@ -222,54 +222,54 @@ Delay_setProcMode(Delay *self)
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
 
 	switch (procmode) {
-        case 0:    
+        case 0:
             self->proc_func_ptr = Delay_process_ii;
             break;
-        case 1:    
+        case 1:
             self->proc_func_ptr = Delay_process_ai;
             break;
-        case 10:    
+        case 10:
             self->proc_func_ptr = Delay_process_ia;
             break;
-        case 11:    
+        case 11:
             self->proc_func_ptr = Delay_process_aa;
             break;
-    } 
+    }
 	switch (muladdmode) {
-        case 0:        
+        case 0:
             self->muladd_func_ptr = Delay_postprocessing_ii;
             break;
-        case 1:    
+        case 1:
             self->muladd_func_ptr = Delay_postprocessing_ai;
             break;
-        case 2:    
+        case 2:
             self->muladd_func_ptr = Delay_postprocessing_revai;
             break;
-        case 10:        
+        case 10:
             self->muladd_func_ptr = Delay_postprocessing_ia;
             break;
-        case 11:    
+        case 11:
             self->muladd_func_ptr = Delay_postprocessing_aa;
             break;
-        case 12:    
+        case 12:
             self->muladd_func_ptr = Delay_postprocessing_revaa;
             break;
-        case 20:        
+        case 20:
             self->muladd_func_ptr = Delay_postprocessing_ireva;
             break;
-        case 21:    
+        case 21:
             self->muladd_func_ptr = Delay_postprocessing_areva;
             break;
-        case 22:    
+        case 22:
             self->muladd_func_ptr = Delay_postprocessing_revareva;
             break;
-    } 
+    }
 }
 
 static void
 Delay_compute_next_data_frame(Delay *self)
 {
-    (*self->proc_func_ptr)(self); 
+    (*self->proc_func_ptr)(self);
     (*self->muladd_func_ptr)(self);
 }
 
@@ -278,24 +278,24 @@ Delay_traverse(Delay *self, visitproc visit, void *arg)
 {
     pyo_VISIT
     Py_VISIT(self->input);
-    Py_VISIT(self->input_stream);    
-    Py_VISIT(self->delay);    
-    Py_VISIT(self->delay_stream);    
-    Py_VISIT(self->feedback);    
-    Py_VISIT(self->feedback_stream);    
+    Py_VISIT(self->input_stream);
+    Py_VISIT(self->delay);
+    Py_VISIT(self->delay_stream);
+    Py_VISIT(self->feedback);
+    Py_VISIT(self->feedback_stream);
     return 0;
 }
 
-static int 
+static int
 Delay_clear(Delay *self)
 {
     pyo_CLEAR
     Py_CLEAR(self->input);
-    Py_CLEAR(self->input_stream);    
-    Py_CLEAR(self->delay);    
-    Py_CLEAR(self->delay_stream);    
-    Py_CLEAR(self->feedback);    
-    Py_CLEAR(self->feedback_stream);    
+    Py_CLEAR(self->input_stream);
+    Py_CLEAR(self->delay);
+    Py_CLEAR(self->delay_stream);
+    Py_CLEAR(self->feedback);
+    Py_CLEAR(self->feedback_stream);
     return 0;
 }
 
@@ -326,7 +326,7 @@ Delay_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 	self->modebuffer[3] = 0;
 
     INIT_OBJECT_COMMON
-    
+
     self->oneOverSr = 1.0 / self->sr;
 
     Stream_setFunctionPtr(self->stream, Delay_compute_next_data_frame);
@@ -346,7 +346,7 @@ Delay_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (feedbacktmp) {
         PyObject_CallMethod((PyObject *)self, "setFeedback", "O", feedbacktmp);
     }
-    
+
     if (multmp) {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
     }
@@ -354,7 +354,7 @@ Delay_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (addtmp) {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
-            
+
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
     self->size = (long)(self->maxdelay * self->sr + 0.5);
@@ -362,19 +362,19 @@ Delay_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->buffer = (MYFLT *)realloc(self->buffer, (self->size+1) * sizeof(MYFLT));
     for (i=0; i<(self->size+1); i++) {
         self->buffer[i] = 0.;
-    }    
+    }
 
     (*self->mode_func_ptr)(self);
-    
+
     return (PyObject *)self;
 }
 
 static PyObject * Delay_getServer(Delay* self) { GET_SERVER };
 static PyObject * Delay_getStream(Delay* self) { GET_STREAM };
-static PyObject * Delay_setMul(Delay *self, PyObject *arg) { SET_MUL };	
-static PyObject * Delay_setAdd(Delay *self, PyObject *arg) { SET_ADD };	
-static PyObject * Delay_setSub(Delay *self, PyObject *arg) { SET_SUB };	
-static PyObject * Delay_setDiv(Delay *self, PyObject *arg) { SET_DIV };	
+static PyObject * Delay_setMul(Delay *self, PyObject *arg) { SET_MUL };
+static PyObject * Delay_setAdd(Delay *self, PyObject *arg) { SET_ADD };
+static PyObject * Delay_setSub(Delay *self, PyObject *arg) { SET_SUB };
+static PyObject * Delay_setDiv(Delay *self, PyObject *arg) { SET_DIV };
 
 static PyObject * Delay_play(Delay *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * Delay_out(Delay *self, PyObject *args, PyObject *kwds) { OUT };
@@ -393,12 +393,12 @@ static PyObject *
 Delay_setDelay(Delay *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
-	
+
 	if (arg == NULL) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
 	int isNumber = PyNumber_Check(arg);
 
 	tmp = arg;
@@ -416,25 +416,25 @@ Delay_setDelay(Delay *self, PyObject *arg)
         self->delay_stream = (Stream *)streamtmp;
 		self->modebuffer[2] = 1;
 	}
-    
+
     (*self->mode_func_ptr)(self);
-    
+
 	Py_INCREF(Py_None);
 	return Py_None;
-}	
+}
 
 static PyObject *
 Delay_setFeedback(Delay *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
-	
+
 	if (arg == NULL) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
 	int isNumber = PyNumber_Check(arg);
-    
+
 	tmp = arg;
 	Py_INCREF(tmp);
 	Py_DECREF(self->feedback);
@@ -450,12 +450,12 @@ Delay_setFeedback(Delay *self, PyObject *arg)
         self->feedback_stream = (Stream *)streamtmp;
 		self->modebuffer[3] = 1;
 	}
-    
+
     (*self->mode_func_ptr)(self);
-    
+
 	Py_INCREF(Py_None);
 	return Py_None;
-}	
+}
 
 static PyObject *
 Delay_reset(Delay *self)
@@ -463,7 +463,7 @@ Delay_reset(Delay *self)
     int i;
     for (i=0; i<(self->size+1); i++) {
         self->buffer[i] = 0.;
-    }    
+    }
 	Py_INCREF(Py_None);
 	return Py_None;
 }
@@ -594,11 +594,11 @@ typedef struct {
 
 static void
 SDelay_process_i(SDelay *self) {
-    int i; 
+    int i;
     long ind;
-    
+
     MYFLT del = PyFloat_AS_DOUBLE(self->delay);
-    
+
     if (del < 0.)
         del = 0.;
     else if (del > self->maxdelay)
@@ -615,13 +615,13 @@ SDelay_process_i(SDelay *self) {
                 self->in_count = 0;
         }
     }
-    else {    
+    else {
         for (i=0; i<self->bufsize; i++) {
             ind = self->in_count - sampdel;
             if (ind < 0)
                 ind += self->size;
             self->data[i] = self->buffer[ind];
-        
+
             self->buffer[self->in_count] = in[i];
             self->in_count++;
             if (self->in_count >= self->size)
@@ -633,12 +633,12 @@ SDelay_process_i(SDelay *self) {
 static void
 SDelay_process_a(SDelay *self) {
     MYFLT del;
-    int i; 
+    int i;
     long ind, sampdel;
-    
+
     MYFLT *delobj = Stream_getData((Stream *)self->delay_stream);
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
-    
+
     for (i=0; i<self->bufsize; i++) {
         del = delobj[i];
         if (del < 0.)
@@ -677,50 +677,50 @@ SDelay_setProcMode(SDelay *self)
     int procmode, muladdmode;
     procmode = self->modebuffer[2];
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
-    
+
 	switch (procmode) {
-        case 0:    
+        case 0:
             self->proc_func_ptr = SDelay_process_i;
             break;
-        case 1:    
+        case 1:
             self->proc_func_ptr = SDelay_process_a;
             break;
-    } 
+    }
 	switch (muladdmode) {
-        case 0:        
+        case 0:
             self->muladd_func_ptr = SDelay_postprocessing_ii;
             break;
-        case 1:    
+        case 1:
             self->muladd_func_ptr = SDelay_postprocessing_ai;
             break;
-        case 2:    
+        case 2:
             self->muladd_func_ptr = SDelay_postprocessing_revai;
             break;
-        case 10:        
+        case 10:
             self->muladd_func_ptr = SDelay_postprocessing_ia;
             break;
-        case 11:    
+        case 11:
             self->muladd_func_ptr = SDelay_postprocessing_aa;
             break;
-        case 12:    
+        case 12:
             self->muladd_func_ptr = SDelay_postprocessing_revaa;
             break;
-        case 20:        
+        case 20:
             self->muladd_func_ptr = SDelay_postprocessing_ireva;
             break;
-        case 21:    
+        case 21:
             self->muladd_func_ptr = SDelay_postprocessing_areva;
             break;
-        case 22:    
+        case 22:
             self->muladd_func_ptr = SDelay_postprocessing_revareva;
             break;
-    } 
+    }
 }
 
 static void
 SDelay_compute_next_data_frame(SDelay *self)
 {
-    (*self->proc_func_ptr)(self); 
+    (*self->proc_func_ptr)(self);
     (*self->muladd_func_ptr)(self);
 }
 
@@ -729,20 +729,20 @@ SDelay_traverse(SDelay *self, visitproc visit, void *arg)
 {
     pyo_VISIT
     Py_VISIT(self->input);
-    Py_VISIT(self->input_stream);    
-    Py_VISIT(self->delay);    
-    Py_VISIT(self->delay_stream);    
+    Py_VISIT(self->input_stream);
+    Py_VISIT(self->delay);
+    Py_VISIT(self->delay_stream);
     return 0;
 }
 
-static int 
+static int
 SDelay_clear(SDelay *self)
 {
     pyo_CLEAR
     Py_CLEAR(self->input);
-    Py_CLEAR(self->input_stream);    
-    Py_CLEAR(self->delay);    
-    Py_CLEAR(self->delay_stream);    
+    Py_CLEAR(self->input_stream);
+    Py_CLEAR(self->delay);
+    Py_CLEAR(self->delay_stream);
     return 0;
 }
 
@@ -762,46 +762,46 @@ SDelay_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp, *delaytmp=NULL, *multmp=NULL, *addtmp=NULL;
     SDelay *self;
     self = (SDelay *)type->tp_alloc(type, 0);
-    
+
     self->delay = PyFloat_FromDouble(0.25);
     self->maxdelay = 1;
     self->in_count = 0;
 	self->modebuffer[0] = 0;
 	self->modebuffer[1] = 0;
 	self->modebuffer[2] = 0;
-    
+
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, SDelay_compute_next_data_frame);
     self->mode_func_ptr = SDelay_setProcMode;
 
     static char *kwlist[] = {"input", "delay", "maxdelay", "mul", "add", NULL};
-    
+
     if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_O_OFOO, kwlist, &inputtmp, &delaytmp, &self->maxdelay, &multmp, &addtmp))
         Py_RETURN_NONE;
-    
+
     INIT_INPUT_STREAM
-    
+
     if (delaytmp) {
         PyObject_CallMethod((PyObject *)self, "setDelay", "O", delaytmp);
     }
-    
+
     if (multmp) {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
     }
-    
+
     if (addtmp) {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
-    
+
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
-    
+
     self->size = (long)(self->maxdelay * self->sr + 0.5);
-    
+
     self->buffer = (MYFLT *)realloc(self->buffer, (self->size+1) * sizeof(MYFLT));
     for (i=0; i<(self->size+1); i++) {
         self->buffer[i] = 0.;
-    }    
-    
+    }
+
     (*self->mode_func_ptr)(self);
 
     return (PyObject *)self;
@@ -809,10 +809,10 @@ SDelay_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
 static PyObject * SDelay_getServer(SDelay* self) { GET_SERVER };
 static PyObject * SDelay_getStream(SDelay* self) { GET_STREAM };
-static PyObject * SDelay_setMul(SDelay *self, PyObject *arg) { SET_MUL };	
-static PyObject * SDelay_setAdd(SDelay *self, PyObject *arg) { SET_ADD };	
-static PyObject * SDelay_setSub(SDelay *self, PyObject *arg) { SET_SUB };	
-static PyObject * SDelay_setDiv(SDelay *self, PyObject *arg) { SET_DIV };	
+static PyObject * SDelay_setMul(SDelay *self, PyObject *arg) { SET_MUL };
+static PyObject * SDelay_setAdd(SDelay *self, PyObject *arg) { SET_ADD };
+static PyObject * SDelay_setSub(SDelay *self, PyObject *arg) { SET_SUB };
+static PyObject * SDelay_setDiv(SDelay *self, PyObject *arg) { SET_DIV };
 
 static PyObject * SDelay_play(SDelay *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * SDelay_out(SDelay *self, PyObject *args, PyObject *kwds) { OUT };
@@ -831,14 +831,14 @@ static PyObject *
 SDelay_setDelay(SDelay *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
-	
+
 	if (arg == NULL) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
 	int isNumber = PyNumber_Check(arg);
-    
+
 	tmp = arg;
 	Py_INCREF(tmp);
 	Py_DECREF(self->delay);
@@ -854,12 +854,12 @@ SDelay_setDelay(SDelay *self, PyObject *arg)
         self->delay_stream = (Stream *)streamtmp;
 		self->modebuffer[2] = 1;
 	}
-    
+
     (*self->mode_func_ptr)(self);
-    
+
 	Py_INCREF(Py_None);
 	return Py_None;
-}	
+}
 
 static PyObject *
 SDelay_reset(SDelay *self)
@@ -867,7 +867,7 @@ SDelay_reset(SDelay *self)
     int i;
     for (i=0; i<(self->size+1); i++) {
         self->buffer[i] = 0.;
-    }    
+    }
 	Py_INCREF(Py_None);
 	return Py_None;
 }
@@ -1013,9 +1013,9 @@ static void
 Waveguide_process_ii(Waveguide *self) {
     MYFLT val, x, y, sampdel, frac, feed, tmp;
     int i, ind, isamp;
-    
+
     MYFLT fr = PyFloat_AS_DOUBLE(self->freq);
-    MYFLT dur = PyFloat_AS_DOUBLE(self->dur); 
+    MYFLT dur = PyFloat_AS_DOUBLE(self->dur);
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
 
     /* Check boundaries */
@@ -1023,11 +1023,11 @@ Waveguide_process_ii(Waveguide *self) {
         fr = self->minfreq;
     else if (fr >= self->nyquist)
         fr = self->nyquist;
-    
+
     if (dur <= 0)
         dur = 0.1;
-    
-    
+
+
     sampdel = self->lastSampDel;
     feed = self->lastFeed;
     /* lagrange coeffs and feedback coeff */
@@ -1042,25 +1042,25 @@ Waveguide_process_ii(Waveguide *self) {
         self->coeffs[2] = frac*(frac-1)*(frac-3)*(frac-4)/4.0;
         self->coeffs[3] = -frac*(frac-1)*(frac-2)*(frac-4)/6.0;
         self->coeffs[4] = frac*(frac-1)*(frac-2)*(frac-3)/24.0;
-        
+
         self->lastDur = dur;
         feed = MYPOW(100, -1.0/(fr*dur));
         self->lastFeed = feed;
-    } 
+    }
     else if (dur != self->lastDur) {
         self->lastDur = dur;
         feed = MYPOW(100, -1.0/(fr*dur));
         self->lastFeed = feed;
     }
-    
+
     /* pick a new value in th delay line */
-    isamp = (int)sampdel;  
+    isamp = (int)sampdel;
     for (i=0; i<self->bufsize; i++) {
         ind = self->in_count - isamp;
         if (ind < 0)
             ind += self->size;
         val = self->buffer[ind];
-        
+
         /* simple lowpass filtering */
         tmp = val;
         val = (val + self->lpsamp) * 0.5;
@@ -1080,7 +1080,7 @@ Waveguide_process_ii(Waveguide *self) {
         self->yn1 = y;
 
         self->data[i] = y;
-        
+
         /* write current value in the delay line */
         self->buffer[self->in_count] = in[i] + (x * feed);
         if (self->in_count == 0)
@@ -1095,11 +1095,11 @@ static void
 Waveguide_process_ai(Waveguide *self) {
     MYFLT val, x, y, sampdel, frac, feed, freq, tmp;
     int i, ind, isamp;
-    
+
     MYFLT *fr =Stream_getData((Stream *)self->freq_stream);
-    MYFLT dur = PyFloat_AS_DOUBLE(self->dur); 
+    MYFLT dur = PyFloat_AS_DOUBLE(self->dur);
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
-    
+
     /* Check dur boundary */
     if (dur <= 0)
         dur = 0.1;
@@ -1126,7 +1126,7 @@ Waveguide_process_ai(Waveguide *self) {
             self->coeffs[2] = frac*(frac-1)*(frac-3)*(frac-4)/4.0;
             self->coeffs[3] = -frac*(frac-1)*(frac-2)*(frac-4)/6.0;
             self->coeffs[4] = frac*(frac-1)*(frac-2)*(frac-3)/24.0;
-            
+
             self->lastDur = dur;
             feed = MYPOW(100, -1.0/(freq*dur));
             self->lastFeed = feed;
@@ -1138,18 +1138,18 @@ Waveguide_process_ai(Waveguide *self) {
         }
 
         /* pick a new value in th delay line */
-        isamp = (int)sampdel;        
-        
+        isamp = (int)sampdel;
+
         ind = self->in_count - isamp;
         if (ind < 0)
             ind += self->size;
         val = self->buffer[ind];
-        
+
         /* simple lowpass filtering */
         tmp = val;
         val = (val + self->lpsamp) * 0.5;
         self->lpsamp = tmp;
-        
+
         /* lagrange filtering */
         x = (val*self->coeffs[0])+(self->lagrange[0]*self->coeffs[1])+(self->lagrange[1]*self->coeffs[2])+
             (self->lagrange[2]*self->coeffs[3])+(self->lagrange[3]*self->coeffs[4]);
@@ -1162,9 +1162,9 @@ Waveguide_process_ai(Waveguide *self) {
         y = x - self->xn1 + 0.995 * self->yn1;
         self->xn1 = x;
         self->yn1 = y;
-        
+
         self->data[i] = y;
-        
+
         /* write current value in the delay line */
         self->buffer[self->in_count] = in[i] + (x * feed);
         if (self->in_count == 0)
@@ -1180,11 +1180,11 @@ static void
 Waveguide_process_ia(Waveguide *self) {
     MYFLT val, x, y, sampdel, frac, feed, dur, tmp;
     int i, ind, isamp;
-    
+
     MYFLT fr = PyFloat_AS_DOUBLE(self->freq);
     MYFLT *du = Stream_getData((Stream *)self->dur_stream);
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
-    
+
     /* Check boundaries */
     if (fr < self->minfreq)
         fr = self->minfreq;
@@ -1205,9 +1205,9 @@ Waveguide_process_ia(Waveguide *self) {
         self->coeffs[3] = -frac*(frac-1)*(frac-2)*(frac-4)/6.0;
         self->coeffs[4] = frac*(frac-1)*(frac-2)*(frac-3)/24.0;
     }
-    
+
     /* pick a new value in th delay line */
-    isamp = (int)sampdel;  
+    isamp = (int)sampdel;
     for (i=0; i<self->bufsize; i++) {
         feed = self->lastFeed;
         dur = du[i];
@@ -1222,12 +1222,12 @@ Waveguide_process_ia(Waveguide *self) {
         if (ind < 0)
             ind += self->size;
         val = self->buffer[ind];
-        
+
         /* simple lowpass filtering */
         tmp = val;
         val = (val + self->lpsamp) * 0.5;
         self->lpsamp = tmp;
-        
+
         /* lagrange filtering */
         x = (val*self->coeffs[0])+(self->lagrange[0]*self->coeffs[1])+(self->lagrange[1]*self->coeffs[2])+
             (self->lagrange[2]*self->coeffs[3])+(self->lagrange[3]*self->coeffs[4]);
@@ -1240,9 +1240,9 @@ Waveguide_process_ia(Waveguide *self) {
         y = x - self->xn1 + 0.995 * self->yn1;
         self->xn1 = x;
         self->yn1 = y;
-        
+
         self->data[i] = y;
-        
+
         /* write current value in the delay line */
         self->buffer[self->in_count] = in[i] + (x * feed);
         if (self->in_count == 0)
@@ -1258,11 +1258,11 @@ static void
 Waveguide_process_aa(Waveguide *self) {
     MYFLT val, x, y, sampdel, frac, feed, freq, dur, tmp;
     int i, ind, isamp;
-    
+
     MYFLT *fr = Stream_getData((Stream *)self->freq_stream);
-    MYFLT *du = Stream_getData((Stream *)self->dur_stream); 
+    MYFLT *du = Stream_getData((Stream *)self->dur_stream);
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
-    
+
     for (i=0; i<self->bufsize; i++) {
         freq = fr[i];
         dur = du[i];
@@ -1274,7 +1274,7 @@ Waveguide_process_aa(Waveguide *self) {
 
         if (dur <= 0)
             dur = 0.1;
-        
+
         sampdel = self->lastSampDel;
         feed = self->lastFeed;
         /* lagrange coeffs and feedback coeff */
@@ -1289,7 +1289,7 @@ Waveguide_process_aa(Waveguide *self) {
             self->coeffs[2] = frac*(frac-1)*(frac-3)*(frac-4)/4.0;
             self->coeffs[3] = -frac*(frac-1)*(frac-2)*(frac-4)/6.0;
             self->coeffs[4] = frac*(frac-1)*(frac-2)*(frac-3)/24.0;
-            
+
             self->lastDur = dur;
             feed = MYPOW(100, -1.0/(freq*dur));
             self->lastFeed = feed;
@@ -1299,20 +1299,20 @@ Waveguide_process_aa(Waveguide *self) {
             feed = MYPOW(100, -1.0/(freq*dur));
             self->lastFeed = feed;
         }
-        
+
         /* pick a new value in th delay line */
-        isamp = (int)sampdel;        
-        
+        isamp = (int)sampdel;
+
         ind = self->in_count - isamp;
         if (ind < 0)
             ind += self->size;
         val = self->buffer[ind];
-        
+
         /* simple lowpass filtering */
         tmp = val;
         val = (val + self->lpsamp) * 0.5;
         self->lpsamp = tmp;
-        
+
         /* lagrange filtering */
         x = (val*self->coeffs[0])+(self->lagrange[0]*self->coeffs[1])+(self->lagrange[1]*self->coeffs[2])+
             (self->lagrange[2]*self->coeffs[3])+(self->lagrange[3]*self->coeffs[4]);
@@ -1320,14 +1320,14 @@ Waveguide_process_aa(Waveguide *self) {
         self->lagrange[2] = self->lagrange[1];
         self->lagrange[1] = self->lagrange[0];
         self->lagrange[0] = val;
-  
+
         /* DC filtering */
         y = x - self->xn1 + 0.995 * self->yn1;
         self->xn1 = x;
         self->yn1 = y;
-        
+
         self->data[i] = y;
-        
+
         /* write current value in the delay line */
         self->buffer[self->in_count] = in[i] + (x * feed);
         if (self->in_count == 0)
@@ -1354,56 +1354,56 @@ Waveguide_setProcMode(Waveguide *self)
     int procmode, muladdmode;
     procmode = self->modebuffer[2] + self->modebuffer[3] * 10;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
-    
+
 	switch (procmode) {
-        case 0:    
+        case 0:
             self->proc_func_ptr = Waveguide_process_ii;
             break;
-        case 1:    
+        case 1:
             self->proc_func_ptr = Waveguide_process_ai;
             break;
-        case 10:    
+        case 10:
             self->proc_func_ptr = Waveguide_process_ia;
             break;
-        case 11:    
+        case 11:
             self->proc_func_ptr = Waveguide_process_aa;
             break;
-    } 
+    }
 	switch (muladdmode) {
-        case 0:        
+        case 0:
             self->muladd_func_ptr = Waveguide_postprocessing_ii;
             break;
-        case 1:    
+        case 1:
             self->muladd_func_ptr = Waveguide_postprocessing_ai;
             break;
-        case 2:    
+        case 2:
             self->muladd_func_ptr = Waveguide_postprocessing_revai;
             break;
-        case 10:        
+        case 10:
             self->muladd_func_ptr = Waveguide_postprocessing_ia;
             break;
-        case 11:    
+        case 11:
             self->muladd_func_ptr = Waveguide_postprocessing_aa;
             break;
-        case 12:    
+        case 12:
             self->muladd_func_ptr = Waveguide_postprocessing_revaa;
             break;
-        case 20:        
+        case 20:
             self->muladd_func_ptr = Waveguide_postprocessing_ireva;
             break;
-        case 21:    
+        case 21:
             self->muladd_func_ptr = Waveguide_postprocessing_areva;
             break;
-        case 22:    
+        case 22:
             self->muladd_func_ptr = Waveguide_postprocessing_revareva;
             break;
-    } 
+    }
 }
 
 static void
 Waveguide_compute_next_data_frame(Waveguide *self)
 {
-    (*self->proc_func_ptr)(self); 
+    (*self->proc_func_ptr)(self);
     (*self->muladd_func_ptr)(self);
 }
 
@@ -1412,24 +1412,24 @@ Waveguide_traverse(Waveguide *self, visitproc visit, void *arg)
 {
     pyo_VISIT
     Py_VISIT(self->input);
-    Py_VISIT(self->input_stream);    
-    Py_VISIT(self->freq);    
-    Py_VISIT(self->freq_stream);    
-    Py_VISIT(self->dur);    
-    Py_VISIT(self->dur_stream);    
+    Py_VISIT(self->input_stream);
+    Py_VISIT(self->freq);
+    Py_VISIT(self->freq_stream);
+    Py_VISIT(self->dur);
+    Py_VISIT(self->dur_stream);
     return 0;
 }
 
-static int 
+static int
 Waveguide_clear(Waveguide *self)
 {
     pyo_CLEAR
     Py_CLEAR(self->input);
-    Py_CLEAR(self->input_stream);    
-    Py_CLEAR(self->freq);    
-    Py_CLEAR(self->freq_stream);    
-    Py_CLEAR(self->dur);    
-    Py_CLEAR(self->dur_stream);    
+    Py_CLEAR(self->input_stream);
+    Py_CLEAR(self->freq);
+    Py_CLEAR(self->freq_stream);
+    Py_CLEAR(self->dur);
+    Py_CLEAR(self->dur_stream);
     return 0;
 }
 
@@ -1449,7 +1449,7 @@ Waveguide_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp, *freqtmp=NULL, *durtmp=NULL, *multmp=NULL, *addtmp=NULL;
     Waveguide *self;
     self = (Waveguide *)type->tp_alloc(type, 0);
-    
+
     self->freq = PyFloat_FromDouble(100);
     self->dur = PyFloat_FromDouble(0.99);
     self->minfreq = 20;
@@ -1461,64 +1461,64 @@ Waveguide_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->lpsamp = 0.0;
     for(i=0; i<4; i++) {
         self->lagrange[i] = 0.0;
-    }    
+    }
     self->xn1 = 0.0;
     self->yn1 = 0.0;
 	self->modebuffer[0] = 0;
 	self->modebuffer[1] = 0;
 	self->modebuffer[2] = 0;
 	self->modebuffer[3] = 0;
-    
+
     INIT_OBJECT_COMMON
-    
+
     self->nyquist = (MYFLT)self->sr * 0.45;
 
     Stream_setFunctionPtr(self->stream, Waveguide_compute_next_data_frame);
     self->mode_func_ptr = Waveguide_setProcMode;
 
     static char *kwlist[] = {"input", "freq", "dur", "minfreq", "mul", "add", NULL};
-    
+
     if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_O_OOFOO, kwlist, &inputtmp, &freqtmp, &durtmp, &self->minfreq, &multmp, &addtmp))
         Py_RETURN_NONE;
-    
+
     INIT_INPUT_STREAM
-    
+
     if (freqtmp) {
         PyObject_CallMethod((PyObject *)self, "setFreq", "O", freqtmp);
     }
-    
+
     if (durtmp) {
         PyObject_CallMethod((PyObject *)self, "setDur", "O", durtmp);
     }
-    
+
     if (multmp) {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
     }
-    
+
     if (addtmp) {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
-    
+
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
-    
+
     self->size = (long)(1.0 / self->minfreq * self->sr + 0.5);
-    
+
     self->buffer = (MYFLT *)realloc(self->buffer, (self->size+1) * sizeof(MYFLT));
     for (i=0; i<(self->size+1); i++) {
         self->buffer[i] = 0.;
-    }    
-    
+    }
+
     (*self->mode_func_ptr)(self);
-    
+
     return (PyObject *)self;
 }
 
 static PyObject * Waveguide_getServer(Waveguide* self) { GET_SERVER };
 static PyObject * Waveguide_getStream(Waveguide* self) { GET_STREAM };
-static PyObject * Waveguide_setMul(Waveguide *self, PyObject *arg) { SET_MUL };	
-static PyObject * Waveguide_setAdd(Waveguide *self, PyObject *arg) { SET_ADD };	
-static PyObject * Waveguide_setSub(Waveguide *self, PyObject *arg) { SET_SUB };	
-static PyObject * Waveguide_setDiv(Waveguide *self, PyObject *arg) { SET_DIV };	
+static PyObject * Waveguide_setMul(Waveguide *self, PyObject *arg) { SET_MUL };
+static PyObject * Waveguide_setAdd(Waveguide *self, PyObject *arg) { SET_ADD };
+static PyObject * Waveguide_setSub(Waveguide *self, PyObject *arg) { SET_SUB };
+static PyObject * Waveguide_setDiv(Waveguide *self, PyObject *arg) { SET_DIV };
 
 static PyObject * Waveguide_play(Waveguide *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * Waveguide_out(Waveguide *self, PyObject *args, PyObject *kwds) { OUT };
@@ -1537,14 +1537,14 @@ static PyObject *
 Waveguide_setFreq(Waveguide *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
-	
+
 	if (arg == NULL) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
 	int isNumber = PyNumber_Check(arg);
-    
+
 	tmp = arg;
 	Py_INCREF(tmp);
 	Py_DECREF(self->freq);
@@ -1560,25 +1560,25 @@ Waveguide_setFreq(Waveguide *self, PyObject *arg)
         self->freq_stream = (Stream *)streamtmp;
 		self->modebuffer[2] = 1;
 	}
-    
+
     (*self->mode_func_ptr)(self);
-    
+
 	Py_INCREF(Py_None);
 	return Py_None;
-}	
+}
 
 static PyObject *
 Waveguide_setDur(Waveguide *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
-	
+
 	if (arg == NULL) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
 	int isNumber = PyNumber_Check(arg);
-    
+
 	tmp = arg;
 	Py_INCREF(tmp);
 	Py_DECREF(self->dur);
@@ -1594,12 +1594,12 @@ Waveguide_setDur(Waveguide *self, PyObject *arg)
         self->dur_stream = (Stream *)streamtmp;
 		self->modebuffer[3] = 1;
 	}
-    
+
     (*self->mode_func_ptr)(self);
-    
+
 	Py_INCREF(Py_None);
 	return Py_None;
-}	
+}
 
 static PyMemberDef Waveguide_members[] = {
 {"server", T_OBJECT_EX, offsetof(Waveguide, server), 0, "Pyo server."},
@@ -1745,12 +1745,12 @@ AllpassWG_process_iii(AllpassWG *self) {
     int i, j;
     long ind;
     MYFLT val, y, xind, sampdel, frac, freqshift, alpsampdel, alpsampdelin, alpdetune;
-    
+
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
     MYFLT fr = PyFloat_AS_DOUBLE(self->freq);
-    MYFLT feed = PyFloat_AS_DOUBLE(self->feed); 
+    MYFLT feed = PyFloat_AS_DOUBLE(self->feed);
     MYFLT detune = PyFloat_AS_DOUBLE(self->detune);
-    
+
     /* Check boundaries */
     if (fr < self->minfreq)
         fr = self->minfreq;
@@ -1767,7 +1767,7 @@ AllpassWG_process_iii(AllpassWG *self) {
         detune = 0.05;
     else if (detune > 1.0)
         detune = 1.0;
-    
+
     sampdel = self->sr / (fr * freqshift);
     alpdetune = detune * self->alpsize;
 
@@ -1779,7 +1779,7 @@ AllpassWG_process_iii(AllpassWG *self) {
         ind = (long)xind;
         frac = xind - ind;
         val = self->buffer[ind] + (self->buffer[ind+1] - self->buffer[ind]) * frac;
-        
+
         /* all-pass filter */
         for (j=0; j<3; j++) {
             xind = self->alp_in_count[j] - (alpdetune * alp_chorus_factor[j]);
@@ -1798,19 +1798,19 @@ AllpassWG_process_iii(AllpassWG *self) {
             if (self->alp_in_count[j] == self->alpsize)
                 self->alp_in_count[j] = 0;
         }
-        
+
         /* DC filtering and output */
         y = val - self->xn1 + 0.995 * self->yn1;
         self->xn1 = val;
         self->data[i] = self->yn1 = y;
-        
+
         /* write current value in the delay line */
         self->buffer[self->in_count] = in[i] + val * feed;
         if (self->in_count == 0)
             self->buffer[self->size] = self->buffer[0];
         self->in_count++;
         if (self->in_count == self->size)
-            self->in_count = 0;        
+            self->in_count = 0;
     }
 }
 
@@ -1819,12 +1819,12 @@ AllpassWG_process_aii(AllpassWG *self) {
     int i, j;
     long ind;
     MYFLT val, y, xind, sampdel, frac, fr, freqshift, alpsampdel, alpsampdelin, alpdetune;
-    
+
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
     MYFLT *freq = Stream_getData((Stream *)self->freq_stream);
-    MYFLT feed = PyFloat_AS_DOUBLE(self->feed); 
+    MYFLT feed = PyFloat_AS_DOUBLE(self->feed);
     MYFLT detune = PyFloat_AS_DOUBLE(self->detune);
-    
+
     feed *= 0.4525;
     if (feed > 0.4525)
         feed = 0.4525;
@@ -1836,7 +1836,7 @@ AllpassWG_process_aii(AllpassWG *self) {
         detune = 0.05;
     else if (detune > 1.0)
         detune = 1.0;
-    
+
     alpdetune = detune * self->alpsize;
     for (i=0; i<self->bufsize; i++) {
         fr = freq[i];
@@ -1844,7 +1844,7 @@ AllpassWG_process_aii(AllpassWG *self) {
             fr = self->minfreq;
         else if (fr >= self->nyquist)
             fr = self->nyquist;
-        
+
         /* pick a new value in the delay line */
         sampdel = self->sr / (fr * freqshift);
         xind = self->in_count - sampdel;
@@ -1853,7 +1853,7 @@ AllpassWG_process_aii(AllpassWG *self) {
         ind = (long)xind;
         frac = xind - ind;
         val = self->buffer[ind] + (self->buffer[ind+1] - self->buffer[ind]) * frac;
-        
+
         /* all-pass filter */
         for (j=0; j<3; j++) {
             xind = self->alp_in_count[j] - (alpdetune * alp_chorus_factor[j]);
@@ -1872,19 +1872,19 @@ AllpassWG_process_aii(AllpassWG *self) {
             if (self->alp_in_count[j] == self->alpsize)
                 self->alp_in_count[j] = 0;
         }
-        
+
         /* DC filtering and output */
         y = val - self->xn1 + 0.995 * self->yn1;
         self->xn1 = val;
         self->data[i] = self->yn1 = y;
-        
+
         /* write current value in the delay line */
         self->buffer[self->in_count] = in[i] + val * feed;
         if (self->in_count == 0)
             self->buffer[self->size] = self->buffer[0];
         self->in_count++;
         if (self->in_count == self->size)
-            self->in_count = 0;        
+            self->in_count = 0;
     }
 }
 
@@ -1893,12 +1893,12 @@ AllpassWG_process_iai(AllpassWG *self) {
     int i, j;
     long ind;
     MYFLT val, y, xind, sampdel, frac, feed, freqshift, alpsampdel, alpsampdelin, alpdetune;
-    
+
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
     MYFLT fr = PyFloat_AS_DOUBLE(self->freq);
-    MYFLT *fdb = Stream_getData((Stream *)self->feed_stream); 
+    MYFLT *fdb = Stream_getData((Stream *)self->feed_stream);
     MYFLT detune = PyFloat_AS_DOUBLE(self->detune);
-    
+
     /* Check boundaries */
     if (fr < self->minfreq)
         fr = self->minfreq;
@@ -1910,10 +1910,10 @@ AllpassWG_process_iai(AllpassWG *self) {
         detune = 0.05;
     else if (detune > 1.0)
         detune = 1.0;
-    
+
     sampdel = self->sr / (fr * freqshift);
     alpdetune = detune * self->alpsize;
-    
+
     for (i=0; i<self->bufsize; i++) {
         feed = fdb[i] * 0.4525;
         if (feed > 0.4525)
@@ -1927,7 +1927,7 @@ AllpassWG_process_iai(AllpassWG *self) {
         ind = (long)xind;
         frac = xind - ind;
         val = self->buffer[ind] + (self->buffer[ind+1] - self->buffer[ind]) * frac;
-        
+
         /* all-pass filter */
         for (j=0; j<3; j++) {
             xind = self->alp_in_count[j] - (alpdetune * alp_chorus_factor[j]);
@@ -1946,19 +1946,19 @@ AllpassWG_process_iai(AllpassWG *self) {
             if (self->alp_in_count[j] == self->alpsize)
                 self->alp_in_count[j] = 0;
         }
-        
+
         /* DC filtering and output */
         y = val - self->xn1 + 0.995 * self->yn1;
         self->xn1 = val;
         self->data[i] = self->yn1 = y;
-        
+
         /* write current value in the delay line */
         self->buffer[self->in_count] = in[i] + val * feed;
         if (self->in_count == 0)
             self->buffer[self->size] = self->buffer[0];
         self->in_count++;
         if (self->in_count == self->size)
-            self->in_count = 0;        
+            self->in_count = 0;
     }
 }
 
@@ -1967,19 +1967,19 @@ AllpassWG_process_aai(AllpassWG *self) {
     int i, j;
     long ind;
     MYFLT val, y, xind, sampdel, frac, fr, feed, freqshift, alpsampdel, alpsampdelin, alpdetune;
-    
+
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
     MYFLT *freq = Stream_getData((Stream *)self->freq_stream);
-    MYFLT *fdb = Stream_getData((Stream *)self->feed_stream); 
+    MYFLT *fdb = Stream_getData((Stream *)self->feed_stream);
     MYFLT detune = PyFloat_AS_DOUBLE(self->detune);
-    
+
     freqshift = detune * 0.5 + 1.;
     detune = detune * 0.95 + 0.05;
     if (detune < 0.05)
         detune = 0.05;
     else if (detune > 1.0)
         detune = 1.0;
-    
+
     alpdetune = detune * self->alpsize;
     for (i=0; i<self->bufsize; i++) {
         fr = freq[i];
@@ -1992,7 +1992,7 @@ AllpassWG_process_aai(AllpassWG *self) {
             feed = 0.4525;
         else if (feed < 0)
             feed = 0;
-        
+
         /* pick a new value in the delay line */
         sampdel = self->sr / (fr * freqshift);
         xind = self->in_count - sampdel;
@@ -2001,7 +2001,7 @@ AllpassWG_process_aai(AllpassWG *self) {
         ind = (long)xind;
         frac = xind - ind;
         val = self->buffer[ind] + (self->buffer[ind+1] - self->buffer[ind]) * frac;
-        
+
         /* all-pass filter */
         for (j=0; j<3; j++) {
             xind = self->alp_in_count[j] - (alpdetune * alp_chorus_factor[j]);
@@ -2020,19 +2020,19 @@ AllpassWG_process_aai(AllpassWG *self) {
             if (self->alp_in_count[j] == self->alpsize)
                 self->alp_in_count[j] = 0;
         }
-        
+
         /* DC filtering and output */
         y = val - self->xn1 + 0.995 * self->yn1;
         self->xn1 = val;
         self->data[i] = self->yn1 = y;
-        
+
         /* write current value in the delay line */
         self->buffer[self->in_count] = in[i] + val * feed;
         if (self->in_count == 0)
             self->buffer[self->size] = self->buffer[0];
         self->in_count++;
         if (self->in_count == self->size)
-            self->in_count = 0;        
+            self->in_count = 0;
     }
 }
 
@@ -2041,12 +2041,12 @@ AllpassWG_process_iia(AllpassWG *self) {
     int i, j;
     long ind;
     MYFLT val, y, xind, sampdel, frac, detune, freqshift, alpsampdel, alpsampdelin, alpdetune;
-    
+
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
     MYFLT fr = PyFloat_AS_DOUBLE(self->freq);
-    MYFLT feed = PyFloat_AS_DOUBLE(self->feed); 
+    MYFLT feed = PyFloat_AS_DOUBLE(self->feed);
     MYFLT *det = Stream_getData((Stream *)self->detune_stream);
-    
+
     /* Check boundaries */
     if (fr < self->minfreq)
         fr = self->minfreq;
@@ -2057,7 +2057,7 @@ AllpassWG_process_iia(AllpassWG *self) {
         feed = 0.4525;
     else if (feed < 0)
         feed = 0;
-    
+
     for (i=0; i<self->bufsize; i++) {
         detune = det[i];
         freqshift = detune * 0.5 + 1.;
@@ -2066,7 +2066,7 @@ AllpassWG_process_iia(AllpassWG *self) {
             detune = 0.05;
         else if (detune > 1.0)
             detune = 1.0;
-        
+
         /* pick a new value in the delay line */
         sampdel = self->sr / (fr * freqshift);
         xind = self->in_count - sampdel;
@@ -2075,7 +2075,7 @@ AllpassWG_process_iia(AllpassWG *self) {
         ind = (long)xind;
         frac = xind - ind;
         val = self->buffer[ind] + (self->buffer[ind+1] - self->buffer[ind]) * frac;
-        
+
         /* all-pass filter */
         alpdetune = detune * self->alpsize;
         for (j=0; j<3; j++) {
@@ -2107,7 +2107,7 @@ AllpassWG_process_iia(AllpassWG *self) {
             self->buffer[self->size] = self->buffer[0];
         self->in_count++;
         if (self->in_count == self->size)
-            self->in_count = 0;        
+            self->in_count = 0;
     }
 }
 
@@ -2116,18 +2116,18 @@ AllpassWG_process_aia(AllpassWG *self) {
     int i, j;
     long ind;
     MYFLT val, y, xind, sampdel, frac, fr, detune, freqshift, alpsampdel, alpsampdelin, alpdetune;
-    
+
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
     MYFLT *freq = Stream_getData((Stream *)self->freq_stream);
-    MYFLT feed = PyFloat_AS_DOUBLE(self->feed); 
+    MYFLT feed = PyFloat_AS_DOUBLE(self->feed);
     MYFLT *det = Stream_getData((Stream *)self->detune_stream);
-    
+
     feed *= 0.4525;
     if (feed > 0.4525)
         feed = 0.4525;
     else if (feed < 0)
         feed = 0;
-    
+
     for (i=0; i<self->bufsize; i++) {
         fr = freq[i];
         if (fr < self->minfreq)
@@ -2141,7 +2141,7 @@ AllpassWG_process_aia(AllpassWG *self) {
             detune = 0.05;
         else if (detune > 1.0)
             detune = 1.0;
-        
+
         /* pick a new value in the delay line */
         sampdel = self->sr / (fr * freqshift);
         xind = self->in_count - sampdel;
@@ -2150,7 +2150,7 @@ AllpassWG_process_aia(AllpassWG *self) {
         ind = (long)xind;
         frac = xind - ind;
         val = self->buffer[ind] + (self->buffer[ind+1] - self->buffer[ind]) * frac;
-        
+
         /* all-pass filter */
         alpdetune = detune * self->alpsize;
         for (j=0; j<3; j++) {
@@ -2170,19 +2170,19 @@ AllpassWG_process_aia(AllpassWG *self) {
             if (self->alp_in_count[j] == self->alpsize)
                 self->alp_in_count[j] = 0;
         }
-        
+
         /* DC filtering and output */
         y = val - self->xn1 + 0.995 * self->yn1;
         self->xn1 = val;
         self->data[i] = self->yn1 = y;
-        
+
         /* write current value in the delay line */
         self->buffer[self->in_count] = in[i] + val * feed;
         if (self->in_count == 0)
             self->buffer[self->size] = self->buffer[0];
         self->in_count++;
         if (self->in_count == self->size)
-            self->in_count = 0;        
+            self->in_count = 0;
     }
 }
 
@@ -2191,18 +2191,18 @@ AllpassWG_process_iaa(AllpassWG *self) {
     int i, j;
     long ind;
     MYFLT val, y, xind, sampdel, frac, feed, detune, freqshift, alpsampdel, alpsampdelin, alpdetune;
-    
+
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
     MYFLT fr = PyFloat_AS_DOUBLE(self->freq);
-    MYFLT *fdb = Stream_getData((Stream *)self->feed_stream); 
+    MYFLT *fdb = Stream_getData((Stream *)self->feed_stream);
     MYFLT *det = Stream_getData((Stream *)self->detune_stream);
-    
+
     /* Check boundaries */
     if (fr < self->minfreq)
         fr = self->minfreq;
     else if (fr >= self->nyquist)
         fr = self->nyquist;
-    
+
     for (i=0; i<self->bufsize; i++) {
         feed = fdb[i] * 0.4525;
         if (feed > 0.4525)
@@ -2216,7 +2216,7 @@ AllpassWG_process_iaa(AllpassWG *self) {
             detune = 0.05;
         else if (detune > 1.0)
             detune = 1.0;
-        
+
         /* pick a new value in the delay line */
         sampdel = self->sr / (fr * freqshift);
         xind = self->in_count - sampdel;
@@ -2225,7 +2225,7 @@ AllpassWG_process_iaa(AllpassWG *self) {
         ind = (long)xind;
         frac = xind - ind;
         val = self->buffer[ind] + (self->buffer[ind+1] - self->buffer[ind]) * frac;
-        
+
         /* all-pass filter */
         alpdetune = detune * self->alpsize;
         for (j=0; j<3; j++) {
@@ -2245,19 +2245,19 @@ AllpassWG_process_iaa(AllpassWG *self) {
             if (self->alp_in_count[j] == self->alpsize)
                 self->alp_in_count[j] = 0;
         }
-        
+
         /* DC filtering and output */
         y = val - self->xn1 + 0.995 * self->yn1;
         self->xn1 = val;
         self->data[i] = self->yn1 = y;
-        
+
         /* write current value in the delay line */
         self->buffer[self->in_count] = in[i] + val * feed;
         if (self->in_count == 0)
             self->buffer[self->size] = self->buffer[0];
         self->in_count++;
         if (self->in_count == self->size)
-            self->in_count = 0;        
+            self->in_count = 0;
     }
 }
 
@@ -2266,10 +2266,10 @@ AllpassWG_process_aaa(AllpassWG *self) {
     int i, j;
     long ind;
     MYFLT val, y, xind, sampdel, frac, fr, feed, detune, freqshift, alpsampdel, alpsampdelin, alpdetune;
-    
+
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
     MYFLT *freq = Stream_getData((Stream *)self->freq_stream);
-    MYFLT *fdb = Stream_getData((Stream *)self->feed_stream); 
+    MYFLT *fdb = Stream_getData((Stream *)self->feed_stream);
     MYFLT *det = Stream_getData((Stream *)self->detune_stream);
 
     for (i=0; i<self->bufsize; i++) {
@@ -2290,7 +2290,7 @@ AllpassWG_process_aaa(AllpassWG *self) {
             detune = 0.05;
         else if (detune > 1.0)
             detune = 1.0;
-        
+
         /* pick a new value in the delay line */
         sampdel = self->sr / (fr * freqshift);
         xind = self->in_count - sampdel;
@@ -2299,7 +2299,7 @@ AllpassWG_process_aaa(AllpassWG *self) {
         ind = (long)xind;
         frac = xind - ind;
         val = self->buffer[ind] + (self->buffer[ind+1] - self->buffer[ind]) * frac;
-        
+
         /* all-pass filter */
         alpdetune = detune * self->alpsize;
         for (j=0; j<3; j++) {
@@ -2319,19 +2319,19 @@ AllpassWG_process_aaa(AllpassWG *self) {
             if (self->alp_in_count[j] == self->alpsize)
                 self->alp_in_count[j] = 0;
         }
-        
+
         /* DC filtering and output */
         y = val - self->xn1 + 0.995 * self->yn1;
         self->xn1 = val;
         self->data[i] = self->yn1 = y;
-        
+
         /* write current value in the delay line */
         self->buffer[self->in_count] = in[i] + val * feed;
         if (self->in_count == 0)
             self->buffer[self->size] = self->buffer[0];
         self->in_count++;
         if (self->in_count == self->size)
-            self->in_count = 0;        
+            self->in_count = 0;
     }
 }
 
@@ -2351,68 +2351,68 @@ AllpassWG_setProcMode(AllpassWG *self)
     int procmode, muladdmode;
     procmode = self->modebuffer[2] + self->modebuffer[3] * 10 + self->modebuffer[4] * 100;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
-    
+
 	switch (procmode) {
-        case 0:    
+        case 0:
             self->proc_func_ptr = AllpassWG_process_iii;
             break;
-        case 1:    
+        case 1:
             self->proc_func_ptr = AllpassWG_process_aii;
             break;
-        case 10:    
+        case 10:
             self->proc_func_ptr = AllpassWG_process_iai;
             break;
-        case 11:    
+        case 11:
             self->proc_func_ptr = AllpassWG_process_aai;
             break;
-        case 100:    
+        case 100:
             self->proc_func_ptr = AllpassWG_process_iia;
             break;
-        case 101:    
+        case 101:
             self->proc_func_ptr = AllpassWG_process_aia;
             break;
-        case 110:    
+        case 110:
             self->proc_func_ptr = AllpassWG_process_iaa;
             break;
-        case 111:    
+        case 111:
             self->proc_func_ptr = AllpassWG_process_aaa;
             break;
-    } 
+    }
 	switch (muladdmode) {
-        case 0:        
+        case 0:
             self->muladd_func_ptr = AllpassWG_postprocessing_ii;
             break;
-        case 1:    
+        case 1:
             self->muladd_func_ptr = AllpassWG_postprocessing_ai;
             break;
-        case 2:    
+        case 2:
             self->muladd_func_ptr = AllpassWG_postprocessing_revai;
             break;
-        case 10:        
+        case 10:
             self->muladd_func_ptr = AllpassWG_postprocessing_ia;
             break;
-        case 11:    
+        case 11:
             self->muladd_func_ptr = AllpassWG_postprocessing_aa;
             break;
-        case 12:    
+        case 12:
             self->muladd_func_ptr = AllpassWG_postprocessing_revaa;
             break;
-        case 20:        
+        case 20:
             self->muladd_func_ptr = AllpassWG_postprocessing_ireva;
             break;
-        case 21:    
+        case 21:
             self->muladd_func_ptr = AllpassWG_postprocessing_areva;
             break;
-        case 22:    
+        case 22:
             self->muladd_func_ptr = AllpassWG_postprocessing_revareva;
             break;
-    } 
+    }
 }
 
 static void
 AllpassWG_compute_next_data_frame(AllpassWG *self)
 {
-    (*self->proc_func_ptr)(self); 
+    (*self->proc_func_ptr)(self);
     (*self->muladd_func_ptr)(self);
 }
 
@@ -2421,28 +2421,28 @@ AllpassWG_traverse(AllpassWG *self, visitproc visit, void *arg)
 {
     pyo_VISIT
     Py_VISIT(self->input);
-    Py_VISIT(self->input_stream);    
-    Py_VISIT(self->freq);    
-    Py_VISIT(self->freq_stream);    
-    Py_VISIT(self->feed);    
-    Py_VISIT(self->feed_stream);    
-    Py_VISIT(self->detune);    
-    Py_VISIT(self->detune_stream);    
+    Py_VISIT(self->input_stream);
+    Py_VISIT(self->freq);
+    Py_VISIT(self->freq_stream);
+    Py_VISIT(self->feed);
+    Py_VISIT(self->feed_stream);
+    Py_VISIT(self->detune);
+    Py_VISIT(self->detune_stream);
     return 0;
 }
 
-static int 
+static int
 AllpassWG_clear(AllpassWG *self)
 {
     pyo_CLEAR
     Py_CLEAR(self->input);
-    Py_CLEAR(self->input_stream);    
-    Py_CLEAR(self->freq);    
-    Py_CLEAR(self->freq_stream);    
-    Py_CLEAR(self->feed);    
-    Py_CLEAR(self->feed_stream);    
-    Py_CLEAR(self->detune);    
-    Py_CLEAR(self->detune_stream);    
+    Py_CLEAR(self->input_stream);
+    Py_CLEAR(self->freq);
+    Py_CLEAR(self->freq_stream);
+    Py_CLEAR(self->feed);
+    Py_CLEAR(self->feed_stream);
+    Py_CLEAR(self->detune);
+    Py_CLEAR(self->detune_stream);
     return 0;
 }
 
@@ -2466,7 +2466,7 @@ AllpassWG_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp, *freqtmp=NULL, *feedtmp=NULL, *detunetmp=NULL, *multmp=NULL, *addtmp=NULL;
     AllpassWG *self;
     self = (AllpassWG *)type->tp_alloc(type, 0);
-    
+
     self->freq = PyFloat_FromDouble(100);
     self->feed = PyFloat_FromDouble(0.);
     self->detune = PyFloat_FromDouble(0.5);
@@ -2479,47 +2479,47 @@ AllpassWG_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 	self->modebuffer[2] = 0;
 	self->modebuffer[3] = 0;
 	self->modebuffer[4] = 0;
-    
+
     INIT_OBJECT_COMMON
-    
+
     self->nyquist = (MYFLT)self->sr * 0.45;
 
     Stream_setFunctionPtr(self->stream, AllpassWG_compute_next_data_frame);
     self->mode_func_ptr = AllpassWG_setProcMode;
 
     static char *kwlist[] = {"input", "freq", "feed", "detune", "minfreq", "mul", "add", NULL};
-    
+
     if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_O_OOOFOO, kwlist, &inputtmp, &freqtmp, &feedtmp, &detunetmp, &self->minfreq, &multmp, &addtmp))
         Py_RETURN_NONE;
-    
+
     INIT_INPUT_STREAM
-    
+
     if (freqtmp) {
         PyObject_CallMethod((PyObject *)self, "setFreq", "O", freqtmp);
     }
-    
+
     if (feedtmp) {
         PyObject_CallMethod((PyObject *)self, "setFeed", "O", feedtmp);
     }
     if (detunetmp) {
         PyObject_CallMethod((PyObject *)self, "setDetune", "O", detunetmp);
     }
-    
+
     if (multmp) {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
     }
-    
+
     if (addtmp) {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
-    
+
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
-    
-    self->size = (long)(1.0 / self->minfreq * self->sr + 0.5);    
+
+    self->size = (long)(1.0 / self->minfreq * self->sr + 0.5);
     self->buffer = (MYFLT *)realloc(self->buffer, (self->size+1) * sizeof(MYFLT));
     for (i=0; i<(self->size+1); i++) {
         self->buffer[i] = 0.;
-    }    
+    }
 
     self->alpsize = (int)(self->sr * 0.0025);
     for (i=0; i<3; i++) {
@@ -2527,19 +2527,19 @@ AllpassWG_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         for (j=0; j<(self->alpsize+1); j++) {
             self->alpbuffer[i][j] = 0.;
         }
-    }    
-    
+    }
+
     (*self->mode_func_ptr)(self);
-    
+
     return (PyObject *)self;
 }
 
 static PyObject * AllpassWG_getServer(AllpassWG* self) { GET_SERVER };
 static PyObject * AllpassWG_getStream(AllpassWG* self) { GET_STREAM };
-static PyObject * AllpassWG_setMul(AllpassWG *self, PyObject *arg) { SET_MUL };	
-static PyObject * AllpassWG_setAdd(AllpassWG *self, PyObject *arg) { SET_ADD };	
-static PyObject * AllpassWG_setSub(AllpassWG *self, PyObject *arg) { SET_SUB };	
-static PyObject * AllpassWG_setDiv(AllpassWG *self, PyObject *arg) { SET_DIV };	
+static PyObject * AllpassWG_setMul(AllpassWG *self, PyObject *arg) { SET_MUL };
+static PyObject * AllpassWG_setAdd(AllpassWG *self, PyObject *arg) { SET_ADD };
+static PyObject * AllpassWG_setSub(AllpassWG *self, PyObject *arg) { SET_SUB };
+static PyObject * AllpassWG_setDiv(AllpassWG *self, PyObject *arg) { SET_DIV };
 
 static PyObject * AllpassWG_play(AllpassWG *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * AllpassWG_out(AllpassWG *self, PyObject *args, PyObject *kwds) { OUT };
@@ -2558,14 +2558,14 @@ static PyObject *
 AllpassWG_setFreq(AllpassWG *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
-	
+
 	if (arg == NULL) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
 	int isNumber = PyNumber_Check(arg);
-    
+
 	tmp = arg;
 	Py_INCREF(tmp);
 	Py_DECREF(self->freq);
@@ -2581,25 +2581,25 @@ AllpassWG_setFreq(AllpassWG *self, PyObject *arg)
         self->freq_stream = (Stream *)streamtmp;
 		self->modebuffer[2] = 1;
 	}
-    
+
     (*self->mode_func_ptr)(self);
-    
+
 	Py_INCREF(Py_None);
 	return Py_None;
-}	
+}
 
 static PyObject *
 AllpassWG_setFeed(AllpassWG *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
-	
+
 	if (arg == NULL) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
 	int isNumber = PyNumber_Check(arg);
-    
+
 	tmp = arg;
 	Py_INCREF(tmp);
 	Py_DECREF(self->feed);
@@ -2615,25 +2615,25 @@ AllpassWG_setFeed(AllpassWG *self, PyObject *arg)
         self->feed_stream = (Stream *)streamtmp;
 		self->modebuffer[3] = 1;
 	}
-    
+
     (*self->mode_func_ptr)(self);
-    
+
 	Py_INCREF(Py_None);
 	return Py_None;
-}	
+}
 
 static PyObject *
 AllpassWG_setDetune(AllpassWG *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
-	
+
 	if (arg == NULL) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
 	int isNumber = PyNumber_Check(arg);
-    
+
 	tmp = arg;
 	Py_INCREF(tmp);
 	Py_DECREF(self->detune);
@@ -2649,12 +2649,12 @@ AllpassWG_setDetune(AllpassWG *self, PyObject *arg)
         self->detune_stream = (Stream *)streamtmp;
 		self->modebuffer[4] = 1;
 	}
-    
+
     (*self->mode_func_ptr)(self);
-    
+
 	Py_INCREF(Py_None);
 	return Py_None;
-}	
+}
 
 static PyMemberDef AllpassWG_members[] = {
     {"server", T_OBJECT_EX, offsetof(AllpassWG, server), 0, "Pyo server."},
@@ -2775,7 +2775,7 @@ typedef struct {
     pyo_audio_HEAD
     PyObject *input;
     Stream *input_stream;
-    int modebuffer[2]; // need at least 2 slots for mul & add 
+    int modebuffer[2]; // need at least 2 slots for mul & add
     MYFLT x1;
 } Delay1;
 
@@ -2805,44 +2805,44 @@ Delay1_setProcMode(Delay1 *self)
 {
     int muladdmode;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
-       
+
     self->proc_func_ptr = Delay1_filters;
 
 	switch (muladdmode) {
-        case 0:        
+        case 0:
             self->muladd_func_ptr = Delay1_postprocessing_ii;
             break;
-        case 1:    
+        case 1:
             self->muladd_func_ptr = Delay1_postprocessing_ai;
             break;
-        case 2:    
+        case 2:
             self->muladd_func_ptr = Delay1_postprocessing_revai;
             break;
-        case 10:        
+        case 10:
             self->muladd_func_ptr = Delay1_postprocessing_ia;
             break;
-        case 11:    
+        case 11:
             self->muladd_func_ptr = Delay1_postprocessing_aa;
             break;
-        case 12:    
+        case 12:
             self->muladd_func_ptr = Delay1_postprocessing_revaa;
             break;
-        case 20:        
+        case 20:
             self->muladd_func_ptr = Delay1_postprocessing_ireva;
             break;
-        case 21:    
+        case 21:
             self->muladd_func_ptr = Delay1_postprocessing_areva;
             break;
-        case 22:    
+        case 22:
             self->muladd_func_ptr = Delay1_postprocessing_revareva;
             break;
-    }   
+    }
 }
 
 static void
 Delay1_compute_next_data_frame(Delay1 *self)
 {
-    (*self->proc_func_ptr)(self); 
+    (*self->proc_func_ptr)(self);
     (*self->muladd_func_ptr)(self);
 }
 
@@ -2855,7 +2855,7 @@ Delay1_traverse(Delay1 *self, visitproc visit, void *arg)
     return 0;
 }
 
-static int 
+static int
 Delay1_clear(Delay1 *self)
 {
     pyo_CLEAR
@@ -2879,32 +2879,32 @@ Delay1_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp, *multmp=NULL, *addtmp=NULL;
     Delay1 *self;
     self = (Delay1 *)type->tp_alloc(type, 0);
-    
+
     self->x1 = 0.0;
 	self->modebuffer[0] = 0;
 	self->modebuffer[1] = 0;
-    
+
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, Delay1_compute_next_data_frame);
     self->mode_func_ptr = Delay1_setProcMode;
 
     static char *kwlist[] = {"input", "mul", "add", NULL};
-    
+
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OO", kwlist, &inputtmp, &multmp, &addtmp))
         Py_RETURN_NONE;
-    
+
     INIT_INPUT_STREAM
 
     if (multmp) {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
     }
-    
+
     if (addtmp) {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
-    
+
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
-    
+
     (*self->mode_func_ptr)(self);
 
     return (PyObject *)self;
@@ -2912,10 +2912,10 @@ Delay1_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
 static PyObject * Delay1_getServer(Delay1* self) { GET_SERVER };
 static PyObject * Delay1_getStream(Delay1* self) { GET_STREAM };
-static PyObject * Delay1_setMul(Delay1 *self, PyObject *arg) { SET_MUL };	
-static PyObject * Delay1_setAdd(Delay1 *self, PyObject *arg) { SET_ADD };	
-static PyObject * Delay1_setSub(Delay1 *self, PyObject *arg) { SET_SUB };	
-static PyObject * Delay1_setDiv(Delay1 *self, PyObject *arg) { SET_DIV };	
+static PyObject * Delay1_setMul(Delay1 *self, PyObject *arg) { SET_MUL };
+static PyObject * Delay1_setAdd(Delay1 *self, PyObject *arg) { SET_ADD };
+static PyObject * Delay1_setSub(Delay1 *self, PyObject *arg) { SET_SUB };
+static PyObject * Delay1_setDiv(Delay1 *self, PyObject *arg) { SET_DIV };
 
 static PyObject * Delay1_play(Delay1 *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * Delay1_out(Delay1 *self, PyObject *args, PyObject *kwds) { OUT };
@@ -3071,7 +3071,7 @@ SmoothDelay_process_ii(SmoothDelay *self) {
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
     MYFLT del = PyFloat_AS_DOUBLE(self->delay);
     MYFLT feed = PyFloat_AS_DOUBLE(self->feedback);
-    
+
     if (del < self->oneOverSr) del = self->oneOverSr;
     else if (del > self->maxdelay) del = self->maxdelay;
 
@@ -3106,7 +3106,7 @@ SmoothDelay_process_ii(SmoothDelay *self) {
         sum = val * self->amp1;
         self->amp1 += self->inc1;
         if (self->amp1 < 0) self->amp1 = 0.0;
-        else if (self->amp1 > 1) self->amp1 = 1.0; 
+        else if (self->amp1 > 1) self->amp1 = 1.0;
 
         xind = self->in_count - self->sampdel2;
         while (xind < 0)
@@ -3117,17 +3117,17 @@ SmoothDelay_process_ii(SmoothDelay *self) {
         sum += val * self->amp2;
         self->amp2 += self->inc2;
         if (self->amp2 < 0) self->amp2 = 0.0;
-        else if (self->amp2 > 1) self->amp2 = 1.0; 
-        
+        else if (self->amp2 > 1) self->amp2 = 1.0;
+
         self->data[i] = sum;
-        
+
         self->buffer[self->in_count] = in[i] + (sum * feed);
         if (self->in_count == 0)
             self->buffer[self->size] = self->buffer[0];
         self->in_count++;
         if (self->in_count >= self->size)
             self->in_count = 0;
-            
+
         self->timer++;
         if (self->timer == self->sampdel)
             self->timer = 0;
@@ -3178,7 +3178,7 @@ SmoothDelay_process_ai(SmoothDelay *self) {
         sum = val * self->amp1;
         self->amp1 += self->inc1;
         if (self->amp1 < 0) self->amp1 = 0.0;
-        else if (self->amp1 > 1) self->amp1 = 1.0; 
+        else if (self->amp1 > 1) self->amp1 = 1.0;
 
         xind = self->in_count - self->sampdel2;
         while (xind < 0)
@@ -3189,17 +3189,17 @@ SmoothDelay_process_ai(SmoothDelay *self) {
         sum += val * self->amp2;
         self->amp2 += self->inc2;
         if (self->amp2 < 0) self->amp2 = 0.0;
-        else if (self->amp2 > 1) self->amp2 = 1.0; 
-        
+        else if (self->amp2 > 1) self->amp2 = 1.0;
+
         self->data[i] = sum;
-        
+
         self->buffer[self->in_count] = in[i] + (sum * feed);
         if (self->in_count == 0)
             self->buffer[self->size] = self->buffer[0];
         self->in_count++;
         if (self->in_count >= self->size)
             self->in_count = 0;
-            
+
         self->timer++;
         if (self->timer == self->sampdel)
             self->timer = 0;
@@ -3215,7 +3215,7 @@ SmoothDelay_process_ia(SmoothDelay *self) {
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
     MYFLT del = PyFloat_AS_DOUBLE(self->delay);
     MYFLT *fd = Stream_getData((Stream *)self->feedback_stream);
-    
+
     if (del < self->oneOverSr) del = self->oneOverSr;
     else if (del > self->maxdelay) del = self->maxdelay;
 
@@ -3250,7 +3250,7 @@ SmoothDelay_process_ia(SmoothDelay *self) {
         sum = val * self->amp1;
         self->amp1 += self->inc1;
         if (self->amp1 < 0) self->amp1 = 0.0;
-        else if (self->amp1 > 1) self->amp1 = 1.0; 
+        else if (self->amp1 > 1) self->amp1 = 1.0;
 
         xind = self->in_count - self->sampdel2;
         while (xind < 0)
@@ -3261,17 +3261,17 @@ SmoothDelay_process_ia(SmoothDelay *self) {
         sum += val * self->amp2;
         self->amp2 += self->inc2;
         if (self->amp2 < 0) self->amp2 = 0.0;
-        else if (self->amp2 > 1) self->amp2 = 1.0; 
-        
+        else if (self->amp2 > 1) self->amp2 = 1.0;
+
         self->data[i] = sum;
-        
+
         self->buffer[self->in_count] = in[i] + (sum * feed);
         if (self->in_count == 0)
             self->buffer[self->size] = self->buffer[0];
         self->in_count++;
         if (self->in_count >= self->size)
             self->in_count = 0;
-            
+
         self->timer++;
         if (self->timer == self->sampdel)
             self->timer = 0;
@@ -3322,7 +3322,7 @@ SmoothDelay_process_aa(SmoothDelay *self) {
         sum = val * self->amp1;
         self->amp1 += self->inc1;
         if (self->amp1 < 0) self->amp1 = 0.0;
-        else if (self->amp1 > 1) self->amp1 = 1.0; 
+        else if (self->amp1 > 1) self->amp1 = 1.0;
 
         xind = self->in_count - self->sampdel2;
         while (xind < 0)
@@ -3333,17 +3333,17 @@ SmoothDelay_process_aa(SmoothDelay *self) {
         sum += val * self->amp2;
         self->amp2 += self->inc2;
         if (self->amp2 < 0) self->amp2 = 0.0;
-        else if (self->amp2 > 1) self->amp2 = 1.0; 
-        
+        else if (self->amp2 > 1) self->amp2 = 1.0;
+
         self->data[i] = sum;
-        
+
         self->buffer[self->in_count] = in[i] + (sum * feed);
         if (self->in_count == 0)
             self->buffer[self->size] = self->buffer[0];
         self->in_count++;
         if (self->in_count >= self->size)
             self->in_count = 0;
-            
+
         self->timer++;
         if (self->timer == self->sampdel)
             self->timer = 0;
@@ -3368,54 +3368,54 @@ SmoothDelay_setProcMode(SmoothDelay *self)
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
 
 	switch (procmode) {
-        case 0:    
+        case 0:
             self->proc_func_ptr = SmoothDelay_process_ii;
             break;
-        case 1:    
+        case 1:
             self->proc_func_ptr = SmoothDelay_process_ai;
             break;
-        case 10:    
+        case 10:
             self->proc_func_ptr = SmoothDelay_process_ia;
             break;
-        case 11:    
+        case 11:
             self->proc_func_ptr = SmoothDelay_process_aa;
             break;
-    } 
+    }
 	switch (muladdmode) {
-        case 0:        
+        case 0:
             self->muladd_func_ptr = SmoothDelay_postprocessing_ii;
             break;
-        case 1:    
+        case 1:
             self->muladd_func_ptr = SmoothDelay_postprocessing_ai;
             break;
-        case 2:    
+        case 2:
             self->muladd_func_ptr = SmoothDelay_postprocessing_revai;
             break;
-        case 10:        
+        case 10:
             self->muladd_func_ptr = SmoothDelay_postprocessing_ia;
             break;
-        case 11:    
+        case 11:
             self->muladd_func_ptr = SmoothDelay_postprocessing_aa;
             break;
-        case 12:    
+        case 12:
             self->muladd_func_ptr = SmoothDelay_postprocessing_revaa;
             break;
-        case 20:        
+        case 20:
             self->muladd_func_ptr = SmoothDelay_postprocessing_ireva;
             break;
-        case 21:    
+        case 21:
             self->muladd_func_ptr = SmoothDelay_postprocessing_areva;
             break;
-        case 22:    
+        case 22:
             self->muladd_func_ptr = SmoothDelay_postprocessing_revareva;
             break;
-    } 
+    }
 }
 
 static void
 SmoothDelay_compute_next_data_frame(SmoothDelay *self)
 {
-    (*self->proc_func_ptr)(self); 
+    (*self->proc_func_ptr)(self);
     (*self->muladd_func_ptr)(self);
 }
 
@@ -3424,24 +3424,24 @@ SmoothDelay_traverse(SmoothDelay *self, visitproc visit, void *arg)
 {
     pyo_VISIT
     Py_VISIT(self->input);
-    Py_VISIT(self->input_stream);    
-    Py_VISIT(self->delay);    
-    Py_VISIT(self->delay_stream);    
-    Py_VISIT(self->feedback);    
-    Py_VISIT(self->feedback_stream);    
+    Py_VISIT(self->input_stream);
+    Py_VISIT(self->delay);
+    Py_VISIT(self->delay_stream);
+    Py_VISIT(self->feedback);
+    Py_VISIT(self->feedback_stream);
     return 0;
 }
 
-static int 
+static int
 SmoothDelay_clear(SmoothDelay *self)
 {
     pyo_CLEAR
     Py_CLEAR(self->input);
-    Py_CLEAR(self->input_stream);    
-    Py_CLEAR(self->delay);    
-    Py_CLEAR(self->delay_stream);    
-    Py_CLEAR(self->feedback);    
-    Py_CLEAR(self->feedback_stream);    
+    Py_CLEAR(self->input_stream);
+    Py_CLEAR(self->delay);
+    Py_CLEAR(self->delay_stream);
+    Py_CLEAR(self->feedback);
+    Py_CLEAR(self->feedback_stream);
     return 0;
 }
 
@@ -3478,7 +3478,7 @@ SmoothDelay_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 	self->modebuffer[3] = 0;
 
     INIT_OBJECT_COMMON
-    
+
     self->oneOverSr = self->sampdel1 = self->sampdel2 = 1.0 / self->sr;
 
     Stream_setFunctionPtr(self->stream, SmoothDelay_compute_next_data_frame);
@@ -3498,7 +3498,7 @@ SmoothDelay_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (feedbacktmp) {
         PyObject_CallMethod((PyObject *)self, "setFeedback", "O", feedbacktmp);
     }
-    
+
     if (multmp) {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
     }
@@ -3506,7 +3506,7 @@ SmoothDelay_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (addtmp) {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
-            
+
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
     self->size = (long)(self->maxdelay * self->sr + 0.5);
@@ -3514,19 +3514,19 @@ SmoothDelay_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->buffer = (MYFLT *)realloc(self->buffer, (self->size+1) * sizeof(MYFLT));
     for (i=0; i<(self->size+1); i++) {
         self->buffer[i] = 0.;
-    }    
+    }
 
     (*self->mode_func_ptr)(self);
-    
+
     return (PyObject *)self;
 }
 
 static PyObject * SmoothDelay_getServer(SmoothDelay* self) { GET_SERVER };
 static PyObject * SmoothDelay_getStream(SmoothDelay* self) { GET_STREAM };
-static PyObject * SmoothDelay_setMul(SmoothDelay *self, PyObject *arg) { SET_MUL };	
-static PyObject * SmoothDelay_setAdd(SmoothDelay *self, PyObject *arg) { SET_ADD };	
-static PyObject * SmoothDelay_setSub(SmoothDelay *self, PyObject *arg) { SET_SUB };	
-static PyObject * SmoothDelay_setDiv(SmoothDelay *self, PyObject *arg) { SET_DIV };	
+static PyObject * SmoothDelay_setMul(SmoothDelay *self, PyObject *arg) { SET_MUL };
+static PyObject * SmoothDelay_setAdd(SmoothDelay *self, PyObject *arg) { SET_ADD };
+static PyObject * SmoothDelay_setSub(SmoothDelay *self, PyObject *arg) { SET_SUB };
+static PyObject * SmoothDelay_setDiv(SmoothDelay *self, PyObject *arg) { SET_DIV };
 
 static PyObject * SmoothDelay_play(SmoothDelay *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * SmoothDelay_out(SmoothDelay *self, PyObject *args, PyObject *kwds) { OUT };
@@ -3545,12 +3545,12 @@ static PyObject *
 SmoothDelay_setDelay(SmoothDelay *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
-	
+
 	if (arg == NULL) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
 	int isNumber = PyNumber_Check(arg);
 
 	tmp = arg;
@@ -3568,25 +3568,25 @@ SmoothDelay_setDelay(SmoothDelay *self, PyObject *arg)
         self->delay_stream = (Stream *)streamtmp;
 		self->modebuffer[2] = 1;
 	}
-    
+
     (*self->mode_func_ptr)(self);
-    
+
 	Py_INCREF(Py_None);
 	return Py_None;
-}	
+}
 
 static PyObject *
 SmoothDelay_setFeedback(SmoothDelay *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
-	
+
 	if (arg == NULL) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
 	int isNumber = PyNumber_Check(arg);
-    
+
 	tmp = arg;
 	Py_INCREF(tmp);
 	Py_DECREF(self->feedback);
@@ -3602,12 +3602,12 @@ SmoothDelay_setFeedback(SmoothDelay *self, PyObject *arg)
         self->feedback_stream = (Stream *)streamtmp;
 		self->modebuffer[3] = 1;
 	}
-    
+
     (*self->mode_func_ptr)(self);
-    
+
 	Py_INCREF(Py_None);
 	return Py_None;
-}	
+}
 
 static PyObject *
 SmoothDelay_setCrossfade(SmoothDelay *self, PyObject *arg)
@@ -3616,13 +3616,13 @@ SmoothDelay_setCrossfade(SmoothDelay *self, PyObject *arg)
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
 	int isNumber = PyNumber_Check(arg);
-	
+
 	if (isNumber == 1) {
 		self->crossfade = PyFloat_AS_DOUBLE(PyNumber_Float(arg));
 	}
-  
+
 	Py_RETURN_NONE;
 }
 
@@ -3632,7 +3632,7 @@ SmoothDelay_reset(SmoothDelay *self)
     int i;
     for (i=0; i<(self->size+1); i++) {
         self->buffer[i] = 0.;
-    }    
+    }
 	Py_INCREF(Py_None);
 	return Py_None;
 }

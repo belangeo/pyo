@@ -1,21 +1,21 @@
-/*************************************************************************
- * Copyright 2010 Olivier Belanger                                        *                  
- *                                                                        * 
+/**************************************************************************
+ * Copyright 2009-2015 Olivier Belanger                                   *
+ *                                                                        *
  * This file is part of pyo, a python module to help digital signal       *
- * processing script creation.                                            *  
- *                                                                        * 
+ * processing script creation.                                            *
+ *                                                                        *
  * pyo is free software: you can redistribute it and/or modify            *
- * it under the terms of the GNU General Public License as published by   *
- * the Free Software Foundation, either version 3 of the License, or      *
- * (at your option) any later version.                                    * 
+ * it under the terms of the GNU Lesser General Public License as         *
+ * published by the Free Software Foundation, either version 3 of the     *
+ * License, or (at your option) any later version.                        *
  *                                                                        *
  * pyo is distributed in the hope that it will be useful,                 *
- * but WITHOUT ANY WARRANTY; without even the implied warranty of         *    
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of         *
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the          *
- * GNU General Public License for more details.                           *
+ * GNU Lesser General Public License for more details.                    *
  *                                                                        *
- * You should have received a copy of the GNU General Public License      *
- * along with pyo.  If not, see <http://www.gnu.org/licenses/>.           *
+ * You should have received a copy of the GNU Lesser General Public       *
+ * License along with pyo.  If not, see <http://www.gnu.org/licenses/>.   *
  *************************************************************************/
 
 #include <Python.h>
@@ -40,7 +40,7 @@ static void
 M_Sin_process(M_Sin *self) {
     int i;
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
-    
+
     for (i=0; i<self->bufsize; i++) {
         self->data[i] = MYSIN(in[i]);
     }
@@ -61,44 +61,44 @@ M_Sin_setProcMode(M_Sin *self)
 {
     int muladdmode;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
-    
+
     self->proc_func_ptr = M_Sin_process;
- 
+
 	switch (muladdmode) {
-        case 0:        
+        case 0:
             self->muladd_func_ptr = M_Sin_postprocessing_ii;
             break;
-        case 1:    
+        case 1:
             self->muladd_func_ptr = M_Sin_postprocessing_ai;
             break;
-        case 2:    
+        case 2:
             self->muladd_func_ptr = M_Sin_postprocessing_revai;
             break;
-        case 10:        
+        case 10:
             self->muladd_func_ptr = M_Sin_postprocessing_ia;
             break;
-        case 11:    
+        case 11:
             self->muladd_func_ptr = M_Sin_postprocessing_aa;
             break;
-        case 12:    
+        case 12:
             self->muladd_func_ptr = M_Sin_postprocessing_revaa;
             break;
-        case 20:        
+        case 20:
             self->muladd_func_ptr = M_Sin_postprocessing_ireva;
             break;
-        case 21:    
+        case 21:
             self->muladd_func_ptr = M_Sin_postprocessing_areva;
             break;
-        case 22:    
+        case 22:
             self->muladd_func_ptr = M_Sin_postprocessing_revareva;
             break;
-    }   
+    }
 }
 
 static void
 M_Sin_compute_next_data_frame(M_Sin *self)
 {
-    (*self->proc_func_ptr)(self); 
+    (*self->proc_func_ptr)(self);
     (*self->muladd_func_ptr)(self);
 }
 
@@ -111,7 +111,7 @@ M_Sin_traverse(M_Sin *self, visitproc visit, void *arg)
     return 0;
 }
 
-static int 
+static int
 M_Sin_clear(M_Sin *self)
 {
     pyo_CLEAR
@@ -138,28 +138,28 @@ M_Sin_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
 	self->modebuffer[0] = 0;
 	self->modebuffer[1] = 0;
-    
+
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, M_Sin_compute_next_data_frame);
     self->mode_func_ptr = M_Sin_setProcMode;
 
     static char *kwlist[] = {"input", "mul", "add", NULL};
-    
+
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OO", kwlist, &inputtmp, &multmp, &addtmp))
         Py_RETURN_NONE;
 
     INIT_INPUT_STREAM
-    
+
     if (multmp) {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
     }
-    
+
     if (addtmp) {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
-    
+
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
-    
+
     (*self->mode_func_ptr)(self);
 
     return (PyObject *)self;
@@ -167,10 +167,10 @@ M_Sin_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
 static PyObject * M_Sin_getServer(M_Sin* self) { GET_SERVER };
 static PyObject * M_Sin_getStream(M_Sin* self) { GET_STREAM };
-static PyObject * M_Sin_setMul(M_Sin *self, PyObject *arg) { SET_MUL };	
-static PyObject * M_Sin_setAdd(M_Sin *self, PyObject *arg) { SET_ADD };	
-static PyObject * M_Sin_setSub(M_Sin *self, PyObject *arg) { SET_SUB };	
-static PyObject * M_Sin_setDiv(M_Sin *self, PyObject *arg) { SET_DIV };	
+static PyObject * M_Sin_setMul(M_Sin *self, PyObject *arg) { SET_MUL };
+static PyObject * M_Sin_setAdd(M_Sin *self, PyObject *arg) { SET_ADD };
+static PyObject * M_Sin_setSub(M_Sin *self, PyObject *arg) { SET_SUB };
+static PyObject * M_Sin_setDiv(M_Sin *self, PyObject *arg) { SET_DIV };
 
 static PyObject * M_Sin_play(M_Sin *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * M_Sin_out(M_Sin *self, PyObject *args, PyObject *kwds) { OUT };
@@ -305,7 +305,7 @@ static void
 M_Cos_process(M_Cos *self) {
     int i;
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
-    
+
     for (i=0; i<self->bufsize; i++) {
         self->data[i] = MYCOS(in[i]);
     }
@@ -326,44 +326,44 @@ M_Cos_setProcMode(M_Cos *self)
 {
     int muladdmode;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
-    
+
     self->proc_func_ptr = M_Cos_process;
-    
+
 	switch (muladdmode) {
-        case 0:        
+        case 0:
             self->muladd_func_ptr = M_Cos_postprocessing_ii;
             break;
-        case 1:    
+        case 1:
             self->muladd_func_ptr = M_Cos_postprocessing_ai;
             break;
-        case 2:    
+        case 2:
             self->muladd_func_ptr = M_Cos_postprocessing_revai;
             break;
-        case 10:        
+        case 10:
             self->muladd_func_ptr = M_Cos_postprocessing_ia;
             break;
-        case 11:    
+        case 11:
             self->muladd_func_ptr = M_Cos_postprocessing_aa;
             break;
-        case 12:    
+        case 12:
             self->muladd_func_ptr = M_Cos_postprocessing_revaa;
             break;
-        case 20:        
+        case 20:
             self->muladd_func_ptr = M_Cos_postprocessing_ireva;
             break;
-        case 21:    
+        case 21:
             self->muladd_func_ptr = M_Cos_postprocessing_areva;
             break;
-        case 22:    
+        case 22:
             self->muladd_func_ptr = M_Cos_postprocessing_revareva;
             break;
-    }   
+    }
 }
 
 static void
 M_Cos_compute_next_data_frame(M_Cos *self)
 {
-    (*self->proc_func_ptr)(self); 
+    (*self->proc_func_ptr)(self);
     (*self->muladd_func_ptr)(self);
 }
 
@@ -376,7 +376,7 @@ M_Cos_traverse(M_Cos *self, visitproc visit, void *arg)
     return 0;
 }
 
-static int 
+static int
 M_Cos_clear(M_Cos *self)
 {
     pyo_CLEAR
@@ -400,31 +400,31 @@ M_Cos_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp, *multmp=NULL, *addtmp=NULL;
     M_Cos *self;
     self = (M_Cos *)type->tp_alloc(type, 0);
-    
+
 	self->modebuffer[0] = 0;
 	self->modebuffer[1] = 0;
-    
+
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, M_Cos_compute_next_data_frame);
     self->mode_func_ptr = M_Cos_setProcMode;
 
     static char *kwlist[] = {"input", "mul", "add", NULL};
-    
+
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OO", kwlist, &inputtmp, &multmp, &addtmp))
         Py_RETURN_NONE;
-    
+
     INIT_INPUT_STREAM
-    
+
     if (multmp) {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
     }
-    
+
     if (addtmp) {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
-    
+
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
-    
+
     (*self->mode_func_ptr)(self);
 
     return (PyObject *)self;
@@ -432,10 +432,10 @@ M_Cos_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
 static PyObject * M_Cos_getServer(M_Cos* self) { GET_SERVER };
 static PyObject * M_Cos_getStream(M_Cos* self) { GET_STREAM };
-static PyObject * M_Cos_setMul(M_Cos *self, PyObject *arg) { SET_MUL };	
-static PyObject * M_Cos_setAdd(M_Cos *self, PyObject *arg) { SET_ADD };	
-static PyObject * M_Cos_setSub(M_Cos *self, PyObject *arg) { SET_SUB };	
-static PyObject * M_Cos_setDiv(M_Cos *self, PyObject *arg) { SET_DIV };	
+static PyObject * M_Cos_setMul(M_Cos *self, PyObject *arg) { SET_MUL };
+static PyObject * M_Cos_setAdd(M_Cos *self, PyObject *arg) { SET_ADD };
+static PyObject * M_Cos_setSub(M_Cos *self, PyObject *arg) { SET_SUB };
+static PyObject * M_Cos_setDiv(M_Cos *self, PyObject *arg) { SET_DIV };
 
 static PyObject * M_Cos_play(M_Cos *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * M_Cos_out(M_Cos *self, PyObject *args, PyObject *kwds) { OUT };
@@ -570,7 +570,7 @@ static void
 M_Tan_process(M_Tan *self) {
     int i;
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
-    
+
     for (i=0; i<self->bufsize; i++) {
         self->data[i] = MYTAN(in[i]);
     }
@@ -591,44 +591,44 @@ M_Tan_setProcMode(M_Tan *self)
 {
     int muladdmode;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
-    
+
     self->proc_func_ptr = M_Tan_process;
-    
+
 	switch (muladdmode) {
-        case 0:        
+        case 0:
             self->muladd_func_ptr = M_Tan_postprocessing_ii;
             break;
-        case 1:    
+        case 1:
             self->muladd_func_ptr = M_Tan_postprocessing_ai;
             break;
-        case 2:    
+        case 2:
             self->muladd_func_ptr = M_Tan_postprocessing_revai;
             break;
-        case 10:        
+        case 10:
             self->muladd_func_ptr = M_Tan_postprocessing_ia;
             break;
-        case 11:    
+        case 11:
             self->muladd_func_ptr = M_Tan_postprocessing_aa;
             break;
-        case 12:    
+        case 12:
             self->muladd_func_ptr = M_Tan_postprocessing_revaa;
             break;
-        case 20:        
+        case 20:
             self->muladd_func_ptr = M_Tan_postprocessing_ireva;
             break;
-        case 21:    
+        case 21:
             self->muladd_func_ptr = M_Tan_postprocessing_areva;
             break;
-        case 22:    
+        case 22:
             self->muladd_func_ptr = M_Tan_postprocessing_revareva;
             break;
-    }   
+    }
 }
 
 static void
 M_Tan_compute_next_data_frame(M_Tan *self)
 {
-    (*self->proc_func_ptr)(self); 
+    (*self->proc_func_ptr)(self);
     (*self->muladd_func_ptr)(self);
 }
 
@@ -641,7 +641,7 @@ M_Tan_traverse(M_Tan *self, visitproc visit, void *arg)
     return 0;
 }
 
-static int 
+static int
 M_Tan_clear(M_Tan *self)
 {
     pyo_CLEAR
@@ -665,31 +665,31 @@ M_Tan_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp, *multmp=NULL, *addtmp=NULL;
     M_Tan *self;
     self = (M_Tan *)type->tp_alloc(type, 0);
-    
+
 	self->modebuffer[0] = 0;
 	self->modebuffer[1] = 0;
-    
+
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, M_Tan_compute_next_data_frame);
     self->mode_func_ptr = M_Tan_setProcMode;
 
     static char *kwlist[] = {"input", "mul", "add", NULL};
-    
+
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OO", kwlist, &inputtmp, &multmp, &addtmp))
         Py_RETURN_NONE;
-    
+
     INIT_INPUT_STREAM
-    
+
     if (multmp) {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
     }
-    
+
     if (addtmp) {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
-    
+
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
-    
+
     (*self->mode_func_ptr)(self);
 
     return (PyObject *)self;
@@ -697,10 +697,10 @@ M_Tan_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
 static PyObject * M_Tan_getServer(M_Tan* self) { GET_SERVER };
 static PyObject * M_Tan_getStream(M_Tan* self) { GET_STREAM };
-static PyObject * M_Tan_setMul(M_Tan *self, PyObject *arg) { SET_MUL };	
-static PyObject * M_Tan_setAdd(M_Tan *self, PyObject *arg) { SET_ADD };	
-static PyObject * M_Tan_setSub(M_Tan *self, PyObject *arg) { SET_SUB };	
-static PyObject * M_Tan_setDiv(M_Tan *self, PyObject *arg) { SET_DIV };	
+static PyObject * M_Tan_setMul(M_Tan *self, PyObject *arg) { SET_MUL };
+static PyObject * M_Tan_setAdd(M_Tan *self, PyObject *arg) { SET_ADD };
+static PyObject * M_Tan_setSub(M_Tan *self, PyObject *arg) { SET_SUB };
+static PyObject * M_Tan_setDiv(M_Tan *self, PyObject *arg) { SET_DIV };
 
 static PyObject * M_Tan_play(M_Tan *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * M_Tan_out(M_Tan *self, PyObject *args, PyObject *kwds) { OUT };
@@ -836,12 +836,12 @@ M_Abs_process(M_Abs *self) {
     int i;
     MYFLT inval;
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
-    
+
     for (i=0; i<self->bufsize; i++) {
         inval = in[i];
         if (inval < 0.0)
             self->data[i] = -inval;
-        else 
+        else
             self->data[i] = inval;
     }
 }
@@ -861,44 +861,44 @@ M_Abs_setProcMode(M_Abs *self)
 {
     int muladdmode;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
-    
+
     self->proc_func_ptr = M_Abs_process;
-    
+
 	switch (muladdmode) {
-        case 0:        
+        case 0:
             self->muladd_func_ptr = M_Abs_postprocessing_ii;
             break;
-        case 1:    
+        case 1:
             self->muladd_func_ptr = M_Abs_postprocessing_ai;
             break;
-        case 2:    
+        case 2:
             self->muladd_func_ptr = M_Abs_postprocessing_revai;
             break;
-        case 10:        
+        case 10:
             self->muladd_func_ptr = M_Abs_postprocessing_ia;
             break;
-        case 11:    
+        case 11:
             self->muladd_func_ptr = M_Abs_postprocessing_aa;
             break;
-        case 12:    
+        case 12:
             self->muladd_func_ptr = M_Abs_postprocessing_revaa;
             break;
-        case 20:        
+        case 20:
             self->muladd_func_ptr = M_Abs_postprocessing_ireva;
             break;
-        case 21:    
+        case 21:
             self->muladd_func_ptr = M_Abs_postprocessing_areva;
             break;
-        case 22:    
+        case 22:
             self->muladd_func_ptr = M_Abs_postprocessing_revareva;
             break;
-    }   
+    }
 }
 
 static void
 M_Abs_compute_next_data_frame(M_Abs *self)
 {
-    (*self->proc_func_ptr)(self); 
+    (*self->proc_func_ptr)(self);
     (*self->muladd_func_ptr)(self);
 }
 
@@ -911,7 +911,7 @@ M_Abs_traverse(M_Abs *self, visitproc visit, void *arg)
     return 0;
 }
 
-static int 
+static int
 M_Abs_clear(M_Abs *self)
 {
     pyo_CLEAR
@@ -935,31 +935,31 @@ M_Abs_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp, *multmp=NULL, *addtmp=NULL;
     M_Abs *self;
     self = (M_Abs *)type->tp_alloc(type, 0);
-    
+
 	self->modebuffer[0] = 0;
 	self->modebuffer[1] = 0;
-    
+
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, M_Abs_compute_next_data_frame);
     self->mode_func_ptr = M_Abs_setProcMode;
 
     static char *kwlist[] = {"input", "mul", "add", NULL};
-    
+
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OO", kwlist, &inputtmp, &multmp, &addtmp))
         Py_RETURN_NONE;
-    
+
     INIT_INPUT_STREAM
-    
+
     if (multmp) {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
     }
-    
+
     if (addtmp) {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
-    
+
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
-    
+
     (*self->mode_func_ptr)(self);
 
     return (PyObject *)self;
@@ -967,10 +967,10 @@ M_Abs_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
 static PyObject * M_Abs_getServer(M_Abs* self) { GET_SERVER };
 static PyObject * M_Abs_getStream(M_Abs* self) { GET_STREAM };
-static PyObject * M_Abs_setMul(M_Abs *self, PyObject *arg) { SET_MUL };	
-static PyObject * M_Abs_setAdd(M_Abs *self, PyObject *arg) { SET_ADD };	
-static PyObject * M_Abs_setSub(M_Abs *self, PyObject *arg) { SET_SUB };	
-static PyObject * M_Abs_setDiv(M_Abs *self, PyObject *arg) { SET_DIV };	
+static PyObject * M_Abs_setMul(M_Abs *self, PyObject *arg) { SET_MUL };
+static PyObject * M_Abs_setAdd(M_Abs *self, PyObject *arg) { SET_ADD };
+static PyObject * M_Abs_setSub(M_Abs *self, PyObject *arg) { SET_SUB };
+static PyObject * M_Abs_setDiv(M_Abs *self, PyObject *arg) { SET_DIV };
 
 static PyObject * M_Abs_play(M_Abs *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * M_Abs_out(M_Abs *self, PyObject *args, PyObject *kwds) { OUT };
@@ -1106,12 +1106,12 @@ M_Sqrt_process(M_Sqrt *self) {
     int i;
     MYFLT inval;
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
-    
+
     for (i=0; i<self->bufsize; i++) {
         inval = in[i];
         if (inval < 0.0)
             self->data[i] = 0.0;
-        else 
+        else
             self->data[i] = MYSQRT(inval);
     }
 }
@@ -1131,44 +1131,44 @@ M_Sqrt_setProcMode(M_Sqrt *self)
 {
     int muladdmode;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
-    
+
     self->proc_func_ptr = M_Sqrt_process;
-    
+
 	switch (muladdmode) {
-        case 0:        
+        case 0:
             self->muladd_func_ptr = M_Sqrt_postprocessing_ii;
             break;
-        case 1:    
+        case 1:
             self->muladd_func_ptr = M_Sqrt_postprocessing_ai;
             break;
-        case 2:    
+        case 2:
             self->muladd_func_ptr = M_Sqrt_postprocessing_revai;
             break;
-        case 10:        
+        case 10:
             self->muladd_func_ptr = M_Sqrt_postprocessing_ia;
             break;
-        case 11:    
+        case 11:
             self->muladd_func_ptr = M_Sqrt_postprocessing_aa;
             break;
-        case 12:    
+        case 12:
             self->muladd_func_ptr = M_Sqrt_postprocessing_revaa;
             break;
-        case 20:        
+        case 20:
             self->muladd_func_ptr = M_Sqrt_postprocessing_ireva;
             break;
-        case 21:    
+        case 21:
             self->muladd_func_ptr = M_Sqrt_postprocessing_areva;
             break;
-        case 22:    
+        case 22:
             self->muladd_func_ptr = M_Sqrt_postprocessing_revareva;
             break;
-    }   
+    }
 }
 
 static void
 M_Sqrt_compute_next_data_frame(M_Sqrt *self)
 {
-    (*self->proc_func_ptr)(self); 
+    (*self->proc_func_ptr)(self);
     (*self->muladd_func_ptr)(self);
 }
 
@@ -1181,7 +1181,7 @@ M_Sqrt_traverse(M_Sqrt *self, visitproc visit, void *arg)
     return 0;
 }
 
-static int 
+static int
 M_Sqrt_clear(M_Sqrt *self)
 {
     pyo_CLEAR
@@ -1205,31 +1205,31 @@ M_Sqrt_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp, *multmp=NULL, *addtmp=NULL;
     M_Sqrt *self;
     self = (M_Sqrt *)type->tp_alloc(type, 0);
-    
+
 	self->modebuffer[0] = 0;
 	self->modebuffer[1] = 0;
-    
+
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, M_Sqrt_compute_next_data_frame);
     self->mode_func_ptr = M_Sqrt_setProcMode;
 
     static char *kwlist[] = {"input", "mul", "add", NULL};
-    
+
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OO", kwlist, &inputtmp, &multmp, &addtmp))
         Py_RETURN_NONE;
-    
+
     INIT_INPUT_STREAM
-    
+
     if (multmp) {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
     }
-    
+
     if (addtmp) {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
-    
+
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
-    
+
     (*self->mode_func_ptr)(self);
 
     return (PyObject *)self;
@@ -1237,10 +1237,10 @@ M_Sqrt_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
 static PyObject * M_Sqrt_getServer(M_Sqrt* self) { GET_SERVER };
 static PyObject * M_Sqrt_getStream(M_Sqrt* self) { GET_STREAM };
-static PyObject * M_Sqrt_setMul(M_Sqrt *self, PyObject *arg) { SET_MUL };	
-static PyObject * M_Sqrt_setAdd(M_Sqrt *self, PyObject *arg) { SET_ADD };	
-static PyObject * M_Sqrt_setSub(M_Sqrt *self, PyObject *arg) { SET_SUB };	
-static PyObject * M_Sqrt_setDiv(M_Sqrt *self, PyObject *arg) { SET_DIV };	
+static PyObject * M_Sqrt_setMul(M_Sqrt *self, PyObject *arg) { SET_MUL };
+static PyObject * M_Sqrt_setAdd(M_Sqrt *self, PyObject *arg) { SET_ADD };
+static PyObject * M_Sqrt_setSub(M_Sqrt *self, PyObject *arg) { SET_SUB };
+static PyObject * M_Sqrt_setDiv(M_Sqrt *self, PyObject *arg) { SET_DIV };
 
 static PyObject * M_Sqrt_play(M_Sqrt *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * M_Sqrt_out(M_Sqrt *self, PyObject *args, PyObject *kwds) { OUT };
@@ -1376,12 +1376,12 @@ M_Log_process(M_Log *self) {
     int i;
     MYFLT inval;
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
-    
+
     for (i=0; i<self->bufsize; i++) {
         inval = in[i];
         if (inval <= 0.0)
             self->data[i] = 0.0;
-        else 
+        else
             self->data[i] = MYLOG(inval);
     }
 }
@@ -1401,44 +1401,44 @@ M_Log_setProcMode(M_Log *self)
 {
     int muladdmode;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
-    
+
     self->proc_func_ptr = M_Log_process;
-    
+
 	switch (muladdmode) {
-        case 0:        
+        case 0:
             self->muladd_func_ptr = M_Log_postprocessing_ii;
             break;
-        case 1:    
+        case 1:
             self->muladd_func_ptr = M_Log_postprocessing_ai;
             break;
-        case 2:    
+        case 2:
             self->muladd_func_ptr = M_Log_postprocessing_revai;
             break;
-        case 10:        
+        case 10:
             self->muladd_func_ptr = M_Log_postprocessing_ia;
             break;
-        case 11:    
+        case 11:
             self->muladd_func_ptr = M_Log_postprocessing_aa;
             break;
-        case 12:    
+        case 12:
             self->muladd_func_ptr = M_Log_postprocessing_revaa;
             break;
-        case 20:        
+        case 20:
             self->muladd_func_ptr = M_Log_postprocessing_ireva;
             break;
-        case 21:    
+        case 21:
             self->muladd_func_ptr = M_Log_postprocessing_areva;
             break;
-        case 22:    
+        case 22:
             self->muladd_func_ptr = M_Log_postprocessing_revareva;
             break;
-    }   
+    }
 }
 
 static void
 M_Log_compute_next_data_frame(M_Log *self)
 {
-    (*self->proc_func_ptr)(self); 
+    (*self->proc_func_ptr)(self);
     (*self->muladd_func_ptr)(self);
 }
 
@@ -1451,7 +1451,7 @@ M_Log_traverse(M_Log *self, visitproc visit, void *arg)
     return 0;
 }
 
-static int 
+static int
 M_Log_clear(M_Log *self)
 {
     pyo_CLEAR
@@ -1475,31 +1475,31 @@ M_Log_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp, *multmp=NULL, *addtmp=NULL;
     M_Log *self;
     self = (M_Log *)type->tp_alloc(type, 0);
-    
+
 	self->modebuffer[0] = 0;
 	self->modebuffer[1] = 0;
-    
+
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, M_Log_compute_next_data_frame);
     self->mode_func_ptr = M_Log_setProcMode;
 
     static char *kwlist[] = {"input", "mul", "add", NULL};
-    
+
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OO", kwlist, &inputtmp, &multmp, &addtmp))
         Py_RETURN_NONE;
-    
+
     INIT_INPUT_STREAM
-    
+
     if (multmp) {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
     }
-    
+
     if (addtmp) {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
-    
+
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
-    
+
     (*self->mode_func_ptr)(self);
 
     return (PyObject *)self;
@@ -1507,10 +1507,10 @@ M_Log_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
 static PyObject * M_Log_getServer(M_Log* self) { GET_SERVER };
 static PyObject * M_Log_getStream(M_Log* self) { GET_STREAM };
-static PyObject * M_Log_setMul(M_Log *self, PyObject *arg) { SET_MUL };	
-static PyObject * M_Log_setAdd(M_Log *self, PyObject *arg) { SET_ADD };	
-static PyObject * M_Log_setSub(M_Log *self, PyObject *arg) { SET_SUB };	
-static PyObject * M_Log_setDiv(M_Log *self, PyObject *arg) { SET_DIV };	
+static PyObject * M_Log_setMul(M_Log *self, PyObject *arg) { SET_MUL };
+static PyObject * M_Log_setAdd(M_Log *self, PyObject *arg) { SET_ADD };
+static PyObject * M_Log_setSub(M_Log *self, PyObject *arg) { SET_SUB };
+static PyObject * M_Log_setDiv(M_Log *self, PyObject *arg) { SET_DIV };
 
 static PyObject * M_Log_play(M_Log *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * M_Log_out(M_Log *self, PyObject *args, PyObject *kwds) { OUT };
@@ -1646,12 +1646,12 @@ M_Log10_process(M_Log10 *self) {
     int i;
     MYFLT inval;
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
-    
+
     for (i=0; i<self->bufsize; i++) {
         inval = in[i];
         if (inval <= 0.0)
             self->data[i] = 0.0;
-        else 
+        else
             self->data[i] = MYLOG10(inval);
     }
 }
@@ -1671,44 +1671,44 @@ M_Log10_setProcMode(M_Log10 *self)
 {
     int muladdmode;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
-    
+
     self->proc_func_ptr = M_Log10_process;
-    
+
 	switch (muladdmode) {
-        case 0:        
+        case 0:
             self->muladd_func_ptr = M_Log10_postprocessing_ii;
             break;
-        case 1:    
+        case 1:
             self->muladd_func_ptr = M_Log10_postprocessing_ai;
             break;
-        case 2:    
+        case 2:
             self->muladd_func_ptr = M_Log10_postprocessing_revai;
             break;
-        case 10:        
+        case 10:
             self->muladd_func_ptr = M_Log10_postprocessing_ia;
             break;
-        case 11:    
+        case 11:
             self->muladd_func_ptr = M_Log10_postprocessing_aa;
             break;
-        case 12:    
+        case 12:
             self->muladd_func_ptr = M_Log10_postprocessing_revaa;
             break;
-        case 20:        
+        case 20:
             self->muladd_func_ptr = M_Log10_postprocessing_ireva;
             break;
-        case 21:    
+        case 21:
             self->muladd_func_ptr = M_Log10_postprocessing_areva;
             break;
-        case 22:    
+        case 22:
             self->muladd_func_ptr = M_Log10_postprocessing_revareva;
             break;
-    }   
+    }
 }
 
 static void
 M_Log10_compute_next_data_frame(M_Log10 *self)
 {
-    (*self->proc_func_ptr)(self); 
+    (*self->proc_func_ptr)(self);
     (*self->muladd_func_ptr)(self);
 }
 
@@ -1721,7 +1721,7 @@ M_Log10_traverse(M_Log10 *self, visitproc visit, void *arg)
     return 0;
 }
 
-static int 
+static int
 M_Log10_clear(M_Log10 *self)
 {
     pyo_CLEAR
@@ -1745,31 +1745,31 @@ M_Log10_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp, *multmp=NULL, *addtmp=NULL;
     M_Log10 *self;
     self = (M_Log10 *)type->tp_alloc(type, 0);
-    
+
 	self->modebuffer[0] = 0;
 	self->modebuffer[1] = 0;
-    
+
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, M_Log10_compute_next_data_frame);
     self->mode_func_ptr = M_Log10_setProcMode;
 
     static char *kwlist[] = {"input", "mul", "add", NULL};
-    
+
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OO", kwlist, &inputtmp, &multmp, &addtmp))
         Py_RETURN_NONE;
-    
+
     INIT_INPUT_STREAM
-    
+
     if (multmp) {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
     }
-    
+
     if (addtmp) {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
-    
+
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
-    
+
     (*self->mode_func_ptr)(self);
 
     return (PyObject *)self;
@@ -1777,10 +1777,10 @@ M_Log10_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
 static PyObject * M_Log10_getServer(M_Log10* self) { GET_SERVER };
 static PyObject * M_Log10_getStream(M_Log10* self) { GET_STREAM };
-static PyObject * M_Log10_setMul(M_Log10 *self, PyObject *arg) { SET_MUL };	
-static PyObject * M_Log10_setAdd(M_Log10 *self, PyObject *arg) { SET_ADD };	
-static PyObject * M_Log10_setSub(M_Log10 *self, PyObject *arg) { SET_SUB };	
-static PyObject * M_Log10_setDiv(M_Log10 *self, PyObject *arg) { SET_DIV };	
+static PyObject * M_Log10_setMul(M_Log10 *self, PyObject *arg) { SET_MUL };
+static PyObject * M_Log10_setAdd(M_Log10 *self, PyObject *arg) { SET_ADD };
+static PyObject * M_Log10_setSub(M_Log10 *self, PyObject *arg) { SET_SUB };
+static PyObject * M_Log10_setDiv(M_Log10 *self, PyObject *arg) { SET_DIV };
 
 static PyObject * M_Log10_play(M_Log10 *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * M_Log10_out(M_Log10 *self, PyObject *args, PyObject *kwds) { OUT };
@@ -1916,12 +1916,12 @@ M_Log2_process(M_Log2 *self) {
     int i;
     MYFLT inval;
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
-    
+
     for (i=0; i<self->bufsize; i++) {
         inval = in[i];
         if (inval <= 0.0)
             self->data[i] = 0.0;
-        else 
+        else
             self->data[i] = MYLOG2(inval);
     }
 }
@@ -1941,44 +1941,44 @@ M_Log2_setProcMode(M_Log2 *self)
 {
     int muladdmode;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
-    
+
     self->proc_func_ptr = M_Log2_process;
-    
+
 	switch (muladdmode) {
-        case 0:        
+        case 0:
             self->muladd_func_ptr = M_Log2_postprocessing_ii;
             break;
-        case 1:    
+        case 1:
             self->muladd_func_ptr = M_Log2_postprocessing_ai;
             break;
-        case 2:    
+        case 2:
             self->muladd_func_ptr = M_Log2_postprocessing_revai;
             break;
-        case 10:        
+        case 10:
             self->muladd_func_ptr = M_Log2_postprocessing_ia;
             break;
-        case 11:    
+        case 11:
             self->muladd_func_ptr = M_Log2_postprocessing_aa;
             break;
-        case 12:    
+        case 12:
             self->muladd_func_ptr = M_Log2_postprocessing_revaa;
             break;
-        case 20:        
+        case 20:
             self->muladd_func_ptr = M_Log2_postprocessing_ireva;
             break;
-        case 21:    
+        case 21:
             self->muladd_func_ptr = M_Log2_postprocessing_areva;
             break;
-        case 22:    
+        case 22:
             self->muladd_func_ptr = M_Log2_postprocessing_revareva;
             break;
-    }   
+    }
 }
 
 static void
 M_Log2_compute_next_data_frame(M_Log2 *self)
 {
-    (*self->proc_func_ptr)(self); 
+    (*self->proc_func_ptr)(self);
     (*self->muladd_func_ptr)(self);
 }
 
@@ -1991,7 +1991,7 @@ M_Log2_traverse(M_Log2 *self, visitproc visit, void *arg)
     return 0;
 }
 
-static int 
+static int
 M_Log2_clear(M_Log2 *self)
 {
     pyo_CLEAR
@@ -2015,31 +2015,31 @@ M_Log2_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp, *multmp=NULL, *addtmp=NULL;
     M_Log2 *self;
     self = (M_Log2 *)type->tp_alloc(type, 0);
-    
+
 	self->modebuffer[0] = 0;
 	self->modebuffer[1] = 0;
-    
+
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, M_Log2_compute_next_data_frame);
     self->mode_func_ptr = M_Log2_setProcMode;
 
     static char *kwlist[] = {"input", "mul", "add", NULL};
-    
+
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OO", kwlist, &inputtmp, &multmp, &addtmp))
         Py_RETURN_NONE;
-    
+
     INIT_INPUT_STREAM
-    
+
     if (multmp) {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
     }
-    
+
     if (addtmp) {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
-    
+
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
-    
+
     (*self->mode_func_ptr)(self);
 
     return (PyObject *)self;
@@ -2047,10 +2047,10 @@ M_Log2_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
 static PyObject * M_Log2_getServer(M_Log2* self) { GET_SERVER };
 static PyObject * M_Log2_getStream(M_Log2* self) { GET_STREAM };
-static PyObject * M_Log2_setMul(M_Log2 *self, PyObject *arg) { SET_MUL };	
-static PyObject * M_Log2_setAdd(M_Log2 *self, PyObject *arg) { SET_ADD };	
-static PyObject * M_Log2_setSub(M_Log2 *self, PyObject *arg) { SET_SUB };	
-static PyObject * M_Log2_setDiv(M_Log2 *self, PyObject *arg) { SET_DIV };	
+static PyObject * M_Log2_setMul(M_Log2 *self, PyObject *arg) { SET_MUL };
+static PyObject * M_Log2_setAdd(M_Log2 *self, PyObject *arg) { SET_ADD };
+static PyObject * M_Log2_setSub(M_Log2 *self, PyObject *arg) { SET_SUB };
+static PyObject * M_Log2_setDiv(M_Log2 *self, PyObject *arg) { SET_DIV };
 
 static PyObject * M_Log2_play(M_Log2 *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * M_Log2_out(M_Log2 *self, PyObject *args, PyObject *kwds) { OUT };
@@ -2186,10 +2186,10 @@ typedef struct {
 static void
 M_Pow_readframes_ii(M_Pow *self) {
     int i;
-    
+
     MYFLT base = PyFloat_AS_DOUBLE(self->base);
     MYFLT exp = PyFloat_AS_DOUBLE(self->exponent);
-    
+
     for (i=0; i<self->bufsize; i++) {
         self->data[i] = MYPOW(base, exp);
     }
@@ -2198,10 +2198,10 @@ M_Pow_readframes_ii(M_Pow *self) {
 static void
 M_Pow_readframes_ai(M_Pow *self) {
     int i;
-    
+
     MYFLT *base = Stream_getData((Stream *)self->base_stream);
     MYFLT exp = PyFloat_AS_DOUBLE(self->exponent);
-    
+
     for (i=0; i<self->bufsize; i++) {
         self->data[i] = MYPOW(base[i], exp);
     }
@@ -2210,10 +2210,10 @@ M_Pow_readframes_ai(M_Pow *self) {
 static void
 M_Pow_readframes_ia(M_Pow *self) {
     int i;
-    
+
     MYFLT base = PyFloat_AS_DOUBLE(self->base);
     MYFLT *exp = Stream_getData((Stream *)self->exponent_stream);
-    
+
     for (i=0; i<self->bufsize; i++) {
         self->data[i] = MYPOW(base, exp[i]);
     }
@@ -2222,10 +2222,10 @@ M_Pow_readframes_ia(M_Pow *self) {
 static void
 M_Pow_readframes_aa(M_Pow *self) {
     int i;
-    
+
     MYFLT *base = Stream_getData((Stream *)self->base_stream);
     MYFLT *exp = Stream_getData((Stream *)self->exponent_stream);
-    
+
     for (i=0; i<self->bufsize; i++) {
         self->data[i] = MYPOW(base[i], exp[i]);
     }
@@ -2247,56 +2247,56 @@ M_Pow_setProcMode(M_Pow *self)
     int procmode, muladdmode;
     procmode = self->modebuffer[2] + self->modebuffer[3] * 10;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
-    
+
 	switch (procmode) {
-        case 0:        
+        case 0:
             self->proc_func_ptr = M_Pow_readframes_ii;
             break;
-        case 1:    
+        case 1:
             self->proc_func_ptr = M_Pow_readframes_ai;
             break;
-        case 10:        
+        case 10:
             self->proc_func_ptr = M_Pow_readframes_ia;
             break;
-        case 11:    
+        case 11:
             self->proc_func_ptr = M_Pow_readframes_aa;
             break;
-    } 
+    }
 	switch (muladdmode) {
-        case 0:        
+        case 0:
             self->muladd_func_ptr = M_Pow_postprocessing_ii;
             break;
-        case 1:    
+        case 1:
             self->muladd_func_ptr = M_Pow_postprocessing_ai;
             break;
-        case 2:    
+        case 2:
             self->muladd_func_ptr = M_Pow_postprocessing_revai;
             break;
-        case 10:        
+        case 10:
             self->muladd_func_ptr = M_Pow_postprocessing_ia;
             break;
-        case 11:    
+        case 11:
             self->muladd_func_ptr = M_Pow_postprocessing_aa;
             break;
-        case 12:    
+        case 12:
             self->muladd_func_ptr = M_Pow_postprocessing_revaa;
             break;
-        case 20:        
+        case 20:
             self->muladd_func_ptr = M_Pow_postprocessing_ireva;
             break;
-        case 21:    
+        case 21:
             self->muladd_func_ptr = M_Pow_postprocessing_areva;
             break;
-        case 22:    
+        case 22:
             self->muladd_func_ptr = M_Pow_postprocessing_revareva;
             break;
-    } 
+    }
 }
 
 static void
 M_Pow_compute_next_data_frame(M_Pow *self)
 {
-    (*self->proc_func_ptr)(self); 
+    (*self->proc_func_ptr)(self);
     (*self->muladd_func_ptr)(self);
 }
 
@@ -2304,21 +2304,21 @@ static int
 M_Pow_traverse(M_Pow *self, visitproc visit, void *arg)
 {
     pyo_VISIT
-    Py_VISIT(self->exponent);    
-    Py_VISIT(self->exponent_stream);    
-    Py_VISIT(self->base);    
-    Py_VISIT(self->base_stream);    
+    Py_VISIT(self->exponent);
+    Py_VISIT(self->exponent_stream);
+    Py_VISIT(self->base);
+    Py_VISIT(self->base_stream);
     return 0;
 }
 
-static int 
+static int
 M_Pow_clear(M_Pow *self)
 {
     pyo_CLEAR
-    Py_CLEAR(self->exponent);    
-    Py_CLEAR(self->exponent_stream);    
-    Py_CLEAR(self->base);    
-    Py_CLEAR(self->base_stream);    
+    Py_CLEAR(self->exponent);
+    Py_CLEAR(self->exponent_stream);
+    Py_CLEAR(self->base);
+    Py_CLEAR(self->base_stream);
     return 0;
 }
 
@@ -2337,41 +2337,41 @@ M_Pow_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *basetmp=NULL, *exponenttmp=NULL, *multmp=NULL, *addtmp=NULL;
     M_Pow *self;
     self = (M_Pow *)type->tp_alloc(type, 0);
-    
+
     self->base = PyFloat_FromDouble(10);
     self->exponent = PyFloat_FromDouble(1);
 	self->modebuffer[0] = 0;
 	self->modebuffer[1] = 0;
 	self->modebuffer[2] = 0;
 	self->modebuffer[3] = 0;
-    
+
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, M_Pow_compute_next_data_frame);
     self->mode_func_ptr = M_Pow_setProcMode;
-    
+
     static char *kwlist[] = {"base", "exponent", "mul", "add", NULL};
-    
+
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "|OOOO", kwlist, &basetmp, &exponenttmp, &multmp, &addtmp))
         Py_RETURN_NONE;
-    
+
     if (basetmp) {
         PyObject_CallMethod((PyObject *)self, "setBase", "O", basetmp);
     }
-    
+
     if (exponenttmp) {
         PyObject_CallMethod((PyObject *)self, "setExponent", "O", exponenttmp);
     }
-    
+
     if (multmp) {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
     }
-    
+
     if (addtmp) {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
-    
+
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
-    
+
     (*self->mode_func_ptr)(self);
 
     return (PyObject *)self;
@@ -2379,10 +2379,10 @@ M_Pow_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
 static PyObject * M_Pow_getServer(M_Pow* self) { GET_SERVER };
 static PyObject * M_Pow_getStream(M_Pow* self) { GET_STREAM };
-static PyObject * M_Pow_setMul(M_Pow *self, PyObject *arg) { SET_MUL };	
-static PyObject * M_Pow_setAdd(M_Pow *self, PyObject *arg) { SET_ADD };	
-static PyObject * M_Pow_setSub(M_Pow *self, PyObject *arg) { SET_SUB };	
-static PyObject * M_Pow_setDiv(M_Pow *self, PyObject *arg) { SET_DIV };	
+static PyObject * M_Pow_setMul(M_Pow *self, PyObject *arg) { SET_MUL };
+static PyObject * M_Pow_setAdd(M_Pow *self, PyObject *arg) { SET_ADD };
+static PyObject * M_Pow_setSub(M_Pow *self, PyObject *arg) { SET_SUB };
+static PyObject * M_Pow_setDiv(M_Pow *self, PyObject *arg) { SET_DIV };
 
 static PyObject * M_Pow_play(M_Pow *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * M_Pow_out(M_Pow *self, PyObject *args, PyObject *kwds) { OUT };
@@ -2401,14 +2401,14 @@ static PyObject *
 M_Pow_setBase(M_Pow *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
-	
+
 	if (arg == NULL) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
 	int isNumber = PyNumber_Check(arg);
-	
+
 	tmp = arg;
 	Py_INCREF(tmp);
 	Py_DECREF(self->base);
@@ -2424,25 +2424,25 @@ M_Pow_setBase(M_Pow *self, PyObject *arg)
         self->base_stream = (Stream *)streamtmp;
 		self->modebuffer[2] = 1;
 	}
-    
+
     (*self->mode_func_ptr)(self);
-    
+
 	Py_INCREF(Py_None);
 	return Py_None;
-}	
+}
 
 static PyObject *
 M_Pow_setExponent(M_Pow *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
-	
+
 	if (arg == NULL) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
 	int isNumber = PyNumber_Check(arg);
-	
+
 	tmp = arg;
 	Py_INCREF(tmp);
 	Py_DECREF(self->exponent);
@@ -2458,12 +2458,12 @@ M_Pow_setExponent(M_Pow *self, PyObject *arg)
         self->exponent_stream = (Stream *)streamtmp;
 		self->modebuffer[3] = 1;
 	}
-    
+
     (*self->mode_func_ptr)(self);
-    
+
 	Py_INCREF(Py_None);
 	return Py_None;
-}	
+}
 
 static PyMemberDef M_Pow_members[] = {
     {"server", T_OBJECT_EX, offsetof(M_Pow, server), 0, "Pyo server."},
@@ -2589,10 +2589,10 @@ typedef struct {
 static void
 M_Atan2_readframes_ii(M_Atan2 *self) {
     int i;
-    
+
     MYFLT b = PyFloat_AS_DOUBLE(self->b);
     MYFLT a = PyFloat_AS_DOUBLE(self->a);
-    
+
     for (i=0; i<self->bufsize; i++) {
         self->data[i] = MYATAN2(b, a);
     }
@@ -2601,10 +2601,10 @@ M_Atan2_readframes_ii(M_Atan2 *self) {
 static void
 M_Atan2_readframes_ai(M_Atan2 *self) {
     int i;
-    
+
     MYFLT *b = Stream_getData((Stream *)self->b_stream);
     MYFLT a = PyFloat_AS_DOUBLE(self->a);
-    
+
     for (i=0; i<self->bufsize; i++) {
         self->data[i] = MYATAN2(b[i], a);
     }
@@ -2613,10 +2613,10 @@ M_Atan2_readframes_ai(M_Atan2 *self) {
 static void
 M_Atan2_readframes_ia(M_Atan2 *self) {
     int i;
-    
+
     MYFLT b = PyFloat_AS_DOUBLE(self->b);
     MYFLT *a = Stream_getData((Stream *)self->a_stream);
-    
+
     for (i=0; i<self->bufsize; i++) {
         self->data[i] = MYATAN2(b, a[i]);
     }
@@ -2625,10 +2625,10 @@ M_Atan2_readframes_ia(M_Atan2 *self) {
 static void
 M_Atan2_readframes_aa(M_Atan2 *self) {
     int i;
-    
+
     MYFLT *b = Stream_getData((Stream *)self->b_stream);
     MYFLT *a = Stream_getData((Stream *)self->a_stream);
-    
+
     for (i=0; i<self->bufsize; i++) {
         self->data[i] = MYATAN2(b[i], a[i]);
     }
@@ -2650,56 +2650,56 @@ M_Atan2_setProcMode(M_Atan2 *self)
     int procmode, muladdmode;
     procmode = self->modebuffer[2] + self->modebuffer[3] * 10;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
-    
+
 	switch (procmode) {
-        case 0:        
+        case 0:
             self->proc_func_ptr = M_Atan2_readframes_ii;
             break;
-        case 1:    
+        case 1:
             self->proc_func_ptr = M_Atan2_readframes_ai;
             break;
-        case 10:        
+        case 10:
             self->proc_func_ptr = M_Atan2_readframes_ia;
             break;
-        case 11:    
+        case 11:
             self->proc_func_ptr = M_Atan2_readframes_aa;
             break;
-    } 
+    }
 	switch (muladdmode) {
-        case 0:        
+        case 0:
             self->muladd_func_ptr = M_Atan2_postprocessing_ii;
             break;
-        case 1:    
+        case 1:
             self->muladd_func_ptr = M_Atan2_postprocessing_ai;
             break;
-        case 2:    
+        case 2:
             self->muladd_func_ptr = M_Atan2_postprocessing_revai;
             break;
-        case 10:        
+        case 10:
             self->muladd_func_ptr = M_Atan2_postprocessing_ia;
             break;
-        case 11:    
+        case 11:
             self->muladd_func_ptr = M_Atan2_postprocessing_aa;
             break;
-        case 12:    
+        case 12:
             self->muladd_func_ptr = M_Atan2_postprocessing_revaa;
             break;
-        case 20:        
+        case 20:
             self->muladd_func_ptr = M_Atan2_postprocessing_ireva;
             break;
-        case 21:    
+        case 21:
             self->muladd_func_ptr = M_Atan2_postprocessing_areva;
             break;
-        case 22:    
+        case 22:
             self->muladd_func_ptr = M_Atan2_postprocessing_revareva;
             break;
-    } 
+    }
 }
 
 static void
 M_Atan2_compute_next_data_frame(M_Atan2 *self)
 {
-    (*self->proc_func_ptr)(self); 
+    (*self->proc_func_ptr)(self);
     (*self->muladd_func_ptr)(self);
 }
 
@@ -2707,21 +2707,21 @@ static int
 M_Atan2_traverse(M_Atan2 *self, visitproc visit, void *arg)
 {
     pyo_VISIT
-    Py_VISIT(self->b);    
-    Py_VISIT(self->b_stream);    
-    Py_VISIT(self->a);    
-    Py_VISIT(self->a_stream);    
+    Py_VISIT(self->b);
+    Py_VISIT(self->b_stream);
+    Py_VISIT(self->a);
+    Py_VISIT(self->a_stream);
     return 0;
 }
 
-static int 
+static int
 M_Atan2_clear(M_Atan2 *self)
 {
     pyo_CLEAR
-    Py_CLEAR(self->b);    
-    Py_CLEAR(self->b_stream);    
-    Py_CLEAR(self->a);    
-    Py_CLEAR(self->a_stream);    
+    Py_CLEAR(self->b);
+    Py_CLEAR(self->b_stream);
+    Py_CLEAR(self->a);
+    Py_CLEAR(self->a_stream);
     return 0;
 }
 
@@ -2740,52 +2740,52 @@ M_Atan2_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *btmp=NULL, *atmp=NULL, *multmp=NULL, *addtmp=NULL;
     M_Atan2 *self;
     self = (M_Atan2 *)type->tp_alloc(type, 0);
-    
+
     self->a = PyFloat_FromDouble(1);
     self->b = PyFloat_FromDouble(1);
 	self->modebuffer[0] = 0;
 	self->modebuffer[1] = 0;
 	self->modebuffer[2] = 0;
 	self->modebuffer[3] = 0;
-    
+
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, M_Atan2_compute_next_data_frame);
     self->mode_func_ptr = M_Atan2_setProcMode;
 
     static char *kwlist[] = {"b", "a", "mul", "add", NULL};
-    
+
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "|OOOO", kwlist, &btmp, &atmp, &multmp, &addtmp))
         Py_RETURN_NONE;
-    
+
     if (btmp) {
         PyObject_CallMethod((PyObject *)self, "setB", "O", btmp);
     }
-    
+
     if (atmp) {
         PyObject_CallMethod((PyObject *)self, "setA", "O", atmp);
     }
-    
+
     if (multmp) {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
     }
-    
+
     if (addtmp) {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
-    
+
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
-    
+
     (*self->mode_func_ptr)(self);
-    
+
     return (PyObject *)self;
 }
 
 static PyObject * M_Atan2_getServer(M_Atan2* self) { GET_SERVER };
 static PyObject * M_Atan2_getStream(M_Atan2* self) { GET_STREAM };
-static PyObject * M_Atan2_setMul(M_Atan2 *self, PyObject *arg) { SET_MUL };	
-static PyObject * M_Atan2_setAdd(M_Atan2 *self, PyObject *arg) { SET_ADD };	
-static PyObject * M_Atan2_setSub(M_Atan2 *self, PyObject *arg) { SET_SUB };	
-static PyObject * M_Atan2_setDiv(M_Atan2 *self, PyObject *arg) { SET_DIV };	
+static PyObject * M_Atan2_setMul(M_Atan2 *self, PyObject *arg) { SET_MUL };
+static PyObject * M_Atan2_setAdd(M_Atan2 *self, PyObject *arg) { SET_ADD };
+static PyObject * M_Atan2_setSub(M_Atan2 *self, PyObject *arg) { SET_SUB };
+static PyObject * M_Atan2_setDiv(M_Atan2 *self, PyObject *arg) { SET_DIV };
 
 static PyObject * M_Atan2_play(M_Atan2 *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * M_Atan2_out(M_Atan2 *self, PyObject *args, PyObject *kwds) { OUT };
@@ -2804,14 +2804,14 @@ static PyObject *
 M_Atan2_setB(M_Atan2 *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
-	
+
 	if (arg == NULL) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
 	int isNumber = PyNumber_Check(arg);
-	
+
 	tmp = arg;
 	Py_INCREF(tmp);
 	Py_DECREF(self->b);
@@ -2827,25 +2827,25 @@ M_Atan2_setB(M_Atan2 *self, PyObject *arg)
         self->b_stream = (Stream *)streamtmp;
 		self->modebuffer[2] = 1;
 	}
-    
+
     (*self->mode_func_ptr)(self);
-    
+
 	Py_INCREF(Py_None);
 	return Py_None;
-}	
+}
 
 static PyObject *
 M_Atan2_setA(M_Atan2 *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
-	
+
 	if (arg == NULL) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
 	int isNumber = PyNumber_Check(arg);
-	
+
 	tmp = arg;
 	Py_INCREF(tmp);
 	Py_DECREF(self->a);
@@ -2861,12 +2861,12 @@ M_Atan2_setA(M_Atan2 *self, PyObject *arg)
         self->a_stream = (Stream *)streamtmp;
 		self->modebuffer[3] = 1;
 	}
-    
+
     (*self->mode_func_ptr)(self);
-    
+
 	Py_INCREF(Py_None);
 	return Py_None;
-}	
+}
 
 static PyMemberDef M_Atan2_members[] = {
     {"server", T_OBJECT_EX, offsetof(M_Atan2, server), 0, "Pyo server."},
@@ -2991,7 +2991,7 @@ static void
 M_Floor_process(M_Floor *self) {
     int i;
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
-    
+
     for (i=0; i<self->bufsize; i++) {
         self->data[i] = MYFLOOR(in[i]);
     }
@@ -3012,44 +3012,44 @@ M_Floor_setProcMode(M_Floor *self)
 {
     int muladdmode;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
-    
+
     self->proc_func_ptr = M_Floor_process;
-    
+
 	switch (muladdmode) {
-        case 0:        
+        case 0:
             self->muladd_func_ptr = M_Floor_postprocessing_ii;
             break;
-        case 1:    
+        case 1:
             self->muladd_func_ptr = M_Floor_postprocessing_ai;
             break;
-        case 2:    
+        case 2:
             self->muladd_func_ptr = M_Floor_postprocessing_revai;
             break;
-        case 10:        
+        case 10:
             self->muladd_func_ptr = M_Floor_postprocessing_ia;
             break;
-        case 11:    
+        case 11:
             self->muladd_func_ptr = M_Floor_postprocessing_aa;
             break;
-        case 12:    
+        case 12:
             self->muladd_func_ptr = M_Floor_postprocessing_revaa;
             break;
-        case 20:        
+        case 20:
             self->muladd_func_ptr = M_Floor_postprocessing_ireva;
             break;
-        case 21:    
+        case 21:
             self->muladd_func_ptr = M_Floor_postprocessing_areva;
             break;
-        case 22:    
+        case 22:
             self->muladd_func_ptr = M_Floor_postprocessing_revareva;
             break;
-    }   
+    }
 }
 
 static void
 M_Floor_compute_next_data_frame(M_Floor *self)
 {
-    (*self->proc_func_ptr)(self); 
+    (*self->proc_func_ptr)(self);
     (*self->muladd_func_ptr)(self);
 }
 
@@ -3062,7 +3062,7 @@ M_Floor_traverse(M_Floor *self, visitproc visit, void *arg)
     return 0;
 }
 
-static int 
+static int
 M_Floor_clear(M_Floor *self)
 {
     pyo_CLEAR
@@ -3086,31 +3086,31 @@ M_Floor_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp, *multmp=NULL, *addtmp=NULL;
     M_Floor *self;
     self = (M_Floor *)type->tp_alloc(type, 0);
-    
+
 	self->modebuffer[0] = 0;
 	self->modebuffer[1] = 0;
-    
+
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, M_Floor_compute_next_data_frame);
     self->mode_func_ptr = M_Floor_setProcMode;
 
     static char *kwlist[] = {"input", "mul", "add", NULL};
-    
+
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OO", kwlist, &inputtmp, &multmp, &addtmp))
         Py_RETURN_NONE;
-    
+
     INIT_INPUT_STREAM
-    
+
     if (multmp) {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
     }
-    
+
     if (addtmp) {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
-    
+
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
-    
+
     (*self->mode_func_ptr)(self);
 
     return (PyObject *)self;
@@ -3118,10 +3118,10 @@ M_Floor_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
 static PyObject * M_Floor_getServer(M_Floor* self) { GET_SERVER };
 static PyObject * M_Floor_getStream(M_Floor* self) { GET_STREAM };
-static PyObject * M_Floor_setMul(M_Floor *self, PyObject *arg) { SET_MUL };	
-static PyObject * M_Floor_setAdd(M_Floor *self, PyObject *arg) { SET_ADD };	
-static PyObject * M_Floor_setSub(M_Floor *self, PyObject *arg) { SET_SUB };	
-static PyObject * M_Floor_setDiv(M_Floor *self, PyObject *arg) { SET_DIV };	
+static PyObject * M_Floor_setMul(M_Floor *self, PyObject *arg) { SET_MUL };
+static PyObject * M_Floor_setAdd(M_Floor *self, PyObject *arg) { SET_ADD };
+static PyObject * M_Floor_setSub(M_Floor *self, PyObject *arg) { SET_SUB };
+static PyObject * M_Floor_setDiv(M_Floor *self, PyObject *arg) { SET_DIV };
 
 static PyObject * M_Floor_play(M_Floor *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * M_Floor_out(M_Floor *self, PyObject *args, PyObject *kwds) { OUT };
@@ -3256,7 +3256,7 @@ static void
 M_Ceil_process(M_Ceil *self) {
     int i;
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
-    
+
     for (i=0; i<self->bufsize; i++) {
         self->data[i] = MYCEIL(in[i]);
     }
@@ -3277,44 +3277,44 @@ M_Ceil_setProcMode(M_Ceil *self)
 {
     int muladdmode;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
-    
+
     self->proc_func_ptr = M_Ceil_process;
-    
+
 	switch (muladdmode) {
-        case 0:        
+        case 0:
             self->muladd_func_ptr = M_Ceil_postprocessing_ii;
             break;
-        case 1:    
+        case 1:
             self->muladd_func_ptr = M_Ceil_postprocessing_ai;
             break;
-        case 2:    
+        case 2:
             self->muladd_func_ptr = M_Ceil_postprocessing_revai;
             break;
-        case 10:        
+        case 10:
             self->muladd_func_ptr = M_Ceil_postprocessing_ia;
             break;
-        case 11:    
+        case 11:
             self->muladd_func_ptr = M_Ceil_postprocessing_aa;
             break;
-        case 12:    
+        case 12:
             self->muladd_func_ptr = M_Ceil_postprocessing_revaa;
             break;
-        case 20:        
+        case 20:
             self->muladd_func_ptr = M_Ceil_postprocessing_ireva;
             break;
-        case 21:    
+        case 21:
             self->muladd_func_ptr = M_Ceil_postprocessing_areva;
             break;
-        case 22:    
+        case 22:
             self->muladd_func_ptr = M_Ceil_postprocessing_revareva;
             break;
-    }   
+    }
 }
 
 static void
 M_Ceil_compute_next_data_frame(M_Ceil *self)
 {
-    (*self->proc_func_ptr)(self); 
+    (*self->proc_func_ptr)(self);
     (*self->muladd_func_ptr)(self);
 }
 
@@ -3327,7 +3327,7 @@ M_Ceil_traverse(M_Ceil *self, visitproc visit, void *arg)
     return 0;
 }
 
-static int 
+static int
 M_Ceil_clear(M_Ceil *self)
 {
     pyo_CLEAR
@@ -3351,31 +3351,31 @@ M_Ceil_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp, *multmp=NULL, *addtmp=NULL;
     M_Ceil *self;
     self = (M_Ceil *)type->tp_alloc(type, 0);
-    
+
 	self->modebuffer[0] = 0;
 	self->modebuffer[1] = 0;
-    
+
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, M_Ceil_compute_next_data_frame);
     self->mode_func_ptr = M_Ceil_setProcMode;
 
     static char *kwlist[] = {"input", "mul", "add", NULL};
-    
+
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OO", kwlist, &inputtmp, &multmp, &addtmp))
         Py_RETURN_NONE;
-    
+
     INIT_INPUT_STREAM
-    
+
     if (multmp) {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
     }
-    
+
     if (addtmp) {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
-    
+
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
-    
+
     (*self->mode_func_ptr)(self);
 
     return (PyObject *)self;
@@ -3383,10 +3383,10 @@ M_Ceil_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
 static PyObject * M_Ceil_getServer(M_Ceil* self) { GET_SERVER };
 static PyObject * M_Ceil_getStream(M_Ceil* self) { GET_STREAM };
-static PyObject * M_Ceil_setMul(M_Ceil *self, PyObject *arg) { SET_MUL };	
-static PyObject * M_Ceil_setAdd(M_Ceil *self, PyObject *arg) { SET_ADD };	
-static PyObject * M_Ceil_setSub(M_Ceil *self, PyObject *arg) { SET_SUB };	
-static PyObject * M_Ceil_setDiv(M_Ceil *self, PyObject *arg) { SET_DIV };	
+static PyObject * M_Ceil_setMul(M_Ceil *self, PyObject *arg) { SET_MUL };
+static PyObject * M_Ceil_setAdd(M_Ceil *self, PyObject *arg) { SET_ADD };
+static PyObject * M_Ceil_setSub(M_Ceil *self, PyObject *arg) { SET_SUB };
+static PyObject * M_Ceil_setDiv(M_Ceil *self, PyObject *arg) { SET_DIV };
 
 static PyObject * M_Ceil_play(M_Ceil *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * M_Ceil_out(M_Ceil *self, PyObject *args, PyObject *kwds) { OUT };
@@ -3521,7 +3521,7 @@ static void
 M_Round_process(M_Round *self) {
     int i;
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
-    
+
     for (i=0; i<self->bufsize; i++) {
         self->data[i] = MYROUND(in[i]);
     }
@@ -3542,44 +3542,44 @@ M_Round_setProcMode(M_Round *self)
 {
     int muladdmode;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
-    
+
     self->proc_func_ptr = M_Round_process;
-    
+
 	switch (muladdmode) {
-        case 0:        
+        case 0:
             self->muladd_func_ptr = M_Round_postprocessing_ii;
             break;
-        case 1:    
+        case 1:
             self->muladd_func_ptr = M_Round_postprocessing_ai;
             break;
-        case 2:    
+        case 2:
             self->muladd_func_ptr = M_Round_postprocessing_revai;
             break;
-        case 10:        
+        case 10:
             self->muladd_func_ptr = M_Round_postprocessing_ia;
             break;
-        case 11:    
+        case 11:
             self->muladd_func_ptr = M_Round_postprocessing_aa;
             break;
-        case 12:    
+        case 12:
             self->muladd_func_ptr = M_Round_postprocessing_revaa;
             break;
-        case 20:        
+        case 20:
             self->muladd_func_ptr = M_Round_postprocessing_ireva;
             break;
-        case 21:    
+        case 21:
             self->muladd_func_ptr = M_Round_postprocessing_areva;
             break;
-        case 22:    
+        case 22:
             self->muladd_func_ptr = M_Round_postprocessing_revareva;
             break;
-    }   
+    }
 }
 
 static void
 M_Round_compute_next_data_frame(M_Round *self)
 {
-    (*self->proc_func_ptr)(self); 
+    (*self->proc_func_ptr)(self);
     (*self->muladd_func_ptr)(self);
 }
 
@@ -3592,7 +3592,7 @@ M_Round_traverse(M_Round *self, visitproc visit, void *arg)
     return 0;
 }
 
-static int 
+static int
 M_Round_clear(M_Round *self)
 {
     pyo_CLEAR
@@ -3616,31 +3616,31 @@ M_Round_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp, *multmp=NULL, *addtmp=NULL;
     M_Round *self;
     self = (M_Round *)type->tp_alloc(type, 0);
-    
+
 	self->modebuffer[0] = 0;
 	self->modebuffer[1] = 0;
-    
+
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, M_Round_compute_next_data_frame);
     self->mode_func_ptr = M_Round_setProcMode;
 
     static char *kwlist[] = {"input", "mul", "add", NULL};
-    
+
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OO", kwlist, &inputtmp, &multmp, &addtmp))
         Py_RETURN_NONE;
-    
+
     INIT_INPUT_STREAM
-    
+
     if (multmp) {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
     }
-    
+
     if (addtmp) {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
-    
+
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
-    
+
     (*self->mode_func_ptr)(self);
 
     return (PyObject *)self;
@@ -3648,10 +3648,10 @@ M_Round_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
 static PyObject * M_Round_getServer(M_Round* self) { GET_SERVER };
 static PyObject * M_Round_getStream(M_Round* self) { GET_STREAM };
-static PyObject * M_Round_setMul(M_Round *self, PyObject *arg) { SET_MUL };	
-static PyObject * M_Round_setAdd(M_Round *self, PyObject *arg) { SET_ADD };	
-static PyObject * M_Round_setSub(M_Round *self, PyObject *arg) { SET_SUB };	
-static PyObject * M_Round_setDiv(M_Round *self, PyObject *arg) { SET_DIV };	
+static PyObject * M_Round_setMul(M_Round *self, PyObject *arg) { SET_MUL };
+static PyObject * M_Round_setAdd(M_Round *self, PyObject *arg) { SET_ADD };
+static PyObject * M_Round_setSub(M_Round *self, PyObject *arg) { SET_SUB };
+static PyObject * M_Round_setDiv(M_Round *self, PyObject *arg) { SET_DIV };
 
 static PyObject * M_Round_play(M_Round *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * M_Round_out(M_Round *self, PyObject *args, PyObject *kwds) { OUT };
@@ -3786,7 +3786,7 @@ static void
 M_Tanh_process(M_Tanh *self) {
     int i;
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
-    
+
     for (i=0; i<self->bufsize; i++) {
         self->data[i] = MYTANH(in[i]);
     }
@@ -3807,44 +3807,44 @@ M_Tanh_setProcMode(M_Tanh *self)
 {
     int muladdmode;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
-    
+
     self->proc_func_ptr = M_Tanh_process;
- 
+
 	switch (muladdmode) {
-        case 0:        
+        case 0:
             self->muladd_func_ptr = M_Tanh_postprocessing_ii;
             break;
-        case 1:    
+        case 1:
             self->muladd_func_ptr = M_Tanh_postprocessing_ai;
             break;
-        case 2:    
+        case 2:
             self->muladd_func_ptr = M_Tanh_postprocessing_revai;
             break;
-        case 10:        
+        case 10:
             self->muladd_func_ptr = M_Tanh_postprocessing_ia;
             break;
-        case 11:    
+        case 11:
             self->muladd_func_ptr = M_Tanh_postprocessing_aa;
             break;
-        case 12:    
+        case 12:
             self->muladd_func_ptr = M_Tanh_postprocessing_revaa;
             break;
-        case 20:        
+        case 20:
             self->muladd_func_ptr = M_Tanh_postprocessing_ireva;
             break;
-        case 21:    
+        case 21:
             self->muladd_func_ptr = M_Tanh_postprocessing_areva;
             break;
-        case 22:    
+        case 22:
             self->muladd_func_ptr = M_Tanh_postprocessing_revareva;
             break;
-    }   
+    }
 }
 
 static void
 M_Tanh_compute_next_data_frame(M_Tanh *self)
 {
-    (*self->proc_func_ptr)(self); 
+    (*self->proc_func_ptr)(self);
     (*self->muladd_func_ptr)(self);
 }
 
@@ -3857,7 +3857,7 @@ M_Tanh_traverse(M_Tanh *self, visitproc visit, void *arg)
     return 0;
 }
 
-static int 
+static int
 M_Tanh_clear(M_Tanh *self)
 {
     pyo_CLEAR
@@ -3884,28 +3884,28 @@ M_Tanh_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
 	self->modebuffer[0] = 0;
 	self->modebuffer[1] = 0;
-    
+
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, M_Tanh_compute_next_data_frame);
     self->mode_func_ptr = M_Tanh_setProcMode;
 
     static char *kwlist[] = {"input", "mul", "add", NULL};
-    
+
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OO", kwlist, &inputtmp, &multmp, &addtmp))
         Py_RETURN_NONE;
 
     INIT_INPUT_STREAM
-    
+
     if (multmp) {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
     }
-    
+
     if (addtmp) {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
-    
+
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
-    
+
     (*self->mode_func_ptr)(self);
 
     return (PyObject *)self;
@@ -3913,10 +3913,10 @@ M_Tanh_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
 static PyObject * M_Tanh_getServer(M_Tanh* self) { GET_SERVER };
 static PyObject * M_Tanh_getStream(M_Tanh* self) { GET_STREAM };
-static PyObject * M_Tanh_setMul(M_Tanh *self, PyObject *arg) { SET_MUL };	
-static PyObject * M_Tanh_setAdd(M_Tanh *self, PyObject *arg) { SET_ADD };	
-static PyObject * M_Tanh_setSub(M_Tanh *self, PyObject *arg) { SET_SUB };	
-static PyObject * M_Tanh_setDiv(M_Tanh *self, PyObject *arg) { SET_DIV };	
+static PyObject * M_Tanh_setMul(M_Tanh *self, PyObject *arg) { SET_MUL };
+static PyObject * M_Tanh_setAdd(M_Tanh *self, PyObject *arg) { SET_ADD };
+static PyObject * M_Tanh_setSub(M_Tanh *self, PyObject *arg) { SET_SUB };
+static PyObject * M_Tanh_setDiv(M_Tanh *self, PyObject *arg) { SET_DIV };
 
 static PyObject * M_Tanh_play(M_Tanh *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * M_Tanh_out(M_Tanh *self, PyObject *args, PyObject *kwds) { OUT };

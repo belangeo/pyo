@@ -1,21 +1,21 @@
-/*************************************************************************
- * Copyright 2010 Olivier Belanger                                        *                  
- *                                                                        * 
+/**************************************************************************
+ * Copyright 2009-2015 Olivier Belanger                                   *
+ *                                                                        *
  * This file is part of pyo, a python module to help digital signal       *
- * processing script creation.                                            *  
- *                                                                        * 
+ * processing script creation.                                            *
+ *                                                                        *
  * pyo is free software: you can redistribute it and/or modify            *
- * it under the terms of the GNU General Public License as published by   *
- * the Free Software Foundation, either version 3 of the License, or      *
- * (at your option) any later version.                                    * 
+ * it under the terms of the GNU Lesser General Public License as         *
+ * published by the Free Software Foundation, either version 3 of the     *
+ * License, or (at your option) any later version.                        *
  *                                                                        *
  * pyo is distributed in the hope that it will be useful,                 *
- * but WITHOUT ANY WARRANTY; without even the implied warranty of         *    
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of         *
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the          *
- * GNU General Public License for more details.                           *
+ * GNU Lesser General Public License for more details.                    *
  *                                                                        *
- * You should have received a copy of the GNU General Public License      *
- * along with pyo.  If not, see <http://www.gnu.org/licenses/>.           *
+ * You should have received a copy of the GNU Lesser General Public       *
+ * License along with pyo.  If not, see <http://www.gnu.org/licenses/>.   *
  *************************************************************************/
 
 #include <Python.h>
@@ -58,7 +58,7 @@ Disto_transform_ii(Disto *self) {
 
     MYFLT drv = .4 - _clip(PyFloat_AS_DOUBLE(self->drive)) * .3999;
     MYFLT slp = _clip(PyFloat_AS_DOUBLE(self->slope));
-    
+
     for (i=0; i<self->bufsize; i++) {
         val = MYATAN2(in[i], drv);
         self->data[i] = val;
@@ -79,13 +79,13 @@ Disto_transform_ai(Disto *self) {
 
     MYFLT *drive = Stream_getData((Stream *)self->drive_stream);
     MYFLT slp = _clip(PyFloat_AS_DOUBLE(self->slope));
-    
+
     for (i=0; i<self->bufsize; i++) {
         drv = .4 - _clip(drive[i]) * .3999;
         val = MYATAN2(in[i], drv);
         self->data[i] = val;
     }
-    
+
     coeff = 1.0 - slp;
     for (i=0; i<self->bufsize; i++) {
         val = self->data[i] * coeff + self->y1 * slp;
@@ -99,10 +99,10 @@ Disto_transform_ia(Disto *self) {
     MYFLT val, coeff, slp;
     int i;
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
-    
+
     MYFLT drv = .4 - _clip(PyFloat_AS_DOUBLE(self->drive)) * .3999;
     MYFLT *slope = Stream_getData((Stream *)self->slope_stream);
-    
+
     for (i=0; i<self->bufsize; i++) {
         val = MYATAN2(in[i], drv);
         self->data[i] = val;
@@ -121,10 +121,10 @@ Disto_transform_aa(Disto *self) {
     MYFLT val, drv, coeff, slp;
     int i;
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
-    
+
     MYFLT *drive = Stream_getData((Stream *)self->drive_stream);
     MYFLT *slope = Stream_getData((Stream *)self->slope_stream);
-    
+
     for (i=0; i<self->bufsize; i++) {
         drv = .4 - _clip(drive[i]) * .3999;
         val = MYATAN2(in[i], drv);
@@ -157,54 +157,54 @@ Disto_setProcMode(Disto *self)
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
 
 	switch (procmode) {
-        case 0:    
+        case 0:
             self->proc_func_ptr = Disto_transform_ii;
             break;
-        case 1:    
+        case 1:
             self->proc_func_ptr = Disto_transform_ai;
             break;
-        case 10:        
+        case 10:
             self->proc_func_ptr = Disto_transform_ia;
             break;
-        case 11:    
+        case 11:
             self->proc_func_ptr = Disto_transform_aa;
             break;
-    } 
+    }
 	switch (muladdmode) {
-        case 0:        
+        case 0:
             self->muladd_func_ptr = Disto_postprocessing_ii;
             break;
-        case 1:    
+        case 1:
             self->muladd_func_ptr = Disto_postprocessing_ai;
             break;
-        case 2:    
+        case 2:
             self->muladd_func_ptr = Disto_postprocessing_revai;
             break;
-        case 10:        
+        case 10:
             self->muladd_func_ptr = Disto_postprocessing_ia;
             break;
-        case 11:    
+        case 11:
             self->muladd_func_ptr = Disto_postprocessing_aa;
             break;
-        case 12:    
+        case 12:
             self->muladd_func_ptr = Disto_postprocessing_revaa;
             break;
-        case 20:        
+        case 20:
             self->muladd_func_ptr = Disto_postprocessing_ireva;
             break;
-        case 21:    
+        case 21:
             self->muladd_func_ptr = Disto_postprocessing_areva;
             break;
-        case 22:    
+        case 22:
             self->muladd_func_ptr = Disto_postprocessing_revareva;
             break;
-    }   
+    }
 }
 
 static void
 Disto_compute_next_data_frame(Disto *self)
 {
-    (*self->proc_func_ptr)(self); 
+    (*self->proc_func_ptr)(self);
     (*self->muladd_func_ptr)(self);
 }
 
@@ -213,24 +213,24 @@ Disto_traverse(Disto *self, visitproc visit, void *arg)
 {
     pyo_VISIT
     Py_VISIT(self->input);
-    Py_VISIT(self->input_stream);    
-    Py_VISIT(self->drive);    
-    Py_VISIT(self->drive_stream);    
-    Py_VISIT(self->slope);    
-    Py_VISIT(self->slope_stream);    
+    Py_VISIT(self->input_stream);
+    Py_VISIT(self->drive);
+    Py_VISIT(self->drive_stream);
+    Py_VISIT(self->slope);
+    Py_VISIT(self->slope_stream);
     return 0;
 }
 
-static int 
+static int
 Disto_clear(Disto *self)
 {
     pyo_CLEAR
     Py_CLEAR(self->input);
     Py_CLEAR(self->input_stream);
-    Py_CLEAR(self->drive);    
-    Py_CLEAR(self->drive_stream);    
-    Py_CLEAR(self->slope);    
-    Py_CLEAR(self->slope_stream);    
+    Py_CLEAR(self->drive);
+    Py_CLEAR(self->drive_stream);
+    Py_CLEAR(self->slope);
+    Py_CLEAR(self->slope_stream);
     return 0;
 }
 
@@ -268,7 +268,7 @@ Disto_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         Py_RETURN_NONE;
 
     INIT_INPUT_STREAM
-    
+
     if (drivetmp) {
         PyObject_CallMethod((PyObject *)self, "setDrive", "O", drivetmp);
     }
@@ -276,7 +276,7 @@ Disto_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (slopetmp) {
         PyObject_CallMethod((PyObject *)self, "setSlope", "O", slopetmp);
     }
-    
+
     if (multmp) {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
     }
@@ -284,20 +284,20 @@ Disto_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (addtmp) {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
-            
+
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
     (*self->mode_func_ptr)(self);
-    
+
     return (PyObject *)self;
 }
 
 static PyObject * Disto_getServer(Disto* self) { GET_SERVER };
 static PyObject * Disto_getStream(Disto* self) { GET_STREAM };
-static PyObject * Disto_setMul(Disto *self, PyObject *arg) { SET_MUL };	
-static PyObject * Disto_setAdd(Disto *self, PyObject *arg) { SET_ADD };	
-static PyObject * Disto_setSub(Disto *self, PyObject *arg) { SET_SUB };	
-static PyObject * Disto_setDiv(Disto *self, PyObject *arg) { SET_DIV };	
+static PyObject * Disto_setMul(Disto *self, PyObject *arg) { SET_MUL };
+static PyObject * Disto_setAdd(Disto *self, PyObject *arg) { SET_ADD };
+static PyObject * Disto_setSub(Disto *self, PyObject *arg) { SET_SUB };
+static PyObject * Disto_setDiv(Disto *self, PyObject *arg) { SET_DIV };
 
 static PyObject * Disto_play(Disto *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * Disto_out(Disto *self, PyObject *args, PyObject *kwds) { OUT };
@@ -316,14 +316,14 @@ static PyObject *
 Disto_setDrive(Disto *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
-	
+
 	if (arg == NULL) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
 	int isNumber = PyNumber_Check(arg);
-	
+
 	tmp = arg;
 	Py_INCREF(tmp);
 	Py_DECREF(self->drive);
@@ -339,25 +339,25 @@ Disto_setDrive(Disto *self, PyObject *arg)
         self->drive_stream = (Stream *)streamtmp;
 		self->modebuffer[2] = 1;
 	}
-    
+
     (*self->mode_func_ptr)(self);
-    
+
 	Py_INCREF(Py_None);
 	return Py_None;
-}	
+}
 
 static PyObject *
 Disto_setSlope(Disto *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
-	
+
 	if (arg == NULL) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
 	int isNumber = PyNumber_Check(arg);
-	
+
 	tmp = arg;
 	Py_INCREF(tmp);
 	Py_DECREF(self->slope);
@@ -373,12 +373,12 @@ Disto_setSlope(Disto *self, PyObject *arg)
         self->slope_stream = (Stream *)streamtmp;
 		self->modebuffer[3] = 1;
 	}
-    
+
     (*self->mode_func_ptr)(self);
-    
+
 	Py_INCREF(Py_None);
 	return Py_None;
-}	
+}
 
 static PyMemberDef Disto_members[] = {
     {"server", T_OBJECT_EX, offsetof(Disto, server), 0, "Pyo server."},
@@ -512,7 +512,7 @@ Clip_transform_ii(Clip *self) {
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
     MYFLT mi = PyFloat_AS_DOUBLE(self->min);
     MYFLT ma = PyFloat_AS_DOUBLE(self->max);
-    
+
     for (i=0; i<self->bufsize; i++) {
         val = in[i];
         if(val < mi)
@@ -531,7 +531,7 @@ Clip_transform_ai(Clip *self) {
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
     MYFLT *mi = Stream_getData((Stream *)self->min_stream);
     MYFLT ma = PyFloat_AS_DOUBLE(self->max);
-    
+
     for (i=0; i<self->bufsize; i++) {
         val = in[i];
         mini = mi[i];
@@ -551,7 +551,7 @@ Clip_transform_ia(Clip *self) {
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
     MYFLT mi = PyFloat_AS_DOUBLE(self->min);
     MYFLT *ma = Stream_getData((Stream *)self->max_stream);
-    
+
     for (i=0; i<self->bufsize; i++) {
         val = in[i];
         maxi = ma[i];
@@ -563,7 +563,7 @@ Clip_transform_ia(Clip *self) {
             self->data[i] = val;
     }
 }
-    
+
 static void
 Clip_transform_aa(Clip *self) {
     MYFLT val, mini, maxi;
@@ -571,7 +571,7 @@ Clip_transform_aa(Clip *self) {
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
     MYFLT *mi = Stream_getData((Stream *)self->min_stream);
     MYFLT *ma = Stream_getData((Stream *)self->max_stream);
-    
+
     for (i=0; i<self->bufsize; i++) {
         val = in[i];
         mini = mi[i];
@@ -601,56 +601,56 @@ Clip_setProcMode(Clip *self)
     int procmode, muladdmode;
     procmode = self->modebuffer[2] + self->modebuffer[3] * 10;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
-    
+
 	switch (procmode) {
-        case 0:    
+        case 0:
             self->proc_func_ptr = Clip_transform_ii;
             break;
-        case 1:    
+        case 1:
             self->proc_func_ptr = Clip_transform_ai;
             break;
-        case 10:        
+        case 10:
             self->proc_func_ptr = Clip_transform_ia;
             break;
-        case 11:    
+        case 11:
             self->proc_func_ptr = Clip_transform_aa;
             break;
-    } 
+    }
 	switch (muladdmode) {
-        case 0:        
+        case 0:
             self->muladd_func_ptr = Clip_postprocessing_ii;
             break;
-        case 1:    
+        case 1:
             self->muladd_func_ptr = Clip_postprocessing_ai;
             break;
-        case 2:    
+        case 2:
             self->muladd_func_ptr = Clip_postprocessing_revai;
             break;
-        case 10:        
+        case 10:
             self->muladd_func_ptr = Clip_postprocessing_ia;
             break;
-        case 11:    
+        case 11:
             self->muladd_func_ptr = Clip_postprocessing_aa;
             break;
-        case 12:    
+        case 12:
             self->muladd_func_ptr = Clip_postprocessing_revaa;
             break;
-        case 20:        
+        case 20:
             self->muladd_func_ptr = Clip_postprocessing_ireva;
             break;
-        case 21:    
+        case 21:
             self->muladd_func_ptr = Clip_postprocessing_areva;
             break;
-        case 22:    
+        case 22:
             self->muladd_func_ptr = Clip_postprocessing_revareva;
             break;
-    }   
+    }
 }
 
 static void
 Clip_compute_next_data_frame(Clip *self)
 {
-    (*self->proc_func_ptr)(self); 
+    (*self->proc_func_ptr)(self);
     (*self->muladd_func_ptr)(self);
 }
 
@@ -659,24 +659,24 @@ Clip_traverse(Clip *self, visitproc visit, void *arg)
 {
     pyo_VISIT
     Py_VISIT(self->input);
-    Py_VISIT(self->input_stream);    
-    Py_VISIT(self->min);    
-    Py_VISIT(self->min_stream);    
-    Py_VISIT(self->max);    
-    Py_VISIT(self->max_stream);    
+    Py_VISIT(self->input_stream);
+    Py_VISIT(self->min);
+    Py_VISIT(self->min_stream);
+    Py_VISIT(self->max);
+    Py_VISIT(self->max_stream);
     return 0;
 }
 
-static int 
+static int
 Clip_clear(Clip *self)
 {
     pyo_CLEAR
     Py_CLEAR(self->input);
     Py_CLEAR(self->input_stream);
-    Py_CLEAR(self->min);    
-    Py_CLEAR(self->min_stream);    
-    Py_CLEAR(self->max);    
-    Py_CLEAR(self->max_stream);    
+    Py_CLEAR(self->min);
+    Py_CLEAR(self->min_stream);
+    Py_CLEAR(self->max);
+    Py_CLEAR(self->max_stream);
     return 0;
 }
 
@@ -695,54 +695,54 @@ Clip_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp, *mintmp=NULL, *maxtmp=NULL, *multmp=NULL, *addtmp=NULL;
     Clip *self;
     self = (Clip *)type->tp_alloc(type, 0);
-    
+
     self->min = PyFloat_FromDouble(-1.0);
     self->max = PyFloat_FromDouble(1.0);
 	self->modebuffer[0] = 0;
 	self->modebuffer[1] = 0;
 	self->modebuffer[2] = 0;
 	self->modebuffer[3] = 0;
-    
+
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, Clip_compute_next_data_frame);
     self->mode_func_ptr = Clip_setProcMode;
 
     static char *kwlist[] = {"input", "min", "max", "mul", "add", NULL};
-    
+
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOOO", kwlist, &inputtmp, &mintmp, &maxtmp, &multmp, &addtmp))
         Py_RETURN_NONE;
-    
+
     INIT_INPUT_STREAM
-    
+
     if (mintmp) {
         PyObject_CallMethod((PyObject *)self, "setMin", "O", mintmp);
     }
-    
+
     if (maxtmp) {
         PyObject_CallMethod((PyObject *)self, "setMax", "O", maxtmp);
     }
-    
+
     if (multmp) {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
     }
-    
+
     if (addtmp) {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
-    
+
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
-    
+
     (*self->mode_func_ptr)(self);
-    
+
     return (PyObject *)self;
 }
 
 static PyObject * Clip_getServer(Clip* self) { GET_SERVER };
 static PyObject * Clip_getStream(Clip* self) { GET_STREAM };
-static PyObject * Clip_setMul(Clip *self, PyObject *arg) { SET_MUL };	
-static PyObject * Clip_setAdd(Clip *self, PyObject *arg) { SET_ADD };	
-static PyObject * Clip_setSub(Clip *self, PyObject *arg) { SET_SUB };	
-static PyObject * Clip_setDiv(Clip *self, PyObject *arg) { SET_DIV };	
+static PyObject * Clip_setMul(Clip *self, PyObject *arg) { SET_MUL };
+static PyObject * Clip_setAdd(Clip *self, PyObject *arg) { SET_ADD };
+static PyObject * Clip_setSub(Clip *self, PyObject *arg) { SET_SUB };
+static PyObject * Clip_setDiv(Clip *self, PyObject *arg) { SET_DIV };
 
 static PyObject * Clip_play(Clip *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * Clip_out(Clip *self, PyObject *args, PyObject *kwds) { OUT };
@@ -761,14 +761,14 @@ static PyObject *
 Clip_setMin(Clip *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
-	
+
 	if (arg == NULL) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
 	int isNumber = PyNumber_Check(arg);
-	
+
 	tmp = arg;
 	Py_INCREF(tmp);
 	Py_DECREF(self->min);
@@ -784,25 +784,25 @@ Clip_setMin(Clip *self, PyObject *arg)
         self->min_stream = (Stream *)streamtmp;
 		self->modebuffer[2] = 1;
 	}
-    
+
     (*self->mode_func_ptr)(self);
-    
+
 	Py_INCREF(Py_None);
 	return Py_None;
-}	
+}
 
 static PyObject *
 Clip_setMax(Clip *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
-	
+
 	if (arg == NULL) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
 	int isNumber = PyNumber_Check(arg);
-	
+
 	tmp = arg;
 	Py_INCREF(tmp);
 	Py_DECREF(self->max);
@@ -818,12 +818,12 @@ Clip_setMax(Clip *self, PyObject *arg)
         self->max_stream = (Stream *)streamtmp;
 		self->modebuffer[3] = 1;
 	}
-    
+
     (*self->mode_func_ptr)(self);
-    
+
 	Py_INCREF(Py_None);
 	return Py_None;
-}	
+}
 
 static PyMemberDef Clip_members[] = {
 {"server", T_OBJECT_EX, offsetof(Clip, server), 0, "Pyo server."},
@@ -957,7 +957,7 @@ Mirror_transform_ii(Mirror *self) {
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
     MYFLT mi = PyFloat_AS_DOUBLE(self->min);
     MYFLT ma = PyFloat_AS_DOUBLE(self->max);
-    
+
     if (mi >= ma) {
         avg = (mi + ma) * 0.5;
         for (i=0; i<self->bufsize; i++) {
@@ -985,7 +985,7 @@ Mirror_transform_ai(Mirror *self) {
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
     MYFLT *mini = Stream_getData((Stream *)self->min_stream);
     MYFLT ma = PyFloat_AS_DOUBLE(self->max);
-    
+
     for (i=0; i<self->bufsize; i++) {
         val = in[i];
         mi = mini[i];
@@ -1000,7 +1000,7 @@ Mirror_transform_ai(Mirror *self) {
                 else
                     val = mi + mi - val;
             }
-            self->data[i] = val;            
+            self->data[i] = val;
         }
     }
 }
@@ -1012,7 +1012,7 @@ Mirror_transform_ia(Mirror *self) {
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
     MYFLT mi = PyFloat_AS_DOUBLE(self->min);
     MYFLT *maxi = Stream_getData((Stream *)self->max_stream);
-    
+
     for (i=0; i<self->bufsize; i++) {
         val = in[i];
         ma = maxi[i];
@@ -1027,7 +1027,7 @@ Mirror_transform_ia(Mirror *self) {
                 else
                     val = mi + mi - val;
             }
-            self->data[i] = val;            
+            self->data[i] = val;
         }
     }
 }
@@ -1039,7 +1039,7 @@ Mirror_transform_aa(Mirror *self) {
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
     MYFLT *mini = Stream_getData((Stream *)self->min_stream);
     MYFLT *maxi = Stream_getData((Stream *)self->max_stream);
-    
+
     for (i=0; i<self->bufsize; i++) {
         val = in[i];
         mi = mini[i];
@@ -1055,7 +1055,7 @@ Mirror_transform_aa(Mirror *self) {
                 else
                     val = mi + mi - val;
             }
-            self->data[i] = val;            
+            self->data[i] = val;
         }
     }
 }
@@ -1076,56 +1076,56 @@ Mirror_setProcMode(Mirror *self)
     int procmode, muladdmode;
     procmode = self->modebuffer[2] + self->modebuffer[3] * 10;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
-    
+
 	switch (procmode) {
-        case 0:    
+        case 0:
             self->proc_func_ptr = Mirror_transform_ii;
             break;
-        case 1:    
+        case 1:
             self->proc_func_ptr = Mirror_transform_ai;
             break;
-        case 10:        
+        case 10:
             self->proc_func_ptr = Mirror_transform_ia;
             break;
-        case 11:    
+        case 11:
             self->proc_func_ptr = Mirror_transform_aa;
             break;
-    } 
+    }
 	switch (muladdmode) {
-        case 0:        
+        case 0:
             self->muladd_func_ptr = Mirror_postprocessing_ii;
             break;
-        case 1:    
+        case 1:
             self->muladd_func_ptr = Mirror_postprocessing_ai;
             break;
-        case 2:    
+        case 2:
             self->muladd_func_ptr = Mirror_postprocessing_revai;
             break;
-        case 10:        
+        case 10:
             self->muladd_func_ptr = Mirror_postprocessing_ia;
             break;
-        case 11:    
+        case 11:
             self->muladd_func_ptr = Mirror_postprocessing_aa;
             break;
-        case 12:    
+        case 12:
             self->muladd_func_ptr = Mirror_postprocessing_revaa;
             break;
-        case 20:        
+        case 20:
             self->muladd_func_ptr = Mirror_postprocessing_ireva;
             break;
-        case 21:    
+        case 21:
             self->muladd_func_ptr = Mirror_postprocessing_areva;
             break;
-        case 22:    
+        case 22:
             self->muladd_func_ptr = Mirror_postprocessing_revareva;
             break;
-    }   
+    }
 }
 
 static void
 Mirror_compute_next_data_frame(Mirror *self)
 {
-    (*self->proc_func_ptr)(self); 
+    (*self->proc_func_ptr)(self);
     (*self->muladd_func_ptr)(self);
 }
 
@@ -1134,24 +1134,24 @@ Mirror_traverse(Mirror *self, visitproc visit, void *arg)
 {
     pyo_VISIT
     Py_VISIT(self->input);
-    Py_VISIT(self->input_stream);    
-    Py_VISIT(self->min);    
-    Py_VISIT(self->min_stream);    
-    Py_VISIT(self->max);    
-    Py_VISIT(self->max_stream);    
+    Py_VISIT(self->input_stream);
+    Py_VISIT(self->min);
+    Py_VISIT(self->min_stream);
+    Py_VISIT(self->max);
+    Py_VISIT(self->max_stream);
     return 0;
 }
 
-static int 
+static int
 Mirror_clear(Mirror *self)
 {
     pyo_CLEAR
     Py_CLEAR(self->input);
     Py_CLEAR(self->input_stream);
-    Py_CLEAR(self->min);    
-    Py_CLEAR(self->min_stream);    
-    Py_CLEAR(self->max);    
-    Py_CLEAR(self->max_stream);    
+    Py_CLEAR(self->min);
+    Py_CLEAR(self->min_stream);
+    Py_CLEAR(self->max);
+    Py_CLEAR(self->max_stream);
     return 0;
 }
 
@@ -1170,54 +1170,54 @@ Mirror_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp, *mintmp=NULL, *maxtmp=NULL, *multmp=NULL, *addtmp=NULL;
     Mirror *self;
     self = (Mirror *)type->tp_alloc(type, 0);
-    
+
     self->min = PyFloat_FromDouble(0.0);
     self->max = PyFloat_FromDouble(1.0);
 	self->modebuffer[0] = 0;
 	self->modebuffer[1] = 0;
 	self->modebuffer[2] = 0;
 	self->modebuffer[3] = 0;
-    
+
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, Mirror_compute_next_data_frame);
     self->mode_func_ptr = Mirror_setProcMode;
 
     static char *kwlist[] = {"input", "min", "max", "mul", "add", NULL};
-    
+
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOOO", kwlist, &inputtmp, &mintmp, &maxtmp, &multmp, &addtmp))
         Py_RETURN_NONE;
-    
+
     INIT_INPUT_STREAM
-    
+
     if (mintmp) {
         PyObject_CallMethod((PyObject *)self, "setMin", "O", mintmp);
     }
-    
+
     if (maxtmp) {
         PyObject_CallMethod((PyObject *)self, "setMax", "O", maxtmp);
     }
-    
+
     if (multmp) {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
     }
-    
+
     if (addtmp) {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
-    
+
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
-    
+
     (*self->mode_func_ptr)(self);
-    
+
     return (PyObject *)self;
 }
 
 static PyObject * Mirror_getServer(Mirror* self) { GET_SERVER };
 static PyObject * Mirror_getStream(Mirror* self) { GET_STREAM };
-static PyObject * Mirror_setMul(Mirror *self, PyObject *arg) { SET_MUL };	
-static PyObject * Mirror_setAdd(Mirror *self, PyObject *arg) { SET_ADD };	
-static PyObject * Mirror_setSub(Mirror *self, PyObject *arg) { SET_SUB };	
-static PyObject * Mirror_setDiv(Mirror *self, PyObject *arg) { SET_DIV };	
+static PyObject * Mirror_setMul(Mirror *self, PyObject *arg) { SET_MUL };
+static PyObject * Mirror_setAdd(Mirror *self, PyObject *arg) { SET_ADD };
+static PyObject * Mirror_setSub(Mirror *self, PyObject *arg) { SET_SUB };
+static PyObject * Mirror_setDiv(Mirror *self, PyObject *arg) { SET_DIV };
 
 static PyObject * Mirror_play(Mirror *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * Mirror_out(Mirror *self, PyObject *args, PyObject *kwds) { OUT };
@@ -1236,14 +1236,14 @@ static PyObject *
 Mirror_setMin(Mirror *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
-	
+
 	if (arg == NULL) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
 	int isNumber = PyNumber_Check(arg);
-	
+
 	tmp = arg;
 	Py_INCREF(tmp);
 	Py_DECREF(self->min);
@@ -1259,25 +1259,25 @@ Mirror_setMin(Mirror *self, PyObject *arg)
         self->min_stream = (Stream *)streamtmp;
 		self->modebuffer[2] = 1;
 	}
-    
+
     (*self->mode_func_ptr)(self);
-    
+
 	Py_INCREF(Py_None);
 	return Py_None;
-}	
+}
 
 static PyObject *
 Mirror_setMax(Mirror *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
-	
+
 	if (arg == NULL) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
 	int isNumber = PyNumber_Check(arg);
-	
+
 	tmp = arg;
 	Py_INCREF(tmp);
 	Py_DECREF(self->max);
@@ -1293,12 +1293,12 @@ Mirror_setMax(Mirror *self, PyObject *arg)
         self->max_stream = (Stream *)streamtmp;
 		self->modebuffer[3] = 1;
 	}
-    
+
     (*self->mode_func_ptr)(self);
-    
+
 	Py_INCREF(Py_None);
 	return Py_None;
-}	
+}
 
 static PyMemberDef Mirror_members[] = {
     {"server", T_OBJECT_EX, offsetof(Mirror, server), 0, "Pyo server."},
@@ -1432,7 +1432,7 @@ Wrap_transform_ii(Wrap *self) {
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
     MYFLT mi = PyFloat_AS_DOUBLE(self->min);
     MYFLT ma = PyFloat_AS_DOUBLE(self->max);
-    
+
     if (mi >= ma) {
         avg = (mi + ma) * 0.5;
         for (i=0; i<self->bufsize; i++) {
@@ -1453,7 +1453,7 @@ Wrap_transform_ii(Wrap *self) {
                 val = tmp * rng + mi;
                 if (val == ma)
                     val = mi;
-            }    
+            }
             self->data[i] = val;
         }
     }
@@ -1466,7 +1466,7 @@ Wrap_transform_ai(Wrap *self) {
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
     MYFLT *mini = Stream_getData((Stream *)self->min_stream);
     MYFLT ma = PyFloat_AS_DOUBLE(self->max);
-    
+
     for (i=0; i<self->bufsize; i++) {
         val = in[i];
         mi = mini[i];
@@ -1486,8 +1486,8 @@ Wrap_transform_ai(Wrap *self) {
                 val = tmp * rng + mi;
                 if (val == ma)
                     val = mi;
-            }    
-            self->data[i] = val;            
+            }
+            self->data[i] = val;
         }
     }
 }
@@ -1499,7 +1499,7 @@ Wrap_transform_ia(Wrap *self) {
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
     MYFLT mi = PyFloat_AS_DOUBLE(self->min);
     MYFLT *maxi = Stream_getData((Stream *)self->max_stream);
-    
+
     for (i=0; i<self->bufsize; i++) {
         val = in[i];
         ma = maxi[i];
@@ -1519,8 +1519,8 @@ Wrap_transform_ia(Wrap *self) {
                 val = tmp * rng + mi;
                 if (val == ma)
                     val = mi;
-            }    
-            self->data[i] = val;            
+            }
+            self->data[i] = val;
         }
     }
 }
@@ -1532,7 +1532,7 @@ Wrap_transform_aa(Wrap *self) {
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
     MYFLT *mini = Stream_getData((Stream *)self->min_stream);
     MYFLT *maxi = Stream_getData((Stream *)self->max_stream);
-    
+
     for (i=0; i<self->bufsize; i++) {
         val = in[i];
         mi = mini[i];
@@ -1553,8 +1553,8 @@ Wrap_transform_aa(Wrap *self) {
                 val = tmp * rng + mi;
                 if (val == ma)
                     val = mi;
-            }    
-            self->data[i] = val;            
+            }
+            self->data[i] = val;
         }
     }
 }
@@ -1575,56 +1575,56 @@ Wrap_setProcMode(Wrap *self)
     int procmode, muladdmode;
     procmode = self->modebuffer[2] + self->modebuffer[3] * 10;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
-    
+
 	switch (procmode) {
-        case 0:    
+        case 0:
             self->proc_func_ptr = Wrap_transform_ii;
             break;
-        case 1:    
+        case 1:
             self->proc_func_ptr = Wrap_transform_ai;
             break;
-        case 10:        
+        case 10:
             self->proc_func_ptr = Wrap_transform_ia;
             break;
-        case 11:    
+        case 11:
             self->proc_func_ptr = Wrap_transform_aa;
             break;
-    } 
+    }
 	switch (muladdmode) {
-        case 0:        
+        case 0:
             self->muladd_func_ptr = Wrap_postprocessing_ii;
             break;
-        case 1:    
+        case 1:
             self->muladd_func_ptr = Wrap_postprocessing_ai;
             break;
-        case 2:    
+        case 2:
             self->muladd_func_ptr = Wrap_postprocessing_revai;
             break;
-        case 10:        
+        case 10:
             self->muladd_func_ptr = Wrap_postprocessing_ia;
             break;
-        case 11:    
+        case 11:
             self->muladd_func_ptr = Wrap_postprocessing_aa;
             break;
-        case 12:    
+        case 12:
             self->muladd_func_ptr = Wrap_postprocessing_revaa;
             break;
-        case 20:        
+        case 20:
             self->muladd_func_ptr = Wrap_postprocessing_ireva;
             break;
-        case 21:    
+        case 21:
             self->muladd_func_ptr = Wrap_postprocessing_areva;
             break;
-        case 22:    
+        case 22:
             self->muladd_func_ptr = Wrap_postprocessing_revareva;
             break;
-    }   
+    }
 }
 
 static void
 Wrap_compute_next_data_frame(Wrap *self)
 {
-    (*self->proc_func_ptr)(self); 
+    (*self->proc_func_ptr)(self);
     (*self->muladd_func_ptr)(self);
 }
 
@@ -1633,24 +1633,24 @@ Wrap_traverse(Wrap *self, visitproc visit, void *arg)
 {
     pyo_VISIT
     Py_VISIT(self->input);
-    Py_VISIT(self->input_stream);    
-    Py_VISIT(self->min);    
-    Py_VISIT(self->min_stream);    
-    Py_VISIT(self->max);    
-    Py_VISIT(self->max_stream);    
+    Py_VISIT(self->input_stream);
+    Py_VISIT(self->min);
+    Py_VISIT(self->min_stream);
+    Py_VISIT(self->max);
+    Py_VISIT(self->max_stream);
     return 0;
 }
 
-static int 
+static int
 Wrap_clear(Wrap *self)
 {
     pyo_CLEAR
     Py_CLEAR(self->input);
     Py_CLEAR(self->input_stream);
-    Py_CLEAR(self->min);    
-    Py_CLEAR(self->min_stream);    
-    Py_CLEAR(self->max);    
-    Py_CLEAR(self->max_stream);    
+    Py_CLEAR(self->min);
+    Py_CLEAR(self->min_stream);
+    Py_CLEAR(self->max);
+    Py_CLEAR(self->max_stream);
     return 0;
 }
 
@@ -1669,54 +1669,54 @@ Wrap_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp, *mintmp=NULL, *maxtmp=NULL, *multmp=NULL, *addtmp=NULL;
     Wrap *self;
     self = (Wrap *)type->tp_alloc(type, 0);
-    
+
     self->min = PyFloat_FromDouble(0.0);
     self->max = PyFloat_FromDouble(1.0);
 	self->modebuffer[0] = 0;
 	self->modebuffer[1] = 0;
 	self->modebuffer[2] = 0;
 	self->modebuffer[3] = 0;
-    
+
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, Wrap_compute_next_data_frame);
     self->mode_func_ptr = Wrap_setProcMode;
 
     static char *kwlist[] = {"input", "min", "max", "mul", "add", NULL};
-    
+
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOOO", kwlist, &inputtmp, &mintmp, &maxtmp, &multmp, &addtmp))
         Py_RETURN_NONE;
-    
+
     INIT_INPUT_STREAM
-    
+
     if (mintmp) {
         PyObject_CallMethod((PyObject *)self, "setMin", "O", mintmp);
     }
-    
+
     if (maxtmp) {
         PyObject_CallMethod((PyObject *)self, "setMax", "O", maxtmp);
     }
-    
+
     if (multmp) {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
     }
-    
+
     if (addtmp) {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
-    
+
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
-    
+
     (*self->mode_func_ptr)(self);
-    
+
     return (PyObject *)self;
 }
 
 static PyObject * Wrap_getServer(Wrap* self) { GET_SERVER };
 static PyObject * Wrap_getStream(Wrap* self) { GET_STREAM };
-static PyObject * Wrap_setMul(Wrap *self, PyObject *arg) { SET_MUL };	
-static PyObject * Wrap_setAdd(Wrap *self, PyObject *arg) { SET_ADD };	
-static PyObject * Wrap_setSub(Wrap *self, PyObject *arg) { SET_SUB };	
-static PyObject * Wrap_setDiv(Wrap *self, PyObject *arg) { SET_DIV };	
+static PyObject * Wrap_setMul(Wrap *self, PyObject *arg) { SET_MUL };
+static PyObject * Wrap_setAdd(Wrap *self, PyObject *arg) { SET_ADD };
+static PyObject * Wrap_setSub(Wrap *self, PyObject *arg) { SET_SUB };
+static PyObject * Wrap_setDiv(Wrap *self, PyObject *arg) { SET_DIV };
 
 static PyObject * Wrap_play(Wrap *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * Wrap_out(Wrap *self, PyObject *args, PyObject *kwds) { OUT };
@@ -1735,14 +1735,14 @@ static PyObject *
 Wrap_setMin(Wrap *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
-	
+
 	if (arg == NULL) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
 	int isNumber = PyNumber_Check(arg);
-	
+
 	tmp = arg;
 	Py_INCREF(tmp);
 	Py_DECREF(self->min);
@@ -1758,25 +1758,25 @@ Wrap_setMin(Wrap *self, PyObject *arg)
         self->min_stream = (Stream *)streamtmp;
 		self->modebuffer[2] = 1;
 	}
-    
+
     (*self->mode_func_ptr)(self);
-    
+
 	Py_INCREF(Py_None);
 	return Py_None;
-}	
+}
 
 static PyObject *
 Wrap_setMax(Wrap *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
-	
+
 	if (arg == NULL) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
 	int isNumber = PyNumber_Check(arg);
-	
+
 	tmp = arg;
 	Py_INCREF(tmp);
 	Py_DECREF(self->max);
@@ -1792,12 +1792,12 @@ Wrap_setMax(Wrap *self, PyObject *arg)
         self->max_stream = (Stream *)streamtmp;
 		self->modebuffer[3] = 1;
 	}
-    
+
     (*self->mode_func_ptr)(self);
-    
+
 	Py_INCREF(Py_None);
 	return Py_None;
-}	
+}
 
 static PyMemberDef Wrap_members[] = {
     {"server", T_OBJECT_EX, offsetof(Wrap, server), 0, "Pyo server."},
@@ -1926,7 +1926,7 @@ typedef struct {
     int modebuffer[4];
 } Degrade;
 
-static MYFLT 
+static MYFLT
 _bit_clip(MYFLT x) {
     if (x < 1.0)
         return 1.0;
@@ -1936,7 +1936,7 @@ _bit_clip(MYFLT x) {
         return x;
 }
 
-static MYFLT 
+static MYFLT
 _sr_clip(MYFLT x) {
     // half sr ten times
     if (x <= 0.0009765625)
@@ -1951,23 +1951,23 @@ static void
 Degrade_transform_ii(Degrade *self) {
     MYFLT bitscl, ibitscl, newsr;
     int i, nsamps, tmp;
-    
+
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
     MYFLT bitdepth = _bit_clip(PyFloat_AS_DOUBLE(self->bitdepth));
     MYFLT srscale = _sr_clip(PyFloat_AS_DOUBLE(self->srscale));
-    
+
     bitscl = MYPOW(2.0, bitdepth-1);
     ibitscl = 1.0 / bitscl;
-    
+
     newsr = self->sr * srscale;
     nsamps = (int)(self->sr / newsr);
-    
+
     for (i=0; i<self->bufsize; i++) {
         self->sampsCount++;
         if (self->sampsCount >= nsamps) {
             self->sampsCount = 0;
             tmp = (int)(in[i] * bitscl + 0.5);
-            self->value = tmp * ibitscl;    
+            self->value = tmp * ibitscl;
         }
         self->data[i] = self->value;
     }
@@ -1977,14 +1977,14 @@ static void
 Degrade_transform_ai(Degrade *self) {
     MYFLT bitscl, ibitscl, newsr;
     int i, nsamps, tmp;
-    
+
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
     MYFLT *bitdepth = Stream_getData((Stream *)self->bitdepth_stream);
     MYFLT srscale = _sr_clip(PyFloat_AS_DOUBLE(self->srscale));
 
     newsr = self->sr * srscale;
     nsamps = (int)(self->sr / newsr);
-    
+
     for (i=0; i<self->bufsize; i++) {
         self->sampsCount++;
         if (self->sampsCount >= nsamps) {
@@ -1992,7 +1992,7 @@ Degrade_transform_ai(Degrade *self) {
             bitscl = MYPOW(2.0, _bit_clip(bitdepth[i])-1);
             ibitscl = 1.0 / bitscl;
             tmp = (int)(in[i] * bitscl + 0.5);
-            self->value = tmp * ibitscl;    
+            self->value = tmp * ibitscl;
         }
         self->data[i] = self->value;
     }
@@ -2002,11 +2002,11 @@ static void
 Degrade_transform_ia(Degrade *self) {
     MYFLT bitscl, ibitscl, newsr;
     int i, nsamps, tmp;
-    
+
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
     MYFLT bitdepth = _bit_clip(PyFloat_AS_DOUBLE(self->bitdepth));
     MYFLT *srscale = Stream_getData((Stream *)self->srscale_stream);
-    
+
     bitscl = MYPOW(2.0, bitdepth-1);
     ibitscl = 1.0 / bitscl;
 
@@ -2017,7 +2017,7 @@ Degrade_transform_ia(Degrade *self) {
         if (self->sampsCount >= nsamps) {
             self->sampsCount = 0;
             tmp = (int)(in[i] * bitscl + 0.5);
-            self->value = tmp * ibitscl;    
+            self->value = tmp * ibitscl;
         }
         self->data[i] = self->value;
     }
@@ -2027,7 +2027,7 @@ static void
 Degrade_transform_aa(Degrade *self) {
     MYFLT bitscl, ibitscl, newsr;
     int i, nsamps, tmp;
-    
+
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
     MYFLT *bitdepth = Stream_getData((Stream *)self->bitdepth_stream);
     MYFLT *srscale = Stream_getData((Stream *)self->srscale_stream);
@@ -2041,7 +2041,7 @@ Degrade_transform_aa(Degrade *self) {
             bitscl = MYPOW(2.0, _bit_clip(bitdepth[i])-1);
             ibitscl = 1.0 / bitscl;
             tmp = (int)(in[i] * bitscl + 0.5);
-            self->value = tmp * ibitscl;    
+            self->value = tmp * ibitscl;
         }
         self->data[i] = self->value;
     }
@@ -2063,56 +2063,56 @@ Degrade_setProcMode(Degrade *self)
     int procmode, muladdmode;
     procmode = self->modebuffer[2] + self->modebuffer[3] * 10;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
-    
+
 	switch (procmode) {
-        case 0:    
+        case 0:
             self->proc_func_ptr = Degrade_transform_ii;
             break;
-        case 1:    
+        case 1:
             self->proc_func_ptr = Degrade_transform_ai;
             break;
-        case 10:        
+        case 10:
             self->proc_func_ptr = Degrade_transform_ia;
             break;
-        case 11:    
+        case 11:
             self->proc_func_ptr = Degrade_transform_aa;
             break;
-    } 
+    }
 	switch (muladdmode) {
-        case 0:        
+        case 0:
             self->muladd_func_ptr = Degrade_postprocessing_ii;
             break;
-        case 1:    
+        case 1:
             self->muladd_func_ptr = Degrade_postprocessing_ai;
             break;
-        case 2:    
+        case 2:
             self->muladd_func_ptr = Degrade_postprocessing_revai;
             break;
-        case 10:        
+        case 10:
             self->muladd_func_ptr = Degrade_postprocessing_ia;
             break;
-        case 11:    
+        case 11:
             self->muladd_func_ptr = Degrade_postprocessing_aa;
             break;
-        case 12:    
+        case 12:
             self->muladd_func_ptr = Degrade_postprocessing_revaa;
             break;
-        case 20:        
+        case 20:
             self->muladd_func_ptr = Degrade_postprocessing_ireva;
             break;
-        case 21:    
+        case 21:
             self->muladd_func_ptr = Degrade_postprocessing_areva;
             break;
-        case 22:    
+        case 22:
             self->muladd_func_ptr = Degrade_postprocessing_revareva;
             break;
-    }   
+    }
 }
 
 static void
 Degrade_compute_next_data_frame(Degrade *self)
 {
-    (*self->proc_func_ptr)(self); 
+    (*self->proc_func_ptr)(self);
     (*self->muladd_func_ptr)(self);
 }
 
@@ -2121,24 +2121,24 @@ Degrade_traverse(Degrade *self, visitproc visit, void *arg)
 {
     pyo_VISIT
     Py_VISIT(self->input);
-    Py_VISIT(self->input_stream);    
-    Py_VISIT(self->bitdepth);    
-    Py_VISIT(self->bitdepth_stream);    
-    Py_VISIT(self->srscale);    
-    Py_VISIT(self->srscale_stream);    
+    Py_VISIT(self->input_stream);
+    Py_VISIT(self->bitdepth);
+    Py_VISIT(self->bitdepth_stream);
+    Py_VISIT(self->srscale);
+    Py_VISIT(self->srscale_stream);
     return 0;
 }
 
-static int 
+static int
 Degrade_clear(Degrade *self)
 {
     pyo_CLEAR
     Py_CLEAR(self->input);
     Py_CLEAR(self->input_stream);
-    Py_CLEAR(self->bitdepth);    
-    Py_CLEAR(self->bitdepth_stream);    
-    Py_CLEAR(self->srscale);    
-    Py_CLEAR(self->srscale_stream);    
+    Py_CLEAR(self->bitdepth);
+    Py_CLEAR(self->bitdepth_stream);
+    Py_CLEAR(self->srscale);
+    Py_CLEAR(self->srscale_stream);
     return 0;
 }
 
@@ -2157,7 +2157,7 @@ Degrade_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp, *bitdepthtmp=NULL, *srscaletmp=NULL, *multmp=NULL, *addtmp=NULL;
     Degrade *self;
     self = (Degrade *)type->tp_alloc(type, 0);
-    
+
     self->bitdepth = PyFloat_FromDouble(16);
     self->srscale = PyFloat_FromDouble(1.0);
     self->value = 0.0;
@@ -2166,47 +2166,47 @@ Degrade_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 	self->modebuffer[1] = 0;
 	self->modebuffer[2] = 0;
 	self->modebuffer[3] = 0;
-    
+
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, Degrade_compute_next_data_frame);
     self->mode_func_ptr = Degrade_setProcMode;
 
     static char *kwlist[] = {"input", "bitdepth", "srscale", "mul", "add", NULL};
-    
+
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOOO", kwlist, &inputtmp, &bitdepthtmp, &srscaletmp, &multmp, &addtmp))
         Py_RETURN_NONE;
-    
+
     INIT_INPUT_STREAM
-    
+
     if (bitdepthtmp) {
         PyObject_CallMethod((PyObject *)self, "setBitdepth", "O", bitdepthtmp);
     }
-    
+
     if (srscaletmp) {
         PyObject_CallMethod((PyObject *)self, "setSrscale", "O", srscaletmp);
     }
-    
+
     if (multmp) {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
     }
-    
+
     if (addtmp) {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
-    
+
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
-    
+
     (*self->mode_func_ptr)(self);
-    
+
     return (PyObject *)self;
 }
 
 static PyObject * Degrade_getServer(Degrade* self) { GET_SERVER };
 static PyObject * Degrade_getStream(Degrade* self) { GET_STREAM };
-static PyObject * Degrade_setMul(Degrade *self, PyObject *arg) { SET_MUL };	
-static PyObject * Degrade_setAdd(Degrade *self, PyObject *arg) { SET_ADD };	
-static PyObject * Degrade_setSub(Degrade *self, PyObject *arg) { SET_SUB };	
-static PyObject * Degrade_setDiv(Degrade *self, PyObject *arg) { SET_DIV };	
+static PyObject * Degrade_setMul(Degrade *self, PyObject *arg) { SET_MUL };
+static PyObject * Degrade_setAdd(Degrade *self, PyObject *arg) { SET_ADD };
+static PyObject * Degrade_setSub(Degrade *self, PyObject *arg) { SET_SUB };
+static PyObject * Degrade_setDiv(Degrade *self, PyObject *arg) { SET_DIV };
 
 static PyObject * Degrade_play(Degrade *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * Degrade_out(Degrade *self, PyObject *args, PyObject *kwds) { OUT };
@@ -2225,14 +2225,14 @@ static PyObject *
 Degrade_setBitdepth(Degrade *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
-	
+
 	if (arg == NULL) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
 	int isNumber = PyNumber_Check(arg);
-	
+
 	tmp = arg;
 	Py_INCREF(tmp);
 	Py_DECREF(self->bitdepth);
@@ -2248,25 +2248,25 @@ Degrade_setBitdepth(Degrade *self, PyObject *arg)
         self->bitdepth_stream = (Stream *)streamtmp;
 		self->modebuffer[2] = 1;
 	}
-    
+
     (*self->mode_func_ptr)(self);
-    
+
 	Py_INCREF(Py_None);
 	return Py_None;
-}	
+}
 
 static PyObject *
 Degrade_setSrscale(Degrade *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
-	
+
 	if (arg == NULL) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
 	int isNumber = PyNumber_Check(arg);
-	
+
 	tmp = arg;
 	Py_INCREF(tmp);
 	Py_DECREF(self->srscale);
@@ -2282,12 +2282,12 @@ Degrade_setSrscale(Degrade *self, PyObject *arg)
         self->srscale_stream = (Stream *)streamtmp;
 		self->modebuffer[3] = 1;
 	}
-    
+
     (*self->mode_func_ptr)(self);
-    
+
 	Py_INCREF(Py_None);
 	return Py_None;
-}	
+}
 
 static PyMemberDef Degrade_members[] = {
 {"server", T_OBJECT_EX, offsetof(Degrade, server), 0, "Pyo server."},
@@ -2408,7 +2408,7 @@ typedef struct {
     Stream *input_stream;
     PyObject *comp;
     Stream *comp_stream;
-    int modebuffer[3]; // need at least 2 slots for mul & add 
+    int modebuffer[3]; // need at least 2 slots for mul & add
 } Min;
 
 static void
@@ -2427,7 +2427,7 @@ Min_process_a(Min *self) {
     int i;
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
     MYFLT *cp = Stream_getData((Stream *)self->comp_stream);
-        
+
     for (i=0; i<self->bufsize; i++) {
         self->data[i] = in[i] < cp[i] ? in[i] : cp[i];
     }
@@ -2449,50 +2449,50 @@ Min_setProcMode(Min *self)
     int procmode, muladdmode;
     procmode = self->modebuffer[2];
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
-    
+
     switch (procmode) {
-        case 0:    
+        case 0:
             self->proc_func_ptr = Min_process_i;
             break;
-        case 1:    
+        case 1:
             self->proc_func_ptr = Min_process_a;
             break;
-    } 
+    }
     switch (muladdmode) {
-        case 0:        
+        case 0:
             self->muladd_func_ptr = Min_postprocessing_ii;
             break;
-        case 1:    
+        case 1:
             self->muladd_func_ptr = Min_postprocessing_ai;
             break;
-        case 2:    
+        case 2:
             self->muladd_func_ptr = Min_postprocessing_revai;
             break;
-        case 10:        
+        case 10:
             self->muladd_func_ptr = Min_postprocessing_ia;
             break;
-        case 11:    
+        case 11:
             self->muladd_func_ptr = Min_postprocessing_aa;
             break;
-        case 12:    
+        case 12:
             self->muladd_func_ptr = Min_postprocessing_revaa;
             break;
-        case 20:        
+        case 20:
             self->muladd_func_ptr = Min_postprocessing_ireva;
             break;
-        case 21:    
+        case 21:
             self->muladd_func_ptr = Min_postprocessing_areva;
             break;
-        case 22:    
+        case 22:
             self->muladd_func_ptr = Min_postprocessing_revareva;
             break;
-    }   
+    }
 }
 
 static void
 Min_compute_next_data_frame(Min *self)
 {
-    (*self->proc_func_ptr)(self); 
+    (*self->proc_func_ptr)(self);
     (*self->muladd_func_ptr)(self);
 }
 
@@ -2502,19 +2502,19 @@ Min_traverse(Min *self, visitproc visit, void *arg)
     pyo_VISIT
     Py_VISIT(self->input);
     Py_VISIT(self->input_stream);
-    Py_VISIT(self->comp);    
-    Py_VISIT(self->comp_stream);    
+    Py_VISIT(self->comp);
+    Py_VISIT(self->comp_stream);
     return 0;
 }
 
-static int 
+static int
 Min_clear(Min *self)
 {
     pyo_CLEAR
     Py_CLEAR(self->input);
     Py_CLEAR(self->input_stream);
-    Py_CLEAR(self->comp);    
-    Py_CLEAR(self->comp_stream);    
+    Py_CLEAR(self->comp);
+    Py_CLEAR(self->comp_stream);
     return 0;
 }
 
@@ -2533,38 +2533,38 @@ Min_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp, *comptmp=NULL, *multmp=NULL, *addtmp=NULL;
     Min *self;
     self = (Min *)type->tp_alloc(type, 0);
-    
+
     self->comp = PyFloat_FromDouble(0.5);
     self->modebuffer[0] = 0;
     self->modebuffer[1] = 0;
     self->modebuffer[2] = 0;
-    
+
     INIT_OBJECT_COMMON
 
     Stream_setFunctionPtr(self->stream, Min_compute_next_data_frame);
     self->mode_func_ptr = Min_setProcMode;
 
     static char *kwlist[] = {"input", "comp", "mul", "add", NULL};
-    
+
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOO", kwlist, &inputtmp, &comptmp, &multmp, &addtmp))
         Py_RETURN_NONE;
-    
+
     INIT_INPUT_STREAM
-    
+
     if (comptmp) {
         PyObject_CallMethod((PyObject *)self, "setComp", "O", comptmp);
     }
-    
+
     if (multmp) {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
     }
-    
+
     if (addtmp) {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
-    
+
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
-    
+
     (*self->mode_func_ptr)(self);
 
     return (PyObject *)self;
@@ -2572,10 +2572,10 @@ Min_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
 static PyObject * Min_getServer(Min* self) { GET_SERVER };
 static PyObject * Min_getStream(Min* self) { GET_STREAM };
-static PyObject * Min_setMul(Min *self, PyObject *arg) { SET_MUL };    
-static PyObject * Min_setAdd(Min *self, PyObject *arg) { SET_ADD };    
-static PyObject * Min_setSub(Min *self, PyObject *arg) { SET_SUB };    
-static PyObject * Min_setDiv(Min *self, PyObject *arg) { SET_DIV };    
+static PyObject * Min_setMul(Min *self, PyObject *arg) { SET_MUL };
+static PyObject * Min_setAdd(Min *self, PyObject *arg) { SET_ADD };
+static PyObject * Min_setSub(Min *self, PyObject *arg) { SET_SUB };
+static PyObject * Min_setDiv(Min *self, PyObject *arg) { SET_DIV };
 
 static PyObject * Min_play(Min *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * Min_out(Min *self, PyObject *args, PyObject *kwds) { OUT };
@@ -2594,14 +2594,14 @@ static PyObject *
 Min_setComp(Min *self, PyObject *arg)
 {
     PyObject *tmp, *streamtmp;
-    
+
     if (arg == NULL) {
         Py_INCREF(Py_None);
         return Py_None;
     }
-    
+
     int isNumber = PyNumber_Check(arg);
-    
+
     tmp = arg;
     Py_INCREF(tmp);
     Py_DECREF(self->comp);
@@ -2617,9 +2617,9 @@ Min_setComp(Min *self, PyObject *arg)
         self->comp_stream = (Stream *)streamtmp;
         self->modebuffer[2] = 1;
     }
-    
+
     (*self->mode_func_ptr)(self);
-    
+
     Py_INCREF(Py_None);
     return Py_None;
 }
@@ -2741,7 +2741,7 @@ typedef struct {
     Stream *input_stream;
     PyObject *comp;
     Stream *comp_stream;
-    int modebuffer[3]; // need at least 2 slots for mul & add 
+    int modebuffer[3]; // need at least 2 slots for mul & add
 } Max;
 
 static void
@@ -2760,7 +2760,7 @@ Max_process_a(Max *self) {
     int i;
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
     MYFLT *cp = Stream_getData((Stream *)self->comp_stream);
-        
+
     for (i=0; i<self->bufsize; i++) {
         self->data[i] = in[i] > cp[i] ? in[i] : cp[i];
     }
@@ -2782,50 +2782,50 @@ Max_setProcMode(Max *self)
     int procmode, muladdmode;
     procmode = self->modebuffer[2];
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
-    
+
     switch (procmode) {
-        case 0:    
+        case 0:
             self->proc_func_ptr = Max_process_i;
             break;
-        case 1:    
+        case 1:
             self->proc_func_ptr = Max_process_a;
             break;
-    } 
+    }
     switch (muladdmode) {
-        case 0:        
+        case 0:
             self->muladd_func_ptr = Max_postprocessing_ii;
             break;
-        case 1:    
+        case 1:
             self->muladd_func_ptr = Max_postprocessing_ai;
             break;
-        case 2:    
+        case 2:
             self->muladd_func_ptr = Max_postprocessing_revai;
             break;
-        case 10:        
+        case 10:
             self->muladd_func_ptr = Max_postprocessing_ia;
             break;
-        case 11:    
+        case 11:
             self->muladd_func_ptr = Max_postprocessing_aa;
             break;
-        case 12:    
+        case 12:
             self->muladd_func_ptr = Max_postprocessing_revaa;
             break;
-        case 20:        
+        case 20:
             self->muladd_func_ptr = Max_postprocessing_ireva;
             break;
-        case 21:    
+        case 21:
             self->muladd_func_ptr = Max_postprocessing_areva;
             break;
-        case 22:    
+        case 22:
             self->muladd_func_ptr = Max_postprocessing_revareva;
             break;
-    }   
+    }
 }
 
 static void
 Max_compute_next_data_frame(Max *self)
 {
-    (*self->proc_func_ptr)(self); 
+    (*self->proc_func_ptr)(self);
     (*self->muladd_func_ptr)(self);
 }
 
@@ -2835,19 +2835,19 @@ Max_traverse(Max *self, visitproc visit, void *arg)
     pyo_VISIT
     Py_VISIT(self->input);
     Py_VISIT(self->input_stream);
-    Py_VISIT(self->comp);    
-    Py_VISIT(self->comp_stream);    
+    Py_VISIT(self->comp);
+    Py_VISIT(self->comp_stream);
     return 0;
 }
 
-static int 
+static int
 Max_clear(Max *self)
 {
     pyo_CLEAR
     Py_CLEAR(self->input);
     Py_CLEAR(self->input_stream);
-    Py_CLEAR(self->comp);    
-    Py_CLEAR(self->comp_stream);    
+    Py_CLEAR(self->comp);
+    Py_CLEAR(self->comp_stream);
     return 0;
 }
 
@@ -2866,38 +2866,38 @@ Max_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp, *comptmp=NULL, *multmp=NULL, *addtmp=NULL;
     Max *self;
     self = (Max *)type->tp_alloc(type, 0);
-    
+
     self->comp = PyFloat_FromDouble(0.5);
     self->modebuffer[0] = 0;
     self->modebuffer[1] = 0;
     self->modebuffer[2] = 0;
-    
+
     INIT_OBJECT_COMMON
 
     Stream_setFunctionPtr(self->stream, Max_compute_next_data_frame);
     self->mode_func_ptr = Max_setProcMode;
 
     static char *kwlist[] = {"input", "comp", "mul", "add", NULL};
-    
+
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOO", kwlist, &inputtmp, &comptmp, &multmp, &addtmp))
         Py_RETURN_NONE;
-    
+
     INIT_INPUT_STREAM
-    
+
     if (comptmp) {
         PyObject_CallMethod((PyObject *)self, "setComp", "O", comptmp);
     }
-    
+
     if (multmp) {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
     }
-    
+
     if (addtmp) {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
-    
+
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
-    
+
     (*self->mode_func_ptr)(self);
 
     return (PyObject *)self;
@@ -2905,10 +2905,10 @@ Max_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
 static PyObject * Max_getServer(Max* self) { GET_SERVER };
 static PyObject * Max_getStream(Max* self) { GET_STREAM };
-static PyObject * Max_setMul(Max *self, PyObject *arg) { SET_MUL };    
-static PyObject * Max_setAdd(Max *self, PyObject *arg) { SET_ADD };    
-static PyObject * Max_setSub(Max *self, PyObject *arg) { SET_SUB };    
-static PyObject * Max_setDiv(Max *self, PyObject *arg) { SET_DIV };    
+static PyObject * Max_setMul(Max *self, PyObject *arg) { SET_MUL };
+static PyObject * Max_setAdd(Max *self, PyObject *arg) { SET_ADD };
+static PyObject * Max_setSub(Max *self, PyObject *arg) { SET_SUB };
+static PyObject * Max_setDiv(Max *self, PyObject *arg) { SET_DIV };
 
 static PyObject * Max_play(Max *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * Max_out(Max *self, PyObject *args, PyObject *kwds) { OUT };
@@ -2927,14 +2927,14 @@ static PyObject *
 Max_setComp(Max *self, PyObject *arg)
 {
     PyObject *tmp, *streamtmp;
-    
+
     if (arg == NULL) {
         Py_INCREF(Py_None);
         return Py_None;
     }
-    
+
     int isNumber = PyNumber_Check(arg);
-    
+
     tmp = arg;
     Py_INCREF(tmp);
     Py_DECREF(self->comp);
@@ -2950,9 +2950,9 @@ Max_setComp(Max *self, PyObject *arg)
         self->comp_stream = (Stream *)streamtmp;
         self->modebuffer[2] = 1;
     }
-    
+
     (*self->mode_func_ptr)(self);
-    
+
     Py_INCREF(Py_None);
     return Py_None;
 }

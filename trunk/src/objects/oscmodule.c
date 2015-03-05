@@ -1,21 +1,21 @@
-/*************************************************************************
- * Copyright 2010 Olivier Belanger                                        *                  
- *                                                                        * 
+/**************************************************************************
+ * Copyright 2009-2015 Olivier Belanger                                   *
+ *                                                                        *
  * This file is part of pyo, a python module to help digital signal       *
- * processing script creation.                                            *  
- *                                                                        * 
+ * processing script creation.                                            *
+ *                                                                        *
  * pyo is free software: you can redistribute it and/or modify            *
- * it under the terms of the GNU General Public License as published by   *
- * the Free Software Foundation, either version 3 of the License, or      *
- * (at your option) any later version.                                    * 
+ * it under the terms of the GNU Lesser General Public License as         *
+ * published by the Free Software Foundation, either version 3 of the     *
+ * License, or (at your option) any later version.                        *
  *                                                                        *
  * pyo is distributed in the hope that it will be useful,                 *
- * but WITHOUT ANY WARRANTY; without even the implied warranty of         *    
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of         *
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the          *
- * GNU General Public License for more details.                           *
+ * GNU Lesser General Public License for more details.                    *
  *                                                                        *
- * You should have received a copy of the GNU General Public License      *
- * along with pyo.  If not, see <http://www.gnu.org/licenses/>.           *
+ * You should have received a copy of the GNU Lesser General Public       *
+ * License along with pyo.  If not, see <http://www.gnu.org/licenses/>.   *
  *************************************************************************/
 
 #include <Python.h>
@@ -71,7 +71,7 @@ OscReceiver_traverse(OscReceiver *self, visitproc visit, void *arg)
     return 0;
 }
 
-static int 
+static int
 OscReceiver_clear(OscReceiver *self)
 {
     pyo_CLEAR
@@ -96,45 +96,45 @@ OscReceiver_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *pathtmp;
     OscReceiver *self;
     self = (OscReceiver *)type->tp_alloc(type, 0);
-    
+
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, OscReceiver_compute_next_data_frame);
 
     static char *kwlist[] = {"port", "address", NULL};
-    
+
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "iO", kwlist, &self->port, &pathtmp))
         Py_RETURN_NONE;
-    
+
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
-    
+
     self->dict = PyDict_New();
-    
+
     if (PyString_Check(pathtmp) || PyList_Check(pathtmp)) {
-        Py_INCREF(pathtmp);    
+        Py_INCREF(pathtmp);
         Py_XDECREF(self->address_path);
         self->address_path = pathtmp;
     }
     else {
         PyErr_SetString(PyExc_TypeError, "The address attributes must be a string or a list of strings.");
         Py_RETURN_NONE;
-    }    
-    
+    }
+
     if (PyString_Check(self->address_path)) {
         PyDict_SetItem(self->dict, self->address_path, PyFloat_FromDouble(0.));
-    }    
+    }
     else if (PyList_Check(self->address_path)) {
         int lsize = PyList_Size(self->address_path);
         for (i=0; i<lsize; i++) {
             PyDict_SetItem(self->dict, PyList_GET_ITEM(self->address_path, i), PyFloat_FromDouble(0.));
-        }    
+        }
     }
-    
+
     char buf[20];
     sprintf(buf, "%i", self->port);
     self->osc_server = lo_server_new(buf, error);
-    
+
     lo_server_add_method(self->osc_server, NULL, TYPE_F, OscReceiver_handler, self);
-    
+
     return (PyObject *)self;
 }
 
@@ -144,13 +144,13 @@ OscReceiver_addAddress(OscReceiver *self, PyObject *arg)
     int i;
     if (PyString_Check(arg)) {
         PyDict_SetItem(self->dict, arg, PyFloat_FromDouble(0.));
-    }    
+    }
     else if (PyList_Check(arg)) {
         Py_ssize_t lsize = PyList_Size(arg);
         for (i=0; i<lsize; i++) {
             PyDict_SetItem(self->dict, PyList_GET_ITEM(arg, i), PyFloat_FromDouble(0.));
-        }    
-    } 
+        }
+    }
 	Py_INCREF(Py_None);
 	return Py_None;
 }
@@ -161,13 +161,13 @@ OscReceiver_delAddress(OscReceiver *self, PyObject *arg)
     int i;
     if (PyString_Check(arg)) {
         PyDict_DelItem(self->dict, arg);
-    }    
+    }
     else if (PyList_Check(arg)) {
         Py_ssize_t lsize = PyList_Size(arg);
         for (i=0; i<lsize; i++) {
             PyDict_DelItem(self->dict, PyList_GET_ITEM(arg, i));
-        }    
-    } 
+        }
+    }
 	Py_INCREF(Py_None);
 	return Py_None;
 }
@@ -176,16 +176,16 @@ static PyObject *
 OscReceiver_setValue(OscReceiver *self, PyObject *args, PyObject *kwds)
 {
     PyObject *address, *value;
-    
+
     static char *kwlist[] = {"address", "value", NULL};
-    
+
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "OO", kwlist, &address, &value))
         Py_RETURN_NONE;
 
     PyDict_SetItem(self->dict, address, value);
     Py_RETURN_NONE;
 }
-  
+
 static PyObject * OscReceiver_getServer(OscReceiver* self) { GET_SERVER };
 static PyObject * OscReceiver_getStream(OscReceiver* self) { GET_STREAM };
 
@@ -272,33 +272,33 @@ OscReceive_setProcMode(OscReceive *self)
 {
     int muladdmode;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
-    
+
 	switch (muladdmode) {
-        case 0:        
+        case 0:
             self->muladd_func_ptr = OscReceive_postprocessing_ii;
             break;
-        case 1:    
+        case 1:
             self->muladd_func_ptr = OscReceive_postprocessing_ai;
             break;
-        case 2:    
+        case 2:
             self->muladd_func_ptr = OscReceive_postprocessing_revai;
             break;
-        case 10:        
+        case 10:
             self->muladd_func_ptr = OscReceive_postprocessing_ia;
             break;
-        case 11:    
+        case 11:
             self->muladd_func_ptr = OscReceive_postprocessing_aa;
             break;
-        case 12:    
+        case 12:
             self->muladd_func_ptr = OscReceive_postprocessing_revaa;
             break;
-        case 20:        
+        case 20:
             self->muladd_func_ptr = OscReceive_postprocessing_ireva;
             break;
-        case 21:    
+        case 21:
             self->muladd_func_ptr = OscReceive_postprocessing_areva;
             break;
-        case 22:    
+        case 22:
             self->muladd_func_ptr = OscReceive_postprocessing_revareva;
             break;
     }
@@ -309,17 +309,17 @@ OscReceive_compute_next_data_frame(OscReceive *self)
 {
     int i;
     MYFLT val = OscReceiver_getValue((OscReceiver *)self->input, self->address_path);
-    
+
     if (self->interpolation == 1) {
-        
+
         for (i=0; i<self->bufsize; i++) {
             self->data[i] = self->value = self->value + (val - self->value) * self->factor;
-        }  
+        }
     }
     else {
         for (i=0; i<self->bufsize; i++) {
             self->data[i] = self->value = val;
-        }  
+        }
     }
 
     (*self->muladd_func_ptr)(self);
@@ -334,7 +334,7 @@ OscReceive_traverse(OscReceive *self, visitproc visit, void *arg)
     return 0;
 }
 
-static int 
+static int
 OscReceive_clear(OscReceive *self)
 {
     pyo_CLEAR
@@ -383,22 +383,22 @@ OscReceive_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (multmp) {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
     }
-    
+
     if (addtmp) {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
-    
+
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
     if (! PyString_Check(pathtmp)) {
         PyErr_SetString(PyExc_TypeError, "The address attributes must be a string.");
         Py_RETURN_NONE;
-    }    
-        
-    Py_INCREF(pathtmp);    
+    }
+
+    Py_INCREF(pathtmp);
     Py_XDECREF(self->address_path);
     self->address_path = pathtmp;
-        
+
     (*self->mode_func_ptr)(self);
 
     return (PyObject *)self;
@@ -411,19 +411,19 @@ OscReceive_setInterpolation(OscReceive *self, PyObject *arg)
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
     self->interpolation = PyInt_AsLong(arg);
-    
+
 	Py_INCREF(Py_None);
 	return Py_None;
 }
 
 static PyObject * OscReceive_getServer(OscReceive* self) { GET_SERVER };
 static PyObject * OscReceive_getStream(OscReceive* self) { GET_STREAM };
-static PyObject * OscReceive_setMul(OscReceive *self, PyObject *arg) { SET_MUL };	
-static PyObject * OscReceive_setAdd(OscReceive *self, PyObject *arg) { SET_ADD };	
-static PyObject * OscReceive_setSub(OscReceive *self, PyObject *arg) { SET_SUB };	
-static PyObject * OscReceive_setDiv(OscReceive *self, PyObject *arg) { SET_DIV };	
+static PyObject * OscReceive_setMul(OscReceive *self, PyObject *arg) { SET_MUL };
+static PyObject * OscReceive_setAdd(OscReceive *self, PyObject *arg) { SET_ADD };
+static PyObject * OscReceive_setSub(OscReceive *self, PyObject *arg) { SET_SUB };
+static PyObject * OscReceive_setDiv(OscReceive *self, PyObject *arg) { SET_DIV };
 
 static PyObject * OscReceive_play(OscReceive *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * OscReceive_stop(OscReceive *self) { STOP };
@@ -563,9 +563,9 @@ OscSend_compute_next_data_frame(OscSend *self)
         self->count = 0;
         MYFLT *in = Stream_getData((Stream *)self->input_stream);
         float value = (float)in[0];
-    
+
         char *path  = PyString_AsString(self->address_path);
-    
+
         if (lo_send(self->address, path, "f", value) == -1) {
             printf("OSC error %d: %s\n", lo_address_errno(self->address), lo_address_errstr(self->address));
         }
@@ -582,7 +582,7 @@ OscSend_traverse(OscSend *self, visitproc visit, void *arg)
     return 0;
 }
 
-static int 
+static int
 OscSend_clear(OscSend *self)
 {
     pyo_CLEAR
@@ -607,36 +607,36 @@ OscSend_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp, *pathtmp;
     OscSend *self;
     self = (OscSend *)type->tp_alloc(type, 0);
-    
+
     self->host = NULL;
     self->count = 0;
     self->bufrate = 1;
-    
+
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, OscSend_compute_next_data_frame);
 
     static char *kwlist[] = {"input", "port", "address", "host", NULL};
-    
+
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "OiO|s", kwlist, &inputtmp, &self->port, &pathtmp, &self->host))
         Py_RETURN_NONE;
-    
+
     INIT_INPUT_STREAM
- 
+
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
-    
+
     if (! PyString_Check(pathtmp)) {
         PyErr_SetString(PyExc_TypeError, "The address attributes must be a string.");
         Py_RETURN_NONE;
-    }    
-    
-    Py_INCREF(pathtmp);    
+    }
+
+    Py_INCREF(pathtmp);
     Py_XDECREF(self->address_path);
     self->address_path = pathtmp;
-    
+
     char buf[20];
     sprintf(buf, "%i", self->port);
     self->address = lo_address_new(self->host, buf);
-    
+
     return (PyObject *)self;
 }
 
@@ -647,11 +647,11 @@ OscSend_setBufferRate(OscSend *self, PyObject *arg)
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
     self->bufrate = PyInt_AsLong(arg);
     if (self->bufrate < 1)
         self->bufrate = 1;
-    
+
 	Py_INCREF(Py_None);
 	return Py_None;
 }
@@ -735,11 +735,11 @@ typedef struct {
 
 static void
 OscDataSend_compute_next_data_frame(OscDataSend *self)
-{    
+{
     int i;
     lo_message *msg;
     char *path  = PyString_AsString(self->address_path);
-        
+
     if (self->something_to_send == 1) {
         msg = lo_message_new();
 
@@ -770,7 +770,7 @@ OscDataSend_compute_next_data_frame(OscDataSend *self)
         self->something_to_send = 0;
         lo_message_free(msg);
     }
-    
+
 }
 
 static int
@@ -782,7 +782,7 @@ OscDataSend_traverse(OscDataSend *self, visitproc visit, void *arg)
     return 0;
 }
 
-static int 
+static int
 OscDataSend_clear(OscDataSend *self)
 {
     pyo_CLEAR
@@ -806,34 +806,34 @@ OscDataSend_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *pathtmp;
     OscDataSend *self;
     self = (OscDataSend *)type->tp_alloc(type, 0);
-    
+
     self->host = NULL;
-    
+
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, OscDataSend_compute_next_data_frame);
 
     static char *kwlist[] = {"types", "port", "address", "host", NULL};
-    
+
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "siO|s", kwlist, &self->types, &self->port, &pathtmp, &self->host))
         Py_RETURN_NONE;
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
-    
+
     if (! PyString_Check(pathtmp)) {
         PyErr_SetString(PyExc_TypeError, "The address attributes must be a string.");
         Py_RETURN_NONE;
-    }    
-    
+    }
+
     self->num_items = strlen(self->types);
-    
-    Py_INCREF(pathtmp);    
+
+    Py_INCREF(pathtmp);
     Py_XDECREF(self->address_path);
     self->address_path = pathtmp;
-    
+
     char buf[20];
     sprintf(buf, "%i", self->port);
     self->address = lo_address_new(self->host, buf);
-    
+
     return (PyObject *)self;
 }
 
@@ -845,14 +845,14 @@ static PyObject * OscDataSend_stop(OscDataSend *self) { STOP };
 
 static PyObject *
 OscDataSend_send(OscDataSend *self, PyObject *arg)
-{	
+{
     PyObject *tmp;
-    
+
 	if (arg == NULL) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
     if (PyList_Check(arg)) {
         tmp = arg;
         Py_XDECREF(self->value);
@@ -865,7 +865,7 @@ OscDataSend_send(OscDataSend *self, PyObject *arg)
 
 	Py_INCREF(Py_None);
 	return Py_None;
-}	
+}
 
 static PyMemberDef OscDataSend_members[] = {
     {"server", T_OBJECT_EX, offsetof(OscDataSend, server), 0, "Pyo server."},
@@ -940,7 +940,7 @@ int OscDataReceive_handler(const char *path, const char *types, lo_arg **argv, i
     PyObject *tup, *result=NULL;
     tup = PyTuple_New(argc+1);
     int i, ok = 0;
-    
+
     Py_ssize_t lsize = PyList_Size(self->address_path);
     for (i=0; i<lsize; i++) {
         if (lo_pattern_match(path, PyString_AsString(PyList_GetItem(self->address_path, i)))) {
@@ -948,7 +948,7 @@ int OscDataReceive_handler(const char *path, const char *types, lo_arg **argv, i
             break;
         }
     }
-    
+
     if (ok) {
         PyTuple_SetItem(tup, 0, PyString_FromString(path));
         for (i=0; i<argc; i++) {
@@ -972,7 +972,7 @@ int OscDataReceive_handler(const char *path, const char *types, lo_arg **argv, i
                     break;
             }
         }
-        result = PyObject_Call(self->callable, tup, NULL);     
+        result = PyObject_Call(self->callable, tup, NULL);
         if (result == NULL)
             PyErr_Print();
     }
@@ -996,7 +996,7 @@ OscDataReceive_traverse(OscDataReceive *self, visitproc visit, void *arg)
     return 0;
 }
 
-static int 
+static int
 OscDataReceive_clear(OscDataReceive *self)
 {
     pyo_CLEAR
@@ -1021,36 +1021,36 @@ OscDataReceive_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *pathtmp, *calltmp;
     OscDataReceive *self;
     self = (OscDataReceive *)type->tp_alloc(type, 0);
-    
+
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, OscDataReceive_compute_next_data_frame);
 
     static char *kwlist[] = {"port", "address", "callable", NULL};
-    
+
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "iOO", kwlist, &self->port, &pathtmp, &calltmp))
         Py_RETURN_NONE;
-    
+
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
     Py_XDECREF(self->callable);
     self->callable = calltmp;
-    
+
     if (PyString_Check(pathtmp) || PyList_Check(pathtmp)) {
-        Py_INCREF(pathtmp);    
+        Py_INCREF(pathtmp);
         Py_XDECREF(self->address_path);
         self->address_path = pathtmp;
     }
     else {
         PyErr_SetString(PyExc_TypeError, "The address attributes must be a string or a list of strings.");
         Py_RETURN_NONE;
-    }    
+    }
 
     char buf[20];
     sprintf(buf, "%i", self->port);
     self->osc_server = lo_server_new(buf, error);
-    
+
     lo_server_add_method(self->osc_server, NULL, NULL, OscDataReceive_handler, self);
-    
+
     return (PyObject *)self;
 }
 
@@ -1173,7 +1173,7 @@ int OscListReceiver_handler(const char *path, const char *types, lo_arg **argv, 
     return 0;
 }
 
-PyObject * 
+PyObject *
 OscListReceiver_getValue(OscListReceiver *self, PyObject *path)
 {
     PyObject *tmp;
@@ -1196,7 +1196,7 @@ OscListReceiver_traverse(OscListReceiver *self, visitproc visit, void *arg)
     return 0;
 }
 
-static int 
+static int
 OscListReceiver_clear(OscListReceiver *self)
 {
     pyo_CLEAR
@@ -1221,30 +1221,30 @@ OscListReceiver_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *pathtmp, *flist;
     OscListReceiver *self;
     self = (OscListReceiver *)type->tp_alloc(type, 0);
-    
+
     self->num = 8;
-    
+
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, OscListReceiver_compute_next_data_frame);
 
     static char *kwlist[] = {"port", "address", "num", NULL};
-    
+
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "iO|i", kwlist, &self->port, &pathtmp, &self->num))
         Py_RETURN_NONE;
-    
+
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
-    
+
     self->dict = PyDict_New();
-    
+
     if (PyString_Check(pathtmp) || PyList_Check(pathtmp)) {
-        Py_INCREF(pathtmp);    
+        Py_INCREF(pathtmp);
         Py_XDECREF(self->address_path);
         self->address_path = pathtmp;
     }
     else {
         PyErr_SetString(PyExc_TypeError, "The address attributes must be a string or a list of strings.");
         Py_RETURN_NONE;
-    }    
+    }
 
     if (PyString_Check(self->address_path)) {
         flist = PyList_New(self->num);
@@ -1252,7 +1252,7 @@ OscListReceiver_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
             PyList_SET_ITEM(flist, j, PyFloat_FromDouble(0.));
         }
         PyDict_SetItem(self->dict, self->address_path, flist);
-    }    
+    }
     else if (PyList_Check(self->address_path)) {
         int lsize = PyList_Size(self->address_path);
         for (i=0; i<lsize; i++) {
@@ -1261,15 +1261,15 @@ OscListReceiver_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
                 PyList_SET_ITEM(flist, j, PyFloat_FromDouble(0.));
             }
             PyDict_SetItem(self->dict, PyList_GET_ITEM(self->address_path, i), flist);
-        }    
+        }
     }
-    
+
     char buf[20];
     sprintf(buf, "%i", self->port);
     self->osc_server = lo_server_new(buf, error);
-    
+
     lo_server_add_method(self->osc_server, NULL, NULL, OscListReceiver_handler, self);
-    
+
     return (PyObject *)self;
 }
 
@@ -1285,7 +1285,7 @@ OscListReceiver_addAddress(OscListReceiver *self, PyObject *arg)
             PyList_SET_ITEM(flist, j, PyFloat_FromDouble(0.));
         }
         PyDict_SetItem(self->dict, arg, flist);
-    }    
+    }
     else if (PyList_Check(arg)) {
         Py_ssize_t lsize = PyList_Size(arg);
         for (i=0; i<lsize; i++) {
@@ -1294,8 +1294,8 @@ OscListReceiver_addAddress(OscListReceiver *self, PyObject *arg)
                 PyList_SET_ITEM(flist, j, PyFloat_FromDouble(0.));
             }
             PyDict_SetItem(self->dict, PyList_GET_ITEM(arg, i), flist);
-        }    
-    } 
+        }
+    }
 	Py_INCREF(Py_None);
 	return Py_None;
 }
@@ -1306,13 +1306,13 @@ OscListReceiver_delAddress(OscListReceiver *self, PyObject *arg)
     int i;
     if (PyString_Check(arg)) {
         PyDict_DelItem(self->dict, arg);
-    }    
+    }
     else if (PyList_Check(arg)) {
         Py_ssize_t lsize = PyList_Size(arg);
         for (i=0; i<lsize; i++) {
             PyDict_DelItem(self->dict, PyList_GET_ITEM(arg, i));
-        }    
-    } 
+        }
+    }
 	Py_INCREF(Py_None);
 	return Py_None;
 }
@@ -1323,10 +1323,10 @@ OscListReceiver_setValue(OscListReceiver *self, PyObject *args, PyObject *kwds)
     PyObject *address, *value;
 
     static char *kwlist[] = {"address", "value", NULL};
-    
+
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "OO", kwlist, &address, &value))
         Py_RETURN_NONE;
-    
+
     PyDict_SetItem(self->dict, address, value);
     Py_RETURN_NONE;
 }
@@ -1418,33 +1418,33 @@ OscListReceive_setProcMode(OscListReceive *self)
 {
     int muladdmode;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
-    
+
 	switch (muladdmode) {
-        case 0:        
+        case 0:
             self->muladd_func_ptr = OscListReceive_postprocessing_ii;
             break;
-        case 1:    
+        case 1:
             self->muladd_func_ptr = OscListReceive_postprocessing_ai;
             break;
-        case 2:    
+        case 2:
             self->muladd_func_ptr = OscListReceive_postprocessing_revai;
             break;
-        case 10:        
+        case 10:
             self->muladd_func_ptr = OscListReceive_postprocessing_ia;
             break;
-        case 11:    
+        case 11:
             self->muladd_func_ptr = OscListReceive_postprocessing_aa;
             break;
-        case 12:    
+        case 12:
             self->muladd_func_ptr = OscListReceive_postprocessing_revaa;
             break;
-        case 20:        
+        case 20:
             self->muladd_func_ptr = OscListReceive_postprocessing_ireva;
             break;
-        case 21:    
+        case 21:
             self->muladd_func_ptr = OscListReceive_postprocessing_areva;
             break;
-        case 22:    
+        case 22:
             self->muladd_func_ptr = OscListReceive_postprocessing_revareva;
             break;
     }
@@ -1458,17 +1458,17 @@ OscListReceive_compute_next_data_frame(OscListReceive *self)
     MYFLT val = PyFloat_AsDouble(PyList_GET_ITEM(flist, self->order));
 
     if (self->interpolation == 1) {
-        
+
         for (i=0; i<self->bufsize; i++) {
             self->data[i] = self->value = self->value + (val - self->value) * self->factor;
-        }  
+        }
     }
     else {
         for (i=0; i<self->bufsize; i++) {
             self->data[i] = self->value = val;
-        }  
+        }
     }
-    
+
     (*self->muladd_func_ptr)(self);
 }
 
@@ -1481,7 +1481,7 @@ OscListReceive_traverse(OscListReceive *self, visitproc visit, void *arg)
     return 0;
 }
 
-static int 
+static int
 OscListReceive_clear(OscListReceive *self)
 {
     pyo_CLEAR
@@ -1505,50 +1505,50 @@ OscListReceive_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp=NULL, *pathtmp=NULL, *multmp=NULL, *addtmp=NULL;;
     OscListReceive *self;
     self = (OscListReceive *)type->tp_alloc(type, 0);
-    
+
     self->order = 0;
     self->value = 0.;
     self->interpolation = 1;
 	self->modebuffer[0] = 0;
 	self->modebuffer[1] = 0;
-    
+
     INIT_OBJECT_COMMON
-    
+
     self->factor = 1. / (0.01 * self->sr);
-    
+
     Stream_setFunctionPtr(self->stream, OscListReceive_compute_next_data_frame);
     self->mode_func_ptr = OscListReceive_setProcMode;
 
     static char *kwlist[] = {"input", "address", "order", "mul", "add", NULL};
-    
+
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "OOi|OO", kwlist, &inputtmp, &pathtmp, &self->order, &multmp, &addtmp))
         Py_RETURN_NONE;
-    
+
     Py_XDECREF(self->input);
     Py_INCREF(inputtmp);
     self->input = inputtmp;
-    
+
     if (multmp) {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
     }
-    
+
     if (addtmp) {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
-    
+
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
-    
+
     if (! PyString_Check(pathtmp)) {
         PyErr_SetString(PyExc_TypeError, "The address attributes must be a string.");
         Py_RETURN_NONE;
-    }    
-    
-    Py_INCREF(pathtmp);    
+    }
+
+    Py_INCREF(pathtmp);
     Py_XDECREF(self->address_path);
     self->address_path = pathtmp;
-    
+
     (*self->mode_func_ptr)(self);
-    
+
     return (PyObject *)self;
 }
 
@@ -1559,19 +1559,19 @@ OscListReceive_setInterpolation(OscListReceive *self, PyObject *arg)
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
     self->interpolation = PyInt_AsLong(arg);
-    
+
 	Py_INCREF(Py_None);
 	return Py_None;
 }
 
 static PyObject * OscListReceive_getServer(OscListReceive* self) { GET_SERVER };
 static PyObject * OscListReceive_getStream(OscListReceive* self) { GET_STREAM };
-static PyObject * OscListReceive_setMul(OscListReceive *self, PyObject *arg) { SET_MUL };	
-static PyObject * OscListReceive_setAdd(OscListReceive *self, PyObject *arg) { SET_ADD };	
-static PyObject * OscListReceive_setSub(OscListReceive *self, PyObject *arg) { SET_SUB };	
-static PyObject * OscListReceive_setDiv(OscListReceive *self, PyObject *arg) { SET_DIV };	
+static PyObject * OscListReceive_setMul(OscListReceive *self, PyObject *arg) { SET_MUL };
+static PyObject * OscListReceive_setAdd(OscListReceive *self, PyObject *arg) { SET_ADD };
+static PyObject * OscListReceive_setSub(OscListReceive *self, PyObject *arg) { SET_SUB };
+static PyObject * OscListReceive_setDiv(OscListReceive *self, PyObject *arg) { SET_DIV };
 
 static PyObject * OscListReceive_play(OscListReceive *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * OscListReceive_stop(OscListReceive *self) { STOP };

@@ -1,21 +1,21 @@
-/*************************************************************************
- * Copyright 2010 Olivier Belanger                                        *                  
- *                                                                        * 
+/**************************************************************************
+ * Copyright 2009-2015 Olivier Belanger                                   *
+ *                                                                        *
  * This file is part of pyo, a python module to help digital signal       *
- * processing script creation.                                            *  
- *                                                                        * 
+ * processing script creation.                                            *
+ *                                                                        *
  * pyo is free software: you can redistribute it and/or modify            *
- * it under the terms of the GNU General Public License as published by   *
- * the Free Software Foundation, either version 3 of the License, or      *
- * (at your option) any later version.                                    * 
+ * it under the terms of the GNU Lesser General Public License as         *
+ * published by the Free Software Foundation, either version 3 of the     *
+ * License, or (at your option) any later version.                        *
  *                                                                        *
  * pyo is distributed in the hope that it will be useful,                 *
- * but WITHOUT ANY WARRANTY; without even the implied warranty of         *    
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of         *
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the          *
- * GNU General Public License for more details.                           *
+ * GNU Lesser General Public License for more details.                    *
  *                                                                        *
- * You should have received a copy of the GNU General Public License      *
- * along with pyo.  If not, see <http://www.gnu.org/licenses/>.           *
+ * You should have received a copy of the GNU Lesser General Public       *
+ * License along with pyo.  If not, see <http://www.gnu.org/licenses/>.   *
  *************************************************************************/
 
 #include <Python.h>
@@ -47,33 +47,33 @@ Sig_setProcMode(Sig *self)
 {
     int muladdmode;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
-    
+
 	switch (muladdmode) {
-        case 0:        
+        case 0:
             self->muladd_func_ptr = Sig_postprocessing_ii;
             break;
-        case 1:    
+        case 1:
             self->muladd_func_ptr = Sig_postprocessing_ai;
             break;
-        case 2:    
+        case 2:
             self->muladd_func_ptr = Sig_postprocessing_revai;
             break;
-        case 10:        
+        case 10:
             self->muladd_func_ptr = Sig_postprocessing_ia;
             break;
-        case 11:    
+        case 11:
             self->muladd_func_ptr = Sig_postprocessing_aa;
             break;
-        case 12:    
+        case 12:
             self->muladd_func_ptr = Sig_postprocessing_revaa;
             break;
-        case 20:        
+        case 20:
             self->muladd_func_ptr = Sig_postprocessing_ireva;
             break;
-        case 21:    
+        case 21:
             self->muladd_func_ptr = Sig_postprocessing_areva;
             break;
-        case 22:    
+        case 22:
             self->muladd_func_ptr = Sig_postprocessing_revareva;
             break;
     }
@@ -94,7 +94,7 @@ Sig_compute_next_data_frame(Sig *self)
         for (i=0; i<self->bufsize; i++) {
             self->data[i] = vals[i];
         }
-    }    
+    }
     (*self->muladd_func_ptr)(self);
 }
 
@@ -102,17 +102,17 @@ static int
 Sig_traverse(Sig *self, visitproc visit, void *arg)
 {
     pyo_VISIT
-    Py_VISIT(self->value);    
-    Py_VISIT(self->value_stream);    
+    Py_VISIT(self->value);
+    Py_VISIT(self->value_stream);
     return 0;
 }
 
-static int 
+static int
 Sig_clear(Sig *self)
 {
     pyo_CLEAR
-    Py_CLEAR(self->value);    
-    Py_CLEAR(self->value_stream);    
+    Py_CLEAR(self->value);
+    Py_CLEAR(self->value_stream);
     return 0;
 }
 
@@ -131,7 +131,7 @@ Sig_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *valuetmp=NULL, *multmp=NULL, *addtmp=NULL;
     Sig *self;
     self = (Sig *)type->tp_alloc(type, 0);
-    
+
     self->value = PyFloat_FromDouble(0.0);
 	self->modebuffer[0] = 0;
 	self->modebuffer[1] = 0;
@@ -142,28 +142,28 @@ Sig_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->mode_func_ptr = Sig_setProcMode;
 
     static char *kwlist[] = {"value", "mul", "add", NULL};
-    
+
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OO", kwlist, &valuetmp, &multmp, &addtmp))
-        Py_RETURN_NONE; 
+        Py_RETURN_NONE;
 
     if (valuetmp) {
         PyObject_CallMethod((PyObject *)self, "setValue", "O", valuetmp);
     }
-    
+
     if (multmp) {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
     }
-    
+
     if (addtmp) {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
-    
+
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
     (*self->mode_func_ptr)(self);
-    
+
     Sig_compute_next_data_frame((Sig *)self);
-    
+
     return (PyObject *)self;
 }
 
@@ -171,14 +171,14 @@ static PyObject *
 Sig_setValue(Sig *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
-	
+
 	if (arg == NULL) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
 	int isNumber = PyNumber_Check(arg);
-	
+
 	tmp = arg;
 	Py_INCREF(tmp);
     Py_DECREF(self->value);
@@ -194,17 +194,17 @@ Sig_setValue(Sig *self, PyObject *arg)
         self->value_stream = (Stream *)streamtmp;
         self->modebuffer[2] = 1;
     }
-    
+
 	Py_INCREF(Py_None);
 	return Py_None;
-}	
+}
 
 static PyObject * Sig_getServer(Sig* self) { GET_SERVER };
 static PyObject * Sig_getStream(Sig* self) { GET_STREAM };
-static PyObject * Sig_setMul(Sig *self, PyObject *arg) { SET_MUL };	
-static PyObject * Sig_setAdd(Sig *self, PyObject *arg) { SET_ADD };	
-static PyObject * Sig_setSub(Sig *self, PyObject *arg) { SET_SUB };	
-static PyObject * Sig_setDiv(Sig *self, PyObject *arg) { SET_DIV };	
+static PyObject * Sig_setMul(Sig *self, PyObject *arg) { SET_MUL };
+static PyObject * Sig_setAdd(Sig *self, PyObject *arg) { SET_ADD };
+static PyObject * Sig_setSub(Sig *self, PyObject *arg) { SET_SUB };
+static PyObject * Sig_setDiv(Sig *self, PyObject *arg) { SET_DIV };
 
 static PyObject * Sig_play(Sig *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * Sig_out(Sig *self, PyObject *args, PyObject *kwds) { OUT };
@@ -358,7 +358,7 @@ SigTo_generates_i(SigTo *self) {
             for (i=0; i<self->bufsize; i++)
                 self->data[i] = self->currentValue = self->lastValue = value;
         }
-        else {        
+        else {
             for (i=0; i<self->bufsize; i++) {
                 if (self->timeCount == (self->timeStep - 1)) {
                     self->currentValue = value;
@@ -367,13 +367,13 @@ SigTo_generates_i(SigTo *self) {
                 else if (self->timeCount < self->timeStep) {
                     self->currentValue += self->stepVal;
                     self->timeCount++;
-                }    
+                }
                 self->data[i] = self->currentValue;
             }
         }
     }
     else {
-        MYFLT *vals = Stream_getData((Stream *)self->value_stream);        
+        MYFLT *vals = Stream_getData((Stream *)self->value_stream);
         if (self->timeStep <= 0) {
             for (i=0; i<self->bufsize; i++) {
                 value = vals[i];
@@ -388,8 +388,8 @@ SigTo_generates_i(SigTo *self) {
                     self->timeStep = (long)(self->time * self->sr);
                     self->stepVal = (value - self->currentValue) / self->timeStep;
                     self->lastValue = value;
-                }    
-            
+                }
+
                 if (self->timeCount == (self->timeStep - 1)) {
                     self->currentValue = value;
                     self->timeCount++;
@@ -397,7 +397,7 @@ SigTo_generates_i(SigTo *self) {
                 else if (self->timeCount < self->timeStep) {
                     self->currentValue += self->stepVal;
                     self->timeCount++;
-                }    
+                }
                 self->data[i] = self->currentValue;
             }
         }
@@ -421,33 +421,33 @@ SigTo_setProcMode(SigTo *self)
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
 
     self->proc_func_ptr = SigTo_generates_i;
-    
+
 	switch (muladdmode) {
-        case 0:        
+        case 0:
             self->muladd_func_ptr = SigTo_postprocessing_ii;
             break;
-        case 1:    
+        case 1:
             self->muladd_func_ptr = SigTo_postprocessing_ai;
             break;
-        case 2:    
+        case 2:
             self->muladd_func_ptr = SigTo_postprocessing_revai;
             break;
-        case 10:        
+        case 10:
             self->muladd_func_ptr = SigTo_postprocessing_ia;
             break;
-        case 11:    
+        case 11:
             self->muladd_func_ptr = SigTo_postprocessing_aa;
             break;
-        case 12:    
+        case 12:
             self->muladd_func_ptr = SigTo_postprocessing_revaa;
             break;
-        case 20:        
+        case 20:
             self->muladd_func_ptr = SigTo_postprocessing_ireva;
             break;
-        case 21:    
+        case 21:
             self->muladd_func_ptr = SigTo_postprocessing_areva;
             break;
-        case 22:    
+        case 22:
             self->muladd_func_ptr = SigTo_postprocessing_revareva;
             break;
     }
@@ -456,7 +456,7 @@ SigTo_setProcMode(SigTo *self)
 static void
 SigTo_compute_next_data_frame(SigTo *self)
 {
-    (*self->proc_func_ptr)(self);  
+    (*self->proc_func_ptr)(self);
     (*self->muladd_func_ptr)(self);
 }
 
@@ -464,17 +464,17 @@ static int
 SigTo_traverse(SigTo *self, visitproc visit, void *arg)
 {
     pyo_VISIT
-    Py_VISIT(self->value);    
-    Py_VISIT(self->value_stream);    
+    Py_VISIT(self->value);
+    Py_VISIT(self->value_stream);
     return 0;
 }
 
-static int 
+static int
 SigTo_clear(SigTo *self)
 {
     pyo_CLEAR
-    Py_CLEAR(self->value);    
-    Py_CLEAR(self->value_stream);    
+    Py_CLEAR(self->value);
+    Py_CLEAR(self->value_stream);
     return 0;
 }
 
@@ -502,16 +502,16 @@ SigTo_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 	self->modebuffer[0] = 0;
 	self->modebuffer[1] = 0;
 	self->modebuffer[2] = 0;
-    
+
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, SigTo_compute_next_data_frame);
     self->mode_func_ptr = SigTo_setProcMode;
 
     static char *kwlist[] = {"value", "time", "init", "mul", "add", NULL};
-    
+
     if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_O_OFOO, kwlist, &valuetmp, &timetmp, &inittmp, &multmp, &addtmp))
-        Py_RETURN_NONE; 
-    
+        Py_RETURN_NONE;
+
     if (valuetmp) {
         PyObject_CallMethod((PyObject *)self, "setValue", "O", valuetmp);
     }
@@ -519,26 +519,26 @@ SigTo_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (timetmp) {
         PyObject_CallMethod((PyObject *)self, "setTime", "O", timetmp);
     }
-    
+
     if (multmp) {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
     }
-    
+
     if (addtmp) {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
-    
+
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
-    
+
     self->lastValue = self->currentValue = inittmp;
     self->timeStep = (long)(self->time * self->sr);
-    
+
     (*self->mode_func_ptr)(self);
 
     for(i=0; i<self->bufsize; i++) {
         self->data[i] = self->currentValue;
     }
-    
+
     return (PyObject *)self;
 }
 
@@ -546,14 +546,14 @@ static PyObject *
 SigTo_setValue(SigTo *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
-	
+
 	if (arg == NULL) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
 	int isNumber = PyNumber_Check(arg);
-	
+
 	tmp = arg;
 	Py_INCREF(tmp);
     Py_DECREF(self->value);
@@ -569,39 +569,39 @@ SigTo_setValue(SigTo *self, PyObject *arg)
         self->value_stream = (Stream *)streamtmp;
         self->modebuffer[2] = 1;
     }
-    
+
 	Py_INCREF(Py_None);
 	return Py_None;
-}	
+}
 
 static PyObject *
 SigTo_setTime(SigTo *self, PyObject *arg)
 {
 	PyObject *tmp;
-	
+
 	if (arg == NULL) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
 	int isNumber = PyNumber_Check(arg);
-	
+
 	tmp = arg;
 	Py_INCREF(tmp);
 	if (isNumber == 1) {
 		self->time = PyFloat_AS_DOUBLE(PyNumber_Float(tmp));
 	}
-    
+
 	Py_INCREF(Py_None);
 	return Py_None;
-}	
+}
 
 static PyObject * SigTo_getServer(SigTo* self) { GET_SERVER };
 static PyObject * SigTo_getStream(SigTo* self) { GET_STREAM };
-static PyObject * SigTo_setMul(SigTo *self, PyObject *arg) { SET_MUL };	
-static PyObject * SigTo_setAdd(SigTo *self, PyObject *arg) { SET_ADD };	
-static PyObject * SigTo_setSub(SigTo *self, PyObject *arg) { SET_SUB };	
-static PyObject * SigTo_setDiv(SigTo *self, PyObject *arg) { SET_DIV };	
+static PyObject * SigTo_setMul(SigTo *self, PyObject *arg) { SET_MUL };
+static PyObject * SigTo_setAdd(SigTo *self, PyObject *arg) { SET_ADD };
+static PyObject * SigTo_setSub(SigTo *self, PyObject *arg) { SET_SUB };
+static PyObject * SigTo_setDiv(SigTo *self, PyObject *arg) { SET_DIV };
 
 static PyObject * SigTo_play(SigTo *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * SigTo_stop(SigTo *self) { STOP };
@@ -751,9 +751,9 @@ VarPort_generates_i(VarPort *self) {
         self->timeCount = 0;
         self->stepVal = (self->value - self->currentValue) / (self->timeStep+1);
         self->lastValue = self->value;
-    }    
-   
-    if (self->flag == 1) { 
+    }
+
+    if (self->flag == 1) {
         for (i=0; i<self->bufsize; i++) {
             if (self->timeCount >= self->timeStep)
                 self->currentValue = self->value;
@@ -770,7 +770,7 @@ VarPort_generates_i(VarPort *self) {
             self->data[i] = self->currentValue;
         }
     }
-    
+
     if (self->timeCount >= self->timeout && self->flag == 1) {
         self->flag = 0;
         if (self->callable != Py_None) {
@@ -787,7 +787,7 @@ VarPort_generates_i(VarPort *self) {
                 PyErr_Print();
                 return;
             }
-        }   
+        }
     }
 }
 
@@ -806,35 +806,35 @@ VarPort_setProcMode(VarPort *self)
 {
     int muladdmode;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
-    
+
     self->proc_func_ptr = VarPort_generates_i;
-    
+
 	switch (muladdmode) {
-        case 0:        
+        case 0:
             self->muladd_func_ptr = VarPort_postprocessing_ii;
             break;
-        case 1:    
+        case 1:
             self->muladd_func_ptr = VarPort_postprocessing_ai;
             break;
-        case 2:    
+        case 2:
             self->muladd_func_ptr = VarPort_postprocessing_revai;
             break;
-        case 10:        
+        case 10:
             self->muladd_func_ptr = VarPort_postprocessing_ia;
             break;
-        case 11:    
+        case 11:
             self->muladd_func_ptr = VarPort_postprocessing_aa;
             break;
-        case 12:    
+        case 12:
             self->muladd_func_ptr = VarPort_postprocessing_revaa;
             break;
-        case 20:        
+        case 20:
             self->muladd_func_ptr = VarPort_postprocessing_ireva;
             break;
-        case 21:    
+        case 21:
             self->muladd_func_ptr = VarPort_postprocessing_areva;
             break;
-        case 22:    
+        case 22:
             self->muladd_func_ptr = VarPort_postprocessing_revareva;
             break;
     }
@@ -843,7 +843,7 @@ VarPort_setProcMode(VarPort *self)
 static void
 VarPort_compute_next_data_frame(VarPort *self)
 {
-    (*self->proc_func_ptr)(self);  
+    (*self->proc_func_ptr)(self);
     (*self->muladd_func_ptr)(self);
 }
 
@@ -856,7 +856,7 @@ VarPort_traverse(VarPort *self, visitproc visit, void *arg)
     return 0;
 }
 
-static int 
+static int
 VarPort_clear(VarPort *self)
 {
     pyo_CLEAR
@@ -881,8 +881,8 @@ VarPort_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *valuetmp=NULL, *timetmp=NULL, *calltmp=NULL, *argtmp=NULL, *multmp=NULL, *addtmp=NULL;
     VarPort *self;
     self = (VarPort *)type->tp_alloc(type, 0);
-   
-    self->flag = 1; 
+
+    self->flag = 1;
     self->time = 0.025;
     self->timeStep = (long)(self->time * self->sr);
     self->timeout = (long)((self->time + 0.1) * self->sr);
@@ -899,22 +899,22 @@ VarPort_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->mode_func_ptr = VarPort_setProcMode;
 
     static char *kwlist[] = {"value", "time", "init", "callable", "arg", "mul", "add", NULL};
-    
+
     if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_O_OFOOOO, kwlist, &valuetmp, &timetmp, &inittmp, &calltmp, &argtmp, &multmp, &addtmp))
-        Py_RETURN_NONE; 
-    
+        Py_RETURN_NONE;
+
     if (valuetmp) {
         PyObject_CallMethod((PyObject *)self, "setValue", "O", valuetmp);
     }
-    
+
     if (timetmp) {
         PyObject_CallMethod((PyObject *)self, "setTime", "O", timetmp);
     }
-    
+
     if (multmp) {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
     }
-    
+
     if (addtmp) {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
@@ -930,17 +930,17 @@ VarPort_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         Py_INCREF(argtmp);
         self->arg = argtmp;
     }
-    
+
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
-    
+
     self->lastValue = self->currentValue = inittmp;
-    
+
     (*self->mode_func_ptr)(self);
-    
+
     for(i=0; i<self->bufsize; i++) {
         self->data[i] = self->currentValue;
     }
-    
+
     return (PyObject *)self;
 }
 
@@ -948,37 +948,37 @@ static PyObject *
 VarPort_setValue(VarPort *self, PyObject *arg)
 {
 	PyObject *tmp;
-	
+
 	if (arg == NULL) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
 	int isNumber = PyNumber_Check(arg);
-	
+
 	tmp = arg;
 	Py_INCREF(tmp);
 	if (isNumber == 1)
 		self->value = PyFloat_AsDouble(PyNumber_Float(tmp));
     else
         self->value = self->lastValue;
-    
+
 	Py_INCREF(Py_None);
 	return Py_None;
-}	
+}
 
 static PyObject *
 VarPort_setTime(VarPort *self, PyObject *arg)
 {
 	PyObject *tmp;
-	
+
 	if (arg == NULL) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
 	int isNumber = PyNumber_Check(arg);
-	
+
 	tmp = arg;
 	Py_INCREF(tmp);
 	if (isNumber == 1) {
@@ -986,37 +986,37 @@ VarPort_setTime(VarPort *self, PyObject *arg)
         self->timeStep = (long)(self->time * self->sr);
         self->timeout = (long)((self->time + 0.1) * self->sr);
 	}
-    
+
 	Py_INCREF(Py_None);
 	return Py_None;
-}	
+}
 
 static PyObject *
 VarPort_setFunction(VarPort *self, PyObject *arg)
 {
 	PyObject *tmp;
-	
+
 	if (! PyCallable_Check(arg)) {
         PyErr_SetString(PyExc_TypeError, "The function attribute must be callable.");
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
     tmp = arg;
     Py_XDECREF(self->callable);
     Py_INCREF(tmp);
     self->callable = tmp;
-  
+
 	Py_INCREF(Py_None);
 	return Py_None;
-}	
+}
 
 static PyObject * VarPort_getServer(VarPort* self) { GET_SERVER };
 static PyObject * VarPort_getStream(VarPort* self) { GET_STREAM };
-static PyObject * VarPort_setMul(VarPort *self, PyObject *arg) { SET_MUL };	
-static PyObject * VarPort_setAdd(VarPort *self, PyObject *arg) { SET_ADD };	
-static PyObject * VarPort_setSub(VarPort *self, PyObject *arg) { SET_SUB };	
-static PyObject * VarPort_setDiv(VarPort *self, PyObject *arg) { SET_DIV };	
+static PyObject * VarPort_setMul(VarPort *self, PyObject *arg) { SET_MUL };
+static PyObject * VarPort_setAdd(VarPort *self, PyObject *arg) { SET_ADD };
+static PyObject * VarPort_setSub(VarPort *self, PyObject *arg) { SET_SUB };
+static PyObject * VarPort_setDiv(VarPort *self, PyObject *arg) { SET_DIV };
 
 static PyObject * VarPort_play(VarPort *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * VarPort_stop(VarPort *self) { STOP };
@@ -1136,4 +1136,3 @@ PyTypeObject VarPortType = {
     0,                         /* tp_alloc */
     VarPort_new,                 /* tp_new */
 };
-

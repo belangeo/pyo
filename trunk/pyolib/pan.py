@@ -1,27 +1,27 @@
 """
-Set of objects to manage audio voice routing and spread of a sound 
+Set of objects to manage audio voice routing and spread of a sound
 signal into a new stereo or multi-channel sound field.
- 
+
 """
 
 """
-Copyright 2010 Olivier Belanger
+Copyright 2009-2015 Olivier Belanger
 
 This file is part of pyo, a python module to help digital signal
 processing script creation.
 
 pyo is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
+it under the terms of the GNU Lesser General Public License as
+published by the Free Software Foundation, either version 3 of the
+License, or (at your option) any later version.
 
 pyo is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
+GNU Lesser General Public License for more details.
 
-You should have received a copy of the GNU General Public License
-along with pyo.  If not, see <http://www.gnu.org/licenses/>.
+You should have received a copy of the GNU Lesser General Public
+License along with pyo.  If not, see <http://www.gnu.org/licenses/>.
 """
 import sys, random
 from _core import *
@@ -39,13 +39,13 @@ class Pan(PyoObject):
         input : PyoObject
             Input signal to process.
         outs : int, optional
-            Number of channels on the panning circle. Available at 
+            Number of channels on the panning circle. Available at
             initialization time only. Defaults to 2.
         pan : float or PyoObject
-            Position of the sound on the panning circle, between 0 and 1. 
+            Position of the sound on the panning circle, between 0 and 1.
             Defaults to 0.5.
         spread : float or PyoObject
-            Amount of sound leaking to the surrounding channels, 
+            Amount of sound leaking to the surrounding channels,
             between 0 and 1. Defaults to 0.5.
 
     >>> s = Server(nchnls=2).boot()
@@ -53,8 +53,8 @@ class Pan(PyoObject):
     >>> a = Noise(mul=.2)
     >>> lfo = Sine(freq=1, mul=.5, add=.5)
     >>> p = Pan(a, outs=2, pan=lfo).out()
-    
-    """ 
+
+    """
     def __init__(self, input, outs=2, pan=0.5, spread=0.5, mul=1, add=0):
         PyoObject.__init__(self, mul, add)
         self._input = input
@@ -72,7 +72,7 @@ class Pan(PyoObject):
     def setInput(self, x, fadetime=0.05):
         """
         Replace the `input` attribute.
-        
+
         :Args:
 
             x : PyoObject
@@ -87,12 +87,12 @@ class Pan(PyoObject):
     def setPan(self, x):
         """
         Replace the `pan` attribute.
-        
+
         :Args:
 
             x : float or PyoObject
                 new `pan` attribute.
-        
+
         """
         self._pan = x
         x, lmax = convertArgsToLists(x)
@@ -101,12 +101,12 @@ class Pan(PyoObject):
     def setSpread(self, x):
         """
         Replace the `spread` attribute.
-        
+
         :Args:
 
             x : float or PyoObject
                 new `spread` attribute.
-        
+
         """
         self._spread = x
         x, lmax = convertArgsToLists(x)
@@ -124,17 +124,17 @@ class Pan(PyoObject):
         return self._input
     @input.setter
     def input(self, x): self.setInput(x)
- 
+
     @property
     def pan(self):
         """float or PyoObject. Position of the sound on the panning circle."""
         return self._pan
     @pan.setter
-    def pan(self, x): self.setPan(x) 
+    def pan(self, x): self.setPan(x)
 
     @property
     def spread(self):
-        """float or PyoObject. Amount of sound leaking to the surrounding channels.""" 
+        """float or PyoObject. Amount of sound leaking to the surrounding channels."""
         return self._spread
     @spread.setter
     def spread(self, x): self.setSpread(x)
@@ -150,10 +150,10 @@ class SPan(PyoObject):
         input : PyoObject
             Input signal to process.
         outs : int, optional
-            Number of channels on the panning circle. Available at 
+            Number of channels on the panning circle. Available at
             initialization time only. Defaults to 2.
         pan : float or PyoObject
-            Position of the sound on the panning circle, between 0 and 1. 
+            Position of the sound on the panning circle, between 0 and 1.
             Defaults to 0.5.
 
     >>> s = Server(nchnls=2).boot()
@@ -179,7 +179,7 @@ class SPan(PyoObject):
     def setInput(self, x, fadetime=0.05):
         """
         Replace the `input` attribute.
-        
+
         :Args:
 
             x : PyoObject
@@ -194,12 +194,12 @@ class SPan(PyoObject):
     def setPan(self, x):
         """
         Replace the `pan` attribute.
-        
+
         :Args:
 
             x : float or PyoObject
                 new `pan` attribute.
-        
+
         """
         self._pan = x
         x, lmax = convertArgsToLists(x)
@@ -210,14 +210,14 @@ class SPan(PyoObject):
         PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
-    def input(self): 
+    def input(self):
         """PyoObject. Input signal to process."""
         return self._input
     @input.setter
     def input(self, x): self.setInput(x)
 
     @property
-    def pan(self): 
+    def pan(self):
         """float or PyoObject. Position of the sound on the panning circle."""
         return self._pan
     @pan.setter
@@ -240,10 +240,10 @@ class Switch(PyoObject):
         input : PyoObject
             Input signal to process.
         outs : int, optional
-            Number of outputs. Available at initialization time only. 
+            Number of outputs. Available at initialization time only.
             Defaults to 2.
         voice : float or PyoObject
-            Voice position pointer, between 0 and (outs-1) / len(input). 
+            Voice position pointer, between 0 and (outs-1) / len(input).
             Defaults to 0.
 
     >>> s = Server(nchnls=2).boot()
@@ -303,14 +303,14 @@ class Switch(PyoObject):
         PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
-    def input(self): 
+    def input(self):
         """PyoObject. Input signal to process."""
         return self._input
     @input.setter
     def input(self, x): self.setInput(x)
 
     @property
-    def voice(self): 
+    def voice(self):
         """float or PyoObject. Voice position pointer."""
         return self._voice
     @voice.setter
@@ -320,7 +320,7 @@ class Selector(PyoObject):
     """
     Audio selector.
 
-    Selector takes multiple PyoObjects in input and interpolates between 
+    Selector takes multiple PyoObjects in input and interpolates between
     them to generate a single output.
 
     :Parent: :py:class:`PyoObject`
@@ -330,7 +330,7 @@ class Selector(PyoObject):
         inputs : list of PyoObject
             Audio objects to interpolate from.
         voice : float or PyoObject, optional
-            Voice position pointer, between 0 and len(inputs)-1. 
+            Voice position pointer, between 0 and len(inputs)-1.
             Defaults to 0.
 
     >>> s = Server().boot()
@@ -352,8 +352,8 @@ class Selector(PyoObject):
             try:
                 if len(obj) > self._length: self._length = len(obj)
             except:
-                pass    
-        self._base_objs = []        
+                pass
+        self._base_objs = []
         for i in range(self._lmax):
             for j in range(self._length):
                 choice = []
@@ -361,39 +361,39 @@ class Selector(PyoObject):
                     try:
                         choice.append(obj[j%len(obj)])
                     except:
-                        choice.append(obj)            
+                        choice.append(obj)
                 self._base_objs.append(Selector_base(choice, wrap(voice,i), wrap(mul,i), wrap(add,i)))
 
     def setInputs(self, x):
         """
         Replace the `inputs` attribute.
-        
+
         :Args:
 
             x : list of PyoObject
                 new `inputs` attribute.
-        
+
         """
         self._inputs = x
-        for i in range(self._lmax):           
+        for i in range(self._lmax):
             for j in range(self._length):
                 choice = []
                 for obj in self._inputs:
                     try:
                         choice.append(obj[j%len(obj)])
                     except:
-                        choice.append(obj) 
+                        choice.append(obj)
                 self._base_objs[i+j*self._lmax].setInputs(choice)
 
     def setVoice(self, x):
         """
         Replace the `voice` attribute.
-        
+
         :Args:
 
             x : float or PyoObject
                 new `voice` attribute.
-        
+
         """
         self._voice = x
         x, lmax = convertArgsToLists(x)
@@ -405,18 +405,18 @@ class Selector(PyoObject):
         PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
-    def inputs(self): 
+    def inputs(self):
         """List of PyoObjects. Audio objects to interpolate from."""
         return self._inputs
     @inputs.setter
-    def inputs(self, x): 
+    def inputs(self, x):
         self.setInputs(x)
     @property
-    def voice(self): 
+    def voice(self):
         """float or PyoObject. Voice position pointer."""
         return self._voice
     @voice.setter
-    def voice(self, x): 
+    def voice(self, x):
         self.setVoice(x)
 
 class VoiceManager(PyoObject):
@@ -428,7 +428,7 @@ class VoiceManager(PyoObject):
     the same position in the list of triggers given at the argument `triggers`.
 
     Usually, the trigger enabling the voice number will come from the process
-    started with the object output. So, it's common to leave the `triggers` 
+    started with the object output. So, it's common to leave the `triggers`
     argument to None and set the list of triggers afterward with the `setTriggers`
     method. The maximum number of voices generated by the object is the length
     of the trigger list.
@@ -443,8 +443,8 @@ class VoiceManager(PyoObject):
             Trigger stream asking for new voice numbers.
         triggers : PyoObject or list of PyoObject, optional
             List of mono PyoObject sending triggers. Can be a multi-streams
-            PyoObject but not a mix of both. 
-            
+            PyoObject but not a mix of both.
+
             Ordering in the list corresponds to voice numbers. Defaults to None.
 
     >>> s = Server().boot()
@@ -457,7 +457,7 @@ class VoiceManager(PyoObject):
     >>> amp = TrigEnv(sel, table=env, dur=.5, mul=.25)
     >>> synth1 = SineLoop(pit, feedback=.07, mul=amp).out()
     >>> vm.setTriggers(amp["trig"])
-    
+
     """
     def __init__(self, input, triggers=None, mul=1, add=0):
         PyoObject.__init__(self, mul, add)
@@ -482,7 +482,7 @@ class VoiceManager(PyoObject):
     def setInput(self, x, fadetime=0.05):
         """
         Replace the `input` attribute.
-        
+
         :Args:
 
             x : PyoObject
@@ -497,10 +497,10 @@ class VoiceManager(PyoObject):
     def setTriggers(self, x):
         """
         Replace the `triggers` attribute.
-        
+
         :Args:
 
-            x : PyoObject or list of PyoObject 
+            x : PyoObject or list of PyoObject
                 New `triggers` attribute.
 
         """
@@ -519,25 +519,25 @@ class VoiceManager(PyoObject):
 
     @property
     def input(self):
-        """PyoObject. Trigger stream asking for new voice numbers.""" 
+        """PyoObject. Trigger stream asking for new voice numbers."""
         return self._input
     @input.setter
-    def input(self, x): 
+    def input(self, x):
         self.setInput(x)
     @property
-    def triggers(self): 
+    def triggers(self):
         """list of PyoObject. Trigger streams enabling voices."""
         return self._triggers
     @triggers.setter
-    def triggers(self, x): 
+    def triggers(self, x):
         self.setTriggers(x)
 
 class Mixer(PyoObject):
     """
     Audio mixer.
 
-    Mixer mixes multiple inputs to an arbitrary number of outputs 
-    with independant amplitude values per mixing channel and a 
+    Mixer mixes multiple inputs to an arbitrary number of outputs
+    with independant amplitude values per mixing channel and a
     user defined portamento applied on amplitude changes.
 
     :Parent: :py:class:`PyoObject`
@@ -591,14 +591,14 @@ class Mixer(PyoObject):
         time, mul, add, lmax = convertArgsToLists(time, mul, add)
         self._base_players = [Mixer_base(outs, wrap(time,i)) for i in range(chnls)]
         self._base_objs = [MixerVoice_base(self._base_players[j], i, wrap(mul,i), wrap(add,i)) for i in range(outs) for j in range(chnls)]
-        
+
     def __getitem__(self, x):
         if type(x) == SliceType:
             return [self._base_objs[j*self._chnls+i] for j in range(x.start or 0, x.stop or sys.maxint, x.step or 1) for i in range(self._chnls)]
         elif x < len(self._base_objs):
             return [self._base_objs[x*self._chnls+i] for i in range(self._chnls)]
         else:
-            print "'x' too large!"         
+            print "'x' too large!"
 
     def setTime(self, x):
         """
@@ -623,7 +623,7 @@ class Mixer(PyoObject):
         :Args:
 
             voice : int or string
-                Key in the mixer dictionary for this input. If None, a unique key 
+                Key in the mixer dictionary for this input. If None, a unique key
                 between 0 and 32767 will be automatically generated.
             input : PyoObject
                 Audio object to add to the mixer.
@@ -675,7 +675,7 @@ class Mixer(PyoObject):
     def getChannels(self):
         """
         Returns the Mixer's channels dictionary.
-        
+
         """
         return self._inputs
 
@@ -685,7 +685,7 @@ class Mixer(PyoObject):
 
         """
         return self._inputs.keys()
-        
+
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
         self._map_list = [SLMap(0, 10, 'lin', 'time', self._time, dataOnly=True),
                           SLMapMul(self._mul)]
@@ -693,7 +693,7 @@ class Mixer(PyoObject):
 
     @property
     def time(self):
-        """float. Portamento.""" 
+        """float. Portamento."""
         return self._time
     @time.setter
     def time(self, x): self.setTime(x)

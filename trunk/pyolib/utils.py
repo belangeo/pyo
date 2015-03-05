@@ -4,23 +4,23 @@ Miscellaneous objects.
 """
 
 """
-Copyright 2010 Olivier Belanger
+Copyright 2009-2015 Olivier Belanger
 
 This file is part of pyo, a python module to help digital signal
 processing script creation.
 
 pyo is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
+it under the terms of the GNU Lesser General Public License as
+published by the Free Software Foundation, either version 3 of the
+License, or (at your option) any later version.
 
 pyo is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
+GNU Lesser General Public License for more details.
 
-You should have received a copy of the GNU General Public License
-along with pyo.  If not, see <http://www.gnu.org/licenses/>.
+You should have received a copy of the GNU Lesser General Public
+License along with pyo.  If not, see <http://www.gnu.org/licenses/>.
 """
 from _core import *
 from _maps import *
@@ -32,11 +32,11 @@ class Clean_objects(threading.Thread):
     Stops and deletes PyoObjects after a given time.
 
     The start() method starts the thread timer (must be called).
-    
+
     :Args:
 
         time : float
-            Time, in seconds, to wait before calling stop on the given 
+            Time, in seconds, to wait before calling stop on the given
             objects and deleting them.
         *args : PyoObject(s)
             Objects to delete.
@@ -48,20 +48,20 @@ class Clean_objects(threading.Thread):
     >>> c = Biquad(a, freq=500, q=2, mul=b).out()
     >>> dump = Clean_objects(6, a, b, c)
     >>> dump.start()
-    
+
     """
     def __init__(self, time, *args):
         threading.Thread.__init__(self)
         self.t = time
         self.args = args
-        
+
     def run(self):
         time.sleep(self.t)
         for arg in self.args:
             try: arg.stop()
             except: pass
         for arg in self.args:
-            del arg 
+            del arg
 
 class Print(PyoObject):
     """
@@ -85,7 +85,7 @@ class Print(PyoObject):
 
     .. note::
 
-        The out() method is bypassed. Print's signal can not be sent to 
+        The out() method is bypassed. Print's signal can not be sent to
         audio outs.
 
         Print has no `mul` and `add` attributes.
@@ -110,7 +110,7 @@ class Print(PyoObject):
     def setInput(self, x, fadetime=0.05):
         """
         Replace the `input` attribute.
-        
+
         :Args:
 
             x : PyoObject
@@ -125,7 +125,7 @@ class Print(PyoObject):
     def setMethod(self, x):
         """
         Replace the `method` attribute.
-        
+
         :Args:
 
             x : int {0, 1}
@@ -169,28 +169,28 @@ class Print(PyoObject):
 
     @property
     def input(self):
-        """PyoObject. Input signal.""" 
+        """PyoObject. Input signal."""
         return self._input
     @input.setter
     def input(self, x): self.setInput(x)
 
     @property
     def method(self):
-        """int. Controls when a value is printed.""" 
+        """int. Controls when a value is printed."""
         return self._method
     @method.setter
     def method(self, x): self.setMethod(x)
 
     @property
     def interval(self):
-        """float. For method 0, interval, in seconds, between each print.""" 
+        """float. For method 0, interval, in seconds, between each print."""
         return self._interval
     @interval.setter
     def interval(self, x): self.setInterval(x)
 
     @property
     def message(self):
-        """str. Message to print before the current value.""" 
+        """str. Message to print before the current value."""
         return self._message
     @message.setter
     def message(self, x): self.setMessage(x)
@@ -200,11 +200,11 @@ class Snap(PyoObject):
     Snap input values on a user's defined midi scale.
 
     Snap takes an audio input of floating-point values from 0
-    to 127 and output the nearest value in the `choice` parameter. 
-    `choice` can be defined on any number of octaves and the real 
-    snapping values will be automatically expended. The object 
-    will take care of the input octave range. According to `scale` 
-    parameter, output can be in midi notes, hertz or transposition 
+    to 127 and output the nearest value in the `choice` parameter.
+    `choice` can be defined on any number of octaves and the real
+    snapping values will be automatically expended. The object
+    will take care of the input octave range. According to `scale`
+    parameter, output can be in midi notes, hertz or transposition
     factor (centralkey = 60).
 
     :Parent: :py:class:`PyoObject`
@@ -221,7 +221,7 @@ class Snap(PyoObject):
                 1. Hertz
                 2. transposition factor
 
-            In the transpo mode, the central key (the key where there 
+            In the transpo mode, the central key (the key where there
             is no transposition) is 60.
 
     >>> s = Server().boot()
@@ -255,7 +255,7 @@ class Snap(PyoObject):
     def setInput(self, x, fadetime=0.05):
         """
         Replace the `input` attribute.
-        
+
         :Args:
 
             x : PyoObject
@@ -266,16 +266,16 @@ class Snap(PyoObject):
         """
         self._input = x
         self._in_fader.setInput(x, fadetime)
-        
+
     def setChoice(self, x):
         """
         Replace the `choice` attribute.
-        
+
         :Args:
 
             x : list of floats
                 new `choice` attribute.
-        
+
         """
         self._choice = x
         [obj.setChoice(x) for i, obj in enumerate(self._base_objs)]
@@ -283,8 +283,8 @@ class Snap(PyoObject):
     def setScale(self, x):
         """
         Replace the `scale` attribute.
-        
-        Possible values are: 
+
+        Possible values are:
             0. Midi notes
             1. Hertz
             2. transposition factor (centralkey = 60)
@@ -300,25 +300,25 @@ class Snap(PyoObject):
         [obj.setScale(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
     @property
-    def input(self): 
+    def input(self):
         """PyoObject. Audio signal to transform."""
         return self._input
     @input.setter
-    def input(self, x): 
+    def input(self, x):
         self.setInput(x)
     @property
-    def choice(self): 
+    def choice(self):
         """list of floats. Possible values."""
         return self._choice
     @choice.setter
-    def choice(self, x): 
+    def choice(self, x):
         self.setChoice(x)
     @property
-    def scale(self): 
+    def scale(self):
         """int. Output format."""
         return self._scale
     @scale.setter
-    def scale(self, x): 
+    def scale(self, x):
         self.setScale(x)
 
 class Interp(PyoObject):
@@ -358,7 +358,7 @@ class Interp(PyoObject):
     def setInput(self, x, fadetime=0.05):
         """
         Replace the `input` attribute.
-        
+
         :Args:
 
             x : PyoObject
@@ -373,7 +373,7 @@ class Interp(PyoObject):
     def setInput2(self, x, fadetime=0.05):
         """
         Replace the `input2` attribute.
-        
+
         :Args:
 
             x : PyoObject
@@ -384,11 +384,11 @@ class Interp(PyoObject):
         """
         self._input2 = x
         self._in_fader2.setInput(x, fadetime)
-        
+
     def setInterp(self, x):
         """
         Replace the `interp` attribute.
-        
+
         :Args:
 
             x : float or PyoObject
@@ -402,34 +402,34 @@ class Interp(PyoObject):
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
         self._map_list = [SLMap(0., 1., "lin", "interp", self._interp), SLMapMul(self._mul)]
         PyoObject.ctrl(self, map_list, title, wxnoserver)
-      
+
     @property
     def input(self):
-        """PyoObject. First input signal.""" 
+        """PyoObject. First input signal."""
         return self._input
     @input.setter
     def input(self, x): self.setInput(x)
 
     @property
     def input2(self):
-        """PyoObject. Second input signal.""" 
+        """PyoObject. Second input signal."""
         return self._input2
     @input2.setter
     def input2(self, x): self.setInput2(x)
 
     @property
     def interp(self):
-        """float or PyoObject. Averaging value.""" 
+        """float or PyoObject. Averaging value."""
         return self._interp
     @interp.setter
     def interp(self, x): self.setInterp(x)
 
 class SampHold(PyoObject):
     """
-    Performs a sample-and-hold operation on its input. 
+    Performs a sample-and-hold operation on its input.
 
-    SampHold performs a sample-and-hold operation on its input according 
-    to the value of `controlsig`. If `controlsig` equals `value`, the input 
+    SampHold performs a sample-and-hold operation on its input according
+    to the value of `controlsig`. If `controlsig` equals `value`, the input
     is sampled and held until next sampling.
 
     :Parent: :py:class:`PyoObject`
@@ -464,7 +464,7 @@ class SampHold(PyoObject):
     def setInput(self, x, fadetime=0.05):
         """
         Replace the `input` attribute.
-        
+
         :Args:
 
             x : PyoObject
@@ -479,7 +479,7 @@ class SampHold(PyoObject):
     def setControlsig(self, x, fadetime=0.05):
         """
         Replace the `controlsig` attribute.
-        
+
         :Args:
 
             x : PyoObject
@@ -490,11 +490,11 @@ class SampHold(PyoObject):
         """
         self._controlsig = x
         self._in_fader2.setInput(x, fadetime)
-        
+
     def setValue(self, x):
         """
         Replace the `value` attribute.
-        
+
         :Args:
 
             x : float or PyoObject
@@ -507,21 +507,21 @@ class SampHold(PyoObject):
 
     @property
     def input(self):
-        """PyoObject. Input signal.""" 
+        """PyoObject. Input signal."""
         return self._input
     @input.setter
     def input(self, x): self.setInput(x)
 
     @property
     def controlsig(self):
-        """PyoObject. Control signal.""" 
+        """PyoObject. Control signal."""
         return self._controlsig
     @controlsig.setter
     def controlsig(self, x): self.setControlsig(x)
 
     @property
     def value(self):
-        """float or PyoObject. Target value.""" 
+        """float or PyoObject. Target value."""
         return self._value
     @value.setter
     def value(self, x): self.setValue(x)
@@ -530,7 +530,7 @@ class Record(PyoObject):
     """
     Writes input sound in an audio file on the disk.
 
-    `input` parameter must be a valid PyoObject or an addition of 
+    `input` parameter must be a valid PyoObject or an addition of
     PyoObjects, parameters can't be in list format.
 
     :Parent: :py:class:`PyoObject`
@@ -546,8 +546,8 @@ class Record(PyoObject):
         fileformat : int, optional
             Format type of the audio file. Defaults to 0.
 
-            Record will first try to set the format from the filename extension. 
-            
+            Record will first try to set the format from the filename extension.
+
             If it's not possible, it uses the fileformat parameter. Supported formats are:
                 0. WAV - Microsoft WAV format (little endian) {.wav, .wave}
                 1. AIFF - Apple/SGI AIFF format (big endian) {.aif, .aiff}
@@ -558,8 +558,8 @@ class Record(PyoObject):
                 6. CAF - Core Audio File format {.caf}
                 7. OGG - Xiph OGG container {.ogg}
         sampletype : int, optional
-            Bit depth encoding of the audio file. 
-            
+            Bit depth encoding of the audio file.
+
             SD2 and FLAC only support 16 or 24 bit int. Supported types are:
                 0. 16 bits int (default)
                 1. 24 bits int
@@ -570,18 +570,18 @@ class Record(PyoObject):
                 6. A-Law encoded
         buffering : int, optional
             Number of bufferSize to wait before writing samples to disk.
-            
+
             High buffering uses more memory but improves performance.
             Defaults to 4.
 
     .. note::
 
-        All parameters can only be set at intialization time.    
+        All parameters can only be set at intialization time.
 
-        The stop() method must be called on the object to close the file 
+        The stop() method must be called on the object to close the file
         properly.
 
-        The out() method is bypassed. Record's signal can not be sent to 
+        The out() method is bypassed. Record's signal can not be sent to
         audio outs.
 
         Record has no `mul` and `add` attributes.
@@ -635,7 +635,7 @@ class Record(PyoObject):
 
     @property
     def input(self):
-        """PyoObject. Input signal to filter.""" 
+        """PyoObject. Input signal to filter."""
         return self._input
     @input.setter
     def input(self, x): self.setInput(x)
@@ -644,9 +644,9 @@ class Denorm(PyoObject):
     """
     Mixes low level noise to an input signal.
 
-    Mixes low level (~1e-24 for floats, and ~1e-60 for doubles) noise to a an input signal. 
-    Can be used before IIR filters and reverbs to avoid denormalized numbers which may 
-    otherwise result in significantly increased CPU usage. 
+    Mixes low level (~1e-24 for floats, and ~1e-60 for doubles) noise to a an input signal.
+    Can be used before IIR filters and reverbs to avoid denormalized numbers which may
+    otherwise result in significantly increased CPU usage.
 
     :Parent: :py:class:`PyoObject`
 
@@ -687,7 +687,7 @@ class Denorm(PyoObject):
 
     @property
     def input(self):
-        """PyoObject. Input signal to filter.""" 
+        """PyoObject. Input signal to filter."""
         return self._input
     @input.setter
     def input(self, x): self.setInput(x)
@@ -703,7 +703,7 @@ class ControlRec(PyoObject):
     Each line in the text files contains two values, the absolute time
     in seconds and the sampled value.
 
-    The play() method starts the recording and is not called at the 
+    The play() method starts the recording and is not called at the
     object creation time.
 
     :Parent: :py:class:`PyoObject`
@@ -714,35 +714,35 @@ class ControlRec(PyoObject):
             Input signal to sample.
         filename : string
             Full path (without extension) used to create the files.
-             
+
             "_000" will be added to file's names with increasing digits
-            according to the number of streams in input. 
-            
-            The same filename can be passed to a ControlRead object to 
+            according to the number of streams in input.
+
+            The same filename can be passed to a ControlRead object to
             read all related files.
         rate : int, optional
             Rate at which the input values are sampled. Defaults to 1000.
         dur : float, optional
             Duration of the recording, in seconds. If 0.0, the recording
-            won't stop until the end of the performance. 
-            
-            If greater than 0.0, the `stop` method is automatically called 
+            won't stop until the end of the performance.
+
+            If greater than 0.0, the `stop` method is automatically called
             at the end of the recording.
 
     .. note::
 
-        All parameters can only be set at intialization time.    
+        All parameters can only be set at intialization time.
 
-        The write() method must be called on the object to write the files 
+        The write() method must be called on the object to write the files
         on the disk.
 
-        The out() method is bypassed. ControlRec's signal can not be sent to 
+        The out() method is bypassed. ControlRec's signal can not be sent to
         audio outs.
 
         ControlRec has no `mul` and `add` attributes.
 
-    .. seealso:: 
-        
+    .. seealso::
+
         :py:class:`ControlRead`
 
     >>> s = Server().boot()
@@ -775,7 +775,7 @@ class ControlRec(PyoObject):
     def write(self):
         """
         Writes recorded values in text files on the disk.
-        
+
         """
         for i, obj in enumerate(self._base_objs):
             f = open(os.path.join(self._path, "%s_%03d" % (self._name, i)), "w")
@@ -793,17 +793,17 @@ class ControlRead(PyoObject):
     :Args:
 
         filename : string
-            Full path (without extension) used to create the files. 
-            
-            Usually the same filename as the one given to a ControlRec 
-            object to record automation. 
-            
+            Full path (without extension) used to create the files.
+
+            Usually the same filename as the one given to a ControlRec
+            object to record automation.
+
             The directory will be scaned and all files
             named "filename_xxx" will add a new stream in the object.
         rate : int, optional
             Rate at which the values are sampled. Defaults to 1000.
         loop : boolean, optional
-            Looping mode, False means off, True means on. 
+            Looping mode, False means off, True means on.
             Defaults to False.
         interp : int, optional
             Choice of the interpolation method.
@@ -814,19 +814,19 @@ class ControlRead(PyoObject):
 
     .. note::
 
-        ControlRead will sends a trigger signal at the end of the playback if 
-        loop is off or any time it wraps around if loop is on. User can 
+        ControlRead will sends a trigger signal at the end of the playback if
+        loop is off or any time it wraps around if loop is on. User can
         retreive the trigger streams by calling obj['trig']:
 
         >>> rnds = ControlRead(home+"/freq_auto", loop=True)
         >>> t = SndTable(SNDS_PATH+"/transparent.aif")
         >>> loop = TrigEnv(rnds["trig"], t, dur=[.2,.3,.4,.5], mul=.5).out()
 
-        The out() method is bypassed. ControlRead's signal can not be sent to 
+        The out() method is bypassed. ControlRead's signal can not be sent to
         audio outs.
 
-    .. seealso:: 
-        
+    .. seealso::
+
         :py:class:`ControlRec`
 
     >>> s = Server().boot()
@@ -903,20 +903,20 @@ class ControlRead(PyoObject):
 
     @property
     def rate(self):
-        """int. Sampling frequency in cycles per second.""" 
+        """int. Sampling frequency in cycles per second."""
         return self._rate
     @rate.setter
     def rate(self, x): self.setRate(x)
 
     @property
-    def loop(self): 
-        """boolean. Looping mode.""" 
+    def loop(self):
+        """boolean. Looping mode."""
         return self._loop
     @loop.setter
     def loop(self, x): self.setLoop(x)
 
     @property
-    def interp(self): 
+    def interp(self):
         """int {1, 2, 3, 4}. Interpolation method."""
         return self._interp
     @interp.setter
@@ -933,7 +933,7 @@ class NoteinRec(PyoObject):
     Each line in the text files contains three values, the absolute time
     in seconds, the Midi pitch and the normalized velocity.
 
-    The play() method starts the recording and is not called at the 
+    The play() method starts the recording and is not called at the
     object creation time.
 
     :Parent: :py:class:`PyoObject`
@@ -944,27 +944,27 @@ class NoteinRec(PyoObject):
             Notein signal to sample.
         filename : string
             Full path (without extension) used to create the files.
-             
+
             "_000" will be added to file's names with increasing digits
-            according to the number of streams in input. 
-            
-            The same filename can be passed to a NoteinRead object to read 
+            according to the number of streams in input.
+
+            The same filename can be passed to a NoteinRead object to read
             all related files.
 
     .. note::
 
-        All parameters can only be set at intialization time.    
+        All parameters can only be set at intialization time.
 
-        The `write` method must be called on the object to write the files 
+        The `write` method must be called on the object to write the files
         on the disk.
 
-        The out() method is bypassed. NoteinRec's signal can not be sent to 
+        The out() method is bypassed. NoteinRec's signal can not be sent to
         audio outs.
 
         NoteinRec has no `mul` and `add` attributes.
 
-    .. seealso:: 
-        
+    .. seealso::
+
         :py:class:`NoteinRead`
 
     >>> s = Server().boot()
@@ -1007,32 +1007,32 @@ class NoteinRead(PyoObject):
     :Args:
 
         filename : string
-            Full path (without extension) used to create the files. 
-            
-            Usually the same filename as the one given to a NoteinRec 
-            object to record automation. 
-            
+            Full path (without extension) used to create the files.
+
+            Usually the same filename as the one given to a NoteinRec
+            object to record automation.
+
             The directory will be scaned and all files
             named "filename_xxx" will add a new stream in the object.
         loop : boolean, optional
-            Looping mode, False means off, True means on. 
+            Looping mode, False means off, True means on.
             Defaults to False.
 
     .. note::
 
-        NoteinRead will sends a trigger signal at the end of the playback if 
-        loop is off or any time it wraps around if loop is on. User can 
+        NoteinRead will sends a trigger signal at the end of the playback if
+        loop is off or any time it wraps around if loop is on. User can
         retreive the trigger streams by calling obj['trig']:
 
         >>> notes = NoteinRead(home+"/notes_rec", loop=True)
         >>> t = SndTable(SNDS_PATH+"/transparent.aif")
         >>> loop = TrigEnv(notes["trig"], t, dur=[.2,.3,.4,.5], mul=.25).out()
 
-        The out() method is bypassed. NoteinRead's signal can not be sent to 
+        The out() method is bypassed. NoteinRead's signal can not be sent to
         audio outs.
 
-    .. seealso:: 
-        
+    .. seealso::
+
         :py:class:`NoteinRec`
 
     >>> s = Server().boot()
@@ -1082,12 +1082,12 @@ class NoteinRead(PyoObject):
     def get(self, identifier="pitch", all=False):
         """
         Return the first sample of the current buffer as a float.
-        
+
         Can be used to convert audio stream to usable Python data.
-        
+
         "pitch" or "velocity" must be given to `identifier` to specify
         which stream to get value from.
-        
+
         :Args:
 
             identifier : string {"pitch", "velocity"}
@@ -1095,11 +1095,11 @@ class NoteinRead(PyoObject):
                 Defaults to "pitch".
             all : boolean, optional
                 If True, the first value of each object's stream
-                will be returned as a list. 
-                
-                If False, only the value of the first object's stream 
+                will be returned as a list.
+
+                If False, only the value of the first object's stream
                 will be returned as a float.
-                 
+
         """
         if not all:
             return self.__getitem__(identifier)[0]._getStream().getValue()
@@ -1124,8 +1124,8 @@ class NoteinRead(PyoObject):
         [obj.setLoop(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
     @property
-    def loop(self): 
-        """boolean. Looping mode.""" 
+    def loop(self):
+        """boolean. Looping mode."""
         return self._loop
     @loop.setter
     def loop(self, x): self.setLoop(x)
@@ -1178,7 +1178,7 @@ class DBToA(PyoObject):
 
     @property
     def input(self):
-        """PyoObject. Input signal to process.""" 
+        """PyoObject. Input signal to process."""
         return self._input
     @input.setter
     def input(self, x): self.setInput(x)
@@ -1232,7 +1232,7 @@ class AToDB(PyoObject):
 
     @property
     def input(self):
-        """PyoObject. Input signal to process.""" 
+        """PyoObject. Input signal to process."""
         return self._input
     @input.setter
     def input(self, x): self.setInput(x)
@@ -1241,9 +1241,9 @@ class Scale(PyoObject):
     """
     Maps an input range of audio values to an output range.
 
-    Scale maps an input range of audio values to an output range. 
-    The ranges can be specified with `min` and `max` reversed for 
-    invert-mapping. If specified, the mapping can also be exponential. 
+    Scale maps an input range of audio values to an output range.
+    The ranges can be specified with `min` and `max` reversed for
+    invert-mapping. If specified, the mapping can also be exponential.
 
     :Parent: :py:class:`PyoObject`
 
@@ -1260,7 +1260,7 @@ class Scale(PyoObject):
         outmax : float or PyoObject, optional
             Maximum output value. Defaults to 1.
         exp : float, optional
-            Exponent value, specifies the nature of the scaling curve. 
+            Exponent value, specifies the nature of the scaling curve.
             Values between 0 and 1 give a reversed curve.  Defaults to 1.0.
 
     >>> s = Server().boot()
@@ -1381,28 +1381,28 @@ class Scale(PyoObject):
 
     @property
     def input(self):
-        """PyoObject. Input signal to process.""" 
+        """PyoObject. Input signal to process."""
         return self._input
     @input.setter
     def input(self, x): self.setInput(x)
 
     @property
     def inmin(self):
-        """float or PyoObject. Minimum input value.""" 
+        """float or PyoObject. Minimum input value."""
         return self._inmin
     @inmin.setter
     def inmin(self, x): self.setInMin(x)
 
     @property
     def inmax(self):
-        """float or PyoObject. Maximum input value.""" 
+        """float or PyoObject. Maximum input value."""
         return self._inmax
     @inmax.setter
     def inmax(self, x): self.setInMax(x)
 
     @property
     def outmin(self):
-        """float or PyoObject. Minimum output value.""" 
+        """float or PyoObject. Minimum output value."""
         return self._outmin
     @outmin.setter
     def outmin(self, x): self.setOutMin(x)
@@ -1467,7 +1467,7 @@ class CentsToTranspo(PyoObject):
 
     @property
     def input(self):
-        """PyoObject. Input signal to process.""" 
+        """PyoObject. Input signal to process."""
         return self._input
     @input.setter
     def input(self, x): self.setInput(x)
@@ -1519,7 +1519,7 @@ class TranspoToCents(PyoObject):
 
     @property
     def input(self):
-        """PyoObject. Input signal to process.""" 
+        """PyoObject. Input signal to process."""
         return self._input
     @input.setter
     def input(self, x): self.setInput(x)
@@ -1528,7 +1528,7 @@ class MToF(PyoObject):
     """
     Returns the frequency (Hz) equivalent to a midi note.
 
-    Returns the frequency (Hz) equivalent to a midi note, 
+    Returns the frequency (Hz) equivalent to a midi note,
     60 = 261.62556530066814 Hz.
 
     :Parent: :py:class:`PyoObject`
@@ -1571,7 +1571,7 @@ class MToF(PyoObject):
 
     @property
     def input(self):
-        """PyoObject. Input signal to process.""" 
+        """PyoObject. Input signal to process."""
         return self._input
     @input.setter
     def input(self, x): self.setInput(x)
@@ -1580,7 +1580,7 @@ class FToM(PyoObject):
     """
     Returns the midi note equivalent to a frequency in Hz.
 
-    Returns the midi note equivalent to a frequency in Hz, 
+    Returns the midi note equivalent to a frequency in Hz,
     440.0 (hz) = 69.
 
     :Parent: :py:class:`PyoObject`
@@ -1626,7 +1626,7 @@ class FToM(PyoObject):
 
     @property
     def input(self):
-        """PyoObject. Input signal to process.""" 
+        """PyoObject. Input signal to process."""
         return self._input
     @input.setter
     def input(self, x): self.setInput(x)
@@ -1645,7 +1645,7 @@ class MToT(PyoObject):
         input : PyoObject
             Input signal as midi note.
         centralkey : float, optional
-            The midi note that returns a transposition factor of 1, 
+            The midi note that returns a transposition factor of 1,
             that is to say no transposition. Defaults to 60.
 
     >>> s = Server().boot()
@@ -1699,13 +1699,13 @@ class MToT(PyoObject):
 
     @property
     def input(self):
-        """PyoObject. Input signal to process.""" 
+        """PyoObject. Input signal to process."""
         return self._input
     @input.setter
     def input(self, x): self.setInput(x)
     @property
     def centralkey(self):
-        """float. The midi note that returns no transposition.""" 
+        """float. The midi note that returns no transposition."""
         return self._centralkey
     @centralkey.setter
     def centralkey(self, x): self.setCentralKey(x)
@@ -1796,31 +1796,31 @@ class Between(PyoObject):
 
     @property
     def input(self):
-        """PyoObject. Input signal to process.""" 
+        """PyoObject. Input signal to process."""
         return self._input
     @input.setter
     def input(self, x): self.setInput(x)
 
     @property
     def min(self):
-        """float or PyoObject. Minimum range value.""" 
+        """float or PyoObject. Minimum range value."""
         return self._min
     @min.setter
     def min(self, x): self.setMin(x)
 
     @property
     def max(self):
-        """float or PyoObject. Maximum range value.""" 
+        """float or PyoObject. Maximum range value."""
         return self._max
     @max.setter
     def max(self, x): self.setMax(x)
 
 class TrackHold(PyoObject):
     """
-    Performs a track-and-hold operation on its input. 
+    Performs a track-and-hold operation on its input.
 
     TrackHold lets pass the signal in `input` without modification but hold
-    a sample according to the value of `controlsig`. If `controlsig` equals 
+    a sample according to the value of `controlsig`. If `controlsig` equals
     `value`, the input is sampled and held, otherwise, it passes thru.
 
     :Parent: :py:class:`PyoObject`
@@ -1855,7 +1855,7 @@ class TrackHold(PyoObject):
     def setInput(self, x, fadetime=0.05):
         """
         Replace the `input` attribute.
-        
+
         :Args:
 
             x : PyoObject
@@ -1870,7 +1870,7 @@ class TrackHold(PyoObject):
     def setControlsig(self, x, fadetime=0.05):
         """
         Replace the `controlsig` attribute.
-        
+
         :Args:
 
             x : PyoObject
@@ -1881,11 +1881,11 @@ class TrackHold(PyoObject):
         """
         self._controlsig = x
         self._in_fader2.setInput(x, fadetime)
-        
+
     def setValue(self, x):
         """
         Replace the `value` attribute.
-        
+
         :Args:
 
             x : float or PyoObject
@@ -1898,21 +1898,21 @@ class TrackHold(PyoObject):
 
     @property
     def input(self):
-        """PyoObject. Input signal.""" 
+        """PyoObject. Input signal."""
         return self._input
     @input.setter
     def input(self, x): self.setInput(x)
 
     @property
     def controlsig(self):
-        """PyoObject. Control signal.""" 
+        """PyoObject. Control signal."""
         return self._controlsig
     @controlsig.setter
     def controlsig(self, x): self.setControlsig(x)
 
     @property
     def value(self):
-        """float or PyoObject. Target value.""" 
+        """float or PyoObject. Target value."""
         return self._value
     @value.setter
     def value(self, x): self.setValue(x)

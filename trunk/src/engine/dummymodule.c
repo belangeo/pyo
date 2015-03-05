@@ -1,22 +1,22 @@
-/*************************************************************************
-* Copyright 2010 Olivier Belanger                                        *                  
-*                                                                        * 
-* This file is part of pyo, a python module to help digital signal       *
-* processing script creation.                                            *  
-*                                                                        * 
-* pyo is free software: you can redistribute it and/or modify            *
-* it under the terms of the GNU General Public License as published by   *
-* the Free Software Foundation, either version 3 of the License, or      *
-* (at your option) any later version.                                    * 
-*                                                                        *
-* pyo is distributed in the hope that it will be useful,                 *
-* but WITHOUT ANY WARRANTY; without even the implied warranty of         *    
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the          *
-* GNU General Public License for more details.                           *
-*                                                                        *
-* You should have received a copy of the GNU General Public License      *
-* along with pyo.  If not, see <http://www.gnu.org/licenses/>.           *
-*************************************************************************/
+/**************************************************************************
+ * Copyright 2009-2015 Olivier Belanger                                   *
+ *                                                                        *
+ * This file is part of pyo, a python module to help digital signal       *
+ * processing script creation.                                            *
+ *                                                                        *
+ * pyo is free software: you can redistribute it and/or modify            *
+ * it under the terms of the GNU Lesser General Public License as         *
+ * published by the Free Software Foundation, either version 3 of the     *
+ * License, or (at your option) any later version.                        *
+ *                                                                        *
+ * pyo is distributed in the hope that it will be useful,                 *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of         *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the          *
+ * GNU Lesser General Public License for more details.                    *
+ *                                                                        *
+ * You should have received a copy of the GNU Lesser General Public       *
+ * License along with pyo.  If not, see <http://www.gnu.org/licenses/>.   *
+ *************************************************************************/
 
 #include <Python.h>
 #include "structmember.h"
@@ -43,31 +43,31 @@ Dummy_setProcMode(Dummy *self)
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
 
 	switch (muladdmode) {
-        case 0:        
+        case 0:
             self->muladd_func_ptr = Dummy_postprocessing_ii;
             break;
-        case 1:    
+        case 1:
             self->muladd_func_ptr = Dummy_postprocessing_ai;
             break;
-        case 2:    
+        case 2:
             self->muladd_func_ptr = Dummy_postprocessing_revai;
             break;
-        case 10:        
+        case 10:
             self->muladd_func_ptr = Dummy_postprocessing_ia;
             break;
-        case 11:    
+        case 11:
             self->muladd_func_ptr = Dummy_postprocessing_aa;
             break;
-        case 12:    
+        case 12:
             self->muladd_func_ptr = Dummy_postprocessing_revaa;
             break;
-        case 20:        
+        case 20:
             self->muladd_func_ptr = Dummy_postprocessing_ireva;
             break;
-        case 21:    
+        case 21:
             self->muladd_func_ptr = Dummy_postprocessing_areva;
             break;
-        case 22:    
+        case 22:
             self->muladd_func_ptr = Dummy_postprocessing_revareva;
             break;
     }
@@ -80,7 +80,7 @@ Dummy_compute_next_data_frame(Dummy *self)
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
     for (i=0; i<self->bufsize; i++) {
         self->data[i] = in[i];
-    }    
+    }
     (*self->muladd_func_ptr)(self);
 }
 
@@ -93,7 +93,7 @@ Dummy_traverse(Dummy *self, visitproc visit, void *arg)
     return 0;
 }
 
-static int 
+static int
 Dummy_clear(Dummy *self)
 {
     pyo_CLEAR
@@ -110,21 +110,21 @@ Dummy_dealloc(Dummy* self)
     self->ob_type->tp_free((PyObject*)self);
 }
 
-PyObject * 
+PyObject *
 Dummy_initialize(Dummy *self)
 {
     int i;
 	self->modebuffer[0] = 0;
 	self->modebuffer[1] = 0;
-    
+
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, Dummy_compute_next_data_frame);
     self->mode_func_ptr = Dummy_setProcMode;
-    
+
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
     Stream_setStreamActive(self->stream, 1);
-    
+
     Py_INCREF(Py_None);
     return Py_None;
 }
@@ -146,17 +146,17 @@ Dummy_setInput(Dummy *self, PyObject *arg)
     (*self->mode_func_ptr)(self);
 
     Dummy_compute_next_data_frame(self);
-    
+
     Py_INCREF(Py_None);
     return Py_None;
 }
 
 static PyObject * Dummy_getServer(Dummy* self) { GET_SERVER };
 static PyObject * Dummy_getStream(Dummy* self) { GET_STREAM };
-static PyObject * Dummy_setMul(Dummy *self, PyObject *arg) { SET_MUL };	
-static PyObject * Dummy_setAdd(Dummy *self, PyObject *arg) { SET_ADD };	
-static PyObject * Dummy_setSub(Dummy *self, PyObject *arg) { SET_SUB };	
-static PyObject * Dummy_setDiv(Dummy *self, PyObject *arg) { SET_DIV };	
+static PyObject * Dummy_setMul(Dummy *self, PyObject *arg) { SET_MUL };
+static PyObject * Dummy_setAdd(Dummy *self, PyObject *arg) { SET_ADD };
+static PyObject * Dummy_setSub(Dummy *self, PyObject *arg) { SET_SUB };
+static PyObject * Dummy_setDiv(Dummy *self, PyObject *arg) { SET_DIV };
 
 static PyObject * Dummy_play(Dummy *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * Dummy_out(Dummy *self, PyObject *args, PyObject *kwds) { OUT };
@@ -302,36 +302,36 @@ static void
 TriggerDummy_setProcMode(TriggerDummy *self) {
     int muladdmode;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
-    
+
     switch (muladdmode) {
-        case 0:        
+        case 0:
             self->muladd_func_ptr = TriggerDummy_postprocessing_ii;
             break;
-        case 1:    
+        case 1:
             self->muladd_func_ptr = TriggerDummy_postprocessing_ai;
             break;
-        case 2:    
+        case 2:
             self->muladd_func_ptr = TriggerDummy_postprocessing_revai;
             break;
-        case 10:        
+        case 10:
             self->muladd_func_ptr = TriggerDummy_postprocessing_ia;
             break;
-        case 11:    
+        case 11:
             self->muladd_func_ptr = TriggerDummy_postprocessing_aa;
             break;
-        case 12:    
+        case 12:
             self->muladd_func_ptr = TriggerDummy_postprocessing_revaa;
             break;
-        case 20:        
+        case 20:
             self->muladd_func_ptr = TriggerDummy_postprocessing_ireva;
             break;
-        case 21:    
+        case 21:
             self->muladd_func_ptr = TriggerDummy_postprocessing_areva;
             break;
-        case 22:    
+        case 22:
             self->muladd_func_ptr = TriggerDummy_postprocessing_revareva;
             break;
-    }  
+    }
 }
 
 static void
@@ -341,7 +341,7 @@ TriggerDummy_compute_next_data_frame(TriggerDummy *self)
     MYFLT *tmp = TriggerStream_getData((TriggerStream *)self->input_stream);
     for (i=0; i<self->bufsize; i++) {
         self->data[i] = tmp[i];
-    }    
+    }
     (*self->muladd_func_ptr)(self);
 }
 
@@ -354,11 +354,11 @@ TriggerDummy_traverse(TriggerDummy *self, visitproc visit, void *arg)
     return 0;
 }
 
-static int 
+static int
 TriggerDummy_clear(TriggerDummy *self)
 {
     pyo_CLEAR
-    Py_CLEAR(self->input);    
+    Py_CLEAR(self->input);
     Py_CLEAR(self->input_stream);
     return 0;
 }
@@ -378,34 +378,34 @@ TriggerDummy_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp;
     TriggerDummy *self;
     self = (TriggerDummy *)type->tp_alloc(type, 0);
-    
+
     self->modebuffer[0] = 0;
     self->modebuffer[1] = 0;
-    
+
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, TriggerDummy_compute_next_data_frame);
     self->mode_func_ptr = TriggerDummy_setProcMode;
 
     static char *kwlist[] = {"input", NULL};
-    
+
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "O", kwlist, &inputtmp))
-        Py_RETURN_NONE; 
-    
+        Py_RETURN_NONE;
+
     INIT_INPUT_TRIGGER_STREAM
-    
+
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
-    
+
     (*self->mode_func_ptr)(self);
-    
+
     return (PyObject *)self;
 }
 
 static PyObject * TriggerDummy_getServer(TriggerDummy* self) { GET_SERVER };
 static PyObject * TriggerDummy_getStream(TriggerDummy* self) { GET_STREAM };
-static PyObject * TriggerDummy_setMul(TriggerDummy *self, PyObject *arg) { SET_MUL };	
-static PyObject * TriggerDummy_setAdd(TriggerDummy *self, PyObject *arg) { SET_ADD };	
-static PyObject * TriggerDummy_setSub(TriggerDummy *self, PyObject *arg) { SET_SUB };	
-static PyObject * TriggerDummy_setDiv(TriggerDummy *self, PyObject *arg) { SET_DIV };	
+static PyObject * TriggerDummy_setMul(TriggerDummy *self, PyObject *arg) { SET_MUL };
+static PyObject * TriggerDummy_setAdd(TriggerDummy *self, PyObject *arg) { SET_ADD };
+static PyObject * TriggerDummy_setSub(TriggerDummy *self, PyObject *arg) { SET_SUB };
+static PyObject * TriggerDummy_setDiv(TriggerDummy *self, PyObject *arg) { SET_DIV };
 
 static PyObject * TriggerDummy_play(TriggerDummy *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * TriggerDummy_stop(TriggerDummy *self) { STOP };
@@ -435,7 +435,7 @@ static PyMethodDef TriggerDummy_methods[] = {
     {"setMul", (PyCFunction)TriggerDummy_setMul, METH_O, "Sets oscillator mul factor."},
     {"setAdd", (PyCFunction)TriggerDummy_setAdd, METH_O, "Sets oscillator add factor."},
     {"setSub", (PyCFunction)TriggerDummy_setSub, METH_O, "Sets inverse add factor."},
-    {"setDiv", (PyCFunction)TriggerDummy_setDiv, METH_O, "Sets inverse mul factor."},        
+    {"setDiv", (PyCFunction)TriggerDummy_setDiv, METH_O, "Sets inverse mul factor."},
     {NULL}  /* Sentinel */
 };
 static PyNumberMethods TriggerDummy_as_number = {

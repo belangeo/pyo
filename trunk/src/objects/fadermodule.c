@@ -1,21 +1,21 @@
-/*************************************************************************
- * Copyright 2010 Olivier Belanger                                        *                  
- *                                                                        * 
+/**************************************************************************
+ * Copyright 2009-2015 Olivier Belanger                                   *
+ *                                                                        *
  * This file is part of pyo, a python module to help digital signal       *
- * processing script creation.                                            *  
- *                                                                        * 
+ * processing script creation.                                            *
+ *                                                                        *
  * pyo is free software: you can redistribute it and/or modify            *
- * it under the terms of the GNU General Public License as published by   *
- * the Free Software Foundation, either version 3 of the License, or      *
- * (at your option) any later version.                                    * 
+ * it under the terms of the GNU Lesser General Public License as         *
+ * published by the Free Software Foundation, either version 3 of the     *
+ * License, or (at your option) any later version.                        *
  *                                                                        *
  * pyo is distributed in the hope that it will be useful,                 *
- * but WITHOUT ANY WARRANTY; without even the implied warranty of         *    
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of         *
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the          *
- * GNU General Public License for more details.                           *
+ * GNU Lesser General Public License for more details.                    *
  *                                                                        *
- * You should have received a copy of the GNU General Public License      *
- * along with pyo.  If not, see <http://www.gnu.org/licenses/>.           *
+ * You should have received a copy of the GNU Lesser General Public       *
+ * License along with pyo.  If not, see <http://www.gnu.org/licenses/>.   *
  *************************************************************************/
 
 #include <Python.h>
@@ -38,7 +38,7 @@ typedef struct {
     MYFLT sampleToSec;
 } Fader;
 
-static void Fader_internal_stop(Fader *self) { 
+static void Fader_internal_stop(Fader *self) {
     int i;
     Stream_setStreamActive(self->stream, 0);
     Stream_setStreamChnl(self->stream, 0);
@@ -69,7 +69,7 @@ Fader_generate_auto(Fader *self) {
             val = (self->duration - self->currentTime) / self->release;
         else
             val = 1.;
-        
+
         self->data[i] = val;
         self->currentTime += self->sampleToSec;
     }
@@ -84,24 +84,24 @@ Fader_generate_wait(Fader *self) {
         Fader_internal_stop((Fader *)self);
         return;
     }
-    
+
     for (i=0; i<self->bufsize; i++) {
         if (self->fademode == 0) {
-            
+
             if (self->currentTime <= self->attack)
                 val = self->currentTime / self->attack;
             else
                 val = 1.;
-            self->topValue = val;    
-        }    
-        else {  
+            self->topValue = val;
+        }
+        else {
             if (self->currentTime <= self->release)
                 val = (1. - self->currentTime / self->release) * self->topValue;
-            else 
+            else
                 val = 0.;
-        }    
+        }
         self->data[i] = val;
-        self->currentTime += self->sampleToSec;    
+        self->currentTime += self->sampleToSec;
     }
 }
 
@@ -120,47 +120,47 @@ Fader_setProcMode(Fader *self)
 {
     int muladdmode;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
-    
+
     if (self->duration == 0.0)
         self->proc_func_ptr = Fader_generate_wait;
     else
-        self->proc_func_ptr = Fader_generate_auto;        
-        
+        self->proc_func_ptr = Fader_generate_auto;
+
 	switch (muladdmode) {
-        case 0:        
+        case 0:
             self->muladd_func_ptr = Fader_postprocessing_ii;
             break;
-        case 1:    
+        case 1:
             self->muladd_func_ptr = Fader_postprocessing_ai;
             break;
-        case 2:    
+        case 2:
             self->muladd_func_ptr = Fader_postprocessing_revai;
             break;
-        case 10:        
+        case 10:
             self->muladd_func_ptr = Fader_postprocessing_ia;
             break;
-        case 11:    
+        case 11:
             self->muladd_func_ptr = Fader_postprocessing_aa;
             break;
-        case 12:    
+        case 12:
             self->muladd_func_ptr = Fader_postprocessing_revaa;
             break;
-        case 20:        
+        case 20:
             self->muladd_func_ptr = Fader_postprocessing_ireva;
             break;
-        case 21:    
+        case 21:
             self->muladd_func_ptr = Fader_postprocessing_areva;
             break;
-        case 22:    
+        case 22:
             self->muladd_func_ptr = Fader_postprocessing_revareva;
             break;
-    }   
+    }
 }
 
 static void
 Fader_compute_next_data_frame(Fader *self)
 {
-    (*self->proc_func_ptr)(self); 
+    (*self->proc_func_ptr)(self);
     (*self->muladd_func_ptr)(self);
 }
 
@@ -171,7 +171,7 @@ Fader_traverse(Fader *self, visitproc visit, void *arg)
     return 0;
 }
 
-static int 
+static int
 Fader_clear(Fader *self)
 {
     pyo_CLEAR
@@ -193,7 +193,7 @@ Fader_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *multmp=NULL, *addtmp=NULL;
     Fader *self;
     self = (Fader *)type->tp_alloc(type, 0);
-    
+
 	self->modebuffer[0] = 0;
 	self->modebuffer[1] = 0;
     self->topValue = 0.0;
@@ -207,39 +207,39 @@ Fader_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, Fader_compute_next_data_frame);
     self->mode_func_ptr = Fader_setProcMode;
-    
+
     Stream_setStreamActive(self->stream, 0);
-    
+
     self->sampleToSec = 1. / self->sr;
 
     static char *kwlist[] = {"fadein", "fadeout", "dur", "mul", "add", NULL};
-    
+
     if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE__FFFOO, kwlist, &self->attack, &self->release, &self->duration, &multmp, &addtmp))
         Py_RETURN_NONE;
- 
+
     if (multmp) {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
     }
-    
+
     if (addtmp) {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
-    
+
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
-    
+
     (*self->mode_func_ptr)(self);
-    
+
     return (PyObject *)self;
 }
 
 static PyObject * Fader_getServer(Fader* self) { GET_SERVER };
 static PyObject * Fader_getStream(Fader* self) { GET_STREAM };
-static PyObject * Fader_setMul(Fader *self, PyObject *arg) { SET_MUL };	
-static PyObject * Fader_setAdd(Fader *self, PyObject *arg) { SET_ADD };	
-static PyObject * Fader_setSub(Fader *self, PyObject *arg) { SET_SUB };	
-static PyObject * Fader_setDiv(Fader *self, PyObject *arg) { SET_DIV };	
+static PyObject * Fader_setMul(Fader *self, PyObject *arg) { SET_MUL };
+static PyObject * Fader_setAdd(Fader *self, PyObject *arg) { SET_ADD };
+static PyObject * Fader_setSub(Fader *self, PyObject *arg) { SET_SUB };
+static PyObject * Fader_setDiv(Fader *self, PyObject *arg) { SET_DIV };
 
-static PyObject * Fader_play(Fader *self, PyObject *args, PyObject *kwds) 
+static PyObject * Fader_play(Fader *self, PyObject *args, PyObject *kwds)
 {
     self->fademode = 0;
     self->ended = 0;
@@ -416,7 +416,7 @@ typedef struct {
     MYFLT sampleToSec;
 } Adsr;
 
-static void Adsr_internal_stop(Adsr *self) { 
+static void Adsr_internal_stop(Adsr *self) {
     int i;
     Stream_setStreamActive(self->stream, 0);
     Stream_setStreamChnl(self->stream, 0);
@@ -430,7 +430,7 @@ static void
 Adsr_generate_auto(Adsr *self) {
     MYFLT val, invatt, invdec, invrel;
     int i;
-    
+
     invatt = 1.0 / self->attack;
     invdec = 1.0 / self->decay;
     invrel = 1.0 / self->release;
@@ -448,7 +448,7 @@ Adsr_generate_auto(Adsr *self) {
             val = (self->duration - self->currentTime) * invrel * self->sustain;
         else
             val = self->sustain;
-        
+
         self->data[i] = val;
         self->currentTime += self->sampleToSec;
     }
@@ -461,14 +461,14 @@ Adsr_generate_wait(Adsr *self) {
 
     if (self->fademode == 1 && self->currentTime > self->release)
         Adsr_internal_stop((Adsr *)self);
-    
+
     invatt = 1.0 / self->attack;
     invdec = 1.0 / self->decay;
     invrel = 1.0 / self->release;
 
     for (i=0; i<self->bufsize; i++) {
         if (self->fademode == 0) {
-            
+
             if (self->currentTime <= self->attack)
                 val = self->currentTime * invatt;
             else if (self->currentTime <= (self->attack + self->decay))
@@ -476,16 +476,16 @@ Adsr_generate_wait(Adsr *self) {
             else
                 val = self->sustain;
             self->topValue = val;
-        }    
-        else {  
+        }
+        else {
             if (self->currentTime <= self->release) {
                 val = self->topValue * (1. - self->currentTime * invrel);
             }
-            else 
+            else
                 val = 0.;
-        }    
+        }
         self->data[i] = val;
-        self->currentTime += self->sampleToSec;    
+        self->currentTime += self->sampleToSec;
     }
 }
 
@@ -504,47 +504,47 @@ Adsr_setProcMode(Adsr *self)
 {
     int muladdmode;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
-    
+
     if (self->duration == 0.0)
         self->proc_func_ptr = Adsr_generate_wait;
     else
-        self->proc_func_ptr = Adsr_generate_auto;        
-    
+        self->proc_func_ptr = Adsr_generate_auto;
+
 	switch (muladdmode) {
-        case 0:        
+        case 0:
             self->muladd_func_ptr = Adsr_postprocessing_ii;
             break;
-        case 1:    
+        case 1:
             self->muladd_func_ptr = Adsr_postprocessing_ai;
             break;
-        case 2:    
+        case 2:
             self->muladd_func_ptr = Adsr_postprocessing_revai;
             break;
-        case 10:        
+        case 10:
             self->muladd_func_ptr = Adsr_postprocessing_ia;
             break;
-        case 11:    
+        case 11:
             self->muladd_func_ptr = Adsr_postprocessing_aa;
             break;
-        case 12:    
+        case 12:
             self->muladd_func_ptr = Adsr_postprocessing_revaa;
             break;
-        case 20:        
+        case 20:
             self->muladd_func_ptr = Adsr_postprocessing_ireva;
             break;
-        case 21:    
+        case 21:
             self->muladd_func_ptr = Adsr_postprocessing_areva;
             break;
-        case 22:    
+        case 22:
             self->muladd_func_ptr = Adsr_postprocessing_revareva;
             break;
-    }   
+    }
 }
 
 static void
 Adsr_compute_next_data_frame(Adsr *self)
 {
-    (*self->proc_func_ptr)(self); 
+    (*self->proc_func_ptr)(self);
     (*self->muladd_func_ptr)(self);
 }
 
@@ -555,7 +555,7 @@ Adsr_traverse(Adsr *self, visitproc visit, void *arg)
     return 0;
 }
 
-static int 
+static int
 Adsr_clear(Adsr *self)
 {
     pyo_CLEAR
@@ -577,7 +577,7 @@ Adsr_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *multmp=NULL, *addtmp=NULL;
     Adsr *self;
     self = (Adsr *)type->tp_alloc(type, 0);
-    
+
 	self->modebuffer[0] = 0;
 	self->modebuffer[1] = 0;
     self->topValue = 0.0;
@@ -588,30 +588,30 @@ Adsr_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->release = 0.1;
     self->duration = 0.0;
     self->currentTime = 0.0;
-    
+
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, Adsr_compute_next_data_frame);
     self->mode_func_ptr = Adsr_setProcMode;
-    
+
     Stream_setStreamActive(self->stream, 0);
-    
+
     self->sampleToSec = 1. / self->sr;
 
     static char *kwlist[] = {"attack", "decay", "sustain", "release", "dur", "mul", "add", NULL};
-    
+
     if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE__FFFFFOO, kwlist, &self->attack, &self->decay, &self->sustain, &self->release, &self->duration, &multmp, &addtmp))
         Py_RETURN_NONE;
-    
+
     if (multmp) {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
     }
-    
+
     if (addtmp) {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
-    
+
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
-    
+
     if (self->attack < 0.000001)
         self->attack = 0.000001;
     if (self->decay < 0.000001)
@@ -624,18 +624,18 @@ Adsr_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         self->sustain = 1.0;
 
     (*self->mode_func_ptr)(self);
-    
+
     return (PyObject *)self;
 }
 
 static PyObject * Adsr_getServer(Adsr* self) { GET_SERVER };
 static PyObject * Adsr_getStream(Adsr* self) { GET_STREAM };
-static PyObject * Adsr_setMul(Adsr *self, PyObject *arg) { SET_MUL };	
-static PyObject * Adsr_setAdd(Adsr *self, PyObject *arg) { SET_ADD };	
-static PyObject * Adsr_setSub(Adsr *self, PyObject *arg) { SET_SUB };	
-static PyObject * Adsr_setDiv(Adsr *self, PyObject *arg) { SET_DIV };	
+static PyObject * Adsr_setMul(Adsr *self, PyObject *arg) { SET_MUL };
+static PyObject * Adsr_setAdd(Adsr *self, PyObject *arg) { SET_ADD };
+static PyObject * Adsr_setSub(Adsr *self, PyObject *arg) { SET_SUB };
+static PyObject * Adsr_setDiv(Adsr *self, PyObject *arg) { SET_DIV };
 
-static PyObject * Adsr_play(Adsr *self, PyObject *args, PyObject *kwds) 
+static PyObject * Adsr_play(Adsr *self, PyObject *args, PyObject *kwds)
 {
     self->fademode = 0;
     self->currentTime = 0.0;
@@ -652,7 +652,7 @@ Adsr_stop(Adsr *self)
     }
     else
         Adsr_internal_stop((Adsr *)self);
-    
+
     Py_INCREF(Py_None);
     return Py_None;
 }
@@ -857,12 +857,12 @@ Linseg_convert_pointslist(Linseg *self) {
     }
 }
 
-static void 
+static void
 Linseg_reinit(Linseg *self) {
     if (self->newlist == 1) {
         Linseg_convert_pointslist((Linseg *)self);
         self->newlist = 0;
-    }    
+    }
     self->currentTime = 0.0;
     self->currentValue = self->targets[0];
     self->which = 0;
@@ -872,7 +872,7 @@ Linseg_reinit(Linseg *self) {
 static void
 Linseg_generate(Linseg *self) {
     int i;
-    
+
     for (i=0; i<self->bufsize; i++) {
         if (self->flag == 1) {
             if (self->currentTime >= self->times[self->which]) {
@@ -883,8 +883,8 @@ Linseg_generate(Linseg *self) {
                     else {
                         self->flag = 0;
                         self->currentValue = self->targets[self->which-1];
-                    }    
-                }    
+                    }
+                }
                 else {
                     if ((self->times[self->which] - self->times[self->which-1]) <= 0)
                         self->increment = self->targets[self->which] - self->currentValue;
@@ -893,9 +893,9 @@ Linseg_generate(Linseg *self) {
                 }
             }
             if (self->currentTime <= self->times[self->listsize-1])
-                self->currentValue += self->increment;            
+                self->currentValue += self->increment;
             self->data[i] = (MYFLT)self->currentValue;
-            self->currentTime += self->sampleToSec;    
+            self->currentTime += self->sampleToSec;
         }
         else
             self->data[i] = (MYFLT)self->currentValue;
@@ -917,44 +917,44 @@ Linseg_setProcMode(Linseg *self)
 {
     int muladdmode;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
-    
+
     self->proc_func_ptr = Linseg_generate;
-    
+
 	switch (muladdmode) {
-        case 0:        
+        case 0:
             self->muladd_func_ptr = Linseg_postprocessing_ii;
             break;
-        case 1:    
+        case 1:
             self->muladd_func_ptr = Linseg_postprocessing_ai;
             break;
-        case 2:    
+        case 2:
             self->muladd_func_ptr = Linseg_postprocessing_revai;
             break;
-        case 10:        
+        case 10:
             self->muladd_func_ptr = Linseg_postprocessing_ia;
             break;
-        case 11:    
+        case 11:
             self->muladd_func_ptr = Linseg_postprocessing_aa;
             break;
-        case 12:    
+        case 12:
             self->muladd_func_ptr = Linseg_postprocessing_revaa;
             break;
-        case 20:        
+        case 20:
             self->muladd_func_ptr = Linseg_postprocessing_ireva;
             break;
-        case 21:    
+        case 21:
             self->muladd_func_ptr = Linseg_postprocessing_areva;
             break;
-        case 22:    
+        case 22:
             self->muladd_func_ptr = Linseg_postprocessing_revareva;
             break;
-    }   
+    }
 }
 
 static void
 Linseg_compute_next_data_frame(Linseg *self)
 {
-    (*self->proc_func_ptr)(self); 
+    (*self->proc_func_ptr)(self);
     (*self->muladd_func_ptr)(self);
 }
 
@@ -966,7 +966,7 @@ Linseg_traverse(Linseg *self, visitproc visit, void *arg)
     return 0;
 }
 
-static int 
+static int
 Linseg_clear(Linseg *self)
 {
     pyo_CLEAR
@@ -991,22 +991,22 @@ Linseg_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *pointslist=NULL, *multmp=NULL, *addtmp=NULL;
     Linseg *self;
     self = (Linseg *)type->tp_alloc(type, 0);
-    
+
     self->loop = 0;
     self->newlist = 1;
 	self->modebuffer[0] = 0;
 	self->modebuffer[1] = 0;
-    
+
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, Linseg_compute_next_data_frame);
     self->mode_func_ptr = Linseg_setProcMode;
-    
+
     Stream_setStreamActive(self->stream, 0);
-    
+
     self->sampleToSec = 1. / self->sr;
 
     static char *kwlist[] = {"list", "loop", "initToFirstVal", "mul", "add", NULL};
-    
+
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|iiOO", kwlist, &pointslist, &self->loop, &initToFirstVal, &multmp, &addtmp))
         Py_RETURN_NONE;
 
@@ -1014,36 +1014,36 @@ Linseg_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     Py_XDECREF(self->pointslist);
     self->pointslist = pointslist;
     Linseg_convert_pointslist((Linseg *)self);
-    
+
     if (multmp) {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
     }
-    
+
     if (addtmp) {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
-    
+
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
-    
+
     if (initToFirstVal) {
         for (i=0; i<self->bufsize; i++) {
             self->data[i] = self->targets[0];
         }
     }
-    
+
     (*self->mode_func_ptr)(self);
-    
+
     return (PyObject *)self;
 }
 
 static PyObject * Linseg_getServer(Linseg* self) { GET_SERVER };
 static PyObject * Linseg_getStream(Linseg* self) { GET_STREAM };
-static PyObject * Linseg_setMul(Linseg *self, PyObject *arg) { SET_MUL };	
-static PyObject * Linseg_setAdd(Linseg *self, PyObject *arg) { SET_ADD };	
-static PyObject * Linseg_setSub(Linseg *self, PyObject *arg) { SET_SUB };	
-static PyObject * Linseg_setDiv(Linseg *self, PyObject *arg) { SET_DIV };	
+static PyObject * Linseg_setMul(Linseg *self, PyObject *arg) { SET_MUL };
+static PyObject * Linseg_setAdd(Linseg *self, PyObject *arg) { SET_ADD };
+static PyObject * Linseg_setSub(Linseg *self, PyObject *arg) { SET_SUB };
+static PyObject * Linseg_setDiv(Linseg *self, PyObject *arg) { SET_DIV };
 
-static PyObject * Linseg_play(Linseg *self, PyObject *args, PyObject *kwds) 
+static PyObject * Linseg_play(Linseg *self, PyObject *args, PyObject *kwds)
 {
     Linseg_reinit((Linseg *)self);
     PLAY
@@ -1067,18 +1067,18 @@ Linseg_setList(Linseg *self, PyObject *value)
         PyErr_SetString(PyExc_TypeError, "Cannot delete the list attribute.");
         return PyInt_FromLong(-1);
     }
-    
+
     if (! PyList_Check(value)) {
         PyErr_SetString(PyExc_TypeError, "The points list attribute value must be a list of tuples.");
         return PyInt_FromLong(-1);
     }
-    
+
     Py_INCREF(value);
     Py_DECREF(self->pointslist);
-    self->pointslist = value; 
-    
+    self->pointslist = value;
+
     self->newlist = 1;
-    
+
     Py_INCREF(Py_None);
     return Py_None;
 }
@@ -1090,9 +1090,9 @@ Linseg_setLoop(Linseg *self, PyObject *arg)
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
     self->loop = PyInt_AsLong(arg);
-    
+
     Py_INCREF(Py_None);
     return Py_None;
 }
@@ -1232,7 +1232,7 @@ static void
 Expseg_convert_pointslist(Expseg *self) {
     int i;
     PyObject *tup;
-    
+
     self->listsize = PyList_Size(self->pointslist);
     self->targets = (MYFLT *)realloc(self->targets, self->listsize * sizeof(MYFLT));
     self->times = (MYFLT *)realloc(self->times, self->listsize * sizeof(MYFLT));
@@ -1243,12 +1243,12 @@ Expseg_convert_pointslist(Expseg *self) {
     }
 }
 
-static void 
+static void
 Expseg_reinit(Expseg *self) {
     if (self->newlist == 1) {
         Expseg_convert_pointslist((Expseg *)self);
         self->newlist = 0;
-    }    
+    }
     self->currentTime = 0.0;
     self->currentValue = self->targets[0];
     self->which = 0;
@@ -1261,7 +1261,7 @@ static void
 Expseg_generate(Expseg *self) {
     int i;
     double scl;
-    
+
     for (i=0; i<self->bufsize; i++) {
         if (self->flag == 1) {
             if (self->currentTime >= self->times[self->which]) {
@@ -1272,8 +1272,8 @@ Expseg_generate(Expseg *self) {
                     else {
                         self->flag = 0;
                         self->currentValue = self->targets[self->which-1];
-                    }    
-                }    
+                    }
+                }
                 else {
                     self->range = self->targets[self->which] - self->targets[self->which-1];
                     self->steps = (self->times[self->which] - self->times[self->which-1]) * self->sr;
@@ -1281,8 +1281,8 @@ Expseg_generate(Expseg *self) {
                         self->inc = 1.0;
                     else
                         self->inc = 1.0 / self->steps;
-                }    
-                self->pointer = 0.0;   
+                }
+                self->pointer = 0.0;
             }
             if (self->currentTime <= self->times[self->listsize-1]) {
                 if (self->pointer >= 1.0)
@@ -1294,9 +1294,9 @@ Expseg_generate(Expseg *self) {
 
                 self->currentValue = scl * self->range + self->targets[self->which-1];
                 self->pointer += self->inc;
-            }    
+            }
             self->data[i] = (MYFLT)self->currentValue;
-            self->currentTime += self->sampleToSec;    
+            self->currentTime += self->sampleToSec;
         }
         else
             self->data[i] = (MYFLT)self->currentValue;
@@ -1318,44 +1318,44 @@ Expseg_setProcMode(Expseg *self)
 {
     int muladdmode;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
-    
+
     self->proc_func_ptr = Expseg_generate;
-    
+
 	switch (muladdmode) {
-        case 0:        
+        case 0:
             self->muladd_func_ptr = Expseg_postprocessing_ii;
             break;
-        case 1:    
+        case 1:
             self->muladd_func_ptr = Expseg_postprocessing_ai;
             break;
-        case 2:    
+        case 2:
             self->muladd_func_ptr = Expseg_postprocessing_revai;
             break;
-        case 10:        
+        case 10:
             self->muladd_func_ptr = Expseg_postprocessing_ia;
             break;
-        case 11:    
+        case 11:
             self->muladd_func_ptr = Expseg_postprocessing_aa;
             break;
-        case 12:    
+        case 12:
             self->muladd_func_ptr = Expseg_postprocessing_revaa;
             break;
-        case 20:        
+        case 20:
             self->muladd_func_ptr = Expseg_postprocessing_ireva;
             break;
-        case 21:    
+        case 21:
             self->muladd_func_ptr = Expseg_postprocessing_areva;
             break;
-        case 22:    
+        case 22:
             self->muladd_func_ptr = Expseg_postprocessing_revareva;
             break;
-    }   
+    }
 }
 
 static void
 Expseg_compute_next_data_frame(Expseg *self)
 {
-    (*self->proc_func_ptr)(self); 
+    (*self->proc_func_ptr)(self);
     (*self->muladd_func_ptr)(self);
 }
 
@@ -1367,7 +1367,7 @@ Expseg_traverse(Expseg *self, visitproc visit, void *arg)
     return 0;
 }
 
-static int 
+static int
 Expseg_clear(Expseg *self)
 {
     pyo_CLEAR
@@ -1392,40 +1392,40 @@ Expseg_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *pointslist=NULL, *multmp=NULL, *addtmp=NULL;
     Expseg *self;
     self = (Expseg *)type->tp_alloc(type, 0);
-    
+
     self->loop = 0;
     self->newlist = 1;
     self->exp = self->exp_tmp = 10;
     self->inverse = self->inverse_tmp = 1;
 	self->modebuffer[0] = 0;
 	self->modebuffer[1] = 0;
-    
+
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, Expseg_compute_next_data_frame);
     self->mode_func_ptr = Expseg_setProcMode;
-    
+
     Stream_setStreamActive(self->stream, 0);
-    
+
     self->sampleToSec = 1. / self->sr;
 
     static char *kwlist[] = {"list", "loop", "exp", "inverse", "initToFirstVal", "mul", "add", NULL};
-    
+
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|idiiOO", kwlist, &pointslist, &self->loop, &self->exp_tmp, &self->inverse_tmp, &initToFirstVal, &multmp, &addtmp))
         Py_RETURN_NONE;
-    
+
     Py_INCREF(pointslist);
     Py_XDECREF(self->pointslist);
     self->pointslist = pointslist;
     Expseg_convert_pointslist((Expseg *)self);
-    
+
     if (multmp) {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
     }
-    
+
     if (addtmp) {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
-    
+
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
     if (initToFirstVal) {
@@ -1435,18 +1435,18 @@ Expseg_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     }
 
     (*self->mode_func_ptr)(self);
-    
+
     return (PyObject *)self;
 }
 
 static PyObject * Expseg_getServer(Expseg* self) { GET_SERVER };
 static PyObject * Expseg_getStream(Expseg* self) { GET_STREAM };
-static PyObject * Expseg_setMul(Expseg *self, PyObject *arg) { SET_MUL };	
-static PyObject * Expseg_setAdd(Expseg *self, PyObject *arg) { SET_ADD };	
-static PyObject * Expseg_setSub(Expseg *self, PyObject *arg) { SET_SUB };	
-static PyObject * Expseg_setDiv(Expseg *self, PyObject *arg) { SET_DIV };	
+static PyObject * Expseg_setMul(Expseg *self, PyObject *arg) { SET_MUL };
+static PyObject * Expseg_setAdd(Expseg *self, PyObject *arg) { SET_ADD };
+static PyObject * Expseg_setSub(Expseg *self, PyObject *arg) { SET_SUB };
+static PyObject * Expseg_setDiv(Expseg *self, PyObject *arg) { SET_DIV };
 
-static PyObject * Expseg_play(Expseg *self, PyObject *args, PyObject *kwds) 
+static PyObject * Expseg_play(Expseg *self, PyObject *args, PyObject *kwds)
 {
     Expseg_reinit((Expseg *)self);
     PLAY
@@ -1470,18 +1470,18 @@ Expseg_setList(Expseg *self, PyObject *value)
         PyErr_SetString(PyExc_TypeError, "Cannot delete the list attribute.");
         return PyInt_FromLong(-1);
     }
-    
+
     if (! PyList_Check(value)) {
         PyErr_SetString(PyExc_TypeError, "The points list attribute value must be a list of tuples.");
         return PyInt_FromLong(-1);
     }
-    
+
     Py_INCREF(value);
     Py_DECREF(self->pointslist);
-    self->pointslist = value; 
-    
+    self->pointslist = value;
+
     self->newlist = 1;
-    
+
     Py_INCREF(Py_None);
     return Py_None;
 }
@@ -1493,9 +1493,9 @@ Expseg_setLoop(Expseg *self, PyObject *arg)
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
     self->loop = PyInt_AsLong(arg);
-    
+
     Py_INCREF(Py_None);
     return Py_None;
 }
@@ -1507,9 +1507,9 @@ Expseg_setExp(Expseg *self, PyObject *arg)
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
     self->exp_tmp = PyFloat_AsDouble(PyNumber_Float(arg));
-    
+
     Py_INCREF(Py_None);
     return Py_None;
 }
@@ -1521,9 +1521,9 @@ Expseg_setInverse(Expseg *self, PyObject *arg)
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
     self->inverse_tmp = PyInt_AsLong(PyNumber_Int(arg));
-    
+
     Py_INCREF(Py_None);
     return Py_None;
 }

@@ -1,21 +1,21 @@
-/*************************************************************************
- * Copyright 2010 Olivier Belanger                                        *                  
- *                                                                        * 
+/**************************************************************************
+ * Copyright 2009-2015 Olivier Belanger                                   *
+ *                                                                        *
  * This file is part of pyo, a python module to help digital signal       *
- * processing script creation.                                            *  
- *                                                                        * 
+ * processing script creation.                                            *
+ *                                                                        *
  * pyo is free software: you can redistribute it and/or modify            *
- * it under the terms of the GNU General Public License as published by   *
- * the Free Software Foundation, either version 3 of the License, or      *
- * (at your option) any later version.                                    * 
+ * it under the terms of the GNU Lesser General Public License as         *
+ * published by the Free Software Foundation, either version 3 of the     *
+ * License, or (at your option) any later version.                        *
  *                                                                        *
  * pyo is distributed in the hope that it will be useful,                 *
- * but WITHOUT ANY WARRANTY; without even the implied warranty of         *    
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of         *
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the          *
- * GNU General Public License for more details.                           *
+ * GNU Lesser General Public License for more details.                    *
  *                                                                        *
- * You should have received a copy of the GNU General Public License      *
- * along with pyo.  If not, see <http://www.gnu.org/licenses/>.           *
+ * You should have received a copy of the GNU Lesser General Public       *
+ * License along with pyo.  If not, see <http://www.gnu.org/licenses/>.   *
  *************************************************************************/
 
 #include <Python.h>
@@ -58,9 +58,9 @@ MYFLT max_arr(MYFLT *a,int n)
     MYFLT m;
     m=*a;
     for (i=1; i<n; i++) {
-        if (m < *(a+i)) 
+        if (m < *(a+i))
             m = *(a+i);
-    }    
+    }
     return m;
 }
 
@@ -70,9 +70,9 @@ MYFLT min_arr(MYFLT *a,int n)
     MYFLT m;
     m=*a;
     for (i=1; i<n; i++) {
-        if (m > *(a+i)) 
+        if (m > *(a+i))
             m = *(a+i);
-    }    
+    }
     return m;
 }
 
@@ -87,12 +87,12 @@ SfPlayer_readframes_i(SfPlayer *self) {
     else
         sp = Stream_getData((Stream *)self->speed_stream)[0];
     delta = MYFABS(sp) * self->srScale;
-    
+
     buflen = (int)(self->bufsize * delta + 0.5) + 64;
     totlen = self->sndChnls*buflen;
     MYFLT buffer[totlen];
     MYFLT buffer2[self->sndChnls][buflen];
-    
+
     if (sp > 0) { /* forward reading */
         if (self->pointerPos >= self->sndSize) {
             self->pointerPos -= self->sndSize - self->startPos;
@@ -100,19 +100,19 @@ SfPlayer_readframes_i(SfPlayer *self) {
                 PyObject_CallMethod((PyObject *)self, "stop", NULL);
                 for (i=0; i<(self->bufsize * self->sndChnls); i++) {
                     self->samplesBuffer[i] = 0.0;
-                }    
+                }
                 for (i=0; i<self->bufsize; i++) {
                     self->trigsBuffer[i] = 0.0;
                 }
                 return;
             }
-        }        
+        }
         index = (int)self->pointerPos;
         sf_seek(self->sf, index, SEEK_SET); /* sets position pointer in the file */
 
         /* fill a buffer with enough samples to satisfy speed reading */
         /* if not enough samples left in the file */
-        if ((index+buflen) > self->sndSize) {   
+        if ((index+buflen) > self->sndSize) {
             shortbuflen = self->sndSize - index;
             pad = (buflen-shortbuflen)*self->sndChnls;
             SF_READ(self->sf, buffer, shortbuflen*self->sndChnls);
@@ -128,16 +128,16 @@ SfPlayer_readframes_i(SfPlayer *self) {
                 for (i=0; i<(pad); i++) {
                     buffer[i+shortbuflen*self->sndChnls] = buftemp[i];
                 }
-            }    
+            }
         }
         else /* without zero padding */
             SF_READ(self->sf, buffer, totlen);
-    
+
         /* de-interleave samples */
         for (i=0; i<totlen; i++) {
             buffer2[i%self->sndChnls][(int)(i/self->sndChnls)] = buffer[i];
         }
-    
+
         /* fill samplesBuffer with samples */
         for (i=0; i<self->bufsize; i++) {
             self->trigsBuffer[i] = 0.0;
@@ -146,7 +146,7 @@ SfPlayer_readframes_i(SfPlayer *self) {
             frac = bufpos - bufindex;
             for (j=0; j<self->sndChnls; j++) {
                 self->samplesBuffer[i+(j*self->bufsize)] = (*self->interp_func_ptr)(buffer2[j], bufindex, frac, buflen);
-            }    
+            }
             self->pointerPos += delta;
         }
         if (self->pointerPos >= self->sndSize)
@@ -165,16 +165,16 @@ SfPlayer_readframes_i(SfPlayer *self) {
                 PyObject_CallMethod((PyObject *)self, "stop", NULL);
                 for (i=0; i<(self->bufsize * self->sndChnls); i++) {
                     self->samplesBuffer[i] = 0.0;
-                }    
+                }
                 for (i=0; i<self->bufsize; i++) {
                     self->trigsBuffer[i] = 0.0;
                 }
                 return;
             }
         }
-        
+
         index = (int)self->pointerPos + 1;
-        
+
         /* fill a buffer with enough samples to satisfy speed reading */
         /* if not enough samples to read in the file */
         if ((index-buflen) < 0) {
@@ -195,35 +195,35 @@ SfPlayer_readframes_i(SfPlayer *self) {
                     buffer[i] = buftemp[i];
                 }
             }
-            
+
             MYFLT buftemp2[shortbuflen*self->sndChnls];
             sf_seek(self->sf, 0, SEEK_SET); /* sets position pointer in the file */
             SF_READ(self->sf, buftemp2, shortbuflen*self->sndChnls);
             for (i=0; i<(shortbuflen*self->sndChnls); i++) {
                 buffer[i+padlen] = buftemp2[i];
-            }    
+            }
         }
         else /* without zero padding */
             sf_seek(self->sf, index-buflen, SEEK_SET); /* sets position pointer in the file */
             SF_READ(self->sf, buffer, totlen);
-        
+
         /* de-interleave samples */
         for (i=0; i<totlen; i++) {
             buffer2[i%self->sndChnls][(int)(i/self->sndChnls)] = buffer[i];
         }
-        
+
         /* reverse arrays */
         MYFLT swap;
         for (i=0; i<self->sndChnls; i++) {
             int a;
-            int b = buflen; 
+            int b = buflen;
             for (a=0; a<--b; a++) { //increment a and decrement b until they meet eachother
                 swap = buffer2[i][a];       //put what's in a into swap space
                 buffer2[i][a] = buffer2[i][b];    //put what's in b into a
                 buffer2[i][b] = swap;       //put what's in the swap (a) into b
             }
         }
-        
+
         /* fill stream buffer with samples */
         for (i=0; i<self->bufsize; i++) {
             self->trigsBuffer[i] = 0.0;
@@ -247,7 +247,7 @@ SfPlayer_readframes_i(SfPlayer *self) {
             self->samplesBuffer[i] = 0.0;
         }
     }
-}    
+}
 
 static void
 SfPlayer_setProcMode(SfPlayer *self)
@@ -258,26 +258,26 @@ SfPlayer_setProcMode(SfPlayer *self)
 static void
 SfPlayer_compute_next_data_frame(SfPlayer *self)
 {
-    (*self->proc_func_ptr)(self); 
+    (*self->proc_func_ptr)(self);
 }
 
 static int
 SfPlayer_traverse(SfPlayer *self, visitproc visit, void *arg)
 {
     pyo_VISIT
-    Py_VISIT(self->speed);    
-    Py_VISIT(self->speed_stream);    
-    Py_VISIT(self->trig_stream);    
+    Py_VISIT(self->speed);
+    Py_VISIT(self->speed_stream);
+    Py_VISIT(self->trig_stream);
     return 0;
 }
 
-static int 
+static int
 SfPlayer_clear(SfPlayer *self)
 {
     pyo_CLEAR
-    Py_CLEAR(self->speed);    
-    Py_CLEAR(self->speed_stream);    
-    Py_CLEAR(self->trig_stream);    
+    Py_CLEAR(self->speed);
+    Py_CLEAR(self->speed_stream);
+    Py_CLEAR(self->trig_stream);
     return 0;
 }
 
@@ -301,7 +301,7 @@ SfPlayer_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *speedtmp=NULL;
     SfPlayer *self;
     self = (SfPlayer *)type->tp_alloc(type, 0);
-    
+
     self->speed = PyFloat_FromDouble(1);
     self->loop = 0;
     self->interp = 2;
@@ -313,20 +313,20 @@ SfPlayer_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->mode_func_ptr = SfPlayer_setProcMode;
 
     static char *kwlist[] = {"path", "speed", "loop", "offset", "interp", NULL};
-    
+
     if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_S__OIFI, kwlist, &self->path, &speedtmp, &self->loop, &offset, &self->interp))
-        Py_RETURN_NONE; 
-    
+        Py_RETURN_NONE;
+
     if (speedtmp) {
         PyObject_CallMethod((PyObject *)self, "setSpeed", "O", speedtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
-    
+
     (*self->mode_func_ptr)(self);
 
     SET_INTERP_POINTER
-    
+
     /* Open the sound file. */
     self->info.format = 0;
     self->sf = sf_open(self->path, SFM_READ, &self->info);
@@ -344,17 +344,17 @@ SfPlayer_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     for (i=0; i<self->bufsize; i++) {
         self->trigsBuffer[i] = 0.0;
-    }    
+    }
 
     MAKE_NEW_TRIGGER_STREAM(self->trig_stream, &TriggerStreamType, NULL);
     TriggerStream_setData(self->trig_stream, self->trigsBuffer);
-    
+
     self->startPos = offset * self->sr * self->srScale;
     if (self->startPos < 0.0 || self->startPos >= self->sndSize)
         self->startPos = 0.0;
-    
+
     self->pointerPos = self->startPos;
-    
+
     return (PyObject *)self;
 }
 
@@ -363,7 +363,7 @@ static PyObject * SfPlayer_getStream(SfPlayer* self) { GET_STREAM };
 static PyObject * SfPlayer_getTriggerStream(SfPlayer* self) { GET_TRIGGER_STREAM };
 
 static PyObject * SfPlayer_play(SfPlayer *self, PyObject *args, PyObject *kwds)
-{ 
+{
     self->init = 1;
     self->pointerPos = self->startPos;
     PLAY
@@ -382,14 +382,14 @@ static PyObject *
 SfPlayer_setSpeed(SfPlayer *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
-	
+
 	if (arg == NULL) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
 	int isNumber = PyNumber_Check(arg);
-	
+
 	tmp = arg;
 	Py_INCREF(tmp);
 	Py_DECREF(self->speed);
@@ -405,12 +405,12 @@ SfPlayer_setSpeed(SfPlayer *self, PyObject *arg)
         self->speed_stream = (Stream *)streamtmp;
 		self->modebuffer[0] = 1;
 	}
-    
+
     (*self->mode_func_ptr)(self);
-    
+
 	Py_INCREF(Py_None);
 	return Py_None;
-}	
+}
 
 static PyObject *
 SfPlayer_setSound(SfPlayer *self, PyObject *arg)
@@ -420,7 +420,7 @@ SfPlayer_setSound(SfPlayer *self, PyObject *arg)
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
     self->path = PyString_AsString(arg);
 
     sf_close(self->sf);
@@ -436,12 +436,12 @@ SfPlayer_setSound(SfPlayer *self, PyObject *arg)
     self->sndSr = self->info.samplerate;
     //self->sndChnls = self->info.channels;
     self->srScale = self->sndSr / self->sr;
-    
+
     //self->samplesBuffer = (MYFLT *)realloc(self->samplesBuffer, self->bufsize * self->sndChnls * sizeof(MYFLT));
-    
+
     self->startPos = 0.0;
     self->pointerPos = self->startPos;
-    
+
     Py_INCREF(Py_None);
     return Py_None;
 }
@@ -453,9 +453,9 @@ SfPlayer_setLoop(SfPlayer *self, PyObject *arg)
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
     self->loop = PyInt_AsLong(arg);
-    
+
     Py_INCREF(Py_None);
     return Py_None;
 }
@@ -467,14 +467,14 @@ SfPlayer_setOffset(SfPlayer *self, PyObject *arg)
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
     int isNumber = PyNumber_Check(arg);
 
 	if (isNumber == 1) {
 		self->startPos = PyFloat_AsDouble(PyNumber_Float(arg)) * self->sr * self->srScale;
         if (self->startPos < 0.0 || self->startPos >= self->sndSize)
             self->startPos = 0.0;
-    }  
+    }
 
     Py_INCREF(Py_None);
     return Py_None;
@@ -487,15 +487,15 @@ SfPlayer_setInterp(SfPlayer *self, PyObject *arg)
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
     int isNumber = PyNumber_Check(arg);
-    
+
 	if (isNumber == 1) {
 		self->interp = PyInt_AsLong(PyNumber_Int(arg));
-    }  
+    }
 
     SET_INTERP_POINTER
-    
+
     Py_INCREF(Py_None);
     return Py_None;
 }
@@ -504,7 +504,7 @@ MYFLT *
 SfPlayer_getSamplesBuffer(SfPlayer *self)
 {
     return (MYFLT *)self->samplesBuffer;
-}    
+}
 
 static PyMemberDef SfPlayer_members[] = {
 {"server", T_OBJECT_EX, offsetof(SfPlayer, server), 0, "Pyo server."},
@@ -578,7 +578,7 @@ typedef struct {
     pyo_audio_HEAD
     SfPlayer *mainPlayer;
     int modebuffer[2];
-    int chnl; 
+    int chnl;
 } SfPlay;
 
 static void SfPlay_postprocessing_ii(SfPlay *self) { POST_PROCESSING_II };
@@ -596,33 +596,33 @@ SfPlay_setProcMode(SfPlay *self)
 {
     int muladdmode;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
-    
+
 	switch (muladdmode) {
-        case 0:        
+        case 0:
             self->muladd_func_ptr = SfPlay_postprocessing_ii;
             break;
-        case 1:    
+        case 1:
             self->muladd_func_ptr = SfPlay_postprocessing_ai;
             break;
-        case 2:    
+        case 2:
             self->muladd_func_ptr = SfPlay_postprocessing_revai;
             break;
-        case 10:        
+        case 10:
             self->muladd_func_ptr = SfPlay_postprocessing_ia;
             break;
-        case 11:    
+        case 11:
             self->muladd_func_ptr = SfPlay_postprocessing_aa;
             break;
-        case 12:    
+        case 12:
             self->muladd_func_ptr = SfPlay_postprocessing_revaa;
             break;
-        case 20:        
+        case 20:
             self->muladd_func_ptr = SfPlay_postprocessing_ireva;
             break;
-        case 21:    
+        case 21:
             self->muladd_func_ptr = SfPlay_postprocessing_areva;
             break;
-        case 22:    
+        case 22:
             self->muladd_func_ptr = SfPlay_postprocessing_revareva;
             break;
     }
@@ -637,7 +637,7 @@ SfPlay_compute_next_data_frame(SfPlay *self)
     tmp = SfPlayer_getSamplesBuffer((SfPlayer *)self->mainPlayer);
     for (i=0; i<self->bufsize; i++) {
         self->data[i] = tmp[i + offset];
-    }    
+    }
     (*self->muladd_func_ptr)(self);
 }
 
@@ -649,11 +649,11 @@ SfPlay_traverse(SfPlay *self, visitproc visit, void *arg)
     return 0;
 }
 
-static int 
+static int
 SfPlay_clear(SfPlay *self)
 {
     pyo_CLEAR
-    Py_CLEAR(self->mainPlayer);    
+    Py_CLEAR(self->mainPlayer);
     return 0;
 }
 
@@ -672,45 +672,45 @@ SfPlay_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *maintmp=NULL, *multmp=NULL, *addtmp=NULL;
     SfPlay *self;
     self = (SfPlay *)type->tp_alloc(type, 0);
-    
+
     self->chnl = 0;
 	self->modebuffer[0] = 0;
 	self->modebuffer[1] = 0;
-    
+
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, SfPlay_compute_next_data_frame);
     self->mode_func_ptr = SfPlay_setProcMode;
 
     static char *kwlist[] = {"mainPlayer", "chnl", "mul", "add", NULL};
-    
+
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|iOO", kwlist, &maintmp, &self->chnl, &multmp, &addtmp))
-        Py_RETURN_NONE; 
-    
+        Py_RETURN_NONE;
+
     Py_XDECREF(self->mainPlayer);
     Py_INCREF(maintmp);
     self->mainPlayer = (SfPlayer *)maintmp;
-    
+
     if (multmp) {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
     }
-    
+
     if (addtmp) {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
-    
+
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
-    
+
     (*self->mode_func_ptr)(self);
-    
+
     return (PyObject *)self;
 }
 
 static PyObject * SfPlay_getServer(SfPlay* self) { GET_SERVER };
 static PyObject * SfPlay_getStream(SfPlay* self) { GET_STREAM };
-static PyObject * SfPlay_setMul(SfPlay *self, PyObject *arg) { SET_MUL };	
-static PyObject * SfPlay_setAdd(SfPlay *self, PyObject *arg) { SET_ADD };	
-static PyObject * SfPlay_setSub(SfPlay *self, PyObject *arg) { SET_SUB };	
-static PyObject * SfPlay_setDiv(SfPlay *self, PyObject *arg) { SET_DIV };	
+static PyObject * SfPlay_setMul(SfPlay *self, PyObject *arg) { SET_MUL };
+static PyObject * SfPlay_setAdd(SfPlay *self, PyObject *arg) { SET_ADD };
+static PyObject * SfPlay_setSub(SfPlay *self, PyObject *arg) { SET_SUB };
+static PyObject * SfPlay_setDiv(SfPlay *self, PyObject *arg) { SET_DIV };
 
 static PyObject * SfPlay_play(SfPlay *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * SfPlay_out(SfPlay *self, PyObject *args, PyObject *kwds) { OUT };
@@ -874,7 +874,7 @@ SfMarkerShuffler_readframes_i(SfMarkerShuffler *self) {
         sp = Stream_getData((Stream *)self->speed_stream)[0];
 
     delta = MYFABS(sp) * self->srScale;
-    
+
     buflen = (int)(self->bufsize * delta + 0.5) + 64;
     totlen = self->sndChnls*buflen;
     MYFLT buffer[totlen];
@@ -894,7 +894,7 @@ SfMarkerShuffler_readframes_i(SfMarkerShuffler *self) {
         }
         index = (int)self->pointerPos;
         sf_seek(self->sf, index, SEEK_SET); /* sets position pointer in the file */
-        
+
         /* fill a buffer with enough samples to satisfy speed reading */
         /* if not enough samples to read in the file */
         if ((index+buflen) > self->endPos) {
@@ -913,12 +913,12 @@ SfMarkerShuffler_readframes_i(SfMarkerShuffler *self) {
         }
         else /* without wraparound */
             SF_READ(self->sf, buffer, totlen);
-        
+
         /* de-interleave samples */
         for (i=0; i<totlen; i++) {
             buffer2[i%self->sndChnls][(int)(i/self->sndChnls)] = buffer[i];
         }
-        
+
         /* fill data with samples */
         for (i=0; i<self->bufsize; i++) {
             bufpos = self->pointerPos - index;
@@ -926,7 +926,7 @@ SfMarkerShuffler_readframes_i(SfMarkerShuffler *self) {
             frac = bufpos - bufindex;
             for (j=0; j<self->sndChnls; j++) {
                 self->samplesBuffer[i+(j*self->bufsize)] = (*self->interp_func_ptr)(buffer2[j], bufindex, frac, buflen);
-            }    
+            }
             self->pointerPos += delta;
         }
         if (self->pointerPos >= self->endPos) {
@@ -940,9 +940,9 @@ SfMarkerShuffler_readframes_i(SfMarkerShuffler *self) {
             self->lastDir = self->startPos = -1;
             SfMarkerShuffler_chooseNewMark((SfMarkerShuffler *)self, 0);
             self->pointerPos = self->startPos;
-        }    
+        }
         index = (int)self->pointerPos + 1;
-        
+
         /* fill a buffer with enough samples to satisfy speed reading */
         /* if not enough samples to read in the file */
         if ((index-buflen) < self->endPos) {
@@ -957,13 +957,13 @@ SfMarkerShuffler_readframes_i(SfMarkerShuffler *self) {
             for (i=0; i<padlen; i++) {
                 buffer[i] = buftemp[i];
             }
-            
+
             MYFLT buftemp2[shortbuflen*self->sndChnls];
             sf_seek(self->sf, self->endPos, SEEK_SET); /* sets position pointer in the file */
             SF_READ(self->sf, buftemp2, shortbuflen*self->sndChnls);
             for (i=0; i<(shortbuflen*self->sndChnls); i++) {
                 buffer[i+padlen] = buftemp2[i];
-            }    
+            }
         }
         else { /* without wraparound */
             sf_seek(self->sf, index-buflen, SEEK_SET); /* sets position pointer in the file */
@@ -973,19 +973,19 @@ SfMarkerShuffler_readframes_i(SfMarkerShuffler *self) {
         for (i=0; i<totlen; i++) {
             buffer2[i%self->sndChnls][(int)(i/self->sndChnls)] = buffer[i];
         }
-        
+
         /* reverse arrays */
         MYFLT swap;
         for (i=0; i<self->sndChnls; i++) {
             int a;
-            int b = buflen; 
+            int b = buflen;
             for (a=0; a<--b; a++) { //increment a and decrement b until they meet eachother
                 swap = buffer2[i][a];       //put what's in a into swap space
                 buffer2[i][a] = buffer2[i][b];    //put what's in b into a
                 buffer2[i][b] = swap;       //put what's in the swap (a) into b
             }
         }
-        
+
         /* fill stream buffer with samples */
         for (i=0; i<self->bufsize; i++) {
             bufpos = index - self->pointerPos;
@@ -1008,7 +1008,7 @@ SfMarkerShuffler_readframes_i(SfMarkerShuffler *self) {
             self->samplesBuffer[i] = 0.0;
         }
     }
-}    
+}
 
 static void
 SfMarkerShuffler_setProcMode(SfMarkerShuffler *self)
@@ -1019,11 +1019,11 @@ SfMarkerShuffler_setProcMode(SfMarkerShuffler *self)
 static void
 SfMarkerShuffler_compute_next_data_frame(SfMarkerShuffler *self)
 {
-    (*self->proc_func_ptr)(self); 
+    (*self->proc_func_ptr)(self);
 }
 
 static void
-SfMarkerShuffler_chooseNewMark(SfMarkerShuffler *self, int dir) 
+SfMarkerShuffler_chooseNewMark(SfMarkerShuffler *self, int dir)
 {
     int mark;
     if (dir == 1) {
@@ -1036,7 +1036,7 @@ SfMarkerShuffler_chooseNewMark(SfMarkerShuffler *self, int dir)
             self->startPos = self->nextStartPos;
             self->endPos = self->nextEndPos;
         }
-        
+
         mark = (int)(self->markers_size * (rand()/((MYFLT)(RAND_MAX)+1)));
         self->nextStartPos = self->markers[mark] * self->srScale;
         self->nextEndPos = self->markers[mark+1] * self->srScale;
@@ -1051,7 +1051,7 @@ SfMarkerShuffler_chooseNewMark(SfMarkerShuffler *self, int dir)
             self->startPos = self->nextStartPos;
             self->endPos = self->nextEndPos;
         }
-        
+
         mark = self->markers_size - (int)(self->markers_size * (rand()/((MYFLT)(RAND_MAX)+1)));
         self->nextStartPos = self->markers[mark] * self->srScale;
         self->nextEndPos = self->markers[mark-1] * self->srScale;
@@ -1067,7 +1067,7 @@ SfMarkerShuffler_setMarkers(SfMarkerShuffler *self, PyObject *markerstmp)
     self->markers[0] = 0.;
     for (i=0; i<len; i++) {
         self->markers[i+1] = PyFloat_AsDouble(PyList_GetItem(markerstmp, i));
-    }  
+    }
     self->markers[len+1] = self->sndSize;
     self->markers_size = (int)len+1;
 }
@@ -1076,17 +1076,17 @@ static int
 SfMarkerShuffler_traverse(SfMarkerShuffler *self, visitproc visit, void *arg)
 {
     pyo_VISIT
-    Py_VISIT(self->speed);    
-    Py_VISIT(self->speed_stream);    
+    Py_VISIT(self->speed);
+    Py_VISIT(self->speed_stream);
     return 0;
 }
 
-static int 
+static int
 SfMarkerShuffler_clear(SfMarkerShuffler *self)
 {
     pyo_CLEAR
-    Py_CLEAR(self->speed);    
-    Py_CLEAR(self->speed_stream);    
+    Py_CLEAR(self->speed);
+    Py_CLEAR(self->speed_stream);
     return 0;
 }
 
@@ -1109,7 +1109,7 @@ SfMarkerShuffler_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *speedtmp=NULL, *markerstmp=NULL;
     SfMarkerShuffler *self;
     self = (SfMarkerShuffler *)type->tp_alloc(type, 0);
-    
+
     self->speed = PyFloat_FromDouble(1);
     self->interp = 2;
     self->startPos = -1;
@@ -1121,18 +1121,18 @@ SfMarkerShuffler_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->mode_func_ptr = SfMarkerShuffler_setProcMode;
 
     static char *kwlist[] = {"path", "markers", "speed", "interp", NULL};
-    
+
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "sO|Oi", kwlist, &self->path, &markerstmp, &speedtmp, &self->interp))
         Py_RETURN_NONE;
 
     if (speedtmp) {
         PyObject_CallMethod((PyObject *)self, "setSpeed", "O", speedtmp);
     }
-    
+
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
-    
+
     (*self->mode_func_ptr)(self);
-    
+
     if (self->interp == 0)
         self->interp = 2;
     if (self->interp == 1)
@@ -1143,7 +1143,7 @@ SfMarkerShuffler_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         self->interp_func_ptr = cosine;
     else if (self->interp == 4)
         self->interp_func_ptr = cubic;
-    
+
     /* Open the sound file. */
     self->info.format = 0;
     self->sf = sf_open(self->path, SFM_READ, &self->info);
@@ -1163,7 +1163,7 @@ SfMarkerShuffler_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->samplesBuffer = (MYFLT *)realloc(self->samplesBuffer, self->bufsize * self->sndChnls * sizeof(MYFLT));
 
     Server_generateSeed((Server *)self->server, SFMARKERSHUFFLER_ID);
-    
+
     return (PyObject *)self;
 }
 
@@ -1178,14 +1178,14 @@ static PyObject *
 SfMarkerShuffler_setSpeed(SfMarkerShuffler *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
-	
+
 	if (arg == NULL) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
 	int isNumber = PyNumber_Check(arg);
-	
+
 	tmp = arg;
 	Py_INCREF(tmp);
 	Py_DECREF(self->speed);
@@ -1201,12 +1201,12 @@ SfMarkerShuffler_setSpeed(SfMarkerShuffler *self, PyObject *arg)
         self->speed_stream = (Stream *)streamtmp;
 		self->modebuffer[0] = 1;
 	}
-    
+
     (*self->mode_func_ptr)(self);
-    
+
 	Py_INCREF(Py_None);
 	return Py_None;
-}	
+}
 
 static PyObject *
 SfMarkerShuffler_setInterp(SfMarkerShuffler *self, PyObject *arg)
@@ -1215,13 +1215,13 @@ SfMarkerShuffler_setInterp(SfMarkerShuffler *self, PyObject *arg)
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
     int isNumber = PyNumber_Check(arg);
-    
+
 	if (isNumber == 1) {
 		self->interp = PyInt_AsLong(PyNumber_Int(arg));
-    }  
-    
+    }
+
     if (self->interp == 0)
         self->interp = 2;
     if (self->interp == 1)
@@ -1232,7 +1232,7 @@ SfMarkerShuffler_setInterp(SfMarkerShuffler *self, PyObject *arg)
         self->interp_func_ptr = cosine;
     else if (self->interp == 4)
         self->interp_func_ptr = cubic;
-    
+
     Py_INCREF(Py_None);
     return Py_None;
 }
@@ -1241,7 +1241,7 @@ MYFLT *
 SfMarkerShuffler_getSamplesBuffer(SfMarkerShuffler *self)
 {
     return (MYFLT *)self->samplesBuffer;
-}    
+}
 
 static PyMemberDef SfMarkerShuffler_members[] = {
 {"server", T_OBJECT_EX, offsetof(SfMarkerShuffler, server), 0, "Pyo server."},
@@ -1310,7 +1310,7 @@ typedef struct {
     pyo_audio_HEAD
     SfMarkerShuffler *mainPlayer;
     int modebuffer[2];
-    int chnl; 
+    int chnl;
 } SfMarkerShuffle;
 
 static void SfMarkerShuffle_postprocessing_ii(SfMarkerShuffle *self) { POST_PROCESSING_II };
@@ -1330,31 +1330,31 @@ SfMarkerShuffle_setProcMode(SfMarkerShuffle *self)
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
 
 	switch (muladdmode) {
-        case 0:        
+        case 0:
             self->muladd_func_ptr = SfMarkerShuffle_postprocessing_ii;
             break;
-        case 1:    
+        case 1:
             self->muladd_func_ptr = SfMarkerShuffle_postprocessing_ai;
             break;
-        case 2:    
+        case 2:
             self->muladd_func_ptr = SfMarkerShuffle_postprocessing_revai;
             break;
-        case 10:        
+        case 10:
             self->muladd_func_ptr = SfMarkerShuffle_postprocessing_ia;
             break;
-        case 11:    
+        case 11:
             self->muladd_func_ptr = SfMarkerShuffle_postprocessing_aa;
             break;
-        case 12:    
+        case 12:
             self->muladd_func_ptr = SfMarkerShuffle_postprocessing_revaa;
             break;
-        case 20:        
+        case 20:
             self->muladd_func_ptr = SfMarkerShuffle_postprocessing_ireva;
             break;
-        case 21:    
+        case 21:
             self->muladd_func_ptr = SfMarkerShuffle_postprocessing_areva;
             break;
-        case 22:    
+        case 22:
             self->muladd_func_ptr = SfMarkerShuffle_postprocessing_revareva;
             break;
     }
@@ -1369,7 +1369,7 @@ SfMarkerShuffle_compute_next_data_frame(SfMarkerShuffle *self)
     tmp = SfMarkerShuffler_getSamplesBuffer((SfMarkerShuffler *)self->mainPlayer);
     for (i=0; i<self->bufsize; i++) {
         self->data[i] = tmp[i + offset];
-    }    
+    }
     (*self->muladd_func_ptr)(self);
 }
 
@@ -1381,11 +1381,11 @@ SfMarkerShuffle_traverse(SfMarkerShuffle *self, visitproc visit, void *arg)
     return 0;
 }
 
-static int 
+static int
 SfMarkerShuffle_clear(SfMarkerShuffle *self)
 {
     pyo_CLEAR
-    Py_CLEAR(self->mainPlayer);    
+    Py_CLEAR(self->mainPlayer);
     return 0;
 }
 
@@ -1404,45 +1404,45 @@ SfMarkerShuffle_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *maintmp=NULL, *multmp=NULL, *addtmp=NULL;
     SfMarkerShuffle *self;
     self = (SfMarkerShuffle *)type->tp_alloc(type, 0);
-    
+
     self->chnl = 0;
 	self->modebuffer[0] = 0;
 	self->modebuffer[1] = 0;
-    
+
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, SfMarkerShuffle_compute_next_data_frame);
     self->mode_func_ptr = SfMarkerShuffle_setProcMode;
 
     static char *kwlist[] = {"mainPlayer", "chnl", "mul", "add", NULL};
-    
+
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|iOO", kwlist, &maintmp, &self->chnl, &multmp, &addtmp))
         Py_RETURN_NONE;
 
     Py_XDECREF(self->mainPlayer);
     Py_INCREF(maintmp);
     self->mainPlayer = (SfMarkerShuffler *)maintmp;
-    
+
     if (multmp) {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
     }
-    
+
     if (addtmp) {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
-    
+
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
-    
+
     (*self->mode_func_ptr)(self);
-    
+
     return (PyObject *)self;
 }
 
 static PyObject * SfMarkerShuffle_getServer(SfMarkerShuffle* self) { GET_SERVER };
 static PyObject * SfMarkerShuffle_getStream(SfMarkerShuffle* self) { GET_STREAM };
-static PyObject * SfMarkerShuffle_setMul(SfMarkerShuffle *self, PyObject *arg) { SET_MUL };	
-static PyObject * SfMarkerShuffle_setAdd(SfMarkerShuffle *self, PyObject *arg) { SET_ADD };	
-static PyObject * SfMarkerShuffle_setSub(SfMarkerShuffle *self, PyObject *arg) { SET_SUB };	
-static PyObject * SfMarkerShuffle_setDiv(SfMarkerShuffle *self, PyObject *arg) { SET_DIV };	
+static PyObject * SfMarkerShuffle_setMul(SfMarkerShuffle *self, PyObject *arg) { SET_MUL };
+static PyObject * SfMarkerShuffle_setAdd(SfMarkerShuffle *self, PyObject *arg) { SET_ADD };
+static PyObject * SfMarkerShuffle_setSub(SfMarkerShuffle *self, PyObject *arg) { SET_SUB };
+static PyObject * SfMarkerShuffle_setDiv(SfMarkerShuffle *self, PyObject *arg) { SET_DIV };
 
 static PyObject * SfMarkerShuffle_play(SfMarkerShuffle *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * SfMarkerShuffle_out(SfMarkerShuffle *self, PyObject *args, PyObject *kwds) { OUT };
@@ -1602,19 +1602,19 @@ SfMarkerLooper_readframes_i(SfMarkerLooper *self) {
     MYFLT sp, frac, bufpos, delta, tmp;
     int i, j, totlen, buflen, shortbuflen, bufindex;
     sf_count_t index;
-   
-    if (self->modebuffer[0] == 0) 
+
+    if (self->modebuffer[0] == 0)
         sp = PyFloat_AS_DOUBLE(self->speed);
     else
         sp = Stream_getData((Stream *)self->speed_stream)[0];
 
     delta = MYFABS(sp) * self->srScale;
-    
+
     buflen = (int)(self->bufsize * delta + 0.5) + 64;
     totlen = self->sndChnls*buflen;
     MYFLT buffer[totlen];
     MYFLT buffer2[self->sndChnls][buflen];
-    
+
     if (sp > 0) { /* reading forward */
         if (self->startPos == -1 || self->lastDir == 0) {
             self->lastDir = 1;
@@ -1629,13 +1629,13 @@ SfMarkerLooper_readframes_i(SfMarkerLooper *self) {
         }
         index = (int)self->pointerPos;
         sf_seek(self->sf, index, SEEK_SET); /* sets position pointer in the file */
-        
+
         /* fill a buffer with enough samples to satisfy speed reading */
         /* if not enough samples to read in the file */
         if ((index+buflen) > self->endPos) {
             shortbuflen = self->endPos - index;
             SF_READ(self->sf, buffer, shortbuflen*self->sndChnls);
-            
+
             /* wrap around and read new samples if loop */
             int pad = buflen - shortbuflen;
             int padlen = pad*self->sndChnls;
@@ -1648,12 +1648,12 @@ SfMarkerLooper_readframes_i(SfMarkerLooper *self) {
         }
         else /* without zero padding */
             SF_READ(self->sf, buffer, totlen);
-        
+
         /* de-interleave samples */
         for (i=0; i<totlen; i++) {
             buffer2[i%self->sndChnls][(int)(i/self->sndChnls)] = buffer[i];
         }
-        
+
         /* fill data with samples */
         for (i=0; i<self->bufsize; i++) {
             bufpos = self->pointerPos - index;
@@ -1661,7 +1661,7 @@ SfMarkerLooper_readframes_i(SfMarkerLooper *self) {
             frac = bufpos - bufindex;
             for (j=0; j<self->sndChnls; j++) {
                 self->samplesBuffer[i+(j*self->bufsize)] = (*self->interp_func_ptr)(buffer2[j], bufindex, frac, buflen);
-            }    
+            }
             self->pointerPos += delta;
         }
         if (self->pointerPos >= self->endPos) {
@@ -1675,16 +1675,16 @@ SfMarkerLooper_readframes_i(SfMarkerLooper *self) {
             self->lastDir = self->startPos = -1;
             SfMarkerLooper_chooseNewMark((SfMarkerLooper *)self, 0);
             self->pointerPos = self->startPos;
-        }    
+        }
         index = (int)self->pointerPos + 1;
-        
+
         /* fill a buffer with enough samples to satisfy speed reading */
         /* if not enough samples to read in the file */
         if ((index-buflen) < self->endPos) {
             shortbuflen = index - self->endPos;
             int pad = buflen - shortbuflen;
             int padlen = pad*self->sndChnls;
-            
+
             /* wrap around and read new samples if loop */
             MYFLT buftemp[padlen];
             sf_seek(self->sf, (int)self->nextStartPos-pad, SEEK_SET);
@@ -1692,13 +1692,13 @@ SfMarkerLooper_readframes_i(SfMarkerLooper *self) {
             for (i=0; i<padlen; i++) {
                 buffer[i] = buftemp[i];
             }
-            
+
             MYFLT buftemp2[shortbuflen*self->sndChnls];
             sf_seek(self->sf, self->endPos, SEEK_SET); /* sets position pointer in the file */
             SF_READ(self->sf, buftemp2, shortbuflen*self->sndChnls);
             for (i=0; i<(shortbuflen*self->sndChnls); i++) {
                 buffer[i+padlen] = buftemp2[i];
-            }    
+            }
         }
         else { /* without zero padding */
             sf_seek(self->sf, index-buflen, SEEK_SET); /* sets position pointer in the file */
@@ -1708,19 +1708,19 @@ SfMarkerLooper_readframes_i(SfMarkerLooper *self) {
         for (i=0; i<totlen; i++) {
             buffer2[i%self->sndChnls][(int)(i/self->sndChnls)] = buffer[i];
         }
-        
+
         /* reverse arrays */
         MYFLT swap;
         for (i=0; i<self->sndChnls; i++) {
             int a;
-            int b = buflen; 
+            int b = buflen;
             for (a=0; a<--b; a++) { //increment a and decrement b until they meet eachother
                 swap = buffer2[i][a];       //put what's in a into swap space
                 buffer2[i][a] = buffer2[i][b];    //put what's in b into a
                 buffer2[i][b] = swap;       //put what's in the swap (a) into b
             }
         }
-        
+
         /* fill stream buffer with samples */
         for (i=0; i<self->bufsize; i++) {
             bufpos = index - self->pointerPos;
@@ -1743,7 +1743,7 @@ SfMarkerLooper_readframes_i(SfMarkerLooper *self) {
             self->samplesBuffer[i] = 0.0;
         }
     }
-}    
+}
 
 static void
 SfMarkerLooper_setProcMode(SfMarkerLooper *self)
@@ -1754,14 +1754,14 @@ SfMarkerLooper_setProcMode(SfMarkerLooper *self)
 static void
 SfMarkerLooper_compute_next_data_frame(SfMarkerLooper *self)
 {
-    (*self->proc_func_ptr)(self); 
+    (*self->proc_func_ptr)(self);
 }
 
 static void
-SfMarkerLooper_chooseNewMark(SfMarkerLooper *self, int dir) 
+SfMarkerLooper_chooseNewMark(SfMarkerLooper *self, int dir)
 {
     int mark;
-    
+
     if (self->modebuffer[1] == 0)
         mark = (int)(PyFloat_AS_DOUBLE(self->mark));
     else
@@ -1770,7 +1770,7 @@ SfMarkerLooper_chooseNewMark(SfMarkerLooper *self, int dir)
     if (mark < 0 || mark >= self->markers_size) {
         mark = self->markers_size / 2;
     }
-    
+
     self->old_mark = mark;
 
     if (dir == 1) {
@@ -1809,7 +1809,7 @@ SfMarkerLooper_setMarkers(SfMarkerLooper *self, PyObject *markerstmp)
     self->markers[0] = 0.;
     for (i=0; i<len; i++) {
         self->markers[i+1] = PyFloat_AsDouble(PyList_GetItem(markerstmp, i));
-    }  
+    }
     self->markers[len+1] = self->sndSize;
     self->markers_size = (int)len+1;
 }
@@ -1818,21 +1818,21 @@ static int
 SfMarkerLooper_traverse(SfMarkerLooper *self, visitproc visit, void *arg)
 {
     pyo_VISIT
-    Py_VISIT(self->speed);    
-    Py_VISIT(self->speed_stream);    
-    Py_VISIT(self->mark);    
-    Py_VISIT(self->mark_stream);    
+    Py_VISIT(self->speed);
+    Py_VISIT(self->speed_stream);
+    Py_VISIT(self->mark);
+    Py_VISIT(self->mark_stream);
      return 0;
 }
 
-static int 
+static int
 SfMarkerLooper_clear(SfMarkerLooper *self)
 {
     pyo_CLEAR
-    Py_CLEAR(self->speed);    
-    Py_CLEAR(self->speed_stream);    
-    Py_CLEAR(self->mark);    
-    Py_CLEAR(self->mark_stream);    
+    Py_CLEAR(self->speed);
+    Py_CLEAR(self->speed_stream);
+    Py_CLEAR(self->mark);
+    Py_CLEAR(self->mark_stream);
     return 0;
 }
 
@@ -1855,7 +1855,7 @@ SfMarkerLooper_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *speedtmp=NULL, *marktmp=NULL, *markerstmp=NULL;
     SfMarkerLooper *self;
     self = (SfMarkerLooper *)type->tp_alloc(type, 0);
-    
+
     self->speed = PyFloat_FromDouble(1);
     self->mark = PyFloat_FromDouble(0);
     self->interp = 2;
@@ -1863,18 +1863,18 @@ SfMarkerLooper_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->endPos = -1;
     self->old_mark = -1;
     self->lastDir = 1;
-    self->modebuffer[0] = 0;	
+    self->modebuffer[0] = 0;
     self->modebuffer[1] = 0;
-    
+
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, SfMarkerLooper_compute_next_data_frame);
     self->mode_func_ptr = SfMarkerLooper_setProcMode;
 
     static char *kwlist[] = {"path", "markers", "speed", "mark", "interp", NULL};
-    
+
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "sO|OOi", kwlist, &self->path, &markerstmp, &speedtmp, &marktmp, &self->interp))
         Py_RETURN_NONE;
-    
+
     if (speedtmp) {
         PyObject_CallMethod((PyObject *)self, "setSpeed", "O", speedtmp);
     }
@@ -1882,11 +1882,11 @@ SfMarkerLooper_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (marktmp) {
         PyObject_CallMethod((PyObject *)self, "setMark", "O", marktmp);
     }
-    
+
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
-    
+
     (*self->mode_func_ptr)(self);
-    
+
     if (self->interp == 0)
         self->interp = 2;
     if (self->interp == 1)
@@ -1897,7 +1897,7 @@ SfMarkerLooper_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         self->interp_func_ptr = cosine;
     else if (self->interp == 4)
         self->interp_func_ptr = cubic;
-    
+
     /* Open the sound file. */
     self->info.format = 0;
     self->sf = sf_open(self->path, SFM_READ, &self->info);
@@ -1910,14 +1910,14 @@ SfMarkerLooper_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->sndSr = self->info.samplerate;
     self->sndChnls = self->info.channels;
     self->srScale = self->sndSr / self->sr;
-    
+
     Py_INCREF(markerstmp);
     SfMarkerLooper_setMarkers((SfMarkerLooper *)self, markerstmp);
-    
+
     self->samplesBuffer = (MYFLT *)realloc(self->samplesBuffer, self->bufsize * self->sndChnls * sizeof(MYFLT));
-    
+
     Server_generateSeed((Server *)self->server, SFMARKERLOOPER_ID);
-    
+
     return (PyObject *)self;
 }
 
@@ -1932,14 +1932,14 @@ static PyObject *
 SfMarkerLooper_setSpeed(SfMarkerLooper *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
-	
+
 	if (arg == NULL) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
 	int isNumber = PyNumber_Check(arg);
-	
+
 	tmp = arg;
 	Py_INCREF(tmp);
 	Py_DECREF(self->speed);
@@ -1955,23 +1955,23 @@ SfMarkerLooper_setSpeed(SfMarkerLooper *self, PyObject *arg)
         self->speed_stream = (Stream *)streamtmp;
 		self->modebuffer[0] = 1;
 	}
-    
+
 	Py_INCREF(Py_None);
 	return Py_None;
-}	
+}
 
 static PyObject *
 SfMarkerLooper_setMark(SfMarkerLooper *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
-	
+
 	if (arg == NULL) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
 	int isNumber = PyNumber_Check(arg);
-	
+
 	tmp = arg;
 	Py_INCREF(tmp);
 	Py_DECREF(self->mark);
@@ -1990,7 +1990,7 @@ SfMarkerLooper_setMark(SfMarkerLooper *self, PyObject *arg)
 
 	Py_INCREF(Py_None);
 	return Py_None;
-}	
+}
 
 static PyObject *
 SfMarkerLooper_setInterp(SfMarkerLooper *self, PyObject *arg)
@@ -1999,13 +1999,13 @@ SfMarkerLooper_setInterp(SfMarkerLooper *self, PyObject *arg)
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
     int isNumber = PyNumber_Check(arg);
-    
+
 	if (isNumber == 1) {
 		self->interp = PyInt_AsLong(PyNumber_Int(arg));
-    }  
-    
+    }
+
     if (self->interp == 0)
         self->interp = 2;
     if (self->interp == 1)
@@ -2016,7 +2016,7 @@ SfMarkerLooper_setInterp(SfMarkerLooper *self, PyObject *arg)
         self->interp_func_ptr = cosine;
     else if (self->interp == 4)
         self->interp_func_ptr = cubic;
-    
+
     Py_INCREF(Py_None);
     return Py_None;
 }
@@ -2025,7 +2025,7 @@ MYFLT *
 SfMarkerLooper_getSamplesBuffer(SfMarkerLooper *self)
 {
     return (MYFLT *)self->samplesBuffer;
-}    
+}
 
 static PyMemberDef SfMarkerLooper_members[] = {
     {"server", T_OBJECT_EX, offsetof(SfMarkerLooper, server), 0, "Pyo server."},
@@ -2096,7 +2096,7 @@ typedef struct {
     pyo_audio_HEAD
     SfMarkerLooper *mainPlayer;
     int modebuffer[2];
-    int chnl; 
+    int chnl;
 } SfMarkerLoop;
 
 static void SfMarkerLoop_postprocessing_ii(SfMarkerLoop *self) { POST_PROCESSING_II };
@@ -2114,33 +2114,33 @@ SfMarkerLoop_setProcMode(SfMarkerLoop *self)
 {
     int muladdmode;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
-    
+
 	switch (muladdmode) {
-        case 0:        
+        case 0:
             self->muladd_func_ptr = SfMarkerLoop_postprocessing_ii;
             break;
-        case 1:    
+        case 1:
             self->muladd_func_ptr = SfMarkerLoop_postprocessing_ai;
             break;
-        case 2:    
+        case 2:
             self->muladd_func_ptr = SfMarkerLoop_postprocessing_revai;
             break;
-        case 10:        
+        case 10:
             self->muladd_func_ptr = SfMarkerLoop_postprocessing_ia;
             break;
-        case 11:    
+        case 11:
             self->muladd_func_ptr = SfMarkerLoop_postprocessing_aa;
             break;
-        case 12:    
+        case 12:
             self->muladd_func_ptr = SfMarkerLoop_postprocessing_revaa;
             break;
-        case 20:        
+        case 20:
             self->muladd_func_ptr = SfMarkerLoop_postprocessing_ireva;
             break;
-        case 21:    
+        case 21:
             self->muladd_func_ptr = SfMarkerLoop_postprocessing_areva;
             break;
-        case 22:    
+        case 22:
             self->muladd_func_ptr = SfMarkerLoop_postprocessing_revareva;
             break;
     }
@@ -2155,7 +2155,7 @@ SfMarkerLoop_compute_next_data_frame(SfMarkerLoop *self)
     tmp = SfMarkerLooper_getSamplesBuffer((SfMarkerLooper *)self->mainPlayer);
     for (i=0; i<self->bufsize; i++) {
         self->data[i] = tmp[i + offset];
-    }    
+    }
     (*self->muladd_func_ptr)(self);
 }
 
@@ -2167,11 +2167,11 @@ SfMarkerLoop_traverse(SfMarkerLoop *self, visitproc visit, void *arg)
     return 0;
 }
 
-static int 
+static int
 SfMarkerLoop_clear(SfMarkerLoop *self)
 {
     pyo_CLEAR
-    Py_CLEAR(self->mainPlayer);    
+    Py_CLEAR(self->mainPlayer);
     return 0;
 }
 
@@ -2190,45 +2190,45 @@ SfMarkerLoop_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *maintmp=NULL, *multmp=NULL, *addtmp=NULL;
     SfMarkerLoop *self;
     self = (SfMarkerLoop *)type->tp_alloc(type, 0);
-    
+
     self->chnl = 0;
 	self->modebuffer[0] = 0;
 	self->modebuffer[1] = 0;
-    
+
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, SfMarkerLoop_compute_next_data_frame);
     self->mode_func_ptr = SfMarkerLoop_setProcMode;
 
     static char *kwlist[] = {"mainPlayer", "chnl", "mul", "add", NULL};
-    
+
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|iOO", kwlist, &maintmp, &self->chnl, &multmp, &addtmp))
         Py_RETURN_NONE;
-    
+
     Py_XDECREF(self->mainPlayer);
     Py_INCREF(maintmp);
     self->mainPlayer = (SfMarkerLooper *)maintmp;
-    
+
     if (multmp) {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
     }
-    
+
     if (addtmp) {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
-    
+
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
-    
+
     (*self->mode_func_ptr)(self);
-    
+
     return (PyObject *)self;
 }
 
 static PyObject * SfMarkerLoop_getServer(SfMarkerLoop* self) { GET_SERVER };
 static PyObject * SfMarkerLoop_getStream(SfMarkerLoop* self) { GET_STREAM };
-static PyObject * SfMarkerLoop_setMul(SfMarkerLoop *self, PyObject *arg) { SET_MUL };	
-static PyObject * SfMarkerLoop_setAdd(SfMarkerLoop *self, PyObject *arg) { SET_ADD };	
-static PyObject * SfMarkerLoop_setSub(SfMarkerLoop *self, PyObject *arg) { SET_SUB };	
-static PyObject * SfMarkerLoop_setDiv(SfMarkerLoop *self, PyObject *arg) { SET_DIV };	
+static PyObject * SfMarkerLoop_setMul(SfMarkerLoop *self, PyObject *arg) { SET_MUL };
+static PyObject * SfMarkerLoop_setAdd(SfMarkerLoop *self, PyObject *arg) { SET_ADD };
+static PyObject * SfMarkerLoop_setSub(SfMarkerLoop *self, PyObject *arg) { SET_SUB };
+static PyObject * SfMarkerLoop_setDiv(SfMarkerLoop *self, PyObject *arg) { SET_DIV };
 
 static PyObject * SfMarkerLoop_play(SfMarkerLoop *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * SfMarkerLoop_out(SfMarkerLoop *self, PyObject *args, PyObject *kwds) { OUT };

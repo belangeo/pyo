@@ -2,29 +2,29 @@
 Tools to analyze audio signals.
 
 These objects are designed to retrieve specific informations
-from an audio stream. Analysis are sent at audio rate, user 
+from an audio stream. Analysis are sent at audio rate, user
 can use them for controlling parameters of others objects.
 
 """
 
 """
-Copyright 2010 Olivier Belanger
+Copyright 2009-2015 Olivier Belanger
 
 This file is part of pyo, a python module to help digital signal
 processing script creation.
 
 pyo is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
+it under the terms of the GNU Lesser General Public License as
+published by the Free Software Foundation, either version 3 of the
+License, or (at your option) any later version.
 
 pyo is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
+GNU Lesser General Public License for more details.
 
-You should have received a copy of the GNU General Public License
-along with pyo.  If not, see <http://www.gnu.org/licenses/>.
+You should have received a copy of the GNU Lesser General Public
+License along with pyo.  If not, see <http://www.gnu.org/licenses/>.
 """
 
 from _core import *
@@ -35,13 +35,13 @@ from pattern import Pattern
 class Follower(PyoObject):
     """
     Envelope follower.
-    
+
     Output signal is the continuous mean amplitude of an input signal.
 
     :Parent: :py:class:`PyoObject`
 
     :Args:
-    
+
         input : PyoObject
             Input signal to process.
         freq : float or PyoObject, optional
@@ -49,9 +49,9 @@ class Follower(PyoObject):
 
     .. note::
 
-        The out() method is bypassed. Follower's signal can not be sent to 
+        The out() method is bypassed. Follower's signal can not be sent to
         audio outs.
-    
+
     >>> s = Server().boot()
     >>> s.start()
     >>> sf = SfPlayer(SNDS_PATH + "/transparent.aif", loop=True, mul=.4).out()
@@ -70,7 +70,7 @@ class Follower(PyoObject):
     def setInput(self, x, fadetime=0.05):
         """
         Replace the `input` attribute.
-        
+
         :Args:
 
             x : PyoObject
@@ -81,11 +81,11 @@ class Follower(PyoObject):
         """
         self._input = x
         self._in_fader.setInput(x, fadetime)
-        
+
     def setFreq(self, x):
         """
         Replace the `freq` attribute.
-        
+
         :Args:
 
             x : float or PyoObject
@@ -102,7 +102,7 @@ class Follower(PyoObject):
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
         self._map_list = [SLMap(1., 500., 'log', 'freq', self._freq)]
         PyoObject.ctrl(self, map_list, title, wxnoserver)
-      
+
     @property
     def input(self):
         """PyoObject. Input signal to process."""
@@ -136,7 +136,7 @@ class Follower2(PyoObject):
 
     .. note::
 
-        The out() method is bypassed. Follower's signal can not be sent to 
+        The out() method is bypassed. Follower's signal can not be sent to
         audio outs.
 
     >>> s = Server().boot()
@@ -207,21 +207,21 @@ class Follower2(PyoObject):
 
     @property
     def input(self):
-        """PyoObject. Input signal to process.""" 
+        """PyoObject. Input signal to process."""
         return self._input
     @input.setter
     def input(self, x): self.setInput(x)
 
     @property
     def risetime(self):
-        """float or PyoObject. Time to reach upward value in seconds.""" 
+        """float or PyoObject. Time to reach upward value in seconds."""
         return self._risetime
     @risetime.setter
     def risetime(self, x): self.setRisetime(x)
 
     @property
     def falltime(self):
-        """float or PyoObject. Time to reach downward value in seconds.""" 
+        """float or PyoObject. Time to reach downward value in seconds."""
         return self._falltime
     @falltime.setter
     def falltime(self, x): self.setFalltime(x)
@@ -229,25 +229,25 @@ class Follower2(PyoObject):
 class ZCross(PyoObject):
     """
     Zero-crossing counter.
-    
-    Output signal is the number of zero-crossing occured during each 
+
+    Output signal is the number of zero-crossing occured during each
     buffer size, normalized between 0 and 1.
- 
+
     :Parent: :py:class:`PyoObject`
-   
+
     :Args:
-    
+
         input : PyoObject
             Input signal to process.
         thresh : float, optional
-            Minimum amplitude difference allowed between adjacent samples 
+            Minimum amplitude difference allowed between adjacent samples
             to be included in the zeros count.
 
     .. note::
 
-        The out() method is bypassed. ZCross's signal can not be sent to 
+        The out() method is bypassed. ZCross's signal can not be sent to
         audio outs.
-    
+
     >>> s = Server().boot()
     >>> s.start()
     >>> a = SfPlayer(SNDS_PATH + "/transparent.aif", loop=True, mul=.4).out()
@@ -266,7 +266,7 @@ class ZCross(PyoObject):
     def setInput(self, x, fadetime=0.05):
         """
         Replace the `input` attribute.
-        
+
         :Args:
 
             x : PyoObject
@@ -281,7 +281,7 @@ class ZCross(PyoObject):
     def setThresh(self, x):
         """
         Replace the `thresh` attribute.
-        
+
         :Args:
 
             x : float
@@ -298,17 +298,17 @@ class ZCross(PyoObject):
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
         self._map_list = [SLMap(0., 0.5, 'lin', 'thresh', self._thresh)]
         PyoObject.ctrl(self, map_list, title, wxnoserver)
-     
+
     @property
     def input(self):
-        """PyoObject. Input signal to process.""" 
+        """PyoObject. Input signal to process."""
         return self._input
     @input.setter
     def input(self, x): self.setInput(x)
 
     @property
     def thresh(self):
-        """float. Amplitude difference threshold.""" 
+        """float. Amplitude difference threshold."""
         return self._thresh
     @thresh.setter
     def thresh(self, x): self.setThresh(x)
@@ -316,41 +316,41 @@ class ZCross(PyoObject):
 class Yin(PyoObject):
     """
     Pitch tracker using the Yin algorithm.
-    
+
     Pitch tracker using the Yin algorithm based on the implementation in C of aubio.
     This algorithm was developped by A. de Cheveigne and H. Kawahara and published in
-    
+
     de Cheveigne, A., Kawahara, H. (2002) 'YIN, a fundamental frequency estimator for
     speech and music', J. Acoust. Soc. Am. 111, 1917-1930.
-    
+
     The audio output of the object is the estimated frequency, in Hz, of the input sound.
- 
+
     :Parent: :py:class:`PyoObject`
-   
+
     :Args:
-    
+
         input : PyoObject
             Input signal to process.
         tolerance : float, optional
             Parameter for minima selection, between 0 and 1. Defaults to 0.2.
         minfreq : float, optional
-            Minimum estimated frequency in Hz. Frequency below this threshold will 
+            Minimum estimated frequency in Hz. Frequency below this threshold will
             be ignored. Defaults to 40.
         maxfreq : float, optional
-            Maximum estimated frequency in Hz. Frequency above this threshold will 
+            Maximum estimated frequency in Hz. Frequency above this threshold will
             be ignored. Defaults to 1000.
         cutoff : float, optional
             Cutoff frequency, in Hz, of the lowpass filter applied on the input sound.
             Defaults to 1000.
-            
+
             The lowpass filter helps the algorithm to detect the fundamental frequency by filtering
-            higher harmonics. 
+            higher harmonics.
         winsize : int, optional
             Size, in samples, of the analysis window. Must be higher that two period
             of the lowest desired frequency.
-            
+
             Available at initialization time only.  Defaults to 1024.
-            
+
 
     >>> s = Server(duplex=1).boot()
     >>> s.start()
@@ -376,7 +376,7 @@ class Yin(PyoObject):
     def setInput(self, x, fadetime=0.05):
         """
         Replace the `input` attribute.
-        
+
         :Args:
 
             x : PyoObject
@@ -391,7 +391,7 @@ class Yin(PyoObject):
     def setTolerance(self, x):
         """
         Replace the `tolerance` attribute.
-        
+
         :Args:
 
             x : float
@@ -405,7 +405,7 @@ class Yin(PyoObject):
     def setMinfreq(self, x):
         """
         Replace the `minfreq` attribute.
-        
+
         :Args:
 
             x : float
@@ -419,7 +419,7 @@ class Yin(PyoObject):
     def setMaxfreq(self, x):
         """
         Replace the `maxfreq` attribute.
-        
+
         :Args:
 
             x : float
@@ -433,8 +433,8 @@ class Yin(PyoObject):
     def setCutoff(self, x):
         """
         Replace the `cutoff` attribute.
-        
-        :Args: 
+
+        :Args:
 
             x : float
                 New input lowpass filter cutoff frequency.
@@ -453,38 +453,38 @@ class Yin(PyoObject):
                           SLMap(500, 5000, 'log', 'maxfreq', self._maxfreq, dataOnly=True),
                           SLMap(200, 15000, 'log', 'cutoff', self._cutoff, dataOnly=True)]
         PyoObject.ctrl(self, map_list, title, wxnoserver)
-     
+
     @property
     def input(self):
-        """PyoObject. Input signal to process.""" 
+        """PyoObject. Input signal to process."""
         return self._input
     @input.setter
     def input(self, x): self.setInput(x)
 
     @property
     def tolerance(self):
-        """float. Parameter for minima selection.""" 
+        """float. Parameter for minima selection."""
         return self._tolerance
     @tolerance.setter
     def tolerance(self, x): self.setTolerance(x)
 
     @property
     def minfreq(self):
-        """float. Minimum frequency detected.""" 
+        """float. Minimum frequency detected."""
         return self._minfreq
     @minfreq.setter
     def minfreq(self, x): self.setMinfreq(x)
 
     @property
     def maxfreq(self):
-        """float. Maximum frequency detected.""" 
+        """float. Maximum frequency detected."""
         return self._maxfreq
     @maxfreq.setter
     def maxfreq(self, x): self.setMaxfreq(x)
 
     @property
     def cutoff(self):
-        """float. Input lowpass filter cutoff frequency.""" 
+        """float. Input lowpass filter cutoff frequency."""
         return self._cutoff
     @cutoff.setter
     def cutoff(self, x): self.setCutoff(x)
@@ -492,31 +492,31 @@ class Yin(PyoObject):
 class Centroid(PyoObject):
     """
     Computes the spectral centroid of an input signal.
-    
+
     Output signal is the spectral centroid, in Hz, of the input signal.
-    It indicates where the "center of mass" of the spectrum is. Perceptually, 
+    It indicates where the "center of mass" of the spectrum is. Perceptually,
     it has a robust connection with the impression of "brightness" of a sound.
-    
-    Centroid does its computation with two overlaps, so a new output value 
+
+    Centroid does its computation with two overlaps, so a new output value
     comes every half of the FFT window size.
- 
+
     :Parent: :py:class:`PyoObject`
-   
+
     :Args:
-    
+
         input : PyoObject
             Input signal to process.
         size : int, optional
             Size, as a power-of-two, of the FFT used to compute the centroid.
 
             Available at initialization time only.  Defaults to 1024.
-            
+
 
     .. note::
 
-        The out() method is bypassed. Centroid's signal can not be sent to 
+        The out() method is bypassed. Centroid's signal can not be sent to
         audio outs.
-    
+
     >>> s = Server().boot()
     >>> s.start()
     >>> a = SfPlayer(SNDS_PATH + "/transparent.aif", loop=True, mul=.4).out()
@@ -536,7 +536,7 @@ class Centroid(PyoObject):
     def setInput(self, x, fadetime=0.05):
         """
         Replace the `input` attribute.
-        
+
         :Args:
 
             x : PyoObject
@@ -554,10 +554,10 @@ class Centroid(PyoObject):
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
         self._map_list = []
         PyoObject.ctrl(self, map_list, title, wxnoserver)
-     
+
     @property
     def input(self):
-        """PyoObject. Input signal to process.""" 
+        """PyoObject. Input signal to process."""
         return self._input
     @input.setter
     def input(self, x): self.setInput(x)
@@ -565,36 +565,36 @@ class Centroid(PyoObject):
 class AttackDetector(PyoObject):
     """
     Audio signal onset detection.
-    
+
     AttackDetector anaylises an audio signal in input an output a trigger each
     time an onset is detected. An onset is a sharp amplitude rising while the
     signal had previously fall below a minimum threshold. Parameters must be
     carefully tuned depending on the nature of the analysed signal and the level
-    of the background noise. 
+    of the background noise.
 
     :Parent: :py:class:`PyoObject`
-   
+
     :Args:
-    
+
         input : PyoObject
             Input signal to process.
         deltime : float, optional
             Delay time, in seconds, between previous and current rms analysis to compare.
             Defaults to 0.005.
         cutoff : float, optional
-            Cutoff frequency, in Hz, of the amplitude follower's lowpass filter. 
+            Cutoff frequency, in Hz, of the amplitude follower's lowpass filter.
             Defaults to 10.
-            
-            Higher values are more responsive and also more likely to give false onsets. 
+
+            Higher values are more responsive and also more likely to give false onsets.
         maxthresh : float, optional
-            Attack threshold in positive dB (current rms must be higher than previous 
+            Attack threshold in positive dB (current rms must be higher than previous
             rms + maxthresh to be reported as an attack). Defaults to 3.0.
         minthresh : float, optional
-            Minimum threshold in dB (signal must fall below this threshold to allow 
+            Minimum threshold in dB (signal must fall below this threshold to allow
             a new attack to be detected). Defaults to -30.0.
         reltime : float, optional
             Time, in seconds, to wait before reporting a new attack. Defaults to 0.1.
-            
+
 
     >>> s = Server(duplex=1).boot()
     >>> s.start()
@@ -619,7 +619,7 @@ class AttackDetector(PyoObject):
     def setInput(self, x, fadetime=0.05):
         """
         Replace the `input` attribute.
-        
+
         :Args:
 
             x : PyoObject
@@ -634,7 +634,7 @@ class AttackDetector(PyoObject):
     def setDeltime(self, x):
         """
         Replace the `deltime` attribute.
-        
+
         :Args:
 
             x : float
@@ -648,7 +648,7 @@ class AttackDetector(PyoObject):
     def setCutoff(self, x):
         """
         Replace the `cutoff` attribute.
-        
+
         :Args:
 
             x : float
@@ -662,7 +662,7 @@ class AttackDetector(PyoObject):
     def setMaxthresh(self, x):
         """
         Replace the `maxthresh` attribute.
-        
+
         :Args:
 
             x : float
@@ -676,7 +676,7 @@ class AttackDetector(PyoObject):
     def setMinthresh(self, x):
         """
         Replace the `minthresh` attribute.
-        
+
         :Args:
 
             x : float
@@ -690,8 +690,8 @@ class AttackDetector(PyoObject):
     def setReltime(self, x):
         """
         Replace the `reltime` attribute.
-        
-        :Args: 
+
+        :Args:
 
             x : float
                 Time, in seconds, to wait before reporting a new attack.
@@ -711,45 +711,45 @@ class AttackDetector(PyoObject):
                           SLMap(-90.0, 0.0, 'lin', 'minthresh', self._minthresh, dataOnly=True),
                           SLMap(0.001, 1.0, 'log', 'reltime', self._reltime, dataOnly=True)]
         PyoObject.ctrl(self, map_list, title, wxnoserver)
-     
+
     @property
     def input(self):
-        """PyoObject. Input signal to process.""" 
+        """PyoObject. Input signal to process."""
         return self._input
     @input.setter
     def input(self, x): self.setInput(x)
 
     @property
     def deltime(self):
-        """float. Delay between rms analysis.""" 
+        """float. Delay between rms analysis."""
         return self._deltime
     @deltime.setter
     def deltime(self, x): self.setDeltime(x)
 
     @property
     def cutoff(self):
-        """float. Cutoff for the follower lowpass filter.""" 
+        """float. Cutoff for the follower lowpass filter."""
         return self._cutoff
     @cutoff.setter
     def cutoff(self, x): self.setCutoff(x)
 
     @property
     def maxthresh(self):
-        """float. Attack threshold in dB.""" 
+        """float. Attack threshold in dB."""
         return self._maxthresh
     @maxthresh.setter
     def maxthresh(self, x): self.setMaxthresh(x)
 
     @property
     def minthresh(self):
-        """float. Minimum threshold in dB.""" 
+        """float. Minimum threshold in dB."""
         return self._minthresh
     @minthresh.setter
     def minthresh(self, x): self.setMinthresh(x)
 
     @property
     def reltime(self):
-        """float. Time to wait before reporting a new attack.""" 
+        """float. Time to wait before reporting a new attack."""
         return self._reltime
     @reltime.setter
     def reltime(self, x): self.setReltime(x)
@@ -761,11 +761,11 @@ class Spectrum(PyoObject):
     Spectrum measures the magnitude of an input signal versus frequency
     within a user defined range. It can show both magnitude and frequency
     on linear or logarithmic scale.
-    
+
     :Parent: :py:class:`PyoObject`
-    
+
     :Args:
-    
+
         input : PyoObject
             Input signal to process.
         size : int {pow-of-two > 4}, optional
@@ -791,9 +791,9 @@ class Spectrum(PyoObject):
             Defaults to None.
 
     .. note::
-    
+
         Spectrum has no `out` method.
-        
+
         Spectrum has no `mul` and `add` attributes.
 
     >>> s = Server().boot()
@@ -823,11 +823,11 @@ class Spectrum(PyoObject):
         if function == None:
             self.view()
         self._timer = Pattern(self.refreshView, 0.05).play()
- 
+
     def setInput(self, x, fadetime=0.05):
         """
         Replace the `input` attribute.
-        
+
         :Args:
 
             x : PyoObject
@@ -842,12 +842,12 @@ class Spectrum(PyoObject):
     def setSize(self, x):
         """
         Replace the `size` attribute.
-        
+
         :Args:
 
             x : int
                 new `size` attribute.
-        
+
         """
         self._size = x
         x, lmax = convertArgsToLists(x)
@@ -856,12 +856,12 @@ class Spectrum(PyoObject):
     def setWinType(self, x):
         """
         Replace the `wintype` attribute.
-        
+
         :Args:
 
             x : int
                 new `wintype` attribute.
-        
+
         """
         self._wintype = x
         x, lmax = convertArgsToLists(x)
@@ -870,9 +870,9 @@ class Spectrum(PyoObject):
     def setFunction(self, function):
         """
         Sets the function to be called to retrieve the analysis data.
-        
+
         :Args:
-            
+
             function : python callable
                 The function called by the internal timer to retrieve the
                 analysis data. The function must be created with one argument
@@ -884,9 +884,9 @@ class Spectrum(PyoObject):
     def poll(self, active):
         """
         Turns on and off the analysis polling.
-        
+
         :Args:
-            
+
             active : boolean
                 If True, starts the analysis polling, False to stop it.
                 defaults to True.
@@ -900,27 +900,27 @@ class Spectrum(PyoObject):
     def polltime(self, time):
         """
         Sets the polling time in seconds.
-        
+
         :Args:
-            
+
             time : float
                 Adjusts the frequency of the internal timer used to
                 retrieve the current analysis frame. defaults to 0.05.
-        
+
         """
         self._timer.time = time
 
     def setLowbound(self, x):
         """
         Sets the lower frequency, as multiplier of sr, returned by the analysis.
-        
+
         Returns the real low frequency en Hz.
-        
+
         :Args:
 
             x : float {0 <= x <= 0.5}
                 new `lowbound` attribute.
-        
+
         """
         self._lowbound = x
         x, lmax = convertArgsToLists(x)
@@ -930,14 +930,14 @@ class Spectrum(PyoObject):
     def setHighbound(self, x):
         """
         Sets the higher frequency, as multiplier of sr, returned by the analysis.
-        
+
         Returns the real high frequency en Hz.
-        
+
         :Args:
 
             x : float {0 <= x <= 0.5}
                 new `highbound` attribute.
-        
+
         """
         self._highbound = x
         x, lmax = convertArgsToLists(x)
@@ -947,7 +947,7 @@ class Spectrum(PyoObject):
     def getLowfreq(self):
         """
         Returns the current lower frequency, in Hz, used by the analysis.
-        
+
         """
 
         return self._base_objs[0].getLowfreq()
@@ -955,21 +955,21 @@ class Spectrum(PyoObject):
     def getHighfreq(self):
         """
         Returns the current higher frequency, in Hz, used by the analysis.
-        
+
         """
         return self._base_objs[0].getHighfreq()
 
     def setWidth(self, x):
         """
         Sets the width, in pixels, of the current display.
-        
+
         Used internally to build the list of points to draw.
-        
+
         :Args:
 
             x : int
                 new `width` attribute.
-        
+
         """
         self._width = x
         x, lmax = convertArgsToLists(x)
@@ -978,14 +978,14 @@ class Spectrum(PyoObject):
     def setHeight(self, x):
         """
         Sets the height, in pixels, of the current display.
-        
+
         Used internally to build the list of points to draw.
-        
+
         :Args:
 
             x : int
                 new `height` attribute.
-        
+
         """
         self._height = x
         x, lmax = convertArgsToLists(x)
@@ -994,13 +994,13 @@ class Spectrum(PyoObject):
     def setFscaling(self, x):
         """
         Sets the frequency display to linear or logarithmic.
-        
+
         :Args:
 
             x : boolean
                 If True, the frequency display is logarithmic. False turns
                 it back to linear. Defaults to False.
-        
+
         """
         self._fscaling = x
         x, lmax = convertArgsToLists(x)
@@ -1011,13 +1011,13 @@ class Spectrum(PyoObject):
     def setMscaling(self, x):
         """
         Sets the magnitude display to linear or logarithmic.
-        
+
         :Args:
 
             x : boolean
-                If True, the magnitude display is logarithmic (which means in dB). 
+                If True, the magnitude display is logarithmic (which means in dB).
                 False turns it back to linear. Defaults to True.
-        
+
         """
         self._mscaling = x
         x, lmax = convertArgsToLists(x)
@@ -1028,7 +1028,7 @@ class Spectrum(PyoObject):
     def getFscaling(self):
         """
         Returns the scaling of the frequency display.
-        
+
         Returns True for logarithmic or False for linear.
 
         """
@@ -1037,7 +1037,7 @@ class Spectrum(PyoObject):
     def getMscaling(self):
         """
         Returns the scaling of the magnitude display.
-        
+
         Returns True for logarithmic or False for linear.
 
         """
@@ -1046,12 +1046,12 @@ class Spectrum(PyoObject):
     def setGain(self, x):
         """
         Set the gain of the analysis data. For drawing purpose.
-        
+
         :Args:
 
             x : float
                 new `gain` attribute, as linear values.
-        
+
         """
         self._gain = x
         x, lmax = convertArgsToLists(x)
@@ -1060,28 +1060,28 @@ class Spectrum(PyoObject):
     def view(self, title="Spectrum", wxnoserver=False):
         """
         Opens a window showing the result of the analysis.
-        
+
         :Args:
-        
+
             title : string, optional
-                Window title. Defaults to "Spectrum". 
+                Window title. Defaults to "Spectrum".
             wxnoserver : boolean, optional
-                With wxPython graphical toolkit, if True, tells the 
+                With wxPython graphical toolkit, if True, tells the
                 interpreter that there will be no server window.
-                
-        If `wxnoserver` is set to True, the interpreter will not wait for 
-        the server GUI before showing the controller window. 
-        
+
+        If `wxnoserver` is set to True, the interpreter will not wait for
+        the server GUI before showing the controller window.
+
         """
         createSpectrumWindow(self, title, wxnoserver)
 
     def _setViewFrame(self, frame):
         self.viewFrame = frame
-        
+
     def refreshView(self):
         """
         Updates the graphical display of the spectrum.
-        
+
         Called automatically by the internal timer.
 
         """
@@ -1094,7 +1094,7 @@ class Spectrum(PyoObject):
 
     @property
     def input(self):
-        """PyoObject. Input signal to process.""" 
+        """PyoObject. Input signal to process."""
         return self._input
     @input.setter
     def input(self, x): self.setInput(x)
@@ -1166,13 +1166,13 @@ class Scope(PyoObject):
     """
     Oscilloscope - audio waveform display.
 
-    Oscilloscopes are used to observe the change of an electrical 
+    Oscilloscopes are used to observe the change of an electrical
     signal over time.
-    
+
     :Parent: :py:class:`PyoObject`
-    
+
     :Args:
-    
+
         input : PyoObject
             Input signal to process.
         length : float, optional
@@ -1183,9 +1183,9 @@ class Scope(PyoObject):
             Can't be a list. Defaults to 0.67.
 
     .. note::
-    
+
         Scope has no `out` method.
-        
+
         Scope has no `mul` and `add` attributes.
 
     >>> s = Server().boot()
@@ -1209,11 +1209,11 @@ class Scope(PyoObject):
         self._base_objs = [Scope_base(wrap(in_fader,i), length) for i in range(lmax)]
         self.view()
         self._timer = Pattern(self.refreshView, length).play()
- 
+
     def setInput(self, x, fadetime=0.05):
         """
         Replace the `input` attribute.
-        
+
         :Args:
 
             x : PyoObject
@@ -1228,12 +1228,12 @@ class Scope(PyoObject):
     def setLength(self, x):
         """
         Replace the `length` attribute.
-        
+
         :Args:
 
             x : float
                 new `length` attribute.
-        
+
         """
         self._length = x
         self._timer.time = x
@@ -1242,12 +1242,12 @@ class Scope(PyoObject):
     def setGain(self, x):
         """
         Set the gain boost applied to the analysed data. For drawing purpose.
-        
+
         :Args:
 
             x : float
                 new `gain` attribute, as linear values.
-        
+
         """
         self._gain = x
         x, lmax = convertArgsToLists(x)
@@ -1256,9 +1256,9 @@ class Scope(PyoObject):
     def poll(self, active):
         """
         Turns on and off the analysis polling.
-        
+
         :Args:
-            
+
             active : boolean
                 If True, starts the analysis polling, False to stop it.
                 defaults to True.
@@ -1272,12 +1272,12 @@ class Scope(PyoObject):
     def setWidth(self, x):
         """
         Gives the width of the display to the analyzer.
-        
+
         The analyzer needs this value to construct the list
         of points to draw on the display.
-        
+
         :Args:
-            
+
             x : int
                 Width of the display in pixel value. The default
                 width is 500.
@@ -1289,12 +1289,12 @@ class Scope(PyoObject):
     def setHeight(self, x):
         """
         Gives the height of the display to the analyzer.
-        
+
         The analyzer needs this value to construct the list
         of points to draw on the display.
-        
+
         :Args:
-            
+
             x : int
                 Height of the display in pixel value. The default
                 height is 400.
@@ -1302,32 +1302,32 @@ class Scope(PyoObject):
         """
         self._height = x
         [obj.setHeight(x) for obj in self._base_objs]
-        
+
     def view(self, title="Scope", wxnoserver=False):
         """
         Opens a window showing the result of the analysis.
-        
+
         :Args:
-        
+
             title : string, optional
-                Window title. Defaults to "Spectrum". 
+                Window title. Defaults to "Spectrum".
             wxnoserver : boolean, optional
-                With wxPython graphical toolkit, if True, tells the 
+                With wxPython graphical toolkit, if True, tells the
                 interpreter that there will be no server window.
-                
-        If `wxnoserver` is set to True, the interpreter will not wait for 
-        the server GUI before showing the controller window. 
-        
+
+        If `wxnoserver` is set to True, the interpreter will not wait for
+        the server GUI before showing the controller window.
+
         """
         createScopeWindow(self, title, wxnoserver)
 
     def _setViewFrame(self, frame):
         self.viewFrame = frame
-        
+
     def refreshView(self):
         """
         Updates the graphical display of the scope.
-        
+
         Called automatically by the internal timer.
 
         """
@@ -1338,7 +1338,7 @@ class Scope(PyoObject):
 
     @property
     def input(self):
-        """PyoObject. Input signal to process.""" 
+        """PyoObject. Input signal to process."""
         return self._input
     @input.setter
     def input(self, x): self.setInput(x)
@@ -1360,31 +1360,31 @@ class Scope(PyoObject):
 class PeakAmp(PyoObject):
     """
     Peak amplitude follower.
-    
+
     Output signal is the continuous peak amplitude of an input signal.
     A new peaking value is computed every buffer size. If `function`
     argument is not None, it should be a function that will be called
     every buffer size with a variable-length argument list containing
     the peaking values of all object's streams. Useful for meter drawing.
     Function definition must look like this:
-        
+
     >>> def getValues(*args)
 
     :Parent: :py:class:`PyoObject`
 
     :Args:
-    
+
         input : PyoObject
             Input signal to process.
         function : callable, optional
-            Function that will be called with amplitude values in arguments. 
+            Function that will be called with amplitude values in arguments.
             Default to None.
 
     .. note::
 
-        The out() method is bypassed. PeakAmp's signal can not be sent to 
+        The out() method is bypassed. PeakAmp's signal can not be sent to
         audio outs.
-    
+
     >>> s = Server().boot()
     >>> s.start()
     >>> sf = SfPlayer(SNDS_PATH + "/transparent.aif", loop=True, mul=.4).out()
@@ -1409,7 +1409,7 @@ class PeakAmp(PyoObject):
     def setInput(self, x, fadetime=0.05):
         """
         Replace the `input` attribute.
-        
+
         :Args:
 
             x : PyoObject
@@ -1424,7 +1424,7 @@ class PeakAmp(PyoObject):
     def setFunction(self, x):
         """
         Replace the `function` attribute.
-        
+
         :Args:
 
             x : callable
@@ -1445,7 +1445,7 @@ class PeakAmp(PyoObject):
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
         self._map_list = []
         PyoObject.ctrl(self, map_list, title, wxnoserver)
-      
+
     @property
     def input(self):
         """PyoObject. Input signal to process."""

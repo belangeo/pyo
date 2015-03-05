@@ -1,21 +1,21 @@
-/*************************************************************************
- * Copyright 2010 Olivier Belanger                                        *                  
- *                                                                        * 
+/**************************************************************************
+ * Copyright 2009-2015 Olivier Belanger                                   *
+ *                                                                        *
  * This file is part of pyo, a python module to help digital signal       *
- * processing script creation.                                            *  
- *                                                                        * 
+ * processing script creation.                                            *
+ *                                                                        *
  * pyo is free software: you can redistribute it and/or modify            *
- * it under the terms of the GNU General Public License as published by   *
- * the Free Software Foundation, either version 3 of the License, or      *
- * (at your option) any later version.                                    * 
+ * it under the terms of the GNU Lesser General Public License as         *
+ * published by the Free Software Foundation, either version 3 of the     *
+ * License, or (at your option) any later version.                        *
  *                                                                        *
  * pyo is distributed in the hope that it will be useful,                 *
- * but WITHOUT ANY WARRANTY; without even the implied warranty of         *    
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of         *
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the          *
- * GNU General Public License for more details.                           *
+ * GNU Lesser General Public License for more details.                    *
  *                                                                        *
- * You should have received a copy of the GNU General Public License      *
- * along with pyo.  If not, see <http://www.gnu.org/licenses/>.           *
+ * You should have received a copy of the GNU Lesser General Public       *
+ * License along with pyo.  If not, see <http://www.gnu.org/licenses/>.   *
  *************************************************************************/
 
 #include <Python.h>
@@ -44,23 +44,23 @@ Metro_generate_i(Metro *self) {
     MYFLT val;
     double tm, off;
     int i;
-    
+
     tm = PyFloat_AS_DOUBLE(self->time);
     off = tm * self->offset;
-    
+
     for (i=0; i<self->bufsize; i++) {
         if (self->currentTime >= tm) {
             val = 0;
             self->currentTime -= tm;
             self->flag = 1;
-        }    
+        }
         else if (self->currentTime >= off && self->flag == 1) {
             val = 1;
             self->flag = 0;
-        }    
+        }
         else
             val = 0;
-        
+
         self->data[i] = val;
         self->currentTime += self->sampleToSec;
     }
@@ -71,9 +71,9 @@ Metro_generate_a(Metro *self) {
     MYFLT val;
     double off, tmd;
     int i;
-    
+
     MYFLT *tm = Stream_getData((Stream *)self->time_stream);
-    
+
     for (i=0; i<self->bufsize; i++) {
         tmd = (double)tm[i];
         off = tmd * self->offset;
@@ -85,10 +85,10 @@ Metro_generate_a(Metro *self) {
         else if (self->currentTime >= off && self->flag == 1) {
             val = 1;
             self->flag = 0;
-        }    
+        }
         else
             val = 0;
-        
+
         self->data[i] = val;
         self->currentTime += self->sampleToSec;
     }
@@ -112,48 +112,48 @@ Metro_setProcMode(Metro *self)
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
 
     switch (procmode) {
-        case 0:        
+        case 0:
             self->proc_func_ptr = Metro_generate_i;
             break;
-        case 1:    
+        case 1:
             self->proc_func_ptr = Metro_generate_a;
             break;
     }
     switch (muladdmode) {
-        case 0:        
+        case 0:
             self->muladd_func_ptr = Metro_postprocessing_ii;
             break;
-        case 1:    
+        case 1:
             self->muladd_func_ptr = Metro_postprocessing_ai;
             break;
-        case 2:    
+        case 2:
             self->muladd_func_ptr = Metro_postprocessing_revai;
             break;
-        case 10:        
+        case 10:
             self->muladd_func_ptr = Metro_postprocessing_ia;
             break;
-        case 11:    
+        case 11:
             self->muladd_func_ptr = Metro_postprocessing_aa;
             break;
-        case 12:    
+        case 12:
             self->muladd_func_ptr = Metro_postprocessing_revaa;
             break;
-        case 20:        
+        case 20:
             self->muladd_func_ptr = Metro_postprocessing_ireva;
             break;
-        case 21:    
+        case 21:
             self->muladd_func_ptr = Metro_postprocessing_areva;
             break;
-        case 22:    
+        case 22:
             self->muladd_func_ptr = Metro_postprocessing_revareva;
             break;
-    } 
+    }
 }
 
 static void
 Metro_compute_next_data_frame(Metro *self)
 {
-    (*self->proc_func_ptr)(self);    
+    (*self->proc_func_ptr)(self);
     (*self->muladd_func_ptr)(self);
 }
 
@@ -161,16 +161,16 @@ static int
 Metro_traverse(Metro *self, visitproc visit, void *arg)
 {
     pyo_VISIT
-    Py_VISIT(self->time);    
-    Py_VISIT(self->time_stream);    
+    Py_VISIT(self->time);
+    Py_VISIT(self->time_stream);
     return 0;
 }
 
-static int 
+static int
 Metro_clear(Metro *self)
 {
     pyo_CLEAR
-    Py_CLEAR(self->time);    
+    Py_CLEAR(self->time);
     Py_CLEAR(self->time_stream);
     return 0;
 }
@@ -190,7 +190,7 @@ Metro_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *timetmp=NULL;
     Metro *self;
     self = (Metro *)type->tp_alloc(type, 0);
-    
+
     self->time = PyFloat_FromDouble(1.);
 	self->modebuffer[0] = 0;
 	self->modebuffer[1] = 0;
@@ -207,27 +207,27 @@ Metro_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->currentTime = 0.;
 
     static char *kwlist[] = {"time", "offset", NULL};
-    
+
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "|Od", kwlist, &timetmp, &self->offset))
         Py_RETURN_NONE;
 
     if (timetmp) {
         PyObject_CallMethod((PyObject *)self, "setTime", "O", timetmp);
     }
-    
+
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
     (*self->mode_func_ptr)(self);
-    
+
     return (PyObject *)self;
 }
 
 static PyObject * Metro_getServer(Metro* self) { GET_SERVER };
 static PyObject * Metro_getStream(Metro* self) { GET_STREAM };
-static PyObject * Metro_setMul(Metro *self, PyObject *arg) { SET_MUL };	
-static PyObject * Metro_setAdd(Metro *self, PyObject *arg) { SET_ADD };	
-static PyObject * Metro_setSub(Metro *self, PyObject *arg) { SET_SUB };	
-static PyObject * Metro_setDiv(Metro *self, PyObject *arg) { SET_DIV };	
+static PyObject * Metro_setMul(Metro *self, PyObject *arg) { SET_MUL };
+static PyObject * Metro_setAdd(Metro *self, PyObject *arg) { SET_ADD };
+static PyObject * Metro_setSub(Metro *self, PyObject *arg) { SET_SUB };
+static PyObject * Metro_setDiv(Metro *self, PyObject *arg) { SET_DIV };
 
 static PyObject * Metro_play(Metro *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * Metro_stop(Metro *self) { STOP };
@@ -245,14 +245,14 @@ static PyObject *
 Metro_setTime(Metro *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
-	
+
 	if (arg == NULL) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
 	int isNumber = PyNumber_Check(arg);
-	
+
 	tmp = arg;
 	Py_INCREF(tmp);
 	Py_DECREF(self->time);
@@ -268,12 +268,12 @@ Metro_setTime(Metro *self, PyObject *arg)
         self->time_stream = (Stream *)streamtmp;
 		self->modebuffer[2] = 1;
 	}
-    
+
     (*self->mode_func_ptr)(self);
-    
+
 	Py_INCREF(Py_None);
 	return Py_None;
-}	
+}
 
 static PyMemberDef Metro_members[] = {
 {"server", T_OBJECT_EX, offsetof(Metro, server), 0, "Pyo server."},
@@ -290,7 +290,7 @@ static PyMethodDef Metro_methods[] = {
 {"play", (PyCFunction)Metro_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
 {"stop", (PyCFunction)Metro_stop, METH_NOARGS, "Stops computing."},
 {"setTime", (PyCFunction)Metro_setTime, METH_O, "Sets time factor."},
-{"setMul", (PyCFunction)Metro_setMul, METH_O, "Sets oscillator mul factor."}, 
+{"setMul", (PyCFunction)Metro_setMul, METH_O, "Sets oscillator mul factor."},
 {"setAdd", (PyCFunction)Metro_setAdd, METH_O, "Sets oscillator add factor."},
 {"setSub", (PyCFunction)Metro_setSub, METH_O, "Sets inverse add factor."},
 {"setDiv", (PyCFunction)Metro_setDiv, METH_O, "Sets inverse mul factor."},
@@ -408,7 +408,7 @@ static void
 Seqer_reset(Seqer *self)
 {
     int i;
-    
+
     self->seqsize = PyList_Size(self->tmp);
     self->seq = (int *)realloc(self->seq, self->seqsize * sizeof(int));
     for (i=0; i<self->seqsize; i++) {
@@ -421,18 +421,18 @@ static void
 Seqer_generate_i(Seqer *self) {
     double tm;
     int i;
-    
+
     tm = PyFloat_AS_DOUBLE(self->time);
 
     if (self->currentTime == -1.0) {
         self->currentTime = tm;
-    }    
-    
+    }
+
     for (i=0; i<(self->poly*self->bufsize); i++) {
         self->buffer_streams[i] = 0.0;
     }
-        
-    for (i=0; i<self->bufsize; i++) {   
+
+    for (i=0; i<self->bufsize; i++) {
         self->currentTime += self->sampleToSec;
         if (self->currentTime >= tm) {
             self->currentTime -= tm;
@@ -448,9 +448,9 @@ Seqer_generate_i(Seqer *self) {
                     self->tap = 0;
                     if (self->newseq == 1)
                         Seqer_reset(self);
-                }    
-            } 
-        }    
+                }
+            }
+        }
     }
 }
 
@@ -458,18 +458,18 @@ static void
 Seqer_generate_a(Seqer *self) {
     double tm;
     int i;
-    
+
     MYFLT *time = Stream_getData((Stream *)self->time_stream);
-    
+
     if (self->currentTime == -1.0) {
         self->currentTime = time[0];
-    }    
-    
+    }
+
     for (i=0; i<(self->poly*self->bufsize); i++) {
         self->buffer_streams[i] = 0.0;
     }
-    
-    for (i=0; i<self->bufsize; i++) {   
+
+    for (i=0; i<self->bufsize; i++) {
         tm = (double)time[i];
         self->currentTime += self->sampleToSec;
         if (self->currentTime >= tm) {
@@ -486,9 +486,9 @@ Seqer_generate_a(Seqer *self) {
                     self->tap = 0;
                     if (self->newseq == 1)
                         Seqer_reset(self);
-                }    
-            } 
-        }    
+                }
+            }
+        }
     }
 }
 
@@ -496,17 +496,17 @@ MYFLT *
 Seqer_getSamplesBuffer(Seqer *self)
 {
     return (MYFLT *)self->buffer_streams;
-}    
+}
 
 static void
 Seqer_setProcMode(Seqer *self)
 {
     int procmode = self->modebuffer[0];
     switch (procmode) {
-        case 0:        
+        case 0:
             self->proc_func_ptr = Seqer_generate_i;
             break;
-        case 1:    
+        case 1:
             self->proc_func_ptr = Seqer_generate_a;
             break;
     }
@@ -515,24 +515,24 @@ Seqer_setProcMode(Seqer *self)
 static void
 Seqer_compute_next_data_frame(Seqer *self)
 {
-    (*self->proc_func_ptr)(self);    
+    (*self->proc_func_ptr)(self);
 }
 
 static int
 Seqer_traverse(Seqer *self, visitproc visit, void *arg)
 {
     pyo_VISIT
-    Py_VISIT(self->time);    
-    Py_VISIT(self->time_stream);  
+    Py_VISIT(self->time);
+    Py_VISIT(self->time_stream);
     Py_VISIT(self->tmp);
     return 0;
 }
 
-static int 
+static int
 Seqer_clear(Seqer *self)
 {
     pyo_CLEAR
-    Py_CLEAR(self->time);    
+    Py_CLEAR(self->time);
     Py_CLEAR(self->time_stream);
     Py_CLEAR(self->tmp);
     return 0;
@@ -554,7 +554,7 @@ Seqer_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *timetmp=NULL, *seqtmp=NULL;
     Seqer *self;
     self = (Seqer *)type->tp_alloc(type, 0);
-    
+
     self->time = PyFloat_FromDouble(1.);
     self->flag = 1;
     self->poly = 1;
@@ -567,21 +567,21 @@ Seqer_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->count = 0;
     self->voiceCount = 0;
 	self->modebuffer[0] = 0;
-    
+
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, Seqer_compute_next_data_frame);
     self->mode_func_ptr = Seqer_setProcMode;
-    
+
     Stream_setStreamActive(self->stream, 0);
-    
+
     self->sampleToSec = 1.0 / self->sr;
     self->currentTime = -1.0;
 
     static char *kwlist[] = {"time", "seq", "poly", NULL};
-    
+
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "|OOi", kwlist, &timetmp, &seqtmp, &self->poly))
         Py_RETURN_NONE;
-    
+
     if (timetmp) {
         PyObject_CallMethod((PyObject *)self, "setTime", "O", timetmp);
     }
@@ -589,13 +589,13 @@ Seqer_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (seqtmp) {
         PyObject_CallMethod((PyObject *)self, "setSeq", "O", seqtmp);
     }
-    
+
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
     self->buffer_streams = (MYFLT *)realloc(self->buffer_streams, self->poly * self->bufsize * sizeof(MYFLT));
 
     (*self->mode_func_ptr)(self);
-    
+
     return (PyObject *)self;
 }
 
@@ -609,14 +609,14 @@ static PyObject *
 Seqer_setTime(Seqer *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
-	
+
 	if (arg == NULL) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
 	int isNumber = PyNumber_Check(arg);
-	
+
 	tmp = arg;
 	Py_INCREF(tmp);
 	Py_DECREF(self->time);
@@ -632,25 +632,25 @@ Seqer_setTime(Seqer *self, PyObject *arg)
         self->time_stream = (Stream *)streamtmp;
 		self->modebuffer[0] = 1;
 	}
-    
+
     (*self->mode_func_ptr)(self);
-    
+
 	Py_INCREF(Py_None);
 	return Py_None;
-}	
+}
 
 static PyObject *
 Seqer_setSeq(Seqer *self, PyObject *arg)
 {
 	PyObject *tmp;
-	
+
 	if (arg == NULL) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
 	int isList = PyList_Check(arg);
-	
+
 	if (isList == 1) {
         tmp = arg;
         Py_INCREF(tmp);
@@ -658,10 +658,10 @@ Seqer_setSeq(Seqer *self, PyObject *arg)
         self->tmp = tmp;
         self->newseq = 1;
     }
-    
+
 	Py_INCREF(Py_None);
 	return Py_None;
-}	
+}
 
 static PyMemberDef Seqer_members[] = {
     {"server", T_OBJECT_EX, offsetof(Seqer, server), 0, "Pyo server."},
@@ -728,7 +728,7 @@ PyTypeObject SeqerType = {
 typedef struct {
     pyo_audio_HEAD
     Seqer *mainPlayer;
-    int chnl; 
+    int chnl;
     int modebuffer[2];
 } Seq;
 
@@ -746,36 +746,36 @@ static void
 Seq_setProcMode(Seq *self) {
     int muladdmode;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
-    
+
 	switch (muladdmode) {
-        case 0:        
+        case 0:
             self->muladd_func_ptr = Seq_postprocessing_ii;
             break;
-        case 1:    
+        case 1:
             self->muladd_func_ptr = Seq_postprocessing_ai;
             break;
-        case 2:    
+        case 2:
             self->muladd_func_ptr = Seq_postprocessing_revai;
             break;
-        case 10:        
+        case 10:
             self->muladd_func_ptr = Seq_postprocessing_ia;
             break;
-        case 11:    
+        case 11:
             self->muladd_func_ptr = Seq_postprocessing_aa;
             break;
-        case 12:    
+        case 12:
             self->muladd_func_ptr = Seq_postprocessing_revaa;
             break;
-        case 20:        
+        case 20:
             self->muladd_func_ptr = Seq_postprocessing_ireva;
             break;
-        case 21:    
+        case 21:
             self->muladd_func_ptr = Seq_postprocessing_areva;
             break;
-        case 22:    
+        case 22:
             self->muladd_func_ptr = Seq_postprocessing_revareva;
             break;
-    }      
+    }
 }
 
 static void
@@ -787,7 +787,7 @@ Seq_compute_next_data_frame(Seq *self)
     tmp = Seqer_getSamplesBuffer((Seqer *)self->mainPlayer);
     for (i=0; i<self->bufsize; i++) {
         self->data[i] = tmp[i + offset];
-    }    
+    }
     (*self->muladd_func_ptr)(self);
 }
 
@@ -799,11 +799,11 @@ Seq_traverse(Seq *self, visitproc visit, void *arg)
     return 0;
 }
 
-static int 
+static int
 Seq_clear(Seq *self)
 {
     pyo_CLEAR
-    Py_CLEAR(self->mainPlayer);    
+    Py_CLEAR(self->mainPlayer);
     return 0;
 }
 
@@ -822,37 +822,37 @@ Seq_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *maintmp=NULL;
     Seq *self;
     self = (Seq *)type->tp_alloc(type, 0);
-    
+
     self->chnl = 0;
     self->modebuffer[0] = 0;
     self->modebuffer[1] = 0;
-    
+
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, Seq_compute_next_data_frame);
     self->mode_func_ptr = Seq_setProcMode;
 
     static char *kwlist[] = {"mainPlayer", "chnl", NULL};
-    
+
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|i", kwlist, &maintmp, &self->chnl))
         Py_RETURN_NONE;
-    
+
     Py_XDECREF(self->mainPlayer);
     Py_INCREF(maintmp);
     self->mainPlayer = (Seqer *)maintmp;
-    
+
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
-    
+
     (*self->mode_func_ptr)(self);
-    
+
     return (PyObject *)self;
 }
 
 static PyObject * Seq_getServer(Seq* self) { GET_SERVER };
 static PyObject * Seq_getStream(Seq* self) { GET_STREAM };
-static PyObject * Seq_setMul(Seq *self, PyObject *arg) { SET_MUL };	
-static PyObject * Seq_setAdd(Seq *self, PyObject *arg) { SET_ADD };	
-static PyObject * Seq_setSub(Seq *self, PyObject *arg) { SET_SUB };	
-static PyObject * Seq_setDiv(Seq *self, PyObject *arg) { SET_DIV };	
+static PyObject * Seq_setMul(Seq *self, PyObject *arg) { SET_MUL };
+static PyObject * Seq_setAdd(Seq *self, PyObject *arg) { SET_ADD };
+static PyObject * Seq_setSub(Seq *self, PyObject *arg) { SET_SUB };
+static PyObject * Seq_setDiv(Seq *self, PyObject *arg) { SET_DIV };
 
 static PyObject * Seq_play(Seq *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * Seq_out(Seq *self, PyObject *args, PyObject *kwds) { OUT };
@@ -884,7 +884,7 @@ static PyMethodDef Seq_methods[] = {
     {"setMul", (PyCFunction)Seq_setMul, METH_O, "Sets oscillator mul factor."},
     {"setAdd", (PyCFunction)Seq_setAdd, METH_O, "Sets oscillator add factor."},
     {"setSub", (PyCFunction)Seq_setSub, METH_O, "Sets inverse add factor."},
-    {"setDiv", (PyCFunction)Seq_setDiv, METH_O, "Sets inverse mul factor."},    
+    {"setDiv", (PyCFunction)Seq_setDiv, METH_O, "Sets inverse mul factor."},
     {NULL}  /* Sentinel */
 };
 
@@ -998,7 +998,7 @@ Clouder_generate_i(Clouder *self) {
     for (i=0; i<(self->poly*self->bufsize); i++) {
         self->buffer_streams[i] = 0.0;
     }
-    
+
     dens *= 0.5;
     for (i=0; i<self->bufsize; i++) {
         rnd = (int)(rand() / (MYFLT)RAND_MAX * self->sr);
@@ -1006,7 +1006,7 @@ Clouder_generate_i(Clouder *self) {
             self->buffer_streams[i + self->voiceCount++ * self->bufsize] = 1.0;
             if (self->voiceCount == self->poly)
                 self->voiceCount = 0;
-        }        
+        }
     }
 }
 
@@ -1014,27 +1014,27 @@ static void
 Clouder_generate_a(Clouder *self) {
     MYFLT dens;
     int i, rnd;
-    
+
     MYFLT *density = Stream_getData((Stream *)self->density_stream);
 
     for (i=0; i<(self->poly*self->bufsize); i++) {
         self->buffer_streams[i] = 0.0;
     }
-    
+
     for (i=0; i<self->bufsize; i++) {
         dens = density[i];
         if (dens <= 0.0)
             dens = 0.0;
         else if (dens > self->sr)
             dens = self->sr;
-        
+
         dens *= 0.5;
         rnd = (int)(rand() / (MYFLT)RAND_MAX * self->sr);
         if (rnd < dens) {
             self->buffer_streams[i + self->voiceCount++ * self->bufsize] = 1.0;
             if (self->voiceCount == self->poly)
                 self->voiceCount = 0;
-        } 
+        }
     }
 }
 
@@ -1042,17 +1042,17 @@ MYFLT *
 Clouder_getSamplesBuffer(Clouder *self)
 {
     return (MYFLT *)self->buffer_streams;
-}    
+}
 
 static void
 Clouder_setProcMode(Clouder *self)
 {
     int procmode = self->modebuffer[0];
     switch (procmode) {
-        case 0:        
+        case 0:
             self->proc_func_ptr = Clouder_generate_i;
             break;
-        case 1:    
+        case 1:
             self->proc_func_ptr = Clouder_generate_a;
             break;
     }
@@ -1061,23 +1061,23 @@ Clouder_setProcMode(Clouder *self)
 static void
 Clouder_compute_next_data_frame(Clouder *self)
 {
-    (*self->proc_func_ptr)(self);    
+    (*self->proc_func_ptr)(self);
 }
 
 static int
 Clouder_traverse(Clouder *self, visitproc visit, void *arg)
 {
     pyo_VISIT
-    Py_VISIT(self->density);    
-    Py_VISIT(self->density_stream);    
+    Py_VISIT(self->density);
+    Py_VISIT(self->density_stream);
     return 0;
 }
 
-static int 
+static int
 Clouder_clear(Clouder *self)
 {
     pyo_CLEAR
-    Py_CLEAR(self->density);    
+    Py_CLEAR(self->density);
     Py_CLEAR(self->density_stream);
     return 0;
 }
@@ -1098,35 +1098,35 @@ Clouder_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *densitytmp=NULL;
     Clouder *self;
     self = (Clouder *)type->tp_alloc(type, 0);
-    
+
     self->density = PyFloat_FromDouble(10.0);
     self->poly = 1;
     self->voiceCount = 0;
 	self->modebuffer[0] = 0;
-    
+
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, Clouder_compute_next_data_frame);
     self->mode_func_ptr = Clouder_setProcMode;
-    
+
     Stream_setStreamActive(self->stream, 0);
 
     static char *kwlist[] = {"density", "poly", NULL};
-    
+
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "|Oi", kwlist, &densitytmp, &self->poly))
         Py_RETURN_NONE;
-    
+
     if (densitytmp) {
         PyObject_CallMethod((PyObject *)self, "setDensity", "O", densitytmp);
     }
-    
+
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
-    
+
     (*self->mode_func_ptr)(self);
 
     Server_generateSeed((Server *)self->server, CLOUD_ID);
 
     self->buffer_streams = (MYFLT *)realloc(self->buffer_streams, self->poly * self->bufsize * sizeof(MYFLT));
-    
+
     return (PyObject *)self;
 }
 
@@ -1140,14 +1140,14 @@ static PyObject *
 Clouder_setDensity(Clouder *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
-	
+
 	if (arg == NULL) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
 	int isNumber = PyNumber_Check(arg);
-	
+
 	tmp = arg;
 	Py_INCREF(tmp);
 	Py_DECREF(self->density);
@@ -1163,12 +1163,12 @@ Clouder_setDensity(Clouder *self, PyObject *arg)
         self->density_stream = (Stream *)streamtmp;
 		self->modebuffer[0] = 1;
 	}
-    
+
     (*self->mode_func_ptr)(self);
-    
+
 	Py_INCREF(Py_None);
 	return Py_None;
-}	
+}
 
 static PyMemberDef Clouder_members[] = {
 {"server", T_OBJECT_EX, offsetof(Clouder, server), 0, "Pyo server."},
@@ -1234,7 +1234,7 @@ Clouder_new,                 /* tp_new */
 typedef struct {
     pyo_audio_HEAD
     Clouder *mainPlayer;
-    int chnl; 
+    int chnl;
     int modebuffer[2];
 } Cloud;
 
@@ -1252,36 +1252,36 @@ static void
 Cloud_setProcMode(Cloud *self) {
     int muladdmode;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
-    
+
 	switch (muladdmode) {
-        case 0:        
+        case 0:
             self->muladd_func_ptr = Cloud_postprocessing_ii;
             break;
-        case 1:    
+        case 1:
             self->muladd_func_ptr = Cloud_postprocessing_ai;
             break;
-        case 2:    
+        case 2:
             self->muladd_func_ptr = Cloud_postprocessing_revai;
             break;
-        case 10:        
+        case 10:
             self->muladd_func_ptr = Cloud_postprocessing_ia;
             break;
-        case 11:    
+        case 11:
             self->muladd_func_ptr = Cloud_postprocessing_aa;
             break;
-        case 12:    
+        case 12:
             self->muladd_func_ptr = Cloud_postprocessing_revaa;
             break;
-        case 20:        
+        case 20:
             self->muladd_func_ptr = Cloud_postprocessing_ireva;
             break;
-        case 21:    
+        case 21:
             self->muladd_func_ptr = Cloud_postprocessing_areva;
             break;
-        case 22:    
+        case 22:
             self->muladd_func_ptr = Cloud_postprocessing_revareva;
             break;
-    }      
+    }
 }
 
 static void
@@ -1293,7 +1293,7 @@ Cloud_compute_next_data_frame(Cloud *self)
     tmp = Clouder_getSamplesBuffer((Clouder *)self->mainPlayer);
     for (i=0; i<self->bufsize; i++) {
         self->data[i] = tmp[i + offset];
-    }    
+    }
     (*self->muladd_func_ptr)(self);
 }
 
@@ -1305,11 +1305,11 @@ Cloud_traverse(Cloud *self, visitproc visit, void *arg)
     return 0;
 }
 
-static int 
+static int
 Cloud_clear(Cloud *self)
 {
     pyo_CLEAR
-    Py_CLEAR(self->mainPlayer);    
+    Py_CLEAR(self->mainPlayer);
     return 0;
 }
 
@@ -1328,37 +1328,37 @@ Cloud_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *maintmp=NULL;
     Cloud *self;
     self = (Cloud *)type->tp_alloc(type, 0);
-    
+
     self->chnl = 0;
     self->modebuffer[0] = 0;
     self->modebuffer[1] = 0;
-    
+
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, Cloud_compute_next_data_frame);
     self->mode_func_ptr = Cloud_setProcMode;
 
     static char *kwlist[] = {"mainPlayer", "chnl", NULL};
-    
+
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|i", kwlist, &maintmp, &self->chnl))
         Py_RETURN_NONE;
-    
+
     Py_XDECREF(self->mainPlayer);
     Py_INCREF(maintmp);
     self->mainPlayer = (Clouder *)maintmp;
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
-    
+
     (*self->mode_func_ptr)(self);
-    
+
     return (PyObject *)self;
 }
 
 static PyObject * Cloud_getServer(Cloud* self) { GET_SERVER };
 static PyObject * Cloud_getStream(Cloud* self) { GET_STREAM };
-static PyObject * Cloud_setMul(Cloud *self, PyObject *arg) { SET_MUL };	
-static PyObject * Cloud_setAdd(Cloud *self, PyObject *arg) { SET_ADD };	
-static PyObject * Cloud_setSub(Cloud *self, PyObject *arg) { SET_SUB };	
-static PyObject * Cloud_setDiv(Cloud *self, PyObject *arg) { SET_DIV };	
+static PyObject * Cloud_setMul(Cloud *self, PyObject *arg) { SET_MUL };
+static PyObject * Cloud_setAdd(Cloud *self, PyObject *arg) { SET_ADD };
+static PyObject * Cloud_setSub(Cloud *self, PyObject *arg) { SET_SUB };
+static PyObject * Cloud_setDiv(Cloud *self, PyObject *arg) { SET_DIV };
 
 static PyObject * Cloud_play(Cloud *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * Cloud_out(Cloud *self, PyObject *args, PyObject *kwds) { OUT };
@@ -1390,7 +1390,7 @@ static PyMethodDef Cloud_methods[] = {
 {"setMul", (PyCFunction)Cloud_setMul, METH_O, "Sets oscillator mul factor."},
 {"setAdd", (PyCFunction)Cloud_setAdd, METH_O, "Sets oscillator add factor."},
 {"setSub", (PyCFunction)Cloud_setSub, METH_O, "Sets inverse add factor."},
-{"setDiv", (PyCFunction)Cloud_setDiv, METH_O, "Sets inverse mul factor."},    
+{"setDiv", (PyCFunction)Cloud_setDiv, METH_O, "Sets inverse mul factor."},
 {NULL}  /* Sentinel */
 };
 
@@ -1502,36 +1502,36 @@ Trig_setProcMode(Trig *self)
 {
     int muladdmode;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
-    
+
 	switch (muladdmode) {
-        case 0:        
+        case 0:
             self->muladd_func_ptr = Trig_postprocessing_ii;
             break;
-        case 1:    
+        case 1:
             self->muladd_func_ptr = Trig_postprocessing_ai;
             break;
-        case 2:    
+        case 2:
             self->muladd_func_ptr = Trig_postprocessing_revai;
             break;
-        case 10:        
+        case 10:
             self->muladd_func_ptr = Trig_postprocessing_ia;
             break;
-        case 11:    
+        case 11:
             self->muladd_func_ptr = Trig_postprocessing_aa;
             break;
-        case 12:    
+        case 12:
             self->muladd_func_ptr = Trig_postprocessing_revaa;
             break;
-        case 20:        
+        case 20:
             self->muladd_func_ptr = Trig_postprocessing_ireva;
             break;
-        case 21:    
+        case 21:
             self->muladd_func_ptr = Trig_postprocessing_areva;
             break;
-        case 22:    
+        case 22:
             self->muladd_func_ptr = Trig_postprocessing_revareva;
             break;
-    }  
+    }
 }
 
 static void
@@ -1540,7 +1540,7 @@ Trig_compute_next_data_frame(Trig *self)
     if (self->flag == 1) {
         self->data[0] = 1.0;
         self->flag = 0;
-    }    
+    }
     else
         self->data[0] = 0.0;
     (*self->muladd_func_ptr)(self);
@@ -1553,7 +1553,7 @@ Trig_traverse(Trig *self, visitproc visit, void *arg)
     return 0;
 }
 
-static int 
+static int
 Trig_clear(Trig *self)
 {
     pyo_CLEAR
@@ -1574,38 +1574,38 @@ Trig_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     int i;
     Trig *self;
     self = (Trig *)type->tp_alloc(type, 0);
-    
+
     self->flag = 1;
     self->modebuffer[0] = 0;
     self->modebuffer[1] = 0;
-    
+
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, Trig_compute_next_data_frame);
     self->mode_func_ptr = Trig_setProcMode;
 
     static char *kwlist[] = {NULL};
-    
+
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "", kwlist))
         Py_RETURN_NONE;
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
     (*self->mode_func_ptr)(self);
-    
+
     return (PyObject *)self;
 }
 
 static PyObject * Trig_getServer(Trig* self) { GET_SERVER };
 static PyObject * Trig_getStream(Trig* self) { GET_STREAM };
-static PyObject * Trig_setMul(Trig *self, PyObject *arg) { SET_MUL };	
-static PyObject * Trig_setAdd(Trig *self, PyObject *arg) { SET_ADD };	
-static PyObject * Trig_setSub(Trig *self, PyObject *arg) { SET_SUB };	
-static PyObject * Trig_setDiv(Trig *self, PyObject *arg) { SET_DIV };	
+static PyObject * Trig_setMul(Trig *self, PyObject *arg) { SET_MUL };
+static PyObject * Trig_setAdd(Trig *self, PyObject *arg) { SET_ADD };
+static PyObject * Trig_setSub(Trig *self, PyObject *arg) { SET_SUB };
+static PyObject * Trig_setDiv(Trig *self, PyObject *arg) { SET_DIV };
 
-static PyObject * Trig_play(Trig *self, PyObject *args, PyObject *kwds) 
-{ 
+static PyObject * Trig_play(Trig *self, PyObject *args, PyObject *kwds)
+{
     self->flag = 1;
-    PLAY 
+    PLAY
 };
 
 static PyObject * Trig_stop(Trig *self) { STOP };
@@ -1780,7 +1780,7 @@ Beater_defineAccent(int n) {
         return 0.5;
 }
 
-static void 
+static void
 Beater_restore(Beater *self) {
     int i;
     self->fillEnd = 0;
@@ -1789,9 +1789,9 @@ Beater_restore(Beater *self) {
         self->sequence[i] = self->tmp_sequence[i];
         self->durations[i] = self->tmp_durations[i];
     }
-}    
-    
-static void 
+}
+
+static void
 Beater_makeTable(Beater *self, int fill) {
 	short i;
 	short len;
@@ -1813,25 +1813,25 @@ Beater_makeTable(Beater *self, int fill) {
             self->tmp_accentTable[i] = self->accentTable[i];
             self->tmp_sequence[i] = self->sequence[i];
             self->tmp_durations[i] = self->durations[i];
-        }    
+        }
     }
-    
+
 	if ((self->taps % 7) == 0) {
 		len = 7;
 		for (i=0; i < self->taps; i++) {
             if ((i % len) == 4  || (i % len) == 2) {
                 self->tapProb[i] = w2;
                 self->accentTable[i] = Beater_defineAccent(2);
-            }	
+            }
             else if ((i % len) == 0) {
                 self->tapProb[i] = w1;
                 self->accentTable[i] = Beater_defineAccent(1);
-            }	
+            }
             else {
                 self->tapProb[i] = w3;
                 self->accentTable[i] = Beater_defineAccent(3);
-            }	
-		}	
+            }
+		}
 	}
 	else if ((self->taps % 6) == 0) {
 		len = 6;
@@ -1839,7 +1839,7 @@ Beater_makeTable(Beater *self, int fill) {
             if ((i % len) == 3) {
                 self->tapProb[i] = w2;
                 self->accentTable[i] = Beater_defineAccent(2);
-            }	
+            }
             else if ((i % len) == 0) {
                 self->tapProb[i] = w1;
                 self->accentTable[i] = Beater_defineAccent(1);
@@ -1847,8 +1847,8 @@ Beater_makeTable(Beater *self, int fill) {
             else {
                 self->tapProb[i] = w3;
                 self->accentTable[i] = Beater_defineAccent(3);
-            }		
-		}	
+            }
+		}
 	}
 	else if ((self->taps % 5) == 0) {
 		len = 5;
@@ -1856,7 +1856,7 @@ Beater_makeTable(Beater *self, int fill) {
             if ((i % len) == 3) {
                 self->tapProb[i] = w2;
                 self->accentTable[i] = Beater_defineAccent(2);
-            }	
+            }
             else if ((i % len) == 0) {
                 self->tapProb[i] = w1;
                 self->accentTable[i] = Beater_defineAccent(1);
@@ -1864,25 +1864,25 @@ Beater_makeTable(Beater *self, int fill) {
             else {
                 self->tapProb[i] = w3;
                 self->accentTable[i] = Beater_defineAccent(3);
-            }		
-		}	
+            }
+		}
 	}
 	else if ((self->taps % 4) == 0) {
 		len = 4;
-		for (i=0; i < self->taps; i++) {	
+		for (i=0; i < self->taps; i++) {
             if ((i % len) == 2) {
                 self->tapProb[i] = w2;
                 self->accentTable[i] = Beater_defineAccent(2);
-            }	
+            }
             else if ((i % len) == 0) {
                 self->tapProb[i] = w1;
                 self->accentTable[i] = Beater_defineAccent(1);
-            }	
+            }
             else {
                 self->tapProb[i] = w3;
                 self->accentTable[i] = Beater_defineAccent(3);
-            }	
-		}	
+            }
+		}
 	}
 	else if ((self->taps % 3) == 0) {
 		len = 3;
@@ -1894,8 +1894,8 @@ Beater_makeTable(Beater *self, int fill) {
             else {
                 self->tapProb[i] = w3;
                 self->accentTable[i] = Beater_defineAccent(3);
-            }	
-		}	
+            }
+		}
 	}
 	else if ((self->taps % 2) == 0) {
 		len = 2;
@@ -1907,22 +1907,22 @@ Beater_makeTable(Beater *self, int fill) {
             else {
                 self->tapProb[i] = w3;
                 self->accentTable[i] = Beater_defineAccent(3);
-            }	
-		}	
-	}		
+            }
+		}
+	}
 }
 
-static void 
+static void
 Beater_makeSequence(Beater *self) {
 	short i, j;
-    
+
 	j = 0;
 	for (i=0; i < self->taps; i++) {
 		if ((rand() % 100) < self->tapProb[i]) {
 			self->sequence[i] = 1;
 			self->tapList[j++] = i;
-		}	
-		else	
+		}
+		else
 			self->sequence[i] = 0;
 	}
 
@@ -1932,7 +1932,7 @@ Beater_makeSequence(Beater *self) {
 static void
 Beater_calculateDurations(Beater *self) {
     int i;
-    
+
     for (i=0; i < (self->tapLength-1); i++) {
 		self->durations[self->tapList[i]] = (self->tapList[i+1] - self->tapList[i]) * self->tapDur - 0.005;
 	}
@@ -1940,24 +1940,24 @@ Beater_calculateDurations(Beater *self) {
 }
 
 static void
-Beater_makePresetActive(Beater *self, int n) 
+Beater_makePresetActive(Beater *self, int n)
 {
     int i, j, len;
-    
+
     self->preCall = -1;
     len = self->preset[n][0];
     if (len != self->taps) {
         self->taps = len;
         Beater_makeTable(self, 0);
     }
-    
+
     j = 0;
     for (i=0; i<self->taps; i++) {
         self->sequence[i] = self->preset[n][i+1];
         if (self->sequence[i] == 1)
             self->tapList[j++] = i;
     }
-    
+
     self->tapLength = j;
 }
 
@@ -1965,20 +1965,20 @@ static void
 Beater_generate_i(Beater *self) {
     int i, j;
     double tm;
-    
+
     tm = PyFloat_AS_DOUBLE(self->time);
-    
+
     self->tapDur = (MYFLT)tm;
     Beater_calculateDurations(self);
 
     if (self->currentTime == -1.0) {
         self->currentTime = tm;
-    }    
-    
+    }
+
     for (i=0; i<(self->poly*self->bufsize); i++) {
         self->buffer_streams[i] = self->end_buffer_streams[i] = 0.0;
     }
-    
+
     for (i=0; i<self->bufsize; i++) {
         self->tap_buffer_streams[i + self->voiceCount * self->bufsize] = (MYFLT)self->currentTap;
         for (j=0; j<self->poly; j++) {
@@ -2007,11 +2007,11 @@ Beater_generate_i(Beater *self) {
                     Beater_restore(self);
                     Beater_makeTable(self, 0);
                     Beater_makeSequence(self);
-                }    
+                }
                 else if (self->fillEnd == 1 && self->preCall != -1) {
                     Beater_restore(self);
                     Beater_makePresetActive(self, self->preCall);
-                }    
+                }
                 else if (self->fillEnd == 1) {
                     Beater_restore(self);
                 }
@@ -2023,7 +2023,7 @@ Beater_generate_i(Beater *self) {
                     self->newFlag == 1) {
                     Beater_makeTable(self, 0);
                     Beater_makeSequence(self);
-                }    
+                }
             }
         }
         self->currentTime += self->sampleToSec;
@@ -2034,7 +2034,7 @@ static void
 Beater_generate_a(Beater *self) {
     double tm;
     int i, j;
-    
+
     MYFLT *time = Stream_getData((Stream *)self->time_stream);
 
     self->tapDur = time[0];
@@ -2042,12 +2042,12 @@ Beater_generate_a(Beater *self) {
 
     if (self->currentTime == -1.0) {
         self->currentTime = (double)time[0];
-    }    
-    
+    }
+
     for (i=0; i<(self->poly*self->bufsize); i++) {
         self->buffer_streams[i] = self->end_buffer_streams[i] = 0.0;
     }
-    
+
     for (i=0; i<self->bufsize; i++) {
         tm = (double)time[i];
         self->tap_buffer_streams[i + self->voiceCount * self->bufsize] = (MYFLT)self->currentTap;
@@ -2081,7 +2081,7 @@ Beater_generate_a(Beater *self) {
                 else if (self->fillEnd == 1 && self->preCall != -1) {
                     Beater_restore(self);
                     Beater_makePresetActive(self, self->preCall);
-                }    
+                }
                 else if (self->fillEnd == 1) {
                     Beater_restore(self);
                 }
@@ -2094,7 +2094,7 @@ Beater_generate_a(Beater *self) {
                     self->tapDur = time[i];
                     Beater_makeTable(self, 0);
                     Beater_makeSequence(self);
-                }    
+                }
             }
         }
         self->currentTime += self->sampleToSec;
@@ -2105,41 +2105,41 @@ MYFLT *
 Beater_getSamplesBuffer(Beater *self)
 {
     return (MYFLT *)self->buffer_streams;
-}    
+}
 
 MYFLT *
 Beater_getTapBuffer(Beater *self)
 {
     return (MYFLT *)self->tap_buffer_streams;
-}    
+}
 
 MYFLT *
 Beater_getAmpBuffer(Beater *self)
 {
     return (MYFLT *)self->amp_buffer_streams;
-}    
+}
 
 MYFLT *
 Beater_getDurBuffer(Beater *self)
 {
     return (MYFLT *)self->dur_buffer_streams;
-}    
+}
 
 MYFLT *
 Beater_getEndBuffer(Beater *self)
 {
     return (MYFLT *)self->end_buffer_streams;
-}    
+}
 
 static void
 Beater_setProcMode(Beater *self)
 {
     int procmode = self->modebuffer[0];
     switch (procmode) {
-        case 0:        
+        case 0:
             self->proc_func_ptr = Beater_generate_i;
             break;
-        case 1:    
+        case 1:
             self->proc_func_ptr = Beater_generate_a;
             break;
     }
@@ -2148,23 +2148,23 @@ Beater_setProcMode(Beater *self)
 static void
 Beater_compute_next_data_frame(Beater *self)
 {
-    (*self->proc_func_ptr)(self);    
+    (*self->proc_func_ptr)(self);
 }
 
 static int
 Beater_traverse(Beater *self, visitproc visit, void *arg)
 {
     pyo_VISIT
-    Py_VISIT(self->time);    
-    Py_VISIT(self->time_stream);    
+    Py_VISIT(self->time);
+    Py_VISIT(self->time_stream);
     return 0;
 }
 
-static int 
+static int
 Beater_clear(Beater *self)
 {
     pyo_CLEAR
-    Py_CLEAR(self->time);    
+    Py_CLEAR(self->time);
     Py_CLEAR(self->time_stream);
     return 0;
 }
@@ -2190,20 +2190,20 @@ Beater_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *timetmp=NULL;
     Beater *self;
     self = (Beater *)type->tp_alloc(type, 0);
-    
+
     for (i=0; i<32; i++) {
         for (j=0; j<64; j++) {
             self->preset[i][j] = 0;
         }
     }
-    
+
     self->preCall = -1;
     self->time = PyFloat_FromDouble(0.125);
     self->tapDur = 0.125;
     self->poly = 1;
     self->voiceCount = 0;
 	self->modebuffer[0] = 0;
-    
+
     self->taps = 16;
     self->tapCount = 0;
     self->currentTap = 0;
@@ -2213,31 +2213,31 @@ Beater_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->last_taps = self->last_weight1 = self->last_weight2 = self->last_weight3 = -1;
     self->newFlag = self->fillStart = self->fillEnd = 0;
     self->tapLength = 0;
-    
+
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, Beater_compute_next_data_frame);
     self->mode_func_ptr = Beater_setProcMode;
-    
+
     self->sampleToSec = 1. / self->sr;
     self->currentTime = -1.0;
 
     Stream_setStreamActive(self->stream, 0);
 
     static char *kwlist[] = {"time", "taps", "weight1", "weight2", "weight3", "poly", NULL};
-    
+
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "|Oiiiii", kwlist, &timetmp, &self->taps, &self->weight1, &self->weight2, &self->weight3, &self->poly))
         Py_RETURN_NONE;
-    
+
     if (timetmp) {
         PyObject_CallMethod((PyObject *)self, "setTime", "O", timetmp);
     }
-    
+
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
-    
+
     (*self->mode_func_ptr)(self);
-    
+
     Server_generateSeed((Server *)self->server, BEATER_ID);
-    
+
     self->buffer_streams = (MYFLT *)realloc(self->buffer_streams, self->poly * self->bufsize * sizeof(MYFLT));
     self->tap_buffer_streams = (MYFLT *)realloc(self->tap_buffer_streams, self->poly * self->bufsize * sizeof(MYFLT));
     self->amp_buffer_streams = (MYFLT *)realloc(self->amp_buffer_streams, self->poly * self->bufsize * sizeof(MYFLT));
@@ -2247,13 +2247,13 @@ Beater_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         self->buffer_streams[i] = self->tap_buffer_streams[i] = self->amp_buffer_streams[i] = self->dur_buffer_streams[i] = self->end_buffer_streams[i] = 0.0;
     }
     self->amplitudes = (MYFLT *)realloc(self->amplitudes, self->poly * sizeof(MYFLT));
-    for (i=0; i<self->poly; i++) { 
+    for (i=0; i<self->poly; i++) {
         self->amplitudes[i] = 0.0;
     }
-        
+
     Beater_makeTable(self, 0);
     Beater_makeSequence(self);
-    
+
     return (PyObject *)self;
 }
 
@@ -2267,14 +2267,14 @@ static PyObject *
 Beater_setTime(Beater *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
-	
+
 	if (arg == NULL) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
 	int isNumber = PyNumber_Check(arg);
-	
+
 	tmp = arg;
 	Py_INCREF(tmp);
 	Py_DECREF(self->time);
@@ -2293,12 +2293,12 @@ Beater_setTime(Beater *self, PyObject *arg)
         MYFLT *time = Stream_getData((Stream *)self->time_stream);
         self->tapDur = time[0];
 	}
-    
+
     (*self->mode_func_ptr)(self);
-    
+
 	Py_INCREF(Py_None);
 	return Py_None;
-}	
+}
 
 static PyObject *
 Beater_reset(Beater *self)
@@ -2313,26 +2313,26 @@ Beater_reset(Beater *self)
 
 static PyObject *
 Beater_setTaps(Beater *self, PyObject *arg)
-{    
+{
 	if (PyInt_Check(arg))
         self->taps = PyInt_AS_LONG(arg);
-    
+
 	Py_INCREF(Py_None);
 	return Py_None;
-}	
+}
 
 static PyObject *
 Beater_setWeights(Beater *self, PyObject *args, PyObject *kwds)
-{    
+{
     PyObject *w1=NULL, *w2=NULL, *w3=NULL;
-    
+
     static char *kwlist[] = {"weight1", "weight2", "weight3", NULL};
-    
+
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "|OOO", kwlist, &w1, &w2, &w3)) {
         Py_INCREF(Py_None);
         return Py_None;
-    }    
-    
+    }
+
 	if (PyInt_Check(w1))
         self->weight1 = PyInt_AS_LONG(w1);
 
@@ -2344,11 +2344,11 @@ Beater_setWeights(Beater *self, PyObject *args, PyObject *kwds)
 
 	Py_INCREF(Py_None);
 	return Py_None;
-}	
+}
 
 static PyObject *
 Beater_newPattern(Beater *self)
-{    
+{
     self->newFlag = 1;
 	Py_INCREF(Py_None);
 	return Py_None;
@@ -2356,7 +2356,7 @@ Beater_newPattern(Beater *self)
 
 static PyObject *
 Beater_fillPattern(Beater *self)
-{    
+{
     self->fillStart = 1;
 	Py_INCREF(Py_None);
 	return Py_None;
@@ -2366,17 +2366,17 @@ static PyObject *
 Beater_storePreset(Beater *self, PyObject *arg)
 {
     int i, n;
-    
+
     if (PyInt_Check(arg)) {
         n = PyInt_AS_LONG(arg);
         self->preset[n][0] = self->taps;
         for (i=0; i<self->taps; i++) {
             self->preset[n][i+1] = self->sequence[i];
-        }    
+        }
     }
 
 	Py_INCREF(Py_None);
-	return Py_None;    
+	return Py_None;
 }
 
 static PyObject *
@@ -2388,32 +2388,32 @@ Beater_recallPreset(Beater *self, PyObject *arg)
         if (x >= 0 && x < 32)
             self->preCall = x;
     }
-    
+
     if (Stream_getStreamActive(self->stream) == 0)
         Beater_makePresetActive(self, self->preCall);
-    
-    Py_INCREF(Py_None);
-    return Py_None;    
 
-}        
+    Py_INCREF(Py_None);
+    return Py_None;
+
+}
 
 static PyObject *
 Beater_getPresets(Beater *self) {
     int i, j;
     PyObject *list, *tmp;
-    
+
     list = PyList_New(0);
     for (i=0; i<32; i++) {
         if (self->preset[i][0] != 0) {
             tmp = PyList_New(0);
-            PyList_Append(tmp, PyInt_FromLong(self->preset[i][0])); 
+            PyList_Append(tmp, PyInt_FromLong(self->preset[i][0]));
             for (j=0; j<self->preset[i][0]; j++) {
                 PyList_Append(tmp, PyInt_FromLong(self->preset[i][j+1]));
             }
             PyList_Append(list, tmp);
         }
     }
-    
+
     return list;
 }
 
@@ -2429,14 +2429,14 @@ Beater_setPresets(Beater *self, PyObject *arg) {
             if (PyList_Check(tmp)) {
                 len2 = PyInt_AsLong(PyList_GetItem(tmp, 0));
                 self->preset[i][0] = len2;
-                for (j=0; j<len2; j++) {                    
+                for (j=0; j<len2; j++) {
                     self->preset[i][j+1] = PyInt_AsLong(PyList_GetItem(tmp, j+1));
                 }
             }
         }
-    }    
+    }
     Py_INCREF(Py_None);
-    return Py_None;    
+    return Py_None;
 }
 
 static PyMemberDef Beater_members[] = {
@@ -2512,7 +2512,7 @@ PyTypeObject BeaterType = {
 typedef struct {
     pyo_audio_HEAD
     Beater *mainPlayer;
-    int chnl; 
+    int chnl;
     int modebuffer[2];
 } Beat;
 
@@ -2530,36 +2530,36 @@ static void
 Beat_setProcMode(Beat *self) {
     int muladdmode;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
-    
+
     switch (muladdmode) {
-        case 0:        
+        case 0:
             self->muladd_func_ptr = Beat_postprocessing_ii;
             break;
-        case 1:    
+        case 1:
             self->muladd_func_ptr = Beat_postprocessing_ai;
             break;
-        case 2:    
+        case 2:
             self->muladd_func_ptr = Beat_postprocessing_revai;
             break;
-        case 10:        
+        case 10:
             self->muladd_func_ptr = Beat_postprocessing_ia;
             break;
-        case 11:    
+        case 11:
             self->muladd_func_ptr = Beat_postprocessing_aa;
             break;
-        case 12:    
+        case 12:
             self->muladd_func_ptr = Beat_postprocessing_revaa;
             break;
-        case 20:        
+        case 20:
             self->muladd_func_ptr = Beat_postprocessing_ireva;
             break;
-        case 21:    
+        case 21:
             self->muladd_func_ptr = Beat_postprocessing_areva;
             break;
-        case 22:    
+        case 22:
             self->muladd_func_ptr = Beat_postprocessing_revareva;
             break;
-    }  
+    }
 }
 
 static void
@@ -2571,7 +2571,7 @@ Beat_compute_next_data_frame(Beat *self)
     tmp = Beater_getSamplesBuffer((Beater *)self->mainPlayer);
     for (i=0; i<self->bufsize; i++) {
         self->data[i] = tmp[i + offset];
-    }    
+    }
     (*self->muladd_func_ptr)(self);
 }
 
@@ -2583,11 +2583,11 @@ Beat_traverse(Beat *self, visitproc visit, void *arg)
     return 0;
 }
 
-static int 
+static int
 Beat_clear(Beat *self)
 {
     pyo_CLEAR
-    Py_CLEAR(self->mainPlayer);    
+    Py_CLEAR(self->mainPlayer);
     return 0;
 }
 
@@ -2606,37 +2606,37 @@ Beat_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *maintmp=NULL;
     Beat *self;
     self = (Beat *)type->tp_alloc(type, 0);
-    
+
     self->chnl = 0;
     self->modebuffer[0] = 0;
     self->modebuffer[1] = 0;
-    
+
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, Beat_compute_next_data_frame);
     self->mode_func_ptr = Beat_setProcMode;
 
     static char *kwlist[] = {"mainPlayer", "chnl", NULL};
-    
+
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|i", kwlist, &maintmp, &self->chnl))
         Py_RETURN_NONE;
-    
+
     Py_XDECREF(self->mainPlayer);
     Py_INCREF(maintmp);
     self->mainPlayer = (Beater *)maintmp;
-    
+
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
-    
+
     (*self->mode_func_ptr)(self);
-    
+
     return (PyObject *)self;
 }
 
 static PyObject * Beat_getServer(Beat* self) { GET_SERVER };
 static PyObject * Beat_getStream(Beat* self) { GET_STREAM };
-static PyObject * Beat_setMul(Beat *self, PyObject *arg) { SET_MUL };	
-static PyObject * Beat_setAdd(Beat *self, PyObject *arg) { SET_ADD };	
-static PyObject * Beat_setSub(Beat *self, PyObject *arg) { SET_SUB };	
-static PyObject * Beat_setDiv(Beat *self, PyObject *arg) { SET_DIV };	
+static PyObject * Beat_setMul(Beat *self, PyObject *arg) { SET_MUL };
+static PyObject * Beat_setAdd(Beat *self, PyObject *arg) { SET_ADD };
+static PyObject * Beat_setSub(Beat *self, PyObject *arg) { SET_SUB };
+static PyObject * Beat_setDiv(Beat *self, PyObject *arg) { SET_DIV };
 
 static PyObject * Beat_play(Beat *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * Beat_out(Beat *self, PyObject *args, PyObject *kwds) { OUT };
@@ -2762,7 +2762,7 @@ PyTypeObject BeatType = {
 typedef struct {
     pyo_audio_HEAD
     Beater *mainPlayer;
-    int chnl; 
+    int chnl;
     int modebuffer[2];
 } BeatTapStream;
 
@@ -2780,36 +2780,36 @@ static void
 BeatTapStream_setProcMode(BeatTapStream *self) {
     int muladdmode;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
-    
+
     switch (muladdmode) {
-        case 0:        
+        case 0:
             self->muladd_func_ptr = BeatTapStream_postprocessing_ii;
             break;
-        case 1:    
+        case 1:
             self->muladd_func_ptr = BeatTapStream_postprocessing_ai;
             break;
-        case 2:    
+        case 2:
             self->muladd_func_ptr = BeatTapStream_postprocessing_revai;
             break;
-        case 10:        
+        case 10:
             self->muladd_func_ptr = BeatTapStream_postprocessing_ia;
             break;
-        case 11:    
+        case 11:
             self->muladd_func_ptr = BeatTapStream_postprocessing_aa;
             break;
-        case 12:    
+        case 12:
             self->muladd_func_ptr = BeatTapStream_postprocessing_revaa;
             break;
-        case 20:        
+        case 20:
             self->muladd_func_ptr = BeatTapStream_postprocessing_ireva;
             break;
-        case 21:    
+        case 21:
             self->muladd_func_ptr = BeatTapStream_postprocessing_areva;
             break;
-        case 22:    
+        case 22:
             self->muladd_func_ptr = BeatTapStream_postprocessing_revareva;
             break;
-    }  
+    }
 }
 
 static void
@@ -2821,7 +2821,7 @@ BeatTapStream_compute_next_data_frame(BeatTapStream *self)
     tmp = Beater_getTapBuffer((Beater *)self->mainPlayer);
     for (i=0; i<self->bufsize; i++) {
         self->data[i] = tmp[i + offset];
-    }    
+    }
     (*self->muladd_func_ptr)(self);
 }
 
@@ -2833,11 +2833,11 @@ BeatTapStream_traverse(BeatTapStream *self, visitproc visit, void *arg)
     return 0;
 }
 
-static int 
+static int
 BeatTapStream_clear(BeatTapStream *self)
 {
     pyo_CLEAR
-    Py_CLEAR(self->mainPlayer);    
+    Py_CLEAR(self->mainPlayer);
     return 0;
 }
 
@@ -2856,37 +2856,37 @@ BeatTapStream_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *maintmp=NULL;
     BeatTapStream *self;
     self = (BeatTapStream *)type->tp_alloc(type, 0);
-    
+
     self->chnl = 0;
     self->modebuffer[0] = 0;
     self->modebuffer[1] = 0;
-    
+
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, BeatTapStream_compute_next_data_frame);
     self->mode_func_ptr = BeatTapStream_setProcMode;
 
     static char *kwlist[] = {"mainPlayer", "chnl", NULL};
-    
+
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|i", kwlist, &maintmp, &self->chnl))
         Py_RETURN_NONE;
-    
+
     Py_XDECREF(self->mainPlayer);
     Py_INCREF(maintmp);
     self->mainPlayer = (Beater *)maintmp;
-    
+
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
-    
+
     (*self->mode_func_ptr)(self);
-    
+
     return (PyObject *)self;
 }
 
 static PyObject * BeatTapStream_getServer(BeatTapStream* self) { GET_SERVER };
 static PyObject * BeatTapStream_getStream(BeatTapStream* self) { GET_STREAM };
-static PyObject * BeatTapStream_setMul(BeatTapStream *self, PyObject *arg) { SET_MUL };	
-static PyObject * BeatTapStream_setAdd(BeatTapStream *self, PyObject *arg) { SET_ADD };	
-static PyObject * BeatTapStream_setSub(BeatTapStream *self, PyObject *arg) { SET_SUB };	
-static PyObject * BeatTapStream_setDiv(BeatTapStream *self, PyObject *arg) { SET_DIV };	
+static PyObject * BeatTapStream_setMul(BeatTapStream *self, PyObject *arg) { SET_MUL };
+static PyObject * BeatTapStream_setAdd(BeatTapStream *self, PyObject *arg) { SET_ADD };
+static PyObject * BeatTapStream_setSub(BeatTapStream *self, PyObject *arg) { SET_SUB };
+static PyObject * BeatTapStream_setDiv(BeatTapStream *self, PyObject *arg) { SET_DIV };
 
 static PyObject * BeatTapStream_play(BeatTapStream *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * BeatTapStream_out(BeatTapStream *self, PyObject *args, PyObject *kwds) { OUT };
@@ -2918,7 +2918,7 @@ static PyMethodDef BeatTapStream_methods[] = {
     {"setMul", (PyCFunction)BeatTapStream_setMul, METH_O, "Sets oscillator mul factor."},
     {"setAdd", (PyCFunction)BeatTapStream_setAdd, METH_O, "Sets oscillator add factor."},
     {"setSub", (PyCFunction)BeatTapStream_setSub, METH_O, "Sets inverse add factor."},
-    {"setDiv", (PyCFunction)BeatTapStream_setDiv, METH_O, "Sets inverse mul factor."},    
+    {"setDiv", (PyCFunction)BeatTapStream_setDiv, METH_O, "Sets inverse mul factor."},
     {NULL}  /* Sentinel */
 };
 
@@ -3012,7 +3012,7 @@ PyTypeObject BeatTapStreamType = {
 typedef struct {
     pyo_audio_HEAD
     Beater *mainPlayer;
-    int chnl; 
+    int chnl;
     int modebuffer[2];
 } BeatAmpStream;
 
@@ -3030,36 +3030,36 @@ static void
 BeatAmpStream_setProcMode(BeatAmpStream *self) {
     int muladdmode;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
-    
+
     switch (muladdmode) {
-        case 0:        
+        case 0:
             self->muladd_func_ptr = BeatAmpStream_postprocessing_ii;
             break;
-        case 1:    
+        case 1:
             self->muladd_func_ptr = BeatAmpStream_postprocessing_ai;
             break;
-        case 2:    
+        case 2:
             self->muladd_func_ptr = BeatAmpStream_postprocessing_revai;
             break;
-        case 10:        
+        case 10:
             self->muladd_func_ptr = BeatAmpStream_postprocessing_ia;
             break;
-        case 11:    
+        case 11:
             self->muladd_func_ptr = BeatAmpStream_postprocessing_aa;
             break;
-        case 12:    
+        case 12:
             self->muladd_func_ptr = BeatAmpStream_postprocessing_revaa;
             break;
-        case 20:        
+        case 20:
             self->muladd_func_ptr = BeatAmpStream_postprocessing_ireva;
             break;
-        case 21:    
+        case 21:
             self->muladd_func_ptr = BeatAmpStream_postprocessing_areva;
             break;
-        case 22:    
+        case 22:
             self->muladd_func_ptr = BeatAmpStream_postprocessing_revareva;
             break;
-    }  
+    }
 }
 
 static void
@@ -3071,7 +3071,7 @@ BeatAmpStream_compute_next_data_frame(BeatAmpStream *self)
     tmp = Beater_getAmpBuffer((Beater *)self->mainPlayer);
     for (i=0; i<self->bufsize; i++) {
         self->data[i] = tmp[i + offset];
-    }    
+    }
     (*self->muladd_func_ptr)(self);
 }
 
@@ -3083,11 +3083,11 @@ BeatAmpStream_traverse(BeatAmpStream *self, visitproc visit, void *arg)
     return 0;
 }
 
-static int 
+static int
 BeatAmpStream_clear(BeatAmpStream *self)
 {
     pyo_CLEAR
-    Py_CLEAR(self->mainPlayer);    
+    Py_CLEAR(self->mainPlayer);
     return 0;
 }
 
@@ -3106,37 +3106,37 @@ BeatAmpStream_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *maintmp=NULL;
     BeatAmpStream *self;
     self = (BeatAmpStream *)type->tp_alloc(type, 0);
-    
+
     self->chnl = 0;
     self->modebuffer[0] = 0;
     self->modebuffer[1] = 0;
-    
+
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, BeatAmpStream_compute_next_data_frame);
     self->mode_func_ptr = BeatAmpStream_setProcMode;
 
     static char *kwlist[] = {"mainPlayer", "chnl", NULL};
-    
+
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|i", kwlist, &maintmp, &self->chnl))
         Py_RETURN_NONE;
-    
+
     Py_XDECREF(self->mainPlayer);
     Py_INCREF(maintmp);
     self->mainPlayer = (Beater *)maintmp;
-    
+
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
-    
+
     (*self->mode_func_ptr)(self);
-    
+
     return (PyObject *)self;
 }
 
 static PyObject * BeatAmpStream_getServer(BeatAmpStream* self) { GET_SERVER };
 static PyObject * BeatAmpStream_getStream(BeatAmpStream* self) { GET_STREAM };
-static PyObject * BeatAmpStream_setMul(BeatAmpStream *self, PyObject *arg) { SET_MUL };	
-static PyObject * BeatAmpStream_setAdd(BeatAmpStream *self, PyObject *arg) { SET_ADD };	
-static PyObject * BeatAmpStream_setSub(BeatAmpStream *self, PyObject *arg) { SET_SUB };	
-static PyObject * BeatAmpStream_setDiv(BeatAmpStream *self, PyObject *arg) { SET_DIV };	
+static PyObject * BeatAmpStream_setMul(BeatAmpStream *self, PyObject *arg) { SET_MUL };
+static PyObject * BeatAmpStream_setAdd(BeatAmpStream *self, PyObject *arg) { SET_ADD };
+static PyObject * BeatAmpStream_setSub(BeatAmpStream *self, PyObject *arg) { SET_SUB };
+static PyObject * BeatAmpStream_setDiv(BeatAmpStream *self, PyObject *arg) { SET_DIV };
 
 static PyObject * BeatAmpStream_play(BeatAmpStream *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * BeatAmpStream_out(BeatAmpStream *self, PyObject *args, PyObject *kwds) { OUT };
@@ -3168,7 +3168,7 @@ static PyMethodDef BeatAmpStream_methods[] = {
     {"setMul", (PyCFunction)BeatAmpStream_setMul, METH_O, "Sets oscillator mul factor."},
     {"setAdd", (PyCFunction)BeatAmpStream_setAdd, METH_O, "Sets oscillator add factor."},
     {"setSub", (PyCFunction)BeatAmpStream_setSub, METH_O, "Sets inverse add factor."},
-    {"setDiv", (PyCFunction)BeatAmpStream_setDiv, METH_O, "Sets inverse mul factor."},    
+    {"setDiv", (PyCFunction)BeatAmpStream_setDiv, METH_O, "Sets inverse mul factor."},
     {NULL}  /* Sentinel */
 };
 
@@ -3262,7 +3262,7 @@ PyTypeObject BeatAmpStreamType = {
 typedef struct {
     pyo_audio_HEAD
     Beater *mainPlayer;
-    int chnl; 
+    int chnl;
     int modebuffer[2];
 } BeatDurStream;
 
@@ -3280,36 +3280,36 @@ static void
 BeatDurStream_setProcMode(BeatDurStream *self) {
     int muladdmode;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
-    
+
     switch (muladdmode) {
-        case 0:        
+        case 0:
             self->muladd_func_ptr = BeatDurStream_postprocessing_ii;
             break;
-        case 1:    
+        case 1:
             self->muladd_func_ptr = BeatDurStream_postprocessing_ai;
             break;
-        case 2:    
+        case 2:
             self->muladd_func_ptr = BeatDurStream_postprocessing_revai;
             break;
-        case 10:        
+        case 10:
             self->muladd_func_ptr = BeatDurStream_postprocessing_ia;
             break;
-        case 11:    
+        case 11:
             self->muladd_func_ptr = BeatDurStream_postprocessing_aa;
             break;
-        case 12:    
+        case 12:
             self->muladd_func_ptr = BeatDurStream_postprocessing_revaa;
             break;
-        case 20:        
+        case 20:
             self->muladd_func_ptr = BeatDurStream_postprocessing_ireva;
             break;
-        case 21:    
+        case 21:
             self->muladd_func_ptr = BeatDurStream_postprocessing_areva;
             break;
-        case 22:    
+        case 22:
             self->muladd_func_ptr = BeatDurStream_postprocessing_revareva;
             break;
-    }  
+    }
 }
 
 static void
@@ -3321,7 +3321,7 @@ BeatDurStream_compute_next_data_frame(BeatDurStream *self)
     tmp = Beater_getDurBuffer((Beater *)self->mainPlayer);
     for (i=0; i<self->bufsize; i++) {
         self->data[i] = tmp[i + offset];
-    }    
+    }
     (*self->muladd_func_ptr)(self);
 }
 
@@ -3333,11 +3333,11 @@ BeatDurStream_traverse(BeatDurStream *self, visitproc visit, void *arg)
     return 0;
 }
 
-static int 
+static int
 BeatDurStream_clear(BeatDurStream *self)
 {
     pyo_CLEAR
-    Py_CLEAR(self->mainPlayer);    
+    Py_CLEAR(self->mainPlayer);
     return 0;
 }
 
@@ -3356,37 +3356,37 @@ BeatDurStream_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *maintmp=NULL;
     BeatDurStream *self;
     self = (BeatDurStream *)type->tp_alloc(type, 0);
-    
+
     self->chnl = 0;
     self->modebuffer[0] = 0;
     self->modebuffer[1] = 0;
-    
+
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, BeatDurStream_compute_next_data_frame);
     self->mode_func_ptr = BeatDurStream_setProcMode;
 
     static char *kwlist[] = {"mainPlayer", "chnl", NULL};
-    
+
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|i", kwlist, &maintmp, &self->chnl))
         Py_RETURN_NONE;
-    
+
     Py_XDECREF(self->mainPlayer);
     Py_INCREF(maintmp);
     self->mainPlayer = (Beater *)maintmp;
-    
+
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
-    
+
     (*self->mode_func_ptr)(self);
-    
+
     return (PyObject *)self;
 }
 
 static PyObject * BeatDurStream_getServer(BeatDurStream* self) { GET_SERVER };
 static PyObject * BeatDurStream_getStream(BeatDurStream* self) { GET_STREAM };
-static PyObject * BeatDurStream_setMul(BeatDurStream *self, PyObject *arg) { SET_MUL };	
-static PyObject * BeatDurStream_setAdd(BeatDurStream *self, PyObject *arg) { SET_ADD };	
-static PyObject * BeatDurStream_setSub(BeatDurStream *self, PyObject *arg) { SET_SUB };	
-static PyObject * BeatDurStream_setDiv(BeatDurStream *self, PyObject *arg) { SET_DIV };	
+static PyObject * BeatDurStream_setMul(BeatDurStream *self, PyObject *arg) { SET_MUL };
+static PyObject * BeatDurStream_setAdd(BeatDurStream *self, PyObject *arg) { SET_ADD };
+static PyObject * BeatDurStream_setSub(BeatDurStream *self, PyObject *arg) { SET_SUB };
+static PyObject * BeatDurStream_setDiv(BeatDurStream *self, PyObject *arg) { SET_DIV };
 
 static PyObject * BeatDurStream_play(BeatDurStream *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * BeatDurStream_out(BeatDurStream *self, PyObject *args, PyObject *kwds) { OUT };
@@ -3512,7 +3512,7 @@ PyTypeObject BeatDurStreamType = {
 typedef struct {
     pyo_audio_HEAD
     Beater *mainPlayer;
-    int chnl; 
+    int chnl;
     int modebuffer[2];
 } BeatEndStream;
 
@@ -3530,36 +3530,36 @@ static void
 BeatEndStream_setProcMode(BeatEndStream *self) {
     int muladdmode;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
-    
+
     switch (muladdmode) {
-        case 0:        
+        case 0:
             self->muladd_func_ptr = BeatEndStream_postprocessing_ii;
             break;
-        case 1:    
+        case 1:
             self->muladd_func_ptr = BeatEndStream_postprocessing_ai;
             break;
-        case 2:    
+        case 2:
             self->muladd_func_ptr = BeatEndStream_postprocessing_revai;
             break;
-        case 10:        
+        case 10:
             self->muladd_func_ptr = BeatEndStream_postprocessing_ia;
             break;
-        case 11:    
+        case 11:
             self->muladd_func_ptr = BeatEndStream_postprocessing_aa;
             break;
-        case 12:    
+        case 12:
             self->muladd_func_ptr = BeatEndStream_postprocessing_revaa;
             break;
-        case 20:        
+        case 20:
             self->muladd_func_ptr = BeatEndStream_postprocessing_ireva;
             break;
-        case 21:    
+        case 21:
             self->muladd_func_ptr = BeatEndStream_postprocessing_areva;
             break;
-        case 22:    
+        case 22:
             self->muladd_func_ptr = BeatEndStream_postprocessing_revareva;
             break;
-    }  
+    }
 }
 
 static void
@@ -3571,7 +3571,7 @@ BeatEndStream_compute_next_data_frame(BeatEndStream *self)
     tmp = Beater_getEndBuffer((Beater *)self->mainPlayer);
     for (i=0; i<self->bufsize; i++) {
         self->data[i] = tmp[i + offset];
-    }    
+    }
     (*self->muladd_func_ptr)(self);
 }
 
@@ -3583,11 +3583,11 @@ BeatEndStream_traverse(BeatEndStream *self, visitproc visit, void *arg)
     return 0;
 }
 
-static int 
+static int
 BeatEndStream_clear(BeatEndStream *self)
 {
     pyo_CLEAR
-    Py_CLEAR(self->mainPlayer);    
+    Py_CLEAR(self->mainPlayer);
     return 0;
 }
 
@@ -3606,37 +3606,37 @@ BeatEndStream_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *maintmp=NULL;
     BeatEndStream *self;
     self = (BeatEndStream *)type->tp_alloc(type, 0);
-    
+
     self->chnl = 0;
     self->modebuffer[0] = 0;
     self->modebuffer[1] = 0;
-    
+
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, BeatEndStream_compute_next_data_frame);
     self->mode_func_ptr = BeatEndStream_setProcMode;
 
     static char *kwlist[] = {"mainPlayer", "chnl", NULL};
-    
+
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|i", kwlist, &maintmp, &self->chnl))
         Py_RETURN_NONE;
-    
+
     Py_XDECREF(self->mainPlayer);
     Py_INCREF(maintmp);
     self->mainPlayer = (Beater *)maintmp;
-    
+
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
-    
+
     (*self->mode_func_ptr)(self);
-    
+
     return (PyObject *)self;
 }
 
 static PyObject * BeatEndStream_getServer(BeatEndStream* self) { GET_SERVER };
 static PyObject * BeatEndStream_getStream(BeatEndStream* self) { GET_STREAM };
-static PyObject * BeatEndStream_setMul(BeatEndStream *self, PyObject *arg) { SET_MUL };	
-static PyObject * BeatEndStream_setAdd(BeatEndStream *self, PyObject *arg) { SET_ADD };	
-static PyObject * BeatEndStream_setSub(BeatEndStream *self, PyObject *arg) { SET_SUB };	
-static PyObject * BeatEndStream_setDiv(BeatEndStream *self, PyObject *arg) { SET_DIV };	
+static PyObject * BeatEndStream_setMul(BeatEndStream *self, PyObject *arg) { SET_MUL };
+static PyObject * BeatEndStream_setAdd(BeatEndStream *self, PyObject *arg) { SET_ADD };
+static PyObject * BeatEndStream_setSub(BeatEndStream *self, PyObject *arg) { SET_SUB };
+static PyObject * BeatEndStream_setDiv(BeatEndStream *self, PyObject *arg) { SET_DIV };
 
 static PyObject * BeatEndStream_play(BeatEndStream *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * BeatEndStream_out(BeatEndStream *self, PyObject *args, PyObject *kwds) { OUT };
@@ -3668,7 +3668,7 @@ static PyMethodDef BeatEndStream_methods[] = {
     {"setMul", (PyCFunction)BeatEndStream_setMul, METH_O, "Sets oscillator mul factor."},
     {"setAdd", (PyCFunction)BeatEndStream_setAdd, METH_O, "Sets oscillator add factor."},
     {"setSub", (PyCFunction)BeatEndStream_setSub, METH_O, "Sets inverse add factor."},
-    {"setDiv", (PyCFunction)BeatEndStream_setDiv, METH_O, "Sets inverse mul factor."},    
+    {"setDiv", (PyCFunction)BeatEndStream_setDiv, METH_O, "Sets inverse mul factor."},
     {NULL}  /* Sentinel */
 };
 
@@ -3792,13 +3792,13 @@ typedef struct {
 static void
 TrigBurster_generate_i(TrigBurster *self) {
     int i, j;
-    
+
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
-    
+
     for (i=0; i<(self->poly*self->bufsize); i++) {
         self->buffer_streams[i] = self->end_buffer_streams[i] = 0.0;
     }
-    
+
     for (i=0; i<self->bufsize; i++) {
         if (in[i] == 1.0) {
             self->flag = 1;
@@ -3839,31 +3839,31 @@ MYFLT *
 TrigBurster_getSamplesBuffer(TrigBurster *self)
 {
     return (MYFLT *)self->buffer_streams;
-}    
+}
 
 MYFLT *
 TrigBurster_getTapBuffer(TrigBurster *self)
 {
     return (MYFLT *)self->tap_buffer_streams;
-}    
+}
 
 MYFLT *
 TrigBurster_getAmpBuffer(TrigBurster *self)
 {
     return (MYFLT *)self->amp_buffer_streams;
-}    
+}
 
 MYFLT *
 TrigBurster_getDurBuffer(TrigBurster *self)
 {
     return (MYFLT *)self->dur_buffer_streams;
-}    
+}
 
 MYFLT *
 TrigBurster_getEndBuffer(TrigBurster *self)
 {
     return (MYFLT *)self->end_buffer_streams;
-}    
+}
 
 static void
 TrigBurster_setProcMode(TrigBurster *self)
@@ -3874,7 +3874,7 @@ TrigBurster_setProcMode(TrigBurster *self)
 static void
 TrigBurster_compute_next_data_frame(TrigBurster *self)
 {
-    (*self->proc_func_ptr)(self);    
+    (*self->proc_func_ptr)(self);
 }
 
 static int
@@ -3886,7 +3886,7 @@ TrigBurster_traverse(TrigBurster *self, visitproc visit, void *arg)
     return 0;
 }
 
-static int 
+static int
 TrigBurster_clear(TrigBurster *self)
 {
     pyo_CLEAR
@@ -3918,8 +3918,8 @@ TrigBurster_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp;
     TrigBurster *self;
     self = (TrigBurster *)type->tp_alloc(type, 0);
-    
-    
+
+
     self->poly = 1;
     self->voiceCount = 0;
     self->time = self->a_time = 0.25;
@@ -3930,24 +3930,24 @@ TrigBurster_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->targetTime = 0.0;
     self->currentTime = -1.0;
     self->flag = 0;
-    
+
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, TrigBurster_compute_next_data_frame);
     self->mode_func_ptr = TrigBurster_setProcMode;
-    
+
     self->sampleToSec = 1. / self->sr;
 
     Stream_setStreamActive(self->stream, 1);
 
     static char *kwlist[] = {"input", "time", "count", "expand", "ampfade", "poly", NULL};
-    
+
     if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_O_FIFFI, kwlist, &inputtmp, &self->time, &self->count, &self->expand, &self->ampfade, &self->poly))
         Py_RETURN_NONE;
-    
+
     INIT_INPUT_STREAM
-    
+
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
-    
+
     (*self->mode_func_ptr)(self);
 
     self->buffer_streams = (MYFLT *)realloc(self->buffer_streams, self->poly * self->bufsize * sizeof(MYFLT));
@@ -3978,51 +3978,51 @@ static PyObject * TrigBurster_stop(TrigBurster *self) { STOP };
 
 static PyObject *
 TrigBurster_setTime(TrigBurster *self, PyObject *arg)
-{    
+{
 	if (PyNumber_Check(arg))
         self->time = PyFloat_AS_DOUBLE(PyNumber_Float(arg));
-        if (self->time <= 0.01) 
+        if (self->time <= 0.01)
             self->time = 0.01;
-    
+
 	Py_INCREF(Py_None);
 	return Py_None;
-}	
+}
 
 static PyObject *
 TrigBurster_setCount(TrigBurster *self, PyObject *arg)
-{    
+{
 	if (PyInt_Check(arg))
         self->count = PyInt_AS_LONG(arg);
-        if (self->count < 1) 
+        if (self->count < 1)
             self->count = 1;
-    
+
 	Py_INCREF(Py_None);
 	return Py_None;
-}	
+}
 
 static PyObject *
 TrigBurster_setExpand(TrigBurster *self, PyObject *arg)
-{    
+{
 	if (PyNumber_Check(arg))
         self->expand = PyFloat_AS_DOUBLE(PyNumber_Float(arg));
-        if (self->expand <= 0.1) 
+        if (self->expand <= 0.1)
             self->expand = 0.1;
-    
+
 	Py_INCREF(Py_None);
 	return Py_None;
-}	
+}
 
 static PyObject *
 TrigBurster_setAmpfade(TrigBurster *self, PyObject *arg)
-{    
+{
 	if (PyNumber_Check(arg))
         self->ampfade = PyFloat_AS_DOUBLE(PyNumber_Float(arg));
-        if (self->ampfade <= 0.1) 
+        if (self->ampfade <= 0.1)
             self->ampfade = 0.1;
-    
+
 	Py_INCREF(Py_None);
 	return Py_None;
-}	
+}
 
 static PyMemberDef TrigBurster_members[] = {
     {"server", T_OBJECT_EX, offsetof(TrigBurster, server), 0, "Pyo server."},
@@ -4091,7 +4091,7 @@ PyTypeObject TrigBursterType = {
 typedef struct {
     pyo_audio_HEAD
     TrigBurster *mainPlayer;
-    int chnl; 
+    int chnl;
     int modebuffer[2];
 } TrigBurst;
 
@@ -4109,36 +4109,36 @@ static void
 TrigBurst_setProcMode(TrigBurst *self) {
     int muladdmode;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
-    
+
     switch (muladdmode) {
-        case 0:        
+        case 0:
             self->muladd_func_ptr = TrigBurst_postprocessing_ii;
             break;
-        case 1:    
+        case 1:
             self->muladd_func_ptr = TrigBurst_postprocessing_ai;
             break;
-        case 2:    
+        case 2:
             self->muladd_func_ptr = TrigBurst_postprocessing_revai;
             break;
-        case 10:        
+        case 10:
             self->muladd_func_ptr = TrigBurst_postprocessing_ia;
             break;
-        case 11:    
+        case 11:
             self->muladd_func_ptr = TrigBurst_postprocessing_aa;
             break;
-        case 12:    
+        case 12:
             self->muladd_func_ptr = TrigBurst_postprocessing_revaa;
             break;
-        case 20:        
+        case 20:
             self->muladd_func_ptr = TrigBurst_postprocessing_ireva;
             break;
-        case 21:    
+        case 21:
             self->muladd_func_ptr = TrigBurst_postprocessing_areva;
             break;
-        case 22:    
+        case 22:
             self->muladd_func_ptr = TrigBurst_postprocessing_revareva;
             break;
-    }  
+    }
 }
 
 static void
@@ -4150,7 +4150,7 @@ TrigBurst_compute_next_data_frame(TrigBurst *self)
     tmp = TrigBurster_getSamplesBuffer((TrigBurster *)self->mainPlayer);
     for (i=0; i<self->bufsize; i++) {
         self->data[i] = tmp[i + offset];
-    }    
+    }
     (*self->muladd_func_ptr)(self);
 }
 
@@ -4162,11 +4162,11 @@ TrigBurst_traverse(TrigBurst *self, visitproc visit, void *arg)
     return 0;
 }
 
-static int 
+static int
 TrigBurst_clear(TrigBurst *self)
 {
     pyo_CLEAR
-    Py_CLEAR(self->mainPlayer);    
+    Py_CLEAR(self->mainPlayer);
     return 0;
 }
 
@@ -4185,37 +4185,37 @@ TrigBurst_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *maintmp=NULL;
     TrigBurst *self;
     self = (TrigBurst *)type->tp_alloc(type, 0);
-    
+
     self->chnl = 0;
     self->modebuffer[0] = 0;
     self->modebuffer[1] = 0;
-    
+
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, TrigBurst_compute_next_data_frame);
     self->mode_func_ptr = TrigBurst_setProcMode;
 
     static char *kwlist[] = {"mainPlayer", "chnl", NULL};
-    
+
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|i", kwlist, &maintmp, &self->chnl))
         Py_RETURN_NONE;
-    
+
     Py_XDECREF(self->mainPlayer);
     Py_INCREF(maintmp);
     self->mainPlayer = (TrigBurster *)maintmp;
-    
+
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
-    
+
     (*self->mode_func_ptr)(self);
-    
+
     return (PyObject *)self;
 }
 
 static PyObject * TrigBurst_getServer(TrigBurst* self) { GET_SERVER };
 static PyObject * TrigBurst_getStream(TrigBurst* self) { GET_STREAM };
-static PyObject * TrigBurst_setMul(TrigBurst *self, PyObject *arg) { SET_MUL };	
-static PyObject * TrigBurst_setAdd(TrigBurst *self, PyObject *arg) { SET_ADD };	
-static PyObject * TrigBurst_setSub(TrigBurst *self, PyObject *arg) { SET_SUB };	
-static PyObject * TrigBurst_setDiv(TrigBurst *self, PyObject *arg) { SET_DIV };	
+static PyObject * TrigBurst_setMul(TrigBurst *self, PyObject *arg) { SET_MUL };
+static PyObject * TrigBurst_setAdd(TrigBurst *self, PyObject *arg) { SET_ADD };
+static PyObject * TrigBurst_setSub(TrigBurst *self, PyObject *arg) { SET_SUB };
+static PyObject * TrigBurst_setDiv(TrigBurst *self, PyObject *arg) { SET_DIV };
 
 static PyObject * TrigBurst_play(TrigBurst *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * TrigBurst_out(TrigBurst *self, PyObject *args, PyObject *kwds) { OUT };
@@ -4341,7 +4341,7 @@ PyTypeObject TrigBurstType = {
 typedef struct {
     pyo_audio_HEAD
     TrigBurster *mainPlayer;
-    int chnl; 
+    int chnl;
     int modebuffer[2];
 } TrigBurstTapStream;
 
@@ -4359,36 +4359,36 @@ static void
 TrigBurstTapStream_setProcMode(TrigBurstTapStream *self) {
     int muladdmode;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
-    
+
     switch (muladdmode) {
-        case 0:        
+        case 0:
             self->muladd_func_ptr = TrigBurstTapStream_postprocessing_ii;
             break;
-        case 1:    
+        case 1:
             self->muladd_func_ptr = TrigBurstTapStream_postprocessing_ai;
             break;
-        case 2:    
+        case 2:
             self->muladd_func_ptr = TrigBurstTapStream_postprocessing_revai;
             break;
-        case 10:        
+        case 10:
             self->muladd_func_ptr = TrigBurstTapStream_postprocessing_ia;
             break;
-        case 11:    
+        case 11:
             self->muladd_func_ptr = TrigBurstTapStream_postprocessing_aa;
             break;
-        case 12:    
+        case 12:
             self->muladd_func_ptr = TrigBurstTapStream_postprocessing_revaa;
             break;
-        case 20:        
+        case 20:
             self->muladd_func_ptr = TrigBurstTapStream_postprocessing_ireva;
             break;
-        case 21:    
+        case 21:
             self->muladd_func_ptr = TrigBurstTapStream_postprocessing_areva;
             break;
-        case 22:    
+        case 22:
             self->muladd_func_ptr = TrigBurstTapStream_postprocessing_revareva;
             break;
-    }  
+    }
 }
 
 static void
@@ -4400,7 +4400,7 @@ TrigBurstTapStream_compute_next_data_frame(TrigBurstTapStream *self)
     tmp = TrigBurster_getTapBuffer((TrigBurster *)self->mainPlayer);
     for (i=0; i<self->bufsize; i++) {
         self->data[i] = tmp[i + offset];
-    }    
+    }
     (*self->muladd_func_ptr)(self);
 }
 
@@ -4412,11 +4412,11 @@ TrigBurstTapStream_traverse(TrigBurstTapStream *self, visitproc visit, void *arg
     return 0;
 }
 
-static int 
+static int
 TrigBurstTapStream_clear(TrigBurstTapStream *self)
 {
     pyo_CLEAR
-    Py_CLEAR(self->mainPlayer);    
+    Py_CLEAR(self->mainPlayer);
     return 0;
 }
 
@@ -4435,37 +4435,37 @@ TrigBurstTapStream_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *maintmp=NULL;
     TrigBurstTapStream *self;
     self = (TrigBurstTapStream *)type->tp_alloc(type, 0);
-    
+
     self->chnl = 0;
     self->modebuffer[0] = 0;
     self->modebuffer[1] = 0;
-    
+
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, TrigBurstTapStream_compute_next_data_frame);
     self->mode_func_ptr = TrigBurstTapStream_setProcMode;
 
     static char *kwlist[] = {"mainPlayer", "chnl", NULL};
-    
+
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|i", kwlist, &maintmp, &self->chnl))
         Py_RETURN_NONE;
-    
+
     Py_XDECREF(self->mainPlayer);
     Py_INCREF(maintmp);
     self->mainPlayer = (TrigBurster *)maintmp;
-    
+
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
-    
+
     (*self->mode_func_ptr)(self);
-    
+
     return (PyObject *)self;
 }
 
 static PyObject * TrigBurstTapStream_getServer(TrigBurstTapStream* self) { GET_SERVER };
 static PyObject * TrigBurstTapStream_getStream(TrigBurstTapStream* self) { GET_STREAM };
-static PyObject * TrigBurstTapStream_setMul(TrigBurstTapStream *self, PyObject *arg) { SET_MUL };	
-static PyObject * TrigBurstTapStream_setAdd(TrigBurstTapStream *self, PyObject *arg) { SET_ADD };	
-static PyObject * TrigBurstTapStream_setSub(TrigBurstTapStream *self, PyObject *arg) { SET_SUB };	
-static PyObject * TrigBurstTapStream_setDiv(TrigBurstTapStream *self, PyObject *arg) { SET_DIV };	
+static PyObject * TrigBurstTapStream_setMul(TrigBurstTapStream *self, PyObject *arg) { SET_MUL };
+static PyObject * TrigBurstTapStream_setAdd(TrigBurstTapStream *self, PyObject *arg) { SET_ADD };
+static PyObject * TrigBurstTapStream_setSub(TrigBurstTapStream *self, PyObject *arg) { SET_SUB };
+static PyObject * TrigBurstTapStream_setDiv(TrigBurstTapStream *self, PyObject *arg) { SET_DIV };
 
 static PyObject * TrigBurstTapStream_play(TrigBurstTapStream *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * TrigBurstTapStream_out(TrigBurstTapStream *self, PyObject *args, PyObject *kwds) { OUT };
@@ -4497,7 +4497,7 @@ static PyMethodDef TrigBurstTapStream_methods[] = {
     {"setMul", (PyCFunction)TrigBurstTapStream_setMul, METH_O, "Sets oscillator mul factor."},
     {"setAdd", (PyCFunction)TrigBurstTapStream_setAdd, METH_O, "Sets oscillator add factor."},
     {"setSub", (PyCFunction)TrigBurstTapStream_setSub, METH_O, "Sets inverse add factor."},
-    {"setDiv", (PyCFunction)TrigBurstTapStream_setDiv, METH_O, "Sets inverse mul factor."},    
+    {"setDiv", (PyCFunction)TrigBurstTapStream_setDiv, METH_O, "Sets inverse mul factor."},
     {NULL}  /* Sentinel */
 };
 
@@ -4591,7 +4591,7 @@ PyTypeObject TrigBurstTapStreamType = {
 typedef struct {
     pyo_audio_HEAD
     TrigBurster *mainPlayer;
-    int chnl; 
+    int chnl;
     int modebuffer[2];
 } TrigBurstAmpStream;
 
@@ -4609,36 +4609,36 @@ static void
 TrigBurstAmpStream_setProcMode(TrigBurstAmpStream *self) {
     int muladdmode;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
-    
+
     switch (muladdmode) {
-        case 0:        
+        case 0:
             self->muladd_func_ptr = TrigBurstAmpStream_postprocessing_ii;
             break;
-        case 1:    
+        case 1:
             self->muladd_func_ptr = TrigBurstAmpStream_postprocessing_ai;
             break;
-        case 2:    
+        case 2:
             self->muladd_func_ptr = TrigBurstAmpStream_postprocessing_revai;
             break;
-        case 10:        
+        case 10:
             self->muladd_func_ptr = TrigBurstAmpStream_postprocessing_ia;
             break;
-        case 11:    
+        case 11:
             self->muladd_func_ptr = TrigBurstAmpStream_postprocessing_aa;
             break;
-        case 12:    
+        case 12:
             self->muladd_func_ptr = TrigBurstAmpStream_postprocessing_revaa;
             break;
-        case 20:        
+        case 20:
             self->muladd_func_ptr = TrigBurstAmpStream_postprocessing_ireva;
             break;
-        case 21:    
+        case 21:
             self->muladd_func_ptr = TrigBurstAmpStream_postprocessing_areva;
             break;
-        case 22:    
+        case 22:
             self->muladd_func_ptr = TrigBurstAmpStream_postprocessing_revareva;
             break;
-    }  
+    }
 }
 
 static void
@@ -4650,7 +4650,7 @@ TrigBurstAmpStream_compute_next_data_frame(TrigBurstAmpStream *self)
     tmp = TrigBurster_getAmpBuffer((TrigBurster *)self->mainPlayer);
     for (i=0; i<self->bufsize; i++) {
         self->data[i] = tmp[i + offset];
-    }    
+    }
     (*self->muladd_func_ptr)(self);
 }
 
@@ -4662,11 +4662,11 @@ TrigBurstAmpStream_traverse(TrigBurstAmpStream *self, visitproc visit, void *arg
     return 0;
 }
 
-static int 
+static int
 TrigBurstAmpStream_clear(TrigBurstAmpStream *self)
 {
     pyo_CLEAR
-    Py_CLEAR(self->mainPlayer);    
+    Py_CLEAR(self->mainPlayer);
     return 0;
 }
 
@@ -4685,37 +4685,37 @@ TrigBurstAmpStream_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *maintmp=NULL;
     TrigBurstAmpStream *self;
     self = (TrigBurstAmpStream *)type->tp_alloc(type, 0);
-    
+
     self->chnl = 0;
     self->modebuffer[0] = 0;
     self->modebuffer[1] = 0;
-    
+
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, TrigBurstAmpStream_compute_next_data_frame);
     self->mode_func_ptr = TrigBurstAmpStream_setProcMode;
 
     static char *kwlist[] = {"mainPlayer", "chnl", NULL};
-    
+
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|i", kwlist, &maintmp, &self->chnl))
         Py_RETURN_NONE;
-    
+
     Py_XDECREF(self->mainPlayer);
     Py_INCREF(maintmp);
     self->mainPlayer = (TrigBurster *)maintmp;
-    
+
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
-    
+
     (*self->mode_func_ptr)(self);
-    
+
     return (PyObject *)self;
 }
 
 static PyObject * TrigBurstAmpStream_getServer(TrigBurstAmpStream* self) { GET_SERVER };
 static PyObject * TrigBurstAmpStream_getStream(TrigBurstAmpStream* self) { GET_STREAM };
-static PyObject * TrigBurstAmpStream_setMul(TrigBurstAmpStream *self, PyObject *arg) { SET_MUL };	
-static PyObject * TrigBurstAmpStream_setAdd(TrigBurstAmpStream *self, PyObject *arg) { SET_ADD };	
-static PyObject * TrigBurstAmpStream_setSub(TrigBurstAmpStream *self, PyObject *arg) { SET_SUB };	
-static PyObject * TrigBurstAmpStream_setDiv(TrigBurstAmpStream *self, PyObject *arg) { SET_DIV };	
+static PyObject * TrigBurstAmpStream_setMul(TrigBurstAmpStream *self, PyObject *arg) { SET_MUL };
+static PyObject * TrigBurstAmpStream_setAdd(TrigBurstAmpStream *self, PyObject *arg) { SET_ADD };
+static PyObject * TrigBurstAmpStream_setSub(TrigBurstAmpStream *self, PyObject *arg) { SET_SUB };
+static PyObject * TrigBurstAmpStream_setDiv(TrigBurstAmpStream *self, PyObject *arg) { SET_DIV };
 
 static PyObject * TrigBurstAmpStream_play(TrigBurstAmpStream *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * TrigBurstAmpStream_out(TrigBurstAmpStream *self, PyObject *args, PyObject *kwds) { OUT };
@@ -4747,7 +4747,7 @@ static PyMethodDef TrigBurstAmpStream_methods[] = {
     {"setMul", (PyCFunction)TrigBurstAmpStream_setMul, METH_O, "Sets oscillator mul factor."},
     {"setAdd", (PyCFunction)TrigBurstAmpStream_setAdd, METH_O, "Sets oscillator add factor."},
     {"setSub", (PyCFunction)TrigBurstAmpStream_setSub, METH_O, "Sets inverse add factor."},
-    {"setDiv", (PyCFunction)TrigBurstAmpStream_setDiv, METH_O, "Sets inverse mul factor."},    
+    {"setDiv", (PyCFunction)TrigBurstAmpStream_setDiv, METH_O, "Sets inverse mul factor."},
     {NULL}  /* Sentinel */
 };
 
@@ -4841,7 +4841,7 @@ PyTypeObject TrigBurstAmpStreamType = {
 typedef struct {
     pyo_audio_HEAD
     TrigBurster *mainPlayer;
-    int chnl; 
+    int chnl;
     int modebuffer[2];
 } TrigBurstDurStream;
 
@@ -4859,36 +4859,36 @@ static void
 TrigBurstDurStream_setProcMode(TrigBurstDurStream *self) {
     int muladdmode;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
-    
+
     switch (muladdmode) {
-        case 0:        
+        case 0:
             self->muladd_func_ptr = TrigBurstDurStream_postprocessing_ii;
             break;
-        case 1:    
+        case 1:
             self->muladd_func_ptr = TrigBurstDurStream_postprocessing_ai;
             break;
-        case 2:    
+        case 2:
             self->muladd_func_ptr = TrigBurstDurStream_postprocessing_revai;
             break;
-        case 10:        
+        case 10:
             self->muladd_func_ptr = TrigBurstDurStream_postprocessing_ia;
             break;
-        case 11:    
+        case 11:
             self->muladd_func_ptr = TrigBurstDurStream_postprocessing_aa;
             break;
-        case 12:    
+        case 12:
             self->muladd_func_ptr = TrigBurstDurStream_postprocessing_revaa;
             break;
-        case 20:        
+        case 20:
             self->muladd_func_ptr = TrigBurstDurStream_postprocessing_ireva;
             break;
-        case 21:    
+        case 21:
             self->muladd_func_ptr = TrigBurstDurStream_postprocessing_areva;
             break;
-        case 22:    
+        case 22:
             self->muladd_func_ptr = TrigBurstDurStream_postprocessing_revareva;
             break;
-    }  
+    }
 }
 
 static void
@@ -4900,7 +4900,7 @@ TrigBurstDurStream_compute_next_data_frame(TrigBurstDurStream *self)
     tmp = TrigBurster_getDurBuffer((TrigBurster *)self->mainPlayer);
     for (i=0; i<self->bufsize; i++) {
         self->data[i] = tmp[i + offset];
-    }    
+    }
     (*self->muladd_func_ptr)(self);
 }
 
@@ -4912,11 +4912,11 @@ TrigBurstDurStream_traverse(TrigBurstDurStream *self, visitproc visit, void *arg
     return 0;
 }
 
-static int 
+static int
 TrigBurstDurStream_clear(TrigBurstDurStream *self)
 {
     pyo_CLEAR
-    Py_CLEAR(self->mainPlayer);    
+    Py_CLEAR(self->mainPlayer);
     return 0;
 }
 
@@ -4935,37 +4935,37 @@ TrigBurstDurStream_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *maintmp=NULL;
     TrigBurstDurStream *self;
     self = (TrigBurstDurStream *)type->tp_alloc(type, 0);
-    
+
     self->chnl = 0;
     self->modebuffer[0] = 0;
     self->modebuffer[1] = 0;
-    
+
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, TrigBurstDurStream_compute_next_data_frame);
     self->mode_func_ptr = TrigBurstDurStream_setProcMode;
 
     static char *kwlist[] = {"mainPlayer", "chnl", NULL};
-    
+
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|i", kwlist, &maintmp, &self->chnl))
         Py_RETURN_NONE;
-    
+
     Py_XDECREF(self->mainPlayer);
     Py_INCREF(maintmp);
     self->mainPlayer = (TrigBurster *)maintmp;
-    
+
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
-    
+
     (*self->mode_func_ptr)(self);
-    
+
     return (PyObject *)self;
 }
 
 static PyObject * TrigBurstDurStream_getServer(TrigBurstDurStream* self) { GET_SERVER };
 static PyObject * TrigBurstDurStream_getStream(TrigBurstDurStream* self) { GET_STREAM };
-static PyObject * TrigBurstDurStream_setMul(TrigBurstDurStream *self, PyObject *arg) { SET_MUL };	
-static PyObject * TrigBurstDurStream_setAdd(TrigBurstDurStream *self, PyObject *arg) { SET_ADD };	
-static PyObject * TrigBurstDurStream_setSub(TrigBurstDurStream *self, PyObject *arg) { SET_SUB };	
-static PyObject * TrigBurstDurStream_setDiv(TrigBurstDurStream *self, PyObject *arg) { SET_DIV };	
+static PyObject * TrigBurstDurStream_setMul(TrigBurstDurStream *self, PyObject *arg) { SET_MUL };
+static PyObject * TrigBurstDurStream_setAdd(TrigBurstDurStream *self, PyObject *arg) { SET_ADD };
+static PyObject * TrigBurstDurStream_setSub(TrigBurstDurStream *self, PyObject *arg) { SET_SUB };
+static PyObject * TrigBurstDurStream_setDiv(TrigBurstDurStream *self, PyObject *arg) { SET_DIV };
 
 static PyObject * TrigBurstDurStream_play(TrigBurstDurStream *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * TrigBurstDurStream_out(TrigBurstDurStream *self, PyObject *args, PyObject *kwds) { OUT };
@@ -5091,7 +5091,7 @@ PyTypeObject TrigBurstDurStreamType = {
 typedef struct {
     pyo_audio_HEAD
     TrigBurster *mainPlayer;
-    int chnl; 
+    int chnl;
     int modebuffer[2];
 } TrigBurstEndStream;
 
@@ -5109,36 +5109,36 @@ static void
 TrigBurstEndStream_setProcMode(TrigBurstEndStream *self) {
     int muladdmode;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
-    
+
     switch (muladdmode) {
-        case 0:        
+        case 0:
             self->muladd_func_ptr = TrigBurstEndStream_postprocessing_ii;
             break;
-        case 1:    
+        case 1:
             self->muladd_func_ptr = TrigBurstEndStream_postprocessing_ai;
             break;
-        case 2:    
+        case 2:
             self->muladd_func_ptr = TrigBurstEndStream_postprocessing_revai;
             break;
-        case 10:        
+        case 10:
             self->muladd_func_ptr = TrigBurstEndStream_postprocessing_ia;
             break;
-        case 11:    
+        case 11:
             self->muladd_func_ptr = TrigBurstEndStream_postprocessing_aa;
             break;
-        case 12:    
+        case 12:
             self->muladd_func_ptr = TrigBurstEndStream_postprocessing_revaa;
             break;
-        case 20:        
+        case 20:
             self->muladd_func_ptr = TrigBurstEndStream_postprocessing_ireva;
             break;
-        case 21:    
+        case 21:
             self->muladd_func_ptr = TrigBurstEndStream_postprocessing_areva;
             break;
-        case 22:    
+        case 22:
             self->muladd_func_ptr = TrigBurstEndStream_postprocessing_revareva;
             break;
-    }  
+    }
 }
 
 static void
@@ -5150,7 +5150,7 @@ TrigBurstEndStream_compute_next_data_frame(TrigBurstEndStream *self)
     tmp = TrigBurster_getEndBuffer((TrigBurster *)self->mainPlayer);
     for (i=0; i<self->bufsize; i++) {
         self->data[i] = tmp[i + offset];
-    }    
+    }
     (*self->muladd_func_ptr)(self);
 }
 
@@ -5162,11 +5162,11 @@ TrigBurstEndStream_traverse(TrigBurstEndStream *self, visitproc visit, void *arg
     return 0;
 }
 
-static int 
+static int
 TrigBurstEndStream_clear(TrigBurstEndStream *self)
 {
     pyo_CLEAR
-    Py_CLEAR(self->mainPlayer);    
+    Py_CLEAR(self->mainPlayer);
     return 0;
 }
 
@@ -5185,37 +5185,37 @@ TrigBurstEndStream_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *maintmp=NULL;
     TrigBurstEndStream *self;
     self = (TrigBurstEndStream *)type->tp_alloc(type, 0);
-    
+
     self->chnl = 0;
     self->modebuffer[0] = 0;
     self->modebuffer[1] = 0;
-    
+
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, TrigBurstEndStream_compute_next_data_frame);
     self->mode_func_ptr = TrigBurstEndStream_setProcMode;
 
     static char *kwlist[] = {"mainPlayer", "chnl", NULL};
-    
+
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|i", kwlist, &maintmp, &self->chnl))
         Py_RETURN_NONE;
-    
+
     Py_XDECREF(self->mainPlayer);
     Py_INCREF(maintmp);
     self->mainPlayer = (TrigBurster *)maintmp;
-    
+
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
-    
+
     (*self->mode_func_ptr)(self);
-    
+
     return (PyObject *)self;
 }
 
 static PyObject * TrigBurstEndStream_getServer(TrigBurstEndStream* self) { GET_SERVER };
 static PyObject * TrigBurstEndStream_getStream(TrigBurstEndStream* self) { GET_STREAM };
-static PyObject * TrigBurstEndStream_setMul(TrigBurstEndStream *self, PyObject *arg) { SET_MUL };	
-static PyObject * TrigBurstEndStream_setAdd(TrigBurstEndStream *self, PyObject *arg) { SET_ADD };	
-static PyObject * TrigBurstEndStream_setSub(TrigBurstEndStream *self, PyObject *arg) { SET_SUB };	
-static PyObject * TrigBurstEndStream_setDiv(TrigBurstEndStream *self, PyObject *arg) { SET_DIV };	
+static PyObject * TrigBurstEndStream_setMul(TrigBurstEndStream *self, PyObject *arg) { SET_MUL };
+static PyObject * TrigBurstEndStream_setAdd(TrigBurstEndStream *self, PyObject *arg) { SET_ADD };
+static PyObject * TrigBurstEndStream_setSub(TrigBurstEndStream *self, PyObject *arg) { SET_SUB };
+static PyObject * TrigBurstEndStream_setDiv(TrigBurstEndStream *self, PyObject *arg) { SET_DIV };
 
 static PyObject * TrigBurstEndStream_play(TrigBurstEndStream *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * TrigBurstEndStream_out(TrigBurstEndStream *self, PyObject *args, PyObject *kwds) { OUT };
@@ -5247,7 +5247,7 @@ static PyMethodDef TrigBurstEndStream_methods[] = {
     {"setMul", (PyCFunction)TrigBurstEndStream_setMul, METH_O, "Sets oscillator mul factor."},
     {"setAdd", (PyCFunction)TrigBurstEndStream_setAdd, METH_O, "Sets oscillator add factor."},
     {"setSub", (PyCFunction)TrigBurstEndStream_setSub, METH_O, "Sets inverse add factor."},
-    {"setDiv", (PyCFunction)TrigBurstEndStream_setDiv, METH_O, "Sets inverse mul factor."},    
+    {"setDiv", (PyCFunction)TrigBurstEndStream_setDiv, METH_O, "Sets inverse mul factor."},
     {NULL}  /* Sentinel */
 };
 

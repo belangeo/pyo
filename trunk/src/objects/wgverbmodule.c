@@ -1,21 +1,21 @@
-/*************************************************************************
- * Copyright 2010 Olivier Belanger                                        *                  
- *                                                                        * 
+/**************************************************************************
+ * Copyright 2009-2015 Olivier Belanger                                   *
+ *                                                                        *
  * This file is part of pyo, a python module to help digital signal       *
- * processing script creation.                                            *  
- *                                                                        * 
+ * processing script creation.                                            *
+ *                                                                        *
  * pyo is free software: you can redistribute it and/or modify            *
- * it under the terms of the GNU General Public License as published by   *
- * the Free Software Foundation, either version 3 of the License, or      *
- * (at your option) any later version.                                    * 
+ * it under the terms of the GNU Lesser General Public License as         *
+ * published by the Free Software Foundation, either version 3 of the     *
+ * License, or (at your option) any later version.                        *
  *                                                                        *
  * pyo is distributed in the hope that it will be useful,                 *
- * but WITHOUT ANY WARRANTY; without even the implied warranty of         *    
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of         *
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the          *
- * GNU General Public License for more details.                           *
+ * GNU Lesser General Public License for more details.                    *
  *                                                                        *
- * You should have received a copy of the GNU General Public License      *
- * along with pyo.  If not, see <http://www.gnu.org/licenses/>.           *
+ * You should have received a copy of the GNU Lesser General Public       *
+ * License along with pyo.  If not, see <http://www.gnu.org/licenses/>.   *
  *************************************************************************/
 
 #include <Python.h>
@@ -78,11 +78,11 @@ static void
 WGVerb_process_ii(WGVerb *self) {
     MYFLT val, x, x1, xind, frac, junction, inval, filt;
     int i, j, ind;
-    
+
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
     MYFLT feed = PyFloat_AS_DOUBLE(self->feedback);
     MYFLT freq = PyFloat_AS_DOUBLE(self->cutoff);
-        
+
     if (feed < 0)
         feed = 0;
     else if (feed > 1)
@@ -93,7 +93,7 @@ WGVerb_process_ii(WGVerb *self) {
         self->damp = 2.0 - MYCOS(TWOPI * freq / self->sr);
         self->damp = (self->damp - MYSQRT(self->damp * self->damp - 1.0));
     }
-    
+
     for (i=0; i<self->bufsize; i++) {
         inval = in[i];
         junction = self->total_signal * .25;
@@ -109,7 +109,7 @@ WGVerb_process_ii(WGVerb *self) {
                 self->rnd_diff[j] = self->rnd_value[j] - self->rnd_oldValue[j];
             }
             self->rnd[j] = self->rnd_oldValue[j] + self->rnd_diff[j] * self->rnd_time[j];
-            
+
             xind = self->in_count[j] - (self->delays[j] + self->rnd[j]);
             if (xind < 0)
                 xind += self->size[j];
@@ -121,7 +121,7 @@ WGVerb_process_ii(WGVerb *self) {
             val *= feed;
             filt = (self->lastSamples[j] - val) * self->damp + val;
             self->total_signal += filt;
-        
+
             self->buffer[j][self->in_count[j]] = inval + junction - self->lastSamples[j];
             self->lastSamples[j] = filt;
             if(self->in_count[j] == 0)
@@ -129,7 +129,7 @@ WGVerb_process_ii(WGVerb *self) {
             self->in_count[j]++;
             if (self->in_count[j] >= self->size[j])
                 self->in_count[j] = 0;
-        } 
+        }
         self->data[i] = self->total_signal * 0.25;
     }
 }
@@ -138,24 +138,24 @@ static void
 WGVerb_process_ai(WGVerb *self) {
     MYFLT val, x, x1, xind, frac, junction, inval, filt, feed;
     int i, j, ind;
-    
+
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
     MYFLT *feedback = Stream_getData((Stream *)self->feedback_stream);
     MYFLT freq = PyFloat_AS_DOUBLE(self->cutoff);
-        
+
     if (freq != self->lastFreq) {
         self->lastFreq = freq;
         self->damp = 2.0 - MYCOS(TWOPI * freq / self->sr);
         self->damp = (self->damp - MYSQRT(self->damp * self->damp - 1.0));
     }
-    
+
     for (i=0; i<self->bufsize; i++) {
         inval = in[i];
         feed = feedback[i];
         if (feed < 0)
             feed = 0;
         else if (feed > 1)
-            feed = 1;        
+            feed = 1;
         junction = self->total_signal * .25;
         self->total_signal = 0.0;
         for (j=0; j<8; j++) {
@@ -169,7 +169,7 @@ WGVerb_process_ai(WGVerb *self) {
                 self->rnd_diff[j] = self->rnd_value[j] - self->rnd_oldValue[j];
             }
             self->rnd[j] = self->rnd_oldValue[j] + self->rnd_diff[j] * self->rnd_time[j];
-            
+
             xind = self->in_count[j] - (self->delays[j] + self->rnd[j]);
             if (xind < 0)
                 xind += self->size[j];
@@ -181,7 +181,7 @@ WGVerb_process_ai(WGVerb *self) {
             val *= feed;
             filt = (self->lastSamples[j] - val) * self->damp + val;
             self->total_signal += filt;
-            
+
             self->buffer[j][self->in_count[j]] = inval + junction - self->lastSamples[j];
             self->lastSamples[j] = filt;
             if(self->in_count[j] == 0)
@@ -189,20 +189,20 @@ WGVerb_process_ai(WGVerb *self) {
             self->in_count[j]++;
             if (self->in_count[j] >= self->size[j])
                 self->in_count[j] = 0;
-        } 
+        }
         self->data[i] = self->total_signal * 0.25;
-    }    
+    }
 }
 
 static void
 WGVerb_process_ia(WGVerb *self) {
     MYFLT val, x, x1, xind, frac, junction, inval, filt, freq;
     int i, j, ind;
-    
+
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
     MYFLT feed = PyFloat_AS_DOUBLE(self->feedback);
     MYFLT *cutoff = Stream_getData((Stream *)self->cutoff_stream);
-    
+
     if (feed < 0)
         feed = 0;
     else if (feed > 1)
@@ -215,7 +215,7 @@ WGVerb_process_ia(WGVerb *self) {
             self->lastFreq = freq;
             self->damp = 2.0 - MYCOS(TWOPI * freq / self->sr);
             self->damp = (self->damp - MYSQRT(self->damp * self->damp - 1.0));
-        }        
+        }
         junction = self->total_signal * .25;
         self->total_signal = 0.0;
         for (j=0; j<8; j++) {
@@ -229,7 +229,7 @@ WGVerb_process_ia(WGVerb *self) {
                 self->rnd_diff[j] = self->rnd_value[j] - self->rnd_oldValue[j];
             }
             self->rnd[j] = self->rnd_oldValue[j] + self->rnd_diff[j] * self->rnd_time[j];
-            
+
             xind = self->in_count[j] - (self->delays[j] + self->rnd[j]);
             if (xind < 0)
                 xind += self->size[j];
@@ -241,7 +241,7 @@ WGVerb_process_ia(WGVerb *self) {
             val *= feed;
             filt = (self->lastSamples[j] - val) * self->damp + val;
             self->total_signal += filt;
-            
+
             self->buffer[j][self->in_count[j]] = inval + junction - self->lastSamples[j];
             self->lastSamples[j] = filt;
             if(self->in_count[j] == 0)
@@ -249,16 +249,16 @@ WGVerb_process_ia(WGVerb *self) {
             self->in_count[j]++;
             if (self->in_count[j] >= self->size[j])
                 self->in_count[j] = 0;
-        } 
+        }
         self->data[i] = self->total_signal * 0.25;
-    }    
+    }
 }
 
 static void
 WGVerb_process_aa(WGVerb *self) {
     MYFLT val, x, x1, xind, frac, junction, inval, filt, feed, freq;
     int i, j, ind;
-    
+
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
     MYFLT *feedback = Stream_getData((Stream *)self->feedback_stream);
     MYFLT *cutoff = Stream_getData((Stream *)self->cutoff_stream);
@@ -270,12 +270,12 @@ WGVerb_process_aa(WGVerb *self) {
         if (feed < 0)
             feed = 0;
         else if (feed > 1)
-            feed = 1;        
+            feed = 1;
         if (freq != self->lastFreq) {
             self->lastFreq = freq;
             self->damp = 2.0 - MYCOS(TWOPI * freq / self->sr);
             self->damp = (self->damp - MYSQRT(self->damp * self->damp - 1.0));
-        }        
+        }
         junction = self->total_signal * .25;
         self->total_signal = 0.0;
         for (j=0; j<8; j++) {
@@ -289,7 +289,7 @@ WGVerb_process_aa(WGVerb *self) {
                 self->rnd_diff[j] = self->rnd_value[j] - self->rnd_oldValue[j];
             }
             self->rnd[j] = self->rnd_oldValue[j] + self->rnd_diff[j] * self->rnd_time[j];
-            
+
             xind = self->in_count[j] - (self->delays[j] + self->rnd[j]);
             if (xind < 0)
                 xind += self->size[j];
@@ -301,7 +301,7 @@ WGVerb_process_aa(WGVerb *self) {
             val *= feed;
             filt = (self->lastSamples[j] - val) * self->damp + val;
             self->total_signal += filt;
-            
+
             self->buffer[j][self->in_count[j]] = inval + junction - self->lastSamples[j];
             self->lastSamples[j] = filt;
             if(self->in_count[j] == 0)
@@ -309,24 +309,24 @@ WGVerb_process_aa(WGVerb *self) {
             self->in_count[j]++;
             if (self->in_count[j] >= self->size[j])
                 self->in_count[j] = 0;
-        } 
+        }
         self->data[i] = self->total_signal * 0.25;
-    } 
+    }
 }
 
 static void
 WGVerb_mix_i(WGVerb *self) {
     int i;
     MYFLT val;
-    
+
     MYFLT mix = PyFloat_AS_DOUBLE(self->mix);
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
-    
+
     if (mix < 0.0)
         mix = 0.0;
     else if (mix > 1.0)
         mix = 1.0;
-    
+
     for (i=0; i<self->bufsize; i++) {
         val = in[i] * (1.0 - mix) + self->data[i] * mix;
         self->data[i] = val;
@@ -337,17 +337,17 @@ static void
 WGVerb_mix_a(WGVerb *self) {
     int i;
     MYFLT mix, val;
-    
+
     MYFLT *mi = Stream_getData((Stream *)self->mix_stream);
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
-    
+
     for (i=0; i<self->bufsize; i++) {
         mix = mi[i];
         if (mix < 0.0)
             mix = 0.0;
         else if (mix > 1.0)
             mix = 1.0;
-        
+
         val = in[i] * (1.0 - mix) + self->data[i] * mix;
         self->data[i] = val;
     }
@@ -370,66 +370,66 @@ WGVerb_setProcMode(WGVerb *self)
     procmode = self->modebuffer[2] + self->modebuffer[3] * 10;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
     mixmode = self->modebuffer[4];
-    
+
 	switch (procmode) {
-        case 0:    
+        case 0:
             self->proc_func_ptr = WGVerb_process_ii;
             break;
-        case 1:    
+        case 1:
             self->proc_func_ptr = WGVerb_process_ai;
             break;
-        case 10:    
+        case 10:
             self->proc_func_ptr = WGVerb_process_ia;
             break;
-        case 11:    
+        case 11:
             self->proc_func_ptr = WGVerb_process_aa;
             break;
-    } 
+    }
     switch (mixmode) {
-        case 0:    
+        case 0:
             self->mix_func_ptr = WGVerb_mix_i;
             break;
-        case 1:    
+        case 1:
             self->mix_func_ptr = WGVerb_mix_a;
             break;
-    }        
-            
+    }
+
 	switch (muladdmode) {
-        case 0:        
+        case 0:
             self->muladd_func_ptr = WGVerb_postprocessing_ii;
             break;
-        case 1:    
+        case 1:
             self->muladd_func_ptr = WGVerb_postprocessing_ai;
             break;
-        case 2:    
+        case 2:
             self->muladd_func_ptr = WGVerb_postprocessing_revai;
             break;
-        case 10:        
+        case 10:
             self->muladd_func_ptr = WGVerb_postprocessing_ia;
             break;
-        case 11:    
+        case 11:
             self->muladd_func_ptr = WGVerb_postprocessing_aa;
             break;
-        case 12:    
+        case 12:
             self->muladd_func_ptr = WGVerb_postprocessing_revaa;
             break;
-        case 20:        
+        case 20:
             self->muladd_func_ptr = WGVerb_postprocessing_ireva;
             break;
-        case 21:    
+        case 21:
             self->muladd_func_ptr = WGVerb_postprocessing_areva;
             break;
-        case 22:    
+        case 22:
             self->muladd_func_ptr = WGVerb_postprocessing_revareva;
             break;
-    } 
+    }
 }
 
 static void
 WGVerb_compute_next_data_frame(WGVerb *self)
 {
-    (*self->proc_func_ptr)(self); 
-    (*self->mix_func_ptr)(self); 
+    (*self->proc_func_ptr)(self);
+    (*self->mix_func_ptr)(self);
     (*self->muladd_func_ptr)(self);
 }
 
@@ -438,28 +438,28 @@ WGVerb_traverse(WGVerb *self, visitproc visit, void *arg)
 {
     pyo_VISIT
     Py_VISIT(self->input);
-    Py_VISIT(self->input_stream);    
-    Py_VISIT(self->feedback);    
-    Py_VISIT(self->feedback_stream);    
-    Py_VISIT(self->cutoff);    
-    Py_VISIT(self->cutoff_stream);    
-    Py_VISIT(self->mix);    
-    Py_VISIT(self->mix_stream);    
+    Py_VISIT(self->input_stream);
+    Py_VISIT(self->feedback);
+    Py_VISIT(self->feedback_stream);
+    Py_VISIT(self->cutoff);
+    Py_VISIT(self->cutoff_stream);
+    Py_VISIT(self->mix);
+    Py_VISIT(self->mix_stream);
     return 0;
 }
 
-static int 
+static int
 WGVerb_clear(WGVerb *self)
 {
     pyo_CLEAR
     Py_CLEAR(self->input);
-    Py_CLEAR(self->input_stream);    
-    Py_CLEAR(self->feedback);    
-    Py_CLEAR(self->feedback_stream);    
-    Py_CLEAR(self->cutoff);    
-    Py_CLEAR(self->cutoff_stream);    
-    Py_CLEAR(self->mix);    
-    Py_CLEAR(self->mix_stream);    
+    Py_CLEAR(self->input_stream);
+    Py_CLEAR(self->feedback);
+    Py_CLEAR(self->feedback_stream);
+    Py_CLEAR(self->cutoff);
+    Py_CLEAR(self->cutoff_stream);
+    Py_CLEAR(self->mix);
+    Py_CLEAR(self->mix_stream);
     return 0;
 }
 
@@ -470,7 +470,7 @@ WGVerb_dealloc(WGVerb* self)
     pyo_DEALLOC
     for (i=0; i<8; i++) {
         free(self->buffer[i]);
-    }    
+    }
     WGVerb_clear(self);
     self->ob_type->tp_free((PyObject*)self);
 }
@@ -482,23 +482,23 @@ WGVerb_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp, *feedbacktmp=NULL, *cutofftmp=NULL, *mixtmp=NULL, *multmp=NULL, *addtmp=NULL;
     WGVerb *self;
     self = (WGVerb *)type->tp_alloc(type, 0);
-    
+
     self->feedback = PyFloat_FromDouble(0.5);
     self->cutoff = PyFloat_FromDouble(5000.0);
     self->mix = PyFloat_FromDouble(0.5);
     self->lastFreq = self->damp = 0.0;
-    
+
     self->total_signal = 0.0;
 	self->modebuffer[0] = 0;
 	self->modebuffer[1] = 0;
 	self->modebuffer[2] = 0;
 	self->modebuffer[3] = 0;
 	self->modebuffer[4] = 0;
-    
+
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, WGVerb_compute_next_data_frame);
     self->mode_func_ptr = WGVerb_setProcMode;
-    
+
     for (i=0; i<8; i++) {
         self->in_count[i] = 0;
         self->lastSamples[i] = 0.0;
@@ -511,12 +511,12 @@ WGVerb_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     }
 
     static char *kwlist[] = {"input", "feedback", "cutoff", "mix", "mul", "add", NULL};
-    
+
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOOOO", kwlist, &inputtmp, &feedbacktmp, &cutofftmp, &mixtmp, &multmp, &addtmp))
         Py_RETURN_NONE;
-    
+
     INIT_INPUT_STREAM
-       
+
     if (feedbacktmp) {
         PyObject_CallMethod((PyObject *)self, "setFeedback", "O", feedbacktmp);
     }
@@ -528,15 +528,15 @@ WGVerb_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (mixtmp) {
         PyObject_CallMethod((PyObject *)self, "setMix", "O", mixtmp);
     }
-    
+
     if (multmp) {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
     }
-    
+
     if (addtmp) {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
-    
+
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
     for (i=0; i<8; i++) {
@@ -544,9 +544,9 @@ WGVerb_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         self->buffer[i] = (MYFLT *)realloc(self->buffer[i], (self->size[i]+1) * sizeof(MYFLT));
         for (j=0; j<(self->size[i]+1); j++) {
             self->buffer[i][j] = 0.;
-        }    
-    }    
-    
+        }
+    }
+
     (*self->mode_func_ptr)(self);
 
     return (PyObject *)self;
@@ -554,10 +554,10 @@ WGVerb_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
 static PyObject * WGVerb_getServer(WGVerb* self) { GET_SERVER };
 static PyObject * WGVerb_getStream(WGVerb* self) { GET_STREAM };
-static PyObject * WGVerb_setMul(WGVerb *self, PyObject *arg) { SET_MUL };	
-static PyObject * WGVerb_setAdd(WGVerb *self, PyObject *arg) { SET_ADD };	
-static PyObject * WGVerb_setSub(WGVerb *self, PyObject *arg) { SET_SUB };	
-static PyObject * WGVerb_setDiv(WGVerb *self, PyObject *arg) { SET_DIV };	
+static PyObject * WGVerb_setMul(WGVerb *self, PyObject *arg) { SET_MUL };
+static PyObject * WGVerb_setAdd(WGVerb *self, PyObject *arg) { SET_ADD };
+static PyObject * WGVerb_setSub(WGVerb *self, PyObject *arg) { SET_SUB };
+static PyObject * WGVerb_setDiv(WGVerb *self, PyObject *arg) { SET_DIV };
 
 static PyObject * WGVerb_play(WGVerb *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * WGVerb_out(WGVerb *self, PyObject *args, PyObject *kwds) { OUT };
@@ -576,14 +576,14 @@ static PyObject *
 WGVerb_setFeedback(WGVerb *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
-	
+
 	if (arg == NULL) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
 	int isNumber = PyNumber_Check(arg);
-    
+
 	tmp = arg;
 	Py_INCREF(tmp);
 	Py_DECREF(self->feedback);
@@ -599,25 +599,25 @@ WGVerb_setFeedback(WGVerb *self, PyObject *arg)
         self->feedback_stream = (Stream *)streamtmp;
 		self->modebuffer[2] = 1;
 	}
-    
+
     (*self->mode_func_ptr)(self);
-    
+
 	Py_INCREF(Py_None);
 	return Py_None;
-}	
+}
 
 static PyObject *
 WGVerb_setCutoff(WGVerb *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
-	
+
 	if (arg == NULL) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
 	int isNumber = PyNumber_Check(arg);
-    
+
 	tmp = arg;
 	Py_INCREF(tmp);
 	Py_DECREF(self->cutoff);
@@ -633,25 +633,25 @@ WGVerb_setCutoff(WGVerb *self, PyObject *arg)
         self->cutoff_stream = (Stream *)streamtmp;
 		self->modebuffer[3] = 1;
 	}
-    
+
     (*self->mode_func_ptr)(self);
-    
+
 	Py_INCREF(Py_None);
 	return Py_None;
-}	
+}
 
 static PyObject *
 WGVerb_setMix(WGVerb *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
-	
+
 	if (arg == NULL) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
 	int isNumber = PyNumber_Check(arg);
-    
+
 	tmp = arg;
 	Py_INCREF(tmp);
 	Py_DECREF(self->mix);
@@ -667,12 +667,12 @@ WGVerb_setMix(WGVerb *self, PyObject *arg)
         self->mix_stream = (Stream *)streamtmp;
 		self->modebuffer[4] = 1;
 	}
-    
+
     (*self->mode_func_ptr)(self);
-    
+
 	Py_INCREF(Py_None);
 	return Py_None;
-}	
+}
 
 static PyMemberDef WGVerb_members[] = {
 {"server", T_OBJECT_EX, offsetof(WGVerb, server), 0, "Pyo server."},
@@ -841,7 +841,7 @@ STReverb_process_ii(STReverb *self) {
     MYFLT ref_amp_l[NUM_REFS];
     MYFLT ref_amp_r[NUM_REFS];
     MYFLT ref_buf[2];
-    
+
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
     MYFLT inpos = PyFloat_AS_DOUBLE(self->inpos);
     if (self->modebuffer[1] == 0)
@@ -849,12 +849,12 @@ STReverb_process_ii(STReverb *self) {
     else
         feed = Stream_getData((Stream *)self->revtime_stream)[0];
     MYFLT freq = PyFloat_AS_DOUBLE(self->cutoff);
-        
+
     if (inpos < 0.0)
         inpos = 0.0;
     else if (inpos > 1.0)
         inpos = 1.0;
-       
+
     if (feed < 0.01)
         feed = 0.01;
     feed = MYPOW(100.0, -self->avg_time/feed);
@@ -929,7 +929,7 @@ STReverb_process_ii(STReverb *self) {
                     self->rnd_diff[k][j] = self->rnd_value[k][j] - self->rnd_oldValue[k][j];
                 }
                 self->rnd[k][j] = self->rnd_oldValue[k][j] + self->rnd_diff[k][j] * self->rnd_time[k][j];
-                
+
                 xind = self->in_count[k][j] - (self->delays[k][j] + self->rnd[k][j]);
                 if (xind < 0)
                     xind += self->size[k][j];
@@ -941,7 +941,7 @@ STReverb_process_ii(STReverb *self) {
                 val *= feed;
                 filt = val + (self->lastSamples[k][j] - val) * self->damp[k];
                 self->total_signal[k] += filt;
-            
+
                 self->buffer[k][j][self->in_count[k][j]] = inval + junction - self->lastSamples[k][j];
                 self->lastSamples[k][j] = filt;
                 if(self->in_count[k][j] == 0)
@@ -949,7 +949,7 @@ STReverb_process_ii(STReverb *self) {
                 self->in_count[k][j]++;
                 if (self->in_count[k][j] >= self->size[k][j])
                     self->in_count[k][j] = 0;
-            } 
+            }
             self->buffer_streams[i+k*self->bufsize] = self->total_signal[k] * 0.25;
         }
     }
@@ -962,7 +962,7 @@ STReverb_process_ai(STReverb *self) {
     MYFLT ref_amp_r[NUM_REFS];
     MYFLT ref_buf[2];
     int i, j, k, k2, ind, half;
-    
+
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
     MYFLT *pos = Stream_getData((Stream *)self->inpos_stream);
     if (self->modebuffer[1] == 0)
@@ -1050,7 +1050,7 @@ STReverb_process_ai(STReverb *self) {
                     self->rnd_diff[k][j] = self->rnd_value[k][j] - self->rnd_oldValue[k][j];
                 }
                 self->rnd[k][j] = self->rnd_oldValue[k][j] + self->rnd_diff[k][j] * self->rnd_time[k][j];
-                
+
                 xind = self->in_count[k][j] - (self->delays[k][j] + self->rnd[k][j]);
                 if (xind < 0)
                     xind += self->size[k][j];
@@ -1062,7 +1062,7 @@ STReverb_process_ai(STReverb *self) {
                 val *= feed;
                 filt = val + (self->lastSamples[k][j] - val) * self->damp[k];
                 self->total_signal[k] += filt;
-            
+
                 self->buffer[k][j][self->in_count[k][j]] = inval + junction - self->lastSamples[k][j];
                 self->lastSamples[k][j] = filt;
                 if(self->in_count[k][j] == 0)
@@ -1070,7 +1070,7 @@ STReverb_process_ai(STReverb *self) {
                 self->in_count[k][j]++;
                 if (self->in_count[k][j] >= self->size[k][j])
                     self->in_count[k][j] = 0;
-            } 
+            }
             self->buffer_streams[i+k*self->bufsize] = self->total_signal[k] * 0.25;
         }
     }
@@ -1083,7 +1083,7 @@ STReverb_process_ia(STReverb *self) {
     MYFLT ref_amp_r[NUM_REFS];
     MYFLT ref_buf[2];
     int i, j, k, k2, ind, half;
-    
+
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
     MYFLT inpos = PyFloat_AS_DOUBLE(self->inpos);
     if (self->modebuffer[1] == 0)
@@ -1091,12 +1091,12 @@ STReverb_process_ia(STReverb *self) {
     else
         feed = Stream_getData((Stream *)self->revtime_stream)[0];
     MYFLT *fr = Stream_getData((Stream *)self->cutoff_stream);
-        
+
     if (inpos < 0.0)
         inpos = 0.0;
     else if (inpos > 1.0)
         inpos = 1.0;
-       
+
     if (feed < 0.01)
         feed = 0.01;
     feed = MYPOW(100.0, -self->avg_time/feed);
@@ -1172,7 +1172,7 @@ STReverb_process_ia(STReverb *self) {
                     self->rnd_diff[k][j] = self->rnd_value[k][j] - self->rnd_oldValue[k][j];
                 }
                 self->rnd[k][j] = self->rnd_oldValue[k][j] + self->rnd_diff[k][j] * self->rnd_time[k][j];
-                
+
                 xind = self->in_count[k][j] - (self->delays[k][j] + self->rnd[k][j]);
                 if (xind < 0)
                     xind += self->size[k][j];
@@ -1184,7 +1184,7 @@ STReverb_process_ia(STReverb *self) {
                 val *= feed;
                 filt = val + (self->lastSamples[k][j] - val) * self->damp[k];
                 self->total_signal[k] += filt;
-            
+
                 self->buffer[k][j][self->in_count[k][j]] = inval + junction - self->lastSamples[k][j];
                 self->lastSamples[k][j] = filt;
                 if(self->in_count[k][j] == 0)
@@ -1192,7 +1192,7 @@ STReverb_process_ia(STReverb *self) {
                 self->in_count[k][j]++;
                 if (self->in_count[k][j] >= self->size[k][j])
                     self->in_count[k][j] = 0;
-            } 
+            }
             self->buffer_streams[i+k*self->bufsize] = self->total_signal[k] * 0.25;
         }
     }
@@ -1205,7 +1205,7 @@ STReverb_process_aa(STReverb *self) {
     MYFLT ref_amp_r[NUM_REFS];
     MYFLT ref_buf[2];
     int i, j, k, k2, ind, half;
-    
+
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
     MYFLT *pos = Stream_getData((Stream *)self->inpos_stream);
     if (self->modebuffer[1] == 0)
@@ -1294,7 +1294,7 @@ STReverb_process_aa(STReverb *self) {
                     self->rnd_diff[k][j] = self->rnd_value[k][j] - self->rnd_oldValue[k][j];
                 }
                 self->rnd[k][j] = self->rnd_oldValue[k][j] + self->rnd_diff[k][j] * self->rnd_time[k][j];
-                
+
                 xind = self->in_count[k][j] - (self->delays[k][j] + self->rnd[k][j]);
                 if (xind < 0)
                     xind += self->size[k][j];
@@ -1306,7 +1306,7 @@ STReverb_process_aa(STReverb *self) {
                 val *= feed;
                 filt = val + (self->lastSamples[k][j] - val) * self->damp[k];
                 self->total_signal[k] += filt;
-            
+
                 self->buffer[k][j][self->in_count[k][j]] = inval + junction - self->lastSamples[k][j];
                 self->lastSamples[k][j] = filt;
                 if(self->in_count[k][j] == 0)
@@ -1314,7 +1314,7 @@ STReverb_process_aa(STReverb *self) {
                 self->in_count[k][j]++;
                 if (self->in_count[k][j] >= self->size[k][j])
                     self->in_count[k][j] = 0;
-            } 
+            }
             self->buffer_streams[i+k*self->bufsize] = self->total_signal[k] * 0.25;
         }
     }
@@ -1324,14 +1324,14 @@ static void
 STReverb_mix_i(STReverb *self) {
     int i, k;
     MYFLT val;
-    
+
     MYFLT mix = PyFloat_AS_DOUBLE(self->mix);
-    
+
     if (mix < 0.0)
         mix = 0.0;
     else if (mix > 1.0)
         mix = 1.0;
-    
+
     for (i=0; i<self->bufsize; i++) {
         for (k=0; k<2; k++) {
             val = self->input_buffer[k][i] + (self->buffer_streams[i+k*self->bufsize] - self->input_buffer[k][i]) * mix;
@@ -1344,16 +1344,16 @@ static void
 STReverb_mix_a(STReverb *self) {
     int i, k;
     MYFLT mix, val;
-    
+
     MYFLT *mi = Stream_getData((Stream *)self->mix_stream);
-    
+
     for (i=0; i<self->bufsize; i++) {
         mix = mi[i];
         if (mix < 0.0)
             mix = 0.0;
         else if (mix > 1.0)
             mix = 1.0;
-        
+
         for (k=0; k<2; k++) {
             val = self->input_buffer[k][i] + (self->buffer_streams[i+k*self->bufsize] - self->input_buffer[k][i]) * mix;
             self->buffer_streams[i+k*self->bufsize] = val;
@@ -1367,26 +1367,26 @@ STReverb_setProcMode(STReverb *self)
     int procmode, mixmode;
     procmode = self->modebuffer[0] + self->modebuffer[2] * 10;
     mixmode = self->modebuffer[3];
-    
+
 	switch (procmode) {
-        case 0:    
+        case 0:
             self->proc_func_ptr = STReverb_process_ii;
             break;
-        case 1:    
+        case 1:
             self->proc_func_ptr = STReverb_process_ai;
             break;
-        case 10:    
+        case 10:
             self->proc_func_ptr = STReverb_process_ia;
             break;
-        case 11:    
+        case 11:
             self->proc_func_ptr = STReverb_process_aa;
             break;
-    } 
+    }
     switch (mixmode) {
-        case 0:    
+        case 0:
             self->mix_func_ptr = STReverb_mix_i;
             break;
-        case 1:    
+        case 1:
             self->mix_func_ptr = STReverb_mix_a;
             break;
     }
@@ -1396,13 +1396,13 @@ MYFLT *
 STReverb_getSamplesBuffer(STReverb *self)
 {
     return (MYFLT *)self->buffer_streams;
-}    
+}
 
 static void
 STReverb_compute_next_data_frame(STReverb *self)
 {
-    (*self->proc_func_ptr)(self); 
-    (*self->mix_func_ptr)(self); 
+    (*self->proc_func_ptr)(self);
+    (*self->mix_func_ptr)(self);
 }
 
 static int
@@ -1410,32 +1410,32 @@ STReverb_traverse(STReverb *self, visitproc visit, void *arg)
 {
     pyo_VISIT
     Py_VISIT(self->input);
-    Py_VISIT(self->input_stream);    
-    Py_VISIT(self->inpos);    
-    Py_VISIT(self->inpos_stream);    
-    Py_VISIT(self->revtime);    
-    Py_VISIT(self->revtime_stream);    
-    Py_VISIT(self->cutoff);    
-    Py_VISIT(self->cutoff_stream);    
-    Py_VISIT(self->mix);    
-    Py_VISIT(self->mix_stream);    
+    Py_VISIT(self->input_stream);
+    Py_VISIT(self->inpos);
+    Py_VISIT(self->inpos_stream);
+    Py_VISIT(self->revtime);
+    Py_VISIT(self->revtime_stream);
+    Py_VISIT(self->cutoff);
+    Py_VISIT(self->cutoff_stream);
+    Py_VISIT(self->mix);
+    Py_VISIT(self->mix_stream);
     return 0;
 }
 
-static int 
+static int
 STReverb_clear(STReverb *self)
 {
     pyo_CLEAR
     Py_CLEAR(self->input);
-    Py_CLEAR(self->input_stream);    
-    Py_CLEAR(self->inpos);    
-    Py_CLEAR(self->inpos_stream);    
-    Py_CLEAR(self->revtime);    
-    Py_CLEAR(self->revtime_stream);    
-    Py_CLEAR(self->cutoff);    
-    Py_CLEAR(self->cutoff_stream);    
-    Py_CLEAR(self->mix);    
-    Py_CLEAR(self->mix_stream);    
+    Py_CLEAR(self->input_stream);
+    Py_CLEAR(self->inpos);
+    Py_CLEAR(self->inpos_stream);
+    Py_CLEAR(self->revtime);
+    Py_CLEAR(self->revtime_stream);
+    Py_CLEAR(self->cutoff);
+    Py_CLEAR(self->cutoff_stream);
+    Py_CLEAR(self->mix);
+    Py_CLEAR(self->mix_stream);
     return 0;
 }
 
@@ -1468,7 +1468,7 @@ STReverb_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp, *inpostmp=NULL, *revtimetmp=NULL, *cutofftmp=NULL, *mixtmp=NULL;
     STReverb *self;
     self = (STReverb *)type->tp_alloc(type, 0);
-    
+
     self->inpos = PyFloat_FromDouble(0.5);
     self->revtime = PyFloat_FromDouble(0.5);
     self->cutoff = PyFloat_FromDouble(5000.0);
@@ -1478,9 +1478,9 @@ STReverb_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 	self->modebuffer[0] = 0;
 	self->modebuffer[1] = 0;
 	self->modebuffer[2] = 0;
-    
+
     INIT_OBJECT_COMMON
-    
+
     self->nyquist = self->sr * 0.49;
     self->srfac = self->sr / 44100.0;
 
@@ -1488,16 +1488,16 @@ STReverb_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->mode_func_ptr = STReverb_setProcMode;
 
     static char *kwlist[] = {"input", "inpos", "revtime", "cutoff", "mix", "roomSize", "firstRefGain", NULL};
-    
+
     if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_O_OOOOFF, kwlist, &inputtmp, &inpostmp, &revtimetmp, &cutofftmp, &mixtmp, &roomSize, &firstRefTmp))
         Py_RETURN_NONE;
-    
+
     INIT_INPUT_STREAM
 
     if (inpostmp) {
         PyObject_CallMethod((PyObject *)self, "setInpos", "O", inpostmp);
     }
-       
+
     if (revtimetmp) {
         PyObject_CallMethod((PyObject *)self, "setRevtime", "O", revtimetmp);
     }
@@ -1537,7 +1537,7 @@ STReverb_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
             for (j=0; j<(maxsize+1); j++) {
                 self->buffer[k][i][j] = 0.;
             }
-        }    
+        }
     }
     self->avg_time /= 16.0;
 
@@ -1578,14 +1578,14 @@ static PyObject *
 STReverb_setInpos(STReverb *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
-	
+
 	if (arg == NULL) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
 	int isNumber = PyNumber_Check(arg);
-    
+
 	tmp = arg;
 	Py_INCREF(tmp);
 	Py_DECREF(self->inpos);
@@ -1601,25 +1601,25 @@ STReverb_setInpos(STReverb *self, PyObject *arg)
         self->inpos_stream = (Stream *)streamtmp;
 		self->modebuffer[0] = 1;
 	}
-    
+
     (*self->mode_func_ptr)(self);
-    
+
 	Py_INCREF(Py_None);
 	return Py_None;
-}	
+}
 
 static PyObject *
 STReverb_setRevtime(STReverb *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
-	
+
 	if (arg == NULL) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
 	int isNumber = PyNumber_Check(arg);
-    
+
 	tmp = arg;
 	Py_INCREF(tmp);
 	Py_DECREF(self->revtime);
@@ -1635,25 +1635,25 @@ STReverb_setRevtime(STReverb *self, PyObject *arg)
         self->revtime_stream = (Stream *)streamtmp;
 		self->modebuffer[1] = 1;
 	}
-    
+
     (*self->mode_func_ptr)(self);
-    
+
 	Py_INCREF(Py_None);
 	return Py_None;
-}	
+}
 
 static PyObject *
 STReverb_setCutoff(STReverb *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
-	
+
 	if (arg == NULL) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
 	int isNumber = PyNumber_Check(arg);
-    
+
 	tmp = arg;
 	Py_INCREF(tmp);
 	Py_DECREF(self->cutoff);
@@ -1669,25 +1669,25 @@ STReverb_setCutoff(STReverb *self, PyObject *arg)
         self->cutoff_stream = (Stream *)streamtmp;
 		self->modebuffer[2] = 1;
 	}
-    
+
     (*self->mode_func_ptr)(self);
-    
+
 	Py_INCREF(Py_None);
 	return Py_None;
-}	
+}
 
 static PyObject *
 STReverb_setMix(STReverb *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
-	
+
 	if (arg == NULL) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
 	int isNumber = PyNumber_Check(arg);
-    
+
 	tmp = arg;
 	Py_INCREF(tmp);
 	Py_DECREF(self->mix);
@@ -1703,12 +1703,12 @@ STReverb_setMix(STReverb *self, PyObject *arg)
         self->mix_stream = (Stream *)streamtmp;
 		self->modebuffer[3] = 1;
 	}
-    
+
     (*self->mode_func_ptr)(self);
-    
+
 	Py_INCREF(Py_None);
 	return Py_None;
-}	
+}
 
 static PyObject *
 STReverb_setRoomSize(STReverb *self, PyObject *arg)
@@ -1716,14 +1716,14 @@ STReverb_setRoomSize(STReverb *self, PyObject *arg)
     int i, j, k, din;
     long maxsize;
 	MYFLT roomSize;
-	
+
 	if (arg == NULL) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
 	int isNumber = PyNumber_Check(arg);
-    
+
 	if (isNumber == 1) {
         roomSize = PyFloat_AS_DOUBLE(PyNumber_Float(arg));
         if (roomSize < 0.25)
@@ -1746,7 +1746,7 @@ STReverb_setRoomSize(STReverb *self, PyObject *arg)
                 for (j=0; j<(maxsize+1); j++) {
                     self->buffer[k][i][j] = 0.;
                 }
-            }    
+            }
         }
         self->avg_time /= 16.0;
 
@@ -1768,14 +1768,14 @@ static PyObject *
 STReverb_setFirstRefGain(STReverb *self, PyObject *arg)
 {
 	MYFLT tmp;
-	
+
 	if (arg == NULL) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
 	int isNumber = PyNumber_Check(arg);
-    
+
 	if (isNumber == 1) {
         tmp = PyFloat_AS_DOUBLE(PyNumber_Float(arg));
         self->firstRefGain = MYPOW(10.0, tmp * 0.05);
@@ -1783,7 +1783,7 @@ STReverb_setFirstRefGain(STReverb *self, PyObject *arg)
 
 	Py_INCREF(Py_None);
 	return Py_None;
-}	
+}
 
 static PyMemberDef STReverb_members[] = {
 {"server", T_OBJECT_EX, offsetof(STReverb, server), 0, "Pyo server."},
@@ -1877,33 +1877,33 @@ STRev_setProcMode(STRev *self)
 {
     int muladdmode;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
-    
+
 	switch (muladdmode) {
-        case 0:        
+        case 0:
             self->muladd_func_ptr = STRev_postprocessing_ii;
             break;
-        case 1:    
+        case 1:
             self->muladd_func_ptr = STRev_postprocessing_ai;
             break;
-        case 2:    
+        case 2:
             self->muladd_func_ptr = STRev_postprocessing_revai;
             break;
-        case 10:        
+        case 10:
             self->muladd_func_ptr = STRev_postprocessing_ia;
             break;
-        case 11:    
+        case 11:
             self->muladd_func_ptr = STRev_postprocessing_aa;
             break;
-        case 12:    
+        case 12:
             self->muladd_func_ptr = STRev_postprocessing_revaa;
             break;
-        case 20:        
+        case 20:
             self->muladd_func_ptr = STRev_postprocessing_ireva;
             break;
-        case 21:    
+        case 21:
             self->muladd_func_ptr = STRev_postprocessing_areva;
             break;
-        case 22:    
+        case 22:
             self->muladd_func_ptr = STRev_postprocessing_revareva;
             break;
     }
@@ -1918,7 +1918,7 @@ STRev_compute_next_data_frame(STRev *self)
     tmp = STReverb_getSamplesBuffer((STReverb *)self->mainSplitter);
     for (i=0; i<self->bufsize; i++) {
         self->data[i] = tmp[i + offset];
-    }    
+    }
     (*self->muladd_func_ptr)(self);
 }
 
@@ -1930,11 +1930,11 @@ STRev_traverse(STRev *self, visitproc visit, void *arg)
     return 0;
 }
 
-static int 
+static int
 STRev_clear(STRev *self)
 {
     pyo_CLEAR
-    Py_CLEAR(self->mainSplitter);    
+    Py_CLEAR(self->mainSplitter);
     return 0;
 }
 
@@ -1953,33 +1953,33 @@ STRev_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *maintmp=NULL, *multmp=NULL, *addtmp=NULL;
     STRev *self;
     self = (STRev *)type->tp_alloc(type, 0);
-    
+
 	self->modebuffer[0] = 0;
 	self->modebuffer[1] = 0;
-    
+
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, STRev_compute_next_data_frame);
     self->mode_func_ptr = STRev_setProcMode;
 
     static char *kwlist[] = {"mainSplitter", "chnl", "mul", "add", NULL};
-    
+
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "Oi|OO", kwlist, &maintmp, &self->chnl, &multmp, &addtmp))
         Py_RETURN_NONE;
 
     Py_XDECREF(self->mainSplitter);
     Py_INCREF(maintmp);
     self->mainSplitter = (STReverb *)maintmp;
-    
+
     if (multmp) {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
     }
-    
+
     if (addtmp) {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
-    
+
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
-    
+
     (*self->mode_func_ptr)(self);
 
     return (PyObject *)self;
@@ -1987,10 +1987,10 @@ STRev_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
 static PyObject * STRev_getServer(STRev* self) { GET_SERVER };
 static PyObject * STRev_getStream(STRev* self) { GET_STREAM };
-static PyObject * STRev_setMul(STRev *self, PyObject *arg) { SET_MUL };	
-static PyObject * STRev_setAdd(STRev *self, PyObject *arg) { SET_ADD };	
-static PyObject * STRev_setSub(STRev *self, PyObject *arg) { SET_SUB };	
-static PyObject * STRev_setDiv(STRev *self, PyObject *arg) { SET_DIV };	
+static PyObject * STRev_setMul(STRev *self, PyObject *arg) { SET_MUL };
+static PyObject * STRev_setAdd(STRev *self, PyObject *arg) { SET_ADD };
+static PyObject * STRev_setSub(STRev *self, PyObject *arg) { SET_SUB };
+static PyObject * STRev_setDiv(STRev *self, PyObject *arg) { SET_DIV };
 
 static PyObject * STRev_play(STRev *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * STRev_out(STRev *self, PyObject *args, PyObject *kwds) { OUT };

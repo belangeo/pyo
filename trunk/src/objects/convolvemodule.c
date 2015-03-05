@@ -1,21 +1,21 @@
-/*************************************************************************
- * Copyright 2010 Olivier Belanger                                        *                  
- *                                                                        * 
+/**************************************************************************
+ * Copyright 2009-2015 Olivier Belanger                                   *
+ *                                                                        *
  * This file is part of pyo, a python module to help digital signal       *
- * processing script creation.                                            *  
- *                                                                        * 
+ * processing script creation.                                            *
+ *                                                                        *
  * pyo is free software: you can redistribute it and/or modify            *
- * it under the terms of the GNU General Public License as published by   *
- * the Free Software Foundation, either version 3 of the License, or      *
- * (at your option) any later version.                                    * 
+ * it under the terms of the GNU Lesser General Public License as         *
+ * published by the Free Software Foundation, either version 3 of the     *
+ * License, or (at your option) any later version.                        *
  *                                                                        *
  * pyo is distributed in the hope that it will be useful,                 *
- * but WITHOUT ANY WARRANTY; without even the implied warranty of         *    
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of         *
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the          *
- * GNU General Public License for more details.                           *
+ * GNU Lesser General Public License for more details.                    *
  *                                                                        *
- * You should have received a copy of the GNU General Public License      *
- * along with pyo.  If not, see <http://www.gnu.org/licenses/>.           *
+ * You should have received a copy of the GNU Lesser General Public       *
+ * License along with pyo.  If not, see <http://www.gnu.org/licenses/>.   *
  *************************************************************************/
 
 #include <Python.h>
@@ -36,7 +36,7 @@ typedef struct {
     PyObject *table;
     PyObject *input;
     Stream *input_stream;
-    int modebuffer[2]; // need at least 2 slots for mul & add 
+    int modebuffer[2]; // need at least 2 slots for mul & add
     MYFLT *input_tmp;
     int size;
     int count;
@@ -57,7 +57,7 @@ Convolve_filters(Convolve *self) {
                 tmp_count += self->size;
             self->data[i] += self->input_tmp[tmp_count--] * impulse[j];
         }
-        
+
         self->count++;
         if (self->count == self->size)
             self->count = 0;
@@ -80,44 +80,44 @@ Convolve_setProcMode(Convolve *self)
 {
     int muladdmode;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
-    
+
     self->proc_func_ptr = Convolve_filters;
-    
+
 	switch (muladdmode) {
-        case 0:        
+        case 0:
             self->muladd_func_ptr = Convolve_postprocessing_ii;
             break;
-        case 1:    
+        case 1:
             self->muladd_func_ptr = Convolve_postprocessing_ai;
             break;
-        case 2:    
+        case 2:
             self->muladd_func_ptr = Convolve_postprocessing_revai;
             break;
-        case 10:        
+        case 10:
             self->muladd_func_ptr = Convolve_postprocessing_ia;
             break;
-        case 11:    
+        case 11:
             self->muladd_func_ptr = Convolve_postprocessing_aa;
             break;
-        case 12:    
+        case 12:
             self->muladd_func_ptr = Convolve_postprocessing_revaa;
             break;
-        case 20:        
+        case 20:
             self->muladd_func_ptr = Convolve_postprocessing_ireva;
             break;
-        case 21:    
+        case 21:
             self->muladd_func_ptr = Convolve_postprocessing_areva;
             break;
-        case 22:    
+        case 22:
             self->muladd_func_ptr = Convolve_postprocessing_revareva;
             break;
-    }   
+    }
 }
 
 static void
 Convolve_compute_next_data_frame(Convolve *self)
 {
-    (*self->proc_func_ptr)(self); 
+    (*self->proc_func_ptr)(self);
     (*self->muladd_func_ptr)(self);
 }
 
@@ -131,7 +131,7 @@ Convolve_traverse(Convolve *self, visitproc visit, void *arg)
     return 0;
 }
 
-static int 
+static int
 Convolve_clear(Convolve *self)
 {
     pyo_CLEAR
@@ -157,20 +157,20 @@ Convolve_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp, *tabletmp, *multmp=NULL, *addtmp=NULL;
     Convolve *self;
     self = (Convolve *)type->tp_alloc(type, 0);
-    
+
     self->count = 0;
 	self->modebuffer[0] = 0;
 	self->modebuffer[1] = 0;
-    
+
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, Convolve_compute_next_data_frame);
     self->mode_func_ptr = Convolve_setProcMode;
 
     static char *kwlist[] = {"input", "table", "size", "mul", "add", NULL};
-    
+
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "OOi|OO", kwlist, &inputtmp, &tabletmp, &self->size, &multmp, &addtmp))
         Py_RETURN_NONE;
-    
+
     INIT_INPUT_STREAM
 
     if ( PyObject_HasAttrString((PyObject *)tabletmp, "getTableStream") == 0 ) {
@@ -179,17 +179,17 @@ Convolve_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     }
     Py_XDECREF(self->table);
     self->table = PyObject_CallMethod((PyObject *)tabletmp, "getTableStream", "");
-    
+
     if (multmp) {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
     }
-    
+
     if (addtmp) {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
-    
+
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
-    
+
     (*self->mode_func_ptr)(self);
 
     self->input_tmp = (MYFLT *)realloc(self->input_tmp, self->size * sizeof(MYFLT));
@@ -202,10 +202,10 @@ Convolve_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
 static PyObject * Convolve_getServer(Convolve* self) { GET_SERVER };
 static PyObject * Convolve_getStream(Convolve* self) { GET_STREAM };
-static PyObject * Convolve_setMul(Convolve *self, PyObject *arg) { SET_MUL };	
-static PyObject * Convolve_setAdd(Convolve *self, PyObject *arg) { SET_ADD };	
-static PyObject * Convolve_setSub(Convolve *self, PyObject *arg) { SET_SUB };	
-static PyObject * Convolve_setDiv(Convolve *self, PyObject *arg) { SET_DIV };	
+static PyObject * Convolve_setMul(Convolve *self, PyObject *arg) { SET_MUL };
+static PyObject * Convolve_setAdd(Convolve *self, PyObject *arg) { SET_ADD };
+static PyObject * Convolve_setSub(Convolve *self, PyObject *arg) { SET_SUB };
+static PyObject * Convolve_setDiv(Convolve *self, PyObject *arg) { SET_DIV };
 
 static PyObject * Convolve_play(Convolve *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * Convolve_out(Convolve *self, PyObject *args, PyObject *kwds) { OUT };
@@ -231,19 +231,19 @@ static PyObject *
 Convolve_setTable(Convolve *self, PyObject *arg)
 {
 	PyObject *tmp;
-	
+
 	if (arg == NULL) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
 	tmp = arg;
 	Py_DECREF(self->table);
     self->table = PyObject_CallMethod((PyObject *)tmp, "getTableStream", "");
-    
+
 	Py_INCREF(Py_None);
 	return Py_None;
-}	
+}
 
 static PyMemberDef Convolve_members[] = {
 {"server", T_OBJECT_EX, offsetof(Convolve, server), 0, "Pyo server."},
@@ -364,7 +364,7 @@ typedef struct {
     Stream *freq_stream;
     PyObject *bandwidth;
     Stream *bandwidth_stream;
-    int modebuffer[4]; // need at least 2 slots for mul & add 
+    int modebuffer[4]; // need at least 2 slots for mul & add
     MYFLT *impulse;
     MYFLT *impulse_tmp;
     MYFLT *input_tmp;
@@ -377,14 +377,14 @@ typedef struct {
     MYFLT last_bandwidth;
 } IRWinSinc;
 
-static void 
+static void
 IRWinSinc_alloc_memory(IRWinSinc *self) {
     int i;
     if ((self->order % 2) != 0)
         self->order += 1;
-    
+
     self->size = self->order + 1;
-    
+
     self->input_tmp = (MYFLT *)realloc(self->input_tmp, self->size * sizeof(MYFLT));
     self->impulse = (MYFLT *)realloc(self->impulse, self->size * sizeof(MYFLT));
     self->impulse_tmp = (MYFLT *)realloc(self->impulse_tmp, self->size * sizeof(MYFLT));
@@ -397,12 +397,12 @@ static void
 IRWinSinc_create_impulse(IRWinSinc *self, MYFLT freq, MYFLT bandwidth) {
     int i, half, ipart;
     MYFLT val, fpart, sum, invSum, env, envPointer, envPointerScaling, sincScaling, w;
-    
+
     half = self->order / 2;
     sum = 0.0;
     envPointerScaling = 1.0 / self->size * 512.0;
     sincScaling = self->order / 2.0;
-    
+
     if (freq < 1)
         freq = 1.0;
     else if (freq > (self->sr*0.5))
@@ -412,12 +412,12 @@ IRWinSinc_create_impulse(IRWinSinc *self, MYFLT freq, MYFLT bandwidth) {
         bandwidth = 1.0;
     else if (bandwidth > (self->sr*0.5))
         bandwidth = self->sr*0.5;
-    
+
     if (self->filtertype <= 1)
         w = TWOPI * freq / self->sr;
     else
         w = TWOPI * (freq - bandwidth / 2.0) / self->sr;
-    
+
     /* LOWPASS */
     for (i=0; i<half; i++) {
         envPointer = i * envPointerScaling;
@@ -438,7 +438,7 @@ IRWinSinc_create_impulse(IRWinSinc *self, MYFLT freq, MYFLT bandwidth) {
     for (i=half+1; i<self->size; i++) {
         self->impulse[i] = self->impulse[self->order-i];
     }
-    
+
     /* HIGHPASS */
     if (self->filtertype == 1) {
         for (i=0; i<self->size; i++) {
@@ -446,7 +446,7 @@ IRWinSinc_create_impulse(IRWinSinc *self, MYFLT freq, MYFLT bandwidth) {
         }
         self->impulse[half] = self->impulse[half] + 1.0;
     }
-    
+
     /* BANDREJECT */
     if (self->filtertype >= 2) {
         sum = 0.0;
@@ -482,7 +482,7 @@ IRWinSinc_create_impulse(IRWinSinc *self, MYFLT freq, MYFLT bandwidth) {
             for (i=0; i<self->size; i++) {
                 self->impulse[i] = -self->impulse[i];
             }
-            self->impulse[half] = self->impulse[half] + 1.0;            
+            self->impulse[half] = self->impulse[half] + 1.0;
         }
     }
 }
@@ -491,9 +491,9 @@ static void
 IRWinSinc_filters(IRWinSinc *self) {
     int i,j,tmp_count;
     MYFLT freq, bw;
-    
+
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
-    
+
     if (self->modebuffer[2] == 0)
         freq = PyFloat_AS_DOUBLE(self->freq);
     else {
@@ -506,14 +506,14 @@ IRWinSinc_filters(IRWinSinc *self) {
         MYFLT *band = Stream_getData((Stream *)self->bandwidth_stream);
         bw = band[0];
     }
-    
+
     if (freq != self->last_freq || bw != self->last_bandwidth || self->changed == 1) {
         IRWinSinc_create_impulse(self, freq, bw);
         self->last_freq = freq;
         self->last_bandwidth = bw;
         self->changed = 0;
     }
-        
+
     for (i=0; i<self->bufsize; i++) {
         self->data[i] = 0.0;
         tmp_count = self->count;
@@ -522,7 +522,7 @@ IRWinSinc_filters(IRWinSinc *self) {
                 tmp_count += self->size;
             self->data[i] += self->input_tmp[tmp_count--] * self->impulse[j];
         }
-        
+
         self->count++;
         if (self->count == self->size)
             self->count = 0;
@@ -545,44 +545,44 @@ IRWinSinc_setProcMode(IRWinSinc *self)
 {
     int muladdmode;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
-    
+
     self->proc_func_ptr = IRWinSinc_filters;
-    
+
 	switch (muladdmode) {
-        case 0:        
+        case 0:
             self->muladd_func_ptr = IRWinSinc_postprocessing_ii;
             break;
-        case 1:    
+        case 1:
             self->muladd_func_ptr = IRWinSinc_postprocessing_ai;
             break;
-        case 2:    
+        case 2:
             self->muladd_func_ptr = IRWinSinc_postprocessing_revai;
             break;
-        case 10:        
+        case 10:
             self->muladd_func_ptr = IRWinSinc_postprocessing_ia;
             break;
-        case 11:    
+        case 11:
             self->muladd_func_ptr = IRWinSinc_postprocessing_aa;
             break;
-        case 12:    
+        case 12:
             self->muladd_func_ptr = IRWinSinc_postprocessing_revaa;
             break;
-        case 20:        
+        case 20:
             self->muladd_func_ptr = IRWinSinc_postprocessing_ireva;
             break;
-        case 21:    
+        case 21:
             self->muladd_func_ptr = IRWinSinc_postprocessing_areva;
             break;
-        case 22:    
+        case 22:
             self->muladd_func_ptr = IRWinSinc_postprocessing_revareva;
             break;
-    }   
+    }
 }
 
 static void
 IRWinSinc_compute_next_data_frame(IRWinSinc *self)
 {
-    (*self->proc_func_ptr)(self); 
+    (*self->proc_func_ptr)(self);
     (*self->muladd_func_ptr)(self);
 }
 
@@ -592,23 +592,23 @@ IRWinSinc_traverse(IRWinSinc *self, visitproc visit, void *arg)
     pyo_VISIT
     Py_VISIT(self->input);
     Py_VISIT(self->input_stream);
-    Py_VISIT(self->freq);    
-    Py_VISIT(self->freq_stream);    
-    Py_VISIT(self->bandwidth);    
-    Py_VISIT(self->bandwidth_stream);    
+    Py_VISIT(self->freq);
+    Py_VISIT(self->freq_stream);
+    Py_VISIT(self->bandwidth);
+    Py_VISIT(self->bandwidth_stream);
     return 0;
 }
 
-static int 
+static int
 IRWinSinc_clear(IRWinSinc *self)
 {
     pyo_CLEAR
     Py_CLEAR(self->input);
     Py_CLEAR(self->input_stream);
-    Py_CLEAR(self->freq);    
-    Py_CLEAR(self->freq_stream);    
-    Py_CLEAR(self->bandwidth);    
-    Py_CLEAR(self->bandwidth_stream);    
+    Py_CLEAR(self->freq);
+    Py_CLEAR(self->freq_stream);
+    Py_CLEAR(self->bandwidth);
+    Py_CLEAR(self->bandwidth_stream);
     return 0;
 }
 
@@ -630,7 +630,7 @@ IRWinSinc_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp, *freqtmp=NULL, *bandwidthtmp=NULL, *multmp=NULL, *addtmp=NULL;
     IRWinSinc *self;
     self = (IRWinSinc *)type->tp_alloc(type, 0);
-    
+
     self->last_freq = -1.0;
     self->last_bandwidth = -1.0;
     self->freq = PyFloat_FromDouble(1000.0);
@@ -643,16 +643,16 @@ IRWinSinc_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 	self->modebuffer[1] = 0;
 	self->modebuffer[2] = 0;
 	self->modebuffer[3] = 0;
-    
+
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, IRWinSinc_compute_next_data_frame);
     self->mode_func_ptr = IRWinSinc_setProcMode;
 
     static char *kwlist[] = {"input", "freq", "bw", "type", "order", "mul", "add", NULL};
-    
+
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOiiOO", kwlist, &inputtmp, &freqtmp, &bandwidthtmp, &self->filtertype, &self->order, &multmp, &addtmp))
         Py_RETURN_NONE;
-    
+
     INIT_INPUT_STREAM
 
     if (freqtmp) {
@@ -662,19 +662,19 @@ IRWinSinc_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (bandwidthtmp) {
         PyObject_CallMethod((PyObject *)self, "setBandwidth", "O", bandwidthtmp);
     }
-    
+
     if (multmp) {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
     }
-    
+
     if (addtmp) {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
-    
+
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
-    
+
     IRWinSinc_alloc_memory(self);
-    
+
     (*self->mode_func_ptr)(self);
 
     return (PyObject *)self;
@@ -682,10 +682,10 @@ IRWinSinc_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
 static PyObject * IRWinSinc_getServer(IRWinSinc* self) { GET_SERVER };
 static PyObject * IRWinSinc_getStream(IRWinSinc* self) { GET_STREAM };
-static PyObject * IRWinSinc_setMul(IRWinSinc *self, PyObject *arg) { SET_MUL };	
-static PyObject * IRWinSinc_setAdd(IRWinSinc *self, PyObject *arg) { SET_ADD };	
-static PyObject * IRWinSinc_setSub(IRWinSinc *self, PyObject *arg) { SET_SUB };	
-static PyObject * IRWinSinc_setDiv(IRWinSinc *self, PyObject *arg) { SET_DIV };	
+static PyObject * IRWinSinc_setMul(IRWinSinc *self, PyObject *arg) { SET_MUL };
+static PyObject * IRWinSinc_setAdd(IRWinSinc *self, PyObject *arg) { SET_ADD };
+static PyObject * IRWinSinc_setSub(IRWinSinc *self, PyObject *arg) { SET_SUB };
+static PyObject * IRWinSinc_setDiv(IRWinSinc *self, PyObject *arg) { SET_DIV };
 
 static PyObject * IRWinSinc_play(IRWinSinc *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * IRWinSinc_out(IRWinSinc *self, PyObject *args, PyObject *kwds) { OUT };
@@ -704,14 +704,14 @@ static PyObject *
 IRWinSinc_setFreq(IRWinSinc *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
-	
+
 	if (arg == NULL) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
 	int isNumber = PyNumber_Check(arg);
-	
+
 	tmp = arg;
 	Py_INCREF(tmp);
 	Py_DECREF(self->freq);
@@ -730,20 +730,20 @@ IRWinSinc_setFreq(IRWinSinc *self, PyObject *arg)
 
 	Py_INCREF(Py_None);
 	return Py_None;
-}	
+}
 
 static PyObject *
 IRWinSinc_setBandwidth(IRWinSinc *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
-	
+
 	if (arg == NULL) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
 	int isNumber = PyNumber_Check(arg);
-	
+
 	tmp = arg;
 	Py_INCREF(tmp);
 	Py_DECREF(self->bandwidth);
@@ -762,19 +762,19 @@ IRWinSinc_setBandwidth(IRWinSinc *self, PyObject *arg)
 
 	Py_INCREF(Py_None);
 	return Py_None;
-}	
+}
 
 static PyObject *
 IRWinSinc_setType(IRWinSinc *self, PyObject *arg)
 {
-	
+
 	if (arg == NULL) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-	
+
 	int isInt = PyInt_Check(arg);
-    
+
 	if (isInt == 1) {
 		self->filtertype = PyInt_AsLong(arg);
         self->changed = 1;
@@ -782,7 +782,7 @@ IRWinSinc_setType(IRWinSinc *self, PyObject *arg)
 
 	Py_INCREF(Py_None);
 	return Py_None;
-}	
+}
 
 static PyMemberDef IRWinSinc_members[] = {
     {"server", T_OBJECT_EX, offsetof(IRWinSinc, server), 0, "Pyo server."},
@@ -902,7 +902,7 @@ typedef struct {
     pyo_audio_HEAD
     PyObject *input;
     Stream *input_stream;
-    int modebuffer[2]; // need at least 2 slots for mul & add 
+    int modebuffer[2]; // need at least 2 slots for mul & add
     MYFLT *impulse;
     MYFLT *input_tmp;
     int count;
@@ -910,15 +910,15 @@ typedef struct {
     int size;
 } IRAverage;
 
-static void 
+static void
 IRAverage_alloc_memory(IRAverage *self) {
     int i;
     MYFLT val, sum;
     if ((self->order % 2) != 0)
         self->order += 1;
-    
+
     self->size = self->order + 1;
-    
+
     self->input_tmp = (MYFLT *)realloc(self->input_tmp, self->size * sizeof(MYFLT));
     self->impulse = (MYFLT *)realloc(self->impulse, self->size * sizeof(MYFLT));
 
@@ -937,9 +937,9 @@ IRAverage_alloc_memory(IRAverage *self) {
 static void
 IRAverage_filters(IRAverage *self) {
     int i,j,tmp_count;
-    
+
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
-        
+
     for (i=0; i<self->bufsize; i++) {
         self->data[i] = 0.0;
         tmp_count = self->count;
@@ -948,7 +948,7 @@ IRAverage_filters(IRAverage *self) {
                 tmp_count += self->size;
             self->data[i] += self->input_tmp[tmp_count--] * self->impulse[j];
         }
-        
+
         self->count++;
         if (self->count == self->size)
             self->count = 0;
@@ -971,44 +971,44 @@ IRAverage_setProcMode(IRAverage *self)
 {
     int muladdmode;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
-    
+
     self->proc_func_ptr = IRAverage_filters;
-    
+
 	switch (muladdmode) {
-        case 0:        
+        case 0:
             self->muladd_func_ptr = IRAverage_postprocessing_ii;
             break;
-        case 1:    
+        case 1:
             self->muladd_func_ptr = IRAverage_postprocessing_ai;
             break;
-        case 2:    
+        case 2:
             self->muladd_func_ptr = IRAverage_postprocessing_revai;
             break;
-        case 10:        
+        case 10:
             self->muladd_func_ptr = IRAverage_postprocessing_ia;
             break;
-        case 11:    
+        case 11:
             self->muladd_func_ptr = IRAverage_postprocessing_aa;
             break;
-        case 12:    
+        case 12:
             self->muladd_func_ptr = IRAverage_postprocessing_revaa;
             break;
-        case 20:        
+        case 20:
             self->muladd_func_ptr = IRAverage_postprocessing_ireva;
             break;
-        case 21:    
+        case 21:
             self->muladd_func_ptr = IRAverage_postprocessing_areva;
             break;
-        case 22:    
+        case 22:
             self->muladd_func_ptr = IRAverage_postprocessing_revareva;
             break;
-    }   
+    }
 }
 
 static void
 IRAverage_compute_next_data_frame(IRAverage *self)
 {
-    (*self->proc_func_ptr)(self); 
+    (*self->proc_func_ptr)(self);
     (*self->muladd_func_ptr)(self);
 }
 
@@ -1021,7 +1021,7 @@ IRAverage_traverse(IRAverage *self, visitproc visit, void *arg)
     return 0;
 }
 
-static int 
+static int
 IRAverage_clear(IRAverage *self)
 {
     pyo_CLEAR
@@ -1047,35 +1047,35 @@ IRAverage_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp, *multmp=NULL, *addtmp=NULL;
     IRAverage *self;
     self = (IRAverage *)type->tp_alloc(type, 0);
-    
+
     self->order = 32;
     self->count = 0;
 	self->modebuffer[0] = 0;
 	self->modebuffer[1] = 0;
-    
+
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, IRAverage_compute_next_data_frame);
     self->mode_func_ptr = IRAverage_setProcMode;
 
     static char *kwlist[] = {"input", "order", "mul", "add", NULL};
-    
+
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|iOO", kwlist, &inputtmp, &self->order, &multmp, &addtmp))
         Py_RETURN_NONE;
-    
+
     INIT_INPUT_STREAM
 
     if (multmp) {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
     }
-    
+
     if (addtmp) {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
-    
+
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
-    
+
     IRAverage_alloc_memory(self);
-    
+
     (*self->mode_func_ptr)(self);
 
     return (PyObject *)self;
@@ -1083,10 +1083,10 @@ IRAverage_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
 static PyObject * IRAverage_getServer(IRAverage* self) { GET_SERVER };
 static PyObject * IRAverage_getStream(IRAverage* self) { GET_STREAM };
-static PyObject * IRAverage_setMul(IRAverage *self, PyObject *arg) { SET_MUL };	
-static PyObject * IRAverage_setAdd(IRAverage *self, PyObject *arg) { SET_ADD };	
-static PyObject * IRAverage_setSub(IRAverage *self, PyObject *arg) { SET_SUB };	
-static PyObject * IRAverage_setDiv(IRAverage *self, PyObject *arg) { SET_DIV };	
+static PyObject * IRAverage_setMul(IRAverage *self, PyObject *arg) { SET_MUL };
+static PyObject * IRAverage_setAdd(IRAverage *self, PyObject *arg) { SET_ADD };
+static PyObject * IRAverage_setSub(IRAverage *self, PyObject *arg) { SET_SUB };
+static PyObject * IRAverage_setDiv(IRAverage *self, PyObject *arg) { SET_DIV };
 
 static PyObject * IRAverage_play(IRAverage *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * IRAverage_out(IRAverage *self, PyObject *args, PyObject *kwds) { OUT };
@@ -1218,7 +1218,7 @@ typedef struct {
     Stream *freq_stream;
     PyObject *bandwidth;
     Stream *bandwidth_stream;
-    int modebuffer[4]; // need at least 2 slots for mul & add 
+    int modebuffer[4]; // need at least 2 slots for mul & add
     MYFLT *impulse;
     MYFLT *input_tmp;
     int count;
@@ -1230,14 +1230,14 @@ typedef struct {
     MYFLT last_bandwidth;
 } IRPulse;
 
-static void 
+static void
 IRPulse_alloc_memory(IRPulse *self) {
     int i;
     if ((self->order % 2) != 0)
         self->order += 1;
-    
+
     self->size = self->order + 1;
-    
+
     self->input_tmp = (MYFLT *)realloc(self->input_tmp, self->size * sizeof(MYFLT));
     self->impulse = (MYFLT *)realloc(self->impulse, self->size * sizeof(MYFLT));
     for (i=0; i<self->size; i++) {
@@ -1249,19 +1249,19 @@ static void
 IRPulse_create_impulse(IRPulse *self, MYFLT freq, MYFLT bandwidth) {
     int i, n, w, bw, dir, gate;
     MYFLT val, sum;
-    
+
     sum = 0.0;
-    
+
     if (freq < 1)
         freq = 1.0;
     else if (freq > (self->sr*0.5))
         freq = self->sr*0.5;
-    
+
     if (bandwidth < 1)
         bandwidth = 1.0;
     else if (bandwidth > (self->sr*0.5))
         bandwidth = self->sr*0.5;
-    
+
     switch (self->filtertype) {
         case 0:
             /* PULSE */
@@ -1296,11 +1296,11 @@ IRPulse_create_impulse(IRPulse *self, MYFLT freq, MYFLT bandwidth) {
                 else {
                     self->impulse[i] = 0.0;
                 }
-                
+
             }
             for (i=0; i<self->size; i++) {
                 self->impulse[i] /= sum;
-            }            
+            }
             break;
         case 2:
             /* PULSEODD */
@@ -1365,9 +1365,9 @@ static void
 IRPulse_filters(IRPulse *self) {
     int i,j,tmp_count;
     MYFLT freq, bw;
-    
+
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
-    
+
     if (self->modebuffer[2] == 0)
         freq = PyFloat_AS_DOUBLE(self->freq);
     else {
@@ -1380,14 +1380,14 @@ IRPulse_filters(IRPulse *self) {
         MYFLT *band = Stream_getData((Stream *)self->bandwidth_stream);
         bw = band[0];
     }
-    
+
     if (freq != self->last_freq || bw != self->last_bandwidth || self->changed == 1) {
         IRPulse_create_impulse(self, freq, bw);
         self->last_freq = freq;
         self->last_bandwidth = bw;
         self->changed = 0;
     }
-    
+
     for (i=0; i<self->bufsize; i++) {
         self->data[i] = 0.0;
         tmp_count = self->count;
@@ -1396,7 +1396,7 @@ IRPulse_filters(IRPulse *self) {
                 tmp_count += self->size;
             self->data[i] += self->input_tmp[tmp_count--] * self->impulse[j];
         }
-        
+
         self->count++;
         if (self->count == self->size)
             self->count = 0;
@@ -1419,44 +1419,44 @@ IRPulse_setProcMode(IRPulse *self)
 {
     int muladdmode;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
-    
+
     self->proc_func_ptr = IRPulse_filters;
-    
+
 	switch (muladdmode) {
-        case 0:        
+        case 0:
             self->muladd_func_ptr = IRPulse_postprocessing_ii;
             break;
-        case 1:    
+        case 1:
             self->muladd_func_ptr = IRPulse_postprocessing_ai;
             break;
-        case 2:    
+        case 2:
             self->muladd_func_ptr = IRPulse_postprocessing_revai;
             break;
-        case 10:        
+        case 10:
             self->muladd_func_ptr = IRPulse_postprocessing_ia;
             break;
-        case 11:    
+        case 11:
             self->muladd_func_ptr = IRPulse_postprocessing_aa;
             break;
-        case 12:    
+        case 12:
             self->muladd_func_ptr = IRPulse_postprocessing_revaa;
             break;
-        case 20:        
+        case 20:
             self->muladd_func_ptr = IRPulse_postprocessing_ireva;
             break;
-        case 21:    
+        case 21:
             self->muladd_func_ptr = IRPulse_postprocessing_areva;
             break;
-        case 22:    
+        case 22:
             self->muladd_func_ptr = IRPulse_postprocessing_revareva;
             break;
-    }   
+    }
 }
 
 static void
 IRPulse_compute_next_data_frame(IRPulse *self)
 {
-    (*self->proc_func_ptr)(self); 
+    (*self->proc_func_ptr)(self);
     (*self->muladd_func_ptr)(self);
 }
 
@@ -1466,23 +1466,23 @@ IRPulse_traverse(IRPulse *self, visitproc visit, void *arg)
     pyo_VISIT
     Py_VISIT(self->input);
     Py_VISIT(self->input_stream);
-    Py_VISIT(self->freq);    
-    Py_VISIT(self->freq_stream);    
-    Py_VISIT(self->bandwidth);    
-    Py_VISIT(self->bandwidth_stream);    
+    Py_VISIT(self->freq);
+    Py_VISIT(self->freq_stream);
+    Py_VISIT(self->bandwidth);
+    Py_VISIT(self->bandwidth_stream);
     return 0;
 }
 
-static int 
+static int
 IRPulse_clear(IRPulse *self)
 {
     pyo_CLEAR
     Py_CLEAR(self->input);
     Py_CLEAR(self->input_stream);
-    Py_CLEAR(self->freq);    
-    Py_CLEAR(self->freq_stream);    
-    Py_CLEAR(self->bandwidth);    
-    Py_CLEAR(self->bandwidth_stream);    
+    Py_CLEAR(self->freq);
+    Py_CLEAR(self->freq_stream);
+    Py_CLEAR(self->bandwidth);
+    Py_CLEAR(self->bandwidth_stream);
     return 0;
 }
 
@@ -1503,7 +1503,7 @@ IRPulse_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp, *freqtmp=NULL, *bandwidthtmp=NULL, *multmp=NULL, *addtmp=NULL;
     IRPulse *self;
     self = (IRPulse *)type->tp_alloc(type, 0);
-    
+
     self->last_freq = -1.0;
     self->last_bandwidth = -1.0;
     self->freq = PyFloat_FromDouble(500.0);
@@ -1516,38 +1516,38 @@ IRPulse_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 	self->modebuffer[1] = 0;
 	self->modebuffer[2] = 0;
 	self->modebuffer[3] = 0;
-    
+
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, IRPulse_compute_next_data_frame);
     self->mode_func_ptr = IRPulse_setProcMode;
 
     static char *kwlist[] = {"input", "freq", "bw", "type", "order", "mul", "add", NULL};
-    
+
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOiiOO", kwlist, &inputtmp, &freqtmp, &bandwidthtmp, &self->filtertype, &self->order, &multmp, &addtmp))
         Py_RETURN_NONE;
-    
+
     INIT_INPUT_STREAM
-    
+
     if (freqtmp) {
         PyObject_CallMethod((PyObject *)self, "setFreq", "O", freqtmp);
     }
-    
+
     if (bandwidthtmp) {
         PyObject_CallMethod((PyObject *)self, "setBandwidth", "O", bandwidthtmp);
     }
-    
+
     if (multmp) {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
     }
-    
+
     if (addtmp) {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
-    
+
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
-    
+
     IRPulse_alloc_memory(self);
-    
+
     (*self->mode_func_ptr)(self);
 
     return (PyObject *)self;
@@ -1555,10 +1555,10 @@ IRPulse_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
 static PyObject * IRPulse_getServer(IRPulse* self) { GET_SERVER };
 static PyObject * IRPulse_getStream(IRPulse* self) { GET_STREAM };
-static PyObject * IRPulse_setMul(IRPulse *self, PyObject *arg) { SET_MUL };	
-static PyObject * IRPulse_setAdd(IRPulse *self, PyObject *arg) { SET_ADD };	
-static PyObject * IRPulse_setSub(IRPulse *self, PyObject *arg) { SET_SUB };	
-static PyObject * IRPulse_setDiv(IRPulse *self, PyObject *arg) { SET_DIV };	
+static PyObject * IRPulse_setMul(IRPulse *self, PyObject *arg) { SET_MUL };
+static PyObject * IRPulse_setAdd(IRPulse *self, PyObject *arg) { SET_ADD };
+static PyObject * IRPulse_setSub(IRPulse *self, PyObject *arg) { SET_SUB };
+static PyObject * IRPulse_setDiv(IRPulse *self, PyObject *arg) { SET_DIV };
 
 static PyObject * IRPulse_play(IRPulse *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * IRPulse_out(IRPulse *self, PyObject *args, PyObject *kwds) { OUT };
@@ -1577,14 +1577,14 @@ static PyObject *
 IRPulse_setFreq(IRPulse *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
-	
+
 	if (arg == NULL) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
 	int isNumber = PyNumber_Check(arg);
-	
+
 	tmp = arg;
 	Py_INCREF(tmp);
 	Py_DECREF(self->freq);
@@ -1600,23 +1600,23 @@ IRPulse_setFreq(IRPulse *self, PyObject *arg)
         self->freq_stream = (Stream *)streamtmp;
 		self->modebuffer[2] = 1;
 	}
-    
+
 	Py_INCREF(Py_None);
 	return Py_None;
-}	
+}
 
 static PyObject *
 IRPulse_setBandwidth(IRPulse *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
-	
+
 	if (arg == NULL) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
 	int isNumber = PyNumber_Check(arg);
-	
+
 	tmp = arg;
 	Py_INCREF(tmp);
 	Py_DECREF(self->bandwidth);
@@ -1632,30 +1632,30 @@ IRPulse_setBandwidth(IRPulse *self, PyObject *arg)
         self->bandwidth_stream = (Stream *)streamtmp;
 		self->modebuffer[3] = 1;
 	}
-    
+
 	Py_INCREF(Py_None);
 	return Py_None;
-}	
+}
 
 static PyObject *
 IRPulse_setType(IRPulse *self, PyObject *arg)
 {
-	
+
 	if (arg == NULL) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-	
+
 	int isInt = PyInt_Check(arg);
-    
+
 	if (isInt == 1) {
 		self->filtertype = PyInt_AsLong(arg);
         self->changed = 1;
 	}
-    
+
 	Py_INCREF(Py_None);
 	return Py_None;
-}	
+}
 
 static PyMemberDef IRPulse_members[] = {
     {"server", T_OBJECT_EX, offsetof(IRPulse, server), 0, "Pyo server."},
@@ -1781,7 +1781,7 @@ typedef struct {
     Stream *ratio_stream;
     PyObject *index;
     Stream *index_stream;
-    int modebuffer[5]; // need at least 2 slots for mul & add 
+    int modebuffer[5]; // need at least 2 slots for mul & add
     MYFLT *impulse;
     MYFLT *input_tmp;
     int count;
@@ -1792,14 +1792,14 @@ typedef struct {
     MYFLT last_index;
 } IRFM;
 
-static void 
+static void
 IRFM_alloc_memory(IRFM *self) {
     int i;
     if ((self->order % 2) != 0)
         self->order += 1;
-    
+
     self->size = self->order + 1;
-    
+
     self->input_tmp = (MYFLT *)realloc(self->input_tmp, self->size * sizeof(MYFLT));
     self->impulse = (MYFLT *)realloc(self->impulse, self->size * sizeof(MYFLT));
     for (i=0; i<self->size; i++) {
@@ -1816,12 +1816,12 @@ IRFM_create_impulse(IRFM *self, MYFLT carrier, MYFLT ratio, MYFLT index) {
         carrier = 1.0;
     else if (carrier > (self->sr*0.5))
         carrier = self->sr*0.5;
-    
+
     if (ratio < 0.0001)
         ratio = 0.0001;
     else if (ratio > (self->sr*0.5))
         ratio = self->sr*0.5;
-    
+
     if (index < 0)
         index = 0.0;
 
@@ -1847,9 +1847,9 @@ static void
 IRFM_filters(IRFM *self) {
     int i,j,tmp_count;
     MYFLT carrier, ratio, index;
-    
+
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
-    
+
     if (self->modebuffer[2] == 0)
         carrier = PyFloat_AS_DOUBLE(self->carrier);
     else {
@@ -1868,14 +1868,14 @@ IRFM_filters(IRFM *self) {
         MYFLT *ind = Stream_getData((Stream *)self->index_stream);
         index = ind[0];
     }
-    
+
     if (carrier != self->last_carrier || ratio != self->last_ratio || index != self->last_index) {
         IRFM_create_impulse(self, carrier, ratio, index);
         self->last_carrier = carrier;
         self->last_ratio = ratio;
         self->last_index = index;
     }
-    
+
     for (i=0; i<self->bufsize; i++) {
         self->data[i] = 0.0;
         tmp_count = self->count;
@@ -1884,7 +1884,7 @@ IRFM_filters(IRFM *self) {
                 tmp_count += self->size;
             self->data[i] += self->input_tmp[tmp_count--] * self->impulse[j];
         }
-        
+
         self->count++;
         if (self->count == self->size)
             self->count = 0;
@@ -1907,44 +1907,44 @@ IRFM_setProcMode(IRFM *self)
 {
     int muladdmode;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
-    
+
     self->proc_func_ptr = IRFM_filters;
-    
+
 	switch (muladdmode) {
-        case 0:        
+        case 0:
             self->muladd_func_ptr = IRFM_postprocessing_ii;
             break;
-        case 1:    
+        case 1:
             self->muladd_func_ptr = IRFM_postprocessing_ai;
             break;
-        case 2:    
+        case 2:
             self->muladd_func_ptr = IRFM_postprocessing_revai;
             break;
-        case 10:        
+        case 10:
             self->muladd_func_ptr = IRFM_postprocessing_ia;
             break;
-        case 11:    
+        case 11:
             self->muladd_func_ptr = IRFM_postprocessing_aa;
             break;
-        case 12:    
+        case 12:
             self->muladd_func_ptr = IRFM_postprocessing_revaa;
             break;
-        case 20:        
+        case 20:
             self->muladd_func_ptr = IRFM_postprocessing_ireva;
             break;
-        case 21:    
+        case 21:
             self->muladd_func_ptr = IRFM_postprocessing_areva;
             break;
-        case 22:    
+        case 22:
             self->muladd_func_ptr = IRFM_postprocessing_revareva;
             break;
-    }   
+    }
 }
 
 static void
 IRFM_compute_next_data_frame(IRFM *self)
 {
-    (*self->proc_func_ptr)(self); 
+    (*self->proc_func_ptr)(self);
     (*self->muladd_func_ptr)(self);
 }
 
@@ -1954,27 +1954,27 @@ IRFM_traverse(IRFM *self, visitproc visit, void *arg)
     pyo_VISIT
     Py_VISIT(self->input);
     Py_VISIT(self->input_stream);
-    Py_VISIT(self->carrier);    
-    Py_VISIT(self->carrier_stream);    
-    Py_VISIT(self->ratio);    
-    Py_VISIT(self->ratio_stream);    
-    Py_VISIT(self->index);    
-    Py_VISIT(self->index_stream);    
+    Py_VISIT(self->carrier);
+    Py_VISIT(self->carrier_stream);
+    Py_VISIT(self->ratio);
+    Py_VISIT(self->ratio_stream);
+    Py_VISIT(self->index);
+    Py_VISIT(self->index_stream);
     return 0;
 }
 
-static int 
+static int
 IRFM_clear(IRFM *self)
 {
     pyo_CLEAR
     Py_CLEAR(self->input);
     Py_CLEAR(self->input_stream);
-    Py_CLEAR(self->carrier);    
-    Py_CLEAR(self->carrier_stream);    
-    Py_CLEAR(self->ratio);    
-    Py_CLEAR(self->ratio_stream);    
-    Py_CLEAR(self->index);    
-    Py_CLEAR(self->index_stream);    
+    Py_CLEAR(self->carrier);
+    Py_CLEAR(self->carrier_stream);
+    Py_CLEAR(self->ratio);
+    Py_CLEAR(self->ratio_stream);
+    Py_CLEAR(self->index);
+    Py_CLEAR(self->index_stream);
     return 0;
 }
 
@@ -1995,7 +1995,7 @@ IRFM_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp, *carriertmp=NULL, *ratiotmp=NULL, *indextmp=NULL, *multmp=NULL, *addtmp=NULL;
     IRFM *self;
     self = (IRFM *)type->tp_alloc(type, 0);
-    
+
     self->last_carrier = -1.0;
     self->last_ratio = -1.0;
     self->last_index = -1.0;
@@ -2009,22 +2009,22 @@ IRFM_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 	self->modebuffer[2] = 0;
 	self->modebuffer[3] = 0;
 	self->modebuffer[4] = 0;
-    
+
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, IRFM_compute_next_data_frame);
     self->mode_func_ptr = IRFM_setProcMode;
 
     static char *kwlist[] = {"input", "carrier", "ratio", "index", "order", "mul", "add", NULL};
-    
+
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOOiOO", kwlist, &inputtmp, &carriertmp, &ratiotmp, &indextmp, &self->order, &multmp, &addtmp))
         Py_RETURN_NONE;
-    
+
     INIT_INPUT_STREAM
-    
+
     if (carriertmp) {
         PyObject_CallMethod((PyObject *)self, "setCarrier", "O", carriertmp);
     }
-    
+
     if (ratiotmp) {
         PyObject_CallMethod((PyObject *)self, "setRatio", "O", ratiotmp);
     }
@@ -2032,19 +2032,19 @@ IRFM_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (indextmp) {
         PyObject_CallMethod((PyObject *)self, "setIndex", "O", indextmp);
     }
-    
+
     if (multmp) {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
     }
-    
+
     if (addtmp) {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
-    
+
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
-    
+
     IRFM_alloc_memory(self);
-    
+
     (*self->mode_func_ptr)(self);
 
     return (PyObject *)self;
@@ -2052,10 +2052,10 @@ IRFM_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
 static PyObject * IRFM_getServer(IRFM* self) { GET_SERVER };
 static PyObject * IRFM_getStream(IRFM* self) { GET_STREAM };
-static PyObject * IRFM_setMul(IRFM *self, PyObject *arg) { SET_MUL };	
-static PyObject * IRFM_setAdd(IRFM *self, PyObject *arg) { SET_ADD };	
-static PyObject * IRFM_setSub(IRFM *self, PyObject *arg) { SET_SUB };	
-static PyObject * IRFM_setDiv(IRFM *self, PyObject *arg) { SET_DIV };	
+static PyObject * IRFM_setMul(IRFM *self, PyObject *arg) { SET_MUL };
+static PyObject * IRFM_setAdd(IRFM *self, PyObject *arg) { SET_ADD };
+static PyObject * IRFM_setSub(IRFM *self, PyObject *arg) { SET_SUB };
+static PyObject * IRFM_setDiv(IRFM *self, PyObject *arg) { SET_DIV };
 
 static PyObject * IRFM_play(IRFM *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * IRFM_out(IRFM *self, PyObject *args, PyObject *kwds) { OUT };
@@ -2074,14 +2074,14 @@ static PyObject *
 IRFM_setCarrier(IRFM *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
-	
+
 	if (arg == NULL) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
 	int isNumber = PyNumber_Check(arg);
-	
+
 	tmp = arg;
 	Py_INCREF(tmp);
 	Py_DECREF(self->carrier);
@@ -2097,23 +2097,23 @@ IRFM_setCarrier(IRFM *self, PyObject *arg)
         self->carrier_stream = (Stream *)streamtmp;
 		self->modebuffer[2] = 1;
 	}
-    
+
 	Py_INCREF(Py_None);
 	return Py_None;
-}	
+}
 
 static PyObject *
 IRFM_setRatio(IRFM *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
-	
+
 	if (arg == NULL) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
 	int isNumber = PyNumber_Check(arg);
-	
+
 	tmp = arg;
 	Py_INCREF(tmp);
 	Py_DECREF(self->ratio);
@@ -2129,23 +2129,23 @@ IRFM_setRatio(IRFM *self, PyObject *arg)
         self->ratio_stream = (Stream *)streamtmp;
 		self->modebuffer[3] = 1;
 	}
-    
+
 	Py_INCREF(Py_None);
 	return Py_None;
-}	
+}
 
 static PyObject *
 IRFM_setIndex(IRFM *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
-	
+
 	if (arg == NULL) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
 	int isNumber = PyNumber_Check(arg);
-	
+
 	tmp = arg;
 	Py_INCREF(tmp);
 	Py_DECREF(self->index);
@@ -2161,10 +2161,10 @@ IRFM_setIndex(IRFM *self, PyObject *arg)
         self->index_stream = (Stream *)streamtmp;
 		self->modebuffer[4] = 1;
 	}
-    
+
 	Py_INCREF(Py_None);
 	return Py_None;
-}	
+}
 
 static PyMemberDef IRFM_members[] = {
     {"server", T_OBJECT_EX, offsetof(IRFM, server), 0, "Pyo server."},

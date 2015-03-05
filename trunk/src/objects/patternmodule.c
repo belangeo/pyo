@@ -1,21 +1,21 @@
-/*************************************************************************
- * Copyright 2010 Olivier Belanger                                        *                  
- *                                                                        * 
+/**************************************************************************
+ * Copyright 2009-2015 Olivier Belanger                                   *
+ *                                                                        *
  * This file is part of pyo, a python module to help digital signal       *
- * processing script creation.                                            *  
- *                                                                        * 
+ * processing script creation.                                            *
+ *                                                                        *
  * pyo is free software: you can redistribute it and/or modify            *
- * it under the terms of the GNU General Public License as published by   *
- * the Free Software Foundation, either version 3 of the License, or      *
- * (at your option) any later version.                                    * 
+ * it under the terms of the GNU Lesser General Public License as         *
+ * published by the Free Software Foundation, either version 3 of the     *
+ * License, or (at your option) any later version.                        *
  *                                                                        *
  * pyo is distributed in the hope that it will be useful,                 *
- * but WITHOUT ANY WARRANTY; without even the implied warranty of         *    
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of         *
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the          *
- * GNU General Public License for more details.                           *
+ * GNU Lesser General Public License for more details.                    *
  *                                                                        *
- * You should have received a copy of the GNU General Public License      *
- * along with pyo.  If not, see <http://www.gnu.org/licenses/>.           *
+ * You should have received a copy of the GNU Lesser General Public       *
+ * License along with pyo.  If not, see <http://www.gnu.org/licenses/>.   *
  *************************************************************************/
 
 #include <Python.h>
@@ -41,7 +41,7 @@ Pattern_generate_i(Pattern *self) {
     MYFLT tm;
     int i, flag;
     PyObject *result;
-    
+
     flag = 0;
     tm = PyFloat_AS_DOUBLE(self->time);
 
@@ -49,7 +49,7 @@ Pattern_generate_i(Pattern *self) {
         if (self->currentTime >= tm) {
             flag = 1;
             self->currentTime = 0.;
-        }    
+        }
 
         self->currentTime += self->sampleToSec;
     }
@@ -65,16 +65,16 @@ static void
 Pattern_generate_a(Pattern *self) {
     int i, flag;
     PyObject *result;
-    
+
     MYFLT *tm = Stream_getData((Stream *)self->time_stream);
-    
+
     flag = 0;
     for (i=0; i<self->bufsize; i++) {
         if (self->currentTime >= tm[i]) {
             flag = 1;
             self->currentTime = 0.;
-        }    
-        
+        }
+
         self->currentTime += self->sampleToSec;
     }
     if (flag == 1 || self->init == 1) {
@@ -82,7 +82,7 @@ Pattern_generate_a(Pattern *self) {
         result = PyObject_Call((PyObject *)self->callable, PyTuple_New(0), NULL);
         if (result == NULL)
             PyErr_Print();
-    }    
+    }
 }
 
 
@@ -91,10 +91,10 @@ Pattern_setProcMode(Pattern *self)
 {
     int procmode = self->modebuffer[0];
     switch (procmode) {
-        case 0:        
+        case 0:
             self->proc_func_ptr = Pattern_generate_i;
             break;
-        case 1:    
+        case 1:
             self->proc_func_ptr = Pattern_generate_a;
             break;
     }
@@ -103,7 +103,7 @@ Pattern_setProcMode(Pattern *self)
 static void
 Pattern_compute_next_data_frame(Pattern *self)
 {
-    (*self->proc_func_ptr)(self);     
+    (*self->proc_func_ptr)(self);
 }
 
 static int
@@ -111,17 +111,17 @@ Pattern_traverse(Pattern *self, visitproc visit, void *arg)
 {
     pyo_VISIT
     Py_VISIT(self->callable);
-    Py_VISIT(self->time);    
-    Py_VISIT(self->time_stream);    
+    Py_VISIT(self->time);
+    Py_VISIT(self->time_stream);
     return 0;
 }
 
-static int 
+static int
 Pattern_clear(Pattern *self)
 {
     pyo_CLEAR
     Py_CLEAR(self->callable);
-    Py_CLEAR(self->time);    
+    Py_CLEAR(self->time);
     Py_CLEAR(self->time_stream);
     return 0;
 }
@@ -141,7 +141,7 @@ Pattern_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *timetmp=NULL, *calltmp=NULL;
     Pattern *self;
     self = (Pattern *)type->tp_alloc(type, 0);
-    
+
     self->time = PyFloat_FromDouble(1.);
 	self->modebuffer[0] = 0;
     self->init = 1;
@@ -151,38 +151,38 @@ Pattern_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->mode_func_ptr = Pattern_setProcMode;
 
     Stream_setStreamActive(self->stream, 0);
-    
+
     self->sampleToSec = 1. / self->sr;
     self->currentTime = 0.;
 
     static char *kwlist[] = {"callable", "time", NULL};
-    
+
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|O", kwlist, &calltmp, &timetmp))
         Py_RETURN_NONE;
-   
+
     if (calltmp) {
         PyObject_CallMethod((PyObject *)self, "setFunction", "O", calltmp);
     }
-    
+
     if (timetmp) {
         PyObject_CallMethod((PyObject *)self, "setTime", "O", timetmp);
     }
-    
+
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
     (*self->mode_func_ptr)(self);
-    
+
     return (PyObject *)self;
 }
 
 static PyObject * Pattern_getServer(Pattern* self) { GET_SERVER };
 static PyObject * Pattern_getStream(Pattern* self) { GET_STREAM };
 
-static PyObject * 
-Pattern_play(Pattern *self, PyObject *args, PyObject *kwds) 
-{ 
+static PyObject *
+Pattern_play(Pattern *self, PyObject *args, PyObject *kwds)
+{
     self->init = 1;
-    PLAY 
+    PLAY
 };
 
 static PyObject * Pattern_stop(Pattern *self) { STOP };
@@ -191,34 +191,34 @@ static PyObject *
 Pattern_setFunction(Pattern *self, PyObject *arg)
 {
 	PyObject *tmp;
-	
+
 	if (! PyCallable_Check(arg)) {
         PyErr_SetString(PyExc_TypeError, "The callable attribute must be a valid Python function.");
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
     tmp = arg;
     Py_XDECREF(self->callable);
     Py_INCREF(tmp);
     self->callable = tmp;
-    
+
 	Py_INCREF(Py_None);
 	return Py_None;
-}	
+}
 
 static PyObject *
 Pattern_setTime(Pattern *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
-	
+
 	if (arg == NULL) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
 	int isNumber = PyNumber_Check(arg);
-	
+
 	tmp = arg;
 	Py_INCREF(tmp);
 	Py_DECREF(self->time);
@@ -234,12 +234,12 @@ Pattern_setTime(Pattern *self, PyObject *arg)
         self->time_stream = (Stream *)streamtmp;
 		self->modebuffer[0] = 1;
 	}
-    
+
     (*self->mode_func_ptr)(self);
-    
+
 	Py_INCREF(Py_None);
 	return Py_None;
-}	
+}
 
 static PyMemberDef Pattern_members[] = {
 {"server", T_OBJECT_EX, offsetof(Pattern, server), 0, "Pyo server."},
@@ -315,16 +315,16 @@ typedef struct {
 static void
 Score_selector(Score *self) {
     int i, inval;
-    
+
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
-    
+
     for (i=0; i<self->bufsize; i++) {
         inval = (int)in[i];
         if (inval != self->last_value) {
             sprintf(self->curfname, "%s%i()\n", self->fname, inval);
             PyRun_SimpleString(self->curfname);
             self->last_value = inval;
-        }    
+        }
     }
 }
 
@@ -337,23 +337,23 @@ Score_setProcMode(Score *self)
 static void
 Score_compute_next_data_frame(Score *self)
 {
-    (*self->proc_func_ptr)(self);    
+    (*self->proc_func_ptr)(self);
 }
 
 static int
 Score_traverse(Score *self, visitproc visit, void *arg)
 {
     pyo_VISIT
-    Py_VISIT(self->input);    
-    Py_VISIT(self->input_stream);    
+    Py_VISIT(self->input);
+    Py_VISIT(self->input_stream);
     return 0;
 }
 
-static int 
+static int
 Score_clear(Score *self)
 {
     pyo_CLEAR
-    Py_CLEAR(self->input);    
+    Py_CLEAR(self->input);
     Py_CLEAR(self->input_stream);
     return 0;
 }
@@ -373,24 +373,24 @@ Score_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp;
     Score *self;
     self = (Score *)type->tp_alloc(type, 0);
-    
+
     self->last_value = -99;
-    
+
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, Score_compute_next_data_frame);
     self->mode_func_ptr = Score_setProcMode;
 
     static char *kwlist[] = {"input", "fname", NULL};
-    
+
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|s", kwlist, &inputtmp, &self->fname))
         Py_RETURN_NONE;
-    
+
     INIT_INPUT_STREAM
-    
+
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
-        
+
     (*self->mode_func_ptr)(self);
-    
+
     return (PyObject *)self;
 }
 
@@ -481,7 +481,7 @@ CallAfter_generate(CallAfter *self) {
                 tuple = PyTuple_New(1);
                 PyTuple_SET_ITEM(tuple, 0, self->arg);
             }
-            result = PyObject_Call(self->callable, tuple, NULL);                
+            result = PyObject_Call(self->callable, tuple, NULL);
             if (result == NULL)
                 PyErr_Print();
             PyObject_CallMethod((PyObject *)self, "stop", NULL);
@@ -493,14 +493,14 @@ CallAfter_generate(CallAfter *self) {
 
 static void
 CallAfter_setProcMode(CallAfter *self)
-{        
+{
     self->proc_func_ptr = CallAfter_generate;
 }
 
 static void
 CallAfter_compute_next_data_frame(CallAfter *self)
 {
-    (*self->proc_func_ptr)(self);     
+    (*self->proc_func_ptr)(self);
 }
 
 static int
@@ -512,7 +512,7 @@ CallAfter_traverse(CallAfter *self, visitproc visit, void *arg)
     return 0;
 }
 
-static int 
+static int
 CallAfter_clear(CallAfter *self)
 {
     pyo_CLEAR
@@ -536,10 +536,10 @@ CallAfter_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *calltmp=NULL, *argtmp=NULL;
     CallAfter *self;
     self = (CallAfter *)type->tp_alloc(type, 0);
-    
+
     self->time = 1.;
     self->arg = Py_None;
-    
+
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, CallAfter_compute_next_data_frame);
     self->mode_func_ptr = CallAfter_setProcMode;
@@ -548,10 +548,10 @@ CallAfter_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->currentTime = 0.;
 
     static char *kwlist[] = {"callable", "time", "arg", NULL};
-    
+
     if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_O_FO, kwlist, &calltmp, &self->time, &argtmp))
         Py_RETURN_NONE;
-    
+
     if (! PyCallable_Check(calltmp))
         Py_RETURN_NONE;
 
@@ -560,15 +560,15 @@ CallAfter_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         Py_INCREF(argtmp);
         self->arg = argtmp;
     }
-    
+
     Py_INCREF(calltmp);
     Py_XDECREF(self->callable);
     self->callable = calltmp;
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
-    
+
     (*self->mode_func_ptr)(self);
-    
+
     return (PyObject *)self;
 }
 

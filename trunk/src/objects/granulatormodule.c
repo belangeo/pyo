@@ -1,21 +1,21 @@
-/*************************************************************************
- * Copyright 2010 Olivier Belanger                                        *                  
- *                                                                        * 
+/**************************************************************************
+ * Copyright 2009-2015 Olivier Belanger                                   *
+ *                                                                        *
  * This file is part of pyo, a python module to help digital signal       *
- * processing script creation.                                            *  
- *                                                                        * 
+ * processing script creation.                                            *
+ *                                                                        *
  * pyo is free software: you can redistribute it and/or modify            *
- * it under the terms of the GNU General Public License as published by   *
- * the Free Software Foundation, either version 3 of the License, or      *
- * (at your option) any later version.                                    * 
+ * it under the terms of the GNU Lesser General Public License as         *
+ * published by the Free Software Foundation, either version 3 of the     *
+ * License, or (at your option) any later version.                        *
  *                                                                        *
  * pyo is distributed in the hope that it will be useful,                 *
- * but WITHOUT ANY WARRANTY; without even the implied warranty of         *    
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of         *
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the          *
- * GNU General Public License for more details.                           *
+ * GNU Lesser General Public License for more details.                    *
  *                                                                        *
- * You should have received a copy of the GNU General Public License      *
- * along with pyo.  If not, see <http://www.gnu.org/licenses/>.           *
+ * You should have received a copy of the GNU Lesser General Public       *
+ * License along with pyo.  If not, see <http://www.gnu.org/licenses/>.   *
  *************************************************************************/
 
 #include <Python.h>
@@ -56,23 +56,23 @@ static void
 Granulator_transform_iii(Granulator *self) {
     MYFLT val, x, x1, inc, index, fpart, amp, ppos;
     int i, j, ipart;
-    
+
     MYFLT *tablelist = TableStream_getData(self->table);
     int size = TableStream_getSize(self->table);
-    
+
     MYFLT *envlist = TableStream_getData(self->env);
     int envsize = TableStream_getSize(self->env);
-    
+
     MYFLT pit = PyFloat_AS_DOUBLE(self->pitch);
     MYFLT pos = PyFloat_AS_DOUBLE(self->pos);
     MYFLT dur = PyFloat_AS_DOUBLE(self->dur);
-    
+
     inc = pit * (1.0 / self->basedur) / self->sr;
-    
+
     for (i=0; i<self->bufsize; i++) {
         self->data[i] = 0.0;
         self->pointerPos += inc;
-        
+
         for (j=0; j<self->ngrains; j++) {
             ppos = self->pointerPos + self->gphase[j];
             if (ppos >= 1.0) {
@@ -85,13 +85,13 @@ Granulator_transform_iii(Granulator *self) {
             x = envlist[ipart];
             x1 = envlist[ipart+1];
             amp = x + (x1 - x) * fpart;
-            
+
             if (ppos < self->lastppos[j]) {
                 self->startPos[j] = pos;
                 self->gsize[j] = dur * self->sr;
             }
             self->lastppos[j] = ppos;
-            
+
             // compute sampling
             index = ppos * self->gsize[j] + self->startPos[j];
             if (index >= 0 && index < size) {
@@ -103,39 +103,39 @@ Granulator_transform_iii(Granulator *self) {
             }
             else
                 val = 0.0;
-            
+
             self->data[i] += (val * amp);
         }
-        
+
         if (self->pointerPos < 0)
             self->pointerPos += 1.0;
         else if (self->pointerPos >= 1)
             self->pointerPos -= 1.0;
-    }    
+    }
 }
 
 static void
 Granulator_transform_aii(Granulator *self) {
     MYFLT val, x, x1, inc, index, fpart, amp, ppos, frtosamps;
     int i, j, ipart;
-    
+
     MYFLT *tablelist = TableStream_getData(self->table);
     int size = TableStream_getSize(self->table);
-    
+
     MYFLT *envlist = TableStream_getData(self->env);
     int envsize = TableStream_getSize(self->env);
-    
+
     MYFLT *pit = Stream_getData((Stream *)self->pitch_stream);
     MYFLT pos = PyFloat_AS_DOUBLE(self->pos);
     MYFLT dur = PyFloat_AS_DOUBLE(self->dur);
-    
+
     frtosamps = (1.0 / self->basedur) / self->sr;
-    
+
     for (i=0; i<self->bufsize; i++) {
         self->data[i] = 0.0;
         inc = pit[i] * frtosamps;
         self->pointerPos += inc;
-        
+
         for (j=0; j<self->ngrains; j++) {
             ppos = self->pointerPos + self->gphase[j];
             if (ppos >= 1.0) {
@@ -148,13 +148,13 @@ Granulator_transform_aii(Granulator *self) {
             x = envlist[ipart];
             x1 = envlist[ipart+1];
             amp = x + (x1 - x) * fpart;
-            
+
             if (ppos < self->lastppos[j]) {
                 self->startPos[j] = pos;
                 self->gsize[j] = dur * self->sr;
             }
             self->lastppos[j] = ppos;
-            
+
             // compute sampling
             index = ppos * self->gsize[j] + self->startPos[j];
             if (index >= 0 && index < size) {
@@ -166,15 +166,15 @@ Granulator_transform_aii(Granulator *self) {
             }
             else
                 val = 0.0;
-            
+
             self->data[i] += (val * amp);
         }
-        
+
         if (self->pointerPos < 0)
             self->pointerPos += 1.0;
         else if (self->pointerPos >= 1)
             self->pointerPos -= 1.0;
-    }    
+    }
 }
 
 static void
@@ -193,9 +193,9 @@ Granulator_transform_iai(Granulator *self) {
     MYFLT dur = PyFloat_AS_DOUBLE(self->dur);
 
     inc = pit * (1.0 / self->basedur) / self->sr;
-    
+
     MYFLT gsize = dur * self->sr;
-    
+
     for (j=0; j<self->ngrains; j++) {
         self->gsize[j] = gsize;
     }
@@ -203,7 +203,7 @@ Granulator_transform_iai(Granulator *self) {
     for (i=0; i<self->bufsize; i++) {
         self->data[i] = 0.0;
         self->pointerPos += inc;
-        
+
         for (j=0; j<self->ngrains; j++) {
             ppos = self->pointerPos + self->gphase[j];
             if (ppos >= 1.0) {
@@ -221,7 +221,7 @@ Granulator_transform_iai(Granulator *self) {
                 self->startPos[j] = pos[i];
             }
             self->lastppos[j] = ppos;
-            
+
             // compute sampling
             index = ppos * self->gsize[j] + self->startPos[j];
             if (index >= 0 && index < size) {
@@ -236,36 +236,36 @@ Granulator_transform_iai(Granulator *self) {
 
             self->data[i] += (val * amp);
         }
-        
+
         if (self->pointerPos < 0)
             self->pointerPos += 1.0;
         else if (self->pointerPos >= 1)
             self->pointerPos -= 1.0;
-    }    
+    }
 }
 
 static void
 Granulator_transform_aai(Granulator *self) {
     MYFLT val, x, x1, inc, index, fpart, amp, ppos, frtosamps;
     int i, j, ipart;
-    
+
     MYFLT *tablelist = TableStream_getData(self->table);
     int size = TableStream_getSize(self->table);
-    
+
     MYFLT *envlist = TableStream_getData(self->env);
     int envsize = TableStream_getSize(self->env);
-    
+
     MYFLT *pit = Stream_getData((Stream *)self->pitch_stream);
     MYFLT *pos = Stream_getData((Stream *)self->pos_stream);
     MYFLT dur = PyFloat_AS_DOUBLE(self->dur);
-    
+
     frtosamps = (1.0 / self->basedur) / self->sr;
-    
+
     for (i=0; i<self->bufsize; i++) {
         self->data[i] = 0.0;
         inc = pit[i] * frtosamps;
         self->pointerPos += inc;
-        
+
         for (j=0; j<self->ngrains; j++) {
             ppos = self->pointerPos + self->gphase[j];
             if (ppos >= 1.0) {
@@ -278,13 +278,13 @@ Granulator_transform_aai(Granulator *self) {
             x = envlist[ipart];
             x1 = envlist[ipart+1];
             amp = x + (x1 - x) * fpart;
-            
+
             if (ppos < self->lastppos[j]) {
                 self->startPos[j] = pos[i];
                 self->gsize[j] = dur * self->sr;
             }
             self->lastppos[j] = ppos;
-            
+
             // compute sampling
             index = ppos * self->gsize[j] + self->startPos[j];
             if (index >= 0 && index < size) {
@@ -296,38 +296,38 @@ Granulator_transform_aai(Granulator *self) {
             }
             else
                 val = 0.0;
-            
+
             self->data[i] += (val * amp);
         }
-        
+
         if (self->pointerPos < 0)
             self->pointerPos += 1.0;
         else if (self->pointerPos >= 1)
             self->pointerPos -= 1.0;
     }
-} 
+}
 
 static void
 Granulator_transform_iia(Granulator *self) {
     MYFLT val, x, x1, inc, index, fpart, amp, ppos;
     int i, j, ipart;
-    
+
     MYFLT *tablelist = TableStream_getData(self->table);
     int size = TableStream_getSize(self->table);
-    
+
     MYFLT *envlist = TableStream_getData(self->env);
     int envsize = TableStream_getSize(self->env);
-    
+
     MYFLT pit = PyFloat_AS_DOUBLE(self->pitch);
     MYFLT pos = PyFloat_AS_DOUBLE(self->pos);
     MYFLT *dur = Stream_getData((Stream *)self->dur_stream);
-    
+
     inc = pit * (1.0 / self->basedur) / self->sr;
-    
+
     for (i=0; i<self->bufsize; i++) {
         self->data[i] = 0.0;
         self->pointerPos += inc;
-        
+
         for (j=0; j<self->ngrains; j++) {
             ppos = self->pointerPos + self->gphase[j];
             if (ppos >= 1.0) {
@@ -340,13 +340,13 @@ Granulator_transform_iia(Granulator *self) {
             x = envlist[ipart];
             x1 = envlist[ipart+1];
             amp = x + (x1 - x) * fpart;
-            
+
             if (ppos < self->lastppos[j]) {
                 self->startPos[j] = pos;
                 self->gsize[j] = dur[i] * self->sr;
             }
             self->lastppos[j] = ppos;
-            
+
             // compute sampling
             index = ppos * self->gsize[j] + self->startPos[j];
             if (index >= 0 && index < size) {
@@ -358,39 +358,39 @@ Granulator_transform_iia(Granulator *self) {
             }
             else
                 val = 0.0;
-            
+
             self->data[i] += (val * amp);
         }
-        
+
         if (self->pointerPos < 0)
             self->pointerPos += 1.0;
         else if (self->pointerPos >= 1)
             self->pointerPos -= 1.0;
-    }     
+    }
 }
 
 static void
 Granulator_transform_aia(Granulator *self) {
     MYFLT val, x, x1, inc, index, fpart, amp, ppos, frtosamps;
     int i, j, ipart;
-    
+
     MYFLT *tablelist = TableStream_getData(self->table);
     int size = TableStream_getSize(self->table);
-    
+
     MYFLT *envlist = TableStream_getData(self->env);
     int envsize = TableStream_getSize(self->env);
-    
+
     MYFLT *pit = Stream_getData((Stream *)self->pitch_stream);
     MYFLT pos = PyFloat_AS_DOUBLE(self->pos);
     MYFLT *dur = Stream_getData((Stream *)self->dur_stream);
-    
+
     frtosamps = (1.0 / self->basedur) / self->sr;
-    
+
     for (i=0; i<self->bufsize; i++) {
         self->data[i] = 0.0;
         inc = pit[i] * frtosamps;
         self->pointerPos += inc;
-        
+
         for (j=0; j<self->ngrains; j++) {
             ppos = self->pointerPos + self->gphase[j];
             if (ppos >= 1.0) {
@@ -403,13 +403,13 @@ Granulator_transform_aia(Granulator *self) {
             x = envlist[ipart];
             x1 = envlist[ipart+1];
             amp = x + (x1 - x) * fpart;
-            
+
             if (ppos < self->lastppos[j]) {
                 self->startPos[j] = pos;
                 self->gsize[j] = dur[i] * self->sr;
             }
             self->lastppos[j] = ppos;
-            
+
             // compute sampling
             index = ppos * self->gsize[j] + self->startPos[j];
             if (index >= 0 && index < size) {
@@ -421,38 +421,38 @@ Granulator_transform_aia(Granulator *self) {
             }
             else
                 val = 0.0;
-            
+
             self->data[i] += (val * amp);
         }
-        
+
         if (self->pointerPos < 0)
             self->pointerPos += 1.0;
         else if (self->pointerPos >= 1)
             self->pointerPos -= 1.0;
-    } 
+    }
 }
 
 static void
 Granulator_transform_iaa(Granulator *self) {
     MYFLT val, x, x1, inc, index, fpart, amp, ppos;
     int i, j, ipart;
-    
+
     MYFLT *tablelist = TableStream_getData(self->table);
     int size = TableStream_getSize(self->table);
-    
+
     MYFLT *envlist = TableStream_getData(self->env);
     int envsize = TableStream_getSize(self->env);
-    
+
     MYFLT pit = PyFloat_AS_DOUBLE(self->pitch);
     MYFLT *pos = Stream_getData((Stream *)self->pos_stream);
     MYFLT *dur = Stream_getData((Stream *)self->dur_stream);
-    
+
     inc = pit * (1.0 / self->basedur) / self->sr;
 
     for (i=0; i<self->bufsize; i++) {
         self->data[i] = 0.0;
         self->pointerPos += inc;
-        
+
         for (j=0; j<self->ngrains; j++) {
             ppos = self->pointerPos + self->gphase[j];
             if (ppos >= 1.0) {
@@ -465,13 +465,13 @@ Granulator_transform_iaa(Granulator *self) {
             x = envlist[ipart];
             x1 = envlist[ipart+1];
             amp = x + (x1 - x) * fpart;
-            
+
             if (ppos < self->lastppos[j]) {
                 self->startPos[j] = pos[i];
                 self->gsize[j] = dur[i] * self->sr;
             }
             self->lastppos[j] = ppos;
-            
+
             // compute sampling
             index = ppos * self->gsize[j] + self->startPos[j];
             if (index >= 0 && index < size) {
@@ -483,39 +483,39 @@ Granulator_transform_iaa(Granulator *self) {
             }
             else
                 val = 0.0;
-            
+
             self->data[i] += (val * amp);
         }
-        
+
         if (self->pointerPos < 0)
             self->pointerPos += 1.0;
         else if (self->pointerPos >= 1)
             self->pointerPos -= 1.0;
-    }    
+    }
 }
 
 static void
-Granulator_transform_aaa(Granulator *self) { 
+Granulator_transform_aaa(Granulator *self) {
     MYFLT val, x, x1, inc, index, fpart, amp, ppos, frtosamps;
     int i, j, ipart;
-    
+
     MYFLT *tablelist = TableStream_getData(self->table);
     int size = TableStream_getSize(self->table);
-    
+
     MYFLT *envlist = TableStream_getData(self->env);
     int envsize = TableStream_getSize(self->env);
-    
+
     MYFLT *pit = Stream_getData((Stream *)self->pitch_stream);
     MYFLT *pos = Stream_getData((Stream *)self->pos_stream);
     MYFLT *dur = Stream_getData((Stream *)self->dur_stream);
-    
+
     frtosamps = (1.0 / self->basedur) / self->sr;
-    
+
     for (i=0; i<self->bufsize; i++) {
         self->data[i] = 0.0;
         inc = pit[i] * frtosamps;
         self->pointerPos += inc;
-        
+
         for (j=0; j<self->ngrains; j++) {
             ppos = self->pointerPos + self->gphase[j];
             if (ppos >= 1.0) {
@@ -528,13 +528,13 @@ Granulator_transform_aaa(Granulator *self) {
             x = envlist[ipart];
             x1 = envlist[ipart+1];
             amp = x + (x1 - x) * fpart;
-            
+
             if (ppos < self->lastppos[j]) {
                 self->startPos[j] = pos[i];
                 self->gsize[j] = dur[i] * self->sr;
             }
             self->lastppos[j] = ppos;
-            
+
             // compute sampling
             index = ppos * self->gsize[j] + self->startPos[j];
             if (index >= 0 && index < size) {
@@ -546,15 +546,15 @@ Granulator_transform_aaa(Granulator *self) {
             }
             else
                 val = 0.0;
-            
+
             self->data[i] += (val * amp);
         }
-        
+
         if (self->pointerPos < 0)
             self->pointerPos += 1.0;
         else if (self->pointerPos >= 1)
             self->pointerPos -= 1.0;
-    } 
+    }
 }
 
 static void Granulator_postprocessing_ii(Granulator *self) { POST_PROCESSING_II };
@@ -575,66 +575,66 @@ Granulator_setProcMode(Granulator *self)
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
 
 	switch (procmode) {
-        case 0:    
+        case 0:
             self->proc_func_ptr = Granulator_transform_iii;
             break;
-        case 1:    
+        case 1:
             self->proc_func_ptr = Granulator_transform_aii;
             break;
-        case 10:        
+        case 10:
             self->proc_func_ptr = Granulator_transform_iai;
             break;
-        case 11:    
+        case 11:
             self->proc_func_ptr = Granulator_transform_aai;
             break;
-        case 100:        
+        case 100:
             self->proc_func_ptr = Granulator_transform_iia;
             break;
-        case 101:    
+        case 101:
             self->proc_func_ptr = Granulator_transform_aia;
             break;
-        case 110:        
+        case 110:
             self->proc_func_ptr = Granulator_transform_iaa;
             break;
-        case 111:    
+        case 111:
             self->proc_func_ptr = Granulator_transform_aaa;
             break;
-    } 
+    }
 	switch (muladdmode) {
-        case 0:        
+        case 0:
             self->muladd_func_ptr = Granulator_postprocessing_ii;
             break;
-        case 1:    
+        case 1:
             self->muladd_func_ptr = Granulator_postprocessing_ai;
             break;
-        case 2:    
+        case 2:
             self->muladd_func_ptr = Granulator_postprocessing_revai;
             break;
-        case 10:        
+        case 10:
             self->muladd_func_ptr = Granulator_postprocessing_ia;
             break;
-        case 11:    
+        case 11:
             self->muladd_func_ptr = Granulator_postprocessing_aa;
             break;
-        case 12:    
+        case 12:
             self->muladd_func_ptr = Granulator_postprocessing_revaa;
             break;
-        case 20:        
+        case 20:
             self->muladd_func_ptr = Granulator_postprocessing_ireva;
             break;
-        case 21:    
+        case 21:
             self->muladd_func_ptr = Granulator_postprocessing_areva;
             break;
-        case 22:    
+        case 22:
             self->muladd_func_ptr = Granulator_postprocessing_revareva;
             break;
-    }   
+    }
 }
 
 static void
 Granulator_compute_next_data_frame(Granulator *self)
 {
-    (*self->proc_func_ptr)(self); 
+    (*self->proc_func_ptr)(self);
     (*self->muladd_func_ptr)(self);
 }
 
@@ -644,27 +644,27 @@ Granulator_traverse(Granulator *self, visitproc visit, void *arg)
     pyo_VISIT
     Py_VISIT(self->table);
     Py_VISIT(self->env);
-    Py_VISIT(self->pitch);    
-    Py_VISIT(self->pitch_stream);    
-    Py_VISIT(self->pos);    
-    Py_VISIT(self->pos_stream);    
-    Py_VISIT(self->dur);    
-    Py_VISIT(self->dur_stream);    
+    Py_VISIT(self->pitch);
+    Py_VISIT(self->pitch_stream);
+    Py_VISIT(self->pos);
+    Py_VISIT(self->pos_stream);
+    Py_VISIT(self->dur);
+    Py_VISIT(self->dur_stream);
     return 0;
 }
 
-static int 
+static int
 Granulator_clear(Granulator *self)
 {
     pyo_CLEAR
     Py_CLEAR(self->table);
     Py_CLEAR(self->env);
-    Py_CLEAR(self->pitch);    
-    Py_CLEAR(self->pitch_stream);    
-    Py_CLEAR(self->pos);    
-    Py_CLEAR(self->pos_stream);    
-    Py_CLEAR(self->dur);    
-    Py_CLEAR(self->dur_stream);    
+    Py_CLEAR(self->pitch);
+    Py_CLEAR(self->pitch_stream);
+    Py_CLEAR(self->pos);
+    Py_CLEAR(self->pos_stream);
+    Py_CLEAR(self->dur);
+    Py_CLEAR(self->dur_stream);
     return 0;
 }
 
@@ -672,7 +672,7 @@ static void
 Granulator_dealloc(Granulator* self)
 {
     pyo_DEALLOC
-    free(self->startPos);   
+    free(self->startPos);
     free(self->gphase);
     free(self->gsize);
     free(self->lastppos);
@@ -723,7 +723,7 @@ Granulator_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     }
     Py_XDECREF(self->env);
     self->env = PyObject_CallMethod((PyObject *)envtmp, "getTableStream", "");
-    
+
     if (pitchtmp) {
         PyObject_CallMethod((PyObject *)self, "setPitch", "O", pitchtmp);
     }
@@ -735,7 +735,7 @@ Granulator_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (durtmp) {
         PyObject_CallMethod((PyObject *)self, "setDur", "O", durtmp);
     }
-    
+
     if (multmp) {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
     }
@@ -743,7 +743,7 @@ Granulator_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (addtmp) {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
- 
+
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
     self->startPos = (MYFLT *)realloc(self->startPos, self->ngrains * sizeof(MYFLT));
@@ -752,7 +752,7 @@ Granulator_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->lastppos = (MYFLT *)realloc(self->lastppos, self->ngrains * sizeof(MYFLT));
 
     Server_generateSeed((Server *)self->server, GRANULATOR_ID);
-    
+
     for (i=0; i<self->ngrains; i++) {
         phase = ((MYFLT)i/self->ngrains) * (1.0 + ((rand()/((MYFLT)(RAND_MAX)+1)*2.0-1.0) * 0.01));
         if (phase < 0.0)
@@ -763,18 +763,18 @@ Granulator_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         self->startPos[i] = self->gsize[i] = 0.0;
         self->lastppos[i] = 1.0;
     }
-    
+
     (*self->mode_func_ptr)(self);
-    
+
     return (PyObject *)self;
 }
 
 static PyObject * Granulator_getServer(Granulator* self) { GET_SERVER };
 static PyObject * Granulator_getStream(Granulator* self) { GET_STREAM };
-static PyObject * Granulator_setMul(Granulator *self, PyObject *arg) { SET_MUL };	
-static PyObject * Granulator_setAdd(Granulator *self, PyObject *arg) { SET_ADD };	
-static PyObject * Granulator_setSub(Granulator *self, PyObject *arg) { SET_SUB };	
-static PyObject * Granulator_setDiv(Granulator *self, PyObject *arg) { SET_DIV };	
+static PyObject * Granulator_setMul(Granulator *self, PyObject *arg) { SET_MUL };
+static PyObject * Granulator_setAdd(Granulator *self, PyObject *arg) { SET_ADD };
+static PyObject * Granulator_setSub(Granulator *self, PyObject *arg) { SET_SUB };
+static PyObject * Granulator_setDiv(Granulator *self, PyObject *arg) { SET_DIV };
 
 static PyObject * Granulator_play(Granulator *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * Granulator_out(Granulator *self, PyObject *args, PyObject *kwds) { OUT };
@@ -793,14 +793,14 @@ static PyObject *
 Granulator_setPitch(Granulator *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
-	
+
 	if (arg == NULL) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
 	int isNumber = PyNumber_Check(arg);
-	
+
 	tmp = arg;
 	Py_INCREF(tmp);
 	Py_DECREF(self->pitch);
@@ -816,25 +816,25 @@ Granulator_setPitch(Granulator *self, PyObject *arg)
         self->pitch_stream = (Stream *)streamtmp;
 		self->modebuffer[2] = 1;
 	}
-    
+
     (*self->mode_func_ptr)(self);
-    
+
 	Py_INCREF(Py_None);
 	return Py_None;
-}	
+}
 
 static PyObject *
 Granulator_setPos(Granulator *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
-	
+
 	if (arg == NULL) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
 	int isNumber = PyNumber_Check(arg);
-	
+
 	tmp = arg;
 	Py_INCREF(tmp);
 	Py_DECREF(self->pos);
@@ -850,25 +850,25 @@ Granulator_setPos(Granulator *self, PyObject *arg)
         self->pos_stream = (Stream *)streamtmp;
 		self->modebuffer[3] = 1;
 	}
-    
+
     (*self->mode_func_ptr)(self);
-    
+
 	Py_INCREF(Py_None);
 	return Py_None;
-}	
+}
 
 static PyObject *
 Granulator_setDur(Granulator *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
-	
+
 	if (arg == NULL) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
 	int isNumber = PyNumber_Check(arg);
-	
+
 	tmp = arg;
 	Py_INCREF(tmp);
 	Py_DECREF(self->dur);
@@ -884,9 +884,9 @@ Granulator_setDur(Granulator *self, PyObject *arg)
         self->dur_stream = (Stream *)streamtmp;
 		self->modebuffer[4] = 1;
 	}
-    
+
     (*self->mode_func_ptr)(self);
-    
+
 	Py_INCREF(Py_None);
 	return Py_None;
 }
@@ -902,19 +902,19 @@ static PyObject *
 Granulator_setTable(Granulator *self, PyObject *arg)
 {
 	PyObject *tmp;
-	
+
 	if (arg == NULL) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
 	tmp = arg;
 	Py_DECREF(self->table);
     self->table = PyObject_CallMethod((PyObject *)tmp, "getTableStream", "");
-    
+
 	Py_INCREF(Py_None);
 	return Py_None;
-}	
+}
 
 static PyObject *
 Granulator_getEnv(Granulator* self)
@@ -927,33 +927,33 @@ static PyObject *
 Granulator_setEnv(Granulator *self, PyObject *arg)
 {
 	PyObject *tmp;
-	
+
 	if (arg == NULL) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
 	tmp = arg;
 	Py_DECREF(self->env);
     self->env = PyObject_CallMethod((PyObject *)tmp, "getTableStream", "");
-    
+
 	Py_INCREF(Py_None);
 	return Py_None;
-}	
+}
 
 static PyObject *
 Granulator_setBaseDur(Granulator *self, PyObject *arg)
-{	
+{
 	if (arg != NULL)
         self->basedur = PyFloat_AS_DOUBLE(PyNumber_Float(arg));
-        
+
 	Py_INCREF(Py_None);
 	return Py_None;
-}	
+}
 
 static PyObject *
 Granulator_setGrains(Granulator *self, PyObject *arg)
-{	
+{
     int i;
     MYFLT phase;
 	if (PyLong_Check(arg) || PyInt_Check(arg)) {
@@ -962,7 +962,7 @@ Granulator_setGrains(Granulator *self, PyObject *arg)
         self->gsize = (MYFLT *)realloc(self->gsize, self->ngrains * sizeof(MYFLT));
         self->gphase = (MYFLT *)realloc(self->gphase, self->ngrains * sizeof(MYFLT));
         self->lastppos = (MYFLT *)realloc(self->lastppos, self->ngrains * sizeof(MYFLT));
-        
+
         for (i=0; i<self->ngrains; i++) {
             phase = ((MYFLT)i/self->ngrains) * (1.0 + ((rand()/((MYFLT)(RAND_MAX)+1)*2.0-1.0) * 0.01));
             if (phase < 0.0)
@@ -972,12 +972,12 @@ Granulator_setGrains(Granulator *self, PyObject *arg)
             self->gphase[i] = phase;
             self->startPos[i] = self->gsize[i] = 0.0;
             self->lastppos[i] = 1.0;
-        }  
-    }    
-    
+        }
+    }
+
 	Py_INCREF(Py_None);
 	return Py_None;
-}	
+}
 
 static PyMemberDef Granulator_members[] = {
     {"server", T_OBJECT_EX, offsetof(Granulator, server), 0, "Pyo server."},
@@ -1134,7 +1134,7 @@ typedef struct {
     MYFLT y2;
     // variables
     MYFLT c1;
-    
+
 } Looper;
 
 static void
@@ -1156,7 +1156,7 @@ Looper_reset(Looper *self, int x, int which, int init) {
         xfade = PyFloat_AS_DOUBLE(self->xfade);
     else
         xfade = Stream_getData((Stream *)self->xfade_stream)[x];
-    
+
     if (start < 0.0)
         start = 0.0;
     else if (start > (size/tableSr))
@@ -1176,10 +1176,10 @@ Looper_reset(Looper *self, int x, int which, int init) {
         self->fader = LOOPER_SIGMOID_FADE;
     else
         self->fader = LOOPER_LINEAR_FADE;
-    
+
     if (self->tmpmode != self->mode[which])
         self->mode[which] = self->tmpmode;
-    
+
     switch (self->mode[which]) {
         case 0:
             self->loopstart[which] = 0;
@@ -1213,8 +1213,8 @@ Looper_reset(Looper *self, int x, int which, int init) {
             else {
                 self->minfadepoint[which] = self->loopstart[which] + self->crossfadedur[which];
                 self->maxfadepoint[which] = self->loopend[which] - self->crossfadedur[which];
-                self->pointerPos[which] = self->loopstart[which];        
-            }            
+                self->pointerPos[which] = self->loopstart[which];
+            }
             break;
         case 2:
             self->loopstart[which] = (long)((start + dur) * tableSr);
@@ -1232,7 +1232,7 @@ Looper_reset(Looper *self, int x, int which, int init) {
                 self->minfadepoint[which] = self->loopstart[which] - self->crossfadedur[which];
                 self->maxfadepoint[which] = self->loopend[which] + self->crossfadedur[which];
                 self->pointerPos[which] = self->loopstart[which];
-            }            
+            }
             break;
         case 3:
             if (self->direction[1-which] == 0) {
@@ -1263,7 +1263,7 @@ Looper_reset(Looper *self, int x, int which, int init) {
                 else {
                     self->minfadepoint[which] = self->loopstart[which] + self->crossfadedur[which];
                     self->maxfadepoint[which] = self->loopend[which] - self->crossfadedur[which];
-                    self->pointerPos[which] = self->loopstart[which];        
+                    self->pointerPos[which] = self->loopstart[which];
                 }
             }
             break;
@@ -1282,7 +1282,7 @@ Looper_transform_i(Looper *self) {
     MYFLT fpart, amp, fr;
     double pit;
     int i, j, ipart;
-    
+
     MYFLT *tablelist = TableStream_getData(self->table);
     int size = TableStream_getSize(self->table);
     double tableSr = TableStream_getSamplingRate(self->table);
@@ -1290,9 +1290,9 @@ Looper_transform_i(Looper *self) {
     MYFLT pitval = PyFloat_AS_DOUBLE(self->pitch);
     if (pitval < 0.0)
         pitval = 0.0;
-    
+
     pit = pitval * tableSr / self->sr;
-    
+
     if (self->active[0] == 0 && self->active[1] == 0) {
         Looper_reset(self, 0, 0, 1);
     }
@@ -1346,7 +1346,7 @@ Looper_transform_i(Looper *self) {
                         if (self->pointerPos[j] < 0.0)
                             self->pointerPos[j] = 0.0;
                         else if (self->pointerPos[j] > self->maxfadepoint[j] && self->active[1-j] == 0)
-                            Looper_reset(self, i, 1-j, 0);                    
+                            Looper_reset(self, i, 1-j, 0);
                         if (self->pointerPos[j] >= self->loopend[j])
                             self->active[j] = 0;
                         break;
@@ -1370,7 +1370,7 @@ Looper_transform_i(Looper *self) {
                         if (self->pointerPos[j] >= size)
                             self->pointerPos[j] = size-1;
                         else if (self->pointerPos[j] < self->maxfadepoint[j] && self->active[1-j] == 0)
-                            Looper_reset(self, i, 1-j, 0);                    
+                            Looper_reset(self, i, 1-j, 0);
                         if (self->pointerPos[j] <= self->loopend[j])
                             self->active[j] = 0;
                         break;
@@ -1395,7 +1395,7 @@ Looper_transform_i(Looper *self) {
                             if (self->pointerPos[j] < 0.0)
                                 self->pointerPos[j] = 0.0;
                             else if (self->pointerPos[j] > self->maxfadepoint[j] && self->active[1-j] == 0)
-                                Looper_reset(self, i, 1-j, 0);                    
+                                Looper_reset(self, i, 1-j, 0);
                             if (self->pointerPos[j] >= self->loopend[j])
                                 self->active[j] = 0;
                         }
@@ -1419,7 +1419,7 @@ Looper_transform_i(Looper *self) {
                             if (self->pointerPos[j] >= size)
                                 self->pointerPos[j] = size-1;
                             else if (self->pointerPos[j] < self->maxfadepoint[j] && self->active[1-j] == 0)
-                                Looper_reset(self, i, 1-j, 0);                    
+                                Looper_reset(self, i, 1-j, 0);
                             if (self->pointerPos[j] <= self->loopend[j])
                                 self->active[j] = 0;
                         }
@@ -1434,9 +1434,9 @@ Looper_transform_i(Looper *self) {
         if (self->lastpitch != pitval) {
             self->lastpitch = pitval;
             if (pitval < 0.001)
-                pitval = 0.001;    
+                pitval = 0.001;
             fr = pitval * self->sr * 0.45;
-            self->c1 = MYEXP(-TWOPI * fr / self->sr);            
+            self->c1 = MYEXP(-TWOPI * fr / self->sr);
         }
         for (i=0; i<self->bufsize; i++) {
             self->y1 = self->data[i] + (self->y1 - self->data[i]) * self->c1;
@@ -1451,11 +1451,11 @@ Looper_transform_a(Looper *self) {
     MYFLT fpart, amp, fr, pitval;
     double pit, srFactor;
     int i, j, ipart;
-    
+
     MYFLT *tablelist = TableStream_getData(self->table);
     int size = TableStream_getSize(self->table);
     double tableSr = TableStream_getSamplingRate(self->table);
-    
+
     MYFLT *pitch = Stream_getData((Stream *)self->pitch_stream);
 
     srFactor = tableSr / self->sr;
@@ -1468,7 +1468,7 @@ Looper_transform_a(Looper *self) {
         self->data[i] = 0.0;
         pitval = pitch[i];
         if (pitval < 0.0)
-            pitval = 0.0;    
+            pitval = 0.0;
         pit = pitval * srFactor;
         for (j=0; j<2; j++) {
             if (self->active[j] == 1) {
@@ -1517,7 +1517,7 @@ Looper_transform_a(Looper *self) {
                         if (self->pointerPos[j] < 0.0)
                             self->pointerPos[j] = 0.0;
                         else if (self->pointerPos[j] > self->maxfadepoint[j] && self->active[1-j] == 0)
-                            Looper_reset(self, i, 1-j, 0);                    
+                            Looper_reset(self, i, 1-j, 0);
                         if (self->pointerPos[j] >= self->loopend[j])
                             self->active[j] = 0;
                         break;
@@ -1541,7 +1541,7 @@ Looper_transform_a(Looper *self) {
                         if (self->pointerPos[j] >= size)
                             self->pointerPos[j] = size-1;
                         else if (self->pointerPos[j] < self->maxfadepoint[j] && self->active[1-j] == 0)
-                            Looper_reset(self, i, 1-j, 0);                    
+                            Looper_reset(self, i, 1-j, 0);
                         if (self->pointerPos[j] <= self->loopend[j])
                             self->active[j] = 0;
                         break;
@@ -1566,7 +1566,7 @@ Looper_transform_a(Looper *self) {
                             if (self->pointerPos[j] < 0.0)
                                 self->pointerPos[j] = 0.0;
                             else if (self->pointerPos[j] > self->maxfadepoint[j] && self->active[1-j] == 0)
-                                Looper_reset(self, i, 1-j, 0);                    
+                                Looper_reset(self, i, 1-j, 0);
                             if (self->pointerPos[j] >= self->loopend[j])
                                 self->active[j] = 0;
                         }
@@ -1590,7 +1590,7 @@ Looper_transform_a(Looper *self) {
                             if (self->pointerPos[j] >= size)
                                 self->pointerPos[j] = size-1;
                             else if (self->pointerPos[j] < self->maxfadepoint[j] && self->active[1-j] == 0)
-                                Looper_reset(self, i, 1-j, 0);                    
+                                Looper_reset(self, i, 1-j, 0);
                             if (self->pointerPos[j] <= self->loopend[j])
                                 self->active[j] = 0;
                         }
@@ -1605,12 +1605,12 @@ Looper_transform_a(Looper *self) {
         for (i=0; i<self->bufsize; i++) {
             pitval = pitch[i];
             if (pitval < 0.001)
-                pitval = 0.001;    
+                pitval = 0.001;
             if (pitval < 1.0) {
                 if (self->lastpitch != pitval) {
                     self->lastpitch = pitval;
                     fr = pitval * self->sr * 0.45;
-                    self->c1 = MYEXP(-TWOPI * fr / self->sr);            
+                    self->c1 = MYEXP(-TWOPI * fr / self->sr);
                 }
                 self->y1 = self->data[i] + (self->y1 - self->data[i]) * self->c1;
                 self->y2 = self->y1 + (self->y2 - self->y1) * self->c1;
@@ -1636,50 +1636,50 @@ Looper_setProcMode(Looper *self)
     int procmode, muladdmode;
     procmode = self->modebuffer[2];
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
-    
+
 	switch (procmode) {
-        case 0:    
+        case 0:
             self->proc_func_ptr = Looper_transform_i;
             break;
-        case 1:    
+        case 1:
             self->proc_func_ptr = Looper_transform_a;
             break;
-    } 
+    }
 	switch (muladdmode) {
-        case 0:        
+        case 0:
             self->muladd_func_ptr = Looper_postprocessing_ii;
             break;
-        case 1:    
+        case 1:
             self->muladd_func_ptr = Looper_postprocessing_ai;
             break;
-        case 2:    
+        case 2:
             self->muladd_func_ptr = Looper_postprocessing_revai;
             break;
-        case 10:        
+        case 10:
             self->muladd_func_ptr = Looper_postprocessing_ia;
             break;
-        case 11:    
+        case 11:
             self->muladd_func_ptr = Looper_postprocessing_aa;
             break;
-        case 12:    
+        case 12:
             self->muladd_func_ptr = Looper_postprocessing_revaa;
             break;
-        case 20:        
+        case 20:
             self->muladd_func_ptr = Looper_postprocessing_ireva;
             break;
-        case 21:    
+        case 21:
             self->muladd_func_ptr = Looper_postprocessing_areva;
             break;
-        case 22:    
+        case 22:
             self->muladd_func_ptr = Looper_postprocessing_revareva;
             break;
-    }   
+    }
 }
 
 static void
 Looper_compute_next_data_frame(Looper *self)
 {
-    (*self->proc_func_ptr)(self); 
+    (*self->proc_func_ptr)(self);
     (*self->muladd_func_ptr)(self);
 }
 
@@ -1688,30 +1688,30 @@ Looper_traverse(Looper *self, visitproc visit, void *arg)
 {
     pyo_VISIT
     Py_VISIT(self->table);
-    Py_VISIT(self->pitch);    
-    Py_VISIT(self->pitch_stream);    
-    Py_VISIT(self->start);    
-    Py_VISIT(self->start_stream);    
-    Py_VISIT(self->dur);    
-    Py_VISIT(self->dur_stream);    
-    Py_VISIT(self->xfade);    
-    Py_VISIT(self->xfade_stream);    
+    Py_VISIT(self->pitch);
+    Py_VISIT(self->pitch_stream);
+    Py_VISIT(self->start);
+    Py_VISIT(self->start_stream);
+    Py_VISIT(self->dur);
+    Py_VISIT(self->dur_stream);
+    Py_VISIT(self->xfade);
+    Py_VISIT(self->xfade_stream);
     return 0;
 }
 
-static int 
+static int
 Looper_clear(Looper *self)
 {
     pyo_CLEAR
     Py_CLEAR(self->table);
-    Py_CLEAR(self->pitch);    
-    Py_CLEAR(self->pitch_stream);    
-    Py_CLEAR(self->start);    
-    Py_CLEAR(self->start_stream);    
-    Py_CLEAR(self->dur);    
-    Py_CLEAR(self->dur_stream);    
-    Py_CLEAR(self->xfade);    
-    Py_CLEAR(self->xfade_stream);    
+    Py_CLEAR(self->pitch);
+    Py_CLEAR(self->pitch_stream);
+    Py_CLEAR(self->start);
+    Py_CLEAR(self->start_stream);
+    Py_CLEAR(self->dur);
+    Py_CLEAR(self->dur_stream);
+    Py_CLEAR(self->xfade);
+    Py_CLEAR(self->xfade_stream);
     return 0;
 }
 
@@ -1730,7 +1730,7 @@ Looper_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *tabletmp, *pitchtmp=NULL, *starttmp=NULL, *durtmp=NULL, *xfadetmp=NULL, *multmp=NULL, *addtmp=NULL;
     Looper *self;
     self = (Looper *)type->tp_alloc(type, 0);
-    
+
     self->pitch = PyFloat_FromDouble(1.0);
     self->start = PyFloat_FromDouble(0.0);
     self->dur = PyFloat_FromDouble(1.0);
@@ -1751,16 +1751,16 @@ Looper_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 	self->modebuffer[2] = 0;
 	self->modebuffer[3] = 0;
 	self->modebuffer[4] = 0;
-    
+
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, Looper_compute_next_data_frame);
     self->mode_func_ptr = Looper_setProcMode;
 
     static char *kwlist[] = {"table", "pitch", "start", "dur", "xfade", "mode", "xfadeshape", "startfromloop", "interp", "autosmooth", "mul", "add", NULL};
-    
+
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOOOiiiiiOO", kwlist, &tabletmp, &pitchtmp, &starttmp, &durtmp, &xfadetmp, &self->tmpmode, &self->xfadeshape, &self->startfromloop, &self->interp, &self->autosmooth, &multmp, &addtmp))
         Py_RETURN_NONE;
-    
+
     if ( PyObject_HasAttrString((PyObject *)tabletmp, "getTableStream") == 0 ) {
         PyErr_SetString(PyExc_TypeError, "\"table\" argument of Looper must be a PyoTableObject.\n");
         Py_RETURN_NONE;
@@ -1771,11 +1771,11 @@ Looper_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (pitchtmp) {
         PyObject_CallMethod((PyObject *)self, "setPitch", "O", pitchtmp);
     }
-    
+
     if (starttmp) {
         PyObject_CallMethod((PyObject *)self, "setStart", "O", starttmp);
     }
-    
+
     if (durtmp) {
         PyObject_CallMethod((PyObject *)self, "setDur", "O", durtmp);
     }
@@ -1783,35 +1783,35 @@ Looper_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (xfadetmp) {
         PyObject_CallMethod((PyObject *)self, "setXfade", "O", xfadetmp);
     }
-    
+
     if (multmp) {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
     }
-    
+
     if (addtmp) {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
-    
+
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
-    
+
     (*self->mode_func_ptr)(self);
-    
+
     if (self->tmpmode >= 0 && self->tmpmode < 4)
         self->mode[0] = self->mode[1] = self->tmpmode;
     else
         self->mode[0] = self->mode[1] = self->tmpmode = 1;
 
     SET_INTERP_POINTER
-    
+
     return (PyObject *)self;
 }
 
 static PyObject * Looper_getServer(Looper* self) { GET_SERVER };
 static PyObject * Looper_getStream(Looper* self) { GET_STREAM };
-static PyObject * Looper_setMul(Looper *self, PyObject *arg) { SET_MUL };	
-static PyObject * Looper_setAdd(Looper *self, PyObject *arg) { SET_ADD };	
-static PyObject * Looper_setSub(Looper *self, PyObject *arg) { SET_SUB };	
-static PyObject * Looper_setDiv(Looper *self, PyObject *arg) { SET_DIV };	
+static PyObject * Looper_setMul(Looper *self, PyObject *arg) { SET_MUL };
+static PyObject * Looper_setAdd(Looper *self, PyObject *arg) { SET_ADD };
+static PyObject * Looper_setSub(Looper *self, PyObject *arg) { SET_SUB };
+static PyObject * Looper_setDiv(Looper *self, PyObject *arg) { SET_DIV };
 
 static PyObject * Looper_play(Looper *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * Looper_out(Looper *self, PyObject *args, PyObject *kwds) { OUT };
@@ -1830,14 +1830,14 @@ static PyObject *
 Looper_setPitch(Looper *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
-	
+
 	if (arg == NULL) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
 	int isNumber = PyNumber_Check(arg);
-	
+
 	tmp = arg;
 	Py_INCREF(tmp);
 	Py_DECREF(self->pitch);
@@ -1853,25 +1853,25 @@ Looper_setPitch(Looper *self, PyObject *arg)
         self->pitch_stream = (Stream *)streamtmp;
 		self->modebuffer[2] = 1;
 	}
-    
+
     (*self->mode_func_ptr)(self);
-    
+
 	Py_INCREF(Py_None);
 	return Py_None;
-}	
+}
 
 static PyObject *
 Looper_setStart(Looper *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
-	
+
 	if (arg == NULL) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
 	int isNumber = PyNumber_Check(arg);
-	
+
 	tmp = arg;
 	Py_INCREF(tmp);
 	Py_DECREF(self->start);
@@ -1890,20 +1890,20 @@ Looper_setStart(Looper *self, PyObject *arg)
 
 	Py_INCREF(Py_None);
 	return Py_None;
-}	
+}
 
 static PyObject *
 Looper_setDur(Looper *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
-	
+
 	if (arg == NULL) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
 	int isNumber = PyNumber_Check(arg);
-	
+
 	tmp = arg;
 	Py_INCREF(tmp);
 	Py_DECREF(self->dur);
@@ -1928,14 +1928,14 @@ static PyObject *
 Looper_setXfade(Looper *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
-	
+
 	if (arg == NULL) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
 	int isNumber = PyNumber_Check(arg);
-	
+
 	tmp = arg;
 	Py_INCREF(tmp);
 	Py_DECREF(self->xfade);
@@ -1967,19 +1967,19 @@ static PyObject *
 Looper_setTable(Looper *self, PyObject *arg)
 {
 	PyObject *tmp;
-	
+
 	if (arg == NULL) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
 	tmp = arg;
 	Py_DECREF(self->table);
     self->table = PyObject_CallMethod((PyObject *)tmp, "getTableStream", "");
-    
+
 	Py_INCREF(Py_None);
 	return Py_None;
-}	
+}
 
 static PyObject *
 Looper_setStartFromLoop(Looper *self, PyObject *arg)
@@ -1988,13 +1988,13 @@ Looper_setStartFromLoop(Looper *self, PyObject *arg)
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
     int isInt = PyInt_Check(arg);
-    
+
 	if (isInt == 1) {
 		self->startfromloop = PyInt_AsLong(arg);
-    }  
-    
+    }
+
     Py_INCREF(Py_None);
     return Py_None;
 }
@@ -2006,12 +2006,12 @@ Looper_setXfadeShape(Looper *self, PyObject *arg)
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
     int isInt = PyInt_Check(arg);
-    
+
 	if (isInt == 1) {
 		self->xfadeshape = PyInt_AsLong(arg);
-    }  
+    }
 
     Py_INCREF(Py_None);
     return Py_None;
@@ -2025,15 +2025,15 @@ Looper_setMode(Looper *self, PyObject *arg)
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
     int isInt = PyInt_Check(arg);
-    
+
 	if (isInt == 1) {
 		tmp = PyInt_AsLong(arg);
         if (tmp >= 0 && tmp < 4)
             self->tmpmode = tmp;
-    }  
-    
+    }
+
     Py_INCREF(Py_None);
     return Py_None;
 }
@@ -2045,15 +2045,15 @@ Looper_setInterp(Looper *self, PyObject *arg)
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
     int isNumber = PyNumber_Check(arg);
-    
+
 	if (isNumber == 1) {
 		self->interp = PyInt_AsLong(PyNumber_Int(arg));
-    }  
-    
+    }
+
     SET_INTERP_POINTER
-    
+
     Py_INCREF(Py_None);
     return Py_None;
 }
@@ -2065,19 +2065,19 @@ Looper_setAutoSmooth(Looper *self, PyObject *arg)
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
     int isInt = PyInt_Check(arg);
-    
+
 	if (isInt == 1) {
 		self->autosmooth = PyInt_AsLong(arg);
-    }  
-    
+    }
+
     Py_INCREF(Py_None);
     return Py_None;
 }
 
-static PyObject * 
-Looper_on_reset(Looper *self) { 
+static PyObject *
+Looper_on_reset(Looper *self) {
     self->pointerPos[0] = self->pointerPos[1] = 0.0;
     self->active[0] = self->active[1] = 0;
     Py_INCREF(Py_None);
@@ -2206,7 +2206,7 @@ PyTypeObject LooperType = {
     Looper_new,                 /* tp_new */
 };
 
-static const MYFLT Granule_MAX_GRAINS = 4096; 
+static const MYFLT Granule_MAX_GRAINS = 4096;
 typedef struct {
     pyo_audio_HEAD
     PyObject *table;
@@ -2235,21 +2235,21 @@ typedef struct {
 static void
 Granule_transform_i(Granule *self) {
     MYFLT dens, inc, index, amp, phase;
-    int i, j, ipart, flag = 0; 
-    MYFLT pit = 0, pos = 0, dur = 0; 
-    
+    int i, j, ipart, flag = 0;
+    MYFLT pit = 0, pos = 0, dur = 0;
+
     MYFLT *tablelist = TableStream_getData(self->table);
     int size = TableStream_getSize(self->table);
-    
+
     MYFLT *envlist = TableStream_getData(self->env);
     int envsize = TableStream_getSize(self->env);
-    
+
     dens = PyFloat_AS_DOUBLE(self->dens);
     if (dens < 0.0)
         dens = 0.0;
-    
+
     inc = dens * self->oneOnSr;
-    
+
     for (i=0; i<self->bufsize; i++) {
         self->data[i] = 0.0;
 
@@ -2324,18 +2324,18 @@ Granule_transform_i(Granule *self) {
             }
         }
         flag = 0;
-    }    
+    }
 }
 
 static void
 Granule_transform_a(Granule *self) {
     MYFLT index, amp, phase;
     int i, j, ipart, flag = 0;
-    MYFLT pit = 0, pos = 0, dur = 0; 
-    
+    MYFLT pit = 0, pos = 0, dur = 0;
+
     MYFLT *tablelist = TableStream_getData(self->table);
     int size = TableStream_getSize(self->table);
-    
+
     MYFLT *envlist = TableStream_getData(self->env);
     int envsize = TableStream_getSize(self->env);
 
@@ -2415,7 +2415,7 @@ Granule_transform_a(Granule *self) {
             }
         }
         flag = 0;
-    }    
+    }
 }
 
 static void Granule_postprocessing_ii(Granule *self) { POST_PROCESSING_II };
@@ -2436,48 +2436,48 @@ Granule_setProcMode(Granule *self)
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
 
 	switch (procmode) {
-        case 0:    
+        case 0:
             self->proc_func_ptr = Granule_transform_i;
             break;
-        case 1:    
+        case 1:
             self->proc_func_ptr = Granule_transform_a;
             break;
-    } 
+    }
 	switch (muladdmode) {
-        case 0:        
+        case 0:
             self->muladd_func_ptr = Granule_postprocessing_ii;
             break;
-        case 1:    
+        case 1:
             self->muladd_func_ptr = Granule_postprocessing_ai;
             break;
-        case 2:    
+        case 2:
             self->muladd_func_ptr = Granule_postprocessing_revai;
             break;
-        case 10:        
+        case 10:
             self->muladd_func_ptr = Granule_postprocessing_ia;
             break;
-        case 11:    
+        case 11:
             self->muladd_func_ptr = Granule_postprocessing_aa;
             break;
-        case 12:    
+        case 12:
             self->muladd_func_ptr = Granule_postprocessing_revaa;
             break;
-        case 20:        
+        case 20:
             self->muladd_func_ptr = Granule_postprocessing_ireva;
             break;
-        case 21:    
+        case 21:
             self->muladd_func_ptr = Granule_postprocessing_areva;
             break;
-        case 22:    
+        case 22:
             self->muladd_func_ptr = Granule_postprocessing_revareva;
             break;
-    }   
+    }
 }
 
 static void
 Granule_compute_next_data_frame(Granule *self)
 {
-    (*self->proc_func_ptr)(self); 
+    (*self->proc_func_ptr)(self);
     (*self->muladd_func_ptr)(self);
 }
 
@@ -2487,31 +2487,31 @@ Granule_traverse(Granule *self, visitproc visit, void *arg)
     pyo_VISIT
     Py_VISIT(self->table);
     Py_VISIT(self->env);
-    Py_VISIT(self->dens);    
-    Py_VISIT(self->dens_stream);    
-    Py_VISIT(self->pitch);    
-    Py_VISIT(self->pitch_stream);    
-    Py_VISIT(self->pos);    
-    Py_VISIT(self->pos_stream);    
-    Py_VISIT(self->dur);    
-    Py_VISIT(self->dur_stream);    
+    Py_VISIT(self->dens);
+    Py_VISIT(self->dens_stream);
+    Py_VISIT(self->pitch);
+    Py_VISIT(self->pitch_stream);
+    Py_VISIT(self->pos);
+    Py_VISIT(self->pos_stream);
+    Py_VISIT(self->dur);
+    Py_VISIT(self->dur_stream);
     return 0;
 }
 
-static int 
+static int
 Granule_clear(Granule *self)
 {
     pyo_CLEAR
     Py_CLEAR(self->table);
     Py_CLEAR(self->env);
-    Py_CLEAR(self->dens);    
-    Py_CLEAR(self->dens_stream);    
-    Py_CLEAR(self->pitch);    
-    Py_CLEAR(self->pitch_stream);    
-    Py_CLEAR(self->pos);    
-    Py_CLEAR(self->pos_stream);    
-    Py_CLEAR(self->dur);    
-    Py_CLEAR(self->dur_stream);    
+    Py_CLEAR(self->dens);
+    Py_CLEAR(self->dens_stream);
+    Py_CLEAR(self->pitch);
+    Py_CLEAR(self->pitch_stream);
+    Py_CLEAR(self->pos);
+    Py_CLEAR(self->pos_stream);
+    Py_CLEAR(self->dur);
+    Py_CLEAR(self->dur_stream);
     return 0;
 }
 
@@ -2519,7 +2519,7 @@ static void
 Granule_dealloc(Granule* self)
 {
     pyo_DEALLOC
-    free(self->gpos);   
+    free(self->gpos);
     free(self->glen);
     free(self->inc);
     free(self->flags);
@@ -2551,7 +2551,7 @@ Granule_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 	self->modebuffer[5] = 0;
 
     INIT_OBJECT_COMMON
-    
+
     self->oneOnSr = 1.0 / self->sr;
     self->srOnRandMax = self->sr / (MYFLT)RAND_MAX;
 
@@ -2580,7 +2580,7 @@ Granule_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (denstmp) {
         PyObject_CallMethod((PyObject *)self, "setDens", "O", denstmp);
     }
-    
+
     if (pitchtmp) {
         PyObject_CallMethod((PyObject *)self, "setPitch", "O", pitchtmp);
     }
@@ -2592,7 +2592,7 @@ Granule_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (durtmp) {
         PyObject_CallMethod((PyObject *)self, "setDur", "O", durtmp);
     }
-    
+
     if (multmp) {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
     }
@@ -2600,7 +2600,7 @@ Granule_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (addtmp) {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
- 
+
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
     self->gpos = (MYFLT *)realloc(self->gpos, Granule_MAX_GRAINS * sizeof(MYFLT));
@@ -2608,25 +2608,25 @@ Granule_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->inc = (MYFLT *)realloc(self->inc, Granule_MAX_GRAINS * sizeof(MYFLT));
     self->phase = (MYFLT *)realloc(self->phase, Granule_MAX_GRAINS * sizeof(MYFLT));
     self->flags = (int *)realloc(self->flags, Granule_MAX_GRAINS * sizeof(int));
-    
+
     for (i=0; i<Granule_MAX_GRAINS; i++) {
         self->gpos[i] = self->glen[i] = self->inc[i] = self->phase[i] = 0.0;
         self->flags[i] = 0;
     }
-  
+
     Server_generateSeed((Server *)self->server, GRANULE_ID);
-  
+
     (*self->mode_func_ptr)(self);
-    
+
     return (PyObject *)self;
 }
 
 static PyObject * Granule_getServer(Granule* self) { GET_SERVER };
 static PyObject * Granule_getStream(Granule* self) { GET_STREAM };
-static PyObject * Granule_setMul(Granule *self, PyObject *arg) { SET_MUL };	
-static PyObject * Granule_setAdd(Granule *self, PyObject *arg) { SET_ADD };	
-static PyObject * Granule_setSub(Granule *self, PyObject *arg) { SET_SUB };	
-static PyObject * Granule_setDiv(Granule *self, PyObject *arg) { SET_DIV };	
+static PyObject * Granule_setMul(Granule *self, PyObject *arg) { SET_MUL };
+static PyObject * Granule_setAdd(Granule *self, PyObject *arg) { SET_ADD };
+static PyObject * Granule_setSub(Granule *self, PyObject *arg) { SET_SUB };
+static PyObject * Granule_setDiv(Granule *self, PyObject *arg) { SET_DIV };
 
 static PyObject * Granule_play(Granule *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * Granule_out(Granule *self, PyObject *args, PyObject *kwds) { OUT };
@@ -2645,14 +2645,14 @@ static PyObject *
 Granule_setDens(Granule *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
-	
+
 	if (arg == NULL) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
 	int isNumber = PyNumber_Check(arg);
-	
+
 	tmp = arg;
 	Py_INCREF(tmp);
 	Py_DECREF(self->dens);
@@ -2668,25 +2668,25 @@ Granule_setDens(Granule *self, PyObject *arg)
         self->dens_stream = (Stream *)streamtmp;
 		self->modebuffer[2] = 1;
 	}
-    
+
     (*self->mode_func_ptr)(self);
-    
+
 	Py_INCREF(Py_None);
 	return Py_None;
-}	
+}
 
 static PyObject *
 Granule_setPitch(Granule *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
-	
+
 	if (arg == NULL) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
 	int isNumber = PyNumber_Check(arg);
-	
+
 	tmp = arg;
 	Py_INCREF(tmp);
 	Py_DECREF(self->pitch);
@@ -2705,20 +2705,20 @@ Granule_setPitch(Granule *self, PyObject *arg)
 
 	Py_INCREF(Py_None);
 	return Py_None;
-}	
+}
 
 static PyObject *
 Granule_setPos(Granule *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
-	
+
 	if (arg == NULL) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
 	int isNumber = PyNumber_Check(arg);
-	
+
 	tmp = arg;
 	Py_INCREF(tmp);
 	Py_DECREF(self->pos);
@@ -2737,20 +2737,20 @@ Granule_setPos(Granule *self, PyObject *arg)
 
 	Py_INCREF(Py_None);
 	return Py_None;
-}	
+}
 
 static PyObject *
 Granule_setDur(Granule *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
-	
+
 	if (arg == NULL) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
 	int isNumber = PyNumber_Check(arg);
-	
+
 	tmp = arg;
 	Py_INCREF(tmp);
 	Py_DECREF(self->dur);
@@ -2782,19 +2782,19 @@ static PyObject *
 Granule_setTable(Granule *self, PyObject *arg)
 {
 	PyObject *tmp;
-	
+
 	if (arg == NULL) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
 	tmp = arg;
 	Py_DECREF(self->table);
     self->table = PyObject_CallMethod((PyObject *)tmp, "getTableStream", "");
-    
+
 	Py_INCREF(Py_None);
 	return Py_None;
-}	
+}
 
 static PyObject *
 Granule_getEnv(Granule* self)
@@ -2807,19 +2807,19 @@ static PyObject *
 Granule_setEnv(Granule *self, PyObject *arg)
 {
 	PyObject *tmp;
-	
+
 	if (arg == NULL) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
 	tmp = arg;
 	Py_DECREF(self->env);
     self->env = PyObject_CallMethod((PyObject *)tmp, "getTableStream", "");
-    
+
 	Py_INCREF(Py_None);
 	return Py_None;
-}	
+}
 
 static PyObject *
 Granule_setSync(Granule *self, PyObject *arg)
@@ -2834,7 +2834,7 @@ Granule_setSync(Granule *self, PyObject *arg)
 
 	Py_INCREF(Py_None);
 	return Py_None;
-}	
+}
 
 static PyMemberDef Granule_members[] = {
     {"server", T_OBJECT_EX, offsetof(Granule, server), 0, "Pyo server."},
@@ -2956,7 +2956,7 @@ PyTypeObject GranuleType = {
     Granule_new,                 /* tp_new */
 };
 
-static const MYFLT MAINPARTICLE_MAX_GRAINS = 4096; 
+static const MYFLT MAINPARTICLE_MAX_GRAINS = 4096;
 typedef struct {
     pyo_audio_HEAD
     PyObject *table;
@@ -2996,25 +2996,25 @@ typedef struct {
 static void
 MainParticle_transform_mono_i(MainParticle *self) {
     MYFLT dens, inc, index, amp, phase, val;
-    int i, j, ipart, flag = 0; 
-    MYFLT pit = 0, pos = 0, dur = 0, dev = 0; 
-    
+    int i, j, ipart, flag = 0;
+    MYFLT pit = 0, pos = 0, dur = 0, dev = 0;
+
     MYFLT *tablelist = TableStream_getData(self->table);
     int size = TableStream_getSize(self->table);
-    
+
     MYFLT *envlist = TableStream_getData(self->env);
     int envsize = TableStream_getSize(self->env);
-    
+
     dens = PyFloat_AS_DOUBLE(self->dens);
     if (dens < 0.0)
         dens = 0.0;
-    
+
     inc = dens * self->oneOnSr * self->devFactor;
 
     for (i=0; i<self->bufsize*self->chnls; i++) {
         self->buffer_streams[i] = 0.0;
     }
-    
+
     for (i=0; i<self->bufsize; i++) {
         self->timer += inc;
         if (self->timer >= 1.0) {
@@ -3090,27 +3090,27 @@ MainParticle_transform_mono_i(MainParticle *self) {
             }
         }
         flag = 0;
-    }    
+    }
 }
 
 static void
 MainParticle_transform_mono_a(MainParticle *self) {
     MYFLT dens, index, amp, phase, val;
-    int i, j, ipart, flag = 0; 
-    MYFLT pit = 0, pos = 0, dur = 0, dev = 0; 
-    
+    int i, j, ipart, flag = 0;
+    MYFLT pit = 0, pos = 0, dur = 0, dev = 0;
+
     MYFLT *tablelist = TableStream_getData(self->table);
     int size = TableStream_getSize(self->table);
-    
+
     MYFLT *envlist = TableStream_getData(self->env);
     int envsize = TableStream_getSize(self->env);
-    
+
     MYFLT *density = Stream_getData((Stream *)self->dens_stream);
 
     for (i=0; i<self->bufsize*self->chnls; i++) {
         self->buffer_streams[i] = 0.0;
     }
-    
+
     for (i=0; i<self->bufsize; i++) {
         if (density[i] < 0.0)
             dens = 0.0;
@@ -3190,31 +3190,31 @@ MainParticle_transform_mono_a(MainParticle *self) {
             }
         }
         flag = 0;
-    }    
+    }
 }
 
 static void
 MainParticle_transform_i(MainParticle *self) {
     MYFLT dens, inc, index, amp, phase, val, min = 0;
-    int i, j, l, l1, ipart, flag = 0; 
-    MYFLT pit = 0, pos = 0, dur = 0, dev = 0, pan = 0; 
-    
+    int i, j, l, l1, ipart, flag = 0;
+    MYFLT pit = 0, pos = 0, dur = 0, dev = 0, pan = 0;
+
     MYFLT *tablelist = TableStream_getData(self->table);
     int size = TableStream_getSize(self->table);
-    
+
     MYFLT *envlist = TableStream_getData(self->env);
     int envsize = TableStream_getSize(self->env);
-    
+
     dens = PyFloat_AS_DOUBLE(self->dens);
     if (dens < 0.0)
         dens = 0.0;
-    
+
     inc = dens * self->oneOnSr * self->devFactor;
 
     for (i=0; i<self->bufsize*self->chnls; i++) {
         self->buffer_streams[i] = 0.0;
     }
-    
+
     for (i=0; i<self->bufsize; i++) {
         self->timer += inc;
         if (self->timer >= 1.0) {
@@ -3291,7 +3291,7 @@ MainParticle_transform_i(MainParticle *self) {
                                 self->k1[j] = l1 * self->bufsize;
                                 if (l == self->chnls)
                                     self->k2[j] = 0;
-                                else                    
+                                else
                                     self->k2[j] = l * self->bufsize;
                                 break;
                             }
@@ -3324,27 +3324,27 @@ MainParticle_transform_i(MainParticle *self) {
             }
         }
         flag = 0;
-    }    
+    }
 }
 
 static void
 MainParticle_transform_a(MainParticle *self) {
     MYFLT dens, index, amp, phase, val, min = 0;
-    int i, j, l, l1, ipart, flag = 0; 
-    MYFLT pit = 0, pos = 0, dur = 0, dev = 0, pan = 0; 
-    
+    int i, j, l, l1, ipart, flag = 0;
+    MYFLT pit = 0, pos = 0, dur = 0, dev = 0, pan = 0;
+
     MYFLT *tablelist = TableStream_getData(self->table);
     int size = TableStream_getSize(self->table);
-    
+
     MYFLT *envlist = TableStream_getData(self->env);
     int envsize = TableStream_getSize(self->env);
-    
+
     MYFLT *density = Stream_getData((Stream *)self->dens_stream);
 
     for (i=0; i<self->bufsize*self->chnls; i++) {
         self->buffer_streams[i] = 0.0;
     }
-    
+
     for (i=0; i<self->bufsize; i++) {
         if (density[i] < 0.0)
             dens = 0.0;
@@ -3425,7 +3425,7 @@ MainParticle_transform_a(MainParticle *self) {
                                 self->k1[j] = l1 * self->bufsize;
                                 if (l == self->chnls)
                                     self->k2[j] = 0;
-                                else                    
+                                else
                                     self->k2[j] = l * self->bufsize;
                                 break;
                             }
@@ -3458,7 +3458,7 @@ MainParticle_transform_a(MainParticle *self) {
             }
         }
         flag = 0;
-    }    
+    }
 }
 
 static void
@@ -3473,19 +3473,19 @@ MainParticle_setProcMode(MainParticle *self)
             else
                 self->proc_func_ptr = MainParticle_transform_i;
             break;
-        case 1:    
+        case 1:
             if (self->chnls == 1)
                 self->proc_func_ptr = MainParticle_transform_mono_a;
             else
                 self->proc_func_ptr = MainParticle_transform_a;
             break;
-    } 
+    }
 }
 
 static void
 MainParticle_compute_next_data_frame(MainParticle *self)
 {
-    (*self->proc_func_ptr)(self); 
+    (*self->proc_func_ptr)(self);
 }
 
 static int
@@ -3494,39 +3494,39 @@ MainParticle_traverse(MainParticle *self, visitproc visit, void *arg)
     pyo_VISIT
     Py_VISIT(self->table);
     Py_VISIT(self->env);
-    Py_VISIT(self->dens);    
-    Py_VISIT(self->dens_stream);    
-    Py_VISIT(self->pitch);    
-    Py_VISIT(self->pitch_stream);    
-    Py_VISIT(self->pos);    
-    Py_VISIT(self->pos_stream);    
-    Py_VISIT(self->dur);    
-    Py_VISIT(self->dur_stream);    
-    Py_VISIT(self->dev);    
-    Py_VISIT(self->dev_stream);    
-    Py_VISIT(self->pan);    
-    Py_VISIT(self->pan_stream);    
+    Py_VISIT(self->dens);
+    Py_VISIT(self->dens_stream);
+    Py_VISIT(self->pitch);
+    Py_VISIT(self->pitch_stream);
+    Py_VISIT(self->pos);
+    Py_VISIT(self->pos_stream);
+    Py_VISIT(self->dur);
+    Py_VISIT(self->dur_stream);
+    Py_VISIT(self->dev);
+    Py_VISIT(self->dev_stream);
+    Py_VISIT(self->pan);
+    Py_VISIT(self->pan_stream);
     return 0;
 }
 
-static int 
+static int
 MainParticle_clear(MainParticle *self)
 {
     pyo_CLEAR
     Py_CLEAR(self->table);
     Py_CLEAR(self->env);
-    Py_CLEAR(self->dens);    
-    Py_CLEAR(self->dens_stream);    
-    Py_CLEAR(self->pitch);    
-    Py_CLEAR(self->pitch_stream);    
-    Py_CLEAR(self->pos);    
-    Py_CLEAR(self->pos_stream);    
-    Py_CLEAR(self->dur);    
-    Py_CLEAR(self->dur_stream);    
-    Py_CLEAR(self->dev);    
-    Py_CLEAR(self->dev_stream);    
-    Py_CLEAR(self->pan);    
-    Py_CLEAR(self->pan_stream);    
+    Py_CLEAR(self->dens);
+    Py_CLEAR(self->dens_stream);
+    Py_CLEAR(self->pitch);
+    Py_CLEAR(self->pitch_stream);
+    Py_CLEAR(self->pos);
+    Py_CLEAR(self->pos_stream);
+    Py_CLEAR(self->dur);
+    Py_CLEAR(self->dur_stream);
+    Py_CLEAR(self->dev);
+    Py_CLEAR(self->dev_stream);
+    Py_CLEAR(self->pan);
+    Py_CLEAR(self->pan_stream);
     return 0;
 }
 
@@ -3534,7 +3534,7 @@ static void
 MainParticle_dealloc(MainParticle* self)
 {
     pyo_DEALLOC
-    free(self->gpos);   
+    free(self->gpos);
     free(self->glen);
     free(self->inc);
     free(self->flags);
@@ -3580,7 +3580,7 @@ MainParticle_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 	self->modebuffer[5] = 0;
 
     INIT_OBJECT_COMMON
-    
+
     self->oneOnSr = 1.0 / self->sr;
     self->srOnRandMax = self->sr / (MYFLT)RAND_MAX;
 
@@ -3610,7 +3610,7 @@ MainParticle_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (denstmp) {
         PyObject_CallMethod((PyObject *)self, "setDens", "O", denstmp);
     }
-    
+
     if (pitchtmp) {
         PyObject_CallMethod((PyObject *)self, "setPitch", "O", pitchtmp);
     }
@@ -3622,7 +3622,7 @@ MainParticle_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (durtmp) {
         PyObject_CallMethod((PyObject *)self, "setDur", "O", durtmp);
     }
-    
+
     if (devtmp) {
         PyObject_CallMethod((PyObject *)self, "setDev", "O", devtmp);
     }
@@ -3630,7 +3630,7 @@ MainParticle_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (pantmp) {
         PyObject_CallMethod((PyObject *)self, "setPan", "O", pantmp);
     }
- 
+
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
     if (self->chnls < 1)
@@ -3645,21 +3645,21 @@ MainParticle_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->flags = (int *)realloc(self->flags, MAINPARTICLE_MAX_GRAINS * sizeof(int));
     self->k1 = (int *)realloc(self->k1, MAINPARTICLE_MAX_GRAINS * sizeof(int));
     self->k2 = (int *)realloc(self->k2, MAINPARTICLE_MAX_GRAINS * sizeof(int));
-    
+
     for (i=0; i<MAINPARTICLE_MAX_GRAINS; i++) {
         self->gpos[i] = self->glen[i] = self->inc[i] = self->phase[i] = self->amp1[i] = self->amp2[i] = 0.0;
         self->flags[i] = self->k1[i] = self->k2[i] = 0;
     }
-  
+
     self->buffer_streams = (MYFLT *)realloc(self->buffer_streams, self->bufsize * self->chnls * sizeof(MYFLT));
     for (i=0; i<self->bufsize*self->chnls; i++) {
         self->buffer_streams[i] = 0.0;
     }
 
     Server_generateSeed((Server *)self->server, MAINPARTICLE_ID);
-  
+
     (*self->mode_func_ptr)(self);
-    
+
     return (PyObject *)self;
 }
 
@@ -3673,14 +3673,14 @@ static PyObject *
 MainParticle_setDens(MainParticle *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
-	
+
 	if (arg == NULL) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
 	int isNumber = PyNumber_Check(arg);
-	
+
 	tmp = arg;
 	Py_INCREF(tmp);
 	Py_DECREF(self->dens);
@@ -3696,25 +3696,25 @@ MainParticle_setDens(MainParticle *self, PyObject *arg)
         self->dens_stream = (Stream *)streamtmp;
 		self->modebuffer[0] = 1;
 	}
-    
+
     (*self->mode_func_ptr)(self);
-    
+
 	Py_INCREF(Py_None);
 	return Py_None;
-}	
+}
 
 static PyObject *
 MainParticle_setPitch(MainParticle *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
-	
+
 	if (arg == NULL) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
 	int isNumber = PyNumber_Check(arg);
-	
+
 	tmp = arg;
 	Py_INCREF(tmp);
 	Py_DECREF(self->pitch);
@@ -3733,20 +3733,20 @@ MainParticle_setPitch(MainParticle *self, PyObject *arg)
 
 	Py_INCREF(Py_None);
 	return Py_None;
-}	
+}
 
 static PyObject *
 MainParticle_setPos(MainParticle *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
-	
+
 	if (arg == NULL) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
 	int isNumber = PyNumber_Check(arg);
-	
+
 	tmp = arg;
 	Py_INCREF(tmp);
 	Py_DECREF(self->pos);
@@ -3765,20 +3765,20 @@ MainParticle_setPos(MainParticle *self, PyObject *arg)
 
 	Py_INCREF(Py_None);
 	return Py_None;
-}	
+}
 
 static PyObject *
 MainParticle_setDur(MainParticle *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
-	
+
 	if (arg == NULL) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
 	int isNumber = PyNumber_Check(arg);
-	
+
 	tmp = arg;
 	Py_INCREF(tmp);
 	Py_DECREF(self->dur);
@@ -3803,14 +3803,14 @@ static PyObject *
 MainParticle_setDev(MainParticle *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
-	
+
 	if (arg == NULL) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
 	int isNumber = PyNumber_Check(arg);
-	
+
 	tmp = arg;
 	Py_INCREF(tmp);
 	Py_DECREF(self->dev);
@@ -3835,14 +3835,14 @@ static PyObject *
 MainParticle_setPan(MainParticle *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
-	
+
 	if (arg == NULL) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
 	int isNumber = PyNumber_Check(arg);
-	
+
 	tmp = arg;
 	Py_INCREF(tmp);
 	Py_DECREF(self->pan);
@@ -3874,20 +3874,20 @@ static PyObject *
 MainParticle_setTable(MainParticle *self, PyObject *arg)
 {
 	PyObject *tmp;
-	
+
 	if (arg == NULL) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
 	tmp = arg;
 	Py_DECREF(self->table);
-    self->table = PyObject_CallMethod((PyObject *)tmp, "getTableStream", "");    
+    self->table = PyObject_CallMethod((PyObject *)tmp, "getTableStream", "");
     self->srScale = TableStream_getSamplingRate(self->table) / self->sr;
 
 	Py_INCREF(Py_None);
 	return Py_None;
-}	
+}
 
 static PyObject *
 MainParticle_getEnv(MainParticle* self)
@@ -3900,16 +3900,16 @@ static PyObject *
 MainParticle_setEnv(MainParticle *self, PyObject *arg)
 {
 	PyObject *tmp;
-	
+
 	if (arg == NULL) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
 	tmp = arg;
 	Py_DECREF(self->env);
     self->env = PyObject_CallMethod((PyObject *)tmp, "getTableStream", "");
-    
+
 	Py_INCREF(Py_None);
 	return Py_None;
 }
@@ -4010,33 +4010,33 @@ Particle_setProcMode(Particle *self)
 {
     int muladdmode;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
-    
+
 	switch (muladdmode) {
-        case 0:        
+        case 0:
             self->muladd_func_ptr = Particle_postprocessing_ii;
             break;
-        case 1:    
+        case 1:
             self->muladd_func_ptr = Particle_postprocessing_ai;
             break;
-        case 2:    
+        case 2:
             self->muladd_func_ptr = Particle_postprocessing_revai;
             break;
-        case 10:        
+        case 10:
             self->muladd_func_ptr = Particle_postprocessing_ia;
             break;
-        case 11:    
+        case 11:
             self->muladd_func_ptr = Particle_postprocessing_aa;
             break;
-        case 12:    
+        case 12:
             self->muladd_func_ptr = Particle_postprocessing_revaa;
             break;
-        case 20:        
+        case 20:
             self->muladd_func_ptr = Particle_postprocessing_ireva;
             break;
-        case 21:    
+        case 21:
             self->muladd_func_ptr = Particle_postprocessing_areva;
             break;
-        case 22:    
+        case 22:
             self->muladd_func_ptr = Particle_postprocessing_revareva;
             break;
     }
@@ -4051,7 +4051,7 @@ Particle_compute_next_data_frame(Particle *self)
     tmp = MainParticle_getSamplesBuffer((MainParticle *)self->mainSplitter);
     for (i=0; i<self->bufsize; i++) {
         self->data[i] = tmp[i + offset];
-    }    
+    }
     (*self->muladd_func_ptr)(self);
 }
 
@@ -4063,11 +4063,11 @@ Particle_traverse(Particle *self, visitproc visit, void *arg)
     return 0;
 }
 
-static int 
+static int
 Particle_clear(Particle *self)
 {
     pyo_CLEAR
-    Py_CLEAR(self->mainSplitter);    
+    Py_CLEAR(self->mainSplitter);
     return 0;
 }
 
@@ -4086,44 +4086,44 @@ Particle_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *maintmp=NULL, *multmp=NULL, *addtmp=NULL;
     Particle *self;
     self = (Particle *)type->tp_alloc(type, 0);
-    
+
 	self->modebuffer[0] = 0;
 	self->modebuffer[1] = 0;
-    
+
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, Particle_compute_next_data_frame);
     self->mode_func_ptr = Particle_setProcMode;
 
     static char *kwlist[] = {"mainSplitter", "chnl", "mul", "add", NULL};
-    
+
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "Oi|OO", kwlist, &maintmp, &self->chnl, &multmp, &addtmp))
         Py_RETURN_NONE;
-    
+
     Py_XDECREF(self->mainSplitter);
     Py_INCREF(maintmp);
     self->mainSplitter = (MainParticle *)maintmp;
-    
+
     if (multmp) {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
     }
-    
+
     if (addtmp) {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
-    
+
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
-    
+
     (*self->mode_func_ptr)(self);
-    
+
     return (PyObject *)self;
 }
 
 static PyObject * Particle_getServer(Particle* self) { GET_SERVER };
 static PyObject * Particle_getStream(Particle* self) { GET_STREAM };
-static PyObject * Particle_setMul(Particle *self, PyObject *arg) { SET_MUL };	
-static PyObject * Particle_setAdd(Particle *self, PyObject *arg) { SET_ADD };	
-static PyObject * Particle_setSub(Particle *self, PyObject *arg) { SET_SUB };	
-static PyObject * Particle_setDiv(Particle *self, PyObject *arg) { SET_DIV };	
+static PyObject * Particle_setMul(Particle *self, PyObject *arg) { SET_MUL };
+static PyObject * Particle_setAdd(Particle *self, PyObject *arg) { SET_ADD };
+static PyObject * Particle_setSub(Particle *self, PyObject *arg) { SET_SUB };
+static PyObject * Particle_setDiv(Particle *self, PyObject *arg) { SET_DIV };
 
 static PyObject * Particle_play(Particle *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * Particle_out(Particle *self, PyObject *args, PyObject *kwds) { OUT };

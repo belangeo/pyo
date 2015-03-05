@@ -1,21 +1,21 @@
-/*************************************************************************
- * Copyright 2010 Olivier Belanger                                        *                  
- *                                                                        * 
+/**************************************************************************
+ * Copyright 2009-2015 Olivier Belanger                                   *
+ *                                                                        *
  * This file is part of pyo, a python module to help digital signal       *
- * processing script creation.                                            *  
- *                                                                        * 
+ * processing script creation.                                            *
+ *                                                                        *
  * pyo is free software: you can redistribute it and/or modify            *
- * it under the terms of the GNU General Public License as published by   *
- * the Free Software Foundation, either version 3 of the License, or      *
- * (at your option) any later version.                                    * 
+ * it under the terms of the GNU Lesser General Public License as         *
+ * published by the Free Software Foundation, either version 3 of the     *
+ * License, or (at your option) any later version.                        *
  *                                                                        *
  * pyo is distributed in the hope that it will be useful,                 *
- * but WITHOUT ANY WARRANTY; without even the implied warranty of         *    
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of         *
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the          *
- * GNU General Public License for more details.                           *
+ * GNU Lesser General Public License for more details.                    *
  *                                                                        *
- * You should have received a copy of the GNU General Public License      *
- * along with pyo.  If not, see <http://www.gnu.org/licenses/>.           *
+ * You should have received a copy of the GNU Lesser General Public       *
+ * License along with pyo.  If not, see <http://www.gnu.org/licenses/>.   *
  *************************************************************************/
 
 #include <Python.h>
@@ -38,23 +38,23 @@ typedef struct {
 } HilbertMain;
 
 /* 6th order allpass poles */
-static const MYFLT poles[12] = {.3609, 2.7412, 11.1573, 44.7581, 179.6242, 798.4578, 
+static const MYFLT poles[12] = {.3609, 2.7412, 11.1573, 44.7581, 179.6242, 798.4578,
                     1.2524, 5.5671, 22.3423, 89.6271, 364.7914, 2770.1114};
 
 static void
 HilbertMain_compute_variables(HilbertMain *self)
-{    
+{
     int i;
     MYFLT polefreq[12];
     MYFLT rc[12];
     MYFLT alpha[12];
-    
+
     for (i=0; i<12; i++) {
         polefreq[i] = poles[i] * 15.0;
         rc[i] = 1.0 / (TWOPI * polefreq[i]);
         alpha[i] = 1.0 / rc[i];
         self->coefs[i] = - (1.0 - (alpha[i] / (2.0 * self->sr))) / (1.0 + (alpha[i] / (2.0 * self->sr)));
-    }    
+    }
 }
 
 static void
@@ -62,7 +62,7 @@ HilbertMain_filters(HilbertMain *self) {
     MYFLT xn1, xn2, yn1, yn2;
     int j, i;
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
-    
+
     for (i=0; i<self->bufsize; i++) {
         xn1 = in[i];
         for (j=0; j<6; j++) {
@@ -81,26 +81,26 @@ HilbertMain_filters(HilbertMain *self) {
         }
         self->buffer_streams[i] = yn1;
         self->buffer_streams[i+self->bufsize] = yn2;
-        
-    }    
+
+    }
 }
 
 MYFLT *
 HilbertMain_getSamplesBuffer(HilbertMain *self)
 {
     return (MYFLT *)self->buffer_streams;
-}    
+}
 
 static void
 HilbertMain_setProcMode(HilbertMain *self)
-{        
-    self->proc_func_ptr = HilbertMain_filters;  
+{
+    self->proc_func_ptr = HilbertMain_filters;
 }
 
 static void
 HilbertMain_compute_next_data_frame(HilbertMain *self)
 {
-    (*self->proc_func_ptr)(self); 
+    (*self->proc_func_ptr)(self);
 }
 
 static int
@@ -112,7 +112,7 @@ HilbertMain_traverse(HilbertMain *self, visitproc visit, void *arg)
     return 0;
 }
 
-static int 
+static int
 HilbertMain_clear(HilbertMain *self)
 {
     pyo_CLEAR
@@ -137,7 +137,7 @@ HilbertMain_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp;
     HilbertMain *self;
     self = (HilbertMain *)type->tp_alloc(type, 0);
-    
+
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, HilbertMain_compute_next_data_frame);
     self->mode_func_ptr = HilbertMain_setProcMode;
@@ -148,12 +148,12 @@ HilbertMain_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     }
 
     static char *kwlist[] = {"input", NULL};
-    
+
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "O", kwlist, &inputtmp))
         Py_RETURN_NONE;
 
     INIT_INPUT_STREAM
- 
+
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
     self->buffer_streams = (MYFLT *)realloc(self->buffer_streams, 2 * self->bufsize * sizeof(MYFLT));
@@ -253,33 +253,33 @@ Hilbert_setProcMode(Hilbert *self)
 {
     int muladdmode;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
-    
+
 	switch (muladdmode) {
-        case 0:        
+        case 0:
             self->muladd_func_ptr = Hilbert_postprocessing_ii;
             break;
-        case 1:    
+        case 1:
             self->muladd_func_ptr = Hilbert_postprocessing_ai;
             break;
-        case 2:    
+        case 2:
             self->muladd_func_ptr = Hilbert_postprocessing_revai;
             break;
-        case 10:        
+        case 10:
             self->muladd_func_ptr = Hilbert_postprocessing_ia;
             break;
-        case 11:    
+        case 11:
             self->muladd_func_ptr = Hilbert_postprocessing_aa;
             break;
-        case 12:    
+        case 12:
             self->muladd_func_ptr = Hilbert_postprocessing_revaa;
             break;
-        case 20:        
+        case 20:
             self->muladd_func_ptr = Hilbert_postprocessing_ireva;
             break;
-        case 21:    
+        case 21:
             self->muladd_func_ptr = Hilbert_postprocessing_areva;
             break;
-        case 22:    
+        case 22:
             self->muladd_func_ptr = Hilbert_postprocessing_revareva;
             break;
     }
@@ -294,7 +294,7 @@ Hilbert_compute_next_data_frame(Hilbert *self)
     tmp = HilbertMain_getSamplesBuffer((HilbertMain *)self->mainSplitter);
     for (i=0; i<self->bufsize; i++) {
         self->data[i] = tmp[i + offset];
-    }    
+    }
     (*self->muladd_func_ptr)(self);
 }
 
@@ -306,11 +306,11 @@ Hilbert_traverse(Hilbert *self, visitproc visit, void *arg)
     return 0;
 }
 
-static int 
+static int
 Hilbert_clear(Hilbert *self)
 {
     pyo_CLEAR
-    Py_CLEAR(self->mainSplitter);    
+    Py_CLEAR(self->mainSplitter);
     return 0;
 }
 
@@ -329,44 +329,44 @@ Hilbert_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *maintmp=NULL, *multmp=NULL, *addtmp=NULL;
     Hilbert *self;
     self = (Hilbert *)type->tp_alloc(type, 0);
-    
+
 	self->modebuffer[0] = 0;
 	self->modebuffer[1] = 0;
-    
+
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, Hilbert_compute_next_data_frame);
     self->mode_func_ptr = Hilbert_setProcMode;
 
     static char *kwlist[] = {"mainSplitter", "chnl", "mul", "add", NULL};
-    
+
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "Oi|OO", kwlist, &maintmp, &self->chnl, &multmp, &addtmp))
         Py_RETURN_NONE;
-    
+
     Py_XDECREF(self->mainSplitter);
     Py_INCREF(maintmp);
     self->mainSplitter = (HilbertMain *)maintmp;
-    
+
     if (multmp) {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
     }
-    
+
     if (addtmp) {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
-    
+
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
-    
+
     (*self->mode_func_ptr)(self);
-    
+
     return (PyObject *)self;
 }
 
 static PyObject * Hilbert_getServer(Hilbert* self) { GET_SERVER };
 static PyObject * Hilbert_getStream(Hilbert* self) { GET_STREAM };
-static PyObject * Hilbert_setMul(Hilbert *self, PyObject *arg) { SET_MUL };	
-static PyObject * Hilbert_setAdd(Hilbert *self, PyObject *arg) { SET_ADD };	
-static PyObject * Hilbert_setSub(Hilbert *self, PyObject *arg) { SET_SUB };	
-static PyObject * Hilbert_setDiv(Hilbert *self, PyObject *arg) { SET_DIV };	
+static PyObject * Hilbert_setMul(Hilbert *self, PyObject *arg) { SET_MUL };
+static PyObject * Hilbert_setAdd(Hilbert *self, PyObject *arg) { SET_ADD };
+static PyObject * Hilbert_setSub(Hilbert *self, PyObject *arg) { SET_SUB };
+static PyObject * Hilbert_setDiv(Hilbert *self, PyObject *arg) { SET_DIV };
 
 static PyObject * Hilbert_play(Hilbert *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * Hilbert_out(Hilbert *self, PyObject *args, PyObject *kwds) { OUT };

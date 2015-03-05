@@ -5,23 +5,23 @@ as distortions, delays, chorus and reverbs.
 """
 
 """
-Copyright 2010 Olivier Belanger
+Copyright 2009-2015 Olivier Belanger
 
 This file is part of pyo, a python module to help digital signal
 processing script creation.
 
 pyo is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
+it under the terms of the GNU Lesser General Public License as
+published by the Free Software Foundation, either version 3 of the
+License, or (at your option) any later version.
 
 pyo is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
+GNU Lesser General Public License for more details.
 
-You should have received a copy of the GNU General Public License
-along with pyo.  If not, see <http://www.gnu.org/licenses/>.
+You should have received a copy of the GNU Lesser General Public
+License along with pyo.  If not, see <http://www.gnu.org/licenses/>.
 """
 from _core import *
 from _maps import *
@@ -32,7 +32,7 @@ class Disto(PyoObject):
     """
     Arc tangent distortion.
 
-    Apply an arc tangent distortion with controllable drive to the input signal. 
+    Apply an arc tangent distortion with controllable drive to the input signal.
 
     :Parent: :py:class:`PyoObject`
 
@@ -41,10 +41,10 @@ class Disto(PyoObject):
         input : PyoObject
             Input signal to process.
         drive : float or PyoObject, optional
-            Amount of distortion applied to the signal, between 0 and 1. 
+            Amount of distortion applied to the signal, between 0 and 1.
             Defaults to 0.75.
         slope : float or PyoObject, optional
-            Slope of the lowpass filter applied after distortion, 
+            Slope of the lowpass filter applied after distortion,
             between 0 and 1. Defaults to 0.5.
 
     >>> s = Server().boot()
@@ -66,7 +66,7 @@ class Disto(PyoObject):
     def setInput(self, x, fadetime=0.05):
         """
         Replace the `input` attribute.
-        
+
         :Args:
 
             x : PyoObject
@@ -77,11 +77,11 @@ class Disto(PyoObject):
         """
         self._input = x
         self._in_fader.setInput(x, fadetime)
- 
+
     def setDrive(self, x):
         """
         Replace the `drive` attribute.
-        
+
         :Args:
 
             x : float or PyoObject
@@ -95,7 +95,7 @@ class Disto(PyoObject):
     def setSlope(self, x):
         """
         Replace the `slope` attribute.
-        
+
         :Args:
 
             x : float or PyoObject
@@ -114,21 +114,21 @@ class Disto(PyoObject):
 
     @property
     def input(self):
-        """PyoObject. Input signal to process.""" 
+        """PyoObject. Input signal to process."""
         return self._input
     @input.setter
     def input(self, x): self.setInput(x)
 
     @property
     def drive(self):
-        """float or PyoObject. Amount of distortion.""" 
+        """float or PyoObject. Amount of distortion."""
         return self._drive
     @drive.setter
     def drive(self, x): self.setDrive(x)
 
     @property
     def slope(self):
-        """float or PyoObject. Slope of the lowpass filter.""" 
+        """float or PyoObject. Slope of the lowpass filter."""
         return self._slope
     @slope.setter
     def slope(self, x): self.setSlope(x)
@@ -149,18 +149,18 @@ class Delay(PyoObject):
             Amount of output signal sent back into the delay line.
             Defaults to 0.
         maxdelay : float, optional
-            Maximum delay length in seconds. Available only at initialization. 
+            Maximum delay length in seconds. Available only at initialization.
             Defaults to 1.
 
     .. note::
 
         The minimum delay time allowed with Delay is one sample. It can be computed
         with :
-            
+
         onesamp = 1.0 / s.getSamplingRate()
-        
+
     .. seealso::
-        
+
         :py:class:`SDelay`, :py:class:`Waveguide`
 
     >>> s = Server().boot()
@@ -182,7 +182,7 @@ class Delay(PyoObject):
     def setInput(self, x, fadetime=0.05):
         """
         Replace the `input` attribute.
-        
+
         :Args:
 
             x : PyoObject
@@ -197,7 +197,7 @@ class Delay(PyoObject):
     def setDelay(self, x):
         """
         Replace the `delay` attribute.
-        
+
         :Args:
 
             x : float or PyoObject
@@ -211,7 +211,7 @@ class Delay(PyoObject):
     def setFeedback(self, x):
         """
         Replace the `feedback` attribute.
-        
+
         :Args:
 
             x : float or PyoObject
@@ -225,7 +225,7 @@ class Delay(PyoObject):
     def reset(self):
         """
         Reset the memory buffer to zeros.
-        
+
         """
         [obj.reset() for obj in self._base_objs]
 
@@ -237,21 +237,21 @@ class Delay(PyoObject):
 
     @property
     def input(self):
-        """PyoObject. Input signal to delayed.""" 
+        """PyoObject. Input signal to delayed."""
         return self._input
     @input.setter
     def input(self, x): self.setInput(x)
- 
+
     @property
     def delay(self):
-        """float or PyoObject. Delay time in seconds.""" 
+        """float or PyoObject. Delay time in seconds."""
         return self._delay
     @delay.setter
     def delay(self, x): self.setDelay(x)
 
     @property
     def feedback(self):
-        """float or PyoObject. Amount of output signal sent back into the delay line.""" 
+        """float or PyoObject. Amount of output signal sent back into the delay line."""
         return self._feedback
     @feedback.setter
     def feedback(self, x): self.setFeedback(x)
@@ -269,11 +269,11 @@ class SDelay(PyoObject):
         delay : float or PyoObject, optional
             Delay time in seconds. Defaults to 0.25.
         maxdelay : float, optional
-            Maximum delay length in seconds. Available only at initialization. 
+            Maximum delay length in seconds. Available only at initialization.
             Defaults to 1.
 
     .. seealso::
-        
+
         :py:class:`Delay`, :py:class:`Delay1`
 
     >>> s = Server().boot()
@@ -325,7 +325,7 @@ class SDelay(PyoObject):
     def reset(self):
         """
         Reset the memory buffer to zeros.
-        
+
         """
         [obj.reset() for obj in self._base_objs]
 
@@ -336,14 +336,14 @@ class SDelay(PyoObject):
 
     @property
     def input(self):
-        """PyoObject. Input signal to delayed.""" 
+        """PyoObject. Input signal to delayed."""
         return self._input
     @input.setter
     def input(self, x): self.setInput(x)
 
     @property
     def delay(self):
-        """float or PyoObject. Delay time in seconds.""" 
+        """float or PyoObject. Delay time in seconds."""
         return self._delay
     @delay.setter
     def delay(self, x): self.setDelay(x)
@@ -352,7 +352,7 @@ class Waveguide(PyoObject):
     """
     Basic waveguide model.
 
-    This waveguide model consisting of one delay-line with a simple 
+    This waveguide model consisting of one delay-line with a simple
     lowpass filtering and lagrange interpolation.
 
     :Parent: :py:class:`PyoObject`
@@ -362,13 +362,13 @@ class Waveguide(PyoObject):
         input : PyoObject
             Input signal to process.
         freq : float or PyoObject, optional
-            Frequency, in cycle per second, of the waveguide (i.e. the inverse 
+            Frequency, in cycle per second, of the waveguide (i.e. the inverse
             of delay time). Defaults to 100.
         dur : float or PyoObject, optional
-            Duration, in seconds, for the waveguide to drop 40 dB below it's 
+            Duration, in seconds, for the waveguide to drop 40 dB below it's
             maxima. Defaults to 10.
         minfreq : float, optional
-            Minimum possible frequency, used to initialized delay length. 
+            Minimum possible frequency, used to initialized delay length.
             Available only at initialization. Defaults to 20.
 
     >>> s = Server().boot()
@@ -390,7 +390,7 @@ class Waveguide(PyoObject):
     def setInput(self, x, fadetime=0.05):
         """
         Replace the `input` attribute.
-        
+
         :Args:
 
             x : PyoObject
@@ -405,7 +405,7 @@ class Waveguide(PyoObject):
     def setFreq(self, x):
         """
         Replace the `freq` attribute.
-        
+
         :Args:
 
             x : float or PyoObject
@@ -419,7 +419,7 @@ class Waveguide(PyoObject):
     def setDur(self, x):
         """
         Replace the `dur` attribute.
-        
+
         :Args:
 
             x : float or PyoObject
@@ -438,21 +438,21 @@ class Waveguide(PyoObject):
 
     @property
     def input(self):
-        """PyoObject. Input signal to process.""" 
+        """PyoObject. Input signal to process."""
         return self._input
     @input.setter
     def input(self, x): self.setInput(x)
- 
+
     @property
     def freq(self):
-        """float or PyoObject. Frequency in cycle per second.""" 
+        """float or PyoObject. Frequency in cycle per second."""
         return self._freq
     @freq.setter
     def freq(self, x): self.setFreq(x)
 
     @property
     def dur(self):
-        """float or PyoObject. Resonance duration in seconds.""" 
+        """float or PyoObject. Resonance duration in seconds."""
         return self._dur
     @dur.setter
     def dur(self, x): self.setDur(x)
@@ -471,16 +471,16 @@ class AllpassWG(PyoObject):
         input : PyoObject
             Input signal to process.
         freq : float or PyoObject, optional
-            Frequency, in cycle per second, of the waveguide (i.e. the inverse 
+            Frequency, in cycle per second, of the waveguide (i.e. the inverse
             of delay time). Defaults to 100.
         feed : float or PyoObject, optional
             Amount of output signal (between 0 and 1) sent back into the delay line.
             Defaults to 0.95.
         detune : float or PyoObject, optional
-            Control the depth of the allpass delay-line filter, i.e. the depth of 
+            Control the depth of the allpass delay-line filter, i.e. the depth of
             the detuning. Should be in the range 0 to 1. Defaults to 0.5.
         minfreq : float, optional
-            Minimum possible frequency, used to initialized delay length. 
+            Minimum possible frequency, used to initialized delay length.
             Available only at initialization. Defaults to 20.
 
     >>> s = Server().boot()
@@ -568,28 +568,28 @@ class AllpassWG(PyoObject):
 
     @property
     def input(self):
-        """PyoObject. Input signal to process.""" 
+        """PyoObject. Input signal to process."""
         return self._input
     @input.setter
     def input(self, x): self.setInput(x)
 
     @property
     def freq(self):
-        """float or PyoObject. Frequency in cycle per second.""" 
+        """float or PyoObject. Frequency in cycle per second."""
         return self._freq
     @freq.setter
     def freq(self, x): self.setFreq(x)
 
     @property
     def feed(self):
-        """float or PyoObject. Amount of output signal sent back into the delay line.""" 
+        """float or PyoObject. Amount of output signal sent back into the delay line."""
         return self._feed
     @feed.setter
     def feed(self, x): self.setFeed(x)
 
     @property
     def detune(self):
-        """float or PyoObject. Depth of the detuning.""" 
+        """float or PyoObject. Depth of the detuning."""
         return self._detune
     @detune.setter
     def detune(self, x): self.setDetune(x)
@@ -598,9 +598,9 @@ class Freeverb(PyoObject):
     """
     Implementation of Jezar's Freeverb.
 
-    Freeverb is a reverb unit generator based on Jezar's public domain 
-    C++ sources, composed of eight parallel comb filters, followed by four 
-    allpass units in series. Filters on each stream are slightly detuned 
+    Freeverb is a reverb unit generator based on Jezar's public domain
+    C++ sources, composed of eight parallel comb filters, followed by four
+    allpass units in series. Filters on each stream are slightly detuned
     in order to create multi-channel effects.
 
     :Parent: :py:class:`PyoObject`
@@ -610,14 +610,14 @@ class Freeverb(PyoObject):
         input : PyoObject
             Input signal to process.
         size : float or PyoObject, optional
-            Controls the length of the reverb,  between 0 and 1. A higher 
+            Controls the length of the reverb,  between 0 and 1. A higher
             value means longer reverb. Defaults to 0.5.
         damp : float or PyoObject, optional
-            High frequency attenuation, between 0 and 1. A higher value 
-            will result in a faster decay of the high frequency range. 
+            High frequency attenuation, between 0 and 1. A higher value
+            will result in a faster decay of the high frequency range.
             Defaults to 0.5.
         bal : float or PyoObject, optional
-            Balance between wet and dry signal, between 0 and 1. 0 means no 
+            Balance between wet and dry signal, between 0 and 1. 0 means no
             reverb. Defaults to 0.5.
 
     >>> s = Server().boot()
@@ -639,7 +639,7 @@ class Freeverb(PyoObject):
     def setInput(self, x, fadetime=0.05):
         """
         Replace the `input` attribute.
-        
+
         :Args:
 
             x : PyoObject
@@ -650,11 +650,11 @@ class Freeverb(PyoObject):
         """
         self._input = x
         self._in_fader.setInput(x, fadetime)
- 
+
     def setSize(self, x):
         """
         Replace the `size` attribute.
-        
+
         :Args:
 
             x : float or PyoObject
@@ -668,7 +668,7 @@ class Freeverb(PyoObject):
     def setDamp(self, x):
         """
         Replace the `damp` attribute.
-        
+
         :Args:
 
             x : float or PyoObject
@@ -682,7 +682,7 @@ class Freeverb(PyoObject):
     def setBal(self, x):
         """
         Replace the `bal` attribute.
-        
+
         :Args:
 
             x : float or PyoObject
@@ -702,28 +702,28 @@ class Freeverb(PyoObject):
 
     @property
     def input(self):
-        """PyoObject. Input signal to process.""" 
+        """PyoObject. Input signal to process."""
         return self._input
     @input.setter
     def input(self, x): self.setInput(x)
 
     @property
     def size(self):
-        """float or PyoObject. Room size.""" 
+        """float or PyoObject. Room size."""
         return self._size
     @size.setter
     def size(self, x): self.setSize(x)
 
     @property
     def damp(self):
-        """float or PyoObject. High frequency damping.""" 
+        """float or PyoObject. High frequency damping."""
         return self._damp
     @damp.setter
     def damp(self, x): self.setDamp(x)
 
     @property
     def bal(self):
-        """float or PyoObject. Balance between wet and dry signal.""" 
+        """float or PyoObject. Balance between wet and dry signal."""
         return self._bal
     @bal.setter
     def bal(self, x): self.setBal(x)
@@ -732,7 +732,7 @@ class Convolve(PyoObject):
     """
     Implements filtering using circular convolution.
 
-    A circular convolution is defined as the integral of the product of two 
+    A circular convolution is defined as the integral of the product of two
     functions after one is reversed and shifted.
 
     :Parent: :py:class:`PyoObject`
@@ -744,12 +744,12 @@ class Convolve(PyoObject):
         table : PyoTableObject
             Table containning the impulse response.
         size : int
-            Length, in samples, of the convolution. Available at initialization 
-            time only. 
-            
-            If the table changes during the performance, its size must egal or 
-            greater than this value. 
-            
+            Length, in samples, of the convolution. Available at initialization
+            time only.
+
+            If the table changes during the performance, its size must egal or
+            greater than this value.
+
             If greater only the first `size` samples will be used.
 
     .. note::
@@ -759,9 +759,9 @@ class Convolve(PyoObject):
 
         Usually convolution generates a high amplitude level, take care of the
         `mul` parameter!
-        
+
     .. seealso::
-        
+
         :py:class:`Follower`
 
     >>> s = Server().boot()
@@ -777,13 +777,13 @@ class Convolve(PyoObject):
         self._table = table
         self._size = size
         self._in_fader = InputFader(input)
-        in_fader, table, size, mul, add, lmax = convertArgsToLists(self._in_fader, table, size, mul, add)                     
+        in_fader, table, size, mul, add, lmax = convertArgsToLists(self._in_fader, table, size, mul, add)
         self._base_objs = [Convolve_base(wrap(in_fader,i), wrap(table,i), wrap(size,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
 
     def setInput(self, x, fadetime=0.05):
         """
         Replace the `input` attribute.
-        
+
         :Args:
 
             x : PyoObject
@@ -798,12 +798,12 @@ class Convolve(PyoObject):
     def setTable(self, x):
         """
         Replace the `table` attribute.
-        
+
         :Args:
 
             x : PyoTableObject
                 new `table` attribute.
-        
+
         """
         self._table = x
         x, lmax = convertArgsToLists(x)
@@ -811,14 +811,14 @@ class Convolve(PyoObject):
 
     @property
     def input(self):
-        """PyoObject. Input signal to filter.""" 
+        """PyoObject. Input signal to filter."""
         return self._input
     @input.setter
     def input(self, x): self.setInput(x)
 
     @property
     def table(self):
-        """PyoTableObject. Table containing the impulse response.""" 
+        """PyoTableObject. Table containing the impulse response."""
         return self._table
     @table.setter
     def table(self, x): self.setTable(x)
@@ -827,8 +827,8 @@ class WGVerb(PyoObject):
     """
     8 delay line mono FDN reverb.
 
-    8 delay line FDN reverb, with feedback matrix based upon physical 
-    modeling scattering junction of 8 lossless waveguides of equal 
+    8 delay line FDN reverb, with feedback matrix based upon physical
+    modeling scattering junction of 8 lossless waveguides of equal
     characteristic impedance.
 
     :Parent: :py:class:`PyoObject`
@@ -841,13 +841,13 @@ class WGVerb(PyoObject):
             Amount of output signal sent back into the delay lines.
             Defaults to 0.5.
 
-            0.6 gives a good small "live" room sound, 0.8 a small hall, 
+            0.6 gives a good small "live" room sound, 0.8 a small hall,
             and 0.9 a large hall.
         cutoff : float or PyoObject, optional
-            cutoff frequency of simple first order lowpass filters in the 
+            cutoff frequency of simple first order lowpass filters in the
             feedback loop of delay lines, in Hz. Defaults to 5000.
         bal : float or PyoObject, optional
-            Balance between wet and dry signal, between 0 and 1. 0 means no 
+            Balance between wet and dry signal, between 0 and 1. 0 means no
             reverb. Defaults to 0.5.
 
     >>> s = Server().boot()
@@ -869,7 +869,7 @@ class WGVerb(PyoObject):
     def setInput(self, x, fadetime=0.05):
         """
         Replace the `input` attribute.
-        
+
         :Args:
 
             x : PyoObject
@@ -884,7 +884,7 @@ class WGVerb(PyoObject):
     def setFeedback(self, x):
         """
         Replace the `feedback` attribute.
-        
+
         :Args:
 
             x : float or PyoObject
@@ -898,7 +898,7 @@ class WGVerb(PyoObject):
     def setCutoff(self, x):
         """
         Replace the `cutoff` attribute.
-        
+
         :Args:
 
             x : float or PyoObject
@@ -912,7 +912,7 @@ class WGVerb(PyoObject):
     def setBal(self, x):
         """
         Replace the `bal` attribute.
-        
+
         :Args:
 
             x : float or PyoObject
@@ -932,28 +932,28 @@ class WGVerb(PyoObject):
 
     @property
     def input(self):
-        """PyoObject. Input signal to process.""" 
+        """PyoObject. Input signal to process."""
         return self._input
     @input.setter
     def input(self, x): self.setInput(x)
 
     @property
     def feedback(self):
-        """float or PyoObject. Amount of output signal sent back into the delay lines.""" 
+        """float or PyoObject. Amount of output signal sent back into the delay lines."""
         return self._feedback
     @feedback.setter
     def feedback(self, x): self.setFeedback(x)
 
     @property
     def cutoff(self):
-        """float or PyoObject. Lowpass filter cutoff in Hz.""" 
+        """float or PyoObject. Lowpass filter cutoff in Hz."""
         return self._cutoff
     @cutoff.setter
     def cutoff(self, x): self.setCutoff(x)
 
     @property
     def bal(self):
-        """float or PyoObject. wet - dry balance.""" 
+        """float or PyoObject. wet - dry balance."""
         return self._bal
     @bal.setter
     def bal(self, x): self.setBal(x)
@@ -962,9 +962,9 @@ class Chorus(PyoObject):
     """
     8 modulated delay lines chorus processor.
 
-    A chorus effect occurs when individual sounds with roughly the same timbre and 
+    A chorus effect occurs when individual sounds with roughly the same timbre and
     nearly (but never exactly) the same pitch converge and are perceived as one.
-    
+
     :Parent: :py:class:`PyoObject`
 
     :Args:
@@ -977,7 +977,7 @@ class Chorus(PyoObject):
             Amount of output signal sent back into the delay lines.
             Defaults to 0.25.
         bal : float or PyoObject, optional
-            Balance between wet and dry signals, between 0 and 1. 0 means no 
+            Balance between wet and dry signals, between 0 and 1. 0 means no
             chorus. Defaults to 0.5.
 
     >>> s = Server().boot()
@@ -1062,28 +1062,28 @@ class Chorus(PyoObject):
 
     @property
     def input(self):
-        """PyoObject. Input signal to process.""" 
+        """PyoObject. Input signal to process."""
         return self._input
     @input.setter
     def input(self, x): self.setInput(x)
 
     @property
     def depth(self):
-        """float or PyoObject. Chorus depth, between 0 and 5.""" 
+        """float or PyoObject. Chorus depth, between 0 and 5."""
         return self._depth
     @depth.setter
     def depth(self, x): self.setDepth(x)
 
     @property
     def feedback(self):
-        """float or PyoObject. Amount of output signal sent back into the delay lines.""" 
+        """float or PyoObject. Amount of output signal sent back into the delay lines."""
         return self._feedback
     @feedback.setter
     def feedback(self, x): self.setFeedback(x)
 
     @property
     def bal(self):
-        """float or PyoObject. wet - dry balance.""" 
+        """float or PyoObject. wet - dry balance."""
         return self._bal
     @bal.setter
     def bal(self, x): self.setBal(x)
@@ -1104,7 +1104,7 @@ class Harmonizer(PyoObject):
             Amount of output signal sent back into the delay line.
             Defaults to 0.
         winsize : float, optional
-            Window size in seconds (max = 1.0). 
+            Window size in seconds (max = 1.0).
             Defaults to 0.1.
 
     >>> s = Server().boot()
@@ -1189,28 +1189,28 @@ class Harmonizer(PyoObject):
 
     @property
     def input(self):
-        """PyoObject. Input signal to delayed.""" 
+        """PyoObject. Input signal to delayed."""
         return self._input
     @input.setter
     def input(self, x): self.setInput(x)
 
     @property
     def transpo(self):
-        """float or PyoObject. Transposition factor in semitone.""" 
+        """float or PyoObject. Transposition factor in semitone."""
         return self._transpo
     @transpo.setter
     def transpo(self, x): self.setTranspo(x)
 
     @property
     def feedback(self):
-        """float or PyoObject. Amount of output signal sent back into the delay line.""" 
+        """float or PyoObject. Amount of output signal sent back into the delay line."""
         return self._feedback
     @feedback.setter
     def feedback(self, x): self.setFeedback(x)
 
     @property
     def winsize(self):
-        """float. Window size in seconds (max = 1.0).""" 
+        """float. Window size in seconds (max = 1.0)."""
         return self._winsize
     @winsize.setter
     def winsize(self, x): self.setWinsize(x)
@@ -1218,14 +1218,14 @@ class Harmonizer(PyoObject):
 class Delay1(PyoObject):
     """
     Delays a signal by one sample.
- 
+
     :Parent: :py:class:`PyoObject`
-   
+
     :Args:
-    
+
         input : PyoObject
             Input signal to process.
-    
+
     >>> s = Server().boot()
     >>> s.start()
     >>> # 50th order FIR lowpass filter
@@ -1233,7 +1233,7 @@ class Delay1(PyoObject):
     >>> objs = [Noise(.3)]
     >>> for i in range(order):
     ...     objs.append(Delay1(objs[-1], add=objs[-1]))
-    ...     objs.append(objs[-1] * 0.5)    
+    ...     objs.append(objs[-1] * 0.5)
     >>> out = Sig(objs[-1]).out()
 
     """
@@ -1247,7 +1247,7 @@ class Delay1(PyoObject):
     def setInput(self, x, fadetime=0.05):
         """
         Replace the `input` attribute.
-        
+
         :Args:
 
             x : PyoObject
@@ -1261,7 +1261,7 @@ class Delay1(PyoObject):
 
     @property
     def input(self):
-        """PyoObject. Input signal to delayed.""" 
+        """PyoObject. Input signal to delayed."""
         return self._input
     @input.setter
     def input(self, x): self.setInput(x)
@@ -1273,11 +1273,11 @@ class STRev(PyoObject):
     Stereo reverb based on WGVerb (8 delay line FDN reverb). A mono
     input will produce two audio streams, left and right channels.
     Therefore, a stereo input will produce four audio streams, left
-    and right channels for each input channel. Position of input 
+    and right channels for each input channel. Position of input
     streams can be set with the `inpos` argument. To achieve a stereo
     reverb, delay line lengths are slightly differents on both channels,
-    but also, pre-delays length and filter cutoff of both channels will 
-    be affected to reflect the input position. 
+    but also, pre-delays length and filter cutoff of both channels will
+    be affected to reflect the input position.
 
     :Parent: :py:class:`PyoObject`
 
@@ -1289,14 +1289,14 @@ class STRev(PyoObject):
             Position of the source, between 0 and 1. 0 means fully left
             and 1 means fully right. Defaults to 0.5.
         revtime : float or PyoObject, optional
-            Duration, in seconds, of the reverberated sound, defined as 
-            the time needed to the sound to drop 40 dB below its peak. 
+            Duration, in seconds, of the reverberated sound, defined as
+            the time needed to the sound to drop 40 dB below its peak.
             Defaults to 1.
         cutoff : float or PyoObject, optional
-            cutoff frequency, in Hz, of a first order lowpass filters in the 
+            cutoff frequency, in Hz, of a first order lowpass filters in the
             feedback loop of delay lines. Defaults to 5000.
         bal : float or PyoObject, optional
-            Balance between wet and dry signal, between 0 and 1. 0 means no 
+            Balance between wet and dry signal, between 0 and 1. 0 means no
             reverb. Defaults to 0.5.
         roomSize : float, optional
             Delay line length scaler, between 0.25 and 4. Values higher than
@@ -1328,7 +1328,7 @@ class STRev(PyoObject):
     def setInput(self, x, fadetime=0.05):
         """
         Replace the `input` attribute.
-        
+
         :Args:
 
             x : PyoObject
@@ -1343,7 +1343,7 @@ class STRev(PyoObject):
     def setInpos(self, x):
         """
         Replace the `inpos` attribute.
-        
+
         :Args:
 
             x : float or PyoObject
@@ -1353,11 +1353,11 @@ class STRev(PyoObject):
         self._inpos = x
         x, lmax = convertArgsToLists(x)
         [obj.setInpos(wrap(x,i)) for i, obj in enumerate(self._base_players)]
- 
+
     def setRevtime(self, x):
         """
         Replace the `revtime` attribute.
-        
+
         :Args:
 
             x : float or PyoObject
@@ -1371,7 +1371,7 @@ class STRev(PyoObject):
     def setCutoff(self, x):
         """
         Replace the `cutoff` attribute.
-        
+
         :Args:
 
             x : float or PyoObject
@@ -1385,7 +1385,7 @@ class STRev(PyoObject):
     def setBal(self, x):
         """
         Replace the `bal` attribute.
-        
+
         :Args:
 
             x : float or PyoObject
@@ -1399,7 +1399,7 @@ class STRev(PyoObject):
     def setRoomSize(self, x):
         """
         Set the room size scaler, between 0.25 and 4.
-        
+
         :Args:
 
             x : float
@@ -1413,7 +1413,7 @@ class STRev(PyoObject):
     def setFirstRefGain(self, x):
         """
         Set the gain of the first reflexions.
-        
+
         :Args:
 
             x : float
@@ -1436,49 +1436,49 @@ class STRev(PyoObject):
 
     @property
     def input(self):
-        """PyoObject. Input signal to process.""" 
+        """PyoObject. Input signal to process."""
         return self._input
     @input.setter
     def input(self, x): self.setInput(x)
 
     @property
     def inpos(self):
-        """float or PyoObject. Position of the source.""" 
+        """float or PyoObject. Position of the source."""
         return self._inpos
     @inpos.setter
     def inpos(self, x): self.setInpos(x)
 
     @property
     def revtime(self):
-        """float or PyoObject. Room size.""" 
+        """float or PyoObject. Room size."""
         return self._revtime
     @revtime.setter
     def revtime(self, x): self.setRevtime(x)
 
     @property
     def cutoff(self):
-        """float or PyoObject. High frequency damping.""" 
+        """float or PyoObject. High frequency damping."""
         return self._cutoff
     @cutoff.setter
     def cutoff(self, x): self.setCutoff(x)
 
     @property
     def bal(self):
-        """float or PyoObject. Balance between wet and dry signal.""" 
+        """float or PyoObject. Balance between wet and dry signal."""
         return self._bal
     @bal.setter
     def bal(self, x): self.setBal(x)
 
     @property
     def roomSize(self):
-        """float. Room size scaler, between 0.25 and 4.0.""" 
+        """float. Room size scaler, between 0.25 and 4.0."""
         return self._roomSize
     @roomSize.setter
     def roomSize(self, x): self.setRoomSize(x)
 
     @property
     def firstRefGain(self):
-        """float. Gain, in dB, of the first reflexions.""" 
+        """float. Gain, in dB, of the first reflexions."""
         return self._firstRefGain
     @firstRefGain.setter
     def firstRefGain(self, x): self.setFirstRefGain(x)
@@ -1487,7 +1487,7 @@ class SmoothDelay(PyoObject):
     """
     Artifact free sweepable recursive delay.
 
-    SmoothDelay implements a delay line that does not produce 
+    SmoothDelay implements a delay line that does not produce
     clicks or pitch shifting when the delay time is changing.
 
     :Parent: :py:class:`PyoObject`
@@ -1505,18 +1505,18 @@ class SmoothDelay(PyoObject):
             Crossfade time, in seconds, between overlaped readers.
             Defaults to 0.05.
         maxdelay : float, optional
-            Maximum delay length in seconds. Available only at initialization. 
+            Maximum delay length in seconds. Available only at initialization.
             Defaults to 1.
 
     .. note::
 
-        The minimum delay time allowed with SmoothDelay is one sample. 
+        The minimum delay time allowed with SmoothDelay is one sample.
         It can be computed with :
-            
+
         onesamp = 1.0 / s.getSamplingRate()
-        
+
     .. seealso::
-        
+
         :py:class:`Delay`, :py:class:`Waveguide`
 
     >>> s = Server().boot()
@@ -1540,7 +1540,7 @@ class SmoothDelay(PyoObject):
     def setInput(self, x, fadetime=0.05):
         """
         Replace the `input` attribute.
-        
+
         :Args:
 
             x : PyoObject
@@ -1555,7 +1555,7 @@ class SmoothDelay(PyoObject):
     def setDelay(self, x):
         """
         Replace the `delay` attribute.
-        
+
         :Args:
 
             x : float or PyoObject
@@ -1569,7 +1569,7 @@ class SmoothDelay(PyoObject):
     def setFeedback(self, x):
         """
         Replace the `feedback` attribute.
-        
+
         :Args:
 
             x : float or PyoObject
@@ -1583,7 +1583,7 @@ class SmoothDelay(PyoObject):
     def setCrossfade(self, x):
         """
         Replace the `crossfade` attribute.
-        
+
         :Args:
 
             x : float
@@ -1597,7 +1597,7 @@ class SmoothDelay(PyoObject):
     def reset(self):
         """
         Reset the memory buffer to zeros.
-        
+
         """
         [obj.reset() for obj in self._base_objs]
 
@@ -1610,28 +1610,28 @@ class SmoothDelay(PyoObject):
 
     @property
     def input(self):
-        """PyoObject. Input signal to delayed.""" 
+        """PyoObject. Input signal to delayed."""
         return self._input
     @input.setter
     def input(self, x): self.setInput(x)
- 
+
     @property
     def delay(self):
-        """float or PyoObject. Delay time in seconds.""" 
+        """float or PyoObject. Delay time in seconds."""
         return self._delay
     @delay.setter
     def delay(self, x): self.setDelay(x)
 
     @property
     def feedback(self):
-        """float or PyoObject. Amount of output signal sent back into the delay line.""" 
+        """float or PyoObject. Amount of output signal sent back into the delay line."""
         return self._feedback
     @feedback.setter
     def feedback(self, x): self.setFeedback(x)
 
     @property
     def crossfade(self):
-        """float. Crossfade time, in seconds, between overlaps.""" 
+        """float. Crossfade time, in seconds, between overlaps."""
         return self._crossfade
     @crossfade.setter
     def crossfade(self, x): self.setCrossfade(x)
@@ -1640,10 +1640,10 @@ class FreqShift(PyoObject):
     """
     Frequency shifting using single sideband amplitude modulation.
 
-    Shifting frequencies means that the input signal can be detuned, 
-    where the harmonic components of the signal are shifted out of 
-    harmonic alignment with each other, e.g. a signal with harmonics at 
-    100, 200, 300, 400 and 500 Hz, shifted up by 50 Hz, will have harmonics 
+    Shifting frequencies means that the input signal can be detuned,
+    where the harmonic components of the signal are shifted out of
+    harmonic alignment with each other, e.g. a signal with harmonics at
+    100, 200, 300, 400 and 500 Hz, shifted up by 50 Hz, will have harmonics
     at 150, 250, 350, 450, and 550 Hz.
 
     :Parent: :py:class:`PyoObject`
@@ -1680,7 +1680,7 @@ class FreqShift(PyoObject):
             self._hilb_objs.append(Hilbert(wrap(in_fader,i)))
             self._sin_objs.append(Sine(freq=wrap(shift,i), mul=.707))
             self._cos_objs.append(Sine(freq=wrap(shift,i), phase=0.25, mul=.707))
-            self._mod_objs.append(Mix(self._hilb_objs[-1]['real'] * self._sin_objs[-1] + self._hilb_objs[-1]['imag'] * self._cos_objs[-1], 
+            self._mod_objs.append(Mix(self._hilb_objs[-1]['real'] * self._sin_objs[-1] + self._hilb_objs[-1]['imag'] * self._cos_objs[-1],
                                       mul=wrap(mul,i), add=wrap(add,i)))
             self._base_objs.extend(self._mod_objs[-1].getBaseObjects())
 
@@ -1742,15 +1742,15 @@ class FreqShift(PyoObject):
         PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
-    def input(self): 
-        """PyoObject. Input signal to pitch shift.""" 
+    def input(self):
+        """PyoObject. Input signal to pitch shift."""
         return self._input
     @input.setter
     def input(self, x): self.setInput(x)
 
     @property
-    def shift(self): 
-        """float or PyoObject. Amount of pitch shift in Hertz.""" 
+    def shift(self):
+        """float or PyoObject. Amount of pitch shift in Hertz."""
         return self._shift
     @shift.setter
     def shift(self, x): self.setShift(x)

@@ -1,21 +1,21 @@
-/*************************************************************************
- * Copyright 2010 Olivier Belanger                                        *                  
- *                                                                        * 
+/**************************************************************************
+ * Copyright 2009-2015 Olivier Belanger                                   *
+ *                                                                        *
  * This file is part of pyo, a python module to help digital signal       *
- * processing script creation.                                            *  
- *                                                                        * 
+ * processing script creation.                                            *
+ *                                                                        *
  * pyo is free software: you can redistribute it and/or modify            *
- * it under the terms of the GNU General Public License as published by   *
- * the Free Software Foundation, either version 3 of the License, or      *
- * (at your option) any later version.                                    * 
+ * it under the terms of the GNU Lesser General Public License as         *
+ * published by the Free Software Foundation, either version 3 of the     *
+ * License, or (at your option) any later version.                        *
  *                                                                        *
  * pyo is distributed in the hope that it will be useful,                 *
- * but WITHOUT ANY WARRANTY; without even the implied warranty of         *    
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of         *
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the          *
- * GNU General Public License for more details.                           *
+ * GNU Lesser General Public License for more details.                    *
  *                                                                        *
- * You should have received a copy of the GNU General Public License      *
- * along with pyo.  If not, see <http://www.gnu.org/licenses/>.           *
+ * You should have received a copy of the GNU Lesser General Public       *
+ * License along with pyo.  If not, see <http://www.gnu.org/licenses/>.   *
  *************************************************************************/
 
 #include <Python.h>
@@ -38,7 +38,7 @@ typedef struct {
     MYFLT oldValue;
     MYFLT diff;
     MYFLT time;
-    int modebuffer[5]; // need at least 2 slots for mul & add 
+    int modebuffer[5]; // need at least 2 slots for mul & add
 } Randi;
 
 static void
@@ -50,7 +50,7 @@ Randi_generate_iii(Randi *self) {
     MYFLT fr = PyFloat_AS_DOUBLE(self->freq);
     MYFLT range = ma - mi;
     inc = fr / self->sr;
-    
+
     for (i=0; i<self->bufsize; i++) {
         self->time += inc;
         if (self->time < 0.0)
@@ -73,7 +73,7 @@ Randi_generate_aii(Randi *self) {
     MYFLT ma = PyFloat_AS_DOUBLE(self->max);
     MYFLT fr = PyFloat_AS_DOUBLE(self->freq);
     inc = fr / self->sr;
-    
+
     for (i=0; i<self->bufsize; i++) {
         range = ma - mi[i];
         self->time += inc;
@@ -97,7 +97,7 @@ Randi_generate_iai(Randi *self) {
     MYFLT *ma = Stream_getData((Stream *)self->max_stream);
     MYFLT fr = PyFloat_AS_DOUBLE(self->freq);
     inc = fr / self->sr;
-    
+
     for (i=0; i<self->bufsize; i++) {
         range = ma[i] - mi;
         self->time += inc;
@@ -121,7 +121,7 @@ Randi_generate_aai(Randi *self) {
     MYFLT *ma = Stream_getData((Stream *)self->max_stream);
     MYFLT fr = PyFloat_AS_DOUBLE(self->freq);
     inc = fr / self->sr;
-    
+
     for (i=0; i<self->bufsize; i++) {
         range = ma[i] - mi[i];
         self->time += inc;
@@ -145,7 +145,7 @@ Randi_generate_iia(Randi *self) {
     MYFLT ma = PyFloat_AS_DOUBLE(self->max);
     MYFLT *fr = Stream_getData((Stream *)self->freq_stream);
     MYFLT range = ma - mi;
-    
+
     for (i=0; i<self->bufsize; i++) {
         inc = fr[i] / self->sr;
         self->time += inc;
@@ -168,7 +168,7 @@ Randi_generate_aia(Randi *self) {
     MYFLT *mi = Stream_getData((Stream *)self->min_stream);
     MYFLT ma = PyFloat_AS_DOUBLE(self->max);
     MYFLT *fr = Stream_getData((Stream *)self->freq_stream);
-    
+
     for (i=0; i<self->bufsize; i++) {
         inc = fr[i] / self->sr;
         range = ma - mi[i];
@@ -192,7 +192,7 @@ Randi_generate_iaa(Randi *self) {
     MYFLT mi = PyFloat_AS_DOUBLE(self->min);
     MYFLT *ma = Stream_getData((Stream *)self->max_stream);
     MYFLT *fr = Stream_getData((Stream *)self->freq_stream);
-    
+
     for (i=0; i<self->bufsize; i++) {
         inc = fr[i] / self->sr;
         range = ma[i] - mi;
@@ -216,7 +216,7 @@ Randi_generate_aaa(Randi *self) {
     MYFLT *mi = Stream_getData((Stream *)self->min_stream);
     MYFLT *ma = Stream_getData((Stream *)self->max_stream);
     MYFLT *fr = Stream_getData((Stream *)self->freq_stream);
-    
+
     for (i=0; i<self->bufsize; i++) {
         inc = fr[i] / self->sr;
         range = ma[i] - mi[i];
@@ -249,68 +249,68 @@ Randi_setProcMode(Randi *self)
     int procmode, muladdmode;
     procmode = self->modebuffer[2] + self->modebuffer[3] * 10 + self->modebuffer[4] * 100;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
-    
+
 	switch (procmode) {
-        case 0:    
+        case 0:
             self->proc_func_ptr = Randi_generate_iii;
             break;
-        case 1:    
+        case 1:
             self->proc_func_ptr = Randi_generate_aii;
             break;
-        case 10:    
+        case 10:
             self->proc_func_ptr = Randi_generate_iai;
             break;
-        case 11:    
+        case 11:
             self->proc_func_ptr = Randi_generate_aai;
             break;
-        case 100:    
+        case 100:
             self->proc_func_ptr = Randi_generate_iia;
             break;
-        case 101:    
+        case 101:
             self->proc_func_ptr = Randi_generate_aia;
             break;
-        case 110:    
+        case 110:
             self->proc_func_ptr = Randi_generate_iaa;
             break;
-        case 111:    
+        case 111:
             self->proc_func_ptr = Randi_generate_aaa;
-            break;            
-    } 
+            break;
+    }
 	switch (muladdmode) {
-        case 0:        
+        case 0:
             self->muladd_func_ptr = Randi_postprocessing_ii;
             break;
-        case 1:    
+        case 1:
             self->muladd_func_ptr = Randi_postprocessing_ai;
             break;
-        case 2:    
+        case 2:
             self->muladd_func_ptr = Randi_postprocessing_revai;
             break;
-        case 10:        
+        case 10:
             self->muladd_func_ptr = Randi_postprocessing_ia;
             break;
-        case 11:    
+        case 11:
             self->muladd_func_ptr = Randi_postprocessing_aa;
             break;
-        case 12:    
+        case 12:
             self->muladd_func_ptr = Randi_postprocessing_revaa;
             break;
-        case 20:        
+        case 20:
             self->muladd_func_ptr = Randi_postprocessing_ireva;
             break;
-        case 21:    
+        case 21:
             self->muladd_func_ptr = Randi_postprocessing_areva;
             break;
-        case 22:    
+        case 22:
             self->muladd_func_ptr = Randi_postprocessing_revareva;
             break;
-    }  
+    }
 }
 
 static void
 Randi_compute_next_data_frame(Randi *self)
 {
-    (*self->proc_func_ptr)(self); 
+    (*self->proc_func_ptr)(self);
     (*self->muladd_func_ptr)(self);
 }
 
@@ -320,23 +320,23 @@ Randi_traverse(Randi *self, visitproc visit, void *arg)
     pyo_VISIT
     Py_VISIT(self->freq);
     Py_VISIT(self->freq_stream);
-    Py_VISIT(self->min);    
-    Py_VISIT(self->min_stream);    
-    Py_VISIT(self->max);    
-    Py_VISIT(self->max_stream);    
+    Py_VISIT(self->min);
+    Py_VISIT(self->min_stream);
+    Py_VISIT(self->max);
+    Py_VISIT(self->max_stream);
     return 0;
 }
 
-static int 
+static int
 Randi_clear(Randi *self)
 {
     pyo_CLEAR
     Py_CLEAR(self->freq);
     Py_CLEAR(self->freq_stream);
-    Py_CLEAR(self->min);    
-    Py_CLEAR(self->min_stream);    
-    Py_CLEAR(self->max);    
-    Py_CLEAR(self->max_stream);    
+    Py_CLEAR(self->min);
+    Py_CLEAR(self->min_stream);
+    Py_CLEAR(self->max);
+    Py_CLEAR(self->max_stream);
     return 0;
 }
 
@@ -356,7 +356,7 @@ Randi_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *mintmp=NULL, *maxtmp=NULL, *freqtmp=NULL, *multmp=NULL, *addtmp=NULL;
     Randi *self;
     self = (Randi *)type->tp_alloc(type, 0);
-    
+
     self->min = PyFloat_FromDouble(0.);
     self->max = PyFloat_FromDouble(1.);
     self->freq = PyFloat_FromDouble(1.);
@@ -367,20 +367,20 @@ Randi_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 	self->modebuffer[2] = 0;
 	self->modebuffer[3] = 0;
 	self->modebuffer[4] = 0;
-    
+
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, Randi_compute_next_data_frame);
     self->mode_func_ptr = Randi_setProcMode;
 
     static char *kwlist[] = {"min", "max", "freq", "mul", "add", NULL};
-    
+
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "|OOOOO", kwlist, &mintmp, &maxtmp, &freqtmp, &multmp, &addtmp))
-        Py_RETURN_NONE; 
+        Py_RETURN_NONE;
 
     if (mintmp) {
         PyObject_CallMethod((PyObject *)self, "setMin", "O", mintmp);
     }
-    
+
     if (maxtmp) {
         PyObject_CallMethod((PyObject *)self, "setMax", "O", maxtmp);
     }
@@ -388,15 +388,15 @@ Randi_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (freqtmp) {
         PyObject_CallMethod((PyObject *)self, "setFreq", "O", freqtmp);
     }
-    
+
     if (multmp) {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
     }
-    
+
     if (addtmp) {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
-    
+
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
     Server_generateSeed((Server *)self->server, RANDI_ID);
@@ -409,7 +409,7 @@ Randi_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         ma = PyFloat_AS_DOUBLE(self->max);
     else
         ma = Stream_getData((Stream *)self->max_stream)[0];
-    
+
     self->value = self->oldValue = (mi + ma) * 0.5;
 
     (*self->mode_func_ptr)(self);
@@ -419,10 +419,10 @@ Randi_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
 static PyObject * Randi_getServer(Randi* self) { GET_SERVER };
 static PyObject * Randi_getStream(Randi* self) { GET_STREAM };
-static PyObject * Randi_setMul(Randi *self, PyObject *arg) { SET_MUL };	
-static PyObject * Randi_setAdd(Randi *self, PyObject *arg) { SET_ADD };	
-static PyObject * Randi_setSub(Randi *self, PyObject *arg) { SET_SUB };	
-static PyObject * Randi_setDiv(Randi *self, PyObject *arg) { SET_DIV };	
+static PyObject * Randi_setMul(Randi *self, PyObject *arg) { SET_MUL };
+static PyObject * Randi_setAdd(Randi *self, PyObject *arg) { SET_ADD };
+static PyObject * Randi_setSub(Randi *self, PyObject *arg) { SET_SUB };
+static PyObject * Randi_setDiv(Randi *self, PyObject *arg) { SET_DIV };
 
 static PyObject * Randi_play(Randi *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * Randi_out(Randi *self, PyObject *args, PyObject *kwds) { OUT };
@@ -441,14 +441,14 @@ static PyObject *
 Randi_setMin(Randi *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
-	
+
 	if (arg == NULL) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
 	int isNumber = PyNumber_Check(arg);
-	
+
 	tmp = arg;
 	Py_INCREF(tmp);
 	Py_DECREF(self->min);
@@ -464,25 +464,25 @@ Randi_setMin(Randi *self, PyObject *arg)
         self->min_stream = (Stream *)streamtmp;
 		self->modebuffer[2] = 1;
 	}
-    
+
     (*self->mode_func_ptr)(self);
-    
+
 	Py_INCREF(Py_None);
 	return Py_None;
-}	
+}
 
 static PyObject *
 Randi_setMax(Randi *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
-	
+
 	if (arg == NULL) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
 	int isNumber = PyNumber_Check(arg);
-	
+
 	tmp = arg;
 	Py_INCREF(tmp);
 	Py_DECREF(self->max);
@@ -498,25 +498,25 @@ Randi_setMax(Randi *self, PyObject *arg)
         self->max_stream = (Stream *)streamtmp;
 		self->modebuffer[3] = 1;
 	}
-    
+
     (*self->mode_func_ptr)(self);
-    
+
 	Py_INCREF(Py_None);
 	return Py_None;
-}	
+}
 
 static PyObject *
 Randi_setFreq(Randi *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
-	
+
 	if (arg == NULL) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
 	int isNumber = PyNumber_Check(arg);
-	
+
 	tmp = arg;
 	Py_INCREF(tmp);
 	Py_DECREF(self->freq);
@@ -532,12 +532,12 @@ Randi_setFreq(Randi *self, PyObject *arg)
         self->freq_stream = (Stream *)streamtmp;
 		self->modebuffer[4] = 1;
 	}
-    
+
     (*self->mode_func_ptr)(self);
-    
+
 	Py_INCREF(Py_None);
 	return Py_None;
-}	
+}
 
 static PyMemberDef Randi_members[] = {
 {"server", T_OBJECT_EX, offsetof(Randi, server), 0, "Pyo server."},
@@ -663,7 +663,7 @@ typedef struct {
     Stream *freq_stream;
     MYFLT value;
     MYFLT time;
-    int modebuffer[5]; // need at least 2 slots for mul & add 
+    int modebuffer[5]; // need at least 2 slots for mul & add
 } Randh;
 
 static void
@@ -675,7 +675,7 @@ Randh_generate_iii(Randh *self) {
     MYFLT fr = PyFloat_AS_DOUBLE(self->freq);
     MYFLT range = ma - mi;
     inc = fr / self->sr;
-    
+
     for (i=0; i<self->bufsize; i++) {
         self->time += inc;
         if (self->time < 0.0)
@@ -696,7 +696,7 @@ Randh_generate_aii(Randh *self) {
     MYFLT ma = PyFloat_AS_DOUBLE(self->max);
     MYFLT fr = PyFloat_AS_DOUBLE(self->freq);
     inc = fr / self->sr;
-    
+
     for (i=0; i<self->bufsize; i++) {
         range = ma - mi[i];
         self->time += inc;
@@ -718,7 +718,7 @@ Randh_generate_iai(Randh *self) {
     MYFLT *ma = Stream_getData((Stream *)self->max_stream);
     MYFLT fr = PyFloat_AS_DOUBLE(self->freq);
     inc = fr / self->sr;
-    
+
     for (i=0; i<self->bufsize; i++) {
         range = ma[i] - mi;
         self->time += inc;
@@ -740,7 +740,7 @@ Randh_generate_aai(Randh *self) {
     MYFLT *ma = Stream_getData((Stream *)self->max_stream);
     MYFLT fr = PyFloat_AS_DOUBLE(self->freq);
     inc = fr / self->sr;
-    
+
     for (i=0; i<self->bufsize; i++) {
         range = ma[i] - mi[i];
         self->time += inc;
@@ -762,7 +762,7 @@ Randh_generate_iia(Randh *self) {
     MYFLT ma = PyFloat_AS_DOUBLE(self->max);
     MYFLT *fr = Stream_getData((Stream *)self->freq_stream);
     MYFLT range = ma - mi;
-    
+
     for (i=0; i<self->bufsize; i++) {
         inc = fr[i] / self->sr;
         self->time += inc;
@@ -783,7 +783,7 @@ Randh_generate_aia(Randh *self) {
     MYFLT *mi = Stream_getData((Stream *)self->min_stream);
     MYFLT ma = PyFloat_AS_DOUBLE(self->max);
     MYFLT *fr = Stream_getData((Stream *)self->freq_stream);
-    
+
     for (i=0; i<self->bufsize; i++) {
         inc = fr[i] / self->sr;
         range = ma - mi[i];
@@ -805,7 +805,7 @@ Randh_generate_iaa(Randh *self) {
     MYFLT mi = PyFloat_AS_DOUBLE(self->min);
     MYFLT *ma = Stream_getData((Stream *)self->max_stream);
     MYFLT *fr = Stream_getData((Stream *)self->freq_stream);
-    
+
     for (i=0; i<self->bufsize; i++) {
         inc = fr[i] / self->sr;
         range = ma[i] - mi;
@@ -827,7 +827,7 @@ Randh_generate_aaa(Randh *self) {
     MYFLT *mi = Stream_getData((Stream *)self->min_stream);
     MYFLT *ma = Stream_getData((Stream *)self->max_stream);
     MYFLT *fr = Stream_getData((Stream *)self->freq_stream);
-    
+
     for (i=0; i<self->bufsize; i++) {
         inc = fr[i] / self->sr;
         range = ma[i] - mi[i];
@@ -858,68 +858,68 @@ Randh_setProcMode(Randh *self)
     int procmode, muladdmode;
     procmode = self->modebuffer[2] + self->modebuffer[3] * 10 + self->modebuffer[4] * 100;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
-    
+
 	switch (procmode) {
-        case 0:    
+        case 0:
             self->proc_func_ptr = Randh_generate_iii;
             break;
-        case 1:    
+        case 1:
             self->proc_func_ptr = Randh_generate_aii;
             break;
-        case 10:    
+        case 10:
             self->proc_func_ptr = Randh_generate_iai;
             break;
-        case 11:    
+        case 11:
             self->proc_func_ptr = Randh_generate_aai;
             break;
-        case 100:    
+        case 100:
             self->proc_func_ptr = Randh_generate_iia;
             break;
-        case 101:    
+        case 101:
             self->proc_func_ptr = Randh_generate_aia;
             break;
-        case 110:    
+        case 110:
             self->proc_func_ptr = Randh_generate_iaa;
             break;
-        case 111:    
+        case 111:
             self->proc_func_ptr = Randh_generate_aaa;
-            break;            
-    } 
+            break;
+    }
 	switch (muladdmode) {
-        case 0:        
+        case 0:
             self->muladd_func_ptr = Randh_postprocessing_ii;
             break;
-        case 1:    
+        case 1:
             self->muladd_func_ptr = Randh_postprocessing_ai;
             break;
-        case 2:    
+        case 2:
             self->muladd_func_ptr = Randh_postprocessing_revai;
             break;
-        case 10:        
+        case 10:
             self->muladd_func_ptr = Randh_postprocessing_ia;
             break;
-        case 11:    
+        case 11:
             self->muladd_func_ptr = Randh_postprocessing_aa;
             break;
-        case 12:    
+        case 12:
             self->muladd_func_ptr = Randh_postprocessing_revaa;
             break;
-        case 20:        
+        case 20:
             self->muladd_func_ptr = Randh_postprocessing_ireva;
             break;
-        case 21:    
+        case 21:
             self->muladd_func_ptr = Randh_postprocessing_areva;
             break;
-        case 22:    
+        case 22:
             self->muladd_func_ptr = Randh_postprocessing_revareva;
             break;
-    }  
+    }
 }
 
 static void
 Randh_compute_next_data_frame(Randh *self)
 {
-    (*self->proc_func_ptr)(self); 
+    (*self->proc_func_ptr)(self);
     (*self->muladd_func_ptr)(self);
 }
 
@@ -929,23 +929,23 @@ Randh_traverse(Randh *self, visitproc visit, void *arg)
     pyo_VISIT
     Py_VISIT(self->freq);
     Py_VISIT(self->freq_stream);
-    Py_VISIT(self->min);    
-    Py_VISIT(self->min_stream);    
-    Py_VISIT(self->max);    
-    Py_VISIT(self->max_stream);    
+    Py_VISIT(self->min);
+    Py_VISIT(self->min_stream);
+    Py_VISIT(self->max);
+    Py_VISIT(self->max_stream);
     return 0;
 }
 
-static int 
+static int
 Randh_clear(Randh *self)
 {
     pyo_CLEAR
     Py_CLEAR(self->freq);
     Py_CLEAR(self->freq_stream);
-    Py_CLEAR(self->min);    
-    Py_CLEAR(self->min_stream);    
-    Py_CLEAR(self->max);    
-    Py_CLEAR(self->max_stream);    
+    Py_CLEAR(self->min);
+    Py_CLEAR(self->min_stream);
+    Py_CLEAR(self->max);
+    Py_CLEAR(self->max_stream);
     return 0;
 }
 
@@ -965,7 +965,7 @@ Randh_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *mintmp=NULL, *maxtmp=NULL, *freqtmp=NULL, *multmp=NULL, *addtmp=NULL;
     Randh *self;
     self = (Randh *)type->tp_alloc(type, 0);
-    
+
     self->min = PyFloat_FromDouble(0.);
     self->max = PyFloat_FromDouble(1.);
     self->freq = PyFloat_FromDouble(1.);
@@ -976,38 +976,38 @@ Randh_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 	self->modebuffer[2] = 0;
 	self->modebuffer[3] = 0;
 	self->modebuffer[4] = 0;
-    
+
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, Randh_compute_next_data_frame);
     self->mode_func_ptr = Randh_setProcMode;
 
     static char *kwlist[] = {"min", "max", "freq", "mul", "add", NULL};
-    
+
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "|OOOOO", kwlist, &mintmp, &maxtmp, &freqtmp, &multmp, &addtmp))
         Py_RETURN_NONE;
-    
+
     if (mintmp) {
         PyObject_CallMethod((PyObject *)self, "setMin", "O", mintmp);
     }
-    
+
     if (maxtmp) {
         PyObject_CallMethod((PyObject *)self, "setMax", "O", maxtmp);
     }
-    
+
     if (freqtmp) {
         PyObject_CallMethod((PyObject *)self, "setFreq", "O", freqtmp);
     }
-    
+
     if (multmp) {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
     }
-    
+
     if (addtmp) {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
-    
+
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
-    
+
     Server_generateSeed((Server *)self->server, RANDH_ID);
 
     if (self->modebuffer[2] == 0)
@@ -1018,9 +1018,9 @@ Randh_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         ma = PyFloat_AS_DOUBLE(self->max);
     else
         ma = Stream_getData((Stream *)self->max_stream)[0];
-    
+
     self->value = (mi + ma) * 0.5;
-    
+
     (*self->mode_func_ptr)(self);
 
     return (PyObject *)self;
@@ -1028,10 +1028,10 @@ Randh_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
 static PyObject * Randh_getServer(Randh* self) { GET_SERVER };
 static PyObject * Randh_getStream(Randh* self) { GET_STREAM };
-static PyObject * Randh_setMul(Randh *self, PyObject *arg) { SET_MUL };	
-static PyObject * Randh_setAdd(Randh *self, PyObject *arg) { SET_ADD };	
-static PyObject * Randh_setSub(Randh *self, PyObject *arg) { SET_SUB };	
-static PyObject * Randh_setDiv(Randh *self, PyObject *arg) { SET_DIV };	
+static PyObject * Randh_setMul(Randh *self, PyObject *arg) { SET_MUL };
+static PyObject * Randh_setAdd(Randh *self, PyObject *arg) { SET_ADD };
+static PyObject * Randh_setSub(Randh *self, PyObject *arg) { SET_SUB };
+static PyObject * Randh_setDiv(Randh *self, PyObject *arg) { SET_DIV };
 
 static PyObject * Randh_play(Randh *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * Randh_out(Randh *self, PyObject *args, PyObject *kwds) { OUT };
@@ -1050,14 +1050,14 @@ static PyObject *
 Randh_setMin(Randh *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
-	
+
 	if (arg == NULL) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
 	int isNumber = PyNumber_Check(arg);
-	
+
 	tmp = arg;
 	Py_INCREF(tmp);
 	Py_DECREF(self->min);
@@ -1073,25 +1073,25 @@ Randh_setMin(Randh *self, PyObject *arg)
         self->min_stream = (Stream *)streamtmp;
 		self->modebuffer[2] = 1;
 	}
-    
+
     (*self->mode_func_ptr)(self);
-    
+
 	Py_INCREF(Py_None);
 	return Py_None;
-}	
+}
 
 static PyObject *
 Randh_setMax(Randh *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
-	
+
 	if (arg == NULL) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
 	int isNumber = PyNumber_Check(arg);
-	
+
 	tmp = arg;
 	Py_INCREF(tmp);
 	Py_DECREF(self->max);
@@ -1107,25 +1107,25 @@ Randh_setMax(Randh *self, PyObject *arg)
         self->max_stream = (Stream *)streamtmp;
 		self->modebuffer[3] = 1;
 	}
-    
+
     (*self->mode_func_ptr)(self);
-    
+
 	Py_INCREF(Py_None);
 	return Py_None;
-}	
+}
 
 static PyObject *
 Randh_setFreq(Randh *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
-	
+
 	if (arg == NULL) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
 	int isNumber = PyNumber_Check(arg);
-	
+
 	tmp = arg;
 	Py_INCREF(tmp);
 	Py_DECREF(self->freq);
@@ -1141,12 +1141,12 @@ Randh_setFreq(Randh *self, PyObject *arg)
         self->freq_stream = (Stream *)streamtmp;
 		self->modebuffer[4] = 1;
 	}
-    
+
     (*self->mode_func_ptr)(self);
-    
+
 	Py_INCREF(Py_None);
 	return Py_None;
-}	
+}
 
 static PyMemberDef Randh_members[] = {
 {"server", T_OBJECT_EX, offsetof(Randh, server), 0, "Pyo server."},
@@ -1270,7 +1270,7 @@ typedef struct {
     MYFLT *choice;
     MYFLT value;
     MYFLT time;
-    int modebuffer[3]; // need at least 2 slots for mul & add 
+    int modebuffer[3]; // need at least 2 slots for mul & add
 } Choice;
 
 static void
@@ -1279,7 +1279,7 @@ Choice_generate_i(Choice *self) {
     MYFLT inc;
     MYFLT fr = PyFloat_AS_DOUBLE(self->freq);
     inc = fr / self->sr;
-    
+
     for (i=0; i<self->bufsize; i++) {
         self->time += inc;
         if (self->time < 0.0)
@@ -1297,7 +1297,7 @@ Choice_generate_a(Choice *self) {
     int i;
     MYFLT inc;
     MYFLT *fr = Stream_getData((Stream *)self->freq_stream);
-    
+
     for (i=0; i<self->bufsize; i++) {
         inc = fr[i] / self->sr;
         self->time += inc;
@@ -1327,50 +1327,50 @@ Choice_setProcMode(Choice *self)
     int procmode, muladdmode;
     procmode = self->modebuffer[2];
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
-    
+
 	switch (procmode) {
-        case 0:    
+        case 0:
             self->proc_func_ptr = Choice_generate_i;
             break;
-        case 1:    
+        case 1:
             self->proc_func_ptr = Choice_generate_a;
             break;
-    } 
+    }
 	switch (muladdmode) {
-        case 0:        
+        case 0:
             self->muladd_func_ptr = Choice_postprocessing_ii;
             break;
-        case 1:    
+        case 1:
             self->muladd_func_ptr = Choice_postprocessing_ai;
             break;
-        case 2:    
+        case 2:
             self->muladd_func_ptr = Choice_postprocessing_revai;
             break;
-        case 10:        
+        case 10:
             self->muladd_func_ptr = Choice_postprocessing_ia;
             break;
-        case 11:    
+        case 11:
             self->muladd_func_ptr = Choice_postprocessing_aa;
             break;
-        case 12:    
+        case 12:
             self->muladd_func_ptr = Choice_postprocessing_revaa;
             break;
-        case 20:        
+        case 20:
             self->muladd_func_ptr = Choice_postprocessing_ireva;
             break;
-        case 21:    
+        case 21:
             self->muladd_func_ptr = Choice_postprocessing_areva;
             break;
-        case 22:    
+        case 22:
             self->muladd_func_ptr = Choice_postprocessing_revareva;
             break;
-    }  
+    }
 }
 
 static void
 Choice_compute_next_data_frame(Choice *self)
 {
-    (*self->proc_func_ptr)(self); 
+    (*self->proc_func_ptr)(self);
     (*self->muladd_func_ptr)(self);
 }
 
@@ -1383,7 +1383,7 @@ Choice_traverse(Choice *self, visitproc visit, void *arg)
     return 0;
 }
 
-static int 
+static int
 Choice_clear(Choice *self)
 {
     pyo_CLEAR
@@ -1408,23 +1408,23 @@ Choice_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *choicetmp=NULL, *freqtmp=NULL, *multmp=NULL, *addtmp=NULL;
     Choice *self;
     self = (Choice *)type->tp_alloc(type, 0);
-    
+
     self->freq = PyFloat_FromDouble(1.);
     self->value = 0.0;
     self->time = 1.0;
 	self->modebuffer[0] = 0;
 	self->modebuffer[1] = 0;
 	self->modebuffer[2] = 0;
-    
+
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, Choice_compute_next_data_frame);
     self->mode_func_ptr = Choice_setProcMode;
 
     static char *kwlist[] = {"choice", "freq", "mul", "add", NULL};
-    
+
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOO", kwlist, &choicetmp, &freqtmp, &multmp, &addtmp))
         Py_RETURN_NONE;
-    
+
     if (choicetmp) {
         PyObject_CallMethod((PyObject *)self, "setChoice", "O", choicetmp);
     }
@@ -1432,17 +1432,17 @@ Choice_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (freqtmp) {
         PyObject_CallMethod((PyObject *)self, "setFreq", "O", freqtmp);
     }
-    
+
     if (multmp) {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
     }
-    
+
     if (addtmp) {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
-    
+
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
-    
+
     Server_generateSeed((Server *)self->server, CHOICE_ID);
 
     (*self->mode_func_ptr)(self);
@@ -1452,10 +1452,10 @@ Choice_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
 static PyObject * Choice_getServer(Choice* self) { GET_SERVER };
 static PyObject * Choice_getStream(Choice* self) { GET_STREAM };
-static PyObject * Choice_setMul(Choice *self, PyObject *arg) { SET_MUL };	
-static PyObject * Choice_setAdd(Choice *self, PyObject *arg) { SET_ADD };	
-static PyObject * Choice_setSub(Choice *self, PyObject *arg) { SET_SUB };	
-static PyObject * Choice_setDiv(Choice *self, PyObject *arg) { SET_DIV };	
+static PyObject * Choice_setMul(Choice *self, PyObject *arg) { SET_MUL };
+static PyObject * Choice_setAdd(Choice *self, PyObject *arg) { SET_ADD };
+static PyObject * Choice_setSub(Choice *self, PyObject *arg) { SET_SUB };
+static PyObject * Choice_setDiv(Choice *self, PyObject *arg) { SET_DIV };
 
 static PyObject * Choice_play(Choice *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * Choice_out(Choice *self, PyObject *args, PyObject *kwds) { OUT };
@@ -1475,38 +1475,38 @@ Choice_setChoice(Choice *self, PyObject *arg)
 {
     int i;
 	PyObject *tmp;
-	
+
 	if (! PyList_Check(arg)) {
         PyErr_SetString(PyExc_TypeError, "The choice attribute must be a list.");
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
     tmp = arg;
     self->chSize = PyList_Size(tmp);
     self->choice = (MYFLT *)realloc(self->choice, self->chSize * sizeof(MYFLT));
     for (i=0; i<self->chSize; i++) {
         self->choice[i] = PyFloat_AS_DOUBLE(PyNumber_Float(PyList_GET_ITEM(tmp, i)));
     }
-    
+
     (*self->mode_func_ptr)(self);
-    
+
 	Py_INCREF(Py_None);
 	return Py_None;
-}	
+}
 
 static PyObject *
 Choice_setFreq(Choice *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
-	
+
 	if (arg == NULL) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
 	int isNumber = PyNumber_Check(arg);
-	
+
 	tmp = arg;
 	Py_INCREF(tmp);
 	Py_DECREF(self->freq);
@@ -1522,12 +1522,12 @@ Choice_setFreq(Choice *self, PyObject *arg)
         self->freq_stream = (Stream *)streamtmp;
 		self->modebuffer[2] = 1;
 	}
-    
+
     (*self->mode_func_ptr)(self);
-    
+
 	Py_INCREF(Py_None);
 	return Py_None;
-}	
+}
 
 static PyMemberDef Choice_members[] = {
 {"server", T_OBJECT_EX, offsetof(Choice, server), 0, "Pyo server."},
@@ -1648,7 +1648,7 @@ typedef struct {
     Stream *freq_stream;
     MYFLT value;
     MYFLT time;
-    int modebuffer[4]; // need at least 2 slots for mul & add 
+    int modebuffer[4]; // need at least 2 slots for mul & add
 } RandInt;
 
 static void
@@ -1658,7 +1658,7 @@ RandInt_generate_ii(RandInt *self) {
     MYFLT ma = PyFloat_AS_DOUBLE(self->max);
     MYFLT fr = PyFloat_AS_DOUBLE(self->freq);
     inc = fr / self->sr;
-    
+
     for (i=0; i<self->bufsize; i++) {
         self->time += inc;
         if (self->time < 0.0)
@@ -1678,7 +1678,7 @@ RandInt_generate_ai(RandInt *self) {
     MYFLT *ma = Stream_getData((Stream *)self->max_stream);
     MYFLT fr = PyFloat_AS_DOUBLE(self->freq);
     inc = fr / self->sr;
-    
+
     for (i=0; i<self->bufsize; i++) {
         self->time += inc;
         if (self->time < 0.0)
@@ -1697,7 +1697,7 @@ RandInt_generate_ia(RandInt *self) {
     MYFLT inc;
     MYFLT ma = PyFloat_AS_DOUBLE(self->max);
     MYFLT *fr = Stream_getData((Stream *)self->freq_stream);
-    
+
     for (i=0; i<self->bufsize; i++) {
         inc = fr[i] / self->sr;
         self->time += inc;
@@ -1717,7 +1717,7 @@ RandInt_generate_aa(RandInt *self) {
     MYFLT inc;
     MYFLT *ma = Stream_getData((Stream *)self->max_stream);
     MYFLT *fr = Stream_getData((Stream *)self->freq_stream);
-    
+
     for (i=0; i<self->bufsize; i++) {
         inc = fr[i] / self->sr;
         self->time += inc;
@@ -1747,56 +1747,56 @@ RandInt_setProcMode(RandInt *self)
     int procmode, muladdmode;
     procmode = self->modebuffer[2] + self->modebuffer[3] * 10;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
-    
+
 	switch (procmode) {
-        case 0:    
+        case 0:
             self->proc_func_ptr = RandInt_generate_ii;
             break;
-        case 1:    
+        case 1:
             self->proc_func_ptr = RandInt_generate_ai;
             break;
-        case 10:    
+        case 10:
             self->proc_func_ptr = RandInt_generate_ia;
             break;
-        case 11:    
+        case 11:
             self->proc_func_ptr = RandInt_generate_aa;
             break;
-    } 
+    }
 	switch (muladdmode) {
-        case 0:        
+        case 0:
             self->muladd_func_ptr = RandInt_postprocessing_ii;
             break;
-        case 1:    
+        case 1:
             self->muladd_func_ptr = RandInt_postprocessing_ai;
             break;
-        case 2:    
+        case 2:
             self->muladd_func_ptr = RandInt_postprocessing_revai;
             break;
-        case 10:        
+        case 10:
             self->muladd_func_ptr = RandInt_postprocessing_ia;
             break;
-        case 11:    
+        case 11:
             self->muladd_func_ptr = RandInt_postprocessing_aa;
             break;
-        case 12:    
+        case 12:
             self->muladd_func_ptr = RandInt_postprocessing_revaa;
             break;
-        case 20:        
+        case 20:
             self->muladd_func_ptr = RandInt_postprocessing_ireva;
             break;
-        case 21:    
+        case 21:
             self->muladd_func_ptr = RandInt_postprocessing_areva;
             break;
-        case 22:    
+        case 22:
             self->muladd_func_ptr = RandInt_postprocessing_revareva;
             break;
-    }  
+    }
 }
 
 static void
 RandInt_compute_next_data_frame(RandInt *self)
 {
-    (*self->proc_func_ptr)(self); 
+    (*self->proc_func_ptr)(self);
     (*self->muladd_func_ptr)(self);
 }
 
@@ -1806,19 +1806,19 @@ RandInt_traverse(RandInt *self, visitproc visit, void *arg)
     pyo_VISIT
     Py_VISIT(self->freq);
     Py_VISIT(self->freq_stream);
-    Py_VISIT(self->max);    
-    Py_VISIT(self->max_stream);    
+    Py_VISIT(self->max);
+    Py_VISIT(self->max_stream);
     return 0;
 }
 
-static int 
+static int
 RandInt_clear(RandInt *self)
 {
     pyo_CLEAR
     Py_CLEAR(self->freq);
     Py_CLEAR(self->freq_stream);
-    Py_CLEAR(self->max);    
-    Py_CLEAR(self->max_stream);    
+    Py_CLEAR(self->max);
+    Py_CLEAR(self->max_stream);
     return 0;
 }
 
@@ -1837,7 +1837,7 @@ RandInt_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *maxtmp=NULL, *freqtmp=NULL, *multmp=NULL, *addtmp=NULL;
     RandInt *self;
     self = (RandInt *)type->tp_alloc(type, 0);
-    
+
     self->max = PyFloat_FromDouble(100.);
     self->freq = PyFloat_FromDouble(1.);
     self->value = 0.0;
@@ -1846,32 +1846,32 @@ RandInt_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 	self->modebuffer[1] = 0;
 	self->modebuffer[2] = 0;
 	self->modebuffer[3] = 0;
-    
+
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, RandInt_compute_next_data_frame);
     self->mode_func_ptr = RandInt_setProcMode;
 
     static char *kwlist[] = {"max", "freq", "mul", "add", NULL};
-    
+
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "|OOOO", kwlist, &maxtmp, &freqtmp, &multmp, &addtmp))
         Py_RETURN_NONE;
 
     if (maxtmp) {
         PyObject_CallMethod((PyObject *)self, "setMax", "O", maxtmp);
     }
-    
+
     if (freqtmp) {
         PyObject_CallMethod((PyObject *)self, "setFreq", "O", freqtmp);
     }
-    
+
     if (multmp) {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
     }
-    
+
     if (addtmp) {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
-    
+
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
     Server_generateSeed((Server *)self->server, RANDINT_ID);
@@ -1883,10 +1883,10 @@ RandInt_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
 static PyObject * RandInt_getServer(RandInt* self) { GET_SERVER };
 static PyObject * RandInt_getStream(RandInt* self) { GET_STREAM };
-static PyObject * RandInt_setMul(RandInt *self, PyObject *arg) { SET_MUL };	
-static PyObject * RandInt_setAdd(RandInt *self, PyObject *arg) { SET_ADD };	
-static PyObject * RandInt_setSub(RandInt *self, PyObject *arg) { SET_SUB };	
-static PyObject * RandInt_setDiv(RandInt *self, PyObject *arg) { SET_DIV };	
+static PyObject * RandInt_setMul(RandInt *self, PyObject *arg) { SET_MUL };
+static PyObject * RandInt_setAdd(RandInt *self, PyObject *arg) { SET_ADD };
+static PyObject * RandInt_setSub(RandInt *self, PyObject *arg) { SET_SUB };
+static PyObject * RandInt_setDiv(RandInt *self, PyObject *arg) { SET_DIV };
 
 static PyObject * RandInt_play(RandInt *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * RandInt_out(RandInt *self, PyObject *args, PyObject *kwds) { OUT };
@@ -1905,14 +1905,14 @@ static PyObject *
 RandInt_setMax(RandInt *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
-	
+
 	if (arg == NULL) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
 	int isNumber = PyNumber_Check(arg);
-	
+
 	tmp = arg;
 	Py_INCREF(tmp);
 	Py_DECREF(self->max);
@@ -1928,25 +1928,25 @@ RandInt_setMax(RandInt *self, PyObject *arg)
         self->max_stream = (Stream *)streamtmp;
 		self->modebuffer[2] = 1;
 	}
-    
+
     (*self->mode_func_ptr)(self);
-    
+
 	Py_INCREF(Py_None);
 	return Py_None;
-}	
+}
 
 static PyObject *
 RandInt_setFreq(RandInt *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
-	
+
 	if (arg == NULL) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
 	int isNumber = PyNumber_Check(arg);
-	
+
 	tmp = arg;
 	Py_INCREF(tmp);
 	Py_DECREF(self->freq);
@@ -1962,12 +1962,12 @@ RandInt_setFreq(RandInt *self, PyObject *arg)
         self->freq_stream = (Stream *)streamtmp;
 		self->modebuffer[3] = 1;
 	}
-    
+
     (*self->mode_func_ptr)(self);
-    
+
 	Py_INCREF(Py_None);
 	return Py_None;
-}	
+}
 
 static PyMemberDef RandInt_members[] = {
 {"server", T_OBJECT_EX, offsetof(RandInt, server), 0, "Pyo server."},
@@ -2090,7 +2090,7 @@ typedef struct {
     MYFLT value;
     MYFLT time;
     MYFLT inc;
-    int modebuffer[4]; // need at least 2 slots for mul & add 
+    int modebuffer[4]; // need at least 2 slots for mul & add
 } RandDur;
 
 static void
@@ -2099,7 +2099,7 @@ RandDur_generate_ii(RandDur *self) {
     MYFLT range;
     MYFLT mi = PyFloat_AS_DOUBLE(self->min);
     MYFLT ma = PyFloat_AS_DOUBLE(self->max);
-    
+
     for (i=0; i<self->bufsize; i++) {
         self->time += self->inc;
         if (self->time < 0.0)
@@ -2124,7 +2124,7 @@ RandDur_generate_ai(RandDur *self) {
     MYFLT range, mi;
     MYFLT *min = Stream_getData((Stream *)self->min_stream);
     MYFLT ma = PyFloat_AS_DOUBLE(self->max);
-    
+
     for (i=0; i<self->bufsize; i++) {
         self->time += self->inc;
         if (self->time < 0.0)
@@ -2150,7 +2150,7 @@ RandDur_generate_ia(RandDur *self) {
     MYFLT range;
     MYFLT mi = PyFloat_AS_DOUBLE(self->min);
     MYFLT *ma = Stream_getData((Stream *)self->max_stream);
-    
+
     for (i=0; i<self->bufsize; i++) {
         self->time += self->inc;
         if (self->time < 0.0)
@@ -2175,7 +2175,7 @@ RandDur_generate_aa(RandDur *self) {
     MYFLT range, mi;
     MYFLT *min = Stream_getData((Stream *)self->min_stream);
     MYFLT *ma = Stream_getData((Stream *)self->max_stream);
-    
+
     for (i=0; i<self->bufsize; i++) {
         self->time += self->inc;
         if (self->time < 0.0)
@@ -2211,56 +2211,56 @@ RandDur_setProcMode(RandDur *self)
     int procmode, muladdmode;
     procmode = self->modebuffer[2] + self->modebuffer[3] * 10;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
-    
+
 	switch (procmode) {
-        case 0:    
+        case 0:
             self->proc_func_ptr = RandDur_generate_ii;
             break;
-        case 1:    
+        case 1:
             self->proc_func_ptr = RandDur_generate_ai;
             break;
-        case 10:    
+        case 10:
             self->proc_func_ptr = RandDur_generate_ia;
             break;
-        case 11:    
+        case 11:
             self->proc_func_ptr = RandDur_generate_aa;
             break;
-    } 
+    }
 	switch (muladdmode) {
-        case 0:        
+        case 0:
             self->muladd_func_ptr = RandDur_postprocessing_ii;
             break;
-        case 1:    
+        case 1:
             self->muladd_func_ptr = RandDur_postprocessing_ai;
             break;
-        case 2:    
+        case 2:
             self->muladd_func_ptr = RandDur_postprocessing_revai;
             break;
-        case 10:        
+        case 10:
             self->muladd_func_ptr = RandDur_postprocessing_ia;
             break;
-        case 11:    
+        case 11:
             self->muladd_func_ptr = RandDur_postprocessing_aa;
             break;
-        case 12:    
+        case 12:
             self->muladd_func_ptr = RandDur_postprocessing_revaa;
             break;
-        case 20:        
+        case 20:
             self->muladd_func_ptr = RandDur_postprocessing_ireva;
             break;
-        case 21:    
+        case 21:
             self->muladd_func_ptr = RandDur_postprocessing_areva;
             break;
-        case 22:    
+        case 22:
             self->muladd_func_ptr = RandDur_postprocessing_revareva;
             break;
-    }  
+    }
 }
 
 static void
 RandDur_compute_next_data_frame(RandDur *self)
 {
-    (*self->proc_func_ptr)(self); 
+    (*self->proc_func_ptr)(self);
     (*self->muladd_func_ptr)(self);
 }
 
@@ -2268,21 +2268,21 @@ static int
 RandDur_traverse(RandDur *self, visitproc visit, void *arg)
 {
     pyo_VISIT
-    Py_VISIT(self->min);    
-    Py_VISIT(self->min_stream);    
-    Py_VISIT(self->max);    
-    Py_VISIT(self->max_stream);    
+    Py_VISIT(self->min);
+    Py_VISIT(self->min_stream);
+    Py_VISIT(self->max);
+    Py_VISIT(self->max_stream);
     return 0;
 }
 
-static int 
+static int
 RandDur_clear(RandDur *self)
 {
     pyo_CLEAR
-    Py_CLEAR(self->min);    
-    Py_CLEAR(self->min_stream);    
-    Py_CLEAR(self->max);    
-    Py_CLEAR(self->max_stream);    
+    Py_CLEAR(self->min);
+    Py_CLEAR(self->min_stream);
+    Py_CLEAR(self->max);
+    Py_CLEAR(self->max_stream);
     return 0;
 }
 
@@ -2302,7 +2302,7 @@ RandDur_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *mintmp=NULL, *maxtmp=NULL, *multmp=NULL, *addtmp=NULL;
     RandDur *self;
     self = (RandDur *)type->tp_alloc(type, 0);
-    
+
     self->min = PyFloat_FromDouble(0.01);
     self->max = PyFloat_FromDouble(1.);
     self->value = self->inc = 0.0;
@@ -2311,34 +2311,34 @@ RandDur_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 	self->modebuffer[1] = 0;
 	self->modebuffer[2] = 0;
 	self->modebuffer[3] = 0;
-    
+
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, RandDur_compute_next_data_frame);
     self->mode_func_ptr = RandDur_setProcMode;
 
     static char *kwlist[] = {"min", "max", "mul", "add", NULL};
-    
+
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "|OOOO", kwlist, &mintmp, &maxtmp, &multmp, &addtmp))
         Py_RETURN_NONE;
-    
+
     if (mintmp) {
         PyObject_CallMethod((PyObject *)self, "setMin", "O", mintmp);
     }
-    
+
     if (maxtmp) {
         PyObject_CallMethod((PyObject *)self, "setMax", "O", maxtmp);
     }
-    
+
     if (multmp) {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
     }
-    
+
     if (addtmp) {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
-    
+
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
-    
+
     Server_generateSeed((Server *)self->server, RANDDUR_ID);
 
     if (self->modebuffer[2] == 0)
@@ -2349,7 +2349,7 @@ RandDur_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         ma = PyFloat_AS_DOUBLE(self->max);
     else
         ma = Stream_getData((Stream *)self->max_stream)[0];
-    
+
     self->value = (mi + ma) * 0.5;
     if (self->value == 0.0)
         self->inc = 0.0;
@@ -2363,10 +2363,10 @@ RandDur_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
 static PyObject * RandDur_getServer(RandDur* self) { GET_SERVER };
 static PyObject * RandDur_getStream(RandDur* self) { GET_STREAM };
-static PyObject * RandDur_setMul(RandDur *self, PyObject *arg) { SET_MUL };	
-static PyObject * RandDur_setAdd(RandDur *self, PyObject *arg) { SET_ADD };	
-static PyObject * RandDur_setSub(RandDur *self, PyObject *arg) { SET_SUB };	
-static PyObject * RandDur_setDiv(RandDur *self, PyObject *arg) { SET_DIV };	
+static PyObject * RandDur_setMul(RandDur *self, PyObject *arg) { SET_MUL };
+static PyObject * RandDur_setAdd(RandDur *self, PyObject *arg) { SET_ADD };
+static PyObject * RandDur_setSub(RandDur *self, PyObject *arg) { SET_SUB };
+static PyObject * RandDur_setDiv(RandDur *self, PyObject *arg) { SET_DIV };
 
 static PyObject * RandDur_play(RandDur *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * RandDur_out(RandDur *self, PyObject *args, PyObject *kwds) { OUT };
@@ -2385,14 +2385,14 @@ static PyObject *
 RandDur_setMin(RandDur *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
-	
+
 	if (arg == NULL) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
 	int isNumber = PyNumber_Check(arg);
-	
+
 	tmp = arg;
 	Py_INCREF(tmp);
 	Py_DECREF(self->min);
@@ -2408,25 +2408,25 @@ RandDur_setMin(RandDur *self, PyObject *arg)
         self->min_stream = (Stream *)streamtmp;
 		self->modebuffer[2] = 1;
 	}
-    
+
     (*self->mode_func_ptr)(self);
-    
+
 	Py_INCREF(Py_None);
 	return Py_None;
-}	
+}
 
 static PyObject *
 RandDur_setMax(RandDur *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
-	
+
 	if (arg == NULL) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
 	int isNumber = PyNumber_Check(arg);
-	
+
 	tmp = arg;
 	Py_INCREF(tmp);
 	Py_DECREF(self->max);
@@ -2442,12 +2442,12 @@ RandDur_setMax(RandDur *self, PyObject *arg)
         self->max_stream = (Stream *)streamtmp;
 		self->modebuffer[3] = 1;
 	}
-    
+
     (*self->mode_func_ptr)(self);
-    
+
 	Py_INCREF(Py_None);
 	return Py_None;
-}	
+}
 
 static PyMemberDef RandDur_members[] = {
     {"server", T_OBJECT_EX, offsetof(RandDur, server), 0, "Pyo server."},
@@ -2586,18 +2586,18 @@ typedef struct {
     int loopCountRec;
     int loopLen;
     int loopStop;
-    int modebuffer[5]; // need at least 2 slots for mul & add 
+    int modebuffer[5]; // need at least 2 slots for mul & add
 } Xnoise;
 
 // no parameter
 static MYFLT
 Xnoise_uniform(Xnoise *self) {
-    return RANDOM_UNIFORM;    
+    return RANDOM_UNIFORM;
 }
 
 static MYFLT
 Xnoise_linear_min(Xnoise *self) {
-    MYFLT a = RANDOM_UNIFORM;    
+    MYFLT a = RANDOM_UNIFORM;
     MYFLT b = RANDOM_UNIFORM;
     if (a < b) return a;
     else return b;
@@ -2605,7 +2605,7 @@ Xnoise_linear_min(Xnoise *self) {
 
 static MYFLT
 Xnoise_linear_max(Xnoise *self) {
-    MYFLT a = RANDOM_UNIFORM;    
+    MYFLT a = RANDOM_UNIFORM;
     MYFLT b = RANDOM_UNIFORM;
     if (a > b) return a;
     else return b;
@@ -2613,7 +2613,7 @@ Xnoise_linear_max(Xnoise *self) {
 
 static MYFLT
 Xnoise_triangle(Xnoise *self) {
-    MYFLT a = RANDOM_UNIFORM;    
+    MYFLT a = RANDOM_UNIFORM;
     MYFLT b = RANDOM_UNIFORM;
     return ((a + b) * 0.5);
 }
@@ -2622,7 +2622,7 @@ Xnoise_triangle(Xnoise *self) {
 static MYFLT
 Xnoise_expon_min(Xnoise *self) {
     if (self->xx1 <= 0.0) self->xx1 = 0.00001;
-    MYFLT val = -MYLOG(RANDOM_UNIFORM) / self->xx1;    
+    MYFLT val = -MYLOG(RANDOM_UNIFORM) / self->xx1;
     if (val < 0.0) return 0.0;
     else if (val > 1.0) return 1.0;
     else return val;
@@ -2631,7 +2631,7 @@ Xnoise_expon_min(Xnoise *self) {
 static MYFLT
 Xnoise_expon_max(Xnoise *self) {
     if (self->xx1 <= 0.0) self->xx1 = 0.00001;
-    MYFLT val = 1.0 - (-MYLOG(RANDOM_UNIFORM) / self->xx1);    
+    MYFLT val = 1.0 - (-MYLOG(RANDOM_UNIFORM) / self->xx1);
     if (val < 0.0) return 0.0;
     else if (val > 1.0) return 1.0;
     else return val;
@@ -2643,7 +2643,7 @@ Xnoise_biexpon(Xnoise *self) {
     MYFLT polar, val;
     if (self->xx1 <= 0.0) self->xx1 = 0.00001;
     MYFLT sum = RANDOM_UNIFORM * 2.0;
-    
+
     if (sum > 1.0) {
         polar = -1;
         sum = 2.0 - sum;
@@ -2665,14 +2665,14 @@ Xnoise_cauchy(Xnoise *self) {
         rnd = RANDOM_UNIFORM;
     }
     while (rnd == 0.5);
-    
+
     if (rand() < (RAND_MAX / 2))
         dir = -1;
     else
         dir = 1;
-    
+
     val = 0.5 * (MYTAN(rnd) * self->xx1 * dir) + 0.5;
-    
+
     if (val < 0.0) return 0.0;
     else if (val > 1.0) return 1.0;
     else return val;
@@ -2683,10 +2683,10 @@ static MYFLT
 Xnoise_weibull(Xnoise *self) {
     MYFLT rnd, val;
     if (self->xx2 <= 0.0) self->xx2 = 0.00001;
-    
+
     rnd = 1.0 / (1.0 - RANDOM_UNIFORM);
     val = self->xx1 * MYPOW(MYLOG(rnd), (1.0 / self->xx2));
-    
+
     if (val < 0.0) return 0.0;
     else if (val > 1.0) return 1.0;
     else return val;
@@ -2696,10 +2696,10 @@ Xnoise_weibull(Xnoise *self) {
 static MYFLT
 Xnoise_gaussian(Xnoise *self) {
     MYFLT rnd, val;
-    
+
     rnd = (RANDOM_UNIFORM + RANDOM_UNIFORM + RANDOM_UNIFORM + RANDOM_UNIFORM + RANDOM_UNIFORM + RANDOM_UNIFORM);
     val = (self->xx2 * (rnd - 3.0) * 0.33 + self->xx1);
-    
+
     if (val < 0.0) return 0.0;
     else if (val > 1.0) return 1.0;
     else return val;
@@ -2728,7 +2728,7 @@ Xnoise_poisson(Xnoise *self) {
         }
     }
     val = self->poisson_buffer[rand() % self->poisson_tab] / 12.0 * self->xx2;
-    
+
     if (val < 0.0) return 0.0;
     else if (val > 1.0) return 1.0;
     else return val;
@@ -2738,22 +2738,22 @@ Xnoise_poisson(Xnoise *self) {
 static MYFLT
 Xnoise_walker(Xnoise *self) {
     int modulo, dir;
-    
+
     if (self->xx2 < 0.002) self->xx2 = 0.002;
-    
+
     modulo = (int)(self->xx2 * 1000.0);
     dir = rand() % 2;
-    
+
     if (dir == 0)
         self->walkerValue = self->walkerValue + (((rand() % modulo) - (modulo / 2)) * 0.001);
     else
         self->walkerValue = self->walkerValue - (((rand() % modulo) - (modulo / 2)) * 0.001);
-        
+
     if (self->walkerValue > self->xx1)
         self->walkerValue = self->xx1;
     if (self->walkerValue < 0.0)
         self->walkerValue = 0.0;
-    
+
     return self->walkerValue;
 }
 
@@ -2763,26 +2763,26 @@ Xnoise_loopseg(Xnoise *self) {
     int modulo, dir;
 
     if (self->loopChoice == 0) {
-        
+
         self->loopCountPlay = self->loopTime = 0;
 
         if (self->xx2 < 0.002) self->xx2 = 0.002;
 
         modulo = (int)(self->xx2 * 1000.0);
         dir = rand() % 2;
-    
+
         if (dir == 0)
             self->walkerValue = self->walkerValue + (((rand() % modulo) - (modulo / 2)) * 0.001);
         else
             self->walkerValue = self->walkerValue - (((rand() % modulo) - (modulo / 2)) * 0.001);
-    
+
         if (self->walkerValue > self->xx1)
             self->walkerValue = self->xx1;
         if (self->walkerValue < 0.0)
             self->walkerValue = 0.0;
-        
+
         self->loop_buffer[self->loopCountRec++] = self->walkerValue;
-        
+
         if (self->loopCountRec < self->loopLen)
             self->loopChoice = 0;
         else {
@@ -2792,22 +2792,22 @@ Xnoise_loopseg(Xnoise *self) {
     }
     else {
         self->loopCountRec = 0;
-        
+
         self->walkerValue = self->loop_buffer[self->loopCountPlay++];
-        
+
         if (self->loopCountPlay < self->loopLen)
             self->loopChoice = 1;
         else {
             self->loopCountPlay = 0;
             self->loopTime++;
         }
-        
+
         if (self->loopTime == self->loopStop) {
             self->loopChoice = 0;
             self->loopLen = (rand() % 10) + 3;
         }
     }
-    
+
     return self->walkerValue;
 }
 
@@ -2840,7 +2840,7 @@ Xnoise_generate_aii(Xnoise *self) {
     self->xx2 = PyFloat_AS_DOUBLE(self->x2);
     MYFLT fr = PyFloat_AS_DOUBLE(self->freq);
     inc = fr / self->sr;
-    
+
     for (i=0; i<self->bufsize; i++) {
         self->time += inc;
         if (self->time < 0.0)
@@ -2862,7 +2862,7 @@ Xnoise_generate_iai(Xnoise *self) {
     MYFLT *x2 = Stream_getData((Stream *)self->x2_stream);
     MYFLT fr = PyFloat_AS_DOUBLE(self->freq);
     inc = fr / self->sr;
-    
+
     for (i=0; i<self->bufsize; i++) {
         self->time += inc;
         if (self->time < 0.0)
@@ -2884,7 +2884,7 @@ Xnoise_generate_aai(Xnoise *self) {
     MYFLT *x2 = Stream_getData((Stream *)self->x2_stream);
     MYFLT fr = PyFloat_AS_DOUBLE(self->freq);
     inc = fr / self->sr;
-    
+
     for (i=0; i<self->bufsize; i++) {
         self->time += inc;
         if (self->time < 0.0)
@@ -2906,7 +2906,7 @@ Xnoise_generate_iia(Xnoise *self) {
     self->xx1 = PyFloat_AS_DOUBLE(self->x1);
     self->xx2 = PyFloat_AS_DOUBLE(self->x2);
     MYFLT *fr = Stream_getData((Stream *)self->freq_stream);
-    
+
     for (i=0; i<self->bufsize; i++) {
         inc = fr[i] / self->sr;
         self->time += inc;
@@ -2927,7 +2927,7 @@ Xnoise_generate_aia(Xnoise *self) {
     MYFLT *x1 = Stream_getData((Stream *)self->x1_stream);
     self->xx2 = PyFloat_AS_DOUBLE(self->x2);
     MYFLT *fr = Stream_getData((Stream *)self->freq_stream);
-    
+
     for (i=0; i<self->bufsize; i++) {
         inc = fr[i] / self->sr;
         self->time += inc;
@@ -2949,7 +2949,7 @@ Xnoise_generate_iaa(Xnoise *self) {
     self->xx1 = PyFloat_AS_DOUBLE(self->x1);
     MYFLT *x2 = Stream_getData((Stream *)self->x2_stream);
     MYFLT *fr = Stream_getData((Stream *)self->freq_stream);
-    
+
     for (i=0; i<self->bufsize; i++) {
         inc = fr[i] / self->sr;
         self->time += inc;
@@ -2971,7 +2971,7 @@ Xnoise_generate_aaa(Xnoise *self) {
     MYFLT *x1 = Stream_getData((Stream *)self->x1_stream);
     MYFLT *x2 = Stream_getData((Stream *)self->x2_stream);
     MYFLT *fr = Stream_getData((Stream *)self->freq_stream);
-    
+
     for (i=0; i<self->bufsize; i++) {
         inc = fr[i] / self->sr;
         self->time += inc;
@@ -3001,7 +3001,7 @@ static void
 Xnoise_setRandomType(Xnoise *self)
 {
 
-    switch (self->type) {            
+    switch (self->type) {
         case 0:
             self->type_func_ptr = Xnoise_uniform;
             break;
@@ -3041,7 +3041,7 @@ Xnoise_setRandomType(Xnoise *self)
         case 12:
             self->type_func_ptr = Xnoise_loopseg;
             break;
-    }        
+    }
 }
 
 static void
@@ -3050,68 +3050,68 @@ Xnoise_setProcMode(Xnoise *self)
     int procmode, muladdmode;
     procmode = self->modebuffer[2] + self->modebuffer[3] * 10 + self->modebuffer[4] * 100;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
-    
+
 	switch (procmode) {
-        case 0:    
+        case 0:
             self->proc_func_ptr = Xnoise_generate_iii;
             break;
-        case 1:    
+        case 1:
             self->proc_func_ptr = Xnoise_generate_aii;
             break;
-        case 10:    
+        case 10:
             self->proc_func_ptr = Xnoise_generate_iai;
             break;
-        case 11:    
+        case 11:
             self->proc_func_ptr = Xnoise_generate_aai;
             break;
-        case 100:    
+        case 100:
             self->proc_func_ptr = Xnoise_generate_iia;
             break;
-        case 101:    
+        case 101:
             self->proc_func_ptr = Xnoise_generate_aia;
             break;
-        case 110:    
+        case 110:
             self->proc_func_ptr = Xnoise_generate_iaa;
             break;
-        case 111:    
+        case 111:
             self->proc_func_ptr = Xnoise_generate_aaa;
-            break;            
-    } 
+            break;
+    }
 	switch (muladdmode) {
-        case 0:        
+        case 0:
             self->muladd_func_ptr = Xnoise_postprocessing_ii;
             break;
-        case 1:    
+        case 1:
             self->muladd_func_ptr = Xnoise_postprocessing_ai;
             break;
-        case 2:    
+        case 2:
             self->muladd_func_ptr = Xnoise_postprocessing_revai;
             break;
-        case 10:        
+        case 10:
             self->muladd_func_ptr = Xnoise_postprocessing_ia;
             break;
-        case 11:    
+        case 11:
             self->muladd_func_ptr = Xnoise_postprocessing_aa;
             break;
-        case 12:    
+        case 12:
             self->muladd_func_ptr = Xnoise_postprocessing_revaa;
             break;
-        case 20:        
+        case 20:
             self->muladd_func_ptr = Xnoise_postprocessing_ireva;
             break;
-        case 21:    
+        case 21:
             self->muladd_func_ptr = Xnoise_postprocessing_areva;
             break;
-        case 22:    
+        case 22:
             self->muladd_func_ptr = Xnoise_postprocessing_revareva;
             break;
-    }  
+    }
 }
 
 static void
 Xnoise_compute_next_data_frame(Xnoise *self)
 {
-    (*self->proc_func_ptr)(self); 
+    (*self->proc_func_ptr)(self);
     (*self->muladd_func_ptr)(self);
 }
 
@@ -3121,23 +3121,23 @@ Xnoise_traverse(Xnoise *self, visitproc visit, void *arg)
     pyo_VISIT
     Py_VISIT(self->freq);
     Py_VISIT(self->freq_stream);
-    Py_VISIT(self->x1);    
-    Py_VISIT(self->x1_stream);    
-    Py_VISIT(self->x2);    
-    Py_VISIT(self->x2_stream);    
+    Py_VISIT(self->x1);
+    Py_VISIT(self->x1_stream);
+    Py_VISIT(self->x2);
+    Py_VISIT(self->x2_stream);
     return 0;
 }
 
-static int 
+static int
 Xnoise_clear(Xnoise *self)
 {
     pyo_CLEAR
     Py_CLEAR(self->freq);
     Py_CLEAR(self->freq_stream);
-    Py_CLEAR(self->x1);    
-    Py_CLEAR(self->x1_stream);    
-    Py_CLEAR(self->x2);    
-    Py_CLEAR(self->x2_stream);    
+    Py_CLEAR(self->x1);
+    Py_CLEAR(self->x1_stream);
+    Py_CLEAR(self->x2);
+    Py_CLEAR(self->x2_stream);
     return 0;
 }
 
@@ -3156,7 +3156,7 @@ Xnoise_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *freqtmp=NULL, *x1tmp=NULL, *x2tmp=NULL, *multmp=NULL, *addtmp=NULL;
     Xnoise *self;
     self = (Xnoise *)type->tp_alloc(type, 0);
-    
+
     self->x1 = PyFloat_FromDouble(0.5);
     self->x2 = PyFloat_FromDouble(0.5);
     self->freq = PyFloat_FromDouble(1.);
@@ -3168,9 +3168,9 @@ Xnoise_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 	self->modebuffer[2] = 0;
 	self->modebuffer[3] = 0;
 	self->modebuffer[4] = 0;
-    
+
     INIT_OBJECT_COMMON
-    
+
     Server_generateSeed((Server *)self->server, XNOISE_ID);
 
     self->poisson_tab = 0;
@@ -3181,41 +3181,41 @@ Xnoise_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     for (i=0; i<15; i++) {
         self->loop_buffer[i] = 0.0;
     }
-    self->loopChoice = self->loopCountPlay = self->loopTime = self->loopCountRec = self->loopStop = 0;    
+    self->loopChoice = self->loopCountPlay = self->loopTime = self->loopCountRec = self->loopStop = 0;
     self->loopLen = (rand() % 10) + 3;
-    
+
     Stream_setFunctionPtr(self->stream, Xnoise_compute_next_data_frame);
     self->mode_func_ptr = Xnoise_setProcMode;
 
     static char *kwlist[] = {"type", "freq", "x1", "x2", "mul", "add", NULL};
-    
+
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "|iOOOOO", kwlist, &self->type, &freqtmp, &x1tmp, &x2tmp, &multmp, &addtmp))
         Py_RETURN_NONE;
-    
+
     if (x1tmp) {
         PyObject_CallMethod((PyObject *)self, "setX1", "O", x1tmp);
     }
-    
+
     if (x2tmp) {
         PyObject_CallMethod((PyObject *)self, "setX2", "O", x2tmp);
     }
-    
+
     if (freqtmp) {
         PyObject_CallMethod((PyObject *)self, "setFreq", "O", freqtmp);
     }
-    
+
     if (multmp) {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
     }
-    
+
     if (addtmp) {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
-    
+
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
     Xnoise_setRandomType(self);
-    
+
     (*self->mode_func_ptr)(self);
 
     return (PyObject *)self;
@@ -3223,10 +3223,10 @@ Xnoise_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
 static PyObject * Xnoise_getServer(Xnoise* self) { GET_SERVER };
 static PyObject * Xnoise_getStream(Xnoise* self) { GET_STREAM };
-static PyObject * Xnoise_setMul(Xnoise *self, PyObject *arg) { SET_MUL };	
-static PyObject * Xnoise_setAdd(Xnoise *self, PyObject *arg) { SET_ADD };	
-static PyObject * Xnoise_setSub(Xnoise *self, PyObject *arg) { SET_SUB };	
-static PyObject * Xnoise_setDiv(Xnoise *self, PyObject *arg) { SET_DIV };	
+static PyObject * Xnoise_setMul(Xnoise *self, PyObject *arg) { SET_MUL };
+static PyObject * Xnoise_setAdd(Xnoise *self, PyObject *arg) { SET_ADD };
+static PyObject * Xnoise_setSub(Xnoise *self, PyObject *arg) { SET_SUB };
+static PyObject * Xnoise_setDiv(Xnoise *self, PyObject *arg) { SET_DIV };
 
 static PyObject * Xnoise_play(Xnoise *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * Xnoise_out(Xnoise *self, PyObject *args, PyObject *kwds) { OUT };
@@ -3243,14 +3243,14 @@ static PyObject * Xnoise_inplace_div(Xnoise *self, PyObject *arg) { INPLACE_DIV 
 
 static PyObject *
 Xnoise_setType(Xnoise *self, PyObject *arg)
-{	
+{
 	if (arg == NULL) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
 	int isNumber = PyInt_Check(arg);
-	
+
 	if (isNumber == 1) {
 		self->type = PyInt_AsLong(arg);
         Xnoise_setRandomType(self);
@@ -3258,20 +3258,20 @@ Xnoise_setType(Xnoise *self, PyObject *arg)
 
 	Py_INCREF(Py_None);
 	return Py_None;
-}	
+}
 
 static PyObject *
 Xnoise_setX1(Xnoise *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
-	
+
 	if (arg == NULL) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
 	int isNumber = PyNumber_Check(arg);
-	
+
 	tmp = arg;
 	Py_INCREF(tmp);
 	Py_DECREF(self->x1);
@@ -3287,25 +3287,25 @@ Xnoise_setX1(Xnoise *self, PyObject *arg)
         self->x1_stream = (Stream *)streamtmp;
 		self->modebuffer[2] = 1;
 	}
-    
+
     (*self->mode_func_ptr)(self);
-    
+
 	Py_INCREF(Py_None);
 	return Py_None;
-}	
+}
 
 static PyObject *
 Xnoise_setX2(Xnoise *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
-	
+
 	if (arg == NULL) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
 	int isNumber = PyNumber_Check(arg);
-	
+
 	tmp = arg;
 	Py_INCREF(tmp);
 	Py_DECREF(self->x2);
@@ -3321,25 +3321,25 @@ Xnoise_setX2(Xnoise *self, PyObject *arg)
         self->x2_stream = (Stream *)streamtmp;
 		self->modebuffer[3] = 1;
 	}
-    
+
     (*self->mode_func_ptr)(self);
-    
+
 	Py_INCREF(Py_None);
 	return Py_None;
-}	
+}
 
 static PyObject *
 Xnoise_setFreq(Xnoise *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
-	
+
 	if (arg == NULL) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
 	int isNumber = PyNumber_Check(arg);
-	
+
 	tmp = arg;
 	Py_INCREF(tmp);
 	Py_DECREF(self->freq);
@@ -3355,12 +3355,12 @@ Xnoise_setFreq(Xnoise *self, PyObject *arg)
         self->freq_stream = (Stream *)streamtmp;
 		self->modebuffer[4] = 1;
 	}
-    
+
     (*self->mode_func_ptr)(self);
-    
+
 	Py_INCREF(Py_None);
 	return Py_None;
-}	
+}
 
 static PyMemberDef Xnoise_members[] = {
     {"server", T_OBJECT_EX, offsetof(Xnoise, server), 0, "Pyo server."},
@@ -3506,7 +3506,7 @@ typedef struct {
     int loopCountRec;
     int loopLen;
     int loopStop;
-    int modebuffer[5]; // need at least 2 slots for mul & add 
+    int modebuffer[5]; // need at least 2 slots for mul & add
 } XnoiseMidi;
 
 static MYFLT
@@ -3515,12 +3515,12 @@ XnoiseMidi_convert(XnoiseMidi *self) {
     MYFLT val;
 
     midival = (int)((self->value * (self->range_max-self->range_min)) + self->range_min);
-    
+
     if (midival < 0)
         midival = 0;
     else if (midival > 127)
         midival = 127;
-    
+
     if (self->scale == 0)
         val = (MYFLT)midival;
     else if (self->scale == 1)
@@ -3529,19 +3529,19 @@ XnoiseMidi_convert(XnoiseMidi *self) {
         val = MYPOW(1.0594630943593, midival - self->centralkey);
     else
         val = midival;
-    
+
     return val;
 }
 
 // no parameter
 static MYFLT
 XnoiseMidi_uniform(XnoiseMidi *self) {
-    return RANDOM_UNIFORM;    
+    return RANDOM_UNIFORM;
 }
 
 static MYFLT
 XnoiseMidi_linear_min(XnoiseMidi *self) {
-    MYFLT a = RANDOM_UNIFORM;    
+    MYFLT a = RANDOM_UNIFORM;
     MYFLT b = RANDOM_UNIFORM;
     if (a < b) return a;
     else return b;
@@ -3549,7 +3549,7 @@ XnoiseMidi_linear_min(XnoiseMidi *self) {
 
 static MYFLT
 XnoiseMidi_linear_max(XnoiseMidi *self) {
-    MYFLT a = RANDOM_UNIFORM;    
+    MYFLT a = RANDOM_UNIFORM;
     MYFLT b = RANDOM_UNIFORM;
     if (a > b) return a;
     else return b;
@@ -3557,7 +3557,7 @@ XnoiseMidi_linear_max(XnoiseMidi *self) {
 
 static MYFLT
 XnoiseMidi_triangle(XnoiseMidi *self) {
-    MYFLT a = RANDOM_UNIFORM;    
+    MYFLT a = RANDOM_UNIFORM;
     MYFLT b = RANDOM_UNIFORM;
     return ((a + b) * 0.5);
 }
@@ -3566,7 +3566,7 @@ XnoiseMidi_triangle(XnoiseMidi *self) {
 static MYFLT
 XnoiseMidi_expon_min(XnoiseMidi *self) {
     if (self->xx1 <= 0.0) self->xx1 = 0.00001;
-    MYFLT val = -MYLOG(RANDOM_UNIFORM) / self->xx1;    
+    MYFLT val = -MYLOG(RANDOM_UNIFORM) / self->xx1;
     if (val < 0.0) return 0.0;
     else if (val > 1.0) return 1.0;
     else return val;
@@ -3575,7 +3575,7 @@ XnoiseMidi_expon_min(XnoiseMidi *self) {
 static MYFLT
 XnoiseMidi_expon_max(XnoiseMidi *self) {
     if (self->xx1 <= 0.0) self->xx1 = 0.00001;
-    MYFLT val = 1.0 - (-MYLOG(RANDOM_UNIFORM) / self->xx1);    
+    MYFLT val = 1.0 - (-MYLOG(RANDOM_UNIFORM) / self->xx1);
     if (val < 0.0) return 0.0;
     else if (val > 1.0) return 1.0;
     else return val;
@@ -3587,16 +3587,16 @@ XnoiseMidi_biexpon(XnoiseMidi *self) {
     MYFLT polar, val;
     if (self->xx1 <= 0.0) self->xx1 = 0.00001;
     MYFLT sum = RANDOM_UNIFORM * 2.0;
-    
+
     if (sum > 1.0) {
         polar = -1;
         sum = 2.0 - sum;
     }
     else
         polar = 1;
-    
+
     val = 0.5 * (polar * MYLOG(sum) / self->xx1) + 0.5;
-    
+
     if (val < 0.0) return 0.0;
     else if (val > 1.0) return 1.0;
     else return val;
@@ -3609,14 +3609,14 @@ XnoiseMidi_cauchy(XnoiseMidi *self) {
         rnd = RANDOM_UNIFORM;
     }
     while (rnd == 0.5);
-    
+
     if (rand() < (RAND_MAX / 2))
         dir = -1;
     else
         dir = 1;
-    
+
     val = 0.5 * (MYTAN(rnd) * self->xx1 * dir) + 0.5;
-    
+
     if (val < 0.0) return 0.0;
     else if (val > 1.0) return 1.0;
     else return val;
@@ -3627,10 +3627,10 @@ static MYFLT
 XnoiseMidi_weibull(XnoiseMidi *self) {
     MYFLT rnd, val;
     if (self->xx2 <= 0.0) self->xx2 = 0.00001;
-    
+
     rnd = 1.0 / (1.0 - RANDOM_UNIFORM);
     val = self->xx1 * MYPOW(MYLOG(rnd), (1.0 / self->xx2));
-    
+
     if (val < 0.0) return 0.0;
     else if (val > 1.0) return 1.0;
     else return val;
@@ -3640,10 +3640,10 @@ XnoiseMidi_weibull(XnoiseMidi *self) {
 static MYFLT
 XnoiseMidi_gaussian(XnoiseMidi *self) {
     MYFLT rnd, val;
-    
+
     rnd = (RANDOM_UNIFORM + RANDOM_UNIFORM + RANDOM_UNIFORM + RANDOM_UNIFORM + RANDOM_UNIFORM + RANDOM_UNIFORM);
     val = (self->xx2 * (rnd - 3.0) * 0.33 + self->xx1);
-    
+
     if (val < 0.0) return 0.0;
     else if (val > 1.0) return 1.0;
     else return val;
@@ -3657,7 +3657,7 @@ XnoiseMidi_poisson(XnoiseMidi *self) {
     MYFLT val;
     if (self->xx1 < 0.1) self->xx1 = 0.1;
     if (self->xx2 < 0.1) self->xx2 = 0.1;
-    
+
     if (self->xx1 != self->lastPoissonX1) {
         self->lastPoissonX1 = self->xx1;
         self->poisson_tab = 0;
@@ -3672,7 +3672,7 @@ XnoiseMidi_poisson(XnoiseMidi *self) {
         }
     }
     val = self->poisson_buffer[rand() % self->poisson_tab] / 12.0 * self->xx2;
-    
+
     if (val < 0.0) return 0.0;
     else if (val > 1.0) return 1.0;
     else return val;
@@ -3682,22 +3682,22 @@ XnoiseMidi_poisson(XnoiseMidi *self) {
 static MYFLT
 XnoiseMidi_walker(XnoiseMidi *self) {
     int modulo, dir;
-    
+
     if (self->xx2 < 0.002) self->xx2 = 0.002;
-    
+
     modulo = (int)(self->xx2 * 1000.0);
     dir = rand() % 2;
-    
+
     if (dir == 0)
         self->walkerValue = self->walkerValue + (((rand() % modulo) - (modulo / 2)) * 0.001);
     else
         self->walkerValue = self->walkerValue - (((rand() % modulo) - (modulo / 2)) * 0.001);
-    
+
     if (self->walkerValue > self->xx1)
         self->walkerValue = self->xx1;
     if (self->walkerValue < 0.0)
         self->walkerValue = 0.0;
-    
+
     return self->walkerValue;
 }
 
@@ -3705,28 +3705,28 @@ XnoiseMidi_walker(XnoiseMidi *self) {
 static MYFLT
 XnoiseMidi_loopseg(XnoiseMidi *self) {
     int modulo, dir;
-    
+
     if (self->loopChoice == 0) {
-        
+
         self->loopCountPlay = self->loopTime = 0;
-        
+
         if (self->xx2 < 0.002) self->xx2 = 0.002;
-        
+
         modulo = (int)(self->xx2 * 1000.0);
         dir = rand() % 2;
-        
+
         if (dir == 0)
             self->walkerValue = self->walkerValue + (((rand() % modulo) - (modulo / 2)) * 0.001);
         else
             self->walkerValue = self->walkerValue - (((rand() % modulo) - (modulo / 2)) * 0.001);
-        
+
         if (self->walkerValue > self->xx1)
             self->walkerValue = self->xx1;
         if (self->walkerValue < 0.0)
             self->walkerValue = 0.0;
-        
+
         self->loop_buffer[self->loopCountRec++] = self->walkerValue;
-        
+
         if (self->loopCountRec < self->loopLen)
             self->loopChoice = 0;
         else {
@@ -3736,22 +3736,22 @@ XnoiseMidi_loopseg(XnoiseMidi *self) {
     }
     else {
         self->loopCountRec = 0;
-        
+
         self->walkerValue = self->loop_buffer[self->loopCountPlay++];
-        
+
         if (self->loopCountPlay < self->loopLen)
             self->loopChoice = 1;
         else {
             self->loopCountPlay = 0;
             self->loopTime++;
         }
-        
+
         if (self->loopTime == self->loopStop) {
             self->loopChoice = 0;
             self->loopLen = (rand() % 10) + 3;
         }
     }
-    
+
     return self->walkerValue;
 }
 
@@ -3763,7 +3763,7 @@ XnoiseMidi_generate_iii(XnoiseMidi *self) {
     self->xx2 = PyFloat_AS_DOUBLE(self->x2);
     MYFLT fr = PyFloat_AS_DOUBLE(self->freq);
     inc = fr / self->sr;
-    
+
     for (i=0; i<self->bufsize; i++) {
         self->time += inc;
         if (self->time < 0.0)
@@ -3785,7 +3785,7 @@ XnoiseMidi_generate_aii(XnoiseMidi *self) {
     self->xx2 = PyFloat_AS_DOUBLE(self->x2);
     MYFLT fr = PyFloat_AS_DOUBLE(self->freq);
     inc = fr / self->sr;
-    
+
     for (i=0; i<self->bufsize; i++) {
         self->time += inc;
         if (self->time < 0.0)
@@ -3808,7 +3808,7 @@ XnoiseMidi_generate_iai(XnoiseMidi *self) {
     MYFLT *x2 = Stream_getData((Stream *)self->x2_stream);
     MYFLT fr = PyFloat_AS_DOUBLE(self->freq);
     inc = fr / self->sr;
-    
+
     for (i=0; i<self->bufsize; i++) {
         self->time += inc;
         if (self->time < 0.0)
@@ -3831,7 +3831,7 @@ XnoiseMidi_generate_aai(XnoiseMidi *self) {
     MYFLT *x2 = Stream_getData((Stream *)self->x2_stream);
     MYFLT fr = PyFloat_AS_DOUBLE(self->freq);
     inc = fr / self->sr;
-    
+
     for (i=0; i<self->bufsize; i++) {
         self->time += inc;
         if (self->time < 0.0)
@@ -3854,7 +3854,7 @@ XnoiseMidi_generate_iia(XnoiseMidi *self) {
     self->xx1 = PyFloat_AS_DOUBLE(self->x1);
     self->xx2 = PyFloat_AS_DOUBLE(self->x2);
     MYFLT *fr = Stream_getData((Stream *)self->freq_stream);
-    
+
     for (i=0; i<self->bufsize; i++) {
         inc = fr[i] / self->sr;
         self->time += inc;
@@ -3876,7 +3876,7 @@ XnoiseMidi_generate_aia(XnoiseMidi *self) {
     MYFLT *x1 = Stream_getData((Stream *)self->x1_stream);
     self->xx2 = PyFloat_AS_DOUBLE(self->x2);
     MYFLT *fr = Stream_getData((Stream *)self->freq_stream);
-    
+
     for (i=0; i<self->bufsize; i++) {
         inc = fr[i] / self->sr;
         self->time += inc;
@@ -3899,7 +3899,7 @@ XnoiseMidi_generate_iaa(XnoiseMidi *self) {
     self->xx1 = PyFloat_AS_DOUBLE(self->x1);
     MYFLT *x2 = Stream_getData((Stream *)self->x2_stream);
     MYFLT *fr = Stream_getData((Stream *)self->freq_stream);
-    
+
     for (i=0; i<self->bufsize; i++) {
         inc = fr[i] / self->sr;
         self->time += inc;
@@ -3922,7 +3922,7 @@ XnoiseMidi_generate_aaa(XnoiseMidi *self) {
     MYFLT *x1 = Stream_getData((Stream *)self->x1_stream);
     MYFLT *x2 = Stream_getData((Stream *)self->x2_stream);
     MYFLT *fr = Stream_getData((Stream *)self->freq_stream);
-    
+
     for (i=0; i<self->bufsize; i++) {
         inc = fr[i] / self->sr;
         self->time += inc;
@@ -3952,8 +3952,8 @@ static void XnoiseMidi_postprocessing_revareva(XnoiseMidi *self) { POST_PROCESSI
 static void
 XnoiseMidi_setRandomType(XnoiseMidi *self)
 {
-    
-    switch (self->type) {            
+
+    switch (self->type) {
         case 0:
             self->type_func_ptr = XnoiseMidi_uniform;
             break;
@@ -3993,7 +3993,7 @@ XnoiseMidi_setRandomType(XnoiseMidi *self)
         case 12:
             self->type_func_ptr = XnoiseMidi_loopseg;
             break;
-    }        
+    }
 }
 
 static void
@@ -4002,68 +4002,68 @@ XnoiseMidi_setProcMode(XnoiseMidi *self)
     int procmode, muladdmode;
     procmode = self->modebuffer[2] + self->modebuffer[3] * 10 + self->modebuffer[4] * 100;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
-    
+
 	switch (procmode) {
-        case 0:    
+        case 0:
             self->proc_func_ptr = XnoiseMidi_generate_iii;
             break;
-        case 1:    
+        case 1:
             self->proc_func_ptr = XnoiseMidi_generate_aii;
             break;
-        case 10:    
+        case 10:
             self->proc_func_ptr = XnoiseMidi_generate_iai;
             break;
-        case 11:    
+        case 11:
             self->proc_func_ptr = XnoiseMidi_generate_aai;
             break;
-        case 100:    
+        case 100:
             self->proc_func_ptr = XnoiseMidi_generate_iia;
             break;
-        case 101:    
+        case 101:
             self->proc_func_ptr = XnoiseMidi_generate_aia;
             break;
-        case 110:    
+        case 110:
             self->proc_func_ptr = XnoiseMidi_generate_iaa;
             break;
-        case 111:    
+        case 111:
             self->proc_func_ptr = XnoiseMidi_generate_aaa;
-            break;            
-    } 
+            break;
+    }
 	switch (muladdmode) {
-        case 0:        
+        case 0:
             self->muladd_func_ptr = XnoiseMidi_postprocessing_ii;
             break;
-        case 1:    
+        case 1:
             self->muladd_func_ptr = XnoiseMidi_postprocessing_ai;
             break;
-        case 2:    
+        case 2:
             self->muladd_func_ptr = XnoiseMidi_postprocessing_revai;
             break;
-        case 10:        
+        case 10:
             self->muladd_func_ptr = XnoiseMidi_postprocessing_ia;
             break;
-        case 11:    
+        case 11:
             self->muladd_func_ptr = XnoiseMidi_postprocessing_aa;
             break;
-        case 12:    
+        case 12:
             self->muladd_func_ptr = XnoiseMidi_postprocessing_revaa;
             break;
-        case 20:        
+        case 20:
             self->muladd_func_ptr = XnoiseMidi_postprocessing_ireva;
             break;
-        case 21:    
+        case 21:
             self->muladd_func_ptr = XnoiseMidi_postprocessing_areva;
             break;
-        case 22:    
+        case 22:
             self->muladd_func_ptr = XnoiseMidi_postprocessing_revareva;
             break;
-    }  
+    }
 }
 
 static void
 XnoiseMidi_compute_next_data_frame(XnoiseMidi *self)
 {
-    (*self->proc_func_ptr)(self); 
+    (*self->proc_func_ptr)(self);
     (*self->muladd_func_ptr)(self);
 }
 
@@ -4073,23 +4073,23 @@ XnoiseMidi_traverse(XnoiseMidi *self, visitproc visit, void *arg)
     pyo_VISIT
     Py_VISIT(self->freq);
     Py_VISIT(self->freq_stream);
-    Py_VISIT(self->x1);    
-    Py_VISIT(self->x1_stream);    
-    Py_VISIT(self->x2);    
-    Py_VISIT(self->x2_stream);    
+    Py_VISIT(self->x1);
+    Py_VISIT(self->x1_stream);
+    Py_VISIT(self->x2);
+    Py_VISIT(self->x2_stream);
     return 0;
 }
 
-static int 
+static int
 XnoiseMidi_clear(XnoiseMidi *self)
 {
     pyo_CLEAR
     Py_CLEAR(self->freq);
     Py_CLEAR(self->freq_stream);
-    Py_CLEAR(self->x1);    
-    Py_CLEAR(self->x1_stream);    
-    Py_CLEAR(self->x2);    
-    Py_CLEAR(self->x2_stream);    
+    Py_CLEAR(self->x1);
+    Py_CLEAR(self->x1_stream);
+    Py_CLEAR(self->x2);
+    Py_CLEAR(self->x2_stream);
     return 0;
 }
 
@@ -4108,7 +4108,7 @@ XnoiseMidi_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *freqtmp=NULL, *x1tmp=NULL, *x2tmp=NULL, *rangetmp=NULL, *multmp=NULL, *addtmp=NULL;
     XnoiseMidi *self;
     self = (XnoiseMidi *)type->tp_alloc(type, 0);
-        
+
     self->x1 = PyFloat_FromDouble(0.5);
     self->x2 = PyFloat_FromDouble(0.5);
     self->freq = PyFloat_FromDouble(1.);
@@ -4124,7 +4124,7 @@ XnoiseMidi_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 	self->modebuffer[2] = 0;
 	self->modebuffer[3] = 0;
 	self->modebuffer[4] = 0;
-    
+
     INIT_OBJECT_COMMON
 
     Server_generateSeed((Server *)self->server, XNOISEMIDI_ID);
@@ -4137,25 +4137,25 @@ XnoiseMidi_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     for (i=0; i<15; i++) {
         self->loop_buffer[i] = 0.0;
     }
-    self->loopChoice = self->loopCountPlay = self->loopTime = self->loopCountRec = self->loopStop = 0;    
+    self->loopChoice = self->loopCountPlay = self->loopTime = self->loopCountRec = self->loopStop = 0;
     self->loopLen = (rand() % 10) + 3;
-    
+
     Stream_setFunctionPtr(self->stream, XnoiseMidi_compute_next_data_frame);
     self->mode_func_ptr = XnoiseMidi_setProcMode;
 
     static char *kwlist[] = {"type", "freq", "x1", "x2", "scale", "range", "mul", "add", NULL};
-    
+
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "|iOOOiOOO", kwlist, &self->type, &freqtmp, &x1tmp, &x2tmp, &self->scale, &rangetmp, &multmp, &addtmp))
         Py_RETURN_NONE;
-    
+
     if (x1tmp) {
         PyObject_CallMethod((PyObject *)self, "setX1", "O", x1tmp);
     }
-    
+
     if (x2tmp) {
         PyObject_CallMethod((PyObject *)self, "setX2", "O", x2tmp);
     }
-    
+
     if (freqtmp) {
         PyObject_CallMethod((PyObject *)self, "setFreq", "O", freqtmp);
     }
@@ -4163,19 +4163,19 @@ XnoiseMidi_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (rangetmp) {
         PyObject_CallMethod((PyObject *)self, "setRange", "O", rangetmp);
     }
-    
+
     if (multmp) {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
     }
-    
+
     if (addtmp) {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
-    
+
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
-    
+
     XnoiseMidi_setRandomType(self);
-    
+
     (*self->mode_func_ptr)(self);
 
     return (PyObject *)self;
@@ -4183,10 +4183,10 @@ XnoiseMidi_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
 static PyObject * XnoiseMidi_getServer(XnoiseMidi* self) { GET_SERVER };
 static PyObject * XnoiseMidi_getStream(XnoiseMidi* self) { GET_STREAM };
-static PyObject * XnoiseMidi_setMul(XnoiseMidi *self, PyObject *arg) { SET_MUL };	
-static PyObject * XnoiseMidi_setAdd(XnoiseMidi *self, PyObject *arg) { SET_ADD };	
-static PyObject * XnoiseMidi_setSub(XnoiseMidi *self, PyObject *arg) { SET_SUB };	
-static PyObject * XnoiseMidi_setDiv(XnoiseMidi *self, PyObject *arg) { SET_DIV };	
+static PyObject * XnoiseMidi_setMul(XnoiseMidi *self, PyObject *arg) { SET_MUL };
+static PyObject * XnoiseMidi_setAdd(XnoiseMidi *self, PyObject *arg) { SET_ADD };
+static PyObject * XnoiseMidi_setSub(XnoiseMidi *self, PyObject *arg) { SET_SUB };
+static PyObject * XnoiseMidi_setDiv(XnoiseMidi *self, PyObject *arg) { SET_DIV };
 
 static PyObject * XnoiseMidi_play(XnoiseMidi *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * XnoiseMidi_out(XnoiseMidi *self, PyObject *args, PyObject *kwds) { OUT };
@@ -4203,34 +4203,34 @@ static PyObject * XnoiseMidi_inplace_div(XnoiseMidi *self, PyObject *arg) { INPL
 
 static PyObject *
 XnoiseMidi_setType(XnoiseMidi *self, PyObject *arg)
-{	
+{
 	if (arg == NULL) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
 	int isNumber = PyInt_Check(arg);
-	
+
 	if (isNumber == 1) {
 		self->type = PyInt_AsLong(arg);
         XnoiseMidi_setRandomType(self);
 	}
-    
+
 	Py_INCREF(Py_None);
 	return Py_None;
-}	
+}
 
 static PyObject *
 XnoiseMidi_setScale(XnoiseMidi *self, PyObject *arg)
-{	
+{
     int tmp;
 	if (arg == NULL) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
 	int isNumber = PyInt_Check(arg);
-	
+
 	if (isNumber == 1) {
 		tmp = PyInt_AsLong(arg);
         if (tmp >= 0 && tmp <= 2)
@@ -4241,11 +4241,11 @@ XnoiseMidi_setScale(XnoiseMidi *self, PyObject *arg)
 
 	Py_INCREF(Py_None);
 	return Py_None;
-}	
+}
 
 static PyObject *
 XnoiseMidi_setRange(XnoiseMidi *self, PyObject *args)
-{	
+{
 	if (args == NULL) {
 		Py_INCREF(Py_None);
 		return Py_None;
@@ -4261,20 +4261,20 @@ XnoiseMidi_setRange(XnoiseMidi *self, PyObject *args)
 
     Py_INCREF(Py_None);
 	return Py_None;
-}	
+}
 
 static PyObject *
 XnoiseMidi_setX1(XnoiseMidi *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
-	
+
 	if (arg == NULL) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
 	int isNumber = PyNumber_Check(arg);
-	
+
 	tmp = arg;
 	Py_INCREF(tmp);
 	Py_DECREF(self->x1);
@@ -4290,25 +4290,25 @@ XnoiseMidi_setX1(XnoiseMidi *self, PyObject *arg)
         self->x1_stream = (Stream *)streamtmp;
 		self->modebuffer[2] = 1;
 	}
-    
+
     (*self->mode_func_ptr)(self);
-    
+
 	Py_INCREF(Py_None);
 	return Py_None;
-}	
+}
 
 static PyObject *
 XnoiseMidi_setX2(XnoiseMidi *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
-	
+
 	if (arg == NULL) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
 	int isNumber = PyNumber_Check(arg);
-	
+
 	tmp = arg;
 	Py_INCREF(tmp);
 	Py_DECREF(self->x2);
@@ -4324,25 +4324,25 @@ XnoiseMidi_setX2(XnoiseMidi *self, PyObject *arg)
         self->x2_stream = (Stream *)streamtmp;
 		self->modebuffer[3] = 1;
 	}
-    
+
     (*self->mode_func_ptr)(self);
-    
+
 	Py_INCREF(Py_None);
 	return Py_None;
-}	
+}
 
 static PyObject *
 XnoiseMidi_setFreq(XnoiseMidi *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
-	
+
 	if (arg == NULL) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
 	int isNumber = PyNumber_Check(arg);
-	
+
 	tmp = arg;
 	Py_INCREF(tmp);
 	Py_DECREF(self->freq);
@@ -4358,12 +4358,12 @@ XnoiseMidi_setFreq(XnoiseMidi *self, PyObject *arg)
         self->freq_stream = (Stream *)streamtmp;
 		self->modebuffer[4] = 1;
 	}
-    
+
     (*self->mode_func_ptr)(self);
-    
+
 	Py_INCREF(Py_None);
 	return Py_None;
-}	
+}
 
 static PyMemberDef XnoiseMidi_members[] = {
     {"server", T_OBJECT_EX, offsetof(XnoiseMidi, server), 0, "Pyo server."},
@@ -4510,18 +4510,18 @@ typedef struct {
     int loopCountRec;
     int loopLen;
     int loopStop;
-    int modebuffer[6]; // need at least 2 slots for mul & add 
+    int modebuffer[6]; // need at least 2 slots for mul & add
 } XnoiseDur;
 
 // no parameter
 static MYFLT
 XnoiseDur_uniform(XnoiseDur *self) {
-    return RANDOM_UNIFORM;    
+    return RANDOM_UNIFORM;
 }
 
 static MYFLT
 XnoiseDur_linear_min(XnoiseDur *self) {
-    MYFLT a = RANDOM_UNIFORM;    
+    MYFLT a = RANDOM_UNIFORM;
     MYFLT b = RANDOM_UNIFORM;
     if (a < b) return a;
     else return b;
@@ -4529,7 +4529,7 @@ XnoiseDur_linear_min(XnoiseDur *self) {
 
 static MYFLT
 XnoiseDur_linear_max(XnoiseDur *self) {
-    MYFLT a = RANDOM_UNIFORM;    
+    MYFLT a = RANDOM_UNIFORM;
     MYFLT b = RANDOM_UNIFORM;
     if (a > b) return a;
     else return b;
@@ -4537,7 +4537,7 @@ XnoiseDur_linear_max(XnoiseDur *self) {
 
 static MYFLT
 XnoiseDur_triangle(XnoiseDur *self) {
-    MYFLT a = RANDOM_UNIFORM;    
+    MYFLT a = RANDOM_UNIFORM;
     MYFLT b = RANDOM_UNIFORM;
     return ((a + b) * 0.5);
 }
@@ -4546,7 +4546,7 @@ XnoiseDur_triangle(XnoiseDur *self) {
 static MYFLT
 XnoiseDur_expon_min(XnoiseDur *self) {
     if (self->xx1 <= 0.0) self->xx1 = 0.00001;
-    MYFLT val = -MYLOG(RANDOM_UNIFORM) / self->xx1;    
+    MYFLT val = -MYLOG(RANDOM_UNIFORM) / self->xx1;
     if (val < 0.0) return 0.0;
     else if (val > 1.0) return 1.0;
     else return val;
@@ -4555,7 +4555,7 @@ XnoiseDur_expon_min(XnoiseDur *self) {
 static MYFLT
 XnoiseDur_expon_max(XnoiseDur *self) {
     if (self->xx1 <= 0.0) self->xx1 = 0.00001;
-    MYFLT val = 1.0 - (-MYLOG(RANDOM_UNIFORM) / self->xx1);    
+    MYFLT val = 1.0 - (-MYLOG(RANDOM_UNIFORM) / self->xx1);
     if (val < 0.0) return 0.0;
     else if (val > 1.0) return 1.0;
     else return val;
@@ -4567,16 +4567,16 @@ XnoiseDur_biexpon(XnoiseDur *self) {
     MYFLT polar, val;
     if (self->xx1 <= 0.0) self->xx1 = 0.00001;
     MYFLT sum = RANDOM_UNIFORM * 2.0;
-    
+
     if (sum > 1.0) {
         polar = -1;
         sum = 2.0 - sum;
     }
     else
         polar = 1;
-    
+
     val = 0.5 * (polar * MYLOG(sum) / self->xx1) + 0.5;
-    
+
     if (val < 0.0) return 0.0;
     else if (val > 1.0) return 1.0;
     else return val;
@@ -4589,14 +4589,14 @@ XnoiseDur_cauchy(XnoiseDur *self) {
         rnd = RANDOM_UNIFORM;
     }
     while (rnd == 0.5);
-    
+
     if (rand() < (RAND_MAX / 2))
         dir = -1;
     else
         dir = 1;
-    
+
     val = 0.5 * (MYTAN(rnd) * self->xx1 * dir) + 0.5;
-    
+
     if (val < 0.0) return 0.0;
     else if (val > 1.0) return 1.0;
     else return val;
@@ -4607,10 +4607,10 @@ static MYFLT
 XnoiseDur_weibull(XnoiseDur *self) {
     MYFLT rnd, val;
     if (self->xx2 <= 0.0) self->xx2 = 0.00001;
-    
+
     rnd = 1.0 / (1.0 - RANDOM_UNIFORM);
     val = self->xx1 * MYPOW(MYLOG(rnd), (1.0 / self->xx2));
-    
+
     if (val < 0.0) return 0.0;
     else if (val > 1.0) return 1.0;
     else return val;
@@ -4620,10 +4620,10 @@ XnoiseDur_weibull(XnoiseDur *self) {
 static MYFLT
 XnoiseDur_gaussian(XnoiseDur *self) {
     MYFLT rnd, val;
-    
+
     rnd = (RANDOM_UNIFORM + RANDOM_UNIFORM + RANDOM_UNIFORM + RANDOM_UNIFORM + RANDOM_UNIFORM + RANDOM_UNIFORM);
     val = (self->xx2 * (rnd - 3.0) * 0.33 + self->xx1);
-    
+
     if (val < 0.0) return 0.0;
     else if (val > 1.0) return 1.0;
     else return val;
@@ -4637,7 +4637,7 @@ XnoiseDur_poisson(XnoiseDur *self) {
     MYFLT val;
     if (self->xx1 < 0.1) self->xx1 = 0.1;
     if (self->xx2 < 0.1) self->xx2 = 0.1;
-    
+
     if (self->xx1 != self->lastPoissonX1) {
         self->lastPoissonX1 = self->xx1;
         self->poisson_tab = 0;
@@ -4652,7 +4652,7 @@ XnoiseDur_poisson(XnoiseDur *self) {
         }
     }
     val = self->poisson_buffer[rand() % self->poisson_tab] / 12.0 * self->xx2;
-    
+
     if (val < 0.0) return 0.0;
     else if (val > 1.0) return 1.0;
     else return val;
@@ -4662,22 +4662,22 @@ XnoiseDur_poisson(XnoiseDur *self) {
 static MYFLT
 XnoiseDur_walker(XnoiseDur *self) {
     int modulo, dir;
-    
+
     if (self->xx2 < 0.002) self->xx2 = 0.002;
-    
+
     modulo = (int)(self->xx2 * 1000.0);
     dir = rand() % 2;
-    
+
     if (dir == 0)
         self->walkerValue = self->walkerValue + (((rand() % modulo) - (modulo / 2)) * 0.001);
     else
         self->walkerValue = self->walkerValue - (((rand() % modulo) - (modulo / 2)) * 0.001);
-    
+
     if (self->walkerValue > self->xx1)
         self->walkerValue = self->xx1;
     if (self->walkerValue < 0.0)
         self->walkerValue = 0.0;
-    
+
     return self->walkerValue;
 }
 
@@ -4685,28 +4685,28 @@ XnoiseDur_walker(XnoiseDur *self) {
 static MYFLT
 XnoiseDur_loopseg(XnoiseDur *self) {
     int modulo, dir;
-    
+
     if (self->loopChoice == 0) {
-        
+
         self->loopCountPlay = self->loopTime = 0;
-        
+
         if (self->xx2 < 0.002) self->xx2 = 0.002;
-        
+
         modulo = (int)(self->xx2 * 1000.0);
         dir = rand() % 2;
-        
+
         if (dir == 0)
             self->walkerValue = self->walkerValue + (((rand() % modulo) - (modulo / 2)) * 0.001);
         else
             self->walkerValue = self->walkerValue - (((rand() % modulo) - (modulo / 2)) * 0.001);
-        
+
         if (self->walkerValue > self->xx1)
             self->walkerValue = self->xx1;
         if (self->walkerValue < 0.0)
             self->walkerValue = 0.0;
-        
+
         self->loop_buffer[self->loopCountRec++] = self->walkerValue;
-        
+
         if (self->loopCountRec < self->loopLen)
             self->loopChoice = 0;
         else {
@@ -4716,22 +4716,22 @@ XnoiseDur_loopseg(XnoiseDur *self) {
     }
     else {
         self->loopCountRec = 0;
-        
+
         self->walkerValue = self->loop_buffer[self->loopCountPlay++];
-        
+
         if (self->loopCountPlay < self->loopLen)
             self->loopChoice = 1;
         else {
             self->loopCountPlay = 0;
             self->loopTime++;
         }
-        
+
         if (self->loopTime == self->loopStop) {
             self->loopChoice = 0;
             self->loopLen = (rand() % 10) + 3;
         }
     }
-    
+
     return self->walkerValue;
 }
 
@@ -4739,7 +4739,7 @@ static void
 XnoiseDur_generate(XnoiseDur *self) {
     int i;
     MYFLT min, max;
-    
+
     for (i=0; i<self->bufsize; i++) {
         self->time += self->inc;
         if (self->time < 0.0)
@@ -4787,8 +4787,8 @@ static void XnoiseDur_postprocessing_revareva(XnoiseDur *self) { POST_PROCESSING
 static void
 XnoiseDur_setRandomType(XnoiseDur *self)
 {
-    
-    switch (self->type) {            
+
+    switch (self->type) {
         case 0:
             self->type_func_ptr = XnoiseDur_uniform;
             break;
@@ -4828,7 +4828,7 @@ XnoiseDur_setRandomType(XnoiseDur *self)
         case 12:
             self->type_func_ptr = XnoiseDur_loopseg;
             break;
-    }        
+    }
 }
 
 static void
@@ -4836,44 +4836,44 @@ XnoiseDur_setProcMode(XnoiseDur *self)
 {
     int muladdmode;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
-    
+
     self->proc_func_ptr = XnoiseDur_generate;
-    
+
 	switch (muladdmode) {
-        case 0:        
+        case 0:
             self->muladd_func_ptr = XnoiseDur_postprocessing_ii;
             break;
-        case 1:    
+        case 1:
             self->muladd_func_ptr = XnoiseDur_postprocessing_ai;
             break;
-        case 2:    
+        case 2:
             self->muladd_func_ptr = XnoiseDur_postprocessing_revai;
             break;
-        case 10:        
+        case 10:
             self->muladd_func_ptr = XnoiseDur_postprocessing_ia;
             break;
-        case 11:    
+        case 11:
             self->muladd_func_ptr = XnoiseDur_postprocessing_aa;
             break;
-        case 12:    
+        case 12:
             self->muladd_func_ptr = XnoiseDur_postprocessing_revaa;
             break;
-        case 20:        
+        case 20:
             self->muladd_func_ptr = XnoiseDur_postprocessing_ireva;
             break;
-        case 21:    
+        case 21:
             self->muladd_func_ptr = XnoiseDur_postprocessing_areva;
             break;
-        case 22:    
+        case 22:
             self->muladd_func_ptr = XnoiseDur_postprocessing_revareva;
             break;
-    }  
+    }
 }
 
 static void
 XnoiseDur_compute_next_data_frame(XnoiseDur *self)
 {
-    (*self->proc_func_ptr)(self); 
+    (*self->proc_func_ptr)(self);
     (*self->muladd_func_ptr)(self);
 }
 
@@ -4885,14 +4885,14 @@ XnoiseDur_traverse(XnoiseDur *self, visitproc visit, void *arg)
     Py_VISIT(self->min_stream);
     Py_VISIT(self->max);
     Py_VISIT(self->max_stream);
-    Py_VISIT(self->x1);    
-    Py_VISIT(self->x1_stream);    
-    Py_VISIT(self->x2);    
-    Py_VISIT(self->x2_stream);    
+    Py_VISIT(self->x1);
+    Py_VISIT(self->x1_stream);
+    Py_VISIT(self->x2);
+    Py_VISIT(self->x2_stream);
     return 0;
 }
 
-static int 
+static int
 XnoiseDur_clear(XnoiseDur *self)
 {
     pyo_CLEAR
@@ -4900,10 +4900,10 @@ XnoiseDur_clear(XnoiseDur *self)
     Py_CLEAR(self->min_stream);
     Py_CLEAR(self->max);
     Py_CLEAR(self->max_stream);
-    Py_CLEAR(self->x1);    
-    Py_CLEAR(self->x1_stream);    
-    Py_CLEAR(self->x2);    
-    Py_CLEAR(self->x2_stream);    
+    Py_CLEAR(self->x1);
+    Py_CLEAR(self->x1_stream);
+    Py_CLEAR(self->x2);
+    Py_CLEAR(self->x2_stream);
     return 0;
 }
 
@@ -4923,7 +4923,7 @@ XnoiseDur_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *mintmp=NULL, *maxtmp=NULL, *x1tmp=NULL, *x2tmp=NULL, *multmp=NULL, *addtmp=NULL;
     XnoiseDur *self;
     self = (XnoiseDur *)type->tp_alloc(type, 0);
-    
+
     self->x1 = PyFloat_FromDouble(0.5);
     self->x2 = PyFloat_FromDouble(0.5);
     self->min = PyFloat_FromDouble(0.0);
@@ -4936,11 +4936,11 @@ XnoiseDur_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 	self->modebuffer[3] = 0;
 	self->modebuffer[4] = 0;
 	self->modebuffer[5] = 0;
-    
+
     INIT_OBJECT_COMMON
-    
+
     Server_generateSeed((Server *)self->server, XNOISEDUR_ID);
-    
+
     self->poisson_tab = 0;
     self->lastPoissonX1 = -99.0;
     for (i=0; i<2000; i++) {
@@ -4949,41 +4949,41 @@ XnoiseDur_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     for (i=0; i<15; i++) {
         self->loop_buffer[i] = 0.0;
     }
-    self->loopChoice = self->loopCountPlay = self->loopTime = self->loopCountRec = self->loopStop = 0;    
+    self->loopChoice = self->loopCountPlay = self->loopTime = self->loopCountRec = self->loopStop = 0;
     self->loopLen = (rand() % 10) + 3;
-    
+
     Stream_setFunctionPtr(self->stream, XnoiseDur_compute_next_data_frame);
     self->mode_func_ptr = XnoiseDur_setProcMode;
 
     static char *kwlist[] = {"type", "min", "max", "x1", "x2", "mul", "add", NULL};
-    
+
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "|iOOOOOO", kwlist, &self->type, &mintmp, &maxtmp, &x1tmp, &x2tmp, &multmp, &addtmp))
         Py_RETURN_NONE;
-    
+
     if (x1tmp) {
         PyObject_CallMethod((PyObject *)self, "setX1", "O", x1tmp);
     }
-    
+
     if (x2tmp) {
         PyObject_CallMethod((PyObject *)self, "setX2", "O", x2tmp);
     }
-    
+
     if (mintmp) {
         PyObject_CallMethod((PyObject *)self, "setMin", "O", mintmp);
     }
-    
+
     if (maxtmp) {
         PyObject_CallMethod((PyObject *)self, "setMax", "O", maxtmp);
     }
-    
+
     if (multmp) {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
     }
-    
+
     if (addtmp) {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
-    
+
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
     if (self->modebuffer[2] == 0)
@@ -4994,15 +4994,15 @@ XnoiseDur_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         ma = PyFloat_AS_DOUBLE(self->max);
     else
         ma = Stream_getData((Stream *)self->max_stream)[0];
-    
+
     self->value = (mi + ma) * 0.5;
     if (self->value == 0.0)
         self->inc = 0.0;
     else
         self->inc = (1.0 / self->value) / self->sr;
-    
+
     XnoiseDur_setRandomType(self);
-    
+
     (*self->mode_func_ptr)(self);
 
     return (PyObject *)self;
@@ -5010,10 +5010,10 @@ XnoiseDur_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
 static PyObject * XnoiseDur_getServer(XnoiseDur* self) { GET_SERVER };
 static PyObject * XnoiseDur_getStream(XnoiseDur* self) { GET_STREAM };
-static PyObject * XnoiseDur_setMul(XnoiseDur *self, PyObject *arg) { SET_MUL };	
-static PyObject * XnoiseDur_setAdd(XnoiseDur *self, PyObject *arg) { SET_ADD };	
-static PyObject * XnoiseDur_setSub(XnoiseDur *self, PyObject *arg) { SET_SUB };	
-static PyObject * XnoiseDur_setDiv(XnoiseDur *self, PyObject *arg) { SET_DIV };	
+static PyObject * XnoiseDur_setMul(XnoiseDur *self, PyObject *arg) { SET_MUL };
+static PyObject * XnoiseDur_setAdd(XnoiseDur *self, PyObject *arg) { SET_ADD };
+static PyObject * XnoiseDur_setSub(XnoiseDur *self, PyObject *arg) { SET_SUB };
+static PyObject * XnoiseDur_setDiv(XnoiseDur *self, PyObject *arg) { SET_DIV };
 
 static PyObject * XnoiseDur_play(XnoiseDur *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * XnoiseDur_out(XnoiseDur *self, PyObject *args, PyObject *kwds) { OUT };
@@ -5030,35 +5030,35 @@ static PyObject * XnoiseDur_inplace_div(XnoiseDur *self, PyObject *arg) { INPLAC
 
 static PyObject *
 XnoiseDur_setType(XnoiseDur *self, PyObject *arg)
-{	
+{
 	if (arg == NULL) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
 	int isNumber = PyInt_Check(arg);
-	
+
 	if (isNumber == 1) {
 		self->type = PyInt_AsLong(arg);
         XnoiseDur_setRandomType(self);
 	}
-    
+
 	Py_INCREF(Py_None);
 	return Py_None;
-}	
+}
 
 static PyObject *
 XnoiseDur_setX1(XnoiseDur *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
-	
+
 	if (arg == NULL) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
 	int isNumber = PyNumber_Check(arg);
-	
+
 	tmp = arg;
 	Py_INCREF(tmp);
 	Py_DECREF(self->x1);
@@ -5074,25 +5074,25 @@ XnoiseDur_setX1(XnoiseDur *self, PyObject *arg)
         self->x1_stream = (Stream *)streamtmp;
 		self->modebuffer[2] = 1;
 	}
-    
+
     (*self->mode_func_ptr)(self);
-    
+
 	Py_INCREF(Py_None);
 	return Py_None;
-}	
+}
 
 static PyObject *
 XnoiseDur_setX2(XnoiseDur *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
-	
+
 	if (arg == NULL) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
 	int isNumber = PyNumber_Check(arg);
-	
+
 	tmp = arg;
 	Py_INCREF(tmp);
 	Py_DECREF(self->x2);
@@ -5108,25 +5108,25 @@ XnoiseDur_setX2(XnoiseDur *self, PyObject *arg)
         self->x2_stream = (Stream *)streamtmp;
 		self->modebuffer[3] = 1;
 	}
-    
+
     (*self->mode_func_ptr)(self);
-    
+
 	Py_INCREF(Py_None);
 	return Py_None;
-}	
+}
 
 static PyObject *
 XnoiseDur_setMin(XnoiseDur *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
-	
+
 	if (arg == NULL) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
 	int isNumber = PyNumber_Check(arg);
-	
+
 	tmp = arg;
 	Py_INCREF(tmp);
 	Py_DECREF(self->min);
@@ -5142,25 +5142,25 @@ XnoiseDur_setMin(XnoiseDur *self, PyObject *arg)
         self->min_stream = (Stream *)streamtmp;
 		self->modebuffer[4] = 1;
 	}
-    
+
     (*self->mode_func_ptr)(self);
-    
+
 	Py_INCREF(Py_None);
 	return Py_None;
-}	
+}
 
 static PyObject *
 XnoiseDur_setMax(XnoiseDur *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
-	
+
 	if (arg == NULL) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
 	int isNumber = PyNumber_Check(arg);
-	
+
 	tmp = arg;
 	Py_INCREF(tmp);
 	Py_DECREF(self->max);
@@ -5176,12 +5176,12 @@ XnoiseDur_setMax(XnoiseDur *self, PyObject *arg)
         self->max_stream = (Stream *)streamtmp;
 		self->modebuffer[5] = 1;
 	}
-    
+
     (*self->mode_func_ptr)(self);
-    
+
 	Py_INCREF(Py_None);
 	return Py_None;
-}	
+}
 
 static PyMemberDef XnoiseDur_members[] = {
     {"server", T_OBJECT_EX, offsetof(XnoiseDur, server), 0, "Pyo server."},
@@ -5312,7 +5312,7 @@ typedef struct {
     MYFLT time;
     MYFLT *trigsBuffer;
     TriggerStream *trig_stream;
-    int modebuffer[3]; // need at least 2 slots for mul & add 
+    int modebuffer[3]; // need at least 2 slots for mul & add
 } Urn;
 
 static void
@@ -5331,13 +5331,13 @@ Urn_choose(Urn *self) {
     int x = 0;
     int value = 0;
     int i, pick;
- 
+
     pick = rand() % self->length;
     while (pick == self->lastvalue)
         pick = rand() % self->length;
 
     for (i=0; i<self->length; i++) {
-        if (i != pick) 
+        if (i != pick)
             self->list[x++] = self->list[i];
         else
             value = self->list[i];
@@ -5354,7 +5354,7 @@ Urn_generate_i(Urn *self) {
     int i;
     MYFLT fr = PyFloat_AS_DOUBLE(self->freq);
     MYFLT inc = fr / self->sr;
-    
+
     for (i=0; i<self->bufsize; i++) {
         self->trigsBuffer[i] = 0.0;
         self->time += inc;
@@ -5377,7 +5377,7 @@ Urn_generate_a(Urn *self) {
     int i;
     MYFLT inc;
     MYFLT *fr = Stream_getData((Stream *)self->freq_stream);
-    
+
     for (i=0; i<self->bufsize; i++) {
         self->trigsBuffer[i] = 0.0;
         inc = fr[i] / self->sr;
@@ -5412,50 +5412,50 @@ Urn_setProcMode(Urn *self)
     int procmode, muladdmode;
     procmode = self->modebuffer[2];
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
-    
+
 	switch (procmode) {
-        case 0:    
+        case 0:
             self->proc_func_ptr = Urn_generate_i;
             break;
-        case 1:    
+        case 1:
             self->proc_func_ptr = Urn_generate_a;
             break;
-    } 
+    }
 	switch (muladdmode) {
-        case 0:        
+        case 0:
             self->muladd_func_ptr = Urn_postprocessing_ii;
             break;
-        case 1:    
+        case 1:
             self->muladd_func_ptr = Urn_postprocessing_ai;
             break;
-        case 2:    
+        case 2:
             self->muladd_func_ptr = Urn_postprocessing_revai;
             break;
-        case 10:        
+        case 10:
             self->muladd_func_ptr = Urn_postprocessing_ia;
             break;
-        case 11:    
+        case 11:
             self->muladd_func_ptr = Urn_postprocessing_aa;
             break;
-        case 12:    
+        case 12:
             self->muladd_func_ptr = Urn_postprocessing_revaa;
             break;
-        case 20:        
+        case 20:
             self->muladd_func_ptr = Urn_postprocessing_ireva;
             break;
-        case 21:    
+        case 21:
             self->muladd_func_ptr = Urn_postprocessing_areva;
             break;
-        case 22:    
+        case 22:
             self->muladd_func_ptr = Urn_postprocessing_revareva;
             break;
-    }  
+    }
 }
 
 static void
 Urn_compute_next_data_frame(Urn *self)
 {
-    (*self->proc_func_ptr)(self); 
+    (*self->proc_func_ptr)(self);
     (*self->muladd_func_ptr)(self);
 }
 
@@ -5465,17 +5465,17 @@ Urn_traverse(Urn *self, visitproc visit, void *arg)
     pyo_VISIT
     Py_VISIT(self->freq);
     Py_VISIT(self->freq_stream);
-    Py_VISIT(self->trig_stream);    
+    Py_VISIT(self->trig_stream);
     return 0;
 }
 
-static int 
+static int
 Urn_clear(Urn *self)
 {
     pyo_CLEAR
     Py_CLEAR(self->freq);
     Py_CLEAR(self->freq_stream);
-    Py_CLEAR(self->trig_stream);    
+    Py_CLEAR(self->trig_stream);
     return 0;
 }
 
@@ -5496,7 +5496,7 @@ Urn_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *freqtmp=NULL, *multmp=NULL, *addtmp=NULL;
     Urn *self;
     self = (Urn *)type->tp_alloc(type, 0);
-    
+
     self->freq = PyFloat_FromDouble(1.);
     self->max = 100;
     self->length = 0;
@@ -5506,36 +5506,36 @@ Urn_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 	self->modebuffer[0] = 0;
 	self->modebuffer[1] = 0;
 	self->modebuffer[2] = 0;
-    
+
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, Urn_compute_next_data_frame);
     self->mode_func_ptr = Urn_setProcMode;
 
     static char *kwlist[] = {"max", "freq", "mul", "add", NULL};
-    
+
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "|iOOO", kwlist, &self->max, &freqtmp, &multmp, &addtmp))
         Py_RETURN_NONE;
-    
+
     if (freqtmp) {
         PyObject_CallMethod((PyObject *)self, "setFreq", "O", freqtmp);
     }
-    
+
     if (multmp) {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
     }
-    
+
     if (addtmp) {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
-    
+
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
     self->trigsBuffer = (MYFLT *)realloc(self->trigsBuffer, self->bufsize * sizeof(MYFLT));
-    
+
     for (i=0; i<self->bufsize; i++) {
         self->trigsBuffer[i] = 0.0;
-    }    
-    
+    }
+
     MAKE_NEW_TRIGGER_STREAM(self->trig_stream, &TriggerStreamType, NULL);
     TriggerStream_setData(self->trig_stream, self->trigsBuffer);
 
@@ -5551,10 +5551,10 @@ Urn_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 static PyObject * Urn_getServer(Urn* self) { GET_SERVER };
 static PyObject * Urn_getStream(Urn* self) { GET_STREAM };
 static PyObject * Urn_getTriggerStream(Urn* self) { GET_TRIGGER_STREAM };
-static PyObject * Urn_setMul(Urn *self, PyObject *arg) { SET_MUL };	
-static PyObject * Urn_setAdd(Urn *self, PyObject *arg) { SET_ADD };	
-static PyObject * Urn_setSub(Urn *self, PyObject *arg) { SET_SUB };	
-static PyObject * Urn_setDiv(Urn *self, PyObject *arg) { SET_DIV };	
+static PyObject * Urn_setMul(Urn *self, PyObject *arg) { SET_MUL };
+static PyObject * Urn_setAdd(Urn *self, PyObject *arg) { SET_ADD };
+static PyObject * Urn_setSub(Urn *self, PyObject *arg) { SET_SUB };
+static PyObject * Urn_setDiv(Urn *self, PyObject *arg) { SET_DIV };
 
 static PyObject * Urn_play(Urn *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * Urn_out(Urn *self, PyObject *args, PyObject *kwds) { OUT };
@@ -5571,7 +5571,7 @@ static PyObject * Urn_inplace_div(Urn *self, PyObject *arg) { INPLACE_DIV };
 
 static PyObject *
 Urn_setMax(Urn *self, PyObject *arg)
-{	
+{
 	if (PyNumber_Check(arg) == 1)
 		self->max = PyInt_AsLong(arg);
 
@@ -5579,20 +5579,20 @@ Urn_setMax(Urn *self, PyObject *arg)
 
 	Py_INCREF(Py_None);
 	return Py_None;
-}	
+}
 
 static PyObject *
 Urn_setFreq(Urn *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
-	
+
 	if (arg == NULL) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
 	int isNumber = PyNumber_Check(arg);
-	
+
 	tmp = arg;
 	Py_INCREF(tmp);
 	Py_DECREF(self->freq);
@@ -5608,12 +5608,12 @@ Urn_setFreq(Urn *self, PyObject *arg)
         self->freq_stream = (Stream *)streamtmp;
 		self->modebuffer[2] = 1;
 	}
-    
+
     (*self->mode_func_ptr)(self);
-    
+
 	Py_INCREF(Py_None);
 	return Py_None;
-}	
+}
 
 static PyMemberDef Urn_members[] = {
 {"server", T_OBJECT_EX, offsetof(Urn, server), 0, "Pyo server."},

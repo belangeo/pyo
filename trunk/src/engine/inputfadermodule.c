@@ -1,21 +1,21 @@
-/*************************************************************************
- * Copyright 2010 Olivier Belanger                                        *                  
- *                                                                        * 
+/**************************************************************************
+ * Copyright 2009-2015 Olivier Belanger                                   *
+ *                                                                        *
  * This file is part of pyo, a python module to help digital signal       *
- * processing script creation.                                            *  
- *                                                                        * 
+ * processing script creation.                                            *
+ *                                                                        *
  * pyo is free software: you can redistribute it and/or modify            *
- * it under the terms of the GNU General Public License as published by   *
- * the Free Software Foundation, either version 3 of the License, or      *
- * (at your option) any later version.                                    * 
+ * it under the terms of the GNU Lesser General Public License as         *
+ * published by the Free Software Foundation, either version 3 of the     *
+ * License, or (at your option) any later version.                        *
  *                                                                        *
  * pyo is distributed in the hope that it will be useful,                 *
- * but WITHOUT ANY WARRANTY; without even the implied warranty of         *    
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of         *
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the          *
- * GNU General Public License for more details.                           *
+ * GNU Lesser General Public License for more details.                    *
  *                                                                        *
- * You should have received a copy of the GNU General Public License      *
- * along with pyo.  If not, see <http://www.gnu.org/licenses/>.           *
+ * You should have received a copy of the GNU Lesser General Public       *
+ * License along with pyo.  If not, see <http://www.gnu.org/licenses/>.   *
  *************************************************************************/
 
 #include <Python.h>
@@ -40,40 +40,40 @@ typedef struct {
 
 static void InputFader_setProcMode(InputFader *self) {};
 
-static void InputFader_process_only_first(InputFader *self) 
+static void InputFader_process_only_first(InputFader *self)
 {
     int i;
     MYFLT *in = Stream_getData((Stream *)self->input1_stream);
-    
+
     for (i=0; i<self->bufsize; i++) {
         self->data[i] = in[i];
     }
 }
 
-static void InputFader_process_only_second(InputFader *self) 
+static void InputFader_process_only_second(InputFader *self)
 {
     int i;
     MYFLT *in = Stream_getData((Stream *)self->input2_stream);
-    
+
     for (i=0; i<self->bufsize; i++) {
         self->data[i] = in[i];
     }
 }
 
-static void InputFader_process_one(InputFader *self) 
+static void InputFader_process_one(InputFader *self)
 {
     int i;
     MYFLT sclfade, val;
     MYFLT *in1 = Stream_getData((Stream *)self->input1_stream);
     MYFLT *in2 = Stream_getData((Stream *)self->input2_stream);
-    
+
     val = 0.0;
     sclfade = 1. / self->fadetime;
     for (i=0; i<self->bufsize; i++) {
         if (self->currentTime < self->fadetime) {
             val = MYSQRT(self->currentTime * sclfade);
             self->currentTime += self->sampleToSec;
-        }    
+        }
         else
             val = 1.;
 
@@ -84,7 +84,7 @@ static void InputFader_process_one(InputFader *self)
 
 }
 
-static void InputFader_process_two(InputFader *self) 
+static void InputFader_process_two(InputFader *self)
 {
     int i;
     MYFLT sclfade, val;
@@ -97,10 +97,10 @@ static void InputFader_process_two(InputFader *self)
         if (self->currentTime < self->fadetime) {
             val = MYSQRT(self->currentTime * sclfade);
             self->currentTime += self->sampleToSec;
-        }    
+        }
         else
             val = 1.;
-        
+
         self->data[i] = in2[i] * val + in1[i] * (1 - val);
     }
     if (val == 1.)
@@ -109,7 +109,7 @@ static void InputFader_process_two(InputFader *self)
 
 static void
 InputFader_compute_next_data_frame(InputFader *self)
-{   
+{
     (*self->proc_func_ptr)(self);
 }
 
@@ -124,7 +124,7 @@ InputFader_traverse(InputFader *self, visitproc visit, void *arg)
     return 0;
 }
 
-static int 
+static int
 InputFader_clear(InputFader *self)
 {
     pyo_CLEAR
@@ -150,15 +150,15 @@ InputFader_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp=NULL, *streamtmp;
     InputFader *self;
     self = (InputFader *)type->tp_alloc(type, 0);
-    
+
     self->switcher = 0;
     self->fadetime = 0.05;
     self->currentTime = 0.0;
-    
+
     INIT_OBJECT_COMMON
 
     self->sampleToSec = 1. / self->sr;
-    
+
     Stream_setFunctionPtr(self->stream, InputFader_compute_next_data_frame);
     self->mode_func_ptr = InputFader_setProcMode;
     self->proc_func_ptr = InputFader_process_only_first;
@@ -166,7 +166,7 @@ InputFader_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     static char *kwlist[] = {"input", NULL};
 
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "O", kwlist, &inputtmp))
-        Py_RETURN_NONE; 
+        Py_RETURN_NONE;
 
     if ( PyObject_HasAttrString((PyObject *)inputtmp, "server") == 0 ) {
         PyErr_SetString(PyExc_TypeError, "\"input\" argument must be a PyoObject.\n");
@@ -179,9 +179,9 @@ InputFader_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     Py_INCREF(streamtmp);
     Py_XDECREF(self->input1_stream);
     self->input1_stream = (Stream *)streamtmp;
-    
+
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
-    
+
     return (PyObject *)self;
 }
 
@@ -193,13 +193,13 @@ InputFader_setInput(InputFader *self, PyObject *args, PyObject *kwds)
     static char *kwlist[] = {"input", "fadetime", NULL};
 
     if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_O_F, kwlist, &tmp, &self->fadetime))
-        Py_RETURN_NONE; 
-    
+        Py_RETURN_NONE;
+
     self->switcher = (self->switcher + 1) % 2;
     self->currentTime = 0.0;
     if (self->fadetime == 0)
         self->fadetime = 0.0001;
-    
+
     Py_INCREF(tmp);
 
     if (self->switcher == 0) {
@@ -219,11 +219,11 @@ InputFader_setInput(InputFader *self, PyObject *args, PyObject *kwds)
         Py_XDECREF(self->input2_stream);
         self->input2_stream = (Stream *)streamtmp;
         self->proc_func_ptr = InputFader_process_two;
-	}    
-    
+	}
+
 	Py_INCREF(Py_None);
 	return Py_None;
-}	
+}
 
 static PyObject * InputFader_getServer(InputFader* self) { GET_SERVER };
 static PyObject * InputFader_getStream(InputFader* self) { GET_STREAM };
@@ -291,4 +291,3 @@ PyTypeObject InputFaderType = {
     0,                         /* tp_alloc */
     InputFader_new,                 /* tp_new */
 };
-

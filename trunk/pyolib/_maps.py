@@ -1,22 +1,22 @@
 # -*- coding: utf-8 -*-
 """
-Copyright 2010 Olivier Belanger
+Copyright 2009-2015 Olivier Belanger
 
 This file is part of pyo, a python module to help digital signal
 processing script creation.
 
 pyo is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
+it under the terms of the GNU Lesser General Public License as
+published by the Free Software Foundation, either version 3 of the
+License, or (at your option) any later version.
 
 pyo is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
+GNU Lesser General Public License for more details.
 
-You should have received a copy of the GNU General Public License
-along with pyo.  If not, see <http://www.gnu.org/licenses/>.
+You should have received a copy of the GNU Lesser General Public
+License along with pyo.  If not, see <http://www.gnu.org/licenses/>.
 """
 from math import pow, log10
 
@@ -51,11 +51,11 @@ class Map:
     def get(self, x):
         """
         Takes `x` between 0 and 1 and returns scaled value.
-        
+
         """
         if x < 0: x = 0.0
-        elif x > 1: x = 1.0 
-        
+        elif x > 1: x = 1.0
+
         if self._scale == 'log':
             return pow(10, x * log10(self._max/self._min) + log10(self._min))
         else:
@@ -63,11 +63,11 @@ class Map:
 
     def set(self, x):
         """
-        Takes `x` in the real range and returns value unscaled 
+        Takes `x` in the real range and returns value unscaled
         (between 0 and 1).
-        
+
         """
-        
+
         if self._scale == 'log':
             return log10(x/self._min) / log10(self._max/self._min)
         else:
@@ -76,7 +76,7 @@ class Map:
     def setMin(self, x):
         """
         Replace the `min` attribute.
-        
+
         :Args:
 
             x : float
@@ -84,11 +84,11 @@ class Map:
 
         """
         self._min = x
-        
+
     def setMax(self, x):
         """
         Replace the `max` attribute.
-        
+
         :Args:
 
             x : float
@@ -100,7 +100,7 @@ class Map:
     def setScale(self, x):
         """
         Replace the `scale` attribute.
-        
+
         :Args:
 
             x : string
@@ -110,32 +110,32 @@ class Map:
         self._scale = x
 
     @property
-    def min(self): 
+    def min(self):
         """int or float. Lowest value of the range."""
         return self._min
     @min.setter
-    def min(self, x): 
-        self.setMin(x)    
+    def min(self, x):
+        self.setMin(x)
     @property
-    def max(self): 
+    def max(self):
         """int or float. Highest value of the range."""
         return self._max
     @max.setter
-    def max(self, x): 
+    def max(self, x):
         self.setMax(x)
     @property
-    def scale(self): 
+    def scale(self):
         """string. Method used to scale the input value."""
         return self._scale
     @scale.setter
-    def scale(self, x): 
+    def scale(self, x):
         self.setScale(x)
 
 class SLMap(Map):
     """
     Base Map class used to manage control sliders.
 
-    Derived from Map class, a few parameters are added for sliders 
+    Derived from Map class, a few parameters are added for sliders
     initialization.
 
     :Parent: :py:class:`Map`
@@ -147,7 +147,7 @@ class SLMap(Map):
         max : int or float
             Highest value of the range.
         scale : string {'lin', 'log'}
-            Method used to scale the input value on the specified range.    
+            Method used to scale the input value on the specified range.
         name : string
             Name of the attributes the slider is affected to.
         init : int or float
@@ -156,12 +156,12 @@ class SLMap(Map):
         res : string {'int', 'float'}, optional
             Sets the resolution of the slider. Defaults to 'float'.
         ramp : float, optional
-            Ramp time, in seconds, used to smooth the signal sent from slider 
+            Ramp time, in seconds, used to smooth the signal sent from slider
             to object's attribute. Defaults to 0.025.
         dataOnly : boolean, optional
-            Set this argument to True if the parameter does not accept audio 
-            signal as control but discreet values. If True, label will be 
-            marked with a star symbol (*). Defaults to False. 
+            Set this argument to True if the parameter does not accept audio
+            signal as control but discreet values. If True, label will be
+            marked with a star symbol (*). Defaults to False.
 
     >>> s = Server().boot()
     >>> s.start()
@@ -176,23 +176,23 @@ class SLMap(Map):
         self._name, self._init, self._res, self._ramp, self._dataOnly = name, init, res, ramp, dataOnly
 
     @property
-    def name(self): 
+    def name(self):
         """string. Name of the parameter to control."""
         return self._name
     @property
-    def init(self): 
+    def init(self):
         """float. Initial value of the slider."""
         return self._init
     @property
-    def res(self): 
+    def res(self):
         """string. Slider resolution {int or float}."""
         return self._res
     @property
-    def ramp(self): 
+    def ramp(self):
         """float. Ramp time in seconds."""
         return self._ramp
     @property
-    def dataOnly(self): 
+    def dataOnly(self):
         """boolean. True if argument does not accept audio stream."""
         return self._dataOnly
 
@@ -210,7 +210,7 @@ class SLMapFreq(SLMap):
 
     .. note::
 
-        SLMapFreq values are: 
+        SLMapFreq values are:
 
         - min = 20.0
         - max = 20000.0
@@ -264,7 +264,7 @@ class SLMapPhase(SLMap):
 
     .. note::
 
-        SLMapPhase values are: 
+        SLMapPhase values are:
 
         - min = 0.0
         - max = 1.0
@@ -291,7 +291,7 @@ class SLMapPan(SLMap):
 
     .. note::
 
-        SLMapPhase values are: 
+        SLMapPhase values are:
 
         - min = 0.0
         - max = 1.0
@@ -318,7 +318,7 @@ class SLMapQ(SLMap):
 
     .. note::
 
-        SLMapQ values are: 
+        SLMapQ values are:
 
         - min = 0.1
         - max = 100.0
@@ -345,7 +345,7 @@ class SLMapDur(SLMap):
 
     .. note::
 
-        SLMapDur values are: 
+        SLMapDur values are:
 
         - min = 0.
         - max = 60.0

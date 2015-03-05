@@ -1,21 +1,21 @@
-/*************************************************************************
- * Copyright 2010 Olivier Belanger                                        *                  
- *                                                                        * 
+/**************************************************************************
+ * Copyright 2009-2015 Olivier Belanger                                   *
+ *                                                                        *
  * This file is part of pyo, a python module to help digital signal       *
- * processing script creation.                                            *  
- *                                                                        * 
+ * processing script creation.                                            *
+ *                                                                        *
  * pyo is free software: you can redistribute it and/or modify            *
- * it under the terms of the GNU General Public License as published by   *
- * the Free Software Foundation, either version 3 of the License, or      *
- * (at your option) any later version.                                    * 
+ * it under the terms of the GNU Lesser General Public License as         *
+ * published by the Free Software Foundation, either version 3 of the     *
+ * License, or (at your option) any later version.                        *
  *                                                                        *
  * pyo is distributed in the hope that it will be useful,                 *
- * but WITHOUT ANY WARRANTY; without even the implied warranty of         *    
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of         *
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the          *
- * GNU General Public License for more details.                           *
+ * GNU Lesser General Public License for more details.                    *
  *                                                                        *
- * You should have received a copy of the GNU General Public License      *
- * along with pyo.  If not, see <http://www.gnu.org/licenses/>.           *
+ * You should have received a copy of the GNU Lesser General Public       *
+ * License along with pyo.  If not, see <http://www.gnu.org/licenses/>.   *
  *************************************************************************/
 
 #include <Python.h>
@@ -39,13 +39,13 @@ typedef struct {
     Stream *falltime_stream;
     Stream *thresh_stream;
     Stream *ratio_stream;
-    int modebuffer[6]; // need at least 2 slots for mul & add 
+    int modebuffer[6]; // need at least 2 slots for mul & add
     int outputAmp;
     MYFLT follow;
     MYFLT knee;
     long lh_delay;
     long lh_size;
-    long lh_in_count;    
+    long lh_in_count;
     MYFLT *lh_buffer;
 } Compress;
 
@@ -67,9 +67,9 @@ Compress_compress_soft(Compress *self) {
     MYFLT risetime, falltime, thresh, ratio;
     int i;
     long ind;
-    
+
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
-    
+
     if (self->modebuffer[2] == 0)
         risetime = PyFloat_AS_DOUBLE(self->risetime);
     else
@@ -91,7 +91,7 @@ Compress_compress_soft(Compress *self) {
     else
         ratio = Stream_getData((Stream *)self->ratio_stream)[0];
 
-    ratio = 1.0 / ratio;    
+    ratio = 1.0 / ratio;
     risetime = MYEXP(-1.0 / (self->sr * risetime));
     falltime = MYEXP(-1.0 / (self->sr * falltime));
     knee = self->knee * 0.999 + 0.001; /* 0 = hard knee, 1 = soft knee */
@@ -104,25 +104,25 @@ Compress_compress_soft(Compress *self) {
 
     for (i=0; i<self->bufsize; i++) {
         /* Envelope follower */
-        absin = in[i];  
+        absin = in[i];
         if (absin < 0.0)
             absin = -absin;
         if (self->follow < absin)
             self->follow = absin + risetime * (self->follow - absin);
         else
             self->follow = absin + falltime * (self->follow - absin);
-        
+
         /* Look ahead */
         ind = self->lh_in_count - self->lh_delay;
         if (ind < 0)
             ind += self->lh_size;
         samp = self->lh_buffer[ind];
-        
+
         self->lh_buffer[self->lh_in_count] = in[i];
         self->lh_in_count++;
         if (self->lh_in_count >= self->lh_size)
             self->lh_in_count = 0;
-        
+
         /* Compress signal */
         outa = 1.0;
         if (self->follow > ampthresh) { /* Above threshold */
@@ -137,7 +137,7 @@ Compress_compress_soft(Compress *self) {
             indb = 20.0 * MYLOG10(C_clip(self->follow));
             diff = indb - thresh;
             outdb = diff - diff * kneeratio;
-            outa = MYPOW(10.0, -outdb * 0.05);            
+            outa = MYPOW(10.0, -outdb * 0.05);
         }
         if (self->outputAmp == 0)
             self->data[i] = samp * C_clip(outa);
@@ -161,42 +161,42 @@ Compress_setProcMode(Compress *self)
 {
     int muladdmode;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
-    
+
 	switch (muladdmode) {
-        case 0:        
+        case 0:
             self->muladd_func_ptr = Compress_postprocessing_ii;
             break;
-        case 1:    
+        case 1:
             self->muladd_func_ptr = Compress_postprocessing_ai;
             break;
-        case 2:    
+        case 2:
             self->muladd_func_ptr = Compress_postprocessing_revai;
             break;
-        case 10:        
+        case 10:
             self->muladd_func_ptr = Compress_postprocessing_ia;
             break;
-        case 11:    
+        case 11:
             self->muladd_func_ptr = Compress_postprocessing_aa;
             break;
-        case 12:    
+        case 12:
             self->muladd_func_ptr = Compress_postprocessing_revaa;
             break;
-        case 20:        
+        case 20:
             self->muladd_func_ptr = Compress_postprocessing_ireva;
             break;
-        case 21:    
+        case 21:
             self->muladd_func_ptr = Compress_postprocessing_areva;
             break;
-        case 22:    
+        case 22:
             self->muladd_func_ptr = Compress_postprocessing_revareva;
             break;
-    }  
+    }
 }
 
 static void
 Compress_compute_next_data_frame(Compress *self)
 {
-    (*self->proc_func_ptr)(self); 
+    (*self->proc_func_ptr)(self);
     (*self->muladd_func_ptr)(self);
 }
 
@@ -206,31 +206,31 @@ Compress_traverse(Compress *self, visitproc visit, void *arg)
     pyo_VISIT
     Py_VISIT(self->input);
     Py_VISIT(self->input_stream);
-    Py_VISIT(self->risetime);    
-    Py_VISIT(self->risetime_stream);    
-    Py_VISIT(self->falltime);    
-    Py_VISIT(self->falltime_stream);    
-    Py_VISIT(self->thresh);    
-    Py_VISIT(self->thresh_stream);    
-    Py_VISIT(self->ratio);    
-    Py_VISIT(self->ratio_stream);    
+    Py_VISIT(self->risetime);
+    Py_VISIT(self->risetime_stream);
+    Py_VISIT(self->falltime);
+    Py_VISIT(self->falltime_stream);
+    Py_VISIT(self->thresh);
+    Py_VISIT(self->thresh_stream);
+    Py_VISIT(self->ratio);
+    Py_VISIT(self->ratio_stream);
     return 0;
 }
 
-static int 
+static int
 Compress_clear(Compress *self)
 {
     pyo_CLEAR
     Py_CLEAR(self->input);
     Py_CLEAR(self->input_stream);
-    Py_CLEAR(self->risetime);    
-    Py_CLEAR(self->risetime_stream);    
-    Py_CLEAR(self->falltime);    
-    Py_CLEAR(self->falltime_stream);    
-    Py_CLEAR(self->thresh);    
-    Py_CLEAR(self->thresh_stream);    
-    Py_CLEAR(self->ratio);    
-    Py_CLEAR(self->ratio_stream);    
+    Py_CLEAR(self->risetime);
+    Py_CLEAR(self->risetime_stream);
+    Py_CLEAR(self->falltime);
+    Py_CLEAR(self->falltime_stream);
+    Py_CLEAR(self->thresh);
+    Py_CLEAR(self->thresh_stream);
+    Py_CLEAR(self->ratio);
+    Py_CLEAR(self->ratio_stream);
     return 0;
 }
 
@@ -251,7 +251,7 @@ Compress_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *looktmp=NULL, *kneetmp=NULL;
     Compress *self;
     self = (Compress *)type->tp_alloc(type, 0);
-    
+
     self->thresh = PyFloat_FromDouble(-20.0);
     self->ratio = PyFloat_FromDouble(2.0);
     self->risetime = PyFloat_FromDouble(0.01);
@@ -274,49 +274,49 @@ Compress_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->mode_func_ptr = Compress_setProcMode;
 
     static char *kwlist[] = {"input", "thresh", "ratio", "risetime", "falltime", "lookahead", "knee", "outputAmp", "mul", "add", NULL};
-    
+
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOOOOOiOO", kwlist, &inputtmp, &threshtmp, &ratiotmp, &risetimetmp, &falltimetmp, &looktmp, &kneetmp, &self->outputAmp, &multmp, &addtmp))
         Py_RETURN_NONE;
-    
+
     INIT_INPUT_STREAM
-    
+
     if (threshtmp) {
         PyObject_CallMethod((PyObject *)self, "setThresh", "O", threshtmp);
     }
-   
+
     if (ratiotmp) {
         PyObject_CallMethod((PyObject *)self, "setRatio", "O", ratiotmp);
     }
-   
+
     if (risetimetmp) {
         PyObject_CallMethod((PyObject *)self, "setRiseTime", "O", risetimetmp);
     }
-    
+
     if (falltimetmp) {
         PyObject_CallMethod((PyObject *)self, "setFallTime", "O", falltimetmp);
     }
-    
+
     if (multmp) {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
     }
-    
+
     if (addtmp) {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
 
     PyObject_CallMethod((PyObject *)self, "setLookAhead", "O", looktmp);
     PyObject_CallMethod((PyObject *)self, "setKnee", "O", kneetmp);
-    
+
     self->lh_size = (long)(0.025 * self->sr + 0.5);
     self->lh_buffer = (MYFLT *)realloc(self->lh_buffer, (self->lh_size+1) * sizeof(MYFLT));
     for (i=0; i<(self->lh_size+1); i++) {
         self->lh_buffer[i] = 0.;
-    }    
+    }
 
     self->proc_func_ptr = Compress_compress_soft;
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
-    
+
     (*self->mode_func_ptr)(self);
 
     return (PyObject *)self;
@@ -324,10 +324,10 @@ Compress_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
 static PyObject * Compress_getServer(Compress* self) { GET_SERVER };
 static PyObject * Compress_getStream(Compress* self) { GET_STREAM };
-static PyObject * Compress_setMul(Compress *self, PyObject *arg) { SET_MUL };	
-static PyObject * Compress_setAdd(Compress *self, PyObject *arg) { SET_ADD };	
-static PyObject * Compress_setSub(Compress *self, PyObject *arg) { SET_SUB };	
-static PyObject * Compress_setDiv(Compress *self, PyObject *arg) { SET_DIV };	
+static PyObject * Compress_setMul(Compress *self, PyObject *arg) { SET_MUL };
+static PyObject * Compress_setAdd(Compress *self, PyObject *arg) { SET_ADD };
+static PyObject * Compress_setSub(Compress *self, PyObject *arg) { SET_SUB };
+static PyObject * Compress_setDiv(Compress *self, PyObject *arg) { SET_DIV };
 
 static PyObject * Compress_play(Compress *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * Compress_out(Compress *self, PyObject *args, PyObject *kwds) { OUT };
@@ -346,14 +346,14 @@ static PyObject *
 Compress_setThresh(Compress *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
-	
+
 	if (arg == NULL) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
 	int isNumber = PyNumber_Check(arg);
-	
+
 	tmp = arg;
 	Py_INCREF(tmp);
 	Py_DECREF(self->thresh);
@@ -369,23 +369,23 @@ Compress_setThresh(Compress *self, PyObject *arg)
         self->thresh_stream = (Stream *)streamtmp;
 		self->modebuffer[4] = 1;
 	}
-        
+
 	Py_INCREF(Py_None);
 	return Py_None;
-}	
+}
 
 static PyObject *
 Compress_setRatio(Compress *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
-	
+
 	if (arg == NULL) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
 	int isNumber = PyNumber_Check(arg);
-	
+
 	tmp = arg;
 	Py_INCREF(tmp);
 	Py_DECREF(self->ratio);
@@ -404,20 +404,20 @@ Compress_setRatio(Compress *self, PyObject *arg)
 
 	Py_INCREF(Py_None);
 	return Py_None;
-}	
+}
 
 static PyObject *
 Compress_setRiseTime(Compress *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
-	
+
 	if (arg == NULL) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
 	int isNumber = PyNumber_Check(arg);
-	
+
 	tmp = arg;
 	Py_INCREF(tmp);
 	Py_DECREF(self->risetime);
@@ -436,20 +436,20 @@ Compress_setRiseTime(Compress *self, PyObject *arg)
 
 	Py_INCREF(Py_None);
 	return Py_None;
-}	
+}
 
 static PyObject *
 Compress_setFallTime(Compress *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
-	
+
 	if (arg == NULL) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
 	int isNumber = PyNumber_Check(arg);
-	
+
 	tmp = arg;
 	Py_INCREF(tmp);
 	Py_DECREF(self->falltime);
@@ -468,13 +468,13 @@ Compress_setFallTime(Compress *self, PyObject *arg)
 
 	Py_INCREF(Py_None);
 	return Py_None;
-}	
+}
 
 static PyObject *
 Compress_setLookAhead(Compress *self, PyObject *arg)
 {
     MYFLT tmp;
-	
+
 	if (arg == NULL) {
 		Py_INCREF(Py_None);
 		return Py_None;
@@ -490,18 +490,18 @@ Compress_setLookAhead(Compress *self, PyObject *arg)
 
 	Py_INCREF(Py_None);
 	return Py_None;
-}	
+}
 
 static PyObject *
 Compress_setKnee(Compress *self, PyObject *arg)
 {
     MYFLT tmp;
-	
+
 	if (arg == NULL) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
 	if (PyNumber_Check(arg)) {
 		tmp = PyFloat_AsDouble(PyNumber_Float(arg));
         if (tmp >= 0.0 && tmp <= 1.0)
@@ -512,7 +512,7 @@ Compress_setKnee(Compress *self, PyObject *arg)
 
 	Py_INCREF(Py_None);
 	return Py_None;
-}	
+}
 
 static PyMemberDef Compress_members[] = {
 {"server", T_OBJECT_EX, offsetof(Compress, server), 0, "Pyo server."},
@@ -644,7 +644,7 @@ typedef struct {
     Stream *risetime_stream;
     PyObject *falltime;
     Stream *falltime_stream;
-    int modebuffer[5]; // need at least 2 slots for mul & add 
+    int modebuffer[5]; // need at least 2 slots for mul & add
     int outputAmp;
     MYFLT lpfollow;
     MYFLT lpfactor;
@@ -655,7 +655,7 @@ typedef struct {
     MYFLT fallfactor;
     long lh_delay;
     long lh_size;
-    long lh_in_count;    
+    long lh_in_count;
     MYFLT *lh_buffer;
 } Gate;
 
@@ -663,9 +663,9 @@ static void
 Gate_filters_iii(Gate *self) {
     MYFLT samp, absin, thresh, ampthresh, risetime, falltime;
     int i, ind;
-    
+
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
-    
+
     thresh = PyFloat_AS_DOUBLE(self->thresh);
     risetime = PyFloat_AS_DOUBLE(self->risetime);
     if (risetime <= 0.0)
@@ -673,23 +673,23 @@ Gate_filters_iii(Gate *self) {
     falltime = PyFloat_AS_DOUBLE(self->falltime);
     if (falltime <= 0.0)
         falltime = GATE_MIN_RAMP_TIME;
-    
+
     if (risetime != self->last_risetime) {
         self->risefactor = MYEXP(-1.0 / (self->sr * risetime));
         self->last_risetime = risetime;
     }
-    
+
     if (falltime != self->last_falltime) {
         self->fallfactor = MYEXP(-1.0 / (self->sr * falltime));
         self->last_falltime = falltime;
     }
-    
+
     ampthresh = MYPOW(10.0, thresh * 0.05);
     for (i=0; i<self->bufsize; i++) {
         /* Follower */
         absin = in[i] * in[i];
         self->lpfollow = absin + self->lpfactor * (self->lpfollow - absin);
-        
+
         /* Gate slope */
         if (self->lpfollow >= ampthresh)
             self->gate = 1.0 + self->risefactor * (self->gate - 1.0);
@@ -701,12 +701,12 @@ Gate_filters_iii(Gate *self) {
         if (ind < 0)
             ind += self->lh_size;
         samp = self->lh_buffer[ind];
-        
+
         self->lh_buffer[self->lh_in_count] = in[i];
         self->lh_in_count++;
         if (self->lh_in_count >= self->lh_size)
             self->lh_in_count = 0;
-        
+
         /* Gate the signal */
         if (self->outputAmp == 0)
             self->data[i] = samp * self->gate;
@@ -719,8 +719,8 @@ static void
 Gate_filters_aii(Gate *self) {
     MYFLT samp, absin, thresh, ampthresh, risetime, falltime;
     int i, ind;
-    
-    MYFLT *in = Stream_getData((Stream *)self->input_stream);    
+
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
     MYFLT *tr = Stream_getData((Stream *)self->thresh_stream);
 
     risetime = PyFloat_AS_DOUBLE(self->risetime);
@@ -729,41 +729,41 @@ Gate_filters_aii(Gate *self) {
     falltime = PyFloat_AS_DOUBLE(self->falltime);
     if (falltime <= 0.0)
         falltime = GATE_MIN_RAMP_TIME;
-    
+
     if (risetime != self->last_risetime) {
         self->risefactor = MYEXP(-1.0 / (self->sr * risetime));
         self->last_risetime = risetime;
     }
-    
+
     if (falltime != self->last_falltime) {
         self->fallfactor = MYEXP(-1.0 / (self->sr * falltime));
         self->last_falltime = falltime;
     }
-    
+
     for (i=0; i<self->bufsize; i++) {
         thresh = tr[i];
         ampthresh = MYPOW(10.0, thresh * 0.05);
         /* Follower */
         absin = in[i] * in[i];
         self->lpfollow = absin + self->lpfactor * (self->lpfollow - absin);
-        
+
         /* Gate slope */
         if (self->lpfollow >= ampthresh)
             self->gate = 1.0 + self->risefactor * (self->gate - 1.0);
         else
             self->gate = self->fallfactor * self->gate;
-        
+
         /* Look ahead */
         ind = self->lh_in_count - self->lh_delay;
         if (ind < 0)
             ind += self->lh_size;
         samp = self->lh_buffer[ind];
-        
+
         self->lh_buffer[self->lh_in_count] = in[i];
         self->lh_in_count++;
         if (self->lh_in_count >= self->lh_size)
             self->lh_in_count = 0;
-        
+
         /* Gate the signal */
         if (self->outputAmp == 0)
             self->data[i] = samp * self->gate;
@@ -776,7 +776,7 @@ static void
 Gate_filters_iai(Gate *self) {
     MYFLT samp, absin, thresh, ampthresh, risetime, falltime;
     int i, ind;
-    
+
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
 
     thresh = PyFloat_AS_DOUBLE(self->thresh);
@@ -790,7 +790,7 @@ Gate_filters_iai(Gate *self) {
         self->fallfactor = MYEXP(-1.0 / (self->sr * falltime));
         self->last_falltime = falltime;
     }
-    
+
     ampthresh = MYPOW(10.0, thresh * 0.05);
     for (i=0; i<self->bufsize; i++) {
         risetime = rise[i];
@@ -800,28 +800,28 @@ Gate_filters_iai(Gate *self) {
             self->risefactor = MYEXP(-1.0 / (self->sr * risetime));
             self->last_risetime = risetime;
         }
-        
+
         /* Follower */
         absin = in[i] * in[i];
         self->lpfollow = absin + self->lpfactor * (self->lpfollow - absin);
-        
+
         /* Gate slope */
         if (self->lpfollow >= ampthresh)
             self->gate = 1.0 + self->risefactor * (self->gate - 1.0);
         else
             self->gate = self->fallfactor * self->gate;
-        
+
         /* Look ahead */
         ind = self->lh_in_count - self->lh_delay;
         if (ind < 0)
             ind += self->lh_size;
         samp = self->lh_buffer[ind];
-        
+
         self->lh_buffer[self->lh_in_count] = in[i];
         self->lh_in_count++;
         if (self->lh_in_count >= self->lh_size)
             self->lh_in_count = 0;
-        
+
         /* Gate the signal */
         if (self->outputAmp == 0)
             self->data[i] = samp * self->gate;
@@ -834,21 +834,21 @@ static void
 Gate_filters_aai(Gate *self) {
     MYFLT samp, absin, thresh, ampthresh, risetime, falltime;
     int i, ind;
-    
+
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
-    
+
     MYFLT *tr = Stream_getData((Stream *)self->thresh_stream);
     MYFLT *rise = Stream_getData((Stream *)self->risetime_stream);
-    
+
     falltime = PyFloat_AS_DOUBLE(self->falltime);
     if (falltime <= 0.0)
         falltime = GATE_MIN_RAMP_TIME;
-    
+
     if (falltime != self->last_falltime) {
         self->fallfactor = MYEXP(-1.0 / (self->sr * falltime));
         self->last_falltime = falltime;
     }
-    
+
     for (i=0; i<self->bufsize; i++) {
         thresh = tr[i];
         ampthresh = MYPOW(10.0, thresh * 0.05);
@@ -859,28 +859,28 @@ Gate_filters_aai(Gate *self) {
             self->risefactor = MYEXP(-1.0 / (self->sr * risetime));
             self->last_risetime = risetime;
         }
-        
+
         /* Follower */
         absin = in[i] * in[i];
         self->lpfollow = absin + self->lpfactor * (self->lpfollow - absin);
-        
+
         /* Gate slope */
         if (self->lpfollow >= ampthresh)
             self->gate = 1.0 + self->risefactor * (self->gate - 1.0);
         else
             self->gate = self->fallfactor * self->gate;
-        
+
         /* Look ahead */
         ind = self->lh_in_count - self->lh_delay;
         if (ind < 0)
             ind += self->lh_size;
         samp = self->lh_buffer[ind];
-        
+
         self->lh_buffer[self->lh_in_count] = in[i];
         self->lh_in_count++;
         if (self->lh_in_count >= self->lh_size)
             self->lh_in_count = 0;
-        
+
         /* Gate the signal */
         if (self->outputAmp == 0)
             self->data[i] = samp * self->gate;
@@ -893,15 +893,15 @@ static void
 Gate_filters_iia(Gate *self) {
     MYFLT samp, absin, thresh, ampthresh, risetime, falltime;
     int i, ind;
-    
+
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
-    
+
     thresh = PyFloat_AS_DOUBLE(self->thresh);
     risetime = PyFloat_AS_DOUBLE(self->risetime);
     if (risetime <= 0.0)
         risetime = GATE_MIN_RAMP_TIME;
     MYFLT *fall = Stream_getData((Stream *)self->falltime_stream);
-    
+
     if (risetime != self->last_risetime) {
         self->risefactor = MYEXP(-1.0 / (self->sr * risetime));
         self->last_risetime = risetime;
@@ -916,28 +916,28 @@ Gate_filters_iia(Gate *self) {
             self->fallfactor = MYEXP(-1.0 / (self->sr * falltime));
             self->last_falltime = falltime;
         }
-        
+
         /* Follower */
         absin = in[i] * in[i];
         self->lpfollow = absin + self->lpfactor * (self->lpfollow - absin);
-        
+
         /* Gate slope */
         if (self->lpfollow >= ampthresh)
             self->gate = 1.0 + self->risefactor * (self->gate - 1.0);
         else
             self->gate = self->fallfactor * self->gate;
-        
+
         /* Look ahead */
         ind = self->lh_in_count - self->lh_delay;
         if (ind < 0)
             ind += self->lh_size;
         samp = self->lh_buffer[ind];
-        
+
         self->lh_buffer[self->lh_in_count] = in[i];
         self->lh_in_count++;
         if (self->lh_in_count >= self->lh_size)
             self->lh_in_count = 0;
-        
+
         /* Gate the signal */
         if (self->outputAmp == 0)
             self->data[i] = samp * self->gate;
@@ -950,20 +950,20 @@ static void
 Gate_filters_aia(Gate *self) {
     MYFLT samp, absin, thresh, ampthresh, risetime, falltime;
     int i, ind;
-    
+
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
-    
+
     MYFLT *tr = Stream_getData((Stream *)self->thresh_stream);
     risetime = PyFloat_AS_DOUBLE(self->risetime);
     if (risetime <= 0.0)
         risetime = GATE_MIN_RAMP_TIME;
     MYFLT *fall = Stream_getData((Stream *)self->falltime_stream);
-    
+
     if (risetime != self->last_risetime) {
         self->risefactor = MYEXP(-1.0 / (self->sr * risetime));
         self->last_risetime = risetime;
     }
-    
+
     for (i=0; i<self->bufsize; i++) {
         thresh = tr[i];
         ampthresh = MYPOW(10.0, thresh * 0.05);
@@ -974,28 +974,28 @@ Gate_filters_aia(Gate *self) {
             self->fallfactor = MYEXP(-1.0 / (self->sr * falltime));
             self->last_falltime = falltime;
         }
-        
+
         /* Follower */
         absin = in[i] * in[i];
         self->lpfollow = absin + self->lpfactor * (self->lpfollow - absin);
-        
+
         /* Gate slope */
         if (self->lpfollow >= ampthresh)
             self->gate = 1.0 + self->risefactor * (self->gate - 1.0);
         else
             self->gate = self->fallfactor * self->gate;
-        
+
         /* Look ahead */
         ind = self->lh_in_count - self->lh_delay;
         if (ind < 0)
             ind += self->lh_size;
         samp = self->lh_buffer[ind];
-        
+
         self->lh_buffer[self->lh_in_count] = in[i];
         self->lh_in_count++;
         if (self->lh_in_count >= self->lh_size)
             self->lh_in_count = 0;
-        
+
         /* Gate the signal */
         if (self->outputAmp == 0)
             self->data[i] = samp * self->gate;
@@ -1008,9 +1008,9 @@ static void
 Gate_filters_iaa(Gate *self) {
     MYFLT samp, absin, thresh, ampthresh, risetime, falltime;
     int i, ind;
-    
+
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
-    
+
     thresh = PyFloat_AS_DOUBLE(self->thresh);
     MYFLT *rise = Stream_getData((Stream *)self->risetime_stream);
     MYFLT *fall = Stream_getData((Stream *)self->falltime_stream);
@@ -1031,28 +1031,28 @@ Gate_filters_iaa(Gate *self) {
             self->fallfactor = MYEXP(-1.0 / (self->sr * falltime));
             self->last_falltime = falltime;
         }
-        
+
         /* Follower */
         absin = in[i] * in[i];
         self->lpfollow = absin + self->lpfactor * (self->lpfollow - absin);
-        
+
         /* Gate slope */
         if (self->lpfollow >= ampthresh)
             self->gate = 1.0 + self->risefactor * (self->gate - 1.0);
         else
             self->gate = self->fallfactor * self->gate;
-        
+
         /* Look ahead */
         ind = self->lh_in_count - self->lh_delay;
         if (ind < 0)
             ind += self->lh_size;
         samp = self->lh_buffer[ind];
-        
+
         self->lh_buffer[self->lh_in_count] = in[i];
         self->lh_in_count++;
         if (self->lh_in_count >= self->lh_size)
             self->lh_in_count = 0;
-        
+
         /* Gate the signal */
         if (self->outputAmp == 0)
             self->data[i] = samp * self->gate;
@@ -1065,13 +1065,13 @@ static void
 Gate_filters_aaa(Gate *self) {
     MYFLT samp, absin, thresh, ampthresh, risetime, falltime;
     int i, ind;
-    
+
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
-    
+
     MYFLT *tr = Stream_getData((Stream *)self->thresh_stream);
     MYFLT *rise = Stream_getData((Stream *)self->risetime_stream);
     MYFLT *fall = Stream_getData((Stream *)self->falltime_stream);
-    
+
     for (i=0; i<self->bufsize; i++) {
         thresh = tr[i];
         ampthresh = MYPOW(10.0, thresh * 0.05);
@@ -1089,28 +1089,28 @@ Gate_filters_aaa(Gate *self) {
             self->fallfactor = MYEXP(-1.0 / (self->sr * falltime));
             self->last_falltime = falltime;
         }
-        
+
         /* Follower */
         absin = in[i] * in[i];
         self->lpfollow = absin + self->lpfactor * (self->lpfollow - absin);
-        
+
         /* Gate slope */
         if (self->lpfollow >= ampthresh)
             self->gate = 1.0 + self->risefactor * (self->gate - 1.0);
         else
             self->gate = self->fallfactor * self->gate;
-        
+
         /* Look ahead */
         ind = self->lh_in_count - self->lh_delay;
         if (ind < 0)
             ind += self->lh_size;
         samp = self->lh_buffer[ind];
-        
+
         self->lh_buffer[self->lh_in_count] = in[i];
         self->lh_in_count++;
         if (self->lh_in_count >= self->lh_size)
             self->lh_in_count = 0;
-        
+
         /* Gate the signal */
         if (self->outputAmp == 0)
             self->data[i] = samp * self->gate;
@@ -1135,68 +1135,68 @@ Gate_setProcMode(Gate *self)
     int procmode, muladdmode;
     procmode = self->modebuffer[2] + self->modebuffer[3] * 10 + self->modebuffer[4] * 100;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
-    
+
 	switch (procmode) {
-        case 0:    
+        case 0:
             self->proc_func_ptr = Gate_filters_iii;
             break;
-        case 1:    
+        case 1:
             self->proc_func_ptr = Gate_filters_aii;
             break;
-        case 10:    
+        case 10:
             self->proc_func_ptr = Gate_filters_iai;
             break;
-        case 11:    
+        case 11:
             self->proc_func_ptr = Gate_filters_aai;
             break;
-        case 100:    
+        case 100:
             self->proc_func_ptr = Gate_filters_iia;
             break;
-        case 101:    
+        case 101:
             self->proc_func_ptr = Gate_filters_aia;
             break;
-        case 110:    
+        case 110:
             self->proc_func_ptr = Gate_filters_iaa;
             break;
-        case 111:    
+        case 111:
             self->proc_func_ptr = Gate_filters_aaa;
             break;
-    } 
+    }
 	switch (muladdmode) {
-        case 0:        
+        case 0:
             self->muladd_func_ptr = Gate_postprocessing_ii;
             break;
-        case 1:    
+        case 1:
             self->muladd_func_ptr = Gate_postprocessing_ai;
             break;
-        case 2:    
+        case 2:
             self->muladd_func_ptr = Gate_postprocessing_revai;
             break;
-        case 10:        
+        case 10:
             self->muladd_func_ptr = Gate_postprocessing_ia;
             break;
-        case 11:    
+        case 11:
             self->muladd_func_ptr = Gate_postprocessing_aa;
             break;
-        case 12:    
+        case 12:
             self->muladd_func_ptr = Gate_postprocessing_revaa;
             break;
-        case 20:        
+        case 20:
             self->muladd_func_ptr = Gate_postprocessing_ireva;
             break;
-        case 21:    
+        case 21:
             self->muladd_func_ptr = Gate_postprocessing_areva;
             break;
-        case 22:    
+        case 22:
             self->muladd_func_ptr = Gate_postprocessing_revareva;
             break;
-    }   
+    }
 }
 
 static void
 Gate_compute_next_data_frame(Gate *self)
 {
-    (*self->proc_func_ptr)(self); 
+    (*self->proc_func_ptr)(self);
     (*self->muladd_func_ptr)(self);
 }
 
@@ -1206,27 +1206,27 @@ Gate_traverse(Gate *self, visitproc visit, void *arg)
     pyo_VISIT
     Py_VISIT(self->input);
     Py_VISIT(self->input_stream);
-    Py_VISIT(self->thresh);    
-    Py_VISIT(self->thresh_stream);    
-    Py_VISIT(self->risetime);    
-    Py_VISIT(self->risetime_stream);    
-    Py_VISIT(self->falltime);    
-    Py_VISIT(self->falltime_stream);    
+    Py_VISIT(self->thresh);
+    Py_VISIT(self->thresh_stream);
+    Py_VISIT(self->risetime);
+    Py_VISIT(self->risetime_stream);
+    Py_VISIT(self->falltime);
+    Py_VISIT(self->falltime_stream);
     return 0;
 }
 
-static int 
+static int
 Gate_clear(Gate *self)
 {
     pyo_CLEAR
     Py_CLEAR(self->input);
     Py_CLEAR(self->input_stream);
-    Py_CLEAR(self->thresh);    
-    Py_CLEAR(self->thresh_stream);    
-    Py_CLEAR(self->risetime);    
-    Py_CLEAR(self->risetime_stream);    
-    Py_CLEAR(self->falltime);    
-    Py_CLEAR(self->falltime_stream);    
+    Py_CLEAR(self->thresh);
+    Py_CLEAR(self->thresh_stream);
+    Py_CLEAR(self->risetime);
+    Py_CLEAR(self->risetime_stream);
+    Py_CLEAR(self->falltime);
+    Py_CLEAR(self->falltime_stream);
     return 0;
 }
 
@@ -1247,7 +1247,7 @@ Gate_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *looktmp=NULL;
     Gate *self;
     self = (Gate *)type->tp_alloc(type, 0);
-    
+
     self->thresh = PyFloat_FromDouble(-70.0);
     self->risetime = PyFloat_FromDouble(0.01);
     self->falltime = PyFloat_FromDouble(0.05);
@@ -1263,51 +1263,51 @@ Gate_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->lh_delay = 0;
     self->lh_in_count = 0;
     self->outputAmp = 0;
-    
+
     INIT_OBJECT_COMMON
-    
+
     self->lpfactor = MYEXP(-1.0 / (self->sr / 20.0));
 
     Stream_setFunctionPtr(self->stream, Gate_compute_next_data_frame);
     self->mode_func_ptr = Gate_setProcMode;
 
     static char *kwlist[] = {"input", "thresh", "risetime", "falltime", "lookahead", "outputAmp", "mul", "add", NULL};
-    
+
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOOOiOO", kwlist, &inputtmp, &threshtmp, &risetimetmp, &falltimetmp, &looktmp, &self->outputAmp, &multmp, &addtmp))
         Py_RETURN_NONE;
-    
+
     INIT_INPUT_STREAM
 
     if (threshtmp) {
         PyObject_CallMethod((PyObject *)self, "setThresh", "O", threshtmp);
     }
-    
+
     if (risetimetmp) {
         PyObject_CallMethod((PyObject *)self, "setRiseTime", "O", risetimetmp);
     }
-    
+
     if (falltimetmp) {
         PyObject_CallMethod((PyObject *)self, "setFallTime", "O", falltimetmp);
     }
-    
+
     if (multmp) {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
     }
-    
+
     if (addtmp) {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
 
     PyObject_CallMethod((PyObject *)self, "setLookAhead", "O", looktmp);
-    
+
     self->lh_size = (long)(0.025 * self->sr + 0.5);
     self->lh_buffer = (MYFLT *)realloc(self->lh_buffer, (self->lh_size+1) * sizeof(MYFLT));
     for (i=0; i<(self->lh_size+1); i++) {
         self->lh_buffer[i] = 0.;
-    }    
-    
+    }
+
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
-    
+
     (*self->mode_func_ptr)(self);
 
     return (PyObject *)self;
@@ -1315,10 +1315,10 @@ Gate_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
 static PyObject * Gate_getServer(Gate* self) { GET_SERVER };
 static PyObject * Gate_getStream(Gate* self) { GET_STREAM };
-static PyObject * Gate_setMul(Gate *self, PyObject *arg) { SET_MUL };	
-static PyObject * Gate_setAdd(Gate *self, PyObject *arg) { SET_ADD };	
-static PyObject * Gate_setSub(Gate *self, PyObject *arg) { SET_SUB };	
-static PyObject * Gate_setDiv(Gate *self, PyObject *arg) { SET_DIV };	
+static PyObject * Gate_setMul(Gate *self, PyObject *arg) { SET_MUL };
+static PyObject * Gate_setAdd(Gate *self, PyObject *arg) { SET_ADD };
+static PyObject * Gate_setSub(Gate *self, PyObject *arg) { SET_SUB };
+static PyObject * Gate_setDiv(Gate *self, PyObject *arg) { SET_DIV };
 
 static PyObject * Gate_play(Gate *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * Gate_out(Gate *self, PyObject *args, PyObject *kwds) { OUT };
@@ -1337,14 +1337,14 @@ static PyObject *
 Gate_setThresh(Gate *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
-	
+
 	if (arg == NULL) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
 	int isNumber = PyNumber_Check(arg);
-	
+
 	tmp = arg;
 	Py_INCREF(tmp);
 	Py_DECREF(self->thresh);
@@ -1360,9 +1360,9 @@ Gate_setThresh(Gate *self, PyObject *arg)
         self->thresh_stream = (Stream *)streamtmp;
 		self->modebuffer[2] = 1;
 	}
-    
+
     (*self->mode_func_ptr)(self);
-    
+
 	Py_INCREF(Py_None);
 	return Py_None;
 }
@@ -1371,14 +1371,14 @@ static PyObject *
 Gate_setRiseTime(Gate *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
-	
+
 	if (arg == NULL) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
 	int isNumber = PyNumber_Check(arg);
-	
+
 	tmp = arg;
 	Py_INCREF(tmp);
 	Py_DECREF(self->risetime);
@@ -1394,9 +1394,9 @@ Gate_setRiseTime(Gate *self, PyObject *arg)
         self->risetime_stream = (Stream *)streamtmp;
 		self->modebuffer[3] = 1;
 	}
-    
+
     (*self->mode_func_ptr)(self);
-    
+
 	Py_INCREF(Py_None);
 	return Py_None;
 }
@@ -1405,14 +1405,14 @@ static PyObject *
 Gate_setFallTime(Gate *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
-	
+
 	if (arg == NULL) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
 	int isNumber = PyNumber_Check(arg);
-	
+
 	tmp = arg;
 	Py_INCREF(tmp);
 	Py_DECREF(self->falltime);
@@ -1428,9 +1428,9 @@ Gate_setFallTime(Gate *self, PyObject *arg)
         self->falltime_stream = (Stream *)streamtmp;
 		self->modebuffer[4] = 1;
 	}
-    
+
     (*self->mode_func_ptr)(self);
-    
+
 	Py_INCREF(Py_None);
 	return Py_None;
 }
@@ -1439,12 +1439,12 @@ static PyObject *
 Gate_setLookAhead(Gate *self, PyObject *arg)
 {
     MYFLT tmp;
-	
+
 	if (arg == NULL) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
 	if (PyNumber_Check(arg)) {
 		tmp = PyFloat_AsDouble(PyNumber_Float(arg));
         if (tmp <= 25.0)
@@ -1452,10 +1452,10 @@ Gate_setLookAhead(Gate *self, PyObject *arg)
         else
             printf("lookahead must be less than 25.0 ms.\n");
 	}
-    
+
 	Py_INCREF(Py_None);
 	return Py_None;
-}	
+}
 
 static PyMemberDef Gate_members[] = {
     {"server", T_OBJECT_EX, offsetof(Gate, server), 0, "Pyo server."},
@@ -1581,7 +1581,7 @@ typedef struct {
     Stream *input2_stream;
     PyObject *freq;
     Stream *freq_stream;
-    int modebuffer[3]; // need at least 2 slots for mul & add 
+    int modebuffer[3]; // need at least 2 slots for mul & add
     MYFLT follow1;
     MYFLT follow2;
     MYFLT last_freq;
@@ -1595,13 +1595,13 @@ Balance_filters_i(Balance *self) {
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
     MYFLT *in2 = Stream_getData((Stream *)self->input2_stream);
     freq = PyFloat_AS_DOUBLE(self->freq);
-    
+
     if (freq < 0.1)
         freq = 0.1;
-    
+
     if (freq != self->last_freq) {
         self->factor = MYEXP(-1.0 / (self->sr / freq));
-        self->last_freq = freq;    
+        self->last_freq = freq;
     }
 
     for (i=0; i<self->bufsize; i++) {
@@ -1614,7 +1614,7 @@ Balance_filters_i(Balance *self) {
         absin = in2[i];
         if (absin < 0.0)
             absin = -absin;
-        self->follow2 = absin + self->factor * (self->follow2 - absin);        
+        self->follow2 = absin + self->factor * (self->follow2 - absin);
         self->data[i] = in[i] * (self->follow2 / self->follow1);
     }
 }
@@ -1626,15 +1626,15 @@ Balance_filters_a(Balance *self) {
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
     MYFLT *in2 = Stream_getData((Stream *)self->input2_stream);
     MYFLT *fr = Stream_getData((Stream *)self->freq_stream);
-        
+
     for (i=0; i<self->bufsize; i++) {
         freq = fr[i];
         if (freq < 0.1)
             freq = 0.1;
-        
+
         if (freq != self->last_freq) {
             self->factor = MYEXP(-1.0 / (self->sr / freq));
-            self->last_freq = freq;    
+            self->last_freq = freq;
         }
         absin = in[i];
         if (absin < 0.0)
@@ -1645,7 +1645,7 @@ Balance_filters_a(Balance *self) {
         absin = in2[i];
         if (absin < 0.0)
             absin = -absin;
-        self->follow2 = absin + self->factor * (self->follow2 - absin);        
+        self->follow2 = absin + self->factor * (self->follow2 - absin);
         self->data[i] = in[i] * (self->follow2 / self->follow1);
     }
 }
@@ -1666,50 +1666,50 @@ Balance_setProcMode(Balance *self)
     int procmode, muladdmode;
     procmode = self->modebuffer[2];
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
-    
+
 	switch (procmode) {
-        case 0:    
+        case 0:
             self->proc_func_ptr = Balance_filters_i;
             break;
-        case 1:    
+        case 1:
             self->proc_func_ptr = Balance_filters_a;
             break;
-    } 
+    }
 	switch (muladdmode) {
-        case 0:        
+        case 0:
             self->muladd_func_ptr = Balance_postprocessing_ii;
             break;
-        case 1:    
+        case 1:
             self->muladd_func_ptr = Balance_postprocessing_ai;
             break;
-        case 2:    
+        case 2:
             self->muladd_func_ptr = Balance_postprocessing_revai;
             break;
-        case 10:        
+        case 10:
             self->muladd_func_ptr = Balance_postprocessing_ia;
             break;
-        case 11:    
+        case 11:
             self->muladd_func_ptr = Balance_postprocessing_aa;
             break;
-        case 12:    
+        case 12:
             self->muladd_func_ptr = Balance_postprocessing_revaa;
             break;
-        case 20:        
+        case 20:
             self->muladd_func_ptr = Balance_postprocessing_ireva;
             break;
-        case 21:    
+        case 21:
             self->muladd_func_ptr = Balance_postprocessing_areva;
             break;
-        case 22:    
+        case 22:
             self->muladd_func_ptr = Balance_postprocessing_revareva;
             break;
-    }   
+    }
 }
 
 static void
 Balance_compute_next_data_frame(Balance *self)
 {
-    (*self->proc_func_ptr)(self); 
+    (*self->proc_func_ptr)(self);
     (*self->muladd_func_ptr)(self);
 }
 
@@ -1721,12 +1721,12 @@ Balance_traverse(Balance *self, visitproc visit, void *arg)
     Py_VISIT(self->input_stream);
     Py_VISIT(self->input2);
     Py_VISIT(self->input2_stream);
-    Py_VISIT(self->freq);    
-    Py_VISIT(self->freq_stream);    
+    Py_VISIT(self->freq);
+    Py_VISIT(self->freq_stream);
     return 0;
 }
 
-static int 
+static int
 Balance_clear(Balance *self)
 {
     pyo_CLEAR
@@ -1734,8 +1734,8 @@ Balance_clear(Balance *self)
     Py_CLEAR(self->input_stream);
     Py_CLEAR(self->input2);
     Py_CLEAR(self->input2_stream);
-    Py_CLEAR(self->freq);    
-    Py_CLEAR(self->freq_stream);    
+    Py_CLEAR(self->freq);
+    Py_CLEAR(self->freq_stream);
     return 0;
 }
 
@@ -1754,7 +1754,7 @@ Balance_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp, *input2tmp, *input2_streamtmp, *freqtmp=NULL, *multmp=NULL, *addtmp=NULL;
     Balance *self;
     self = (Balance *)type->tp_alloc(type, 0);
-    
+
     self->freq = PyFloat_FromDouble(10);
     self->follow1 = self->follow2 = 0.0;
     self->last_freq = -1.0;
@@ -1762,50 +1762,50 @@ Balance_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 	self->modebuffer[0] = 0;
 	self->modebuffer[1] = 0;
 	self->modebuffer[2] = 0;
-    
+
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, Balance_compute_next_data_frame);
     self->mode_func_ptr = Balance_setProcMode;
-    
+
     static char *kwlist[] = {"input", "input2", "freq", "mul", "add", NULL};
-    
+
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "OO|OOO", kwlist, &inputtmp, &input2tmp, &freqtmp, &multmp, &addtmp))
         Py_RETURN_NONE;
-    
+
     INIT_INPUT_STREAM
-    
+
     Py_XDECREF(self->input2);
     self->input2 = input2tmp;
     input2_streamtmp = PyObject_CallMethod((PyObject *)self->input2, "_getStream", NULL);
     Py_INCREF(input2_streamtmp);
     Py_XDECREF(self->input2_stream);
     self->input2_stream = (Stream *)input2_streamtmp;
-    
+
     if (freqtmp) {
         PyObject_CallMethod((PyObject *)self, "setFreq", "O", freqtmp);
     }
-    
+
     if (multmp) {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
     }
-    
+
     if (addtmp) {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
-    
+
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
-    
+
     (*self->mode_func_ptr)(self);
-    
+
     return (PyObject *)self;
 }
 
 static PyObject * Balance_getServer(Balance* self) { GET_SERVER };
 static PyObject * Balance_getStream(Balance* self) { GET_STREAM };
-static PyObject * Balance_setMul(Balance *self, PyObject *arg) { SET_MUL };	
-static PyObject * Balance_setAdd(Balance *self, PyObject *arg) { SET_ADD };	
-static PyObject * Balance_setSub(Balance *self, PyObject *arg) { SET_SUB };	
-static PyObject * Balance_setDiv(Balance *self, PyObject *arg) { SET_DIV };	
+static PyObject * Balance_setMul(Balance *self, PyObject *arg) { SET_MUL };
+static PyObject * Balance_setAdd(Balance *self, PyObject *arg) { SET_ADD };
+static PyObject * Balance_setSub(Balance *self, PyObject *arg) { SET_SUB };
+static PyObject * Balance_setDiv(Balance *self, PyObject *arg) { SET_DIV };
 
 static PyObject * Balance_play(Balance *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * Balance_out(Balance *self, PyObject *args, PyObject *kwds) { OUT };
@@ -1824,14 +1824,14 @@ static PyObject *
 Balance_setFreq(Balance *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
-	
+
 	if (arg == NULL) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
 	int isNumber = PyNumber_Check(arg);
-	
+
 	tmp = arg;
 	Py_INCREF(tmp);
 	Py_DECREF(self->freq);
@@ -1847,9 +1847,9 @@ Balance_setFreq(Balance *self, PyObject *arg)
         self->freq_stream = (Stream *)streamtmp;
 		self->modebuffer[2] = 1;
 	}
-    
+
     (*self->mode_func_ptr)(self);
-    
+
 	Py_INCREF(Py_None);
 	return Py_None;
 }
@@ -1962,4 +1962,3 @@ PyTypeObject BalanceType = {
     0,                                              /* tp_alloc */
     Balance_new,                                     /* tp_new */
 };
-

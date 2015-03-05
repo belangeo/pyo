@@ -1,21 +1,21 @@
-/*************************************************************************
- * Copyright 2010 Olivier Belanger                                        *                  
- *                                                                        * 
+/**************************************************************************
+ * Copyright 2009-2015 Olivier Belanger                                   *
+ *                                                                        *
  * This file is part of pyo, a python module to help digital signal       *
- * processing script creation.                                            *  
- *                                                                        * 
+ * processing script creation.                                            *
+ *                                                                        *
  * pyo is free software: you can redistribute it and/or modify            *
- * it under the terms of the GNU General Public License as published by   *
- * the Free Software Foundation, either version 3 of the License, or      *
- * (at your option) any later version.                                    * 
+ * it under the terms of the GNU Lesser General Public License as         *
+ * published by the Free Software Foundation, either version 3 of the     *
+ * License, or (at your option) any later version.                        *
  *                                                                        *
  * pyo is distributed in the hope that it will be useful,                 *
- * but WITHOUT ANY WARRANTY; without even the implied warranty of         *    
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of         *
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the          *
- * GNU General Public License for more details.                           *
+ * GNU Lesser General Public License for more details.                    *
  *                                                                        *
- * You should have received a copy of the GNU General Public License      *
- * along with pyo.  If not, see <http://www.gnu.org/licenses/>.           *
+ * You should have received a copy of the GNU Lesser General Public       *
+ * License along with pyo.  If not, see <http://www.gnu.org/licenses/>.   *
  *************************************************************************/
 
 #include <Python.h>
@@ -70,40 +70,40 @@ MatrixPointer_setProcMode(MatrixPointer *self)
     self->proc_func_ptr = MatrixPointer_readframes;
 
 	switch (muladdmode) {
-        case 0:        
+        case 0:
             self->muladd_func_ptr = MatrixPointer_postprocessing_ii;
             break;
-        case 1:    
+        case 1:
             self->muladd_func_ptr = MatrixPointer_postprocessing_ai;
             break;
-        case 2:    
+        case 2:
             self->muladd_func_ptr = MatrixPointer_postprocessing_revai;
             break;
-        case 10:        
+        case 10:
             self->muladd_func_ptr = MatrixPointer_postprocessing_ia;
             break;
-        case 11:    
+        case 11:
             self->muladd_func_ptr = MatrixPointer_postprocessing_aa;
             break;
-        case 12:    
+        case 12:
             self->muladd_func_ptr = MatrixPointer_postprocessing_revaa;
             break;
-        case 20:        
+        case 20:
             self->muladd_func_ptr = MatrixPointer_postprocessing_ireva;
             break;
-        case 21:    
+        case 21:
             self->muladd_func_ptr = MatrixPointer_postprocessing_areva;
             break;
-        case 22:    
+        case 22:
             self->muladd_func_ptr = MatrixPointer_postprocessing_revareva;
             break;
-    } 
+    }
 }
 
 static void
 MatrixPointer_compute_next_data_frame(MatrixPointer *self)
 {
-    (*self->proc_func_ptr)(self); 
+    (*self->proc_func_ptr)(self);
     (*self->muladd_func_ptr)(self);
 }
 
@@ -112,22 +112,22 @@ MatrixPointer_traverse(MatrixPointer *self, visitproc visit, void *arg)
 {
     pyo_VISIT
     Py_VISIT(self->matrix);
-    Py_VISIT(self->x);    
-    Py_VISIT(self->x_stream);    
-    Py_VISIT(self->y);    
-    Py_VISIT(self->y_stream);    
+    Py_VISIT(self->x);
+    Py_VISIT(self->x_stream);
+    Py_VISIT(self->y);
+    Py_VISIT(self->y_stream);
     return 0;
 }
 
-static int 
+static int
 MatrixPointer_clear(MatrixPointer *self)
 {
     pyo_CLEAR
     Py_CLEAR(self->matrix);
-    Py_CLEAR(self->x);    
-    Py_CLEAR(self->x_stream);    
-    Py_CLEAR(self->y);    
-    Py_CLEAR(self->y_stream);    
+    Py_CLEAR(self->x);
+    Py_CLEAR(self->x_stream);
+    Py_CLEAR(self->y);
+    Py_CLEAR(self->y_stream);
     return 0;
 }
 
@@ -146,26 +146,26 @@ MatrixPointer_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *matrixtmp, *xtmp, *ytmp, *multmp=NULL, *addtmp=NULL;
     MatrixPointer *self;
     self = (MatrixPointer *)type->tp_alloc(type, 0);
-    
+
 	self->modebuffer[0] = 0;
 	self->modebuffer[1] = 0;
-    
+
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, MatrixPointer_compute_next_data_frame);
     self->mode_func_ptr = MatrixPointer_setProcMode;
 
     static char *kwlist[] = {"matrix", "x", "y", "mul", "add", NULL};
-    
+
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "OOO|OO", kwlist, &matrixtmp, &xtmp, &ytmp, &multmp, &addtmp))
         Py_RETURN_NONE;
-    
+
     if ( PyObject_HasAttrString((PyObject *)matrixtmp, "getMatrixStream") == 0 ) {
         PyErr_SetString(PyExc_TypeError, "\"matrix\" argument of MatrixPointer must be a PyoMatrixObject.\n");
         Py_RETURN_NONE;
     }
     Py_XDECREF(self->matrix);
     self->matrix = PyObject_CallMethod((PyObject *)matrixtmp, "getMatrixStream", "");
-    
+
     if (xtmp) {
         PyObject_CallMethod((PyObject *)self, "setX", "O", xtmp);
     }
@@ -173,26 +173,26 @@ MatrixPointer_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (ytmp) {
         PyObject_CallMethod((PyObject *)self, "setY", "O", ytmp);
     }
-    
+
     if (multmp) {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
     }
-    
+
     if (addtmp) {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
-    
+
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
-    
+
     return (PyObject *)self;
 }
 
 static PyObject * MatrixPointer_getServer(MatrixPointer* self) { GET_SERVER };
 static PyObject * MatrixPointer_getStream(MatrixPointer* self) { GET_STREAM };
-static PyObject * MatrixPointer_setMul(MatrixPointer *self, PyObject *arg) { SET_MUL };	
-static PyObject * MatrixPointer_setAdd(MatrixPointer *self, PyObject *arg) { SET_ADD };	
-static PyObject * MatrixPointer_setSub(MatrixPointer *self, PyObject *arg) { SET_SUB };	
-static PyObject * MatrixPointer_setDiv(MatrixPointer *self, PyObject *arg) { SET_DIV };	
+static PyObject * MatrixPointer_setMul(MatrixPointer *self, PyObject *arg) { SET_MUL };
+static PyObject * MatrixPointer_setAdd(MatrixPointer *self, PyObject *arg) { SET_ADD };
+static PyObject * MatrixPointer_setSub(MatrixPointer *self, PyObject *arg) { SET_SUB };
+static PyObject * MatrixPointer_setDiv(MatrixPointer *self, PyObject *arg) { SET_DIV };
 
 static PyObject * MatrixPointer_play(MatrixPointer *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * MatrixPointer_out(MatrixPointer *self, PyObject *args, PyObject *kwds) { OUT };
@@ -218,12 +218,12 @@ static PyObject *
 MatrixPointer_setMatrix(MatrixPointer *self, PyObject *arg)
 {
 	PyObject *tmp;
-	
+
 	if (arg == NULL) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
 	tmp = arg;
     if ( PyObject_HasAttrString((PyObject *)tmp, "getMatrixStream") == 0 ) {
         PyErr_SetString(PyExc_TypeError, "\"matrix\" argument of MatrixPointer must be a PyoMatrixObject.\n");
@@ -232,28 +232,28 @@ MatrixPointer_setMatrix(MatrixPointer *self, PyObject *arg)
 
 	Py_DECREF(self->matrix);
     self->matrix = PyObject_CallMethod((PyObject *)tmp, "getMatrixStream", "");
-    
+
 	Py_INCREF(Py_None);
 	return Py_None;
-}	
+}
 
 static PyObject *
 MatrixPointer_setX(MatrixPointer *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
-	
+
 	if (arg == NULL) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
 	tmp = arg;
 
 	if (PyObject_HasAttrString((PyObject *)tmp, "server") == 0) {
         PyErr_SetString(PyExc_TypeError, "\"x\" attribute of MatrixPointer must be a PyoObject.\n");
         Py_RETURN_NONE;
 	}
-	
+
 	Py_INCREF(tmp);
 	Py_XDECREF(self->x);
 
@@ -262,40 +262,40 @@ MatrixPointer_setX(MatrixPointer *self, PyObject *arg)
     Py_INCREF(streamtmp);
     Py_XDECREF(self->x_stream);
     self->x_stream = (Stream *)streamtmp;
-    
+
 	Py_INCREF(Py_None);
 	return Py_None;
-}	
+}
 
 static PyObject *
 MatrixPointer_setY(MatrixPointer *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
-	
+
 	if (arg == NULL) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
 	tmp = arg;
 
 	if (PyObject_HasAttrString((PyObject *)tmp, "server") == 0) {
         PyErr_SetString(PyExc_TypeError, "\"y\" attribute of MatrixPointer must be a PyoObject.\n");
         Py_RETURN_NONE;
 	}
-	
+
 	Py_INCREF(tmp);
 	Py_XDECREF(self->y);
-    
+
     self->y = tmp;
     streamtmp = PyObject_CallMethod((PyObject *)self->y, "_getStream", NULL);
     Py_INCREF(streamtmp);
     Py_XDECREF(self->y_stream);
     self->y_stream = (Stream *)streamtmp;
-    
+
 	Py_INCREF(Py_None);
 	return Py_None;
-}	
+}
 
 static PyMemberDef MatrixPointer_members[] = {
 {"server", T_OBJECT_EX, offsetof(MatrixPointer, server), 0, "Pyo server."},

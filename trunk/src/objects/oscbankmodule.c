@@ -1,21 +1,21 @@
-/*************************************************************************
- * Copyright 2010 Olivier Belanger                                        *                  
- *                                                                        * 
+/**************************************************************************
+ * Copyright 2009-2015 Olivier Belanger                                   *
+ *                                                                        *
  * This file is part of pyo, a python module to help digital signal       *
- * processing script creation.                                            *  
- *                                                                        * 
+ * processing script creation.                                            *
+ *                                                                        *
  * pyo is free software: you can redistribute it and/or modify            *
- * it under the terms of the GNU General Public License as published by   *
- * the Free Software Foundation, either version 3 of the License, or      *
- * (at your option) any later version.                                    * 
+ * it under the terms of the GNU Lesser General Public License as         *
+ * published by the Free Software Foundation, either version 3 of the     *
+ * License, or (at your option) any later version.                        *
  *                                                                        *
  * pyo is distributed in the hope that it will be useful,                 *
- * but WITHOUT ANY WARRANTY; without even the implied warranty of         *    
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of         *
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the          *
- * GNU General Public License for more details.                           *
+ * GNU Lesser General Public License for more details.                    *
  *                                                                        *
- * You should have received a copy of the GNU General Public License      *
- * along with pyo.  If not, see <http://www.gnu.org/licenses/>.           *
+ * You should have received a copy of the GNU Lesser General Public       *
+ * License along with pyo.  If not, see <http://www.gnu.org/licenses/>.   *
  *************************************************************************/
 
 #include <Python.h>
@@ -87,7 +87,7 @@ OscBank_setFrequencies(OscBank *self, MYFLT freq, MYFLT spread) {
     int i, seed;
     MYFLT rnd;
     MYFLT scl = freq * spread;
-    
+
     if (self->fjit == 1) {
         seed = rand();
         for (i=0; i<self->stages; i++) {
@@ -133,7 +133,7 @@ OscBank_pickNewArnds(OscBank *self, MYFLT arndf, MYFLT arnda) {
         arnda = 0.0;
     else if (arnda > 1.0)
         arnda = 1.0;
-    
+
     seed = rand();
     for (i=0; i<self->stages; i++) {
         self->aOldValues[i] = self->aValues[i];
@@ -154,7 +154,7 @@ OscBank_readframes(OscBank *self) {
     for (i=0; i<self->bufsize; i++) {
         self->data[i] = 0.0;
     }
-    
+
     if (self->modebuffer[2] == 0)
         freq = PyFloat_AS_DOUBLE(self->freq);
     else
@@ -183,7 +183,7 @@ OscBank_readframes(OscBank *self) {
         arnda = PyFloat_AS_DOUBLE(self->arnda);
     else
         arnda = Stream_getData((Stream *)self->arnda_stream)[0];
-    
+
     if (freq != self->lastFreq || spread != self->lastSpread) {
         self->lastFreq = freq;
         self->lastSpread = spread;
@@ -201,7 +201,7 @@ OscBank_readframes(OscBank *self) {
 
     if (frnda == 0.0 && arnda == 0.0) {
         amp = self->amplitude;
-        for (j=0; j<self->stages; j++) {          
+        for (j=0; j<self->stages; j++) {
             inc = self->frequencies[j] * tabscl;
             pos = self->pointerPos[j];
             for (i=0; i<self->bufsize; i++) {
@@ -289,7 +289,7 @@ OscBank_readframes(OscBank *self) {
         }
         self->atime += self->ainc;
     }
-    
+
 }
 
 static void OscBank_postprocessing_ii(OscBank *self) { POST_PROCESSING_II };
@@ -311,40 +311,40 @@ OscBank_setProcMode(OscBank *self)
     self->proc_func_ptr = OscBank_readframes;
 
 	switch (muladdmode) {
-        case 0:        
+        case 0:
             self->muladd_func_ptr = OscBank_postprocessing_ii;
             break;
-        case 1:    
+        case 1:
             self->muladd_func_ptr = OscBank_postprocessing_ai;
             break;
-        case 2:    
+        case 2:
             self->muladd_func_ptr = OscBank_postprocessing_revai;
             break;
-        case 10:        
+        case 10:
             self->muladd_func_ptr = OscBank_postprocessing_ia;
             break;
-        case 11:    
+        case 11:
             self->muladd_func_ptr = OscBank_postprocessing_aa;
             break;
-        case 12:    
+        case 12:
             self->muladd_func_ptr = OscBank_postprocessing_revaa;
             break;
-        case 20:        
+        case 20:
             self->muladd_func_ptr = OscBank_postprocessing_ireva;
             break;
-        case 21:    
+        case 21:
             self->muladd_func_ptr = OscBank_postprocessing_areva;
             break;
-        case 22:    
+        case 22:
             self->muladd_func_ptr = OscBank_postprocessing_revareva;
             break;
-    }   
+    }
 }
 
 static void
 OscBank_compute_next_data_frame(OscBank *self)
 {
-    (*self->proc_func_ptr)(self); 
+    (*self->proc_func_ptr)(self);
     (*self->muladd_func_ptr)(self);
 }
 
@@ -353,42 +353,42 @@ OscBank_traverse(OscBank *self, visitproc visit, void *arg)
 {
     pyo_VISIT
     Py_VISIT(self->table);
-    Py_VISIT(self->freq);    
-    Py_VISIT(self->freq_stream);    
-    Py_VISIT(self->spread);    
-    Py_VISIT(self->spread_stream);    
-    Py_VISIT(self->slope);    
-    Py_VISIT(self->slope_stream); 
-    Py_VISIT(self->frndf);    
-    Py_VISIT(self->frndf_stream); 
-    Py_VISIT(self->frnda);    
-    Py_VISIT(self->frnda_stream); 
-    Py_VISIT(self->arndf);    
-    Py_VISIT(self->arndf_stream); 
-    Py_VISIT(self->arnda);    
-    Py_VISIT(self->arnda_stream); 
+    Py_VISIT(self->freq);
+    Py_VISIT(self->freq_stream);
+    Py_VISIT(self->spread);
+    Py_VISIT(self->spread_stream);
+    Py_VISIT(self->slope);
+    Py_VISIT(self->slope_stream);
+    Py_VISIT(self->frndf);
+    Py_VISIT(self->frndf_stream);
+    Py_VISIT(self->frnda);
+    Py_VISIT(self->frnda_stream);
+    Py_VISIT(self->arndf);
+    Py_VISIT(self->arndf_stream);
+    Py_VISIT(self->arnda);
+    Py_VISIT(self->arnda_stream);
     return 0;
 }
 
-static int 
+static int
 OscBank_clear(OscBank *self)
 {
     pyo_CLEAR
     Py_CLEAR(self->table);
-    Py_CLEAR(self->freq);    
-    Py_CLEAR(self->freq_stream);    
-    Py_CLEAR(self->spread);    
-    Py_CLEAR(self->spread_stream);    
-    Py_CLEAR(self->slope);    
-    Py_CLEAR(self->slope_stream);    
-    Py_CLEAR(self->frndf);    
-    Py_CLEAR(self->frndf_stream); 
-    Py_CLEAR(self->frnda);    
-    Py_CLEAR(self->frnda_stream); 
-    Py_CLEAR(self->arndf);    
-    Py_CLEAR(self->arndf_stream); 
-    Py_CLEAR(self->arnda);    
-    Py_CLEAR(self->arnda_stream); 
+    Py_CLEAR(self->freq);
+    Py_CLEAR(self->freq_stream);
+    Py_CLEAR(self->spread);
+    Py_CLEAR(self->spread_stream);
+    Py_CLEAR(self->slope);
+    Py_CLEAR(self->slope_stream);
+    Py_CLEAR(self->frndf);
+    Py_CLEAR(self->frndf_stream);
+    Py_CLEAR(self->frnda);
+    Py_CLEAR(self->frnda_stream);
+    Py_CLEAR(self->arndf);
+    Py_CLEAR(self->arndf_stream);
+    Py_CLEAR(self->arnda);
+    Py_CLEAR(self->arnda_stream);
     return 0;
 }
 
@@ -415,7 +415,7 @@ OscBank_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *tabletmp, *freqtmp=NULL, *spreadtmp=NULL, *slopetmp=NULL, *frndftmp=NULL, *frndatmp=NULL, *arndftmp=NULL, *arndatmp=NULL, *multmp=NULL, *addtmp=NULL;
     OscBank *self;
     self = (OscBank *)type->tp_alloc(type, 0);
-    
+
     self->freq = PyFloat_FromDouble(100.0);
     self->spread = PyFloat_FromDouble(1.0);
     self->slope = PyFloat_FromDouble(0.9);
@@ -440,14 +440,14 @@ OscBank_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 	self->modebuffer[6] = 0;
 	self->modebuffer[7] = 0;
 	self->modebuffer[8] = 0;
-    
+
     INIT_OBJECT_COMMON
 
     Stream_setFunctionPtr(self->stream, OscBank_compute_next_data_frame);
     self->mode_func_ptr = OscBank_setProcMode;
 
     static char *kwlist[] = {"table", "freq", "spread", "slope", "frndf", "frnda", "arndf", "arnda", "num", "fjit", "mul", "add", NULL};
-    
+
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOOOOOOiiOO", kwlist, &tabletmp, &freqtmp, &spreadtmp, &slopetmp, &frndftmp, &frndatmp, &arndftmp, &arndatmp, &self->stages, &self->fjit, &multmp, &addtmp))
         Py_RETURN_NONE;
 
@@ -461,7 +461,7 @@ OscBank_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (freqtmp) {
         PyObject_CallMethod((PyObject *)self, "setFreq", "O", freqtmp);
     }
-    
+
     if (spreadtmp) {
         PyObject_CallMethod((PyObject *)self, "setSpread", "O", spreadtmp);
     }
@@ -483,17 +483,17 @@ OscBank_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (arndatmp) {
         PyObject_CallMethod((PyObject *)self, "setArnda", "O", arndatmp);
     }
-    
+
     if (multmp) {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
     }
-    
+
     if (addtmp) {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
-    
+
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
-    
+
     (*self->mode_func_ptr)(self);
 
     self->pointerPos = (MYFLT *)realloc(self->pointerPos, self->stages * sizeof(MYFLT));
@@ -504,11 +504,11 @@ OscBank_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->aOldValues = (MYFLT *)realloc(self->aOldValues, self->stages * sizeof(MYFLT));
     self->aValues = (MYFLT *)realloc(self->aValues, self->stages * sizeof(MYFLT));
     self->aDiffs = (MYFLT *)realloc(self->aDiffs, self->stages * sizeof(MYFLT));
-    
+
     for (i=0; i<self->stages; i++) {
         self->pointerPos[i] = self->frequencies[i] = self->fOldValues[i] = self->fValues[i] = self->fDiffs[i] = self->aOldValues[i] = self->aValues[i] = self->aDiffs[i] = 0.0;
     }
-    
+
     self->amplitude = 1. / self->stages;
 
     Server_generateSeed((Server *)self->server, OSCBANK_ID);
@@ -518,10 +518,10 @@ OscBank_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
 static PyObject * OscBank_getServer(OscBank* self) { GET_SERVER };
 static PyObject * OscBank_getStream(OscBank* self) { GET_STREAM };
-static PyObject * OscBank_setMul(OscBank *self, PyObject *arg) { SET_MUL };	
-static PyObject * OscBank_setAdd(OscBank *self, PyObject *arg) { SET_ADD };	
-static PyObject * OscBank_setSub(OscBank *self, PyObject *arg) { SET_SUB };	
-static PyObject * OscBank_setDiv(OscBank *self, PyObject *arg) { SET_DIV };	
+static PyObject * OscBank_setMul(OscBank *self, PyObject *arg) { SET_MUL };
+static PyObject * OscBank_setAdd(OscBank *self, PyObject *arg) { SET_ADD };
+static PyObject * OscBank_setSub(OscBank *self, PyObject *arg) { SET_SUB };
+static PyObject * OscBank_setDiv(OscBank *self, PyObject *arg) { SET_DIV };
 
 static PyObject * OscBank_play(OscBank *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * OscBank_out(OscBank *self, PyObject *args, PyObject *kwds) { OUT };
@@ -547,32 +547,32 @@ static PyObject *
 OscBank_setTable(OscBank *self, PyObject *arg)
 {
 	PyObject *tmp;
-	
+
 	if (arg == NULL) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
 	tmp = arg;
 	Py_DECREF(self->table);
     self->table = PyObject_CallMethod((PyObject *)tmp, "getTableStream", "");
-    
+
 	Py_INCREF(Py_None);
 	return Py_None;
-}	
+}
 
 static PyObject *
 OscBank_setFreq(OscBank *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
-	
+
 	if (arg == NULL) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
 	int isNumber = PyNumber_Check(arg);
-	
+
 	tmp = arg;
 	Py_INCREF(tmp);
 	Py_DECREF(self->freq);
@@ -591,20 +591,20 @@ OscBank_setFreq(OscBank *self, PyObject *arg)
 
 	Py_INCREF(Py_None);
 	return Py_None;
-}	
+}
 
 static PyObject *
 OscBank_setSpread(OscBank *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
-	
+
 	if (arg == NULL) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
 	int isNumber = PyNumber_Check(arg);
-	
+
 	tmp = arg;
 	Py_INCREF(tmp);
 	Py_DECREF(self->spread);
@@ -623,20 +623,20 @@ OscBank_setSpread(OscBank *self, PyObject *arg)
 
 	Py_INCREF(Py_None);
 	return Py_None;
-}	
+}
 
 static PyObject *
 OscBank_setSlope(OscBank *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
-	
+
 	if (arg == NULL) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
 	int isNumber = PyNumber_Check(arg);
-	
+
 	tmp = arg;
 	Py_INCREF(tmp);
 	Py_DECREF(self->slope);
@@ -652,23 +652,23 @@ OscBank_setSlope(OscBank *self, PyObject *arg)
         self->slope_stream = (Stream *)streamtmp;
 		self->modebuffer[4] = 1;
 	}
-    
+
 	Py_INCREF(Py_None);
 	return Py_None;
-}	
+}
 
 static PyObject *
 OscBank_setFrndf(OscBank *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
-	
+
 	if (arg == NULL) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
 	int isNumber = PyNumber_Check(arg);
-	
+
 	tmp = arg;
 	Py_INCREF(tmp);
 	Py_DECREF(self->frndf);
@@ -684,23 +684,23 @@ OscBank_setFrndf(OscBank *self, PyObject *arg)
         self->frndf_stream = (Stream *)streamtmp;
 		self->modebuffer[5] = 1;
 	}
-    
+
 	Py_INCREF(Py_None);
 	return Py_None;
-}	
+}
 
 static PyObject *
 OscBank_setFrnda(OscBank *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
-	
+
 	if (arg == NULL) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
 	int isNumber = PyNumber_Check(arg);
-	
+
 	tmp = arg;
 	Py_INCREF(tmp);
 	Py_DECREF(self->frnda);
@@ -716,23 +716,23 @@ OscBank_setFrnda(OscBank *self, PyObject *arg)
         self->frnda_stream = (Stream *)streamtmp;
 		self->modebuffer[6] = 1;
 	}
-    
+
 	Py_INCREF(Py_None);
 	return Py_None;
-}	
+}
 
 static PyObject *
 OscBank_setArndf(OscBank *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
-	
+
 	if (arg == NULL) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
 	int isNumber = PyNumber_Check(arg);
-	
+
 	tmp = arg;
 	Py_INCREF(tmp);
 	Py_DECREF(self->arndf);
@@ -748,23 +748,23 @@ OscBank_setArndf(OscBank *self, PyObject *arg)
         self->arndf_stream = (Stream *)streamtmp;
 		self->modebuffer[7] = 1;
 	}
-    
+
 	Py_INCREF(Py_None);
 	return Py_None;
-}	
+}
 
 static PyObject *
 OscBank_setArnda(OscBank *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
-	
+
 	if (arg == NULL) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
 	int isNumber = PyNumber_Check(arg);
-	
+
 	tmp = arg;
 	Py_INCREF(tmp);
 	Py_DECREF(self->arnda);
@@ -780,14 +780,14 @@ OscBank_setArnda(OscBank *self, PyObject *arg)
         self->arnda_stream = (Stream *)streamtmp;
 		self->modebuffer[8] = 1;
 	}
-    
+
 	Py_INCREF(Py_None);
 	return Py_None;
-}	
+}
 
 static PyObject *
 OscBank_setFjit(OscBank *self, PyObject *arg)
-{	
+{
     int isInt = PyInt_Check(arg);
 
 	if (isInt) {
@@ -796,7 +796,7 @@ OscBank_setFjit(OscBank *self, PyObject *arg)
 
 	Py_INCREF(Py_None);
 	return Py_None;
-}	
+}
 
 static PyMemberDef OscBank_members[] = {
     {"server", T_OBJECT_EX, offsetof(OscBank, server), 0, "Pyo server."},
@@ -918,4 +918,3 @@ PyTypeObject OscBankType = {
     0,                                              /* tp_alloc */
     OscBank_new,                                     /* tp_new */
 };
-

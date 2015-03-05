@@ -1,21 +1,21 @@
-/*************************************************************************
- * Copyright 2010 Olivier Belanger                                        *                  
- *                                                                        * 
+/**************************************************************************
+ * Copyright 2009-2015 Olivier Belanger                                   *
+ *                                                                        *
  * This file is part of pyo, a python module to help digital signal       *
- * processing script creation.                                            *  
- *                                                                        * 
+ * processing script creation.                                            *
+ *                                                                        *
  * pyo is free software: you can redistribute it and/or modify            *
- * it under the terms of the GNU General Public License as published by   *
- * the Free Software Foundation, either version 3 of the License, or      *
- * (at your option) any later version.                                    * 
+ * it under the terms of the GNU Lesser General Public License as         *
+ * published by the Free Software Foundation, either version 3 of the     *
+ * License, or (at your option) any later version.                        *
  *                                                                        *
  * pyo is distributed in the hope that it will be useful,                 *
- * but WITHOUT ANY WARRANTY; without even the implied warranty of         *    
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of         *
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the          *
- * GNU General Public License for more details.                           *
+ * GNU Lesser General Public License for more details.                    *
  *                                                                        *
- * You should have received a copy of the GNU General Public License      *
- * along with pyo.  If not, see <http://www.gnu.org/licenses/>.           *
+ * You should have received a copy of the GNU Lesser General Public       *
+ * License along with pyo.  If not, see <http://www.gnu.org/licenses/>.   *
  *************************************************************************/
 
 #include <Python.h>
@@ -30,7 +30,7 @@
 #include "tablemodule.h"
 #include "matrixmodule.h"
 
-/** Note : 
+/** Note :
  ** Add an argument to pa_get_* and pm_get_* functions to allow printing to the console
  **/
 
@@ -77,7 +77,7 @@ portaudio_get_version_text() {
 static PyObject *
 portaudio_count_host_apis(){
     PaError err;
-    PaHostApiIndex numApis; 
+    PaHostApiIndex numApis;
 
     err = Pa_Initialize();
     if (err != paNoError) {
@@ -101,7 +101,7 @@ static PyObject*
 portaudio_list_host_apis(){
     PaError err;
     PaHostApiIndex n, i;
-	
+
     err = Pa_Initialize();
     if (err != paNoError) {
         portaudio_assert(err, "Pa_Initialize");
@@ -117,7 +117,7 @@ portaudio_list_host_apis(){
                 assert(info);
                 fprintf(stdout, "index: %i, id: %i, name: %s, num devices: %i, default in: %i, default out: %i\n", i, (int)info->type, info->name, (int)info->deviceCount, (int)info->defaultInputDevice, (int)info->defaultOutputDevice);
             }
-        }        
+        }
     }
     Py_RETURN_NONE;
 }
@@ -132,7 +132,7 @@ static PyObject*
 portaudio_get_default_host_api(){
     PaError err;
     PaHostApiIndex i;
-	
+
     err = Pa_Initialize();
     if (err != paNoError) {
         portaudio_assert(err, "Pa_Initialize");
@@ -154,7 +154,7 @@ static PyObject*
 portaudio_count_devices(){
     PaError err;
     PaDeviceIndex numDevices;
-	
+
 	err = Pa_Initialize();
     if (err != paNoError) {
         portaudio_assert(err, "Pa_Initialize");
@@ -164,7 +164,7 @@ portaudio_count_devices(){
         numDevices = Pa_GetDeviceCount();
         if( numDevices < 0 )
             portaudio_assert(numDevices, "Pa_GetDeviceCount");
-        return PyInt_FromLong(numDevices);        
+        return PyInt_FromLong(numDevices);
     }
 
 }
@@ -187,7 +187,7 @@ static PyObject*
 portaudio_list_devices(){
     PaError err;
     PaDeviceIndex n, i;
-	
+
 	err = Pa_Initialize();
     if (err != paNoError) {
         portaudio_assert(err, "Pa_Initialize");
@@ -203,15 +203,15 @@ portaudio_list_devices(){
             for (i=0; i < n; ++i){
                 const PaDeviceInfo *info = Pa_GetDeviceInfo(i);
                 assert(info);
-                
+
                 if (info->maxInputChannels > 0)
                     fprintf(stdout, "%i: IN, name: %s, host api index: %i, default sr: %i Hz, latency: %f s\n", i, info->name, (int)info->hostApi, (int)info->defaultSampleRate, (float)info->defaultLowInputLatency);
-                
+
                 if (info->maxOutputChannels > 0)
                     fprintf(stdout, "%i: OUT, name: %s, host api index: %i, default sr: %i Hz, latency: %f s\n", i, info->name, (int)info->hostApi, (int)info->defaultSampleRate, (float)info->defaultLowOutputLatency);
             }
             printf("\n");
-        }        
+        }
     }
     Py_RETURN_NONE;
 }
@@ -272,7 +272,7 @@ portaudio_get_devices_infos(){
                 }
             }
             return Py_BuildValue("(OO)", inDict, outDict);
-        }        
+        }
     }
 }
 
@@ -290,7 +290,7 @@ portaudio_get_output_devices(){
     PyObject *list, *list_index;
     list = PyList_New(0);
     list_index = PyList_New(0);
-    	
+
 	err = Pa_Initialize();
     if (err != paNoError) {
         portaudio_assert(err, "Pa_Initialize");
@@ -305,14 +305,14 @@ portaudio_get_output_devices(){
         else {
             for (i=0; i < n; ++i){
                 const PaDeviceInfo *info=Pa_GetDeviceInfo(i);
-                assert(info);                
+                assert(info);
                 if (info->maxOutputChannels > 0){
                     PyList_Append(list, PyString_FromString(info->name));
                     PyList_Append(list_index, PyInt_FromLong(i));
                 }
             }
             return Py_BuildValue("OO", list, list_index);
-        }        
+        }
     }
 }
 
@@ -330,7 +330,7 @@ x: int\n        Device index as listed by Portaudio (see pa_get_output_devices).
 >>> if maxouts >= 2 and maxins >= 2:\n\
 ...     nchnls = 2\n\
 >>> else:\n\
-...     nchnls = 1\n\n" 
+...     nchnls = 1\n\n"
 
 static PyObject*
 portaudio_get_output_max_channels(PyObject *self, PyObject *arg){
@@ -350,9 +350,9 @@ portaudio_get_output_max_channels(PyObject *self, PyObject *arg){
         }
         else {
             const PaDeviceInfo *info=Pa_GetDeviceInfo(i);
-            assert(info);         
+            assert(info);
             return PyInt_FromLong(info->maxOutputChannels);
-        }        
+        }
     }
 }
 
@@ -370,7 +370,7 @@ x: int\n        Device index as listed by Portaudio (see pa_get_input_devices).\
 >>> if maxouts >= 2 and maxins >= 2:\n\
 ...     nchnls = 2\n\
 >>> else:\n\
-...     nchnls = 1\n\n" 
+...     nchnls = 1\n\n"
 
 static PyObject*
 portaudio_get_input_max_channels(PyObject *self, PyObject *arg){
@@ -390,9 +390,9 @@ portaudio_get_input_max_channels(PyObject *self, PyObject *arg){
         }
         else {
             const PaDeviceInfo *info=Pa_GetDeviceInfo(i);
-            assert(info);         
+            assert(info);
             return PyInt_FromLong(info->maxInputChannels);
-        }        
+        }
     }
 }
 
@@ -406,11 +406,11 @@ static PyObject*
 portaudio_get_input_devices(){
     PaError err;
     PaDeviceIndex n, i;
-    
+
     PyObject *list, *list_index;
     list = PyList_New(0);
     list_index = PyList_New(0);
-    
+
 	err = Pa_Initialize();
     if (err != paNoError) {
         portaudio_assert(err, "Pa_Initialize");
@@ -425,14 +425,14 @@ portaudio_get_input_devices(){
         else {
             for (i=0; i < n; ++i){
                 const PaDeviceInfo *info=Pa_GetDeviceInfo(i);
-                assert(info);                
+                assert(info);
                 if (info->maxInputChannels > 0){
                     PyList_Append(list, PyString_FromString(info->name));
                     PyList_Append(list_index, PyInt_FromLong(i));
                 }
             }
-            return Py_BuildValue("OO", list, list_index);            
-        }        
+            return Py_BuildValue("OO", list, list_index);
+        }
     }
 }
 
@@ -447,7 +447,7 @@ static PyObject*
 portaudio_get_default_input(){
     PaError err;
     PaDeviceIndex i;
-	
+
 	err = Pa_Initialize();
     if (err != paNoError) {
         portaudio_assert(err, "Pa_Initialize");
@@ -455,7 +455,7 @@ portaudio_get_default_input(){
 	}
     else {
         i = Pa_GetDefaultInputDevice();
-        return PyInt_FromLong(i);        
+        return PyInt_FromLong(i);
     }
 
 }
@@ -471,7 +471,7 @@ static PyObject*
 portaudio_get_default_output(){
     PaError err;
     PaDeviceIndex i;
-	
+
 	err = Pa_Initialize();
     if (err != paNoError) {
         portaudio_assert(err, "Pa_Initialize");
@@ -480,7 +480,7 @@ portaudio_get_default_output(){
     else {
         i = Pa_GetDefaultOutputDevice();
         return PyInt_FromLong(i);
-        
+
     }
 }
 
@@ -515,11 +515,11 @@ portmidi_list_devices(){
     printf("MIDI devices:\n");
     for (i = 0; i < Pm_CountDevices(); i++) {
         const PmDeviceInfo *info = Pm_GetDeviceInfo(i);
-        if (info->input && info->output) 
+        if (info->input && info->output)
             printf("%d: IN/OUT, name: %s, interface: %s\n", i, info->name, info->interf);
-        else if (info->input) 
+        else if (info->input)
             printf("%d: IN, name: %s, interface: %s\n", i, info->name, info->interf);
-        else if (info->output) 
+        else if (info->output)
             printf("%d: OUT, name: %s, interface: %s\n", i, info->name, info->interf);
     }
     printf("\n");
@@ -594,7 +594,7 @@ portmidi_get_output_devices(){
 static PyObject *
 portmidi_get_default_input(){
     PmDeviceID i;
-    
+
     i = Pm_GetDefaultInputDeviceID();
     if (i < 0)
         printf("pm_get_default_input: no midi input device found.\n");
@@ -618,7 +618,7 @@ portmidi_get_default_output(){
 }
 
 /****** Libsndfile utilities ******/
-static int 
+static int
 libsndfile_get_format(int fileformat, int sampletype) {
     int format = 0;
     switch (fileformat) {
@@ -689,7 +689,7 @@ print : boolean, optional\n        If True, sndinfo will print sound infos to th
 
 static PyObject *
 sndinfo(PyObject *self, PyObject *args, PyObject *kwds) {
-    
+
     SNDFILE *sf;
     SF_INFO info;
     char *pathtmp;
@@ -814,18 +814,18 @@ sndinfo(PyObject *self, PyObject *args, PyObject *kwds) {
             sampletype = malloc(strlen("Unknown...") + 1);
             strcpy(sampletype, "Unknown...");
         }
-    
+
         if (print)
-            fprintf(stdout, "name: %s\nnumber of frames: %i\nduration: %.4f sec\nsr: %.2f\nchannels: %i\nformat: %s\nsample type: %s\n", 
+            fprintf(stdout, "name: %s\nnumber of frames: %i\nduration: %.4f sec\nsr: %.2f\nchannels: %i\nformat: %s\nsample type: %s\n",
                     path, (int)info.frames, ((float)info.frames / info.samplerate), (float)info.samplerate, (int)info.channels, fileformat, sampletype);
-        PyObject *sndinfo = PyTuple_Pack(6, PyInt_FromLong(info.frames), PyFloat_FromDouble((float)info.frames / info.samplerate), 
+        PyObject *sndinfo = PyTuple_Pack(6, PyInt_FromLong(info.frames), PyFloat_FromDouble((float)info.frames / info.samplerate),
             PyFloat_FromDouble(info.samplerate), PyInt_FromLong(info.channels), PyString_FromString(fileformat), PyString_FromString(sampletype));
         sf_close(sf);
         free(path);
         free(sampletype);
         return sndinfo;
     }
-}    
+}
 
 #define savefile_info \
 "\nCreates an audio file from a list of floats.\n\n:Args:\n\n    \
@@ -874,7 +874,7 @@ savefile(PyObject *self, PyObject *args, PyObject *kwds) {
 
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "Os|iiii", kwlist, &samples, &recpath, &sr, &channels, &fileformat, &sampletype))
         return PyInt_FromLong(-1);
-    
+
     recinfo.samplerate = sr;
     recinfo.channels = channels;
     recinfo.format = libsndfile_get_format(fileformat, sampletype);
@@ -897,8 +897,8 @@ savefile(PyObject *self, PyObject *args, PyObject *kwds) {
             for (j=0; j<channels; j++) {
                 sampsarray[i*channels+j] = PyFloat_AS_DOUBLE(PyList_GET_ITEM(PyList_GET_ITEM(samples, j), i));
             }
-        }    
-    }    
+        }
+    }
     if (! (recfile = sf_open(recpath, SFM_WRITE, &recinfo))) {
         printf ("savefile: failed to open output file %s.\n", recpath);
         return PyInt_FromLong(-1);
@@ -906,8 +906,8 @@ savefile(PyObject *self, PyObject *args, PyObject *kwds) {
     SF_WRITE(recfile, sampsarray, size);
     sf_close(recfile);
     free(sampsarray);
-    
-    Py_RETURN_NONE;    
+
+    Py_RETURN_NONE;
 }
 
 #define savefileFromTable_info \
@@ -956,10 +956,10 @@ savefileFromTable(PyObject *self, PyObject *args, PyObject *kwds) {
     SNDFILE *recfile;
     SF_INFO recinfo;
     static char *kwlist[] = {"table", "path", "fileformat", "sampletype", NULL};
-    
+
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "Os|ii", kwlist, &table, &recpath, &fileformat, &sampletype))
         return PyInt_FromLong(-1);
-    
+
     base_objs = PyObject_GetAttrString(table, "_base_objs");
     channels = PyList_Size(base_objs);
     tablestreamlist = PyList_New(channels);
@@ -968,7 +968,7 @@ savefileFromTable(PyObject *self, PyObject *args, PyObject *kwds) {
     }
     sr = (int)TableStream_getSamplingRate((PyObject *)PyList_GetItem(tablestreamlist, 0));
     size = TableStream_getSize((PyObject *)PyList_GetItem(tablestreamlist, 0));
-    
+
     recinfo.samplerate = sr;
     recinfo.channels = channels;
     recinfo.format = libsndfile_get_format(fileformat, sampletype);
@@ -979,7 +979,7 @@ savefileFromTable(PyObject *self, PyObject *args, PyObject *kwds) {
         Py_XDECREF(tablestreamlist);
         return PyInt_FromLong(-1);
     }
-    
+
     if (channels == 1) {
         MYFLT *data;
         if (size < (sr * 60)) {
@@ -1036,14 +1036,14 @@ savefileFromTable(PyObject *self, PyObject *args, PyObject *kwds) {
                 SF_WRITE(recfile, sampsarray, num_items * channels);
             } while (num_items == (sr * 30));
         }
-    }    
+    }
 
     sf_close(recfile);
     free(sampsarray);
     Py_XDECREF(base_objs);
     Py_XDECREF(tablestreamlist);
-    
-    Py_RETURN_NONE;    
+
+    Py_RETURN_NONE;
 }
 
 /****** Sampling rate conversions ******/
@@ -1093,7 +1093,7 @@ void gen_lp_impulse(MYFLT *array, int size, float freq) {
     MYFLT vsum = 0.0;
     MYFLT envPointerScaling = 1.0 / (size + 1) * 1024.0;
     MYFLT sincScaling = (MYFLT)half;
-    
+
     for (i=0; i<half; i++) {
         pp = i * envPointerScaling;
         ppi = (int)pp;
@@ -1114,7 +1114,7 @@ void gen_lp_impulse(MYFLT *array, int size, float freq) {
     }
     for (i=1; i<half; i++) {
         array[half+i] = array[half-i];
-    }    
+    }
 }
 
 /*
@@ -1129,7 +1129,7 @@ void lp_conv(MYFLT *samples, MYFLT *impulse, int num_samps, int size, int gain) 
     int i, j, count, tmp_count;
     MYFLT val;
     MYFLT intmp[size];
-    
+
     for (i=0; i<size; i++) {
         intmp[i] = 0.0;
     }
@@ -1166,10 +1166,10 @@ upsamp(PyObject *self, PyObject *args, PyObject *kwds)
     int up = 4;
     int order = 128;
     static char *kwlist[] = {"path", "outfile", "up", "order", NULL};
-    
+
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "ss|ii", kwlist, &inpath, &outpath, &up, &order))
         return PyInt_FromLong(-1);
-    
+
     /* opening input soundfile */
     info.format = 0;
     sf = sf_open(inpath, SFM_READ, &info);
@@ -1188,16 +1188,16 @@ upsamp(PyObject *self, PyObject *args, PyObject *kwds)
     samples = (MYFLT **)malloc(snd_chnls * sizeof(MYFLT *));
     for(i=0; i<snd_chnls; i++)
         samples[i] = (MYFLT *)malloc(snd_size * sizeof(MYFLT));
-    
+
     for (i=0; i<num_items; i++)
         samples[i%snd_chnls][(int)(i/snd_chnls)] = tmp[i];
     free(tmp);
-    
+
     /* upsampling */
     upsamples = (MYFLT **)malloc(snd_chnls * sizeof(MYFLT *));
     for(i=0; i<snd_chnls; i++)
         upsamples[i] = (MYFLT *)malloc(snd_size * up * sizeof(MYFLT));
-    
+
     for (i=0; i<snd_size; i++) {
         for (j=0; j<snd_chnls; j++) {
             upsamples[j][i*up] = samples[j][i];
@@ -1206,7 +1206,7 @@ upsamp(PyObject *self, PyObject *args, PyObject *kwds)
             }
         }
     }
-    
+
     if (order > 2) {
         /* apply lowpass filter */
         sincfunc = (MYFLT *)malloc(order * sizeof(MYFLT));
@@ -1216,7 +1216,7 @@ upsamp(PyObject *self, PyObject *args, PyObject *kwds)
         }
         free(sincfunc);
     }
-    
+
     /* save upsampled file */
     info.samplerate = snd_sr * up;
     tmp = (MYFLT *)malloc(num_items * up * sizeof(MYFLT));
@@ -1224,8 +1224,8 @@ upsamp(PyObject *self, PyObject *args, PyObject *kwds)
         for (j=0; j<snd_chnls; j++) {
             tmp[i*snd_chnls+j] = upsamples[j][i];
         }
-    }    
-    
+    }
+
     if (! (sf = sf_open(outpath, SFM_WRITE, &info))) {
         printf ("upsamp: failed to open output file %s.\n", outpath);
         free(tmp);
@@ -1240,7 +1240,7 @@ upsamp(PyObject *self, PyObject *args, PyObject *kwds)
 
     SF_WRITE(sf, tmp, num_items * up);
     sf_close(sf);
-    
+
     /* clean-up */
     free(tmp);
     for (i=0; i<snd_chnls; i++) {
@@ -1249,8 +1249,8 @@ upsamp(PyObject *self, PyObject *args, PyObject *kwds)
     }
     free(samples);
     free(upsamples);
-    
-    Py_RETURN_NONE;    
+
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -1269,10 +1269,10 @@ downsamp(PyObject *self, PyObject *args, PyObject *kwds)
     int down = 4;
     int order = 128;
     static char *kwlist[] = {"path", "outfile", "down", "order", NULL};
-    
+
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "ss|ii", kwlist, &inpath, &outpath, &down, &order))
         return PyInt_FromLong(-1);
-    
+
     /* opening input soundfile */
     info.format = 0;
     sf = sf_open(inpath, SFM_READ, &info);
@@ -1291,7 +1291,7 @@ downsamp(PyObject *self, PyObject *args, PyObject *kwds)
     samples = (MYFLT **)malloc(snd_chnls * sizeof(MYFLT *));
     for(i=0; i<snd_chnls; i++)
         samples[i] = (MYFLT *)malloc(snd_size * sizeof(MYFLT));
-    
+
     for (i=0; i<num_items; i++)
         samples[i%snd_chnls][(int)(i/snd_chnls)] = tmp[i];
     free(tmp);
@@ -1305,7 +1305,7 @@ downsamp(PyObject *self, PyObject *args, PyObject *kwds)
         }
         free(sincfunc);
     }
-    
+
     /* downsampling */
     samples_per_channels = (snd_size / down) + (snd_size % down);
     downsamples = (MYFLT **)malloc(snd_chnls * sizeof(MYFLT *));
@@ -1321,7 +1321,7 @@ downsamp(PyObject *self, PyObject *args, PyObject *kwds)
             if (i*down < snd_size)
                 downsamples[j][i] = samples[j][i*down];
             else
-                downsamples[j][i] = 0.0;            
+                downsamples[j][i] = 0.0;
         }
     }
 
@@ -1333,7 +1333,7 @@ downsamp(PyObject *self, PyObject *args, PyObject *kwds)
             tmp[i*snd_chnls+j] = downsamples[j][i];
         }
     }
-       
+
     if (! (sf = sf_open(outpath, SFM_WRITE, &info))) {
         printf("downsamp: failed to open the output file %s.\n", outpath);
         free(tmp);
@@ -1345,10 +1345,10 @@ downsamp(PyObject *self, PyObject *args, PyObject *kwds)
         free(downsamples);
         return PyInt_FromLong(-1);
     }
-    
+
     SF_WRITE(sf, tmp, snd_chnls * samples_per_channels);
     sf_close(sf);
-    
+
     /* clean-up */
     free(tmp);
     for (i=0; i<snd_chnls; i++) {
@@ -1357,8 +1357,8 @@ downsamp(PyObject *self, PyObject *args, PyObject *kwds)
     }
     free(samples);
     free(downsamples);
-    
-    Py_RETURN_NONE;    
+
+    Py_RETURN_NONE;
 }
 
 /****** Algorithm utilities ******/
@@ -1418,18 +1418,18 @@ reducePoints(PyObject *self, PyObject *args, PyObject *kwds)
     int *pnUseFlag;
     MYFLT dTolerance = .02;
         MYFLT xMax, yMin, yMax;
-        
+
         static char *kwlist[] = {"pointlist", "tolerance", NULL};
-        
+
         if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_O_F, kwlist, &pointlist, &dTolerance))
             return PyInt_FromLong(-1);
-        
+
         nPointsCount = PyList_Size(pointlist);
-        
+
         pPointsX = (MYFLT *)malloc(nPointsCount * sizeof(MYFLT));
         pPointsY = (MYFLT *)malloc(nPointsCount * sizeof(MYFLT));
         pnUseFlag = (int *)malloc(nPointsCount * sizeof(int));
-        
+
         tup = PyList_GET_ITEM(pointlist, 0);
         if (PyTuple_Check(tup) == 1) {
             for (i=0; i<nPointsCount; i++) {
@@ -1456,7 +1456,7 @@ reducePoints(PyObject *self, PyObject *args, PyObject *kwds)
                 yMin = pPointsY[i];
             else if (pPointsY[i] > yMax)
                 yMax = pPointsY[i];
-        }    
+        }
     for (i=0; i<nPointsCount; i++) {
         pPointsX[i] = pPointsX[i] / xMax;
         pPointsY[i] = (pPointsY[i] - yMin) / yMax;
@@ -1516,15 +1516,15 @@ reducePoints(PyObject *self, PyObject *args, PyObject *kwds)
             StackPush( nVertexIndexMaxDistance, nFloaterIndex );
         }
     }
-    
-    pPointsOut = PyList_New(0);    
+
+    pPointsOut = PyList_New(0);
     for (i=0; i<nPointsCount; i++) {
         if (pnUseFlag[i] == 1) {
             PyList_Append(pPointsOut, PyList_GET_ITEM(pointlist, i));
         }
-    }        
+    }
 
-    return pPointsOut;    
+    return pPointsOut;
 }
 
 #define distanceToSegment_info \
@@ -1554,9 +1554,9 @@ distanceToSegment(PyObject *self, PyObject *args, PyObject *kwds)
     int xlog = 0;
     int ylog = 0;
     MYFLT xp[2], xp1[2], xp2[2], closest[2];
-    
+
     static char *kwlist[] = {"p", "p1", "p2", "xmin", "xmax", "ymin", "ymax", "xlog", "ylog", NULL};
-    
+
     if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_OOO_FFFFII, kwlist, &p, &p1, &p2, &xmin, &xmax, &ymin, &ymax, &xlog, &ylog))
         return PyInt_FromLong(-1);
 
@@ -1579,13 +1579,13 @@ distanceToSegment(PyObject *self, PyObject *args, PyObject *kwds)
         yscale = ymax - ymin;
         xp[1] = PyFloat_AsDouble(PyNumber_Float(PySequence_Fast_GET_ITEM(pf, 1))) / yscale;
         xp1[1] = PyFloat_AsDouble(PyNumber_Float(PySequence_Fast_GET_ITEM(pf1, 1))) / yscale;
-        xp2[1] = PyFloat_AsDouble(PyNumber_Float(PySequence_Fast_GET_ITEM(pf2, 1))) / yscale;        
+        xp2[1] = PyFloat_AsDouble(PyNumber_Float(PySequence_Fast_GET_ITEM(pf2, 1))) / yscale;
     }
     else {
         yscale = MYLOG10(ymax / ymin);
         xp[1] = MYLOG10(PyFloat_AsDouble(PyNumber_Float(PySequence_Fast_GET_ITEM(pf, 1))) / ymin) / yscale;
         xp1[1] = MYLOG10(PyFloat_AsDouble(PyNumber_Float(PySequence_Fast_GET_ITEM(pf1, 1))) / ymin) / yscale;
-        xp2[1] = MYLOG10(PyFloat_AsDouble(PyNumber_Float(PySequence_Fast_GET_ITEM(pf2, 1))) / ymin) / yscale;        
+        xp2[1] = MYLOG10(PyFloat_AsDouble(PyNumber_Float(PySequence_Fast_GET_ITEM(pf2, 1))) / ymin) / yscale;
     }
 
     xDelta = xp2[0] - xp1[0]; yDelta = xp2[1] - xp1[1];
@@ -1622,7 +1622,7 @@ static PyObject *
 linToCosCurve(PyObject *self, PyObject *args, PyObject *kwds)
 {
     PyObject *data, *fdata, *out, *inout, *ftup, *yrange=NULL, *fyrange=NULL;
-    int i, j, datasize, steps; 
+    int i, j, datasize, steps;
     double tmp, x1, x2, y1, y2, mu, ydiff, log10ymin, log10ymax;
     double *xdata, *ydata, *cxdata, *cydata;
     double totaldur = 1.0;
@@ -1632,12 +1632,12 @@ linToCosCurve(PyObject *self, PyObject *args, PyObject *kwds)
     double inc = 1.0 / num;
     int log = 0;
     int count = 0;
-    
+
     static char *kwlist[] = {"data", "yrange", "totaldur", "points", "log", NULL};
 
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|Odii", kwlist, &data, &yrange, &totaldur, &num, &log))
         Py_RETURN_NONE;
-    
+
     if (yrange) {
         fyrange = PySequence_Fast(yrange, NULL);
         ymin = PyFloat_AsDouble(PyNumber_Float(PySequence_Fast_GET_ITEM(fyrange, 0)));
@@ -1646,12 +1646,12 @@ linToCosCurve(PyObject *self, PyObject *args, PyObject *kwds)
     ydiff = ymax - ymin;
     log10ymin = log10(ymin);
     log10ymax = log10(ymax);
-    
+
     fdata = PySequence_Fast(data, NULL);
     datasize = PySequence_Size(fdata);
     xdata = (double *)malloc(datasize * sizeof(double));
     ydata = (double *)malloc(datasize * sizeof(double));
-    
+
     /* acquire data + normalization */
     if (log == 0) {
         for (i=0; i<datasize; i++) {
@@ -1669,12 +1669,12 @@ linToCosCurve(PyObject *self, PyObject *args, PyObject *kwds)
             xdata[i] = tmp / totaldur;
             tmp = PyFloat_AsDouble(PyNumber_Float(PySequence_Fast_GET_ITEM(ftup, 1)));
             ydata[i] = log10(tmp / ymin) / log10(ymax / ymin);
-        }        
+        }
     }
 
     cxdata = (double *)malloc((num+5) * sizeof(double));
     cydata = (double *)malloc((num+5) * sizeof(double));
-    
+
     /* generates cos interpolation */
     for (i=0; i<(datasize-1); i++) {
         x1 = xdata[i];
@@ -1692,7 +1692,7 @@ linToCosCurve(PyObject *self, PyObject *args, PyObject *kwds)
     }
     cxdata[count] = xdata[datasize-1];
     cydata[count++] = ydata[datasize-1];
-    
+
     /* denormalization */
     if (log == 0) {
         for (i=0; i<count; i++) {
@@ -1704,7 +1704,7 @@ linToCosCurve(PyObject *self, PyObject *args, PyObject *kwds)
         for (i=0; i<count; i++) {
             cxdata[i] *= totaldur;
             cydata[i] = pow(10.0, cydata[i] * (log10ymax - log10ymin) + log10ymin);
-        }        
+        }
     }
 
     /* output Python's list of lists */
@@ -1715,7 +1715,7 @@ linToCosCurve(PyObject *self, PyObject *args, PyObject *kwds)
         PyList_SET_ITEM(inout, 1, PyFloat_FromDouble(cydata[i]));
         PyList_SET_ITEM(out, i, inout);
     }
-    
+
     free(xdata);
     free(ydata);
     free(cxdata);
@@ -1757,9 +1757,9 @@ rescale(PyObject *self, PyObject *args, PyObject *kwds)
     int ylog = 0;
     int i, cnt;
     int type; // 0 = float, 1 = list of floats
-    
+
     static char *kwlist[] = {"data", "xmin", "xmax", "ymin", "ymax", "xlog", "ylog", NULL};
-    
+
     if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_O_FFFFII, kwlist, &data, &xmin, &xmax, &ymin, &ymax, &xlog, &ylog))
         return PyInt_FromLong(-1);
 
@@ -1787,7 +1787,7 @@ rescale(PyObject *self, PyObject *args, PyObject *kwds)
                 PyList_SET_ITEM(out, i, PyFloat_FromDouble((val - xmin) * curscl + ymin));
             }
             return out;
-        }        
+        }
     }
     else if (xlog == 0 && ylog == 1) {
         if (xmin == 0)
@@ -1813,7 +1813,7 @@ rescale(PyObject *self, PyObject *args, PyObject *kwds)
                 PyList_SET_ITEM(out, i, PyFloat_FromDouble(MYPOW(10.0, val * curscl + ymin)));
             }
             return out;
-        }        
+        }
     }
     else if (xlog == 1 && ylog == 0) {
         datascl = MYLOG10(xmax / xmin);
@@ -1832,7 +1832,7 @@ rescale(PyObject *self, PyObject *args, PyObject *kwds)
                 PyList_SET_ITEM(out, i, PyFloat_FromDouble(val * curscl + ymin));
             }
             return out;
-        }        
+        }
     }
     else if (xlog == 1 && ylog == 1) {
         datascl = MYLOG10(xmax / xmin);
@@ -1852,7 +1852,7 @@ rescale(PyObject *self, PyObject *args, PyObject *kwds)
                 PyList_SET_ITEM(out, i, PyFloat_FromDouble(MYPOW(10.0, val * curscl + ymin)));
             }
             return out;
-        }        
+        }
     }
     else {
         Py_INCREF(Py_None);
@@ -1882,9 +1882,9 @@ floatmap(PyObject *self, PyObject *args, PyObject *kwds)
     MYFLT min = 0.0;
     MYFLT max = 1.0;
     MYFLT exp = 1.0;
-    
+
     static char *kwlist[] = {"x", "min", "max", "exp", NULL};
-    
+
     if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_F_FFF, kwlist, &x, &min, &max, &exp))
         return PyInt_FromLong(-1);
 
@@ -1942,7 +1942,7 @@ midiToHz(PyObject *self, PyObject *arg) {
     }
     else
         Py_RETURN_NONE;
-}    
+}
 
 #define hzToMidi_info \
 "\nConverts a frequency in Hertz to a midi note value.\n\n:Args:\n\n    \
@@ -1987,7 +1987,7 @@ hzToMidi(PyObject *self, PyObject *arg) {
     }
     else
         Py_RETURN_NONE;
-}    
+}
 
 #define midiToTranspo_info \
 "\nConverts a midi note value to transposition factor (central key = 60).\n\n:Args:\n\n    \
@@ -2032,7 +2032,7 @@ midiToTranspo(PyObject *self, PyObject *arg) {
     }
     else
         Py_RETURN_NONE;
-}    
+}
 
 #define sampsToSec_info \
 "\nReturns the duration in seconds equivalent to the number of samples given as an argument.\n\n:Args:\n\n    \
@@ -2084,7 +2084,7 @@ sampsToSec(PyObject *self, PyObject *arg) {
     }
     else
         Py_RETURN_NONE;
-}                         
+}
 
 #define secToSamps_info \
 "\nReturns the number of samples equivalent to the duration in seconds given as an argument.\n\n:Args:\n\n    \
@@ -2136,7 +2136,7 @@ secToSamps(PyObject *self, PyObject *arg) {
     }
     else
         Py_RETURN_NONE;
-}                         
+}
 
 /************* Server quieries *************/
 #define serverCreated_info \
@@ -2240,7 +2240,7 @@ init_pyo64(void)
 #endif
 {
     PyObject *m;
-    
+
     m = Py_InitModule3(LIB_BASE_NAME, pyo_functions, "Python digital signal processing module.");
 
 #ifndef NO_MESSAGES

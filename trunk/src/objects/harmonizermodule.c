@@ -1,21 +1,21 @@
-/*************************************************************************
- * Copyright 2010 Olivier Belanger                                        *                  
- *                                                                        * 
+/**************************************************************************
+ * Copyright 2009-2015 Olivier Belanger                                   *
+ *                                                                        *
  * This file is part of pyo, a python module to help digital signal       *
- * processing script creation.                                            *  
- *                                                                        * 
+ * processing script creation.                                            *
+ *                                                                        *
  * pyo is free software: you can redistribute it and/or modify            *
- * it under the terms of the GNU General Public License as published by   *
- * the Free Software Foundation, either version 3 of the License, or      *
- * (at your option) any later version.                                    * 
+ * it under the terms of the GNU Lesser General Public License as         *
+ * published by the Free Software Foundation, either version 3 of the     *
+ * License, or (at your option) any later version.                        *
  *                                                                        *
  * pyo is distributed in the hope that it will be useful,                 *
- * but WITHOUT ANY WARRANTY; without even the implied warranty of         *    
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of         *
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the          *
- * GNU General Public License for more details.                           *
+ * GNU Lesser General Public License for more details.                    *
  *                                                                        *
- * You should have received a copy of the GNU General Public License      *
- * along with pyo.  If not, see <http://www.gnu.org/licenses/>.           *
+ * You should have received a copy of the GNU Lesser General Public       *
+ * License along with pyo.  If not, see <http://www.gnu.org/licenses/>.   *
  *************************************************************************/
 
 #include <Python.h>
@@ -47,7 +47,7 @@ static void
 Harmonizer_transform_ii(Harmonizer *self) {
     MYFLT val, amp, inc, ratio, rate, del, xind, pos, envpos, fpart;
     int i, ipart;
-    
+
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
     MYFLT trans = PyFloat_AS_DOUBLE(self->transpo);
     MYFLT feed = PyFloat_AS_DOUBLE(self->feedback);
@@ -55,11 +55,11 @@ Harmonizer_transform_ii(Harmonizer *self) {
         feed = 0.0;
     else if (feed > 1.0)
         feed = 1.0;
-    
+
     ratio = MYPOW(2.0, trans/12.0);
-	rate = (ratio-1.0) / self->winsize;	
+	rate = (ratio-1.0) / self->winsize;
     inc = -rate / self->sr;
-    
+
     for (i=0; i<self->bufsize; i++) {
 		/* first overlap */
 		pos = self->pointerPos;
@@ -67,7 +67,7 @@ Harmonizer_transform_ii(Harmonizer *self) {
 		ipart = (int)envpos;
 		fpart = envpos - ipart;
 		amp = ENVELOPE[ipart] + (ENVELOPE[ipart+1] - ENVELOPE[ipart]) * fpart;
-        
+
 		del = pos * self->winsize;
         xind = self->in_count - (del * self->sr);
         if (xind < 0)
@@ -85,7 +85,7 @@ Harmonizer_transform_ii(Harmonizer *self) {
 		ipart = (int)envpos;
 		fpart = envpos - ipart;
 		amp = ENVELOPE[ipart] + (ENVELOPE[ipart+1] - ENVELOPE[ipart]) * fpart;
-		
+
 		del = pos * self->winsize;
         xind = self->in_count - (del * self->sr);
         if (xind < 0)
@@ -94,27 +94,27 @@ Harmonizer_transform_ii(Harmonizer *self) {
         fpart = xind - ipart;
         val = self->buffer[ipart] + (self->buffer[ipart+1] - self->buffer[ipart]) * fpart;
         self->data[i] += (val * amp);
-		
+
         self->pointerPos += inc;
         if (self->pointerPos < 0.0)
             self->pointerPos += 1.0;
         else if (self->pointerPos >= 1.0)
             self->pointerPos -= 1.0;
-		
+
 		self->buffer[self->in_count] = in[i]  + (self->data[i] * feed);
         if (self->in_count == 0)
             self->buffer[(int)self->sr] = self->buffer[0];
         self->in_count++;
         if (self->in_count >= self->sr)
             self->in_count = 0;
-    }    
+    }
 }
 
 static void
 Harmonizer_transform_ai(Harmonizer *self) {
     MYFLT val, amp, inc, ratio, rate, del, xind, pos, envpos, fpart;
     int i, ipart;
-    
+
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
     MYFLT *trans = Stream_getData((Stream *)self->transpo_stream);
     MYFLT feed = PyFloat_AS_DOUBLE(self->feedback);
@@ -122,21 +122,21 @@ Harmonizer_transform_ai(Harmonizer *self) {
         feed = 0.0;
     else if (feed > 1.0)
         feed = 1.0;
-    
+
 	MYFLT oneOnWinsize = 1.0 / self->winsize;
 	MYFLT oneOnSr = 1.0 / self->sr;
     for (i=0; i<self->bufsize; i++) {
 		ratio = MYPOW(2.0, trans[i]/12.0);
-		rate = (ratio-1.0) * oneOnWinsize;	
+		rate = (ratio-1.0) * oneOnWinsize;
 		inc = -rate * oneOnSr;;
-		
+
 		/* first overlap */
 		pos = self->pointerPos;
 		envpos = pos * 8192.0;
 		ipart = (int)envpos;
 		fpart = envpos - ipart;
 		amp = ENVELOPE[ipart] + (ENVELOPE[ipart+1] - ENVELOPE[ipart]) * fpart;
-		
+
 		del = pos * self->winsize;
         xind = self->in_count - (del * self->sr);
         if (xind < 0)
@@ -145,7 +145,7 @@ Harmonizer_transform_ai(Harmonizer *self) {
         fpart = xind - ipart;
         val = self->buffer[ipart] + (self->buffer[ipart+1] - self->buffer[ipart]) * fpart;
         self->data[i] = val * amp;
-		
+
 		/* second overlap */
 		pos = self->pointerPos + 0.5;
         if (pos >= 1)
@@ -154,7 +154,7 @@ Harmonizer_transform_ai(Harmonizer *self) {
 		ipart = (int)envpos;
 		fpart = envpos - ipart;
 		amp = ENVELOPE[ipart] + (ENVELOPE[ipart+1] - ENVELOPE[ipart]) * fpart;
-		
+
 		del = pos * self->winsize;
         xind = self->in_count - (del * self->sr);
         if (xind < 0)
@@ -163,35 +163,35 @@ Harmonizer_transform_ai(Harmonizer *self) {
         fpart = xind - ipart;
         val = self->buffer[ipart] + (self->buffer[ipart+1] - self->buffer[ipart]) * fpart;
         self->data[i] += (val * amp);
-		
+
         self->pointerPos += inc;
         if (self->pointerPos < 0)
             self->pointerPos += 1.0;
         else if (self->pointerPos >= 1)
             self->pointerPos -= 1.0;
-		
+
 		self->buffer[self->in_count] = in[i]  + (self->data[i] * feed);
         if (self->in_count == 0)
             self->buffer[(int)self->sr] = self->buffer[0];
         self->in_count++;
         if (self->in_count >= self->sr)
             self->in_count = 0;
-    }  
+    }
 }
 
 static void
 Harmonizer_transform_ia(Harmonizer *self) {
     MYFLT val, amp, inc, ratio, rate, del, xind, pos, envpos, fpart, feedback;
     int i, ipart;
-    
+
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
     MYFLT trans = PyFloat_AS_DOUBLE(self->transpo);
     MYFLT *feed = Stream_getData((Stream *)self->feedback_stream);
-	
+
 	ratio = MYPOW(2.0, trans/12.0);
-	rate = (ratio-1.0) / self->winsize;	
+	rate = (ratio-1.0) / self->winsize;
     inc = -rate / self->sr;
-    
+
     for (i=0; i<self->bufsize; i++) {
         if (feed[i] < 0.0)
             feedback = 0.0;
@@ -206,7 +206,7 @@ Harmonizer_transform_ia(Harmonizer *self) {
 		ipart = (int)envpos;
 		fpart = envpos - ipart;
 		amp = ENVELOPE[ipart] + (ENVELOPE[ipart+1] - ENVELOPE[ipart]) * fpart;
-		
+
 		del = pos * self->winsize;
         xind = self->in_count - (del * self->sr);
         if (xind < 0)
@@ -215,7 +215,7 @@ Harmonizer_transform_ia(Harmonizer *self) {
         fpart = xind - ipart;
         val = self->buffer[ipart] + (self->buffer[ipart+1] - self->buffer[ipart]) * fpart;
         self->data[i] = val * amp;
-		
+
 		/* second overlap */
 		pos = self->pointerPos + 0.5;
         if (pos > 1)
@@ -224,7 +224,7 @@ Harmonizer_transform_ia(Harmonizer *self) {
 		ipart = (int)envpos;
 		fpart = envpos - ipart;
 		amp = ENVELOPE[ipart] + (ENVELOPE[ipart+1] - ENVELOPE[ipart]) * fpart;
-		
+
 		del = pos * self->winsize;
         xind = self->in_count - (del * self->sr);
         if (xind < 0)
@@ -233,85 +233,13 @@ Harmonizer_transform_ia(Harmonizer *self) {
         fpart = xind - ipart;
         val = self->buffer[ipart] + (self->buffer[ipart+1] - self->buffer[ipart]) * fpart;
         self->data[i] += (val * amp);
-		
+
         self->pointerPos += inc;
         if (self->pointerPos < 0)
             self->pointerPos += 1.0;
         else if (self->pointerPos >= 1)
             self->pointerPos -= 1.0;
-		
-		self->buffer[self->in_count] = in[i]  + (self->data[i] * feedback);
-        if (self->in_count == 0)
-            self->buffer[(int)self->sr] = self->buffer[0];
-        self->in_count++;
-        if (self->in_count >= self->sr)
-            self->in_count = 0;
-    }  
-}
 
-static void
-Harmonizer_transform_aa(Harmonizer *self) {
-    MYFLT val, amp, inc, ratio, rate, del, xind, pos, envpos, fpart, feedback;
-    int i, ipart;
-    
-    MYFLT *in = Stream_getData((Stream *)self->input_stream);
-    MYFLT *trans = Stream_getData((Stream *)self->transpo_stream);
-    MYFLT *feed = Stream_getData((Stream *)self->feedback_stream);
-	
-	MYFLT oneOnWinsize = 1.0 / self->winsize;
-	MYFLT oneOnSr = 1.0 / self->sr;
-    for (i=0; i<self->bufsize; i++) {
-		ratio = MYPOW(2.0, trans[i]/12.0);
-		rate = (ratio-1.0) * oneOnWinsize;	
-		inc = -rate * oneOnSr;;
-		
-        if (feed[i] < 0.0)
-            feedback = 0.0;
-        else if (feed[i] > 1.0)
-            feedback = 1.0;
-        else
-            feedback = feed[i];
-
-		/* first overlap */
-		pos = self->pointerPos;
-		envpos = pos * 8192.0;
-		ipart = (int)envpos;
-		fpart = envpos - ipart;
-		amp = ENVELOPE[ipart] + (ENVELOPE[ipart+1] - ENVELOPE[ipart]) * fpart;
-		
-		del = pos * self->winsize;
-        xind = self->in_count - (del * self->sr);
-        if (xind < 0)
-            xind += self->sr;
-        ipart = (int)xind;
-        fpart = xind - ipart;
-        val = self->buffer[ipart] + (self->buffer[ipart+1] - self->buffer[ipart]) * fpart;
-        self->data[i] = val * amp;
-		
-		/* second overlap */
-		pos = self->pointerPos + 0.5;
-        if (pos > 1)
-            pos -= 1.0;
-		envpos = pos * 8192.0;
-		ipart = (int)envpos;
-		fpart = envpos - ipart;
-		amp = ENVELOPE[ipart] + (ENVELOPE[ipart+1] - ENVELOPE[ipart]) * fpart;
-		
-		del = pos * self->winsize;
-        xind = self->in_count - (del * self->sr);
-        if (xind < 0)
-            xind += self->sr;
-        ipart = (int)xind;
-        fpart = xind - ipart;
-        val = self->buffer[ipart] + (self->buffer[ipart+1] - self->buffer[ipart]) * fpart;
-        self->data[i] += (val * amp);
-		
-        self->pointerPos += inc;
-        if (self->pointerPos < 0)
-            self->pointerPos += 1.0;
-        else if (self->pointerPos >= 1)
-            self->pointerPos -= 1.0;
-		
 		self->buffer[self->in_count] = in[i]  + (self->data[i] * feedback);
         if (self->in_count == 0)
             self->buffer[(int)self->sr] = self->buffer[0];
@@ -319,7 +247,79 @@ Harmonizer_transform_aa(Harmonizer *self) {
         if (self->in_count >= self->sr)
             self->in_count = 0;
     }
-} 
+}
+
+static void
+Harmonizer_transform_aa(Harmonizer *self) {
+    MYFLT val, amp, inc, ratio, rate, del, xind, pos, envpos, fpart, feedback;
+    int i, ipart;
+
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT *trans = Stream_getData((Stream *)self->transpo_stream);
+    MYFLT *feed = Stream_getData((Stream *)self->feedback_stream);
+
+	MYFLT oneOnWinsize = 1.0 / self->winsize;
+	MYFLT oneOnSr = 1.0 / self->sr;
+    for (i=0; i<self->bufsize; i++) {
+		ratio = MYPOW(2.0, trans[i]/12.0);
+		rate = (ratio-1.0) * oneOnWinsize;
+		inc = -rate * oneOnSr;;
+
+        if (feed[i] < 0.0)
+            feedback = 0.0;
+        else if (feed[i] > 1.0)
+            feedback = 1.0;
+        else
+            feedback = feed[i];
+
+		/* first overlap */
+		pos = self->pointerPos;
+		envpos = pos * 8192.0;
+		ipart = (int)envpos;
+		fpart = envpos - ipart;
+		amp = ENVELOPE[ipart] + (ENVELOPE[ipart+1] - ENVELOPE[ipart]) * fpart;
+
+		del = pos * self->winsize;
+        xind = self->in_count - (del * self->sr);
+        if (xind < 0)
+            xind += self->sr;
+        ipart = (int)xind;
+        fpart = xind - ipart;
+        val = self->buffer[ipart] + (self->buffer[ipart+1] - self->buffer[ipart]) * fpart;
+        self->data[i] = val * amp;
+
+		/* second overlap */
+		pos = self->pointerPos + 0.5;
+        if (pos > 1)
+            pos -= 1.0;
+		envpos = pos * 8192.0;
+		ipart = (int)envpos;
+		fpart = envpos - ipart;
+		amp = ENVELOPE[ipart] + (ENVELOPE[ipart+1] - ENVELOPE[ipart]) * fpart;
+
+		del = pos * self->winsize;
+        xind = self->in_count - (del * self->sr);
+        if (xind < 0)
+            xind += self->sr;
+        ipart = (int)xind;
+        fpart = xind - ipart;
+        val = self->buffer[ipart] + (self->buffer[ipart+1] - self->buffer[ipart]) * fpart;
+        self->data[i] += (val * amp);
+
+        self->pointerPos += inc;
+        if (self->pointerPos < 0)
+            self->pointerPos += 1.0;
+        else if (self->pointerPos >= 1)
+            self->pointerPos -= 1.0;
+
+		self->buffer[self->in_count] = in[i]  + (self->data[i] * feedback);
+        if (self->in_count == 0)
+            self->buffer[(int)self->sr] = self->buffer[0];
+        self->in_count++;
+        if (self->in_count >= self->sr)
+            self->in_count = 0;
+    }
+}
 
 static void Harmonizer_feedbacktprocessing_ii(Harmonizer *self) { POST_PROCESSING_II };
 static void Harmonizer_feedbacktprocessing_ai(Harmonizer *self) { POST_PROCESSING_AI };
@@ -339,54 +339,54 @@ Harmonizer_setProcMode(Harmonizer *self)
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
 
 	switch (procmode) {
-        case 0:    
+        case 0:
             self->proc_func_ptr = Harmonizer_transform_ii;
             break;
-        case 1:    
+        case 1:
             self->proc_func_ptr = Harmonizer_transform_ai;
             break;
-        case 10:        
+        case 10:
             self->proc_func_ptr = Harmonizer_transform_ia;
             break;
-        case 11:    
+        case 11:
             self->proc_func_ptr = Harmonizer_transform_aa;
             break;
-    } 
+    }
 	switch (muladdmode) {
-        case 0:        
+        case 0:
             self->muladd_func_ptr = Harmonizer_feedbacktprocessing_ii;
             break;
-        case 1:    
+        case 1:
             self->muladd_func_ptr = Harmonizer_feedbacktprocessing_ai;
             break;
-        case 2:    
+        case 2:
             self->muladd_func_ptr = Harmonizer_feedbacktprocessing_revai;
             break;
-        case 10:        
+        case 10:
             self->muladd_func_ptr = Harmonizer_feedbacktprocessing_ia;
             break;
-        case 11:    
+        case 11:
             self->muladd_func_ptr = Harmonizer_feedbacktprocessing_aa;
             break;
-        case 12:    
+        case 12:
             self->muladd_func_ptr = Harmonizer_feedbacktprocessing_revaa;
             break;
-        case 20:        
+        case 20:
             self->muladd_func_ptr = Harmonizer_feedbacktprocessing_ireva;
             break;
-        case 21:    
+        case 21:
             self->muladd_func_ptr = Harmonizer_feedbacktprocessing_areva;
             break;
-        case 22:    
+        case 22:
             self->muladd_func_ptr = Harmonizer_feedbacktprocessing_revareva;
             break;
-    }   
+    }
 }
 
 static void
 Harmonizer_compute_next_data_frame(Harmonizer *self)
 {
-    (*self->proc_func_ptr)(self); 
+    (*self->proc_func_ptr)(self);
     (*self->muladd_func_ptr)(self);
 }
 
@@ -396,23 +396,23 @@ Harmonizer_traverse(Harmonizer *self, visitproc visit, void *arg)
     pyo_VISIT
     Py_VISIT(self->input);
     Py_VISIT(self->input_stream);
-    Py_VISIT(self->transpo);    
-    Py_VISIT(self->transpo_stream);    
-    Py_VISIT(self->feedback);    
-    Py_VISIT(self->feedback_stream);    
+    Py_VISIT(self->transpo);
+    Py_VISIT(self->transpo_stream);
+    Py_VISIT(self->feedback);
+    Py_VISIT(self->feedback_stream);
     return 0;
 }
 
-static int 
+static int
 Harmonizer_clear(Harmonizer *self)
 {
     pyo_CLEAR
     Py_CLEAR(self->input);
     Py_CLEAR(self->input_stream);
-    Py_CLEAR(self->transpo);    
-    Py_CLEAR(self->transpo_stream);    
-    Py_CLEAR(self->feedback);    
-    Py_CLEAR(self->feedback_stream);    
+    Py_CLEAR(self->transpo);
+    Py_CLEAR(self->transpo_stream);
+    Py_CLEAR(self->feedback);
+    Py_CLEAR(self->feedback_stream);
     return 0;
 }
 
@@ -470,14 +470,14 @@ Harmonizer_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (addtmp) {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
- 
+
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
     self->buffer = (MYFLT *)realloc(self->buffer, (self->sr+1) * sizeof(MYFLT));
     for (i=0; i<(self->sr+1); i++) {
         self->buffer[i] = 0.;
-    }    
-	
+    }
+
     if (wintmp > 0.0 && wintmp <= 1.0)
         self->winsize = wintmp;
     else
@@ -490,10 +490,10 @@ Harmonizer_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
 static PyObject * Harmonizer_getServer(Harmonizer* self) { GET_SERVER };
 static PyObject * Harmonizer_getStream(Harmonizer* self) { GET_STREAM };
-static PyObject * Harmonizer_setMul(Harmonizer *self, PyObject *arg) { SET_MUL };	
-static PyObject * Harmonizer_setAdd(Harmonizer *self, PyObject *arg) { SET_ADD };	
-static PyObject * Harmonizer_setSub(Harmonizer *self, PyObject *arg) { SET_SUB };	
-static PyObject * Harmonizer_setDiv(Harmonizer *self, PyObject *arg) { SET_DIV };	
+static PyObject * Harmonizer_setMul(Harmonizer *self, PyObject *arg) { SET_MUL };
+static PyObject * Harmonizer_setAdd(Harmonizer *self, PyObject *arg) { SET_ADD };
+static PyObject * Harmonizer_setSub(Harmonizer *self, PyObject *arg) { SET_SUB };
+static PyObject * Harmonizer_setDiv(Harmonizer *self, PyObject *arg) { SET_DIV };
 
 static PyObject * Harmonizer_play(Harmonizer *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * Harmonizer_out(Harmonizer *self, PyObject *args, PyObject *kwds) { OUT };
@@ -512,14 +512,14 @@ static PyObject *
 Harmonizer_setTranspo(Harmonizer *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
-	
+
 	if (arg == NULL) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
 	int isNumber = PyNumber_Check(arg);
-	
+
 	tmp = arg;
 	Py_INCREF(tmp);
 	Py_DECREF(self->transpo);
@@ -535,25 +535,25 @@ Harmonizer_setTranspo(Harmonizer *self, PyObject *arg)
         self->transpo_stream = (Stream *)streamtmp;
 		self->modebuffer[2] = 1;
 	}
-    
+
     (*self->mode_func_ptr)(self);
-    
+
 	Py_INCREF(Py_None);
 	return Py_None;
-}	
+}
 
 static PyObject *
 Harmonizer_setFeedback(Harmonizer *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
-	
+
 	if (arg == NULL) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
 	int isNumber = PyNumber_Check(arg);
-	
+
 	tmp = arg;
 	Py_INCREF(tmp);
 	Py_DECREF(self->feedback);
@@ -569,12 +569,12 @@ Harmonizer_setFeedback(Harmonizer *self, PyObject *arg)
         self->feedback_stream = (Stream *)streamtmp;
 		self->modebuffer[3] = 1;
 	}
-    
+
     (*self->mode_func_ptr)(self);
-    
+
 	Py_INCREF(Py_None);
 	return Py_None;
-}	
+}
 
 static PyObject *
 Harmonizer_setWinsize(Harmonizer *self, PyObject *arg)
@@ -587,7 +587,7 @@ Harmonizer_setWinsize(Harmonizer *self, PyObject *arg)
         else
             printf("winsize lower than 0.0 or larger than 1.0 second!\n");
 	}
-	
+
 	Py_INCREF(Py_None);
 	return Py_None;
 }
@@ -702,4 +702,3 @@ PyTypeObject HarmonizerType = {
     0,                         /* tp_alloc */
     Harmonizer_new,                 /* tp_new */
 };
-
