@@ -1564,8 +1564,10 @@ Server_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"sr", "nchnls", "buffersize", "duplex", "audio", "jackname", "ichnls", NULL};
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "|diiissi", kwlist,
-            &samplingRate, &nchnls, &bufferSize, &duplex, &audioType, &serverName, &ichnls))
-        Py_RETURN_FALSE;
+            &samplingRate, &nchnls, &bufferSize, &duplex, &audioType, &serverName, &ichnls)) {
+        Py_INCREF(Py_False);
+        return Py_False;
+    }
 
     if (strcmp(audioType, "embedded") != 0)
     {
