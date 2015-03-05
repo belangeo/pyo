@@ -1,3 +1,10 @@
+-------------------------------------------------------------------------------------
+
+2015-03-05 belangeo <belangeo@gmail.com>
+
+    * Release tag: 0.7.5.
+    - rev 1308
+
 2015-03-05 belangeo <belangeo@gmail.com>
 
     * Added documentation for server methods setTimeCallable and setMeterCallable.
@@ -71,6 +78,8 @@
 
     * Added new objet: TableWrite, records values in a table at arbitrary location.
     - rev 1288
+
+-------------------------------------------------------------------------------------
 
 2015-01-29 belangeo <belangeo@gmail.com>
 
