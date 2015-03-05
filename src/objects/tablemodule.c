@@ -4995,7 +4995,7 @@ typedef struct {
 static void
 AtanTable_generate(AtanTable *self) {
     int i, hsize;
-    MYFLT drv, invhsize, val, t, fac;
+    MYFLT drv, invhsize, val, t, fac = 0;
 
     hsize = self->size / 2;
     invhsize = 1.0 / hsize;
