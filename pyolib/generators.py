@@ -7,23 +7,23 @@ processing chain or as parameter's modifiers.
 """
 
 """
-Copyright 2010 Olivier Belanger
+Copyright 2009-2015 Olivier Belanger
 
 This file is part of pyo, a python module to help digital signal
 processing script creation.
 
 pyo is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
+it under the terms of the GNU Lesser General Public License as
+published by the Free Software Foundation, either version 3 of the
+License, or (at your option) any later version.
 
 pyo is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
+GNU Lesser General Public License for more details.
 
-You should have received a copy of the GNU General Public License
-along with pyo.  If not, see <http://www.gnu.org/licenses/>.
+You should have received a copy of the GNU Lesser General Public
+License along with pyo.  If not, see <http://www.gnu.org/licenses/>.
 """
 from _core import *
 from _maps import *
@@ -34,25 +34,25 @@ from _maps import *
 class Sine(PyoObject):
     """
     A simple sine wave oscillator.
-    
+
     :Parent: :py:class:`PyoObject`
-    
+
     :Args:
-    
+
         freq : float or PyoObject, optional
             Frequency in cycles per second. Defaults to 1000.
         phase : float or PyoObject, optional
             Phase of sampling, expressed as a fraction of a cycle (0 to 1).
             Defaults to 0.
 
-    .. seealso:: 
-        
+    .. seealso::
+
         :py:class:`Osc`, :py:class:`Phasor`
 
     >>> s = Server().boot()
     >>> s.start()
     >>> sine = Sine(freq=[400,500], mul=.2).out()
-    
+
     """
     def __init__(self, freq=1000, phase=0, mul=1, add=0):
         PyoObject.__init__(self, mul, add)
@@ -64,26 +64,26 @@ class Sine(PyoObject):
     def setFreq(self, x):
         """
         Replace the `freq` attribute.
-        
+
         :Args:
 
             x : float or PyoObject
                 new `freq` attribute.
-        
+
         """
         self._freq = x
         x, lmax = convertArgsToLists(x)
         [obj.setFreq(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
-        
+
     def setPhase(self, x):
         """
         Replace the `phase` attribute.
-        
+
         :Args:
 
             x : float or PyoObject
                 new `phase` attribute.
-        
+
         """
         self._phase = x
         x, lmax = convertArgsToLists(x)
@@ -100,17 +100,17 @@ class Sine(PyoObject):
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
         self._map_list = [SLMapFreq(self._freq), SLMapPhase(self._phase), SLMapMul(self._mul)]
         PyoObject.ctrl(self, map_list, title, wxnoserver)
-        
+
     @property
     def freq(self):
-        """float or PyoObject. Frequency in cycles per second.""" 
+        """float or PyoObject. Frequency in cycles per second."""
         return self._freq
     @freq.setter
     def freq(self, x): self.setFreq(x)
 
     @property
     def phase(self):
-        """float or PyoObject. Phase of sampling.""" 
+        """float or PyoObject. Phase of sampling."""
         return self._phase
     @phase.setter
     def phase(self, x): self.setPhase(x)
@@ -118,7 +118,7 @@ class Sine(PyoObject):
 class SineLoop(PyoObject):
     """
     A simple sine wave oscillator with feedback.
-    
+
     The oscillator output, multiplied by `feedback`, is added to the position
     increment and can be used to control the brightness of the oscillator.
 
@@ -129,11 +129,11 @@ class SineLoop(PyoObject):
         freq : float or PyoObject, optional
             Frequency in cycles per second. Defaults to 1000.
         feedback : float or PyoObject, optional
-            Amount of the output signal added to position increment, between 0 and 1. 
+            Amount of the output signal added to position increment, between 0 and 1.
             Controls the brightness. Defaults to 0.
 
-    .. seealso:: 
-        
+    .. seealso::
+
         :py:class:`Sine`, :py:class:`OscLoop`
 
     >>> s = Server().boot()
@@ -183,14 +183,14 @@ class SineLoop(PyoObject):
 
     @property
     def freq(self):
-        """float or PyoObject. Frequency in cycles per second.""" 
+        """float or PyoObject. Frequency in cycles per second."""
         return self._freq
     @freq.setter
     def freq(self, x): self.setFreq(x)
 
     @property
     def feedback(self):
-        """float or PyoObject. Brightness control.""" 
+        """float or PyoObject. Brightness control."""
         return self._feedback
     @feedback.setter
     def feedback(self, x): self.setFeedback(x)
@@ -198,28 +198,28 @@ class SineLoop(PyoObject):
 class Phasor(PyoObject):
     """
     A simple phase incrementor.
-    
+
     Output is a periodic ramp from 0 to 1.
- 
+
     :Parent: :py:class:`PyoObject`
-   
+
     :Args:
-    
+
         freq : float or PyoObject, optional
             Frequency in cycles per second. Defaults to 100.
         phase : float or PyoObject, optional
-            Phase of sampling, expressed as a fraction of a cycle (0 to 1). 
+            Phase of sampling, expressed as a fraction of a cycle (0 to 1).
             Defaults to 0.
 
-    .. seealso:: 
-        
+    .. seealso::
+
         :py:class:`Osc`, :py:class:`Sine`
-    
+
     >>> s = Server().boot()
     >>> s.start()
     >>> f = Phasor(freq=[1, 1.5], mul=1000, add=500)
     >>> sine = Sine(freq=f, mul=.2).out()
-    
+
     """
     def __init__(self, freq=100, phase=0, mul=1, add=0):
         PyoObject.__init__(self, mul, add)
@@ -231,26 +231,26 @@ class Phasor(PyoObject):
     def setFreq(self, x):
         """
         Replace the `freq` attribute.
-        
+
         :Args:
 
             x : float or PyoObject
                 new `freq` attribute.
-        
+
         """
         self._freq = x
         x, lmax = convertArgsToLists(x)
         [obj.setFreq(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
-        
+
     def setPhase(self, x):
         """
         Replace the `phase` attribute.
-        
+
         :Args:
 
             x : float or PyoObject
                 new `phase` attribute.
-        
+
         """
         self._phase = x
         x, lmax = convertArgsToLists(x)
@@ -267,17 +267,17 @@ class Phasor(PyoObject):
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
         self._map_list = [SLMapFreq(self._freq), SLMapPhase(self._phase), SLMapMul(self._mul)]
         PyoObject.ctrl(self, map_list, title, wxnoserver)
-        
+
     @property
     def freq(self):
-        """float or PyoObject. Frequency in cycles per second.""" 
+        """float or PyoObject. Frequency in cycles per second."""
         return self._freq
     @freq.setter
     def freq(self, x): self.setFreq(x)
 
     @property
     def phase(self):
-        """float or PyoObject. Phase of sampling.""" 
+        """float or PyoObject. Phase of sampling."""
         return self._phase
     @phase.setter
     def phase(self, x): self.setPhase(x)
@@ -289,19 +289,19 @@ class Input(PyoObject):
     :Parent: :py:class:`PyoObject`
 
     :Args:
-    
+
         chnl : int, optional
             Input channel to read from. Defaults to 0.
 
     .. note::
-    
-        Requires that the Server's duplex mode is set to 1. 
-    
+
+        Requires that the Server's duplex mode is set to 1.
+
     >>> s = Server(duplex=1).boot()
     >>> s.start()
     >>> a = Input(chnl=0, mul=.7)
     >>> b = Delay(a, delay=.25, feedback=.5, mul=.5).out()
-    
+
     """
     def __init__(self, chnl=0, mul=1, add=0):
         PyoObject.__init__(self, mul, add)
@@ -316,13 +316,13 @@ class Input(PyoObject):
 class Noise(PyoObject):
     """
     A white noise generator.
-        
+
     :Parent: :py:class:`PyoObject`
 
     >>> s = Server().boot()
     >>> s.start()
     >>> a = Noise(.1).mix(2).out()
-        
+
     """
     def __init__(self, mul=1, add=0):
         PyoObject.__init__(self, mul, add)
@@ -351,7 +351,7 @@ class Noise(PyoObject):
 
     @property
     def type(self):
-        """int {0, 1}. Sets the generation algorithm.""" 
+        """int {0, 1}. Sets the generation algorithm."""
         return self._type
     @type.setter
     def type(self, x): self.setType(x)
@@ -365,7 +365,7 @@ class PinkNoise(PyoObject):
     This is an approximation to a -10dB/decade filter using a weighted sum
     of first order filters. It is accurate to within +/-0.05dB above 9.2Hz
     (44100Hz sampling rate).
-    
+
     :Parent: :py:class:`PyoObject`
 
     >>> s = Server().boot()
@@ -386,9 +386,9 @@ class BrownNoise(PyoObject):
     """
     A brown noise generator.
 
-    The spectrum of a brown noise has a power density which decreases 6 dB 
+    The spectrum of a brown noise has a power density which decreases 6 dB
     per octave with increasing frequency (density proportional to 1/f^2).
-    
+
     :Parent: :py:class:`PyoObject`
 
     >>> s = Server().boot()
@@ -408,17 +408,17 @@ class BrownNoise(PyoObject):
 class FM(PyoObject):
     """
     A simple frequency modulation generator.
-    
+
     Implements frequency modulation synthesis based on Chowning's algorithm.
-    
+
     :Parent: :py:class:`PyoObject`
-    
+
     :Args:
-    
+
         carrier : float or PyoObject, optional
             Carrier frequency in cycles per second. Defaults to 100.
         ratio : float or PyoObject, optional
-            A factor that, when multiplied by the `carrier` parameter, 
+            A factor that, when multiplied by the `carrier` parameter,
             gives the modulator frequency. Defaults to 0.5.
         index : float or PyoObject, optional
             The modulation index. This value multiplied by the modulator
@@ -430,7 +430,7 @@ class FM(PyoObject):
     >>> m = Metro(4).play()
     >>> tr = TrigEnv(m, table=ind, dur=4)
     >>> f = FM(carrier=[251,250], ratio=[.2498,.2503], index=tr, mul=.2).out()
-    
+
     """
     def __init__(self, carrier=100, ratio=0.5, index=5, mul=1, add=0):
         PyoObject.__init__(self, mul, add)
@@ -443,26 +443,26 @@ class FM(PyoObject):
     def setCarrier(self, x):
         """
         Replace the `carrier` attribute.
-        
+
         :Args:
 
             x : float or PyoObject
                 new `carrier` attribute.
-        
+
         """
         self._carrier = x
         x, lmax = convertArgsToLists(x)
         [obj.setCarrier(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
-        
+
     def setRatio(self, x):
         """
         Replace the `ratio` attribute.
-        
+
         :Args:
 
             x : float or PyoObject
                 new `ratio` attribute.
-        
+
         """
         self._ratio = x
         x, lmax = convertArgsToLists(x)
@@ -471,12 +471,12 @@ class FM(PyoObject):
     def setIndex(self, x):
         """
         Replace the `index` attribute.
-        
+
         :Args:
 
             x : float or PyoObject
                 new `index` attribute.
-        
+
         """
         self._index = x
         x, lmax = convertArgsToLists(x)
@@ -488,24 +488,24 @@ class FM(PyoObject):
                           SLMap(0, 20, "lin", "index", self._index),
                           SLMapMul(self._mul)]
         PyoObject.ctrl(self, map_list, title, wxnoserver)
-        
+
     @property
     def carrier(self):
-        """float or PyoObject. Carrier frequency in cycles per second.""" 
+        """float or PyoObject. Carrier frequency in cycles per second."""
         return self._carrier
     @carrier.setter
     def carrier(self, x): self.setCarrier(x)
 
     @property
     def ratio(self):
-        """float or PyoObject. Modulator/Carrier ratio.""" 
+        """float or PyoObject. Modulator/Carrier ratio."""
         return self._ratio
     @ratio.setter
     def ratio(self, x): self.setRatio(x)
 
     @property
     def index(self):
-        """float or PyoObject. Modulation index.""" 
+        """float or PyoObject. Modulation index."""
         return self._index
     @index.setter
     def index(self, x): self.setIndex(x)
@@ -524,17 +524,17 @@ class CrossFM(PyoObject):
         carrier : float or PyoObject, optional
             Carrier frequency in cycles per second. Defaults to 100.
         ratio : float or PyoObject, optional
-            A factor that, when multiplied by the `carrier` parameter, 
+            A factor that, when multiplied by the `carrier` parameter,
             gives the modulator frequency. Defaults to 0.5.
         ind1 : float or PyoObject, optional
             The carrier index. This value multiplied by the carrier
             frequency gives the carrier amplitude for modulating the
-            modulation oscillator frequency. 
+            modulation oscillator frequency.
             Defaults to 2.
         ind1 : float or PyoObject, optional
             The modulation index. This value multiplied by the modulation
-            frequency gives the modulation amplitude for modulating the 
-            carrier oscillator frequency. 
+            frequency gives the modulation amplitude for modulating the
+            carrier oscillator frequency.
             Defaults to 2.
 
     >>> s = Server().boot()
@@ -620,28 +620,28 @@ class CrossFM(PyoObject):
 
     @property
     def carrier(self):
-        """float or PyoObject. Carrier frequency in cycles per second.""" 
+        """float or PyoObject. Carrier frequency in cycles per second."""
         return self._carrier
     @carrier.setter
     def carrier(self, x): self.setCarrier(x)
 
     @property
     def ratio(self):
-        """float or PyoObject. Modulator/Carrier ratio.""" 
+        """float or PyoObject. Modulator/Carrier ratio."""
         return self._ratio
     @ratio.setter
     def ratio(self, x): self.setRatio(x)
 
     @property
     def ind1(self):
-        """float or PyoObject. Carrier index.""" 
+        """float or PyoObject. Carrier index."""
         return self._ind1
     @ind1.setter
     def ind1(self, x): self.setInd1(x)
 
     @property
     def ind2(self):
-        """float or PyoObject. Modulation index.""" 
+        """float or PyoObject. Modulation index."""
         return self._ind2
     @ind2.setter
     def ind2(self, x): self.setInd2(x)
@@ -650,7 +650,7 @@ class Blit(PyoObject):
     """
     Band limited impulse train synthesis.
 
-    Impulse train generator with control over the number of harmonics 
+    Impulse train generator with control over the number of harmonics
     in the spectrum, which gives oscillators with very low aliasing.
 
     :Parent: :py:class:`PyoObject`
@@ -712,14 +712,14 @@ class Blit(PyoObject):
 
     @property
     def freq(self):
-        """float or PyoObject. Frequency in cycles per second.""" 
+        """float or PyoObject. Frequency in cycles per second."""
         return self._freq
     @freq.setter
     def freq(self, x): self.setFreq(x)
 
     @property
     def harms(self):
-        """float or PyoObject. Number of harmonics.""" 
+        """float or PyoObject. Number of harmonics."""
         return self._harms
     @harms.setter
     def harms(self, x): self.setHarms(x)
@@ -728,32 +728,32 @@ class Rossler(PyoObject):
     """
     Chaotic attractor for the Rossler system.
 
-    The Rossler attractor is a system of three non-linear ordinary differential 
-    equations. These differential equations define a continuous-time dynamical 
-    system that exhibits chaotic dynamics associated with the fractal properties 
+    The Rossler attractor is a system of three non-linear ordinary differential
+    equations. These differential equations define a continuous-time dynamical
+    system that exhibits chaotic dynamics associated with the fractal properties
     of the attractor.
-    
+
     :Parent: :py:class:`PyoObject`
 
     :Args:
 
         pitch : float or PyoObject, optional
-            Controls the speed, in the range 0 -> 1, of the variations. With values 
-            below 0.2, this object can be used as a low frequency oscillator (LFO) 
-            and above 0.2, it will generate a broad spectrum noise with harmonic peaks. 
+            Controls the speed, in the range 0 -> 1, of the variations. With values
+            below 0.2, this object can be used as a low frequency oscillator (LFO)
+            and above 0.2, it will generate a broad spectrum noise with harmonic peaks.
             Defaults to 0.25.
         chaos : float or PyoObject, optional
-            Controls the chaotic behavior, in the range 0 -> 1, of the oscillator. 
+            Controls the chaotic behavior, in the range 0 -> 1, of the oscillator.
             0 means nearly periodic while 1 is totally chaotic. Defaults to 0.5.
         stereo, boolean, optional
-            If True, 2 streams will be generated, one with the X variable signal of 
+            If True, 2 streams will be generated, one with the X variable signal of
             the algorithm and a second composed of the Y variable signal of the algorithm.
-            These two signal are strongly related in their frequency spectrum but 
+            These two signal are strongly related in their frequency spectrum but
             the Y signal is out-of-phase by approximatly 180 degrees. Useful to create
             alternating LFOs. Available at initialization only. Defaults to False.
 
-    .. seealso:: 
-        
+    .. seealso::
+
         :py:class:`Lorenz`
 
     >>> s = Server().boot()
@@ -810,20 +810,20 @@ class Rossler(PyoObject):
             [obj.setChaos(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [SLMap(0., 1., "lin", "pitch", self._pitch), 
+        self._map_list = [SLMap(0., 1., "lin", "pitch", self._pitch),
                           SLMap(0., 1., "lin", "chaos", self._chaos), SLMapMul(self._mul)]
         PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
     def pitch(self):
-        """float or PyoObject. Speed of the variations.""" 
+        """float or PyoObject. Speed of the variations."""
         return self._pitch
     @pitch.setter
     def pitch(self, x): self.setPitch(x)
 
     @property
     def chaos(self):
-        """float or PyoObject. Chaotic behavior.""" 
+        """float or PyoObject. Chaotic behavior."""
         return self._chaos
     @chaos.setter
     def chaos(self, x): self.setChaos(x)
@@ -832,9 +832,9 @@ class Lorenz(PyoObject):
     """
     Chaotic attractor for the Lorenz system.
 
-    The Lorenz attractor is a system of three non-linear ordinary differential 
-    equations. These differential equations define a continuous-time dynamical 
-    system that exhibits chaotic dynamics associated with the fractal properties 
+    The Lorenz attractor is a system of three non-linear ordinary differential
+    equations. These differential equations define a continuous-time dynamical
+    system that exhibits chaotic dynamics associated with the fractal properties
     of the attractor.
 
     :Parent: :py:class:`PyoObject`
@@ -842,22 +842,22 @@ class Lorenz(PyoObject):
     :Args:
 
         pitch : float or PyoObject, optional
-            Controls the speed, in the range 0 -> 1, of the variations. With values 
-            below 0.2, this object can be used as a low frequency oscillator (LFO) 
-            and above 0.2, it will generate a broad spectrum noise with harmonic peaks. 
+            Controls the speed, in the range 0 -> 1, of the variations. With values
+            below 0.2, this object can be used as a low frequency oscillator (LFO)
+            and above 0.2, it will generate a broad spectrum noise with harmonic peaks.
             Defaults to 0.25.
         chaos : float or PyoObject, optional
-            Controls the chaotic behavior, in the range 0 -> 1, of the oscillator. 
+            Controls the chaotic behavior, in the range 0 -> 1, of the oscillator.
             0 means nearly periodic while 1 is totally chaotic. Defaults to 0.5
         stereo, boolean, optional
-            If True, 2 streams will be generated, one with the X variable signal of 
+            If True, 2 streams will be generated, one with the X variable signal of
             the algorithm and a second composed of the Y variable signal of the algorithm.
-            These two signal are strongly related in their frequency spectrum but 
+            These two signal are strongly related in their frequency spectrum but
             the Y signal is out-of-phase by approximatly 180 degrees. Useful to create
             alternating LFOs. Available at initialization only. Defaults to False.
 
-    .. seealso:: 
-        
+    .. seealso::
+
         :py:class:`Rossler`
 
     >>> s = Server().boot()
@@ -914,20 +914,20 @@ class Lorenz(PyoObject):
             [obj.setChaos(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [SLMap(0., 1., "lin", "pitch", self._pitch), 
+        self._map_list = [SLMap(0., 1., "lin", "pitch", self._pitch),
                           SLMap(0., 1., "lin", "chaos", self._chaos), SLMapMul(self._mul)]
         PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
     def pitch(self):
-        """float or PyoObject. Speed of the variations.""" 
+        """float or PyoObject. Speed of the variations."""
         return self._pitch
     @pitch.setter
     def pitch(self, x): self.setPitch(x)
 
     @property
     def chaos(self):
-        """float or PyoObject. Chaotic behavior.""" 
+        """float or PyoObject. Chaotic behavior."""
         return self._chaos
     @chaos.setter
     def chaos(self, x): self.setChaos(x)
@@ -1016,7 +1016,7 @@ class LFO(PyoObject):
                     5. Bipolar pulse
                     6. Sample and hold
                     7. Modulated Sine
-            
+
 
         """
         self._type = x
@@ -1032,29 +1032,29 @@ class LFO(PyoObject):
 
 
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [SLMapFreq(self._freq), 
-                          SLMap(0., 1., "lin", "sharp", self._sharp), 
-                          SLMap(0, 7, "lin", "type", self._type, "int", dataOnly=True), 
+        self._map_list = [SLMapFreq(self._freq),
+                          SLMap(0., 1., "lin", "sharp", self._sharp),
+                          SLMap(0, 7, "lin", "type", self._type, "int", dataOnly=True),
                           SLMapMul(self._mul)]
         PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
     def freq(self):
-        """float or PyoObject. Oscillator frequency in cycles per second.""" 
+        """float or PyoObject. Oscillator frequency in cycles per second."""
         return self._freq
     @freq.setter
     def freq(self, x): self.setFreq(x)
 
     @property
     def sharp(self):
-        """float or PyoObject. Sharpness factor {0 -> 1}.""" 
+        """float or PyoObject. Sharpness factor {0 -> 1}."""
         return self._sharp
     @sharp.setter
     def sharp(self, x): self.setSharp(x)
 
     @property
     def type(self):
-        """int. Waveform type.""" 
+        """int. Waveform type."""
         return self._type
     @type.setter
     def type(self, x): self.setType(x)
@@ -1062,44 +1062,44 @@ class LFO(PyoObject):
 class SumOsc(PyoObject):
     """
     Discrete summation formulae to produce complex spectra.
-    
+
     This object implements a discrete summation formulae taken from
-    the paper 'The synthesis of complex audio spectra by means of 
+    the paper 'The synthesis of complex audio spectra by means of
     discrete summation formulae' by James A. Moorer. The formulae
     used is of this form:
-        
+
     (sin(theta) - a * sin(theta - beta)) / (1 + a**2 - 2 * a * cos(beta))
-       
-    where 'theta' and 'beta' are periodic functions and 'a' is 
-    the modulation index, providing control over the damping of 
+
+    where 'theta' and 'beta' are periodic functions and 'a' is
+    the modulation index, providing control over the damping of
     the partials.
-    
+
     The resulting sound is related to the family of modulation
     techniques but this formulae express 'one-sided' spectra,
     useful to avoid aliasing from the negative frequencies.
 
     :Parent: :py:class:`PyoObject`
-    
+
     :Args:
-    
+
         freq : float or PyoObject, optional
             Base frequency in cycles per second. Defaults to 100.
         ratio : float or PyoObject, optional
-            A factor used to stretch or compress the partial serie by 
-            manipulating the frequency of the modulation oscillator. 
+            A factor used to stretch or compress the partial serie by
+            manipulating the frequency of the modulation oscillator.
             Integer ratios give harmonic spectra. Defaults to 0.5.
         index : float or PyoObject, optional
-            Damping of successive partials, between 0 and 1. With a 
+            Damping of successive partials, between 0 and 1. With a
             value of 0.5, each partial is 6dB lower than the previous
             partial. Defaults to 5.
-        
+
     >>> s = Server().boot()
     >>> s.start()
     >>> ind = LinTable([(0,.3), (20,.85), (300,.7), (1000,.5), (8191,.3)])
     >>> m = Metro(4).play()
     >>> tr = TrigEnv(m, table=ind, dur=4)
     >>> f = SumOsc(freq=[301,300], ratio=[.2498,.2503], index=tr, mul=.2).out()
-    
+
     """
     def __init__(self, freq=100, ratio=0.5, index=0.5, mul=1, add=0):
         PyoObject.__init__(self, mul, add)
@@ -1112,26 +1112,26 @@ class SumOsc(PyoObject):
     def setFreq(self, x):
         """
         Replace the `freq` attribute.
-        
+
         :Args:
 
             x : float or PyoObject
                 new `freq` attribute.
-        
+
         """
         self._freq = x
         x, lmax = convertArgsToLists(x)
         [obj.setFreq(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
-        
+
     def setRatio(self, x):
         """
         Replace the `ratio` attribute.
-        
+
         :Args:
 
             x : float or PyoObject
                 new `ratio` attribute.
-        
+
         """
         self._ratio = x
         x, lmax = convertArgsToLists(x)
@@ -1140,12 +1140,12 @@ class SumOsc(PyoObject):
     def setIndex(self, x):
         """
         Replace the `index` attribute.
-        
+
         :Args:
 
             x : float or PyoObject
                 new `index` attribute.
-        
+
         """
         self._index = x
         x, lmax = convertArgsToLists(x)
@@ -1157,24 +1157,24 @@ class SumOsc(PyoObject):
                           SLMap(0, 1, "lin", "index", self._index),
                           SLMapMul(self._mul)]
         PyoObject.ctrl(self, map_list, title, wxnoserver)
-        
+
     @property
     def freq(self):
-        """float or PyoObject. Base frequency in cycles per second.""" 
+        """float or PyoObject. Base frequency in cycles per second."""
         return self._freq
     @freq.setter
     def freq(self, x): self.setFreq(x)
 
     @property
     def ratio(self):
-        """float or PyoObject. Base/modulator frequency ratio.""" 
+        """float or PyoObject. Base/modulator frequency ratio."""
         return self._ratio
     @ratio.setter
     def ratio(self, x): self.setRatio(x)
 
     @property
     def index(self):
-        """float or PyoObject. Index, high frequency damping.""" 
+        """float or PyoObject. Index, high frequency damping."""
         return self._index
     @index.setter
     def index(self, x): self.setIndex(x)
@@ -1182,37 +1182,37 @@ class SumOsc(PyoObject):
 class SuperSaw(PyoObject):
     """
     Roland JP-8000 Supersaw emulator.
-    
+
     This object implements an emulation of the Roland JP-8000 Supersaw algorithm.
-    The shape of the waveform is produced from 7 sawtooth oscillators detuned 
+    The shape of the waveform is produced from 7 sawtooth oscillators detuned
     against each other over a period of time. It allows control over the depth
     of the detuning and the balance between central and sideband oscillators.
- 
+
     :Parent: :py:class:`PyoObject`
-   
+
     :Args:
-    
+
         freq : float or PyoObject, optional
             Frequency in cycles per second. Defaults to 100.
         detune : float or PyoObject, optional
             Depth of the detuning, between 0 and 1. 0 means all oscillators are
             tuned to the same frequency and 1 means sideband oscillators are at
-            maximum detuning regarding the central frequency. Defaults to 0.5. 
+            maximum detuning regarding the central frequency. Defaults to 0.5.
         bal : float or PyoObject, optional
-            Balance between central oscillator and sideband oscillators. A value 
+            Balance between central oscillator and sideband oscillators. A value
             of 0 outputs only the central oscillator while a value of 1 gives a
             mix of all oscillators with the central one lower than the sidebands.
             Defaults to 0.7.
 
-    .. seealso:: 
-        
+    .. seealso::
+
         :py:class:`Phasor`, :py:class:`SineLoop`
 
     >>> s = Server().boot()
     >>> s.start()
     >>> lfd = Sine([.4,.3], mul=.2, add=.5)
     >>> a = SuperSaw(freq=[49,50], detune=lfd, bal=0.7, mul=0.2).out()
-    
+
     """
     def __init__(self, freq=100, detune=0.5, bal=0.7, mul=1, add=0):
         PyoObject.__init__(self, mul, add)
@@ -1225,26 +1225,26 @@ class SuperSaw(PyoObject):
     def setFreq(self, x):
         """
         Replace the `freq` attribute.
-        
+
         :Args:
 
             x : float or PyoObject
                 new `freq` attribute.
-        
+
         """
         self._freq = x
         x, lmax = convertArgsToLists(x)
         [obj.setFreq(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
-        
+
     def setDetune(self, x):
         """
         Replace the `detune` attribute.
-        
+
         :Args:
 
             x : float or PyoObject
                 new `detune` attribute.
-        
+
         """
         self._detune = x
         x, lmax = convertArgsToLists(x)
@@ -1253,40 +1253,40 @@ class SuperSaw(PyoObject):
     def setBal(self, x):
         """
         Replace the `bal` attribute.
-        
+
         :Args:
 
             x : float or PyoObject
                 new `bal` attribute.
-        
+
         """
         self._bal = x
         x, lmax = convertArgsToLists(x)
         [obj.setBal(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [SLMapFreq(self._freq), 
-                          SLMap(0, 1, "lin", "detune", self._detune), 
+        self._map_list = [SLMapFreq(self._freq),
+                          SLMap(0, 1, "lin", "detune", self._detune),
                           SLMap(0, 1, "lin", "bal", self._bal), SLMapMul(self._mul)]
         PyoObject.ctrl(self, map_list, title, wxnoserver)
-        
+
     @property
     def freq(self):
-        """float or PyoObject. Frequency in cycles per second.""" 
+        """float or PyoObject. Frequency in cycles per second."""
         return self._freq
     @freq.setter
     def freq(self, x): self.setFreq(x)
 
     @property
     def detune(self):
-        """float or PyoObject. Depth of the detuning.""" 
+        """float or PyoObject. Depth of the detuning."""
         return self._detune
     @detune.setter
     def detune(self, x): self.setDetune(x)
 
     @property
     def bal(self):
-        """float or PyoObject. Balance between central and sideband oscillators.""" 
+        """float or PyoObject. Balance between central and sideband oscillators."""
         return self._bal
     @bal.setter
     def bal(self, x): self.setBal(x)
@@ -1294,14 +1294,14 @@ class SuperSaw(PyoObject):
 class RCOsc(PyoObject):
     """
     Waveform aproximation of a RC circuit.
-    
+
     A RC circuit is a capacitor and a resistor in series, giving a logarithmic
     growth followed by an exponential decay.
- 
+
     :Parent: :py:class:`PyoObject`
-   
+
     :Args:
-    
+
         freq : float or PyoObject, optional
             Frequency in cycles per second. Defaults to 100.
         sharp : float or PyoObject, optional
@@ -1309,15 +1309,15 @@ class RCOsc(PyoObject):
             A value of 0 gives a triangular waveform and 1 gives almost a
             square wave. Defaults to 0.25.
 
-    .. seealso:: 
-        
+    .. seealso::
+
         :py:class:`Osc`, :py:class:`LFO`, :py:class:`SineLoop`, :py:class:`SumOsc`
-    
+
     >>> s = Server().boot()
     >>> s.start()
     >>> fr = RCOsc(freq=[.48,.5], sharp=.2, mul=300, add=600)
     >>> a = RCOsc(freq=fr, sharp=.1, mul=.2).out()
-    
+
     """
     def __init__(self, freq=100, sharp=0.25, mul=1, add=0):
         PyoObject.__init__(self, mul, add)
@@ -1329,26 +1329,26 @@ class RCOsc(PyoObject):
     def setFreq(self, x):
         """
         Replace the `freq` attribute.
-        
+
         :Args:
 
             x : float or PyoObject
                 new `freq` attribute.
-        
+
         """
         self._freq = x
         x, lmax = convertArgsToLists(x)
         [obj.setFreq(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
-        
+
     def setSharp(self, x):
         """
         Replace the `sharp` attribute.
-        
+
         :Args:
 
             x : float or PyoObject
                 new `sharp` attribute.
-        
+
         """
         self._sharp = x
         x, lmax = convertArgsToLists(x)
@@ -1364,17 +1364,17 @@ class RCOsc(PyoObject):
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
         self._map_list = [SLMapFreq(self._freq), SLMap(0,1,"lin","sharp",self._sharp), SLMapMul(self._mul)]
         PyoObject.ctrl(self, map_list, title, wxnoserver)
-        
+
     @property
     def freq(self):
-        """float or PyoObject. Frequency in cycles per second.""" 
+        """float or PyoObject. Frequency in cycles per second."""
         return self._freq
     @freq.setter
     def freq(self, x): self.setFreq(x)
 
     @property
     def sharp(self):
-        """float or PyoObject. Sharpness of the waveform.""" 
+        """float or PyoObject. Sharpness of the waveform."""
         return self._sharp
     @sharp.setter
     def sharp(self, x): self.setSharp(x)

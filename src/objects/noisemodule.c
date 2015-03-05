@@ -1,21 +1,21 @@
-/*************************************************************************
- * Copyright 2010 Olivier Belanger                                        *                  
- *                                                                        * 
+/**************************************************************************
+ * Copyright 2009-2015 Olivier Belanger                                   *
+ *                                                                        *
  * This file is part of pyo, a python module to help digital signal       *
- * processing script creation.                                            *  
- *                                                                        * 
+ * processing script creation.                                            *
+ *                                                                        *
  * pyo is free software: you can redistribute it and/or modify            *
- * it under the terms of the GNU General Public License as published by   *
- * the Free Software Foundation, either version 3 of the License, or      *
- * (at your option) any later version.                                    * 
+ * it under the terms of the GNU Lesser General Public License as         *
+ * published by the Free Software Foundation, either version 3 of the     *
+ * License, or (at your option) any later version.                        *
  *                                                                        *
  * pyo is distributed in the hope that it will be useful,                 *
- * but WITHOUT ANY WARRANTY; without even the implied warranty of         *    
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of         *
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the          *
- * GNU General Public License for more details.                           *
+ * GNU Lesser General Public License for more details.                    *
  *                                                                        *
- * You should have received a copy of the GNU General Public License      *
- * along with pyo.  If not, see <http://www.gnu.org/licenses/>.           *
+ * You should have received a copy of the GNU Lesser General Public       *
+ * License along with pyo.  If not, see <http://www.gnu.org/licenses/>.   *
  *************************************************************************/
 
 #include <Python.h>
@@ -44,7 +44,7 @@ Noise_generate(Noise *self) {
 static void
 Noise_generate_cheap(Noise *self) {
     int i;
-    
+
     for (i=0; i<self->bufsize; i++) {
         self->seed = (self->seed * 15625 + 1) & 0xFFFF;
         self->data[i] = (self->seed - 0x8000) * 3.0517578125e-05;
@@ -66,7 +66,7 @@ Noise_setProcMode(Noise *self)
 {
     int muladdmode;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
-    
+
     switch (self->type) {
         case 0:
             self->proc_func_ptr = Noise_generate;
@@ -76,31 +76,31 @@ Noise_setProcMode(Noise *self)
             break;
     }
 	switch (muladdmode) {
-        case 0:        
+        case 0:
             self->muladd_func_ptr = Noise_postprocessing_ii;
             break;
-        case 1:    
+        case 1:
             self->muladd_func_ptr = Noise_postprocessing_ai;
             break;
-        case 2:    
+        case 2:
             self->muladd_func_ptr = Noise_postprocessing_revai;
             break;
-        case 10:        
+        case 10:
             self->muladd_func_ptr = Noise_postprocessing_ia;
             break;
-        case 11:    
+        case 11:
             self->muladd_func_ptr = Noise_postprocessing_aa;
             break;
-        case 12:    
+        case 12:
             self->muladd_func_ptr = Noise_postprocessing_revaa;
             break;
-        case 20:        
+        case 20:
             self->muladd_func_ptr = Noise_postprocessing_ireva;
             break;
-        case 21:    
+        case 21:
             self->muladd_func_ptr = Noise_postprocessing_areva;
             break;
-        case 22:    
+        case 22:
             self->muladd_func_ptr = Noise_postprocessing_revareva;
             break;
     }
@@ -109,7 +109,7 @@ Noise_setProcMode(Noise *self)
 static void
 Noise_compute_next_data_frame(Noise *self)
 {
-    (*self->proc_func_ptr)(self); 
+    (*self->proc_func_ptr)(self);
     (*self->muladd_func_ptr)(self);
 }
 
@@ -120,7 +120,7 @@ Noise_traverse(Noise *self, visitproc visit, void *arg)
     return 0;
 }
 
-static int 
+static int
 Noise_clear(Noise *self)
 {
     pyo_CLEAR
@@ -142,7 +142,7 @@ Noise_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *multmp=NULL, *addtmp=NULL;
     Noise *self;
     self = (Noise *)type->tp_alloc(type, 0);
-    
+
     self->type = 0;
 	self->modebuffer[0] = 0;
 	self->modebuffer[1] = 0;
@@ -152,35 +152,35 @@ Noise_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->mode_func_ptr = Noise_setProcMode;
 
     static char *kwlist[] = {"mul", "add", NULL};
-    
+
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "|OO", kwlist, &multmp, &addtmp))
-        Py_RETURN_NONE; 
- 
+        Py_RETURN_NONE;
+
     if (multmp) {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
     }
-    
+
     if (addtmp) {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
-    
+
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
     Server_generateSeed((Server *)self->server, NOISE_ID);
-    
+
     self->seed = rand();
 
     (*self->mode_func_ptr)(self);
-    
+
     return (PyObject *)self;
 }
 
 static PyObject * Noise_getServer(Noise* self) { GET_SERVER };
 static PyObject * Noise_getStream(Noise* self) { GET_STREAM };
-static PyObject * Noise_setMul(Noise *self, PyObject *arg) { SET_MUL };	
-static PyObject * Noise_setAdd(Noise *self, PyObject *arg) { SET_ADD };	
-static PyObject * Noise_setSub(Noise *self, PyObject *arg) { SET_SUB };	
-static PyObject * Noise_setDiv(Noise *self, PyObject *arg) { SET_DIV };	
+static PyObject * Noise_setMul(Noise *self, PyObject *arg) { SET_MUL };
+static PyObject * Noise_setAdd(Noise *self, PyObject *arg) { SET_ADD };
+static PyObject * Noise_setSub(Noise *self, PyObject *arg) { SET_SUB };
+static PyObject * Noise_setDiv(Noise *self, PyObject *arg) { SET_DIV };
 
 static PyObject * Noise_play(Noise *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * Noise_out(Noise *self, PyObject *args, PyObject *kwds) { OUT };
@@ -197,12 +197,12 @@ static PyObject * Noise_inplace_div(Noise *self, PyObject *arg) { INPLACE_DIV };
 
 static PyObject *
 Noise_setType(Noise *self, PyObject *arg)
-{	
+{
     if (arg == NULL) {
         Py_INCREF(Py_None);
         return Py_None;
     }
-    
+
     if (PyInt_AS_LONG(arg) == 0)
         self->type = 0;
     else if (PyInt_AS_LONG(arg) == 1)
@@ -212,7 +212,7 @@ Noise_setType(Noise *self, PyObject *arg)
 
     Py_INCREF(Py_None);
     return Py_None;
-}	
+}
 
 static PyMemberDef Noise_members[] = {
 {"server", T_OBJECT_EX, offsetof(Noise, server), 0, "Pyo server."},
@@ -336,7 +336,7 @@ static void
 PinkNoise_generate(PinkNoise *self) {
     MYFLT in, val;
     int i;
-    
+
     for (i=0; i<self->bufsize; i++) {
         in = rand()/((MYFLT)(RAND_MAX)+1)*1.98-0.99;
         self->c0 = self->c0 * 0.99886 + in * 0.0555179;
@@ -366,33 +366,33 @@ PinkNoise_setProcMode(PinkNoise *self)
 {
     int muladdmode;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
-    
+
 	switch (muladdmode) {
-        case 0:        
+        case 0:
             self->muladd_func_ptr = PinkNoise_postprocessing_ii;
             break;
-        case 1:    
+        case 1:
             self->muladd_func_ptr = PinkNoise_postprocessing_ai;
             break;
-        case 2:    
+        case 2:
             self->muladd_func_ptr = PinkNoise_postprocessing_revai;
             break;
-        case 10:        
+        case 10:
             self->muladd_func_ptr = PinkNoise_postprocessing_ia;
             break;
-        case 11:    
+        case 11:
             self->muladd_func_ptr = PinkNoise_postprocessing_aa;
             break;
-        case 12:    
+        case 12:
             self->muladd_func_ptr = PinkNoise_postprocessing_revaa;
             break;
-        case 20:        
+        case 20:
             self->muladd_func_ptr = PinkNoise_postprocessing_ireva;
             break;
-        case 21:    
+        case 21:
             self->muladd_func_ptr = PinkNoise_postprocessing_areva;
             break;
-        case 22:    
+        case 22:
             self->muladd_func_ptr = PinkNoise_postprocessing_revareva;
             break;
     }
@@ -401,7 +401,7 @@ PinkNoise_setProcMode(PinkNoise *self)
 static void
 PinkNoise_compute_next_data_frame(PinkNoise *self)
 {
-    PinkNoise_generate(self); 
+    PinkNoise_generate(self);
     (*self->muladd_func_ptr)(self);
 }
 
@@ -412,7 +412,7 @@ PinkNoise_traverse(PinkNoise *self, visitproc visit, void *arg)
     return 0;
 }
 
-static int 
+static int
 PinkNoise_clear(PinkNoise *self)
 {
     pyo_CLEAR
@@ -434,32 +434,32 @@ PinkNoise_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *multmp=NULL, *addtmp=NULL;
     PinkNoise *self;
     self = (PinkNoise *)type->tp_alloc(type, 0);
-    
+
     self->c0 = self->c1 = self->c2 = self->c3 = self->c4 = self->c5 = self->c6 = 0.0;
 	self->modebuffer[0] = 0;
 	self->modebuffer[1] = 0;
-    
+
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, PinkNoise_compute_next_data_frame);
     self->mode_func_ptr = PinkNoise_setProcMode;
 
     static char *kwlist[] = {"mul", "add", NULL};
-    
+
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "|OO", kwlist, &multmp, &addtmp))
         Py_RETURN_NONE;
-    
+
     if (multmp) {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
     }
-    
+
     if (addtmp) {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
-    
+
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
-    
+
     (*self->mode_func_ptr)(self);
-    
+
     Server_generateSeed((Server *)self->server, PINKNOISE_ID);
 
     return (PyObject *)self;
@@ -467,10 +467,10 @@ PinkNoise_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
 static PyObject * PinkNoise_getServer(PinkNoise* self) { GET_SERVER };
 static PyObject * PinkNoise_getStream(PinkNoise* self) { GET_STREAM };
-static PyObject * PinkNoise_setMul(PinkNoise *self, PyObject *arg) { SET_MUL };	
-static PyObject * PinkNoise_setAdd(PinkNoise *self, PyObject *arg) { SET_ADD };	
-static PyObject * PinkNoise_setSub(PinkNoise *self, PyObject *arg) { SET_SUB };	
-static PyObject * PinkNoise_setDiv(PinkNoise *self, PyObject *arg) { SET_DIV };	
+static PyObject * PinkNoise_setMul(PinkNoise *self, PyObject *arg) { SET_MUL };
+static PyObject * PinkNoise_setAdd(PinkNoise *self, PyObject *arg) { SET_ADD };
+static PyObject * PinkNoise_setSub(PinkNoise *self, PyObject *arg) { SET_SUB };
+static PyObject * PinkNoise_setDiv(PinkNoise *self, PyObject *arg) { SET_DIV };
 
 static PyObject * PinkNoise_play(PinkNoise *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * PinkNoise_out(PinkNoise *self, PyObject *args, PyObject *kwds) { OUT };
@@ -602,7 +602,7 @@ static void
 BrownNoise_generate(BrownNoise *self) {
     MYFLT rnd, val;
     int i;
-    
+
     for (i=0; i<self->bufsize; i++) {
         rnd = rand()/((MYFLT)(RAND_MAX)+1)*1.98-0.99;
         val = self->c1 * rnd + self->c2 * self->y1;
@@ -626,33 +626,33 @@ BrownNoise_setProcMode(BrownNoise *self)
 {
     int muladdmode;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
-    
+
 	switch (muladdmode) {
-        case 0:        
+        case 0:
             self->muladd_func_ptr = BrownNoise_postprocessing_ii;
             break;
-        case 1:    
+        case 1:
             self->muladd_func_ptr = BrownNoise_postprocessing_ai;
             break;
-        case 2:    
+        case 2:
             self->muladd_func_ptr = BrownNoise_postprocessing_revai;
             break;
-        case 10:        
+        case 10:
             self->muladd_func_ptr = BrownNoise_postprocessing_ia;
             break;
-        case 11:    
+        case 11:
             self->muladd_func_ptr = BrownNoise_postprocessing_aa;
             break;
-        case 12:    
+        case 12:
             self->muladd_func_ptr = BrownNoise_postprocessing_revaa;
             break;
-        case 20:        
+        case 20:
             self->muladd_func_ptr = BrownNoise_postprocessing_ireva;
             break;
-        case 21:    
+        case 21:
             self->muladd_func_ptr = BrownNoise_postprocessing_areva;
             break;
-        case 22:    
+        case 22:
             self->muladd_func_ptr = BrownNoise_postprocessing_revareva;
             break;
     }
@@ -661,7 +661,7 @@ BrownNoise_setProcMode(BrownNoise *self)
 static void
 BrownNoise_compute_next_data_frame(BrownNoise *self)
 {
-    BrownNoise_generate(self); 
+    BrownNoise_generate(self);
     (*self->muladd_func_ptr)(self);
 }
 
@@ -672,7 +672,7 @@ BrownNoise_traverse(BrownNoise *self, visitproc visit, void *arg)
     return 0;
 }
 
-static int 
+static int
 BrownNoise_clear(BrownNoise *self)
 {
     pyo_CLEAR
@@ -695,47 +695,47 @@ BrownNoise_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *multmp=NULL, *addtmp=NULL;
     BrownNoise *self;
     self = (BrownNoise *)type->tp_alloc(type, 0);
-    
+
 	self->modebuffer[0] = 0;
 	self->modebuffer[1] = 0;
     self->y1 = self->c1 = self->c2 = 0.0;
-    
+
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, BrownNoise_compute_next_data_frame);
     self->mode_func_ptr = BrownNoise_setProcMode;
 
     static char *kwlist[] = {"mul", "add", NULL};
-    
+
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "|OO", kwlist, &multmp, &addtmp))
         Py_RETURN_NONE;
-    
+
     if (multmp) {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
     }
-    
+
     if (addtmp) {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
-    
+
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
     b = 2.0 - MYCOS(TWOPI * 20.0 / self->sr);
     self->c2 = (b - MYSQRT(b * b - 1.0));
     self->c1 = 1.0 - self->c2;
-    
+
     (*self->mode_func_ptr)(self);
-    
+
     Server_generateSeed((Server *)self->server, BROWNNOISE_ID);
-    
+
     return (PyObject *)self;
 }
 
 static PyObject * BrownNoise_getServer(BrownNoise* self) { GET_SERVER };
 static PyObject * BrownNoise_getStream(BrownNoise* self) { GET_STREAM };
-static PyObject * BrownNoise_setMul(BrownNoise *self, PyObject *arg) { SET_MUL };	
-static PyObject * BrownNoise_setAdd(BrownNoise *self, PyObject *arg) { SET_ADD };	
-static PyObject * BrownNoise_setSub(BrownNoise *self, PyObject *arg) { SET_SUB };	
-static PyObject * BrownNoise_setDiv(BrownNoise *self, PyObject *arg) { SET_DIV };	
+static PyObject * BrownNoise_setMul(BrownNoise *self, PyObject *arg) { SET_MUL };
+static PyObject * BrownNoise_setAdd(BrownNoise *self, PyObject *arg) { SET_ADD };
+static PyObject * BrownNoise_setSub(BrownNoise *self, PyObject *arg) { SET_SUB };
+static PyObject * BrownNoise_setDiv(BrownNoise *self, PyObject *arg) { SET_DIV };
 
 static PyObject * BrownNoise_play(BrownNoise *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * BrownNoise_out(BrownNoise *self, PyObject *args, PyObject *kwds) { OUT };
@@ -854,4 +854,3 @@ PyTypeObject BrownNoiseType = {
     0,                         /* tp_alloc */
     BrownNoise_new,                 /* tp_new */
 };
-

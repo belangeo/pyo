@@ -1,22 +1,22 @@
 # -*- coding: utf-8 -*-
 """
-Copyright 2010 Olivier Belanger
+Copyright 2009-2015 Olivier Belanger
 
 This file is part of pyo, a python module to help digital signal
 processing script creation.
 
 pyo is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
+it under the terms of the GNU Lesser General Public License as
+published by the Free Software Foundation, either version 3 of the
+License, or (at your option) any later version.
 
 pyo is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
+GNU Lesser General Public License for more details.
 
-You should have received a copy of the GNU General Public License
-along with pyo.  If not, see <http://www.gnu.org/licenses/>.
+You should have received a copy of the GNU Lesser General Public
+License along with pyo.  If not, see <http://www.gnu.org/licenses/>.
 """
 from types import ListType, FloatType, IntType
 import math, sys, os, random
@@ -47,18 +47,18 @@ if not PYO_USE_WX:
         from _tkwidgets import *
         PYO_USE_TK = True
         print """
-WxPython is not found for the current python version. 
-Pyo will use a minimal GUI toolkit written with Tkinter. 
-This toolkit has limited functionnalities and is no more 
+WxPython is not found for the current python version.
+Pyo will use a minimal GUI toolkit written with Tkinter.
+This toolkit has limited functionnalities and is no more
 maintained or updated. If you want to use all of pyo's
-GUI features, you should install WxPython, available here: 
+GUI features, you should install WxPython, available here:
 http://www.wxpython.org/
 """
     except:
         PYO_USE_TK = False
         print """
 Neither WxPython nor Tkinter are found for the current python version.
-Pyo's GUI features are disabled. For a complete GUI toolkit, you should 
+Pyo's GUI features are disabled. For a complete GUI toolkit, you should
 consider installing WxPython, available here: http://www.wxpython.org/
 """
 
@@ -83,10 +83,10 @@ def createRootWindow():
             return None
         else:
             return None
-    else:        
-        if not WX_APP: 
+    else:
+        if not WX_APP:
             win = wx.App(False)
-            WX_APP = True 
+            WX_APP = True
             return win
         else:
             return None
@@ -97,10 +97,10 @@ def tkCloseWindow(win):
 
 def tkCloseWindowFromKeyboard(event):
     win = event.widget
-    if not isinstance(win, ServerGUI): 
+    if not isinstance(win, ServerGUI):
         win.destroy()
         if win in WINDOWS: WINDOWS.remove(win)
-                
+
 def tkCreateToplevelWindow():
     win = Toplevel()
     WINDOWS.append(win)
@@ -131,7 +131,7 @@ def wxShowWindow(f, title, root):
     f.Show()
     if root != None:
         root.MainLoop()
-    
+
 def wxCreateDelayedCtrlWindows():
     for win in CTRLWINDOWS:
         f = PyoObjectControl(None, win[0], win[1])
@@ -197,7 +197,7 @@ def wxCreateDelayedScopeWindows():
         if win[0] != None:
             win[0]._setViewFrame(f)
         wxDisplayWindow(f, title)
-    
+
 def createCtrlWindow(obj, map_list, title, wxnoserver=False):
     if not PYO_USE_WX:
         createRootWindow()
@@ -225,7 +225,7 @@ def createGraphWindow(obj, mode, xlen, yrange, title, wxnoserver=False):
             if title == None: title = obj.__class__.__name__
             wxShowWindow(f, title, root)
         else:
-            GRAPHWINDOWS.append([obj, mode, xlen, yrange, title])   
+            GRAPHWINDOWS.append([obj, mode, xlen, yrange, title])
 
 def createDataGraphWindow(obj, yrange, title, wxnoserver=False):
     if not PYO_USE_WX:
@@ -238,8 +238,8 @@ def createDataGraphWindow(obj, yrange, title, wxnoserver=False):
             wxShowWindow(f, title, root)
             obj._setGraphFrame(f)
         else:
-            DATAGRAPHWINDOWS.append([obj, yrange, title])   
-        
+            DATAGRAPHWINDOWS.append([obj, yrange, title])
+
 def createViewTableWindow(samples, title="Table waveform", wxnoserver=False, tableclass=None, object=None):
     if not PYO_USE_WX:
         createRootWindow()
@@ -256,7 +256,7 @@ def createViewTableWindow(samples, title="Table waveform", wxnoserver=False, tab
             if object != None:
                 object._setViewFrame(f)
         else:
-            TABLEWINDOWS.append([samples, tableclass, title, object])    
+            TABLEWINDOWS.append([samples, tableclass, title, object])
 
 def createSndViewTableWindow(obj, title="Table waveform", wxnoserver=False, tableclass=None, mouse_callback=None):
     if not PYO_USE_WX:
@@ -275,12 +275,12 @@ def createSndViewTableWindow(obj, title="Table waveform", wxnoserver=False, tabl
             obj._setViewFrame(f)
         else:
             SNDTABLEWINDOWS.append([obj, tableclass, title, mouse_callback])
-        
+
 def createViewMatrixWindow(samples, size, title="Matrix viewer", wxnoserver=False, object=None):
-    if not WITH_PIL: print """The Python Imaging Library is not installed. 
+    if not WITH_PIL: print """The Python Imaging Library is not installed.
 It helps a lot to speed up matrix drawing!"""
     if not PYO_USE_WX:
-        createRootWindow()    
+        createRootWindow()
         win = tkCreateToplevelWindow()
         if WITH_PIL: f = ViewMatrix_withPIL(win, samples, size)
         else: f = ViewMatrix_withoutPIL(win, samples, size)
@@ -295,7 +295,7 @@ It helps a lot to speed up matrix drawing!"""
             if object != None:
                 object._setViewFrame(f)
         else:
-            MATRIXWINDOWS.append([samples,size,title, object])    
+            MATRIXWINDOWS.append([samples,size,title, object])
 
 def createSpectrumWindow(object, title, wxnoserver=False):
     if not PYO_USE_WX:
@@ -309,7 +309,7 @@ def createSpectrumWindow(object, title, wxnoserver=False):
             if object != None:
                 object._setViewFrame(f)
         else:
-            SPECTRUMWINDOWS.append([object, title])   
+            SPECTRUMWINDOWS.append([object, title])
 
 def createScopeWindow(object, title, wxnoserver=False):
     if not PYO_USE_WX:
@@ -323,8 +323,8 @@ def createScopeWindow(object, title, wxnoserver=False):
             if object != None:
                 object._setViewFrame(f)
         else:
-            SCOPEWINDOWS.append([object, title])   
-        
+            SCOPEWINDOWS.append([object, title])
+
 def createServerGUI(nchnls, start, stop, recstart, recstop, setAmp, started, locals, shutdown, meter, timer, amp, exit):
     global X, Y, MAX_X, NEXT_Y
     if not PYO_USE_WX:
@@ -335,7 +335,7 @@ def createServerGUI(nchnls, start, stop, recstart, recstop, setAmp, started, loc
         f.focus_set()
     else:
         win = createRootWindow()
-        f = ServerGUI(None, nchnls, start, stop, recstart, recstop, setAmp, started, locals, shutdown, meter, timer, amp, exit) 
+        f = ServerGUI(None, nchnls, start, stop, recstart, recstop, setAmp, started, locals, shutdown, meter, timer, amp, exit)
         f.SetTitle("pyo server")
         f.SetPosition((30, 30))
         f.Show()
@@ -354,4 +354,3 @@ def createServerGUI(nchnls, start, stop, recstart, recstop, setAmp, started, loc
         wx.CallAfter(wxCreateDelayedScopeWindows)
         wx.CallAfter(f.Raise)
     return f, win
-        

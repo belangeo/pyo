@@ -1,21 +1,21 @@
-/*************************************************************************
- * Copyright 2010 Olivier Belanger                                        *                  
- *                                                                        * 
+/**************************************************************************
+ * Copyright 2009-2015 Olivier Belanger                                   *
+ *                                                                        *
  * This file is part of pyo, a python module to help digital signal       *
- * processing script creation.                                            *  
- *                                                                        * 
+ * processing script creation.                                            *
+ *                                                                        *
  * pyo is free software: you can redistribute it and/or modify            *
- * it under the terms of the GNU General Public License as published by   *
- * the Free Software Foundation, either version 3 of the License, or      *
- * (at your option) any later version.                                    * 
+ * it under the terms of the GNU Lesser General Public License as         *
+ * published by the Free Software Foundation, either version 3 of the     *
+ * License, or (at your option) any later version.                        *
  *                                                                        *
  * pyo is distributed in the hope that it will be useful,                 *
- * but WITHOUT ANY WARRANTY; without even the implied warranty of         *    
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of         *
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the          *
- * GNU General Public License for more details.                           *
+ * GNU Lesser General Public License for more details.                    *
  *                                                                        *
- * You should have received a copy of the GNU General Public License      *
- * along with pyo.  If not, see <http://www.gnu.org/licenses/>.           *
+ * You should have received a copy of the GNU Lesser General Public       *
+ * License along with pyo.  If not, see <http://www.gnu.org/licenses/>.   *
  *************************************************************************/
 
 #include <Python.h>
@@ -31,7 +31,7 @@ typedef struct {
     Stream *input_stream;
     long value;
     MYFLT last_value;
-    int modebuffer[2]; // need at least 2 slots for mul & add 
+    int modebuffer[2]; // need at least 2 slots for mul & add
 } Select;
 
 static void
@@ -40,14 +40,14 @@ Select_selector(Select *self) {
     int i;
 
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
-    
+
     for (i=0; i<self->bufsize; i++) {
         inval = in[i];
         if (inval == self->value && inval != self->last_value)
             val = 1;
         else
             val = 0;
-        
+
         self->last_value = inval;
         self->data[i] = val;
     }
@@ -67,47 +67,47 @@ static void
 Select_setProcMode(Select *self)
 {
     int muladdmode;
-    
+
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
 
     self->proc_func_ptr = Select_selector;
-    
+
     switch (muladdmode) {
-        case 0:        
+        case 0:
             self->muladd_func_ptr = Select_postprocessing_ii;
             break;
-        case 1:    
+        case 1:
             self->muladd_func_ptr = Select_postprocessing_ai;
             break;
-        case 2:    
+        case 2:
             self->muladd_func_ptr = Select_postprocessing_revai;
             break;
-        case 10:        
+        case 10:
             self->muladd_func_ptr = Select_postprocessing_ia;
             break;
-        case 11:    
+        case 11:
             self->muladd_func_ptr = Select_postprocessing_aa;
             break;
-        case 12:    
+        case 12:
             self->muladd_func_ptr = Select_postprocessing_revaa;
             break;
-        case 20:        
+        case 20:
             self->muladd_func_ptr = Select_postprocessing_ireva;
             break;
-        case 21:    
+        case 21:
             self->muladd_func_ptr = Select_postprocessing_areva;
             break;
-        case 22:    
+        case 22:
             self->muladd_func_ptr = Select_postprocessing_revareva;
             break;
-    }  
-    
+    }
+
 }
 
 static void
 Select_compute_next_data_frame(Select *self)
 {
-    (*self->proc_func_ptr)(self);    
+    (*self->proc_func_ptr)(self);
     (*self->muladd_func_ptr)(self);
 }
 
@@ -115,16 +115,16 @@ static int
 Select_traverse(Select *self, visitproc visit, void *arg)
 {
     pyo_VISIT
-    Py_VISIT(self->input);    
-    Py_VISIT(self->input_stream);    
+    Py_VISIT(self->input);
+    Py_VISIT(self->input_stream);
     return 0;
 }
 
-static int 
+static int
 Select_clear(Select *self)
 {
     pyo_CLEAR
-    Py_CLEAR(self->input);    
+    Py_CLEAR(self->input);
     Py_CLEAR(self->input_stream);
     return 0;
 }
@@ -144,7 +144,7 @@ Select_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp, *multmp=NULL, *addtmp=NULL;
     Select *self;
     self = (Select *)type->tp_alloc(type, 0);
-    
+
     self->value = 0;
     self->last_value = -99.0;
 	self->modebuffer[0] = 0;
@@ -155,7 +155,7 @@ Select_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->mode_func_ptr = Select_setProcMode;
 
     static char *kwlist[] = {"input", "value", "mul", "add", NULL};
-    
+
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|iOO", kwlist, &inputtmp, &self->value, &multmp, &addtmp))
         Py_RETURN_NONE;
 
@@ -164,24 +164,24 @@ Select_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (multmp) {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
     }
-    
+
     if (addtmp) {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
-    
+
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
     (*self->mode_func_ptr)(self);
-    
+
     return (PyObject *)self;
 }
 
 static PyObject * Select_getServer(Select* self) { GET_SERVER };
 static PyObject * Select_getStream(Select* self) { GET_STREAM };
-static PyObject * Select_setMul(Select *self, PyObject *arg) { SET_MUL };	
-static PyObject * Select_setAdd(Select *self, PyObject *arg) { SET_ADD };	
-static PyObject * Select_setSub(Select *self, PyObject *arg) { SET_SUB };	
-static PyObject * Select_setDiv(Select *self, PyObject *arg) { SET_DIV };	
+static PyObject * Select_setMul(Select *self, PyObject *arg) { SET_MUL };
+static PyObject * Select_setAdd(Select *self, PyObject *arg) { SET_ADD };
+static PyObject * Select_setSub(Select *self, PyObject *arg) { SET_SUB };
+static PyObject * Select_setDiv(Select *self, PyObject *arg) { SET_DIV };
 
 static PyObject * Select_play(Select *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * Select_stop(Select *self) { STOP };
@@ -202,14 +202,14 @@ Select_setValue(Select *self, PyObject *arg)
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
-	if (PyLong_Check(arg) || PyInt_Check(arg)) {	
+
+	if (PyLong_Check(arg) || PyInt_Check(arg)) {
 		self->value = PyLong_AsLong(arg);
 	}
-    
+
 	Py_INCREF(Py_None);
 	return Py_None;
-}	
+}
 
 static PyMemberDef Select_members[] = {
 {"server", T_OBJECT_EX, offsetof(Select, server), 0, "Pyo server."},
@@ -321,7 +321,7 @@ typedef struct {
     PyObject *input;
     Stream *input_stream;
     MYFLT last_value;
-    int modebuffer[2]; // need at least 2 slots for mul & add 
+    int modebuffer[2]; // need at least 2 slots for mul & add
 } Change;
 
 static void
@@ -330,7 +330,7 @@ Change_selector(Change *self) {
     int i;
 
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
-    
+
     for (i=0; i<self->bufsize; i++) {
         inval = in[i];
         if (inval < (self->last_value - 0.00001) || inval > (self->last_value + 0.00001)) {
@@ -363,40 +363,40 @@ Change_setProcMode(Change *self)
     self->proc_func_ptr = Change_selector;
 
     switch (muladdmode) {
-        case 0:        
+        case 0:
             self->muladd_func_ptr = Change_postprocessing_ii;
             break;
-        case 1:    
+        case 1:
             self->muladd_func_ptr = Change_postprocessing_ai;
             break;
-        case 2:    
+        case 2:
             self->muladd_func_ptr = Change_postprocessing_revai;
             break;
-        case 10:        
+        case 10:
             self->muladd_func_ptr = Change_postprocessing_ia;
             break;
-        case 11:    
+        case 11:
             self->muladd_func_ptr = Change_postprocessing_aa;
             break;
-        case 12:    
+        case 12:
             self->muladd_func_ptr = Change_postprocessing_revaa;
             break;
-        case 20:        
+        case 20:
             self->muladd_func_ptr = Change_postprocessing_ireva;
             break;
-        case 21:    
+        case 21:
             self->muladd_func_ptr = Change_postprocessing_areva;
             break;
-        case 22:    
+        case 22:
             self->muladd_func_ptr = Change_postprocessing_revareva;
             break;
-    }      
+    }
 }
 
 static void
 Change_compute_next_data_frame(Change *self)
 {
-    (*self->proc_func_ptr)(self);    
+    (*self->proc_func_ptr)(self);
     (*self->muladd_func_ptr)(self);
 }
 
@@ -404,16 +404,16 @@ static int
 Change_traverse(Change *self, visitproc visit, void *arg)
 {
     pyo_VISIT
-    Py_VISIT(self->input);    
-    Py_VISIT(self->input_stream);    
+    Py_VISIT(self->input);
+    Py_VISIT(self->input_stream);
     return 0;
 }
 
-static int 
+static int
 Change_clear(Change *self)
 {
     pyo_CLEAR
-    Py_CLEAR(self->input);    
+    Py_CLEAR(self->input);
     Py_CLEAR(self->input_stream);
     return 0;
 }
@@ -443,7 +443,7 @@ Change_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->mode_func_ptr = Change_setProcMode;
 
     static char *kwlist[] = {"input", "mul", "add", NULL};
-    
+
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "OOO", kwlist, &inputtmp, &multmp, &addtmp))
         Py_RETURN_NONE;
 
@@ -452,24 +452,24 @@ Change_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (multmp) {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
     }
-    
+
     if (addtmp) {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
-    
+
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
     (*self->mode_func_ptr)(self);
-     
+
     return (PyObject *)self;
 }
 
 static PyObject * Change_getServer(Change* self) { GET_SERVER };
 static PyObject * Change_getStream(Change* self) { GET_STREAM };
-static PyObject * Change_setMul(Change *self, PyObject *arg) { SET_MUL };	
-static PyObject * Change_setAdd(Change *self, PyObject *arg) { SET_ADD };	
-static PyObject * Change_setSub(Change *self, PyObject *arg) { SET_SUB };	
-static PyObject * Change_setDiv(Change *self, PyObject *arg) { SET_DIV };	
+static PyObject * Change_setMul(Change *self, PyObject *arg) { SET_MUL };
+static PyObject * Change_setAdd(Change *self, PyObject *arg) { SET_ADD };
+static PyObject * Change_setSub(Change *self, PyObject *arg) { SET_SUB };
+static PyObject * Change_setDiv(Change *self, PyObject *arg) { SET_DIV };
 
 static PyObject * Change_play(Change *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * Change_stop(Change *self) { STOP };

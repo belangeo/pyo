@@ -1,32 +1,32 @@
 """
-Objects designed to create parameter's control at audio rate. 
+Objects designed to create parameter's control at audio rate.
 
-These objects can be used to create envelopes, line segments 
-and conversion from python number to audio signal. 
+These objects can be used to create envelopes, line segments
+and conversion from python number to audio signal.
 
-The audio streams of these objects can't be sent to the output 
+The audio streams of these objects can't be sent to the output
 soundcard.
- 
+
 """
 
 """
-Copyright 2010 Olivier Belanger
+Copyright 2009-2015 Olivier Belanger
 
 This file is part of pyo, a python module to help digital signal
 processing script creation.
 
 pyo is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
+it under the terms of the GNU Lesser General Public License as
+published by the Free Software Foundation, either version 3 of the
+License, or (at your option) any later version.
 
 pyo is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
+GNU Lesser General Public License for more details.
 
-You should have received a copy of the GNU General Public License
-along with pyo.  If not, see <http://www.gnu.org/licenses/>.
+You should have received a copy of the GNU Lesser General Public
+License along with pyo.  If not, see <http://www.gnu.org/licenses/>.
 """
 import sys
 from _core import *
@@ -40,13 +40,13 @@ from types import ListType, TupleType
 class Fader(PyoObject):
     """
     Fadein - fadeout envelope generator.
-    
-    Generate an amplitude envelope between 0 and 1 with control on fade 
+
+    Generate an amplitude envelope between 0 and 1 with control on fade
     times and total duration of the envelope.
-    
-    The play() method starts the envelope and is not called at the 
+
+    The play() method starts the envelope and is not called at the
     object creation time.
-    
+
     :Parent: :py:class:`PyoObject`
 
     :Args:
@@ -56,15 +56,15 @@ class Fader(PyoObject):
         fadeout : float, optional
             Falling time of the envelope in seconds. Defaults to 0.1.
         dur : float, optional
-            Total duration of the envelope. Defaults to 0, which means wait 
+            Total duration of the envelope. Defaults to 0, which means wait
             for the stop() method to start the fadeout.
 
     .. note::
 
         The out() method is bypassed. Fader's signal can not be sent to audio outs.
-        
+
         The play() method starts the envelope.
-        
+
         The stop() calls the envelope's release phase if `dur` = 0.
 
     >>> s = Server().boot()
@@ -74,7 +74,7 @@ class Fader(PyoObject):
     >>> def repeat():
     ...     f.play()
     >>> pat = Pattern(function=repeat, time=2).play()
-    
+
     """
     def __init__(self, fadein=0.01, fadeout=0.1, dur=0, mul=1, add=0):
         PyoObject.__init__(self, mul, add)
@@ -90,12 +90,12 @@ class Fader(PyoObject):
     def setFadein(self, x):
         """
         Replace the `fadein` attribute.
-        
+
         :Args:
 
             x : float
                 new `fadein` attribute.
-        
+
         """
         self._fadein = x
         x, lmax = convertArgsToLists(x)
@@ -104,12 +104,12 @@ class Fader(PyoObject):
     def setFadeout(self, x):
         """
         Replace the `fadeout` attribute.
-        
+
         :Args:
 
             x : float
                 new `fadeout` attribute.
-        
+
         """
         self._fadeout = x
         x, lmax = convertArgsToLists(x)
@@ -118,12 +118,12 @@ class Fader(PyoObject):
     def setDur(self, x):
         """
         Replace the `dur` attribute.
-        
+
         :Args:
 
             x : float
                 new `dur` attribute.
-        
+
         """
         self._dur = x
         x, lmax = convertArgsToLists(x)
@@ -137,21 +137,21 @@ class Fader(PyoObject):
 
     @property
     def fadein(self):
-        """float. Rising time of the envelope in seconds.""" 
+        """float. Rising time of the envelope in seconds."""
         return self._fadein
     @fadein.setter
     def fadein(self, x): self.setFadein(x)
 
     @property
     def fadeout(self):
-        """float. Falling time of the envelope in seconds.""" 
+        """float. Falling time of the envelope in seconds."""
         return self._fadeout
     @fadeout.setter
     def fadeout(self, x): self.setFadeout(x)
 
     @property
     def dur(self):
-        """float. Total duration of the envelope.""" 
+        """float. Total duration of the envelope."""
         return self._dur
     @dur.setter
     def dur(self, x): self.setDur(x)
@@ -160,14 +160,14 @@ class Fader(PyoObject):
 class Adsr(PyoObject):
     """
     Attack - Decay - Sustain - Release envelope generator.
-    
-    Calculates the classical ADSR envelope using linear segments. 
-    Duration can be set to 0 to give an infinite sustain. In this 
+
+    Calculates the classical ADSR envelope using linear segments.
+    Duration can be set to 0 to give an infinite sustain. In this
     case, the stop() method calls the envelope release part.
-     
-    The play() method starts the envelope and is not called at the 
+
+    The play() method starts the envelope and is not called at the
     object creation time.
-    
+
     :Parent: :py:class:`PyoObject`
 
     :Args:
@@ -181,16 +181,16 @@ class Adsr(PyoObject):
         release : float, optional
             Duration of the release in seconds. Defaults to 0.1.
         dur : float, optional
-            Total duration of the envelope. Defaults to 0, which means wait 
+            Total duration of the envelope. Defaults to 0, which means wait
             for the stop() method to start the release phase.
-        
-    
+
+
     .. note::
 
         The out() method is bypassed. Adsr's signal can not be sent to audio outs.
 
         The play() method starts the envelope.
-        
+
         The stop() calls the envelope's release phase if `dur` = 0.
 
     >>> s = Server().boot()
@@ -200,7 +200,7 @@ class Adsr(PyoObject):
     >>> def repeat():
     ...     f.play()
     >>> pat = Pattern(function=repeat, time=2).play()
-    
+
     """
     def __init__(self, attack=0.01, decay=0.05, sustain=0.707, release=0.1, dur=0, mul=1, add=0):
         PyoObject.__init__(self, mul, add)
@@ -218,12 +218,12 @@ class Adsr(PyoObject):
     def setAttack(self, x):
         """
         Replace the `attack` attribute.
-        
+
         :Args:
 
             x : float
                 new `attack` attribute.
-        
+
         """
         self._attack = x
         x, lmax = convertArgsToLists(x)
@@ -232,12 +232,12 @@ class Adsr(PyoObject):
     def setDecay(self, x):
         """
         Replace the `decay` attribute.
-        
+
         :Args:
 
             x : float
                 new `decay` attribute.
-        
+
         """
         self._decay = x
         x, lmax = convertArgsToLists(x)
@@ -246,12 +246,12 @@ class Adsr(PyoObject):
     def setSustain(self, x):
         """
         Replace the `sustain` attribute.
-        
+
         :Args:
 
             x : float
                 new `sustain` attribute.
-        
+
         """
         self._sustain = x
         x, lmax = convertArgsToLists(x)
@@ -260,12 +260,12 @@ class Adsr(PyoObject):
     def setRelease(self, x):
         """
         Replace the `sustain` attribute.
-        
+
         :Args:
 
             x : float
                 new `sustain` attribute.
-        
+
         """
         self._release = x
         x, lmax = convertArgsToLists(x)
@@ -274,12 +274,12 @@ class Adsr(PyoObject):
     def setDur(self, x):
         """
         Replace the `dur` attribute.
-        
+
         :Args:
 
             x : float
                 new `dur` attribute.
-        
+
         """
         self._dur = x
         x, lmax = convertArgsToLists(x)
@@ -295,54 +295,54 @@ class Adsr(PyoObject):
 
     @property
     def attack(self):
-        """float. Duration of the attack phase in seconds.""" 
+        """float. Duration of the attack phase in seconds."""
         return self._attack
     @attack.setter
     def attack(self, x): self.setAttack(x)
 
     @property
     def decay(self):
-        """float. Duration of the decay phase in seconds.""" 
+        """float. Duration of the decay phase in seconds."""
         return self._decay
     @decay.setter
     def decay(self, x): self.setDecay(x)
 
     @property
     def sustain(self):
-        """float. Amplitude of the sustain phase.""" 
+        """float. Amplitude of the sustain phase."""
         return self._sustain
     @sustain.setter
     def sustain(self, x): self.setSustain(x)
 
     @property
     def release(self):
-        """float. Duration of the release phase in seconds.""" 
+        """float. Duration of the release phase in seconds."""
         return self._release
     @release.setter
     def release(self, x): self.setRelease(x)
 
     @property
     def dur(self):
-        """float. Total duration of the envelope.""" 
+        """float. Total duration of the envelope."""
         return self._dur
     @dur.setter
     def dur(self, x): self.setDur(x)
 
 class Linseg(PyoObject):
     """
-    Trace a series of line segments between specified break-points. 
-    
-    The play() method starts the envelope and is not called at the 
+    Trace a series of line segments between specified break-points.
+
+    The play() method starts the envelope and is not called at the
     object creation time.
-    
+
     :Parent: :py:class:`PyoObject`
 
     :Args:
 
         list : list of tuples
             Points used to construct the line segments. Each tuple is a
-            new point in the form (time, value). 
-            
+            new point in the form (time, value).
+
             Times are given in seconds and must be in increasing order.
         loop : boolean, optional
             Looping mode. Defaults to False.
@@ -360,7 +360,7 @@ class Linseg(PyoObject):
     >>> a = Sine(freq=l, mul=.3).mix(2).out()
     >>> # then call:
     >>> l.play()
-    
+
     """
     def __init__(self, list, loop=False, initToFirstVal=False, mul=1, add=0):
         PyoObject.__init__(self, mul, add)
@@ -386,12 +386,12 @@ class Linseg(PyoObject):
     def setList(self, x):
         """
         Replace the `list` attribute.
-        
+
         :Args:
 
             x : list of tuples
                 new `list` attribute.
-        
+
         """
         self._list = x
         if type(x[0]) != ListType:
@@ -407,7 +407,7 @@ class Linseg(PyoObject):
 
             x : list of tuples
                 new `list` attribute.
-        
+
         """
         self.setList(x)
 
@@ -417,12 +417,12 @@ class Linseg(PyoObject):
     def setLoop(self, x):
         """
         Replace the `loop` attribute.
-        
+
         :Args:
 
             x : boolean
                 new `loop` attribute.
-        
+
         """
         self._loop = x
         x, lmax = convertArgsToLists(x)
@@ -433,9 +433,9 @@ class Linseg(PyoObject):
         Opens a grapher window to control the shape of the envelope.
 
         When editing the grapher with the mouse, the new set of points
-        will be send to the object on mouse up. 
+        will be send to the object on mouse up.
 
-        Ctrl+C with focus on the grapher will copy the list of points to the 
+        Ctrl+C with focus on the grapher will copy the list of points to the
         clipboard, giving an easy way to insert the new shape in a script.
 
         :Args:
@@ -447,14 +447,14 @@ class Linseg(PyoObject):
                 Set the min and max values of the Y axis of the graph. If
                 None, min and max are retrieve from the current list of points.
             title : string, optional
-                Title of the window. If none is provided, the name of the 
+                Title of the window. If none is provided, the name of the
                 class is used.
             wxnoserver : boolean, optional
-                With wxPython graphical toolkit, if True, tells the 
+                With wxPython graphical toolkit, if True, tells the
                 interpreter that there will be no server window.
-                
-        If `wxnoserver` is set to True, the interpreter will not wait for the 
-        server GUI before showing the controller window. 
+
+        If `wxnoserver` is set to True, the interpreter will not wait for the
+        server GUI before showing the controller window.
 
         """
         if xlen == None:
@@ -472,23 +472,23 @@ class Linseg(PyoObject):
 
     @property
     def list(self):
-        """float. List of points (time, value).""" 
+        """float. List of points (time, value)."""
         return self._list
     @list.setter
     def list(self, x): self.setList(x)
 
     @property
     def loop(self):
-        """boolean. Looping mode.""" 
+        """boolean. Looping mode."""
         return self._loop
     @loop.setter
     def loop(self, x): self.setLoop(x)
 
 class Expseg(PyoObject):
     """
-    Trace a series of exponential segments between specified break-points. 
+    Trace a series of exponential segments between specified break-points.
 
-    The play() method starts the envelope and is not called at the 
+    The play() method starts the envelope and is not called at the
     object creation time.
 
     :Parent: :py:class:`PyoObject`
@@ -497,8 +497,8 @@ class Expseg(PyoObject):
 
         list : list of tuples
             Points used to construct the line segments. Each tuple is a
-            new point in the form (time, value). 
-            
+            new point in the form (time, value).
+
             Times are given in seconds and must be in increasing order.
         loop : boolean, optional
             Looping mode. Defaults to False.
@@ -506,7 +506,7 @@ class Expseg(PyoObject):
             Exponent factor. Used to control the slope of the curves.
             Defaults to 10.
         inverse : boolean, optional
-            If True, downward slope will be inversed. Useful to create 
+            If True, downward slope will be inversed. Useful to create
             biexponential curves. Defaults to True.
         initToFirstVal : boolean, optional
             If True, audio buffer will be filled at initialization with the
@@ -625,9 +625,9 @@ class Expseg(PyoObject):
         Opens a grapher window to control the shape of the envelope.
 
         When editing the grapher with the mouse, the new set of points
-        will be send to the object on mouse up. 
+        will be send to the object on mouse up.
 
-        Ctrl+C with focus on the grapher will copy the list of points to the 
+        Ctrl+C with focus on the grapher will copy the list of points to the
         clipboard, giving an easy way to insert the new shape in a script.
 
         :Args:
@@ -641,14 +641,14 @@ class Expseg(PyoObject):
                 None, min and max are retrieve from the current list of points.
                 Defaults to None.
             title : string, optional
-                Title of the window. If none is provided, the name of the 
+                Title of the window. If none is provided, the name of the
                 class is used.
             wxnoserver : boolean, optional
-                With wxPython graphical toolkit, if True, tells the 
+                With wxPython graphical toolkit, if True, tells the
                 interpreter that there will be no server window.
-                
-        If `wxnoserver` is set to True, the interpreter will not wait for the 
-        server GUI before showing the controller window. 
+
+        If `wxnoserver` is set to True, the interpreter will not wait for the
+        server GUI before showing the controller window.
 
         """
         if xlen == None:
@@ -666,28 +666,28 @@ class Expseg(PyoObject):
 
     @property
     def list(self):
-        """float. List of points (time, value).""" 
+        """float. List of points (time, value)."""
         return self._list
     @list.setter
     def list(self, x): self.setList(x)
 
     @property
     def loop(self):
-        """boolean. Looping mode.""" 
+        """boolean. Looping mode."""
         return self._loop
     @loop.setter
     def loop(self, x): self.setLoop(x)
 
     @property
     def exp(self):
-        """float. Exponent factor.""" 
+        """float. Exponent factor."""
         return self._exp
     @exp.setter
     def exp(self, x): self.setExp(x)
 
     @property
     def inverse(self):
-        """boolean. Inverse downward slope.""" 
+        """boolean. Inverse downward slope."""
         return self._inverse
     @inverse.setter
     def inverse(self, x): self.setInverse(x)
@@ -695,11 +695,11 @@ class Expseg(PyoObject):
 class SigTo(PyoObject):
     """
     Convert numeric value to PyoObject signal with portamento.
-    
-    When `value` is changed, a ramp is applied from the current 
+
+    When `value` is changed, a ramp is applied from the current
     value to the new value. Can be used with PyoObject to apply
     a linear portamento on an audio signal.
-    
+
     :Parent: :py:class:`PyoObject`
 
     :Args:
@@ -710,7 +710,7 @@ class SigTo(PyoObject):
             Ramp time, in seconds, to reach the new value. Defaults to 0.025.
         init : float, optional
             Initial value of the internal memory. Defaults to 0.
-    
+
     .. note::
 
         The out() method is bypassed. SigTo's signal can not be sent to audio outs.
@@ -767,14 +767,14 @@ class SigTo(PyoObject):
 
     @property
     def value(self):
-        """float or PyoObject. Numerical value to convert.""" 
+        """float or PyoObject. Numerical value to convert."""
         return self._value
     @value.setter
-    def value(self, x): self.setValue(x)    
+    def value(self, x): self.setValue(x)
 
     @property
     def time(self):
-        """float. Ramp time.""" 
+        """float. Ramp time."""
         return self._time
     @time.setter
-    def time(self, x): self.setTime(x)    
+    def time(self, x): self.setTime(x)

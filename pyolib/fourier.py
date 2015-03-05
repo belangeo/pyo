@@ -1,32 +1,32 @@
 """
 Fast Fourier Transform.
 
-A Fast Fourier Transform (FFT) is an efficient algorithm to compute 
+A Fast Fourier Transform (FFT) is an efficient algorithm to compute
 the discrete Fourier transform (DFT) and its inverse (IFFT).
 
-The objects below can be used to perform sound processing in the 
+The objects below can be used to perform sound processing in the
 spectral domain.
 
 """
 
 """
-Copyright 2011 Olivier Belanger
+Copyright 2009-2015 Olivier Belanger
 
 This file is part of pyo, a python module to help digital signal
 processing script creation.
 
 pyo is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
+it under the terms of the GNU Lesser General Public License as
+published by the Free Software Foundation, either version 3 of the
+License, or (at your option) any later version.
 
 pyo is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
+GNU Lesser General Public License for more details.
 
-You should have received a copy of the GNU General Public License
-along with pyo.  If not, see <http://www.gnu.org/licenses/>.
+You should have received a copy of the GNU Lesser General Public
+License along with pyo.  If not, see <http://www.gnu.org/licenses/>.
 """
 from _core import *
 from _maps import *
@@ -37,17 +37,17 @@ class FFT(PyoObject):
 
     FFT analyses an input signal and converts it into the spectral
     domain. Three audio signals are sent out of the object, the
-    `real` part, from bin 0 (DC) to bin size/2 (Nyquist), the 
-    `imaginary` part, from bin 0 to bin size/2-1, and the bin 
-    number, an increasing count from 0 to size-1. `real` and 
-    `imaginary` buffer's left samples  up to size-1 are filled 
-    with zeros. See notes below for an example of how to retrieve 
+    `real` part, from bin 0 (DC) to bin size/2 (Nyquist), the
+    `imaginary` part, from bin 0 to bin size/2-1, and the bin
+    number, an increasing count from 0 to size-1. `real` and
+    `imaginary` buffer's left samples  up to size-1 are filled
+    with zeros. See notes below for an example of how to retrieve
     each signal component.
-    
+
     :Parent: :py:class:`PyoObject`
-    
+
     :Args:
-    
+
         input : PyoObject
             Input signal to process.
         size : int {pow-of-two > 4}, optional
@@ -73,15 +73,15 @@ class FFT(PyoObject):
                 8. Sine (half-sine window)
 
     .. note::
-    
-        FFT has no `out` method. Signal must be converted back to time domain, 
+
+        FFT has no `out` method. Signal must be converted back to time domain,
         with IFFT, before being sent to output.
 
         FFT has no `mul` and `add` attributes.
-        
-        Real, imaginary and bin_number parts are three separated set 
+
+        Real, imaginary and bin_number parts are three separated set
         of audio streams. The user should call :
-        
+
         |  FFT['real'] to retrieve the real part.
         |  FFT['imag'] to retrieve the imaginary part.
         |  FFT['bin'] to retrieve the bin number part.
@@ -120,7 +120,7 @@ class FFT(PyoObject):
             self._real_objs.append(FFT_base(wrap(self._base_players,j), 0, self._mul, self._add))
             self._imag_objs.append(FFT_base(wrap(self._base_players,j), 1, self._mul, self._add))
             self._bin_objs.append(FFT_base(wrap(self._base_players,j), 2, self._mul, self._add))
-            
+
     def __len__(self):
         return len(self._real_objs)
 
@@ -138,12 +138,12 @@ class FFT(PyoObject):
     def get(self, identifier="real", all=False):
         """
         Return the first sample of the current buffer as a float.
-        
+
         Can be used to convert audio stream to usable Python data.
-        
+
         "real", "imag" or "bin" must be given to `identifier` to specify
         which stream to get value from.
-        
+
         :Args:
 
             identifier : string {"real", "imag", "bin"}
@@ -154,17 +154,17 @@ class FFT(PyoObject):
                 will be returned as a list. Otherwise, only the value
                 of the first object's stream will be returned as a float.
                 Defaults to False.
-                 
+
         """
         if not all:
             return self.__getitem__(identifier)[0]._getStream().getValue()
         else:
             return [obj._getStream().getValue() for obj in self.__getitem__(identifier).getBaseObjects()]
- 
+
     def setInput(self, x, fadetime=0.05):
         """
         Replace the `input` attribute.
-        
+
         :Args:
 
             x : PyoObject
@@ -175,7 +175,7 @@ class FFT(PyoObject):
         """
         self._input = x
         self._in_fader.setInput(x, fadetime)
-                    
+
     def play(self, dur=0, delay=0):
         dur, delay, lmax = convertArgsToLists(dur, delay)
         self._base_players = [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._base_players)]
@@ -183,7 +183,7 @@ class FFT(PyoObject):
         self._imag_objs = [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._imag_objs)]
         self._bin_objs = [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._bin_objs)]
         return self
-    
+
     def stop(self):
         [obj.stop() for obj in self._base_players]
         [obj.stop() for obj in self._real_objs]
@@ -197,12 +197,12 @@ class FFT(PyoObject):
     def setSize(self, x):
         """
         Replace the `size` attribute.
-        
+
         :Args:
 
             x : int
                 new `size` attribute.
-        
+
         """
         self._size = x
         x, lmax = convertArgsToLists(x)
@@ -215,12 +215,12 @@ class FFT(PyoObject):
     def setWinType(self, x):
         """
         Replace the `wintype` attribute.
-        
+
         :Args:
 
             x : int
                 new `wintype` attribute.
-        
+
         """
         self._wintype = x
         x, lmax = convertArgsToLists(x)
@@ -228,7 +228,7 @@ class FFT(PyoObject):
 
     @property
     def input(self):
-        """PyoObject. Input signal to process.""" 
+        """PyoObject. Input signal to process."""
         return self._input
     @input.setter
     def input(self, x): self.setInput(x)
@@ -251,17 +251,17 @@ class IFFT(PyoObject):
     """
     Inverse Fast Fourier Transform.
 
-    IFFT takes a signal in the spectral domain and converts it to a 
-    real audio signal using an inverse fast fourier transform. 
+    IFFT takes a signal in the spectral domain and converts it to a
+    real audio signal using an inverse fast fourier transform.
     IFFT takes two signals in input, the `real` and `imaginary` parts
     of an FFT analysis and returns the corresponding real signal.
     These signals must correspond to `real` and `imaginary` parts
     from an FFT object.
 
     :Parent: :py:class:`PyoObject`
-    
+
     :Args:
-    
+
         inreal : PyoObject
             Input `real` signal.
         inimag : PyoObject
@@ -269,13 +269,13 @@ class IFFT(PyoObject):
         size : int {pow-of-two > 4}, optional
             FFT size. Must be a power of two greater than 4.
             The FFT size is the number of samples used in each
-            analysis frame. This value must match the `size` 
+            analysis frame. This value must match the `size`
             attribute of the former FFT object. Defaults to 1024.
         overlaps : int, optional
             The number of overlaped analysis block. Must be a
             positive integer. More overlaps can greatly improved
             sound quality synthesis but it is also more CPU
-            expensive. This value must match the `overlaps` 
+            expensive. This value must match the `overlaps`
             atribute of the former FFT object. Defaults to 4.
         wintype : int, optional
             Shape of the envelope used to filter each output frame.
@@ -291,7 +291,7 @@ class IFFT(PyoObject):
                 8. Sine (half-sine window)
 
     .. note::
-    
+
         The number of streams in `inreal` and `inimag` attributes
         must be egal to the output of the former FFT object. In
         most case, it will be `channels of processed sound` * `overlaps`.
@@ -300,7 +300,7 @@ class IFFT(PyoObject):
         signal from the overlapped streams. It is left to the user
         to call the mix(channels of the processed sound) method on
         an IFFT object.
-    
+
     >>> s = Server().boot()
     >>> s.start()
     >>> a = Noise(.25).mix(2)
@@ -330,11 +330,11 @@ class IFFT(PyoObject):
 
     def __len__(self):
         return len(self._inreal)
-        
+
     def setInReal(self, x, fadetime=0.05):
         """
         Replace the `inreal` attribute.
-        
+
         :Args:
 
             x : PyoObject
@@ -349,7 +349,7 @@ class IFFT(PyoObject):
     def setInImag(self, x, fadetime=0.05):
         """
         Replace the `inimag` attribute.
-        
+
         :Args:
 
             x : PyoObject
@@ -364,12 +364,12 @@ class IFFT(PyoObject):
     def setSize(self, x):
         """
         Replace the `size` attribute.
-        
+
         :Args:
 
             x : int
                 new `size` attribute.
-        
+
         """
         self._size = x
         x, lmax = convertArgsToLists(x)
@@ -381,12 +381,12 @@ class IFFT(PyoObject):
     def setWinType(self, x):
         """
         Replace the `wintype` attribute.
-        
+
         :Args:
 
             x : int
                 new `wintype` attribute.
-        
+
         """
         self._wintype = x
         x, lmax = convertArgsToLists(x)
@@ -395,17 +395,17 @@ class IFFT(PyoObject):
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
         self._map_list = [SLMapMul(self._mul)]
         PyoObject.ctrl(self, map_list, title, wxnoserver)
-      
+
     @property
     def inreal(self):
-        """PyoObject. Real input signal.""" 
+        """PyoObject. Real input signal."""
         return self._inreal
     @inreal.setter
     def inreal(self, x): self.setInReal(x)
 
     @property
     def inimag(self):
-        """PyoObject. Imaginary input signal.""" 
+        """PyoObject. Imaginary input signal."""
         return self._inimag
     @inimag.setter
     def inimag(self, x): self.setInImag(x)
@@ -428,12 +428,12 @@ class CarToPol(PyoObject):
     """
     Performs the cartesian to polar conversion.
 
-    The Cartesian system locates points on a plane by measuring the  horizontal and 
-    vertical distances from an arbitrary origin to a point.  These are usually denoted 
+    The Cartesian system locates points on a plane by measuring the  horizontal and
+    vertical distances from an arbitrary origin to a point.  These are usually denoted
     as a pair of values (X,Y).
 
-    The Polar system locates the point by measuring the straight line distance, usually 
-    denoted by R, from the origin to the point and the angle of an imaginary line from 
+    The Polar system locates the point by measuring the straight line distance, usually
+    denoted by R, from the origin to the point and the angle of an imaginary line from
     the origin to the point measured counterclockwise from the positive X axis.
 
     :Parent: :py:class:`PyoObject`
@@ -446,13 +446,13 @@ class CarToPol(PyoObject):
             Imaginary input signal.
 
     .. note::
-    
+
         Polar coordinates can be retrieve by calling :
-        
+
         |  CarToPol['mag'] to retrieve the magnitude part.
         |  CarToPol['ang'] to retrieve the angle part.
 
-        CarToPol has no `out` method. Signal must be converted back to time domain, 
+        CarToPol has no `out` method. Signal must be converted back to time domain,
         with IFFT, before being sent to output.
 
     >>> s = Server().boot()
@@ -555,14 +555,14 @@ class CarToPol(PyoObject):
 
     @property
     def inreal(self):
-        """PyoObject. Real input signal.""" 
+        """PyoObject. Real input signal."""
         return self._inreal
     @inreal.setter
     def inreal(self, x): self.setInReal(x)
 
     @property
     def inimag(self):
-        """PyoObject. Imaginary input signal.""" 
+        """PyoObject. Imaginary input signal."""
         return self._inimag
     @inimag.setter
     def inimag(self, x): self.setInImag(x)
@@ -571,12 +571,12 @@ class PolToCar(PyoObject):
     """
     Performs the polar to cartesian conversion.
 
-    The Polar system locates the point by measuring the straight line distance, usually 
-    denoted by R, from the origin to the point and the angle of an imaginary line from 
+    The Polar system locates the point by measuring the straight line distance, usually
+    denoted by R, from the origin to the point and the angle of an imaginary line from
     the origin to the point measured counterclockwise from the positive X axis.
 
-    The Cartesian system locates points on a plane by measuring the  horizontal and 
-    vertical distances from an arbitrary origin to a point.  These are usually denoted 
+    The Cartesian system locates points on a plane by measuring the  horizontal and
+    vertical distances from an arbitrary origin to a point.  These are usually denoted
     as a pair of values (X,Y).
 
     :Parent: :py:class:`PyoObject`
@@ -591,11 +591,11 @@ class PolToCar(PyoObject):
     .. note::
 
         Cartesians coordinates can be retrieve by calling :
-        
+
         |  PolToCar['real'] to retrieve the real part.
         |  CarToPol['imag'] to retrieve the imaginary part.
 
-        PolToCar has no `out` method. Signal must be converted back to time domain, 
+        PolToCar has no `out` method. Signal must be converted back to time domain,
         with IFFT, before being sent to output.
 
     >>> s = Server().boot()
@@ -698,14 +698,14 @@ class PolToCar(PyoObject):
 
     @property
     def inmag(self):
-        """PyoObject. Magnitude input signal.""" 
+        """PyoObject. Magnitude input signal."""
         return self._inmag
     @inmag.setter
     def inmag(self, x): self.setInMag(x)
 
     @property
     def inang(self):
-        """PyoObject. Angle input signal.""" 
+        """PyoObject. Angle input signal."""
         return self._inang
     @inang.setter
     def inang(self, x): self.setInAng(x)
@@ -714,14 +714,14 @@ class FrameDelta(PyoObject):
     """
     Computes the phase differences between successive frames.
 
-    The difference between the phase values of successive FFT frames for a given bin 
-    determines the exact frequency of the energy centered in that bin. This is often 
-    known as the phase difference (and sometimes also referred to as phase derivative 
+    The difference between the phase values of successive FFT frames for a given bin
+    determines the exact frequency of the energy centered in that bin. This is often
+    known as the phase difference (and sometimes also referred to as phase derivative
     or instantaneous frequency if it's been subjected to a few additional calculations).
 
-    In order to reconstruct a plausible playback of re-ordered FFT frames, we need to 
-    calculate the phase difference between successive frames and use it to construct a 
-    `running phase` (by simply summing the successive differences with FrameAccum) for 
+    In order to reconstruct a plausible playback of re-ordered FFT frames, we need to
+    calculate the phase difference between successive frames and use it to construct a
+    `running phase` (by simply summing the successive differences with FrameAccum) for
     the output FFT frames.
 
     :Parent: :py:class:`PyoObject`
@@ -739,7 +739,7 @@ class FrameDelta(PyoObject):
 
     .. note::
 
-        FrameDelta has no `out` method. Signal must be converted back to time domain, 
+        FrameDelta has no `out` method. Signal must be converted back to time domain,
         with IFFT, before being sent to output.
 
     >>> s = Server().boot()
@@ -818,14 +818,14 @@ class FrameDelta(PyoObject):
 
     @property
     def input(self):
-        """PyoObject. Phase input signal.""" 
+        """PyoObject. Phase input signal."""
         return self._input
     @input.setter
     def input(self, x): self.setInput(x)
 
     @property
     def framesize(self):
-        """PyoObject. Frame size in samples.""" 
+        """PyoObject. Frame size in samples."""
         return self._framesize
     @framesize.setter
     def framesize(self, x): self.setFrameSize(x)
@@ -834,14 +834,14 @@ class FrameAccum(PyoObject):
     """
     Accumulates the phase differences between successive frames.
 
-    The difference between the phase values of successive FFT frames for a given bin 
-    determines the exact frequency of the energy centered in that bin. This is often 
-    known as the phase difference (and sometimes also referred to as phase derivative 
+    The difference between the phase values of successive FFT frames for a given bin
+    determines the exact frequency of the energy centered in that bin. This is often
+    known as the phase difference (and sometimes also referred to as phase derivative
     or instantaneous frequency if it's been subjected to a few additional calculations).
 
-    In order to reconstruct a plausible playback of re-ordered FFT frames, we need to 
-    calculate the phase difference between successive frames, with FrameDelta, and use 
-    it to construct a `running phase` (by simply summing the successive differences) for 
+    In order to reconstruct a plausible playback of re-ordered FFT frames, we need to
+    calculate the phase difference between successive frames, with FrameDelta, and use
+    it to construct a `running phase` (by simply summing the successive differences) for
     the output FFT frames.
 
     :Parent: :py:class:`PyoObject`
@@ -859,7 +859,7 @@ class FrameAccum(PyoObject):
 
     .. note::
 
-        FrameAccum has no `out` method. Signal must be converted back to time domain, 
+        FrameAccum has no `out` method. Signal must be converted back to time domain,
         with IFFT, before being sent to output.
 
     >>> s = Server().boot()
@@ -938,14 +938,14 @@ class FrameAccum(PyoObject):
 
     @property
     def input(self):
-        """PyoObject. Phase input signal.""" 
+        """PyoObject. Phase input signal."""
         return self._input
     @input.setter
     def input(self, x): self.setInput(x)
 
     @property
     def framesize(self):
-        """PyoObject. Frame size in samples.""" 
+        """PyoObject. Frame size in samples."""
         return self._framesize
     @framesize.setter
     def framesize(self, x): self.setFrameSize(x)
@@ -983,7 +983,7 @@ class Vectral(PyoObject):
 
     .. note::
 
-        Vectral has no `out` method. Signal must be converted back to time domain, 
+        Vectral has no `out` method. Signal must be converted back to time domain,
         with IFFT, before being sent to output.
 
     >>> s = Server().boot()
@@ -1105,57 +1105,57 @@ class Vectral(PyoObject):
 
     @property
     def input(self):
-        """PyoObject. Magnitude input signal.""" 
+        """PyoObject. Magnitude input signal."""
         return self._input
     @input.setter
     def input(self, x): self.setInput(x)
 
     @property
     def framesize(self):
-        """int. Frame size in samples.""" 
+        """int. Frame size in samples."""
         return self._framesize
     @framesize.setter
     def framesize(self, x): self.setFrameSize(x)
 
     @property
     def up(self):
-        """float or PyoObject. Filter coefficient for increasing bins.""" 
+        """float or PyoObject. Filter coefficient for increasing bins."""
         return self._up
     @up.setter
     def up(self, x): self.setUp(x)
 
     @property
     def down(self):
-        """float or PyoObject. Filter coefficient for decreasing bins.""" 
+        """float or PyoObject. Filter coefficient for decreasing bins."""
         return self._down
     @down.setter
     def down(self, x): self.setDown(x)
 
     @property
     def damp(self):
-        """float or PyoObject. High frequencies damping factor.""" 
+        """float or PyoObject. High frequencies damping factor."""
         return self._damp
     @damp.setter
     def damp(self, x): self.setDamp(x)
-    
+
 class CvlVerb(PyoObject):
     """
     Convolution based reverb.
 
-    CvlVerb implements convolution based on a uniformly partitioned overlap-save 
-    algorithm. This object can be used to convolve an input signal with an 
+    CvlVerb implements convolution based on a uniformly partitioned overlap-save
+    algorithm. This object can be used to convolve an input signal with an
     impulse response soundfile to simulate real acoustic spaces.
-    
+
     :Parent: :py:class:`PyoObject`
-    
+
     :Args:
-    
+
         input : PyoObject
             Input signal to process.
         impulse : string, optional
-            Path to the impulse response soundfile. The file must have the same 
+            Path to the impulse response soundfile. The file must have the same
             sampling rate as the server to get the proper convolution. Available at
-            initialization time only. Defaults to 'IRMediumHallStereo.wav', located 
+            initialization time only. Defaults to 'IRMediumHallStereo.wav', located
             in pyolib SNDS_PATH folder.
         size : int {pow-of-two}, optional
             The size in samples of each partition of the impulse file. Small size means
@@ -1164,9 +1164,9 @@ class CvlVerb(PyoObject):
             This value must also be greater or equal than the server's buffer size.
             Available at initialization time only. Defaults to 1024.
         bal : float or PyoObject, optional
-            Balance between wet and dry signal, between 0 and 1. 0 means no 
+            Balance between wet and dry signal, between 0 and 1. 0 means no
             reverb. Defaults to 0.25.
-    
+
     >>> s = Server().boot()
     >>> s.start()
     >>> sf = SfPlayer(SNDS_PATH+"/transparent.aif", loop=True, mul=0.5)
@@ -1191,7 +1191,7 @@ class CvlVerb(PyoObject):
     def setInput(self, x, fadetime=0.05):
         """
         Replace the `input` attribute.
-        
+
         :Args:
 
             x : PyoObject
@@ -1224,14 +1224,14 @@ class CvlVerb(PyoObject):
 
     @property
     def input(self):
-        """PyoObject. Input signal to process.""" 
+        """PyoObject. Input signal to process."""
         return self._input
     @input.setter
     def input(self, x): self.setInput(x)
 
     @property
     def bal(self):
-        """float or PyoObject. Wet / dry balance.""" 
+        """float or PyoObject. Wet / dry balance."""
         return self._bal
     @bal.setter
     def bal(self, x): self.setBal(x)

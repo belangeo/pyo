@@ -1,21 +1,21 @@
-/*************************************************************************
- * Copyright 2010 Olivier Belanger                                        *                  
- *                                                                        * 
+/**************************************************************************
+ * Copyright 2009-2015 Olivier Belanger                                   *
+ *                                                                        *
  * This file is part of pyo, a python module to help digital signal       *
- * processing script creation.                                            *  
- *                                                                        * 
+ * processing script creation.                                            *
+ *                                                                        *
  * pyo is free software: you can redistribute it and/or modify            *
- * it under the terms of the GNU General Public License as published by   *
- * the Free Software Foundation, either version 3 of the License, or      *
- * (at your option) any later version.                                    * 
+ * it under the terms of the GNU Lesser General Public License as         *
+ * published by the Free Software Foundation, either version 3 of the     *
+ * License, or (at your option) any later version.                        *
  *                                                                        *
  * pyo is distributed in the hope that it will be useful,                 *
- * but WITHOUT ANY WARRANTY; without even the implied warranty of         *    
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of         *
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the          *
- * GNU General Public License for more details.                           *
+ * GNU Lesser General Public License for more details.                    *
  *                                                                        *
- * You should have received a copy of the GNU General Public License      *
- * along with pyo.  If not, see <http://www.gnu.org/licenses/>.           *
+ * You should have received a copy of the GNU Lesser General Public       *
+ * License along with pyo.  If not, see <http://www.gnu.org/licenses/>.   *
  *************************************************************************/
 
 #include <Python.h>
@@ -66,7 +66,7 @@ static void
 Chorus_process_ii(Chorus *self) {
     MYFLT lfo, pos, val, fpart, inval;
     int i, j, ipart;
-    
+
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
     MYFLT dpth = PyFloat_AS_DOUBLE(self->depth);
     MYFLT feed = PyFloat_AS_DOUBLE(self->feedback);
@@ -74,16 +74,16 @@ Chorus_process_ii(Chorus *self) {
     if (dpth < 0)
         dpth = 0;
     else if (dpth > 5)
-        dpth = 5;        
-    
+        dpth = 5;
+
     if (feed < 0)
         feed = 0;
     else if (feed > 1)
         feed = 1;
- 
+
     for (i=0; i<self->bufsize; i++) {
         inval = in[i];
-        
+
         self->total_signal = 0.0;
         for (j=0; j<8; j++) {
             if (self->pointerPos[j] < 0.0)
@@ -94,7 +94,7 @@ Chorus_process_ii(Chorus *self) {
             fpart = self->pointerPos[j] - ipart;
             lfo = self->delay_devs[j] * dpth * (LFO_ARRAY[ipart] * (1.0 - fpart) + LFO_ARRAY[ipart+1] * fpart) + self->delays[j];
             self->pointerPos[j] += self->inc[j];
-            
+
             pos = self->in_count[j] - lfo;
             if (pos < 0)
                 pos += self->size[j];
@@ -102,23 +102,23 @@ Chorus_process_ii(Chorus *self) {
             fpart = pos - ipart;
             val = (self->buffer[j][ipart] * (1.0 - fpart) + self->buffer[j][ipart+1] * fpart);
             self->total_signal += val;
-            
+
             self->buffer[j][self->in_count[j]] = inval + val * feed;
             if (self->in_count[j] == 0)
                 self->buffer[j][self->size[j]] = self->buffer[j][self->in_count[j]];
             self->in_count[j]++;
             if (self->in_count[j] >= self->size[j])
                 self->in_count[j] = 0;
-        } 
+        }
         self->data[i] = self->total_signal * 0.25;
-    }    
+    }
 }
 
 static void
 Chorus_process_ai(Chorus *self) {
     MYFLT lfo, pos, val, fpart, inval, dpth;
     int i, j, ipart;
-    
+
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
     MYFLT *depth = Stream_getData((Stream *)self->depth_stream);
     MYFLT feed = PyFloat_AS_DOUBLE(self->feedback);
@@ -129,7 +129,7 @@ Chorus_process_ai(Chorus *self) {
         if (dpth < 0)
             dpth = 0;
         else if (dpth > 5)
-            dpth = 5;        
+            dpth = 5;
 
         self->total_signal = 0.0;
         for (j=0; j<8; j++) {
@@ -141,7 +141,7 @@ Chorus_process_ai(Chorus *self) {
             fpart = self->pointerPos[j] - ipart;
             lfo = self->delay_devs[j] * dpth * (LFO_ARRAY[ipart] * (1.0 - fpart) + LFO_ARRAY[ipart+1] * fpart) + self->delays[j];
             self->pointerPos[j] += self->inc[j];
-            
+
             pos = self->in_count[j] - lfo;
             if (pos < 0)
                 pos += self->size[j];
@@ -149,35 +149,35 @@ Chorus_process_ai(Chorus *self) {
             fpart = pos - ipart;
             val = (self->buffer[j][ipart] * (1.0 - fpart) + self->buffer[j][ipart+1] * fpart);
             self->total_signal += val;
-            
+
             self->buffer[j][self->in_count[j]] = inval + val * feed;
             if (self->in_count[j] == 0)
                 self->buffer[j][self->size[j]] = self->buffer[j][self->in_count[j]];
             self->in_count[j]++;
             if (self->in_count[j] >= self->size[j])
                 self->in_count[j] = 0;
-        } 
+        }
         self->data[i] = self->total_signal * 0.25;
-    }    
+    }
 }
 
 static void
 Chorus_process_ia(Chorus *self) {
     MYFLT lfo, pos, val, fpart, inval, feed;
     int i, j, ipart;
-    
+
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
     MYFLT dpth = PyFloat_AS_DOUBLE(self->depth);
     MYFLT *feedback = Stream_getData((Stream *)self->feedback_stream);
-    
+
     for (i=0; i<self->bufsize; i++) {
         inval = in[i];
         feed = feedback[i];
         if (feed < 0)
             feed = 0;
         else if (feed > 1)
-            feed = 1;        
-        
+            feed = 1;
+
         self->total_signal = 0.0;
         for (j=0; j<8; j++) {
             if (self->pointerPos[j] < 0.0)
@@ -188,7 +188,7 @@ Chorus_process_ia(Chorus *self) {
             fpart = self->pointerPos[j] - ipart;
             lfo = self->delay_devs[j] * dpth * (LFO_ARRAY[ipart] * (1.0 - fpart) + LFO_ARRAY[ipart+1] * fpart) + self->delays[j];
             self->pointerPos[j] += self->inc[j];
-            
+
             pos = self->in_count[j] - lfo;
             if (pos < 0)
                 pos += self->size[j];
@@ -196,27 +196,27 @@ Chorus_process_ia(Chorus *self) {
             fpart = pos - ipart;
             val = (self->buffer[j][ipart] * (1.0 - fpart) + self->buffer[j][ipart+1] * fpart);
             self->total_signal += val;
-            
+
             self->buffer[j][self->in_count[j]] = inval + val * feed;
             if (self->in_count[j] == 0)
                 self->buffer[j][self->size[j]] = self->buffer[j][self->in_count[j]];
             self->in_count[j]++;
             if (self->in_count[j] >= self->size[j])
                 self->in_count[j] = 0;
-        } 
+        }
         self->data[i] = self->total_signal * 0.25;
-    }    
+    }
 }
 
 static void
 Chorus_process_aa(Chorus *self) {
     MYFLT lfo, pos, val, fpart, inval, dpth, feed;
     int i, j, ipart;
-    
+
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
     MYFLT *depth = Stream_getData((Stream *)self->depth_stream);
     MYFLT *feedback = Stream_getData((Stream *)self->feedback_stream);
-    
+
     for (i=0; i<self->bufsize; i++) {
         inval = in[i];
         dpth = depth[i];
@@ -224,12 +224,12 @@ Chorus_process_aa(Chorus *self) {
         if (dpth < 0)
             dpth = 0;
         else if (dpth > 5)
-            dpth = 5;        
+            dpth = 5;
         if (feed < 0)
             feed = 0;
         else if (feed > 1)
-            feed = 1;        
-        
+            feed = 1;
+
         self->total_signal = 0.0;
         for (j=0; j<8; j++) {
             if (self->pointerPos[j] < 0.0)
@@ -240,7 +240,7 @@ Chorus_process_aa(Chorus *self) {
             fpart = self->pointerPos[j] - ipart;
             lfo = self->delay_devs[j] * dpth * (LFO_ARRAY[ipart] * (1.0 - fpart) + LFO_ARRAY[ipart+1] * fpart) + self->delays[j];
             self->pointerPos[j] += self->inc[j];
-            
+
             pos = self->in_count[j] - lfo;
             if (pos < 0)
                 pos += self->size[j];
@@ -248,31 +248,31 @@ Chorus_process_aa(Chorus *self) {
             fpart = pos - ipart;
             val = (self->buffer[j][ipart] * (1.0 - fpart) + self->buffer[j][ipart+1] * fpart);
             self->total_signal += val;
-            
+
             self->buffer[j][self->in_count[j]] = inval + val * feed;
             if (self->in_count[j] == 0)
                 self->buffer[j][self->size[j]] = self->buffer[j][self->in_count[j]];
             self->in_count[j]++;
             if (self->in_count[j] >= self->size[j])
                 self->in_count[j] = 0;
-        } 
+        }
         self->data[i] = self->total_signal * 0.25;
-    }    
+    }
 }
 
 static void
 Chorus_mix_i(Chorus *self) {
     int i;
     MYFLT val;
-    
+
     MYFLT mix = PyFloat_AS_DOUBLE(self->mix);
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
-    
+
     if (mix < 0.0)
         mix = 0.0;
     else if (mix > 1.0)
         mix = 1.0;
-    
+
     for (i=0; i<self->bufsize; i++) {
         val = in[i] * (1.0 - mix) + self->data[i] * mix;
         self->data[i] = val;
@@ -283,17 +283,17 @@ static void
 Chorus_mix_a(Chorus *self) {
     int i;
     MYFLT mix, val;
-    
+
     MYFLT *mi = Stream_getData((Stream *)self->mix_stream);
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
-    
+
     for (i=0; i<self->bufsize; i++) {
         mix = mi[i];
         if (mix < 0.0)
             mix = 0.0;
         else if (mix > 1.0)
             mix = 1.0;
-        
+
         val = in[i] * (1.0 - mix) + self->data[i] * mix;
         self->data[i] = val;
     }
@@ -316,66 +316,66 @@ Chorus_setProcMode(Chorus *self)
     procmode = self->modebuffer[2] + self->modebuffer[3] * 10;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
     mixmode = self->modebuffer[4];
-    
+
 	switch (procmode) {
-        case 0:    
+        case 0:
             self->proc_func_ptr = Chorus_process_ii;
             break;
-        case 1:    
+        case 1:
             self->proc_func_ptr = Chorus_process_ai;
             break;
-        case 10:    
+        case 10:
             self->proc_func_ptr = Chorus_process_ia;
             break;
-        case 11:    
+        case 11:
             self->proc_func_ptr = Chorus_process_aa;
             break;
-    } 
+    }
     switch (mixmode) {
-        case 0:    
+        case 0:
             self->mix_func_ptr = Chorus_mix_i;
             break;
-        case 1:    
+        case 1:
             self->mix_func_ptr = Chorus_mix_a;
             break;
-    }        
-            
+    }
+
 	switch (muladdmode) {
-        case 0:        
+        case 0:
             self->muladd_func_ptr = Chorus_postprocessing_ii;
             break;
-        case 1:    
+        case 1:
             self->muladd_func_ptr = Chorus_postprocessing_ai;
             break;
-        case 2:    
+        case 2:
             self->muladd_func_ptr = Chorus_postprocessing_revai;
             break;
-        case 10:        
+        case 10:
             self->muladd_func_ptr = Chorus_postprocessing_ia;
             break;
-        case 11:    
+        case 11:
             self->muladd_func_ptr = Chorus_postprocessing_aa;
             break;
-        case 12:    
+        case 12:
             self->muladd_func_ptr = Chorus_postprocessing_revaa;
             break;
-        case 20:        
+        case 20:
             self->muladd_func_ptr = Chorus_postprocessing_ireva;
             break;
-        case 21:    
+        case 21:
             self->muladd_func_ptr = Chorus_postprocessing_areva;
             break;
-        case 22:    
+        case 22:
             self->muladd_func_ptr = Chorus_postprocessing_revareva;
             break;
-    } 
+    }
 }
 
 static void
 Chorus_compute_next_data_frame(Chorus *self)
 {
-    (*self->proc_func_ptr)(self); 
-    (*self->mix_func_ptr)(self); 
+    (*self->proc_func_ptr)(self);
+    (*self->mix_func_ptr)(self);
     (*self->muladd_func_ptr)(self);
 }
 
@@ -384,28 +384,28 @@ Chorus_traverse(Chorus *self, visitproc visit, void *arg)
 {
     pyo_VISIT
     Py_VISIT(self->input);
-    Py_VISIT(self->input_stream);    
-    Py_VISIT(self->feedback);    
-    Py_VISIT(self->feedback_stream);    
-    Py_VISIT(self->depth);    
-    Py_VISIT(self->depth_stream);    
-    Py_VISIT(self->mix);    
-    Py_VISIT(self->mix_stream);    
+    Py_VISIT(self->input_stream);
+    Py_VISIT(self->feedback);
+    Py_VISIT(self->feedback_stream);
+    Py_VISIT(self->depth);
+    Py_VISIT(self->depth_stream);
+    Py_VISIT(self->mix);
+    Py_VISIT(self->mix_stream);
     return 0;
 }
 
-static int 
+static int
 Chorus_clear(Chorus *self)
 {
     pyo_CLEAR
     Py_CLEAR(self->input);
-    Py_CLEAR(self->input_stream);    
-    Py_CLEAR(self->feedback);    
-    Py_CLEAR(self->feedback_stream);    
-    Py_CLEAR(self->depth);    
-    Py_CLEAR(self->depth_stream);    
-    Py_CLEAR(self->mix);    
-    Py_CLEAR(self->mix_stream);    
+    Py_CLEAR(self->input_stream);
+    Py_CLEAR(self->feedback);
+    Py_CLEAR(self->feedback_stream);
+    Py_CLEAR(self->depth);
+    Py_CLEAR(self->depth_stream);
+    Py_CLEAR(self->mix);
+    Py_CLEAR(self->mix_stream);
     return 0;
 }
 
@@ -416,7 +416,7 @@ Chorus_dealloc(Chorus* self)
     pyo_DEALLOC
     for (i=0; i<8; i++) {
         free(self->buffer[i]);
-    }    
+    }
     Chorus_clear(self);
     self->ob_type->tp_free((PyObject*)self);
 }
@@ -430,7 +430,7 @@ Chorus_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp, *depthtmp=NULL, *feedbacktmp=NULL, *mixtmp=NULL, *multmp=NULL, *addtmp=NULL;
     Chorus *self;
     self = (Chorus *)type->tp_alloc(type, 0);
-    
+
     self->feedback = PyFloat_FromDouble(0.5);
     self->depth = PyFloat_FromDouble(1.0);
     self->mix = PyFloat_FromDouble(0.5);
@@ -441,13 +441,13 @@ Chorus_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 	self->modebuffer[2] = 0;
 	self->modebuffer[3] = 0;
 	self->modebuffer[4] = 0;
-    
+
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, Chorus_compute_next_data_frame);
     self->mode_func_ptr = Chorus_setProcMode;
- 
+
     srfac = self->sr / 44100.0;
-   
+
     for (i=0; i<8; i++) {
         self->in_count[i] = 0;
         self->delays[i] = chorusParams[i][0] * srfac;
@@ -456,16 +456,16 @@ Chorus_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     }
 
     static char *kwlist[] = {"input", "depth", "feedback", "mix", "mul", "add", NULL};
-    
+
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOOOO", kwlist, &inputtmp, &depthtmp, &feedbacktmp, &mixtmp, &multmp, &addtmp))
         Py_RETURN_NONE;
-    
+
     INIT_INPUT_STREAM
 
     if (depthtmp) {
         PyObject_CallMethod((PyObject *)self, "setDepth", "O", depthtmp);
     }
-    
+
     if (feedbacktmp) {
         PyObject_CallMethod((PyObject *)self, "setFeedback", "O", feedbacktmp);
     }
@@ -473,15 +473,15 @@ Chorus_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (mixtmp) {
         PyObject_CallMethod((PyObject *)self, "setMix", "O", mixtmp);
     }
-    
+
     if (multmp) {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
     }
-    
+
     if (addtmp) {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
-    
+
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
     for (i=0; i<8; i++) {
@@ -489,20 +489,20 @@ Chorus_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         self->buffer[i] = (MYFLT *)realloc(self->buffer[i], (self->size[i]+1) * sizeof(MYFLT));
         for (j=0; j<(self->size[i]+1); j++) {
             self->buffer[i][j] = 0.;
-        }    
-    }    
-    
+        }
+    }
+
     (*self->mode_func_ptr)(self);
-    
+
     return (PyObject *)self;
 }
 
 static PyObject * Chorus_getServer(Chorus* self) { GET_SERVER };
 static PyObject * Chorus_getStream(Chorus* self) { GET_STREAM };
-static PyObject * Chorus_setMul(Chorus *self, PyObject *arg) { SET_MUL };	
-static PyObject * Chorus_setAdd(Chorus *self, PyObject *arg) { SET_ADD };	
-static PyObject * Chorus_setSub(Chorus *self, PyObject *arg) { SET_SUB };	
-static PyObject * Chorus_setDiv(Chorus *self, PyObject *arg) { SET_DIV };	
+static PyObject * Chorus_setMul(Chorus *self, PyObject *arg) { SET_MUL };
+static PyObject * Chorus_setAdd(Chorus *self, PyObject *arg) { SET_ADD };
+static PyObject * Chorus_setSub(Chorus *self, PyObject *arg) { SET_SUB };
+static PyObject * Chorus_setDiv(Chorus *self, PyObject *arg) { SET_DIV };
 
 static PyObject * Chorus_play(Chorus *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * Chorus_out(Chorus *self, PyObject *args, PyObject *kwds) { OUT };
@@ -521,14 +521,14 @@ static PyObject *
 Chorus_setDepth(Chorus *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
-	
+
 	if (arg == NULL) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
 	int isNumber = PyNumber_Check(arg);
-    
+
 	tmp = arg;
 	Py_INCREF(tmp);
 	Py_DECREF(self->depth);
@@ -544,9 +544,9 @@ Chorus_setDepth(Chorus *self, PyObject *arg)
         self->depth_stream = (Stream *)streamtmp;
 		self->modebuffer[2] = 1;
 	}
-    
+
     (*self->mode_func_ptr)(self);
-    
+
 	Py_INCREF(Py_None);
 	return Py_None;
 }
@@ -555,14 +555,14 @@ static PyObject *
 Chorus_setFeedback(Chorus *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
-	
+
 	if (arg == NULL) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
 	int isNumber = PyNumber_Check(arg);
-    
+
 	tmp = arg;
 	Py_INCREF(tmp);
 	Py_DECREF(self->feedback);
@@ -578,25 +578,25 @@ Chorus_setFeedback(Chorus *self, PyObject *arg)
         self->feedback_stream = (Stream *)streamtmp;
 		self->modebuffer[3] = 1;
 	}
-    
+
     (*self->mode_func_ptr)(self);
-    
+
 	Py_INCREF(Py_None);
 	return Py_None;
-}	
+}
 
 static PyObject *
 Chorus_setMix(Chorus *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
-	
+
 	if (arg == NULL) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
 	int isNumber = PyNumber_Check(arg);
-    
+
 	tmp = arg;
 	Py_INCREF(tmp);
 	Py_DECREF(self->mix);
@@ -612,12 +612,12 @@ Chorus_setMix(Chorus *self, PyObject *arg)
         self->mix_stream = (Stream *)streamtmp;
 		self->modebuffer[4] = 1;
 	}
-    
+
     (*self->mode_func_ptr)(self);
-    
+
 	Py_INCREF(Py_None);
 	return Py_None;
-}	
+}
 
 static PyMemberDef Chorus_members[] = {
 {"server", T_OBJECT_EX, offsetof(Chorus, server), 0, "Pyo server."},

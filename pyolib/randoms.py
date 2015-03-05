@@ -3,23 +3,23 @@ Set of objects that implement different kinds of random noise generators.
 
 """
 """
-Copyright 2010 Olivier Belanger
+Copyright 2009-2015 Olivier Belanger
 
 This file is part of pyo, a python module to help digital signal
 processing script creation.
 
 pyo is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
+it under the terms of the GNU Lesser General Public License as
+published by the Free Software Foundation, either version 3 of the
+License, or (at your option) any later version.
 
 pyo is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
+GNU Lesser General Public License for more details.
 
-You should have received a copy of the GNU General Public License
-along with pyo.  If not, see <http://www.gnu.org/licenses/>.
+You should have received a copy of the GNU Lesser General Public
+License along with pyo.  If not, see <http://www.gnu.org/licenses/>.
 """
 import sys
 from _core import *
@@ -29,11 +29,11 @@ from types import StringType, ListType
 class Randi(PyoObject):
     """
     Periodic pseudo-random generator with interpolation.
-    
-    Randi generates a pseudo-random number between `min` and `max` 
-    values at a frequency specified by `freq` parameter. Randi will 
+
+    Randi generates a pseudo-random number between `min` and `max`
+    values at a frequency specified by `freq` parameter. Randi will
     produce straight-line interpolation between current number and the next.
-    
+
     :Parent: :py:class:`PyoObject`
 
     :Args:
@@ -44,13 +44,13 @@ class Randi(PyoObject):
             Maximum value for the random generation. Defaults to 1.
         freq : float or PyoObject, optional
             Polling frequency. Defaults to 1.
-    
+
     >>> s = Server().boot()
     >>> s.start()
     >>> freq = Randi(500, 3000, 4)
     >>> noze = Noise().mix(2)
     >>> a = Biquad(noze, freq=freq, q=5, type=2, mul=.5).out()
-   
+
     """
     def __init__(self, min=0., max=1., freq=1., mul=1, add=0):
         PyoObject.__init__(self, mul, add)
@@ -63,12 +63,12 @@ class Randi(PyoObject):
     def setMin(self, x):
         """
         Replace the `min` attribute.
-        
+
         :Args:
 
             x : float or PyoObject
                 new `min` attribute.
-        
+
         """
         self._min = x
         x, lmax = convertArgsToLists(x)
@@ -77,12 +77,12 @@ class Randi(PyoObject):
     def setMax(self, x):
         """
         Replace the `max` attribute.
-        
+
         :Args:
 
             x : float or PyoObject
                 new `max` attribute.
-        
+
         """
         self._max = x
         x, lmax = convertArgsToLists(x)
@@ -91,12 +91,12 @@ class Randi(PyoObject):
     def setFreq(self, x):
         """
         Replace the `freq` attribute.
-        
+
         :Args:
 
             x : float or PyoObject
                 new `freq` attribute.
-        
+
         """
         self._port = x
         x, lmax = convertArgsToLists(x)
@@ -110,35 +110,35 @@ class Randi(PyoObject):
         PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
-    def min(self): 
+    def min(self):
         """float or PyoObject. Minimum value."""
         return self._min
     @min.setter
-    def min(self, x): 
+    def min(self, x):
         self.setMin(x)
     @property
-    def max(self): 
+    def max(self):
         """float or PyoObject. Maximum value."""
         return self._max
     @max.setter
-    def max(self, x): 
+    def max(self, x):
         self.setMax(x)
     @property
-    def freq(self): 
+    def freq(self):
         """float or PyoObject. Polling frequency."""
         return self._freq
     @freq.setter
-    def freq(self, x): 
+    def freq(self, x):
         self.setFreq(x)
 
 class Randh(PyoObject):
     """
     Periodic pseudo-random generator.
-    
-    Randh generates a pseudo-random number between `min` and `max` 
-    values at a frequency specified by `freq` parameter. Randh will 
+
+    Randh generates a pseudo-random number between `min` and `max`
+    values at a frequency specified by `freq` parameter. Randh will
     hold generated value until next generation.
-    
+
     :Parent: :py:class:`PyoObject`
 
     :Args:
@@ -149,13 +149,13 @@ class Randh(PyoObject):
             Maximum value for the random generation. Defaults to 1.
         freq : float or PyoObject, optional
             Polling frequency. Defaults to 1.
-    
+
     >>> s = Server().boot()
     >>> s.start()
     >>> freq = Randh(500, 3000, 4)
     >>> noze = Noise().mix(2)
     >>> a = Biquad(noze, freq=freq, q=5, type=2, mul=.5).out()
-    
+
     """
     def __init__(self, min=0., max=1., freq=1., mul=1, add=0):
         PyoObject.__init__(self, mul, add)
@@ -168,12 +168,12 @@ class Randh(PyoObject):
     def setMin(self, x):
         """
         Replace the `min` attribute.
-        
+
         :Args:
 
             x : float or PyoObject
                 new `min` attribute.
-        
+
         """
         self._min = x
         x, lmax = convertArgsToLists(x)
@@ -182,12 +182,12 @@ class Randh(PyoObject):
     def setMax(self, x):
         """
         Replace the `max` attribute.
-        
+
         :Args:
 
             x : float or PyoObject
                 new `max` attribute.
-        
+
         """
         self._max = x
         x, lmax = convertArgsToLists(x)
@@ -196,12 +196,12 @@ class Randh(PyoObject):
     def setFreq(self, x):
         """
         Replace the `freq` attribute.
-        
+
         :Args:
 
             x : float or PyoObject
                 new `freq` attribute.
-        
+
         """
         self._port = x
         x, lmax = convertArgsToLists(x)
@@ -215,35 +215,35 @@ class Randh(PyoObject):
         PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
-    def min(self): 
+    def min(self):
         """float or PyoObject. Minimum value."""
         return self._min
     @min.setter
-    def min(self, x): 
+    def min(self, x):
         self.setMin(x)
     @property
-    def max(self): 
+    def max(self):
         """float or PyoObject. Maximum value."""
         return self._max
     @max.setter
-    def max(self, x): 
+    def max(self, x):
         self.setMax(x)
     @property
-    def freq(self): 
+    def freq(self):
         """float or PyoObject. Polling frequency."""
         return self._freq
     @freq.setter
-    def freq(self, x): 
+    def freq(self, x):
         self.setFreq(x)
 
 class Choice(PyoObject):
     """
     Periodically choose a new value from a user list.
-    
+
     Choice chooses a new value from a predefined list of floats `choice`
-    at a frequency specified by `freq` parameter. Choice will 
+    at a frequency specified by `freq` parameter. Choice will
     hold choosen value until next generation.
-    
+
     :Parent: :py:class:`PyoObject`
 
     :Args:
@@ -258,7 +258,7 @@ class Choice(PyoObject):
     >>> freqs = midiToHz([60,62,64,65,67,69,71,72])
     >>> rnd = Choice(choice=freqs, freq=[3,4])
     >>> a = SineLoop(rnd, feedback=0.05, mul=.2).out()
-    
+
     """
     def __init__(self, choice, freq=1., mul=1, add=0):
         PyoObject.__init__(self, mul, add)
@@ -274,32 +274,32 @@ class Choice(PyoObject):
             choicelen = len(choice)
             lmax = max(choicelen, lmax)
             self._base_objs = [Choice_base(wrap(choice,i), wrap(freq,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
-            
+
     def setChoice(self, x):
         """
         Replace the `choice` attribute.
-        
+
         :Args:
 
             x : list of floats or list of lists of floats
                 new `choice` attribute.
-        
+
         """
         self._choice = x
         if type(x[0]) != ListType:
             [obj.setChoice(self._choice) for i, obj in enumerate(self._base_objs)]
         else:
             [obj.setChoice(wrap(self._choice,i)) for i, obj in enumerate(self._base_objs)]
-                
+
     def setFreq(self, x):
         """
         Replace the `freq` attribute.
-        
+
         :Args:
 
             x : float or PyoObject
                 new `freq` attribute.
-        
+
         """
         self._freq = x
         x, lmax = convertArgsToLists(x)
@@ -310,28 +310,28 @@ class Choice(PyoObject):
         PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
-    def choice(self): 
+    def choice(self):
         """list of floats or list of lists of floats. Possible choices."""
         return self._choice
     @choice.setter
-    def choice(self, x): 
+    def choice(self, x):
         self.setChoice(x)
     @property
-    def freq(self): 
+    def freq(self):
         """float or PyoObject. Polling frequency."""
         return self._freq
     @freq.setter
-    def freq(self, x): 
+    def freq(self, x):
         self.setFreq(x)
 
 class RandInt(PyoObject):
     """
     Periodic pseudo-random integer generator.
-    
-    RandInt generates a pseudo-random integer number between 0 and `max` 
-    values at a frequency specified by `freq` parameter. RandInt will 
+
+    RandInt generates a pseudo-random integer number between 0 and `max`
+    values at a frequency specified by `freq` parameter. RandInt will
     hold generated value until the next generation.
-    
+
     :Parent: :py:class:`PyoObject`
 
     :Args:
@@ -346,7 +346,7 @@ class RandInt(PyoObject):
     >>> freq = RandInt(max=10, freq=5, mul=100, add=500)
     >>> jit = Randi(min=0.99, max=1.01, freq=[2.33,3.41])
     >>> a = SineLoop(freq*jit, feedback=0.03, mul=.2).out()
-    
+
     """
     def __init__(self, max=100, freq=1., mul=1, add=0):
         PyoObject.__init__(self, mul, add)
@@ -358,12 +358,12 @@ class RandInt(PyoObject):
     def setMax(self, x):
         """
         Replace the `max` attribute.
-        
+
         :Args:
 
             x : float or PyoObject
                 new `max` attribute.
-        
+
         """
         self._max = x
         x, lmax = convertArgsToLists(x)
@@ -372,12 +372,12 @@ class RandInt(PyoObject):
     def setFreq(self, x):
         """
         Replace the `freq` attribute.
-        
+
         :Args:
 
             x : float or PyoObject
                 new `freq` attribute.
-        
+
         """
         self._freq = x
         x, lmax = convertArgsToLists(x)
@@ -390,26 +390,26 @@ class RandInt(PyoObject):
         PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
-    def max(self): 
+    def max(self):
         """float or PyoObject. Maximum value."""
         return self._max
     @max.setter
-    def max(self, x): 
+    def max(self, x):
         self.setMax(x)
     @property
-    def freq(self): 
+    def freq(self):
         """float or PyoObject. Polling frequency."""
         return self._freq
     @freq.setter
-    def freq(self, x): 
+    def freq(self, x):
         self.setFreq(x)
 
 class RandDur(PyoObject):
     """
     Recursive time varying pseudo-random generator.
 
-    RandDur generates a pseudo-random number between `min` and `max` 
-    arguments and uses that number to set the delay time before the next 
+    RandDur generates a pseudo-random number between `min` and `max`
+    arguments and uses that number to set the delay time before the next
     generation. RandDur will hold the generated value until next generation.
 
     :Parent: :py:class:`PyoObject`
@@ -473,18 +473,18 @@ class RandDur(PyoObject):
         PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
-    def min(self): 
+    def min(self):
         """float or PyoObject. Minimum value."""
         return self._min
     @min.setter
-    def min(self, x): 
+    def min(self, x):
         self.setMin(x)
     @property
-    def max(self): 
+    def max(self):
         """float or PyoObject. Maximum value."""
         return self._max
     @max.setter
-    def max(self, x): 
+    def max(self, x):
         self.setMax(x)
 
 class Xnoise(PyoObject):
@@ -506,9 +506,9 @@ class Xnoise(PyoObject):
             First parameter. Defaults to 0.5.
         x2 : float or PyoObject, optional
             Second parameter. Defaults to 0.5.
-    
+
     .. note::
-    
+
         Available distributions are:
             0. uniform
             1. linear minimum
@@ -523,7 +523,7 @@ class Xnoise(PyoObject):
             10. poisson
             11. walker (drunk)
             12. loopseg (drunk with looped segments)
-            
+
         Depending on the distribution, `x1` and `x2` parameters are applied
         as follow (names as string, or associated number can be used as `dist`
         parameter):
@@ -564,7 +564,7 @@ class Xnoise(PyoObject):
             11. walker
                  - x1 : maximum value {0.1 -> 1}
                  - x2 : maximum step {0.1 -> 1}
-            12. loopseg 
+            12. loopseg
                  - x1 : maximum value {0.1 -> 1}
                  - x2 : maximum step {0.1 -> 1}
 
@@ -655,32 +655,32 @@ class Xnoise(PyoObject):
         PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
-    def dist(self): 
+    def dist(self):
         """string or int. Distribution type."""
         return self._dist
     @dist.setter
-    def dist(self, x): 
+    def dist(self, x):
         self.setDist(x)
     @property
-    def freq(self): 
+    def freq(self):
         """float or PyoObject. Polling frequency."""
         return self._freq
     @freq.setter
-    def freq(self, x): 
+    def freq(self, x):
         self.setFreq(x)
     @property
-    def x1(self): 
+    def x1(self):
         """float or PyoObject. First parameter."""
         return self._x1
     @x1.setter
-    def x1(self, x): 
+    def x1(self, x):
         self.setX1(x)
     @property
-    def x2(self): 
+    def x2(self):
         """float or PyoObject. Second parameter."""
         return self._x2
     @x2.setter
-    def x2(self, x): 
+    def x2(self, x):
         self.setX2(x)
 
 class XnoiseMidi(PyoObject):
@@ -689,8 +689,8 @@ class XnoiseMidi(PyoObject):
 
     XnoiseMidi implements a few of the most common noise distributions.
     Each distribution generates integer values in the range defined with
-    `mrange` parameter and output can be scaled on midi notes, hertz or 
-    transposition factor. 
+    `mrange` parameter and output can be scaled on midi notes, hertz or
+    transposition factor.
 
     :Parent: :py:class:`PyoObject`
 
@@ -705,16 +705,16 @@ class XnoiseMidi(PyoObject):
         x2 : float or PyoObject, optional
             Second parameter. Defaults to 0.5.
         scale : int {0, 1, 2}, optional
-            Output format. 0 = Midi, 1 = Hertz, 2 = transposition factor. 
-            In the transposition mode, the central key (the key where there 
+            Output format. 0 = Midi, 1 = Hertz, 2 = transposition factor.
+            In the transposition mode, the central key (the key where there
             is no transposition) is (`minrange` + `maxrange`) / 2. Defaults
             to 0.
         mrange : tuple of int, optional
             Minimum and maximum possible values, in Midi notes. Available
             only at initialization time. Defaults to (0, 127).
-    
+
     .. note::
-    
+
         Available distributions are:
             0. uniform
             1. linear minimum
@@ -729,7 +729,7 @@ class XnoiseMidi(PyoObject):
             10. poisson
             11. walker (drunk)
             12. loopseg (drunk with looped segments)
-            
+
         Depending on the distribution, `x1` and `x2` parameters are applied
         as follow (names as string, or associated number can be used as `dist`
         parameter):
@@ -770,7 +770,7 @@ class XnoiseMidi(PyoObject):
             11. walker
                  - x1 : maximum value {0.1 -> 1}
                  - x2 : maximum step {0.1 -> 1}
-            12. loopseg 
+            12. loopseg
                  - x1 : maximum value {0.1 -> 1}
                  - x2 : maximum step {0.1 -> 1}
 
@@ -815,8 +815,8 @@ class XnoiseMidi(PyoObject):
     def setScale(self, x):
         """
         Replace the `scale` attribute.
-        
-        Possible values are: 
+
+        Possible values are:
             0. Midi notes
             1. Hertz
             2. transposition factor (centralkey is (`minrange` + `maxrange`) / 2
@@ -898,39 +898,39 @@ class XnoiseMidi(PyoObject):
         PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
-    def dist(self): 
+    def dist(self):
         """string or int. Distribution type."""
         return self._dist
     @dist.setter
-    def dist(self, x): 
+    def dist(self, x):
         self.setDist(x)
     @property
-    def freq(self): 
+    def freq(self):
         """float or PyoObject. Polling frequency."""
         return self._freq
     @freq.setter
-    def freq(self, x): 
+    def freq(self, x):
         self.setFreq(x)
     @property
-    def x1(self): 
+    def x1(self):
         """float or PyoObject. First parameter."""
         return self._x1
     @x1.setter
-    def x1(self, x): 
+    def x1(self, x):
         self.setX1(x)
     @property
-    def x2(self): 
+    def x2(self):
         """float or PyoObject. Second parameter."""
         return self._x2
     @x2.setter
-    def x2(self, x): 
+    def x2(self, x):
         self.setX2(x)
     @property
-    def scale(self): 
+    def scale(self):
         """int. Output format."""
         return self._scale
     @scale.setter
-    def scale(self, x): 
+    def scale(self, x):
         self.setScale(x)
 
 class XnoiseDur(PyoObject):
@@ -939,8 +939,8 @@ class XnoiseDur(PyoObject):
 
     Xnoise implements a few of the most common noise distributions.
     Each distribution generates values in the range 0 to 1, which are
-    then rescaled between `min` and `max` arguments. The object uses 
-    the generated value to set the delay time before the next generation. 
+    then rescaled between `min` and `max` arguments. The object uses
+    the generated value to set the delay time before the next generation.
     XnoiseDur will hold the value until next generation.
 
     :Parent: :py:class:`PyoObject`
@@ -975,7 +975,7 @@ class XnoiseDur(PyoObject):
             10. poisson
             11. walker (drunk)
             12. loopseg (drunk with looped segments)
-            
+
         Depending on the distribution, `x1` and `x2` parameters are applied
         as follow (names as string, or associated number can be used as `dist`
         parameter):
@@ -1016,7 +1016,7 @@ class XnoiseDur(PyoObject):
             11. walker
                  - x1 : maximum value {0.1 -> 1}
                  - x2 : maximum step {0.1 -> 1}
-            12. loopseg 
+            12. loopseg
                  - x1 : maximum value {0.1 -> 1}
                  - x2 : maximum step {0.1 -> 1}
 
@@ -1123,52 +1123,52 @@ class XnoiseDur(PyoObject):
         PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
-    def dist(self): 
+    def dist(self):
         """string or int. Distribution type."""
         return self._dist
     @dist.setter
-    def dist(self, x): 
+    def dist(self, x):
         self.setDist(x)
     @property
-    def min(self): 
+    def min(self):
         """float or PyoObject. Minimum value."""
         return self._min
     @min.setter
-    def min(self, x): 
+    def min(self, x):
         self.setMin(x)
     @property
-    def max(self): 
+    def max(self):
         """float or PyoObject. Maximum value."""
         return self._max
     @max.setter
-    def max(self, x): 
+    def max(self, x):
         self.setMax(x)
     @property
-    def x1(self): 
+    def x1(self):
         """float or PyoObject. First parameter."""
         return self._x1
     @x1.setter
-    def x1(self, x): 
+    def x1(self, x):
         self.setX1(x)
     @property
-    def x2(self): 
+    def x2(self):
         """float or PyoObject. Second parameter."""
         return self._x2
     @x2.setter
-    def x2(self, x): 
+    def x2(self, x):
         self.setX2(x)
 
 class Urn(PyoObject):
     """
     Periodic pseudo-random integer generator without duplicates.
 
-    Urn generates a pseudo-random integer number between 0 and `max` 
-    values at a frequency specified by `freq` parameter. Urn will 
-    hold generated value until the next generation. Urn works like RandInt, 
+    Urn generates a pseudo-random integer number between 0 and `max`
+    values at a frequency specified by `freq` parameter. Urn will
+    hold generated value until the next generation. Urn works like RandInt,
     except that it keeps track of each number which has been generated. After
     all numbers have been outputed, the pool is reseted and the object send
     a trigger signal.
-    
+
     :Parent: :py:class:`PyoObject`
 
     :Args:
@@ -1180,9 +1180,9 @@ class Urn(PyoObject):
 
     .. note::
 
-        Urn will sends a trigger signal when the pool is empty. 
-        User can retreive the trigger streams by calling obj['trig']. 
-        Useful to synchronize other processes. 
+        Urn will sends a trigger signal when the pool is empty.
+        User can retreive the trigger streams by calling obj['trig'].
+        Useful to synchronize other processes.
 
     >>> s = Server().boot()
     >>> s.start()
@@ -1191,7 +1191,7 @@ class Urn(PyoObject):
     >>> sigL = SineLoop(freq=fr, feedback=.08, mul=0.3).out()
     >>> amp = TrigExpseg(mid["trig"], [(0,0),(.01,.25),(1,0)])
     >>> sigR = SineLoop(midiToHz(84), feedback=0.05, mul=amp).out(1)
-    
+
     """
     def __init__(self, max=100, freq=1., mul=1, add=0):
         PyoObject.__init__(self, mul, add)
@@ -1207,12 +1207,12 @@ class Urn(PyoObject):
     def setMax(self, x):
         """
         Replace the `max` attribute.
-        
+
         :Args:
 
             x : int
                 new `max` attribute.
-        
+
         """
         self._max = x
         x, lmax = convertArgsToLists(x)
@@ -1221,12 +1221,12 @@ class Urn(PyoObject):
     def setFreq(self, x):
         """
         Replace the `freq` attribute.
-        
+
         :Args:
 
             x : float or PyoObject
                 new `freq` attribute.
-        
+
         """
         self._freq = x
         x, lmax = convertArgsToLists(x)
@@ -1239,16 +1239,16 @@ class Urn(PyoObject):
         PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
-    def max(self): 
+    def max(self):
         """int. Maximum value."""
         return self._max
     @max.setter
-    def max(self, x): 
+    def max(self, x):
         self.setMax(x)
     @property
-    def freq(self): 
+    def freq(self):
         """float or PyoObject. Polling frequency."""
         return self._freq
     @freq.setter
-    def freq(self, x): 
+    def freq(self, x):
         self.setFreq(x)

@@ -1,21 +1,21 @@
-/*************************************************************************
- * Copyright 2010 Olivier Belanger                                        *                  
- *                                                                        * 
+/**************************************************************************
+ * Copyright 2009-2015 Olivier Belanger                                   *
+ *                                                                        *
  * This file is part of pyo, a python module to help digital signal       *
- * processing script creation.                                            *  
- *                                                                        * 
+ * processing script creation.                                            *
+ *                                                                        *
  * pyo is free software: you can redistribute it and/or modify            *
- * it under the terms of the GNU General Public License as published by   *
- * the Free Software Foundation, either version 3 of the License, or      *
- * (at your option) any later version.                                    * 
+ * it under the terms of the GNU Lesser General Public License as         *
+ * published by the Free Software Foundation, either version 3 of the     *
+ * License, or (at your option) any later version.                        *
  *                                                                        *
  * pyo is distributed in the hope that it will be useful,                 *
- * but WITHOUT ANY WARRANTY; without even the implied warranty of         *    
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of         *
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the          *
- * GNU General Public License for more details.                           *
+ * GNU Lesser General Public License for more details.                    *
  *                                                                        *
- * You should have received a copy of the GNU General Public License      *
- * along with pyo.  If not, see <http://www.gnu.org/licenses/>.           *
+ * You should have received a copy of the GNU Lesser General Public       *
+ * License along with pyo.  If not, see <http://www.gnu.org/licenses/>.   *
  *************************************************************************/
 
 #include "Python.h"
@@ -542,7 +542,7 @@ extern PyTypeObject AtanTableType;
     int nchnls; \
     int ichnls; \
     double sr; \
-    MYFLT *data; 
+    MYFLT *data;
 
 #define pyo_table_HEAD \
     PyObject_HEAD \
@@ -567,7 +567,7 @@ extern PyTypeObject AtanTableType;
     Py_VISIT(self->mul); \
     Py_VISIT(self->mul_stream); \
     Py_VISIT(self->add); \
-    Py_VISIT(self->add_stream);    
+    Py_VISIT(self->add_stream);
 
 #define pyo_table_VISIT \
     if (PyServer_get_server() != NULL) \
@@ -827,7 +827,7 @@ extern PyTypeObject AtanTableType;
  \
     Py_INCREF(Py_None); \
     return Py_None; \
-    
+
 #define SET_TABLE \
     int i; \
     if (arg == NULL) { \
@@ -1319,7 +1319,7 @@ extern PyTypeObject AtanTableType;
     (*self->mode_func_ptr)(self); \
  \
     Py_INCREF(Py_None); \
-    return Py_None; 
+    return Py_None;
 
 #define SET_ADD \
     PyObject *tmp, *streamtmp; \
@@ -1350,7 +1350,7 @@ extern PyTypeObject AtanTableType;
     (*self->mode_func_ptr)(self); \
 \
     Py_INCREF(Py_None); \
-    return Py_None; 
+    return Py_None;
 
 #define SET_SUB \
     PyObject *tmp, *streamtmp; \
@@ -1381,7 +1381,7 @@ extern PyTypeObject AtanTableType;
     (*self->mode_func_ptr)(self); \
  \
     Py_INCREF(Py_None); \
-    return Py_None; 
+    return Py_None;
 
 #define SET_DIV \
     PyObject *tmp, *streamtmp; \
@@ -1415,7 +1415,7 @@ extern PyTypeObject AtanTableType;
     (*self->mode_func_ptr)(self); \
  \
     Py_INCREF(Py_None); \
-    return Py_None; 
+    return Py_None;
 
 /* Multiply, Add, inplace_multiply & inplace_add */
 #define MULTIPLY \
@@ -1542,7 +1542,7 @@ extern PyTypeObject AtanTableType;
         self->data[i] = 0; \
     } \
     Py_INCREF(Py_None); \
-    return Py_None;    
+    return Py_None;
 
 /* Post processing (mul & add) macros */
 #define POST_PROCESSING_II \
@@ -1578,7 +1578,7 @@ extern PyTypeObject AtanTableType;
         old = self->data[i]; \
         val = mul * old + add[i]; \
         self->data[i] = val; \
-    } 
+    }
 
 #define POST_PROCESSING_AA \
     MYFLT old, val; \
@@ -1628,7 +1628,7 @@ extern PyTypeObject AtanTableType;
         old = self->data[i]; \
         val = mul * old - add[i]; \
         self->data[i] = val; \
-    } 
+    }
 
 #define POST_PROCESSING_AREVA \
     MYFLT old, val; \
@@ -1654,4 +1654,3 @@ extern PyTypeObject AtanTableType;
         val = old / tmp - add[i]; \
         self->data[i] = val; \
     }
-

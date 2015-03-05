@@ -1,21 +1,21 @@
-/*************************************************************************
- * Copyright 2010 Olivier Belanger                                        *                  
- *                                                                        * 
+/**************************************************************************
+ * Copyright 2009-2015 Olivier Belanger                                   *
+ *                                                                        *
  * This file is part of pyo, a python module to help digital signal       *
- * processing script creation.                                            *  
- *                                                                        * 
+ * processing script creation.                                            *
+ *                                                                        *
  * pyo is free software: you can redistribute it and/or modify            *
- * it under the terms of the GNU General Public License as published by   *
- * the Free Software Foundation, either version 3 of the License, or      *
- * (at your option) any later version.                                    * 
+ * it under the terms of the GNU Lesser General Public License as         *
+ * published by the Free Software Foundation, either version 3 of the     *
+ * License, or (at your option) any later version.                        *
  *                                                                        *
  * pyo is distributed in the hope that it will be useful,                 *
- * but WITHOUT ANY WARRANTY; without even the implied warranty of         *    
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of         *
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the          *
- * GNU General Public License for more details.                           *
+ * GNU Lesser General Public License for more details.                    *
  *                                                                        *
- * You should have received a copy of the GNU General Public License      *
- * along with pyo.  If not, see <http://www.gnu.org/licenses/>.           *
+ * You should have received a copy of the GNU Lesser General Public       *
+ * License along with pyo.  If not, see <http://www.gnu.org/licenses/>.   *
  *                                                                        *
  * Octobre 2013 : Multiple servers facility and embeded backend added by  *
  * Guillaume Barrette. See embeded possibilities at:                      *
@@ -61,7 +61,7 @@ typedef struct {
     jack_port_t **jack_out_ports;
 #endif
 } PyoJackBackendData;
-  
+
 typedef struct {
     PyObject_HEAD
     PyObject *streams;
@@ -97,7 +97,7 @@ typedef struct {
     int stream_count;
     int record;
     int thisServerID;       /* To keep the reference index in the array of servers */
-    
+
     /* global amplitude */
     MYFLT amp;
     MYFLT resetAmp;
@@ -106,13 +106,13 @@ typedef struct {
     MYFLT stepVal;
     int timeStep;
     int timeCount;
-    
+
     MYFLT *input_buffer;
     float *output_buffer; /* Has to be float since audio callbacks must use floats */
-    
+
     /* rendering offline of the first "startoffset" seconds */
     double startoffset;
-    
+
     /* rendering settings */
     double recdur;
     char *recpath;
@@ -120,7 +120,7 @@ typedef struct {
     int rectype;
     SNDFILE *recfile;
     SF_INFO recinfo;
-    
+
     /* GUI VUMETER */
     int withGUI;
     int numPass;
@@ -134,7 +134,7 @@ typedef struct {
     int timePass;
     int tcount;
     PyObject *TIME;
-    
+
     /* Properties */
     int verbosity; /* a sum of values to display different levels: 1 = error */
                    /* 2 = message, 4 = warning , 8 = debug. Default 7.*/
@@ -143,15 +143,14 @@ typedef struct {
 
 PyObject * PyServer_get_server();
 extern PyObject * Server_removeStream(Server *self, int sid);
-extern MYFLT * Server_getInputBuffer(Server *self);    
-extern PmEvent * Server_getMidiEventBuffer(Server *self);    
-extern int Server_getMidiEventCount(Server *self);  
+extern MYFLT * Server_getInputBuffer(Server *self);
+extern PmEvent * Server_getMidiEventBuffer(Server *self);
+extern int Server_getMidiEventCount(Server *self);
 extern int Server_generateSeed(Server *self, int oid);
-extern PyTypeObject ServerType;    
+extern PyTypeObject ServerType;
 
 #ifdef __cplusplus
 }
 #endif
 
 #endif /* !defined(Py_SERVERMODULE_H) */
-

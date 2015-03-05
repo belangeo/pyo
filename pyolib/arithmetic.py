@@ -3,23 +3,23 @@ Tools to perform arithmetic operations on audio signals.
 
 """
 """
-Copyright 2010 Olivier Belanger
+Copyright 2009-2015 Olivier Belanger
 
 This file is part of pyo, a python module to help digital signal
 processing script creation.
 
 pyo is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
+it under the terms of the GNU Lesser General Public License as
+published by the Free Software Foundation, either version 3 of the
+License, or (at your option) any later version.
 
 pyo is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
+GNU Lesser General Public License for more details.
 
-You should have received a copy of the GNU General Public License
-along with pyo.  If not, see <http://www.gnu.org/licenses/>.
+You should have received a copy of the GNU Lesser General Public
+License along with pyo.  If not, see <http://www.gnu.org/licenses/>.
 """
 
 from _core import *
@@ -37,7 +37,7 @@ class Sin(PyoObject):
 
         input : PyoObject
             Input signal, angle in radians.
-    
+
     >>> s = Server().boot()
     >>> s.start()
     >>> import math
@@ -56,7 +56,7 @@ class Sin(PyoObject):
     def setInput(self, x, fadetime=0.05):
         """
         Replace the `input` attribute.
-        
+
         :Args:
 
             x : PyoObject
@@ -70,7 +70,7 @@ class Sin(PyoObject):
 
     @property
     def input(self):
-        """PyoObject. Input signal to process.""" 
+        """PyoObject. Input signal to process."""
         return self._input
     @input.setter
     def input(self, x): self.setInput(x)
@@ -119,7 +119,7 @@ class Cos(PyoObject):
 
     @property
     def input(self):
-        """PyoObject. Input signal to process.""" 
+        """PyoObject. Input signal to process."""
         return self._input
     @input.setter
     def input(self, x): self.setInput(x)
@@ -175,7 +175,7 @@ class Tan(PyoObject):
 
     @property
     def input(self):
-        """PyoObject. Input signal to process.""" 
+        """PyoObject. Input signal to process."""
         return self._input
     @input.setter
     def input(self, x): self.setInput(x)
@@ -226,7 +226,7 @@ class Abs(PyoObject):
 
     @property
     def input(self):
-        """PyoObject. Input signal to process.""" 
+        """PyoObject. Input signal to process."""
         return self._input
     @input.setter
     def input(self, x): self.setInput(x)
@@ -282,7 +282,7 @@ class Sqrt(PyoObject):
 
     @property
     def input(self):
-        """PyoObject. Input signal to process.""" 
+        """PyoObject. Input signal to process."""
         return self._input
     @input.setter
     def input(self, x): self.setInput(x)
@@ -291,7 +291,7 @@ class Log(PyoObject):
     """
     Performs a natural log function on audio signal.
 
-    Returns the natural log value of of audio signal as input. 
+    Returns the natural log value of of audio signal as input.
     Values less than 0.0 return 0.0.
 
     :Parent: :py:class:`PyoObject`
@@ -334,7 +334,7 @@ class Log(PyoObject):
 
     @property
     def input(self):
-        """PyoObject. Input signal to process.""" 
+        """PyoObject. Input signal to process."""
         return self._input
     @input.setter
     def input(self, x): self.setInput(x)
@@ -343,7 +343,7 @@ class Log2(PyoObject):
     """
     Performs a base 2 log function on audio signal.
 
-    Returns the base 2 log value of audio signal as input. 
+    Returns the base 2 log value of audio signal as input.
     Values less than 0.0 return 0.0.
 
     :Parent: :py:class:`PyoObject`
@@ -386,7 +386,7 @@ class Log2(PyoObject):
 
     @property
     def input(self):
-        """PyoObject. Input signal to process.""" 
+        """PyoObject. Input signal to process."""
         return self._input
     @input.setter
     def input(self, x): self.setInput(x)
@@ -395,7 +395,7 @@ class Log10(PyoObject):
     """
     Performs a base 10 log function on audio signal.
 
-    Returns the base 10 log value of audio signal as input. 
+    Returns the base 10 log value of audio signal as input.
     Values less than 0.0 return 0.0.
 
     :Parent: :py:class:`PyoObject`
@@ -438,7 +438,7 @@ class Log10(PyoObject):
 
     @property
     def input(self):
-        """PyoObject. Input signal to process.""" 
+        """PyoObject. Input signal to process."""
         return self._input
     @input.setter
     def input(self, x): self.setInput(x)
@@ -447,8 +447,8 @@ class Atan2(PyoObject):
     """
     Computes the principal value of the arc tangent of b/a.
 
-    Computes the principal value of the arc tangent of b/a, 
-    using the signs of both arguments to determine the quadrant 
+    Computes the principal value of the arc tangent of b/a,
+    using the signs of both arguments to determine the quadrant
     of the return value.
 
     :Parent: :py:class:`PyoObject`
@@ -506,14 +506,14 @@ class Atan2(PyoObject):
 
     @property
     def b(self):
-        """float or PyoObject. Numerator.""" 
+        """float or PyoObject. Numerator."""
         return self._b
     @b.setter
     def b(self, x): self.setB(x)
 
     @property
     def a(self):
-        """float or PyoObject. Denominator.""" 
+        """float or PyoObject. Denominator."""
         return self._a
     @a.setter
     def a(self, x): self.setA(x)
@@ -522,7 +522,7 @@ class Floor(PyoObject):
     """
     Rounds to largest integral value not greater than audio signal.
 
-    For each samples in the input signal, rounds to the largest integral 
+    For each samples in the input signal, rounds to the largest integral
     value not greater than the sample value.
 
     :Parent: :py:class:`PyoObject`
@@ -565,7 +565,7 @@ class Floor(PyoObject):
 
     @property
     def input(self):
-        """PyoObject. Input signal to process.""" 
+        """PyoObject. Input signal to process."""
         return self._input
     @input.setter
     def input(self, x): self.setInput(x)
@@ -574,7 +574,7 @@ class Ceil(PyoObject):
     """
     Rounds to smallest integral value greater than or equal to the input signal.
 
-    For each samples in the input signal, rounds to the smallest integral 
+    For each samples in the input signal, rounds to the smallest integral
     value greater than or equal to the sample value.
 
     :Parent: :py:class:`PyoObject`
@@ -617,7 +617,7 @@ class Ceil(PyoObject):
 
     @property
     def input(self):
-        """PyoObject. Input signal to process.""" 
+        """PyoObject. Input signal to process."""
         return self._input
     @input.setter
     def input(self, x): self.setInput(x)
@@ -626,7 +626,7 @@ class Round(PyoObject):
     """
     Rounds to the nearest integer value in a floating-point format.
 
-    For each samples in the input signal, rounds to the nearest integer 
+    For each samples in the input signal, rounds to the nearest integer
     value of the sample value.
 
     :Parent: :py:class:`PyoObject`
@@ -669,7 +669,7 @@ class Round(PyoObject):
 
     @property
     def input(self):
-        """PyoObject. Input signal to process.""" 
+        """PyoObject. Input signal to process."""
         return self._input
     @input.setter
     def input(self, x): self.setInput(x)
@@ -686,7 +686,7 @@ class Tanh(PyoObject):
 
         input : PyoObject
             Input signal, angle in radians.
-    
+
     >>> s = Server().boot()
     >>> s.start()
     >>> import math
@@ -705,7 +705,7 @@ class Tanh(PyoObject):
     def setInput(self, x, fadetime=0.05):
         """
         Replace the `input` attribute.
-        
+
         :Args:
 
             x : PyoObject
@@ -719,7 +719,7 @@ class Tanh(PyoObject):
 
     @property
     def input(self):
-        """PyoObject. Input signal to process.""" 
+        """PyoObject. Input signal to process."""
         return self._input
     @input.setter
     def input(self, x): self.setInput(x)

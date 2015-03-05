@@ -1,21 +1,21 @@
-/*************************************************************************
- * Copyright 2010 Olivier Belanger                                        *                  
- *                                                                        * 
+/**************************************************************************
+ * Copyright 2009-2015 Olivier Belanger                                   *
+ *                                                                        *
  * This file is part of pyo, a python module to help digital signal       *
- * processing script creation.                                            *  
- *                                                                        * 
+ * processing script creation.                                            *
+ *                                                                        *
  * pyo is free software: you can redistribute it and/or modify            *
- * it under the terms of the GNU General Public License as published by   *
- * the Free Software Foundation, either version 3 of the License, or      *
- * (at your option) any later version.                                    * 
+ * it under the terms of the GNU Lesser General Public License as         *
+ * published by the Free Software Foundation, either version 3 of the     *
+ * License, or (at your option) any later version.                        *
  *                                                                        *
  * pyo is distributed in the hope that it will be useful,                 *
- * but WITHOUT ANY WARRANTY; without even the implied warranty of         *    
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of         *
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the          *
- * GNU General Public License for more details.                           *
+ * GNU Lesser General Public License for more details.                    *
  *                                                                        *
- * You should have received a copy of the GNU General Public License      *
- * along with pyo.  If not, see <http://www.gnu.org/licenses/>.           *
+ * You should have received a copy of the GNU Lesser General Public       *
+ * License along with pyo.  If not, see <http://www.gnu.org/licenses/>.   *
  *************************************************************************/
 
 #include <Python.h>
@@ -45,7 +45,7 @@ static void
 Print_process_time(Print *self) {
     int i;
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
-    
+
     for (i=0; i<self->bufsize; i++) {
         if (self->currentTime >= self->time) {
             self->currentTime = 0.0;
@@ -73,15 +73,15 @@ Print_process_change(Print *self) {
                 printf("%s : %f\n", self->message, inval);
             self->lastValue = inval;
         }
-    }    
+    }
 }
 
 static void
 Print_setProcMode(Print *self)
-{    
+{
     if (self->method < 0 || self->method > 1)
         self->method = 0;
-        
+
     switch (self->method) {
         case 0:
             self->proc_func_ptr = Print_process_time;
@@ -89,13 +89,13 @@ Print_setProcMode(Print *self)
         case 1:
             self->proc_func_ptr = Print_process_change;
             break;
-    }        
+    }
 }
 
 static void
 Print_compute_next_data_frame(Print *self)
 {
-    (*self->proc_func_ptr)(self); 
+    (*self->proc_func_ptr)(self);
 }
 
 static int
@@ -107,7 +107,7 @@ Print_traverse(Print *self, visitproc visit, void *arg)
     return 0;
 }
 
-static int 
+static int
 Print_clear(Print *self)
 {
     pyo_CLEAR
@@ -135,7 +135,7 @@ Print_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->method = 0;
     self->time = 0.25;
     self->lastValue = -99999.0;
-    
+
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, Print_compute_next_data_frame);
     self->mode_func_ptr = Print_setProcMode;
@@ -144,16 +144,16 @@ Print_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->currentTime = 0.;
 
     static char *kwlist[] = {"input", "method", "interval", "message", NULL};
-    
+
     if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_O_IFS, kwlist, &inputtmp, &self->method, &self->time, &self->message))
         Py_RETURN_NONE;
-    
+
     INIT_INPUT_STREAM
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
-    
+
     (*self->mode_func_ptr)(self);
-    
+
     return (PyObject *)self;
 }
 
@@ -170,14 +170,14 @@ Print_setMethod(Print *self, PyObject *arg)
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
 	int isNumber = PyNumber_Check(arg);
-	
+
 	if (isNumber == 1) {
 		self->method = PyInt_AsLong(arg);
         (*self->mode_func_ptr)(self);
 	}
-    
+
 	Py_INCREF(Py_None);
 	return Py_None;
 }
@@ -189,13 +189,13 @@ Print_setInterval(Print *self, PyObject *arg)
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
 	int isNumber = PyNumber_Check(arg);
-	
+
 	if (isNumber == 1) {
 		self->time = PyFloat_AS_DOUBLE(PyNumber_Float(arg));
 	}
-    
+
 	Py_INCREF(Py_None);
 	return Py_None;
 }
@@ -207,13 +207,13 @@ Print_setMessage(Print *self, PyObject *arg)
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
 	int isString = PyString_Check(arg);
-	
+
 	if (isString == 1) {
 		self->message = PyString_AsString(arg);
 	}
-    
+
 	Py_INCREF(Py_None);
 	return Py_None;
 }
@@ -291,14 +291,14 @@ typedef struct {
     MYFLT *choice;
     MYFLT value;
     MYFLT last_input;
-    int modebuffer[2]; // need at least 2 slots for mul & add 
+    int modebuffer[2]; // need at least 2 slots for mul & add
 } Snap;
 
 static MYFLT
 Snap_convert(Snap *self) {
     int midival;
     MYFLT val;
-    
+
     midival = self->value;
 
     if (self->scale == 1)
@@ -307,7 +307,7 @@ Snap_convert(Snap *self) {
         val = MYPOW(1.0594630943593, midival - 60);
     else
         val = midival;
-    
+
     return val;
 }
 
@@ -316,7 +316,7 @@ Snap_generate(Snap *self) {
     int i, j, pos;
     MYFLT intmp, diff, difftmp;
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
-    
+
     for (i=0; i<self->bufsize; i++) {
         if (in[i] < (self->last_input-0.001) || in[i] > (self->last_input + 0.001)) {
             int oct = 0;
@@ -332,12 +332,12 @@ Snap_generate(Snap *self) {
                 if (difftmp < diff) {
                     diff = difftmp;
                     pos = j;
-                }    
+                }
             }
             self->value = self->choice[pos] + (self->highbound * oct);
-            self->value = Snap_convert(self);  
+            self->value = Snap_convert(self);
         }
-     
+
         self->data[i] = self->value;
     }
 }
@@ -357,44 +357,44 @@ Snap_setProcMode(Snap *self)
 {
     int muladdmode;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
-    
+
     self->proc_func_ptr = Snap_generate;
-    
+
 	switch (muladdmode) {
-        case 0:        
+        case 0:
             self->muladd_func_ptr = Snap_postprocessing_ii;
             break;
-        case 1:    
+        case 1:
             self->muladd_func_ptr = Snap_postprocessing_ai;
             break;
-        case 2:    
+        case 2:
             self->muladd_func_ptr = Snap_postprocessing_revai;
             break;
-        case 10:        
+        case 10:
             self->muladd_func_ptr = Snap_postprocessing_ia;
             break;
-        case 11:    
+        case 11:
             self->muladd_func_ptr = Snap_postprocessing_aa;
             break;
-        case 12:    
+        case 12:
             self->muladd_func_ptr = Snap_postprocessing_revaa;
             break;
-        case 20:        
+        case 20:
             self->muladd_func_ptr = Snap_postprocessing_ireva;
             break;
-        case 21:    
+        case 21:
             self->muladd_func_ptr = Snap_postprocessing_areva;
             break;
-        case 22:    
+        case 22:
             self->muladd_func_ptr = Snap_postprocessing_revareva;
             break;
-    }  
+    }
 }
 
 static void
 Snap_compute_next_data_frame(Snap *self)
 {
-    (*self->proc_func_ptr)(self); 
+    (*self->proc_func_ptr)(self);
     (*self->muladd_func_ptr)(self);
 }
 
@@ -407,7 +407,7 @@ Snap_traverse(Snap *self, visitproc visit, void *arg)
     return 0;
 }
 
-static int 
+static int
 Snap_clear(Snap *self)
 {
     pyo_CLEAR
@@ -432,36 +432,36 @@ Snap_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp, *choicetmp=NULL, *multmp=NULL, *addtmp=NULL;
     Snap *self;
     self = (Snap *)type->tp_alloc(type, 0);
-    
+
     self->value = self->last_input = 0.;
     self->scale = 0;
     self->highbound = 12;
     self->modebuffer[0] = 0;
     self->modebuffer[1] = 0;
-    
+
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, Snap_compute_next_data_frame);
     self->mode_func_ptr = Snap_setProcMode;
 
     static char *kwlist[] = {"input", "choice", "scale", "mul", "add", NULL};
-    
+
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "OO|iOO", kwlist, &inputtmp, &choicetmp, &self->scale, &multmp, &addtmp))
         Py_RETURN_NONE;
-    
+
     INIT_INPUT_STREAM
-    
+
     if (choicetmp) {
         PyObject_CallMethod((PyObject *)self, "setChoice", "O", choicetmp);
     }
-    
+
     if (multmp) {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
     }
-    
+
     if (addtmp) {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
-    
+
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
     (*self->mode_func_ptr)(self);
@@ -471,10 +471,10 @@ Snap_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
 static PyObject * Snap_getServer(Snap* self) { GET_SERVER };
 static PyObject * Snap_getStream(Snap* self) { GET_STREAM };
-static PyObject * Snap_setMul(Snap *self, PyObject *arg) { SET_MUL };	
-static PyObject * Snap_setAdd(Snap *self, PyObject *arg) { SET_ADD };	
-static PyObject * Snap_setSub(Snap *self, PyObject *arg) { SET_SUB };	
-static PyObject * Snap_setDiv(Snap *self, PyObject *arg) { SET_DIV };	
+static PyObject * Snap_setMul(Snap *self, PyObject *arg) { SET_MUL };
+static PyObject * Snap_setAdd(Snap *self, PyObject *arg) { SET_ADD };
+static PyObject * Snap_setSub(Snap *self, PyObject *arg) { SET_SUB };
+static PyObject * Snap_setDiv(Snap *self, PyObject *arg) { SET_DIV };
 
 static PyObject * Snap_play(Snap *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * Snap_out(Snap *self, PyObject *args, PyObject *kwds) { OUT };
@@ -495,47 +495,47 @@ Snap_setChoice(Snap *self, PyObject *arg)
     int i, oct;
     MYFLT max;
 	PyObject *tmp;
-	
+
 	if (! PyList_Check(arg)) {
         PyErr_SetString(PyExc_TypeError, "The choice attribute must be a list.");
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
     tmp = arg;
     self->chSize = PyList_Size(tmp);
     self->choice = (MYFLT *)realloc(self->choice, self->chSize * sizeof(MYFLT));
-    
+
     for (i=0; i<self->chSize; i++) {
         self->choice[i] = PyFloat_AS_DOUBLE(PyNumber_Float(PyList_GET_ITEM(tmp, i)));
     }
-    
+
     max = self->choice[self->chSize-1];
-    
+
     oct = 12;
     while (max >= oct) {
         oct += 12;
     }
-    
+
     self->highbound = oct;
-    
+
     (*self->mode_func_ptr)(self);
-    
+
 	Py_INCREF(Py_None);
 	return Py_None;
-}	
+}
 
 static PyObject *
 Snap_setScale(Snap *self, PyObject *arg)
-{	
+{
     int tmp;
 	if (arg == NULL) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
 	int isNumber = PyInt_Check(arg);
-	
+
 	if (isNumber == 1) {
 		tmp = PyInt_AsLong(arg);
         if (tmp >= 0 && tmp <= 2)
@@ -543,10 +543,10 @@ Snap_setScale(Snap *self, PyObject *arg)
         else
             printf("scale attribute must be an integer {0, 1, 2}\n");
 	}
-    
+
 	Py_INCREF(Py_None);
 	return Py_None;
-}	
+}
 
 static PyMemberDef Snap_members[] = {
     {"server", T_OBJECT_EX, offsetof(Snap, server), 0, "Pyo server."},
@@ -667,7 +667,7 @@ typedef struct {
     Stream *input2_stream;
     PyObject *interp;
     Stream *interp_stream;
-    int modebuffer[3]; // need at least 2 slots for mul & add 
+    int modebuffer[3]; // need at least 2 slots for mul & add
 } Interp;
 
 static void
@@ -682,8 +682,8 @@ Interp_filters_i(Interp *self) {
         inter = 0.0;
     else if (inter > 1.0)
         inter = 1.0;
-    
-    amp2 = 1.0 - inter; 
+
+    amp2 = 1.0 - inter;
     for (i=0; i<self->bufsize; i++) {
         self->data[i] = in[i] * amp2 + in2[i] * inter;
     }
@@ -696,15 +696,15 @@ Interp_filters_a(Interp *self) {
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
     MYFLT *in2 = Stream_getData((Stream *)self->input2_stream);
     MYFLT *inter = Stream_getData((Stream *)self->interp_stream);
-    
+
     for (i=0; i<self->bufsize; i++) {
         amp1 = inter[i];
         if (amp1 < 0.0)
             amp1 = 0.0;
         else if (amp1 > 1.0)
             amp1 = 1.0;
-        
-        amp2 = 1.0 - amp1; 
+
+        amp2 = 1.0 - amp1;
         self->data[i] = in[i] * amp2 + in2[i] * amp1;
     }
 }
@@ -725,50 +725,50 @@ Interp_setProcMode(Interp *self)
     int procmode, muladdmode;
     procmode = self->modebuffer[2];
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
-    
+
 	switch (procmode) {
-        case 0:    
+        case 0:
             self->proc_func_ptr = Interp_filters_i;
             break;
-        case 1:    
+        case 1:
             self->proc_func_ptr = Interp_filters_a;
             break;
-    } 
+    }
 	switch (muladdmode) {
-        case 0:        
+        case 0:
             self->muladd_func_ptr = Interp_postprocessing_ii;
             break;
-        case 1:    
+        case 1:
             self->muladd_func_ptr = Interp_postprocessing_ai;
             break;
-        case 2:    
+        case 2:
             self->muladd_func_ptr = Interp_postprocessing_revai;
             break;
-        case 10:        
+        case 10:
             self->muladd_func_ptr = Interp_postprocessing_ia;
             break;
-        case 11:    
+        case 11:
             self->muladd_func_ptr = Interp_postprocessing_aa;
             break;
-        case 12:    
+        case 12:
             self->muladd_func_ptr = Interp_postprocessing_revaa;
             break;
-        case 20:        
+        case 20:
             self->muladd_func_ptr = Interp_postprocessing_ireva;
             break;
-        case 21:    
+        case 21:
             self->muladd_func_ptr = Interp_postprocessing_areva;
             break;
-        case 22:    
+        case 22:
             self->muladd_func_ptr = Interp_postprocessing_revareva;
             break;
-    }   
+    }
 }
 
 static void
 Interp_compute_next_data_frame(Interp *self)
 {
-    (*self->proc_func_ptr)(self); 
+    (*self->proc_func_ptr)(self);
     (*self->muladd_func_ptr)(self);
 }
 
@@ -780,12 +780,12 @@ Interp_traverse(Interp *self, visitproc visit, void *arg)
     Py_VISIT(self->input_stream);
     Py_VISIT(self->input2);
     Py_VISIT(self->input2_stream);
-    Py_VISIT(self->interp);    
-    Py_VISIT(self->interp_stream);    
+    Py_VISIT(self->interp);
+    Py_VISIT(self->interp_stream);
     return 0;
 }
 
-static int 
+static int
 Interp_clear(Interp *self)
 {
     pyo_CLEAR
@@ -793,8 +793,8 @@ Interp_clear(Interp *self)
     Py_CLEAR(self->input_stream);
     Py_CLEAR(self->input2);
     Py_CLEAR(self->input2_stream);
-    Py_CLEAR(self->interp);    
-    Py_CLEAR(self->interp_stream);    
+    Py_CLEAR(self->interp);
+    Py_CLEAR(self->interp_stream);
     return 0;
 }
 
@@ -813,21 +813,21 @@ Interp_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp, *input2tmp, *input2_streamtmp, *interptmp=NULL, *multmp=NULL, *addtmp=NULL;
     Interp *self;
     self = (Interp *)type->tp_alloc(type, 0);
-    
+
     self->interp = PyFloat_FromDouble(.5);
 	self->modebuffer[0] = 0;
 	self->modebuffer[1] = 0;
 	self->modebuffer[2] = 0;
-    
+
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, Interp_compute_next_data_frame);
     self->mode_func_ptr = Interp_setProcMode;
 
     static char *kwlist[] = {"input", "input2", "interp", "mul", "add", NULL};
-    
+
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "OO|OOO", kwlist, &inputtmp, &input2tmp, &interptmp, &multmp, &addtmp))
         Py_RETURN_NONE;
-    
+
     INIT_INPUT_STREAM
 
     Py_XDECREF(self->input2);
@@ -836,21 +836,21 @@ Interp_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     Py_INCREF(input2_streamtmp);
     Py_XDECREF(self->input2_stream);
     self->input2_stream = (Stream *)input2_streamtmp;
-    
+
     if (interptmp) {
         PyObject_CallMethod((PyObject *)self, "setInterp", "O", interptmp);
     }
-    
+
     if (multmp) {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
     }
-    
+
     if (addtmp) {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
-    
+
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
-    
+
     (*self->mode_func_ptr)(self);
 
     return (PyObject *)self;
@@ -858,10 +858,10 @@ Interp_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
 static PyObject * Interp_getServer(Interp* self) { GET_SERVER };
 static PyObject * Interp_getStream(Interp* self) { GET_STREAM };
-static PyObject * Interp_setMul(Interp *self, PyObject *arg) { SET_MUL };	
-static PyObject * Interp_setAdd(Interp *self, PyObject *arg) { SET_ADD };	
-static PyObject * Interp_setSub(Interp *self, PyObject *arg) { SET_SUB };	
-static PyObject * Interp_setDiv(Interp *self, PyObject *arg) { SET_DIV };	
+static PyObject * Interp_setMul(Interp *self, PyObject *arg) { SET_MUL };
+static PyObject * Interp_setAdd(Interp *self, PyObject *arg) { SET_ADD };
+static PyObject * Interp_setSub(Interp *self, PyObject *arg) { SET_SUB };
+static PyObject * Interp_setDiv(Interp *self, PyObject *arg) { SET_DIV };
 
 static PyObject * Interp_play(Interp *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * Interp_out(Interp *self, PyObject *args, PyObject *kwds) { OUT };
@@ -880,14 +880,14 @@ static PyObject *
 Interp_setInterp(Interp *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
-	
+
 	if (arg == NULL) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
 	int isNumber = PyNumber_Check(arg);
-	
+
 	tmp = arg;
 	Py_INCREF(tmp);
 	Py_DECREF(self->interp);
@@ -903,9 +903,9 @@ Interp_setInterp(Interp *self, PyObject *arg)
         self->interp_stream = (Stream *)streamtmp;
 		self->modebuffer[2] = 1;
 	}
-    
+
     (*self->mode_func_ptr)(self);
-    
+
 	Py_INCREF(Py_None);
 	return Py_None;
 }
@@ -1032,7 +1032,7 @@ typedef struct {
     Stream *value_stream;
     MYFLT currentValue;
     int flag;
-    int modebuffer[3]; // need at least 2 slots for mul & add 
+    int modebuffer[3]; // need at least 2 slots for mul & add
 } SampHold;
 
 static void
@@ -1049,7 +1049,7 @@ SampHold_filters_i(SampHold *self) {
             if (self->flag == 1) {
                 self->currentValue = in[i];
                 self->flag = 0;
-            }    
+            }
         }
         else
             self->flag = 1;
@@ -1064,7 +1064,7 @@ SampHold_filters_a(SampHold *self) {
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
     MYFLT *ctrlsig = Stream_getData((Stream *)self->controlsig_stream);
     MYFLT *valsig = Stream_getData((Stream *)self->value_stream);
-    
+
     for (i=0; i<self->bufsize; i++) {
         ctrl = ctrlsig[i];
         val = valsig[i];
@@ -1072,7 +1072,7 @@ SampHold_filters_a(SampHold *self) {
             if (self->flag == 1) {
                 self->currentValue = in[i];
                 self->flag = 0;
-            }    
+            }
         }
         else
             self->flag = 1;
@@ -1096,50 +1096,50 @@ SampHold_setProcMode(SampHold *self)
     int procmode, muladdmode;
     procmode = self->modebuffer[2];
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
-    
+
 	switch (procmode) {
-        case 0:    
+        case 0:
             self->proc_func_ptr = SampHold_filters_i;
             break;
-        case 1:    
+        case 1:
             self->proc_func_ptr = SampHold_filters_a;
             break;
-    } 
+    }
 	switch (muladdmode) {
-        case 0:        
+        case 0:
             self->muladd_func_ptr = SampHold_postprocessing_ii;
             break;
-        case 1:    
+        case 1:
             self->muladd_func_ptr = SampHold_postprocessing_ai;
             break;
-        case 2:    
+        case 2:
             self->muladd_func_ptr = SampHold_postprocessing_revai;
             break;
-        case 10:        
+        case 10:
             self->muladd_func_ptr = SampHold_postprocessing_ia;
             break;
-        case 11:    
+        case 11:
             self->muladd_func_ptr = SampHold_postprocessing_aa;
             break;
-        case 12:    
+        case 12:
             self->muladd_func_ptr = SampHold_postprocessing_revaa;
             break;
-        case 20:        
+        case 20:
             self->muladd_func_ptr = SampHold_postprocessing_ireva;
             break;
-        case 21:    
+        case 21:
             self->muladd_func_ptr = SampHold_postprocessing_areva;
             break;
-        case 22:    
+        case 22:
             self->muladd_func_ptr = SampHold_postprocessing_revareva;
             break;
-    }   
+    }
 }
 
 static void
 SampHold_compute_next_data_frame(SampHold *self)
 {
-    (*self->proc_func_ptr)(self); 
+    (*self->proc_func_ptr)(self);
     (*self->muladd_func_ptr)(self);
 }
 
@@ -1151,12 +1151,12 @@ SampHold_traverse(SampHold *self, visitproc visit, void *arg)
     Py_VISIT(self->input_stream);
     Py_VISIT(self->controlsig);
     Py_VISIT(self->controlsig_stream);
-    Py_VISIT(self->value);    
-    Py_VISIT(self->value_stream);    
+    Py_VISIT(self->value);
+    Py_VISIT(self->value_stream);
     return 0;
 }
 
-static int 
+static int
 SampHold_clear(SampHold *self)
 {
     pyo_CLEAR
@@ -1164,8 +1164,8 @@ SampHold_clear(SampHold *self)
     Py_CLEAR(self->input_stream);
     Py_CLEAR(self->controlsig);
     Py_CLEAR(self->controlsig_stream);
-    Py_CLEAR(self->value);    
-    Py_CLEAR(self->value_stream);    
+    Py_CLEAR(self->value);
+    Py_CLEAR(self->value_stream);
     return 0;
 }
 
@@ -1184,46 +1184,46 @@ SampHold_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp, *controlsigtmp, *controlsig_streamtmp, *valuetmp=NULL, *multmp=NULL, *addtmp=NULL;
     SampHold *self;
     self = (SampHold *)type->tp_alloc(type, 0);
-    
+
     self->value = PyFloat_FromDouble(0.0);
     self->currentValue = 0.0;
     self->flag = 1;
 	self->modebuffer[0] = 0;
 	self->modebuffer[1] = 0;
 	self->modebuffer[2] = 0;
-    
+
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, SampHold_compute_next_data_frame);
     self->mode_func_ptr = SampHold_setProcMode;
 
     static char *kwlist[] = {"input", "controlsig", "value", "mul", "add", NULL};
-    
+
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "OO|OOO", kwlist, &inputtmp, &controlsigtmp, &valuetmp, &multmp, &addtmp))
         Py_RETURN_NONE;
-    
+
     INIT_INPUT_STREAM
-    
+
     Py_XDECREF(self->controlsig);
     self->controlsig = controlsigtmp;
     controlsig_streamtmp = PyObject_CallMethod((PyObject *)self->controlsig, "_getStream", NULL);
     Py_INCREF(controlsig_streamtmp);
     Py_XDECREF(self->controlsig_stream);
     self->controlsig_stream = (Stream *)controlsig_streamtmp;
-    
+
     if (valuetmp) {
         PyObject_CallMethod((PyObject *)self, "setValue", "O", valuetmp);
     }
-    
+
     if (multmp) {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
     }
-    
+
     if (addtmp) {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
-    
+
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
-    
+
     (*self->mode_func_ptr)(self);
 
     return (PyObject *)self;
@@ -1231,10 +1231,10 @@ SampHold_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
 static PyObject * SampHold_getServer(SampHold* self) { GET_SERVER };
 static PyObject * SampHold_getStream(SampHold* self) { GET_STREAM };
-static PyObject * SampHold_setMul(SampHold *self, PyObject *arg) { SET_MUL };	
-static PyObject * SampHold_setAdd(SampHold *self, PyObject *arg) { SET_ADD };	
-static PyObject * SampHold_setSub(SampHold *self, PyObject *arg) { SET_SUB };	
-static PyObject * SampHold_setDiv(SampHold *self, PyObject *arg) { SET_DIV };	
+static PyObject * SampHold_setMul(SampHold *self, PyObject *arg) { SET_MUL };
+static PyObject * SampHold_setAdd(SampHold *self, PyObject *arg) { SET_ADD };
+static PyObject * SampHold_setSub(SampHold *self, PyObject *arg) { SET_SUB };
+static PyObject * SampHold_setDiv(SampHold *self, PyObject *arg) { SET_DIV };
 
 static PyObject * SampHold_play(SampHold *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * SampHold_out(SampHold *self, PyObject *args, PyObject *kwds) { OUT };
@@ -1253,14 +1253,14 @@ static PyObject *
 SampHold_setValue(SampHold *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
-	
+
 	if (arg == NULL) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
 	int isNumber = PyNumber_Check(arg);
-	
+
 	tmp = arg;
 	Py_INCREF(tmp);
 	Py_DECREF(self->value);
@@ -1276,9 +1276,9 @@ SampHold_setValue(SampHold *self, PyObject *arg)
         self->value_stream = (Stream *)streamtmp;
 		self->modebuffer[2] = 1;
 	}
-    
+
     (*self->mode_func_ptr)(self);
-    
+
 	Py_INCREF(Py_None);
 	return Py_None;
 }
@@ -1405,7 +1405,7 @@ typedef struct {
     Stream *value_stream;
     MYFLT currentValue;
     int flag;
-    int modebuffer[3]; // need at least 2 slots for mul & add 
+    int modebuffer[3]; // need at least 2 slots for mul & add
 } TrackHold;
 
 static void
@@ -1422,7 +1422,7 @@ TrackHold_filters_i(TrackHold *self) {
             if (self->flag == 1) {
                 self->currentValue = in[i];
                 self->flag = 0;
-            }    
+            }
         }
         else {
             self->currentValue = in[i];
@@ -1439,7 +1439,7 @@ TrackHold_filters_a(TrackHold *self) {
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
     MYFLT *ctrlsig = Stream_getData((Stream *)self->controlsig_stream);
     MYFLT *valsig = Stream_getData((Stream *)self->value_stream);
-    
+
     for (i=0; i<self->bufsize; i++) {
         ctrl = ctrlsig[i];
         val = valsig[i];
@@ -1447,7 +1447,7 @@ TrackHold_filters_a(TrackHold *self) {
             if (self->flag == 1) {
                 self->currentValue = in[i];
                 self->flag = 0;
-            }    
+            }
         }
         else {
             self->currentValue = in[i];
@@ -1473,50 +1473,50 @@ TrackHold_setProcMode(TrackHold *self)
     int procmode, muladdmode;
     procmode = self->modebuffer[2];
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
-    
+
 	switch (procmode) {
-        case 0:    
+        case 0:
             self->proc_func_ptr = TrackHold_filters_i;
             break;
-        case 1:    
+        case 1:
             self->proc_func_ptr = TrackHold_filters_a;
             break;
-    } 
+    }
 	switch (muladdmode) {
-        case 0:        
+        case 0:
             self->muladd_func_ptr = TrackHold_postprocessing_ii;
             break;
-        case 1:    
+        case 1:
             self->muladd_func_ptr = TrackHold_postprocessing_ai;
             break;
-        case 2:    
+        case 2:
             self->muladd_func_ptr = TrackHold_postprocessing_revai;
             break;
-        case 10:        
+        case 10:
             self->muladd_func_ptr = TrackHold_postprocessing_ia;
             break;
-        case 11:    
+        case 11:
             self->muladd_func_ptr = TrackHold_postprocessing_aa;
             break;
-        case 12:    
+        case 12:
             self->muladd_func_ptr = TrackHold_postprocessing_revaa;
             break;
-        case 20:        
+        case 20:
             self->muladd_func_ptr = TrackHold_postprocessing_ireva;
             break;
-        case 21:    
+        case 21:
             self->muladd_func_ptr = TrackHold_postprocessing_areva;
             break;
-        case 22:    
+        case 22:
             self->muladd_func_ptr = TrackHold_postprocessing_revareva;
             break;
-    }   
+    }
 }
 
 static void
 TrackHold_compute_next_data_frame(TrackHold *self)
 {
-    (*self->proc_func_ptr)(self); 
+    (*self->proc_func_ptr)(self);
     (*self->muladd_func_ptr)(self);
 }
 
@@ -1528,12 +1528,12 @@ TrackHold_traverse(TrackHold *self, visitproc visit, void *arg)
     Py_VISIT(self->input_stream);
     Py_VISIT(self->controlsig);
     Py_VISIT(self->controlsig_stream);
-    Py_VISIT(self->value);    
-    Py_VISIT(self->value_stream);    
+    Py_VISIT(self->value);
+    Py_VISIT(self->value_stream);
     return 0;
 }
 
-static int 
+static int
 TrackHold_clear(TrackHold *self)
 {
     pyo_CLEAR
@@ -1541,8 +1541,8 @@ TrackHold_clear(TrackHold *self)
     Py_CLEAR(self->input_stream);
     Py_CLEAR(self->controlsig);
     Py_CLEAR(self->controlsig_stream);
-    Py_CLEAR(self->value);    
-    Py_CLEAR(self->value_stream);    
+    Py_CLEAR(self->value);
+    Py_CLEAR(self->value_stream);
     return 0;
 }
 
@@ -1561,46 +1561,46 @@ TrackHold_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp, *controlsigtmp, *controlsig_streamtmp, *valuetmp=NULL, *multmp=NULL, *addtmp=NULL;
     TrackHold *self;
     self = (TrackHold *)type->tp_alloc(type, 0);
-    
+
     self->value = PyFloat_FromDouble(0.0);
     self->currentValue = 0.0;
     self->flag = 1;
 	self->modebuffer[0] = 0;
 	self->modebuffer[1] = 0;
 	self->modebuffer[2] = 0;
-    
+
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, TrackHold_compute_next_data_frame);
     self->mode_func_ptr = TrackHold_setProcMode;
 
     static char *kwlist[] = {"input", "controlsig", "value", "mul", "add", NULL};
-    
+
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "OO|OOO", kwlist, &inputtmp, &controlsigtmp, &valuetmp, &multmp, &addtmp))
         Py_RETURN_NONE;
-    
+
     INIT_INPUT_STREAM
-    
+
     Py_XDECREF(self->controlsig);
     self->controlsig = controlsigtmp;
     controlsig_streamtmp = PyObject_CallMethod((PyObject *)self->controlsig, "_getStream", NULL);
     Py_INCREF(controlsig_streamtmp);
     Py_XDECREF(self->controlsig_stream);
     self->controlsig_stream = (Stream *)controlsig_streamtmp;
-    
+
     if (valuetmp) {
         PyObject_CallMethod((PyObject *)self, "setValue", "O", valuetmp);
     }
-    
+
     if (multmp) {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
     }
-    
+
     if (addtmp) {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
-    
+
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
-    
+
     (*self->mode_func_ptr)(self);
 
     return (PyObject *)self;
@@ -1608,10 +1608,10 @@ TrackHold_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
 static PyObject * TrackHold_getServer(TrackHold* self) { GET_SERVER };
 static PyObject * TrackHold_getStream(TrackHold* self) { GET_STREAM };
-static PyObject * TrackHold_setMul(TrackHold *self, PyObject *arg) { SET_MUL };	
-static PyObject * TrackHold_setAdd(TrackHold *self, PyObject *arg) { SET_ADD };	
-static PyObject * TrackHold_setSub(TrackHold *self, PyObject *arg) { SET_SUB };	
-static PyObject * TrackHold_setDiv(TrackHold *self, PyObject *arg) { SET_DIV };	
+static PyObject * TrackHold_setMul(TrackHold *self, PyObject *arg) { SET_MUL };
+static PyObject * TrackHold_setAdd(TrackHold *self, PyObject *arg) { SET_ADD };
+static PyObject * TrackHold_setSub(TrackHold *self, PyObject *arg) { SET_SUB };
+static PyObject * TrackHold_setDiv(TrackHold *self, PyObject *arg) { SET_DIV };
 
 static PyObject * TrackHold_play(TrackHold *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * TrackHold_out(TrackHold *self, PyObject *args, PyObject *kwds) { OUT };
@@ -1630,14 +1630,14 @@ static PyObject *
 TrackHold_setValue(TrackHold *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
-	
+
 	if (arg == NULL) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
 	int isNumber = PyNumber_Check(arg);
-	
+
 	tmp = arg;
 	Py_INCREF(tmp);
 	Py_DECREF(self->value);
@@ -1653,9 +1653,9 @@ TrackHold_setValue(TrackHold *self, PyObject *arg)
         self->value_stream = (Stream *)streamtmp;
 		self->modebuffer[2] = 1;
 	}
-    
+
     (*self->mode_func_ptr)(self);
-    
+
 	Py_INCREF(Py_None);
 	return Py_None;
 }
@@ -1779,7 +1779,7 @@ typedef struct {
     PyObject *comp;
     Stream *comp_stream;
     MYFLT (*compare_func_ptr)(MYFLT, MYFLT); // true = 1.0, false = 0.0
-    int modebuffer[3]; // need at least 2 slots for mul & add 
+    int modebuffer[3]; // need at least 2 slots for mul & add
 } Compare;
 
 static MYFLT
@@ -1823,7 +1823,7 @@ Compare_process_i(Compare *self) {
     int i;
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
     MYFLT comp = PyFloat_AS_DOUBLE(self->comp);
-    
+
     for (i=0; i<self->bufsize; i++) {
         self->data[i] = (*self->compare_func_ptr)(in[i], comp);
     }
@@ -1834,7 +1834,7 @@ Compare_process_a(Compare *self) {
     int i;
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
     MYFLT *comp = Stream_getData((Stream *)self->comp_stream);
-    
+
     for (i=0; i<self->bufsize; i++) {
         self->data[i] = (*self->compare_func_ptr)(in[i], comp[i]);
     }
@@ -1856,50 +1856,50 @@ Compare_setProcMode(Compare *self)
     int procmode, muladdmode;
     procmode = self->modebuffer[2];
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
-    
+
 	switch (procmode) {
-        case 0:    
+        case 0:
             self->proc_func_ptr = Compare_process_i;
             break;
-        case 1:    
+        case 1:
             self->proc_func_ptr = Compare_process_a;
             break;
-    } 
+    }
 	switch (muladdmode) {
-        case 0:        
+        case 0:
             self->muladd_func_ptr = Compare_postprocessing_ii;
             break;
-        case 1:    
+        case 1:
             self->muladd_func_ptr = Compare_postprocessing_ai;
             break;
-        case 2:    
+        case 2:
             self->muladd_func_ptr = Compare_postprocessing_revai;
             break;
-        case 10:        
+        case 10:
             self->muladd_func_ptr = Compare_postprocessing_ia;
             break;
-        case 11:    
+        case 11:
             self->muladd_func_ptr = Compare_postprocessing_aa;
             break;
-        case 12:    
+        case 12:
             self->muladd_func_ptr = Compare_postprocessing_revaa;
             break;
-        case 20:        
+        case 20:
             self->muladd_func_ptr = Compare_postprocessing_ireva;
             break;
-        case 21:    
+        case 21:
             self->muladd_func_ptr = Compare_postprocessing_areva;
             break;
-        case 22:    
+        case 22:
             self->muladd_func_ptr = Compare_postprocessing_revareva;
             break;
-    }   
+    }
 }
 
 static void
 Compare_compute_next_data_frame(Compare *self)
 {
-    (*self->proc_func_ptr)(self); 
+    (*self->proc_func_ptr)(self);
     (*self->muladd_func_ptr)(self);
 }
 
@@ -1914,7 +1914,7 @@ Compare_traverse(Compare *self, visitproc visit, void *arg)
     return 0;
 }
 
-static int 
+static int
 Compare_clear(Compare *self)
 {
     pyo_CLEAR
@@ -1940,42 +1940,42 @@ Compare_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp, *comptmp, *modetmp=NULL, *multmp=NULL, *addtmp=NULL;
     Compare *self;
     self = (Compare *)type->tp_alloc(type, 0);
-    
+
 	self->modebuffer[0] = 0;
 	self->modebuffer[1] = 0;
 	self->modebuffer[2] = 0;
-    
+
     self->compare_func_ptr = Compare_lt;
-    
+
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, Compare_compute_next_data_frame);
     self->mode_func_ptr = Compare_setProcMode;
 
     static char *kwlist[] = {"input", "comp", "mode", "mul", "add", NULL};
-    
+
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "OO|OOO", kwlist, &inputtmp, &comptmp, &modetmp, &multmp, &addtmp))
         Py_RETURN_NONE;
-    
+
     INIT_INPUT_STREAM
-    
+
     if (comptmp) {
         PyObject_CallMethod((PyObject *)self, "setComp", "O", comptmp);
     }
-    
+
     if (modetmp) {
         PyObject_CallMethod((PyObject *)self, "setMode", "O", modetmp);
     }
-    
+
     if (multmp) {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
     }
-    
+
     if (addtmp) {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
-    
+
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
-    
+
     (*self->mode_func_ptr)(self);
 
     return (PyObject *)self;
@@ -1983,10 +1983,10 @@ Compare_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
 static PyObject * Compare_getServer(Compare* self) { GET_SERVER };
 static PyObject * Compare_getStream(Compare* self) { GET_STREAM };
-static PyObject * Compare_setMul(Compare *self, PyObject *arg) { SET_MUL };	
-static PyObject * Compare_setAdd(Compare *self, PyObject *arg) { SET_ADD };	
-static PyObject * Compare_setSub(Compare *self, PyObject *arg) { SET_SUB };	
-static PyObject * Compare_setDiv(Compare *self, PyObject *arg) { SET_DIV };	
+static PyObject * Compare_setMul(Compare *self, PyObject *arg) { SET_MUL };
+static PyObject * Compare_setAdd(Compare *self, PyObject *arg) { SET_ADD };
+static PyObject * Compare_setSub(Compare *self, PyObject *arg) { SET_SUB };
+static PyObject * Compare_setDiv(Compare *self, PyObject *arg) { SET_DIV };
 
 static PyObject * Compare_play(Compare *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * Compare_stop(Compare *self) { STOP };
@@ -2004,13 +2004,13 @@ static PyObject *
 Compare_setComp(Compare *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
-    
+
 	if (arg == NULL) {
 		Py_RETURN_NONE;
 	}
-    
+
 	int isNumber = PyNumber_Check(arg);
-	
+
 	tmp = arg;
 	Py_INCREF(tmp);
 	Py_XDECREF(self->comp);
@@ -2026,27 +2026,27 @@ Compare_setComp(Compare *self, PyObject *arg)
         self->comp_stream = (Stream *)streamtmp;
 		self->modebuffer[2] = 1;
 	}
-    
+
     (*self->mode_func_ptr)(self);
-    
+
 	Py_INCREF(Py_None);
 	return Py_None;
 }
 
 static PyObject *
 Compare_setMode(Compare *self, PyObject *arg)
-{	
+{
 	if (arg == NULL) {
 		Py_RETURN_NONE;
 	}
-    
+
 	if (! PyInt_Check(arg)) {
         printf("mode should be a comparison operator as a string\n");
 		Py_RETURN_NONE;
     }
 
     int tmp = PyInt_AsLong(arg);
-    
+
     if (tmp == 0)
         self->compare_func_ptr = Compare_lt;
     else if (tmp == 1)
@@ -2059,7 +2059,7 @@ Compare_setMode(Compare *self, PyObject *arg)
         self->compare_func_ptr = Compare_eq;
     else if (tmp == 5)
         self->compare_func_ptr = Compare_neq;
-    
+
     Py_RETURN_NONE;
 }
 
@@ -2193,7 +2193,7 @@ Between_transform_ii(Between *self) {
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
     MYFLT mi = PyFloat_AS_DOUBLE(self->min);
     MYFLT ma = PyFloat_AS_DOUBLE(self->max);
-    
+
     for (i=0; i<self->bufsize; i++) {
         val = in[i];
         if(val >= mi && val < ma)
@@ -2210,7 +2210,7 @@ Between_transform_ai(Between *self) {
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
     MYFLT *mi = Stream_getData((Stream *)self->min_stream);
     MYFLT ma = PyFloat_AS_DOUBLE(self->max);
-    
+
     for (i=0; i<self->bufsize; i++) {
         val = in[i];
         if(val >= mi[i] && val < ma)
@@ -2227,7 +2227,7 @@ Between_transform_ia(Between *self) {
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
     MYFLT mi = PyFloat_AS_DOUBLE(self->min);
     MYFLT *ma = Stream_getData((Stream *)self->max_stream);
-    
+
     for (i=0; i<self->bufsize; i++) {
         val = in[i];
         if(val >= mi && val < ma[i])
@@ -2244,7 +2244,7 @@ Between_transform_aa(Between *self) {
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
     MYFLT *mi = Stream_getData((Stream *)self->min_stream);
     MYFLT *ma = Stream_getData((Stream *)self->max_stream);
-    
+
     for (i=0; i<self->bufsize; i++) {
         val = in[i];
         if(val >= mi[i] && val < ma[i])
@@ -2270,56 +2270,56 @@ Between_setProcMode(Between *self)
     int procmode, muladdmode;
     procmode = self->modebuffer[2] + self->modebuffer[3] * 10;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
-    
+
 	switch (procmode) {
-        case 0:    
+        case 0:
             self->proc_func_ptr = Between_transform_ii;
             break;
-        case 1:    
+        case 1:
             self->proc_func_ptr = Between_transform_ai;
             break;
-        case 10:        
+        case 10:
             self->proc_func_ptr = Between_transform_ia;
             break;
-        case 11:    
+        case 11:
             self->proc_func_ptr = Between_transform_aa;
             break;
-    } 
+    }
 	switch (muladdmode) {
-        case 0:        
+        case 0:
             self->muladd_func_ptr = Between_postprocessing_ii;
             break;
-        case 1:    
+        case 1:
             self->muladd_func_ptr = Between_postprocessing_ai;
             break;
-        case 2:    
+        case 2:
             self->muladd_func_ptr = Between_postprocessing_revai;
             break;
-        case 10:        
+        case 10:
             self->muladd_func_ptr = Between_postprocessing_ia;
             break;
-        case 11:    
+        case 11:
             self->muladd_func_ptr = Between_postprocessing_aa;
             break;
-        case 12:    
+        case 12:
             self->muladd_func_ptr = Between_postprocessing_revaa;
             break;
-        case 20:        
+        case 20:
             self->muladd_func_ptr = Between_postprocessing_ireva;
             break;
-        case 21:    
+        case 21:
             self->muladd_func_ptr = Between_postprocessing_areva;
             break;
-        case 22:    
+        case 22:
             self->muladd_func_ptr = Between_postprocessing_revareva;
             break;
-    }   
+    }
 }
 
 static void
 Between_compute_next_data_frame(Between *self)
 {
-    (*self->proc_func_ptr)(self); 
+    (*self->proc_func_ptr)(self);
     (*self->muladd_func_ptr)(self);
 }
 
@@ -2328,24 +2328,24 @@ Between_traverse(Between *self, visitproc visit, void *arg)
 {
     pyo_VISIT
     Py_VISIT(self->input);
-    Py_VISIT(self->input_stream);    
-    Py_VISIT(self->min);    
-    Py_VISIT(self->min_stream);    
-    Py_VISIT(self->max);    
-    Py_VISIT(self->max_stream);    
+    Py_VISIT(self->input_stream);
+    Py_VISIT(self->min);
+    Py_VISIT(self->min_stream);
+    Py_VISIT(self->max);
+    Py_VISIT(self->max_stream);
     return 0;
 }
 
-static int 
+static int
 Between_clear(Between *self)
 {
     pyo_CLEAR
     Py_CLEAR(self->input);
     Py_CLEAR(self->input_stream);
-    Py_CLEAR(self->min);    
-    Py_CLEAR(self->min_stream);    
-    Py_CLEAR(self->max);    
-    Py_CLEAR(self->max_stream);    
+    Py_CLEAR(self->min);
+    Py_CLEAR(self->min_stream);
+    Py_CLEAR(self->max);
+    Py_CLEAR(self->max_stream);
     return 0;
 }
 
@@ -2364,54 +2364,54 @@ Between_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp, *mintmp=NULL, *maxtmp=NULL, *multmp=NULL, *addtmp=NULL;
     Between *self;
     self = (Between *)type->tp_alloc(type, 0);
-    
+
     self->min = PyFloat_FromDouble(0.0);
     self->max = PyFloat_FromDouble(1.0);
 	self->modebuffer[0] = 0;
 	self->modebuffer[1] = 0;
 	self->modebuffer[2] = 0;
 	self->modebuffer[3] = 0;
-    
+
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, Between_compute_next_data_frame);
     self->mode_func_ptr = Between_setProcMode;
 
     static char *kwlist[] = {"input", "min", "max", "mul", "add", NULL};
-    
+
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOOO", kwlist, &inputtmp, &mintmp, &maxtmp, &multmp, &addtmp))
         Py_RETURN_NONE;
-    
+
     INIT_INPUT_STREAM
-    
+
     if (mintmp) {
         PyObject_CallMethod((PyObject *)self, "setMin", "O", mintmp);
     }
-    
+
     if (maxtmp) {
         PyObject_CallMethod((PyObject *)self, "setMax", "O", maxtmp);
     }
-    
+
     if (multmp) {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
     }
-    
+
     if (addtmp) {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
-    
+
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
-    
+
     (*self->mode_func_ptr)(self);
-    
+
     return (PyObject *)self;
 }
 
 static PyObject * Between_getServer(Between* self) { GET_SERVER };
 static PyObject * Between_getStream(Between* self) { GET_STREAM };
-static PyObject * Between_setMul(Between *self, PyObject *arg) { SET_MUL };	
-static PyObject * Between_setAdd(Between *self, PyObject *arg) { SET_ADD };	
-static PyObject * Between_setSub(Between *self, PyObject *arg) { SET_SUB };	
-static PyObject * Between_setDiv(Between *self, PyObject *arg) { SET_DIV };	
+static PyObject * Between_setMul(Between *self, PyObject *arg) { SET_MUL };
+static PyObject * Between_setAdd(Between *self, PyObject *arg) { SET_ADD };
+static PyObject * Between_setSub(Between *self, PyObject *arg) { SET_SUB };
+static PyObject * Between_setDiv(Between *self, PyObject *arg) { SET_DIV };
 
 static PyObject * Between_play(Between *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * Between_out(Between *self, PyObject *args, PyObject *kwds) { OUT };
@@ -2430,14 +2430,14 @@ static PyObject *
 Between_setMin(Between *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
-	
+
 	if (arg == NULL) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
 	int isNumber = PyNumber_Check(arg);
-	
+
 	tmp = arg;
 	Py_INCREF(tmp);
 	Py_DECREF(self->min);
@@ -2453,25 +2453,25 @@ Between_setMin(Between *self, PyObject *arg)
         self->min_stream = (Stream *)streamtmp;
 		self->modebuffer[2] = 1;
 	}
-    
+
     (*self->mode_func_ptr)(self);
-    
+
 	Py_INCREF(Py_None);
 	return Py_None;
-}	
+}
 
 static PyObject *
 Between_setMax(Between *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
-	
+
 	if (arg == NULL) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
 	int isNumber = PyNumber_Check(arg);
-	
+
 	tmp = arg;
 	Py_INCREF(tmp);
 	Py_DECREF(self->max);
@@ -2487,12 +2487,12 @@ Between_setMax(Between *self, PyObject *arg)
         self->max_stream = (Stream *)streamtmp;
 		self->modebuffer[3] = 1;
 	}
-    
+
     (*self->mode_func_ptr)(self);
-    
+
 	Py_INCREF(Py_None);
 	return Py_None;
-}	
+}
 
 static PyMemberDef Between_members[] = {
     {"server", T_OBJECT_EX, offsetof(Between, server), 0, "Pyo server."},
@@ -2618,14 +2618,14 @@ typedef struct {
     pyo_audio_HEAD
     PyObject *input;
     Stream *input_stream;
-    int modebuffer[2]; // need at least 2 slots for mul & add 
+    int modebuffer[2]; // need at least 2 slots for mul & add
 } Denorm;
 
 static void
 Denorm_filters(Denorm *self) {
     int i;
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
-    
+
     for (i=0; i<self->bufsize; i++) {
         self->data[i] = in[i] + DENORM_RAND;
     }
@@ -2646,44 +2646,44 @@ Denorm_setProcMode(Denorm *self)
 {
     int muladdmode;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
-    
+
     self->proc_func_ptr = Denorm_filters;
-    
+
 	switch (muladdmode) {
-        case 0:        
+        case 0:
             self->muladd_func_ptr = Denorm_postprocessing_ii;
             break;
-        case 1:    
+        case 1:
             self->muladd_func_ptr = Denorm_postprocessing_ai;
             break;
-        case 2:    
+        case 2:
             self->muladd_func_ptr = Denorm_postprocessing_revai;
             break;
-        case 10:        
+        case 10:
             self->muladd_func_ptr = Denorm_postprocessing_ia;
             break;
-        case 11:    
+        case 11:
             self->muladd_func_ptr = Denorm_postprocessing_aa;
             break;
-        case 12:    
+        case 12:
             self->muladd_func_ptr = Denorm_postprocessing_revaa;
             break;
-        case 20:        
+        case 20:
             self->muladd_func_ptr = Denorm_postprocessing_ireva;
             break;
-        case 21:    
+        case 21:
             self->muladd_func_ptr = Denorm_postprocessing_areva;
             break;
-        case 22:    
+        case 22:
             self->muladd_func_ptr = Denorm_postprocessing_revareva;
             break;
-    }   
+    }
 }
 
 static void
 Denorm_compute_next_data_frame(Denorm *self)
 {
-    (*self->proc_func_ptr)(self); 
+    (*self->proc_func_ptr)(self);
     (*self->muladd_func_ptr)(self);
 }
 
@@ -2696,7 +2696,7 @@ Denorm_traverse(Denorm *self, visitproc visit, void *arg)
     return 0;
 }
 
-static int 
+static int
 Denorm_clear(Denorm *self)
 {
     pyo_CLEAR
@@ -2720,31 +2720,31 @@ Denorm_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp, *multmp=NULL, *addtmp=NULL;
     Denorm *self;
     self = (Denorm *)type->tp_alloc(type, 0);
-    
+
 	self->modebuffer[0] = 0;
 	self->modebuffer[1] = 0;
-    
+
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, Denorm_compute_next_data_frame);
     self->mode_func_ptr = Denorm_setProcMode;
 
     static char *kwlist[] = {"input", "mul", "add", NULL};
-    
+
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OO", kwlist, &inputtmp, &multmp, &addtmp))
         Py_RETURN_NONE;
-    
+
     INIT_INPUT_STREAM
-    
+
     if (multmp) {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
     }
-    
+
     if (addtmp) {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
-    
+
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
-    
+
     Server_generateSeed((Server *)self->server, DENORM_ID);
 
     (*self->mode_func_ptr)(self);
@@ -2754,10 +2754,10 @@ Denorm_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
 static PyObject * Denorm_getServer(Denorm* self) { GET_SERVER };
 static PyObject * Denorm_getStream(Denorm* self) { GET_STREAM };
-static PyObject * Denorm_setMul(Denorm *self, PyObject *arg) { SET_MUL };	
-static PyObject * Denorm_setAdd(Denorm *self, PyObject *arg) { SET_ADD };	
-static PyObject * Denorm_setSub(Denorm *self, PyObject *arg) { SET_SUB };	
-static PyObject * Denorm_setDiv(Denorm *self, PyObject *arg) { SET_DIV };	
+static PyObject * Denorm_setMul(Denorm *self, PyObject *arg) { SET_MUL };
+static PyObject * Denorm_setAdd(Denorm *self, PyObject *arg) { SET_ADD };
+static PyObject * Denorm_setSub(Denorm *self, PyObject *arg) { SET_SUB };
+static PyObject * Denorm_setDiv(Denorm *self, PyObject *arg) { SET_DIV };
 
 static PyObject * Denorm_play(Denorm *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * Denorm_out(Denorm *self, PyObject *args, PyObject *kwds) { OUT };
@@ -2895,7 +2895,7 @@ DBToA_process(DBToA *self) {
     int i;
     MYFLT db;
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
-    
+
     for (i=0; i<self->bufsize; i++) {
         db = in[i];
         if (db <= -120.0) {
@@ -2926,44 +2926,44 @@ DBToA_setProcMode(DBToA *self)
 {
     int muladdmode;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
-    
+
     self->proc_func_ptr = DBToA_process;
-    
+
 	switch (muladdmode) {
-        case 0:        
+        case 0:
             self->muladd_func_ptr = DBToA_postprocessing_ii;
             break;
-        case 1:    
+        case 1:
             self->muladd_func_ptr = DBToA_postprocessing_ai;
             break;
-        case 2:    
+        case 2:
             self->muladd_func_ptr = DBToA_postprocessing_revai;
             break;
-        case 10:        
+        case 10:
             self->muladd_func_ptr = DBToA_postprocessing_ia;
             break;
-        case 11:    
+        case 11:
             self->muladd_func_ptr = DBToA_postprocessing_aa;
             break;
-        case 12:    
+        case 12:
             self->muladd_func_ptr = DBToA_postprocessing_revaa;
             break;
-        case 20:        
+        case 20:
             self->muladd_func_ptr = DBToA_postprocessing_ireva;
             break;
-        case 21:    
+        case 21:
             self->muladd_func_ptr = DBToA_postprocessing_areva;
             break;
-        case 22:    
+        case 22:
             self->muladd_func_ptr = DBToA_postprocessing_revareva;
             break;
-    }   
+    }
 }
 
 static void
 DBToA_compute_next_data_frame(DBToA *self)
 {
-    (*self->proc_func_ptr)(self); 
+    (*self->proc_func_ptr)(self);
     (*self->muladd_func_ptr)(self);
 }
 
@@ -2976,7 +2976,7 @@ DBToA_traverse(DBToA *self, visitproc visit, void *arg)
     return 0;
 }
 
-static int 
+static int
 DBToA_clear(DBToA *self)
 {
     pyo_CLEAR
@@ -3000,33 +3000,33 @@ DBToA_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp, *multmp=NULL, *addtmp=NULL;
     DBToA *self;
     self = (DBToA *)type->tp_alloc(type, 0);
-    
+
     self->lastdb = -120.0;
     self->currentamp = MYPOW(10.0, self->lastdb * 0.05);
 	self->modebuffer[0] = 0;
 	self->modebuffer[1] = 0;
-    
+
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, DBToA_compute_next_data_frame);
     self->mode_func_ptr = DBToA_setProcMode;
 
     static char *kwlist[] = {"input", "mul", "add", NULL};
-    
+
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OO", kwlist, &inputtmp, &multmp, &addtmp))
         Py_RETURN_NONE;
-    
+
     INIT_INPUT_STREAM
-    
+
     if (multmp) {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
     }
-    
+
     if (addtmp) {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
-    
+
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
-    
+
     (*self->mode_func_ptr)(self);
 
     return (PyObject *)self;
@@ -3034,10 +3034,10 @@ DBToA_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
 static PyObject * DBToA_getServer(DBToA* self) { GET_SERVER };
 static PyObject * DBToA_getStream(DBToA* self) { GET_STREAM };
-static PyObject * DBToA_setMul(DBToA *self, PyObject *arg) { SET_MUL };	
-static PyObject * DBToA_setAdd(DBToA *self, PyObject *arg) { SET_ADD };	
-static PyObject * DBToA_setSub(DBToA *self, PyObject *arg) { SET_SUB };	
-static PyObject * DBToA_setDiv(DBToA *self, PyObject *arg) { SET_DIV };	
+static PyObject * DBToA_setMul(DBToA *self, PyObject *arg) { SET_MUL };
+static PyObject * DBToA_setAdd(DBToA *self, PyObject *arg) { SET_ADD };
+static PyObject * DBToA_setSub(DBToA *self, PyObject *arg) { SET_SUB };
+static PyObject * DBToA_setDiv(DBToA *self, PyObject *arg) { SET_DIV };
 
 static PyObject * DBToA_play(DBToA *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * DBToA_out(DBToA *self, PyObject *args, PyObject *kwds) { OUT };
@@ -3175,7 +3175,7 @@ AToDB_process(AToDB *self) {
     int i;
     MYFLT amp;
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
-    
+
     for (i=0; i<self->bufsize; i++) {
         amp = in[i];
         if (amp <= 0.000001) {
@@ -3206,44 +3206,44 @@ AToDB_setProcMode(AToDB *self)
 {
     int muladdmode;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
-    
+
     self->proc_func_ptr = AToDB_process;
-    
+
 	switch (muladdmode) {
-        case 0:        
+        case 0:
             self->muladd_func_ptr = AToDB_postprocessing_ii;
             break;
-        case 1:    
+        case 1:
             self->muladd_func_ptr = AToDB_postprocessing_ai;
             break;
-        case 2:    
+        case 2:
             self->muladd_func_ptr = AToDB_postprocessing_revai;
             break;
-        case 10:        
+        case 10:
             self->muladd_func_ptr = AToDB_postprocessing_ia;
             break;
-        case 11:    
+        case 11:
             self->muladd_func_ptr = AToDB_postprocessing_aa;
             break;
-        case 12:    
+        case 12:
             self->muladd_func_ptr = AToDB_postprocessing_revaa;
             break;
-        case 20:        
+        case 20:
             self->muladd_func_ptr = AToDB_postprocessing_ireva;
             break;
-        case 21:    
+        case 21:
             self->muladd_func_ptr = AToDB_postprocessing_areva;
             break;
-        case 22:    
+        case 22:
             self->muladd_func_ptr = AToDB_postprocessing_revareva;
             break;
-    }   
+    }
 }
 
 static void
 AToDB_compute_next_data_frame(AToDB *self)
 {
-    (*self->proc_func_ptr)(self); 
+    (*self->proc_func_ptr)(self);
     (*self->muladd_func_ptr)(self);
 }
 
@@ -3256,7 +3256,7 @@ AToDB_traverse(AToDB *self, visitproc visit, void *arg)
     return 0;
 }
 
-static int 
+static int
 AToDB_clear(AToDB *self)
 {
     pyo_CLEAR
@@ -3280,33 +3280,33 @@ AToDB_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp, *multmp=NULL, *addtmp=NULL;
     AToDB *self;
     self = (AToDB *)type->tp_alloc(type, 0);
-    
+
     self->lastamp = 0.000001;
     self->currentdb = 20.0 * MYLOG10(self->lastamp);
 	self->modebuffer[0] = 0;
 	self->modebuffer[1] = 0;
-    
+
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, AToDB_compute_next_data_frame);
     self->mode_func_ptr = AToDB_setProcMode;
 
     static char *kwlist[] = {"input", "mul", "add", NULL};
-    
+
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OO", kwlist, &inputtmp, &multmp, &addtmp))
         Py_RETURN_NONE;
-    
+
     INIT_INPUT_STREAM
-    
+
     if (multmp) {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
     }
-    
+
     if (addtmp) {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
-    
+
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
-    
+
     (*self->mode_func_ptr)(self);
 
     return (PyObject *)self;
@@ -3314,10 +3314,10 @@ AToDB_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
 static PyObject * AToDB_getServer(AToDB* self) { GET_SERVER };
 static PyObject * AToDB_getStream(AToDB* self) { GET_STREAM };
-static PyObject * AToDB_setMul(AToDB *self, PyObject *arg) { SET_MUL };	
-static PyObject * AToDB_setAdd(AToDB *self, PyObject *arg) { SET_ADD };	
-static PyObject * AToDB_setSub(AToDB *self, PyObject *arg) { SET_SUB };	
-static PyObject * AToDB_setDiv(AToDB *self, PyObject *arg) { SET_DIV };	
+static PyObject * AToDB_setMul(AToDB *self, PyObject *arg) { SET_MUL };
+static PyObject * AToDB_setAdd(AToDB *self, PyObject *arg) { SET_ADD };
+static PyObject * AToDB_setSub(AToDB *self, PyObject *arg) { SET_SUB };
+static PyObject * AToDB_setDiv(AToDB *self, PyObject *arg) { SET_DIV };
 
 static PyObject * AToDB_play(AToDB *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * AToDB_out(AToDB *self, PyObject *args, PyObject *kwds) { OUT };
@@ -3455,7 +3455,7 @@ typedef struct {
     Stream *outmax_stream;
     PyObject *exp;
     Stream *exp_stream;
-    int modebuffer[7]; // need at least 2 slots for mul & add 
+    int modebuffer[7]; // need at least 2 slots for mul & add
 } Scale;
 
 static MYFLT
@@ -3474,7 +3474,7 @@ Scale_generate(Scale *self) {
     MYFLT tmp, inrange, outrange, normin;
     MYFLT inmin, inmax, outmin, outmax, exp;
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
-    
+
     if (self->modebuffer[2] == 0)
         inmin = PyFloat_AS_DOUBLE(self->inmin);
     else
@@ -3483,7 +3483,7 @@ Scale_generate(Scale *self) {
         inmax = PyFloat_AS_DOUBLE(self->inmax);
     else
         inmax = Stream_getData((Stream *)self->inmax_stream)[0];
-    
+
     if (inmin < inmax) {
         inrev = 0;
     }
@@ -3503,7 +3503,7 @@ Scale_generate(Scale *self) {
         outmax = PyFloat_AS_DOUBLE(self->outmax);
     else
         outmax = Stream_getData((Stream *)self->outmax_stream)[0];
-    
+
     if (outmin < outmax) {
         outrev = 0;
     }
@@ -3514,7 +3514,7 @@ Scale_generate(Scale *self) {
         outrev = 1;
     }
     outrange = outmax - outmin;
-    
+
     if (self->modebuffer[6] == 0)
         exp = PyFloat_AS_DOUBLE(self->exp);
     else
@@ -3534,7 +3534,7 @@ Scale_generate(Scale *self) {
             for (i=0; i<self->bufsize; i++) {
                 normin = (_scale_clip(in[i], inmin, inmax) - inmin) / inrange;
                 self->data[i] = normin * outrange + outmin;
-            }            
+            }
         }
         else if (inrev == 1 && outrev == 0) {
             for (i=0; i<self->bufsize; i++) {
@@ -3561,7 +3561,7 @@ Scale_generate(Scale *self) {
             for (i=0; i<self->bufsize; i++) {
                 normin = MYPOW((_scale_clip(in[i], inmin, inmax) - inmin) / inrange, exp);
                 self->data[i] = normin * outrange + outmin;
-            }            
+            }
         }
         else if (inrev == 1 && outrev == 0) {
             for (i=0; i<self->bufsize; i++) {
@@ -3599,44 +3599,44 @@ Scale_setProcMode(Scale *self)
 {
     int muladdmode;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
-    
+
     self->proc_func_ptr = Scale_generate;
-    
+
 	switch (muladdmode) {
-        case 0:        
+        case 0:
             self->muladd_func_ptr = Scale_postprocessing_ii;
             break;
-        case 1:    
+        case 1:
             self->muladd_func_ptr = Scale_postprocessing_ai;
             break;
-        case 2:    
+        case 2:
             self->muladd_func_ptr = Scale_postprocessing_revai;
             break;
-        case 10:        
+        case 10:
             self->muladd_func_ptr = Scale_postprocessing_ia;
             break;
-        case 11:    
+        case 11:
             self->muladd_func_ptr = Scale_postprocessing_aa;
             break;
-        case 12:    
+        case 12:
             self->muladd_func_ptr = Scale_postprocessing_revaa;
             break;
-        case 20:        
+        case 20:
             self->muladd_func_ptr = Scale_postprocessing_ireva;
             break;
-        case 21:    
+        case 21:
             self->muladd_func_ptr = Scale_postprocessing_areva;
             break;
-        case 22:    
+        case 22:
             self->muladd_func_ptr = Scale_postprocessing_revareva;
             break;
-    }  
+    }
 }
 
 static void
 Scale_compute_next_data_frame(Scale *self)
 {
-    (*self->proc_func_ptr)(self); 
+    (*self->proc_func_ptr)(self);
     (*self->muladd_func_ptr)(self);
 }
 
@@ -3659,7 +3659,7 @@ Scale_traverse(Scale *self, visitproc visit, void *arg)
     return 0;
 }
 
-static int 
+static int
 Scale_clear(Scale *self)
 {
     pyo_CLEAR
@@ -3693,7 +3693,7 @@ Scale_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp, *inmintmp=NULL, *inmaxtmp=NULL, *outmintmp=NULL, *outmaxtmp=NULL, *exptmp=NULL, *multmp=NULL, *addtmp=NULL;
     Scale *self;
     self = (Scale *)type->tp_alloc(type, 0);
-    
+
     self->inmin = PyFloat_FromDouble(0.0);
     self->inmax = PyFloat_FromDouble(1.0);
     self->outmin = PyFloat_FromDouble(0.0);
@@ -3706,18 +3706,18 @@ Scale_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->modebuffer[4] = 0;
     self->modebuffer[5] = 0;
     self->modebuffer[6] = 0;
-    
+
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, Scale_compute_next_data_frame);
     self->mode_func_ptr = Scale_setProcMode;
 
     static char *kwlist[] = {"input", "inmin", "inmax", "outmin", "outmax", "exp", "mul", "add", NULL};
-    
+
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOOOOOO", kwlist, &inputtmp, &inmintmp, &inmaxtmp, &outmintmp, &outmaxtmp, &exptmp, &multmp, &addtmp))
         Py_RETURN_NONE;
-    
+
     INIT_INPUT_STREAM
-    
+
     if (inmintmp) {
         PyObject_CallMethod((PyObject *)self, "setInMin", "O", inmintmp);
     }
@@ -3737,17 +3737,17 @@ Scale_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (exptmp) {
         PyObject_CallMethod((PyObject *)self, "setExp", "O", exptmp);
     }
-    
+
     if (multmp) {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
     }
-    
+
     if (addtmp) {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
-    
+
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
-    
+
     (*self->mode_func_ptr)(self);
 
     return (PyObject *)self;
@@ -3755,10 +3755,10 @@ Scale_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
 static PyObject * Scale_getServer(Scale* self) { GET_SERVER };
 static PyObject * Scale_getStream(Scale* self) { GET_STREAM };
-static PyObject * Scale_setMul(Scale *self, PyObject *arg) { SET_MUL };	
-static PyObject * Scale_setAdd(Scale *self, PyObject *arg) { SET_ADD };	
-static PyObject * Scale_setSub(Scale *self, PyObject *arg) { SET_SUB };	
-static PyObject * Scale_setDiv(Scale *self, PyObject *arg) { SET_DIV };	
+static PyObject * Scale_setMul(Scale *self, PyObject *arg) { SET_MUL };
+static PyObject * Scale_setAdd(Scale *self, PyObject *arg) { SET_ADD };
+static PyObject * Scale_setSub(Scale *self, PyObject *arg) { SET_SUB };
+static PyObject * Scale_setDiv(Scale *self, PyObject *arg) { SET_DIV };
 
 static PyObject * Scale_play(Scale *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * Scale_out(Scale *self, PyObject *args, PyObject *kwds) { OUT };
@@ -3777,14 +3777,14 @@ static PyObject *
 Scale_setInMin(Scale *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
-	
+
 	if (arg == NULL) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
 	int isNumber = PyNumber_Check(arg);
-	
+
 	tmp = arg;
 	Py_INCREF(tmp);
 	Py_DECREF(self->inmin);
@@ -3800,25 +3800,25 @@ Scale_setInMin(Scale *self, PyObject *arg)
         self->inmin_stream = (Stream *)streamtmp;
 		self->modebuffer[2] = 1;
 	}
-    
+
     (*self->mode_func_ptr)(self);
-    
+
 	Py_INCREF(Py_None);
 	return Py_None;
-}	
+}
 
 static PyObject *
 Scale_setInMax(Scale *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
-	
+
 	if (arg == NULL) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
 	int isNumber = PyNumber_Check(arg);
-	
+
 	tmp = arg;
 	Py_INCREF(tmp);
 	Py_DECREF(self->inmax);
@@ -3834,25 +3834,25 @@ Scale_setInMax(Scale *self, PyObject *arg)
         self->inmax_stream = (Stream *)streamtmp;
 		self->modebuffer[3] = 1;
 	}
-    
+
     (*self->mode_func_ptr)(self);
-    
+
 	Py_INCREF(Py_None);
 	return Py_None;
-}	
+}
 
 static PyObject *
 Scale_setOutMin(Scale *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
-	
+
 	if (arg == NULL) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
 	int isNumber = PyNumber_Check(arg);
-	
+
 	tmp = arg;
 	Py_INCREF(tmp);
 	Py_DECREF(self->outmin);
@@ -3868,25 +3868,25 @@ Scale_setOutMin(Scale *self, PyObject *arg)
         self->outmin_stream = (Stream *)streamtmp;
 		self->modebuffer[4] = 1;
 	}
-    
+
     (*self->mode_func_ptr)(self);
-    
+
 	Py_INCREF(Py_None);
 	return Py_None;
-}	
+}
 
 static PyObject *
 Scale_setOutMax(Scale *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
-	
+
 	if (arg == NULL) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
 	int isNumber = PyNumber_Check(arg);
-	
+
 	tmp = arg;
 	Py_INCREF(tmp);
 	Py_DECREF(self->outmax);
@@ -3902,25 +3902,25 @@ Scale_setOutMax(Scale *self, PyObject *arg)
         self->outmax_stream = (Stream *)streamtmp;
 		self->modebuffer[5] = 1;
 	}
-    
+
     (*self->mode_func_ptr)(self);
-    
+
 	Py_INCREF(Py_None);
 	return Py_None;
-}	
+}
 
 static PyObject *
 Scale_setExp(Scale *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
-	
+
 	if (arg == NULL) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
 	int isNumber = PyNumber_Check(arg);
-	
+
 	tmp = arg;
 	Py_INCREF(tmp);
 	Py_DECREF(self->exp);
@@ -3936,12 +3936,12 @@ Scale_setExp(Scale *self, PyObject *arg)
         self->exp_stream = (Stream *)streamtmp;
 		self->modebuffer[6] = 1;
 	}
-    
+
     (*self->mode_func_ptr)(self);
-    
+
 	Py_INCREF(Py_None);
 	return Py_None;
-}	
+}
 
 static PyMemberDef Scale_members[] = {
     {"server", T_OBJECT_EX, offsetof(Scale, server), 0, "Pyo server."},
@@ -4071,7 +4071,7 @@ CentsToTranspo_process(CentsToTranspo *self) {
     int i;
     MYFLT cents;
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
-    
+
     for (i=0; i<self->bufsize; i++) {
         cents = in[i];
         if (cents != self->lastcents) {
@@ -4098,44 +4098,44 @@ CentsToTranspo_setProcMode(CentsToTranspo *self)
 {
     int muladdmode;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
-    
+
     self->proc_func_ptr = CentsToTranspo_process;
-    
+
 	switch (muladdmode) {
-        case 0:        
+        case 0:
             self->muladd_func_ptr = CentsToTranspo_postprocessing_ii;
             break;
-        case 1:    
+        case 1:
             self->muladd_func_ptr = CentsToTranspo_postprocessing_ai;
             break;
-        case 2:    
+        case 2:
             self->muladd_func_ptr = CentsToTranspo_postprocessing_revai;
             break;
-        case 10:        
+        case 10:
             self->muladd_func_ptr = CentsToTranspo_postprocessing_ia;
             break;
-        case 11:    
+        case 11:
             self->muladd_func_ptr = CentsToTranspo_postprocessing_aa;
             break;
-        case 12:    
+        case 12:
             self->muladd_func_ptr = CentsToTranspo_postprocessing_revaa;
             break;
-        case 20:        
+        case 20:
             self->muladd_func_ptr = CentsToTranspo_postprocessing_ireva;
             break;
-        case 21:    
+        case 21:
             self->muladd_func_ptr = CentsToTranspo_postprocessing_areva;
             break;
-        case 22:    
+        case 22:
             self->muladd_func_ptr = CentsToTranspo_postprocessing_revareva;
             break;
-    }   
+    }
 }
 
 static void
 CentsToTranspo_compute_next_data_frame(CentsToTranspo *self)
 {
-    (*self->proc_func_ptr)(self); 
+    (*self->proc_func_ptr)(self);
     (*self->muladd_func_ptr)(self);
 }
 
@@ -4148,7 +4148,7 @@ CentsToTranspo_traverse(CentsToTranspo *self, visitproc visit, void *arg)
     return 0;
 }
 
-static int 
+static int
 CentsToTranspo_clear(CentsToTranspo *self)
 {
     pyo_CLEAR
@@ -4172,33 +4172,33 @@ CentsToTranspo_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp, *multmp=NULL, *addtmp=NULL;
     CentsToTranspo *self;
     self = (CentsToTranspo *)type->tp_alloc(type, 0);
-    
+
     self->lastcents = 0.0;
     self->curtranspo = 1.0;
 	self->modebuffer[0] = 0;
 	self->modebuffer[1] = 0;
-    
+
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, CentsToTranspo_compute_next_data_frame);
     self->mode_func_ptr = CentsToTranspo_setProcMode;
 
     static char *kwlist[] = {"input", "mul", "add", NULL};
-    
+
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OO", kwlist, &inputtmp, &multmp, &addtmp))
         Py_RETURN_NONE;
-    
+
     INIT_INPUT_STREAM
-    
+
     if (multmp) {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
     }
-    
+
     if (addtmp) {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
-    
+
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
-    
+
     (*self->mode_func_ptr)(self);
 
     return (PyObject *)self;
@@ -4206,10 +4206,10 @@ CentsToTranspo_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
 static PyObject * CentsToTranspo_getServer(CentsToTranspo* self) { GET_SERVER };
 static PyObject * CentsToTranspo_getStream(CentsToTranspo* self) { GET_STREAM };
-static PyObject * CentsToTranspo_setMul(CentsToTranspo *self, PyObject *arg) { SET_MUL };	
-static PyObject * CentsToTranspo_setAdd(CentsToTranspo *self, PyObject *arg) { SET_ADD };	
-static PyObject * CentsToTranspo_setSub(CentsToTranspo *self, PyObject *arg) { SET_SUB };	
-static PyObject * CentsToTranspo_setDiv(CentsToTranspo *self, PyObject *arg) { SET_DIV };	
+static PyObject * CentsToTranspo_setMul(CentsToTranspo *self, PyObject *arg) { SET_MUL };
+static PyObject * CentsToTranspo_setAdd(CentsToTranspo *self, PyObject *arg) { SET_ADD };
+static PyObject * CentsToTranspo_setSub(CentsToTranspo *self, PyObject *arg) { SET_SUB };
+static PyObject * CentsToTranspo_setDiv(CentsToTranspo *self, PyObject *arg) { SET_DIV };
 
 static PyObject * CentsToTranspo_play(CentsToTranspo *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * CentsToTranspo_out(CentsToTranspo *self, PyObject *args, PyObject *kwds) { OUT };
@@ -4347,7 +4347,7 @@ TranspoToCents_process(TranspoToCents *self) {
     int i;
     MYFLT transpo;
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
-    
+
     for (i=0; i<self->bufsize; i++) {
         transpo = in[i];
         if (transpo != self->lasttranspo) {
@@ -4374,44 +4374,44 @@ TranspoToCents_setProcMode(TranspoToCents *self)
 {
     int muladdmode;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
-    
+
     self->proc_func_ptr = TranspoToCents_process;
-    
+
 	switch (muladdmode) {
-        case 0:        
+        case 0:
             self->muladd_func_ptr = TranspoToCents_postprocessing_ii;
             break;
-        case 1:    
+        case 1:
             self->muladd_func_ptr = TranspoToCents_postprocessing_ai;
             break;
-        case 2:    
+        case 2:
             self->muladd_func_ptr = TranspoToCents_postprocessing_revai;
             break;
-        case 10:        
+        case 10:
             self->muladd_func_ptr = TranspoToCents_postprocessing_ia;
             break;
-        case 11:    
+        case 11:
             self->muladd_func_ptr = TranspoToCents_postprocessing_aa;
             break;
-        case 12:    
+        case 12:
             self->muladd_func_ptr = TranspoToCents_postprocessing_revaa;
             break;
-        case 20:        
+        case 20:
             self->muladd_func_ptr = TranspoToCents_postprocessing_ireva;
             break;
-        case 21:    
+        case 21:
             self->muladd_func_ptr = TranspoToCents_postprocessing_areva;
             break;
-        case 22:    
+        case 22:
             self->muladd_func_ptr = TranspoToCents_postprocessing_revareva;
             break;
-    }   
+    }
 }
 
 static void
 TranspoToCents_compute_next_data_frame(TranspoToCents *self)
 {
-    (*self->proc_func_ptr)(self); 
+    (*self->proc_func_ptr)(self);
     (*self->muladd_func_ptr)(self);
 }
 
@@ -4424,7 +4424,7 @@ TranspoToCents_traverse(TranspoToCents *self, visitproc visit, void *arg)
     return 0;
 }
 
-static int 
+static int
 TranspoToCents_clear(TranspoToCents *self)
 {
     pyo_CLEAR
@@ -4448,33 +4448,33 @@ TranspoToCents_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp, *multmp=NULL, *addtmp=NULL;
     TranspoToCents *self;
     self = (TranspoToCents *)type->tp_alloc(type, 0);
-    
+
     self->lasttranspo = 1.0;
     self->curcents = 0.0;
 	self->modebuffer[0] = 0;
 	self->modebuffer[1] = 0;
-    
+
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, TranspoToCents_compute_next_data_frame);
     self->mode_func_ptr = TranspoToCents_setProcMode;
 
     static char *kwlist[] = {"input", "mul", "add", NULL};
-    
+
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OO", kwlist, &inputtmp, &multmp, &addtmp))
         Py_RETURN_NONE;
-    
+
     INIT_INPUT_STREAM
-    
+
     if (multmp) {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
     }
-    
+
     if (addtmp) {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
-    
+
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
-    
+
     (*self->mode_func_ptr)(self);
 
     return (PyObject *)self;
@@ -4482,10 +4482,10 @@ TranspoToCents_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
 static PyObject * TranspoToCents_getServer(TranspoToCents* self) { GET_SERVER };
 static PyObject * TranspoToCents_getStream(TranspoToCents* self) { GET_STREAM };
-static PyObject * TranspoToCents_setMul(TranspoToCents *self, PyObject *arg) { SET_MUL };	
-static PyObject * TranspoToCents_setAdd(TranspoToCents *self, PyObject *arg) { SET_ADD };	
-static PyObject * TranspoToCents_setSub(TranspoToCents *self, PyObject *arg) { SET_SUB };	
-static PyObject * TranspoToCents_setDiv(TranspoToCents *self, PyObject *arg) { SET_DIV };	
+static PyObject * TranspoToCents_setMul(TranspoToCents *self, PyObject *arg) { SET_MUL };
+static PyObject * TranspoToCents_setAdd(TranspoToCents *self, PyObject *arg) { SET_ADD };
+static PyObject * TranspoToCents_setSub(TranspoToCents *self, PyObject *arg) { SET_SUB };
+static PyObject * TranspoToCents_setDiv(TranspoToCents *self, PyObject *arg) { SET_DIV };
 
 static PyObject * TranspoToCents_play(TranspoToCents *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * TranspoToCents_out(TranspoToCents *self, PyObject *args, PyObject *kwds) { OUT };
@@ -4623,7 +4623,7 @@ MToF_process(MToF *self) {
     int i;
     MYFLT midi;
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
-    
+
     for (i=0; i<self->bufsize; i++) {
         midi = in[i];
         if (midi != self->lastmidi) {
@@ -4650,44 +4650,44 @@ MToF_setProcMode(MToF *self)
 {
     int muladdmode;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
-    
+
     self->proc_func_ptr = MToF_process;
-    
+
 	switch (muladdmode) {
-        case 0:        
+        case 0:
             self->muladd_func_ptr = MToF_postprocessing_ii;
             break;
-        case 1:    
+        case 1:
             self->muladd_func_ptr = MToF_postprocessing_ai;
             break;
-        case 2:    
+        case 2:
             self->muladd_func_ptr = MToF_postprocessing_revai;
             break;
-        case 10:        
+        case 10:
             self->muladd_func_ptr = MToF_postprocessing_ia;
             break;
-        case 11:    
+        case 11:
             self->muladd_func_ptr = MToF_postprocessing_aa;
             break;
-        case 12:    
+        case 12:
             self->muladd_func_ptr = MToF_postprocessing_revaa;
             break;
-        case 20:        
+        case 20:
             self->muladd_func_ptr = MToF_postprocessing_ireva;
             break;
-        case 21:    
+        case 21:
             self->muladd_func_ptr = MToF_postprocessing_areva;
             break;
-        case 22:    
+        case 22:
             self->muladd_func_ptr = MToF_postprocessing_revareva;
             break;
-    }   
+    }
 }
 
 static void
 MToF_compute_next_data_frame(MToF *self)
 {
-    (*self->proc_func_ptr)(self); 
+    (*self->proc_func_ptr)(self);
     (*self->muladd_func_ptr)(self);
 }
 
@@ -4700,7 +4700,7 @@ MToF_traverse(MToF *self, visitproc visit, void *arg)
     return 0;
 }
 
-static int 
+static int
 MToF_clear(MToF *self)
 {
     pyo_CLEAR
@@ -4724,33 +4724,33 @@ MToF_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp, *multmp=NULL, *addtmp=NULL;
     MToF *self;
     self = (MToF *)type->tp_alloc(type, 0);
-    
+
     self->lastmidi = 0;
     self->curfreq = 8.1757989156437;
 	self->modebuffer[0] = 0;
 	self->modebuffer[1] = 0;
-    
+
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, MToF_compute_next_data_frame);
     self->mode_func_ptr = MToF_setProcMode;
 
     static char *kwlist[] = {"input", "mul", "add", NULL};
-    
+
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OO", kwlist, &inputtmp, &multmp, &addtmp))
         Py_RETURN_NONE;
-    
+
     INIT_INPUT_STREAM
-    
+
     if (multmp) {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
     }
-    
+
     if (addtmp) {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
-    
+
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
-    
+
     (*self->mode_func_ptr)(self);
 
     return (PyObject *)self;
@@ -4758,10 +4758,10 @@ MToF_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
 static PyObject * MToF_getServer(MToF* self) { GET_SERVER };
 static PyObject * MToF_getStream(MToF* self) { GET_STREAM };
-static PyObject * MToF_setMul(MToF *self, PyObject *arg) { SET_MUL };	
-static PyObject * MToF_setAdd(MToF *self, PyObject *arg) { SET_ADD };	
-static PyObject * MToF_setSub(MToF *self, PyObject *arg) { SET_SUB };	
-static PyObject * MToF_setDiv(MToF *self, PyObject *arg) { SET_DIV };	
+static PyObject * MToF_setMul(MToF *self, PyObject *arg) { SET_MUL };
+static PyObject * MToF_setAdd(MToF *self, PyObject *arg) { SET_ADD };
+static PyObject * MToF_setSub(MToF *self, PyObject *arg) { SET_SUB };
+static PyObject * MToF_setDiv(MToF *self, PyObject *arg) { SET_DIV };
 
 static PyObject * MToF_play(MToF *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * MToF_out(MToF *self, PyObject *args, PyObject *kwds) { OUT };
@@ -4899,7 +4899,7 @@ FToM_process(FToM *self) {
     int i;
     MYFLT freq;
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
-    
+
     for (i=0; i<self->bufsize; i++) {
         freq = in[i];
         if (freq != self->lastfreq) {
@@ -4928,44 +4928,44 @@ FToM_setProcMode(FToM *self)
 {
     int muladdmode;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
-    
+
     self->proc_func_ptr = FToM_process;
-    
+
 	switch (muladdmode) {
-        case 0:        
+        case 0:
             self->muladd_func_ptr = FToM_postprocessing_ii;
             break;
-        case 1:    
+        case 1:
             self->muladd_func_ptr = FToM_postprocessing_ai;
             break;
-        case 2:    
+        case 2:
             self->muladd_func_ptr = FToM_postprocessing_revai;
             break;
-        case 10:        
+        case 10:
             self->muladd_func_ptr = FToM_postprocessing_ia;
             break;
-        case 11:    
+        case 11:
             self->muladd_func_ptr = FToM_postprocessing_aa;
             break;
-        case 12:    
+        case 12:
             self->muladd_func_ptr = FToM_postprocessing_revaa;
             break;
-        case 20:        
+        case 20:
             self->muladd_func_ptr = FToM_postprocessing_ireva;
             break;
-        case 21:    
+        case 21:
             self->muladd_func_ptr = FToM_postprocessing_areva;
             break;
-        case 22:    
+        case 22:
             self->muladd_func_ptr = FToM_postprocessing_revareva;
             break;
-    }   
+    }
 }
 
 static void
 FToM_compute_next_data_frame(FToM *self)
 {
-    (*self->proc_func_ptr)(self); 
+    (*self->proc_func_ptr)(self);
     (*self->muladd_func_ptr)(self);
 }
 
@@ -4978,7 +4978,7 @@ FToM_traverse(FToM *self, visitproc visit, void *arg)
     return 0;
 }
 
-static int 
+static int
 FToM_clear(FToM *self)
 {
     pyo_CLEAR
@@ -5002,33 +5002,33 @@ FToM_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp, *multmp=NULL, *addtmp=NULL;
     FToM *self;
     self = (FToM *)type->tp_alloc(type, 0);
-    
+
     self->lastfreq = 8.1758;
     self->curmidi = 0.0;
 	self->modebuffer[0] = 0;
 	self->modebuffer[1] = 0;
-    
+
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, FToM_compute_next_data_frame);
     self->mode_func_ptr = FToM_setProcMode;
 
     static char *kwlist[] = {"input", "mul", "add", NULL};
-    
+
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OO", kwlist, &inputtmp, &multmp, &addtmp))
         Py_RETURN_NONE;
-    
+
     INIT_INPUT_STREAM
-    
+
     if (multmp) {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
     }
-    
+
     if (addtmp) {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
-    
+
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
-    
+
     (*self->mode_func_ptr)(self);
 
     return (PyObject *)self;
@@ -5036,10 +5036,10 @@ FToM_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
 static PyObject * FToM_getServer(FToM* self) { GET_SERVER };
 static PyObject * FToM_getStream(FToM* self) { GET_STREAM };
-static PyObject * FToM_setMul(FToM *self, PyObject *arg) { SET_MUL };	
-static PyObject * FToM_setAdd(FToM *self, PyObject *arg) { SET_ADD };	
-static PyObject * FToM_setSub(FToM *self, PyObject *arg) { SET_SUB };	
-static PyObject * FToM_setDiv(FToM *self, PyObject *arg) { SET_DIV };	
+static PyObject * FToM_setMul(FToM *self, PyObject *arg) { SET_MUL };
+static PyObject * FToM_setAdd(FToM *self, PyObject *arg) { SET_ADD };
+static PyObject * FToM_setSub(FToM *self, PyObject *arg) { SET_SUB };
+static PyObject * FToM_setDiv(FToM *self, PyObject *arg) { SET_DIV };
 
 static PyObject * FToM_play(FToM *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * FToM_out(FToM *self, PyObject *args, PyObject *kwds) { OUT };
@@ -5178,7 +5178,7 @@ MToT_process(MToT *self) {
     int i;
     MYFLT midi;
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
-    
+
     for (i=0; i<self->bufsize; i++) {
         midi = in[i];
         if (midi != self->lastmidi) {
@@ -5205,44 +5205,44 @@ MToT_setProcMode(MToT *self)
 {
     int muladdmode;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
-    
+
     self->proc_func_ptr = MToT_process;
-    
+
 	switch (muladdmode) {
-        case 0:        
+        case 0:
             self->muladd_func_ptr = MToT_postprocessing_ii;
             break;
-        case 1:    
+        case 1:
             self->muladd_func_ptr = MToT_postprocessing_ai;
             break;
-        case 2:    
+        case 2:
             self->muladd_func_ptr = MToT_postprocessing_revai;
             break;
-        case 10:        
+        case 10:
             self->muladd_func_ptr = MToT_postprocessing_ia;
             break;
-        case 11:    
+        case 11:
             self->muladd_func_ptr = MToT_postprocessing_aa;
             break;
-        case 12:    
+        case 12:
             self->muladd_func_ptr = MToT_postprocessing_revaa;
             break;
-        case 20:        
+        case 20:
             self->muladd_func_ptr = MToT_postprocessing_ireva;
             break;
-        case 21:    
+        case 21:
             self->muladd_func_ptr = MToT_postprocessing_areva;
             break;
-        case 22:    
+        case 22:
             self->muladd_func_ptr = MToT_postprocessing_revareva;
             break;
-    }   
+    }
 }
 
 static void
 MToT_compute_next_data_frame(MToT *self)
 {
-    (*self->proc_func_ptr)(self); 
+    (*self->proc_func_ptr)(self);
     (*self->muladd_func_ptr)(self);
 }
 
@@ -5255,7 +5255,7 @@ MToT_traverse(MToT *self, visitproc visit, void *arg)
     return 0;
 }
 
-static int 
+static int
 MToT_clear(MToT *self)
 {
     pyo_CLEAR
@@ -5279,34 +5279,34 @@ MToT_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp, *multmp=NULL, *addtmp=NULL;
     MToT *self;
     self = (MToT *)type->tp_alloc(type, 0);
-    
+
     self->centralkey = 60.0;
     self->lastmidi = 0;
     self->curfreq = 8.1757989156437;
 	self->modebuffer[0] = 0;
 	self->modebuffer[1] = 0;
-    
+
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, MToT_compute_next_data_frame);
     self->mode_func_ptr = MToT_setProcMode;
 
     static char *kwlist[] = {"input", "centralkey", "mul", "add", NULL};
-    
+
     if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_O_FOO, kwlist, &inputtmp, &self->centralkey, &multmp, &addtmp))
         Py_RETURN_NONE;
-    
+
     INIT_INPUT_STREAM
-    
+
     if (multmp) {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
     }
-    
+
     if (addtmp) {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
-    
+
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
-    
+
     (*self->mode_func_ptr)(self);
 
     return (PyObject *)self;
@@ -5319,23 +5319,23 @@ MToT_setCentralKey(MToT *self, PyObject *arg)
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
 	int isNumber = PyNumber_Check(arg);
-	
+
 	if (isNumber == 1) {
 		self->centralkey = PyFloat_AS_DOUBLE(PyNumber_Float(arg));
 	}
-    
+
 	Py_INCREF(Py_None);
 	return Py_None;
 }
 
 static PyObject * MToT_getServer(MToT* self) { GET_SERVER };
 static PyObject * MToT_getStream(MToT* self) { GET_STREAM };
-static PyObject * MToT_setMul(MToT *self, PyObject *arg) { SET_MUL };	
-static PyObject * MToT_setAdd(MToT *self, PyObject *arg) { SET_ADD };	
-static PyObject * MToT_setSub(MToT *self, PyObject *arg) { SET_SUB };	
-static PyObject * MToT_setDiv(MToT *self, PyObject *arg) { SET_DIV };	
+static PyObject * MToT_setMul(MToT *self, PyObject *arg) { SET_MUL };
+static PyObject * MToT_setAdd(MToT *self, PyObject *arg) { SET_ADD };
+static PyObject * MToT_setSub(MToT *self, PyObject *arg) { SET_SUB };
+static PyObject * MToT_setDiv(MToT *self, PyObject *arg) { SET_DIV };
 
 static PyObject * MToT_play(MToT *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * MToT_out(MToT *self, PyObject *args, PyObject *kwds) { OUT };

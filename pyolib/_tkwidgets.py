@@ -1,20 +1,21 @@
 """
-Copyright 2010 Olivier Belanger
+Copyright 2009-2015 Olivier Belanger
 
-This file is part of pyo.
+This file is part of pyo, a python module to help digital signal
+processing script creation.
 
 pyo is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
+it under the terms of the GNU Lesser General Public License as
+published by the Free Software Foundation, either version 3 of the
+License, or (at your option) any later version.
 
 pyo is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
+GNU Lesser General Public License for more details.
 
-You should have received a copy of the GNU General Public License
-along with pyo.  If not, see <http://www.gnu.org/licenses/>.
+You should have received a copy of the GNU Lesser General Public
+License along with pyo.  If not, see <http://www.gnu.org/licenses/>.
 """
 from types import ListType, FloatType, IntType
 import math, sys, os
@@ -24,7 +25,7 @@ try:
     from PIL import Image, ImageDraw, ImageTk
 except:
     pass
-    
+
 # constants for platform displays with Tk
 if sys.platform == 'linux2':
     Y_OFFSET = 0
@@ -40,7 +41,7 @@ else:
 ### Multisliders
 ######################################################################
 class MultiSlider(Frame):
-    def __init__(self, master, init, key, command): 
+    def __init__(self, master, init, key, command):
         Frame.__init__(self, master, bd=0, relief=FLAT)
         self._values = init
         self._nchnls = len(init)
@@ -48,13 +49,13 @@ class MultiSlider(Frame):
         self._command = command
         self._lines = []
         self._height = 16
-        self.canvas = Canvas(self, height=self._height*self._nchnls+1, 
+        self.canvas = Canvas(self, height=self._height*self._nchnls+1,
                             width=225, relief=FLAT, bd=0, bg="#BCBCAA")
         w = self.canvas.winfo_width()
         for i in range(self._nchnls):
             x = int(self._values[i] * w)
             y = self._height * i + Y_OFFSET
-            self._lines.append(self.canvas.create_rectangle(0, y, x, 
+            self._lines.append(self.canvas.create_rectangle(0, y, x,
                                 y+self._height-1, width=0, fill="#121212"))
         self.canvas.bind("<Button-1>", self.clicked)
         self.canvas.bind("<Motion>", self.move)
@@ -69,10 +70,10 @@ class MultiSlider(Frame):
             y = self._height * i + Y_OFFSET
             x = self._values[i] * w
             self.canvas.coords(self._lines[i], 0, y, x, y+self._height-1)
-    
+
     def clicked(self, event):
         self.update(event)
-    
+
     def move(self, event):
         if event.state == 0x0100:
             slide = (event.y - Y_OFFSET) / self._height
@@ -87,7 +88,7 @@ class MultiSlider(Frame):
         y = self._height * slide + Y_OFFSET
         self.canvas.coords(self._lines[slide], 0, y, event.x, y+self._height-1)
         self._command(self._key, self._values)
-       
+
 ######################################################################
 ### Control window for PyoObject
 ######################################################################
@@ -117,7 +118,7 @@ class PyoObjectControl(Frame):
             # filters PyoObjects
             if type(init) not in [ListType, FloatType, IntType]:
                 self._excluded.append(key)
-            else:    
+            else:
                 self._maps[key] = m
                 # label (param name)
                 label = Label(self, height=1, width=10, highlightthickness=0, text=key)
@@ -125,13 +126,13 @@ class PyoObjectControl(Frame):
                 # create and pack slider
                 if type(init) != ListType:
                     self._sliders.append(Scale(self, command=Command(self.setval, key),
-                                  orient=HORIZONTAL, relief=GROOVE, from_=0., to=1., showvalue=False, 
+                                  orient=HORIZONTAL, relief=GROOVE, from_=0., to=1., showvalue=False,
                                   resolution=.0001, bd=1, length=225, troughcolor="#BCBCAA", width=12))
                     self._sliders[-1].set(m.set(init))
                     disp_height = 1
                 else:
-                    self._sliders.append(MultiSlider(self, [m.set(x) for x in init], key, self.setval)) 
-                    disp_height = len(init)   
+                    self._sliders.append(MultiSlider(self, [m.set(x) for x in init], key, self.setval))
+                    disp_height = len(init)
                 self._sliders[-1].grid(row=i, column=1, sticky=E+W)
                 # display of numeric values
                 textvar = StringVar(self)
@@ -142,7 +143,7 @@ class PyoObjectControl(Frame):
                     self._displays[key].set("%.4f" % init)
                 else:
                     self._displays[key].set("\n".join(["%.4f" % i for i in init]))
-                # set obj attribute to PyoObject SigTo     
+                # set obj attribute to PyoObject SigTo
                 self._sigs[key] = SigTo(init, .025, init)
                 refStream = self._obj.getBaseObjects()[0]._getStream()
                 server = self._obj.getBaseObjects()[0].getServer()
@@ -150,10 +151,10 @@ class PyoObjectControl(Frame):
                     curStream = self._sigs[key].getBaseObjects()[k]._getStream()
                     server.changeStreamPosition(refStream, curStream)
                 setattr(self._obj, key, self._sigs[key])
-        # padding        
+        # padding
         top = self.winfo_toplevel()
         top.rowconfigure(0, weight=1)
-        top.columnconfigure(0, weight=1)       
+        top.columnconfigure(0, weight=1)
         self.columnconfigure(1, weight=1)
         self.grid(ipadx=5, ipady=5, sticky=E+W)
 
@@ -168,10 +169,10 @@ class PyoObjectControl(Frame):
         if type(x) != ListType:
             value = self._maps[key].get(float(x))
             self._displays[key].set("%.4f" % value)
-        else:    
-            value = [self._maps[key].get(float(y)) for y in x] 
+        else:
+            value = [self._maps[key].get(float(y)) for y in x]
             self._displays[key].set("\n".join(["%.4f" % i for i in value]))
-        
+
         self._values[key] = value
         setattr(self._sigs[key], "value", value)
 
@@ -191,10 +192,10 @@ class ViewTable_withPIL(Frame):
         draw.line(samples, fill=0, width=1)
         self.img = ImageTk.PhotoImage(im)
         self.canvas.create_image(self.width/2,self.height/2,image=self.img)
-        self.canvas.create_line(0, self.half_height+2, self.width, self.half_height+2, fill='grey', dash=(4,2))    
+        self.canvas.create_line(0, self.half_height+2, self.width, self.half_height+2, fill='grey', dash=(4,2))
         self.canvas.grid()
         self.grid(ipadx=10, ipady=10)
-    
+
 class ViewTable_withoutPIL(Frame):
     def __init__(self, master=None, samples=None):
         Frame.__init__(self, master, bd=1, relief=GROOVE)
@@ -202,7 +203,7 @@ class ViewTable_withoutPIL(Frame):
         self.height = 200
         self.half_height = self.height / 2
         self.canvas = Canvas(self, height=self.height, width=self.width, relief=SUNKEN, bd=1, bg="#EFEFEF")
-        self.canvas.create_line(0, self.half_height+Y_OFFSET, self.width, self.half_height+Y_OFFSET, fill='grey', dash=(4,2))    
+        self.canvas.create_line(0, self.half_height+Y_OFFSET, self.width, self.half_height+Y_OFFSET, fill='grey', dash=(4,2))
         self.canvas.create_line(*samples)
         self.canvas.grid()
         self.grid(ipadx=10, ipady=10)
@@ -247,7 +248,7 @@ class ViewMatrix_withoutPIL(Frame):
 ### Server Object User Interface (Tk)
 ######################################################################
 class ServerGUI(Frame):
-    def __init__(self, master=None, nchnls=2, startf=None, stopf=None, recstartf=None, 
+    def __init__(self, master=None, nchnls=2, startf=None, stopf=None, recstartf=None,
                 recstopf=None, ampf=None, started=0, locals=None, shutdown=None, meter=True, timer=True, amp=1.):
         Frame.__init__(self, master, padx=10, pady=10, bd=2, relief=GROOVE)
         self.shutdown = shutdown
@@ -273,7 +274,7 @@ class ServerGUI(Frame):
         self.createWidgets()
         if started == 1:
             self.start(True)
-        
+
 
     def createWidgets(self):
         row = 0
@@ -290,14 +291,14 @@ class ServerGUI(Frame):
         self.quitButton = Button(self, text='Quit', command=self.on_quit)
         self.quitButton.grid(ipadx=5, row=row, column=2)
         row += 1
-        
+
         self.ampScale = Scale(self, command=self.setAmp, digits=4, label='Amplitude (dB)',
-                              orient=HORIZONTAL, relief=GROOVE, from_=-60.0, to=18.0, 
+                              orient=HORIZONTAL, relief=GROOVE, from_=-60.0, to=18.0,
                               resolution=.01, bd=1, length=250, troughcolor="#BCBCAA", width=10)
         self.ampScale.set(20.0 * math.log10(self.amp))
         self.ampScale.grid(ipadx=5, ipady=5, row=row, column=0, columnspan=3)
         row += 1
-        
+
         if self.meter:
             self.vumeter = Canvas(self, height=5*self.nchnls+1, width=250, relief=FLAT, bd=0, bg="#323232")
             self.green = []
@@ -330,8 +331,8 @@ class ServerGUI(Frame):
             self.text.bind("<Return>", self.getText)
             self.text.bind("<Up>", self.getPrev)
             self.text.bind("<Down>", self.getNext)
-            
-    
+
+
     def on_quit(self):
         self.shutdown()
         self.quit()
@@ -346,16 +347,16 @@ class ServerGUI(Frame):
 
     def setTime(self, *args):
         self.timer_strvar.set(" %02d : %02d : %02d : %03d" % (args[0], args[1], args[2], args[3]))
-        
+
     def getNext(self, event):
         self.text.delete("1.0", END)
         self._histo_count += 1
         if self._histo_count >= len(self._history):
             self._histo_count = len(self._history)
-        else:    
+        else:
             self.text.insert("1.0", self._history[self._histo_count])
         return "break"
-    
+
     def getText(self, event):
         source = self.text.get("1.0", END)
         self.text.delete("1.0", END)
@@ -363,7 +364,7 @@ class ServerGUI(Frame):
         self._history.append(source)
         self._histo_count = len(self._history)
         return "break"
-    
+
     def start(self, justSet=False):
         if self._started == False:
             if not justSet:
@@ -403,7 +404,7 @@ class ServerGUI(Frame):
                 self.vumeter.coords(self.green[i], 0, y, self.B1, y)
                 self.vumeter.coords(self.yellow[i], self.B1, y, amp, y)
                 self.vumeter.coords(self.red[i], self.B2, y, self.B2, y)
-            else:    
+            else:
                 self.vumeter.coords(self.green[i], 0, y, self.B1, y)
                 self.vumeter.coords(self.yellow[i], self.B1, y, self.B2, y)
                 self.vumeter.coords(self.red[i], self.B2, y, amp, y)

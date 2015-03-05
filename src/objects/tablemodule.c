@@ -1,21 +1,21 @@
-/*************************************************************************
- * Copyright 2010 Olivier Belanger                                        *                  
- *                                                                        * 
+/**************************************************************************
+ * Copyright 2009-2015 Olivier Belanger                                   *
+ *                                                                        *
  * This file is part of pyo, a python module to help digital signal       *
- * processing script creation.                                            *  
- *                                                                        * 
+ * processing script creation.                                            *
+ *                                                                        *
  * pyo is free software: you can redistribute it and/or modify            *
- * it under the terms of the GNU General Public License as published by   *
- * the Free Software Foundation, either version 3 of the License, or      *
- * (at your option) any later version.                                    * 
+ * it under the terms of the GNU Lesser General Public License as         *
+ * published by the Free Software Foundation, either version 3 of the     *
+ * License, or (at your option) any later version.                        *
  *                                                                        *
  * pyo is distributed in the hope that it will be useful,                 *
- * but WITHOUT ANY WARRANTY; without even the implied warranty of         *    
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of         *
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the          *
- * GNU General Public License for more details.                           *
+ * GNU Lesser General Public License for more details.                    *
  *                                                                        *
- * You should have received a copy of the GNU General Public License      *
- * along with pyo.  If not, see <http://www.gnu.org/licenses/>.           *
+ * You should have received a copy of the GNU Lesser General Public       *
+ * License along with pyo.  If not, see <http://www.gnu.org/licenses/>.   *
  *************************************************************************/
 
 #include <Python.h>
@@ -53,13 +53,13 @@ MYFLT *
 TableStream_getData(TableStream *self)
 {
     return (MYFLT *)self->data;
-}    
+}
 
 void
 TableStream_setData(TableStream *self, MYFLT *data)
 {
     self->data = data;
-}    
+}
 
 int
 TableStream_getSize(TableStream *self)
@@ -71,7 +71,7 @@ void
 TableStream_setSize(TableStream *self, int size)
 {
     self->size = size;
-}    
+}
 
 double
 TableStream_getSamplingRate(TableStream *self)
@@ -83,7 +83,7 @@ void
 TableStream_setSamplingRate(TableStream *self, double sr)
 {
     self->samplingRate = sr;
-}    
+}
 
 PyTypeObject TableStreamType = {
 PyObject_HEAD_INIT(NULL)
@@ -139,15 +139,15 @@ static void
 HarmTable_generate(HarmTable *self) {
     int i, j, ampsize;
     MYFLT factor, amplitude, val;
-    
+
     ampsize = PyList_Size(self->amplist);
     MYFLT array[ampsize];
     for(j=0; j<ampsize; j++) {
         array[j] =  PyFloat_AS_DOUBLE(PyNumber_Float(PyList_GET_ITEM(self->amplist, j)));
-    }    
-    
+    }
+
     factor = 1. / (self->size * 0.5) * PI;
-    
+
     for(i=0; i<self->size; i++) {
         val = 0;
         for(j=0; j<ampsize; j++) {
@@ -160,7 +160,7 @@ HarmTable_generate(HarmTable *self) {
     }
 
     val = self->data[0];
-    self->data[self->size] = val;  
+    self->data[self->size] = val;
 }
 
 static int
@@ -171,7 +171,7 @@ HarmTable_traverse(HarmTable *self, visitproc visit, void *arg)
     return 0;
 }
 
-static int 
+static int
 HarmTable_clear(HarmTable *self)
 {
     pyo_table_CLEAR
@@ -193,9 +193,9 @@ HarmTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *amplist=NULL;
     HarmTable *self;
     self = (HarmTable *)type->tp_alloc(type, 0);
-    
+
     self->server = PyServer_get_server();
-    
+
     self->amplist = PyList_New(0);
     PyList_Append(self->amplist, PyFloat_FromDouble(1.));
     self->size = 8192;
@@ -203,10 +203,10 @@ HarmTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     MAKE_NEW_TABLESTREAM(self->tablestream, &TableStreamType, NULL);
 
     static char *kwlist[] = {"list", "size", NULL};
-    
+
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "|Oi", kwlist, &amplist, &self->size))
-        Py_RETURN_NONE; 
-    
+        Py_RETURN_NONE;
+
     if (amplist) {
         Py_INCREF(amplist);
         Py_DECREF(self->amplist);
@@ -255,19 +255,19 @@ HarmTable_setSize(HarmTable *self, PyObject *value)
         PyErr_SetString(PyExc_TypeError, "Cannot delete the size attribute.");
         return PyInt_FromLong(-1);
     }
-    
+
     if (! PyInt_Check(value)) {
         PyErr_SetString(PyExc_TypeError, "The size attribute value must be an integer.");
         return PyInt_FromLong(-1);
     }
-    
-    self->size = PyInt_AsLong(value); 
+
+    self->size = PyInt_AsLong(value);
 
     self->data = (MYFLT *)realloc(self->data, (self->size+1) * sizeof(MYFLT));
     TableStream_setSize(self->tablestream, self->size);
-    
+
     HarmTable_generate(self);
-    
+
     Py_INCREF(Py_None);
     return Py_None;
 }
@@ -285,18 +285,18 @@ HarmTable_replace(HarmTable *self, PyObject *value)
         PyErr_SetString(PyExc_TypeError, "Cannot delete the list attribute.");
         return PyInt_FromLong(-1);
     }
-    
+
     if (! PyList_Check(value)) {
         PyErr_SetString(PyExc_TypeError, "The amplitude list attribute value must be a list.");
         return PyInt_FromLong(-1);
     }
-    
+
     Py_INCREF(value);
     Py_DECREF(self->amplist);
-    self->amplist = value; 
-    
+    self->amplist = value;
+
     HarmTable_generate(self);
-    
+
     Py_INCREF(Py_None);
     return Py_None;
 }
@@ -392,18 +392,18 @@ static void
 ChebyTable_generate(ChebyTable *self) {
     int i, j, ampsize, halfsize;
     MYFLT amplitude, val, ihalfsize, index, x;
-    
+
     ampsize = PyList_Size(self->amplist);
     if (ampsize > 12)
         ampsize = 12;
     MYFLT array[ampsize];
     for(j=0; j<ampsize; j++) {
         array[j] =  PyFloat_AS_DOUBLE(PyNumber_Float(PyList_GET_ITEM(self->amplist, j)));
-    }    
-    
+    }
+
     halfsize = self->size / 2;
     ihalfsize = 1.0 / halfsize;
-    
+
     x = 0.0;
     for(i=0; i<self->size; i++) {
         val = 0;
@@ -452,9 +452,9 @@ ChebyTable_generate(ChebyTable *self) {
         }
         self->data[i] = val;
     }
-    
+
     val = self->data[self->size-1];
-    self->data[self->size] = val;  
+    self->data[self->size] = val;
 }
 
 static int
@@ -465,7 +465,7 @@ ChebyTable_traverse(ChebyTable *self, visitproc visit, void *arg)
     return 0;
 }
 
-static int 
+static int
 ChebyTable_clear(ChebyTable *self)
 {
     pyo_table_CLEAR
@@ -487,26 +487,26 @@ ChebyTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *amplist=NULL;
     ChebyTable *self;
     self = (ChebyTable *)type->tp_alloc(type, 0);
-    
+
     self->server = PyServer_get_server();
-    
+
     self->amplist = PyList_New(0);
     PyList_Append(self->amplist, PyFloat_FromDouble(1.));
     self->size = 8192;
-    
+
     MAKE_NEW_TABLESTREAM(self->tablestream, &TableStreamType, NULL);
 
     static char *kwlist[] = {"list", "size", NULL};
-    
+
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "|Oi", kwlist, &amplist, &self->size))
-        Py_RETURN_NONE; 
-    
+        Py_RETURN_NONE;
+
     if (amplist) {
         Py_INCREF(amplist);
         Py_DECREF(self->amplist);
         self->amplist = amplist;
     }
-    
+
     self->data = (MYFLT *)realloc(self->data, (self->size+1) * sizeof(MYFLT));
     TableStream_setSize(self->tablestream, self->size);
     TableStream_setData(self->tablestream, self->data);
@@ -514,7 +514,7 @@ ChebyTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     double sr = PyFloat_AsDouble(PyObject_CallMethod(self->server, "getSamplingRate", NULL));
     TableStream_setSamplingRate(self->tablestream, sr);
-    
+
     return (PyObject *)self;
 }
 
@@ -549,19 +549,19 @@ ChebyTable_setSize(ChebyTable *self, PyObject *value)
         PyErr_SetString(PyExc_TypeError, "Cannot delete the size attribute.");
         return PyInt_FromLong(-1);
     }
-    
+
     if (! PyInt_Check(value)) {
         PyErr_SetString(PyExc_TypeError, "The size attribute value must be an integer.");
         return PyInt_FromLong(-1);
     }
-    
-    self->size = PyInt_AsLong(value); 
-    
+
+    self->size = PyInt_AsLong(value);
+
     self->data = (MYFLT *)realloc(self->data, (self->size+1) * sizeof(MYFLT));
     TableStream_setSize(self->tablestream, self->size);
-    
+
     ChebyTable_generate(self);
-    
+
     Py_INCREF(Py_None);
     return Py_None;
 }
@@ -579,18 +579,18 @@ ChebyTable_replace(ChebyTable *self, PyObject *value)
         PyErr_SetString(PyExc_TypeError, "Cannot delete the list attribute.");
         return PyInt_FromLong(-1);
     }
-    
+
     if (! PyList_Check(value)) {
         PyErr_SetString(PyExc_TypeError, "The amplitude list attribute value must be a list.");
         return PyInt_FromLong(-1);
     }
-    
+
     Py_INCREF(value);
     Py_DECREF(self->amplist);
-    self->amplist = value; 
-    
+    self->amplist = value;
+
     ChebyTable_generate(self);
-    
+
     Py_INCREF(Py_None);
     return Py_None;
 }
@@ -606,7 +606,7 @@ ChebyTable_getNormTable(ChebyTable *self, PyObject *value)
     long sym = PyInt_AS_LONG(value);
     MYFLT samps[halfsize];
     PyObject *samples = PyList_New(halfsize);
-    
+
     if (sym == 0) {
         for (i=0; i<self->size; i++) {
             if (self->data[i] > maxval)
@@ -650,18 +650,18 @@ ChebyTable_getNormTable(ChebyTable *self, PyObject *value)
         if (val > maxval)
             maxval = val;
     }
-    
+
     for (i=0; i<halfsize; i++) {
         val = samps[i];
         if (val == -1.0)
             samps[i] = maxval;
     }
-    
+
     last = samps[0];
     for (i=1; i<halfsize; i++) {
         last = samps[i] = samps[i] + (last - samps[i]) * 0.95;
     }
-    
+
     for (i=0; i<halfsize; i++) {
         PyList_SET_ITEM(samples, i, PyFloat_FromDouble(samps[i]));
     }
@@ -759,15 +759,15 @@ static void
 HannTable_generate(HannTable *self) {
     int i, halfSize;
     MYFLT val;
-    
+
     halfSize = self->size / 2 - 1;
-    
+
     for(i=0; i<self->size; i++) {
         val = 0.5 + (MYCOS(TWOPI * (i - halfSize) / self->size) * 0.5);
         self->data[i] = val;
     }
     val = self->data[0];
-    self->data[self->size] = val;  
+    self->data[self->size] = val;
 }
 
 static int
@@ -777,7 +777,7 @@ HannTable_traverse(HannTable *self, visitproc visit, void *arg)
     return 0;
 }
 
-static int 
+static int
 HannTable_clear(HannTable *self)
 {
     pyo_table_CLEAR
@@ -797,18 +797,18 @@ HannTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     HannTable *self;
     self = (HannTable *)type->tp_alloc(type, 0);
-    
+
     self->server = PyServer_get_server();
-    
+
     self->size = 8192;
-    
+
     MAKE_NEW_TABLESTREAM(self->tablestream, &TableStreamType, NULL);
- 
+
     static char *kwlist[] = {"size", NULL};
-    
+
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "|i", kwlist, &self->size))
-        Py_RETURN_NONE; 
-    
+        Py_RETURN_NONE;
+
     self->data = (MYFLT *)realloc(self->data, (self->size+1) * sizeof(MYFLT));
     TableStream_setSize(self->tablestream, self->size);
 	TableStream_setData(self->tablestream, self->data);
@@ -816,7 +816,7 @@ HannTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     double sr = PyFloat_AsDouble(PyObject_CallMethod(self->server, "getSamplingRate", NULL));
     TableStream_setSamplingRate(self->tablestream, sr);
-   
+
     return (PyObject *)self;
 }
 
@@ -851,19 +851,19 @@ HannTable_setSize(HannTable *self, PyObject *value)
         PyErr_SetString(PyExc_TypeError, "Cannot delete the size attribute.");
         return PyInt_FromLong(-1);
     }
-    
+
     if (! PyInt_Check(value)) {
         PyErr_SetString(PyExc_TypeError, "The size attribute value must be an integer.");
         return PyInt_FromLong(-1);
     }
-    
-    self->size = PyInt_AsLong(value); 
-    
+
+    self->size = PyInt_AsLong(value);
+
     self->data = (MYFLT *)realloc(self->data, (self->size+1) * sizeof(MYFLT));
     TableStream_setSize(self->tablestream, self->size);
-    
+
     HannTable_generate(self);
-    
+
     Py_INCREF(Py_None);
     return Py_None;
 }
@@ -964,11 +964,11 @@ static void
 SincTable_generate(SincTable *self) {
     int i, half, halfMinusOne;
     MYFLT scl, val;
-    
+
     half = self->size / 2;
-    
+
     if (self->windowed) {
-        halfMinusOne = half - 1;    
+        halfMinusOne = half - 1;
         for(i=0; i<self->size; i++) {
             scl = (MYFLT)(i - half) / half * self->freq;
             if (scl == 0.0)
@@ -987,9 +987,9 @@ SincTable_generate(SincTable *self) {
             else
                 val = (MYSIN(scl) / scl);
             self->data[i] = val;
-        }        
+        }
     }
-    self->data[self->size] = self->data[0];  
+    self->data[self->size] = self->data[0];
 }
 
 static int
@@ -999,7 +999,7 @@ SincTable_traverse(SincTable *self, visitproc visit, void *arg)
     return 0;
 }
 
-static int 
+static int
 SincTable_clear(SincTable *self)
 {
     pyo_table_CLEAR
@@ -1019,28 +1019,28 @@ SincTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     SincTable *self;
     self = (SincTable *)type->tp_alloc(type, 0);
-    
+
     self->server = PyServer_get_server();
-    
+
     self->size = 8192;
     self->freq = TWOPI;
     self->windowed = 0;
-    
+
     MAKE_NEW_TABLESTREAM(self->tablestream, &TableStreamType, NULL);
 
     static char *kwlist[] = {"freq", "windowed", "size", NULL};
-    
+
     if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE__FII, kwlist, &self->freq, &self->windowed, &self->size))
-        Py_RETURN_NONE; 
-    
+        Py_RETURN_NONE;
+
     self->data = (MYFLT *)realloc(self->data, (self->size+1) * sizeof(MYFLT));
     TableStream_setSize(self->tablestream, self->size);
 	TableStream_setData(self->tablestream, self->data);
     SincTable_generate(self);
-    
+
     double sr = PyFloat_AsDouble(PyObject_CallMethod(self->server, "getSamplingRate", NULL));
     TableStream_setSamplingRate(self->tablestream, sr);
-    
+
     return (PyObject *)self;
 }
 
@@ -1071,16 +1071,16 @@ static PyObject * SincTable_mul(SincTable *self, PyObject *arg) { TABLE_MUL };
 static PyObject *
 SincTable_setFreq(SincTable *self, PyObject *value)
 {
-    
+
     if (! PyNumber_Check(value)) {
         PyErr_SetString(PyExc_TypeError, "The freq attribute value must be a number.");
         return PyInt_FromLong(-1);
     }
-    
-    self->freq = PyFloat_AsDouble(PyNumber_Float(value)); 
-    
+
+    self->freq = PyFloat_AsDouble(PyNumber_Float(value));
+
     SincTable_generate(self);
-    
+
     Py_INCREF(Py_None);
     return Py_None;
 }
@@ -1088,16 +1088,16 @@ SincTable_setFreq(SincTable *self, PyObject *value)
 static PyObject *
 SincTable_setWindowed(SincTable *self, PyObject *value)
 {
-    
+
     if (! PyInt_Check(value)) {
         PyErr_SetString(PyExc_TypeError, "The windowed attribute value must be a boolean.");
         return PyInt_FromLong(-1);
     }
-    
-    self->windowed = PyInt_AsLong(value); 
-    
+
+    self->windowed = PyInt_AsLong(value);
+
     SincTable_generate(self);
-    
+
     Py_INCREF(Py_None);
     return Py_None;
 }
@@ -1109,19 +1109,19 @@ SincTable_setSize(SincTable *self, PyObject *value)
         PyErr_SetString(PyExc_TypeError, "Cannot delete the size attribute.");
         return PyInt_FromLong(-1);
     }
-    
+
     if (! PyInt_Check(value)) {
         PyErr_SetString(PyExc_TypeError, "The size attribute value must be an integer.");
         return PyInt_FromLong(-1);
     }
-    
-    self->size = PyInt_AsLong(value); 
-    
+
+    self->size = PyInt_AsLong(value);
+
     self->data = (MYFLT *)realloc(self->data, (self->size+1) * sizeof(MYFLT));
     TableStream_setSize(self->tablestream, self->size);
-    
+
     SincTable_generate(self);
-    
+
     Py_INCREF(Py_None);
     return Py_None;
 }
@@ -1232,7 +1232,7 @@ WinTable_traverse(WinTable *self, visitproc visit, void *arg)
     return 0;
 }
 
-static int 
+static int
 WinTable_clear(WinTable *self)
 {
     pyo_table_CLEAR
@@ -1252,19 +1252,19 @@ WinTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     WinTable *self;
     self = (WinTable *)type->tp_alloc(type, 0);
-    
+
     self->server = PyServer_get_server();
-    
+
     self->size = 8192;
     self->type = 2;
-    
+
     MAKE_NEW_TABLESTREAM(self->tablestream, &TableStreamType, NULL);
 
     static char *kwlist[] = {"type", "size", NULL};
-    
+
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "|ii", kwlist, &self->type, &self->size))
-        Py_RETURN_NONE; 
-    
+        Py_RETURN_NONE;
+
     self->data = (MYFLT *)realloc(self->data, (self->size+1) * sizeof(MYFLT));
     TableStream_setSize(self->tablestream, self->size);
 	TableStream_setData(self->tablestream, self->data);
@@ -1272,7 +1272,7 @@ WinTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     double sr = PyFloat_AsDouble(PyObject_CallMethod(self->server, "getSamplingRate", NULL));
     TableStream_setSamplingRate(self->tablestream, sr);
-    
+
     return (PyObject *)self;
 }
 
@@ -1307,19 +1307,19 @@ WinTable_setSize(WinTable *self, PyObject *value)
         PyErr_SetString(PyExc_TypeError, "Cannot delete the size attribute.");
         return PyInt_FromLong(-1);
     }
-    
+
     if (! PyInt_Check(value)) {
         PyErr_SetString(PyExc_TypeError, "The size attribute value must be an integer.");
         return PyInt_FromLong(-1);
     }
-    
-    self->size = PyInt_AsLong(value); 
-    
+
+    self->size = PyInt_AsLong(value);
+
     self->data = (MYFLT *)realloc(self->data, (self->size+1) * sizeof(MYFLT));
     TableStream_setSize(self->tablestream, self->size);
-    
+
     WinTable_generate(self);
-    
+
     Py_INCREF(Py_None);
     return Py_None;
 }
@@ -1337,16 +1337,16 @@ WinTable_setType(WinTable *self, PyObject *value)
         PyErr_SetString(PyExc_TypeError, "Cannot delete the type attribute.");
         return PyInt_FromLong(-1);
     }
-    
+
     if (! PyInt_Check(value)) {
         PyErr_SetString(PyExc_TypeError, "The type attribute value must be an integer.");
         return PyInt_FromLong(-1);
     }
-    
+
     self->type = PyInt_AsLong(value);
-    
+
     WinTable_generate(self);
-    
+
     Py_INCREF(Py_None);
     return Py_None;
 }
@@ -1440,7 +1440,7 @@ static void
 ParaTable_generate(ParaTable *self) {
     int i, sizeMinusOne;
     MYFLT rdur, rdur2, level, slope, curve;
-    
+
     sizeMinusOne = self->size - 1;
     rdur = 1.0 / sizeMinusOne;
     rdur2 = rdur * rdur;
@@ -1454,8 +1454,8 @@ ParaTable_generate(ParaTable *self) {
         slope += curve;
     }
 
-    self->data[sizeMinusOne] = self->data[0];  
-    self->data[self->size] = self->data[0];  
+    self->data[sizeMinusOne] = self->data[0];
+    self->data[self->size] = self->data[0];
 }
 
 static int
@@ -1465,7 +1465,7 @@ ParaTable_traverse(ParaTable *self, visitproc visit, void *arg)
     return 0;
 }
 
-static int 
+static int
 ParaTable_clear(ParaTable *self)
 {
     pyo_table_CLEAR
@@ -1485,18 +1485,18 @@ ParaTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     ParaTable *self;
     self = (ParaTable *)type->tp_alloc(type, 0);
-    
+
     self->server = PyServer_get_server();
-    
+
     self->size = 8192;
-    
+
     MAKE_NEW_TABLESTREAM(self->tablestream, &TableStreamType, NULL);
- 
+
     static char *kwlist[] = {"size", NULL};
-    
+
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "|i", kwlist, &self->size))
-        Py_RETURN_NONE; 
-    
+        Py_RETURN_NONE;
+
     self->data = (MYFLT *)realloc(self->data, (self->size+1) * sizeof(MYFLT));
     TableStream_setSize(self->tablestream, self->size);
 	TableStream_setData(self->tablestream, self->data);
@@ -1504,7 +1504,7 @@ ParaTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     double sr = PyFloat_AsDouble(PyObject_CallMethod(self->server, "getSamplingRate", NULL));
     TableStream_setSamplingRate(self->tablestream, sr);
-   
+
     return (PyObject *)self;
 }
 
@@ -1539,19 +1539,19 @@ ParaTable_setSize(ParaTable *self, PyObject *value)
         PyErr_SetString(PyExc_TypeError, "Cannot delete the size attribute.");
         return PyInt_FromLong(-1);
     }
-    
+
     if (! PyInt_Check(value)) {
         PyErr_SetString(PyExc_TypeError, "The size attribute value must be an integer.");
         return PyInt_FromLong(-1);
     }
-    
-    self->size = PyInt_AsLong(value); 
-    
+
+    self->size = PyInt_AsLong(value);
+
     self->data = (MYFLT *)realloc(self->data, (self->size+1) * sizeof(MYFLT));
     TableStream_setSize(self->tablestream, self->size);
-    
+
     ParaTable_generate(self);
-    
+
     Py_INCREF(Py_None);
     return Py_None;
 }
@@ -1654,12 +1654,12 @@ LinTable_generate(LinTable *self) {
     PyObject *tup, *tup2;
     int x1, y1;
     MYFLT x2, y2, diff;
-    
+
     y1 = 0;
     y2 = 0.0;
 
     listsize = PyList_Size(self->pointslist);
-    
+
     for(i=0; i<(listsize-1); i++) {
         tup = PyList_GET_ITEM(self->pointslist, i);
         x1 = PyInt_AsLong(PyNumber_Long(PyTuple_GET_ITEM(tup, 0)));
@@ -1685,7 +1685,7 @@ LinTable_generate(LinTable *self) {
     else {
         self->data[self->size-1] = y2;
         self->data[self->size] = y2;
-    }    
+    }
 }
 
 static int
@@ -1696,7 +1696,7 @@ LinTable_traverse(LinTable *self, visitproc visit, void *arg)
     return 0;
 }
 
-static int 
+static int
 LinTable_clear(LinTable *self)
 {
     pyo_table_CLEAR
@@ -1718,19 +1718,19 @@ LinTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *pointslist=NULL;
     LinTable *self;
     self = (LinTable *)type->tp_alloc(type, 0);
-    
+
     self->server = PyServer_get_server();
-    
+
     self->pointslist = PyList_New(0);
     self->size = 8192;
-    
+
     MAKE_NEW_TABLESTREAM(self->tablestream, &TableStreamType, NULL);
 
     static char *kwlist[] = {"list", "size", NULL};
-    
+
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "|Oi", kwlist, &pointslist, &self->size))
-        Py_RETURN_NONE; 
-    
+        Py_RETURN_NONE;
+
     if (pointslist) {
         Py_INCREF(pointslist);
         Py_DECREF(self->pointslist);
@@ -1740,7 +1740,7 @@ LinTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         PyList_Append(self->pointslist, PyTuple_Pack(2, PyInt_FromLong(0), PyFloat_FromDouble(0.)));
         PyList_Append(self->pointslist, PyTuple_Pack(2, PyInt_FromLong(self->size), PyFloat_FromDouble(1.)));
     }
-    
+
     self->data = (MYFLT *)realloc(self->data, (self->size+1) * sizeof(MYFLT));
     TableStream_setSize(self->tablestream, self->size);
     TableStream_setData(self->tablestream, self->data);
@@ -1748,7 +1748,7 @@ LinTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     double sr = PyFloat_AsDouble(PyObject_CallMethod(self->server, "getSamplingRate", NULL));
     TableStream_setSamplingRate(self->tablestream, sr);
-    
+
     return (PyObject *)self;
 }
 
@@ -1788,37 +1788,37 @@ LinTable_setSize(LinTable *self, PyObject *value)
         PyErr_SetString(PyExc_TypeError, "Cannot delete the size attribute.");
         return PyInt_FromLong(-1);
     }
-    
+
     if (! PyInt_Check(value)) {
         PyErr_SetString(PyExc_TypeError, "The size attribute value must be an integer.");
         return PyInt_FromLong(-1);
     }
 
     old_size = self->size;
-    self->size = PyInt_AsLong(value); 
-    
+    self->size = PyInt_AsLong(value);
+
     factor = (MYFLT)(self->size) / old_size;
-    
+
     self->data = (MYFLT *)realloc(self->data, (self->size+1) * sizeof(MYFLT));
     TableStream_setSize(self->tablestream, self->size);
 
     Py_ssize_t listsize = PyList_Size(self->pointslist);
 
     PyObject *listtemp = PyList_New(0);
-    
+
     for(i=0; i<(listsize); i++) {
         tup = PyList_GET_ITEM(self->pointslist, i);
         x1 = PyInt_AsLong(PyNumber_Long(PyTuple_GET_ITEM(tup, 0)));
         x2 = PyNumber_Float(PyTuple_GET_ITEM(tup, 1));
         PyList_Append(listtemp, PyTuple_Pack(2, PyInt_FromLong((int)(x1*factor)), x2));
     }
-    
+
     Py_INCREF(listtemp);
     Py_DECREF(self->pointslist);
     self->pointslist = listtemp;
-    
+
     LinTable_generate(self);
-    
+
     Py_INCREF(Py_None);
     return Py_None;
 }
@@ -1843,18 +1843,18 @@ LinTable_replace(LinTable *self, PyObject *value)
         PyErr_SetString(PyExc_TypeError, "Cannot delete the list attribute.");
         return PyInt_FromLong(-1);
     }
-    
+
     if (! PyList_Check(value)) {
         PyErr_SetString(PyExc_TypeError, "The amplitude list attribute value must be a list of tuples.");
         return PyInt_FromLong(-1);
     }
-    
+
     Py_INCREF(value);
     Py_DECREF(self->pointslist);
-    self->pointslist = value; 
-    
+    self->pointslist = value;
+
     LinTable_generate(self);
-    
+
     Py_INCREF(Py_None);
     return Py_None;
 }
@@ -1954,12 +1954,12 @@ LogTable_generate(LogTable *self) {
     PyObject *tup, *tup2;
     int x1, y1;
     MYFLT x2, y2, diff, range, logrange, logmin, ratio, low, high;
-    
+
     y1 = 0;
     y2 = 0.0;
-    
+
     listsize = PyList_Size(self->pointslist);
-    
+
     for(i=0; i<(listsize-1); i++) {
         tup = PyList_GET_ITEM(self->pointslist, i);
         x1 = PyInt_AsLong(PyNumber_Long(PyTuple_GET_ITEM(tup, 0)));
@@ -1996,7 +1996,7 @@ LogTable_generate(LogTable *self) {
             for(j=0; j<steps; j++) {
                 ratio = ((x2 + diff * j) - low) / range;
                 self->data[x1+j] = MYPOW(10, ratio * logrange + logmin);
-            }            
+            }
         }
     }
     if (y1 < (self->size-1)) {
@@ -2009,7 +2009,7 @@ LogTable_generate(LogTable *self) {
     else {
         self->data[self->size-1] = y2;
         self->data[self->size] = y2;
-    }    
+    }
 }
 
 static int
@@ -2020,7 +2020,7 @@ LogTable_traverse(LogTable *self, visitproc visit, void *arg)
     return 0;
 }
 
-static int 
+static int
 LogTable_clear(LogTable *self)
 {
     pyo_table_CLEAR
@@ -2042,19 +2042,19 @@ LogTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *pointslist=NULL;
     LogTable *self;
     self = (LogTable *)type->tp_alloc(type, 0);
-    
+
     self->server = PyServer_get_server();
-    
+
     self->pointslist = PyList_New(0);
     self->size = 8192;
-    
+
     MAKE_NEW_TABLESTREAM(self->tablestream, &TableStreamType, NULL);
-    
+
     static char *kwlist[] = {"list", "size", NULL};
-    
+
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "|Oi", kwlist, &pointslist, &self->size))
-        Py_RETURN_NONE; 
-    
+        Py_RETURN_NONE;
+
     if (pointslist) {
         Py_INCREF(pointslist);
         Py_DECREF(self->pointslist);
@@ -2064,15 +2064,15 @@ LogTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         PyList_Append(self->pointslist, PyTuple_Pack(2, PyInt_FromLong(0), PyFloat_FromDouble(0.)));
         PyList_Append(self->pointslist, PyTuple_Pack(2, PyInt_FromLong(self->size), PyFloat_FromDouble(1.)));
     }
-    
+
     self->data = (MYFLT *)realloc(self->data, (self->size+1) * sizeof(MYFLT));
     TableStream_setSize(self->tablestream, self->size);
     TableStream_setData(self->tablestream, self->data);
     LogTable_generate(self);
-    
+
     double sr = PyFloat_AsDouble(PyObject_CallMethod(self->server, "getSamplingRate", NULL));
     TableStream_setSamplingRate(self->tablestream, sr);
-    
+
     return (PyObject *)self;
 }
 
@@ -2107,42 +2107,42 @@ LogTable_setSize(LogTable *self, PyObject *value)
     PyObject *tup, *x2;
     int old_size, x1;
     MYFLT factor;
-    
+
     if (value == NULL) {
         PyErr_SetString(PyExc_TypeError, "Cannot delete the size attribute.");
         return PyInt_FromLong(-1);
     }
-    
+
     if (! PyInt_Check(value)) {
         PyErr_SetString(PyExc_TypeError, "The size attribute value must be an integer.");
         return PyInt_FromLong(-1);
     }
-    
+
     old_size = self->size;
-    self->size = PyInt_AsLong(value); 
-    
+    self->size = PyInt_AsLong(value);
+
     factor = (MYFLT)(self->size) / old_size;
-    
+
     self->data = (MYFLT *)realloc(self->data, (self->size+1) * sizeof(MYFLT));
     TableStream_setSize(self->tablestream, self->size);
-    
+
     Py_ssize_t listsize = PyList_Size(self->pointslist);
-    
+
     PyObject *listtemp = PyList_New(0);
-    
+
     for(i=0; i<(listsize); i++) {
         tup = PyList_GET_ITEM(self->pointslist, i);
         x1 = PyInt_AsLong(PyNumber_Long(PyTuple_GET_ITEM(tup, 0)));
         x2 = PyNumber_Float(PyTuple_GET_ITEM(tup, 1));
         PyList_Append(listtemp, PyTuple_Pack(2, PyInt_FromLong((int)(x1*factor)), x2));
     }
-    
+
     Py_INCREF(listtemp);
     Py_DECREF(self->pointslist);
     self->pointslist = listtemp;
-    
+
     LogTable_generate(self);
-    
+
     Py_INCREF(Py_None);
     return Py_None;
 }
@@ -2167,18 +2167,18 @@ LogTable_replace(LogTable *self, PyObject *value)
         PyErr_SetString(PyExc_TypeError, "Cannot delete the list attribute.");
         return PyInt_FromLong(-1);
     }
-    
+
     if (! PyList_Check(value)) {
         PyErr_SetString(PyExc_TypeError, "The amplitude list attribute value must be a list of tuples.");
         return PyInt_FromLong(-1);
     }
-    
+
     Py_INCREF(value);
     Py_DECREF(self->pointslist);
-    self->pointslist = value; 
-    
+    self->pointslist = value;
+
     LogTable_generate(self);
-    
+
     Py_INCREF(Py_None);
     return Py_None;
 }
@@ -2278,20 +2278,20 @@ CosTable_generate(CosTable *self) {
     PyObject *tup, *tup2;
     int x1, y1;
     MYFLT x2, y2, mu, mu2;
-        
+
     y1 = 0;
     y2 = 0.0;
-    
+
     listsize = PyList_Size(self->pointslist);
-    
+
     for(i=0; i<(listsize-1); i++) {
         tup = PyList_GET_ITEM(self->pointslist, i);
         x1 = PyInt_AsLong(PyNumber_Long(PyTuple_GET_ITEM(tup, 0)));
-        x2 = PyFloat_AsDouble(PyNumber_Float(PyTuple_GET_ITEM(tup, 1)));        
+        x2 = PyFloat_AsDouble(PyNumber_Float(PyTuple_GET_ITEM(tup, 1)));
         tup2 = PyList_GET_ITEM(self->pointslist, i+1);
         y1 = PyInt_AsLong(PyNumber_Long(PyTuple_GET_ITEM(tup2, 0)));
         y2 = PyFloat_AsDouble(PyNumber_Float(PyTuple_GET_ITEM(tup2, 1)));
-        
+
         steps = y1 - x1;
         if (steps <= 0)
             continue;
@@ -2311,7 +2311,7 @@ CosTable_generate(CosTable *self) {
     else {
         self->data[self->size-1] = y2;
         self->data[self->size] = y2;
-    }    
+    }
 }
 
 static int
@@ -2322,7 +2322,7 @@ CosTable_traverse(CosTable *self, visitproc visit, void *arg)
     return 0;
 }
 
-static int 
+static int
 CosTable_clear(CosTable *self)
 {
     pyo_table_CLEAR
@@ -2344,19 +2344,19 @@ CosTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *pointslist=NULL;
     CosTable *self;
     self = (CosTable *)type->tp_alloc(type, 0);
-    
+
     self->server = PyServer_get_server();
-    
+
     self->pointslist = PyList_New(0);
     self->size = 8192;
-    
+
     MAKE_NEW_TABLESTREAM(self->tablestream, &TableStreamType, NULL);
 
     static char *kwlist[] = {"list", "size", NULL};
-    
+
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "|Oi", kwlist, &pointslist, &self->size))
-        Py_RETURN_NONE; 
-    
+        Py_RETURN_NONE;
+
     if (pointslist) {
         Py_INCREF(pointslist);
         Py_DECREF(self->pointslist);
@@ -2366,7 +2366,7 @@ CosTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         PyList_Append(self->pointslist, PyTuple_Pack(2, PyInt_FromLong(0), PyFloat_FromDouble(0.)));
         PyList_Append(self->pointslist, PyTuple_Pack(2, PyInt_FromLong(self->size), PyFloat_FromDouble(1.)));
     }
-    
+
     self->data = (MYFLT *)realloc(self->data, (self->size+1) * sizeof(MYFLT));
     TableStream_setSize(self->tablestream, self->size);
     TableStream_setData(self->tablestream, self->data);
@@ -2374,7 +2374,7 @@ CosTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     double sr = PyFloat_AsDouble(PyObject_CallMethod(self->server, "getSamplingRate", NULL));
     TableStream_setSamplingRate(self->tablestream, sr);
-    
+
     return (PyObject *)self;
 }
 
@@ -2409,42 +2409,42 @@ CosTable_setSize(CosTable *self, PyObject *value)
     PyObject *tup, *x2;
     int old_size, x1;
     MYFLT factor;
-    
+
     if (value == NULL) {
         PyErr_SetString(PyExc_TypeError, "Cannot delete the size attribute.");
         return PyInt_FromLong(-1);
     }
-    
+
     if (! PyInt_Check(value)) {
         PyErr_SetString(PyExc_TypeError, "The size attribute value must be an integer.");
         return PyInt_FromLong(-1);
     }
-    
+
     old_size = self->size;
-    self->size = PyInt_AsLong(value); 
-    
+    self->size = PyInt_AsLong(value);
+
     factor = (MYFLT)(self->size) / old_size;
-    
+
     self->data = (MYFLT *)realloc(self->data, (self->size+1) * sizeof(MYFLT));
     TableStream_setSize(self->tablestream, self->size);
-    
+
     Py_ssize_t listsize = PyList_Size(self->pointslist);
-    
+
     PyObject *listtemp = PyList_New(0);
-    
+
     for(i=0; i<(listsize); i++) {
         tup = PyList_GET_ITEM(self->pointslist, i);
         x1 = PyInt_AsLong(PyNumber_Long(PyTuple_GET_ITEM(tup, 0)));
         x2 = PyNumber_Float(PyTuple_GET_ITEM(tup, 1));
         PyList_Append(listtemp, PyTuple_Pack(2, PyInt_FromLong((int)(x1*factor)), x2));
     }
-    
+
     Py_INCREF(listtemp);
     Py_DECREF(self->pointslist);
     self->pointslist = listtemp;
-    
+
     CosTable_generate(self);
-    
+
     Py_INCREF(Py_None);
     return Py_None;
 }
@@ -2469,18 +2469,18 @@ CosTable_replace(CosTable *self, PyObject *value)
         PyErr_SetString(PyExc_TypeError, "Cannot delete the list attribute.");
         return PyInt_FromLong(-1);
     }
-    
+
     if (! PyList_Check(value)) {
         PyErr_SetString(PyExc_TypeError, "The amplitude list attribute value must be a list of tuples.");
         return PyInt_FromLong(-1);
     }
-    
+
     Py_INCREF(value);
     Py_DECREF(self->pointslist);
-    self->pointslist = value; 
-    
+    self->pointslist = value;
+
     CosTable_generate(self);
-    
+
     Py_INCREF(Py_None);
     return Py_None;
 }
@@ -2580,12 +2580,12 @@ CosLogTable_generate(CosLogTable *self) {
     PyObject *tup, *tup2;
     int x1, y1;
     MYFLT x2, y2, range, logrange, logmin, ratio, low, high, mu;
-    
+
     y1 = 0;
     y2 = 0.0;
-    
+
     listsize = PyList_Size(self->pointslist);
-    
+
     for(i=0; i<(listsize-1); i++) {
         tup = PyList_GET_ITEM(self->pointslist, i);
         x1 = PyInt_AsLong(PyNumber_Long(PyTuple_GET_ITEM(tup, 0)));
@@ -2605,7 +2605,7 @@ CosLogTable_generate(CosLogTable *self) {
             low = x2;
             high = y2;
         }
-        
+
         steps = y1 - x1;
         range = high - low;
         logrange = MYLOG10(high) - MYLOG10(low);
@@ -2624,7 +2624,7 @@ CosLogTable_generate(CosLogTable *self) {
                 mu = x2 *(1.0-mu) + y2*mu;
                 ratio = (mu - low) / range;
                 self->data[x1+j] = MYPOW(10, ratio * logrange + logmin);
-            }            
+            }
         }
     }
     if (y1 < (self->size-1)) {
@@ -2637,7 +2637,7 @@ CosLogTable_generate(CosLogTable *self) {
     else {
         self->data[self->size-1] = y2;
         self->data[self->size] = y2;
-    }    
+    }
 }
 
 static int
@@ -2648,7 +2648,7 @@ CosLogTable_traverse(CosLogTable *self, visitproc visit, void *arg)
     return 0;
 }
 
-static int 
+static int
 CosLogTable_clear(CosLogTable *self)
 {
     pyo_table_CLEAR
@@ -2670,19 +2670,19 @@ CosLogTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *pointslist=NULL;
     CosLogTable *self;
     self = (CosLogTable *)type->tp_alloc(type, 0);
-    
+
     self->server = PyServer_get_server();
-    
+
     self->pointslist = PyList_New(0);
     self->size = 8192;
-    
+
     MAKE_NEW_TABLESTREAM(self->tablestream, &TableStreamType, NULL);
-    
+
     static char *kwlist[] = {"list", "size", NULL};
-    
+
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "|Oi", kwlist, &pointslist, &self->size))
-        Py_RETURN_NONE; 
-    
+        Py_RETURN_NONE;
+
     if (pointslist) {
         Py_INCREF(pointslist);
         Py_DECREF(self->pointslist);
@@ -2692,15 +2692,15 @@ CosLogTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         PyList_Append(self->pointslist, PyTuple_Pack(2, PyInt_FromLong(0), PyFloat_FromDouble(0.)));
         PyList_Append(self->pointslist, PyTuple_Pack(2, PyInt_FromLong(self->size), PyFloat_FromDouble(1.)));
     }
-    
+
     self->data = (MYFLT *)realloc(self->data, (self->size+1) * sizeof(MYFLT));
     TableStream_setSize(self->tablestream, self->size);
     TableStream_setData(self->tablestream, self->data);
     CosLogTable_generate(self);
-    
+
     double sr = PyFloat_AsDouble(PyObject_CallMethod(self->server, "getSamplingRate", NULL));
     TableStream_setSamplingRate(self->tablestream, sr);
-    
+
     return (PyObject *)self;
 }
 
@@ -2735,42 +2735,42 @@ CosLogTable_setSize(CosLogTable *self, PyObject *value)
     PyObject *tup, *x2;
     int old_size, x1;
     MYFLT factor;
-    
+
     if (value == NULL) {
         PyErr_SetString(PyExc_TypeError, "Cannot delete the size attribute.");
         return PyInt_FromLong(-1);
     }
-    
+
     if (! PyInt_Check(value)) {
         PyErr_SetString(PyExc_TypeError, "The size attribute value must be an integer.");
         return PyInt_FromLong(-1);
     }
-    
+
     old_size = self->size;
-    self->size = PyInt_AsLong(value); 
-    
+    self->size = PyInt_AsLong(value);
+
     factor = (MYFLT)(self->size) / old_size;
-    
+
     self->data = (MYFLT *)realloc(self->data, (self->size+1) * sizeof(MYFLT));
     TableStream_setSize(self->tablestream, self->size);
-    
+
     Py_ssize_t listsize = PyList_Size(self->pointslist);
-    
+
     PyObject *listtemp = PyList_New(0);
-    
+
     for(i=0; i<(listsize); i++) {
         tup = PyList_GET_ITEM(self->pointslist, i);
         x1 = PyInt_AsLong(PyNumber_Long(PyTuple_GET_ITEM(tup, 0)));
         x2 = PyNumber_Float(PyTuple_GET_ITEM(tup, 1));
         PyList_Append(listtemp, PyTuple_Pack(2, PyInt_FromLong((int)(x1*factor)), x2));
     }
-    
+
     Py_INCREF(listtemp);
     Py_DECREF(self->pointslist);
     self->pointslist = listtemp;
-    
+
     CosLogTable_generate(self);
-    
+
     Py_INCREF(Py_None);
     return Py_None;
 }
@@ -2795,18 +2795,18 @@ CosLogTable_replace(CosLogTable *self, PyObject *value)
         PyErr_SetString(PyExc_TypeError, "Cannot delete the list attribute.");
         return PyInt_FromLong(-1);
     }
-    
+
     if (! PyList_Check(value)) {
         PyErr_SetString(PyExc_TypeError, "The amplitude list attribute value must be a list of tuples.");
         return PyInt_FromLong(-1);
     }
-    
+
     Py_INCREF(value);
     Py_DECREF(self->pointslist);
-    self->pointslist = value; 
-    
+    self->pointslist = value;
+
     CosLogTable_generate(self);
-    
+
     Py_INCREF(Py_None);
     return Py_None;
 }
@@ -2907,24 +2907,24 @@ CurveTable_generate(CurveTable *self) {
     Py_ssize_t listsize;
     PyObject *tup;
     int x1, x2;
-    MYFLT y0, y1, y2, y3; 
+    MYFLT y0, y1, y2, y3;
     MYFLT m0, m1, mu, mu2, mu3;
     MYFLT a0, a1, a2, a3;
 
     for (i=0; i<self->size; i++) {
         self->data[i] = 0.0;
     }
-    
+
     listsize = PyList_Size(self->pointslist);
     int times[listsize+2];
     MYFLT values[listsize+2];
-    
+
     for (i=0; i<listsize; i++) {
         tup = PyList_GET_ITEM(self->pointslist, i);
         times[i+1] = PyInt_AsLong(PyNumber_Long(PyTuple_GET_ITEM(tup, 0)));
-        values[i+1] = PyFloat_AsDouble(PyNumber_Float(PyTuple_GET_ITEM(tup, 1)));        
+        values[i+1] = PyFloat_AsDouble(PyNumber_Float(PyTuple_GET_ITEM(tup, 1)));
     }
-    
+
     // sets imaginary points
     times[0] = times[1] - times[2];
     if (values[1] < values[2])
@@ -2938,12 +2938,12 @@ CurveTable_generate(CurveTable *self) {
         values[endP] = values[endP-1] + values[endP-2];
     else
         values[endP] = values[endP-1] - values[endP-2];
-    
+
     for(i=1; i<listsize; i++) {
         x1 = times[i];
-        x2 = times[i+1];   
+        x2 = times[i+1];
         y0 = values[i-1]; y1 = values[i]; y2 = values[i+1]; y3 = values[i+2];
-        
+
         steps = x2 - x1;
         if (steps <= 0)
             continue;
@@ -2959,11 +2959,11 @@ CurveTable_generate(CurveTable *self) {
             a1 = mu3 - 2.0*mu2 + mu;
             a2 = mu3 - mu2;
             a3 = -2.0*mu3 + 3.0*mu2;
-            
+
             self->data[x1+j] = (a0*y1 + a1*m0 + a2*m1 + a3*y2);
         }
     }
-    
+
     self->data[self->size] = self->data[self->size-1];
 }
 
@@ -2975,7 +2975,7 @@ CurveTable_traverse(CurveTable *self, visitproc visit, void *arg)
     return 0;
 }
 
-static int 
+static int
 CurveTable_clear(CurveTable *self)
 {
     pyo_table_CLEAR
@@ -2995,23 +2995,23 @@ static PyObject *
 CurveTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     PyObject *pointslist=NULL;
-    CurveTable *self;    
+    CurveTable *self;
     self = (CurveTable *)type->tp_alloc(type, 0);
-    
+
     self->server = PyServer_get_server();
-    
+
     self->pointslist = PyList_New(0);
     self->size = 8192;
     self->tension = 0.0;
     self->bias = 0.0;
-    
+
     MAKE_NEW_TABLESTREAM(self->tablestream, &TableStreamType, NULL);
 
     static char *kwlist[] = {"list", "tension", "bias", "size", NULL};
-    
+
     if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE__OFFI, kwlist, &pointslist, &self->tension, &self->bias, &self->size))
-        Py_RETURN_NONE; 
-    
+        Py_RETURN_NONE;
+
     if (pointslist) {
         Py_INCREF(pointslist);
         Py_DECREF(self->pointslist);
@@ -3021,7 +3021,7 @@ CurveTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         PyList_Append(self->pointslist, PyTuple_Pack(2, PyInt_FromLong(0), PyFloat_FromDouble(0.)));
         PyList_Append(self->pointslist, PyTuple_Pack(2, PyInt_FromLong(self->size), PyFloat_FromDouble(1.)));
     }
-    
+
     self->data = (MYFLT *)realloc(self->data, (self->size+1) * sizeof(MYFLT));
     TableStream_setSize(self->tablestream, self->size);
     TableStream_setData(self->tablestream, self->data);
@@ -3029,7 +3029,7 @@ CurveTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     double sr = PyFloat_AsDouble(PyObject_CallMethod(self->server, "getSamplingRate", NULL));
     TableStream_setSamplingRate(self->tablestream, sr);
-    
+
     return (PyObject *)self;
 }
 
@@ -3059,42 +3059,42 @@ static PyObject * CurveTable_mul(CurveTable *self, PyObject *arg) { TABLE_MUL };
 
 static PyObject *
 CurveTable_setTension(CurveTable *self, PyObject *value)
-{    
+{
     if (value == NULL) {
         PyErr_SetString(PyExc_TypeError, "Cannot delete the tension attribute.");
         return PyInt_FromLong(-1);
     }
-    
+
     if (! PyNumber_Check(value)) {
         PyErr_SetString(PyExc_TypeError, "The tension attribute value must be a float.");
         return PyInt_FromLong(-1);
     }
-    
-    self->tension = PyFloat_AsDouble(PyNumber_Float(value)); 
+
+    self->tension = PyFloat_AsDouble(PyNumber_Float(value));
 
     CurveTable_generate(self);
-    
+
     Py_INCREF(Py_None);
     return Py_None;
 }
 
 static PyObject *
 CurveTable_setBias(CurveTable *self, PyObject *value)
-{    
+{
     if (value == NULL) {
         PyErr_SetString(PyExc_TypeError, "Cannot delete the bias attribute.");
         return PyInt_FromLong(-1);
     }
-    
+
     if (! PyNumber_Check(value)) {
         PyErr_SetString(PyExc_TypeError, "The bias attribute value must be a float.");
         return PyInt_FromLong(-1);
     }
-    
-    self->bias = PyFloat_AsDouble(PyNumber_Float(value)); 
-    
+
+    self->bias = PyFloat_AsDouble(PyNumber_Float(value));
+
     CurveTable_generate(self);
-    
+
     Py_INCREF(Py_None);
     return Py_None;
 }
@@ -3106,42 +3106,42 @@ CurveTable_setSize(CurveTable *self, PyObject *value)
     PyObject *tup, *x2;
     int old_size, x1;
     MYFLT factor;
-    
+
     if (value == NULL) {
         PyErr_SetString(PyExc_TypeError, "Cannot delete the size attribute.");
         return PyInt_FromLong(-1);
     }
-    
+
     if (! PyInt_Check(value)) {
         PyErr_SetString(PyExc_TypeError, "The size attribute value must be an integer.");
         return PyInt_FromLong(-1);
     }
-    
+
     old_size = self->size;
-    self->size = PyInt_AsLong(value); 
-    
+    self->size = PyInt_AsLong(value);
+
     factor = (MYFLT)(self->size) / old_size;
-    
+
     self->data = (MYFLT *)realloc(self->data, (self->size+1) * sizeof(MYFLT));
     TableStream_setSize(self->tablestream, self->size);
-    
+
     Py_ssize_t listsize = PyList_Size(self->pointslist);
-    
+
     PyObject *listtemp = PyList_New(0);
-    
+
     for(i=0; i<(listsize); i++) {
         tup = PyList_GET_ITEM(self->pointslist, i);
         x1 = PyInt_AsLong(PyNumber_Long(PyTuple_GET_ITEM(tup, 0)));
         x2 = PyNumber_Float(PyTuple_GET_ITEM(tup, 1));
         PyList_Append(listtemp, PyTuple_Pack(2, PyInt_FromLong((int)(x1*factor)), x2));
     }
-    
+
     Py_INCREF(listtemp);
     Py_DECREF(self->pointslist);
     self->pointslist = listtemp;
-    
+
     CurveTable_generate(self);
-    
+
     Py_INCREF(Py_None);
     return Py_None;
 }
@@ -3166,18 +3166,18 @@ CurveTable_replace(CurveTable *self, PyObject *value)
         PyErr_SetString(PyExc_TypeError, "Cannot delete the list attribute.");
         return PyInt_FromLong(-1);
     }
-    
+
     if (! PyList_Check(value)) {
         PyErr_SetString(PyExc_TypeError, "The amplitude list attribute value must be a list of tuples.");
         return PyInt_FromLong(-1);
     }
-    
+
     Py_INCREF(value);
     Py_DECREF(self->pointslist);
-    self->pointslist = value; 
-    
+    self->pointslist = value;
+
     CurveTable_generate(self);
-    
+
     Py_INCREF(Py_None);
     return Py_None;
 }
@@ -3280,29 +3280,29 @@ ExpTable_generate(ExpTable *self) {
     Py_ssize_t listsize;
     PyObject *tup;
     int x1, x2;
-    MYFLT y1, y2, range, inc, pointer, scl; 
-    
+    MYFLT y1, y2, range, inc, pointer, scl;
+
     for (i=0; i<self->size; i++) {
         self->data[i] = 0.0;
     }
-    
+
     listsize = PyList_Size(self->pointslist);
     int times[listsize];
     MYFLT values[listsize];
-    
+
     for (i=0; i<listsize; i++) {
         tup = PyList_GET_ITEM(self->pointslist, i);
         times[i] = PyInt_AsLong(PyNumber_Long(PyTuple_GET_ITEM(tup, 0)));
-        values[i] = PyFloat_AsDouble(PyNumber_Float(PyTuple_GET_ITEM(tup, 1)));        
+        values[i] = PyFloat_AsDouble(PyNumber_Float(PyTuple_GET_ITEM(tup, 1)));
     }
 
     y1 = y2 = 0.0;
     for(i=0; i<(listsize-1); i++) {
         x1 = times[i];
-        x2 = times[i+1];   
-        y1 = values[i]; 
+        x2 = times[i+1];
+        y1 = values[i];
         y2 = values[i+1];
-        
+
         range = y2 - y1;
         steps = x2 - x1;
         if (steps <= 0)
@@ -3324,16 +3324,16 @@ ExpTable_generate(ExpTable *self) {
                     pointer += inc;
                 }
             }
-        }    
+        }
         else {
             for(j=0; j<steps; j++) {
                 scl = MYPOW(pointer, self->exp);
                 self->data[x1+j] = scl * range + y1;
                 pointer += inc;
             }
-        }    
+        }
     }
-    
+
     self->data[self->size] = y2;
 }
 
@@ -3345,7 +3345,7 @@ ExpTable_traverse(ExpTable *self, visitproc visit, void *arg)
     return 0;
 }
 
-static int 
+static int
 ExpTable_clear(ExpTable *self)
 {
     pyo_table_CLEAR
@@ -3365,23 +3365,23 @@ static PyObject *
 ExpTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     PyObject *pointslist=NULL;
-    ExpTable *self;    
+    ExpTable *self;
     self = (ExpTable *)type->tp_alloc(type, 0);
-    
+
     self->server = PyServer_get_server();
-    
+
     self->pointslist = PyList_New(0);
     self->size = 8192;
     self->exp = 10.0;
     self->inverse = 1;
-    
+
     MAKE_NEW_TABLESTREAM(self->tablestream, &TableStreamType, NULL);
 
     static char *kwlist[] = {"list", "exp", "inverse", "size", NULL};
-    
+
     if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE__OFII, kwlist, &pointslist, &self->exp, &self->inverse, &self->size))
-        Py_RETURN_NONE; 
-    
+        Py_RETURN_NONE;
+
     if (pointslist) {
         Py_INCREF(pointslist);
         Py_DECREF(self->pointslist);
@@ -3391,7 +3391,7 @@ ExpTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         PyList_Append(self->pointslist, PyTuple_Pack(2, PyInt_FromLong(0), PyFloat_FromDouble(0.)));
         PyList_Append(self->pointslist, PyTuple_Pack(2, PyInt_FromLong(self->size), PyFloat_FromDouble(1.)));
     }
-    
+
     self->data = (MYFLT *)realloc(self->data, (self->size+1) * sizeof(MYFLT));
     TableStream_setSize(self->tablestream, self->size);
     TableStream_setData(self->tablestream, self->data);
@@ -3399,7 +3399,7 @@ ExpTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     double sr = PyFloat_AsDouble(PyObject_CallMethod(self->server, "getSamplingRate", NULL));
     TableStream_setSamplingRate(self->tablestream, sr);
-    
+
     return (PyObject *)self;
 }
 
@@ -3429,42 +3429,42 @@ static PyObject * ExpTable_mul(ExpTable *self, PyObject *arg) { TABLE_MUL };
 
 static PyObject *
 ExpTable_setExp(ExpTable *self, PyObject *value)
-{    
+{
     if (value == NULL) {
         PyErr_SetString(PyExc_TypeError, "Cannot delete the exp attribute.");
         return PyInt_FromLong(-1);
     }
-    
+
     if (! PyNumber_Check(value)) {
         PyErr_SetString(PyExc_TypeError, "The exp attribute value must be a float.");
         return PyInt_FromLong(-1);
     }
-    
-    self->exp = PyFloat_AsDouble(PyNumber_Float(value)); 
-    
+
+    self->exp = PyFloat_AsDouble(PyNumber_Float(value));
+
     ExpTable_generate(self);
-    
+
     Py_INCREF(Py_None);
     return Py_None;
 }
 
 static PyObject *
 ExpTable_setInverse(ExpTable *self, PyObject *value)
-{    
+{
     if (value == NULL) {
         PyErr_SetString(PyExc_TypeError, "Cannot delete the inverse attribute.");
         return PyInt_FromLong(-1);
     }
-    
+
     if (! PyInt_Check(value)) {
         PyErr_SetString(PyExc_TypeError, "The inverse attribute value must be a boolean (True or False or 0 or 1).");
         return PyInt_FromLong(-1);
     }
-    
-    self->inverse = PyInt_AsLong(value); 
-    
+
+    self->inverse = PyInt_AsLong(value);
+
     ExpTable_generate(self);
-    
+
     Py_INCREF(Py_None);
     return Py_None;
 }
@@ -3476,42 +3476,42 @@ ExpTable_setSize(ExpTable *self, PyObject *value)
     PyObject *tup, *x2;
     int old_size, x1;
     MYFLT factor;
-    
+
     if (value == NULL) {
         PyErr_SetString(PyExc_TypeError, "Cannot delete the size attribute.");
         return PyInt_FromLong(-1);
     }
-    
+
     if (! PyInt_Check(value)) {
         PyErr_SetString(PyExc_TypeError, "The size attribute value must be an integer.");
         return PyInt_FromLong(-1);
     }
-    
+
     old_size = self->size;
-    self->size = PyInt_AsLong(value); 
-    
+    self->size = PyInt_AsLong(value);
+
     factor = (MYFLT)(self->size) / old_size;
-    
+
     self->data = (MYFLT *)realloc(self->data, (self->size+1) * sizeof(MYFLT));
     TableStream_setSize(self->tablestream, self->size);
-    
+
     Py_ssize_t listsize = PyList_Size(self->pointslist);
-    
+
     PyObject *listtemp = PyList_New(0);
-    
+
     for(i=0; i<(listsize); i++) {
         tup = PyList_GET_ITEM(self->pointslist, i);
         x1 = PyInt_AsLong(PyNumber_Long(PyTuple_GET_ITEM(tup, 0)));
         x2 = PyNumber_Float(PyTuple_GET_ITEM(tup, 1));
         PyList_Append(listtemp, PyTuple_Pack(2, PyInt_FromLong((int)(x1*factor)), x2));
     }
-    
+
     Py_INCREF(listtemp);
     Py_DECREF(self->pointslist);
     self->pointslist = listtemp;
-    
+
     ExpTable_generate(self);
-    
+
     Py_INCREF(Py_None);
     return Py_None;
 }
@@ -3536,18 +3536,18 @@ ExpTable_replace(ExpTable *self, PyObject *value)
         PyErr_SetString(PyExc_TypeError, "Cannot delete the list attribute.");
         return PyInt_FromLong(-1);
     }
-    
+
     if (! PyList_Check(value)) {
         PyErr_SetString(PyExc_TypeError, "The amplitude list attribute value must be a list of tuples.");
         return PyInt_FromLong(-1);
     }
-    
+
     Py_INCREF(value);
     Py_DECREF(self->pointslist);
-    self->pointslist = value; 
-    
+    self->pointslist = value;
+
     ExpTable_generate(self);
-    
+
     Py_INCREF(Py_None);
     return Py_None;
 }
@@ -3655,7 +3655,7 @@ SndTable_loadSound(SndTable *self) {
     unsigned int i, num, num_items, num_chnls, snd_size, start, stop;
     unsigned int num_count = 0;
     MYFLT *tmp;
-        
+
     info.format = 0;
     sf = sf_open(self->path, SFM_READ, &info);
     if (sf == NULL)
@@ -3676,10 +3676,10 @@ SndTable_loadSound(SndTable *self) {
         start = 0;
     else
         start = (unsigned int)(self->start * self->sndSr);
-    
+
     self->size = stop - start;
     num_items = self->size * num_chnls;
-    
+
     /* Allocate space for the data to be read, then read it. */
     self->data = (MYFLT *)realloc(self->data, (self->size + 1) * sizeof(MYFLT));
 
@@ -3693,7 +3693,7 @@ SndTable_loadSound(SndTable *self) {
             for (i=0; i<num; i++) {
                 if ((i % num_chnls) == self->chnl) {
                     self->data[(int)(num_count++)] = tmp[i];
-                }  
+                }
             }
         } while (num == num_items);
         sf_close(sf);
@@ -3707,11 +3707,11 @@ SndTable_loadSound(SndTable *self) {
         for (i=0; i<num_items; i++) {
             if ((i % num_chnls) == self->chnl) {
                 self->data[(int)(i/num_chnls)] = tmp[i];
-            }    
+            }
         }
     }
 
-    self->data[self->size] = self->data[0];  
+    self->data[self->size] = self->data[0];
 
     self->start = 0.0;
     self->stop = -1.0;
@@ -3728,7 +3728,7 @@ SndTable_appendSound(SndTable *self) {
     unsigned int i, num_items, num_chnls, snd_size, start, stop, to_load_size, cross_in_samps, cross_point, index, real_index;
     MYFLT *tmp, *tmp_data;
     MYFLT cross_amp;
-    
+
     info.format = 0;
     sf = sf_open(self->path, SFM_READ, &info);
     if (sf == NULL)
@@ -3739,17 +3739,17 @@ SndTable_appendSound(SndTable *self) {
     snd_size = info.frames;
     self->sndSr = info.samplerate;
     num_chnls = info.channels;
-    
+
     if (self->stop <= 0 || self->stop <= self->start || (self->stop*self->sndSr) > snd_size)
         stop = snd_size;
     else
         stop = (unsigned int)(self->stop * self->sndSr);
-    
+
     if (self->start < 0 || (self->start*self->sndSr) > snd_size)
         start = 0;
     else
         start = (unsigned int)(self->start * self->sndSr);
-    
+
     to_load_size = stop - start;
     num_items = to_load_size * num_chnls;
     cross_in_samps = (unsigned int)(self->crossfade * self->sr);
@@ -3757,11 +3757,11 @@ SndTable_appendSound(SndTable *self) {
         cross_in_samps = to_load_size - 1;
     if (cross_in_samps >= self->size)
         cross_in_samps = self->size - 1;
-    
+
     /* Allocate space for the data to be read, then read it. */
     tmp = (MYFLT *)malloc(num_items * sizeof(MYFLT));
     tmp_data = (MYFLT *)malloc(self->size * sizeof(MYFLT));
-    
+
     sf_seek(sf, start, SEEK_SET);
     SF_READ(sf, tmp, num_items);
     sf_close(sf);
@@ -3775,7 +3775,7 @@ SndTable_appendSound(SndTable *self) {
     cross_point = self->size - cross_in_samps;
     self->size = self->size + to_load_size - cross_in_samps;
     self->data = (MYFLT *)realloc(self->data, (self->size + 1) * sizeof(MYFLT));
-    
+
     if (cross_in_samps != 0) {
         for (i=0; i<cross_point; i++) {
             self->data[i] = tmp_data[i];
@@ -3788,7 +3788,7 @@ SndTable_appendSound(SndTable *self) {
                 index = (int)(i/num_chnls);
                 real_index = cross_point + index;
                 self->data[real_index] = tmp[i];
-            }    
+            }
         }
     }
     else {
@@ -3802,12 +3802,12 @@ SndTable_appendSound(SndTable *self) {
                 }
                 else
                     self->data[real_index] = tmp[i];
-            }    
-        }        
+            }
+        }
     }
-    
-    self->data[self->size] = self->data[0];  
-    
+
+    self->data[self->size] = self->data[0];
+
     self->start = 0.0;
     self->stop = -1.0;
     free(tmp);
@@ -3821,11 +3821,11 @@ static void
 SndTable_prependSound(SndTable *self) {
     SNDFILE *sf;
     SF_INFO info;
-    unsigned int i, num_items, num_chnls, snd_size, start, stop, to_load_size, cross_in_samps, cross_point; 
+    unsigned int i, num_items, num_chnls, snd_size, start, stop, to_load_size, cross_in_samps, cross_point;
     unsigned int index = 0;
     MYFLT *tmp, *tmp_data;
     MYFLT cross_amp;
-    
+
     info.format = 0;
     sf = sf_open(self->path, SFM_READ, &info);
     if (sf == NULL)
@@ -3836,17 +3836,17 @@ SndTable_prependSound(SndTable *self) {
     snd_size = info.frames;
     self->sndSr = info.samplerate;
     num_chnls = info.channels;
-    
+
     if (self->stop <= 0 || self->stop <= self->start || (self->stop*self->sndSr) > snd_size)
         stop = snd_size;
     else
         stop = (unsigned int)(self->stop * self->sndSr);
-    
+
     if (self->start < 0 || (self->start*self->sndSr) > snd_size)
         start = 0;
     else
         start = (unsigned int)(self->start * self->sndSr);
-    
+
     to_load_size = stop - start;
     num_items = to_load_size * num_chnls;
     cross_in_samps = (unsigned int)(self->crossfade * self->sr);
@@ -3854,31 +3854,31 @@ SndTable_prependSound(SndTable *self) {
         cross_in_samps = to_load_size - 1;
     if (cross_in_samps >= self->size)
         cross_in_samps = self->size - 1;
-    
+
     /* Allocate space for the data to be read, then read it. */
     tmp = (MYFLT *)malloc(num_items * sizeof(MYFLT));
     tmp_data = (MYFLT *)malloc(self->size * sizeof(MYFLT));
-    
+
     sf_seek(sf, start, SEEK_SET);
     SF_READ(sf, tmp, num_items);
     sf_close(sf);
-    
+
     for (i=0; i<self->size; i++) {
         tmp_data[i] = self->data[i];
     }
-    
+
     cross_point = to_load_size - cross_in_samps;
     self->size = self->size + to_load_size - cross_in_samps;
     self->data = (MYFLT *)realloc(self->data, (self->size + 1) * sizeof(MYFLT));
-    
+
     if (self->crossfade == 0.0) {
         for (i=0; i<num_items; i++) {
             if ((i % num_chnls) == self->chnl) {
                 index = (int)(i/num_chnls);
                 self->data[index] = tmp[i];
-            }    
+            }
         }
-        
+
     }
     else {
         for (i=0; i<num_items; i++) {
@@ -3890,16 +3890,16 @@ SndTable_prependSound(SndTable *self) {
                 }
                 else
                     self->data[index] = tmp[i];
-            }    
-        }        
+            }
+        }
     }
-    
+
     for (i=(index+1); i<self->size; i++) {
         self->data[i] = tmp_data[i - cross_point];
     }
-        
-    self->data[self->size] = self->data[0];  
-    
+
+    self->data[self->size] = self->data[0];
+
     self->start = 0.0;
     self->stop = -1.0;
     free(tmp);
@@ -3914,12 +3914,12 @@ SndTable_insertSound(SndTable *self) {
     SNDFILE *sf;
     SF_INFO info;
     unsigned int i, num_items, num_chnls, snd_size, start, stop, to_load_size;
-    unsigned int cross_in_samps, cross_point, insert_point, index; 
-    unsigned int read_point = 0; 
+    unsigned int cross_in_samps, cross_point, insert_point, index;
+    unsigned int read_point = 0;
     unsigned int real_index = 0;
     MYFLT *tmp, *tmp_data;
     MYFLT cross_amp;
-    
+
     info.format = 0;
     sf = sf_open(self->path, SFM_READ, &info);
     if (sf == NULL)
@@ -3930,24 +3930,24 @@ SndTable_insertSound(SndTable *self) {
     snd_size = info.frames;
     self->sndSr = info.samplerate;
     num_chnls = info.channels;
-    
+
     if (self->stop <= 0 || self->stop <= self->start || (self->stop*self->sndSr) > snd_size)
         stop = snd_size;
     else
         stop = (unsigned int)(self->stop * self->sndSr);
-    
+
     if (self->start < 0 || (self->start*self->sndSr) > snd_size)
         start = 0;
     else
         start = (unsigned int)(self->start * self->sndSr);
-    
+
     to_load_size = stop - start;
     num_items = to_load_size * num_chnls;
-    
+
     insert_point = (unsigned int)(self->insertPos * self->sr);
     if (insert_point >= self->size)
         insert_point = self->size - 1;
-    
+
     cross_in_samps = (unsigned int)(self->crossfade * self->sr);
     if (cross_in_samps >= (to_load_size/2))
         cross_in_samps = (to_load_size/2) - 5;
@@ -3959,32 +3959,32 @@ SndTable_insertSound(SndTable *self) {
     /* Allocate space for the data to be read, then read it. */
     tmp = (MYFLT *)malloc(num_items * sizeof(MYFLT));
     tmp_data = (MYFLT *)malloc(self->size * sizeof(MYFLT));
-    
+
     sf_seek(sf, start, SEEK_SET);
     SF_READ(sf, tmp, num_items);
     sf_close(sf);
-    
+
     for (i=0; i<self->size; i++) {
         tmp_data[i] = self->data[i];
     }
-    
+
     self->size = self->size + to_load_size - (cross_in_samps * 2);
     self->data = (MYFLT *)realloc(self->data, (self->size + 1) * sizeof(MYFLT));
-    
+
     cross_point = insert_point - cross_in_samps;
-    
+
     for (i=0; i<cross_point; i++) {
         self->data[i] = tmp_data[i];
     }
-    
+
     if (self->crossfade == 0.0) {
         for (i=0; i<num_items; i++) {
             if ((i % num_chnls) == self->chnl) {
                 index = (int)(i/num_chnls);
                 self->data[index+cross_point] = tmp[i];
-            }    
+            }
         }
-        
+
     }
     else {
         for (i=0; i<num_items; i++) {
@@ -4002,18 +4002,18 @@ SndTable_insertSound(SndTable *self) {
                 }
                 else
                     self->data[real_index] = tmp[i];
-            }    
-        }        
+            }
+        }
     }
-    
+
     read_point++;
     for (i=(real_index+1); i<self->size; i++) {
         self->data[i] = tmp_data[read_point];
         read_point++;
     }
-    
-    self->data[self->size] = self->data[0];  
-    
+
+    self->data[self->size] = self->data[0];
+
     self->start = 0.0;
     self->stop = -1.0;
     free(tmp);
@@ -4030,7 +4030,7 @@ SndTable_traverse(SndTable *self, visitproc visit, void *arg)
     return 0;
 }
 
-static int 
+static int
 SndTable_clear(SndTable *self)
 {
     pyo_table_CLEAR
@@ -4050,9 +4050,9 @@ SndTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     int i;
     SndTable *self;
-    
+
     self = (SndTable *)type->tp_alloc(type, 0);
-    
+
     self->server = PyServer_get_server();
     self->sr = (MYFLT)PyFloat_AsDouble(PyObject_CallMethod(self->server, "getSamplingRate", NULL));
 
@@ -4064,10 +4064,10 @@ SndTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     MAKE_NEW_TABLESTREAM(self->tablestream, &TableStreamType, NULL);
 
     static char *kwlist[] = {"path", "chnl", "start", "stop", NULL};
-    
+
     if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_S_IFF, kwlist, &self->path, &self->chnl, &self->start, &self->stop))
-        return PyInt_FromLong(-1); 
-    
+        return PyInt_FromLong(-1);
+
     if (strcmp(self->path, "") == 0) {
         self->size = (int)self->sr;
         self->data = (MYFLT *)realloc(self->data, (self->size + 1) * sizeof(MYFLT));
@@ -4085,7 +4085,7 @@ SndTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     else {
         SndTable_loadSound(self);
     }
-    
+
     return (PyObject *)self;
 }
 
@@ -4112,8 +4112,8 @@ static PyObject * SndTable_add(SndTable *self, PyObject *arg) { TABLE_ADD };
 static PyObject * SndTable_sub(SndTable *self, PyObject *arg) { TABLE_SUB };
 static PyObject * SndTable_mul(SndTable *self, PyObject *arg) { TABLE_MUL };
 
-static PyObject * 
-SndTable_getViewTable(SndTable *self, PyObject *args, PyObject *kwds) { 
+static PyObject *
+SndTable_getViewTable(SndTable *self, PyObject *args, PyObject *kwds) {
     int i, j, y, w, h, h2, step, size;
     int count = 0;
     int yOffset = 0;
@@ -4124,10 +4124,10 @@ SndTable_getViewTable(SndTable *self, PyObject *args, PyObject *kwds) {
     PyObject *sizetmp = NULL;
 
     static char *kwlist[] = {"size", "begin", "end", "yOffset", NULL};
-    
+
     if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE__OFFI, kwlist, &sizetmp, &begin, &end, &yOffset))
-        return PyInt_FromLong(-1); 
-    
+        return PyInt_FromLong(-1);
+
     if (end <= 0.0)
         end = self->size;
     else {
@@ -4166,7 +4166,7 @@ SndTable_getViewTable(SndTable *self, PyObject *args, PyObject *kwds) {
     h2 = h/2;
     step = (int)(size / (MYFLT)(w));
     fstep = (MYFLT)(w) / (size-1);
-    
+
     if (step == 0) {
         samples = PyList_New(size);
         for (i=0; i<size; i++) {
@@ -4214,8 +4214,8 @@ SndTable_getViewTable(SndTable *self, PyObject *args, PyObject *kwds) {
     return samples;
 };
 
-static PyObject * 
-SndTable_getEnvelope(SndTable *self, PyObject *arg) { 
+static PyObject *
+SndTable_getEnvelope(SndTable *self, PyObject *arg) {
     int i, j, step, points;
     long count;
     MYFLT absin, last;
@@ -4225,9 +4225,9 @@ SndTable_getEnvelope(SndTable *self, PyObject *arg) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
 	int isInt = PyInt_Check(arg);
-    
+
     if (isInt) {
         count = 0;
         points = PyInt_AsLong(arg);
@@ -4253,68 +4253,68 @@ SndTable_getEnvelope(SndTable *self, PyObject *arg) {
 
 static PyObject *
 SndTable_setSound(SndTable *self, PyObject *args, PyObject *kwds)
-{    
+{
     static char *kwlist[] = {"path", "chnl", "start", "stop", NULL};
-    
+
     MYFLT stoptmp = -1.0;
-    
+
     if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_S_IFF, kwlist, &self->path, &self->chnl, &self->start, &stoptmp)) {
         Py_INCREF(Py_None);
         return Py_None;
-    }    
-    
+    }
+
     self->stop = stoptmp;
     SndTable_loadSound(self);
-    
+
     Py_INCREF(Py_None);
     return Py_None;
 }
 
 static PyObject *
 SndTable_append(SndTable *self, PyObject *args, PyObject *kwds)
-{    
+{
     static char *kwlist[] = {"path", "crossfade", "chnl", "start", "stop", NULL};
-    
+
     MYFLT stoptmp = -1.0;
     MYFLT crosstmp = 0.0;
-    
+
     if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_S_FIFF, kwlist, &self->path, &crosstmp, &self->chnl, &self->start, &stoptmp)) {
         Py_INCREF(Py_None);
         return Py_None;
-    }    
-    
+    }
+
     self->stop = stoptmp;
     if (crosstmp < 0.0)
         self->crossfade = 0.0;
     else
         self->crossfade = crosstmp;
-    
+
     SndTable_appendSound(self);
-    
+
     Py_INCREF(Py_None);
     return Py_None;
 }
 
 static PyObject *
 SndTable_insert(SndTable *self, PyObject *args, PyObject *kwds)
-{    
+{
     static char *kwlist[] = {"path", "pos", "crossfade", "chnl", "start", "stop", NULL};
-    
+
     MYFLT stoptmp = -1.0;
     MYFLT crosstmp = 0.0;
     MYFLT postmp = 0.0;
-    
+
     if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_S_FFIFF, kwlist, &self->path, &postmp, &crosstmp, &self->chnl, &self->start, &stoptmp)) {
         Py_INCREF(Py_None);
         return Py_None;
-    }    
-    
+    }
+
     self->stop = stoptmp;
     if (crosstmp < 0.0)
         self->crossfade = 0.0;
     else
         self->crossfade = crosstmp;
-    
+
     if (postmp <= 0.0)
         SndTable_prependSound(self);
     else if (postmp >= ((self->size-1) / self->sndSr))
@@ -4323,7 +4323,7 @@ SndTable_insert(SndTable *self, PyObject *args, PyObject *kwds)
         self->insertPos = postmp;
         SndTable_insertSound(self);
     }
-    
+
     Py_INCREF(Py_None);
     return Py_None;
 }
@@ -4333,7 +4333,7 @@ SndTable_setSize(SndTable *self, PyObject *value)
 {
     Py_ssize_t i;
 
-    self->size = PyInt_AsLong(value); 
+    self->size = PyInt_AsLong(value);
 
     self->data = (MYFLT *)realloc(self->data, (self->size+1) * sizeof(MYFLT));
 
@@ -4345,7 +4345,7 @@ SndTable_setSize(SndTable *self, PyObject *value)
     self->stop = -1.0;
     TableStream_setSize(self->tablestream, self->size);
     TableStream_setData(self->tablestream, self->data);
-    
+
     Py_INCREF(Py_None);
     return Py_None;
 }
@@ -4444,7 +4444,7 @@ SndTable_members,             /* tp_members */
 0,                         /* tp_alloc */
 SndTable_new,                 /* tp_new */
 0,               /* tp_free */
-0,               /* tp_is_gc */    
+0,               /* tp_is_gc */
 0,               /* tp_bases */
 0,               /* tp_mro */
 0,               /* tp_cache */
@@ -4500,7 +4500,7 @@ NewTable_traverse(NewTable *self, visitproc visit, void *arg)
     return 0;
 }
 
-static int 
+static int
 NewTable_clear(NewTable *self)
 {
     pyo_table_CLEAR
@@ -4522,18 +4522,18 @@ NewTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inittmp=NULL;
     NewTable *self;
     self = (NewTable *)type->tp_alloc(type, 0);
-    
+
     self->server = PyServer_get_server();
-    
+
     self->pointer = 0;
     self->feedback = 0.0;
-    
+
     MAKE_NEW_TABLESTREAM(self->tablestream, &TableStreamType, NULL);
 
     static char *kwlist[] = {"length", "init", "feedback", NULL};
-    
+
     if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_F_OF, kwlist, &self->length, &inittmp, &self->feedback))
-        Py_RETURN_NONE; 
+        Py_RETURN_NONE;
 
     self->sr = (MYFLT)PyFloat_AsDouble(PyObject_CallMethod(self->server, "getSamplingRate", NULL));
     self->size = (int)(self->length * self->sr + 0.5);
@@ -4542,16 +4542,16 @@ NewTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     for (i=0; i<(self->size+1); i++) {
         self->data[i] = 0.;
     }
-    
+
     TableStream_setSize(self->tablestream, self->size);
 
     if (inittmp && inittmp != Py_None) {
         PyObject_CallMethod((PyObject *)self, "setTable", "O", inittmp);
     }
-    
+
     TableStream_setData(self->tablestream, self->data);
     TableStream_setSamplingRate(self->tablestream, self->sr);
-    
+
     return (PyObject *)self;
 }
 
@@ -4578,8 +4578,8 @@ static PyObject * NewTable_add(NewTable *self, PyObject *arg) { TABLE_ADD };
 static PyObject * NewTable_sub(NewTable *self, PyObject *arg) { TABLE_SUB };
 static PyObject * NewTable_mul(NewTable *self, PyObject *arg) { TABLE_MUL };
 
-static PyObject * 
-NewTable_getViewTable(NewTable *self, PyObject *args, PyObject *kwds) { 
+static PyObject *
+NewTable_getViewTable(NewTable *self, PyObject *args, PyObject *kwds) {
     int i, j, y, w, h, h2, step, size;
     int count = 0;
     int yOffset = 0;
@@ -4590,10 +4590,10 @@ NewTable_getViewTable(NewTable *self, PyObject *args, PyObject *kwds) {
     PyObject *sizetmp = NULL;
 
     static char *kwlist[] = {"size", "begin", "end", "yOffset", NULL};
-    
+
     if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE__OFFI, kwlist, &sizetmp, &begin, &end, &yOffset))
-        return PyInt_FromLong(-1); 
-    
+        return PyInt_FromLong(-1);
+
     if (end <= 0.0)
         end = self->size;
     else {
@@ -4632,7 +4632,7 @@ NewTable_getViewTable(NewTable *self, PyObject *args, PyObject *kwds) {
     h2 = h/2;
     step = (int)(size / (MYFLT)(w));
     fstep = (MYFLT)(w) / (size-1);
-    
+
     if (step == 0) {
         samples = PyList_New(size);
         for (i=0; i<size; i++) {
@@ -4712,8 +4712,8 @@ NewTable_setFeedback(NewTable *self, PyObject *value)
             feed = 1.0;
         self->feedback = feed;
     }
-        
-    Py_RETURN_NONE;    
+
+    Py_RETURN_NONE;
 }
 
 static PyMemberDef NewTable_members[] = {
@@ -4816,7 +4816,7 @@ DataTable_traverse(DataTable *self, visitproc visit, void *arg)
     return 0;
 }
 
-static int 
+static int
 DataTable_clear(DataTable *self)
 {
     pyo_table_CLEAR
@@ -4838,35 +4838,35 @@ DataTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inittmp=NULL;
     DataTable *self;
     self = (DataTable *)type->tp_alloc(type, 0);
-    
+
     self->server = PyServer_get_server();
-    
+
     self->pointer = 0;
-    
+
     MAKE_NEW_TABLESTREAM(self->tablestream, &TableStreamType, NULL);
 
     static char *kwlist[] = {"size", "init", NULL};
-    
+
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "i|O", kwlist, &self->size, &inittmp))
-        Py_RETURN_NONE; 
-    
+        Py_RETURN_NONE;
+
     self->data = (MYFLT *)realloc(self->data, (self->size + 1) * sizeof(MYFLT));
-    
+
     for (i=0; i<(self->size+1); i++) {
         self->data[i] = 0.;
     }
-    
+
     TableStream_setSize(self->tablestream, self->size);
-    
+
     if (inittmp) {
         PyObject_CallMethod((PyObject *)self, "setTable", "O", inittmp);
     }
-    
+
     TableStream_setData(self->tablestream, self->data);
 
     double sr = PyFloat_AsDouble(PyObject_CallMethod(self->server, "getSamplingRate", NULL));
     TableStream_setSamplingRate(self->tablestream, sr);
-    
+
     return (PyObject *)self;
 }
 
@@ -4999,7 +4999,7 @@ AtanTable_generate(AtanTable *self) {
 
     hsize = self->size / 2;
     invhsize = 1.0 / hsize;
-    
+
     drv = 1 - self->slope;
     drv = drv * drv * drv * PI;
     for(i=0; i<=hsize; i++) {
@@ -5020,7 +5020,7 @@ AtanTable_traverse(AtanTable *self, visitproc visit, void *arg)
     return 0;
 }
 
-static int 
+static int
 AtanTable_clear(AtanTable *self)
 {
     pyo_table_CLEAR
@@ -5040,27 +5040,27 @@ AtanTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     AtanTable *self;
     self = (AtanTable *)type->tp_alloc(type, 0);
-    
+
     self->server = PyServer_get_server();
-    
+
     self->size = 8192;
     self->slope = 0.5;
-    
+
     MAKE_NEW_TABLESTREAM(self->tablestream, &TableStreamType, NULL);
 
     static char *kwlist[] = {"slope", "size", NULL};
-    
+
     if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_F_I, kwlist, &self->slope, &self->size))
-        Py_RETURN_NONE; 
-    
+        Py_RETURN_NONE;
+
     self->data = (MYFLT *)realloc(self->data, (self->size+1) * sizeof(MYFLT));
     TableStream_setSize(self->tablestream, self->size);
 	TableStream_setData(self->tablestream, self->data);
     AtanTable_generate(self);
-    
+
     double sr = PyFloat_AsDouble(PyObject_CallMethod(self->server, "getSamplingRate", NULL));
     TableStream_setSamplingRate(self->tablestream, sr);
-    
+
     return (PyObject *)self;
 }
 
@@ -5091,20 +5091,20 @@ static PyObject * AtanTable_mul(AtanTable *self, PyObject *arg) { TABLE_MUL };
 static PyObject *
 AtanTable_setSlope(AtanTable *self, PyObject *value)
 {
-    
+
     if (! PyNumber_Check(value)) {
         PyErr_SetString(PyExc_TypeError, "The slope attribute value must be a number.");
         return PyInt_FromLong(-1);
     }
-    
-    self->slope = PyFloat_AsDouble(PyNumber_Float(value)); 
+
+    self->slope = PyFloat_AsDouble(PyNumber_Float(value));
     if (self->slope < 0.0)
         self->slope = 0.0;
     else if (self->slope > 1.0)
         self->slope = 1.0;
-    
+
     AtanTable_generate(self);
-    
+
     Py_INCREF(Py_None);
     return Py_None;
 }
@@ -5116,19 +5116,19 @@ AtanTable_setSize(AtanTable *self, PyObject *value)
         PyErr_SetString(PyExc_TypeError, "Cannot delete the size attribute.");
         return PyInt_FromLong(-1);
     }
-    
+
     if (! PyInt_Check(value)) {
         PyErr_SetString(PyExc_TypeError, "The size attribute value must be an integer.");
         return PyInt_FromLong(-1);
     }
-    
-    self->size = PyInt_AsLong(value); 
-    
+
+    self->size = PyInt_AsLong(value);
+
     self->data = (MYFLT *)realloc(self->data, (self->size+1) * sizeof(MYFLT));
     TableStream_setSize(self->tablestream, self->size);
-    
+
     AtanTable_generate(self);
-    
+
     Py_INCREF(Py_None);
     return Py_None;
 }
@@ -5262,19 +5262,19 @@ TableRec_compute_next_data_frame(TableRec *self)
             else
                 self->trigsBuffer[num-1] = 1.0;
             self->active = 0;
-        }    
+        }
     }
 
-    if (self->pointer < size) {   
+    if (self->pointer < size) {
         upBound = (int)(size - self->fadeInSample);
-        
+
         //MYFLT buffer[num];
         //memset(&buffer, 0, sizeof(buffer));
         for (i=0; i<self->bufsize; i++) {
             self->buffer[i] = 0.0;
         }
         MYFLT *in = Stream_getData((Stream *)self->input_stream);
-        
+
         for (i=0; i<num; i++) {
             if (self->pointer < self->fadeInSample)
                 val = self->pointer / self->fadeInSample;
@@ -5286,13 +5286,13 @@ TableRec_compute_next_data_frame(TableRec *self)
             self->time_buffer_streams[i] = self->pointer++;
         }
         NewTable_recordChunk((NewTable *)self->table, self->buffer, num);
-        
+
         if (num < self->bufsize) {
             for (i=num; i<self->bufsize; i++) {
                 self->time_buffer_streams[i] = self->pointer;
             }
         }
-    }    
+    }
 }
 
 static MYFLT *
@@ -5307,18 +5307,18 @@ TableRec_traverse(TableRec *self, visitproc visit, void *arg)
     Py_VISIT(self->input);
     Py_VISIT(self->input_stream);
     Py_VISIT(self->table);
-    Py_VISIT(self->trig_stream);    
+    Py_VISIT(self->trig_stream);
     return 0;
 }
 
-static int 
+static int
 TableRec_clear(TableRec *self)
 {
     pyo_CLEAR
     Py_CLEAR(self->input);
     Py_CLEAR(self->input_stream);
     Py_CLEAR(self->table);
-    Py_CLEAR(self->trig_stream);    
+    Py_CLEAR(self->trig_stream);
     return 0;
 }
 
@@ -5340,23 +5340,23 @@ TableRec_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp, *tabletmp;
     TableRec *self;
     self = (TableRec *)type->tp_alloc(type, 0);
-    
+
     self->pointer = 0;
     self->active = 1;
     self->fadetime = 0.;
-    
+
     INIT_OBJECT_COMMON
 
     Stream_setFunctionPtr(self->stream, TableRec_compute_next_data_frame);
     Stream_setStreamActive(self->stream, 0);
 
     static char *kwlist[] = {"input", "table", "fadetime", NULL};
-    
+
     if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_OO_F, kwlist, &inputtmp, &tabletmp, &self->fadetime))
-        Py_RETURN_NONE; 
-    
+        Py_RETURN_NONE;
+
     INIT_INPUT_STREAM
-    
+
     if ( PyObject_HasAttrString((PyObject *)tabletmp, "getTableStream") == 0 ) {
         PyErr_SetString(PyExc_TypeError, "\"table\" argument of TableRec must be a PyoTableObject.\n");
         Py_RETURN_NONE;
@@ -5364,7 +5364,7 @@ TableRec_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     Py_XDECREF(self->table);
     Py_INCREF(tabletmp);
     self->table = (NewTable *)tabletmp;
-    
+
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
     self->buffer = (MYFLT *)realloc(self->buffer, self->bufsize * sizeof(MYFLT));
@@ -5373,11 +5373,11 @@ TableRec_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     for (i=0; i<self->bufsize; i++) {
         self->buffer[i] = self->trigsBuffer[i] = self->time_buffer_streams[i] = 0.0;
-    }    
+    }
 
     MAKE_NEW_TRIGGER_STREAM(self->trig_stream, &TriggerStreamType, NULL);
     TriggerStream_setData(self->trig_stream, self->trigsBuffer);
-    
+
     int size = PyInt_AsLong(NewTable_getSize((NewTable *)self->table));
     if ((self->fadetime * self->sr) >= (size * 0.5))
         self->fadetime = size * 0.499 / self->sr;
@@ -5393,11 +5393,11 @@ static PyObject * TableRec_getServer(TableRec* self) { GET_SERVER };
 static PyObject * TableRec_getStream(TableRec* self) { GET_STREAM };
 static PyObject * TableRec_getTriggerStream(TableRec* self) { GET_TRIGGER_STREAM };
 
-static PyObject * TableRec_play(TableRec *self, PyObject *args, PyObject *kwds) 
-{ 
+static PyObject * TableRec_play(TableRec *self, PyObject *args, PyObject *kwds)
+{
     self->pointer = 0;
     self->active = 1;
-    PLAY 
+    PLAY
 };
 
 static PyObject * TableRec_stop(TableRec *self) { STOP };
@@ -5406,17 +5406,17 @@ static PyObject *
 TableRec_setTable(TableRec *self, PyObject *arg)
 {
 	PyObject *tmp;
-	
+
 	if (arg == NULL) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
 	tmp = arg;
     Py_INCREF(tmp);
 	Py_DECREF(self->table);
     self->table = (NewTable *)tmp;
-    
+
 	Py_INCREF(Py_None);
 	return Py_None;
 }
@@ -5502,36 +5502,36 @@ static void
 TableRecTimeStream_setProcMode(TableRecTimeStream *self) {
     int muladdmode;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
-    
+
     switch (muladdmode) {
-        case 0:        
+        case 0:
             self->muladd_func_ptr = TableRecTimeStream_postprocessing_ii;
             break;
-        case 1:    
+        case 1:
             self->muladd_func_ptr = TableRecTimeStream_postprocessing_ai;
             break;
-        case 2:    
+        case 2:
             self->muladd_func_ptr = TableRecTimeStream_postprocessing_revai;
             break;
-        case 10:        
+        case 10:
             self->muladd_func_ptr = TableRecTimeStream_postprocessing_ia;
             break;
-        case 11:    
+        case 11:
             self->muladd_func_ptr = TableRecTimeStream_postprocessing_aa;
             break;
-        case 12:    
+        case 12:
             self->muladd_func_ptr = TableRecTimeStream_postprocessing_revaa;
             break;
-        case 20:        
+        case 20:
             self->muladd_func_ptr = TableRecTimeStream_postprocessing_ireva;
             break;
-        case 21:    
+        case 21:
             self->muladd_func_ptr = TableRecTimeStream_postprocessing_areva;
             break;
-        case 22:    
+        case 22:
             self->muladd_func_ptr = TableRecTimeStream_postprocessing_revareva;
             break;
-    }  
+    }
 }
 
 static void
@@ -5542,7 +5542,7 @@ TableRecTimeStream_compute_next_data_frame(TableRecTimeStream *self)
     tmp = TableRec_getTimeBuffer((TableRec *)self->mainPlayer);
     for (i=0; i<self->bufsize; i++) {
         self->data[i] = tmp[i];
-    }    
+    }
     (*self->muladd_func_ptr)(self);
 }
 
@@ -5554,11 +5554,11 @@ TableRecTimeStream_traverse(TableRecTimeStream *self, visitproc visit, void *arg
     return 0;
 }
 
-static int 
+static int
 TableRecTimeStream_clear(TableRecTimeStream *self)
 {
     pyo_CLEAR
-    Py_CLEAR(self->mainPlayer);    
+    Py_CLEAR(self->mainPlayer);
     return 0;
 }
 
@@ -5577,36 +5577,36 @@ TableRecTimeStream_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *maintmp=NULL;
     TableRecTimeStream *self;
     self = (TableRecTimeStream *)type->tp_alloc(type, 0);
-    
+
     self->modebuffer[0] = 0;
     self->modebuffer[1] = 0;
-    
+
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, TableRecTimeStream_compute_next_data_frame);
     self->mode_func_ptr = TableRecTimeStream_setProcMode;
 
     static char *kwlist[] = {"mainPlayer", NULL};
-    
+
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "O", kwlist, &maintmp))
         Py_RETURN_NONE;
-    
+
     Py_XDECREF(self->mainPlayer);
     Py_INCREF(maintmp);
     self->mainPlayer = (TableRec *)maintmp;
-    
+
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
-    
+
     (*self->mode_func_ptr)(self);
-    
+
     return (PyObject *)self;
 }
 
 static PyObject * TableRecTimeStream_getServer(TableRecTimeStream* self) { GET_SERVER };
 static PyObject * TableRecTimeStream_getStream(TableRecTimeStream* self) { GET_STREAM };
-static PyObject * TableRecTimeStream_setMul(TableRecTimeStream *self, PyObject *arg) { SET_MUL };	
-static PyObject * TableRecTimeStream_setAdd(TableRecTimeStream *self, PyObject *arg) { SET_ADD };	
-static PyObject * TableRecTimeStream_setSub(TableRecTimeStream *self, PyObject *arg) { SET_SUB };	
-static PyObject * TableRecTimeStream_setDiv(TableRecTimeStream *self, PyObject *arg) { SET_DIV };	
+static PyObject * TableRecTimeStream_setMul(TableRecTimeStream *self, PyObject *arg) { SET_MUL };
+static PyObject * TableRecTimeStream_setAdd(TableRecTimeStream *self, PyObject *arg) { SET_ADD };
+static PyObject * TableRecTimeStream_setSub(TableRecTimeStream *self, PyObject *arg) { SET_SUB };
+static PyObject * TableRecTimeStream_setDiv(TableRecTimeStream *self, PyObject *arg) { SET_DIV };
 
 static PyObject * TableRecTimeStream_play(TableRecTimeStream *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * TableRecTimeStream_out(TableRecTimeStream *self, PyObject *args, PyObject *kwds) { OUT };
@@ -5638,7 +5638,7 @@ static PyMethodDef TableRecTimeStream_methods[] = {
     {"setMul", (PyCFunction)TableRecTimeStream_setMul, METH_O, "Sets oscillator mul factor."},
     {"setAdd", (PyCFunction)TableRecTimeStream_setAdd, METH_O, "Sets oscillator add factor."},
     {"setSub", (PyCFunction)TableRecTimeStream_setSub, METH_O, "Sets inverse add factor."},
-    {"setDiv", (PyCFunction)TableRecTimeStream_setDiv, METH_O, "Sets inverse mul factor."},    
+    {"setDiv", (PyCFunction)TableRecTimeStream_setDiv, METH_O, "Sets inverse mul factor."},
     {NULL}  /* Sentinel */
 };
 
@@ -5766,32 +5766,32 @@ TableMorph_compute_next_data_frame(TableMorph *self)
 {
     int i, x, y;
     MYFLT input, interp, interp1, interp2;
-    
+
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
     int size = PyInt_AsLong(NewTable_getSize((NewTable *)self->table));
     int len = PyList_Size(self->sources);
-    
+
     if (size != self->last_size)
         TableMorph_alloc_memories(self);
 
     input = TableMorph_clip(in[0]);
 
     interp = input * (len - 1);
-    x = (int)(interp);   
+    x = (int)(interp);
     y = x + 1;
-            
+
     MYFLT *tab1 = TableStream_getData((TableStream *)PyObject_CallMethod((PyObject *)PyList_GET_ITEM(self->sources, x), "getTableStream", ""));
     MYFLT *tab2 = TableStream_getData((TableStream *)PyObject_CallMethod((PyObject *)PyList_GET_ITEM(self->sources, y), "getTableStream", ""));
-        
+
     interp = MYFMOD(interp, 1.0);
     interp1 = 1. - interp;
     interp2 = interp;
-    
+
     //MYFLT buffer[size];
     for (i=0; i<size; i++) {
         self->buffer[i] = tab1[i] * interp1 + tab2[i] * interp2;
-    }    
-    
+    }
+
     NewTable_recordChunk((NewTable *)self->table, self->buffer, size);
 }
 
@@ -5806,7 +5806,7 @@ TableMorph_traverse(TableMorph *self, visitproc visit, void *arg)
     return 0;
 }
 
-static int 
+static int
 TableMorph_clear(TableMorph *self)
 {
     pyo_CLEAR
@@ -5833,18 +5833,18 @@ TableMorph_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp, *tabletmp, *sourcestmp;
     TableMorph *self;
     self = (TableMorph *)type->tp_alloc(type, 0);
-    
+
     INIT_OBJECT_COMMON
-    
+
     Stream_setFunctionPtr(self->stream, TableMorph_compute_next_data_frame);
 
     static char *kwlist[] = {"input", "table", "sources", NULL};
-    
+
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "OOO", kwlist, &inputtmp, &tabletmp, &sourcestmp))
-        Py_RETURN_NONE; 
-    
+        Py_RETURN_NONE;
+
     INIT_INPUT_STREAM
-    
+
     if ( PyObject_HasAttrString((PyObject *)tabletmp, "getTableStream") == 0 ) {
         PyErr_SetString(PyExc_TypeError, "\"table\" argument of TableMorph must be a PyoTableObject.\n");
         Py_RETURN_NONE;
@@ -5852,15 +5852,15 @@ TableMorph_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     Py_XDECREF(self->table);
     Py_INCREF(tabletmp);
     self->table = (PyObject *)tabletmp;
-    
+
     Py_XDECREF(self->sources);
     Py_INCREF(sourcestmp);
     self->sources = (PyObject *)sourcestmp;
-    
+
     TableMorph_alloc_memories(self);
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
-    
+
     return (PyObject *)self;
 }
 
@@ -5874,38 +5874,38 @@ static PyObject *
 TableMorph_setTable(TableMorph *self, PyObject *arg)
 {
 	PyObject *tmp;
-	
+
 	if (arg == NULL) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
 	tmp = arg;
     Py_INCREF(tmp);
 	Py_DECREF(self->table);
     self->table = (PyObject *)tmp;
-    
+
 	Py_INCREF(Py_None);
 	return Py_None;
 }
 
 static PyObject *
 TableMorph_setSources(TableMorph *self, PyObject *arg)
-{	
+{
     if (arg == NULL) {
         PyErr_SetString(PyExc_TypeError, "Cannot delete the list attribute.");
         return PyInt_FromLong(-1);
     }
-    
+
     if (! PyList_Check(arg)) {
         PyErr_SetString(PyExc_TypeError, "The amplitude list attribute value must be a list.");
         return PyInt_FromLong(-1);
     }
-    
+
     Py_INCREF(arg);
     Py_DECREF(self->sources);
     self->sources = arg;
-    
+
 	Py_INCREF(Py_None);
 	return Py_None;
 }
@@ -6015,15 +6015,15 @@ TrigTableRec_compute_next_data_frame(TrigTableRec *self)
                 else
                     self->trigsBuffer[num-1] = 1.0;
                 self->active = 0;
-            }    
+            }
         }
-    
-        if (self->pointer < size) {   
+
+        if (self->pointer < size) {
             upBound = size - self->fadeInSample;
-        
+
             MYFLT buffer[num];
             memset(&buffer, 0, sizeof(buffer));
-        
+
             for (i=0; i<num; i++) {
                 if (self->pointer < self->fadeInSample)
                     val = self->pointer / self->fadeInSample;
@@ -6035,7 +6035,7 @@ TrigTableRec_compute_next_data_frame(TrigTableRec *self)
                 self->time_buffer_streams[i] = self->pointer++;
             }
             NewTable_recordChunk((NewTable *)self->table, buffer, num);
-        
+
             if (num < self->bufsize) {
                 for (i=num; i<self->bufsize; i++) {
                     self->time_buffer_streams[i] = self->pointer;
@@ -6059,14 +6059,14 @@ TrigTableRec_compute_next_data_frame(TrigTableRec *self)
                         else
                             self->trigsBuffer[num-1] = 1.0;
                         self->active = 0;
-                    }    
+                    }
                 }
-                
+
                 upBound = size - self->fadeInSample;
-                    
+
                 MYFLT buffer[num];
                 memset(&buffer, 0, sizeof(buffer));
-                
+
                 for (i=0; i<num; i++) {
                     if (self->pointer < self->fadeInSample) {
                         val = self->pointer / self->fadeInSample;
@@ -6105,11 +6105,11 @@ TrigTableRec_traverse(TrigTableRec *self, visitproc visit, void *arg)
     Py_VISIT(self->trigger);
     Py_VISIT(self->trigger_stream);
     Py_VISIT(self->table);
-    Py_VISIT(self->trig_stream);    
+    Py_VISIT(self->trig_stream);
     return 0;
 }
 
-static int 
+static int
 TrigTableRec_clear(TrigTableRec *self)
 {
     pyo_CLEAR
@@ -6118,7 +6118,7 @@ TrigTableRec_clear(TrigTableRec *self)
     Py_CLEAR(self->trigger);
     Py_CLEAR(self->trigger_stream);
     Py_CLEAR(self->table);
-    Py_CLEAR(self->trig_stream);    
+    Py_CLEAR(self->trig_stream);
     return 0;
 }
 
@@ -6139,20 +6139,20 @@ TrigTableRec_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp, *trigtmp, *trig_streamtmp, *tabletmp;
     TrigTableRec *self;
     self = (TrigTableRec *)type->tp_alloc(type, 0);
-    
+
     self->pointer = 0;
     self->active = 0;
     self->fadetime = 0.;
-    
+
     INIT_OBJECT_COMMON
-    
+
     Stream_setFunctionPtr(self->stream, TrigTableRec_compute_next_data_frame);
 
     static char *kwlist[] = {"input", "trig", "table", "fadetime", NULL};
-    
+
     if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_OOO_F, kwlist, &inputtmp, &trigtmp, &tabletmp, &self->fadetime))
-        Py_RETURN_NONE; 
-    
+        Py_RETURN_NONE;
+
     INIT_INPUT_STREAM
 
     Py_XDECREF(self->trigger);
@@ -6162,7 +6162,7 @@ TrigTableRec_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     Py_INCREF(trig_streamtmp);
     Py_XDECREF(self->trigger_stream);
     self->trigger_stream = (Stream *)trig_streamtmp;
-    
+
     if ( PyObject_HasAttrString((PyObject *)tabletmp, "getTableStream") == 0 ) {
         PyErr_SetString(PyExc_TypeError, "\"table\" argument of TrigTableRec must be a PyoTableObject.\n");
         Py_RETURN_NONE;
@@ -6170,19 +6170,19 @@ TrigTableRec_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     Py_XDECREF(self->table);
     Py_INCREF(tabletmp);
     self->table = (NewTable *)tabletmp;
-    
+
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
-    
+
     self->trigsBuffer = (MYFLT *)realloc(self->trigsBuffer, self->bufsize * sizeof(MYFLT));
     self->time_buffer_streams = (MYFLT *)realloc(self->time_buffer_streams, self->bufsize * sizeof(MYFLT));
-    
+
     for (i=0; i<self->bufsize; i++) {
         self->trigsBuffer[i] = self->time_buffer_streams[i] = 0.0;
-    }    
+    }
 
     MAKE_NEW_TRIGGER_STREAM(self->trig_stream, &TriggerStreamType, NULL);
     TriggerStream_setData(self->trig_stream, self->trigsBuffer);
-    
+
     int size = PyInt_AsLong(NewTable_getSize((NewTable *)self->table));
     if ((self->fadetime * self->sr) >= (size * 0.5))
         self->fadetime = size * 0.499 / self->sr;
@@ -6190,7 +6190,7 @@ TrigTableRec_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         self->fadeInSample = 0.0;
     else
         self->fadeInSample = MYROUND(self->fadetime * self->sr + 0.5);
-     
+
     return (PyObject *)self;
 }
 
@@ -6205,20 +6205,20 @@ static PyObject *
 TrigTableRec_setTable(TrigTableRec *self, PyObject *arg)
 {
 	PyObject *tmp;
-	
+
 	if (arg == NULL) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
 	tmp = arg;
     Py_INCREF(tmp);
 	Py_DECREF(self->table);
     self->table = (NewTable *)tmp;
-    
+
 	Py_INCREF(Py_None);
 	return Py_None;
-}	
+}
 
 static PyMemberDef TrigTableRec_members[] = {
     {"server", T_OBJECT_EX, offsetof(TrigTableRec, server), 0, "Pyo server."},
@@ -6302,36 +6302,36 @@ static void
 TrigTableRecTimeStream_setProcMode(TrigTableRecTimeStream *self) {
     int muladdmode;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
-    
+
     switch (muladdmode) {
-        case 0:        
+        case 0:
             self->muladd_func_ptr = TrigTableRecTimeStream_postprocessing_ii;
             break;
-        case 1:    
+        case 1:
             self->muladd_func_ptr = TrigTableRecTimeStream_postprocessing_ai;
             break;
-        case 2:    
+        case 2:
             self->muladd_func_ptr = TrigTableRecTimeStream_postprocessing_revai;
             break;
-        case 10:        
+        case 10:
             self->muladd_func_ptr = TrigTableRecTimeStream_postprocessing_ia;
             break;
-        case 11:    
+        case 11:
             self->muladd_func_ptr = TrigTableRecTimeStream_postprocessing_aa;
             break;
-        case 12:    
+        case 12:
             self->muladd_func_ptr = TrigTableRecTimeStream_postprocessing_revaa;
             break;
-        case 20:        
+        case 20:
             self->muladd_func_ptr = TrigTableRecTimeStream_postprocessing_ireva;
             break;
-        case 21:    
+        case 21:
             self->muladd_func_ptr = TrigTableRecTimeStream_postprocessing_areva;
             break;
-        case 22:    
+        case 22:
             self->muladd_func_ptr = TrigTableRecTimeStream_postprocessing_revareva;
             break;
-    }  
+    }
 }
 
 static void
@@ -6342,7 +6342,7 @@ TrigTableRecTimeStream_compute_next_data_frame(TrigTableRecTimeStream *self)
     tmp = TrigTableRec_getTimeBuffer((TrigTableRec *)self->mainPlayer);
     for (i=0; i<self->bufsize; i++) {
         self->data[i] = tmp[i];
-    }    
+    }
     (*self->muladd_func_ptr)(self);
 }
 
@@ -6354,11 +6354,11 @@ TrigTableRecTimeStream_traverse(TrigTableRecTimeStream *self, visitproc visit, v
     return 0;
 }
 
-static int 
+static int
 TrigTableRecTimeStream_clear(TrigTableRecTimeStream *self)
 {
     pyo_CLEAR
-    Py_CLEAR(self->mainPlayer);    
+    Py_CLEAR(self->mainPlayer);
     return 0;
 }
 
@@ -6377,36 +6377,36 @@ TrigTableRecTimeStream_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *maintmp=NULL;
     TrigTableRecTimeStream *self;
     self = (TrigTableRecTimeStream *)type->tp_alloc(type, 0);
-    
+
     self->modebuffer[0] = 0;
     self->modebuffer[1] = 0;
-    
+
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, TrigTableRecTimeStream_compute_next_data_frame);
     self->mode_func_ptr = TrigTableRecTimeStream_setProcMode;
 
     static char *kwlist[] = {"mainPlayer", NULL};
-    
+
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "O", kwlist, &maintmp))
         Py_RETURN_NONE;
-    
+
     Py_XDECREF(self->mainPlayer);
     Py_INCREF(maintmp);
     self->mainPlayer = (TrigTableRec *)maintmp;
-    
+
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
-    
+
     (*self->mode_func_ptr)(self);
-    
+
     return (PyObject *)self;
 }
 
 static PyObject * TrigTableRecTimeStream_getServer(TrigTableRecTimeStream* self) { GET_SERVER };
 static PyObject * TrigTableRecTimeStream_getStream(TrigTableRecTimeStream* self) { GET_STREAM };
-static PyObject * TrigTableRecTimeStream_setMul(TrigTableRecTimeStream *self, PyObject *arg) { SET_MUL };	
-static PyObject * TrigTableRecTimeStream_setAdd(TrigTableRecTimeStream *self, PyObject *arg) { SET_ADD };	
-static PyObject * TrigTableRecTimeStream_setSub(TrigTableRecTimeStream *self, PyObject *arg) { SET_SUB };	
-static PyObject * TrigTableRecTimeStream_setDiv(TrigTableRecTimeStream *self, PyObject *arg) { SET_DIV };	
+static PyObject * TrigTableRecTimeStream_setMul(TrigTableRecTimeStream *self, PyObject *arg) { SET_MUL };
+static PyObject * TrigTableRecTimeStream_setAdd(TrigTableRecTimeStream *self, PyObject *arg) { SET_ADD };
+static PyObject * TrigTableRecTimeStream_setSub(TrigTableRecTimeStream *self, PyObject *arg) { SET_SUB };
+static PyObject * TrigTableRecTimeStream_setDiv(TrigTableRecTimeStream *self, PyObject *arg) { SET_DIV };
 
 static PyObject * TrigTableRecTimeStream_play(TrigTableRecTimeStream *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * TrigTableRecTimeStream_out(TrigTableRecTimeStream *self, PyObject *args, PyObject *kwds) { OUT };
@@ -6438,7 +6438,7 @@ static PyMethodDef TrigTableRecTimeStream_methods[] = {
     {"setMul", (PyCFunction)TrigTableRecTimeStream_setMul, METH_O, "Sets oscillator mul factor."},
     {"setAdd", (PyCFunction)TrigTableRecTimeStream_setAdd, METH_O, "Sets oscillator add factor."},
     {"setSub", (PyCFunction)TrigTableRecTimeStream_setSub, METH_O, "Sets inverse add factor."},
-    {"setDiv", (PyCFunction)TrigTableRecTimeStream_setDiv, METH_O, "Sets inverse mul factor."},    
+    {"setDiv", (PyCFunction)TrigTableRecTimeStream_setDiv, METH_O, "Sets inverse mul factor."},
     {NULL}  /* Sentinel */
 };
 
@@ -6574,18 +6574,18 @@ TablePut_traverse(TablePut *self, visitproc visit, void *arg)
     Py_VISIT(self->input);
     Py_VISIT(self->input_stream);
     Py_VISIT(self->table);
-    Py_VISIT(self->trig_stream);    
+    Py_VISIT(self->trig_stream);
     return 0;
 }
 
-static int 
+static int
 TablePut_clear(TablePut *self)
 {
     pyo_CLEAR
     Py_CLEAR(self->input);
     Py_CLEAR(self->input_stream);
     Py_CLEAR(self->table);
-    Py_CLEAR(self->trig_stream);    
+    Py_CLEAR(self->trig_stream);
     return 0;
 }
 
@@ -6605,23 +6605,23 @@ TablePut_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp, *tabletmp;
     TablePut *self;
     self = (TablePut *)type->tp_alloc(type, 0);
-    
+
     self->pointer = 0;
     self->active = 1;
     self->last_value = 0.0;
-    
+
     INIT_OBJECT_COMMON
 
     Stream_setFunctionPtr(self->stream, TablePut_compute_next_data_frame);
     Stream_setStreamActive(self->stream, 0);
 
     static char *kwlist[] = {"input", "table", NULL};
-    
+
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "OO", kwlist, &inputtmp, &tabletmp))
-        Py_RETURN_NONE; 
-    
+        Py_RETURN_NONE;
+
     INIT_INPUT_STREAM
-    
+
     if ( PyObject_HasAttrString((PyObject *)tabletmp, "getTableStream") == 0 ) {
         PyErr_SetString(PyExc_TypeError, "\"table\" argument of TablePut must be a PyoTableObject.\n");
         Py_RETURN_NONE;
@@ -6629,14 +6629,14 @@ TablePut_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     Py_XDECREF(self->table);
     Py_INCREF(tabletmp);
     self->table = (DataTable *)tabletmp;
-    
+
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
     self->trigsBuffer = (MYFLT *)realloc(self->trigsBuffer, self->bufsize * sizeof(MYFLT));
 
     for (i=0; i<self->bufsize; i++) {
         self->trigsBuffer[i] = 0.0;
-    }    
+    }
 
     MAKE_NEW_TRIGGER_STREAM(self->trig_stream, &TriggerStreamType, NULL);
     TriggerStream_setData(self->trig_stream, self->trigsBuffer);
@@ -6648,11 +6648,11 @@ static PyObject * TablePut_getServer(TablePut* self) { GET_SERVER };
 static PyObject * TablePut_getStream(TablePut* self) { GET_STREAM };
 static PyObject * TablePut_getTriggerStream(TablePut* self) { GET_TRIGGER_STREAM };
 
-static PyObject * TablePut_play(TablePut *self, PyObject *args, PyObject *kwds) 
-{ 
+static PyObject * TablePut_play(TablePut *self, PyObject *args, PyObject *kwds)
+{
     self->pointer = 0;
     self->active = 1;
-    PLAY 
+    PLAY
 };
 
 static PyObject * TablePut_stop(TablePut *self) { STOP };
@@ -6661,17 +6661,17 @@ static PyObject *
 TablePut_setTable(TablePut *self, PyObject *arg)
 {
 	PyObject *tmp;
-	
+
 	if (arg == NULL) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
 	tmp = arg;
     Py_INCREF(tmp);
 	Py_DECREF(self->table);
     self->table = (DataTable *)tmp;
-    
+
 	Py_INCREF(Py_None);
 	return Py_None;
 }
@@ -6761,7 +6761,7 @@ TableWrite_compute_next_data_frame(TableWrite *self)
 
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
     MYFLT *pos = Stream_getData((Stream *)self->pos_stream);
-        
+
     for (i=0; i<self->bufsize; i++) {
         ipos = (int)(pos[i] * size);
         if (ipos < 0)
@@ -6779,20 +6779,20 @@ TableWrite_traverse(TableWrite *self, visitproc visit, void *arg)
     Py_VISIT(self->input);
     Py_VISIT(self->input_stream);
     Py_VISIT(self->table);
-    Py_VISIT(self->pos);    
-    Py_VISIT(self->pos_stream);    
+    Py_VISIT(self->pos);
+    Py_VISIT(self->pos_stream);
     return 0;
 }
 
-static int 
+static int
 TableWrite_clear(TableWrite *self)
 {
     pyo_CLEAR
     Py_CLEAR(self->input);
     Py_CLEAR(self->input_stream);
     Py_CLEAR(self->table);
-    Py_CLEAR(self->pos);    
-    Py_CLEAR(self->pos_stream);    
+    Py_CLEAR(self->pos);
+    Py_CLEAR(self->pos_stream);
     return 0;
 }
 
@@ -6811,23 +6811,23 @@ TableWrite_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp, *postmp, *tabletmp;
     TableWrite *self;
     self = (TableWrite *)type->tp_alloc(type, 0);
-    
+
     INIT_OBJECT_COMMON
 
     Stream_setFunctionPtr(self->stream, TableWrite_compute_next_data_frame);
     Stream_setStreamActive(self->stream, 1);
 
     static char *kwlist[] = {"input", "pos", "table", NULL};
-    
+
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "OOO", kwlist, &inputtmp, &postmp, &tabletmp))
-        Py_RETURN_NONE; 
-    
+        Py_RETURN_NONE;
+
     INIT_INPUT_STREAM
 
     if (postmp) {
         PyObject_CallMethod((PyObject *)self, "setPos", "O", postmp);
     }
-    
+
     if ( PyObject_HasAttrString((PyObject *)tabletmp, "getTableStream") == 0 ) {
         PyErr_SetString(PyExc_TypeError, "\"table\" argument of TableWrite must be a PyoTableObject.\n");
         Py_RETURN_NONE;
@@ -6835,7 +6835,7 @@ TableWrite_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     Py_XDECREF(self->table);
     Py_INCREF(tabletmp);
     self->table = (NewTable *)tabletmp;
-    
+
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
     return (PyObject *)self;
@@ -6851,12 +6851,12 @@ static PyObject *
 TableWrite_setPos(TableWrite *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
-	
+
 	if (arg == NULL) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
 	tmp = arg;
 	if (PyObject_HasAttrString((PyObject *)tmp, "server") == 0) {
         PyErr_SetString(PyExc_TypeError, "\"pos\" argument of TableWrite must be a PyoObject.\n");
@@ -6871,26 +6871,26 @@ TableWrite_setPos(TableWrite *self, PyObject *arg)
     Py_INCREF(streamtmp);
     Py_XDECREF(self->pos_stream);
     self->pos_stream = (Stream *)streamtmp;
-    
+
 	Py_INCREF(Py_None);
 	return Py_None;
-}	
+}
 
 static PyObject *
 TableWrite_setTable(TableWrite *self, PyObject *arg)
 {
 	PyObject *tmp;
-	
+
 	if (arg == NULL) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
 	tmp = arg;
     Py_INCREF(tmp);
 	Py_DECREF(self->table);
     self->table = (NewTable *)tmp;
-    
+
 	Py_INCREF(Py_None);
 	return Py_None;
 }
@@ -6955,4 +6955,3 @@ TableWrite_members,             /* tp_members */
 0,                         /* tp_alloc */
 TableWrite_new,                 /* tp_new */
 };
-

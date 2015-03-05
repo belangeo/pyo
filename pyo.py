@@ -1,21 +1,21 @@
 """
-Copyright 2010 Olivier Belanger
+Copyright 2009-2015 Olivier Belanger
 
 This file is part of pyo, a python module to help digital signal
 processing script creation.
 
 pyo is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
+it under the terms of the GNU Lesser General Public License as
+published by the Free Software Foundation, either version 3 of the
+License, or (at your option) any later version.
 
 pyo is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
+GNU Lesser General Public License for more details.
 
-You should have received a copy of the GNU General Public License
-along with pyo.  If not, see <http://www.gnu.org/licenses/>.
+You should have received a copy of the GNU Lesser General Public
+License along with pyo.  If not, see <http://www.gnu.org/licenses/>.
 """
 from pyolib._maps import *
 import pyolib.analysis as analysis
@@ -65,49 +65,49 @@ if WITH_EXTERNALS:
     from pyolib.external import *
 
 OBJECTS_TREE = {'functions': sorted(['pa_count_devices', 'pa_get_default_input', 'pa_get_default_output', 'pm_get_input_devices',
-                                    'pa_list_devices', 'pa_count_host_apis', 'pa_list_host_apis', 'pa_get_default_host_api', 
-                                    'pm_count_devices', 'pm_list_devices', 'sndinfo', 'savefile', 'pa_get_output_devices', 
-                                    'pa_get_input_devices', 'midiToHz', 'hzToMidi', 'sampsToSec', 'secToSamps', 'example', 'class_args', 
+                                    'pa_list_devices', 'pa_count_host_apis', 'pa_list_host_apis', 'pa_get_default_host_api',
+                                    'pm_count_devices', 'pm_list_devices', 'sndinfo', 'savefile', 'pa_get_output_devices',
+                                    'pa_get_input_devices', 'midiToHz', 'hzToMidi', 'sampsToSec', 'secToSamps', 'example', 'class_args',
                                     'pm_get_default_input', 'pm_get_output_devices', 'pm_get_default_output', 'midiToTranspo',
                                      'getVersion', 'reducePoints', 'serverCreated', 'serverBooted', 'distanceToSegment', 'rescale',
                                      'upsamp', 'downsamp', 'linToCosCurve', 'convertStringToSysEncoding', 'savefileFromTable',
                                     'pa_get_input_max_channels', 'pa_get_output_max_channels', 'pa_get_devices_infos', 'pa_get_version',
                                     'pa_get_version_text', 'floatmap']),
                 'PyoObjectBase': {
-                    'PyoMatrixObject': sorted(['NewMatrix']),                        
-                    'PyoTableObject': sorted(['LinTable', 'NewTable', 'SndTable', 'HannTable', 'HarmTable', 'SawTable', 'ParaTable', 
-                                              'LogTable', 'CosLogTable', 'SquareTable', 'ChebyTable', 'CosTable', 'CurveTable', 'ExpTable', 
+                    'PyoMatrixObject': sorted(['NewMatrix']),
+                    'PyoTableObject': sorted(['LinTable', 'NewTable', 'SndTable', 'HannTable', 'HarmTable', 'SawTable', 'ParaTable',
+                                              'LogTable', 'CosLogTable', 'SquareTable', 'ChebyTable', 'CosTable', 'CurveTable', 'ExpTable',
                                               'DataTable', 'WinTable', 'SincTable', 'PartialTable', 'AtanTable']),
-                    'PyoPVObject' : sorted(['PVAnal', 'PVSynth', 'PVTranspose', 'PVVerb', 'PVGate', 'PVAddSynth', 'PVCross', 'PVMult', 
-                                            'PVMorph', 'PVFilter', 'PVDelay', 'PVBuffer', 'PVShift', 'PVAmpMod', 'PVFreqMod', 'PVBufLoops', 
+                    'PyoPVObject' : sorted(['PVAnal', 'PVSynth', 'PVTranspose', 'PVVerb', 'PVGate', 'PVAddSynth', 'PVCross', 'PVMult',
+                                            'PVMorph', 'PVFilter', 'PVDelay', 'PVBuffer', 'PVShift', 'PVAmpMod', 'PVFreqMod', 'PVBufLoops',
                                             'PVBufTabLoops', 'PVMix']),
-                    'PyoObject': {'analysis': sorted(['Follower', 'Follower2', 'ZCross', 'Yin', 'Centroid', 'AttackDetector', 'Scope', 
+                    'PyoObject': {'analysis': sorted(['Follower', 'Follower2', 'ZCross', 'Yin', 'Centroid', 'AttackDetector', 'Scope',
                                                       'Spectrum', 'PeakAmp']),
-                                  'arithmetic': sorted(['Sin', 'Cos', 'Tan', 'Abs', 'Sqrt', 'Log', 'Log2', 'Log10', 'Pow', 'Atan2', 'Floor', 
+                                  'arithmetic': sorted(['Sin', 'Cos', 'Tan', 'Abs', 'Sqrt', 'Log', 'Log2', 'Log10', 'Pow', 'Atan2', 'Floor',
                                                         'Round', 'Ceil', 'Tanh']),
                                   'controls': sorted(['Fader', 'Sig', 'SigTo', 'Adsr', 'Linseg', 'Expseg']),
                                   'dynamics': sorted(['Clip', 'Compress', 'Degrade', 'Mirror', 'Wrap', 'Gate', 'Balance', 'Min', 'Max']),
                                   'effects': sorted(['Delay', 'SDelay', 'Disto', 'Freeverb', 'Waveguide', 'Convolve', 'WGVerb', 'SmoothDelay',
                                                      'Harmonizer', 'Chorus', 'AllpassWG', 'FreqShift', 'Vocoder', 'Delay1', 'STRev']),
                                   'filters': sorted(['Biquad', 'BandSplit', 'Port', 'Hilbert', 'Tone', 'DCBlock', 'EQ', 'Allpass',
-                                                     'Allpass2', 'Phaser', 'Biquadx', 'IRWinSinc', 'IRAverage', 'IRPulse', 'IRFM', 
-                                                     'FourBand', 'Biquada', 'Atone', 'SVF', 'Average', 'Reson', 'Resonx', 'ButLP', 
+                                                     'Allpass2', 'Phaser', 'Biquadx', 'IRWinSinc', 'IRAverage', 'IRPulse', 'IRFM',
+                                                     'FourBand', 'Biquada', 'Atone', 'SVF', 'Average', 'Reson', 'Resonx', 'ButLP',
                                                      'ButHP', 'ButBP', 'ButBR', 'ComplexRes']),
                                   'generators': sorted(['Noise', 'Phasor', 'Sine', 'Input', 'FM', 'SineLoop', 'Blit', 'PinkNoise', 'CrossFM',
                                                         'BrownNoise', 'Rossler', 'Lorenz', 'LFO', 'SumOsc', 'SuperSaw', 'RCOsc']),
                                   'internals': sorted(['Dummy', 'InputFader', 'Mix', 'VarPort']),
-                                  'midi': sorted(['Midictl', 'CtlScan', 'CtlScan2', 'Notein', 'MidiAdsr', 'MidiDelAdsr', 'Bendin', 
+                                  'midi': sorted(['Midictl', 'CtlScan', 'CtlScan2', 'Notein', 'MidiAdsr', 'MidiDelAdsr', 'Bendin',
                                                   'Touchin', 'Programin']),
                                   'opensndctrl': sorted(['OscReceive', 'OscSend', 'OscDataSend', 'OscDataReceive', 'OscListReceive']),
                                   'pan': sorted(['Pan', 'SPan', 'Switch', 'Selector', 'Mixer', 'VoiceManager']),
                                   'pattern': sorted(['Pattern', 'Score', 'CallAfter']),
                                   'randoms': sorted(['Randi', 'Randh', 'Choice', 'RandInt', 'Xnoise', 'XnoiseMidi', 'RandDur', 'XnoiseDur', 'Urn']),
                                   'players': sorted(['SfMarkerShuffler', 'SfPlayer', 'SfMarkerLooper']),
-                                  'tableprocess': sorted(['TableRec', 'Osc', 'Pointer', 'Pointer2', 'Lookup', 'Granulator', 'Pulsar', 'OscLoop', 
-                                                          'Granule', 'TableRead', 'TableMorph', 'Looper', 'TableIndex', 'OscBank', 'OscTrig', 
+                                  'tableprocess': sorted(['TableRec', 'Osc', 'Pointer', 'Pointer2', 'Lookup', 'Granulator', 'Pulsar', 'OscLoop',
+                                                          'Granule', 'TableRead', 'TableMorph', 'Looper', 'TableIndex', 'OscBank', 'OscTrig',
                                                           'TablePut', 'TableScale', 'Particle', 'TableWrite']),
-                                  'matrixprocess': sorted(['MatrixRec', 'MatrixPointer', 'MatrixMorph', 'MatrixRecLoop']), 
-                                  'triggers': sorted(['Metro', 'Beat', 'TrigEnv', 'TrigRand', 'TrigRandInt', 'Select', 'Counter', 'TrigChoice', 
+                                  'matrixprocess': sorted(['MatrixRec', 'MatrixPointer', 'MatrixMorph', 'MatrixRecLoop']),
+                                  'triggers': sorted(['Metro', 'Beat', 'TrigEnv', 'TrigRand', 'TrigRandInt', 'Select', 'Counter', 'TrigChoice',
                                                     'TrigFunc', 'Thresh', 'Cloud', 'Trig', 'TrigXnoise', 'TrigXnoiseMidi', 'Timer', 'Count',
                                                     'Change', 'TrigLinseg', 'TrigExpseg', 'Percent', 'Seq', 'TrigTableRec', 'Iter', 'NextTrig',
                                                     'TrigVal', 'Euclide', 'TrigBurst']),
@@ -116,8 +116,8 @@ OBJECTS_TREE = {'functions': sorted(['pa_count_devices', 'pa_get_default_input',
                                                     'TranspoToCents', 'MToF', 'FToM', 'MToT', 'TrackHold']),
                                   'fourier': sorted(['FFT', 'IFFT', 'CarToPol', 'PolToCar', 'FrameDelta', 'FrameAccum', 'Vectral', 'CvlVerb'])}},
         'Map': {'SLMap': sorted(['SLMapFreq', 'SLMapMul', 'SLMapPhase', 'SLMapQ', 'SLMapDur', 'SLMapPan'])},
-        'Server': [], 
-        'Stream': [], 
+        'Server': [],
+        'Stream': [],
         'TableStream': []}
 
 DOC_KEYWORDS = ['Attributes', 'Examples', 'Parameters', 'Methods', 'Notes', 'Methods details', 'See also', 'Parentclass']

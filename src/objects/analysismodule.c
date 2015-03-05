@@ -1,21 +1,21 @@
-/*************************************************************************
- * Copyright 2010 Olivier Belanger                                        *                  
- *                                                                        * 
+/**************************************************************************
+ * Copyright 2009-2015 Olivier Belanger                                   *
+ *                                                                        *
  * This file is part of pyo, a python module to help digital signal       *
- * processing script creation.                                            *  
- *                                                                        * 
+ * processing script creation.                                            *
+ *                                                                        *
  * pyo is free software: you can redistribute it and/or modify            *
- * it under the terms of the GNU General Public License as published by   *
- * the Free Software Foundation, either version 3 of the License, or      *
- * (at your option) any later version.                                    * 
+ * it under the terms of the GNU Lesser General Public License as         *
+ * published by the Free Software Foundation, either version 3 of the     *
+ * License, or (at your option) any later version.                        *
  *                                                                        *
  * pyo is distributed in the hope that it will be useful,                 *
- * but WITHOUT ANY WARRANTY; without even the implied warranty of         *    
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of         *
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the          *
- * GNU General Public License for more details.                           *
+ * GNU Lesser General Public License for more details.                    *
  *                                                                        *
- * You should have received a copy of the GNU General Public License      *
- * along with pyo.  If not, see <http://www.gnu.org/licenses/>.           *
+ * You should have received a copy of the GNU Lesser General Public       *
+ * License along with pyo.  If not, see <http://www.gnu.org/licenses/>.   *
  *************************************************************************/
 #include <Python.h>
 #include "structmember.h"
@@ -37,7 +37,7 @@ typedef struct {
     Stream *input_stream;
     PyObject *freq;
     Stream *freq_stream;
-    int modebuffer[3]; // need at least 2 slots for mul & add 
+    int modebuffer[3]; // need at least 2 slots for mul & add
     MYFLT follow;
     MYFLT last_freq;
     MYFLT factor;
@@ -55,7 +55,7 @@ Follower_filters_i(Follower *self) {
         self->factor = MYEXP(-1.0 / (self->sr / freq));
         self->last_freq = freq;
     }
-    
+
     for (i=0; i<self->bufsize; i++) {
         absin = in[i];
         if (absin < 0.0)
@@ -68,10 +68,10 @@ static void
 Follower_filters_a(Follower *self) {
     MYFLT freq, absin;
     int i;
-    
+
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
     MYFLT *fr = Stream_getData((Stream *)self->freq_stream);
-    
+
     for (i=0; i<self->bufsize; i++) {
         freq = fr[i];
         if (freq != self->last_freq) {
@@ -81,7 +81,7 @@ Follower_filters_a(Follower *self) {
         absin = in[i];
         if (absin < 0.0)
             absin = -absin;
-        self->follow = self->data[i] = absin + self->factor * (self->follow - absin);        
+        self->follow = self->data[i] = absin + self->factor * (self->follow - absin);
     }
 }
 
@@ -101,50 +101,50 @@ Follower_setProcMode(Follower *self)
     int procmode, muladdmode;
     procmode = self->modebuffer[2];
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
-    
+
 	switch (procmode) {
-        case 0:    
+        case 0:
             self->proc_func_ptr = Follower_filters_i;
             break;
-        case 1:    
+        case 1:
             self->proc_func_ptr = Follower_filters_a;
             break;
-    } 
+    }
 	switch (muladdmode) {
-        case 0:        
+        case 0:
             self->muladd_func_ptr = Follower_postprocessing_ii;
             break;
-        case 1:    
+        case 1:
             self->muladd_func_ptr = Follower_postprocessing_ai;
             break;
-        case 2:    
+        case 2:
             self->muladd_func_ptr = Follower_postprocessing_revai;
             break;
-        case 10:        
+        case 10:
             self->muladd_func_ptr = Follower_postprocessing_ia;
             break;
-        case 11:    
+        case 11:
             self->muladd_func_ptr = Follower_postprocessing_aa;
             break;
-        case 12:    
+        case 12:
             self->muladd_func_ptr = Follower_postprocessing_revaa;
             break;
-        case 20:        
+        case 20:
             self->muladd_func_ptr = Follower_postprocessing_ireva;
             break;
-        case 21:    
+        case 21:
             self->muladd_func_ptr = Follower_postprocessing_areva;
             break;
-        case 22:    
+        case 22:
             self->muladd_func_ptr = Follower_postprocessing_revareva;
             break;
-    }   
+    }
 }
 
 static void
 Follower_compute_next_data_frame(Follower *self)
 {
-    (*self->proc_func_ptr)(self); 
+    (*self->proc_func_ptr)(self);
     (*self->muladd_func_ptr)(self);
 }
 
@@ -154,19 +154,19 @@ Follower_traverse(Follower *self, visitproc visit, void *arg)
     pyo_VISIT
     Py_VISIT(self->input);
     Py_VISIT(self->input_stream);
-    Py_VISIT(self->freq);    
-    Py_VISIT(self->freq_stream);    
+    Py_VISIT(self->freq);
+    Py_VISIT(self->freq_stream);
     return 0;
 }
 
-static int 
+static int
 Follower_clear(Follower *self)
 {
     pyo_CLEAR
     Py_CLEAR(self->input);
     Py_CLEAR(self->input_stream);
-    Py_CLEAR(self->freq);    
-    Py_CLEAR(self->freq_stream);    
+    Py_CLEAR(self->freq);
+    Py_CLEAR(self->freq_stream);
     return 0;
 }
 
@@ -185,7 +185,7 @@ Follower_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp, *freqtmp=NULL, *multmp=NULL, *addtmp=NULL;
     Follower *self;
     self = (Follower *)type->tp_alloc(type, 0);
-    
+
     self->freq = PyFloat_FromDouble(20);
     self->follow = 0.0;
     self->last_freq = -1.0;
@@ -193,32 +193,32 @@ Follower_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 	self->modebuffer[0] = 0;
 	self->modebuffer[1] = 0;
 	self->modebuffer[2] = 0;
-    
+
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, Follower_compute_next_data_frame);
     self->mode_func_ptr = Follower_setProcMode;
 
     static char *kwlist[] = {"input", "freq", "mul", "add", NULL};
-    
+
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOO", kwlist, &inputtmp, &freqtmp, &multmp, &addtmp))
-        Py_RETURN_NONE; 
-    
+        Py_RETURN_NONE;
+
     INIT_INPUT_STREAM
-    
+
     if (freqtmp) {
         PyObject_CallMethod((PyObject *)self, "setFreq", "O", freqtmp);
     }
-    
+
     if (multmp) {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
     }
-    
+
     if (addtmp) {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
-    
+
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
-    
+
     (*self->mode_func_ptr)(self);
 
     return (PyObject *)self;
@@ -226,10 +226,10 @@ Follower_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
 static PyObject * Follower_getServer(Follower* self) { GET_SERVER };
 static PyObject * Follower_getStream(Follower* self) { GET_STREAM };
-static PyObject * Follower_setMul(Follower *self, PyObject *arg) { SET_MUL };	
-static PyObject * Follower_setAdd(Follower *self, PyObject *arg) { SET_ADD };	
-static PyObject * Follower_setSub(Follower *self, PyObject *arg) { SET_SUB };	
-static PyObject * Follower_setDiv(Follower *self, PyObject *arg) { SET_DIV };	
+static PyObject * Follower_setMul(Follower *self, PyObject *arg) { SET_MUL };
+static PyObject * Follower_setAdd(Follower *self, PyObject *arg) { SET_ADD };
+static PyObject * Follower_setSub(Follower *self, PyObject *arg) { SET_SUB };
+static PyObject * Follower_setDiv(Follower *self, PyObject *arg) { SET_DIV };
 
 static PyObject * Follower_play(Follower *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * Follower_stop(Follower *self) { STOP };
@@ -247,14 +247,14 @@ static PyObject *
 Follower_setFreq(Follower *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
-	
+
 	if (arg == NULL) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
 	int isNumber = PyNumber_Check(arg);
-	
+
 	tmp = arg;
 	Py_INCREF(tmp);
 	Py_DECREF(self->freq);
@@ -270,9 +270,9 @@ Follower_setFreq(Follower *self, PyObject *arg)
         self->freq_stream = (Stream *)streamtmp;
 		self->modebuffer[2] = 1;
 	}
-    
+
     (*self->mode_func_ptr)(self);
-    
+
 	Py_INCREF(Py_None);
 	return Py_None;
 }
@@ -395,7 +395,7 @@ typedef struct {
     Stream *risetime_stream;
     PyObject *falltime;
     Stream *falltime_stream;
-    int modebuffer[4]; // need at least 2 slots for mul & add 
+    int modebuffer[4]; // need at least 2 slots for mul & add
     MYFLT follow;
     MYFLT last_risetime;
     MYFLT last_falltime;
@@ -407,7 +407,7 @@ static void
 Follower2_filters_ii(Follower2 *self) {
     MYFLT absin, risetime, falltime;
     int i;
-    
+
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
     risetime = PyFloat_AS_DOUBLE(self->risetime);
     if (risetime <= 0.0)
@@ -415,7 +415,7 @@ Follower2_filters_ii(Follower2 *self) {
     falltime = PyFloat_AS_DOUBLE(self->falltime);
     if (falltime <= 0.0)
         falltime = 0.001;
-    
+
     if (risetime != self->last_risetime) {
         self->risefactor = MYEXP(-1.0 / (self->sr * risetime));
         self->last_risetime = risetime;
@@ -425,7 +425,7 @@ Follower2_filters_ii(Follower2 *self) {
         self->fallfactor = MYEXP(-1.0 / (self->sr * falltime));
         self->last_falltime = falltime;
     }
-    
+
     for (i=0; i<self->bufsize; i++) {
         absin = in[i];
         if (absin < 0.0)
@@ -441,7 +441,7 @@ static void
 Follower2_filters_ai(Follower2 *self) {
     MYFLT absin, risetime, falltime;
     int i;
-    
+
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
     MYFLT *rise = Stream_getData((Stream *)self->risetime_stream);
     falltime = PyFloat_AS_DOUBLE(self->falltime);
@@ -452,7 +452,7 @@ Follower2_filters_ai(Follower2 *self) {
         self->fallfactor = MYEXP(-1.0 / (self->sr * falltime));
         self->last_falltime = falltime;
     }
-    
+
     for (i=0; i<self->bufsize; i++) {
         risetime = rise[i];
         if (risetime <= 0.0)
@@ -475,13 +475,13 @@ static void
 Follower2_filters_ia(Follower2 *self) {
     MYFLT absin, risetime, falltime;
     int i;
-    
+
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
     risetime = PyFloat_AS_DOUBLE(self->risetime);
     if (risetime <= 0.0)
         risetime = 0.001;
     MYFLT *fall = Stream_getData((Stream *)self->falltime_stream);
-    
+
     if (risetime != self->last_risetime) {
         self->risefactor = MYEXP(-1.0 / (self->sr * risetime));
         self->last_risetime = risetime;
@@ -494,7 +494,7 @@ Follower2_filters_ia(Follower2 *self) {
         if (falltime != self->last_falltime) {
             self->fallfactor = MYEXP(-1.0 / (self->sr * falltime));
             self->last_falltime = falltime;
-        }        
+        }
         absin = in[i];
         if (absin < 0.0)
             absin = -absin;
@@ -509,7 +509,7 @@ static void
 Follower2_filters_aa(Follower2 *self) {
     MYFLT absin, risetime, falltime;
     int i;
-    
+
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
     MYFLT *rise = Stream_getData((Stream *)self->risetime_stream);
     MYFLT *fall = Stream_getData((Stream *)self->falltime_stream);
@@ -528,7 +528,7 @@ Follower2_filters_aa(Follower2 *self) {
         if (falltime != self->last_falltime) {
             self->fallfactor = MYEXP(-1.0 / (self->sr * falltime));
             self->last_falltime = falltime;
-        }        
+        }
         absin = in[i];
         if (absin < 0.0)
             absin = -absin;
@@ -555,56 +555,56 @@ Follower2_setProcMode(Follower2 *self)
     int procmode, muladdmode;
     procmode = self->modebuffer[2] + self->modebuffer[3] * 10;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
-    
+
 	switch (procmode) {
-        case 0:    
+        case 0:
             self->proc_func_ptr = Follower2_filters_ii;
             break;
-        case 1:    
+        case 1:
             self->proc_func_ptr = Follower2_filters_ai;
             break;
-        case 10:    
+        case 10:
             self->proc_func_ptr = Follower2_filters_ia;
             break;
-        case 11:    
+        case 11:
             self->proc_func_ptr = Follower2_filters_aa;
             break;
-    } 
+    }
 	switch (muladdmode) {
-        case 0:        
+        case 0:
             self->muladd_func_ptr = Follower2_postprocessing_ii;
             break;
-        case 1:    
+        case 1:
             self->muladd_func_ptr = Follower2_postprocessing_ai;
             break;
-        case 2:    
+        case 2:
             self->muladd_func_ptr = Follower2_postprocessing_revai;
             break;
-        case 10:        
+        case 10:
             self->muladd_func_ptr = Follower2_postprocessing_ia;
             break;
-        case 11:    
+        case 11:
             self->muladd_func_ptr = Follower2_postprocessing_aa;
             break;
-        case 12:    
+        case 12:
             self->muladd_func_ptr = Follower2_postprocessing_revaa;
             break;
-        case 20:        
+        case 20:
             self->muladd_func_ptr = Follower2_postprocessing_ireva;
             break;
-        case 21:    
+        case 21:
             self->muladd_func_ptr = Follower2_postprocessing_areva;
             break;
-        case 22:    
+        case 22:
             self->muladd_func_ptr = Follower2_postprocessing_revareva;
             break;
-    }   
+    }
 }
 
 static void
 Follower2_compute_next_data_frame(Follower2 *self)
 {
-    (*self->proc_func_ptr)(self); 
+    (*self->proc_func_ptr)(self);
     (*self->muladd_func_ptr)(self);
 }
 
@@ -614,23 +614,23 @@ Follower2_traverse(Follower2 *self, visitproc visit, void *arg)
     pyo_VISIT
     Py_VISIT(self->input);
     Py_VISIT(self->input_stream);
-    Py_VISIT(self->risetime);    
-    Py_VISIT(self->risetime_stream);    
-    Py_VISIT(self->falltime);    
-    Py_VISIT(self->falltime_stream);    
+    Py_VISIT(self->risetime);
+    Py_VISIT(self->risetime_stream);
+    Py_VISIT(self->falltime);
+    Py_VISIT(self->falltime_stream);
     return 0;
 }
 
-static int 
+static int
 Follower2_clear(Follower2 *self)
 {
     pyo_CLEAR
     Py_CLEAR(self->input);
     Py_CLEAR(self->input_stream);
-    Py_CLEAR(self->risetime);    
-    Py_CLEAR(self->risetime_stream);    
-    Py_CLEAR(self->falltime);    
-    Py_CLEAR(self->falltime_stream);    
+    Py_CLEAR(self->risetime);
+    Py_CLEAR(self->risetime_stream);
+    Py_CLEAR(self->falltime);
+    Py_CLEAR(self->falltime_stream);
     return 0;
 }
 
@@ -649,7 +649,7 @@ Follower2_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp, *risetimetmp=NULL, *falltimetmp=NULL, *multmp=NULL, *addtmp=NULL;
     Follower2 *self;
     self = (Follower2 *)type->tp_alloc(type, 0);
-    
+
     self->risetime = PyFloat_FromDouble(0.01);
     self->falltime = PyFloat_FromDouble(0.1);
     self->follow = 0.0;
@@ -660,36 +660,36 @@ Follower2_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 	self->modebuffer[1] = 0;
 	self->modebuffer[2] = 0;
 	self->modebuffer[3] = 0;
-    
+
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, Follower2_compute_next_data_frame);
     self->mode_func_ptr = Follower2_setProcMode;
 
     static char *kwlist[] = {"input", "risetime", "falltime", "mul", "add", NULL};
-    
+
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOOO", kwlist, &inputtmp, &risetimetmp, &falltimetmp, &multmp, &addtmp))
-        Py_RETURN_NONE; 
-    
+        Py_RETURN_NONE;
+
     INIT_INPUT_STREAM
-    
+
     if (risetimetmp) {
         PyObject_CallMethod((PyObject *)self, "setRisetime", "O", risetimetmp);
     }
-    
+
     if (falltimetmp) {
         PyObject_CallMethod((PyObject *)self, "setFalltime", "O", falltimetmp);
     }
-    
+
     if (multmp) {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
     }
-    
+
     if (addtmp) {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
-    
+
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
-    
+
     (*self->mode_func_ptr)(self);
 
     return (PyObject *)self;
@@ -697,10 +697,10 @@ Follower2_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
 static PyObject * Follower2_getServer(Follower2* self) { GET_SERVER };
 static PyObject * Follower2_getStream(Follower2* self) { GET_STREAM };
-static PyObject * Follower2_setMul(Follower2 *self, PyObject *arg) { SET_MUL };	
-static PyObject * Follower2_setAdd(Follower2 *self, PyObject *arg) { SET_ADD };	
-static PyObject * Follower2_setSub(Follower2 *self, PyObject *arg) { SET_SUB };	
-static PyObject * Follower2_setDiv(Follower2 *self, PyObject *arg) { SET_DIV };	
+static PyObject * Follower2_setMul(Follower2 *self, PyObject *arg) { SET_MUL };
+static PyObject * Follower2_setAdd(Follower2 *self, PyObject *arg) { SET_ADD };
+static PyObject * Follower2_setSub(Follower2 *self, PyObject *arg) { SET_SUB };
+static PyObject * Follower2_setDiv(Follower2 *self, PyObject *arg) { SET_DIV };
 
 static PyObject * Follower2_play(Follower2 *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * Follower2_stop(Follower2 *self) { STOP };
@@ -718,14 +718,14 @@ static PyObject *
 Follower2_setRisetime(Follower2 *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
-	
+
 	if (arg == NULL) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
 	int isNumber = PyNumber_Check(arg);
-	
+
 	tmp = arg;
 	Py_INCREF(tmp);
 	Py_DECREF(self->risetime);
@@ -741,9 +741,9 @@ Follower2_setRisetime(Follower2 *self, PyObject *arg)
         self->risetime_stream = (Stream *)streamtmp;
 		self->modebuffer[2] = 1;
 	}
-    
+
     (*self->mode_func_ptr)(self);
-    
+
 	Py_INCREF(Py_None);
 	return Py_None;
 }
@@ -752,14 +752,14 @@ static PyObject *
 Follower2_setFalltime(Follower2 *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
-	
+
 	if (arg == NULL) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
 	int isNumber = PyNumber_Check(arg);
-	
+
 	tmp = arg;
 	Py_INCREF(tmp);
 	Py_DECREF(self->falltime);
@@ -775,9 +775,9 @@ Follower2_setFalltime(Follower2 *self, PyObject *arg)
         self->falltime_stream = (Stream *)streamtmp;
 		self->modebuffer[3] = 1;
 	}
-    
+
     (*self->mode_func_ptr)(self);
-    
+
 	Py_INCREF(Py_None);
 	return Py_None;
 }
@@ -910,7 +910,7 @@ ZCross_process(ZCross *self) {
     int count = 0;
     MYFLT inval;
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
-    
+
     for (i=0; i<self->bufsize; i++) {
         self->data[i] = self->lastValue;
         inval = in[i];
@@ -942,44 +942,44 @@ ZCross_setProcMode(ZCross *self)
 {
     int muladdmode;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
-    
+
     self->proc_func_ptr = ZCross_process;
- 
+
 	switch (muladdmode) {
-        case 0:        
+        case 0:
             self->muladd_func_ptr = ZCross_postprocessing_ii;
             break;
-        case 1:    
+        case 1:
             self->muladd_func_ptr = ZCross_postprocessing_ai;
             break;
-        case 2:    
+        case 2:
             self->muladd_func_ptr = ZCross_postprocessing_revai;
             break;
-        case 10:        
+        case 10:
             self->muladd_func_ptr = ZCross_postprocessing_ia;
             break;
-        case 11:    
+        case 11:
             self->muladd_func_ptr = ZCross_postprocessing_aa;
             break;
-        case 12:    
+        case 12:
             self->muladd_func_ptr = ZCross_postprocessing_revaa;
             break;
-        case 20:        
+        case 20:
             self->muladd_func_ptr = ZCross_postprocessing_ireva;
             break;
-        case 21:    
+        case 21:
             self->muladd_func_ptr = ZCross_postprocessing_areva;
             break;
-        case 22:    
+        case 22:
             self->muladd_func_ptr = ZCross_postprocessing_revareva;
             break;
-    }   
+    }
 }
 
 static void
 ZCross_compute_next_data_frame(ZCross *self)
 {
-    (*self->proc_func_ptr)(self); 
+    (*self->proc_func_ptr)(self);
     (*self->muladd_func_ptr)(self);
 }
 
@@ -992,7 +992,7 @@ ZCross_traverse(ZCross *self, visitproc visit, void *arg)
     return 0;
 }
 
-static int 
+static int
 ZCross_clear(ZCross *self)
 {
     pyo_CLEAR
@@ -1016,33 +1016,33 @@ ZCross_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp, *multmp=NULL, *addtmp=NULL;
     ZCross *self;
     self = (ZCross *)type->tp_alloc(type, 0);
-    
+
     self->thresh = 0.0;
     self->lastValue = self->lastSample = 0.0;
 	self->modebuffer[0] = 0;
 	self->modebuffer[1] = 0;
-    
+
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, ZCross_compute_next_data_frame);
     self->mode_func_ptr = ZCross_setProcMode;
 
     static char *kwlist[] = {"input", "thresh", "mul", "add", NULL};
-    
+
     if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_O_FOO, kwlist, &inputtmp, &self->thresh, &multmp, &addtmp))
-        Py_RETURN_NONE; 
+        Py_RETURN_NONE;
 
     INIT_INPUT_STREAM
-    
+
     if (multmp) {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
     }
-    
+
     if (addtmp) {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
-    
+
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
-    
+
     (*self->mode_func_ptr)(self);
 
     return (PyObject *)self;
@@ -1050,10 +1050,10 @@ ZCross_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
 static PyObject * ZCross_getServer(ZCross* self) { GET_SERVER };
 static PyObject * ZCross_getStream(ZCross* self) { GET_STREAM };
-static PyObject * ZCross_setMul(ZCross *self, PyObject *arg) { SET_MUL };	
-static PyObject * ZCross_setAdd(ZCross *self, PyObject *arg) { SET_ADD };	
-static PyObject * ZCross_setSub(ZCross *self, PyObject *arg) { SET_SUB };	
-static PyObject * ZCross_setDiv(ZCross *self, PyObject *arg) { SET_DIV };	
+static PyObject * ZCross_setMul(ZCross *self, PyObject *arg) { SET_MUL };
+static PyObject * ZCross_setAdd(ZCross *self, PyObject *arg) { SET_ADD };
+static PyObject * ZCross_setSub(ZCross *self, PyObject *arg) { SET_SUB };
+static PyObject * ZCross_setDiv(ZCross *self, PyObject *arg) { SET_DIV };
 
 static PyObject * ZCross_play(ZCross *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * ZCross_stop(ZCross *self) { STOP };
@@ -1074,13 +1074,13 @@ ZCross_setThresh(ZCross *self, PyObject *arg)
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
 	int isNumber = PyNumber_Check(arg);
-	
+
 	if (isNumber == 1) {
 		self->thresh = PyFloat_AS_DOUBLE(PyNumber_Float(arg));
 	}
-  
+
 	Py_INCREF(Py_None);
 	return Py_None;
 }
@@ -1249,12 +1249,12 @@ Yin_process(Yin *self) {
     int i, j, period, tau = 0;
     MYFLT candidate, tmp = 0.0, tmp2 = 0.0, b = 0.0;
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
-    
+
     if (self->cutoff != self->last_cutoff) {
         if (self->cutoff <= 1.0)
             self->cutoff = 1.0;
         else if (self->cutoff >= self->sr*0.5)
-            self->cutoff = self->sr*0.5;        
+            self->cutoff = self->sr*0.5;
         self->last_cutoff = self->cutoff;
         b = 2.0 - MYCOS(TWOPI * self->cutoff / self->sr);
         self->c2 = (b - MYSQRT(b * b - 1.0));
@@ -1265,7 +1265,7 @@ Yin_process(Yin *self) {
         self->input_buffer[self->input_count] = self->y1;
         if (self->input_count++ == self->winsize) {
             self->input_count = 0;
- 
+
             self->yin_buffer[0] = 1.0;
             for (tau = 1; tau < self->halfsize; tau++) {
                 self->yin_buffer[tau] = 0.0;
@@ -1285,10 +1285,10 @@ Yin_process(Yin *self) {
             candidate = quadraticInterpolation(self->yin_buffer, min_elem_pos(self->yin_buffer, self->halfsize), self->halfsize);
 
         founded:
-            
+
             candidate = self->sr / candidate;
             if (candidate > self->minfreq && candidate < self->maxfreq)
-                self->pitch = candidate;           
+                self->pitch = candidate;
 
         }
         self->data[i] = self->pitch;
@@ -1310,44 +1310,44 @@ Yin_setProcMode(Yin *self)
 {
     int muladdmode;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
-    
+
     self->proc_func_ptr = Yin_process;
- 
+
 	switch (muladdmode) {
-        case 0:        
+        case 0:
             self->muladd_func_ptr = Yin_postprocessing_ii;
             break;
-        case 1:    
+        case 1:
             self->muladd_func_ptr = Yin_postprocessing_ai;
             break;
-        case 2:    
+        case 2:
             self->muladd_func_ptr = Yin_postprocessing_revai;
             break;
-        case 10:        
+        case 10:
             self->muladd_func_ptr = Yin_postprocessing_ia;
             break;
-        case 11:    
+        case 11:
             self->muladd_func_ptr = Yin_postprocessing_aa;
             break;
-        case 12:    
+        case 12:
             self->muladd_func_ptr = Yin_postprocessing_revaa;
             break;
-        case 20:        
+        case 20:
             self->muladd_func_ptr = Yin_postprocessing_ireva;
             break;
-        case 21:    
+        case 21:
             self->muladd_func_ptr = Yin_postprocessing_areva;
             break;
-        case 22:    
+        case 22:
             self->muladd_func_ptr = Yin_postprocessing_revareva;
             break;
-    }   
+    }
 }
 
 static void
 Yin_compute_next_data_frame(Yin *self)
 {
-    (*self->proc_func_ptr)(self); 
+    (*self->proc_func_ptr)(self);
     (*self->muladd_func_ptr)(self);
 }
 
@@ -1360,7 +1360,7 @@ Yin_traverse(Yin *self, visitproc visit, void *arg)
     return 0;
 }
 
-static int 
+static int
 Yin_clear(Yin *self)
 {
     pyo_CLEAR
@@ -1386,7 +1386,7 @@ Yin_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp, *multmp=NULL, *addtmp=NULL;
     Yin *self;
     self = (Yin *)type->tp_alloc(type, 0);
-    
+
     self->winsize = 1024;
     self->halfsize = 512;
     self->input_count = 0;
@@ -1399,40 +1399,40 @@ Yin_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->y1 = self->c2 = 0.0;
 	self->modebuffer[0] = 0;
 	self->modebuffer[1] = 0;
-    
+
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, Yin_compute_next_data_frame);
     self->mode_func_ptr = Yin_setProcMode;
 
     static char *kwlist[] = {"input", "tolerance", "minfreq", "maxfreq", "cutoff", "winsize", "mul", "add", NULL};
-    
+
     if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_O_FFFFIOO, kwlist, &inputtmp, &self->tolerance, &self->minfreq, &self->maxfreq, &self->cutoff, &self->winsize, &multmp, &addtmp))
-        Py_RETURN_NONE; 
+        Py_RETURN_NONE;
 
     INIT_INPUT_STREAM
-    
+
     if (multmp) {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
     }
-    
+
     if (addtmp) {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
-    
+
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
     if (self->winsize % 2 == 1)
         self->winsize += 1;
 
-    self->input_buffer = (MYFLT *)realloc(self->input_buffer, self->winsize * sizeof(MYFLT)); 
+    self->input_buffer = (MYFLT *)realloc(self->input_buffer, self->winsize * sizeof(MYFLT));
     for (i=0; i<self->winsize; i++)
         self->input_buffer[i] = 0.0;
 
     self->halfsize = self->winsize / 2;
-    self->yin_buffer = (MYFLT *)realloc(self->yin_buffer, self->halfsize * sizeof(MYFLT)); 
+    self->yin_buffer = (MYFLT *)realloc(self->yin_buffer, self->halfsize * sizeof(MYFLT));
     for (i=0; i<self->halfsize; i++)
         self->yin_buffer[i] = 0.0;
-       
+
     (*self->mode_func_ptr)(self);
 
     return (PyObject *)self;
@@ -1440,10 +1440,10 @@ Yin_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
 static PyObject * Yin_getServer(Yin* self) { GET_SERVER };
 static PyObject * Yin_getStream(Yin* self) { GET_STREAM };
-static PyObject * Yin_setMul(Yin *self, PyObject *arg) { SET_MUL };	
-static PyObject * Yin_setAdd(Yin *self, PyObject *arg) { SET_ADD };	
-static PyObject * Yin_setSub(Yin *self, PyObject *arg) { SET_SUB };	
-static PyObject * Yin_setDiv(Yin *self, PyObject *arg) { SET_DIV };	
+static PyObject * Yin_setMul(Yin *self, PyObject *arg) { SET_MUL };
+static PyObject * Yin_setAdd(Yin *self, PyObject *arg) { SET_ADD };
+static PyObject * Yin_setSub(Yin *self, PyObject *arg) { SET_SUB };
+static PyObject * Yin_setDiv(Yin *self, PyObject *arg) { SET_DIV };
 
 static PyObject * Yin_play(Yin *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * Yin_stop(Yin *self) { STOP };
@@ -1464,13 +1464,13 @@ Yin_setTolerance(Yin *self, PyObject *arg)
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
 	int isNumber = PyNumber_Check(arg);
-	
+
 	if (isNumber == 1) {
 		self->tolerance = PyFloat_AS_DOUBLE(PyNumber_Float(arg));
 	}
-  
+
 	Py_RETURN_NONE;
 }
 
@@ -1481,13 +1481,13 @@ Yin_setMinfreq(Yin *self, PyObject *arg)
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
 	int isNumber = PyNumber_Check(arg);
-	
+
 	if (isNumber == 1) {
 		self->minfreq = PyFloat_AS_DOUBLE(PyNumber_Float(arg));
 	}
-  
+
 	Py_RETURN_NONE;
 }
 
@@ -1498,13 +1498,13 @@ Yin_setMaxfreq(Yin *self, PyObject *arg)
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
 	int isNumber = PyNumber_Check(arg);
-	
+
 	if (isNumber == 1) {
 		self->maxfreq = PyFloat_AS_DOUBLE(PyNumber_Float(arg));
 	}
-  
+
 	Py_RETURN_NONE;
 }
 
@@ -1515,13 +1515,13 @@ Yin_setCutoff(Yin *self, PyObject *arg)
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
 	int isNumber = PyNumber_Check(arg);
-	
+
 	if (isNumber == 1) {
 		self->cutoff = PyFloat_AS_DOUBLE(PyNumber_Float(arg));
 	}
-  
+
 	Py_RETURN_NONE;
 }
 
@@ -1660,8 +1660,8 @@ Centroid_alloc_memories(Centroid *self) {
     self->hsize = self->size / 2;
     n8 = self->size >> 3;
     self->inframe = (MYFLT *)realloc(self->inframe, self->size * sizeof(MYFLT));
-    self->outframe = (MYFLT *)realloc(self->outframe, self->size * sizeof(MYFLT));       
-    self->input_buffer = (MYFLT *)realloc(self->input_buffer, self->size * sizeof(MYFLT));    
+    self->outframe = (MYFLT *)realloc(self->outframe, self->size * sizeof(MYFLT));
+    self->input_buffer = (MYFLT *)realloc(self->input_buffer, self->size * sizeof(MYFLT));
     for (i=0; i<self->size; i++)
         self->inframe[i] = self->outframe[i] = self->input_buffer[i] = 0.0;
     self->twiddle = (MYFLT **)realloc(self->twiddle, 4 * sizeof(MYFLT *));
@@ -1681,11 +1681,11 @@ Centroid_process_i(Centroid *self) {
     for (i=0; i<self->bufsize; i++) {
         self->input_buffer[self->incount] = in[i];
         self->data[i] = self->centroid;
-        
+
         self->incount++;
         if (self->incount == self->size) {
             self->incount = self->hsize;
-            
+
             for (i=0; i<self->size; i++) {
                 self->inframe[i] = self->input_buffer[i] * self->window[i];
             }
@@ -1703,9 +1703,9 @@ Centroid_process_i(Centroid *self) {
             self->centroid *= 0.5;
             for (i=0; i<self->hsize; i++) {
                 self->input_buffer[i] = self->input_buffer[i + self->hsize];
-            }            
+            }
         }
-    } 
+    }
 }
 
 static void Centroid_postprocessing_ii(Centroid *self) { POST_PROCESSING_II };
@@ -1720,38 +1720,38 @@ static void Centroid_postprocessing_revareva(Centroid *self) { POST_PROCESSING_R
 
 static void
 Centroid_setProcMode(Centroid *self)
-{        
+{
     int muladdmode;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
 
     self->proc_func_ptr = Centroid_process_i;
-      
+
     switch (muladdmode) {
-        case 0:        
+        case 0:
             self->muladd_func_ptr = Centroid_postprocessing_ii;
             break;
-        case 1:    
+        case 1:
             self->muladd_func_ptr = Centroid_postprocessing_ai;
             break;
-        case 2:    
+        case 2:
             self->muladd_func_ptr = Centroid_postprocessing_revai;
             break;
-        case 10:        
+        case 10:
             self->muladd_func_ptr = Centroid_postprocessing_ia;
             break;
-        case 11:    
+        case 11:
             self->muladd_func_ptr = Centroid_postprocessing_aa;
             break;
-        case 12:    
+        case 12:
             self->muladd_func_ptr = Centroid_postprocessing_revaa;
             break;
-        case 20:        
+        case 20:
             self->muladd_func_ptr = Centroid_postprocessing_ireva;
             break;
-        case 21:    
+        case 21:
             self->muladd_func_ptr = Centroid_postprocessing_areva;
             break;
-        case 22:    
+        case 22:
             self->muladd_func_ptr = Centroid_postprocessing_revareva;
             break;
     }
@@ -1760,7 +1760,7 @@ Centroid_setProcMode(Centroid *self)
 static void
 Centroid_compute_next_data_frame(Centroid *self)
 {
-    (*self->proc_func_ptr)(self); 
+    (*self->proc_func_ptr)(self);
     (*self->muladd_func_ptr)(self);
 }
 
@@ -1773,7 +1773,7 @@ Centroid_traverse(Centroid *self, visitproc visit, void *arg)
     return 0;
 }
 
-static int 
+static int
 Centroid_clear(Centroid *self)
 {
     pyo_CLEAR
@@ -1806,7 +1806,7 @@ Centroid_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp, *multmp=NULL, *addtmp=NULL;
     Centroid *self;
     self = (Centroid *)type->tp_alloc(type, 0);
-    
+
     self->centroid = 0;
     self->size = 1024;
     INIT_OBJECT_COMMON
@@ -1814,7 +1814,7 @@ Centroid_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->mode_func_ptr = Centroid_setProcMode;
 
     static char *kwlist[] = {"input", "size", "mul", "add", NULL};
-    
+
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|iOO", kwlist, &inputtmp, &self->size, &multmp, &addtmp))
         Py_RETURN_NONE;
 
@@ -1822,7 +1822,7 @@ Centroid_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         printf("Warning : Centroid size less than buffer size!\nCentroid size set to buffersize: %d\n", self->bufsize);
         self->size = self->bufsize;
     }
-    
+
     k = 1;
     while (k < self->size)
         k <<= 1;
@@ -1833,13 +1833,13 @@ Centroid_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (multmp) {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
     }
-    
+
     if (addtmp) {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
- 
+
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
-    
+
     Centroid_alloc_memories(self);
 
     self->incount = self->hsize;
@@ -1851,10 +1851,10 @@ Centroid_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
 static PyObject * Centroid_getServer(Centroid* self) { GET_SERVER };
 static PyObject * Centroid_getStream(Centroid* self) { GET_STREAM };
-static PyObject * Centroid_setMul(Centroid *self, PyObject *arg) { SET_MUL };    
-static PyObject * Centroid_setAdd(Centroid *self, PyObject *arg) { SET_ADD };    
-static PyObject * Centroid_setSub(Centroid *self, PyObject *arg) { SET_SUB };    
-static PyObject * Centroid_setDiv(Centroid *self, PyObject *arg) { SET_DIV };    
+static PyObject * Centroid_setMul(Centroid *self, PyObject *arg) { SET_MUL };
+static PyObject * Centroid_setAdd(Centroid *self, PyObject *arg) { SET_ADD };
+static PyObject * Centroid_setSub(Centroid *self, PyObject *arg) { SET_SUB };
+static PyObject * Centroid_setDiv(Centroid *self, PyObject *arg) { SET_DIV };
 
 static PyObject * Centroid_play(Centroid *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * Centroid_stop(Centroid *self) { STOP };
@@ -2006,7 +2006,7 @@ AttackDetector_process(AttackDetector *self) {
     int i, ind;
     MYFLT absin;
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
-    
+
     for (i=0; i<self->bufsize; i++) {
         self->data[i] = 0.0;
         absin = in[i];
@@ -2063,44 +2063,44 @@ AttackDetector_setProcMode(AttackDetector *self)
 {
     int muladdmode;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
-    
+
     self->proc_func_ptr = AttackDetector_process;
- 
+
 	switch (muladdmode) {
-        case 0:        
+        case 0:
             self->muladd_func_ptr = AttackDetector_postprocessing_ii;
             break;
-        case 1:    
+        case 1:
             self->muladd_func_ptr = AttackDetector_postprocessing_ai;
             break;
-        case 2:    
+        case 2:
             self->muladd_func_ptr = AttackDetector_postprocessing_revai;
             break;
-        case 10:        
+        case 10:
             self->muladd_func_ptr = AttackDetector_postprocessing_ia;
             break;
-        case 11:    
+        case 11:
             self->muladd_func_ptr = AttackDetector_postprocessing_aa;
             break;
-        case 12:    
+        case 12:
             self->muladd_func_ptr = AttackDetector_postprocessing_revaa;
             break;
-        case 20:        
+        case 20:
             self->muladd_func_ptr = AttackDetector_postprocessing_ireva;
             break;
-        case 21:    
+        case 21:
             self->muladd_func_ptr = AttackDetector_postprocessing_areva;
             break;
-        case 22:    
+        case 22:
             self->muladd_func_ptr = AttackDetector_postprocessing_revareva;
             break;
-    }   
+    }
 }
 
 static void
 AttackDetector_compute_next_data_frame(AttackDetector *self)
 {
-    (*self->proc_func_ptr)(self); 
+    (*self->proc_func_ptr)(self);
     (*self->muladd_func_ptr)(self);
 }
 
@@ -2113,7 +2113,7 @@ AttackDetector_traverse(AttackDetector *self, visitproc visit, void *arg)
     return 0;
 }
 
-static int 
+static int
 AttackDetector_clear(AttackDetector *self)
 {
     pyo_CLEAR
@@ -2138,7 +2138,7 @@ AttackDetector_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp, *multmp=NULL, *addtmp=NULL;
     AttackDetector *self;
     self = (AttackDetector *)type->tp_alloc(type, 0);
-    
+
     self->deltime = 0.005;
     self->cutoff = 10.0;
     self->maxthresh = 3.0;
@@ -2153,34 +2153,34 @@ AttackDetector_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->timer = 0;
 	self->modebuffer[0] = 0;
 	self->modebuffer[1] = 0;
-    
+
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, AttackDetector_compute_next_data_frame);
     self->mode_func_ptr = AttackDetector_setProcMode;
 
     static char *kwlist[] = {"input", "deltime", "cutoff", "maxthresh", "minthresh", "reltime", "mul", "add", NULL};
-    
+
     if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_O_FFFFFOO, kwlist, &inputtmp, &self->deltime, &self->cutoff, &self->maxthresh, &self->minthresh, &self->reltime, &multmp, &addtmp))
-        Py_RETURN_NONE; 
+        Py_RETURN_NONE;
 
     INIT_INPUT_STREAM
-    
+
     if (multmp) {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
     }
-    
+
     if (addtmp) {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
-    
+
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
     self->memsize = (int)(0.055 * self->sr + 0.5);
     self->buffer = (MYFLT *)realloc(self->buffer, (self->memsize+1) * sizeof(MYFLT));
     for (i=0; i<(self->memsize+1); i++) {
         self->buffer[i] = 0.0;
-    }    
-       
+    }
+
     if (self->deltime < 0.001) self->deltime = 0.001;
     else if (self->deltime > 0.05) self->deltime = 0.05;
     self->sampdel = (int)(self->deltime * self->sr);
@@ -2208,10 +2208,10 @@ AttackDetector_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
 static PyObject * AttackDetector_getServer(AttackDetector* self) { GET_SERVER };
 static PyObject * AttackDetector_getStream(AttackDetector* self) { GET_STREAM };
-static PyObject * AttackDetector_setMul(AttackDetector *self, PyObject *arg) { SET_MUL };	
-static PyObject * AttackDetector_setAdd(AttackDetector *self, PyObject *arg) { SET_ADD };	
-static PyObject * AttackDetector_setSub(AttackDetector *self, PyObject *arg) { SET_SUB };	
-static PyObject * AttackDetector_setDiv(AttackDetector *self, PyObject *arg) { SET_DIV };	
+static PyObject * AttackDetector_setMul(AttackDetector *self, PyObject *arg) { SET_MUL };
+static PyObject * AttackDetector_setAdd(AttackDetector *self, PyObject *arg) { SET_ADD };
+static PyObject * AttackDetector_setSub(AttackDetector *self, PyObject *arg) { SET_SUB };
+static PyObject * AttackDetector_setDiv(AttackDetector *self, PyObject *arg) { SET_DIV };
 
 static PyObject * AttackDetector_play(AttackDetector *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * AttackDetector_stop(AttackDetector *self) { STOP };
@@ -2232,16 +2232,16 @@ AttackDetector_setDeltime(AttackDetector *self, PyObject *arg)
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
 	int isNumber = PyNumber_Check(arg);
-	
+
 	if (isNumber == 1) {
 		self->deltime = PyFloat_AS_DOUBLE(PyNumber_Float(arg));
         if (self->deltime < 0.001) self->deltime = 0.001;
         else if (self->deltime > 0.05) self->deltime = 0.05;
         self->sampdel = (int)(self->deltime * self->sr);
 	}
-  
+
 	Py_RETURN_NONE;
 }
 
@@ -2252,16 +2252,16 @@ AttackDetector_setCutoff(AttackDetector *self, PyObject *arg)
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
 	int isNumber = PyNumber_Check(arg);
-	
+
 	if (isNumber == 1) {
 		self->cutoff = PyFloat_AS_DOUBLE(PyNumber_Float(arg));
         if (self->cutoff < 1.0) self->cutoff = 1.0;
         else if (self->cutoff > 1000.0) self->cutoff = 1000.0;
         self->folfactor = MYEXP(-TWOPI * self->cutoff / self->sr);
 	}
-  
+
 	Py_RETURN_NONE;
 }
 
@@ -2272,15 +2272,15 @@ AttackDetector_setMaxthresh(AttackDetector *self, PyObject *arg)
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
 	int isNumber = PyNumber_Check(arg);
-	
+
 	if (isNumber == 1) {
 		self->maxthresh = PyFloat_AS_DOUBLE(PyNumber_Float(arg));
         if (self->maxthresh < 0.0) self->maxthresh = 0.0;
         else if (self->maxthresh > 18.0) self->maxthresh = 18.0;
 	}
-  
+
 	Py_RETURN_NONE;
 }
 
@@ -2291,15 +2291,15 @@ AttackDetector_setMinthresh(AttackDetector *self, PyObject *arg)
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
 	int isNumber = PyNumber_Check(arg);
-	
+
 	if (isNumber == 1) {
 		self->minthresh = PyFloat_AS_DOUBLE(PyNumber_Float(arg));
         if (self->minthresh < -90.0) self->minthresh = -90.0;
         else if (self->minthresh > 0.0) self->minthresh = 0.0;
 	}
-  
+
 	Py_RETURN_NONE;
 }
 
@@ -2310,15 +2310,15 @@ AttackDetector_setReltime(AttackDetector *self, PyObject *arg)
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
 	int isNumber = PyNumber_Check(arg);
-	
+
 	if (isNumber == 1) {
 		self->reltime = PyFloat_AS_DOUBLE(PyNumber_Float(arg));
         if (self->reltime < 0.001) self->reltime = 0.001;
         self->maxtime = (long)(self->reltime * self->sr + 0.5);
 	}
-  
+
 	Py_RETURN_NONE;
 }
 
@@ -2464,7 +2464,7 @@ Scope_display(Scope *self) {
     int i, ipos;
     MYFLT pos, step, mag, h2;
     PyObject *points, *tuple;
-    
+
     step = self->size / (MYFLT)(self->width);
     h2 = self->height * 0.5;
 
@@ -2485,7 +2485,7 @@ Scope_display(Scope *self) {
 static void
 Scope_compute_next_data_frame(Scope *self)
 {
-    Scope_generate(self); 
+    Scope_generate(self);
 }
 
 static int
@@ -2497,7 +2497,7 @@ Scope_traverse(Scope *self, visitproc visit, void *arg)
     return 0;
 }
 
-static int 
+static int
 Scope_clear(Scope *self)
 {
     pyo_CLEAR
@@ -2532,19 +2532,19 @@ Scope_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     Stream_setFunctionPtr(self->stream, Scope_compute_next_data_frame);
 
     static char *kwlist[] = {"input", "length", NULL};
-    
+
     if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_O_F, kwlist, &inputtmp, &length))
         Py_RETURN_NONE;
-    
+
     INIT_INPUT_STREAM
 
     maxsize = (int)(self->sr * 0.25);
-    self->buffer = (MYFLT *)realloc(self->buffer, maxsize * sizeof(MYFLT)); 
+    self->buffer = (MYFLT *)realloc(self->buffer, maxsize * sizeof(MYFLT));
     self->size = (int)(length * self->sr);
     if (self->size > maxsize)
         self->size = maxsize;
     self->pointer = 0;
-    
+
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
     return (PyObject *)self;
@@ -2568,40 +2568,40 @@ Scope_setLength(Scope *self, PyObject *arg)
         if (self->size > maxsize)
             self->size = maxsize;
         self->pointer = 0;
-    }    
+    }
 	Py_INCREF(Py_None);
 	return Py_None;
-}	
+}
 
 static PyObject *
 Scope_setGain(Scope *self, PyObject *arg)
 {
     if (PyNumber_Check(arg)) {
         self->gain = PyFloat_AsDouble(PyNumber_Float(arg));
-    }    
+    }
 	Py_INCREF(Py_None);
 	return Py_None;
-}	
+}
 
 static PyObject *
 Scope_setWidth(Scope *self, PyObject *arg)
 {
     if (PyInt_Check(arg)) {
         self->width = PyInt_AsLong(arg);
-    }    
+    }
 	Py_INCREF(Py_None);
 	return Py_None;
-}	
+}
 
 static PyObject *
 Scope_setHeight(Scope *self, PyObject *arg)
 {
     if (PyInt_Check(arg)) {
         self->height = PyInt_AsLong(arg);
-    }    
+    }
 	Py_INCREF(Py_None);
 	return Py_None;
-}	
+}
 
 static PyMemberDef Scope_members[] = {
 {"server", T_OBJECT_EX, offsetof(Scope, server), 0, "Pyo server."},
@@ -2672,7 +2672,7 @@ typedef struct {
     pyo_audio_HEAD
     PyObject *input;
     Stream *input_stream;
-    int modebuffer[2]; // need at least 2 slots for mul & add 
+    int modebuffer[2]; // need at least 2 slots for mul & add
     MYFLT follow;
 } PeakAmp;
 
@@ -2682,7 +2682,7 @@ PeakAmp_filters_i(PeakAmp *self) {
     int i;
 
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
-    
+
     peak = 0.0;
     for (i=0; i<self->bufsize; i++) {
         absin = in[i];
@@ -2710,43 +2710,43 @@ PeakAmp_setProcMode(PeakAmp *self)
 {
     int muladdmode;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
-    
+
     self->proc_func_ptr = PeakAmp_filters_i;
 	switch (muladdmode) {
-        case 0:        
+        case 0:
             self->muladd_func_ptr = PeakAmp_postprocessing_ii;
             break;
-        case 1:    
+        case 1:
             self->muladd_func_ptr = PeakAmp_postprocessing_ai;
             break;
-        case 2:    
+        case 2:
             self->muladd_func_ptr = PeakAmp_postprocessing_revai;
             break;
-        case 10:        
+        case 10:
             self->muladd_func_ptr = PeakAmp_postprocessing_ia;
             break;
-        case 11:    
+        case 11:
             self->muladd_func_ptr = PeakAmp_postprocessing_aa;
             break;
-        case 12:    
+        case 12:
             self->muladd_func_ptr = PeakAmp_postprocessing_revaa;
             break;
-        case 20:        
+        case 20:
             self->muladd_func_ptr = PeakAmp_postprocessing_ireva;
             break;
-        case 21:    
+        case 21:
             self->muladd_func_ptr = PeakAmp_postprocessing_areva;
             break;
-        case 22:    
+        case 22:
             self->muladd_func_ptr = PeakAmp_postprocessing_revareva;
             break;
-    }   
+    }
 }
 
 static void
 PeakAmp_compute_next_data_frame(PeakAmp *self)
 {
-    (*self->proc_func_ptr)(self); 
+    (*self->proc_func_ptr)(self);
     (*self->muladd_func_ptr)(self);
 }
 
@@ -2759,7 +2759,7 @@ PeakAmp_traverse(PeakAmp *self, visitproc visit, void *arg)
     return 0;
 }
 
-static int 
+static int
 PeakAmp_clear(PeakAmp *self)
 {
     pyo_CLEAR
@@ -2783,32 +2783,32 @@ PeakAmp_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp, *multmp=NULL, *addtmp=NULL;
     PeakAmp *self;
     self = (PeakAmp *)type->tp_alloc(type, 0);
-    
+
     self->follow = 0.0;
 	self->modebuffer[0] = 0;
 	self->modebuffer[1] = 0;
-    
+
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, PeakAmp_compute_next_data_frame);
     self->mode_func_ptr = PeakAmp_setProcMode;
 
     static char *kwlist[] = {"input", "mul", "add", NULL};
-    
+
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OO", kwlist, &inputtmp, &multmp, &addtmp))
-        Py_RETURN_NONE; 
-    
+        Py_RETURN_NONE;
+
     INIT_INPUT_STREAM
-    
+
     if (multmp) {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
     }
-    
+
     if (addtmp) {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
-    
+
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
-    
+
     (*self->mode_func_ptr)(self);
 
     return (PyObject *)self;
@@ -2816,10 +2816,10 @@ PeakAmp_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
 static PyObject * PeakAmp_getServer(PeakAmp* self) { GET_SERVER };
 static PyObject * PeakAmp_getStream(PeakAmp* self) { GET_STREAM };
-static PyObject * PeakAmp_setMul(PeakAmp *self, PyObject *arg) { SET_MUL };	
-static PyObject * PeakAmp_setAdd(PeakAmp *self, PyObject *arg) { SET_ADD };	
-static PyObject * PeakAmp_setSub(PeakAmp *self, PyObject *arg) { SET_SUB };	
-static PyObject * PeakAmp_setDiv(PeakAmp *self, PyObject *arg) { SET_DIV };	
+static PyObject * PeakAmp_setMul(PeakAmp *self, PyObject *arg) { SET_MUL };
+static PyObject * PeakAmp_setAdd(PeakAmp *self, PyObject *arg) { SET_ADD };
+static PyObject * PeakAmp_setSub(PeakAmp *self, PyObject *arg) { SET_SUB };
+static PyObject * PeakAmp_setDiv(PeakAmp *self, PyObject *arg) { SET_DIV };
 
 static PyObject * PeakAmp_play(PeakAmp *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * PeakAmp_stop(PeakAmp *self) { STOP };

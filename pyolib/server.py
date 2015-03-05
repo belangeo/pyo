@@ -1,74 +1,74 @@
 # -*- coding: utf-8 -*-
 """
-Copyright 2010 Olivier Belanger
+Copyright 2009-2015 Olivier Belanger
 
 This file is part of pyo, a python module to help digital signal
 processing script creation.
 
 pyo is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
+it under the terms of the GNU Lesser General Public License as
+published by the Free Software Foundation, either version 3 of the
+License, or (at your option) any later version.
 
 pyo is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
+GNU Lesser General Public License for more details.
 
-You should have received a copy of the GNU General Public License
-along with pyo.  If not, see <http://www.gnu.org/licenses/>.
+You should have received a copy of the GNU Lesser General Public
+License along with pyo.  If not, see <http://www.gnu.org/licenses/>.
 """
 import os, time
 from _core import *
 from _widgets import createServerGUI
-        
+
 ######################################################################
 ### Proxy of Server object
 ######################################################################
 class Server(object):
     """
     Main processing audio loop callback handler.
-    
-    The Server object handles all communications with Portaudio and 
+
+    The Server object handles all communications with Portaudio and
     Portmidi. It keeps track of all audio streams created as well as
-    connections between them. 
-    
-    An instance of the Server must be booted before defining any 
+    connections between them.
+
+    An instance of the Server must be booted before defining any
     signal processing chain.
 
     :Args:
 
         sr : int, optional
-            Sampling rate used by Portaudio and the Server to compute samples. 
+            Sampling rate used by Portaudio and the Server to compute samples.
             Defaults to 44100.
         nchnls : int, optional
-            Number of output channels. The number of input channels will be the 
+            Number of output channels. The number of input channels will be the
             same if `ichnls` argument is not defined. Defaults to 2.
         buffersize : int, optional
-            Number of samples that Portaudio will request from the callback loop. 
+            Number of samples that Portaudio will request from the callback loop.
             Defaults to 256.
 
-            This value has an impact on CPU use (a small buffer size is harder 
-            to compute) and on the latency of the system. 
-            
-            Latency is `buffer size / sampling rate` in seconds. 
+            This value has an impact on CPU use (a small buffer size is harder
+            to compute) and on the latency of the system.
+
+            Latency is `buffer size / sampling rate` in seconds.
         duplex : int {0, 1}, optional
-            Input - output mode. 0 is output only and 1 is both ways. 
+            Input - output mode. 0 is output only and 1 is both ways.
             Defaults to 1.
         audio : string {'portaudio', 'pa', 'jack', 'coreaudio', 'offline', 'offline_nb}, optional
             Audio backend to use. 'pa' is equivalent to 'portaudio'. Default is 'portaudio'.
-            
-            'offline' save the audio output in a soundfile as fast as possible in blocking mode, 
+
+            'offline' save the audio output in a soundfile as fast as possible in blocking mode,
 
             ie. the main program doesn't respond until the end of the computation.
-            
-            'offline_nb' save the audio output in a soundfile as fast as possible in non-blocking 
-            mode, 
-            
-            ie. the computation is executed in a separated thread, allowing the program to
-            respond while the computation goes on. 
 
-            It is the responsibility of the user to make sure that the program doesn't exit before 
+            'offline_nb' save the audio output in a soundfile as fast as possible in non-blocking
+            mode,
+
+            ie. the computation is executed in a separated thread, allowing the program to
+            respond while the computation goes on.
+
+            It is the responsibility of the user to make sure that the program doesn't exit before
             the computation is done.
         jackname : string, optional
             Name of jack client. Defaults to 'pyo'
@@ -99,9 +99,9 @@ class Server(object):
     >>> # a sampling rate of 48000 Hz and buffer size of 512
     >>> s = Server(sr=48000, nchnls=8, buffersize=512, duplex=1).boot()
     >>> s.start()
-        
+
     """
-    def __init__(self, sr=44100, nchnls=2, buffersize=256, duplex=1, 
+    def __init__(self, sr=44100, nchnls=2, buffersize=256, duplex=1,
                  audio='portaudio', jackname='pyo', ichnls=None):
         if os.environ.has_key("PYO_SERVER_AUDIO") and "offline" not in audio and "embedded" not in audio:
             audio = os.environ["PYO_SERVER_AUDIO"]
@@ -129,15 +129,15 @@ class Server(object):
             self.shutdown()
             self._time.sleep(.25)
 
-    def reinit(self, sr=44100, nchnls=2, buffersize=256, duplex=1, 
+    def reinit(self, sr=44100, nchnls=2, buffersize=256, duplex=1,
                audio='portaudio', jackname='pyo', ichnls=None):
         """
         Reinit the server'settings. Useful to alternate between real-time and offline server.
-        
+
         :Args:
-        
+
             Same as in the __init__ method.
-        
+
         """
         self._nchnls = nchnls
         if ichnls == None:
@@ -157,14 +157,14 @@ class Server(object):
     def gui(self, locals=None, meter=True, timer=True, exit=True):
         """
         Show the server's user interface.
-        
+
         :Args:
-        
+
             locals : locals namespace {locals(), None}, optional
                 If locals() is given, the interface will show an interpreter extension,
                 giving a way to interact with the running script. Defaults to None.
             meter : boolean, optinal
-                If True, the interface will show a vumeter of the global output signal. 
+                If True, the interface will show a vumeter of the global output signal.
                 Defaults to True.
             timer : boolean, optional
                 If True, the interface will show a clock of the current time.
@@ -173,7 +173,7 @@ class Server(object):
                 If True, the python interpreter will exit when the 'Quit' button is pressed,
                 Otherwise, the GUI will be closed leaving the interpreter alive.
                 Defaults to True.
-            
+
         """
         f, win = createServerGUI(self._nchnls, self.start, self.stop, self.recstart, self.recstop,
                                  self.setAmp, self.getIsStarted(), locals, self.shutdown, meter, timer, self._amp, exit)
@@ -193,11 +193,11 @@ class Server(object):
 
     def setMeter(self, meter):
         self._server.setAmpCallable(meter)
-        
+
     def setInOutDevice(self, x):
         """
         Set both input and output audio devices. See `pa_list_devices()`.
-        
+
         :Args:
 
             x : int
@@ -205,11 +205,11 @@ class Server(object):
 
         """
         self._server.setInOutDevice(x)
-        
+
     def setInputDevice(self, x):
         """
         Set the audio input device number. See `pa_list_devices()`.
-        
+
         :Args:
 
             x : int
@@ -221,7 +221,7 @@ class Server(object):
     def setOutputDevice(self, x):
         """
         Set the audio output device number. See `pa_list_devices()`.
-        
+
         :Args:
 
             x : int
@@ -233,11 +233,11 @@ class Server(object):
     def setInputOffset(self, x):
         """
         Set the first physical input channel.
-        
+
         Channel number `x` from the soundcard will be assigned to
         server's channel one, channel number `x` + 1 to server's
-        channel two and so on. 
-        
+        channel two and so on.
+
         :Args:
 
             x : int
@@ -250,10 +250,10 @@ class Server(object):
         """
         Set the first physical output channel.
 
-        Server's channel one will be assigned to soundcard's channel 
+        Server's channel one will be assigned to soundcard's channel
         number `x`, server's channel two will be assigned to soundcard's
-        channel number `x` + 1 and so on. 
-        
+        channel number `x` + 1 and so on.
+
         :Args:
 
             x : int
@@ -281,10 +281,10 @@ class Server(object):
     def setMidiInputDevice(self, x):
         """
         Set the Midi input device number. See `pm_list_devices()`.
-        
+
         A number greater than the highest portmidi device index
-        will opened all available input devices. 
-        
+        will opened all available input devices.
+
         :Args:
 
             x : int
@@ -296,7 +296,7 @@ class Server(object):
     def setMidiOutputDevice(self, x):
         """
         Set the Midi output device number. See `pm_list_devices()`.
-        
+
         :Args:
 
             x : int
@@ -304,35 +304,35 @@ class Server(object):
 
         """
         self._server.setMidiOutputDevice(x)
- 
+
     def setSamplingRate(self, x):
         """
         Set the sampling rate used by the server.
-        
+
         :Args:
 
             x : int
                 New sampling rate, must be supported by the soundcard.
 
-        """  
+        """
         self._server.setSamplingRate(x)
-        
+
     def setBufferSize(self, x):
         """
         Set the buffer size used by the server.
-        
+
         :Args:
 
             x : int
                 New buffer size.
 
-        """        
+        """
         self._server.setBufferSize(x)
-  
+
     def setNchnls(self, x):
         """
         Set the number of output (and input if `ichnls` = None) channels used by the server.
-        
+
         :Args:
 
             x : int
@@ -345,7 +345,7 @@ class Server(object):
     def setIchnls(self, x):
         """
         Set the number of input channels (if different of output channels) used by the server.
-        
+
         :Args:
 
             x : int
@@ -358,25 +358,25 @@ class Server(object):
     def setDuplex(self, x):
         """
         Set the duplex mode used by the server.
-        
+
         :Args:
 
             x : int {0 or 1}
                 New mode. 0 is output only, 1 is both ways.
 
-        """        
+        """
         self._server.setDuplex(x)
 
     def setVerbosity(self, x):
         """
         Set the server's verbosity.
-        
+
         :Args:
 
             x : int
-                A sum of values to display different levels: 
+                A sum of values to display different levels:
                     - 1 = error
-                    - 2 = message 
+                    - 2 = message
                     - 4 = warning
                     - 8 = debug
 
@@ -387,7 +387,7 @@ class Server(object):
     def setJackAuto(self, xin=True, xout=True):
         """
         Tells the server to auto-connect (or not) Jack ports to System ports.
-        
+
         :Args:
 
             xin : boolean
@@ -395,13 +395,13 @@ class Server(object):
             xout : boolean
                 Output Auto-connection switch. True is enabled (default) and False is disabled.
 
-        """        
+        """
         self._server.setJackAuto(xin, xout)
 
     def setJackAutoConnectInputPorts(self, ports):
         """
         Tells the server to auto-connect Jack input ports to pre-defined Jack ports.
-        
+
         :Args:
 
             ports : string or list of strings
@@ -414,7 +414,7 @@ class Server(object):
     def setJackAutoConnectOutputPorts(self, ports):
         """
         Tells the server to auto-connect Jack output ports to pre-defined Jack ports.
-        
+
         :Args:
 
             ports : string or list of strings
@@ -423,7 +423,7 @@ class Server(object):
         """
         ports, lmax = convertArgsToLists(ports)
         self._server.setJackAutoConnectOutputPorts(ports)
-        
+
     def setGlobalSeed(self, x):
         """
         Set the server's global seed used by random objects.
@@ -435,7 +435,7 @@ class Server(object):
 
                 If zero, randoms will be seeded with the system clock current value.
 
-        """        
+        """
         self._globalseed = x
         self._server.setGlobalSeed(x)
 
@@ -448,15 +448,15 @@ class Server(object):
 
             x : float
                 Starting time of the real-time processing.
-            
-        """        
+
+        """
         self._startoffset = x
         self._server.setStartOffset(x)
 
     def setAmp(self, x):
         """
         Set the overall amplitude.
-        
+
         :Args:
 
             x : float
@@ -465,50 +465,50 @@ class Server(object):
         """
         self._amp = x
         self._server.setAmp(x)
- 
+
     def shutdown(self):
         """
         Shut down and clear the server. This method will erase all objects
-        from the callback loop. This method need to be called before changing 
+        from the callback loop. This method need to be called before changing
         server's parameters like `samplingrate`, `buffersize`, `nchnls`, ...
 
         """
         self._server.shutdown()
-        
+
     def boot(self, newBuffer=True):
         """
-        Boot the server. Must be called before defining any signal processing 
-        chain. Server's parameters like `samplingrate`, `buffersize` or 
-        `nchnls` will be effective after a call to this method. 
-        
+        Boot the server. Must be called before defining any signal processing
+        chain. Server's parameters like `samplingrate`, `buffersize` or
+        `nchnls` will be effective after a call to this method.
+
         :Args:
-            
+
             newBuffer : bool
-                Specify if the buffers need to be allocated or not. Useful to limit 
-                the allocation of new buffers when the buffer size hasn't change. 
-                
-                Therefore, this is useful to limit calls to the Python interpreter 
-                to get the buffers addresses when using Pyo inside a 
-                C/C++ application with the embedded server. 
-                
+                Specify if the buffers need to be allocated or not. Useful to limit
+                the allocation of new buffers when the buffer size hasn't change.
+
+                Therefore, this is useful to limit calls to the Python interpreter
+                to get the buffers addresses when using Pyo inside a
+                C/C++ application with the embedded server.
+
                 Defaults to True.
 
         """
         self._server.boot(newBuffer)
         return self
-        
+
     def start(self):
         """
         Start the audio callback loop and begin processing.
-        
+
         """
         self._server.start()
         return self
-    
+
     def stop(self):
         """
         Stop the audio callback loop.
-        
+
         """
         self._server.stop()
 
@@ -527,8 +527,8 @@ class Server(object):
                 Defaults to None.
             fileformat : int, optional
                 Format type of the audio file. This function will first try to
-                set the format from the filename extension. 
-                
+                set the format from the filename extension.
+
                 If it's not possible, it uses the fileformat parameter. Supported formats are:
                     0. WAV - Microsoft WAV format (little endian) {.wav, .wave} (default)
                     1. AIFF - Apple/SGI AIFF format (big endian) {.aif, .aiff}
@@ -539,8 +539,8 @@ class Server(object):
                     6. CAF - Core Audio File format {.caf}
                     7. OGG - Xiph OGG container {.ogg}
             sampletype : int, optional
-                Bit depth encoding of the audio file. 
-                
+                Bit depth encoding of the audio file.
+
                 SD2 and FLAC only support 16 or 24 bit int. Supported types are:
                     0. 16 bits int (default)
                     1. 24 bits int
@@ -551,7 +551,7 @@ class Server(object):
                     6. A-Law encoded
 
         """
-        
+
         self._dur = dur
         if filename == None:
             filename = os.path.join(os.path.expanduser("~"), "pyo_rec.wav")
@@ -568,20 +568,20 @@ class Server(object):
         self._fileformat = fileformat
         self._sampletype = sampletype
         self._server.recordOptions(dur, filename, fileformat, sampletype)
-        
+
     def recstart(self, filename=None):
         """
         Begins a default recording of the sound that is sent to the
-        soundcard. This will create a file called `pyo_rec.wav` in 
+        soundcard. This will create a file called `pyo_rec.wav` in
         the user's home directory if no path is supplied or defined
-        with recordOptions method. Uses file format and sample type 
-        defined with recordOptions method. 
-        
+        with recordOptions method. Uses file format and sample type
+        defined with recordOptions method.
+
         :Args:
-        
+
             filename : string, optional
                 Name of the file to be created. Defaults to None.
-        
+
         """
         if filename == None:
             if self._filename != None:
@@ -597,33 +597,33 @@ class Server(object):
                     self._fileformat = fileformat
                     self._server.recordOptions(self._dur, filename, self._fileformat, self._sampletype)
 
-        self._server.recstart(filename)    
-        
+        self._server.recstart(filename)
+
     def recstop(self):
         """
         Stop the previously started recording.
-        
+
         """
         self._server.recstop()
 
     def noteout(self, pitch, velocity, channel=0, timestamp=0):
         """
-        Send a MIDI note message to the selected midi output device. 
-        
+        Send a MIDI note message to the selected midi output device.
+
         Arguments can be list of values to generate multiple events
         in one call.
-        
+
         :Args:
-        
+
             pitch : int
                 Midi pitch, between 0 and 127.
             velocity : int
                 Amplitude of the note, between 0 and 127. A note
                 with a velocity of 0 is equivalent to a note off.
             channel : int, optional
-                The Midi channel, between 1 and 16, on which the 
+                The Midi channel, between 1 and 16, on which the
                 note is sent. A channel of 0 means all channels.
-                Defaults to 0. 
+                Defaults to 0.
             timestamp : int, optional
                 The delay time, in milliseconds, before the note
                 is sent on the portmidi stream. A value of 0 means
@@ -634,21 +634,21 @@ class Server(object):
 
     def afterout(self, pitch, velocity, channel=0, timestamp=0):
         """
-        Send an aftertouch message to the selected midi output device. 
-        
+        Send an aftertouch message to the selected midi output device.
+
         Arguments can be list of values to generate multiple events
         in one call.
-        
+
         :Args:
-        
+
             pitch : int
                 Midi key pressed down, between 0 and 127.
             velocity : int
                 Velocity of the pressure, between 0 and 127.
             channel : int, optional
-                The Midi channel, between 1 and 16, on which the 
+                The Midi channel, between 1 and 16, on which the
                 note is sent. A channel of 0 means all channels.
-                Defaults to 0. 
+                Defaults to 0.
             timestamp : int, optional
                 The delay time, in milliseconds, before the note
                 is sent on the portmidi stream. A value of 0 means
@@ -659,21 +659,21 @@ class Server(object):
 
     def ctlout(self, ctlnum, value, channel=0, timestamp=0):
         """
-        Send a control change message to the selected midi output device. 
-        
+        Send a control change message to the selected midi output device.
+
         Arguments can be list of values to generate multiple events
         in one call.
-        
+
         :Args:
-        
+
             ctlnum : int
                 Controller number, between 0 and 127.
             value : int
                 Value of the controller, between 0 and 127.
             channel : int, optional
-                The Midi channel, between 1 and 16, on which the 
+                The Midi channel, between 1 and 16, on which the
                 message is sent. A channel of 0 means all channels.
-                Defaults to 0. 
+                Defaults to 0.
             timestamp : int, optional
                 The delay time, in milliseconds, before the message
                 is sent on the portmidi stream. A value of 0 means
@@ -684,19 +684,19 @@ class Server(object):
 
     def programout(self, value, channel=0, timestamp=0):
         """
-        Send a program change message to the selected midi output device. 
-        
+        Send a program change message to the selected midi output device.
+
         Arguments can be list of values to generate multiple events
         in one call.
-        
+
         :Args:
-        
+
             value : int
                 New program number, between 0 and 127.
             channel : int, optional
-                The Midi channel, between 1 and 16, on which the 
+                The Midi channel, between 1 and 16, on which the
                 message is sent. A channel of 0 means all channels.
-                Defaults to 0. 
+                Defaults to 0.
             timestamp : int, optional
                 The delay time, in milliseconds, before the message
                 is sent on the portmidi stream. A value of 0 means
@@ -707,19 +707,19 @@ class Server(object):
 
     def pressout(self, value, channel=0, timestamp=0):
         """
-        Send a channel pressure message to the selected midi output device. 
-        
+        Send a channel pressure message to the selected midi output device.
+
         Arguments can be list of values to generate multiple events
         in one call.
-        
+
         :Args:
 
             value : int
                 Single greatest pressure value, between 0 and 127.
             channel : int, optional
-                The Midi channel, between 1 and 16, on which the 
+                The Midi channel, between 1 and 16, on which the
                 message is sent. A channel of 0 means all channels.
-                Defaults to 0. 
+                Defaults to 0.
             timestamp : int, optional
                 The delay time, in milliseconds, before the message
                 is sent on the portmidi stream. A value of 0 means
@@ -730,20 +730,20 @@ class Server(object):
 
     def bendout(self, value, channel=0, timestamp=0):
         """
-        Send a pitch bend message to the selected midi output device. 
-        
+        Send a pitch bend message to the selected midi output device.
+
         Arguments can be list of values to generate multiple events
         in one call.
-        
+
         :Args:
 
             value : int
                 14 bits pitch bend value. 8192 is where there is no
                 bending, 0 is full down and 16383 is full up bending.
             channel : int, optional
-                The Midi channel, between 1 and 16, on which the 
+                The Midi channel, between 1 and 16, on which the
                 message is sent. A channel of 0 means all channels.
-                Defaults to 0. 
+                Defaults to 0.
             timestamp : int, optional
                 The delay time, in milliseconds, before the message
                 is sent on the portmidi stream. A value of 0 means
@@ -755,28 +755,28 @@ class Server(object):
     def getStreams(self):
         """
         Return the list of streams loaded in the server.
-        
+
         """
         return self._server.getStreams()
-        
+
     def getSamplingRate(self):
         """
         Return the current sampling rate.
-        
+
         """
         return self._server.getSamplingRate()
-        
+
     def getNchnls(self):
         """
         Return the current number of channels.
-        
+
         """
         return self._server.getNchnls()
-        
+
     def getBufferSize(self):
         """
         Return the current buffer size.
-        
+
         """
         return self._server.getBufferSize()
 
@@ -790,97 +790,97 @@ class Server(object):
     def getIsStarted(self):
         """
         Returns 1 if the server is started, otherwise returns 0.
-        
+
         """
         return self._server.getIsStarted()
 
     def getIsBooted(self):
         """
         Returns 1 if the server is booted, otherwise returns 0.
-        
+
         """
         return self._server.getIsBooted()
 
     def getMidiActive(self):
         """
         Returns 1 if Midi callback is active, otherwise returns 0.
-        
+
         """
         return self._server.getMidiActive()
 
     def getStreams(self):
         """
         Returns the list of Stream objects currently in the Server memory.
-        
+
         """
         return self._server.getStreams()
 
     def getNumberOfStreams(self):
         """
         Returns the number of streams currently in the Server memory.
-        
+
         """
         return len(self._server.getStreams())
 
     def setServer(self):
         """
         Sets this server as the one to use for new objects when using the embedded device
-        
+
         """
         return self._server.setServer()
-    
+
     def getInputAddr(self):
         """
         Return the address of the input buffer
-        
+
         """
         return self._server.getInputAddr()
-        
+
     def getOutputAddr(self):
         """
         Return the address of the output buffer
-        
+
         """
         return self._server.getOutputAddr()
-        
+
     def getServerID(self):
         """
         Return the server ID
-        
+
         """
         return self._server.getServerID()
-        
+
     def getServerAddr(self):
         """
         Return the address of the server
-        
+
         """
         return self._server.getServerAddr()
-        
+
     def getEmbedICallbackAddr(self):
         """
         Return the address of the interleaved embedded callback function
-        
+
         """
         return self._server.getEmbedICallbackAddr()
 
     @property
     def amp(self):
-        """float. Overall amplitude.""" 
+        """float. Overall amplitude."""
         return self._amp
     @amp.setter
-    def amp(self, x): self.setAmp(x) 
+    def amp(self, x): self.setAmp(x)
 
     @property
     def startoffset(self):
-        """float. Starting time of the real-time processing.""" 
+        """float. Starting time of the real-time processing."""
         return self._startoffset
     @startoffset.setter
-    def startoffset(self, x): self.setStartOffset(x) 
+    def startoffset(self, x): self.setStartOffset(x)
 
     @property
     def verbosity(self):
-        """int. Server verbosity.""" 
+        """int. Server verbosity."""
         return self._verbosity
     @verbosity.setter
     def verbosity(self, x):
@@ -891,7 +891,7 @@ class Server(object):
 
     @property
     def globalseed(self):
-        """int. Server global seed.""" 
+        """int. Server global seed."""
         return self._globalseed
     @globalseed.setter
     def globalseed(self, x):

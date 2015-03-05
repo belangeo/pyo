@@ -1,21 +1,21 @@
-/*************************************************************************
- * Copyright 2010 Olivier Belanger                                        *                  
- *                                                                        * 
+/**************************************************************************
+ * Copyright 2009-2015 Olivier Belanger                                   *
+ *                                                                        *
  * This file is part of pyo, a python module to help digital signal       *
- * processing script creation.                                            *  
- *                                                                        * 
+ * processing script creation.                                            *
+ *                                                                        *
  * pyo is free software: you can redistribute it and/or modify            *
- * it under the terms of the GNU General Public License as published by   *
- * the Free Software Foundation, either version 3 of the License, or      *
- * (at your option) any later version.                                    * 
+ * it under the terms of the GNU Lesser General Public License as         *
+ * published by the Free Software Foundation, either version 3 of the     *
+ * License, or (at your option) any later version.                        *
  *                                                                        *
  * pyo is distributed in the hope that it will be useful,                 *
- * but WITHOUT ANY WARRANTY; without even the implied warranty of         *    
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of         *
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the          *
- * GNU General Public License for more details.                           *
+ * GNU Lesser General Public License for more details.                    *
  *                                                                        *
- * You should have received a copy of the GNU General Public License      *
- * along with pyo.  If not, see <http://www.gnu.org/licenses/>.           *
+ * You should have received a copy of the GNU Lesser General Public       *
+ * License along with pyo.  If not, see <http://www.gnu.org/licenses/>.   *
  *************************************************************************/
 
 #include <Python.h>
@@ -28,8 +28,8 @@
 
 int stream_id = 1;
 
-int 
-Stream_getNewStreamId() 
+int
+Stream_getNewStreamId()
 {
     return stream_id++;
 }
@@ -37,14 +37,14 @@ Stream_getNewStreamId()
 static int
 Stream_traverse(Stream *self, visitproc visit, void *arg)
 {
-    Py_VISIT(self->streamobject);    
+    Py_VISIT(self->streamobject);
     return 0;
 }
 
-static int 
+static int
 Stream_clear(Stream *self)
 {
-    Py_CLEAR(self->streamobject);    
+    Py_CLEAR(self->streamobject);
     return 0;
 }
 
@@ -96,13 +96,13 @@ MYFLT *
 Stream_getData(Stream *self)
 {
     return (MYFLT *)self->data;
-}    
+}
 
 void
 Stream_setData(Stream *self, MYFLT *data)
 {
     self->data = data;
-}    
+}
 
 void Stream_setFunctionPtr(Stream *self, void *ptr)
 {
@@ -112,9 +112,9 @@ void Stream_setFunctionPtr(Stream *self, void *ptr)
 void Stream_callFunction(Stream *self)
 {
     (*self->funcptr)(self->streamobject);
-}    
+}
 
-void Stream_IncrementBufferCount(Stream *self) 
+void Stream_IncrementBufferCount(Stream *self)
 {
     self->bufferCount++;
     if (self->bufferCount >= self->bufferCountWait) {
@@ -123,7 +123,7 @@ void Stream_IncrementBufferCount(Stream *self)
     }
 }
 
-void Stream_IncrementDurationCount(Stream *self) 
+void Stream_IncrementDurationCount(Stream *self)
 {
     self->bufferCount++;
     if (self->bufferCount >= self->duration) {
@@ -154,7 +154,7 @@ Stream_isPlaying(Stream *self)
 {
     if (self->active || self->todac)
         Py_RETURN_TRUE;
-    else 
+    else
         Py_RETURN_FALSE;
 }
 
@@ -163,7 +163,7 @@ Stream_isOutputting(Stream *self)
 {
     if (self->todac)
         Py_RETURN_TRUE;
-    else 
+    else
         Py_RETURN_FALSE;
 }
 
@@ -254,13 +254,13 @@ MYFLT *
 TriggerStream_getData(TriggerStream *self)
 {
     return (MYFLT *)self->data;
-}    
+}
 
 void
 TriggerStream_setData(TriggerStream *self, MYFLT *data)
 {
     self->data = data;
-}    
+}
 
 PyTypeObject TriggerStreamType = {
     PyObject_HEAD_INIT(NULL)

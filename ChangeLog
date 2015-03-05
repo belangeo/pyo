@@ -1,3 +1,8 @@
+2015-03-05 belangeo <belangeo@gmail.com>
+
+    * Changed license to the more permissive LGPL version 3.
+    - rev 1303
+
 2015-03-03 belangeo <belangeo@gmail.com>
 
     * The Server can be booted with a different number of input and output channels.

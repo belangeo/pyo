@@ -1,21 +1,21 @@
-/*************************************************************************
- * Copyright 2010 Olivier Belanger                                        *                  
- *                                                                        * 
+/**************************************************************************
+ * Copyright 2009-2015 Olivier Belanger                                   *
+ *                                                                        *
  * This file is part of pyo, a python module to help digital signal       *
- * processing script creation.                                            *  
- *                                                                        * 
+ * processing script creation.                                            *
+ *                                                                        *
  * pyo is free software: you can redistribute it and/or modify            *
- * it under the terms of the GNU General Public License as published by   *
- * the Free Software Foundation, either version 3 of the License, or      *
- * (at your option) any later version.                                    * 
+ * it under the terms of the GNU Lesser General Public License as         *
+ * published by the Free Software Foundation, either version 3 of the     *
+ * License, or (at your option) any later version.                        *
  *                                                                        *
  * pyo is distributed in the hope that it will be useful,                 *
- * but WITHOUT ANY WARRANTY; without even the implied warranty of         *    
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of         *
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the          *
- * GNU General Public License for more details.                           *
+ * GNU Lesser General Public License for more details.                    *
  *                                                                        *
- * You should have received a copy of the GNU General Public License      *
- * along with pyo.  If not, see <http://www.gnu.org/licenses/>.           *
+ * You should have received a copy of the GNU Lesser General Public       *
+ * License along with pyo.  If not, see <http://www.gnu.org/licenses/>.   *
  *************************************************************************/
 
 #include <Python.h>
@@ -31,20 +31,20 @@
 #define NUM_ALLPASS      4
 
 static const MYFLT comb_delays[NUM_COMB] = {
-1116.0 / DEFAULT_SRATE, 
-1188.0 / DEFAULT_SRATE, 
-1277.0 / DEFAULT_SRATE, 
+1116.0 / DEFAULT_SRATE,
+1188.0 / DEFAULT_SRATE,
+1277.0 / DEFAULT_SRATE,
 1356.0 / DEFAULT_SRATE,
-1422.0 / DEFAULT_SRATE, 
-1491.0 / DEFAULT_SRATE, 
-1557.0 / DEFAULT_SRATE, 
+1422.0 / DEFAULT_SRATE,
+1491.0 / DEFAULT_SRATE,
+1557.0 / DEFAULT_SRATE,
 1617.0 / DEFAULT_SRATE
 };
 
 static const MYFLT allpass_delays[NUM_ALLPASS] = {
-556.0 / DEFAULT_SRATE, 
-441.0 / DEFAULT_SRATE, 
-341.0 / DEFAULT_SRATE, 
+556.0 / DEFAULT_SRATE,
+441.0 / DEFAULT_SRATE,
+341.0 / DEFAULT_SRATE,
 225.0 / DEFAULT_SRATE
 };
 
@@ -86,7 +86,7 @@ _clip(MYFLT x)
         return x;
 }
 
-static int 
+static int
 Freeverb_calc_nsamples(Freeverb *self, MYFLT delTime)
 {
     return (int)(delTime * self->sr + 0.5);
@@ -108,10 +108,10 @@ Freeverb_transform_iii(Freeverb *self) {
 
     mix1 = MYSQRT(mix);
     mix2 = MYSQRT(1.0 - mix);
-    
+
     MYFLT tmp[self->bufsize];
     memset(&tmp, 0, sizeof(tmp));
-    
+
     for (j=0; j<self->bufsize; j++) {
         for (i=0; i<NUM_COMB; i++) {
             x = self->comb_buf[i][self->comb_bufPos[i]];
@@ -124,7 +124,7 @@ Freeverb_transform_iii(Freeverb *self) {
                 self->comb_bufPos[i] = 0;
         }
     }
-    
+
     for (i=0; i<NUM_ALLPASS; i++) {
         for (j=0; j<self->bufsize; j++) {
             x = self->allpass_buf[i][self->allpass_bufPos[i]] - tmp[j];
@@ -134,33 +134,33 @@ Freeverb_transform_iii(Freeverb *self) {
             if (self->allpass_bufPos[i] >= self->allpass_nSamples[i])
                 self->allpass_bufPos[i] = 0;
             tmp[j] = x;
-        }    
+        }
     }
-    
+
     for (i=0; i<self->bufsize; i++) {
         self->data[i] = (tmp[i] * fixedGain * mix1) + (in[i] * mix2);
-    }    
+    }
 }
 
 static void
 Freeverb_transform_aii(Freeverb *self) {
     MYFLT x, feedback, damp1, damp2, mix1, mix2;
     int i, j;
-    
+
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
     MYFLT *siz = Stream_getData((Stream *)self->size_stream);
     MYFLT dam = _clip(PyFloat_AS_DOUBLE(self->damp));
     MYFLT mix = _clip(PyFloat_AS_DOUBLE(self->mix));
-    
+
     damp1 = dam * scaleDamp;
     damp2 = 1.0 - damp1;
-    
+
     mix1 = MYSQRT(mix);
     mix2 = MYSQRT(1.0 - mix);
-    
+
     MYFLT tmp[self->bufsize];
     memset(&tmp, 0, sizeof(tmp));
-    
+
     for (j=0; j<self->bufsize; j++) {
         feedback = _clip(siz[j]) * scaleRoom + offsetRoom;
         for (i=0; i<NUM_COMB; i++) {
@@ -174,7 +174,7 @@ Freeverb_transform_aii(Freeverb *self) {
                 self->comb_bufPos[i] = 0;
         }
     }
-    
+
     for (i=0; i<NUM_ALLPASS; i++) {
         for (j=0; j<self->bufsize; j++) {
             x = self->allpass_buf[i][self->allpass_bufPos[i]] - tmp[j];
@@ -184,32 +184,32 @@ Freeverb_transform_aii(Freeverb *self) {
             if (self->allpass_bufPos[i] >= self->allpass_nSamples[i])
                 self->allpass_bufPos[i] = 0;
             tmp[j] = x;
-        }    
+        }
     }
-    
+
     for (i=0; i<self->bufsize; i++) {
         self->data[i] = (tmp[i] * fixedGain * mix1) + (in[i] * mix2);
-    }    
+    }
 }
 
 static void
 Freeverb_transform_iai(Freeverb *self) {
     MYFLT x, feedback, damp1, damp2, mix1, mix2;
     int i, j;
-    
+
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
     MYFLT siz = _clip(PyFloat_AS_DOUBLE(self->size));
     MYFLT *dam = Stream_getData((Stream *)self->damp_stream);
     MYFLT mix = _clip(PyFloat_AS_DOUBLE(self->mix));
-    
+
     feedback = siz * scaleRoom + offsetRoom;
-    
+
     mix1 = MYSQRT(mix);
     mix2 = MYSQRT(1.0 - mix);
-    
+
     MYFLT tmp[self->bufsize];
     memset(&tmp, 0, sizeof(tmp));
-    
+
     for (j=0; j<self->bufsize; j++) {
         damp1 = _clip(dam[j]) * scaleDamp;
         damp2 = 1.0 - damp1;
@@ -224,7 +224,7 @@ Freeverb_transform_iai(Freeverb *self) {
                 self->comb_bufPos[i] = 0;
         }
     }
-    
+
     for (i=0; i<NUM_ALLPASS; i++) {
         for (j=0; j<self->bufsize; j++) {
             x = self->allpass_buf[i][self->allpass_bufPos[i]] - tmp[j];
@@ -234,19 +234,19 @@ Freeverb_transform_iai(Freeverb *self) {
             if (self->allpass_bufPos[i] >= self->allpass_nSamples[i])
                 self->allpass_bufPos[i] = 0;
             tmp[j] = x;
-        }    
+        }
     }
-    
+
     for (i=0; i<self->bufsize; i++) {
         self->data[i] = (tmp[i] * fixedGain * mix1) + (in[i] * mix2);
-    }    
+    }
 }
 
 static void
 Freeverb_transform_aai(Freeverb *self) {
     MYFLT x, feedback, damp1, damp2, mix1, mix2;
     int i, j;
-    
+
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
     MYFLT *siz = Stream_getData((Stream *)self->size_stream);
     MYFLT *dam = Stream_getData((Stream *)self->damp_stream);
@@ -257,7 +257,7 @@ Freeverb_transform_aai(Freeverb *self) {
 
     MYFLT tmp[self->bufsize];
     memset(&tmp, 0, sizeof(tmp));
-    
+
     for (j=0; j<self->bufsize; j++) {
         feedback = _clip(siz[j]) * scaleRoom + offsetRoom;
         damp1 = _clip(dam[j]) * scaleDamp;
@@ -273,7 +273,7 @@ Freeverb_transform_aai(Freeverb *self) {
                 self->comb_bufPos[i] = 0;
         }
     }
-    
+
     for (i=0; i<NUM_ALLPASS; i++) {
         for (j=0; j<self->bufsize; j++) {
             x = self->allpass_buf[i][self->allpass_bufPos[i]] - tmp[j];
@@ -283,31 +283,31 @@ Freeverb_transform_aai(Freeverb *self) {
             if (self->allpass_bufPos[i] >= self->allpass_nSamples[i])
                 self->allpass_bufPos[i] = 0;
             tmp[j] = x;
-        }    
+        }
     }
-    
+
     for (i=0; i<self->bufsize; i++) {
         self->data[i] = (tmp[i] * fixedGain * mix1) + (in[i] * mix2);
-    }    
+    }
 }
 
 static void
 Freeverb_transform_iia(Freeverb *self) {
     MYFLT x, feedback, damp1, damp2, mix1, mix2, mixtmp;
     int i, j;
-    
+
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
     MYFLT siz = _clip(PyFloat_AS_DOUBLE(self->size));
     MYFLT dam = _clip(PyFloat_AS_DOUBLE(self->damp));
     MYFLT *mix = Stream_getData((Stream *)self->mix_stream);
-    
+
     feedback = siz * scaleRoom + offsetRoom;
     damp1 = dam * scaleDamp;
     damp2 = 1.0 - damp1;
 
     MYFLT tmp[self->bufsize];
     memset(&tmp, 0, sizeof(tmp));
-    
+
     for (j=0; j<self->bufsize; j++) {
         for (i=0; i<NUM_COMB; i++) {
             x = self->comb_buf[i][self->comb_bufPos[i]];
@@ -320,7 +320,7 @@ Freeverb_transform_iia(Freeverb *self) {
                 self->comb_bufPos[i] = 0;
         }
     }
-    
+
     for (i=0; i<NUM_ALLPASS; i++) {
         for (j=0; j<self->bufsize; j++) {
             x = self->allpass_buf[i][self->allpass_bufPos[i]] - tmp[j];
@@ -330,33 +330,33 @@ Freeverb_transform_iia(Freeverb *self) {
             if (self->allpass_bufPos[i] >= self->allpass_nSamples[i])
                 self->allpass_bufPos[i] = 0;
             tmp[j] = x;
-        }    
+        }
     }
-    
+
     for (i=0; i<self->bufsize; i++) {
         mixtmp = _clip(mix[i]);
         mix1 = MYSQRT(mixtmp);
         mix2 = MYSQRT(1.0 - mixtmp);
         self->data[i] = (tmp[i] * fixedGain * mix1) + (in[i] * mix2);
-    }    
+    }
 }
 
 static void
 Freeverb_transform_aia(Freeverb *self) {
     MYFLT x, feedback, damp1, damp2, mix1, mix2, mixtmp;
     int i, j;
-    
+
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
     MYFLT *siz = Stream_getData((Stream *)self->size_stream);
     MYFLT dam = _clip(PyFloat_AS_DOUBLE(self->damp));
     MYFLT *mix = Stream_getData((Stream *)self->mix_stream);
-    
+
     damp1 = dam * scaleDamp;
     damp2 = 1.0 - damp1;
-    
+
     MYFLT tmp[self->bufsize];
     memset(&tmp, 0, sizeof(tmp));
-    
+
     for (j=0; j<self->bufsize; j++) {
         feedback = _clip(siz[j]) * scaleRoom + offsetRoom;
         for (i=0; i<NUM_COMB; i++) {
@@ -370,7 +370,7 @@ Freeverb_transform_aia(Freeverb *self) {
                 self->comb_bufPos[i] = 0;
         }
     }
-    
+
     for (i=0; i<NUM_ALLPASS; i++) {
         for (j=0; j<self->bufsize; j++) {
             x = self->allpass_buf[i][self->allpass_bufPos[i]] - tmp[j];
@@ -380,32 +380,32 @@ Freeverb_transform_aia(Freeverb *self) {
             if (self->allpass_bufPos[i] >= self->allpass_nSamples[i])
                 self->allpass_bufPos[i] = 0;
             tmp[j] = x;
-        }    
+        }
     }
-    
+
     for (i=0; i<self->bufsize; i++) {
         mixtmp = _clip(mix[i]);
         mix1 = MYSQRT(mixtmp);
         mix2 = MYSQRT(1.0 - mixtmp);
         self->data[i] = (tmp[i] * fixedGain * mix1) + (in[i] * mix2);
-    }    
+    }
 }
 
 static void
 Freeverb_transform_iaa(Freeverb *self) {
     MYFLT x, feedback, damp1, damp2, mix1, mix2, mixtmp;
     int i, j;
-    
+
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
     MYFLT siz = _clip(PyFloat_AS_DOUBLE(self->size));
     MYFLT *dam = Stream_getData((Stream *)self->damp_stream);
     MYFLT *mix = Stream_getData((Stream *)self->mix_stream);
-    
+
     feedback = siz * scaleRoom + offsetRoom;
-    
+
     MYFLT tmp[self->bufsize];
     memset(&tmp, 0, sizeof(tmp));
-    
+
     for (j=0; j<self->bufsize; j++) {
         damp1 = _clip(dam[j]) * scaleDamp;
         damp2 = 1.0 - damp1;
@@ -420,7 +420,7 @@ Freeverb_transform_iaa(Freeverb *self) {
                 self->comb_bufPos[i] = 0;
         }
     }
-    
+
     for (i=0; i<NUM_ALLPASS; i++) {
         for (j=0; j<self->bufsize; j++) {
             x = self->allpass_buf[i][self->allpass_bufPos[i]] - tmp[j];
@@ -430,30 +430,30 @@ Freeverb_transform_iaa(Freeverb *self) {
             if (self->allpass_bufPos[i] >= self->allpass_nSamples[i])
                 self->allpass_bufPos[i] = 0;
             tmp[j] = x;
-        }    
+        }
     }
-    
+
     for (i=0; i<self->bufsize; i++) {
         mixtmp = _clip(mix[i]);
         mix1 = MYSQRT(mixtmp);
         mix2 = MYSQRT(1.0 - mixtmp);
         self->data[i] = (tmp[i] * fixedGain * mix1) + (in[i] * mix2);
-    }    
+    }
 }
 
 static void
 Freeverb_transform_aaa(Freeverb *self) {
     MYFLT x, feedback, damp1, damp2, mix1, mix2, mixtmp;
     int i, j;
-    
+
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
     MYFLT *siz = Stream_getData((Stream *)self->size_stream);
     MYFLT *dam = Stream_getData((Stream *)self->damp_stream);
     MYFLT *mix = Stream_getData((Stream *)self->mix_stream);
-        
+
     MYFLT tmp[self->bufsize];
     memset(&tmp, 0, sizeof(tmp));
-    
+
     for (j=0; j<self->bufsize; j++) {
         feedback = _clip(siz[j]) * scaleRoom + offsetRoom;
         damp1 = _clip(dam[j]) * scaleDamp;
@@ -469,7 +469,7 @@ Freeverb_transform_aaa(Freeverb *self) {
                 self->comb_bufPos[i] = 0;
         }
     }
-    
+
     for (i=0; i<NUM_ALLPASS; i++) {
         for (j=0; j<self->bufsize; j++) {
             x = self->allpass_buf[i][self->allpass_bufPos[i]] - tmp[j];
@@ -479,15 +479,15 @@ Freeverb_transform_aaa(Freeverb *self) {
             if (self->allpass_bufPos[i] >= self->allpass_nSamples[i])
                 self->allpass_bufPos[i] = 0;
             tmp[j] = x;
-        }    
+        }
     }
-    
+
     for (i=0; i<self->bufsize; i++) {
         mixtmp = _clip(mix[i]);
         mix1 = MYSQRT(mixtmp);
         mix2 = MYSQRT(1.0 - mixtmp);
         self->data[i] = (tmp[i] * fixedGain * mix1) + (in[i] * mix2);
-    }    
+    }
 }
 
 static void Freeverb_postprocessing_ii(Freeverb *self) { POST_PROCESSING_II };
@@ -508,66 +508,66 @@ Freeverb_setProcMode(Freeverb *self)
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
 
 	switch (procmode) {
-        case 0:    
+        case 0:
             self->proc_func_ptr = Freeverb_transform_iii;
             break;
-        case 1:    
+        case 1:
             self->proc_func_ptr = Freeverb_transform_aii;
             break;
-        case 10:        
+        case 10:
             self->proc_func_ptr = Freeverb_transform_iai;
             break;
-        case 11:    
+        case 11:
             self->proc_func_ptr = Freeverb_transform_aai;
             break;
-        case 100:        
+        case 100:
             self->proc_func_ptr = Freeverb_transform_iia;
             break;
-        case 101:    
+        case 101:
             self->proc_func_ptr = Freeverb_transform_aia;
             break;
-        case 110:        
+        case 110:
             self->proc_func_ptr = Freeverb_transform_iaa;
             break;
-        case 111:    
+        case 111:
             self->proc_func_ptr = Freeverb_transform_aaa;
             break;
-    } 
+    }
 	switch (muladdmode) {
-        case 0:        
+        case 0:
             self->muladd_func_ptr = Freeverb_postprocessing_ii;
             break;
-        case 1:    
+        case 1:
             self->muladd_func_ptr = Freeverb_postprocessing_ai;
             break;
-        case 2:    
+        case 2:
             self->muladd_func_ptr = Freeverb_postprocessing_revai;
             break;
-        case 10:        
+        case 10:
             self->muladd_func_ptr = Freeverb_postprocessing_ia;
             break;
-        case 11:    
+        case 11:
             self->muladd_func_ptr = Freeverb_postprocessing_aa;
             break;
-        case 12:    
+        case 12:
             self->muladd_func_ptr = Freeverb_postprocessing_revaa;
             break;
-        case 20:        
+        case 20:
             self->muladd_func_ptr = Freeverb_postprocessing_ireva;
             break;
-        case 21:    
+        case 21:
             self->muladd_func_ptr = Freeverb_postprocessing_areva;
             break;
-        case 22:    
+        case 22:
             self->muladd_func_ptr = Freeverb_postprocessing_revareva;
             break;
-    }   
+    }
 }
 
 static void
 Freeverb_compute_next_data_frame(Freeverb *self)
 {
-    (*self->proc_func_ptr)(self); 
+    (*self->proc_func_ptr)(self);
     (*self->muladd_func_ptr)(self);
 }
 
@@ -576,28 +576,28 @@ Freeverb_traverse(Freeverb *self, visitproc visit, void *arg)
 {
     pyo_VISIT
     Py_VISIT(self->input);
-    Py_VISIT(self->input_stream);    
-    Py_VISIT(self->size);    
-    Py_VISIT(self->size_stream);    
-    Py_VISIT(self->damp);    
-    Py_VISIT(self->damp_stream);    
-    Py_VISIT(self->mix);    
-    Py_VISIT(self->mix_stream);    
+    Py_VISIT(self->input_stream);
+    Py_VISIT(self->size);
+    Py_VISIT(self->size_stream);
+    Py_VISIT(self->damp);
+    Py_VISIT(self->damp_stream);
+    Py_VISIT(self->mix);
+    Py_VISIT(self->mix_stream);
     return 0;
 }
 
-static int 
+static int
 Freeverb_clear(Freeverb *self)
 {
     pyo_CLEAR
     Py_CLEAR(self->input);
     Py_CLEAR(self->input_stream);
-    Py_CLEAR(self->size);    
-    Py_CLEAR(self->size_stream);    
-    Py_CLEAR(self->damp);    
-    Py_CLEAR(self->damp_stream);    
-    Py_CLEAR(self->mix);    
-    Py_CLEAR(self->mix_stream);    
+    Py_CLEAR(self->size);
+    Py_CLEAR(self->size_stream);
+    Py_CLEAR(self->damp);
+    Py_CLEAR(self->damp_stream);
+    Py_CLEAR(self->mix);
+    Py_CLEAR(self->mix_stream);
     return 0;
 }
 
@@ -611,7 +611,7 @@ Freeverb_dealloc(Freeverb* self)
     }
     for(i=0; i<NUM_ALLPASS; i++) {
         free(self->allpass_buf[i]);
-    }    
+    }
     Freeverb_clear(self);
     self->ob_type->tp_free((PyObject*)self);
 }
@@ -633,7 +633,7 @@ Freeverb_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 	self->modebuffer[2] = 0;
 	self->modebuffer[3] = 0;
 	self->modebuffer[4] = 0;
-    
+
     self->srFactor = pow((DEFAULT_SRATE/self->sr), 0.8);
 
     INIT_OBJECT_COMMON
@@ -658,7 +658,7 @@ Freeverb_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (mixtmp) {
         PyObject_CallMethod((PyObject *)self, "setMix", "O", mixtmp);
     }
-    
+
     if (multmp) {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
     }
@@ -666,13 +666,13 @@ Freeverb_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (addtmp) {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
-            
+
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
     (*self->mode_func_ptr)(self);
 
     Server_generateSeed((Server *)self->server, FREEVERB_ID);
-    
+
     rndSamps = (rand()/(MYFLT)(RAND_MAX) * 20 + 10) / DEFAULT_SRATE;
     for(i=0; i<NUM_COMB; i++) {
         nsamps = Freeverb_calc_nsamples((Freeverb *)self, comb_delays[i] + rndSamps);
@@ -683,7 +683,7 @@ Freeverb_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         for(j=0; j<nsamps; j++) {
             self->comb_buf[i][j] = 0.0;
         }
-    }    
+    }
         for(i=0; i<NUM_ALLPASS; i++) {
             nsamps = Freeverb_calc_nsamples((Freeverb *)self, allpass_delays[i] + rndSamps);
             self->allpass_buf[i] = (MYFLT *)realloc(self->allpass_buf[i], (nsamps+1) * sizeof(MYFLT));
@@ -693,16 +693,16 @@ Freeverb_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
                 self->allpass_buf[i][j] = 0.0;
             }
     }
-    
+
     return (PyObject *)self;
 }
 
 static PyObject * Freeverb_getServer(Freeverb* self) { GET_SERVER };
 static PyObject * Freeverb_getStream(Freeverb* self) { GET_STREAM };
-static PyObject * Freeverb_setMul(Freeverb *self, PyObject *arg) { SET_MUL };	
-static PyObject * Freeverb_setAdd(Freeverb *self, PyObject *arg) { SET_ADD };	
-static PyObject * Freeverb_setSub(Freeverb *self, PyObject *arg) { SET_SUB };	
-static PyObject * Freeverb_setDiv(Freeverb *self, PyObject *arg) { SET_DIV };	
+static PyObject * Freeverb_setMul(Freeverb *self, PyObject *arg) { SET_MUL };
+static PyObject * Freeverb_setAdd(Freeverb *self, PyObject *arg) { SET_ADD };
+static PyObject * Freeverb_setSub(Freeverb *self, PyObject *arg) { SET_SUB };
+static PyObject * Freeverb_setDiv(Freeverb *self, PyObject *arg) { SET_DIV };
 
 static PyObject * Freeverb_play(Freeverb *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * Freeverb_out(Freeverb *self, PyObject *args, PyObject *kwds) { OUT };
@@ -721,14 +721,14 @@ static PyObject *
 Freeverb_setSize(Freeverb *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
-	
+
 	if (arg == NULL) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
 	int isNumber = PyNumber_Check(arg);
-	
+
 	tmp = arg;
 	Py_INCREF(tmp);
 	Py_DECREF(self->size);
@@ -744,25 +744,25 @@ Freeverb_setSize(Freeverb *self, PyObject *arg)
         self->size_stream = (Stream *)streamtmp;
 		self->modebuffer[2] = 1;
 	}
-    
+
     (*self->mode_func_ptr)(self);
-    
+
 	Py_INCREF(Py_None);
 	return Py_None;
-}	
+}
 
 static PyObject *
 Freeverb_setDamp(Freeverb *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
-	
+
 	if (arg == NULL) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
 	int isNumber = PyNumber_Check(arg);
-	
+
 	tmp = arg;
 	Py_INCREF(tmp);
 	Py_DECREF(self->damp);
@@ -778,25 +778,25 @@ Freeverb_setDamp(Freeverb *self, PyObject *arg)
         self->damp_stream = (Stream *)streamtmp;
 		self->modebuffer[3] = 1;
 	}
-    
+
     (*self->mode_func_ptr)(self);
-    
+
 	Py_INCREF(Py_None);
 	return Py_None;
-}	
+}
 
 static PyObject *
 Freeverb_setMix(Freeverb *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
-	
+
 	if (arg == NULL) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
 	int isNumber = PyNumber_Check(arg);
-	
+
 	tmp = arg;
 	Py_INCREF(tmp);
 	Py_DECREF(self->mix);
@@ -812,9 +812,9 @@ Freeverb_setMix(Freeverb *self, PyObject *arg)
         self->mix_stream = (Stream *)streamtmp;
 		self->modebuffer[4] = 1;
 	}
-    
+
     (*self->mode_func_ptr)(self);
-    
+
 	Py_INCREF(Py_None);
 	return Py_None;
 }

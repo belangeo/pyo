@@ -1,21 +1,21 @@
-/*************************************************************************
- * Copyright 2010 Olivier Belanger                                        *                  
- *                                                                        * 
+/**************************************************************************
+ * Copyright 2009-2015 Olivier Belanger                                   *
+ *                                                                        *
  * This file is part of pyo, a python module to help digital signal       *
- * processing script creation.                                            *  
- *                                                                        * 
+ * processing script creation.                                            *
+ *                                                                        *
  * pyo is free software: you can redistribute it and/or modify            *
- * it under the terms of the GNU General Public License as published by   *
- * the Free Software Foundation, either version 3 of the License, or      *
- * (at your option) any later version.                                    * 
+ * it under the terms of the GNU Lesser General Public License as         *
+ * published by the Free Software Foundation, either version 3 of the     *
+ * License, or (at your option) any later version.                        *
  *                                                                        *
  * pyo is distributed in the hope that it will be useful,                 *
- * but WITHOUT ANY WARRANTY; without even the implied warranty of         *    
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of         *
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the          *
- * GNU General Public License for more details.                           *
+ * GNU Lesser General Public License for more details.                    *
  *                                                                        *
- * You should have received a copy of the GNU General Public License      *
- * along with pyo.  If not, see <http://www.gnu.org/licenses/>.           *
+ * You should have received a copy of the GNU Lesser General Public       *
+ * License along with pyo.  If not, see <http://www.gnu.org/licenses/>.   *
  *************************************************************************/
 
 #include <Python.h>
@@ -34,7 +34,7 @@ typedef struct {
     PyObject *max;
     Stream *max_stream;
     MYFLT value;
-    int modebuffer[3]; // need at least 2 slots for mul & add 
+    int modebuffer[3]; // need at least 2 slots for mul & add
 } TrigRandInt;
 
 static void
@@ -42,11 +42,11 @@ TrigRandInt_generate_i(TrigRandInt *self) {
     int i;
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
     MYFLT ma = PyFloat_AS_DOUBLE(self->max);
-    
+
     for (i=0; i<self->bufsize; i++) {
         if (in[i] == 1)
             self->value = (MYFLT)((int)(rand()/((MYFLT)(RAND_MAX)+1)*ma));
-        
+
         self->data[i] = self->value;
     }
 }
@@ -56,11 +56,11 @@ TrigRandInt_generate_a(TrigRandInt *self) {
     int i;
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
     MYFLT *ma = Stream_getData((Stream *)self->max_stream);
-    
+
     for (i=0; i<self->bufsize; i++) {
         if (in[i] == 1)
             self->value = (MYFLT)((int)(rand()/((MYFLT)(RAND_MAX)+1)*ma[i]));
-        
+
         self->data[i] = self->value;
     }
 }
@@ -81,50 +81,50 @@ TrigRandInt_setProcMode(TrigRandInt *self)
     int procmode, muladdmode;
     procmode = self->modebuffer[2];
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
-    
+
 	switch (procmode) {
-        case 0:    
+        case 0:
             self->proc_func_ptr = TrigRandInt_generate_i;
             break;
-        case 1:    
+        case 1:
             self->proc_func_ptr = TrigRandInt_generate_a;
             break;
-    } 
+    }
 	switch (muladdmode) {
-        case 0:        
+        case 0:
             self->muladd_func_ptr = TrigRandInt_postprocessing_ii;
             break;
-        case 1:    
+        case 1:
             self->muladd_func_ptr = TrigRandInt_postprocessing_ai;
             break;
-        case 2:    
+        case 2:
             self->muladd_func_ptr = TrigRandInt_postprocessing_revai;
             break;
-        case 10:        
+        case 10:
             self->muladd_func_ptr = TrigRandInt_postprocessing_ia;
             break;
-        case 11:    
+        case 11:
             self->muladd_func_ptr = TrigRandInt_postprocessing_aa;
             break;
-        case 12:    
+        case 12:
             self->muladd_func_ptr = TrigRandInt_postprocessing_revaa;
             break;
-        case 20:        
+        case 20:
             self->muladd_func_ptr = TrigRandInt_postprocessing_ireva;
             break;
-        case 21:    
+        case 21:
             self->muladd_func_ptr = TrigRandInt_postprocessing_areva;
             break;
-        case 22:    
+        case 22:
             self->muladd_func_ptr = TrigRandInt_postprocessing_revareva;
             break;
-    }  
+    }
 }
 
 static void
 TrigRandInt_compute_next_data_frame(TrigRandInt *self)
 {
-    (*self->proc_func_ptr)(self); 
+    (*self->proc_func_ptr)(self);
     (*self->muladd_func_ptr)(self);
 }
 
@@ -134,19 +134,19 @@ TrigRandInt_traverse(TrigRandInt *self, visitproc visit, void *arg)
     pyo_VISIT
     Py_VISIT(self->input);
     Py_VISIT(self->input_stream);
-    Py_VISIT(self->max);    
-    Py_VISIT(self->max_stream);    
+    Py_VISIT(self->max);
+    Py_VISIT(self->max_stream);
     return 0;
 }
 
-static int 
+static int
 TrigRandInt_clear(TrigRandInt *self)
 {
     pyo_CLEAR
     Py_CLEAR(self->input);
     Py_CLEAR(self->input_stream);
-    Py_CLEAR(self->max);    
-    Py_CLEAR(self->max_stream);    
+    Py_CLEAR(self->max);
+    Py_CLEAR(self->max_stream);
     return 0;
 }
 
@@ -166,38 +166,38 @@ TrigRandInt_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp, *maxtmp=NULL, *multmp=NULL, *addtmp=NULL;
     TrigRandInt *self;
     self = (TrigRandInt *)type->tp_alloc(type, 0);
-    
+
     self->max = PyFloat_FromDouble(100.);
     self->value = 0.;
 	self->modebuffer[0] = 0;
 	self->modebuffer[1] = 0;
 	self->modebuffer[2] = 0;
-    
+
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, TrigRandInt_compute_next_data_frame);
     self->mode_func_ptr = TrigRandInt_setProcMode;
 
     static char *kwlist[] = {"input", "max", "mul", "add", NULL};
-    
+
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOO", kwlist, &inputtmp, &maxtmp, &multmp, &addtmp))
         Py_RETURN_NONE;
-    
+
     INIT_INPUT_STREAM
 
     if (maxtmp) {
         PyObject_CallMethod((PyObject *)self, "setMax", "O", maxtmp);
     }
-    
+
     if (multmp) {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
     }
-    
+
     if (addtmp) {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
-    
+
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
-    
+
     Server_generateSeed((Server *)self->server, TRIGRANDINT_ID);
 
     if (self->modebuffer[2] == 0)
@@ -213,10 +213,10 @@ TrigRandInt_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
 static PyObject * TrigRandInt_getServer(TrigRandInt* self) { GET_SERVER };
 static PyObject * TrigRandInt_getStream(TrigRandInt* self) { GET_STREAM };
-static PyObject * TrigRandInt_setMul(TrigRandInt *self, PyObject *arg) { SET_MUL };	
-static PyObject * TrigRandInt_setAdd(TrigRandInt *self, PyObject *arg) { SET_ADD };	
-static PyObject * TrigRandInt_setSub(TrigRandInt *self, PyObject *arg) { SET_SUB };	
-static PyObject * TrigRandInt_setDiv(TrigRandInt *self, PyObject *arg) { SET_DIV };	
+static PyObject * TrigRandInt_setMul(TrigRandInt *self, PyObject *arg) { SET_MUL };
+static PyObject * TrigRandInt_setAdd(TrigRandInt *self, PyObject *arg) { SET_ADD };
+static PyObject * TrigRandInt_setSub(TrigRandInt *self, PyObject *arg) { SET_SUB };
+static PyObject * TrigRandInt_setDiv(TrigRandInt *self, PyObject *arg) { SET_DIV };
 
 static PyObject * TrigRandInt_play(TrigRandInt *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * TrigRandInt_out(TrigRandInt *self, PyObject *args, PyObject *kwds) { OUT };
@@ -235,14 +235,14 @@ static PyObject *
 TrigRandInt_setMax(TrigRandInt *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
-	
+
 	if (arg == NULL) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
 	int isNumber = PyNumber_Check(arg);
-	
+
 	tmp = arg;
 	Py_INCREF(tmp);
 	Py_DECREF(self->max);
@@ -258,12 +258,12 @@ TrigRandInt_setMax(TrigRandInt *self, PyObject *arg)
         self->max_stream = (Stream *)streamtmp;
 		self->modebuffer[2] = 1;
 	}
-    
+
     (*self->mode_func_ptr)(self);
-    
+
 	Py_INCREF(Py_None);
 	return Py_None;
-}	
+}
 
 static PyMemberDef TrigRandInt_members[] = {
     {"server", T_OBJECT_EX, offsetof(TrigRandInt, server), 0, "Pyo server."},
@@ -387,7 +387,7 @@ typedef struct {
     int timeStep;
     MYFLT stepVal;
     int timeCount;
-    int modebuffer[4]; // need at least 2 slots for mul & add 
+    int modebuffer[4]; // need at least 2 slots for mul & add
 } TrigRand;
 
 static void
@@ -397,7 +397,7 @@ TrigRand_generate_ii(TrigRand *self) {
     MYFLT mi = PyFloat_AS_DOUBLE(self->min);
     MYFLT ma = PyFloat_AS_DOUBLE(self->max);
     MYFLT range = ma - mi;
-    
+
     for (i=0; i<self->bufsize; i++) {
         if (in[i] == 1) {
             self->timeCount = 0;
@@ -407,7 +407,7 @@ TrigRand_generate_ii(TrigRand *self) {
             else
                 self->stepVal = (self->value - self->currentValue) / self->timeStep;
         }
-        
+
         if (self->timeCount == (self->timeStep - 1)) {
             self->currentValue = self->value;
             self->timeCount++;
@@ -416,7 +416,7 @@ TrigRand_generate_ii(TrigRand *self) {
             self->currentValue += self->stepVal;
             self->timeCount++;
         }
-        
+
         self->data[i] = self->currentValue;
     }
 }
@@ -427,7 +427,7 @@ TrigRand_generate_ai(TrigRand *self) {
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
     MYFLT *mi = Stream_getData((Stream *)self->min_stream);
     MYFLT ma = PyFloat_AS_DOUBLE(self->max);
-    
+
     for (i=0; i<self->bufsize; i++) {
         MYFLT range = ma - mi[i];
         if (in[i] == 1) {
@@ -447,8 +447,8 @@ TrigRand_generate_ai(TrigRand *self) {
             self->currentValue += self->stepVal;
             self->timeCount++;
         }
-        
-        self->data[i] = self->currentValue;        
+
+        self->data[i] = self->currentValue;
     }
 }
 
@@ -458,7 +458,7 @@ TrigRand_generate_ia(TrigRand *self) {
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
     MYFLT mi = PyFloat_AS_DOUBLE(self->min);
     MYFLT *ma = Stream_getData((Stream *)self->max_stream);
-    
+
     for (i=0; i<self->bufsize; i++) {
         MYFLT range = ma[i] - mi;
         if (in[i] == 1) {
@@ -469,7 +469,7 @@ TrigRand_generate_ia(TrigRand *self) {
             else
                 self->stepVal = (self->value - self->currentValue) / self->timeStep;
         }
-        
+
         if (self->timeCount == (self->timeStep - 1)) {
             self->currentValue = self->value;
             self->timeCount++;
@@ -478,7 +478,7 @@ TrigRand_generate_ia(TrigRand *self) {
             self->currentValue += self->stepVal;
             self->timeCount++;
         }
-        
+
         self->data[i] = self->currentValue;
     }
 }
@@ -489,7 +489,7 @@ TrigRand_generate_aa(TrigRand *self) {
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
     MYFLT *mi = Stream_getData((Stream *)self->min_stream);
     MYFLT *ma = Stream_getData((Stream *)self->max_stream);
-    
+
     for (i=0; i<self->bufsize; i++) {
         MYFLT range = ma[i] - mi[i];
         if (in[i] == 1) {
@@ -500,7 +500,7 @@ TrigRand_generate_aa(TrigRand *self) {
             else
                 self->stepVal = (self->value - self->currentValue) / self->timeStep;
         }
-        
+
         if (self->timeCount == (self->timeStep - 1)) {
             self->currentValue = self->value;
             self->timeCount++;
@@ -509,7 +509,7 @@ TrigRand_generate_aa(TrigRand *self) {
             self->currentValue += self->stepVal;
             self->timeCount++;
         }
-        
+
         self->data[i] = self->currentValue;
     }
 }
@@ -530,56 +530,56 @@ TrigRand_setProcMode(TrigRand *self)
     int procmode, muladdmode;
     procmode = self->modebuffer[2] + self->modebuffer[3] * 10;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
-    
+
 	switch (procmode) {
-        case 0:    
+        case 0:
             self->proc_func_ptr = TrigRand_generate_ii;
             break;
-        case 1:    
+        case 1:
             self->proc_func_ptr = TrigRand_generate_ai;
             break;
-        case 10:    
+        case 10:
             self->proc_func_ptr = TrigRand_generate_ia;
             break;
-        case 11:    
+        case 11:
             self->proc_func_ptr = TrigRand_generate_aa;
             break;
-    } 
+    }
 	switch (muladdmode) {
-        case 0:        
+        case 0:
             self->muladd_func_ptr = TrigRand_postprocessing_ii;
             break;
-        case 1:    
+        case 1:
             self->muladd_func_ptr = TrigRand_postprocessing_ai;
             break;
-        case 2:    
+        case 2:
             self->muladd_func_ptr = TrigRand_postprocessing_revai;
             break;
-        case 10:        
+        case 10:
             self->muladd_func_ptr = TrigRand_postprocessing_ia;
             break;
-        case 11:    
+        case 11:
             self->muladd_func_ptr = TrigRand_postprocessing_aa;
             break;
-        case 12:    
+        case 12:
             self->muladd_func_ptr = TrigRand_postprocessing_revaa;
             break;
-        case 20:        
+        case 20:
             self->muladd_func_ptr = TrigRand_postprocessing_ireva;
             break;
-        case 21:    
+        case 21:
             self->muladd_func_ptr = TrigRand_postprocessing_areva;
             break;
-        case 22:    
+        case 22:
             self->muladd_func_ptr = TrigRand_postprocessing_revareva;
             break;
-    }  
+    }
 }
 
 static void
 TrigRand_compute_next_data_frame(TrigRand *self)
 {
-    (*self->proc_func_ptr)(self); 
+    (*self->proc_func_ptr)(self);
     (*self->muladd_func_ptr)(self);
 }
 
@@ -589,23 +589,23 @@ TrigRand_traverse(TrigRand *self, visitproc visit, void *arg)
     pyo_VISIT
     Py_VISIT(self->input);
     Py_VISIT(self->input_stream);
-    Py_VISIT(self->min);    
-    Py_VISIT(self->min_stream);    
-    Py_VISIT(self->max);    
-    Py_VISIT(self->max_stream);    
+    Py_VISIT(self->min);
+    Py_VISIT(self->min_stream);
+    Py_VISIT(self->max);
+    Py_VISIT(self->max_stream);
     return 0;
 }
 
-static int 
+static int
 TrigRand_clear(TrigRand *self)
 {
     pyo_CLEAR
     Py_CLEAR(self->input);
     Py_CLEAR(self->input_stream);
-    Py_CLEAR(self->min);    
-    Py_CLEAR(self->min_stream);    
-    Py_CLEAR(self->max);    
-    Py_CLEAR(self->max_stream);    
+    Py_CLEAR(self->min);
+    Py_CLEAR(self->min_stream);
+    Py_CLEAR(self->max);
+    Py_CLEAR(self->max_stream);
     return 0;
 }
 
@@ -625,7 +625,7 @@ TrigRand_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp, *mintmp=NULL, *maxtmp=NULL, *multmp=NULL, *addtmp=NULL;
     TrigRand *self;
     self = (TrigRand *)type->tp_alloc(type, 0);
-    
+
     self->min = PyFloat_FromDouble(0.);
     self->max = PyFloat_FromDouble(1.);
     self->value = self->currentValue = 0.;
@@ -636,34 +636,34 @@ TrigRand_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 	self->modebuffer[1] = 0;
 	self->modebuffer[2] = 0;
 	self->modebuffer[3] = 0;
-    
+
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, TrigRand_compute_next_data_frame);
     self->mode_func_ptr = TrigRand_setProcMode;
 
     static char *kwlist[] = {"input", "min", "max", "port", "init", "mul", "add", NULL};
-    
+
     if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_O_OOFFOO, kwlist, &inputtmp, &mintmp, &maxtmp, &self->time, &inittmp, &multmp, &addtmp))
         Py_RETURN_NONE;
-    
+
     INIT_INPUT_STREAM
-    
+
     if (mintmp) {
         PyObject_CallMethod((PyObject *)self, "setMin", "O", mintmp);
     }
-    
+
     if (maxtmp) {
         PyObject_CallMethod((PyObject *)self, "setMax", "O", maxtmp);
     }
-    
+
     if (multmp) {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
     }
-    
+
     if (addtmp) {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
-    
+
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
     Server_generateSeed((Server *)self->server, TRIGRAND_ID);
@@ -678,10 +678,10 @@ TrigRand_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
 static PyObject * TrigRand_getServer(TrigRand* self) { GET_SERVER };
 static PyObject * TrigRand_getStream(TrigRand* self) { GET_STREAM };
-static PyObject * TrigRand_setMul(TrigRand *self, PyObject *arg) { SET_MUL };	
-static PyObject * TrigRand_setAdd(TrigRand *self, PyObject *arg) { SET_ADD };	
-static PyObject * TrigRand_setSub(TrigRand *self, PyObject *arg) { SET_SUB };	
-static PyObject * TrigRand_setDiv(TrigRand *self, PyObject *arg) { SET_DIV };	
+static PyObject * TrigRand_setMul(TrigRand *self, PyObject *arg) { SET_MUL };
+static PyObject * TrigRand_setAdd(TrigRand *self, PyObject *arg) { SET_ADD };
+static PyObject * TrigRand_setSub(TrigRand *self, PyObject *arg) { SET_SUB };
+static PyObject * TrigRand_setDiv(TrigRand *self, PyObject *arg) { SET_DIV };
 
 static PyObject * TrigRand_play(TrigRand *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * TrigRand_out(TrigRand *self, PyObject *args, PyObject *kwds) { OUT };
@@ -700,14 +700,14 @@ static PyObject *
 TrigRand_setMin(TrigRand *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
-	
+
 	if (arg == NULL) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
 	int isNumber = PyNumber_Check(arg);
-	
+
 	tmp = arg;
 	Py_INCREF(tmp);
 	Py_DECREF(self->min);
@@ -723,25 +723,25 @@ TrigRand_setMin(TrigRand *self, PyObject *arg)
         self->min_stream = (Stream *)streamtmp;
 		self->modebuffer[2] = 1;
 	}
-    
+
     (*self->mode_func_ptr)(self);
-    
+
 	Py_INCREF(Py_None);
 	return Py_None;
-}	
+}
 
 static PyObject *
 TrigRand_setMax(TrigRand *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
-	
+
 	if (arg == NULL) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
 	int isNumber = PyNumber_Check(arg);
-	
+
 	tmp = arg;
 	Py_INCREF(tmp);
 	Py_DECREF(self->max);
@@ -757,35 +757,35 @@ TrigRand_setMax(TrigRand *self, PyObject *arg)
         self->max_stream = (Stream *)streamtmp;
 		self->modebuffer[3] = 1;
 	}
-    
+
     (*self->mode_func_ptr)(self);
-    
+
 	Py_INCREF(Py_None);
 	return Py_None;
-}	
+}
 
 static PyObject *
 TrigRand_setPort(TrigRand *self, PyObject *arg)
 {
 	PyObject *tmp;
-	
+
 	if (arg == NULL) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
 	int isNumber = PyNumber_Check(arg);
-	
+
 	tmp = arg;
 	Py_INCREF(tmp);
 	if (isNumber == 1) {
 		self->time = PyFloat_AS_DOUBLE(PyNumber_Float(tmp));
         self->timeStep = (int)(self->time * self->sr);
 	}
-    
+
 	Py_INCREF(Py_None);
 	return Py_None;
-}	
+}
 
 static PyMemberDef TrigRand_members[] = {
 {"server", T_OBJECT_EX, offsetof(TrigRand, server), 0, "Pyo server."},
@@ -913,14 +913,14 @@ typedef struct {
     int timeStep;
     MYFLT stepVal;
     int timeCount;
-    int modebuffer[2]; // need at least 2 slots for mul & add 
+    int modebuffer[2]; // need at least 2 slots for mul & add
 } TrigChoice;
 
 static void
 TrigChoice_generate(TrigChoice *self) {
     int i;
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
-    
+
     for (i=0; i<self->bufsize; i++) {
         if (in[i] == 1) {
             self->timeCount = 0;
@@ -930,7 +930,7 @@ TrigChoice_generate(TrigChoice *self) {
             else
                 self->stepVal = (self->value - self->currentValue) / self->timeStep;
         }
-        
+
         if (self->timeCount == (self->timeStep - 1)) {
             self->currentValue = self->value;
             self->timeCount++;
@@ -939,7 +939,7 @@ TrigChoice_generate(TrigChoice *self) {
             self->currentValue += self->stepVal;
             self->timeCount++;
         }
-        
+
         self->data[i] = self->currentValue;
     }
 }
@@ -959,44 +959,44 @@ TrigChoice_setProcMode(TrigChoice *self)
 {
     int muladdmode;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
-    
+
     self->proc_func_ptr = TrigChoice_generate;
-    
+
 	switch (muladdmode) {
-        case 0:        
+        case 0:
             self->muladd_func_ptr = TrigChoice_postprocessing_ii;
             break;
-        case 1:    
+        case 1:
             self->muladd_func_ptr = TrigChoice_postprocessing_ai;
             break;
-        case 2:    
+        case 2:
             self->muladd_func_ptr = TrigChoice_postprocessing_revai;
             break;
-        case 10:        
+        case 10:
             self->muladd_func_ptr = TrigChoice_postprocessing_ia;
             break;
-        case 11:    
+        case 11:
             self->muladd_func_ptr = TrigChoice_postprocessing_aa;
             break;
-        case 12:    
+        case 12:
             self->muladd_func_ptr = TrigChoice_postprocessing_revaa;
             break;
-        case 20:        
+        case 20:
             self->muladd_func_ptr = TrigChoice_postprocessing_ireva;
             break;
-        case 21:    
+        case 21:
             self->muladd_func_ptr = TrigChoice_postprocessing_areva;
             break;
-        case 22:    
+        case 22:
             self->muladd_func_ptr = TrigChoice_postprocessing_revareva;
             break;
-    }  
+    }
 }
 
 static void
 TrigChoice_compute_next_data_frame(TrigChoice *self)
 {
-    (*self->proc_func_ptr)(self); 
+    (*self->proc_func_ptr)(self);
     (*self->muladd_func_ptr)(self);
 }
 
@@ -1009,7 +1009,7 @@ TrigChoice_traverse(TrigChoice *self, visitproc visit, void *arg)
     return 0;
 }
 
-static int 
+static int
 TrigChoice_clear(TrigChoice *self)
 {
     pyo_CLEAR
@@ -1035,25 +1035,25 @@ TrigChoice_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp, *choicetmp=NULL, *multmp=NULL, *addtmp=NULL;
     TrigChoice *self;
     self = (TrigChoice *)type->tp_alloc(type, 0);
-    
+
     self->value = self->currentValue = 0.;
     self->time = 0.0;
     self->timeCount = 0;
     self->stepVal = 0.0;
 	self->modebuffer[0] = 0;
 	self->modebuffer[1] = 0;
-    
+
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, TrigChoice_compute_next_data_frame);
     self->mode_func_ptr = TrigChoice_setProcMode;
 
     static char *kwlist[] = {"input", "choice", "port", "init", "mul", "add", NULL};
-    
+
     if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_OO_FFOO, kwlist, &inputtmp, &choicetmp, &self->time, &inittmp, &multmp, &addtmp))
         Py_RETURN_NONE;
-    
+
     INIT_INPUT_STREAM
-    
+
     if (choicetmp) {
         PyObject_CallMethod((PyObject *)self, "setChoice", "O", choicetmp);
     }
@@ -1061,18 +1061,18 @@ TrigChoice_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (multmp) {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
     }
-    
+
     if (addtmp) {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
-    
+
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
-    
+
     Server_generateSeed((Server *)self->server, TRIGCHOICE_ID);
 
     self->value = self->currentValue = inittmp;
     self->timeStep = (int)(self->time * self->sr);
-    
+
     (*self->mode_func_ptr)(self);
 
     return (PyObject *)self;
@@ -1080,10 +1080,10 @@ TrigChoice_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
 static PyObject * TrigChoice_getServer(TrigChoice* self) { GET_SERVER };
 static PyObject * TrigChoice_getStream(TrigChoice* self) { GET_STREAM };
-static PyObject * TrigChoice_setMul(TrigChoice *self, PyObject *arg) { SET_MUL };	
-static PyObject * TrigChoice_setAdd(TrigChoice *self, PyObject *arg) { SET_ADD };	
-static PyObject * TrigChoice_setSub(TrigChoice *self, PyObject *arg) { SET_SUB };	
-static PyObject * TrigChoice_setDiv(TrigChoice *self, PyObject *arg) { SET_DIV };	
+static PyObject * TrigChoice_setMul(TrigChoice *self, PyObject *arg) { SET_MUL };
+static PyObject * TrigChoice_setAdd(TrigChoice *self, PyObject *arg) { SET_ADD };
+static PyObject * TrigChoice_setSub(TrigChoice *self, PyObject *arg) { SET_SUB };
+static PyObject * TrigChoice_setDiv(TrigChoice *self, PyObject *arg) { SET_DIV };
 
 static PyObject * TrigChoice_play(TrigChoice *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * TrigChoice_out(TrigChoice *self, PyObject *args, PyObject *kwds) { OUT };
@@ -1103,7 +1103,7 @@ TrigChoice_setChoice(TrigChoice *self, PyObject *arg)
 {
     int i;
 	PyObject *tmp;
-	
+
 	if (! PyList_Check(arg)) {
         PyErr_SetString(PyExc_TypeError, "The choice attribute must be a list.");
 		Py_INCREF(Py_None);
@@ -1116,35 +1116,35 @@ TrigChoice_setChoice(TrigChoice *self, PyObject *arg)
     for (i=0; i<self->chSize; i++) {
         self->choice[i] = PyFloat_AS_DOUBLE(PyNumber_Float(PyList_GET_ITEM(tmp, i)));
     }
-    
+
     (*self->mode_func_ptr)(self);
-    
+
 	Py_INCREF(Py_None);
 	return Py_None;
-}	
+}
 
 static PyObject *
 TrigChoice_setPort(TrigChoice *self, PyObject *arg)
 {
 	PyObject *tmp;
-	
+
 	if (arg == NULL) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
 	int isNumber = PyNumber_Check(arg);
-	
+
 	tmp = arg;
 	Py_INCREF(tmp);
 	if (isNumber == 1) {
 		self->time = PyFloat_AS_DOUBLE(PyNumber_Float(tmp));
         self->timeStep = (int)(self->time * self->sr);
 	}
-    
+
 	Py_INCREF(Py_None);
 	return Py_None;
-}	
+}
 
 static PyMemberDef TrigChoice_members[] = {
 {"server", T_OBJECT_EX, offsetof(TrigChoice, server), 0, "Pyo server."},
@@ -1270,7 +1270,7 @@ TrigFunc_generate(TrigFunc *self) {
     int i;
     PyObject *tuple, *result;
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
-    
+
     for (i=0; i<self->bufsize; i++) {
         if (in[i] == 1) {
             if (self->arg == Py_None) {
@@ -1283,20 +1283,20 @@ TrigFunc_generate(TrigFunc *self) {
             else {
                 tuple = PyTuple_New(1);
                 PyTuple_SET_ITEM(tuple, 0, self->arg);
-                result = PyObject_Call(self->func, tuple, NULL);                
+                result = PyObject_Call(self->func, tuple, NULL);
                 if (result == NULL) {
                     PyErr_Print();
                     return;
                 }
             }
-        }    
+        }
     }
 }
 
 static void
 TrigFunc_compute_next_data_frame(TrigFunc *self)
 {
-    TrigFunc_generate(self); 
+    TrigFunc_generate(self);
 }
 
 static int
@@ -1310,7 +1310,7 @@ TrigFunc_traverse(TrigFunc *self, visitproc visit, void *arg)
     return 0;
 }
 
-static int 
+static int
 TrigFunc_clear(TrigFunc *self)
 {
     pyo_CLEAR
@@ -1343,12 +1343,12 @@ TrigFunc_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     Stream_setFunctionPtr(self->stream, TrigFunc_compute_next_data_frame);
 
     static char *kwlist[] = {"input", "function", "arg", NULL};
-    
+
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "OO|O", kwlist, &inputtmp, &functmp, &argtmp))
         Py_RETURN_NONE;
-    
+
     INIT_INPUT_STREAM
-    
+
     if (functmp) {
         PyObject_CallMethod((PyObject *)self, "setFunction", "O", functmp);
     }
@@ -1356,7 +1356,7 @@ TrigFunc_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (argtmp) {
         PyObject_CallMethod((PyObject *)self, "setArg", "O", argtmp);
     }
-    
+
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
     return (PyObject *)self;
@@ -1372,21 +1372,21 @@ static PyObject *
 TrigFunc_setFunction(TrigFunc *self, PyObject *arg)
 {
 	PyObject *tmp;
-	
+
 	if (! PyCallable_Check(arg)) {
         PyErr_SetString(PyExc_TypeError, "The function attribute must be callable.");
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
     tmp = arg;
     Py_XDECREF(self->func);
     Py_INCREF(tmp);
     self->func = tmp;
-  
+
 	Py_INCREF(Py_None);
 	return Py_None;
-}	
+}
 
 static PyObject *
 TrigFunc_setArg(TrigFunc *self, PyObject *arg)
@@ -1397,10 +1397,10 @@ TrigFunc_setArg(TrigFunc *self, PyObject *arg)
     Py_XDECREF(self->arg);
     Py_INCREF(tmp);
     self->arg = tmp;
-    
+
 	Py_INCREF(Py_None);
 	return Py_None;
-}	
+}
 
 static PyMemberDef TrigFunc_members[] = {
 {"server", T_OBJECT_EX, offsetof(TrigFunc, server), 0, "Pyo server."},
@@ -1489,7 +1489,7 @@ TrigEnv_readframes_i(TrigEnv *self) {
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
     MYFLT *tablelist = TableStream_getData(self->table);
     int size = TableStream_getSize(self->table);
-    
+
     for (i=0; i<self->bufsize; i++) {
         self->trigsBuffer[i] = 0.0;
         if (in[i] == 1) {
@@ -1514,11 +1514,11 @@ TrigEnv_readframes_i(TrigEnv *self) {
         }
         else
             self->data[i] = 0.;
-        
+
         if (self->pointerPos > size && self->active == 1) {
             self->trigsBuffer[i] = 1.0;
             self->active = 0;
-        }    
+        }
     }
 }
 
@@ -1530,7 +1530,7 @@ TrigEnv_readframes_a(TrigEnv *self) {
     MYFLT *dur_st = Stream_getData((Stream *)self->dur_stream);
     MYFLT *tablelist = TableStream_getData(self->table);
     int size = TableStream_getSize(self->table);
-    
+
     for (i=0; i<self->bufsize; i++) {
         self->trigsBuffer[i] = 0.0;
         if (in[i] == 1) {
@@ -1555,7 +1555,7 @@ TrigEnv_readframes_a(TrigEnv *self) {
         }
         else
             self->data[i] = 0.;
-        
+
         if (self->pointerPos > size && self->active == 1) {
             self->trigsBuffer[i] = 1.0;
             self->active = 0;
@@ -1579,50 +1579,50 @@ TrigEnv_setProcMode(TrigEnv *self)
     int procmode, muladdmode;
     procmode = self->modebuffer[2];
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
-    
+
 	switch (procmode) {
-        case 0:        
+        case 0:
             self->proc_func_ptr = TrigEnv_readframes_i;
             break;
-        case 1:    
+        case 1:
             self->proc_func_ptr = TrigEnv_readframes_a;
             break;
-    } 
+    }
 	switch (muladdmode) {
-        case 0:        
+        case 0:
             self->muladd_func_ptr = TrigEnv_postprocessing_ii;
             break;
-        case 1:    
+        case 1:
             self->muladd_func_ptr = TrigEnv_postprocessing_ai;
             break;
-        case 2:    
+        case 2:
             self->muladd_func_ptr = TrigEnv_postprocessing_revai;
             break;
-        case 10:        
+        case 10:
             self->muladd_func_ptr = TrigEnv_postprocessing_ia;
             break;
-        case 11:    
+        case 11:
             self->muladd_func_ptr = TrigEnv_postprocessing_aa;
             break;
-        case 12:    
+        case 12:
             self->muladd_func_ptr = TrigEnv_postprocessing_revaa;
             break;
-        case 20:        
+        case 20:
             self->muladd_func_ptr = TrigEnv_postprocessing_ireva;
             break;
-        case 21:    
+        case 21:
             self->muladd_func_ptr = TrigEnv_postprocessing_areva;
             break;
-        case 22:    
+        case 22:
             self->muladd_func_ptr = TrigEnv_postprocessing_revareva;
             break;
-    } 
+    }
 }
 
 static void
 TrigEnv_compute_next_data_frame(TrigEnv *self)
 {
-    (*self->proc_func_ptr)(self); 
+    (*self->proc_func_ptr)(self);
     (*self->muladd_func_ptr)(self);
 }
 
@@ -1633,22 +1633,22 @@ TrigEnv_traverse(TrigEnv *self, visitproc visit, void *arg)
     Py_VISIT(self->table);
     Py_VISIT(self->input);
     Py_VISIT(self->input_stream);
-    Py_VISIT(self->dur);    
-    Py_VISIT(self->dur_stream);    
-    Py_VISIT(self->trig_stream);    
+    Py_VISIT(self->dur);
+    Py_VISIT(self->dur_stream);
+    Py_VISIT(self->trig_stream);
     return 0;
 }
 
-static int 
+static int
 TrigEnv_clear(TrigEnv *self)
 {
     pyo_CLEAR
     Py_CLEAR(self->table);
     Py_CLEAR(self->input);
     Py_CLEAR(self->input_stream);
-    Py_CLEAR(self->dur);    
-    Py_CLEAR(self->dur_stream);    
-    Py_CLEAR(self->trig_stream);    
+    Py_CLEAR(self->dur);
+    Py_CLEAR(self->dur_stream);
+    Py_CLEAR(self->trig_stream);
     return 0;
 }
 
@@ -1668,15 +1668,15 @@ TrigEnv_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp, *tabletmp, *durtmp=NULL, *multmp=NULL, *addtmp=NULL;
     TrigEnv *self;
     self = (TrigEnv *)type->tp_alloc(type, 0);
-    
+
 	self->modebuffer[0] = 0;
 	self->modebuffer[1] = 0;
 	self->modebuffer[2] = 0;
-    
+
     self->pointerPos = 0.;
     self->active = 0;
     self->interp = 2;
-    
+
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, TrigEnv_compute_next_data_frame);
     self->mode_func_ptr = TrigEnv_setProcMode;
@@ -1685,44 +1685,44 @@ TrigEnv_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->current_dur = self->sr;
 
     static char *kwlist[] = {"input", "table", "dur", "interp", "mul", "add", NULL};
-    
+
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "OO|OiOO", kwlist, &inputtmp, &tabletmp, &durtmp, &self->interp, &multmp, &addtmp))
         Py_RETURN_NONE;
 
     INIT_INPUT_STREAM
-    
+
     if ( PyObject_HasAttrString((PyObject *)tabletmp, "getTableStream") == 0 ) {
         PyErr_SetString(PyExc_TypeError, "\"table\" argument of TrigEnv must be a PyoTableObject.\n");
         Py_RETURN_NONE;
     }
     Py_XDECREF(self->table);
     self->table = PyObject_CallMethod((PyObject *)tabletmp, "getTableStream", "");
-    
+
     if (durtmp) {
         PyObject_CallMethod((PyObject *)self, "setDur", "O", durtmp);
     }
-    
+
     if (multmp) {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
     }
-    
+
     if (addtmp) {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
-    
+
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
     self->trigsBuffer = (MYFLT *)realloc(self->trigsBuffer, self->bufsize * sizeof(MYFLT));
-    
+
     for (i=0; i<self->bufsize; i++) {
         self->trigsBuffer[i] = 0.0;
-    }    
-    
+    }
+
     MAKE_NEW_TRIGGER_STREAM(self->trig_stream, &TriggerStreamType, NULL);
     TriggerStream_setData(self->trig_stream, self->trigsBuffer);
-    
+
     (*self->mode_func_ptr)(self);
-    
+
     SET_INTERP_POINTER
 
     return (PyObject *)self;
@@ -1731,10 +1731,10 @@ TrigEnv_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 static PyObject * TrigEnv_getServer(TrigEnv* self) { GET_SERVER };
 static PyObject * TrigEnv_getStream(TrigEnv* self) { GET_STREAM };
 static PyObject * TrigEnv_getTriggerStream(TrigEnv* self) { GET_TRIGGER_STREAM };
-static PyObject * TrigEnv_setMul(TrigEnv *self, PyObject *arg) { SET_MUL };	
-static PyObject * TrigEnv_setAdd(TrigEnv *self, PyObject *arg) { SET_ADD };	
-static PyObject * TrigEnv_setSub(TrigEnv *self, PyObject *arg) { SET_SUB };	
-static PyObject * TrigEnv_setDiv(TrigEnv *self, PyObject *arg) { SET_DIV };	
+static PyObject * TrigEnv_setMul(TrigEnv *self, PyObject *arg) { SET_MUL };
+static PyObject * TrigEnv_setAdd(TrigEnv *self, PyObject *arg) { SET_ADD };
+static PyObject * TrigEnv_setSub(TrigEnv *self, PyObject *arg) { SET_SUB };
+static PyObject * TrigEnv_setDiv(TrigEnv *self, PyObject *arg) { SET_DIV };
 
 static PyObject * TrigEnv_play(TrigEnv *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * TrigEnv_out(TrigEnv *self, PyObject *args, PyObject *kwds) { OUT };
@@ -1760,32 +1760,32 @@ static PyObject *
 TrigEnv_setTable(TrigEnv *self, PyObject *arg)
 {
 	PyObject *tmp;
-	
+
 	if (arg == NULL) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
 	tmp = arg;
 	Py_DECREF(self->table);
     self->table = PyObject_CallMethod((PyObject *)tmp, "getTableStream", "");
-    
+
 	Py_INCREF(Py_None);
 	return Py_None;
-}	
+}
 
 static PyObject *
 TrigEnv_setDur(TrigEnv *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
-	
+
 	if (arg == NULL) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
 	int isNumber = PyNumber_Check(arg);
-	
+
 	tmp = arg;
 	Py_INCREF(tmp);
 	Py_DECREF(self->dur);
@@ -1801,12 +1801,12 @@ TrigEnv_setDur(TrigEnv *self, PyObject *arg)
         self->dur_stream = (Stream *)streamtmp;
 		self->modebuffer[2] = 1;
 	}
-    
+
     (*self->mode_func_ptr)(self);
-    
+
 	Py_INCREF(Py_None);
 	return Py_None;
-}	
+}
 
 static PyObject *
 TrigEnv_setInterp(TrigEnv *self, PyObject *arg)
@@ -1815,15 +1815,15 @@ TrigEnv_setInterp(TrigEnv *self, PyObject *arg)
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
     int isNumber = PyNumber_Check(arg);
-    
+
 	if (isNumber == 1) {
 		self->interp = PyInt_AsLong(PyNumber_Int(arg));
-    }  
-    
+    }
+
     SET_INTERP_POINTER
-    
+
     Py_INCREF(Py_None);
     return Py_None;
 }
@@ -1968,7 +1968,7 @@ static void
 TrigLinseg_convert_pointslist(TrigLinseg *self) {
     int i;
     PyObject *tup;
-    
+
     self->listsize = PyList_Size(self->pointslist);
     self->targets = (MYFLT *)realloc(self->targets, self->listsize * sizeof(MYFLT));
     self->times = (MYFLT *)realloc(self->times, self->listsize * sizeof(MYFLT));
@@ -1979,12 +1979,12 @@ TrigLinseg_convert_pointslist(TrigLinseg *self) {
     }
 }
 
-static void 
+static void
 TrigLinseg_reinit(TrigLinseg *self) {
     if (self->newlist == 1) {
         TrigLinseg_convert_pointslist((TrigLinseg *)self);
         self->newlist = 0;
-    }    
+    }
     self->currentTime = 0.0;
     self->currentValue = self->targets[0];
     self->which = 0;
@@ -1995,7 +1995,7 @@ static void
 TrigLinseg_generate(TrigLinseg *self) {
     int i;
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
-    
+
     for (i=0; i<self->bufsize; i++) {
         self->trigsBuffer[i] = 0.0;
         if (in[i] == 1)
@@ -2008,7 +2008,7 @@ TrigLinseg_generate(TrigLinseg *self) {
                     self->trigsBuffer[i] = 1.0;
                     self->flag = 0;
                     self->currentValue = self->targets[self->which-1];
-                }    
+                }
                 else
                     if ((self->times[self->which] - self->times[self->which-1]) <= 0)
                         self->increment = self->targets[self->which] - self->currentValue;
@@ -2016,9 +2016,9 @@ TrigLinseg_generate(TrigLinseg *self) {
                         self->increment = (self->targets[self->which] - self->targets[self->which-1]) / ((self->times[self->which] - self->times[self->which-1]) / self->sampleToSec);
             }
             if (self->currentTime <= self->times[self->listsize-1])
-                self->currentValue += self->increment;            
+                self->currentValue += self->increment;
             self->data[i] = (MYFLT)self->currentValue;
-            self->currentTime += self->sampleToSec;    
+            self->currentTime += self->sampleToSec;
         }
         else
             self->data[i] = (MYFLT)self->currentValue;
@@ -2040,44 +2040,44 @@ TrigLinseg_setProcMode(TrigLinseg *self)
 {
     int muladdmode;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
-    
+
     self->proc_func_ptr = TrigLinseg_generate;
-    
+
 	switch (muladdmode) {
-        case 0:        
+        case 0:
             self->muladd_func_ptr = TrigLinseg_postprocessing_ii;
             break;
-        case 1:    
+        case 1:
             self->muladd_func_ptr = TrigLinseg_postprocessing_ai;
             break;
-        case 2:    
+        case 2:
             self->muladd_func_ptr = TrigLinseg_postprocessing_revai;
             break;
-        case 10:        
+        case 10:
             self->muladd_func_ptr = TrigLinseg_postprocessing_ia;
             break;
-        case 11:    
+        case 11:
             self->muladd_func_ptr = TrigLinseg_postprocessing_aa;
             break;
-        case 12:    
+        case 12:
             self->muladd_func_ptr = TrigLinseg_postprocessing_revaa;
             break;
-        case 20:        
+        case 20:
             self->muladd_func_ptr = TrigLinseg_postprocessing_ireva;
             break;
-        case 21:    
+        case 21:
             self->muladd_func_ptr = TrigLinseg_postprocessing_areva;
             break;
-        case 22:    
+        case 22:
             self->muladd_func_ptr = TrigLinseg_postprocessing_revareva;
             break;
-    }   
+    }
 }
 
 static void
 TrigLinseg_compute_next_data_frame(TrigLinseg *self)
 {
-    (*self->proc_func_ptr)(self); 
+    (*self->proc_func_ptr)(self);
     (*self->muladd_func_ptr)(self);
 }
 
@@ -2086,20 +2086,20 @@ TrigLinseg_traverse(TrigLinseg *self, visitproc visit, void *arg)
 {
     pyo_VISIT
     Py_VISIT(self->pointslist);
-    Py_VISIT(self->trig_stream);    
-    Py_VISIT(self->input);    
-    Py_VISIT(self->input_stream);    
+    Py_VISIT(self->trig_stream);
+    Py_VISIT(self->input);
+    Py_VISIT(self->input_stream);
     return 0;
 }
 
-static int 
+static int
 TrigLinseg_clear(TrigLinseg *self)
 {
     pyo_CLEAR
     Py_CLEAR(self->pointslist);
-    Py_CLEAR(self->trig_stream);    
-    Py_CLEAR(self->input);    
-    Py_CLEAR(self->input_stream);    
+    Py_CLEAR(self->trig_stream);
+    Py_CLEAR(self->input);
+    Py_CLEAR(self->input_stream);
     return 0;
 }
 
@@ -2121,11 +2121,11 @@ TrigLinseg_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp, *pointslist=NULL, *multmp=NULL, *addtmp=NULL;
     TrigLinseg *self;
     self = (TrigLinseg *)type->tp_alloc(type, 0);
-    
+
     self->newlist = 1;
 	self->modebuffer[0] = 0;
 	self->modebuffer[1] = 0;
-    
+
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, TrigLinseg_compute_next_data_frame);
     self->mode_func_ptr = TrigLinseg_setProcMode;
@@ -2133,7 +2133,7 @@ TrigLinseg_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->sampleToSec = 1. / self->sr;
 
     static char *kwlist[] = {"input", "list", "mul", "add", NULL};
-    
+
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "OO|OO", kwlist, &inputtmp, &pointslist, &multmp, &addtmp))
         Py_RETURN_NONE;
 
@@ -2143,38 +2143,38 @@ TrigLinseg_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     Py_XDECREF(self->pointslist);
     self->pointslist = pointslist;
     TrigLinseg_convert_pointslist((TrigLinseg *)self);
-    
+
     if (multmp) {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
     }
-    
+
     if (addtmp) {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
-    
+
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
     self->trigsBuffer = (MYFLT *)realloc(self->trigsBuffer, self->bufsize * sizeof(MYFLT));
-    
+
     for (i=0; i<self->bufsize; i++) {
         self->trigsBuffer[i] = 0.0;
-    }    
-    
+    }
+
     MAKE_NEW_TRIGGER_STREAM(self->trig_stream, &TriggerStreamType, NULL);
     TriggerStream_setData(self->trig_stream, self->trigsBuffer);
 
     (*self->mode_func_ptr)(self);
-    
+
     return (PyObject *)self;
 }
 
 static PyObject * TrigLinseg_getServer(TrigLinseg* self) { GET_SERVER };
 static PyObject * TrigLinseg_getStream(TrigLinseg* self) { GET_STREAM };
 static PyObject * TrigLinseg_getTriggerStream(TrigLinseg* self) { GET_TRIGGER_STREAM };
-static PyObject * TrigLinseg_setMul(TrigLinseg *self, PyObject *arg) { SET_MUL };	
-static PyObject * TrigLinseg_setAdd(TrigLinseg *self, PyObject *arg) { SET_ADD };	
-static PyObject * TrigLinseg_setSub(TrigLinseg *self, PyObject *arg) { SET_SUB };	
-static PyObject * TrigLinseg_setDiv(TrigLinseg *self, PyObject *arg) { SET_DIV };	
+static PyObject * TrigLinseg_setMul(TrigLinseg *self, PyObject *arg) { SET_MUL };
+static PyObject * TrigLinseg_setAdd(TrigLinseg *self, PyObject *arg) { SET_ADD };
+static PyObject * TrigLinseg_setSub(TrigLinseg *self, PyObject *arg) { SET_SUB };
+static PyObject * TrigLinseg_setDiv(TrigLinseg *self, PyObject *arg) { SET_DIV };
 
 static PyObject * TrigLinseg_play(TrigLinseg *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * TrigLinseg_stop(TrigLinseg *self) { STOP };
@@ -2195,18 +2195,18 @@ TrigLinseg_setList(TrigLinseg *self, PyObject *value)
         PyErr_SetString(PyExc_TypeError, "Cannot delete the list attribute.");
         return PyInt_FromLong(-1);
     }
-    
+
     if (! PyList_Check(value)) {
         PyErr_SetString(PyExc_TypeError, "The points list attribute value must be a list of tuples.");
         return PyInt_FromLong(-1);
     }
-    
+
     Py_INCREF(value);
     Py_DECREF(self->pointslist);
-    self->pointslist = value; 
-    
+    self->pointslist = value;
+
     self->newlist = 1;
-    
+
     Py_INCREF(Py_None);
     return Py_None;
 }
@@ -2344,7 +2344,7 @@ typedef struct {
     double exp;
     double exp_tmp;
     int inverse;
-    int inverse_tmp;    
+    int inverse_tmp;
     MYFLT *trigsBuffer;
     TriggerStream *trig_stream;
 } TrigExpseg;
@@ -2353,7 +2353,7 @@ static void
 TrigExpseg_convert_pointslist(TrigExpseg *self) {
     int i;
     PyObject *tup;
-    
+
     self->listsize = PyList_Size(self->pointslist);
     self->targets = (MYFLT *)realloc(self->targets, self->listsize * sizeof(MYFLT));
     self->times = (MYFLT *)realloc(self->times, self->listsize * sizeof(MYFLT));
@@ -2364,12 +2364,12 @@ TrigExpseg_convert_pointslist(TrigExpseg *self) {
     }
 }
 
-static void 
+static void
 TrigExpseg_reinit(TrigExpseg *self) {
     if (self->newlist == 1) {
         TrigExpseg_convert_pointslist((TrigExpseg *)self);
         self->newlist = 0;
-    }    
+    }
     self->currentTime = 0.0;
     self->currentValue = self->targets[0];
     self->which = 0;
@@ -2383,12 +2383,12 @@ TrigExpseg_generate(TrigExpseg *self) {
     int i;
     MYFLT scl;
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
-    
+
     for (i=0; i<self->bufsize; i++) {
         self->trigsBuffer[i] = 0.0;
         if (in[i] == 1)
             TrigExpseg_reinit((TrigExpseg *)self);
-        
+
         if (self->flag == 1) {
             if (self->currentTime >= self->times[self->which]) {
                 self->which++;
@@ -2396,7 +2396,7 @@ TrigExpseg_generate(TrigExpseg *self) {
                     self->trigsBuffer[i] = 1.0;
                     self->flag = 0;
                     self->currentValue = self->targets[self->which-1];
-                }    
+                }
                 else {
                     self->range = self->targets[self->which] - self->targets[self->which-1];
                     self->steps = (self->times[self->which] - self->times[self->which-1]) * self->sr;
@@ -2404,9 +2404,9 @@ TrigExpseg_generate(TrigExpseg *self) {
                         self->inc = 1.0;
                     else
                         self->inc = 1.0 / self->steps;
-                    self->pointer = 0.0;                    
+                    self->pointer = 0.0;
                 }
-            }    
+            }
             if (self->currentTime <= self->times[self->listsize-1]) {
                 if (self->pointer >= 1.0)
                     self->pointer = 1.0;
@@ -2414,12 +2414,12 @@ TrigExpseg_generate(TrigExpseg *self) {
                     scl = 1.0 - MYPOW(1.0 - self->pointer, self->exp);
                 else
                     scl = MYPOW(self->pointer, self->exp);
-                
+
                 self->currentValue = scl * self->range + self->targets[self->which-1];
                 self->pointer += self->inc;
-            } 
+            }
             self->data[i] = (MYFLT)self->currentValue;
-            self->currentTime += self->sampleToSec;    
+            self->currentTime += self->sampleToSec;
         }
         else
             self->data[i] = (MYFLT)self->currentValue;
@@ -2441,44 +2441,44 @@ TrigExpseg_setProcMode(TrigExpseg *self)
 {
     int muladdmode;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
-    
+
     self->proc_func_ptr = TrigExpseg_generate;
-    
+
 	switch (muladdmode) {
-        case 0:        
+        case 0:
             self->muladd_func_ptr = TrigExpseg_postprocessing_ii;
             break;
-        case 1:    
+        case 1:
             self->muladd_func_ptr = TrigExpseg_postprocessing_ai;
             break;
-        case 2:    
+        case 2:
             self->muladd_func_ptr = TrigExpseg_postprocessing_revai;
             break;
-        case 10:        
+        case 10:
             self->muladd_func_ptr = TrigExpseg_postprocessing_ia;
             break;
-        case 11:    
+        case 11:
             self->muladd_func_ptr = TrigExpseg_postprocessing_aa;
             break;
-        case 12:    
+        case 12:
             self->muladd_func_ptr = TrigExpseg_postprocessing_revaa;
             break;
-        case 20:        
+        case 20:
             self->muladd_func_ptr = TrigExpseg_postprocessing_ireva;
             break;
-        case 21:    
+        case 21:
             self->muladd_func_ptr = TrigExpseg_postprocessing_areva;
             break;
-        case 22:    
+        case 22:
             self->muladd_func_ptr = TrigExpseg_postprocessing_revareva;
             break;
-    }   
+    }
 }
 
 static void
 TrigExpseg_compute_next_data_frame(TrigExpseg *self)
 {
-    (*self->proc_func_ptr)(self); 
+    (*self->proc_func_ptr)(self);
     (*self->muladd_func_ptr)(self);
 }
 
@@ -2487,20 +2487,20 @@ TrigExpseg_traverse(TrigExpseg *self, visitproc visit, void *arg)
 {
     pyo_VISIT
     Py_VISIT(self->pointslist);
-    Py_VISIT(self->trig_stream);    
-    Py_VISIT(self->input);    
-    Py_VISIT(self->input_stream);    
+    Py_VISIT(self->trig_stream);
+    Py_VISIT(self->input);
+    Py_VISIT(self->input_stream);
     return 0;
 }
 
-static int 
+static int
 TrigExpseg_clear(TrigExpseg *self)
 {
     pyo_CLEAR
     Py_CLEAR(self->pointslist);
-    Py_CLEAR(self->trig_stream);    
-    Py_CLEAR(self->input);    
-    Py_CLEAR(self->input_stream);    
+    Py_CLEAR(self->trig_stream);
+    Py_CLEAR(self->input);
+    Py_CLEAR(self->input_stream);
     return 0;
 }
 
@@ -2522,62 +2522,62 @@ TrigExpseg_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp, *pointslist=NULL, *multmp=NULL, *addtmp=NULL;
     TrigExpseg *self;
     self = (TrigExpseg *)type->tp_alloc(type, 0);
-    
+
     self->newlist = 1;
     self->exp = self->exp_tmp = 10;
     self->inverse = self->inverse_tmp = 1;
 	self->modebuffer[0] = 0;
 	self->modebuffer[1] = 0;
-    
+
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, TrigExpseg_compute_next_data_frame);
     self->mode_func_ptr = TrigExpseg_setProcMode;
-    
+
     self->sampleToSec = 1. / self->sr;
 
     static char *kwlist[] = {"input", "list", "exp", "inverse", "mul", "add", NULL};
-    
+
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "OO|diOO", kwlist, &inputtmp, &pointslist, &self->exp_tmp, &self->inverse_tmp, &multmp, &addtmp))
         Py_RETURN_NONE;
-    
+
     INIT_INPUT_STREAM
-    
+
     Py_INCREF(pointslist);
     Py_XDECREF(self->pointslist);
     self->pointslist = pointslist;
     TrigExpseg_convert_pointslist((TrigExpseg *)self);
-    
+
     if (multmp) {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
     }
-    
+
     if (addtmp) {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
-    
+
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
-    
+
     self->trigsBuffer = (MYFLT *)realloc(self->trigsBuffer, self->bufsize * sizeof(MYFLT));
-    
+
     for (i=0; i<self->bufsize; i++) {
         self->trigsBuffer[i] = 0.0;
-    }    
+    }
 
     MAKE_NEW_TRIGGER_STREAM(self->trig_stream, &TriggerStreamType, NULL);
     TriggerStream_setData(self->trig_stream, self->trigsBuffer);
-    
+
     (*self->mode_func_ptr)(self);
-    
+
     return (PyObject *)self;
 }
 
 static PyObject * TrigExpseg_getServer(TrigExpseg* self) { GET_SERVER };
 static PyObject * TrigExpseg_getStream(TrigExpseg* self) { GET_STREAM };
 static PyObject * TrigExpseg_getTriggerStream(TrigExpseg* self) { GET_TRIGGER_STREAM };
-static PyObject * TrigExpseg_setMul(TrigExpseg *self, PyObject *arg) { SET_MUL };	
-static PyObject * TrigExpseg_setAdd(TrigExpseg *self, PyObject *arg) { SET_ADD };	
-static PyObject * TrigExpseg_setSub(TrigExpseg *self, PyObject *arg) { SET_SUB };	
-static PyObject * TrigExpseg_setDiv(TrigExpseg *self, PyObject *arg) { SET_DIV };	
+static PyObject * TrigExpseg_setMul(TrigExpseg *self, PyObject *arg) { SET_MUL };
+static PyObject * TrigExpseg_setAdd(TrigExpseg *self, PyObject *arg) { SET_ADD };
+static PyObject * TrigExpseg_setSub(TrigExpseg *self, PyObject *arg) { SET_SUB };
+static PyObject * TrigExpseg_setDiv(TrigExpseg *self, PyObject *arg) { SET_DIV };
 
 static PyObject * TrigExpseg_play(TrigExpseg *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * TrigExpseg_stop(TrigExpseg *self) { STOP };
@@ -2598,18 +2598,18 @@ TrigExpseg_setList(TrigExpseg *self, PyObject *value)
         PyErr_SetString(PyExc_TypeError, "Cannot delete the list attribute.");
         return PyInt_FromLong(-1);
     }
-    
+
     if (! PyList_Check(value)) {
         PyErr_SetString(PyExc_TypeError, "The points list attribute value must be a list of tuples.");
         return PyInt_FromLong(-1);
     }
-    
+
     Py_INCREF(value);
     Py_DECREF(self->pointslist);
-    self->pointslist = value; 
-    
+    self->pointslist = value;
+
     self->newlist = 1;
-    
+
     Py_INCREF(Py_None);
     return Py_None;
 }
@@ -2621,9 +2621,9 @@ TrigExpseg_setExp(TrigExpseg *self, PyObject *arg)
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
     self->exp_tmp = PyFloat_AsDouble(PyNumber_Float(arg));
-    
+
     Py_INCREF(Py_None);
     return Py_None;
 }
@@ -2635,9 +2635,9 @@ TrigExpseg_setInverse(TrigExpseg *self, PyObject *arg)
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
     self->inverse_tmp = PyInt_AsLong(PyNumber_Int(arg));
-    
+
     Py_INCREF(Py_None);
     return Py_None;
 }
@@ -2779,18 +2779,18 @@ typedef struct {
     int loopCountRec;
     int loopLen;
     int loopStop;
-    int modebuffer[4]; // need at least 2 slots for mul & add 
+    int modebuffer[4]; // need at least 2 slots for mul & add
 } TrigXnoise;
 
 // no parameter
 static MYFLT
 TrigXnoise_uniform(TrigXnoise *self) {
-    return RANDOM_UNIFORM;    
+    return RANDOM_UNIFORM;
 }
 
 static MYFLT
 TrigXnoise_linear_min(TrigXnoise *self) {
-    MYFLT a = RANDOM_UNIFORM;    
+    MYFLT a = RANDOM_UNIFORM;
     MYFLT b = RANDOM_UNIFORM;
     if (a < b) return a;
     else return b;
@@ -2798,7 +2798,7 @@ TrigXnoise_linear_min(TrigXnoise *self) {
 
 static MYFLT
 TrigXnoise_linear_max(TrigXnoise *self) {
-    MYFLT a = RANDOM_UNIFORM;    
+    MYFLT a = RANDOM_UNIFORM;
     MYFLT b = RANDOM_UNIFORM;
     if (a > b) return a;
     else return b;
@@ -2806,7 +2806,7 @@ TrigXnoise_linear_max(TrigXnoise *self) {
 
 static MYFLT
 TrigXnoise_triangle(TrigXnoise *self) {
-    MYFLT a = RANDOM_UNIFORM;    
+    MYFLT a = RANDOM_UNIFORM;
     MYFLT b = RANDOM_UNIFORM;
     return ((a + b) * 0.5);
 }
@@ -2815,7 +2815,7 @@ TrigXnoise_triangle(TrigXnoise *self) {
 static MYFLT
 TrigXnoise_expon_min(TrigXnoise *self) {
     if (self->xx1 <= 0.0) self->xx1 = 0.00001;
-    MYFLT val = -MYLOG(RANDOM_UNIFORM) / self->xx1;    
+    MYFLT val = -MYLOG(RANDOM_UNIFORM) / self->xx1;
     if (val < 0.0) return 0.0;
     else if (val > 1.0) return 1.0;
     else return val;
@@ -2824,7 +2824,7 @@ TrigXnoise_expon_min(TrigXnoise *self) {
 static MYFLT
 TrigXnoise_expon_max(TrigXnoise *self) {
     if (self->xx1 <= 0.0) self->xx1 = 0.00001;
-    MYFLT val = 1.0 - (-MYLOG(RANDOM_UNIFORM) / self->xx1);    
+    MYFLT val = 1.0 - (-MYLOG(RANDOM_UNIFORM) / self->xx1);
     if (val < 0.0) return 0.0;
     else if (val > 1.0) return 1.0;
     else return val;
@@ -2836,16 +2836,16 @@ TrigXnoise_biexpon(TrigXnoise *self) {
     MYFLT polar, val;
     if (self->xx1 <= 0.0) self->xx1 = 0.00001;
     MYFLT sum = RANDOM_UNIFORM * 2.0;
-    
+
     if (sum > 1.0) {
         polar = -1;
         sum = 2.0 - sum;
     }
     else
         polar = 1;
-    
+
     val = 0.5 * (polar * MYLOG(sum) / self->xx1) + 0.5;
-    
+
     if (val < 0.0) return 0.0;
     else if (val > 1.0) return 1.0;
     else return val;
@@ -2858,14 +2858,14 @@ TrigXnoise_cauchy(TrigXnoise *self) {
         rnd = RANDOM_UNIFORM;
     }
     while (rnd == 0.5);
-    
+
     if (rand() < (RAND_MAX / 2))
         dir = -1;
     else
         dir = 1;
-    
+
     val = 0.5 * (MYTAN(rnd) * self->xx1 * dir) + 0.5;
-    
+
     if (val < 0.0) return 0.0;
     else if (val > 1.0) return 1.0;
     else return val;
@@ -2876,10 +2876,10 @@ static MYFLT
 TrigXnoise_weibull(TrigXnoise *self) {
     MYFLT rnd, val;
     if (self->xx2 <= 0.0) self->xx2 = 0.00001;
-    
+
     rnd = 1.0 / (1.0 - RANDOM_UNIFORM);
     val = self->xx1 * MYPOW(MYLOG(rnd), (1.0 / self->xx2));
-    
+
     if (val < 0.0) return 0.0;
     else if (val > 1.0) return 1.0;
     else return val;
@@ -2889,10 +2889,10 @@ TrigXnoise_weibull(TrigXnoise *self) {
 static MYFLT
 TrigXnoise_gaussian(TrigXnoise *self) {
     MYFLT rnd, val;
-    
+
     rnd = (RANDOM_UNIFORM + RANDOM_UNIFORM + RANDOM_UNIFORM + RANDOM_UNIFORM + RANDOM_UNIFORM + RANDOM_UNIFORM);
     val = (self->xx2 * (rnd - 3.0) * 0.33 + self->xx1);
-    
+
     if (val < 0.0) return 0.0;
     else if (val > 1.0) return 1.0;
     else return val;
@@ -2906,7 +2906,7 @@ TrigXnoise_poisson(TrigXnoise *self) {
     MYFLT val;
     if (self->xx1 < 0.1) self->xx1 = 0.1;
     if (self->xx2 < 0.1) self->xx2 = 0.1;
-    
+
     if (self->xx1 != self->lastPoissonX1) {
         self->lastPoissonX1 = self->xx1;
         self->poisson_tab = 0;
@@ -2921,7 +2921,7 @@ TrigXnoise_poisson(TrigXnoise *self) {
         }
     }
     val = self->poisson_buffer[rand() % self->poisson_tab] / 12.0 * self->xx2;
-    
+
     if (val < 0.0) return 0.0;
     else if (val > 1.0) return 1.0;
     else return val;
@@ -2931,22 +2931,22 @@ TrigXnoise_poisson(TrigXnoise *self) {
 static MYFLT
 TrigXnoise_walker(TrigXnoise *self) {
     int modulo, dir;
-    
+
     if (self->xx2 < 0.002) self->xx2 = 0.002;
-    
+
     modulo = (int)(self->xx2 * 1000.0);
     dir = rand() % 2;
-    
+
     if (dir == 0)
         self->walkerValue = self->walkerValue + (((rand() % modulo) - (modulo / 2)) * 0.001);
     else
         self->walkerValue = self->walkerValue - (((rand() % modulo) - (modulo / 2)) * 0.001);
-    
+
     if (self->walkerValue > self->xx1)
         self->walkerValue = self->xx1;
     if (self->walkerValue < 0.0)
         self->walkerValue = 0.0;
-    
+
     return self->walkerValue;
 }
 
@@ -2954,28 +2954,28 @@ TrigXnoise_walker(TrigXnoise *self) {
 static MYFLT
 TrigXnoise_loopseg(TrigXnoise *self) {
     int modulo, dir;
-    
+
     if (self->loopChoice == 0) {
-        
+
         self->loopCountPlay = self->loopTime = 0;
-        
+
         if (self->xx2 < 0.002) self->xx2 = 0.002;
-        
+
         modulo = (int)(self->xx2 * 1000.0);
         dir = rand() % 2;
-        
+
         if (dir == 0)
             self->walkerValue = self->walkerValue + (((rand() % modulo) - (modulo / 2)) * 0.001);
         else
             self->walkerValue = self->walkerValue - (((rand() % modulo) - (modulo / 2)) * 0.001);
-        
+
         if (self->walkerValue > self->xx1)
             self->walkerValue = self->xx1;
         if (self->walkerValue < 0.0)
             self->walkerValue = 0.0;
-        
+
         self->loop_buffer[self->loopCountRec++] = self->walkerValue;
-        
+
         if (self->loopCountRec < self->loopLen)
             self->loopChoice = 0;
         else {
@@ -2985,22 +2985,22 @@ TrigXnoise_loopseg(TrigXnoise *self) {
     }
     else {
         self->loopCountRec = 0;
-        
+
         self->walkerValue = self->loop_buffer[self->loopCountPlay++];
-        
+
         if (self->loopCountPlay < self->loopLen)
             self->loopChoice = 1;
         else {
             self->loopCountPlay = 0;
             self->loopTime++;
         }
-        
+
         if (self->loopTime == self->loopStop) {
             self->loopChoice = 0;
             self->loopLen = (rand() % 10) + 3;
         }
     }
-    
+
     return self->walkerValue;
 }
 
@@ -3010,7 +3010,7 @@ TrigXnoise_generate_ii(TrigXnoise *self) {
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
     self->xx1 = PyFloat_AS_DOUBLE(self->x1);
     self->xx2 = PyFloat_AS_DOUBLE(self->x2);
-    
+
     for (i=0; i<self->bufsize; i++) {
         if (in[i] == 1)
             self->value = (*self->type_func_ptr)(self);
@@ -3024,7 +3024,7 @@ TrigXnoise_generate_ai(TrigXnoise *self) {
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
     MYFLT *x1 = Stream_getData((Stream *)self->x1_stream);
     self->xx2 = PyFloat_AS_DOUBLE(self->x2);
-    
+
     for (i=0; i<self->bufsize; i++) {
         if (in[i] == 1) {
             self->xx1 = x1[i];
@@ -3040,7 +3040,7 @@ TrigXnoise_generate_ia(TrigXnoise *self) {
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
     self->xx1 = PyFloat_AS_DOUBLE(self->x1);
     MYFLT *x2 = Stream_getData((Stream *)self->x2_stream);
-    
+
     for (i=0; i<self->bufsize; i++) {
         if (in[i] == 1) {
             self->xx2 = x2[i];
@@ -3056,7 +3056,7 @@ TrigXnoise_generate_aa(TrigXnoise *self) {
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
     MYFLT *x1 = Stream_getData((Stream *)self->x1_stream);
     MYFLT *x2 = Stream_getData((Stream *)self->x2_stream);
-    
+
     for (i=0; i<self->bufsize; i++) {
         if (in[i] == 1) {
             self->xx1 = x1[i];
@@ -3080,8 +3080,8 @@ static void TrigXnoise_postprocessing_revareva(TrigXnoise *self) { POST_PROCESSI
 static void
 TrigXnoise_setRandomType(TrigXnoise *self)
 {
-    
-    switch (self->type) {            
+
+    switch (self->type) {
         case 0:
             self->type_func_ptr = TrigXnoise_uniform;
             break;
@@ -3121,7 +3121,7 @@ TrigXnoise_setRandomType(TrigXnoise *self)
         case 12:
             self->type_func_ptr = TrigXnoise_loopseg;
             break;
-    }        
+    }
 }
 
 static void
@@ -3130,56 +3130,56 @@ TrigXnoise_setProcMode(TrigXnoise *self)
     int procmode, muladdmode;
     procmode = self->modebuffer[2] + self->modebuffer[3] * 10;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
-    
+
 	switch (procmode) {
-        case 0:    
+        case 0:
             self->proc_func_ptr = TrigXnoise_generate_ii;
             break;
-        case 1:    
+        case 1:
             self->proc_func_ptr = TrigXnoise_generate_ai;
             break;
-        case 10:    
+        case 10:
             self->proc_func_ptr = TrigXnoise_generate_ia;
             break;
-        case 11:    
+        case 11:
             self->proc_func_ptr = TrigXnoise_generate_aa;
             break;
-    } 
+    }
 	switch (muladdmode) {
-        case 0:        
+        case 0:
             self->muladd_func_ptr = TrigXnoise_postprocessing_ii;
             break;
-        case 1:    
+        case 1:
             self->muladd_func_ptr = TrigXnoise_postprocessing_ai;
             break;
-        case 2:    
+        case 2:
             self->muladd_func_ptr = TrigXnoise_postprocessing_revai;
             break;
-        case 10:        
+        case 10:
             self->muladd_func_ptr = TrigXnoise_postprocessing_ia;
             break;
-        case 11:    
+        case 11:
             self->muladd_func_ptr = TrigXnoise_postprocessing_aa;
             break;
-        case 12:    
+        case 12:
             self->muladd_func_ptr = TrigXnoise_postprocessing_revaa;
             break;
-        case 20:        
+        case 20:
             self->muladd_func_ptr = TrigXnoise_postprocessing_ireva;
             break;
-        case 21:    
+        case 21:
             self->muladd_func_ptr = TrigXnoise_postprocessing_areva;
             break;
-        case 22:    
+        case 22:
             self->muladd_func_ptr = TrigXnoise_postprocessing_revareva;
             break;
-    }  
+    }
 }
 
 static void
 TrigXnoise_compute_next_data_frame(TrigXnoise *self)
 {
-    (*self->proc_func_ptr)(self); 
+    (*self->proc_func_ptr)(self);
     (*self->muladd_func_ptr)(self);
 }
 
@@ -3189,23 +3189,23 @@ TrigXnoise_traverse(TrigXnoise *self, visitproc visit, void *arg)
     pyo_VISIT
     Py_VISIT(self->input);
     Py_VISIT(self->input_stream);
-    Py_VISIT(self->x1);    
-    Py_VISIT(self->x1_stream);    
-    Py_VISIT(self->x2);    
-    Py_VISIT(self->x2_stream);    
+    Py_VISIT(self->x1);
+    Py_VISIT(self->x1_stream);
+    Py_VISIT(self->x2);
+    Py_VISIT(self->x2_stream);
     return 0;
 }
 
-static int 
+static int
 TrigXnoise_clear(TrigXnoise *self)
 {
     pyo_CLEAR
     Py_CLEAR(self->input);
     Py_CLEAR(self->input_stream);
-    Py_CLEAR(self->x1);    
-    Py_CLEAR(self->x1_stream);    
-    Py_CLEAR(self->x2);    
-    Py_CLEAR(self->x2_stream);    
+    Py_CLEAR(self->x1);
+    Py_CLEAR(self->x1_stream);
+    Py_CLEAR(self->x2);
+    Py_CLEAR(self->x2_stream);
     return 0;
 }
 
@@ -3224,7 +3224,7 @@ TrigXnoise_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp, *x1tmp=NULL, *x2tmp=NULL, *multmp=NULL, *addtmp=NULL;
     TrigXnoise *self;
     self = (TrigXnoise *)type->tp_alloc(type, 0);
-        
+
     self->x1 = PyFloat_FromDouble(0.5);
     self->x2 = PyFloat_FromDouble(0.5);
     self->xx1 = self->xx2 = self->walkerValue = 0.5;
@@ -3235,7 +3235,7 @@ TrigXnoise_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 	self->modebuffer[3] = 0;
 
     INIT_OBJECT_COMMON
-    
+
     Server_generateSeed((Server *)self->server, TRIGXNOISE_ID);
 
     self->poisson_tab = 0;
@@ -3246,23 +3246,23 @@ TrigXnoise_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     for (i=0; i<15; i++) {
         self->loop_buffer[i] = 0.0;
     }
-    self->loopChoice = self->loopCountPlay = self->loopTime = self->loopCountRec = self->loopStop = 0;    
+    self->loopChoice = self->loopCountPlay = self->loopTime = self->loopCountRec = self->loopStop = 0;
     self->loopLen = (rand() % 10) + 3;
-    
+
     Stream_setFunctionPtr(self->stream, TrigXnoise_compute_next_data_frame);
     self->mode_func_ptr = TrigXnoise_setProcMode;
 
     static char *kwlist[] = {"input", "type", "x1", "x2", "mul", "add", NULL};
-    
+
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|iOOOO", kwlist, &inputtmp, &self->type, &x1tmp, &x2tmp, &multmp, &addtmp))
         Py_RETURN_NONE;
 
     INIT_INPUT_STREAM
-    
+
     if (x1tmp) {
         PyObject_CallMethod((PyObject *)self, "setX1", "O", x1tmp);
     }
-    
+
     if (x2tmp) {
         PyObject_CallMethod((PyObject *)self, "setX2", "O", x2tmp);
     }
@@ -3270,15 +3270,15 @@ TrigXnoise_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (multmp) {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
     }
-    
+
     if (addtmp) {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
-    
+
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
-    
+
     TrigXnoise_setRandomType(self);
-    
+
     (*self->mode_func_ptr)(self);
 
     return (PyObject *)self;
@@ -3286,10 +3286,10 @@ TrigXnoise_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
 static PyObject * TrigXnoise_getServer(TrigXnoise* self) { GET_SERVER };
 static PyObject * TrigXnoise_getStream(TrigXnoise* self) { GET_STREAM };
-static PyObject * TrigXnoise_setMul(TrigXnoise *self, PyObject *arg) { SET_MUL };	
-static PyObject * TrigXnoise_setAdd(TrigXnoise *self, PyObject *arg) { SET_ADD };	
-static PyObject * TrigXnoise_setSub(TrigXnoise *self, PyObject *arg) { SET_SUB };	
-static PyObject * TrigXnoise_setDiv(TrigXnoise *self, PyObject *arg) { SET_DIV };	
+static PyObject * TrigXnoise_setMul(TrigXnoise *self, PyObject *arg) { SET_MUL };
+static PyObject * TrigXnoise_setAdd(TrigXnoise *self, PyObject *arg) { SET_ADD };
+static PyObject * TrigXnoise_setSub(TrigXnoise *self, PyObject *arg) { SET_SUB };
+static PyObject * TrigXnoise_setDiv(TrigXnoise *self, PyObject *arg) { SET_DIV };
 
 static PyObject * TrigXnoise_play(TrigXnoise *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * TrigXnoise_out(TrigXnoise *self, PyObject *args, PyObject *kwds) { OUT };
@@ -3306,35 +3306,35 @@ static PyObject * TrigXnoise_inplace_div(TrigXnoise *self, PyObject *arg) { INPL
 
 static PyObject *
 TrigXnoise_setType(TrigXnoise *self, PyObject *arg)
-{	
+{
 	if (arg == NULL) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
 	int isNumber = PyInt_Check(arg);
-	
+
 	if (isNumber == 1) {
 		self->type = PyInt_AsLong(arg);
         TrigXnoise_setRandomType(self);
 	}
-    
+
 	Py_INCREF(Py_None);
 	return Py_None;
-}	
+}
 
 static PyObject *
 TrigXnoise_setX1(TrigXnoise *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
-	
+
 	if (arg == NULL) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
 	int isNumber = PyNumber_Check(arg);
-	
+
 	tmp = arg;
 	Py_INCREF(tmp);
 	Py_DECREF(self->x1);
@@ -3350,25 +3350,25 @@ TrigXnoise_setX1(TrigXnoise *self, PyObject *arg)
         self->x1_stream = (Stream *)streamtmp;
 		self->modebuffer[2] = 1;
 	}
-    
+
     (*self->mode_func_ptr)(self);
-    
+
 	Py_INCREF(Py_None);
 	return Py_None;
-}	
+}
 
 static PyObject *
 TrigXnoise_setX2(TrigXnoise *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
-	
+
 	if (arg == NULL) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
 	int isNumber = PyNumber_Check(arg);
-	
+
 	tmp = arg;
 	Py_INCREF(tmp);
 	Py_DECREF(self->x2);
@@ -3384,12 +3384,12 @@ TrigXnoise_setX2(TrigXnoise *self, PyObject *arg)
         self->x2_stream = (Stream *)streamtmp;
 		self->modebuffer[3] = 1;
 	}
-    
+
     (*self->mode_func_ptr)(self);
-    
+
 	Py_INCREF(Py_None);
 	return Py_None;
-}	
+}
 
 static PyMemberDef TrigXnoise_members[] = {
     {"server", T_OBJECT_EX, offsetof(TrigXnoise, server), 0, "Pyo server."},
@@ -3533,21 +3533,21 @@ typedef struct {
     int loopCountRec;
     int loopLen;
     int loopStop;
-    int modebuffer[4]; // need at least 2 slots for mul & add 
+    int modebuffer[4]; // need at least 2 slots for mul & add
 } TrigXnoiseMidi;
 
 static MYFLT
 TrigXnoiseMidi_convert(TrigXnoiseMidi *self) {
     int midival;
     MYFLT val;
-    
+
     midival = (int)((self->value * (self->range_max-self->range_min)) + self->range_min);
-    
+
     if (midival < 0)
         midival = 0;
     else if (midival > 127)
         midival = 127;
-    
+
     if (self->scale == 0)
         val = (MYFLT)midival;
     else if (self->scale == 1)
@@ -3564,12 +3564,12 @@ TrigXnoiseMidi_convert(TrigXnoiseMidi *self) {
 // no parameter
 static MYFLT
 TrigXnoiseMidi_uniform(TrigXnoiseMidi *self) {
-    return RANDOM_UNIFORM;    
+    return RANDOM_UNIFORM;
 }
 
 static MYFLT
 TrigXnoiseMidi_linear_min(TrigXnoiseMidi *self) {
-    MYFLT a = RANDOM_UNIFORM;    
+    MYFLT a = RANDOM_UNIFORM;
     MYFLT b = RANDOM_UNIFORM;
     if (a < b) return a;
     else return b;
@@ -3577,7 +3577,7 @@ TrigXnoiseMidi_linear_min(TrigXnoiseMidi *self) {
 
 static MYFLT
 TrigXnoiseMidi_linear_max(TrigXnoiseMidi *self) {
-    MYFLT a = RANDOM_UNIFORM;    
+    MYFLT a = RANDOM_UNIFORM;
     MYFLT b = RANDOM_UNIFORM;
     if (a > b) return a;
     else return b;
@@ -3585,7 +3585,7 @@ TrigXnoiseMidi_linear_max(TrigXnoiseMidi *self) {
 
 static MYFLT
 TrigXnoiseMidi_triangle(TrigXnoiseMidi *self) {
-    MYFLT a = RANDOM_UNIFORM;    
+    MYFLT a = RANDOM_UNIFORM;
     MYFLT b = RANDOM_UNIFORM;
     return ((a + b) * 0.5);
 }
@@ -3594,7 +3594,7 @@ TrigXnoiseMidi_triangle(TrigXnoiseMidi *self) {
 static MYFLT
 TrigXnoiseMidi_expon_min(TrigXnoiseMidi *self) {
     if (self->xx1 <= 0.0) self->xx1 = 0.00001;
-    MYFLT val = -MYLOG10(RANDOM_UNIFORM) / self->xx1;    
+    MYFLT val = -MYLOG10(RANDOM_UNIFORM) / self->xx1;
     if (val < 0.0) return 0.0;
     else if (val > 1.0) return 1.0;
     else return val;
@@ -3603,7 +3603,7 @@ TrigXnoiseMidi_expon_min(TrigXnoiseMidi *self) {
 static MYFLT
 TrigXnoiseMidi_expon_max(TrigXnoiseMidi *self) {
     if (self->xx1 <= 0.0) self->xx1 = 0.00001;
-    MYFLT val = 1.0 - (-MYLOG10(RANDOM_UNIFORM) / self->xx1);    
+    MYFLT val = 1.0 - (-MYLOG10(RANDOM_UNIFORM) / self->xx1);
     if (val < 0.0) return 0.0;
     else if (val > 1.0) return 1.0;
     else return val;
@@ -3615,16 +3615,16 @@ TrigXnoiseMidi_biexpon(TrigXnoiseMidi *self) {
     MYFLT polar, val;
     if (self->xx1 <= 0.0) self->xx1 = 0.00001;
     MYFLT sum = RANDOM_UNIFORM * 2.0;
-    
+
     if (sum > 1.0) {
         polar = -1;
         sum = 2.0 - sum;
     }
     else
         polar = 1;
-    
+
     val = 0.5 * (polar * MYLOG10(sum) / self->xx1) + 0.5;
-    
+
     if (val < 0.0) return 0.0;
     else if (val > 1.0) return 1.0;
     else return val;
@@ -3637,14 +3637,14 @@ TrigXnoiseMidi_cauchy(TrigXnoiseMidi *self) {
         rnd = RANDOM_UNIFORM;
     }
     while (rnd == 0.5);
-    
+
     if (rand() < (RAND_MAX / 2))
         dir = -1;
     else
         dir = 1;
-    
+
     val = 0.5 * (MYTAN(rnd) * self->xx1 * dir) + 0.5;
-    
+
     if (val < 0.0) return 0.0;
     else if (val > 1.0) return 1.0;
     else return val;
@@ -3655,10 +3655,10 @@ static MYFLT
 TrigXnoiseMidi_weibull(TrigXnoiseMidi *self) {
     MYFLT rnd, val;
     if (self->xx2 <= 0.0) self->xx2 = 0.00001;
-    
+
     rnd = 1.0 / (1.0 - RANDOM_UNIFORM);
     val = self->xx1 * MYPOW(MYLOG(rnd), (1.0 / self->xx2));
-    
+
     if (val < 0.0) return 0.0;
     else if (val > 1.0) return 1.0;
     else return val;
@@ -3668,10 +3668,10 @@ TrigXnoiseMidi_weibull(TrigXnoiseMidi *self) {
 static MYFLT
 TrigXnoiseMidi_gaussian(TrigXnoiseMidi *self) {
     MYFLT rnd, val;
-    
+
     rnd = (RANDOM_UNIFORM + RANDOM_UNIFORM + RANDOM_UNIFORM + RANDOM_UNIFORM + RANDOM_UNIFORM + RANDOM_UNIFORM);
     val = (self->xx2 * (rnd - 3.0) * 0.33 + self->xx1);
-    
+
     if (val < 0.0) return 0.0;
     else if (val > 1.0) return 1.0;
     else return val;
@@ -3685,7 +3685,7 @@ TrigXnoiseMidi_poisson(TrigXnoiseMidi *self) {
     MYFLT val;
     if (self->xx1 < 0.1) self->xx1 = 0.1;
     if (self->xx2 < 0.1) self->xx2 = 0.1;
-    
+
     if (self->xx1 != self->lastPoissonX1) {
         self->lastPoissonX1 = self->xx1;
         self->poisson_tab = 0;
@@ -3700,7 +3700,7 @@ TrigXnoiseMidi_poisson(TrigXnoiseMidi *self) {
         }
     }
     val = self->poisson_buffer[rand() % self->poisson_tab] / 12.0 * self->xx2;
-    
+
     if (val < 0.0) return 0.0;
     else if (val > 1.0) return 1.0;
     else return val;
@@ -3710,22 +3710,22 @@ TrigXnoiseMidi_poisson(TrigXnoiseMidi *self) {
 static MYFLT
 TrigXnoiseMidi_walker(TrigXnoiseMidi *self) {
     int modulo, dir;
-    
+
     if (self->xx2 < 0.002) self->xx2 = 0.002;
-    
+
     modulo = (int)(self->xx2 * 1000.0);
     dir = rand() % 2;
-    
+
     if (dir == 0)
         self->walkerValue = self->walkerValue + (((rand() % modulo) - (modulo / 2)) * 0.001);
     else
         self->walkerValue = self->walkerValue - (((rand() % modulo) - (modulo / 2)) * 0.001);
-    
+
     if (self->walkerValue > self->xx1)
         self->walkerValue = self->xx1;
     if (self->walkerValue < 0.0)
         self->walkerValue = 0.0;
-    
+
     return self->walkerValue;
 }
 
@@ -3733,28 +3733,28 @@ TrigXnoiseMidi_walker(TrigXnoiseMidi *self) {
 static MYFLT
 TrigXnoiseMidi_loopseg(TrigXnoiseMidi *self) {
     int modulo, dir;
-    
+
     if (self->loopChoice == 0) {
-        
+
         self->loopCountPlay = self->loopTime = 0;
-        
+
         if (self->xx2 < 0.002) self->xx2 = 0.002;
-        
+
         modulo = (int)(self->xx2 * 1000.0);
         dir = rand() % 2;
-        
+
         if (dir == 0)
             self->walkerValue = self->walkerValue + (((rand() % modulo) - (modulo / 2)) * 0.001);
         else
             self->walkerValue = self->walkerValue - (((rand() % modulo) - (modulo / 2)) * 0.001);
-        
+
         if (self->walkerValue > self->xx1)
             self->walkerValue = self->xx1;
         if (self->walkerValue < 0.0)
             self->walkerValue = 0.0;
-        
+
         self->loop_buffer[self->loopCountRec++] = self->walkerValue;
-        
+
         if (self->loopCountRec < self->loopLen)
             self->loopChoice = 0;
         else {
@@ -3764,22 +3764,22 @@ TrigXnoiseMidi_loopseg(TrigXnoiseMidi *self) {
     }
     else {
         self->loopCountRec = 0;
-        
+
         self->walkerValue = self->loop_buffer[self->loopCountPlay++];
-        
+
         if (self->loopCountPlay < self->loopLen)
             self->loopChoice = 1;
         else {
             self->loopCountPlay = 0;
             self->loopTime++;
         }
-        
+
         if (self->loopTime == self->loopStop) {
             self->loopChoice = 0;
             self->loopLen = (rand() % 10) + 3;
         }
     }
-    
+
     return self->walkerValue;
 }
 
@@ -3789,12 +3789,12 @@ TrigXnoiseMidi_generate_ii(TrigXnoiseMidi *self) {
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
     self->xx1 = PyFloat_AS_DOUBLE(self->x1);
     self->xx2 = PyFloat_AS_DOUBLE(self->x2);
-    
+
     for (i=0; i<self->bufsize; i++) {
         if (in[i] == 1) {
             self->value = (*self->type_func_ptr)(self);
             self->value = TrigXnoiseMidi_convert(self);
-        }    
+        }
         self->data[i] = self->value;
     }
 }
@@ -3805,7 +3805,7 @@ TrigXnoiseMidi_generate_ai(TrigXnoiseMidi *self) {
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
     MYFLT *x1 = Stream_getData((Stream *)self->x1_stream);
     self->xx2 = PyFloat_AS_DOUBLE(self->x2);
-    
+
     for (i=0; i<self->bufsize; i++) {
         if (in[i] == 1) {
             self->xx1 = x1[i];
@@ -3822,7 +3822,7 @@ TrigXnoiseMidi_generate_ia(TrigXnoiseMidi *self) {
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
     self->xx1 = PyFloat_AS_DOUBLE(self->x1);
     MYFLT *x2 = Stream_getData((Stream *)self->x2_stream);
-    
+
     for (i=0; i<self->bufsize; i++) {
         if (in[i] == 1) {
             self->xx2 = x2[i];
@@ -3839,7 +3839,7 @@ TrigXnoiseMidi_generate_aa(TrigXnoiseMidi *self) {
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
     MYFLT *x1 = Stream_getData((Stream *)self->x1_stream);
     MYFLT *x2 = Stream_getData((Stream *)self->x2_stream);
-    
+
     for (i=0; i<self->bufsize; i++) {
         if (in[i] == 1) {
             self->xx1 = x1[i];
@@ -3864,8 +3864,8 @@ static void TrigXnoiseMidi_postprocessing_revareva(TrigXnoiseMidi *self) { POST_
 static void
 TrigXnoiseMidi_setRandomType(TrigXnoiseMidi *self)
 {
-    
-    switch (self->type) {            
+
+    switch (self->type) {
         case 0:
             self->type_func_ptr = TrigXnoiseMidi_uniform;
             break;
@@ -3905,7 +3905,7 @@ TrigXnoiseMidi_setRandomType(TrigXnoiseMidi *self)
         case 12:
             self->type_func_ptr = TrigXnoiseMidi_loopseg;
             break;
-    }        
+    }
 }
 
 static void
@@ -3914,56 +3914,56 @@ TrigXnoiseMidi_setProcMode(TrigXnoiseMidi *self)
     int procmode, muladdmode;
     procmode = self->modebuffer[2] + self->modebuffer[3] * 10;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
-    
+
 	switch (procmode) {
-        case 0:    
+        case 0:
             self->proc_func_ptr = TrigXnoiseMidi_generate_ii;
             break;
-        case 1:    
+        case 1:
             self->proc_func_ptr = TrigXnoiseMidi_generate_ai;
             break;
-        case 10:    
+        case 10:
             self->proc_func_ptr = TrigXnoiseMidi_generate_ia;
             break;
-        case 11:    
+        case 11:
             self->proc_func_ptr = TrigXnoiseMidi_generate_aa;
             break;
-    } 
+    }
 	switch (muladdmode) {
-        case 0:        
+        case 0:
             self->muladd_func_ptr = TrigXnoiseMidi_postprocessing_ii;
             break;
-        case 1:    
+        case 1:
             self->muladd_func_ptr = TrigXnoiseMidi_postprocessing_ai;
             break;
-        case 2:    
+        case 2:
             self->muladd_func_ptr = TrigXnoiseMidi_postprocessing_revai;
             break;
-        case 10:        
+        case 10:
             self->muladd_func_ptr = TrigXnoiseMidi_postprocessing_ia;
             break;
-        case 11:    
+        case 11:
             self->muladd_func_ptr = TrigXnoiseMidi_postprocessing_aa;
             break;
-        case 12:    
+        case 12:
             self->muladd_func_ptr = TrigXnoiseMidi_postprocessing_revaa;
             break;
-        case 20:        
+        case 20:
             self->muladd_func_ptr = TrigXnoiseMidi_postprocessing_ireva;
             break;
-        case 21:    
+        case 21:
             self->muladd_func_ptr = TrigXnoiseMidi_postprocessing_areva;
             break;
-        case 22:    
+        case 22:
             self->muladd_func_ptr = TrigXnoiseMidi_postprocessing_revareva;
             break;
-    }  
+    }
 }
 
 static void
 TrigXnoiseMidi_compute_next_data_frame(TrigXnoiseMidi *self)
 {
-    (*self->proc_func_ptr)(self); 
+    (*self->proc_func_ptr)(self);
     (*self->muladd_func_ptr)(self);
 }
 
@@ -3973,23 +3973,23 @@ TrigXnoiseMidi_traverse(TrigXnoiseMidi *self, visitproc visit, void *arg)
     pyo_VISIT
     Py_VISIT(self->input);
     Py_VISIT(self->input_stream);
-    Py_VISIT(self->x1);    
-    Py_VISIT(self->x1_stream);    
-    Py_VISIT(self->x2);    
-    Py_VISIT(self->x2_stream);    
+    Py_VISIT(self->x1);
+    Py_VISIT(self->x1_stream);
+    Py_VISIT(self->x2);
+    Py_VISIT(self->x2_stream);
     return 0;
 }
 
-static int 
+static int
 TrigXnoiseMidi_clear(TrigXnoiseMidi *self)
 {
     pyo_CLEAR
     Py_CLEAR(self->input);
     Py_CLEAR(self->input_stream);
-    Py_CLEAR(self->x1);    
-    Py_CLEAR(self->x1_stream);    
-    Py_CLEAR(self->x2);    
-    Py_CLEAR(self->x2_stream);    
+    Py_CLEAR(self->x1);
+    Py_CLEAR(self->x1_stream);
+    Py_CLEAR(self->x2);
+    Py_CLEAR(self->x2_stream);
     return 0;
 }
 
@@ -4008,7 +4008,7 @@ TrigXnoiseMidi_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp, *x1tmp=NULL, *x2tmp=NULL, *rangetmp=NULL, *multmp=NULL, *addtmp=NULL;
     TrigXnoiseMidi *self;
     self = (TrigXnoiseMidi *)type->tp_alloc(type, 0);
-        
+
     self->x1 = PyFloat_FromDouble(0.5);
     self->x2 = PyFloat_FromDouble(0.5);
     self->xx1 = self->xx2 = self->walkerValue = 0.5;
@@ -4021,9 +4021,9 @@ TrigXnoiseMidi_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 	self->modebuffer[1] = 0;
 	self->modebuffer[2] = 0;
 	self->modebuffer[3] = 0;
-        
+
     INIT_OBJECT_COMMON
-    
+
     Server_generateSeed((Server *)self->server, TRIGXNOISEMIDI_ID);
 
     self->poisson_tab = 0;
@@ -4034,23 +4034,23 @@ TrigXnoiseMidi_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     for (i=0; i<15; i++) {
         self->loop_buffer[i] = 0.0;
     }
-    self->loopChoice = self->loopCountPlay = self->loopTime = self->loopCountRec = self->loopStop = 0;    
+    self->loopChoice = self->loopCountPlay = self->loopTime = self->loopCountRec = self->loopStop = 0;
     self->loopLen = (rand() % 10) + 3;
-    
+
     Stream_setFunctionPtr(self->stream, TrigXnoiseMidi_compute_next_data_frame);
     self->mode_func_ptr = TrigXnoiseMidi_setProcMode;
 
     static char *kwlist[] = {"input", "type", "x1", "x2", "scale", "range", "mul", "add", NULL};
-    
+
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|iOOiOOO", kwlist, &inputtmp, &self->type, &x1tmp, &x2tmp, &self->scale, &rangetmp, &multmp, &addtmp))
         Py_RETURN_NONE;
-    
+
     INIT_INPUT_STREAM
-    
+
     if (x1tmp) {
         PyObject_CallMethod((PyObject *)self, "setX1", "O", x1tmp);
     }
-    
+
     if (x2tmp) {
         PyObject_CallMethod((PyObject *)self, "setX2", "O", x2tmp);
     }
@@ -4058,19 +4058,19 @@ TrigXnoiseMidi_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (rangetmp) {
         PyObject_CallMethod((PyObject *)self, "setRange", "O", rangetmp);
     }
-    
+
     if (multmp) {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
     }
-    
+
     if (addtmp) {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
-    
+
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
-    
+
     TrigXnoiseMidi_setRandomType(self);
-    
+
     (*self->mode_func_ptr)(self);
 
     return (PyObject *)self;
@@ -4078,10 +4078,10 @@ TrigXnoiseMidi_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
 static PyObject * TrigXnoiseMidi_getServer(TrigXnoiseMidi* self) { GET_SERVER };
 static PyObject * TrigXnoiseMidi_getStream(TrigXnoiseMidi* self) { GET_STREAM };
-static PyObject * TrigXnoiseMidi_setMul(TrigXnoiseMidi *self, PyObject *arg) { SET_MUL };	
-static PyObject * TrigXnoiseMidi_setAdd(TrigXnoiseMidi *self, PyObject *arg) { SET_ADD };	
-static PyObject * TrigXnoiseMidi_setSub(TrigXnoiseMidi *self, PyObject *arg) { SET_SUB };	
-static PyObject * TrigXnoiseMidi_setDiv(TrigXnoiseMidi *self, PyObject *arg) { SET_DIV };	
+static PyObject * TrigXnoiseMidi_setMul(TrigXnoiseMidi *self, PyObject *arg) { SET_MUL };
+static PyObject * TrigXnoiseMidi_setAdd(TrigXnoiseMidi *self, PyObject *arg) { SET_ADD };
+static PyObject * TrigXnoiseMidi_setSub(TrigXnoiseMidi *self, PyObject *arg) { SET_SUB };
+static PyObject * TrigXnoiseMidi_setDiv(TrigXnoiseMidi *self, PyObject *arg) { SET_DIV };
 
 static PyObject * TrigXnoiseMidi_play(TrigXnoiseMidi *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * TrigXnoiseMidi_out(TrigXnoiseMidi *self, PyObject *args, PyObject *kwds) { OUT };
@@ -4098,34 +4098,34 @@ static PyObject * TrigXnoiseMidi_inplace_div(TrigXnoiseMidi *self, PyObject *arg
 
 static PyObject *
 TrigXnoiseMidi_setType(TrigXnoiseMidi *self, PyObject *arg)
-{	
+{
 	if (arg == NULL) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
 	int isNumber = PyInt_Check(arg);
-	
+
 	if (isNumber == 1) {
 		self->type = PyInt_AsLong(arg);
         TrigXnoiseMidi_setRandomType(self);
 	}
-    
+
 	Py_INCREF(Py_None);
 	return Py_None;
-}	
+}
 
 static PyObject *
 TrigXnoiseMidi_setScale(TrigXnoiseMidi *self, PyObject *arg)
-{	
+{
     int tmp;
 	if (arg == NULL) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
 	int isNumber = PyInt_Check(arg);
-	
+
 	if (isNumber == 1) {
 		tmp = PyInt_AsLong(arg);
         if (tmp >= 0 && tmp <= 2)
@@ -4133,43 +4133,43 @@ TrigXnoiseMidi_setScale(TrigXnoiseMidi *self, PyObject *arg)
         else
             printf("scale attribute must be an integer {0, 1, 2}\n");
 	}
-    
+
 	Py_INCREF(Py_None);
 	return Py_None;
-}	
+}
 
 static PyObject *
 TrigXnoiseMidi_setRange(TrigXnoiseMidi *self, PyObject *args)
-{	
+{
 	if (args == NULL) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
 	int isTuple = PyTuple_Check(args);
-    
+
 	if (isTuple == 1) {
         self->range_min = PyInt_AsLong(PyTuple_GET_ITEM(args, 0));
         self->range_max = PyInt_AsLong(PyTuple_GET_ITEM(args, 1));
         self->centralkey = (int)((self->range_max + self->range_min) / 2);
 	}
-    
+
     Py_INCREF(Py_None);
 	return Py_None;
-}	
+}
 
 static PyObject *
 TrigXnoiseMidi_setX1(TrigXnoiseMidi *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
-	
+
 	if (arg == NULL) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
 	int isNumber = PyNumber_Check(arg);
-	
+
 	tmp = arg;
 	Py_INCREF(tmp);
 	Py_DECREF(self->x1);
@@ -4185,25 +4185,25 @@ TrigXnoiseMidi_setX1(TrigXnoiseMidi *self, PyObject *arg)
         self->x1_stream = (Stream *)streamtmp;
 		self->modebuffer[2] = 1;
 	}
-    
+
     (*self->mode_func_ptr)(self);
-    
+
 	Py_INCREF(Py_None);
 	return Py_None;
-}	
+}
 
 static PyObject *
 TrigXnoiseMidi_setX2(TrigXnoiseMidi *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
-	
+
 	if (arg == NULL) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
 	int isNumber = PyNumber_Check(arg);
-	
+
 	tmp = arg;
 	Py_INCREF(tmp);
 	Py_DECREF(self->x2);
@@ -4219,12 +4219,12 @@ TrigXnoiseMidi_setX2(TrigXnoiseMidi *self, PyObject *arg)
         self->x2_stream = (Stream *)streamtmp;
 		self->modebuffer[3] = 1;
 	}
-    
+
     (*self->mode_func_ptr)(self);
-    
+
 	Py_INCREF(Py_None);
 	return Py_None;
-}	
+}
 
 static PyMemberDef TrigXnoiseMidi_members[] = {
     {"server", T_OBJECT_EX, offsetof(TrigXnoiseMidi, server), 0, "Pyo server."},
@@ -4352,14 +4352,14 @@ typedef struct {
     int dir;
     int direction;
     MYFLT value;
-    int modebuffer[2]; // need at least 2 slots for mul & add 
+    int modebuffer[2]; // need at least 2 slots for mul & add
 } Counter;
 
 static void
 Counter_generates(Counter *self) {
     int i;
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
-    
+
     for (i=0; i<self->bufsize; i++) {
         if (in[i] == 1) {
             self->value = (MYFLT)self->tmp;
@@ -4367,22 +4367,22 @@ Counter_generates(Counter *self) {
                 self->tmp++;
                 if (self->tmp >= self->max)
                     self->tmp = self->min;
-            }    
+            }
             else if (self->dir == 1) {
                 self->tmp--;
                 if (self->tmp < self->min)
                     self->tmp = self->max - 1;
-            }    
+            }
             else if (self->dir == 2) {
                 self->tmp = self->tmp + self->direction;
                 if (self->tmp >= self->max) {
                     self->direction = -1;
                     self->tmp = self->max - 2;
-                }    
+                }
                 if (self->tmp <= self->min) {
                     self->direction = 1;
                     self->tmp = self->min;
-                }    
+                }
             }
         }
         self->data[i] = self->value;
@@ -4404,44 +4404,44 @@ Counter_setProcMode(Counter *self)
 {
     int muladdmode;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
-    
+
     self->proc_func_ptr = Counter_generates;
 
 	switch (muladdmode) {
-        case 0:        
+        case 0:
             self->muladd_func_ptr = Counter_postprocessing_ii;
             break;
-        case 1:    
+        case 1:
             self->muladd_func_ptr = Counter_postprocessing_ai;
             break;
-        case 2:    
+        case 2:
             self->muladd_func_ptr = Counter_postprocessing_revai;
             break;
-        case 10:        
+        case 10:
             self->muladd_func_ptr = Counter_postprocessing_ia;
             break;
-        case 11:    
+        case 11:
             self->muladd_func_ptr = Counter_postprocessing_aa;
             break;
-        case 12:    
+        case 12:
             self->muladd_func_ptr = Counter_postprocessing_revaa;
             break;
-        case 20:        
+        case 20:
             self->muladd_func_ptr = Counter_postprocessing_ireva;
             break;
-        case 21:    
+        case 21:
             self->muladd_func_ptr = Counter_postprocessing_areva;
             break;
-        case 22:    
+        case 22:
             self->muladd_func_ptr = Counter_postprocessing_revareva;
             break;
-    }  
+    }
 }
 
 static void
 Counter_compute_next_data_frame(Counter *self)
 {
-    (*self->proc_func_ptr)(self); 
+    (*self->proc_func_ptr)(self);
     (*self->muladd_func_ptr)(self);
 }
 
@@ -4454,7 +4454,7 @@ Counter_traverse(Counter *self, visitproc visit, void *arg)
     return 0;
 }
 
-static int 
+static int
 Counter_clear(Counter *self)
 {
     pyo_CLEAR
@@ -4478,40 +4478,40 @@ Counter_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp, *multmp=NULL, *addtmp=NULL;
     Counter *self;
     self = (Counter *)type->tp_alloc(type, 0);
-    
+
     self->min = 0;
     self->max = 100;
     self->dir = 0;
     self->direction = 1;
 	self->modebuffer[0] = 0;
 	self->modebuffer[1] = 0;
-    
+
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, Counter_compute_next_data_frame);
     self->mode_func_ptr = Counter_setProcMode;
 
     static char *kwlist[] = {"input", "min", "max", "dir", "mul", "add", NULL};
-    
+
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|lliOO", kwlist, &inputtmp, &self->min, &self->max, &self->dir, &multmp, &addtmp))
         Py_RETURN_NONE;
-    
+
     INIT_INPUT_STREAM
 
     if (multmp) {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
     }
-    
+
     if (addtmp) {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
-    
+
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
     if (self->dir == 0 || self->dir == 2)
         self->tmp = self->min;
     else
         self->tmp = self->max - 1;
-    
+
     (*self->mode_func_ptr)(self);
 
     return (PyObject *)self;
@@ -4519,10 +4519,10 @@ Counter_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
 static PyObject * Counter_getServer(Counter* self) { GET_SERVER };
 static PyObject * Counter_getStream(Counter* self) { GET_STREAM };
-static PyObject * Counter_setMul(Counter *self, PyObject *arg) { SET_MUL };	
-static PyObject * Counter_setAdd(Counter *self, PyObject *arg) { SET_ADD };	
-static PyObject * Counter_setSub(Counter *self, PyObject *arg) { SET_SUB };	
-static PyObject * Counter_setDiv(Counter *self, PyObject *arg) { SET_DIV };	
+static PyObject * Counter_setMul(Counter *self, PyObject *arg) { SET_MUL };
+static PyObject * Counter_setAdd(Counter *self, PyObject *arg) { SET_ADD };
+static PyObject * Counter_setSub(Counter *self, PyObject *arg) { SET_SUB };
+static PyObject * Counter_setDiv(Counter *self, PyObject *arg) { SET_DIV };
 
 static PyObject * Counter_play(Counter *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * Counter_stop(Counter *self) { STOP };
@@ -4538,57 +4538,57 @@ static PyObject * Counter_inplace_div(Counter *self, PyObject *arg) { INPLACE_DI
 
 static PyObject *
 Counter_setMin(Counter *self, PyObject *arg)
-{	
+{
 	if (arg == NULL) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
-	if (PyLong_Check(arg) || PyInt_Check(arg)) {	
+
+	if (PyLong_Check(arg) || PyInt_Check(arg)) {
 		self->min = PyLong_AsLong(arg);
 	}
 
 	Py_INCREF(Py_None);
 	return Py_None;
-}	
+}
 
 static PyObject *
 Counter_setMax(Counter *self, PyObject *arg)
-{	
+{
 	if (arg == NULL) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
-	if (PyLong_Check(arg) || PyInt_Check(arg)) {	
+
+	if (PyLong_Check(arg) || PyInt_Check(arg)) {
 		self->max = PyLong_AsLong(arg);
 	}
-    
+
 	Py_INCREF(Py_None);
 	return Py_None;
-}	
+}
 
 static PyObject *
 Counter_setDir(Counter *self, PyObject *arg)
-{	
+{
 	if (arg == NULL) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
-	if (PyInt_Check(arg)) {	
+
+	if (PyInt_Check(arg)) {
 		self->dir = PyInt_AsLong(arg);
 	}
-    
+
 	Py_INCREF(Py_None);
 	return Py_None;
-}	
+}
 
 static PyObject *
 Counter_reset(Counter *self, PyObject *arg)
 {
     int val;
-    
+
     if (arg == Py_None) {
         if (self->dir == 0 || self->dir == 2)
             val = self->min;
@@ -4596,12 +4596,12 @@ Counter_reset(Counter *self, PyObject *arg)
             val = self->max - 1;
         self->tmp = val;
     }
-    
+
     else if (PyInt_Check(arg)) {
         val = PyInt_AsLong(arg);
         self->tmp = val;
     }
-    
+
 	Py_INCREF(Py_None);
 	return Py_None;
 }
@@ -4745,7 +4745,7 @@ Thresh_generates_i(Thresh *self) {
                 }
                 else if (in[i] <= thresh && self->ready == 0)
                     self->ready = 1;
-            } 
+            }
             break;
         case 1:
             for (i=0; i<self->bufsize; i++) {
@@ -4756,7 +4756,7 @@ Thresh_generates_i(Thresh *self) {
                 }
                 else if (in[i] >= thresh && self->ready == 0)
                     self->ready = 1;
-            } 
+            }
             break;
         case 2:
             for (i=0; i<self->bufsize; i++) {
@@ -4768,8 +4768,8 @@ Thresh_generates_i(Thresh *self) {
                 else if (in[i] <= thresh && self->ready == 0) {
                     self->data[i] = 1.0;
                     self->ready = 1;
-                }    
-            } 
+                }
+            }
             break;
     }
 }
@@ -4779,7 +4779,7 @@ Thresh_generates_a(Thresh *self) {
     int i;
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
     MYFLT *thresh = Stream_getData((Stream *)self->threshold_stream);
-    
+
     switch (self->dir) {
         case 0:
             for (i=0; i<self->bufsize; i++) {
@@ -4790,7 +4790,7 @@ Thresh_generates_a(Thresh *self) {
                 }
                 else if (in[i] <= thresh[i] && self->ready == 0)
                     self->ready = 1;
-            } 
+            }
             break;
         case 1:
             for (i=0; i<self->bufsize; i++) {
@@ -4801,7 +4801,7 @@ Thresh_generates_a(Thresh *self) {
                 }
                 else if (in[i] >= thresh[i] && self->ready == 0)
                     self->ready = 1;
-            } 
+            }
             break;
         case 2:
             for (i=0; i<self->bufsize; i++) {
@@ -4813,7 +4813,7 @@ Thresh_generates_a(Thresh *self) {
                 else if (in[i] <= thresh[i] && self->ready == 0)
                     self->data[i] = 1.0;
                 self->ready = 1;
-            } 
+            }
             break;
     }
 }
@@ -4830,53 +4830,53 @@ static void Thresh_postprocessing_revareva(Thresh *self) { POST_PROCESSING_REVAR
 
 static void
 Thresh_setProcMode(Thresh *self)
-{    
+{
     int procmode = self->modebuffer[2];
     int muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
 
     switch (procmode) {
-        case 0:        
+        case 0:
             self->proc_func_ptr = Thresh_generates_i;
             break;
-        case 1:    
+        case 1:
             self->proc_func_ptr = Thresh_generates_a;
             break;
     }
     switch (muladdmode) {
-        case 0:        
+        case 0:
             self->muladd_func_ptr = Thresh_postprocessing_ii;
             break;
-        case 1:    
+        case 1:
             self->muladd_func_ptr = Thresh_postprocessing_ai;
             break;
-        case 2:    
+        case 2:
             self->muladd_func_ptr = Thresh_postprocessing_revai;
             break;
-        case 10:        
+        case 10:
             self->muladd_func_ptr = Thresh_postprocessing_ia;
             break;
-        case 11:    
+        case 11:
             self->muladd_func_ptr = Thresh_postprocessing_aa;
             break;
-        case 12:    
+        case 12:
             self->muladd_func_ptr = Thresh_postprocessing_revaa;
             break;
-        case 20:        
+        case 20:
             self->muladd_func_ptr = Thresh_postprocessing_ireva;
             break;
-        case 21:    
+        case 21:
             self->muladd_func_ptr = Thresh_postprocessing_areva;
             break;
-        case 22:    
+        case 22:
             self->muladd_func_ptr = Thresh_postprocessing_revareva;
             break;
-    }  
+    }
 }
 
 static void
 Thresh_compute_next_data_frame(Thresh *self)
 {
-    (*self->proc_func_ptr)(self); 
+    (*self->proc_func_ptr)(self);
     (*self->muladd_func_ptr)(self);
 }
 
@@ -4891,7 +4891,7 @@ Thresh_traverse(Thresh *self, visitproc visit, void *arg)
     return 0;
 }
 
-static int 
+static int
 Thresh_clear(Thresh *self)
 {
     pyo_CLEAR
@@ -4917,36 +4917,36 @@ Thresh_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp, *thresholdtmp, *multmp=NULL, *addtmp=NULL;
     Thresh *self;
     self = (Thresh *)type->tp_alloc(type, 0);
-    
+
     self->threshold = PyFloat_FromDouble(0.);
     self->dir = 0;
     self->ready = 0;
 	self->modebuffer[0] = 0;
 	self->modebuffer[1] = 0;
     self->modebuffer[2] = 0;
-    
+
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, Thresh_compute_next_data_frame);
     self->mode_func_ptr = Thresh_setProcMode;
 
     static char *kwlist[] = {"input", "threshold", "dir", "mul", "add", NULL};
-    
+
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OiOO", kwlist, &inputtmp, &thresholdtmp, &self->dir, &multmp, &addtmp))
         Py_RETURN_NONE;
-    
+
     INIT_INPUT_STREAM
-    
+
     if (thresholdtmp) {
         PyObject_CallMethod((PyObject *)self, "setThreshold", "O", thresholdtmp);
     }
     if (multmp) {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
     }
-    
+
     if (addtmp) {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
-    
+
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
     (*self->mode_func_ptr)(self);
@@ -4956,10 +4956,10 @@ Thresh_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
 static PyObject * Thresh_getServer(Thresh* self) { GET_SERVER };
 static PyObject * Thresh_getStream(Thresh* self) { GET_STREAM };
-static PyObject * Thresh_setMul(Thresh *self, PyObject *arg) { SET_MUL };	
-static PyObject * Thresh_setAdd(Thresh *self, PyObject *arg) { SET_ADD };	
-static PyObject * Thresh_setSub(Thresh *self, PyObject *arg) { SET_SUB };	
-static PyObject * Thresh_setDiv(Thresh *self, PyObject *arg) { SET_DIV };	
+static PyObject * Thresh_setMul(Thresh *self, PyObject *arg) { SET_MUL };
+static PyObject * Thresh_setAdd(Thresh *self, PyObject *arg) { SET_ADD };
+static PyObject * Thresh_setSub(Thresh *self, PyObject *arg) { SET_SUB };
+static PyObject * Thresh_setDiv(Thresh *self, PyObject *arg) { SET_DIV };
 
 static PyObject * Thresh_play(Thresh *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * Thresh_stop(Thresh *self) { STOP };
@@ -4977,14 +4977,14 @@ static PyObject *
 Thresh_setThreshold(Thresh *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
-	
+
 	if (arg == NULL) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
 	int isNumber = PyNumber_Check(arg);
-	
+
 	tmp = arg;
 	Py_INCREF(tmp);
 	Py_DECREF(self->threshold);
@@ -5000,28 +5000,28 @@ Thresh_setThreshold(Thresh *self, PyObject *arg)
         self->threshold_stream = (Stream *)streamtmp;
 		self->modebuffer[2] = 1;
 	}
-    
+
     (*self->mode_func_ptr)(self);
-    
+
 	Py_INCREF(Py_None);
 	return Py_None;
-}	
+}
 
 static PyObject *
 Thresh_setDir(Thresh *self, PyObject *arg)
-{	
+{
 	if (arg == NULL) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
-	if (PyInt_Check(arg)) {	
+
+	if (PyInt_Check(arg)) {
 		self->dir = PyInt_AsLong(arg);
 	}
-    
+
 	Py_INCREF(Py_None);
 	return Py_None;
-}	
+}
 
 static PyMemberDef Thresh_members[] = {
 {"server", T_OBJECT_EX, offsetof(Thresh, server), 0, "Pyo server."},
@@ -5155,7 +5155,7 @@ Percent_generates_i(Percent *self) {
             guess = (rand()/((MYFLT)(RAND_MAX)+1)) * 100.0;
             if (guess <= perc)
                 self->data[i] = 1.0;
-        }    
+        }
     }
 }
 
@@ -5165,14 +5165,14 @@ Percent_generates_a(Percent *self) {
     MYFLT guess;
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
     MYFLT *perc = Stream_getData((Stream *)self->percent_stream);
-    
+
     for (i=0; i<self->bufsize; i++) {
         self->data[i] = 0.0;
         if (in[i] == 1.0) {
             guess = (rand()/((MYFLT)(RAND_MAX)+1)) * 100.0;
             if (guess <= perc[i])
                 self->data[i] = 1.0;
-        }    
+        }
     }
 }
 
@@ -5188,54 +5188,54 @@ static void Percent_postprocessing_revareva(Percent *self) { POST_PROCESSING_REV
 
 static void
 Percent_setProcMode(Percent *self)
-{    
+{
     int muladdmode, procmode
     ;
     procmode = self->modebuffer[2];
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
     switch (procmode) {
-        case 0:        
+        case 0:
             self->proc_func_ptr = Percent_generates_i;
             break;
-        case 1:    
+        case 1:
             self->proc_func_ptr = Percent_generates_a;
             break;
     }
     switch (muladdmode) {
-        case 0:        
+        case 0:
             self->muladd_func_ptr = Percent_postprocessing_ii;
             break;
-        case 1:    
+        case 1:
             self->muladd_func_ptr = Percent_postprocessing_ai;
             break;
-        case 2:    
+        case 2:
             self->muladd_func_ptr = Percent_postprocessing_revai;
             break;
-        case 10:        
+        case 10:
             self->muladd_func_ptr = Percent_postprocessing_ia;
             break;
-        case 11:    
+        case 11:
             self->muladd_func_ptr = Percent_postprocessing_aa;
             break;
-        case 12:    
+        case 12:
             self->muladd_func_ptr = Percent_postprocessing_revaa;
             break;
-        case 20:        
+        case 20:
             self->muladd_func_ptr = Percent_postprocessing_ireva;
             break;
-        case 21:    
+        case 21:
             self->muladd_func_ptr = Percent_postprocessing_areva;
             break;
-        case 22:    
+        case 22:
             self->muladd_func_ptr = Percent_postprocessing_revareva;
             break;
-    }  
+    }
 }
 
 static void
 Percent_compute_next_data_frame(Percent *self)
 {
-    (*self->proc_func_ptr)(self); 
+    (*self->proc_func_ptr)(self);
     (*self->muladd_func_ptr)(self);
 }
 
@@ -5250,7 +5250,7 @@ Percent_traverse(Percent *self, visitproc visit, void *arg)
     return 0;
 }
 
-static int 
+static int
 Percent_clear(Percent *self)
 {
     pyo_CLEAR
@@ -5276,36 +5276,36 @@ Percent_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp, *percenttmp, *multmp=NULL, *addtmp=NULL;
     Percent *self;
     self = (Percent *)type->tp_alloc(type, 0);
-    
+
     self->percent = PyFloat_FromDouble(50.);
 	self->modebuffer[0] = 0;
 	self->modebuffer[1] = 0;
     self->modebuffer[2] = 0;
-    
+
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, Percent_compute_next_data_frame);
     self->mode_func_ptr = Percent_setProcMode;
 
     static char *kwlist[] = {"input", "percent", "mul", "add", NULL};
-    
+
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOO", kwlist, &inputtmp, &percenttmp, &multmp, &addtmp))
         Py_RETURN_NONE;
-    
+
     INIT_INPUT_STREAM
-    
+
     if (percenttmp) {
         PyObject_CallMethod((PyObject *)self, "setPercent", "O", percenttmp);
     }
     if (multmp) {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
     }
-    
+
     if (addtmp) {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
-    
+
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
-    
+
     Server_generateSeed((Server *)self->server, PERCENT_ID);
 
     (*self->mode_func_ptr)(self);
@@ -5315,10 +5315,10 @@ Percent_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
 static PyObject * Percent_getServer(Percent* self) { GET_SERVER };
 static PyObject * Percent_getStream(Percent* self) { GET_STREAM };
-static PyObject * Percent_setMul(Percent *self, PyObject *arg) { SET_MUL };	
-static PyObject * Percent_setAdd(Percent *self, PyObject *arg) { SET_ADD };	
-static PyObject * Percent_setSub(Percent *self, PyObject *arg) { SET_SUB };	
-static PyObject * Percent_setDiv(Percent *self, PyObject *arg) { SET_DIV };	
+static PyObject * Percent_setMul(Percent *self, PyObject *arg) { SET_MUL };
+static PyObject * Percent_setAdd(Percent *self, PyObject *arg) { SET_ADD };
+static PyObject * Percent_setSub(Percent *self, PyObject *arg) { SET_SUB };
+static PyObject * Percent_setDiv(Percent *self, PyObject *arg) { SET_DIV };
 
 static PyObject * Percent_play(Percent *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * Percent_stop(Percent *self) { STOP };
@@ -5336,14 +5336,14 @@ static PyObject *
 Percent_setPercent(Percent *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
-	
+
 	if (arg == NULL) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
 	int isNumber = PyNumber_Check(arg);
-	
+
 	tmp = arg;
 	Py_INCREF(tmp);
 	Py_DECREF(self->percent);
@@ -5359,12 +5359,12 @@ Percent_setPercent(Percent *self, PyObject *arg)
         self->percent_stream = (Stream *)streamtmp;
 		self->modebuffer[2] = 1;
 	}
-    
+
     (*self->mode_func_ptr)(self);
-    
+
 	Py_INCREF(Py_None);
 	return Py_None;
-}	
+}
 
 static PyMemberDef Percent_members[] = {
     {"server", T_OBJECT_EX, offsetof(Percent, server), 0, "Pyo server."},
@@ -5493,7 +5493,7 @@ Timer_generates(Timer *self) {
     int i;
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
     MYFLT *in2 = Stream_getData((Stream *)self->input2_stream);
-    
+
     for (i=0; i<self->bufsize; i++) {
         if (self->started == 1) {
             self->count++;
@@ -5502,14 +5502,14 @@ Timer_generates(Timer *self) {
                 self->started = 0;
             }
         }
-        
+
         if (in2[i] == 1 && self->started == 0) {
             self->count = 0;
             self->started = 1;
         }
-        
+
         self->data[i] = self->lasttime;
-    } 
+    }
 }
 
 static void Timer_postprocessing_ii(Timer *self) { POST_PROCESSING_II };
@@ -5524,46 +5524,46 @@ static void Timer_postprocessing_revareva(Timer *self) { POST_PROCESSING_REVAREV
 
 static void
 Timer_setProcMode(Timer *self)
-{    
+{
     int muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
-    
+
     self->proc_func_ptr = Timer_generates;
-    
+
     switch (muladdmode) {
-        case 0:        
+        case 0:
             self->muladd_func_ptr = Timer_postprocessing_ii;
             break;
-        case 1:    
+        case 1:
             self->muladd_func_ptr = Timer_postprocessing_ai;
             break;
-        case 2:    
+        case 2:
             self->muladd_func_ptr = Timer_postprocessing_revai;
             break;
-        case 10:        
+        case 10:
             self->muladd_func_ptr = Timer_postprocessing_ia;
             break;
-        case 11:    
+        case 11:
             self->muladd_func_ptr = Timer_postprocessing_aa;
             break;
-        case 12:    
+        case 12:
             self->muladd_func_ptr = Timer_postprocessing_revaa;
             break;
-        case 20:        
+        case 20:
             self->muladd_func_ptr = Timer_postprocessing_ireva;
             break;
-        case 21:    
+        case 21:
             self->muladd_func_ptr = Timer_postprocessing_areva;
             break;
-        case 22:    
+        case 22:
             self->muladd_func_ptr = Timer_postprocessing_revareva;
             break;
-    }  
+    }
 }
 
 static void
 Timer_compute_next_data_frame(Timer *self)
 {
-    (*self->proc_func_ptr)(self); 
+    (*self->proc_func_ptr)(self);
     (*self->muladd_func_ptr)(self);
 }
 
@@ -5578,7 +5578,7 @@ Timer_traverse(Timer *self, visitproc visit, void *arg)
     return 0;
 }
 
-static int 
+static int
 Timer_clear(Timer *self)
 {
     pyo_CLEAR
@@ -5604,41 +5604,41 @@ Timer_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp, *input2tmp, *input2_streamtmp, *multmp=NULL, *addtmp=NULL;
     Timer *self;
     self = (Timer *)type->tp_alloc(type, 0);
-    
+
     self->count = 0;
     self->started = 0;
     self->lasttime = 0.0;
 	self->modebuffer[0] = 0;
 	self->modebuffer[1] = 0;
-    
+
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, Timer_compute_next_data_frame);
     self->mode_func_ptr = Timer_setProcMode;
 
     static char *kwlist[] = {"input", "input2", "mul", "add", NULL};
-    
+
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "OO|OO", kwlist, &inputtmp, &input2tmp, &multmp, &addtmp))
         Py_RETURN_NONE;
-    
+
     INIT_INPUT_STREAM
-    
+
     Py_XDECREF(self->input2);
     self->input2 = input2tmp;
     input2_streamtmp = PyObject_CallMethod((PyObject *)self->input2, "_getStream", NULL);
     Py_INCREF(input2_streamtmp);
     Py_XDECREF(self->input2_stream);
     self->input2_stream = (Stream *)input2_streamtmp;
-    
+
     if (multmp) {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
     }
-    
+
     if (addtmp) {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
-    
+
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
-    
+
     (*self->mode_func_ptr)(self);
 
     return (PyObject *)self;
@@ -5646,10 +5646,10 @@ Timer_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
 static PyObject * Timer_getServer(Timer* self) { GET_SERVER };
 static PyObject * Timer_getStream(Timer* self) { GET_STREAM };
-static PyObject * Timer_setMul(Timer *self, PyObject *arg) { SET_MUL };	
-static PyObject * Timer_setAdd(Timer *self, PyObject *arg) { SET_ADD };	
-static PyObject * Timer_setSub(Timer *self, PyObject *arg) { SET_SUB };	
-static PyObject * Timer_setDiv(Timer *self, PyObject *arg) { SET_DIV };	
+static PyObject * Timer_setMul(Timer *self, PyObject *arg) { SET_MUL };
+static PyObject * Timer_setAdd(Timer *self, PyObject *arg) { SET_ADD };
+static PyObject * Timer_setSub(Timer *self, PyObject *arg) { SET_SUB };
+static PyObject * Timer_setDiv(Timer *self, PyObject *arg) { SET_DIV };
 
 static PyObject * Timer_play(Timer *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * Timer_stop(Timer *self) { STOP };
@@ -5780,14 +5780,14 @@ typedef struct {
     int chCount;
     MYFLT *choice;
     MYFLT value;
-    int modebuffer[2]; // need at least 2 slots for mul & add 
+    int modebuffer[2]; // need at least 2 slots for mul & add
 } Iter;
 
 static void
 Iter_generate(Iter *self) {
     int i;
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
-    
+
     for (i=0; i<self->bufsize; i++) {
         if (in[i] == 1) {
             if (self->chCount >= self->chSize)
@@ -5814,44 +5814,44 @@ Iter_setProcMode(Iter *self)
 {
     int muladdmode;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
-    
+
     self->proc_func_ptr = Iter_generate;
-    
+
 	switch (muladdmode) {
-        case 0:        
+        case 0:
             self->muladd_func_ptr = Iter_postprocessing_ii;
             break;
-        case 1:    
+        case 1:
             self->muladd_func_ptr = Iter_postprocessing_ai;
             break;
-        case 2:    
+        case 2:
             self->muladd_func_ptr = Iter_postprocessing_revai;
             break;
-        case 10:        
+        case 10:
             self->muladd_func_ptr = Iter_postprocessing_ia;
             break;
-        case 11:    
+        case 11:
             self->muladd_func_ptr = Iter_postprocessing_aa;
             break;
-        case 12:    
+        case 12:
             self->muladd_func_ptr = Iter_postprocessing_revaa;
             break;
-        case 20:        
+        case 20:
             self->muladd_func_ptr = Iter_postprocessing_ireva;
             break;
-        case 21:    
+        case 21:
             self->muladd_func_ptr = Iter_postprocessing_areva;
             break;
-        case 22:    
+        case 22:
             self->muladd_func_ptr = Iter_postprocessing_revareva;
             break;
-    }  
+    }
 }
 
 static void
 Iter_compute_next_data_frame(Iter *self)
 {
-    (*self->proc_func_ptr)(self); 
+    (*self->proc_func_ptr)(self);
     (*self->muladd_func_ptr)(self);
 }
 
@@ -5864,7 +5864,7 @@ Iter_traverse(Iter *self, visitproc visit, void *arg)
     return 0;
 }
 
-static int 
+static int
 Iter_clear(Iter *self)
 {
     pyo_CLEAR
@@ -5890,39 +5890,39 @@ Iter_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp, *choicetmp=NULL, *multmp=NULL, *addtmp=NULL;
     Iter *self;
     self = (Iter *)type->tp_alloc(type, 0);
-    
+
     self->value = 0.;
     self->chCount = 0;
 	self->modebuffer[0] = 0;
 	self->modebuffer[1] = 0;
-    
+
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, Iter_compute_next_data_frame);
     self->mode_func_ptr = Iter_setProcMode;
 
     static char *kwlist[] = {"input", "choice", "init", "mul", "add", NULL};
-    
+
     if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_OO_FOO, kwlist, &inputtmp, &choicetmp, &inittmp, &multmp, &addtmp))
         Py_RETURN_NONE;
-    
+
     INIT_INPUT_STREAM
-    
+
     if (choicetmp) {
         PyObject_CallMethod((PyObject *)self, "setChoice", "O", choicetmp);
     }
-    
+
     if (multmp) {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
     }
-    
+
     if (addtmp) {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
-    
+
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
     self->value = inittmp;
-    
+
     (*self->mode_func_ptr)(self);
 
     return (PyObject *)self;
@@ -5930,10 +5930,10 @@ Iter_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
 static PyObject * Iter_getServer(Iter* self) { GET_SERVER };
 static PyObject * Iter_getStream(Iter* self) { GET_STREAM };
-static PyObject * Iter_setMul(Iter *self, PyObject *arg) { SET_MUL };	
-static PyObject * Iter_setAdd(Iter *self, PyObject *arg) { SET_ADD };	
-static PyObject * Iter_setSub(Iter *self, PyObject *arg) { SET_SUB };	
-static PyObject * Iter_setDiv(Iter *self, PyObject *arg) { SET_DIV };	
+static PyObject * Iter_setMul(Iter *self, PyObject *arg) { SET_MUL };
+static PyObject * Iter_setAdd(Iter *self, PyObject *arg) { SET_ADD };
+static PyObject * Iter_setSub(Iter *self, PyObject *arg) { SET_SUB };
+static PyObject * Iter_setDiv(Iter *self, PyObject *arg) { SET_DIV };
 
 static PyObject * Iter_play(Iter *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * Iter_out(Iter *self, PyObject *args, PyObject *kwds) { OUT };
@@ -5953,27 +5953,27 @@ Iter_setChoice(Iter *self, PyObject *arg)
 {
     int i;
 	PyObject *tmp;
-	
+
 	if (! PyList_Check(arg)) {
         PyErr_SetString(PyExc_TypeError, "The choice attribute must be a list.");
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
     tmp = arg;
     self->chSize = PyList_Size(tmp);
     self->choice = (MYFLT *)realloc(self->choice, self->chSize * sizeof(MYFLT));
     for (i=0; i<self->chSize; i++) {
         self->choice[i] = PyFloat_AS_DOUBLE(PyNumber_Float(PyList_GET_ITEM(tmp, i)));
     }
-    
+
     (*self->mode_func_ptr)(self);
-    
+
 	Py_INCREF(Py_None);
 	return Py_None;
-}	
+}
 
-static PyObject * 
+static PyObject *
 Iter_reset(Iter *self, PyObject *arg)
 {
     int tmp;
@@ -6114,8 +6114,8 @@ static void
 Count_generates(Count *self) {
     int i;
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
-    
-    for (i=0; i<self->bufsize; i++) {        
+
+    for (i=0; i<self->bufsize; i++) {
         if (in[i] == 1) {
             self->count = self->min;
             self->started = 1;
@@ -6128,7 +6128,7 @@ Count_generates(Count *self) {
         else {
             self->data[i] = self->min;
         }
-    } 
+    }
 }
 
 static void Count_postprocessing_ii(Count *self) { POST_PROCESSING_II };
@@ -6143,46 +6143,46 @@ static void Count_postprocessing_revareva(Count *self) { POST_PROCESSING_REVAREV
 
 static void
 Count_setProcMode(Count *self)
-{    
+{
     int muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
-    
+
     self->proc_func_ptr = Count_generates;
-    
+
     switch (muladdmode) {
-        case 0:        
+        case 0:
             self->muladd_func_ptr = Count_postprocessing_ii;
             break;
-        case 1:    
+        case 1:
             self->muladd_func_ptr = Count_postprocessing_ai;
             break;
-        case 2:    
+        case 2:
             self->muladd_func_ptr = Count_postprocessing_revai;
             break;
-        case 10:        
+        case 10:
             self->muladd_func_ptr = Count_postprocessing_ia;
             break;
-        case 11:    
+        case 11:
             self->muladd_func_ptr = Count_postprocessing_aa;
             break;
-        case 12:    
+        case 12:
             self->muladd_func_ptr = Count_postprocessing_revaa;
             break;
-        case 20:        
+        case 20:
             self->muladd_func_ptr = Count_postprocessing_ireva;
             break;
-        case 21:    
+        case 21:
             self->muladd_func_ptr = Count_postprocessing_areva;
             break;
-        case 22:    
+        case 22:
             self->muladd_func_ptr = Count_postprocessing_revareva;
             break;
-    }  
+    }
 }
 
 static void
 Count_compute_next_data_frame(Count *self)
 {
-    (*self->proc_func_ptr)(self); 
+    (*self->proc_func_ptr)(self);
     (*self->muladd_func_ptr)(self);
 }
 
@@ -6195,7 +6195,7 @@ Count_traverse(Count *self, visitproc visit, void *arg)
     return 0;
 }
 
-static int 
+static int
 Count_clear(Count *self)
 {
     pyo_CLEAR
@@ -6219,35 +6219,35 @@ Count_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp, *multmp=NULL, *addtmp=NULL;
     Count *self;
     self = (Count *)type->tp_alloc(type, 0);
-    
+
     self->started = 0;
     self->count = 0;
     self->min = 0;
     self->max = 0;
 	self->modebuffer[0] = 0;
 	self->modebuffer[1] = 0;
-    
+
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, Count_compute_next_data_frame);
     self->mode_func_ptr = Count_setProcMode;
 
     static char *kwlist[] = {"input", "min", "max", "mul", "add", NULL};
-    
+
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|kkOO", kwlist, &inputtmp, &self->min, &self->max, &multmp, &addtmp))
         Py_RETURN_NONE;
-    
+
     INIT_INPUT_STREAM
 
     if (multmp) {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
     }
-    
+
     if (addtmp) {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
-    
+
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
-    
+
     (*self->mode_func_ptr)(self);
 
     return (PyObject *)self;
@@ -6255,10 +6255,10 @@ Count_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
 static PyObject * Count_getServer(Count* self) { GET_SERVER };
 static PyObject * Count_getStream(Count* self) { GET_STREAM };
-static PyObject * Count_setMul(Count *self, PyObject *arg) { SET_MUL };	
-static PyObject * Count_setAdd(Count *self, PyObject *arg) { SET_ADD };	
-static PyObject * Count_setSub(Count *self, PyObject *arg) { SET_SUB };	
-static PyObject * Count_setDiv(Count *self, PyObject *arg) { SET_DIV };	
+static PyObject * Count_setMul(Count *self, PyObject *arg) { SET_MUL };
+static PyObject * Count_setAdd(Count *self, PyObject *arg) { SET_ADD };
+static PyObject * Count_setSub(Count *self, PyObject *arg) { SET_SUB };
+static PyObject * Count_setDiv(Count *self, PyObject *arg) { SET_DIV };
 
 static PyObject * Count_play(Count *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * Count_stop(Count *self) { STOP };
@@ -6274,25 +6274,25 @@ static PyObject * Count_inplace_div(Count *self, PyObject *arg) { INPLACE_DIV };
 
 static PyObject *
 Count_setMin(Count *self, PyObject *arg)
-{	    
-	if (PyLong_Check(arg) || PyInt_Check(arg))	
+{
+	if (PyLong_Check(arg) || PyInt_Check(arg))
 		self->min = PyLong_AsLong(arg);
-    
+
 	Py_INCREF(Py_None);
 	return Py_None;
-}	
+}
 
 static PyObject *
 Count_setMax(Count *self, PyObject *arg)
-{	  
+{
     if (arg == Py_None)
         self->max = 0;
-	else if (PyLong_Check(arg) || PyInt_Check(arg))	
+	else if (PyLong_Check(arg) || PyInt_Check(arg))
 		self->max = PyLong_AsLong(arg);
-    
+
 	Py_INCREF(Py_None);
 	return Py_None;
-}	
+}
 
 static PyMemberDef Count_members[] = {
     {"server", T_OBJECT_EX, offsetof(Count, server), 0, "Pyo server."},
@@ -6419,17 +6419,17 @@ NextTrig_generates(NextTrig *self) {
     int i;
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
     MYFLT *in2 = Stream_getData((Stream *)self->input2_stream);
-    
+
     for (i=0; i<self->bufsize; i++) {
         self->data[i] = 0.0;
         if (self->gate == 1 && in[i] == 1.0) {
                 self->data[i] = 1.0;
                 self->gate = 0;
         }
-        
+
         if (in2[i] == 1 && self->gate == 0)
             self->gate = 1;
-    } 
+    }
 }
 
 static void NextTrig_postprocessing_ii(NextTrig *self) { POST_PROCESSING_II };
@@ -6444,46 +6444,46 @@ static void NextTrig_postprocessing_revareva(NextTrig *self) { POST_PROCESSING_R
 
 static void
 NextTrig_setProcMode(NextTrig *self)
-{    
+{
     int muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
-    
+
     self->proc_func_ptr = NextTrig_generates;
-    
+
     switch (muladdmode) {
-        case 0:        
+        case 0:
             self->muladd_func_ptr = NextTrig_postprocessing_ii;
             break;
-        case 1:    
+        case 1:
             self->muladd_func_ptr = NextTrig_postprocessing_ai;
             break;
-        case 2:    
+        case 2:
             self->muladd_func_ptr = NextTrig_postprocessing_revai;
             break;
-        case 10:        
+        case 10:
             self->muladd_func_ptr = NextTrig_postprocessing_ia;
             break;
-        case 11:    
+        case 11:
             self->muladd_func_ptr = NextTrig_postprocessing_aa;
             break;
-        case 12:    
+        case 12:
             self->muladd_func_ptr = NextTrig_postprocessing_revaa;
             break;
-        case 20:        
+        case 20:
             self->muladd_func_ptr = NextTrig_postprocessing_ireva;
             break;
-        case 21:    
+        case 21:
             self->muladd_func_ptr = NextTrig_postprocessing_areva;
             break;
-        case 22:    
+        case 22:
             self->muladd_func_ptr = NextTrig_postprocessing_revareva;
             break;
-    }  
+    }
 }
 
 static void
 NextTrig_compute_next_data_frame(NextTrig *self)
 {
-    (*self->proc_func_ptr)(self); 
+    (*self->proc_func_ptr)(self);
     (*self->muladd_func_ptr)(self);
 }
 
@@ -6498,7 +6498,7 @@ NextTrig_traverse(NextTrig *self, visitproc visit, void *arg)
     return 0;
 }
 
-static int 
+static int
 NextTrig_clear(NextTrig *self)
 {
     pyo_CLEAR
@@ -6524,39 +6524,39 @@ NextTrig_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp, *input2tmp, *input2_streamtmp, *multmp=NULL, *addtmp=NULL;
     NextTrig *self;
     self = (NextTrig *)type->tp_alloc(type, 0);
-    
+
     self->gate = 0;
 	self->modebuffer[0] = 0;
 	self->modebuffer[1] = 0;
-    
+
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, NextTrig_compute_next_data_frame);
     self->mode_func_ptr = NextTrig_setProcMode;
 
     static char *kwlist[] = {"input", "input2", "mul", "add", NULL};
-    
+
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "OO|OO", kwlist, &inputtmp, &input2tmp, &multmp, &addtmp))
         Py_RETURN_NONE;
-    
+
     INIT_INPUT_STREAM
-    
+
     Py_XDECREF(self->input2);
     self->input2 = input2tmp;
     input2_streamtmp = PyObject_CallMethod((PyObject *)self->input2, "_getStream", NULL);
     Py_INCREF(input2_streamtmp);
     Py_XDECREF(self->input2_stream);
     self->input2_stream = (Stream *)input2_streamtmp;
-    
+
     if (multmp) {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
     }
-    
+
     if (addtmp) {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
-    
+
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
-    
+
     (*self->mode_func_ptr)(self);
 
     return (PyObject *)self;
@@ -6564,10 +6564,10 @@ NextTrig_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
 static PyObject * NextTrig_getServer(NextTrig* self) { GET_SERVER };
 static PyObject * NextTrig_getStream(NextTrig* self) { GET_STREAM };
-static PyObject * NextTrig_setMul(NextTrig *self, PyObject *arg) { SET_MUL };	
-static PyObject * NextTrig_setAdd(NextTrig *self, PyObject *arg) { SET_ADD };	
-static PyObject * NextTrig_setSub(NextTrig *self, PyObject *arg) { SET_SUB };	
-static PyObject * NextTrig_setDiv(NextTrig *self, PyObject *arg) { SET_DIV };	
+static PyObject * NextTrig_setMul(NextTrig *self, PyObject *arg) { SET_MUL };
+static PyObject * NextTrig_setAdd(NextTrig *self, PyObject *arg) { SET_ADD };
+static PyObject * NextTrig_setSub(NextTrig *self, PyObject *arg) { SET_SUB };
+static PyObject * NextTrig_setDiv(NextTrig *self, PyObject *arg) { SET_DIV };
 
 static PyObject * NextTrig_play(NextTrig *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * NextTrig_stop(NextTrig *self) { STOP };
@@ -6694,7 +6694,7 @@ typedef struct {
     PyObject *value;
     Stream *value_stream;
     MYFLT current_value;
-    int modebuffer[3]; // need at least 2 slots for mul & add 
+    int modebuffer[3]; // need at least 2 slots for mul & add
 } TrigVal;
 
 static void
@@ -6702,11 +6702,11 @@ TrigVal_generate_i(TrigVal *self) {
     int i;
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
     MYFLT val = PyFloat_AS_DOUBLE(self->value);
-    
+
     for (i=0; i<self->bufsize; i++) {
         if (in[i] == 1)
             self->current_value = val;
-        
+
         self->data[i] = self->current_value;
     }
 }
@@ -6716,11 +6716,11 @@ TrigVal_generate_a(TrigVal *self) {
     int i;
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
     MYFLT *val = Stream_getData((Stream *)self->value_stream);
-    
+
     for (i=0; i<self->bufsize; i++) {
         if (in[i] == 1)
             self->current_value = val[i];
-        
+
         self->data[i] = self->current_value;
     }
 }
@@ -6741,50 +6741,50 @@ TrigVal_setProcMode(TrigVal *self)
     int procmode, muladdmode;
     procmode = self->modebuffer[2];
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
-    
+
 	switch (procmode) {
-        case 0:    
+        case 0:
             self->proc_func_ptr = TrigVal_generate_i;
             break;
-        case 1:    
+        case 1:
             self->proc_func_ptr = TrigVal_generate_a;
             break;
-    } 
+    }
 	switch (muladdmode) {
-        case 0:        
+        case 0:
             self->muladd_func_ptr = TrigVal_postprocessing_ii;
             break;
-        case 1:    
+        case 1:
             self->muladd_func_ptr = TrigVal_postprocessing_ai;
             break;
-        case 2:    
+        case 2:
             self->muladd_func_ptr = TrigVal_postprocessing_revai;
             break;
-        case 10:        
+        case 10:
             self->muladd_func_ptr = TrigVal_postprocessing_ia;
             break;
-        case 11:    
+        case 11:
             self->muladd_func_ptr = TrigVal_postprocessing_aa;
             break;
-        case 12:    
+        case 12:
             self->muladd_func_ptr = TrigVal_postprocessing_revaa;
             break;
-        case 20:        
+        case 20:
             self->muladd_func_ptr = TrigVal_postprocessing_ireva;
             break;
-        case 21:    
+        case 21:
             self->muladd_func_ptr = TrigVal_postprocessing_areva;
             break;
-        case 22:    
+        case 22:
             self->muladd_func_ptr = TrigVal_postprocessing_revareva;
             break;
-    }  
+    }
 }
 
 static void
 TrigVal_compute_next_data_frame(TrigVal *self)
 {
-    (*self->proc_func_ptr)(self); 
+    (*self->proc_func_ptr)(self);
     (*self->muladd_func_ptr)(self);
 }
 
@@ -6794,19 +6794,19 @@ TrigVal_traverse(TrigVal *self, visitproc visit, void *arg)
     pyo_VISIT
     Py_VISIT(self->input);
     Py_VISIT(self->input_stream);
-    Py_VISIT(self->value);    
-    Py_VISIT(self->value_stream);    
+    Py_VISIT(self->value);
+    Py_VISIT(self->value_stream);
     return 0;
 }
 
-static int 
+static int
 TrigVal_clear(TrigVal *self)
 {
     pyo_CLEAR
     Py_CLEAR(self->input);
     Py_CLEAR(self->input_stream);
-    Py_CLEAR(self->value);    
-    Py_CLEAR(self->value_stream);    
+    Py_CLEAR(self->value);
+    Py_CLEAR(self->value_stream);
     return 0;
 }
 
@@ -6825,49 +6825,49 @@ TrigVal_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp, *valuetmp=NULL, *multmp=NULL, *addtmp=NULL;
     TrigVal *self;
     self = (TrigVal *)type->tp_alloc(type, 0);
-    
+
     self->value = PyFloat_FromDouble(0.);
     self->current_value = 0.;
 	self->modebuffer[0] = 0;
 	self->modebuffer[1] = 0;
 	self->modebuffer[2] = 0;
-    
+
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, TrigVal_compute_next_data_frame);
     self->mode_func_ptr = TrigVal_setProcMode;
-    
+
     static char *kwlist[] = {"input", "value", "init", "mul", "add", NULL};
-    
+
     if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_O_OFOO, kwlist, &inputtmp, &valuetmp, &self->current_value, &multmp, &addtmp))
         Py_RETURN_NONE;
-    
+
     INIT_INPUT_STREAM
-    
+
     if (valuetmp) {
         PyObject_CallMethod((PyObject *)self, "setValue", "O", valuetmp);
     }
-    
+
     if (multmp) {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
     }
-    
+
     if (addtmp) {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
-    
+
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
     (*self->mode_func_ptr)(self);
-    
+
     return (PyObject *)self;
 }
 
 static PyObject * TrigVal_getServer(TrigVal* self) { GET_SERVER };
 static PyObject * TrigVal_getStream(TrigVal* self) { GET_STREAM };
-static PyObject * TrigVal_setMul(TrigVal *self, PyObject *arg) { SET_MUL };	
-static PyObject * TrigVal_setAdd(TrigVal *self, PyObject *arg) { SET_ADD };	
-static PyObject * TrigVal_setSub(TrigVal *self, PyObject *arg) { SET_SUB };	
-static PyObject * TrigVal_setDiv(TrigVal *self, PyObject *arg) { SET_DIV };	
+static PyObject * TrigVal_setMul(TrigVal *self, PyObject *arg) { SET_MUL };
+static PyObject * TrigVal_setAdd(TrigVal *self, PyObject *arg) { SET_ADD };
+static PyObject * TrigVal_setSub(TrigVal *self, PyObject *arg) { SET_SUB };
+static PyObject * TrigVal_setDiv(TrigVal *self, PyObject *arg) { SET_DIV };
 
 static PyObject * TrigVal_play(TrigVal *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * TrigVal_out(TrigVal *self, PyObject *args, PyObject *kwds) { OUT };
@@ -6886,14 +6886,14 @@ static PyObject *
 TrigVal_setValue(TrigVal *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
-	
+
 	if (arg == NULL) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-    
+
 	int isNumber = PyNumber_Check(arg);
-	
+
 	tmp = arg;
 	Py_INCREF(tmp);
 	Py_DECREF(self->value);
@@ -6909,12 +6909,12 @@ TrigVal_setValue(TrigVal *self, PyObject *arg)
         self->value_stream = (Stream *)streamtmp;
 		self->modebuffer[2] = 1;
 	}
-    
+
     (*self->mode_func_ptr)(self);
-    
+
 	Py_INCREF(Py_None);
 	return Py_None;
-}	
+}
 
 static PyMemberDef TrigVal_members[] = {
     {"server", T_OBJECT_EX, offsetof(TrigVal, server), 0, "Pyo server."},

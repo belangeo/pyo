@@ -1,30 +1,30 @@
 """
 Phase vocoder.
 
-The phase vocoder is a digital signal processing technique of potentially 
-great musical significance. It can be used to perform very high fidelity 
+The phase vocoder is a digital signal processing technique of potentially
+great musical significance. It can be used to perform very high fidelity
 time scaling, pitch transposition, and myriad other modifications of sounds.
 
 """
 
 """
-Copyright 2011 Olivier Belanger
+Copyright 2009-2015 Olivier Belanger
 
 This file is part of pyo, a python module to help digital signal
 processing script creation.
 
 pyo is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
+it under the terms of the GNU Lesser General Public License as
+published by the Free Software Foundation, either version 3 of the
+License, or (at your option) any later version.
 
 pyo is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
+GNU Lesser General Public License for more details.
 
-You should have received a copy of the GNU General Public License
-along with pyo.  If not, see <http://www.gnu.org/licenses/>.
+You should have received a copy of the GNU Lesser General Public
+License along with pyo.  If not, see <http://www.gnu.org/licenses/>.
 """
 from _core import *
 from _maps import *
@@ -36,17 +36,17 @@ class PVAnal(PyoPVObject):
     Phase Vocoder analysis object.
 
     PVAnal takes an input sound and performs the phase vocoder
-    analysis on it. This results in two streams, one for the bin's 
-    magnitudes and the other for the bin's true frequencies. These 
-    two streams are used by the PVxxx object family to transform 
+    analysis on it. This results in two streams, one for the bin's
+    magnitudes and the other for the bin's true frequencies. These
+    two streams are used by the PVxxx object family to transform
     the input signal using spectral domain algorithms. The last
     object in the phase vocoder chain must be a PVSynth to perform
     the spectral to time domain conversion.
-    
+
     :Parent: :py:class:`PyoPVObject`
-    
+
     :Args:
-    
+
         input : PyoObject
             Input signal to process.
         size : int {pow-of-two > 4}, optional
@@ -54,12 +54,12 @@ class PVAnal(PyoPVObject):
             Defaults to 1024.
 
             The FFT size is the number of samples used in each
-            analysis frame. 
+            analysis frame.
         overlaps : int, optional
             The number of overlaped analysis block. Must be a
             power of two. Defaults to 4.
-            
-            More overlaps can greatly improved sound quality 
+
+            More overlaps can greatly improved sound quality
             synthesis but it is also more CPU expensive.
         wintype : int, optional
             Shape of the envelope used to filter each input frame.
@@ -90,11 +90,11 @@ class PVAnal(PyoPVObject):
         self._in_fader = InputFader(input)
         in_fader, size, overlaps, wintype, lmax = convertArgsToLists(self._in_fader, size, overlaps, wintype)
         self._base_objs = [PVAnal_base(wrap(in_fader,i), wrap(size,i), wrap(overlaps,i), wrap(wintype,i)) for i in range(lmax)]
- 
+
     def setInput(self, x, fadetime=0.05):
         """
         Replace the `input` attribute.
-        
+
         :Args:
 
             x : PyoObject
@@ -109,12 +109,12 @@ class PVAnal(PyoPVObject):
     def setSize(self, x):
         """
         Replace the `size` attribute.
-        
+
         :Args:
 
             x : int
                 new `size` attribute.
-        
+
         """
         self._size = x
         x, lmax = convertArgsToLists(x)
@@ -123,12 +123,12 @@ class PVAnal(PyoPVObject):
     def setOverlaps(self, x):
         """
         Replace the `overlaps` attribute.
-        
+
         :Args:
 
             x : int
                 new `overlaps` attribute.
-        
+
         """
         self._overlaps = x
         x, lmax = convertArgsToLists(x)
@@ -137,12 +137,12 @@ class PVAnal(PyoPVObject):
     def setWinType(self, x):
         """
         Replace the `wintype` attribute.
-        
+
         :Args:
 
             x : int
                 new `wintype` attribute.
-        
+
         """
         self._wintype = x
         x, lmax = convertArgsToLists(x)
@@ -150,7 +150,7 @@ class PVAnal(PyoPVObject):
 
     @property
     def input(self):
-        """PyoObject. Input signal to process.""" 
+        """PyoObject. Input signal to process."""
         return self._input
     @input.setter
     def input(self, x): self.setInput(x)
@@ -184,15 +184,15 @@ class PVSynth(PyoObject):
     the spectral to time domain conversion on it. This step
     converts phase vocoder magnitude and true frequency's
     streams back to a real signal.
-    
+
     :Parent: :py:class:`PyoObject`
-    
+
     :Args:
-    
+
         input : PyoPVObject
             Phase vocoder streaming object to process.
         wintype : int, optional
-            Shape of the envelope used to filter each input frame. 
+            Shape of the envelope used to filter each input frame.
             Possible shapes are:
                 0. rectangular (no windowing)
                 1. Hamming
@@ -217,11 +217,11 @@ class PVSynth(PyoObject):
         self._wintype = wintype
         input, wintype, mul, add, lmax = convertArgsToLists(self._input, wintype, mul, add)
         self._base_objs = [PVSynth_base(wrap(input,i), wrap(wintype,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
- 
+
     def setInput(self, x):
         """
         Replace the `input` attribute.
-        
+
         :Args:
 
             x : PyoPVObject
@@ -235,12 +235,12 @@ class PVSynth(PyoObject):
     def setWinType(self, x):
         """
         Replace the `wintype` attribute.
-        
+
         :Args:
 
             x : int
                 new `wintype` attribute.
-        
+
         """
         self._wintype = x
         x, lmax = convertArgsToLists(x)
@@ -252,7 +252,7 @@ class PVSynth(PyoObject):
 
     @property
     def input(self):
-        """PyoPVObject. Input signal to process.""" 
+        """PyoPVObject. Input signal to process."""
         return self._input
     @input.setter
     def input(self, x): self.setInput(x)
@@ -269,14 +269,14 @@ class PVAddSynth(PyoObject):
     Phase Vocoder additive synthesis object.
 
     PVAddSynth takes a PyoPVObject as its input and resynthesize
-    the real signal using the magnitude and true frequency's 
-    streams to control amplitude and frequency envelopes of an 
+    the real signal using the magnitude and true frequency's
+    streams to control amplitude and frequency envelopes of an
     oscillator bank.
 
     :Parent: :py:class:`PyoObject`
-    
+
     :Args:
-    
+
         input : PyoPVObject
             Phase vocoder streaming object to process.
         pitch : float or PyoObject, optional
@@ -285,12 +285,12 @@ class PVAddSynth(PyoObject):
             Number of oscillators used to synthesize the
             output sound. Defaults to 100.
         first : int, optional
-            The first bin to synthesize, starting from 0. 
+            The first bin to synthesize, starting from 0.
             Defaults to 0.
         inc : int, optional
-            Starting from bin `first`, resynthesize bins 
-            `inc` apart. Defaults to 1. 
-            
+            Starting from bin `first`, resynthesize bins
+            `inc` apart. Defaults to 1.
+
 
     >>> s = Server().boot()
     >>> s.start()
@@ -308,11 +308,11 @@ class PVAddSynth(PyoObject):
         self._inc = inc
         input, pitch, num, first, inc, mul, add, lmax = convertArgsToLists(self._input, pitch, num, first, inc, mul, add)
         self._base_objs = [PVAddSynth_base(wrap(input,i), wrap(pitch,i), wrap(num,i), wrap(first,i), wrap(inc,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
- 
+
     def setInput(self, x):
         """
         Replace the `input` attribute.
-        
+
         :Args:
 
             x : PyoPVObject
@@ -326,12 +326,12 @@ class PVAddSynth(PyoObject):
     def setPitch(self, x):
         """
         Replace the `pitch` attribute.
-        
+
         :Args:
 
             x : float or PyoObject
                 new `pitch` attribute.
-        
+
         """
         self._pitch = x
         x, lmax = convertArgsToLists(x)
@@ -340,12 +340,12 @@ class PVAddSynth(PyoObject):
     def setNum(self, x):
         """
         Replace the `num` attribute.
-        
+
         :Args:
 
             x : int
                 new `num` attribute.
-        
+
         """
         self._num = x
         x, lmax = convertArgsToLists(x)
@@ -354,12 +354,12 @@ class PVAddSynth(PyoObject):
     def setFirst(self, x):
         """
         Replace the `first` attribute.
-        
+
         :Args:
 
             x : int
                 new `first` attribute.
-        
+
         """
         self._first = x
         x, lmax = convertArgsToLists(x)
@@ -368,12 +368,12 @@ class PVAddSynth(PyoObject):
     def setInc(self, x):
         """
         Replace the `inc` attribute.
-        
+
         :Args:
 
             x : int
                 new `inc` attribute.
-        
+
         """
         self._inc = x
         x, lmax = convertArgsToLists(x)
@@ -386,7 +386,7 @@ class PVAddSynth(PyoObject):
 
     @property
     def input(self):
-        """PyoPVObject. Input signal to process.""" 
+        """PyoPVObject. Input signal to process."""
         return self._input
     @input.setter
     def input(self, x): self.setInput(x)
@@ -422,11 +422,11 @@ class PVAddSynth(PyoObject):
 class PVTranspose(PyoPVObject):
     """
     Transpose the frequency components of a pv stream.
-    
+
     :Parent: :py:class:`PyoPVObject`
-    
+
     :Args:
-    
+
         input : PyoPVObject
             Phase vocoder streaming object to process.
         transpo : float or PyoObject, optional
@@ -447,11 +447,11 @@ class PVTranspose(PyoPVObject):
         self._transpo = transpo
         input, transpo, lmax = convertArgsToLists(self._input, transpo)
         self._base_objs = [PVTranspose_base(wrap(input,i), wrap(transpo,i)) for i in range(lmax)]
- 
+
     def setInput(self, x):
         """
         Replace the `input` attribute.
-        
+
         :Args:
 
             x : PyoPVObject
@@ -465,12 +465,12 @@ class PVTranspose(PyoPVObject):
     def setTranspo(self, x):
         """
         Replace the `transpo` attribute.
-        
+
         :Args:
 
             x : int
                 new `transpo` attribute.
-        
+
         """
         self._transpo = x
         x, lmax = convertArgsToLists(x)
@@ -482,7 +482,7 @@ class PVTranspose(PyoPVObject):
 
     @property
     def input(self):
-        """PyoPVObject. Input signal to process.""" 
+        """PyoPVObject. Input signal to process."""
         return self._input
     @input.setter
     def input(self, x): self.setInput(x)
@@ -505,10 +505,10 @@ class PVVerb(PyoPVObject):
         input : PyoPVObject
             Phase vocoder streaming object to process.
         revtime : float or PyoObject, optional
-            Reverberation factor, between 0 and 1. 
+            Reverberation factor, between 0 and 1.
             Defaults to 0.75.
         damp : float or PyoObject, optional
-            High frequency damping factor, between 0 and 1. 
+            High frequency damping factor, between 0 and 1.
             1 means no damping and 0 is the most damping.
             Defaults to 0.75.
 
@@ -529,11 +529,11 @@ class PVVerb(PyoPVObject):
         self._damp = damp
         input, revtime, damp, lmax = convertArgsToLists(self._input, revtime, damp)
         self._base_objs = [PVVerb_base(wrap(input,i), wrap(revtime,i), wrap(damp,i)) for i in range(lmax)]
- 
+
     def setInput(self, x):
         """
         Replace the `input` attribute.
-        
+
         :Args:
 
             x : PyoPVObject
@@ -547,12 +547,12 @@ class PVVerb(PyoPVObject):
     def setRevtime(self, x):
         """
         Replace the `revtime` attribute.
-        
+
         :Args:
 
             x : int
                 new `revtime` attribute.
-        
+
         """
         self._revtime = x
         x, lmax = convertArgsToLists(x)
@@ -561,12 +561,12 @@ class PVVerb(PyoPVObject):
     def setDamp(self, x):
         """
         Replace the `damp` attribute.
-        
+
         :Args:
 
             x : int
                 new `damp` attribute.
-        
+
         """
         self._damp = x
         x, lmax = convertArgsToLists(x)
@@ -579,7 +579,7 @@ class PVVerb(PyoPVObject):
 
     @property
     def input(self):
-        """PyoPVObject. Input signal to process.""" 
+        """PyoPVObject. Input signal to process."""
         return self._input
     @input.setter
     def input(self, x): self.setInput(x)
@@ -590,7 +590,7 @@ class PVVerb(PyoPVObject):
         return self._revtime
     @revtime.setter
     def revtime(self, x): self.setRevtime(x)
-    
+
     @property
     def damp(self):
         """float or PyoObject. High frequency damping factor."""
@@ -629,11 +629,11 @@ class PVGate(PyoPVObject):
         self._damp = damp
         input, thresh, damp, lmax = convertArgsToLists(self._input, thresh, damp)
         self._base_objs = [PVGate_base(wrap(input,i), wrap(thresh,i), wrap(damp,i)) for i in range(lmax)]
- 
+
     def setInput(self, x):
         """
         Replace the `input` attribute.
-        
+
         :Args:
 
             x : PyoPVObject
@@ -647,12 +647,12 @@ class PVGate(PyoPVObject):
     def setThresh(self, x):
         """
         Replace the `thresh` attribute.
-        
+
         :Args:
 
             x : int
                 new `thresh` attribute.
-        
+
         """
         self._thresh = x
         x, lmax = convertArgsToLists(x)
@@ -661,12 +661,12 @@ class PVGate(PyoPVObject):
     def setDamp(self, x):
         """
         Replace the `damp` attribute.
-        
+
         :Args:
 
             x : int
                 new `damp` attribute.
-        
+
         """
         self._damp = x
         x, lmax = convertArgsToLists(x)
@@ -679,7 +679,7 @@ class PVGate(PyoPVObject):
 
     @property
     def input(self):
-        """PyoPVObject. Input signal to process.""" 
+        """PyoPVObject. Input signal to process."""
         return self._input
     @input.setter
     def input(self, x): self.setInput(x)
@@ -690,7 +690,7 @@ class PVGate(PyoPVObject):
         return self._thresh
     @thresh.setter
     def thresh(self, x): self.setThresh(x)
-    
+
     @property
     def damp(self):
         """float or PyoObject. Damping factor for low amplitude bins."""
@@ -701,14 +701,14 @@ class PVGate(PyoPVObject):
 class PVCross(PyoPVObject):
     """
     Performs cross-synthesis between two phase vocoder streaming object.
-    
+
     The amplitudes from `input` and `input2` (scaled by `fade` argument)
     are applied to the frequencies of `input`.
 
     :Parent: :py:class:`PyoPVObject`
-    
+
     :Args:
-    
+
         input : PyoPVObject
             Phase vocoder streaming object to process. Frequencies from
             this pv stream are used to compute the output signal.
@@ -716,12 +716,12 @@ class PVCross(PyoPVObject):
             Phase vocoder streaming object which gives the second set of
             magnitudes. Frequencies from this pv stream are not used.
         fade : float or PyoObject, optional
-            Scaling factor for the output amplitudes, between 0 and 1. 
-            0 means amplitudes from `input` and 1 means amplitudes from `input2`. 
+            Scaling factor for the output amplitudes, between 0 and 1.
+            0 means amplitudes from `input` and 1 means amplitudes from `input2`.
             Defaults to 1.
 
     .. note::
-        
+
         The two input pv stream must have the same size and overlaps. It is
         the responsibility of the user to be sure they are consistent. To change
         the size (or the overlaps) of the phase vocoder process, one must
@@ -752,11 +752,11 @@ class PVCross(PyoPVObject):
         self._fade = fade
         input, input2, fade, lmax = convertArgsToLists(self._input, self._input2, fade)
         self._base_objs = [PVCross_base(wrap(input,i), wrap(input2,i), wrap(fade,i)) for i in range(lmax)]
- 
+
     def setInput(self, x):
         """
         Replace the `input` attribute.
-        
+
         :Args:
 
             x : PyoPVObject
@@ -770,7 +770,7 @@ class PVCross(PyoPVObject):
     def setInput2(self, x):
         """
         Replace the `input2` attribute.
-        
+
         :Args:
 
             x : PyoPVObject
@@ -784,12 +784,12 @@ class PVCross(PyoPVObject):
     def setFade(self, x):
         """
         Replace the `fade` attribute.
-        
+
         :Args:
 
             x : int
                 new `fade` attribute.
-        
+
         """
         self._fade = x
         x, lmax = convertArgsToLists(x)
@@ -801,14 +801,14 @@ class PVCross(PyoPVObject):
 
     @property
     def input(self):
-        """PyoPVObject. Input signal to process.""" 
+        """PyoPVObject. Input signal to process."""
         return self._input
     @input.setter
     def input(self, x): self.setInput(x)
 
     @property
     def input2(self):
-        """PyoPVObject. Second set of amplitudes.""" 
+        """PyoPVObject. Second set of amplitudes."""
         return self._input2
     @input2.setter
     def input2(self, x): self.setInput2(x)
@@ -825,9 +825,9 @@ class PVMult(PyoPVObject):
     Multiply magnitudes from two phase vocoder streaming object.
 
     :Parent: :py:class:`PyoPVObject`
-    
+
     :Args:
-    
+
         input : PyoPVObject
             Phase vocoder streaming object to process. Frequencies from
             this pv stream are used to compute the output signal.
@@ -836,7 +836,7 @@ class PVMult(PyoPVObject):
             magnitudes. Frequencies from this pv stream are not used.
 
     .. note::
-        
+
         The two input pv stream must have the same size and overlaps. It is
         the responsibility of the user to be sure they are consistent. To change
         the size (or the overlaps) of the phase vocoder process, one must
@@ -866,11 +866,11 @@ class PVMult(PyoPVObject):
         self._input2 = input2
         input, input2, lmax = convertArgsToLists(self._input, self._input2)
         self._base_objs = [PVMult_base(wrap(input,i), wrap(input2,i)) for i in range(lmax)]
- 
+
     def setInput(self, x):
         """
         Replace the `input` attribute.
-        
+
         :Args:
 
             x : PyoPVObject
@@ -884,7 +884,7 @@ class PVMult(PyoPVObject):
     def setInput2(self, x):
         """
         Replace the `input2` attribute.
-        
+
         :Args:
 
             x : PyoPVObject
@@ -897,14 +897,14 @@ class PVMult(PyoPVObject):
 
     @property
     def input(self):
-        """PyoPVObject. Input signal to process.""" 
+        """PyoPVObject. Input signal to process."""
         return self._input
     @input.setter
     def input(self, x): self.setInput(x)
 
     @property
     def input2(self):
-        """PyoPVObject. Second set of magnitudes.""" 
+        """PyoPVObject. Second set of magnitudes."""
         return self._input2
     @input2.setter
     def input2(self, x): self.setInput2(x)
@@ -912,15 +912,15 @@ class PVMult(PyoPVObject):
 class PVMorph(PyoPVObject):
     """
     Performs spectral morphing between two phase vocoder streaming object.
-    
-    According to `fade` argument, the amplitudes from `input` and `input2` 
+
+    According to `fade` argument, the amplitudes from `input` and `input2`
     are interpolated linearly while the frequencies are interpolated
     exponentially.
 
     :Parent: :py:class:`PyoPVObject`
-    
+
     :Args:
-    
+
         input : PyoPVObject
             Phase vocoder streaming object which gives the first set of
             magnitudes and frequencies.
@@ -928,11 +928,11 @@ class PVMorph(PyoPVObject):
             Phase vocoder streaming object which gives the second set of
             magnitudes and frequencies.
         fade : float or PyoObject, optional
-            Scaling factor for the output amplitudes and frequencies, 
+            Scaling factor for the output amplitudes and frequencies,
             between 0 and 1. 0 is `input` and 1 in `input2`. Defaults to 0.5.
 
     .. note::
-        
+
         The two input pv stream must have the same size and overlaps. It is
         the responsibility of the user to be sure they are consistent. To change
         the size (or the overlaps) of the phase vocoder process, one must
@@ -963,11 +963,11 @@ class PVMorph(PyoPVObject):
         self._fade = fade
         input, input2, fade, lmax = convertArgsToLists(self._input, self._input2, fade)
         self._base_objs = [PVMorph_base(wrap(input,i), wrap(input2,i), wrap(fade,i)) for i in range(lmax)]
- 
+
     def setInput(self, x):
         """
         Replace the `input` attribute.
-        
+
         :Args:
 
             x : PyoPVObject
@@ -981,7 +981,7 @@ class PVMorph(PyoPVObject):
     def setInput2(self, x):
         """
         Replace the `input2` attribute.
-        
+
         :Args:
 
             x : PyoPVObject
@@ -995,12 +995,12 @@ class PVMorph(PyoPVObject):
     def setFade(self, x):
         """
         Replace the `fade` attribute.
-        
+
         :Args:
 
             x : int
                 new `fade` attribute.
-        
+
         """
         self._fade = x
         x, lmax = convertArgsToLists(x)
@@ -1012,14 +1012,14 @@ class PVMorph(PyoPVObject):
 
     @property
     def input(self):
-        """PyoPVObject. First input signal.""" 
+        """PyoPVObject. First input signal."""
         return self._input
     @input.setter
     def input(self, x): self.setInput(x)
 
     @property
     def input2(self):
-        """PyoPVObject. Second input signal.""" 
+        """PyoPVObject. Second input signal."""
         return self._input2
     @input2.setter
     def input2(self, x): self.setInput2(x)
@@ -1034,28 +1034,28 @@ class PVMorph(PyoPVObject):
 class PVFilter(PyoPVObject):
     """
     Spectral filter.
-    
+
     PVFilter filters frequency components of a pv stream
     according to the shape drawn in the table given in
     argument.
-    
+
     :Parent: :py:class:`PyoPVObject`
-    
+
     :Args:
-    
+
         input : PyoPVObject
             Phase vocoder streaming object to process.
         table : PyoTableObject
-            Table containing the filter shape. If the 
+            Table containing the filter shape. If the
             table length is smaller than fftsize/2,
             remaining bins will be set to 0.
         gain : float or PyoObject, optional
-            Gain of the filter applied to the input spectrum. 
+            Gain of the filter applied to the input spectrum.
             Defaults to 1.
         mode : int, optional
             Table scanning mode. Defaults to 0.
-            
-            If 0, bin indexes outside table size are set to 0. 
+
+            If 0, bin indexes outside table size are set to 0.
             If 1, bin indexes are scaled over table length.
 
     >>> s = Server().boot()
@@ -1075,11 +1075,11 @@ class PVFilter(PyoPVObject):
         self._mode = mode
         input, table, gain, mode, lmax = convertArgsToLists(self._input, table, gain, mode)
         self._base_objs = [PVFilter_base(wrap(input,i), wrap(table,i), wrap(gain,i), wrap(mode,i)) for i in range(lmax)]
- 
+
     def setInput(self, x):
         """
         Replace the `input` attribute.
-        
+
         :Args:
 
             x : PyoPVObject
@@ -1093,12 +1093,12 @@ class PVFilter(PyoPVObject):
     def setTable(self, x):
         """
         Replace the `table` attribute.
-        
+
         :Args:
 
             x : PyoTableObject
                 new `table` attribute.
-        
+
         """
         self._table = x
         x, lmax = convertArgsToLists(x)
@@ -1107,12 +1107,12 @@ class PVFilter(PyoPVObject):
     def setGain(self, x):
         """
         Replace the `gain` attribute.
-        
+
         :Args:
 
             x : float or PyoObject
                 new `gain` attribute.
-        
+
         """
         self._gain = x
         x, lmax = convertArgsToLists(x)
@@ -1121,12 +1121,12 @@ class PVFilter(PyoPVObject):
     def setMode(self, x):
         """
         Replace the `mode` attribute.
-        
+
         :Args:
 
             x : int
                 new `mode` attribute.
-        
+
         """
         self._mode = x
         x, lmax = convertArgsToLists(x)
@@ -1138,14 +1138,14 @@ class PVFilter(PyoPVObject):
 
     @property
     def input(self):
-        """PyoPVObject. Input signal to process.""" 
+        """PyoPVObject. Input signal to process."""
         return self._input
     @input.setter
     def input(self, x): self.setInput(x)
 
     @property
     def table(self):
-        """PyoTableObject. Table containing the filter shape.""" 
+        """PyoTableObject. Table containing the filter shape."""
         return self._table
     @table.setter
     def table(self, x): self.setTable(x)
@@ -1167,35 +1167,35 @@ class PVFilter(PyoPVObject):
 class PVDelay(PyoPVObject):
     """
     Spectral delays.
-    
+
     PVDelay applies different delay times and feedbacks for
-    each bin of a phase vocoder analysis. Delay times and 
+    each bin of a phase vocoder analysis. Delay times and
     feedbacks are specified with PyoTableObjects.
-    
+
     :Parent: :py:class:`PyoPVObject`
-    
+
     :Args:
-    
+
         input : PyoPVObject
             Phase vocoder streaming object to process.
         deltable : PyoTableObject
             Table containing delay times, as integer multipliers
-            of the FFT hopsize (fftsize / overlaps). 
-            
+            of the FFT hopsize (fftsize / overlaps).
+
             If the table length is smaller than fftsize/2,
             remaining bins will be set to 0.
         feedtable : PyoTableObject
-            Table containing feedback values, between -1 and 1. 
-            
+            Table containing feedback values, between -1 and 1.
+
             If the table length is smaller than fftsize/2,
             remaining bins will be set to 0.
         maxdelay : float, optional
-            Maximum delay time in seconds. Available at initialization 
+            Maximum delay time in seconds. Available at initialization
             time only. Defaults to 1.0.
         mode : int, optional
             Tables scanning mode. Defaults to 0.
-            
-            If 0, bin indexes outside table size are set to 0. 
+
+            If 0, bin indexes outside table size are set to 0.
             If 1, bin indexes are scaled over table length.
 
     >>> s = Server().boot()
@@ -1223,11 +1223,11 @@ class PVDelay(PyoPVObject):
         self._mode = mode
         input, deltable, feedtable, maxdelay, mode, lmax = convertArgsToLists(self._input, deltable, feedtable, maxdelay, mode)
         self._base_objs = [PVDelay_base(wrap(input,i), wrap(deltable,i), wrap(feedtable,i), wrap(maxdelay,i), wrap(mode,i)) for i in range(lmax)]
- 
+
     def setInput(self, x):
         """
         Replace the `input` attribute.
-        
+
         :Args:
 
             x : PyoPVObject
@@ -1241,12 +1241,12 @@ class PVDelay(PyoPVObject):
     def setDeltable(self, x):
         """
         Replace the `deltable` attribute.
-        
+
         :Args:
 
             x : PyoTableObject
                 new `deltable` attribute.
-        
+
         """
         self._deltable = x
         x, lmax = convertArgsToLists(x)
@@ -1255,12 +1255,12 @@ class PVDelay(PyoPVObject):
     def setFeedtable(self, x):
         """
         Replace the `feedtable` attribute.
-        
+
         :Args:
 
             x : PyoTableObject
                 new `feedtable` attribute.
-        
+
         """
         self._feedtable = x
         x, lmax = convertArgsToLists(x)
@@ -1269,12 +1269,12 @@ class PVDelay(PyoPVObject):
     def setMode(self, x):
         """
         Replace the `mode` attribute.
-        
+
         :Args:
 
             x : int
                 new `mode` attribute.
-        
+
         """
         self._mode = x
         x, lmax = convertArgsToLists(x)
@@ -1282,14 +1282,14 @@ class PVDelay(PyoPVObject):
 
     @property
     def input(self):
-        """PyoPVObject. Input signal to process.""" 
+        """PyoPVObject. Input signal to process."""
         return self._input
     @input.setter
     def input(self, x): self.setInput(x)
 
     @property
     def deltable(self):
-        """PyoTableObject. Table containing the delay times.""" 
+        """PyoTableObject. Table containing the delay times."""
         return self._deltable
     @deltable.setter
     def deltable(self, x): self.setDeltable(x)
@@ -1311,28 +1311,28 @@ class PVDelay(PyoPVObject):
 class PVBuffer(PyoPVObject):
     """
     Phase vocoder buffer and playback with transposition.
-    
+
     PVBuffer keeps `length` seconds of pv analysis in memory
     and gives control on playback position and transposition.
-    
+
     :Parent: :py:class:`PyoPVObject`
-    
+
     :Args:
-    
+
         input : PyoPVObject
             Phase vocoder streaming object to process.
         index : PyoObject
-            Playback position, as audio stream, normalized 
-            between 0 and 1. 
+            Playback position, as audio stream, normalized
+            between 0 and 1.
         pitch : float or PyoObject, optional
             Transposition factor. Defaults to 1.
         length : float, optional
-            Memory length in seconds. Available at initialization 
+            Memory length in seconds. Available at initialization
             time only. Defaults to 1.0.
 
     .. note::
-        
-        The play() method can be called to start a new recording of 
+
+        The play() method can be called to start a new recording of
         the current pv input.
 
     >>> s = Server().boot()
@@ -1354,11 +1354,11 @@ class PVBuffer(PyoPVObject):
         self._length = length
         input, index, pitch, length, lmax = convertArgsToLists(self._input, index, pitch, length)
         self._base_objs = [PVBuffer_base(wrap(input,i), wrap(index,i), wrap(pitch,i), wrap(length,i)) for i in range(lmax)]
- 
+
     def setInput(self, x):
         """
         Replace the `input` attribute.
-        
+
         :Args:
 
             x : PyoPVObject
@@ -1372,12 +1372,12 @@ class PVBuffer(PyoPVObject):
     def setIndex(self, x):
         """
         Replace the `index` attribute.
-        
+
         :Args:
 
             x : PyoObject
                 new `index` attribute.
-        
+
         """
         self._index = x
         x, lmax = convertArgsToLists(x)
@@ -1386,12 +1386,12 @@ class PVBuffer(PyoPVObject):
     def setPitch(self, x):
         """
         Replace the `pitch` attribute.
-        
+
         :Args:
 
             x : float or PyoObject
                 new `pitch` attribute.
-        
+
         """
         self._pitch = x
         x, lmax = convertArgsToLists(x)
@@ -1403,14 +1403,14 @@ class PVBuffer(PyoPVObject):
 
     @property
     def input(self):
-        """PyoPVObject. Input signal to process.""" 
+        """PyoPVObject. Input signal to process."""
         return self._input
     @input.setter
     def input(self, x): self.setInput(x)
 
     @property
     def index(self):
-        """PyoObject. Reader's normalized position.""" 
+        """PyoObject. Reader's normalized position."""
         return self._index
     @index.setter
     def index(self, x): self.setIndex(x)
@@ -1425,14 +1425,14 @@ class PVBuffer(PyoPVObject):
 class PVShift(PyoPVObject):
     """
     Spectral domain frequency shifter.
-    
+
     PVShift linearly moves the analysis bins by the amount, in Hertz,
-    specified by the the `shift` argument. 
-    
+    specified by the the `shift` argument.
+
     :Parent: :py:class:`PyoPVObject`
-    
+
     :Args:
-    
+
         input : PyoPVObject
             Phase vocoder streaming object to process.
         shift : float or PyoObject, optional
@@ -1452,11 +1452,11 @@ class PVShift(PyoPVObject):
         self._shift = shift
         input, shift, lmax = convertArgsToLists(self._input, shift)
         self._base_objs = [PVShift_base(wrap(input,i), wrap(shift,i)) for i in range(lmax)]
- 
+
     def setInput(self, x):
         """
         Replace the `input` attribute.
-        
+
         :Args:
 
             x : PyoPVObject
@@ -1470,12 +1470,12 @@ class PVShift(PyoPVObject):
     def setShift(self, x):
         """
         Replace the `shift` attribute.
-        
+
         :Args:
 
             x : int
                 new `shift` attribute.
-        
+
         """
         self._shift = x
         x, lmax = convertArgsToLists(x)
@@ -1487,7 +1487,7 @@ class PVShift(PyoPVObject):
 
     @property
     def input(self):
-        """PyoPVObject. Input signal to process.""" 
+        """PyoPVObject. Input signal to process."""
         return self._input
     @input.setter
     def input(self, x): self.setInput(x)
@@ -1502,15 +1502,15 @@ class PVShift(PyoPVObject):
 class PVAmpMod(PyoPVObject):
     """
     Performs frequency independent amplitude modulations.
-    
-    PVAmpMod modulates the magnitude of each bin of a pv 
-    stream with an independent oscillator. `basefreq` and 
-    `spread` are used to derive the frequency of each 
+
+    PVAmpMod modulates the magnitude of each bin of a pv
+    stream with an independent oscillator. `basefreq` and
+    `spread` are used to derive the frequency of each
     modulating oscillator.
-    
+
     Internally, the following operations are applied to
     derive oscillator frequencies (`i` is the bin number):
-        
+
         spread = spread * 0.001 + 1.0
 
         f_i = basefreq * pow(spread, i)
@@ -1522,7 +1522,7 @@ class PVAmpMod(PyoPVObject):
         input : PyoPVObject
             Phase vocoder streaming object to process.
         basefreq : float or PyoObject, optional
-            Base modulation frequency, in Hertz. 
+            Base modulation frequency, in Hertz.
             Defaults to 1.
         spread : float or PyoObject, optional
             Spreading factor for oscillator frequencies, between
@@ -1543,11 +1543,11 @@ class PVAmpMod(PyoPVObject):
         self._spread = spread
         input, basefreq, spread, lmax = convertArgsToLists(self._input, basefreq, spread)
         self._base_objs = [PVAmpMod_base(wrap(input,i), wrap(basefreq,i), wrap(spread,i)) for i in range(lmax)]
- 
+
     def setInput(self, x):
         """
         Replace the `input` attribute.
-        
+
         :Args:
 
             x : PyoPVObject
@@ -1561,12 +1561,12 @@ class PVAmpMod(PyoPVObject):
     def setBasefreq(self, x):
         """
         Replace the `basefreq` attribute.
-        
+
         :Args:
 
             x : int
                 new `basefreq` attribute.
-        
+
         """
         self._basefreq = x
         x, lmax = convertArgsToLists(x)
@@ -1575,12 +1575,12 @@ class PVAmpMod(PyoPVObject):
     def setSpread(self, x):
         """
         Replace the `spread` attribute.
-        
+
         :Args:
 
             x : int
                 new `spread` attribute.
-        
+
         """
         self._spread = x
         x, lmax = convertArgsToLists(x)
@@ -1592,7 +1592,7 @@ class PVAmpMod(PyoPVObject):
 
         """
         [obj.reset() for obj in self._base_objs]
-        
+
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
         self._map_list = [SLMap(0.1, 20, "log", "basefreq", self._basefreq),
                           SLMap(-1, 1, "lin", "spread", self._spread)]
@@ -1600,7 +1600,7 @@ class PVAmpMod(PyoPVObject):
 
     @property
     def input(self):
-        """PyoPVObject. Input signal to process.""" 
+        """PyoPVObject. Input signal to process."""
         return self._input
     @input.setter
     def input(self, x): self.setInput(x)
@@ -1611,7 +1611,7 @@ class PVAmpMod(PyoPVObject):
         return self._basefreq
     @basefreq.setter
     def basefreq(self, x): self.setBasefreq(x)
-    
+
     @property
     def spread(self):
         """float or PyoObject. Modulator's frequency spreading factor."""
@@ -1622,15 +1622,15 @@ class PVAmpMod(PyoPVObject):
 class PVFreqMod(PyoPVObject):
     """
     Performs frequency independent frequency modulations.
-    
-    PVFreqMod modulates the frequency of each bin of a pv 
-    stream with an independent oscillator. `basefreq` and 
-    `spread` are used to derive the frequency of each 
+
+    PVFreqMod modulates the frequency of each bin of a pv
+    stream with an independent oscillator. `basefreq` and
+    `spread` are used to derive the frequency of each
     modulating oscillator.
-    
+
     Internally, the following operations are applied to
     derive oscillator frequencies (`i` is the bin number):
-        
+
         spread = spread * 0.001 + 1.0
 
         f_i = basefreq * pow(spread, i)
@@ -1642,13 +1642,13 @@ class PVFreqMod(PyoPVObject):
         input : PyoPVObject
             Phase vocoder streaming object to process.
         basefreq : float or PyoObject, optional
-            Base modulation frequency, in Hertz. 
+            Base modulation frequency, in Hertz.
             Defaults to 1.
         spread : float or PyoObject, optional
             Spreading factor for oscillator frequencies, between
             -1 and 1. 0 means every oscillator has the same frequency.
         depth : float or PyoObject, optional
-            Amplitude of the modulating oscillators, between 0 and 1. 
+            Amplitude of the modulating oscillators, between 0 and 1.
             Defaults to 0.1.
 
     >>> s = Server().boot()
@@ -1667,11 +1667,11 @@ class PVFreqMod(PyoPVObject):
         self._depth = depth
         input, basefreq, spread, depth, lmax = convertArgsToLists(self._input, basefreq, spread, depth)
         self._base_objs = [PVFreqMod_base(wrap(input,i), wrap(basefreq,i), wrap(spread,i), wrap(depth,i)) for i in range(lmax)]
- 
+
     def setInput(self, x):
         """
         Replace the `input` attribute.
-        
+
         :Args:
 
             x : PyoPVObject
@@ -1685,12 +1685,12 @@ class PVFreqMod(PyoPVObject):
     def setBasefreq(self, x):
         """
         Replace the `basefreq` attribute.
-        
+
         :Args:
 
             x : int
                 new `basefreq` attribute.
-        
+
         """
         self._basefreq = x
         x, lmax = convertArgsToLists(x)
@@ -1699,12 +1699,12 @@ class PVFreqMod(PyoPVObject):
     def setSpread(self, x):
         """
         Replace the `spread` attribute.
-        
+
         :Args:
 
             x : int
                 new `spread` attribute.
-        
+
         """
         self._spread = x
         x, lmax = convertArgsToLists(x)
@@ -1713,12 +1713,12 @@ class PVFreqMod(PyoPVObject):
     def setDepth(self, x):
         """
         Replace the `depth` attribute.
-        
+
         :Args:
 
             x : int
                 new `depth` attribute.
-        
+
         """
         self._depth = x
         x, lmax = convertArgsToLists(x)
@@ -1730,7 +1730,7 @@ class PVFreqMod(PyoPVObject):
 
         """
         [obj.reset() for obj in self._base_objs]
-        
+
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
         self._map_list = [SLMap(0.1, 20, "log", "basefreq", self._basefreq),
                           SLMap(-1, 1, "lin", "spread", self._spread),
@@ -1739,7 +1739,7 @@ class PVFreqMod(PyoPVObject):
 
     @property
     def input(self):
-        """PyoPVObject. Input signal to process.""" 
+        """PyoPVObject. Input signal to process."""
         return self._input
     @input.setter
     def input(self, x): self.setInput(x)
@@ -1750,7 +1750,7 @@ class PVFreqMod(PyoPVObject):
         return self._basefreq
     @basefreq.setter
     def basefreq(self, x): self.setBasefreq(x)
-    
+
     @property
     def spread(self):
         """float or PyoObject. Modulator's frequencies spreading factor."""
@@ -1768,21 +1768,21 @@ class PVFreqMod(PyoPVObject):
 class PVBufLoops(PyoPVObject):
     """
     Phase vocoder buffer with bin independent speed playback.
-    
+
     PVBufLoops keeps `length` seconds of pv analysis in memory
-    and gives control on playback position independently for 
+    and gives control on playback position independently for
     every frequency bin.
-    
+
     :Parent: :py:class:`PyoPVObject`
-    
+
     :Args:
-    
+
         input : PyoPVObject
             Phase vocoder streaming object to process.
         low : float or PyoObject, optional
-            Lowest bin speed factor. Defaults to 1.0. 
+            Lowest bin speed factor. Defaults to 1.0.
         high : float or PyoObject, optional
-            Highest bin speed factor. Defaults to 1.0. 
+            Highest bin speed factor. Defaults to 1.0.
         mode : int, optional
             Speed distribution algorithm. Available algorithms are:
                 0. linear, line between `low` and `high` (default)
@@ -1794,12 +1794,12 @@ class PVBufLoops(PyoPVObject):
                 6. rand bi-expon, bipolar exponential random between `low` and `high`
 
         length : float, optional
-            Memory length in seconds. Available at initialization 
+            Memory length in seconds. Available at initialization
             time only. Defaults to 1.0.
 
     .. note::
-        
-        The play() method can be called to start a new recording of 
+
+        The play() method can be called to start a new recording of
         the current pv input.
 
     >>> s = Server().boot()
@@ -1821,11 +1821,11 @@ class PVBufLoops(PyoPVObject):
         self._length = length
         input, low, high, mode, length, lmax = convertArgsToLists(self._input, low, high, mode, length)
         self._base_objs = [PVBufLoops_base(wrap(input,i), wrap(low,i), wrap(high,i), wrap(mode,i), wrap(length,i)) for i in range(lmax)]
- 
+
     def setInput(self, x):
         """
         Replace the `input` attribute.
-        
+
         :Args:
 
             x : PyoPVObject
@@ -1839,12 +1839,12 @@ class PVBufLoops(PyoPVObject):
     def setLow(self, x):
         """
         Replace the `low` attribute.
-        
+
         :Args:
 
             x : float or PyoObject
                 new `low` attribute.
-        
+
         """
         self._low = x
         x, lmax = convertArgsToLists(x)
@@ -1853,12 +1853,12 @@ class PVBufLoops(PyoPVObject):
     def setHigh(self, x):
         """
         Replace the `high` attribute.
-        
+
         :Args:
 
             x : float or PyoObject
                 new `high` attribute.
-        
+
         """
         self._high = x
         x, lmax = convertArgsToLists(x)
@@ -1867,12 +1867,12 @@ class PVBufLoops(PyoPVObject):
     def setMode(self, x):
         """
         Replace the `mode` attribute.
-        
+
         :Args:
 
             x : int
                 new `mode` attribute.
-        
+
         """
         self._mode = x
         x, lmax = convertArgsToLists(x)
@@ -1881,7 +1881,7 @@ class PVBufLoops(PyoPVObject):
     def reset(self):
         """
         Reset pointer positions to 0.
-        
+
         """
         [obj.reset() for obj in self._base_objs]
 
@@ -1892,14 +1892,14 @@ class PVBufLoops(PyoPVObject):
 
     @property
     def input(self):
-        """PyoPVObject. Input signal to process.""" 
+        """PyoPVObject. Input signal to process."""
         return self._input
     @input.setter
     def input(self, x): self.setInput(x)
 
     @property
     def low(self):
-        """float or PyoObject. Lowest bin speed factor.""" 
+        """float or PyoObject. Lowest bin speed factor."""
         return self._low
     @low.setter
     def low(self, x): self.setLow(x)
@@ -1921,26 +1921,26 @@ class PVBufLoops(PyoPVObject):
 class PVBufTabLoops(PyoPVObject):
     """
     Phase vocoder buffer with bin independent speed playback.
-    
+
     PVBufTabLoops keeps `length` seconds of pv analysis in memory
     and gives control on playback position, using a PyoTableObject,
     independently for every frequency bin.
-    
+
     :Parent: :py:class:`PyoPVObject`
-    
+
     :Args:
-    
+
         input : PyoPVObject
             Phase vocoder streaming object to process.
         speed : PyoTableObject
-            Table which specify the speed of bin playback readers. 
+            Table which specify the speed of bin playback readers.
         length : float, optional
-            Memory length in seconds. Available at initialization 
+            Memory length in seconds. Available at initialization
             time only. Defaults to 1.0.
 
     .. note::
-        
-        The play() method can be called to start a new recording of 
+
+        The play() method can be called to start a new recording of
         the current pv input.
 
     >>> s = Server().boot()
@@ -1961,11 +1961,11 @@ class PVBufTabLoops(PyoPVObject):
         self._length = length
         input, speed, length, lmax = convertArgsToLists(self._input, speed, length)
         self._base_objs = [PVBufTabLoops_base(wrap(input,i), wrap(speed,i), wrap(length,i)) for i in range(lmax)]
- 
+
     def setInput(self, x):
         """
         Replace the `input` attribute.
-        
+
         :Args:
 
             x : PyoPVObject
@@ -1979,12 +1979,12 @@ class PVBufTabLoops(PyoPVObject):
     def setSpeed(self, x):
         """
         Replace the `speed` attribute.
-        
+
         :Args:
 
             x : PyoTableObject
                 new `speed` attribute.
-        
+
         """
         self._speed = x
         x, lmax = convertArgsToLists(x)
@@ -1993,39 +1993,39 @@ class PVBufTabLoops(PyoPVObject):
     def reset(self):
         """
         Reset pointer positions to 0.
-        
+
         """
         [obj.reset() for obj in self._base_objs]
 
     @property
     def input(self):
-        """PyoPVObject. Input signal to process.""" 
+        """PyoPVObject. Input signal to process."""
         return self._input
     @input.setter
     def input(self, x): self.setInput(x)
 
     @property
     def speed(self):
-        """PyoTableObject. Table which specify the speed of bin playback readers.""" 
+        """PyoTableObject. Table which specify the speed of bin playback readers."""
         return self._speed
     @speed.setter
     def speed(self, x): self.setSpeed(x)
-    
+
 class PVMix(PyoPVObject):
     """
     Mix the most prominent components from two phase vocoder streaming objects.
 
     :Parent: :py:class:`PyoPVObject`
-    
+
     :Args:
-    
+
         input : PyoPVObject
             Phase vocoder streaming object 1.
         input2 : PyoPVObject
             Phase vocoder streaming object 2.
 
     .. note::
-        
+
         The two input pv stream must have the same size and overlaps. It is
         the responsibility of the user to be sure they are consistent. To change
         the size (or the overlaps) of the phase vocoder process, one must
@@ -2055,11 +2055,11 @@ class PVMix(PyoPVObject):
         self._input2 = input2
         input, input2, lmax = convertArgsToLists(self._input, self._input2)
         self._base_objs = [PVMix_base(wrap(input,i), wrap(input2,i)) for i in range(lmax)]
- 
+
     def setInput(self, x):
         """
         Replace the `input` attribute.
-        
+
         :Args:
 
             x : PyoPVObject
@@ -2073,7 +2073,7 @@ class PVMix(PyoPVObject):
     def setInput2(self, x):
         """
         Replace the `input2` attribute.
-        
+
         :Args:
 
             x : PyoPVObject
@@ -2086,14 +2086,14 @@ class PVMix(PyoPVObject):
 
     @property
     def input(self):
-        """PyoPVObject. Phase vocoder streaming object 1.""" 
+        """PyoPVObject. Phase vocoder streaming object 1."""
         return self._input
     @input.setter
     def input(self, x): self.setInput(x)
 
     @property
     def input2(self):
-        """PyoPVObject. Phase vocoder streaming object 2.""" 
+        """PyoPVObject. Phase vocoder streaming object 2."""
         return self._input2
     @input2.setter
     def input2(self, x): self.setInput2(x)

@@ -4,7 +4,7 @@ Objects to manage values on an Open Sound Control port.
 OscSend takes the first value of each buffersize and send it on an
 OSC port.
 
-OscReceive creates and returns audio streams from the value in its 
+OscReceive creates and returns audio streams from the value in its
 input port.
 
 The audio streams of these objects are essentially intended to be
@@ -13,23 +13,23 @@ controls and can't be sent to the output soundcard.
 """
 
 """
-Copyright 2010 Olivier Belanger
+Copyright 2009-2015 Olivier Belanger
 
 This file is part of pyo, a python module to help digital signal
 processing script creation.
 
 pyo is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
+it under the terms of the GNU Lesser General Public License as
+published by the Free Software Foundation, either version 3 of the
+License, or (at your option) any later version.
 
 pyo is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
+GNU Lesser General Public License for more details.
 
-You should have received a copy of the GNU General Public License
-along with pyo.  If not, see <http://www.gnu.org/licenses/>.
+You should have received a copy of the GNU Lesser General Public
+License along with pyo.  If not, see <http://www.gnu.org/licenses/>.
 """
 import sys
 from _core import *
@@ -43,8 +43,8 @@ class OscSend(PyoObject):
     """
     Sends values over a network via the Open Sound Control protocol.
 
-    Uses the OSC protocol to share values to other softwares or other 
-    computers. Only the first value of each input buffersize will be 
+    Uses the OSC protocol to share values to other softwares or other
+    computers. Only the first value of each input buffersize will be
     sent on the OSC port.
 
     :Parent: :py:class:`PyoObject`
@@ -54,27 +54,27 @@ class OscSend(PyoObject):
         input : PyoObject
             Input signal.
         port : int
-            Port on which values are sent. Receiver should listen on the 
+            Port on which values are sent. Receiver should listen on the
             same port.
         address : string
-            Address used on the port to identify values. Address is in 
+            Address used on the port to identify values. Address is in
             the form of a Unix path (ex.: '/pitch').
         host : string, optional
-            IP address of the target computer. The default, '127.0.0.1', 
+            IP address of the target computer. The default, '127.0.0.1',
             is the localhost.
 
     .. note::
 
-        The out() method is bypassed. OscSend's signal can not be sent 
+        The out() method is bypassed. OscSend's signal can not be sent
         to audio outs.
-        
+
         OscSend has no `mul` and `add` attributes.
 
     >>> s = Server().boot()
     >>> s.start()
     >>> a = Sine(freq=[1,1.5], mul=[100,.1], add=[600, .1])
     >>> b = OscSend(a, port=10001, address=['/pitch','/amp'])
-    
+
     """
     def __init__(self, input, port, address, host="127.0.0.1"):
         PyoObject.__init__(self)
@@ -97,20 +97,20 @@ class OscSend(PyoObject):
         """
         self._input = x
         self._in_fader.setInput(x, fadetime)
-            
+
     def out(self, chnl=0, inc=1, dur=0, delay=0):
         return self.play(dur, delay)
 
     def setMul(self, x):
         pass
-        
+
     def setAdd(self, x):
-        pass    
+        pass
 
     def setBufferRate(self, x):
         """
         Sets how many buffers to wait before sending a new value.
-        
+
         :Args:
 
             x : int
@@ -122,17 +122,17 @@ class OscSend(PyoObject):
 
     @property
     def input(self):
-        """PyoObject. Input signal.""" 
+        """PyoObject. Input signal."""
         return self._input
     @input.setter
     def input(self, x): self.setInput(x)
-         
+
 class OscReceive(PyoObject):
     """
     Receives values over a network via the Open Sound Control protocol.
 
-    Uses the OSC protocol to receive values from other softwares or 
-    other computers. Get a value at the beginning of each buffersize 
+    Uses the OSC protocol to receive values from other softwares or
+    other computers. Get a value at the beginning of each buffersize
     and fill its buffer with it.
 
     :Parent: :py:class:`PyoObject`
@@ -140,25 +140,25 @@ class OscReceive(PyoObject):
     :Args:
 
         port : int
-            Port on which values are received. Sender should output on 
-            the same port. 
-            
-            Unlike OscSend object, there can be only one port per OscReceive 
-            object. 
-            
+            Port on which values are received. Sender should output on
+            the same port.
+
+            Unlike OscSend object, there can be only one port per OscReceive
+            object.
+
             Available at initialization time only.
         address : string
-            Address used on the port to identify values. Address is in 
+            Address used on the port to identify values. Address is in
             the form of a Unix path (ex.: '/pitch').
 
     .. note::
 
-        Audio streams are accessed with the `address` string parameter. 
+        Audio streams are accessed with the `address` string parameter.
         The user should call :
 
         OscReceive['/pitch'] to retreive stream named '/pitch'.
 
-        The out() method is bypassed. OscReceive's signal can not be sent 
+        The out() method is bypassed. OscReceive's signal can not be sent
         to audio outs.
 
     >>> s = Server().boot()
@@ -240,16 +240,16 @@ class OscReceive(PyoObject):
 
             x : boolean
                 True activates the interpolation, False deactivates it.
-        
+
         """
         [obj.setInterpolation(x) for obj in self._base_objs]
 
     def setValue(self, path, value):
         """
         Sets value for a given address.
-        
+
         :Args:
-        
+
             path : string
                 Address to which the value should be attributed.
             value : float
@@ -262,7 +262,7 @@ class OscReceive(PyoObject):
             if p in self._address:
                 self._mainReceiver.setValue(p, wrap(value,i))
             else:
-                print 'Error: OscReceive.setValue, Illegal address "%s"' % p 
+                print 'Error: OscReceive.setValue, Illegal address "%s"' % p
 
     def get(self, identifier=None, all=False):
         """
@@ -277,7 +277,7 @@ class OscReceive(PyoObject):
 
             identifier : string
                 Address string parameter identifying audio stream.
-                Defaults to None, useful when `all` is True to 
+                Defaults to None, useful when `all` is True to
                 retreive all streams values.
             all : boolean, optional
                 If True, the first value of each object's stream
@@ -290,7 +290,7 @@ class OscReceive(PyoObject):
             return self._base_objs[self._address.index(identifier)]._getStream().getValue()
         else:
             return [obj._getStream().getValue() for obj in self._base_objs]
-             
+
     def out(self, chnl=0, inc=1, dur=0, delay=0):
         return self.play(dur, delay)
 
@@ -298,7 +298,7 @@ class OscDataSend(PyoObject):
     """
     Sends data values over a network via the Open Sound Control protocol.
 
-    Uses the OSC protocol to share values to other softwares or other 
+    Uses the OSC protocol to share values to other softwares or other
     computers. Values are sent on the form of a list containing `types`
     elements.
 
@@ -314,17 +314,17 @@ class OscDataSend(PyoObject):
                 - float : "f"
                 - double : "d"
                 - string : "s"
-                
+
             The string "ssfi" indicates that the value to send will be a list
             containing two strings followed by a float and an integer.
         port : int
-            Port on which values are sent. Receiver should listen on the 
+            Port on which values are sent. Receiver should listen on the
             same port.
         address : string
-            Address used on the port to identify values. Address is in 
+            Address used on the port to identify values. Address is in
             the form of a Unix path (ex.: '/pitch').
         host : string, optional
-            IP address of the target computer. The default, '127.0.0.1', 
+            IP address of the target computer. The default, '127.0.0.1',
             is the localhost.
 
     .. note::
@@ -344,14 +344,14 @@ class OscDataSend(PyoObject):
     >>> a.send(msg)
 
     """
-    def __init__(self, types, port, address, host="127.0.0.1"):    
+    def __init__(self, types, port, address, host="127.0.0.1"):
         PyoObject.__init__(self)
         types, port, address, host, lmax = convertArgsToLists(types, port, address, host)
         self._base_objs = [OscDataSend_base(wrap(types,i), wrap(port,i), wrap(address,i), wrap(host,i)) for i in range(lmax)]
         self._addresses = {}
         for i, adr in enumerate(address):
             self._addresses[adr] = self._base_objs[i]
-            
+
     def out(self, chnl=0, inc=1, dur=0, delay=0):
         return self.play(dur, delay)
 
@@ -359,7 +359,7 @@ class OscDataSend(PyoObject):
         pass
 
     def setAdd(self, x):
-        pass    
+        pass
 
     def getAddresses(self):
         """
@@ -386,13 +386,13 @@ class OscDataSend(PyoObject):
                 The string "ssfi" indicates that the value to send will be a list
                 containing two strings followed by a float and an integer.
             port : int
-                Port on which values are sent. Receiver should listen on the 
+                Port on which values are sent. Receiver should listen on the
                 same port.
             address : string
-                Address used on the port to identify values. Address is in 
+                Address used on the port to identify values. Address is in
                 the form of a Unix path (ex.: '/pitch').
             host : string, optional
-                IP address of the target computer. The default, '127.0.0.1', 
+                IP address of the target computer. The default, '127.0.0.1',
                 is the localhost.
 
         """
@@ -420,9 +420,9 @@ class OscDataSend(PyoObject):
     def send(self, msg, address=None):
         """
         Method used to send `msg` values as a list.
-        
+
         :Args:
-        
+
             msg : list
                 List of values to send. Types of values in list
                 must be of the kind defined of `types` argument
@@ -430,7 +430,7 @@ class OscDataSend(PyoObject):
             address : string, optional
                 Address destination to send values. If None, values
                 will be sent to all addresses managed by the object.
-        
+
         """
         if address == None:
             [obj.send(msg) for obj in self._base_objs]
@@ -441,9 +441,9 @@ class OscDataReceive(PyoObject):
     """
     Receives data values over a network via the Open Sound Control protocol.
 
-    Uses the OSC protocol to receive data values from other softwares or 
+    Uses the OSC protocol to receive data values from other softwares or
     other computers. When a message is received, the function given at the
-    argument `function` is called with the current address destination in 
+    argument `function` is called with the current address destination in
     argument followed by a tuple of values.
 
     :Parent: :py:class:`PyoObject`
@@ -451,17 +451,17 @@ class OscDataReceive(PyoObject):
     :Args:
 
         port : int
-            Port on which values are received. Sender should output on 
-            the same port. Unlike OscDataSend object, there can be only 
-            one port per OscDataReceive object. Available at initialization 
+            Port on which values are received. Sender should output on
+            the same port. Unlike OscDataSend object, there can be only
+            one port per OscDataReceive object. Available at initialization
             time only.
         address : string
-            Address used on the port to identify values. Address is in 
+            Address used on the port to identify values. Address is in
             the form of a Unix path (ex.: "/pitch"). There can be as many
             addresses as needed on a single port.
         function : callable (can't be a list)
             This function will be called whenever a message with a known
-            address is received. there can be only one function per 
+            address is received. there can be only one function per
             OscDataReceive object. Available at initialization time only.
 
     .. note::
@@ -503,7 +503,7 @@ class OscDataReceive(PyoObject):
 
     def setMul(self, x):
         pass
-        
+
     def setAdd(self, x):
         pass
 
@@ -513,16 +513,16 @@ class OscDataReceive(PyoObject):
     def getAddresses(self):
         """
         Returns the addresses managed by the object.
-        
+
         """
         return self._address
 
     def addAddress(self, path):
         """
         Adds new address(es) to the object's handler.
-        
+
         :Args:
-        
+
             path : string or list of strings
                 New path(s) to receive from.
 
@@ -551,7 +551,7 @@ class OscListReceive(PyoObject):
     """
     Receives list of values over a network via the Open Sound Control protocol.
 
-    Uses the OSC protocol to receive list of floating-point values from other 
+    Uses the OSC protocol to receive list of floating-point values from other
     softwares or other computers. The list are converted into audio streams.
     Get values at the beginning of each buffersize and fill buffers with them.
 
@@ -560,27 +560,27 @@ class OscListReceive(PyoObject):
     :Args:
 
         port : int
-            Port on which values are received. Sender should output on 
-            the same port. Unlike OscSend object, there can be only one 
-            port per OscListReceive object. Available at initialization time 
+            Port on which values are received. Sender should output on
+            the same port. Unlike OscSend object, there can be only one
+            port per OscListReceive object. Available at initialization time
             only.
         address : string
-            Address used on the port to identify values. Address is in 
+            Address used on the port to identify values. Address is in
             the form of a Unix path (ex.: '/pitch').
         num : int, optional
             Length of the lists in input. The object will generate `num` audio
             streams per given address. Available at initialization time only.
-            This value can't be a list. That means all addresses managed by an 
+            This value can't be a list. That means all addresses managed by an
             OscListReceive object are of the same length. Defaults to 8.
 
     .. note::
 
-        Audio streams are accessed with the `address` string parameter. 
+        Audio streams are accessed with the `address` string parameter.
         The user should call :
 
         OscReceive['/pitch'] to retreive list of streams named '/pitch'.
 
-        The out() method is bypassed. OscReceive's signal can not be sent 
+        The out() method is bypassed. OscReceive's signal can not be sent
         to audio outs.
 
     >>> s = Server().boot()
@@ -605,7 +605,7 @@ class OscListReceive(PyoObject):
         self._address = address
         self._mainReceiver = OscListReceiver_base(port, address, num)
         self._base_objs = [OscListReceive_base(self._mainReceiver, wrap(address,i), j, wrap(mul,i), wrap(add,i)) for i in range(lmax) for j in range(self._num)]
-        
+
     def __getitem__(self, i):
         if type(i) == type(''):
             first = self._address.index(i) * self._num
@@ -679,9 +679,9 @@ class OscListReceive(PyoObject):
     def setValue(self, path, value):
         """
         Sets value for a given address.
-        
+
         :Args:
-        
+
             path : string
                 Address to which the value should be attributed.
             value : list of floats
@@ -701,7 +701,7 @@ class OscListReceive(PyoObject):
                 else:
                     print 'Error: OscListReceive.setValue, value must be of the same length as the `num` attribute.'
             else:
-                print 'Error: OscListReceive.setValue, Illegal address "%s"' % p 
+                print 'Error: OscListReceive.setValue, Illegal address "%s"' % p
 
     def get(self, identifier=None, all=False):
         """
@@ -716,12 +716,12 @@ class OscListReceive(PyoObject):
 
             identifier : string
                 Address string parameter identifying audio stream.
-                Defaults to None, useful when `all` is True to 
+                Defaults to None, useful when `all` is True to
                 retreive all streams values.
             all : boolean, optional
                 If True, the first list of values of each object's stream
-                will be returned as a list of lists. Otherwise, only the 
-                the list of the object's identifier will be returned as a 
+                will be returned as a list of lists. Otherwise, only the
+                the list of the object's identifier will be returned as a
                 list of floats. Defaults to False.
 
         """

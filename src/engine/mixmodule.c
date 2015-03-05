@@ -1,21 +1,21 @@
-/*************************************************************************
- * Copyright 2010 Olivier Belanger                                        *                  
- *                                                                        * 
+/**************************************************************************
+ * Copyright 2009-2015 Olivier Belanger                                   *
+ *                                                                        *
  * This file is part of pyo, a python module to help digital signal       *
- * processing script creation.                                            *  
- *                                                                        * 
+ * processing script creation.                                            *
+ *                                                                        *
  * pyo is free software: you can redistribute it and/or modify            *
- * it under the terms of the GNU General Public License as published by   *
- * the Free Software Foundation, either version 3 of the License, or      *
- * (at your option) any later version.                                    * 
+ * it under the terms of the GNU Lesser General Public License as         *
+ * published by the Free Software Foundation, either version 3 of the     *
+ * License, or (at your option) any later version.                        *
  *                                                                        *
  * pyo is distributed in the hope that it will be useful,                 *
- * but WITHOUT ANY WARRANTY; without even the implied warranty of         *    
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of         *
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the          *
- * GNU General Public License for more details.                           *
+ * GNU Lesser General Public License for more details.                    *
  *                                                                        *
- * You should have received a copy of the GNU General Public License      *
- * along with pyo.  If not, see <http://www.gnu.org/licenses/>.           *
+ * You should have received a copy of the GNU Lesser General Public       *
+ * License along with pyo.  If not, see <http://www.gnu.org/licenses/>.   *
  *************************************************************************/
 
 #include <Python.h>
@@ -49,39 +49,39 @@ Mix_setProcMode(Mix *self)
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
 
 	switch (muladdmode) {
-        case 0:        
+        case 0:
             self->muladd_func_ptr = Mix_postprocessing_ii;
             break;
-        case 1:    
+        case 1:
             self->muladd_func_ptr = Mix_postprocessing_ai;
             break;
-        case 2:    
+        case 2:
             self->muladd_func_ptr = Mix_postprocessing_revai;
             break;
-        case 10:        
+        case 10:
             self->muladd_func_ptr = Mix_postprocessing_ia;
             break;
-        case 11:    
+        case 11:
             self->muladd_func_ptr = Mix_postprocessing_aa;
             break;
-        case 12:    
+        case 12:
             self->muladd_func_ptr = Mix_postprocessing_revaa;
             break;
-        case 20:        
+        case 20:
             self->muladd_func_ptr = Mix_postprocessing_ireva;
             break;
-        case 21:    
+        case 21:
             self->muladd_func_ptr = Mix_postprocessing_areva;
             break;
-        case 22:    
+        case 22:
             self->muladd_func_ptr = Mix_postprocessing_revareva;
             break;
-    }   
+    }
 }
 
 static void
 Mix_compute_next_data_frame(Mix *self)
-{   
+{
     int i, j;
     MYFLT old;
     PyObject *stream;
@@ -96,13 +96,13 @@ Mix_compute_next_data_frame(Mix *self)
         for (j=0; j<self->bufsize; j++) {
             old = buffer[j];
             buffer[j] = in[j] + old;
-        }    
-    }    
-    
+        }
+    }
+
     for (i=0; i<self->bufsize; i++) {
         self->data[i] = buffer[i];
     }
-    
+
     (*self->muladd_func_ptr)(self);
 }
 
@@ -114,7 +114,7 @@ Mix_traverse(Mix *self, visitproc visit, void *arg)
     return 0;
 }
 
-static int 
+static int
 Mix_clear(Mix *self)
 {
     pyo_CLEAR
@@ -148,12 +148,12 @@ Mix_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     static char *kwlist[] = {"input", "mul", "add", NULL};
 
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OO", kwlist, &inputtmp, &multmp, &addtmp))
-        Py_RETURN_NONE; 
+        Py_RETURN_NONE;
 
     Py_INCREF(inputtmp);
     Py_XDECREF(self->input);
     self->input = inputtmp;
-    
+
     if (multmp) {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
     }
@@ -161,19 +161,19 @@ Mix_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (addtmp) {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
-            
+
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
     (*self->mode_func_ptr)(self);
-    
+
     return (PyObject *)self;
 }
 
 static PyObject * Mix_getServer(Mix* self) { GET_SERVER };
 static PyObject * Mix_getStream(Mix* self) { GET_STREAM };
-static PyObject * Mix_setMul(Mix *self, PyObject *arg) { SET_MUL };	
-static PyObject * Mix_setAdd(Mix *self, PyObject *arg) { SET_ADD };	
-static PyObject * Mix_setSub(Mix *self, PyObject *arg) { SET_SUB };	
+static PyObject * Mix_setMul(Mix *self, PyObject *arg) { SET_MUL };
+static PyObject * Mix_setAdd(Mix *self, PyObject *arg) { SET_ADD };
+static PyObject * Mix_setSub(Mix *self, PyObject *arg) { SET_SUB };
 static PyObject * Mix_setDiv(Mix *self, PyObject *arg) { SET_DIV };
 
 static PyObject * Mix_play(Mix *self, PyObject *args, PyObject *kwds) { PLAY };
@@ -294,4 +294,3 @@ PyTypeObject MixType = {
     0,                         /* tp_alloc */
     Mix_new,                 /* tp_new */
 };
-

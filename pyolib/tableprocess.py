@@ -1,48 +1,48 @@
 """
 Set of objects to perform operations on PyoTableObjects.
 
-PyoTableObjects are 1 dimension containers. They can be used to 
+PyoTableObjects are 1 dimension containers. They can be used to
 store audio samples or algorithmic sequences for future uses.
 
 """
 
 """
-Copyright 2010 Olivier Belanger
+Copyright 2009-2015 Olivier Belanger
 
 This file is part of pyo, a python module to help digital signal
 processing script creation.
 
 pyo is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
+it under the terms of the GNU Lesser General Public License as
+published by the Free Software Foundation, either version 3 of the
+License, or (at your option) any later version.
 
 pyo is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
+GNU Lesser General Public License for more details.
 
-You should have received a copy of the GNU General Public License
-along with pyo.  If not, see <http://www.gnu.org/licenses/>.
+You should have received a copy of the GNU Lesser General Public
+License along with pyo.  If not, see <http://www.gnu.org/licenses/>.
 """
 from _core import *
 from _maps import *
 from types import SliceType
- 
+
 class Osc(PyoObject):
     """
     A simple oscillator reading a waveform table.
-    
+
     :Parent: :py:class:`PyoObject`
-    
+
     :Args:
-    
+
         table : PyoTableObject
             Table containing the waveform samples.
         freq : float or PyoObject, optional
             Frequency in cycles per second. Defaults to 1000.
         phase : float or PyoObject, optional
-            Phase of sampling, expressed as a fraction of a cycle (0 to 1). 
+            Phase of sampling, expressed as a fraction of a cycle (0 to 1).
             Defaults to 0.
         interp : int, optional
             Choice of the interpolation method. Defaults to 2.
@@ -51,15 +51,15 @@ class Osc(PyoObject):
                 3. cosinus
                 4. cubic
 
-    .. seealso:: 
-        
+    .. seealso::
+
         :py:class:`Phasor`, :py:class:`Sine`
 
     >>> s = Server().boot()
     >>> s.start()
     >>> t = HarmTable([1,0,.33,0,.2,0,.143,0,.111,0,.091])
     >>> a = Osc(table=t, freq=[100,99.2], mul=.2).out()
-     
+
     """
     def __init__(self, table, freq=1000, phase=0, interp=2, mul=1, add=0):
         PyoObject.__init__(self, mul, add)
@@ -73,12 +73,12 @@ class Osc(PyoObject):
     def setTable(self, x):
         """
         Replace the `table` attribute.
-        
+
         :Args:
 
             x : PyoTableObject
                 new `table` attribute.
-        
+
         """
         self._table = x
         x, lmax = convertArgsToLists(x)
@@ -87,12 +87,12 @@ class Osc(PyoObject):
     def setFreq(self, x):
         """
         Replace the `freq` attribute.
-        
+
         :Args:
 
             x : float or PyoObject
                 new `freq` attribute.
-        
+
         """
         self._freq = x
         x, lmax = convertArgsToLists(x)
@@ -101,12 +101,12 @@ class Osc(PyoObject):
     def setPhase(self, x):
         """
         Replace the `phase` attribute.
-        
+
         :Args:
 
             x : float or PyoObject
                 new `phase` attribute.
-        
+
         """
         self._phase = x
         x, lmax = convertArgsToLists(x)
@@ -115,12 +115,12 @@ class Osc(PyoObject):
     def setInterp(self, x):
         """
         Replace the `interp` attribute.
-        
+
         :Args:
 
             x : int {1, 2, 3, 4}
                 new `interp` attribute.
-        
+
         """
         self._interp = x
         x, lmax = convertArgsToLists(x)
@@ -129,7 +129,7 @@ class Osc(PyoObject):
     def reset(self):
         """
         Resets current phase to 0.
-        
+
         """
         [obj.reset() for i, obj in enumerate(self._base_objs)]
 
@@ -142,27 +142,27 @@ class Osc(PyoObject):
 
     @property
     def table(self):
-        """PyoTableObject. Table containing the waveform samples.""" 
+        """PyoTableObject. Table containing the waveform samples."""
         return self._table
     @table.setter
     def table(self, x): self.setTable(x)
 
     @property
     def freq(self):
-        """float or PyoObject. Frequency in cycles per second.""" 
+        """float or PyoObject. Frequency in cycles per second."""
         return self._freq
     @freq.setter
     def freq(self, x): self.setFreq(x)
 
     @property
-    def phase(self): 
-        """float or PyoObject. Phase of sampling.""" 
+    def phase(self):
+        """float or PyoObject. Phase of sampling."""
         return self._phase
     @phase.setter
     def phase(self, x): self.setPhase(x)
 
     @property
-    def interp(self): 
+    def interp(self):
         """int {1, 2, 3, 4}. Interpolation method."""
         return self._interp
     @interp.setter
@@ -175,8 +175,8 @@ class OscLoop(PyoObject):
     OscLoop reads a waveform table with linear interpolation and feedback control.
     The oscillator output, multiplied by `feedback`, is added to the position
     increment and can be used to control the brightness of the oscillator.
-    
-    
+
+
     :Parent: :py:class:`PyoObject`
 
     :Args:
@@ -186,18 +186,18 @@ class OscLoop(PyoObject):
         freq : float or PyoObject, optional
             Frequency in cycles per second. Defaults to 1000.
         feedback : float or PyoObject, optional
-            Amount of the output signal added to position increment, between 0 and 1. 
+            Amount of the output signal added to position increment, between 0 and 1.
             Controls the brightness. Defaults to 0.
 
-    .. seealso:: 
-        
+    .. seealso::
+
         :py:class:`Osc`, :py:class:`SineLoop`
 
     >>> s = Server().boot()
     >>> s.start()
     >>> t = HarmTable([1,0,.33,0,.2,0,.143])
     >>> lfo = Sine(.5, 0, .05, .05)
-    >>> a = OscLoop(table=t, freq=[100,99.3], feedback=lfo, mul=.2).out()   
+    >>> a = OscLoop(table=t, freq=[100,99.3], feedback=lfo, mul=.2).out()
 
     """
     def __init__(self, table, freq=1000, feedback=0, mul=1, add=0):
@@ -258,21 +258,21 @@ class OscLoop(PyoObject):
 
     @property
     def table(self):
-        """PyoTableObject. Table containing the waveform samples.""" 
+        """PyoTableObject. Table containing the waveform samples."""
         return self._table
     @table.setter
     def table(self, x): self.setTable(x)
 
     @property
     def freq(self):
-        """float or PyoObject. Frequency in cycles per second.""" 
+        """float or PyoObject. Frequency in cycles per second."""
         return self._freq
     @freq.setter
     def freq(self, x): self.setFreq(x)
 
     @property
-    def feedback(self): 
-        """float or PyoObject. Brightness control.""" 
+    def feedback(self):
+        """float or PyoObject. Brightness control."""
         return self._feedback
     @feedback.setter
     def feedback(self, x): self.setFeedback(x)
@@ -293,7 +293,7 @@ class OscTrig(PyoObject):
         freq : float or PyoObject, optional
             Frequency in cycles per second. Defaults to 1000.
         phase : float or PyoObject, optional
-            Phase of sampling, expressed as a fraction of a cycle (0 to 1). 
+            Phase of sampling, expressed as a fraction of a cycle (0 to 1).
             Defaults to 0.
         interp : int, optional
             Choice of the interpolation method. Defaults to 2.
@@ -302,8 +302,8 @@ class OscTrig(PyoObject):
                 3. cosinus
                 4. cubic
 
-    .. seealso:: 
-        
+    .. seealso::
+
         :py:class:`Osc`, :py:class:`Phasor`, :py:class:`Sine`
 
     >>> s = Server().boot()
@@ -410,34 +410,34 @@ class OscTrig(PyoObject):
 
     @property
     def table(self):
-        """PyoTableObject. Table containing the waveform samples.""" 
+        """PyoTableObject. Table containing the waveform samples."""
         return self._table
     @table.setter
     def table(self, x): self.setTable(x)
 
     @property
     def trig(self):
-        """PyoObject. Trigger signal. Reset pointer position to zero""" 
+        """PyoObject. Trigger signal. Reset pointer position to zero"""
         return self._trig
     @trig.setter
     def trig(self, x): self.setTrig(x)
 
     @property
     def freq(self):
-        """float or PyoObject. Frequency in cycles per second.""" 
+        """float or PyoObject. Frequency in cycles per second."""
         return self._freq
     @freq.setter
     def freq(self, x): self.setFreq(x)
 
     @property
-    def phase(self): 
-        """float or PyoObject. Phase of sampling.""" 
+    def phase(self):
+        """float or PyoObject. Phase of sampling."""
         return self._phase
     @phase.setter
     def phase(self, x): self.setPhase(x)
 
     @property
-    def interp(self): 
+    def interp(self):
         """int {1, 2, 3, 4}. Interpolation method."""
         return self._interp
     @interp.setter
@@ -448,13 +448,13 @@ class OscBank(PyoObject):
     Any number of oscillators reading a waveform table.
 
     OscBank mixes the output of any number of oscillators. The frequencies
-    of each oscillator is controlled with two parameters, the base frequency 
-    `freq` and a coefficient of expansion `spread`. Frequencies are computed 
+    of each oscillator is controlled with two parameters, the base frequency
+    `freq` and a coefficient of expansion `spread`. Frequencies are computed
     with the following formula (`n` is the order of the partial):
 
     f_n = freq + freq * spread * n
 
-    The frequencies and amplitudes can be modulated by two random generators 
+    The frequencies and amplitudes can be modulated by two random generators
     with interpolation (each partial have a different set of randoms).
 
     :Parent: :py:class:`PyoObject`
@@ -466,29 +466,29 @@ class OscBank(PyoObject):
         freq : float or PyoObject, optional
             Base frequency in cycles per second. Defaults to 100.
         spread : float or PyoObject, optional
-            Coefficient of expansion used to compute partial frequencies. 
-            If `spread` is 0, all partials will be at the base frequency. 
+            Coefficient of expansion used to compute partial frequencies.
+            If `spread` is 0, all partials will be at the base frequency.
             A value of 1 will generate integer harmonics, a value of 2
             will skip even harmonics and non-integer values will generate
             different series of inharmonic frequencies. Defaults to 1.
         slope : float or PyoObject, optional
-            specifies the multiplier in the series of amplitude coefficients. 
-            This is a power series: the nth partial will have an amplitude of 
+            specifies the multiplier in the series of amplitude coefficients.
+            This is a power series: the nth partial will have an amplitude of
             (slope ** n), i.e. strength values trace an exponential curve.
             Defaults to 1.
         frndf : float or PyoObject, optional
-            Frequency, in cycle per second, of the frequency modulations. 
+            Frequency, in cycle per second, of the frequency modulations.
             Defaults to 1.
         frnda : float or PyoObject, optional
-            Maximum frequency deviation (positive and negative) in portion of 
+            Maximum frequency deviation (positive and negative) in portion of
             the partial frequency. A value of 1 means that the frequency can
-            drift from 0 Hz to twice the partial frequency. A value of 0 
+            drift from 0 Hz to twice the partial frequency. A value of 0
             deactivates the frequency deviations. Defaults to 0.
         arndf : float or PyoObject, optional
-            Frequency, in cycle per second, of the amplitude modulations. 
+            Frequency, in cycle per second, of the amplitude modulations.
             Defaults to 1.
         arnda : float or PyoObject, optional
-            Amount of amplitude deviation. 0 deactivates the amplitude 
+            Amount of amplitude deviation. 0 deactivates the amplitude
             modulations and 1 gives full amplitude modulations.
             Defaults to 0.
         num : int, optional
@@ -500,13 +500,13 @@ class OscBank(PyoObject):
             periodicity between partial frequencies can cause very strange
             artefact. Adding a jitter breaks the periodicity. Defaults to False.
 
-    .. seealso:: 
-        
+    .. seealso::
+
         :py:class:`Osc`
 
     .. note::
 
-        Altough parameters can be audio signals, values are sampled only once 
+        Altough parameters can be audio signals, values are sampled only once
         per buffer size. To avoid artefacts, it is recommended to keep variations
         at low rate (< 20 Hz).
 
@@ -673,63 +673,63 @@ class OscBank(PyoObject):
 
     @property
     def table(self):
-        """PyoTableObject. Table containing the waveform samples.""" 
+        """PyoTableObject. Table containing the waveform samples."""
         return self._table
     @table.setter
     def table(self, x): self.setTable(x)
 
     @property
     def freq(self):
-        """float or PyoObject. Frequency in cycles per second.""" 
+        """float or PyoObject. Frequency in cycles per second."""
         return self._freq
     @freq.setter
     def freq(self, x): self.setFreq(x)
 
     @property
-    def spread(self): 
-        """float or PyoObject. Frequency expansion factor.""" 
+    def spread(self):
+        """float or PyoObject. Frequency expansion factor."""
         return self._spread
     @spread.setter
     def spread(self, x): self.setSpread(x)
 
     @property
-    def slope(self): 
-        """float or PyoObject. Multiplier in the series of amplitudes.""" 
+    def slope(self):
+        """float or PyoObject. Multiplier in the series of amplitudes."""
         return self._slope
     @slope.setter
     def slope(self, x): self.setSlope(x)
 
     @property
-    def frndf(self): 
-        """float or PyoObject. Frequency of the frequency modulations.""" 
+    def frndf(self):
+        """float or PyoObject. Frequency of the frequency modulations."""
         return self._frndf
     @frndf.setter
     def frndf(self, x): self.setFrndf(x)
 
     @property
-    def frnda(self): 
-        """float or PyoObject. Maximum frequency deviation from 0 to 1.""" 
+    def frnda(self):
+        """float or PyoObject. Maximum frequency deviation from 0 to 1."""
         return self._frnda
     @frnda.setter
     def frnda(self, x): self.setFrnda(x)
 
     @property
-    def arndf(self): 
-        """float or PyoObject. Frequency of the amplitude modulations.""" 
+    def arndf(self):
+        """float or PyoObject. Frequency of the amplitude modulations."""
         return self._arndf
     @arndf.setter
     def arndf(self, x): self.setArndf(x)
 
     @property
-    def arnda(self): 
-        """float or PyoObject. Amount of amplitude deviation from 0 to 1.""" 
+    def arnda(self):
+        """float or PyoObject. Amount of amplitude deviation from 0 to 1."""
         return self._arnda
     @arnda.setter
     def arnda(self, x): self.setArnda(x)
 
     @property
-    def fjit(self): 
-        """boolean. Jitter added to the parial frequencies.""" 
+    def fjit(self):
+        """boolean. Jitter added to the parial frequencies."""
         return self._fjit
     @fjit.setter
     def fjit(self, x): self.setFjit(x)
@@ -740,7 +740,7 @@ class TableRead(PyoObject):
 
     Read sampled sound from a table, with optional looping mode.
 
-    The play() method starts the playback and is not called at the 
+    The play() method starts the playback and is not called at the
     object creation time.
 
     :Parent: :py:class:`PyoObject`
@@ -752,7 +752,7 @@ class TableRead(PyoObject):
         freq : float or PyoObject, optional
             Frequency in cycles per second. Defaults to 1.
         loop : int {0, 1}, optional
-            Looping mode, 0 means off, 1 means on. 
+            Looping mode, 0 means off, 1 means on.
             Defaults to 0.
         interp : int, optional
             Choice of the interpolation method. Defaults to 2.
@@ -763,22 +763,22 @@ class TableRead(PyoObject):
 
     .. note::
 
-        TableRead will sends a trigger signal at the end of the playback if 
-        loop is off or any time it wraps around if loop is on. User can 
+        TableRead will sends a trigger signal at the end of the playback if
+        loop is off or any time it wraps around if loop is on. User can
         retreive the trigger streams by calling obj['trig']:
 
         >>> tabr = TableRead(SNDS_PATH + "/transparent.aif").out()
         >>> trig = TrigRand(tab['trig'])
 
-    .. seealso:: 
-        
+    .. seealso::
+
         :py:class:`Osc`
 
     >>> s = Server().boot()
     >>> s.start()
     >>> snd = SndTable(SNDS_PATH + '/transparent.aif')
     >>> freq = snd.getRate()
-    >>> a = TableRead(table=snd, freq=[freq,freq*.99], loop=True, mul=.3).out()   
+    >>> a = TableRead(table=snd, freq=[freq,freq*.99], loop=True, mul=.3).out()
 
     """
     def __init__(self, table, freq=1, loop=0, interp=2, mul=1, add=0):
@@ -794,12 +794,12 @@ class TableRead(PyoObject):
     def setTable(self, x):
         """
         Replace the `table` attribute.
-        
+
         :Args:
 
             x : PyoTableObject
                 new `table` attribute.
-        
+
         """
         self._table = x
         x, lmax = convertArgsToLists(x)
@@ -808,12 +808,12 @@ class TableRead(PyoObject):
     def setFreq(self, x):
         """
         Replace the `freq` attribute.
-        
+
         :Args:
 
             x : float or PyoObject
                 new `freq` attribute.
-        
+
         """
         self._freq = x
         x, lmax = convertArgsToLists(x)
@@ -822,12 +822,12 @@ class TableRead(PyoObject):
     def setLoop(self, x):
         """
         Replace the `loop` attribute.
-        
+
         :Args:
 
             x : int {0, 1}
                 new `loop` attribute.
-        
+
         """
         self._loop = x
         x, lmax = convertArgsToLists(x)
@@ -836,12 +836,12 @@ class TableRead(PyoObject):
     def setInterp(self, x):
         """
         Replace the `interp` attribute.
-        
+
         :Args:
 
             x : int {1, 2, 3, 4}
                 new `interp` attribute.
-        
+
         """
         self._interp = x
         x, lmax = convertArgsToLists(x)
@@ -856,7 +856,7 @@ class TableRead(PyoObject):
 
 
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [SLMap(0.0001, 1000, 'log', 'freq', self._freq), 
+        self._map_list = [SLMap(0.0001, 1000, 'log', 'freq', self._freq),
                           SLMap(0, 1, 'lin', 'loop', self._loop, res="int", dataOnly=True),
                           SLMap(1, 4, 'lin', 'interp', self._interp, res="int", dataOnly=True),
                           SLMapMul(self._mul)]
@@ -864,27 +864,27 @@ class TableRead(PyoObject):
 
     @property
     def table(self):
-        """PyoTableObject. Table containing the waveform samples.""" 
+        """PyoTableObject. Table containing the waveform samples."""
         return self._table
     @table.setter
     def table(self, x): self.setTable(x)
 
     @property
     def freq(self):
-        """float or PyoObject. Frequency in cycles per second.""" 
+        """float or PyoObject. Frequency in cycles per second."""
         return self._freq
     @freq.setter
     def freq(self, x): self.setFreq(x)
 
     @property
-    def loop(self): 
-        """int. Looping mode.""" 
+    def loop(self):
+        """int. Looping mode."""
         return self._loop
     @loop.setter
     def loop(self, x): self.setLoop(x)
 
     @property
-    def interp(self): 
+    def interp(self):
         """int {1, 2, 3, 4}. Interpolation method."""
         return self._interp
     @interp.setter
@@ -894,15 +894,15 @@ class Pulsar(PyoObject):
     """
     Pulsar synthesis oscillator.
 
-    Pulsar synthesis produces a train of sound particles called pulsars 
-    that can make rhythms or tones, depending on the fundamental frequency 
+    Pulsar synthesis produces a train of sound particles called pulsars
+    that can make rhythms or tones, depending on the fundamental frequency
     of the train. Varying the `frac` parameter changes the portion of the
-    period assigned to the waveform and the portion of the period assigned 
-    to its following silence, but maintain the overall pulsar period. This 
+    period assigned to the waveform and the portion of the period assigned
+    to its following silence, but maintain the overall pulsar period. This
     results in an effect much like a sweeping band-pass filter.
 
     :Parent: :py:class:`PyoObject`
-    
+
     :Args:
 
         table : PyoTableObject
@@ -912,10 +912,10 @@ class Pulsar(PyoObject):
         freq : float or PyoObject, optional
             Frequency in cycles per second. Defaults to 100.
         frac : float or PyoObject, optional
-            Fraction of the whole period (0 -> 1) given to the waveform. 
+            Fraction of the whole period (0 -> 1) given to the waveform.
             The rest will be filled with zeros. Defaults to 0.5.
         phase : float or PyoObject, optional
-            Phase of sampling, expressed as a fraction of a cycle (0 to 1). 
+            Phase of sampling, expressed as a fraction of a cycle (0 to 1).
             Defaults to 0.
         interp : int, optional
             Choice of the interpolation method. Defaults to 2.
@@ -924,8 +924,8 @@ class Pulsar(PyoObject):
                 3. cosinus
                 4. cubic
 
-    .. seealso:: 
-        
+    .. seealso::
+
         :py:class:`Osc`
 
     >>> s = Server().boot()
@@ -934,7 +934,7 @@ class Pulsar(PyoObject):
     >>> e = HannTable()
     >>> lfo = Sine([.1,.15], mul=.2, add=.5)
     >>> a = Pulsar(table=w, env=e, freq=80, frac=lfo, mul=.08).out()
-     
+
     """
     def __init__(self, table, env, freq=100, frac=0.5, phase=0, interp=2, mul=1, add=0):
         PyoObject.__init__(self, mul, add)
@@ -950,12 +950,12 @@ class Pulsar(PyoObject):
     def setTable(self, x):
         """
         Replace the `table` attribute.
-        
+
         :Args:
 
             x : PyoTableObject
                 new `table` attribute.
-        
+
         """
         self._table = x
         x, lmax = convertArgsToLists(x)
@@ -964,12 +964,12 @@ class Pulsar(PyoObject):
     def setEnv(self, x):
         """
         Replace the `env` attribute.
-        
+
         :Args:
 
             x : PyoTableObject
                 new `env` attribute.
-        
+
         """
         self._env = x
         x, lmax = convertArgsToLists(x)
@@ -978,12 +978,12 @@ class Pulsar(PyoObject):
     def setFreq(self, x):
         """
         Replace the `freq` attribute.
-        
+
         :Args:
 
             x : float or PyoObject
                 new `freq` attribute.
-        
+
         """
         self._freq = x
         x, lmax = convertArgsToLists(x)
@@ -992,12 +992,12 @@ class Pulsar(PyoObject):
     def setFrac(self, x):
         """
         Replace the `frac` attribute.
-        
+
         :Args:
 
             x : float or PyoObject
                 new `frac` attribute.
-        
+
         """
         self._frac = x
         x, lmax = convertArgsToLists(x)
@@ -1006,12 +1006,12 @@ class Pulsar(PyoObject):
     def setPhase(self, x):
         """
         Replace the `phase` attribute.
-        
+
         :Args:
 
             x : float or PyoObject
                 new `phase` attribute.
-        
+
         """
         self._phase = x
         x, lmax = convertArgsToLists(x)
@@ -1020,7 +1020,7 @@ class Pulsar(PyoObject):
     def setInterp(self, x):
         """
         Replace the `interp` attribute.
-        
+
         :Args:
 
             x : int {1, 2, 3, 4}
@@ -1029,7 +1029,7 @@ class Pulsar(PyoObject):
                     2. linear
                     3. cosinus
                     4. cubic
-        
+
         """
         self._interp = x
         x, lmax = convertArgsToLists(x)
@@ -1045,41 +1045,41 @@ class Pulsar(PyoObject):
 
     @property
     def table(self):
-        """PyoTableObject. Table containing the waveform samples.""" 
+        """PyoTableObject. Table containing the waveform samples."""
         return self._table
     @table.setter
     def table(self, x): self.setTable(x)
 
     @property
     def env(self):
-        """PyoTableObject. Table containing the envelope samples.""" 
+        """PyoTableObject. Table containing the envelope samples."""
         return self._env
     @env.setter
     def env(self, x): self.setEnv(x)
 
     @property
     def freq(self):
-        """float or PyoObject. Frequency in cycles per second.""" 
+        """float or PyoObject. Frequency in cycles per second."""
         return self._freq
     @freq.setter
     def freq(self, x): self.setFreq(x)
 
     @property
     def frac(self):
-        """float or PyoObject. Fraction of the period assigned to waveform.""" 
+        """float or PyoObject. Fraction of the period assigned to waveform."""
         return self._frac
     @frac.setter
     def frac(self, x): self.setFrac(x)
 
     @property
-    def phase(self): 
-        """float or PyoObject. Phase of sampling.""" 
+    def phase(self):
+        """float or PyoObject. Phase of sampling."""
         return self._phase
     @phase.setter
     def phase(self, x): self.setPhase(x)
 
     @property
-    def interp(self): 
+    def interp(self):
         """int {1, 2, 3, 4}. Interpolation method."""
         return self._interp
     @interp.setter
@@ -1116,12 +1116,12 @@ class Pointer(PyoObject):
     def setTable(self, x):
         """
         Replace the `table` attribute.
-        
+
         :Args:
 
             x : PyoTableObject
                 new `table` attribute.
-        
+
         """
         self._table = x
         x, lmax = convertArgsToLists(x)
@@ -1130,12 +1130,12 @@ class Pointer(PyoObject):
     def setIndex(self, x):
         """
         Replace the `index` attribute.
-        
+
         :Args:
 
             x : PyoObject
                 new `index` attribute.
-        
+
         """
         self._index = x
         x, lmax = convertArgsToLists(x)
@@ -1147,14 +1147,14 @@ class Pointer(PyoObject):
 
     @property
     def table(self):
-        """PyoTableObject. Table containing the waveform samples.""" 
+        """PyoTableObject. Table containing the waveform samples."""
         return self._table
     @table.setter
     def table(self, x): self.setTable(x)
 
     @property
     def index(self):
-        """PyoObject. Index pointer position in the table.""" 
+        """PyoObject. Index pointer position in the table."""
         return self._index
     @index.setter
     def index(self, x): self.setIndex(x)
@@ -1178,10 +1178,10 @@ class Pointer2(PyoObject):
                 3. cosinus
                 4. cubic
         autosmooth : boolean, optional
-            If True, a lowpass filter, following the pitch, is applied on 
-            
-            the output signal to reduce the quantization noise produced 
-            
+            If True, a lowpass filter, following the pitch, is applied on
+
+            the output signal to reduce the quantization noise produced
+
             by very low transpositions. Defaults to True.
 
     >>> s = Server().boot()
@@ -1204,12 +1204,12 @@ class Pointer2(PyoObject):
     def setTable(self, x):
         """
         Replace the `table` attribute.
-        
+
         :Args:
 
             x : PyoTableObject
                 new `table` attribute.
-        
+
         """
         self._table = x
         x, lmax = convertArgsToLists(x)
@@ -1218,12 +1218,12 @@ class Pointer2(PyoObject):
     def setIndex(self, x):
         """
         Replace the `index` attribute.
-        
+
         :Args:
 
             x : PyoObject
                 new `index` attribute.
-        
+
         """
         self._index = x
         x, lmax = convertArgsToLists(x)
@@ -1232,7 +1232,7 @@ class Pointer2(PyoObject):
     def setInterp(self, x):
         """
         Replace the `interp` attribute.
-        
+
         :Args:
 
             x : int {1, 2, 3, 4}
@@ -1241,7 +1241,7 @@ class Pointer2(PyoObject):
                     2. linear interpolation
                     3. cosine interpolation
                     4. cubic interpolation (default)
-        
+
         """
         self._interp = x
         x, lmax = convertArgsToLists(x)
@@ -1250,16 +1250,16 @@ class Pointer2(PyoObject):
     def setAutoSmooth(self, x):
         """
         Replace the `autosmooth` attribute.
-        
-        If True, a lowpass filter, following the playback speed, is applied on 
-        the output signal to reduce the quantization noise produced by very 
+
+        If True, a lowpass filter, following the playback speed, is applied on
+        the output signal to reduce the quantization noise produced by very
         low transpositions.
-        
+
         :Args:
 
             x : boolean
                 new `autosmooth` attribute.
-        
+
         """
         self._autosmooth = x
         x, lmax = convertArgsToLists(x)
@@ -1271,27 +1271,27 @@ class Pointer2(PyoObject):
 
     @property
     def table(self):
-        """PyoTableObject. Table containing the waveform samples.""" 
+        """PyoTableObject. Table containing the waveform samples."""
         return self._table
     @table.setter
     def table(self, x): self.setTable(x)
 
     @property
     def index(self):
-        """PyoObject. Index pointer position in the table.""" 
+        """PyoObject. Index pointer position in the table."""
         return self._index
     @index.setter
     def index(self, x): self.setIndex(x)
 
     @property
-    def interp(self): 
+    def interp(self):
         """int {1, 2, 3, 4}. Interpolation method."""
         return self._interp
     @interp.setter
     def interp(self, x): self.setInterp(x)
 
     @property
-    def autosmooth(self): 
+    def autosmooth(self):
         """boolean. Quantization noise filter."""
         return self._autosmooth
     @autosmooth.setter
@@ -1308,7 +1308,7 @@ class TableIndex(PyoObject):
         table : PyoTableObject
             Table containing the samples.
         index : PyoObject
-            Position in the table, as integer audio stream, 
+            Position in the table, as integer audio stream,
             between 0 and table's size - 1.
 
     >>> s = Server().boot()
@@ -1362,14 +1362,14 @@ class TableIndex(PyoObject):
 
     @property
     def table(self):
-        """PyoTableObject. Table containing the samples.""" 
+        """PyoTableObject. Table containing the samples."""
         return self._table
     @table.setter
     def table(self, x): self.setTable(x)
 
     @property
     def index(self):
-        """PyoObject. Position in the table.""" 
+        """PyoObject. Position in the table."""
         return self._index
     @index.setter
     def index(self, x): self.setIndex(x)
@@ -1377,22 +1377,22 @@ class TableIndex(PyoObject):
 class Lookup(PyoObject):
     """
     Uses table to do waveshaping on an audio signal.
-    
+
     Lookup uses a table to apply waveshaping on an input signal
     `index`. The index must be between -1 and 1, it is automatically
     scaled between 0 and len(table)-1 and is used as a position
-    pointer in the table.  
-    
+    pointer in the table.
+
     :Parent: :py:class:`PyoObject`
-    
+
     :Args:
-    
+
         table : PyoTableObject
             Table containing the transfert function.
         index : PyoObject
             Audio signal, between -1 and 1, internally converted to be
             used as the index position in the table.
-        
+
     >>> s = Server().boot()
     >>> s.start()
     >>> lfo = Sine(freq=[.15,.2], mul=.2, add=.25)
@@ -1411,12 +1411,12 @@ class Lookup(PyoObject):
     def setTable(self, x):
         """
         Replace the `table` attribute.
-        
+
         :Args:
 
             x : PyoTableObject
                 new `table` attribute.
-        
+
         """
         self._table = x
         x, lmax = convertArgsToLists(x)
@@ -1425,12 +1425,12 @@ class Lookup(PyoObject):
     def setIndex(self, x):
         """
         Replace the `index` attribute.
-        
+
         :Args:
 
             x : PyoObject
                 new `index` attribute.
-        
+
         """
         self._index = x
         x, lmax = convertArgsToLists(x)
@@ -1442,14 +1442,14 @@ class Lookup(PyoObject):
 
     @property
     def table(self):
-        """PyoTableObject. Table containing the transfert function.""" 
+        """PyoTableObject. Table containing the transfert function."""
         return self._table
     @table.setter
     def table(self, x): self.setTable(x)
 
     @property
     def index(self):
-        """PyoObject. Audio input used as the table index.""" 
+        """PyoObject. Audio input used as the table index."""
         return self._index
     @index.setter
     def index(self, x): self.setIndex(x)
@@ -1461,7 +1461,7 @@ class TableRec(PyoObject):
     See `NewTable` to create an empty table.
 
     The play method is not called at the object creation time. It starts
-    the recording into the table until the table is full. Calling the 
+    the recording into the table until the table is full. Calling the
     play method again restarts the recording and overwrites previously
     recorded samples. The stop method stops the recording. Otherwise, the
     default behaviour is to record through the end of the table.
@@ -1475,7 +1475,7 @@ class TableRec(PyoObject):
         table : NewTable
             The table where to write samples.
         fadetime : float, optional
-            Fade time at the beginning and the end of the recording 
+            Fade time at the beginning and the end of the recording
             in seconds. Defaults to 0.
 
     .. note::
@@ -1484,7 +1484,7 @@ class TableRec(PyoObject):
 
         TableRec has no `mul` and `add` attributes.
 
-        TableRec will sends a trigger signal at the end of the recording. 
+        TableRec will sends a trigger signal at the end of the recording.
         User can retrieve the trigger streams by calling obj['trig']. In
         this example, the recorded table will be read automatically after
         a recording:
@@ -1493,12 +1493,12 @@ class TableRec(PyoObject):
         >>> t = NewTable(length=1, chnls=1)
         >>> rec = TableRec(a, table=t, fadetime=0.01)
         >>> tr = TrigEnv(rec['trig'], table=t, dur=1).out()
-        
-        obj['time'] outputs an audio stream of the current recording time, 
+
+        obj['time'] outputs an audio stream of the current recording time,
         in samples.
 
-    .. seealso:: 
-        
+    .. seealso::
+
         :py:class:`NewTable`, :py:class:`TrigTableRec`
 
     >>> s = Server(duplex=1).boot()
@@ -1535,14 +1535,14 @@ class TableRec(PyoObject):
 
     def setMul(self, x):
         pass
-        
+
     def setAdd(self, x):
-        pass    
+        pass
 
     def setInput(self, x, fadetime=0.05):
         """
         Replace the `input` attribute.
-        
+
         :Args:
 
             x : PyoObject
@@ -1557,12 +1557,12 @@ class TableRec(PyoObject):
     def setTable(self, x):
         """
         Replace the `table` attribute.
-        
+
         :Args:
 
             x : NewTable
                 new `table` attribute.
-        
+
         """
         self._table = x
         x, lmax = convertArgsToLists(x)
@@ -1570,7 +1570,7 @@ class TableRec(PyoObject):
 
     @property
     def input(self):
-        """PyoObject. Audio signal to write in the table.""" 
+        """PyoObject. Audio signal to write in the table."""
         return self._input
     @input.setter
     def input(self, x): self.setInput(x)
@@ -1589,11 +1589,11 @@ class TableWrite(PyoObject):
     See `NewTable` to create an empty table.
 
     TableWrite takes samples from its `input` stream and writes
-    them at a normalized position given by the `pos` stream. 
-    Position must be an audio stream, ie. a PyoObject. This 
-    object allows fast recording of values coming from an X-Y 
+    them at a normalized position given by the `pos` stream.
+    Position must be an audio stream, ie. a PyoObject. This
+    object allows fast recording of values coming from an X-Y
     pad into a table object.
-    
+
     :Parent: :py:class:`PyoObject`
 
     :Args:
@@ -1601,7 +1601,7 @@ class TableWrite(PyoObject):
         input : PyoObject
             Audio signal to write in the table.
         pos : PyoObject
-            Audio signal specifying the normalized position (in the 
+            Audio signal specifying the normalized position (in the
             range 0 to 1) where to write the `input` samples.
         table : NewTable
             The table where to write samples.
@@ -1612,8 +1612,8 @@ class TableWrite(PyoObject):
 
         TableWrite has no `mul` and `add` attributes.
 
-    .. seealso:: 
-        
+    .. seealso::
+
         :py:class:`NewTable`, :py:class:`TableRec`
 
     >>> s = Server(duplex=1).boot()
@@ -1640,14 +1640,14 @@ class TableWrite(PyoObject):
 
     def setMul(self, x):
         pass
-        
+
     def setAdd(self, x):
-        pass    
+        pass
 
     def setInput(self, x, fadetime=0.05):
         """
         Replace the `input` attribute.
-        
+
         :Args:
 
             x : PyoObject
@@ -1662,12 +1662,12 @@ class TableWrite(PyoObject):
     def setTable(self, x):
         """
         Replace the `table` attribute.
-        
+
         :Args:
 
             x : NewTable
                 new `table` attribute.
-        
+
         """
         self._table = x
         x, lmax = convertArgsToLists(x)
@@ -1676,12 +1676,12 @@ class TableWrite(PyoObject):
     def setPos(self, x):
         """
         Replace the `pos` attribute.
-        
+
         :Args:
 
             x : PyoObject
                 new `pos` attribute.
-        
+
         """
         self._pos = x
         x, lmax = convertArgsToLists(x)
@@ -1689,7 +1689,7 @@ class TableWrite(PyoObject):
 
     @property
     def input(self):
-        """PyoObject. Audio signal to write in the table.""" 
+        """PyoObject. Audio signal to write in the table."""
         return self._input
     @input.setter
     def input(self, x): self.setInput(x)
@@ -1712,9 +1712,9 @@ class TableMorph(PyoObject):
     """
     Morphs between multiple PyoTableObjects.
 
-    Uses an index into a list of PyoTableObjects to morph between adjacent 
-    tables in the list. The resulting morphed function is written into the 
-    `table` object at the beginning of each buffer size. The tables in the 
+    Uses an index into a list of PyoTableObjects to morph between adjacent
+    tables in the list. The resulting morphed function is written into the
+    `table` object at the beginning of each buffer size. The tables in the
     list and the resulting table must be equal in size.
 
     :Parent: :py:class:`PyoObject`
@@ -1722,7 +1722,7 @@ class TableMorph(PyoObject):
     :Args:
 
         input : PyoObject
-            Morphing index between 0 and 1. 0 is the first table in the list 
+            Morphing index between 0 and 1. 0 is the first table in the list
             and 1 is the last.
         table : NewTable
             The table where to write morphed waveform.
@@ -1760,14 +1760,14 @@ class TableMorph(PyoObject):
 
     def setMul(self, x):
         pass
-        
+
     def setAdd(self, x):
-        pass    
+        pass
 
     def setInput(self, x, fadetime=0.05):
         """
         Replace the `input` attribute.
-        
+
         :Args:
 
             x : PyoObject
@@ -1782,12 +1782,12 @@ class TableMorph(PyoObject):
     def setTable(self, x):
         """
         Replace the `table` attribute.
-        
+
         :Args:
 
             x : NewTable
                 new `table` attribute.
-        
+
         """
         self._table = x
         x, lmax = convertArgsToLists(x)
@@ -1796,20 +1796,20 @@ class TableMorph(PyoObject):
     def setSources(self, x):
         """
          Replace the `sources` attribute.
-        
+
         :Args:
 
             x : list of PyoTableObject
                 new `sources` attribute.
-              
+
         """
         self._sources = x
         self._base_sources = [source[0] for source in x]
         [obj.setSources(self._base_sources) for i, obj in enumerate(self._base_objs)]
-        
+
     @property
     def input(self):
-        """PyoObject. Morphing index between 0 and 1.""" 
+        """PyoObject. Morphing index between 0 and 1."""
         return self._input
     @input.setter
     def input(self, x): self.setInput(x)
@@ -1833,7 +1833,7 @@ class Granulator(PyoObject):
     Granular synthesis generator.
 
     :Parent: :py:class:`PyoObject`
-    
+
     :Args:
 
         table : PyoTableObject
@@ -1841,25 +1841,25 @@ class Granulator(PyoObject):
         env : PyoTableObject
             Table containing the grain envelope.
         pitch : float or PyoObject, optional
-            Overall pitch of the granulator. This value transpose the 
+            Overall pitch of the granulator. This value transpose the
             pitch of all grains. Defaults to 1.
         pos : float or PyoObject, optional
-            Pointer position, in samples, in the waveform table. Each 
-            grain sampled the current value of this stream at the beginning 
-            of its envelope and hold it until the end of the grain. 
+            Pointer position, in samples, in the waveform table. Each
+            grain sampled the current value of this stream at the beginning
+            of its envelope and hold it until the end of the grain.
             Defaults to 0.
         dur : float or PyoObject, optional
-            Duration, in seconds, of the grain. Each grain sampled the 
-            current value of this stream at the beginning of its envelope 
+            Duration, in seconds, of the grain. Each grain sampled the
+            current value of this stream at the beginning of its envelope
             and hold it until the end of the grain. Defaults to 0.1.
         grains : int, optional
             Number of grains. Defaults to 8.
         basedur : float, optional
-            Base duration used to calculate the speed of the pointer to 
-            read the grain at its original pitch. By changing the value of 
+            Base duration used to calculate the speed of the pointer to
+            read the grain at its original pitch. By changing the value of
             the `dur` parameter, transposition per grain can be generated.
             Defaults to 0.1.
-    
+
     >>> s = Server().boot()
     >>> s.start()
     >>> snd = SndTable(SNDS_PATH + "/transparent.aif")
@@ -1878,20 +1878,20 @@ class Granulator(PyoObject):
         self._dur = dur
         self._grains = grains
         self._basedur = basedur
-        table, env, pitch, pos, dur, grains, basedur, mul, add, lmax = convertArgsToLists(table, env, pitch, 
+        table, env, pitch, pos, dur, grains, basedur, mul, add, lmax = convertArgsToLists(table, env, pitch,
                                                                         pos, dur, grains, basedur, mul, add)
-        self._base_objs = [Granulator_base(wrap(table,i), wrap(env,i), wrap(pitch,i), wrap(pos,i), wrap(dur,i), 
+        self._base_objs = [Granulator_base(wrap(table,i), wrap(env,i), wrap(pitch,i), wrap(pos,i), wrap(dur,i),
                           wrap(grains,i), wrap(basedur,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
 
     def setTable(self, x):
         """
         Replace the `table` attribute.
-        
+
         :Args:
 
             x : PyoTableObject
                 new `table` attribute.
-        
+
         """
         self._table = x
         x, lmax = convertArgsToLists(x)
@@ -1900,12 +1900,12 @@ class Granulator(PyoObject):
     def setEnv(self, x):
         """
         Replace the `env` attribute.
-        
+
         :Args:
 
             x : PyoTableObject
                 new `env` attribute.
-        
+
         """
         self._env = x
         x, lmax = convertArgsToLists(x)
@@ -1914,12 +1914,12 @@ class Granulator(PyoObject):
     def setPitch(self, x):
         """
         Replace the `pitch` attribute.
-        
+
         :Args:
 
             x : float or PyoObject
                 new `pitch` attribute.
-        
+
         """
         self._pitch = x
         x, lmax = convertArgsToLists(x)
@@ -1928,12 +1928,12 @@ class Granulator(PyoObject):
     def setPos(self, x):
         """
         Replace the `pos` attribute.
-        
+
         :Args:
 
             x : float or PyoObject
                 new `pos` attribute.
-        
+
         """
         self._pos = x
         x, lmax = convertArgsToLists(x)
@@ -1942,12 +1942,12 @@ class Granulator(PyoObject):
     def setDur(self, x):
         """
         Replace the `dur` attribute.
-        
+
         :Args:
 
             x : float or PyoObject
                 new `dur` attribute.
-        
+
         """
         self._dur = x
         x, lmax = convertArgsToLists(x)
@@ -1956,12 +1956,12 @@ class Granulator(PyoObject):
     def setGrains(self, x):
         """
         Replace the `grains` attribute.
-        
+
         :Args:
 
             x : int
                 new `grains` attribute.
-        
+
         """
         self._grains = x
         x, lmax = convertArgsToLists(x)
@@ -1970,12 +1970,12 @@ class Granulator(PyoObject):
     def setBaseDur(self, x):
         """
         Replace the `basedur` attribute.
-        
+
         :Args:
 
             x : float
                 new `basedur` attribute.
-        
+
         """
         self._basedur = x
         x, lmax = convertArgsToLists(x)
@@ -2058,7 +2058,7 @@ class TrigTableRec(PyoObject):
         table : NewTable
             The table where to write samples.
         fadetime : float, optional
-            Fade time at the beginning and the end of the recording 
+            Fade time at the beginning and the end of the recording
             in seconds. Defaults to 0.
 
     .. note::
@@ -2067,14 +2067,14 @@ class TrigTableRec(PyoObject):
 
         TrigTableRec has no `mul` and `add` attributes.
 
-        TrigTableRec will sends a trigger signal at the end of the recording. 
+        TrigTableRec will sends a trigger signal at the end of the recording.
         User can retrieve the trigger streams by calling obj['trig'].
 
-        obj['time'] outputs an audio stream of the current recording time, 
+        obj['time'] outputs an audio stream of the current recording time,
         in samples.
 
-    .. seealso:: 
-        
+    .. seealso::
+
         :py:class:`NewTable`, :py:class:`TableRec`
 
     >>> s = Server().boot()
@@ -2113,7 +2113,7 @@ class TrigTableRec(PyoObject):
         pass
 
     def setAdd(self, x):
-        pass    
+        pass
 
     def setInput(self, x, fadetime=0.05):
         """
@@ -2161,14 +2161,14 @@ class TrigTableRec(PyoObject):
 
     @property
     def input(self):
-        """PyoObject. Audio signal to write in the table.""" 
+        """PyoObject. Audio signal to write in the table."""
         return self._input
     @input.setter
     def input(self, x): self.setInput(x)
 
     @property
     def trig(self):
-        """PyoObject. Audio signal sending triggers.""" 
+        """PyoObject. Audio signal sending triggers."""
         return self._trig
     @trig.setter
     def trig(self, x): self.setTrig(x)
@@ -2184,7 +2184,7 @@ class Looper(PyoObject):
     """
     Crossfading looper.
 
-    Looper reads audio from a PyoTableObject and plays it back in a loop with 
+    Looper reads audio from a PyoTableObject and plays it back in a loop with
     user-defined pitch, start time, duration and crossfade time. The `mode`
     argument allows the user to choose different looping modes.
 
@@ -2195,25 +2195,25 @@ class Looper(PyoObject):
         table : PyoTableObject
             Table containing the waveform samples.
         pitch : float or PyoObject, optional
-            Transposition factor. 1 is normal pitch, 0.5 is one octave lower, 2 is 
+            Transposition factor. 1 is normal pitch, 0.5 is one octave lower, 2 is
             one octave higher. Negative values are not allowed. Defaults to 1.
         start : float or PyoObject, optional
-            Starting point, in seconds, of the loop, updated only once per loop cycle. 
+            Starting point, in seconds, of the loop, updated only once per loop cycle.
             Defaults to 0.
         dur : float or PyoObject, optional
-            Duration, in seconds, of the loop, updated only once per loop cycle. 
+            Duration, in seconds, of the loop, updated only once per loop cycle.
             Defaults to 1.
         xfade : float or PyoObject {0 -> 50}, optional
-            Percent of the loop time used to crossfade readers, updated only once per 
+            Percent of the loop time used to crossfade readers, updated only once per
             loop cycle and clipped between 0 and 50. Defaults to 20.
         mode : int {0, 1, 2, 3}, optional
-            Loop modes. Defaults to 1. 
+            Loop modes. Defaults to 1.
                 0. no loop
-                1. forward 
+                1. forward
                 2. backward
                 3. back-and-forth
         xfadeshape : int {0, 1, 2}, optional
-            Crossfade envelope shape. Defaults to 0. 
+            Crossfade envelope shape. Defaults to 0.
                 0. linear
                 1. equal power
                 2. sigmoid
@@ -2231,8 +2231,8 @@ class Looper(PyoObject):
             to reduce the quantization noise produced by very low transpositions.
             Defaults to False.
 
-    .. seealso:: 
-        
+    .. seealso::
+
         :py:class:`Granulator`, :py:class:`Pointer`
 
     >>> s = Server().boot()
@@ -2258,7 +2258,7 @@ class Looper(PyoObject):
         self._autosmooth = autosmooth
         table, pitch, start, dur, xfade, mode, xfadeshape, startfromloop, interp, autosmooth, mul, add, lmax = convertArgsToLists(
                                         table, pitch, start, dur, xfade, mode, xfadeshape, startfromloop, interp, autosmooth, mul, add)
-        self._base_objs = [Looper_base(wrap(table,i), wrap(pitch,i), wrap(start,i), wrap(dur,i), wrap(xfade,i), wrap(mode,i), 
+        self._base_objs = [Looper_base(wrap(table,i), wrap(pitch,i), wrap(start,i), wrap(dur,i), wrap(xfade,i), wrap(mode,i),
             wrap(xfadeshape,i), wrap(startfromloop,i), wrap(interp,i), wrap(autosmooth,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
 
     def setTable(self, x):
@@ -2488,7 +2488,7 @@ class Looper(PyoObject):
         return self._autosmooth
     @autosmooth.setter
     def autosmooth(self, x): self.setAutoSmooth(x)
-    
+
 class TablePut(PyoObject):
     """
     Writes values, without repetitions, from an audio stream into a DataTable.
@@ -2500,7 +2500,7 @@ class TablePut(PyoObject):
     repetitions.
 
     The play method is not called at the object creation time. It starts
-    the recording into the table until the table is full. Calling the 
+    the recording into the table until the table is full. Calling the
     play method again restarts the recording and overwrites previously
     recorded values. The stop method stops the recording. Otherwise, the
     default behaviour is to record through the end of the table.
@@ -2520,11 +2520,11 @@ class TablePut(PyoObject):
 
         TablePut has no `mul` and `add` attributes.
 
-        TablePut will sends a trigger signal at the end of the recording. 
+        TablePut will sends a trigger signal at the end of the recording.
         User can retrieve the trigger streams by calling obj['trig'].
 
-    .. seealso:: 
-        
+    .. seealso::
+
         :py:class:`DataTable`, :py:class:`NewTable`, :py:class:`TableRec`
 
     >>> s = Server().boot()
@@ -2552,14 +2552,14 @@ class TablePut(PyoObject):
 
     def setMul(self, x):
         pass
-        
+
     def setAdd(self, x):
-        pass    
+        pass
 
     def setInput(self, x, fadetime=0.05):
         """
         Replace the `input` attribute.
-        
+
         :Args:
 
             x : PyoObject
@@ -2574,12 +2574,12 @@ class TablePut(PyoObject):
     def setTable(self, x):
         """
         Replace the `table` attribute.
-        
+
         :Args:
 
             x : DataTable
                 new `table` attribute.
-        
+
         """
         self._table = x
         x, lmax = convertArgsToLists(x)
@@ -2587,7 +2587,7 @@ class TablePut(PyoObject):
 
     @property
     def input(self):
-        """PyoObject. Audio signal to write in the table.""" 
+        """PyoObject. Audio signal to write in the table."""
         return self._input
     @input.setter
     def input(self, x): self.setInput(x)
@@ -2598,16 +2598,16 @@ class TablePut(PyoObject):
         return self._table
     @table.setter
     def table(self, x): self.setTable(x)
-    
+
 class Granule(PyoObject):
     """
     Another granular synthesis generator.
 
-    As of pyo 0.7.4, users can call the `setSync` method to change the 
+    As of pyo 0.7.4, users can call the `setSync` method to change the
     granulation mode (either synchronous or asynchronous) of the object.
-    
+
     :Parent: :py:class:`PyoObject`
-    
+
     :Args:
 
         table : PyoTableObject
@@ -2620,15 +2620,15 @@ class Granule(PyoObject):
             Pitch of the grains. A new grain gets the current value
             of `pitch` as its reading speed. Defaults to 1.
         pos : float or PyoObject, optional
-            Pointer position, in samples, in the waveform table. Each 
-            grain sampled the current value of this stream at the beginning 
-            of its envelope and hold it until the end of the grain. 
+            Pointer position, in samples, in the waveform table. Each
+            grain sampled the current value of this stream at the beginning
+            of its envelope and hold it until the end of the grain.
             Defaults to 0.
         dur : float or PyoObject, optional
-            Duration, in seconds, of the grain. Each grain sampled the 
-            current value of this stream at the beginning of its envelope 
+            Duration, in seconds, of the grain. Each grain sampled the
+            current value of this stream at the beginning of its envelope
             and hold it until the end of the grain. Defaults to 0.1.
-    
+
     >>> s = Server().boot()
     >>> s.start()
     >>> snd = SndTable(SNDS_PATH+"/transparent.aif")
@@ -2650,18 +2650,18 @@ class Granule(PyoObject):
         self._dur = dur
         self._sync = 1
         table, env, dens, pitch, pos, dur, mul, add, lmax = convertArgsToLists(table, env, dens, pitch, pos, dur, mul, add)
-        self._base_objs = [Granule_base(wrap(table,i), wrap(env,i), wrap(dens,i), wrap(pitch,i), wrap(pos,i), wrap(dur,i), 
+        self._base_objs = [Granule_base(wrap(table,i), wrap(env,i), wrap(dens,i), wrap(pitch,i), wrap(pos,i), wrap(dur,i),
                                            wrap(mul,i), wrap(add,i)) for i in range(lmax)]
 
     def setTable(self, x):
         """
         Replace the `table` attribute.
-        
+
         :Args:
 
             x : PyoTableObject
                 new `table` attribute.
-        
+
         """
         self._table = x
         x, lmax = convertArgsToLists(x)
@@ -2670,12 +2670,12 @@ class Granule(PyoObject):
     def setEnv(self, x):
         """
         Replace the `env` attribute.
-        
+
         :Args:
 
             x : PyoTableObject
                 new `env` attribute.
-        
+
         """
         self._env = x
         x, lmax = convertArgsToLists(x)
@@ -2684,12 +2684,12 @@ class Granule(PyoObject):
     def setDens(self, x):
         """
         Replace the `dens` attribute.
-        
+
         :Args:
 
             x : float or PyoObject
                 new `dens` attribute.
-        
+
         """
         self._dens = x
         x, lmax = convertArgsToLists(x)
@@ -2698,12 +2698,12 @@ class Granule(PyoObject):
     def setPitch(self, x):
         """
         Replace the `pitch` attribute.
-        
+
         :Args:
 
             x : float or PyoObject
                 new `pitch` attribute.
-        
+
         """
         self._pitch = x
         x, lmax = convertArgsToLists(x)
@@ -2712,12 +2712,12 @@ class Granule(PyoObject):
     def setPos(self, x):
         """
         Replace the `pos` attribute.
-        
+
         :Args:
 
             x : float or PyoObject
                 new `pos` attribute.
-        
+
         """
         self._pos = x
         x, lmax = convertArgsToLists(x)
@@ -2726,12 +2726,12 @@ class Granule(PyoObject):
     def setDur(self, x):
         """
         Replace the `dur` attribute.
-        
+
         :Args:
 
             x : float or PyoObject
                 new `dur` attribute.
-        
+
         """
         self._dur = x
         x, lmax = convertArgsToLists(x)
@@ -2740,13 +2740,13 @@ class Granule(PyoObject):
     def setSync(self, x):
         """
         Sets the granulation mode, synchronous or asynchronous.
-        
+
         :Args:
 
             x : boolean
-                True means synchronous granulation (the default) 
+                True means synchronous granulation (the default)
                 while False means asynchronous.
-        
+
         """
         self._sync = x
         x, lmax = convertArgsToLists(x)
@@ -2841,12 +2841,12 @@ class TableScale(PyoObject):
     def setTable(self, x):
         """
         Replace the `table` attribute.
-        
+
         :Args:
 
             x : PyoTableObject
                 new `table` attribute.
-        
+
         """
         self._table = x
         x, lmax = convertArgsToLists(x)
@@ -2855,12 +2855,12 @@ class TableScale(PyoObject):
     def setOuttable(self, x):
         """
         Replace the `outtable` attribute.
-        
+
         :Args:
 
             x : PyoTableObject
                 new `outtable` attribute.
-        
+
         """
         self._outtable = x
         x, lmax = convertArgsToLists(x)
@@ -2872,14 +2872,14 @@ class TableScale(PyoObject):
 
     @property
     def table(self):
-        """PyoTableObject. Table containing the original values.""" 
+        """PyoTableObject. Table containing the original values."""
         return self._table
     @table.setter
     def table(self, x): self.setTable(x)
 
     @property
     def outtable(self):
-        """PyoTableObject. Scaled output table.""" 
+        """PyoTableObject. Scaled output table."""
         return self._outtable
     @outtable.setter
     def outtable(self, x): self.setOuttable(x)
@@ -2887,9 +2887,9 @@ class TableScale(PyoObject):
 class Particle(PyoObject):
     """
     A full control granular synthesis generator.
-    
+
     :Parent: :py:class:`PyoObject`
-    
+
     :Args:
 
         table : PyoTableObject
@@ -2899,37 +2899,37 @@ class Particle(PyoObject):
         dens : float or PyoObject, optional
             Density of grains per second. Defaults to 50.
         pitch : float or PyoObject, optional
-            Pitch of the grains. Each grain sampled the current value 
-            of this stream at the beginning of its envelope and hold 
+            Pitch of the grains. Each grain sampled the current value
+            of this stream at the beginning of its envelope and hold
             it until the end of the grain. Defaults to 1.
         pos : float or PyoObject, optional
-            Pointer position, in samples, in the waveform table. Each 
-            grain sampled the current value of this stream at the beginning 
-            of its envelope and hold it until the end of the grain. 
+            Pointer position, in samples, in the waveform table. Each
+            grain sampled the current value of this stream at the beginning
+            of its envelope and hold it until the end of the grain.
             Defaults to 0.
         dur : float or PyoObject, optional
-            Duration, in seconds, of the grain. Each grain sampled the 
-            current value of this stream at the beginning of its envelope 
+            Duration, in seconds, of the grain. Each grain sampled the
+            current value of this stream at the beginning of its envelope
             and hold it until the end of the grain. Defaults to 0.1.
         dev : float or PyoObject, optional
             Maximum deviation of the starting time of the grain, between 0 and
-            1 (relative to the current duration of the grain). Each grain sampled 
-            the current value of this stream at the beginning of its envelope 
+            1 (relative to the current duration of the grain). Each grain sampled
+            the current value of this stream at the beginning of its envelope
             and hold it until the end of the grain. Defaults to 0.01.
         pan : float or PyoObject, optional
-            Panning factor of the grain (if chnls=1, this value is skipped). 
-            Each grain sampled the current value of this stream at the beginning 
+            Panning factor of the grain (if chnls=1, this value is skipped).
+            Each grain sampled the current value of this stream at the beginning
             of its envelope and hold it until the end of the grain. Defaults to 0.5.
         chnls : integer, optional
-            Number of output channels per audio stream (if chnls=2 and a stereo sound 
-            table is given at the table argument, the objet will create 4 output 
-            streams, 2 per table channel). Available at initialization only. Defaults to 1. 
+            Number of output channels per audio stream (if chnls=2 and a stereo sound
+            table is given at the table argument, the objet will create 4 output
+            streams, 2 per table channel). Available at initialization only. Defaults to 1.
 
     .. note::
-    
+
         Particle object compensate for the difference between sampling rate of the
-        loaded sound and the current sampling rate of the Server. 
-            
+        loaded sound and the current sampling rate of the Server.
+
     >>> s = Server().boot()
     >>> s.start()
     >>> snd = SndTable(SNDS_PATH+"/transparent.aif")
@@ -2965,12 +2965,12 @@ class Particle(PyoObject):
     def setTable(self, x):
         """
         Replace the `table` attribute.
-        
+
         :Args:
 
             x : PyoTableObject
                 new `table` attribute.
-        
+
         """
         self._table = x
         x, lmax = convertArgsToLists(x)
@@ -2979,12 +2979,12 @@ class Particle(PyoObject):
     def setEnv(self, x):
         """
         Replace the `env` attribute.
-        
+
         :Args:
 
             x : PyoTableObject
                 new `env` attribute.
-        
+
         """
         self._env = x
         x, lmax = convertArgsToLists(x)
@@ -2993,12 +2993,12 @@ class Particle(PyoObject):
     def setDens(self, x):
         """
         Replace the `dens` attribute.
-        
+
         :Args:
 
             x : float or PyoObject
                 new `dens` attribute.
-        
+
         """
         self._dens = x
         x, lmax = convertArgsToLists(x)
@@ -3007,12 +3007,12 @@ class Particle(PyoObject):
     def setPitch(self, x):
         """
         Replace the `pitch` attribute.
-        
+
         :Args:
 
             x : float or PyoObject
                 new `pitch` attribute.
-        
+
         """
         self._pitch = x
         x, lmax = convertArgsToLists(x)
@@ -3021,12 +3021,12 @@ class Particle(PyoObject):
     def setPos(self, x):
         """
         Replace the `pos` attribute.
-        
+
         :Args:
 
             x : float or PyoObject
                 new `pos` attribute.
-        
+
         """
         self._pos = x
         x, lmax = convertArgsToLists(x)
@@ -3035,12 +3035,12 @@ class Particle(PyoObject):
     def setDur(self, x):
         """
         Replace the `dur` attribute.
-        
+
         :Args:
 
             x : float or PyoObject
                 new `dur` attribute.
-        
+
         """
         self._dur = x
         x, lmax = convertArgsToLists(x)
@@ -3049,12 +3049,12 @@ class Particle(PyoObject):
     def setDev(self, x):
         """
         Replace the `dev` attribute.
-        
+
         :Args:
 
             x : float or PyoObject
                 new `dev` attribute.
-        
+
         """
         self._dev = x
         x, lmax = convertArgsToLists(x)
@@ -3063,12 +3063,12 @@ class Particle(PyoObject):
     def setPan(self, x):
         """
         Replace the `pan` attribute.
-        
+
         :Args:
 
             x : float or PyoObject
                 new `pan` attribute.
-        
+
         """
         self._pan = x
         x, lmax = convertArgsToLists(x)

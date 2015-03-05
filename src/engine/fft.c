@@ -1,14 +1,33 @@
+/**************************************************************************
+ * Copyright 2009-2015 Olivier Belanger                                   *
+ *                                                                        *
+ * This file is part of pyo, a python module to help digital signal       *
+ * processing script creation.                                            *
+ *                                                                        *
+ * pyo is free software: you can redistribute it and/or modify            *
+ * it under the terms of the GNU Lesser General Public License as         *
+ * published by the Free Software Foundation, either version 3 of the     *
+ * License, or (at your option) any later version.                        *
+ *                                                                        *
+ * pyo is distributed in the hope that it will be useful,                 *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of         *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the          *
+ * GNU Lesser General Public License for more details.                    *
+ *                                                                        *
+ * You should have received a copy of the GNU Lesser General Public       *
+ * License along with pyo.  If not, see <http://www.gnu.org/licenses/>.   *
+ *************************************************************************/
 /******************************************************
 **	                 FFT library
 **
-**  (one-dimensional complex and real FFTs for array 
+**  (one-dimensional complex and real FFTs for array
 **  lengths of 2^n)
 **
 **	Author: Toth Laszlo (tothl@inf.u-szeged.hu)
-**  
+**
 **	Research Group on Artificial Intelligence
 **  H-6720 Szeged, Aradi vertanuk tere 1, Hungary
-**	
+**
 **	Last modified: 97.05.29
 **
 **  Modified by belangeo 2011.05.25
@@ -55,12 +74,12 @@ void fft_compute_radix2_twiddle(MYFLT *twiddle, int size) {
 ** Sorensen in-place split-radix FFT for real values
 ** data: array of doubles:
 ** re(0),re(1),re(2),...,re(size-1)
-** 
+**
 ** output:
 ** re(0),re(1),re(2),...,re(size/2),im(size/2-1),...,im(1)
 ** normalized by array length
 **
-** Source: 
+** Source:
 ** Sorensen et al: Real-Valued Fast Fourier Transform Algorithms,
 ** IEEE Trans. ASSP, ASSP-35, No. 6, June 1987
 **************************************************************** */
@@ -83,16 +102,16 @@ void realfft_split(MYFLT *data, MYFLT *outdata, int n, MYFLT **twiddle) {
 	    k = n2;
 	    while (k<=j){
 			j -= k;
-			k >>= 1;	
+			k >>= 1;
 		}
 	    j += k;
     }
-	
+
 	/* length two butterflies */
 	i0 = 0;
 	id = 4;
     do {
-        for (; i0<n4; i0+=id){ 
+        for (; i0<n4; i0+=id){
 		    i1 = i0 + 1;
 			t1 = data[i0];
 			data[i0] = t1 + data[i1];
@@ -105,14 +124,14 @@ void realfft_split(MYFLT *data, MYFLT *outdata, int n, MYFLT **twiddle) {
 
     /* L shaped butterflies */
     n2 = 2;
-    for(k=n; k>2; k>>=1) {  
+    for(k=n; k>2; k>>=1) {
 	    n2 <<= 1; /* power of two from 4 to n */
 	    n4 = n2 >> 2;
 	    n8 = n2 >> 3;
 	    pas = n / n2;
 	    i1 = 0;
 	    id = n2 << 1;
-	    do { 
+	    do {
 	        for (; i1<n; i1+=id){
 			    i2 = i1 + n4;
 			    i3 = i2 + n4;
@@ -138,16 +157,16 @@ void realfft_split(MYFLT *data, MYFLT *outdata, int n, MYFLT **twiddle) {
 	        i1 = id - n2;
 	        id <<= 1;
 	    } while ( i1<n );
-	    for (j=2; j<=n8; j++){ 
+	    for (j=2; j<=n8; j++){
 	        pos = (j-1) * pas;
 	        cc1 = twiddle[0][pos];
 	        ss1 = twiddle[1][pos];
 	        cc3 = twiddle[2][pos];
-	        ss3 = twiddle[3][pos]; 
+	        ss3 = twiddle[3][pos];
 	        i = 0;
 	        id = n2 << 1;
 	        do {
-		        for (; i<n; i+=id){  
+		        for (; i<n; i+=id){
 			        i1 = i + j - 1;
 			        i2 = i1 + n4;
 			        i3 = i2 + n4;
@@ -185,7 +204,7 @@ void realfft_split(MYFLT *data, MYFLT *outdata, int n, MYFLT **twiddle) {
     }
 
 	/* division with array length */
-    for(i=0; i<n; i++) 
+    for(i=0; i<n; i++)
         outdata[i] = data[i] / n;
 }
 
@@ -193,12 +212,12 @@ void realfft_split(MYFLT *data, MYFLT *outdata, int n, MYFLT **twiddle) {
 ** Sorensen in-place inverse split-radix FFT for real values
 ** data: array of doubles:
 ** re(0),re(1),re(2),...,re(size/2),im(size/2-1),...,im(1)
-** 
+**
 ** output:
 ** re(0),re(1),re(2),...,re(size-1)
 ** NOT normalized by array length
 **
-** Source: 
+** Source:
 ** Sorensen et al: Real-Valued Fast Fourier Transform Algorithms,
 ** IEEE Trans. ASSP, ASSP-35, No. 6, June 1987
 ****************************************************************** */
@@ -208,19 +227,19 @@ void irealfft_split(MYFLT *data, MYFLT *outdata, int n, MYFLT **twiddle) {
     int i,j,k,i5,i6,i7,i8,i0,id,i1,i2,i3,i4,n2,n4,n8,n1;
     int pas, pos;
     MYFLT t1,t2,t3,t4,t5,ss1,ss3,cc1,cc3,sqrt2;
-  
+
     sqrt2 = 1.4142135623730951; /* sqrt(2.0) */
-  
+
     n1 = n - 1;
     n2 = n << 1;
-    for(k=n; k>2; k>>=1) {  
+    for(k=n; k>2; k>>=1) {
 	    id = n2;
 	    n2 >>= 1;
 	    n4 = n2 >> 2;
 	    n8 = n2 >> 3;
 	    pas = n / n2;
 	    i1 = 0;
-	    do { 
+	    do {
 	        for (; i1<n; i1+=id) {
 			    i2 = i1 + n4;
 			    i3 = i2 + n4;
@@ -247,7 +266,7 @@ void irealfft_split(MYFLT *data, MYFLT *outdata, int n, MYFLT **twiddle) {
 	        i1 = id - n2;
 	        id <<= 1;
 	    } while ( i1<n1 );
-	    for (j=2; j<=n8; j++) {  
+	    for (j=2; j<=n8; j++) {
 	        pos = (j-1) * pas;
 	        cc1 = twiddle[0][pos];
 	        ss1 = twiddle[1][pos];
@@ -256,7 +275,7 @@ void irealfft_split(MYFLT *data, MYFLT *outdata, int n, MYFLT **twiddle) {
 	        i = 0;
 	        id = n2 << 1;
 	        do {
-		        for (; i<n; i+=id) {  
+		        for (; i<n; i+=id) {
 			        i1 = i + j - 1;
 			        i2 = i1 + n4;
 			        i3 = i2 + n4;
@@ -287,13 +306,13 @@ void irealfft_split(MYFLT *data, MYFLT *outdata, int n, MYFLT **twiddle) {
 		        id <<= 1;
 		    } while(i<n1);
 	    }
-    }	
+    }
 
     /*----------------------*/
 	i0 = 0;
 	id = 4;
     do {
-        for (; i0<n1; i0+=id) { 
+        for (; i0<n1; i0+=id) {
 		    i1 = i0 + 1;
 			t1 = data[i0];
 			data[i0] = t1 + data[i1];
@@ -314,12 +333,12 @@ void irealfft_split(MYFLT *data, MYFLT *outdata, int n, MYFLT **twiddle) {
 	    k = n2;
 	    while (k<=j) {
 			j -= k;
-			k >>= 1;	
+			k >>= 1;
 		}
 	    j += k;
     }
     for (i=0; i<n; i++)
-        outdata[i] = data[i];	
+        outdata[i] = data[i];
 }
 
 /* *****************************************************
@@ -327,7 +346,7 @@ void irealfft_split(MYFLT *data, MYFLT *outdata, int n, MYFLT **twiddle) {
 ** data: array of doubles:
 ** re(0),im(0),re(1),im(1),...,re(size-1),im(size-1)
 ** it means that size=array_length/2 !!
-** 
+**
 ** suggested use:
 ** intput in normal order
 ** output in bit-reversed order
@@ -360,7 +379,7 @@ void dif_butterfly(MYFLT *data, int size, MYFLT *twiddle){
                 *(l1) = xr; *(l1+1) = xi;
                 *(l2) = yr; *(l2+1) = yi;
                 angle += astep;
-		    } 
+		    }
         }
     }
 }
@@ -415,7 +434,7 @@ void inverse_dit_butterfly(MYFLT *data, int size, MYFLT *twiddle){
 ** it means that size=array_length/2 !!
 **
 ** Source: Rabiner-Gold: Theory and Application of DSP,
-** Prentice Hall,1978 
+** Prentice Hall,1978
 ******************************************************* */
 void unshuffle(MYFLT *data, int size){
 
@@ -433,14 +452,14 @@ void unshuffle(MYFLT *data, int size){
         k = m;
         while (k <= j) {
             j -= k;
-            k >>= 1;	
+            k >>= 1;
         }
         j += k;
     }
 }
 
 /* *****************************************************
-** used by realfft 
+** used by realfft
 ** parameters as above
 **
 ** Source: Brigham: The Fast Fourier Transform
@@ -456,7 +475,7 @@ void realize(MYFLT *data, int size) {
     xr = *l1;
     xi = *(l1+1);
     *l1 = xr + xi;
-    *(l1+1) = xr - xi; 
+    *(l1+1) = xr - xi;
 	l1 += 2;
 	astep = PI / size;
     for(ang=astep; l1<=l2; l1+=2, l2-=2, ang+=astep) {
@@ -469,14 +488,14 @@ void realize(MYFLT *data, int size) {
         dr = yr * wr - yi * wi;
         di = yr * wi + yi * wr;
         *l1 = xr + dr;
-        *(l1+1) = xi + di;      
+        *(l1+1) = xi + di;
         *l2 = xr - dr;
         *(l2+1) = -xi + di;
 	}
 }
 
 /* *****************************************************
-** used by inverse realfft 
+** used by inverse realfft
 ** parameters as above
 **
 ** Source: Brigham: The Fast Fourier Transform
@@ -492,7 +511,7 @@ void unrealize(MYFLT *data, int size) {
     xr = (*l1) / 2;
     xi = (*(l1+1)) / 2;
     *l1 = xr + xi;
-    *(l1+1) = xr - xi; 
+    *(l1+1) = xr - xi;
 	l1 += 2;
 	astep = PI / size;
     for(ang=astep; l1<=l2; l1+=2, l2-=2, ang+=astep){
@@ -505,7 +524,7 @@ void unrealize(MYFLT *data, int size) {
         dr = yr * wr - yi * wi;
         di = yr * wi + yi * wr;
         *l2 = xr + dr;
-        *(l1+1) = xi + di;      
+        *(l1+1) = xi + di;
         *l1 = xr - dr;
         *(l2+1) = -xi + di;
 	}
@@ -516,7 +535,7 @@ void unrealize(MYFLT *data, int size) {
 ** (by the so-called "packing method")
 ** data: array of doubles:
 ** re(0),re(1),re(2),...,re(size-1)
-** 
+**
 ** output:
 ** re(0),re(size/2),re(1),im(1),re(2),im(2),...,re(size/2-1),im(size/2-1)
 ** normalized by array length
@@ -541,8 +560,8 @@ void realfft_packed(MYFLT *data, MYFLT *outdata, int size, MYFLT *twiddle) {
 ** in-place Radix-2 inverse FFT for real values
 ** (by the so-called "packing method")
 ** data: array of doubles:
-** re(0),re(size/2),re(1),im(1),re(2),im(2),...,re(size/2-1),im(size/2-1) 
-** 
+** re(0),re(size/2),re(1),im(1),re(2),im(2),...,re(size/2-1),im(size/2-1)
+**
 ** output:
 ** re(0),re(1),re(2),...,re(size-1)
 ** NOT normalized by array length
@@ -562,4 +581,3 @@ void irealfft_packed(MYFLT *data, MYFLT *outdata, int size, MYFLT *twiddle) {
 	for (i=0; i<size; i++)
 	    outdata[i] = data[i] * 2;
 }
-

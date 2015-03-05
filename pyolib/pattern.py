@@ -1,27 +1,27 @@
 """
-Set of objects that call Python functions from triggers or number counts. 
+Set of objects that call Python functions from triggers or number counts.
 Useful for event sequencing.
 
 """
 
 """
-Copyright 2010 Olivier Belanger
+Copyright 2009-2015 Olivier Belanger
 
 This file is part of pyo, a python module to help digital signal
 processing script creation.
 
 pyo is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
+it under the terms of the GNU Lesser General Public License as
+published by the Free Software Foundation, either version 3 of the
+License, or (at your option) any later version.
 
 pyo is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
+GNU Lesser General Public License for more details.
 
-You should have received a copy of the GNU General Public License
-along with pyo.  If not, see <http://www.gnu.org/licenses/>.
+You should have received a copy of the GNU Lesser General Public
+License along with pyo.  If not, see <http://www.gnu.org/licenses/>.
 """
 import sys
 from _core import *
@@ -32,11 +32,11 @@ class Pattern(PyoObject):
     """
     Periodically calls a Python function.
 
-    The play() method starts the pattern timer and is not called 
+    The play() method starts the pattern timer and is not called
     at the object creation time.
-            
+
     :Parent: :py:class:`PyoObject`
-    
+
     :Args:
 
         function : Python function
@@ -47,7 +47,7 @@ class Pattern(PyoObject):
     .. note::
 
         The out() method is bypassed. Pattern doesn't return signal.
-        
+
         Pattern has no `mul` and `add` attributes.
 
     >>> s = Server().boot()
@@ -59,7 +59,7 @@ class Pattern(PyoObject):
     ...     a.freq = [f, f+1]
     >>> p = Pattern(pat, .125)
     >>> p.play()
-    
+
     """
     def __init__(self, function, time=1):
         PyoObject.__init__(self)
@@ -93,12 +93,12 @@ class Pattern(PyoObject):
     def setTime(self, x):
         """
         Replace the `time` attribute.
-        
+
         :Args:
-        
+
             x : float or PyoObject
                 New `time` attribute.
-        
+
         """
         self._time = x
         x, lmax = convertArgsToLists(x)
@@ -106,7 +106,7 @@ class Pattern(PyoObject):
 
     def out(self, x=0, inc=1, dur=0, delay=0):
         return self.play(dur, delay)
-        
+
     def setMul(self, x):
         pass
 
@@ -122,17 +122,17 @@ class Pattern(PyoObject):
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
         self._map_list = [SLMap(0.125, 4., 'lin', 'time', self._time)]
         PyoObject.ctrl(self, map_list, title, wxnoserver)
-         
+
     @property
     def function(self):
-        """Python function. Function to be called.""" 
+        """Python function. Function to be called."""
         return self._function
     @function.setter
-    def function(self, x): 
-        self.setFunction(x)   
+    def function(self, x):
+        self.setFunction(x)
     @property
     def time(self):
-        """float or PyoObject. Time, in seconds, between each call.""" 
+        """float or PyoObject. Time, in seconds, between each call."""
         return self._time
     @time.setter
     def time(self, x): self.setTime(x)
@@ -140,13 +140,13 @@ class Pattern(PyoObject):
 class Score(PyoObject):
     """
     Calls functions by incrementation of a preformatted name.
-    
+
     Score takes audio stream containning integers in input and calls
-    a function whose name is the concatenation of `fname` and the changing 
+    a function whose name is the concatenation of `fname` and the changing
     integer.
-    
-    Can be used to sequence events, first by creating functions p0, p1, 
-    p2, etc. and then, by passing a counter to a Score object with "p" 
+
+    Can be used to sequence events, first by creating functions p0, p1,
+    p2, etc. and then, by passing a counter to a Score object with "p"
     as `fname` argument. Functions are called without parameters.
 
     :Parent: :py:class:`PyoObject`
@@ -160,16 +160,16 @@ class Score(PyoObject):
             Name of the functions to be called. Defaults to "event_", meaning
             that the object will call the function "event_0", "event_1", "event_2",
             and so on... Available at initialization time only.
-    
+
     .. note::
 
-        The out() method is bypassed. Score's signal can not be sent 
+        The out() method is bypassed. Score's signal can not be sent
         to audio outs.
 
         Score has no `mul` and `add` attributes.
 
     .. seealso:: :py:class:`Pattern`, :py:class:`TrigFunc`
-    
+
     >>> s = Server().boot()
     >>> s.start()
     >>> a = SineLoop(freq=[200,300,400,500], feedback=0.05, mul=.1).out()
@@ -182,7 +182,7 @@ class Score(PyoObject):
     >>> m = Metro(1).play()
     >>> c = Counter(m, min=0, max=3)
     >>> sc = Score(c)
-    
+
     """
     def __init__(self, input, fname="event_"):
         PyoObject.__init__(self)
@@ -197,14 +197,14 @@ class Score(PyoObject):
 
     def setMul(self, x):
         pass
-        
+
     def setAdd(self, x):
-        pass    
+        pass
 
     def setInput(self, x, fadetime=0.05):
         """
         Replace the `input` attribute.
-        
+
         :Args:
 
             x : PyoObject
@@ -217,19 +217,19 @@ class Score(PyoObject):
         self._in_fader.setInput(x, fadetime)
 
     @property
-    def input(self): 
+    def input(self):
         """PyoObject. Audio signal sending integer numbers."""
         return self._input
     @input.setter
-    def input(self, x): 
+    def input(self, x):
         self.setInput(x)
 
 class CallAfter(PyoObject):
     """
     Calls a Python function after a given time.
-        
+
     :Parent: :py:class:`PyoObject`
-    
+
     :Args:
 
         function : Python function
@@ -238,13 +238,13 @@ class CallAfter(PyoObject):
             Time, in seconds, before the call. Default to 1.
         arg : any Python object, optional
             Argument sent to the called function. Default to None.
-  
+
     .. note::
 
         The out() method is bypassed. CallAfter doesn't return signal.
-        
+
         CallAfter has no `mul` and `add` attributes.
-        
+
         The object is not deleted after the call. The user must delete it himself.
 
     >>> s = Server().boot()
@@ -273,7 +273,7 @@ class CallAfter(PyoObject):
 
     def out(self, x=0, inc=1, dur=0, delay=0):
         return self.play(dur, delay)
-        
+
     def setMul(self, x):
         pass
 
