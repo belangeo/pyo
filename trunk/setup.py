@@ -62,6 +62,9 @@ if '--compile-externals' in sys.argv:
     sys.argv.remove('--compile-externals') 
     macros.append(('COMPILE_EXTERNALS',None))
 
+if sys.platform == "darwin":
+    macros.append(('_OSX_', None))
+
 path = 'src/engine/'
 files = ['pyomodule.c', 'servermodule.c', 'pvstreammodule.c', 'streammodule.c', 'dummymodule.c', 
         'mixmodule.c', 'inputfadermodule.c', 'interpolation.c', 'fft.c', "wind.c"]
