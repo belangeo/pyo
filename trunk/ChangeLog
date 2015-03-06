@@ -1,4 +1,9 @@
 -------------------------------------------------------------------------------------
+2015-03-05 belangeo <belangeo@gmail.com>
+
+    * Fixed crash when portaudio stream is stopped on OSX (created when fixed
+	for Windows). Rev 1310 is the sources for 0.7.5 release.
+    - rev 1310
 
 2015-03-05 belangeo <belangeo@gmail.com>
 
