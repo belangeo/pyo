@@ -7,10 +7,11 @@ Alphabetical class reference
 - :py:class:`AToDB` :     Returns the decibel equivalent of an amplitude value.
 - :py:class:`Abs` :     Performs an absolute function on audio signal.
 - :py:class:`Adsr` :     Attack - Decay - Sustain - Release envelope generator.
-- :py:class:`Allpass2` :     Second-order phase shifter allpass. 
+- :py:class:`Allpass2` :     Second-order phase shifter allpass.
 - :py:class:`AllpassWG` :     Out of tune waveguide model with a recursive allpass network.
 - :py:class:`Allpass` :     Delay line based allpass filter.
 - :py:class:`Atan2` :     Computes the principal value of the arc tangent of b/a.
+- :py:class:`AtanTable` :     Generates an arctangent transfert function.
 - :py:class:`Atone` :     A first-order recursive high-pass filter with variable frequency response.
 - :py:class:`AttackDetector` :     Audio signal onset detection.
 - :py:class:`Average` :     Moving average filter.
@@ -19,9 +20,9 @@ Alphabetical class reference
 - :py:class:`Beat` :     Generates algorithmic trigger patterns.
 - :py:class:`Bendin` :     Get the current value of the pitch bend controller.
 - :py:class:`Between` :     Informs when an input signal is contained in a specified range.
-- :py:class:`Biquad` :     A sweepable general purpose biquadratic digital filter. 
+- :py:class:`Biquad` :     A sweepable general purpose biquadratic digital filter.
 - :py:class:`Biquada` :     A general purpose biquadratic digital filter (floating-point arguments).
-- :py:class:`Biquadx` :     A multi-stages sweepable general purpose biquadratic digital filter. 
+- :py:class:`Biquadx` :     A multi-stages sweepable general purpose biquadratic digital filter.
 - :py:class:`Blit` :     Band limited impulse train synthesis.
 - :py:class:`BrownNoise` :     A brown noise generator.
 - :py:class:`ButBP` :     A second-order Butterworth bandpass filter.
@@ -41,7 +42,7 @@ Alphabetical class reference
 - :py:class:`Clip` :     Clips a signal to a predefined limit.
 - :py:class:`Cloud` :     Generates random triggers.
 - :py:class:`Compare` :     Comparison object.
-- :py:class:`ComplexRes` :     Complex one-pole resonator filter. 
+- :py:class:`ComplexRes` :     Complex one-pole resonator filter.
 - :py:class:`Compress` :     Reduces the dynamic range of an audio signal.
 - :py:class:`ControlRead` :     Reads control values previously stored in text files.
 - :py:class:`ControlRec` :     Records control values and writes them in a text file.
@@ -65,10 +66,10 @@ Alphabetical class reference
 - :py:class:`Denorm` :     Mixes low level noise to an input signal.
 - :py:class:`Disto` :     Arc tangent distortion.
 - :py:class:`Dummy` :     Dummy object used to perform arithmetics on PyoObject.
-- :py:class:`EQ` :     Equalizer filter. 
+- :py:class:`EQ` :     Equalizer filter.
 - :py:class:`Euclide` :     Euclidean rhythm generator.
 - :py:class:`ExpTable` :     Construct a table from exponential interpolated segments.
-- :py:class:`Expseg` :     Trace a series of exponential segments between specified break-points. 
+- :py:class:`Expseg` :     Trace a series of exponential segments between specified break-points.
 - :py:class:`FFT` :     Fast Fourier Transform.
 - :py:class:`FM` :     A simple frequency modulation generator.
 - :py:class:`FToM` :     Returns the midi note equivalent to a frequency in Hz.
@@ -84,7 +85,7 @@ Alphabetical class reference
 - :py:class:`Gate` :     Allows a signal to pass only when its amplitude is above a set threshold.
 - :py:class:`Granulator` :     Granular synthesis generator.
 - :py:class:`Granule` :     Another granular synthesis generator.
-- :py:class:`HannTable` :     Generates Hanning window function. 
+- :py:class:`HannTable` :     Generates Hanning window function.
 - :py:class:`HarmTable` :     Harmonic waveform generator.
 - :py:class:`Harmonizer` :     Generates harmonizing voices in synchrony with its audio input.
 - :py:class:`Hilbert` :     Hilbert transform.
@@ -99,7 +100,7 @@ Alphabetical class reference
 - :py:class:`Iter` :     Triggers iterate over a list of values.
 - :py:class:`LFO` :     Band-limited Low Frequency Oscillator with different wave shapes.
 - :py:class:`LinTable` :     Construct a table from segments of straight lines in breakpoint fashion.
-- :py:class:`Linseg` :     Trace a series of line segments between specified break-points. 
+- :py:class:`Linseg` :     Trace a series of line segments between specified break-points.
 - :py:class:`Log10` :     Performs a base 10 log function on audio signal.
 - :py:class:`Log2` :     Performs a base 2 log function on audio signal.
 - :py:class:`LogTable` :     Construct a table from logarithmic segments in breakpoint fashion.
@@ -123,7 +124,7 @@ Alphabetical class reference
 - :py:class:`Mix` :     Mix audio streams to arbitrary number of streams.
 - :py:class:`Mixer` :     Audio mixer.
 - :py:class:`NewMatrix` :     Create a new matrix ready for recording.
-- :py:class:`NewTable` :     Create an empty table ready for recording. 
+- :py:class:`NewTable` :     Create an empty table ready for recording.
 - :py:class:`NextTrig` :     A trigger in the second stream opens a gate only for the next one in the first stream.
 - :py:class:`Noise` :     A white noise generator.
 - :py:class:`NoteinRead` :     Reads Notein values previously stored in text files.
@@ -157,13 +158,13 @@ Alphabetical class reference
 - :py:class:`PVTranspose` :     Transpose the frequency components of a pv stream.
 - :py:class:`PVVerb` :     Spectral domain reverberation.
 - :py:class:`Pan` :     Cosinus panner with control on the spread factor.
-- :py:class:`ParaTable` :     Generates parabola window function. 
+- :py:class:`ParaTable` :     Generates parabola window function.
 - :py:class:`PartialTable` :     Inharmonic waveform generator.
 - :py:class:`Particle` :     A full control granular synthesis generator.
 - :py:class:`Pattern` :     Periodically calls a Python function.
 - :py:class:`PeakAmp` :     Peak amplitude follower.
 - :py:class:`Percent` :     Lets pass a certain percentage of the input triggers.
-- :py:class:`Phaser` :     Multi-stages second-order phase shifter allpass filters. 
+- :py:class:`Phaser` :     Multi-stages second-order phase shifter allpass filters.
 - :py:class:`Phasor` :     A simple phase incrementor.
 - :py:class:`PinkNoise` :     A pink noise generator.
 - :py:class:`Pointer2` :     High quality table reader with control on the pointer position.
@@ -180,8 +181,8 @@ Alphabetical class reference
 - :py:class:`Randh` :     Periodic pseudo-random generator.
 - :py:class:`Randi` :     Periodic pseudo-random generator with interpolation.
 - :py:class:`Record` :     Writes input sound in an audio file on the disk.
-- :py:class:`Reson` :     A second-order resonant bandpass filter. 
-- :py:class:`Resonx` :     A multi-stages second-order resonant bandpass filter. 
+- :py:class:`Reson` :     A second-order resonant bandpass filter.
+- :py:class:`Resonx` :     A multi-stages second-order resonant bandpass filter.
 - :py:class:`Rossler` :     Chaotic attractor for the Rossler system.
 - :py:class:`Round` :     Rounds to the nearest integer value in a floating-point format.
 - :py:class:`SDelay` :     Simple delay without interpolation.
@@ -193,8 +194,8 @@ Alphabetical class reference
 - :py:class:`SLMapQ` :     SLMap with normalized values for a 'q' slider.
 - :py:class:`SPan` :     Simple equal power panner.
 - :py:class:`STRev` :     Stereo reverb.
-- :py:class:`SVF` :     Fourth-order state variable filter allowing continuous change of the filter type. 
-- :py:class:`SampHold` :     Performs a sample-and-hold operation on its input. 
+- :py:class:`SVF` :     Fourth-order state variable filter allowing continuous change of the filter type.
+- :py:class:`SampHold` :     Performs a sample-and-hold operation on its input.
 - :py:class:`SawTable` :     Sawtooth waveform generator.
 - :py:class:`Scale` :     Maps an input range of audio values to an output range.
 - :py:class:`Scope` :     Oscilloscope - audio waveform display.
@@ -208,7 +209,7 @@ Alphabetical class reference
 - :py:class:`SigTo` :     Convert numeric value to PyoObject signal with portamento.
 - :py:class:`Sig` :     Convert numeric value to PyoObject signal.
 - :py:class:`Sin` :     Performs a sine function on audio signal.
-- :py:class:`SincTable` :     Generates sinc window function. 
+- :py:class:`SincTable` :     Generates sinc window function.
 - :py:class:`SineLoop` :     A simple sine wave oscillator with feedback.
 - :py:class:`Sine` :     A simple sine wave oscillator.
 - :py:class:`SmoothDelay` :     Artifact free sweepable recursive delay.
@@ -233,7 +234,7 @@ Alphabetical class reference
 - :py:class:`Timer` :     Reports elapsed time between two trigs.
 - :py:class:`Tone` :     A first-order recursive low-pass filter with variable frequency response.
 - :py:class:`Touchin` :     Get the current value of an after-touch Midi controller.
-- :py:class:`TrackHold` :     Performs a track-and-hold operation on its input. 
+- :py:class:`TrackHold` :     Performs a track-and-hold operation on its input.
 - :py:class:`TranspoToCents` :     Returns the cents value equivalent of a transposition factor.
 - :py:class:`TrigBurst` :     Generates a time/amplitude expandable trigger pattern.
 - :py:class:`TrigChoice` :     Random generator from user's defined values.
@@ -251,11 +252,11 @@ Alphabetical class reference
 - :py:class:`Urn` :     Periodic pseudo-random integer generator without duplicates.
 - :py:class:`VarPort` :     Convert numeric value to PyoObject signal with portamento.
 - :py:class:`Vectral` :     Performs magnitude smoothing between successive frames.
-- :py:class:`Vocoder` :     Applies the spectral envelope of a first sound to the spectrum of a second sound. 
+- :py:class:`Vocoder` :     Applies the spectral envelope of a first sound to the spectrum of a second sound.
 - :py:class:`VoiceManager` :     Polyphony voice manager.
 - :py:class:`WGVerb` :     8 delay line mono FDN reverb.
 - :py:class:`Waveguide` :     Basic waveguide model.
-- :py:class:`WinTable` :     Generates different kind of windowing functions. 
+- :py:class:`WinTable` :     Generates different kind of windowing functions.
 - :py:class:`Wrap` :     Wraps-around the signal that exceeds the `min` and `max` thresholds.
 - :py:class:`XnoiseDur` :     Recursive time varying X-class pseudo-random generator.
 - :py:class:`XnoiseMidi` :     X-class midi notes pseudo-random generator.
