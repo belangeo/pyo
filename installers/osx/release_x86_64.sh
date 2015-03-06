@@ -1,12 +1,11 @@
 #!/bin/sh
 
 # Need Xcode 3.2.6 or later (pkgbuild and productbuild)
-# 1. install python (and wxpython) 2.6 and 2.7 (32-bit)
-# 2. update pyo sources
-# 3. compile and install pyo float and double
-# 4. cd utils and build E-Pyo
-# 5. install python (and wxpython) 2.7 (64-bit)
-# 6. cd installer/osx and build the realease, only x86_64 version
+# with python 2.7.8 (32/64-bit) and wxpython 3.0.1.1 (cocoa) installed
+# 1. update pyo sources
+# 2. compile and install pyo float and double
+# 3. cd utils and build E-Pyo
+# 4. cd installer/osx and build the realease, only x86_64 version
 
 export PACKAGE_NAME=pyo_0.7.5_x86_64.pkg
 export DMG_DIR="pyo 0.7.5 Universal"

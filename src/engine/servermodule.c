@@ -196,7 +196,12 @@ pa_callback_interleaved( const void *inputBuffer, void *outputBuffer,
     }
     server->midi_count = 0;
 
-    return paContinue;
+#ifdef _OSX_
+    if (server->server_stopped == 1)
+        return paComplete;
+    else
+#endif
+        return paContinue;
 }
 
 static int
@@ -237,7 +242,12 @@ pa_callback_nonInterleaved( const void *inputBuffer, void *outputBuffer,
     }
     server->midi_count = 0;
 
-    return paContinue;
+#ifdef _OSX_
+    if (server->server_stopped == 1)
+        return paComplete;
+    else
+#endif
+        return paContinue;
 }
 
 #ifdef USE_JACK
@@ -462,7 +472,7 @@ Server_pa_init(Server *self)
         sampleFormat = paFloat32;
         streamCallback = pa_callback_interleaved;
     }
-     else {
+    else {
         Server_debug(self, "Portaudio uses interleaved callback.\n");
         sampleFormat = paFloat32;
         streamCallback = pa_callback_interleaved;
@@ -578,8 +588,10 @@ Server_pa_stop(Server *self)
     PyoPaBackendData *be_data = (PyoPaBackendData *) self->audio_be_data;
 
     if (Pa_IsStreamActive(be_data->stream) || ! Pa_IsStreamStopped(be_data->stream)) {
+#ifndef _OSX_
         err = Pa_AbortStream(be_data->stream);
         portaudio_assert(err, "Pa_AbortStream");
+#endif
     }
     self->server_started = 0;
     self->server_stopped = 1;
