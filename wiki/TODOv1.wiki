@@ -18,6 +18,8 @@ TODO before releasing _pyo_ version 1.0.
 
 - !MixerGui (matrix for setting dsp graph)
 
+- Implement Jack MIDI
+
 ----
 
 *Midi*
