@@ -1404,7 +1404,7 @@ class PeakAmp(PyoObject):
         self._base_objs = [PeakAmp_base(wrap(in_fader,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
         sr = self.getSamplingRate()
         bs = self.getBufferSize()
-        self._timer = Pattern(self._buildList, bs/sr).play()
+        self._timer = Pattern(self._buildList, 0.06).play()
 
     def setInput(self, x, fadetime=0.05):
         """
@@ -1433,6 +1433,18 @@ class PeakAmp(PyoObject):
         """
         if callable(x):
             self._function = getWeakMethodRef(x)
+
+    def polltime(self, x):
+        """
+        Sets the delay, in seconds, between each call of the function.
+
+        :Args:
+
+            x : float
+                New polling time in seconds.
+
+        """
+        self._timer.time = x
 
     def out(self, chnl=0, inc=1, dur=0, delay=0):
         return self.play(dur, delay)
