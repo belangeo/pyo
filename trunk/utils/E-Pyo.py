@@ -45,10 +45,13 @@ PLATFORM = sys.platform
 DEFAULT_ENCODING = sys.getdefaultencoding()
 ENCODING = sys.getfilesystemencoding()
 ENCODING_LIST = ["utf_8", "latin_1", "mac_roman", "cp1252", "cp1250", "utf_16"]
-ENCODING_DICT = {'cp-1250': 'cp1250', 'cp-1251': 'cp1251', 'cp-1252': 'cp1252', 'latin-1': 'latin_1', 
-                'mac-roman': 'mac_roman', 'utf-8': 'utf_8', 'utf-16': 'utf_16', 'utf-16 (Big Endian)': 'utf_16_be', 
-                'utf-16 (Little Endian)': 'utf_16_le', 'utf-32': 'utf_32', 'utf-32 (Big Endian)': 
-                'utf_32_be', 'utf-32 (Little Endian)': 'utf_32_le'}
+ENCODING_DICT = {'cp-1250': 'cp1250', 'cp-1251': 'cp1251', 'cp-1252': 'cp1252', 
+                 'latin-1': 'latin_1', 'mac-roman': 'mac_roman', 
+                 'utf-8': 'utf_8', 'utf-16': 'utf_16', 
+                 'utf-16 (Big Endian)': 'utf_16_be', 
+                 'utf-16 (Little Endian)': 'utf_16_le', 'utf-32': 'utf_32', 
+                 'utf-32 (Big Endian)': 'utf_32_be', 
+                 'utf-32 (Little Endian)': 'utf_32_le'}
 
 APP_NAME = 'E-Pyo'
 APP_VERSION = PYO_VERSION
@@ -119,6 +122,7 @@ def hex_to_rgb(value):
     lv = len(value)
     return tuple(int(value[i:i+lv/3], 16) for i in range(0, lv, lv/3))
 
+################## Paths ##################
 TEMP_PATH = os.path.join(os.path.expanduser('~'), '.epyo')
 if not os.path.isdir(TEMP_PATH):
     os.mkdir(TEMP_PATH)
@@ -155,7 +159,8 @@ if PLATFORM == "darwin" and '/%s.app' % APP_NAME in os.getcwd():
     
 # Check for which Python to use #
 if PLATFORM == "win32":
-    WHICH_PYTHON = PREFERENCES.get("which_python", "C:\Python%d%d\python.exe" % sys.version_info[:2])
+    WHICH_PYTHON = PREFERENCES.get("which_python", 
+                            "C:\Python%d%d\python.exe" % sys.version_info[:2])
 else:
     WHICH_PYTHON = PREFERENCES.get("which_python", "")
 INSTALLATION_ERROR_MESSAGE = ""
@@ -163,13 +168,16 @@ CALLER_NEED_TO_INVOKE_32_BIT = False
 SET_32_BIT_ARCH = "export VERSIONER_PYTHON_PREFER_32_BIT=yes;"
 if WHICH_PYTHON == "":
     if OSX_APP_BUNDLED:
-        proc = subprocess.Popen(["export PATH=/usr/local/bin:$PATH;which python"], shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        proc = subprocess.Popen(["export PATH=/usr/local/bin:$PATH;which python"], 
+                    shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         WHICH_PYTHON = proc.communicate()[0][:-1]
     elif PLATFORM == "darwin":
-        proc = subprocess.Popen(["which python"], shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        proc = subprocess.Popen(["which python"], shell=True, 
+                                stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         WHICH_PYTHON = proc.communicate()[0][:-1]
     elif PLATFORM == "linux2":
-        proc = subprocess.Popen(["which python"], shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        proc = subprocess.Popen(["which python"], shell=True, 
+                                stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         WHICH_PYTHON = proc.communicate()[0][:-1]
     else:
         ### No more used on Windows ###
@@ -477,9 +485,11 @@ if not READY:
     s.gui(locals())
 '''
 
-TEMPLATE_NAMES = {98: "Header", 97: "Pyo", 96: "WxPython", 95: "Cecilia5", 94: "Zyne", 93: "Audio Interface", 92: "RadioPyo"}
-TEMPLATE_DICT = {98: HEADER_TEMPLATE, 97: PYO_TEMPLATE, 96: WXPYTHON_TEMPLATE, 95: CECILIA5_TEMPLATE, 
-                94: ZYNE_TEMPLATE, 93: AUDIO_INTERFACE_TEMPLATE, 92: RADIOPYO_TEMPLATE}
+TEMPLATE_NAMES = {98: "Header", 97: "Pyo", 96: "WxPython", 95: "Cecilia5", 
+                  94: "Zyne", 93: "Audio Interface", 92: "RadioPyo"}
+TEMPLATE_DICT = {98: HEADER_TEMPLATE, 97: PYO_TEMPLATE, 96: WXPYTHON_TEMPLATE, 
+                 95: CECILIA5_TEMPLATE, 94: ZYNE_TEMPLATE, 
+                 93: AUDIO_INTERFACE_TEMPLATE, 92: RADIOPYO_TEMPLATE}
 
 TEMPLATE_PATH = os.path.join(RESOURCES_PATH, "templates")
 if not os.path.isdir(TEMPLATE_PATH):
@@ -535,8 +545,10 @@ WHILE_COMP = """ `i` `>` `0`:
 """
 ASSERT_COMP = ''' `expression` `>` `0`, "`expression should be positive`"
 '''
-BUILTINS_DICT = {"from": FROM_COMP, "try": TRY_COMP, "if": IF_COMP, "def": DEF_COMP, "class": CLASS_COMP, 
-                "for": FOR_COMP, "while": WHILE_COMP, "exec": EXEC_COMP, "raise": RAISE_COMP, "assert": ASSERT_COMP}
+BUILTINS_DICT = {"from": FROM_COMP, "try": TRY_COMP, "if": IF_COMP, 
+                 "def": DEF_COMP, "class": CLASS_COMP, "for": FOR_COMP, 
+                 "while": WHILE_COMP, "exec": EXEC_COMP, "raise": RAISE_COMP, 
+                 "assert": ASSERT_COMP}
 
 ################## Interface Bitmaps ##################
 catalog = {}
@@ -773,7 +785,9 @@ KEY_COMMANDS = {
 }
 
 ############## Allowed Extensions ##############
-ALLOWED_EXT = PREFERENCES.get("allowed_ext", ["py", "c5", "txt", "", "c", "h", "cpp", "hpp", "sh", "rst", "iss", "sg", "md", "jsfx-inc"])
+ALLOWED_EXT = PREFERENCES.get("allowed_ext", 
+                              ["py", "c5", "txt", "", "c", "h", "cpp", "hpp", 
+                               "sh", "rst", "iss", "sg", "md", "jsfx-inc", "lua"])
 
 ############## Pyo keywords ##############
 tree = OBJECTS_TREE
@@ -813,15 +827,23 @@ else:
 
 
 STYLES_GENERALS = ['default', 'background', 'selback', 'caret']
-STYLES_TEXT_COMP = ['comment', 'commentblock', 'number', 'operator', 'string', 'triple', 'keyword', 'pyokeyword', 
-                'class', 'function', 'linenumber']
-STYLES_INTER_COMP = ['marginback', 'foldmarginback', 'markerfg', 'markerbg', 'bracelight', 'bracebad', 'lineedge']
-STYLES_LABELS = {'default': 'Foreground', 'background': 'Background', 'selback': 'Selection', 'caret': 'Caret',
-        'comment': 'Comment', 'commentblock': 'Comment Block', 'number': 'Number', 'string': 'String', 
-        'triple': 'Triple String', 'keyword': 'Python Keyword', 'pyokeyword': 'Pyo Keyword', 'class': 'Class Name', 
-        'function': 'Function Name', 'linenumber': 'Line Number', 'operator': 'Operator', 'foldmarginback': 'Folding Margin Background',
-        'marginback': 'Number Margin Background', 'markerfg': 'Marker Foreground', 'markerbg': 'Marker Background', 
-        'bracelight': 'Brace Match', 'bracebad': 'Brace Mismatch', 'lineedge': 'Line Edge'}
+STYLES_TEXT_COMP = ['comment', 'commentblock', 'number', 'operator', 'string', 
+                    'triple', 'keyword', 'pyokeyword', 'class', 'function', 
+                    'linenumber']
+STYLES_INTER_COMP = ['marginback', 'foldmarginback', 'markerfg', 'markerbg', 
+                     'bracelight', 'bracebad', 'lineedge']
+STYLES_LABELS = {'default': 'Foreground', 'background': 'Background', 
+                 'selback': 'Selection', 'caret': 'Caret', 'comment': 'Comment', 
+                 'commentblock': 'Comment Block', 'number': 'Number', 
+                 'string': 'String', 'triple': 'Triple String', 
+                 'keyword': 'Python Keyword', 'pyokeyword': 'Pyo Keyword', 
+                 'class': 'Class Name', 'function': 'Function Name', 
+                 'linenumber': 'Line Number', 'operator': 'Operator', 
+                 'foldmarginback': 'Folding Margin Background',
+                 'marginback': 'Number Margin Background', 
+                 'markerfg': 'Marker Foreground', 'markerbg': 'Marker Background', 
+                 'bracelight': 'Brace Match', 'bracebad': 'Brace Mismatch', 
+                 'lineedge': 'Line Edge'}
 
 with open(PREF_STYLE) as f:
     text = f.read()
@@ -977,12 +999,106 @@ class RunningThread(threading.Thread):
                 pass
         if self.terminated:
             output = output + "\n=== Process killed. ==="
-        data_event = DataEvent({"log": output, "pid": self.pid, "filename": self.filename, "active": False})
+        data_event = DataEvent({"log": output, "pid": self.pid, 
+                                "filename": self.filename, "active": False})
+        wx.PostEvent(self.event_receiver, data_event)
+
+class BackgroundServerThread(threading.Thread):
+    # TODO: The background server needs to be fully tested on OSX and Windows.
+    def __init__(self, cwd, event_receiver):
+        threading.Thread.__init__(self)
+        self.cwd = cwd
+        self.event_receiver = event_receiver
+        self.terminated = False
+        self.pid = None
+
+    def setPID(self, pid):
+        self.pid = pid
+
+    def kill(self):
+        ### Shouldn't be unified?
+        self.terminated = True
+        if PLATFORM == "win32":
+            try:
+                os.system("tskill %d" % self.proc.pid)
+            except:
+                print "'tskill' doesn't seem to be installed on the system. It is needed to be able to kill a process."
+        else:
+            self.proc.stdin.write("_quit_()\n")
+        if self.proc.poll() == None:
+            self.proc.kill()
+
+    def sendText(self, text):
+        for line in text.splitlines():
+            self.proc.stdin.write(line + "\n")
+        self.proc.stdin.write("\n")
+
+    def run(self):
+        if PLATFORM == "win32":
+            self.proc = subprocess.Popen([WHICH_PYTHON, '-i', 'background_server.py'], 
+                                    shell=True, cwd=self.cwd, stdout=subprocess.PIPE,
+                                    stdin=subprocess.PIPE)
+        else:
+            self.proc = subprocess.Popen(
+                    ["%s -i -u %s" % (WHICH_PYTHON, os.path.join(TEMP_PATH, "background_server.py"))], 
+                    cwd=self.cwd, shell=True, stdout=subprocess.PIPE, stdin=subprocess.PIPE)
+
+        header = '=== Output log of background server, launched: %s ===\n' % time.strftime('"%d %b %Y %H:%M:%S"', time.localtime())
+        data_event = DataEvent({"log": header, "pid": self.pid, 
+                                "filename": 'background_server.py', 
+                                "active": True})
+        wx.PostEvent(self.event_receiver, data_event)
+        while self.proc.poll() == None and not self.terminated:
+            log = ""
+            for line in self.proc.stdout.readline():
+                log = log + line
+            data_event = DataEvent({"log": log, "pid": self.pid, 
+                                    "filename": 'background_server.py', 
+                                    "active": True})
+            wx.PostEvent(self.event_receiver, data_event)            
+            sys.stdout.flush()
+            time.sleep(.025)
+        stdout, stderr = self.proc.communicate()
+        output = ""
+        if stdout is not None:
+            output = output + stdout
+        if stderr is not None:
+            output = output + stderr
+        if "StartNotification name = default" in output:
+            output = output.replace("StartNotification name = default", "")
+        if "background_server.py" in output:
+            try:
+                findpos = output.find("background_server.py")
+                pos = findpos
+                while (output[pos] != '"'):
+                    pos -= 1
+                startpos = pos + 1
+                pos = findpos
+                while (output[pos] != '"'):
+                    pos += 1
+                endpos = pos
+                output = output[:startpos] + self.filename + output[endpos:]
+                pos = startpos + len(self.filename)
+                slinepos = pos + 8
+                pos = slinepos
+                while (output[pos] != ',' and output[pos] != '\n'):
+                    pos += 1
+                elinepos = pos
+                linenum = int(output[slinepos:elinepos].strip())
+                output = output[:slinepos] + str(linenum-3) + output[elinepos:]
+            except:
+                pass
+        if self.terminated:
+            output = output + "\n=== Process killed. ==="
+        data_event = DataEvent({"log": output, "pid": self.pid, 
+                                "filename": 'background_server.py', 
+                                "active": False})
         wx.PostEvent(self.event_receiver, data_event)
 
 class KeyCommandsFrame(wx.Frame):
     def __init__(self, parent):
-        wx.Frame.__init__(self, parent, wx.ID_ANY, title="Editor Key Commands List", size=(650,550))
+        wx.Frame.__init__(self, parent, wx.ID_ANY, 
+                          title="Editor Key Commands List", size=(650,550))
         self.menuBar = wx.MenuBar()
         menu1 = wx.Menu()
         menu1.Append(351, "Close\tCtrl+W")
@@ -1012,7 +1128,8 @@ class KeyCommandsFrame(wx.Frame):
         self.Hide()
 
 class EditorPreview(stc.StyledTextCtrl):
-    def __init__(self, parent, ID, pos=wx.DefaultPosition, size=wx.DefaultSize, style= wx.SUNKEN_BORDER | wx.WANTS_CHARS):
+    def __init__(self, parent, ID, pos=wx.DefaultPosition, size=wx.DefaultSize, 
+                 style= wx.SUNKEN_BORDER | wx.WANTS_CHARS):
         stc.StyledTextCtrl.__init__(self, parent, ID, pos, size, style)
 
         self.SetSTCCursor(2)
@@ -1428,6 +1545,7 @@ class SearchProjectPanel(scrolled.ScrolledPanel):
 class SearchProjectFrame(wx.Frame):
     def __init__(self, parent, root, dict, size=(500,500)):
         wx.Frame.__init__(self, parent, wx.ID_ANY, size=size)
+        self.SetTitle('Search Results in Project "%s"' % os.path.split(root)[1])
         self.menuBar = wx.MenuBar()
         menu1 = wx.Menu()
         menu1.Append(351, "Close\tCtrl+W")
@@ -2051,6 +2169,13 @@ class MainFrame(wx.Frame):
         menu2.Append(121, "Insert File Path...\tShift+Ctrl+P")
         self.Bind(wx.EVT_MENU, self.insertPath, id=121)
         menu2.AppendSeparator()
+        submenublk = wx.Menu()
+        submenublk.Append(400, "Insert Code Block Head\tCtrl+B")
+        submenublk.Append(401, "Insert Code Block Tail\tShift+Ctrl+B")
+        submenublk.Append(402, "Select Code Block\tCtrl+,")
+        self.Bind(wx.EVT_MENU, self.onCodeBlock, id=400, id2=402)
+        menu2.AppendMenu(-1, "Code Blocks", submenublk)
+        menu2.AppendSeparator()
         menu2.Append(114, "Auto Complete container syntax", kind=wx.ITEM_CHECK)
         self.Bind(wx.EVT_MENU, self.autoCompContainer, id=114)
         menu2.Check(114, PREFERENCES.get("auto_comp_container", 0))
@@ -2273,6 +2398,14 @@ class MainFrame(wx.Frame):
         rect = self.status.GetFieldRect(2)
         if rect.x > self.field1X+160:
             self.cc.SetPosition((rect.x, rect.y+yoff2))
+
+    def onCodeBlock(self, evt):
+        if evt.GetId() == 400:
+            self.panel.editor.insertBlockHead()
+        elif evt.GetId() == 401:
+            self.panel.editor.insertBlockTail()
+        elif evt.GetId() == 402:
+            self.panel.editor.selectCodeBlock()
 
     def setMasterDocument(self, evt):
         if self.master_document == None:
@@ -2981,7 +3114,9 @@ class MainFrame(wx.Frame):
     def run(self, path):
         cwd = self.getCurrentWorkingDirectory()
         th = RunningThread(path, cwd, self)
-        if "Untitled-" in self.panel.editor.path:
+        if self.master_document != None:
+            filename = os.path.split(self.master_document)[1]
+        elif "Untitled-" in self.panel.editor.path:
             filename = self.panel.editor.path
         else:
             filename = os.path.split(self.panel.editor.path)[1]
@@ -3043,59 +3178,72 @@ class MainFrame(wx.Frame):
             exec text
         self.panel.editor.addText(s.getvalue())
 
+    def prepareBackgroundServer(self):
+        outDriverIndex = -1
+        preferedDriver = PREFERENCES.get("background_server_out_device", "")
+        if preferedDriver != "":
+            driverList, driverIndexes = pa_get_output_devices()
+            driverList = [ensureNFD(driver) for driver in driverList]
+            if preferedDriver and preferedDriver in driverList:
+                outDriverIndex = driverIndexes[driverList.index(preferedDriver)]
+
+        inDriverIndex = -1
+        preferedDriver = PREFERENCES.get("background_server_in_device", "")
+        if preferedDriver != "":
+            driverList, driverIndexes = pa_get_input_devices()
+            driverList = [ensureNFD(driver) for driver in driverList]
+            if preferedDriver and preferedDriver in driverList:
+                inDriverIndex = driverIndexes[driverList.index(preferedDriver)]
+
+        midiOutDriverIndex = -1
+        preferedDriver = PREFERENCES.get("background_server_midiout_device", "")
+        if preferedDriver != "":
+            driverList, driverIndexes = pm_get_output_devices()
+            driverList = [ensureNFD(driver) for driver in driverList]
+            if preferedDriver and preferedDriver in driverList:
+                midiOutDriverIndex = driverIndexes[driverList.index(preferedDriver)]
+
+        midiInDriverIndex = -1
+        preferedDriver = PREFERENCES.get("background_server_midiin_device", "")
+        if preferedDriver != "":
+            driverList, driverIndexes = pm_get_input_devices()
+            driverList = [ensureNFD(driver) for driver in driverList]
+            if preferedDriver and preferedDriver in driverList:
+                midiInDriverIndex = driverIndexes[driverList.index(preferedDriver)]
+
+        with open(os.path.join(TEMP_PATH, "background_server.py"), "w") as f:
+            f.write("print 'Starting background server...'\nimport time\nfrom pyo import *\n")
+            f.write("s = Server(%s)\n" % BACKGROUND_SERVER_ARGS)
+            if outDriverIndex != -1:
+                f.write("s.setOutputDevice(%d)\n" % outDriverIndex)
+            if inDriverIndex != -1:
+                f.write("s.setInputDevice(%d)\n" % inDriverIndex)
+            if midiOutDriverIndex != -1:
+                f.write("s.setMidiOutputDevice(%d)\n" % midiOutDriverIndex)
+            if midiInDriverIndex != -1:
+                f.write("s.setMidiInputDevice(%d)\n" % midiInDriverIndex)
+            f.write("s.boot()\ns.start()\n\n")
+            f.write("def _quit_():\n    s.stop()\n    time.sleep(0.25)\n    exit()\n")
+
+    def resetBackgroundServerMenu(self):
+        self.back_server_started = False
+        self.backServerItem.SetItemLabel("Start Pyo Background Server")
+        self.sendToServerItem.Enable(False)
+        
     def startStopBackgroundServer(self, evt):
-        # TODO: need to add midi output driver
         if not self.back_server_started:
-            outDriverIndex = -1
-            preferedDriver = PREFERENCES.get("background_server_out_device", "")
-            if preferedDriver != "":
-                driverList, driverIndexes = pa_get_output_devices()
-                driverList = [ensureNFD(driver) for driver in driverList]
-                if preferedDriver and preferedDriver in driverList:
-                    outDriverIndex = driverIndexes[driverList.index(preferedDriver)]
-
-            inDriverIndex = -1
-            preferedDriver = PREFERENCES.get("background_server_in_device", "")
-            if preferedDriver != "":
-                driverList, driverIndexes = pa_get_input_devices()
-                driverList = [ensureNFD(driver) for driver in driverList]
-                if preferedDriver and preferedDriver in driverList:
-                    inDriverIndex = driverIndexes[driverList.index(preferedDriver)]
-
-            midiInDriverIndex = -1
-            preferedDriver = PREFERENCES.get("background_server_midiin_device", "")
-            if preferedDriver != "":
-                driverList, driverIndexes = pm_get_input_devices()
-                driverList = [ensureNFD(driver) for driver in driverList]
-                if preferedDriver and preferedDriver in driverList:
-                    midiInDriverIndex = driverIndexes[driverList.index(preferedDriver)]
-
-            with open(os.path.join(TEMP_PATH, "background_server.py"), "w") as f:
-                f.write("print 'Starting background server...'\nimport time\nfrom pyo import *\n")
-                f.write("s = Server(%s)\n" % BACKGROUND_SERVER_ARGS)
-                if outDriverIndex != -1:
-                    f.write("s.setOutputDevice(%d)\n" % outDriverIndex)
-                if inDriverIndex != -1:
-                    f.write("s.setInputDevice(%d)\n" % inDriverIndex)
-                if midiInDriverIndex != -1:
-                    f.write("s.setMidiInputDevice(%d)\n" % midiInDriverIndex)
-                f.write("s.boot()\ns.start()\n")
-            if PLATFORM == "win32":
-                self.server_pipe = subprocess.Popen([WHICH_PYTHON, '-i', 'background_server.py'], 
-                                        shell=True, cwd=TEMP_PATH, stdin=subprocess.PIPE).stdin
-            else:
-                self.server_pipe = subprocess.Popen(["%s -i %s" % (WHICH_PYTHON, os.path.join(TEMP_PATH, "background_server.py"))], 
-                                        shell=True, stdin=subprocess.PIPE).stdin
+            self.prepareBackgroundServer()
+            cwd = self.getCurrentWorkingDirectory()
+            th = BackgroundServerThread(cwd, self)
+            th.setPID(1000)
+            self.processes[1000] = [th, 'background_server.py']
+            self.panel.outputlog.addProcess(1000, 'background_server.py')
+            th.start()
             self.back_server_started = True
             self.backServerItem.SetItemLabel("Stop Pyo Background Server")
             self.sendToServerItem.Enable(True)
         else:
-            try:
-                self.server_pipe.write("print 'Closing background server...'\ns.stop()\ntime.sleep(0.25)\n")
-                self.server_pipe.close()
-            except IOError:
-                pass
-            self.server_pipe = None
+            self.processes[1000][0].kill()
             self.back_server_started = False
             self.backServerItem.SetItemLabel("Start Pyo Background Server")
             self.sendToServerItem.Enable(False)
@@ -3109,10 +3257,8 @@ class MainFrame(wx.Frame):
             text = self.panel.editor.GetLineUTF8(line)
         else:
             end = self.panel.editor.GetSelectionEnd()
-        if self.server_pipe != None:
-            for line in text.splitlines():
-                self.server_pipe.write(line + "\n")
-            self.server_pipe.write("\n")
+        if self.back_server_started:
+            self.processes[1000][0].sendText(text)
         if end != None:
             self.panel.editor.SetCurrentPos(end)
         self.panel.editor.LineDown()
@@ -3373,8 +3519,8 @@ class EditorPanel(wx.Panel):
         self.SetSizerAndFit(box)
 
 class Editor(stc.StyledTextCtrl):
-    def __init__(self, parent, ID, pos=wx.DefaultPosition, size=wx.DefaultSize, style= wx.NO_BORDER | wx.WANTS_CHARS,
-                 setTitle=None, getTitle=None):
+    def __init__(self, parent, ID, pos=wx.DefaultPosition, size=wx.DefaultSize, 
+                 style= wx.NO_BORDER | wx.WANTS_CHARS, setTitle=None, getTitle=None):
         stc.StyledTextCtrl.__init__(self, parent, ID, pos, size, style)
 
         dt = MyFileDropTarget(self)
@@ -3449,6 +3595,7 @@ class Editor(stc.StyledTextCtrl):
         self.Bind(stc.EVT_STC_UPDATEUI, self.OnUpdateUI)
         self.Bind(stc.EVT_STC_MARGINCLICK, self.OnMarginClick)
         self.Bind(wx.EVT_CLOSE, self.OnClose)
+        self.Bind(wx.EVT_LEFT_DCLICK, self.OnDoubleClick)
 
         self.EmptyUndoBuffer()
         self.SetFocus()
@@ -3632,6 +3779,57 @@ class Editor(stc.StyledTextCtrl):
             self.StyleSetSpec(stc.STC_C_OPERATOR, buildStyle('operator'))
             self.StyleSetSpec(stc.STC_C_IDENTIFIER, buildStyle('default'))
             self.StyleSetSpec(stc.STC_C_PREPROCESSOR, buildStyle('commentblock'))
+        elif ext == "md":
+            self.SetLexer(stc.STC_LEX_MARKDOWN)
+            self.SetStyleBits(self.GetStyleBitsNeeded())
+            self.StyleSetSpec(stc.STC_MARKDOWN_DEFAULT, buildStyle('default'))
+            self.StyleSetSpec(stc.STC_MARKDOWN_LINE_BEGIN, buildStyle('default'))
+            self.StyleSetSpec(stc.STC_MARKDOWN_STRONG1, buildStyle('default') + ",italic,bold")
+            self.StyleSetSpec(stc.STC_MARKDOWN_STRONG2, buildStyle('default') + ",italic,bold")
+            self.StyleSetSpec(stc.STC_MARKDOWN_EM1, buildStyle('default') + ",italic")
+            self.StyleSetSpec(stc.STC_MARKDOWN_EM2, buildStyle('default') + ",italic")
+            self.StyleSetSpec(stc.STC_MARKDOWN_HEADER1, buildStyle('comment') + ", bold")
+            self.StyleSetSpec(stc.STC_MARKDOWN_HEADER2, buildStyle('comment'))
+            self.StyleSetSpec(stc.STC_MARKDOWN_HEADER3, buildStyle('commentblock') + ", bold")
+            self.StyleSetSpec(stc.STC_MARKDOWN_HEADER4, buildStyle('commentblock') + ", bold")
+            self.StyleSetSpec(stc.STC_MARKDOWN_HEADER5, buildStyle('commentblock'))
+            self.StyleSetSpec(stc.STC_MARKDOWN_HEADER6, buildStyle('commentblock'))
+            self.StyleSetSpec(stc.STC_MARKDOWN_PRECHAR, buildStyle('default'))
+            self.StyleSetSpec(stc.STC_MARKDOWN_ULIST_ITEM, buildStyle('string'))
+            self.StyleSetSpec(stc.STC_MARKDOWN_OLIST_ITEM, buildStyle('triple'))
+            self.StyleSetSpec(stc.STC_MARKDOWN_BLOCKQUOTE, buildStyle('string'))
+            self.StyleSetSpec(stc.STC_MARKDOWN_STRIKEOUT, buildStyle('string'))
+            self.StyleSetSpec(stc.STC_MARKDOWN_HRULE, buildStyle('triple'))
+            self.StyleSetSpec(stc.STC_MARKDOWN_LINK, buildStyle('function'))
+            self.StyleSetSpec(stc.STC_MARKDOWN_CODE, buildStyle('default') + ",italic,bold")
+            self.StyleSetSpec(stc.STC_MARKDOWN_CODE2, buildStyle('default') + ",italic,bold")
+            self.StyleSetSpec(stc.STC_MARKDOWN_CODEBK, buildStyle('default') + ",italic,bold")
+        elif ext == "lua":
+            self.SetLexer(stc.STC_LEX_LUA)
+            self.SetStyleBits(self.GetStyleBitsNeeded())
+            self.SetKeyWords(0, "and break do else elseif for if in nil not or \
+                        repeat then until while function local end return true false ")
+            self.StyleSetSpec(stc.STC_LUA_DEFAULT, buildStyle('default'))
+            self.StyleSetSpec(stc.STC_LUA_COMMENT, buildStyle('comment'))
+            self.StyleSetSpec(stc.STC_LUA_COMMENTLINE, buildStyle('comment'))
+            self.StyleSetSpec(stc.STC_LUA_COMMENTDOC, buildStyle('commentblock'))
+            self.StyleSetSpec(stc.STC_LUA_NUMBER, buildStyle('number'))
+            self.StyleSetSpec(stc.STC_LUA_WORD, buildStyle('keyword'))
+            self.StyleSetSpec(stc.STC_LUA_STRING, buildStyle('string'))
+            self.StyleSetSpec(stc.STC_LUA_CHARACTER, buildStyle('string'))
+            self.StyleSetSpec(stc.STC_LUA_LITERALSTRING, buildStyle('triple'))
+            self.StyleSetSpec(stc.STC_LUA_PREPROCESSOR, buildStyle('default') + ",italic")
+            self.StyleSetSpec(stc.STC_LUA_OPERATOR, buildStyle('operator'))
+            self.StyleSetSpec(stc.STC_LUA_IDENTIFIER, buildStyle('default'))
+            self.StyleSetSpec(stc.STC_LUA_STRINGEOL, buildStyle('default') + ",bold")
+            self.StyleSetSpec(stc.STC_LUA_WORD2, buildStyle('pyokeyword'))
+            self.StyleSetSpec(stc.STC_LUA_WORD3, buildStyle('pyokeyword'))
+            self.StyleSetSpec(stc.STC_LUA_WORD4, buildStyle('pyokeyword'))
+            self.StyleSetSpec(stc.STC_LUA_WORD5, buildStyle('pyokeyword'))
+            self.StyleSetSpec(stc.STC_LUA_WORD6, buildStyle('pyokeyword'))
+            self.StyleSetSpec(stc.STC_LUA_WORD7, buildStyle('pyokeyword'))
+            self.StyleSetSpec(stc.STC_LUA_WORD8, buildStyle('pyokeyword'))
+            self.StyleSetSpec(stc.STC_LUA_LABEL, buildStyle('default') + ",italic,bold")
 
         self.SetEdgeColour(STYLES["lineedge"]['colour'])
         self.SetCaretForeground(STYLES['caret']['colour'])
@@ -3643,6 +3841,57 @@ class Editor(stc.StyledTextCtrl):
 
         # WxPython 3 needs the lexer to be set before folding property
         self.SetProperty("fold", "1")
+
+    def insertBlockHead(self):
+        pos = self.PositionFromLine(self.GetCurrentLine())
+        if self.GetLine(self.GetCurrentLine()).strip() == "":
+            self.InsertText(pos, "#-->")
+        else:
+            self.InsertText(pos, "#-->\n")
+
+    def insertBlockTail(self):
+        pos = self.GetLineEndPosition(self.GetCurrentLine())
+        if self.GetLine(self.GetCurrentLine()).strip() == "":
+            self.InsertText(pos, "#<--")
+        else:
+            self.InsertText(pos, "\n#<--")
+
+    def selectCodeBlock(self):
+        self.OnDoubleClick(None)
+
+    def OnDoubleClick(self, evt):
+        """
+        Double-click used to select chunk of code between #--> and #<--
+        """
+        if "#-->" in self.GetLine(self.GetCurrentLine()):
+            first = self.GetCurrentLine()
+            last = self.GetLineCount()
+            self.LineDown()
+            while (self.GetCurrentLine() < self.GetLineCount()):
+                if "#<--" in self.GetLine(self.GetCurrentLine()):
+                    last = self.GetCurrentLine() - 1
+                    break
+                self.LineDown()
+            self.SetSelection(self.GetLineEndPosition(first)+1, 
+                              self.GetLineEndPosition(last)+1)
+            if evt is not None:
+                evt.StopPropagation()
+        elif "#<--" in self.GetLine(self.GetCurrentLine()):
+            first = 0
+            last = self.GetCurrentLine() - 1
+            self.LineUp()
+            while (self.GetCurrentLine() > 0):
+                if "#-->" in self.GetLine(self.GetCurrentLine()):
+                    first = self.GetCurrentLine()
+                    break
+                self.LineUp()
+            self.SetSelection(self.GetLineEndPosition(first)+1, 
+                              self.GetLineEndPosition(last)+1)
+            if evt is not None:
+                evt.StopPropagation()
+        else:
+            if evt is not None:
+                evt.Skip()
 
     def OnQuickSearch(self, str, next=True):
         if self.GetSelection() != (0,0):
@@ -4691,7 +4940,7 @@ class OutputLogPanel(wx.Panel):
         self.processPopup.Append("%d :: %s" % (procID, filename))
         self.processPopup.SetStringSelection("%d :: %s" % (procID, filename))
         self.running += 1
-        self.runningLabel.SetLabel("Running: %d" % self.running)
+        self.runningLabel.SetLabel(" Running: %d" % self.running)
         self.editor.setLog("")
 
     def removeProcess(self, procID, filename):
@@ -4699,7 +4948,7 @@ class OutputLogPanel(wx.Panel):
         del self.mainPanel.mainFrame.processes[procID]
         self.processPopup.Delete(self.processPopup.GetItems().index(str))
         self.running -= 1
-        self.runningLabel.SetLabel("Running: %d" % self.running)
+        self.runningLabel.SetLabel(" Running: %d" % self.running)
 
     def killProcess(self, evt):
         str = self.processPopup.GetStringSelection()
@@ -4707,6 +4956,8 @@ class OutputLogPanel(wx.Panel):
             procID = int(str.split("::")[0].strip())
             thread = self.mainPanel.mainFrame.processes[procID][0]
             thread.kill()
+            if procID == 1000:
+                self.mainPanel.mainFrame.resetBackgroundServerMenu()
 
     def appendToLog(self, text):
         self.editor.appendToLog(text)
@@ -5254,7 +5505,7 @@ class PreferencesDialog(wx.Dialog):
 
         mainSizer.Add(wx.StaticLine(self, -1), 0, wx.EXPAND|wx.BOTTOM|wx.LEFT|wx.RIGHT, 5)
 
-        lbl = wx.StaticText(self, label="Background Pyo Server")
+        lbl = wx.StaticText(self, label="=== Background Pyo Server ===")
         lbl.SetFont(font)
         mainSizer.Add(lbl, 0, wx.BOTTOM|wx.LEFT|wx.RIGHT, 10)
 
@@ -5265,59 +5516,76 @@ class PreferencesDialog(wx.Dialog):
         self.server_args = wx.TextCtrl(self, size=(500,-1), value=BACKGROUND_SERVER_ARGS)
         self.server_args.SetFont(entryfont)
         ctrlSizer.Add(self.server_args, 0, wx.ALL|wx.EXPAND, 5)
-        but = wx.Button(self, id=wx.ID_ANY, label="Restore default args")
+        but = wx.Button(self, id=wx.ID_ANY, label=" Restore default args ")
         but.Bind(wx.EVT_BUTTON, self.setServerDefaultArgs)
         ctrlSizer.Add(but, 0, wx.ALL, 5)            
         mainSizer.Add(ctrlSizer, 0, wx.BOTTOM|wx.LEFT|wx.RIGHT, 5)
 
-        popupSizer = wx.FlexGridSizer(2, 3, 5, 10)
-        for label in ["Output Driver", "Input Driver", "Midi Interface"]:
+        popupSizer = wx.FlexGridSizer(2, 4, 5, 10)
+        for label in ["Input Driver", "Output Driver", "Midi Input", "Midi Output"]:
             lbl = wx.StaticText(self, label=label)
             lbl.SetFont(font)
             popupSizer.Add(lbl)
 
-        preferedDriver = PREFERENCES.get("background_server_out_device", "")
-        driverList, driverIndexes = pa_get_output_devices()
-        driverList = [ensureNFD(driver) for driver in driverList]
-        defaultDriver = pa_get_default_output()
-        self.popupOutDriver = wx.Choice(self, choices=driverList)
-        popupSizer.Add(self.popupOutDriver)
-        if preferedDriver and preferedDriver in driverList:
-            driverIndex = driverIndexes[driverList.index(preferedDriver)]
-            self.popupOutDriver.SetStringSelection(preferedDriver)
-        elif defaultDriver:
-            self.popupOutDriver.SetSelection(driverIndexes.index(defaultDriver))
-
+        cX = 160
         preferedDriver = PREFERENCES.get("background_server_in_device", "")
         driverList, driverIndexes = pa_get_input_devices()
         driverList = [ensureNFD(driver) for driver in driverList]
         defaultDriver = pa_get_default_input()
-        self.popupInDriver = wx.Choice(self, choices=driverList)
-        popupSizer.Add(self.popupInDriver)
+        self.popupInDriver = wx.Choice(self, choices=driverList, size=(cX,-1))
+        popupSizer.Add(self.popupInDriver, 1, wx.EXPAND, 5)
         if preferedDriver and preferedDriver in driverList:
             driverIndex = driverIndexes[driverList.index(preferedDriver)]
             self.popupInDriver.SetStringSelection(preferedDriver)
         elif defaultDriver:
             self.popupInDriver.SetSelection(driverIndexes.index(defaultDriver))
 
+        preferedDriver = PREFERENCES.get("background_server_out_device", "")
+        driverList, driverIndexes = pa_get_output_devices()
+        driverList = [ensureNFD(driver) for driver in driverList]
+        defaultDriver = pa_get_default_output()
+        self.popupOutDriver = wx.Choice(self, choices=driverList, size=(cX,-1))
+        popupSizer.Add(self.popupOutDriver, 1, wx.EXPAND, 5)
+        if preferedDriver and preferedDriver in driverList:
+            driverIndex = driverIndexes[driverList.index(preferedDriver)]
+            self.popupOutDriver.SetStringSelection(preferedDriver)
+        elif defaultDriver:
+            self.popupOutDriver.SetSelection(driverIndexes.index(defaultDriver))
+
+        # TODO: Added "all" interfaces option in input and output
         preferedDriver = PREFERENCES.get("background_server_midiin_device", "")
         driverList, driverIndexes = pm_get_input_devices()
         driverList = [ensureNFD(driver) for driver in driverList]
         if driverList != []:
             defaultDriver = pm_get_default_input()
-            self.popupMidiInDriver = wx.Choice(self, choices=driverList)
-            popupSizer.Add(self.popupMidiInDriver)
+            self.popupMidiInDriver = wx.Choice(self, choices=driverList, size=(cX,-1))
             if preferedDriver and preferedDriver in driverList:
                 driverIndex = driverIndexes[driverList.index(preferedDriver)]
                 self.popupMidiInDriver.SetStringSelection(preferedDriver)
-            elif defaultDriver:
+            elif defaultDriver >= 0:
                 self.popupMidiInDriver.SetSelection(driverIndexes.index(defaultDriver))
         else:
             self.popupMidiInDriver = wx.Choice(self, choices=["No Interface"])
-            popupSizer.Add(self.popupMidiInDriver)
             self.popupMidiInDriver.SetSelection(0)
+        popupSizer.Add(self.popupMidiInDriver, 1, wx.EXPAND, 5)
 
-        mainSizer.Add(popupSizer, 0, wx.BOTTOM|wx.LEFT|wx.RIGHT, 10)
+        preferedDriver = PREFERENCES.get("background_server_midiout_device", "")
+        driverList, driverIndexes = pm_get_output_devices()
+        driverList = [ensureNFD(driver) for driver in driverList]
+        if driverList != []:
+            defaultDriver = pm_get_default_output()
+            self.popupMidiOutDriver = wx.Choice(self, choices=driverList, size=(cX,-1))
+            if preferedDriver and preferedDriver in driverList:
+                driverIndex = driverIndexes[driverList.index(preferedDriver)]
+                self.popupMidiOutDriver.SetStringSelection(preferedDriver)
+            elif defaultDriver >= 0:
+                self.popupMidiOutDriver.SetSelection(driverIndexes.index(defaultDriver))
+        else:
+            self.popupMidiOutDriver = wx.Choice(self, choices=["No Interface"])
+            self.popupMidiOutDriver.SetSelection(0)
+        popupSizer.Add(self.popupMidiOutDriver, 1, wx.EXPAND, 5)
+
+        mainSizer.Add(popupSizer, 0, wx.EXPAND|wx.BOTTOM|wx.LEFT|wx.RIGHT, 10)
 
         mainSizer.Add(wx.StaticLine(self, -1), 0, wx.EXPAND|wx.BOTTOM|wx.LEFT|wx.RIGHT, 5)
 
@@ -5327,8 +5595,8 @@ class PreferencesDialog(wx.Dialog):
         ctrlSizer = wx.BoxSizer(wx.HORIZONTAL)
         self.entry_ext = wx.TextCtrl(self, size=(500,-1), value=", ".join(ALLOWED_EXT))
         self.entry_ext.SetFont(entryfont)
-        ctrlSizer.Add(self.entry_ext, 0, wx.ALL|wx.EXPAND, 5)
-        mainSizer.Add(ctrlSizer, 0, wx.BOTTOM|wx.LEFT|wx.RIGHT, 5)
+        ctrlSizer.Add(self.entry_ext, 1, wx.ALL|wx.EXPAND, 5)
+        mainSizer.Add(ctrlSizer, 0, wx.EXPAND|wx.BOTTOM|wx.LEFT|wx.RIGHT, 5)
 
         btnSizer = self.CreateButtonSizer(wx.CANCEL|wx.OK)
  
@@ -5409,6 +5677,9 @@ class PreferencesDialog(wx.Dialog):
         midiDevice = self.popupMidiInDriver.GetStringSelection()
         if midiDevice != "No Interface":
             PREFERENCES["background_server_midiin_device"] = midiDevice
+        midiDevice = self.popupMidiOutDriver.GetStringSelection()
+        if midiDevice != "No Interface":
+            PREFERENCES["background_server_midiout_device"] = midiDevice
 
 class STCPrintout(wx.Printout):
     """Specific printing support of the wx.StyledTextCtrl for the wxPython
@@ -5822,7 +6093,8 @@ class STCPrintout(wx.Printout):
         if self.border_around_text:
             dc.SetPen(wx.BLACK_PEN)
             dc.SetBrush(wx.TRANSPARENT_BRUSH)
-            dc.DrawRectangle(self.x1, self.y1, self.x2 - self.x1 + 1, self.y2 - self.y1 + 1)
+            dc.DrawRectangle(self.x1, self.y1, self.x2 - self.x1 + 1, 
+                             self.y2 - self.y1 + 1)
 
 class MyFileDropTarget(wx.FileDropTarget):
     def __init__(self, window):
@@ -5844,12 +6116,14 @@ class EPyoApp(wx.App):
         wx.App.__init__(self, *args, **kwargs)
 
     def OnInit(self):
-        X,Y = wx.SystemSettings.GetMetric(wx.SYS_SCREEN_X), wx.SystemSettings.GetMetric(wx.SYS_SCREEN_Y)
+        X = wx.SystemSettings.GetMetric(wx.SYS_SCREEN_X)
+        Y = wx.SystemSettings.GetMetric(wx.SYS_SCREEN_Y)
         if X < 850: X -= 50
         else: X = 850
         if Y < 750: Y -= 50
         else: Y = 750
-        self.frame = MainFrame(None, -1, title='E-Pyo Editor', pos=(10,25), size=(X, Y))
+        self.frame = MainFrame(None, -1, title='E-Pyo Editor', 
+                               pos=(10,25), size=(X, Y))
         self.frame.Show()
         return True
 
