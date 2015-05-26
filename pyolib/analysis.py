@@ -566,7 +566,7 @@ class AttackDetector(PyoObject):
     """
     Audio signal onset detection.
 
-    AttackDetector anaylises an audio signal in input an output a trigger each
+    AttackDetector analyses an audio signal in input and output a trigger each
     time an onset is detected. An onset is a sharp amplitude rising while the
     signal had previously fall below a minimum threshold. Parameters must be
     carefully tuned depending on the nature of the analysed signal and the level
