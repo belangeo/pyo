@@ -942,23 +942,23 @@ class RunningThread(threading.Thread):
             prelude = "export -n %s;export PATH=/usr/local/bin:/usr/local/lib:$PATH;" % vars_to_remove
             if CALLER_NEED_TO_INVOKE_32_BIT:
                 self.proc = subprocess.Popen(['%s%s%s -u "%s"' % (prelude, SET_32_BIT_ARCH, WHICH_PYTHON, self.path)], 
-                                shell=True, cwd=self.cwd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                                shell=True, cwd=self.cwd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
             else:
                 self.proc = subprocess.Popen(['%s%s -u "%s"' % (prelude, WHICH_PYTHON, self.path)], cwd=self.cwd, 
-                                    shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                                    shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         elif PLATFORM == "darwin":
             if CALLER_NEED_TO_INVOKE_32_BIT:
                 self.proc = subprocess.Popen(['%s%s -u "%s"' % (SET_32_BIT_ARCH, WHICH_PYTHON, self.path)], 
-                                shell=True, cwd=self.cwd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                                shell=True, cwd=self.cwd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
             else:
                 self.proc = subprocess.Popen(['%s -u "%s"' % (WHICH_PYTHON, self.path)], cwd=self.cwd, 
-                                shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                                shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         elif PLATFORM == "win32":
             self.proc = subprocess.Popen([WHICH_PYTHON, "-u", self.path], cwd=self.cwd, shell=False, 
-                                stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                                stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         else:
             self.proc = subprocess.Popen([WHICH_PYTHON, "-u", self.path], cwd=self.cwd, 
-                                stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                                stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 
         header = '=== Output log of process "%s", launched: %s ===\n' % (self.filename, time.strftime('"%d %b %Y %H:%M:%S"', time.localtime()))
         data_event = DataEvent({"log": header, "pid": self.pid, "filename": self.filename, "active": True})
@@ -967,12 +967,18 @@ class RunningThread(threading.Thread):
             log = ""
             for line in self.proc.stdout.readline():
                 log = log + line
+            log = log.replace(">>> ", "").replace("... ", "")
             data_event = DataEvent({"log": log, "pid": self.pid, "filename": self.filename, "active": True})
             wx.PostEvent(self.event_receiver, data_event)            
             sys.stdout.flush()
             time.sleep(.025)
         stdout, stderr = self.proc.communicate()
-        output = stdout + stderr
+        output = ""
+        if stdout is not None:
+            output = output + stdout
+        if stderr is not None:
+            output = output + stderr
+        output = output.replace(">>> ", "").replace("... ", "")
         if "StartNotification name = default" in output:
             output = output.replace("StartNotification name = default", "")
         if "epyo_tempfile.py" in output:
@@ -1037,11 +1043,11 @@ class BackgroundServerThread(threading.Thread):
         if PLATFORM == "win32":
             self.proc = subprocess.Popen([WHICH_PYTHON, '-i', 'background_server.py'], 
                                     shell=True, cwd=self.cwd, stdout=subprocess.PIPE,
-                                    stdin=subprocess.PIPE)
+                                    stdin=subprocess.PIPE, stderr=subprocess.STDOUT)
         else:
             self.proc = subprocess.Popen(
                     ["%s -i -u %s" % (WHICH_PYTHON, os.path.join(TEMP_PATH, "background_server.py"))], 
-                    cwd=self.cwd, shell=True, stdout=subprocess.PIPE, stdin=subprocess.PIPE)
+                    cwd=self.cwd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, stdin=subprocess.PIPE)
 
         header = '=== Output log of background server, launched: %s ===\n' % time.strftime('"%d %b %Y %H:%M:%S"', time.localtime())
         data_event = DataEvent({"log": header, "pid": self.pid, 
@@ -1052,6 +1058,7 @@ class BackgroundServerThread(threading.Thread):
             log = ""
             for line in self.proc.stdout.readline():
                 log = log + line
+            log = log.replace(">>> ", "").replace("... ", "")
             data_event = DataEvent({"log": log, "pid": self.pid, 
                                     "filename": 'background_server.py', 
                                     "active": True})
@@ -1064,6 +1071,7 @@ class BackgroundServerThread(threading.Thread):
             output = output + stdout
         if stderr is not None:
             output = output + stderr
+        output = output.replace(">>> ", "").replace("... ", "")
         if "StartNotification name = default" in output:
             output = output.replace("StartNotification name = default", "")
         if "background_server.py" in output:
@@ -2218,7 +2226,7 @@ class MainFrame(wx.Frame):
         self.menu3.AppendSeparator()
         self.backServerItem = self.menu3.Append(304, "Start Pyo Background Server")
         self.Bind(wx.EVT_MENU, self.startStopBackgroundServer, id=304)
-        self.sendToServerItem = self.menu3.Append(305, "Send Line/Selection to Pyo Background Server\tCtrl+T")
+        self.sendToServerItem = self.menu3.Append(305, "Send Line/Selection to Pyo Background Server\tCtrl+.")
         self.sendToServerItem.Enable(False)
         self.Bind(wx.EVT_MENU, self.sendSelectionToBackgroundServer, id=305)
         self.menuBar.Append(self.menu3, 'Process')
