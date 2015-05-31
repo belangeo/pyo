@@ -786,8 +786,8 @@ KEY_COMMANDS = {
 
 ############## Allowed Extensions ##############
 ALLOWED_EXT = PREFERENCES.get("allowed_ext", 
-                              ["py", "c5", "txt", "", "c", "h", "cpp", "hpp", 
-                               "sh", "rst", "iss", "sg", "md", "jsfx-inc", "lua"])
+                              ["py", "c5", "txt", "", "c", "h", "cpp", "hpp", "zy",
+                               "sh", "rst", "iss", "sg", "md", "jsfx-inc", "lua", "css"])
 
 ############## Pyo keywords ##############
 tree = OBJECTS_TREE
@@ -4496,10 +4496,6 @@ class Editor(stc.StyledTextCtrl):
         elif evt.GetKeyCode() == ord('L') and ControlDown():
             self.GetParent().GetParent().GetParent().GetParent().GetParent().gotoLine(None)
             propagate = False
-        # Send line/selection to pyo background server
-        elif evt.GetKeyCode() == ord('T') and ControlDown():
-            self.GetParent().GetParent().GetParent().GetParent().GetParent().sendSelectionToBackgroundServer(None)
-            propagate = False
 
         # Process Return key --- automatic indentation
         elif evt.GetKeyCode() == wx.WXK_RETURN:
@@ -5037,12 +5033,13 @@ TOOL_REFRESH_TREE_ID = 12
 class ProjectTree(wx.Panel):
     """Project panel"""
     def __init__(self, parent, mainPanel, size):
-        wx.Panel.__init__(self, parent, -1, size=size, style=wx.WANTS_CHARS | wx.SUNKEN_BORDER | wx.EXPAND)
+        wx.Panel.__init__(self, parent, -1, size=size, 
+                          style=wx.WANTS_CHARS|wx.SUNKEN_BORDER|wx.EXPAND)
         self.SetMinSize((150, -1))
         self.mainPanel = mainPanel
 
         self.projectDict = {}
-        self.selected = None
+        self.selectedItem = None
         self.edititem = self.editfolder = self.itempath = self.scope = None
 
         tsize = (24, 24)
@@ -5056,16 +5053,20 @@ class ProjectTree(wx.Panel):
         toolbarbox = wx.BoxSizer(wx.HORIZONTAL)
         self.toolbar = wx.ToolBar(self, -1, size=(-1,36))
         self.toolbar.SetToolBitmapSize(tsize)
-        self.toolbar.AddLabelTool(TOOL_ADD_FILE_ID, "Add File", file_add_bmp, shortHelp="Add File")
+        self.toolbar.AddLabelTool(TOOL_ADD_FILE_ID, "Add File", 
+                                  file_add_bmp, shortHelp="Add File")
+        self.toolbar.AddLabelTool(TOOL_ADD_FOLDER_ID, "Add Folder", 
+                                  folder_add_bmp, shortHelp="Add Folder")
+        self.toolbar.AddLabelTool(TOOL_REFRESH_TREE_ID, "Refresh Tree", 
+                                  refresh_tree_bmp, shortHelp="Refresh Tree")
         self.toolbar.EnableTool(TOOL_ADD_FILE_ID, False)
-        self.toolbar.AddLabelTool(TOOL_ADD_FOLDER_ID, "Add Folder", folder_add_bmp, shortHelp="Add Folder")
-        self.toolbar.AddLabelTool(TOOL_REFRESH_TREE_ID, "Refresh Tree", refresh_tree_bmp, shortHelp="Refresh Tree")
         self.toolbar.Realize()
         toolbarbox.Add(self.toolbar, 1, wx.ALIGN_LEFT | wx.EXPAND, 0)
 
         tb2 = wx.ToolBar(self, -1, size=(-1,36))
         tb2.SetToolBitmapSize(tsize)
-        tb2.AddLabelTool(15, "Close Panel", close_panel_bmp, shortHelp="Close Panel")
+        tb2.AddLabelTool(15, "Close Panel", close_panel_bmp, 
+                         shortHelp="Close Panel")
         tb2.Realize()
         toolbarbox.Add(tb2, 0, wx.ALIGN_RIGHT, 0)
 
@@ -5076,30 +5077,35 @@ class ProjectTree(wx.Panel):
 
         self.sizer.Add(toolbarbox, 0, wx.EXPAND)
 
-        self.tree = wx.TreeCtrl(self, -1, (0, 26), size, wx.TR_DEFAULT_STYLE|wx.TR_HIDE_ROOT|wx.SUNKEN_BORDER|wx.EXPAND)
+        stls = wx.TR_DEFAULT_STYLE|wx.TR_HIDE_ROOT|wx.SUNKEN_BORDER|wx.EXPAND
+        self.tree = wx.TreeCtrl(self, -1, (0, 26), size, stls)
         self.tree.SetBackgroundColour(STYLES['background']['colour'])
 
         if PLATFORM == 'darwin':
-            self.tree.SetFont(wx.Font(11, wx.ROMAN, wx.NORMAL, wx.NORMAL, face=STYLES['face']))
-        elif PLATFORM == 'win32':
-            self.tree.SetFont(wx.Font(8, wx.ROMAN, wx.NORMAL, wx.NORMAL, face=STYLES['face']))
+            pt = 11
         else:
-            self.tree.SetFont(wx.Font(8, wx.ROMAN, wx.NORMAL, wx.NORMAL, face=STYLES['face']))
+            pt = 8
+        fnt = wx.Font(pt, wx.ROMAN, wx.NORMAL, wx.NORMAL, face=STYLES['face'])
+        self.tree.SetFont(fnt)
 
         self.sizer.Add(self.tree, 1, wx.EXPAND)
         self.SetSizer(self.sizer)
 
         isz = (12,12)
         self.il = wx.ImageList(isz[0], isz[1])
-        self.fldridx     = self.il.Add(wx.ArtProvider_GetBitmap(wx.ART_FOLDER,      wx.ART_OTHER, isz))
-        self.fldropenidx = self.il.Add(wx.ArtProvider_GetBitmap(wx.ART_FILE_OPEN,   wx.ART_OTHER, isz))
-        self.fileidx     = self.il.Add(wx.ArtProvider_GetBitmap(wx.ART_NORMAL_FILE, wx.ART_OTHER, isz))
+        bmp = wx.ArtProvider_GetBitmap(wx.ART_FOLDER, wx.ART_OTHER, isz)
+        self.fldridx = self.il.Add(bmp)
+        bmp = wx.ArtProvider_GetBitmap(wx.ART_FILE_OPEN, wx.ART_OTHER, isz)
+        self.fldropenidx = self.il.Add(bmp)
+        bmp = wx.ArtProvider_GetBitmap(wx.ART_NORMAL_FILE, wx.ART_OTHER, isz)
+        self.fileidx = self.il.Add(bmp)
 
         self.tree.SetImageList(self.il)
         self.tree.SetSpacing(12)
         self.tree.SetIndent(6)
 
-        self.root = self.tree.AddRoot("EPyo_Project_tree", self.fldridx, self.fldropenidx, None)
+        self.root = self.tree.AddRoot("EPyo_Project_tree", self.fldridx, 
+                                      self.fldropenidx, None)
         self.tree.SetItemTextColour(self.root, STYLES['default']['colour'])
 
         self.tree.Bind(wx.EVT_TREE_END_LABEL_EDIT, self.OnEndEdit)
@@ -5132,7 +5138,8 @@ class ProjectTree(wx.Panel):
         expanded = []
         self._tree_analyze(self.root, expanded)
         self.tree.DeleteAllItems()
-        self.root = self.tree.AddRoot("EPyo_Project_tree", self.fldridx, self.fldropenidx, None)
+        self.root = self.tree.AddRoot("EPyo_Project_tree", self.fldridx, 
+                                      self.fldropenidx, None)
         for folder, path in self.projectDict.items():
             self.loadFolder(path)
         self._tree_restore(self.root, expanded)
@@ -5140,62 +5147,48 @@ class ProjectTree(wx.Panel):
     def loadFolder(self, dirPath):
         folderName = os.path.split(dirPath)[1]
         self.projectDict[folderName] = dirPath
-        projectDir = {}
         self.mainPanel.mainFrame.showProjectTree(True)
-        for root, dirs, files in os.walk(dirPath):
-            if os.path.split(root)[1][0] != '.' and os.path.split(root)[1] != "build":
-                if root == dirPath:
-                    child = self.tree.AppendItem(self.root, folderName, self.fldridx, self.fldropenidx, None)
-                    self.tree.SetItemTextColour(child, STYLES['default']['colour'])
-                    if dirs:
-                        ddirs = [dir for dir in dirs if dir[0] != '.' and dir != "build"]
-                        for dir in sorted(ddirs):
-                            subfol = self.tree.AppendItem(child, "%s" % dir, self.fldridx, self.fldropenidx, None)
-                            projectDir[dir] = subfol
-                            self.tree.SetItemTextColour(subfol, STYLES['default']['colour'])
-                    if files:
-                        ffiles = [file for file in files if file[0] != '.' and not file.endswith("~") and os.path.splitext(file)[1].strip(".") in ALLOWED_EXT]
-                        for file in sorted(ffiles):
-                            item = self.tree.AppendItem(child, "%s" % file, self.fileidx, self.fileidx, None)
-                            self.tree.SetItemTextColour(item, STYLES['default']['colour'])
-                else:
-                    if os.path.split(root)[1] in projectDir.keys():
-                        parent = projectDir[os.path.split(root)[1]]
-                        if dirs:
-                            ddirs = [dir for dir in dirs if dir[0] != '.' and "build/" not in root]
-                            for dir in sorted(ddirs):
-                                subfol = self.tree.AppendItem(parent, "%s" % dir, self.fldridx, self.fldropenidx, None)
-                                projectDir[dir] = subfol
-                                self.tree.SetItemTextColour(subfol, STYLES['default']['colour'])
-                        if files:
-                            ffiles = [file for file in files if file[0] != '.' and not file.endswith("~") and os.path.splitext(file)[1].strip(".") in ALLOWED_EXT]
-                            for file in sorted(ffiles):
-                                item = self.tree.AppendItem(parent, "%s" % file, self.fileidx, self.fileidx, None)
-                                self.tree.SetItemTextColour(item, STYLES['default']['colour'])
-        self.tree.SortChildren(self.root)
-        self.tree.SortChildren(child)
+        item = self.tree.AppendItem(self.root, folderName, self.fldridx, 
+                                    self.fldropenidx, None)
+        self.tree.SetPyData(item, dirPath)
+        self.tree.SetItemTextColour(item, STYLES['default']['colour'])
+        self.buildRecursiveTree(dirPath, item)
+
+    def buildRecursiveTree(self, dir, item):
+        elems = [f for f in os.listdir(dir) if f[0] != "."]
+        for elem in sorted(elems):
+            child = None
+            path = os.path.join(dir, elem)
+            if os.path.isfile(path):
+                if not path.endswith("~") and \
+                       os.path.splitext(path)[1].strip(".") in ALLOWED_EXT:
+                    child = self.tree.AppendItem(item, elem, self.fileidx, 
+                                                 self.fileidx)
+                    self.tree.SetPyData(child, os.path.join(dir, path))
+            elif os.path.isdir(path):
+                if elem != "build":
+                    child = self.tree.AppendItem(item, elem, self.fldridx, 
+                                                 self.fldropenidx)
+                    self.tree.SetPyData(child, os.path.join(dir, path))
+                    self.buildRecursiveTree(path, child)
+            if child is not None:
+                self.tree.SetItemTextColour(child, STYLES['default']['colour'])
 
     def onAdd(self, evt):
         id = evt.GetId()
         treeItemId = self.tree.GetSelection()
-        if self.selected != None:
-            for dirPath in self.projectDict.keys():
-                for root, dirs, files in os.walk(self.projectDict[dirPath]):
-                    if self.selected == os.path.split(root)[1]:
-                        self.scope = root
-                        break
-                    elif self.selected in dirs:
-                        self.scope = os.path.join(root, self.selected)
-                        break
-                    elif self.selected in files:
-                        self.scope = root
-                        treeItemId = self.tree.GetItemParent(treeItemId)
-                        break
-                if self.scope != None:
-                    break
-        elif self.selected == None and id == TOOL_ADD_FOLDER_ID:
-            dlg = wx.DirDialog(self, "Choose a directory where to save your folder:",
-                              defaultPath=os.path.expanduser("~"), style=wx.DD_DEFAULT_STYLE)
+        if self.selectedItem != None:
+            selPath = self.tree.GetPyData(self.selectedItem)
+            if os.path.isdir(selPath):
+                self.scope = selPath
+            elif os.path.isfile(selPath):
+                treeItemId = self.tree.GetItemParent(treeItemId)
+                self.scope = self.tree.GetPyData(treeItemId)
+        elif self.selectedItem == None and id == TOOL_ADD_FOLDER_ID:
+            dlg = wx.DirDialog(self, 
+                               "Choose directory where to save your folder:",
+                               defaultPath=os.path.expanduser("~"), 
+                               style=wx.DD_DEFAULT_STYLE)
             if dlg.ShowModal() == wx.ID_OK:
                 self.scope = dlg.GetPath()
                 dlg.Destroy()
@@ -5204,11 +5197,14 @@ class ProjectTree(wx.Panel):
                 return
             treeItemId = self.tree.GetRootItem()
         if id == TOOL_ADD_FILE_ID:
-            item = self.tree.AppendItem(treeItemId, "Untitled", self.fileidx, self.fileidx, None)
+            item = self.tree.AppendItem(treeItemId, "Untitled", self.fileidx, 
+                                        self.fileidx, None)
             self.edititem = item
         else:
-            item = self.tree.AppendItem(treeItemId, "Untitled", self.fldridx, self.fldropenidx, None)
+            item = self.tree.AppendItem(treeItemId, "Untitled", self.fldridx, 
+                                        self.fldropenidx, None)
             self.editfolder = item
+        self.tree.SetPyData(item, os.path.join(self.scope, "Untitled"))
         self.tree.SetItemTextColour(item, STYLES['default']['colour'])
         self.tree.EnsureVisible(item)
         if PLATFORM == "darwin":
@@ -5237,14 +5233,8 @@ class ProjectTree(wx.Panel):
     def OnRightDown(self, event):
         pt = event.GetPosition();
         self.edititem, flags = self.tree.HitTest(pt)
-        item = self.edititem
-        if item:
-            itemlist = []
-            while self.tree.GetItemText(item) not in self.projectDict.keys():
-                itemlist.insert(0, self.tree.GetItemText(item))
-                item = self.tree.GetItemParent(item)
-            itemlist.insert(0, self.projectDict[self.tree.GetItemText(item)])
-            self.itempath = os.path.join(*itemlist)
+        if self.edititem:
+            self.itempath = self.tree.GetPyData(self.edititem)
             self.select(self.edititem)
             self.tree.EditLabel(self.edititem)
         else:
@@ -5254,14 +5244,17 @@ class ProjectTree(wx.Panel):
         if self.edititem and self.itempath:
             self.select(self.edititem)
             head, tail = os.path.split(self.itempath)
-            newpath = os.path.join(head, event.GetLabel())
-            os.rename(self.itempath, newpath)
+            newlabel = event.GetLabel()
+            if newlabel != "":
+                newpath = os.path.join(head, event.GetLabel())
+                os.rename(self.itempath, newpath)
         elif self.edititem and self.scope:
             newitem = event.GetLabel()
             if not newitem:
                 newitem = "Untitled"
                 wx.CallAfter(self.tree.SetItemText, self.edititem, newitem)
             newpath = os.path.join(self.scope, newitem)
+            self.tree.SetPyData(self.edititem, newpath)
             f = open(newpath, "w")
             f.close()
             self.mainPanel.addPage(newpath)
@@ -5271,8 +5264,9 @@ class ProjectTree(wx.Panel):
                 newitem = "Untitled"
                 wx.CallAfter(self.tree.SetItemText, self.editfolder, newitem)
             newpath = os.path.join(self.scope, newitem)
+            self.tree.SetPyData(self.editfolder, newpath)
             os.mkdir(newpath)
-            if self.selected == None:
+            if self.selectedItem == None:
                 self.projectDict[newitem] = self.scope
         self.edititem = self.editfolder = self.itempath = self.scope = None
 
@@ -5298,25 +5292,17 @@ class ProjectTree(wx.Panel):
     def openPage(self, item):
         hasChild = self.tree.ItemHasChildren(item)
         if not hasChild:
-            parent = None
-            ritem = item
-            filename = self.tree.GetItemText(ritem)
-            while self.tree.GetItemParent(ritem) != self.tree.GetRootItem():
-                ritem = self.tree.GetItemParent(ritem)
-                parent = self.tree.GetItemText(ritem)
-                filename = os.path.join(parent, filename)
-            dirPath = os.path.split(self.projectDict[parent])[0]
-            path = os.path.join(dirPath, filename)
+            path = self.tree.GetPyData(item)
             self.mainPanel.addPage(path)
 
     def select(self, item):
         self.tree.SelectItem(item)
-        self.selected = self.tree.GetItemText(item)
+        self.selectedItem = item
         self.toolbar.EnableTool(TOOL_ADD_FILE_ID, True)
 
     def unselect(self):
         self.tree.UnselectAll()
-        self.selected = None
+        self.selectedItem = None
         self.toolbar.EnableTool(TOOL_ADD_FILE_ID, False)
 
     def onCloseProjectPanel(self, evt):
@@ -5324,7 +5310,8 @@ class ProjectTree(wx.Panel):
 
 class MarkersListScroll(scrolled.ScrolledPanel):
     def __init__(self, parent, id=-1, pos=(25,25), size=(500,400)):
-        scrolled.ScrolledPanel.__init__(self, parent, wx.ID_ANY, pos=(0,0), size=size, style=wx.SUNKEN_BORDER)
+        scrolled.ScrolledPanel.__init__(self, parent, wx.ID_ANY, pos=(0,0), 
+                                        size=size, style=wx.SUNKEN_BORDER)
         self.parent = parent
         self.SetBackgroundColour(STYLES['background']['colour'])
         self.arrow_bit = catalog['left_arrow.png'].GetBitmap()
