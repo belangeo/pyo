@@ -1641,7 +1641,6 @@ class ScopePanel(wx.Panel):
 
     def setGain(self, gain):
         self.gain = gain
-        print self.gain
 
     def setLength(self, length):
         self.length = length
