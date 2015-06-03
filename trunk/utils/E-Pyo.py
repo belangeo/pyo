@@ -2299,7 +2299,7 @@ class MainFrame(wx.Frame):
         self.menu6 = wx.Menu()
         ID_EXAMPLE = 1000
         for folder in EXAMPLE_FOLDERS:
-            exmenu = wx.Menu(title=folder.lower())
+            exmenu = wx.Menu()
             for ex in sorted([exp for exp in os.listdir(os.path.join(EXAMPLE_PATH, folder.lower())) if exp[0] != "." and not exp.endswith("pyc")]):
                 exmenu.Append(ID_EXAMPLE, ex)
                 ID_EXAMPLE += 1
@@ -5248,6 +5248,7 @@ class ProjectTree(wx.Panel):
             if newlabel != "":
                 newpath = os.path.join(head, event.GetLabel())
                 os.rename(self.itempath, newpath)
+                self.tree.SetPyData(self.edititem, newpath)
         elif self.edititem and self.scope:
             newitem = event.GetLabel()
             if not newitem:
