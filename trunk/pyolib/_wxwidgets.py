@@ -1576,7 +1576,7 @@ class ScopeDisplay(wx.Frame):
         self.toolBox.Add(self.activeTog, 0, wx.TOP|wx.LEFT|wx.RIGHT, 5)
         self.toolBox.AddSpacer(10)
         self.toolBox.Add(wx.StaticText(self.panel, -1, label="Window length (ms):"), 0, wx.TOP, 11)
-        self.lenSlider = ControlSlider(self.panel, 10, 60, length * 1000, outFunction=self.setLength)
+        self.lenSlider = ControlSlider(self.panel, 10, 1000, length * 1000, log=True, outFunction=self.setLength)
         self.toolBox.Add(self.lenSlider, 1, wx.TOP|wx.LEFT|wx.RIGHT, 11)
         self.toolBox.AddSpacer(40)
         self.mainBox.Add(self.toolBox, 0, wx.EXPAND)
