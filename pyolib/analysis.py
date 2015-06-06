@@ -60,6 +60,7 @@ class Follower(PyoObject):
 
     """
     def __init__(self, input, freq=20, mul=1, add=0):
+        pyoArgsAssert(self, "oOOO", input, freq, mul, add)
         PyoObject.__init__(self, mul, add)
         self._input = input
         self._freq = freq
@@ -79,6 +80,7 @@ class Follower(PyoObject):
                 Crossfade time between old and new input. Default to 0.05.
 
         """
+        pyoArgsAssert(self, "oN", x, fadetime)
         self._input = x
         self._in_fader.setInput(x, fadetime)
 
@@ -92,6 +94,7 @@ class Follower(PyoObject):
                 New `freq` attribute.
 
         """
+        pyoArgsAssert(self, "O", x)
         self._freq = x
         x, lmax = convertArgsToLists(x)
         [obj.setFreq(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -147,6 +150,7 @@ class Follower2(PyoObject):
 
     """
     def __init__(self, input, risetime=0.01, falltime=0.1, mul=1, add=0):
+        pyoArgsAssert(self, "oOOOO", input, risetime, falltime, mul, add)
         PyoObject.__init__(self, mul, add)
         self._input = input
         self._risetime = risetime
@@ -167,6 +171,7 @@ class Follower2(PyoObject):
                 Crossfade time between old and new input. Default to 0.05.
 
         """
+        pyoArgsAssert(self, "oN", x, fadetime)
         self._input = x
         self._in_fader.setInput(x, fadetime)
 
@@ -180,6 +185,7 @@ class Follower2(PyoObject):
                 New `risetime` attribute.
 
         """
+        pyoArgsAssert(self, "O", x)
         self._risetime = x
         x, lmax = convertArgsToLists(x)
         [obj.setRisetime(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -194,6 +200,7 @@ class Follower2(PyoObject):
                 New `falltime` attribute.
 
         """
+        pyoArgsAssert(self, "O", x)
         self._falltime = x
         x, lmax = convertArgsToLists(x)
         [obj.setFalltime(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -256,6 +263,7 @@ class ZCross(PyoObject):
 
     """
     def __init__(self, input, thresh=0., mul=1, add=0):
+        pyoArgsAssert(self, "onOO", input, thresh, mul, add)
         PyoObject.__init__(self, mul, add)
         self._input = input
         self._thresh = thresh
@@ -275,6 +283,7 @@ class ZCross(PyoObject):
                 Crossfade time between old and new input. Default to 0.05.
 
         """
+        pyoArgsAssert(self, "oN", x, fadetime)
         self._input = x
         self._in_fader.setInput(x, fadetime)
 
@@ -288,6 +297,7 @@ class ZCross(PyoObject):
                 New amplitude difference threshold.
 
         """
+        pyoArgsAssert(self, "n", x)
         self._thresh = x
         x, lmax = convertArgsToLists(x)
         [obj.setThresh(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -363,6 +373,7 @@ class Yin(PyoObject):
 
     """
     def __init__(self, input, tolerance=0.2, minfreq=40, maxfreq=1000, cutoff=1000, winsize=1024, mul=1, add=0):
+        pyoArgsAssert(self, "onnnniOO", input, tolerance, minfreq, maxfreq, cutoff, winsize, mul, add)
         PyoObject.__init__(self, mul, add)
         self._input = input
         self._tolerance = tolerance
@@ -385,6 +396,7 @@ class Yin(PyoObject):
                 Crossfade time between old and new input. Default to 0.05.
 
         """
+        pyoArgsAssert(self, "oN", x, fadetime)
         self._input = x
         self._in_fader.setInput(x, fadetime)
 
@@ -398,6 +410,7 @@ class Yin(PyoObject):
                 New parameter for minima selection, between 0 and 1.
 
         """
+        pyoArgsAssert(self, "n", x)
         self._tolerance = x
         x, lmax = convertArgsToLists(x)
         [obj.setTolerance(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -412,6 +425,7 @@ class Yin(PyoObject):
                 New minimum frequency detected.
 
         """
+        pyoArgsAssert(self, "n", x)
         self._minfreq = x
         x, lmax = convertArgsToLists(x)
         [obj.setMinfreq(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -426,6 +440,7 @@ class Yin(PyoObject):
                 New maximum frequency detected.
 
         """
+        pyoArgsAssert(self, "n", x)
         self._maxfreq = x
         x, lmax = convertArgsToLists(x)
         [obj.setMaxfreq(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -440,6 +455,7 @@ class Yin(PyoObject):
                 New input lowpass filter cutoff frequency.
 
         """
+        pyoArgsAssert(self, "n", x)
         self._cutoff = x
         x, lmax = convertArgsToLists(x)
         [obj.setCutoff(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -526,6 +542,7 @@ class Centroid(PyoObject):
 
     """
     def __init__(self, input, size=1024, mul=1, add=0):
+        pyoArgsAssert(self, "oiOO", input, size, mul, add)
         PyoObject.__init__(self, mul, add)
         self._input = input
         self._size = size
@@ -545,6 +562,7 @@ class Centroid(PyoObject):
                 Crossfade time between old and new input. Default to 0.05.
 
         """
+        pyoArgsAssert(self, "oN", x, fadetime)
         self._input = x
         self._in_fader.setInput(x, fadetime)
 
@@ -605,6 +623,7 @@ class AttackDetector(PyoObject):
 
     """
     def __init__(self, input, deltime=0.005, cutoff=10, maxthresh=3, minthresh=-30, reltime=0.1, mul=1, add=0):
+        pyoArgsAssert(self, "onnnnnOO", input, deltime, cutoff, maxthresh, minthresh, reltime, mul, add)
         PyoObject.__init__(self, mul, add)
         self._input = input
         self._deltime = deltime
@@ -628,6 +647,7 @@ class AttackDetector(PyoObject):
                 Crossfade time between old and new input. Default to 0.05.
 
         """
+        pyoArgsAssert(self, "oN", x, fadetime)
         self._input = x
         self._in_fader.setInput(x, fadetime)
 
@@ -641,6 +661,7 @@ class AttackDetector(PyoObject):
                 New delay between rms analysis.
 
         """
+        pyoArgsAssert(self, "n", x)
         self._deltime = x
         x, lmax = convertArgsToLists(x)
         [obj.setDeltime(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -655,6 +676,7 @@ class AttackDetector(PyoObject):
                 New cutoff for the follower lowpass filter.
 
         """
+        pyoArgsAssert(self, "n", x)
         self._cutoff = x
         x, lmax = convertArgsToLists(x)
         [obj.setCutoff(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -669,6 +691,7 @@ class AttackDetector(PyoObject):
                 New attack threshold in dB.
 
         """
+        pyoArgsAssert(self, "n", x)
         self._maxthresh = x
         x, lmax = convertArgsToLists(x)
         [obj.setMaxthresh(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -683,6 +706,7 @@ class AttackDetector(PyoObject):
                 New minimum threshold in dB.
 
         """
+        pyoArgsAssert(self, "n", x)
         self._minthresh = x
         x, lmax = convertArgsToLists(x)
         [obj.setMinthresh(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -697,6 +721,7 @@ class AttackDetector(PyoObject):
                 Time, in seconds, to wait before reporting a new attack.
 
         """
+        pyoArgsAssert(self, "n", x)
         self._reltime = x
         x, lmax = convertArgsToLists(x)
         [obj.setReltime(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
