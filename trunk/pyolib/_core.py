@@ -18,7 +18,7 @@ GNU Lesser General Public License for more details.
 You should have received a copy of the GNU Lesser General Public
 License along with pyo.  If not, see <http://www.gnu.org/licenses/>.
 """
-from types import ListType, TupleType, SliceType, FloatType, StringType, UnicodeType, NoneType
+from types import BooleanType, ListType, TupleType, SliceType, LongType, IntType, FloatType, StringType, UnicodeType, NoneType
 import random, os, sys, inspect, tempfile
 from subprocess import call
 from weakref import proxy
@@ -63,6 +63,140 @@ FUNCTIONS_INIT_LINES = {"pa_count_host_apis": "pa_count_host_apis()", "pa_list_h
                         "convertStringToSysEncoding": "convertStringToSysEncoding(str)", "convertArgsToLists": "convertArgsToLists(*args)",
                         "wrap": "wrap(arg, i)", "floatmap": "floatmap(x, min=0, max=1, exp=1)"
                         }
+
+class PyoError(Exception):
+    """Base class for all pyo exceptions."""
+
+class PyoServerStateException(PyoError):
+    """Error raised when an operation requires the server to be booted."""
+
+class PyoArgumentTypeError(PyoError):
+    """Error raised when if an object got an invalid argument."""
+
+def isAudioObject(obj):
+    return isinstance(obj, PyoObject) or hasattr(obj, "stream")
+
+def isTableObject(obj):
+    return isinstance(obj, PyoTableObject) or hasattr(obj, "tablestream")
+
+def isMatrixObject(obj):
+    return isinstance(obj, PyoMatrixObject) or hasattr(obj, "matrixstream")
+
+def isPVObject(obj):
+    return isinstance(obj, PyoPVObject) or hasattr(obj, "pv_stream")
+    
+def pyoArgsAssert(obj, format, *args):
+    """
+    Raise an Exception if an object got an invalid argument.
+    
+    :Args:
+        
+        obj : Pyo object on which method is called.
+            Usually "self" in the function call.
+        format :
+            String of length equal to the number of arguments. Each character
+            indicating the expected argument type.
+            
+            - O : float or PyoObject
+            - o : PyoObject
+            - T : float or PyoTableObject
+            - t : PyoTableObject
+            - m : PyoMatrixObject
+            - p : PyoPVObject
+            - n : any number (int or float)
+            - N : any number (no list-expansion)
+            - f : float
+            - F : float (no list-expansion)
+            - i : integer
+            - I : integer (no list-expansion)
+            - s : string or unicode
+            - S : string or unicode (no list-expansion)
+            - b : boolean
+            - B : boolean (no list-expansion)
+            - l : list
+            - u : tuple
+            - x : sequence (list or tuple)
+            - c : callable
+            - C : callable (no list-expansion)
+            - z : anything
+        *args : any
+            Arguments passed to the object's method.
+            
+    """
+    expected = ""
+    for i in range(len(args)):
+        f = format[i]
+        argtype = type(args[i])
+        if f == "O":
+            if not isAudioObject(args[i]) and \
+                    argtype not in [ListType, IntType, LongType, FloatType]:
+                expected = "float or PyoObject"
+        elif f == "o":
+            if not isAudioObject(args[i]) and argtype not in [ListType]:
+                expected = "PyoObject"
+        elif f == "T":
+            if not isTableObject(args[i]) and argtype not in [FloatType, ListType]:
+                expected = "float or PyoTableObject"
+        elif f == "t":
+            if not isTableObject(args[i]) and argtype not in [ListType]:
+                expected = "PyoTableObject"
+        elif f == "m":
+            if not isMatrixObject(args[i]) and argtype not in [ListType]:
+                expected = "PyoMatrixObject"
+        elif f == "p":
+            if not isPVObject(args[i]) and argtype not in [ListType]:
+                expected = "PyoPVObject"
+        elif f == "n":
+            if argtype not in [ListType, IntType, LongType, FloatType]:
+                expected = "any number"
+        elif f == "N":
+            if argtype not in [IntType, LongType, FloatType]:
+                expected = "any number - list not allowed"
+        elif f == "f":
+            if argtype not in [ListType, FloatType]:
+                expected = "float"
+        elif f == "F":
+            if argtype not in [FloatType]:
+                expected = "float - list not allowed"
+        elif f == "i":
+            if argtype not in [ListType, IntType, LongType]:
+                expected = "integer"
+        elif f == "I":
+            if argtype not in [IntType, LongType]:
+                expected = "integer - list not allowed"
+        elif f == "s":
+            if argtype not in [ListType, StringType, UnicodeType]:
+                expected = "string"
+        elif f == "S":
+            if argtype not in [StringType, UnicodeType]:
+                expected = "string - list not allowed"
+        elif f == "b":
+            if argtype not in [BooleanType, ListType, IntType, LongType]:
+                expected = "boolean"
+        elif f == "B":
+            if argtype not in [BooleanType, IntType, LongType]:
+                expected = "boolean - list not allowed"
+        elif f == "l":
+            if argtype not in [ListType]:
+                expected = "list"
+        elif f == "L":
+            if argtype not in [ListType, NoneType]:
+                expected = "list or None"
+        elif f == "u":
+            if argtype not in [TupleType]:
+                expected = "tuple"
+        elif f == "x":
+            if argtype not in [ListType, TupleType]:
+                expected = "list or tuple"
+        elif f == "z":
+            pass
+                
+        if expected:
+            break
+
+    if expected:
+        name = obj.__class__.__name__
+        raise PyoArgumentTypeError('bad argument at position %d to "%s" (%s expected, got %s)' % (i, name, expected, argtype))
 
 def convertStringToSysEncoding(str):
     """
@@ -252,12 +386,6 @@ class WeakMethod(object):
             return self.method(self.target, *args, **kwargs)
         else:
             return self.method(*args, **kwargs)
-
-class PyoError(Exception):
-    """Base class for all pyo exceptions."""
-
-class PyoServerStateException(PyoError):
-    """Error raised when an operation requires the server to be booted."""
 
 ######################################################################
 ### PyoObjectBase -> abstract class for pyo objects
@@ -606,6 +734,7 @@ class PyoObject(PyoObjectBase):
                 of the first stream.
 
         """
+        pyoArgsAssert(self, "B", all)
         if all:
             return [obj._getStream().isPlaying() for obj in self._base_objs]
         else:
@@ -625,6 +754,7 @@ class PyoObject(PyoObjectBase):
                 of the first stream.
 
         """
+        pyoArgsAssert(self, "B", all)
         if all:
             return [obj._getStream().isOutputting() for obj in self._base_objs]
         else:
@@ -651,6 +781,7 @@ class PyoObject(PyoObjectBase):
                 will be returned as a float.
 
         """
+        pyoArgsAssert(self, "B", all)
         if not all:
             return self._base_objs[0]._getStream().getValue()
         else:
@@ -673,9 +804,15 @@ class PyoObject(PyoObjectBase):
                 Delay, in seconds, before the object's activation. Defaults to 0.
 
         """
+        pyoArgsAssert(self, "nn", dur, delay)
         dur, delay, lmax = convertArgsToLists(dur, delay)
         if hasattr(self, "_trig_objs"):
-            self._trig_objs.play(dur, delay)
+            if type(self._trig_objs) == ListType:
+                for i in range(lmax):
+                    for obj in self._trig_objs:
+                        obj.play(wrap(dur,i), wrap(delay,i))
+            else:
+                self._trig_objs.play(dur, delay)
         if hasattr(self, "_base_players"):
             [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._base_players)]
         [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._base_objs)]
@@ -712,9 +849,15 @@ class PyoObject(PyoObjectBase):
         assigned to successive streams.
 
         """
+        pyoArgsAssert(self, "iInn", chnl, inc, dur, delay)
         dur, delay, lmax = convertArgsToLists(dur, delay)
         if hasattr(self, "_trig_objs"):
-            self._trig_objs.play(dur, delay)
+            if type(self._trig_objs) == ListType:
+                for i in range(lmax):
+                    for obj in self._trig_objs:
+                        obj.play(wrap(dur,i), wrap(delay,i))
+            else:
+                self._trig_objs.play(dur, delay)
         if hasattr(self, "_base_players"):
             [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._base_players)]
         if type(chnl) == ListType:
@@ -735,7 +878,10 @@ class PyoObject(PyoObjectBase):
 
         """
         if hasattr(self, "_trig_objs"):
-            self._trig_objs.stop()
+            if type(self._trig_objs) == ListType:
+                [obj.stop() for obj in self._trig_objs]
+            else:
+                self._trig_objs.stop()
         if hasattr(self, "_base_players"):
             [obj.stop() for obj in self._base_players]
         [obj.stop() for obj in self._base_objs]
@@ -778,6 +924,7 @@ class PyoObject(PyoObjectBase):
                 Maximum value of the output signal.
 
         """
+        pyoArgsAssert(self, "nn", min, max)
         min, max, lmax = convertArgsToLists(min, max)
         if lmax > 1:
             mul = [(wrap(max,i) - wrap(min,i)) * 0.5 for i in range(lmax)]
@@ -799,6 +946,7 @@ class PyoObject(PyoObjectBase):
                 New `mul` attribute.
 
         """
+        pyoArgsAssert(self, "O", x)
         self._mul = x
         x, lmax = convertArgsToLists(x)
         [obj.setMul(wrap(x,i/self._op_duplicate)) for i, obj in enumerate(self._base_objs)]
@@ -813,6 +961,7 @@ class PyoObject(PyoObjectBase):
                 New `add` attribute.
 
         """
+        pyoArgsAssert(self, "O", x)
         self._add = x
         x, lmax = convertArgsToLists(x)
         [obj.setAdd(wrap(x,i/self._op_duplicate)) for i, obj in enumerate(self._base_objs)]
@@ -827,6 +976,7 @@ class PyoObject(PyoObjectBase):
                 New inversed `add` attribute.
 
         """
+        pyoArgsAssert(self, "O", x)
         self._add = x
         x, lmax = convertArgsToLists(x)
         [obj.setSub(wrap(x,i/self._op_duplicate)) for i, obj in enumerate(self._base_objs)]
@@ -841,6 +991,7 @@ class PyoObject(PyoObjectBase):
                 New inversed `mul` attribute.
 
         """
+        pyoArgsAssert(self, "O", x)
         self._mul = x
         x, lmax = convertArgsToLists(x)
         [obj.setDiv(wrap(x,i/self._op_duplicate)) for i, obj in enumerate(self._base_objs)]
@@ -863,6 +1014,7 @@ class PyoObject(PyoObjectBase):
                 Time, in seconds, to reach the new value.
 
         """
+        pyoArgsAssert(self, "Snn", attr, value, port)
         self._target_dict[attr] = value
         init = getattr(self, attr)
         if self._signal_dict.has_key(attr):
@@ -903,6 +1055,7 @@ class PyoObject(PyoObjectBase):
         the server GUI before showing the controller window.
 
         """
+        pyoArgsAssert(self, "LSB", map_list, title, wxnoserver)
         if map_list == None:
             map_list = self._map_list
         if map_list == []:
@@ -987,6 +1140,7 @@ class PyoTableObject(PyoObjectBase):
                     6. A-Law encoded
 
         """
+        pyoArgsAssert(self, "SII", path, format, sampletype)
         ext = path.rsplit('.')
         if len(ext) >= 2:
             ext = ext[-1].lower()
@@ -1012,6 +1166,7 @@ class PyoTableObject(PyoObjectBase):
                 per line.
 
         """
+        pyoArgsAssert(self, "SB", path, oneline)
         f = open(path, "w")
         if oneline:
             f.write(str([obj.getTable() for obj in self._base_objs]))
@@ -1047,6 +1202,7 @@ class PyoTableObject(PyoObjectBase):
         length of the lists.
 
         """
+        pyoArgsAssert(self, "S", path)
         f = open(path, "r")
         f_list = eval(f.read())
         f_len = len(f_list)
@@ -1066,6 +1222,7 @@ class PyoTableObject(PyoObjectBase):
                 New table size in samples.
 
         """
+        pyoArgsAssert(self, "I", size)
         self._size = size
         [obj.setSize(size) for obj in self._base_objs]
         self.refreshView()
@@ -1082,6 +1239,7 @@ class PyoTableObject(PyoObjectBase):
                 first size as an int. Defaults to False.
 
         """
+        pyoArgsAssert(self, "B", all)
         if all:
             return [obj.getSize() for obj in self._base_objs]
         else:
@@ -1106,6 +1264,7 @@ class PyoTableObject(PyoObjectBase):
                 Position, in samples, where to record value. Defaults to 0.
 
         """
+        pyoArgsAssert(self, "NI", value, pos)
         [obj.put(value, pos) for obj in self._base_objs]
         self.refreshView()
 
@@ -1123,6 +1282,7 @@ class PyoTableObject(PyoObjectBase):
                 Position, in samples, where to read the value. Defaults to 0.
 
         """
+        pyoArgsAssert(self, "I", pos)
         values = [obj.get(pos) for obj in self._base_objs]
         if len(values) == 1: return values[0]
         else: return values
@@ -1141,6 +1301,7 @@ class PyoTableObject(PyoObjectBase):
                 subtable (or the only one) is returned.
 
         """
+        pyoArgsAssert(self, "B", all)
         if all:
             return [obj.getTable() for obj in self._base_objs]
         else:
@@ -1210,6 +1371,7 @@ class PyoTableObject(PyoObjectBase):
                 Exponent factor. Defaults to 10.
 
         """
+        pyoArgsAssert(self, "N", exp)
         [obj.pow(exp) for obj in self._base_objs]
         self.refreshView()
         return self
@@ -1226,6 +1388,7 @@ class PyoTableObject(PyoObjectBase):
                 Gain factor for negative samples. Defaults to 1.
 
         """
+        pyoArgsAssert(self, "NN", gpos, gneg)
         [obj.bipolarGain(gpos, gneg) for obj in self._base_objs]
         self.refreshView()
         return self
@@ -1240,6 +1403,7 @@ class PyoTableObject(PyoObjectBase):
                 Filter's cutoff, in Hertz. Defaults to 1000.
 
         """
+        pyoArgsAssert(self, "N", freq)
         [obj.lowpass(freq) for obj in self._base_objs]
         self.refreshView()
         return self
@@ -1254,6 +1418,7 @@ class PyoTableObject(PyoObjectBase):
                 Fade in duration, in seconds. Defaults to 0.1.
 
         """
+        pyoArgsAssert(self, "N", dur)
         [obj.fadein(dur) for obj in self._base_objs]
         self.refreshView()
         return self
@@ -1268,6 +1433,7 @@ class PyoTableObject(PyoObjectBase):
                 Fade out duration, in seconds. Defaults to 0.1.
 
         """
+        pyoArgsAssert(self, "N", dur)
         [obj.fadeout(dur) for obj in self._base_objs]
         self.refreshView()
         return self
@@ -1285,6 +1451,7 @@ class PyoTableObject(PyoObjectBase):
                 value(s) to add.
 
         """
+        pyoArgsAssert(self, "T", x)
         if type(x) == ListType:
             if type(x[0]) == ListType:
                 [obj.add(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -1309,6 +1476,7 @@ class PyoTableObject(PyoObjectBase):
                 value(s) to substract.
 
         """
+        pyoArgsAssert(self, "T", x)
         if type(x) == ListType:
             if type(x[0]) == ListType:
                 [obj.sub(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -1333,6 +1501,7 @@ class PyoTableObject(PyoObjectBase):
                 value(s) to multiply.
 
         """
+        pyoArgsAssert(self, "T", x)
         if type(x) == ListType:
             if type(x[0]) == ListType:
                 [obj.mul(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -1381,6 +1550,7 @@ class PyoTableObject(PyoObjectBase):
         the server GUI before showing the controller window.
 
         """
+        pyoArgsAssert(self, "SB", title, wxnoserver)
         samples = self._base_objs[0].getViewTable((500,200))
         createViewTableWindow(samples, title, wxnoserver, self.__class__.__name__, self)
 
@@ -1444,6 +1614,7 @@ class PyoMatrixObject(PyoObjectBase):
                 Full path of the generated file.
 
         """
+        pyoArgsAssert(self, "S", path)
         f = open(path, "w")
         f.write(str([obj.getData() for obj in self._base_objs]))
         f.close()
@@ -1469,6 +1640,7 @@ class PyoMatrixObject(PyoObjectBase):
                 Full path of the file to read.
 
         """
+        pyoArgsAssert(self, "S", path)
         f = open(path, "r")
         f_list = eval(f.read())
         f_len = len(f_list)
@@ -1511,6 +1683,7 @@ class PyoMatrixObject(PyoObjectBase):
                 Amount of boost applied on each value. Defaults to 0.01.
 
         """
+        pyoArgsAssert(self, "NNN", min, max, boost)
         [obj.boost(min, max, boost) for obj in self._base_objs]
 
     def put(self, value, x=0, y=0):
@@ -1531,6 +1704,7 @@ class PyoMatrixObject(PyoObjectBase):
                 Y position where to record value. Defaults to 0.
 
         """
+        pyoArgsAssert(self, "NII", value, x, y)
         [obj.put(value, x, y) for obj in self._base_objs]
 
     def get(self, x, y):
@@ -1549,6 +1723,7 @@ class PyoMatrixObject(PyoObjectBase):
                 Y position where to get value. Defaults to 0.
 
         """
+        pyoArgsAssert(self, "II", x, y)
         values = [obj.get(x, y) for obj in self._base_objs]
         if len(values) == 1: return values[0]
         else: return values
@@ -1569,6 +1744,7 @@ class PyoMatrixObject(PyoObjectBase):
         the server GUI before showing the controller window.
 
         """
+        pyoArgsAssert(self, "SB", title, wxnoserver)
         samples = self._base_objs[0].getViewData()
         createViewMatrixWindow(samples, self.getSize(), title, wxnoserver, self)
 
@@ -1619,6 +1795,7 @@ class PyoPVObject(PyoObjectBase):
                 of the first stream.
 
         """
+        pyoArgsAssert(self, "B", all)
         if all:
             return [obj._getStream().isPlaying() for obj in self._base_objs]
         else:
@@ -1641,6 +1818,7 @@ class PyoPVObject(PyoObjectBase):
                 Delay, in seconds, before the object's activation. Defaults to 0.
 
         """
+        pyoArgsAssert(self, "nn", dur, delay)
         dur, delay, lmax = convertArgsToLists(dur, delay)
         if hasattr(self, "_trig_objs"):
             self._trig_objs.play(dur, delay)
@@ -1682,6 +1860,7 @@ class PyoPVObject(PyoObjectBase):
                 Time, in seconds, to reach the new value.
 
         """
+        pyoArgsAssert(self, "Snn", attr, value, port)
         self._target_dict[attr] = value
         init = getattr(self, attr)
         if self._signal_dict.has_key(attr):
@@ -1722,6 +1901,7 @@ class PyoPVObject(PyoObjectBase):
         the server GUI before showing the controller window.
 
         """
+        pyoArgsAssert(self, "LSB", map_list, title, wxnoserver)
         if map_list == None:
             map_list = self._map_list
         if map_list == []:
@@ -1771,6 +1951,7 @@ class Mix(PyoObject):
 
     """
     def __init__(self, input, voices=1, mul=1, add=0):
+        pyoArgsAssert(self, "oIOO", input, voices, mul, add)
         PyoObject.__init__(self, mul, add)
         self._input = input
         mul, add, lmax = convertArgsToLists(mul, add)
@@ -1874,6 +2055,7 @@ class InputFader(PyoObject):
 
     """
     def __init__(self, input):
+        pyoArgsAssert(self, "o", input)
         PyoObject.__init__(self)
         self._input = input
         input, lmax = convertArgsToLists(input)
@@ -1891,6 +2073,7 @@ class InputFader(PyoObject):
                 Crossfade time between old and new input. Defaults to 0.05.
 
         """
+        pyoArgsAssert(self, "oN", x, fadetime)
         self._input = x
         x, lmax = convertArgsToLists(x)
         [obj.setInput(wrap(x,i), fadetime) for i, obj in enumerate(self._base_objs)]
@@ -1926,6 +2109,7 @@ class Sig(PyoObject):
 
     """
     def __init__(self, value, mul=1, add=0):
+        pyoArgsAssert(self, "OOO", value, mul, add)
         PyoObject.__init__(self, mul, add)
         self._value = value
         value, mul ,add, lmax = convertArgsToLists(value, mul, add)
@@ -1941,6 +2125,7 @@ class Sig(PyoObject):
                 Numerical value to convert.
 
         """
+        pyoArgsAssert(self, "O", x)
         self._value = x
         x, lmax = convertArgsToLists(x)
         [obj.setValue(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -1996,6 +2181,7 @@ class VarPort(PyoObject):
 
     """
     def __init__(self, value, time=0.025, init=0.0, function=None, arg=None, mul=1, add=0):
+        pyoArgsAssert(self, "nnnczOO", value, time, init, function, arg, mul, add)
         PyoObject.__init__(self, mul, add)
         self._value = value
         self._time = time
@@ -2013,6 +2199,7 @@ class VarPort(PyoObject):
                 Numerical value to convert.
 
         """
+        pyoArgsAssert(self, "n", x)
         self._value = x
         x, lmax = convertArgsToLists(x)
         [obj.setValue(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -2027,6 +2214,7 @@ class VarPort(PyoObject):
                 New ramp time.
 
         """
+        pyoArgsAssert(self, "n", x)
         self._time = x
         x, lmax = convertArgsToLists(x)
         [obj.setTime(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -2041,6 +2229,7 @@ class VarPort(PyoObject):
                 new `function` attribute.
 
         """
+        pyoArgsAssert(self, "c", x)
         self._function = getWeakMethodRef(x)
         x, lmax = convertArgsToLists(x)
         [obj.setFunction(WeakMethod(wrap(x,i))) for i, obj in enumerate(self._base_objs)]
@@ -2088,6 +2277,7 @@ class Pow(PyoObject):
 
     """
     def __init__(self, base=10, exponent=1, mul=1, add=0):
+        pyoArgsAssert(self, "OOOO", base, exponent, mul, add)
         PyoObject.__init__(self, mul, add)
         self._base = base
         self._exponent = exponent
@@ -2104,6 +2294,7 @@ class Pow(PyoObject):
                 new `base` attribute.
 
         """
+        pyoArgsAssert(self, "O", x)
         self._base = x
         x, lmax = convertArgsToLists(x)
         [obj.setBase(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -2118,6 +2309,7 @@ class Pow(PyoObject):
                 new `exponent` attribute.
 
         """
+        pyoArgsAssert(self, "O", x)
         self._exponent = x
         x, lmax = convertArgsToLists(x)
         [obj.setExponent(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -2172,6 +2364,7 @@ class Wrap(PyoObject):
 
     """
     def __init__(self, input, min=0.0, max=1.0, mul=1, add=0):
+        pyoArgsAssert(self, "oOOOO", input, min, max, mul, add)
         PyoObject.__init__(self, mul, add)
         self._input = input
         self._min = min
@@ -2192,6 +2385,7 @@ class Wrap(PyoObject):
                 Crossfade time between old and new input. Defaults to 0.05.
 
         """
+        pyoArgsAssert(self, "oN", x, fadetime)
         self._input = x
         self._in_fader.setInput(x, fadetime)
 
@@ -2205,6 +2399,7 @@ class Wrap(PyoObject):
                 New `min` attribute.
 
         """
+        pyoArgsAssert(self, "O", x)
         self._min = x
         x, lmax = convertArgsToLists(x)
         [obj.setMin(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -2219,6 +2414,7 @@ class Wrap(PyoObject):
                 New `max` attribute.
 
         """
+        pyoArgsAssert(self, "O", x)
         self._max = x
         x, lmax = convertArgsToLists(x)
         [obj.setMax(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -2280,13 +2476,10 @@ class Compare(PyoObject):
 
     """
     def __init__(self, input, comp, mode="<", mul=1, add=0):
+        pyoArgsAssert(self, "oOsOO", input, comp, mode, mul, add)
         PyoObject.__init__(self, mul, add)
         self._input = input
-        if type(comp) in [StringType, UnicodeType, NoneType]:
-            print 'TypeError: "comp" argument of %s must be a float or a PyoObject. Set to 0.\n' % self.__class__.__name__
-            comp = self._comp = 0
-        else:
-            self._comp = comp
+        self._comp = comp
         self._mode = mode
         self._in_fader = InputFader(input)
         self.comp_dict = {"<": 0, "<=": 1, ">": 2, ">=": 3, "==": 4, "!=": 5}
@@ -2308,6 +2501,7 @@ class Compare(PyoObject):
                 Crossfade time between old and new input. Default to 0.05.
 
         """
+        pyoArgsAssert(self, "oN", x, fadetime)
         self._input = x
         self._in_fader.setInput(x, fadetime)
 
@@ -2321,9 +2515,7 @@ class Compare(PyoObject):
                 New comparison signal.
 
         """
-        if type(x) in [StringType, UnicodeType, NoneType]:
-            print >> sys.stderr, 'TypeError: "comp" argument of %s must be a float or a PyoObject.\n' % self.__class__.__name__
-            return
+        pyoArgsAssert(self, "O", x)
         self._comp = x
         x, lmax = convertArgsToLists(x)
         [obj.setComp(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -2340,6 +2532,7 @@ class Compare(PyoObject):
                 New `mode` attribute.
 
         """
+        pyoArgsAssert(self, "s", x)
         self._mode = x
         x, lmax = convertArgsToLists(x)
         [obj.setMode(self.comp_dict[wrap(x,i)]) for i, obj in enumerate(self._base_objs)]

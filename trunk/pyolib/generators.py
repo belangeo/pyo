@@ -55,6 +55,7 @@ class Sine(PyoObject):
 
     """
     def __init__(self, freq=1000, phase=0, mul=1, add=0):
+        pyoArgsAssert(self, "OOOO", freq, phase, mul, add)
         PyoObject.__init__(self, mul, add)
         self._freq = freq
         self._phase = phase
@@ -71,6 +72,7 @@ class Sine(PyoObject):
                 new `freq` attribute.
 
         """
+        pyoArgsAssert(self, "O", x)
         self._freq = x
         x, lmax = convertArgsToLists(x)
         [obj.setFreq(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -85,6 +87,7 @@ class Sine(PyoObject):
                 new `phase` attribute.
 
         """
+        pyoArgsAssert(self, "O", x)
         self._phase = x
         x, lmax = convertArgsToLists(x)
         [obj.setPhase(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -143,6 +146,7 @@ class SineLoop(PyoObject):
 
     """
     def __init__(self, freq=1000, feedback=0, mul=1, add=0):
+        pyoArgsAssert(self, "OOOO", freq, feedback, mul, add)
         PyoObject.__init__(self, mul, add)
         self._freq = freq
         self._feedback = feedback
@@ -159,6 +163,7 @@ class SineLoop(PyoObject):
                 new `freq` attribute.
 
         """
+        pyoArgsAssert(self, "O", x)
         self._freq = x
         x, lmax = convertArgsToLists(x)
         [obj.setFreq(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -173,6 +178,7 @@ class SineLoop(PyoObject):
                 new `feedback` attribute.
 
         """
+        pyoArgsAssert(self, "O", x)
         self._feedback = x
         x, lmax = convertArgsToLists(x)
         [obj.setFeedback(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -222,6 +228,7 @@ class Phasor(PyoObject):
 
     """
     def __init__(self, freq=100, phase=0, mul=1, add=0):
+        pyoArgsAssert(self, "OOOO", freq, phase, mul, add)
         PyoObject.__init__(self, mul, add)
         self._freq = freq
         self._phase = phase
@@ -238,6 +245,7 @@ class Phasor(PyoObject):
                 new `freq` attribute.
 
         """
+        pyoArgsAssert(self, "O", x)
         self._freq = x
         x, lmax = convertArgsToLists(x)
         [obj.setFreq(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -252,6 +260,7 @@ class Phasor(PyoObject):
                 new `phase` attribute.
 
         """
+        pyoArgsAssert(self, "O", x)
         self._phase = x
         x, lmax = convertArgsToLists(x)
         [obj.setPhase(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -304,6 +313,7 @@ class Input(PyoObject):
 
     """
     def __init__(self, chnl=0, mul=1, add=0):
+        pyoArgsAssert(self, "iOO", chnl, mul, add)
         PyoObject.__init__(self, mul, add)
         self._chnl = chnl
         chnl, mul, add, lmax = convertArgsToLists(chnl, mul, add)
@@ -325,6 +335,7 @@ class Noise(PyoObject):
 
     """
     def __init__(self, mul=1, add=0):
+        pyoArgsAssert(self, "OO", mul, add)
         PyoObject.__init__(self, mul, add)
         self._type = 0
         mul, add, lmax = convertArgsToLists(mul, add)
@@ -341,6 +352,7 @@ class Noise(PyoObject):
                 1 uses a simple linear congruential generator, cheaper than rand().
 
         """
+        pyoArgsAssert(self, "i", x)
         self._type = x
         x, lmax = convertArgsToLists(x)
         [obj.setType(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -374,6 +386,7 @@ class PinkNoise(PyoObject):
 
     """
     def __init__(self, mul=1, add=0):
+        pyoArgsAssert(self, "OO", mul, add)
         PyoObject.__init__(self, mul, add)
         mul, add, lmax = convertArgsToLists(mul, add)
         self._base_objs = [PinkNoise_base(wrap(mul,i), wrap(add,i)) for i in range(lmax)]
@@ -397,6 +410,7 @@ class BrownNoise(PyoObject):
 
     """
     def __init__(self, mul=1, add=0):
+        pyoArgsAssert(self, "OO", mul, add)
         PyoObject.__init__(self, mul, add)
         mul, add, lmax = convertArgsToLists(mul, add)
         self._base_objs = [BrownNoise_base(wrap(mul,i), wrap(add,i)) for i in range(lmax)]
@@ -433,6 +447,7 @@ class FM(PyoObject):
 
     """
     def __init__(self, carrier=100, ratio=0.5, index=5, mul=1, add=0):
+        pyoArgsAssert(self, "OOOOO", carrier, ratio, index, mul, add)
         PyoObject.__init__(self, mul, add)
         self._carrier = carrier
         self._ratio = ratio
@@ -450,6 +465,7 @@ class FM(PyoObject):
                 new `carrier` attribute.
 
         """
+        pyoArgsAssert(self, "O", x)
         self._carrier = x
         x, lmax = convertArgsToLists(x)
         [obj.setCarrier(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -464,6 +480,7 @@ class FM(PyoObject):
                 new `ratio` attribute.
 
         """
+        pyoArgsAssert(self, "O", x)
         self._ratio = x
         x, lmax = convertArgsToLists(x)
         [obj.setRatio(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -478,6 +495,7 @@ class FM(PyoObject):
                 new `index` attribute.
 
         """
+        pyoArgsAssert(self, "O", x)
         self._index = x
         x, lmax = convertArgsToLists(x)
         [obj.setIndex(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -546,6 +564,7 @@ class CrossFM(PyoObject):
 
     """
     def __init__(self, carrier=100, ratio=0.5, ind1=2, ind2=2, mul=1, add=0):
+        pyoArgsAssert(self, "OOOOOO", carrier, ratio, ind1, ind2, mul, add)
         PyoObject.__init__(self, mul, add)
         self._carrier = carrier
         self._ratio = ratio
@@ -564,6 +583,7 @@ class CrossFM(PyoObject):
                 new `carrier` attribute.
 
         """
+        pyoArgsAssert(self, "O", x)
         self._carrier = x
         x, lmax = convertArgsToLists(x)
         [obj.setCarrier(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -578,6 +598,7 @@ class CrossFM(PyoObject):
                 new `ratio` attribute.
 
         """
+        pyoArgsAssert(self, "O", x)
         self._ratio = x
         x, lmax = convertArgsToLists(x)
         [obj.setRatio(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -592,6 +613,7 @@ class CrossFM(PyoObject):
                 new `ind1` attribute.
 
         """
+        pyoArgsAssert(self, "O", x)
         self._ind1 = x
         x, lmax = convertArgsToLists(x)
         [obj.setInd1(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -606,6 +628,7 @@ class CrossFM(PyoObject):
                 new `ind2` attribute.
 
         """
+        pyoArgsAssert(self, "O", x)
         self._ind2 = x
         x, lmax = convertArgsToLists(x)
         [obj.setInd2(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -670,6 +693,7 @@ class Blit(PyoObject):
 
     """
     def __init__(self, freq=100, harms=40, mul=1, add=0):
+        pyoArgsAssert(self, "OOOO", freq, harms, mul, add)
         PyoObject.__init__(self, mul, add)
         self._freq = freq
         self._harms = harms
@@ -686,6 +710,7 @@ class Blit(PyoObject):
                 new `freq` attribute.
 
         """
+        pyoArgsAssert(self, "O", x)
         self._freq = x
         x, lmax = convertArgsToLists(x)
         [obj.setFreq(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -700,6 +725,7 @@ class Blit(PyoObject):
                 new `harms` attribute.
 
         """
+        pyoArgsAssert(self, "O", x)
         self._harms = x
         x, lmax = convertArgsToLists(x)
         [obj.setHarms(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -763,6 +789,7 @@ class Rossler(PyoObject):
 
     """
     def __init__(self, pitch=0.25, chaos=0.5, stereo=False, mul=1, add=0):
+        pyoArgsAssert(self, "OObOO", pitch, chaos, stereo, mul, add)
         PyoObject.__init__(self, mul, add)
         self._pitch = pitch
         self._chaos = chaos
@@ -785,6 +812,7 @@ class Rossler(PyoObject):
                 new `pitch` attribute. {0. -> 1.}
 
         """
+        pyoArgsAssert(self, "O", x)
         self._pitch = x
         x, lmax = convertArgsToLists(x)
         if self._stereo:
@@ -802,6 +830,7 @@ class Rossler(PyoObject):
                 new `chaos` attribute. {0. -> 1.}
 
         """
+        pyoArgsAssert(self, "O", x)
         self._chaos = x
         x, lmax = convertArgsToLists(x)
         if self._stereo:
@@ -867,6 +896,7 @@ class Lorenz(PyoObject):
 
     """
     def __init__(self, pitch=0.25, chaos=0.5, stereo=False, mul=1, add=0):
+        pyoArgsAssert(self, "OObOO", pitch, chaos, stereo, mul, add)
         PyoObject.__init__(self, mul, add)
         self._pitch = pitch
         self._chaos = chaos
@@ -889,6 +919,7 @@ class Lorenz(PyoObject):
                 new `pitch` attribute. {0. -> 1.}
 
         """
+        pyoArgsAssert(self, "O", x)
         self._pitch = x
         x, lmax = convertArgsToLists(x)
         if self._stereo:
@@ -906,6 +937,7 @@ class Lorenz(PyoObject):
                 new `chaos` attribute. {0. -> 1.}
 
         """
+        pyoArgsAssert(self, "O", x)
         self._chaos = x
         x, lmax = convertArgsToLists(x)
         if self._stereo:
@@ -965,6 +997,7 @@ class LFO(PyoObject):
 
     """
     def __init__(self, freq=100, sharp=0.5, type=0, mul=1, add=0):
+        pyoArgsAssert(self, "OOiOO", freq, sharp, type, mul, add)
         PyoObject.__init__(self, mul, add)
         self._freq = freq
         self._sharp = sharp
@@ -982,6 +1015,7 @@ class LFO(PyoObject):
                 New `freq` attribute, in cycles per seconds.
 
         """
+        pyoArgsAssert(self, "O", x)
         self._freq = x
         x, lmax = convertArgsToLists(x)
         [obj.setFreq(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -996,6 +1030,7 @@ class LFO(PyoObject):
                 New `sharp` attribute, in the range 0 -> 1.
 
         """
+        pyoArgsAssert(self, "O", x)
         self._sharp = x
         x, lmax = convertArgsToLists(x)
         [obj.setSharp(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -1019,6 +1054,7 @@ class LFO(PyoObject):
 
 
         """
+        pyoArgsAssert(self, "i", x)
         self._type = x
         x, lmax = convertArgsToLists(x)
         [obj.setType(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -1102,6 +1138,7 @@ class SumOsc(PyoObject):
 
     """
     def __init__(self, freq=100, ratio=0.5, index=0.5, mul=1, add=0):
+        pyoArgsAssert(self, "OOOOO", freq, ratio, index, mul, add)
         PyoObject.__init__(self, mul, add)
         self._freq = freq
         self._ratio = ratio
@@ -1119,6 +1156,7 @@ class SumOsc(PyoObject):
                 new `freq` attribute.
 
         """
+        pyoArgsAssert(self, "O", x)
         self._freq = x
         x, lmax = convertArgsToLists(x)
         [obj.setFreq(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -1133,6 +1171,7 @@ class SumOsc(PyoObject):
                 new `ratio` attribute.
 
         """
+        pyoArgsAssert(self, "O", x)
         self._ratio = x
         x, lmax = convertArgsToLists(x)
         [obj.setRatio(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -1147,6 +1186,7 @@ class SumOsc(PyoObject):
                 new `index` attribute.
 
         """
+        pyoArgsAssert(self, "O", x)
         self._index = x
         x, lmax = convertArgsToLists(x)
         [obj.setIndex(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -1215,6 +1255,7 @@ class SuperSaw(PyoObject):
 
     """
     def __init__(self, freq=100, detune=0.5, bal=0.7, mul=1, add=0):
+        pyoArgsAssert(self, "OOOOO", freq, detune, bal, mul, add)
         PyoObject.__init__(self, mul, add)
         self._freq = freq
         self._detune = detune
@@ -1232,6 +1273,7 @@ class SuperSaw(PyoObject):
                 new `freq` attribute.
 
         """
+        pyoArgsAssert(self, "O", x)
         self._freq = x
         x, lmax = convertArgsToLists(x)
         [obj.setFreq(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -1246,6 +1288,7 @@ class SuperSaw(PyoObject):
                 new `detune` attribute.
 
         """
+        pyoArgsAssert(self, "O", x)
         self._detune = x
         x, lmax = convertArgsToLists(x)
         [obj.setDetune(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -1260,6 +1303,7 @@ class SuperSaw(PyoObject):
                 new `bal` attribute.
 
         """
+        pyoArgsAssert(self, "O", x)
         self._bal = x
         x, lmax = convertArgsToLists(x)
         [obj.setBal(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -1320,6 +1364,7 @@ class RCOsc(PyoObject):
 
     """
     def __init__(self, freq=100, sharp=0.25, mul=1, add=0):
+        pyoArgsAssert(self, "OOOO", freq, sharp, mul, add)
         PyoObject.__init__(self, mul, add)
         self._freq = freq
         self._sharp = sharp
@@ -1336,6 +1381,7 @@ class RCOsc(PyoObject):
                 new `freq` attribute.
 
         """
+        pyoArgsAssert(self, "O", x)
         self._freq = x
         x, lmax = convertArgsToLists(x)
         [obj.setFreq(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -1350,6 +1396,7 @@ class RCOsc(PyoObject):
                 new `sharp` attribute.
 
         """
+        pyoArgsAssert(self, "O", x)
         self._sharp = x
         x, lmax = convertArgsToLists(x)
         [obj.setSharp(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
