@@ -24,7 +24,7 @@ TODO before releasing _pyo_ version 1.0.
 
 *Midi*
 
-- Midiout, !MidiFileRead, RawMidi
+- Midiout, !MidiFileRead, !RawMidi
 
 ----
 
