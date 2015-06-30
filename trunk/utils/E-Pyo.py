@@ -2299,7 +2299,7 @@ class MainFrame(wx.Frame):
         self.menu6 = wx.Menu()
         ID_EXAMPLE = 1000
         for folder in EXAMPLE_FOLDERS:
-            exmenu = wx.Menu()
+            exmenu = wx.Menu(folder.lower())
             for ex in sorted([exp for exp in os.listdir(os.path.join(EXAMPLE_PATH, folder.lower())) if exp[0] != "." and not exp.endswith("pyc")]):
                 exmenu.Append(ID_EXAMPLE, ex)
                 ID_EXAMPLE += 1
