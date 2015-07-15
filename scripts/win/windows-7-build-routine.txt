@@ -1,16 +1,17 @@
 === STEP 1 ===
---- Install Python (2.6 and 2.7)
+--- Install Python 2.6 and 2.7.10 and WxPython 3.0.2.0 for each version
 
-=== STEP 2 ===
+=== STEP 2 (should be git soon) ===
 --- Install Slick SVN 1.8.10
 http://www.sliksvn.com
 
 === STEP 3 ===
---- Install scons 2.3.2 in the Python site-packages:
+--- Install scons 2.3.5 in the Python site-packages:
 http://www.scons.org/download.php
 
 === STEP 4 ===
---- Install MinGW (minimalist) from sourceforge
+--- Install MinGW (minimalist GNU for Windows) from sourceforge
+--- Add ";C:\MinGW\bin;C:\MinGW\mingw32\bin" to the PATH variable
 
 === STEP 5 ===
 --- Install pthreads (just copy files from ftp):
@@ -25,6 +26,9 @@ Do not build from sources.
 === STEP 7 ===
 --- Update liblo tag 0.26 from the tarball at http://liblo.sourceforge.net (not SVN!), 
 copy build/config-msvc.h --> src/config.h,
+
+If there is a conflict about struct timespec, remove the definition in pthread.h.
+
 and build with this SConstruct:
 
 # S C O N S T R U C T   F O R   L I B L O . D L L
@@ -81,7 +85,7 @@ Try the trunk version first, if that doesn't work use the most recent tag.
 --- Copy ASIOSDK to portaudio/src/hostapi/asio
 
 --- Check the pa_win_hostapis.c file and make sure that it is configured to build 
-the DirectSound, WMME, and ASIO drivers:
+the DirectSound, WMME, and ASIO drivers. (nothing to do here)
 
 --- Need to removed "volatile" from function definitions in MinGW/include/winbase.h
 
@@ -120,7 +124,7 @@ commonEnvironment.Append(CPPPATH = [".", "src/common", "src/hostapi", "src/os", 
 "C:/portaudio/src/hostapi/asio/ASIOSDK/host",
 "C:/portaudio/src/hostapi/asio/ASIOSDK/host/pc",
 "C:/portaudio/src/hostapi/asio/ASIOSDK/common",
-"C:/Program Files/Microsoft DirectX SDK (April 2007)/Include"])
+"C:/Program Files (x86)/Microsoft DirectX SDK (April 2007)/Include"])
 
 commonEnvironment.Append(LIBS=Split('''
 setupapi
@@ -175,7 +179,7 @@ portAudio = commonEnvironment.SharedLibrary('portaudio', portAudioSources)
 ##########################################################################
 
 === STEP 11 ===
-4 --- Update the PortMidi library http://portmedia.sourceforge.net from SVN and build it with this SConstruct:
+--- Update the PortMidi library http://portmedia.sourceforge.net from SVN and build it with this SConstruct:
 
 '''
 MinGW SConstruct for PortMidi
@@ -258,8 +262,6 @@ Depends(test, portmidi)
 --- create a file PythonXX/Lib/distutils/distutils.cfg with these lines in it:
 [build]
 compiler = mingw32
-
-*** For Python 2.5, comment line 428 to 434 in Python25/include/pyconfig.py
 
 === STEP 13 ===
 --- Download pyo sources from svn and build it with:

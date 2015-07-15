@@ -88,10 +88,10 @@ else:
 
 # Platform-specific build settings for the pyo extension(s).  
 if sys.platform == "win32":
-    include_dirs = ['C:\portaudio\include', 'C:\Program Files\Mega-Nerd\libsndfile\include',
+    include_dirs = ['C:\portaudio\include', 'C:\Program Files (x86)\Mega-Nerd\libsndfile\include',
                     'C:\portmidi\pm_common', 'C:\liblo', 'C:\pthreads\include', 'include',
                     'C:\portmidi\porttime']
-    library_dirs = ['C:\portaudio', 'C:/Program Files/Mega-Nerd/libsndfile/bin', 'C:\portmidi', 'C:\liblo', 'C:\pthreads\lib']
+    library_dirs = ['C:\portaudio', 'C:/Program Files (x86)/Mega-Nerd/libsndfile/bin', 'C:\portmidi', 'C:\liblo', 'C:\pthreads\lib']
     libraries = ['portaudio', 'portmidi', 'porttime', 'libsndfile-1', 'lo', 'pthreadVC2']
 else:
     tsrt = time.strftime('"%d %b %Y %H:%M:%S"', time.localtime())
