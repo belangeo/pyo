@@ -114,6 +114,7 @@ def pyoArgsAssert(obj, format, *args):
             - b : boolean
             - B : boolean (no list-expansion)
             - l : list
+            - L : list or None
             - u : tuple
             - x : sequence (list or tuple)
             - c : callable
@@ -188,6 +189,12 @@ def pyoArgsAssert(obj, format, *args):
         elif f == "x":
             if argtype not in [ListType, TupleType]:
                 expected = "list or tuple"
+        elif f == "c":
+            if not callable(args[i]) and argtype not in [ListType, NoneType]:
+                expected = "callable"
+        elif f == "C":
+            if not callable(args[i]) and argtype not in [NoneType]:
+                expected = "callable - list not allowed"
         elif f == "z":
             pass
                 
