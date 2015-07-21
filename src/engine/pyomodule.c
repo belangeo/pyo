@@ -2550,6 +2550,7 @@ init_pyo64(void)
     module_add_object(m, "MainParticle_base", &MainParticleType);
     module_add_object(m, "Particle_base", &ParticleType);
     module_add_object(m, "AtanTable_base", &AtanTableType);
+    module_add_object(m, "RawMidi_base", &RawMidiType);
 
     PyModule_AddStringConstant(m, "PYO_VERSION", PYO_VERSION);
 #ifdef COMPILE_EXTERNALS

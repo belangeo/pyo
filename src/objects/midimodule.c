@@ -3586,3 +3586,168 @@ PyTypeObject MidiDelAdsrType = {
     0,                         /* tp_alloc */
     MidiDelAdsr_new,                 /* tp_new */
 };
+
+typedef struct {
+    pyo_audio_HEAD
+    PyObject *callable;
+} RawMidi;
+
+static void
+RawMidi_setProcMode(RawMidi *self) {}
+
+static void
+RawMidi_compute_next_data_frame(RawMidi *self)
+{
+    PmEvent *buffer;
+    int i, count, status, data1, data2;
+
+    buffer = Server_getMidiEventBuffer((Server *)self->server);
+    count = Server_getMidiEventCount((Server *)self->server);
+
+    if (count > 0) {
+        PyObject *tup;
+        for (i=count-1; i>=0; i--) {
+            status = Pm_MessageStatus(buffer[i].message);	// Temp note event holders
+            data1 = Pm_MessageData1(buffer[i].message);
+            data2 = Pm_MessageData2(buffer[i].message);
+            tup = PyTuple_New(3);
+            PyTuple_SetItem(tup, 0, PyInt_FromLong(status));
+            PyTuple_SetItem(tup, 1, PyInt_FromLong(data1));
+            PyTuple_SetItem(tup, 2, PyInt_FromLong(data2));
+            PyObject_Call((PyObject *)self->callable, tup, NULL);
+        }
+    }
+}
+
+static int
+RawMidi_traverse(RawMidi *self, visitproc visit, void *arg)
+{
+    pyo_VISIT
+    Py_VISIT(self->callable);
+    return 0;
+}
+
+static int
+RawMidi_clear(RawMidi *self)
+{
+    pyo_CLEAR
+    Py_CLEAR(self->callable);
+    return 0;
+}
+
+static void
+RawMidi_dealloc(RawMidi* self)
+{
+    pyo_DEALLOC
+    RawMidi_clear(self);
+    self->ob_type->tp_free((PyObject*)self);
+}
+
+static PyObject *
+RawMidi_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    int i;
+    PyObject *calltmp=NULL;
+    RawMidi *self;
+    self = (RawMidi *)type->tp_alloc(type, 0);
+
+    INIT_OBJECT_COMMON
+    Stream_setFunctionPtr(self->stream, RawMidi_compute_next_data_frame);
+    self->mode_func_ptr = RawMidi_setProcMode;
+
+    static char *kwlist[] = {"callable", NULL};
+
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O", kwlist, &calltmp))
+        Py_RETURN_NONE;
+
+    if (calltmp) {
+        PyObject_CallMethod((PyObject *)self, "setFunction", "O", calltmp);
+    }
+
+    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+
+    return (PyObject *)self;
+}
+
+static PyObject * RawMidi_getServer(RawMidi* self) { GET_SERVER };
+static PyObject * RawMidi_getStream(RawMidi* self) { GET_STREAM };
+
+static PyObject * RawMidi_play(RawMidi *self, PyObject *args, PyObject *kwds) { PLAY };
+static PyObject * RawMidi_stop(RawMidi *self) { STOP };
+
+static PyObject *
+RawMidi_setFunction(RawMidi *self, PyObject *arg)
+{
+	PyObject *tmp;
+
+	if (! PyCallable_Check(arg)) {
+        PyErr_SetString(PyExc_TypeError, "The callable attribute must be a valid Python function.");
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+
+    tmp = arg;
+    Py_XDECREF(self->callable);
+    Py_INCREF(tmp);
+    self->callable = tmp;
+
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
+static PyMemberDef RawMidi_members[] = {
+    {"server", T_OBJECT_EX, offsetof(RawMidi, server), 0, "Pyo server."},
+    {"stream", T_OBJECT_EX, offsetof(RawMidi, stream), 0, "Stream object."},
+    {NULL}  /* Sentinel */
+};
+
+static PyMethodDef RawMidi_methods[] = {
+    {"getServer", (PyCFunction)RawMidi_getServer, METH_NOARGS, "Returns server object."},
+    {"_getStream", (PyCFunction)RawMidi_getStream, METH_NOARGS, "Returns stream object."},
+    {"play", (PyCFunction)RawMidi_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+    {"stop", (PyCFunction)RawMidi_stop, METH_NOARGS, "Stops computing."},
+    {"setFunction", (PyCFunction)RawMidi_setFunction, METH_O, "Sets the function to be called."},
+    {NULL}  /* Sentinel */
+};
+
+PyTypeObject RawMidiType = {
+    PyObject_HEAD_INIT(NULL)
+    0,                         /*ob_size*/
+    "_pyo.RawMidi_base",         /*tp_name*/
+    sizeof(RawMidi),         /*tp_basicsize*/
+    0,                         /*tp_itemsize*/
+    (destructor)RawMidi_dealloc, /*tp_dealloc*/
+    0,                         /*tp_print*/
+    0,                         /*tp_getattr*/
+    0,                         /*tp_setattr*/
+    0,                         /*tp_compare*/
+    0,                         /*tp_repr*/
+    0,             /*tp_as_number*/
+    0,                         /*tp_as_sequence*/
+    0,                         /*tp_as_mapping*/
+    0,                         /*tp_hash */
+    0,                         /*tp_call*/
+    0,                         /*tp_str*/
+    0,                         /*tp_getattro*/
+    0,                         /*tp_setattro*/
+    0,                         /*tp_as_buffer*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    "RawMidi objects. Calls a function with midi data as arguments.",           /* tp_doc */
+    (traverseproc)RawMidi_traverse,   /* tp_traverse */
+    (inquiry)RawMidi_clear,           /* tp_clear */
+    0,		               /* tp_richcompare */
+    0,		               /* tp_weaklistoffset */
+    0,		               /* tp_iter */
+    0,		               /* tp_iternext */
+    RawMidi_methods,             /* tp_methods */
+    RawMidi_members,             /* tp_members */
+    0,                      /* tp_getset */
+    0,                         /* tp_base */
+    0,                         /* tp_dict */
+    0,                         /* tp_descr_get */
+    0,                         /* tp_descr_set */
+    0,                         /* tp_dictoffset */
+    0,      /* tp_init */
+    0,                         /* tp_alloc */
+    RawMidi_new,                 /* tp_new */
+};
