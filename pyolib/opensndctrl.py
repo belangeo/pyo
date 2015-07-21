@@ -31,10 +31,9 @@ GNU Lesser General Public License for more details.
 You should have received a copy of the GNU Lesser General Public
 License along with pyo.  If not, see <http://www.gnu.org/licenses/>.
 """
-import sys
 from _core import *
 from _maps import *
-from types import IntType, ListType
+from types import ListType
 
 ######################################################################
 ### Open Sound Control
@@ -77,6 +76,7 @@ class OscSend(PyoObject):
 
     """
     def __init__(self, input, port, address, host="127.0.0.1"):
+        pyoArgsAssert(self, "oiss", input, port, address, host)
         PyoObject.__init__(self)
         self._input = input
         self._in_fader = InputFader(input)
@@ -95,6 +95,7 @@ class OscSend(PyoObject):
                 Crossfade time between old and new input. Defaults to 0.05.
 
         """
+        pyoArgsAssert(self, "oN", x, fadetime)
         self._input = x
         self._in_fader.setInput(x, fadetime)
 
@@ -118,6 +119,7 @@ class OscSend(PyoObject):
                 Should be greater or equal to 1.
 
         """
+        pyoArgsAssert(self, "I", x)
         [obj.setBufferRate(x) for obj in self._base_objs]
 
     @property
@@ -169,10 +171,8 @@ class OscReceive(PyoObject):
     """
 
     def __init__(self, port, address, mul=1, add=0):
+        pyoArgsAssert(self, "IsOO", port, address, mul, add)
         PyoObject.__init__(self, mul, add)
-        if type(port) != IntType:
-            print >> sys.stderr, 'TypeError: "port" argument of %s must be an integer.\n' % self.__class__.__name__
-            exit()
         address, mul, add, lmax = convertArgsToLists(address, mul, add)
         self._address = address
         self._mainReceiver = OscReceiver_base(port, address)
@@ -207,6 +207,7 @@ class OscReceive(PyoObject):
                 Addition factor. Defaults to 0.
 
         """
+        pyoArgsAssert(self, "sOO", path, mul, add)
         path, lmax = convertArgsToLists(path)
         mul, add, lmax2 = convertArgsToLists(mul, add)
         for i, p in enumerate(path):
@@ -225,6 +226,7 @@ class OscReceive(PyoObject):
                 Path(s) to remove.
 
         """
+        pyoArgsAssert(self, "s", path)
         path, lmax = convertArgsToLists(path)
         self._mainReceiver.delAddress(path)
         indexes = [self._address.index(p) for p in path]
@@ -242,6 +244,7 @@ class OscReceive(PyoObject):
                 True activates the interpolation, False deactivates it.
 
         """
+        pyoArgsAssert(self, "B", x)
         [obj.setInterpolation(x) for obj in self._base_objs]
 
     def setValue(self, path, value):
@@ -256,6 +259,7 @@ class OscReceive(PyoObject):
                 Value to attribute to the given address.
 
         """
+        pyoArgsAssert(self, "sn", path, value)
         path, value, lmax = convertArgsToLists(path, value)
         for i in range(lmax):
             p = wrap(path,i)
@@ -345,6 +349,7 @@ class OscDataSend(PyoObject):
 
     """
     def __init__(self, types, port, address, host="127.0.0.1"):
+        pyoArgsAssert(self, "siss", types, port, address, host)
         PyoObject.__init__(self)
         types, port, address, host, lmax = convertArgsToLists(types, port, address, host)
         self._base_objs = [OscDataSend_base(wrap(types,i), wrap(port,i), wrap(address,i), wrap(host,i)) for i in range(lmax)]
@@ -396,6 +401,7 @@ class OscDataSend(PyoObject):
                 is the localhost.
 
         """
+        pyoArgsAssert(self, "siss", types, port, address, host)
         types, port, address, host, lmax = convertArgsToLists(types, port, address, host)
         objs = [OscDataSend_base(wrap(types,i), wrap(port,i), wrap(address,i), wrap(host,i)) for i in range(lmax)]
         self._base_objs.extend(objs)
@@ -412,6 +418,7 @@ class OscDataSend(PyoObject):
                 Path(s) to remove.
 
         """
+        pyoArgsAssert(self, "s", path)
         path, lmax = convertArgsToLists(path)
         for p in path:
             self._base_objs.remove(self._addresses[p])
@@ -433,8 +440,10 @@ class OscDataSend(PyoObject):
 
         """
         if address == None:
+            pyoArgsAssert(self, "l", msg)
             [obj.send(msg) for obj in self._base_objs]
         else:
+            pyoArgsAssert(self, "lS", msg, address)
             self._addresses[address].send(msg)
 
 class OscDataReceive(PyoObject):
@@ -488,14 +497,9 @@ class OscDataReceive(PyoObject):
     """
 
     def __init__(self, port, address, function):
+        pyoArgsAssert(self, "IsC", port, address, function)
         PyoObject.__init__(self)
-        if type(port) != IntType:
-            print >> sys.stderr, 'TypeError: "port" argument of %s must be an integer.\n' % self.__class__.__name__
-            exit()
         self._port = port
-        if not callable(function):
-            print >> sys.stderr, 'TypeError: "function" argument of %s must be callable.\n' % self.__class__.__name__
-            exit()
         self._function = WeakMethod(function)
         self._address, lmax = convertArgsToLists(address)
         # self._address is linked with list at C level
@@ -527,6 +531,7 @@ class OscDataReceive(PyoObject):
                 New path(s) to receive from.
 
         """
+        pyoArgsAssert(self, "s", path)
         path, lmax = convertArgsToLists(path)
         for p in path:
             if p not in self._address:
@@ -542,6 +547,7 @@ class OscDataReceive(PyoObject):
                 Path(s) to remove.
 
         """
+        pyoArgsAssert(self, "s", path)
         path, lmax = convertArgsToLists(path)
         for p in path:
             index = self._address.index(p)
@@ -592,13 +598,8 @@ class OscListReceive(PyoObject):
     """
 
     def __init__(self, port, address, num=8, mul=1, add=0):
+        pyoArgsAssert(self, "IsIOO", port, address, num, mul, add)
         PyoObject.__init__(self, mul, add)
-        if type(port) != IntType:
-            print >> sys.stderr, 'TypeError: "port" argument of %s must be an integer.\n' % self.__class__.__name__
-            exit()
-        if type(num) != IntType:
-            print >> sys.stderr, 'TypeError: "num" argument of %s must be an integer.\n' % self.__class__.__name__
-            exit()
         self._num = num
         self._op_duplicate = self._num
         address, mul, add, lmax = convertArgsToLists(address, mul, add)
@@ -637,6 +638,7 @@ class OscListReceive(PyoObject):
                 Addition factor. Defaults to 0.
 
         """
+        pyoArgsAssert(self, "sOO", path, mul, add)
         path, lmax = convertArgsToLists(path)
         mul, add, lmax2 = convertArgsToLists(mul, add)
         for i, p in enumerate(path):
@@ -655,6 +657,7 @@ class OscListReceive(PyoObject):
                 Path(s) to remove.
 
         """
+        pyoArgsAssert(self, "s", path)
         path, lmax = convertArgsToLists(path)
         self._mainReceiver.delAddress(path)
         indexes = [self._address.index(p) for p in path]
@@ -674,6 +677,7 @@ class OscListReceive(PyoObject):
                 True activates the interpolation, False deactivates it.
 
         """
+        pyoArgsAssert(self, "B", x)
         [obj.setInterpolation(x) for obj in self._base_objs]
 
     def setValue(self, path, value):
@@ -688,6 +692,7 @@ class OscListReceive(PyoObject):
                 List of values to attribute to the given address.
 
         """
+        pyoArgsAssert(self, "sl", path, value)
         path, lmax = convertArgsToLists(path)
         for i in range(lmax):
             p = wrap(path,i)

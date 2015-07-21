@@ -23,10 +23,8 @@ GNU Lesser General Public License for more details.
 You should have received a copy of the GNU Lesser General Public
 License along with pyo.  If not, see <http://www.gnu.org/licenses/>.
 """
-import sys
 from _core import *
 from _maps import *
-from types import ListType, TupleType
 
 class Pattern(PyoObject):
     """
@@ -62,15 +60,8 @@ class Pattern(PyoObject):
 
     """
     def __init__(self, function, time=1):
+        pyoArgsAssert(self, "cO", function, time)
         PyoObject.__init__(self)
-        if type(function) == ListType or type(function) == TupleType:
-            if not callable(function[0]):
-                print >> sys.stderr, 'TypeError: "function" argument of %s must be callable.\n' % self.__class__.__name__
-                exit()
-        else:
-            if not callable(function):
-                print >> sys.stderr, 'TypeError: "function" argument of %s must be callable.\n' % self.__class__.__name__
-                exit()
         self._function = getWeakMethodRef(function)
         self._time = time
         function, time, lmax = convertArgsToLists(function, time)
@@ -86,6 +77,7 @@ class Pattern(PyoObject):
                 new `function` attribute.
 
         """
+        pyoArgsAssert(self, "c", x)
         self._function = getWeakMethodRef(x)
         x, lmax = convertArgsToLists(x)
         [obj.setFunction(WeakMethod(wrap(x,i))) for i, obj in enumerate(self._base_objs)]
@@ -100,6 +92,7 @@ class Pattern(PyoObject):
                 New `time` attribute.
 
         """
+        pyoArgsAssert(self, "O", x)
         self._time = x
         x, lmax = convertArgsToLists(x)
         [obj.setTime(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -185,6 +178,7 @@ class Score(PyoObject):
 
     """
     def __init__(self, input, fname="event_"):
+        pyoArgsAssert(self, "os", input, fname)
         PyoObject.__init__(self)
         self._input = input
         self._fname = fname
@@ -213,6 +207,7 @@ class Score(PyoObject):
                 Crossfade time between old and new input. Defaults to 0.05.
 
         """
+        pyoArgsAssert(self, "oN", x, fadetime)
         self._input = x
         self._in_fader.setInput(x, fadetime)
 
@@ -258,15 +253,8 @@ class CallAfter(PyoObject):
 
     """
     def __init__(self, function, time=1, arg=None):
+        pyoArgsAssert(self, "cn", function, time)
         PyoObject.__init__(self)
-        if type(function) == ListType or type(function) == TupleType:
-            if not callable(function[0]):
-                print >> sys.stderr, 'TypeError: "function" argument of %s must be callable.\n' % self.__class__.__name__
-                exit()
-        else:
-            if not callable(function):
-                print >> sys.stderr, 'TypeError: "function" argument of %s must be callable.\n' % self.__class__.__name__
-                exit()
         self._function = getWeakMethodRef(function)
         function, time, arg, lmax = convertArgsToLists(function, time, arg)
         self._base_objs = [CallAfter_base(WeakMethod(wrap(function,i)), wrap(time,i), wrap(arg,i)) for i in range(lmax)]
