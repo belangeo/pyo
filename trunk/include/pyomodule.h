@@ -561,51 +561,57 @@ extern PyTypeObject AtanTableType;
 
 /* VISIT & CLEAR */
 #define pyo_VISIT \
-    if (PyServer_get_server() != NULL) \
+    if (self->server != NULL) \
         Py_VISIT(self->server); \
-    Py_VISIT(self->stream); \
+    if (self->stream != NULL) \
+        Py_VISIT(self->stream); \
     Py_VISIT(self->mul); \
     Py_VISIT(self->mul_stream); \
     Py_VISIT(self->add); \
     Py_VISIT(self->add_stream);
 
 #define pyo_table_VISIT \
-    if (PyServer_get_server() != NULL) \
+    if (self->server != NULL) \
         Py_VISIT(self->server); \
-    Py_VISIT(self->tablestream); \
+    if (self->tablestream != NULL) \
+        Py_VISIT(self->tablestream); \
 
 #define pyo_matrix_VISIT \
-    if (PyServer_get_server() != NULL) \
+    if (self->server != NULL) \
         Py_VISIT(self->server); \
-    Py_VISIT(self->matrixstream); \
+    if (self->matrixstream != NULL) \
+        Py_VISIT(self->matrixstream); \
 
 #define pyo_CLEAR \
-    if (PyServer_get_server() != NULL) { \
+    if (self->server != NULL) { \
         Py_INCREF(self->server); \
         Py_CLEAR(self->server); \
     } \
-    Py_CLEAR(self->stream); \
+    if (self->stream != NULL) \
+        Py_CLEAR(self->stream); \
     Py_CLEAR(self->mul); \
     Py_CLEAR(self->mul_stream); \
     Py_CLEAR(self->add); \
     Py_CLEAR(self->add_stream); \
 
 #define pyo_table_CLEAR \
-    if (PyServer_get_server() != NULL) { \
+    if (self->server != NULL) { \
         Py_INCREF(self->server); \
         Py_CLEAR(self->server); \
     } \
-    Py_CLEAR(self->tablestream); \
+    if (self->tablestream != NULL) \
+        Py_CLEAR(self->tablestream); \
 
 #define pyo_matrix_CLEAR \
-    if (PyServer_get_server() != NULL) { \
+    if (self->server != NULL) { \
         Py_INCREF(self->server); \
         Py_CLEAR(self->server); \
     } \
-    Py_CLEAR(self->matrixstream); \
+    if (self->matrixstream != NULL) \
+        Py_CLEAR(self->matrixstream); \
 
 #define pyo_DEALLOC \
-    if (PyServer_get_server() != NULL) \
+    if (self->server != NULL && self->stream != NULL) \
         Server_removeStream((Server *)self->server, Stream_getStreamId(self->stream)); \
     free(self->data); \
 
