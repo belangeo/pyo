@@ -828,6 +828,7 @@ class Spectrum(PyoObject):
 
     """
     def __init__(self, input, size=1024, wintype=2, function=None):
+        pyoArgsAssert(self, "oiiC", input, size, wintype, function)
         PyoObject.__init__(self)
         self.points = None
         self.viewFrame = None
@@ -861,6 +862,7 @@ class Spectrum(PyoObject):
                 Crossfade time between old and new input. Default to 0.05.
 
         """
+        pyoArgsAssert(self, "oN", x, fadetime)
         self._input = x
         self._in_fader.setInput(x, fadetime)
 
@@ -874,6 +876,7 @@ class Spectrum(PyoObject):
                 new `size` attribute.
 
         """
+        pyoArgsAssert(self, "i", x)
         self._size = x
         x, lmax = convertArgsToLists(x)
         [obj.setSize(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -888,6 +891,7 @@ class Spectrum(PyoObject):
                 new `wintype` attribute.
 
         """
+        pyoArgsAssert(self, "i", x)
         self._wintype = x
         x, lmax = convertArgsToLists(x)
         [obj.setWinType(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -904,6 +908,7 @@ class Spectrum(PyoObject):
                 and will receive the data as a list of lists (one list per channel).
 
         """
+        pyoArgsAssert(self, "C", function)
         self._function = getWeakMethodRef(function)
 
     def poll(self, active):
@@ -917,6 +922,7 @@ class Spectrum(PyoObject):
                 defaults to True.
 
         """
+        pyoArgsAssert(self, "B", active)
         if active:
             self._timer.play()
         else:
@@ -933,6 +939,7 @@ class Spectrum(PyoObject):
                 retrieve the current analysis frame. defaults to 0.05.
 
         """
+        pyoArgsAssert(self, "N", time)
         self._timer.time = time
 
     def setLowbound(self, x):
@@ -947,6 +954,7 @@ class Spectrum(PyoObject):
                 new `lowbound` attribute.
 
         """
+        pyoArgsAssert(self, "n", x)
         self._lowbound = x
         x, lmax = convertArgsToLists(x)
         tmp = [obj.setLowbound(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -964,6 +972,7 @@ class Spectrum(PyoObject):
                 new `highbound` attribute.
 
         """
+        pyoArgsAssert(self, "n", x)
         self._highbound = x
         x, lmax = convertArgsToLists(x)
         tmp = [obj.setHighbound(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -996,6 +1005,7 @@ class Spectrum(PyoObject):
                 new `width` attribute.
 
         """
+        pyoArgsAssert(self, "i", x)
         self._width = x
         x, lmax = convertArgsToLists(x)
         [obj.setWidth(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -1012,6 +1022,7 @@ class Spectrum(PyoObject):
                 new `height` attribute.
 
         """
+        pyoArgsAssert(self, "i", x)
         self._height = x
         x, lmax = convertArgsToLists(x)
         [obj.setHeight(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -1027,6 +1038,7 @@ class Spectrum(PyoObject):
                 it back to linear. Defaults to False.
 
         """
+        pyoArgsAssert(self, "b", x)
         self._fscaling = x
         x, lmax = convertArgsToLists(x)
         [obj.setFscaling(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -1044,6 +1056,7 @@ class Spectrum(PyoObject):
                 False turns it back to linear. Defaults to True.
 
         """
+        pyoArgsAssert(self, "b", x)
         self._mscaling = x
         x, lmax = convertArgsToLists(x)
         [obj.setMscaling(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -1078,6 +1091,7 @@ class Spectrum(PyoObject):
                 new `gain` attribute, as linear values.
 
         """
+        pyoArgsAssert(self, "n", x)
         self._gain = x
         x, lmax = convertArgsToLists(x)
         [obj.setGain(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -1098,6 +1112,7 @@ class Spectrum(PyoObject):
         the server GUI before showing the controller window.
 
         """
+        pyoArgsAssert(self, "SB", title, wxnoserver)
         createSpectrumWindow(self, title, wxnoserver)
 
     def _setViewFrame(self, frame):
@@ -1221,6 +1236,7 @@ class Scope(PyoObject):
 
     """
     def __init__(self, input, length=0.05, gain=0.67):
+        pyoArgsAssert(self, "oNN", input, length, gain)
         PyoObject.__init__(self)
         self.points = None
         self.viewFrame = None
@@ -1247,6 +1263,7 @@ class Scope(PyoObject):
                 Crossfade time between old and new input. Default to 0.05.
 
         """
+        pyoArgsAssert(self, "oN", x, fadetime)
         self._input = x
         self._in_fader.setInput(x, fadetime)
 
@@ -1260,6 +1277,7 @@ class Scope(PyoObject):
                 new `length` attribute.
 
         """
+        pyoArgsAssert(self, "N", x)
         self._length = x
         self._timer.time = x
         [obj.setLength(x) for obj in self._base_objs]
@@ -1274,6 +1292,7 @@ class Scope(PyoObject):
                 new `gain` attribute, as linear values.
 
         """
+        pyoArgsAssert(self, "n", x)
         self._gain = x
         x, lmax = convertArgsToLists(x)
         [obj.setGain(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -1289,6 +1308,7 @@ class Scope(PyoObject):
                 defaults to True.
 
         """
+        pyoArgsAssert(self, "B", active)
         if active:
             self._timer.play()
         else:
@@ -1308,6 +1328,7 @@ class Scope(PyoObject):
                 width is 500.
 
         """
+        pyoArgsAssert(self, "I", x)
         self._width = x
         [obj.setWidth(x) for obj in self._base_objs]
 
@@ -1325,6 +1346,7 @@ class Scope(PyoObject):
                 height is 400.
 
         """
+        pyoArgsAssert(self, "I", x)
         self._height = x
         [obj.setHeight(x) for obj in self._base_objs]
 
@@ -1344,6 +1366,7 @@ class Scope(PyoObject):
         the server GUI before showing the controller window.
 
         """
+        pyoArgsAssert(self, "SB", title, wxnoserver)
         createScopeWindow(self, title, wxnoserver)
 
     def _setViewFrame(self, frame):
@@ -1418,6 +1441,7 @@ class PeakAmp(PyoObject):
 
     """
     def __init__(self, input, function=None, mul=1, add=0):
+        pyoArgsAssert(self, "oCOO", input, function, mul, add)
         PyoObject.__init__(self, mul, add)
         self._input = input
         if callable(function):
@@ -1443,6 +1467,7 @@ class PeakAmp(PyoObject):
                 Crossfade time between old and new input. Default to 0.05.
 
         """
+        pyoArgsAssert(self, "oN", x, fadetime)
         self._input = x
         self._in_fader.setInput(x, fadetime)
 
@@ -1456,6 +1481,7 @@ class PeakAmp(PyoObject):
                 New function to call with amplitude values in arguments.
 
         """
+        pyoArgsAssert(self, "C", x)
         if callable(x):
             self._function = getWeakMethodRef(x)
 
@@ -1469,6 +1495,7 @@ class PeakAmp(PyoObject):
                 New polling time in seconds.
 
         """
+        pyoArgsAssert(self, "N", x)
         self._timer.time = x
 
     def out(self, chnl=0, inc=1, dur=0, delay=0):

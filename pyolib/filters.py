@@ -69,6 +69,7 @@ class Biquad(PyoObject):
 
     """
     def __init__(self, input, freq=1000, q=1, type=0, mul=1, add=0):
+        pyoArgsAssert(self, "oOOiOO", input, freq, q, type, mul, add)
         PyoObject.__init__(self, mul, add)
         self._input = input
         self._freq = freq
@@ -90,6 +91,7 @@ class Biquad(PyoObject):
                 Crossfade time between old and new input. Defaults to 0.05.
 
         """
+        pyoArgsAssert(self, "oN", x, fadetime)
         self._input = x
         self._in_fader.setInput(x, fadetime)
 
@@ -103,6 +105,7 @@ class Biquad(PyoObject):
                 New `freq` attribute.
 
         """
+        pyoArgsAssert(self, "O", x)
         self._freq = x
         x, lmax = convertArgsToLists(x)
         [obj.setFreq(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -117,6 +120,7 @@ class Biquad(PyoObject):
                 New `q` attribute.
 
         """
+        pyoArgsAssert(self, "O", x)
         self._q = x
         x, lmax = convertArgsToLists(x)
         [obj.setQ(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -136,6 +140,7 @@ class Biquad(PyoObject):
                     4. allpass
 
         """
+        pyoArgsAssert(self, "i", x)
         self._type = x
         x, lmax = convertArgsToLists(x)
         [obj.setType(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -212,6 +217,7 @@ class Biquadx(PyoObject):
 
     """
     def __init__(self, input, freq=1000, q=1, type=0, stages=4, mul=1, add=0):
+        pyoArgsAssert(self, "oOOiiOO", input, freq, q, type, stages, mul, add)
         PyoObject.__init__(self, mul, add)
         self._input = input
         self._freq = freq
@@ -234,6 +240,7 @@ class Biquadx(PyoObject):
                 Crossfade time between old and new input. Defaults to 0.05.
 
         """
+        pyoArgsAssert(self, "oN", x, fadetime)
         self._input = x
         self._in_fader.setInput(x, fadetime)
 
@@ -247,6 +254,7 @@ class Biquadx(PyoObject):
                 New `freq` attribute.
 
         """
+        pyoArgsAssert(self, "O", x)
         self._freq = x
         x, lmax = convertArgsToLists(x)
         [obj.setFreq(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -261,6 +269,7 @@ class Biquadx(PyoObject):
                 New `q` attribute.
 
         """
+        pyoArgsAssert(self, "O", x)
         self._q = x
         x, lmax = convertArgsToLists(x)
         [obj.setQ(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -280,6 +289,7 @@ class Biquadx(PyoObject):
                 4. allpass
 
         """
+        pyoArgsAssert(self, "i", x)
         self._type = x
         x, lmax = convertArgsToLists(x)
         [obj.setType(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -294,6 +304,7 @@ class Biquadx(PyoObject):
                 New `stages` attribute.
 
         """
+        pyoArgsAssert(self, "i", x)
         self._stages = x
         x, lmax = convertArgsToLists(x)
         [obj.setStages(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -383,6 +394,7 @@ class Biquada(PyoObject):
 
     """
     def __init__(self, input, b0=0.005066, b1=0.010132, b2=0.005066, a0=1.070997, a1=-1.979735, a2=0.929003, mul=1, add=0):
+        pyoArgsAssert(self, "oOOOOOOOO", input, b0, b1, b2, a0, a1, a2, mul, add)
         PyoObject.__init__(self, mul, add)
         self._input = input
         self._b0 = Sig(b0)
@@ -407,6 +419,7 @@ class Biquada(PyoObject):
                 Crossfade time between old and new input. Defaults to 0.05.
 
         """
+        pyoArgsAssert(self, "oN", x, fadetime)
         self._input = x
         self._in_fader.setInput(x, fadetime)
 
@@ -420,6 +433,7 @@ class Biquada(PyoObject):
                 New `b0` attribute.
 
         """
+        pyoArgsAssert(self, "O", x)
         self._b0.value = x
 
     def setB1(self, x):
@@ -432,6 +446,7 @@ class Biquada(PyoObject):
                 New `b1` attribute.
 
         """
+        pyoArgsAssert(self, "O", x)
         self._b1.value = x
 
     def setB2(self, x):
@@ -444,6 +459,7 @@ class Biquada(PyoObject):
                 New `b2` attribute.
 
         """
+        pyoArgsAssert(self, "O", x)
         self._b2.value = x
 
     def setA0(self, x):
@@ -456,6 +472,7 @@ class Biquada(PyoObject):
                 New `a0` attribute.
 
         """
+        pyoArgsAssert(self, "O", x)
         self._a0.value = x
 
     def setA1(self, x):
@@ -468,6 +485,7 @@ class Biquada(PyoObject):
                 New `a1` attribute.
 
         """
+        pyoArgsAssert(self, "O", x)
         self._a1.value = x
 
     def setA2(self, x):
@@ -480,6 +498,7 @@ class Biquada(PyoObject):
                 New `a2` attribute.
 
         """
+        pyoArgsAssert(self, "O", x)
         self._a2.value = x
 
     def setCoeffs(self, *args, **kwds):
@@ -601,6 +620,7 @@ class EQ(PyoObject):
 
     """
     def __init__(self, input, freq=1000, q=1, boost=-3.0, type=0, mul=1, add=0):
+        pyoArgsAssert(self, "oOOOiOO", input, freq, q, boost, type, mul, add)
         PyoObject.__init__(self, mul, add)
         self._input = input
         self._freq = freq
@@ -623,6 +643,7 @@ class EQ(PyoObject):
                 Crossfade time between old and new input. Defaults to 0.05.
 
         """
+        pyoArgsAssert(self, "oN", x, fadetime)
         self._input = x
         self._in_fader.setInput(x, fadetime)
 
@@ -636,6 +657,7 @@ class EQ(PyoObject):
                 New `freq` attribute.
 
         """
+        pyoArgsAssert(self, "O", x)
         self._freq = x
         x, lmax = convertArgsToLists(x)
         [obj.setFreq(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -650,6 +672,7 @@ class EQ(PyoObject):
                 New `q` attribute.
 
         """
+        pyoArgsAssert(self, "O", x)
         self._q = x
         x, lmax = convertArgsToLists(x)
         [obj.setQ(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -664,6 +687,7 @@ class EQ(PyoObject):
                 New `boost` attribute.
 
         """
+        pyoArgsAssert(self, "O", x)
         self._boost = x
         x, lmax = convertArgsToLists(x)
         [obj.setBoost(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -681,6 +705,7 @@ class EQ(PyoObject):
                 2. highshelf
 
         """
+        pyoArgsAssert(self, "i", x)
         self._type = x
         x, lmax = convertArgsToLists(x)
         [obj.setType(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -748,6 +773,7 @@ class Tone(PyoObject):
 
     """
     def __init__(self, input, freq=1000, mul=1, add=0):
+        pyoArgsAssert(self, "oOOO", input, freq, mul, add)
         PyoObject.__init__(self, mul, add)
         self._input = input
         self._freq = freq
@@ -767,6 +793,7 @@ class Tone(PyoObject):
                 Crossfade time between old and new input. Default to 0.05.
 
         """
+        pyoArgsAssert(self, "oN", x, fadetime)
         self._input = x
         self._in_fader.setInput(x, fadetime)
 
@@ -780,6 +807,7 @@ class Tone(PyoObject):
                 New `freq` attribute.
 
         """
+        pyoArgsAssert(self, "O", x)
         self._freq = x
         x, lmax = convertArgsToLists(x)
         [obj.setFreq(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -823,6 +851,7 @@ class Atone(PyoObject):
 
     """
     def __init__(self, input, freq=1000, mul=1, add=0):
+        pyoArgsAssert(self, "oOOO", input, freq, mul, add)
         PyoObject.__init__(self, mul, add)
         self._input = input
         self._freq = freq
@@ -842,6 +871,7 @@ class Atone(PyoObject):
                 Crossfade time between old and new input. Default to 0.05.
 
         """
+        pyoArgsAssert(self, "oN", x, fadetime)
         self._input = x
         self._in_fader.setInput(x, fadetime)
 
@@ -855,6 +885,7 @@ class Atone(PyoObject):
                 New `freq` attribute.
 
         """
+        pyoArgsAssert(self, "O", x)
         self._freq = x
         x, lmax = convertArgsToLists(x)
         [obj.setFreq(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -910,6 +941,7 @@ class Port(PyoObject):
 
     """
     def __init__(self, input, risetime=0.05, falltime=0.05, init=0, mul=1, add=0):
+        pyoArgsAssert(self, "oOOnOO", input, risetime, falltime, init, mul, add)
         PyoObject.__init__(self, mul, add)
         self._input = input
         self._risetime = risetime
@@ -930,6 +962,7 @@ class Port(PyoObject):
                 Crossfade time between old and new input. Defaults to 0.05.
 
         """
+        pyoArgsAssert(self, "oN", x, fadetime)
         self._input = x
         self._in_fader.setInput(x, fadetime)
 
@@ -943,6 +976,7 @@ class Port(PyoObject):
                 New `risetime` attribute.
 
         """
+        pyoArgsAssert(self, "O", x)
         self._risetime = x
         x, lmax = convertArgsToLists(x)
         [obj.setRiseTime(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -957,6 +991,7 @@ class Port(PyoObject):
                 New `falltime` attribute.
 
         """
+        pyoArgsAssert(self, "O", x)
         self._falltime = x
         x, lmax = convertArgsToLists(x)
         [obj.setFallTime(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -1006,6 +1041,7 @@ class DCBlock(PyoObject):
 
     """
     def __init__(self, input, mul=1, add=0):
+        pyoArgsAssert(self, "oOO", input, mul, add)
         PyoObject.__init__(self, mul, add)
         self._input = input
         self._in_fader = InputFader(input)
@@ -1024,6 +1060,7 @@ class DCBlock(PyoObject):
                 Crossfade time between old and new input. Default to 0.05.
 
         """
+        pyoArgsAssert(self, "oN", x, fadetime)
         self._input = x
         self._in_fader.setInput(x, fadetime)
 
@@ -1070,6 +1107,7 @@ class BandSplit(PyoObject):
 
     """
     def __init__(self, input, num=6, min=20, max=20000, q=1, mul=1, add=0):
+        pyoArgsAssert(self, "oINNOOO", input, num, min, max, q, mul, add)
         PyoObject.__init__(self, mul, add)
         self._input = input
         self._num = num
@@ -1098,6 +1136,7 @@ class BandSplit(PyoObject):
                 Crossfade time between old and new input. Defaults to 0.05.
 
         """
+        pyoArgsAssert(self, "oN", x, fadetime)
         self._input = x
         self._in_fader.setInput(x, fadetime)
 
@@ -1111,6 +1150,7 @@ class BandSplit(PyoObject):
                 new `q` attribute.
 
         """
+        pyoArgsAssert(self, "O", x)
         self._q = x
         x, lmax = convertArgsToLists(x)
         [obj.setQ(wrap(x,i)) for i, obj in enumerate(self._base_players)]
@@ -1169,6 +1209,7 @@ class FourBand(PyoObject):
 
     """
     def __init__(self, input, freq1=150, freq2=500, freq3=2000, mul=1, add=0):
+        pyoArgsAssert(self, "oOOOOO", input, freq1, freq2, freq3, mul, add)
         PyoObject.__init__(self, mul, add)
         self._input = input
         self._freq1 = freq1
@@ -1196,6 +1237,7 @@ class FourBand(PyoObject):
                 Crossfade time between old and new input. Defaults to 0.05.
 
         """
+        pyoArgsAssert(self, "oN", x, fadetime)
         self._input = x
         self._in_fader.setInput(x, fadetime)
 
@@ -1209,6 +1251,7 @@ class FourBand(PyoObject):
                 new `freq1` attribute.
 
         """
+        pyoArgsAssert(self, "O", x)
         self._freq1 = x
         x, lmax = convertArgsToLists(x)
         [obj.setFreq1(wrap(x,i)) for i, obj in enumerate(self._base_players)]
@@ -1223,6 +1266,7 @@ class FourBand(PyoObject):
                 new `freq2` attribute.
 
         """
+        pyoArgsAssert(self, "O", x)
         self._freq2 = x
         x, lmax = convertArgsToLists(x)
         [obj.setFreq2(wrap(x,i)) for i, obj in enumerate(self._base_players)]
@@ -1237,6 +1281,7 @@ class FourBand(PyoObject):
                 new `freq3` attribute.
 
         """
+        pyoArgsAssert(self, "O", x)
         self._freq3 = x
         x, lmax = convertArgsToLists(x)
         [obj.setFreq3(wrap(x,i)) for i, obj in enumerate(self._base_players)]
@@ -1321,6 +1366,7 @@ class Hilbert(PyoObject):
 
     """
     def __init__(self, input, mul=1, add=0):
+        pyoArgsAssert(self, "oOO", input, mul, add)
         PyoObject.__init__(self, mul, add)
         self._real_dummy = []
         self._imag_dummy = []
@@ -1381,6 +1427,7 @@ class Hilbert(PyoObject):
                 Crossfade time between old and new input. Default to 0.05.
 
         """
+        pyoArgsAssert(self, "oN", x, fadetime)
         self._input = x
         self._in_fader.setInput(x, fadetime)
 
@@ -1429,6 +1476,7 @@ class Allpass(PyoObject):
 
     """
     def __init__(self, input, delay=0.01, feedback=0, maxdelay=1, mul=1, add=0):
+        pyoArgsAssert(self, "oOOnOO", input, delay, feedback, maxdelay, mul, add)
         PyoObject.__init__(self, mul, add)
         self._input = input
         self._delay = delay
@@ -1450,6 +1498,7 @@ class Allpass(PyoObject):
                 Crossfade time between old and new input. Defaults to 0.05.
 
         """
+        pyoArgsAssert(self, "oN", x, fadetime)
         self._input = x
         self._in_fader.setInput(x, fadetime)
 
@@ -1463,6 +1512,7 @@ class Allpass(PyoObject):
                 New `delay` attribute.
 
         """
+        pyoArgsAssert(self, "O", x)
         self._delay = x
         x, lmax = convertArgsToLists(x)
         [obj.setDelay(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -1477,6 +1527,7 @@ class Allpass(PyoObject):
                 New `feedback` attribute.
 
         """
+        pyoArgsAssert(self, "O", x)
         self._feedback = x
         x, lmax = convertArgsToLists(x)
         [obj.setFeedback(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -1540,6 +1591,7 @@ class Allpass2(PyoObject):
 
     """
     def __init__(self, input, freq=1000, bw=100, mul=1, add=0):
+        pyoArgsAssert(self, "oOOOO", input, freq, bw, mul, add)
         PyoObject.__init__(self, mul, add)
         self._input = input
         self._freq = freq
@@ -1560,6 +1612,7 @@ class Allpass2(PyoObject):
                 Crossfade time between old and new input. Defaults to 0.05.
 
         """
+        pyoArgsAssert(self, "oN", x, fadetime)
         self._input = x
         self._in_fader.setInput(x, fadetime)
 
@@ -1573,6 +1626,7 @@ class Allpass2(PyoObject):
                 New `freq` attribute.
 
         """
+        pyoArgsAssert(self, "O", x)
         self._freq = x
         x, lmax = convertArgsToLists(x)
         [obj.setFreq(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -1587,6 +1641,7 @@ class Allpass2(PyoObject):
                 New `bw` attribute.
 
         """
+        pyoArgsAssert(self, "O", x)
         self._bw = x
         x, lmax = convertArgsToLists(x)
         [obj.setBw(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -1654,6 +1709,7 @@ class Phaser(PyoObject):
 
     """
     def __init__(self, input, freq=1000, spread=1.1, q=10, feedback=0, num=8, mul=1, add=0):
+        pyoArgsAssert(self, "oOOOOiOO", input, freq, spread, q, feedback, num, mul, add)
         PyoObject.__init__(self, mul, add)
         self._input = input
         self._freq = freq
@@ -1677,6 +1733,7 @@ class Phaser(PyoObject):
                 Crossfade time between old and new input. Defaults to 0.05.
 
         """
+        pyoArgsAssert(self, "oN", x, fadetime)
         self._input = x
         self._in_fader.setInput(x, fadetime)
 
@@ -1690,6 +1747,7 @@ class Phaser(PyoObject):
                 New `freq` attribute.
 
         """
+        pyoArgsAssert(self, "O", x)
         self._freq = x
         x, lmax = convertArgsToLists(x)
         [obj.setFreq(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -1704,6 +1762,7 @@ class Phaser(PyoObject):
                 New `spread` attribute.
 
         """
+        pyoArgsAssert(self, "O", x)
         self._spread = x
         x, lmax = convertArgsToLists(x)
         [obj.setSpread(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -1718,6 +1777,7 @@ class Phaser(PyoObject):
                 New `q` attribute.
 
         """
+        pyoArgsAssert(self, "O", x)
         self._q = x
         x, lmax = convertArgsToLists(x)
         [obj.setQ(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -1732,6 +1792,7 @@ class Phaser(PyoObject):
                 New `feedback` attribute.
 
         """
+        pyoArgsAssert(self, "O", x)
         self._feedback = x
         x, lmax = convertArgsToLists(x)
         [obj.setFeedback(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -1833,6 +1894,7 @@ class Vocoder(PyoObject):
 
     """
     def __init__(self, input, input2, freq=60, spread=1.25, q=20, slope=0.5, stages=24, mul=1, add=0):
+        pyoArgsAssert(self, "ooOOOOiOO", input, input2, freq, spread, q, slope, stages, mul, add)
         PyoObject.__init__(self, mul, add)
         self._input = input
         self._input2 = input2
@@ -1858,6 +1920,7 @@ class Vocoder(PyoObject):
                 Crossfade time between old and new input. Defaults to 0.05.
 
         """
+        pyoArgsAssert(self, "oN", x, fadetime)
         self._input = x
         self._in_fader.setInput(x, fadetime)
 
@@ -1873,6 +1936,7 @@ class Vocoder(PyoObject):
                 Crossfade time between old and new input. Defaults to 0.05.
 
         """
+        pyoArgsAssert(self, "oN", x, fadetime)
         self._input2 = x
         self._in_fader2.setInput(x, fadetime)
 
@@ -1886,6 +1950,7 @@ class Vocoder(PyoObject):
                 New `freq` attribute.
 
         """
+        pyoArgsAssert(self, "O", x)
         self._freq = x
         x, lmax = convertArgsToLists(x)
         [obj.setFreq(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -1900,6 +1965,7 @@ class Vocoder(PyoObject):
                 New `spread` attribute.
 
         """
+        pyoArgsAssert(self, "O", x)
         self._spread = x
         x, lmax = convertArgsToLists(x)
         [obj.setSpread(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -1914,6 +1980,7 @@ class Vocoder(PyoObject):
                 New `q` attribute.
 
         """
+        pyoArgsAssert(self, "O", x)
         self._q = x
         x, lmax = convertArgsToLists(x)
         [obj.setQ(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -1928,6 +1995,7 @@ class Vocoder(PyoObject):
                 New `slope` attribute.
 
         """
+        pyoArgsAssert(self, "O", x)
         self._slope = x
         x, lmax = convertArgsToLists(x)
         [obj.setSlope(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -1942,6 +2010,7 @@ class Vocoder(PyoObject):
                 New `stages` attribute.
 
         """
+        pyoArgsAssert(self, "i", x)
         self._stages = x
         x, lmax = convertArgsToLists(x)
         [obj.setStages(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -2055,6 +2124,7 @@ class IRWinSinc(PyoObject):
 
     """
     def __init__(self, input, freq=1000, bw=500, type=0, order=256, mul=1, add=0):
+        pyoArgsAssert(self, "oOOiiOO", input, freq, bw, type, order, mul, add)
         PyoObject.__init__(self, mul, add)
         self._input = input
         self._freq = freq
@@ -2080,6 +2150,7 @@ class IRWinSinc(PyoObject):
                 Crossfade time between old and new input. Default to 0.05.
 
         """
+        pyoArgsAssert(self, "oN", x, fadetime)
         self._input = x
         self._in_fader.setInput(x, fadetime)
 
@@ -2093,6 +2164,7 @@ class IRWinSinc(PyoObject):
                 New `freq` attribute.
 
         """
+        pyoArgsAssert(self, "O", x)
         self._freq = x
         x, lmax = convertArgsToLists(x)
         [obj.setFreq(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -2107,6 +2179,7 @@ class IRWinSinc(PyoObject):
                 New `bw` attribute.
 
         """
+        pyoArgsAssert(self, "O", x)
         self._bw = x
         x, lmax = convertArgsToLists(x)
         [obj.setBandwidth(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -2125,6 +2198,7 @@ class IRWinSinc(PyoObject):
                 3. bandpass
 
         """
+        pyoArgsAssert(self, "i", x)
         self._type = x
         x, lmax = convertArgsToLists(x)
         [obj.setType(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -2201,6 +2275,7 @@ class IRAverage(PyoObject):
 
     """
     def __init__(self, input, order=256, mul=1, add=0):
+        pyoArgsAssert(self, "oiOO", input, order, mul, add)
         PyoObject.__init__(self, mul, add)
         self._input = input
         if (order % 2) != 0:
@@ -2223,6 +2298,7 @@ class IRAverage(PyoObject):
                 Crossfade time between old and new input. Default to 0.05.
 
         """
+        pyoArgsAssert(self, "oN", x, fadetime)
         self._input = x
         self._in_fader.setInput(x, fadetime)
 
@@ -2283,6 +2359,7 @@ class IRPulse(PyoObject):
 
     """
     def __init__(self, input, freq=500, bw=2500, type=0, order=256, mul=1, add=0):
+        pyoArgsAssert(self, "oOOiiOO", input, freq, bw, type, order, mul, add)
         PyoObject.__init__(self, mul, add)
         self._input = input
         self._freq = freq
@@ -2308,6 +2385,7 @@ class IRPulse(PyoObject):
                 Crossfade time between old and new input. Default to 0.05.
 
         """
+        pyoArgsAssert(self, "oN", x, fadetime)
         self._input = x
         self._in_fader.setInput(x, fadetime)
 
@@ -2321,6 +2399,7 @@ class IRPulse(PyoObject):
                 New `freq` attribute.
 
         """
+        pyoArgsAssert(self, "O", x)
         self._freq = x
         x, lmax = convertArgsToLists(x)
         [obj.setFreq(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -2335,6 +2414,7 @@ class IRPulse(PyoObject):
                 New `bw` attribute.
 
         """
+        pyoArgsAssert(self, "O", x)
         self._bw = x
         x, lmax = convertArgsToLists(x)
         [obj.setBandwidth(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -2353,6 +2433,7 @@ class IRPulse(PyoObject):
                     3. Pulse (odd harmonics) & comb & lowpass
 
         """
+        pyoArgsAssert(self, "i", x)
         self._type = x
         x, lmax = convertArgsToLists(x)
         [obj.setType(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -2437,6 +2518,7 @@ class IRFM(PyoObject):
 
     """
     def __init__(self, input, carrier=1000, ratio=0.5, index=3, order=256, mul=1, add=0):
+        pyoArgsAssert(self, "oOOOiOO", input, carrier, ratio, index, order, mul, add)
         PyoObject.__init__(self, mul, add)
         self._input = input
         self._carrier = carrier
@@ -2462,6 +2544,7 @@ class IRFM(PyoObject):
                 Crossfade time between old and new input. Default to 0.05.
 
         """
+        pyoArgsAssert(self, "oN", x, fadetime)
         self._input = x
         self._in_fader.setInput(x, fadetime)
 
@@ -2475,6 +2558,7 @@ class IRFM(PyoObject):
                 New `carrier` attribute.
 
         """
+        pyoArgsAssert(self, "O", x)
         self._carrier = x
         x, lmax = convertArgsToLists(x)
         [obj.setCarrier(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -2489,6 +2573,7 @@ class IRFM(PyoObject):
                 New `ratio` attribute.
 
         """
+        pyoArgsAssert(self, "O", x)
         self._ratio = x
         x, lmax = convertArgsToLists(x)
         [obj.setRatio(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -2503,6 +2588,7 @@ class IRFM(PyoObject):
                 New `index` attribute.
 
         """
+        pyoArgsAssert(self, "O", x)
         self._index = x
         x, lmax = convertArgsToLists(x)
         [obj.setIndex(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -2577,6 +2663,7 @@ class SVF(PyoObject):
 
     """
     def __init__(self, input, freq=1000, q=1, type=0, mul=1, add=0):
+        pyoArgsAssert(self, "oOOOOO", input, freq, q, type, mul, add)
         PyoObject.__init__(self, mul, add)
         self._input = input
         self._freq = freq
@@ -2598,6 +2685,7 @@ class SVF(PyoObject):
                 Crossfade time between old and new input. Defaults to 0.05.
 
         """
+        pyoArgsAssert(self, "oN", x, fadetime)
         self._input = x
         self._in_fader.setInput(x, fadetime)
 
@@ -2612,6 +2700,7 @@ class SVF(PyoObject):
                 New `freq` attribute.
 
         """
+        pyoArgsAssert(self, "O", x)
         self._freq = x
         x, lmax = convertArgsToLists(x)
         [obj.setFreq(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -2626,6 +2715,7 @@ class SVF(PyoObject):
                 New `q` attribute.
 
         """
+        pyoArgsAssert(self, "O", x)
         self._q = x
         x, lmax = convertArgsToLists(x)
         [obj.setQ(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -2643,6 +2733,7 @@ class SVF(PyoObject):
                 New `type` attribute.
 
         """
+        pyoArgsAssert(self, "O", x)
         self._type = x
         x, lmax = convertArgsToLists(x)
         [obj.setType(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -2709,6 +2800,7 @@ class Average(PyoObject):
 
     """
     def __init__(self, input, size=10, mul=1, add=0):
+        pyoArgsAssert(self, "oiOO", input, size, mul, add)
         PyoObject.__init__(self, mul, add)
         self._input = input
         self._size = size
@@ -2728,6 +2820,7 @@ class Average(PyoObject):
                 Crossfade time between old and new input. Default to 0.05.
 
         """
+        pyoArgsAssert(self, "oN", x, fadetime)
         self._input = x
         self._in_fader.setInput(x, fadetime)
 
@@ -2741,6 +2834,7 @@ class Average(PyoObject):
                 New `size` attribute.
 
         """
+        pyoArgsAssert(self, "i", x)
         self._size = x
         x, lmax = convertArgsToLists(x)
         [obj.setSize(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -2794,6 +2888,7 @@ class Reson(PyoObject):
 
     """
     def __init__(self, input, freq=1000, q=1, mul=1, add=0):
+        pyoArgsAssert(self, "oOOOO", input, freq, q, mul, add)
         PyoObject.__init__(self, mul, add)
         self._input = input
         self._freq = freq
@@ -2814,6 +2909,7 @@ class Reson(PyoObject):
                 Crossfade time between old and new input. Defaults to 0.05.
 
         """
+        pyoArgsAssert(self, "oN", x, fadetime)
         self._input = x
         self._in_fader.setInput(x, fadetime)
 
@@ -2827,6 +2923,7 @@ class Reson(PyoObject):
                 New `freq` attribute.
 
         """
+        pyoArgsAssert(self, "O", x)
         self._freq = x
         x, lmax = convertArgsToLists(x)
         [obj.setFreq(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -2841,6 +2938,7 @@ class Reson(PyoObject):
                 New `q` attribute.
 
         """
+        pyoArgsAssert(self, "O", x)
         self._q = x
         x, lmax = convertArgsToLists(x)
         [obj.setQ(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -2905,6 +3003,7 @@ class Resonx(PyoObject):
 
     """
     def __init__(self, input, freq=1000, q=1, stages=4, mul=1, add=0):
+        pyoArgsAssert(self, "oOOiOO", input, freq, q, stages, mul, add)
         PyoObject.__init__(self, mul, add)
         self._input = input
         self._freq = freq
@@ -2926,6 +3025,7 @@ class Resonx(PyoObject):
                 Crossfade time between old and new input. Defaults to 0.05.
 
         """
+        pyoArgsAssert(self, "oN", x, fadetime)
         self._input = x
         self._in_fader.setInput(x, fadetime)
 
@@ -2939,6 +3039,7 @@ class Resonx(PyoObject):
                 New `freq` attribute.
 
         """
+        pyoArgsAssert(self, "O", x)
         self._freq = x
         x, lmax = convertArgsToLists(x)
         [obj.setFreq(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -2953,6 +3054,7 @@ class Resonx(PyoObject):
                 New `q` attribute.
 
         """
+        pyoArgsAssert(self, "O", x)
         self._q = x
         x, lmax = convertArgsToLists(x)
         [obj.setQ(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -2967,6 +3069,7 @@ class Resonx(PyoObject):
                 New `stages` attribute.
 
         """
+        pyoArgsAssert(self, "i", x)
         self._stages = x
         x, lmax = convertArgsToLists(x)
         [obj.setStages(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -3028,6 +3131,7 @@ class ButLP(PyoObject):
 
     """
     def __init__(self, input, freq=1000, mul=1, add=0):
+        pyoArgsAssert(self, "oOOO", input, freq, mul, add)
         PyoObject.__init__(self, mul, add)
         self._input = input
         self._freq = freq
@@ -3047,6 +3151,7 @@ class ButLP(PyoObject):
                 Crossfade time between old and new input. Default to 0.05.
 
         """
+        pyoArgsAssert(self, "oN", x, fadetime)
         self._input = x
         self._in_fader.setInput(x, fadetime)
 
@@ -3060,6 +3165,7 @@ class ButLP(PyoObject):
                 New `freq` attribute.
 
         """
+        pyoArgsAssert(self, "O", x)
         self._freq = x
         x, lmax = convertArgsToLists(x)
         [obj.setFreq(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -3107,6 +3213,7 @@ class ButHP(PyoObject):
 
     """
     def __init__(self, input, freq=1000, mul=1, add=0):
+        pyoArgsAssert(self, "oOOO", input, freq, mul, add)
         PyoObject.__init__(self, mul, add)
         self._input = input
         self._freq = freq
@@ -3126,6 +3233,7 @@ class ButHP(PyoObject):
                 Crossfade time between old and new input. Default to 0.05.
 
         """
+        pyoArgsAssert(self, "oN", x, fadetime)
         self._input = x
         self._in_fader.setInput(x, fadetime)
 
@@ -3139,6 +3247,7 @@ class ButHP(PyoObject):
                 New `freq` attribute.
 
         """
+        pyoArgsAssert(self, "O", x)
         self._freq = x
         x, lmax = convertArgsToLists(x)
         [obj.setFreq(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -3189,6 +3298,7 @@ class ButBP(PyoObject):
 
     """
     def __init__(self, input, freq=1000, q=1, mul=1, add=0):
+        pyoArgsAssert(self, "oOOOO", input, freq, q, mul, add)
         PyoObject.__init__(self, mul, add)
         self._input = input
         self._freq = freq
@@ -3209,6 +3319,7 @@ class ButBP(PyoObject):
                 Crossfade time between old and new input. Defaults to 0.05.
 
         """
+        pyoArgsAssert(self, "oN", x, fadetime)
         self._input = x
         self._in_fader.setInput(x, fadetime)
 
@@ -3222,6 +3333,7 @@ class ButBP(PyoObject):
                 New `freq` attribute.
 
         """
+        pyoArgsAssert(self, "O", x)
         self._freq = x
         x, lmax = convertArgsToLists(x)
         [obj.setFreq(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -3236,6 +3348,7 @@ class ButBP(PyoObject):
                 New `q` attribute.
 
         """
+        pyoArgsAssert(self, "O", x)
         self._q = x
         x, lmax = convertArgsToLists(x)
         [obj.setQ(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -3294,6 +3407,7 @@ class ButBR(PyoObject):
 
     """
     def __init__(self, input, freq=1000, q=1, mul=1, add=0):
+        pyoArgsAssert(self, "oOOOO", input, freq, q, mul, add)
         PyoObject.__init__(self, mul, add)
         self._input = input
         self._freq = freq
@@ -3314,6 +3428,7 @@ class ButBR(PyoObject):
                 Crossfade time between old and new input. Defaults to 0.05.
 
         """
+        pyoArgsAssert(self, "oN", x, fadetime)
         self._input = x
         self._in_fader.setInput(x, fadetime)
 
@@ -3327,6 +3442,7 @@ class ButBR(PyoObject):
                 New `freq` attribute.
 
         """
+        pyoArgsAssert(self, "O", x)
         self._freq = x
         x, lmax = convertArgsToLists(x)
         [obj.setFreq(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -3341,6 +3457,7 @@ class ButBR(PyoObject):
                 New `q` attribute.
 
         """
+        pyoArgsAssert(self, "O", x)
         self._q = x
         x, lmax = convertArgsToLists(x)
         [obj.setQ(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -3400,6 +3517,7 @@ class ComplexRes(PyoObject):
 
     """
     def __init__(self, input, freq=1000, decay=.25, mul=1, add=0):
+        pyoArgsAssert(self, "oOOOO", input, freq, decay, mul, add)
         PyoObject.__init__(self, mul, add)
         self._input = input
         self._freq = freq
@@ -3420,6 +3538,7 @@ class ComplexRes(PyoObject):
                 Crossfade time between old and new input. Defaults to 0.05.
 
         """
+        pyoArgsAssert(self, "oN", x, fadetime)
         self._input = x
         self._in_fader.setInput(x, fadetime)
 
@@ -3433,6 +3552,7 @@ class ComplexRes(PyoObject):
                 New `freq` attribute.
 
         """
+        pyoArgsAssert(self, "O", x)
         self._freq = x
         x, lmax = convertArgsToLists(x)
         [obj.setFreq(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -3447,6 +3567,7 @@ class ComplexRes(PyoObject):
                 New `decay` attribute.
 
         """
+        pyoArgsAssert(self, "O", x)
         self._decay = x
         x, lmax = convertArgsToLists(x)
         [obj.setDecay(wrap(x,i)) for i, obj in enumerate(self._base_objs)]

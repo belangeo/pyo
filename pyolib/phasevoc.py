@@ -82,6 +82,7 @@ class PVAnal(PyoPVObject):
 
     """
     def __init__(self, input, size=1024, overlaps=4, wintype=2):
+        pyoArgsAssert(self, "oiii", input, size, overlaps, wintype)
         PyoPVObject.__init__(self)
         self._input = input
         self._size = size
@@ -103,6 +104,7 @@ class PVAnal(PyoPVObject):
                 Crossfade time between old and new input. Default to 0.05.
 
         """
+        pyoArgsAssert(self, "oN", x, fadetime)
         self._input = x
         self._in_fader.setInput(x, fadetime)
 
@@ -116,6 +118,7 @@ class PVAnal(PyoPVObject):
                 new `size` attribute.
 
         """
+        pyoArgsAssert(self, "i", x)
         self._size = x
         x, lmax = convertArgsToLists(x)
         [obj.setSize(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -130,6 +133,7 @@ class PVAnal(PyoPVObject):
                 new `overlaps` attribute.
 
         """
+        pyoArgsAssert(self, "i", x)
         self._overlaps = x
         x, lmax = convertArgsToLists(x)
         [obj.setOverlaps(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -212,6 +216,7 @@ class PVSynth(PyoObject):
 
     """
     def __init__(self, input, wintype=2, mul=1, add=0):
+        pyoArgsAssert(self, "piOO", input, wintype, mul, add)
         PyoObject.__init__(self, mul, add)
         self._input = input
         self._wintype = wintype
@@ -228,6 +233,7 @@ class PVSynth(PyoObject):
                 New signal to process.
 
         """
+        pyoArgsAssert(self, "p", x)
         self._input = x
         x, lmax = convertArgsToLists(x)
         [obj.setInput(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -242,6 +248,7 @@ class PVSynth(PyoObject):
                 new `wintype` attribute.
 
         """
+        pyoArgsAssert(self, "i", x)
         self._wintype = x
         x, lmax = convertArgsToLists(x)
         [obj.setWinType(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -300,6 +307,7 @@ class PVAddSynth(PyoObject):
 
     """
     def __init__(self, input, pitch=1, num=100, first=0, inc=1, mul=1, add=0):
+        pyoArgsAssert(self, "pOiiiOO", input, pitch, num, first, inc, mul, add)
         PyoObject.__init__(self, mul, add)
         self._input = input
         self._pitch = pitch
@@ -319,6 +327,7 @@ class PVAddSynth(PyoObject):
                 New signal to process.
 
         """
+        pyoArgsAssert(self, "p", x)
         self._input = x
         x, lmax = convertArgsToLists(x)
         [obj.setInput(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -333,6 +342,7 @@ class PVAddSynth(PyoObject):
                 new `pitch` attribute.
 
         """
+        pyoArgsAssert(self, "O", x)
         self._pitch = x
         x, lmax = convertArgsToLists(x)
         [obj.setPitch(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -347,6 +357,7 @@ class PVAddSynth(PyoObject):
                 new `num` attribute.
 
         """
+        pyoArgsAssert(self, "i", x)
         self._num = x
         x, lmax = convertArgsToLists(x)
         [obj.setNum(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -361,6 +372,7 @@ class PVAddSynth(PyoObject):
                 new `first` attribute.
 
         """
+        pyoArgsAssert(self, "i", x)
         self._first = x
         x, lmax = convertArgsToLists(x)
         [obj.setFirst(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -375,6 +387,7 @@ class PVAddSynth(PyoObject):
                 new `inc` attribute.
 
         """
+        pyoArgsAssert(self, "i", x)
         self._inc = x
         x, lmax = convertArgsToLists(x)
         [obj.setInc(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -442,6 +455,7 @@ class PVTranspose(PyoPVObject):
 
     """
     def __init__(self, input, transpo=1):
+        pyoArgsAssert(self, "pO", input, transpo)
         PyoPVObject.__init__(self)
         self._input = input
         self._transpo = transpo
@@ -458,6 +472,7 @@ class PVTranspose(PyoPVObject):
                 New signal to process.
 
         """
+        pyoArgsAssert(self, "p", x)
         self._input = x
         x, lmax = convertArgsToLists(x)
         [obj.setInput(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -472,6 +487,7 @@ class PVTranspose(PyoPVObject):
                 new `transpo` attribute.
 
         """
+        pyoArgsAssert(self, "O", x)
         self._transpo = x
         x, lmax = convertArgsToLists(x)
         [obj.setTranspo(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -523,6 +539,7 @@ class PVVerb(PyoPVObject):
 
     """
     def __init__(self, input, revtime=0.75, damp=0.75):
+        pyoArgsAssert(self, "pOO", input, revtime, damp)
         PyoPVObject.__init__(self)
         self._input = input
         self._revtime = revtime
@@ -540,6 +557,7 @@ class PVVerb(PyoPVObject):
                 New signal to process.
 
         """
+        pyoArgsAssert(self, "p", x)
         self._input = x
         x, lmax = convertArgsToLists(x)
         [obj.setInput(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -554,6 +572,7 @@ class PVVerb(PyoPVObject):
                 new `revtime` attribute.
 
         """
+        pyoArgsAssert(self, "O", x)
         self._revtime = x
         x, lmax = convertArgsToLists(x)
         [obj.setRevtime(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -568,6 +587,7 @@ class PVVerb(PyoPVObject):
                 new `damp` attribute.
 
         """
+        pyoArgsAssert(self, "O", x)
         self._damp = x
         x, lmax = convertArgsToLists(x)
         [obj.setDamp(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -623,6 +643,7 @@ class PVGate(PyoPVObject):
 
     """
     def __init__(self, input, thresh=-20, damp=0.):
+        pyoArgsAssert(self, "pOO", input, thresh, damp)
         PyoPVObject.__init__(self)
         self._input = input
         self._thresh = thresh
@@ -640,6 +661,7 @@ class PVGate(PyoPVObject):
                 New signal to process.
 
         """
+        pyoArgsAssert(self, "p", x)
         self._input = x
         x, lmax = convertArgsToLists(x)
         [obj.setInput(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -654,6 +676,7 @@ class PVGate(PyoPVObject):
                 new `thresh` attribute.
 
         """
+        pyoArgsAssert(self, "O", x)
         self._thresh = x
         x, lmax = convertArgsToLists(x)
         [obj.setThresh(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -668,6 +691,7 @@ class PVGate(PyoPVObject):
                 new `damp` attribute.
 
         """
+        pyoArgsAssert(self, "O", x)
         self._damp = x
         x, lmax = convertArgsToLists(x)
         [obj.setDamp(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -746,6 +770,7 @@ class PVCross(PyoPVObject):
 
     """
     def __init__(self, input, input2, fade=1):
+        pyoArgsAssert(self, "ppO", input, input2, fade)
         PyoPVObject.__init__(self)
         self._input = input
         self._input2 = input2
@@ -763,6 +788,7 @@ class PVCross(PyoPVObject):
                 New signal to process.
 
         """
+        pyoArgsAssert(self, "p", x)
         self._input = x
         x, lmax = convertArgsToLists(x)
         [obj.setInput(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -777,6 +803,7 @@ class PVCross(PyoPVObject):
                 New signal to process.
 
         """
+        pyoArgsAssert(self, "p", x)
         self._input2 = x
         x, lmax = convertArgsToLists(x)
         [obj.setInput2(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -787,10 +814,11 @@ class PVCross(PyoPVObject):
 
         :Args:
 
-            x : int
+            x : float or PyoObject
                 new `fade` attribute.
 
         """
+        pyoArgsAssert(self, "O", x)
         self._fade = x
         x, lmax = convertArgsToLists(x)
         [obj.setFade(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -861,6 +889,7 @@ class PVMult(PyoPVObject):
 
     """
     def __init__(self, input, input2):
+        pyoArgsAssert(self, "pp", input, input2)
         PyoPVObject.__init__(self)
         self._input = input
         self._input2 = input2
@@ -877,6 +906,7 @@ class PVMult(PyoPVObject):
                 New signal to process.
 
         """
+        pyoArgsAssert(self, "p", x)
         self._input = x
         x, lmax = convertArgsToLists(x)
         [obj.setInput(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -891,6 +921,7 @@ class PVMult(PyoPVObject):
                 New signal to process.
 
         """
+        pyoArgsAssert(self, "p", x)
         self._input2 = x
         x, lmax = convertArgsToLists(x)
         [obj.setInput2(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -957,6 +988,7 @@ class PVMorph(PyoPVObject):
 
     """
     def __init__(self, input, input2, fade=0.5):
+        pyoArgsAssert(self, "ppO", input, input2, fade)
         PyoPVObject.__init__(self)
         self._input = input
         self._input2 = input2
@@ -974,6 +1006,7 @@ class PVMorph(PyoPVObject):
                 New signal to process.
 
         """
+        pyoArgsAssert(self, "p", x)
         self._input = x
         x, lmax = convertArgsToLists(x)
         [obj.setInput(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -988,6 +1021,7 @@ class PVMorph(PyoPVObject):
                 New signal to process.
 
         """
+        pyoArgsAssert(self, "p", x)
         self._input2 = x
         x, lmax = convertArgsToLists(x)
         [obj.setInput2(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -998,10 +1032,11 @@ class PVMorph(PyoPVObject):
 
         :Args:
 
-            x : int
+            x : float or PyoObject
                 new `fade` attribute.
 
         """
+        pyoArgsAssert(self, "O", x)
         self._fade = x
         x, lmax = convertArgsToLists(x)
         [obj.setFade(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -1068,6 +1103,7 @@ class PVFilter(PyoPVObject):
 
     """
     def __init__(self, input, table, gain=1, mode=0):
+        pyoArgsAssert(self, "ptOi", input, table, gain, mode)
         PyoPVObject.__init__(self)
         self._input = input
         self._table = table
@@ -1086,6 +1122,7 @@ class PVFilter(PyoPVObject):
                 New signal to process.
 
         """
+        pyoArgsAssert(self, "p", x)
         self._input = x
         x, lmax = convertArgsToLists(x)
         [obj.setInput(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -1100,6 +1137,7 @@ class PVFilter(PyoPVObject):
                 new `table` attribute.
 
         """
+        pyoArgsAssert(self, "t", x)
         self._table = x
         x, lmax = convertArgsToLists(x)
         [obj.setTable(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -1114,6 +1152,7 @@ class PVFilter(PyoPVObject):
                 new `gain` attribute.
 
         """
+        pyoArgsAssert(self, "O", x)
         self._gain = x
         x, lmax = convertArgsToLists(x)
         [obj.setGain(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -1128,6 +1167,7 @@ class PVFilter(PyoPVObject):
                 new `mode` attribute.
 
         """
+        pyoArgsAssert(self, "i", x)
         self._mode = x
         x, lmax = convertArgsToLists(x)
         [obj.setMode(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -1215,6 +1255,7 @@ class PVDelay(PyoPVObject):
 
     """
     def __init__(self, input, deltable, feedtable, maxdelay=1.0, mode=0):
+        pyoArgsAssert(self, "pttni", input, deltable, feedtable, maxdelay, mode)
         PyoPVObject.__init__(self)
         self._input = input
         self._deltable = deltable
@@ -1234,6 +1275,7 @@ class PVDelay(PyoPVObject):
                 New signal to process.
 
         """
+        pyoArgsAssert(self, "p", x)
         self._input = x
         x, lmax = convertArgsToLists(x)
         [obj.setInput(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -1248,6 +1290,7 @@ class PVDelay(PyoPVObject):
                 new `deltable` attribute.
 
         """
+        pyoArgsAssert(self, "t", x)
         self._deltable = x
         x, lmax = convertArgsToLists(x)
         [obj.setDeltable(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -1262,6 +1305,7 @@ class PVDelay(PyoPVObject):
                 new `feedtable` attribute.
 
         """
+        pyoArgsAssert(self, "t", x)
         self._feedtable = x
         x, lmax = convertArgsToLists(x)
         [obj.setFeedtable(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -1276,6 +1320,7 @@ class PVDelay(PyoPVObject):
                 new `mode` attribute.
 
         """
+        pyoArgsAssert(self, "i", x)
         self._mode = x
         x, lmax = convertArgsToLists(x)
         [obj.setMode(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -1347,6 +1392,7 @@ class PVBuffer(PyoPVObject):
 
     """
     def __init__(self, input, index, pitch=1.0, length=1.0):
+        pyoArgsAssert(self, "poOn", input, index, pitch, length)
         PyoPVObject.__init__(self)
         self._input = input
         self._index = index
@@ -1365,6 +1411,7 @@ class PVBuffer(PyoPVObject):
                 New signal to process.
 
         """
+        pyoArgsAssert(self, "p", x)
         self._input = x
         x, lmax = convertArgsToLists(x)
         [obj.setInput(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -1379,6 +1426,7 @@ class PVBuffer(PyoPVObject):
                 new `index` attribute.
 
         """
+        pyoArgsAssert(self, "o", x)
         self._index = x
         x, lmax = convertArgsToLists(x)
         [obj.setIndex(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -1393,6 +1441,7 @@ class PVBuffer(PyoPVObject):
                 new `pitch` attribute.
 
         """
+        pyoArgsAssert(self, "O", x)
         self._pitch = x
         x, lmax = convertArgsToLists(x)
         [obj.setPitch(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -1447,6 +1496,7 @@ class PVShift(PyoPVObject):
 
     """
     def __init__(self, input, shift=0):
+        pyoArgsAssert(self, "pO", input, shift)
         PyoPVObject.__init__(self)
         self._input = input
         self._shift = shift
@@ -1463,6 +1513,7 @@ class PVShift(PyoPVObject):
                 New signal to process.
 
         """
+        pyoArgsAssert(self, "p", x)
         self._input = x
         x, lmax = convertArgsToLists(x)
         [obj.setInput(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -1473,10 +1524,11 @@ class PVShift(PyoPVObject):
 
         :Args:
 
-            x : int
+            x : float or PyoObject
                 new `shift` attribute.
 
         """
+        pyoArgsAssert(self, "O", x)
         self._shift = x
         x, lmax = convertArgsToLists(x)
         [obj.setShift(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -1537,6 +1589,7 @@ class PVAmpMod(PyoPVObject):
 
     """
     def __init__(self, input, basefreq=1, spread=0):
+        pyoArgsAssert(self, "pOO", input, basefreq, spread)
         PyoPVObject.__init__(self)
         self._input = input
         self._basefreq = basefreq
@@ -1554,6 +1607,7 @@ class PVAmpMod(PyoPVObject):
                 New signal to process.
 
         """
+        pyoArgsAssert(self, "p", x)
         self._input = x
         x, lmax = convertArgsToLists(x)
         [obj.setInput(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -1564,10 +1618,11 @@ class PVAmpMod(PyoPVObject):
 
         :Args:
 
-            x : int
+            x : float or PyoObject
                 new `basefreq` attribute.
 
         """
+        pyoArgsAssert(self, "O", x)
         self._basefreq = x
         x, lmax = convertArgsToLists(x)
         [obj.setBasefreq(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -1578,10 +1633,11 @@ class PVAmpMod(PyoPVObject):
 
         :Args:
 
-            x : int
+            x : float or PyoObject
                 new `spread` attribute.
 
         """
+        pyoArgsAssert(self, "O", x)
         self._spread = x
         x, lmax = convertArgsToLists(x)
         [obj.setSpread(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -1660,6 +1716,7 @@ class PVFreqMod(PyoPVObject):
 
     """
     def __init__(self, input, basefreq=1, spread=0, depth=0.1):
+        pyoArgsAssert(self, "pOOO", input, basefreq, spread, depth)
         PyoPVObject.__init__(self)
         self._input = input
         self._basefreq = basefreq
@@ -1678,6 +1735,7 @@ class PVFreqMod(PyoPVObject):
                 New signal to process.
 
         """
+        pyoArgsAssert(self, "p", x)
         self._input = x
         x, lmax = convertArgsToLists(x)
         [obj.setInput(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -1688,10 +1746,11 @@ class PVFreqMod(PyoPVObject):
 
         :Args:
 
-            x : int
+            x : float or PyoObject
                 new `basefreq` attribute.
 
         """
+        pyoArgsAssert(self, "O", x)
         self._basefreq = x
         x, lmax = convertArgsToLists(x)
         [obj.setBasefreq(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -1702,10 +1761,11 @@ class PVFreqMod(PyoPVObject):
 
         :Args:
 
-            x : int
+            x : float or PyoObject
                 new `spread` attribute.
 
         """
+        pyoArgsAssert(self, "O", x)
         self._spread = x
         x, lmax = convertArgsToLists(x)
         [obj.setSpread(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -1716,10 +1776,11 @@ class PVFreqMod(PyoPVObject):
 
         :Args:
 
-            x : int
+            x : float or PyoObject
                 new `depth` attribute.
 
         """
+        pyoArgsAssert(self, "O", x)
         self._depth = x
         x, lmax = convertArgsToLists(x)
         [obj.setDepth(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -1813,6 +1874,7 @@ class PVBufLoops(PyoPVObject):
 
     """
     def __init__(self, input, low=1.0, high=1.0, mode=0, length=1.0):
+        pyoArgsAssert(self, "pOOin", input, low, high, mode, length)
         PyoPVObject.__init__(self)
         self._input = input
         self._low = low
@@ -1832,6 +1894,7 @@ class PVBufLoops(PyoPVObject):
                 New signal to process.
 
         """
+        pyoArgsAssert(self, "p", x)
         self._input = x
         x, lmax = convertArgsToLists(x)
         [obj.setInput(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -1846,6 +1909,7 @@ class PVBufLoops(PyoPVObject):
                 new `low` attribute.
 
         """
+        pyoArgsAssert(self, "O", x)
         self._low = x
         x, lmax = convertArgsToLists(x)
         [obj.setLow(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -1860,6 +1924,7 @@ class PVBufLoops(PyoPVObject):
                 new `high` attribute.
 
         """
+        pyoArgsAssert(self, "O", x)
         self._high = x
         x, lmax = convertArgsToLists(x)
         [obj.setHigh(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -1874,6 +1939,7 @@ class PVBufLoops(PyoPVObject):
                 new `mode` attribute.
 
         """
+        pyoArgsAssert(self, "i", x)
         self._mode = x
         x, lmax = convertArgsToLists(x)
         [obj.setMode(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -1955,6 +2021,7 @@ class PVBufTabLoops(PyoPVObject):
 
     """
     def __init__(self, input, speed, length=1.0):
+        pyoArgsAssert(self, "ptn", input, speed, length)
         PyoPVObject.__init__(self)
         self._input = input
         self._speed = speed
@@ -1972,6 +2039,7 @@ class PVBufTabLoops(PyoPVObject):
                 New signal to process.
 
         """
+        pyoArgsAssert(self, "p", x)
         self._input = x
         x, lmax = convertArgsToLists(x)
         [obj.setInput(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -1986,6 +2054,7 @@ class PVBufTabLoops(PyoPVObject):
                 new `speed` attribute.
 
         """
+        pyoArgsAssert(self, "t", x)
         self._speed = x
         x, lmax = convertArgsToLists(x)
         [obj.setSpeed(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -2050,6 +2119,7 @@ class PVMix(PyoPVObject):
 
     """
     def __init__(self, input, input2):
+        pyoArgsAssert(self, "pp", input, input2)
         PyoPVObject.__init__(self)
         self._input = input
         self._input2 = input2
@@ -2066,6 +2136,7 @@ class PVMix(PyoPVObject):
                 New signal to process.
 
         """
+        pyoArgsAssert(self, "p", x)
         self._input = x
         x, lmax = convertArgsToLists(x)
         [obj.setInput(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -2080,6 +2151,7 @@ class PVMix(PyoPVObject):
                 New signal to process.
 
         """
+        pyoArgsAssert(self, "p", x)
         self._input2 = x
         x, lmax = convertArgsToLists(x)
         [obj.setInput2(wrap(x,i)) for i, obj in enumerate(self._base_objs)]

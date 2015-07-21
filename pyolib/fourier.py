@@ -98,6 +98,7 @@ class FFT(PyoObject):
 
     """
     def __init__(self, input, size=1024, overlaps=4, wintype=2):
+        pyoArgsAssert(self, "oiIi", input, size, overlaps, wintype)
         PyoObject.__init__(self)
         self._real_dummy = []
         self._imag_dummy = []
@@ -173,6 +174,7 @@ class FFT(PyoObject):
                 Crossfade time between old and new input. Default to 0.05.
 
         """
+        pyoArgsAssert(self, "oN", x, fadetime)
         self._input = x
         self._in_fader.setInput(x, fadetime)
 
@@ -204,6 +206,7 @@ class FFT(PyoObject):
                 new `size` attribute.
 
         """
+        pyoArgsAssert(self, "i", x)
         self._size = x
         x, lmax = convertArgsToLists(x)
         poly = len(self._base_players) / self._overlaps
@@ -222,6 +225,7 @@ class FFT(PyoObject):
                 new `wintype` attribute.
 
         """
+        pyoArgsAssert(self, "i", x)
         self._wintype = x
         x, lmax = convertArgsToLists(x)
         [obj.setWinType(wrap(x,i)) for i, obj in enumerate(self._base_players)]
@@ -313,6 +317,7 @@ class IFFT(PyoObject):
 
     """
     def __init__(self, inreal, inimag, size=1024, overlaps=4, wintype=2, mul=1, add=0):
+        pyoArgsAssert(self, "ooiIiOO", inreal, inimag, size, overlaps, wintype, mul, add)
         PyoObject.__init__(self, mul, add)
         self._inreal = inreal
         self._inimag = inimag
@@ -343,6 +348,7 @@ class IFFT(PyoObject):
                 Crossfade time between old and new input. Default to 0.05.
 
         """
+        pyoArgsAssert(self, "oN", x, fadetime)
         self._inreal = x
         self._in_fader.setInput(x, fadetime)
 
@@ -358,6 +364,7 @@ class IFFT(PyoObject):
                 Crossfade time between old and new input. Default to 0.05.
 
         """
+        pyoArgsAssert(self, "oN", x, fadetime)
         self._inimag = x
         self._in_fader2.setInput(x, fadetime)
 
@@ -371,6 +378,7 @@ class IFFT(PyoObject):
                 new `size` attribute.
 
         """
+        pyoArgsAssert(self, "i", x)
         self._size = x
         x, lmax = convertArgsToLists(x)
         ratio = len(self._base_objs) / self._overlaps
@@ -388,6 +396,7 @@ class IFFT(PyoObject):
                 new `wintype` attribute.
 
         """
+        pyoArgsAssert(self, "i", x)
         self._wintype = x
         x, lmax = convertArgsToLists(x)
         [obj.setWinType(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -473,6 +482,7 @@ class CarToPol(PyoObject):
 
     """
     def __init__(self, inreal, inimag, mul=1, add=0):
+        pyoArgsAssert(self, "ooOO", inreal, inimag, mul, add)
         PyoObject.__init__(self, mul, add)
         self._mag_dummy = []
         self._ang_dummy = []
@@ -535,6 +545,7 @@ class CarToPol(PyoObject):
                 Crossfade time between old and new input. Default to 0.05.
 
         """
+        pyoArgsAssert(self, "oN", x, fadetime)
         self._inreal = x
         self._in_fader.setInput(x, fadetime)
 
@@ -550,6 +561,7 @@ class CarToPol(PyoObject):
                 Crossfade time between old and new input. Default to 0.05.
 
         """
+        pyoArgsAssert(self, "oN", x, fadetime)
         self._inimag = x
         self._in_fader2.setInput(x, fadetime)
 
@@ -616,6 +628,7 @@ class PolToCar(PyoObject):
 
     """
     def __init__(self, inmag, inang, mul=1, add=0):
+        pyoArgsAssert(self, "ooOO", inmag, inang, mul, add)
         PyoObject.__init__(self, mul, add)
         self._real_dummy = []
         self._imag_dummy = []
@@ -678,6 +691,7 @@ class PolToCar(PyoObject):
                 Crossfade time between old and new input. Default to 0.05.
 
         """
+        pyoArgsAssert(self, "oN", x, fadetime)
         self._inmag = x
         self._in_fader.setInput(x, fadetime)
 
@@ -693,6 +707,7 @@ class PolToCar(PyoObject):
                 Crossfade time between old and new input. Default to 0.05.
 
         """
+        pyoArgsAssert(self, "oN", x, fadetime)
         self._inang = x
         self._in_fader2.setInput(x, fadetime)
 
@@ -764,6 +779,7 @@ class FrameDelta(PyoObject):
 
     """
     def __init__(self, input, framesize=1024, overlaps=4, mul=1, add=0):
+        pyoArgsAssert(self, "oiiOO", input, framesize, overlaps, mul, add)
         PyoObject.__init__(self, mul, add)
         self._input = input
         self._framesize = framesize
@@ -799,6 +815,7 @@ class FrameDelta(PyoObject):
                 Crossfade time between old and new input. Default to 0.05.
 
         """
+        pyoArgsAssert(self, "oN", x, fadetime)
         self._input = x
         self._in_fader.setInput(x, fadetime)
 
@@ -812,6 +829,7 @@ class FrameDelta(PyoObject):
                 new `framesize` attribute.
 
         """
+        pyoArgsAssert(self, "i", x)
         self._framesize = x
         x, lmax = convertArgsToLists(x)
         [obj.setFrameSize(wrap(x,i)) for i, obj in enumerate(self._base_players)]
@@ -884,6 +902,7 @@ class FrameAccum(PyoObject):
 
     """
     def __init__(self, input, framesize=1024, overlaps=4, mul=1, add=0):
+        pyoArgsAssert(self, "oiiOO", input, framesize, overlaps, mul, add)
         PyoObject.__init__(self, mul, add)
         self._input = input
         self._framesize = framesize
@@ -919,6 +938,7 @@ class FrameAccum(PyoObject):
                 Crossfade time between old and new input. Default to 0.05.
 
         """
+        pyoArgsAssert(self, "oN", x, fadetime)
         self._input = x
         self._in_fader.setInput(x, fadetime)
 
@@ -932,6 +952,7 @@ class FrameAccum(PyoObject):
                 new `framesize` attribute.
 
         """
+        pyoArgsAssert(self, "i", x)
         self._framesize = x
         x, lmax = convertArgsToLists(x)
         [obj.setFrameSize(wrap(x,i)) for i, obj in enumerate(self._base_players)]
@@ -999,6 +1020,7 @@ class Vectral(PyoObject):
 
     """
     def __init__(self, input, framesize=1024, overlaps=4, up=1.0, down=0.7, damp=0.9, mul=1, add=0):
+        pyoArgsAssert(self, "oiiOOOOO", input, framesize, overlaps, up, down, damp, mul, add)
         PyoObject.__init__(self, mul, add)
         self._input = input
         self._framesize = framesize
@@ -1037,6 +1059,7 @@ class Vectral(PyoObject):
                 Crossfade time between old and new input. Default to 0.05.
 
         """
+        pyoArgsAssert(self, "oN", x, fadetime)
         self._input = x
         self._in_fader.setInput(x, fadetime)
 
@@ -1050,6 +1073,7 @@ class Vectral(PyoObject):
                 new `framesize` attribute.
 
         """
+        pyoArgsAssert(self, "i", x)
         self._framesize = x
         x, lmax = convertArgsToLists(x)
         [obj.setFrameSize(wrap(x,i)) for i, obj in enumerate(self._base_players)]
@@ -1064,6 +1088,7 @@ class Vectral(PyoObject):
                 new `up` attribute.
 
         """
+        pyoArgsAssert(self, "O", x)
         self._up = x
         x, lmax = convertArgsToLists(x)
         [obj.setUp(wrap(x,i)) for i, obj in enumerate(self._base_players)]
@@ -1078,6 +1103,7 @@ class Vectral(PyoObject):
                 new `down` attribute.
 
         """
+        pyoArgsAssert(self, "O", x)
         self._down = x
         x, lmax = convertArgsToLists(x)
         [obj.setDown(wrap(x,i)) for i, obj in enumerate(self._base_players)]
@@ -1092,6 +1118,7 @@ class Vectral(PyoObject):
                 new `damp` attribute.
 
         """
+        pyoArgsAssert(self, "O", x)
         self._damp = x
         x, lmax = convertArgsToLists(x)
         [obj.setDamp(wrap(x,i)) for i, obj in enumerate(self._base_players)]
@@ -1174,6 +1201,7 @@ class CvlVerb(PyoObject):
 
     """
     def __init__(self, input, impulse=SNDS_PATH+"/IRMediumHallStereo.wav", bal=0.25, size=1024, mul=1, add=0):
+        pyoArgsAssert(self, "osOiOO", input, impulse, bal, size, mul, add)
         PyoObject.__init__(self, mul, add)
         self._input = input
         self._impulse = impulse
@@ -1200,6 +1228,7 @@ class CvlVerb(PyoObject):
                 Crossfade time between old and new input. Default to 0.05.
 
         """
+        pyoArgsAssert(self, "oN", x, fadetime)
         self._input = x
         self._in_fader.setInput(x, fadetime)
 
@@ -1213,6 +1242,7 @@ class CvlVerb(PyoObject):
                 new `bal` attribute.
 
         """
+        pyoArgsAssert(self, "O", x)
         self._bal = x
         x, lmax = convertArgsToLists(x)
         [obj.setBal(wrap(x,i)) for i, obj in enumerate(self._base_objs)]

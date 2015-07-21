@@ -77,6 +77,7 @@ class Fader(PyoObject):
 
     """
     def __init__(self, fadein=0.01, fadeout=0.1, dur=0, mul=1, add=0):
+        pyoArgsAssert(self, "nnnOO", fadein, fadeout, dur, mul, add)
         PyoObject.__init__(self, mul, add)
         self._fadein = fadein
         self._fadeout = fadeout
@@ -97,6 +98,7 @@ class Fader(PyoObject):
                 new `fadein` attribute.
 
         """
+        pyoArgsAssert(self, "n", x)
         self._fadein = x
         x, lmax = convertArgsToLists(x)
         [obj.setFadein(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -111,6 +113,7 @@ class Fader(PyoObject):
                 new `fadeout` attribute.
 
         """
+        pyoArgsAssert(self, "n", x)
         self._fadeout = x
         x, lmax = convertArgsToLists(x)
         [obj.setFadeout(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -125,6 +128,7 @@ class Fader(PyoObject):
                 new `dur` attribute.
 
         """
+        pyoArgsAssert(self, "n", x)
         self._dur = x
         x, lmax = convertArgsToLists(x)
         [obj.setDur(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -203,6 +207,7 @@ class Adsr(PyoObject):
 
     """
     def __init__(self, attack=0.01, decay=0.05, sustain=0.707, release=0.1, dur=0, mul=1, add=0):
+        pyoArgsAssert(self, "nnnnnOO", attack, decay, sustain, release, dur, mul, add)
         PyoObject.__init__(self, mul, add)
         self._attack = attack
         self._decay = decay
@@ -225,6 +230,7 @@ class Adsr(PyoObject):
                 new `attack` attribute.
 
         """
+        pyoArgsAssert(self, "n", x)
         self._attack = x
         x, lmax = convertArgsToLists(x)
         [obj.setAttack(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -239,6 +245,7 @@ class Adsr(PyoObject):
                 new `decay` attribute.
 
         """
+        pyoArgsAssert(self, "n", x)
         self._decay = x
         x, lmax = convertArgsToLists(x)
         [obj.setDecay(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -253,6 +260,7 @@ class Adsr(PyoObject):
                 new `sustain` attribute.
 
         """
+        pyoArgsAssert(self, "n", x)
         self._sustain = x
         x, lmax = convertArgsToLists(x)
         [obj.setSustain(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -267,6 +275,7 @@ class Adsr(PyoObject):
                 new `sustain` attribute.
 
         """
+        pyoArgsAssert(self, "n", x)
         self._release = x
         x, lmax = convertArgsToLists(x)
         [obj.setRelease(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -281,6 +290,7 @@ class Adsr(PyoObject):
                 new `dur` attribute.
 
         """
+        pyoArgsAssert(self, "n", x)
         self._dur = x
         x, lmax = convertArgsToLists(x)
         [obj.setDur(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -363,13 +373,8 @@ class Linseg(PyoObject):
 
     """
     def __init__(self, list, loop=False, initToFirstVal=False, mul=1, add=0):
+        pyoArgsAssert(self, "lbbOO", list, loop, initToFirstVal, mul, add)
         PyoObject.__init__(self, mul, add)
-        if type(list) != ListType:
-            print >> sys.stderr, 'TypeError: "list" argument of %s must be a list of tuples.\n' % self.__class__.__name__
-            exit()
-        if type(list[0]) != TupleType:
-            print >> sys.stderr, 'TypeError: "list" argument of %s must be a list of tuples.\n' % self.__class__.__name__
-            exit()
         self._list = list
         self._loop = loop
         initToFirstVal, loop, mul, add, lmax = convertArgsToLists(initToFirstVal, loop, mul, add)
@@ -393,6 +398,7 @@ class Linseg(PyoObject):
                 new `list` attribute.
 
         """
+        pyoArgsAssert(self, "l", x)
         self._list = x
         if type(x[0]) != ListType:
             [obj.setList(x) for i, obj in enumerate(self._base_objs)]
@@ -424,6 +430,7 @@ class Linseg(PyoObject):
                 new `loop` attribute.
 
         """
+        pyoArgsAssert(self, "b", x)
         self._loop = x
         x, lmax = convertArgsToLists(x)
         [obj.setLoop(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -525,13 +532,8 @@ class Expseg(PyoObject):
 
     """
     def __init__(self, list, loop=False, exp=10, inverse=True, initToFirstVal=False, mul=1, add=0):
+        pyoArgsAssert(self, "lbnbbOO", list, loop, exp, inverse, initToFirstVal, mul, add)
         PyoObject.__init__(self, mul, add)
-        if type(list) != ListType:
-            print >> sys.stderr, 'TypeError: "list" argument of %s must be a list of tuples.\n' % self.__class__.__name__
-            exit()
-        if type(list[0]) != TupleType:
-            print >> sys.stderr, 'TypeError: "list" argument of %s must be a list of tuples.\n' % self.__class__.__name__
-            exit()
         self._list = list
         self._loop = loop
         self._exp = exp
@@ -557,6 +559,7 @@ class Expseg(PyoObject):
                 new `list` attribute.
 
         """
+        pyoArgsAssert(self, "l", x)
         self._list = x
         if type(x[0]) != ListType:
             [obj.setList(x) for i, obj in enumerate(self._base_objs)]
@@ -573,6 +576,7 @@ class Expseg(PyoObject):
                 new `loop` attribute.
 
         """
+        pyoArgsAssert(self, "b", x)
         self._loop = x
         x, lmax = convertArgsToLists(x)
         [obj.setLoop(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -587,6 +591,7 @@ class Expseg(PyoObject):
                 new `exp` attribute.
 
         """
+        pyoArgsAssert(self, "n", x)
         self._exp = x
         x, lmax = convertArgsToLists(x)
         [obj.setExp(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -601,6 +606,7 @@ class Expseg(PyoObject):
                 new `inverse` attribute.
 
         """
+        pyoArgsAssert(self, "b", x)
         self._inverse = x
         x, lmax = convertArgsToLists(x)
         [obj.setInverse(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -727,6 +733,7 @@ class SigTo(PyoObject):
 
     """
     def __init__(self, value, time=0.025, init=0.0, mul=1, add=0):
+        pyoArgsAssert(self, "OnnOO", value, time, init, mul, add)
         PyoObject.__init__(self, mul, add)
         self._value = value
         self._time = time
@@ -743,6 +750,7 @@ class SigTo(PyoObject):
                 Numerical value to convert.
 
         """
+        pyoArgsAssert(self, "O", x)
         self._value = x
         x, lmax = convertArgsToLists(x)
         [obj.setValue(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -757,6 +765,7 @@ class SigTo(PyoObject):
                 New ramp time.
 
         """
+        pyoArgsAssert(self, "n", x)
         self._time = x
         x, lmax = convertArgsToLists(x)
         [obj.setTime(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
