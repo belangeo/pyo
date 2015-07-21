@@ -64,3 +64,8 @@ used as controls and can't be sent to the output soundcard.
 .. autoclass:: Touchin
    :members:
 
+*RawMidi*
+-----------------------------------
+
+.. autoclass:: RawMidi
+   :members:

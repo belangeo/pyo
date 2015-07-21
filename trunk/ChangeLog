@@ -1,3 +1,39 @@
+2015-07-21 belangeo <belangeo@gmail.com>
+
+    * Added new objet: RawMidi, a raw Midi handler.
+    - rev 1329
+
+2015-07-21 belangeo <belangeo@gmail.com>
+
+    * Added pyoArgsAssert call in each object's methods.
+    - rev 1320, 1325, 1327, 1328
+
+2015-07-20 belangeo <belangeo@gmail.com>
+
+    * Fixed the "segmentation fault" that occur sometimes when deleting an object.
+    - rev 1326
+    
+2015-05-31 belangeo <belangeo@gmail.com>
+
+    * E-Pyo: Fixed project tree.
+    - rev 1315
+
+2015-05-29 belangeo <belangeo@gmail.com>
+
+    * E-Pyo: stderr now prints to the output panel.
+    - rev 1314
+ 
+2015-05-25 belangeo <belangeo@gmail.com>
+
+    * E-Pyo: Added code block selection (#--> and #<-- are delimiters). 
+    The background server now prints to the output panel.
+    - rev 1313
+
+2015-04-29 belangeo <belangeo@gmail.com>
+
+    * Fixed CPU usage of PeakAmp.
+    - rev 1312
+
 -------------------------------------------------------------------------------------
 2015-03-05 belangeo <belangeo@gmail.com>
 

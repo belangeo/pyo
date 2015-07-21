@@ -1253,3 +1253,79 @@ class MidiDelAdsr(PyoObject):
         return self._release
     @release.setter
     def release(self, x): self.setRelease(x)
+
+class RawMidi(PyoObject):
+    """
+    Raw Midi handler.
+
+    This object calls a python function for each raw midi data 
+    (status, data1, data2) event for further processing in Python.
+
+    :Parent: :py:class:`PyoObject`
+
+    :Args:
+
+        function : Python function (can't be a list)
+            Function to be called. The function must be declared
+            with three arguments, one for the status byte and two
+            for the data bytes. Ex.:
+
+            def event(status, data1, data2):
+                print status, data1, data2
+
+    .. note::
+
+        The out() method is bypassed. RawMidi's signal can not be sent
+        to audio outs.
+
+    >>> s = Server()
+    >>> s.setMidiInputDevice(99) # opens all devices
+    >>> s.boot()
+    >>> s.start()
+    >>> def event(status, data1, data2):
+    ...     print status, data1, data2
+    >>> a = RawMidi(event)
+
+    """
+    def __init__(self, function):
+        pyoArgsAssert(self, "C", function)
+        PyoObject.__init__(self)
+        self._function = WeakMethod(function)
+        self._base_objs = [RawMidi_base(self._function)]
+
+    def out(self, chnl=0, inc=1, dur=0, delay=0):
+        return self.play(dur, delay)
+
+    def setMul(self, x):
+        pass
+
+    def setAdd(self, x):
+        pass
+
+    def setSub(self, x):
+        pass
+
+    def setDiv(self, x):
+        pass
+
+    def setFunction(self, x):
+        """
+        Replace the `function` attribute.
+
+        :Args:
+
+            x : Python function
+                new `function` attribute.
+
+        """
+        pyoArgsAssert(self, "C", x)
+        self._function = WeakMethod(x)
+        [obj.setFunction(self._function) for i, obj in enumerate(self._base_objs)]
+
+    @property
+    def function(self):
+        """Python function. Function to be called."""
+        return self._function
+    @function.setter
+    def function(self, x):
+        self.setFunction(x)
