@@ -26,7 +26,7 @@ License along with pyo.  If not, see <http://www.gnu.org/licenses/>.
 import sys, random
 from _core import *
 from _maps import *
-from types import SliceType, IntType
+from types import SliceType
 
 class Pan(PyoObject):
     """
@@ -56,6 +56,7 @@ class Pan(PyoObject):
 
     """
     def __init__(self, input, outs=2, pan=0.5, spread=0.5, mul=1, add=0):
+        pyoArgsAssert(self, "oIOOOO", input, outs, pan, spread, mul, add)
         PyoObject.__init__(self, mul, add)
         self._input = input
         self._pan = pan
@@ -81,6 +82,7 @@ class Pan(PyoObject):
                 Crossfade time between old and new input. Default to 0.05.
 
         """
+        pyoArgsAssert(self, "oN", x, fadetime)
         self._input = x
         self._in_fader.setInput(x, fadetime)
 
@@ -94,6 +96,7 @@ class Pan(PyoObject):
                 new `pan` attribute.
 
         """
+        pyoArgsAssert(self, "O", x)
         self._pan = x
         x, lmax = convertArgsToLists(x)
         [obj.setPan(wrap(x,i)) for i, obj in enumerate(self._base_players)]
@@ -108,6 +111,7 @@ class Pan(PyoObject):
                 new `spread` attribute.
 
         """
+        pyoArgsAssert(self, "O", x)
         self._spread = x
         x, lmax = convertArgsToLists(x)
         [obj.setSpread(wrap(x,i)) for i, obj in enumerate(self._base_players)]
@@ -164,6 +168,7 @@ class SPan(PyoObject):
 
     """
     def __init__(self, input, outs=2, pan=0.5, mul=1, add=0):
+        pyoArgsAssert(self, "oIOOO", input, outs, pan, mul, add)
         PyoObject.__init__(self, mul, add)
         self._input = input
         self._outs = outs
@@ -188,6 +193,7 @@ class SPan(PyoObject):
                 Crossfade time between old and new input. Default to 0.05.
 
         """
+        pyoArgsAssert(self, "oN", x, fadetime)
         self._input = x
         self._in_fader.setInput(x, fadetime)
 
@@ -201,6 +207,7 @@ class SPan(PyoObject):
                 new `pan` attribute.
 
         """
+        pyoArgsAssert(self, "O", x)
         self._pan = x
         x, lmax = convertArgsToLists(x)
         [obj.setPan(wrap(x,i)) for i, obj in enumerate(self._base_players)]
@@ -257,6 +264,7 @@ class Switch(PyoObject):
 
     """
     def __init__(self, input, outs=2, voice=0., mul=1, add=0):
+        pyoArgsAssert(self, "oIOOO", input, outs, voice, mul, add)
         PyoObject.__init__(self, mul, add)
         self._input = input
         self._outs = outs
@@ -281,6 +289,7 @@ class Switch(PyoObject):
                 Crossfade time between old and new input. Default to 0.05.
 
         """
+        pyoArgsAssert(self, "oN", x, fadetime)
         self._input = x
         self._in_fader.setInput(x, fadetime)
 
@@ -294,6 +303,7 @@ class Switch(PyoObject):
                 new `voice` attribute.
 
         """
+        pyoArgsAssert(self, "O", x)
         self._voice = x
         x, lmax = convertArgsToLists(x)
         [obj.setVoice(wrap(x,i)) for i, obj in enumerate(self._base_players)]
@@ -343,6 +353,7 @@ class Selector(PyoObject):
 
     """
     def __init__(self, inputs, voice=0., mul=1, add=0):
+        pyoArgsAssert(self, "lOOO", inputs, voice, mul, add)
         PyoObject.__init__(self, mul, add)
         self._inputs = inputs
         self._voice = voice
@@ -374,6 +385,7 @@ class Selector(PyoObject):
                 new `inputs` attribute.
 
         """
+        pyoArgsAssert(self, "l", x)
         self._inputs = x
         for i in range(self._lmax):
             for j in range(self._length):
@@ -395,6 +407,7 @@ class Selector(PyoObject):
                 new `voice` attribute.
 
         """
+        pyoArgsAssert(self, "O", x)
         self._voice = x
         x, lmax = convertArgsToLists(x)
         for i, obj in enumerate(self._base_objs):
@@ -460,6 +473,7 @@ class VoiceManager(PyoObject):
 
     """
     def __init__(self, input, triggers=None, mul=1, add=0):
+        #pyoArgsAssert(self, "ooOO", input, triggers, mul, add)
         PyoObject.__init__(self, mul, add)
         self._input = input
         self._triggers = triggers
@@ -491,6 +505,7 @@ class VoiceManager(PyoObject):
                 Crossfade time between old and new input. Defaults to 0.05.
 
         """
+        pyoArgsAssert(self, "oN", x, fadetime)
         self._input = x
         self._in_fader.setInput(x, fadetime)
 
@@ -504,6 +519,7 @@ class VoiceManager(PyoObject):
                 New `triggers` attribute.
 
         """
+        #pyoArgsAssert(self, "o", x)
         self._triggers = x
         if x != None:
             if type(x) == ListType:
@@ -577,13 +593,8 @@ class Mixer(PyoObject):
 
     """
     def __init__(self, outs=2, chnls=1, time=0.025, mul=1, add=0):
+        pyoArgsAssert(self, "IInOO", outs, chnls, time, mul, add)
         PyoObject.__init__(self, mul, add)
-        if type(outs) != IntType:
-            print >> sys.stderr, 'TypeError: "outs" argument of %s must be an integer.\n' % self.__class__.__name__
-            exit()
-        if type(chnls) != IntType:
-            print >> sys.stderr, 'TypeError: "chnls" argument of %s must be an integer.\n' % self.__class__.__name__
-            exit()
         self._outs = outs
         self._chnls = chnls
         self._time = time
@@ -610,6 +621,7 @@ class Mixer(PyoObject):
                 New portamento duration.
 
         """
+        pyoArgsAssert(self, "n", x)
         self._time = x
         x, lmax = convertArgsToLists(x)
         [obj.setTime(wrap(x,i)) for i, obj in enumerate(self._base_players)]
@@ -629,6 +641,7 @@ class Mixer(PyoObject):
                 Audio object to add to the mixer.
 
         """
+        pyoArgsAssert(self, "o", input)
         if voice == None:
             voice = random.randint(0, 32767)
             while self._inputs.has_key(voice):
