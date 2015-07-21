@@ -254,7 +254,7 @@ Alphabetical class reference
 - :py:class:`Vectral` :     Performs magnitude smoothing between successive frames.
 - :py:class:`Vocoder` :     Applies the spectral envelope of a first sound to the spectrum of a second sound.
 - :py:class:`VoiceManager` :     Polyphony voice manager.
-- :py:class:`WGVerb` :     8 delay line mono FDN reverb.
+- :py:class:`WGVerb` :     8 delay lines mono FDN reverb.
 - :py:class:`Waveguide` :     Basic waveguide model.
 - :py:class:`WinTable` :     Generates different kind of windowing functions.
 - :py:class:`Wrap` :     Wraps-around the signal that exceeds the `min` and `max` thresholds.

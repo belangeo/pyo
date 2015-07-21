@@ -71,6 +71,7 @@ class Midictl(PyoObject):
 
     """
     def __init__(self, ctlnumber, minscale=0, maxscale=1, init=0, channel=0, mul=1, add=0):
+        pyoArgsAssert(self, "innniOO", ctlnumber, minscale, maxscale, init, channel, mul, add)
         PyoObject.__init__(self, mul, add)
         self._ctlnumber = ctlnumber
         self._minscale = minscale
@@ -92,6 +93,7 @@ class Midictl(PyoObject):
                 new `ctlnumber` attribute.
 
         """
+        pyoArgsAssert(self, "i", x)
         self._ctlnumber = x
         x, lmax = convertArgsToLists(x)
         [obj.setCtlNumber(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -102,10 +104,11 @@ class Midictl(PyoObject):
 
         :Args:
 
-            x : int
+            x : float
                 new `minscale` attribute.
 
         """
+        pyoArgsAssert(self, "n", x)
         self._minscale = x
         x, lmax = convertArgsToLists(x)
         [obj.setMinScale(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -116,10 +119,11 @@ class Midictl(PyoObject):
 
         :Args:
 
-            x : int
+            x : float
                 new `maxscale` attribute.
 
         """
+        pyoArgsAssert(self, "n", x)
         self._maxscale = x
         x, lmax = convertArgsToLists(x)
         [obj.setMaxScale(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -134,6 +138,7 @@ class Midictl(PyoObject):
                 new `channel` attribute.
 
         """
+        pyoArgsAssert(self, "i", x)
         self._channel = x
         x, lmax = convertArgsToLists(x)
         [obj.setChannel(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -148,6 +153,7 @@ class Midictl(PyoObject):
                 new current value.
 
         """
+        pyoArgsAssert(self, "n", x)
         x, lmax = convertArgsToLists(x)
         [obj.setValue(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
@@ -161,6 +167,7 @@ class Midictl(PyoObject):
                 True activates the interpolation, False deactivates it.
 
         """
+        pyoArgsAssert(self, "b", x)
         x, lmax = convertArgsToLists(x)
         [obj.setInterpolation(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
@@ -234,10 +241,8 @@ class CtlScan(PyoObject):
 
     """
     def __init__(self, function, toprint=True):
+        pyoArgsAssert(self, "CB", function, toprint)
         PyoObject.__init__(self)
-        if not callable(function):
-            print >> sys.stderr, 'TypeError: "function" argument of %s must be callable.\n' % self.__class__.__name__
-            exit()
         self._function = WeakMethod(function)
         self._toprint = toprint
         self._base_objs = [CtlScan_base(self._function, self._toprint)]
@@ -274,6 +279,7 @@ class CtlScan(PyoObject):
                 new `function` attribute.
 
         """
+        pyoArgsAssert(self, "C", x)
         self._function = WeakMethod(x)
         [obj.setFunction(self._function) for i, obj in enumerate(self._base_objs)]
 
@@ -287,6 +293,7 @@ class CtlScan(PyoObject):
                 new `toprint` attribute.
 
         """
+        pyoArgsAssert(self, "b", x)
         self._toprint = x
         x, lmax = convertArgsToLists(x)
         [obj.setToprint(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -345,10 +352,8 @@ class CtlScan2(PyoObject):
 
     """
     def __init__(self, function, toprint=True):
+        pyoArgsAssert(self, "CB", function, toprint)
         PyoObject.__init__(self)
-        if not callable(function):
-            print >> sys.stderr, 'TypeError: "function" argument of %s must be callable.\n' % self.__class__.__name__
-            exit()
         self._function = WeakMethod(function)
         self._toprint = toprint
         self._base_objs = [CtlScan2_base(self._function, self._toprint)]
@@ -385,6 +390,7 @@ class CtlScan2(PyoObject):
                 new `function` attribute.
 
         """
+        pyoArgsAssert(self, "C", x)
         self._function = WeakMethod(x)
         [obj.setFunction(self._function) for i, obj in enumerate(self._base_objs)]
 
@@ -398,6 +404,7 @@ class CtlScan2(PyoObject):
                 new `toprint` attribute.
 
         """
+        pyoArgsAssert(self, "b", x)
         self._toprint = x
         x, lmax = convertArgsToLists(x)
         [obj.setToprint(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -478,6 +485,7 @@ class Notein(PyoObject):
 
     """
     def __init__(self, poly=10, scale=0, first=0, last=127, channel=0, mul=1, add=0):
+        pyoArgsAssert(self, "IIIIIOO", poly, scale, first, last, channel, mul, add)
         PyoObject.__init__(self, mul, add)
         self._pitch_dummy = []
         self._velocity_dummy = []
@@ -522,6 +530,7 @@ class Notein(PyoObject):
                 new `channel` attribute.
 
         """
+        pyoArgsAssert(self, "I", x)
         self._channel = x
         self._base_handler.setChannel(x)
 
@@ -538,6 +547,7 @@ class Notein(PyoObject):
                 new centralkey value.
 
         """
+        pyoArgsAssert(self, "I", x)
         self._base_handler.setCentralKey(x)
 
     def setStealing(self, x):
@@ -554,6 +564,7 @@ class Notein(PyoObject):
                 True for stealing mode, False for non-stealing.
 
         """
+        pyoArgsAssert(self, "B", x)
         self._base_handler.setStealing(x)
 
     def get(self, identifier="pitch", all=False):
@@ -642,6 +653,7 @@ class Bendin(PyoObject):
 
     """
     def __init__(self, brange=2, scale=0, channel=0, mul=1, add=0):
+        pyoArgsAssert(self, "niiOO", brange, scale, channel, mul, add)
         PyoObject.__init__(self, mul, add)
         self._brange = brange
         self._scale = scale
@@ -658,10 +670,11 @@ class Bendin(PyoObject):
 
         :Args:
 
-            x : int
+            x : float
                 new `brange` attribute.
 
         """
+        pyoArgsAssert(self, "n", x)
         self._brange = x
         x, lmax = convertArgsToLists(x)
         [obj.setBrange(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -676,6 +689,7 @@ class Bendin(PyoObject):
                 new `scale` attribute.
 
         """
+        pyoArgsAssert(self, "i", x)
         self._scale = x
         x, lmax = convertArgsToLists(x)
         [obj.setScale(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -690,6 +704,7 @@ class Bendin(PyoObject):
                 new `channel` attribute.
 
         """
+        pyoArgsAssert(self, "i", x)
         self._channel = x
         x, lmax = convertArgsToLists(x)
         [obj.setChannel(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -751,6 +766,7 @@ class Touchin(PyoObject):
 
     """
     def __init__(self, minscale=0, maxscale=1, init=0, channel=0, mul=1, add=0):
+        pyoArgsAssert(self, "nnniOO", minscale, maxscale, init, channel, mul, add)
         PyoObject.__init__(self, mul, add)
         self._minscale = minscale
         self._maxscale = maxscale
@@ -767,10 +783,11 @@ class Touchin(PyoObject):
 
         :Args:
 
-            x : int
+            x : float
                 new `minscale` attribute.
 
         """
+        pyoArgsAssert(self, "n", x)
         self._minscale = x
         x, lmax = convertArgsToLists(x)
         [obj.setMinScale(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -781,10 +798,11 @@ class Touchin(PyoObject):
 
         :Args:
 
-            x : int
+            x : float
                 new `maxscale` attribute.
 
         """
+        pyoArgsAssert(self, "n", x)
         self._maxscale = x
         x, lmax = convertArgsToLists(x)
         [obj.setMaxScale(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -799,6 +817,7 @@ class Touchin(PyoObject):
                 new `channel` attribute.
 
         """
+        pyoArgsAssert(self, "i", x)
         self._channel = x
         x, lmax = convertArgsToLists(x)
         [obj.setChannel(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -856,6 +875,7 @@ class Programin(PyoObject):
 
     """
     def __init__(self, channel=0, mul=1, add=0):
+        pyoArgsAssert(self, "iOO", channel, mul, add)
         PyoObject.__init__(self, mul, add)
         self._channel = channel
         channel, mul, add, lmax = convertArgsToLists(channel, mul, add)
@@ -874,6 +894,7 @@ class Programin(PyoObject):
                 new `channel` attribute.
 
         """
+        pyoArgsAssert(self, "i", x)
         self._channel = x
         x, lmax = convertArgsToLists(x)
         [obj.setChannel(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -928,6 +949,7 @@ class MidiAdsr(PyoObject):
 
     """
     def __init__(self, input, attack=0.01, decay=0.05, sustain=0.7, release=0.1, mul=1, add=0):
+        pyoArgsAssert(self, "onnnnOO", input, attack, decay, sustain, release, mul, add)
         PyoObject.__init__(self, mul, add)
         self._input = input
         self._attack = attack
@@ -953,6 +975,7 @@ class MidiAdsr(PyoObject):
                 Crossfade time between old and new input. Defaults to 0.05.
 
         """
+        pyoArgsAssert(self, "oN", x, fadetime)
         self._input = x
         self._in_fader.setInput(x, fadetime)
 
@@ -966,6 +989,7 @@ class MidiAdsr(PyoObject):
                 new `attack` attribute.
 
         """
+        pyoArgsAssert(self, "n", x)
         self._attack = x
         x, lmax = convertArgsToLists(x)
         [obj.setAttack(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -980,6 +1004,7 @@ class MidiAdsr(PyoObject):
                 new `decay` attribute.
 
         """
+        pyoArgsAssert(self, "n", x)
         self._decay = x
         x, lmax = convertArgsToLists(x)
         [obj.setDecay(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -994,6 +1019,7 @@ class MidiAdsr(PyoObject):
                 new `sustain` attribute.
 
         """
+        pyoArgsAssert(self, "n", x)
         self._sustain = x
         x, lmax = convertArgsToLists(x)
         [obj.setSustain(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -1008,6 +1034,7 @@ class MidiAdsr(PyoObject):
                 new `sustain` attribute.
 
         """
+        pyoArgsAssert(self, "n", x)
         self._release = x
         x, lmax = convertArgsToLists(x)
         [obj.setRelease(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -1086,6 +1113,7 @@ class MidiDelAdsr(PyoObject):
 
     """
     def __init__(self, input, delay=0, attack=0.01, decay=0.05, sustain=0.7, release=0.1, mul=1, add=0):
+        pyoArgsAssert(self, "onnnnnOO", input, delay, attack, decay, sustain, release, mul, add)
         PyoObject.__init__(self, mul, add)
         self._input = input
         self._delay = delay
@@ -1112,6 +1140,7 @@ class MidiDelAdsr(PyoObject):
                 Crossfade time between old and new input. Defaults to 0.05.
 
         """
+        pyoArgsAssert(self, "oN", x, fadetime)
         self._input = x
         self._in_fader.setInput(x, fadetime)
 
@@ -1125,6 +1154,7 @@ class MidiDelAdsr(PyoObject):
                 new `delay` attribute.
 
         """
+        pyoArgsAssert(self, "n", x)
         self._delay = x
         x, lmax = convertArgsToLists(x)
         [obj.setDelay(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -1139,6 +1169,7 @@ class MidiDelAdsr(PyoObject):
                 new `attack` attribute.
 
         """
+        pyoArgsAssert(self, "n", x)
         self._attack = x
         x, lmax = convertArgsToLists(x)
         [obj.setAttack(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -1153,6 +1184,7 @@ class MidiDelAdsr(PyoObject):
                 new `decay` attribute.
 
         """
+        pyoArgsAssert(self, "n", x)
         self._decay = x
         x, lmax = convertArgsToLists(x)
         [obj.setDecay(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -1167,6 +1199,7 @@ class MidiDelAdsr(PyoObject):
                 new `sustain` attribute.
 
         """
+        pyoArgsAssert(self, "n", x)
         self._sustain = x
         x, lmax = convertArgsToLists(x)
         [obj.setSustain(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -1181,6 +1214,7 @@ class MidiDelAdsr(PyoObject):
                 new `sustain` attribute.
 
         """
+        pyoArgsAssert(self, "n", x)
         self._release = x
         x, lmax = convertArgsToLists(x)
         [obj.setRelease(wrap(x,i)) for i, obj in enumerate(self._base_objs)]

@@ -52,6 +52,7 @@ class HarmTable(PyoTableObject):
 
     """
     def __init__(self, list=[1., 0.], size=8192):
+        pyoArgsAssert(self, "lI", list, size)
         PyoTableObject.__init__(self, size)
         self._list = copy.deepcopy(list)
         self._base_objs = [HarmTable_base(self._list, size)]
@@ -68,6 +69,7 @@ class HarmTable(PyoTableObject):
                 numbers 1,2,3, etc.
 
         """
+        pyoArgsAssert(self, "l", list)
         self._list = list
         [obj.replace(list) for obj in self._base_objs]
         self.refreshView()
@@ -102,6 +104,7 @@ class SawTable(PyoTableObject):
 
     """
     def __init__(self, order=10, size=8192):
+        pyoArgsAssert(self, "II", order, size)
         PyoTableObject.__init__(self, size)
         self._order = order
         list = [1./i for i in range(1,(order+1))]
@@ -117,6 +120,7 @@ class SawTable(PyoTableObject):
                 New number of harmonics
 
         """
+        pyoArgsAssert(self, "I", x)
         self._order = x
         list = [1./i for i in range(1,(self._order+1))]
         [obj.replace(list) for obj in self._base_objs]
@@ -152,6 +156,7 @@ class SquareTable(PyoTableObject):
 
     """
     def __init__(self, order=10, size=8192):
+        pyoArgsAssert(self, "II", order, size)
         PyoTableObject.__init__(self, size)
         self._order = order
         list = []
@@ -172,6 +177,7 @@ class SquareTable(PyoTableObject):
                 New number of harmonics
 
         """
+        pyoArgsAssert(self, "I", x)
         self._order = x
         list = []
         for i in range(1,(self._order*2)):
@@ -217,6 +223,7 @@ class ChebyTable(PyoTableObject):
 
     """
     def __init__(self, list=[1., 0.], size=8192):
+        pyoArgsAssert(self, "lI", list, size)
         PyoTableObject.__init__(self, size)
         self._list = copy.deepcopy(list)
         self._base_objs = [ChebyTable_base(self._list, size)]
@@ -234,6 +241,7 @@ class ChebyTable(PyoTableObject):
                 numbers 1,2,3, ..., 12. Up to 12 partials can be specified.
 
         """
+        pyoArgsAssert(self, "l", list)
         self._list = list
         [obj.replace(list) for obj in self._base_objs]
         self.refreshView()
@@ -277,6 +285,7 @@ class HannTable(PyoTableObject):
 
     """
     def __init__(self, size=8192):
+        pyoArgsAssert(self, "I", size)
         PyoTableObject.__init__(self, size)
         self._base_objs = [HannTable_base(size)]
 
@@ -303,6 +312,7 @@ class SincTable(PyoTableObject):
 
     """
     def __init__(self, freq=pi*2, windowed=False, size=8192):
+        pyoArgsAssert(self, "NBI", freq, windowed, size)
         PyoTableObject.__init__(self, size)
         self._freq = freq
         self._windowed = windowed
@@ -318,6 +328,7 @@ class SincTable(PyoTableObject):
                 New frequency in radians.
 
         """
+        pyoArgsAssert(self, "N", x)
         self._freq = x
         [obj.setFreq(x) for obj in self._base_objs]
         self.refreshView()
@@ -332,6 +343,7 @@ class SincTable(PyoTableObject):
                 New windowed flag.
 
         """
+        pyoArgsAssert(self, "B", x)
         self._windowed = x
         [obj.setWindowed(x) for obj in self._base_objs]
         self.refreshView()
@@ -380,6 +392,7 @@ class WinTable(PyoTableObject):
 
     """
     def __init__(self, type=2, size=8192):
+        pyoArgsAssert(self, "II", type, size)
         PyoTableObject.__init__(self, size)
         self._type = type
         self._base_objs = [WinTable_base(type, size)]
@@ -394,6 +407,7 @@ class WinTable(PyoTableObject):
                 Windowing function.
 
         """
+        pyoArgsAssert(self, "I", type)
         self._type = type
         [obj.setType(type) for obj in self._base_objs]
         self.refreshView()
@@ -428,6 +442,7 @@ class ParaTable(PyoTableObject):
 
     """
     def __init__(self, size=8192):
+        pyoArgsAssert(self, "I", size)
         PyoTableObject.__init__(self, size)
         self._base_objs = [ParaTable_base(size)]
 
@@ -461,6 +476,7 @@ class LinTable(PyoTableObject):
 
     """
     def __init__(self, list=[(0, 0.), (8191, 1.)], size=8192):
+        pyoArgsAssert(self, "lI", list, size)
         PyoTableObject.__init__(self, size)
         if size < list[-1][0]:
             print "LinTable warning : size smaller than last point position."
@@ -480,6 +496,7 @@ class LinTable(PyoTableObject):
                 in the table. Location must be integer.
 
         """
+        pyoArgsAssert(self, "l", list)
         self._list = list
         [obj.replace(list) for obj in self._base_objs]
         self.refreshView()
@@ -502,6 +519,7 @@ class LinTable(PyoTableObject):
                 Defaults to 0.02.
 
         """
+        pyoArgsAssert(self, "SN", filename, tolerance)
         _path, _name = os.path.split(filename)
         # files = sorted([f for f in os.listdir(_path) if _name+"_" in f])
         # if _name not in files: files.append(_name)
@@ -591,6 +609,7 @@ class LogTable(PyoTableObject):
 
     """
     def __init__(self, list=[(0, 0.), (8191, 1.)], size=8192):
+        pyoArgsAssert(self, "lI", list, size)
         PyoTableObject.__init__(self, size)
         if size < list[-1][0]:
             print "LogTable warning : size smaller than last point position."
@@ -610,6 +629,7 @@ class LogTable(PyoTableObject):
                 in the table. Location must be integer.
 
         """
+        pyoArgsAssert(self, "l", list)
         self._list = list
         [obj.replace(list) for obj in self._base_objs]
         self.refreshView()
@@ -632,6 +652,7 @@ class LogTable(PyoTableObject):
                 Defaults to 0.02.
 
         """
+        pyoArgsAssert(self, "SN", filename, tolerance)
         _path, _name = os.path.split(filename)
         # files = sorted([f for f in os.listdir(_path) if _name+"_" in f])
         # if _name not in files: files.append(_name)
@@ -721,6 +742,7 @@ class CosLogTable(PyoTableObject):
 
     """
     def __init__(self, list=[(0, 0.), (8191, 1.)], size=8192):
+        pyoArgsAssert(self, "lI", list, size)
         PyoTableObject.__init__(self, size)
         if size < list[-1][0]:
             print "CosLogTable warning : size smaller than last point position."
@@ -740,6 +762,7 @@ class CosLogTable(PyoTableObject):
                 in the table. Location must be integer.
 
         """
+        pyoArgsAssert(self, "l", list)
         self._list = list
         [obj.replace(list) for obj in self._base_objs]
         self.refreshView()
@@ -762,6 +785,7 @@ class CosLogTable(PyoTableObject):
                 Defaults to 0.02.
 
         """
+        pyoArgsAssert(self, "SN", filename, tolerance)
         _path, _name = os.path.split(filename)
         # files = sorted([f for f in os.listdir(_path) if _name+"_" in f])
         # if _name not in files: files.append(_name)
@@ -850,6 +874,7 @@ class CosTable(PyoTableObject):
 
     """
     def __init__(self, list=[(0, 0.), (8191, 1.)], size=8192):
+        pyoArgsAssert(self, "lI", list, size)
         PyoTableObject.__init__(self, size)
         if size < list[-1][0]:
             print "CosTable warning : size smaller than last point position."
@@ -869,6 +894,7 @@ class CosTable(PyoTableObject):
                 in the table. Location must be integer.
 
         """
+        pyoArgsAssert(self, "l", list)
         self._list = list
         [obj.replace(list) for obj in self._base_objs]
         self.refreshView()
@@ -891,6 +917,7 @@ class CosTable(PyoTableObject):
                 Defaults to 0.02.
 
         """
+        pyoArgsAssert(self, "SN", filename, tolerance)
         _path, _name = os.path.split(filename)
         # files = sorted([f for f in os.listdir(_path) if _name+"_" in f])
         # if _name not in files: files.append(_name)
@@ -995,6 +1022,7 @@ class CurveTable(PyoTableObject):
 
     """
     def __init__(self, list=[(0, 0.), (8191, 1.)], tension=0, bias=0, size=8192):
+        pyoArgsAssert(self, "lNNI", list, tension, bias, size)
         PyoTableObject.__init__(self, size)
         if size < list[-1][0]:
             print "CurveTable warning : size smaller than last point position."
@@ -1017,6 +1045,7 @@ class CurveTable(PyoTableObject):
                 New `tension` attribute.
 
         """
+        pyoArgsAssert(self, "N", x)
         self._tension = x
         [obj.setTension(x) for obj in self._base_objs]
         self.refreshView()
@@ -1034,6 +1063,7 @@ class CurveTable(PyoTableObject):
                 New `bias` attribute.
 
         """
+        pyoArgsAssert(self, "N", x)
         self._bias = x
         [obj.setBias(x) for obj in self._base_objs]
         self.refreshView()
@@ -1049,6 +1079,7 @@ class CurveTable(PyoTableObject):
                 in the table. Location must be integer.
 
         """
+        pyoArgsAssert(self, "l", list)
         self._list = list
         [obj.replace(list) for obj in self._base_objs]
         self.refreshView()
@@ -1071,6 +1102,7 @@ class CurveTable(PyoTableObject):
                 Defaults to 0.02.
 
         """
+        pyoArgsAssert(self, "SN", filename, tolerance)
         _path, _name = os.path.split(filename)
         # files = sorted([f for f in os.listdir(_path) if _name+"_" in f])
         # if _name not in files: files.append(_name)
@@ -1178,6 +1210,7 @@ class ExpTable(PyoTableObject):
 
     """
     def __init__(self, list=[(0, 0.), (8192, 1.)], exp=10, inverse=True, size=8192):
+        pyoArgsAssert(self, "lNBI", list, exp, inverse, size)
         PyoTableObject.__init__(self, size)
         if size < list[-1][0]:
             print "ExpTable warning : size smaller than last point position."
@@ -1198,6 +1231,7 @@ class ExpTable(PyoTableObject):
                 New `exp` attribute.
 
         """
+        pyoArgsAssert(self, "N", x)
         self._exp = x
         [obj.setExp(x) for obj in self._base_objs]
         self.refreshView()
@@ -1212,6 +1246,7 @@ class ExpTable(PyoTableObject):
                 New `inverse` attribute.
 
         """
+        pyoArgsAssert(self, "B", x)
         self._inverse = x
         [obj.setInverse(x) for obj in self._base_objs]
         self.refreshView()
@@ -1227,6 +1262,7 @@ class ExpTable(PyoTableObject):
                 in the table. Location must be integer.
 
         """
+        pyoArgsAssert(self, "l", list)
         self._list = list
         [obj.replace(list) for obj in self._base_objs]
         self.refreshView()
@@ -1249,6 +1285,7 @@ class ExpTable(PyoTableObject):
                 Defaults to 0.02.
 
         """
+        pyoArgsAssert(self, "SN", filename, tolerance)
         _path, _name = os.path.split(filename)
         # files = sorted([f for f in os.listdir(_path) if _name+"_" in f])
         # if _name not in files: files.append(_name)
@@ -1736,6 +1773,7 @@ class NewTable(PyoTableObject):
 
     """
     def __init__(self, length, chnls=1, init=None, feedback=0.0):
+        pyoArgsAssert(self, "NILN", length, chnls, init, feedback)
         PyoTableObject.__init__(self)
         self._length = length
         self._chnls = chnls
@@ -1762,6 +1800,7 @@ class NewTable(PyoTableObject):
                 the list will be loaded in all tablestreams.
 
         """
+        pyoArgsAssert(self, "l", x)
         if type(x[0]) != ListType:
             x = [x]
         [obj.setTable(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -1777,6 +1816,7 @@ class NewTable(PyoTableObject):
                 New `feedback` value.
 
         """
+        pyoArgsAssert(self, "N", x)
         self._feedback = x
         [obj.setFeedback(x) for i, obj in enumerate(self._base_objs)]
 
@@ -1925,6 +1965,7 @@ class DataTable(PyoTableObject):
 
     """
     def __init__(self, size, chnls=1, init=None):
+        pyoArgsAssert(self, "IIL", size, chnls, init)
         PyoTableObject.__init__(self, size)
         self._chnls = chnls
         self._init = init
@@ -1948,6 +1989,7 @@ class DataTable(PyoTableObject):
                 the list will be loaded in all tablestreams.
 
         """
+        pyoArgsAssert(self, "l", x)
         if type(x[0]) != ListType:
             x = [x]
         [obj.setTable(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -2033,6 +2075,7 @@ class AtanTable(PyoTableObject):
 
     """
     def __init__(self, slope=0.5, size=8192):
+        pyoArgsAssert(self, "NI", slope, size)
         PyoTableObject.__init__(self, size)
         self._slope = slope
         self._base_objs = [AtanTable_base(slope, size)]
@@ -2047,6 +2090,7 @@ class AtanTable(PyoTableObject):
                 New slope between 0 and 1.
 
         """
+        pyoArgsAssert(self, "N", x)
         self._slope = x
         [obj.setSlope(x) for obj in self._base_objs]
         self.refreshView()
@@ -2106,6 +2150,7 @@ class PartialTable(PyoTableObject):
 
     """
     def __init__(self, list=[(1,1), (1.33,0.5),(1.67,0.3)], size=65536):
+        pyoArgsAssert(self, "lI", list, size)
         PyoTableObject.__init__(self, size)
         self._list = list
         self._par_table = HarmTable(self._create_list(), size)
@@ -2139,6 +2184,7 @@ class PartialTable(PyoTableObject):
                 and its strength.
 
         """
+        pyoArgsAssert(self, "l", list)
         self._list = list
         [obj.replace(self._create_list()) for obj in self._base_objs]
         self.normalize()

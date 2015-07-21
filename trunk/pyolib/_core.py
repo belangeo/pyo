@@ -190,7 +190,7 @@ def pyoArgsAssert(obj, format, *args):
             if argtype not in [ListType, TupleType]:
                 expected = "list or tuple"
         elif f == "c":
-            if not callable(args[i]) and argtype not in [ListType, NoneType]:
+            if not callable(args[i]) and argtype not in [ListType, TupleType, NoneType]:
                 expected = "callable"
         elif f == "C":
             if not callable(args[i]) and argtype not in [NoneType]:

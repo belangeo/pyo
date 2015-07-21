@@ -87,6 +87,7 @@ class MatrixRec(PyoObject):
 
     """
     def __init__(self, input, matrix, fadetime=0, delay=0):
+        pyoArgsAssert(self, "omni", input, matrix, fadetime, delay)
         PyoObject.__init__(self)
         self._input = input
         self._matrix = matrix
@@ -116,6 +117,7 @@ class MatrixRec(PyoObject):
                 Crossfade time between old and new input. Defaults to 0.05.
 
         """
+        pyoArgsAssert(self, "oN", x, fadetime)
         self._input = x
         self._in_fader.setInput(x, fadetime)
 
@@ -129,6 +131,7 @@ class MatrixRec(PyoObject):
                 new `matrix` attribute.
 
         """
+        pyoArgsAssert(self, "m", x)
         self._matrix = x
         x, lmax = convertArgsToLists(x)
         [obj.setMatrix(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -194,6 +197,7 @@ class MatrixRecLoop(PyoObject):
 
     """
     def __init__(self, input, matrix):
+        pyoArgsAssert(self, "om", input, matrix)
         PyoObject.__init__(self)
         self._input = input
         self._matrix = matrix
@@ -223,6 +227,7 @@ class MatrixRecLoop(PyoObject):
                 Crossfade time between old and new input. Defaults to 0.05.
 
         """
+        pyoArgsAssert(self, "oN", x, fadetime)
         self._input = x
         self._in_fader.setInput(x, fadetime)
 
@@ -236,6 +241,7 @@ class MatrixRecLoop(PyoObject):
                 new `matrix` attribute.
 
         """
+        pyoArgsAssert(self, "m", x)
         self._matrix = x
         x, lmax = convertArgsToLists(x)
         [obj.setMatrix(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -285,6 +291,7 @@ class MatrixPointer(PyoObject):
 
     """
     def __init__(self, matrix, x, y, mul=1, add=0):
+        pyoArgsAssert(self, "mooOO", matrix, x, y, mul, add)
         PyoObject.__init__(self, mul, add)
         self._matrix = matrix
         self._x = x
@@ -302,6 +309,7 @@ class MatrixPointer(PyoObject):
                 new `matrix` attribute.
 
         """
+        pyoArgsAssert(self, "m", x)
         self._matrix = x
         x, lmax = convertArgsToLists(x)
         [obj.setMatrix(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -316,6 +324,7 @@ class MatrixPointer(PyoObject):
                 new `x` attribute.
 
         """
+        pyoArgsAssert(self, "o", x)
         self._x = x
         x, lmax = convertArgsToLists(x)
         [obj.setX(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -330,6 +339,7 @@ class MatrixPointer(PyoObject):
                 new `y` attribute.
 
         """
+        pyoArgsAssert(self, "o", x)
         self._y = x
         x, lmax = convertArgsToLists(x)
         [obj.setY(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -401,6 +411,7 @@ class MatrixMorph(PyoObject):
 
     """
     def __init__(self, input, matrix, sources):
+        pyoArgsAssert(self, "oml", input, matrix, sources)
         PyoObject.__init__(self)
         self._input = input
         self._matrix = matrix
@@ -431,6 +442,7 @@ class MatrixMorph(PyoObject):
                 Crossfade time between old and new input. Defaults to 0.05.
 
         """
+        pyoArgsAssert(self, "oN", x, fadetime)
         self._input = x
         self._in_fader.setInput(x, fadetime)
 
@@ -444,6 +456,7 @@ class MatrixMorph(PyoObject):
                 new `matrix` attribute.
 
         """
+        pyoArgsAssert(self, "m", x)
         self._matrix = x
         x, lmax = convertArgsToLists(x)
         [obj.setMatrix(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -458,6 +471,7 @@ class MatrixMorph(PyoObject):
                 new `sources` attribute.
 
         """
+        pyoArgsAssert(self, "l", x)
         self._sources = x
         self._base_sources = [source[0] for source in x]
         [obj.setSources(self._base_sources) for i, obj in enumerate(self._base_objs)]

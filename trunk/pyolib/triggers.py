@@ -27,7 +27,6 @@ GNU Lesser General Public License for more details.
 You should have received a copy of the GNU Lesser General Public
 License along with pyo.  If not, see <http://www.gnu.org/licenses/>.
 """
-import sys
 from _core import *
 from _maps import *
 from _widgets import createGraphWindow
@@ -114,6 +113,7 @@ class Metro(PyoObject):
 
     """
     def __init__(self, time=1, poly=1):
+        pyoArgsAssert(self, "OI", time, poly)
         PyoObject.__init__(self)
         self._time = time
         self._poly = poly
@@ -130,6 +130,7 @@ class Metro(PyoObject):
                 New `time` attribute.
 
         """
+        pyoArgsAssert(self, "O", x)
         self._time = x
         x, lmax = convertArgsToLists(x)
         [obj.setTime(wrap(x,i)*self._poly) for i, obj in enumerate(self._base_objs)]
@@ -199,10 +200,8 @@ class Seq(PyoObject):
 
     """
     def __init__(self, time=1, seq=[1], poly=1):
+        pyoArgsAssert(self, "OlI", time, seq, poly)
         PyoObject.__init__(self)
-        if type(seq) != ListType:
-            print >> sys.stderr, 'TypeError: "seq" argument of %s must be a list.\n' % self.__class__.__name__
-            exit()
         self._time = time
         self._seq = seq
         self._poly = poly
@@ -225,6 +224,7 @@ class Seq(PyoObject):
                 New `time` attribute.
 
         """
+        pyoArgsAssert(self, "O", x)
         self._time = x
         x, lmax = convertArgsToLists(x)
         [obj.setTime(wrap(x,i)) for i, obj in enumerate(self._base_players)]
@@ -239,6 +239,7 @@ class Seq(PyoObject):
                 New `seq` attribute.
 
         """
+        pyoArgsAssert(self, "l", x)
         self._seq = x
         if type(x[0]) != ListType:
             [obj.setSeq(x) for i, obj in enumerate(self._base_players)]
@@ -317,6 +318,7 @@ class Cloud(PyoObject):
 
     """
     def __init__(self, density=10, poly=1):
+        pyoArgsAssert(self, "OI", density, poly)
         PyoObject.__init__(self)
         self._density = density
         self._poly = poly
@@ -334,6 +336,7 @@ class Cloud(PyoObject):
                 New `density` attribute.
 
         """
+        pyoArgsAssert(self, "O", x)
         self._density = x
         x, lmax = convertArgsToLists(x)
         [obj.setDensity(wrap(x,i)) for i, obj in enumerate(self._base_players)]
@@ -431,6 +434,7 @@ class Beat(PyoObject):
 
     """
     def __init__(self, time=.125, taps=16, w1=80, w2=50, w3=30, poly=1):
+        pyoArgsAssert(self, "OinnnI", time, taps, w1, w2, w3, poly)
         PyoObject.__init__(self)
         self._tap_dummy = []
         self._amp_dummy = []
@@ -528,6 +532,7 @@ class Beat(PyoObject):
                 Memory number. 0 <= x < 32.
 
         """
+        pyoArgsAssert(self, "I", x)
         [obj.store(x) for i, obj in enumerate(self._base_players)]
 
     def recall(self, x):
@@ -540,6 +545,7 @@ class Beat(PyoObject):
                 Memory number. 0 <= x < 32.
 
         """
+        pyoArgsAssert(self, "I", x)
         [obj.recall(x) for i, obj in enumerate(self._base_players)]
 
     def getPresets(self):
@@ -562,6 +568,7 @@ class Beat(PyoObject):
                 List of presets.
 
         """
+        pyoArgsAssert(self, "l", x)
         if len(self._base_players) == 1:
             return self._base_players[0].setPresets(x)
         else:
@@ -577,6 +584,7 @@ class Beat(PyoObject):
                 New `time` attribute.
 
         """
+        pyoArgsAssert(self, "O", x)
         self._time = x
         x, lmax = convertArgsToLists(x)
         [obj.setTime(wrap(x,i)) for i, obj in enumerate(self._base_players)]
@@ -591,6 +599,7 @@ class Beat(PyoObject):
                 New `taps` attribute.
 
         """
+        pyoArgsAssert(self, "I", x)
         self._taps = x
         x, lmax = convertArgsToLists(x)
         [obj.setTaps(wrap(x,i)) for i, obj in enumerate(self._base_players)]
@@ -605,6 +614,7 @@ class Beat(PyoObject):
                 New `w1` attribute.
 
         """
+        pyoArgsAssert(self, "n", x)
         self.setWeights(w1=x)
 
     def setW2(self, x):
@@ -617,6 +627,7 @@ class Beat(PyoObject):
                 New `w2` attribute.
 
         """
+        pyoArgsAssert(self, "n", x)
         self.setWeights(w2=x)
 
     def setW3(self, x):
@@ -629,6 +640,7 @@ class Beat(PyoObject):
                 New `w3` attribute.
 
         """
+        pyoArgsAssert(self, "n", x)
         self.setWeights(w3=x)
 
     def setWeights(self, w1=None, w2=None, w3=None):
@@ -758,6 +770,7 @@ class TrigRandInt(PyoObject):
 
     """
     def __init__(self, input, max=100., mul=1, add=0):
+        pyoArgsAssert(self, "oOOO", input, max, mul, add)
         PyoObject.__init__(self, mul, add)
         self._input = input
         self._max = max
@@ -777,6 +790,7 @@ class TrigRandInt(PyoObject):
                 Crossfade time between old and new input. Defaults to 0.05.
 
         """
+        pyoArgsAssert(self, "oN", x, fadetime)
         self._input = x
         self._in_fader.setInput(x, fadetime)
 
@@ -790,6 +804,7 @@ class TrigRandInt(PyoObject):
                 new `max` attribute.
 
         """
+        pyoArgsAssert(self, "O", x)
         self._max = x
         x, lmax = convertArgsToLists(x)
         [obj.setMax(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -851,6 +866,7 @@ class TrigRand(PyoObject):
 
     """
     def __init__(self, input, min=0., max=1., port=0., init=0., mul=1, add=0):
+        pyoArgsAssert(self, "oOOnnOO", input, min, max, port, init, mul, add)
         PyoObject.__init__(self, mul, add)
         self._input = input
         self._min = min
@@ -872,6 +888,7 @@ class TrigRand(PyoObject):
                 Crossfade time between old and new input. Defaults to 0.05.
 
         """
+        pyoArgsAssert(self, "oN", x, fadetime)
         self._input = x
         self._in_fader.setInput(x, fadetime)
 
@@ -885,6 +902,7 @@ class TrigRand(PyoObject):
                 new `min` attribute.
 
         """
+        pyoArgsAssert(self, "O", x)
         self._min = x
         x, lmax = convertArgsToLists(x)
         [obj.setMin(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -899,6 +917,7 @@ class TrigRand(PyoObject):
                 new `max` attribute.
 
         """
+        pyoArgsAssert(self, "O", x)
         self._max = x
         x, lmax = convertArgsToLists(x)
         [obj.setMax(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -913,6 +932,7 @@ class TrigRand(PyoObject):
                 new `port` attribute.
 
         """
+        pyoArgsAssert(self, "n", x)
         self._port = x
         x, lmax = convertArgsToLists(x)
         [obj.setPort(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -984,10 +1004,8 @@ class TrigChoice(PyoObject):
 
     """
     def __init__(self, input, choice, port=0., init=0., mul=1, add=0):
+        pyoArgsAssert(self, "olnnOO", input, choice, port, init, mul, add)
         PyoObject.__init__(self, mul, add)
-        if type(choice) != ListType:
-            print >> sys.stderr, 'TypeError: "choice" argument of %s must be a list.\n' % self.__class__.__name__
-            exit()
         self._input = input
         self._choice = choice
         self._port = port
@@ -1012,6 +1030,7 @@ class TrigChoice(PyoObject):
                 Crossfade time between old and new input. Defaults to 0.05.
 
         """
+        pyoArgsAssert(self, "oN", x, fadetime)
         self._input = x
         self._in_fader.setInput(x, fadetime)
 
@@ -1025,6 +1044,7 @@ class TrigChoice(PyoObject):
                 new `choice` attribute.
 
         """
+        pyoArgsAssert(self, "l", x)
         self._choice = x
         if type(x[0]) != ListType:
             [obj.setChoice(self._choice) for i, obj in enumerate(self._base_objs)]
@@ -1041,6 +1061,7 @@ class TrigChoice(PyoObject):
                 new `port` attribute.
 
         """
+        pyoArgsAssert(self, "n", x)
         self._port = x
         x, lmax = convertArgsToLists(x)
         [obj.setPort(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -1110,15 +1131,8 @@ class TrigFunc(PyoObject):
 
     """
     def __init__(self, input, function, arg=None):
+        pyoArgsAssert(self, "oc", input, function)
         PyoObject.__init__(self)
-        if type(function) == ListType or type(function) == TupleType:
-            if not callable(function[0]):
-                print >> sys.stderr, 'TypeError: "function" argument of %s must be callable.\n' % self.__class__.__name__
-                exit()
-        else:
-            if not callable(function):
-                print >> sys.stderr, 'TypeError: "function" argument of %s must be callable.\n' % self.__class__.__name__
-                exit()
         self._input = input
         self._function = getWeakMethodRef(function)
         self._arg = arg
@@ -1147,6 +1161,7 @@ class TrigFunc(PyoObject):
                 Crossfade time between old and new input. Defaults to 0.05.
 
         """
+        pyoArgsAssert(self, "oN", x, fadetime)
         self._input = x
         self._in_fader.setInput(x, fadetime)
 
@@ -1160,6 +1175,7 @@ class TrigFunc(PyoObject):
                 new `function` attribute.
 
         """
+        pyoArgsAssert(self, "c", x)
         self._function = getWeakMethodRef(x)
         x, lmax = convertArgsToLists(x)
         [obj.setFunction(WeakMethod(wrap(x,i))) for i, obj in enumerate(self._base_objs)]
@@ -1240,6 +1256,7 @@ class TrigEnv(PyoObject):
 
     """
     def __init__(self, input, table, dur=1, interp=2, mul=1, add=0):
+        pyoArgsAssert(self, "otOiOO", input, table, dur, interp, mul, add)
         PyoObject.__init__(self, mul, add)
         self._input = input
         self._table = table
@@ -1262,6 +1279,7 @@ class TrigEnv(PyoObject):
                 Crossfade time between old and new input. Defaults to 0.05.
 
         """
+        pyoArgsAssert(self, "oN", x, fadetime)
         self._input = x
         self._in_fader.setInput(x, fadetime)
 
@@ -1275,6 +1293,7 @@ class TrigEnv(PyoObject):
                 new `table` attribute.
 
         """
+        pyoArgsAssert(self, "t", x)
         self._table = x
         x, lmax = convertArgsToLists(x)
         [obj.setTable(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -1289,6 +1308,7 @@ class TrigEnv(PyoObject):
                 new `dur` attribute.
 
         """
+        pyoArgsAssert(self, "O", x)
         self._dur = x
         x, lmax = convertArgsToLists(x)
         [obj.setDur(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -1303,6 +1323,7 @@ class TrigEnv(PyoObject):
                 new `interp` attribute.
 
         """
+        pyoArgsAssert(self, "i", x)
         self._interp = x
         x, lmax = convertArgsToLists(x)
         [obj.setInterp(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -1376,13 +1397,8 @@ class TrigLinseg(PyoObject):
 
     """
     def __init__(self, input, list, mul=1, add=0):
+        pyoArgsAssert(self, "olOO", input, list, mul, add)
         PyoObject.__init__(self, mul, add)
-        if type(list) != ListType:
-            print >> sys.stderr, 'TypeError: "list" argument of %s must be a list of tuples.\n' % self.__class__.__name__
-            exit()
-        if type(list[0]) != TupleType:
-            print >> sys.stderr, 'TypeError: "list" argument of %s must be a list of tuples.\n' % self.__class__.__name__
-            exit()
         self._input = input
         self._list = list
         self._in_fader = InputFader(input)
@@ -1405,6 +1421,7 @@ class TrigLinseg(PyoObject):
                 Crossfade time between old and new input. Defaults to 0.05.
 
         """
+        pyoArgsAssert(self, "oN", x, fadetime)
         self._input = x
         self._in_fader.setInput(x, fadetime)
 
@@ -1418,6 +1435,7 @@ class TrigLinseg(PyoObject):
                 new `list` attribute.
 
         """
+        pyoArgsAssert(self, "l", x)
         self._list = x
         [obj.setList(x) for i, obj in enumerate(self._base_objs)]
 
@@ -1541,13 +1559,8 @@ class TrigExpseg(PyoObject):
 
     """
     def __init__(self, input, list, exp=10, inverse=True, mul=1, add=0):
+        pyoArgsAssert(self, "olnbOO", input, list, exp, inverse, mul, add)
         PyoObject.__init__(self, mul, add)
-        if type(list) != ListType:
-            print >> sys.stderr, 'TypeError: "list" argument of %s must be a list of tuples.\n' % self.__class__.__name__
-            exit()
-        if type(list[0]) != TupleType:
-            print >> sys.stderr, 'TypeError: "list" argument of %s must be a list of tuples.\n' % self.__class__.__name__
-            exit()
         self._input = input
         self._list = list
         self._exp = exp
@@ -1572,6 +1585,7 @@ class TrigExpseg(PyoObject):
                 Crossfade time between old and new input. Defaults to 0.05.
 
         """
+        pyoArgsAssert(self, "oN", x, fadetime)
         self._input = x
         self._in_fader.setInput(x, fadetime)
 
@@ -1585,6 +1599,7 @@ class TrigExpseg(PyoObject):
                 new `list` attribute.
 
         """
+        pyoArgsAssert(self, "l", x)
         self._list = x
         [obj.setList(x) for i, obj in enumerate(self._base_objs)]
 
@@ -1598,6 +1613,7 @@ class TrigExpseg(PyoObject):
                 new `exp` attribute.
 
         """
+        pyoArgsAssert(self, "n", x)
         self._exp = x
         x, lmax = convertArgsToLists(x)
         [obj.setExp(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -1612,6 +1628,7 @@ class TrigExpseg(PyoObject):
                 new `inverse` attribute.
 
         """
+        pyoArgsAssert(self, "b", x)
         self._inverse = x
         x, lmax = convertArgsToLists(x)
         [obj.setInverse(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -1801,6 +1818,7 @@ class TrigXnoise(PyoObject):
 
     """
     def __init__(self, input, dist=0, x1=0.5, x2=0.5, mul=1, add=0):
+        pyoArgsAssert(self, "oOOOO", input, x1, x2, mul, add)
         PyoObject.__init__(self, mul, add)
         self._input = input
         self._dist = dist
@@ -1824,6 +1842,7 @@ class TrigXnoise(PyoObject):
                 Crossfade time between old and new input. Defaults to 0.05.
 
         """
+        pyoArgsAssert(self, "oN", x, fadetime)
         self._input = x
         self._in_fader.setInput(x, fadetime)
 
@@ -1853,6 +1872,7 @@ class TrigXnoise(PyoObject):
                 new `x1` attribute.
 
         """
+        pyoArgsAssert(self, "O", x)
         self._x1 = x
         x, lmax = convertArgsToLists(x)
         [obj.setX1(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -1867,7 +1887,8 @@ class TrigXnoise(PyoObject):
                 new `x2` attribute.
 
         """
-        self._x2= x
+        pyoArgsAssert(self, "O", x)
+        self._x2 = x
         x, lmax = convertArgsToLists(x)
         [obj.setX2(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
@@ -2004,6 +2025,7 @@ class TrigXnoiseMidi(PyoObject):
 
     """
     def __init__(self, input, dist=0, x1=0.5, x2=0.5, scale=0, mrange=(0,127), mul=1, add=0):
+        pyoArgsAssert(self, "oOOixOO", input, x1, x2, scale, mrange, mul, add)
         PyoObject.__init__(self, mul, add)
         self._input = input
         self._dist = dist
@@ -2029,6 +2051,7 @@ class TrigXnoiseMidi(PyoObject):
                 Crossfade time between old and new input. Defaults to 0.05.
 
         """
+        pyoArgsAssert(self, "oN", x, fadetime)
         self._input = x
         self._in_fader.setInput(x, fadetime)
 
@@ -2063,6 +2086,7 @@ class TrigXnoiseMidi(PyoObject):
                 new `scale` attribute.
 
         """
+        pyoArgsAssert(self, "i", x)
         self._scale = x
         x, lmax = convertArgsToLists(x)
         [obj.setScale(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -2079,6 +2103,7 @@ class TrigXnoiseMidi(PyoObject):
                 maximum output midi range.
 
         """
+        pyoArgsAssert(self, "ii", mini, maxi)
         self._mrange = (mini, maxi)
         mini, maxi, lmax = convertArgsToLists(mini, maxi)
         [obj.setRange(wrap(mini,i), wrap(maxi,i)) for i, obj in enumerate(self._base_objs)]
@@ -2093,6 +2118,7 @@ class TrigXnoiseMidi(PyoObject):
                 new `x1` attribute.
 
         """
+        pyoArgsAssert(self, "O", x)
         self._x1 = x
         x, lmax = convertArgsToLists(x)
         [obj.setX1(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -2107,7 +2133,8 @@ class TrigXnoiseMidi(PyoObject):
                 new `x2` attribute.
 
         """
-        self._x2= x
+        pyoArgsAssert(self, "O", x)
+        self._x2 = x
         x, lmax = convertArgsToLists(x)
         [obj.setX2(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
@@ -2190,6 +2217,7 @@ class Counter(PyoObject):
 
     """
     def __init__(self, input, min=0, max=100, dir=0, mul=1, add=0):
+        pyoArgsAssert(self, "oiiiOO", input, min, max, dir, mul, add)
         PyoObject.__init__(self, mul, add)
         self._input = input
         self._min = min
@@ -2214,6 +2242,7 @@ class Counter(PyoObject):
                 Crossfade time between old and new input. Defaults to 0.05.
 
         """
+        pyoArgsAssert(self, "oN", x, fadetime)
         self._input = x
         self._in_fader.setInput(x, fadetime)
 
@@ -2227,6 +2256,7 @@ class Counter(PyoObject):
                 new `min` attribute.
 
         """
+        pyoArgsAssert(self, "i", x)
         self._min = x
         x, lmax = convertArgsToLists(x)
         [obj.setMin(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -2241,6 +2271,7 @@ class Counter(PyoObject):
                 new `max` attribute.
 
         """
+        pyoArgsAssert(self, "i", x)
         self._max = x
         x, lmax = convertArgsToLists(x)
         [obj.setMax(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -2255,6 +2286,7 @@ class Counter(PyoObject):
                 new `dir` attribute.
 
         """
+        pyoArgsAssert(self, "i", x)
         self._dir = x
         x, lmax = convertArgsToLists(x)
         [obj.setDir(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -2270,6 +2302,7 @@ class Counter(PyoObject):
                 Value where to reset the count. Defaults to None.
 
         """
+        pyoArgsAssert(self, "i", x)
         value, lmax = convertArgsToLists(value)
         [obj.reset(wrap(value,i)) for i, obj in enumerate(self._base_objs)]
 
@@ -2348,6 +2381,7 @@ class Select(PyoObject):
 
     """
     def __init__(self, input, value=0, mul=1, add=0):
+        pyoArgsAssert(self, "oiOO", input, value, mul, add)
         PyoObject.__init__(self, mul, add)
         self._input = input
         self._value = value
@@ -2370,6 +2404,7 @@ class Select(PyoObject):
                 Crossfade time between old and new input. Defaults to 0.05.
 
         """
+        pyoArgsAssert(self, "oN", x, fadetime)
         self._input = x
         self._in_fader.setInput(x, fadetime)
 
@@ -2383,6 +2418,7 @@ class Select(PyoObject):
                 new `value` attribute.
 
         """
+        pyoArgsAssert(self, "i", x)
         self._value = x
         x, lmax = convertArgsToLists(x)
         [obj.setValue(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -2432,6 +2468,7 @@ class Change(PyoObject):
 
     """
     def __init__(self, input, mul=1, add=0):
+        pyoArgsAssert(self, "oOO", input, mul, add)
         PyoObject.__init__(self, mul, add)
         self._input = input
         self._in_fader = InputFader(input)
@@ -2453,6 +2490,7 @@ class Change(PyoObject):
                 Crossfade time between old and new input. Defaults to 0.05.
 
         """
+        pyoArgsAssert(self, "oN", x, fadetime)
         self._input = x
         self._in_fader.setInput(x, fadetime)
 
@@ -2508,6 +2546,7 @@ class Thresh(PyoObject):
 
     """
     def __init__(self, input, threshold=0., dir=0, mul=1, add=0):
+        pyoArgsAssert(self, "oOiOO", input, threshold, dir, mul, add)
         PyoObject.__init__(self, mul, add)
         self._input = input
         self._threshold = threshold
@@ -2531,6 +2570,7 @@ class Thresh(PyoObject):
                 Crossfade time between old and new input. Defaults to 0.05.
 
         """
+        pyoArgsAssert(self, "oN", x, fadetime)
         self._input = x
         self._in_fader.setInput(x, fadetime)
 
@@ -2544,6 +2584,7 @@ class Thresh(PyoObject):
                 new `threshold` attribute.
 
         """
+        pyoArgsAssert(self, "O", x)
         self._threshold = x
         x, lmax = convertArgsToLists(x)
         [obj.setThreshold(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -2558,6 +2599,7 @@ class Thresh(PyoObject):
                 new `dir` attribute.
 
         """
+        pyoArgsAssert(self, "i", x)
         self._dir = x
         x, lmax = convertArgsToLists(x)
         [obj.setDir(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -2618,6 +2660,7 @@ class Percent(PyoObject):
 
     """
     def __init__(self, input, percent=50., mul=1, add=0):
+        pyoArgsAssert(self, "oOOO", input, percent, mul, add)
         PyoObject.__init__(self, mul, add)
         self._input = input
         self._percent = percent
@@ -2640,6 +2683,7 @@ class Percent(PyoObject):
                 Crossfade time between old and new input. Defaults to 0.05.
 
         """
+        pyoArgsAssert(self, "oN", x, fadetime)
         self._input = x
         self._in_fader.setInput(x, fadetime)
 
@@ -2653,6 +2697,7 @@ class Percent(PyoObject):
                 new `percent` attribute.
 
         """
+        pyoArgsAssert(self, "O", x)
         self._percent = x
         x, lmax = convertArgsToLists(x)
         [obj.setPercent(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -2711,6 +2756,7 @@ class Timer(PyoObject):
 
     """
     def __init__(self, input, input2, mul=1, add=0):
+        pyoArgsAssert(self, "ooOO", input, input2, mul, add)
         PyoObject.__init__(self, mul, add)
         self._input = input
         self._input2 = input2
@@ -2731,6 +2777,7 @@ class Timer(PyoObject):
                 Crossfade time between old and new input. Default to 0.05.
 
         """
+        pyoArgsAssert(self, "oN", x, fadetime)
         self._input = x
         self._in_fader.setInput(x, fadetime)
 
@@ -2746,6 +2793,7 @@ class Timer(PyoObject):
                 Crossfade time between old and new input. Default to 0.05.
 
         """
+        pyoArgsAssert(self, "oN", x, fadetime)
         self._input2 = x
         self._in_fader2.setInput(x, fadetime)
 
@@ -2794,10 +2842,8 @@ class Iter(PyoObject):
 
     """
     def __init__(self, input, choice, init=0., mul=1, add=0):
+        pyoArgsAssert(self, "olnOO", input, choice, init, mul, add)
         PyoObject.__init__(self, mul, add)
-        if type(choice) != ListType:
-            print >> sys.stderr, 'TypeError: "choice" argument of %s must be a list.\n' % self.__class__.__name__
-            exit()
         self._input = input
         self._choice = choice
         self._in_fader = InputFader(input)
@@ -2821,6 +2867,7 @@ class Iter(PyoObject):
                 Crossfade time between old and new input. Defaults to 0.05.
 
         """
+        pyoArgsAssert(self, "oN", x, fadetime)
         self._input = x
         self._in_fader.setInput(x, fadetime)
 
@@ -2834,6 +2881,7 @@ class Iter(PyoObject):
                 new `choice` attribute.
 
         """
+        pyoArgsAssert(self, "l", x)
         self._choice = x
         if type(x[0]) != ListType:
             [obj.setChoice(self._choice) for i, obj in enumerate(self._base_objs)]
@@ -2850,6 +2898,7 @@ class Iter(PyoObject):
                 Value where to reset the count. Defaults to 0.
 
         """
+        pyoArgsAssert(self, "I", x)
         [obj.reset(x) for obj in self._base_objs]
 
     @property
@@ -2896,6 +2945,7 @@ class Count(PyoObject):
 
     """
     def __init__(self, input, min=0, max=0, mul=1, add=0):
+        pyoArgsAssert(self, "oiiOO", input, min, max, mul, add)
         PyoObject.__init__(self, mul, add)
         self._input = input
         self._min = min
@@ -2916,6 +2966,7 @@ class Count(PyoObject):
                 Crossfade time between old and new input. Default to 0.05.
 
         """
+        pyoArgsAssert(self, "oN", x, fadetime)
         self._input = x
         self._in_fader.setInput(x, fadetime)
 
@@ -2929,6 +2980,7 @@ class Count(PyoObject):
                 new `min` attribute.
 
         """
+        pyoArgsAssert(self, "i", x)
         self._min = x
         x, lmax = convertArgsToLists(x)
         [obj.setMin(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -2943,6 +2995,7 @@ class Count(PyoObject):
                 new `max` attribute.
 
         """
+        pyoArgsAssert(self, "i", x)
         self._max = x
         x, lmax = convertArgsToLists(x)
         [obj.setMax(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -3007,6 +3060,7 @@ class NextTrig(PyoObject):
 
     """
     def __init__(self, input, input2, mul=1, add=0):
+        pyoArgsAssert(self, "ooOO", input, input2, mul, add)
         PyoObject.__init__(self, mul, add)
         self._input = input
         self._input2 = input2
@@ -3027,6 +3081,7 @@ class NextTrig(PyoObject):
                 Crossfade time between old and new input. Default to 0.05.
 
         """
+        pyoArgsAssert(self, "oN", x, fadetime)
         self._input = x
         self._in_fader.setInput(x, fadetime)
 
@@ -3042,6 +3097,7 @@ class NextTrig(PyoObject):
                 Crossfade time between old and new input. Default to 0.05.
 
         """
+        pyoArgsAssert(self, "oN", x, fadetime)
         self._input2 = x
         self._in_fader2.setInput(x, fadetime)
 
@@ -3094,6 +3150,7 @@ class TrigVal(PyoObject):
 
     """
     def __init__(self, input, value=0., init=0., mul=1, add=0):
+        pyoArgsAssert(self, "oOnOO", input, value, init, mul, add)
         PyoObject.__init__(self, mul, add)
         self._input = input
         self._value = value
@@ -3113,6 +3170,7 @@ class TrigVal(PyoObject):
                 Crossfade time between old and new input. Defaults to 0.05.
 
         """
+        pyoArgsAssert(self, "oN", x, fadetime)
         self._input = x
         self._in_fader.setInput(x, fadetime)
 
@@ -3126,6 +3184,7 @@ class TrigVal(PyoObject):
                 new `value` attribute.
 
         """
+        pyoArgsAssert(self, "O", x)
         self._value = x
         x, lmax = convertArgsToLists(x)
         [obj.setValue(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -3209,6 +3268,7 @@ class Euclide(PyoObject):
 
     """
     def __init__(self, time=.125, taps=16, onsets=10, poly=1):
+        pyoArgsAssert(self, "OiiI", time, taps, onsets, poly)
         PyoObject.__init__(self)
         self._tap_dummy = []
         self._amp_dummy = []
@@ -3305,6 +3365,7 @@ class Euclide(PyoObject):
                 New `time` attribute.
 
         """
+        pyoArgsAssert(self, "O", x)
         self._time = x
         x, lmax = convertArgsToLists(x)
         [obj.setTime(wrap(x,i)) for i, obj in enumerate(self._base_players)]
@@ -3319,6 +3380,7 @@ class Euclide(PyoObject):
                 New `taps` attribute.
 
         """
+        pyoArgsAssert(self, "i", x)
         self._taps = x
         x, onsets, lmax = convertArgsToLists(x, self._onsets)
         for i in range(len(self._base_players)):
@@ -3336,6 +3398,7 @@ class Euclide(PyoObject):
                 New `onsets` attribute.
 
         """
+        pyoArgsAssert(self, "i", x)
         self._onsets = x
         x, taps, lmax = convertArgsToLists(x, self._taps)
         for i in range(len(self._base_players)):
@@ -3466,6 +3529,7 @@ class TrigBurst(PyoObject):
 
     """
     def __init__(self, input, time=.25, count=10, expand=1.0, ampfade=1.0, poly=1):
+        pyoArgsAssert(self, "oOinnI", input, time, count, expand, ampfade, poly)
         PyoObject.__init__(self)
         self._tap_dummy = []
         self._amp_dummy = []
@@ -3545,6 +3609,7 @@ class TrigBurst(PyoObject):
                 Crossfade time between old and new input. Defaults to 0.05.
 
         """
+        pyoArgsAssert(self, "oN", x, fadetime)
         self._input = x
         self._in_fader.setInput(x, fadetime)
 
@@ -3558,6 +3623,7 @@ class TrigBurst(PyoObject):
                 New `time` attribute.
 
         """
+        pyoArgsAssert(self, "O", x)
         self._time = x
         x, lmax = convertArgsToLists(x)
         [obj.setTime(wrap(x,i)) for i, obj in enumerate(self._base_players)]
@@ -3572,6 +3638,7 @@ class TrigBurst(PyoObject):
                 New `count` attribute.
 
         """
+        pyoArgsAssert(self, "i", x)
         self._count = x
         x, lmax = convertArgsToLists(x)
         [obj.setCount(wrap(x,i)) for i, obj in enumerate(self._base_players)]
@@ -3582,10 +3649,11 @@ class TrigBurst(PyoObject):
 
         :Args:
 
-            x : int
+            x : float
                 New `expand` attribute.
 
         """
+        pyoArgsAssert(self, "n", x)
         self._expand = x
         x, lmax = convertArgsToLists(x)
         [obj.setExpand(wrap(x,i)) for i, obj in enumerate(self._base_players)]
@@ -3596,10 +3664,11 @@ class TrigBurst(PyoObject):
 
         :Args:
 
-            x : int
+            x : float
                 New `ampfade` attribute.
 
         """
+        pyoArgsAssert(self, "n", x)
         self._ampfade = x
         x, lmax = convertArgsToLists(x)
         [obj.setAmpfade(wrap(x,i)) for i, obj in enumerate(self._base_players)]

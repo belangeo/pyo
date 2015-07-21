@@ -47,6 +47,7 @@ class Sin(PyoObject):
     """
 
     def __init__(self, input, mul=1, add=0):
+        pyoArgsAssert(self, "oOO", input, mul, add)
         PyoObject.__init__(self, mul, add)
         self._input = input
         self._in_fader = InputFader(input)
@@ -65,6 +66,7 @@ class Sin(PyoObject):
                 Crossfade time between old and new input. Default to 0.05.
 
         """
+        pyoArgsAssert(self, "oN", x, fadetime)
         self._input = x
         self._in_fader.setInput(x, fadetime)
 
@@ -96,6 +98,7 @@ class Cos(PyoObject):
 
     """
     def __init__(self, input, mul=1, add=0):
+        pyoArgsAssert(self, "oOO", input, mul, add)
         PyoObject.__init__(self, mul, add)
         self._input = input
         self._in_fader = InputFader(input)
@@ -114,6 +117,7 @@ class Cos(PyoObject):
                 Crossfade time between old and new input. Default to 0.05.
 
         """
+        pyoArgsAssert(self, "oN", x, fadetime)
         self._input = x
         self._in_fader.setInput(x, fadetime)
 
@@ -152,6 +156,7 @@ class Tan(PyoObject):
 
     """
     def __init__(self, input, mul=1, add=0):
+        pyoArgsAssert(self, "oOO", input, mul, add)
         PyoObject.__init__(self, mul, add)
         self._input = input
         self._in_fader = InputFader(input)
@@ -170,6 +175,7 @@ class Tan(PyoObject):
                 Crossfade time between old and new input. Default to 0.05.
 
         """
+        pyoArgsAssert(self, "oN", x, fadetime)
         self._input = x
         self._in_fader.setInput(x, fadetime)
 
@@ -203,6 +209,7 @@ class Abs(PyoObject):
     """
 
     def __init__(self, input, mul=1, add=0):
+        pyoArgsAssert(self, "oOO", input, mul, add)
         PyoObject.__init__(self, mul, add)
         self._input = input
         self._in_fader = InputFader(input)
@@ -221,6 +228,7 @@ class Abs(PyoObject):
                 Crossfade time between old and new input. Default to 0.05.
 
         """
+        pyoArgsAssert(self, "oN", x, fadetime)
         self._input = x
         self._in_fader.setInput(x, fadetime)
 
@@ -259,6 +267,7 @@ class Sqrt(PyoObject):
     """
 
     def __init__(self, input, mul=1, add=0):
+        pyoArgsAssert(self, "oOO", input, mul, add)
         PyoObject.__init__(self, mul, add)
         self._input = input
         self._in_fader = InputFader(input)
@@ -277,6 +286,7 @@ class Sqrt(PyoObject):
                 Crossfade time between old and new input. Default to 0.05.
 
         """
+        pyoArgsAssert(self, "oN", x, fadetime)
         self._input = x
         self._in_fader.setInput(x, fadetime)
 
@@ -311,6 +321,7 @@ class Log(PyoObject):
     """
 
     def __init__(self, input, mul=1, add=0):
+        pyoArgsAssert(self, "oOO", input, mul, add)
         PyoObject.__init__(self, mul, add)
         self._input = input
         self._in_fader = InputFader(input)
@@ -329,6 +340,7 @@ class Log(PyoObject):
                 Crossfade time between old and new input. Default to 0.05.
 
         """
+        pyoArgsAssert(self, "oN", x, fadetime)
         self._input = x
         self._in_fader.setInput(x, fadetime)
 
@@ -363,6 +375,7 @@ class Log2(PyoObject):
     """
 
     def __init__(self, input, mul=1, add=0):
+        pyoArgsAssert(self, "oOO", input, mul, add)
         PyoObject.__init__(self, mul, add)
         self._input = input
         self._in_fader = InputFader(input)
@@ -381,6 +394,7 @@ class Log2(PyoObject):
                 Crossfade time between old and new input. Default to 0.05.
 
         """
+        pyoArgsAssert(self, "oN", x, fadetime)
         self._input = x
         self._in_fader.setInput(x, fadetime)
 
@@ -415,6 +429,7 @@ class Log10(PyoObject):
     """
 
     def __init__(self, input, mul=1, add=0):
+        pyoArgsAssert(self, "oOO", input, mul, add)
         PyoObject.__init__(self, mul, add)
         self._input = input
         self._in_fader = InputFader(input)
@@ -433,6 +448,7 @@ class Log10(PyoObject):
                 Crossfade time between old and new input. Default to 0.05.
 
         """
+        pyoArgsAssert(self, "oN", x, fadetime)
         self._input = x
         self._in_fader.setInput(x, fadetime)
 
@@ -470,6 +486,7 @@ class Atan2(PyoObject):
 
     """
     def __init__(self, b=1, a=1, mul=1, add=0):
+        pyoArgsAssert(self, "OOOO", b, a, mul, add)
         PyoObject.__init__(self, mul, add)
         self._b = b
         self._a = a
@@ -486,6 +503,7 @@ class Atan2(PyoObject):
                 new `b` attribute.
 
         """
+        pyoArgsAssert(self, "O", x)
         self._b = x
         x, lmax = convertArgsToLists(x)
         [obj.setB(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -500,6 +518,7 @@ class Atan2(PyoObject):
                 new `a` attribute.
 
         """
+        pyoArgsAssert(self, "O", x)
         self._a = x
         x, lmax = convertArgsToLists(x)
         [obj.setA(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -542,6 +561,7 @@ class Floor(PyoObject):
     """
 
     def __init__(self, input, mul=1, add=0):
+        pyoArgsAssert(self, "oOO", input, mul, add)
         PyoObject.__init__(self, mul, add)
         self._input = input
         self._in_fader = InputFader(input)
@@ -560,6 +580,7 @@ class Floor(PyoObject):
                 Crossfade time between old and new input. Default to 0.05.
 
         """
+        pyoArgsAssert(self, "oN", x, fadetime)
         self._input = x
         self._in_fader.setInput(x, fadetime)
 
@@ -594,6 +615,7 @@ class Ceil(PyoObject):
     """
 
     def __init__(self, input, mul=1, add=0):
+        pyoArgsAssert(self, "oOO", input, mul, add)
         PyoObject.__init__(self, mul, add)
         self._input = input
         self._in_fader = InputFader(input)
@@ -612,6 +634,7 @@ class Ceil(PyoObject):
                 Crossfade time between old and new input. Default to 0.05.
 
         """
+        pyoArgsAssert(self, "oN", x, fadetime)
         self._input = x
         self._in_fader.setInput(x, fadetime)
 
@@ -646,6 +669,7 @@ class Round(PyoObject):
     """
 
     def __init__(self, input, mul=1, add=0):
+        pyoArgsAssert(self, "oOO", input, mul, add)
         PyoObject.__init__(self, mul, add)
         self._input = input
         self._in_fader = InputFader(input)
@@ -664,6 +688,7 @@ class Round(PyoObject):
                 Crossfade time between old and new input. Default to 0.05.
 
         """
+        pyoArgsAssert(self, "oN", x, fadetime)
         self._input = x
         self._in_fader.setInput(x, fadetime)
 
@@ -696,6 +721,7 @@ class Tanh(PyoObject):
     """
 
     def __init__(self, input, mul=1, add=0):
+        pyoArgsAssert(self, "oOO", input, mul, add)
         PyoObject.__init__(self, mul, add)
         self._input = input
         self._in_fader = InputFader(input)
@@ -714,6 +740,7 @@ class Tanh(PyoObject):
                 Crossfade time between old and new input. Default to 0.05.
 
         """
+        pyoArgsAssert(self, "oN", x, fadetime)
         self._input = x
         self._in_fader.setInput(x, fadetime)
 

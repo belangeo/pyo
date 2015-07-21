@@ -21,7 +21,6 @@ GNU Lesser General Public License for more details.
 You should have received a copy of the GNU Lesser General Public
 License along with pyo.  If not, see <http://www.gnu.org/licenses/>.
 """
-import sys
 from _core import *
 from _maps import *
 from types import StringType, ListType
@@ -53,6 +52,7 @@ class Randi(PyoObject):
 
     """
     def __init__(self, min=0., max=1., freq=1., mul=1, add=0):
+        pyoArgsAssert(self, "OOOOO", min, max, freq, mul, add)
         PyoObject.__init__(self, mul, add)
         self._min = min
         self._max = max
@@ -70,6 +70,7 @@ class Randi(PyoObject):
                 new `min` attribute.
 
         """
+        pyoArgsAssert(self, "O", x)
         self._min = x
         x, lmax = convertArgsToLists(x)
         [obj.setMin(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -84,6 +85,7 @@ class Randi(PyoObject):
                 new `max` attribute.
 
         """
+        pyoArgsAssert(self, "O", x)
         self._max = x
         x, lmax = convertArgsToLists(x)
         [obj.setMax(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -98,7 +100,8 @@ class Randi(PyoObject):
                 new `freq` attribute.
 
         """
-        self._port = x
+        pyoArgsAssert(self, "O", x)
+        self._freq = x
         x, lmax = convertArgsToLists(x)
         [obj.setFreq(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
@@ -158,6 +161,7 @@ class Randh(PyoObject):
 
     """
     def __init__(self, min=0., max=1., freq=1., mul=1, add=0):
+        pyoArgsAssert(self, "OOOOO", min, max, freq, mul, add)
         PyoObject.__init__(self, mul, add)
         self._min = min
         self._max = max
@@ -175,6 +179,7 @@ class Randh(PyoObject):
                 new `min` attribute.
 
         """
+        pyoArgsAssert(self, "O", x)
         self._min = x
         x, lmax = convertArgsToLists(x)
         [obj.setMin(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -189,6 +194,7 @@ class Randh(PyoObject):
                 new `max` attribute.
 
         """
+        pyoArgsAssert(self, "O", x)
         self._max = x
         x, lmax = convertArgsToLists(x)
         [obj.setMax(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -203,7 +209,8 @@ class Randh(PyoObject):
                 new `freq` attribute.
 
         """
-        self._port = x
+        pyoArgsAssert(self, "O", x)
+        self._freq = x
         x, lmax = convertArgsToLists(x)
         [obj.setFreq(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
@@ -261,10 +268,8 @@ class Choice(PyoObject):
 
     """
     def __init__(self, choice, freq=1., mul=1, add=0):
+        pyoArgsAssert(self, "lOOO", choice, freq, mul, add)
         PyoObject.__init__(self, mul, add)
-        if type(choice) != ListType:
-            print >> sys.stderr, 'TypeError: "choice" argument of %s must be a list.\n' % self.__class__.__name__
-            exit()
         self._choice = choice
         self._freq = freq
         freq, mul, add, lmax = convertArgsToLists(freq, mul, add)
@@ -285,6 +290,7 @@ class Choice(PyoObject):
                 new `choice` attribute.
 
         """
+        pyoArgsAssert(self, "l", x)
         self._choice = x
         if type(x[0]) != ListType:
             [obj.setChoice(self._choice) for i, obj in enumerate(self._base_objs)]
@@ -301,6 +307,7 @@ class Choice(PyoObject):
                 new `freq` attribute.
 
         """
+        pyoArgsAssert(self, "O", x)
         self._freq = x
         x, lmax = convertArgsToLists(x)
         [obj.setFreq(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -349,6 +356,7 @@ class RandInt(PyoObject):
 
     """
     def __init__(self, max=100, freq=1., mul=1, add=0):
+        pyoArgsAssert(self, "OOOO", max, freq, mul, add)
         PyoObject.__init__(self, mul, add)
         self._max = max
         self._freq = freq
@@ -365,6 +373,7 @@ class RandInt(PyoObject):
                 new `max` attribute.
 
         """
+        pyoArgsAssert(self, "O", x)
         self._max = x
         x, lmax = convertArgsToLists(x)
         [obj.setMax(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -379,6 +388,7 @@ class RandInt(PyoObject):
                 new `freq` attribute.
 
         """
+        pyoArgsAssert(self, "O", x)
         self._freq = x
         x, lmax = convertArgsToLists(x)
         [obj.setFreq(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -432,6 +442,7 @@ class RandDur(PyoObject):
 
     """
     def __init__(self, min=0., max=1., mul=1, add=0):
+        pyoArgsAssert(self, "OOOO", min, max, mul, add)
         PyoObject.__init__(self, mul, add)
         self._min = min
         self._max = max
@@ -448,6 +459,7 @@ class RandDur(PyoObject):
                 new `min` attribute.
 
         """
+        pyoArgsAssert(self, "O", x)
         self._min = x
         x, lmax = convertArgsToLists(x)
         [obj.setMin(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -462,6 +474,7 @@ class RandDur(PyoObject):
                 new `max` attribute.
 
         """
+        pyoArgsAssert(self, "O", x)
         self._max = x
         x, lmax = convertArgsToLists(x)
         [obj.setMax(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -577,6 +590,7 @@ class Xnoise(PyoObject):
 
     """
     def __init__(self, dist=0, freq=1., x1=0.5, x2=0.5, mul=1, add=0):
+        pyoArgsAssert(self, "OOOOO", freq, x1, x2, mul, add)
         PyoObject.__init__(self, mul, add)
         self._dist = dist
         self._freq = freq
@@ -593,7 +607,7 @@ class Xnoise(PyoObject):
 
         :Args:
 
-            x : int
+            x : string or int
                 new `dist` attribute.
 
         """
@@ -613,6 +627,7 @@ class Xnoise(PyoObject):
                 new `x1` attribute.
 
         """
+        pyoArgsAssert(self, "O", x)
         self._x1 = x
         x, lmax = convertArgsToLists(x)
         [obj.setX1(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -627,6 +642,7 @@ class Xnoise(PyoObject):
                 new `x2` attribute.
 
         """
+        pyoArgsAssert(self, "O", x)
         self._x2 = x
         x, lmax = convertArgsToLists(x)
         [obj.setX2(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -641,7 +657,8 @@ class Xnoise(PyoObject):
                 new `freq` attribute.
 
         """
-        self._port = x
+        pyoArgsAssert(self, "O", x)
+        self._freq = x
         x, lmax = convertArgsToLists(x)
         [obj.setFreq(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
@@ -784,6 +801,7 @@ class XnoiseMidi(PyoObject):
 
     """
     def __init__(self, dist=0, freq=1., x1=0.5, x2=0.5, scale=0, mrange=(0,127), mul=1, add=0):
+        pyoArgsAssert(self, "OOOixOO", freq, x1, x2, scale, mrange, mul, add)
         PyoObject.__init__(self, mul, add)
         self._dist = dist
         self._freq = freq
@@ -827,6 +845,7 @@ class XnoiseMidi(PyoObject):
                 new `scale` attribute.
 
         """
+        pyoArgsAssert(self, "i", x)
         self._scale = x
         x, lmax = convertArgsToLists(x)
         [obj.setScale(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -843,6 +862,7 @@ class XnoiseMidi(PyoObject):
                 maximum output midi range.
 
         """
+        pyoArgsAssert(self, "ii", mini, maxi)
         self._mrange = (mini, maxi)
         mini, maxi, lmax = convertArgsToLists(mini, maxi)
         [obj.setRange(wrap(mini,i), wrap(maxi,i)) for i, obj in enumerate(self._base_objs)]
@@ -857,6 +877,7 @@ class XnoiseMidi(PyoObject):
                 new `x1` attribute.
 
         """
+        pyoArgsAssert(self, "O", x)
         self._x1 = x
         x, lmax = convertArgsToLists(x)
         [obj.setX1(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -871,7 +892,8 @@ class XnoiseMidi(PyoObject):
                 new `x2` attribute.
 
         """
-        self._x2= x
+        pyoArgsAssert(self, "O", x)
+        self._x2 = x
         x, lmax = convertArgsToLists(x)
         [obj.setX2(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
@@ -885,7 +907,8 @@ class XnoiseMidi(PyoObject):
                 new `freq` attribute.
 
         """
-        self._port = x
+        pyoArgsAssert(self, "O", x)
+        self._freq = x
         x, lmax = convertArgsToLists(x)
         [obj.setFreq(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
@@ -1031,6 +1054,7 @@ class XnoiseDur(PyoObject):
 
     """
     def __init__(self, dist=0, min=0., max=1., x1=0.5, x2=0.5, mul=1, add=0):
+        pyoArgsAssert(self, "OOOOOO", min, max, x1, x2, mul, add)
         PyoObject.__init__(self, mul, add)
         self._dist = dist
         self._min = min
@@ -1048,7 +1072,7 @@ class XnoiseDur(PyoObject):
 
         :Args:
 
-            x : int
+            x : string or int
                 new `dist` attribute.
 
         """
@@ -1068,6 +1092,7 @@ class XnoiseDur(PyoObject):
                 new `min` attribute.
 
         """
+        pyoArgsAssert(self, "O", x)
         self._min = x
         x, lmax = convertArgsToLists(x)
         [obj.setMin(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -1082,6 +1107,7 @@ class XnoiseDur(PyoObject):
                 new `max` attribute.
 
         """
+        pyoArgsAssert(self, "O", x)
         self._max = x
         x, lmax = convertArgsToLists(x)
         [obj.setMax(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -1096,6 +1122,7 @@ class XnoiseDur(PyoObject):
                 new `x1` attribute.
 
         """
+        pyoArgsAssert(self, "O", x)
         self._x1 = x
         x, lmax = convertArgsToLists(x)
         [obj.setX1(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -1110,7 +1137,8 @@ class XnoiseDur(PyoObject):
                 new `x2` attribute.
 
         """
-        self._x2= x
+        pyoArgsAssert(self, "O", x)
+        self._x2 = x
         x, lmax = convertArgsToLists(x)
         [obj.setX2(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
@@ -1194,6 +1222,7 @@ class Urn(PyoObject):
 
     """
     def __init__(self, max=100, freq=1., mul=1, add=0):
+        pyoArgsAssert(self, "iOOO", max, freq, mul, add)
         PyoObject.__init__(self, mul, add)
         self._max = max
         self._freq = freq
@@ -1214,6 +1243,7 @@ class Urn(PyoObject):
                 new `max` attribute.
 
         """
+        pyoArgsAssert(self, "i", x)
         self._max = x
         x, lmax = convertArgsToLists(x)
         [obj.setMax(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -1228,6 +1258,7 @@ class Urn(PyoObject):
                 new `freq` attribute.
 
         """
+        pyoArgsAssert(self, "O", x)
         self._freq = x
         x, lmax = convertArgsToLists(x)
         [obj.setFreq(wrap(x,i)) for i, obj in enumerate(self._base_objs)]

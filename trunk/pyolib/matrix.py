@@ -60,6 +60,7 @@ class NewMatrix(PyoMatrixObject):
 
     """
     def __init__(self, width, height, init=None):
+        pyoArgsAssert(self, "IIL", width, height, init)
         PyoMatrixObject.__init__(self)
         self._size = (width, height)
         if init == None:
@@ -77,6 +78,7 @@ class NewMatrix(PyoMatrixObject):
                 New matrix. Must be of the same size as the actual matrix.
 
         """
+        pyoArgsAssert(self, "l", x)
         [obj.setMatrix(x) for obj in self._base_objs]
         self.refreshView()
 
@@ -102,5 +104,6 @@ class NewMatrix(PyoMatrixObject):
                 the range 0 -> 1. Defaults to 0.0625.
 
         """
+        pyoArgsAssert(self, "NN", freq, phase)
         [obj.genSineTerrain(freq, phase) for obj in self._base_objs]
         self.refreshView()
