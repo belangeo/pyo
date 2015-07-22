@@ -1062,7 +1062,6 @@ class PyoObject(PyoObjectBase):
         the server GUI before showing the controller window.
 
         """
-        pyoArgsAssert(self, "LSB", map_list, title, wxnoserver)
         if map_list == None:
             map_list = self._map_list
         if map_list == []:
@@ -1908,7 +1907,6 @@ class PyoPVObject(PyoObjectBase):
         the server GUI before showing the controller window.
 
         """
-        pyoArgsAssert(self, "LSB", map_list, title, wxnoserver)
         if map_list == None:
             map_list = self._map_list
         if map_list == []:

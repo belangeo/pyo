@@ -1,5 +1,10 @@
 2015-07-21 belangeo <belangeo@gmail.com>
 
+    * Fixed Centroid output with silence as input.
+    - rev 1330
+
+2015-07-21 belangeo <belangeo@gmail.com>
+
     * Added new objet: RawMidi, a raw Midi handler.
     - rev 1329
 
