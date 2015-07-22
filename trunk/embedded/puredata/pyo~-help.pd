@@ -1,14 +1,14 @@
-#N canvas 296 140 952 365 10;
+#N canvas 295 147 1007 365 10;
 #X obj 28 108 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144 -1
 -1;
-#X obj 144 108 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 1
+#X obj 144 108 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 0
 1;
 #X obj 13 234 *~;
 #X obj 51 234 *~;
 #X obj 13 256 dac~;
 #X obj 72 213 hsl 128 15 0 1 0 1 empty empty master_gain -2 -8 0 10
 -262144 -1 -1 6200 1;
-#X obj 274 223 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 1
+#X obj 274 223 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 0
 1;
 #X msg 274 243 \; pd dsp \$1;
 #X obj 13 59 r msg_to_pyo;
@@ -18,34 +18,34 @@
 to 2).;
 #N canvas 1 75 824 583 resonators_example 0;
 #X obj 35 103 hsl 128 15 0.01 30 1 0 empty empty resonance -2 -8 0
-10 -262144 -1 -1 11200 0;
-#X floatatom 32 120 5 0 0 0 - - -;
+10 -262144 -1 -1 0 0;
+#X floatatom 32 120 5 0 0 0 - - -, f 5;
 #X obj 21 530 s msg_to_pyo;
 #X obj 98 387 hsl 128 15 0 1 0 0 empty empty delay_time -2 -8 0 10
--262144 -1 -1 1300 0;
-#X floatatom 95 403 5 0 0 0 - - -;
+-262144 -1 -1 0 0;
+#X floatatom 95 403 5 0 0 0 - - -, f 5;
 #X msg 95 418 value deltime \$1;
 #X obj 111 454 hsl 128 15 0 1 0 0 empty empty delay_feedback -2 -8
-0 10 -262144 -1 -1 10800 0;
-#X floatatom 108 470 5 0 0 0 - - -;
+0 10 -262144 -1 -1 0 0;
+#X floatatom 108 470 5 0 0 0 - - -, f 5;
 #X msg 108 485 value delfeed \$1;
 #X msg 32 136 value reson \$1;
 #X obj 52 177 vsl 15 80 50 500 0 0 empty empty empty 0 -9 0 10 -262144
--1 -1 4700 0;
+-1 -1 0 0;
 #X obj 71 177 vsl 15 80 50 500 0 0 empty empty empty 0 -9 0 10 -262144
--1 -1 3200 0;
+-1 -1 0 0;
 #X obj 91 177 vsl 15 80 50 500 0 0 empty empty empty 0 -9 0 10 -262144
--1 -1 5800 0;
+-1 -1 0 0;
 #X obj 110 177 vsl 15 80 50 500 0 0 empty empty empty 0 -9 0 10 -262144
--1 -1 7100 0;
+-1 -1 0 0;
 #X obj 130 177 vsl 15 80 50 500 0 0 empty empty empty 0 -9 0 10 -262144
--1 -1 5500 0;
+-1 -1 0 0;
 #X obj 149 177 vsl 15 80 50 500 0 0 empty empty empty 0 -9 0 10 -262144
--1 -1 7100 0;
+-1 -1 0 0;
 #X obj 169 177 vsl 15 80 50 500 0 0 empty empty empty 0 -9 0 10 -262144
--1 -1 4400 0;
+-1 -1 0 0;
 #X obj 189 177 vsl 15 80 50 500 0 0 empty empty empty 0 -9 0 10 -262144
--1 -1 1800 0;
+-1 -1 0 0;
 #X msg 52 306 value freqs \$1 \$2 \$3 \$4 \$5 \$6 \$7 \$8;
 #X obj 52 264 bondo 8 ____________;
 #X obj 52 285 pack f f f f f f f f;
@@ -100,8 +100,8 @@ input;
 -1 -1 4233 1;
 #X obj 127 144 hsl 128 15 0 36 0 0 empty empty empty -2 -8 0 10 -262144
 -1 -1 4233 1;
-#X floatatom 75 125 5 0 0 0 - - -;
-#X floatatom 124 160 5 0 0 0 - - -;
+#X floatatom 75 125 5 0 0 0 - - -, f 5;
+#X floatatom 124 160 5 0 0 0 - - -, f 5;
 #X obj 124 209 +;
 #X obj 124 179 t b f;
 #X obj 75 144 t f f;
@@ -142,15 +142,15 @@ input;
 ;
 #X obj 67 172 hsl 128 15 0 0.25 0 0 empty empty brightness -2 -8 0
 10 -262144 -1 -1 0 0;
-#X floatatom 64 188 5 0 0 0 - - -;
+#X floatatom 64 188 5 0 0 0 - - -, f 5;
 #X msg 64 203 value feed \$1;
 #X obj 158 75 hsl 128 15 50 500 0 0 empty empty metro_speed -2 -8 0
 10 -262144 -1 -1 0 1;
-#X floatatom 155 93 5 0 0 0 - - -;
-#X floatatom 222 186 5 0 0 0 - - -;
+#X floatatom 155 93 5 0 0 0 - - -, f 5;
+#X floatatom 222 186 5 0 0 0 - - -, f 5;
 #X msg 222 216 set amp.fadeout \$1;
 #X msg 281 184 set amp.dur \$1;
-#X floatatom 281 165 5 0 0 0 - - -;
+#X floatatom 281 165 5 0 0 0 - - -, f 5;
 #X obj 222 132 * 0.001;
 #X obj 221 111 - 20;
 #X obj 222 165 - 0.005;
@@ -218,7 +218,7 @@ input;
 #N canvas 1 75 532 224 conv_reverb_example 0;
 #X obj 24 110 hsl 128 15 0 1 0 0 empty empty balance -2 -8 0 10 -262144
 -1 -1 0 0;
-#X floatatom 21 127 5 0 0 0 - - -;
+#X floatatom 21 127 5 0 0 0 - - -, f 5;
 #X msg 21 143 value bal \$1;
 #X obj -3 170 s msg_to_pyo;
 #X msg -3 74 read examples/cvlverb.py;
