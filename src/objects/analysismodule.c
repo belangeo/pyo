@@ -1698,7 +1698,10 @@ Centroid_process_i(Centroid *self) {
                 sum1 += tmp * i;
                 sum2 += tmp;
             }
-            tmp = sum1 / sum2;
+            if (sum2 < 0.000000001)
+                tmp = 0.0;
+            else
+                tmp = sum1 / sum2;
             self->centroid += tmp * self->sr / self->size;
             self->centroid *= 0.5;
             for (i=0; i<self->hsize; i++) {
