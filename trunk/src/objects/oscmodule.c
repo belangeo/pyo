@@ -736,7 +736,13 @@ typedef struct {
 static void
 OscDataSend_compute_next_data_frame(OscDataSend *self)
 {
-    int i;
+    int i, j = 0;
+    Py_ssize_t blobsize = 0;
+    PyObject *datalist = NULL;
+    char *blobdata = NULL;
+    uint8_t midi[4];
+    lo_blob *blob = NULL;
+    
     lo_message *msg;
     char *path  = PyString_AsString(self->address_path);
 
@@ -746,19 +752,48 @@ OscDataSend_compute_next_data_frame(OscDataSend *self)
         for (i=0; i<self->num_items; i++) {
             switch (self->types[i]) {
                 case LO_INT32:
-                    lo_message_add_int32(msg, PyInt_AsLong(PyList_GetItem(self->value, i)));
+                    lo_message_add_int32(msg, PyInt_AS_LONG(PyList_GET_ITEM(self->value, i)));
                     break;
                 case LO_INT64:
-                    lo_message_add_int64(msg, (long)PyLong_AsLong(PyList_GetItem(self->value, i)));
+                    lo_message_add_int64(msg, (long)PyLong_AsLong(PyList_GET_ITEM(self->value, i)));
                     break;
                 case LO_FLOAT:
-                    lo_message_add_float(msg, PyFloat_AsDouble(PyList_GetItem(self->value, i)));
+                    lo_message_add_float(msg, PyFloat_AS_DOUBLE(PyList_GET_ITEM(self->value, i)));
                     break;
                 case LO_DOUBLE:
-                    lo_message_add_double(msg, (double)PyFloat_AsDouble(PyList_GetItem(self->value, i)));
+                    lo_message_add_double(msg, (double)PyFloat_AS_DOUBLE(PyList_GET_ITEM(self->value, i)));
                     break;
                 case LO_STRING:
-                    lo_message_add_string(msg, PyString_AsString(PyList_GetItem(self->value, i)));
+                    lo_message_add_string(msg, PyString_AsString(PyList_GET_ITEM(self->value, i)));
+                    break;
+                case LO_CHAR:
+                    lo_message_add_char(msg, (char)PyString_AsString(PyList_GET_ITEM(self->value, i))[0]);
+                    break;
+                case LO_BLOB:
+                    datalist = PyList_GET_ITEM(self->value, i);
+                    blobsize = PyList_Size(datalist);
+                    blobdata = (char *)malloc(blobsize * sizeof(char));
+                    for (j=0; j<blobsize; j++) {
+                        blobdata[j] = (char)PyString_AsString(PyList_GET_ITEM(datalist, j))[0];
+                    }
+                    blob = lo_blob_new(blobsize * sizeof(char), blobdata);
+                    lo_message_add_blob(msg, blob);
+                    break;
+                case LO_MIDI:
+                    datalist = PyList_GET_ITEM(self->value, i);
+                    for (j=0; j<4; j++) {
+                        midi[j] = (uint8_t)PyInt_AS_LONG(PyList_GET_ITEM(datalist, j));
+                    }
+                    lo_message_add_midi(msg, midi);
+                    break;
+                case LO_NIL:
+                    lo_message_add_nil(msg);
+                    break;
+                case LO_TRUE:
+                    lo_message_add_true(msg);
+                    break;
+                case LO_FALSE:
+                    lo_message_add_false(msg);
                     break;
                 default:
                     break;
@@ -769,8 +804,11 @@ OscDataSend_compute_next_data_frame(OscDataSend *self)
         }
         self->something_to_send = 0;
         lo_message_free(msg);
+        if (blob != NULL)
+            lo_blob_free(blob);
+        if (blobdata != NULL)
+            free(blobdata);
     }
-
 }
 
 static int
@@ -861,7 +899,7 @@ OscDataSend_send(OscDataSend *self, PyObject *arg)
         self->something_to_send = 1;
     }
     else
-        printf("argument to send() method must be a tuple of values.\n");
+        printf("argument to send() method must be a list of values.\n");
 
 	Py_INCREF(Py_None);
 	return Py_None;
@@ -938,35 +976,71 @@ int OscDataReceive_handler(const char *path, const char *types, lo_arg **argv, i
 {
     OscDataReceive *self = user_data;
     PyObject *tup, *result=NULL;
+    lo_blob *blob = NULL;
+    char *blobdata = NULL;
+    uint32_t blobsize = 0;
+    PyObject *charlist = NULL; 
     tup = PyTuple_New(argc+1);
-    int i, ok = 0;
+    int i, ok = 0, j = 0;
 
     Py_ssize_t lsize = PyList_Size(self->address_path);
     for (i=0; i<lsize; i++) {
-        if (lo_pattern_match(path, PyString_AsString(PyList_GetItem(self->address_path, i)))) {
+        if (lo_pattern_match(path, PyString_AsString(PyList_GET_ITEM(self->address_path, i)))) {
             ok = 1;
             break;
         }
     }
 
     if (ok) {
-        PyTuple_SetItem(tup, 0, PyString_FromString(path));
+        PyTuple_SET_ITEM(tup, 0, PyString_FromString(path));
         for (i=0; i<argc; i++) {
             switch (types[i]) {
                 case LO_INT32:
-                    PyTuple_SetItem(tup, i+1, PyInt_FromLong(argv[i]->i));
+                    PyTuple_SET_ITEM(tup, i+1, PyInt_FromLong(argv[i]->i));
                     break;
                 case LO_INT64:
-                    PyTuple_SetItem(tup, i+1, PyLong_FromLong(argv[i]->h));
+                    PyTuple_SET_ITEM(tup, i+1, PyLong_FromLong(argv[i]->h));
                     break;
                 case LO_FLOAT:
-                    PyTuple_SetItem(tup, i+1, PyFloat_FromDouble(argv[i]->f));
+                    PyTuple_SET_ITEM(tup, i+1, PyFloat_FromDouble(argv[i]->f));
                     break;
                 case LO_DOUBLE:
-                    PyTuple_SetItem(tup, i+1, PyFloat_FromDouble(argv[i]->d));
+                    PyTuple_SET_ITEM(tup, i+1, PyFloat_FromDouble(argv[i]->d));
                     break;
                 case LO_STRING:
-                    PyTuple_SetItem(tup, i+1, PyString_FromString(&argv[i]->s));
+                    PyTuple_SET_ITEM(tup, i+1, PyString_FromString(&argv[i]->s));
+                    break;
+                case LO_CHAR:
+                    PyTuple_SET_ITEM(tup, i+1, PyString_FromFormat("%c", argv[i]->c));
+                    break;
+                case LO_BLOB:
+                    blob = (lo_blob)argv[i];
+                    blobsize = lo_blob_datasize(blob);
+                    blobdata = lo_blob_dataptr(blob);
+                    charlist = PyList_New(blobsize);
+                    for (j=0; j<blobsize; j++) {
+                        PyList_SET_ITEM(charlist, j, PyString_FromFormat("%c", blobdata[j]));
+                    }
+                    PyTuple_SET_ITEM(tup, i+1, charlist);
+                    break;
+                case LO_MIDI:
+                    charlist = PyList_New(4);
+                    for (j=0; j<4; j++) {
+                        PyList_SET_ITEM(charlist, j, PyInt_FromLong(argv[i]->m[j]));
+                    }
+                    PyTuple_SET_ITEM(tup, i+1, charlist);                    
+                    break;
+                case LO_NIL:
+                    Py_INCREF(Py_None);
+                    PyTuple_SET_ITEM(tup, i+1, Py_None);
+                    break;
+                case LO_TRUE:
+                    Py_INCREF(Py_True);
+                    PyTuple_SET_ITEM(tup, i+1, Py_True);
+                    break;
+                case LO_FALSE:
+                    Py_INCREF(Py_False);
+                    PyTuple_SET_ITEM(tup, i+1, Py_False);
                     break;
                 default:
                     break;
@@ -978,6 +1052,7 @@ int OscDataReceive_handler(const char *path, const char *types, lo_arg **argv, i
     }
     Py_XDECREF(tup);
     Py_XDECREF(result);
+    Py_XDECREF(charlist);
     return 0;
 }
 

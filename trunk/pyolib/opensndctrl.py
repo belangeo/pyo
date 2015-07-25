@@ -313,11 +313,17 @@ class OscDataSend(PyoObject):
         types : str
             String specifying the types sequence of the message to be sent.
             Possible values are:
-                - integer : "i"
-                - long integer : "h"
-                - float : "f"
-                - double : "d"
-                - string : "s"
+                - "i" : integer
+                - "h" : long integer
+                - "f" : float
+                - "d" : double
+                - "s" ; string
+                - "b" : blob (list of chars)
+                - "m" : MIDI packet (list of 4 bytes: [midi port, status, data1, data2])
+                - "c" : char
+                - "T" : True
+                - "F" : False
+                - "N" : None (nil)
 
             The string "ssfi" indicates that the value to send will be a list
             containing two strings followed by a float and an integer.
@@ -339,13 +345,22 @@ class OscDataSend(PyoObject):
 
     >>> s = Server().boot()
     >>> s.start()
-    >>> a = OscDataSend("fissif", 9900, "/data/test")
     >>> def pp(address, *args):
     ...     print address
     ...     print args
-    >>> b = OscDataReceive(9900, "/data/test", pp)
+    >>> r = OscDataReceive(9900, "/data/test", pp)
+    >>> # Send various types
+    >>> a = OscDataSend("fissif", 9900, "/data/test")
     >>> msg = [3.14159, 1, "Hello", "world!", 2, 6.18]
     >>> a.send(msg)
+    >>> # Send a blob
+    >>> b = OscDataSend("b", 9900, "/data/test")
+    >>> msg = [[chr(i) for i in range(10)]]
+    >>> b.send(msg)
+    >>> # Send a MIDI noteon on port 0
+    >>> c = OscDataSend("m", 9900, "/data/test")
+    >>> msg = [[0, 144, 60, 100]]
+    >>> c.send(msg)
 
     """
     def __init__(self, types, port, address, host="127.0.0.1"):
@@ -486,13 +501,22 @@ class OscDataReceive(PyoObject):
 
     >>> s = Server().boot()
     >>> s.start()
-    >>> a = OscDataSend("fissif", 9900, "/data/test")
     >>> def pp(address, *args):
     ...     print address
     ...     print args
-    >>> b = OscDataReceive(9900, "/data/test", pp)
+    >>> r = OscDataReceive(9900, "/data/test", pp)
+    >>> # Send various types
+    >>> a = OscDataSend("fissif", 9900, "/data/test")
     >>> msg = [3.14159, 1, "Hello", "world!", 2, 6.18]
     >>> a.send(msg)
+    >>> # Send a blob
+    >>> b = OscDataSend("b", 9900, "/data/test")
+    >>> msg = [[chr(i) for i in range(10)]]
+    >>> b.send(msg)
+    >>> # Send a MIDI noteon on port 0
+    >>> c = OscDataSend("m", 9900, "/data/test")
+    >>> msg = [[0, 144, 60, 100]]
+    >>> c.send(msg)
 
     """
 
