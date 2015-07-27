@@ -1024,7 +1024,7 @@ class BackgroundServerThread(threading.Thread):
     def kill(self):
         ### Shouldn't be unified?
         self.terminated = True
-        if PLATFORM == "win32":
+        if 0: #PLATFORM == "win32":
             try:
                 os.system("tskill %d" % self.proc.pid)
             except:
@@ -1041,7 +1041,7 @@ class BackgroundServerThread(threading.Thread):
 
     def run(self):
         if PLATFORM == "win32":
-            self.proc = subprocess.Popen([WHICH_PYTHON, '-i', 'background_server.py'], 
+            self.proc = subprocess.Popen([WHICH_PYTHON, '-i', os.path.join(TEMP_PATH, "background_server.py")], 
                                     shell=True, cwd=self.cwd, stdout=subprocess.PIPE,
                                     stdin=subprocess.PIPE, stderr=subprocess.STDOUT)
         else:
@@ -4576,7 +4576,7 @@ class Editor(stc.StyledTextCtrl):
         #     for i in range(self.GetLineCount()):
         #         pos = self.GetLineEndPosition(i)
         #         if self.GetCharAt(pos-1) != 172:
-        #             self.InsertTextUTF8(pos, "Â¬")
+        #             self.InsertTextUTF8(pos, "¬")
         self.moveMarkers()
         self.checkScrollbar()
         self.OnModified()
