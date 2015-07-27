@@ -1010,7 +1010,6 @@ class RunningThread(threading.Thread):
         wx.PostEvent(self.event_receiver, data_event)
 
 class BackgroundServerThread(threading.Thread):
-    # TODO: The background server needs to be fully tested on OSX and Windows.
     def __init__(self, cwd, event_receiver):
         threading.Thread.__init__(self)
         self.cwd = cwd
@@ -1022,15 +1021,8 @@ class BackgroundServerThread(threading.Thread):
         self.pid = pid
 
     def kill(self):
-        ### Shouldn't be unified?
         self.terminated = True
-        if 0: #PLATFORM == "win32":
-            try:
-                os.system("tskill %d" % self.proc.pid)
-            except:
-                print "'tskill' doesn't seem to be installed on the system. It is needed to be able to kill a process."
-        else:
-            self.proc.stdin.write("_quit_()\n")
+        self.proc.stdin.write("_quit_()\n")
         if self.proc.poll() == None:
             self.proc.kill()
 
@@ -1041,13 +1033,15 @@ class BackgroundServerThread(threading.Thread):
 
     def run(self):
         if PLATFORM == "win32":
-            self.proc = subprocess.Popen([WHICH_PYTHON, '-i', os.path.join(TEMP_PATH, "background_server.py")], 
-                                    shell=True, cwd=self.cwd, stdout=subprocess.PIPE,
-                                    stdin=subprocess.PIPE, stderr=subprocess.STDOUT)
+            self.proc = subprocess.Popen(
+                    [WHICH_PYTHON, '-i', os.path.join(TEMP_PATH, "background_server.py")], 
+                    shell=True, cwd=self.cwd, stdout=subprocess.PIPE,
+                    stdin=subprocess.PIPE, stderr=subprocess.STDOUT)
         else:
             self.proc = subprocess.Popen(
                     ["%s -i -u %s" % (WHICH_PYTHON, os.path.join(TEMP_PATH, "background_server.py"))], 
-                    cwd=self.cwd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, stdin=subprocess.PIPE)
+                    cwd=self.cwd, shell=True, stdout=subprocess.PIPE, 
+                    stderr=subprocess.STDOUT, stdin=subprocess.PIPE)
 
         header = '=== Output log of background server, launched: %s ===\n' % time.strftime('"%d %b %Y %H:%M:%S"', time.localtime())
         data_event = DataEvent({"log": header, "pid": self.pid, 
