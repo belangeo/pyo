@@ -180,6 +180,7 @@ Alphabetical class reference
 - :py:class:`RandInt` :     Periodic pseudo-random integer generator.
 - :py:class:`Randh` :     Periodic pseudo-random generator.
 - :py:class:`Randi` :     Periodic pseudo-random generator with interpolation.
+- :py:class:`RawMidi` :     Raw Midi handler.
 - :py:class:`Record` :     Writes input sound in an audio file on the disk.
 - :py:class:`Reson` :     A second-order resonant bandpass filter.
 - :py:class:`Resonx` :     A multi-stages second-order resonant bandpass filter.
