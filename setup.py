@@ -66,7 +66,7 @@ if sys.platform == "darwin":
     macros.append(('_OSX_', None))
 
 path = 'src/engine/'
-files = ['pyomodule.c', 'servermodule.c', 'pvstreammodule.c', 'streammodule.c', 'dummymodule.c', 
+files = ['pyomodule.c', 'listenermodule.c', 'servermodule.c', 'pvstreammodule.c', 'streammodule.c', 'dummymodule.c', 
         'mixmodule.c', 'inputfadermodule.c', 'interpolation.c', 'fft.c', "wind.c"]
 source_files = [path + f for f in files]
 

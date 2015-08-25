@@ -1581,6 +1581,8 @@ Server_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         return Py_False;
     }
 
+    /* TODO: Need some testing to validate that there is no conflict when more than one server are running at the same time. */
+    /*
     if (strcmp(audioType, "embedded") != 0)
     {
         if (PyServer_get_server() != NULL) {
@@ -1588,6 +1590,7 @@ Server_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
             Py_RETURN_NONE;
         }
     }
+    */
 
     /* find the first free serverID */
     for(serverID = 0; serverID < MAX_NBR_SERVER; serverID++){
@@ -1623,6 +1626,7 @@ Server_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->midiout_count = 0;
     self->midi_input = -1;
     self->midi_output = -1;
+    self->midiActive = 1;
     self->amp = self->resetAmp = 1.;
     self->currentAmp = self->lastAmp = 0.;
     self->withGUI = 0;
@@ -1776,6 +1780,14 @@ Server_setMidiOutputDevice(Server *self, PyObject *arg)
         if (PyInt_Check(arg))
             self->midi_output = PyInt_AsLong(arg);
     }
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static PyObject *
+Server_deactivateMidi(Server *self)
+{
+    self->midiActive = 0;
     Py_INCREF(Py_None);
     return Py_None;
 }
@@ -2081,8 +2093,13 @@ int
 Server_pm_init(Server *self)
 {
     int i = 0;
-   /* Initializing MIDI */
     PmError pmerr;
+
+    if (self->midiActive == 0) {
+        self->withPortMidi = 0;
+        self->withPortMidiOut = 0;
+        return 0;
+    }
 
     pmerr = Pm_Initialize();
     if (pmerr) {
@@ -2901,7 +2918,7 @@ static PyObject *
 Server_setServer(Server *self)
 {
     serverID = self->thisServerID;
-    /* Should return a more conventional signal, like True or False */
+    /* TODO: Should return a more conventional signal, like True or False */
     return PyString_FromString("Server set");
 }
 
@@ -2969,6 +2986,7 @@ static PyMethodDef Server_methods[] = {
     {"setInOutDevice", (PyCFunction)Server_setInOutDevice, METH_O, "Sets both audio input and output device."},
     {"setMidiInputDevice", (PyCFunction)Server_setMidiInputDevice, METH_O, "Sets MIDI input device."},
     {"setMidiOutputDevice", (PyCFunction)Server_setMidiOutputDevice, METH_O, "Sets MIDI output device."},
+    {"deactivateMidi", (PyCFunction)Server_deactivateMidi, METH_NOARGS, "Deactivates midi callback."},
     {"setSamplingRate", (PyCFunction)Server_setSamplingRate, METH_O, "Sets the server's sampling rate."},
     {"setBufferSize", (PyCFunction)Server_setBufferSize, METH_O, "Sets the server's buffer size."},
     {"setNchnls", (PyCFunction)Server_setNchnls, METH_O, "Sets the server's number of output/input channels."},

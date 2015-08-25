@@ -55,7 +55,7 @@ class Server(object):
         duplex : int {0, 1}, optional
             Input - output mode. 0 is output only and 1 is both ways.
             Defaults to 1.
-        audio : string {'portaudio', 'pa', 'jack', 'coreaudio', 'offline', 'offline_nb}, optional
+        audio : string {'portaudio', 'pa', 'jack', 'coreaudio', 'offline', 'offline_nb', 'embedded'}, optional
             Audio backend to use. 'pa' is equivalent to 'portaudio'. Default is 'portaudio'.
 
             'offline' save the audio output in a soundfile as fast as possible in blocking mode,
@@ -841,6 +841,13 @@ class Server(object):
 
         """
         return self._server.getIsBooted()
+
+    def deactivateMidi(self):
+        """
+        Deactivate Midi callback. Must be called before the start() method.
+
+        """
+        self._server.deactivateMidi()
 
     def getMidiActive(self):
         """

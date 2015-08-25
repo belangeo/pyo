@@ -43,6 +43,7 @@ from pyolib.pattern import *
 import pyolib.randoms as randoms
 from pyolib.randoms import *
 from pyolib.server import *
+from pyolib.listener import *
 import pyolib.players as players
 from pyolib.players import *
 import pyolib.tableprocess as tableprocess
@@ -117,6 +118,8 @@ OBJECTS_TREE = {'functions': sorted(['pa_count_devices', 'pa_get_default_input',
                                   'fourier': sorted(['FFT', 'IFFT', 'CarToPol', 'PolToCar', 'FrameDelta', 'FrameAccum', 'Vectral', 'CvlVerb'])}},
         'Map': {'SLMap': sorted(['SLMapFreq', 'SLMapMul', 'SLMapPhase', 'SLMapQ', 'SLMapDur', 'SLMapPan'])},
         'Server': [],
+        'MidiListener': [],
+        'OscListener': [],
         'Stream': [],
         'TableStream': []}
 

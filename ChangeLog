@@ -1,3 +1,7 @@
+2015-08-25 belangeo <belangeo@gmail.com>
+
+    * Added new objects: MidiListener and OscListener (self-contained MIDI and OSC servers).
+
 -------------------------------------------------------------------------------------
 
 2015-07-27 belangeo <belangeo@gmail.com>

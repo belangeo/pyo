@@ -559,6 +559,7 @@ class OscDataReceive(PyoObject):
         path, lmax = convertArgsToLists(path)
         for p in path:
             if p not in self._address:
+                self._address.append(p)
                 self._base_objs[0].addAddress(p)
 
     def delAddress(self, path):

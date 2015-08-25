@@ -201,6 +201,8 @@
 #include "externalmodule.h"
 #endif
 
+extern PyTypeObject MidiListenerType;
+extern PyTypeObject OscListenerType;
 extern PyTypeObject SineType;
 extern PyTypeObject SineLoopType;
 extern PyTypeObject FmType;

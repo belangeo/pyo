@@ -2261,6 +2261,8 @@ init_pyo64(void)
 #endif
 
     module_add_object(m, "Server_base", &ServerType);
+    module_add_object(m, "MidiListener_base", &MidiListenerType);
+    module_add_object(m, "OscListener_base", &OscListenerType);
     module_add_object(m, "Stream", &StreamType);
     module_add_object(m, "TriggerStream", &TriggerStreamType);
     module_add_object(m, "PVStream", &PVStreamType);

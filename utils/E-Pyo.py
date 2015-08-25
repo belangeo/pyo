@@ -2960,6 +2960,9 @@ class MainFrame(wx.Frame):
             for file in lines:
                 self.submenu2.Append(subId2, toSysEncoding(file))
                 subId2 += 1
+        if subId2 > 2000:
+            for i in range(2000, subId2):
+                self.Bind(wx.EVT_MENU, self.openRecent, id=i)
 
     def openRecent(self, event):
         menu = self.GetMenuBar()
@@ -4570,7 +4573,7 @@ class Editor(stc.StyledTextCtrl):
         #     for i in range(self.GetLineCount()):
         #         pos = self.GetLineEndPosition(i)
         #         if self.GetCharAt(pos-1) != 172:
-        #             self.InsertTextUTF8(pos, "¬")
+        #             self.InsertTextUTF8(pos, "Â¬")
         self.moveMarkers()
         self.checkScrollbar()
         self.OnModified()

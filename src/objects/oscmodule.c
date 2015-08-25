@@ -27,7 +27,7 @@
 #include "dummymodule.h"
 #include "lo/lo.h"
 
-void error(int num, const char *msg, const char *path)
+static void error(int num, const char *msg, const char *path)
 {
     printf("liblo server error %d in path %s: %s\n", num, path, msg);
 }
