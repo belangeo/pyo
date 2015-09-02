@@ -2639,14 +2639,18 @@ Server_removeStream(Server *self, int id)
     int i, sid;
     Stream *stream_tmp;
 
-    for (i=0; i<self->stream_count; i++) {
-        stream_tmp = (Stream *)PyList_GET_ITEM(self->streams, i);
-        sid = Stream_getStreamId(stream_tmp);
-        if (sid == id) {
-            Server_debug(self, "Removed stream id %d\n", id);
-            PySequence_DelItem(self->streams, i);
-            self->stream_count--;
-            break;
+    if (PyObject_HasAttrString((PyObject *)self, "streams")) {
+        for (i=0; i<self->stream_count; i++) {
+            stream_tmp = (Stream *)PyList_GetItem(self->streams, i);
+            if (stream_tmp != NULL) {
+                sid = Stream_getStreamId(stream_tmp);
+                if (sid == id) {
+                    Server_debug(self, "Removed stream id %d\n", id);
+                    PySequence_DelItem(self->streams, i);
+                    self->stream_count--;
+                    break;
+                }
+            }
         }
     }
 
