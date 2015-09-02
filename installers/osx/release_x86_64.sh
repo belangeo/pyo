@@ -5,7 +5,7 @@
 # 1. update pyo sources
 # 2. compile and install pyo float and double
 # 3. cd utils and build E-Pyo
-# 4. cd installer/osx and build the realease, only x86_64 version
+# 4. cd installers/osx and build the realease, only x86_64 version
 
 export PACKAGE_NAME=pyo_0.7.6_x86_64.pkg
 export DMG_DIR="pyo 0.7.6 Universal"
@@ -24,8 +24,9 @@ cp $PKG_RESOURCES/License.rtf $BUILD_RESOURCES/License.rtf
 cp $PKG_RESOURCES/Welcome.rtf $BUILD_RESOURCES/Welcome.rtf
 cp $PKG_RESOURCES/ReadMe.rtf $BUILD_RESOURCES/ReadMe.rtf
 
-svn export ../.. installer/pyo-build
-cd installer/pyo-build
+cd ../..
+git checkout-index -a -f --prefix=installers/osx/installer/pyo-build/
+cd installers/osx/installer/pyo-build
 
 echo "building pyo for python 2.6 (64-bit)..."
 sudo /usr/bin/python setup.py install --use-coreaudio
