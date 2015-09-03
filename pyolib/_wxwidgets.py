@@ -2359,8 +2359,10 @@ class DataTableGrapher(wx.Frame):
         wx.CallAfter(self.multi.update, samples)
 
 class ServerGUI(wx.Frame):
-    def __init__(self, parent=None, nchnls=2, startf=None, stopf=None, recstartf=None,
-                recstopf=None, ampf=None, started=0, locals=None, shutdown=None, meter=True, timer=True, amp=1., exit=True):
+    def __init__(self, parent=None, nchnls=2, startf=None, stopf=None, 
+                recstartf=None, recstopf=None, ampf=None, started=0, 
+                locals=None, shutdown=None, meter=True, timer=True, amp=1., 
+                exit=True):
         wx.Frame.__init__(self, parent, style=wx.DEFAULT_FRAME_STYLE ^ wx.RESIZE_BORDER)
 
         self.SetTitle("pyo server")
@@ -2446,6 +2448,8 @@ class ServerGUI(wx.Frame):
         box.AddSpacer(10)
         panel.SetSizerAndFit(box)
         self.SetClientSize(panel.GetSize())
+
+        self.Bind(wx.EVT_CLOSE, self.on_quit)
 
         if started == 1:
             self.start(None, True)
