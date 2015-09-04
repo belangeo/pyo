@@ -435,6 +435,13 @@ class Linseg(PyoObject):
         x, lmax = convertArgsToLists(x)
         [obj.setLoop(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
+    def pause(self):
+        """
+        Toggles between play and stop mode without reset.
+
+        """
+        [obj.pause() for obj in self._base_objs]
+
     def graph(self, xlen=None, yrange=None, title=None, wxnoserver=False):
         """
         Opens a grapher window to control the shape of the envelope.
@@ -622,6 +629,13 @@ class Expseg(PyoObject):
 
         """
         self.setList(x)
+
+    def pause(self):
+        """
+        Toggles between play and stop mode without reset.
+
+        """
+        [obj.pause() for obj in self._base_objs]
 
     def getPoints(self):
         return self._list

@@ -840,6 +840,7 @@ typedef struct {
     int newlist;
     int loop;
     int listsize;
+    int okToPause;
 } Linseg;
 
 static void
@@ -867,6 +868,7 @@ Linseg_reinit(Linseg *self) {
     self->currentValue = self->targets[0];
     self->which = 0;
     self->flag = 1;
+    self->okToPause = 1;
 }
 
 static void
@@ -882,6 +884,7 @@ Linseg_generate(Linseg *self) {
                         Linseg_reinit((Linseg *)self);
                     else {
                         self->flag = 0;
+                        self->okToPause = 0;
                         self->currentValue = self->targets[self->which-1];
                     }
                 }
@@ -994,6 +997,7 @@ Linseg_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     self->loop = 0;
     self->newlist = 1;
+    self->okToPause = 0;
 	self->modebuffer[0] = 0;
 	self->modebuffer[1] = 0;
 
@@ -1049,7 +1053,20 @@ static PyObject * Linseg_play(Linseg *self, PyObject *args, PyObject *kwds)
     PLAY
 };
 
-static PyObject * Linseg_stop(Linseg *self) { STOP };
+static PyObject * Linseg_stop(Linseg *self) 
+{ 
+    self->okToPause = 0;
+    STOP 
+};
+
+static PyObject * Linseg_pause(Linseg *self) 
+{ 
+    if (self->okToPause == 1)
+        self->flag = 1 - self->flag;
+
+    Py_INCREF(Py_None);
+    return Py_None;
+};
 
 static PyObject * Linseg_multiply(Linseg *self, PyObject *arg) { MULTIPLY };
 static PyObject * Linseg_inplace_multiply(Linseg *self, PyObject *arg) { INPLACE_MULTIPLY };
@@ -1111,6 +1128,7 @@ static PyMethodDef Linseg_methods[] = {
 {"_getStream", (PyCFunction)Linseg_getStream, METH_NOARGS, "Returns stream object."},
 {"play", (PyCFunction)Linseg_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
 {"stop", (PyCFunction)Linseg_stop, METH_NOARGS, "Starts fadeout and stops computing."},
+{"pause", (PyCFunction)Linseg_pause, METH_NOARGS, "Toggles between play and stop without reset."},
 {"setList", (PyCFunction)Linseg_setList, METH_O, "Sets target points list."},
 {"setLoop", (PyCFunction)Linseg_setLoop, METH_O, "Sets looping mode."},
 {"setMul", (PyCFunction)Linseg_setMul, METH_O, "Sets Linseg mul factor."},
@@ -1226,6 +1244,7 @@ typedef struct {
     double exp_tmp;
     int inverse;
     int inverse_tmp;
+    int okToPause;
 } Expseg;
 
 static void
@@ -1255,6 +1274,7 @@ Expseg_reinit(Expseg *self) {
     self->flag = 1;
     self->exp = self->exp_tmp;
     self->inverse = self->inverse_tmp;
+    self->okToPause = 1;
 }
 
 static void
@@ -1272,6 +1292,7 @@ Expseg_generate(Expseg *self) {
                     else {
                         self->flag = 0;
                         self->currentValue = self->targets[self->which-1];
+                        self->okToPause = 0;
                     }
                 }
                 else {
@@ -1397,6 +1418,7 @@ Expseg_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->newlist = 1;
     self->exp = self->exp_tmp = 10;
     self->inverse = self->inverse_tmp = 1;
+    self->okToPause = 0;
 	self->modebuffer[0] = 0;
 	self->modebuffer[1] = 0;
 
@@ -1452,7 +1474,20 @@ static PyObject * Expseg_play(Expseg *self, PyObject *args, PyObject *kwds)
     PLAY
 };
 
-static PyObject * Expseg_stop(Expseg *self) { STOP };
+static PyObject * Expseg_stop(Expseg *self)
+{ 
+    self->okToPause = 0;
+    STOP 
+};
+
+static PyObject * Expseg_pause(Expseg *self) 
+{ 
+    if (self->okToPause == 1)
+        self->flag = 1 - self->flag;
+
+    Py_INCREF(Py_None);
+    return Py_None;
+};
 
 static PyObject * Expseg_multiply(Expseg *self, PyObject *arg) { MULTIPLY };
 static PyObject * Expseg_inplace_multiply(Expseg *self, PyObject *arg) { INPLACE_MULTIPLY };
@@ -1542,6 +1577,7 @@ static PyMethodDef Expseg_methods[] = {
     {"_getStream", (PyCFunction)Expseg_getStream, METH_NOARGS, "Returns stream object."},
     {"play", (PyCFunction)Expseg_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"stop", (PyCFunction)Expseg_stop, METH_NOARGS, "Starts fadeout and stops computing."},
+    {"pause", (PyCFunction)Expseg_pause, METH_NOARGS, "Toggles between play and stop without reset."},
     {"setList", (PyCFunction)Expseg_setList, METH_O, "Sets target points list."},
     {"setLoop", (PyCFunction)Expseg_setLoop, METH_O, "Sets looping mode."},
     {"setExp", (PyCFunction)Expseg_setExp, METH_O, "Sets exponent factor."},
