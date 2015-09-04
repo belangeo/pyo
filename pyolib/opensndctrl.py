@@ -33,7 +33,7 @@ License along with pyo.  If not, see <http://www.gnu.org/licenses/>.
 """
 from _core import *
 from _maps import *
-from types import ListType
+from types import ListType, StringType, UnicodeType
 
 ######################################################################
 ### Open Sound Control
@@ -179,7 +179,7 @@ class OscReceive(PyoObject):
         self._base_objs = [OscReceive_base(self._mainReceiver, wrap(address,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
 
     def __getitem__(self, i):
-        if type(i) == type(''):
+        if type(i) in [StringType, UnicodeType]:
             return self._base_objs[self._address.index(i)]
         elif i < len(self._base_objs):
             return self._base_objs[i]
@@ -436,8 +436,9 @@ class OscDataSend(PyoObject):
         pyoArgsAssert(self, "s", path)
         path, lmax = convertArgsToLists(path)
         for p in path:
-            self._base_objs.remove(self._addresses[p])
-            del self._addresses[p]
+            if p in self._addresses:
+                self._base_objs.remove(self._addresses[p])
+                del self._addresses[p]
 
     def send(self, msg, address=None):
         """
@@ -575,8 +576,10 @@ class OscDataReceive(PyoObject):
         pyoArgsAssert(self, "s", path)
         path, lmax = convertArgsToLists(path)
         for p in path:
-            index = self._address.index(p)
-            self._base_objs[0].delAddress(index)
+            if p in self._address:
+                index = self._address.index(p)
+                self._base_objs[0].delAddress(index)
+                self._address.remove(p)
 
 class OscListReceive(PyoObject):
     """
@@ -633,7 +636,7 @@ class OscListReceive(PyoObject):
         self._base_objs = [OscListReceive_base(self._mainReceiver, wrap(address,i), j, wrap(mul,i), wrap(add,i)) for i in range(lmax) for j in range(self._num)]
 
     def __getitem__(self, i):
-        if type(i) == type(''):
+        if type(i) in [StringType, UnicodeType]:
             first = self._address.index(i) * self._num
             return self._base_objs[first:first+self._num]
         elif i < len(self._base_objs):
@@ -685,7 +688,7 @@ class OscListReceive(PyoObject):
         pyoArgsAssert(self, "s", path)
         path, lmax = convertArgsToLists(path)
         self._mainReceiver.delAddress(path)
-        indexes = [self._address.index(p) for p in path]
+        indexes = [self._address.index(p) for p in path if p in self._address]
         for ind in reversed(indexes):
             self._address.pop(ind)
             first = ind * self._num
