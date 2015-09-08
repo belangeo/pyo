@@ -386,7 +386,9 @@ static PyObject * MidiListener_play(MidiListener *self) {
     for (i=0; i<self->midicount; i++) {
         Pm_SetFilter(self->midiin[i], PM_FILT_ACTIVE | PM_FILT_CLOCK);
     }
-    self->active = 1;
+
+    if (self->midicount > 0)
+        self->active = 1;
 
 	Py_INCREF(Py_None);
 	return Py_None;
