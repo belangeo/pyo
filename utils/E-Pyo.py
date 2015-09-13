@@ -928,9 +928,9 @@ class RunningThread(threading.Thread):
         self.terminated = True
         if PLATFORM == "win32":
             try:
-                os.system("tskill %d" % self.proc.pid)
+                os.system("Taskkill /PID %d /F" % self.proc.pid)
             except:
-                print "'tskill' doesn't seem to be installed on the system. It is needed to be able to kill a process."
+                print '"Taskkill" does not succeed to kill the process %d.' % self.proc.pid
         else:
             self.proc.terminate()
         if self.proc.poll() == None:
@@ -954,7 +954,7 @@ class RunningThread(threading.Thread):
                 self.proc = subprocess.Popen(['%s -u "%s"' % (WHICH_PYTHON, self.path)], cwd=self.cwd, 
                                 shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         elif PLATFORM == "win32":
-            self.proc = subprocess.Popen([WHICH_PYTHON, "-u", self.path], cwd=self.cwd, shell=False, 
+            self.proc = subprocess.Popen([WHICH_PYTHON, "-u", self.path], cwd=self.cwd, shell=False, # TODO: shell=True ?
                                 stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         else:
             self.proc = subprocess.Popen([WHICH_PYTHON, "-u", self.path], cwd=self.cwd, 
