@@ -9,12 +9,10 @@ shutil.copy("Tutorial_02_Flanger.py", "Resources")
 shutil.copy("Tutorial_03_TriTable.py", "Resources")
 shutil.copy("E-PyoIcon.ico", "Resources")
 shutil.copy("E-PyoIconDoc.ico", "Resources")
+shutil.copytree("../examples", "Resources/examples")
+shutil.copytree("snippets", "Resources/snippets")
+shutil.copytree("styles", "Resources/styles")
 
-os.system("svn export ../examples Resources/examples/")
-os.system("svn export snippets Resources/snippets/")
-os.system("svn export styles Resources/styles/")
-
-#os.system("C:\Python%d%d\python ..\..\pyinstaller\Configure.py" % version)
 os.system('C:\Python%d%d\Scripts\pyi-makespec -F -c --icon=Resources\E-PyoIcon.ico "E-Pyo.py"' % version)
 os.system('C:\Python%d%d\Scripts\pyi-build "E-Pyo.spec"' % version)
 
