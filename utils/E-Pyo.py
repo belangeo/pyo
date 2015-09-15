@@ -3217,7 +3217,7 @@ class MainFrame(wx.Frame):
                 midiInDriverIndex = driverIndexes[driverList.index(preferedDriver)]
 
         with open(os.path.join(TEMP_PATH, "background_server.py"), "w") as f:
-            f.write("print 'Starting background server...'\nimport time\nfrom pyo import *\n")
+            f.write("print 'Starting background server...'\nimport time, sys, os\nsys.path.append(os.getcwd())\nfrom pyo import *\n")
             f.write("s = Server(%s)\n" % BACKGROUND_SERVER_ARGS)
             if outDriverIndex != -1:
                 f.write("s.setOutputDevice(%d)\n" % outDriverIndex)
