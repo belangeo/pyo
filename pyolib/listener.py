@@ -52,7 +52,10 @@ class MidiListener(threading.Thread):
         """
         self._listener.play()
         while True:
-            time.sleep(0.001)
+            try:
+                time.sleep(0.001)
+            except:
+                pass
 
 OscListenerLock = threading.Lock()
 
@@ -103,4 +106,7 @@ class OscListener(threading.Thread):
         """
         while True:
             self._listener.get()
-            time.sleep(0.001)
+            try:
+                time.sleep(0.001)
+            except:
+                pass
