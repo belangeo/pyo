@@ -473,7 +473,7 @@ class PyoObjectBase(object):
         return self._base_objs[0].getServer().getBufferSize()
 
     def __getitem__(self, i):
-        if i == 'trig':
+        if i == 'trig': # not safe...
             return self._trig_objs
         if type(i) == SliceType or i < len(self._base_objs):
             return self._base_objs[i]

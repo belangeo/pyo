@@ -1109,6 +1109,8 @@ typedef struct {
     Stream *dur_stream;
     PyObject *xfade;
     Stream *xfade_stream;
+    MYFLT *trigsBuffer;
+    TriggerStream *trig_stream;
     int xfadeshape;
     int startfromloop;
     int init;
@@ -1179,6 +1181,9 @@ Looper_reset(Looper *self, int x, int which, int init) {
 
     if (self->tmpmode != self->mode[which])
         self->mode[which] = self->tmpmode;
+
+    if (init == 0)
+        self->trigsBuffer[x] = 1.0;
 
     switch (self->mode[which]) {
         case 0:
@@ -1292,6 +1297,10 @@ Looper_transform_i(Looper *self) {
         pitval = 0.0;
 
     pit = pitval * tableSr / self->sr;
+
+    for (i=0; i<self->bufsize; i++) {
+        self->trigsBuffer[i] = 0.0;
+    }
 
     if (self->active[0] == 0 && self->active[1] == 0) {
         Looper_reset(self, 0, 0, 1);
@@ -1462,6 +1471,10 @@ Looper_transform_a(Looper *self) {
 
     if (self->active[0] == 0 && self->active[1] == 0) {
         Looper_reset(self, 0, 0, 1);
+    }
+
+    for (i=0; i<self->bufsize; i++) {
+        self->trigsBuffer[i] = 0.0;
     }
 
     for (i=0; i<self->bufsize; i++) {
@@ -1696,6 +1709,7 @@ Looper_traverse(Looper *self, visitproc visit, void *arg)
     Py_VISIT(self->dur_stream);
     Py_VISIT(self->xfade);
     Py_VISIT(self->xfade_stream);
+    Py_VISIT(self->trig_stream);
     return 0;
 }
 
@@ -1712,6 +1726,7 @@ Looper_clear(Looper *self)
     Py_CLEAR(self->dur_stream);
     Py_CLEAR(self->xfade);
     Py_CLEAR(self->xfade_stream);
+    Py_CLEAR(self->trig_stream);
     return 0;
 }
 
@@ -1719,6 +1734,7 @@ static void
 Looper_dealloc(Looper* self)
 {
     pyo_DEALLOC
+    free(self->trigsBuffer);
     Looper_clear(self);
     self->ob_type->tp_free((PyObject*)self);
 }
@@ -1796,6 +1812,15 @@ Looper_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     (*self->mode_func_ptr)(self);
 
+    self->trigsBuffer = (MYFLT *)realloc(self->trigsBuffer, self->bufsize * sizeof(MYFLT));
+
+    for (i=0; i<self->bufsize; i++) {
+        self->trigsBuffer[i] = 0.0;
+    }
+
+    MAKE_NEW_TRIGGER_STREAM(self->trig_stream, &TriggerStreamType, NULL);
+    TriggerStream_setData(self->trig_stream, self->trigsBuffer);
+
     if (self->tmpmode >= 0 && self->tmpmode < 4)
         self->mode[0] = self->mode[1] = self->tmpmode;
     else
@@ -1808,6 +1833,7 @@ Looper_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
 static PyObject * Looper_getServer(Looper* self) { GET_SERVER };
 static PyObject * Looper_getStream(Looper* self) { GET_STREAM };
+static PyObject * Looper_getTriggerStream(Looper* self) { GET_TRIGGER_STREAM };
 static PyObject * Looper_setMul(Looper *self, PyObject *arg) { SET_MUL };
 static PyObject * Looper_setAdd(Looper *self, PyObject *arg) { SET_ADD };
 static PyObject * Looper_setSub(Looper *self, PyObject *arg) { SET_SUB };
@@ -2087,6 +2113,7 @@ Looper_on_reset(Looper *self) {
 static PyMemberDef Looper_members[] = {
     {"server", T_OBJECT_EX, offsetof(Looper, server), 0, "Pyo server."},
     {"stream", T_OBJECT_EX, offsetof(Looper, stream), 0, "Stream object."},
+    {"trig_stream", T_OBJECT_EX, offsetof(Looper, trig_stream), 0, "Trigger Stream object."},
     {"table", T_OBJECT_EX, offsetof(Looper, table), 0, "Sound table."},
     {"pitch", T_OBJECT_EX, offsetof(Looper, pitch), 0, "Speed of the reading pointer."},
     {"start", T_OBJECT_EX, offsetof(Looper, start), 0, "Position in the sound table."},
@@ -2102,6 +2129,7 @@ static PyMethodDef Looper_methods[] = {
     {"setTable", (PyCFunction)Looper_setTable, METH_O, "Sets sound table."},
     {"getServer", (PyCFunction)Looper_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)Looper_getStream, METH_NOARGS, "Returns stream object."},
+    {"_getTriggerStream", (PyCFunction)Looper_getTriggerStream, METH_NOARGS, "Returns trigger stream object."},
     {"play", (PyCFunction)Looper_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)Looper_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
     {"stop", (PyCFunction)Looper_stop, METH_NOARGS, "Stops computing."},

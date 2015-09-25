@@ -2305,6 +2305,12 @@ class Looper(PyoObject):
             to reduce the quantization noise produced by very low transpositions.
             Defaults to False.
 
+    .. note::
+
+        Looper will sends a trigger signal every new playback starting point
+        (i.e. when the object is activated and at the beginning of the crossfade
+        of a loop. User can retrieve the trigger streams by calling obj['trig'].
+
     .. seealso::
 
         :py:class:`Granulator`, :py:class:`Pointer`
@@ -2335,6 +2341,7 @@ class Looper(PyoObject):
                                         table, pitch, start, dur, xfade, mode, xfadeshape, startfromloop, interp, autosmooth, mul, add)
         self._base_objs = [Looper_base(wrap(table,i), wrap(pitch,i), wrap(start,i), wrap(dur,i), wrap(xfade,i), wrap(mode,i),
             wrap(xfadeshape,i), wrap(startfromloop,i), wrap(interp,i), wrap(autosmooth,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+        self._trig_objs = Dummy([TriggerDummy_base(obj) for obj in self._base_objs])
 
     def setTable(self, x):
         """

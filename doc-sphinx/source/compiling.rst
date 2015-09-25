@@ -120,13 +120,15 @@ Under Ubuntu you can type the following commands to get pyo up and running:
 
 .. code-block:: bash
 
-    sudo apt-get install libjack-jack2-dev libportmidi-dev portaudio19-dev liblo-dev 
-    sudo apt-get install libsndfile-dev python-dev python-tk subversion 
-    sudo apt-get install python-imaging-tk python-wxgtk2.8
-    svn checkout http://pyo.googlecode.com/svn/trunk/ pyo-read-only
-    cd pyo-read-only
+    sudo apt-get install libjack-jackd2-dev libportmidi-dev portaudio19-dev liblo-dev 
+    sudo apt-get install libsndfile-dev python-dev python-tk 
+    sudo apt-get install python-imaging-tk python-wxgtk3.0
+    git clone https://github.com/belangeo/pyo.git
+    cd pyo
     sudo python setup.py install --install-layout=deb --use-jack --use-double
 
+* On Ubuntu system prior to vivid, wxpython 3.0 must be compiled from sources.
+ 
 OSX (Homebrew)
 --------------------
 
@@ -135,8 +137,14 @@ Under OS X, it is very simple to build pyo from sources with the Homebrew packag
 .. code-block:: bash
 
     brew install python liblo libsndfile portaudio portmidi --universal
-    svn checkout http://pyo.googlecode.com/svn/trunk/ pyo
+    git clone https://github.com/belangeo/pyo.git
     cd pyo
     python setup.py install --use-coreaudio --use-double 
 
+* To build a universal portmidi library with homebrew, the formula must be modified like this:
+    
+    option :universal
+
+    def install
+        ENV.universal_binary if build.universal?
 
