@@ -431,6 +431,9 @@ Adsr_generate_auto(Adsr *self) {
     MYFLT val, invatt, invdec, invrel;
     int i;
 
+    if (self->currentTime > self->duration)
+        Adsr_internal_stop((Adsr *)self);
+
     invatt = 1.0 / self->attack;
     invdec = 1.0 / self->decay;
     invrel = 1.0 / self->release;
@@ -440,10 +443,8 @@ Adsr_generate_auto(Adsr *self) {
             val = self->currentTime * invatt;
         else if (self->currentTime <= (self->attack + self->decay))
             val = (self->decay - (self->currentTime - self->attack)) * invdec * (1. - self->sustain) + self->sustain;
-        else if (self->currentTime > self->duration) {
+        else if (self->currentTime > self->duration)
             val = 0.;
-            Adsr_internal_stop((Adsr *)self);
-        }
         else if (self->currentTime >= (self->duration - self->release))
             val = (self->duration - self->currentTime) * invrel * self->sustain;
         else
