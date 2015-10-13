@@ -8,26 +8,12 @@ Dependencies
 
 To compile pyo, you will need the following dependencies: 
 
-- `Python 2.6 or 2.7 <http://www.python.org/download/releases/>`_
+- `Python 2.6 or 2.7 <https://www.python.org/downloads/>`_
 - `WxPython 3.0 <http://www.wxpython.org/download.php/>`_
 - `Portaudio <http://www.portaudio.com/>`_
 - `Portmidi <http://portmedia.sourceforge.net/portmidi/>`_
 - `libsndfile <http://www.mega-nerd.com/libsndfile/>`_
 - `liblo <http://liblo.sourceforge.net/>`_
-
-Under Mac OS X, you can use Homebrew to retrieve necessary dependency librairies and headers (except for wxpython 3.0) to compile pyo.
-
-First, install Homebrew with this command: 
-
-.. code-block:: bash
-
-    ruby -e "$(curl -fsSL https://raw.github.com/Homebrew/homebrew/go/install)"
-
-Then, install packages: 
-
-.. code-block:: bash
-
-    brew install python liblo libsndfile portaudio portmidi --universal
 
 Getting sources
 -------------------
@@ -36,18 +22,19 @@ You can download pyo's source checking out the source code here:
 
 .. code-block:: bash
 
-    svn checkout http://pyo.googlecode.com/svn/trunk/ pyo-read-only
+    git clone https://github.com/belangeo/pyo.git
 
 Compilation
 ---------------
 
-Please note that under Mac OS X you will need to install the **Apple's developer tools** to compile pyo.
+Please note that under Mac OS X you will need to install the 
+**Apple's developer tools** to compile pyo.
 
 Once you have all the required dependencies, go in pyo's directory: 
 
 .. code-block:: bash
 
-    cd pyo-read-only
+    cd path/to/pyo
 
 You then need to build the extension: 
 
@@ -74,7 +61,8 @@ If you want JACK support (Linux, Mac OS X):
 
     --use-jack
 
-If you want to be able to use a 64-bit pyo (All platforms), this will build both single and double precision: 
+If you want to be able to use a 64-bit pyo (All platforms, this is the sample
+resolution, not the architecture), this will build both single and double precision: 
 
 .. code-block:: bash
 
@@ -132,7 +120,9 @@ Under Ubuntu you can type the following commands to get pyo up and running:
 OSX (Homebrew)
 --------------------
 
-Under OS X, it is very simple to build pyo from sources with the Homebrew package mananger:
+Under OS X, it is very simple to build pyo from sources with the Homebrew package mananger.
+
+First, you need to install `Homebrew <http://brew.sh/>`. Then, in a terminal window:
 
 .. code-block:: bash
 
@@ -143,7 +133,15 @@ Under OS X, it is very simple to build pyo from sources with the Homebrew packag
 
 * To build a universal portmidi library with homebrew, the formula must be modified like this:
     
+Add the option "universal":
+
+.. code-block:: bash
+
     option :universal
+
+And modify the "install function" to add the universal variable:
+    
+.. code-block:: bash
 
     def install
         ENV.universal_binary if build.universal?

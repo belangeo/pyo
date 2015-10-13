@@ -28,7 +28,7 @@ class MidiListener(threading.Thread):
             Sets the midi input device (see `pm_list_devices()` for the 
             available devices). The default, -1, means the system default
             device. A number greater than the highest portmidi device index 
-            will opened all available input devices. 
+            will open all available input devices. 
 
     >>> s = Server().boot()
     >>> s.deactivateMidi()

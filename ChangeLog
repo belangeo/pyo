@@ -1,3 +1,37 @@
+2015-10-12 belangeo <belangeo@gmail.com>
+
+    * Final revision for version 0.7.7.
+    - SHA :
+
+2015-10-11 belangeo <belangeo@gmail.com>
+
+    * Fixed clicks at the end of the Adsr envelope.
+
+2015-09-25 belangeo <belangeo@gmail.com>
+
+    * Added a trigger stream to Looper to signal the beginning of a new loop.
+
+2015-09-15 belangeo <belangeo@gmail.com>
+
+    * Automatically add the current working directory in sys.path when the
+      background server is started.
+
+2015-09-03 belangeo <belangeo@gmail.com>
+
+    * Added a pause() method to Linseg and Expseg objects (keep the internal phase).
+
+2015-09-03 belangeo <belangeo@gmail.com>
+
+    * All OSC objects now accept string or unicode types as address parameter.
+
+2015-09-03 belangeo <belangeo@gmail.com>
+
+    * Fixed crash (OSX) when the server GUI is closed with the red button.
+
+2015-09-02 belangeo <belangeo@gmail.com>
+
+    * Fixed crash on server shutdown.
+
 2015-08-25 belangeo <belangeo@gmail.com>
 
     * Added new objects: MidiListener and OscListener (self-contained MIDI and OSC servers).

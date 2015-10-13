@@ -1,33 +1,19 @@
-Classes by category
-===============================
+Controller listeners
+===================================
 
-.. toctree::
-   :maxdepth: 2
+.. module:: pyo
 
-   server
-   listener
-   _core
-   analysis
-   arithmetic
-   controls
-   dynamics
-   effects
-   filters
-   fourier
-   pvoc
-   generators
-   internals
-   matrixprocess
-   midi
-   opensndctrl
-   pan
-   pattern
-   players
-   randoms
-   tableprocess
-   triggers
-   utils
-   tables
-   matrices
-   map
+These objects can be used to create MIDI and/or OSC listeners without the
+need to boot ands start an audio server before receiving messages.
 
+*MidiListener*
+-----------------------------------
+
+.. autoclass:: MidiListener
+   :members:
+
+*OscListener*
+-----------------------------------
+
+.. autoclass:: OscListener
+   :members:
