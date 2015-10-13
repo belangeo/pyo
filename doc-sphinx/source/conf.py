@@ -43,7 +43,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'Pyo'
-copyright = u'2014, Olivier Bélanger'
+copyright = u'2015, Olivier Bélanger'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the

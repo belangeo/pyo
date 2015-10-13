@@ -6,6 +6,9 @@
 Welcome to the Pyo 0.7.7 documentation
 ===================================================
 
+Pyo is a Python module written in C to help digital signal processing script 
+creation.
+
 .. toctree::
    :maxdepth: 1
 
