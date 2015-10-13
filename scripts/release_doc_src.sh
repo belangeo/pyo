@@ -21,6 +21,6 @@ tar -cjvf ${doc_tar/$replace/$version} ${doc_rep/$replace/$version}
 rm -R ${doc_rep/$replace/$version}
 cd ..
 
-svn export . ${src_rep/$replace/$version}
+git checkout-index -a -f --prefix=${src_rep/$replace/$version}/
 tar -cjvf ${src_tar/$replace/$version} ${src_rep/$replace/$version}
 rm -R ${src_rep/$replace/$version}
