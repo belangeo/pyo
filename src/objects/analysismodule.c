@@ -52,7 +52,9 @@ Follower_filters_i(Follower *self) {
     freq = PyFloat_AS_DOUBLE(self->freq);
 
     if (freq != self->last_freq) {
-        self->factor = MYEXP(-1.0 / (self->sr / freq));
+        if (freq < 0)
+            freq = 0.0;
+        self->factor = MYEXP(-TWOPI * freq / self->sr);
         self->last_freq = freq;
     }
 
@@ -75,7 +77,9 @@ Follower_filters_a(Follower *self) {
     for (i=0; i<self->bufsize; i++) {
         freq = fr[i];
         if (freq != self->last_freq) {
-            self->factor = MYEXP(-1.0 / (self->sr / freq));
+            if (freq < 0)
+                freq = 0.0;
+            self->factor = MYEXP(-TWOPI * freq / self->sr);
             self->last_freq = freq;
         }
         absin = in[i];
@@ -411,18 +415,18 @@ Follower2_filters_ii(Follower2 *self) {
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
     risetime = PyFloat_AS_DOUBLE(self->risetime);
     if (risetime <= 0.0)
-        risetime = 0.001;
+        risetime = 0.000001;
     falltime = PyFloat_AS_DOUBLE(self->falltime);
     if (falltime <= 0.0)
-        falltime = 0.001;
+        falltime = 0.000001;
 
     if (risetime != self->last_risetime) {
-        self->risefactor = MYEXP(-1.0 / (self->sr * risetime));
+        self->risefactor = MYEXP(-TWOPI * (1.0 / risetime) / self->sr);
         self->last_risetime = risetime;
     }
 
     if (falltime != self->last_falltime) {
-        self->fallfactor = MYEXP(-1.0 / (self->sr * falltime));
+        self->fallfactor = MYEXP(-TWOPI * (1.0 / falltime) / self->sr);
         self->last_falltime = falltime;
     }
 
@@ -446,19 +450,19 @@ Follower2_filters_ai(Follower2 *self) {
     MYFLT *rise = Stream_getData((Stream *)self->risetime_stream);
     falltime = PyFloat_AS_DOUBLE(self->falltime);
     if (falltime <= 0.0)
-        falltime = 0.001;
+        falltime = 0.000001;
 
     if (falltime != self->last_falltime) {
-        self->fallfactor = MYEXP(-1.0 / (self->sr * falltime));
+        self->fallfactor = MYEXP(-TWOPI * (1.0 / falltime) / self->sr);
         self->last_falltime = falltime;
     }
 
     for (i=0; i<self->bufsize; i++) {
         risetime = rise[i];
         if (risetime <= 0.0)
-            risetime = 0.001;
+            risetime = 0.000001;
         if (risetime != self->last_risetime) {
-            self->risefactor = MYEXP(-1.0 / (self->sr * risetime));
+            self->risefactor = MYEXP(-TWOPI * (1.0 / risetime) / self->sr);
             self->last_risetime = risetime;
         }
         absin = in[i];
@@ -479,20 +483,20 @@ Follower2_filters_ia(Follower2 *self) {
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
     risetime = PyFloat_AS_DOUBLE(self->risetime);
     if (risetime <= 0.0)
-        risetime = 0.001;
+        risetime = 0.000001;
     MYFLT *fall = Stream_getData((Stream *)self->falltime_stream);
 
     if (risetime != self->last_risetime) {
-        self->risefactor = MYEXP(-1.0 / (self->sr * risetime));
+        self->risefactor = MYEXP(-TWOPI * (1.0 / risetime) / self->sr);
         self->last_risetime = risetime;
     }
 
     for (i=0; i<self->bufsize; i++) {
         falltime = fall[i];
         if (falltime <= 0.0)
-            falltime = 0.001;
+            falltime = 0.000001;
         if (falltime != self->last_falltime) {
-            self->fallfactor = MYEXP(-1.0 / (self->sr * falltime));
+            self->fallfactor = MYEXP(-TWOPI * (1.0 / falltime) / self->sr);
             self->last_falltime = falltime;
         }
         absin = in[i];
@@ -517,16 +521,16 @@ Follower2_filters_aa(Follower2 *self) {
     for (i=0; i<self->bufsize; i++) {
         risetime = rise[i];
         if (risetime <= 0.0)
-            risetime = 0.001;
+            risetime = 0.000001;
         if (risetime != self->last_risetime) {
-            self->risefactor = MYEXP(-1.0 / (self->sr * risetime));
+            self->risefactor = MYEXP(-TWOPI * (1.0 / risetime) / self->sr);
             self->last_risetime = risetime;
         }
         falltime = fall[i];
         if (falltime <= 0.0)
-            falltime = 0.001;
+            falltime = 0.000001;
         if (falltime != self->last_falltime) {
-            self->fallfactor = MYEXP(-1.0 / (self->sr * falltime));
+            self->fallfactor = MYEXP(-TWOPI * (1.0 / falltime) / self->sr);
             self->last_falltime = falltime;
         }
         absin = in[i];
@@ -1247,7 +1251,7 @@ typedef struct {
 static void
 Yin_process(Yin *self) {
     int i, j, period, tau = 0;
-    MYFLT candidate, tmp = 0.0, tmp2 = 0.0, b = 0.0;
+    MYFLT candidate, tmp = 0.0, tmp2 = 0.0;
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
 
     if (self->cutoff != self->last_cutoff) {
@@ -1256,8 +1260,7 @@ Yin_process(Yin *self) {
         else if (self->cutoff >= self->sr*0.5)
             self->cutoff = self->sr*0.5;
         self->last_cutoff = self->cutoff;
-        b = 2.0 - MYCOS(TWOPI * self->cutoff / self->sr);
-        self->c2 = (b - MYSQRT(b * b - 1.0));
+        self->c2 = MYEXP(-TWOPI * self->cutoff / self->sr);
     }
 
     for (i=0; i<self->bufsize; i++) {
@@ -2435,9 +2438,9 @@ AttackDetector_members,                                 /* tp_members */
 AttackDetector_new,                                     /* tp_new */
 };
 
-/*********************************************************************************************/
-/* Scope ********************************************************************************/
-/*********************************************************************************************/
+/**********************************/
+/********* Scope ******************/
+/**********************************/
 typedef struct {
     pyo_audio_HEAD
     PyObject *input;

@@ -67,47 +67,47 @@ LFO_generates_ii(LFO *self) {
             numh = sharp * 46.0 + 4.0;
             if (numh > maxHarms)
                 numh = maxHarms;
-                for (i=0; i<self->bufsize; i++) {
-                    pointer = self->pointerPos * 2.0 - 1.0;
-                    val = pointer - MYTANH(numh * pointer) / MYTANH(numh);
-                    self->data[i] = val;
-                    self->pointerPos += inc;
-                    if (self->pointerPos < 0)
-                        self->pointerPos += 1.0;
-                    else if (self->pointerPos >= 1)
-                        self->pointerPos -= 1.0;
-                }
+            for (i=0; i<self->bufsize; i++) {
+                pointer = self->pointerPos * 2.0 - 1.0;
+                val = pointer - MYTANH(numh * pointer) / MYTANH(numh);
+                self->data[i] = val;
+                self->pointerPos += inc;
+                if (self->pointerPos < 0)
+                    self->pointerPos += 1.0;
+                else if (self->pointerPos >= 1)
+                    self->pointerPos -= 1.0;
+            }
             break;
         case 1: /* Saw down */
             maxHarms = (int)(self->srOverFour/freq);
             numh = sharp * 46.0 + 4.0;
             if (numh > maxHarms)
                 numh = maxHarms;
-                for (i=0; i<self->bufsize; i++) {
-                    pointer = self->pointerPos * 2.0 - 1.0;
-                    val = -(pointer - MYTANH(numh * pointer) / MYTANH(numh));
-                    self->data[i] = val;
-                    self->pointerPos += inc;
-                    if (self->pointerPos < 0)
-                        self->pointerPos += 1.0;
-                    else if (self->pointerPos >= 1)
-                        self->pointerPos -= 1.0;
-                }
+            for (i=0; i<self->bufsize; i++) {
+                pointer = self->pointerPos * 2.0 - 1.0;
+                val = -(pointer - MYTANH(numh * pointer) / MYTANH(numh));
+                self->data[i] = val;
+                self->pointerPos += inc;
+                if (self->pointerPos < 0)
+                    self->pointerPos += 1.0;
+                else if (self->pointerPos >= 1)
+                    self->pointerPos -= 1.0;
+            }
             break;
         case 2: /* Square */
             maxHarms = (int)(self->srOverEight/freq);
             numh = sharp * 46.0 + 4.0;
             if (numh > maxHarms)
                 numh = maxHarms;
-                for (i=0; i<self->bufsize; i++) {
-                    val = MYATAN(numh * MYSIN(TWOPI*self->pointerPos));
-                    self->data[i] = val * self->oneOverPiOverTwo;
-                    self->pointerPos += inc;
-                    if (self->pointerPos < 0)
-                        self->pointerPos += 1.0;
-                    else if (self->pointerPos >= 1)
-                        self->pointerPos -= 1.0;
-                }
+            for (i=0; i<self->bufsize; i++) {
+                val = MYATAN(numh * MYSIN(TWOPI*self->pointerPos));
+                self->data[i] = val * self->oneOverPiOverTwo;
+                self->pointerPos += inc;
+                if (self->pointerPos < 0)
+                    self->pointerPos += 1.0;
+                else if (self->pointerPos >= 1)
+                    self->pointerPos -= 1.0;
+            }
             break;
         case 3: /* Triangle */
             maxHarms = (int)(self->srOverFour/freq);
@@ -116,7 +116,7 @@ LFO_generates_ii(LFO *self) {
             else
                 numh = sharp;
             for (i=0; i<self->bufsize; i++) {
-                v1 = MYTAN(MYSIN(TWOPI*self->pointerPos));
+                v1 = MYTAN(MYSIN(TWOPI*self->pointerPos)) * self->oneOverPiOverTwo;
                 pointer = self->pointerPos + 0.25;
                 if (pointer > 1.0)
                     pointer -= 1.0;
