@@ -1,20 +1,20 @@
-#N canvas 295 147 1007 365 10;
-#X obj 28 108 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144 -1
+#N canvas 249 157 1013 410 10;
+#X obj 28 118 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144 -1
 -1;
-#X obj 144 108 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 0
+#X obj 144 118 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 0
 1;
-#X obj 13 234 *~;
-#X obj 51 234 *~;
-#X obj 13 256 dac~;
-#X obj 72 213 hsl 128 15 0 1 0 1 empty empty master_gain -2 -8 0 10
--262144 -1 -1 6200 1;
-#X obj 274 223 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 0
+#X obj 13 244 *~;
+#X obj 51 244 *~;
+#X obj 13 266 dac~;
+#X obj 72 223 hsl 128 15 0 1 0 1 empty empty master_gain -2 -8 0 10
+-262144 -1 -1 12700 1;
+#X obj 274 233 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 1
 1;
-#X msg 274 243 \; pd dsp \$1;
-#X obj 13 59 r msg_to_pyo;
-#X text 161 107 play;
-#X obj 13 166 pyo~ 2;
-#X text 66 168 argument sets the number of audio ins/outs (defaults
+#X msg 274 253 \; pd dsp \$1;
+#X obj 13 69 r msg_to_pyo;
+#X text 161 117 play;
+#X obj 13 176 pyo~ 2;
+#X text 66 178 argument sets the number of audio ins/outs (defaults
 to 2).;
 #N canvas 1 75 824 583 resonators_example 0;
 #X obj 35 103 hsl 128 15 0.01 30 1 0 empty empty resonance -2 -8 0
@@ -89,7 +89,7 @@ input;
 #X connect 20 0 18 0;
 #X connect 21 0 2 0;
 #X connect 22 0 2 0;
-#X restore 531 60 pd resonators_example;
+#X restore 531 36 pd resonators_example;
 #X msg 553 171 clear;
 #X obj 531 199 s msg_to_pyo;
 #X text 598 172 shutdown and reboot the server;
@@ -173,27 +173,27 @@ input;
 #X connect 13 0 12 0;
 #X connect 14 0 8 0;
 #X connect 15 0 1 0;
-#X restore 531 84 pd synthesis_example;
-#N canvas 1 75 629 295 loop_soundfile 0;
+#X restore 531 60 pd synthesis_example;
+#N canvas 2 85 629 295 loop_soundfile 0;
 #X obj 43 42 openpanel;
 #X obj 43 64 t a b;
-#X obj 43 170 soundfiler;
+#X obj 43 172 soundfiler;
 #X obj 236 80 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144 -1
 -1;
 #X obj 43 20 inlet open file;
-#X obj 392 16 inlet start;
+#X obj 419 16 inlet start;
 #X obj 236 52 sel 1;
 #X obj 236 205 outlet~;
-#X obj 347 163 spigot 1;
-#X obj 43 126 pack s s s;
-#X obj 71 86 symbol \$0-table_l;
-#X obj 100 105 symbol \$0-table_r;
-#X msg 43 148 read -resize \$1 \$2 \$3;
+#X obj 366 163 spigot 1;
+#X obj 43 128 pack s s s;
+#X obj 76 86 symbol \$0-table_l;
+#X obj 110 106 symbol \$0-table_r;
+#X msg 43 150 read -resize \$1 \$2 \$3;
 #X obj 44 200 table \$0-table_l;
 #X obj 44 223 table \$0-table_r;
-#X obj 423 206 outlet~;
+#X obj 442 206 outlet~;
 #X obj 236 140 tabplay~ \$0-table_l;
-#X obj 424 140 tabplay~ \$0-table_r;
+#X obj 443 140 tabplay~ \$0-table_r;
 #X connect 0 0 1 0;
 #X connect 1 0 9 0;
 #X connect 1 1 10 0;
@@ -213,9 +213,9 @@ input;
 #X connect 16 0 7 0;
 #X connect 16 1 8 0;
 #X connect 17 0 15 0;
-#X restore 28 126 pd loop_soundfile;
-#X text 44 108 load file;
-#N canvas 1 75 532 224 conv_reverb_example 0;
+#X restore 28 136 pd loop_soundfile;
+#X text 44 118 load file;
+#N canvas 302 92 532 224 conv_reverb_example 0;
 #X obj 24 110 hsl 128 15 0 1 0 0 empty empty balance -2 -8 0 10 -262144
 -1 -1 0 0;
 #X floatatom 21 127 5 0 0 0 - - -, f 5;
@@ -229,11 +229,21 @@ in pyo~ inputs).;
 #X connect 1 0 2 0;
 #X connect 2 0 3 0;
 #X connect 4 0 3 0;
-#X restore 531 36 pd conv_reverb_example;
-#X text 26 86 play a soundfile to send audio signals to pyo;
-#N canvas 114 140 450 300 README 0;
-#X restore 406 227 pd README;
-#N canvas 198 75 1001 402 MESSAGES 0;
+#X restore 531 12 pd conv_reverb_example;
+#X text 26 96 play a soundfile to send audio signals to pyo;
+#N canvas 193 300 450 300 README 0;
+#X text 14 33 Author : Olivier Belanger;
+#X text 14 81 Last update : October 2015;
+#X text 14 57 Version : 0.7.7;
+#X text 15 108 pyo website : http://ajaxsoundstudio.com/software/pyo/
+;
+#X text 15 10 pyo~ : Embedded pyo scripting inside puredata.;
+#X text 15 135 pyo sources : https://github.com/belangeo/pyo;
+#X text 15 163 For more details about how pyo can be embedded inside
+an host program \, see m_pyo.h in the "embedded" folder of pyo sources.
+;
+#X restore 406 237 pd README;
+#N canvas 182 106 1046 508 MESSAGES 0;
 #X text 20 53 read [-a] path/to/python/script;
 #X text 37 74 The message "read" executes the commands contained in
 the specified python script into the object's internal interpreter.
@@ -242,23 +252,21 @@ executed ones. Without the flag \, the server is shut down (this will
 erase actual processing) before the execution of the script.;
 #X text 18 164 value varname \$1 [\$2 \$3 ...];
 #X text 19 250 set varname.attribute \$1 [\$2 \$3 ...];
-#X text 499 43 call function [arg1 arg2 ...];
-#X text 499 229 clear;
-#X text 516 250 Shutdown and reboot pyo's server. This message will
+#X text 19 379 call function [arg1 arg2 ...];
+#X text 498 250 clear;
+#X text 515 271 Shutdown and reboot pyo's server. This message will
 erase the current processing loaded into the object.;
 #X text 36 185 The messsage "value" sends value(s) to a pyo's Sig or
 SigTo object (with variable name "varname"). Values can be pyo's variables
 (already created in the loaded file) \, float or list (composed of
 floats and/or pyo objects).;
-#X text 516 63 The message "call" executes the function (or object's
+#X text 36 399 The message "call" executes the function (or object's
 method) with optional arguments. If the callable is a method \, the
 syntax will looks like:;
-#X text 515 103 call varname.method [arg1 arg2 ...];
+#X text 35 439 call varname.method [arg1 arg2 ...];
 #X text 36 351 set frequencies 100 200 300 400 500 600;
-#X text 499 130 create varname object [\$1 \$2 ...];
-#X text -16 3 Here are the messages that can be used to control the
-internal processing of the pyo~ object.;
-#X text 513 149 The message "create" creates a new python object of
+#X text 499 56 create varname object [\$1 \$2 ...];
+#X text 513 75 The message "create" creates a new python object of
 the class "object" \, stored in variable "varname" \, with optional
 initialization arguments. Arguments can be of the form freq=500 or
 mul=0.3 \, without spaces. Named arguments can't be followed by unamed
@@ -269,13 +277,22 @@ variables (already created in the loaded file) \, float or list (composed
 of floats and/or pyo objects). This message can be used to create a
 standard python variable like (to create a list of floats in variable
 "frequencies"):;
-#X text 499 291 debug \$1;
-#X text 516 312 If \$1 is positive \, messages to pyo will be sent
+#X text 498 312 debug \$1;
+#X text 515 333 If \$1 is positive \, messages to pyo will be sent
 through an Exception handler. This is safer and can help to debug messages
 to pyo but it is slower. For a faster execution \, turn off debug mode.
 ;
-#X restore 406 248 pd MESSAGES;
-#X msg 553 297 call b.out;
+#X text 498 161 midi \$1 [\$2 \$3];
+#X text 512 180 The message "midi" sends a MIDI event to the object
+processing. Arguments are the status byte (\$1) \, the first data byte
+(\$2) and the second data byte (\$3). Data bytes can be ommited and
+defaults to 0;
+#X text 7 3 Here are the messages that can be used to control the internal
+processing of the pyo~ object.;
+#X text 4 31 --------------------------------------------------------
+;
+#X restore 406 258 pd MESSAGES;
+#X msg 567 321 call b.out;
 #X text 11 7 pyo~ object allows to execute processing with pyo (python
 dsp module) inside a puredata patch \, with any number of audio in/out
 channels.;
@@ -284,12 +301,64 @@ channels.;
 #X msg 531 144 debug \$1;
 #X text 549 113 Verbose mode. If on \, error messages from pyo will
 be printed to the Pd window.;
-#X obj 518 323 s msg_to_pyo;
-#X msg 553 234 set pits 0.001 0.002 0.003 0.004;
-#X msg 553 255 create fr Rossler pitch=pits chaos=0.9 mul=250 add=500
+#X obj 532 347 s msg_to_pyo;
+#X msg 567 258 set pits 0.001 0.002 0.003 0.004;
+#X msg 567 279 create fr Rossler pitch=pits chaos=0.9 mul=250 add=500
 ;
-#X msg 553 276 create b SumOsc freq=fr ratio=0.499 index=0.4 mul=0.2
+#X msg 567 300 create b SumOsc freq=fr ratio=0.499 index=0.4 mul=0.2
 ;
+#N canvas 669 129 722 427 midi_synth_example 0;
+#X obj 34 365 s msg_to_pyo;
+#X msg 34 56 read examples/midi_synth.py;
+#X msg 97 108 midi 144 72 127;
+#X obj 129 172 hsl 128 15 0 127 0 0 empty empty empty -2 -8 0 10 -262144
+-1 -1 700 1;
+#X msg 126 195 midi 176 1 \$1;
+#X obj 448 43 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 0
+1;
+#X obj 448 63 metro 125;
+#X obj 448 249 makenote 127 100;
+#X obj 448 271 pack;
+#X msg 448 293 midi 144 \$1 \$2;
+#X msg 111 130 midi 144 72 0;
+#X text 212 108 note on;
+#X text 213 131 note off;
+#X text 228 196 control change (mod wheel);
+#X floatatom 448 228 5 0 0 0 - - -, f 5;
+#X obj 448 183 int;
+#X obj 448 161 + 0.5;
+#X obj 448 139 * 1.76;
+#X obj 448 115 random 8;
+#X obj 448 85 t b b;
+#X obj 526 115 random 3;
+#X obj 526 137 + 5;
+#X obj 526 159 * 12;
+#X obj 448 206 +;
+#X text 467 43 random melody;
+#X connect 1 0 0 0;
+#X connect 2 0 0 0;
+#X connect 3 0 4 0;
+#X connect 4 0 0 0;
+#X connect 5 0 6 0;
+#X connect 6 0 19 0;
+#X connect 7 0 8 0;
+#X connect 7 1 8 1;
+#X connect 8 0 9 0;
+#X connect 9 0 0 0;
+#X connect 10 0 0 0;
+#X connect 14 0 7 0;
+#X connect 15 0 23 0;
+#X connect 16 0 15 0;
+#X connect 17 0 16 0;
+#X connect 18 0 17 0;
+#X connect 19 0 18 0;
+#X connect 19 1 20 0;
+#X connect 20 0 21 0;
+#X connect 21 0 22 0;
+#X connect 22 0 23 1;
+#X connect 23 0 14 0;
+#X restore 531 84 pd midi_synth_example;
+#X text 563 238 Create a pyo script from scratch!;
 #X connect 0 0 17 0;
 #X connect 1 0 17 1;
 #X connect 2 0 4 0;

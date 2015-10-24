@@ -793,6 +793,38 @@ class Server(object):
         value, channel, timestamp, lmax = convertArgsToLists(value, channel, timestamp)
         [self._server.bendout(wrap(value,i), wrap(channel,i), wrap(timestamp,i)) for i in range(lmax)]
 
+    def addMidiEvent(self, status, data1=0, data2=0):
+        """
+        Add a MIDI event in the server processing loop.
+
+        This method can be used to  programatically simulate incomming 
+        MIDI events. In an embedded framework (ie. pyo inside puredata,
+        openframeworks, etc.), this is useful to control a MIDI-driven
+        script from the host program. Arguments can be list of values to 
+        generate multiple events in one call.
+
+        :Args:
+
+            status : int
+                The status byte, indicating the type of event and the
+                MIDI channel. Typical event type are:
+                    128 -> 143 : Noteoff
+                    144 -> 159 : Noteon
+                    176 -> 191 : Control change
+                    192 -> 207 : Program change
+                    209 -> 223 : After touch
+                    224 -> 239 : Pitch bend
+            data1 : int, optional
+                The first data byte (pitch for a midi note, controller 
+                number for a control change). Defaults to 0. 
+            data2 : int, optional
+                The second data byte (velocity for a midi note, value 
+                for a control change). Defaults to 0. 
+
+        """
+        status, data1, data2, lmax = convertArgsToLists(status, data1, data2)
+        [self._server.addMidiEvent(wrap(status,i), wrap(data1,i), wrap(data2,i)) for i in range(lmax)]
+
     def getStreams(self):
         """
         Return the list of streams loaded in the server.

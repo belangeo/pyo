@@ -31,6 +31,7 @@ inline PyThreadState * pyo_new_interpreter(int chnls) {
     PyRun_SimpleString("from pyo import *");
     sprintf(msg, "_s_ = Server(44100, %d, 256, 1, 'embedded')", chnls);
     PyRun_SimpleString(msg);
+    PyRun_SimpleString("_s_.setMidiInputDevice(99)");
     PyRun_SimpleString("_s_.boot()\n_s_.start()\n_s_.setServer()");
     PyRun_SimpleString("_in_address_ = _s_.getInputAddr()");
     PyRun_SimpleString("_out_address_ = _s_.getOutputAddr()");
@@ -175,6 +176,7 @@ inline void pyo_end_interpreter(PyThreadState *interp) {
 inline void pyo_server_reboot(PyThreadState *interp) {
     PyEval_AcquireThread(interp);
     PyRun_SimpleString("_s_.setServer()\n_s_.stop()\n_s_.shutdown()");
+    PyRun_SimpleString("_s_.setMidiInputDevice(99)");
     PyRun_SimpleString("_s_.boot(newBuffer=False).start()");
     PyEval_ReleaseThread(interp);
 }
@@ -195,7 +197,28 @@ inline void pyo_set_server_params(PyThreadState *interp, float sr, int bufsize) 
     PyRun_SimpleString(msg);
     sprintf(msg, "_s_.setBufferSize(%d)", bufsize);
     PyRun_SimpleString(msg);
+    PyRun_SimpleString("_s_.setMidiInputDevice(99)");
     PyRun_SimpleString("_s_.boot(newBuffer=False).start()");
+    PyEval_ReleaseThread(interp);
+}
+
+/*
+** Add a MIDI event in the pyo server processing chain. When used in 
+** an embedded framework, pyo can't open MIDI ports by itself. MIDI
+** inputs must be handled by the host program and sent to pyo with
+** the pyo_add_midi_event function.
+**
+** arguments:
+**  interp : pointer, pointer to the targeted Python thread state.
+**  status : int, status byte.
+**  data1 : int, first data byte.
+**  data2 : int, second data byte.
+*/
+inline void pyo_add_midi_event(PyThreadState *interp, int status, int data1, int data2) {
+    char msg[64];
+    PyEval_AcquireThread(interp);
+    sprintf(msg, "_s_.addMidiEvent(%d, %d, %d)", status, data1, data2);
+    PyRun_SimpleString(msg);
     PyEval_ReleaseThread(interp);
 }
 
@@ -251,6 +274,7 @@ inline int pyo_exec_file(PyThreadState *interp, const char *file, char *msg, int
                 file, file);
         if (!add) {
             PyRun_SimpleString("_s_.setServer()\n_s_.stop()\n_s_.shutdown()");
+            PyRun_SimpleString("_s_.setMidiInputDevice(99)");
             PyRun_SimpleString("_s_.boot(newBuffer=False).start()");
         }
         PyRun_SimpleString(msg);

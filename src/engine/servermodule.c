@@ -1258,6 +1258,7 @@ int
 Server_embedded_i_start(Server *self)
 {
     Server_process_buffers(self);
+    self->midi_count = 0;
     return 0;
 }
 
@@ -1288,6 +1289,8 @@ Server_embedded_ni_start(Server *self)
         }
     }
 
+    self->midi_count = 0;
+
     return 0;
 }
 
@@ -1305,6 +1308,7 @@ void
     self = (Server *)arg;
 
     Server_process_buffers(self);
+    self->midi_count = 0;
 
     return NULL;
 }
@@ -1317,8 +1321,8 @@ Server_embedded_nb_start(Server *self)
     return 0;
 }
 
-/* this stop function is not very useful since the processing is stopped at the end
-of every processing callback, but function put to not break pyo */
+/* this stop function is not very useful since the processing is stopped 
+at the end of every processing callback, but function put to not break pyo */
 int
 Server_embedded_stop(Server *self)
 {
@@ -2855,12 +2859,30 @@ Server_getInputBuffer(Server *self) {
 
 PmEvent *
 Server_getMidiEventBuffer(Server *self) {
+    // TODO: an embedded server should fill an PmEvent buffer
+    // with input messages coming from the host.
     return (PmEvent *)self->midiEvents;
 }
 
 int
 Server_getMidiEventCount(Server *self) {
     return self->midi_count;
+}
+
+static PyObject *
+Server_addMidiEvent(Server *self, PyObject *args)
+{
+    int status, data1, data2;
+    PmEvent buffer;
+    
+    if (! PyArg_ParseTuple(args, "iii", &status, &data1, &data2))
+        return PyInt_FromLong(-1);
+
+    buffer.timestamp = 0;
+    buffer.message = Pm_Message(status, data1, data2);
+    self->midiEvents[self->midi_count++] = buffer;
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
 static PyObject *
@@ -3024,6 +3046,7 @@ static PyMethodDef Server_methods[] = {
     {"programout", (PyCFunction)Server_programout, METH_VARARGS, "Send a program change event to Portmidi output stream."},
     {"pressout", (PyCFunction)Server_pressout, METH_VARARGS, "Send a channel pressure event to Portmidi output stream."},
     {"bendout", (PyCFunction)Server_bendout, METH_VARARGS, "Send a pitch bend event to Portmidi output stream."},
+    {"addMidiEvent", (PyCFunction)Server_addMidiEvent, METH_VARARGS, "Add a midi event manually (without using portmidi callback)."},
     {"getStreams", (PyCFunction)Server_getStreams, METH_NOARGS, "Returns the list of streams added to the server."},
     {"getSamplingRate", (PyCFunction)Server_getSamplingRate, METH_NOARGS, "Returns the server's sampling rate."},
     {"getNchnls", (PyCFunction)Server_getNchnls, METH_NOARGS, "Returns the server's current number of output channels."},

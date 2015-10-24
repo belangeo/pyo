@@ -177,6 +177,17 @@ void pyo_tilde_create(t_pyo_tilde *x, t_symbol *s, int argc, t_atom *argv) {
         post("pyo~: %s", x->msg);
 }
 
+void pyo_tilde_midi_event(t_pyo_tilde *x, t_symbol *s, int argc, t_atom *argv) {
+    int status, data1 = 0, data2 = 0;
+    if (argc > 0)
+        status = (int)atom_getfloat(argv);
+    if (argc > 1)
+        data1 = (int)atom_getfloat(++argv);
+    if (argc > 2)
+        data2 = (int)atom_getfloat(++argv);
+    pyo_add_midi_event(x->interp, status, data1, data2);
+}
+
 void pyo_tilde_clear(t_pyo_tilde *x) {
     pyo_server_reboot(x->interp);
 }
@@ -243,6 +254,8 @@ void pyo_tilde_setup(void) {
     class_addmethod(pyo_tilde_class, (t_method)pyo_tilde_call, gensym("call"), 
                     A_GIMME, 0); /* call a function or a method */
     class_addmethod(pyo_tilde_class, (t_method)pyo_tilde_create, gensym("create"), 
+                    A_GIMME, 0); /* create a python object */
+    class_addmethod(pyo_tilde_class, (t_method)pyo_tilde_midi_event, gensym("midi"), 
                     A_GIMME, 0); /* create a python object */
     class_addmethod(pyo_tilde_class, (t_method)pyo_tilde_debug, gensym("debug"), 
                     A_DEFFLOAT, 0); /* set the debug (verbose) mode */
