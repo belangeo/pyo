@@ -141,6 +141,7 @@ class Server(object):
             Same as in the __init__ method.
 
         """
+        self._gui_frame = None
         self._nchnls = nchnls
         if ichnls == None:
             self._ichnls = nchnls
@@ -177,17 +178,28 @@ class Server(object):
                 Defaults to True.
 
         """
-        f, win = createServerGUI(self._nchnls, self.start, self.stop, self.recstart, self.recstop,
-                                 self.setAmp, self.getIsStarted(), locals, self.shutdown, meter, timer, self._amp, exit)
+        self._gui_frame, win = createServerGUI(self._nchnls, self.start, self.stop, 
+                                               self.recstart, self.recstop, self.setAmp, 
+                                               self.getIsStarted(), locals, self.shutdown, 
+                                               meter, timer, self._amp, exit)
         if meter:
-            self._server.setAmpCallable(f)
+            self._server.setAmpCallable(self._gui_frame)
         if timer:
-            self._server.setTimeCallable(f)
+            self._server.setTimeCallable(self._gui_frame)
         try:
             win.mainloop()
         except:
             if win != None:
                 win.MainLoop()
+
+    def closeGui(self):
+        """
+        Programmatically close the server's GUI.
+
+        """
+        if self._gui_frame is not None:
+            self._gui_frame.quit_from_code()
+            self._gui_frame = None
 
     def setTimeCallable(self, func):
         """

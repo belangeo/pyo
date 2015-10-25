@@ -2482,6 +2482,9 @@ class ServerGUI(wx.Frame):
             self._recstarted = False
             self.recButton.SetLabel('Rec Start')
 
+    def quit_from_code(self):
+        wx.CallAfter(self.on_quit, None)
+
     def on_quit(self, evt):
         if self.exit:
             self.shutdown()
