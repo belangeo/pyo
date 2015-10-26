@@ -295,7 +295,7 @@ jack_srate_cb (jack_nframes_t nframes, void *arg)
 {
     Server *s = (Server *) arg;
     s->samplingRate = (double) nframes;
-    Server_debug(s, "The sample rate is now %lu/sec\n", (unsigned long) nframes);
+    Server_debug(s, "The sample rate is now %lu.\n", (unsigned long) nframes);
     return 0;
 }
 
@@ -304,7 +304,7 @@ jack_bufsize_cb (jack_nframes_t nframes, void *arg)
 {
     Server *s = (Server *) arg;
     s->bufferSize = (int) nframes;
-    Server_debug(s, "The buffer size is now %lu/sec\n", (unsigned long) nframes);
+    Server_debug(s, "The buffer size is now %lu.\n", (unsigned long) nframes);
     return 0;
 }
 

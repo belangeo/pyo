@@ -683,7 +683,7 @@ extern PyTypeObject RawMidiType;
     TableStream_setSize(self->tablestream, self->size+1); \
  \
     for (i=0; i<(self->size); i++) { \
-        self->data[i] = PyFloat_AS_DOUBLE(PyNumber_Float(PyList_GET_ITEM(arg, i))); \
+        self->data[i] = PyFloat_AsDouble(PyList_GET_ITEM(arg, i)); \
     } \
     self->data[self->size] = self->data[0]; \
     TableStream_setData(self->tablestream, self->data); \
@@ -711,7 +711,7 @@ extern PyTypeObject RawMidiType;
     for(i=0; i<self->height; i++) { \
         innerlist = PyList_GetItem(arg, i); \
         for (j=0; j<self->width; j++) { \
-            self->data[i][j] = PyFloat_AS_DOUBLE(PyNumber_Float(PyList_GET_ITEM(innerlist, j))); \
+            self->data[i][j] = PyFloat_AsDouble(PyList_GET_ITEM(innerlist, j)); \
         } \
     } \
  \
@@ -735,7 +735,7 @@ extern PyTypeObject RawMidiType;
     MYFLT *list = NULL; \
     PyObject *table = NULL; \
     if (PyNumber_Check(arg)) { \
-        x = PyFloat_AsDouble(PyNumber_Float(arg)); \
+        x = PyFloat_AsDouble(arg); \
         for (i=0; i<self->size; i++) { \
             self->data[i] += x; \
         } \
@@ -756,7 +756,7 @@ extern PyTypeObject RawMidiType;
         if (self->size < tabsize) \
             tabsize = self->size; \
         for (i=0; i<tabsize; i++) { \
-            self->data[i] += PyFloat_AS_DOUBLE(PyNumber_Float(PyList_GET_ITEM(arg, i))); \
+            self->data[i] += PyFloat_AsDouble(PyList_GET_ITEM(arg, i)); \
         } \
     } \
  \
@@ -771,7 +771,7 @@ extern PyTypeObject RawMidiType;
     MYFLT *list = NULL; \
     PyObject *table = NULL; \
     if (PyNumber_Check(arg)) { \
-        x = PyFloat_AsDouble(PyNumber_Float(arg)); \
+        x = PyFloat_AsDouble(arg); \
         for (i=0; i<self->size; i++) { \
             self->data[i] -= x; \
         } \
@@ -792,7 +792,7 @@ extern PyTypeObject RawMidiType;
         if (self->size < tabsize) \
             tabsize = self->size; \
         for (i=0; i<tabsize; i++) { \
-            self->data[i] -= PyFloat_AS_DOUBLE(PyNumber_Float(PyList_GET_ITEM(arg, i))); \
+            self->data[i] -= PyFloat_AsDouble(PyList_GET_ITEM(arg, i)); \
         } \
     } \
  \
@@ -807,7 +807,7 @@ extern PyTypeObject RawMidiType;
     MYFLT *list = NULL; \
     PyObject *table = NULL; \
     if (PyNumber_Check(arg)) { \
-        x = PyFloat_AsDouble(PyNumber_Float(arg)); \
+        x = PyFloat_AsDouble(arg); \
         for (i=0; i<self->size; i++) { \
             self->data[i] *= x; \
         } \
@@ -828,7 +828,7 @@ extern PyTypeObject RawMidiType;
         if (self->size < tabsize) \
             tabsize = self->size; \
         for (i=0; i<tabsize; i++) { \
-            self->data[i] *= PyFloat_AS_DOUBLE(PyNumber_Float(PyList_GET_ITEM(arg, i))); \
+            self->data[i] *= PyFloat_AsDouble(PyList_GET_ITEM(arg, i)); \
         } \
     } \
  \
@@ -853,7 +853,7 @@ extern PyTypeObject RawMidiType;
         return PyInt_FromLong(-1); \
     } \
     for(i=0; i<self->size; i++) { \
-        self->data[i] = PyFloat_AS_DOUBLE(PyNumber_Float(PyList_GET_ITEM(arg, i))); \
+        self->data[i] = PyFloat_AsDouble(PyList_GET_ITEM(arg, i)); \
     } \
     self->data[self->size] = self->data[0]; \
     Py_RETURN_NONE; \
@@ -1405,7 +1405,7 @@ extern PyTypeObject RawMidiType;
     tmp = arg; \
     Py_INCREF(tmp); \
     if (isNumber == 1) { \
-        if (PyFloat_AsDouble(PyNumber_Float(tmp)) != 0.) { \
+        if (PyFloat_AsDouble(tmp) != 0.) { \
             Py_DECREF(self->mul); \
             self->mul = PyNumber_Divide(PyFloat_FromDouble(1.), PyNumber_Float(tmp)); \
             self->modebuffer[0] = 0; \
