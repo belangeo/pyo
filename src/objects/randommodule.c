@@ -1486,7 +1486,7 @@ Choice_setChoice(Choice *self, PyObject *arg)
     self->chSize = PyList_Size(tmp);
     self->choice = (MYFLT *)realloc(self->choice, self->chSize * sizeof(MYFLT));
     for (i=0; i<self->chSize; i++) {
-        self->choice[i] = PyFloat_AS_DOUBLE(PyNumber_Float(PyList_GET_ITEM(tmp, i)));
+        self->choice[i] = PyFloat_AsDouble(PyList_GET_ITEM(tmp, i));
     }
 
     (*self->mode_func_ptr)(self);

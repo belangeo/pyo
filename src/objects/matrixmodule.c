@@ -361,7 +361,7 @@ NewMatrix_setMatrix(NewMatrix *self, PyObject *value)
     for(i=0; i<self->height; i++) {
         innerlist = PyList_GetItem(value, i);
         for (j=0; j<self->width; j++) {
-            self->data[i][j] = PyFloat_AS_DOUBLE(PyNumber_Float(PyList_GET_ITEM(innerlist, j)));
+            self->data[i][j] = PyFloat_AsDouble(PyList_GET_ITEM(innerlist, j));
         }
     }
 

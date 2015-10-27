@@ -193,7 +193,7 @@ Print_setInterval(Print *self, PyObject *arg)
 	int isNumber = PyNumber_Check(arg);
 
 	if (isNumber == 1) {
-		self->time = PyFloat_AS_DOUBLE(PyNumber_Float(arg));
+		self->time = PyFloat_AsDouble(arg);
 	}
 
 	Py_INCREF(Py_None);
@@ -507,7 +507,7 @@ Snap_setChoice(Snap *self, PyObject *arg)
     self->choice = (MYFLT *)realloc(self->choice, self->chSize * sizeof(MYFLT));
 
     for (i=0; i<self->chSize; i++) {
-        self->choice[i] = PyFloat_AS_DOUBLE(PyNumber_Float(PyList_GET_ITEM(tmp, i)));
+        self->choice[i] = PyFloat_AsDouble(PyList_GET_ITEM(tmp, i));
     }
 
     max = self->choice[self->chSize-1];
@@ -5323,7 +5323,7 @@ MToT_setCentralKey(MToT *self, PyObject *arg)
 	int isNumber = PyNumber_Check(arg);
 
 	if (isNumber == 1) {
-		self->centralkey = PyFloat_AS_DOUBLE(PyNumber_Float(arg));
+		self->centralkey = PyFloat_AsDouble(arg);
 	}
 
 	Py_INCREF(Py_None);

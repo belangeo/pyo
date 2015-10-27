@@ -143,7 +143,7 @@ HarmTable_generate(HarmTable *self) {
     ampsize = PyList_Size(self->amplist);
     MYFLT array[ampsize];
     for(j=0; j<ampsize; j++) {
-        array[j] =  PyFloat_AS_DOUBLE(PyNumber_Float(PyList_GET_ITEM(self->amplist, j)));
+        array[j] =  PyFloat_AsDouble(PyList_GET_ITEM(self->amplist, j));
     }
 
     factor = 1. / (self->size * 0.5) * PI;
@@ -398,7 +398,7 @@ ChebyTable_generate(ChebyTable *self) {
         ampsize = 12;
     MYFLT array[ampsize];
     for(j=0; j<ampsize; j++) {
-        array[j] =  PyFloat_AS_DOUBLE(PyNumber_Float(PyList_GET_ITEM(self->amplist, j)));
+        array[j] =  PyFloat_AsDouble(PyList_GET_ITEM(self->amplist, j));
     }
 
     halfsize = self->size / 2;
@@ -1077,7 +1077,7 @@ SincTable_setFreq(SincTable *self, PyObject *value)
         return PyInt_FromLong(-1);
     }
 
-    self->freq = PyFloat_AsDouble(PyNumber_Float(value));
+    self->freq = PyFloat_AsDouble(value);
 
     SincTable_generate(self);
 
@@ -1663,10 +1663,10 @@ LinTable_generate(LinTable *self) {
     for(i=0; i<(listsize-1); i++) {
         tup = PyList_GET_ITEM(self->pointslist, i);
         x1 = PyInt_AsLong(PyNumber_Long(PyTuple_GET_ITEM(tup, 0)));
-        x2 = PyFloat_AsDouble(PyNumber_Float(PyTuple_GET_ITEM(tup, 1)));
+        x2 = PyFloat_AsDouble(PyTuple_GET_ITEM(tup, 1));
         tup2 = PyList_GET_ITEM(self->pointslist, i+1);
         y1 = PyInt_AsLong(PyNumber_Long(PyTuple_GET_ITEM(tup2, 0)));
-        y2 = PyFloat_AsDouble(PyNumber_Float(PyTuple_GET_ITEM(tup2, 1)));
+        y2 = PyFloat_AsDouble(PyTuple_GET_ITEM(tup2, 1));
         steps = y1 - x1;
         if (steps <= 0)
             continue;
@@ -1963,10 +1963,10 @@ LogTable_generate(LogTable *self) {
     for(i=0; i<(listsize-1); i++) {
         tup = PyList_GET_ITEM(self->pointslist, i);
         x1 = PyInt_AsLong(PyNumber_Long(PyTuple_GET_ITEM(tup, 0)));
-        x2 = PyFloat_AsDouble(PyNumber_Float(PyTuple_GET_ITEM(tup, 1)));
+        x2 = PyFloat_AsDouble(PyTuple_GET_ITEM(tup, 1));
         tup2 = PyList_GET_ITEM(self->pointslist, i+1);
         y1 = PyInt_AsLong(PyNumber_Long(PyTuple_GET_ITEM(tup2, 0)));
-        y2 = PyFloat_AsDouble(PyNumber_Float(PyTuple_GET_ITEM(tup2, 1)));
+        y2 = PyFloat_AsDouble(PyTuple_GET_ITEM(tup2, 1));
         if (x2 <= 0)
             x2 = 0.000001;
         if (y2 <= 0)
@@ -2287,10 +2287,10 @@ CosTable_generate(CosTable *self) {
     for(i=0; i<(listsize-1); i++) {
         tup = PyList_GET_ITEM(self->pointslist, i);
         x1 = PyInt_AsLong(PyNumber_Long(PyTuple_GET_ITEM(tup, 0)));
-        x2 = PyFloat_AsDouble(PyNumber_Float(PyTuple_GET_ITEM(tup, 1)));
+        x2 = PyFloat_AsDouble(PyTuple_GET_ITEM(tup, 1));
         tup2 = PyList_GET_ITEM(self->pointslist, i+1);
         y1 = PyInt_AsLong(PyNumber_Long(PyTuple_GET_ITEM(tup2, 0)));
-        y2 = PyFloat_AsDouble(PyNumber_Float(PyTuple_GET_ITEM(tup2, 1)));
+        y2 = PyFloat_AsDouble(PyTuple_GET_ITEM(tup2, 1));
 
         steps = y1 - x1;
         if (steps <= 0)
@@ -2589,10 +2589,10 @@ CosLogTable_generate(CosLogTable *self) {
     for(i=0; i<(listsize-1); i++) {
         tup = PyList_GET_ITEM(self->pointslist, i);
         x1 = PyInt_AsLong(PyNumber_Long(PyTuple_GET_ITEM(tup, 0)));
-        x2 = PyFloat_AsDouble(PyNumber_Float(PyTuple_GET_ITEM(tup, 1)));
+        x2 = PyFloat_AsDouble(PyTuple_GET_ITEM(tup, 1));
         tup2 = PyList_GET_ITEM(self->pointslist, i+1);
         y1 = PyInt_AsLong(PyNumber_Long(PyTuple_GET_ITEM(tup2, 0)));
-        y2 = PyFloat_AsDouble(PyNumber_Float(PyTuple_GET_ITEM(tup2, 1)));
+        y2 = PyFloat_AsDouble(PyTuple_GET_ITEM(tup2, 1));
         if (x2 <= 0)
             x2 = 0.000001;
         if (y2 <= 0)
@@ -2922,7 +2922,7 @@ CurveTable_generate(CurveTable *self) {
     for (i=0; i<listsize; i++) {
         tup = PyList_GET_ITEM(self->pointslist, i);
         times[i+1] = PyInt_AsLong(PyNumber_Long(PyTuple_GET_ITEM(tup, 0)));
-        values[i+1] = PyFloat_AsDouble(PyNumber_Float(PyTuple_GET_ITEM(tup, 1)));
+        values[i+1] = PyFloat_AsDouble(PyTuple_GET_ITEM(tup, 1));
     }
 
     // sets imaginary points
@@ -3070,7 +3070,7 @@ CurveTable_setTension(CurveTable *self, PyObject *value)
         return PyInt_FromLong(-1);
     }
 
-    self->tension = PyFloat_AsDouble(PyNumber_Float(value));
+    self->tension = PyFloat_AsDouble(value);
 
     CurveTable_generate(self);
 
@@ -3091,7 +3091,7 @@ CurveTable_setBias(CurveTable *self, PyObject *value)
         return PyInt_FromLong(-1);
     }
 
-    self->bias = PyFloat_AsDouble(PyNumber_Float(value));
+    self->bias = PyFloat_AsDouble(value);
 
     CurveTable_generate(self);
 
@@ -3293,7 +3293,7 @@ ExpTable_generate(ExpTable *self) {
     for (i=0; i<listsize; i++) {
         tup = PyList_GET_ITEM(self->pointslist, i);
         times[i] = PyInt_AsLong(PyNumber_Long(PyTuple_GET_ITEM(tup, 0)));
-        values[i] = PyFloat_AsDouble(PyNumber_Float(PyTuple_GET_ITEM(tup, 1)));
+        values[i] = PyFloat_AsDouble(PyTuple_GET_ITEM(tup, 1));
     }
 
     y1 = y2 = 0.0;
@@ -3440,7 +3440,7 @@ ExpTable_setExp(ExpTable *self, PyObject *value)
         return PyInt_FromLong(-1);
     }
 
-    self->exp = PyFloat_AsDouble(PyNumber_Float(value));
+    self->exp = PyFloat_AsDouble(value);
 
     ExpTable_generate(self);
 
@@ -4705,7 +4705,7 @@ NewTable_setFeedback(NewTable *self, PyObject *value)
     MYFLT feed;
 
     if (PyNumber_Check(value)) {
-        feed = PyFloat_AsDouble(PyNumber_Float(value));
+        feed = PyFloat_AsDouble(value);
         if (feed < -1.0)
             feed = -1.0;
         else if (feed > 1.0)
@@ -5097,7 +5097,7 @@ AtanTable_setSlope(AtanTable *self, PyObject *value)
         return PyInt_FromLong(-1);
     }
 
-    self->slope = PyFloat_AsDouble(PyNumber_Float(value));
+    self->slope = PyFloat_AsDouble(value);
     if (self->slope < 0.0)
         self->slope = 0.0;
     else if (self->slope > 1.0)

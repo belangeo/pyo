@@ -945,7 +945,7 @@ static PyObject *
 Granulator_setBaseDur(Granulator *self, PyObject *arg)
 {
 	if (arg != NULL)
-        self->basedur = PyFloat_AS_DOUBLE(PyNumber_Float(arg));
+        self->basedur = PyFloat_AsDouble(arg);
 
 	Py_INCREF(Py_None);
 	return Py_None;

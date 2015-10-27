@@ -3980,7 +3980,7 @@ static PyObject *
 TrigBurster_setTime(TrigBurster *self, PyObject *arg)
 {
 	if (PyNumber_Check(arg))
-        self->time = PyFloat_AS_DOUBLE(PyNumber_Float(arg));
+        self->time = PyFloat_AsDouble(arg);
         if (self->time <= 0.01)
             self->time = 0.01;
 
@@ -4004,7 +4004,7 @@ static PyObject *
 TrigBurster_setExpand(TrigBurster *self, PyObject *arg)
 {
 	if (PyNumber_Check(arg))
-        self->expand = PyFloat_AS_DOUBLE(PyNumber_Float(arg));
+        self->expand = PyFloat_AsDouble(arg);
         if (self->expand <= 0.1)
             self->expand = 0.1;
 
@@ -4016,7 +4016,7 @@ static PyObject *
 TrigBurster_setAmpfade(TrigBurster *self, PyObject *arg)
 {
 	if (PyNumber_Check(arg))
-        self->ampfade = PyFloat_AS_DOUBLE(PyNumber_Float(arg));
+        self->ampfade = PyFloat_AsDouble(arg);
         if (self->ampfade <= 0.1)
             self->ampfade = 0.1;
 

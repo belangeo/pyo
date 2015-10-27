@@ -3620,7 +3620,7 @@ SmoothDelay_setCrossfade(SmoothDelay *self, PyObject *arg)
 	int isNumber = PyNumber_Check(arg);
 
 	if (isNumber == 1) {
-		self->crossfade = PyFloat_AS_DOUBLE(PyNumber_Float(arg));
+		self->crossfade = PyFloat_AsDouble(arg);
 	}
 
 	Py_RETURN_NONE;

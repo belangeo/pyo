@@ -589,7 +589,7 @@ SigTo_setTime(SigTo *self, PyObject *arg)
 	tmp = arg;
 	Py_INCREF(tmp);
 	if (isNumber == 1) {
-		self->time = PyFloat_AS_DOUBLE(PyNumber_Float(tmp));
+		self->time = PyFloat_AsDouble(tmp);
 	}
 
 	Py_INCREF(Py_None);
@@ -959,7 +959,7 @@ VarPort_setValue(VarPort *self, PyObject *arg)
 	tmp = arg;
 	Py_INCREF(tmp);
 	if (isNumber == 1)
-		self->value = PyFloat_AsDouble(PyNumber_Float(tmp));
+		self->value = PyFloat_AsDouble(tmp);
     else
         self->value = self->lastValue;
 
@@ -982,7 +982,7 @@ VarPort_setTime(VarPort *self, PyObject *arg)
 	tmp = arg;
 	Py_INCREF(tmp);
 	if (isNumber == 1) {
-		self->time = PyFloat_AS_DOUBLE(PyNumber_Float(tmp));
+		self->time = PyFloat_AsDouble(tmp);
         self->timeStep = (long)(self->time * self->sr);
         self->timeout = (long)((self->time + 0.1) * self->sr);
 	}

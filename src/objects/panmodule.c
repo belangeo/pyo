@@ -2383,7 +2383,7 @@ Mixer_setTime(Mixer *self, PyObject *arg)
 	tmp = arg;
 	Py_INCREF(tmp);
 	if (isNumber == 1) {
-		self->time = PyFloat_AS_DOUBLE(PyNumber_Float(tmp));
+		self->time = PyFloat_AsDouble(tmp);
         self->timeStep = (long)(self->time * self->sr);
 
         keys = PyDict_Keys(self->inputs);

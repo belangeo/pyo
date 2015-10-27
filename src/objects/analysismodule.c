@@ -1082,7 +1082,7 @@ ZCross_setThresh(ZCross *self, PyObject *arg)
 	int isNumber = PyNumber_Check(arg);
 
 	if (isNumber == 1) {
-		self->thresh = PyFloat_AS_DOUBLE(PyNumber_Float(arg));
+		self->thresh = PyFloat_AsDouble(arg);
 	}
 
 	Py_INCREF(Py_None);
@@ -1471,7 +1471,7 @@ Yin_setTolerance(Yin *self, PyObject *arg)
 	int isNumber = PyNumber_Check(arg);
 
 	if (isNumber == 1) {
-		self->tolerance = PyFloat_AS_DOUBLE(PyNumber_Float(arg));
+		self->tolerance = PyFloat_AsDouble(arg);
 	}
 
 	Py_RETURN_NONE;
@@ -1488,7 +1488,7 @@ Yin_setMinfreq(Yin *self, PyObject *arg)
 	int isNumber = PyNumber_Check(arg);
 
 	if (isNumber == 1) {
-		self->minfreq = PyFloat_AS_DOUBLE(PyNumber_Float(arg));
+		self->minfreq = PyFloat_AsDouble(arg);
 	}
 
 	Py_RETURN_NONE;
@@ -1505,7 +1505,7 @@ Yin_setMaxfreq(Yin *self, PyObject *arg)
 	int isNumber = PyNumber_Check(arg);
 
 	if (isNumber == 1) {
-		self->maxfreq = PyFloat_AS_DOUBLE(PyNumber_Float(arg));
+		self->maxfreq = PyFloat_AsDouble(arg);
 	}
 
 	Py_RETURN_NONE;
@@ -1522,7 +1522,7 @@ Yin_setCutoff(Yin *self, PyObject *arg)
 	int isNumber = PyNumber_Check(arg);
 
 	if (isNumber == 1) {
-		self->cutoff = PyFloat_AS_DOUBLE(PyNumber_Float(arg));
+		self->cutoff = PyFloat_AsDouble(arg);
 	}
 
 	Py_RETURN_NONE;
@@ -2242,7 +2242,7 @@ AttackDetector_setDeltime(AttackDetector *self, PyObject *arg)
 	int isNumber = PyNumber_Check(arg);
 
 	if (isNumber == 1) {
-		self->deltime = PyFloat_AS_DOUBLE(PyNumber_Float(arg));
+		self->deltime = PyFloat_AsDouble(arg);
         if (self->deltime < 0.001) self->deltime = 0.001;
         else if (self->deltime > 0.05) self->deltime = 0.05;
         self->sampdel = (int)(self->deltime * self->sr);
@@ -2262,7 +2262,7 @@ AttackDetector_setCutoff(AttackDetector *self, PyObject *arg)
 	int isNumber = PyNumber_Check(arg);
 
 	if (isNumber == 1) {
-		self->cutoff = PyFloat_AS_DOUBLE(PyNumber_Float(arg));
+		self->cutoff = PyFloat_AsDouble(arg);
         if (self->cutoff < 1.0) self->cutoff = 1.0;
         else if (self->cutoff > 1000.0) self->cutoff = 1000.0;
         self->folfactor = MYEXP(-TWOPI * self->cutoff / self->sr);
@@ -2282,7 +2282,7 @@ AttackDetector_setMaxthresh(AttackDetector *self, PyObject *arg)
 	int isNumber = PyNumber_Check(arg);
 
 	if (isNumber == 1) {
-		self->maxthresh = PyFloat_AS_DOUBLE(PyNumber_Float(arg));
+		self->maxthresh = PyFloat_AsDouble(arg);
         if (self->maxthresh < 0.0) self->maxthresh = 0.0;
         else if (self->maxthresh > 18.0) self->maxthresh = 18.0;
 	}
@@ -2301,7 +2301,7 @@ AttackDetector_setMinthresh(AttackDetector *self, PyObject *arg)
 	int isNumber = PyNumber_Check(arg);
 
 	if (isNumber == 1) {
-		self->minthresh = PyFloat_AS_DOUBLE(PyNumber_Float(arg));
+		self->minthresh = PyFloat_AsDouble(arg);
         if (self->minthresh < -90.0) self->minthresh = -90.0;
         else if (self->minthresh > 0.0) self->minthresh = 0.0;
 	}
@@ -2320,7 +2320,7 @@ AttackDetector_setReltime(AttackDetector *self, PyObject *arg)
 	int isNumber = PyNumber_Check(arg);
 
 	if (isNumber == 1) {
-		self->reltime = PyFloat_AS_DOUBLE(PyNumber_Float(arg));
+		self->reltime = PyFloat_AsDouble(arg);
         if (self->reltime < 0.001) self->reltime = 0.001;
         self->maxtime = (long)(self->reltime * self->sr + 0.5);
 	}
@@ -2569,7 +2569,7 @@ Scope_setLength(Scope *self, PyObject *arg)
     int maxsize = (int)(self->sr * 0.25);
 
     if (PyNumber_Check(arg)) {
-        length = PyFloat_AsDouble(PyNumber_Float(arg));
+        length = PyFloat_AsDouble(arg);
         self->size = (int)(length * self->sr);
         if (self->size > maxsize)
             self->size = maxsize;
@@ -2583,7 +2583,7 @@ static PyObject *
 Scope_setGain(Scope *self, PyObject *arg)
 {
     if (PyNumber_Check(arg)) {
-        self->gain = PyFloat_AsDouble(PyNumber_Float(arg));
+        self->gain = PyFloat_AsDouble(arg);
     }
 	Py_INCREF(Py_None);
 	return Py_None;

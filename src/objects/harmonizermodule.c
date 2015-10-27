@@ -580,8 +580,16 @@ static PyObject *
 Harmonizer_setWinsize(Harmonizer *self, PyObject *arg)
 {
 	MYFLT wintmp;
-	if (arg != NULL) {
-        wintmp = PyFloat_AS_DOUBLE(PyNumber_Float(arg));
+
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+
+	int isNumber = PyNumber_Check(arg);
+
+	if (isNumber == 1) {
+        wintmp = PyFloat_AsDouble(arg);
         if (wintmp > 0.0 && wintmp <= 1.0)
 			self->winsize = wintmp;
         else

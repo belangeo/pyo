@@ -201,7 +201,7 @@ TrigRandInt_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     Server_generateSeed((Server *)self->server, TRIGRANDINT_ID);
 
     if (self->modebuffer[2] == 0)
-        ma = PyFloat_AS_DOUBLE(PyNumber_Float(self->max));
+        ma = PyFloat_AsDouble(self->max);
     else
         ma = Stream_getData((Stream *)self->max_stream)[0];
     self->value = (MYFLT)((int)(rand()/((MYFLT)(RAND_MAX)+1)*ma));
@@ -779,7 +779,7 @@ TrigRand_setPort(TrigRand *self, PyObject *arg)
 	tmp = arg;
 	Py_INCREF(tmp);
 	if (isNumber == 1) {
-		self->time = PyFloat_AS_DOUBLE(PyNumber_Float(tmp));
+		self->time = PyFloat_AsDouble(tmp);
         self->timeStep = (int)(self->time * self->sr);
 	}
 
@@ -1114,7 +1114,7 @@ TrigChoice_setChoice(TrigChoice *self, PyObject *arg)
     self->chSize = PyList_Size(tmp);
     self->choice = (MYFLT *)realloc(self->choice, self->chSize * sizeof(MYFLT));
     for (i=0; i<self->chSize; i++) {
-        self->choice[i] = PyFloat_AS_DOUBLE(PyNumber_Float(PyList_GET_ITEM(tmp, i)));
+        self->choice[i] = PyFloat_AsDouble(PyList_GET_ITEM(tmp, i));
     }
 
     (*self->mode_func_ptr)(self);
@@ -1138,7 +1138,7 @@ TrigChoice_setPort(TrigChoice *self, PyObject *arg)
 	tmp = arg;
 	Py_INCREF(tmp);
 	if (isNumber == 1) {
-		self->time = PyFloat_AS_DOUBLE(PyNumber_Float(tmp));
+		self->time = PyFloat_AsDouble(tmp);
         self->timeStep = (int)(self->time * self->sr);
 	}
 
@@ -1974,8 +1974,8 @@ TrigLinseg_convert_pointslist(TrigLinseg *self) {
     self->times = (MYFLT *)realloc(self->times, self->listsize * sizeof(MYFLT));
     for (i=0; i<self->listsize; i++) {
         tup = PyList_GET_ITEM(self->pointslist, i);
-        self->times[i] = PyFloat_AsDouble(PyNumber_Float(PyTuple_GET_ITEM(tup, 0)));
-        self->targets[i] = PyFloat_AsDouble(PyNumber_Float(PyTuple_GET_ITEM(tup, 1)));
+        self->times[i] = PyFloat_AsDouble(PyTuple_GET_ITEM(tup, 0));
+        self->targets[i] = PyFloat_AsDouble(PyTuple_GET_ITEM(tup, 1));
     }
 }
 
@@ -2359,8 +2359,8 @@ TrigExpseg_convert_pointslist(TrigExpseg *self) {
     self->times = (MYFLT *)realloc(self->times, self->listsize * sizeof(MYFLT));
     for (i=0; i<self->listsize; i++) {
         tup = PyList_GET_ITEM(self->pointslist, i);
-        self->times[i] = PyFloat_AsDouble(PyNumber_Float(PyTuple_GET_ITEM(tup, 0)));
-        self->targets[i] = PyFloat_AsDouble(PyNumber_Float(PyTuple_GET_ITEM(tup, 1)));
+        self->times[i] = PyFloat_AsDouble(PyTuple_GET_ITEM(tup, 0));
+        self->targets[i] = PyFloat_AsDouble(PyTuple_GET_ITEM(tup, 1));
     }
 }
 
@@ -2622,7 +2622,8 @@ TrigExpseg_setExp(TrigExpseg *self, PyObject *arg)
 		return Py_None;
 	}
 
-    self->exp_tmp = PyFloat_AsDouble(PyNumber_Float(arg));
+    // TODO: PyNumber_Check()
+    self->exp_tmp = PyFloat_AsDouble(arg);
 
     Py_INCREF(Py_None);
     return Py_None;
@@ -5964,7 +5965,7 @@ Iter_setChoice(Iter *self, PyObject *arg)
     self->chSize = PyList_Size(tmp);
     self->choice = (MYFLT *)realloc(self->choice, self->chSize * sizeof(MYFLT));
     for (i=0; i<self->chSize; i++) {
-        self->choice[i] = PyFloat_AS_DOUBLE(PyNumber_Float(PyList_GET_ITEM(tmp, i)));
+        self->choice[i] = PyFloat_AsDouble(PyList_GET_ITEM(tmp, i));
     }
 
     (*self->mode_func_ptr)(self);
