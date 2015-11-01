@@ -3,10 +3,12 @@ Introduction on how to use pyo inside an OpenFrameworks project.
 
 To use pyo inside an OpenFrameworks project, first you need a 
 working install of pyo on your system. After installing pyo,
-you can go and create an OpenFrameworks project.
+you can move on and create an OpenFrameworks project.
 
 ------------------------------------------------------------------------
-Step 1 - Create a default project with project generator.
+Step 1 - Create a default project with the project generator. To avoid
+any include or linking problem, you should save your project in the 
+default location (OF_ROOT/apps/myApps).
 
 ------------------------------------------------------------------------
 Step 2 - Add pyo files to your project. You only need to copy 
@@ -37,31 +39,31 @@ st_delay = Delay(st_input, delay=[.4, .5], feedback=0.7)
 st_rev = WGVerb(st_delay, feedback=0.8, cutoff=4000, bal=0.25).out()
 
 ------------------------------------------------------------------------
-Step 5 - Edit src/testApp.h.
+Step 5 - Edit src/ofApp.h
 
 - Include PyoClass definition:
 
 #include "PyoClass.h"
 
-- Add audio in/out callbacks to the public attributes of the testApp class:
+- Add audio in/out callbacks to the public attributes of the ofApp class:
 
 void audioIn(float * input, int bufferSize, int nChannels);
 void audioOut(float * input, int bufferSize, int nChannels);
 
-- Add an ofSoundStream object to the public attributes of the testApp class:
+- Add an ofSoundStream object to the public attributes of the ofApp class:
 
 ofSoundStream soundStream;
 
-- Add a Pyo object to the public attributes of the testApp class:
+- Add a Pyo object to the public attributes of the ofApp class:
 
 Pyo pyo;
 
 ------------------------------------------------------------------------
-Step 6 - Edit src/testApp.cpp.
+Step 6 - Edit src/ofApp.cpp
 
 - Creates the setup() function:
 
-void testApp::setup(){
+void ofApp::setup(){
     // define audio properties
     int sampleRate = 44100;
     int bufferSize = 256;
@@ -71,17 +73,19 @@ void testApp::setup(){
     // load a python file
     pyo.loadfile("../scripts/stereoDelay.py", 0);
     // initialize OpenFrameworks audio streaming channels 
+    //soundStream.listDevices()     // Uncomment if you need to
+    //soundStream.setDeviceID(1);   // change the audio device.
 	soundStream.setup(this, nChannels, nChannels, sampleRate, bufferSize, 4);
 }
 
 - Creates audio in/out functions:
 
-void testApp::audioIn(float * input, int bufferSize, int nChannels){
+void ofApp::audioIn(float * input, int bufferSize, int nChannels){
     // send audio samples to pyo
     pyo.fillin(input);
 }
 
-void testApp::audioOut(float * output, int bufferSize, int nChannels){
+void ofApp::audioOut(float * output, int bufferSize, int nChannels){
     // process and get new audio samples from pyo
     pyo.process(output);
 }
@@ -96,6 +100,7 @@ For a complete description of functions that can be used to communicate
 with the pyo embedded processes, see documentation comments in the file 
 PyoClass.cpp.
 
-belangeo
+
+(c) 2015 - belangeo
 
 

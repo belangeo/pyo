@@ -16,12 +16,11 @@ void Pyo::setup(int _nChannels, int _bufferSize, int _sampleRate) {
     nChannels = _nChannels;
     bufferSize = _bufferSize;
     sampleRate = _sampleRate;
-    interpreter = pyo_new_interpreter(nChannels);
+    interpreter = pyo_new_interpreter(sampleRate, bufferSize, nChannels);
     pyoInBuffer = reinterpret_cast<float*>(pyo_get_input_buffer_address(interpreter));
     pyoOutBuffer = reinterpret_cast<float*>(pyo_get_output_buffer_address(interpreter));
     pyoCallback = reinterpret_cast<callPtr*>(pyo_get_embedded_callback_address(interpreter));
     pyoId = pyo_get_server_id(interpreter);
-    pyo_set_server_params(interpreter, sampleRate, bufferSize);
 }
 
 /*

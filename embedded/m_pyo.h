@@ -14,11 +14,13 @@ extern "C" {
 ** can be an object in a programming language or a plugin in a daw.
 **
 ** arguments:
+**  sr : float, host sampling rate.
+**  bufsize : int, host buffer size.
 **  chnls : int, number of in/out channels of the pyo server.
 **
 ** returns the new python thread's interpreter state.
 */
-inline PyThreadState * pyo_new_interpreter(int chnls) {
+inline PyThreadState * pyo_new_interpreter(float sr, int bufsize, int chnls) {
     char msg[64];
     PyThreadState *interp;
     if(!Py_IsInitialized()) {
@@ -29,9 +31,8 @@ inline PyThreadState * pyo_new_interpreter(int chnls) {
     PyEval_AcquireLock();              /* get the GIL */
     interp = Py_NewInterpreter();      /* add a new sub-interpreter */
     PyRun_SimpleString("from pyo import *");
-    sprintf(msg, "_s_ = Server(44100, %d, 256, 1, 'embedded')", chnls);
+    sprintf(msg, "_s_ = Server(%f, %d, %d, 1, 'embedded')", sr, chnls, bufsize);
     PyRun_SimpleString(msg);
-    PyRun_SimpleString("_s_.setMidiInputDevice(99)");
     PyRun_SimpleString("_s_.boot()\n_s_.start()\n_s_.setServer()");
     PyRun_SimpleString("_in_address_ = _s_.getInputAddr()");
     PyRun_SimpleString("_out_address_ = _s_.getOutputAddr()");
@@ -162,9 +163,15 @@ inline int pyo_get_server_id(PyThreadState *interp) {
 **  interp : pointer, pointer to the targeted Python thread state.
 */
 inline void pyo_end_interpreter(PyThreadState *interp) {
-    PyEval_AcquireThread(interp);
-    Py_EndInterpreter(interp);
-    PyEval_ReleaseLock();
+    /* Old method (causing segfault) */
+    //PyEval_AcquireThread(interp);
+    //Py_EndInterpreter(interp);
+    //PyEval_ReleaseLock();
+    /* New method (seems to be ok) */
+    PyThreadState_Swap(interp);
+    PyThreadState_Swap(NULL);
+    PyThreadState_Clear(interp);
+    PyThreadState_Delete(interp);
 }
 
 /*
@@ -176,7 +183,6 @@ inline void pyo_end_interpreter(PyThreadState *interp) {
 inline void pyo_server_reboot(PyThreadState *interp) {
     PyEval_AcquireThread(interp);
     PyRun_SimpleString("_s_.setServer()\n_s_.stop()\n_s_.shutdown()");
-    PyRun_SimpleString("_s_.setMidiInputDevice(99)");
     PyRun_SimpleString("_s_.boot(newBuffer=False).start()");
     PyEval_ReleaseThread(interp);
 }
@@ -197,7 +203,6 @@ inline void pyo_set_server_params(PyThreadState *interp, float sr, int bufsize) 
     PyRun_SimpleString(msg);
     sprintf(msg, "_s_.setBufferSize(%d)", bufsize);
     PyRun_SimpleString(msg);
-    PyRun_SimpleString("_s_.setMidiInputDevice(99)");
     PyRun_SimpleString("_s_.boot(newBuffer=False).start()");
     PyEval_ReleaseThread(interp);
 }
@@ -274,7 +279,6 @@ inline int pyo_exec_file(PyThreadState *interp, const char *file, char *msg, int
                 file, file);
         if (!add) {
             PyRun_SimpleString("_s_.setServer()\n_s_.stop()\n_s_.shutdown()");
-            PyRun_SimpleString("_s_.setMidiInputDevice(99)");
             PyRun_SimpleString("_s_.boot(newBuffer=False).start()");
         }
         PyRun_SimpleString(msg);

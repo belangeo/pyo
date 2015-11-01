@@ -73,8 +73,8 @@ void *pyo_tilde_new(t_floatarg f) {
     t_pyo_tilde *x = (t_pyo_tilde *)pd_new(pyo_tilde_class);
 
     x->chnls = (f) ? f : 2;
-    x->bs = -1;
-    x->sr = -1.0;
+    x->bs = 64;
+    x->sr = 44100.0;
     x->file = NULL;
     x->add = 0;
     x->debug = 0;
@@ -93,7 +93,7 @@ void *pyo_tilde_new(t_floatarg f) {
     for (i=0; i<x->chnls; i++)
         x->in[i] = x->out[i] = 0;
 
-    x->interp = pyo_new_interpreter(x->chnls);
+    x->interp = pyo_new_interpreter(x->sr, x->bs, x->chnls);
     
     x->inbuf = (float *)pyo_get_input_buffer_address(x->interp);
     x->outbuf = (float *)pyo_get_output_buffer_address(x->interp);
