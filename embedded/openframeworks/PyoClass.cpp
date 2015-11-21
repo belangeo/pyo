@@ -66,7 +66,7 @@ void Pyo::process(float *buffer) {
 **                  the module will try to open it as an absolute path.
 **   add, int, if positive, the commands in the file will be added to whatever
 **             is already running in the pyo server. If 0, the server will be
-**             shutdown and reboot before executing the file.
+**             cleared before executing the file.
 */
 int Pyo::loadfile(const char *file, int add) {
     return pyo_exec_file(interpreter, file, pyoMsg, add);
@@ -77,7 +77,7 @@ int Pyo::loadfile(const char *file, int add) {
 **
 ** arguments:
 **   name : const char *, variable name of the object.
-**   value : float, value to be assign.
+**   value : float, value to be assigned.
 **
 ** Example:
 **
@@ -128,8 +128,8 @@ int Pyo::value(const char *name, float *value, int len) {
 ** Sends a numerical value to a Pyo object's attribute.
 **
 ** arguments:
-**   name : const char *, object name and attribute separated by a point.
-**   value : float, value to be assign.
+**   name : const char *, object name and attribute separated by a dot.
+**   value : float, value to be assigned.
 **
 ** Example:
 **
@@ -150,7 +150,7 @@ int Pyo::set(const char *name, float value) {
 ** Sends an array of numerical values to a Pyo object's attribute.
 **
 ** arguments:
-**   name : const char *, object name and attribute separated by a point.
+**   name : const char *, object name and attribute separated by a dot.
 **   value : float *, array of floats.
 **   len : int, number of elements in the array.
 **

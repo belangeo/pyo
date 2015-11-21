@@ -1,5 +1,5 @@
 #include <stdlib.h>
-#include <pd/m_pd.h>
+#include <m_pd.h>
 #include "Python.h"
 #include "m_pyo.h"
 
