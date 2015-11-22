@@ -670,9 +670,11 @@ static PyObject * Adsr_inplace_div(Adsr *self, PyObject *arg) { INPLACE_DIV };
 static PyObject *
 Adsr_setAttack(Adsr *self, PyObject *arg)
 {
-    self->attack = PyFloat_AsDouble(PyNumber_Float(arg));
-    if (self->attack < 0.000001)
-        self->attack = 0.000001;
+	if (PyNumber_Check(arg)) {
+        self->attack = PyFloat_AsDouble(arg);
+        if (self->attack < 0.000001)
+            self->attack = 0.000001;
+    }
     Py_INCREF(Py_None);
     return Py_None;
 }
@@ -680,9 +682,11 @@ Adsr_setAttack(Adsr *self, PyObject *arg)
 static PyObject *
 Adsr_setDecay(Adsr *self, PyObject *arg)
 {
-    self->decay = PyFloat_AsDouble(PyNumber_Float(arg));
-    if (self->decay < 0.000001)
-        self->decay = 0.000001;
+	if (PyNumber_Check(arg)) {
+        self->decay = PyFloat_AsDouble(arg);
+        if (self->decay < 0.000001)
+            self->decay = 0.000001;
+    }
     Py_INCREF(Py_None);
     return Py_None;
 }
@@ -690,11 +694,13 @@ Adsr_setDecay(Adsr *self, PyObject *arg)
 static PyObject *
 Adsr_setSustain(Adsr *self, PyObject *arg)
 {
-    self->sustain = PyFloat_AsDouble(PyNumber_Float(arg));
-    if (self->sustain < 0.0)
-        self->sustain = 0.0;
-    else if (self->sustain > 1.0)
-        self->sustain = 1.0;
+	if (PyNumber_Check(arg)) {
+        self->sustain = PyFloat_AsDouble(arg);
+        if (self->sustain < 0.0)
+            self->sustain = 0.0;
+        else if (self->sustain > 1.0)
+            self->sustain = 1.0;
+    }
     Py_INCREF(Py_None);
     return Py_None;
 }
@@ -702,9 +708,11 @@ Adsr_setSustain(Adsr *self, PyObject *arg)
 static PyObject *
 Adsr_setRelease(Adsr *self, PyObject *arg)
 {
-    self->release = PyFloat_AsDouble(PyNumber_Float(arg));
-    if (self->release < 0.000001)
-        self->release = 0.000001;
+	if (PyNumber_Check(arg)) {
+        self->release = PyFloat_AsDouble(arg);
+        if (self->release < 0.000001)
+            self->release = 0.000001;
+    }
     Py_INCREF(Py_None);
     return Py_None;
 }
@@ -712,7 +720,8 @@ Adsr_setRelease(Adsr *self, PyObject *arg)
 static PyObject *
 Adsr_setDur(Adsr *self, PyObject *arg)
 {
-    self->duration = PyFloat_AsDouble(PyNumber_Float(arg));
+	if (PyNumber_Check(arg)) 
+        self->duration = PyFloat_AsDouble(arg);
     Py_INCREF(Py_None);
     return Py_None;
 }
@@ -854,8 +863,8 @@ Linseg_convert_pointslist(Linseg *self) {
     self->times = (MYFLT *)realloc(self->times, self->listsize * sizeof(MYFLT));
     for (i=0; i<self->listsize; i++) {
         tup = PyList_GET_ITEM(self->pointslist, i);
-        self->times[i] = PyFloat_AsDouble(PyNumber_Float(PyTuple_GET_ITEM(tup, 0)));
-        self->targets[i] = PyFloat_AsDouble(PyNumber_Float(PyTuple_GET_ITEM(tup, 1)));
+        self->times[i] = PyFloat_AsDouble(PyTuple_GET_ITEM(tup, 0));
+        self->targets[i] = PyFloat_AsDouble(PyTuple_GET_ITEM(tup, 1));
     }
 }
 
@@ -1258,8 +1267,8 @@ Expseg_convert_pointslist(Expseg *self) {
     self->times = (MYFLT *)realloc(self->times, self->listsize * sizeof(MYFLT));
     for (i=0; i<self->listsize; i++) {
         tup = PyList_GET_ITEM(self->pointslist, i);
-        self->times[i] = PyFloat_AsDouble(PyNumber_Float(PyTuple_GET_ITEM(tup, 0)));
-        self->targets[i] = PyFloat_AsDouble(PyNumber_Float(PyTuple_GET_ITEM(tup, 1)));
+        self->times[i] = PyFloat_AsDouble(PyTuple_GET_ITEM(tup, 0));
+        self->targets[i] = PyFloat_AsDouble(PyTuple_GET_ITEM(tup, 1));
     }
 }
 
@@ -1544,7 +1553,8 @@ Expseg_setExp(Expseg *self, PyObject *arg)
 		return Py_None;
 	}
 
-    self->exp_tmp = PyFloat_AsDouble(PyNumber_Float(arg));
+	if (PyNumber_Check(arg))
+        self->exp_tmp = PyFloat_AsDouble(arg);
 
     Py_INCREF(Py_None);
     return Py_None;
@@ -1558,7 +1568,8 @@ Expseg_setInverse(Expseg *self, PyObject *arg)
 		return Py_None;
 	}
 
-    self->inverse_tmp = PyInt_AsLong(PyNumber_Int(arg));
+	if (PyNumber_Check(arg))
+        self->inverse_tmp = PyInt_AsLong(PyNumber_Int(arg));
 
     Py_INCREF(Py_None);
     return Py_None;

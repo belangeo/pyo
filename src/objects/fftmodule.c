@@ -4146,7 +4146,7 @@ Spectrum_setLowbound(Spectrum *self, PyObject *arg)
 {
     MYFLT tmp;
     if (PyNumber_Check(arg)) {
-        tmp = PyFloat_AsDouble(PyNumber_Float(arg));
+        tmp = PyFloat_AsDouble(arg);
         if (tmp >= 0.0 && tmp <= 0.5)
             self->freqone = tmp * self->sr;
         else
@@ -4169,7 +4169,7 @@ Spectrum_setHighbound(Spectrum *self, PyObject *arg)
 {
     MYFLT tmp;
     if (PyNumber_Check(arg)) {
-        tmp = PyFloat_AsDouble(PyNumber_Float(arg));
+        tmp = PyFloat_AsDouble(arg);
         if (tmp >= 0.0 && tmp <= 0.5)
             self->freqtwo = tmp * self->sr;
         else
@@ -4231,7 +4231,7 @@ static PyObject *
 Spectrum_setGain(Spectrum *self, PyObject *arg)
 {
     if (PyNumber_Check(arg))
-        self->gain = PyFloat_AsDouble(PyNumber_Float(arg));
+        self->gain = PyFloat_AsDouble(arg);
 
     Py_INCREF(Py_None);
     return Py_None;

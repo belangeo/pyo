@@ -1805,7 +1805,7 @@ Server_setSamplingRate(Server *self, PyObject *arg)
         return Py_None;
     }
     if (arg != NULL && PyNumber_Check(arg)) {
-        self->samplingRate = PyFloat_AsDouble(PyNumber_Float(arg));
+        self->samplingRate = PyFloat_AsDouble(arg);
     }
     else {
         Server_error(self, "Sampling rate must be a number.\n");
@@ -1989,7 +1989,7 @@ Server_setAmp(Server *self, PyObject *arg)
         int check = PyNumber_Check(arg);
 
         if (check) {
-            self->amp = PyFloat_AsDouble(PyNumber_Float(arg));
+            self->amp = PyFloat_AsDouble(arg);
             if (self->amp != 0.0)
                 self->resetAmp = self->amp;
         }
@@ -2085,7 +2085,7 @@ Server_setStartOffset(Server *self, PyObject *arg)
         int check = PyNumber_Check(arg);
 
         if (check) {
-            self->startoffset = PyFloat_AsDouble(PyNumber_Float(arg));
+            self->startoffset = PyFloat_AsDouble(arg);
         }
     }
 

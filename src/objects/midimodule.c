@@ -664,7 +664,7 @@ Midictl_setValue(Midictl *self, PyObject *arg)
 	int isNum = PyNumber_Check(arg);
 
 	if (isNum == 1) {
-		tmp = PyFloat_AsDouble(PyNumber_Float(arg));
+		tmp = PyFloat_AsDouble(arg);
         self->oldValue = self->value = tmp;
 	}
 
@@ -685,7 +685,7 @@ Midictl_setMinScale(Midictl *self, PyObject *arg)
 	int isNum = PyNumber_Check(arg);
 
 	if (isNum == 1) {
-		tmp = PyFloat_AsDouble(PyNumber_Float(arg));
+		tmp = PyFloat_AsDouble(arg);
         self->minscale = tmp;
 	}
 
@@ -706,7 +706,7 @@ Midictl_setMaxScale(Midictl *self, PyObject *arg)
 	int isNum = PyNumber_Check(arg);
 
 	if (isNum == 1) {
-		tmp = PyFloat_AsDouble(PyNumber_Float(arg));
+		tmp = PyFloat_AsDouble(arg);
         self->maxscale = tmp;
 	}
 
@@ -1080,7 +1080,7 @@ Bendin_setBrange(Bendin *self, PyObject *arg)
 	int isNum = PyNumber_Check(arg);
 
 	if (isNum == 1) {
-		tmp = PyFloat_AsDouble(PyNumber_Float(arg));
+		tmp = PyFloat_AsDouble(arg);
         if (tmp >= 0.0 && tmp < 128.0)
             self->range = tmp;
 	}
@@ -1447,7 +1447,7 @@ Touchin_setMinScale(Touchin *self, PyObject *arg)
 	int isNum = PyNumber_Check(arg);
 
 	if (isNum == 1) {
-		tmp = PyFloat_AsDouble(PyNumber_Float(arg));
+		tmp = PyFloat_AsDouble(arg);
             self->minscale = tmp;
 	}
 
@@ -1468,7 +1468,7 @@ Touchin_setMaxScale(Touchin *self, PyObject *arg)
 	int isNum = PyNumber_Check(arg);
 
 	if (isNum == 1) {
-		tmp = PyFloat_AsDouble(PyNumber_Float(arg));
+		tmp = PyFloat_AsDouble(arg);
         self->maxscale = tmp;
 	}
 
@@ -3030,11 +3030,13 @@ static PyObject * MidiAdsr_inplace_div(MidiAdsr *self, PyObject *arg) { INPLACE_
 static PyObject *
 MidiAdsr_setAttack(MidiAdsr *self, PyObject *arg)
 {
-    self->attack = PyFloat_AsDouble(PyNumber_Float(arg));
-    if (self->attack < 0.000001)
-        self->attack = 0.000001;
-    self->invAttack = 1.0 / self->attack;
-    self->attackPlusDecay = self->attack + self->decay;
+	if (PyNumber_Check(arg)) {
+        self->attack = PyFloat_AsDouble(arg);
+        if (self->attack < 0.000001)
+            self->attack = 0.000001;
+        self->invAttack = 1.0 / self->attack;
+        self->attackPlusDecay = self->attack + self->decay;
+    }
     Py_INCREF(Py_None);
     return Py_None;
 }
@@ -3042,11 +3044,13 @@ MidiAdsr_setAttack(MidiAdsr *self, PyObject *arg)
 static PyObject *
 MidiAdsr_setDecay(MidiAdsr *self, PyObject *arg)
 {
-    self->decay = PyFloat_AsDouble(PyNumber_Float(arg));
-    if (self->decay < 0.000001)
-        self->decay = 0.000001;
-    self->invDecay = 1.0 / self->decay;
-    self->attackPlusDecay = self->attack + self->decay;
+	if (PyNumber_Check(arg)) {
+        self->decay = PyFloat_AsDouble(arg);
+        if (self->decay < 0.000001)
+            self->decay = 0.000001;
+        self->invDecay = 1.0 / self->decay;
+        self->attackPlusDecay = self->attack + self->decay;
+    }
     Py_INCREF(Py_None);
     return Py_None;
 }
@@ -3054,11 +3058,13 @@ MidiAdsr_setDecay(MidiAdsr *self, PyObject *arg)
 static PyObject *
 MidiAdsr_setSustain(MidiAdsr *self, PyObject *arg)
 {
-    self->sustain = PyFloat_AsDouble(PyNumber_Float(arg));
-    if (self->sustain < 0.0)
-        self->sustain = 0.0;
-    else if (self->sustain > 1.0)
-        self->sustain = 1.0;
+	if (PyNumber_Check(arg)) {
+        self->sustain = PyFloat_AsDouble(arg);
+        if (self->sustain < 0.0)
+            self->sustain = 0.0;
+        else if (self->sustain > 1.0)
+            self->sustain = 1.0;
+    }
     Py_INCREF(Py_None);
     return Py_None;
 }
@@ -3066,10 +3072,12 @@ MidiAdsr_setSustain(MidiAdsr *self, PyObject *arg)
 static PyObject *
 MidiAdsr_setRelease(MidiAdsr *self, PyObject *arg)
 {
-    self->release = PyFloat_AsDouble(PyNumber_Float(arg));
-    if (self->release < 0.000001)
-        self->release = 0.000001;
-    self->invRelease = 1.0 / self->release;
+	if (PyNumber_Check(arg)) {
+        self->release = PyFloat_AsDouble(arg);
+        if (self->release < 0.000001)
+            self->release = 0.000001;
+        self->invRelease = 1.0 / self->release;
+    }
     Py_INCREF(Py_None);
     return Py_None;
 }
@@ -3422,9 +3430,11 @@ static PyObject * MidiDelAdsr_inplace_div(MidiDelAdsr *self, PyObject *arg) { IN
 static PyObject *
 MidiDelAdsr_setDelay(MidiDelAdsr *self, PyObject *arg)
 {
-    self->delay = PyFloat_AsDouble(PyNumber_Float(arg));
-    self->delayPlusAttack = self->delay + self->attack;
-    self->delayPlusAttackPlusDecay = self->delay + self->attack + self->decay;
+	if (PyNumber_Check(arg)) {
+        self->delay = PyFloat_AsDouble(arg);
+        self->delayPlusAttack = self->delay + self->attack;
+        self->delayPlusAttackPlusDecay = self->delay + self->attack + self->decay;
+    }
     Py_INCREF(Py_None);
     return Py_None;
 }
@@ -3432,12 +3442,14 @@ MidiDelAdsr_setDelay(MidiDelAdsr *self, PyObject *arg)
 static PyObject *
 MidiDelAdsr_setAttack(MidiDelAdsr *self, PyObject *arg)
 {
-    self->attack = PyFloat_AsDouble(PyNumber_Float(arg));
-    if (self->attack < 0.000001)
-        self->attack = 0.000001;
-    self->invAttack = 1.0 / self->attack;
-    self->delayPlusAttack = self->delay + self->attack;
-    self->delayPlusAttackPlusDecay = self->delay + self->attack + self->decay;
+	if (PyNumber_Check(arg)) {
+        self->attack = PyFloat_AsDouble(arg);
+        if (self->attack < 0.000001)
+            self->attack = 0.000001;
+        self->invAttack = 1.0 / self->attack;
+        self->delayPlusAttack = self->delay + self->attack;
+        self->delayPlusAttackPlusDecay = self->delay + self->attack + self->decay;
+    }
     Py_INCREF(Py_None);
     return Py_None;
 }
@@ -3445,11 +3457,13 @@ MidiDelAdsr_setAttack(MidiDelAdsr *self, PyObject *arg)
 static PyObject *
 MidiDelAdsr_setDecay(MidiDelAdsr *self, PyObject *arg)
 {
-    self->decay = PyFloat_AsDouble(PyNumber_Float(arg));
-    if (self->decay < 0.000001)
-        self->decay = 0.000001;
-    self->invDecay = 1.0 / self->decay;
-    self->delayPlusAttackPlusDecay = self->delay + self->attack + self->decay;
+	if (PyNumber_Check(arg)) {
+        self->decay = PyFloat_AsDouble(arg);
+        if (self->decay < 0.000001)
+            self->decay = 0.000001;
+        self->invDecay = 1.0 / self->decay;
+        self->delayPlusAttackPlusDecay = self->delay + self->attack + self->decay;
+    }
     Py_INCREF(Py_None);
     return Py_None;
 }
@@ -3457,11 +3471,13 @@ MidiDelAdsr_setDecay(MidiDelAdsr *self, PyObject *arg)
 static PyObject *
 MidiDelAdsr_setSustain(MidiDelAdsr *self, PyObject *arg)
 {
-    self->sustain = PyFloat_AsDouble(PyNumber_Float(arg));
-    if (self->sustain < 0.0)
-        self->sustain = 0.0;
-    else if (self->sustain > 1.0)
-        self->sustain = 1.0;
+	if (PyNumber_Check(arg)) {
+        self->sustain = PyFloat_AsDouble(arg);
+        if (self->sustain < 0.0)
+            self->sustain = 0.0;
+        else if (self->sustain > 1.0)
+            self->sustain = 1.0;
+    }
     Py_INCREF(Py_None);
     return Py_None;
 }
@@ -3469,10 +3485,12 @@ MidiDelAdsr_setSustain(MidiDelAdsr *self, PyObject *arg)
 static PyObject *
 MidiDelAdsr_setRelease(MidiDelAdsr *self, PyObject *arg)
 {
-    self->release = PyFloat_AsDouble(PyNumber_Float(arg));
-    if (self->release < 0.000001)
-        self->release = 0.000001;
-    self->invRelease = 1.0 / self->release;
+	if (PyNumber_Check(arg)) {
+        self->release = PyFloat_AsDouble(arg);
+        if (self->release < 0.000001)
+            self->release = 0.000001;
+        self->invRelease = 1.0 / self->release;
+    }
     Py_INCREF(Py_None);
     return Py_None;
 }

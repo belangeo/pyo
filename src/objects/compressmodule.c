@@ -481,7 +481,7 @@ Compress_setLookAhead(Compress *self, PyObject *arg)
 	}
 
 	if (PyNumber_Check(arg)) {
-		tmp = PyFloat_AsDouble(PyNumber_Float(arg));
+		tmp = PyFloat_AsDouble(arg);
         if (tmp <= 25.0)
             self->lh_delay = (long)(tmp * 0.001 * self->sr);
         else
@@ -503,7 +503,7 @@ Compress_setKnee(Compress *self, PyObject *arg)
 	}
 
 	if (PyNumber_Check(arg)) {
-		tmp = PyFloat_AsDouble(PyNumber_Float(arg));
+		tmp = PyFloat_AsDouble(arg);
         if (tmp >= 0.0 && tmp <= 1.0)
             self->knee = tmp;
         else
@@ -1446,7 +1446,7 @@ Gate_setLookAhead(Gate *self, PyObject *arg)
 	}
 
 	if (PyNumber_Check(arg)) {
-		tmp = PyFloat_AsDouble(PyNumber_Float(arg));
+		tmp = PyFloat_AsDouble(arg);
         if (tmp <= 25.0)
             self->lh_delay = (long)(tmp * 0.001 * self->sr);
         else

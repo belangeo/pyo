@@ -471,7 +471,7 @@ SfPlayer_setOffset(SfPlayer *self, PyObject *arg)
     int isNumber = PyNumber_Check(arg);
 
 	if (isNumber == 1) {
-		self->startPos = PyFloat_AsDouble(PyNumber_Float(arg)) * self->sr * self->srScale;
+		self->startPos = PyFloat_AsDouble(arg) * self->sr * self->srScale;
         if (self->startPos < 0.0 || self->startPos >= self->sndSize)
             self->startPos = 0.0;
     }

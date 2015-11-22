@@ -1434,16 +1434,16 @@ reducePoints(PyObject *self, PyObject *args, PyObject *kwds)
         if (PyTuple_Check(tup) == 1) {
             for (i=0; i<nPointsCount; i++) {
                 tup = PyList_GET_ITEM(pointlist, i);
-                pPointsX[i] = PyFloat_AsDouble(PyNumber_Float(PyTuple_GET_ITEM(tup, 0)));
-                pPointsY[i] = PyFloat_AsDouble(PyNumber_Float(PyTuple_GET_ITEM(tup, 1)));
+                pPointsX[i] = PyFloat_AsDouble(PyTuple_GET_ITEM(tup, 0));
+                pPointsY[i] = PyFloat_AsDouble(PyTuple_GET_ITEM(tup, 1));
                 pnUseFlag[i] = 0;
             }
         }
         else {
             for (i=0; i<nPointsCount; i++) {
                 tup = PyList_GET_ITEM(pointlist, i);
-                pPointsX[i] = PyFloat_AsDouble(PyNumber_Float(PyList_GET_ITEM(tup, 0)));
-                pPointsY[i] = PyFloat_AsDouble(PyNumber_Float(PyList_GET_ITEM(tup, 1)));
+                pPointsX[i] = PyFloat_AsDouble(PyList_GET_ITEM(tup, 0));
+                pPointsY[i] = PyFloat_AsDouble(PyList_GET_ITEM(tup, 1));
                 pnUseFlag[i] = 0;
             }
         }
@@ -1565,27 +1565,27 @@ distanceToSegment(PyObject *self, PyObject *args, PyObject *kwds)
     pf2 = PySequence_Fast(p2, NULL);
     if (xlog == 0) {
         xscale = xmax - xmin;
-        xp[0] = PyFloat_AsDouble(PyNumber_Float(PySequence_Fast_GET_ITEM(pf, 0))) / xscale;
-        xp1[0] = PyFloat_AsDouble(PyNumber_Float(PySequence_Fast_GET_ITEM(pf1, 0))) / xscale;
-        xp2[0] = PyFloat_AsDouble(PyNumber_Float(PySequence_Fast_GET_ITEM(pf2, 0))) / xscale;
+        xp[0] = PyFloat_AsDouble(PySequence_Fast_GET_ITEM(pf, 0)) / xscale;
+        xp1[0] = PyFloat_AsDouble(PySequence_Fast_GET_ITEM(pf1, 0)) / xscale;
+        xp2[0] = PyFloat_AsDouble(PySequence_Fast_GET_ITEM(pf2, 0)) / xscale;
     }
     else {
         xscale = MYLOG10(xmax / xmin);
-        xp[0] = MYLOG10(PyFloat_AsDouble(PyNumber_Float(PySequence_Fast_GET_ITEM(pf, 0))) / xmin) / xscale;
-        xp1[0] = MYLOG10(PyFloat_AsDouble(PyNumber_Float(PySequence_Fast_GET_ITEM(pf1, 0))) / xmin) / xscale;
-        xp2[0] = MYLOG10(PyFloat_AsDouble(PyNumber_Float(PySequence_Fast_GET_ITEM(pf2, 0))) / xmin) / xscale;
+        xp[0] = MYLOG10(PyFloat_AsDouble(PySequence_Fast_GET_ITEM(pf, 0)) / xmin) / xscale;
+        xp1[0] = MYLOG10(PyFloat_AsDouble(PySequence_Fast_GET_ITEM(pf1, 0)) / xmin) / xscale;
+        xp2[0] = MYLOG10(PyFloat_AsDouble(PySequence_Fast_GET_ITEM(pf2, 0)) / xmin) / xscale;
     }
     if (ylog == 0) {
         yscale = ymax - ymin;
-        xp[1] = PyFloat_AsDouble(PyNumber_Float(PySequence_Fast_GET_ITEM(pf, 1))) / yscale;
-        xp1[1] = PyFloat_AsDouble(PyNumber_Float(PySequence_Fast_GET_ITEM(pf1, 1))) / yscale;
-        xp2[1] = PyFloat_AsDouble(PyNumber_Float(PySequence_Fast_GET_ITEM(pf2, 1))) / yscale;
+        xp[1] = PyFloat_AsDouble(PySequence_Fast_GET_ITEM(pf, 1)) / yscale;
+        xp1[1] = PyFloat_AsDouble(PySequence_Fast_GET_ITEM(pf1, 1)) / yscale;
+        xp2[1] = PyFloat_AsDouble(PySequence_Fast_GET_ITEM(pf2, 1)) / yscale;
     }
     else {
         yscale = MYLOG10(ymax / ymin);
-        xp[1] = MYLOG10(PyFloat_AsDouble(PyNumber_Float(PySequence_Fast_GET_ITEM(pf, 1))) / ymin) / yscale;
-        xp1[1] = MYLOG10(PyFloat_AsDouble(PyNumber_Float(PySequence_Fast_GET_ITEM(pf1, 1))) / ymin) / yscale;
-        xp2[1] = MYLOG10(PyFloat_AsDouble(PyNumber_Float(PySequence_Fast_GET_ITEM(pf2, 1))) / ymin) / yscale;
+        xp[1] = MYLOG10(PyFloat_AsDouble(PySequence_Fast_GET_ITEM(pf, 1)) / ymin) / yscale;
+        xp1[1] = MYLOG10(PyFloat_AsDouble(PySequence_Fast_GET_ITEM(pf1, 1)) / ymin) / yscale;
+        xp2[1] = MYLOG10(PyFloat_AsDouble(PySequence_Fast_GET_ITEM(pf2, 1)) / ymin) / yscale;
     }
 
     xDelta = xp2[0] - xp1[0]; yDelta = xp2[1] - xp1[1];
@@ -1640,8 +1640,8 @@ linToCosCurve(PyObject *self, PyObject *args, PyObject *kwds)
 
     if (yrange) {
         fyrange = PySequence_Fast(yrange, NULL);
-        ymin = PyFloat_AsDouble(PyNumber_Float(PySequence_Fast_GET_ITEM(fyrange, 0)));
-        ymax = PyFloat_AsDouble(PyNumber_Float(PySequence_Fast_GET_ITEM(fyrange, 1)));
+        ymin = PyFloat_AsDouble(PySequence_Fast_GET_ITEM(fyrange, 0));
+        ymax = PyFloat_AsDouble(PySequence_Fast_GET_ITEM(fyrange, 1));
     }
     ydiff = ymax - ymin;
     log10ymin = log10(ymin);
@@ -1656,18 +1656,18 @@ linToCosCurve(PyObject *self, PyObject *args, PyObject *kwds)
     if (log == 0) {
         for (i=0; i<datasize; i++) {
             ftup = PySequence_Fast(PySequence_Fast_GET_ITEM(fdata, i), NULL);
-            tmp = PyFloat_AsDouble(PyNumber_Float(PySequence_Fast_GET_ITEM(ftup, 0)));
+            tmp = PyFloat_AsDouble(PySequence_Fast_GET_ITEM(ftup, 0));
             xdata[i] = tmp / totaldur;
-            tmp = PyFloat_AsDouble(PyNumber_Float(PySequence_Fast_GET_ITEM(ftup, 1)));
+            tmp = PyFloat_AsDouble(PySequence_Fast_GET_ITEM(ftup, 1));
             ydata[i] = (tmp - ymin) / ydiff;
         }
     }
     else {
         for (i=0; i<datasize; i++) {
             ftup = PySequence_Fast(PySequence_Fast_GET_ITEM(fdata, i), NULL);
-            tmp = PyFloat_AsDouble(PyNumber_Float(PySequence_Fast_GET_ITEM(ftup, 0)));
+            tmp = PyFloat_AsDouble(PySequence_Fast_GET_ITEM(ftup, 0));
             xdata[i] = tmp / totaldur;
-            tmp = PyFloat_AsDouble(PyNumber_Float(PySequence_Fast_GET_ITEM(ftup, 1)));
+            tmp = PyFloat_AsDouble(PySequence_Fast_GET_ITEM(ftup, 1));
             ydata[i] = log10(tmp / ymin) / log10(ymax / ymin);
         }
     }
@@ -1776,14 +1776,14 @@ rescale(PyObject *self, PyObject *args, PyObject *kwds)
         curscl = ymax - ymin;
         curscl /= datascl;
         if (type == 0) {
-            val = PyFloat_AsDouble(PyNumber_Float(data));
+            val = PyFloat_AsDouble(data);
             return Py_BuildValue("d", (val - xmin) * curscl + ymin);
         }
         else if (type == 1) {
             cnt = PyList_Size(data);
             out = PyList_New(cnt);
             for (i=0; i<cnt; i++) {
-                val = PyFloat_AsDouble(PyNumber_Float(PyList_GET_ITEM(data, i)));
+                val = PyFloat_AsDouble(PyList_GET_ITEM(data, i));
                 PyList_SET_ITEM(out, i, PyFloat_FromDouble((val - xmin) * curscl + ymin));
             }
             return out;
@@ -1796,7 +1796,7 @@ rescale(PyObject *self, PyObject *args, PyObject *kwds)
         curscl = MYLOG10(ymax / ymin);
         ymin = MYLOG10(ymin);
         if (type == 0) {
-            val = PyFloat_AsDouble(PyNumber_Float(data));
+            val = PyFloat_AsDouble(data);
             if (val == 0)
                 val = 0.000001;
             val = (val - xmin) / datascl;
@@ -1806,7 +1806,7 @@ rescale(PyObject *self, PyObject *args, PyObject *kwds)
             cnt = PyList_Size(data);
             out = PyList_New(cnt);
             for (i=0; i<cnt; i++) {
-                val = PyFloat_AsDouble(PyNumber_Float(PyList_GET_ITEM(data, i)));
+                val = PyFloat_AsDouble(PyList_GET_ITEM(data, i));
                 if (val == 0)
                     val = 0.000001;
                 val = (val - xmin) / datascl;
@@ -1819,7 +1819,7 @@ rescale(PyObject *self, PyObject *args, PyObject *kwds)
         datascl = MYLOG10(xmax / xmin);
         curscl = ymax - ymin;
         if (type == 0) {
-            val = PyFloat_AsDouble(PyNumber_Float(data));
+            val = PyFloat_AsDouble(data);
             val = MYLOG10(val / xmin) / datascl;
             return Py_BuildValue("d", val * curscl + ymin);
         }
@@ -1827,7 +1827,7 @@ rescale(PyObject *self, PyObject *args, PyObject *kwds)
             cnt = PyList_Size(data);
             out = PyList_New(cnt);
             for (i=0; i<cnt; i++) {
-                val = PyFloat_AsDouble(PyNumber_Float(PyList_GET_ITEM(data, i)));
+                val = PyFloat_AsDouble(PyList_GET_ITEM(data, i));
                 val = MYLOG10(val / xmin) / datascl;
                 PyList_SET_ITEM(out, i, PyFloat_FromDouble(val * curscl + ymin));
             }
@@ -1839,7 +1839,7 @@ rescale(PyObject *self, PyObject *args, PyObject *kwds)
         curscl = MYLOG10(ymax / ymin);
         ymin = MYLOG10(ymin);
         if (type == 0) {
-            val = PyFloat_AsDouble(PyNumber_Float(data));
+            val = PyFloat_AsDouble(data);
             val = MYLOG10(val / xmin) / datascl;
             return Py_BuildValue("d", MYPOW(10.0, val * curscl + ymin));
         }
@@ -1847,7 +1847,7 @@ rescale(PyObject *self, PyObject *args, PyObject *kwds)
             cnt = PyList_Size(data);
             out = PyList_New(cnt);
             for (i=0; i<cnt; i++) {
-                val = PyFloat_AsDouble(PyNumber_Float(PyList_GET_ITEM(data, i)));
+                val = PyFloat_AsDouble(PyList_GET_ITEM(data, i));
                 val = MYLOG10(val / xmin) / datascl;
                 PyList_SET_ITEM(out, i, PyFloat_FromDouble(MYPOW(10.0, val * curscl + ymin)));
             }
@@ -1921,12 +1921,12 @@ midiToHz(PyObject *self, PyObject *arg) {
     double x = 0.0;
     PyObject *newseq = NULL;
     if (PyNumber_Check(arg))
-        return Py_BuildValue("d", 440.0 * MYPOW(2.0, (PyFloat_AsDouble(PyNumber_Float(arg)) - 69) / 12.0));
+        return Py_BuildValue("d", 440.0 * MYPOW(2.0, (PyFloat_AsDouble(arg) - 69) / 12.0));
     else if (PyList_Check(arg)) {
         count = PyList_Size(arg);
         newseq = PyList_New(count);
         for (i=0; i<count; i++) {
-            x = PyFloat_AsDouble(PyNumber_Float(PyList_GET_ITEM(arg, i)));
+            x = PyFloat_AsDouble(PyList_GET_ITEM(arg, i));
             PyList_SET_ITEM(newseq, i, PyFloat_FromDouble(440.0 * MYPOW(2.0, (x - 69) / 12.0)));
         }
         return newseq;
@@ -1935,7 +1935,7 @@ midiToHz(PyObject *self, PyObject *arg) {
         count = PyTuple_Size(arg);
         newseq = PyTuple_New(count);
         for (i=0; i<count; i++) {
-            x = PyFloat_AsDouble(PyNumber_Float(PyTuple_GET_ITEM(arg, i)));
+            x = PyFloat_AsDouble(PyTuple_GET_ITEM(arg, i));
             PyTuple_SET_ITEM(newseq, i, PyFloat_FromDouble(440.0 * MYPOW(2.0, (x - 69) / 12.0)));
         }
         return newseq;
@@ -1966,12 +1966,12 @@ hzToMidi(PyObject *self, PyObject *arg) {
     double x = 0.0;
     PyObject *newseq = NULL;
     if (PyNumber_Check(arg))
-        return Py_BuildValue("d", 12.0 * MYLOG2(PyFloat_AsDouble(PyNumber_Float(arg)) / 440.0) + 69);
+        return Py_BuildValue("d", 12.0 * MYLOG2(PyFloat_AsDouble(arg) / 440.0) + 69);
     else if (PyList_Check(arg)) {
         count = PyList_Size(arg);
         newseq = PyList_New(count);
         for (i=0; i<count; i++) {
-            x = PyFloat_AsDouble(PyNumber_Float(PyList_GET_ITEM(arg, i)));
+            x = PyFloat_AsDouble(PyList_GET_ITEM(arg, i));
             PyList_SET_ITEM(newseq, i, PyFloat_FromDouble(12.0 * MYLOG2(x / 440.0) + 69));
         }
         return newseq;
@@ -1980,7 +1980,7 @@ hzToMidi(PyObject *self, PyObject *arg) {
         count = PyTuple_Size(arg);
         newseq = PyTuple_New(count);
         for (i=0; i<count; i++) {
-            x = PyFloat_AsDouble(PyNumber_Float(PyTuple_GET_ITEM(arg, i)));
+            x = PyFloat_AsDouble(PyTuple_GET_ITEM(arg, i));
             PyTuple_SET_ITEM(newseq, i, PyFloat_FromDouble(12.0 * MYLOG2(x / 440.0) + 69));
         }
         return newseq;
@@ -2011,12 +2011,12 @@ midiToTranspo(PyObject *self, PyObject *arg) {
     double x = 0.0;
     PyObject *newseq = NULL;
     if (PyNumber_Check(arg))
-        return Py_BuildValue("d", pow(1.0594630943593, PyFloat_AsDouble(PyNumber_Float(arg))-60.0));
+        return Py_BuildValue("d", pow(1.0594630943593, PyFloat_AsDouble(arg)-60.0));
     else if (PyList_Check(arg)) {
         count = PyList_Size(arg);
         newseq = PyList_New(count);
         for (i=0; i<count; i++) {
-            x = PyFloat_AsDouble(PyNumber_Float(PyList_GET_ITEM(arg, i)));
+            x = PyFloat_AsDouble(PyList_GET_ITEM(arg, i));
             PyList_SET_ITEM(newseq, i, PyFloat_FromDouble(pow(1.0594630943593, x-60.0)));
         }
         return newseq;
@@ -2025,7 +2025,7 @@ midiToTranspo(PyObject *self, PyObject *arg) {
         count = PyTuple_Size(arg);
         newseq = PyTuple_New(count);
         for (i=0; i<count; i++) {
-            x = PyFloat_AsDouble(PyNumber_Float(PyTuple_GET_ITEM(arg, i)));
+            x = PyFloat_AsDouble(PyTuple_GET_ITEM(arg, i));
             PyTuple_SET_ITEM(newseq, i, PyFloat_FromDouble(pow(1.0594630943593, x-60.0)));
         }
         return newseq;
@@ -2063,12 +2063,12 @@ sampsToSec(PyObject *self, PyObject *arg) {
     double x = 0.0;
     PyObject *newseq = NULL;
     if (PyNumber_Check(arg))
-        return Py_BuildValue("d", PyFloat_AsDouble(PyNumber_Float(arg)) / sr);
+        return Py_BuildValue("d", PyFloat_AsDouble(arg) / sr);
     else if (PyList_Check(arg)) {
         count = PyList_Size(arg);
         newseq = PyList_New(count);
         for (i=0; i<count; i++) {
-            x = PyFloat_AsDouble(PyNumber_Float(PyList_GET_ITEM(arg, i)));
+            x = PyFloat_AsDouble(PyList_GET_ITEM(arg, i));
             PyList_SET_ITEM(newseq, i, PyFloat_FromDouble(x / sr));
         }
         return newseq;
@@ -2077,7 +2077,7 @@ sampsToSec(PyObject *self, PyObject *arg) {
         count = PyTuple_Size(arg);
         newseq = PyTuple_New(count);
         for (i=0; i<count; i++) {
-            x = PyFloat_AsDouble(PyNumber_Float(PyTuple_GET_ITEM(arg, i)));
+            x = PyFloat_AsDouble(PyTuple_GET_ITEM(arg, i));
             PyTuple_SET_ITEM(newseq, i, PyFloat_FromDouble(x / sr));
         }
         return newseq;
@@ -2115,12 +2115,12 @@ secToSamps(PyObject *self, PyObject *arg) {
     double x = 0.0;
     PyObject *newseq = NULL;
     if (PyNumber_Check(arg))
-        return Py_BuildValue("l", (long)(PyFloat_AsDouble(PyNumber_Float(arg)) * sr));
+        return Py_BuildValue("l", (long)(PyFloat_AsDouble(arg) * sr));
     else if (PyList_Check(arg)) {
         count = PyList_Size(arg);
         newseq = PyList_New(count);
         for (i=0; i<count; i++) {
-            x = PyFloat_AsDouble(PyNumber_Float(PyList_GET_ITEM(arg, i)));
+            x = PyFloat_AsDouble(PyList_GET_ITEM(arg, i));
             PyList_SET_ITEM(newseq, i, PyInt_FromLong((long)(x * sr)));
         }
         return newseq;
@@ -2129,7 +2129,7 @@ secToSamps(PyObject *self, PyObject *arg) {
         count = PyTuple_Size(arg);
         newseq = PyTuple_New(count);
         for (i=0; i<count; i++) {
-            x = PyFloat_AsDouble(PyNumber_Float(PyTuple_GET_ITEM(arg, i)));
+            x = PyFloat_AsDouble(PyTuple_GET_ITEM(arg, i));
             PyTuple_SET_ITEM(newseq, i, PyInt_FromLong((long)(x * sr)));
         }
         return newseq;
