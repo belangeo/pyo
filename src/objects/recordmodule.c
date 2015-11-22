@@ -747,7 +747,7 @@ ControlRead_setValues(ControlRead *self, PyObject *arg)
     self->size = PyList_Size(arg);
     self->values = (MYFLT *)realloc(self->values, self->size * sizeof(MYFLT));
     for (i=0; i<self->size; i++) {
-        self->values[i] = PyFloat_AS_DOUBLE(PyList_GET_ITEM(arg, i));
+        self->values[i] = PyFloat_AsDouble(PyList_GET_ITEM(arg, i));
     }
 
 	Py_INCREF(Py_None);
@@ -1361,7 +1361,7 @@ NoteinRead_setValues(NoteinRead *self, PyObject *arg)
     self->size = PyList_Size(arg);
     self->values = (MYFLT *)realloc(self->values, self->size * sizeof(MYFLT));
     for (i=0; i<self->size; i++) {
-        self->values[i] = PyFloat_AS_DOUBLE(PyList_GET_ITEM(arg, i));
+        self->values[i] = PyFloat_AsDouble(PyList_GET_ITEM(arg, i));
     }
 
 	Py_INCREF(Py_None);
@@ -1381,7 +1381,7 @@ NoteinRead_setTimestamps(NoteinRead *self, PyObject *arg)
     self->size = PyList_Size(arg);
     self->timestamps = (long *)realloc(self->timestamps, self->size * sizeof(long));
     for (i=0; i<self->size; i++) {
-        self->timestamps[i] = (long)(PyFloat_AS_DOUBLE(PyList_GET_ITEM(arg, i)) * self->sr);
+        self->timestamps[i] = (long)(PyFloat_AsDouble(PyList_GET_ITEM(arg, i)) * self->sr);
     }
 
 	Py_INCREF(Py_None);

@@ -883,7 +883,7 @@ savefile(PyObject *self, PyObject *args, PyObject *kwds) {
         size = PyList_Size(samples);
         sampsarray = (MYFLT *)malloc(size * sizeof(MYFLT));
         for (i=0; i<size; i++) {
-            sampsarray[i] = PyFloat_AS_DOUBLE(PyList_GET_ITEM(samples, i));
+            sampsarray[i] = PyFloat_AsDouble(PyList_GET_ITEM(samples, i));
         }
     }
     else {
@@ -895,7 +895,7 @@ savefile(PyObject *self, PyObject *args, PyObject *kwds) {
         sampsarray = (MYFLT *)malloc(size * sizeof(MYFLT));
         for (i=0; i<(size/channels); i++) {
             for (j=0; j<channels; j++) {
-                sampsarray[i*channels+j] = PyFloat_AS_DOUBLE(PyList_GET_ITEM(PyList_GET_ITEM(samples, j), i));
+                sampsarray[i*channels+j] = PyFloat_AsDouble(PyList_GET_ITEM(PyList_GET_ITEM(samples, j), i));
             }
         }
     }

@@ -761,10 +761,10 @@ OscDataSend_compute_next_data_frame(OscDataSend *self)
                     lo_message_add_int64(msg, (long)PyLong_AsLong(PyList_GET_ITEM(self->value, i)));
                     break;
                 case LO_FLOAT:
-                    lo_message_add_float(msg, PyFloat_AS_DOUBLE(PyList_GET_ITEM(self->value, i)));
+                    lo_message_add_float(msg, (float)PyFloat_AsDouble(PyList_GET_ITEM(self->value, i)));
                     break;
                 case LO_DOUBLE:
-                    lo_message_add_double(msg, (double)PyFloat_AS_DOUBLE(PyList_GET_ITEM(self->value, i)));
+                    lo_message_add_double(msg, (double)PyFloat_AsDouble(PyList_GET_ITEM(self->value, i)));
                     break;
                 case LO_STRING:
                     lo_message_add_string(msg, PyString_AsString(PyList_GET_ITEM(self->value, i)));
