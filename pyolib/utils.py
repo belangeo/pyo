@@ -1972,3 +1972,63 @@ class TrackHold(PyoObject):
         return self._value
     @value.setter
     def value(self, x): self.setValue(x)
+
+class Resample(PyoObject):
+    """
+    Realtime upsampling or downsampling of an audio signal.
+
+    This object should be used in the context of a resampling block
+    created with the Server's methods `beginResamplingBlock` and 
+    `EndResamplingBlock`. 
+    
+    If used inside the block, it will resample its input signal according 
+    to the resampling factor given to `beginResamplingFactor`. If the factor 
+    is a negative value, the new virtual sampling rate will be 
+    `current sr / abs(factor)`. If the factor is a postive value, the new 
+    virtual sampling rate will be `current sr * factor`. 
+    
+    If used after `endResamplingBlock`, it will resample its input signal
+    to the current sampling rate of the server.
+
+    The `mode` argument specifies the interpolation/decimation mode used
+    internally.
+
+    :Parent: :py:class:`PyoObject`
+
+    :Args:
+
+        input : PyoObject
+            Input signal to resample.
+        mode : int, optional
+            The interpolation/decimation mode. Defaults to 1.
+            For the upsampling process, possible values are:
+                0 : zero-padding
+                1 : sample-and-hold
+                2 or higher : the formula `mode * resampling factor` gives
+                the FIR lowpass kernel length used to interpolate.
+            For the downsampling process, possible values are:
+                0 or 1 : discard extra samples
+                2 or higher : the formula `mode * abs(resampling factor)` 
+                gives the FIR lowpass kernel length used for the decimation.
+            Available at initialization time only.
+
+    >>> s = Server().boot()
+    >>> s.start()
+    >>> drv = Sine(.5, phase=[0, 0.5], mul=0.49, add=0.5)    
+    >>> sig = SfPlayer(SNDS_PATH+"/transparent.aif", loop=True)
+    >>> s.beginResamplingBlock(8)
+    >>> sigup = Resample(sig, mode=32)
+    >>> drvup = Resample(drv, mode=1)
+    >>> disto = Disto(sigup, drive=drvup, mul=0.5)
+    >>> s.endResamplingBlock()
+    >>> sigdown = Resample(disto, mode=32, mul=0.4).out()
+
+    """
+
+    def __init__(self, input, mode=1, mul=1, add=0):
+        pyoArgsAssert(self, "oiOO", input, mode, mul, add)
+        PyoObject.__init__(self, mul, add)
+        self._input = input
+        self._mode = mode
+        _input, mode, mul, add, lmax = convertArgsToLists(input, mode, mul, add)
+        self._base_objs = [Resample_base(wrap(_input,i), wrap(mode,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]

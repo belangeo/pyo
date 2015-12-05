@@ -182,6 +182,7 @@ Alphabetical class reference
 - :py:class:`Randi` :     Periodic pseudo-random generator with interpolation.
 - :py:class:`RawMidi` :     Raw Midi handler.
 - :py:class:`Record` :     Writes input sound in an audio file on the disk.
+- :py:class:`Resample` :     Realtime upsampling or downsampling of an audio signal.
 - :py:class:`Reson` :     A second-order resonant bandpass filter.
 - :py:class:`Resonx` :     A multi-stages second-order resonant bandpass filter.
 - :py:class:`Rossler` :     Chaotic attractor for the Rossler system.

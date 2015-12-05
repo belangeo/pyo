@@ -1127,7 +1127,7 @@ class SumOsc(PyoObject):
         index : float or PyoObject, optional
             Damping of successive partials, between 0 and 1. With a
             value of 0.5, each partial is 6dB lower than the previous
-            partial. Defaults to 5.
+            partial. Defaults to 0.5.
 
     >>> s = Server().boot()
     >>> s.start()

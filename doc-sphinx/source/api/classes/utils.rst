@@ -131,3 +131,8 @@ Miscellaneous objects.
 .. autoclass:: TrackHold
    :members:
 
+*Resample*
+-----------------------------------
+
+.. autoclass:: Resample
+   :members:

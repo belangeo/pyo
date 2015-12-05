@@ -82,6 +82,8 @@ typedef struct {
     int nchnls;
     int ichnls;
     int bufferSize;
+    int currentResampling;
+    int lastResampling;
     int duplex;
     int input;
     int output;
@@ -147,6 +149,8 @@ extern PyObject * Server_removeStream(Server *self, int sid);
 extern MYFLT * Server_getInputBuffer(Server *self);
 extern PmEvent * Server_getMidiEventBuffer(Server *self);
 extern int Server_getMidiEventCount(Server *self);
+extern int Server_getCurrentResamplingFactor(Server *self);
+extern int Server_getLastResamplingFactor(Server *self);
 extern int Server_generateSeed(Server *self, int oid);
 extern PyTypeObject ServerType;
 

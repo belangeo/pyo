@@ -1621,6 +1621,8 @@ Server_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->ichnls = 2;
     self->record = 0;
     self->bufferSize = 256;
+    self->currentResampling = 1;
+    self->lastResampling = 1;
     self->duplex = 0;
     self->input = -1;
     self->output = -1;
@@ -2859,8 +2861,6 @@ Server_getInputBuffer(Server *self) {
 
 PmEvent *
 Server_getMidiEventBuffer(Server *self) {
-    // TODO: an embedded server should fill an PmEvent buffer
-    // with input messages coming from the host.
     return (PmEvent *)self->midiEvents;
 }
 
@@ -2885,10 +2885,23 @@ Server_addMidiEvent(Server *self, PyObject *args)
     return Py_None;
 }
 
+int
+Server_getCurrentResamplingFactor(Server *self) {
+    return self->currentResampling;
+}
+
+int
+Server_getLastResamplingFactor(Server *self) {
+    return self->lastResampling;
+}
+
 static PyObject *
 Server_getSamplingRate(Server *self)
 {
-    return PyFloat_FromDouble(self->samplingRate);
+    if (self->currentResampling < 0)
+        return PyFloat_FromDouble(self->samplingRate / -self->currentResampling);
+    else
+        return PyFloat_FromDouble(self->samplingRate * self->currentResampling);
 }
 
 static PyObject *
@@ -2912,7 +2925,30 @@ Server_getGlobalSeed(Server *self)
 static PyObject *
 Server_getBufferSize(Server *self)
 {
-    return PyInt_FromLong(self->bufferSize);
+    if (self->currentResampling < 0)
+        return PyInt_FromLong(self->bufferSize / -self->currentResampling);
+    else
+        return PyInt_FromLong(self->bufferSize * self->currentResampling);
+}
+
+static PyObject *
+Server_beginResamplingBlock(Server *self, PyObject *arg)
+{
+    if (PyInt_Check(arg)) {
+        self->lastResampling = self->currentResampling;
+        self->currentResampling = PyInt_AsLong(arg);
+    }
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static PyObject *
+Server_endResamplingBlock(Server *self)
+{
+    self->lastResampling = self->currentResampling;
+    self->currentResampling = 1;
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
 static PyObject *
@@ -3015,6 +3051,8 @@ static PyMethodDef Server_methods[] = {
     {"deactivateMidi", (PyCFunction)Server_deactivateMidi, METH_NOARGS, "Deactivates midi callback."},
     {"setSamplingRate", (PyCFunction)Server_setSamplingRate, METH_O, "Sets the server's sampling rate."},
     {"setBufferSize", (PyCFunction)Server_setBufferSize, METH_O, "Sets the server's buffer size."},
+    {"beginResamplingBlock", (PyCFunction)Server_beginResamplingBlock, METH_O, "Starts a resampling code block."},
+    {"endResamplingBlock", (PyCFunction)Server_endResamplingBlock, METH_NOARGS, "Stops a resampling code block."},
     {"setNchnls", (PyCFunction)Server_setNchnls, METH_O, "Sets the server's number of output/input channels."},
     {"setIchnls", (PyCFunction)Server_setIchnls, METH_O, "Sets the server's number of input channels."},
     {"setDuplex", (PyCFunction)Server_setDuplex, METH_O, "Sets the server's duplex mode (0 = only out, 1 = in/out)."},

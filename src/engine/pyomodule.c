@@ -1121,7 +1121,7 @@ void gen_lp_impulse(MYFLT *array, int size, float freq) {
  lp_conv -> convolution lowpass filter.
  samples is the samples array to filter.
  impulse is the impulse response array.
- num_samps is the number od samples to filter.
+ num_samps is the number of samples to filter.
  size is the filter order. Minimum suggested = 16, ideal = 128 or higher.
  gain is the gain of the filter.
 */
@@ -2553,6 +2553,7 @@ init_pyo64(void)
     module_add_object(m, "Particle_base", &ParticleType);
     module_add_object(m, "AtanTable_base", &AtanTableType);
     module_add_object(m, "RawMidi_base", &RawMidiType);
+    module_add_object(m, "Resample_base", &ResampleType);
 
     PyModule_AddStringConstant(m, "PYO_VERSION", PYO_VERSION);
 #ifdef COMPILE_EXTERNALS

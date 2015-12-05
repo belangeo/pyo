@@ -155,6 +155,7 @@ class Server(object):
         self._fileformat = 0
         self._sampletype = 0
         self._globalseed = 0
+        self._resampling = 1
         self._server.__init__(sr, nchnls, buffersize, duplex, audio, jackname, self._ichnls)
 
     def gui(self, locals=None, meter=True, timer=True, exit=True):
@@ -519,6 +520,52 @@ class Server(object):
         self._amp = x
         self._server.setAmp(x)
 
+    def beginResamplingBlock(self, x):
+        """
+        Starts a resampling block. 
+        
+        This factor must be a power-of-two. A positive value means 
+        upsampling and a negative value means downsampling. After this 
+        call, every PyoObject will be created with an internal sampling 
+        rate and buffer size relative to the resampling factor. The method 
+        `endResamplingBlock()` should be called at the end of the code 
+        block using the resampling factor.
+        
+        The `Resample` object can be used inside the resampling block to 
+        perform up or down resampling of audio signal created before the 
+        block.  
+
+        :Args:
+
+            x : int, power-of-two
+                Resampling factor. Must be a power-of-two. A positive
+                value starts an upsampling block while a negative value
+                starts a downsampling block.
+
+        """
+        realx = x
+        x = abs(x)
+        if ((x & (x - 1)) == 0) and x != 0:
+            self._resampling = realx
+            self._server.beginResamplingBlock(realx)
+        else:
+            print "Resampling factor must be a power-of-two (positive or negative)."
+
+    def endResamplingBlock(self):
+        """
+        Ends a resampling block. 
+        
+        This call ends a code block using a sample rate different from
+        the current sampling rate of the system.
+
+        The `Resample` object can be used after the resampling blick to 
+        perform up or down resampling of audio signal created inside the 
+        block.  
+
+        """
+        self._resampling = 1
+        self._server.endResamplingBlock()
+        
     def shutdown(self):
         """
         Shut down and clear the server. This method will erase all objects

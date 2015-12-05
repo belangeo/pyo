@@ -25,6 +25,7 @@
 #include "streammodule.h"
 #include "servermodule.h"
 #include "dummymodule.h"
+#include "interpolation.h"
 
 /************/
 /* Print */
@@ -5455,4 +5456,441 @@ PyTypeObject MToTType = {
     0,                          /* tp_init */
     0,                                              /* tp_alloc */
     MToT_new,                                     /* tp_new */
+};
+
+/************/
+/* Resample */
+/************/
+typedef struct {
+    pyo_audio_HEAD
+    PyObject *input;
+    Stream *input_stream;
+    MYFLT **pimpulse;
+    MYFLT **pinput;
+    int factor;
+    int count;
+    int dir;    // Up = 1, DOWN = 0
+    int size;   // UP: 0 = zero-padding, 1 = sample-and-hold, 2+ polyphase lowpass filtering
+                // DOWN: <2 = discard extra samples, 2+ polyphase lowpass filtering
+    int modebuffer[2]; // need at least 2 slots for mul & add
+} Resample;
+
+static void
+Resample_create_impulse(Resample *self) {
+    int i, half;
+    MYFLT val, scl, sum, invSum, env, w;
+    MYFLT impulse[self->size];
+
+    half = self->size / 2;
+    sum = 0.0;
+    w = TWOPI * 0.49 / self->factor;
+
+    for (i=0; i<half; i++) {
+        env = 0.5 * (1.0 - MYCOS(TWOPI * i / self->size));
+        scl = i - half;
+        val = (MYSIN(w * scl) / scl) * env;
+        sum += val;
+        impulse[i] = val;
+    }
+    sum *= 2.0;
+    sum += w;
+    invSum = 1.0 / sum;
+    impulse[half] = w * invSum;
+    for (i=0; i<half; i++) {
+        impulse[i] *= invSum;
+    }
+    for (i=half+1; i<self->size; i++) {
+        impulse[i] = impulse[self->size-i];
+    }
+    
+    /* Create sub-filters. */
+    for (i=0; i<self->size; i++) {
+        self->pimpulse[i%self->factor][(int)(i/self->factor)] = impulse[i];
+    }
+}
+
+static void
+Resample_downsample(Resample *self) {
+    int i, j, k, tmp_count, len;
+    MYFLT filtout;
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
+
+    len = self->size / self->factor;
+
+    if (self->size <= self->factor) {
+        for (i=0; i<self->bufsize; i++) {
+            self->data[i] = in[i * self->factor];
+        }
+    }
+    else {
+        for (i=0; i<self->bufsize; i++) {
+            self->data[i] = 0.0;
+            for (j=0; j<self->factor; j++) { // for each polyphase sub-filter...
+                filtout = 0.0;
+                tmp_count = self->count;
+                for (k=0; k<len; k++) { // ... apply filter...
+                    if (tmp_count < 0)
+                        tmp_count += len;
+                    filtout += self->pinput[j][tmp_count--] * self->pimpulse[j][k];
+                }
+                self->data[i] += filtout; // ... and sum.
+            }
+
+            // Input decomposition (input delay line in reverse order).
+            self->count++;
+            if (self->count == len)
+                self->count = 0;
+            for (j=0; j<self->factor; j++) {
+                self->pinput[self->factor-1-j][self->count] = in[i*self->factor+j];
+            }
+        }
+    }
+}
+
+static void
+Resample_upsample(Resample *self) {
+    int i, j, k, tmp_count, len;
+    MYFLT filtout;
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
+
+    len = self->size / self->factor;
+
+    if (self->size == 0) {
+        for (i=0; i<(self->bufsize/self->factor); i++) {
+            j = i*self->factor;
+            self->data[j] = in[i];
+            for (k=1; k<self->factor; k++) {
+                self->data[j+k] = 0.0;
+            }
+        }
+    } else if (self->size == self->factor) {
+        for (i=0; i<(self->bufsize/self->factor); i++) {
+            for (k=0; k<self->factor; k++) {
+                self->data[i*self->factor+k] = in[i];
+            }
+        }
+    } else {
+        for (i=0; i<self->bufsize/self->factor; i++) {
+            for(j=0; j<self->factor; j++) { // for each polyphase sub-filter...
+                filtout = 0.0;
+                tmp_count = self->count;
+                for (k=0; k<len; k++) { // ... apply filter...
+                    if (tmp_count < 0)
+                        tmp_count += len;
+                    filtout += self->pinput[j][tmp_count--] * self->pimpulse[j][k];
+                }
+                self->data[i*self->factor+j] = filtout;
+            }
+
+            self->count++;
+            if (self->count == len)
+                self->count = 0;
+            for (j=0; j<self->factor; j++) {
+                self->pinput[self->factor-1-j][self->count] = in[i];
+            }
+        }
+    }
+}
+
+static void
+Resample_process(Resample *self) {
+    if (self->dir == 0)
+        Resample_downsample(self);
+    else
+        Resample_upsample(self);
+}
+
+static void Resample_postprocessing_ii(Resample *self) { POST_PROCESSING_II };
+static void Resample_postprocessing_ai(Resample *self) { POST_PROCESSING_AI };
+static void Resample_postprocessing_ia(Resample *self) { POST_PROCESSING_IA };
+static void Resample_postprocessing_aa(Resample *self) { POST_PROCESSING_AA };
+static void Resample_postprocessing_ireva(Resample *self) { POST_PROCESSING_IREVA };
+static void Resample_postprocessing_areva(Resample *self) { POST_PROCESSING_AREVA };
+static void Resample_postprocessing_revai(Resample *self) { POST_PROCESSING_REVAI };
+static void Resample_postprocessing_revaa(Resample *self) { POST_PROCESSING_REVAA };
+static void Resample_postprocessing_revareva(Resample *self) { POST_PROCESSING_REVAREVA };
+
+static void
+Resample_setProcMode(Resample *self)
+{
+    int muladdmode;
+    muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
+
+    self->proc_func_ptr = Resample_process;
+
+	switch (muladdmode) {
+        case 0:
+            self->muladd_func_ptr = Resample_postprocessing_ii;
+            break;
+        case 1:
+            self->muladd_func_ptr = Resample_postprocessing_ai;
+            break;
+        case 2:
+            self->muladd_func_ptr = Resample_postprocessing_revai;
+            break;
+        case 10:
+            self->muladd_func_ptr = Resample_postprocessing_ia;
+            break;
+        case 11:
+            self->muladd_func_ptr = Resample_postprocessing_aa;
+            break;
+        case 12:
+            self->muladd_func_ptr = Resample_postprocessing_revaa;
+            break;
+        case 20:
+            self->muladd_func_ptr = Resample_postprocessing_ireva;
+            break;
+        case 21:
+            self->muladd_func_ptr = Resample_postprocessing_areva;
+            break;
+        case 22:
+            self->muladd_func_ptr = Resample_postprocessing_revareva;
+            break;
+    }
+}
+
+static void
+Resample_compute_next_data_frame(Resample *self)
+{
+    (*self->proc_func_ptr)(self);
+    (*self->muladd_func_ptr)(self);
+}
+
+static int
+Resample_traverse(Resample *self, visitproc visit, void *arg)
+{
+    pyo_VISIT
+    Py_VISIT(self->input);
+    Py_VISIT(self->input_stream);
+    return 0;
+}
+
+static int
+Resample_clear(Resample *self)
+{
+    pyo_CLEAR
+    Py_CLEAR(self->input);
+    Py_CLEAR(self->input_stream);
+    return 0;
+}
+
+static void
+Resample_dealloc(Resample* self)
+{
+    int i;
+    pyo_DEALLOC
+    if (self->size > 0) {
+        for (i=0; i<self->factor; i++) {
+            free(self->pimpulse[i]);
+            free(self->pinput[i]);
+        }
+        free(self->pimpulse);
+        free(self->pinput);
+    }
+    Resample_clear(self);
+    self->ob_type->tp_free((PyObject*)self);
+}
+
+static PyObject *
+Resample_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    int i, j, lfac, cfac, mode;
+    PyObject *inputtmp, *input_streamtmp, *multmp=NULL, *addtmp=NULL;
+    Resample *self;
+    self = (Resample *)type->tp_alloc(type, 0);
+
+    self->factor = 1;
+    self->size = 0;
+    self->count = 0;
+    self->dir = 0;
+	self->modebuffer[0] = 0;
+	self->modebuffer[1] = 0;
+
+    static char *kwlist[] = {"input", "mode", "mul", "add", NULL};
+
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|iOO", kwlist, &inputtmp, &mode, &multmp, &addtmp))
+        Py_RETURN_NONE;
+
+    INIT_INPUT_STREAM
+
+    lfac = Server_getLastResamplingFactor((Server *)PyServer_get_server());
+    cfac = Server_getCurrentResamplingFactor((Server *)PyServer_get_server());
+
+    if (lfac == 1) {
+        if (cfac < 0) {
+            self->dir = 0;
+            cfac = -cfac;
+        }
+        else
+            self->dir = 1;
+        self->factor = cfac;
+    }
+    else if (cfac == 1) {
+        if (lfac < 0) {
+            self->dir = 1;
+            lfac = -lfac;
+        }
+        else
+            self->dir = 0;
+        self->factor = lfac;
+    }
+    
+    self->size = self->factor * mode;
+
+    INIT_OBJECT_COMMON
+    Stream_setFunctionPtr(self->stream, Resample_compute_next_data_frame);
+    self->mode_func_ptr = Resample_setProcMode;
+
+    if (self->size > self->factor) {
+        self->pimpulse = (MYFLT **)realloc(self->pimpulse, self->factor * sizeof(MYFLT *));
+        self->pinput = (MYFLT **)realloc(self->pinput, self->factor * sizeof(MYFLT *));
+        for (j=0; j<self->factor; j++) {
+            self->pimpulse[j] = (MYFLT *)malloc(self->size / self->factor * sizeof(MYFLT));
+            self->pinput[j] = (MYFLT *)malloc(self->size / self->factor * sizeof(MYFLT));
+            for (i=0; i<self->size/self->factor; i++) {
+                self->pinput[j][i] = 0.0;
+            }
+        }
+        Resample_create_impulse(self);
+    }
+
+    if (multmp) {
+        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+    }
+
+    if (addtmp) {
+        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+    }
+
+    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+
+    (*self->mode_func_ptr)(self);
+
+    return (PyObject *)self;
+}
+
+static PyObject * Resample_getServer(Resample* self) { GET_SERVER };
+static PyObject * Resample_getStream(Resample* self) { GET_STREAM };
+static PyObject * Resample_setMul(Resample *self, PyObject *arg) { SET_MUL };
+static PyObject * Resample_setAdd(Resample *self, PyObject *arg) { SET_ADD };
+static PyObject * Resample_setSub(Resample *self, PyObject *arg) { SET_SUB };
+static PyObject * Resample_setDiv(Resample *self, PyObject *arg) { SET_DIV };
+
+static PyObject * Resample_play(Resample *self, PyObject *args, PyObject *kwds) { PLAY };
+static PyObject * Resample_out(Resample *self, PyObject *args, PyObject *kwds) { OUT };
+static PyObject * Resample_stop(Resample *self) { STOP };
+
+static PyObject * Resample_multiply(Resample *self, PyObject *arg) { MULTIPLY };
+static PyObject * Resample_inplace_multiply(Resample *self, PyObject *arg) { INPLACE_MULTIPLY };
+static PyObject * Resample_add(Resample *self, PyObject *arg) { ADD };
+static PyObject * Resample_inplace_add(Resample *self, PyObject *arg) { INPLACE_ADD };
+static PyObject * Resample_sub(Resample *self, PyObject *arg) { SUB };
+static PyObject * Resample_inplace_sub(Resample *self, PyObject *arg) { INPLACE_SUB };
+static PyObject * Resample_div(Resample *self, PyObject *arg) { DIV };
+static PyObject * Resample_inplace_div(Resample *self, PyObject *arg) { INPLACE_DIV };
+
+static PyMemberDef Resample_members[] = {
+{"server", T_OBJECT_EX, offsetof(Resample, server), 0, "Pyo server."},
+{"stream", T_OBJECT_EX, offsetof(Resample, stream), 0, "Stream object."},
+{"input", T_OBJECT_EX, offsetof(Resample, input), 0, "Input sound object."},
+{"mul", T_OBJECT_EX, offsetof(Resample, mul), 0, "Mul factor."},
+{"add", T_OBJECT_EX, offsetof(Resample, add), 0, "Add factor."},
+{NULL}  /* Sentinel */
+};
+
+static PyMethodDef Resample_methods[] = {
+{"getServer", (PyCFunction)Resample_getServer, METH_NOARGS, "Returns server object."},
+{"_getStream", (PyCFunction)Resample_getStream, METH_NOARGS, "Returns stream object."},
+{"play", (PyCFunction)Resample_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+{"stop", (PyCFunction)Resample_stop, METH_NOARGS, "Stops computing."},
+{"out", (PyCFunction)Resample_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
+{"setMul", (PyCFunction)Resample_setMul, METH_O, "Sets oscillator mul factor."},
+{"setAdd", (PyCFunction)Resample_setAdd, METH_O, "Sets oscillator add factor."},
+{"setSub", (PyCFunction)Resample_setSub, METH_O, "Sets inverse add factor."},
+{"setDiv", (PyCFunction)Resample_setDiv, METH_O, "Sets inverse mul factor."},
+{NULL}  /* Sentinel */
+};
+
+static PyNumberMethods Resample_as_number = {
+(binaryfunc)Resample_add,                         /*nb_add*/
+(binaryfunc)Resample_sub,                         /*nb_subtract*/
+(binaryfunc)Resample_multiply,                    /*nb_multiply*/
+(binaryfunc)Resample_div,                                              /*nb_divide*/
+0,                                              /*nb_remainder*/
+0,                                              /*nb_divmod*/
+0,                                              /*nb_power*/
+0,                                              /*nb_neg*/
+0,                                              /*nb_pos*/
+0,                                              /*(unaryfunc)array_abs,*/
+0,                                              /*nb_nonzero*/
+0,                                              /*nb_invert*/
+0,                                              /*nb_lshift*/
+0,                                              /*nb_rshift*/
+0,                                              /*nb_and*/
+0,                                              /*nb_xor*/
+0,                                              /*nb_or*/
+0,                                              /*nb_coerce*/
+0,                                              /*nb_int*/
+0,                                              /*nb_long*/
+0,                                              /*nb_float*/
+0,                                              /*nb_oct*/
+0,                                              /*nb_hex*/
+(binaryfunc)Resample_inplace_add,                 /*inplace_add*/
+(binaryfunc)Resample_inplace_sub,                 /*inplace_subtract*/
+(binaryfunc)Resample_inplace_multiply,            /*inplace_multiply*/
+(binaryfunc)Resample_inplace_div,                                              /*inplace_divide*/
+0,                                              /*inplace_remainder*/
+0,                                              /*inplace_power*/
+0,                                              /*inplace_lshift*/
+0,                                              /*inplace_rshift*/
+0,                                              /*inplace_and*/
+0,                                              /*inplace_xor*/
+0,                                              /*inplace_or*/
+0,                                              /*nb_floor_divide*/
+0,                                              /*nb_true_divide*/
+0,                                              /*nb_inplace_floor_divide*/
+0,                                              /*nb_inplace_true_divide*/
+0,                                              /* nb_index */
+};
+
+PyTypeObject ResampleType = {
+PyObject_HEAD_INIT(NULL)
+0,                                              /*ob_size*/
+"_pyo.Resample_base",                                   /*tp_name*/
+sizeof(Resample),                                 /*tp_basicsize*/
+0,                                              /*tp_itemsize*/
+(destructor)Resample_dealloc,                     /*tp_dealloc*/
+0,                                              /*tp_print*/
+0,                                              /*tp_getattr*/
+0,                                              /*tp_setattr*/
+0,                                              /*tp_compare*/
+0,                                              /*tp_repr*/
+&Resample_as_number,                              /*tp_as_number*/
+0,                                              /*tp_as_sequence*/
+0,                                              /*tp_as_mapping*/
+0,                                              /*tp_hash */
+0,                                              /*tp_call*/
+0,                                              /*tp_str*/
+0,                                              /*tp_getattro*/
+0,                                              /*tp_setattro*/
+0,                                              /*tp_as_buffer*/
+Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+"Resample objects. Performs resampling of an audio signal.",           /* tp_doc */
+(traverseproc)Resample_traverse,                  /* tp_traverse */
+(inquiry)Resample_clear,                          /* tp_clear */
+0,                                              /* tp_richcompare */
+0,                                              /* tp_weaklistoffset */
+0,                                              /* tp_iter */
+0,                                              /* tp_iternext */
+Resample_methods,                                 /* tp_methods */
+Resample_members,                                 /* tp_members */
+0,                                              /* tp_getset */
+0,                                              /* tp_base */
+0,                                              /* tp_dict */
+0,                                              /* tp_descr_get */
+0,                                              /* tp_descr_set */
+0,                                              /* tp_dictoffset */
+0,                          /* tp_init */
+0,                                              /* tp_alloc */
+Resample_new,                                     /* tp_new */
 };

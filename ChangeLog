@@ -1,5 +1,9 @@
 2015-12-04 belangeo <belangeo@gmail.com>
 
+    * Added new object: Resample, allow multi-rate DSP chains.
+
+2015-12-04 belangeo <belangeo@gmail.com>
+
     * Added Juce PyoPlugin framework in the embedded folder.
 
 2015-10-12 belangeo <belangeo@gmail.com>

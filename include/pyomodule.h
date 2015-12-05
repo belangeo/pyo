@@ -488,6 +488,7 @@ extern PyTypeObject MainParticleType;
 extern PyTypeObject ParticleType;
 extern PyTypeObject AtanTableType;
 extern PyTypeObject RawMidiType;
+extern PyTypeObject ResampleType;
 
 /* Constants */
 #define E M_E
