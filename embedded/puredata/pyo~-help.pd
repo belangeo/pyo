@@ -234,7 +234,7 @@ in pyo~ inputs).;
 #N canvas 193 300 450 300 README 0;
 #X text 14 33 Author : Olivier Belanger;
 #X text 14 81 Last update : October 2015;
-#X text 14 57 Version : 0.7.7;
+#X text 14 57 Version : 0.7.8;
 #X text 15 108 pyo website : http://ajaxsoundstudio.com/software/pyo/
 ;
 #X text 15 10 pyo~ : Embedded pyo scripting inside puredata.;
