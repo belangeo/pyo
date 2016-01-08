@@ -69,6 +69,8 @@ Alphabetical class reference
 - :py:class:`EQ` :     Equalizer filter.
 - :py:class:`Euclide` :     Euclidean rhythm generator.
 - :py:class:`ExpTable` :     Construct a table from exponential interpolated segments.
+- :py:class:`Expr` :     Prefix audio expression evaluator.
+- :py:class:`Expr` :     Prefix audio expression evaluator.
 - :py:class:`Expseg` :     Trace a series of exponential segments between specified break-points.
 - :py:class:`FFT` :     Fast Fourier Transform.
 - :py:class:`FM` :     A simple frequency modulation generator.

@@ -12,6 +12,7 @@ Classes by category
    controls
    dynamics
    effects
+   expression
    filters
    fourier
    pvoc

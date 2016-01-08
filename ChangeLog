@@ -1,3 +1,7 @@
+2016-01-07 belangeo <belangeo@gmail.com>
+
+    * Added new object: Expr, sample-based prefix expression evaluator.
+
 2015-12-04 belangeo <belangeo@gmail.com>
 
     * Added new object: Resample, allow multi-rate DSP chains.

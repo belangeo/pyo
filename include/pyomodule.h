@@ -108,7 +108,6 @@
 #define MYATAN2 atan2f
 #define MYEXP expf
 #define MYROUND roundf
-#define MYTANH tanhf
 
 #else
 #define LIB_BASE_NAME "_pyo64"
@@ -192,7 +191,6 @@
 #define MYATAN2 atan2
 #define MYEXP exp
 #define MYROUND round
-#define MYTANH tanh
 
 #endif
 #endif
@@ -489,6 +487,7 @@ extern PyTypeObject ParticleType;
 extern PyTypeObject AtanTableType;
 extern PyTypeObject RawMidiType;
 extern PyTypeObject ResampleType;
+extern PyTypeObject ExprType;
 
 /* Constants */
 #define E M_E
@@ -1494,11 +1493,17 @@ extern PyTypeObject ResampleType;
         Stream_setStreamActive(self->stream, 1); \
     } \
     else { \
-        Stream_setStreamActive(self->stream, 0); \
-        for (i=0; i<self->bufsize; i++) \
-            self->data[i] = 0.0; \
         nearestBuf = (int)roundf((del * self->sr) / self->bufsize); \
-        Stream_setBufferCountWait(self->stream, nearestBuf); \
+        if (nearestBuf <= 0) { \
+            Stream_setBufferCountWait(self->stream, 0); \
+            Stream_setStreamActive(self->stream, 1); \
+        } \
+        else { \
+            Stream_setStreamActive(self->stream, 0); \
+            for (i=0; i<self->bufsize; i++) \
+                self->data[i] = 0.0; \
+            Stream_setBufferCountWait(self->stream, nearestBuf); \
+        } \
     } \
     if (dur == 0) \
         Stream_setDuration(self->stream, 0); \

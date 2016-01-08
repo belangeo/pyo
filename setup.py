@@ -71,7 +71,7 @@ files = ['pyomodule.c', 'listenermodule.c', 'servermodule.c', 'pvstreammodule.c'
 source_files = [path + f for f in files]
 
 path = 'src/objects/'
-files = ['utilsmodule.c', 'granulatormodule.c', 'tablemodule.c', 'wgverbmodule.c', 
+files = ['exprmodule.c', 'utilsmodule.c', 'granulatormodule.c', 'tablemodule.c', 'wgverbmodule.c', 
         'oscilmodule.c', 'randommodule.c', 'oscmodule.c','analysismodule.c', 
         'sfplayermodule.c', 'oscbankmodule.c', 'lfomodule.c', 
          'matrixmodule.c', 'filtremodule.c', 'noisemodule.c', 'distomodule.c',

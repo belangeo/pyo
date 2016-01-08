@@ -72,6 +72,7 @@ SNDTABLEWINDOWS = []
 MATRIXWINDOWS = []
 SPECTRUMWINDOWS = []
 SCOPEWINDOWS = []
+EXPREDITORWINDOWS = []
 WX_APP = False
 
 def createRootWindow():
@@ -196,6 +197,13 @@ def wxCreateDelayedScopeWindows():
         else: title = win[1]
         if win[0] != None:
             win[0]._setViewFrame(f)
+        wxDisplayWindow(f, title)
+
+def wxCreateDelayedExprEditorWindows():
+    for win in EXPREDITORWINDOWS:
+        f = ExprEditorFrame(None, win[0])
+        if win[1] == None: title = win[0].__class__.__name__
+        else: title = win[1]
         wxDisplayWindow(f, title)
 
 def createCtrlWindow(obj, map_list, title, wxnoserver=False):
@@ -325,6 +333,18 @@ def createScopeWindow(object, title, wxnoserver=False):
         else:
             SCOPEWINDOWS.append([object, title])
 
+def createExprEditorWindow(object, title, wxnoserver=False):
+    if not PYO_USE_WX:
+        print "WxPython must be installed to use the Expr editor display."
+    else:
+        if wxnoserver or WX_APP:
+            root = createRootWindow()
+            f = ExprEditorFrame(None, object)
+            if title == None: title = object.__class__.__name__
+            wxShowWindow(f, title, root)
+        else:
+            EXPREDITORWINDOWS.append([object, title])
+
 def createServerGUI(nchnls, start, stop, recstart, recstop, setAmp, started, locals, shutdown, meter, timer, amp, exit):
     global X, Y, MAX_X, NEXT_Y
     if not PYO_USE_WX:
@@ -352,5 +372,6 @@ def createServerGUI(nchnls, start, stop, recstart, recstop, setAmp, started, loc
         wx.CallAfter(wxCreateDelayedCtrlWindows)
         wx.CallAfter(wxCreateDelayedSpectrumWindows)
         wx.CallAfter(wxCreateDelayedScopeWindows)
+        wx.CallAfter(wxCreateDelayedExprEditorWindows)
         wx.CallAfter(f.Raise)
     return f, win

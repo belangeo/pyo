@@ -56,6 +56,8 @@ import pyolib.triggers as triggers
 from pyolib.triggers import *
 import pyolib.utils as utils
 from pyolib.utils import *
+import pyolib.expression as expression
+from pyolib.expression import *
 import pyolib.fourier as fourier
 from pyolib.fourier import *
 import pyolib.phasevoc as phasevoc
@@ -114,7 +116,8 @@ OBJECTS_TREE = {'functions': sorted(['pa_count_devices', 'pa_get_default_input',
                                                     'TrigVal', 'Euclide', 'TrigBurst']),
                                   'utils': sorted(['Clean_objects', 'Print', 'Snap', 'Interp', 'SampHold', 'Compare', 'Record', 'Between', 'Denorm',
                                                     'ControlRec', 'ControlRead', 'NoteinRec', 'NoteinRead', 'DBToA', 'AToDB', 'Scale', 'CentsToTranspo',
-                                                    'TranspoToCents', 'MToF', 'FToM', 'MToT', 'TrackHold', 'Resample']),
+                                                    'TranspoToCents', 'MToF', 'FToM', 'MToT', 'TrackHold', 'Resample', 'Expr']),
+                                  'expression': sorted(['Expr']),
                                   'fourier': sorted(['FFT', 'IFFT', 'CarToPol', 'PolToCar', 'FrameDelta', 'FrameAccum', 'Vectral', 'CvlVerb'])}},
         'Map': {'SLMap': sorted(['SLMapFreq', 'SLMapMul', 'SLMapPhase', 'SLMapQ', 'SLMapDur', 'SLMapPan'])},
         'Server': [],
