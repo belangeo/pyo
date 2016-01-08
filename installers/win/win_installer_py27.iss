@@ -12,24 +12,24 @@
 AppId={{59447873-F994-4BC7-8B1D-0DDCA5B6AFFD}
 AppName={#appName}
 AppVersion={#appVer}
-AppPublisher=iACT.umontreal.ca
-AppPublisherURL=http://code.google.com/p/pyo
-AppSupportURL=http://code.google.com/p/pyo
-AppUpdatesURL=http://code.google.com/p/pyo
+AppPublisher=ajaxsoundstudio.com
+AppPublisherURL=https://github.com/belangeo/pyo
+AppSupportURL=https://github.com/belangeo/pyo
+AppUpdatesURL=https://github.com/belangeo/pyo
 DefaultDirName={code:GetDirName}
 DisableDirPage=no
 AlwaysShowDirOnReadyPage=yes
 DefaultGroupName={#appName}
 AllowNoIcons=yes
-InfoBeforeFile=C:\Users\olivier\svn\pyo\installers\win\\README-win32-py27.txt
-LicenseFile=C:\Users\olivier\svn\pyo\COPYING.txt
+InfoBeforeFile=C:\Users\olivier\git\pyo\installers\win\\README-win32-py27.txt
+LicenseFile=C:\Users\olivier\git\pyo\COPYING.txt
 OutputBaseFilename={#appName}_{#appVer}_py{#pyVer}_setup
 Compression=lzma
 SolidCompression=yes
 ChangesAssociations=yes
 ChangesEnvironment=yes
 DirExistsWarning=no
-SetupIconFile=C:\Users\olivier\svn\pyo\utils\E-PyoIcon.ico
+SetupIconFile=C:\Users\olivier\git\pyo\utils\E-PyoIcon.ico
 
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"
@@ -50,12 +50,12 @@ Source: "C:\Python27\Lib\site-packages\msvcr90.dll"; DestDir: "{app}\Lib\site-pa
 Source: "C:\MinGW\bin\libgcc_s_dw2-1.dll"; DestDir: "{app}\Lib\site-packages"; Flags: ignoreversion
 Source: "C:\MinGW\bin\libstdc++-6.dll"; DestDir: "{app}\Lib\site-packages"; Flags: ignoreversion
 Source: "C:\Python27\Lib\site-packages\pyo-{#appVer}-py{#pyVer}.egg-info"; DestDir: "{app}\Lib\site-packages"; Flags: ignoreversion
-Source: "C:\Users\olivier\svn\pyo\examples\*"; DestDir: "{userdesktop}\pyo_examples\"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "C:\Users\olivier\git\pyo\examples\*"; DestDir: "{userdesktop}\pyo_examples\"; Flags: ignoreversion recursesubdirs createallsubdirs
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 ; E-Pyo stuff
-Source: "C:\Users\olivier\svn\pyo\utils\E-Pyo_py27\E-Pyo.exe"; DestDir: "{pf}\E-Pyo"; Flags: ignoreversion
-Source: "C:\Users\olivier\svn\pyo\utils\E-Pyo_py27\Resources\*"; DestDir: "{pf}\E-Pyo\Resources"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "C:\Users\olivier\git\pyo\utils\E-Pyo_py27\E-Pyo.exe"; DestDir: "{pf}\E-Pyo"; Flags: ignoreversion
+Source: "C:\Users\olivier\git\pyo\utils\E-Pyo_py27\Resources\*"; DestDir: "{pf}\E-Pyo\Resources"; Flags: ignoreversion recursesubdirs createallsubdirs
 
 [Tasks]
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"
