@@ -1,8 +1,10 @@
 """
 Prefix expression evaluators.
 
-Language documentation
-======================
+API documentation
+=================
+
+* This API is in alpha stage and subject to future changes!
 
 Builtin functions
 -----------------
@@ -81,6 +83,12 @@ Constants:
 (twopi) : returns a constant with value pi*2.
 (e) : returns an approximated value of e.
 
+Comments
+--------
+
+A comment start with two slashs ( // ) and ends at the end of the line:
+    
+    // This is a comment!
 
 Input and Output signals
 ------------------------
@@ -189,6 +197,36 @@ Custom functions can be defined in an external file and imported with the
 The content of the file will be inserted where the load function is called
 and all functions defined inside the file will then be accessible. The path
 can be absolute or relative to the current working directory.
+
+Examples
+--------
+
+A first-order IIR lowpass filter:
+    
+    (var #sr 44100)
+    (var #cutoff 1000)
+    (let #coeff (exp (/ (* (* -2 (pi)) #cutoff) #sr)))
+    + $x[0] (* (- $y[-1] $x[0]) #coeff)
+
+A LFO'ed hyperbolic tangent distortion:
+    
+    // $1 = lfo frequency, $2 = lfo depth
+    (define lfo (
+            (+ (* (sin (* (twopi) (~ $1))) (- $2 1)) $2)
+        )
+    )
+    tanh (* $x[0] (lfo .25 10))
+
+A triangle waveform generator (use Sig(0) as input argument to bypass input):
+    
+    (var #freq 440)
+    // $1 = oscillator frequency
+    (define triangle (
+            (let #ph (~ $1))
+            (- (* (min #ph (- 1 #ph)) 4) 1)
+        )
+    )
+    triangle #freq
 
 """
 

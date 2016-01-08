@@ -8,8 +8,10 @@ Prefix audio expression evaluator.
 This family implements a tiny functional programming language that 
 can be used to write synthesis or signal processing algorithms.
 
-**Language documentation**
---------------------------
+**API documentation**
+---------------------
+
+This API is in alpha stage and subject to future changes!
 
 Builtin functions
 -----------------
@@ -88,6 +90,13 @@ Builtin functions
 - (twopi) : returns a constant with value pi*2.
 - \(e\) : returns an approximated value of e.
 
+
+Comments
+--------
+
+A comment start with two slashs ( // ) and ends at the end of the line::
+    
+    // This is a comment!
 
 Input and Output signals
 ------------------------
@@ -201,14 +210,14 @@ Examples
 
 Here is some expression examples.
 
-A first-order IIR lowpass filter:
+A first-order IIR lowpass filter::
     
     (var #sr 44100)
     (var #cutoff 1000)
     (let #coeff (exp (/ (* (* -2 (pi)) #cutoff) #sr)))
     + $x[0] (* (- $y[-1] $x[0]) #coeff)
 
-An LFO'ed hyperbolic tangent distortion:
+A LFO'ed hyperbolic tangent distortion::
     
     // $1 = lfo frequency, $2 = lfo depth
     (define lfo (
@@ -217,7 +226,7 @@ An LFO'ed hyperbolic tangent distortion:
     )
     tanh (* $x[0] (lfo .25 10))
 
-A triangle waveform generator (use Sig(0) as input argument to bypass input):
+A triangle waveform generator (use Sig(0) as input argument to bypass input)::
     
     (var #freq 440)
     // $1 = oscillator frequency

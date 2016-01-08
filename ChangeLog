@@ -10,6 +10,28 @@
 
     * Added Juce PyoPlugin framework in the embedded folder.
 
+2015-10-26 belangeo <belangeo@gmail.com>
+
+    * Fixed memory leak when using PyFloat_AS_DOUBLE(PyNumber_Float(x)) 
+      to fill table data.
+
+2015-10-25 belangeo <belangeo@gmail.com>
+
+    * Added a closeGui() method to the Server object. This allow to 
+      programatically close the Server window.
+
+2015-10-24 belangeo <belangeo@gmail.com>
+
+    * Added a method addMidiEvent to the Server object. This allow to 
+      programatically simulate MIDI events. Added the functionnaility 
+      to the embedded framework and modify the puredata pyo~ object help 
+      patch to illustrate how to generate MIDI events from the host program.
+
+2015-10-18 belangeo <belangeo@gmail.com>
+
+    *  Fixed triangle waveform amplitude in LFO object. Fixed calculation 
+       of Follower/Follower2 lowpass cutoff frequencies.
+
 2015-10-12 belangeo <belangeo@gmail.com>
 
     * Final revision for version 0.7.7.
