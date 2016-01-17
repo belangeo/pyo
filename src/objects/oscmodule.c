@@ -402,10 +402,7 @@ OscReceive_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 static PyObject *
 OscReceive_setInterpolation(OscReceive *self, PyObject *arg)
 {
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
     self->interpolation = PyInt_AsLong(arg);
 
@@ -643,10 +640,7 @@ OscSend_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 static PyObject *
 OscSend_setBufferRate(OscSend *self, PyObject *arg)
 {
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
     self->bufrate = PyInt_AsLong(arg);
     if (self->bufrate < 1)
@@ -890,10 +884,7 @@ OscDataSend_send(OscDataSend *self, PyObject *arg)
 {
     PyObject *tmp;
 
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
     if (PyList_Check(arg)) {
         tmp = arg;
@@ -1630,10 +1621,7 @@ OscListReceive_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 static PyObject *
 OscListReceive_setInterpolation(OscListReceive *self, PyObject *arg)
 {
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
     self->interpolation = PyInt_AsLong(arg);
 

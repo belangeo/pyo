@@ -577,10 +577,7 @@ WGVerb_setFeedback(WGVerb *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
 
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	int isNumber = PyNumber_Check(arg);
 
@@ -611,10 +608,7 @@ WGVerb_setCutoff(WGVerb *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
 
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	int isNumber = PyNumber_Check(arg);
 
@@ -645,10 +639,7 @@ WGVerb_setMix(WGVerb *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
 
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	int isNumber = PyNumber_Check(arg);
 
@@ -1579,10 +1570,7 @@ STReverb_setInpos(STReverb *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
 
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	int isNumber = PyNumber_Check(arg);
 
@@ -1613,10 +1601,7 @@ STReverb_setRevtime(STReverb *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
 
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	int isNumber = PyNumber_Check(arg);
 
@@ -1647,10 +1632,7 @@ STReverb_setCutoff(STReverb *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
 
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	int isNumber = PyNumber_Check(arg);
 
@@ -1681,10 +1663,7 @@ STReverb_setMix(STReverb *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
 
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	int isNumber = PyNumber_Check(arg);
 
@@ -1717,10 +1696,7 @@ STReverb_setRoomSize(STReverb *self, PyObject *arg)
     long maxsize;
 	MYFLT roomSize;
 
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	int isNumber = PyNumber_Check(arg);
 
@@ -1769,10 +1745,7 @@ STReverb_setFirstRefGain(STReverb *self, PyObject *arg)
 {
 	MYFLT tmp;
 
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	int isNumber = PyNumber_Check(arg);
 

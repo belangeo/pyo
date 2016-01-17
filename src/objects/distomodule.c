@@ -317,10 +317,7 @@ Disto_setDrive(Disto *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
 
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	int isNumber = PyNumber_Check(arg);
 
@@ -351,10 +348,7 @@ Disto_setSlope(Disto *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
 
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	int isNumber = PyNumber_Check(arg);
 
@@ -762,10 +756,7 @@ Clip_setMin(Clip *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
 
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	int isNumber = PyNumber_Check(arg);
 
@@ -796,10 +787,7 @@ Clip_setMax(Clip *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
 
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	int isNumber = PyNumber_Check(arg);
 
@@ -1237,10 +1225,7 @@ Mirror_setMin(Mirror *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
 
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	int isNumber = PyNumber_Check(arg);
 
@@ -1271,10 +1256,7 @@ Mirror_setMax(Mirror *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
 
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	int isNumber = PyNumber_Check(arg);
 
@@ -1736,10 +1718,7 @@ Wrap_setMin(Wrap *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
 
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	int isNumber = PyNumber_Check(arg);
 
@@ -1770,10 +1749,7 @@ Wrap_setMax(Wrap *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
 
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	int isNumber = PyNumber_Check(arg);
 
@@ -2226,10 +2202,7 @@ Degrade_setBitdepth(Degrade *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
 
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	int isNumber = PyNumber_Check(arg);
 
@@ -2260,10 +2233,7 @@ Degrade_setSrscale(Degrade *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
 
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	int isNumber = PyNumber_Check(arg);
 
@@ -2595,10 +2565,7 @@ Min_setComp(Min *self, PyObject *arg)
 {
     PyObject *tmp, *streamtmp;
 
-    if (arg == NULL) {
-        Py_INCREF(Py_None);
-        return Py_None;
-    }
+    ASSERT_ARG_NOT_NULL
 
     int isNumber = PyNumber_Check(arg);
 
@@ -2928,10 +2895,7 @@ Max_setComp(Max *self, PyObject *arg)
 {
     PyObject *tmp, *streamtmp;
 
-    if (arg == NULL) {
-        Py_INCREF(Py_None);
-        return Py_None;
-    }
+    ASSERT_ARG_NOT_NULL
 
     int isNumber = PyNumber_Check(arg);
 

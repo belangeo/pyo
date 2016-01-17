@@ -327,10 +327,7 @@ Panner_setPan(Panner *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
 
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	int isNumber = PyNumber_Check(arg);
 
@@ -361,10 +358,7 @@ Panner_setSpread(Panner *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
 
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	int isNumber = PyNumber_Check(arg);
 
@@ -985,10 +979,7 @@ SPanner_setPan(SPanner *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
 
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	int isNumber = PyNumber_Check(arg);
 
@@ -1534,10 +1525,7 @@ Switcher_setVoice(Switcher *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
 
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	int isNumber = PyNumber_Check(arg);
 
@@ -2373,10 +2361,7 @@ Mixer_setTime(Mixer *self, PyObject *arg)
     int i, j, num;
 	PyObject *tmp, *keys, *key, *list_of_time_counts;
 
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	int isNumber = PyNumber_Check(arg);
 
@@ -3075,10 +3060,7 @@ Selector_setVoice(Selector *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
 
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	int isNumber = PyNumber_Check(arg);
 

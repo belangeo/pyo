@@ -246,10 +246,7 @@ Metro_setTime(Metro *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
 
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	int isNumber = PyNumber_Check(arg);
 
@@ -610,10 +607,7 @@ Seqer_setTime(Seqer *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
 
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	int isNumber = PyNumber_Check(arg);
 
@@ -644,10 +638,7 @@ Seqer_setSeq(Seqer *self, PyObject *arg)
 {
 	PyObject *tmp;
 
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	int isList = PyList_Check(arg);
 
@@ -1141,10 +1132,7 @@ Clouder_setDensity(Clouder *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
 
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	int isNumber = PyNumber_Check(arg);
 
@@ -2268,10 +2256,7 @@ Beater_setTime(Beater *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
 
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	int isNumber = PyNumber_Check(arg);
 

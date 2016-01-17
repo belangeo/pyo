@@ -383,10 +383,7 @@ SfPlayer_setSpeed(SfPlayer *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
 
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	int isNumber = PyNumber_Check(arg);
 
@@ -415,11 +412,10 @@ SfPlayer_setSpeed(SfPlayer *self, PyObject *arg)
 static PyObject *
 SfPlayer_setSound(SfPlayer *self, PyObject *arg)
 {
-    /* Need to perform a check to be sure that the new sound is of the same number of channels */
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    /* Need to perform a check to be sure that the new 
+       sound is of the same number of channels. */
+
+    ASSERT_ARG_NOT_NULL
 
     self->path = PyString_AsString(arg);
 
@@ -449,10 +445,7 @@ SfPlayer_setSound(SfPlayer *self, PyObject *arg)
 static PyObject *
 SfPlayer_setLoop(SfPlayer *self, PyObject *arg)
 {
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
     self->loop = PyInt_AsLong(arg);
 
@@ -463,10 +456,7 @@ SfPlayer_setLoop(SfPlayer *self, PyObject *arg)
 static PyObject *
 SfPlayer_setOffset(SfPlayer *self, PyObject *arg)
 {
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
     int isNumber = PyNumber_Check(arg);
 
@@ -483,10 +473,7 @@ SfPlayer_setOffset(SfPlayer *self, PyObject *arg)
 static PyObject *
 SfPlayer_setInterp(SfPlayer *self, PyObject *arg)
 {
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
     int isNumber = PyNumber_Check(arg);
 
@@ -1179,10 +1166,7 @@ SfMarkerShuffler_setSpeed(SfMarkerShuffler *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
 
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	int isNumber = PyNumber_Check(arg);
 
@@ -1211,10 +1195,7 @@ SfMarkerShuffler_setSpeed(SfMarkerShuffler *self, PyObject *arg)
 static PyObject *
 SfMarkerShuffler_setInterp(SfMarkerShuffler *self, PyObject *arg)
 {
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
     int isNumber = PyNumber_Check(arg);
 
@@ -1933,10 +1914,7 @@ SfMarkerLooper_setSpeed(SfMarkerLooper *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
 
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	int isNumber = PyNumber_Check(arg);
 
@@ -1965,10 +1943,7 @@ SfMarkerLooper_setMark(SfMarkerLooper *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
 
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	int isNumber = PyNumber_Check(arg);
 
@@ -1995,10 +1970,7 @@ SfMarkerLooper_setMark(SfMarkerLooper *self, PyObject *arg)
 static PyObject *
 SfMarkerLooper_setInterp(SfMarkerLooper *self, PyObject *arg)
 {
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
     int isNumber = PyNumber_Check(arg);
 

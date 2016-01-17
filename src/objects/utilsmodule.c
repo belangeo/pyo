@@ -167,10 +167,7 @@ static PyObject * Print_stop(Print *self) { STOP };
 static PyObject *
 Print_setMethod(Print *self, PyObject *arg)
 {
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	int isNumber = PyNumber_Check(arg);
 
@@ -186,10 +183,7 @@ Print_setMethod(Print *self, PyObject *arg)
 static PyObject *
 Print_setInterval(Print *self, PyObject *arg)
 {
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	int isNumber = PyNumber_Check(arg);
 
@@ -204,10 +198,7 @@ Print_setInterval(Print *self, PyObject *arg)
 static PyObject *
 Print_setMessage(Print *self, PyObject *arg)
 {
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	int isString = PyString_Check(arg);
 
@@ -530,10 +521,8 @@ static PyObject *
 Snap_setScale(Snap *self, PyObject *arg)
 {
     int tmp;
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+
+    ASSERT_ARG_NOT_NULL
 
 	int isNumber = PyInt_Check(arg);
 
@@ -882,10 +871,7 @@ Interp_setInterp(Interp *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
 
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	int isNumber = PyNumber_Check(arg);
 
@@ -1255,10 +1241,7 @@ SampHold_setValue(SampHold *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
 
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	int isNumber = PyNumber_Check(arg);
 
@@ -1632,10 +1615,7 @@ TrackHold_setValue(TrackHold *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
 
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	int isNumber = PyNumber_Check(arg);
 
@@ -2006,9 +1986,7 @@ Compare_setComp(Compare *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
 
-	if (arg == NULL) {
-		Py_RETURN_NONE;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	int isNumber = PyNumber_Check(arg);
 
@@ -2037,9 +2015,7 @@ Compare_setComp(Compare *self, PyObject *arg)
 static PyObject *
 Compare_setMode(Compare *self, PyObject *arg)
 {
-	if (arg == NULL) {
-		Py_RETURN_NONE;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	if (! PyInt_Check(arg)) {
         printf("mode should be a comparison operator as a string\n");
@@ -2432,10 +2408,7 @@ Between_setMin(Between *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
 
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	int isNumber = PyNumber_Check(arg);
 
@@ -2466,10 +2439,7 @@ Between_setMax(Between *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
 
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	int isNumber = PyNumber_Check(arg);
 
@@ -3779,10 +3749,7 @@ Scale_setInMin(Scale *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
 
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	int isNumber = PyNumber_Check(arg);
 
@@ -3813,10 +3780,7 @@ Scale_setInMax(Scale *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
 
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	int isNumber = PyNumber_Check(arg);
 
@@ -3847,10 +3811,7 @@ Scale_setOutMin(Scale *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
 
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	int isNumber = PyNumber_Check(arg);
 
@@ -3881,10 +3842,7 @@ Scale_setOutMax(Scale *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
 
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	int isNumber = PyNumber_Check(arg);
 
@@ -3915,10 +3873,7 @@ Scale_setExp(Scale *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
 
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	int isNumber = PyNumber_Check(arg);
 
@@ -5316,10 +5271,7 @@ MToT_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 static PyObject *
 MToT_setCentralKey(MToT *self, PyObject *arg)
 {
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	int isNumber = PyNumber_Check(arg);
 

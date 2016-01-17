@@ -632,10 +632,7 @@ Midictl_setInterpolation(Midictl *self, PyObject *arg)
 {
     int tmp;
 
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	int isNum = PyInt_Check(arg);
 
@@ -656,10 +653,7 @@ Midictl_setValue(Midictl *self, PyObject *arg)
 {
     int tmp;
 
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	int isNum = PyNumber_Check(arg);
 
@@ -677,10 +671,7 @@ Midictl_setMinScale(Midictl *self, PyObject *arg)
 {
     int tmp;
 
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	int isNum = PyNumber_Check(arg);
 
@@ -698,10 +689,7 @@ Midictl_setMaxScale(Midictl *self, PyObject *arg)
 {
     int tmp;
 
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	int isNum = PyNumber_Check(arg);
 
@@ -719,10 +707,7 @@ Midictl_setCtlNumber(Midictl *self, PyObject *arg)
 {
     int tmp;
 
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	int isInt = PyInt_Check(arg);
 
@@ -741,10 +726,7 @@ Midictl_setChannel(Midictl *self, PyObject *arg)
 {
     int tmp;
 
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	int isInt = PyInt_Check(arg);
 
@@ -1072,10 +1054,7 @@ Bendin_setBrange(Bendin *self, PyObject *arg)
 {
     MYFLT tmp;
 
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	int isNum = PyNumber_Check(arg);
 
@@ -1094,10 +1073,7 @@ Bendin_setChannel(Bendin *self, PyObject *arg)
 {
     int tmp;
 
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	int isInt = PyInt_Check(arg);
 
@@ -1116,10 +1092,7 @@ Bendin_setScale(Bendin *self, PyObject *arg)
 {
     int tmp;
 
-    if (arg == NULL) {
-        Py_INCREF(Py_None);
-        return Py_None;
-    }
+    ASSERT_ARG_NOT_NULL
 
     int isInt = PyInt_Check(arg);
 
@@ -1439,10 +1412,7 @@ Touchin_setMinScale(Touchin *self, PyObject *arg)
 {
     int tmp;
 
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	int isNum = PyNumber_Check(arg);
 
@@ -1460,10 +1430,7 @@ Touchin_setMaxScale(Touchin *self, PyObject *arg)
 {
     int tmp;
 
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	int isNum = PyNumber_Check(arg);
 
@@ -1481,10 +1448,7 @@ Touchin_setChannel(Touchin *self, PyObject *arg)
 {
     int tmp;
 
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	int isInt = PyInt_Check(arg);
 
@@ -1790,10 +1754,7 @@ Programin_setChannel(Programin *self, PyObject *arg)
 {
     int tmp;
 
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	int isInt = PyInt_Check(arg);
 
@@ -2162,10 +2123,7 @@ MidiNote_setChannel(MidiNote *self, PyObject *arg)
 {
     int tmp;
 
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	int isInt = PyInt_Check(arg);
 
@@ -2184,10 +2142,7 @@ MidiNote_setCentralKey(MidiNote *self, PyObject *arg)
 {
     int tmp;
 
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	int isInt = PyInt_Check(arg);
 
@@ -2204,10 +2159,7 @@ MidiNote_setCentralKey(MidiNote *self, PyObject *arg)
 static PyObject *
 MidiNote_setStealing(MidiNote *self, PyObject *arg)
 {
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	int isInt = PyInt_Check(arg);
 

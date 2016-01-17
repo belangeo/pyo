@@ -4221,10 +4221,7 @@ SndTable_getEnvelope(SndTable *self, PyObject *arg) {
     MYFLT absin, last;
     PyObject *samples;
 
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	int isInt = PyInt_Check(arg);
 
@@ -5407,10 +5404,7 @@ TableRec_setTable(TableRec *self, PyObject *arg)
 {
 	PyObject *tmp;
 
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	tmp = arg;
     Py_INCREF(tmp);
@@ -5875,10 +5869,7 @@ TableMorph_setTable(TableMorph *self, PyObject *arg)
 {
 	PyObject *tmp;
 
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	tmp = arg;
     Py_INCREF(tmp);
@@ -5892,10 +5883,7 @@ TableMorph_setTable(TableMorph *self, PyObject *arg)
 static PyObject *
 TableMorph_setSources(TableMorph *self, PyObject *arg)
 {
-    if (arg == NULL) {
-        PyErr_SetString(PyExc_TypeError, "Cannot delete the list attribute.");
-        return PyInt_FromLong(-1);
-    }
+    ASSERT_ARG_NOT_NULL
 
     if (! PyList_Check(arg)) {
         PyErr_SetString(PyExc_TypeError, "The amplitude list attribute value must be a list.");
@@ -6206,10 +6194,7 @@ TrigTableRec_setTable(TrigTableRec *self, PyObject *arg)
 {
 	PyObject *tmp;
 
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	tmp = arg;
     Py_INCREF(tmp);
@@ -6662,10 +6647,7 @@ TablePut_setTable(TablePut *self, PyObject *arg)
 {
 	PyObject *tmp;
 
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	tmp = arg;
     Py_INCREF(tmp);
@@ -6852,10 +6834,7 @@ TableWrite_setPos(TableWrite *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
 
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	tmp = arg;
 	if (PyObject_HasAttrString((PyObject *)tmp, "server") == 0) {
@@ -6881,10 +6860,7 @@ TableWrite_setTable(TableWrite *self, PyObject *arg)
 {
 	PyObject *tmp;
 
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	tmp = arg;
     Py_INCREF(tmp);

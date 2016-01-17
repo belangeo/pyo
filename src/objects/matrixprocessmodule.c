@@ -219,10 +219,7 @@ MatrixPointer_setMatrix(MatrixPointer *self, PyObject *arg)
 {
 	PyObject *tmp;
 
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	tmp = arg;
     if ( PyObject_HasAttrString((PyObject *)tmp, "getMatrixStream") == 0 ) {
@@ -242,10 +239,7 @@ MatrixPointer_setX(MatrixPointer *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
 
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	tmp = arg;
 
@@ -272,10 +266,7 @@ MatrixPointer_setY(MatrixPointer *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
 
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	tmp = arg;
 

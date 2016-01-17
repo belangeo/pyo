@@ -330,10 +330,7 @@ Sine_setFreq(Sine *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
 
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	int isNumber = PyNumber_Check(arg);
 
@@ -364,10 +361,7 @@ Sine_setPhase(Sine *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
 
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	int isNumber = PyNumber_Check(arg);
 
@@ -778,10 +772,7 @@ SineLoop_setFreq(SineLoop *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
 
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	int isNumber = PyNumber_Check(arg);
 
@@ -812,10 +803,7 @@ SineLoop_setFeedback(SineLoop *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
 
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	int isNumber = PyNumber_Check(arg);
 
@@ -1270,10 +1258,7 @@ Osc_setTable(Osc *self, PyObject *arg)
 {
 	PyObject *tmp;
 
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	tmp = arg;
 	Py_DECREF(self->table);
@@ -1288,10 +1273,7 @@ Osc_setFreq(Osc *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
 
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	int isNumber = PyNumber_Check(arg);
 
@@ -1322,10 +1304,7 @@ Osc_setPhase(Osc *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
 
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	int isNumber = PyNumber_Check(arg);
 
@@ -1354,10 +1333,7 @@ Osc_setPhase(Osc *self, PyObject *arg)
 static PyObject *
 Osc_setInterp(Osc *self, PyObject *arg)
 {
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
     int isNumber = PyNumber_Check(arg);
 
@@ -1800,10 +1776,7 @@ OscLoop_setTable(OscLoop *self, PyObject *arg)
 {
 	PyObject *tmp;
 
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	tmp = arg;
 	Py_DECREF(self->table);
@@ -1818,10 +1791,7 @@ OscLoop_setFreq(OscLoop *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
 
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	int isNumber = PyNumber_Check(arg);
 
@@ -1852,10 +1822,7 @@ OscLoop_setFeedback(OscLoop *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
 
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	int isNumber = PyNumber_Check(arg);
 
@@ -2329,10 +2296,7 @@ OscTrig_setTable(OscTrig *self, PyObject *arg)
 {
 	PyObject *tmp;
 
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	tmp = arg;
 	Py_DECREF(self->table);
@@ -2347,10 +2311,7 @@ OscTrig_setTrig(OscTrig *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
 
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	int isNumber = PyNumber_Check(arg);
 
@@ -2378,10 +2339,7 @@ OscTrig_setFreq(OscTrig *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
 
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	int isNumber = PyNumber_Check(arg);
 
@@ -2412,10 +2370,7 @@ OscTrig_setPhase(OscTrig *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
 
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	int isNumber = PyNumber_Check(arg);
 
@@ -2444,10 +2399,7 @@ OscTrig_setPhase(OscTrig *self, PyObject *arg)
 static PyObject *
 OscTrig_setInterp(OscTrig *self, PyObject *arg)
 {
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
     int isNumber = PyNumber_Check(arg);
 
@@ -2874,10 +2826,7 @@ Phasor_setFreq(Phasor *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
 
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	int isNumber = PyNumber_Check(arg);
 
@@ -2908,10 +2857,7 @@ Phasor_setPhase(Phasor *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
 
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	int isNumber = PyNumber_Check(arg);
 
@@ -3244,10 +3190,7 @@ Pointer_setTable(Pointer *self, PyObject *arg)
 {
 	PyObject *tmp;
 
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	tmp = arg;
 	Py_DECREF(self->table);
@@ -3262,10 +3205,7 @@ Pointer_setIndex(Pointer *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
 
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	tmp = arg;
 	if (PyObject_HasAttrString((PyObject *)tmp, "server") == 0) {
@@ -3619,10 +3559,7 @@ Pointer2_setTable(Pointer2 *self, PyObject *arg)
 {
 	PyObject *tmp;
 
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	tmp = arg;
 	Py_DECREF(self->table);
@@ -3637,10 +3574,7 @@ Pointer2_setIndex(Pointer2 *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
 
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	tmp = arg;
 	if (PyObject_HasAttrString((PyObject *)tmp, "server") == 0) {
@@ -3664,10 +3598,7 @@ Pointer2_setIndex(Pointer2 *self, PyObject *arg)
 static PyObject *
 Pointer2_setInterp(Pointer2 *self, PyObject *arg)
 {
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
     int isNumber = PyNumber_Check(arg);
 
@@ -3684,10 +3615,7 @@ Pointer2_setInterp(Pointer2 *self, PyObject *arg)
 static PyObject *
 Pointer2_setAutoSmooth(Pointer2 *self, PyObject *arg)
 {
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
     int isNumber = PyNumber_Check(arg);
 
@@ -4001,10 +3929,7 @@ TableIndex_setTable(TableIndex *self, PyObject *arg)
 {
 	PyObject *tmp;
 
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	tmp = arg;
 	Py_DECREF(self->table);
@@ -4019,10 +3944,7 @@ TableIndex_setIndex(TableIndex *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
 
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	tmp = arg;
 	if (PyObject_HasAttrString((PyObject *)tmp, "server") == 0) {
@@ -4351,10 +4273,7 @@ Lookup_setTable(Lookup *self, PyObject *arg)
 {
 	PyObject *tmp;
 
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	tmp = arg;
 	Py_DECREF(self->table);
@@ -4369,10 +4288,7 @@ Lookup_setIndex(Lookup *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
 
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	tmp = arg;
 	if (PyObject_HasAttrString((PyObject *)tmp, "server") == 0) {
@@ -5099,10 +5015,7 @@ Pulsar_setTable(Pulsar *self, PyObject *arg)
 {
 	PyObject *tmp;
 
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	tmp = arg;
 	Py_DECREF(self->table);
@@ -5117,10 +5030,7 @@ Pulsar_setEnv(Pulsar *self, PyObject *arg)
 {
 	PyObject *tmp;
 
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	tmp = arg;
 	Py_DECREF(self->env);
@@ -5135,10 +5045,7 @@ Pulsar_setFreq(Pulsar *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
 
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	int isNumber = PyNumber_Check(arg);
 
@@ -5169,10 +5076,7 @@ Pulsar_setPhase(Pulsar *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
 
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	int isNumber = PyNumber_Check(arg);
 
@@ -5203,10 +5107,7 @@ Pulsar_setFrac(Pulsar *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
 
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	int isNumber = PyNumber_Check(arg);
 
@@ -5235,10 +5136,7 @@ Pulsar_setFrac(Pulsar *self, PyObject *arg)
 static PyObject *
 Pulsar_setInterp(Pulsar *self, PyObject *arg)
 {
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
     int isNumber = PyNumber_Check(arg);
 
@@ -5685,10 +5583,7 @@ TableRead_setTable(TableRead *self, PyObject *arg)
 {
 	PyObject *tmp;
 
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	tmp = arg;
 	Py_DECREF(self->table);
@@ -5703,10 +5598,7 @@ TableRead_setFreq(TableRead *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
 
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	int isNumber = PyNumber_Check(arg);
 
@@ -5735,10 +5627,7 @@ TableRead_setFreq(TableRead *self, PyObject *arg)
 static PyObject *
 TableRead_setLoop(TableRead *self, PyObject *arg)
 {
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
     self->loop = PyInt_AsLong(arg);
 
@@ -5749,10 +5638,7 @@ TableRead_setLoop(TableRead *self, PyObject *arg)
 static PyObject *
 TableRead_setInterp(TableRead *self, PyObject *arg)
 {
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
     int isNumber = PyNumber_Check(arg);
 
@@ -6336,10 +6222,7 @@ Fm_setCarrier(Fm *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
 
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	int isNumber = PyNumber_Check(arg);
 
@@ -6370,10 +6253,7 @@ Fm_setRatio(Fm *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
 
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	int isNumber = PyNumber_Check(arg);
 
@@ -6404,10 +6284,7 @@ Fm_setIndex(Fm *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
 
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	int isNumber = PyNumber_Check(arg);
 
@@ -6829,10 +6706,7 @@ CrossFm_setCarrier(CrossFm *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
 
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	int isNumber = PyNumber_Check(arg);
 
@@ -6863,10 +6737,7 @@ CrossFm_setRatio(CrossFm *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
 
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	int isNumber = PyNumber_Check(arg);
 
@@ -6897,10 +6768,7 @@ CrossFm_setInd1(CrossFm *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
 
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	int isNumber = PyNumber_Check(arg);
 
@@ -6931,10 +6799,7 @@ CrossFm_setInd2(CrossFm *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
 
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	int isNumber = PyNumber_Check(arg);
 
@@ -7371,10 +7236,7 @@ Blit_setFreq(Blit *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
 
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	int isNumber = PyNumber_Check(arg);
 
@@ -7405,10 +7267,7 @@ Blit_setHarms(Blit *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
 
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	int isNumber = PyNumber_Check(arg);
 
@@ -7895,10 +7754,7 @@ Rossler_setPitch(Rossler *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
 
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	int isNumber = PyNumber_Check(arg);
 
@@ -7929,10 +7785,7 @@ Rossler_setChaos(Rossler *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
 
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	int isNumber = PyNumber_Check(arg);
 
@@ -8676,10 +8529,7 @@ Lorenz_setPitch(Lorenz *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
 
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	int isNumber = PyNumber_Check(arg);
 
@@ -8710,10 +8560,7 @@ Lorenz_setChaos(Lorenz *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
 
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	int isNumber = PyNumber_Check(arg);
 
@@ -9645,10 +9492,7 @@ SumOsc_setFreq(SumOsc *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
 
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	int isNumber = PyNumber_Check(arg);
 
@@ -9679,10 +9523,7 @@ SumOsc_setRatio(SumOsc *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
 
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	int isNumber = PyNumber_Check(arg);
 
@@ -9713,10 +9554,7 @@ SumOsc_setIndex(SumOsc *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
 
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	int isNumber = PyNumber_Check(arg);
 
@@ -10507,10 +10345,7 @@ SuperSaw_setFreq(SuperSaw *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
 
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	int isNumber = PyNumber_Check(arg);
 
@@ -10541,10 +10376,7 @@ SuperSaw_setDetune(SuperSaw *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
 
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	int isNumber = PyNumber_Check(arg);
 
@@ -10575,10 +10407,7 @@ SuperSaw_setBal(SuperSaw *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
 
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	int isNumber = PyNumber_Check(arg);
 
@@ -11014,10 +10843,7 @@ RCOsc_setFreq(RCOsc *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
 
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	int isNumber = PyNumber_Check(arg);
 
@@ -11048,10 +10874,7 @@ RCOsc_setSharp(RCOsc *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
 
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	int isNumber = PyNumber_Check(arg);
 
@@ -11411,10 +11234,7 @@ TableScale_setTable(TableScale *self, PyObject *arg)
 {
 	PyObject *tmp;
 
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	tmp = arg;
 	Py_DECREF(self->table);
@@ -11436,10 +11256,7 @@ TableScale_setOuttable(TableScale *self, PyObject *arg)
 {
 	PyObject *tmp;
 
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	tmp = arg;
 	Py_DECREF(self->outtable);

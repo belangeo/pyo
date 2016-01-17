@@ -422,10 +422,7 @@ Biquad_setFreq(Biquad *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
 
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	int isNumber = PyNumber_Check(arg);
 
@@ -456,10 +453,7 @@ Biquad_setQ(Biquad *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
 
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	int isNumber = PyNumber_Check(arg);
 
@@ -488,11 +482,7 @@ Biquad_setQ(Biquad *self, PyObject *arg)
 static PyObject *
 Biquad_setType(Biquad *self, PyObject *arg)
 {
-
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	int isInt = PyInt_Check(arg);
 
@@ -1053,10 +1043,7 @@ Biquadx_setFreq(Biquadx *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
 
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	int isNumber = PyNumber_Check(arg);
 
@@ -1087,10 +1074,7 @@ Biquadx_setQ(Biquadx *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
 
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	int isNumber = PyNumber_Check(arg);
 
@@ -1119,11 +1103,7 @@ Biquadx_setQ(Biquadx *self, PyObject *arg)
 static PyObject *
 Biquadx_setType(Biquadx *self, PyObject *arg)
 {
-
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	int isInt = PyInt_Check(arg);
 
@@ -1140,11 +1120,7 @@ Biquadx_setType(Biquadx *self, PyObject *arg)
 static PyObject *
 Biquadx_setStages(Biquadx *self, PyObject *arg)
 {
-
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	int isInt = PyInt_Check(arg);
 
@@ -1483,8 +1459,7 @@ Biquada_setB0(Biquada *self, PyObject *arg)
 {
 	PyObject *streamtmp;
 
-	if (arg == NULL)
-		Py_RETURN_NONE;
+    ASSERT_ARG_NOT_NULL
 
     streamtmp = PyObject_CallMethod((PyObject *)arg, "_getStream", NULL);
     Py_INCREF(streamtmp);
@@ -1499,8 +1474,7 @@ Biquada_setB1(Biquada *self, PyObject *arg)
 {
 	PyObject *streamtmp;
 
-	if (arg == NULL)
-		Py_RETURN_NONE;
+    ASSERT_ARG_NOT_NULL
 
     streamtmp = PyObject_CallMethod((PyObject *)arg, "_getStream", NULL);
     Py_INCREF(streamtmp);
@@ -1515,8 +1489,7 @@ Biquada_setB2(Biquada *self, PyObject *arg)
 {
 	PyObject *streamtmp;
 
-	if (arg == NULL)
-		Py_RETURN_NONE;
+    ASSERT_ARG_NOT_NULL
 
     streamtmp = PyObject_CallMethod((PyObject *)arg, "_getStream", NULL);
     Py_INCREF(streamtmp);
@@ -1531,8 +1504,7 @@ Biquada_setA0(Biquada *self, PyObject *arg)
 {
 	PyObject *streamtmp;
 
-	if (arg == NULL)
-		Py_RETURN_NONE;
+    ASSERT_ARG_NOT_NULL
 
     streamtmp = PyObject_CallMethod((PyObject *)arg, "_getStream", NULL);
     Py_INCREF(streamtmp);
@@ -1547,8 +1519,7 @@ Biquada_setA1(Biquada *self, PyObject *arg)
 {
 	PyObject *streamtmp;
 
-	if (arg == NULL)
-		Py_RETURN_NONE;
+    ASSERT_ARG_NOT_NULL
 
     streamtmp = PyObject_CallMethod((PyObject *)arg, "_getStream", NULL);
     Py_INCREF(streamtmp);
@@ -1563,8 +1534,7 @@ Biquada_setA2(Biquada *self, PyObject *arg)
 {
 	PyObject *streamtmp;
 
-	if (arg == NULL)
-		Py_RETURN_NONE;
+    ASSERT_ARG_NOT_NULL
 
     streamtmp = PyObject_CallMethod((PyObject *)arg, "_getStream", NULL);
     Py_INCREF(streamtmp);
@@ -2199,10 +2169,7 @@ EQ_setFreq(EQ *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
 
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	int isNumber = PyNumber_Check(arg);
 
@@ -2233,10 +2200,7 @@ EQ_setQ(EQ *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
 
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	int isNumber = PyNumber_Check(arg);
 
@@ -2267,10 +2231,7 @@ EQ_setBoost(EQ *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
 
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	int isNumber = PyNumber_Check(arg);
 
@@ -2299,11 +2260,7 @@ EQ_setBoost(EQ *self, PyObject *arg)
 static PyObject *
 EQ_setType(EQ *self, PyObject *arg)
 {
-
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	int isInt = PyInt_Check(arg);
 
@@ -2723,10 +2680,7 @@ Port_setRiseTime(Port *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
 
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	int isNumber = PyNumber_Check(arg);
 
@@ -2757,10 +2711,7 @@ Port_setFallTime(Port *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
 
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	int isNumber = PyNumber_Check(arg);
 
@@ -3131,10 +3082,7 @@ Tone_setFreq(Tone *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
 
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	int isNumber = PyNumber_Check(arg);
 
@@ -3501,10 +3449,7 @@ Atone_setFreq(Atone *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
 
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	int isNumber = PyNumber_Check(arg);
 
@@ -4269,10 +4214,7 @@ Allpass_setDelay(Allpass *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
 
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	int isNumber = PyNumber_Check(arg);
 
@@ -4303,10 +4245,7 @@ Allpass_setFeedback(Allpass *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
 
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	int isNumber = PyNumber_Check(arg);
 
@@ -4749,10 +4688,7 @@ Allpass2_setFreq(Allpass2 *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
 
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	int isNumber = PyNumber_Check(arg);
 
@@ -4783,10 +4719,7 @@ Allpass2_setBw(Allpass2 *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
 
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	int isNumber = PyNumber_Check(arg);
 
@@ -5528,10 +5461,7 @@ Phaser_setFreq(Phaser *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
 
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	int isNumber = PyNumber_Check(arg);
 
@@ -5562,10 +5492,7 @@ Phaser_setSpread(Phaser *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
 
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	int isNumber = PyNumber_Check(arg);
 
@@ -5596,10 +5523,7 @@ Phaser_setQ(Phaser *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
 
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	int isNumber = PyNumber_Check(arg);
 
@@ -5630,10 +5554,7 @@ Phaser_setFeedback(Phaser *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
 
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	int isNumber = PyNumber_Check(arg);
 
@@ -6775,10 +6696,7 @@ Vocoder_setFreq(Vocoder *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
 
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	int isNumber = PyNumber_Check(arg);
 
@@ -6809,10 +6727,7 @@ Vocoder_setSpread(Vocoder *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
 
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	int isNumber = PyNumber_Check(arg);
 
@@ -6843,10 +6758,7 @@ Vocoder_setQ(Vocoder *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
 
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	int isNumber = PyNumber_Check(arg);
 
@@ -6877,10 +6789,7 @@ Vocoder_setSlope(Vocoder *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
 
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	int isNumber = PyNumber_Check(arg);
 
@@ -6909,11 +6818,7 @@ Vocoder_setSlope(Vocoder *self, PyObject *arg)
 static PyObject *
 Vocoder_setStages(Vocoder *self, PyObject *arg)
 {
-
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	int isInt = PyInt_Check(arg);
 
@@ -7646,10 +7551,7 @@ SVF_setFreq(SVF *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
 
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	int isNumber = PyNumber_Check(arg);
 
@@ -7680,10 +7582,7 @@ SVF_setQ(SVF *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
 
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	int isNumber = PyNumber_Check(arg);
 
@@ -7714,10 +7613,7 @@ SVF_setType(SVF *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
 
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	int isNumber = PyNumber_Check(arg);
 
@@ -8070,10 +7966,8 @@ static PyObject *
 Average_setSize(Average *self, PyObject *arg)
 {
 	int i;
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+
+    ASSERT_ARG_NOT_NULL
 
 	int isInt = PyInt_Check(arg);
 
@@ -8521,10 +8415,7 @@ Reson_setFreq(Reson *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
 
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	int isNumber = PyNumber_Check(arg);
 
@@ -8555,10 +8446,7 @@ Reson_setQ(Reson *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
 
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	int isNumber = PyNumber_Check(arg);
 
@@ -9054,10 +8942,7 @@ Resonx_setFreq(Resonx *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
 
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	int isNumber = PyNumber_Check(arg);
 
@@ -9088,10 +8973,7 @@ Resonx_setQ(Resonx *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
 
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	int isNumber = PyNumber_Check(arg);
 
@@ -9120,11 +9002,7 @@ Resonx_setQ(Resonx *self, PyObject *arg)
 static PyObject *
 Resonx_setStages(Resonx *self, PyObject *arg)
 {
-
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	int isInt = PyInt_Check(arg);
 
@@ -9503,10 +9381,7 @@ ButLP_setFreq(ButLP *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
 
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	int isNumber = PyNumber_Check(arg);
 
@@ -9895,10 +9770,7 @@ ButHP_setFreq(ButHP *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
 
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	int isNumber = PyNumber_Check(arg);
 
@@ -10359,10 +10231,7 @@ ButBP_setFreq(ButBP *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
 
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	int isNumber = PyNumber_Check(arg);
 
@@ -10393,10 +10262,7 @@ ButBP_setQ(ButBP *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
 
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	int isNumber = PyNumber_Check(arg);
 
@@ -10859,10 +10725,7 @@ ButBR_setFreq(ButBR *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
 
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	int isNumber = PyNumber_Check(arg);
 
@@ -10893,10 +10756,7 @@ ButBR_setQ(ButBR *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
 
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	int isNumber = PyNumber_Check(arg);
 
@@ -11366,10 +11226,7 @@ ComplexRes_setFreq(ComplexRes *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
 
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	int isNumber = PyNumber_Check(arg);
 
@@ -11400,10 +11257,7 @@ ComplexRes_setDecay(ComplexRes *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
 
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	int isNumber = PyNumber_Check(arg);
 

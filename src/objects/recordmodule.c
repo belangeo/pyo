@@ -739,10 +739,7 @@ ControlRead_setValues(ControlRead *self, PyObject *arg)
 {
     Py_ssize_t i;
 
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
     self->size = PyList_Size(arg);
     self->values = (MYFLT *)realloc(self->values, self->size * sizeof(MYFLT));
@@ -757,10 +754,7 @@ ControlRead_setValues(ControlRead *self, PyObject *arg)
 static PyObject *
 ControlRead_setRate(ControlRead *self, PyObject *arg)
 {
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
     self->rate = PyInt_AsLong(arg);
     self->modulo = (int)(self->sr / self->rate);
@@ -772,10 +766,7 @@ ControlRead_setRate(ControlRead *self, PyObject *arg)
 static PyObject *
 ControlRead_setLoop(ControlRead *self, PyObject *arg)
 {
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
     self->loop = PyInt_AsLong(arg);
 
@@ -786,10 +777,7 @@ ControlRead_setLoop(ControlRead *self, PyObject *arg)
 static PyObject *
 ControlRead_setInterp(ControlRead *self, PyObject *arg)
 {
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
     int isNumber = PyNumber_Check(arg);
 
@@ -1353,10 +1341,7 @@ NoteinRead_setValues(NoteinRead *self, PyObject *arg)
 {
     Py_ssize_t i;
 
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
     self->size = PyList_Size(arg);
     self->values = (MYFLT *)realloc(self->values, self->size * sizeof(MYFLT));
@@ -1373,10 +1358,7 @@ NoteinRead_setTimestamps(NoteinRead *self, PyObject *arg)
 {
     Py_ssize_t i;
 
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
     self->size = PyList_Size(arg);
     self->timestamps = (long *)realloc(self->timestamps, self->size * sizeof(long));
@@ -1391,10 +1373,7 @@ NoteinRead_setTimestamps(NoteinRead *self, PyObject *arg)
 static PyObject *
 NoteinRead_setLoop(NoteinRead *self, PyObject *arg)
 {
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
     self->loop = PyInt_AsLong(arg);
 

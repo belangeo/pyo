@@ -198,10 +198,7 @@ static PyObject * Select_inplace_div(Select *self, PyObject *arg) { INPLACE_DIV 
 static PyObject *
 Select_setValue(Select *self, PyObject *arg)
 {
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	if (PyLong_Check(arg) || PyInt_Check(arg)) {
 		self->value = PyLong_AsLong(arg);

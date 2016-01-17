@@ -1113,10 +1113,7 @@ Linseg_setList(Linseg *self, PyObject *value)
 static PyObject *
 Linseg_setLoop(Linseg *self, PyObject *arg)
 {
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
     self->loop = PyInt_AsLong(arg);
 
@@ -1534,10 +1531,7 @@ Expseg_setList(Expseg *self, PyObject *value)
 static PyObject *
 Expseg_setLoop(Expseg *self, PyObject *arg)
 {
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
     self->loop = PyInt_AsLong(arg);
 
@@ -1548,10 +1542,7 @@ Expseg_setLoop(Expseg *self, PyObject *arg)
 static PyObject *
 Expseg_setExp(Expseg *self, PyObject *arg)
 {
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	if (PyNumber_Check(arg))
         self->exp_tmp = PyFloat_AsDouble(arg);
@@ -1563,10 +1554,7 @@ Expseg_setExp(Expseg *self, PyObject *arg)
 static PyObject *
 Expseg_setInverse(Expseg *self, PyObject *arg)
 {
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	if (PyNumber_Check(arg))
         self->inverse_tmp = PyInt_AsLong(PyNumber_Int(arg));

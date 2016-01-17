@@ -252,10 +252,7 @@ Follower_setFreq(Follower *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
 
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	int isNumber = PyNumber_Check(arg);
 
@@ -723,10 +720,7 @@ Follower2_setRisetime(Follower2 *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
 
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	int isNumber = PyNumber_Check(arg);
 
@@ -757,10 +751,7 @@ Follower2_setFalltime(Follower2 *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
 
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	int isNumber = PyNumber_Check(arg);
 
@@ -1074,10 +1065,7 @@ static PyObject * ZCross_inplace_div(ZCross *self, PyObject *arg) { INPLACE_DIV 
 static PyObject *
 ZCross_setThresh(ZCross *self, PyObject *arg)
 {
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	int isNumber = PyNumber_Check(arg);
 
@@ -1463,10 +1451,7 @@ static PyObject * Yin_inplace_div(Yin *self, PyObject *arg) { INPLACE_DIV };
 static PyObject *
 Yin_setTolerance(Yin *self, PyObject *arg)
 {
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	int isNumber = PyNumber_Check(arg);
 
@@ -1480,10 +1465,7 @@ Yin_setTolerance(Yin *self, PyObject *arg)
 static PyObject *
 Yin_setMinfreq(Yin *self, PyObject *arg)
 {
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	int isNumber = PyNumber_Check(arg);
 
@@ -1497,10 +1479,7 @@ Yin_setMinfreq(Yin *self, PyObject *arg)
 static PyObject *
 Yin_setMaxfreq(Yin *self, PyObject *arg)
 {
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	int isNumber = PyNumber_Check(arg);
 
@@ -1514,10 +1493,7 @@ Yin_setMaxfreq(Yin *self, PyObject *arg)
 static PyObject *
 Yin_setCutoff(Yin *self, PyObject *arg)
 {
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	int isNumber = PyNumber_Check(arg);
 
@@ -2234,10 +2210,7 @@ static PyObject * AttackDetector_inplace_div(AttackDetector *self, PyObject *arg
 static PyObject *
 AttackDetector_setDeltime(AttackDetector *self, PyObject *arg)
 {
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	int isNumber = PyNumber_Check(arg);
 
@@ -2254,10 +2227,7 @@ AttackDetector_setDeltime(AttackDetector *self, PyObject *arg)
 static PyObject *
 AttackDetector_setCutoff(AttackDetector *self, PyObject *arg)
 {
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	int isNumber = PyNumber_Check(arg);
 
@@ -2274,10 +2244,7 @@ AttackDetector_setCutoff(AttackDetector *self, PyObject *arg)
 static PyObject *
 AttackDetector_setMaxthresh(AttackDetector *self, PyObject *arg)
 {
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	int isNumber = PyNumber_Check(arg);
 
@@ -2293,10 +2260,7 @@ AttackDetector_setMaxthresh(AttackDetector *self, PyObject *arg)
 static PyObject *
 AttackDetector_setMinthresh(AttackDetector *self, PyObject *arg)
 {
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	int isNumber = PyNumber_Check(arg);
 
@@ -2312,10 +2276,7 @@ AttackDetector_setMinthresh(AttackDetector *self, PyObject *arg)
 static PyObject *
 AttackDetector_setReltime(AttackDetector *self, PyObject *arg)
 {
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	int isNumber = PyNumber_Check(arg);
 

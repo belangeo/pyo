@@ -198,10 +198,7 @@ static PyObject * Noise_inplace_div(Noise *self, PyObject *arg) { INPLACE_DIV };
 static PyObject *
 Noise_setType(Noise *self, PyObject *arg)
 {
-    if (arg == NULL) {
-        Py_INCREF(Py_None);
-        return Py_None;
-    }
+    ASSERT_ARG_NOT_NULL
 
     if (PyInt_AS_LONG(arg) == 0)
         self->type = 0;

@@ -236,10 +236,7 @@ TrigRandInt_setMax(TrigRandInt *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
 
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	int isNumber = PyNumber_Check(arg);
 
@@ -701,10 +698,7 @@ TrigRand_setMin(TrigRand *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
 
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	int isNumber = PyNumber_Check(arg);
 
@@ -735,10 +729,7 @@ TrigRand_setMax(TrigRand *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
 
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	int isNumber = PyNumber_Check(arg);
 
@@ -769,10 +760,7 @@ TrigRand_setPort(TrigRand *self, PyObject *arg)
 {
 	PyObject *tmp;
 
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	int isNumber = PyNumber_Check(arg);
 
@@ -1128,10 +1116,7 @@ TrigChoice_setPort(TrigChoice *self, PyObject *arg)
 {
 	PyObject *tmp;
 
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	int isNumber = PyNumber_Check(arg);
 
@@ -1761,10 +1746,7 @@ TrigEnv_setTable(TrigEnv *self, PyObject *arg)
 {
 	PyObject *tmp;
 
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	tmp = arg;
 	Py_DECREF(self->table);
@@ -1779,10 +1761,7 @@ TrigEnv_setDur(TrigEnv *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
 
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	int isNumber = PyNumber_Check(arg);
 
@@ -1811,10 +1790,7 @@ TrigEnv_setDur(TrigEnv *self, PyObject *arg)
 static PyObject *
 TrigEnv_setInterp(TrigEnv *self, PyObject *arg)
 {
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
     int isNumber = PyNumber_Check(arg);
 
@@ -2617,10 +2593,7 @@ TrigExpseg_setList(TrigExpseg *self, PyObject *value)
 static PyObject *
 TrigExpseg_setExp(TrigExpseg *self, PyObject *arg)
 {
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
     // TODO: PyNumber_Check()
     self->exp_tmp = PyFloat_AsDouble(arg);
@@ -2632,10 +2605,7 @@ TrigExpseg_setExp(TrigExpseg *self, PyObject *arg)
 static PyObject *
 TrigExpseg_setInverse(TrigExpseg *self, PyObject *arg)
 {
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
     self->inverse_tmp = PyInt_AsLong(PyNumber_Int(arg));
 
@@ -3308,10 +3278,7 @@ static PyObject * TrigXnoise_inplace_div(TrigXnoise *self, PyObject *arg) { INPL
 static PyObject *
 TrigXnoise_setType(TrigXnoise *self, PyObject *arg)
 {
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	int isNumber = PyInt_Check(arg);
 
@@ -3329,10 +3296,7 @@ TrigXnoise_setX1(TrigXnoise *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
 
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	int isNumber = PyNumber_Check(arg);
 
@@ -3363,10 +3327,7 @@ TrigXnoise_setX2(TrigXnoise *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
 
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	int isNumber = PyNumber_Check(arg);
 
@@ -4100,10 +4061,7 @@ static PyObject * TrigXnoiseMidi_inplace_div(TrigXnoiseMidi *self, PyObject *arg
 static PyObject *
 TrigXnoiseMidi_setType(TrigXnoiseMidi *self, PyObject *arg)
 {
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	int isNumber = PyInt_Check(arg);
 
@@ -4120,10 +4078,8 @@ static PyObject *
 TrigXnoiseMidi_setScale(TrigXnoiseMidi *self, PyObject *arg)
 {
     int tmp;
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+
+    ASSERT_ARG_NOT_NULL
 
 	int isNumber = PyInt_Check(arg);
 
@@ -4164,10 +4120,7 @@ TrigXnoiseMidi_setX1(TrigXnoiseMidi *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
 
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	int isNumber = PyNumber_Check(arg);
 
@@ -4198,10 +4151,7 @@ TrigXnoiseMidi_setX2(TrigXnoiseMidi *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
 
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	int isNumber = PyNumber_Check(arg);
 
@@ -4540,10 +4490,7 @@ static PyObject * Counter_inplace_div(Counter *self, PyObject *arg) { INPLACE_DI
 static PyObject *
 Counter_setMin(Counter *self, PyObject *arg)
 {
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	if (PyLong_Check(arg) || PyInt_Check(arg)) {
 		self->min = PyLong_AsLong(arg);
@@ -4556,10 +4503,7 @@ Counter_setMin(Counter *self, PyObject *arg)
 static PyObject *
 Counter_setMax(Counter *self, PyObject *arg)
 {
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	if (PyLong_Check(arg) || PyInt_Check(arg)) {
 		self->max = PyLong_AsLong(arg);
@@ -4572,10 +4516,7 @@ Counter_setMax(Counter *self, PyObject *arg)
 static PyObject *
 Counter_setDir(Counter *self, PyObject *arg)
 {
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	if (PyInt_Check(arg)) {
 		self->dir = PyInt_AsLong(arg);
@@ -4979,10 +4920,7 @@ Thresh_setThreshold(Thresh *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
 
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	int isNumber = PyNumber_Check(arg);
 
@@ -5011,10 +4949,7 @@ Thresh_setThreshold(Thresh *self, PyObject *arg)
 static PyObject *
 Thresh_setDir(Thresh *self, PyObject *arg)
 {
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	if (PyInt_Check(arg)) {
 		self->dir = PyInt_AsLong(arg);
@@ -5338,10 +5273,7 @@ Percent_setPercent(Percent *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
 
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	int isNumber = PyNumber_Check(arg);
 
@@ -6888,10 +6820,7 @@ TrigVal_setValue(TrigVal *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
 
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	int isNumber = PyNumber_Check(arg);
 

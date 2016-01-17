@@ -2827,10 +2827,7 @@ VectralMain_setUp(VectralMain *self, PyObject *arg)
 {
     PyObject *tmp, *streamtmp;
 
-    if (arg == NULL) {
-        Py_INCREF(Py_None);
-        return Py_None;
-    }
+    ASSERT_ARG_NOT_NULL
 
     int isNumber = PyNumber_Check(arg);
 
@@ -2859,10 +2856,7 @@ VectralMain_setDown(VectralMain *self, PyObject *arg)
 {
     PyObject *tmp, *streamtmp;
 
-    if (arg == NULL) {
-        Py_INCREF(Py_None);
-        return Py_None;
-    }
+    ASSERT_ARG_NOT_NULL
 
     int isNumber = PyNumber_Check(arg);
 
@@ -2891,10 +2885,7 @@ VectralMain_setDamp(VectralMain *self, PyObject *arg)
 {
     PyObject *tmp, *streamtmp;
 
-    if (arg == NULL) {
-        Py_INCREF(Py_None);
-        return Py_None;
-    }
+    ASSERT_ARG_NOT_NULL
 
     int isNumber = PyNumber_Check(arg);
 
@@ -3674,10 +3665,7 @@ CvlVerb_setBal(CvlVerb *self, PyObject *arg)
 {
     PyObject *tmp, *streamtmp;
 
-    if (arg == NULL) {
-        Py_INCREF(Py_None);
-        return Py_None;
-    }
+    ASSERT_ARG_NOT_NULL
 
     int isNumber = PyNumber_Check(arg);
 

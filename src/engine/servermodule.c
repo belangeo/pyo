@@ -2006,11 +2006,7 @@ Server_setAmpCallable(Server *self, PyObject *arg)
     int i;
     PyObject *tmp;
 
-    if (arg == NULL) {
-        Server_error(self,"The amplitude callable attribute must be a method.\n");
-        Py_INCREF(Py_None);
-        return Py_None;
-    }
+    ASSERT_ARG_NOT_NULL
 
     tmp = arg;
     Py_XDECREF(self->GUI);
@@ -2041,11 +2037,7 @@ Server_setTimeCallable(Server *self, PyObject *arg)
     int i;
     PyObject *tmp;
 
-    if (arg == NULL) {
-        Server_error(self,"The time callable attribute must be a method.\n");
-        Py_INCREF(Py_None);
-        return Py_None;
-    }
+    ASSERT_ARG_NOT_NULL
 
     tmp = arg;
     Py_XDECREF(self->TIME);

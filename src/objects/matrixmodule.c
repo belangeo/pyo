@@ -638,10 +638,7 @@ MatrixRec_setMatrix(MatrixRec *self, PyObject *arg)
 {
 	PyObject *tmp;
 
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	tmp = arg;
     Py_INCREF(tmp);
@@ -831,10 +828,7 @@ MatrixRecLoop_setMatrix(MatrixRecLoop *self, PyObject *arg)
 {
 	PyObject *tmp;
 
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	tmp = arg;
     Py_INCREF(tmp);
@@ -1043,10 +1037,7 @@ MatrixMorph_setMatrix(MatrixMorph *self, PyObject *arg)
 {
 	PyObject *tmp;
 
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    ASSERT_ARG_NOT_NULL
 
 	tmp = arg;
     Py_INCREF(tmp);
@@ -1060,10 +1051,7 @@ MatrixMorph_setMatrix(MatrixMorph *self, PyObject *arg)
 static PyObject *
 MatrixMorph_setSources(MatrixMorph *self, PyObject *arg)
 {
-    if (arg == NULL) {
-        PyErr_SetString(PyExc_TypeError, "Cannot delete the list attribute.");
-        return PyInt_FromLong(-1);
-    }
+    ASSERT_ARG_NOT_NULL
 
     if (! PyList_Check(arg)) {
         PyErr_SetString(PyExc_TypeError, "The amplitude list attribute value must be a list.");

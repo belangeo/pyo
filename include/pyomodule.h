@@ -618,6 +618,12 @@ extern PyTypeObject ExprType;
         Server_removeStream((Server *)self->server, Stream_getStreamId(self->stream)); \
     free(self->data); \
 
+#define ASSERT_ARG_NOT_NULL \
+	if (arg == NULL) { \
+		Py_INCREF(Py_None); \
+		return Py_None; \
+	}
+
 /* INIT INPUT STREAM */
 #define INIT_INPUT_STREAM \
     if ( PyObject_HasAttrString((PyObject *)inputtmp, "server") == 0 ) { \
