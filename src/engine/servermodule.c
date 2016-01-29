@@ -1227,6 +1227,7 @@ Server_offline_start(Server *self)
         offline_process_block((Server *) self);
     }
     self->server_started = 0;
+    self->server_stopped = 1;
     self->record = 0;
     sf_close(self->recfile);
     Server_message(self,"Offline Server rendering finished.\n");
@@ -2636,8 +2637,9 @@ Server_removeStream(Server *self, int id)
 {
     int i, sid;
     Stream *stream_tmp;
-
-    if (PyObject_HasAttrString((PyObject *)self, "streams")) {
+    PyGILState_STATE s = PyGILState_Ensure();
+    //if (PyObject_HasAttrString((PyObject *)self, "streams")) {
+    if (PySequence_Size(self->streams) != -1) {
         for (i=0; i<self->stream_count; i++) {
             stream_tmp = (Stream *)PyList_GetItem(self->streams, i);
             if (stream_tmp != NULL) {
@@ -2651,6 +2653,7 @@ Server_removeStream(Server *self, int id)
             }
         }
     }
+    PyGILState_Release(s);
 
     Py_INCREF(Py_None);
     return Py_None;

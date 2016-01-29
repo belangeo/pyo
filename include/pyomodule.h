@@ -587,8 +587,7 @@ extern PyTypeObject ExprType;
 
 #define pyo_CLEAR \
     if (self->server != NULL) { \
-        Py_INCREF(self->server); \
-        Py_CLEAR(self->server); \
+        self->server = NULL; \
     } \
     if (self->stream != NULL) \
         Py_CLEAR(self->stream); \
@@ -599,16 +598,14 @@ extern PyTypeObject ExprType;
 
 #define pyo_table_CLEAR \
     if (self->server != NULL) { \
-        Py_INCREF(self->server); \
-        Py_CLEAR(self->server); \
+        self->server = NULL; \
     } \
     if (self->tablestream != NULL) \
         Py_CLEAR(self->tablestream); \
 
 #define pyo_matrix_CLEAR \
     if (self->server != NULL) { \
-        Py_INCREF(self->server); \
-        Py_CLEAR(self->server); \
+        self->server = NULL; \
     } \
     if (self->matrixstream != NULL) \
         Py_CLEAR(self->matrixstream); \
