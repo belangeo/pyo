@@ -2289,6 +2289,14 @@ AttackDetector_setReltime(AttackDetector *self, PyObject *arg)
 	Py_RETURN_NONE;
 }
 
+static PyObject *
+AttackDetector_readyToDetect(AttackDetector *self)
+{
+    self->overminok = 1;
+    self->timer = self->maxtime;
+	Py_RETURN_NONE;
+}
+
 static PyMemberDef AttackDetector_members[] = {
 {"server", T_OBJECT_EX, offsetof(AttackDetector, server), 0, "Pyo server."},
 {"stream", T_OBJECT_EX, offsetof(AttackDetector, stream), 0, "Stream object."},
@@ -2308,6 +2316,7 @@ static PyMethodDef AttackDetector_methods[] = {
 {"setMaxthresh", (PyCFunction)AttackDetector_setMaxthresh, METH_O, "Sets the higher threshold."},
 {"setMinthresh", (PyCFunction)AttackDetector_setMinthresh, METH_O, "Sets the lower threshold."},
 {"setReltime", (PyCFunction)AttackDetector_setReltime, METH_O, "Sets the release time (min time between two detected attacks)."},
+{"readyToDetect", (PyCFunction)AttackDetector_readyToDetect, METH_NOARGS, "Initializes thresholds."},
 {"setMul", (PyCFunction)AttackDetector_setMul, METH_O, "Sets oscillator mul factor."},
 {"setAdd", (PyCFunction)AttackDetector_setAdd, METH_O, "Sets oscillator add factor."},
 {"setSub", (PyCFunction)AttackDetector_setSub, METH_O, "Sets inverse add factor."},

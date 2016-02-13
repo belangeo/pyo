@@ -1919,7 +1919,7 @@ int firstEmpty(int *buf, int len) {
 int nextEmptyVoice(int *buf, int voice, int len) {
     int i, tmp;
     int next = -1;
-    for (i=0; i<len; i++) {
+    for (i=1; i<=len; i++) {
         tmp = (i + voice) % len;
         if (buf[tmp*2+1] == 0) {
             next = tmp;
