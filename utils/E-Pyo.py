@@ -3316,6 +3316,11 @@ class MainFrame(wx.Frame):
         wx.AboutBox(info)
 
     def OnClose(self, event):
+	msg = "You are about to leave LE-Pyo. Is this really what you want to do?"
+	dlg = wx.MessageDialog(self, msg, "Warning!", wx.YES_NO|wx.ICON_QUESTION)
+	if dlg.ShowModal() != wx.ID_YES:
+	    event.StopPropagation()
+	    return
         if self.back_server_started == True:
             try:
                 self.startStopBackgroundServer(None)
