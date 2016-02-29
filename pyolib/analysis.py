@@ -853,9 +853,9 @@ class Spectrum(PyoObject):
         self._in_fader = InputFader(input)
         in_fader, size, wintype, lmax = convertArgsToLists(self._in_fader, size, wintype)
         self._base_objs = [Spectrum_base(wrap(in_fader,i), wrap(size,i), wrap(wintype,i)) for i in range(lmax)]
+        self._timer = Pattern(self.refreshView, 0.05).play()
         if function == None:
             self.view()
-        self._timer = Pattern(self.refreshView, 0.05).play()
 
     def setInput(self, x, fadetime=0.05):
         """
@@ -948,6 +948,38 @@ class Spectrum(PyoObject):
         """
         pyoArgsAssert(self, "N", time)
         self._timer.time = time
+
+    def setLowFreq(self, x):
+        """
+        Sets the lower frequency, in Hz, returned by the analysis.
+
+        :Args:
+
+            x : float
+                New low frequency in Hz. Adjusts the `lowbound` attribute, as `x / sr`.
+
+        """
+        pyoArgsAssert(self, "n", x)
+        x /= self.getServer().getSamplingRate()
+        self._lowbound = x
+        x, lmax = convertArgsToLists(x)
+        tmp = [obj.setLowbound(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def setHighFreq(self, x):
+        """
+        Sets the higher frequency, in Hz, returned by the analysis.
+
+        :Args:
+
+            x : float
+                New high frequency in Hz. Adjusts the `highbound` attribute, as `x / sr`.
+
+        """
+        pyoArgsAssert(self, "n", x)
+        x /= self.getServer().getSamplingRate()
+        self._highbound = x
+        x, lmax = convertArgsToLists(x)
+        tmp = [obj.setHighbound(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
     def setLowbound(self, x):
         """
@@ -1138,7 +1170,6 @@ class Spectrum(PyoObject):
         if self.viewFrame != None:
             self.viewFrame.update(self.points)
 
-
     @property
     def input(self):
         """PyoObject. Input signal to process."""
@@ -1228,6 +1259,11 @@ class Scope(PyoObject):
         gain : float, optional
             Linear gain applied to the signal to be displayed.
             Can't be a list. Defaults to 0.67.
+        function : python callable, optional
+            If set, this function will be called with samples (as
+            list of lists, one list per channel). Useful if someone
+            wants to save the analysis data into a text file.
+            Defaults to None.
 
     .. note::
 
@@ -1242,21 +1278,23 @@ class Scope(PyoObject):
     >>> scope = Scope(a+b)
 
     """
-    def __init__(self, input, length=0.05, gain=0.67):
-        pyoArgsAssert(self, "oNN", input, length, gain)
+    def __init__(self, input, length=0.05, gain=0.67, function=None):
+        pyoArgsAssert(self, "oNNC", input, length, gain, function)
         PyoObject.__init__(self)
         self.points = None
         self.viewFrame = None
         self._input = input
         self._length = length
         self._gain = gain
+        self._function = function
         self._width = 500
         self._height = 400
         self._in_fader = InputFader(input)
         in_fader, lmax = convertArgsToLists(self._in_fader)
         self._base_objs = [Scope_base(wrap(in_fader,i), length) for i in range(lmax)]
-        self.view()
         self._timer = Pattern(self.refreshView, length).play()
+        if function == None:
+            self.view()
 
     def setInput(self, x, fadetime=0.05):
         """
@@ -1376,6 +1414,21 @@ class Scope(PyoObject):
         pyoArgsAssert(self, "SB", title, wxnoserver)
         createScopeWindow(self, title, wxnoserver)
 
+    def setFunction(self, function):
+        """
+        Sets the function to be called to retrieve the analysis data.
+
+        :Args:
+
+            function : python callable
+                The function called by the internal timer to retrieve the
+                analysis data. The function must be created with one argument
+                and will receive the data as a list of lists (one list per channel).
+
+        """
+        pyoArgsAssert(self, "C", function)
+        self._function = getWeakMethodRef(function)
+
     def _setViewFrame(self, frame):
         self.viewFrame = frame
 
@@ -1389,7 +1442,8 @@ class Scope(PyoObject):
         self.points = [obj.display() for obj in self._base_objs]
         if self.viewFrame != None:
             self.viewFrame.update(self.points)
-
+        if self._function is not None:
+            self._function(self.points)
 
     @property
     def input(self):

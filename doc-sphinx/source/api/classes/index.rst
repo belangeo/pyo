@@ -31,4 +31,5 @@ Classes by category
    tables
    matrices
    map
+   wxgui
 

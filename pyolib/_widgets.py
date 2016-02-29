@@ -73,10 +73,8 @@ MATRIXWINDOWS = []
 SPECTRUMWINDOWS = []
 SCOPEWINDOWS = []
 EXPREDITORWINDOWS = []
-WX_APP = False
 
 def createRootWindow():
-    global WX_APP
     if not PYO_USE_WX:
         if len(WINDOWS) == 0:
             root = Tk()
@@ -85,9 +83,8 @@ def createRootWindow():
         else:
             return None
     else:
-        if not WX_APP:
-            win = wx.App(False)
-            WX_APP = True
+        if wx.GetApp() is None:
+            win = wx.App()
             return win
         else:
             return None
@@ -130,7 +127,7 @@ def wxDisplayWindow(f, title):
 def wxShowWindow(f, title, root):
     f.SetTitle(title)
     f.Show()
-    if root != None:
+    if root is not None:
         root.MainLoop()
 
 def wxCreateDelayedCtrlWindows():
@@ -215,7 +212,7 @@ def createCtrlWindow(obj, map_list, title, wxnoserver=False):
         if title == None: title = obj.__class__.__name__
         win.title(title)
     else:
-        if wxnoserver or WX_APP:
+        if wxnoserver or wx.GetApp() is not None:
             root = createRootWindow()
             f = PyoObjectControl(None, obj, map_list)
             if title == None: title = obj.__class__.__name__
@@ -227,7 +224,7 @@ def createGraphWindow(obj, mode, xlen, yrange, title, wxnoserver=False):
     if not PYO_USE_WX:
         print "WxPython must be installed to use the 'graph()' method."
     else:
-        if wxnoserver or WX_APP:
+        if wxnoserver or wx.GetApp() is not None:
             root = createRootWindow()
             f = TableGrapher(None, obj, mode, xlen, yrange)
             if title == None: title = obj.__class__.__name__
@@ -239,12 +236,12 @@ def createDataGraphWindow(obj, yrange, title, wxnoserver=False):
     if not PYO_USE_WX:
         print "WxPython must be installed to use the 'graph()' method."
     else:
-        if wxnoserver or WX_APP:
+        if wxnoserver or wx.GetApp() is not None:
             root = createRootWindow()
             f = DataTableGrapher(None, obj, yrange)
             if title == None: title = obj.__class__.__name__
-            wxShowWindow(f, title, root)
             obj._setGraphFrame(f)
+            wxShowWindow(f, title, root)
         else:
             DATAGRAPHWINDOWS.append([obj, yrange, title])
 
@@ -257,12 +254,12 @@ def createViewTableWindow(samples, title="Table waveform", wxnoserver=False, tab
         win.resizable(False, False)
         win.title(title)
     else:
-        if wxnoserver or WX_APP:
+        if wxnoserver or wx.GetApp() is not None:
             root = createRootWindow()
             f = ViewTable(None, samples, tableclass, object)
-            wxShowWindow(f, title, root)
             if object != None:
                 object._setViewFrame(f)
+            wxShowWindow(f, title, root)
         else:
             TABLEWINDOWS.append([samples, tableclass, title, object])
 
@@ -275,12 +272,12 @@ def createSndViewTableWindow(obj, title="Table waveform", wxnoserver=False, tabl
         win.resizable(False, False)
         win.title(title)
     else:
-        if wxnoserver or WX_APP:
+        if wxnoserver or wx.GetApp() is not None:
             root = createRootWindow()
             f = SndViewTable(None, obj, tableclass, mouse_callback)
             if title == None: title = obj.__class__.__name__
-            wxShowWindow(f, title, root)
             obj._setViewFrame(f)
+            wxShowWindow(f, title, root)
         else:
             SNDTABLEWINDOWS.append([obj, tableclass, title, mouse_callback])
 
@@ -295,13 +292,13 @@ It helps a lot to speed up matrix drawing!"""
         win.resizable(False, False)
         win.title(title)
     else:
-        if wxnoserver or WX_APP:
+        if wxnoserver or wx.GetApp() is not None:
             root = createRootWindow()
             if WITH_PIL: f = ViewMatrix_withPIL(None, samples, size, object)
             else: f = ViewMatrix_withoutPIL(None, samples, size, object)
-            wxShowWindow(f, title, root)
             if object != None:
                 object._setViewFrame(f)
+            wxShowWindow(f, title, root)
         else:
             MATRIXWINDOWS.append([samples,size,title, object])
 
@@ -309,13 +306,13 @@ def createSpectrumWindow(object, title, wxnoserver=False):
     if not PYO_USE_WX:
         print "WxPython must be installed to use the Spectrum display."
     else:
-        if wxnoserver or WX_APP:
+        if wxnoserver or wx.GetApp() is not None:
             root = createRootWindow()
             f = SpectrumDisplay(None, object)
             if title == None: title = object.__class__.__name__
-            wxShowWindow(f, title, root)
             if object != None:
                 object._setViewFrame(f)
+            wxShowWindow(f, title, root)
         else:
             SPECTRUMWINDOWS.append([object, title])
 
@@ -323,13 +320,13 @@ def createScopeWindow(object, title, wxnoserver=False):
     if not PYO_USE_WX:
         print "WxPython must be installed to use the Scope display."
     else:
-        if wxnoserver or WX_APP:
+        if wxnoserver or wx.GetApp() is not None:
             root = createRootWindow()
             f = ScopeDisplay(None, object)
             if title == None: title = object.__class__.__name__
-            wxShowWindow(f, title, root)
             if object != None:
                 object._setViewFrame(f)
+            wxShowWindow(f, title, root)
         else:
             SCOPEWINDOWS.append([object, title])
 
@@ -337,7 +334,7 @@ def createExprEditorWindow(object, title, wxnoserver=False):
     if not PYO_USE_WX:
         print "WxPython must be installed to use the Expr editor display."
     else:
-        if wxnoserver or WX_APP:
+        if wxnoserver or wx.GetApp() is not None:
             root = createRootWindow()
             f = ExprEditorFrame(None, object)
             if title == None: title = object.__class__.__name__

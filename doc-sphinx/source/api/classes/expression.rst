@@ -94,7 +94,7 @@ Builtin functions
 Comments
 --------
 
-A comment start with two slashs ( // ) and ends at the end of the line::
+A comment starts with two slashs ( // ) and ends at the end of the line::
     
     // This is a comment!
 

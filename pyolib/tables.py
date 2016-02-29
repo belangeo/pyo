@@ -1463,6 +1463,7 @@ class SndTable(PyoTableObject):
             else:
                 [obj.setSound(path, (i%_snd_chnls), start, stop) for i, obj in enumerate(self._base_objs)]
         self.refreshView()
+        self._resetView()
 
     def append(self, path, crossfade=0, start=0, stop=None):
         """
@@ -1692,6 +1693,11 @@ class SndTable(PyoTableObject):
     def refreshView(self):
         if self.viewFrame != None:
             self.viewFrame.update()
+
+    def _resetView(self):
+        if self.viewFrame != None:
+            if hasattr(self.viewFrame, "_setZoom"):
+                self.viewFrame._setZoom()
 
     @property
     def sound(self):

@@ -18,7 +18,7 @@ You should have received a copy of the GNU Lesser General Public
 License along with pyo.  If not, see <http://www.gnu.org/licenses/>.
 """
 import wx, os, sys, math, time, random, unicodedata
-from types import ListType, FloatType, IntType, UnicodeType
+from types import ListType, FloatType, IntType, UnicodeType, TupleType
 import wx.stc as stc
 
 try:
@@ -400,6 +400,8 @@ class ControlSlider(wx.Panel):
 
         evt.Skip()
 
+# TODO: key, command and slmap should be removed from the multislider widget.
+# It should work in the same way as the ControlSlider widget.
 class MultiSlider(wx.Panel):
     def __init__(self, parent, init, key, command, slmap):
         wx.Panel.__init__(self, parent, size=(250,250))
@@ -480,12 +482,13 @@ class MultiSlider(wx.Panel):
             self.Refresh()
 
 class VuMeter(wx.Panel):
-    def __init__(self, parent, size=(200,11), numSliders=2, orient=wx.HORIZONTAL):
+    def __init__(self, parent, size=(200,11), numSliders=2, orient=wx.HORIZONTAL, 
+                 pos=wx.DefaultPosition, style=0):
         if orient == wx.HORIZONTAL:
             size = (size[0], numSliders * 5 + 1)
         else:
             size = (numSliders * 5 + 1, size[1])
-        wx.Panel.__init__(self, parent, -1, size=size)
+        wx.Panel.__init__(self, parent, -1, pos=pos, size=size, style=style)
         self.parent = parent
         self.orient = orient
         self.SetBackgroundColour("#000000")
@@ -589,8 +592,11 @@ class VuMeter(wx.Panel):
             height = 6
             for i in range(self.numSliders):
                 y = i * (height - 1)
-                db = math.log10(self.amplitude[i]+0.00001) * 0.2 + 1.
-                width = int(db*w)
+                if i < len(self.amplitude):
+                    db = math.log10(self.amplitude[i]+0.00001) * 0.2 + 1.
+                    width = int(db*w)
+                else:
+                    width = 0
                 dc.DrawBitmap(self.backBitmap, 0, y)
                 if width > 0:
                     dc.SetClippingRegion(0, y, width, height)
@@ -600,8 +606,11 @@ class VuMeter(wx.Panel):
             width = 6
             for i in range(self.numSliders):
                 y = i * (width - 1)
-                db = math.log10(self.amplitude[i]+0.00001) * 0.2 + 1.
-                height = int(db*h)
+                if i < len(self.amplitude):
+                    db = math.log10(self.amplitude[i]+0.00001) * 0.2 + 1.
+                    height = int(db*h)
+                else:
+                    height = 0
                 dc.DrawBitmap(self.backBitmap, y, 0)
                 if height > 0:
                     dc.SetClippingRegion(y, h-height, width, height)
@@ -612,12 +621,17 @@ class VuMeter(wx.Panel):
     def OnClose(self, evt):
         self.Destroy()
 
+# TODO: BACKGROUND_COLOUR hard-coded all over the place in this class.
 class RangeSlider(wx.Panel):
     def __init__(self, parent, minvalue, maxvalue, init=None, pos=(0,0), size=(200,15),
-                 valtype='int', log=False, function=None):
+                 valtype='int', log=False, function=None, backColour=None):
         wx.Panel.__init__(self, parent=parent, id=wx.ID_ANY, pos=pos, size=size, style=wx.NO_BORDER)
+        if backColour:
+            self.backgroundColour = backColour
+        else:
+            self.backgroundColour = BACKGROUND_COLOUR
         self.SetBackgroundStyle(wx.BG_STYLE_CUSTOM)
-        self.SetBackgroundColour(BACKGROUND_COLOUR)
+        self.SetBackgroundColour(self.backgroundColour)
         self.SetMinSize(self.GetSize())
         self.sliderHeight = 15
         self.borderWidth = 1
@@ -653,8 +667,8 @@ class RangeSlider(wx.Panel):
         w, h = self.GetSize()
         b = wx.EmptyBitmap(w,h)
         dc = wx.MemoryDC(b)
-        dc.SetPen(wx.Pen(BACKGROUND_COLOUR, width=1))
-        dc.SetBrush(wx.Brush(BACKGROUND_COLOUR))
+        dc.SetPen(wx.Pen(self.backgroundColour, width=1))
+        dc.SetBrush(wx.Brush(self.backgroundColour))
         dc.DrawRectangle(0,0,w,h)
         dc.SetBrush(wx.Brush("#777777"))
         dc.SetPen(wx.Pen("#FFFFFF", width=1))
@@ -749,9 +763,10 @@ class RangeSlider(wx.Panel):
 
 class HRangeSlider(RangeSlider):
     def __init__(self, parent, minvalue, maxvalue, init=None, pos=(0,0), size=(200,15),
-                 valtype='int', log=False, function=None):
-        RangeSlider.__init__(self, parent, minvalue, maxvalue, init, pos, size, valtype, log, function)
+                 valtype='int', log=False, function=None, backColour=None):
+        RangeSlider.__init__(self, parent, minvalue, maxvalue, init, pos, size, valtype, log, function, backColour)
         self.SetMinSize((50, 15))
+
         self.createSliderBitmap()
         #self.createBackgroundBitmap()
         self.clampHandlePos()
@@ -767,11 +782,11 @@ class HRangeSlider(RangeSlider):
         self.backgroundBitmap = wx.EmptyBitmap(w,h)
         dc = wx.MemoryDC(self.backgroundBitmap)
 
-        dc.SetBrush(wx.Brush(BACKGROUND_COLOUR, wx.SOLID))
+        dc.SetBrush(wx.Brush(self.backgroundColour, wx.SOLID))
         dc.Clear()
 
         # Draw background
-        dc.SetPen(wx.Pen(BACKGROUND_COLOUR, width=self.borderWidth, style=wx.SOLID))
+        dc.SetPen(wx.Pen(self.backgroundColour, width=self.borderWidth, style=wx.SOLID))
         dc.DrawRectangle(0, 0, w, h)
 
         # Draw inner part
@@ -831,9 +846,9 @@ class HRangeSlider(RangeSlider):
         dc = wx.AutoBufferedPaintDC(self)
 
         # Draw background
-        dc.SetBrush(wx.Brush(BACKGROUND_COLOUR))
+        dc.SetBrush(wx.Brush(self.backgroundColour))
         dc.Clear()
-        dc.SetPen(wx.Pen(BACKGROUND_COLOUR))
+        dc.SetPen(wx.Pen(self.backgroundColour))
         dc.DrawRectangle(0, 0, w, h)
 
         #dc.DrawBitmap(self.backgroundBitmap, 0, 0)
@@ -991,7 +1006,6 @@ class ViewTablePanel(wx.Panel):
         else:
             self.dcref = wx.PaintDC
 
-
     def draw(self, samples):
         self.samples = samples
         self.Refresh()
@@ -1050,25 +1064,61 @@ class SndViewTable(wx.Frame):
         self.Destroy()
 
 class SndViewTablePanel(wx.Panel):
-    def __init__(self, parent, obj, mouse_callback=None):
+    def __init__(self, parent, obj=None, mouse_callback=None, select_callback=None):
         wx.Panel.__init__(self, parent)
         self.SetBackgroundStyle(wx.BG_STYLE_CUSTOM)
         self.Bind(wx.EVT_PAINT, self.OnPaint)
         self.Bind(wx.EVT_LEFT_DOWN, self.OnMouseDown)
         self.Bind(wx.EVT_LEFT_UP, self.OnMouseUp)
+        self.Bind(wx.EVT_RIGHT_DOWN, self.OnRightDown)
+        self.Bind(wx.EVT_RIGHT_UP, self.OnMouseUp)
         self.Bind(wx.EVT_MOTION, self.OnMotion)
         self.Bind(wx.EVT_SIZE, self.OnSize)
+        self.refresh_from_selection = False
+        self.background_bitmap = None
         self.obj = obj
-        self.chnls = len(self.obj)
+        self.selstart = self.selend = self.movepos = None
+        self.moveSelection = False
+        self.createSelection = False
         self.begin = 0
-        self.end = self.obj.getDur(False)
+        if self.obj is not None:
+            self.chnls = len(self.obj)
+            self.end = self.obj.getDur(False)
+        else:
+            self.chnls = 1
+            self.end = 1.0
+        self.img = [[]]
         self.mouse_callback = mouse_callback
+        self.select_callback = select_callback
         if sys.platform == "win32":
             self.dcref = wx.BufferedPaintDC
         else:
             self.dcref = wx.PaintDC
         self.setImage()
 
+    def getDur(self):
+        if self.obj is not None:
+            return self.obj.getDur(False)
+        else:
+            return 1.0
+
+    def resetSelection(self):
+        self.selstart = self.selend = None
+        if self.background_bitmap is not None:
+            self.refresh_from_selection = True
+        self.Refresh()
+        if self.select_callback != None:
+            self.select_callback((0.0, 1.0))
+
+    def setSelection(self, start, stop):
+        self.selstart = start
+        self.selend = stop
+        if self.background_bitmap is not None:
+            self.refresh_from_selection = True
+        self.Refresh()
+        if self.select_callback != None:
+            self.select_callback((self.selstart, self.selend))
+        
     def setBegin(self, x):
         self.begin = x
 
@@ -1076,8 +1126,9 @@ class SndViewTablePanel(wx.Panel):
         self.end = x
 
     def setImage(self):
-        self.img = self.obj.getViewTable(self.GetSize(), self.begin, self.end)
-        self.Refresh()
+        if self.obj is not None:
+            self.img = self.obj.getViewTable(self.GetSize(), self.begin, self.end)
+            self.Refresh()
 
     def clipPos(self, pos):
         if pos[0] < 0.0: x = 0.0
@@ -1086,7 +1137,8 @@ class SndViewTablePanel(wx.Panel):
         if pos[1] < 0.0: y = 0.0
         elif pos[1] > 1.0: y = 1.0
         else: y = pos[1]
-        x = x * ((self.end - self.begin) / self.obj.getDur(False)) + (self.begin / self.obj.getDur(False))
+        if self.obj is not None:
+            x = x * ((self.end - self.begin) / self.obj.getDur(False)) + (self.begin / self.obj.getDur(False))
         return (x, y)
 
     def OnMouseDown(self, evt):
@@ -1101,6 +1153,29 @@ class SndViewTablePanel(wx.Panel):
             self.mouse_callback(pos)
         self.CaptureMouse()
 
+    def OnRightDown(self, evt):
+        size = self.GetSize()
+        pos = evt.GetPosition()
+        if pos[1] <= 0:
+            pos = (float(pos[0])/size[0], 1.0)
+        else:
+            pos = (float(pos[0])/size[0], 1.-(float(pos[1])/size[1]))
+        pos = self.clipPos(pos)
+        if evt.ShiftDown():
+            if self.selstart is not None and self.selend is not None:
+                self.moveSelection = True
+                self.movepos = pos[0]
+        elif evt.CmdDown():
+            self.selstart = self.selend = None
+            self.refresh_from_selection = True
+            self.Refresh()
+            if self.select_callback != None:
+                self.select_callback((0.0, 1.0))
+        else:
+            self.createSelection = True
+            self.selstart = pos[0]
+        self.CaptureMouse()
+
     def OnMotion(self, evt):
         if self.HasCapture():
             size = self.GetSize()
@@ -1110,20 +1185,40 @@ class SndViewTablePanel(wx.Panel):
             else:
                 pos = (float(pos[0])/size[0], 1.-(float(pos[1])/size[1]))
             pos = self.clipPos(pos)
-            if self.mouse_callback != None:
-                self.mouse_callback(pos)
+            if evt.LeftIsDown():
+                if self.mouse_callback != None:
+                    self.mouse_callback(pos)
+            elif evt.RightIsDown():
+                refresh = False
+                if self.createSelection:
+                    self.selend = pos[0]
+                    refresh = True
+                elif self.moveSelection:
+                    diff = pos[0] - self.movepos 
+                    self.movepos = pos[0]
+                    self.selstart += diff
+                    self.selend += diff
+                    refresh = True
+                if refresh:
+                    self.refresh_from_selection = True
+                    self.Refresh()
+                    if self.select_callback != None:
+                        self.select_callback((self.selstart, self.selend))
 
     def OnMouseUp(self, evt):
         if self.HasCapture():
             self.ReleaseMouse()
+        self.createSelection = self.moveSelection = False
 
-    def OnPaint(self, evt):
+    def create_background(self):
         w,h = self.GetSize()
-        dc = self.dcref(self)
+        self.background_bitmap = wx.EmptyBitmap(w, h)
+        dc = wx.MemoryDC(self.background_bitmap)
         gc = wx.GraphicsContext_Create(dc)
         dc.SetBrush(wx.Brush("#FFFFFF"))
         dc.Clear()
         dc.DrawRectangle(0,0,w,h)
+
         off = h/self.chnls/2
         gc.SetPen(wx.Pen('#000000', width=1, style=wx.SOLID))
         gc.SetBrush(wx.Brush("#FFFFFF", style=wx.TRANSPARENT))
@@ -1132,7 +1227,7 @@ class SndViewTablePanel(wx.Panel):
             font, ptsize = dc.GetFont(), dc.GetFont().GetPointSize()
             font.SetPointSize(ptsize - 3)
             dc.SetFont(font)
-        elif sys.platform == "win32":
+        else:
             font = dc.GetFont()
             font.SetPointSize(8)
             dc.SetFont(font)
@@ -1158,6 +1253,42 @@ class SndViewTablePanel(wx.Panel):
                 dc.DrawText(timelabel % (self.begin+j*timestep), j*tickstep+2, h-y-12)
             dc.SetPen(wx.Pen('#000000', width=1))
             dc.DrawLine(0, h-y, w, h-y)
+
+        dc.SelectObject(wx.NullBitmap)
+
+    def OnPaint(self, evt):
+        w,h = self.GetSize()
+        dc = self.dcref(self)
+        gc = wx.GraphicsContext_Create(dc)
+        dc.SetBrush(wx.Brush("#FFFFFF"))
+        dc.Clear()
+        dc.DrawRectangle(0,0,w,h)
+
+        if not self.refresh_from_selection:
+            self.create_background()
+
+        dc.DrawBitmap(self.background_bitmap, 0, 0)
+
+        if self.selstart is not None and self.selend is not None:
+            gc.SetPen(wx.Pen(wx.Colour(0, 0, 0, 64)))
+            gc.SetBrush(wx.Brush(wx.Colour(0, 0, 0, 64)))
+            if self.obj is not None:
+                dur = self.obj.getDur(False)
+            else:
+                dur = 1.0
+            selstartabs = min(self.selstart, self.selend) * dur
+            selendabs = max(self.selstart, self.selend) * dur
+            if selstartabs < self.begin:
+                startpix = 0
+            else:
+                startpix = ((selstartabs - self.begin) / (self.end - self.begin)) * w
+            if selendabs > self.end:
+                endpix = w
+            else:
+                endpix = ((selendabs - self.begin) / (self.end - self.begin)) * w
+            gc.DrawRectangle(startpix, 0, endpix - startpix, h)
+
+        self.refresh_from_selection = False
 
     def OnSize(self, evt):
         wx.CallAfter(self.setImage)
@@ -1364,39 +1495,48 @@ class SpectrumDisplay(wx.Frame):
         self.obj._setViewFrame(None)
         self.Destroy()
 
+# TODO: Adjust the font size according to the size of the panel.
 class SpectrumPanel(wx.Panel):
-    def __init__(self, parent, chnls, lowfreq, highfreq, fscaling, mscaling):
-        wx.Panel.__init__(self, parent)
+    def __init__(self, parent, chnls, lowfreq, highfreq, fscaling, mscaling, 
+                 pos=wx.DefaultPosition, size=wx.DefaultSize, style=0):
+        wx.Panel.__init__(self, parent, pos=pos, size=size, style=style)
         self.SetBackgroundStyle(wx.BG_STYLE_CUSTOM)
         self.Bind(wx.EVT_PAINT, self.OnPaint)
         self.Bind(wx.EVT_SIZE, self.OnSize)
-        self.chnls = chnls
+        #self.chnls = chnls
         self.img = None
+        self.obj = None
         self.lowfreq = lowfreq
         self.highfreq = highfreq
         self.fscaling = fscaling
         self.mscaling = mscaling
-        if self.chnls == 1:
-            self.pens = [wx.Pen(wx.Colour(100,0,0))]
-            self.brushes = [wx.Brush(wx.Colour(166,4,0))]
-        else:
-            self.pens = [wx.Pen(wx.Colour(166,4,0)), wx.Pen(wx.Colour(8,11,116)), wx.Pen(wx.Colour(0,204,0)),
-                        wx.Pen(wx.Colour(255,167,0)), wx.Pen(wx.Colour(133,0,75)), wx.Pen(wx.Colour(255,236,0)),
-                        wx.Pen(wx.Colour(1,147,154)), wx.Pen(wx.Colour(162,239,0))]
-            self.brushes = [wx.Brush(wx.Colour(166,4,0,128)), wx.Brush(wx.Colour(8,11,116,128)), wx.Brush(wx.Colour(0,204,0,128)),
-                            wx.Brush(wx.Colour(255,167,0,128)), wx.Brush(wx.Colour(133,0,75,128)), wx.Brush(wx.Colour(255,236,0,128)),
-                            wx.Brush(wx.Colour(1,147,154,128)), wx.Brush(wx.Colour(162,239,0,128))]
+        self.pens = [wx.Pen(wx.Colour(166,4,0)), wx.Pen(wx.Colour(8,11,116)), wx.Pen(wx.Colour(0,204,0)),
+                    wx.Pen(wx.Colour(255,167,0)), wx.Pen(wx.Colour(133,0,75)), wx.Pen(wx.Colour(255,236,0)),
+                    wx.Pen(wx.Colour(1,147,154)), wx.Pen(wx.Colour(162,239,0))]
+        self.brushes = [wx.Brush(wx.Colour(166,4,0,128)), wx.Brush(wx.Colour(8,11,116,128)), wx.Brush(wx.Colour(0,204,0,128)),
+                        wx.Brush(wx.Colour(255,167,0,128)), wx.Brush(wx.Colour(133,0,75,128)), wx.Brush(wx.Colour(255,236,0,128)),
+                        wx.Brush(wx.Colour(1,147,154,128)), wx.Brush(wx.Colour(162,239,0,128))]
         if sys.platform == "win32":
             self.dcref = wx.BufferedPaintDC
         else:
             self.dcref = wx.PaintDC
 
     def OnSize(self, evt):
-        self.GetParent().GetParent().setDisplaySize(self.GetSize())
+        try:
+            self.GetParent().GetParent().setDisplaySize(self.GetSize())
+        except:
+            pass
+        try:
+            size = self.GetSize()
+            self.obj.setWidth(size[0])
+            self.obj.setHeight(size[1])
+        except:
+            pass
+
         self.Refresh()
 
     def setImage(self, points):
-        self.img = [points[i] for i in range(self.chnls)]
+        self.img = [points[i] for i in range(len(points))]
         self.Refresh()
 
     def setFscaling(self, x):
@@ -1416,10 +1556,10 @@ class SpectrumPanel(wx.Panel):
         dc = self.dcref(self)
         gc = wx.GraphicsContext_Create(dc)
         tw, th = dc.GetTextExtent("0")
-
+        
         # background
         background = gc.CreatePath()
-        background.AddRectangle(0,0,w,h)
+        background.AddRectangle(0,0,w-1,h-1)
         gc.SetPen(wx.BLACK_PEN)
         gc.SetBrush(wx.WHITE_BRUSH)
         gc.DrawPath(background)
@@ -1531,18 +1671,18 @@ class SpectrumPanel(wx.Panel):
                 dc.DrawLine(0, pos, w-mw-6, pos)
                 i += 1
 
-        last_tw = tw
-        # legend
-        tw, th = dc.GetTextExtent("chan 8")
-        for i in range(self.chnls):
-            dc.SetTextForeground(self.pens[i].GetColour())
-            dc.DrawText("chan %d" % (i+1), w-tw-20-last_tw, i*th+th+7)
-
         # spectrum
         if self.img != None:
+            last_tw = tw
+            # legend
+            tw, th = dc.GetTextExtent("chan 8")
+            for i in range(len(self.img)):
+                dc.SetTextForeground(self.pens[i%8].GetColour())
+                dc.DrawText("chan %d" % (i+1), w-tw-20-last_tw, i*th+th+7)
+            # channel spectrums
             for i, samples in enumerate(self.img):
-                gc.SetPen(self.pens[i])
-                gc.SetBrush(self.brushes[i])
+                gc.SetPen(self.pens[i%8])
+                gc.SetBrush(self.brushes[i%8])
                 gc.DrawLines(samples)
 
 ######################################################################
@@ -1613,22 +1753,24 @@ class ScopeDisplay(wx.Frame):
         self.Destroy()
 
 class ScopePanel(wx.Panel):
-    def __init__(self, parent, obj):
-        wx.Panel.__init__(self, parent)
+    def __init__(self, parent, obj=None, pos=wx.DefaultPosition, 
+                 size=wx.DefaultSize, style=0):
+        wx.Panel.__init__(self, parent, pos=pos, size=size, style=style)
         self.SetBackgroundStyle(wx.BG_STYLE_CUSTOM)
         self.Bind(wx.EVT_PAINT, self.OnPaint)
         self.Bind(wx.EVT_SIZE, self.OnSize)
         self.img = [[]]
         self.obj = obj
-        self.gain = self.obj.gain
-        self.length = self.obj.length
-        self.chnls = len(self.obj)
-        if self.chnls == 1:
-            self.pens = [wx.Pen(wx.Colour(100,0,0), width=2)]
+        if self.obj is not None:
+            self.gain = self.obj.gain
+            self.length = self.obj.length
         else:
-            self.pens = [wx.Pen(wx.Colour(166,4,0), width=2), wx.Pen(wx.Colour(8,11,116), width=2), wx.Pen(wx.Colour(0,204,0), width=2),
-                        wx.Pen(wx.Colour(255,167,0), width=2), wx.Pen(wx.Colour(133,0,75), width=2), wx.Pen(wx.Colour(255,236,0), width=2),
-                        wx.Pen(wx.Colour(1,147,154), width=2), wx.Pen(wx.Colour(162,239,0), width=2)]
+            self.gain = 1
+            self.length = 0.05
+        #self.chnls = len(self.obj)
+        self.pens = [wx.Pen(wx.Colour(166,4,0), width=2), wx.Pen(wx.Colour(8,11,116), width=2), wx.Pen(wx.Colour(0,204,0), width=2),
+                    wx.Pen(wx.Colour(255,167,0), width=2), wx.Pen(wx.Colour(133,0,75), width=2), wx.Pen(wx.Colour(255,236,0), width=2),
+                    wx.Pen(wx.Colour(1,147,154), width=2), wx.Pen(wx.Colour(162,239,0), width=2)]
 
         if sys.platform == "win32":
             self.dcref = wx.BufferedPaintDC
@@ -1636,9 +1778,12 @@ class ScopePanel(wx.Panel):
             self.dcref = wx.PaintDC
 
     def OnSize(self, evt):
-        size = self.GetSize()
-        self.obj.setWidth(size[0])
-        self.obj.setHeight(size[1])
+        try:
+            size = self.GetSize()
+            self.obj.setWidth(size[0])
+            self.obj.setHeight(size[1])
+        except:
+            pass
 
     def setGain(self, gain):
         self.gain = gain
@@ -1691,21 +1836,21 @@ class ScopePanel(wx.Panel):
             dc.DrawText("%.3f" % (j*timestep), j*tickstep+2, h-12)
         # draw waveforms
         for i, samples in enumerate(self.img):
-            gc.SetPen(self.pens[i])
+            gc.SetPen(self.pens[i%8])
             if len(samples):
                 gc.DrawLines(samples)
 
         # legend
         last_tw = tw
         tw, th = dc.GetTextExtent("chan 8")
-        for i in range(self.chnls):
-            dc.SetTextForeground(self.pens[i].GetColour())
+        for i in range(len(self.img)):
+            dc.SetTextForeground(self.pens[i%8].GetColour())
             dc.DrawText("chan %d" % (i+1), w-tw-20-last_tw, i*th+10)
 
 ######################################################################
 ## Grapher window for PyoTableObject control
 ######################################################################
-OFF = 15
+OFF = 10
 OFF2 = OFF*2
 RAD = 3
 RAD2 = RAD*2
@@ -1713,8 +1858,9 @@ AREA = RAD+2
 AREA2 = AREA*2
 class Grapher(wx.Panel):
     def __init__(self, parent, xlen=8192, yrange=(0.0, 1.0), init=[(0.0,0.0),(1.0,1.0)], mode=0,
-                 exp=10.0, inverse=True, tension=0.0, bias=0.0, outFunction=None):
-        wx.Panel.__init__(self, parent, size=(500,250), style=wx.SUNKEN_BORDER)
+                 exp=10.0, inverse=True, tension=0.0, bias=0.0, outFunction=None, pos=(0, 0),
+                 size=(300, 200), style=0):
+        wx.Panel.__init__(self, parent, pos=pos, size=size, style=style)
         self.backgroundColour = BACKGROUND_COLOUR
         self.SetBackgroundStyle(wx.BG_STYLE_CUSTOM)
         self.SetBackgroundColour(self.backgroundColour)
@@ -1736,7 +1882,7 @@ class Grapher(wx.Panel):
         self.xlen = xlen
         self.yrange = yrange
         self.init = [tup for tup in init]
-        self.points = init
+        self.points = [tup for tup in init]
         self.outFunction = outFunction
 
         if sys.platform == "win32":
@@ -1750,6 +1896,7 @@ class Grapher(wx.Panel):
         self.init = [(p[0],p[1]) for p in pts]
         self.points = [(p[0],p[1]) for p in pts]
         self.selected = None
+        self.sendValues()
         self.Refresh()
 
     def pointToPixels(self, pt):
@@ -1771,6 +1918,11 @@ class Grapher(wx.Panel):
         if type(self.xlen) == IntType:
             x = int(x)
         y = pt[1] * (self.yrange[1]-self.yrange[0]) + self.yrange[0]
+        return x, y
+
+    def valuesToPoint(self, val):
+        x = val[0] / float(self.xlen)
+        y = (val[1] - self.yrange[0]) / float(self.yrange[1]-self.yrange[0])
         return x, y
 
     def borderClip(self, pos):
@@ -1801,7 +1953,7 @@ class Grapher(wx.Panel):
         return pos
 
     def reset(self):
-        self.points = self.init
+        self.points = [tup for tup in self.init]
         self.Refresh()
 
     def getPoints(self):
@@ -2046,10 +2198,10 @@ class Grapher(wx.Panel):
                 dc.DrawText(t, xpos+2, h-OFF-10)
             if i < 9:
                 t = "%.2f" % ((9-i) * 0.1 * (self.yrange[1]-self.yrange[0]) + self.yrange[0])
-                dc.DrawText(t, OFF+1, ypos+ystep-10)
+                dc.DrawText(t, OFF+2, ypos+ystep-10)
             else:
                 t = "%.2f" % ((9-i) * 0.1 * (self.yrange[1]-self.yrange[0]) + self.yrange[0])
-                dc.DrawText(t, OFF+1, h-OFF-10)
+                dc.DrawText(t, OFF+2, h-OFF-10)
 
         dc.SetPen(wx.Pen("#000000", 1))
         dc.SetBrush(wx.Brush("#000000"))
@@ -2229,8 +2381,9 @@ class TableGrapher(wx.Frame):
         self.graph.reset()
 
 class DataMultiSlider(wx.Panel):
-    def __init__(self, parent, init, yrange=(0,1), outFunction=None):
-        wx.Panel.__init__(self, parent, size=(250,250), style=wx.SUNKEN_BORDER)
+    def __init__(self, parent, init, yrange=(0,1), outFunction=None,
+                pos=(0, 0), size=(300, 200), style=0):
+        wx.Panel.__init__(self, parent, pos=pos, size=size, style=style)
         self.backgroundColour = BACKGROUND_COLOUR
         self.SetBackgroundStyle(wx.BG_STYLE_CUSTOM)
         self.SetBackgroundColour(self.backgroundColour)
@@ -2239,9 +2392,9 @@ class DataMultiSlider(wx.Panel):
         self.Bind(wx.EVT_LEFT_DOWN, self.MouseDown)
         self.Bind(wx.EVT_LEFT_UP, self.MouseUp)
         self.Bind(wx.EVT_MOTION, self.MouseMotion)
-        self.values = init
+        self.values = [v for v in init]
         self.len = len(self.values)
-        self.yrange = yrange
+        self.yrange = (float(yrange[0]), float(yrange[1]))
         self.outFunction = outFunction
         if sys.platform == "win32":
             self.dcref = wx.BufferedPaintDC

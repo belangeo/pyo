@@ -63,6 +63,8 @@ from pyolib.fourier import *
 import pyolib.phasevoc as phasevoc
 from pyolib.phasevoc import *
 from pyolib._core import *
+from pyolib.wxgui import *
+import pyolib.wxgui as wxgui
 if WITH_EXTERNALS:
     import pyolib.external as external
     from pyolib.external import *
@@ -119,11 +121,12 @@ OBJECTS_TREE = {'functions': sorted(['pa_count_devices', 'pa_get_default_input',
                                                     'TranspoToCents', 'MToF', 'FToM', 'MToT', 'TrackHold', 'Resample', 'Expr']),
                                   'expression': sorted(['Expr']),
                                   'fourier': sorted(['FFT', 'IFFT', 'CarToPol', 'PolToCar', 'FrameDelta', 'FrameAccum', 'Vectral', 'CvlVerb'])}},
-        'Map': {'SLMap': sorted(['SLMapFreq', 'SLMapMul', 'SLMapPhase', 'SLMapQ', 'SLMapDur', 'SLMapPan'])},
-        'Server': [],
-        'MidiListener': [],
-        'OscListener': [],
-        'Stream': [],
-        'TableStream': []}
+                'Map': {'SLMap': sorted(['SLMapFreq', 'SLMapMul', 'SLMapPhase', 'SLMapQ', 'SLMapDur', 'SLMapPan'])},
+                'Server': [],
+                'MidiListener': [],
+                'OscListener': [],
+                'Stream': [],
+                'TableStream': [],
+                'PyoGui': ['PyoGuiControlSlider']}
 
 DOC_KEYWORDS = ['Attributes', 'Examples', 'Parameters', 'Methods', 'Notes', 'Methods details', 'See also', 'Parentclass']
