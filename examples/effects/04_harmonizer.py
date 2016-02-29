@@ -10,7 +10,7 @@ s = Server(sr=44100, nchnls=2, buffersize=512, duplex=0).boot()
 
 sf = SfPlayer('../snds/flute.aif', speed=1, loop=True, mul=.5).out()
 
-env = WinTable(7)
+env = WinTable(8)
 
 wsize = .1
 trans = -7

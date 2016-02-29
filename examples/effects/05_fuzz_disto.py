@@ -34,7 +34,7 @@ boost = Sig(bp, mul=BOOST)
 sig = Lookup(table, boost)
 
 # Lowpass filter on distorted signal
-lp = Tone(sig, freq=LP_CUTOFF_FREQ, mul=.7)
+lp = ButLP(sig, freq=LP_CUTOFF_FREQ, mul=.7)
 
 # Balance between dry and wet signals
 out = Interp(src, lp, interp=BALANCE).out()
