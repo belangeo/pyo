@@ -127,6 +127,7 @@ OBJECTS_TREE = {'functions': sorted(['pa_count_devices', 'pa_get_default_input',
                 'OscListener': [],
                 'Stream': [],
                 'TableStream': [],
-                'PyoGui': ['PyoGuiControlSlider']}
+                'PyoGui': ['PyoGuiControlSlider', 'PyoGuiVuMeter', 'PyoGuiGrapher', 'PyoGuiMultiSlider', 'PyoGuiSpectrum', 'PyoGuiScope',
+                           'PyoGuiSndView']}
 
 DOC_KEYWORDS = ['Attributes', 'Examples', 'Parameters', 'Methods', 'Notes', 'Methods details', 'See also', 'Parentclass']

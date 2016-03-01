@@ -209,9 +209,17 @@ functions : Miscellaneous functions.
 
 """ % PYO_VERSION
 
+PYOGUI_DOC = """
+The classes in this module are based on internal classes that where 
+originally designed to help the creation of graphical tools for the
+control and the visualization of audio signals. WxPython must be installed
+under the current Python distribution to access these classes.
+
+"""
+
 _DOC_KEYWORDS = ['Attributes', 'Examples', 'Methods', 'Notes', 'Methods details', 
                  'Parentclass', 'Overview', 'Initline', 'Description', 'Parameters']
-_HEADERS = ["Server", "PyoObjectBase", "Map", "Stream", "TableStream", "functions"]
+_HEADERS = ["Server", "PyoObjectBase", "Map", "Stream", "TableStream", "functions", "PyoGui"]
 _KEYWORDS_LIST = ['SLMap']
 _KEYWORDS_LIST.extend(_HEADERS)
 _NUM_PAGES = 1
@@ -240,6 +248,7 @@ PYOTABLEOBJECT_METHODS_FILTER = [x[0] for x in inspect.getmembers(PyoTableObject
 PYOPVOBJECT_METHODS_FILTER = [x[0] for x in inspect.getmembers(PyoPVObject, inspect.ismethod)]
 MAP_METHODS_FILTER = [x[0] for x in inspect.getmembers(Map, inspect.ismethod)]
 SLMAP_METHODS_FILTER = [x[0] for x in inspect.getmembers(SLMap, inspect.ismethod)]
+WXPANEL_METHODS_FILTER = [x[0] for x in inspect.getmembers(wx.Panel, inspect.ismethod)]
 
 def _ed_set_style(editor, searchKey=None):
     editor.SetLexer(stc.STC_LEX_PYTHON)
@@ -623,12 +632,17 @@ class ManualPanel(wx.Treebook):
                 else:
                     try:
                         text = eval(obj).__doc__
-                        text = text.replace(".. note::", "Notes:").replace(".. seealso::", "See also:").replace(":Args:", "Parameters:")
+                        text = text.replace(".. note::", "Notes:").replace(".. seealso::", "See also:").replace(":Args:", "Parameters:").replace(":Events:", "Events:")
                     except:
                         if obj == "functions":
                             text = "Miscellaneous functions...\n\n"
                             text += "\nOverview:\n"
                             for o in OBJECTS_TREE["functions"]:
+                                text += o + ": " + self.getDocFirstLine(o)
+                        elif obj == "PyoGui":
+                            text = PYOGUI_DOC
+                            text += "\nOverview:\n"
+                            for o in OBJECTS_TREE["PyoGui"]:
                                 text += o + ": " + self.getDocFirstLine(o)
                         else:
                             text = "\nNot documented yet...\n\n"
@@ -711,6 +725,8 @@ class ManualPanel(wx.Treebook):
             filter = MAP_METHODS_FILTER
         elif parentclass == "SLMap":
             filter = SLMAP_METHODS_FILTER
+        elif parentclass == "wx.Panel":
+            filter = WXPANEL_METHODS_FILTER
         else:
             filter = []
         obj_meths = [x[0] for x in inspect.getmembers(eval(obj), inspect.ismethod) if x[0] not in filter]

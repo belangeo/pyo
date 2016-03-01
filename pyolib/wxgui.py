@@ -100,11 +100,17 @@ else:
             wx.PostEvent(self, evt)
 
         def enable(self):
-            "Enable the slider for user input."
+            """
+            Enable the slider for user input.
+
+            """
             super(PyoGuiControlSlider, self).Enable()
 
         def disable(self):
-            "Disable the slider for user input."
+            """
+            Disable the slider for user input.
+            
+            """
             super(PyoGuiControlSlider, self).Disable()
 
         def setValue(self, x, propagate=True):
@@ -150,39 +156,66 @@ else:
             super(PyoGuiControlSlider, self).setRange(minvalue, maxvalue)
 
         def getValue(self):
-            "Returns the current value of the slider."
+            """
+            Returns the current value of the slider.
+            
+            """
             return super(PyoGuiControlSlider, self).GetValue()
 
         def getMidiCtl(self):
-            "Returns the midi controller number, if any, assigned to the slider."
+            """
+            Returns the midi controller number, if any, assigned to the slider.
+            
+            """
             return super(PyoGuiControlSlider, self).getMidiCtl()
 
         def getMinValue(self):
-            "Returns the current minimum value."
+            """
+            Returns the current minimum value.
+            
+            """
             return super(PyoGuiControlSlider, self).getMinValue()
 
         def getMaxValue(self):
-            "Returns the current maximum value."
+            """
+            Returns the current maximum value.
+            
+            """
             return super(PyoGuiControlSlider, self).getMaxValue()
 
         def getInit(self):
-            "Returns the initial value."
+            """
+            Returns the initial value.
+            
+            """
             return super(PyoGuiControlSlider, self).getInit()
 
         def getRange(self):
-            "Returns minimum and maximum values as a list."
+            """
+            Returns minimum and maximum values as a list.
+            
+            """
             return super(PyoGuiControlSlider, self).getRange()
 
         def isInteger(self):
-            "Returns True if the slider manage only integer, False otherwise."
+            """
+            Returns True if the slider manage only integer, False otherwise.
+            
+            """
             return self.integer
 
         def isLog(self):
-            "Returns True if the slider is logarithmic, False otherwise."
+            """
+            Returns True if the slider is logarithmic, False otherwise.
+            
+            """
             return self.log
 
         def isPowOfTwo(self):
-            "Returns True if the slider manage only power-of-two values, False otherwise."
+            """
+            Returns True if the slider manage only power-of-two values, False otherwise.
+            
+            """
             return self.powoftwo
 
     class PyoGuiVuMeter(VuMeter):
@@ -300,15 +333,24 @@ else:
             self.sendValues()
 
         def reset(self):
-            "Resets the points to the initial state."
+            """
+            Resets the points to the initial state.
+
+            """
             super(PyoGuiGrapher, self).reset()
 
         def getPoints(self):
-            "Returns the current normalized points of the grapher."
+            """
+            Returns the current normalized points of the grapher.
+            
+            """
             return super(PyoGuiGrapher, self).getPoints()
 
         def getValues(self):
-            "Returns the current points, according to Y-axis range, of the grapher."
+            """
+            Returns the current points, according to Y-axis range, of the grapher.
+            
+            """
             return super(PyoGuiGrapher, self).getValues()
 
         def setPoints(self, pts):
@@ -486,11 +528,17 @@ else:
             wx.PostEvent(self, evt)
 
         def reset(self):
-            "Resets the sliders to their initial state."
+            """
+            Resets the sliders to their initial state.
+            
+            """
             super(PyoGuiMultiSlider, self).reset()
 
         def getValues(self):
-            "Returns the current values of the sliders."
+            """
+            Returns the current values of the sliders.
+            
+            """
             return [v for v in self.values]
 
         def setValues(self, vals):
