@@ -970,7 +970,7 @@ int OscDataReceive_handler(const char *path, const char *types, lo_arg **argv, i
                         void *data, void *user_data)
 {
     OscDataReceive *self = user_data;
-    PyObject *tup, *result=NULL, *address=NULL;
+    PyObject *tup, *result=NULL;
     lo_blob *blob = NULL;
     char *blobdata = NULL;
     uint32_t blobsize = 0;
@@ -980,13 +980,17 @@ int OscDataReceive_handler(const char *path, const char *types, lo_arg **argv, i
 
     Py_ssize_t lsize = PyList_Size(self->address_path);
     for (i=0; i<lsize; i++) {
-        if (PyString_Check(PyList_GET_ITEM(self->address_path, i))) 
-            address = PyList_GET_ITEM(self->address_path, i);
-        else
-            address = PyUnicode_AsASCIIString(PyList_GET_ITEM(self->address_path, i));
-        if (lo_pattern_match(path, PyString_AsString(address))) {
-            ok = 1;
-            break;
+        if (PyString_Check(PyList_GET_ITEM(self->address_path, i))) {
+            if (lo_pattern_match(path, PyString_AsString(PyList_GET_ITEM(self->address_path, i)))) {
+                ok = 1;
+                break;
+            }
+        }
+        else {
+            if (lo_pattern_match(path, PyString_AsString(PyUnicode_AsASCIIString(PyList_GET_ITEM(self->address_path, i))))) {
+                ok = 1;
+                break;
+            }
         }
     }
     if (ok) {
@@ -1051,7 +1055,6 @@ int OscDataReceive_handler(const char *path, const char *types, lo_arg **argv, i
     Py_XDECREF(tup);
     Py_XDECREF(result);
     Py_XDECREF(charlist);
-    Py_XDECREF(address);
     return 0;
 }
 
