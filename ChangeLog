@@ -1,3 +1,40 @@
+2016-03-01 belangeo <belangeo@gmail.com>
+
+    *  Upgraded version number to 0.7.9.
+
+2016-03-01 belangeo <belangeo@gmail.com>
+
+    *  Pyo now uses its own PRNG to avoid conflicts with other libs or 
+    modules that use rand()/srand() in the same process. This fixed the 
+    Server's global seed behaviour.
+
+2016-02-29 belangeo <belangeo@gmail.com>
+
+    * Fixed a bug, introduced by unicode addresses handler, in Open Sound 
+    Control objects.
+
+2016-02-29 belangeo <belangeo@gmail.com>
+
+    * Exposed internal GUI widgets in the official API. New objects are
+    PyoGuiControlSlider, PyoGuiVuMeter, PyoGuiGrapher, PyoGuiMultiSlider,
+    PyoGuiSpectrum, PyoGuiScope and PyoGuiSndView.
+
+2016-02-17 belangeo <belangeo@gmail.com>
+
+    * E-Pyo: Added a warning before quitting the application.
+
+2016-02-12 belangeo <belangeo@gmail.com>
+
+    * Fixed a bug in Notein voice assignation.
+
+2016-02-12 belangeo <belangeo@gmail.com>
+
+    * Added readyToDetect() method to AttackDetector object.
+
+2016-01-29 belangeo <belangeo@gmail.com>
+
+    * Fixed segfault in Server dealloc function.
+
 2016-01-08 belangeo <belangeo@gmail.com>
 
     * Final revision for version 0.7.8.
