@@ -45,7 +45,7 @@ TrigRandInt_generate_i(TrigRandInt *self) {
 
     for (i=0; i<self->bufsize; i++) {
         if (in[i] == 1)
-            self->value = (MYFLT)((int)(rand()/((MYFLT)(RAND_MAX)+1)*ma));
+            self->value = (MYFLT)((int)(RANDOM_UNIFORM * ma));
 
         self->data[i] = self->value;
     }
@@ -59,7 +59,7 @@ TrigRandInt_generate_a(TrigRandInt *self) {
 
     for (i=0; i<self->bufsize; i++) {
         if (in[i] == 1)
-            self->value = (MYFLT)((int)(rand()/((MYFLT)(RAND_MAX)+1)*ma[i]));
+            self->value = (MYFLT)((int)(RANDOM_UNIFORM * ma[i]));
 
         self->data[i] = self->value;
     }
@@ -204,7 +204,7 @@ TrigRandInt_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         ma = PyFloat_AsDouble(self->max);
     else
         ma = Stream_getData((Stream *)self->max_stream)[0];
-    self->value = (MYFLT)((int)(rand()/((MYFLT)(RAND_MAX)+1)*ma));
+    self->value = (MYFLT)((int)(RANDOM_UNIFORM * ma));
 
     (*self->mode_func_ptr)(self);
 
@@ -398,7 +398,7 @@ TrigRand_generate_ii(TrigRand *self) {
     for (i=0; i<self->bufsize; i++) {
         if (in[i] == 1) {
             self->timeCount = 0;
-            self->value = range * (rand()/((MYFLT)(RAND_MAX)+1)) + mi;
+            self->value = range * RANDOM_UNIFORM + mi;
             if (self->time <= 0.0)
                 self->currentValue = self->value;
             else
@@ -429,7 +429,7 @@ TrigRand_generate_ai(TrigRand *self) {
         MYFLT range = ma - mi[i];
         if (in[i] == 1) {
             self->timeCount = 0;
-            self->value = range * (rand()/((MYFLT)(RAND_MAX)+1)) + mi[i];
+            self->value = range * RANDOM_UNIFORM + mi[i];
             if (self->time <= 0.0)
                 self->currentValue = self->value;
             else
@@ -460,7 +460,7 @@ TrigRand_generate_ia(TrigRand *self) {
         MYFLT range = ma[i] - mi;
         if (in[i] == 1) {
             self->timeCount = 0;
-            self->value = range * (rand()/((MYFLT)(RAND_MAX)+1)) + mi;
+            self->value = range * RANDOM_UNIFORM + mi;
             if (self->time <= 0.0)
                 self->currentValue = self->value;
             else
@@ -491,7 +491,7 @@ TrigRand_generate_aa(TrigRand *self) {
         MYFLT range = ma[i] - mi[i];
         if (in[i] == 1) {
             self->timeCount = 0;
-            self->value = range * (rand()/((MYFLT)(RAND_MAX)+1)) + mi[i];
+            self->value = range * RANDOM_UNIFORM + mi[i];
             if (self->time <= 0.0)
                 self->currentValue = self->value;
             else
@@ -912,7 +912,7 @@ TrigChoice_generate(TrigChoice *self) {
     for (i=0; i<self->bufsize; i++) {
         if (in[i] == 1) {
             self->timeCount = 0;
-            self->value = self->choice[(int)((rand()/((MYFLT)(RAND_MAX))) * self->chSize)];
+            self->value = self->choice[(int)(RANDOM_UNIFORM * self->chSize)];
             if (self->time <= 0.0)
                 self->currentValue = self->value;
             else
@@ -2830,7 +2830,7 @@ TrigXnoise_cauchy(TrigXnoise *self) {
     }
     while (rnd == 0.5);
 
-    if (rand() < (RAND_MAX / 2))
+    if (pyorand() < (PYO_RAND_MAX / 2))
         dir = -1;
     else
         dir = 1;
@@ -2891,7 +2891,7 @@ TrigXnoise_poisson(TrigXnoise *self) {
             }
         }
     }
-    val = self->poisson_buffer[rand() % self->poisson_tab] / 12.0 * self->xx2;
+    val = self->poisson_buffer[pyorand() % self->poisson_tab] / 12.0 * self->xx2;
 
     if (val < 0.0) return 0.0;
     else if (val > 1.0) return 1.0;
@@ -2906,12 +2906,12 @@ TrigXnoise_walker(TrigXnoise *self) {
     if (self->xx2 < 0.002) self->xx2 = 0.002;
 
     modulo = (int)(self->xx2 * 1000.0);
-    dir = rand() % 2;
+    dir = pyorand() % 2;
 
     if (dir == 0)
-        self->walkerValue = self->walkerValue + (((rand() % modulo) - (modulo / 2)) * 0.001);
+        self->walkerValue = self->walkerValue + (((pyorand() % modulo) - (modulo / 2)) * 0.001);
     else
-        self->walkerValue = self->walkerValue - (((rand() % modulo) - (modulo / 2)) * 0.001);
+        self->walkerValue = self->walkerValue - (((pyorand() % modulo) - (modulo / 2)) * 0.001);
 
     if (self->walkerValue > self->xx1)
         self->walkerValue = self->xx1;
@@ -2933,12 +2933,12 @@ TrigXnoise_loopseg(TrigXnoise *self) {
         if (self->xx2 < 0.002) self->xx2 = 0.002;
 
         modulo = (int)(self->xx2 * 1000.0);
-        dir = rand() % 2;
+        dir = pyorand() % 2;
 
         if (dir == 0)
-            self->walkerValue = self->walkerValue + (((rand() % modulo) - (modulo / 2)) * 0.001);
+            self->walkerValue = self->walkerValue + (((pyorand() % modulo) - (modulo / 2)) * 0.001);
         else
-            self->walkerValue = self->walkerValue - (((rand() % modulo) - (modulo / 2)) * 0.001);
+            self->walkerValue = self->walkerValue - (((pyorand() % modulo) - (modulo / 2)) * 0.001);
 
         if (self->walkerValue > self->xx1)
             self->walkerValue = self->xx1;
@@ -2951,7 +2951,7 @@ TrigXnoise_loopseg(TrigXnoise *self) {
             self->loopChoice = 0;
         else {
             self->loopChoice = 1;
-            self->loopStop = (rand() % 4) + 1;
+            self->loopStop = (pyorand() % 4) + 1;
         }
     }
     else {
@@ -2968,7 +2968,7 @@ TrigXnoise_loopseg(TrigXnoise *self) {
 
         if (self->loopTime == self->loopStop) {
             self->loopChoice = 0;
-            self->loopLen = (rand() % 10) + 3;
+            self->loopLen = (pyorand() % 10) + 3;
         }
     }
 
@@ -3218,7 +3218,7 @@ TrigXnoise_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         self->loop_buffer[i] = 0.0;
     }
     self->loopChoice = self->loopCountPlay = self->loopTime = self->loopCountRec = self->loopStop = 0;
-    self->loopLen = (rand() % 10) + 3;
+    self->loopLen = (pyorand() % 10) + 3;
 
     Stream_setFunctionPtr(self->stream, TrigXnoise_compute_next_data_frame);
     self->mode_func_ptr = TrigXnoise_setProcMode;
@@ -3600,7 +3600,7 @@ TrigXnoiseMidi_cauchy(TrigXnoiseMidi *self) {
     }
     while (rnd == 0.5);
 
-    if (rand() < (RAND_MAX / 2))
+    if (pyorand() < (PYO_RAND_MAX / 2))
         dir = -1;
     else
         dir = 1;
@@ -3661,7 +3661,7 @@ TrigXnoiseMidi_poisson(TrigXnoiseMidi *self) {
             }
         }
     }
-    val = self->poisson_buffer[rand() % self->poisson_tab] / 12.0 * self->xx2;
+    val = self->poisson_buffer[pyorand() % self->poisson_tab] / 12.0 * self->xx2;
 
     if (val < 0.0) return 0.0;
     else if (val > 1.0) return 1.0;
@@ -3676,12 +3676,12 @@ TrigXnoiseMidi_walker(TrigXnoiseMidi *self) {
     if (self->xx2 < 0.002) self->xx2 = 0.002;
 
     modulo = (int)(self->xx2 * 1000.0);
-    dir = rand() % 2;
+    dir = pyorand() % 2;
 
     if (dir == 0)
-        self->walkerValue = self->walkerValue + (((rand() % modulo) - (modulo / 2)) * 0.001);
+        self->walkerValue = self->walkerValue + (((pyorand() % modulo) - (modulo / 2)) * 0.001);
     else
-        self->walkerValue = self->walkerValue - (((rand() % modulo) - (modulo / 2)) * 0.001);
+        self->walkerValue = self->walkerValue - (((pyorand() % modulo) - (modulo / 2)) * 0.001);
 
     if (self->walkerValue > self->xx1)
         self->walkerValue = self->xx1;
@@ -3703,12 +3703,12 @@ TrigXnoiseMidi_loopseg(TrigXnoiseMidi *self) {
         if (self->xx2 < 0.002) self->xx2 = 0.002;
 
         modulo = (int)(self->xx2 * 1000.0);
-        dir = rand() % 2;
+        dir = pyorand() % 2;
 
         if (dir == 0)
-            self->walkerValue = self->walkerValue + (((rand() % modulo) - (modulo / 2)) * 0.001);
+            self->walkerValue = self->walkerValue + (((pyorand() % modulo) - (modulo / 2)) * 0.001);
         else
-            self->walkerValue = self->walkerValue - (((rand() % modulo) - (modulo / 2)) * 0.001);
+            self->walkerValue = self->walkerValue - (((pyorand() % modulo) - (modulo / 2)) * 0.001);
 
         if (self->walkerValue > self->xx1)
             self->walkerValue = self->xx1;
@@ -3721,7 +3721,7 @@ TrigXnoiseMidi_loopseg(TrigXnoiseMidi *self) {
             self->loopChoice = 0;
         else {
             self->loopChoice = 1;
-            self->loopStop = (rand() % 4) + 1;
+            self->loopStop = (pyorand() % 4) + 1;
         }
     }
     else {
@@ -3738,7 +3738,7 @@ TrigXnoiseMidi_loopseg(TrigXnoiseMidi *self) {
 
         if (self->loopTime == self->loopStop) {
             self->loopChoice = 0;
-            self->loopLen = (rand() % 10) + 3;
+            self->loopLen = (pyorand() % 10) + 3;
         }
     }
 
@@ -3997,7 +3997,7 @@ TrigXnoiseMidi_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         self->loop_buffer[i] = 0.0;
     }
     self->loopChoice = self->loopCountPlay = self->loopTime = self->loopCountRec = self->loopStop = 0;
-    self->loopLen = (rand() % 10) + 3;
+    self->loopLen = (pyorand() % 10) + 3;
 
     Stream_setFunctionPtr(self->stream, TrigXnoiseMidi_compute_next_data_frame);
     self->mode_func_ptr = TrigXnoiseMidi_setProcMode;
@@ -5088,7 +5088,7 @@ Percent_generates_i(Percent *self) {
     for (i=0; i<self->bufsize; i++) {
         self->data[i] = 0.0;
         if (in[i] == 1.0) {
-            guess = (rand()/((MYFLT)(RAND_MAX)+1)) * 100.0;
+            guess = RANDOM_UNIFORM * 100.0;
             if (guess <= perc)
                 self->data[i] = 1.0;
         }
@@ -5105,7 +5105,7 @@ Percent_generates_a(Percent *self) {
     for (i=0; i<self->bufsize; i++) {
         self->data[i] = 0.0;
         if (in[i] == 1.0) {
-            guess = (rand()/((MYFLT)(RAND_MAX)+1)) * 100.0;
+            guess = RANDOM_UNIFORM * 100.0;
             if (guess <= perc[i])
                 self->data[i] = 1.0;
         }

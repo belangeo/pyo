@@ -58,7 +58,7 @@ Randi_generate_iii(Randi *self) {
         else if (self->time >= 1.0) {
             self->time -= 1.0;
             self->oldValue = self->value;
-            self->value = range * (rand()/((MYFLT)(RAND_MAX)+1)) + mi;
+            self->value = range * RANDOM_UNIFORM + mi;
             self->diff = self->value - self->oldValue;
         }
         self->data[i] = self->oldValue + self->diff * self->time;
@@ -82,7 +82,7 @@ Randi_generate_aii(Randi *self) {
         else if (self->time >= 1.0) {
             self->time -= 1.0;
             self->oldValue = self->value;
-            self->value = range * (rand()/((MYFLT)(RAND_MAX)+1)) + mi[i];
+            self->value = range * RANDOM_UNIFORM + mi[i];
             self->diff = self->value - self->oldValue;
         }
         self->data[i] = self->oldValue + self->diff * self->time;
@@ -106,7 +106,7 @@ Randi_generate_iai(Randi *self) {
         else if (self->time >= 1.0) {
             self->time -= 1.0;
             self->oldValue = self->value;
-            self->value = range * (rand()/((MYFLT)(RAND_MAX)+1)) + mi;
+            self->value = range * RANDOM_UNIFORM + mi;
             self->diff = self->value - self->oldValue;
         }
         self->data[i] = self->oldValue + self->diff * self->time;
@@ -130,7 +130,7 @@ Randi_generate_aai(Randi *self) {
         else if (self->time >= 1.0) {
             self->time -= 1.0;
             self->oldValue = self->value;
-            self->value = range * (rand()/((MYFLT)(RAND_MAX)+1)) + mi[i];
+            self->value = range * RANDOM_UNIFORM + mi[i];
             self->diff = self->value - self->oldValue;
         }
         self->data[i] = self->oldValue + self->diff * self->time;
@@ -154,7 +154,7 @@ Randi_generate_iia(Randi *self) {
         else if (self->time >= 1.0) {
             self->time -= 1.0;
             self->oldValue = self->value;
-            self->value = range * (rand()/((MYFLT)(RAND_MAX)+1)) + mi;
+            self->value = range * RANDOM_UNIFORM + mi;
             self->diff = self->value - self->oldValue;
         }
         self->data[i] = self->oldValue + self->diff * self->time;
@@ -178,7 +178,7 @@ Randi_generate_aia(Randi *self) {
         else if (self->time >= 1.0) {
             self->time -= 1.0;
             self->oldValue = self->value;
-            self->value = range * (rand()/((MYFLT)(RAND_MAX)+1)) + mi[i];
+            self->value = range * RANDOM_UNIFORM + mi[i];
             self->diff = self->value - self->oldValue;
         }
         self->data[i] = self->oldValue + self->diff * self->time;
@@ -202,7 +202,7 @@ Randi_generate_iaa(Randi *self) {
         else if (self->time >= 1.0) {
             self->time -= 1.0;
             self->oldValue = self->value;
-            self->value = range * (rand()/((MYFLT)(RAND_MAX)+1)) + mi;
+            self->value = range * RANDOM_UNIFORM + mi;
             self->diff = self->value - self->oldValue;
         }
         self->data[i] = self->oldValue + self->diff * self->time;
@@ -226,7 +226,7 @@ Randi_generate_aaa(Randi *self) {
         else if (self->time >= 1.0) {
             self->time -= 1.0;
             self->oldValue = self->value;
-            self->value = range * (rand()/((MYFLT)(RAND_MAX)+1)) + mi[i];
+            self->value = range * RANDOM_UNIFORM + mi[i];
             self->diff = self->value - self->oldValue;
         }
         self->data[i] = self->oldValue + self->diff * self->time;
@@ -673,7 +673,7 @@ Randh_generate_iii(Randh *self) {
             self->time += 1.0;
         else if (self->time >= 1.0) {
             self->time -= 1.0;
-            self->value = range * (rand()/((MYFLT)(RAND_MAX)+1)) + mi;
+            self->value = range * RANDOM_UNIFORM + mi;
         }
         self->data[i] = self->value;
     }
@@ -695,7 +695,7 @@ Randh_generate_aii(Randh *self) {
             self->time += 1.0;
         else if (self->time >= 1.0) {
             self->time -= 1.0;
-            self->value = range * (rand()/((MYFLT)(RAND_MAX)+1)) + mi[i];
+            self->value = range * RANDOM_UNIFORM + mi[i];
         }
         self->data[i] = self->value;
     }
@@ -717,7 +717,7 @@ Randh_generate_iai(Randh *self) {
             self->time += 1.0;
         else if (self->time >= 1.0) {
             self->time -= 1.0;
-            self->value = range * (rand()/((MYFLT)(RAND_MAX)+1)) + mi;
+            self->value = range * RANDOM_UNIFORM + mi;
         }
         self->data[i] = self->value;
     }
@@ -739,7 +739,7 @@ Randh_generate_aai(Randh *self) {
             self->time += 1.0;
         else if (self->time >= 1.0) {
             self->time -= 1.0;
-            self->value = range * (rand()/((MYFLT)(RAND_MAX)+1)) + mi[i];
+            self->value = range * RANDOM_UNIFORM + mi[i];
         }
         self->data[i] = self->value;
     }
@@ -761,7 +761,7 @@ Randh_generate_iia(Randh *self) {
             self->time += 1.0;
         else if (self->time >= 1.0) {
             self->time -= 1.0;
-            self->value = range * (rand()/((MYFLT)(RAND_MAX)+1)) + mi;
+            self->value = range * RANDOM_UNIFORM + mi;
         }
         self->data[i] = self->value;
     }
@@ -783,7 +783,7 @@ Randh_generate_aia(Randh *self) {
             self->time += 1.0;
         else if (self->time >= 1.0) {
             self->time -= 1.0;
-            self->value = range * (rand()/((MYFLT)(RAND_MAX)+1)) + mi[i];
+            self->value = range * RANDOM_UNIFORM + mi[i];
         }
         self->data[i] = self->value;
     }
@@ -805,7 +805,7 @@ Randh_generate_iaa(Randh *self) {
             self->time += 1.0;
         else if (self->time >= 1.0) {
             self->time -= 1.0;
-            self->value = range * (rand()/((MYFLT)(RAND_MAX)+1)) + mi;
+            self->value = range * RANDOM_UNIFORM + mi;
         }
         self->data[i] = self->value;
     }
@@ -827,7 +827,7 @@ Randh_generate_aaa(Randh *self) {
             self->time += 1.0;
         else if (self->time >= 1.0) {
             self->time -= 1.0;
-            self->value = range * (rand()/((MYFLT)(RAND_MAX)+1)) + mi[i];
+            self->value = range * RANDOM_UNIFORM + mi[i];
         }
         self->data[i] = self->value;
     }
@@ -1268,7 +1268,7 @@ Choice_generate_i(Choice *self) {
             self->time += 1.0;
         else if (self->time >= 1.0) {
             self->time -= 1.0;
-            self->value = self->choice[(int)((rand()/((MYFLT)(RAND_MAX))) * self->chSize)];
+            self->value = self->choice[(int)(RANDOM_UNIFORM * self->chSize)];
         }
         self->data[i] = self->value;
     }
@@ -1287,7 +1287,7 @@ Choice_generate_a(Choice *self) {
             self->time += 1.0;
         else if (self->time >= 1.0) {
             self->time -= 1.0;
-            self->value = self->choice[(int)((rand()/((MYFLT)(RAND_MAX))) * self->chSize)];
+            self->value = self->choice[(int)(RANDOM_UNIFORM * self->chSize)];
         }
         self->data[i] = self->value;
     }
@@ -1644,7 +1644,7 @@ RandInt_generate_ii(RandInt *self) {
             self->time += 1.0;
         else if (self->time >= 1.0) {
             self->time -= 1.0;
-            self->value = (MYFLT)((int)(rand()/((MYFLT)(RAND_MAX)+1)*ma));
+            self->value = (MYFLT)((int)(RANDOM_UNIFORM * ma));
         }
         self->data[i] = self->value;
     }
@@ -1664,7 +1664,7 @@ RandInt_generate_ai(RandInt *self) {
             self->time += 1.0;
         else if (self->time >= 1.0) {
             self->time -= 1.0;
-            self->value = (MYFLT)((int)(rand()/((MYFLT)(RAND_MAX)+1)*ma[i]));
+            self->value = (MYFLT)((int)(RANDOM_UNIFORM * ma[i]));
         }
         self->data[i] = self->value;
     }
@@ -1684,7 +1684,7 @@ RandInt_generate_ia(RandInt *self) {
             self->time += 1.0;
         else if (self->time >= 1.0) {
             self->time -= 1.0;
-            self->value = (MYFLT)((int)(rand()/((MYFLT)(RAND_MAX)+1)*ma));
+            self->value = (MYFLT)((int)(RANDOM_UNIFORM * ma));
         }
         self->data[i] = self->value;
     }
@@ -1704,7 +1704,7 @@ RandInt_generate_aa(RandInt *self) {
             self->time += 1.0;
         else if (self->time >= 1.0) {
             self->time -= 1.0;
-            self->value = (MYFLT)((int)(rand()/((MYFLT)(RAND_MAX)+1)*ma[i]));
+            self->value = (MYFLT)((int)(RANDOM_UNIFORM * ma[i]));
         }
         self->data[i] = self->value;
     }
@@ -2084,7 +2084,7 @@ RandDur_generate_ii(RandDur *self) {
             range = ma - mi;
             if (range < 0.0)
                 range = 0.0;
-            self->value = range * (rand()/((MYFLT)(RAND_MAX)+1)) + mi;
+            self->value = range * RANDOM_UNIFORM + mi;
             self->inc = (1.0 / self->value) / self->sr;
         }
         self->data[i] = self->value;
@@ -2110,7 +2110,7 @@ RandDur_generate_ai(RandDur *self) {
             range = ma - mi;
             if (range < 0.0)
                 range = 0.0;
-            self->value = range * (rand()/((MYFLT)(RAND_MAX)+1)) + mi;
+            self->value = range * RANDOM_UNIFORM + mi;
             self->inc = (1.0 / self->value) / self->sr;
         }
         self->data[i] = self->value;
@@ -2135,7 +2135,7 @@ RandDur_generate_ia(RandDur *self) {
             range = ma[i] - mi;
             if (range < 0.0)
                 range = 0.0;
-            self->value = range * (rand()/((MYFLT)(RAND_MAX)+1)) + mi;
+            self->value = range * RANDOM_UNIFORM + mi;
             self->inc = (1.0 / self->value) / self->sr;
         }
         self->data[i] = self->value;
@@ -2161,7 +2161,7 @@ RandDur_generate_aa(RandDur *self) {
             range = ma[i] - mi;
             if (range < 0.0)
                 range = 0.0;
-            self->value = range * (rand()/((MYFLT)(RAND_MAX)+1)) + mi;
+            self->value = range * RANDOM_UNIFORM + mi;
             self->inc = (1.0 / self->value) / self->sr;
         }
         self->data[i] = self->value;
@@ -2633,7 +2633,7 @@ Xnoise_cauchy(Xnoise *self) {
     }
     while (rnd == 0.5);
 
-    if (rand() < (RAND_MAX / 2))
+    if (pyorand() < (PYO_RAND_MAX / 2))
         dir = -1;
     else
         dir = 1;
@@ -2694,7 +2694,7 @@ Xnoise_poisson(Xnoise *self) {
             }
         }
     }
-    val = self->poisson_buffer[rand() % self->poisson_tab] / 12.0 * self->xx2;
+    val = self->poisson_buffer[pyorand() % self->poisson_tab] / 12.0 * self->xx2;
 
     if (val < 0.0) return 0.0;
     else if (val > 1.0) return 1.0;
@@ -2709,12 +2709,12 @@ Xnoise_walker(Xnoise *self) {
     if (self->xx2 < 0.002) self->xx2 = 0.002;
 
     modulo = (int)(self->xx2 * 1000.0);
-    dir = rand() % 2;
+    dir = pyorand() % 2;
 
     if (dir == 0)
-        self->walkerValue = self->walkerValue + (((rand() % modulo) - (modulo / 2)) * 0.001);
+        self->walkerValue = self->walkerValue + (((pyorand() % modulo) - (modulo / 2)) * 0.001);
     else
-        self->walkerValue = self->walkerValue - (((rand() % modulo) - (modulo / 2)) * 0.001);
+        self->walkerValue = self->walkerValue - (((pyorand() % modulo) - (modulo / 2)) * 0.001);
 
     if (self->walkerValue > self->xx1)
         self->walkerValue = self->xx1;
@@ -2736,12 +2736,12 @@ Xnoise_loopseg(Xnoise *self) {
         if (self->xx2 < 0.002) self->xx2 = 0.002;
 
         modulo = (int)(self->xx2 * 1000.0);
-        dir = rand() % 2;
+        dir = pyorand() % 2;
 
         if (dir == 0)
-            self->walkerValue = self->walkerValue + (((rand() % modulo) - (modulo / 2)) * 0.001);
+            self->walkerValue = self->walkerValue + (((pyorand() % modulo) - (modulo / 2)) * 0.001);
         else
-            self->walkerValue = self->walkerValue - (((rand() % modulo) - (modulo / 2)) * 0.001);
+            self->walkerValue = self->walkerValue - (((pyorand() % modulo) - (modulo / 2)) * 0.001);
 
         if (self->walkerValue > self->xx1)
             self->walkerValue = self->xx1;
@@ -2754,7 +2754,7 @@ Xnoise_loopseg(Xnoise *self) {
             self->loopChoice = 0;
         else {
             self->loopChoice = 1;
-            self->loopStop = (rand() % 4) + 1;
+            self->loopStop = (pyorand() % 4) + 1;
         }
     }
     else {
@@ -2771,7 +2771,7 @@ Xnoise_loopseg(Xnoise *self) {
 
         if (self->loopTime == self->loopStop) {
             self->loopChoice = 0;
-            self->loopLen = (rand() % 10) + 3;
+            self->loopLen = (pyorand() % 10) + 3;
         }
     }
 
@@ -3149,7 +3149,7 @@ Xnoise_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         self->loop_buffer[i] = 0.0;
     }
     self->loopChoice = self->loopCountPlay = self->loopTime = self->loopCountRec = self->loopStop = 0;
-    self->loopLen = (rand() % 10) + 3;
+    self->loopLen = (pyorand() % 10) + 3;
 
     Stream_setFunctionPtr(self->stream, Xnoise_compute_next_data_frame);
     self->mode_func_ptr = Xnoise_setProcMode;
@@ -3565,7 +3565,7 @@ XnoiseMidi_cauchy(XnoiseMidi *self) {
     }
     while (rnd == 0.5);
 
-    if (rand() < (RAND_MAX / 2))
+    if (pyorand() < (PYO_RAND_MAX / 2))
         dir = -1;
     else
         dir = 1;
@@ -3626,7 +3626,7 @@ XnoiseMidi_poisson(XnoiseMidi *self) {
             }
         }
     }
-    val = self->poisson_buffer[rand() % self->poisson_tab] / 12.0 * self->xx2;
+    val = self->poisson_buffer[pyorand() % self->poisson_tab] / 12.0 * self->xx2;
 
     if (val < 0.0) return 0.0;
     else if (val > 1.0) return 1.0;
@@ -3641,12 +3641,12 @@ XnoiseMidi_walker(XnoiseMidi *self) {
     if (self->xx2 < 0.002) self->xx2 = 0.002;
 
     modulo = (int)(self->xx2 * 1000.0);
-    dir = rand() % 2;
+    dir = pyorand() % 2;
 
     if (dir == 0)
-        self->walkerValue = self->walkerValue + (((rand() % modulo) - (modulo / 2)) * 0.001);
+        self->walkerValue = self->walkerValue + (((pyorand() % modulo) - (modulo / 2)) * 0.001);
     else
-        self->walkerValue = self->walkerValue - (((rand() % modulo) - (modulo / 2)) * 0.001);
+        self->walkerValue = self->walkerValue - (((pyorand() % modulo) - (modulo / 2)) * 0.001);
 
     if (self->walkerValue > self->xx1)
         self->walkerValue = self->xx1;
@@ -3668,12 +3668,12 @@ XnoiseMidi_loopseg(XnoiseMidi *self) {
         if (self->xx2 < 0.002) self->xx2 = 0.002;
 
         modulo = (int)(self->xx2 * 1000.0);
-        dir = rand() % 2;
+        dir = pyorand() % 2;
 
         if (dir == 0)
-            self->walkerValue = self->walkerValue + (((rand() % modulo) - (modulo / 2)) * 0.001);
+            self->walkerValue = self->walkerValue + (((pyorand() % modulo) - (modulo / 2)) * 0.001);
         else
-            self->walkerValue = self->walkerValue - (((rand() % modulo) - (modulo / 2)) * 0.001);
+            self->walkerValue = self->walkerValue - (((pyorand() % modulo) - (modulo / 2)) * 0.001);
 
         if (self->walkerValue > self->xx1)
             self->walkerValue = self->xx1;
@@ -3686,7 +3686,7 @@ XnoiseMidi_loopseg(XnoiseMidi *self) {
             self->loopChoice = 0;
         else {
             self->loopChoice = 1;
-            self->loopStop = (rand() % 4) + 1;
+            self->loopStop = (pyorand() % 4) + 1;
         }
     }
     else {
@@ -3703,7 +3703,7 @@ XnoiseMidi_loopseg(XnoiseMidi *self) {
 
         if (self->loopTime == self->loopStop) {
             self->loopChoice = 0;
-            self->loopLen = (rand() % 10) + 3;
+            self->loopLen = (pyorand() % 10) + 3;
         }
     }
 
@@ -4093,7 +4093,7 @@ XnoiseMidi_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         self->loop_buffer[i] = 0.0;
     }
     self->loopChoice = self->loopCountPlay = self->loopTime = self->loopCountRec = self->loopStop = 0;
-    self->loopLen = (rand() % 10) + 3;
+    self->loopLen = (pyorand() % 10) + 3;
 
     Stream_setFunctionPtr(self->stream, XnoiseMidi_compute_next_data_frame);
     self->mode_func_ptr = XnoiseMidi_setProcMode;
@@ -4531,7 +4531,7 @@ XnoiseDur_cauchy(XnoiseDur *self) {
     }
     while (rnd == 0.5);
 
-    if (rand() < (RAND_MAX / 2))
+    if (pyorand() < (PYO_RAND_MAX / 2))
         dir = -1;
     else
         dir = 1;
@@ -4592,7 +4592,7 @@ XnoiseDur_poisson(XnoiseDur *self) {
             }
         }
     }
-    val = self->poisson_buffer[rand() % self->poisson_tab] / 12.0 * self->xx2;
+    val = self->poisson_buffer[pyorand() % self->poisson_tab] / 12.0 * self->xx2;
 
     if (val < 0.0) return 0.0;
     else if (val > 1.0) return 1.0;
@@ -4607,12 +4607,12 @@ XnoiseDur_walker(XnoiseDur *self) {
     if (self->xx2 < 0.002) self->xx2 = 0.002;
 
     modulo = (int)(self->xx2 * 1000.0);
-    dir = rand() % 2;
+    dir = pyorand() % 2;
 
     if (dir == 0)
-        self->walkerValue = self->walkerValue + (((rand() % modulo) - (modulo / 2)) * 0.001);
+        self->walkerValue = self->walkerValue + (((pyorand() % modulo) - (modulo / 2)) * 0.001);
     else
-        self->walkerValue = self->walkerValue - (((rand() % modulo) - (modulo / 2)) * 0.001);
+        self->walkerValue = self->walkerValue - (((pyorand() % modulo) - (modulo / 2)) * 0.001);
 
     if (self->walkerValue > self->xx1)
         self->walkerValue = self->xx1;
@@ -4634,12 +4634,12 @@ XnoiseDur_loopseg(XnoiseDur *self) {
         if (self->xx2 < 0.002) self->xx2 = 0.002;
 
         modulo = (int)(self->xx2 * 1000.0);
-        dir = rand() % 2;
+        dir = pyorand() % 2;
 
         if (dir == 0)
-            self->walkerValue = self->walkerValue + (((rand() % modulo) - (modulo / 2)) * 0.001);
+            self->walkerValue = self->walkerValue + (((pyorand() % modulo) - (modulo / 2)) * 0.001);
         else
-            self->walkerValue = self->walkerValue - (((rand() % modulo) - (modulo / 2)) * 0.001);
+            self->walkerValue = self->walkerValue - (((pyorand() % modulo) - (modulo / 2)) * 0.001);
 
         if (self->walkerValue > self->xx1)
             self->walkerValue = self->xx1;
@@ -4652,7 +4652,7 @@ XnoiseDur_loopseg(XnoiseDur *self) {
             self->loopChoice = 0;
         else {
             self->loopChoice = 1;
-            self->loopStop = (rand() % 4) + 1;
+            self->loopStop = (pyorand() % 4) + 1;
         }
     }
     else {
@@ -4669,7 +4669,7 @@ XnoiseDur_loopseg(XnoiseDur *self) {
 
         if (self->loopTime == self->loopStop) {
             self->loopChoice = 0;
-            self->loopLen = (rand() % 10) + 3;
+            self->loopLen = (pyorand() % 10) + 3;
         }
     }
 
@@ -4891,7 +4891,7 @@ XnoiseDur_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         self->loop_buffer[i] = 0.0;
     }
     self->loopChoice = self->loopCountPlay = self->loopTime = self->loopCountRec = self->loopStop = 0;
-    self->loopLen = (rand() % 10) + 3;
+    self->loopLen = (pyorand() % 10) + 3;
 
     Stream_setFunctionPtr(self->stream, XnoiseDur_compute_next_data_frame);
     self->mode_func_ptr = XnoiseDur_setProcMode;
@@ -5258,9 +5258,9 @@ Urn_choose(Urn *self) {
     int value = 0;
     int i, pick;
 
-    pick = rand() % self->length;
+    pick = pyorand() % self->length;
     while (pick == self->lastvalue)
-        pick = rand() % self->length;
+        pick = pyorand() % self->length;
 
     for (i=0; i<self->length; i++) {
         if (i != pick)

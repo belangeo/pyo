@@ -54,6 +54,12 @@ static int Server_start_rec_internal(Server *self, char *filename);
 int rnd_objs_count[num_rnd_objs] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 int rnd_objs_mult[num_rnd_objs] = {1993,1997,1999,2003,2011,2017,2027,2029,2039,2053,2063,2069,
                          2081,2083,2087,2089,2099,2111,2113,2129,2131,2137,2141,2143,2153,2161,2179,2203,2207};
+static unsigned int PYO_RAND_SEED = 1;
+/* Linear congruential pseudo-random generator. */
+unsigned int pyorand() {
+    PYO_RAND_SEED = (PYO_RAND_SEED * 1664525 + 1013904223) % PYO_RAND_MAX;
+    return PYO_RAND_SEED;
+}
 
 #ifdef USE_COREAUDIO
 static int coreaudio_stop_callback(Server *self);
@@ -1966,21 +1972,20 @@ Server_setGlobalSeed(Server *self, PyObject *arg)
 int
 Server_generateSeed(Server *self, int oid)
 {
-    int curseed, seed, count, mult;
-    long ltime;
+    unsigned int curseed, count, mult, ltime;
 
     count = ++rnd_objs_count[oid];
     mult = rnd_objs_mult[oid];
 
     if (self->globalSeed > 0) {
-        curseed = self->globalSeed + ((count * mult) % 32768);
+        curseed = (self->globalSeed + count * mult) % PYO_RAND_MAX;
     }
     else {
-        ltime = time(NULL);
-        seed = (unsigned) (ltime / 2) % 32768;
-        curseed = seed + ((count * mult) % 32768);
+        ltime = (unsigned int)time(NULL);
+        curseed = (ltime * ltime + count * mult) % PYO_RAND_MAX;
     }
-    srand(curseed);
+
+    PYO_RAND_SEED = curseed;
 
     return 0;
 }

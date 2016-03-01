@@ -105,7 +105,7 @@ WGVerb_process_ii(WGVerb *self) {
             else if (self->rnd_time[j] >= 1.0) {
                 self->rnd_time[j] -= 1.0;
                 self->rnd_oldValue[j] = self->rnd_value[j];
-                self->rnd_value[j] = self->rnd_range[j] * (rand()/((MYFLT)(RAND_MAX)+1)) - self->rnd_halfRange[j];
+                self->rnd_value[j] = self->rnd_range[j] * RANDOM_UNIFORM - self->rnd_halfRange[j];
                 self->rnd_diff[j] = self->rnd_value[j] - self->rnd_oldValue[j];
             }
             self->rnd[j] = self->rnd_oldValue[j] + self->rnd_diff[j] * self->rnd_time[j];
@@ -165,7 +165,7 @@ WGVerb_process_ai(WGVerb *self) {
             else if (self->rnd_time[j] >= 1.0) {
                 self->rnd_time[j] -= 1.0;
                 self->rnd_oldValue[j] = self->rnd_value[j];
-                self->rnd_value[j] = self->rnd_range[j] * (rand()/((MYFLT)(RAND_MAX)+1)) - self->rnd_halfRange[j];
+                self->rnd_value[j] = self->rnd_range[j] * RANDOM_UNIFORM - self->rnd_halfRange[j];
                 self->rnd_diff[j] = self->rnd_value[j] - self->rnd_oldValue[j];
             }
             self->rnd[j] = self->rnd_oldValue[j] + self->rnd_diff[j] * self->rnd_time[j];
@@ -225,7 +225,7 @@ WGVerb_process_ia(WGVerb *self) {
             else if (self->rnd_time[j] >= 1.0) {
                 self->rnd_time[j] -= 1.0;
                 self->rnd_oldValue[j] = self->rnd_value[j];
-                self->rnd_value[j] = self->rnd_range[j] * (rand()/((MYFLT)(RAND_MAX)+1)) - self->rnd_halfRange[j];
+                self->rnd_value[j] = self->rnd_range[j] * RANDOM_UNIFORM - self->rnd_halfRange[j];
                 self->rnd_diff[j] = self->rnd_value[j] - self->rnd_oldValue[j];
             }
             self->rnd[j] = self->rnd_oldValue[j] + self->rnd_diff[j] * self->rnd_time[j];
@@ -285,7 +285,7 @@ WGVerb_process_aa(WGVerb *self) {
             else if (self->rnd_time[j] >= 1.0) {
                 self->rnd_time[j] -= 1.0;
                 self->rnd_oldValue[j] = self->rnd_value[j];
-                self->rnd_value[j] = self->rnd_range[j] * (rand()/((MYFLT)(RAND_MAX)+1)) - self->rnd_halfRange[j];
+                self->rnd_value[j] = self->rnd_range[j] * RANDOM_UNIFORM - self->rnd_halfRange[j];
                 self->rnd_diff[j] = self->rnd_value[j] - self->rnd_oldValue[j];
             }
             self->rnd[j] = self->rnd_oldValue[j] + self->rnd_diff[j] * self->rnd_time[j];
@@ -916,7 +916,7 @@ STReverb_process_ii(STReverb *self) {
                 else if (self->rnd_time[k][j] >= 1.0) {
                     self->rnd_time[k][j] -= 1.0;
                     self->rnd_oldValue[k][j] = self->rnd_value[k][j];
-                    self->rnd_value[k][j] = self->rnd_range[k][j] * (rand()/((MYFLT)(RAND_MAX)+1)) - self->rnd_halfRange[k][j];
+                    self->rnd_value[k][j] = self->rnd_range[k][j] * RANDOM_UNIFORM - self->rnd_halfRange[k][j];
                     self->rnd_diff[k][j] = self->rnd_value[k][j] - self->rnd_oldValue[k][j];
                 }
                 self->rnd[k][j] = self->rnd_oldValue[k][j] + self->rnd_diff[k][j] * self->rnd_time[k][j];
@@ -1037,7 +1037,7 @@ STReverb_process_ai(STReverb *self) {
                 else if (self->rnd_time[k][j] >= 1.0) {
                     self->rnd_time[k][j] -= 1.0;
                     self->rnd_oldValue[k][j] = self->rnd_value[k][j];
-                    self->rnd_value[k][j] = self->rnd_range[k][j] * (rand()/((MYFLT)(RAND_MAX)+1)) - self->rnd_halfRange[k][j];
+                    self->rnd_value[k][j] = self->rnd_range[k][j] * RANDOM_UNIFORM - self->rnd_halfRange[k][j];
                     self->rnd_diff[k][j] = self->rnd_value[k][j] - self->rnd_oldValue[k][j];
                 }
                 self->rnd[k][j] = self->rnd_oldValue[k][j] + self->rnd_diff[k][j] * self->rnd_time[k][j];
@@ -1159,7 +1159,7 @@ STReverb_process_ia(STReverb *self) {
                 else if (self->rnd_time[k][j] >= 1.0) {
                     self->rnd_time[k][j] -= 1.0;
                     self->rnd_oldValue[k][j] = self->rnd_value[k][j];
-                    self->rnd_value[k][j] = self->rnd_range[k][j] * (rand()/((MYFLT)(RAND_MAX)+1)) - self->rnd_halfRange[k][j];
+                    self->rnd_value[k][j] = self->rnd_range[k][j] * RANDOM_UNIFORM - self->rnd_halfRange[k][j];
                     self->rnd_diff[k][j] = self->rnd_value[k][j] - self->rnd_oldValue[k][j];
                 }
                 self->rnd[k][j] = self->rnd_oldValue[k][j] + self->rnd_diff[k][j] * self->rnd_time[k][j];
@@ -1281,7 +1281,7 @@ STReverb_process_aa(STReverb *self) {
                 else if (self->rnd_time[k][j] >= 1.0) {
                     self->rnd_time[k][j] -= 1.0;
                     self->rnd_oldValue[k][j] = self->rnd_value[k][j];
-                    self->rnd_value[k][j] = self->rnd_range[k][j] * (rand()/((MYFLT)(RAND_MAX)+1)) - self->rnd_halfRange[k][j];
+                    self->rnd_value[k][j] = self->rnd_range[k][j] * RANDOM_UNIFORM - self->rnd_halfRange[k][j];
                     self->rnd_diff[k][j] = self->rnd_value[k][j] - self->rnd_oldValue[k][j];
                 }
                 self->rnd[k][j] = self->rnd_oldValue[k][j] + self->rnd_diff[k][j] * self->rnd_time[k][j];

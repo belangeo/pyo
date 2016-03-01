@@ -992,7 +992,7 @@ Clouder_generate_i(Clouder *self) {
 
     dens *= 0.5;
     for (i=0; i<self->bufsize; i++) {
-        rnd = (int)(rand() / (MYFLT)RAND_MAX * self->sr);
+        rnd = (int)(RANDOM_UNIFORM * self->sr);
         if (rnd < dens) {
             self->buffer_streams[i + self->voiceCount++ * self->bufsize] = 1.0;
             if (self->voiceCount == self->poly)
@@ -1020,7 +1020,7 @@ Clouder_generate_a(Clouder *self) {
             dens = self->sr;
 
         dens *= 0.5;
-        rnd = (int)(rand() / (MYFLT)RAND_MAX * self->sr);
+        rnd = (int)(RANDOM_UNIFORM * self->sr);
         if (rnd < dens) {
             self->buffer_streams[i + self->voiceCount++ * self->bufsize] = 1.0;
             if (self->voiceCount == self->poly)
@@ -1759,11 +1759,11 @@ typedef struct {
 static MYFLT
 Beater_defineAccent(int n) {
 	if (n == 1)
-		return (MYFLT)((rand() % 15) + 112) / 127.; // 112 -> 127
+		return (MYFLT)((pyorand() % 15) + 112) / 127.; // 112 -> 127
 	else if (n == 2)
-		return (MYFLT)((rand() % 20) + 70) / 127.; // 70 -> 90
+		return (MYFLT)((pyorand() % 20) + 70) / 127.; // 70 -> 90
 	else if (n == 3)
-		return (MYFLT)((rand() % 20) + 40) / 127.; // 40 -> 60
+		return (MYFLT)((pyorand() % 20) + 40) / 127.; // 40 -> 60
     else
         return 0.5;
 }
@@ -1906,7 +1906,7 @@ Beater_makeSequence(Beater *self) {
 
 	j = 0;
 	for (i=0; i < self->taps; i++) {
-		if ((rand() % 100) < self->tapProb[i]) {
+		if ((pyorand() % 100) < self->tapProb[i]) {
 			self->sequence[i] = 1;
 			self->tapList[j++] = i;
 		}

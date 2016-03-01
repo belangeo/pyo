@@ -673,7 +673,7 @@ Freeverb_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     Server_generateSeed((Server *)self->server, FREEVERB_ID);
 
-    rndSamps = (rand()/(MYFLT)(RAND_MAX) * 20 + 10) / DEFAULT_SRATE;
+    rndSamps = (RANDOM_UNIFORM * 20 + 10) / DEFAULT_SRATE;
     for(i=0; i<NUM_COMB; i++) {
         nsamps = Freeverb_calc_nsamples((Freeverb *)self, comb_delays[i] + rndSamps);
         self->comb_buf[i] = (MYFLT *)realloc(self->comb_buf[i], (nsamps+1) * sizeof(MYFLT));

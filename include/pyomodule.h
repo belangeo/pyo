@@ -494,8 +494,10 @@ extern PyTypeObject ExprType;
 #define PI M_PI
 #define TWOPI (2 * M_PI)
 
+#define PYO_RAND_MAX 4294967295
+
 /* random uniform (0.0 -> 1.0) */
-#define RANDOM_UNIFORM rand()/((MYFLT)(RAND_MAX)+1)
+#define RANDOM_UNIFORM (pyorand()/((MYFLT)(PYO_RAND_MAX)+1))
 
 /* random objects identifier */
 #define BEATER_ID 0

@@ -1015,7 +1015,7 @@ SfMarkerShuffler_chooseNewMark(SfMarkerShuffler *self, int dir)
     int mark;
     if (dir == 1) {
         if (self->startPos == -1) {
-            mark = (int)(self->markers_size * (rand()/((MYFLT)(RAND_MAX)+1)));
+            mark = (int)(self->markers_size * RANDOM_UNIFORM);
             self->startPos = self->markers[mark] * self->srScale;
             self->endPos = self->markers[mark+1] * self->srScale;
         }
@@ -1024,13 +1024,13 @@ SfMarkerShuffler_chooseNewMark(SfMarkerShuffler *self, int dir)
             self->endPos = self->nextEndPos;
         }
 
-        mark = (int)(self->markers_size * (rand()/((MYFLT)(RAND_MAX)+1)));
+        mark = (int)(self->markers_size * RANDOM_UNIFORM);
         self->nextStartPos = self->markers[mark] * self->srScale;
         self->nextEndPos = self->markers[mark+1] * self->srScale;
     }
     else {
         if (self->startPos == -1) {
-            mark = self->markers_size - (int)(self->markers_size * (rand()/((MYFLT)(RAND_MAX)+1)));
+            mark = self->markers_size - (int)(self->markers_size * RANDOM_UNIFORM);
             self->startPos = self->markers[mark] * self->srScale;
             self->endPos = self->markers[mark-1] * self->srScale;
         }
@@ -1039,7 +1039,7 @@ SfMarkerShuffler_chooseNewMark(SfMarkerShuffler *self, int dir)
             self->endPos = self->nextEndPos;
         }
 
-        mark = self->markers_size - (int)(self->markers_size * (rand()/((MYFLT)(RAND_MAX)+1)));
+        mark = self->markers_size - (int)(self->markers_size * RANDOM_UNIFORM);
         self->nextStartPos = self->markers[mark] * self->srScale;
         self->nextEndPos = self->markers[mark-1] * self->srScale;
     }

@@ -754,7 +754,7 @@ Granulator_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     Server_generateSeed((Server *)self->server, GRANULATOR_ID);
 
     for (i=0; i<self->ngrains; i++) {
-        phase = ((MYFLT)i/self->ngrains) * (1.0 + ((rand()/((MYFLT)(RAND_MAX)+1)*2.0-1.0) * 0.01));
+        phase = ((MYFLT)i/self->ngrains) * (1.0 + ((RANDOM_UNIFORM * 2.0 - 1.0) * 0.01));
         if (phase < 0.0)
             phase = 0.0;
         else if (phase >= 1.0)
@@ -949,7 +949,7 @@ Granulator_setGrains(Granulator *self, PyObject *arg)
         self->lastppos = (MYFLT *)realloc(self->lastppos, self->ngrains * sizeof(MYFLT));
 
         for (i=0; i<self->ngrains; i++) {
-            phase = ((MYFLT)i/self->ngrains) * (1.0 + ((rand()/((MYFLT)(RAND_MAX)+1)*2.0-1.0) * 0.01));
+            phase = ((MYFLT)i/self->ngrains) * (1.0 + ((RANDOM_UNIFORM * 2.0 - 1.0) * 0.01));
             if (phase < 0.0)
                 phase = 0.0;
             else if (phase >= 1.0)
@@ -2246,7 +2246,7 @@ Granule_transform_i(Granule *self) {
             }
         } else {
             /* asynchronous */
-            if ((rand() * self->srOnRandMax) < dens)
+            if ((pyorand() * self->srOnRandMax) < dens)
                 flag = 1;
         }
 
@@ -2337,7 +2337,7 @@ Granule_transform_a(Granule *self) {
             }
         } else {
             /* asynchronous */
-            if ((rand() * self->srOnRandMax) < density[i])
+            if ((pyorand() * self->srOnRandMax) < density[i])
                 flag = 1;
         }
 
@@ -2537,7 +2537,7 @@ Granule_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     INIT_OBJECT_COMMON
 
     self->oneOnSr = 1.0 / self->sr;
-    self->srOnRandMax = self->sr / (MYFLT)RAND_MAX;
+    self->srOnRandMax = self->sr / (MYFLT)PYO_RAND_MAX;
 
     Stream_setFunctionPtr(self->stream, Granule_compute_next_data_frame);
     self->mode_func_ptr = Granule_setProcMode;
@@ -3029,7 +3029,7 @@ MainParticle_transform_mono_i(MainParticle *self) {
                         self->flags[j] = 0;
                     self->phase[j] = 0.0;
                     self->inc[j] = 1.0 / (dur * self->sr);
-                    self->devFactor = (rand() / (MYFLT)RAND_MAX * 2.0 - 1.0) * dev + 1.0;
+                    self->devFactor = (RANDOM_UNIFORM * 2.0 - 1.0) * dev + 1.0;
                     break;
                 }
             }
@@ -3129,7 +3129,7 @@ MainParticle_transform_mono_a(MainParticle *self) {
                         self->flags[j] = 0;
                     self->phase[j] = 0.0;
                     self->inc[j] = 1.0 / (dur * self->sr);
-                    self->devFactor = (rand() / (MYFLT)RAND_MAX * 2.0 - 1.0) * dev + 1.0;
+                    self->devFactor = (RANDOM_UNIFORM * 2.0 - 1.0) * dev + 1.0;
                     break;
                 }
             }
@@ -3237,7 +3237,7 @@ MainParticle_transform_i(MainParticle *self) {
                         self->flags[j] = 0;
                     self->phase[j] = 0.0;
                     self->inc[j] = 1.0 / (dur * self->sr);
-                    self->devFactor = (rand() / (MYFLT)RAND_MAX * 2.0 - 1.0) * dev + 1.0;
+                    self->devFactor = (RANDOM_UNIFORM * 2.0 - 1.0) * dev + 1.0;
                     if (self->chnls == 2) {
                         self->k1[j] = 0;
                         self->k2[j] = self->bufsize;
@@ -3371,7 +3371,7 @@ MainParticle_transform_a(MainParticle *self) {
                         self->flags[j] = 0;
                     self->phase[j] = 0.0;
                     self->inc[j] = 1.0 / (dur * self->sr);
-                    self->devFactor = (rand() / (MYFLT)RAND_MAX * 2.0 - 1.0) * dev + 1.0;
+                    self->devFactor = (RANDOM_UNIFORM * 2.0 - 1.0) * dev + 1.0;
                     if (self->chnls == 2) {
                         self->k1[j] = 0;
                         self->k2[j] = self->bufsize;
@@ -3548,7 +3548,7 @@ MainParticle_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     INIT_OBJECT_COMMON
 
     self->oneOnSr = 1.0 / self->sr;
-    self->srOnRandMax = self->sr / (MYFLT)RAND_MAX;
+    self->srOnRandMax = self->sr / (MYFLT)PYO_RAND_MAX;
 
     Stream_setFunctionPtr(self->stream, MainParticle_compute_next_data_frame);
     self->mode_func_ptr = MainParticle_setProcMode;

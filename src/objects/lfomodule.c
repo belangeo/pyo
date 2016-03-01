@@ -175,7 +175,7 @@ LFO_generates_ii(LFO *self) {
                     self->pointerPos -= 1.0;
                     self->sahPointerPos = 0.0;
                     self->sahLastValue = self->sahCurrentValue;
-                    self->sahCurrentValue = rand()/((MYFLT)(RAND_MAX)*0.5) - 1.0;
+                    self->sahCurrentValue = RANDOM_UNIFORM * 2.0 - 1.0;
                 }
                 if (self->sahPointerPos < 1.0) {
                     fade = 0.5 * MYSIN(PI * (self->sahPointerPos+0.5)) + 0.5;
@@ -354,7 +354,7 @@ LFO_generates_ai(LFO *self) {
                     self->pointerPos -= 1.0;
                     self->sahPointerPos = 0.0;
                     self->sahLastValue = self->sahCurrentValue;
-                    self->sahCurrentValue = rand()/((MYFLT)(RAND_MAX)*0.5) - 1.0;
+                    self->sahCurrentValue = RANDOM_UNIFORM * 2.0 - 1.0;
                 }
                 if (self->sahPointerPos < 1.0) {
                     fade = 0.5 * MYSIN(PI * (self->sahPointerPos+0.5)) + 0.5;
@@ -553,7 +553,7 @@ LFO_generates_ia(LFO *self) {
                     self->pointerPos -= 1.0;
                     self->sahPointerPos = 0.0;
                     self->sahLastValue = self->sahCurrentValue;
-                    self->sahCurrentValue = rand()/((MYFLT)(RAND_MAX)*0.5) - 1.0;
+                    self->sahCurrentValue = RANDOM_UNIFORM * 2.0 - 1.0;
                 }
                 if (self->sahPointerPos < 1.0) {
                     fade = 0.5 * MYSIN(PI * (self->sahPointerPos+0.5)) + 0.5;
@@ -768,7 +768,7 @@ LFO_generates_aa(LFO *self) {
                     self->pointerPos -= 1.0;
                     self->sahPointerPos = 0.0;
                     self->sahLastValue = self->sahCurrentValue;
-                    self->sahCurrentValue = rand()/((MYFLT)(RAND_MAX)*0.5) - 1.0;
+                    self->sahCurrentValue = RANDOM_UNIFORM * 2.0 - 1.0;
                 }
                 if (self->sahPointerPos < 1.0) {
                     fade = 0.5 * MYSIN(PI * (self->sahPointerPos+0.5)) + 0.5;
@@ -961,7 +961,7 @@ LFO_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     Server_generateSeed((Server *)self->server, LFO_ID);
 
-    self->sahCurrentValue = self->sahLastValue = rand()/((MYFLT)(RAND_MAX)*0.5) - 1.0;
+    self->sahCurrentValue = self->sahLastValue = RANDOM_UNIFORM * 2.0 - 1.0;
 
     (*self->mode_func_ptr)(self);
 

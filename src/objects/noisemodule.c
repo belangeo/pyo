@@ -37,7 +37,7 @@ Noise_generate(Noise *self) {
     int i;
 
     for (i=0; i<self->bufsize; i++) {
-        self->data[i] = rand()/((MYFLT)(RAND_MAX)+1)*1.98-0.99;
+        self->data[i] = RANDOM_UNIFORM * 1.98 - 0.99;
     }
 }
 
@@ -168,7 +168,7 @@ Noise_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     Server_generateSeed((Server *)self->server, NOISE_ID);
 
-    self->seed = rand();
+    self->seed = pyorand();
 
     (*self->mode_func_ptr)(self);
 
@@ -335,7 +335,7 @@ PinkNoise_generate(PinkNoise *self) {
     int i;
 
     for (i=0; i<self->bufsize; i++) {
-        in = rand()/((MYFLT)(RAND_MAX)+1)*1.98-0.99;
+        in = RANDOM_UNIFORM * 1.98 - 0.99;
         self->c0 = self->c0 * 0.99886 + in * 0.0555179;
         self->c1 = self->c1 * 0.99332 + in * 0.0750759;
         self->c2 = self->c2 * 0.96900 + in * 0.1538520;
@@ -601,7 +601,7 @@ BrownNoise_generate(BrownNoise *self) {
     int i;
 
     for (i=0; i<self->bufsize; i++) {
-        rnd = rand()/((MYFLT)(RAND_MAX)+1)*1.98-0.99;
+        rnd = RANDOM_UNIFORM * 1.98 - 0.99;
         val = self->c1 * rnd + self->c2 * self->y1;
         self->y1 = val;
         self->data[i] = val * 20.0; /* gain compensation */

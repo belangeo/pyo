@@ -89,7 +89,7 @@ OscBank_setFrequencies(OscBank *self, MYFLT freq, MYFLT spread) {
     MYFLT scl = freq * spread;
 
     if (self->fjit == 1) {
-        seed = rand();
+        seed = pyorand();
         for (i=0; i<self->stages; i++) {
             seed = (seed * 15625 + 1) & 0xFFFF;
             rnd = seed * 1.52587890625e-07 - 0.005 + 1.0;
@@ -115,7 +115,7 @@ OscBank_pickNewFrnds(OscBank *self, MYFLT frndf, MYFLT frnda) {
     else if (frnda > 1.0)
         frnda = 1.0;
 
-    seed = rand();
+    seed = pyorand();
     for (i=0; i<self->stages; i++) {
         self->fOldValues[i] = self->fValues[i];
         seed = (seed * 15625 + 1) & 0xFFFF;
@@ -134,7 +134,7 @@ OscBank_pickNewArnds(OscBank *self, MYFLT arndf, MYFLT arnda) {
     else if (arnda > 1.0)
         arnda = 1.0;
 
-    seed = rand();
+    seed = pyorand();
     for (i=0; i<self->stages; i++) {
         self->aOldValues[i] = self->aValues[i];
         seed = (seed * 15625 + 1) & 0xFFFF;

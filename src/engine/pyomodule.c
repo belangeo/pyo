@@ -30,7 +30,7 @@
 #include "tablemodule.h"
 #include "matrixmodule.h"
 
-/** Note :
+/** TODO:
  ** Add an argument to pa_get_* and pm_get_* functions to allow printing to the console
  **/
 

@@ -2580,9 +2580,9 @@ PyTypeObject BetweenType = {
 /* Denorm */
 /************/
 #ifndef USE_DOUBLE
-#define DENORM_RAND  ((MYFLT) ((rand()/((MYFLT)(RAND_MAX)*0.5+1) - 1.0) * (MYFLT)(1.0e-24)))
+#define DENORM_RAND  ((MYFLT) ((pyorand()/((MYFLT)(PYO_RAND_MAX)*0.5+1) - 1.0) * (MYFLT)(1.0e-24)))
 #else
-#define DENORM_RAND  ((MYFLT) ((rand()/((MYFLT)(RAND_MAX)*0.5+1) - 1.0) * (MYFLT)(1.0e-60)))
+#define DENORM_RAND  ((MYFLT) ((pyorand()/((MYFLT)(PYO_RAND_MAX)*0.5+1) - 1.0) * (MYFLT)(1.0e-60)))
 #endif
 
 typedef struct {
