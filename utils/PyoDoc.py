@@ -219,7 +219,8 @@ under the current Python distribution to access these classes.
 
 _DOC_KEYWORDS = ['Attributes', 'Examples', 'Methods', 'Notes', 'Methods details', 
                  'Parentclass', 'Overview', 'Initline', 'Description', 'Parameters']
-_HEADERS = ["Server", "PyoObjectBase", "Map", "Stream", "TableStream", "functions", "PyoGui"]
+_HEADERS = ["Server", "PyoObjectBase", "Map", "Stream", "TableStream", "functions", 
+            "MidiListener", "OscListener", "PyoGui"]
 _KEYWORDS_LIST = ['SLMap']
 _KEYWORDS_LIST.extend(_HEADERS)
 _NUM_PAGES = 1
