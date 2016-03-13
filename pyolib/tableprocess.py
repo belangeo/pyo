@@ -1643,7 +1643,7 @@ class TableWrite(PyoObject):
     See `NewTable` to create an empty table.
 
     TableWrite takes samples from its `input` stream and writes
-    them at a normalized position given by the `pos` stream.
+    them at a normalized or raw position given by the `pos` stream.
     Position must be an audio stream, ie. a PyoObject. This
     object allows fast recording of values coming from an X-Y
     pad into a table object.
@@ -1655,10 +1655,18 @@ class TableWrite(PyoObject):
         input : PyoObject
             Audio signal to write in the table.
         pos : PyoObject
-            Audio signal specifying the normalized position (in the
-            range 0 to 1) where to write the `input` samples.
+            Audio signal specifying the position where to write the 
+            `input` samples. It is a normalized position (in the range 
+            0 to 1) in mode=0 or the raw position (in samples) for any
+            other value of mode.
         table : NewTable
             The table where to write samples.
+        mode : int, optional
+            Sets the writing pointer mode. If 0, the position must be 
+            normalized between 0 (beginning of the table) and 1 (end
+            of the table). For any other value, the position must be
+            in samples between 0 and the length of the table. Available
+            at initialization time only.
 
     .. note::
 
@@ -1680,15 +1688,16 @@ class TableWrite(PyoObject):
     >>> pat = Pattern(tab.refreshView, 0.05).play()
 
     """
-    def __init__(self, input, pos, table):
-        pyoArgsAssert(self, "oot", input, pos, table)
+    def __init__(self, input, pos, table, mode=0):
+        pyoArgsAssert(self, "ooti", input, pos, table, mode)
         PyoObject.__init__(self)
         self._input = input
         self._pos = pos
         self._table = table
+        self._mode = mode
         self._in_fader = InputFader(input)
-        in_fader, pos, table, lmax = convertArgsToLists(self._in_fader, pos, table)
-        self._base_objs = [TableWrite_base(wrap(in_fader,i), wrap(pos,i), wrap(table,i)) for i in range(len(table))]
+        in_fader, pos, table, mode, lmax = convertArgsToLists(self._in_fader, pos, table, mode)
+        self._base_objs = [TableWrite_base(wrap(in_fader,i), wrap(pos,i), wrap(table,i), wrap(mode,i)) for i in range(len(table))]
 
     def out(self, chnl=0, inc=1, dur=0, delay=0):
         return self.play(dur, delay)

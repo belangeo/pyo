@@ -6731,6 +6731,7 @@ typedef struct {
     PyObject *pos;
     Stream *pos_stream;
     NewTable *table;
+    int mode;
 } TableWrite;
 
 static void
@@ -6746,13 +6747,18 @@ TableWrite_compute_next_data_frame(TableWrite *self)
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
     MYFLT *pos = Stream_getData((Stream *)self->pos_stream);
 
-    for (i=0; i<self->bufsize; i++) {
-        ipos = (int)(pos[i] * size);
-        if (ipos < 0)
-            ipos = 0;
-        else if (ipos >= size)
-            ipos = size - 1;
-        tablelist[ipos] = in[i];
+    if (self->mode == 0) {
+        for (i=0; i<self->bufsize; i++) {
+            ipos = (int)(pos[i] * size + 0.5);
+            if (ipos >= 0 && ipos < size)
+                tablelist[ipos] = in[i];
+        }
+    } else {
+        for (i=0; i<self->bufsize; i++) {
+            ipos = (int)(pos[i]);
+            if (ipos >= 0 && ipos < size)
+                tablelist[ipos] = in[i];
+        }
     }
 }
 
@@ -6796,14 +6802,16 @@ TableWrite_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     TableWrite *self;
     self = (TableWrite *)type->tp_alloc(type, 0);
 
+    self->mode = 0;
+
     INIT_OBJECT_COMMON
 
     Stream_setFunctionPtr(self->stream, TableWrite_compute_next_data_frame);
     Stream_setStreamActive(self->stream, 1);
 
-    static char *kwlist[] = {"input", "pos", "table", NULL};
+    static char *kwlist[] = {"input", "pos", "table", "mode", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "OOO", kwlist, &inputtmp, &postmp, &tabletmp))
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "OOOi", kwlist, &inputtmp, &postmp, &tabletmp, &self->mode))
         Py_RETURN_NONE;
 
     INIT_INPUT_STREAM
