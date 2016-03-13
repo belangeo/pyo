@@ -1,3 +1,12 @@
+2016-03-13 belangeo <belangeo@gmail.com>
+
+    *  Added rotate and copyData methods to the PyoTableObject.
+
+2016-03-12 belangeo <belangeo@gmail.com>
+
+    *  Fixed TableWrite writing pointer in the table. Added a mode attribute
+    to select between normalized (0->1) or raw (samples) position.
+
 2016-03-01 belangeo <belangeo@gmail.com>
 
     * Final revision for version 0.7.9.

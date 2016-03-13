@@ -87,7 +87,6 @@
 #define TYPE_O_OOFFOO "O|OOffOO"
 #define TYPE_O_OOOFOO "O|OOOfOO"
 #define TYPE_OO_OOOIFOO "OO|OOOifOO"
-#define TYPE_OIII "Oiii"
 
 #define SF_WRITE sf_write_float
 #define SF_READ sf_read_float
@@ -171,7 +170,6 @@
 #define TYPE_O_OOFFOO "O|OOddOO"
 #define TYPE_O_OOOFOO "O|OOOdOO"
 #define TYPE_OO_OOOIFOO "OO|OOOidOO"
-#define TYPE_OIII "Oiii"
 
 #define SF_WRITE sf_write_double
 #define SF_READ sf_read_double
@@ -977,20 +975,63 @@ extern PyTypeObject ExprType;
     Py_INCREF(Py_None); \
     return Py_None; \
 
+/* Table rotation */
+#define TABLE_ROTATE \
+    int i, j, pos; \
+    MYFLT tmp; \
+    static char *kwlist[] = {"pos", NULL}; \
+ \
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "i", kwlist, &pos)) \
+        return PyInt_FromLong(-1); \
+ \
+    pos = -pos; \
+    while (pos > self->size) pos -= self->size; \
+    while (pos < 0) pos += self->size; \
+ \
+    j = self->size; \
+    for (i=0; i<--j; i++) { \
+        tmp = self->data[i]; \
+        self->data[i] = self->data[j]; \
+        self->data[j] = tmp; \
+    } \
+    j = pos; \
+    for (i=0; i<--j; i++) { \
+        tmp = self->data[i]; \
+        self->data[i] = self->data[j]; \
+        self->data[j] = tmp; \
+    } \
+    j = self->size; \
+    for (i=pos; i<--j; i++) { \
+        tmp = self->data[i]; \
+        self->data[i] = self->data[j]; \
+        self->data[j] = tmp; \
+    } \
+ \
+    self->data[self->size] = self->data[0]; \
+ \
+    Py_RETURN_NONE;
+
 /* Table copy from table */
 #define TABLE_COPYDATA \
     PyObject *tabletmp; \
-    int i, srcpos, destpos, length; \
+    int i, tabsize, srcpos=0, destpos=0, length=-1; \
     PyObject *table = NULL; \
     MYFLT *list = NULL; \
     static char *kwlist[] = {"table", "srcpos", "destpos", "length", NULL}; \
  \
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_OIII, kwlist, &tabletmp, &srcpos, &destpos, &length)) \
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|iii", kwlist, &tabletmp, &srcpos, &destpos, &length)) \
         return PyInt_FromLong(-1); \
  \
     if ( PyObject_HasAttrString((PyObject *)tabletmp, "getTableStream") == 1 ) { \
         Py_XDECREF(table); \
         table = PyObject_CallMethod((PyObject *)tabletmp, "getTableStream", ""); \
+        tabsize = TableStream_getSize((TableStream *)table); \
+        if (length < 0) \
+            length = tabsize < self->size ? tabsize : self->size; \
+        if ((srcpos + length) > tabsize) \
+            length = tabsize - srcpos; \
+        if ((destpos + length) > self->size) \
+            length = self->size - destpos; \
         list = TableStream_getData((TableStream *)table); \
         for (i=0; i<length; i++) { \
             self->data[destpos+i] = list[srcpos+i]; \

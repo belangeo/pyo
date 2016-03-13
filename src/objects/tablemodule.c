@@ -239,6 +239,8 @@ static PyObject * HarmTable_fadein(HarmTable *self, PyObject *args, PyObject *kw
 static PyObject * HarmTable_fadeout(HarmTable *self, PyObject *args, PyObject *kwds) { TABLE_FADEOUT };
 static PyObject * HarmTable_pow(HarmTable *self, PyObject *args, PyObject *kwds) { TABLE_POWER };
 static PyObject * HarmTable_copy(HarmTable *self, PyObject *arg) { COPY };
+static PyObject * HarmTable_copyData(HarmTable *self, PyObject *args, PyObject *kwds) { TABLE_COPYDATA };
+static PyObject * HarmTable_rotate(HarmTable *self, PyObject *args, PyObject *kwds) { TABLE_ROTATE };
 static PyObject * HarmTable_setTable(HarmTable *self, PyObject *arg) { SET_TABLE };
 static PyObject * HarmTable_getTable(HarmTable *self) { GET_TABLE };
 static PyObject * HarmTable_getViewTable(HarmTable *self, PyObject *args, PyObject *kwds) { GET_VIEW_TABLE };
@@ -326,6 +328,8 @@ static PyMethodDef HarmTable_methods[] = {
 {"fadeout", (PyCFunction)HarmTable_fadeout, METH_VARARGS|METH_KEYWORDS, "Apply a gradual decrease in the level of the table's samples."},
 {"pow", (PyCFunction)HarmTable_pow, METH_VARARGS|METH_KEYWORDS, "Apply a power function on each sample in the table."},
 {"copy", (PyCFunction)HarmTable_copy, METH_O, "Copy data from table given in argument."},
+{"copyData", (PyCFunction)HarmTable_copyData, METH_VARARGS|METH_KEYWORDS, "Copy data from table given in argument."},
+{"rotate", (PyCFunction)HarmTable_rotate, METH_VARARGS|METH_KEYWORDS, "Rotate table around position as argument."},
 {"setData", (PyCFunction)HarmTable_setData, METH_O, "Sets the table from samples in a text file."},
 {"setSize", (PyCFunction)HarmTable_setSize, METH_O, "Sets the size of the table in samples"},
 {"getSize", (PyCFunction)HarmTable_getSize, METH_NOARGS, "Return the size of the table in samples"},
@@ -533,6 +537,8 @@ static PyObject * ChebyTable_fadein(ChebyTable *self, PyObject *args, PyObject *
 static PyObject * ChebyTable_fadeout(ChebyTable *self, PyObject *args, PyObject *kwds) { TABLE_FADEOUT };
 static PyObject * ChebyTable_pow(ChebyTable *self, PyObject *args, PyObject *kwds) { TABLE_POWER };
 static PyObject * ChebyTable_copy(ChebyTable *self, PyObject *arg) { COPY };
+static PyObject * ChebyTable_copyData(ChebyTable *self, PyObject *args, PyObject *kwds) { TABLE_COPYDATA };
+static PyObject * ChebyTable_rotate(ChebyTable *self, PyObject *args, PyObject *kwds) { TABLE_ROTATE };
 static PyObject * ChebyTable_setTable(ChebyTable *self, PyObject *arg) { SET_TABLE };
 static PyObject * ChebyTable_getTable(ChebyTable *self) { GET_TABLE };
 static PyObject * ChebyTable_getViewTable(ChebyTable *self, PyObject *args, PyObject *kwds) { GET_VIEW_TABLE };
@@ -678,6 +684,8 @@ static PyMemberDef ChebyTable_members[] = {
 static PyMethodDef ChebyTable_methods[] = {
 {"getServer", (PyCFunction)ChebyTable_getServer, METH_NOARGS, "Returns server object."},
 {"copy", (PyCFunction)ChebyTable_copy, METH_O, "Copy data from table given in argument."},
+{"copyData", (PyCFunction)ChebyTable_copyData, METH_VARARGS|METH_KEYWORDS, "Copy data from table given in argument."},
+{"rotate", (PyCFunction)ChebyTable_rotate, METH_VARARGS|METH_KEYWORDS, "Rotate table around position as argument."},
 {"setTable", (PyCFunction)ChebyTable_setTable, METH_O, "Sets the table content from a list of floats (must be the same size as the object size)."},
 {"getTable", (PyCFunction)ChebyTable_getTable, METH_NOARGS, "Returns a list of table samples."},
 {"getViewTable", (PyCFunction)ChebyTable_getViewTable, METH_VARARGS|METH_KEYWORDS, "Returns a list of pixel coordinates for drawing the table."},
@@ -835,6 +843,8 @@ static PyObject * HannTable_fadein(HannTable *self, PyObject *args, PyObject *kw
 static PyObject * HannTable_fadeout(HannTable *self, PyObject *args, PyObject *kwds) { TABLE_FADEOUT };
 static PyObject * HannTable_pow(HannTable *self, PyObject *args, PyObject *kwds) { TABLE_POWER };
 static PyObject * HannTable_copy(HannTable *self, PyObject *arg) { COPY };
+static PyObject * HannTable_copyData(HannTable *self, PyObject *args, PyObject *kwds) { TABLE_COPYDATA };
+static PyObject * HannTable_rotate(HannTable *self, PyObject *args, PyObject *kwds) { TABLE_ROTATE };
 static PyObject * HannTable_setTable(HannTable *self, PyObject *arg) { SET_TABLE };
 static PyObject * HannTable_getTable(HannTable *self) { GET_TABLE };
 static PyObject * HannTable_getViewTable(HannTable *self, PyObject *args, PyObject *kwds) { GET_VIEW_TABLE };
@@ -883,6 +893,8 @@ static PyMemberDef HannTable_members[] = {
 static PyMethodDef HannTable_methods[] = {
 {"getServer", (PyCFunction)HannTable_getServer, METH_NOARGS, "Returns server object."},
 {"copy", (PyCFunction)HannTable_copy, METH_O, "Copy data from table given in argument."},
+{"copyData", (PyCFunction)HannTable_copyData, METH_VARARGS|METH_KEYWORDS, "Copy data from table given in argument."},
+{"rotate", (PyCFunction)HannTable_rotate, METH_VARARGS|METH_KEYWORDS, "Rotate table around position as argument."},
 {"setTable", (PyCFunction)HannTable_setTable, METH_O, "Sets the table content from a list of floats (must be the same size as the object size)."},
 {"getTable", (PyCFunction)HannTable_getTable, METH_NOARGS, "Returns a list of table samples."},
 {"getViewTable", (PyCFunction)HannTable_getViewTable, METH_VARARGS|METH_KEYWORDS, "Returns a list of pixel coordinates for drawing the table."},
@@ -1059,6 +1071,8 @@ static PyObject * SincTable_fadein(SincTable *self, PyObject *args, PyObject *kw
 static PyObject * SincTable_fadeout(SincTable *self, PyObject *args, PyObject *kwds) { TABLE_FADEOUT };
 static PyObject * SincTable_pow(SincTable *self, PyObject *args, PyObject *kwds) { TABLE_POWER };
 static PyObject * SincTable_copy(SincTable *self, PyObject *arg) { COPY };
+static PyObject * SincTable_copyData(SincTable *self, PyObject *args, PyObject *kwds) { TABLE_COPYDATA };
+static PyObject * SincTable_rotate(SincTable *self, PyObject *args, PyObject *kwds) { TABLE_ROTATE };
 static PyObject * SincTable_setTable(SincTable *self, PyObject *arg) { SET_TABLE };
 static PyObject * SincTable_getTable(SincTable *self) { GET_TABLE };
 static PyObject * SincTable_getViewTable(SincTable *self, PyObject *args, PyObject *kwds) { GET_VIEW_TABLE };
@@ -1141,6 +1155,8 @@ static PyMemberDef SincTable_members[] = {
 static PyMethodDef SincTable_methods[] = {
     {"getServer", (PyCFunction)SincTable_getServer, METH_NOARGS, "Returns server object."},
     {"copy", (PyCFunction)SincTable_copy, METH_O, "Copy data from table given in argument."},
+    {"copyData", (PyCFunction)SincTable_copyData, METH_VARARGS|METH_KEYWORDS, "Copy data from table given in argument."},
+    {"rotate", (PyCFunction)SincTable_rotate, METH_VARARGS|METH_KEYWORDS, "Rotate table around position as argument."},
     {"setTable", (PyCFunction)SincTable_setTable, METH_O, "Sets the table content from a list of floats (must be the same size as the object size)."},
     {"getTable", (PyCFunction)SincTable_getTable, METH_NOARGS, "Returns a list of table samples."},
     {"getViewTable", (PyCFunction)SincTable_getViewTable, METH_VARARGS|METH_KEYWORDS, "Returns a list of pixel coordinates for drawing the table."},
@@ -1291,6 +1307,8 @@ static PyObject * WinTable_fadein(WinTable *self, PyObject *args, PyObject *kwds
 static PyObject * WinTable_fadeout(WinTable *self, PyObject *args, PyObject *kwds) { TABLE_FADEOUT };
 static PyObject * WinTable_pow(WinTable *self, PyObject *args, PyObject *kwds) { TABLE_POWER };
 static PyObject * WinTable_copy(WinTable *self, PyObject *arg) { COPY };
+static PyObject * WinTable_copyData(WinTable *self, PyObject *args, PyObject *kwds) { TABLE_COPYDATA };
+static PyObject * WinTable_rotate(WinTable *self, PyObject *args, PyObject *kwds) { TABLE_ROTATE };
 static PyObject * WinTable_setTable(WinTable *self, PyObject *arg) { SET_TABLE };
 static PyObject * WinTable_getTable(WinTable *self) { GET_TABLE };
 static PyObject * WinTable_getViewTable(WinTable *self, PyObject *args, PyObject *kwds) { GET_VIEW_TABLE };
@@ -1360,6 +1378,8 @@ static PyMemberDef WinTable_members[] = {
 static PyMethodDef WinTable_methods[] = {
 {"getServer", (PyCFunction)WinTable_getServer, METH_NOARGS, "Returns server object."},
 {"copy", (PyCFunction)WinTable_copy, METH_O, "Copy data from table given in argument."},
+{"copyData", (PyCFunction)WinTable_copyData, METH_VARARGS|METH_KEYWORDS, "Copy data from table given in argument."},
+{"rotate", (PyCFunction)WinTable_rotate, METH_VARARGS|METH_KEYWORDS, "Rotate table around position as argument."},
 {"setTable", (PyCFunction)WinTable_setTable, METH_O, "Sets the table content from a list of floats (must be the same size as the object size)."},
 {"getTable", (PyCFunction)WinTable_getTable, METH_NOARGS, "Returns a list of table samples."},
 {"getViewTable", (PyCFunction)WinTable_getViewTable, METH_VARARGS|METH_KEYWORDS, "Returns a list of pixel coordinates for drawing the table."},
@@ -1523,6 +1543,8 @@ static PyObject * ParaTable_fadein(ParaTable *self, PyObject *args, PyObject *kw
 static PyObject * ParaTable_fadeout(ParaTable *self, PyObject *args, PyObject *kwds) { TABLE_FADEOUT };
 static PyObject * ParaTable_pow(ParaTable *self, PyObject *args, PyObject *kwds) { TABLE_POWER };
 static PyObject * ParaTable_copy(ParaTable *self, PyObject *arg) { COPY };
+static PyObject * ParaTable_copyData(ParaTable *self, PyObject *args, PyObject *kwds) { TABLE_COPYDATA };
+static PyObject * ParaTable_rotate(ParaTable *self, PyObject *args, PyObject *kwds) { TABLE_ROTATE };
 static PyObject * ParaTable_setTable(ParaTable *self, PyObject *arg) { SET_TABLE };
 static PyObject * ParaTable_getTable(ParaTable *self) { GET_TABLE };
 static PyObject * ParaTable_getViewTable(ParaTable *self, PyObject *args, PyObject *kwds) { GET_VIEW_TABLE };
@@ -1571,6 +1593,8 @@ static PyMemberDef ParaTable_members[] = {
 static PyMethodDef ParaTable_methods[] = {
     {"getServer", (PyCFunction)ParaTable_getServer, METH_NOARGS, "Returns server object."},
     {"copy", (PyCFunction)ParaTable_copy, METH_O, "Copy data from table given in argument."},
+    {"copyData", (PyCFunction)ParaTable_copyData, METH_VARARGS|METH_KEYWORDS, "Copy data from table given in argument."},
+    {"rotate", (PyCFunction)ParaTable_rotate, METH_VARARGS|METH_KEYWORDS, "Rotate table around position as argument."},
     {"setTable", (PyCFunction)ParaTable_setTable, METH_O, "Sets the table content from a list of floats (must be the same size as the object size)."},
     {"getTable", (PyCFunction)ParaTable_getTable, METH_NOARGS, "Returns a list of table samples."},
     {"getViewTable", (PyCFunction)ParaTable_getViewTable, METH_VARARGS|METH_KEYWORDS, "Returns a list of pixel coordinates for drawing the table."},
@@ -1767,6 +1791,8 @@ static PyObject * LinTable_fadein(LinTable *self, PyObject *args, PyObject *kwds
 static PyObject * LinTable_fadeout(LinTable *self, PyObject *args, PyObject *kwds) { TABLE_FADEOUT };
 static PyObject * LinTable_pow(LinTable *self, PyObject *args, PyObject *kwds) { TABLE_POWER };
 static PyObject * LinTable_copy(LinTable *self, PyObject *arg) { COPY };
+static PyObject * LinTable_copyData(LinTable *self, PyObject *args, PyObject *kwds) { TABLE_COPYDATA };
+static PyObject * LinTable_rotate(LinTable *self, PyObject *args, PyObject *kwds) { TABLE_ROTATE };
 static PyObject * LinTable_setTable(LinTable *self, PyObject *arg) { SET_TABLE };
 static PyObject * LinTable_getTable(LinTable *self) { GET_TABLE };
 static PyObject * LinTable_getViewTable(LinTable *self, PyObject *args, PyObject *kwds) { GET_VIEW_TABLE };
@@ -1869,6 +1895,8 @@ static PyMemberDef LinTable_members[] = {
 static PyMethodDef LinTable_methods[] = {
 {"getServer", (PyCFunction)LinTable_getServer, METH_NOARGS, "Returns server object."},
 {"copy", (PyCFunction)LinTable_copy, METH_O, "Copy data from table given in argument."},
+{"copyData", (PyCFunction)LinTable_copyData, METH_VARARGS|METH_KEYWORDS, "Copy data from table given in argument."},
+{"rotate", (PyCFunction)LinTable_rotate, METH_VARARGS|METH_KEYWORDS, "Rotate table around position as argument."},
 {"setTable", (PyCFunction)LinTable_setTable, METH_O, "Sets the table content from a list of floats (must be the same size as the object size)."},
 {"getTable", (PyCFunction)LinTable_getTable, METH_NOARGS, "Returns a list of table samples."},
 {"getViewTable", (PyCFunction)LinTable_getViewTable, METH_VARARGS|METH_KEYWORDS, "Returns a list of pixel coordinates for drawing the table."},
@@ -2091,6 +2119,8 @@ static PyObject * LogTable_fadein(LogTable *self, PyObject *args, PyObject *kwds
 static PyObject * LogTable_fadeout(LogTable *self, PyObject *args, PyObject *kwds) { TABLE_FADEOUT };
 static PyObject * LogTable_pow(LogTable *self, PyObject *args, PyObject *kwds) { TABLE_POWER };
 static PyObject * LogTable_copy(LogTable *self, PyObject *arg) { COPY };
+static PyObject * LogTable_copyData(LogTable *self, PyObject *args, PyObject *kwds) { TABLE_COPYDATA };
+static PyObject * LogTable_rotate(LogTable *self, PyObject *args, PyObject *kwds) { TABLE_ROTATE };
 static PyObject * LogTable_setTable(LogTable *self, PyObject *arg) { SET_TABLE };
 static PyObject * LogTable_getTable(LogTable *self) { GET_TABLE };
 static PyObject * LogTable_getViewTable(LogTable *self, PyObject *args, PyObject *kwds) { GET_VIEW_TABLE };
@@ -2193,6 +2223,8 @@ static PyMemberDef LogTable_members[] = {
 static PyMethodDef LogTable_methods[] = {
     {"getServer", (PyCFunction)LogTable_getServer, METH_NOARGS, "Returns server object."},
     {"copy", (PyCFunction)LogTable_copy, METH_O, "Copy data from table given in argument."},
+    {"copyData", (PyCFunction)LogTable_copyData, METH_VARARGS|METH_KEYWORDS, "Copy data from table given in argument."},
+    {"rotate", (PyCFunction)LogTable_rotate, METH_VARARGS|METH_KEYWORDS, "Rotate table around position as argument."},
     {"setTable", (PyCFunction)LogTable_setTable, METH_O, "Sets the table content from a list of floats (must be the same size as the object size)."},
     {"getTable", (PyCFunction)LogTable_getTable, METH_NOARGS, "Returns a list of table samples."},
     {"getViewTable", (PyCFunction)LogTable_getViewTable, METH_VARARGS|METH_KEYWORDS, "Returns a list of pixel coordinates for drawing the table."},
@@ -2393,6 +2425,8 @@ static PyObject * CosTable_fadein(CosTable *self, PyObject *args, PyObject *kwds
 static PyObject * CosTable_fadeout(CosTable *self, PyObject *args, PyObject *kwds) { TABLE_FADEOUT };
 static PyObject * CosTable_pow(CosTable *self, PyObject *args, PyObject *kwds) { TABLE_POWER };
 static PyObject * CosTable_copy(CosTable *self, PyObject *arg) { COPY };
+static PyObject * CosTable_copyData(CosTable *self, PyObject *args, PyObject *kwds) { TABLE_COPYDATA };
+static PyObject * CosTable_rotate(CosTable *self, PyObject *args, PyObject *kwds) { TABLE_ROTATE };
 static PyObject * CosTable_setTable(CosTable *self, PyObject *arg) { SET_TABLE };
 static PyObject * CosTable_getTable(CosTable *self) { GET_TABLE };
 static PyObject * CosTable_getViewTable(CosTable *self, PyObject *args, PyObject *kwds) { GET_VIEW_TABLE };
@@ -2495,6 +2529,8 @@ static PyMemberDef CosTable_members[] = {
 static PyMethodDef CosTable_methods[] = {
 {"getServer", (PyCFunction)CosTable_getServer, METH_NOARGS, "Returns server object."},
 {"copy", (PyCFunction)CosTable_copy, METH_O, "Copy data from table given in argument."},
+{"copyData", (PyCFunction)CosTable_copyData, METH_VARARGS|METH_KEYWORDS, "Copy data from table given in argument."},
+{"rotate", (PyCFunction)CosTable_rotate, METH_VARARGS|METH_KEYWORDS, "Rotate table around position as argument."},
 {"setTable", (PyCFunction)CosTable_setTable, METH_O, "Sets the table content from a list of floats (must be the same size as the object size)."},
 {"getTable", (PyCFunction)CosTable_getTable, METH_NOARGS, "Returns a list of table samples."},
 {"getViewTable", (PyCFunction)CosTable_getViewTable, METH_VARARGS|METH_KEYWORDS, "Returns a list of pixel coordinates for drawing the table."},
@@ -2719,6 +2755,8 @@ static PyObject * CosLogTable_fadein(CosLogTable *self, PyObject *args, PyObject
 static PyObject * CosLogTable_fadeout(CosLogTable *self, PyObject *args, PyObject *kwds) { TABLE_FADEOUT };
 static PyObject * CosLogTable_pow(CosLogTable *self, PyObject *args, PyObject *kwds) { TABLE_POWER };
 static PyObject * CosLogTable_copy(CosLogTable *self, PyObject *arg) { COPY };
+static PyObject * CosLogTable_copyData(CosLogTable *self, PyObject *args, PyObject *kwds) { TABLE_COPYDATA };
+static PyObject * CosLogTable_rotate(CosLogTable *self, PyObject *args, PyObject *kwds) { TABLE_ROTATE };
 static PyObject * CosLogTable_setTable(CosLogTable *self, PyObject *arg) { SET_TABLE };
 static PyObject * CosLogTable_getTable(CosLogTable *self) { GET_TABLE };
 static PyObject * CosLogTable_getViewTable(CosLogTable *self, PyObject *args, PyObject *kwds) { GET_VIEW_TABLE };
@@ -2821,6 +2859,8 @@ static PyMemberDef CosLogTable_members[] = {
 static PyMethodDef CosLogTable_methods[] = {
     {"getServer", (PyCFunction)CosLogTable_getServer, METH_NOARGS, "Returns server object."},
     {"copy", (PyCFunction)CosLogTable_copy, METH_O, "Copy data from table given in argument."},
+    {"copyData", (PyCFunction)CosLogTable_copyData, METH_VARARGS|METH_KEYWORDS, "Copy data from table given in argument."},
+    {"rotate", (PyCFunction)CosLogTable_rotate, METH_VARARGS|METH_KEYWORDS, "Rotate table around position as argument."},
     {"setTable", (PyCFunction)CosLogTable_setTable, METH_O, "Sets the table content from a list of floats (must be the same size as the object size)."},
     {"getTable", (PyCFunction)CosLogTable_getTable, METH_NOARGS, "Returns a list of table samples."},
     {"getViewTable", (PyCFunction)CosLogTable_getViewTable, METH_VARARGS|METH_KEYWORDS, "Returns a list of pixel coordinates for drawing the table."},
@@ -3048,6 +3088,8 @@ static PyObject * CurveTable_fadein(CurveTable *self, PyObject *args, PyObject *
 static PyObject * CurveTable_fadeout(CurveTable *self, PyObject *args, PyObject *kwds) { TABLE_FADEOUT };
 static PyObject * CurveTable_pow(CurveTable *self, PyObject *args, PyObject *kwds) { TABLE_POWER };
 static PyObject * CurveTable_copy(CurveTable *self, PyObject *arg) { COPY };
+static PyObject * CurveTable_copyData(CurveTable *self, PyObject *args, PyObject *kwds) { TABLE_COPYDATA };
+static PyObject * CurveTable_rotate(CurveTable *self, PyObject *args, PyObject *kwds) { TABLE_ROTATE };
 static PyObject * CurveTable_setTable(CurveTable *self, PyObject *arg) { SET_TABLE };
 static PyObject * CurveTable_getTable(CurveTable *self) { GET_TABLE };
 static PyObject * CurveTable_getViewTable(CurveTable *self, PyObject *args, PyObject *kwds) { GET_VIEW_TABLE };
@@ -3192,6 +3234,8 @@ static PyMemberDef CurveTable_members[] = {
 static PyMethodDef CurveTable_methods[] = {
 {"getServer", (PyCFunction)CurveTable_getServer, METH_NOARGS, "Returns server object."},
 {"copy", (PyCFunction)CurveTable_copy, METH_O, "Copy data from table given in argument."},
+{"copyData", (PyCFunction)CurveTable_copyData, METH_VARARGS|METH_KEYWORDS, "Copy data from table given in argument."},
+{"rotate", (PyCFunction)CurveTable_rotate, METH_VARARGS|METH_KEYWORDS, "Rotate table around position as argument."},
 {"setTable", (PyCFunction)CurveTable_setTable, METH_O, "Sets the table content from a list of floats (must be the same size as the object size)."},
 {"getTable", (PyCFunction)CurveTable_getTable, METH_NOARGS, "Returns a list of table samples."},
 {"getViewTable", (PyCFunction)CurveTable_getViewTable, METH_VARARGS|METH_KEYWORDS, "Returns a list of pixel coordinates for drawing the table."},
@@ -3418,6 +3462,8 @@ static PyObject * ExpTable_fadein(ExpTable *self, PyObject *args, PyObject *kwds
 static PyObject * ExpTable_fadeout(ExpTable *self, PyObject *args, PyObject *kwds) { TABLE_FADEOUT };
 static PyObject * ExpTable_pow(ExpTable *self, PyObject *args, PyObject *kwds) { TABLE_POWER };
 static PyObject * ExpTable_copy(ExpTable *self, PyObject *arg) { COPY };
+static PyObject * ExpTable_copyData(ExpTable *self, PyObject *args, PyObject *kwds) { TABLE_COPYDATA };
+static PyObject * ExpTable_rotate(ExpTable *self, PyObject *args, PyObject *kwds) { TABLE_ROTATE };
 static PyObject * ExpTable_setTable(ExpTable *self, PyObject *arg) { SET_TABLE };
 static PyObject * ExpTable_getTable(ExpTable *self) { GET_TABLE };
 static PyObject * ExpTable_getViewTable(ExpTable *self, PyObject *args, PyObject *kwds) { GET_VIEW_TABLE };
@@ -3561,6 +3607,8 @@ static PyMemberDef ExpTable_members[] = {
 static PyMethodDef ExpTable_methods[] = {
 {"getServer", (PyCFunction)ExpTable_getServer, METH_NOARGS, "Returns server object."},
 {"copy", (PyCFunction)ExpTable_copy, METH_O, "Copy data from table given in argument."},
+{"copyData", (PyCFunction)ExpTable_copyData, METH_VARARGS|METH_KEYWORDS, "Copy data from table given in argument."},
+{"rotate", (PyCFunction)ExpTable_rotate, METH_VARARGS|METH_KEYWORDS, "Rotate table around position as argument."},
 {"setTable", (PyCFunction)ExpTable_setTable, METH_O, "Sets the table content from a list of floats (must be the same size as the object size)."},
 {"getTable", (PyCFunction)ExpTable_getTable, METH_NOARGS, "Returns a list of table samples."},
 {"getViewTable", (PyCFunction)ExpTable_getViewTable, METH_VARARGS|METH_KEYWORDS, "Returns a list of pixel coordinates for drawing the table."},
@@ -4104,6 +4152,8 @@ static PyObject * SndTable_fadein(SndTable *self, PyObject *args, PyObject *kwds
 static PyObject * SndTable_fadeout(SndTable *self, PyObject *args, PyObject *kwds) { TABLE_FADEOUT };
 static PyObject * SndTable_pow(SndTable *self, PyObject *args, PyObject *kwds) { TABLE_POWER };
 static PyObject * SndTable_copy(SndTable *self, PyObject *arg) { COPY };
+static PyObject * SndTable_copyData(SndTable *self, PyObject *args, PyObject *kwds) { TABLE_COPYDATA };
+static PyObject * SndTable_rotate(SndTable *self, PyObject *args, PyObject *kwds) { TABLE_ROTATE };
 static PyObject * SndTable_setTable(SndTable *self, PyObject *arg) { SET_TABLE };
 static PyObject * SndTable_getTable(SndTable *self) { GET_TABLE };
 static PyObject * SndTable_put(SndTable *self, PyObject *args, PyObject *kwds) { TABLE_PUT };
@@ -4369,6 +4419,8 @@ static PyMemberDef SndTable_members[] = {
 static PyMethodDef SndTable_methods[] = {
 {"getServer", (PyCFunction)SndTable_getServer, METH_NOARGS, "Returns server object."},
 {"copy", (PyCFunction)SndTable_copy, METH_O, "Copy data from table given in argument."},
+{"copyData", (PyCFunction)SndTable_copyData, METH_VARARGS|METH_KEYWORDS, "Copy data from table given in argument."},
+{"rotate", (PyCFunction)SndTable_rotate, METH_VARARGS|METH_KEYWORDS, "Rotate table around position as argument."},
 {"setTable", (PyCFunction)SndTable_setTable, METH_O, "Sets the table content from a list of floats (must be the same size as the object size)."},
 {"getTable", (PyCFunction)SndTable_getTable, METH_NOARGS, "Returns a list of table samples."},
 {"getViewTable", (PyCFunction)SndTable_getViewTable, METH_VARARGS|METH_KEYWORDS, "Returns a list of pixel coordinates for drawing the table."},
@@ -4568,6 +4620,7 @@ static PyObject * NewTable_fadeout(NewTable *self, PyObject *args, PyObject *kwd
 static PyObject * NewTable_pow(NewTable *self, PyObject *args, PyObject *kwds) { TABLE_POWER };
 static PyObject * NewTable_copy(NewTable *self, PyObject *arg) { COPY };
 static PyObject * NewTable_copyData(NewTable *self, PyObject *args, PyObject *kwds) { TABLE_COPYDATA };
+static PyObject * NewTable_rotate(NewTable *self, PyObject *args, PyObject *kwds) { TABLE_ROTATE };
 static PyObject * NewTable_setTable(NewTable *self, PyObject *arg) { SET_TABLE };
 static PyObject * NewTable_getTable(NewTable *self) { GET_TABLE };
 static PyObject * NewTable_put(NewTable *self, PyObject *args, PyObject *kwds) { TABLE_PUT };
@@ -4730,6 +4783,7 @@ static PyMethodDef NewTable_methods[] = {
 {"setData", (PyCFunction)NewTable_setData, METH_O, "Sets the table from samples in a text file."},
 {"copy", (PyCFunction)NewTable_copy, METH_O, "Copy data from table given in argument."},
 {"copyData", (PyCFunction)NewTable_copyData, METH_VARARGS|METH_KEYWORDS, "Copy data from table given in argument."},
+{"rotate", (PyCFunction)NewTable_rotate, METH_VARARGS|METH_KEYWORDS, "Rotate table around position as argument."},
 {"normalize", (PyCFunction)NewTable_normalize, METH_NOARGS, "Normalize table samples between -1 and 1"},
 {"reset", (PyCFunction)NewTable_reset, METH_NOARGS, "Resets table samples to 0.0"},
 {"removeDC", (PyCFunction)NewTable_removeDC, METH_NOARGS, "Filter out DC offset from the table's data."},
@@ -4884,6 +4938,8 @@ static PyObject * DataTable_fadein(DataTable *self, PyObject *args, PyObject *kw
 static PyObject * DataTable_fadeout(DataTable *self, PyObject *args, PyObject *kwds) { TABLE_FADEOUT };
 static PyObject * DataTable_pow(DataTable *self, PyObject *args, PyObject *kwds) { TABLE_POWER };
 static PyObject * DataTable_copy(DataTable *self, PyObject *arg) { COPY };
+static PyObject * DataTable_copyData(DataTable *self, PyObject *args, PyObject *kwds) { TABLE_COPYDATA };
+static PyObject * DataTable_rotate(DataTable *self, PyObject *args, PyObject *kwds) { TABLE_ROTATE };
 static PyObject * DataTable_setTable(DataTable *self, PyObject *arg) { SET_TABLE };
 static PyObject * DataTable_getTable(DataTable *self) { GET_TABLE };
 static PyObject * DataTable_getViewTable(DataTable *self, PyObject *args, PyObject *kwds) { GET_VIEW_TABLE };
@@ -4915,6 +4971,8 @@ static PyMemberDef DataTable_members[] = {
 static PyMethodDef DataTable_methods[] = {
     {"getServer", (PyCFunction)DataTable_getServer, METH_NOARGS, "Returns server object."},
     {"copy", (PyCFunction)DataTable_copy, METH_O, "Copy data from table given in argument."},
+    {"copyData", (PyCFunction)DataTable_copyData, METH_VARARGS|METH_KEYWORDS, "Copy data from table given in argument."},
+    {"rotate", (PyCFunction)DataTable_rotate, METH_VARARGS|METH_KEYWORDS, "Rotate table around position as argument."},
     {"setTable", (PyCFunction)DataTable_setTable, METH_O, "Sets the table content from a list of floats (must be the same size as the object size)."},
     {"getTable", (PyCFunction)DataTable_getTable, METH_NOARGS, "Returns a list of table samples."},
     {"getViewTable", (PyCFunction)DataTable_getViewTable, METH_VARARGS|METH_KEYWORDS, "Returns a list of pixel coordinates for drawing the table."},
@@ -5078,6 +5136,8 @@ static PyObject * AtanTable_fadein(AtanTable *self, PyObject *args, PyObject *kw
 static PyObject * AtanTable_fadeout(AtanTable *self, PyObject *args, PyObject *kwds) { TABLE_FADEOUT };
 static PyObject * AtanTable_pow(AtanTable *self, PyObject *args, PyObject *kwds) { TABLE_POWER };
 static PyObject * AtanTable_copy(AtanTable *self, PyObject *arg) { COPY };
+static PyObject * AtanTable_copyData(AtanTable *self, PyObject *args, PyObject *kwds) { TABLE_COPYDATA };
+static PyObject * AtanTable_rotate(AtanTable *self, PyObject *args, PyObject *kwds) { TABLE_ROTATE };
 static PyObject * AtanTable_setTable(AtanTable *self, PyObject *arg) { SET_TABLE };
 static PyObject * AtanTable_getTable(AtanTable *self) { GET_TABLE };
 static PyObject * AtanTable_getViewTable(AtanTable *self, PyObject *args, PyObject *kwds) { GET_VIEW_TABLE };
@@ -5147,6 +5207,8 @@ static PyMemberDef AtanTable_members[] = {
 static PyMethodDef AtanTable_methods[] = {
     {"getServer", (PyCFunction)AtanTable_getServer, METH_NOARGS, "Returns server object."},
     {"copy", (PyCFunction)AtanTable_copy, METH_O, "Copy data from table given in argument."},
+    {"copyData", (PyCFunction)AtanTable_copyData, METH_VARARGS|METH_KEYWORDS, "Copy data from table given in argument."},
+    {"rotate", (PyCFunction)AtanTable_rotate, METH_VARARGS|METH_KEYWORDS, "Rotate table around position as argument."},
     {"setTable", (PyCFunction)AtanTable_setTable, METH_O, "Sets the table content from a list of floats (must be the same size as the object size)."},
     {"getTable", (PyCFunction)AtanTable_getTable, METH_NOARGS, "Returns a list of table samples."},
     {"getViewTable", (PyCFunction)AtanTable_getViewTable, METH_VARARGS|METH_KEYWORDS, "Returns a list of pixel coordinates for drawing the table."},

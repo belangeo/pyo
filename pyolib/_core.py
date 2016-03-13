@@ -1519,9 +1519,50 @@ class PyoTableObject(PyoObjectBase):
         self.refreshView()
         return self
 
-    def copyData(self, table, srcpos, destpos, length):
-        [obj.copyData(table[i], srcpos, destpos, length) for i, obj in enumerate(self._base_objs)]
+    def copyData(self, table, srcpos=0, destpos=0, length=-1):
+        """
+        Copy samples from a source table.
 
+        Copy `length` samples from a source table to this table.
+
+        :Args:
+
+            table : PyoTableObject
+                The source table.
+            srcpos : int, optional
+                The start position in the source table. Defaults to 0.
+            destpos ; int, optional
+                The start position in the destination (self) table. Defaults
+                to 0.
+            length : int, optional
+                The number of samples to copy from source to destination. if
+                length is negative, the length of the smallest table is used.
+                Defaults to -1.
+
+        """
+        pyoArgsAssert(self, "tIII", table, srcpos, destpos, length)
+        [obj.copyData(table[i], srcpos, destpos, length) for i, obj in enumerate(self._base_objs)]
+        self.refreshView()
+
+    def rotate(self, pos):
+        """
+        Rotate the table content to the left around the position given as argument.
+        
+        Samples between the given position and the end of the table will
+        be relocated in front of the samples from the beginning to the 
+        given position.
+
+        :Args:
+
+            pos : int
+                The rotation position in samples. A negative position means
+                a rotation to the right.
+
+        """
+        pyoArgsAssert(self, "I", pos)
+        [obj.rotate(pos) for obj in self._base_objs]
+        self.refreshView()
+        
     def copy(self):
         """
         Returns a deep copy of the object.
