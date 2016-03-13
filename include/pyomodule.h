@@ -87,6 +87,7 @@
 #define TYPE_O_OOFFOO "O|OOffOO"
 #define TYPE_O_OOOFOO "O|OOOfOO"
 #define TYPE_OO_OOOIFOO "OO|OOOifOO"
+#define TYPE_OIII "Oiii"
 
 #define SF_WRITE sf_write_float
 #define SF_READ sf_read_float
@@ -170,6 +171,7 @@
 #define TYPE_O_OOFFOO "O|OOddOO"
 #define TYPE_O_OOOFOO "O|OOOdOO"
 #define TYPE_OO_OOOIFOO "OO|OOOidOO"
+#define TYPE_OIII "Oiii"
 
 #define SF_WRITE sf_write_double
 #define SF_READ sf_read_double
@@ -974,6 +976,28 @@ extern PyTypeObject ExprType;
     } \
     Py_INCREF(Py_None); \
     return Py_None; \
+
+/* Table copy from table */
+#define TABLE_COPYDATA \
+    PyObject *tabletmp; \
+    int i, srcpos, destpos, length; \
+    PyObject *table = NULL; \
+    MYFLT *list = NULL; \
+    static char *kwlist[] = {"table", "srcpos", "destpos", "length", NULL}; \
+ \
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_OIII, kwlist, &tabletmp, &srcpos, &destpos, &length)) \
+        return PyInt_FromLong(-1); \
+ \
+    if ( PyObject_HasAttrString((PyObject *)tabletmp, "getTableStream") == 1 ) { \
+        Py_XDECREF(table); \
+        table = PyObject_CallMethod((PyObject *)tabletmp, "getTableStream", ""); \
+        list = TableStream_getData((TableStream *)table); \
+        for (i=0; i<length; i++) { \
+            self->data[destpos+i] = list[srcpos+i]; \
+        } \
+    } \
+ \
+    Py_RETURN_NONE;
 
 /* Table bipolar gain */
 #define TABLE_BIPOLAR_GAIN \

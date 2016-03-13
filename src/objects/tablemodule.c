@@ -4567,6 +4567,7 @@ static PyObject * NewTable_fadein(NewTable *self, PyObject *args, PyObject *kwds
 static PyObject * NewTable_fadeout(NewTable *self, PyObject *args, PyObject *kwds) { TABLE_FADEOUT };
 static PyObject * NewTable_pow(NewTable *self, PyObject *args, PyObject *kwds) { TABLE_POWER };
 static PyObject * NewTable_copy(NewTable *self, PyObject *arg) { COPY };
+static PyObject * NewTable_copyData(NewTable *self, PyObject *args, PyObject *kwds) { TABLE_COPYDATA };
 static PyObject * NewTable_setTable(NewTable *self, PyObject *arg) { SET_TABLE };
 static PyObject * NewTable_getTable(NewTable *self) { GET_TABLE };
 static PyObject * NewTable_put(NewTable *self, PyObject *args, PyObject *kwds) { TABLE_PUT };
@@ -4728,6 +4729,7 @@ static PyMethodDef NewTable_methods[] = {
 {"setFeedback", (PyCFunction)NewTable_setFeedback, METH_O, "Feedback sets the amount of old data to mix with a new recording."},
 {"setData", (PyCFunction)NewTable_setData, METH_O, "Sets the table from samples in a text file."},
 {"copy", (PyCFunction)NewTable_copy, METH_O, "Copy data from table given in argument."},
+{"copyData", (PyCFunction)NewTable_copyData, METH_VARARGS|METH_KEYWORDS, "Copy data from table given in argument."},
 {"normalize", (PyCFunction)NewTable_normalize, METH_NOARGS, "Normalize table samples between -1 and 1"},
 {"reset", (PyCFunction)NewTable_reset, METH_NOARGS, "Resets table samples to 0.0"},
 {"removeDC", (PyCFunction)NewTable_removeDC, METH_NOARGS, "Filter out DC offset from the table's data."},

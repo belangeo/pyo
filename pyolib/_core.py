@@ -1519,6 +1519,9 @@ class PyoTableObject(PyoObjectBase):
         self.refreshView()
         return self
 
+    def copyData(self, table, srcpos, destpos, length):
+        [obj.copyData(table[i], srcpos, destpos, length) for i, obj in enumerate(self._base_objs)]
+
     def copy(self):
         """
         Returns a deep copy of the object.
