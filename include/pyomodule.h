@@ -87,6 +87,7 @@
 #define TYPE_O_OOFFOO "O|OOffOO"
 #define TYPE_O_OOOFOO "O|OOOfOO"
 #define TYPE_OO_OOOIFOO "OO|OOOifOO"
+#define TYPE__FFFFIFI "|ffffifi"
 
 #define SF_WRITE sf_write_float
 #define SF_READ sf_read_float
@@ -170,6 +171,7 @@
 #define TYPE_O_OOFFOO "O|OOddOO"
 #define TYPE_O_OOOFOO "O|OOOdOO"
 #define TYPE_OO_OOOIFOO "OO|OOOidOO"
+#define TYPE__FFFFIFI "|ddddidi"
 
 #define SF_WRITE sf_write_double
 #define SF_READ sf_read_double
@@ -488,6 +490,7 @@ extern PyTypeObject AtanTableType;
 extern PyTypeObject RawMidiType;
 extern PyTypeObject ResampleType;
 extern PyTypeObject ExprType;
+extern PyTypeObject PadSynthTableType;
 
 /* Constants */
 #define E M_E

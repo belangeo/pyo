@@ -2555,6 +2555,7 @@ init_pyo64(void)
     module_add_object(m, "RawMidi_base", &RawMidiType);
     module_add_object(m, "Resample_base", &ResampleType);
     module_add_object(m, "Expr_base", &ExprType);
+    module_add_object(m, "PadSynthTable_base", &PadSynthTableType);
 
     PyModule_AddStringConstant(m, "PYO_VERSION", PYO_VERSION);
 #ifdef COMPILE_EXTERNALS

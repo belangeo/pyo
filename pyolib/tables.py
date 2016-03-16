@@ -1563,16 +1563,31 @@ class SndTable(PyoTableObject):
                 [obj.insert(path, pos, crossfade, (i%_snd_chnls), start, stop) for i, obj in enumerate(self._base_objs)]
         self.refreshView()
 
-    def getRate(self):
+    def getRate(self, all=True):
         """
         Return the frequency in cps at which the sound will be read at its
         original pitch.
 
+        :Args:
+
+            all : boolean
+                If the table contains more than one sound and `all` is True,
+                returns a list of all durations. Otherwise, returns only the
+                first duration as a float.
+
         """
         if type(self._path) == ListType:
-            return [obj.getRate() for obj in self._base_objs]
+            _rate = [obj.getRate() for obj in self._base_objs]
         else:
-            return self._base_objs[0].getRate()
+            _rate = self._base_objs[0].getRate()
+
+        if all:
+            return _rate
+        else:
+            if type(_rate) == ListType:
+                return _rate[0]
+            else:
+                return _rate
 
     def getDur(self, all=True):
         """
@@ -2202,3 +2217,245 @@ class PartialTable(PyoTableObject):
         return self._list
     @list.setter
     def list(self, x): self.replace(x)
+    
+class PadSynthTable(PyoTableObject):
+    """
+    Generates wavetable with the PadSynth algorithm from Nasca Octavian Paul.
+    
+    This object generates a wavetable with the PadSynth algorithm describe here:
+        
+    http://zynaddsubfx.sourceforge.net/doc/PADsynth/PADsynth.htm
+    
+    This algorithm generates some large wavetables that can played at 
+    different speeds to get the desired sound. This algorithm describes 
+    only how these wavetables are generated. The result is a perfectly 
+    looped wavetable. 
+    
+    To get the desired pitch from the table, the playback speed must be
+    `sr / table size`. This speed can be transposed to obtain different
+    pitches from a single wavetable. 
+
+    :Parent: :py:class:`PyoTableObject`
+
+    :Args:
+
+        basefreq : float, optional
+            The base frequencyof the algorithm in Hz. If the spreading factor
+            is near 1.0, this frequency is the fundamental of the spectrum.
+            Defaults to 440.
+        spread : float, optional
+            The spreading factor for the harmonics. Each harmonic real frequency
+            is computed as `basefreq * pow(n, spread)` where `n` is the harmonic
+            order. Defaults to 1.
+        bw : float, optional
+            The bandwidth of the first harmonic in cents. The bandwidth allows
+            to control the harmonic profile using a gaussian distribution (bell
+            shape). Defaults to 50.
+        bwscl : float, optional
+            The bandswidth scale specifies how much the bandwidth of the 
+            harmonic increase according to its frequency. Defaults to 1.
+        nharms : int, optional
+            The number of harmonics in the generated wavetable. Higher
+            numbers of harmonics take more time to generate the wavetable.
+            Defaults to 64. 
+        damp : float, optional
+            The amplitude damping factor specifies how much the amplitude
+            of the harmonic decrease according to its order. It uses a
+            simple power serie, `amp = pow(damp, n)` where `n` is the 
+            harmonic order. Defaults to 0.7.
+        size : int, optional
+            Table size in samples. Must be a power-of-two, usually a big one!
+            Defaults to 262144.
+
+    .. note::
+
+        Many thanks to Nasca Octavian Paul for making this beautiful algorithm
+        and releasing it under Public Domain.
+
+    >>> s = Server().boot()
+    >>> s.start()
+    >>> f = s.getSamplingRate() / 262144
+    >>> t = PadSynthTable(basefreq=midiToHz(48), spread=1.205, bw=10, bwscl=1.5)
+    >>> a = Osc(table=t, freq=f, phase=[0, 0.5], mul=0.5).out()
+
+    """
+    def __init__(self, basefreq=440, spread=1, bw=50, bwscl=1, nharms=64, damp=0.7, size=262144):
+        pyoArgsAssert(self, "NNNNINI", basefreq, spread, bw, bwscl, nharms, damp, size)
+        PyoTableObject.__init__(self, size)
+        self._basefreq = basefreq
+        self._spread = spread
+        self._bw = bw
+        self._bwscl = bwscl
+        self._nharms = nharms
+        self._damp = damp
+        self._base_objs = [PadSynthTable_base(basefreq, spread, bw, bwscl, nharms, damp, size)]
+
+    def setBaseFreq(self, x, generate=True):
+        """
+        Change the base frequency of the algorithm.
+
+        :Args:
+
+            x : float
+                New base frequency in Hz.
+            generate : boolean, optional
+                If True, a new table will be computed with changed value.
+
+        """
+        pyoArgsAssert(self, "NB", x, generate)
+        self._basefreq = x
+        [obj.setBaseFreq(x, generate) for obj in self._base_objs]
+        if generate:
+            self.refreshView()
+
+    def setSpread(self, x, generate=True):
+        """
+        Change the frequency spreading factor of the algorithm.
+
+        :Args:
+
+            x : float
+                New spread factor.
+            generate : boolean, optional
+                If True, a new table will be computed with changed value.
+
+        """
+        pyoArgsAssert(self, "NB", x, generate)
+        self._spread = x
+        [obj.setSpread(x, generate) for obj in self._base_objs]
+        if generate:
+            self.refreshView()
+
+    def setBw(self, x, generate=True):
+        """
+        Change the bandwidth of the first harmonic.
+
+        :Args:
+
+            x : float
+                New bandwidth in cents.
+            generate : boolean, optional
+                If True, a new table will be computed with changed value.
+
+        """
+        pyoArgsAssert(self, "NB", x, generate)
+        self._bw = x
+        [obj.setBw(x, generate) for obj in self._base_objs]
+        if generate:
+            self.refreshView()
+
+    def setBwScl(self, x, generate=True):
+        """
+        Change the bandwidth scaling factor.
+
+        :Args:
+
+            x : float
+                New bandwidth scaling factor.
+            generate : boolean, optional
+                If True, a new table will be computed with changed value.
+
+        """
+        pyoArgsAssert(self, "NB", x, generate)
+        self._bwscl = x
+        [obj.setBwScl(x, generate) for obj in self._base_objs]
+        if generate:
+            self.refreshView()
+
+    def setNharms(self, x, generate=True):
+        """
+        Change the number of harmonics.
+
+        :Args:
+
+            x : int
+                New number of harmonics.
+            generate : boolean, optional
+                If True, a new table will be computed with changed value.
+
+        """
+        pyoArgsAssert(self, "IB", x, generate)
+        self._nharms = x
+        [obj.setNharms(x, generate) for obj in self._base_objs]
+        if generate:
+            self.refreshView()
+
+    def setDamp(self, x, generate=True):
+        """
+        Change the amplitude damping factor.
+
+        :Args:
+
+            x : float
+                New amplitude damping factor.
+            generate : boolean, optional
+                If True, a new table will be computed with changed value.
+
+        """
+        pyoArgsAssert(self, "NB", x, generate)
+        self._damp = x
+        [obj.setDamp(x, generate) for obj in self._base_objs]
+        if generate:
+            self.refreshView()
+
+    def setSize(self, size, generate=True):
+        """
+        Change the size of the table.
+
+        This will erase the previously drawn waveform.
+
+        :Args:
+
+            size : int
+                New table size in samples. Must be a power-of-two.
+            generate : boolean, optional
+                If True, a new table will be computed with changed value.
+
+        """
+        pyoArgsAssert(self, "IB", size, generate)
+        self._size = size
+        [obj.setSize(size, generate) for obj in self._base_objs]
+        if generate:
+            self.refreshView()
+
+    @property
+    def basefreq(self):
+        """float. Base frequency in Hz."""
+        return self._basefreq
+    @basefreq.setter
+    def basefreq(self, x): self.setBaseFreq(x)
+
+    @property
+    def spread(self):
+        """float. Frequency spreading factor."""
+        return self._spread
+    @spread.setter
+    def spread(self, x): self.setSpread(x)
+
+    @property
+    def bw(self):
+        """float. Bandwitdh of the first harmonic in cents."""
+        return self._bw
+    @bw.setter
+    def bw(self, x): self.setBw(x)
+
+    @property
+    def bwscl(self):
+        """float. Bandwitdh scaling factor."""
+        return self._bwscl
+    @bwscl.setter
+    def bwscl(self, x): self.setBwScl(x)
+
+    @property
+    def nharms(self):
+        """int. Number of harmonics."""
+        return self._nharms
+    @nharms.setter
+    def nharms(self, x): self.setNharms(x)
+
+    @property
+    def damp(self):
+        """float. Amplitude damping factor."""
+        return self._damp
+    @damp.setter
+    def damp(self, x): self.setDamp(x)

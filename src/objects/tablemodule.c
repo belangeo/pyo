@@ -27,6 +27,7 @@
 #include "dummymodule.h"
 #include "sndfile.h"
 #include "wind.h"
+#include "fft.h"
 
 #define __TABLE_MODULE
 #include "tablemodule.h"
@@ -5276,6 +5277,414 @@ PyTypeObject AtanTableType = {
     0,      /* tp_init */
     0,                         /* tp_alloc */
     AtanTable_new,                 /* tp_new */
+};
+
+static int
+isPowerOfTwo(int x) {
+    return (x != 0) && ((x & (x - 1)) == 0);
+}
+
+/***********************/
+/* PadSynthTable structure */
+/***********************/
+typedef struct {
+    pyo_table_HEAD
+    MYFLT **twiddle;
+    MYFLT basefreq;
+    MYFLT spread;
+    MYFLT bw;
+    MYFLT bwscl;
+    int nharms;
+    MYFLT damp;
+    double sr;
+} PadSynthTable;
+
+static void
+PadSynthTable_gen_twiddle(PadSynthTable *self) {
+    int i, n8;
+    n8 = self->size >> 3;
+    self->twiddle = (MYFLT **)realloc(self->twiddle, 4 * sizeof(MYFLT *));
+    for(i=0; i<4; i++)
+        self->twiddle[i] = (MYFLT *)malloc(n8 * sizeof(MYFLT));
+    fft_compute_split_twiddle(self->twiddle, self->size);
+}
+
+static void
+PadSynthTable_generate(PadSynthTable *self) {
+    int i, nh;
+    int hsize = self->size / 2;
+    MYFLT bfac, i2sr, bfonsr, nhspd, bwhz, bwi, fi, gain, absv, max, x;
+    MYFLT ifsize = 1.0 / (MYFLT)self->size;
+    MYFLT twopirndmax = TWOPI / (MYFLT)RAND_MAX;
+    MYFLT amp[hsize];
+    MYFLT phase[hsize];
+    MYFLT real[hsize];
+    MYFLT imag[hsize];
+    MYFLT inframe[self->size];
+
+    for (i=0; i<hsize; i++) {
+        amp[i] = 0.0;
+    }
+    
+    bfac = (MYPOW(2.0, self->bw / 1200.0) - 1.0) * self->basefreq;
+    i2sr = 1.0 / (2.0 * self->sr);
+    bfonsr = self->basefreq / self->sr;
+    gain = self->damp;
+    for (nh=1; nh<self->nharms; nh++) {
+        nhspd = MYPOW(nh, self->spread);
+        bwhz = bfac * MYPOW(nhspd, self->bwscl);
+        bwi = 1.0 / (bwhz * i2sr);
+        fi = bfonsr * nhspd;
+        for (i=0; i<hsize; i++) {
+            // harmonic profile.
+            x = (i * ifsize - fi) * bwi;
+            x *= x;
+            if (x < 14.71280603)
+                amp[i] += MYEXP(-x) * bwi * gain;
+        }
+        gain *= self->damp;
+    }
+
+    for (i=0; i<hsize; i++) {
+        phase[i] = rand() * twopirndmax;
+    }
+
+    for (i=0; i<hsize; i++) {
+        real[i] = amp[i] * MYCOS(phase[i]);
+        imag[i] = amp[i] * MYSIN(phase[i]);
+    }
+    
+    inframe[0] = real[0];
+    inframe[hsize] = 0.0;
+    for (i=1; i<hsize; i++) {
+        inframe[i] = real[i];
+        inframe[self->size - i] = imag[i];
+    }
+
+    irealfft_split(inframe, self->data, self->size, self->twiddle);
+
+    max = 0.0;
+    for (i=0; i<self->size; i++) {
+        absv = MYFABS(self->data[i]);
+        if (absv > max)
+            max = absv;
+    }
+    if (max < 1e-5)
+        max = 1e-5;
+    max = 1.0 / (max * 1.4142);
+    for (i=0; i<self->size; i++) {
+        self->data[i] *= max;
+    }
+
+    self->data[self->size] = self->data[0];
+}
+
+static int
+PadSynthTable_traverse(PadSynthTable *self, visitproc visit, void *arg)
+{
+    pyo_table_VISIT
+    return 0;
+}
+
+static int
+PadSynthTable_clear(PadSynthTable *self)
+{
+    pyo_table_CLEAR
+    return 0;
+}
+
+static void
+PadSynthTable_dealloc(PadSynthTable* self)
+{
+    int i;
+    for(i=0; i<4; i++) {
+        free(self->twiddle[i]);
+    }
+    free(self->twiddle);
+    free(self->data);
+    PadSynthTable_clear(self);
+    self->ob_type->tp_free((PyObject*)self);
+}
+
+static PyObject *
+PadSynthTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    PadSynthTable *self;
+    self = (PadSynthTable *)type->tp_alloc(type, 0);
+
+    self->server = PyServer_get_server();
+
+    self->size = 262144;
+    self->basefreq = 440;
+    self->spread = 1.0;
+    self->bw = 50.0;
+    self->bwscl = 1.0;
+    self->nharms = 64;
+    self->damp = 0.7;
+
+    MAKE_NEW_TABLESTREAM(self->tablestream, &TableStreamType, NULL);
+
+    static char *kwlist[] = {"basefreq", "spread", "bw", "bwscl", "nharms", "damp", "size", NULL};
+
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE__FFFFIFI, kwlist, &self->basefreq, &self->spread, &self->bw,
+                                      &self->bwscl, &self->nharms, &self->damp, &self->size))
+        Py_RETURN_NONE;
+
+    if (!isPowerOfTwo(self->size)) {
+        int k = 1;
+        while (k < self->size)
+            k *= 2;
+        self->size = k;
+        printf("PadSynthTable size must be a power-of-2, using the next power-of-2 greater than size : %d\n", self->size);
+    }
+
+    self->data = (MYFLT *)realloc(self->data, (self->size+1) * sizeof(MYFLT));
+    TableStream_setSize(self->tablestream, self->size);
+	TableStream_setData(self->tablestream, self->data);
+
+    self->sr = PyFloat_AsDouble(PyObject_CallMethod(self->server, "getSamplingRate", NULL));
+    TableStream_setSamplingRate(self->tablestream, self->sr);
+
+    PadSynthTable_gen_twiddle(self);
+
+    srand(time(NULL));
+    PadSynthTable_generate(self);
+
+    return (PyObject *)self;
+}
+
+static PyObject * PadSynthTable_getServer(PadSynthTable* self) { GET_SERVER };
+static PyObject * PadSynthTable_getTableStream(PadSynthTable* self) { GET_TABLE_STREAM };
+static PyObject * PadSynthTable_setData(PadSynthTable *self, PyObject *arg) { SET_TABLE_DATA };
+static PyObject * PadSynthTable_normalize(PadSynthTable *self) { NORMALIZE };
+static PyObject * PadSynthTable_reset(PadSynthTable *self) { TABLE_RESET };
+static PyObject * PadSynthTable_removeDC(PadSynthTable *self) { REMOVE_DC };
+static PyObject * PadSynthTable_reverse(PadSynthTable *self) { REVERSE };
+static PyObject * PadSynthTable_invert(PadSynthTable *self) { INVERT };
+static PyObject * PadSynthTable_rectify(PadSynthTable *self) { RECTIFY };
+static PyObject * PadSynthTable_bipolarGain(PadSynthTable *self, PyObject *args, PyObject *kwds) { TABLE_BIPOLAR_GAIN };
+static PyObject * PadSynthTable_lowpass(PadSynthTable *self, PyObject *args, PyObject *kwds) { TABLE_LOWPASS };
+static PyObject * PadSynthTable_fadein(PadSynthTable *self, PyObject *args, PyObject *kwds) { TABLE_FADEIN };
+static PyObject * PadSynthTable_fadeout(PadSynthTable *self, PyObject *args, PyObject *kwds) { TABLE_FADEOUT };
+static PyObject * PadSynthTable_pow(PadSynthTable *self, PyObject *args, PyObject *kwds) { TABLE_POWER };
+static PyObject * PadSynthTable_copy(PadSynthTable *self, PyObject *arg) { COPY };
+static PyObject * PadSynthTable_copyData(PadSynthTable *self, PyObject *args, PyObject *kwds) { TABLE_COPYDATA };
+static PyObject * PadSynthTable_rotate(PadSynthTable *self, PyObject *args, PyObject *kwds) { TABLE_ROTATE };
+static PyObject * PadSynthTable_setTable(PadSynthTable *self, PyObject *arg) { SET_TABLE };
+static PyObject * PadSynthTable_getTable(PadSynthTable *self) { GET_TABLE };
+static PyObject * PadSynthTable_getViewTable(PadSynthTable *self, PyObject *args, PyObject *kwds) { GET_VIEW_TABLE };
+static PyObject * PadSynthTable_put(PadSynthTable *self, PyObject *args, PyObject *kwds) { TABLE_PUT };
+static PyObject * PadSynthTable_get(PadSynthTable *self, PyObject *args, PyObject *kwds) { TABLE_GET };
+static PyObject * PadSynthTable_add(PadSynthTable *self, PyObject *arg) { TABLE_ADD };
+static PyObject * PadSynthTable_sub(PadSynthTable *self, PyObject *arg) { TABLE_SUB };
+static PyObject * PadSynthTable_mul(PadSynthTable *self, PyObject *arg) { TABLE_MUL };
+
+static PyObject *
+PadSynthTable_setBaseFreq(PadSynthTable *self, PyObject *args, PyObject *kwds)
+{
+    int generate = 1;
+
+    static char *kwlist[] = {"basefreq", "generate", NULL};
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_F_I, kwlist, &self->basefreq, &generate))
+        Py_RETURN_NONE;
+
+    if (generate)
+        PadSynthTable_generate(self);
+
+    Py_RETURN_NONE;
+}
+
+static PyObject *
+PadSynthTable_setSpread(PadSynthTable *self, PyObject *args, PyObject *kwds)
+{
+    int generate = 1;
+
+    static char *kwlist[] = {"spread", "generate", NULL};
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_F_I, kwlist, &self->spread, &generate))
+        Py_RETURN_NONE;
+
+    if (generate)
+        PadSynthTable_generate(self);
+
+    Py_RETURN_NONE;
+}
+
+static PyObject *
+PadSynthTable_setBw(PadSynthTable *self, PyObject *args, PyObject *kwds)
+{
+    int generate = 1;
+
+    static char *kwlist[] = {"bw", "generate", NULL};
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_F_I, kwlist, &self->bw, &generate))
+        Py_RETURN_NONE;
+
+    if (generate)
+        PadSynthTable_generate(self);
+
+    Py_RETURN_NONE;
+}
+
+static PyObject *
+PadSynthTable_setBwScl(PadSynthTable *self, PyObject *args, PyObject *kwds)
+{
+    int generate = 1;
+
+    static char *kwlist[] = {"bwscl", "generate", NULL};
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_F_I, kwlist, &self->bwscl, &generate))
+        Py_RETURN_NONE;
+
+    if (generate)
+        PadSynthTable_generate(self);
+
+    Py_RETURN_NONE;
+}
+
+static PyObject *
+PadSynthTable_setNharms(PadSynthTable *self, PyObject *args, PyObject *kwds)
+{
+    int generate = 1;
+
+    static char *kwlist[] = {"nharms", "generate", NULL};
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "i|i", kwlist, &self->nharms, &generate))
+        Py_RETURN_NONE;
+
+    if (generate)
+        PadSynthTable_generate(self);
+
+    Py_RETURN_NONE;
+}
+
+static PyObject *
+PadSynthTable_setDamp(PadSynthTable *self, PyObject *args, PyObject *kwds)
+{
+    int generate = 1;
+
+    static char *kwlist[] = {"damp", "generate", NULL};
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_F_I, kwlist, &self->damp, &generate))
+        Py_RETURN_NONE;
+
+    if (generate)
+        PadSynthTable_generate(self);
+
+    Py_RETURN_NONE;
+}
+
+static PyObject *
+PadSynthTable_setSize(PadSynthTable *self, PyObject *args, PyObject *kwds)
+{
+    int generate = 1;
+
+    static char *kwlist[] = {"size", "generate", NULL};
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "i|i", kwlist, &self->size, &generate))
+        Py_RETURN_NONE;
+
+    if (!isPowerOfTwo(self->size)) {
+        int k = 1;
+        while (k < self->size)
+            k *= 2;
+        self->size = k;
+        printf("PadSynthTable size must be a power-of-2, using the next power-of-2 greater than size : %d\n", self->size);
+    }
+
+    self->data = (MYFLT *)realloc(self->data, (self->size+1) * sizeof(MYFLT));
+    TableStream_setSize(self->tablestream, self->size);
+
+    if (generate)
+        PadSynthTable_generate(self);
+
+    Py_RETURN_NONE;
+}
+
+static PyObject *
+PadSynthTable_getSize(PadSynthTable *self)
+{
+    return PyInt_FromLong(self->size);
+};
+
+static PyMemberDef PadSynthTable_members[] = {
+    {"server", T_OBJECT_EX, offsetof(PadSynthTable, server), 0, "Pyo server."},
+    {"tablestream", T_OBJECT_EX, offsetof(PadSynthTable, tablestream), 0, "Table stream object."},
+    {NULL}  /* Sentinel */
+};
+
+static PyMethodDef PadSynthTable_methods[] = {
+    {"getServer", (PyCFunction)PadSynthTable_getServer, METH_NOARGS, "Returns server object."},
+    {"copy", (PyCFunction)PadSynthTable_copy, METH_O, "Copy data from table given in argument."},
+    {"copyData", (PyCFunction)PadSynthTable_copyData, METH_VARARGS|METH_KEYWORDS, "Copy data from table given in argument."},
+    {"rotate", (PyCFunction)PadSynthTable_rotate, METH_VARARGS|METH_KEYWORDS, "Rotate table around position as argument."},
+    {"setTable", (PyCFunction)PadSynthTable_setTable, METH_O, "Sets the table content from a list of floats (must be the same size as the object size)."},
+    {"getTable", (PyCFunction)PadSynthTable_getTable, METH_NOARGS, "Returns a list of table samples."},
+    {"getViewTable", (PyCFunction)PadSynthTable_getViewTable, METH_VARARGS|METH_KEYWORDS, "Returns a list of pixel coordinates for drawing the table."},
+    {"getTableStream", (PyCFunction)PadSynthTable_getTableStream, METH_NOARGS, "Returns table stream object created by this table."},
+    {"setData", (PyCFunction)PadSynthTable_setData, METH_O, "Sets the table from samples in a text file."},
+    {"normalize", (PyCFunction)PadSynthTable_normalize, METH_NOARGS, "Normalize table samples between -1 and 1"},
+    {"reset", (PyCFunction)PadSynthTable_reset, METH_NOARGS, "Resets table samples to 0.0"},
+    {"removeDC", (PyCFunction)PadSynthTable_removeDC, METH_NOARGS, "Filter out DC offset from the table's data."},
+    {"reverse", (PyCFunction)PadSynthTable_reverse, METH_NOARGS, "Reverse the table's data."},
+    {"invert", (PyCFunction)PadSynthTable_invert, METH_NOARGS, "Reverse the table's data in amplitude."},
+    {"rectify", (PyCFunction)PadSynthTable_rectify, METH_NOARGS, "Positive rectification of the table's data."},
+    {"bipolarGain", (PyCFunction)PadSynthTable_bipolarGain, METH_VARARGS|METH_KEYWORDS, "Apply different amp values to positive and negative samples."},
+    {"lowpass", (PyCFunction)PadSynthTable_lowpass, METH_VARARGS|METH_KEYWORDS, "Apply a one-pole lowpass filter on table's samples."},
+    {"fadein", (PyCFunction)PadSynthTable_fadein, METH_VARARGS|METH_KEYWORDS, "Apply a gradual increase in the level of the table's samples."},
+    {"fadeout", (PyCFunction)PadSynthTable_fadeout, METH_VARARGS|METH_KEYWORDS, "Apply a gradual decrease in the level of the table's samples."},
+    {"pow", (PyCFunction)PadSynthTable_pow, METH_VARARGS|METH_KEYWORDS, "Apply a power function on each sample in the table."},
+    //{"setSize", (PyCFunction)PadSynthTable_setSize, METH_O, "Sets the size of the table in samples"},
+    {"getSize", (PyCFunction)PadSynthTable_getSize, METH_NOARGS, "Return the size of the table in samples"},
+    {"setBaseFreq", (PyCFunction)PadSynthTable_setBaseFreq, METH_VARARGS|METH_KEYWORDS, "Sets the base frequency in hertz."},
+    {"setSpread", (PyCFunction)PadSynthTable_setSpread, METH_VARARGS|METH_KEYWORDS, "Sets the frequency spreading factor."},
+    {"setBw", (PyCFunction)PadSynthTable_setBw, METH_VARARGS|METH_KEYWORDS, "Sets the bandwitdh of the first harmonic in cents."},
+    {"setBwScl", (PyCFunction)PadSynthTable_setBwScl, METH_VARARGS|METH_KEYWORDS, "Sets the bandwitdh scaling factor."},
+    {"setNharms", (PyCFunction)PadSynthTable_setNharms, METH_VARARGS|METH_KEYWORDS, "Sets the number of harmonics."},
+    {"setDamp", (PyCFunction)PadSynthTable_setDamp, METH_VARARGS|METH_KEYWORDS, "Sets the damping factor."},
+    {"setSize", (PyCFunction)PadSynthTable_setSize, METH_VARARGS|METH_KEYWORDS, "Sets the size of the table in samples"},
+    {"put", (PyCFunction)PadSynthTable_put, METH_VARARGS|METH_KEYWORDS, "Puts a value at specified position in the table."},
+    {"get", (PyCFunction)PadSynthTable_get, METH_VARARGS|METH_KEYWORDS, "Gets the value at specified position in the table."},
+    {"add", (PyCFunction)PadSynthTable_add, METH_O, "Performs table addition."},
+    {"sub", (PyCFunction)PadSynthTable_sub, METH_O, "Performs table substraction."},
+    {"mul", (PyCFunction)PadSynthTable_mul, METH_O, "Performs table multiplication."},
+    {NULL}  /* Sentinel */
+};
+
+PyTypeObject PadSynthTableType = {
+    PyObject_HEAD_INIT(NULL)
+    0,                         /*ob_size*/
+    "_pyo.PadSynthTable_base",         /*tp_name*/
+    sizeof(PadSynthTable),         /*tp_basicsize*/
+    0,                         /*tp_itemsize*/
+    (destructor)PadSynthTable_dealloc, /*tp_dealloc*/
+    0,                         /*tp_print*/
+    0,                         /*tp_getattr*/
+    0,                         /*tp_setattr*/
+    0,                         /*tp_compare*/
+    0,                         /*tp_repr*/
+    0,                         /*tp_as_number*/
+    0,                         /*tp_as_sequence*/
+    0,                         /*tp_as_mapping*/
+    0,                         /*tp_hash */
+    0,                         /*tp_call*/
+    0,                         /*tp_str*/
+    0,                         /*tp_getattro*/
+    0,                         /*tp_setattro*/
+    0,                         /*tp_as_buffer*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
+    "PadSynthTable objects. Generates a table filled with a sinc function.",  /* tp_doc */
+    (traverseproc)PadSynthTable_traverse,   /* tp_traverse */
+    (inquiry)PadSynthTable_clear,           /* tp_clear */
+    0,		               /* tp_richcompare */
+    0,		               /* tp_weaklistoffset */
+    0,		               /* tp_iter */
+    0,		               /* tp_iternext */
+    PadSynthTable_methods,             /* tp_methods */
+    PadSynthTable_members,             /* tp_members */
+    0,                      /* tp_getset */
+    0,                         /* tp_base */
+    0,                         /* tp_dict */
+    0,                         /* tp_descr_get */
+    0,                         /* tp_descr_set */
+    0,                         /* tp_dictoffset */
+    0,      /* tp_init */
+    0,                         /* tp_alloc */
+    PadSynthTable_new,                 /* tp_new */
 };
 
 /******************************/
