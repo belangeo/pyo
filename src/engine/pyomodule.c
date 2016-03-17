@@ -2358,6 +2358,8 @@ init_pyo64(void)
     module_add_object(m, "RosslerAlt_base", &RosslerAltType);
     module_add_object(m, "Lorenz_base", &LorenzType);
     module_add_object(m, "LorenzAlt_base", &LorenzAltType);
+    module_add_object(m, "ChenLee_base", &ChenLeeType);
+    module_add_object(m, "ChenLeeAlt_base", &ChenLeeAltType);
     module_add_object(m, "Phasor_base", &PhasorType);
     module_add_object(m, "SuperSaw_base", &SuperSawType);
     module_add_object(m, "Pointer_base", &PointerType);

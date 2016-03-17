@@ -33,10 +33,12 @@ static MYFLT COSINE_ARRAY[513] = {1.0, 0.9999247018391445, 0.9996988186962042, 0
 -0.9637760657954398, -0.9669764710448521, -0.970031253194544, -0.9729399522055601, -0.9757021300385285, -0.9783173707196275, -0.9807852804032304, -0.9831054874312163, -0.9852776423889412, -0.9873014181578584, -0.989176509964781, -0.99090263542778, -0.99247953459871, -0.9939069700023561, -0.9951847266721968, -0.996312612182778, -0.9972904566786902, -0.9981181129001492, -0.9987954562051724, -0.9993223845883495, -0.9996988186962042, -0.9999247018391445, -1.0, -0.9999247018391445, -0.9996988186962042, -0.9993223845883495, -0.9987954562051724, -0.9981181129001492, -0.9972904566786902, -0.996312612182778, -0.9951847266721969, -0.9939069700023561, -0.99247953459871, -0.99090263542778, -0.989176509964781, -0.9873014181578584, -0.9852776423889413, -0.9831054874312164, -0.9807852804032304, -0.9783173707196277, -0.9757021300385286, -0.9729399522055602, -0.970031253194544, -0.9669764710448522, -0.96377606579544, -0.9604305194155659, -0.9569403357322089, -0.953306040354194, -0.9495281805930368, -0.9456073253805213, -0.9415440651830208, -0.937339011912575, -0.932992798834739, -0.9285060804732156, -0.9238795325112868, -0.9191138516900578, -0.9142097557035307, -0.9091679830905225, -0.9039892931234434, -0.898674465693954, -0.8932243011955153, -0.8876396204028539, -0.881921264348355, -0.8760700941954066, -0.8700869911087115, -0.8639728561215868, -0.8577286100002721, -0.8513551931052653, -0.8448535652497072, -0.8382247055548382, -0.8314696123025455, -0.8245893027850253, -0.8175848131515837, -0.8104571982525948, -0.8032075314806449, -0.7958369046088836, -0.7883464276266063, -0.7807372285720946, -0.7730104533627371, -0.7651672656224591, -0.7572088465064848, -0.7491363945234593, -0.7409511253549591, -0.7326542716724128, -0.724247082951467, -0.7157308252838187, -0.7071067811865477, -0.698376249408973, -0.689540544737067, -0.6806009977954532, -0.6715589548470187, -0.662415777590172, -0.6531728429537771, -0.6438315428897915, -0.6343932841636459, -0.6248594881423865, -0.6152315905806273, -0.6055110414043257, -0.5956993044924331, -0.5857978574564391, -0.5758081914178452, -0.5657318107836135, -0.5555702330196022, -0.5453249884220468, -0.5349976198870973, -0.5245896826784694, -0.5141027441932218, -0.503538383725718, -0.4928981922297842, -0.48218377207912255, -0.47139673682599786, -0.4605387109582399, -0.44961132965460693, -0.4386162385385276, -0.4275550934302825, -0.4164295600976372, -0.40524131400499036, -0.3939920400610482, -0.38268343236509034, -0.37131719395183777, -0.35989503653498794, -0.34841868024943484, -0.33688985339221994, -0.3253102921622633, -0.31368174039889146, -0.30200594931922853, -0.29028467725446244, -0.2785196893850536, -0.26671275747489853, -0.25486565960451435, -0.24298017990326412, -0.23105810828067094, -0.2191012401568701, -0.20711137619221848, -0.19509032201612866, -0.18303988795514095, -0.1709618887603017, -0.15885814333386153, -0.1467304744553623, -0.13458070850712636, -0.12241067519921596, -0.11022220729388331, -0.09801714032956045, -0.08579731234444023, -0.07356456359966736, -0.061320736302208995, -0.04906767432741803, -0.03680722294135933, -0.02454122852291239, -0.012271538285720512, -1.836909530733566e-16, 0.012271538285720144, 0.02454122852291202, 0.036807222941358964, 0.04906767432741766, 0.06132073630220863, 0.07356456359966698, 0.08579731234443985, 0.09801714032956009, 0.11022220729388293, 0.1224106751992156, 0.13458070850712597, 0.14673047445536194, 0.15885814333386117, 0.17096188876030133, 0.1830398879551406, 0.1950903220161283, 0.20711137619221812, 0.21910124015686974, 0.23105810828067058, 0.24298017990326376, 0.25486565960451396, 0.2667127574748982, 0.2785196893850533, 0.29028467725446205, 0.30200594931922814, 0.31368174039889113, 0.3253102921622629, 0.3368898533922196, 0.3484186802494345, 0.3598950365349876, 0.3713171939518374, 0.38268343236509, 0.3939920400610479, 0.40524131400499, 0.4164295600976369, 0.42755509343028214, 0.43861623853852727, 0.4496113296546066, 0.46053871095823956, 0.4713967368259976, 0.4821837720791222, 0.49289819222978387, 0.5035383837257178, 0.5141027441932216, 0.5245896826784691, 0.5349976198870969, 0.5453249884220465, 0.5555702330196018, 0.5657318107836131, 0.5758081914178449, 0.5857978574564388, 0.5956993044924329, 0.6055110414043253, 0.615231590580627, 0.6248594881423861, 0.6343932841636456, 0.6438315428897912, 0.6531728429537768, 0.6624157775901715, 0.6715589548470183, 0.6806009977954527, 0.6895405447370668, 0.6983762494089724, 0.7071067811865474, 0.7157308252838188, 0.7242470829514667, 0.7326542716724129, 0.7409511253549589, 0.7491363945234594, 0.7572088465064842, 0.7651672656224588, 0.7730104533627367, 0.7807372285720944, 0.7883464276266059, 0.7958369046088833, 0.803207531480645, 0.8104571982525947, 0.8175848131515837, 0.8245893027850251, 0.8314696123025452, 0.8382247055548377,
 0.844853565249707, 0.8513551931052649, 0.857728610000272, 0.8639728561215864, 0.8700869911087113, 0.8760700941954067, 0.8819212643483548, 0.8876396204028539, 0.8932243011955151, 0.8986744656939538, 0.9039892931234431, 0.9091679830905224, 0.9142097557035305, 0.9191138516900577, 0.9238795325112865, 0.9285060804732155, 0.932992798834739, 0.9373390119125748, 0.9415440651830208, 0.9456073253805212, 0.9495281805930367, 0.9533060403541936, 0.9569403357322088, 0.9604305194155657, 0.9637760657954398, 0.9669764710448522, 0.970031253194544, 0.9729399522055602, 0.9757021300385285, 0.9783173707196277, 0.9807852804032303, 0.9831054874312163, 0.9852776423889411, 0.9873014181578583, 0.9891765099647809, 0.99090263542778, 0.99247953459871, 0.9939069700023561, 0.9951847266721969, 0.996312612182778, 0.9972904566786902, 0.9981181129001492, 0.9987954562051724, 0.9993223845883494, 0.9996988186962042, 0.9999247018391445, 1.0};
 static MYFLT ONE_OVER_512 = 1.0 / 512.0;
-static const MYFLT ROSSLER_SCALE     = 0.05757;
-static const MYFLT ROSSLER_ALT_SCALE = 0.06028;
-static const MYFLT LORENZ_SCALE     = 0.05107;
-static const MYFLT LORENZ_ALT_SCALE = 0.03679;
+static const MYFLT ROSSLER_SCALE     = 0.054;
+static const MYFLT ROSSLER_ALT_SCALE = 0.0569;
+static const MYFLT LORENZ_SCALE     = 0.044;
+static const MYFLT LORENZ_ALT_SCALE = 0.0328;
+static const MYFLT CHENLEE_SCALE     = 0.02;
+static const MYFLT CHENLEE_ALT_SCALE = 0.02;
 
 static MYFLT
 _clip(MYFLT x) {
@@ -8950,6 +8952,789 @@ PyTypeObject LorenzAltType = {
     0,      /* tp_init */
     0,                         /* tp_alloc */
     LorenzAlt_new,                 /* tp_new */
+};
+
+/* ChenLee object */
+typedef struct {
+    pyo_audio_HEAD
+    PyObject *pitch;
+    Stream *pitch_stream;
+    PyObject *chaos;
+    Stream *chaos_stream;
+    MYFLT *altBuffer;
+    MYFLT vDX;
+    MYFLT vDY;
+    MYFLT vDZ;
+    MYFLT vX;
+    MYFLT vY;
+    MYFLT vZ;
+    MYFLT pA;
+    MYFLT pB;
+    MYFLT oneOnSr;
+    int modebuffer[4];
+} ChenLee;
+
+static void
+ChenLee_readframes_ii(ChenLee *self) {
+    MYFLT delta, pit, chao;
+    int i;
+
+    pit = PyFloat_AS_DOUBLE(self->pitch);
+    chao = PyFloat_AS_DOUBLE(self->chaos);
+    if (pit < 0.0)
+        pit = 1.0;
+    else if (pit > 1.0)
+        pit = 125.0;
+    else
+        pit = pit * 124.0 + 1.0;
+    delta = self->oneOnSr * pit;
+
+    if (chao < 0.0)
+        chao = 4.0;
+    else if (chao > 1.0)
+        chao = 2.51;
+    else
+        chao = (1.0 - chao) * 1.49 + 2.51;
+
+    for (i=0; i<self->bufsize; i++) {
+        self->vDX = -self->vY * self->vZ + self->pA * self->vX;
+        self->vDY = self->vX * self->vZ - self->pB * self->vY;
+        self->vDZ = self->vX * self->vY / 3.0 - chao * self->vZ;
+
+        self->vX += self->vDX * delta;
+        self->vX = (self->vX > 50.0) ? 50.0 : (self->vX < -50.0) ? -50.0 : self->vX;
+        self->vY += self->vDY * delta;
+        self->vY = (self->vY > 50.0) ? 50.0 : (self->vY < -50.0) ? -50.0 : self->vY;
+        self->vZ += self->vDZ * delta;
+
+        self->data[i] = self->vX * CHENLEE_SCALE;
+        self->altBuffer[i] = self->vY * CHENLEE_ALT_SCALE;
+    }
+}
+
+static void
+ChenLee_readframes_ai(ChenLee *self) {
+    MYFLT delta, pit, chao;
+    int i;
+
+    MYFLT *fr = Stream_getData((Stream *)self->pitch_stream);
+    chao = PyFloat_AS_DOUBLE(self->chaos);
+    if (chao < 0.0)
+        chao = 4.0;
+    else if (chao > 1.0)
+        chao = 2.51;
+    else
+        chao = (1.0 - chao) * 1.49 + 2.51;
+
+    for (i=0; i<self->bufsize; i++) {
+        pit = fr[i];
+        if (pit < 0.0)
+            pit = 1.0;
+        else if (pit > 1.0)
+            pit = 125.0;
+        else
+            pit = pit * 124.0 + 1.0;
+        delta = self->oneOnSr * pit;
+        self->vDX = -self->vY * self->vZ + self->pA * self->vX;
+        self->vDY = self->vX * self->vZ - self->pB * self->vY;
+        self->vDZ = self->vX * self->vY / 3.0 - chao * self->vZ;
+
+        self->vX += self->vDX * delta;
+        self->vX = (self->vX > 50.0) ? 50.0 : (self->vX < -50.0) ? -50.0 : self->vX;
+        self->vY += self->vDY * delta;
+        self->vY = (self->vY > 50.0) ? 50.0 : (self->vY < -50.0) ? -50.0 : self->vY;
+        self->vZ += self->vDZ * delta;
+
+        self->data[i] = self->vX * CHENLEE_SCALE;
+        self->altBuffer[i] = self->vY * CHENLEE_ALT_SCALE;
+    }
+}
+
+static void
+ChenLee_readframes_ia(ChenLee *self) {
+    MYFLT delta, pit, chao;
+    int i;
+
+    pit = PyFloat_AS_DOUBLE(self->pitch);
+    MYFLT *ch = Stream_getData((Stream *)self->chaos_stream);
+
+    if (pit < 0.0)
+        pit = 1.0;
+    else if (pit > 1.0)
+        pit = 125.0;
+    else
+        pit = pit * 124.0 + 1.0;
+    delta = self->oneOnSr * pit;
+
+    for (i=0; i<self->bufsize; i++) {
+        chao = ch[i];
+        if (chao < 0.0)
+            chao = 4.0;
+        else if (chao > 1.0)
+            chao = 2.51;
+        else
+            chao = (1.0 - chao) * 1.49 + 2.51;
+        self->vDX = -self->vY * self->vZ + self->pA * self->vX;
+        self->vDY = self->vX * self->vZ - self->pB * self->vY;
+        self->vDZ = self->vX * self->vY / 3.0 - chao * self->vZ;
+
+        self->vX += self->vDX * delta;
+        self->vX = (self->vX > 50.0) ? 50.0 : (self->vX < -50.0) ? -50.0 : self->vX;
+        self->vY += self->vDY * delta;
+        self->vY = (self->vY > 50.0) ? 50.0 : (self->vY < -50.0) ? -50.0 : self->vY;
+        self->vZ += self->vDZ * delta;
+
+        self->data[i] = self->vX * CHENLEE_SCALE;
+        self->altBuffer[i] = self->vY * CHENLEE_ALT_SCALE;
+    }
+}
+
+static void
+ChenLee_readframes_aa(ChenLee *self) {
+    MYFLT delta, pit, chao;
+    int i;
+
+    MYFLT *fr = Stream_getData((Stream *)self->pitch_stream);
+    MYFLT *ch = Stream_getData((Stream *)self->chaos_stream);
+
+    for (i=0; i<self->bufsize; i++) {
+        pit = fr[i];
+        if (pit < 0.0)
+            pit = 1.0;
+        else if (pit > 1.0)
+            pit = 125.0;
+        else
+            pit = pit * 124.0 + 1.0;
+        delta = self->oneOnSr * pit;
+
+        chao = ch[i];
+        if (chao < 0.0)
+            chao = 4.0;
+        else if (chao > 1.0)
+            chao = 2.51;
+        else
+            chao = (1.0 - chao) * 1.49 + 2.51;
+        self->vDX = -self->vY * self->vZ + self->pA * self->vX;
+        self->vDY = self->vX * self->vZ - self->pB * self->vY;
+        self->vDZ = self->vX * self->vY / 3.0 - chao * self->vZ;
+
+        self->vX += self->vDX * delta;
+        self->vX = (self->vX > 50.0) ? 50.0 : (self->vX < -50.0) ? -50.0 : self->vX;
+        self->vY += self->vDY * delta;
+        self->vY = (self->vY > 50.0) ? 50.0 : (self->vY < -50.0) ? -50.0 : self->vY;
+        self->vZ += self->vDZ * delta;
+
+        self->data[i] = self->vX * CHENLEE_SCALE;
+        self->altBuffer[i] = self->vY * CHENLEE_ALT_SCALE;
+    }
+}
+
+static void ChenLee_postprocessing_ii(ChenLee *self) { POST_PROCESSING_II };
+static void ChenLee_postprocessing_ai(ChenLee *self) { POST_PROCESSING_AI };
+static void ChenLee_postprocessing_ia(ChenLee *self) { POST_PROCESSING_IA };
+static void ChenLee_postprocessing_aa(ChenLee *self) { POST_PROCESSING_AA };
+static void ChenLee_postprocessing_ireva(ChenLee *self) { POST_PROCESSING_IREVA };
+static void ChenLee_postprocessing_areva(ChenLee *self) { POST_PROCESSING_AREVA };
+static void ChenLee_postprocessing_revai(ChenLee *self) { POST_PROCESSING_REVAI };
+static void ChenLee_postprocessing_revaa(ChenLee *self) { POST_PROCESSING_REVAA };
+static void ChenLee_postprocessing_revareva(ChenLee *self) { POST_PROCESSING_REVAREVA };
+
+static void
+ChenLee_setProcMode(ChenLee *self)
+{
+    int procmode, muladdmode;
+    procmode = self->modebuffer[2] + self->modebuffer[3] * 10;
+    muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
+
+	switch (procmode) {
+        case 0:
+            self->proc_func_ptr = ChenLee_readframes_ii;
+            break;
+        case 1:
+            self->proc_func_ptr = ChenLee_readframes_ai;
+            break;
+        case 10:
+            self->proc_func_ptr = ChenLee_readframes_ia;
+            break;
+        case 11:
+            self->proc_func_ptr = ChenLee_readframes_aa;
+            break;
+    }
+
+	switch (muladdmode) {
+        case 0:
+            self->muladd_func_ptr = ChenLee_postprocessing_ii;
+            break;
+        case 1:
+            self->muladd_func_ptr = ChenLee_postprocessing_ai;
+            break;
+        case 2:
+            self->muladd_func_ptr = ChenLee_postprocessing_revai;
+            break;
+        case 10:
+            self->muladd_func_ptr = ChenLee_postprocessing_ia;
+            break;
+        case 11:
+            self->muladd_func_ptr = ChenLee_postprocessing_aa;
+            break;
+        case 12:
+            self->muladd_func_ptr = ChenLee_postprocessing_revaa;
+            break;
+        case 20:
+            self->muladd_func_ptr = ChenLee_postprocessing_ireva;
+            break;
+        case 21:
+            self->muladd_func_ptr = ChenLee_postprocessing_areva;
+            break;
+        case 22:
+            self->muladd_func_ptr = ChenLee_postprocessing_revareva;
+            break;
+    }
+}
+
+static void
+ChenLee_compute_next_data_frame(ChenLee *self)
+{
+    (*self->proc_func_ptr)(self);
+    (*self->muladd_func_ptr)(self);
+}
+
+static int
+ChenLee_traverse(ChenLee *self, visitproc visit, void *arg)
+{
+    pyo_VISIT
+    Py_VISIT(self->pitch);
+    Py_VISIT(self->pitch_stream);
+    Py_VISIT(self->chaos);
+    Py_VISIT(self->chaos_stream);
+    return 0;
+}
+
+static int
+ChenLee_clear(ChenLee *self)
+{
+    pyo_CLEAR
+    Py_CLEAR(self->pitch);
+    Py_CLEAR(self->pitch_stream);
+    Py_CLEAR(self->chaos);
+    Py_CLEAR(self->chaos_stream);
+    return 0;
+}
+
+static void
+ChenLee_dealloc(ChenLee* self)
+{
+    pyo_DEALLOC
+    free(self->altBuffer);
+    ChenLee_clear(self);
+    self->ob_type->tp_free((PyObject*)self);
+}
+
+static PyObject *
+ChenLee_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    int i;
+    PyObject *pitchtmp=NULL, *chaostmp=NULL, *multmp=NULL, *addtmp=NULL;
+    ChenLee *self;
+    self = (ChenLee *)type->tp_alloc(type, 0);
+
+    self->pitch = PyFloat_FromDouble(0.25);
+    self->chaos = PyFloat_FromDouble(0.5);
+    self->pA = 5.0;
+    self->pB = 10.0;
+    self->vDX = self->vDY = self->vDZ = 0.0;
+    self->vX = self->vY = self->vZ = 1.0;
+	self->modebuffer[0] = 0;
+	self->modebuffer[1] = 0;
+	self->modebuffer[2] = 0;
+	self->modebuffer[3] = 0;
+
+    INIT_OBJECT_COMMON
+    Stream_setFunctionPtr(self->stream, ChenLee_compute_next_data_frame);
+    self->mode_func_ptr = ChenLee_setProcMode;
+
+    self->oneOnSr = 1.0 / self->sr;
+
+    static char *kwlist[] = {"pitch", "chaos", "mul", "add", NULL};
+
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "|OOOO", kwlist, &pitchtmp, &chaostmp, &multmp, &addtmp))
+        Py_RETURN_NONE;
+
+    if (pitchtmp) {
+        PyObject_CallMethod((PyObject *)self, "setPitch", "O", pitchtmp);
+    }
+
+    if (chaostmp) {
+        PyObject_CallMethod((PyObject *)self, "setChaos", "O", chaostmp);
+    }
+
+    if (multmp) {
+        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+    }
+
+    if (addtmp) {
+        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+    }
+
+    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+
+    self->altBuffer = (MYFLT *)realloc(self->altBuffer, self->bufsize * sizeof(MYFLT));
+
+    for (i=0; i<self->bufsize; i++) {
+        self->altBuffer[i] = 0.0;
+    }
+
+    (*self->mode_func_ptr)(self);
+
+    return (PyObject *)self;
+}
+
+static PyObject * ChenLee_getServer(ChenLee* self) { GET_SERVER };
+static PyObject * ChenLee_getStream(ChenLee* self) { GET_STREAM };
+static PyObject * ChenLee_setMul(ChenLee *self, PyObject *arg) { SET_MUL };
+static PyObject * ChenLee_setAdd(ChenLee *self, PyObject *arg) { SET_ADD };
+static PyObject * ChenLee_setSub(ChenLee *self, PyObject *arg) { SET_SUB };
+static PyObject * ChenLee_setDiv(ChenLee *self, PyObject *arg) { SET_DIV };
+
+static PyObject * ChenLee_play(ChenLee *self, PyObject *args, PyObject *kwds) { PLAY };
+static PyObject * ChenLee_out(ChenLee *self, PyObject *args, PyObject *kwds) { OUT };
+static PyObject * ChenLee_stop(ChenLee *self) { STOP };
+
+static PyObject * ChenLee_multiply(ChenLee *self, PyObject *arg) { MULTIPLY };
+static PyObject * ChenLee_inplace_multiply(ChenLee *self, PyObject *arg) { INPLACE_MULTIPLY };
+static PyObject * ChenLee_add(ChenLee *self, PyObject *arg) { ADD };
+static PyObject * ChenLee_inplace_add(ChenLee *self, PyObject *arg) { INPLACE_ADD };
+static PyObject * ChenLee_sub(ChenLee *self, PyObject *arg) { SUB };
+static PyObject * ChenLee_inplace_sub(ChenLee *self, PyObject *arg) { INPLACE_SUB };
+static PyObject * ChenLee_div(ChenLee *self, PyObject *arg) { DIV };
+static PyObject * ChenLee_inplace_div(ChenLee *self, PyObject *arg) { INPLACE_DIV };
+
+static PyObject *
+ChenLee_setPitch(ChenLee *self, PyObject *arg)
+{
+	PyObject *tmp, *streamtmp;
+
+    ASSERT_ARG_NOT_NULL
+
+	int isNumber = PyNumber_Check(arg);
+
+	tmp = arg;
+	Py_INCREF(tmp);
+	Py_DECREF(self->pitch);
+	if (isNumber == 1) {
+		self->pitch = PyNumber_Float(tmp);
+        self->modebuffer[2] = 0;
+	}
+	else {
+		self->pitch = tmp;
+        streamtmp = PyObject_CallMethod((PyObject *)self->pitch, "_getStream", NULL);
+        Py_INCREF(streamtmp);
+        Py_XDECREF(self->pitch_stream);
+        self->pitch_stream = (Stream *)streamtmp;
+		self->modebuffer[2] = 1;
+	}
+
+    (*self->mode_func_ptr)(self);
+
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
+static PyObject *
+ChenLee_setChaos(ChenLee *self, PyObject *arg)
+{
+	PyObject *tmp, *streamtmp;
+
+    ASSERT_ARG_NOT_NULL
+
+	int isNumber = PyNumber_Check(arg);
+
+	tmp = arg;
+	Py_INCREF(tmp);
+	Py_DECREF(self->chaos);
+	if (isNumber == 1) {
+		self->chaos = PyNumber_Float(tmp);
+        self->modebuffer[3] = 0;
+	}
+	else {
+		self->chaos = tmp;
+        streamtmp = PyObject_CallMethod((PyObject *)self->chaos, "_getStream", NULL);
+        Py_INCREF(streamtmp);
+        Py_XDECREF(self->chaos_stream);
+        self->chaos_stream = (Stream *)streamtmp;
+		self->modebuffer[3] = 1;
+	}
+
+    (*self->mode_func_ptr)(self);
+
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
+MYFLT *
+ChenLee_getAltBuffer(ChenLee *self)
+{
+    return (MYFLT *)self->altBuffer;
+}
+
+static PyMemberDef ChenLee_members[] = {
+    {"server", T_OBJECT_EX, offsetof(ChenLee, server), 0, "Pyo server."},
+    {"stream", T_OBJECT_EX, offsetof(ChenLee, stream), 0, "Stream object."},
+    {"pitch", T_OBJECT_EX, offsetof(ChenLee, pitch), 0, "Pitch."},
+    {"chaos", T_OBJECT_EX, offsetof(ChenLee, chaos), 0, "Chaotic behavior."},
+    {"mul", T_OBJECT_EX, offsetof(ChenLee, mul), 0, "Mul factor."},
+    {"add", T_OBJECT_EX, offsetof(ChenLee, add), 0, "Add factor."},
+    {NULL}  /* Sentinel */
+};
+
+static PyMethodDef ChenLee_methods[] = {
+    {"getServer", (PyCFunction)ChenLee_getServer, METH_NOARGS, "Returns server object."},
+    {"_getStream", (PyCFunction)ChenLee_getStream, METH_NOARGS, "Returns stream object."},
+    {"play", (PyCFunction)ChenLee_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+    {"out", (PyCFunction)ChenLee_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
+    {"stop", (PyCFunction)ChenLee_stop, METH_NOARGS, "Stops computing."},
+    {"setPitch", (PyCFunction)ChenLee_setPitch, METH_O, "Sets oscillator pitch."},
+    {"setChaos", (PyCFunction)ChenLee_setChaos, METH_O, "Sets oscillator chaotic behavior."},
+    {"setMul", (PyCFunction)ChenLee_setMul, METH_O, "Sets ChenLee mul factor."},
+    {"setAdd", (PyCFunction)ChenLee_setAdd, METH_O, "Sets ChenLee add factor."},
+    {"setSub", (PyCFunction)ChenLee_setSub, METH_O, "Sets inverse add factor."},
+    {"setDiv", (PyCFunction)ChenLee_setDiv, METH_O, "Sets inverse mul factor."},
+    {NULL}  /* Sentinel */
+};
+
+static PyNumberMethods ChenLee_as_number = {
+    (binaryfunc)ChenLee_add,                      /*nb_add*/
+    (binaryfunc)ChenLee_sub,                 /*nb_subtract*/
+    (binaryfunc)ChenLee_multiply,                 /*nb_multiply*/
+    (binaryfunc)ChenLee_div,                   /*nb_divide*/
+    0,                /*nb_remainder*/
+    0,                   /*nb_divmod*/
+    0,                   /*nb_power*/
+    0,                  /*nb_neg*/
+    0,                /*nb_pos*/
+    0,                  /*(unaryfunc)array_abs*/
+    0,                    /*nb_nonzero*/
+    0,                    /*nb_invert*/
+    0,               /*nb_lshift*/
+    0,              /*nb_rshift*/
+    0,              /*nb_and*/
+    0,              /*nb_xor*/
+    0,               /*nb_or*/
+    0,                                          /*nb_coerce*/
+    0,                       /*nb_int*/
+    0,                      /*nb_long*/
+    0,                     /*nb_float*/
+    0,                       /*nb_oct*/
+    0,                       /*nb_hex*/
+    (binaryfunc)ChenLee_inplace_add,              /*inplace_add*/
+    (binaryfunc)ChenLee_inplace_sub,         /*inplace_subtract*/
+    (binaryfunc)ChenLee_inplace_multiply,         /*inplace_multiply*/
+    (binaryfunc)ChenLee_inplace_div,           /*inplace_divide*/
+    0,        /*inplace_remainder*/
+    0,           /*inplace_power*/
+    0,       /*inplace_lshift*/
+    0,      /*inplace_rshift*/
+    0,      /*inplace_and*/
+    0,      /*inplace_xor*/
+    0,       /*inplace_or*/
+    0,             /*nb_floor_divide*/
+    0,              /*nb_true_divide*/
+    0,     /*nb_inplace_floor_divide*/
+    0,      /*nb_inplace_true_divide*/
+    0,                     /* nb_index */
+};
+
+PyTypeObject ChenLeeType = {
+    PyObject_HEAD_INIT(NULL)
+    0,                         /*ob_size*/
+    "_pyo.ChenLee_base",         /*tp_name*/
+    sizeof(ChenLee),         /*tp_basicsize*/
+    0,                         /*tp_itemsize*/
+    (destructor)ChenLee_dealloc, /*tp_dealloc*/
+    0,                         /*tp_print*/
+    0,                         /*tp_getattr*/
+    0,                         /*tp_setattr*/
+    0,                         /*tp_compare*/
+    0,                         /*tp_repr*/
+    &ChenLee_as_number,             /*tp_as_number*/
+    0,                         /*tp_as_sequence*/
+    0,                         /*tp_as_mapping*/
+    0,                         /*tp_hash */
+    0,                         /*tp_call*/
+    0,                         /*tp_str*/
+    0,                         /*tp_getattro*/
+    0,                         /*tp_setattro*/
+    0,                         /*tp_as_buffer*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES,  /*tp_flags*/
+    "ChenLee objects. ChenLee attractor.",           /* tp_doc */
+    (traverseproc)ChenLee_traverse,   /* tp_traverse */
+    (inquiry)ChenLee_clear,           /* tp_clear */
+    0,		               /* tp_richcompare */
+    0,		               /* tp_weaklistoffset */
+    0,		               /* tp_iter */
+    0,		               /* tp_iternext */
+    ChenLee_methods,             /* tp_methods */
+    ChenLee_members,             /* tp_members */
+    0,                      /* tp_getset */
+    0,                         /* tp_base */
+    0,                         /* tp_dict */
+    0,                         /* tp_descr_get */
+    0,                         /* tp_descr_set */
+    0,                         /* tp_dictoffset */
+    0,      /* tp_init */
+    0,                         /* tp_alloc */
+    ChenLee_new,                 /* tp_new */
+};
+
+typedef struct {
+    pyo_audio_HEAD
+    ChenLee *mainChenLee;
+    int modebuffer[2];
+} ChenLeeAlt;
+
+static void ChenLeeAlt_postprocessing_ii(ChenLeeAlt *self) { POST_PROCESSING_II };
+static void ChenLeeAlt_postprocessing_ai(ChenLeeAlt *self) { POST_PROCESSING_AI };
+static void ChenLeeAlt_postprocessing_ia(ChenLeeAlt *self) { POST_PROCESSING_IA };
+static void ChenLeeAlt_postprocessing_aa(ChenLeeAlt *self) { POST_PROCESSING_AA };
+static void ChenLeeAlt_postprocessing_ireva(ChenLeeAlt *self) { POST_PROCESSING_IREVA };
+static void ChenLeeAlt_postprocessing_areva(ChenLeeAlt *self) { POST_PROCESSING_AREVA };
+static void ChenLeeAlt_postprocessing_revai(ChenLeeAlt *self) { POST_PROCESSING_REVAI };
+static void ChenLeeAlt_postprocessing_revaa(ChenLeeAlt *self) { POST_PROCESSING_REVAA };
+static void ChenLeeAlt_postprocessing_revareva(ChenLeeAlt *self) { POST_PROCESSING_REVAREVA };
+
+static void
+ChenLeeAlt_setProcMode(ChenLeeAlt *self) {
+    int muladdmode;
+    muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
+
+    switch (muladdmode) {
+        case 0:
+            self->muladd_func_ptr = ChenLeeAlt_postprocessing_ii;
+            break;
+        case 1:
+            self->muladd_func_ptr = ChenLeeAlt_postprocessing_ai;
+            break;
+        case 2:
+            self->muladd_func_ptr = ChenLeeAlt_postprocessing_revai;
+            break;
+        case 10:
+            self->muladd_func_ptr = ChenLeeAlt_postprocessing_ia;
+            break;
+        case 11:
+            self->muladd_func_ptr = ChenLeeAlt_postprocessing_aa;
+            break;
+        case 12:
+            self->muladd_func_ptr = ChenLeeAlt_postprocessing_revaa;
+            break;
+        case 20:
+            self->muladd_func_ptr = ChenLeeAlt_postprocessing_ireva;
+            break;
+        case 21:
+            self->muladd_func_ptr = ChenLeeAlt_postprocessing_areva;
+            break;
+        case 22:
+            self->muladd_func_ptr = ChenLeeAlt_postprocessing_revareva;
+            break;
+    }
+}
+
+static void
+ChenLeeAlt_compute_next_data_frame(ChenLeeAlt *self)
+{
+    int i;
+    MYFLT *tmp;
+    tmp = ChenLee_getAltBuffer((ChenLee *)self->mainChenLee);
+    for (i=0; i<self->bufsize; i++) {
+        self->data[i] = tmp[i];
+    }
+    (*self->muladd_func_ptr)(self);
+}
+
+static int
+ChenLeeAlt_traverse(ChenLeeAlt *self, visitproc visit, void *arg)
+{
+    pyo_VISIT
+    Py_VISIT(self->mainChenLee);
+    return 0;
+}
+
+static int
+ChenLeeAlt_clear(ChenLeeAlt *self)
+{
+    pyo_CLEAR
+    Py_CLEAR(self->mainChenLee);
+    return 0;
+}
+
+static void
+ChenLeeAlt_dealloc(ChenLeeAlt* self)
+{
+    pyo_DEALLOC
+    ChenLeeAlt_clear(self);
+    self->ob_type->tp_free((PyObject*)self);
+}
+
+static PyObject *
+ChenLeeAlt_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    int i;
+    PyObject *maintmp=NULL, *multmp=NULL, *addtmp=NULL;
+    ChenLeeAlt *self;
+    self = (ChenLeeAlt *)type->tp_alloc(type, 0);
+
+    self->modebuffer[0] = 0;
+    self->modebuffer[1] = 0;
+
+    INIT_OBJECT_COMMON
+    Stream_setFunctionPtr(self->stream, ChenLeeAlt_compute_next_data_frame);
+    self->mode_func_ptr = ChenLeeAlt_setProcMode;
+
+    static char *kwlist[] = {"mainChenLee", "mul", "alt", NULL};
+
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OO", kwlist, &maintmp, &multmp, &addtmp))
+        Py_RETURN_NONE;
+
+    Py_XDECREF(self->mainChenLee);
+    Py_INCREF(maintmp);
+    self->mainChenLee = (ChenLee *)maintmp;
+
+    if (multmp) {
+        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+    }
+
+    if (addtmp) {
+        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+    }
+
+    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+
+    (*self->mode_func_ptr)(self);
+
+    return (PyObject *)self;
+}
+
+static PyObject * ChenLeeAlt_getServer(ChenLeeAlt* self) { GET_SERVER };
+static PyObject * ChenLeeAlt_getStream(ChenLeeAlt* self) { GET_STREAM };
+static PyObject * ChenLeeAlt_setMul(ChenLeeAlt *self, PyObject *arg) { SET_MUL };
+static PyObject * ChenLeeAlt_setAdd(ChenLeeAlt *self, PyObject *arg) { SET_ADD };
+static PyObject * ChenLeeAlt_setSub(ChenLeeAlt *self, PyObject *arg) { SET_SUB };
+static PyObject * ChenLeeAlt_setDiv(ChenLeeAlt *self, PyObject *arg) { SET_DIV };
+
+static PyObject * ChenLeeAlt_play(ChenLeeAlt *self, PyObject *args, PyObject *kwds) { PLAY };
+static PyObject * ChenLeeAlt_out(ChenLeeAlt *self, PyObject *args, PyObject *kwds) { OUT };
+static PyObject * ChenLeeAlt_stop(ChenLeeAlt *self) { STOP };
+
+static PyObject * ChenLeeAlt_multiply(ChenLeeAlt *self, PyObject *arg) { MULTIPLY };
+static PyObject * ChenLeeAlt_inplace_multiply(ChenLeeAlt *self, PyObject *arg) { INPLACE_MULTIPLY };
+static PyObject * ChenLeeAlt_add(ChenLeeAlt *self, PyObject *arg) { ADD };
+static PyObject * ChenLeeAlt_inplace_add(ChenLeeAlt *self, PyObject *arg) { INPLACE_ADD };
+static PyObject * ChenLeeAlt_sub(ChenLeeAlt *self, PyObject *arg) { SUB };
+static PyObject * ChenLeeAlt_inplace_sub(ChenLeeAlt *self, PyObject *arg) { INPLACE_SUB };
+static PyObject * ChenLeeAlt_div(ChenLeeAlt *self, PyObject *arg) { DIV };
+static PyObject * ChenLeeAlt_inplace_div(ChenLeeAlt *self, PyObject *arg) { INPLACE_DIV };
+
+static PyMemberDef ChenLeeAlt_members[] = {
+    {"server", T_OBJECT_EX, offsetof(ChenLeeAlt, server), 0, "Pyo server."},
+    {"stream", T_OBJECT_EX, offsetof(ChenLeeAlt, stream), 0, "Stream object."},
+    {"mul", T_OBJECT_EX, offsetof(ChenLeeAlt, mul), 0, "Mul factor."},
+    {"add", T_OBJECT_EX, offsetof(ChenLeeAlt, add), 0, "Add factor."},
+    {NULL}  /* Sentinel */
+};
+
+static PyMethodDef ChenLeeAlt_methods[] = {
+    {"getServer", (PyCFunction)ChenLeeAlt_getServer, METH_NOARGS, "Returns server object."},
+    {"_getStream", (PyCFunction)ChenLeeAlt_getStream, METH_NOARGS, "Returns stream object."},
+    {"play", (PyCFunction)ChenLeeAlt_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+    {"out", (PyCFunction)ChenLeeAlt_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
+    {"stop", (PyCFunction)ChenLeeAlt_stop, METH_NOARGS, "Stops computing."},
+    {"setMul", (PyCFunction)ChenLeeAlt_setMul, METH_O, "Sets oscillator mul factor."},
+    {"setAdd", (PyCFunction)ChenLeeAlt_setAdd, METH_O, "Sets oscillator add factor."},
+    {"setSub", (PyCFunction)ChenLeeAlt_setSub, METH_O, "Sets inverse add factor."},
+    {"setDiv", (PyCFunction)ChenLeeAlt_setDiv, METH_O, "Sets inverse mul factor."},
+    {NULL}  /* Sentinel */
+};
+static PyNumberMethods ChenLeeAlt_as_number = {
+    (binaryfunc)ChenLeeAlt_add,                         /*nb_add*/
+    (binaryfunc)ChenLeeAlt_sub,                         /*nb_subtract*/
+    (binaryfunc)ChenLeeAlt_multiply,                    /*nb_multiply*/
+    (binaryfunc)ChenLeeAlt_div,                                              /*nb_divide*/
+    0,                                              /*nb_remainder*/
+    0,                                              /*nb_divmod*/
+    0,                                              /*nb_power*/
+    0,                                              /*nb_neg*/
+    0,                                              /*nb_pos*/
+    0,                                              /*(unaryfunc)array_abs,*/
+    0,                                              /*nb_nonzero*/
+    0,                                              /*nb_invert*/
+    0,                                              /*nb_lshift*/
+    0,                                              /*nb_rshift*/
+    0,                                              /*nb_and*/
+    0,                                              /*nb_xor*/
+    0,                                              /*nb_or*/
+    0,                                              /*nb_coerce*/
+    0,                                              /*nb_int*/
+    0,                                              /*nb_long*/
+    0,                                              /*nb_float*/
+    0,                                              /*nb_oct*/
+    0,                                              /*nb_hex*/
+    (binaryfunc)ChenLeeAlt_inplace_add,                 /*inplace_add*/
+    (binaryfunc)ChenLeeAlt_inplace_sub,                 /*inplace_subtract*/
+    (binaryfunc)ChenLeeAlt_inplace_multiply,            /*inplace_multiply*/
+    (binaryfunc)ChenLeeAlt_inplace_div,                                              /*inplace_divide*/
+    0,                                              /*inplace_remainder*/
+    0,                                              /*inplace_power*/
+    0,                                              /*inplace_lshift*/
+    0,                                              /*inplace_rshift*/
+    0,                                              /*inplace_and*/
+    0,                                              /*inplace_xor*/
+    0,                                              /*inplace_or*/
+    0,                                              /*nb_floor_divide*/
+    0,                                              /*nb_true_divide*/
+    0,                                              /*nb_inplace_floor_divide*/
+    0,                                              /*nb_inplace_true_divide*/
+    0,                                              /* nb_index */
+};
+
+PyTypeObject ChenLeeAltType = {
+    PyObject_HEAD_INIT(NULL)
+    0,                         /*ob_size*/
+    "_pyo.ChenLeeAlt_base",         /*tp_name*/
+    sizeof(ChenLeeAlt),         /*tp_basicsize*/
+    0,                         /*tp_itemsize*/
+    (destructor)ChenLeeAlt_dealloc, /*tp_dealloc*/
+    0,                         /*tp_print*/
+    0,                         /*tp_getattr*/
+    0,                         /*tp_setattr*/
+    0,                         /*tp_compare*/
+    0,                         /*tp_repr*/
+    &ChenLeeAlt_as_number,             /*tp_as_number*/
+    0,                         /*tp_as_sequence*/
+    0,                         /*tp_as_mapping*/
+    0,                         /*tp_hash */
+    0,                         /*tp_call*/
+    0,                         /*tp_str*/
+    0,                         /*tp_getattro*/
+    0,                         /*tp_setattro*/
+    0,                         /*tp_as_buffer*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES,  /*tp_flags*/
+    "ChenLeeAlt objects. Sends the alternate signal of a ChenLee attractor.",           /* tp_doc */
+    (traverseproc)ChenLeeAlt_traverse,   /* tp_traverse */
+    (inquiry)ChenLeeAlt_clear,           /* tp_clear */
+    0,		               /* tp_richcompare */
+    0,		               /* tp_weaklistoffset */
+    0,		               /* tp_iter */
+    0,		               /* tp_iternext */
+    ChenLeeAlt_methods,             /* tp_methods */
+    ChenLeeAlt_members,             /* tp_members */
+    0,                      /* tp_getset */
+    0,                         /* tp_base */
+    0,                         /* tp_dict */
+    0,                         /* tp_descr_get */
+    0,                         /* tp_descr_set */
+    0,                         /* tp_dictoffset */
+    0,      /* tp_init */
+    0,                         /* tp_alloc */
+    ChenLeeAlt_new,                 /* tp_new */
 };
 
 /*************/

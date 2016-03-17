@@ -213,6 +213,8 @@ extern PyTypeObject RosslerType;
 extern PyTypeObject RosslerAltType;
 extern PyTypeObject LorenzType;
 extern PyTypeObject LorenzAltType;
+extern PyTypeObject ChenLeeType;
+extern PyTypeObject ChenLeeAltType;
 extern PyTypeObject PhasorType;
 extern PyTypeObject SuperSawType;
 extern PyTypeObject PointerType;
