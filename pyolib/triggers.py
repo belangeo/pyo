@@ -2302,7 +2302,8 @@ class Counter(PyoObject):
                 Value where to reset the count. Defaults to None.
 
         """
-        pyoArgsAssert(self, "i", x)
+        if value is not None:
+            pyoArgsAssert(self, "i", value)
         value, lmax = convertArgsToLists(value)
         [obj.reset(wrap(value,i)) for i, obj in enumerate(self._base_objs)]
 

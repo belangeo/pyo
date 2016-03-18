@@ -572,7 +572,10 @@ CallAfter_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 static PyObject * CallAfter_getServer(CallAfter* self) { GET_SERVER };
 static PyObject * CallAfter_getStream(CallAfter* self) { GET_STREAM };
 
-static PyObject * CallAfter_play(CallAfter *self, PyObject *args, PyObject *kwds) { PLAY };
+static PyObject * CallAfter_play(CallAfter *self, PyObject *args, PyObject *kwds) { 
+    self->currentTime = 0.;
+    PLAY 
+};
 static PyObject * CallAfter_stop(CallAfter *self) { STOP };
 
 static PyMemberDef CallAfter_members[] = {
