@@ -11392,3 +11392,509 @@ ComplexRes_members,                                 /* tp_members */
 0,                                              /* tp_alloc */
 ComplexRes_new,                                     /* tp_new */
 };
+
+typedef struct {
+    pyo_audio_HEAD
+    PyObject *input;
+    Stream *input_stream;
+    PyObject *freq;
+    Stream *freq_stream;
+    PyObject *res;
+    Stream *res_stream;
+    int modebuffer[4]; // need at least 2 slots for mul & add
+    MYFLT nyquist;
+    MYFLT last_freq;
+    MYFLT last_res;
+    // sample memories
+    MYFLT y1;
+    MYFLT y2;
+    MYFLT y3;
+    MYFLT y4;
+    MYFLT oldX;
+    MYFLT oldY1;
+    MYFLT oldY2;
+    MYFLT oldY3;
+    // coefficients
+    MYFLT r;
+    MYFLT p;
+    MYFLT k;
+} MoogLP;
+
+static void
+MoogLP_compute_coeffs(MoogLP *self, MYFLT freq, MYFLT res)
+{
+    MYFLT f, fi, t, t2;
+
+    if (freq < 0.1)
+        freq = 0.1;
+    else if (freq > self->nyquist)
+        freq = self->nyquist;
+    if (res < 0.0)
+        res = 0.0;
+    else if (res > 10.0)
+        res = 10.0;
+
+    f = (freq + freq) / self->sr;
+    fi = 1.0 - f;
+    self->p = f * (1.8 - 0.8 * f);
+    self->k = 2.0 * MYSIN(f * PI * 0.5) - 1.0;
+    t = (1.0 - self->p) * 1.386249;
+    t2 = 12.0 + t * t;
+    self->r = res * 0.5 * (t2 + 6.0 * t) / (t2 - 6.0 * t);
+    /* Resonance compensation according to normalized frequency. */
+    self->r *= fi * fi * fi * 0.9 + 0.1;
+}
+
+static void
+MoogLP_filters_ii(MoogLP *self) {
+    MYFLT x, fr, res;
+    int i;
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
+    fr = PyFloat_AS_DOUBLE(self->freq);
+    res = PyFloat_AS_DOUBLE(self->res);
+
+    if (fr != self->last_freq || res != self->last_res) {
+        self->last_freq = fr;
+        self->last_res = res;
+        MoogLP_compute_coeffs(self, fr, res);
+    }
+
+    for (i=0; i<self->bufsize; i++) {
+        x = in[i] - self->r * self->y4;
+        self->y1 = x * self->p + self->oldX * self->p - self->k * self->y1;
+        self->y2 = self->y1 * self->p + self->oldY1 * self->p - self->k * self->y2;
+        self->y3 = self->y2 * self->p + self->oldY2 * self->p - self->k * self->y3;
+        self->y4 = self->y3 * self->p + self->oldY3 * self->p - self->k * self->y4;
+        self->y4 -= (self->y4*self->y4*self->y4) / 6.0;
+        self->oldX = x; self->oldY1 = self->y1; self->oldY2 = self->y2; self->oldY3 = self->y3;
+        self->data[i] = self->y4;
+    }
+}
+
+static void
+MoogLP_filters_ai(MoogLP *self) {
+    MYFLT x, fr, res;
+    int i;
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT *freq = Stream_getData((Stream *)self->freq_stream);
+    res = PyFloat_AS_DOUBLE(self->res);
+
+    for (i=0; i<self->bufsize; i++) {
+        fr = freq[i];
+        if (fr != self->last_freq || res != self->last_res) {
+            self->last_freq = fr;
+            self->last_res = res;
+            MoogLP_compute_coeffs(self, fr, res);
+        }
+        x = in[i] - self->r * self->y4;
+        self->y1 = x * self->p + self->oldX * self->p - self->k * self->y1;
+        self->y2 = self->y1 * self->p + self->oldY1 * self->p - self->k * self->y2;
+        self->y3 = self->y2 * self->p + self->oldY2 * self->p - self->k * self->y3;
+        self->y4 = self->y3 * self->p + self->oldY3 * self->p - self->k * self->y4;
+        self->y4 -= (self->y4*self->y4*self->y4) / 6.0;
+        self->oldX = x; self->oldY1 = self->y1; self->oldY2 = self->y2; self->oldY3 = self->y3;
+        self->data[i] = self->y4;
+    }
+}
+
+static void
+MoogLP_filters_ia(MoogLP *self) {
+    MYFLT x, fr, res;
+    int i;
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
+    fr = PyFloat_AS_DOUBLE(self->freq);
+    MYFLT *rz = Stream_getData((Stream *)self->res_stream);
+
+    for (i=0; i<self->bufsize; i++) {
+        res = rz[i];
+        if (fr != self->last_freq || res != self->last_res) {
+            self->last_freq = fr;
+            self->last_res = res;
+            MoogLP_compute_coeffs(self, fr, res);
+        }
+        x = in[i] - self->r * self->y4;
+        self->y1 = x * self->p + self->oldX * self->p - self->k * self->y1;
+        self->y2 = self->y1 * self->p + self->oldY1 * self->p - self->k * self->y2;
+        self->y3 = self->y2 * self->p + self->oldY2 * self->p - self->k * self->y3;
+        self->y4 = self->y3 * self->p + self->oldY3 * self->p - self->k * self->y4;
+        self->y4 -= (self->y4*self->y4*self->y4) / 6.0;
+        self->oldX = x; self->oldY1 = self->y1; self->oldY2 = self->y2; self->oldY3 = self->y3;
+        self->data[i] = self->y4;
+    }
+}
+
+static void
+MoogLP_filters_aa(MoogLP *self) {
+    MYFLT x, fr, res;
+    int i;
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT *freq = Stream_getData((Stream *)self->freq_stream);
+    MYFLT *rz = Stream_getData((Stream *)self->res_stream);
+
+    for (i=0; i<self->bufsize; i++) {
+        fr = freq[i];
+        res = rz[i];
+        if (fr != self->last_freq || res != self->last_res) {
+            self->last_freq = fr;
+            self->last_res = res;
+            MoogLP_compute_coeffs(self, fr, res);
+        }
+        x = in[i] - self->r * self->y4;
+        self->y1 = x * self->p + self->oldX * self->p - self->k * self->y1;
+        self->y2 = self->y1 * self->p + self->oldY1 * self->p - self->k * self->y2;
+        self->y3 = self->y2 * self->p + self->oldY2 * self->p - self->k * self->y3;
+        self->y4 = self->y3 * self->p + self->oldY3 * self->p - self->k * self->y4;
+        self->y4 -= (self->y4*self->y4*self->y4) / 6.0;
+        self->oldX = x; self->oldY1 = self->y1; self->oldY2 = self->y2; self->oldY3 = self->y3;
+        self->data[i] = self->y4;
+    }
+}
+
+static void MoogLP_postprocessing_ii(MoogLP *self) { POST_PROCESSING_II };
+static void MoogLP_postprocessing_ai(MoogLP *self) { POST_PROCESSING_AI };
+static void MoogLP_postprocessing_ia(MoogLP *self) { POST_PROCESSING_IA };
+static void MoogLP_postprocessing_aa(MoogLP *self) { POST_PROCESSING_AA };
+static void MoogLP_postprocessing_ireva(MoogLP *self) { POST_PROCESSING_IREVA };
+static void MoogLP_postprocessing_areva(MoogLP *self) { POST_PROCESSING_AREVA };
+static void MoogLP_postprocessing_revai(MoogLP *self) { POST_PROCESSING_REVAI };
+static void MoogLP_postprocessing_revaa(MoogLP *self) { POST_PROCESSING_REVAA };
+static void MoogLP_postprocessing_revareva(MoogLP *self) { POST_PROCESSING_REVAREVA };
+
+static void
+MoogLP_setProcMode(MoogLP *self)
+{
+    int procmode, muladdmode;
+    procmode = self->modebuffer[2] + self->modebuffer[3] * 10;
+    muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
+
+	switch (procmode) {
+        case 0:
+            self->proc_func_ptr = MoogLP_filters_ii;
+            break;
+        case 1:
+            self->proc_func_ptr = MoogLP_filters_ai;
+            break;
+        case 10:
+            self->proc_func_ptr = MoogLP_filters_ia;
+            break;
+        case 11:
+            self->proc_func_ptr = MoogLP_filters_aa;
+            break;
+    }
+	switch (muladdmode) {
+        case 0:
+            self->muladd_func_ptr = MoogLP_postprocessing_ii;
+            break;
+        case 1:
+            self->muladd_func_ptr = MoogLP_postprocessing_ai;
+            break;
+        case 2:
+            self->muladd_func_ptr = MoogLP_postprocessing_revai;
+            break;
+        case 10:
+            self->muladd_func_ptr = MoogLP_postprocessing_ia;
+            break;
+        case 11:
+            self->muladd_func_ptr = MoogLP_postprocessing_aa;
+            break;
+        case 12:
+            self->muladd_func_ptr = MoogLP_postprocessing_revaa;
+            break;
+        case 20:
+            self->muladd_func_ptr = MoogLP_postprocessing_ireva;
+            break;
+        case 21:
+            self->muladd_func_ptr = MoogLP_postprocessing_areva;
+            break;
+        case 22:
+            self->muladd_func_ptr = MoogLP_postprocessing_revareva;
+            break;
+    }
+}
+
+static void
+MoogLP_compute_next_data_frame(MoogLP *self)
+{
+    (*self->proc_func_ptr)(self);
+    (*self->muladd_func_ptr)(self);
+}
+
+static int
+MoogLP_traverse(MoogLP *self, visitproc visit, void *arg)
+{
+    pyo_VISIT
+    Py_VISIT(self->input);
+    Py_VISIT(self->input_stream);
+    Py_VISIT(self->freq);
+    Py_VISIT(self->freq_stream);
+    Py_VISIT(self->res);
+    Py_VISIT(self->res_stream);
+    return 0;
+}
+
+static int
+MoogLP_clear(MoogLP *self)
+{
+    pyo_CLEAR
+    Py_CLEAR(self->input);
+    Py_CLEAR(self->input_stream);
+    Py_CLEAR(self->freq);
+    Py_CLEAR(self->freq_stream);
+    Py_CLEAR(self->res);
+    Py_CLEAR(self->res_stream);
+    return 0;
+}
+
+static void
+MoogLP_dealloc(MoogLP* self)
+{
+    pyo_DEALLOC
+    MoogLP_clear(self);
+    self->ob_type->tp_free((PyObject*)self);
+}
+
+static PyObject *
+MoogLP_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    int i;
+    PyObject *inputtmp, *input_streamtmp, *freqtmp=NULL, *restmp=NULL, *multmp=NULL, *addtmp=NULL;
+    MoogLP *self;
+    self = (MoogLP *)type->tp_alloc(type, 0);
+
+    self->freq = PyFloat_FromDouble(1000);
+    self->res = PyFloat_FromDouble(1);
+    self->last_freq = self->last_res = -1.0;
+    self->y1 = self->y2 = self->y3 = self->y4 = self->oldX = self->oldY1 = self->oldY2 = self->oldY3 - 0.0;
+	self->modebuffer[0] = 0;
+	self->modebuffer[1] = 0;
+	self->modebuffer[2] = 0;
+	self->modebuffer[3] = 0;
+
+    INIT_OBJECT_COMMON
+
+    self->nyquist = (MYFLT)self->sr * 0.49;
+
+    Stream_setFunctionPtr(self->stream, MoogLP_compute_next_data_frame);
+    self->mode_func_ptr = MoogLP_setProcMode;
+
+    static char *kwlist[] = {"input", "freq", "res", "mul", "add", NULL};
+
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOOO", kwlist, &inputtmp, &freqtmp, &restmp, &multmp, &addtmp))
+        Py_RETURN_NONE;
+
+    INIT_INPUT_STREAM
+
+    if (freqtmp) {
+        PyObject_CallMethod((PyObject *)self, "setFreq", "O", freqtmp);
+    }
+
+    if (restmp) {
+        PyObject_CallMethod((PyObject *)self, "setRes", "O", restmp);
+    }
+
+    if (multmp) {
+        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+    }
+
+    if (addtmp) {
+        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+    }
+
+    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+
+    (*self->mode_func_ptr)(self);
+
+    return (PyObject *)self;
+}
+
+static PyObject * MoogLP_getServer(MoogLP* self) { GET_SERVER };
+static PyObject * MoogLP_getStream(MoogLP* self) { GET_STREAM };
+static PyObject * MoogLP_setMul(MoogLP *self, PyObject *arg) { SET_MUL };
+static PyObject * MoogLP_setAdd(MoogLP *self, PyObject *arg) { SET_ADD };
+static PyObject * MoogLP_setSub(MoogLP *self, PyObject *arg) { SET_SUB };
+static PyObject * MoogLP_setDiv(MoogLP *self, PyObject *arg) { SET_DIV };
+
+static PyObject * MoogLP_play(MoogLP *self, PyObject *args, PyObject *kwds) { PLAY };
+static PyObject * MoogLP_out(MoogLP *self, PyObject *args, PyObject *kwds) { OUT };
+static PyObject * MoogLP_stop(MoogLP *self) { STOP };
+
+static PyObject * MoogLP_multiply(MoogLP *self, PyObject *arg) { MULTIPLY };
+static PyObject * MoogLP_inplace_multiply(MoogLP *self, PyObject *arg) { INPLACE_MULTIPLY };
+static PyObject * MoogLP_add(MoogLP *self, PyObject *arg) { ADD };
+static PyObject * MoogLP_inplace_add(MoogLP *self, PyObject *arg) { INPLACE_ADD };
+static PyObject * MoogLP_sub(MoogLP *self, PyObject *arg) { SUB };
+static PyObject * MoogLP_inplace_sub(MoogLP *self, PyObject *arg) { INPLACE_SUB };
+static PyObject * MoogLP_div(MoogLP *self, PyObject *arg) { DIV };
+static PyObject * MoogLP_inplace_div(MoogLP *self, PyObject *arg) { INPLACE_DIV };
+
+static PyObject *
+MoogLP_setFreq(MoogLP *self, PyObject *arg)
+{
+	PyObject *tmp, *streamtmp;
+
+    ASSERT_ARG_NOT_NULL
+
+	int isNumber = PyNumber_Check(arg);
+
+	tmp = arg;
+	Py_INCREF(tmp);
+	Py_DECREF(self->freq);
+	if (isNumber == 1) {
+		self->freq = PyNumber_Float(tmp);
+        self->modebuffer[2] = 0;
+	}
+	else {
+		self->freq = tmp;
+        streamtmp = PyObject_CallMethod((PyObject *)self->freq, "_getStream", NULL);
+        Py_INCREF(streamtmp);
+        Py_XDECREF(self->freq_stream);
+        self->freq_stream = (Stream *)streamtmp;
+		self->modebuffer[2] = 1;
+	}
+
+    (*self->mode_func_ptr)(self);
+
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
+static PyObject *
+MoogLP_setRes(MoogLP *self, PyObject *arg)
+{
+	PyObject *tmp, *streamtmp;
+
+    ASSERT_ARG_NOT_NULL
+
+	int isNumber = PyNumber_Check(arg);
+
+	tmp = arg;
+	Py_INCREF(tmp);
+	Py_DECREF(self->res);
+	if (isNumber == 1) {
+		self->res = PyNumber_Float(tmp);
+        self->modebuffer[3] = 0;
+	}
+	else {
+		self->res = tmp;
+        streamtmp = PyObject_CallMethod((PyObject *)self->res, "_getStream", NULL);
+        Py_INCREF(streamtmp);
+        Py_XDECREF(self->res_stream);
+        self->res_stream = (Stream *)streamtmp;
+		self->modebuffer[3] = 1;
+	}
+
+    (*self->mode_func_ptr)(self);
+
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
+static PyMemberDef MoogLP_members[] = {
+    {"server", T_OBJECT_EX, offsetof(MoogLP, server), 0, "Pyo server."},
+    {"stream", T_OBJECT_EX, offsetof(MoogLP, stream), 0, "Stream object."},
+    {"input", T_OBJECT_EX, offsetof(MoogLP, input), 0, "Input sound object."},
+    {"freq", T_OBJECT_EX, offsetof(MoogLP, freq), 0, "Cutoff frequency in cycle per second."},
+    {"res", T_OBJECT_EX, offsetof(MoogLP, res), 0, "Resonance factor."},
+    {"mul", T_OBJECT_EX, offsetof(MoogLP, mul), 0, "Mul factor."},
+    {"add", T_OBJECT_EX, offsetof(MoogLP, add), 0, "Add factor."},
+    {NULL}  /* Sentinel */
+};
+
+static PyMethodDef MoogLP_methods[] = {
+    {"getServer", (PyCFunction)MoogLP_getServer, METH_NOARGS, "Returns server object."},
+    {"_getStream", (PyCFunction)MoogLP_getStream, METH_NOARGS, "Returns stream object."},
+    {"play", (PyCFunction)MoogLP_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+    {"out", (PyCFunction)MoogLP_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
+    {"stop", (PyCFunction)MoogLP_stop, METH_NOARGS, "Stops computing."},
+	{"setFreq", (PyCFunction)MoogLP_setFreq, METH_O, "Sets filter cutoff frequency in cycle per second."},
+    {"setRes", (PyCFunction)MoogLP_setRes, METH_O, "Sets filter's resonance."},
+	{"setMul", (PyCFunction)MoogLP_setMul, METH_O, "Sets oscillator mul factor."},
+	{"setAdd", (PyCFunction)MoogLP_setAdd, METH_O, "Sets oscillator add factor."},
+    {"setSub", (PyCFunction)MoogLP_setSub, METH_O, "Sets inverse add factor."},
+    {"setDiv", (PyCFunction)MoogLP_setDiv, METH_O, "Sets inverse mul factor."},
+    {NULL}  /* Sentinel */
+};
+
+static PyNumberMethods MoogLP_as_number = {
+    (binaryfunc)MoogLP_add,                         /*nb_add*/
+    (binaryfunc)MoogLP_sub,                         /*nb_subtract*/
+    (binaryfunc)MoogLP_multiply,                    /*nb_multiply*/
+    (binaryfunc)MoogLP_div,                                              /*nb_divide*/
+    0,                                              /*nb_remainder*/
+    0,                                              /*nb_divmod*/
+    0,                                              /*nb_power*/
+    0,                                              /*nb_neg*/
+    0,                                              /*nb_pos*/
+    0,                                              /*(unaryfunc)array_abs,*/
+    0,                                              /*nb_nonzero*/
+    0,                                              /*nb_invert*/
+    0,                                              /*nb_lshift*/
+    0,                                              /*nb_rshift*/
+    0,                                              /*nb_and*/
+    0,                                              /*nb_xor*/
+    0,                                              /*nb_or*/
+    0,                                              /*nb_coerce*/
+    0,                                              /*nb_int*/
+    0,                                              /*nb_long*/
+    0,                                              /*nb_float*/
+    0,                                              /*nb_oct*/
+    0,                                              /*nb_hex*/
+    (binaryfunc)MoogLP_inplace_add,                 /*inplace_add*/
+    (binaryfunc)MoogLP_inplace_sub,                 /*inplace_subtract*/
+    (binaryfunc)MoogLP_inplace_multiply,            /*inplace_multiply*/
+    (binaryfunc)MoogLP_inplace_div,                                              /*inplace_divide*/
+    0,                                              /*inplace_remainder*/
+    0,                                              /*inplace_power*/
+    0,                                              /*inplace_lshift*/
+    0,                                              /*inplace_rshift*/
+    0,                                              /*inplace_and*/
+    0,                                              /*inplace_xor*/
+    0,                                              /*inplace_or*/
+    0,                                              /*nb_floor_divide*/
+    0,                                              /*nb_true_divide*/
+    0,                                              /*nb_inplace_floor_divide*/
+    0,                                              /*nb_inplace_true_divide*/
+    0,                                              /* nb_index */
+};
+
+PyTypeObject MoogLPType = {
+    PyObject_HEAD_INIT(NULL)
+    0,                                              /*ob_size*/
+    "_pyo.MoogLP_base",                                   /*tp_name*/
+    sizeof(MoogLP),                                 /*tp_basicsize*/
+    0,                                              /*tp_itemsize*/
+    (destructor)MoogLP_dealloc,                     /*tp_dealloc*/
+    0,                                              /*tp_print*/
+    0,                                              /*tp_getattr*/
+    0,                                              /*tp_setattr*/
+    0,                                              /*tp_compare*/
+    0,                                              /*tp_repr*/
+    &MoogLP_as_number,                              /*tp_as_number*/
+    0,                                              /*tp_as_sequence*/
+    0,                                              /*tp_as_mapping*/
+    0,                                              /*tp_hash */
+    0,                                              /*tp_call*/
+    0,                                              /*tp_str*/
+    0,                                              /*tp_getattro*/
+    0,                                              /*tp_setattro*/
+    0,                                              /*tp_as_buffer*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    "MoogLP objects. Second-order resonant bandpass filter.",           /* tp_doc */
+    (traverseproc)MoogLP_traverse,                  /* tp_traverse */
+    (inquiry)MoogLP_clear,                          /* tp_clear */
+    0,                                              /* tp_richcompare */
+    0,                                              /* tp_weaklistoffset */
+    0,                                              /* tp_iter */
+    0,                                              /* tp_iternext */
+    MoogLP_methods,                                 /* tp_methods */
+    MoogLP_members,                                 /* tp_members */
+    0,                                              /* tp_getset */
+    0,                                              /* tp_base */
+    0,                                              /* tp_dict */
+    0,                                              /* tp_descr_get */
+    0,                                              /* tp_descr_set */
+    0,                                              /* tp_dictoffset */
+    0,                          /* tp_init */
+    0,                                              /* tp_alloc */
+    MoogLP_new,                                     /* tp_new */
+};

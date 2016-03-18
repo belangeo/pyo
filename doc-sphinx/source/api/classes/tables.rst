@@ -119,3 +119,9 @@ in memory and access them quickly.
 
 .. autoclass:: AtanTable
    :members:
+
+*PadSynthTable*
+-----------------------------------
+
+.. autoclass:: PadSynthTable
+   :members:

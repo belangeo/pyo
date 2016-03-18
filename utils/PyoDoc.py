@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 # encoding: utf-8
-from __future__ import with_statement
 import subprocess, threading, os, sys, unicodedata
 import wx
 import wx.stc  as  stc
@@ -824,42 +823,6 @@ class ManualPanel(wx.Treebook):
                 self.fromToolbar = False
                 return
 
-    def getMethodsDoc2(self, text, obj):
-        if obj == "Clean_objects":
-            return "Methods details:\n\nClean_objects.start():\n\n    Starts the thread. The timer begins on this call."
-        lines = text.splitlines(True)
-        flag = False
-        methods = ''
-        for line in lines:
-            if flag:
-                if line.strip() == '': continue
-                else:
-                    l = line.lstrip()
-                    ppos = l.find('(')
-                    if ppos != -1:
-                        meth = l[0:ppos]
-                        args, varargs, varkw, defaults = inspect.getargspec(getattr(eval(obj), meth))
-                        args = inspect.formatargspec(args, varargs, varkw, defaults, formatvalue=removeExtraDecimals)
-                        args = args.replace('self, ', '')
-                        methods += obj + '.' + meth + args + ':\n'
-                        docstr = getattr(eval(obj), meth).__doc__.rstrip()
-                        methods += docstr + '\n\n    '
-
-            if 'Methods:' in line: 
-                flag = True
-                methods += '    Methods details:\n\n    '
-
-            for key in _DOC_KEYWORDS:
-                if key != 'Methods':
-                    if key in line: 
-                        flag = False
-
-        methods_form = ''
-        if methods != '':
-            for line in methods.splitlines():
-                methods_form += line[4:] + '\n'
-        return methods_form
-
     def getExampleScript(self):
         stc = self.GetPage(self.GetSelection()).win
         start = stc.LineFromPosition(stc.FindText(0, stc.GetLength(), "Examples:")) + 1
@@ -1139,7 +1102,7 @@ def toSysEncoding(unistr):
 
 if __name__ == "__main__":
     DOC_AS_SINGLE_APP = True
-    app = wx.PySimpleApp()
+    app = wx.App()
     doc_frame = ManualFrame()
     doc_frame.Show()
     app.MainLoop()

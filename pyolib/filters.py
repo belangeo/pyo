@@ -3488,6 +3488,116 @@ class ButBR(PyoObject):
     @q.setter
     def q(self, x): self.setQ(x)
 
+class MoogLP(PyoObject):
+    """
+    A fourth-order resonant lowpass filter.
+
+    Digital approximation of the Moog VCF, giving a decay of 24dB/oct.
+
+    :Parent: :py:class:`PyoObject`
+
+    :Args:
+
+        input : PyoObject
+            Input signal to process.
+        freq : float or PyoObject, optional
+            Cutoff frequency of the filter. Defaults to 1000.
+        res : float or PyoObject, optional
+            Amount of Resonance of the filter, usually between 0 (no resonance)
+            and 1 (medium resonance). Self-oscillation occurs when the
+            resonance is >= 1. Can go up to 10. Defaults to 0.
+
+    >>> s = Server().boot()
+    >>> s.start()
+    >>> ph = Phasor(40)
+    >>> sqr = Round(ph, add=-0.5)
+    >>> lfo = Sine(freq=[.4, .5], mul=2000, add=2500)
+    >>> fil = MoogLP(sqr, freq=lfo, res=1.25).out()
+
+    """
+    def __init__(self, input, freq=1000, res=0, mul=1, add=0):
+        pyoArgsAssert(self, "oOOOO", input, freq, res, mul, add)
+        PyoObject.__init__(self, mul, add)
+        self._input = input
+        self._freq = freq
+        self._res = res
+        self._in_fader = InputFader(input)
+        in_fader, freq, res, mul, add, lmax = convertArgsToLists(self._in_fader, freq, res, mul, add)
+        self._base_objs = [MoogLP_base(wrap(in_fader,i), wrap(freq,i), wrap(res,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+
+    def setInput(self, x, fadetime=0.05):
+        """
+        Replace the `input` attribute.
+
+        :Args:
+
+            x : PyoObject
+                New signal to process.
+            fadetime : float, optional
+                Crossfade time between old and new input. Defaults to 0.05.
+
+        """
+        pyoArgsAssert(self, "oN", x, fadetime)
+        self._input = x
+        self._in_fader.setInput(x, fadetime)
+
+    def setFreq(self, x):
+        """
+        Replace the `freq` attribute.
+
+        :Args:
+
+            x : float or PyoObject
+                New `freq` attribute.
+
+        """
+        pyoArgsAssert(self, "O", x)
+        self._freq = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setFreq(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def setRes(self, x):
+        """
+        Replace the `res` attribute.
+
+        :Args:
+
+            x : float or PyoObject
+                New `res` attribute.
+
+        """
+        pyoArgsAssert(self, "O", x)
+        self._res = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setRes(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def ctrl(self, map_list=None, title=None, wxnoserver=False):
+        self._map_list = [SLMapFreq(self._freq), 
+                          SLMap(0.,1., "lin", "res", self._res), 
+                          SLMapMul(self._mul)]
+        PyoObject.ctrl(self, map_list, title, wxnoserver)
+
+    @property
+    def input(self):
+        """PyoObject. Input signal to process."""
+        return self._input
+    @input.setter
+    def input(self, x): self.setInput(x)
+
+    @property
+    def freq(self):
+        """float or PyoObject. Cutoff frequency of the filter."""
+        return self._freq
+    @freq.setter
+    def freq(self, x): self.setFreq(x)
+
+    @property
+    def res(self):
+        """float or PyoObject. Amount of resonance of the filter."""
+        return self._res
+    @res.setter
+    def res(self, x): self.setRes(x)
+
 class ComplexRes(PyoObject):
     """
     Complex one-pole resonator filter.

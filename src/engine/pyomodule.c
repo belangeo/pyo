@@ -2515,6 +2515,7 @@ init_pyo64(void)
     module_add_object(m, "ButHP_base", &ButHPType);
     module_add_object(m, "ButBP_base", &ButBPType);
     module_add_object(m, "ButBR_base", &ButBRType);
+    module_add_object(m, "MoogLP_base", &MoogLPType);
     module_add_object(m, "PVAnal_base", &PVAnalType);
     module_add_object(m, "PVSynth_base", &PVSynthType);
     module_add_object(m, "PVTranspose_base", &PVTransposeType);

@@ -450,6 +450,7 @@ extern PyTypeObject ButLPType;
 extern PyTypeObject ButHPType;
 extern PyTypeObject ButBPType;
 extern PyTypeObject ButBRType;
+extern PyTypeObject MoogLPType;
 extern PyTypeObject PVAnalType;
 extern PyTypeObject PVSynthType;
 extern PyTypeObject PVTransposeType;

@@ -186,3 +186,8 @@ sinusoidal component according to its frequency.
 .. autoclass:: ComplexRes
    :members:
 
+*MoogLP*
+------------
+
+.. autoclass:: MoogLP
+   :members:
