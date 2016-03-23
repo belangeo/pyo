@@ -1,3 +1,8 @@
+2016-03-23 belangeo <belangeo@gmail.com>
+
+    *  Added setExp() method to Fader, Adsr, MidiAdsr and MidiDelAdsr. That allows
+    the creation of exponential or logarithmic envelopes.
+
 2016-03-18 belangeo <belangeo@gmail.com>
 
     *  Added new object: MoogLP, 24dB/oct resonant lowpass filter.

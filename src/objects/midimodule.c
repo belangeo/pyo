@@ -2764,6 +2764,8 @@ typedef struct {
     MYFLT decay;
     MYFLT sustain;
     MYFLT release;
+    MYFLT exp;
+    MYFLT expscl;
     MYFLT invAttack;
     MYFLT initAmpMinusOffsetAmp;
     MYFLT attackPlusDecay;
@@ -2772,6 +2774,7 @@ typedef struct {
     MYFLT invRelease;
     double currentTime;
     MYFLT sampleToSec;
+    MYFLT *buf;
 } MidiAdsr;
 
 static void
@@ -2785,7 +2788,8 @@ MidiAdsr_generates(MidiAdsr *self) {
         if (self->fademode == 0 && in[i] > 0.0) {
             self->fademode = 1;
             self->initAmp = in[i];
-            self->offsetAmp = self->data[i];
+            self->expscl = MYPOW(self->initAmp, 1.0 / self->exp) / self->initAmp;
+            self->offsetAmp = self->buf[i]; 
             self->sustainAmp = self->initAmp * self->sustain;
             self->currentTime = 0.0;
             self->invAttack = 1.0 / self->attack;
@@ -2815,8 +2819,18 @@ MidiAdsr_generates(MidiAdsr *self) {
             else
                 val = 0.;
         }
-        self->data[i] = val;
+        self->buf[i] = val;
         self->currentTime += self->sampleToSec;
+    }
+
+    if (self->exp != 1.0) {
+        for (i=0; i<self->bufsize; i++) {
+            self->data[i] = MYPOW(self->buf[i] * self->expscl, self->exp);
+        }
+    } else {
+        for (i=0; i<self->bufsize; i++) {
+            self->data[i] = self->buf[i];
+        }
     }
 }
 
@@ -2898,6 +2912,7 @@ static void
 MidiAdsr_dealloc(MidiAdsr* self)
 {
     pyo_DEALLOC
+    free(self->buf);
     MidiAdsr_clear(self);
     self->ob_type->tp_free((PyObject*)self);
 }
@@ -2920,6 +2935,7 @@ MidiAdsr_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->sustain = 0.707;
     self->release = 0.1;
     self->currentTime = 0.0;
+    self->exp = self->expscl = 1.0;
 
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, MidiAdsr_compute_next_data_frame);
@@ -2943,6 +2959,11 @@ MidiAdsr_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+
+    self->buf = (MYFLT *)realloc(self->buf, self->bufsize * sizeof(MYFLT));
+    for (i=0; i<self->bufsize; i++) {
+        self->buf[i] = 0.0;
+    }
 
     if (self->attack < 0.000001)
         self->attack = 0.000001;
@@ -3034,6 +3055,18 @@ MidiAdsr_setRelease(MidiAdsr *self, PyObject *arg)
     return Py_None;
 }
 
+static PyObject *
+MidiAdsr_setExp(MidiAdsr *self, PyObject *arg)
+{
+	if (PyNumber_Check(arg)) {
+        MYFLT tmp = PyFloat_AsDouble(arg);
+        if (tmp > 0.0)
+            self->exp = tmp;
+    }
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
 static PyMemberDef MidiAdsr_members[] = {
     {"server", T_OBJECT_EX, offsetof(MidiAdsr, server), 0, "Pyo server."},
     {"stream", T_OBJECT_EX, offsetof(MidiAdsr, stream), 0, "Stream object."},
@@ -3055,6 +3088,7 @@ static PyMethodDef MidiAdsr_methods[] = {
     {"setDecay", (PyCFunction)MidiAdsr_setDecay, METH_O, "Sets decay time in seconds."},
     {"setSustain", (PyCFunction)MidiAdsr_setSustain, METH_O, "Sets sustain level in percent of note amplitude."},
     {"setRelease", (PyCFunction)MidiAdsr_setRelease, METH_O, "Sets release time in seconds."},
+    {"setExp", (PyCFunction)MidiAdsr_setExp, METH_O, "Sets the exponent factor for exponential envelope."},
     {"setDiv", (PyCFunction)MidiAdsr_setDiv, METH_O, "Sets inverse mul factor."},
     {NULL}  /* Sentinel */
 };
@@ -3159,6 +3193,8 @@ typedef struct {
     MYFLT decay;
     MYFLT sustain;
     MYFLT release;
+    MYFLT exp;
+    MYFLT expscl;
     MYFLT invAttack;
     MYFLT initAmpMinusOffsetAmp;
     MYFLT invDecay;
@@ -3168,6 +3204,7 @@ typedef struct {
     MYFLT invRelease;
     double currentTime;
     MYFLT sampleToSec;
+    MYFLT *buf;
 } MidiDelAdsr;
 
 static void
@@ -3181,7 +3218,8 @@ MidiDelAdsr_generates(MidiDelAdsr *self) {
         if (self->fademode == 0 && in[i] > 0.0) {
             self->fademode = 1;
             self->initAmp = in[i];
-            self->offsetAmp = self->data[i];
+            self->expscl = MYPOW(self->initAmp, 1.0 / self->exp) / self->initAmp;
+            self->offsetAmp = self->buf[i]; 
             self->sustainAmp = self->initAmp * self->sustain;
             self->currentTime = 0.0;
             self->invAttack = 1.0 / self->attack;
@@ -3214,8 +3252,18 @@ MidiDelAdsr_generates(MidiDelAdsr *self) {
             else
                 val = 0.;
         }
-        self->data[i] = val;
+        self->buf[i] = val;
         self->currentTime += self->sampleToSec;
+    }
+
+    if (self->exp != 1.0) {
+        for (i=0; i<self->bufsize; i++) {
+            self->data[i] = MYPOW(self->buf[i] * self->expscl, self->exp);
+        }
+    } else {
+        for (i=0; i<self->bufsize; i++) {
+            self->data[i] = self->buf[i];
+        }
     }
 }
 
@@ -3297,6 +3345,7 @@ static void
 MidiDelAdsr_dealloc(MidiDelAdsr* self)
 {
     pyo_DEALLOC
+    free(self->buf);
     MidiDelAdsr_clear(self);
     self->ob_type->tp_free((PyObject*)self);
 }
@@ -3320,6 +3369,7 @@ MidiDelAdsr_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->sustain = 0.707;
     self->release = 0.1;
     self->currentTime = 0.0;
+    self->exp = self->expscl = 1.0;
 
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, MidiDelAdsr_compute_next_data_frame);
@@ -3343,6 +3393,11 @@ MidiDelAdsr_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+
+    self->buf = (MYFLT *)realloc(self->buf, self->bufsize * sizeof(MYFLT));
+    for (i=0; i<self->bufsize; i++) {
+        self->buf[i] = 0.0;
+    }
 
     if (self->attack < 0.000001)
         self->attack = 0.000001;
@@ -3447,6 +3502,18 @@ MidiDelAdsr_setRelease(MidiDelAdsr *self, PyObject *arg)
     return Py_None;
 }
 
+static PyObject *
+MidiDelAdsr_setExp(MidiDelAdsr *self, PyObject *arg)
+{
+	if (PyNumber_Check(arg)) {
+        MYFLT tmp = PyFloat_AsDouble(arg);
+        if (tmp > 0.0)
+            self->exp = tmp;
+    }
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
 static PyMemberDef MidiDelAdsr_members[] = {
     {"server", T_OBJECT_EX, offsetof(MidiDelAdsr, server), 0, "Pyo server."},
     {"stream", T_OBJECT_EX, offsetof(MidiDelAdsr, stream), 0, "Stream object."},
@@ -3469,6 +3536,7 @@ static PyMethodDef MidiDelAdsr_methods[] = {
     {"setDecay", (PyCFunction)MidiDelAdsr_setDecay, METH_O, "Sets decay time in seconds."},
     {"setSustain", (PyCFunction)MidiDelAdsr_setSustain, METH_O, "Sets sustain level in percent of note amplitude."},
     {"setRelease", (PyCFunction)MidiDelAdsr_setRelease, METH_O, "Sets release time in seconds."},
+    {"setExp", (PyCFunction)MidiDelAdsr_setExp, METH_O, "Sets the exponent factor for exponential envelope."},
     {"setDiv", (PyCFunction)MidiDelAdsr_setDiv, METH_O, "Sets inverse mul factor."},
     {NULL}  /* Sentinel */
 };

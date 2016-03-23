@@ -34,6 +34,7 @@ typedef struct {
     MYFLT attack;
     MYFLT release;
     MYFLT duration;
+    MYFLT exp;
     double currentTime;
     MYFLT sampleToSec;
 } Fader;
@@ -50,8 +51,11 @@ static void Fader_internal_stop(Fader *self) {
 
 static void
 Fader_generate_auto(Fader *self) {
-    MYFLT val;
+    MYFLT val, iatt, irel;
     int i;
+    
+    iatt = 1.0 / self->attack;
+    irel = 1.0 / self->release;
 
     if (self->ended == 1) {
         Fader_internal_stop((Fader *)self);
@@ -60,25 +64,34 @@ Fader_generate_auto(Fader *self) {
 
     for (i=0; i<self->bufsize; i++) {
         if (self->currentTime <= self->attack)
-            val = self->currentTime / self->attack;
+            val = self->currentTime * iatt;
         else if (self->currentTime > self->duration) {
             val = 0.;
             self->ended = 1;
         }
         else if (self->currentTime >= (self->duration - self->release))
-            val = (self->duration - self->currentTime) / self->release;
+            val = (self->duration - self->currentTime) * irel;
         else
             val = 1.;
 
         self->data[i] = val;
         self->currentTime += self->sampleToSec;
     }
+
+    if (self->exp != 1.0) {
+        for (i=0; i<self->bufsize; i++) {
+            self->data[i] = MYPOW(self->data[i], self->exp);
+        }
+    }
 }
 
 static void
 Fader_generate_wait(Fader *self) {
-    MYFLT val;
+    MYFLT val, iatt, irel;
     int i;
+
+    iatt = 1.0 / self->attack;
+    irel = 1.0 / self->release;
 
     if (self->fademode == 1 && self->currentTime > self->release) {
         Fader_internal_stop((Fader *)self);
@@ -89,19 +102,25 @@ Fader_generate_wait(Fader *self) {
         if (self->fademode == 0) {
 
             if (self->currentTime <= self->attack)
-                val = self->currentTime / self->attack;
+                val = self->currentTime * iatt;
             else
                 val = 1.;
             self->topValue = val;
         }
         else {
             if (self->currentTime <= self->release)
-                val = (1. - self->currentTime / self->release) * self->topValue;
+                val = (1. - self->currentTime * irel) * self->topValue;
             else
                 val = 0.;
         }
         self->data[i] = val;
         self->currentTime += self->sampleToSec;
+    }
+    
+    if (self->exp != 1.0) {
+        for (i=0; i<self->bufsize; i++) {
+            self->data[i] = MYPOW(self->data[i], self->exp);
+        }
     }
 }
 
@@ -202,6 +221,7 @@ Fader_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->attack = 0.01;
     self->release = 0.1;
     self->duration = 0.0;
+    self->exp = 1.0;
     self->currentTime = 0.0;
 
     INIT_OBJECT_COMMON
@@ -295,6 +315,16 @@ Fader_setDur(Fader *self, PyObject *arg)
     return Py_None;
 }
 
+static PyObject *
+Fader_setExp(Fader *self, PyObject *arg)
+{
+    MYFLT tmp = PyFloat_AsDouble(arg);
+    if (tmp > 0.0)
+        self->exp = tmp;
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
 static PyMemberDef Fader_members[] = {
 {"server", T_OBJECT_EX, offsetof(Fader, server), 0, "Pyo server."},
 {"stream", T_OBJECT_EX, offsetof(Fader, stream), 0, "Stream object."},
@@ -314,6 +344,7 @@ static PyMethodDef Fader_methods[] = {
 {"setFadein", (PyCFunction)Fader_setFadein, METH_O, "Sets fadein time in seconds."},
 {"setFadeout", (PyCFunction)Fader_setFadeout, METH_O, "Sets fadeout time in seconds."},
 {"setDur", (PyCFunction)Fader_setDur, METH_O, "Sets duration in seconds (0 means wait for stop method to start fadeout)."},
+{"setExp", (PyCFunction)Fader_setExp, METH_O, "Sets the exponent factor for exponential envelope."},
 {"setDiv", (PyCFunction)Fader_setDiv, METH_O, "Sets inverse mul factor."},
 {NULL}  /* Sentinel */
 };
@@ -412,6 +443,7 @@ typedef struct {
     MYFLT sustain;
     MYFLT release;
     MYFLT duration;
+    MYFLT exp;
     double currentTime;
     MYFLT sampleToSec;
 } Adsr;
@@ -453,6 +485,12 @@ Adsr_generate_auto(Adsr *self) {
         self->data[i] = val;
         self->currentTime += self->sampleToSec;
     }
+
+    if (self->exp != 1.0) {
+        for (i=0; i<self->bufsize; i++) {
+            self->data[i] = MYPOW(self->data[i], self->exp);
+        }
+    }
 }
 
 static void
@@ -487,6 +525,12 @@ Adsr_generate_wait(Adsr *self) {
         }
         self->data[i] = val;
         self->currentTime += self->sampleToSec;
+    }
+
+    if (self->exp != 1.0) {
+        for (i=0; i<self->bufsize; i++) {
+            self->data[i] = MYPOW(self->data[i], self->exp);
+        }
     }
 }
 
@@ -588,6 +632,7 @@ Adsr_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->sustain = 0.707;
     self->release = 0.1;
     self->duration = 0.0;
+    self->exp = 1.0;
     self->currentTime = 0.0;
 
     INIT_OBJECT_COMMON
@@ -726,6 +771,18 @@ Adsr_setDur(Adsr *self, PyObject *arg)
     return Py_None;
 }
 
+static PyObject *
+Adsr_setExp(Adsr *self, PyObject *arg)
+{
+	if (PyNumber_Check(arg)) {
+        MYFLT tmp = PyFloat_AsDouble(arg);
+        if (tmp > 0.0)
+            self->exp = tmp;
+    }
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
 static PyMemberDef Adsr_members[] = {
 {"server", T_OBJECT_EX, offsetof(Adsr, server), 0, "Pyo server."},
 {"stream", T_OBJECT_EX, offsetof(Adsr, stream), 0, "Stream object."},
@@ -747,6 +804,7 @@ static PyMethodDef Adsr_methods[] = {
 {"setSustain", (PyCFunction)Adsr_setSustain, METH_O, "Sets attack time in seconds."},
 {"setRelease", (PyCFunction)Adsr_setRelease, METH_O, "Sets release time in seconds."},
 {"setDur", (PyCFunction)Adsr_setDur, METH_O, "Sets duration in seconds (0 means wait for stop method to start fadeout)."},
+{"setExp", (PyCFunction)Adsr_setExp, METH_O, "Sets the exponent factor for exponential envelope."},
 {"setDiv", (PyCFunction)Adsr_setDiv, METH_O, "Sets inverse mul factor."},
 {NULL}  /* Sentinel */
 };

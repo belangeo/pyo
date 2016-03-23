@@ -65,7 +65,10 @@ class Fader(PyoObject):
 
         The play() method starts the envelope.
 
-        The stop() calls the envelope's release phase if `dur` = 0.
+        The stop() method calls the envelope's release phase if `dur` = 0.
+
+        As of version 0.8.0, exponential or logarithmic envelopes can be created
+        with the exponent factor (see setExp() method).
 
     >>> s = Server().boot()
     >>> s.start()
@@ -82,6 +85,7 @@ class Fader(PyoObject):
         self._fadein = fadein
         self._fadeout = fadeout
         self._dur = dur
+        self._exp = 1.0
         fadein, fadeout, dur, mul, add, lmax = convertArgsToLists(fadein, fadeout, dur, mul, add)
         self._base_objs = [Fader_base(wrap(fadein,i), wrap(fadeout,i), wrap(dur,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
 
@@ -133,6 +137,25 @@ class Fader(PyoObject):
         x, lmax = convertArgsToLists(x)
         [obj.setDur(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
+    def setExp(self, x):
+        """
+        Sets an exponent factor to create exponential or logarithmic envelope.
+
+        The default value is 1.0, which means linear segments. A value
+        higher than 1.0 will produce exponential segments while a value
+        between 0 and 1 will produce logarithmic segments. Must be > 0.0.
+
+        :Args:
+
+            x : float
+                new `exp` attribute.
+
+        """
+        pyoArgsAssert(self, "n", x)
+        self._exp = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setExp(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
         self._map_list = [SLMap(0, 10., 'lin', 'fadein', self._fadein, dataOnly=True),
                           SLMap(0, 10., 'lin', 'fadeout', self._fadeout, dataOnly=True),
@@ -159,6 +182,13 @@ class Fader(PyoObject):
         return self._dur
     @dur.setter
     def dur(self, x): self.setDur(x)
+
+    @property
+    def exp(self):
+        """float. Exponent factor of the envelope."""
+        return self._exp
+    @exp.setter
+    def exp(self, x): self.setExp(x)
 
 
 class Adsr(PyoObject):
@@ -195,7 +225,10 @@ class Adsr(PyoObject):
 
         The play() method starts the envelope.
 
-        The stop() calls the envelope's release phase if `dur` = 0.
+        The stop() method calls the envelope's release phase if `dur` = 0.
+        
+        As of version 0.8.0, exponential or logarithmic envelopes can be created
+        with the exponent factor (see setExp() method).
 
     >>> s = Server().boot()
     >>> s.start()
@@ -214,6 +247,7 @@ class Adsr(PyoObject):
         self._sustain = sustain
         self._release = release
         self._dur = dur
+        self._exp = 1.0
         attack, decay, sustain, release, dur, mul, add, lmax = convertArgsToLists(attack, decay, sustain, release, dur, mul, add)
         self._base_objs = [Adsr_base(wrap(attack,i), wrap(decay,i), wrap(sustain,i), wrap(release,i), wrap(dur,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
 
@@ -295,6 +329,25 @@ class Adsr(PyoObject):
         x, lmax = convertArgsToLists(x)
         [obj.setDur(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
+    def setExp(self, x):
+        """
+        Sets an exponent factor to create exponential or logarithmic envelope.
+
+        The default value is 1.0, which means linear segments. A value
+        higher than 1.0 will produce exponential segments while a value
+        between 0 and 1 will produce logarithmic segments. Must be > 0.0.
+
+        :Args:
+
+            x : float
+                new `exp` attribute.
+
+        """
+        pyoArgsAssert(self, "n", x)
+        self._exp = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setExp(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
         self._map_list = [SLMap(0, 5, 'lin', 'attack', self._attack, dataOnly=True),
                           SLMap(0, 5, 'lin', 'decay', self._decay, dataOnly=True),
@@ -337,6 +390,13 @@ class Adsr(PyoObject):
         return self._dur
     @dur.setter
     def dur(self, x): self.setDur(x)
+
+    @property
+    def exp(self):
+        """float. Exponent factor of the envelope."""
+        return self._exp
+    @exp.setter
+    def exp(self, x): self.setExp(x)
 
 class Linseg(PyoObject):
     """

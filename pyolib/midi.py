@@ -940,6 +940,9 @@ class MidiAdsr(PyoObject):
 
         The out() method is bypassed. MidiAdsr's signal can not be sent to audio outs.
 
+        As of version 0.8.0, exponential or logarithmic envelopes can be created
+        with the exponent factor (see setExp() method).
+
     >>> s = Server().boot()
     >>> s.start()
     >>> mid = Notein(scale=1)
@@ -956,6 +959,7 @@ class MidiAdsr(PyoObject):
         self._decay = decay
         self._sustain = sustain
         self._release = release
+        self._exp = 1.0;
         self._in_fader = InputFader(input)
         in_fader, attack, decay, sustain, release, mul, add, lmax = convertArgsToLists(self._in_fader, attack, decay, sustain, release, mul, add)
         self._base_objs = [MidiAdsr_base(wrap(in_fader,i), wrap(attack,i), wrap(decay,i), wrap(sustain,i), wrap(release,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
@@ -1039,6 +1043,25 @@ class MidiAdsr(PyoObject):
         x, lmax = convertArgsToLists(x)
         [obj.setRelease(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
+    def setExp(self, x):
+        """
+        Sets an exponent factor to create exponential or logarithmic envelope.
+
+        The default value is 1.0, which means linear segments. A value
+        higher than 1.0 will produce exponential segments while a value
+        between 0 and 1 will produce logarithmic segments. Must be > 0.0.
+
+        :Args:
+
+            x : float
+                new `exp` attribute.
+
+        """
+        pyoArgsAssert(self, "n", x)
+        self._exp = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setExp(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
     @property
     def attack(self):
         """float. Duration of the attack phase in seconds."""
@@ -1066,6 +1089,13 @@ class MidiAdsr(PyoObject):
         return self._release
     @release.setter
     def release(self, x): self.setRelease(x)
+
+    @property
+    def exp(self):
+        """float. Exponent factor of the envelope."""
+        return self._exp
+    @exp.setter
+    def exp(self, x): self.setExp(x)
 
 class MidiDelAdsr(PyoObject):
     """
@@ -1104,6 +1134,9 @@ class MidiDelAdsr(PyoObject):
         The out() method is bypassed. MidiDelAdsr's signal can not be sent
         to audio outs.
 
+        As of version 0.8.0, exponential or logarithmic envelopes can be created
+        with the exponent factor (see setExp() method).
+
     >>> s = Server().boot()
     >>> s.start()
     >>> mid = Notein(scale=1)
@@ -1121,6 +1154,7 @@ class MidiDelAdsr(PyoObject):
         self._decay = decay
         self._sustain = sustain
         self._release = release
+        self._exp = 1.0;
         self._in_fader = InputFader(input)
         in_fader, delay, attack, decay, sustain, release, mul, add, lmax = convertArgsToLists(self._in_fader, delay, attack, decay, sustain, release, mul, add)
         self._base_objs = [MidiDelAdsr_base(wrap(in_fader,i), wrap(delay,i), wrap(attack,i), wrap(decay,i), wrap(sustain,i), wrap(release,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
@@ -1219,6 +1253,25 @@ class MidiDelAdsr(PyoObject):
         x, lmax = convertArgsToLists(x)
         [obj.setRelease(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
+    def setExp(self, x):
+        """
+        Sets an exponent factor to create exponential or logarithmic envelope.
+
+        The default value is 1.0, which means linear segments. A value
+        higher than 1.0 will produce exponential segments while a value
+        between 0 and 1 will produce logarithmic segments. Must be > 0.0.
+
+        :Args:
+
+            x : float
+                new `exp` attribute.
+
+        """
+        pyoArgsAssert(self, "n", x)
+        self._exp = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setExp(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
     @property
     def delay(self):
         """float. Duration of the delay phase in seconds."""
@@ -1253,6 +1306,13 @@ class MidiDelAdsr(PyoObject):
         return self._release
     @release.setter
     def release(self, x): self.setRelease(x)
+
+    @property
+    def exp(self):
+        """float. Exponent factor of the envelope."""
+        return self._exp
+    @exp.setter
+    def exp(self, x): self.setExp(x)
 
 class RawMidi(PyoObject):
     """
