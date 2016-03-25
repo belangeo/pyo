@@ -48,6 +48,7 @@ static void
 LFO_generates_ii(LFO *self) {
     MYFLT val, inc, freq, sharp, pointer, numh;
     MYFLT v1, v2, inc2, fade;
+    MYFLT sharp2 = 0.0;
     int i, maxHarms;
 
     freq = PyFloat_AS_DOUBLE(self->freq);
@@ -189,14 +190,15 @@ LFO_generates_ii(LFO *self) {
             }
             break;
         case 7: /* Sine-mod */
-            inc2 = inc * sharp;
+            inc2 = inc * sharp * 0.99;
+            sharp2 = sharp * 0.5;
             for (i=0; i<self->bufsize; i++) {
                 self->modPointerPos += inc2;
                 if (self->modPointerPos < 0)
                     self->modPointerPos += 1.0;
                 else if (self->modPointerPos >= 1)
                     self->modPointerPos -= 1.0;
-                val = (0.5 * MYCOS(TWOPI*self->modPointerPos) + 0.5) * MYSIN(TWOPI*self->pointerPos);
+                val = ((sharp2 * MYCOS(TWOPI*self->modPointerPos) + sharp2) + (1.0 - sharp)) * MYSIN(TWOPI*self->pointerPos);
                 self->data[i] = val;
                 self->pointerPos += inc;
                 if (self->pointerPos < 0)
@@ -214,6 +216,7 @@ static void
 LFO_generates_ai(LFO *self) {
     MYFLT val, inc, freq, sharp, pointer, numh;
     MYFLT v1, v2, inc2, fade;
+    MYFLT sharp2 = 0.0;
     int i, maxHarms;
 
     MYFLT *fr = Stream_getData((Stream *)self->freq_stream);
@@ -368,16 +371,17 @@ LFO_generates_ai(LFO *self) {
             }
             break;
         case 7: /* Sine-mod */
+            sharp2 = sharp * 0.5;
             for (i=0; i<self->bufsize; i++) {
                 freq = fr[i];
                 inc = freq / self->sr;
-                inc2 = inc * sharp;
+                inc2 = inc * sharp * 0.99;
                 self->modPointerPos += inc2;
                 if (self->modPointerPos < 0)
                     self->modPointerPos += 1.0;
                 else if (self->modPointerPos >= 1)
                     self->modPointerPos -= 1.0;
-                val = (0.5 * MYCOS(TWOPI*self->modPointerPos) + 0.5) * MYSIN(TWOPI*self->pointerPos);
+                val = ((sharp2 * MYCOS(TWOPI*self->modPointerPos) + sharp2) + (1.0 - sharp)) * MYSIN(TWOPI*self->pointerPos);
                 self->data[i] = val;
                 self->pointerPos += inc;
                 if (self->pointerPos < 0)
@@ -395,6 +399,7 @@ static void
 LFO_generates_ia(LFO *self) {
     MYFLT val, inc, freq, sharp, pointer, numh;
     MYFLT v1, v2, inc2, fade;
+    MYFLT sharp2 = 0.0;
     int i, maxHarms;
 
     freq = PyFloat_AS_DOUBLE(self->freq);
@@ -573,13 +578,14 @@ LFO_generates_ia(LFO *self) {
                     sharp = 0.0;
                 else if (sharp > 1.0)
                     sharp = 1.0;
-                inc2 = inc * sharp;
+                inc2 = inc * sharp * 0.99;
+                sharp2 = sharp * 0.5;
                 self->modPointerPos += inc2;
                 if (self->modPointerPos < 0)
                     self->modPointerPos += 1.0;
                 else if (self->modPointerPos >= 1)
                     self->modPointerPos -= 1.0;
-                val = (0.5 * MYCOS(TWOPI*self->modPointerPos) + 0.5) * MYSIN(TWOPI*self->pointerPos);
+                val = ((sharp2 * MYCOS(TWOPI*self->modPointerPos) + sharp2) + (1.0 - sharp)) * MYSIN(TWOPI*self->pointerPos);
                 self->data[i] = val;
                 self->pointerPos += inc;
                 if (self->pointerPos < 0)
@@ -597,6 +603,7 @@ static void
 LFO_generates_aa(LFO *self) {
     MYFLT val, inc, freq, sharp, pointer, numh;
     MYFLT v1, v2, inc2, fade;
+    MYFLT sharp2 = 0.0;
     int i, maxHarms;
 
     MYFLT *fr = Stream_getData((Stream *)self->freq_stream);
@@ -790,13 +797,14 @@ LFO_generates_aa(LFO *self) {
                     sharp = 1.0;
                 freq = fr[i];
                 inc = freq / self->sr;
-                inc2 = inc * sharp;
+                inc2 = inc * sharp * 0.99;
+                sharp2 = sharp * 0.5;
                 self->modPointerPos += inc2;
                 if (self->modPointerPos < 0)
                     self->modPointerPos += 1.0;
                 else if (self->modPointerPos >= 1)
                     self->modPointerPos -= 1.0;
-                val = (0.5 * MYCOS(TWOPI*self->modPointerPos) + 0.5) * MYSIN(TWOPI*self->pointerPos);
+                val = ((sharp2 * MYCOS(TWOPI*self->modPointerPos) + sharp2) + (1.0 - sharp)) * MYSIN(TWOPI*self->pointerPos);
                 self->data[i] = val;
                 self->pointerPos += inc;
                 if (self->pointerPos < 0)

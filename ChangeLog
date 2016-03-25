@@ -1,6 +1,6 @@
 2016-03-23 belangeo <belangeo@gmail.com>
 
-    *  Added setExp() method to Fader, Adsr, MidiAdsr and MidiDelAdsr. That allows
+    *  Added setExp() method to Fader, Adsr, MidiAdsr and MidiDelAdsr, allowing
     the creation of exponential or logarithmic envelopes.
 
 2016-03-18 belangeo <belangeo@gmail.com>
