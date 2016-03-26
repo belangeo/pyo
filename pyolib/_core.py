@@ -224,7 +224,7 @@ def convertStringToSysEncoding(str):
 
 def convertArgsToLists(*args):
     """
-    Convert all arguments to list if not already a list or a PyoObject.
+    Convert all arguments to list if not already a list or a PyoObjectBase.
     Return new args and maximum list length.
 
     """

@@ -971,7 +971,7 @@ class RunningThread(threading.Thread):
             data_event = DataEvent({"log": log, "pid": self.pid, "filename": self.filename, "active": True})
             wx.PostEvent(self.event_receiver, data_event)            
             sys.stdout.flush()
-            time.sleep(.025)
+            time.sleep(.01)
         stdout, stderr = self.proc.communicate()
         output = ""
         if stdout is not None:
@@ -1058,7 +1058,7 @@ class BackgroundServerThread(threading.Thread):
                                     "active": True})
             wx.PostEvent(self.event_receiver, data_event)            
             sys.stdout.flush()
-            time.sleep(.025)
+            time.sleep(.01)
         stdout, stderr = self.proc.communicate()
         output = ""
         if stdout is not None:

@@ -41,12 +41,25 @@ class Pattern(PyoObject):
             Python function to be called periodically.
         time : float or PyoObject, optional
             Time, in seconds, between each call. Default to 1.
+        arg : anything, optional
+            Argument sent to the function's call. If None, the function
+            will be called without argument. Defaults to None.
 
     .. note::
 
         The out() method is bypassed. Pattern doesn't return signal.
 
         Pattern has no `mul` and `add` attributes.
+        
+        If `arg` is None, the function must be defined without argument:
+            
+        >>> def tocall():
+        >>>     # function's body
+
+        If `arg` is not None, the function must be defined with one argument:
+            
+        >>> def tocall(arg):
+        >>>     print arg
 
     >>> s = Server().boot()
     >>> s.start()
@@ -59,13 +72,14 @@ class Pattern(PyoObject):
     >>> p.play()
 
     """
-    def __init__(self, function, time=1):
+    def __init__(self, function, time=1, arg=None):
         pyoArgsAssert(self, "cO", function, time)
         PyoObject.__init__(self)
         self._function = getWeakMethodRef(function)
         self._time = time
-        function, time, lmax = convertArgsToLists(function, time)
-        self._base_objs = [Pattern_base(WeakMethod(wrap(function,i)), wrap(time,i)) for i in range(lmax)]
+        self._arg = arg
+        function, time, arg, lmax = convertArgsToLists(function, time, arg)
+        self._base_objs = [Pattern_base(WeakMethod(wrap(function,i)), wrap(time,i), wrap(arg,i)) for i in range(lmax)]
 
     def setFunction(self, x):
         """
@@ -96,6 +110,20 @@ class Pattern(PyoObject):
         self._time = x
         x, lmax = convertArgsToLists(x)
         [obj.setTime(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def setArg(self, x):
+        """
+        Replace the `arg` attribute.
+
+        :Args:
+
+            x : Anything
+                new `arg` attribute.
+
+        """
+        self._arg = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setArg(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
     def out(self, x=0, inc=1, dur=0, delay=0):
         return self.play(dur, delay)
@@ -129,6 +157,13 @@ class Pattern(PyoObject):
         return self._time
     @time.setter
     def time(self, x): self.setTime(x)
+    @property
+    def arg(self):
+        """Anything. Callable's argument."""
+        return self._arg
+    @arg.setter
+    def arg(self, x):
+        self.setArg(x)
 
 class Score(PyoObject):
     """
@@ -239,6 +274,16 @@ class CallAfter(PyoObject):
         The out() method is bypassed. CallAfter doesn't return signal.
 
         CallAfter has no `mul` and `add` attributes.
+
+        If `arg` is None, the function must be defined without argument:
+            
+        >>> def tocall():
+        >>>     # function's body
+
+        If `arg` is not None, the function must be defined with one argument:
+            
+        >>> def tocall(arg):
+        >>>     print arg
 
         The object is not deleted after the call. The user must delete it himself.
 

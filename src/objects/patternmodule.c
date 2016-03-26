@@ -30,6 +30,7 @@ typedef struct {
     PyObject *callable;
     PyObject *time;
     Stream *time_stream;
+    PyObject *arg;
     int modebuffer[1];
     MYFLT sampleToSec;
     double currentTime;
@@ -38,53 +39,74 @@ typedef struct {
 
 static void
 Pattern_generate_i(Pattern *self) {
+    int i;
     MYFLT tm;
-    int i, flag;
-    PyObject *result;
+    PyObject *tuple, *result;
 
-    flag = 0;
     tm = PyFloat_AS_DOUBLE(self->time);
+
+    if (self->init) {
+        self->init = 0;
+        self->currentTime = tm;
+    }
 
     for (i=0; i<self->bufsize; i++) {
         if (self->currentTime >= tm) {
-            flag = 1;
-            self->currentTime = 0.;
+            self->currentTime = 0.0;
+            if (self->arg == Py_None) {
+                result = PyObject_Call((PyObject *)self->callable, PyTuple_New(0), NULL);
+                if (result == NULL) {
+                    PyErr_Print();
+                    return;
+                }
+            } else {
+                tuple = PyTuple_New(1);
+                PyTuple_SET_ITEM(tuple, 0, self->arg);
+                result = PyObject_Call((PyObject *)self->callable, tuple, NULL);
+                if (result == NULL) {
+                    PyErr_Print();
+                    return;
+                }
+            }
         }
-
         self->currentTime += self->sampleToSec;
-    }
-    if (flag == 1 || self->init == 1) {
-        self->init = 0;
-        result = PyObject_Call((PyObject *)self->callable, PyTuple_New(0), NULL);
-        if (result == NULL)
-            PyErr_Print();
     }
 }
 
 static void
 Pattern_generate_a(Pattern *self) {
-    int i, flag;
-    PyObject *result;
+    int i;
+    PyObject *tuple, *result;
 
     MYFLT *tm = Stream_getData((Stream *)self->time_stream);
 
-    flag = 0;
+    if (self->init) {
+        self->init = 0;
+        self->currentTime = tm[0];
+    }
+
     for (i=0; i<self->bufsize; i++) {
         if (self->currentTime >= tm[i]) {
-            flag = 1;
-            self->currentTime = 0.;
+            self->currentTime = 0.0;
+            if (self->arg == Py_None) {
+                result = PyObject_Call((PyObject *)self->callable, PyTuple_New(0), NULL);
+                if (result == NULL) {
+                    PyErr_Print();
+                    return;
+                }
+            } else {
+                tuple = PyTuple_New(1);
+                PyTuple_SET_ITEM(tuple, 0, self->arg);
+                result = PyObject_Call((PyObject *)self->callable, tuple, NULL);
+                if (result == NULL) {
+                    PyErr_Print();
+                    return;
+                }
+            }
         }
-
         self->currentTime += self->sampleToSec;
     }
-    if (flag == 1 || self->init == 1) {
-        self->init = 0;
-        result = PyObject_Call((PyObject *)self->callable, PyTuple_New(0), NULL);
-        if (result == NULL)
-            PyErr_Print();
-    }
 }
-
 
 static void
 Pattern_setProcMode(Pattern *self)
@@ -113,6 +135,7 @@ Pattern_traverse(Pattern *self, visitproc visit, void *arg)
     Py_VISIT(self->callable);
     Py_VISIT(self->time);
     Py_VISIT(self->time_stream);
+    Py_VISIT(self->arg);
     return 0;
 }
 
@@ -123,6 +146,7 @@ Pattern_clear(Pattern *self)
     Py_CLEAR(self->callable);
     Py_CLEAR(self->time);
     Py_CLEAR(self->time_stream);
+    Py_CLEAR(self->arg);
     return 0;
 }
 
@@ -138,13 +162,14 @@ static PyObject *
 Pattern_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     int i;
-    PyObject *timetmp=NULL, *calltmp=NULL;
+    PyObject *timetmp=NULL, *calltmp=NULL, *argtmp=NULL;
     Pattern *self;
     self = (Pattern *)type->tp_alloc(type, 0);
 
     self->time = PyFloat_FromDouble(1.);
 	self->modebuffer[0] = 0;
     self->init = 1;
+    self->arg = Py_None;
 
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, Pattern_compute_next_data_frame);
@@ -155,9 +180,9 @@ Pattern_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->sampleToSec = 1. / self->sr;
     self->currentTime = 0.;
 
-    static char *kwlist[] = {"callable", "time", NULL};
+    static char *kwlist[] = {"callable", "time", "arg", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|O", kwlist, &calltmp, &timetmp))
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OO", kwlist, &calltmp, &timetmp, &argtmp))
         Py_RETURN_NONE;
 
     if (calltmp) {
@@ -166,6 +191,10 @@ Pattern_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     if (timetmp) {
         PyObject_CallMethod((PyObject *)self, "setTime", "O", timetmp);
+    }
+
+    if (argtmp) {
+        PyObject_CallMethod((PyObject *)self, "setArg", "O", argtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -238,6 +267,20 @@ Pattern_setTime(Pattern *self, PyObject *arg)
 	return Py_None;
 }
 
+static PyObject *
+Pattern_setArg(Pattern *self, PyObject *arg)
+{
+	PyObject *tmp;
+
+    tmp = arg;
+    Py_XDECREF(self->arg);
+    Py_INCREF(tmp);
+    self->arg = tmp;
+
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
 static PyMemberDef Pattern_members[] = {
 {"server", T_OBJECT_EX, offsetof(Pattern, server), 0, "Pyo server."},
 {"stream", T_OBJECT_EX, offsetof(Pattern, stream), 0, "Stream object."},
@@ -252,6 +295,7 @@ static PyMethodDef Pattern_methods[] = {
 {"stop", (PyCFunction)Pattern_stop, METH_NOARGS, "Stops computing."},
 {"setTime", (PyCFunction)Pattern_setTime, METH_O, "Sets time factor."},
 {"setFunction", (PyCFunction)Pattern_setFunction, METH_O, "Sets the function to be called."},
+{"setArg", (PyCFunction)Pattern_setArg, METH_O, "Sets function's argument."},
 {NULL}  /* Sentinel */
 };
 

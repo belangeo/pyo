@@ -1,3 +1,7 @@
+2016-03-26 belangeo <belangeo@gmail.com>
+
+    *  Added an argument arg to the Pattern object.
+
 2016-03-23 belangeo <belangeo@gmail.com>
 
     *  Added setExp() method to Fader, Adsr, MidiAdsr and MidiDelAdsr, allowing
