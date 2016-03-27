@@ -61,7 +61,8 @@ FUNCTIONS_INIT_LINES = {"pa_count_host_apis": "pa_count_host_apis()", "pa_list_h
                         "reducePoints": "reducePoints(pointlist, tolerance=0.02)", "serverCreated": "serverCreated()", "serverBooted": "serverBooted()",
                         "example": "example(cls, dur=5, toprint=True, double=False)", "class_args": "class_args(cls)", "getVersion": "getVersion()",
                         "convertStringToSysEncoding": "convertStringToSysEncoding(str)", "convertArgsToLists": "convertArgsToLists(*args)",
-                        "wrap": "wrap(arg, i)", "floatmap": "floatmap(x, min=0, max=1, exp=1)"
+                        "wrap": "wrap(arg, i)", "floatmap": "floatmap(x, min=0, max=1, exp=1)",
+                        "getPyoKeywords": "getPyoKeywords()"
                         }
 
 class PyoError(Exception):

@@ -131,3 +131,31 @@ OBJECTS_TREE = {'functions': sorted(['pa_count_devices', 'pa_get_default_input',
                            'PyoGuiSndView']}
 
 DOC_KEYWORDS = ['Attributes', 'Examples', 'Parameters', 'Methods', 'Notes', 'Methods details', 'See also', 'Parentclass']
+
+def getPyoKeywords():
+    """
+    Returns a list of every keywords (classes and functions) of pyo.
+
+    >>> keywords = getPyoKeywords()
+
+    """
+    tree = OBJECTS_TREE
+    _list = []
+    for k1 in tree.keys():
+        if type(tree[k1]) == type({}):
+            for k2 in tree[k1].keys():
+                if type(tree[k1][k2]) == type({}):
+                    for k3 in tree[k1][k2].keys():
+                        for val in tree[k1][k2][k3]:
+                            _list.append(val)
+                else:
+                    for val in tree[k1][k2]:
+                        _list.append(val)
+        else:
+            for val in tree[k1]:
+                _list.append(val)
+    _list.extend(["PyoObjectBase", "PyoObject", "PyoTableObject", "PyoMatrixObject", "PyoPVObject"])
+    _list.extend(["Server", "Map", "SLMap", "MidiListener", "OscListener", "Stream", "TableStream"])
+    return _list
+
+OBJECTS_TREE["functions"] = sorted(OBJECTS_TREE["functions"] + ["getPyoKeywords"])

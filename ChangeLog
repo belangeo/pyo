@@ -1,3 +1,7 @@
+2016-03-27 belangeo <belangeo@gmail.com>
+
+    *  Added new function : getPyoKeywords, returns the list of pyo keywords (classes and functions).
+
 2016-03-26 belangeo <belangeo@gmail.com>
 
     *  Added an argument arg to the Pattern object.
