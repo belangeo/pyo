@@ -517,9 +517,92 @@ typedef struct {
     MYFLT initphase;
     int quality;
     MYFLT pointerPos;
-    MYFLT fourOnSr;
+    MYFLT twoPiOnSr;
+    MYFLT B;
+    MYFLT C;
 } FastSine;
 
+static void
+FastSine_readframes_low_i(FastSine *self) {
+    int i;
+    MYFLT inc, fr, pos, b, c;
+
+    fr = PyFloat_AS_DOUBLE(self->freq);
+    inc = fr * self->twoPiOnSr;
+
+    pos = self->pointerPos;
+    b = self->B;
+    c = self->C;
+    for (i=0; i<self->bufsize; i++) {
+        if (pos > PI)
+            pos -= TWOPI;
+        self->data[i] = b * pos + c * pos * MYFABS(pos);
+        pos += inc;
+    }
+    self->pointerPos = pos;
+}
+
+static void
+FastSine_readframes_low_a(FastSine *self) {
+    int i;
+    MYFLT pos, b, c;
+
+    MYFLT *fr = Stream_getData((Stream *)self->freq_stream);
+
+    pos = self->pointerPos;
+    b = self->B;
+    c = self->C;
+    for (i=0; i<self->bufsize; i++) {
+        if (pos > PI)
+            pos -= TWOPI;
+        self->data[i] = b * pos + c * pos * MYFABS(pos);
+        pos += fr[i] * self->twoPiOnSr;
+    }
+    self->pointerPos = pos;
+}
+
+static void
+FastSine_readframes_high_i(FastSine *self) {
+    int i;
+    MYFLT inc, fr, pos, b, c, y;
+
+    fr = PyFloat_AS_DOUBLE(self->freq);
+    inc = fr * self->twoPiOnSr;
+
+    pos = self->pointerPos;
+    b = self->B;
+    c = self->C;
+    for (i=0; i<self->bufsize; i++) {
+        if (pos > PI)
+            pos -= TWOPI;
+        y = b * pos + c * pos * MYFABS(pos);
+        self->data[i] = y + (y * MYFABS(y) - y) * 0.218;
+        pos += inc;
+    }
+    self->pointerPos = pos;
+}
+
+static void
+FastSine_readframes_high_a(FastSine *self) {
+    int i;
+    MYFLT pos, b, c, y;
+
+    MYFLT *fr = Stream_getData((Stream *)self->freq_stream);
+
+    pos = self->pointerPos;
+    b = self->B;
+    c = self->C;
+    for (i=0; i<self->bufsize; i++) {
+        if (pos > PI)
+            pos -= TWOPI;
+        y = b * pos + c * pos * MYFABS(pos);
+        self->data[i] = y + (y * MYFABS(y) - y) * 0.218;
+        pos += fr[i] * self->twoPiOnSr;
+    }
+    self->pointerPos = pos;
+}
+
+/*
 static void
 FastSine_readframes_low_i(FastSine *self) {
     MYFLT inc, fr, pos;
@@ -619,6 +702,7 @@ FastSine_readframes_high_a(FastSine *self) {
     }
     self->pointerPos = pos;
 }
+*/
 
 static void FastSine_postprocessing_ii(FastSine *self) { POST_PROCESSING_II };
 static void FastSine_postprocessing_ai(FastSine *self) { POST_PROCESSING_AI };
@@ -736,8 +820,10 @@ FastSine_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     Stream_setFunctionPtr(self->stream, FastSine_compute_next_data_frame);
     self->mode_func_ptr = FastSine_setProcMode;
 
-    self->fourOnSr = 4.0 / self->sr;
-
+    self->twoPiOnSr = TWOPI / self->sr;
+    self->B = 4.0 / PI;
+    self->C = -4.0 / (PI * PI);
+    
     static char *kwlist[] = {"freq", "initphase", "quality", "mul", "add", NULL};
 
     if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE__OFIOO, kwlist, &freqtmp, &self->initphase, &self->quality, &multmp, &addtmp))
@@ -747,7 +833,7 @@ FastSine_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         self->initphase = 0.0;
     else if (self->initphase > 1.0)
         self->initphase = 1.0;
-    self->pointerPos = self->initphase * 4.0;
+    self->pointerPos = self->initphase * TWOPI;
 
     if (self->quality < 0)
         self->quality = 0;
@@ -846,7 +932,7 @@ FastSine_setQuality(FastSine *self, PyObject *arg)
 static PyObject *
 FastSine_reset(FastSine *self)
 {
-    self->pointerPos = self->initphase * 4.0;
+    self->pointerPos = self->initphase * TWOPI;
     Py_INCREF(Py_None);
     return Py_None;
 }

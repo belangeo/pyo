@@ -120,17 +120,14 @@ class Sine(PyoObject):
 
 class FastSine(PyoObject):
     """
-    A Fast sine wave approximation.
+    A fast sine wave approximation using the formula of a parabola.
 
     This object implements two sin approximations that are even faster
     than a linearly interpolated table lookup. With `quality` set to 1, 
-    the approximation is more accurate but also more expensive on the CPU.
-    With `quality` = 0, the algorithm is cheaper but very fast.
-    
-    These algorithms are based (with some additional optimizations) on the
-    ones describe by Michael Baczynski here:
-        
-    http://lab.polygonal.de/?p=205
+    the approximation is more accurate but also more expensive on the CPU
+    (still cheaper than a Sine object). With `quality` = 0, the algorithm  
+    gives a worse approximation of the sin function but it is very fast 
+    (and well suitable for generating LFO).
 
     :Parent: :py:class:`PyoObject`
 
