@@ -2349,6 +2349,7 @@ init_pyo64(void)
     module_add_object(m, "TableRead_base", &TableReadType);
     module_add_object(m, "Pulsar_base", &PulsarType);
     module_add_object(m, "Sine_base", &SineType);
+    module_add_object(m, "FastSine_base", &FastSineType);
     module_add_object(m, "SineLoop_base", &SineLoopType);
     module_add_object(m, "Fm_base", &FmType);
     module_add_object(m, "CrossFm_base", &CrossFmType);

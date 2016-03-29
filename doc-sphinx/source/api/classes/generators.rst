@@ -24,6 +24,12 @@ processing chain or as parameter's modifiers.
 .. autoclass:: CrossFM
    :members:
 
+*FastSine*
+-----------------------------------
+
+.. autoclass:: FastSine
+   :members:
+
 *FM*
 -----------------------------------
 

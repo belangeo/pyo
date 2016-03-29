@@ -118,6 +118,111 @@ class Sine(PyoObject):
     @phase.setter
     def phase(self, x): self.setPhase(x)
 
+class FastSine(PyoObject):
+    """
+    A Fast sine wave approximation.
+
+    This object implements two sin approximations that are even faster
+    than a linearly interpolated table lookup. With `quality` set to 1, 
+    the approximation is more accurate but also more expensive on the CPU.
+    With `quality` = 0, the algorithm is cheaper but very fast.
+    
+    These algorithms are based (with some additional optimizations) on the
+    ones describe by Michael Baczynski here:
+        
+    http://lab.polygonal.de/?p=205
+
+    :Parent: :py:class:`PyoObject`
+
+    :Args:
+
+        freq : float or PyoObject, optional
+            Frequency in cycles per second. Defaults to 1000.
+        initphase : float, optional
+            Initial phase of the oscillator, between 0 and 1. Available
+            at initialization time only. Defaults to 0.
+        quality : int, optional
+            Sets the approximation quality. 1 is more accurate but also
+            more expensive on the CPU. 0 is a cheaper algorithm but is
+            very fast. Defaults to 1.
+
+    .. seealso::
+
+        :py:class:`Sine`
+
+    >>> s = Server().boot()
+    >>> s.start()
+    >>> lfo = FastSine(freq=[4,5], quality=0, mul=0.02, add=1)
+    >>> syn = FastSine(freq=500*lfo, quality=1, mul=0.4).out()
+
+    """
+    def __init__(self, freq=1000, initphase=0.0, quality=1, mul=1, add=0):
+        pyoArgsAssert(self, "OniOO", freq, initphase, quality, mul, add)
+        PyoObject.__init__(self, mul, add)
+        self._freq = freq
+        self._initphase = initphase
+        self._quality = quality
+        freq, initphase, quality, mul, add, lmax = convertArgsToLists(freq, initphase, quality, mul, add)
+        self._base_objs = [FastSine_base(wrap(freq,i), wrap(initphase,i), wrap(quality,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+
+    def setFreq(self, x):
+        """
+        Replace the `freq` attribute.
+
+        :Args:
+
+            x : float or PyoObject
+                new `freq` attribute.
+
+        """
+        pyoArgsAssert(self, "O", x)
+        self._freq = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setFreq(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def setQuality(self, x):
+        """
+        Replace the `quality` attribute.
+
+        :Args:
+
+            x : int {0 or 1}
+                new `quality` attribute.
+
+        """
+        pyoArgsAssert(self, "i", x)
+        self._quality = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setQuality(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def reset(self):
+        """
+        Resets current phase to 0.
+
+        """
+        [obj.reset() for i, obj in enumerate(self._base_objs)]
+
+
+    def ctrl(self, map_list=None, title=None, wxnoserver=False):
+        self._map_list = [SLMapFreq(self._freq), 
+                          SLMap(0, 1, "lin", "quality", self._quality, res="int", dataOnly=True), 
+                          SLMapMul(self._mul)]
+        PyoObject.ctrl(self, map_list, title, wxnoserver)
+
+    @property
+    def freq(self):
+        """float or PyoObject. Frequency in cycles per second."""
+        return self._freq
+    @freq.setter
+    def freq(self, x): self.setFreq(x)
+
+    @property
+    def quality(self):
+        """int. Quality of the sin approximation."""
+        return self._quality
+    @quality.setter
+    def quality(self, x): self.setQuality(x)
+
 class SineLoop(PyoObject):
     """
     A simple sine wave oscillator with feedback.

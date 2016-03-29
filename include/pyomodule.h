@@ -73,6 +73,7 @@
 #define TYPE_F_OF "f|Of"
 #define TYPE__OFFI "|Offi"
 #define TYPE__OFII "|Ofii"
+#define TYPE__OFIOO "|OfiOO"
 #define TYPE__FIIOO "|fiiOO"
 #define TYPE_O_OFOO "O|OfOO"
 #define TYPE_O_OOOOFF "O|OOOOff"
@@ -157,6 +158,7 @@
 #define TYPE_F_OF "d|Od"
 #define TYPE__OFFI "|Oddi"
 #define TYPE__OFII "|Odii"
+#define TYPE__OFIOO "|OdiOO"
 #define TYPE__FIIOO "|diiOO"
 #define TYPE_O_OFOO "O|OdOO"
 #define TYPE_O_OOOOFF "O|OOOOdd"
@@ -204,6 +206,7 @@
 extern PyTypeObject MidiListenerType;
 extern PyTypeObject OscListenerType;
 extern PyTypeObject SineType;
+extern PyTypeObject FastSineType;
 extern PyTypeObject SineLoopType;
 extern PyTypeObject FmType;
 extern PyTypeObject CrossFmType;

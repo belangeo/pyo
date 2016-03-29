@@ -507,6 +507,459 @@ Sine_members,             /* tp_members */
 Sine_new,                 /* tp_new */
 };
 
+
+/* FastSine object */
+typedef struct {
+    pyo_audio_HEAD
+    PyObject *freq;
+    Stream *freq_stream;
+    int modebuffer[3];
+    MYFLT initphase;
+    int quality;
+    MYFLT pointerPos;
+    MYFLT fourOnSr;
+} FastSine;
+
+static void
+FastSine_readframes_low_i(FastSine *self) {
+    MYFLT inc, fr, pos;
+    int i;
+
+    fr = PyFloat_AS_DOUBLE(self->freq);
+    inc = fr * self->fourOnSr;
+
+    pos = self->pointerPos;
+    for (i=0; i<self->bufsize; i++) {
+        if (pos > 2.0)
+            pos -= 4.0;
+
+        if (pos < 0) {
+            self->data[i] = pos * (pos + 2.0);
+        }
+        else {
+            self->data[i] = pos * (2.0 - pos);
+        }
+        pos += inc;
+    }
+    self->pointerPos = pos;
+}
+
+static void
+FastSine_readframes_low_a(FastSine *self) {
+    MYFLT inc, pos;
+    int i;
+
+    MYFLT *fr = Stream_getData((Stream *)self->freq_stream);
+
+    pos = self->pointerPos;
+    for (i=0; i<self->bufsize; i++) {
+        inc = fr[i] * self->fourOnSr;
+        if (pos > 2.0)
+            pos -= 4.0;
+
+        if (pos < 0) {
+            self->data[i] = pos * (pos + 2.0);
+        }
+        else {
+            self->data[i] = pos * (2.0 - pos);
+        }
+        pos += inc;
+    }
+    self->pointerPos = pos;
+}
+
+static void
+FastSine_readframes_high_i(FastSine *self) {
+    MYFLT inc, fr, pos, sine;
+    int i;
+
+    fr = PyFloat_AS_DOUBLE(self->freq);
+    inc = fr * self->fourOnSr;
+
+    pos = self->pointerPos;
+    for (i=0; i<self->bufsize; i++) {
+        if (pos > 2.0)
+            pos -= 4.0;
+
+        if (pos < 0) {
+            sine = -pos * (pos + 2.0);
+            self->data[i] = -sine * (0.225 * (sine - 1) + 1);
+        }
+        else {
+            sine = pos * (2.0 - pos);
+            self->data[i] = sine * (0.225 * (sine - 1) + 1);
+        }
+        pos += inc;
+    }
+    self->pointerPos = pos;
+}
+
+static void
+FastSine_readframes_high_a(FastSine *self) {
+    MYFLT inc, pos, sine;
+    int i;
+
+    MYFLT *fr = Stream_getData((Stream *)self->freq_stream);
+
+    pos = self->pointerPos;
+    for (i=0; i<self->bufsize; i++) {
+        inc = fr[i] * self->fourOnSr;
+        if (pos > 2.0)
+            pos -= 4.0;
+
+        if (pos < 0) {
+            sine = -pos * (pos + 2.0);
+            self->data[i] = -sine * (0.225 * (sine - 1) + 1);
+        }
+        else {
+            sine = pos * (2.0 - pos);
+            self->data[i] = sine * (0.225 * (sine - 1) + 1);
+        }
+        pos += inc;
+    }
+    self->pointerPos = pos;
+}
+
+static void FastSine_postprocessing_ii(FastSine *self) { POST_PROCESSING_II };
+static void FastSine_postprocessing_ai(FastSine *self) { POST_PROCESSING_AI };
+static void FastSine_postprocessing_ia(FastSine *self) { POST_PROCESSING_IA };
+static void FastSine_postprocessing_aa(FastSine *self) { POST_PROCESSING_AA };
+static void FastSine_postprocessing_ireva(FastSine *self) { POST_PROCESSING_IREVA };
+static void FastSine_postprocessing_areva(FastSine *self) { POST_PROCESSING_AREVA };
+static void FastSine_postprocessing_revai(FastSine *self) { POST_PROCESSING_REVAI };
+static void FastSine_postprocessing_revaa(FastSine *self) { POST_PROCESSING_REVAA };
+static void FastSine_postprocessing_revareva(FastSine *self) { POST_PROCESSING_REVAREVA };
+
+static void
+FastSine_setProcMode(FastSine *self)
+{
+    int procmode, muladdmode;
+    procmode = self->modebuffer[2];
+    muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
+
+	switch (procmode) {
+        case 0:
+            if (self->quality == 0)
+                self->proc_func_ptr = FastSine_readframes_low_i;
+            else if (self->quality == 1)
+                self->proc_func_ptr = FastSine_readframes_high_i;
+            break;
+        case 1:
+            if (self->quality == 0)
+                self->proc_func_ptr = FastSine_readframes_low_a;
+            else if (self->quality == 1)
+                self->proc_func_ptr = FastSine_readframes_high_a;
+            break;
+    }
+
+	switch (muladdmode) {
+        case 0:
+            self->muladd_func_ptr = FastSine_postprocessing_ii;
+            break;
+        case 1:
+            self->muladd_func_ptr = FastSine_postprocessing_ai;
+            break;
+        case 2:
+            self->muladd_func_ptr = FastSine_postprocessing_revai;
+            break;
+        case 10:
+            self->muladd_func_ptr = FastSine_postprocessing_ia;
+            break;
+        case 11:
+            self->muladd_func_ptr = FastSine_postprocessing_aa;
+            break;
+        case 12:
+            self->muladd_func_ptr = FastSine_postprocessing_revaa;
+            break;
+        case 20:
+            self->muladd_func_ptr = FastSine_postprocessing_ireva;
+            break;
+        case 21:
+            self->muladd_func_ptr = FastSine_postprocessing_areva;
+            break;
+        case 22:
+            self->muladd_func_ptr = FastSine_postprocessing_revareva;
+            break;
+    }
+}
+
+static void
+FastSine_compute_next_data_frame(FastSine *self)
+{
+    (*self->proc_func_ptr)(self);
+    (*self->muladd_func_ptr)(self);
+}
+
+static int
+FastSine_traverse(FastSine *self, visitproc visit, void *arg)
+{
+    pyo_VISIT
+    Py_VISIT(self->freq);
+    Py_VISIT(self->freq_stream);
+    return 0;
+}
+
+static int
+FastSine_clear(FastSine *self)
+{
+    pyo_CLEAR
+    Py_CLEAR(self->freq);
+    Py_CLEAR(self->freq_stream);
+    return 0;
+}
+
+static void
+FastSine_dealloc(FastSine* self)
+{
+    pyo_DEALLOC
+    FastSine_clear(self);
+    self->ob_type->tp_free((PyObject*)self);
+}
+
+static PyObject *
+FastSine_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    int i;
+    PyObject *freqtmp=NULL, *multmp=NULL, *addtmp=NULL;
+
+    FastSine *self;
+    self = (FastSine *)type->tp_alloc(type, 0);
+
+    self->freq = PyFloat_FromDouble(1000);
+    self->initphase = 0.0;
+    self->quality = 1;
+	self->modebuffer[0] = 0;
+	self->modebuffer[1] = 0;
+	self->modebuffer[2] = 0;
+
+    INIT_OBJECT_COMMON
+    Stream_setFunctionPtr(self->stream, FastSine_compute_next_data_frame);
+    self->mode_func_ptr = FastSine_setProcMode;
+
+    self->fourOnSr = 4.0 / self->sr;
+
+    static char *kwlist[] = {"freq", "initphase", "quality", "mul", "add", NULL};
+
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE__OFIOO, kwlist, &freqtmp, &self->initphase, &self->quality, &multmp, &addtmp))
+        Py_RETURN_NONE;
+
+    if (self->initphase < 0.0)
+        self->initphase = 0.0;
+    else if (self->initphase > 1.0)
+        self->initphase = 1.0;
+    self->pointerPos = self->initphase * 4.0;
+
+    if (self->quality < 0)
+        self->quality = 0;
+    else if (self->quality > 1)
+        self->quality = 1;
+
+    if (freqtmp) {
+        PyObject_CallMethod((PyObject *)self, "setFreq", "O", freqtmp);
+    }
+
+    if (multmp) {
+        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+    }
+
+    if (addtmp) {
+        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+    }
+
+    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+
+
+    (*self->mode_func_ptr)(self);
+
+    return (PyObject *)self;
+}
+
+static PyObject * FastSine_getServer(FastSine* self) { GET_SERVER };
+static PyObject * FastSine_getStream(FastSine* self) { GET_STREAM };
+static PyObject * FastSine_setMul(FastSine *self, PyObject *arg) { SET_MUL };
+static PyObject * FastSine_setAdd(FastSine *self, PyObject *arg) { SET_ADD };
+static PyObject * FastSine_setSub(FastSine *self, PyObject *arg) { SET_SUB };
+static PyObject * FastSine_setDiv(FastSine *self, PyObject *arg) { SET_DIV };
+
+static PyObject * FastSine_play(FastSine *self, PyObject *args, PyObject *kwds) { PLAY };
+static PyObject * FastSine_out(FastSine *self, PyObject *args, PyObject *kwds) { OUT };
+static PyObject * FastSine_stop(FastSine *self) { STOP };
+
+static PyObject * FastSine_multiply(FastSine *self, PyObject *arg) { MULTIPLY };
+static PyObject * FastSine_inplace_multiply(FastSine *self, PyObject *arg) { INPLACE_MULTIPLY };
+static PyObject * FastSine_add(FastSine *self, PyObject *arg) { ADD };
+static PyObject * FastSine_inplace_add(FastSine *self, PyObject *arg) { INPLACE_ADD };
+static PyObject * FastSine_sub(FastSine *self, PyObject *arg) { SUB };
+static PyObject * FastSine_inplace_sub(FastSine *self, PyObject *arg) { INPLACE_SUB };
+static PyObject * FastSine_div(FastSine *self, PyObject *arg) { DIV };
+static PyObject * FastSine_inplace_div(FastSine *self, PyObject *arg) { INPLACE_DIV };
+
+static PyObject *
+FastSine_setFreq(FastSine *self, PyObject *arg)
+{
+	PyObject *tmp, *streamtmp;
+
+    ASSERT_ARG_NOT_NULL
+
+	int isNumber = PyNumber_Check(arg);
+
+	tmp = arg;
+	Py_INCREF(tmp);
+	Py_DECREF(self->freq);
+	if (isNumber == 1) {
+		self->freq = PyNumber_Float(tmp);
+        self->modebuffer[2] = 0;
+	}
+	else {
+		self->freq = tmp;
+        streamtmp = PyObject_CallMethod((PyObject *)self->freq, "_getStream", NULL);
+        Py_INCREF(streamtmp);
+        Py_XDECREF(self->freq_stream);
+        self->freq_stream = (Stream *)streamtmp;
+		self->modebuffer[2] = 1;
+	}
+
+    (*self->mode_func_ptr)(self);
+
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
+static PyObject *
+FastSine_setQuality(FastSine *self, PyObject *arg)
+{
+    int tmp;
+    ASSERT_ARG_NOT_NULL
+
+	if (PyInt_Check(arg)) {
+        tmp = PyInt_AsLong(arg);
+        if (tmp >= 0 && tmp < 2)
+            self->quality = tmp;
+	}
+
+    (*self->mode_func_ptr)(self);
+
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
+static PyObject *
+FastSine_reset(FastSine *self)
+{
+    self->pointerPos = self->initphase * 4.0;
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static PyMemberDef FastSine_members[] = {
+{"server", T_OBJECT_EX, offsetof(FastSine, server), 0, "Pyo server."},
+{"stream", T_OBJECT_EX, offsetof(FastSine, stream), 0, "Stream object."},
+{"freq", T_OBJECT_EX, offsetof(FastSine, freq), 0, "Frequency in cycle per second."},
+{"mul", T_OBJECT_EX, offsetof(FastSine, mul), 0, "Mul factor."},
+{"add", T_OBJECT_EX, offsetof(FastSine, add), 0, "Add factor."},
+{NULL}  /* Sentinel */
+};
+
+static PyMethodDef FastSine_methods[] = {
+{"getServer", (PyCFunction)FastSine_getServer, METH_NOARGS, "Returns server object."},
+{"_getStream", (PyCFunction)FastSine_getStream, METH_NOARGS, "Returns stream object."},
+{"play", (PyCFunction)FastSine_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+{"out", (PyCFunction)FastSine_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
+{"stop", (PyCFunction)FastSine_stop, METH_NOARGS, "Stops computing."},
+{"setFreq", (PyCFunction)FastSine_setFreq, METH_O, "Sets oscillator frequency in cycle per second."},
+{"setQuality", (PyCFunction)FastSine_setQuality, METH_O, "Sets approximation quality."},
+{"reset", (PyCFunction)FastSine_reset, METH_NOARGS, "Resets pointer position to 0."},
+{"setMul", (PyCFunction)FastSine_setMul, METH_O, "Sets FastSine mul factor."},
+{"setAdd", (PyCFunction)FastSine_setAdd, METH_O, "Sets FastSine add factor."},
+{"setSub", (PyCFunction)FastSine_setSub, METH_O, "Sets inverse add factor."},
+{"setDiv", (PyCFunction)FastSine_setDiv, METH_O, "Sets inverse mul factor."},
+{NULL}  /* Sentinel */
+};
+
+static PyNumberMethods FastSine_as_number = {
+(binaryfunc)FastSine_add,                      /*nb_add*/
+(binaryfunc)FastSine_sub,                 /*nb_subtract*/
+(binaryfunc)FastSine_multiply,                 /*nb_multiply*/
+(binaryfunc)FastSine_div,                   /*nb_divide*/
+0,                /*nb_remainder*/
+0,                   /*nb_divmod*/
+0,                   /*nb_power*/
+0,                  /*nb_neg*/
+0,                /*nb_pos*/
+0,                  /*(unaryfunc)array_abs*/
+0,                    /*nb_nonzero*/
+0,                    /*nb_invert*/
+0,               /*nb_lshift*/
+0,              /*nb_rshift*/
+0,              /*nb_and*/
+0,              /*nb_xor*/
+0,               /*nb_or*/
+0,                                          /*nb_coerce*/
+0,                       /*nb_int*/
+0,                      /*nb_long*/
+0,                     /*nb_float*/
+0,                       /*nb_oct*/
+0,                       /*nb_hex*/
+(binaryfunc)FastSine_inplace_add,              /*inplace_add*/
+(binaryfunc)FastSine_inplace_sub,         /*inplace_subtract*/
+(binaryfunc)FastSine_inplace_multiply,         /*inplace_multiply*/
+(binaryfunc)FastSine_inplace_div,           /*inplace_divide*/
+0,        /*inplace_remainder*/
+0,           /*inplace_power*/
+0,       /*inplace_lshift*/
+0,      /*inplace_rshift*/
+0,      /*inplace_and*/
+0,      /*inplace_xor*/
+0,       /*inplace_or*/
+0,             /*nb_floor_divide*/
+0,              /*nb_true_divide*/
+0,     /*nb_inplace_floor_divide*/
+0,      /*nb_inplace_true_divide*/
+0,                     /* nb_index */
+};
+
+PyTypeObject FastSineType = {
+PyObject_HEAD_INIT(NULL)
+0,                         /*ob_size*/
+"_pyo.FastSine_base",         /*tp_name*/
+sizeof(FastSine),         /*tp_basicsize*/
+0,                         /*tp_itemsize*/
+(destructor)FastSine_dealloc, /*tp_dealloc*/
+0,                         /*tp_print*/
+0,                         /*tp_getattr*/
+0,                         /*tp_setattr*/
+0,                         /*tp_compare*/
+0,                         /*tp_repr*/
+&FastSine_as_number,             /*tp_as_number*/
+0,                         /*tp_as_sequence*/
+0,                         /*tp_as_mapping*/
+0,                         /*tp_hash */
+0,                         /*tp_call*/
+0,                         /*tp_str*/
+0,                         /*tp_getattro*/
+0,                         /*tp_setattro*/
+0,                         /*tp_as_buffer*/
+Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES,  /*tp_flags*/
+"FastSine objects. Generates a sinewave.",           /* tp_doc */
+(traverseproc)FastSine_traverse,   /* tp_traverse */
+(inquiry)FastSine_clear,           /* tp_clear */
+0,		               /* tp_richcompare */
+0,		               /* tp_weaklistoffset */
+0,		               /* tp_iter */
+0,		               /* tp_iternext */
+FastSine_methods,             /* tp_methods */
+FastSine_members,             /* tp_members */
+0,                      /* tp_getset */
+0,                         /* tp_base */
+0,                         /* tp_dict */
+0,                         /* tp_descr_get */
+0,                         /* tp_descr_set */
+0,                         /* tp_dictoffset */
+0,      /* tp_init */
+0,                         /* tp_alloc */
+FastSine_new,                 /* tp_new */
+};
+
 /*******************/
 /* SineLoop object */
 /*******************/
