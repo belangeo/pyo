@@ -34,6 +34,7 @@ typedef struct {
     Stream *sharp_stream;
     int modebuffer[4]; // need at least 2 slots for mul & add
     int wavetype;
+    MYFLT oneOverSr;
     MYFLT oneOverPiOverTwo;
     MYFLT srOverFour;
     MYFLT srOverEight;
@@ -52,15 +53,18 @@ LFO_generates_ii(LFO *self) {
     int i, maxHarms;
 
     freq = PyFloat_AS_DOUBLE(self->freq);
-    if (freq <= 0) {
-        return;
-    }
+    if (freq < 0.00001)
+        freq = 0.00001;
+    else if (freq > self->srOverFour)
+        freq = self->srOverFour;
+
     sharp = PyFloat_AS_DOUBLE(self->sharp);
     if (sharp < 0.0)
         sharp = 0.0;
     else if (sharp > 1.0)
         sharp = 1.0;
-    inc = freq / self->sr;
+
+    inc = freq * self->oneOverSr;
 
     switch (self->wavetype) {
         case 0: /* Saw up */
@@ -220,9 +224,6 @@ LFO_generates_ai(LFO *self) {
     int i, maxHarms;
 
     MYFLT *fr = Stream_getData((Stream *)self->freq_stream);
-    if (fr[0] <= 0) {
-        return;
-    }
     sharp = PyFloat_AS_DOUBLE(self->sharp);
     if (sharp < 0.0)
         sharp = 0.0;
@@ -233,7 +234,11 @@ LFO_generates_ai(LFO *self) {
         case 0: /* Saw up */
             for (i=0; i<self->bufsize; i++) {
                 freq = fr[i];
-                inc = freq / self->sr;
+                if (freq < 0.00001)
+                    freq = 0.00001;
+                else if (freq > self->srOverFour)
+                    freq = self->srOverFour;
+                inc = freq * self->oneOverSr;
                 maxHarms = (int)(self->srOverFour/freq);
                 numh = sharp * 46.0 + 4.0;
                 if (numh > maxHarms)
@@ -251,7 +256,11 @@ LFO_generates_ai(LFO *self) {
         case 1: /* Saw down */
             for (i=0; i<self->bufsize; i++) {
                 freq = fr[i];
-                inc = freq / self->sr;
+                if (freq < 0.00001)
+                    freq = 0.00001;
+                else if (freq > self->srOverFour)
+                    freq = self->srOverFour;
+                inc = freq * self->oneOverSr;
                 maxHarms = (int)(self->srOverFour/freq);
                 numh = sharp * 46.0 + 4.0;
                 if (numh > maxHarms)
@@ -269,7 +278,11 @@ LFO_generates_ai(LFO *self) {
         case 2: /* Square */
             for (i=0; i<self->bufsize; i++) {
                 freq = fr[i];
-                inc = freq / self->sr;
+                if (freq < 0.00001)
+                    freq = 0.00001;
+                else if (freq > self->srOverFour)
+                    freq = self->srOverFour;
+                inc = freq * self->oneOverSr;
                 maxHarms = (int)(self->srOverEight/freq);
                 numh = sharp * 46.0 + 4.0;
                 if (numh > maxHarms)
@@ -286,13 +299,17 @@ LFO_generates_ai(LFO *self) {
         case 3: /* Triangle */
             for (i=0; i<self->bufsize; i++) {
                 freq = fr[i];
-                inc = freq / self->sr;
+                if (freq < 0.00001)
+                    freq = 0.00001;
+                else if (freq > self->srOverFour)
+                    freq = self->srOverFour;
+                inc = freq * self->oneOverSr;
                 maxHarms = (int)(self->srOverFour/freq);
                 if ((sharp * 36.0) > maxHarms)
                     numh = (MYFLT)(maxHarms / 36.0);
                 else
                     numh = sharp;
-                v1 = MYTAN(MYSIN(TWOPI*self->pointerPos));
+                v1 = MYTAN(MYSIN(TWOPI*self->pointerPos)) * self->oneOverPiOverTwo;
                 pointer = self->pointerPos + 0.25;
                 if (pointer > 1.0)
                     pointer -= 1.0;
@@ -309,7 +326,11 @@ LFO_generates_ai(LFO *self) {
         case 4: /* Pulse */
             for (i=0; i<self->bufsize; i++) {
                 freq = fr[i];
-                inc = freq / self->sr;
+                if (freq < 0.00001)
+                    freq = 0.00001;
+                else if (freq > self->srOverFour)
+                    freq = self->srOverFour;
+                inc = freq * self->oneOverSr;
                 maxHarms = (int)(self->srOverEight/freq);
                 numh = MYFLOOR(sharp * 46.0 + 4.0);
                 if (numh > maxHarms)
@@ -328,7 +349,11 @@ LFO_generates_ai(LFO *self) {
         case 5: /* Bi-Pulse */
             for (i=0; i<self->bufsize; i++) {
                 freq = fr[i];
-                inc = freq / self->sr;
+                if (freq < 0.00001)
+                    freq = 0.00001;
+                else if (freq > self->srOverFour)
+                    freq = self->srOverFour;
+                inc = freq * self->oneOverSr;
                 maxHarms = (int)(self->srOverEight/freq);
                 numh = MYFLOOR(sharp * 46.0 + 4.0);
                 if (numh > maxHarms)
@@ -348,7 +373,11 @@ LFO_generates_ai(LFO *self) {
             numh = 1.0 - sharp;
             for (i=0; i<self->bufsize; i++) {
                 freq = fr[i];
-                inc = freq / self->sr;
+                if (freq < 0.00001)
+                    freq = 0.00001;
+                else if (freq > self->srOverFour)
+                    freq = self->srOverFour;
+                inc = freq * self->oneOverSr;
                 inc2 = 1.0 / (int)(1.0 / inc * numh);
                 self->pointerPos += inc;
                 if (self->pointerPos < 0)
@@ -374,7 +403,11 @@ LFO_generates_ai(LFO *self) {
             sharp2 = sharp * 0.5;
             for (i=0; i<self->bufsize; i++) {
                 freq = fr[i];
-                inc = freq / self->sr;
+                if (freq < 0.00001)
+                    freq = 0.00001;
+                else if (freq > self->srOverFour)
+                    freq = self->srOverFour;
+                inc = freq * self->oneOverSr;
                 inc2 = inc * sharp * 0.99;
                 self->modPointerPos += inc2;
                 if (self->modPointerPos < 0)
@@ -403,11 +436,13 @@ LFO_generates_ia(LFO *self) {
     int i, maxHarms;
 
     freq = PyFloat_AS_DOUBLE(self->freq);
-    if (freq <= 0) {
-        return;
-    }
+    if (freq < 0.00001)
+        freq = 0.00001;
+    else if (freq > self->srOverFour)
+        freq = self->srOverFour;
+    inc = freq * self->oneOverSr;
+
     MYFLT *sh = Stream_getData((Stream *)self->sharp_stream);
-    inc = freq / self->sr;
 
     switch (self->wavetype) {
         case 0: /* Saw up */
@@ -484,7 +519,7 @@ LFO_generates_ia(LFO *self) {
                     numh = (MYFLT)(maxHarms / 36.0);
                 else
                     numh = sharp;
-                v1 = MYTAN(MYSIN(TWOPI*self->pointerPos));
+                v1 = MYTAN(MYSIN(TWOPI*self->pointerPos)) * self->oneOverPiOverTwo;
                 pointer = self->pointerPos + 0.25;
                 if (pointer > 1.0)
                     pointer -= 1.0;
@@ -607,9 +642,6 @@ LFO_generates_aa(LFO *self) {
     int i, maxHarms;
 
     MYFLT *fr = Stream_getData((Stream *)self->freq_stream);
-    if (fr[0] <= 0) {
-        return;
-    }
     MYFLT *sh = Stream_getData((Stream *)self->sharp_stream);
 
     switch (self->wavetype) {
@@ -621,7 +653,11 @@ LFO_generates_aa(LFO *self) {
                 else if (sharp > 1.0)
                     sharp = 1.0;
                 freq = fr[i];
-                inc = freq / self->sr;
+                if (freq < 0.00001)
+                    freq = 0.00001;
+                else if (freq > self->srOverFour)
+                    freq = self->srOverFour;
+                inc = freq * self->oneOverSr;
                 maxHarms = (int)(self->srOverFour/freq);
                 numh = sharp * 46.0 + 4.0;
                 if (numh > maxHarms)
@@ -644,7 +680,11 @@ LFO_generates_aa(LFO *self) {
                 else if (sharp > 1.0)
                     sharp = 1.0;
                 freq = fr[i];
-                inc = freq / self->sr;
+                if (freq < 0.00001)
+                    freq = 0.00001;
+                else if (freq > self->srOverFour)
+                    freq = self->srOverFour;
+                inc = freq * self->oneOverSr;
                 maxHarms = (int)(self->srOverFour/freq);
                 numh = sharp * 46.0 + 4.0;
                 if (numh > maxHarms)
@@ -667,7 +707,11 @@ LFO_generates_aa(LFO *self) {
                 else if (sharp > 1.0)
                     sharp = 1.0;
                 freq = fr[i];
-                inc = freq / self->sr;
+                if (freq < 0.00001)
+                    freq = 0.00001;
+                else if (freq > self->srOverFour)
+                    freq = self->srOverFour;
+                inc = freq * self->oneOverSr;
                 maxHarms = (int)(self->srOverEight/freq);
                 numh = sharp * 46.0 + 4.0;
                 if (numh > maxHarms)
@@ -689,13 +733,17 @@ LFO_generates_aa(LFO *self) {
                 else if (sharp > 1.0)
                     sharp = 1.0;
                 freq = fr[i];
-                inc = freq / self->sr;
+                if (freq < 0.00001)
+                    freq = 0.00001;
+                else if (freq > self->srOverFour)
+                    freq = self->srOverFour;
+                inc = freq * self->oneOverSr;
                 maxHarms = (int)(self->srOverFour/freq);
                 if ((sharp * 36.0) > maxHarms)
                     numh = (MYFLT)(maxHarms / 36.0);
                 else
                     numh = sharp;
-                v1 = MYTAN(MYSIN(TWOPI*self->pointerPos));
+                v1 = MYTAN(MYSIN(TWOPI*self->pointerPos)) * self->oneOverPiOverTwo;
                 pointer = self->pointerPos + 0.25;
                 if (pointer > 1.0)
                     pointer -= 1.0;
@@ -717,7 +765,11 @@ LFO_generates_aa(LFO *self) {
                 else if (sharp > 1.0)
                     sharp = 1.0;
                 freq = fr[i];
-                inc = freq / self->sr;
+                if (freq < 0.00001)
+                    freq = 0.00001;
+                else if (freq > self->srOverFour)
+                    freq = self->srOverFour;
+                inc = freq * self->oneOverSr;
                 maxHarms = (int)(self->srOverEight/freq);
                 numh = MYFLOOR(sharp * 46.0 + 4.0);
                 if (numh > maxHarms)
@@ -741,7 +793,11 @@ LFO_generates_aa(LFO *self) {
                 else if (sharp > 1.0)
                     sharp = 1.0;
                 freq = fr[i];
-                inc = freq / self->sr;
+                if (freq < 0.00001)
+                    freq = 0.00001;
+                else if (freq > self->srOverFour)
+                    freq = self->srOverFour;
+                inc = freq * self->oneOverSr;
                 maxHarms = (int)(self->srOverEight/freq);
                 numh = MYFLOOR(sharp * 46.0 + 4.0);
                 if (numh > maxHarms)
@@ -766,7 +822,11 @@ LFO_generates_aa(LFO *self) {
                     sharp = 1.0;
                 numh = 1.0 - sharp;
                 freq = fr[i];
-                inc = freq / self->sr;
+                if (freq < 0.00001)
+                    freq = 0.00001;
+                else if (freq > self->srOverFour)
+                    freq = self->srOverFour;
+                inc = freq * self->oneOverSr;
                 inc2 = 1.0 / (int)(1.0 / inc * numh);
                 self->pointerPos += inc;
                 if (self->pointerPos < 0)
@@ -796,7 +856,11 @@ LFO_generates_aa(LFO *self) {
                 else if (sharp > 1.0)
                     sharp = 1.0;
                 freq = fr[i];
-                inc = freq / self->sr;
+                if (freq < 0.00001)
+                    freq = 0.00001;
+                else if (freq > self->srOverFour)
+                    freq = self->srOverFour;
+                inc = freq * self->oneOverSr;
                 inc2 = inc * sharp * 0.99;
                 sharp2 = sharp * 0.5;
                 self->modPointerPos += inc2;
@@ -939,6 +1003,7 @@ LFO_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     INIT_OBJECT_COMMON
 
+    self->oneOverSr = 1.0 / (MYFLT)self->sr;
     self->srOverFour = (MYFLT)self->sr * 0.25;
     self->srOverEight = (MYFLT)self->sr * 0.125;
     Stream_setFunctionPtr(self->stream, LFO_compute_next_data_frame);

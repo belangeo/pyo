@@ -1182,7 +1182,8 @@ class LFO(PyoObject):
     :Args:
 
         freq : float or PyoObject, optional
-            Oscillator frequency in cycles per second. Defaults to 100.
+            Oscillator frequency in cycles per second. The frequency is
+            internally clamped between 0.00001 and sr/4. Defaults to 100.
         sharp : float or PyoObject, optional
             Sharpness factor between 0 and 1. Sharper waveform results
             in more harmonics in the spectrum. Defaults to 0.5.
@@ -1277,7 +1278,7 @@ class LFO(PyoObject):
 
 
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [SLMapFreq(self._freq),
+        self._map_list = [SLMap(0.1, self.getSamplingRate()*0.25, "log", "freq", self._freq),
                           SLMap(0., 1., "lin", "sharp", self._sharp),
                           SLMap(0, 7, "lin", "type", self._type, "int", dataOnly=True),
                           SLMapMul(self._mul)]
