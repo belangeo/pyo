@@ -41,6 +41,7 @@ typedef struct {
     int modebuffer[4]; // need at least 2 slots for mul & add
     int filtertype;
     MYFLT nyquist;
+    MYFLT twoPiOverSr;
     // sample memories
     MYFLT x1;
     MYFLT x2;
@@ -64,7 +65,7 @@ Biquad_compute_coeffs_lp(Biquad *self)
 {
     self->b0 = self->b2 = (1 - self->c) / 2;
     self->b1 = 1 - self->c;
-    self->a0 = 1 + self->alpha;
+    self->a0 = 1.0 / (1 + self->alpha);
     self->a1 = -2 * self->c;
     self->a2 = 1 - self->alpha;
 }
@@ -75,7 +76,7 @@ Biquad_compute_coeffs_hp(Biquad *self)
     self->b0 = (1 + self->c) / 2;
     self->b1 = -(1 + self->c);
     self->b2 = self->b0;
-    self->a0 = 1 + self->alpha;
+    self->a0 = 1.0 / (1 + self->alpha);
     self->a1 = -2 * self->c;
     self->a2 = 1 - self->alpha;
 }
@@ -86,7 +87,7 @@ Biquad_compute_coeffs_bp(Biquad *self)
     self->b0 = self->alpha;
     self->b1 = 0;
     self->b2 = -self->alpha;
-    self->a0 = 1 + self->alpha;
+    self->a0 = 1.0 / (1 + self->alpha);
     self->a1 = -2 * self->c;
     self->a2 = 1 - self->alpha;
 }
@@ -97,7 +98,7 @@ Biquad_compute_coeffs_bs(Biquad *self)
     self->b0 = 1;
     self->b1 = self->a1 = -2 * self->c;
     self->b2 = 1;
-    self->a0 = 1 + self->alpha;
+    self->a0 = 1.0 / (1 + self->alpha);
     self->a2 = 1 - self->alpha;
 }
 
@@ -106,7 +107,8 @@ Biquad_compute_coeffs_ap(Biquad *self)
 {
     self->b0 = self->a2 = 1 - self->alpha;
     self->b1 = self->a1 = -2 * self->c;
-    self->b2 = self->a0 = 1 + self->alpha;
+    self->b2 = 1 + self->alpha;
+    self->a0 = 1.0 / (1 + self->alpha);
 }
 
 static void
@@ -119,7 +121,7 @@ Biquad_compute_variables(Biquad *self, MYFLT freq, MYFLT q)
     if (q < 0.1)
         q = 0.1;
 
-    self->w0 = TWOPI * freq / self->sr;
+    self->w0 = freq * self->twoPiOverSr;
     self->c = MYCOS(self->w0);
     self->alpha = MYSIN(self->w0) / (2 * q);
     (*self->coeffs_func_ptr)(self);
@@ -137,12 +139,11 @@ Biquad_filters_ii(Biquad *self) {
     }
 
     for (i=0; i<self->bufsize; i++) {
-        val = ( (self->b0 * in[i]) + (self->b1 * self->x1) + (self->b2 * self->x2) - (self->a1 * self->y1) - (self->a2 * self->y2) ) / self->a0;
+        val = ( (self->b0 * in[i]) + (self->b1 * self->x1) + (self->b2 * self->x2) - (self->a1 * self->y1) - (self->a2 * self->y2) ) * self->a0;
         self->y2 = self->y1;
-        self->y1 = val;
+        self->data[i] = self->y1 = val;
         self->x2 = self->x1;
         self->x1 = in[i];
-        self->data[i] = val;
     }
 }
 
@@ -162,12 +163,11 @@ Biquad_filters_ai(Biquad *self) {
 
     for (i=0; i<self->bufsize; i++) {
         Biquad_compute_variables(self, fr[i], q);
-        val = ( (self->b0 * in[i]) + (self->b1 * self->x1) + (self->b2 * self->x2) - (self->a1 * self->y1) - (self->a2 * self->y2) ) / self->a0;
+        val = ( (self->b0 * in[i]) + (self->b1 * self->x1) + (self->b2 * self->x2) - (self->a1 * self->y1) - (self->a2 * self->y2) ) * self->a0;
         self->y2 = self->y1;
-        self->y1 = val;
+        self->data[i] = self->y1 = val;
         self->x2 = self->x1;
         self->x1 = in[i];
-        self->data[i] = val;
     }
 }
 
@@ -187,12 +187,11 @@ Biquad_filters_ia(Biquad *self) {
 
     for (i=0; i<self->bufsize; i++) {
         Biquad_compute_variables(self, fr, q[i]);
-        val = ( (self->b0 * in[i]) + (self->b1 * self->x1) + (self->b2 * self->x2) - (self->a1 * self->y1) - (self->a2 * self->y2) ) / self->a0;
+        val = ( (self->b0 * in[i]) + (self->b1 * self->x1) + (self->b2 * self->x2) - (self->a1 * self->y1) - (self->a2 * self->y2) ) * self->a0;
         self->y2 = self->y1;
-        self->y1 = val;
+        self->data[i] = self->y1 = val;
         self->x2 = self->x1;
         self->x1 = in[i];
-        self->data[i] = val;
     }
 }
 
@@ -212,12 +211,11 @@ Biquad_filters_aa(Biquad *self) {
 
     for (i=0; i<self->bufsize; i++) {
         Biquad_compute_variables(self, fr[i], q[i]);
-        val = ( (self->b0 * in[i]) + (self->b1 * self->x1) + (self->b2 * self->x2) - (self->a1 * self->y1) - (self->a2 * self->y2) ) / self->a0;
+        val = ( (self->b0 * in[i]) + (self->b1 * self->x1) + (self->b2 * self->x2) - (self->a1 * self->y1) - (self->a2 * self->y2) ) * self->a0;
         self->y2 = self->y1;
-        self->y1 = val;
+        self->data[i] = self->y1 = val;
         self->x2 = self->x1;
         self->x1 = in[i];
-        self->data[i] = val;
     }
 }
 
@@ -363,6 +361,7 @@ Biquad_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     INIT_OBJECT_COMMON
 
     self->nyquist = (MYFLT)self->sr * 0.49;
+    self->twoPiOverSr = TWOPI / (MYFLT)self->sr;
 
     Stream_setFunctionPtr(self->stream, Biquad_compute_next_data_frame);
     self->mode_func_ptr = Biquad_setProcMode;
@@ -654,7 +653,7 @@ Biquadx_compute_coeffs_lp(Biquadx *self)
 {
     self->b0 = self->b2 = (1 - self->c) / 2;
     self->b1 = 1 - self->c;
-    self->a0 = 1 + self->alpha;
+    self->a0 = 1.0 / (1 + self->alpha);
     self->a1 = -2 * self->c;
     self->a2 = 1 - self->alpha;
 }
@@ -665,7 +664,7 @@ Biquadx_compute_coeffs_hp(Biquadx *self)
     self->b0 = (1 + self->c) / 2;
     self->b1 = -(1 + self->c);
     self->b2 = self->b0;
-    self->a0 = 1 + self->alpha;
+    self->a0 = 1.0 / (1 + self->alpha);
     self->a1 = -2 * self->c;
     self->a2 = 1 - self->alpha;
 }
@@ -676,7 +675,7 @@ Biquadx_compute_coeffs_bp(Biquadx *self)
     self->b0 = self->alpha;
     self->b1 = 0;
     self->b2 = -self->alpha;
-    self->a0 = 1 + self->alpha;
+    self->a0 = 1.0 / (1 + self->alpha);
     self->a1 = -2 * self->c;
     self->a2 = 1 - self->alpha;
 }
@@ -687,7 +686,7 @@ Biquadx_compute_coeffs_bs(Biquadx *self)
     self->b0 = 1;
     self->b1 = self->a1 = -2 * self->c;
     self->b2 = 1;
-    self->a0 = 1 + self->alpha;
+    self->a0 = 1.0 / (1 + self->alpha);
     self->a2 = 1 - self->alpha;
 }
 
@@ -696,7 +695,8 @@ Biquadx_compute_coeffs_ap(Biquadx *self)
 {
     self->b0 = self->a2 = 1 - self->alpha;
     self->b1 = self->a1 = -2 * self->c;
-    self->b2 = self->a0 = 1 + self->alpha;
+    self->b2 = 1 + self->alpha;
+    self->a0 = 1.0 / (1 + self->alpha);
 }
 
 static void
@@ -732,7 +732,7 @@ Biquadx_filters_ii(Biquadx *self) {
     for (i=0; i<self->bufsize; i++) {
         vin = in[i];
         for (j=0; j<self->stages; j++) {
-            vout = ( (self->b0 * vin) + (self->b1 * self->x1[j]) + (self->b2 * self->x2[j]) - (self->a1 * self->y1[j]) - (self->a2 * self->y2[j]) ) / self->a0;
+            vout = ( (self->b0 * vin) + (self->b1 * self->x1[j]) + (self->b2 * self->x2[j]) - (self->a1 * self->y1[j]) - (self->a2 * self->y2[j]) ) * self->a0;
             self->x2[j] = self->x1[j];
             self->x1[j] = vin;
             self->y2[j] = self->y1[j];
@@ -763,7 +763,7 @@ Biquadx_filters_ai(Biquadx *self) {
         Biquadx_compute_variables(self, fr[i], q);
         vin = in[i];
         for (j=0; j<self->stages; j++) {
-            vout = ( (self->b0 * vin) + (self->b1 * self->x1[j]) + (self->b2 * self->x2[j]) - (self->a1 * self->y1[j]) - (self->a2 * self->y2[j]) ) / self->a0;
+            vout = ( (self->b0 * vin) + (self->b1 * self->x1[j]) + (self->b2 * self->x2[j]) - (self->a1 * self->y1[j]) - (self->a2 * self->y2[j]) ) * self->a0;
             self->x2[j] = self->x1[j];
             self->x1[j] = vin;
             self->y2[j] = self->y1[j];
@@ -794,7 +794,7 @@ Biquadx_filters_ia(Biquadx *self) {
         Biquadx_compute_variables(self, fr, q[i]);
         vin = in[i];
         for (j=0; j<self->stages; j++) {
-            vout = ( (self->b0 * vin) + (self->b1 * self->x1[j]) + (self->b2 * self->x2[j]) - (self->a1 * self->y1[j]) - (self->a2 * self->y2[j]) ) / self->a0;
+            vout = ( (self->b0 * vin) + (self->b1 * self->x1[j]) + (self->b2 * self->x2[j]) - (self->a1 * self->y1[j]) - (self->a2 * self->y2[j]) ) * self->a0;
             self->x2[j] = self->x1[j];
             self->x1[j] = vin;
             self->y2[j] = self->y1[j];
@@ -825,7 +825,7 @@ Biquadx_filters_aa(Biquadx *self) {
         Biquadx_compute_variables(self, fr[i], q[i]);
         vin = in[i];
         for (j=0; j<self->stages; j++) {
-            vout = ( (self->b0 * vin) + (self->b1 * self->x1[j]) + (self->b2 * self->x2[j]) - (self->a1 * self->y1[j]) - (self->a2 * self->y2[j]) ) / self->a0;
+            vout = ( (self->b0 * vin) + (self->b1 * self->x1[j]) + (self->b2 * self->x2[j]) - (self->a1 * self->y1[j]) - (self->a2 * self->y2[j]) ) * self->a0;
             self->x2[j] = self->x1[j];
             self->x1[j] = vin;
             self->y2[j] = self->y1[j];
@@ -1672,6 +1672,7 @@ typedef struct {
     int modebuffer[5]; // need at least 2 slots for mul & add
     int filtertype;
     MYFLT nyquist;
+    MYFLT twoPiOverSr;
     // sample memories
     MYFLT x1;
     MYFLT x2;
@@ -1700,7 +1701,7 @@ EQ_compute_coeffs_peak(EQ *self)
     self->b0 = 1.0 + alphaMul;
     self->b1 = self->a1 = -2.0 * self->c;
     self->b2 = 1.0 - alphaMul;
-    self->a0 = 1.0 + alphaDiv;
+    self->a0 = 1.0 / (1.0 + alphaDiv);
     self->a2 = 1.0 - alphaDiv;
 }
 
@@ -1714,7 +1715,7 @@ EQ_compute_coeffs_lowshelf(EQ *self)
     self->b0 = self->A * ((self->A + 1.0) - AminOneC + twoSqrtAAlpha);
     self->b1 = 2.0 * self->A * ((self->A - 1.0) - AAddOneC);
     self->b2 = self->A * ((self->A + 1.0) - AminOneC - twoSqrtAAlpha);
-    self->a0 = (self->A + 1.0) + AminOneC + twoSqrtAAlpha;
+    self->a0 = 1.0 / ((self->A + 1.0) + AminOneC + twoSqrtAAlpha);
     self->a1 = -2.0 * ((self->A - 1.0) + AAddOneC);
     self->a2 = (self->A + 1.0) + AminOneC - twoSqrtAAlpha;
 }
@@ -1729,7 +1730,7 @@ EQ_compute_coeffs_highshelf(EQ *self)
     self->b0 = self->A * ((self->A + 1.0) + AminOneC + twoSqrtAAlpha);
     self->b1 = -2.0 * self->A * ((self->A - 1.0) + AAddOneC);
     self->b2 = self->A * ((self->A + 1.0) + AminOneC - twoSqrtAAlpha);
-    self->a0 = (self->A + 1.0) - AminOneC + twoSqrtAAlpha;
+    self->a0 = 1.0 / ((self->A + 1.0) - AminOneC + twoSqrtAAlpha);
     self->a1 = 2.0 * ((self->A - 1.0) - AAddOneC);
     self->a2 = (self->A + 1.0) - AminOneC - twoSqrtAAlpha;
 }
@@ -1743,7 +1744,7 @@ EQ_compute_variables(EQ *self, MYFLT freq, MYFLT q, MYFLT boost)
         freq = self->nyquist;
 
     self->A = MYPOW(10.0, boost/40.0);
-    self->w0 = TWOPI * freq / self->sr;
+    self->w0 = freq * self->twoPiOverSr;
     self->c = MYCOS(self->w0);
     self->alpha = MYSIN(self->w0) / (2 * q);
     (*self->coeffs_func_ptr)(self);
@@ -1761,12 +1762,11 @@ EQ_filters_iii(EQ *self) {
     }
 
     for (i=0; i<self->bufsize; i++) {
-        val = ( (self->b0 * in[i]) + (self->b1 * self->x1) + (self->b2 * self->x2) - (self->a1 * self->y1) - (self->a2 * self->y2) ) / self->a0;
+        val = ( (self->b0 * in[i]) + (self->b1 * self->x1) + (self->b2 * self->x2) - (self->a1 * self->y1) - (self->a2 * self->y2) ) * self->a0;
         self->y2 = self->y1;
-        self->y1 = val;
+        self->data[i] = self->y1 = val;
         self->x2 = self->x1;
         self->x1 = in[i];
-        self->data[i] = val;
     }
 }
 
@@ -1787,12 +1787,11 @@ EQ_filters_aii(EQ *self) {
 
     for (i=0; i<self->bufsize; i++) {
         EQ_compute_variables(self, fr[i], q, boost);
-        val = ( (self->b0 * in[i]) + (self->b1 * self->x1) + (self->b2 * self->x2) - (self->a1 * self->y1) - (self->a2 * self->y2) ) / self->a0;
+        val = ( (self->b0 * in[i]) + (self->b1 * self->x1) + (self->b2 * self->x2) - (self->a1 * self->y1) - (self->a2 * self->y2) ) * self->a0;
         self->y2 = self->y1;
-        self->y1 = val;
+        self->data[i] = self->y1 = val;
         self->x2 = self->x1;
         self->x1 = in[i];
-        self->data[i] = val;
     }
 }
 
@@ -1813,12 +1812,11 @@ EQ_filters_iai(EQ *self) {
 
     for (i=0; i<self->bufsize; i++) {
         EQ_compute_variables(self, fr, q[i], boost);
-        val = ( (self->b0 * in[i]) + (self->b1 * self->x1) + (self->b2 * self->x2) - (self->a1 * self->y1) - (self->a2 * self->y2) ) / self->a0;
+        val = ( (self->b0 * in[i]) + (self->b1 * self->x1) + (self->b2 * self->x2) - (self->a1 * self->y1) - (self->a2 * self->y2) ) * self->a0;
         self->y2 = self->y1;
-        self->y1 = val;
+        self->data[i] = self->y1 = val;
         self->x2 = self->x1;
         self->x1 = in[i];
-        self->data[i] = val;
     }
 }
 
@@ -1839,12 +1837,11 @@ EQ_filters_aai(EQ *self) {
 
     for (i=0; i<self->bufsize; i++) {
         EQ_compute_variables(self, fr[i], q[i], boost);
-        val = ( (self->b0 * in[i]) + (self->b1 * self->x1) + (self->b2 * self->x2) - (self->a1 * self->y1) - (self->a2 * self->y2) ) / self->a0;
+        val = ( (self->b0 * in[i]) + (self->b1 * self->x1) + (self->b2 * self->x2) - (self->a1 * self->y1) - (self->a2 * self->y2) ) * self->a0;
         self->y2 = self->y1;
-        self->y1 = val;
+        self->data[i] = self->y1 = val;
         self->x2 = self->x1;
         self->x1 = in[i];
-        self->data[i] = val;
     }
 }
 
@@ -1865,12 +1862,11 @@ EQ_filters_iia(EQ *self) {
 
     for (i=0; i<self->bufsize; i++) {
         EQ_compute_variables(self, fr, q, boost[i]);
-        val = ( (self->b0 * in[i]) + (self->b1 * self->x1) + (self->b2 * self->x2) - (self->a1 * self->y1) - (self->a2 * self->y2) ) / self->a0;
+        val = ( (self->b0 * in[i]) + (self->b1 * self->x1) + (self->b2 * self->x2) - (self->a1 * self->y1) - (self->a2 * self->y2) ) * self->a0;
         self->y2 = self->y1;
-        self->y1 = val;
+        self->data[i] = self->y1 = val;
         self->x2 = self->x1;
         self->x1 = in[i];
-        self->data[i] = val;
     }
 }
 
@@ -1891,12 +1887,11 @@ EQ_filters_aia(EQ *self) {
 
     for (i=0; i<self->bufsize; i++) {
         EQ_compute_variables(self, fr[i], q, boost[i]);
-        val = ( (self->b0 * in[i]) + (self->b1 * self->x1) + (self->b2 * self->x2) - (self->a1 * self->y1) - (self->a2 * self->y2) ) / self->a0;
+        val = ( (self->b0 * in[i]) + (self->b1 * self->x1) + (self->b2 * self->x2) - (self->a1 * self->y1) - (self->a2 * self->y2) ) * self->a0;
         self->y2 = self->y1;
-        self->y1 = val;
+        self->data[i] = self->y1 = val;
         self->x2 = self->x1;
         self->x1 = in[i];
-        self->data[i] = val;
     }
 }
 
@@ -1917,12 +1912,11 @@ EQ_filters_iaa(EQ *self) {
 
     for (i=0; i<self->bufsize; i++) {
         EQ_compute_variables(self, fr, q[i], boost[i]);
-        val = ( (self->b0 * in[i]) + (self->b1 * self->x1) + (self->b2 * self->x2) - (self->a1 * self->y1) - (self->a2 * self->y2) ) / self->a0;
+        val = ( (self->b0 * in[i]) + (self->b1 * self->x1) + (self->b2 * self->x2) - (self->a1 * self->y1) - (self->a2 * self->y2) ) * self->a0;
         self->y2 = self->y1;
-        self->y1 = val;
+        self->data[i] = self->y1 = val;
         self->x2 = self->x1;
         self->x1 = in[i];
-        self->data[i] = val;
     }
 }
 
@@ -1943,12 +1937,11 @@ EQ_filters_aaa(EQ *self) {
 
     for (i=0; i<self->bufsize; i++) {
         EQ_compute_variables(self, fr[i], q[i], boost[i]);
-        val = ( (self->b0 * in[i]) + (self->b1 * self->x1) + (self->b2 * self->x2) - (self->a1 * self->y1) - (self->a2 * self->y2) ) / self->a0;
+        val = ( (self->b0 * in[i]) + (self->b1 * self->x1) + (self->b2 * self->x2) - (self->a1 * self->y1) - (self->a2 * self->y2) ) * self->a0;
         self->y2 = self->y1;
-        self->y1 = val;
+        self->data[i] = self->y1 = val;
         self->x2 = self->x1;
         self->x1 = in[i];
-        self->data[i] = val;
     }
 }
 
@@ -2106,6 +2099,7 @@ EQ_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     INIT_OBJECT_COMMON
 
     self->nyquist = (MYFLT)self->sr * 0.49;
+    self->twoPiOverSr = TWOPI / (MYFLT)self->sr;
 
     Stream_setFunctionPtr(self->stream, EQ_compute_next_data_frame);
     self->mode_func_ptr = EQ_setProcMode;
@@ -2402,6 +2396,7 @@ typedef struct {
     int dir;
 } Port;
 
+// inline ?
 static void
 direction(Port *self, MYFLT val)
 {
@@ -2416,83 +2411,94 @@ direction(Port *self, MYFLT val)
 
 static void
 Port_filters_ii(Port *self) {
-    MYFLT val;
     int i;
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
     MYFLT risetime = PyFloat_AS_DOUBLE(self->risetime);
     MYFLT falltime = PyFloat_AS_DOUBLE(self->falltime);
-    MYFLT risefactor = 1. / ((risetime + 0.001) * self->sr);
-    MYFLT fallfactor = 1. / ((falltime + 0.001) * self->sr);
+    if (risetime < 0)
+        risetime = 0.0;
+    if (falltime < 0)
+        falltime = 0.0;
+    MYFLT risefactor = 1.0 / ((risetime + 0.00025) * self->sr);
+    MYFLT fallfactor = 1.0 / ((falltime + 0.00025) * self->sr);
     MYFLT factors[2] = {fallfactor, risefactor};
 
     for (i=0; i<self->bufsize; i++) {
         direction(self, in[i]);
-        val = self->y1 + (in[i] - self->y1) * factors[self->dir];
-        self->y1 = val;
-        self->data[i] = val;
+        self->data[i] = self->y1 = self->y1 + (in[i] - self->y1) * factors[self->dir];
     }
 }
 
 static void
 Port_filters_ai(Port *self) {
-    MYFLT val, risefactor;
+    MYFLT risetime, risefactor;
     int i;
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
-    MYFLT *risetime = Stream_getData((Stream *)self->risetime_stream);
+    MYFLT *rt = Stream_getData((Stream *)self->risetime_stream);
     MYFLT falltime = PyFloat_AS_DOUBLE(self->falltime);
-    MYFLT fallfactor = 1. / ((falltime + 0.001) * self->sr);
+    if (falltime < 0)
+        falltime = 0.0;
+    MYFLT fallfactor = 1.0 / ((falltime + 0.00025) * self->sr);
 
     for (i=0; i<self->bufsize; i++) {
         direction(self, in[i]);
-        risefactor = (*risetime++ + 0.001) * self->sr;
+        risetime = rt[i];
+        if (risetime < 0)
+            risetime = 0.0;
+        risefactor = (risetime + 0.00025) * self->sr;
         if (self->dir == 1)
-            val = self->y1 + (*in++ - self->y1) / risefactor;
+            self->data[i] = self->y1 = self->y1 + (in[i] - self->y1) / risefactor;
         else
-            val = self->y1 + (*in++ - self->y1) * fallfactor;
-        self->y1 = val;
-        self->data[i] = val;
+            self->data[i] = self->y1 = self->y1 + (in[i] - self->y1) * fallfactor;
     }
 }
 
 static void
 Port_filters_ia(Port *self) {
-    MYFLT val, fallfactor;
+    MYFLT falltime, fallfactor;
     int i;
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
-    MYFLT *falltime = Stream_getData((Stream *)self->falltime_stream);
+    MYFLT *ft = Stream_getData((Stream *)self->falltime_stream);
     MYFLT risetime = PyFloat_AS_DOUBLE(self->risetime);
-    MYFLT risefactor = 1. / ((risetime + 0.001) * self->sr);
+    if (risetime < 0)
+        risetime = 0.0;
+    MYFLT risefactor = 1.0 / ((risetime + 0.00025) * self->sr);
 
     for (i=0; i<self->bufsize; i++) {
         direction(self, in[i]);
-        fallfactor = (*falltime++ + 0.001) * self->sr;
+        falltime = ft[i];
+        if (falltime < 0)
+            falltime = 0.0;
+        fallfactor = (falltime + 0.00025) * self->sr;
         if (self->dir == 1)
-            val = self->y1 + (*in++ - self->y1) * risefactor;
+            self->data[i] = self->y1 = self->y1 + (in[i] - self->y1) * risefactor;
         else
-            val = self->y1 + (*in++ - self->y1) / fallfactor;
-        self->y1 = val;
-        self->data[i] = val;
+            self->data[i] = self->y1 = self->y1 + (in[i] - self->y1) / fallfactor;
     }
 }
 
 static void
 Port_filters_aa(Port *self) {
-    MYFLT val, risefactor, fallfactor;
+    MYFLT risetime, falltime, risefactor, fallfactor;
     int i;
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
-    MYFLT *risetime = Stream_getData((Stream *)self->risetime_stream);
-    MYFLT *falltime = Stream_getData((Stream *)self->falltime_stream);
+    MYFLT *rt = Stream_getData((Stream *)self->risetime_stream);
+    MYFLT *ft = Stream_getData((Stream *)self->falltime_stream);
 
     for (i=0; i<self->bufsize; i++) {
         direction(self, in[i]);
-        risefactor = (*risetime++ + 0.001) * self->sr;
-        fallfactor = (*falltime++ + 0.001) * self->sr;
+        risetime = rt[i];
+        if (risetime < 0)
+            risetime = 0.0;
+        falltime = ft[i];
+        if (falltime < 0)
+            falltime = 0.0;
+        risefactor = (risetime + 0.00025) * self->sr;
+        fallfactor = (falltime + 0.00025) * self->sr;
         if (self->dir == 1)
-            val = self->y1 + (*in++ - self->y1) / risefactor;
+            self->data[i] = self->y1 = self->y1 + (in[i] - self->y1) / risefactor;
         else
-            val = self->y1 + (*in++ - self->y1) / fallfactor;
-        self->y1 = val;
-        self->data[i] = val;
+            self->data[i] = self->y1 = self->y1 + (in[i] - self->y1) / fallfactor;
     }
 }
 
@@ -2859,60 +2865,51 @@ typedef struct {
     int modebuffer[3]; // need at least 2 slots for mul & add
     MYFLT lastFreq;
     MYFLT nyquist;
+    MYFLT mTwoPiOverSr;
     // sample memories
     MYFLT y1;
     // variables
-    MYFLT c1;
-    MYFLT c2;
+    MYFLT c;
 } Tone;
 
 static void
 Tone_filters_i(Tone *self) {
-    MYFLT val, b;
     int i;
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
     MYFLT fr = PyFloat_AS_DOUBLE(self->freq);
 
     if (fr != self->lastFreq) {
-        if (fr <= 1.0)
-            fr = 1.0;
+        if (fr <= 0.1)
+            fr = 0.1;
         else if (fr >= self->nyquist)
             fr = self->nyquist;
         self->lastFreq = fr;
-        b = 2.0 - MYCOS(TWOPI * fr / self->sr);
-        self->c2 = (b - MYSQRT(b * b - 1.0));
-        self->c1 = 1.0 - self->c2;
+        self->c = MYEXP(self->mTwoPiOverSr * fr);
     }
 
     for (i=0; i<self->bufsize; i++) {
-        val = self->c1 * in[i] + self->c2 * self->y1;
-        self->data[i] = val;
-        self->y1 = val;
+        self->data[i] = self->y1 = in[i] + (self->y1 - in[i]) * self->c;
     }
 }
 
 static void
 Tone_filters_a(Tone *self) {
-    MYFLT val, freq, b;
     int i;
+    MYFLT freq;
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
     MYFLT *fr = Stream_getData((Stream *)self->freq_stream);
 
     for (i=0; i<self->bufsize; i++) {
         freq = fr[i];
         if (freq != self->lastFreq) {
-            if (freq <= 1.0)
-                freq = 1.0;
+            if (freq <= 0.1)
+                freq = 0.1;
             else if (freq >= self->nyquist)
                 freq = self->nyquist;
             self->lastFreq = freq;
-            b = 2.0 - MYCOS(TWOPI * freq / self->sr);
-            self->c2 = (b - MYSQRT(b * b - 1.0));
-            self->c1 = 1.0 - self->c2;
+            self->c = MYEXP(self->mTwoPiOverSr * freq);
         }
-        val = self->c1 * in[i] + self->c2 * self->y1;
-        self->data[i] = val;
-        self->y1 = val;
+        self->data[i] = self->y1 = in[i] + (self->y1 - in[i]) * self->c;
     }
 }
 
@@ -3019,7 +3016,7 @@ Tone_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     self->freq = PyFloat_FromDouble(1000);
     self->lastFreq = -1.0;
-    self->y1 = self->c1 = self->c2 = 0.0;
+    self->y1 = self->c = 0.0;
 	self->modebuffer[0] = 0;
 	self->modebuffer[1] = 0;
 	self->modebuffer[2] = 0;
@@ -3027,6 +3024,7 @@ Tone_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     INIT_OBJECT_COMMON
 
     self->nyquist = (MYFLT)self->sr * 0.49;
+    self->mTwoPiOverSr = -TWOPI / (MYFLT)self->sr;
 
     Stream_setFunctionPtr(self->stream, Tone_compute_next_data_frame);
     self->mode_func_ptr = Tone_setProcMode;
@@ -3228,58 +3226,53 @@ typedef struct {
     int modebuffer[3]; // need at least 2 slots for mul & add
     MYFLT lastFreq;
     MYFLT nyquist;
+    MYFLT mTwoPiOverSr;
     // sample memories
     MYFLT y1;
     // variables
-    MYFLT c1;
-    MYFLT c2;
+    MYFLT c;
 } Atone;
 
 static void
 Atone_filters_i(Atone *self) {
-    MYFLT val, b;
     int i;
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
     MYFLT fr = PyFloat_AS_DOUBLE(self->freq);
 
     if (fr != self->lastFreq) {
-        if (fr <= 1.0)
-            fr = 1.0;
+        if (fr <= 0.1)
+            fr = 0.1;
         else if (fr >= self->nyquist)
             fr = self->nyquist;
         self->lastFreq = fr;
-        b = 2.0 - MYCOS(TWOPI * fr / self->sr);
-        self->c2 = (b - MYSQRT(b * b - 1.0));
-        self->c1 = 1.0 - self->c2;
+        self->c = MYEXP(self->mTwoPiOverSr * fr);
     }
 
     for (i=0; i<self->bufsize; i++) {
-        self->y1 = val = self->c1 * in[i] + self->c2 * self->y1;
-        self->data[i] = in[i] - val;
+        self->y1 = in[i] + (self->y1 - in[i]) * self->c;
+        self->data[i] = in[i] - self->y1;
     }
 }
 
 static void
 Atone_filters_a(Atone *self) {
-    MYFLT val, freq, b;
     int i;
+    MYFLT freq;
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
     MYFLT *fr = Stream_getData((Stream *)self->freq_stream);
 
     for (i=0; i<self->bufsize; i++) {
         freq = fr[i];
         if (freq != self->lastFreq) {
-            if (freq <= 1.0)
-                freq = 1.0;
+            if (freq <= 0.1)
+                freq = 0.1;
             else if (freq >= self->nyquist)
                 freq = self->nyquist;
             self->lastFreq = freq;
-            b = 2.0 - MYCOS(TWOPI * freq / self->sr);
-            self->c2 = (b - MYSQRT(b * b - 1.0));
-            self->c1 = 1.0 - self->c2;
+            self->c = MYEXP(self->mTwoPiOverSr * freq);
         }
-        self->y1 = val = self->c1 * in[i] + self->c2 * self->y1;
-        self->data[i] = in[i] - val;
+        self->y1 = in[i] + (self->y1 - in[i]) * self->c;
+        self->data[i] = in[i] - self->y1;
     }
 }
 
@@ -3386,7 +3379,7 @@ Atone_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     self->freq = PyFloat_FromDouble(1000);
     self->lastFreq = -1.0;
-    self->y1 = self->c1 = self->c2 = 0.0;
+    self->y1 = self->c = 0.0;
 	self->modebuffer[0] = 0;
 	self->modebuffer[1] = 0;
 	self->modebuffer[2] = 0;
@@ -3394,6 +3387,7 @@ Atone_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     INIT_OBJECT_COMMON
 
     self->nyquist = (MYFLT)self->sr * 0.49;
+    self->mTwoPiOverSr = -TWOPI / (MYFLT)self->sr;
 
     Stream_setFunctionPtr(self->stream, Atone_compute_next_data_frame);
     self->mode_func_ptr = Atone_setProcMode;
@@ -3591,22 +3585,18 @@ typedef struct {
     PyObject *input;
     Stream *input_stream;
     int modebuffer[2]; // need at least 2 slots for mul & add
-    // sample memories
     MYFLT x1;
     MYFLT y1;
 } DCBlock;
 
 static void
 DCBlock_filters(DCBlock *self) {
-    MYFLT x, y;
     int i;
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
 
     for (i=0; i<self->bufsize; i++) {
-        x = in[i];
-        y = x - self->x1 + 0.995 * self->y1;
-        self->x1 = x;
-        self->data[i] = self->y1 = y;
+        self->data[i] = self->y1 = in[i] - self->x1 + 0.995 * self->y1;
+        self->x1 = in[i];
     }
 }
 
@@ -3873,7 +3863,7 @@ typedef struct {
 
 static void
 Allpass_process_ii(Allpass *self) {
-    MYFLT val, xind, frac;
+    MYFLT val, xind, frac, omsqrf;
     int i, ind;
 
     MYFLT del = PyFloat_AS_DOUBLE(self->delay);
@@ -3889,6 +3879,7 @@ Allpass_process_ii(Allpass *self) {
         feed = 0;
     else if (feed > 1)
         feed = 1;
+    omsqrf = 1.0 - (feed * feed);
 
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
 
@@ -3898,8 +3889,8 @@ Allpass_process_ii(Allpass *self) {
             xind += self->size;
         ind = (int)xind;
         frac = xind - ind;
-        val = self->buffer[ind] * (1.0 - frac) + self->buffer[ind+1] * frac;
-        self->data[i] = val * (1.0 - (feed * feed)) + in[i] * -feed;
+        val = self->buffer[ind] + (self->buffer[ind+1] - self->buffer[ind]) * frac;
+        self->data[i] = val * omsqrf + in[i] * -feed;
 
         self->buffer[self->in_count] = in[i] + (val * feed);
         if (self->in_count == 0)
@@ -3912,7 +3903,7 @@ Allpass_process_ii(Allpass *self) {
 
 static void
 Allpass_process_ai(Allpass *self) {
-    MYFLT val, xind, frac, sampdel, del;
+    MYFLT val, xind, frac, sampdel, del, omsqrf;
     int i, ind;
 
     MYFLT *delobj = Stream_getData((Stream *)self->delay_stream);
@@ -3922,6 +3913,7 @@ Allpass_process_ai(Allpass *self) {
         feed = 0;
     else if (feed > 1)
         feed = 1;
+    omsqrf = 1.0 - (feed * feed);
 
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
 
@@ -3937,8 +3929,8 @@ Allpass_process_ai(Allpass *self) {
             xind += self->size;
         ind = (int)xind;
         frac = xind - ind;
-        val = self->buffer[ind] * (1.0 - frac) + self->buffer[ind+1] * frac;
-        self->data[i] = val * (1.0 - (feed * feed)) + in[i] * -feed;
+        val = self->buffer[ind] + (self->buffer[ind+1] - self->buffer[ind]) * frac;
+        self->data[i] = val * omsqrf + in[i] * -feed;
 
         self->buffer[self->in_count] = in[i]  + (val * feed);
         if (self->in_count == 0)
@@ -3976,7 +3968,7 @@ Allpass_process_ia(Allpass *self) {
             xind += self->size;
         ind = (int)xind;
         frac = xind - ind;
-        val = self->buffer[ind] * (1.0 - frac) + self->buffer[ind+1] * frac;
+        val = self->buffer[ind] + (self->buffer[ind+1] - self->buffer[ind]) * frac;
         self->data[i] = val * (1.0 - (feed * feed)) + in[i] * -feed;
 
         self->buffer[self->in_count] = in[i] + (val * feed);
@@ -4015,7 +4007,7 @@ Allpass_process_aa(Allpass *self) {
             xind += self->size;
         ind = (int)xind;
         frac = xind - ind;
-        val = self->buffer[ind] * (1.0 - frac) + self->buffer[ind+1] * frac;
+        val = self->buffer[ind] + (self->buffer[ind+1] - self->buffer[ind]) * frac;
         self->data[i] = val * (1.0 - (feed * feed)) + in[i] * -feed;
 
         self->buffer[self->in_count] = in[i] + (val * feed);
@@ -4391,7 +4383,8 @@ typedef struct {
     Stream *bw_stream;
     int init;
     int modebuffer[4]; // need at least 2 slots for mul & add
-    MYFLT oneOnSr;
+    MYFLT minusPiOverSr;
+    MYFLT twoPiOverSr;
     MYFLT nyquist;
     // sample memories
     MYFLT y1;
@@ -4410,8 +4403,8 @@ Allpass2_compute_variables(Allpass2 *self, MYFLT freq, MYFLT bw)
     else if (freq >= self->nyquist)
         freq = self->nyquist;
 
-    radius = MYPOW(E, -PI * bw * self->oneOnSr);
-    angle = TWOPI * freq * self->oneOnSr;
+    radius = MYEXP(bw * self->minusPiOverSr);
+    angle = freq * self->twoPiOverSr;
 
     self->alpha = radius * radius;
     self->beta = -2.0 * radius * MYCOS(angle);
@@ -4627,7 +4620,8 @@ Allpass2_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     INIT_OBJECT_COMMON
 
-    self->oneOnSr = 1.0 / self->sr;
+    self->minusPiOverSr = -PI / self->sr;
+    self->twoPiOverSr = TWOPI / self->sr;
     self->nyquist = (MYFLT)self->sr * 0.49;
 
     Stream_setFunctionPtr(self->stream, Allpass2_compute_next_data_frame);
@@ -4909,7 +4903,7 @@ Phaser_compute_variables(Phaser *self, MYFLT freq, MYFLT spread, MYFLT q)
         else if (fr >= self->halfSr)
             fr = self->halfSr;
 
-        radius = MYPOW(E, fr * qfactor);
+        radius = MYEXP(fr * qfactor);
         angle = fr * self->twoPiOnSr;
 
         self->alpha[i] = radius * radius;
@@ -4917,7 +4911,7 @@ Phaser_compute_variables(Phaser *self, MYFLT freq, MYFLT spread, MYFLT q)
         pos = angle * self->norm_arr_pos;
         ipart = (int)pos;
         fpart = pos - ipart;
-        self->beta[i] = -2.0 * radius * (HALF_COS_ARRAY[i] * (1.0 - fpart) + HALF_COS_ARRAY[i+1] * fpart);
+        self->beta[i] = -2.0 * radius * (HALF_COS_ARRAY[i] + (HALF_COS_ARRAY[i+1] - HALF_COS_ARRAY[i]) * fpart);
         fr *= spread;
     }
 }
@@ -9161,8 +9155,8 @@ ButLP_filters_i(ButLP *self) {
     MYFLT fr = PyFloat_AS_DOUBLE(self->freq);
 
     if (fr != self->lastFreq) {
-        if (fr <= 1.0)
-            fr = 1.0;
+        if (fr < 0.1)
+            fr = 0.1;
         else if (fr >= self->nyquist)
             fr = self->nyquist;
         self->lastFreq = fr;
@@ -9193,8 +9187,8 @@ ButLP_filters_a(ButLP *self) {
     for (i=0; i<self->bufsize; i++) {
         fr = freq[i];
         if (fr != self->lastFreq) {
-            if (fr <= 1.0)
-                fr = 1.0;
+            if (fr < 0.1)
+                fr = 0.1;
             else if (fr >= self->nyquist)
                 fr = self->nyquist;
             self->lastFreq = fr;
@@ -9550,8 +9544,8 @@ ButHP_filters_i(ButHP *self) {
     MYFLT fr = PyFloat_AS_DOUBLE(self->freq);
 
     if (fr != self->lastFreq) {
-        if (fr <= 1.0)
-            fr = 1.0;
+        if (fr < 0.1)
+            fr = 0.1;
         else if (fr >= self->nyquist)
             fr = self->nyquist;
         self->lastFreq = fr;
@@ -9582,8 +9576,8 @@ ButHP_filters_a(ButHP *self) {
     for (i=0; i<self->bufsize; i++) {
         fr = freq[i];
         if (fr != self->lastFreq) {
-            if (fr <= 1.0)
-                fr = 1.0;
+            if (fr < 0.1)
+                fr = 0.1;
             else if (fr >= self->nyquist)
                 fr = self->nyquist;
             self->lastFreq = fr;
@@ -11414,6 +11408,7 @@ typedef struct {
     MYFLT oldY1;
     MYFLT oldY2;
     MYFLT oldY3;
+    MYFLT oneOverSr;
     // coefficients
     MYFLT r;
     MYFLT p;
@@ -11434,7 +11429,7 @@ MoogLP_compute_coeffs(MoogLP *self, MYFLT freq, MYFLT res)
     else if (res > 10.0)
         res = 10.0;
 
-    f = (freq + freq) / self->sr;
+    f = (freq + freq) * self->oneOverSr;
     fi = 1.0 - f;
     self->p = f * (1.8 - 0.8 * f);
     self->k = 2.0 * MYSIN(f * PI * 0.5) - 1.0;
@@ -11461,11 +11456,11 @@ MoogLP_filters_ii(MoogLP *self) {
 
     for (i=0; i<self->bufsize; i++) {
         x = in[i] - self->r * self->y4;
-        self->y1 = x * self->p + self->oldX * self->p - self->k * self->y1;
-        self->y2 = self->y1 * self->p + self->oldY1 * self->p - self->k * self->y2;
-        self->y3 = self->y2 * self->p + self->oldY2 * self->p - self->k * self->y3;
-        self->y4 = self->y3 * self->p + self->oldY3 * self->p - self->k * self->y4;
-        self->y4 -= (self->y4*self->y4*self->y4) / 6.0;
+        self->y1 = (x + self->oldX) * self->p - self->k * self->y1;
+        self->y2 = (self->y1 + self->oldY1) * self->p - self->k * self->y2;
+        self->y3 = (self->y2 + self->oldY2) * self->p - self->k * self->y3;
+        self->y4 = (self->y3 + self->oldY3) * self->p - self->k * self->y4;
+        self->y4 -= (self->y4*self->y4*self->y4) * 0.16666666666666666;
         self->oldX = x; self->oldY1 = self->y1; self->oldY2 = self->y2; self->oldY3 = self->y3;
         self->data[i] = self->y4;
     }
@@ -11487,11 +11482,11 @@ MoogLP_filters_ai(MoogLP *self) {
             MoogLP_compute_coeffs(self, fr, res);
         }
         x = in[i] - self->r * self->y4;
-        self->y1 = x * self->p + self->oldX * self->p - self->k * self->y1;
-        self->y2 = self->y1 * self->p + self->oldY1 * self->p - self->k * self->y2;
-        self->y3 = self->y2 * self->p + self->oldY2 * self->p - self->k * self->y3;
-        self->y4 = self->y3 * self->p + self->oldY3 * self->p - self->k * self->y4;
-        self->y4 -= (self->y4*self->y4*self->y4) / 6.0;
+        self->y1 = (x + self->oldX) * self->p - self->k * self->y1;
+        self->y2 = (self->y1 + self->oldY1) * self->p - self->k * self->y2;
+        self->y3 = (self->y2 + self->oldY2) * self->p - self->k * self->y3;
+        self->y4 = (self->y3 + self->oldY3) * self->p - self->k * self->y4;
+        self->y4 -= (self->y4*self->y4*self->y4) * 0.16666666666666666;
         self->oldX = x; self->oldY1 = self->y1; self->oldY2 = self->y2; self->oldY3 = self->y3;
         self->data[i] = self->y4;
     }
@@ -11513,11 +11508,11 @@ MoogLP_filters_ia(MoogLP *self) {
             MoogLP_compute_coeffs(self, fr, res);
         }
         x = in[i] - self->r * self->y4;
-        self->y1 = x * self->p + self->oldX * self->p - self->k * self->y1;
-        self->y2 = self->y1 * self->p + self->oldY1 * self->p - self->k * self->y2;
-        self->y3 = self->y2 * self->p + self->oldY2 * self->p - self->k * self->y3;
-        self->y4 = self->y3 * self->p + self->oldY3 * self->p - self->k * self->y4;
-        self->y4 -= (self->y4*self->y4*self->y4) / 6.0;
+        self->y1 = (x + self->oldX) * self->p - self->k * self->y1;
+        self->y2 = (self->y1 + self->oldY1) * self->p - self->k * self->y2;
+        self->y3 = (self->y2 + self->oldY2) * self->p - self->k * self->y3;
+        self->y4 = (self->y3 + self->oldY3) * self->p - self->k * self->y4;
+        self->y4 -= (self->y4*self->y4*self->y4) * 0.16666666666666666;
         self->oldX = x; self->oldY1 = self->y1; self->oldY2 = self->y2; self->oldY3 = self->y3;
         self->data[i] = self->y4;
     }
@@ -11540,11 +11535,11 @@ MoogLP_filters_aa(MoogLP *self) {
             MoogLP_compute_coeffs(self, fr, res);
         }
         x = in[i] - self->r * self->y4;
-        self->y1 = x * self->p + self->oldX * self->p - self->k * self->y1;
-        self->y2 = self->y1 * self->p + self->oldY1 * self->p - self->k * self->y2;
-        self->y3 = self->y2 * self->p + self->oldY2 * self->p - self->k * self->y3;
-        self->y4 = self->y3 * self->p + self->oldY3 * self->p - self->k * self->y4;
-        self->y4 -= (self->y4*self->y4*self->y4) / 6.0;
+        self->y1 = (x + self->oldX) * self->p - self->k * self->y1;
+        self->y2 = (self->y1 + self->oldY1) * self->p - self->k * self->y2;
+        self->y3 = (self->y2 + self->oldY2) * self->p - self->k * self->y3;
+        self->y4 = (self->y3 + self->oldY3) * self->p - self->k * self->y4;
+        self->y4 -= (self->y4*self->y4*self->y4) * 0.16666666666666666;
         self->oldX = x; self->oldY1 = self->y1; self->oldY2 = self->y2; self->oldY3 = self->y3;
         self->data[i] = self->y4;
     }
@@ -11673,6 +11668,7 @@ MoogLP_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     INIT_OBJECT_COMMON
 
     self->nyquist = (MYFLT)self->sr * 0.49;
+    self->oneOverSr = 1.0 / (MYFLT)self->sr;
 
     Stream_setFunctionPtr(self->stream, MoogLP_compute_next_data_frame);
     self->mode_func_ptr = MoogLP_setProcMode;

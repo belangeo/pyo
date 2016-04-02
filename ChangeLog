@@ -1,3 +1,8 @@
+2016-04-02 belangeo <belangeo@gmail.com>
+
+    *  Revision, clean-up and optimization of various filters in the library.
+    (Biquad, Biquadx, Port, Tone, Atone, Allpass, Allpass2, Phaser, BandSplit MoogLP).
+
 2016-03-28 belangeo <belangeo@gmail.com>
 
     *  Added new object: FastSine, two fast sin approximations (faster than linear table lookup).

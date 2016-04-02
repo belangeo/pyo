@@ -54,7 +54,6 @@ typedef struct {
     int modebuffer[1];
 } BandSplitter;
 
-
 static void
 BandSplitter_compute_variables(BandSplitter *self, MYFLT q)
 {
@@ -73,7 +72,7 @@ BandSplitter_compute_variables(BandSplitter *self, MYFLT q)
 
         self->b0[i] = alpha;
         self->b2[i] = -alpha;
-        self->a0[i] = 1 + alpha;
+        self->a0[i] = 1.0 / (1 + alpha);
         self->a1[i] = -2 * c;
         self->a2[i] = 1 - alpha;
     }
@@ -104,12 +103,11 @@ BandSplitter_filters_i(BandSplitter *self) {
 
     for (j=0; j<self->bands; j++) {
         for (i=0; i<self->bufsize; i++) {
-            val = ( (self->b0[j] * in[i]) + (self->b2[j] * self->x2[j]) - (self->a1[j] * self->y1[j]) - (self->a2[j] * self->y2[j]) ) / self->a0[j];
+            val = ( (self->b0[j] * in[i]) + (self->b2[j] * self->x2[j]) - (self->a1[j] * self->y1[j]) - (self->a2[j] * self->y2[j]) ) * self->a0[j];
             self->y2[j] = self->y1[j];
-            self->y1[j] = val;
+            self->buffer_streams[i + j * self->bufsize] = self->y1[j] = val;
             self->x2[j] = self->x1[j];
             self->x1[j] = in[i];
-            self->buffer_streams[i + j * self->bufsize] = val;
         }
     }
 }
@@ -132,12 +130,11 @@ BandSplitter_filters_a(BandSplitter *self) {
     for (i=0; i<self->bufsize; i++) {
         BandSplitter_compute_variables((BandSplitter *)self, q[i]);
         for (j=0; j<self->bands; j++) {
-            val = ( (self->b0[j] * in[i]) + (self->b2[j] * self->x2[j]) - (self->a1[j] * self->y1[j]) - (self->a2[j] * self->y2[j]) ) / self->a0[j];
+            val = ( (self->b0[j] * in[i]) + (self->b2[j] * self->x2[j]) - (self->a1[j] * self->y1[j]) - (self->a2[j] * self->y2[j]) ) * self->a0[j];
             self->y2[j] = self->y1[j];
-            self->y1[j] = val;
+            self->buffer_streams[i + j * self->bufsize] = self->y1[j] = val;
             self->x2[j] = self->x1[j];
             self->x1[j] = in[i];
-            self->buffer_streams[i + j * self->bufsize] = val;
         }
     }
 }
@@ -228,7 +225,7 @@ BandSplitter_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     Stream_setFunctionPtr(self->stream, BandSplitter_compute_next_data_frame);
     self->mode_func_ptr = BandSplitter_setProcMode;
 
-    self->halfSr = self->sr / 2.;
+    self->halfSr = self->sr / 2.01;
     self->TwoPiOnSr = TWOPI / self->sr;
 
     static char *kwlist[] = {"input", "bands", "min", "max", "q", NULL};
