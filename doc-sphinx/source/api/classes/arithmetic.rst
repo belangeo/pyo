@@ -89,4 +89,9 @@ Tools to perform arithmetic operations on audio signals.
 .. autoclass:: Pow
    :members:
 
+*Exp*
+------------
+
+.. autoclass:: Exp
+   :members:
 

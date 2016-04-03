@@ -750,3 +750,59 @@ class Tanh(PyoObject):
         return self._input
     @input.setter
     def input(self, x): self.setInput(x)
+
+class Exp(PyoObject):
+    """
+    Calculates the value of e to the power of x.
+
+    Returns the value of e to the power of x, where e is the base of the 
+    natural logarithm, 2.718281828...
+
+    :Parent: :py:class:`PyoObject`
+
+    :Args:
+
+        input : PyoObject
+            Input signal, the exponent.
+
+    >>> s = Server().boot()
+    >>> s.start()
+    >>> a = Sine(freq=200)
+    >>> lf = Sine(freq=.5, mul=5, add=6)
+    >>> # Tanh style distortion
+    >>> t = Exp(2 * a * lf)
+    >>> th = (t - 1) / (t + 1)
+    >>> out = (th * 0.3).out()
+
+    """
+
+    def __init__(self, input, mul=1, add=0):
+        pyoArgsAssert(self, "oOO", input, mul, add)
+        PyoObject.__init__(self, mul, add)
+        self._input = input
+        self._in_fader = InputFader(input)
+        in_fader, mul, add, lmax = convertArgsToLists(self._in_fader, mul, add)
+        self._base_objs = [M_Exp_base(wrap(in_fader,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+
+    def setInput(self, x, fadetime=0.05):
+        """
+        Replace the `input` attribute.
+
+        :Args:
+
+            x : PyoObject
+                New signal to process.
+            fadetime : float, optional
+                Crossfade time between old and new input. Default to 0.05.
+
+        """
+        pyoArgsAssert(self, "oN", x, fadetime)
+        self._input = x
+        self._in_fader.setInput(x, fadetime)
+
+    @property
+    def input(self):
+        """PyoObject. Input signal to process."""
+        return self._input
+    @input.setter
+    def input(self, x): self.setInput(x)

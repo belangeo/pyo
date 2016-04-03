@@ -2479,6 +2479,7 @@ init_pyo64(void)
     module_add_object(m, "M_Ceil_base", &M_CeilType);
     module_add_object(m, "M_Round_base", &M_RoundType);
     module_add_object(m, "M_Tanh_base", &M_TanhType);
+    module_add_object(m, "M_Exp_base", &M_ExpType);
     module_add_object(m, "Snap_base", &SnapType);
     module_add_object(m, "Interp_base", &InterpType);
     module_add_object(m, "SampHold_base", &SampHoldType);

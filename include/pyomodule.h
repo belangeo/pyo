@@ -427,6 +427,7 @@ extern PyTypeObject M_FloorType;
 extern PyTypeObject M_CeilType;
 extern PyTypeObject M_RoundType;
 extern PyTypeObject M_TanhType;
+extern PyTypeObject M_ExpType;
 extern PyTypeObject FFTMainType;
 extern PyTypeObject FFTType;
 extern PyTypeObject IFFTType;

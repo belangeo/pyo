@@ -62,6 +62,13 @@ if '--compile-externals' in sys.argv:
     sys.argv.remove('--compile-externals') 
     macros.append(('COMPILE_EXTERNALS',None))
 
+if '--fast-compile' in sys.argv:
+    sys.argv.remove('--fast-compile')
+    oflag = "-O0"
+else:
+    oflag = "-O3"
+
+
 if sys.platform == "darwin":
     macros.append(('_OSX_', None))
 
@@ -71,14 +78,14 @@ files = ['pyomodule.c', 'listenermodule.c', 'servermodule.c', 'pvstreammodule.c'
 source_files = [path + f for f in files]
 
 path = 'src/objects/'
-files = ['filtremodule.c', 
+files = ['filtremodule.c', 'arithmeticmodule.c', 
         'oscilmodule.c', 'randommodule.c', 'oscmodule.c','analysismodule.c', 
         'sfplayermodule.c', 'oscbankmodule.c', 'lfomodule.c', 'exprmodule.c', 'utilsmodule.c', 'granulatormodule.c',  
         'matrixmodule.c', 'noisemodule.c', 'distomodule.c', 'tablemodule.c', 'wgverbmodule.c', 
         'inputmodule.c', 'fadermodule.c', 'midimodule.c', 'delaymodule.c','recordmodule.c', 
         'metromodule.c', 'trigmodule.c', 'patternmodule.c', 'bandsplitmodule.c', 'hilbertmodule.c', 'panmodule.c',
         'selectmodule.c', 'compressmodule.c',  'freeverbmodule.c', 'phasevocmodule.c', 'fftmodule.c',
-        'convolvemodule.c', 'arithmeticmodule.c', 'sigmodule.c',
+        'convolvemodule.c', 'sigmodule.c',
         'matrixprocessmodule.c', 'harmonizermodule.c', 'chorusmodule.c']
 
 if compile_externals:
@@ -107,7 +114,7 @@ else:
 extensions = []
 for extension_name, extra_macros in zip(extension_names, extra_macros_per_extension):
     extensions.append(Extension(extension_name, source_files, include_dirs=include_dirs, library_dirs=library_dirs,
-                                libraries=libraries, extra_compile_args=['-Wno-strict-prototypes', '-O3', '-Wno-strict-aliasing'],
+                                libraries=libraries, extra_compile_args=['-Wno-strict-prototypes', '-Wno-strict-aliasing', oflag],
                                 define_macros=macros + extra_macros))
 
 if compile_externals:
