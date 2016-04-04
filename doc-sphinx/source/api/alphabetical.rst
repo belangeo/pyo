@@ -36,6 +36,7 @@ Alphabetical class reference
 - :py:class:`CentsToTranspo` :     Returns the transposition factor equivalent of a given cents value.
 - :py:class:`Change` :     Sends trigger that informs when input value has changed.
 - :py:class:`ChebyTable` :     Chebyshev polynomials of the first kind.
+- :py:class:`ChenLee` :     Chaotic attractor for the Chen-Lee system.
 - :py:class:`Choice` :     Periodically choose a new value from a user list.
 - :py:class:`Chorus` :     8 modulated delay lines chorus processor.
 - :py:class:`Clean_objects` :     Stops and deletes PyoObjects after a given time.
@@ -64,11 +65,12 @@ Alphabetical class reference
 - :py:class:`Delay1` :     Delays a signal by one sample.
 - :py:class:`Delay` :     Sweepable recursive delay.
 - :py:class:`Denorm` :     Mixes low level noise to an input signal.
-- :py:class:`Disto` :     Arc tangent distortion.
+- :py:class:`Disto` :     Kind of Arc tangent distortion.
 - :py:class:`Dummy` :     Dummy object used to perform arithmetics on PyoObject.
 - :py:class:`EQ` :     Equalizer filter.
 - :py:class:`Euclide` :     Euclidean rhythm generator.
 - :py:class:`ExpTable` :     Construct a table from exponential interpolated segments.
+- :py:class:`Exp` :     Calculates the value of e to the power of x.
 - :py:class:`Expr` :     Prefix audio expression evaluator.
 - :py:class:`Expr` :     Prefix audio expression evaluator.
 - :py:class:`Expseg` :     Trace a series of exponential segments between specified break-points.
@@ -76,6 +78,7 @@ Alphabetical class reference
 - :py:class:`FM` :     A simple frequency modulation generator.
 - :py:class:`FToM` :     Returns the midi note equivalent to a frequency in Hz.
 - :py:class:`Fader` :     Fadein - fadeout envelope generator.
+- :py:class:`FastSine` :     A fast sine wave approximation using the formula of a parabola.
 - :py:class:`Floor` :     Rounds to largest integral value not greater than audio signal.
 - :py:class:`Follower2` :     Envelope follower with different attack and release times.
 - :py:class:`Follower` :     Envelope follower.
@@ -125,6 +128,7 @@ Alphabetical class reference
 - :py:class:`Mirror` :     Reflects the signal that exceeds the `min` and `max` thresholds.
 - :py:class:`Mix` :     Mix audio streams to arbitrary number of streams.
 - :py:class:`Mixer` :     Audio mixer.
+- :py:class:`MoogLP` :     A fourth-order resonant lowpass filter.
 - :py:class:`NewMatrix` :     Create a new matrix ready for recording.
 - :py:class:`NewTable` :     Create an empty table ready for recording.
 - :py:class:`NextTrig` :     A trigger in the second stream opens a gate only for the next one in the first stream.
@@ -159,6 +163,7 @@ Alphabetical class reference
 - :py:class:`PVSynth` :     Phase Vocoder synthesis object.
 - :py:class:`PVTranspose` :     Transpose the frequency components of a pv stream.
 - :py:class:`PVVerb` :     Spectral domain reverberation.
+- :py:class:`PadSynthTable` :     Generates wavetable with the PadSynth algorithm from Nasca Octavian Paul.
 - :py:class:`Pan` :     Cosinus panner with control on the spread factor.
 - :py:class:`ParaTable` :     Generates parabola window function.
 - :py:class:`PartialTable` :     Inharmonic waveform generator.

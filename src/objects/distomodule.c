@@ -39,9 +39,8 @@ typedef struct {
     MYFLT y1; // sample memory
 } Disto;
 
-static MYFLT
-_clip(MYFLT x)
-{
+/* old version (prior to 0.8.0) with atan2
+static MYFLT _clip(MYFLT x) {
     if (x < 0)
         return 0;
     else if (x > 1)
@@ -70,72 +69,78 @@ Disto_transform_ii(Disto *self) {
         self->data[i] = val;
     }
 }
+*/
+static void
+Disto_transform_ii(Disto *self) {
+    int i;
+    MYFLT val;
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT drv = PyFloat_AS_DOUBLE(self->drive);
+    MYFLT slp = PyFloat_AS_DOUBLE(self->slope);
+
+    drv = (drv < 0.0) ? 0.0 : (drv > 0.998) ? 0.998 : drv;
+    drv = (2.0 * drv) / (1 - drv);
+    slp = (slp < 0.0) ? 0.0 : (slp > 0.999) ? 0.999 : slp;
+
+    for (i=0; i<self->bufsize; i++) {
+        val = (1 + drv) * in[i] / (1 + drv * MYFABS(in[i]));
+        self->data[i] = self->y1 = val + (self->y1 - val) * slp;
+    }
+}
 
 static void
 Disto_transform_ai(Disto *self) {
-    MYFLT val, drv, coeff;
     int i;
+    MYFLT val, drv;
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
-
     MYFLT *drive = Stream_getData((Stream *)self->drive_stream);
-    MYFLT slp = _clip(PyFloat_AS_DOUBLE(self->slope));
+    MYFLT slp = PyFloat_AS_DOUBLE(self->slope);
+    slp = (slp < 0.0) ? 0.0 : (slp > 0.999) ? 0.999 : slp;
 
     for (i=0; i<self->bufsize; i++) {
-        drv = .4 - _clip(drive[i]) * .3999;
-        val = MYATAN2(in[i], drv);
-        self->data[i] = val;
-    }
-
-    coeff = 1.0 - slp;
-    for (i=0; i<self->bufsize; i++) {
-        val = self->data[i] * coeff + self->y1 * slp;
-        self->y1 = val;
-        self->data[i] = val;
+        drv = drive[i];
+        drv = (drv < 0.0) ? 0.0 : (drv > 0.998) ? 0.998 : drv;
+        drv = (2.0 * drv) / (1 - drv);
+        val = (1 + drv) * in[i] / (1 + drv * MYFABS(in[i]));
+        self->data[i] = self->y1 = val + (self->y1 - val) * slp;
     }
 }
 
 static void
 Disto_transform_ia(Disto *self) {
-    MYFLT val, coeff, slp;
     int i;
+    MYFLT val, slp;
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
-
-    MYFLT drv = .4 - _clip(PyFloat_AS_DOUBLE(self->drive)) * .3999;
+    MYFLT drv = PyFloat_AS_DOUBLE(self->drive);
     MYFLT *slope = Stream_getData((Stream *)self->slope_stream);
 
+    drv = (drv < 0.0) ? 0.0 : (drv > 0.998) ? 0.998 : drv;
+    drv = (2.0 * drv) / (1 - drv);
+
     for (i=0; i<self->bufsize; i++) {
-        val = MYATAN2(in[i], drv);
-        self->data[i] = val;
-    }
-    for (i=0; i<self->bufsize; i++) {
-        slp = _clip(slope[i]);
-        coeff = 1.0 - slp;
-        val = self->data[i] * coeff + self->y1 * slp;
-        self->y1 = val;
-        self->data[i] = val;
+        slp = slope[i];
+        slp = (slp < 0.0) ? 0.0 : (slp > 0.999) ? 0.999 : slp;
+        val = (1 + drv) * in[i] / (1 + drv * MYFABS(in[i]));
+        self->data[i] = self->y1 = val + (self->y1 - val) * slp;
     }
 }
 
 static void
 Disto_transform_aa(Disto *self) {
-    MYFLT val, drv, coeff, slp;
     int i;
+    MYFLT val, drv, slp;
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
-
     MYFLT *drive = Stream_getData((Stream *)self->drive_stream);
     MYFLT *slope = Stream_getData((Stream *)self->slope_stream);
 
     for (i=0; i<self->bufsize; i++) {
-        drv = .4 - _clip(drive[i]) * .3999;
-        val = MYATAN2(in[i], drv);
-        self->data[i] = val;
-    }
-    for (i=0; i<self->bufsize; i++) {
-        slp = _clip(slope[i]);
-        coeff = 1.0 - slp;
-        val = self->data[i] * coeff + self->y1 * slp;
-        self->y1 = val;
-        self->data[i] = val;
+        drv = drive[i];
+        drv = (drv < 0.0) ? 0.0 : (drv > 0.998) ? 0.998 : drv;
+        slp = slope[i];
+        slp = (slp < 0.0) ? 0.0 : (slp > 0.999) ? 0.999 : slp;
+        drv = (2.0 * drv) / (1 - drv);
+        val = (1 + drv) * in[i] / (1 + drv * MYFABS(in[i]));
+        self->data[i] = self->y1 = val + (self->y1 - val) * slp;
     }
 }
 
