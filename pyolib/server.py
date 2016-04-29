@@ -616,7 +616,7 @@ class Server(object):
         """
         self._server.stop()
 
-    def recordOptions(self, dur=-1, filename=None, fileformat=0, sampletype=0):
+    def recordOptions(self, dur=-1, filename=None, fileformat=0, sampletype=0, quality=0.4):
         """
         Sets options for soundfile created by offline rendering or global recording.
 
@@ -653,6 +653,10 @@ class Server(object):
                     4. 64 bits float
                     5. U-Law encoded
                     6. A-Law encoded
+            quality : float, optional
+                The encoding quality value, between 0.0 (lowest quality) and 
+                1.0 (highest quality). This argument has an effect only with
+                FLAC and OGG compressed formats. Defaults to 0.4.
 
         """
 
@@ -671,7 +675,7 @@ class Server(object):
             print 'Warning: Filename has no extension. Using fileformat value.'
         self._fileformat = fileformat
         self._sampletype = sampletype
-        self._server.recordOptions(dur, filename, fileformat, sampletype)
+        self._server.recordOptions(dur, filename, fileformat, sampletype, quality)
 
     def recstart(self, filename=None):
         """

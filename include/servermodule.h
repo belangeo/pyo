@@ -121,6 +121,7 @@ typedef struct {
     char *recpath;
     int recformat;
     int rectype;
+    double recquality;
     SNDFILE *recfile;
     SF_INFO recinfo;
 

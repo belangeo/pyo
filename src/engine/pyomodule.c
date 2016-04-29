@@ -850,7 +850,10 @@ SD2 and FLAC only support 16 or 24 bit int. Supported types are:\n            \
 3. 32 bit float\n            \
 4. 64 bit float\n            \
 5. U-Law encoded\n            \
-6. A-Law encoded\n\n\
+6. A-Law encoded\n    \
+quality : float, optional\n        The encoding quality value, between 0.0 (lowest quality) and\n        \
+1.0 (highest quality). This argument has an effect only with\n        \
+FLAC and OGG compressed formats. Defaults to 0.4.\n\n\
 >>> from random import uniform\n\
 >>> import os\n\
 >>> home = os.path.expanduser('~')\n\
@@ -868,11 +871,12 @@ savefile(PyObject *self, PyObject *args, PyObject *kwds) {
     int channels = 1;
     int fileformat = 0;
     int sampletype = 0;
+    double quality = 0.4;
     SNDFILE *recfile;
     SF_INFO recinfo;
-    static char *kwlist[] = {"samples", "path", "sr", "channels", "fileformat", "sampletype", NULL};
+    static char *kwlist[] = {"samples", "path", "sr", "channels", "fileformat", "sampletype", "quality", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "Os|iiii", kwlist, &samples, &recpath, &sr, &channels, &fileformat, &sampletype))
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "Os|iiiid", kwlist, &samples, &recpath, &sr, &channels, &fileformat, &sampletype, &quality))
         return PyInt_FromLong(-1);
 
     recinfo.samplerate = sr;
@@ -903,6 +907,12 @@ savefile(PyObject *self, PyObject *args, PyObject *kwds) {
         printf ("savefile: failed to open output file %s.\n", recpath);
         return PyInt_FromLong(-1);
     }
+
+    // Sets the encoding quality for FLAC and OGG compressed formats
+    if (fileformat == 5 || fileformat == 7) {
+        sf_command(recfile, SFC_SET_VBR_ENCODING_QUALITY, &quality, sizeof(double));
+    }
+
     SF_WRITE(recfile, sampsarray, size);
     sf_close(recfile);
     free(sampsarray);
@@ -931,7 +941,10 @@ SD2 and FLAC only support 16 or 24 bit int. Supported types are:\n            \
 3. 32 bit float\n            \
 4. 64 bit float\n            \
 5. U-Law encoded\n            \
-6. A-Law encoded\n\n\
+6. A-Law encoded\n    \
+quality : float, optional\n        The encoding quality value, between 0.0 (lowest quality) and\n        \
+1.0 (highest quality). This argument has an effect only with\n        \
+FLAC and OGG compressed formats. Defaults to 0.4.\n\n\
 >>> import os\n\
 >>> home = os.path.expanduser('~')\n\
 >>> path1 = SNDS_PATH + '/transparent.aif'\n\
@@ -951,13 +964,14 @@ savefileFromTable(PyObject *self, PyObject *args, PyObject *kwds) {
     int channels = 1;
     int fileformat = 0;
     int sampletype = 0;
+    double quality = 0.4;
     int count = 0;
     int num_items = 0;
     SNDFILE *recfile;
     SF_INFO recinfo;
-    static char *kwlist[] = {"table", "path", "fileformat", "sampletype", NULL};
+    static char *kwlist[] = {"table", "path", "fileformat", "sampletype", "quality", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "Os|ii", kwlist, &table, &recpath, &fileformat, &sampletype))
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "Os|iid", kwlist, &table, &recpath, &fileformat, &sampletype, &quality))
         return PyInt_FromLong(-1);
 
     base_objs = PyObject_GetAttrString(table, "_base_objs");
@@ -978,6 +992,11 @@ savefileFromTable(PyObject *self, PyObject *args, PyObject *kwds) {
         Py_XDECREF(base_objs);
         Py_XDECREF(tablestreamlist);
         return PyInt_FromLong(-1);
+    }
+
+    // Sets the encoding quality for FLAC and OGG compressed formats
+    if (fileformat == 5 || fileformat == 7) {
+        sf_command(recfile, SFC_SET_VBR_ENCODING_QUALITY, &quality, sizeof(double));
     }
 
     if (channels == 1) {

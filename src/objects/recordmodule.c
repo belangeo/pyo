@@ -120,6 +120,7 @@ Record_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     int i, buflen;
     int fileformat = 0;
     int sampletype = 0;
+    double quality = 0.4;
     PyObject *input_listtmp;
     Record *self;
     self = (Record *)type->tp_alloc(type, 0);
@@ -132,9 +133,9 @@ Record_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     Stream_setFunctionPtr(self->stream, Record_compute_next_data_frame);
     self->mode_func_ptr = Record_setProcMode;
 
-    static char *kwlist[] = {"input", "filename", "chnls", "fileformat", "sampletype", "buffering", NULL};
+    static char *kwlist[] = {"input", "filename", "chnls", "fileformat", "sampletype", "buffering", "quality", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "Os|iiii", kwlist, &input_listtmp, &self->recpath, &self->chnls, &fileformat, &sampletype, &self->buffering))
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "Os|iiiid", kwlist, &input_listtmp, &self->recpath, &self->chnls, &fileformat, &sampletype, &self->buffering, &quality))
         Py_RETURN_NONE;
 
     Py_XDECREF(self->input_list);
@@ -205,6 +206,11 @@ Record_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (! (self->recfile = sf_open(self->recpath, SFM_WRITE, &self->recinfo))) {
         printf ("Not able to open output file %s.\n", self->recpath);
         Py_RETURN_NONE;
+    }
+
+    // Sets the encoding quality for FLAC and OGG compressed formats
+    if (fileformat == 5 || fileformat == 7) {
+        sf_command(self->recfile, SFC_SET_VBR_ENCODING_QUALITY, &quality, sizeof(double));
     }
 
     buflen = self->bufsize * self->chnls * self->buffering;

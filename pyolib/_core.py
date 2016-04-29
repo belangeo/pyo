@@ -1112,7 +1112,7 @@ class PyoTableObject(PyoObjectBase):
         self.viewFrame = None
         self.graphFrame = None
 
-    def save(self, path, format=0, sampletype=0):
+    def save(self, path, format=0, sampletype=0, quality=0.4):
         """
         Writes the content of the table in an audio file.
 
@@ -1145,15 +1145,19 @@ class PyoTableObject(PyoObjectBase):
                     4. 64 bit float
                     5. U-Law encoded
                     6. A-Law encoded
+            quality : float, optional
+                The encoding quality value, between 0.0 (lowest quality) and 
+                1.0 (highest quality). This argument has an effect only with
+                FLAC and OGG compressed formats. Defaults to 0.4.
 
         """
-        pyoArgsAssert(self, "SII", path, format, sampletype)
+        pyoArgsAssert(self, "SIIN", path, format, sampletype, quality)
         ext = path.rsplit('.')
         if len(ext) >= 2:
             ext = ext[-1].lower()
             if FILE_FORMATS.has_key(ext):
                 format = FILE_FORMATS[ext]
-        savefileFromTable(self, path, format, sampletype)
+        savefileFromTable(self, path, format, sampletype, quality)
 
     def write(self, path, oneline=True):
         """

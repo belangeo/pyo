@@ -587,6 +587,10 @@ class Record(PyoObject):
 
             High buffering uses more memory but improves performance.
             Defaults to 4.
+        quality : float, optional
+            The encoding quality value, between 0.0 (lowest quality) and 
+            1.0 (highest quality). This argument has an effect only with
+            FLAC and OGG compressed formats. Defaults to 0.4.
 
     .. note::
 
@@ -614,8 +618,8 @@ class Record(PyoObject):
     >>> clean.start()
 
     """
-    def __init__(self, input, filename, chnls=2, fileformat=0, sampletype=0, buffering=4):
-        pyoArgsAssert(self, "oSIIII", input, filename, chnls, fileformat, sampletype, buffering)
+    def __init__(self, input, filename, chnls=2, fileformat=0, sampletype=0, buffering=4, quality=0.4):
+        pyoArgsAssert(self, "oSIIIIN", input, filename, chnls, fileformat, sampletype, buffering, quality)
         PyoObject.__init__(self)
         self._input = input
         self._in_fader = InputFader(input)
@@ -628,7 +632,7 @@ class Record(PyoObject):
                 print 'Warning: Unknown file extension. Using fileformat value.'
         else:
             print 'Warning: Filename has no extension. Using fileformat value.'
-        self._base_objs = [Record_base(self._in_fader.getBaseObjects(), filename, chnls, fileformat, sampletype, buffering)]
+        self._base_objs = [Record_base(self._in_fader.getBaseObjects(), filename, chnls, fileformat, sampletype, buffering, quality)]
 
     def out(self, chnl=0, inc=1, dur=0, delay=0):
         return self.play(dur, delay)

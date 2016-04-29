@@ -1648,6 +1648,7 @@ Server_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->recdur = -1;
     self->recformat = 0;
     self->rectype = 0;
+    self->recquality = 0.4;
     self->startoffset = 0.0;
     self->globalSeed = 0;
     self->thisServerID = serverID;
@@ -2495,9 +2496,9 @@ Server_stop(Server *self)
 static PyObject *
 Server_recordOptions(Server *self, PyObject *args, PyObject *kwds)
 {
-    static char *kwlist[] = {"dur", "filename", "fileformat", "sampletype", NULL};
+    static char *kwlist[] = {"dur", "filename", "fileformat", "sampletype", "quality", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "d|sii", kwlist, &self->recdur, &self->recpath, &self->recformat, &self->rectype)) {
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "d|siid", kwlist, &self->recdur, &self->recpath, &self->recformat, &self->rectype, &self->recquality)) {
         return PyInt_FromLong(-1);
     }
 
@@ -2600,6 +2601,11 @@ Server_start_rec_internal(Server *self, char *filename)
             Server_debug(self, "%s\n", sf_strerror(self->recfile));
             return -1;
         }
+    }
+
+    // Sets the encoding quality for FLAC and OGG compressed formats
+    if (self->recformat == 5 || self->recformat == 7) {
+        sf_command(self->recfile, SFC_SET_VBR_ENCODING_QUALITY, &self->recquality, sizeof(double));
     }
 
     self->record = 1;

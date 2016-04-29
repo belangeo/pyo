@@ -52,7 +52,7 @@ typedef struct {
 static MYFLT
 C_clip(MYFLT x)
 {
-    if (x <= 0.0)
+    if (x < 0.00000001)
         return 0.00000001;
     else if (x > 1.0)
         return 1.0;

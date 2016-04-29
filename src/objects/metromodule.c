@@ -978,7 +978,8 @@ typedef struct {
 
 static void
 Clouder_generate_i(Clouder *self) {
-    int i, rnd;
+    int i;
+    MYFLT rnd;
 
     MYFLT dens = PyFloat_AS_DOUBLE(self->density);
     if (dens <= 0.0)
@@ -992,7 +993,7 @@ Clouder_generate_i(Clouder *self) {
 
     dens *= 0.5;
     for (i=0; i<self->bufsize; i++) {
-        rnd = (int)(RANDOM_UNIFORM * self->sr);
+        rnd = RANDOM_UNIFORM * self->sr;
         if (rnd < dens) {
             self->buffer_streams[i + self->voiceCount++ * self->bufsize] = 1.0;
             if (self->voiceCount == self->poly)
@@ -1004,7 +1005,8 @@ Clouder_generate_i(Clouder *self) {
 static void
 Clouder_generate_a(Clouder *self) {
     MYFLT dens;
-    int i, rnd;
+    int i;
+    MYFLT rnd;
 
     MYFLT *density = Stream_getData((Stream *)self->density_stream);
 
@@ -1020,7 +1022,7 @@ Clouder_generate_a(Clouder *self) {
             dens = self->sr;
 
         dens *= 0.5;
-        rnd = (int)(RANDOM_UNIFORM * self->sr);
+        rnd = RANDOM_UNIFORM * self->sr;
         if (rnd < dens) {
             self->buffer_streams[i + self->voiceCount++ * self->bufsize] = 1.0;
             if (self->voiceCount == self->poly)
