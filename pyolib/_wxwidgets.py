@@ -2845,7 +2845,7 @@ class ServerGUI(wx.Frame):
 
         if timer:
             box.AddSpacer(10)
-            tt = wx.StaticText(panel, -1, "Elapsed time (hh : mm : ss : ms)")
+            tt = wx.StaticText(panel, -1, "Elapsed time (hh:mm:ss:ms)")
             box.Add(tt, 0, wx.LEFT, leftMargin)
             box.AddSpacer(3)
             self.timetext = wx.StaticText(panel, -1, "00 : 00 : 00 : 000")
