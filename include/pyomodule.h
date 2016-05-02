@@ -504,7 +504,7 @@ extern PyTypeObject PadSynthTableType;
 #define PI M_PI
 #define TWOPI (2 * M_PI)
 
-#define PYO_RAND_MAX 4294967295
+#define PYO_RAND_MAX 4294967295u
 
 /* random uniform (0.0 -> 1.0) */
 #define RANDOM_UNIFORM (pyorand()/((MYFLT)(PYO_RAND_MAX)+1))

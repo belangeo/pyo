@@ -65,7 +65,7 @@ int rnd_objs_count[num_rnd_objs] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 int rnd_objs_mult[num_rnd_objs] = {1993,1997,1999,2003,2011,2017,2027,2029,2039,2053,2063,2069,
                                    2081,2083,2087,2089,2099,2111,2113,2129,2131,2137,2141,2143,
                                    2153,2161,2179,2203,2207};
-static unsigned int PYO_RAND_SEED = 1;
+static unsigned int PYO_RAND_SEED = 1u;
 /* Linear congruential pseudo-random generator. */
 unsigned int pyorand() {
     PYO_RAND_SEED = (PYO_RAND_SEED * 1664525 + 1013904223) % PYO_RAND_MAX;
@@ -439,12 +439,11 @@ Server_pa_start(Server *self)
 int
 Server_pa_stop(Server *self)
 {
-    PaError err;
     PyoPaBackendData *be_data = (PyoPaBackendData *) self->audio_be_data;
 
     if (Pa_IsStreamActive(be_data->stream) || ! Pa_IsStreamStopped(be_data->stream)) {
 #ifndef _OSX_
-        err = Pa_AbortStream(be_data->stream);
+        PaError err = Pa_AbortStream(be_data->stream);
         portaudio_assert(err, "Pa_AbortStream");
 #endif
     }
