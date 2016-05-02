@@ -17,9 +17,9 @@
  * You should have received a copy of the GNU Lesser General Public       *
  * License along with pyo.  If not, see <http://www.gnu.org/licenses/>.   *
  *                                                                        *
- * Octobre 2013 : Multiple servers facility and embeded backend added by  *
- * Guillaume Barrette. See embeded possibilities at:                      *
- * https://github.com/guibarrette/PyoPlug                                 *
+ * Octobre 2013 : Multiple servers facility and embeded backend added     *
+ * by Guillaume Barrette.                                                 *
+ * 2014-2016 : Several improvements by Olivier Belanger.                  *
  *************************************************************************/
 
 #ifndef Py_SERVERMODULE_H
@@ -32,14 +32,6 @@ extern "C" {
 #include "portmidi.h"
 #include "sndfile.h"
 #include "pyomodule.h"
-
-#ifdef USE_JACK
-#include <jack/jack.h>
-#endif
-
-#ifdef USE_COREAUDIO
-# include <CoreAudio/AudioHardware.h>
-#endif
 
 typedef enum {
     PyoPortaudio = 0,
@@ -55,14 +47,6 @@ typedef struct {
 } PyoPaBackendData;
 
 typedef struct {
-#ifdef USE_JACK
-    jack_client_t *jack_client;
-    jack_port_t **jack_in_ports;
-    jack_port_t **jack_out_ports;
-#endif
-} PyoJackBackendData;
-
-typedef struct {
     PyObject_HEAD
     PyObject *streams;
     PyoAudioBackendType audio_be_type;
@@ -74,9 +58,9 @@ typedef struct {
     PyObject *jackAutoConnectOutputPorts; /* list of regex to match for jack auto-connection */
     PmStream *midiin[64];
     PmStream *midiout[64];
+    PmEvent midiEvents[200];
     int midiin_count;
     int midiout_count;
-    PmEvent midiEvents[200];
     int midi_count;
     double samplingRate;
     int nchnls;
@@ -155,9 +139,21 @@ extern int Server_getCurrentResamplingFactor(Server *self);
 extern int Server_getLastResamplingFactor(Server *self);
 extern int Server_generateSeed(Server *self, int oid);
 extern PyTypeObject ServerType;
+void portmidiGetEvents(Server *self);
+void Server_process_buffers(Server *server);
+void Server_error(Server *self, char * format, ...);
+void Server_message(Server *self, char * format, ...);
+void Server_warning(Server *self, char * format, ...);
+void Server_debug(Server *self, char * format, ...);
+PyObject * Server_shut_down(Server *self);
+PyObject *Server_stop(Server *self);
+void Server_process_gui(Server *server);
+void Server_process_time(Server *server);
+int Server_start_rec_internal(Server *self, char *filename);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* !defined(Py_SERVERMODULE_H) */
+#endif 
+/* !defined(Py_SERVERMODULE_H) */
