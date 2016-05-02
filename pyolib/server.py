@@ -71,9 +71,11 @@ class Server(object):
             It is the responsibility of the user to make sure that the program doesn't exit before
             the computation is done.
 
-	    If 'jack' is selected but jackd is not already started when the program is executed, pyo 
-	    will ask jack to start in the background. Note that pyo never ask jack to close. It is 
-	    the user's responsability to manage the audio configuration of its system.
+            'embedded' should be used when pyo is embedded inside an host environment via its C api.
+
+            If 'jack' is selected but jackd is not already started when the program is executed, pyo 
+            will ask jack to start in the background. Note that pyo never ask jack to close. It is 
+            the user's responsability to manage the audio configuration of its system.
         jackname : string, optional
             Name of jack client. Defaults to 'pyo'
         ichnls : int, optional
