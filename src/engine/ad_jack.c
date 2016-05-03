@@ -32,10 +32,10 @@ jack_callback(jack_nframes_t nframes, void *arg) {
     }
     PyoJackBackendData *be_data = (PyoJackBackendData *) server->audio_be_data;
     for (i = 0; i < server->ichnls; i++) {
-        in_buffers[i] = jack_port_get_buffer (be_data->jack_in_ports[i+server->input_offset], server->bufferSize);
+        in_buffers[i] = jack_port_get_buffer(be_data->jack_in_ports[i+server->input_offset], server->bufferSize);
     }
     for (i = 0; i < server->nchnls; i++) {
-        out_buffers[i] = jack_port_get_buffer (be_data->jack_out_ports[i+server->output_offset], server->bufferSize);
+        out_buffers[i] = jack_port_get_buffer(be_data->jack_out_ports[i+server->output_offset], server->bufferSize);
 
     }
     /* jack audio data is not interleaved */
@@ -91,14 +91,14 @@ Server_jack_autoconnect(Server *self) {
     PyoJackBackendData *be_data = (PyoJackBackendData *) self->audio_be_data;
 
     if (self->jackautoin) {
-        if ((ports = jack_get_ports (be_data->jack_client, "system", NULL, JackPortIsOutput)) == NULL) {
+        if ((ports = jack_get_ports(be_data->jack_client, "system", NULL, JackPortIsOutput)) == NULL) {
             Server_error(self, "Jack: Cannot find any physical capture ports called 'system'\n");
             ret = -1;
         }
 
         i=0;
         while(ports[i]!=NULL && be_data->jack_in_ports[i] != NULL){
-            if (jack_connect (be_data->jack_client, ports[i], jack_port_name(be_data->jack_in_ports[i]))) {
+            if (jack_connect(be_data->jack_client, ports[i], jack_port_name(be_data->jack_in_ports[i]))) {
                 Server_error(self, "Jack: cannot connect input ports to 'system'\n");
                 ret = -1;
             }
@@ -108,14 +108,14 @@ Server_jack_autoconnect(Server *self) {
     }
 
     if (self->jackautoout) {
-        if ((ports = jack_get_ports (be_data->jack_client, "system", NULL, JackPortIsInput)) == NULL) {
+        if ((ports = jack_get_ports(be_data->jack_client, "system", NULL, JackPortIsInput)) == NULL) {
             Server_error(self, "Jack: Cannot find any physical playback ports called 'system'\n");
             ret = -1;
         }
 
         i=0;
         while(ports[i]!=NULL && be_data->jack_out_ports[i] != NULL){
-            if (jack_connect (be_data->jack_client, jack_port_name (be_data->jack_out_ports[i]), ports[i])) {
+            if (jack_connect(be_data->jack_client, jack_port_name (be_data->jack_out_ports[i]), ports[i])) {
                 Server_error(self, "Jack: cannot connect output ports to 'system'\n");
                 ret = -1;
             }
@@ -127,13 +127,13 @@ Server_jack_autoconnect(Server *self) {
     num = PyList_Size(self->jackAutoConnectInputPorts);
     if (num > 0) {
         for (j=0; j<num; j++) {
-            if ((ports = jack_get_ports (be_data->jack_client, PyString_AsString(PyList_GetItem(self->jackAutoConnectInputPorts, j)), NULL, JackPortIsOutput)) == NULL) {
+            if ((ports = jack_get_ports(be_data->jack_client, PyString_AsString(PyList_GetItem(self->jackAutoConnectInputPorts, j)), NULL, JackPortIsOutput)) == NULL) {
                 Server_error(self, "Jack: cannot connect input ports to %s\n", PyString_AsString(PyList_GetItem(self->jackAutoConnectInputPorts, j)));
             }
             else {
                 i = 0;
                 while(ports[i] != NULL && be_data->jack_in_ports[i] != NULL){
-                    if (jack_connect (be_data->jack_client, ports[i], jack_port_name (be_data->jack_in_ports[i]))) {
+                    if (jack_connect(be_data->jack_client, ports[i], jack_port_name (be_data->jack_in_ports[i]))) {
                         Server_error(self, "Jack: cannot connect input ports\n");
                         ret = -1;
                     }
@@ -147,13 +147,13 @@ Server_jack_autoconnect(Server *self) {
     num = PyList_Size(self->jackAutoConnectOutputPorts);
     if (num > 0) {
         for (j=0; j<num; j++) {
-            if ((ports = jack_get_ports (be_data->jack_client, PyString_AsString(PyList_GetItem(self->jackAutoConnectOutputPorts, j)), NULL, JackPortIsInput)) == NULL) {
+            if ((ports = jack_get_ports(be_data->jack_client, PyString_AsString(PyList_GetItem(self->jackAutoConnectOutputPorts, j)), NULL, JackPortIsInput)) == NULL) {
                 Server_error(self, "Jack: cannot connect output ports to %s\n", PyString_AsString(PyList_GetItem(self->jackAutoConnectOutputPorts, j)));
             }
             else {
                 i = 0;
                 while(ports[i] != NULL && be_data->jack_out_ports[i] != NULL){
-                    if (jack_connect (be_data->jack_client, jack_port_name (be_data->jack_out_ports[i]), ports[i])) {
+                    if (jack_connect(be_data->jack_client, jack_port_name (be_data->jack_out_ports[i]), ports[i])) {
                         Server_error(self, "Jack: cannot connect output ports\n");
                         ret = -1;
                     }
@@ -186,7 +186,7 @@ Server_jack_init(Server *self) {
     be_data->jack_in_ports = (jack_port_t **) calloc(self->ichnls + self->input_offset, sizeof(jack_port_t *));
     be_data->jack_out_ports = (jack_port_t **) calloc(self->nchnls + self->output_offset, sizeof(jack_port_t *));
     strncpy(client_name,self->serverName, 32);
-    be_data->jack_client = jack_client_open (client_name, options, &status, server_name);
+    be_data->jack_client = jack_client_open(client_name, options, &status, server_name);
     if (be_data->jack_client == NULL) {
         Server_error(self, "Jack error: Unable to create JACK client\n");
         if (status & JackServerFailed) {
@@ -213,7 +213,7 @@ Server_jack_init(Server *self) {
     }
     if (sampleRate <= 0) {
         Server_error(self, "Invalid Jack engine sample rate.");
-        jack_client_close (be_data->jack_client);
+        jack_client_close(be_data->jack_client);
         return -1;
     }
     bufferSize = jack_get_buffer_size(be_data->jack_client);
@@ -231,8 +231,8 @@ Server_jack_init(Server *self) {
         ret = sprintf(name, "input_%i", index + 1);
         if (ret > 0) {
             be_data->jack_in_ports[index]
-            = jack_port_register (be_data->jack_client, name,
-                                  JACK_DEFAULT_AUDIO_TYPE, JackPortIsInput, 0);
+            = jack_port_register(be_data->jack_client, name,
+                                 JACK_DEFAULT_AUDIO_TYPE, JackPortIsInput, 0);
         }
 
         if ((be_data->jack_in_ports[index] == NULL)) {
@@ -247,18 +247,18 @@ Server_jack_init(Server *self) {
         ret = sprintf(name, "output_%i", index + 1);
         if (ret > 0) {
             be_data->jack_out_ports[index]
-            = jack_port_register (be_data->jack_client, name,
-                                  JACK_DEFAULT_AUDIO_TYPE, JackPortIsOutput, 0);
+            = jack_port_register(be_data->jack_client, name,
+                                 JACK_DEFAULT_AUDIO_TYPE, JackPortIsOutput, 0);
         }
         if ((be_data->jack_out_ports[index] == NULL)) {
             Server_error(self, "Jack: no more JACK output ports available\n");
             return -1;
         }
     }
-    jack_set_error_function (jack_error_cb);
+    jack_set_error_function(jack_error_cb);
     jack_set_sample_rate_callback(be_data->jack_client, jack_srate_cb, (void *) self);
-    jack_on_shutdown (be_data->jack_client, jack_shutdown_cb, (void *) self);
-    jack_set_buffer_size_callback (be_data->jack_client, jack_bufsize_cb, (void *) self);
+    jack_on_shutdown(be_data->jack_client, jack_shutdown_cb, (void *) self);
+    jack_set_buffer_size_callback(be_data->jack_client, jack_bufsize_cb, (void *) self);
     return 0;
 }
 
@@ -277,9 +277,9 @@ int
 Server_jack_start(Server *self) {
     PyoJackBackendData *be_data = (PyoJackBackendData *) self->audio_be_data;
     jack_set_process_callback(be_data->jack_client, jack_callback, (void *) self);
-    if (jack_activate (be_data->jack_client)) {
+    if (jack_activate(be_data->jack_client)) {
         Server_error(self, "Jack error: cannot activate jack client.\n");
-        jack_client_close (be_data->jack_client);
+        jack_client_close(be_data->jack_client);
         Server_shut_down(self);
         return -1;
     }

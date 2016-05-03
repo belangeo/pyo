@@ -27,13 +27,21 @@
 #include <pthread.h>
 
 #include "structmember.h"
-#include "portaudio.h"
 #include "portmidi.h"
 #include "porttime.h"
 #include "sndfile.h"
 #include "streammodule.h"
 #include "pyomodule.h"
 #include "servermodule.h"
+
+#ifdef USE_PORTAUDIO
+#include "ad_portaudio.h"
+#else
+int Server_pa_init(Server *self) { return -10; };
+int Server_pa_deinit(Server *self) { return 0; };
+int Server_pa_start(Server *self) { return 0; };
+int Server_pa_stop(Server *self) { return 0; };
+#endif
 
 #ifdef USE_JACK
 #include "ad_jack.h"
@@ -53,29 +61,41 @@ int Server_coreaudio_start(Server *self) { return 0; };
 int Server_coreaudio_stop(Server *self) { return 0; };
 #endif
 
+/** Array of Server objects. **/
+/******************************/
+
 #define MAX_NBR_SERVER 256
 
 static Server *my_server[MAX_NBR_SERVER];
 static int serverID = 0;
 
-/* random objects count and multiplier to assign different seed to each instance. */
+/* Function called by any new pyo object to get a pointer to the current server. */
+PyObject * PyServer_get_server() { return (PyObject *)my_server[serverID]; };
+
+/** Random generator and object seeds. **/
+/****************************************/
+
 #define num_rnd_objs 29
 
 int rnd_objs_count[num_rnd_objs] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 int rnd_objs_mult[num_rnd_objs] = {1993,1997,1999,2003,2011,2017,2027,2029,2039,2053,2063,2069,
                                    2081,2083,2087,2089,2099,2111,2113,2129,2131,2137,2141,2143,
                                    2153,2161,2179,2203,2207};
-static unsigned int PYO_RAND_SEED = 1u;
+
 /* Linear congruential pseudo-random generator. */
+static unsigned int PYO_RAND_SEED = 1u;
 unsigned int pyorand() {
     PYO_RAND_SEED = (PYO_RAND_SEED * 1664525 + 1013904223) % PYO_RAND_MAX;
     return PYO_RAND_SEED;
 }
 
+/** Logging levels. **/
+/*********************/
+
+/* Errors should indicate failure to execute a request. */
 void
 Server_error(Server *self, char * format, ...)
 {
-    // Errors should indicate failure to execute a request
     if (self->verbosity & 1) {
         char buffer[256];
         va_list args;
@@ -87,10 +107,11 @@ Server_error(Server *self, char * format, ...)
     }
 }
 
+/* Messages should print useful or relevant information, or 
+   information requested by the user. */
 void
 Server_message(Server *self, char * format, ...)
 {
-    // Messages should print useful or relevant information, or information requested by the user
     if (self->verbosity & 2) {
         char buffer[256];
         va_list args;
@@ -102,10 +123,11 @@ Server_message(Server *self, char * format, ...)
     }
 }
 
+/* Warnings should be used when an unexpected or unusual 
+   choice was made by pyo. */
 void
 Server_warning(Server *self, char * format, ...)
 {
-    // Warnings should be used when an unexpected or unusual choice was made by pyo
 #ifndef NO_MESSAGES
     if (self->verbosity & 4) {
         char buffer[256];
@@ -118,10 +140,11 @@ Server_warning(Server *self, char * format, ...)
 #endif
 }
 
+/* Debug messages should print internal information which 
+   might be necessary for debugging internal conditions. */
 void
 Server_debug(Server *self, char * format, ...)
 {
-    // Debug messages should print internal information which might be necessary for debugging internal conditions.
     if (self->verbosity & 8) {
         char buffer[256];
         va_list args;
@@ -133,135 +156,8 @@ Server_debug(Server *self, char * format, ...)
     }
 }
 
-/* Portmidi get input events */
-void portmidiGetEvents(Server *self)
-{
-    int i;
-    PmError result;
-    PmEvent buffer;
-
-    for (i=0; i<self->midiin_count; i++) {
-        do {
-            result = Pm_Poll(self->midiin[i]);
-            if (result) {
-                if (Pm_Read(self->midiin[i], &buffer, 1) == pmBufferOverflow)
-                    continue;
-                self->midiEvents[self->midi_count++] = buffer;
-            }
-        } while (result);
-    }
-}
-
-/* Portaudio stuff */
-static void portaudio_assert(PaError ecode, const char* cmdName) {
-    if (ecode != paNoError) {
-        const char* eText = Pa_GetErrorText(ecode);
-        if (!eText) {
-            eText = "???";
-        }
-        printf("portaudio error in %s: %s\n", cmdName, eText);
-        Pa_Terminate();
-    }
-}
-
-/* Portaudio callback function */
-static int
-pa_callback_interleaved( const void *inputBuffer, void *outputBuffer,
-                            unsigned long framesPerBuffer,
-                            const PaStreamCallbackTimeInfo* timeInfo,
-                            PaStreamCallbackFlags statusFlags,
-                            void *arg )
-{
-    float *out = (float *)outputBuffer;
-    Server *server = (Server *) arg;
-
-    assert(framesPerBuffer == server->bufferSize);
-    int i, j, bufchnls, index1, index2;
-
-    /* avoid unused variable warnings */
-    (void) timeInfo;
-    (void) statusFlags;
-
-    if (server->withPortMidi == 1) {
-        portmidiGetEvents(server);
-    }
-
-    if (server->duplex == 1) {
-        float *in = (float *)inputBuffer;
-        bufchnls = server->ichnls + server->input_offset;
-        for (i=0; i<server->bufferSize; i++) {
-            index1 = i * server->ichnls;
-            index2 = i * bufchnls + server->input_offset;
-            for (j=0; j<server->ichnls; j++) {
-                server->input_buffer[index1+j] = (MYFLT)in[index2+j];
-            }
-        }
-    }
-
-    Server_process_buffers(server);
-    bufchnls = server->nchnls + server->output_offset;
-    for (i=0; i<server->bufferSize; i++) {
-        index1 = i * server->nchnls;
-        index2 = i * bufchnls + server->output_offset;
-        for (j=0; j<server->nchnls; j++) {
-            out[index2+j] = (float) server->output_buffer[index1+j];
-        }
-    }
-    server->midi_count = 0;
-
-#ifdef _OSX_
-    if (server->server_stopped == 1)
-        return paComplete;
-    else
-#endif
-        return paContinue;
-}
-
-static int
-pa_callback_nonInterleaved( const void *inputBuffer, void *outputBuffer,
-                        unsigned long framesPerBuffer,
-                        const PaStreamCallbackTimeInfo* timeInfo,
-                        PaStreamCallbackFlags statusFlags,
-                        void *arg )
-{
-    float **out = (float **)outputBuffer;
-    Server *server = (Server *) arg;
-
-    assert(framesPerBuffer == server->bufferSize);
-    int i, j;
-
-    /* avoid unused variable warnings */
-    (void) timeInfo;
-    (void) statusFlags;
-
-    if (server->withPortMidi == 1) {
-        portmidiGetEvents(server);
-    }
-
-    if (server->duplex == 1) {
-        float **in = (float **)inputBuffer;
-        for (i=0; i<server->bufferSize; i++) {
-            for (j=0; j<server->ichnls; j++) {
-                server->input_buffer[(i*server->ichnls)+j] = (MYFLT)in[j+server->input_offset][i];
-            }
-        }
-    }
-
-    Server_process_buffers(server);
-    for (i=0; i<server->bufferSize; i++) {
-        for (j=0; j<server->nchnls; j++) {
-            out[j+server->output_offset][i] = (float) server->output_buffer[(i*server->nchnls)+j];
-        }
-    }
-    server->midi_count = 0;
-
-#ifdef _OSX_
-    if (server->server_stopped == 1)
-        return paComplete;
-    else
-#endif
-        return paContinue;
-}
+/** Offline server. **/
+/*********************/
 
 static int
 offline_process_block(Server *arg)
@@ -271,198 +167,8 @@ offline_process_block(Server *arg)
     return 0;
 }
 
-/* Server audio backend init functions */
-
-int
-Server_pa_init(Server *self)
-{
-    PaError err;
-    PaStreamParameters outputParameters;
-    PaStreamParameters inputParameters;
-    PaDeviceIndex n, inDevice, outDevice;
-    const PaDeviceInfo *deviceInfo;
-    PaHostApiIndex hostIndex;
-    const PaHostApiInfo *hostInfo;
-    PaHostApiTypeId hostId;
-    PaSampleFormat sampleFormat;
-    PaStreamCallback *streamCallback;
-
-    err = Pa_Initialize();
-    portaudio_assert(err, "Pa_Initialize");
-
-    n = Pa_GetDeviceCount();
-    if (n < 0) {
-        portaudio_assert(n, "Pa_GetDeviceCount");
-    }
-
-    PyoPaBackendData *be_data = (PyoPaBackendData *) malloc(sizeof(PyoPaBackendData *));
-    self->audio_be_data = (void *) be_data;
-
-    if (self->output == -1)
-        outDevice = Pa_GetDefaultOutputDevice(); /* default output device */
-    else
-        outDevice = (PaDeviceIndex) self->output; /* selected output device */
-    if (self->input == -1)
-        inDevice = Pa_GetDefaultInputDevice(); /* default input device */
-    else
-        inDevice = (PaDeviceIndex) self->input; /* selected input device */
-
-    /* Retrieve host api id and define sample and callback format*/
-    deviceInfo = Pa_GetDeviceInfo(outDevice);
-    hostIndex = deviceInfo->hostApi;
-    hostInfo = Pa_GetHostApiInfo(hostIndex);
-    hostId = hostInfo->type;
-    if (hostId == paASIO) {
-        Server_debug(self, "Portaudio uses non-interleaved callback.\n");
-        sampleFormat = paFloat32 | paNonInterleaved;
-        streamCallback = pa_callback_nonInterleaved;
-    }
-    else if (hostId == paALSA) {
-        Server_debug(self, "Portaudio uses interleaved callback.\n");
-        Server_debug(self, "Using ALSA, if no input/output devices are specified, force to devices 0.\n");
-        if (self->input == -1 && self->output == -1) {
-            self->input = self->output = 0;
-            inDevice = outDevice = (PaDeviceIndex) 0;
-        }
-        sampleFormat = paFloat32;
-        streamCallback = pa_callback_interleaved;
-    }
-    else {
-        Server_debug(self, "Portaudio uses interleaved callback.\n");
-        sampleFormat = paFloat32;
-        streamCallback = pa_callback_interleaved;
-    }
-
-
-    /* setup output and input streams */
-    memset(&outputParameters, 0, sizeof(outputParameters));
-    outputParameters.device = outDevice;
-    outputParameters.channelCount = self->nchnls + self->output_offset;
-    outputParameters.sampleFormat = sampleFormat;
-    outputParameters.suggestedLatency = Pa_GetDeviceInfo( outputParameters.device )->defaultHighOutputLatency;
-    outputParameters.hostApiSpecificStreamInfo = NULL;
-
-    if (self->duplex == 1) {
-        memset(&inputParameters, 0, sizeof(inputParameters));
-        inputParameters.device = inDevice;
-        inputParameters.channelCount = self->ichnls + self->input_offset;
-        inputParameters.sampleFormat = sampleFormat;
-        inputParameters.suggestedLatency = Pa_GetDeviceInfo( inputParameters.device )->defaultHighInputLatency ;
-        inputParameters.hostApiSpecificStreamInfo = NULL;
-    }
-
-    if (self->input == -1 && self->output == -1) {
-        if (self->duplex == 1)
-            err = Pa_OpenDefaultStream(&be_data->stream,
-                                       self->ichnls + self->input_offset,
-                                       self->nchnls + self->output_offset,
-                                       sampleFormat,
-                                       self->samplingRate,
-                                       self->bufferSize,
-                                       streamCallback,
-                                       (void *) self);
-        else
-            err = Pa_OpenDefaultStream(&be_data->stream,
-                                       0,
-                                       self->nchnls + self->output_offset,
-                                       sampleFormat,
-                                       self->samplingRate,
-                                       self->bufferSize,
-                                       streamCallback,
-                                       (void *) self);
-    }
-    else {
-        if (self->duplex == 1)
-            err = Pa_OpenStream(&be_data->stream,
-                                &inputParameters,
-                                &outputParameters,
-                                self->samplingRate,
-                                self->bufferSize,
-                                paNoFlag,
-                                streamCallback,
-                                (void *) self);
-        else
-            err = Pa_OpenStream(&be_data->stream,
-                                (PaStreamParameters *) NULL,
-                                &outputParameters,
-                                self->samplingRate,
-                                self->bufferSize,
-                                paNoFlag,
-                                streamCallback,
-                                (void *) self);
-    }
-    portaudio_assert(err, "Pa_OpenStream");
-    if (err < 0) {
-        Server_error(self, "Portaudio error: %s", Pa_GetErrorText(err));
-        return -1;
-    }
-    return 0;
-}
-
-int
-Server_pa_deinit(Server *self)
-{
-    PaError err;
-    PyoPaBackendData *be_data = (PyoPaBackendData *) self->audio_be_data;
-
-    if (Pa_IsStreamActive(be_data->stream) || ! Pa_IsStreamStopped(be_data->stream)) {
-        self->server_started = 0;
-        err = Pa_AbortStream(be_data->stream);
-        portaudio_assert(err, "Pa_AbortStream");
-    }
-
-    err = Pa_CloseStream(be_data->stream);
-    portaudio_assert(err, "Pa_CloseStream");
-
-    err = Pa_Terminate();
-    portaudio_assert(err, "Pa_Terminate");
-
-    free(self->audio_be_data);
-    return err;
-}
-
-int
-Server_pa_start(Server *self)
-{
-    PaError err;
-    PyoPaBackendData *be_data = (PyoPaBackendData *) self->audio_be_data;
-
-    if (Pa_IsStreamActive(be_data->stream) || ! Pa_IsStreamStopped(be_data->stream)) {
-        err = Pa_AbortStream(be_data->stream);
-        portaudio_assert(err, "Pa_AbortStream");
-    }
-    err = Pa_StartStream(be_data->stream);
-    portaudio_assert(err, "Pa_StartStream");
-    return err;
-}
-
-int
-Server_pa_stop(Server *self)
-{
-    PyoPaBackendData *be_data = (PyoPaBackendData *) self->audio_be_data;
-
-    if (Pa_IsStreamActive(be_data->stream) || ! Pa_IsStreamStopped(be_data->stream)) {
-#ifndef _OSX_
-        PaError err = Pa_AbortStream(be_data->stream);
-        portaudio_assert(err, "Pa_AbortStream");
-#endif
-    }
-    self->server_started = 0;
-    self->server_stopped = 1;
-    return 0;
-}
-
-int
-Server_offline_init(Server *self)
-{
-    return 0;
-}
-
-int
-Server_offline_deinit(Server *self)
-{
-    return 0;
-}
+int Server_offline_init(Server *self) { return 0; };
+int Server_offline_deinit(Server *self) { return 0; };
 
 void
 *Server_offline_thread(void *arg)
@@ -529,18 +235,11 @@ Server_offline_stop(Server *self)
     return 0;
 }
 
-/******* Embedded Server *******/
-int
-Server_embedded_init(Server *self)
-{
-    return 0;
-}
+/** Embedded server. **/
+/**********************/
 
-int
-Server_embedded_deinit(Server *self)
-{
-    return 0;
-}
+int Server_embedded_init(Server *self) { return 0; };
+int Server_embedded_deinit(Server *self) { return 0; };
 
 /* interleaved embedded callback */
 int
@@ -551,7 +250,6 @@ Server_embedded_i_start(Server *self)
     return 0;
 }
 
-// To be easier to call without depending on the Server structure
 int
 Server_embedded_i_startIdx(int idx)
 {
@@ -570,16 +268,13 @@ Server_embedded_ni_start(Server *self)
         out[i] = self->output_buffer[i];
     }
 
-    /* Non-Interleaved */
     for (i=0; i<self->bufferSize; i++) {
         for (j=0; j<=self->nchnls; j++) {
             /* TODO: This could probably be more efficient (ob) */
             self->output_buffer[i+(self->bufferSize*(j+1))-self->bufferSize] = out[(i*self->nchnls)+j];
         }
     }
-
     self->midi_count = 0;
-
     return 0;
 }
 
@@ -610,8 +305,6 @@ Server_embedded_nb_start(Server *self)
     return 0;
 }
 
-/* this stop function is not very useful since the processing is stopped 
-at the end of every processing callback, but function put to not break pyo */
 int
 Server_embedded_stop(Server *self)
 {
@@ -620,8 +313,8 @@ Server_embedded_stop(Server *self)
     return 0;
 }
 
-/***************************************************/
-/*  Main Processing functions                      */
+/** Main Processing functions. **/
+/********************************/
 
 void
 Server_process_buffers(Server *server)
@@ -761,16 +454,6 @@ Server_process_time(Server *server)
     }
 }
 
-/***************************************************/
-
-/* Global function called by any new audio object to
- get a pointer to the server */
-PyObject *
-PyServer_get_server()
-{
-    return (PyObject *)my_server[serverID];
-}
-
 PyObject *
 Server_shut_down(Server *self)
 {
@@ -818,7 +501,6 @@ Server_shut_down(Server *self)
     return Py_None;
 }
 
-/* handling of PyObjects */
 static int
 Server_traverse(Server *self, visitproc visit, void *arg)
 {
@@ -854,7 +536,7 @@ Server_dealloc(Server* self)
 static PyObject *
 Server_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
-    /* Unused variables to allow the safety check of the embeded audio backend. */
+    /* Unused variables to allow the safety check of the embedded audio backend. */
     double samplingRate = 44100.0;
     int  nchnls = 2;
     int  ichnls = 2;
@@ -870,20 +552,9 @@ Server_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         return Py_False;
     }
 
-    /* TODO: Need some testing to validate that there is no conflict when more than one server are running at the same time. */
-    /*
-    if (strcmp(audioType, "embedded") != 0)
-    {
-        if (PyServer_get_server() != NULL) {
-            PyErr_SetString(PyExc_RuntimeError, "Warning: Trying to create a new Server object while one is already created!\n");
-            Py_RETURN_NONE;
-        }
-    }
-    */
-
     /* find the first free serverID */
     for(serverID = 0; serverID < MAX_NBR_SERVER; serverID++){
-        if(my_server[serverID] == NULL){
+        if (my_server[serverID] == NULL){
             break;
         }
     }
@@ -975,6 +646,9 @@ Server_init(Server *self, PyObject *args, PyObject *kwds)
 
     return 0;
 }
+
+/** Server's setters. **/
+/***********************/
 
 static PyObject *
 Server_setDefaultRecPath(Server *self, PyObject *args, PyObject *kwds)
@@ -1372,6 +1046,9 @@ Server_setStartOffset(Server *self, PyObject *arg)
     return Py_None;
 }
 
+/** Portmidi initialization (TODO: generalized and removed) **/
+/*************************************************************/
+
 int
 Server_pm_init(Server *self)
 {
@@ -1563,6 +1240,11 @@ Server_boot(Server *self, PyObject *arg)
     switch (self->audio_be_type) {
         case PyoPortaudio:
             audioerr = Server_pa_init(self);
+            if (audioerr < 0) {
+                Server_pa_deinit(self);
+                if (audioerr == -10)
+                    Server_error(self, "Pyo built without Portaudio support\n");
+            }
             break;
         case PyoJack:
             audioerr = Server_jack_init(self);
@@ -1867,7 +1549,7 @@ Server_start_rec_internal(Server *self, char *filename)
         }
     }
 
-    // Sets the encoding quality for FLAC and OGG compressed formats
+    /* Sets the encoding quality for FLAC and OGG compressed formats. */
     if (self->recformat == 5 || self->recformat == 7) {
         sf_command(self->recfile, SFC_SET_VBR_ENCODING_QUALITY, &self->recquality, sizeof(double));
     }
@@ -1971,6 +1653,28 @@ Server_changeStreamPosition(Server *self, PyObject *args)
     Py_INCREF(Py_None);
     return Py_None;
 }
+
+/* Portmidi get input events (TODO: must be renamed) */
+void portmidiGetEvents(Server *self)
+{
+    int i;
+    PmError result;
+    PmEvent buffer;
+
+    for (i=0; i<self->midiin_count; i++) {
+        do {
+            result = Pm_Poll(self->midiin[i]);
+            if (result) {
+                if (Pm_Read(self->midiin[i], &buffer, 1) == pmBufferOverflow)
+                    continue;
+                self->midiEvents[self->midi_count++] = buffer;
+            }
+        } while (result);
+    }
+}
+
+/** Midi out functions (TODO: removed reference to Portmidi). **/
+/***************************************************************/
 
 PyObject *
 Server_noteout(Server *self, PyObject *args)

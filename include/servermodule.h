@@ -17,7 +17,7 @@
  * You should have received a copy of the GNU Lesser General Public       *
  * License along with pyo.  If not, see <http://www.gnu.org/licenses/>.   *
  *                                                                        *
- * Octobre 2013 : Multiple servers facility and embeded backend added     *
+ * Octobre 2013 : Multiple servers facility and embedded backend added    *
  * by Guillaume Barrette.                                                 *
  * 2014-2016 : Several improvements by Olivier Belanger.                  *
  *************************************************************************/
@@ -28,7 +28,6 @@
 extern "C" {
 #endif
 
-#include "portaudio.h"
 #include "portmidi.h"
 #include "sndfile.h"
 #include "pyomodule.h"
@@ -41,10 +40,6 @@ typedef enum {
     PyoOfflineNB,
     PyoEmbedded
 } PyoAudioBackendType;
-
-typedef struct {
-    PaStream *stream;
-} PyoPaBackendData;
 
 typedef struct {
     PyObject_HEAD
@@ -153,7 +148,5 @@ int Server_start_rec_internal(Server *self, char *filename);
 
 #ifdef __cplusplus
 }
-#endif
-
-#endif 
-/* !defined(Py_SERVERMODULE_H) */
+#endif /* __cplusplus */
+#endif /* Py_SERVERMODULE_H */

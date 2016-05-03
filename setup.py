@@ -23,7 +23,7 @@ from distutils.core import setup, Extension
 import os, sys
 
 pyo_version = "0.7.9"
-build_osx_with_jack_support = False
+build_with_jack_support = False
 compile_externals = False
 
 macros = []
@@ -62,11 +62,18 @@ else:
 # Specific audio drivers source files to compile
 ad_files = []
 
+# Temporary...
+if 1:
+    macros.append(('USE_PORTAUDIO', None))
+    ad_files.append("ad_portaudio.c")
+    libraries = ["portaudio"]
+else:
+    libraries = []
+
 # Audio / Midi drivers
 if '--use-jack' in sys.argv: 
     sys.argv.remove('--use-jack') 
-    if sys.platform == "darwin":
-        build_osx_with_jack_support = True
+    build_with_jack_support = True
     macros.append(('USE_JACK',None))
     ad_files.append("ad_jack.c")
 
@@ -110,15 +117,14 @@ if sys.platform == "win32":
                     'C:\liblo', 'C:\pthreads\include', 'C:\portmidi\porttime']
     library_dirs = ['C:\portaudio', 'C:\portmidi', 'C:\liblo', 'C:\pthreads\lib', 
                     'C:/Program Files (x86)/Mega-Nerd/libsndfile/bin']
-    libraries = ['portaudio', 'portmidi', 'porttime', 'libsndfile-1', 'lo', 
-                 'pthreadVC2']
+    libraries += ['portmidi', 'porttime', 'libsndfile-1', 'lo', 'pthreadVC2']
 else:
     include_dirs = ['include', '/usr/local/include']
     if sys.platform == "darwin":
         include_dirs.append('/opt/local/include')
     library_dirs = []
-    libraries = ['portaudio', 'portmidi', 'sndfile', 'lo']
-    if build_osx_with_jack_support:
+    libraries += ['portmidi', 'sndfile', 'lo']
+    if build_with_jack_support:
         libraries.append('jack')
 
 extra_compile_args = ['-Wno-strict-prototypes', '-Wno-strict-aliasing', oflag]
