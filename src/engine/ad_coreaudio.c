@@ -57,7 +57,7 @@ OSStatus coreaudio_output_callback(AudioDeviceID device, const AudioTimeStamp* i
     (void) inInputData;
 
     if (server->withPortMidi == 1) {
-        portmidiGetEvents(server);
+        pyoGetMidiEvents(server);
     }
 
     Server_process_buffers(server);

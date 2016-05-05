@@ -51,7 +51,7 @@ pa_callback_interleaved( const void *inputBuffer, void *outputBuffer,
     (void) statusFlags;
 
     if (server->withPortMidi == 1) {
-        portmidiGetEvents(server);
+        pyoGetMidiEvents(server);
     }
 
     if (server->duplex == 1) {
@@ -103,7 +103,7 @@ pa_callback_nonInterleaved( const void *inputBuffer, void *outputBuffer,
     (void) statusFlags;
 
     if (server->withPortMidi == 1) {
-        portmidiGetEvents(server);
+        pyoGetMidiEvents(server);
     }
 
     if (server->duplex == 1) {

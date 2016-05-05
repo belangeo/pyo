@@ -67,6 +67,10 @@ if 1:
     macros.append(('USE_PORTAUDIO', None))
     ad_files.append("ad_portaudio.c")
     libraries = ["portaudio"]
+    macros.append(('USE_PORTMIDI', None))
+    ad_files.append("md_portmidi.c")
+    ad_files.append("midilistenermodule.c")
+    libraries += ["portmidi"]
 else:
     libraries = []
 
@@ -86,8 +90,8 @@ if sys.platform == "darwin":
     macros.append(('_OSX_', None))
 
 path = 'src/engine'
-files = ['pyomodule.c', 'listenermodule.c', 'servermodule.c', 'pvstreammodule.c', 
-         'streammodule.c', 'dummymodule.c', 'mixmodule.c', 'inputfadermodule.c', 
+files = ['pyomodule.c', 'streammodule.c', 'servermodule.c', 'pvstreammodule.c', 
+         'osclistenermodule.c', 'dummymodule.c', 'mixmodule.c', 'inputfadermodule.c', 
          'interpolation.c', 'fft.c', "wind.c"] + ad_files
 source_files = [os.path.join(path, f) for f in files]
 
@@ -117,13 +121,15 @@ if sys.platform == "win32":
                     'C:\liblo', 'C:\pthreads\include', 'C:\portmidi\porttime']
     library_dirs = ['C:\portaudio', 'C:\portmidi', 'C:\liblo', 'C:\pthreads\lib', 
                     'C:/Program Files (x86)/Mega-Nerd/libsndfile/bin']
-    libraries += ['portmidi', 'porttime', 'libsndfile-1', 'lo', 'pthreadVC2']
+    libraries += ['libsndfile-1', 'lo', 'pthreadVC2']
+    if 'portmidi' in libraries:
+        libraries.append('portmidi')
 else:
     include_dirs = ['include', '/usr/local/include']
     if sys.platform == "darwin":
         include_dirs.append('/opt/local/include')
     library_dirs = []
-    libraries += ['portmidi', 'sndfile', 'lo']
+    libraries += ['sndfile', 'lo']
     if build_with_jack_support:
         libraries.append('jack')
 

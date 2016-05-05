@@ -27,8 +27,6 @@
 #include <pthread.h>
 
 #include "structmember.h"
-#include "portmidi.h"
-#include "porttime.h"
 #include "sndfile.h"
 #include "streammodule.h"
 #include "pyomodule.h"
@@ -59,6 +57,20 @@ int Server_coreaudio_init(Server *self) { return -10; };
 int Server_coreaudio_deinit(Server *self) { return 0; };
 int Server_coreaudio_start(Server *self) { return 0; };
 int Server_coreaudio_stop(Server *self) { return 0; };
+#endif
+
+#ifdef USE_PORTMIDI
+#include "md_portmidi.h"
+#else
+void portmidiGetEvents(Server *self) {};
+int Server_pm_init(Server *self) { return -10; };
+int Server_pm_deinit(Server *self) { return 0; };
+void pm_noteout(Server *self, int pit, int vel, int chan, long timestamp) {};
+void pm_afterout(Server *self, int pit, int vel, int chan, long timestamp) {};
+void pm_ctlout(Server *self, int ctlnum, int value, int chan, long timestamp) {};
+void pm_programout(Server *self, int value, int chan, long timestamp) {};
+void pm_pressout(Server *self, int value, int chan, long timestamp) {};
+void pm_bendout(Server *self, int value, int chan, long timestamp) {};
 #endif
 
 /** Array of Server objects. **/
@@ -262,16 +274,17 @@ int
 Server_embedded_ni_start(Server *self)
 {
     int i, j;
+    float out[self->bufferSize * self->nchnls];
+
     Server_process_buffers(self);
-    float *out = (float *)calloc(self->bufferSize * self->nchnls, sizeof(float));
+
     for (i=0; i<(self->bufferSize*self->nchnls); i++){
         out[i] = self->output_buffer[i];
     }
 
     for (i=0; i<self->bufferSize; i++) {
-        for (j=0; j<=self->nchnls; j++) {
-            /* TODO: This could probably be more efficient (ob) */
-            self->output_buffer[i+(self->bufferSize*(j+1))-self->bufferSize] = out[(i*self->nchnls)+j];
+        for (j=0; j<self->nchnls; j++) {
+            self->output_buffer[(j*self->bufferSize)+i] = out[(i*self->nchnls)+j];
         }
     }
     self->midi_count = 0;
@@ -504,7 +517,8 @@ Server_shut_down(Server *self)
 static int
 Server_traverse(Server *self, visitproc visit, void *arg)
 {
-    // TODO: Should we properly clear GUI and TIME PyObject ?
+    Py_VISIT(self->GUI);
+    Py_VISIT(self->TIME);
     Py_VISIT(self->streams);
     Py_VISIT(self->jackAutoConnectInputPorts);
     Py_VISIT(self->jackAutoConnectOutputPorts);
@@ -514,6 +528,8 @@ Server_traverse(Server *self, visitproc visit, void *arg)
 static int
 Server_clear(Server *self)
 {
+    Py_CLEAR(self->GUI);
+    Py_CLEAR(self->TIME);
     Py_CLEAR(self->streams);
     Py_CLEAR(self->jackAutoConnectInputPorts);
     Py_CLEAR(self->jackAutoConnectOutputPorts);
@@ -529,6 +545,8 @@ Server_dealloc(Server* self)
     free(self->input_buffer);
     free(self->output_buffer);
     free(self->serverName);
+    if (self->withGUI == 1)
+        free(self->lastRms);
     my_server[self->thisServerID] = NULL;
     self->ob_type->tp_free((PyObject*)self);
 }
@@ -567,6 +585,7 @@ Server_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self = (Server *)type->tp_alloc(type, 0);
     self->server_booted = 0;
     self->audio_be_data = NULL;
+    self->midi_be_data = NULL;
     self->serverName = (char *) calloc(32, sizeof(char));
     self->jackautoin = 1;
     self->jackautoout = 1;
@@ -612,11 +631,13 @@ Server_init(Server *self, PyObject *args, PyObject *kwds)
     static char *kwlist[] = {"sr", "nchnls", "buffersize", "duplex", "audio", "jackname", "ichnls", NULL};
 
     char *audioType = "portaudio";
+    char *midiType = "portmidi";
     char *serverName = "pyo";
 
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "|diiissi", kwlist,
             &self->samplingRate, &self->nchnls, &self->bufferSize, &self->duplex, &audioType, &serverName, &self->ichnls))
         return -1;
+
     if (strcmp(audioType, "jack") == 0) {
         self->audio_be_type = PyoJack;
     }
@@ -639,6 +660,15 @@ Server_init(Server *self, PyObject *args, PyObject *kwds)
         Server_warning(self, "Unknown audio type. Using Portaudio\n");
         self->audio_be_type = PyoPortaudio;
     }
+
+    if (strcmp(midiType, "portmidi") == 0 || strcmp(midiType, "pm") == 0 ) {
+        self->midi_be_type = PyoPortmidi;
+    }
+    else {
+        Server_warning(self, "Unknown midi type. Using Portmidi\n");
+        self->midi_be_type = PyoPortmidi;
+    }
+
     strncpy(self->serverName, serverName, 32);
     if (strlen(serverName) > 31) {
         self->serverName[31] = '\0';
@@ -1046,174 +1076,6 @@ Server_setStartOffset(Server *self, PyObject *arg)
     return Py_None;
 }
 
-/** Portmidi initialization (TODO: generalized and removed) **/
-/*************************************************************/
-
-int
-Server_pm_init(Server *self)
-{
-    int i = 0;
-    PmError pmerr;
-
-    if (self->midiActive == 0) {
-        self->withPortMidi = 0;
-        self->withPortMidiOut = 0;
-        return 0;
-    }
-
-    pmerr = Pm_Initialize();
-    if (pmerr) {
-        Server_warning(self, "Portmidi warning: could not initialize Portmidi: %s\n", Pm_GetErrorText(pmerr));
-        self->withPortMidi = 0;
-        self->withPortMidiOut = 0;
-        return -1;
-    }
-    else {
-        Server_debug(self, "Portmidi initialized.\n");
-        self->withPortMidi = 1;
-        self->withPortMidiOut = 1;
-    }
-
-    if (self->withPortMidi == 1) {
-        self->midiin_count = self->midiout_count = 0;
-        int num_devices = Pm_CountDevices();
-        Server_debug(self, "Portmidi number of devices: %d.\n", num_devices);
-        if (num_devices > 0) {
-            if (self->midi_input < num_devices) {
-                if (self->midi_input == -1)
-                    self->midi_input = Pm_GetDefaultInputDeviceID();
-                Server_debug(self, "Midi input device : %d.\n", self->midi_input);
-                const PmDeviceInfo *info = Pm_GetDeviceInfo(self->midi_input);
-                if (info != NULL) {
-                    if (info->input) {
-                        pmerr = Pm_OpenInput(&self->midiin[0], self->midi_input, NULL, 100, NULL, NULL);
-                        if (pmerr) {
-                            Server_warning(self,
-                                 "Portmidi warning: could not open midi input %d (%s): %s\n",
-                                 self->midi_input, info->name, Pm_GetErrorText(pmerr));
-                            self->withPortMidi = 0;
-                        }
-                        else {
-                            Server_debug(self, "Midi input (%s) opened.\n", info->name);
-                            self->midiin_count = 1;
-                        }
-                    }
-                    else {
-                        Server_warning(self, "Portmidi warning: Midi Device (%s), not an input device!\n", info->name);
-                        self->withPortMidi = 0;
-                    }
-                }
-            }
-            else if (self->midi_input >= num_devices) {
-                Server_debug(self, "Midi input device : all!\n");
-                self->midiin_count = 0;
-                for (i=0; i<num_devices; i++) {
-                    const PmDeviceInfo *info = Pm_GetDeviceInfo(i);
-                    if (info != NULL) {
-                        if (info->input) {
-                            pmerr = Pm_OpenInput(&self->midiin[self->midiin_count], i, NULL, 100, NULL, NULL);
-                            if (pmerr) {
-                                Server_warning(self,
-                                     "Portmidi warning: could not open midi input %d (%s): %s\n",
-                                     0, info->name, Pm_GetErrorText(pmerr));
-                            }
-                            else {
-                                Server_debug(self, "Midi input (%s) opened.\n", info->name);
-                                self->midiin_count++;
-                            }
-                        }
-                    }
-                }
-                if (self->midiin_count == 0)
-                    self->withPortMidi = 0;
-            }
-            else {
-                    Server_warning(self, "Portmidi warning: no input device!\n");
-                    self->withPortMidi = 0;
-            }
-
-            if (self->midi_output < num_devices) {
-                if (self->midi_output == -1)
-                    self->midi_output = Pm_GetDefaultOutputDeviceID();
-                Server_debug(self, "Midi output device : %d.\n", self->midi_output);
-                const PmDeviceInfo *outinfo = Pm_GetDeviceInfo(self->midi_output);
-                if (outinfo != NULL) {
-                    if (outinfo->output) {
-                        Pt_Start(1, 0, 0); /* start a timer with millisecond accuracy */
-                        pmerr = Pm_OpenOutput(&self->midiout[0], self->midi_output, NULL, 0, NULL, NULL, 1);
-                        if (pmerr) {
-                            Server_warning(self,
-                                     "Portmidi warning: could not open midi output %d (%s): %s\n",
-                                     self->midi_output, outinfo->name, Pm_GetErrorText(pmerr));
-                            self->withPortMidiOut = 0;
-                            if (Pt_Started())
-                                Pt_Stop();
-                        }
-                        else {
-                            Server_debug(self, "Midi output (%s) opened.\n", outinfo->name);
-                            self->midiout_count = 1;
-                        }
-                    }
-                    else {
-                        Server_warning(self, "Portmidi warning: Midi Device (%s), not an output device!\n", outinfo->name);
-                        self->withPortMidiOut = 0;
-                    }
-                }
-            }
-            else if (self->midi_output >= num_devices) {
-                Server_debug(self, "Midi output device : all!\n");
-                self->midiout_count = 0;
-                Pt_Start(1, 0, 0); /* start a timer with millisecond accuracy */
-                for (i=0; i<num_devices; i++) {
-                    const PmDeviceInfo *outinfo = Pm_GetDeviceInfo(i);
-                    if (outinfo != NULL) {
-                        if (outinfo->output) {
-                            pmerr = Pm_OpenOutput(&self->midiout[self->midiout_count], i, NULL, 100, NULL, NULL, 1);
-                            if (pmerr) {
-                                Server_warning(self,
-                                     "Portmidi warning: could not open midi output %d (%s): %s\n",
-                                     0, outinfo->name, Pm_GetErrorText(pmerr));
-                            }
-                            else {
-                                Server_debug(self, "Midi output (%s) opened.\n", outinfo->name);
-                                self->midiout_count++;
-                            }
-                        }
-                    }
-                }
-                if (self->midiout_count == 0) {
-                    if (Pt_Started())
-                        Pt_Stop();
-                    self->withPortMidiOut = 0;
-                }
-            }
-            else {
-                    Server_warning(self, "Portmidi warning: no output device!\n");
-                    self->withPortMidiOut = 0;
-            }
-
-            if (self->withPortMidi == 0 && self->withPortMidiOut == 0) {
-                Pm_Terminate();
-                Server_warning(self, "Portmidi closed.\n");
-            }
-        }
-        else {
-            Server_warning(self, "Portmidi warning: no midi device found!\nPortmidi closed.\n");
-            self->withPortMidi = 0;
-            self->withPortMidiOut = 0;
-            Pm_Terminate();
-        }
-    }
-    if (self->withPortMidi == 1) {
-        self->midi_count = 0;
-        for (i=0; i<self->midiin_count; i++) {
-            Pm_SetFilter(self->midiin[i], PM_FILT_ACTIVE | PM_FILT_CLOCK);
-        }
-    }
-    return 0;
-}
-
-
 static PyObject *
 Server_boot(Server *self, PyObject *arg)
 {
@@ -1336,8 +1198,16 @@ Server_start(Server *self)
     self->timeStep = (int)(0.01 * self->samplingRate);
 
     if (self->audio_be_type != PyoOffline && self->audio_be_type != PyoOfflineNB && self->audio_be_type != PyoEmbedded) {
-        midierr = Server_pm_init(self);
-        Server_debug(self, "PortMidi initialization return code : %d.\n", midierr);
+        switch (self->midi_be_type) {
+            case PyoPortmidi:
+                midierr = Server_pm_init(self);
+                if (midierr < 0) {
+                    Server_pm_deinit(self);
+                    if (midierr == -10)
+                        Server_error(self, "Pyo built without Portmidi support\n");
+                }
+                break;
+        }
     }
 
     if (self->startoffset > 0.0) {
@@ -1384,7 +1254,6 @@ Server_start(Server *self)
 PyObject *
 Server_stop(Server *self)
 {
-    int i;
     int err = -1;
     if (self->server_started == 0) {
         Server_warning(self, "The Server must be started!\n");
@@ -1417,23 +1286,13 @@ Server_stop(Server *self)
     }
     else {
         self->server_stopped = 1;
-        if (self->withPortMidi == 1) {
-            for (i=0; i<self->midiin_count; i++) {
-                Pm_Close(self->midiin[i]);
-            }
+        switch (self->midi_be_type) {
+            case PyoPortmidi:
+                err = Server_pm_deinit(self);
+                break;
+            default:
+                break;
         }
-        if (self->withPortMidiOut == 1) {
-            for (i=0; i<self->midiout_count; i++) {
-                Pm_Close(self->midiout[i]);
-            }
-        }
-        if (self->withPortMidi == 1 || self->withPortMidiOut == 1) {
-            if (Pt_Started())
-                Pt_Stop();
-            Pm_Terminate();
-        }
-        self->withPortMidi = 0;
-        self->withPortMidiOut = 0;
     }
     Py_INCREF(Py_None);
     return Py_None;
@@ -1654,47 +1513,32 @@ Server_changeStreamPosition(Server *self, PyObject *args)
     return Py_None;
 }
 
-/* Portmidi get input events (TODO: must be renamed) */
-void portmidiGetEvents(Server *self)
-{
-    int i;
-    PmError result;
-    PmEvent buffer;
-
-    for (i=0; i<self->midiin_count; i++) {
-        do {
-            result = Pm_Poll(self->midiin[i]);
-            if (result) {
-                if (Pm_Read(self->midiin[i], &buffer, 1) == pmBufferOverflow)
-                    continue;
-                self->midiEvents[self->midi_count++] = buffer;
-            }
-        } while (result);
+void pyoGetMidiEvents(Server *self) {
+    switch (self->midi_be_type) {
+        case PyoPortmidi:
+            portmidiGetEvents(self);
+            break;
+        default:
+            break;
     }
 }
-
-/** Midi out functions (TODO: removed reference to Portmidi). **/
-/***************************************************************/
 
 PyObject *
 Server_noteout(Server *self, PyObject *args)
 {
-    int i, pit, vel, chan, curtime;
-    PmEvent buffer[1];
-    PmTimestamp timestamp;
+    int pit, vel, chan;
+    PyoMidiTimestamp timestamp;
 
-    if (! PyArg_ParseTuple(args, "iiii", &pit, &vel, &chan, &timestamp))
+    if (! PyArg_ParseTuple(args, "iiil", &pit, &vel, &chan, &timestamp))
         return PyInt_FromLong(-1);
 
     if (self->withPortMidiOut) {
-        curtime = Pt_Time();
-        buffer[0].timestamp = curtime + timestamp;
-        if (chan == 0)
-            buffer[0].message = Pm_Message(0x90, pit, vel);
-        else
-            buffer[0].message = Pm_Message(0x90 | (chan - 1), pit, vel);
-        for (i=0; i<self->midiout_count; i++) {
-            Pm_Write(self->midiout[i], buffer, 1);
+        switch (self->midi_be_type) {
+            case PyoPortmidi:
+                pm_noteout(self, pit, vel, chan, timestamp);
+                break;
+            default:
+                break;
         }
     }
     Py_INCREF(Py_None);
@@ -1704,22 +1548,19 @@ Server_noteout(Server *self, PyObject *args)
 PyObject *
 Server_afterout(Server *self, PyObject *args)
 {
-    int i, pit, vel, chan, curtime;
-    PmEvent buffer[1];
-    PmTimestamp timestamp;
+    int pit, vel, chan;
+    PyoMidiTimestamp timestamp;
 
-    if (! PyArg_ParseTuple(args, "iiii", &pit, &vel, &chan, &timestamp))
+    if (! PyArg_ParseTuple(args, "iiil", &pit, &vel, &chan, &timestamp))
         return PyInt_FromLong(-1);
 
     if (self->withPortMidiOut) {
-        curtime = Pt_Time();
-        buffer[0].timestamp = curtime + timestamp;
-        if (chan == 0)
-            buffer[0].message = Pm_Message(0xA0, pit, vel);
-        else
-            buffer[0].message = Pm_Message(0xA0 | (chan - 1), pit, vel);
-        for (i=0; i<self->midiout_count; i++) {
-            Pm_Write(self->midiout[i], buffer, 1);
+        switch (self->midi_be_type) {
+            case PyoPortmidi:
+                pm_afterout(self, pit, vel, chan, timestamp);
+                break;
+            default:
+                break;
         }
     }
     Py_INCREF(Py_None);
@@ -1729,22 +1570,19 @@ Server_afterout(Server *self, PyObject *args)
 PyObject *
 Server_ctlout(Server *self, PyObject *args)
 {
-    int i, ctlnum, value, chan, curtime;
-    PmEvent buffer[1];
-    PmTimestamp timestamp;
+    int ctlnum, value, chan;
+    PyoMidiTimestamp timestamp;
 
-    if (! PyArg_ParseTuple(args, "iiii", &ctlnum, &value, &chan, &timestamp))
+    if (! PyArg_ParseTuple(args, "iiil", &ctlnum, &value, &chan, &timestamp))
         return PyInt_FromLong(-1);
 
     if (self->withPortMidiOut) {
-        curtime = Pt_Time();
-        buffer[0].timestamp = curtime + timestamp;
-        if (chan == 0)
-            buffer[0].message = Pm_Message(0xB0, ctlnum, value);
-        else
-            buffer[0].message = Pm_Message(0xB0 | (chan - 1), ctlnum, value);
-        for (i=0; i<self->midiout_count; i++) {
-            Pm_Write(self->midiout[i], buffer, 1);
+        switch (self->midi_be_type) {
+            case PyoPortmidi:
+                pm_ctlout(self, ctlnum, value, chan, timestamp);
+                break;
+            default:
+                break;
         }
     }
     Py_INCREF(Py_None);
@@ -1754,22 +1592,19 @@ Server_ctlout(Server *self, PyObject *args)
 PyObject *
 Server_programout(Server *self, PyObject *args)
 {
-    int i, value, chan, curtime;
-    PmEvent buffer[1];
-    PmTimestamp timestamp;
+    int value, chan;
+    PyoMidiTimestamp timestamp;
 
-    if (! PyArg_ParseTuple(args, "iii", &value, &chan, &timestamp))
+    if (! PyArg_ParseTuple(args, "iil", &value, &chan, &timestamp))
         return PyInt_FromLong(-1);
 
     if (self->withPortMidiOut) {
-        curtime = Pt_Time();
-        buffer[0].timestamp = curtime + timestamp;
-        if (chan == 0)
-            buffer[0].message = Pm_Message(0xC0, value, 0);
-        else
-            buffer[0].message = Pm_Message(0xC0 | (chan - 1), value, 0);
-        for (i=0; i<self->midiout_count; i++) {
-            Pm_Write(self->midiout[i], buffer, 1);
+        switch (self->midi_be_type) {
+            case PyoPortmidi:
+                pm_programout(self, value, chan, timestamp);
+                break;
+            default:
+                break;
         }
     }
     Py_INCREF(Py_None);
@@ -1779,22 +1614,19 @@ Server_programout(Server *self, PyObject *args)
 PyObject *
 Server_pressout(Server *self, PyObject *args)
 {
-    int i, value, chan, curtime;
-    PmEvent buffer[1];
-    PmTimestamp timestamp;
+    int value, chan;
+    PyoMidiTimestamp timestamp;
 
-    if (! PyArg_ParseTuple(args, "iii", &value, &chan, &timestamp))
+    if (! PyArg_ParseTuple(args, "iil", &value, &chan, &timestamp))
         return PyInt_FromLong(-1);
 
     if (self->withPortMidiOut) {
-        curtime = Pt_Time();
-        buffer[0].timestamp = curtime + timestamp;
-        if (chan == 0)
-            buffer[0].message = Pm_Message(0xD0, value, 0);
-        else
-            buffer[0].message = Pm_Message(0xD0 | (chan - 1), value, 0);
-        for (i=0; i<self->midiout_count; i++) {
-            Pm_Write(self->midiout[i], buffer, 1);
+        switch (self->midi_be_type) {
+            case PyoPortmidi:
+                pm_pressout(self, value, chan, timestamp);
+                break;
+            default:
+                break;
         }
     }
     Py_INCREF(Py_None);
@@ -1804,24 +1636,19 @@ Server_pressout(Server *self, PyObject *args)
 PyObject *
 Server_bendout(Server *self, PyObject *args)
 {
-    int i, lsb, msb, value, chan, curtime;
-    PmEvent buffer[1];
-    PmTimestamp timestamp;
+    int value, chan;
+    PyoMidiTimestamp timestamp;
 
-    if (! PyArg_ParseTuple(args, "iii", &value, &chan, &timestamp))
+    if (! PyArg_ParseTuple(args, "iil", &value, &chan, &timestamp))
         return PyInt_FromLong(-1);
 
     if (self->withPortMidiOut) {
-        curtime = Pt_Time();
-        buffer[0].timestamp = curtime + timestamp;
-        lsb = value & 0x007F;
-        msb = (value & (0x007F << 7)) >> 7;
-        if (chan == 0)
-            buffer[0].message = Pm_Message(0xE0, lsb, msb);
-        else
-            buffer[0].message = Pm_Message(0xE0 | (chan - 1), lsb, msb);
-        for (i=0; i<self->midiout_count; i++) {
-            Pm_Write(self->midiout[i], buffer, 1);
+        switch (self->midi_be_type) {
+            case PyoPortmidi:
+                pm_bendout(self, value, chan, timestamp);
+                break;
+            default:
+                break;
         }
     }
     Py_INCREF(Py_None);
@@ -1833,9 +1660,9 @@ Server_getInputBuffer(Server *self) {
     return (MYFLT *)self->input_buffer;
 }
 
-PmEvent *
+PyoMidiEvent *
 Server_getMidiEventBuffer(Server *self) {
-    return (PmEvent *)self->midiEvents;
+    return (PyoMidiEvent *)self->midiEvents;
 }
 
 int
@@ -1847,13 +1674,13 @@ static PyObject *
 Server_addMidiEvent(Server *self, PyObject *args)
 {
     int status, data1, data2;
-    PmEvent buffer;
+    PyoMidiEvent buffer;
     
     if (! PyArg_ParseTuple(args, "iii", &status, &data1, &data2))
         return PyInt_FromLong(-1);
 
     buffer.timestamp = 0;
-    buffer.message = Pm_Message(status, data1, data2);
+    buffer.message = PyoMidi_Message(status, data1, data2);
     self->midiEvents[self->midi_count++] = buffer;
     Py_INCREF(Py_None);
     return Py_None;
@@ -1954,8 +1781,7 @@ static PyObject *
 Server_setServer(Server *self)
 {
     serverID = self->thisServerID;
-    /* TODO: Should return a more conventional signal, like True or False */
-    return PyString_FromString("Server set");
+    return PyInt_FromLong(serverID);
 }
 
 

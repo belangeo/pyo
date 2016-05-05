@@ -18,6 +18,26 @@ Utilities
 
 .. autofunction:: getVersion
 
+*withPortaudio*
+---------------------------------
+
+.. autofunction:: withPortaudio
+
+*withPortmidi*
+---------------------------------
+
+.. autofunction:: withPortmidi
+
+*withJack*
+---------------------------------
+
+.. autofunction:: withJack
+
+*withCoreaudio*
+---------------------------------
+
+.. autofunction:: withCoreaudio
+
 *convertStringToSysEncoding*
 ---------------------------------
 

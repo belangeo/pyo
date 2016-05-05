@@ -28,7 +28,7 @@ jack_callback(jack_nframes_t nframes, void *arg) {
     jack_default_audio_sample_t *in_buffers[server->ichnls], *out_buffers[server->nchnls];
 
     if (server->withPortMidi == 1) {
-        portmidiGetEvents(server);
+        pyoGetMidiEvents(server);
     }
     PyoJackBackendData *be_data = (PyoJackBackendData *) server->audio_be_data;
     for (i = 0; i < server->ichnls; i++) {

@@ -28,7 +28,6 @@
 extern "C" {
 #endif
 
-#include "portmidi.h"
 #include "sndfile.h"
 #include "pyomodule.h"
 
@@ -41,19 +40,43 @@ typedef enum {
     PyoEmbedded
 } PyoAudioBackendType;
 
+typedef enum {
+    PyoPortmidi = 0
+} PyoMidiBackendType;
+
+/* Portmidi midi message and event type clones. */
+
+typedef long PyoMidiTimestamp;
+
+#define PyoMidi_Message(status, data1, data2) \
+         ((((data2) << 16) & 0xFF0000) | \
+          (((data1) << 8) & 0xFF00) | \
+          ((status) & 0xFF))
+#define PyoMidi_MessageStatus(msg) ((msg) & 0xFF)
+#define PyoMidi_MessageData1(msg) (((msg) >> 8) & 0xFF)
+#define PyoMidi_MessageData2(msg) (((msg) >> 16) & 0xFF)
+
+typedef long PyoMidiMessage; 
+typedef struct {
+    PyoMidiMessage      message;
+    PyoMidiTimestamp    timestamp;
+} PyoMidiEvent;
+
+/************************************************/
+
 typedef struct {
     PyObject_HEAD
     PyObject *streams;
     PyoAudioBackendType audio_be_type;
+    PyoMidiBackendType midi_be_type;
     void *audio_be_data;
+    void *midi_be_data;
     char *serverName; /* Only used for jack client name */
     int jackautoin; /* jack port auto-connection (on by default) */
     int jackautoout; /* jack port auto-connection (on by default) */
     PyObject *jackAutoConnectInputPorts; /* list of regex to match for jack auto-connection */
     PyObject *jackAutoConnectOutputPorts; /* list of regex to match for jack auto-connection */
-    PmStream *midiin[64];
-    PmStream *midiout[64];
-    PmEvent midiEvents[200];
+    PyoMidiEvent midiEvents[200];
     int midiin_count;
     int midiout_count;
     int midi_count;
@@ -128,13 +151,13 @@ PyObject * PyServer_get_server();
 extern unsigned int pyorand();
 extern PyObject * Server_removeStream(Server *self, int sid);
 extern MYFLT * Server_getInputBuffer(Server *self);
-extern PmEvent * Server_getMidiEventBuffer(Server *self);
+extern PyoMidiEvent * Server_getMidiEventBuffer(Server *self);
 extern int Server_getMidiEventCount(Server *self);
 extern int Server_getCurrentResamplingFactor(Server *self);
 extern int Server_getLastResamplingFactor(Server *self);
 extern int Server_generateSeed(Server *self, int oid);
 extern PyTypeObject ServerType;
-void portmidiGetEvents(Server *self);
+void pyoGetMidiEvents(Server *self);
 void Server_process_buffers(Server *server);
 void Server_error(Server *self, char * format, ...);
 void Server_message(Server *self, char * format, ...);

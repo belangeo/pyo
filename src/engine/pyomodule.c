@@ -31,6 +31,7 @@
 
 #ifdef USE_PORTAUDIO
 #include "ad_portaudio.h"
+PyObject * with_portaudio() { Py_INCREF(Py_True); return Py_True; };
 #else
 #define pa_warning "Pyo built without Portaudio support.\n"
 PyObject * portaudio_get_version() { printf(pa_warning); Py_RETURN_NONE; };
@@ -47,12 +48,37 @@ PyObject * portaudio_get_input_max_channels(PyObject *self, PyObject *arg) { pri
 PyObject * portaudio_get_input_devices() { printf(pa_warning); Py_RETURN_NONE; };
 PyObject * portaudio_get_default_input() { printf(pa_warning); Py_RETURN_NONE; };
 PyObject * portaudio_get_default_output() { printf(pa_warning); Py_RETURN_NONE; };
+PyObject * with_portaudio() { Py_INCREF(Py_False); return Py_False; };
+#endif
+
+#ifdef USE_PORTMIDI
+#include "md_portmidi.h"
+PyObject * with_portmidi() { Py_INCREF(Py_True); return Py_True; };
+#else
+#define pm_warning "Pyo built without Portmidi sipport.\n"
+PyObject * portmidi_count_devices() { printf(pm_warning); Py_RETURN_NONE; };
+PyObject * portmidi_list_devices() { printf(pm_warning); Py_RETURN_NONE; };
+PyObject * portmidi_get_input_devices() { printf(pm_warning); Py_RETURN_NONE; };
+PyObject * portmidi_get_output_devices() { printf(pm_warning); Py_RETURN_NONE; };
+PyObject * portmidi_get_default_input() { printf(pm_warning); Py_RETURN_NONE; };
+PyObject * portmidi_get_default_output() { printf(pm_warning); Py_RETURN_NONE; };
+PyObject * with_portmidi() { Py_INCREF(Py_False); return Py_False; };
+#endif
+
+#ifdef USE_JACK
+PyObject * with_jack() { Py_INCREF(Py_True); return Py_True; };
+#else
+PyObject * with_jack() { Py_INCREF(Py_False); return Py_False; };
+#endif
+
+#ifdef USE_COREAUDIO
+PyObject * with_coreaudio() { Py_INCREF(Py_True); return Py_True; };
+#else
+PyObject * with_coreaudio() { Py_INCREF(Py_False); return Py_False; };
 #endif
 
 /** Portaudio utility functions __doc__ strings. **/
 /**************************************************/
-
-/* TODO: Add a note about availability in the doc strings. */
 
 #define portaudio_count_host_apis_info \
 "\nReturns the number of host apis found by Portaudio.\n\n\
@@ -177,21 +203,14 @@ x: int\n        Device index as listed by Portaudio (see pa_get_input_devices).\
 >>> print name\n\
 'UA-4FX'\n\n"
 
-
-/****** Portmidi utilities ******/
+/** Portmidi utility functions __doc__ strings. **/
+/*************************************************/
 
 #define portmidi_count_devices_info \
 "\nReturns the number of devices found by Portmidi.\n\n\
 >>> c = pm_count_devices()\n\
 >>> print c\n\
 6\n\n"
-
-static PyObject *
-portmidi_count_devices(){
-    int numDevices;
-	numDevices = Pm_CountDevices();
-    return PyInt_FromLong(numDevices);
-}
 
 #define portmidi_list_devices_info \
 "\nPrints a list of all devices found by Portmidi.\n\n\
@@ -204,80 +223,17 @@ MIDI devices:\n\
 4: OUT, name: to MaxMSP 1, interface: CoreMIDI\n\
 5: OUT, name: to MaxMSP 2, interface: CoreMIDI\n\n"
 
-static PyObject *
-portmidi_list_devices(){
-    int i;
-    printf("MIDI devices:\n");
-    for (i = 0; i < Pm_CountDevices(); i++) {
-        const PmDeviceInfo *info = Pm_GetDeviceInfo(i);
-        if (info->input && info->output)
-            printf("%d: IN/OUT, name: %s, interface: %s\n", i, info->name, info->interf);
-        else if (info->input)
-            printf("%d: IN, name: %s, interface: %s\n", i, info->name, info->interf);
-        else if (info->output)
-            printf("%d: OUT, name: %s, interface: %s\n", i, info->name, info->interf);
-    }
-    printf("\n");
-    Py_RETURN_NONE;
-}
-
 #define portmidi_get_input_devices_info \
 "\nReturns midi input devices (device names, device indexes) found by Portmidi.\n\n`device names` is a list of strings and `device indexes` is a list of the actual\nPortmidi index of each device.\n\n\
 >>> ins = pm_get_input_devices()\n\
 >>> print ins\n\
 (['IAC Driver Bus 1', 'from MaxMSP 1', 'from MaxMSP 2'], [0, 1, 2])\n\n"
 
-static PyObject *
-portmidi_get_input_devices(){
-	int n, i;
-    PyObject *list, *list_index;
-    list = PyList_New(0);
-    list_index = PyList_New(0);
-    n = Pm_CountDevices();
-    if (n < 0){
-        printf("Portmidi warning: No Midi interface found\n\n");
-    }
-    else {
-        for (i=0; i < n; i++){
-            const PmDeviceInfo *info = Pm_GetDeviceInfo(i);
-            if (info->input){
-                PyList_Append(list, PyString_FromString(info->name));
-                PyList_Append(list_index, PyInt_FromLong(i));
-            }
-        }
-        printf("\n");
-    }
-    return Py_BuildValue("OO", list, list_index);
-}
-
 #define portmidi_get_output_devices_info \
 "\nReturns midi output devices (device names, device indexes) found by Portmidi.\n\n`device names` is a list of strings and `device indexes` is a list of the actual\nPortmidi index of each device.\n\n\
 >>> outs = pm_get_output_devices()\n\
 >>> print outs\n\
 (['IAC Driver Bus 1', 'to MaxMSP 1', 'to MaxMSP 2'], [3, 4, 5])\n\n"
-
-static PyObject *
-portmidi_get_output_devices(){
-	int n, i;
-    PyObject *list, *list_index;
-    list = PyList_New(0);
-    list_index = PyList_New(0);
-    n = Pm_CountDevices();
-    if (n < 0){
-        printf("Portmidi warning: No Midi interface found\n\n");
-    }
-    else {
-        for (i=0; i < n; i++){
-            const PmDeviceInfo *info = Pm_GetDeviceInfo(i);
-            if (info->output){
-                PyList_Append(list, PyString_FromString(info->name));
-                PyList_Append(list_index, PyInt_FromLong(i));
-            }
-        }
-        printf("\n");
-    }
-    return Py_BuildValue("OO", list, list_index);
-}
 
 #define portmidi_get_default_input_info \
 "\nReturns the index number of Portmidi's default input device.\n\n\
@@ -286,16 +242,6 @@ portmidi_get_output_devices(){
 >>> print name\n\
 'IAC Driver Bus 1'\n\n"
 
-static PyObject *
-portmidi_get_default_input(){
-    PmDeviceID i;
-
-    i = Pm_GetDefaultInputDeviceID();
-    if (i < 0)
-        printf("pm_get_default_input: no midi input device found.\n");
-    return PyInt_FromLong(i);
-}
-
 #define portmidi_get_default_output_info \
 "\nReturns the index number of Portmidi's default output device.\n\n\
 >>> names, indexes = pm_get_output_devices()\n\
@@ -303,14 +249,6 @@ portmidi_get_default_input(){
 >>> print name\n\
 'IAC Driver Bus 1'\n\n"
 
-static PyObject *
-portmidi_get_default_output(){
-    PmDeviceID i;
-    i = Pm_GetDefaultOutputDeviceID();
-    if (i < 0)
-        printf("pm_get_default_output: no midi output device found.\n");
-    return PyInt_FromLong(i);
-}
 
 /****** Libsndfile utilities ******/
 static int
@@ -1943,6 +1881,10 @@ static PyMethodDef pyo_functions[] = {
 {"secToSamps", (PyCFunction)secToSamps, METH_O, secToSamps_info},
 {"serverCreated", (PyCFunction)serverCreated, METH_NOARGS, serverCreated_info},
 {"serverBooted", (PyCFunction)serverBooted, METH_NOARGS, serverBooted_info},
+{"withPortaudio", (PyCFunction)with_portaudio, METH_NOARGS, "Returns True if pyo is built with portaudio support."},
+{"withPortmidi", (PyCFunction)with_portmidi, METH_NOARGS, "Returns True if pyo is built with portmidi support."},
+{"withJack", (PyCFunction)with_jack, METH_NOARGS, "Returns True if pyo is built with jack support."},
+{"withCoreaudio", (PyCFunction)with_coreaudio, METH_NOARGS, "Returns True if pyo is built with coreaudio support."},
 {NULL, NULL, 0, NULL},
 };
 
@@ -1975,7 +1917,9 @@ init_pyo64(void)
 #endif
 
     module_add_object(m, "Server_base", &ServerType);
+#ifdef USE_PORTMIDI
     module_add_object(m, "MidiListener_base", &MidiListenerType);
+#endif
     module_add_object(m, "OscListener_base", &OscListenerType);
     module_add_object(m, "Stream", &StreamType);
     module_add_object(m, "TriggerStream", &TriggerStreamType);

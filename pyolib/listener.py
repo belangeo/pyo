@@ -30,6 +30,11 @@ class MidiListener(threading.Thread):
             device. A number greater than the highest portmidi device index 
             will open all available input devices. 
 
+    .. note::
+
+        This object is available only if pyo is built with portmidi support
+        (see withPortmidi function).
+
     >>> s = Server().boot()
     >>> s.deactivateMidi()
     >>> def midicall(status, data1, data2):

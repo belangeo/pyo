@@ -25,7 +25,6 @@
 #include "streammodule.h"
 #include "servermodule.h"
 #include "dummymodule.h"
-#include "portmidi.h"
 
 typedef struct {
     pyo_audio_HEAD
@@ -40,7 +39,7 @@ CtlScan_setProcMode(CtlScan *self) {}
 static void
 CtlScan_compute_next_data_frame(CtlScan *self)
 {
-    PmEvent *buffer;
+    PyoMidiEvent *buffer;
     int i, count;
 
     buffer = Server_getMidiEventBuffer((Server *)self->server);
@@ -49,9 +48,9 @@ CtlScan_compute_next_data_frame(CtlScan *self)
     if (count > 0) {
         PyObject *tup;
         for (i=count-1; i>=0; i--) {
-            int status = Pm_MessageStatus(buffer[i].message);	// Temp note event holders
-            int number = Pm_MessageData1(buffer[i].message);
-            int value = Pm_MessageData2(buffer[i].message);
+            int status = PyoMidi_MessageStatus(buffer[i].message);	// Temp note event holders
+            int number = PyoMidi_MessageData1(buffer[i].message);
+            int value = PyoMidi_MessageData2(buffer[i].message);
 
             if ((status & 0xF0) == 0xB0) {
                 if (number != self->ctlnumber) {
@@ -238,7 +237,7 @@ CtlScan2_setProcMode(CtlScan2 *self) {}
 static void
 CtlScan2_compute_next_data_frame(CtlScan2 *self)
 {
-    PmEvent *buffer;
+    PyoMidiEvent *buffer;
     int i, count, midichnl;
 
     buffer = Server_getMidiEventBuffer((Server *)self->server);
@@ -247,9 +246,9 @@ CtlScan2_compute_next_data_frame(CtlScan2 *self)
     if (count > 0) {
         PyObject *tup;
         for (i=count-1; i>=0; i--) {
-            int status = Pm_MessageStatus(buffer[i].message);	// Temp note event holders
-            int number = Pm_MessageData1(buffer[i].message);
-            int value = Pm_MessageData2(buffer[i].message);
+            int status = PyoMidi_MessageStatus(buffer[i].message);	// Temp note event holders
+            int number = PyoMidi_MessageData1(buffer[i].message);
+            int value = PyoMidi_MessageData2(buffer[i].message);
 
             if ((status & 0xF0) == 0xB0) {
                 midichnl = status - 0xB0 + 1;
@@ -487,13 +486,13 @@ Midictl_setProcMode(Midictl *self)
 }
 
 // Take MIDI events and translate them...
-void translateMidi(Midictl *self, PmEvent *buffer, int count)
+void translateMidi(Midictl *self, PyoMidiEvent *buffer, int count)
 {
     int i, ok;
     for (i=count-1; i>=0; i--) {
-        int status = Pm_MessageStatus(buffer[i].message);	// Temp note event holders
-        int number = Pm_MessageData1(buffer[i].message);
-        int value = Pm_MessageData2(buffer[i].message);
+        int status = PyoMidi_MessageStatus(buffer[i].message);	// Temp note event holders
+        int number = PyoMidi_MessageData1(buffer[i].message);
+        int value = PyoMidi_MessageData2(buffer[i].message);
 
         if (self->channel == 0) {
             if ((status & 0xF0) == 0xB0)
@@ -519,7 +518,7 @@ void translateMidi(Midictl *self, PmEvent *buffer, int count)
 static void
 Midictl_compute_next_data_frame(Midictl *self)
 {
-    PmEvent *tmp;
+    PyoMidiEvent *tmp;
     int i, count;
     MYFLT step;
 
@@ -909,14 +908,14 @@ Bendin_setProcMode(Bendin *self)
 }
 
 // Take MIDI events and translate them...
-void Bendin_translateMidi(Bendin *self, PmEvent *buffer, int count)
+void Bendin_translateMidi(Bendin *self, PyoMidiEvent *buffer, int count)
 {
     int i, ok;
     MYFLT val;
     for (i=count-1; i>=0; i--) {
-        int status = Pm_MessageStatus(buffer[i].message);	// Temp note event holders
-        int number = Pm_MessageData1(buffer[i].message);
-        int value = Pm_MessageData2(buffer[i].message);
+        int status = PyoMidi_MessageStatus(buffer[i].message);	// Temp note event holders
+        int number = PyoMidi_MessageData1(buffer[i].message);
+        int value = PyoMidi_MessageData2(buffer[i].message);
 
         if (self->channel == 0) {
             if ((status & 0xF0) == 0xe0)
@@ -946,7 +945,7 @@ void Bendin_translateMidi(Bendin *self, PmEvent *buffer, int count)
 static void
 Bendin_compute_next_data_frame(Bendin *self)
 {
-    PmEvent *tmp;
+    PyoMidiEvent *tmp;
     int i, count;
 
     tmp = Server_getMidiEventBuffer((Server *)self->server);
@@ -1275,13 +1274,13 @@ Touchin_setProcMode(Touchin *self)
 }
 
 // Take MIDI events and translate them...
-void Touchin_translateMidi(Touchin *self, PmEvent *buffer, int count)
+void Touchin_translateMidi(Touchin *self, PyoMidiEvent *buffer, int count)
 {
     int i, ok;
     for (i=count-1; i>=0; i--) {
-        int status = Pm_MessageStatus(buffer[i].message);	// Temp note event holders
-        int number = Pm_MessageData1(buffer[i].message);
-        /* int value = Pm_MessageData2(buffer[i].message); */
+        int status = PyoMidi_MessageStatus(buffer[i].message);	// Temp note event holders
+        int number = PyoMidi_MessageData1(buffer[i].message);
+        /* int value = PyoMidi_MessageData2(buffer[i].message); */
 
         if (self->channel == 0) {
             if ((status & 0xF0) == 0xd0)
@@ -1307,7 +1306,7 @@ void Touchin_translateMidi(Touchin *self, PmEvent *buffer, int count)
 static void
 Touchin_compute_next_data_frame(Touchin *self)
 {
-    PmEvent *tmp;
+    PyoMidiEvent *tmp;
     int i, count;
 
     tmp = Server_getMidiEventBuffer((Server *)self->server);
@@ -1624,13 +1623,13 @@ Programin_setProcMode(Programin *self)
 }
 
 // Take MIDI events and translate them...
-void Programin_translateMidi(Programin *self, PmEvent *buffer, int count)
+void Programin_translateMidi(Programin *self, PyoMidiEvent *buffer, int count)
 {
     int i, ok;
 
     for (i=count-1; i>=0; i--) {
-        int status = Pm_MessageStatus(buffer[i].message);	// Temp note event holders
-        int number = Pm_MessageData1(buffer[i].message);
+        int status = PyoMidi_MessageStatus(buffer[i].message);	// Temp note event holders
+        int number = PyoMidi_MessageData1(buffer[i].message);
 
         if (self->channel == 0) {
             if ((status & 0xF0) == 0xc0)
@@ -1655,7 +1654,7 @@ void Programin_translateMidi(Programin *self, PmEvent *buffer, int count)
 static void
 Programin_compute_next_data_frame(Programin *self)
 {
-    PmEvent *tmp;
+    PyoMidiEvent *tmp;
     int i, count;
 
     tmp = Server_getMidiEventBuffer((Server *)self->server);
@@ -1942,14 +1941,14 @@ int whichVoice(int *buf, int pitch, int len) {
 }
 
 // Take MIDI events and keep track of notes
-void grabMidiNotes(MidiNote *self, PmEvent *buffer, int count)
+void grabMidiNotes(MidiNote *self, PyoMidiEvent *buffer, int count)
 {
     int i, ok, voice, kind;
 
     for (i=0; i<count; i++) {
-        int status = Pm_MessageStatus(buffer[i].message);	// Temp note event holders
-        int pitch = Pm_MessageData1(buffer[i].message);
-        int velocity = Pm_MessageData2(buffer[i].message);
+        int status = PyoMidi_MessageStatus(buffer[i].message);	// Temp note event holders
+        int pitch = PyoMidi_MessageData1(buffer[i].message);
+        int velocity = PyoMidi_MessageData2(buffer[i].message);
 
         if (self->channel == 0) {
             if ((status & 0xF0) == 0x90 || (status & 0xF0) == 0x80)
@@ -2004,7 +2003,7 @@ void grabMidiNotes(MidiNote *self, PmEvent *buffer, int count)
 static void
 MidiNote_compute_next_data_frame(MidiNote *self)
 {
-    PmEvent *tmp;
+    PyoMidiEvent *tmp;
     int i, count;
 
     for (i=0; i<self->bufsize*self->voices*2; i++) {
@@ -3636,7 +3635,7 @@ RawMidi_setProcMode(RawMidi *self) {}
 static void
 RawMidi_compute_next_data_frame(RawMidi *self)
 {
-    PmEvent *buffer;
+    PyoMidiEvent *buffer;
     int i, count, status, data1, data2;
 
     buffer = Server_getMidiEventBuffer((Server *)self->server);
@@ -3645,9 +3644,9 @@ RawMidi_compute_next_data_frame(RawMidi *self)
     if (count > 0) {
         PyObject *tup;
         for (i=count-1; i>=0; i--) {
-            status = Pm_MessageStatus(buffer[i].message);	// Temp note event holders
-            data1 = Pm_MessageData1(buffer[i].message);
-            data2 = Pm_MessageData2(buffer[i].message);
+            status = PyoMidi_MessageStatus(buffer[i].message);	// Temp note event holders
+            data1 = PyoMidi_MessageData1(buffer[i].message);
+            data2 = PyoMidi_MessageData2(buffer[i].message);
             tup = PyTuple_New(3);
             PyTuple_SetItem(tup, 0, PyInt_FromLong(status));
             PyTuple_SetItem(tup, 1, PyInt_FromLong(data1));

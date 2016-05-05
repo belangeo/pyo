@@ -203,7 +203,9 @@
 #include "externalmodule.h"
 #endif
 
+#ifdef USE_PORTMIDI
 extern PyTypeObject MidiListenerType;
+#endif
 extern PyTypeObject OscListenerType;
 extern PyTypeObject SineType;
 extern PyTypeObject FastSineType;
