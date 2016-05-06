@@ -206,7 +206,16 @@
 #ifdef USE_PORTMIDI
 extern PyTypeObject MidiListenerType;
 #endif
+#ifdef USE_OSC
 extern PyTypeObject OscListenerType;
+extern PyTypeObject OscSendType;
+extern PyTypeObject OscReceiveType;
+extern PyTypeObject OscReceiverType;
+extern PyTypeObject OscDataSendType;
+extern PyTypeObject OscDataReceiveType;
+extern PyTypeObject OscListReceiveType;
+extern PyTypeObject OscListReceiverType;
+#endif
 extern PyTypeObject SineType;
 extern PyTypeObject FastSineType;
 extern PyTypeObject SineLoopType;
@@ -364,13 +373,6 @@ extern PyTypeObject MatrixPointerType;
 extern PyTypeObject MatrixRecType;
 extern PyTypeObject MatrixRecLoopType;
 extern PyTypeObject MatrixMorphType;
-extern PyTypeObject OscSendType;
-extern PyTypeObject OscReceiveType;
-extern PyTypeObject OscReceiverType;
-extern PyTypeObject OscDataSendType;
-extern PyTypeObject OscDataReceiveType;
-extern PyTypeObject OscListReceiveType;
-extern PyTypeObject OscListReceiverType;
 extern PyTypeObject TrigRandIntType;
 extern PyTypeObject TrigValType;
 extern PyTypeObject TrigRandType;

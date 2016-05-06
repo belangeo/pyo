@@ -61,16 +61,24 @@ else:
 
 # Specific audio drivers source files to compile
 ad_files = []
+obj_files = []
 
-# Temporary...
+### Temporary...
 if 1:
+    # portaudio
     macros.append(('USE_PORTAUDIO', None))
     ad_files.append("ad_portaudio.c")
     libraries = ["portaudio"]
+    # portmidi
     macros.append(('USE_PORTMIDI', None))
     ad_files.append("md_portmidi.c")
     ad_files.append("midilistenermodule.c")
     libraries += ["portmidi"]
+    # liblo
+    macros.append(('USE_OSC', None))
+    ad_files.append("osclistenermodule.c")
+    obj_files.append("oscmodule.c")
+    libraries += ["lo"]
 else:
     libraries = []
 
@@ -91,13 +99,13 @@ if sys.platform == "darwin":
 
 path = 'src/engine'
 files = ['pyomodule.c', 'streammodule.c', 'servermodule.c', 'pvstreammodule.c', 
-         'osclistenermodule.c', 'dummymodule.c', 'mixmodule.c', 'inputfadermodule.c', 
-         'interpolation.c', 'fft.c', "wind.c"] + ad_files
+         'dummymodule.c', 'mixmodule.c', 'inputfadermodule.c', 'interpolation.c', 
+         'fft.c', "wind.c"] + ad_files
 source_files = [os.path.join(path, f) for f in files]
 
 path = 'src/objects'
 files = ['filtremodule.c', 'arithmeticmodule.c', 'oscilmodule.c', 
-         'randommodule.c', 'oscmodule.c','analysismodule.c', 'sfplayermodule.c', 
+         'randommodule.c', 'analysismodule.c', 'sfplayermodule.c', 
          'oscbankmodule.c', 'lfomodule.c', 'exprmodule.c', 'utilsmodule.c', 
          'granulatormodule.c', 'matrixmodule.c', 'noisemodule.c', 'distomodule.c', 
          'tablemodule.c', 'wgverbmodule.c', 'inputmodule.c', 'fadermodule.c', 
@@ -105,7 +113,7 @@ files = ['filtremodule.c', 'arithmeticmodule.c', 'oscilmodule.c',
          'trigmodule.c', 'patternmodule.c', 'bandsplitmodule.c', 'hilbertmodule.c', 
          'panmodule.c', 'selectmodule.c', 'compressmodule.c',  'freeverbmodule.c', 
          'phasevocmodule.c', 'fftmodule.c', 'convolvemodule.c', 'sigmodule.c',
-         'matrixprocessmodule.c', 'harmonizermodule.c', 'chorusmodule.c']
+         'matrixprocessmodule.c', 'harmonizermodule.c', 'chorusmodule.c'] + obj_files
 
 if compile_externals:
     source_files = source_files + \

@@ -9,6 +9,9 @@ input port.
 
 The audio streams of these objects are essentially intended to be
 controls and can't be sent to the output soundcard.
+    
+These objects are available only if pyo is built with OSC (Open Sound 
+Control) support.
 
 """
 
@@ -34,6 +37,10 @@ License along with pyo.  If not, see <http://www.gnu.org/licenses/>.
 from _core import *
 from _maps import *
 from types import ListType, StringType, UnicodeType
+
+def assertOSCSupport(obj):
+    if not withOSC():
+        raise Exception("Pyo built without OSC support! '%s' objects is not available." % obj.__class__.__name__)
 
 ######################################################################
 ### Open Sound Control
@@ -76,6 +83,7 @@ class OscSend(PyoObject):
 
     """
     def __init__(self, input, port, address, host="127.0.0.1"):
+        assertOSCSupport(self)
         pyoArgsAssert(self, "oiss", input, port, address, host)
         PyoObject.__init__(self)
         self._input = input
@@ -171,6 +179,7 @@ class OscReceive(PyoObject):
     """
 
     def __init__(self, port, address, mul=1, add=0):
+        assertOSCSupport(self)
         pyoArgsAssert(self, "IsOO", port, address, mul, add)
         PyoObject.__init__(self, mul, add)
         address, mul, add, lmax = convertArgsToLists(address, mul, add)
@@ -364,6 +373,7 @@ class OscDataSend(PyoObject):
 
     """
     def __init__(self, types, port, address, host="127.0.0.1"):
+        assertOSCSupport(self)
         pyoArgsAssert(self, "siss", types, port, address, host)
         PyoObject.__init__(self)
         types, port, address, host, lmax = convertArgsToLists(types, port, address, host)
@@ -522,6 +532,7 @@ class OscDataReceive(PyoObject):
     """
 
     def __init__(self, port, address, function):
+        assertOSCSupport(self)
         pyoArgsAssert(self, "IsC", port, address, function)
         PyoObject.__init__(self)
         self._port = port
@@ -626,6 +637,7 @@ class OscListReceive(PyoObject):
     """
 
     def __init__(self, port, address, num=8, mul=1, add=0):
+        assertOSCSupport(self)
         pyoArgsAssert(self, "IsIOO", port, address, num, mul, add)
         PyoObject.__init__(self, mul, add)
         self._num = num

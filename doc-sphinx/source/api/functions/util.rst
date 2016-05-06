@@ -38,6 +38,11 @@ Utilities
 
 .. autofunction:: withCoreaudio
 
+*withOSC*
+---------------------------------
+
+.. autofunction:: withOSC
+
 *convertStringToSysEncoding*
 ---------------------------------
 

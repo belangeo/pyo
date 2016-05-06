@@ -77,6 +77,12 @@ PyObject * with_coreaudio() { Py_INCREF(Py_True); return Py_True; };
 PyObject * with_coreaudio() { Py_INCREF(Py_False); return Py_False; };
 #endif
 
+#ifdef USE_OSC
+PyObject * with_osc() { Py_INCREF(Py_True); return Py_True; };
+#else
+PyObject * with_osc() { Py_INCREF(Py_False); return Py_False; };
+#endif
+
 /** Portaudio utility functions __doc__ strings. **/
 /**************************************************/
 
@@ -1884,7 +1890,8 @@ static PyMethodDef pyo_functions[] = {
 {"withPortaudio", (PyCFunction)with_portaudio, METH_NOARGS, "Returns True if pyo is built with portaudio support."},
 {"withPortmidi", (PyCFunction)with_portmidi, METH_NOARGS, "Returns True if pyo is built with portmidi support."},
 {"withJack", (PyCFunction)with_jack, METH_NOARGS, "Returns True if pyo is built with jack support."},
-{"withCoreaudio", (PyCFunction)with_coreaudio, METH_NOARGS, "Returns True if pyo is built with coreaudio support."},
+{"withCoreaudio", (PyCFunction)with_osc, METH_NOARGS, "Returns True if pyo is built with coreaudio support."},
+{"withOSC", (PyCFunction)with_coreaudio, METH_NOARGS, "Returns True if pyo is built with OSC (Open Sound Comtrol) support."},
 {NULL, NULL, 0, NULL},
 };
 
@@ -1920,7 +1927,16 @@ init_pyo64(void)
 #ifdef USE_PORTMIDI
     module_add_object(m, "MidiListener_base", &MidiListenerType);
 #endif
+#ifdef USE_OSC
     module_add_object(m, "OscListener_base", &OscListenerType);
+    module_add_object(m, "OscSend_base", &OscSendType);
+    module_add_object(m, "OscDataSend_base", &OscDataSendType);
+    module_add_object(m, "OscReceive_base", &OscReceiveType);
+    module_add_object(m, "OscReceiver_base", &OscReceiverType);
+    module_add_object(m, "OscListReceive_base", &OscListReceiveType);
+    module_add_object(m, "OscListReceiver_base", &OscListReceiverType);
+    module_add_object(m, "OscDataReceive_base", &OscDataReceiveType);
+#endif
     module_add_object(m, "Stream", &StreamType);
     module_add_object(m, "TriggerStream", &TriggerStreamType);
     module_add_object(m, "PVStream", &PVStreamType);
@@ -2064,13 +2080,6 @@ init_pyo64(void)
     module_add_object(m, "Programin_base", &PrograminType);
     module_add_object(m, "MidiAdsr_base", &MidiAdsrType);
     module_add_object(m, "MidiDelAdsr_base", &MidiDelAdsrType);
-    module_add_object(m, "OscSend_base", &OscSendType);
-    module_add_object(m, "OscDataSend_base", &OscDataSendType);
-    module_add_object(m, "OscReceive_base", &OscReceiveType);
-    module_add_object(m, "OscReceiver_base", &OscReceiverType);
-    module_add_object(m, "OscListReceive_base", &OscListReceiveType);
-    module_add_object(m, "OscListReceiver_base", &OscListReceiverType);
-    module_add_object(m, "OscDataReceive_base", &OscDataReceiveType);
     module_add_object(m, "TrigRand_base", &TrigRandType);
     module_add_object(m, "TrigRandInt_base", &TrigRandIntType);
     module_add_object(m, "TrigVal_base", &TrigValType);
