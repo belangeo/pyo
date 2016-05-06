@@ -129,7 +129,7 @@ if sys.platform == "win32":
                     'C:\liblo', 'C:\pthreads\include', 'C:\portmidi\porttime']
     library_dirs = ['C:\portaudio', 'C:\portmidi', 'C:\liblo', 'C:\pthreads\lib', 
                     'C:/Program Files (x86)/Mega-Nerd/libsndfile/bin']
-    libraries += ['libsndfile-1', 'lo', 'pthreadVC2']
+    libraries += ['libsndfile-1', 'pthreadVC2']
     if 'portmidi' in libraries:
         libraries.append('portmidi')
 else:
@@ -137,7 +137,7 @@ else:
     if sys.platform == "darwin":
         include_dirs.append('/opt/local/include')
     library_dirs = []
-    libraries += ['sndfile', 'lo']
+    libraries += ['sndfile']
     if build_with_jack_support:
         libraries.append('jack')
 
