@@ -264,6 +264,6 @@ Depends(test, portmidi)
 compiler = mingw32
 
 === STEP 13 ===
---- Download pyo sources from svn and build it with:
+--- Download pyo sources from git and build it with:
 
 python setup.py install

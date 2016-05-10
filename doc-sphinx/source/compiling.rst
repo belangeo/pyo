@@ -1,12 +1,14 @@
 Compiling pyo from sources
-===========================
+==========================
 
-Here is how you can compile pyo from sources.
+Here is how you can compile pyo from sources on Linux and Mac OS X (if you are
+interested in the adventure of compiling pyo from sources on Windows, you
+can take a look at my personal notes in /scripts/win/windows-7-build-routine.txt).
 
 Dependencies
---------------
+------------
 
-To compile pyo, you will need the following dependencies: 
+To compile pyo with all its features, you will need the following dependencies: 
 
 - `Python 2.6 or 2.7 <https://www.python.org/downloads/>`_
 - `WxPython 3.0 <http://www.wxpython.org/download.php/>`_
@@ -14,11 +16,13 @@ To compile pyo, you will need the following dependencies:
 - `Portmidi <http://portmedia.sourceforge.net/portmidi/>`_
 - `libsndfile <http://www.mega-nerd.com/libsndfile/>`_
 - `liblo <http://liblo.sourceforge.net/>`_
+- `git <https://git-scm.com/>`_ (if you want the latest sources)
 
 Getting sources
--------------------
+---------------
 
-You can download pyo's source checking out the source code here: 
+You can download pyo's sources by checking out the source code 
+`here <https://github.com/belangeo/pyo>`_: 
 
 .. code-block:: bash
 
@@ -36,18 +40,26 @@ Once you have all the required dependencies, go in pyo's directory:
 
     cd path/to/pyo
 
-You then need to build the extension: 
+And build the library: 
 
+Mac OS X and Debian:
+    
 .. code-block:: bash
 
     sudo python setup.py install
 
-You can customize you compilation by giving some flags to the command line.
+Ubuntu distros:
+    
+.. code-block:: bash
+
+    sudo python setup.py install --install-layout=deb
+
+You can customize your compilation by giving some flags to the command line.
 
 .. _compilation-flags-label:
 
 Compilation flags
-*********************
+*****************
 
 If you want to be able to use coreaudio (Mac OS X): 
 
@@ -74,14 +86,26 @@ If you want to disable most of messages printed to the console:
     
     --no-messages
 
-If you want to compile external classes defined in externals folder:
+If you want to compile external classes defined in ./externals folder:
 
 .. code-block:: bash
 
     --compile-externals
 
+If you want to compile pyo with minimal dependencies (mostly for integrated use
+in a host environment):
+
+.. code-block:: bash
+
+    --minimal
+
+This will compile pyo without portaudio, portmidi and liblo support.
+
 Compilation scripts
-**********************
+*******************
+
+In the ./scripts folder, there is some alternate scripts to simplify the 
+compilation process a little bit.
 
 To compile both 32-bit and 64-bit resolutions on linux (with jack support):
 
@@ -101,8 +125,8 @@ To compile both 32-bit and 64-bit resolutions on OS X (with Jack):
 
     sudo sh scripts/compile_OSX_withJack.sh
 
-Ubuntu (Debian)
--------------------
+Debian & Ubuntu (apt-get)
+-------------------------
 
 Under Ubuntu you can type the following commands to get pyo up and running: 
 
@@ -118,9 +142,9 @@ Under Ubuntu you can type the following commands to get pyo up and running:
 * On Ubuntu system prior to vivid, wxpython 3.0 must be compiled from sources.
  
 OSX (Homebrew)
---------------------
+--------------
 
-Under OS X, it is very simple to build pyo from sources with the Homebrew package mananger.
+Under OS X, it is very simple to build pyo from sources with the Homebrew package manager.
 
 First, you need to install `Homebrew <http://brew.sh/>`. Then, in a terminal window:
 
