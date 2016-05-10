@@ -63,8 +63,11 @@ else:
 ad_files = []
 obj_files = []
 
-### Temporary...
-if 1:
+# Special flag to build without portaudio, portmidi and liblo deps.
+if '--minimal' in sys.argv:
+    sys.argv.remove('--minimal') 
+    libraries = []
+else:
     # portaudio
     macros.append(('USE_PORTAUDIO', None))
     ad_files.append("ad_portaudio.c")
@@ -79,10 +82,8 @@ if 1:
     ad_files.append("osclistenermodule.c")
     obj_files.append("oscmodule.c")
     libraries += ["lo"]
-else:
-    libraries = []
 
-# Audio / Midi drivers
+# Optional Audio / Midi drivers
 if '--use-jack' in sys.argv: 
     sys.argv.remove('--use-jack') 
     build_with_jack_support = True
@@ -131,7 +132,7 @@ if sys.platform == "win32":
                     'C:/Program Files (x86)/Mega-Nerd/libsndfile/bin']
     libraries += ['libsndfile-1', 'pthreadVC2']
     if 'portmidi' in libraries:
-        libraries.append('portmidi')
+        libraries.append('porttime')
 else:
     include_dirs = ['include', '/usr/local/include']
     if sys.platform == "darwin":

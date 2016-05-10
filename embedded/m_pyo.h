@@ -24,7 +24,7 @@ inline PyThreadState * pyo_new_interpreter(float sr, int bufsize, int chnls) {
     char msg[64];
     PyThreadState *interp;
     if(!Py_IsInitialized()) {
-        Py_Initialize();
+        Py_InitializeEx(0);
         PyEval_InitThreads();
         PyEval_ReleaseLock();
     }
@@ -163,10 +163,15 @@ inline int pyo_get_server_id(PyThreadState *interp) {
 **  interp : pointer, pointer to the targeted Python thread state.
 */
 inline void pyo_end_interpreter(PyThreadState *interp) {
+    PyEval_AcquireThread(interp);
+    PyRun_SimpleString("_s_.setServer()\n_s_.stop()\n_s_.shutdown()");
+    PyEval_ReleaseThread(interp);
+
     /* Old method (causing segfault) */
     //PyEval_AcquireThread(interp);
     //Py_EndInterpreter(interp);
     //PyEval_ReleaseLock();
+
     /* New method (seems to be ok) */
     PyThreadState_Swap(interp);
     PyThreadState_Swap(NULL);
