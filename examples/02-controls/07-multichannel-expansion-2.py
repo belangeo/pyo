@@ -1,5 +1,5 @@
 """
-07-multichannel-expansion-2.py
+07-multichannel-expansion-2.py - Extended multichannel expansion.
 
 When using multichannel expansion with lists of different lengths,
 the longer list is used to set the number of streams and smaller

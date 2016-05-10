@@ -1,5 +1,5 @@
 """
-04-noise-generators.py
+04-noise-generators.py - Different pseudo-random noise generators.
 
 There are three noise generators (beside random generators that
 will be covered later) in the library. These are the classic 

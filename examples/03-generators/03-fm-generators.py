@@ -1,5 +1,5 @@
 """
-03-fm-generators.py
+03-fm-generators.py - Frequency modulation synthesis.
 
 There two objects in the library that implement frequency
 modulation algorithms. These objects are very simple, although

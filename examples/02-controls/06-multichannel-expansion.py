@@ -1,10 +1,10 @@
 """
-05-multichannel-expansion.py
+06-multichannel-expansion.py - What is a `Stream`? Polyphonic objects.
 
 List expansion is a powerful technique for generating many audio
 streams at once. 
 
-What is a "stream"? An "stream" is a monophonic channel of samples.
+What is a "stream"? A "stream" is a monophonic channel of samples.
 It is the basic structure over which all the library is built. Any 
 PyoObject can handle as many streams as necessary to represent the 
 defined process. When a polyphonic (ie more than one stream) object
@@ -20,7 +20,7 @@ list is used to generate one stream. Shorter lists will wrap around
 when reaching the end of the list.
 
 A PyoObject is considered by other object as a list. The function
-len(obj) returns the number of streams managed by the object. This 
+`len(obj)` returns the number of streams managed by the object. This 
 feature is useful to create a polyphonic dsp chain.
 
 """

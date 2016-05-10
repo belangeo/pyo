@@ -1,5 +1,5 @@
 """
-09-handling-channels-2.py
+09-handling-channels-2.py - The `out` method and the physical outputs.
 
 In a multichannel environment, we can carefully choose which stream
 goes to which output channel. To achieve this, we use the `chnl` and

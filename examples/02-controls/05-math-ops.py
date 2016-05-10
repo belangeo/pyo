@@ -1,5 +1,5 @@
 """
-07-math-ops.py
+05-math-ops.py - Audio objects and arithmetic expresssions.
 
 This script shows how a PyoObject reacts when used inside an 
 arithmetic expression.

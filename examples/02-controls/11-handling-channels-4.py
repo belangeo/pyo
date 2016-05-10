@@ -1,5 +1,5 @@
 """
-11-handling-channels-4.py
+11-handling-channels-4.py - Explicit control of the physical outputs.
 
 If `chnl` is a list, successive values in the list will be assigned 
 to successive streams.

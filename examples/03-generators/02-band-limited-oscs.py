@@ -1,5 +1,5 @@
 """
-02-band-limited-oscs.py
+02-band-limited-oscs.py - Oscillators whose spectrum is kept under the Nyquist frequency.
 
 This tutorial presents an object (misnamed LFO but it's too late 
 to change its name!) that implements various band-limited waveforms. 

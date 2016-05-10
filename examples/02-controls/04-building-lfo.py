@@ -1,5 +1,5 @@
 """
-04-building-lfo.py
+04-building-lfo.py - Audio control of parameters.
 
 One of the most important thing with computer music is the
 trajectories taken by parameters over time. This is what 

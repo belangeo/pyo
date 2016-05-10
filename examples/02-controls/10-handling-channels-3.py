@@ -1,5 +1,5 @@
 """
-10-handling-channels-3.py
+10-handling-channels-3.py - Random multichannel outputs.
 
 If `chnl` is negative, streams begin at 0, increment the output 
 number by inc and wrap around the global number of channels. 

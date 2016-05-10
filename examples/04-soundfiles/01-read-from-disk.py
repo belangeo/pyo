@@ -1,13 +1,13 @@
 """
-01-read-from-disk.py
+01-read-from-disk.py - Soundfile playback from disk.
 
 SfPlayer and friends read samples from a file on disk with control
 over playback speed and looping mode.
 
 Player family:
-    - SfPlayer : Reads many soundfile formats from disk.
-    - SfMarkerLooper : AIFF with markers soundfile looper.
-    - SfMarkerShuffler : AIFF with markers soundfile shuffler.
+    - **SfPlayer** : Reads many soundfile formats from disk.
+    - **SfMarkerLooper** : AIFF with markers soundfile looper.
+    - **SfMarkerShuffler** : AIFF with markers soundfile shuffler.
 
 Reading sound file from disk can save a lot of RAM, especially if 
 the soundfile is big, but it is more CPU expensive than loading 

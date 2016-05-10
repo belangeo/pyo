@@ -1,13 +1,13 @@
 """
-02-read-from-disk-2.py
+02-read-from-disk-2.py - Catching the `end-of-file` signal from the SfPlayer object.
 
-This example demonstrates how to use the "end-of-file" signal
+This example demonstrates how to use the `end-of-file` signal
 of the SfPlayer object to trigger another playback (possibly
 with another sound, another speed, etc.).
 
 When a SfPlayer reaches the end of the file, it sends a trigger
 (more on trigger later) that the user can retrieve with the 
-syntaxe :
+syntax :
 
 variable_name["trig"]
 

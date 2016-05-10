@@ -1,8 +1,8 @@
 """
-01-fixed-control.py
+01-fixed-control.py - Number as argument.
 
 Audio objects behaviour can be controlled by passing 
-value to their arguments at initilization time.
+value to their arguments at initialization time.
 
 """
 from pyo import *

@@ -64,15 +64,16 @@ f.close()
 
 # New examples listing
 os.mkdir("source/examples")
-for dir in sorted(os.listdir("../examples-new")):
+folders = sorted([d for d in os.listdir("../examples") if d[0] in ['0', '1']])
+for dir in folders:
     os.mkdir("source/examples/%s" % dir)
     index = open("source/examples/%s/index.rst" % dir, "w")
     index.write(dir + "\n")
     index.write("="*40)
     index.write("\n\n.. toctree::\n   :maxdepth: 1\n\n")
-    for name in sorted(os.listdir("../examples-new/%s" % dir)):
+    for name in sorted(os.listdir("../examples/%s" % dir)):
         index.write("   " + name[:-3] + "\n")
-        with open("../examples-new/%s/%s" % (dir, name), "r") as f:
+        with open("../examples/%s/%s" % (dir, name), "r") as f:
             text = f.read()
         with open("source/examples/%s/%s.rst" % (dir, name[:-3]), "w") as f:
             pos = text.find('"""')

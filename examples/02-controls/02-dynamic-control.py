@@ -1,5 +1,5 @@
 """
-02-dynamic-control.py
+02-dynamic-control.py - Graphical control for parameters.
 
 With pyo, it's easy to quickly try some parameter combination
 with the controller window already configured for each object.

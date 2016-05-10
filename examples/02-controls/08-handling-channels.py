@@ -1,5 +1,5 @@
 """
-06-handling-channels.py
+08-handling-channels.py - Managing object's internal audio streams.
 
 Because audio objects expand their number of streams according to lists
 given to their arguments and the fact that an audio object is considered
@@ -13,7 +13,7 @@ a chorus is applied to the resulting waveform. If we don't mix down the
 square wave, we got tens of Chorus objects in the processing chain (one
 per sine). This can easily overrun the CPU. The exact same result can
 be obtained with only one Chorus applied to the sum of the sine waves. 
-The mix(voices) method of the PyoObject helps the handling of channels 
+The `mix(voices)` method of the PyoObject helps the handling of channels 
 in order to save CPU cycles. Here, we down mix all streams to only two 
 streams (to maintain the stereo) before processing the Chorus arguments.
 

@@ -1,14 +1,14 @@
 """
-06-record-table.py
+06-record-table.py - Recording live sound in RAM.
 
 By recording a stream of sound in RAM, one can quickly re-use the 
 samples in the current process. A combination NewTable - TableRec
 is all what one need to record any stream in a table.
 
-The NewTable object has a "feedback" argument, allowing overdub.
+The NewTable object has a `feedback` argument, allowing overdub.
 
 The TableRec object starts a new recording (records until the table
-is full) every time its method play() is called.
+is full) every time its method `play()` is called.
 
 """
 from pyo import *

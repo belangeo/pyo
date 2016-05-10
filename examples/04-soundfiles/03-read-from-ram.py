@@ -1,5 +1,5 @@
 """
-03-read-from-ram.py
+03-read-from-ram.py - Soundfile playback from RAM.
 
 Reading a sound file from the RAM gives the advantage of a very
 fast access to every loaded samples. This is very useful for a 

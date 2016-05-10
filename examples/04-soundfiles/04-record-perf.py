@@ -1,14 +1,14 @@
 """
-04-record-perf.py
+04-record-perf.py - Recording the performance on disk.
 
 The Server object allow the recording of the overall playback
 (that is exactly what your hear). The "Rec Start" button of the
 Server's window is doing that with default parameters. It'll
-record a file called "pyo_rec.wav", 16-bit, 44100 Hz, on the
+record a file called "pyo_rec.wav" (16-bit, 44100 Hz) on the
 user's desktop.
 
 You can control the recording with the Server's method called
-recordOptions, the arguments are:
+`recordOptions`, the arguments are:
 
 - dur : The duration of the recording, a value of -1 means 
         record forever (recstop() must be called by the user).
@@ -19,9 +19,9 @@ recordOptions, the arguments are:
                for available types).
 
 The recording can be triggered programmatically with the Server's 
-methods recstart() and recstop(). In order to record multiple files
+methods `recstart()` and `recstop()`. In order to record multiple files
 from a unique performance, it is possible to set the filename
-with an argument to recstart().
+with an argument to `recstart()`.
 
 
 """

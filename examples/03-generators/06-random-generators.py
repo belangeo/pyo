@@ -1,5 +1,5 @@
 """
-06-random-generators.py
+06-random-generators.py - Overview of some random generators of pyo.
 
 The pyo's random category contains many objects that can be used
 for different purposes. This category really deserves to be studied.

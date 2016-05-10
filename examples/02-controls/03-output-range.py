@@ -1,5 +1,5 @@
 """
-03-output-range.py
+03-output-range.py - The `mul` and `add` attributes.
 
 Almost all audio objects have a `mul` and `add` attributes.
 These are defined inside the PyoObject, which is the base

@@ -1,5 +1,5 @@
 """
-01-complex-oscs.py
+01-complex-oscs.py - Complex spectrum oscillators.
 
 This tutorial presents four objects of the library which are 
 useful to generate complex spectrums by means of synthesis.
