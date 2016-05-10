@@ -36,10 +36,14 @@ def getDocFirstLine(obj):
 format = "- :py:class:`%s` : %s\n"
 
 lines = []
-for key in ['Server', 'Stream', 'TableStream', 'PyoObjectBase', 'Map']:
+for key in ['Server', 'Stream', 'TableStream', 'PyoObjectBase', 'Map', 
+            'MidiListener', 'OscListener', 'PyoGui']:
     if type(OBJECTS_TREE[key]) == ListType:
-        for obj in OBJECTS_TREE[key]:
-            lines.append(format % (obj, getDocFirstLine(obj)))
+        if key in ['MidiListener', 'OscListener']:
+            lines.append(format % (key, getDocFirstLine(key)))
+        else:
+            for obj in OBJECTS_TREE[key]:
+                lines.append(format % (obj, getDocFirstLine(obj)))
     else:
         if key == 'Map': key2list = ['SLMap']
         else: key2list = ['PyoMatrixObject', 'PyoTableObject', 'PyoObject', 'PyoPVObject']
@@ -58,6 +62,36 @@ for line in lines:
 
 f.close()
 
+# New examples listing
+os.mkdir("source/examples")
+for dir in sorted(os.listdir("../examples-new")):
+    os.mkdir("source/examples/%s" % dir)
+    index = open("source/examples/%s/index.rst" % dir, "w")
+    index.write(dir + "\n")
+    index.write("="*40)
+    index.write("\n\n.. toctree::\n   :maxdepth: 1\n\n")
+    for name in sorted(os.listdir("../examples-new/%s" % dir)):
+        index.write("   " + name[:-3] + "\n")
+        with open("../examples-new/%s/%s" % (dir, name), "r") as f:
+            text = f.read()
+        with open("source/examples/%s/%s.rst" % (dir, name[:-3]), "w") as f:
+            pos = text.find('"""')
+            pos = text.find('"""', pos+3)
+            code = text[pos+3:].strip()
+            intro = text[:pos+3].replace('"""', '').strip()
+            tpos = intro.find("\n")
+            title = intro[:tpos]
+            f.write(title + "\n")
+            f.write("="*140)
+            f.write("\n")
+            f.write(intro[tpos:])
+            f.write("\n\n")
+            f.write(".. code-block:: python\n\n")
+            for line in code.splitlines():
+                f.write("    " + line + "\n")
+            f.write("\n")
+    index.close()
+
 os.system("sphinx-build -a -b %s ./source %s" % (build_format, build_folder))
 
 if build_format == "latex":
@@ -67,3 +101,4 @@ rep = raw_input("Do you want to upload to ajax server (y/n) ? ")
 if rep == "y":
         os.system("scp -r build_html/* jeadum1@ajaxsoundstudio.com:/home/jeadum1/ajaxsoundstudio.com/pyodoc")
 
+os.system("rm -r source/examples")

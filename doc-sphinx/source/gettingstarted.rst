@@ -1,7 +1,7 @@
-Getting Started
+Getting started
 =================================
 
-Here is quick introduction to Pyo. It assumes you already know Python and basics about Object-oriented programming.
+Here is quick introduction to Pyo. It assumes you already know Python and basics about OOP (Object-Oriented Programming).
 
 The Pyo Server and GUI
 -----------------------

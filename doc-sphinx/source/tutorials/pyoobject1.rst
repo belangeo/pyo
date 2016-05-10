@@ -1,5 +1,5 @@
-Tutorial on creating a custom PyoObject (RingMod)
-==================================================
+Tutorial about creating a custom PyoObject (RingMod)
+=====================================================
 
 There are few steps we need to take care of in order to create a class with all 
 of the PyoObject behaviors.

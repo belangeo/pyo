@@ -1,5 +1,5 @@
-Compiling
-=====================
+Compiling pyo from sources
+===========================
 
 Here is how you can compile pyo from sources.
 

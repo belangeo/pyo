@@ -3,11 +3,16 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to the Pyo 0.7.9 documentation
+Pyo 0.7.9 documentation
 ===================================================
 
 Pyo is a Python module written in C to help digital signal processing script 
-creation.
+creation. It provides a complete set of classes to build audio softwares, 
+compose algorithmic musics or simply explore audio processing with a simple, 
+mature and powerful programming language.
+
+Parts of the documentation
+--------------------------
 
 .. toctree::
    :maxdepth: 1
@@ -16,11 +21,33 @@ creation.
    download
    compiling
    gettingstarted
-   tutorials/index
    api/index
 
+Examples
+---------------
+
+.. toctree::
+   :maxdepth: 1
+   
+   First steps <examples/01-intro/index>
+   Parameter control <examples/02-controls/index>
+   Synthesis generators <examples/03-generators/index>
+   Playing with soundfiles <examples/04-soundfiles/index>
+
+Much more to come... Stay tuned!
+
+Advanced tutorials
+--------------------------
+
+.. toctree::
+   :maxdepth: 1
+
+   tutorials/pyoobject1
+   tutorials/pyoobject2
+   tutorials/pyotableobject1
+
 Indices and tables
-==================
+------------------
 
 * :ref:`genindex`
 * :ref:`search`

@@ -1,5 +1,5 @@
-Example of a custom PyoTableObject
-====================================
+Tutorial about creating a custom PyoTableObject (TriTable)
+===========================================================
 
 .. code-block:: python
 

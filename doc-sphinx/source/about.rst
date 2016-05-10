@@ -1,10 +1,12 @@
-About Pyo
+About pyo
 =================
 
 Pyo is a Python module written in C to help digital signal processing script 
-creation.
+creation. It provides a complete set of classes to build audio softwares, 
+compose algorithmic musics or simply explore audio processing with a simple, 
+mature and powerful programming language.
 
-Pyo is a Python module written in C to help DSP script creation. Pyo contains 
+Pyo contains 
 classes for a wide variety of audio signal processing. With pyo, the user will 
 be able to include signal processing chains directly in Python scripts or 
 projects, and to manipulate them in real time through the interpreter. Tools 

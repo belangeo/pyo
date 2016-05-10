@@ -1,4 +1,4 @@
-Server Quieries
+Server Queries
 ======================================
 
 .. module:: pyo

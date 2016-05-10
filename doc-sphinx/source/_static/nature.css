@@ -132,12 +132,12 @@ div.sphinxsidebar input[type=text]{
 /* -- body styles ----------------------------------------------------------- */
  
 a {
-    color: #005B81;
+    color: #333388;
     text-decoration: none;
 }
  
 a:hover {
-    color: #E32EFF;
+    color: #111166;
     text-decoration: underline;
 }
  

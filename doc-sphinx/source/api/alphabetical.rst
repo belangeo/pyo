@@ -123,6 +123,7 @@ Alphabetical class reference
 - :py:class:`Metro` :     Generates isochronous trigger signals.
 - :py:class:`MidiAdsr` :     Midi triggered ADSR envelope generator.
 - :py:class:`MidiDelAdsr` :     Midi triggered ADSR envelope generator with pre-delay.
+- :py:class:`MidiListener` :     Self-contained midi listener thread.
 - :py:class:`Midictl` :     Get the current value of a Midi controller.
 - :py:class:`Min` :     Outputs the minimum of two values.
 - :py:class:`Mirror` :     Reflects the signal that exceeds the `min` and `max` thresholds.
@@ -140,6 +141,7 @@ Alphabetical class reference
 - :py:class:`OscDataReceive` :     Receives data values over a network via the Open Sound Control protocol.
 - :py:class:`OscDataSend` :     Sends data values over a network via the Open Sound Control protocol.
 - :py:class:`OscListReceive` :     Receives list of values over a network via the Open Sound Control protocol.
+- :py:class:`OscListener` :     Self-contained OSC listener thread.
 - :py:class:`OscLoop` :     A simple oscillator with feedback reading a waveform table.
 - :py:class:`OscReceive` :     Receives values over a network via the Open Sound Control protocol.
 - :py:class:`OscSend` :     Sends values over a network via the Open Sound Control protocol.
@@ -182,6 +184,13 @@ Alphabetical class reference
 - :py:class:`Print` :     Print PyoObject's current value.
 - :py:class:`Programin` :     Get the current value of a program change Midi controller.
 - :py:class:`Pulsar` :     Pulsar synthesis oscillator.
+- :py:class:`PyoGuiControlSlider` :         Floating-point control slider.
+- :py:class:`PyoGuiGrapher` :         Multi-modes break-points function editor.
+- :py:class:`PyoGuiMultiSlider` :         Data multi-sliders editor.
+- :py:class:`PyoGuiScope` :         Oscilloscope display.
+- :py:class:`PyoGuiSndView` :         Soundfile display.
+- :py:class:`PyoGuiSpectrum` :         Frequency spectrum display.
+- :py:class:`PyoGuiVuMeter` :         Multi-channels Vu Meter.
 - :py:class:`RCOsc` :     Waveform aproximation of a RC circuit.
 - :py:class:`RandDur` :     Recursive time varying pseudo-random generator.
 - :py:class:`RandInt` :     Periodic pseudo-random integer generator.
