@@ -1288,7 +1288,8 @@ Server_stop(Server *self)
         self->server_stopped = 1;
         switch (self->midi_be_type) {
             case PyoPortmidi:
-                err = Server_pm_deinit(self);
+                if (self->withPortMidi == 1 || self->withPortMidiOut == 1)
+                    err = Server_pm_deinit(self);
                 break;
             default:
                 break;
