@@ -22,7 +22,7 @@ License along with pyo.  If not, see <http://www.gnu.org/licenses/>.
 from distutils.core import setup, Extension
 import os, sys
 
-pyo_version = "0.7.9"
+pyo_version = "0.8.0"
 build_with_jack_support = False
 compile_externals = False
 

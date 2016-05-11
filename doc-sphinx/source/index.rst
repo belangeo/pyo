@@ -3,7 +3,7 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Pyo 0.7.9 documentation
+Pyo 0.8.0 documentation
 ===================================================
 
 Pyo is a Python module written in C to help digital signal processing script 

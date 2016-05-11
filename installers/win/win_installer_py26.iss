@@ -3,7 +3,7 @@
 
 #define appName "pyo"
 #define pyVer "2.6"
-#define appVer "0.7.9"
+#define appVer "0.8.0"
 
 [Setup]
 ; NOTE: The value of AppId uniquely identifies this application.
