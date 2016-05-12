@@ -53,6 +53,9 @@ comple and run your project:
     
     ./build_project.sh ../projects/pyo
 
+See the bela wiki for more options when building projects on the bbb board.
+
+https://code.soundsoftware.ac.uk/projects/beaglert/wiki/_Compiling_Bela_projects_on_the_board
 
 Documentation
 =============
