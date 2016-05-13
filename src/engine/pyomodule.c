@@ -1890,8 +1890,8 @@ static PyMethodDef pyo_functions[] = {
 {"withPortaudio", (PyCFunction)with_portaudio, METH_NOARGS, "Returns True if pyo is built with portaudio support."},
 {"withPortmidi", (PyCFunction)with_portmidi, METH_NOARGS, "Returns True if pyo is built with portmidi support."},
 {"withJack", (PyCFunction)with_jack, METH_NOARGS, "Returns True if pyo is built with jack support."},
-{"withCoreaudio", (PyCFunction)with_osc, METH_NOARGS, "Returns True if pyo is built with coreaudio support."},
-{"withOSC", (PyCFunction)with_coreaudio, METH_NOARGS, "Returns True if pyo is built with OSC (Open Sound Comtrol) support."},
+{"withCoreaudio", (PyCFunction)with_coreaudio, METH_NOARGS, "Returns True if pyo is built with coreaudio support."},
+{"withOSC", (PyCFunction)with_osc, METH_NOARGS, "Returns True if pyo is built with OSC (Open Sound Control) support."},
 {NULL, NULL, 0, NULL},
 };
 
