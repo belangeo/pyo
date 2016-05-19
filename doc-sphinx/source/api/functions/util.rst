@@ -18,6 +18,11 @@ Utilities
 
 .. autofunction:: getVersion
 
+*getPyoKeywords*
+---------------------------------
+
+.. autofunction:: getPyoKeywords
+
 *withPortaudio*
 ---------------------------------
 

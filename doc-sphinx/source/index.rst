@@ -20,6 +20,7 @@ Parts of the documentation
    about
    download
    compiling
+   structure
    gettingstarted
    api/index
 

@@ -11,24 +11,45 @@
 
 2016-05-10 belangeo <belangeo@gmail.com>
 
-    *  Added a bela framework (BeagleBone Black) with instructions in the embedded folder.
+    * Added new functions: withPortaudio, withPortmidi, withCoreaudio, withJack, withOSC.
 
 2016-05-10 belangeo <belangeo@gmail.com>
 
-    *  Added new examples on the online documentation.
+    * Added a bela framework (BeagleBone Black) with instructions in the embedded folder.
+
+2016-05-10 belangeo <belangeo@gmail.com>
+
+    * Added a new compilation flag, --minimal, to build without portaudio, portmidi and liblo.
+
+2016-05-10 belangeo <belangeo@gmail.com>
+
+    * Added new examples on the online documentation.
+
+2016-05-06 belangeo <belangeo@gmail.com>
+
+    * Made portaudio, portmidi and liblo optional dependencies.
 
 2016-04-29 belangeo <belangeo@gmail.com>
 
-    *  Added a quality factor everywhere a FLAC or OGG sound file can be saved on disk.
+    * Added a quality factor everywhere a FLAC or OGG sound file can be saved on disk.
 
 2016-04-03 belangeo <belangeo@gmail.com>
 
-    *  Added new object: Exp, calculates the value of e to the power of x.
+    * Disto uses now a simple but more efficient waveshaper formula. This algorithm 
+	  is faster and does not produce large amplitude variation like the atan2 function.
+
+2016-04-03 belangeo <belangeo@gmail.com>
+
+    * Added new object: Exp, calculates the value of e to the power of x.
 
 2016-04-02 belangeo <belangeo@gmail.com>
 
-    *  Revision, clean-up and optimization of various filters in the library.
+    * Revision, clean-up and optimization of various filters in the library.
     (Biquad, Biquadx, Port, Tone, Atone, Allpass, Allpass2, Phaser, BandSplit MoogLP).
+
+2016-03-31 belangeo <belangeo@gmail.com>
+
+    * Fixed bug when a LFO object receives a negative frequency.
 
 2016-03-28 belangeo <belangeo@gmail.com>
 
@@ -42,10 +63,21 @@
 
     *  Added an argument arg to the Pattern object.
 
+2016-03-25 belangeo <belangeo@gmail.com>
+
+    *  Fixed unwanted offset in type 7 (sinmod) of LFO object.
+
 2016-03-23 belangeo <belangeo@gmail.com>
 
     *  Added setExp() method to Fader, Adsr, MidiAdsr and MidiDelAdsr, allowing
-    the creation of exponential or logarithmic envelopes.
+
+2016-03-18 belangeo <belangeo@gmail.com>
+
+    *  Fixed Counter.reset() method.
+
+2016-03-18 belangeo <belangeo@gmail.com>
+
+    *  A CallAfter object can now be triggered many times.
 
 2016-03-18 belangeo <belangeo@gmail.com>
 
