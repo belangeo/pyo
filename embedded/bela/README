@@ -11,8 +11,7 @@ Step 1 - Changes made to the image bela_stable_2016.04.19.img
 
 2) Compile a minimalistic pyo (libsndfile as only dependency)
 
-    git config --global http.sslverify false
-    git clone https://github.com/belangeo/pyo.git
+    git -c http.sslVerify=false clone https://github.com/belangeo/pyo.git
     cd pyo
     sudo python setup.py install --minimal
 
@@ -37,12 +36,12 @@ Step 2 - On the host computer, clone the beaglert repository:
 Step 3 - Create a folder "pyo" in the beaglert/projects directory and copy:
 these files into it:
 
-- from the folder "embedded":
+- from the folder pyo/embedded:
 m_pyo.h
 PyoClass.cpp
 PyoClass.h
 
-- from the bela folder:
+- from the folder pyo/embedded/bela:
 main.cpp
 render.cpp
 main.py
