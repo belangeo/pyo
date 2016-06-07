@@ -85,7 +85,7 @@ Try the trunk version first, if that doesn't work use the most recent tag.
 --- Copy ASIOSDK to portaudio/src/hostapi/asio
 
 --- Check the pa_win_hostapis.c file and make sure that it is configured to build 
-the DirectSound, WMME, and ASIO drivers. (nothing to do here)
+the DirectSound, WMME, WDMKS and ASIO drivers. (nothing to do here)
 
 --- Need to removed "volatile" from function definitions in MinGW/include/winbase.h
 
@@ -117,6 +117,7 @@ commonEnvironment.Append(CPPFLAGS = Split('''
 -DPA_USE_DS
 -DPA_USE_ASIO
 -DPA_USE_WASAPI
+-DPA_USE_WDMKS
 '''))
 
 commonEnvironment.Append(CPPPATH = [".", "src/common", "src/hostapi", "src/os", "src/os/win", "include",
@@ -159,6 +160,7 @@ src/hostapi/dsound/pa_win_ds.c
 src/hostapi/dsound/pa_win_ds_dynlink.c
 src/hostapi/wmme/pa_win_wmme.c
 src/hostapi/skeleton/pa_hostapi_skeleton.c
+src/hostapi/wdmks/pa_win_wdmks.c
 src/os/win/pa_win_hostapis.c
 src/os/win/pa_win_util.c
 src/os/win/pa_win_waveformat.c
