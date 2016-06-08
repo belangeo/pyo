@@ -42,7 +42,10 @@ int main(int argc, char *argv[])
 
 	// Set default settings
 	BeagleRT_defaultSettings(&settings);
-	//settings.periodSize = 64;
+	// Change the buffer size
+	settings.periodSize = 64;
+	// Analog channels must be sampled at audio rate, so we will use 4 channels
+	settings.numAnalogChannels = 4;
 
 	// Parse command-line arguments
 	while (1) {

@@ -39,13 +39,13 @@ these files into it:
 
 - from the folder "embedded":
 m_pyo.h
-PyoClass.cpp
-PyoClass.h
 
 - from the bela folder:
 main.cpp
 render.cpp
 main.py
+PyoClass.cpp
+PyoClass.h
 
 ------------------------------------------------------------------------
 Step 3 - From the script folder, with the bbb plugged to the host computer,
@@ -65,5 +65,4 @@ with the pyo embedded processes, see documentation comments in the file
 PyoClass.cpp.
 
 (c) 2016 - belangeo
-
 
