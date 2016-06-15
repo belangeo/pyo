@@ -53,7 +53,6 @@ mod = SineLoop(freq, feed)
 out = (srcg * mod).out()
 
 if WITH_ANALOG_OUTPUT:
-    fol = Follower(out)
     # analog out 0-1 (stereo vumeter) 
-    vu = SigTo(fol > 0.01, 0.05).out(2)
+    fol = Sqrt(Clip(Follower(out, mul=4))).out(2)
 
