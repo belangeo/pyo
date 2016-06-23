@@ -57,11 +57,32 @@ void Pyo::fillin(float *buffer) {
 **   *buffer : float *, float pointer pointing to the host's analog buffers.
 */
 void Pyo::analogin(float *buffer) {
-    for (int i=0; i<bufferSize; i++) {
-	    for (int j=0; j<nAnalogChannels; j++) {
-	        pyoInBuffer[i*nTotalChannels+j+nChannels] = buffer[i*nAnalogChannels+j];
-	    }
-    }
+    switch (nAnalogChannels) {
+        case 2:
+            for (int i=0; i<bufferSize; i++) {
+	            for (int j=0; j<nAnalogChannels; j++) {
+	                pyoInBuffer[i*nTotalChannels+j+nChannels] = buffer[i*2*nAnalogChannels+j];
+	            }
+            }
+            break;
+         case 4:
+            for (int i=0; i<bufferSize; i++) {
+	            for (int j=0; j<nAnalogChannels; j++) {
+	                pyoInBuffer[i*nTotalChannels+j+nChannels] = buffer[i*nAnalogChannels+j];
+	            }
+            }
+            break;
+         case 8:
+            int ioff, joff;
+            for (int i=0; i<bufferSize/2; i++) {
+                ioff = i * 2 * nTotalChannels;
+	            for (int j=0; j<nAnalogChannels; j++) {
+                    joff = ioff + nChannels + j;
+	                pyoInBuffer[joff] = pyoInBuffer[joff+nTotalChannels] = buffer[i*nAnalogChannels+j];
+	            }
+            }
+            break;
+     }
 }
 
 /*
@@ -90,11 +111,31 @@ void Pyo::process(float *buffer) {
 **   *buffer : float *, float pointer pointing to the host's analog output buffers.
 */
 void Pyo::analogout(float *buffer) {
-    for (int i=0; i<bufferSize; i++) {
-        for (int j=0; j<nAnalogChannels; j++) {
-            buffer[i*nAnalogChannels+j] = pyoOutBuffer[i*nTotalChannels+j+nChannels];
-        }
-    }
+    switch (nAnalogChannels) {
+        case 2:
+            int bufpos;
+            for (int i=0; i<bufferSize; i++) {
+                for (int j=0; j<nAnalogChannels; j++) {
+                    bufpos = i * 2 * nAnalogChannels + j;
+                    buffer[bufpos] = buffer[bufpos+nAnalogChannels] = pyoOutBuffer[i*nTotalChannels+j+nChannels];
+                }
+            }
+            break;
+         case 4:
+            for (int i=0; i<bufferSize; i++) {
+                for (int j=0; j<nAnalogChannels; j++) {
+                    buffer[i*nAnalogChannels+j] = pyoOutBuffer[i*nTotalChannels+j+nChannels];
+                }
+            }
+            break;
+         case 8:
+            for (int i=0; i<bufferSize/2; i++) {
+                for (int j=0; j<nAnalogChannels; j++) {
+                    buffer[i*nAnalogChannels+j] = pyoOutBuffer[i*2*nTotalChannels+j+nChannels];
+                }
+            }
+            break;
+     }
 }
 
 /*
@@ -127,7 +168,7 @@ int Pyo::loadfile(const char *file, int add) {
 **
 ** freq = SigTo(value=440, time=0.1, init=440)
 **
-** Inside OpenFrameworks (for a Pyo object named `pyo`):
+** Inside the host (for a Pyo object named `pyo`):
 **
 ** pyo.value("freq", 880);
 */
@@ -150,7 +191,7 @@ int Pyo::value(const char *name, float value) {
 **
 ** freq = SigTo(value=[100,200,300,400], time=0.1, init=[100,200,300,400])
 **
-** Inside OpenFrameworks (for a Pyo object named `pyo`):
+** Inside the host (for a Pyo object named `pyo`):
 **
 ** float frequencies[4] = {150, 250, 350, 450};
 ** pyo.value("freq", frequencies, 4);
@@ -179,7 +220,7 @@ int Pyo::value(const char *name, float *value, int len) {
 **
 ** filter = Biquad(input=Noise(0.5), freq=1000, q=4, type=2)
 **
-** Inside OpenFrameworks (for a Pyo object named `pyo`):
+** Inside the host (for a Pyo object named `pyo`):
 **
 ** pyo.set("filter.freq", 2000);
 */
@@ -202,7 +243,7 @@ int Pyo::set(const char *name, float value) {
 **
 ** filters = Biquad(input=Noise(0.5), freq=[250, 500, 1000, 2000], q=5, type=2)
 **
-** Inside OpenFrameworks (for a Pyo object named `pyo`):
+** Inside the host (for a Pyo object named `pyo`):
 **
 ** float frequencies[4] = {350, 700, 1400, 2800};
 ** pyo.set("filters.freq", frequencies, 4);
