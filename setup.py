@@ -18,9 +18,9 @@ GNU Lesser General Public License for more details.
 You should have received a copy of the GNU Lesser General Public
 License along with pyo.  If not, see <http://www.gnu.org/licenses/>.
 """
-
+from distutils.sysconfig import get_python_lib
 from distutils.core import setup, Extension
-import os, sys
+import os, sys, py_compile
 
 pyo_version = "0.8.0"
 build_with_jack_support = False
@@ -53,6 +53,12 @@ if '--compile-externals' in sys.argv:
     sys.argv.remove('--compile-externals') 
     macros.append(('COMPILE_EXTERNALS',None))
 
+if '--debug' in sys.argv:
+    sys.argv.remove('--debug')
+    gflag = ""
+else:
+    gflag = "-g0"
+
 if '--fast-compile' in sys.argv:
     sys.argv.remove('--fast-compile')
     oflag = "-O0"
@@ -65,9 +71,11 @@ obj_files = []
 
 # Special flag to build without portaudio, portmidi and liblo deps.
 if '--minimal' in sys.argv:
+    minimal_build = True
     sys.argv.remove('--minimal') 
     libraries = []
 else:
+    minimal_build = False
     # portaudio
     macros.append(('USE_PORTAUDIO', None))
     ad_files.append("ad_portaudio.c")
@@ -142,7 +150,7 @@ else:
     if build_with_jack_support:
         libraries.append('jack')
 
-extra_compile_args = ['-Wno-strict-prototypes', '-Wno-strict-aliasing', oflag]
+extra_compile_args = ['-Wno-strict-prototypes', '-Wno-strict-aliasing', oflag, gflag]
 
 extensions = []
 for extension_name, extra_macros in zip(extension_names, extra_macros_per_extension):
@@ -168,7 +176,32 @@ setup(  name = "pyo",
         packages = ['pyolib', 'pyolib.snds'],
         py_modules = main_modules,
         package_data = {'pyolib.snds': soundfiles},
-        ext_modules = extensions )
+        ext_modules = extensions)
 
 if compile_externals:
     os.system('rm pyolib/external.py')
+
+if minimal_build:
+    pyolib = os.path.join(get_python_lib(), "pyolib")
+    files = os.listdir(pyolib)
+    libfiles = [os.path.join(pyolib, f) for f in files if f.endswith(".py")]
+    for f in libfiles:
+        py_compile.compile(f)
+        os.remove(f)
+    if os.path.isfile(os.path.join(get_python_lib(), "pyo.py")):
+        py_compile.compile(os.path.join(get_python_lib(), "pyo.py"))
+        os.remove(os.path.join(get_python_lib(), "pyo.py"))
+    if os.path.isfile(os.path.join(get_python_lib(), "pyo64.py")):
+        py_compile.compile(os.path.join(get_python_lib(), "pyo64.py"))
+        os.remove(os.path.join(get_python_lib(), "pyo64.py"))
+else:
+    pyolib = os.path.join(get_python_lib(), "pyolib")
+    files = os.listdir(pyolib)
+    libfiles = [os.path.join(pyolib, f) for f in files if f.endswith(".pyc")]
+    for f in libfiles:
+        os.remove(f)
+    if os.path.isfile(os.path.join(get_python_lib(), "pyo.pyc")):
+        os.remove(os.path.join(get_python_lib(), "pyo.pyc"))
+    if os.path.isfile(os.path.join(get_python_lib(), "pyo64.pyc")):
+        os.remove(os.path.join(get_python_lib(), "pyo64.pyc"))
+
