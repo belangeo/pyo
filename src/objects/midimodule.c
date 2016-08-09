@@ -60,7 +60,7 @@ CtlScan_compute_next_data_frame(CtlScan *self)
                     PyObject_Call((PyObject *)self->callable, tup, NULL);
                 }
                 if (self->toprint == 1)
-                    printf("ctl number : %i, ctl value : %i, midi channel : %i\n", self->ctlnumber, value, status - 0xB0 + 1);
+                    PySys_WriteStdout("ctl number : %i, ctl value : %i, midi channel : %i\n", self->ctlnumber, value, status - 0xB0 + 1);
             }
         }
     }
@@ -261,7 +261,7 @@ CtlScan2_compute_next_data_frame(CtlScan2 *self)
                     PyObject_Call((PyObject *)self->callable, tup, NULL);
                 }
                 if (self->toprint == 1)
-                    printf("ctl number : %i, ctl value : %i, midi channel : %i\n", self->ctlnumber, value, midichnl);
+                    PySys_WriteStdout("ctl number : %i, ctl value : %i, midi channel : %i\n", self->ctlnumber, value, midichnl);
             }
         }
     }
@@ -1972,7 +1972,7 @@ void grabMidiNotes(MidiNote *self, PyoMidiEvent *buffer, int count)
                 kind = 1;
 
             if (pitchIsIn(self->notebuf, pitch, self->voices) == 0 && kind == 1 && pitch >= self->first && pitch <= self->last) {
-                //printf("%i, %i, %i\n", status, pitch, velocity);
+                //PySys_WriteStdout("%i, %i, %i\n", status, pitch, velocity);
                 if (!self->stealing) {
                     voice = nextEmptyVoice(self->notebuf, self->vcount, self->voices);
                     if (voice != -1) {
@@ -1990,7 +1990,7 @@ void grabMidiNotes(MidiNote *self, PyoMidiEvent *buffer, int count)
                 }
             }
             else if (pitchIsIn(self->notebuf, pitch, self->voices) == 1 && kind == 0 && pitch >= self->first && pitch <= self->last) {
-                //printf("%i, %i, %i\n", status, pitch, velocity);
+                //PySys_WriteStdout("%i, %i, %i\n", status, pitch, velocity);
                 voice = whichVoice(self->notebuf, pitch, self->voices);
                 self->notebuf[voice*2] = -1;
                 self->notebuf[voice*2+1] = 0.;

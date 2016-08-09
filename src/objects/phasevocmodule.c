@@ -244,7 +244,7 @@ PVAnal_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         while (k < self->size)
             k *= 2;
         self->size = k;
-        printf("FFT size must be a power-of-2, using the next power-of-2 greater than size : %d\n", self->size);
+        PySys_WriteStdout("FFT size must be a power-of-2, using the next power-of-2 greater than size : %d\n", self->size);
     }
 
     self->count = (int *)realloc(self->count, self->bufsize * sizeof(int));
@@ -274,7 +274,7 @@ PVAnal_setSize(PVAnal *self, PyObject *arg)
             while (k < self->size)
                 k *= 2;
             self->size = k;
-            printf("FFT size must be a power-of-2, using the next power-of-2 greater than size : %d\n", self->size);
+            PySys_WriteStdout("FFT size must be a power-of-2, using the next power-of-2 greater than size : %d\n", self->size);
         }
         PVAnal_realloc_memories(self);
     }
@@ -294,7 +294,7 @@ PVAnal_setOverlaps(PVAnal *self, PyObject *arg)
             while (k < self->olaps)
                 k *= 2;
             self->olaps = k;
-            printf("FFT overlaps must be a power-of-2, using the next power-of-2 greater than olaps : %d\n", self->olaps);
+            PySys_WriteStdout("FFT overlaps must be a power-of-2, using the next power-of-2 greater than olaps : %d\n", self->olaps);
         }
         PVAnal_realloc_memories(self);
     }

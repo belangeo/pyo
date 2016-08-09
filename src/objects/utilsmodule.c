@@ -51,9 +51,9 @@ Print_process_time(Print *self) {
         if (self->currentTime >= self->time) {
             self->currentTime = 0.0;
             if (self->message == NULL || self->message[0] == '\0')
-                printf("%f\n", in[i]);
+                PySys_WriteStdout("%f\n", in[i]);
             else
-                printf("%s : %f\n", self->message, in[i]);
+                PySys_WriteStdout("%s : %f\n", self->message, in[i]);
         }
         self->currentTime += self->sampleToSec;
     }
@@ -69,9 +69,9 @@ Print_process_change(Print *self) {
         inval = in[i];
         if (inval < (self->lastValue-0.00001) || inval > (self->lastValue+0.00001)) {
             if (self->message == NULL || self->message[0] == '\0')
-                printf("%f\n", inval);
+                PySys_WriteStdout("%f\n", inval);
             else
-                printf("%s : %f\n", self->message, inval);
+                PySys_WriteStdout("%s : %f\n", self->message, inval);
             self->lastValue = inval;
         }
     }
@@ -531,7 +531,7 @@ Snap_setScale(Snap *self, PyObject *arg)
         if (tmp >= 0 && tmp <= 2)
             self->scale = tmp;
         else
-            printf("scale attribute must be an integer {0, 1, 2}\n");
+            PySys_WriteStdout("Snap: scale attribute must be an integer {0, 1, 2}\n");
 	}
 
 	Py_INCREF(Py_None);
@@ -2018,7 +2018,7 @@ Compare_setMode(Compare *self, PyObject *arg)
     ASSERT_ARG_NOT_NULL
 
 	if (! PyInt_Check(arg)) {
-        printf("mode should be a comparison operator as a string\n");
+        PySys_WriteStdout("Compare: mode attribute should be a comparison operator as a string\n");
 		Py_RETURN_NONE;
     }
 

@@ -74,7 +74,7 @@ jack_bufsize_cb(jack_nframes_t nframes, void *arg) {
 
 void
 jack_error_cb(const char *desc) {
-    printf("JACK error: %s\n", desc);
+    PySys_WriteStdout("JACK error: %s\n", desc);
 }
 
 void

@@ -2466,7 +2466,7 @@ Mixer_setAmp(Mixer *self, PyObject *args, PyObject *kwds)
     }
 
     if (! PyNumber_Check(amp)) {
-        printf("Amplitude must be a number!n");
+        PySys_WriteStdout("Mixer: amp argument must be a number!n");
         Py_INCREF(Py_None);
         return Py_None;
     }

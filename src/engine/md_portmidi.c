@@ -375,17 +375,17 @@ portmidi_count_devices() {
 PyObject *
 portmidi_list_devices() {
     int i;
-    printf("MIDI devices:\n");
+    PySys_WriteStdout("MIDI devices:\n");
     for (i = 0; i < Pm_CountDevices(); i++) {
         const PmDeviceInfo *info = Pm_GetDeviceInfo(i);
         if (info->input && info->output)
-            printf("%d: IN/OUT, name: %s, interface: %s\n", i, info->name, info->interf);
+            PySys_WriteStdout("%d: IN/OUT, name: %s, interface: %s\n", i, info->name, info->interf);
         else if (info->input)
-            printf("%d: IN, name: %s, interface: %s\n", i, info->name, info->interf);
+            PySys_WriteStdout("%d: IN, name: %s, interface: %s\n", i, info->name, info->interf);
         else if (info->output)
-            printf("%d: OUT, name: %s, interface: %s\n", i, info->name, info->interf);
+            PySys_WriteStdout("%d: OUT, name: %s, interface: %s\n", i, info->name, info->interf);
     }
-    printf("\n");
+    PySys_WriteStdout("\n");
     Py_RETURN_NONE;
 }
 
@@ -397,7 +397,7 @@ portmidi_get_input_devices() {
     list_index = PyList_New(0);
     n = Pm_CountDevices();
     if (n < 0){
-        printf("Portmidi warning: No Midi interface found\n\n");
+        PySys_WriteStdout("Portmidi warning: No Midi interface found\n\n");
     }
     else {
         for (i=0; i < n; i++){
@@ -407,7 +407,7 @@ portmidi_get_input_devices() {
                 PyList_Append(list_index, PyInt_FromLong(i));
             }
         }
-        printf("\n");
+        PySys_WriteStdout("\n");
     }
     return Py_BuildValue("OO", list, list_index);
 }
@@ -420,7 +420,7 @@ portmidi_get_output_devices() {
     list_index = PyList_New(0);
     n = Pm_CountDevices();
     if (n < 0){
-        printf("Portmidi warning: No Midi interface found\n\n");
+        PySys_WriteStdout("Portmidi warning: No Midi interface found\n\n");
     }
     else {
         for (i=0; i < n; i++){
@@ -430,7 +430,7 @@ portmidi_get_output_devices() {
                 PyList_Append(list_index, PyInt_FromLong(i));
             }
         }
-        printf("\n");
+        PySys_WriteStdout("\n");
     }
     return Py_BuildValue("OO", list, list_index);
 }
@@ -441,7 +441,7 @@ portmidi_get_default_input() {
 
     i = Pm_GetDefaultInputDeviceID();
     if (i < 0)
-        printf("pm_get_default_input: no midi input device found.\n");
+        PySys_WriteStdout("pm_get_default_input: no midi input device found.\n");
     return PyInt_FromLong(i);
 }
 
@@ -451,6 +451,6 @@ portmidi_get_default_output() {
     PmDeviceID i;
     i = Pm_GetDefaultOutputDeviceID();
     if (i < 0)
-        printf("pm_get_default_output: no midi output device found.\n");
+        PySys_WriteStdout("pm_get_default_output: no midi output device found.\n");
     return PyInt_FromLong(i);
 }

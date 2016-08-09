@@ -1801,7 +1801,7 @@ Centroid_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         Py_RETURN_NONE;
 
     if (self->size < self->bufsize) {
-        printf("Warning : Centroid size less than buffer size!\nCentroid size set to buffersize: %d\n", self->bufsize);
+        PySys_WriteStdout("Warning : Centroid size less than buffer size!\nCentroid size set to buffersize: %d\n", self->bufsize);
         self->size = self->bufsize;
     }
 

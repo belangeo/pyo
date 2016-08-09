@@ -34,20 +34,20 @@
 PyObject * with_portaudio() { Py_INCREF(Py_True); return Py_True; };
 #else
 #define pa_warning "Pyo built without Portaudio support.\n"
-PyObject * portaudio_get_version() { printf(pa_warning); Py_RETURN_NONE; };
-PyObject * portaudio_get_version_text() { printf(pa_warning); Py_RETURN_NONE; };
-PyObject * portaudio_count_host_apis() { printf(pa_warning); Py_RETURN_NONE; };
-PyObject * portaudio_list_host_apis() { printf(pa_warning); Py_RETURN_NONE; };
-PyObject * portaudio_get_default_host_api() { printf(pa_warning); Py_RETURN_NONE; };
-PyObject * portaudio_count_devices() { printf(pa_warning); Py_RETURN_NONE; };
-PyObject * portaudio_list_devices() { printf(pa_warning); Py_RETURN_NONE; };
-PyObject * portaudio_get_devices_infos() { printf(pa_warning); Py_RETURN_NONE; };
-PyObject * portaudio_get_output_devices() { printf(pa_warning); Py_RETURN_NONE; };
-PyObject * portaudio_get_output_max_channels(PyObject *self, PyObject *arg) { printf(pa_warning); Py_RETURN_NONE; };
-PyObject * portaudio_get_input_max_channels(PyObject *self, PyObject *arg) { printf(pa_warning); Py_RETURN_NONE; };
-PyObject * portaudio_get_input_devices() { printf(pa_warning); Py_RETURN_NONE; };
-PyObject * portaudio_get_default_input() { printf(pa_warning); Py_RETURN_NONE; };
-PyObject * portaudio_get_default_output() { printf(pa_warning); Py_RETURN_NONE; };
+PyObject * portaudio_get_version() { PySys_WriteStdout(pa_warning); Py_RETURN_NONE; };
+PyObject * portaudio_get_version_text() { PySys_WriteStdout(pa_warning); Py_RETURN_NONE; };
+PyObject * portaudio_count_host_apis() { PySys_WriteStdout(pa_warning); Py_RETURN_NONE; };
+PyObject * portaudio_list_host_apis() { PySys_WriteStdout(pa_warning); Py_RETURN_NONE; };
+PyObject * portaudio_get_default_host_api() { PySys_WriteStdout(pa_warning); Py_RETURN_NONE; };
+PyObject * portaudio_count_devices() { PySys_WriteStdout(pa_warning); Py_RETURN_NONE; };
+PyObject * portaudio_list_devices() { PySys_WriteStdout(pa_warning); Py_RETURN_NONE; };
+PyObject * portaudio_get_devices_infos() { PySys_WriteStdout(pa_warning); Py_RETURN_NONE; };
+PyObject * portaudio_get_output_devices() { PySys_WriteStdout(pa_warning); Py_RETURN_NONE; };
+PyObject * portaudio_get_output_max_channels(PyObject *self, PyObject *arg) { PySys_WriteStdout(pa_warning); Py_RETURN_NONE; };
+PyObject * portaudio_get_input_max_channels(PyObject *self, PyObject *arg) { PySys_WriteStdout(pa_warning); Py_RETURN_NONE; };
+PyObject * portaudio_get_input_devices() { PySys_WriteStdout(pa_warning); Py_RETURN_NONE; };
+PyObject * portaudio_get_default_input() { PySys_WriteStdout(pa_warning); Py_RETURN_NONE; };
+PyObject * portaudio_get_default_output() { PySys_WriteStdout(pa_warning); Py_RETURN_NONE; };
 PyObject * with_portaudio() { Py_INCREF(Py_False); return Py_False; };
 #endif
 
@@ -56,12 +56,12 @@ PyObject * with_portaudio() { Py_INCREF(Py_False); return Py_False; };
 PyObject * with_portmidi() { Py_INCREF(Py_True); return Py_True; };
 #else
 #define pm_warning "Pyo built without Portmidi sipport.\n"
-PyObject * portmidi_count_devices() { printf(pm_warning); Py_RETURN_NONE; };
-PyObject * portmidi_list_devices() { printf(pm_warning); Py_RETURN_NONE; };
-PyObject * portmidi_get_input_devices() { printf(pm_warning); Py_RETURN_NONE; };
-PyObject * portmidi_get_output_devices() { printf(pm_warning); Py_RETURN_NONE; };
-PyObject * portmidi_get_default_input() { printf(pm_warning); Py_RETURN_NONE; };
-PyObject * portmidi_get_default_output() { printf(pm_warning); Py_RETURN_NONE; };
+PyObject * portmidi_count_devices() { PySys_WriteStdout(pm_warning); Py_RETURN_NONE; };
+PyObject * portmidi_list_devices() { PySys_WriteStdout(pm_warning); Py_RETURN_NONE; };
+PyObject * portmidi_get_input_devices() { PySys_WriteStdout(pm_warning); Py_RETURN_NONE; };
+PyObject * portmidi_get_output_devices() { PySys_WriteStdout(pm_warning); Py_RETURN_NONE; };
+PyObject * portmidi_get_default_input() { PySys_WriteStdout(pm_warning); Py_RETURN_NONE; };
+PyObject * portmidi_get_default_output() { PySys_WriteStdout(pm_warning); Py_RETURN_NONE; };
 PyObject * with_portmidi() { Py_INCREF(Py_False); return Py_False; };
 #endif
 
@@ -443,7 +443,7 @@ sndinfo(PyObject *self, PyObject *args, PyObject *kwds) {
                     strcpy(sampletype, "vorbis encoding");
                     break;
                 default:
-                    /* printf("%d\n", subformat); */
+                    /* PySys_WriteStdout("%d\n", subformat); */
                     sampletype = malloc(strlen("Unknown...") + 1);
                     strcpy(sampletype, "Unknown...");
                     break;
@@ -455,7 +455,7 @@ sndinfo(PyObject *self, PyObject *args, PyObject *kwds) {
         }
 
         if (print)
-            fprintf(stdout, "name: %s\nnumber of frames: %i\nduration: %.4f sec\nsr: %.2f\nchannels: %i\nformat: %s\nsample type: %s\n",
+            PySys_WriteStdout("name: %s\nnumber of frames: %i\nduration: %.4f sec\nsr: %.2f\nchannels: %i\nformat: %s\nsample type: %s\n",
                     path, (int)info.frames, ((float)info.frames / info.samplerate), (float)info.samplerate, (int)info.channels, fileformat, sampletype);
         PyObject *sndinfo = PyTuple_Pack(6, PyInt_FromLong(info.frames), PyFloat_FromDouble((float)info.frames / info.samplerate),
             PyFloat_FromDouble(info.samplerate), PyInt_FromLong(info.channels), PyString_FromString(fileformat), PyString_FromString(sampletype));
@@ -531,7 +531,7 @@ savefile(PyObject *self, PyObject *args, PyObject *kwds) {
     }
     else {
         if (PyList_Size(samples) != channels) {
-            printf("savefile: samples list size and channels must be the same!\n");
+            PySys_WriteStdout("savefile: samples list size and channels must be the same!\n");
             return PyInt_FromLong(-1);
         }
         size = PyList_Size(PyList_GET_ITEM(samples, 0)) * channels;
@@ -543,7 +543,7 @@ savefile(PyObject *self, PyObject *args, PyObject *kwds) {
         }
     }
     if (! (recfile = sf_open(recpath, SFM_WRITE, &recinfo))) {
-        printf ("savefile: failed to open output file %s.\n", recpath);
+        PySys_WriteStdout("savefile: failed to open output file %s.\n", recpath);
         return PyInt_FromLong(-1);
     }
 
@@ -627,7 +627,7 @@ savefileFromTable(PyObject *self, PyObject *args, PyObject *kwds) {
     recinfo.format = libsndfile_get_format(fileformat, sampletype);
 
     if (! (recfile = sf_open(recpath, SFM_WRITE, &recinfo))) {
-        printf ("savefileFromTable: failed to open output file %s.\n", recpath);
+        PySys_WriteStdout("savefileFromTable: failed to open output file %s.\n", recpath);
         Py_XDECREF(base_objs);
         Py_XDECREF(tablestreamlist);
         return PyInt_FromLong(-1);
@@ -832,7 +832,7 @@ upsamp(PyObject *self, PyObject *args, PyObject *kwds)
     info.format = 0;
     sf = sf_open(inpath, SFM_READ, &info);
     if (sf == NULL) {
-        printf("upsamp: failed to open the input file %s.\n", inpath);
+        PySys_WriteStdout("upsamp: failed to open the input file %s.\n", inpath);
         return PyInt_FromLong(-1);
     }
     snd_size = info.frames;
@@ -885,7 +885,7 @@ upsamp(PyObject *self, PyObject *args, PyObject *kwds)
     }
 
     if (! (sf = sf_open(outpath, SFM_WRITE, &info))) {
-        printf ("upsamp: failed to open output file %s.\n", outpath);
+        PySys_WriteStdout("upsamp: failed to open output file %s.\n", outpath);
         free(tmp);
         for (i=0; i<snd_chnls; i++) {
             free(samples[i]);
@@ -935,7 +935,7 @@ downsamp(PyObject *self, PyObject *args, PyObject *kwds)
     info.format = 0;
     sf = sf_open(inpath, SFM_READ, &info);
     if (sf == NULL) {
-        printf("downsamp: failed to open the input file %s.\n", inpath);
+        PySys_WriteStdout("downsamp: failed to open the input file %s.\n", inpath);
         return PyInt_FromLong(-1);
     }
     snd_size = info.frames;
@@ -993,7 +993,7 @@ downsamp(PyObject *self, PyObject *args, PyObject *kwds)
     }
 
     if (! (sf = sf_open(outpath, SFM_WRITE, &info))) {
-        printf("downsamp: failed to open the output file %s.\n", outpath);
+        PySys_WriteStdout("downsamp: failed to open the output file %s.\n", outpath);
         free(tmp);
         for (i=0; i<snd_chnls; i++) {
             free(samples[i]);
@@ -1712,7 +1712,7 @@ static PyObject *
 sampsToSec(PyObject *self, PyObject *arg) {
     PyObject *server = PyServer_get_server();
     if (server == NULL) {
-        printf("Warning: A Server must be booted before calling `sampsToSec` function.\n");
+        PySys_WriteStdout("Warning: A Server must be booted before calling `sampsToSec` function.\n");
         Py_RETURN_NONE;
     }
     double sr = PyFloat_AsDouble(PyObject_CallMethod(server, "getSamplingRate", NULL));
@@ -1764,7 +1764,7 @@ static PyObject *
 secToSamps(PyObject *self, PyObject *arg) {
     PyObject *server = PyServer_get_server();
     if (server == NULL) {
-        printf("Warning: A Server must be booted before calling `secToSamps` function.\n");
+        PySys_WriteStdout("Warning: A Server must be booted before calling `secToSamps` function.\n");
         Py_RETURN_NONE;
     }
     double sr = PyFloat_AsDouble(PyObject_CallMethod(server, "getSamplingRate", NULL));
@@ -1843,7 +1843,7 @@ serverBooted(PyObject *self) {
         }
     }
     else {
-        printf("Warning: A Server must be created before calling `serverBooted` function.\n");
+        PySys_WriteStdout("Warning: A Server must be created before calling `serverBooted` function.\n");
         Py_INCREF(Py_False);
         return Py_False;
     }
@@ -1917,9 +1917,9 @@ init_pyo64(void)
 
 #ifndef NO_MESSAGES
 #ifndef USE_DOUBLE
-    printf("pyo version %s (uses single precision)\n", PYO_VERSION);
+    PySys_WriteStdout("pyo version %s (uses single precision)\n", PYO_VERSION);
 #else
-    printf("pyo version %s (uses double precision)\n", PYO_VERSION);
+    PySys_WriteStdout("pyo version %s (uses double precision)\n", PYO_VERSION);
 #endif
 #endif
 

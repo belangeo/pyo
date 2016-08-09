@@ -94,13 +94,13 @@ OscBank_setFrequencies(OscBank *self, MYFLT freq, MYFLT spread) {
             seed = (seed * 15625 + 1) & 0xFFFF;
             rnd = seed * 1.52587890625e-07 - 0.005 + 1.0;
             self->frequencies[i] = (freq + scl * i) * rnd;
-            /* printf("harm %d : %f Hz\n", i, self->frequencies[i]); */
+            /* PySys_WriteStdout("harm %d : %f Hz\n", i, self->frequencies[i]); */
         }
     }
     else {
         for (i=0; i<self->stages; i++) {
             self->frequencies[i] = freq + scl * i;
-            /* printf("harm %d : %f Hz\n", i, self->frequencies[i]); */
+            /* PySys_WriteStdout("harm %d : %f Hz\n", i, self->frequencies[i]); */
         }
     }
 }

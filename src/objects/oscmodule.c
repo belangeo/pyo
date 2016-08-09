@@ -29,7 +29,7 @@
 
 static void error(int num, const char *msg, const char *path)
 {
-    printf("liblo server error %d in path %s: %s\n", num, path, msg);
+    PySys_WriteStdout("liblo server error %d in path %s: %s\n", num, path, msg);
 }
 
 /* main OSC receiver */
@@ -563,7 +563,7 @@ OscSend_compute_next_data_frame(OscSend *self)
             path = PyString_AsString(PyUnicode_AsASCIIString(self->address_path));
 
         if (lo_send(self->address, path, "f", value) == -1) {
-            printf("OSC error %d: %s\n", lo_address_errno(self->address), 
+            PySys_WriteStdout("OSC error %d: %s\n", lo_address_errno(self->address), 
                                          lo_address_errstr(self->address));
         }
     }
@@ -797,7 +797,7 @@ OscDataSend_compute_next_data_frame(OscDataSend *self)
             }
         }
         if (lo_send_message(self->address, path, msg) == -1) {
-            printf("OSC error %d: %s\n", lo_address_errno(self->address), 
+            PySys_WriteStdout("OSC error %d: %s\n", lo_address_errno(self->address), 
                                          lo_address_errstr(self->address));
         }
         self->something_to_send = 0;
@@ -894,7 +894,7 @@ OscDataSend_send(OscDataSend *self, PyObject *arg)
         self->something_to_send = 1;
     }
     else
-        printf("OscDataSend: argument to send() method must be a list of values.\n");
+        PySys_WriteStdout("OscDataSend: argument to send() method must be a list of values.\n");
 
 	Py_INCREF(Py_None);
 	return Py_None;

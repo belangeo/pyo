@@ -28,7 +28,7 @@ static void portaudio_assert(PaError ecode, const char* cmdName) {
         if (!eText) {
             eText = "???";
         }
-        printf("portaudio error in %s: %s\n", cmdName, eText);
+        PySys_WriteStdout("portaudio error in %s: %s\n", cmdName, eText);
         Pa_Terminate();
     }
 }
@@ -358,9 +358,9 @@ portaudio_list_host_apis(){
             for (i=0; i < n; ++i){
                 const PaHostApiInfo *info = Pa_GetHostApiInfo(i);
                 assert(info);
-                fprintf(stdout, "index: %i, id: %i, name: %s, num devices: %i, default in: %i, default out: %i\n", 
-                        i, (int)info->type, info->name, (int)info->deviceCount, (int)info->defaultInputDevice, 
-                        (int)info->defaultOutputDevice);
+                PySys_WriteStdout("index: %i, id: %i, name: %s, num devices: %i, default in: %i, default out: %i\n", 
+                                  i, (int)info->type, info->name, (int)info->deviceCount, (int)info->defaultInputDevice, 
+                                  (int)info->defaultOutputDevice);
             }
         }
     }
@@ -418,22 +418,22 @@ portaudio_list_devices(){
             portaudio_assert(n, "Pa_GetDeviceCount");
         }
         else {
-            printf("AUDIO devices:\n");
+            PySys_WriteStdout("AUDIO devices:\n");
             for (i=0; i < n; ++i){
                 const PaDeviceInfo *info = Pa_GetDeviceInfo(i);
                 assert(info);
 
                 if (info->maxInputChannels > 0)
-                    fprintf(stdout, "%i: IN, name: %s, host api index: %i, default sr: %i Hz, latency: %f s\n", 
-                            i, info->name, (int)info->hostApi, (int)info->defaultSampleRate, 
-                            (float)info->defaultLowInputLatency);
+                    PySys_WriteStdout("%i: IN, name: %s, host api index: %i, default sr: %i Hz, latency: %f s\n", 
+                                      i, info->name, (int)info->hostApi, (int)info->defaultSampleRate, 
+                                      (float)info->defaultLowInputLatency);
 
                 if (info->maxOutputChannels > 0)
-                    fprintf(stdout, "%i: OUT, name: %s, host api index: %i, default sr: %i Hz, latency: %f s\n", 
-                            i, info->name, (int)info->hostApi, (int)info->defaultSampleRate, 
-                            (float)info->defaultLowOutputLatency);
+                    PySys_WriteStdout("%i: OUT, name: %s, host api index: %i, default sr: %i Hz, latency: %f s\n", 
+                                      i, info->name, (int)info->hostApi, (int)info->defaultSampleRate, 
+                                      (float)info->defaultLowOutputLatency);
             }
-            printf("\n");
+            PySys_WriteStdout("\n");
         }
     }
     Py_RETURN_NONE;

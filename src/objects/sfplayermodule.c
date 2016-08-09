@@ -332,7 +332,7 @@ SfPlayer_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->sf = sf_open(self->path, SFM_READ, &self->info);
     if (self->sf == NULL)
     {
-        printf("Failed to open the file.\n");
+        PySys_WriteStdout("SfPlayer: failed to open the file.\n");
     }
     self->sndSize = self->info.frames;
     self->sndSr = self->info.samplerate;
@@ -426,7 +426,7 @@ SfPlayer_setSound(SfPlayer *self, PyObject *arg)
     self->sf = sf_open(self->path, SFM_READ, &self->info);
     if (self->sf == NULL)
     {
-        printf("Failed to open the file.\n");
+        PySys_WriteStdout("SfPlayer: failed to open the file.\n");
     }
     self->sndSize = self->info.frames;
     self->sndSr = self->info.samplerate;
@@ -1136,7 +1136,7 @@ SfMarkerShuffler_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->sf = sf_open(self->path, SFM_READ, &self->info);
     if (self->sf == NULL)
     {
-        printf("Failed to open the file.\n");
+        PySys_WriteStdout("SfMarkerShuffler: failed to open the file.\n");
         Py_RETURN_NONE;
     }
     self->sndSize = self->info.frames;
@@ -1884,7 +1884,7 @@ SfMarkerLooper_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->sf = sf_open(self->path, SFM_READ, &self->info);
     if (self->sf == NULL)
     {
-        printf("Failed to open the file.\n");
+        PySys_WriteStdout("SfMarkerLooper: failed to open the file.\n");
         Py_RETURN_NONE;
     }
     self->sndSize = self->info.frames;

@@ -115,7 +115,7 @@ Server_error(Server *self, char * format, ...)
         vsprintf (buffer,format, args);
         va_end (args);
 
-        printf("%s",buffer);
+        PySys_WriteStdout("%s",buffer);
     }
 }
 
@@ -131,7 +131,7 @@ Server_message(Server *self, char * format, ...)
         vsprintf (buffer,format, args);
         va_end (args);
 
-        printf("%s",buffer);
+        PySys_WriteStdout("%s",buffer);
     }
 }
 
@@ -147,7 +147,7 @@ Server_warning(Server *self, char * format, ...)
         va_start (args, format);
         vsprintf (buffer,format, args);
         va_end (args);
-        printf("%s",buffer);
+        PySys_WriteStdout("%s",buffer);
     }
 #endif
 }
@@ -164,7 +164,7 @@ Server_debug(Server *self, char * format, ...)
         vsprintf (buffer,format, args);
         va_end (args);
 
-        printf("%s",buffer);
+        PySys_WriteStdout("%s",buffer);
     }
 }
 

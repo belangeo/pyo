@@ -26,7 +26,7 @@
 
 static void error(int num, const char *msg, const char *path)
 {
-    printf("liblo server error %d in path %s: %s\n", num, path, msg);
+    PySys_WriteStdout("liblo server error %d in path %s: %s\n", num, path, msg);
 }
 
 typedef struct {

@@ -122,7 +122,7 @@ static PyObject * MidiListener_play(MidiListener *self) {
     
     pmerr = Pm_Initialize();
     if (pmerr) {
-        printf("Portmidi warning: could not initialize Portmidi: %s\n", Pm_GetErrorText(pmerr));
+        PySys_WriteStdout("Portmidi warning: could not initialize Portmidi: %s\n", Pm_GetErrorText(pmerr));
     }
 
     num_devices = Pm_CountDevices();
@@ -135,7 +135,7 @@ static PyObject * MidiListener_play(MidiListener *self) {
                 if (info->input) {
                     pmerr = Pm_OpenInput(&self->midiin[0], self->mididev, NULL, 100, NULL, NULL);
                     if (pmerr) {
-                        printf("Portmidi warning: could not open midi input %d (%s): %s\n",
+                        PySys_WriteStdout("Portmidi warning: could not open midi input %d (%s): %s\n",
                              self->mididev, info->name, Pm_GetErrorText(pmerr));
                     }
                     else {
@@ -152,7 +152,7 @@ static PyObject * MidiListener_play(MidiListener *self) {
                     if (info->input) {
                         pmerr = Pm_OpenInput(&self->midiin[self->midicount], i, NULL, 100, NULL, NULL);
                         if (pmerr) {
-                            printf("Portmidi warning: could not open midi input %d (%s): %s\n",
+                            PySys_WriteStdout("Portmidi warning: could not open midi input %d (%s): %s\n",
                                     i, info->name, Pm_GetErrorText(pmerr));
                         }
                         else {

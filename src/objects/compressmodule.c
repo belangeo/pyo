@@ -470,7 +470,7 @@ Compress_setLookAhead(Compress *self, PyObject *arg)
         if (tmp <= 25.0)
             self->lh_delay = (long)(tmp * 0.001 * self->sr);
         else
-            printf("lookahead must be less than 25.0 ms.\n");
+            PySys_WriteStdout("Compress: lookahead argument must be less than 25.0 ms.\n");
 	}
 
 	Py_INCREF(Py_None);
@@ -489,7 +489,7 @@ Compress_setKnee(Compress *self, PyObject *arg)
         if (tmp >= 0.0 && tmp <= 1.0)
             self->knee = tmp;
         else
-            printf("knee must be in range 0 (hard) -> 1 (soft).\n");
+            PySys_WriteStdout("Compress: knee argument must be in range 0 (hard) -> 1 (soft).\n");
 	}
 
 	Py_INCREF(Py_None);
@@ -1420,7 +1420,7 @@ Gate_setLookAhead(Gate *self, PyObject *arg)
         if (tmp <= 25.0)
             self->lh_delay = (long)(tmp * 0.001 * self->sr);
         else
-            printf("lookahead must be less than 25.0 ms.\n");
+            PySys_WriteStdout("Gate: lookahead argument must be less than 25.0 ms.\n");
 	}
 
 	Py_INCREF(Py_None);

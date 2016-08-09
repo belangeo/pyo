@@ -481,7 +481,7 @@ Harmonizer_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (wintmp > 0.0 && wintmp <= 1.0)
         self->winsize = wintmp;
     else
-        printf("Harmonizer : winsize lower than 0.0 or larger than 1.0 second, keeping default value.\n");
+        PySys_WriteStdout("Harmonizer : winsize lower than 0.0 or larger than 1.0 second, keeping default value.\n");
 
     (*self->mode_func_ptr)(self);
 
@@ -584,7 +584,7 @@ Harmonizer_setWinsize(Harmonizer *self, PyObject *arg)
         if (wintmp > 0.0 && wintmp <= 1.0)
 			self->winsize = wintmp;
         else
-            printf("winsize lower than 0.0 or larger than 1.0 second!\n");
+            PySys_WriteStdout("Harmonizer: winsize lower than 0.0 or larger than 1.0 second!\n");
 	}
 
 	Py_INCREF(Py_None);

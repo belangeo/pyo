@@ -3709,7 +3709,7 @@ SndTable_loadSound(SndTable *self) {
     sf = sf_open(self->path, SFM_READ, &info);
     if (sf == NULL)
     {
-        printf("SndTable failed to open the file.\n");
+        PySys_WriteStdout("SndTable failed to open the file.\n");
         return;
     }
     snd_size = info.frames;
@@ -3782,7 +3782,7 @@ SndTable_appendSound(SndTable *self) {
     sf = sf_open(self->path, SFM_READ, &info);
     if (sf == NULL)
     {
-        printf("SndTable failed to open the file.\n");
+        PySys_WriteStdout("SndTable failed to open the file.\n");
         return;
     }
     snd_size = info.frames;
@@ -3879,7 +3879,7 @@ SndTable_prependSound(SndTable *self) {
     sf = sf_open(self->path, SFM_READ, &info);
     if (sf == NULL)
     {
-        printf("SndTable failed to open the file.\n");
+        PySys_WriteStdout("SndTable failed to open the file.\n");
         return;
     }
     snd_size = info.frames;
@@ -3973,7 +3973,7 @@ SndTable_insertSound(SndTable *self) {
     sf = sf_open(self->path, SFM_READ, &info);
     if (sf == NULL)
     {
-        printf("SndTable failed to open the file.\n");
+        PySys_WriteStdout("SndTable failed to open the file.\n");
         return;
     }
     snd_size = info.frames;
@@ -5435,7 +5435,7 @@ PadSynthTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         while (k < self->size)
             k *= 2;
         self->size = k;
-        printf("PadSynthTable size must be a power-of-2, using the next power-of-2 greater than size : %d\n", self->size);
+        PySys_WriteStdout("PadSynthTable size must be a power-of-2, using the next power-of-2 greater than size : %d\n", self->size);
     }
 
     self->data = (MYFLT *)realloc(self->data, (self->size+1) * sizeof(MYFLT));
@@ -5583,7 +5583,7 @@ PadSynthTable_setSize(PadSynthTable *self, PyObject *args, PyObject *kwds)
         while (k < self->size)
             k *= 2;
         self->size = k;
-        printf("PadSynthTable size must be a power-of-2, using the next power-of-2 greater than size : %d\n", self->size);
+        PySys_WriteStdout("PadSynthTable size must be a power-of-2, using the next power-of-2 greater than size : %d\n", self->size);
     }
 
     self->data = (MYFLT *)realloc(self->data, (self->size+1) * sizeof(MYFLT));

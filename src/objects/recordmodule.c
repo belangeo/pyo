@@ -204,7 +204,7 @@ Record_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     /* Open the output file. */
     if (! (self->recfile = sf_open(self->recpath, SFM_WRITE, &self->recinfo))) {
-        printf ("Not able to open output file %s.\n", self->recpath);
+        PySys_WriteStdout("Record: not able to open output file %s.\n", self->recpath);
         Py_RETURN_NONE;
     }
 

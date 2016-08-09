@@ -233,7 +233,7 @@ FFTMain_setSize(FFTMain *self, PyObject *args, PyObject *kwds)
         FFTMain_realloc_memories(self);
     }
     else
-        printf("FFT size must be a power of two!\n");
+        PySys_WriteStdout("FFT size must be a power of two!\n");
 
     Py_INCREF(Py_None);
     return Py_None;
@@ -835,7 +835,7 @@ IFFT_setSize(IFFT *self, PyObject *args, PyObject *kwds)
         IFFT_realloc_memories(self);
     }
     else
-        printf("IFFT size must be a power of two!\n");
+        PySys_WriteStdout("IFFT size must be a power of two!\n");
 
     Py_INCREF(Py_None);
     return Py_None;
@@ -1720,7 +1720,7 @@ FrameDeltaMain_setFrameSize(FrameDeltaMain *self, PyObject *arg)
         }
     }
     else
-        printf("frameSize must be a power of two!\n");
+        PySys_WriteStdout("frameSize must be a power of two!\n");
 
     Py_INCREF(Py_None);
     return Py_None;
@@ -2229,7 +2229,7 @@ FrameAccumMain_setFrameSize(FrameAccumMain *self, PyObject *arg)
         }
     }
     else
-        printf("frameSize must be a power of two!\n");
+        PySys_WriteStdout("frameSize must be a power of two!\n");
 
     Py_INCREF(Py_None);
     return Py_None;
@@ -2816,7 +2816,7 @@ VectralMain_setFrameSize(VectralMain *self, PyObject *arg)
         }
     }
     else
-        printf("frameSize must be a power of two!\n");
+        PySys_WriteStdout("frameSize must be a power of two!\n");
 
     Py_INCREF(Py_None);
     return Py_None;
@@ -3292,7 +3292,7 @@ CvlVerb_analyse_impulse(CvlVerb *self) {
     info.format = 0;
     sf = sf_open(self->impulse_path, SFM_READ, &info);
     if (sf == NULL) {
-        printf("CvlVerb failed to open the impulse file %s.\n", self->impulse_path);
+        PySys_WriteStdout("CvlVerb failed to open the impulse file %s.\n", self->impulse_path);
         return;
     }
     snd_size = info.frames;
@@ -3301,7 +3301,7 @@ CvlVerb_analyse_impulse(CvlVerb *self) {
     num_items = snd_size * snd_chnls;
 
     if (snd_sr != self->sr) {
-        printf("CvlVerb warning : Impulse sampling rate does't match the sampling rate of the server.\n");
+        PySys_WriteStdout("CvlVerb warning: Impulse sampling rate does't match the sampling rate of the server.\n");
     }
 
     self->num_iter = (int)MYCEIL((MYFLT)snd_size / self->size);
@@ -3627,7 +3627,7 @@ CvlVerb_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         Py_RETURN_NONE;
 
     if (self->size < self->bufsize) {
-        printf("Warning : CvlVerb size less than buffer size!\nCvlVerb size set to buffersize: %d\n", self->bufsize);
+        PySys_WriteStdout("Warning: CvlVerb size less than buffer size!\nCvlVerb size set to buffersize: %d\n", self->bufsize);
         self->size = self->bufsize;
     }
 
@@ -4084,7 +4084,7 @@ Spectrum_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         while (k < self->size)
             k *= 2;
         self->size = k;
-        printf("size must be a power-of-2, using the next power-of-2 greater than size : %d\n", self->size);
+        PySys_WriteStdout("Spectrum: size argument must be a power-of-2, using the next power-of-2 greater than size : %d\n", self->size);
     }
 
     Spectrum_realloc_memories(self);
@@ -4110,7 +4110,7 @@ Spectrum_setSize(Spectrum *self, PyObject *arg)
             Spectrum_realloc_memories(self);
         }
         else
-            printf("FFT size must be a power of two!\n");
+            PySys_WriteStdout("FFT size must be a power of two!\n");
     }
 
     Py_INCREF(Py_None);

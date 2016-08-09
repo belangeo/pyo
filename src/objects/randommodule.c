@@ -4186,7 +4186,7 @@ XnoiseMidi_setScale(XnoiseMidi *self, PyObject *arg)
         if (tmp >= 0 && tmp <= 2)
             self->scale = tmp;
         else
-            printf("scale attribute must be an integer {0, 1, 2}\n");
+            PySys_WriteStdout("XnoiseMidi: scale attribute must be an integer {0, 1, 2}\n");
 	}
 
 	Py_INCREF(Py_None);

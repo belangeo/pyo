@@ -201,18 +201,18 @@ void
 print_expr(expr ex, int node)
 {
     int i;
-    printf("=== Node # %d ===\n", node);
-    printf("Operator: %d\nNodes: ", ex.type_op);
-    for (i=0; i<ex.num; i++) { printf("%d, ", ex.nodes[i]); }
-    printf("\nVars: ");
-    for (i=0; i<ex.num; i++) { printf("%d, ", ex.vars[i]); }
-    printf("\nInputs: ");
-    for (i=0; i<ex.num; i++) { printf("%d, ", ex.input[i]); }
-    printf("\nOutputs: ");
-    for (i=0; i<ex.num; i++) { printf("%d, ", ex.output[i]); }
-    printf("\nValues: ");
-    for (i=0; i<ex.num; i++) { printf("%f, ", ex.values[i]); }
-    printf("\n\n");
+    PySys_WriteStdout("=== Node # %d ===\n", node);
+    PySys_WriteStdout("Operator: %d\nNodes: ", ex.type_op);
+    for (i=0; i<ex.num; i++) { PySys_WriteStdout("%d, ", ex.nodes[i]); }
+    PySys_WriteStdout("\nVars: ");
+    for (i=0; i<ex.num; i++) { PySys_WriteStdout("%d, ", ex.vars[i]); }
+    PySys_WriteStdout("\nInputs: ");
+    for (i=0; i<ex.num; i++) { PySys_WriteStdout("%d, ", ex.input[i]); }
+    PySys_WriteStdout("\nOutputs: ");
+    for (i=0; i<ex.num; i++) { PySys_WriteStdout("%d, ", ex.output[i]); }
+    PySys_WriteStdout("\nValues: ");
+    for (i=0; i<ex.num; i++) { PySys_WriteStdout("%f, ", ex.values[i]); }
+    PySys_WriteStdout("\n\n");
 }
 
 static void
@@ -592,7 +592,7 @@ Expr_setExpr(Expr *self, PyObject *arg)
             return Py_None;            
         }
         if (PyUnicode_Count(sentence, PyString_FromString(")"), 0, len) != PyUnicode_Count(sentence, PyString_FromString("("), 0, len)) {
-            printf("Expr: mismatched brackets, expression bypassed.\n");
+            PySys_WriteStdout("Expr: mismatched brackets, expression bypassed.\n");
             Py_INCREF(Py_None);
             return Py_None;            
         }
