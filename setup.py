@@ -181,27 +181,3 @@ setup(  name = "pyo",
 if compile_externals:
     os.system('rm pyolib/external.py')
 
-if minimal_build:
-    pyolib = os.path.join(get_python_lib(), "pyolib")
-    files = os.listdir(pyolib)
-    libfiles = [os.path.join(pyolib, f) for f in files if f.endswith(".py")]
-    for f in libfiles:
-        py_compile.compile(f)
-        os.remove(f)
-    if os.path.isfile(os.path.join(get_python_lib(), "pyo.py")):
-        py_compile.compile(os.path.join(get_python_lib(), "pyo.py"))
-        os.remove(os.path.join(get_python_lib(), "pyo.py"))
-    if os.path.isfile(os.path.join(get_python_lib(), "pyo64.py")):
-        py_compile.compile(os.path.join(get_python_lib(), "pyo64.py"))
-        os.remove(os.path.join(get_python_lib(), "pyo64.py"))
-else:
-    pyolib = os.path.join(get_python_lib(), "pyolib")
-    files = os.listdir(pyolib)
-    libfiles = [os.path.join(pyolib, f) for f in files if f.endswith(".pyc")]
-    for f in libfiles:
-        os.remove(f)
-    if os.path.isfile(os.path.join(get_python_lib(), "pyo.pyc")):
-        os.remove(os.path.join(get_python_lib(), "pyo.pyc"))
-    if os.path.isfile(os.path.join(get_python_lib(), "pyo64.pyc")):
-        os.remove(os.path.join(get_python_lib(), "pyo64.pyc"))
-
