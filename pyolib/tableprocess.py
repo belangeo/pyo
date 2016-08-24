@@ -793,7 +793,7 @@ class TableRead(PyoObject):
         retreive the trigger streams by calling obj['trig']:
 
         >>> tabr = TableRead(SNDS_PATH + "/transparent.aif").out()
-        >>> trig = TrigRand(tab['trig'])
+        >>> trig = TrigRand(tabr['trig'])
 
     .. seealso::
 
