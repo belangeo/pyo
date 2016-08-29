@@ -347,9 +347,10 @@ SigTo_generates_i(SigTo *self) {
         value = PyFloat_AS_DOUBLE(self->value);
         if (value != self->lastValue) {
             self->timeCount = 0;
-            self->timeStep = (long)(self->time * self->sr);
-            self->stepVal = (value - self->currentValue) / self->timeStep;
             self->lastValue = value;
+            self->timeStep = (long)(self->time * self->sr);
+            if (self->timeStep > 0)
+                self->stepVal = (value - self->currentValue) / self->timeStep;
         }
         if (self->timeStep <= 0) {
             for (i=0; i<self->bufsize; i++)
@@ -369,24 +370,20 @@ SigTo_generates_i(SigTo *self) {
             }
         }
     }
-    else {
+    else { // TODO: with audio input, does not recover after getting 0.0 as ramp time. 
         MYFLT *vals = Stream_getData((Stream *)self->value_stream);
-        if (self->timeStep <= 0) {
-            for (i=0; i<self->bufsize; i++) {
-                value = vals[i];
-                self->data[i] = self->currentValue = self->lastValue = value;
-            }
-        }
-        else {
-            for (i=0; i<self->bufsize; i++) {
-                value = vals[i];
-                if (value != self->lastValue) {
-                    self->timeCount = 0;
-                    self->timeStep = (long)(self->time * self->sr);
+        for (i=0; i<self->bufsize; i++) {
+            value = vals[i];
+            if (value != self->lastValue) {
+                self->timeCount = 0;
+                self->lastValue = value;
+                self->timeStep = (long)(self->time * self->sr);
+                if (self->timeStep > 0)
                     self->stepVal = (value - self->currentValue) / self->timeStep;
-                    self->lastValue = value;
-                }
-
+            }
+            if (self->timeStep <= 0) {
+                self->data[i] = self->currentValue = self->lastValue = value;
+            } else {
                 if (self->timeCount == (self->timeStep - 1)) {
                     self->currentValue = value;
                     self->timeCount++;
