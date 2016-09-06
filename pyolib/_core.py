@@ -379,6 +379,10 @@ class WeakMethod(object):
     Once created, call this object -- MyWeakMethod() --
     and pass args/kwargs as you normally would.
     """
+    def __new__(cls, callobj):
+        if callable(callobj):
+            return super(WeakMethod, cls).__new__(cls)
+
     def __init__(self, callobj):
         if hasattr(callobj, "__self__"):
             self.target = proxy(callobj.__self__)
