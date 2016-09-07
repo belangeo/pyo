@@ -224,14 +224,20 @@ Server_pm_deinit(Server *self)
 
     PyoPmBackendData *be_data = (PyoPmBackendData *) self->midi_be_data;
 
+    /* An opened stream should be properly closed 
+       but Pm_Close segfaults now and then so...
+       This hack need to be tested on Windows and OSX. */
+
     if (self->withPortMidi == 1) {
         for (i=0; i<self->midiin_count; i++) {
-            Pm_Close(be_data->midiin[i]);
+            //if (be_data->midiin[i] != NULL)
+                //Pm_Close(be_data->midiin[i]);
         }
     }
     if (self->withPortMidiOut == 1) {
         for (i=0; i<self->midiout_count; i++) {
-            Pm_Close(be_data->midiout[i]);
+            //if (be_data->midiout[i] != NULL)
+                //Pm_Close(be_data->midiout[i]);
         }
     }
     if (self->withPortMidi == 1 || self->withPortMidiOut == 1) {
