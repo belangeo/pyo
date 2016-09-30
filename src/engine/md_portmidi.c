@@ -222,7 +222,7 @@ Server_pm_deinit(Server *self)
 {
     int i = 0;
 
-    PyoPmBackendData *be_data = (PyoPmBackendData *) self->midi_be_data;
+    //PyoPmBackendData *be_data = (PyoPmBackendData *) self->midi_be_data;
 
     /* An opened stream should be properly closed 
        but Pm_Close segfaults now and then so...

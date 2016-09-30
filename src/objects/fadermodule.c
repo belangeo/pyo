@@ -145,7 +145,7 @@ Fader_setProcMode(Fader *self)
     else
         self->proc_func_ptr = Fader_generate_auto;
 
-	switch (muladdmode) {
+    switch (muladdmode) {
         case 0:
             self->muladd_func_ptr = Fader_postprocessing_ii;
             break;
@@ -555,7 +555,7 @@ Adsr_setProcMode(Adsr *self)
     else
         self->proc_func_ptr = Adsr_generate_auto;
 
-	switch (muladdmode) {
+    switch (muladdmode) {
         case 0:
             self->muladd_func_ptr = Adsr_postprocessing_ii;
             break;

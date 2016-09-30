@@ -740,9 +740,10 @@ static PyObject *
 Server_setInOutDevice(Server *self, PyObject *arg)
 {
     if (arg != NULL) {
-        if (PyInt_Check(arg))
+        if (PyInt_Check(arg)) {
             self->input = PyInt_AsLong(arg);
             self->output = PyInt_AsLong(arg);
+        }
     }
     Py_INCREF(Py_None);
     return Py_None;
