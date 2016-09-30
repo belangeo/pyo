@@ -71,6 +71,7 @@ void pm_ctlout(Server *self, int ctlnum, int value, int chan, long timestamp) {}
 void pm_programout(Server *self, int value, int chan, long timestamp) {};
 void pm_pressout(Server *self, int value, int chan, long timestamp) {};
 void pm_bendout(Server *self, int value, int chan, long timestamp) {};
+void pm_sysexout(Server *self, unsigned char *msg, long timestamp) {};
 #endif
 
 /** Array of Server objects. **/
@@ -1656,6 +1657,28 @@ Server_bendout(Server *self, PyObject *args)
     return Py_None;
 }
 
+PyObject *
+Server_sysexout(Server *self, PyObject *args)
+{
+    unsigned char *msg;
+    PyoMidiTimestamp timestamp;
+
+    if (! PyArg_ParseTuple(args, "sl", &msg, &timestamp))
+        return PyInt_FromLong(-1);
+
+    if (self->withPortMidiOut) {
+        switch (self->midi_be_type) {
+            case PyoPortmidi:
+                pm_sysexout(self, msg, timestamp);
+                break;
+            default:
+                break;
+        }
+    }
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
 MYFLT *
 Server_getInputBuffer(Server *self) {
     return (MYFLT *)self->input_buffer;
@@ -1885,6 +1908,7 @@ static PyMethodDef Server_methods[] = {
     {"programout", (PyCFunction)Server_programout, METH_VARARGS, "Send a program change event to Portmidi output stream."},
     {"pressout", (PyCFunction)Server_pressout, METH_VARARGS, "Send a channel pressure event to Portmidi output stream."},
     {"bendout", (PyCFunction)Server_bendout, METH_VARARGS, "Send a pitch bend event to Portmidi output stream."},
+    {"sysexout", (PyCFunction)Server_sysexout, METH_VARARGS, "Send a system exclusive message to midi output stream."},
     {"addMidiEvent", (PyCFunction)Server_addMidiEvent, METH_VARARGS, "Add a midi event manually (without using portmidi callback)."},
     {"getStreams", (PyCFunction)Server_getStreams, METH_NOARGS, "Returns the list of streams added to the server."},
     {"getSamplingRate", (PyCFunction)Server_getSamplingRate, METH_NOARGS, "Returns the server's sampling rate."},

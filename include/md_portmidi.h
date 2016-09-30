@@ -40,6 +40,7 @@ void pm_ctlout(Server *self, int ctlnum, int value, int chan, long timestamp);
 void pm_programout(Server *self, int value, int chan, long timestamp);
 void pm_pressout(Server *self, int value, int chan, long timestamp);
 void pm_bendout(Server *self, int value, int chan, long timestamp);
+void pm_sysexout(Server *self, unsigned char *msg, long timestamp);
 
 /* Queries. */
 PyObject * portmidi_count_devices();

@@ -862,6 +862,26 @@ class Server(object):
         value, channel, timestamp, lmax = convertArgsToLists(value, channel, timestamp)
         [self._server.bendout(wrap(value,i), wrap(channel,i), wrap(timestamp,i)) for i in range(lmax)]
 
+    def sysexout(self, msg, timestamp=0):
+        """
+        Send a system exclusive message to the selected midi output device.
+
+        Arguments can be list of values/messages to generate multiple events
+        in one call.
+
+        :Args:
+
+            msg : str
+                A valid system exclusive message as a string. The first byte 
+                must be 0xf0 and the last one must be 0xf7.
+            timestamp : int, optional
+                The delay time, in milliseconds, before the message
+                is sent on the portmidi stream. A value of 0 means
+                to play the message now. Defaults to 0.
+        """
+        msg, timestamp, lmax = convertArgsToLists(msg, timestamp)
+        [self._server.sysexout(wrap(msg,i), wrap(timestamp,i)) for i in range(lmax)]
+
     def addMidiEvent(self, status, data1=0, data2=0):
         """
         Add a MIDI event in the server processing loop.

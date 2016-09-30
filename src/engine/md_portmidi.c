@@ -369,6 +369,19 @@ pm_bendout(Server *self, int value, int chan, long timestamp)
     }
 }
 
+void
+pm_sysexout(Server *self, unsigned char *msg, long timestamp)
+{
+    int i, curtime;
+
+    PyoPmBackendData *be_data = (PyoPmBackendData *) self->midi_be_data;
+
+    curtime = Pt_Time();
+    for (i=0; i<self->midiout_count; i++) {
+        Pm_WriteSysEx(be_data->midiout[i], curtime + timestamp, msg);
+    }
+}
+
 /* Query functions. */
 
 PyObject *
