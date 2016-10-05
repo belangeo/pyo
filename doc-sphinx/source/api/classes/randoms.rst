@@ -11,6 +11,12 @@ Set of objects that implement different kinds of random noise generators.
 .. autoclass:: Choice
    :members:
 
+*LogiMap*
+-----------------------------------
+
+.. autoclass:: LogiMap
+   :members:
+
 *RandDur*
 -----------------------------------
 

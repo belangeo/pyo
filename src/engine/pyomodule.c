@@ -2228,6 +2228,7 @@ init_pyo64(void)
     module_add_object(m, "Resample_base", &ResampleType);
     module_add_object(m, "Expr_base", &ExprType);
     module_add_object(m, "PadSynthTable_base", &PadSynthTableType);
+    module_add_object(m, "LogiMap_base", &LogiMapType);
 
     PyModule_AddStringConstant(m, "PYO_VERSION", PYO_VERSION);
 #ifdef COMPILE_EXTERNALS
