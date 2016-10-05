@@ -28,6 +28,7 @@ typedef struct {
     int size;
     double samplingRate;
     MYFLT *data;
+    Py_ssize_t shape[1]; /* 1-dimension array (must be set to table size) needed by the buffer protocol. */
 } TableStream;
 
 

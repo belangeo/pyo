@@ -164,6 +164,19 @@ class Server(object):
         self._resampling = 1
         self._server.__init__(sr, nchnls, buffersize, duplex, audio, jackname, self._ichnls)
 
+    def setCallback(self, callback):
+        """
+        Register a custom process callback.
+
+        The function given as argument will be called every computation
+        block, just before the computation of the audio object tree.
+        Inside the callback, one can process the data of a table with
+        numpy calls for example.
+
+        """
+        if callable(callback):
+            self._server.setCallback(callback)
+
     def gui(self, locals=None, meter=True, timer=True, exit=True):
         """
         Show the server's user interface.

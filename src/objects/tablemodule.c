@@ -86,6 +86,23 @@ TableStream_setSamplingRate(TableStream *self, double sr)
     self->samplingRate = sr;
 }
 
+static Py_ssize_t TableStream_getReadBuffer(TableStream *self, Py_ssize_t index, const void **ptr) { TABLESTREAM_READ_WRITE_BUFFER };
+static Py_ssize_t TableStream_getWriteBuffer(TableStream *self, Py_ssize_t index, const void **ptr) { TABLESTREAM_READ_WRITE_BUFFER };
+static Py_ssize_t TableStream_getSegCount(TableStream *self, Py_ssize_t *lenp) { TABLESTREAM_SEG_COUNT };
+static int TableStream_getBuffer(PyObject *obj, Py_buffer *view, int flags) {
+    TableStream *self = (TableStream *)obj;
+    TABLESTREAM_GET_BUFFER
+};
+
+static PyBufferProcs TableStream_as_buffer = {
+    (readbufferproc)TableStream_getReadBuffer,
+    (writebufferproc)TableStream_getWriteBuffer,
+    (segcountproc)TableStream_getSegCount,
+    (charbufferproc)NULL,
+    (getbufferproc)TableStream_getBuffer,
+    (releasebufferproc)NULL,
+};
+
 PyTypeObject TableStreamType = {
 PyObject_HEAD_INIT(NULL)
 0, /*ob_size*/
@@ -106,8 +123,8 @@ sizeof(TableStream), /*tp_basicsize*/
 0, /*tp_str*/
 0, /*tp_getattro*/
 0, /*tp_setattro*/
-0, /*tp_as_buffer*/
-Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE, /*tp_flags*/
+&TableStream_as_buffer,                         /*tp_as_buffer*/
+Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_NEWBUFFER, /*tp_flags*/
 "TableStream objects. For internal use only. Must never be instantiated by the user.", /* tp_doc */
 0, /* tp_traverse */
 0, /* tp_clear */

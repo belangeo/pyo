@@ -1753,3 +1753,37 @@ extern PyTypeObject PadSynthTableType;
         val = old / tmp - add[i]; \
         self->data[i] = val; \
     }
+
+/* Tables buffer protocol. */
+#define TABLESTREAM_READ_WRITE_BUFFER \
+    if ( index != 0 ) { \
+        PySys_WriteStdout("Accessing non-existent bytes segment..."); \
+        return -1; \
+    } \
+    *ptr = (void *)self->data; \
+    return (Py_ssize_t)self->size * sizeof(MYFLT);
+
+#define TABLESTREAM_SEG_COUNT \
+    if ( lenp ) \
+        *lenp = (Py_ssize_t)self->size * sizeof(MYFLT); \
+    return 1;
+
+#define TABLESTREAM_GET_BUFFER \
+    if (view == NULL) { \
+        PySys_WriteStdout("NULL view in getBuffer."); \
+        return -1; \
+    } \
+    self->shape[0] = self->size; \
+    view->obj = (PyObject *)self; \
+    view->buf = (void *)self->data; \
+    view->len = self->size * sizeof(MYFLT); \
+    view->readonly = 0; \
+    view->itemsize = sizeof(MYFLT); \
+    view->format = TYPE_F; \
+    view->ndim = 1; \
+    view->shape = self->shape; \
+    view->strides = NULL; \
+    view->suboffsets = NULL; \
+    view->internal = NULL; \
+    Py_INCREF(self); \
+    return 0;

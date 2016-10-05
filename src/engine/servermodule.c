@@ -343,6 +343,10 @@ Server_process_buffers(Server *server)
 
     memset(&buffer, 0, sizeof(buffer));
     PyGILState_STATE s = PyGILState_Ensure();
+
+    if (server->CALLBACK != NULL)
+        PyObject_Call((PyObject *)server->CALLBACK, PyTuple_New(0), NULL);
+
     for (i=0; i<server->stream_count; i++) {
         stream_tmp = (Stream *)PyList_GET_ITEM(server->streams, i);
         if (Stream_getStreamActive(stream_tmp) == 1) {
@@ -520,6 +524,8 @@ Server_traverse(Server *self, visitproc visit, void *arg)
 {
     Py_VISIT(self->GUI);
     Py_VISIT(self->TIME);
+    if (self->CALLBACK != NULL)
+        Py_VISIT(self->CALLBACK);
     Py_VISIT(self->streams);
     Py_VISIT(self->jackAutoConnectInputPorts);
     Py_VISIT(self->jackAutoConnectOutputPorts);
@@ -531,6 +537,8 @@ Server_clear(Server *self)
 {
     Py_CLEAR(self->GUI);
     Py_CLEAR(self->TIME);
+    if (self->CALLBACK != NULL)
+        Py_CLEAR(self->CALLBACK);
     Py_CLEAR(self->streams);
     Py_CLEAR(self->jackAutoConnectInputPorts);
     Py_CLEAR(self->jackAutoConnectOutputPorts);
@@ -620,6 +628,7 @@ Server_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->recquality = 0.4;
     self->startoffset = 0.0;
     self->globalSeed = 0;
+    self->CALLBACK = NULL;
     self->thisServerID = serverID;
     Py_XDECREF(my_server[serverID]);
     my_server[serverID] = (Server *)self;
@@ -1043,6 +1052,22 @@ Server_setTimeCallable(Server *self, PyObject *arg)
     }
     self->tcount = 0;
     self->withTIME = 1;
+
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static PyObject *
+Server_setCallback(Server *self, PyObject *arg)
+{
+    PyObject *tmp;
+
+    ASSERT_ARG_NOT_NULL
+
+    tmp = arg;
+    Py_XDECREF(self->CALLBACK);
+    Py_INCREF(tmp);
+    self->CALLBACK = tmp;
 
     Py_INCREF(Py_None);
     return Py_None;
@@ -1888,6 +1913,7 @@ static PyMethodDef Server_methods[] = {
     {"setAmp", (PyCFunction)Server_setAmp, METH_O, "Sets the overall amplitude."},
     {"setAmpCallable", (PyCFunction)Server_setAmpCallable, METH_O, "Sets the Server's GUI callable object."},
     {"setTimeCallable", (PyCFunction)Server_setTimeCallable, METH_O, "Sets the Server's TIME callable object."},
+    {"setCallback", (PyCFunction)Server_setCallback, METH_O, "Sets the Server's CALLBACK callable object."},
     {"setVerbosity", (PyCFunction)Server_setVerbosity, METH_O, "Sets the verbosity."},
     {"setStartOffset", (PyCFunction)Server_setStartOffset, METH_O, "Sets starting time offset."},
     {"boot", (PyCFunction)Server_boot, METH_O, "Setup and boot the server."},

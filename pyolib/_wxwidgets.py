@@ -1330,7 +1330,10 @@ class ViewMatrix_withPIL(ViewMatrix):
         im = Image.new("L", self.size, None)
         im.putdata(samples)
         image = wx.EmptyImage(self.size[0], self.size[1])
-        image.SetData(im.convert("RGB").tostring())
+        try:
+            image.SetData(im.convert("RGB").tostring())
+        except:
+            image.SetData(im.convert("RGB").tobytes())
         self.img = wx.BitmapFromImage(image)
         self.Refresh()
 
