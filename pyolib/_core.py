@@ -1225,6 +1225,27 @@ class PyoTableObject(PyoObjectBase):
         [obj.setData(f_list[i%f_len]) for i, obj in enumerate(self._base_objs)]
         self.refreshView()
 
+    def getBuffer(self, chnl=0):
+        """
+        Return a reference to the underlying object implementing the buffer protocol.
+
+        With the buffer protocol, a table can be referenced and modified, without
+        copying the data, with numpy functions. To create an array using the same
+        memory as the table:
+
+            t = SndTable(SNDS_PATH+"/transparent.aif")
+            arr = numpy.asarray(t.getBuffer())
+
+        Now, every changes applied to the array will be reflected in the SndTable.
+        
+        For more details about the buffer protocol, see PEP 3118 and python documentation.
+
+        """
+        if chnl < 0 or chnl >= len(self):
+            print "getBuffer(chnl): `chnl` argument out-of-range..."
+        else:
+            return self._base_objs[chnl].getTableStream()
+
     def setSize(self, size):
         """
         Change the size of the table.

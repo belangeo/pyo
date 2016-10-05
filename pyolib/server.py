@@ -164,6 +164,19 @@ class Server(object):
         self._resampling = 1
         self._server.__init__(sr, nchnls, buffersize, duplex, audio, jackname, self._ichnls)
 
+    def setCallback(self, callback):
+        """
+        Register a custom process callback.
+
+        The function given as argument will be called every computation
+        block, just before the computation of the audio object tree.
+        Inside the callback, one can process the data of a table with
+        numpy calls for example.
+
+        """
+        if callable(callback):
+            self._server.setCallback(callback)
+
     def gui(self, locals=None, meter=True, timer=True, exit=True):
         """
         Show the server's user interface.
@@ -861,6 +874,26 @@ class Server(object):
         """
         value, channel, timestamp, lmax = convertArgsToLists(value, channel, timestamp)
         [self._server.bendout(wrap(value,i), wrap(channel,i), wrap(timestamp,i)) for i in range(lmax)]
+
+    def sysexout(self, msg, timestamp=0):
+        """
+        Send a system exclusive message to the selected midi output device.
+
+        Arguments can be list of values/messages to generate multiple events
+        in one call.
+
+        :Args:
+
+            msg : str
+                A valid system exclusive message as a string. The first byte 
+                must be 0xf0 and the last one must be 0xf7.
+            timestamp : int, optional
+                The delay time, in milliseconds, before the message
+                is sent on the portmidi stream. A value of 0 means
+                to play the message now. Defaults to 0.
+        """
+        msg, timestamp, lmax = convertArgsToLists(msg, timestamp)
+        [self._server.sysexout(wrap(msg,i), wrap(timestamp,i)) for i in range(lmax)]
 
     def addMidiEvent(self, status, data1=0, data2=0):
         """

@@ -222,7 +222,7 @@ Server_pm_deinit(Server *self)
 {
     int i = 0;
 
-    PyoPmBackendData *be_data = (PyoPmBackendData *) self->midi_be_data;
+    //PyoPmBackendData *be_data = (PyoPmBackendData *) self->midi_be_data;
 
     /* An opened stream should be properly closed 
        but Pm_Close segfaults now and then so...
@@ -366,6 +366,19 @@ pm_bendout(Server *self, int value, int chan, long timestamp)
         buffer[0].message = Pm_Message(0xE0 | (chan - 1), lsb, msb);
     for (i=0; i<self->midiout_count; i++) {
         Pm_Write(be_data->midiout[i], buffer, 1);
+    }
+}
+
+void
+pm_sysexout(Server *self, unsigned char *msg, long timestamp)
+{
+    int i, curtime;
+
+    PyoPmBackendData *be_data = (PyoPmBackendData *) self->midi_be_data;
+
+    curtime = Pt_Time();
+    for (i=0; i<self->midiout_count; i++) {
+        Pm_WriteSysEx(be_data->midiout[i], curtime + timestamp, msg);
     }
 }
 
