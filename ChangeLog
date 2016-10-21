@@ -1,3 +1,7 @@
+2016-10-04 belangeo <belangeo@gmail.com>
+
+    * Added new object: LogiMap, random generator based on the logistic map.
+
 2016-05-13 belangeo <belangeo@gmail.com>
 
     * Fixed wrong definition of withOsc() and withCoreaudio().

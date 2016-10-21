@@ -1687,9 +1687,10 @@ PyObject *
 Server_sysexout(Server *self, PyObject *args)
 {
     unsigned char *msg;
+    int size;
     PyoMidiTimestamp timestamp;
 
-    if (! PyArg_ParseTuple(args, "sl", &msg, &timestamp))
+    if (! PyArg_ParseTuple(args, "s#l", &msg, &size, &timestamp))
         return PyInt_FromLong(-1);
 
     if (self->withPortMidiOut) {

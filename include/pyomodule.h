@@ -74,6 +74,7 @@
 #define TYPE__OFFI "|Offi"
 #define TYPE__OFII "|Ofii"
 #define TYPE__OFIOO "|OfiOO"
+#define TYPE__OOFOO "|OOfOO"
 #define TYPE__FIIOO "|fiiOO"
 #define TYPE_O_OFOO "O|OfOO"
 #define TYPE_O_OOOOFF "O|OOOOff"
@@ -159,6 +160,7 @@
 #define TYPE__OFFI "|Oddi"
 #define TYPE__OFII "|Odii"
 #define TYPE__OFIOO "|OdiOO"
+#define TYPE__OOFOO "|OOdOO"
 #define TYPE__FIIOO "|diiOO"
 #define TYPE_O_OFOO "O|OdOO"
 #define TYPE_O_OOOOFF "O|OOOOdd"
@@ -502,6 +504,7 @@ extern PyTypeObject RawMidiType;
 extern PyTypeObject ResampleType;
 extern PyTypeObject ExprType;
 extern PyTypeObject PadSynthTableType;
+extern PyTypeObject LogiMapType;
 
 /* Constants */
 #define E M_E

@@ -5647,3 +5647,458 @@ Urn_members,                                 /* tp_members */
 0,                                              /* tp_alloc */
 Urn_new,                                     /* tp_new */
 };
+
+/****************/
+/**** LogiMap ***/
+/****************/
+typedef struct {
+    pyo_audio_HEAD
+    PyObject *chaos;
+    PyObject *freq;
+    Stream *chaos_stream;
+    Stream *freq_stream;
+    MYFLT init;
+    MYFLT value;
+    MYFLT time;
+    int modebuffer[4]; // need at least 2 slots for mul & add
+} LogiMap;
+
+static void
+LogiMap_generate_ii(LogiMap *self) {
+    int i;
+    MYFLT inc;
+    MYFLT ch = PyFloat_AS_DOUBLE(self->chaos);
+    MYFLT fr = PyFloat_AS_DOUBLE(self->freq);
+    inc = fr / self->sr;
+
+    if (ch <= 0.0)
+        ch = 0.001;
+    else if (ch >= 1.0)
+        ch = 0.999;
+
+    for (i=0; i<self->bufsize; i++) {
+        self->time += inc;
+        if (self->time >= 1.0) {
+            self->time -= 1.0;
+            self->value = (ch + 3) * self->value * (1.0 - self->value);
+        }
+        self->data[i] = self->value;
+    }
+}
+
+static void
+LogiMap_generate_ai(LogiMap *self) {
+    int i;
+    MYFLT inc, ch = 0.0;
+    MYFLT *chaos = Stream_getData((Stream *)self->chaos_stream);
+    MYFLT fr = PyFloat_AS_DOUBLE(self->freq);
+    inc = fr / self->sr;
+
+    for (i=0; i<self->bufsize; i++) {
+        self->time += inc;
+        if (self->time >= 1.0) {
+            self->time -= 1.0;
+            ch = chaos[i];
+            if (ch <= 0.0)
+                ch = 0.001;
+            else if (ch >= 1.0)
+                ch = 0.999;
+            self->value = (ch + 3) * self->value * (1.0 - self->value);
+        }
+        self->data[i] = self->value;
+    }
+}
+
+static void
+LogiMap_generate_ia(LogiMap *self) {
+    int i;
+    MYFLT inc;
+    MYFLT ch = PyFloat_AS_DOUBLE(self->chaos);
+    MYFLT *fr = Stream_getData((Stream *)self->freq_stream);
+
+    if (ch <= 0.0)
+        ch = 0.001;
+    else if (ch >= 1.0)
+        ch = 0.999;
+
+    for (i=0; i<self->bufsize; i++) {
+        inc = fr[i] / self->sr;
+        self->time += inc;
+        if (self->time >= 1.0) {
+            self->time -= 1.0;
+            self->value = (ch + 3) * self->value * (1.0 - self->value);
+        }
+        self->data[i] = self->value;
+    }
+}
+
+static void
+LogiMap_generate_aa(LogiMap *self) {
+    int i;
+    MYFLT inc, ch = 0.0;
+    MYFLT *chaos = Stream_getData((Stream *)self->chaos_stream);
+    MYFLT *fr = Stream_getData((Stream *)self->freq_stream);
+
+    for (i=0; i<self->bufsize; i++) {
+        inc = fr[i] / self->sr;
+        self->time += inc;
+        if (self->time >= 1.0) {
+            self->time -= 1.0;
+            ch = chaos[i];
+            if (ch <= 0.0)
+                ch = 0.001;
+            else if (ch >= 1.0)
+                ch = 0.999;
+            self->value = (ch + 3) * self->value * (1.0 - self->value);
+        }
+        self->data[i] = self->value;
+    }
+}
+
+static void LogiMap_postprocessing_ii(LogiMap *self) { POST_PROCESSING_II };
+static void LogiMap_postprocessing_ai(LogiMap *self) { POST_PROCESSING_AI };
+static void LogiMap_postprocessing_ia(LogiMap *self) { POST_PROCESSING_IA };
+static void LogiMap_postprocessing_aa(LogiMap *self) { POST_PROCESSING_AA };
+static void LogiMap_postprocessing_ireva(LogiMap *self) { POST_PROCESSING_IREVA };
+static void LogiMap_postprocessing_areva(LogiMap *self) { POST_PROCESSING_AREVA };
+static void LogiMap_postprocessing_revai(LogiMap *self) { POST_PROCESSING_REVAI };
+static void LogiMap_postprocessing_revaa(LogiMap *self) { POST_PROCESSING_REVAA };
+static void LogiMap_postprocessing_revareva(LogiMap *self) { POST_PROCESSING_REVAREVA };
+
+static void
+LogiMap_setProcMode(LogiMap *self)
+{
+    int procmode, muladdmode;
+    procmode = self->modebuffer[2] + self->modebuffer[3] * 10;
+    muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
+
+	switch (procmode) {
+        case 0:
+            self->proc_func_ptr = LogiMap_generate_ii;
+            break;
+        case 1:
+            self->proc_func_ptr = LogiMap_generate_ai;
+            break;
+        case 10:
+            self->proc_func_ptr = LogiMap_generate_ia;
+            break;
+        case 11:
+            self->proc_func_ptr = LogiMap_generate_aa;
+            break;
+    }
+	switch (muladdmode) {
+        case 0:
+            self->muladd_func_ptr = LogiMap_postprocessing_ii;
+            break;
+        case 1:
+            self->muladd_func_ptr = LogiMap_postprocessing_ai;
+            break;
+        case 2:
+            self->muladd_func_ptr = LogiMap_postprocessing_revai;
+            break;
+        case 10:
+            self->muladd_func_ptr = LogiMap_postprocessing_ia;
+            break;
+        case 11:
+            self->muladd_func_ptr = LogiMap_postprocessing_aa;
+            break;
+        case 12:
+            self->muladd_func_ptr = LogiMap_postprocessing_revaa;
+            break;
+        case 20:
+            self->muladd_func_ptr = LogiMap_postprocessing_ireva;
+            break;
+        case 21:
+            self->muladd_func_ptr = LogiMap_postprocessing_areva;
+            break;
+        case 22:
+            self->muladd_func_ptr = LogiMap_postprocessing_revareva;
+            break;
+    }
+}
+
+static void
+LogiMap_compute_next_data_frame(LogiMap *self)
+{
+    (*self->proc_func_ptr)(self);
+    (*self->muladd_func_ptr)(self);
+}
+
+static int
+LogiMap_traverse(LogiMap *self, visitproc visit, void *arg)
+{
+    pyo_VISIT
+    Py_VISIT(self->freq);
+    Py_VISIT(self->freq_stream);
+    Py_VISIT(self->chaos);
+    Py_VISIT(self->chaos_stream);
+    return 0;
+}
+
+static int
+LogiMap_clear(LogiMap *self)
+{
+    pyo_CLEAR
+    Py_CLEAR(self->freq);
+    Py_CLEAR(self->freq_stream);
+    Py_CLEAR(self->chaos);
+    Py_CLEAR(self->chaos_stream);
+    return 0;
+}
+
+static void
+LogiMap_dealloc(LogiMap* self)
+{
+    pyo_DEALLOC
+    LogiMap_clear(self);
+    self->ob_type->tp_free((PyObject*)self);
+}
+
+static PyObject *
+LogiMap_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    int i;
+    MYFLT init;
+    PyObject *chaostmp=NULL, *freqtmp=NULL, *multmp=NULL, *addtmp=NULL;
+    LogiMap *self;
+    self = (LogiMap *)type->tp_alloc(type, 0);
+
+    self->chaos = PyFloat_FromDouble(0.6);
+    self->freq = PyFloat_FromDouble(1.);
+    self->time = 1.0;
+	self->modebuffer[0] = 0;
+	self->modebuffer[1] = 0;
+	self->modebuffer[2] = 0;
+	self->modebuffer[3] = 0;
+
+    INIT_OBJECT_COMMON
+    Stream_setFunctionPtr(self->stream, LogiMap_compute_next_data_frame);
+    self->mode_func_ptr = LogiMap_setProcMode;
+
+    static char *kwlist[] = {"chaos", "freq", "init", "mul", "add", NULL};
+
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE__OOFOO, kwlist, &chaostmp, &freqtmp, &init, &multmp, &addtmp))
+        Py_RETURN_NONE;
+
+    if (chaostmp) {
+        PyObject_CallMethod((PyObject *)self, "setChaos", "O", chaostmp);
+    }
+
+    if (freqtmp) {
+        PyObject_CallMethod((PyObject *)self, "setFreq", "O", freqtmp);
+    }
+
+    if (multmp) {
+        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+    }
+
+    if (addtmp) {
+        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+    }
+
+    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+
+    if (init <= 0)
+        init = 0.001;
+    else if (init >= 1.0)
+        init = 0.999;
+    self->value = self->init = init;
+
+    (*self->mode_func_ptr)(self);
+
+    return (PyObject *)self;
+}
+
+static PyObject * LogiMap_getServer(LogiMap* self) { GET_SERVER };
+static PyObject * LogiMap_getStream(LogiMap* self) { GET_STREAM };
+static PyObject * LogiMap_setMul(LogiMap *self, PyObject *arg) { SET_MUL };
+static PyObject * LogiMap_setAdd(LogiMap *self, PyObject *arg) { SET_ADD };
+static PyObject * LogiMap_setSub(LogiMap *self, PyObject *arg) { SET_SUB };
+static PyObject * LogiMap_setDiv(LogiMap *self, PyObject *arg) { SET_DIV };
+
+static PyObject * LogiMap_play(LogiMap *self, PyObject *args, PyObject *kwds) { 
+    self->value = self->init;
+    PLAY 
+};
+static PyObject * LogiMap_out(LogiMap *self, PyObject *args, PyObject *kwds) { OUT };
+static PyObject * LogiMap_stop(LogiMap *self) { STOP };
+
+static PyObject * LogiMap_multiply(LogiMap *self, PyObject *arg) { MULTIPLY };
+static PyObject * LogiMap_inplace_multiply(LogiMap *self, PyObject *arg) { INPLACE_MULTIPLY };
+static PyObject * LogiMap_add(LogiMap *self, PyObject *arg) { ADD };
+static PyObject * LogiMap_inplace_add(LogiMap *self, PyObject *arg) { INPLACE_ADD };
+static PyObject * LogiMap_sub(LogiMap *self, PyObject *arg) { SUB };
+static PyObject * LogiMap_inplace_sub(LogiMap *self, PyObject *arg) { INPLACE_SUB };
+static PyObject * LogiMap_div(LogiMap *self, PyObject *arg) { DIV };
+static PyObject * LogiMap_inplace_div(LogiMap *self, PyObject *arg) { INPLACE_DIV };
+
+static PyObject *
+LogiMap_setChaos(LogiMap *self, PyObject *arg)
+{
+	PyObject *tmp, *streamtmp;
+
+    ASSERT_ARG_NOT_NULL
+
+	int isNumber = PyNumber_Check(arg);
+
+	tmp = arg;
+	Py_INCREF(tmp);
+	Py_DECREF(self->chaos);
+	if (isNumber == 1) {
+		self->chaos = PyNumber_Float(tmp);
+        self->modebuffer[2] = 0;
+	}
+	else {
+		self->chaos = tmp;
+        streamtmp = PyObject_CallMethod((PyObject *)self->chaos, "_getStream", NULL);
+        Py_INCREF(streamtmp);
+        Py_XDECREF(self->chaos_stream);
+        self->chaos_stream = (Stream *)streamtmp;
+		self->modebuffer[2] = 1;
+	}
+
+    (*self->mode_func_ptr)(self);
+
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
+static PyObject *
+LogiMap_setFreq(LogiMap *self, PyObject *arg)
+{
+	PyObject *tmp, *streamtmp;
+
+    ASSERT_ARG_NOT_NULL
+
+	int isNumber = PyNumber_Check(arg);
+
+	tmp = arg;
+	Py_INCREF(tmp);
+	Py_DECREF(self->freq);
+	if (isNumber == 1) {
+		self->freq = PyNumber_Float(tmp);
+        self->modebuffer[3] = 0;
+	}
+	else {
+		self->freq = tmp;
+        streamtmp = PyObject_CallMethod((PyObject *)self->freq, "_getStream", NULL);
+        Py_INCREF(streamtmp);
+        Py_XDECREF(self->freq_stream);
+        self->freq_stream = (Stream *)streamtmp;
+		self->modebuffer[3] = 1;
+	}
+
+    (*self->mode_func_ptr)(self);
+
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
+static PyMemberDef LogiMap_members[] = {
+{"server", T_OBJECT_EX, offsetof(LogiMap, server), 0, "Pyo server."},
+{"stream", T_OBJECT_EX, offsetof(LogiMap, stream), 0, "Stream object."},
+{"chaos", T_OBJECT_EX, offsetof(LogiMap, chaos), 0, "chaosimum possible value."},
+{"freq", T_OBJECT_EX, offsetof(LogiMap, freq), 0, "Polling frequency."},
+{"mul", T_OBJECT_EX, offsetof(LogiMap, mul), 0, "Mul factor."},
+{"add", T_OBJECT_EX, offsetof(LogiMap, add), 0, "Add factor."},
+{NULL}  /* Sentinel */
+};
+
+static PyMethodDef LogiMap_methods[] = {
+{"getServer", (PyCFunction)LogiMap_getServer, METH_NOARGS, "Returns server object."},
+{"_getStream", (PyCFunction)LogiMap_getStream, METH_NOARGS, "Returns stream object."},
+{"play", (PyCFunction)LogiMap_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+{"out", (PyCFunction)LogiMap_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
+{"stop", (PyCFunction)LogiMap_stop, METH_NOARGS, "Stops computing."},
+{"setChaos", (PyCFunction)LogiMap_setChaos, METH_O, "Sets the randomization degree."},
+{"setFreq", (PyCFunction)LogiMap_setFreq, METH_O, "Sets polling frequency."},
+{"setMul", (PyCFunction)LogiMap_setMul, METH_O, "Sets oscillator mul factor."},
+{"setAdd", (PyCFunction)LogiMap_setAdd, METH_O, "Sets oscillator add factor."},
+{"setSub", (PyCFunction)LogiMap_setSub, METH_O, "Sets inverse add factor."},
+{"setDiv", (PyCFunction)LogiMap_setDiv, METH_O, "Sets inverse mul factor."},
+{NULL}  /* Sentinel */
+};
+
+static PyNumberMethods LogiMap_as_number = {
+(binaryfunc)LogiMap_add,                         /*nb_add*/
+(binaryfunc)LogiMap_sub,                         /*nb_subtract*/
+(binaryfunc)LogiMap_multiply,                    /*nb_multiply*/
+(binaryfunc)LogiMap_div,                                              /*nb_divide*/
+0,                                              /*nb_remainder*/
+0,                                              /*nb_divmod*/
+0,                                              /*nb_power*/
+0,                                              /*nb_neg*/
+0,                                              /*nb_pos*/
+0,                                              /*(unaryfunc)array_abs,*/
+0,                                              /*nb_nonzero*/
+0,                                              /*nb_invert*/
+0,                                              /*nb_lshift*/
+0,                                              /*nb_rshift*/
+0,                                              /*nb_and*/
+0,                                              /*nb_xor*/
+0,                                              /*nb_or*/
+0,                                              /*nb_coerce*/
+0,                                              /*nb_int*/
+0,                                              /*nb_long*/
+0,                                              /*nb_float*/
+0,                                              /*nb_oct*/
+0,                                              /*nb_hex*/
+(binaryfunc)LogiMap_inplace_add,                 /*inplace_add*/
+(binaryfunc)LogiMap_inplace_sub,                 /*inplace_subtract*/
+(binaryfunc)LogiMap_inplace_multiply,            /*inplace_multiply*/
+(binaryfunc)LogiMap_inplace_div,                                              /*inplace_divide*/
+0,                                              /*inplace_remainder*/
+0,                                              /*inplace_power*/
+0,                                              /*inplace_lshift*/
+0,                                              /*inplace_rshift*/
+0,                                              /*inplace_and*/
+0,                                              /*inplace_xor*/
+0,                                              /*inplace_or*/
+0,                                              /*nb_floor_divide*/
+0,                                              /*nb_true_divide*/
+0,                                              /*nb_inplace_floor_divide*/
+0,                                              /*nb_inplace_true_divide*/
+0,                                              /* nb_index */
+};
+
+PyTypeObject LogiMapType = {
+PyObject_HEAD_INIT(NULL)
+0,                                              /*ob_size*/
+"_pyo.LogiMap_base",                                   /*tp_name*/
+sizeof(LogiMap),                                 /*tp_basicsize*/
+0,                                              /*tp_itemsize*/
+(destructor)LogiMap_dealloc,                     /*tp_dealloc*/
+0,                                              /*tp_print*/
+0,                                              /*tp_getattr*/
+0,                                              /*tp_setattr*/
+0,                                              /*tp_compare*/
+0,                                              /*tp_repr*/
+&LogiMap_as_number,                              /*tp_as_number*/
+0,                                              /*tp_as_sequence*/
+0,                                              /*tp_as_mapping*/
+0,                                              /*tp_hash */
+0,                                              /*tp_call*/
+0,                                              /*tp_str*/
+0,                                              /*tp_getattro*/
+0,                                              /*tp_setattro*/
+0,                                              /*tp_as_buffer*/
+Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+"LogiMap objects. Random generator based on the logistic equation.",           /* tp_doc */
+(traverseproc)LogiMap_traverse,                  /* tp_traverse */
+(inquiry)LogiMap_clear,                          /* tp_clear */
+0,                                              /* tp_richcompare */
+0,                                              /* tp_weaklistoffset */
+0,                                              /* tp_iter */
+0,                                              /* tp_iternext */
+LogiMap_methods,                                 /* tp_methods */
+LogiMap_members,                                 /* tp_members */
+0,                                              /* tp_getset */
+0,                                              /* tp_base */
+0,                                              /* tp_dict */
+0,                                              /* tp_descr_get */
+0,                                              /* tp_descr_set */
+0,                                              /* tp_dictoffset */
+0,                          /* tp_init */
+0,                                              /* tp_alloc */
+LogiMap_new,                                     /* tp_new */
+};

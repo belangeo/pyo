@@ -1283,3 +1283,105 @@ class Urn(PyoObject):
     @freq.setter
     def freq(self, x):
         self.setFreq(x)
+        
+class LogiMap(PyoObject):
+    """
+    Random generator based on the logistic map.
+
+    The logistic equation (sometimes called the Verhulst model or logistic
+    growth curve) is a model of population growth first published by Pierre
+    Verhulst (1845, 1847). The logistic map is a discrete quadratic recurrence
+    equation derived from the logistic equation that can be effectively used
+    as a number generator that exibit chaotic behavior. This object uses the
+    following equation:
+
+        x[n] = (r + 3) * x[n-1] * (1.0 - x[n-1])
+
+    where 'r' is the randomization factor between 0 and 1.
+
+    :Parent: :py:class:`PyoObject`
+
+    :Args:
+
+        chaos : float or PyoObject, optional
+            Randomization factor, 0.0 < chaos < 1.0. Defaults to 0.6.
+        freq : float or PyoObject, optional
+            Polling frequency. Defaults to 1.
+        init : float, optional
+            Initial value, 0.0 < init < 1.0. Defaults to 0.5.
+
+    .. note::
+
+        The method play() resets the internal state to the initial value.
+
+    >>> s = Server().boot()
+    >>> s.start()
+    >>> val = LogiMap([0.6,0.65], [4,8])
+    >>> mid = Round(Scale(val, 0, 1, [36,48], [72,84]))
+    >>> hz = Snap(mid, [0,2,4,5,7,9,11], 1)
+    >>> env = CosTable([(0,0), (32,1), (4064,1), (4096,0), (8192,0)])
+    >>> amp = TrigEnv(Change(val), table=env, dur=[.25,.125], mul=0.3)
+    >>> osc = RCOsc(hz, mul=amp).out()
+
+    """
+    def __init__(self, chaos=0.6, freq=1.0, init=0.5, mul=1, add=0):
+        pyoArgsAssert(self, "OOnOO", chaos, freq, init, mul, add)
+        PyoObject.__init__(self, mul, add)
+        self._chaos = chaos
+        self._freq = freq
+        chaos, freq, init, mul, add, lmax = convertArgsToLists(chaos, freq, init, mul, add)
+        self._base_objs = [LogiMap_base(wrap(chaos,i), wrap(freq,i), wrap(init,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+
+    def out(self, chnl=0, inc=1, dur=0, delay=0):
+        return self
+
+    def setChaos(self, x):
+        """
+        Replace the `chaos` attribute.
+
+        :Args:
+
+            x : float or PyoObject
+                new `chaos` attribute.
+
+        """
+        pyoArgsAssert(self, "O", x)
+        self._chaos = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setChaos(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def setFreq(self, x):
+        """
+        Replace the `freq` attribute.
+
+        :Args:
+
+            x : float or PyoObject
+                new `freq` attribute.
+
+        """
+        pyoArgsAssert(self, "O", x)
+        self._freq = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setFreq(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def ctrl(self, map_list=None, title=None, wxnoserver=False):
+        self._map_list = [SLMap(0.001, 0.999, 'lin', 'chaos', self._chaos),
+                          SLMap(0.1, 20., 'lin', 'freq', self._freq),
+                          SLMapMul(self._mul)]
+        PyoObject.ctrl(self, map_list, title, wxnoserver)
+
+    @property
+    def chaos(self):
+        """float or PyoObject. Randomization factor."""
+        return self._chaos
+    @chaos.setter
+    def chaos(self, x):
+        self.setChaos(x)
+    @property
+    def freq(self):
+        """float or PyoObject. Polling frequency."""
+        return self._freq
+    @freq.setter
+    def freq(self, x):
+        self.setFreq(x)
