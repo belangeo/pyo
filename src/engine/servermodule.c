@@ -1890,6 +1890,49 @@ Server_getEmbedICallbackAddr(Server *self)
     return PyString_FromString(address);
 }
 
+static PyObject *
+Server_getCurrentTime(Server *self)
+{
+    int hours, minutes, seconds, milliseconds;
+    float sr = self->samplingRate;
+    double sampsToSecs;
+    char curtime[20];
+
+    sampsToSecs = (double)(self->elapsedSamples / sr);
+    seconds = (int)sampsToSecs;
+    milliseconds = (int)((sampsToSecs - seconds) * 1000);
+    minutes = seconds / 60;
+    hours = minutes / 60;
+    minutes = minutes % 60;
+    seconds = seconds % 60;
+    sprintf(curtime, "%02d : %02d : %02d : %03d", hours, minutes, seconds, milliseconds);
+    return PyString_FromString(curtime);
+}
+
+static PyObject *
+Server_getCurrentAmp(Server *self)
+{
+    PyObject *amplist;
+    float rms[self->nchnls];
+    float *out = self->output_buffer;
+    float outAmp;
+    int i,j;
+    for (j=0; j<self->nchnls; j++) {
+        rms[j] = 0.0;
+        for (i=0; i<self->bufferSize; i++) {
+            outAmp = out[(i*self->nchnls)+j];
+            outAmp *= outAmp;
+            if (outAmp > rms[j])
+                rms[j] = outAmp;
+        }
+    }
+    amplist = PyTuple_New(self->nchnls);
+    for (i=0; i<self->nchnls; i++) {
+        PyTuple_SET_ITEM(amplist, i, PyFloat_FromDouble(rms[i]));
+    }
+    return amplist;
+}
+
 static PyMethodDef Server_methods[] = {
     {"setInputDevice", (PyCFunction)Server_setInputDevice, METH_O, "Sets audio input device."},
     {"setOutputDevice", (PyCFunction)Server_setOutputDevice, METH_O, "Sets audio output device."},
@@ -1953,6 +1996,8 @@ static PyMethodDef Server_methods[] = {
     {"getServerID", (PyCFunction)Server_getServerID, METH_NOARGS, "Get the embedded device server memory address"},
     {"getServerAddr", (PyCFunction)Server_getServerAddr, METH_NOARGS, "Get the embedded device server memory address"},
     {"getEmbedICallbackAddr", (PyCFunction)Server_getEmbedICallbackAddr, METH_NOARGS, "Get the embedded device interleaved callback method memory address"},
+    {"getCurrentTime", (PyCFunction)Server_getCurrentTime, METH_NOARGS, "Get the current time as a formatted string."},
+    {"getCurrentAmp", (PyCFunction)Server_getCurrentAmp, METH_NOARGS, "Get the current global amplitudes as a list of floats."},
     {NULL}  /* Sentinel */
 };
 

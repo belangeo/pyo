@@ -574,6 +574,7 @@ class VuMeter(wx.Panel):
         wx.CallAfter(self.parent.Refresh)
 
     def setRms(self, *args):
+        print args
         if args[0] < 0:
             return
         if not args:
@@ -1540,7 +1541,7 @@ class SpectrumPanel(wx.Panel):
 
     def setImage(self, points):
         self.img = [points[i] for i in range(len(points))]
-        self.Refresh()
+        wx.CallAfter(self.Refresh)
 
     def setFscaling(self, x):
         self.fscaling = x
@@ -1796,7 +1797,7 @@ class ScopePanel(wx.Panel):
 
     def setImage(self, points):
         self.img = points
-        self.Refresh()
+        wx.CallAfter(self.Refresh)
 
     def OnPaint(self, evt):
         w,h = self.GetSize()
@@ -2909,7 +2910,7 @@ class ServerGUI(wx.Frame):
             self.shutdown()
         self.Destroy()
         if self.exit:
-            sys.exit()
+            wx.GetApp().ExitMainLoop()
 
     def getPrev(self):
         self.text.Clear()

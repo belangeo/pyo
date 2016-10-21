@@ -1046,6 +1046,18 @@ class Server(object):
         """
         return self._server.getEmbedICallbackAddr()
 
+    def getCurrentTime(self):
+        """
+        Return the current time as a formatted string.
+        """
+        return self._server.getCurrentTime()
+
+    def getCurrentAmp(self):
+        """
+        Return the current amplitudes as a tuple of `nchnls` length.
+        """
+        return self._server.getCurrentAmp()
+
     @property
     def amp(self):
         """float. Overall amplitude."""
