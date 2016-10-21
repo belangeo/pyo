@@ -574,7 +574,6 @@ class VuMeter(wx.Panel):
         wx.CallAfter(self.parent.Refresh)
 
     def setRms(self, *args):
-        print args
         if args[0] < 0:
             return
         if not args:
