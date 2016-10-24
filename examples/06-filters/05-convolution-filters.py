@@ -11,10 +11,10 @@ response (kernel) length.
 Within pyo, there is a family of IR* filter objects using 
 circular convolution with predefined kernel:
 
-    IRAverage : moving average filter
-    IRFM : FM-like filter
-    IRPulse : comb-like filter
-    IRWinSinc : break wall filters (lp, hp, hp, br)
+- IRAverage : moving average filter  
+- IRFM : FM-like filter  
+- IRPulse : comb-like filter  
+- RWinSinc : break wall filters (lp, hp, hp, br)
     
 For general circular convolution, use the Convolve object
 with a PyoTableObject as the kernel, as in this example:

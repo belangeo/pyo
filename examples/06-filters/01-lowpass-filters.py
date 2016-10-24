@@ -4,9 +4,9 @@
 For this first example about filtering, we compare the frequency 
 spectrum of three common lowpass filters. 
 
-Tone : IIR first-order lowpass
-ButLP : IIR second-order lowpass (Butterworth)
-MoogLP : IIR fourth-order lowpass (+ resonance as an extra parameter) 
+- Tone : IIR first-order lowpass
+- ButLP : IIR second-order lowpass (Butterworth)
+- MoogLP : IIR fourth-order lowpass (+ resonance as an extra parameter) 
  
 Complementary highpass filters for the Tone and ButLP objects are Atone
 and ButHP. Another common highpass filter is the DCBlock object, which 

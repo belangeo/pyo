@@ -110,6 +110,7 @@ Alphabetical class reference
 - :py:class:`Log2` :     Performs a base 2 log function on audio signal.
 - :py:class:`LogTable` :     Construct a table from logarithmic segments in breakpoint fashion.
 - :py:class:`Log` :     Performs a natural log function on audio signal.
+- :py:class:`LogiMap` :     Random generator based on the logistic map.
 - :py:class:`Lookup` :     Uses table to do waveshaping on an audio signal.
 - :py:class:`Looper` :     Crossfading looper.
 - :py:class:`Lorenz` :     Chaotic attractor for the Lorenz system.

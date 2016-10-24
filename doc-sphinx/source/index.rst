@@ -22,6 +22,7 @@ Parts of the documentation
    compiling
    structure
    gettingstarted
+   perftips
    api/index
 
 Examples
@@ -34,6 +35,8 @@ Examples
    Parameter control <examples/02-controls/index>
    Synthesis generators <examples/03-generators/index>
    Playing with soundfiles <examples/04-soundfiles/index>
+   Amplitude envelopes <examples/05-envelopes/index>
+   Filtering <examples/06-filters/index>
 
 Much more to come... Stay tuned!
 

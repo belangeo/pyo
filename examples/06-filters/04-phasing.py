@@ -4,14 +4,12 @@
 The Phaser object implements a variable number of second-order 
 allpass filters, allowing to quickly build complex phasing effects.
 
-```
-A phaser is an electronic sound processor used to filter a signal 
-by creating a series of peaks and troughs in the frequency spectrum. 
-The position of the peaks and troughs of the waveform being affected 
-is typically modulated so that they vary over time, creating a sweeping 
-effect. For this purpose, phasers usually include a low-frequency 
-oscillator.
-``` - https://en.wikipedia.org/wiki/Phaser_(effect)
+    A phaser is an electronic sound processor used to filter a signal 
+    by creating a series of peaks and troughs in the frequency spectrum. 
+    The position of the peaks and troughs of the waveform being affected 
+    is typically modulated so that they vary over time, creating a sweeping 
+    effect. For this purpose, phasers usually include a low-frequency 
+    oscillator. - https://en.wikipedia.org/wiki/Phaser_(effect)
 
 A phase shifter unit can be built from scratch with the Allpass2 object,
 which implement a second-order allpass filter that create, when added to 
