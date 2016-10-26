@@ -31,8 +31,8 @@ on multiple processors. From the python docs:
   programmer to fully leverage multiple processors on a given machine.
   It runs on both Unix and Windows.
 
-Here is a little example of using the multiprocessing module to spawn a lot of sine
-wave computations to multiple processors.
+Here is a little example of using the multiprocessing module to spawn a lot of 
+sine wave computations to multiple processors.
 
 .. code-block:: python
 
@@ -74,15 +74,19 @@ wave computations to multiple processors.
 Pyo tips
 --------
 
-Here is a list of tips specific to pyo that you should consider when trying to reduce the
-CPU consumption of your audio program.
+Here is a list of tips specific to pyo that you should consider when trying to 
+reduce the CPU consumption of your audio program.
 
 Mix down before applying effects
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-It is very easy to over-saturate the CPU with pyo, especially if you use the multi-channel expansion feature. If your final output uses less channels than the number of audio streams in an object, don't forget to mix it down (call its `mix()` method) before applying effects on the sum of the signals.
+It is very easy to over-saturate the CPU with pyo, especially if you use the 
+multi-channel expansion feature. If your final output uses less channels than 
+the number of audio streams in an object, don't forget to mix it down (call 
+its `mix()` method) before applying effects on the sum of the signals.
 
-Consider the following snippet, which create a chorus of 50 oscillators and apply a phasing effect on the resulting sound:
+Consider the following snippet, which create a chorus of 50 oscillators and 
+apply a phasing effect on the resulting sound:
 
 .. code-block:: python
 
@@ -92,7 +96,11 @@ Consider the following snippet, which create a chorus of 50 oscillators and appl
     phs = Phaser(src, freq=lfo, q=20, feedback=0.95).out()
 
 
-This version uses around 47% of the CPU on my Thinkpad T430, i5 3320M @ 2.6GHz. The problem is that the 50 oscillators given in input of the Phaser object creates 50 identical Phaser objects, one for each oscillator. That is a big waste of CPU. The next version mixes the oscillators into a stereo stream before applying the effect and the CPU consumption drops to ~7% ! 
+This version uses around 47% of the CPU on my Thinkpad T430, i5 3320M @ 2.6GHz. 
+The problem is that the 50 oscillators given in input of the Phaser object 
+creates 50 identical Phaser objects, one for each oscillator. That is a big 
+waste of CPU. The next version mixes the oscillators into a stereo stream 
+before applying the effect and the CPU consumption drops to ~7% ! 
 
 .. code-block:: python
 
@@ -102,12 +110,17 @@ This version uses around 47% of the CPU on my Thinkpad T430, i5 3320M @ 2.6GHz. 
     phs = Phaser(src.mix(2), freq=lfo, q=20, feedback=0.95).out()
 
 
-When costly effects are involved, this can have a very drastic impact on the CPU usage.
+When costly effects are involved, this can have a very drastic impact on the 
+CPU usage.
 
 Stop your unused audio objects
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Whenever you don't use an audio object (but you want to keep it for future uses), call its `stop()` method. This will inform the server to remove it from the computation loop. Setting the volume to 0 does not save CPU (everything is computed then multiplied by 0), the `stop()` method does. My own synth classes often looks like something like this:
+Whenever you don't use an audio object (but you want to keep it for future 
+uses), call its `stop()` method. This will inform the server to remove it from 
+the computation loop. Setting the volume to 0 does not save CPU (everything is 
+computed then multiplied by 0), the `stop()` method does. My own synth classes 
+often looks like something like this:
 
 .. code-block:: python
 
@@ -135,7 +148,10 @@ Whenever you don't use an audio object (but you want to keep it for future uses)
 Control attribute with numbers instead of PyoObjects
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Objects internal processing functions are optimized when plain numbers are given to their attributes. Unless you really need audio control over some parameters, don't waste CPU cycles and give fixed numbers to every attribute that don't need to change over time. See this comparison:
+Objects internal processing functions are optimized when plain numbers are 
+given to their attributes. Unless you really need audio control over some 
+parameters, don't waste CPU cycles and give fixed numbers to every attribute 
+that don't need to change over time. See this comparison:
 
 .. code-block:: python
 
@@ -149,7 +165,9 @@ Objects internal processing functions are optimized when plain numbers are given
     p2 = Phaser(n, freq=[100,105], spread=Sig(1.2), q=10, 
                 feedback=0.9, num=48).out()
 
-Making the `spread` attribute of `p2` an audio signal causes the frequency of the 48 notches to be recalculated every sample, which can be a very costly process.
+Making the `spread` attribute of `p2` an audio signal causes the frequency of 
+the 48 notches to be recalculated every sample, which can be a very costly 
+process.
 
 Check for denormal numbers
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -162,7 +180,12 @@ From wikipedia:
   than the smallest normal number is 'subnormal'.
 
 The problem is that some processors compute denormal numbers very
-slowly, which makes grow the CPU consumption very quickly. The solution is to wrap the objects that are subject to denormals (any object with an internal recursive delay line, ie. filters, delays, reverbs, harmonizers, etc.) in a Denorm() object. Denorm() adds a little amount of noise, with a magnitude just above the smallest normal number, to its input. Of course, you can use the same noise for multiple denormalizations:
+slowly, which makes grow the CPU consumption very quickly. The solution is to 
+wrap the objects that are subject to denormals (any object with an internal 
+recursive delay line, ie. filters, delays, reverbs, harmonizers, etc.) in a 
+`Denorm` object. `Denorm` adds a little amount of noise, with a magnitude 
+just above the smallest normal number, to its input. Of course, you can use 
+the same noise for multiple denormalizations:
 
 .. code-block:: python
 
@@ -175,9 +198,11 @@ slowly, which makes grow the CPU consumption very quickly. The solution is to wr
 Use a PyoObject when available
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Always look first if a PyoObject does what you want, it will always more efficient than a the same process written from scratch.
+Always look first if a PyoObject does what you want, it will always more 
+efficient than a the same process written from scratch.
 
-This construct, although pedagogically valid, will never be more efficient, in term of CPU and memory usage, than a native PyoObject (Phaser) written in C.
+This construct, although pedagogically valid, will never be more efficient, in 
+term of CPU and memory usage, than a native PyoObject (Phaser) written in C.
 
 .. code-block:: python
 
@@ -190,12 +215,15 @@ This construct, although pedagogically valid, will never be more efficient, in t
         filter = Allpass2(a, freq=lfo*freq, bw=freq/2, mul=0.2).out()
         filters.append(filter)
 
-It is also more efficient to use `Biquadx(stages=4)` than a cascade of four `Biquad` objects with identical arguments.
+It is also more efficient to use `Biquadx(stages=4)` than a cascade of four 
+`Biquad` objects with identical arguments.
 
 Avoid trigonometric computation
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Avoid trigonometric functions computed at audio rate (`Sin`, `Cos`, `Tan`, `Atan2`, etc.), use simple approximations instead. For example, you can replace a clean `Sin/Cos` panning function with a cheaper one based on `Sqrt`:
+Avoid trigonometric functions computed at audio rate (`Sin`, `Cos`, `Tan`, 
+`Atan2`, etc.), use simple approximations instead. For example, you can 
+replace a clean `Sin/Cos` panning function with a cheaper one based on `Sqrt`:
 
 .. code-block:: python
 
@@ -214,12 +242,17 @@ Avoid trigonometric functions computed at audio rate (`Sin`, `Cos`, `Tan`, `Atan
 Use approximations if absolute precision is not needed
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-When absolute precision is not really important, you can save precious CPU cycles by using approximations instead of the real function. `FastSine` is an approximation of the `sin` function that can be almost twice cheaper than a lookup table (Sine). I plan to add more approximations like this one in the future.
+When absolute precision is not really important, you can save precious CPU 
+cycles by using approximations instead of the real function. `FastSine` is an 
+approximation of the `sin` function that can be almost twice cheaper than a 
+lookup table (Sine). I plan to add more approximations like this one in the 
+future.
 
 Re-use your generators
 ^^^^^^^^^^^^^^^^^^^^^^
 
-Some times it possible to use the same signal for parallel purposes. Let's study the next process:
+Some times it possible to use the same signal for parallel purposes. Let's 
+study the next process:
 
 .. code-block:: python
 
@@ -237,12 +270,20 @@ Some times it possible to use the same signal for parallel purposes. Let's study
     src = ButLP(source, freq=1000, mul=env)
     wg = Waveguide(src+denorm, freq=100*jitter, dur=30).out()
 
-Here the same white noise is used for three purposes at the same time. First, it is used to generate a denormal signal. Then, it is used to generate a little jitter applied to the frequency of the waveguide (that adds a little buzz to the string sound) and finally, we use it as the excitation of the waveguide. This is surely cheaper than generating three different white noises without noticeable difference in the sound.
+Here the same white noise is used for three purposes at the same time. First, 
+it is used to generate a denormal signal. Then, it is used to generate a 
+little jitter applied to the frequency of the waveguide (that adds a little 
+buzz to the string sound) and finally, we use it as the excitation of the 
+waveguide. This is surely cheaper than generating three different white noises 
+without noticeable difference in the sound.
 
 Leave 'mul' and 'add' attributes to their defaults when possible
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-There is an internal condition that bypass the object "post-processing" function when `mul=1` and `add=0`. It is a good practice to apply amplitude control in one place instead of messing with the `mul` attribute of each objects.
+There is an internal condition that bypass the object "post-processing" 
+function when `mul=1` and `add=0`. It is a good practice to apply amplitude 
+control in one place instead of messing with the `mul` attribute of each 
+objects.
 
 .. code-block:: python
 
@@ -263,7 +304,11 @@ There is an internal condition that bypass the object "post-processing" function
 Avoid graphical updates
 ^^^^^^^^^^^^^^^^^^^^^^^
 
-Even if they run in different threads, with different priorities, the audio callback and the graphical interface of a python program are parts of a unique process, sharing the same CPU. Don't use the Server's GUI if you don't need to see the meters or use the volume slider. Instead, you could start the script from command line with `-i` flag to leave the interpreter alive.
+Even if they run in different threads, with different priorities, the audio 
+callback and the graphical interface of a python program are parts of a unique 
+process, sharing the same CPU. Don't use the Server's GUI if you don't need to 
+see the meters or use the volume slider. Instead, you could start the script 
+from command line with `-i` flag to leave the interpreter alive.
 
 .. code-block:: bash
 

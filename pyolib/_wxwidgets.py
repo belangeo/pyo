@@ -1787,6 +1787,7 @@ class ScopePanel(wx.Panel):
             self.obj.setHeight(size[1])
         except:
             pass
+        wx.CallAfter(self.Refresh)
 
     def setGain(self, gain):
         self.gain = gain

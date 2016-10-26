@@ -5535,7 +5535,7 @@ class PreferencesDialog(wx.Dialog):
         if preferedDriver and preferedDriver in driverList:
             driverIndex = driverIndexes[driverList.index(preferedDriver)]
             self.popupInDriver.SetStringSelection(preferedDriver)
-        elif defaultDriver:
+        elif defaultDriver >= 0:
             self.popupInDriver.SetSelection(driverIndexes.index(defaultDriver))
 
         preferedDriver = PREFERENCES.get("background_server_out_device", "")
@@ -5547,7 +5547,7 @@ class PreferencesDialog(wx.Dialog):
         if preferedDriver and preferedDriver in driverList:
             driverIndex = driverIndexes[driverList.index(preferedDriver)]
             self.popupOutDriver.SetStringSelection(preferedDriver)
-        elif defaultDriver:
+        elif defaultDriver >= 0:
             self.popupOutDriver.SetSelection(driverIndexes.index(defaultDriver))
 
         # TODO: Added "all" interfaces option in input and output
