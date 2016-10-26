@@ -323,6 +323,7 @@ extern PyTypeObject IRAverageType;
 extern PyTypeObject IRFMType;
 extern PyTypeObject GranulatorType;
 extern PyTypeObject LooperType;
+extern PyTypeObject LooperTimeStreamType;
 extern PyTypeObject HarmonizerType;
 extern PyTypeObject MidictlType;
 extern PyTypeObject CtlScanType;

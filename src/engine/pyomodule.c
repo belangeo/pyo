@@ -2130,6 +2130,7 @@ init_pyo64(void)
     module_add_object(m, "IRFM_base", &IRFMType);
     module_add_object(m, "Granulator_base", &GranulatorType);
     module_add_object(m, "Looper_base", &LooperType);
+    module_add_object(m, "LooperTimeStream_base", &LooperTimeStreamType);
     module_add_object(m, "Harmonizer_base", &HarmonizerType);
     module_add_object(m, "Print_base", &PrintType);
     module_add_object(m, "M_Sin_base", &M_SinType);

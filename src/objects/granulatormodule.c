@@ -1096,6 +1096,7 @@ typedef struct {
     Stream *xfade_stream;
     MYFLT *trigsBuffer;
     TriggerStream *trig_stream;
+    MYFLT *time_buffer;
     int xfadeshape;
     int startfromloop;
     int init;
@@ -1103,6 +1104,7 @@ typedef struct {
     int tmpmode;
     int direction[2];
     double pointerPos[2];
+    double loopDuration;
     int active[2];
     long loopstart[2];
     long loopend[2];
@@ -1187,6 +1189,7 @@ Looper_reset(Looper *self, int x, int which, int init) {
                 self->maxfadepoint[which] = self->loopend[which] - self->crossfadedur[which];
                 self->pointerPos[which] = self->loopstart[which];
             }
+            self->loopDuration = self->maxfadepoint[which] - self->loopstart[which];
             break;
         case 1:
             self->loopstart[which] = (long)(start * tableSr);
@@ -1205,6 +1208,7 @@ Looper_reset(Looper *self, int x, int which, int init) {
                 self->maxfadepoint[which] = self->loopend[which] - self->crossfadedur[which];
                 self->pointerPos[which] = self->loopstart[which];
             }
+            self->loopDuration = self->maxfadepoint[which] - self->loopstart[which];
             break;
         case 2:
             self->loopstart[which] = (long)((start + dur) * tableSr);
@@ -1223,9 +1227,10 @@ Looper_reset(Looper *self, int x, int which, int init) {
                 self->maxfadepoint[which] = self->loopend[which] + self->crossfadedur[which];
                 self->pointerPos[which] = self->loopstart[which];
             }
+            self->loopDuration = self->loopstart[which] - self->maxfadepoint[which];
             break;
         case 3:
-            if (self->direction[1-which] == 0) {
+            if (self->direction[1-which] == 0 && init == 0) {
                 self->direction[which] = 1;
                 self->loopstart[which] = (long)((start + dur) * tableSr);
                 self->loopend[which] = (long)(start * tableSr);
@@ -1236,6 +1241,7 @@ Looper_reset(Looper *self, int x, int which, int init) {
                 self->minfadepoint[which] = self->loopstart[which] - self->crossfadedur[which];
                 self->maxfadepoint[which] = self->loopend[which] + self->crossfadedur[which];
                 self->pointerPos[which] = self->loopstart[which];
+                self->loopDuration = self->loopstart[which] - self->maxfadepoint[which];
             }
             else {
                 self->direction[which] = 0;
@@ -1255,6 +1261,7 @@ Looper_reset(Looper *self, int x, int which, int init) {
                     self->maxfadepoint[which] = self->loopend[which] - self->crossfadedur[which];
                     self->pointerPos[which] = self->loopstart[which];
                 }
+                self->loopDuration = self->maxfadepoint[which] - self->loopstart[which];
             }
             break;
     }
@@ -1271,7 +1278,7 @@ static void
 Looper_transform_i(Looper *self) {
     MYFLT fpart, amp, fr;
     double pit;
-    int i, j, ipart;
+    int i, j, k, ipart;
 
     MYFLT *tablelist = TableStream_getData(self->table);
     int size = TableStream_getSize(self->table);
@@ -1313,11 +1320,21 @@ Looper_transform_i(Looper *self) {
                             self->data[i] += (*self->interp_func_ptr)(tablelist, ipart, fpart, size) * amp;
                         }
                         self->pointerPos[j] += pit;
-                        if (self->pointerPos[j] < 0.0)
-                            self->pointerPos[j] = 0.0;
+                        if (self->pointerPos[j] < 0.0) {
+                            self->pointerPos[j] = self->time_buffer[i] = 0.0;
+                        }
+                        else if (self->pointerPos[j] <= self->maxfadepoint[j]) {
+                            self->time_buffer[i] = (self->pointerPos[j] - self->loopstart[j]) / self->loopDuration;
+                        }
                         else if (self->pointerPos[j] >= self->loopend[j]) {
                             self->active[j] = 0;
+                            for (k=0; k < self->bufsize; k++) {
+                                self->time_buffer[k] = 0.0;
+                            }
                             PyObject_CallMethod((PyObject *)self, "stop", NULL);
+                        }
+                        else {
+                            self->time_buffer[i] = 1.0;
                         }
                         break;
                     case 1:
@@ -1337,8 +1354,12 @@ Looper_transform_i(Looper *self) {
                             self->data[i] += (*self->interp_func_ptr)(tablelist, ipart, fpart, size) * amp;
                         }
                         self->pointerPos[j] += pit;
-                        if (self->pointerPos[j] < 0.0)
-                            self->pointerPos[j] = 0.0;
+                        if (self->pointerPos[j] < 0.0) {
+                            self->pointerPos[j] = self->time_buffer[i] = 0.0;
+                        }
+                        else if (self->pointerPos[j] <= self->maxfadepoint[j]) {
+                            self->time_buffer[i] = (self->pointerPos[j] - self->loopstart[j]) / self->loopDuration;
+                        }
                         else if (self->pointerPos[j] > self->maxfadepoint[j] && self->active[1-j] == 0)
                             Looper_reset(self, i, 1-j, 0);
                         if (self->pointerPos[j] >= self->loopend[j])
@@ -1361,8 +1382,13 @@ Looper_transform_i(Looper *self) {
                             self->data[i] += (*self->interp_func_ptr)(tablelist, ipart, fpart, size) * amp;
                         }
                         self->pointerPos[j] -= pit;
-                        if (self->pointerPos[j] >= size)
+                        if (self->pointerPos[j] >= size) {
                             self->pointerPos[j] = size-1;
+                            self->time_buffer[i] = 0.0;
+                        }
+                        else if (self->pointerPos[j] >= self->maxfadepoint[j]) {
+                            self->time_buffer[i] = (self->loopstart[j] - self->pointerPos[j]) / self->loopDuration;
+                        }
                         else if (self->pointerPos[j] < self->maxfadepoint[j] && self->active[1-j] == 0)
                             Looper_reset(self, i, 1-j, 0);
                         if (self->pointerPos[j] <= self->loopend[j])
@@ -1386,8 +1412,12 @@ Looper_transform_i(Looper *self) {
                                 self->data[i] += (*self->interp_func_ptr)(tablelist, ipart, fpart, size) * amp;
                             }
                             self->pointerPos[j] += pit;
-                            if (self->pointerPos[j] < 0.0)
-                                self->pointerPos[j] = 0.0;
+                            if (self->pointerPos[j] < 0.0) {
+                                self->pointerPos[j] = self->time_buffer[i] = 0.0;
+                            }
+                            else if (self->pointerPos[j] <= self->maxfadepoint[j]) {
+                                self->time_buffer[i] = (self->pointerPos[j] - self->loopstart[j]) / self->loopDuration;
+                            }
                             else if (self->pointerPos[j] > self->maxfadepoint[j] && self->active[1-j] == 0)
                                 Looper_reset(self, i, 1-j, 0);
                             if (self->pointerPos[j] >= self->loopend[j])
@@ -1410,8 +1440,13 @@ Looper_transform_i(Looper *self) {
                                 self->data[i] += (*self->interp_func_ptr)(tablelist, ipart, fpart, size) * amp;
                             }
                             self->pointerPos[j] -= pit;
-                            if (self->pointerPos[j] >= size)
+                            if (self->pointerPos[j] >= size) {
                                 self->pointerPos[j] = size-1;
+                                self->time_buffer[i] = 0.0;
+                            }
+                            else if (self->pointerPos[j] >= self->maxfadepoint[j]) {
+                                self->time_buffer[i] = (self->loopstart[j] - self->pointerPos[j]) / self->loopDuration;
+                            }
                             else if (self->pointerPos[j] < self->maxfadepoint[j] && self->active[1-j] == 0)
                                 Looper_reset(self, i, 1-j, 0);
                             if (self->pointerPos[j] <= self->loopend[j])
@@ -1444,7 +1479,7 @@ static void
 Looper_transform_a(Looper *self) {
     MYFLT fpart, amp, fr, pitval;
     double pit, srFactor;
-    int i, j, ipart;
+    int i, j, k, ipart;
 
     MYFLT *tablelist = TableStream_getData(self->table);
     int size = TableStream_getSize(self->table);
@@ -1488,10 +1523,17 @@ Looper_transform_a(Looper *self) {
                             self->data[i] += (*self->interp_func_ptr)(tablelist, ipart, fpart, size) * amp;
                         }
                         self->pointerPos[j] += pit;
-                        if (self->pointerPos[j] < 0.0)
-                            self->pointerPos[j] = 0.0;
+                        if (self->pointerPos[j] < 0.0) {
+                            self->pointerPos[j] = self->time_buffer[i] = 0.0;
+                        }
+                        else if (self->pointerPos[j] <= self->maxfadepoint[j]) {
+                            self->time_buffer[i] = (self->pointerPos[j] - self->loopstart[j]) / self->loopDuration;
+                        }
                         else if (self->pointerPos[j] >= self->loopend[j]) {
                             self->active[j] = 0;
+                            for (k=0; k < self->bufsize; k++) {
+                                self->time_buffer[k] = 0.0;
+                            }
                             PyObject_CallMethod((PyObject *)self, "stop", NULL);
                         }
                         break;
@@ -1512,8 +1554,12 @@ Looper_transform_a(Looper *self) {
                             self->data[i] += (*self->interp_func_ptr)(tablelist, ipart, fpart, size) * amp;
                         }
                         self->pointerPos[j] += pit;
-                        if (self->pointerPos[j] < 0.0)
-                            self->pointerPos[j] = 0.0;
+                        if (self->pointerPos[j] < 0.0) {
+                            self->pointerPos[j] = self->time_buffer[i] = 0.0;
+                        }
+                        else if (self->pointerPos[j] <= self->maxfadepoint[j]) {
+                            self->time_buffer[i] = (self->pointerPos[j] - self->loopstart[j]) / self->loopDuration;
+                        }
                         else if (self->pointerPos[j] > self->maxfadepoint[j] && self->active[1-j] == 0)
                             Looper_reset(self, i, 1-j, 0);
                         if (self->pointerPos[j] >= self->loopend[j])
@@ -1536,8 +1582,13 @@ Looper_transform_a(Looper *self) {
                             self->data[i] += (*self->interp_func_ptr)(tablelist, ipart, fpart, size) * amp;
                         }
                         self->pointerPos[j] -= pit;
-                        if (self->pointerPos[j] >= size)
+                        if (self->pointerPos[j] >= size) {
                             self->pointerPos[j] = size-1;
+                            self->time_buffer[i] = 0.0;
+                        }
+                        else if (self->pointerPos[j] >= self->maxfadepoint[j]) {
+                            self->time_buffer[i] = (self->loopstart[j] - self->pointerPos[j]) / self->loopDuration;
+                        }
                         else if (self->pointerPos[j] < self->maxfadepoint[j] && self->active[1-j] == 0)
                             Looper_reset(self, i, 1-j, 0);
                         if (self->pointerPos[j] <= self->loopend[j])
@@ -1561,8 +1612,12 @@ Looper_transform_a(Looper *self) {
                                 self->data[i] += (*self->interp_func_ptr)(tablelist, ipart, fpart, size) * amp;
                             }
                             self->pointerPos[j] += pit;
-                            if (self->pointerPos[j] < 0.0)
-                                self->pointerPos[j] = 0.0;
+                            if (self->pointerPos[j] < 0.0) {
+                                self->pointerPos[j] = self->time_buffer[i] = 0.0;
+                            }
+                            else if (self->pointerPos[j] <= self->maxfadepoint[j]) {
+                                self->time_buffer[i] = (self->pointerPos[j] - self->loopstart[j]) / self->loopDuration;
+                            }
                             else if (self->pointerPos[j] > self->maxfadepoint[j] && self->active[1-j] == 0)
                                 Looper_reset(self, i, 1-j, 0);
                             if (self->pointerPos[j] >= self->loopend[j])
@@ -1585,8 +1640,13 @@ Looper_transform_a(Looper *self) {
                                 self->data[i] += (*self->interp_func_ptr)(tablelist, ipart, fpart, size) * amp;
                             }
                             self->pointerPos[j] -= pit;
-                            if (self->pointerPos[j] >= size)
+                            if (self->pointerPos[j] >= size) {
                                 self->pointerPos[j] = size-1;
+                                self->time_buffer[i] = 0.0;
+                            }
+                            else if (self->pointerPos[j] >= self->maxfadepoint[j]) {
+                                self->time_buffer[i] = (self->loopstart[j] - self->pointerPos[j]) / self->loopDuration;
+                            }
                             else if (self->pointerPos[j] < self->maxfadepoint[j] && self->active[1-j] == 0)
                                 Looper_reset(self, i, 1-j, 0);
                             if (self->pointerPos[j] <= self->loopend[j])
@@ -1681,6 +1741,11 @@ Looper_compute_next_data_frame(Looper *self)
     (*self->muladd_func_ptr)(self);
 }
 
+static MYFLT *
+Looper_getTimeBuffer(Looper *self) {
+    return self->time_buffer;
+}
+
 static int
 Looper_traverse(Looper *self, visitproc visit, void *arg)
 {
@@ -1720,6 +1785,7 @@ Looper_dealloc(Looper* self)
 {
     pyo_DEALLOC
     free(self->trigsBuffer);
+    free(self->time_buffer);
     Looper_clear(self);
     self->ob_type->tp_free((PyObject*)self);
 }
@@ -1746,6 +1812,7 @@ Looper_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->mode[0] = self->mode[1] = self->tmpmode = 1;
     self->direction[0] = self->direction[1] = 0;
     self->pointerPos[0] = self->pointerPos[1] = 0.0;
+    self->loopDuration = 0.0;
     self->active[0] = self->active[1] = 0;
 	self->modebuffer[0] = 0;
 	self->modebuffer[1] = 0;
@@ -1798,9 +1865,10 @@ Looper_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     (*self->mode_func_ptr)(self);
 
     self->trigsBuffer = (MYFLT *)realloc(self->trigsBuffer, self->bufsize * sizeof(MYFLT));
+    self->time_buffer = (MYFLT *)realloc(self->time_buffer, self->bufsize * sizeof(MYFLT));
 
     for (i=0; i<self->bufsize; i++) {
-        self->trigsBuffer[i] = 0.0;
+        self->trigsBuffer[i] = self->time_buffer[i] = 0.0;
     }
 
     MAKE_NEW_TRIGGER_STREAM(self->trig_stream, &TriggerStreamType, NULL);
@@ -2188,6 +2256,250 @@ PyTypeObject LooperType = {
     0,      /* tp_init */
     0,                         /* tp_alloc */
     Looper_new,                 /* tp_new */
+};
+
+typedef struct {
+    pyo_audio_HEAD
+    Looper *mainPlayer;
+    int modebuffer[2];
+} LooperTimeStream;
+
+static void LooperTimeStream_postprocessing_ii(LooperTimeStream *self) { POST_PROCESSING_II };
+static void LooperTimeStream_postprocessing_ai(LooperTimeStream *self) { POST_PROCESSING_AI };
+static void LooperTimeStream_postprocessing_ia(LooperTimeStream *self) { POST_PROCESSING_IA };
+static void LooperTimeStream_postprocessing_aa(LooperTimeStream *self) { POST_PROCESSING_AA };
+static void LooperTimeStream_postprocessing_ireva(LooperTimeStream *self) { POST_PROCESSING_IREVA };
+static void LooperTimeStream_postprocessing_areva(LooperTimeStream *self) { POST_PROCESSING_AREVA };
+static void LooperTimeStream_postprocessing_revai(LooperTimeStream *self) { POST_PROCESSING_REVAI };
+static void LooperTimeStream_postprocessing_revaa(LooperTimeStream *self) { POST_PROCESSING_REVAA };
+static void LooperTimeStream_postprocessing_revareva(LooperTimeStream *self) { POST_PROCESSING_REVAREVA };
+
+static void
+LooperTimeStream_setProcMode(LooperTimeStream *self) {
+    int muladdmode;
+    muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
+
+    switch (muladdmode) {
+        case 0:
+            self->muladd_func_ptr = LooperTimeStream_postprocessing_ii;
+            break;
+        case 1:
+            self->muladd_func_ptr = LooperTimeStream_postprocessing_ai;
+            break;
+        case 2:
+            self->muladd_func_ptr = LooperTimeStream_postprocessing_revai;
+            break;
+        case 10:
+            self->muladd_func_ptr = LooperTimeStream_postprocessing_ia;
+            break;
+        case 11:
+            self->muladd_func_ptr = LooperTimeStream_postprocessing_aa;
+            break;
+        case 12:
+            self->muladd_func_ptr = LooperTimeStream_postprocessing_revaa;
+            break;
+        case 20:
+            self->muladd_func_ptr = LooperTimeStream_postprocessing_ireva;
+            break;
+        case 21:
+            self->muladd_func_ptr = LooperTimeStream_postprocessing_areva;
+            break;
+        case 22:
+            self->muladd_func_ptr = LooperTimeStream_postprocessing_revareva;
+            break;
+    }
+}
+
+static void
+LooperTimeStream_compute_next_data_frame(LooperTimeStream *self)
+{
+    int i;
+    MYFLT *tmp;
+    tmp = Looper_getTimeBuffer((Looper *)self->mainPlayer);
+    for (i=0; i<self->bufsize; i++) {
+        self->data[i] = tmp[i];
+    }
+    (*self->muladd_func_ptr)(self);
+}
+
+static int
+LooperTimeStream_traverse(LooperTimeStream *self, visitproc visit, void *arg)
+{
+    pyo_VISIT
+    Py_VISIT(self->mainPlayer);
+    return 0;
+}
+
+static int
+LooperTimeStream_clear(LooperTimeStream *self)
+{
+    pyo_CLEAR
+    Py_CLEAR(self->mainPlayer);
+    return 0;
+}
+
+static void
+LooperTimeStream_dealloc(LooperTimeStream* self)
+{
+    pyo_DEALLOC
+    LooperTimeStream_clear(self);
+    self->ob_type->tp_free((PyObject*)self);
+}
+
+static PyObject *
+LooperTimeStream_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    int i;
+    PyObject *maintmp=NULL;
+    LooperTimeStream *self;
+    self = (LooperTimeStream *)type->tp_alloc(type, 0);
+
+    self->modebuffer[0] = 0;
+    self->modebuffer[1] = 0;
+
+    INIT_OBJECT_COMMON
+    Stream_setFunctionPtr(self->stream, LooperTimeStream_compute_next_data_frame);
+    self->mode_func_ptr = LooperTimeStream_setProcMode;
+
+    static char *kwlist[] = {"mainPlayer", NULL};
+
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O", kwlist, &maintmp))
+        Py_RETURN_NONE;
+
+    Py_XDECREF(self->mainPlayer);
+    Py_INCREF(maintmp);
+    self->mainPlayer = (Looper *)maintmp;
+
+    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+
+    (*self->mode_func_ptr)(self);
+
+    return (PyObject *)self;
+}
+
+static PyObject * LooperTimeStream_getServer(LooperTimeStream* self) { GET_SERVER };
+static PyObject * LooperTimeStream_getStream(LooperTimeStream* self) { GET_STREAM };
+static PyObject * LooperTimeStream_setMul(LooperTimeStream *self, PyObject *arg) { SET_MUL };
+static PyObject * LooperTimeStream_setAdd(LooperTimeStream *self, PyObject *arg) { SET_ADD };
+static PyObject * LooperTimeStream_setSub(LooperTimeStream *self, PyObject *arg) { SET_SUB };
+static PyObject * LooperTimeStream_setDiv(LooperTimeStream *self, PyObject *arg) { SET_DIV };
+
+static PyObject * LooperTimeStream_play(LooperTimeStream *self, PyObject *args, PyObject *kwds) { PLAY };
+static PyObject * LooperTimeStream_out(LooperTimeStream *self, PyObject *args, PyObject *kwds) { OUT };
+static PyObject * LooperTimeStream_stop(LooperTimeStream *self) { STOP };
+
+static PyObject * LooperTimeStream_multiply(LooperTimeStream *self, PyObject *arg) { MULTIPLY };
+static PyObject * LooperTimeStream_inplace_multiply(LooperTimeStream *self, PyObject *arg) { INPLACE_MULTIPLY };
+static PyObject * LooperTimeStream_add(LooperTimeStream *self, PyObject *arg) { ADD };
+static PyObject * LooperTimeStream_inplace_add(LooperTimeStream *self, PyObject *arg) { INPLACE_ADD };
+static PyObject * LooperTimeStream_sub(LooperTimeStream *self, PyObject *arg) { SUB };
+static PyObject * LooperTimeStream_inplace_sub(LooperTimeStream *self, PyObject *arg) { INPLACE_SUB };
+static PyObject * LooperTimeStream_div(LooperTimeStream *self, PyObject *arg) { DIV };
+static PyObject * LooperTimeStream_inplace_div(LooperTimeStream *self, PyObject *arg) { INPLACE_DIV };
+
+static PyMemberDef LooperTimeStream_members[] = {
+    {"server", T_OBJECT_EX, offsetof(LooperTimeStream, server), 0, "Pyo server."},
+    {"stream", T_OBJECT_EX, offsetof(LooperTimeStream, stream), 0, "Stream object."},
+    {"mul", T_OBJECT_EX, offsetof(LooperTimeStream, mul), 0, "Mul factor."},
+    {"add", T_OBJECT_EX, offsetof(LooperTimeStream, add), 0, "Add factor."},
+    {NULL}  /* Sentinel */
+};
+
+static PyMethodDef LooperTimeStream_methods[] = {
+    {"getServer", (PyCFunction)LooperTimeStream_getServer, METH_NOARGS, "Returns server object."},
+    {"_getStream", (PyCFunction)LooperTimeStream_getStream, METH_NOARGS, "Returns stream object."},
+    {"play", (PyCFunction)LooperTimeStream_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+    {"out", (PyCFunction)LooperTimeStream_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
+    {"stop", (PyCFunction)LooperTimeStream_stop, METH_NOARGS, "Stops computing."},
+    {"setMul", (PyCFunction)LooperTimeStream_setMul, METH_O, "Sets oscillator mul factor."},
+    {"setAdd", (PyCFunction)LooperTimeStream_setAdd, METH_O, "Sets oscillator add factor."},
+    {"setSub", (PyCFunction)LooperTimeStream_setSub, METH_O, "Sets inverse add factor."},
+    {"setDiv", (PyCFunction)LooperTimeStream_setDiv, METH_O, "Sets inverse mul factor."},
+    {NULL}  /* Sentinel */
+};
+
+static PyNumberMethods LooperTimeStream_as_number = {
+    (binaryfunc)LooperTimeStream_add,                         /*nb_add*/
+    (binaryfunc)LooperTimeStream_sub,                         /*nb_subtract*/
+    (binaryfunc)LooperTimeStream_multiply,                    /*nb_multiply*/
+    (binaryfunc)LooperTimeStream_div,                                              /*nb_divide*/
+    0,                                              /*nb_remainder*/
+    0,                                              /*nb_divmod*/
+    0,                                              /*nb_power*/
+    0,                                              /*nb_neg*/
+    0,                                              /*nb_pos*/
+    0,                                              /*(unaryfunc)array_abs,*/
+    0,                                              /*nb_nonzero*/
+    0,                                              /*nb_invert*/
+    0,                                              /*nb_lshift*/
+    0,                                              /*nb_rshift*/
+    0,                                              /*nb_and*/
+    0,                                              /*nb_xor*/
+    0,                                              /*nb_or*/
+    0,                                              /*nb_coerce*/
+    0,                                              /*nb_int*/
+    0,                                              /*nb_long*/
+    0,                                              /*nb_float*/
+    0,                                              /*nb_oct*/
+    0,                                              /*nb_hex*/
+    (binaryfunc)LooperTimeStream_inplace_add,                 /*inplace_add*/
+    (binaryfunc)LooperTimeStream_inplace_sub,                 /*inplace_subtract*/
+    (binaryfunc)LooperTimeStream_inplace_multiply,            /*inplace_multiply*/
+    (binaryfunc)LooperTimeStream_inplace_div,                                              /*inplace_divide*/
+    0,                                              /*inplace_remainder*/
+    0,                                              /*inplace_power*/
+    0,                                              /*inplace_lshift*/
+    0,                                              /*inplace_rshift*/
+    0,                                              /*inplace_and*/
+    0,                                              /*inplace_xor*/
+    0,                                              /*inplace_or*/
+    0,                                              /*nb_floor_divide*/
+    0,                                              /*nb_true_divide*/
+    0,                                              /*nb_inplace_floor_divide*/
+    0,                                              /*nb_inplace_true_divide*/
+    0,                                              /* nb_index */
+};
+
+PyTypeObject LooperTimeStreamType = {
+    PyObject_HEAD_INIT(NULL)
+    0,                         /*ob_size*/
+    "_pyo.LooperTimeStream_base",         /*tp_name*/
+    sizeof(LooperTimeStream),         /*tp_basicsize*/
+    0,                         /*tp_itemsize*/
+    (destructor)LooperTimeStream_dealloc, /*tp_dealloc*/
+    0,                         /*tp_print*/
+    0,                         /*tp_getattr*/
+    0,                         /*tp_setattr*/
+    0,                         /*tp_compare*/
+    0,                         /*tp_repr*/
+    &LooperTimeStream_as_number,             /*tp_as_number*/
+    0,                         /*tp_as_sequence*/
+    0,                         /*tp_as_mapping*/
+    0,                         /*tp_hash */
+    0,                         /*tp_call*/
+    0,                         /*tp_str*/
+    0,                         /*tp_getattro*/
+    0,                         /*tp_setattro*/
+    0,                         /*tp_as_buffer*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES,  /*tp_flags*/
+    "LooperTimeStream objects. Returns the current recording time, in samples, of a Looper object.",           /* tp_doc */
+    (traverseproc)LooperTimeStream_traverse,   /* tp_traverse */
+    (inquiry)LooperTimeStream_clear,           /* tp_clear */
+    0,		               /* tp_richcompare */
+    0,		               /* tp_weaklistoffset */
+    0,		               /* tp_iter */
+    0,		               /* tp_iternext */
+    LooperTimeStream_methods,             /* tp_methods */
+    LooperTimeStream_members,             /* tp_members */
+    0,                      /* tp_getset */
+    0,                         /* tp_base */
+    0,                         /* tp_dict */
+    0,                         /* tp_descr_get */
+    0,                         /* tp_descr_set */
+    0,                         /* tp_dictoffset */
+    0,      /* tp_init */
+    0,                         /* tp_alloc */
+    LooperTimeStream_new,                 /* tp_new */
 };
 
 static const MYFLT Granule_MAX_GRAINS = 4096;

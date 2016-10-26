@@ -2320,6 +2320,11 @@ class Looper(PyoObject):
         (i.e. when the object is activated and at the beginning of the crossfade
         of a loop. User can retrieve the trigger streams by calling obj['trig'].
 
+        Looper also outputs a time stream, given the current position of the
+        reading pointer, normalized between 0.0 and 1.0 (1.0 means the beginning 
+        of the crossfade), inside the loop. User can retrieve the trigger streams 
+        by calling obj['time']. New in version 0.8.1.
+
     .. seealso::
 
         :py:class:`Granulator`, :py:class:`Pointer`
@@ -2336,6 +2341,7 @@ class Looper(PyoObject):
     def __init__(self, table, pitch=1, start=0, dur=1., xfade=20, mode=1, xfadeshape=0, startfromloop=False, interp=2, autosmooth=False, mul=1, add=0):
         pyoArgsAssert(self, "tOOOOiibibOO", table, pitch, start, dur, xfade, mode, xfadeshape, startfromloop, interp, autosmooth, mul, add)
         PyoObject.__init__(self, mul, add)
+        self._time_dummy = []
         self._table = table
         self._pitch = pitch
         self._start = start
@@ -2351,6 +2357,13 @@ class Looper(PyoObject):
         self._base_objs = [Looper_base(wrap(table,i), wrap(pitch,i), wrap(start,i), wrap(dur,i), wrap(xfade,i), wrap(mode,i),
             wrap(xfadeshape,i), wrap(startfromloop,i), wrap(interp,i), wrap(autosmooth,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
         self._trig_objs = Dummy([TriggerDummy_base(obj) for obj in self._base_objs])
+        self._time_objs = [LooperTimeStream_base(obj) for obj in self._base_objs]
+
+    def __getitem__(self, i):
+        if i == 'time':
+            self._time_dummy.append(Dummy([obj for obj in self._time_objs]))
+            return self._time_dummy[-1]
+        return PyoObject.__getitem__(self, i)
 
     def setTable(self, x):
         """
