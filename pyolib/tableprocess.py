@@ -2522,6 +2522,13 @@ class Looper(PyoObject):
         """
         [obj.reset() for obj in self._base_objs]
 
+    def loopnow(self):
+        """
+        Sarts a new loop immediately.
+
+        """
+        [obj.loopnow() for obj in self._base_objs]
+
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
         self._map_list = [SLMap(0.1, 2., 'lin', 'pitch', self._pitch),
                           SLMap(0., self._table.getDur(), 'lin', 'start', self._start),

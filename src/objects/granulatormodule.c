@@ -1105,6 +1105,7 @@ typedef struct {
     int direction[2];
     double pointerPos[2];
     double loopDuration;
+    int current;
     int active[2];
     long loopstart[2];
     long loopend[2];
@@ -1123,8 +1124,35 @@ typedef struct {
     MYFLT y2;
     // variables
     MYFLT c1;
-
 } Looper;
+
+static void
+Looper_endloop(Looper *self) {
+    int which = self->current;
+    switch (self->mode[which]) {
+        case 0:
+            self->maxfadepoint[which] = self->pointerPos[which];
+            self->loopend[which] = self->maxfadepoint[which] + self->crossfadedur[which];
+            break;
+        case 1:
+            self->maxfadepoint[which] = self->pointerPos[which];
+            self->loopend[which] = self->maxfadepoint[which] + self->crossfadedur[which];
+            break;
+        case 2:
+            self->maxfadepoint[which] = self->pointerPos[which];
+            self->loopend[which] = self->maxfadepoint[which] - self->crossfadedur[which];
+            break;
+        case 3:
+            if (self->direction[which] == 0) {
+                self->maxfadepoint[which] = self->pointerPos[which];
+                self->loopend[which] = self->maxfadepoint[which] + self->crossfadedur[which];
+            } else {
+                self->maxfadepoint[which] = self->pointerPos[which];
+                self->loopend[which] = self->maxfadepoint[which] - self->crossfadedur[which];
+            }
+            break;
+    }
+}
 
 static void
 Looper_reset(Looper *self, int x, int which, int init) {
@@ -1165,6 +1193,8 @@ Looper_reset(Looper *self, int x, int which, int init) {
         self->fader = LOOPER_SIGMOID_FADE;
     else
         self->fader = LOOPER_LINEAR_FADE;
+
+    self->current = which;
 
     if (self->tmpmode != self->mode[which])
         self->mode[which] = self->tmpmode;
@@ -1813,7 +1843,7 @@ Looper_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->direction[0] = self->direction[1] = 0;
     self->pointerPos[0] = self->pointerPos[1] = 0.0;
     self->loopDuration = 0.0;
-    self->active[0] = self->active[1] = 0;
+    self->active[0] = self->active[1] = self->current = 0;
 	self->modebuffer[0] = 0;
 	self->modebuffer[1] = 0;
 	self->modebuffer[2] = 0;
@@ -2134,6 +2164,13 @@ Looper_on_reset(Looper *self) {
     return Py_None;
 };
 
+static PyObject *
+Looper_loopnow(Looper *self) {
+    Looper_endloop(self);
+    Py_INCREF(Py_None);
+    return Py_None;
+};
+
 static PyMemberDef Looper_members[] = {
     {"server", T_OBJECT_EX, offsetof(Looper, server), 0, "Pyo server."},
     {"stream", T_OBJECT_EX, offsetof(Looper, stream), 0, "Stream object."},
@@ -2167,6 +2204,7 @@ static PyMethodDef Looper_methods[] = {
     {"setInterp", (PyCFunction)Looper_setInterp, METH_O, "Sets oscillator interpolation mode."},
     {"setAutoSmooth", (PyCFunction)Looper_setAutoSmooth, METH_O, "Activate lowpass filter for transposition below 1."},
     {"reset", (PyCFunction)Looper_on_reset, METH_NOARGS, "Resets internal counters."},
+    {"loopnow", (PyCFunction)Looper_loopnow, METH_NOARGS, "Satrts a new loop immediately."},
 	{"setMul", (PyCFunction)Looper_setMul, METH_O, "Sets granulator mul factor."},
 	{"setAdd", (PyCFunction)Looper_setAdd, METH_O, "Sets granulator add factor."},
     {"setSub", (PyCFunction)Looper_setSub, METH_O, "Sets inverse add factor."},
