@@ -1118,6 +1118,8 @@ typedef struct {
     MYFLT (*interp_func_ptr)(MYFLT *, int, MYFLT, int);
     int modebuffer[6];
     int autosmooth;
+    int appendfade;
+    int fadeinseconds;
     MYFLT lastpitch;
     // sample memories
     MYFLT y1;
@@ -1180,6 +1182,10 @@ Looper_reset(Looper *self, int x, int which, int init) {
         start = (MYFLT)(size/tableSr);
     if (dur < 0.001)
         dur = 0.001;
+        
+    if (self->fadeinseconds == 1)
+        xfade = xfade / dur * 100.0;
+
     if (xfade < 0.0)
         xfade = 0.0;
     else if (xfade > 50.0)
@@ -1206,9 +1212,12 @@ Looper_reset(Looper *self, int x, int which, int init) {
         case 0:
             self->loopstart[which] = 0;
             self->loopend[which] = (long)size;
+            self->crossfadedur[which] = (long)((self->loopend[which] - self->loopstart[which]) * xfade * 0.01);
             if (self->crossfadedur[which] < 1)
                 self->crossfadedur[which] = 1;
             self->crossfadescaling[which] = 1.0 / self->crossfadedur[which] * 512.0;
+            if (self->appendfade == 1)
+                self->loopend[which] += self->crossfadedur[which];
             if (init == 1 && self->startfromloop == 0) {
                 self->minfadepoint[which] = self->crossfadedur[which];
                 self->maxfadepoint[which] = self->loopend[which] - self->crossfadedur[which];
@@ -1228,6 +1237,8 @@ Looper_reset(Looper *self, int x, int which, int init) {
             if (self->crossfadedur[which] < 1)
                 self->crossfadedur[which] = 1;
             self->crossfadescaling[which] = 1.0 / self->crossfadedur[which] * 512.0;
+            if (self->appendfade == 1)
+                self->loopend[which] += self->crossfadedur[which];
             if (init == 1 && self->startfromloop == 0) {
                 self->minfadepoint[which] = self->crossfadedur[which];
                 self->maxfadepoint[which] = self->loopend[which] - self->crossfadedur[which];
@@ -1247,6 +1258,8 @@ Looper_reset(Looper *self, int x, int which, int init) {
             if (self->crossfadedur[which] < 1)
                 self->crossfadedur[which] = 1;
             self->crossfadescaling[which] = 1.0 / self->crossfadedur[which] * 512.0;
+            if (self->appendfade == 1)
+                self->loopend[which] -= self->crossfadedur[which];
             if (init == 1 && self->startfromloop == 0) {
                 self->minfadepoint[which] = size - self->crossfadedur[which];
                 self->maxfadepoint[which] = self->loopend[which] + self->crossfadedur[which];
@@ -1268,6 +1281,8 @@ Looper_reset(Looper *self, int x, int which, int init) {
                 if (self->crossfadedur[which] < 1)
                     self->crossfadedur[which] = 1;
                 self->crossfadescaling[which] = 1.0 / self->crossfadedur[which] * 512.0;
+                if (self->appendfade == 1)
+                    self->loopend[which] -= self->crossfadedur[which];
                 self->minfadepoint[which] = self->loopstart[which] - self->crossfadedur[which];
                 self->maxfadepoint[which] = self->loopend[which] + self->crossfadedur[which];
                 self->pointerPos[which] = self->loopstart[which];
@@ -1281,6 +1296,8 @@ Looper_reset(Looper *self, int x, int which, int init) {
                 if (self->crossfadedur[which] < 1)
                     self->crossfadedur[which] = 1;
                 self->crossfadescaling[which] = 1.0 / self->crossfadedur[which] * 512.0;
+                if (self->appendfade == 1)
+                    self->loopend[which] += self->crossfadedur[which];
                 if (init == 1 && self->startfromloop == 0) {
                     self->minfadepoint[which] = self->crossfadedur[which];
                     self->maxfadepoint[which] = self->loopend[which] - self->crossfadedur[which];
@@ -1839,6 +1856,7 @@ Looper_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->startfromloop = 0;
     self->interp = 2;
     self->init = 1;
+    self->appendfade = self->fadeinseconds = 0;
     self->mode[0] = self->mode[1] = self->tmpmode = 1;
     self->direction[0] = self->direction[1] = 0;
     self->pointerPos[0] = self->pointerPos[1] = 0.0;
@@ -2171,6 +2189,36 @@ Looper_loopnow(Looper *self) {
     return Py_None;
 };
 
+static PyObject *
+Looper_appendFadeTime(Looper *self, PyObject *arg)
+{
+    ASSERT_ARG_NOT_NULL
+
+    int isInt = PyInt_Check(arg);
+
+	if (isInt == 1) {
+		self->appendfade = PyInt_AsLong(arg) == 0 ? 0 : 1;
+    }
+
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static PyObject *
+Looper_fadeInSeconds(Looper *self, PyObject *arg)
+{
+    ASSERT_ARG_NOT_NULL
+
+    int isInt = PyInt_Check(arg);
+
+	if (isInt == 1) {
+		self->fadeinseconds = PyInt_AsLong(arg) == 0 ? 0 : 1;
+    }
+
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
 static PyMemberDef Looper_members[] = {
     {"server", T_OBJECT_EX, offsetof(Looper, server), 0, "Pyo server."},
     {"stream", T_OBJECT_EX, offsetof(Looper, stream), 0, "Stream object."},
@@ -2203,6 +2251,8 @@ static PyMethodDef Looper_methods[] = {
     {"setStartFromLoop", (PyCFunction)Looper_setStartFromLoop, METH_O, "Sets init pointer position."},
     {"setInterp", (PyCFunction)Looper_setInterp, METH_O, "Sets oscillator interpolation mode."},
     {"setAutoSmooth", (PyCFunction)Looper_setAutoSmooth, METH_O, "Activate lowpass filter for transposition below 1."},
+    {"appendFadeTime", (PyCFunction)Looper_appendFadeTime, METH_O, "If positive, fade time is added to loop duration."},
+    {"fadeInSeconds", (PyCFunction)Looper_fadeInSeconds, METH_O, "If positive, fade time is set in seconds instead of percentage."},
     {"reset", (PyCFunction)Looper_on_reset, METH_NOARGS, "Resets internal counters."},
     {"loopnow", (PyCFunction)Looper_loopnow, METH_NOARGS, "Satrts a new loop immediately."},
 	{"setMul", (PyCFunction)Looper_setMul, METH_O, "Sets granulator mul factor."},

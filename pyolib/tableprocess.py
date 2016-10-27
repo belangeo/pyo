@@ -2342,6 +2342,8 @@ class Looper(PyoObject):
         pyoArgsAssert(self, "tOOOOiibibOO", table, pitch, start, dur, xfade, mode, xfadeshape, startfromloop, interp, autosmooth, mul, add)
         PyoObject.__init__(self, mul, add)
         self._time_dummy = []
+        self._appendfade = 0
+        self._fadeinseconds = 0
         self._table = table
         self._pitch = pitch
         self._start = start
@@ -2528,6 +2530,46 @@ class Looper(PyoObject):
 
         """
         [obj.loopnow() for obj in self._base_objs]
+
+    def appendFadeTime(self, x):
+        """
+        Change the position of the crossfade regarding loop duration.
+
+        :Args:
+
+            x : boolean
+                If 0 (the default), the crossfade duration lies inside the 
+                loop duration, producing a loop that is shorter than the 
+                `dur` value.
+                
+                If 1, the crossfade starts after the loop duration, expecting
+                samples, expecting samples after the loop to perform the 
+                fadeout. This mode gives a loop of a length of the `dur` value.
+
+        """
+        pyoArgsAssert(self, "b", x)
+        self._appendfade = x
+        x, lmax = convertArgsToLists(x)
+        [obj.appendFadeTime(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def fadeInSeconds(self, x):
+        """
+        Change the crossfade time unit (`xfade` unit type).
+
+        :Args:
+
+            x : boolean
+                If 0 (the default), the crossfade duration (`xfade` value) is 
+                a percent of the loop time, between 0 and 50.
+                
+                If 1, the crossfade duration (`xfade` value) is set in seconds,
+                between 0 and half the loop length.
+
+        """
+        pyoArgsAssert(self, "b", x)
+        self._fadeinseconds = x
+        x, lmax = convertArgsToLists(x)
+        [obj.fadeInSeconds(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
         self._map_list = [SLMap(0.1, 2., 'lin', 'pitch', self._pitch),
