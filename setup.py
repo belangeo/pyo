@@ -150,6 +150,7 @@ else:
     if build_with_jack_support:
         libraries.append('jack')
 
+libraries += ['m']
 extra_compile_args = ['-Wno-strict-prototypes', '-Wno-strict-aliasing', oflag, gflag]
 
 extensions = []
