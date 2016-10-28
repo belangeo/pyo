@@ -633,6 +633,11 @@ class PVGate(PyoPVObject):
             will be scaled by `damp` factor. Defaults to -20.
         damp : float or PyoObject, optional
             Damping factor for low amplitude bins. Defaults to 0.
+        inverse : boolean, optional
+            If True, the damping factor will be applied to the bins
+            with amplitude above the given threshold. If False, the
+            damping factor is applied to bins with amplitude below
+            the given threshold. Defaults to False.
 
     >>> s = Server().boot()
     >>> s.start()
@@ -642,14 +647,15 @@ class PVGate(PyoPVObject):
     >>> pvs = PVSynth(pvg).mix(2).out()
 
     """
-    def __init__(self, input, thresh=-20, damp=0.):
-        pyoArgsAssert(self, "pOO", input, thresh, damp)
+    def __init__(self, input, thresh=-20, damp=0., inverse=False):
+        pyoArgsAssert(self, "pOOb", input, thresh, damp, inverse)
         PyoPVObject.__init__(self)
         self._input = input
         self._thresh = thresh
         self._damp = damp
-        input, thresh, damp, lmax = convertArgsToLists(self._input, thresh, damp)
-        self._base_objs = [PVGate_base(wrap(input,i), wrap(thresh,i), wrap(damp,i)) for i in range(lmax)]
+        self._inverse = inverse
+        input, thresh, damp, inverse, lmax = convertArgsToLists(self._input, thresh, damp, inverse)
+        self._base_objs = [PVGate_base(wrap(input,i), wrap(thresh,i), wrap(damp,i), wrap(inverse,i)) for i in range(lmax)]
 
     def setInput(self, x):
         """
@@ -696,6 +702,21 @@ class PVGate(PyoPVObject):
         x, lmax = convertArgsToLists(x)
         [obj.setDamp(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
+    def setInverse(self, x):
+        """
+        Replace the `inverse` attribute.
+
+        :Args:
+
+            x : boolean
+                new `inverse` attribute.
+
+        """
+        pyoArgsAssert(self, "b", x)
+        self._inverse = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setInverse(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
         self._map_list = [SLMap(-120, 18, "lin", "thresh", self._thresh),
                           SLMap(0, 2, "lin", "damp", self._damp)]
@@ -721,6 +742,13 @@ class PVGate(PyoPVObject):
         return self._damp
     @damp.setter
     def damp(self, x): self.setDamp(x)
+
+    @property
+    def inverse(self):
+        """boolean. If True, the gate is applied to high amplitude bins."""
+        return self._inverse
+    @inverse.setter
+    def inverse(self, x): self.setInverse(x)
 
 class PVCross(PyoPVObject):
     """

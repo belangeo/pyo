@@ -2280,6 +2280,7 @@ typedef struct {
     Stream *thresh_stream;
     PyObject *damp;
     Stream *damp_stream;
+    int inverse;
     int size;
     int olaps;
     int hsize;
@@ -2337,13 +2338,24 @@ PVGate_process_ii(PVGate *self) {
     for (i=0; i<self->bufsize; i++) {
         self->count[i] = count[i];
         if (count[i] >= (self->size-1)) {
-            for (k=0; k<self->hsize; k++) {
-                mag = magn[self->overcount][k];
-                if (mag < thresh)
-                    self->magn[self->overcount][k] = mag * damp;
-                else
-                    self->magn[self->overcount][k] = mag;
-                self->freq[self->overcount][k] = freq[self->overcount][k];
+            if (self->inverse == 0) {
+                for (k=0; k<self->hsize; k++) {
+                    mag = magn[self->overcount][k];
+                    if (mag < thresh)
+                        self->magn[self->overcount][k] = mag * damp;
+                    else
+                        self->magn[self->overcount][k] = mag;
+                    self->freq[self->overcount][k] = freq[self->overcount][k];
+                }
+            } else {
+                for (k=0; k<self->hsize; k++) {
+                    mag = magn[self->overcount][k];
+                    if (mag > thresh)
+                        self->magn[self->overcount][k] = mag * damp;
+                    else
+                        self->magn[self->overcount][k] = mag;
+                    self->freq[self->overcount][k] = freq[self->overcount][k];
+                }
             }
             self->overcount++;
             if (self->overcount >= self->olaps)
@@ -2375,13 +2387,24 @@ PVGate_process_ai(PVGate *self) {
         if (count[i] >= (self->size-1)) {
             thresh = rvt[i];
             thresh = MYPOW(10.0, thresh * 0.05);
-            for (k=0; k<self->hsize; k++) {
-                mag = magn[self->overcount][k];
-                if (mag < thresh)
-                    self->magn[self->overcount][k] = mag * damp;
-                else
-                    self->magn[self->overcount][k] = mag;
-                self->freq[self->overcount][k] = freq[self->overcount][k];
+            if (self->inverse == 0) {
+                for (k=0; k<self->hsize; k++) {
+                    mag = magn[self->overcount][k];
+                    if (mag < thresh)
+                        self->magn[self->overcount][k] = mag * damp;
+                    else
+                        self->magn[self->overcount][k] = mag;
+                    self->freq[self->overcount][k] = freq[self->overcount][k];
+                }
+            } else {
+                for (k=0; k<self->hsize; k++) {
+                    mag = magn[self->overcount][k];
+                    if (mag > thresh)
+                        self->magn[self->overcount][k] = mag * damp;
+                    else
+                        self->magn[self->overcount][k] = mag;
+                    self->freq[self->overcount][k] = freq[self->overcount][k];
+                }
             }
             self->overcount++;
             if (self->overcount >= self->olaps)
@@ -2413,13 +2436,24 @@ PVGate_process_ia(PVGate *self) {
         self->count[i] = count[i];
         if (count[i] >= (self->size-1)) {
             damp = dmp[i];
-            for (k=0; k<self->hsize; k++) {
-                mag = magn[self->overcount][k];
-                if (mag < thresh)
-                    self->magn[self->overcount][k] = mag * damp;
-                else
-                    self->magn[self->overcount][k] = mag;
-                self->freq[self->overcount][k] = freq[self->overcount][k];
+            if (self->inverse == 0) {
+                for (k=0; k<self->hsize; k++) {
+                    mag = magn[self->overcount][k];
+                    if (mag < thresh)
+                        self->magn[self->overcount][k] = mag * damp;
+                    else
+                        self->magn[self->overcount][k] = mag;
+                    self->freq[self->overcount][k] = freq[self->overcount][k];
+                }
+            } else {
+                for (k=0; k<self->hsize; k++) {
+                    mag = magn[self->overcount][k];
+                    if (mag > thresh)
+                        self->magn[self->overcount][k] = mag * damp;
+                    else
+                        self->magn[self->overcount][k] = mag;
+                    self->freq[self->overcount][k] = freq[self->overcount][k];
+                }
             }
             self->overcount++;
             if (self->overcount >= self->olaps)
@@ -2452,13 +2486,24 @@ PVGate_process_aa(PVGate *self) {
             thresh = rvt[i];
             thresh = MYPOW(10.0, thresh * 0.05);
             damp = dmp[i];
-            for (k=0; k<self->hsize; k++) {
-                mag = magn[self->overcount][k];
-                if (mag < thresh)
-                    self->magn[self->overcount][k] = mag * damp;
-                else
-                    self->magn[self->overcount][k] = mag;
-                self->freq[self->overcount][k] = freq[self->overcount][k];
+            if (self->inverse == 0) {
+                for (k=0; k<self->hsize; k++) {
+                    mag = magn[self->overcount][k];
+                    if (mag < thresh)
+                        self->magn[self->overcount][k] = mag * damp;
+                    else
+                        self->magn[self->overcount][k] = mag;
+                    self->freq[self->overcount][k] = freq[self->overcount][k];
+                }
+            } else {
+                for (k=0; k<self->hsize; k++) {
+                    mag = magn[self->overcount][k];
+                    if (mag > thresh)
+                        self->magn[self->overcount][k] = mag * damp;
+                    else
+                        self->magn[self->overcount][k] = mag;
+                    self->freq[self->overcount][k] = freq[self->overcount][k];
+                }
             }
             self->overcount++;
             if (self->overcount >= self->olaps)
@@ -2551,13 +2596,14 @@ PVGate_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->damp = PyFloat_FromDouble(0.0);
     self->size = 1024;
     self->olaps = 4;
+    self->inverse = 0;
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, PVGate_compute_next_data_frame);
     self->mode_func_ptr = PVGate_setProcMode;
 
-    static char *kwlist[] = {"input", "thresh", "damp", NULL};
+    static char *kwlist[] = {"input", "thresh", "damp", "inverse", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OO", kwlist, &inputtmp, &threshtmp, &damptmp))
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOi", kwlist, &inputtmp, &threshtmp, &damptmp, &self->inverse))
         Py_RETURN_NONE;
 
     if ( PyObject_HasAttrString((PyObject *)inputtmp, "pv_stream") == 0 ) {
@@ -2688,6 +2734,19 @@ PVGate_setDamp(PVGate *self, PyObject *arg)
 	return Py_None;
 }
 
+static PyObject *
+PVGate_setInverse(PVGate *self, PyObject *arg)
+{
+    ASSERT_ARG_NOT_NULL
+
+	if (PyInt_Check(arg)) {
+        self->inverse = PyInt_AsLong(arg);
+    }
+
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
 static PyMemberDef PVGate_members[] = {
 {"server", T_OBJECT_EX, offsetof(PVGate, server), 0, "Pyo server."},
 {"stream", T_OBJECT_EX, offsetof(PVGate, stream), 0, "Stream object."},
@@ -2705,6 +2764,7 @@ static PyMethodDef PVGate_methods[] = {
 {"setInput", (PyCFunction)PVGate_setInput, METH_O, "Sets a new input object."},
 {"setThresh", (PyCFunction)PVGate_setThresh, METH_O, "Sets the Threshold factor."},
 {"setDamp", (PyCFunction)PVGate_setDamp, METH_O, "Sets the damping factor."},
+{"setInverse", (PyCFunction)PVGate_setInverse, METH_O, "Sets the inverse mode."},
 {"play", (PyCFunction)PVGate_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
 {"stop", (PyCFunction)PVGate_stop, METH_NOARGS, "Stops computing."},
 {NULL}  /* Sentinel */
