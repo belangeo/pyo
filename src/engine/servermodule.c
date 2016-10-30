@@ -333,15 +333,20 @@ Server_embedded_stop(Server *self)
 void
 Server_process_buffers(Server *server)
 {
+    //clock_t begin = clock();
+
     float *out = server->output_buffer;
     MYFLT buffer[server->nchnls][server->bufferSize];
-    int i, j, chnl;
-    int nchnls = server->nchnls;
+    int i, j, chnl, nchnls = server->nchnls;
     MYFLT amp = server->amp;
     Stream *stream_tmp;
     MYFLT *data;
 
     memset(&buffer, 0, sizeof(buffer));
+
+    /* This is the biggest bottle-neck of the callback. Don't know
+       how (or if possible) to improve GIL acquire/release.
+    */
     PyGILState_STATE s = PyGILState_Ensure();
 
     if (server->CALLBACK != NULL)
@@ -372,7 +377,9 @@ Server_process_buffers(Server *server)
         Server_process_time(server);
     }
     server->elapsedSamples += server->bufferSize;
+
     PyGILState_Release(s);
+
     if (amp != server->lastAmp) {
         server->timeCount = 0;
         server->stepVal = (amp - server->currentAmp) / server->timeStep;
@@ -388,9 +395,14 @@ Server_process_buffers(Server *server)
             out[(i*server->nchnls)+j] = (float)buffer[j][i] * server->currentAmp;
         }
     }
+
+    /* Writing to disk is not real time safe. */
     if (server->record == 1)
         sf_write_float(server->recfile, out, server->bufferSize * server->nchnls);
 
+    //clock_t end = clock();
+    //double time_spent = (double)(end - begin) / CLOCKS_PER_SEC;
+    //printf("%f\n", time_spent);
 }
 
 void

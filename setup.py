@@ -55,7 +55,7 @@ if '--compile-externals' in sys.argv:
 
 if '--debug' in sys.argv:
     sys.argv.remove('--debug')
-    gflag = ""
+    gflag = "-g3"
 else:
     gflag = "-g0"
 

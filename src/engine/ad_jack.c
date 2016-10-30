@@ -87,6 +87,7 @@ jack_shutdown_cb(void *arg) {
 int
 Server_jack_autoconnect(Server *self) {
     const char **ports;
+    char *portname;
     int i, j, num = 0, ret = 0;
     PyoJackBackendData *be_data = (PyoJackBackendData *) self->audio_be_data;
 
@@ -127,8 +128,15 @@ Server_jack_autoconnect(Server *self) {
     num = PyList_Size(self->jackAutoConnectInputPorts);
     if (num > 0) {
         for (j=0; j<num; j++) {
-            if ((ports = jack_get_ports(be_data->jack_client, PyString_AsString(PyList_GetItem(self->jackAutoConnectInputPorts, j)), NULL, JackPortIsOutput)) == NULL) {
-                Server_error(self, "Jack: cannot connect input ports to %s\n", PyString_AsString(PyList_GetItem(self->jackAutoConnectInputPorts, j)));
+            portname = PyString_AsString(PyList_GetItem(self->jackAutoConnectInputPorts, j));
+            if (jack_port_by_name(be_data->jack_client, portname) != NULL && be_data->jack_in_ports[j] != NULL) {
+                    if (jack_connect(be_data->jack_client, portname, jack_port_name(be_data->jack_in_ports[j]))) {
+                        Server_error(self, "Jack: cannot connect input ports\n");
+                        ret = -1;
+                    }
+            }
+            else if ((ports = jack_get_ports(be_data->jack_client, portname, NULL, JackPortIsOutput)) == NULL) {
+                Server_error(self, "Jack: cannot connect input ports to %s\n", portname);
             }
             else {
                 i = 0;
@@ -147,19 +155,26 @@ Server_jack_autoconnect(Server *self) {
     num = PyList_Size(self->jackAutoConnectOutputPorts);
     if (num > 0) {
         for (j=0; j<num; j++) {
-            if ((ports = jack_get_ports(be_data->jack_client, PyString_AsString(PyList_GetItem(self->jackAutoConnectOutputPorts, j)), NULL, JackPortIsInput)) == NULL) {
-                Server_error(self, "Jack: cannot connect output ports to %s\n", PyString_AsString(PyList_GetItem(self->jackAutoConnectOutputPorts, j)));
+            portname = PyString_AsString(PyList_GetItem(self->jackAutoConnectOutputPorts, j));
+            if (jack_port_by_name(be_data->jack_client, portname) != NULL && be_data->jack_out_ports[j] != NULL) {
+                    if (jack_connect(be_data->jack_client, jack_port_name(be_data->jack_out_ports[j]), portname)) {
+                        Server_error(self, "Jack: cannot connect output ports\n");
+                        ret = -1;
+                    }
+            }
+            else if ((ports = jack_get_ports(be_data->jack_client, portname, NULL, JackPortIsInput)) == NULL) {
+                Server_error(self, "Jack: cannot connect output ports to %s\n", portname);
             }
             else {
                 i = 0;
                 while(ports[i] != NULL && be_data->jack_out_ports[i] != NULL){
-                    if (jack_connect(be_data->jack_client, jack_port_name (be_data->jack_out_ports[i]), ports[i])) {
+                    if (jack_connect(be_data->jack_client, jack_port_name(be_data->jack_out_ports[i]), ports[i])) {
                         Server_error(self, "Jack: cannot connect output ports\n");
                         ret = -1;
                     }
                     i++;
                 }
-                free (ports);
+                free(ports);
             }
         }
     }

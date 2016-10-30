@@ -2542,9 +2542,9 @@ class Looper(PyoObject):
                 loop duration, producing a loop that is shorter than the 
                 `dur` value.
                 
-                If 1, the crossfade starts after the loop duration, expecting
-                samples, expecting samples after the loop to perform the 
-                fadeout. This mode gives a loop of a length of the `dur` value.
+                If 1, the crossfade starts after the loop duration, expecting 
+                samples after the loop to perform the fadeout. This mode gives 
+                a loop of a length of the `dur` value.
 
         """
         pyoArgsAssert(self, "b", x)
