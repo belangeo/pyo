@@ -84,102 +84,81 @@ jack_shutdown_cb(void *arg) {
     Server_warning(s, "JACK server shutdown. Pyo Server shut down.\n");
 }
 
-int
+void
 Server_jack_autoconnect(Server *self) {
     const char **ports;
     char *portname;
-    int i, j, num = 0, ret = 0;
+    int i, j, num;
     PyoJackBackendData *be_data = (PyoJackBackendData *) self->audio_be_data;
 
     if (self->jackautoin) {
         if ((ports = jack_get_ports(be_data->jack_client, "system", NULL, JackPortIsOutput)) == NULL) {
             Server_error(self, "Jack: Cannot find any physical capture ports called 'system'\n");
-            ret = -1;
         }
 
         i=0;
-        while(ports[i]!=NULL && be_data->jack_in_ports[i] != NULL){
+        while(ports[i] != NULL && be_data->jack_in_ports[i] != NULL){
             if (jack_connect(be_data->jack_client, ports[i], jack_port_name(be_data->jack_in_ports[i]))) {
-                Server_error(self, "Jack: cannot connect input ports to 'system'\n");
-                ret = -1;
+                Server_error(self, "Jack: cannot connect 'system' to input ports\n");
             }
             i++;
         }
-        free (ports);
+        free(ports);
     }
 
     if (self->jackautoout) {
         if ((ports = jack_get_ports(be_data->jack_client, "system", NULL, JackPortIsInput)) == NULL) {
             Server_error(self, "Jack: Cannot find any physical playback ports called 'system'\n");
-            ret = -1;
         }
 
         i=0;
-        while(ports[i]!=NULL && be_data->jack_out_ports[i] != NULL){
+        while(ports[i] != NULL && be_data->jack_out_ports[i] != NULL){
             if (jack_connect(be_data->jack_client, jack_port_name (be_data->jack_out_ports[i]), ports[i])) {
                 Server_error(self, "Jack: cannot connect output ports to 'system'\n");
-                ret = -1;
             }
             i++;
         }
-        free (ports);
+        free(ports);
     }
 
     num = PyList_Size(self->jackAutoConnectInputPorts);
     if (num > 0) {
-        for (j=0; j<num; j++) {
-            portname = PyString_AsString(PyList_GetItem(self->jackAutoConnectInputPorts, j));
-            if (jack_port_by_name(be_data->jack_client, portname) != NULL && be_data->jack_in_ports[j] != NULL) {
-                    if (jack_connect(be_data->jack_client, portname, jack_port_name(be_data->jack_in_ports[j]))) {
-                        Server_error(self, "Jack: cannot connect input ports\n");
-                        ret = -1;
+        if (num != self->ichnls || !PyList_Check(PyList_GetItem(self->jackAutoConnectInputPorts, 0))) {
+            Server_error(self, "Jack: auto-connect input ports list size does not match server.ichnls.\n");
+        } 
+        else {
+            for (j=0; j<self->ichnls; j++) {
+                num = PyList_Size(PyList_GetItem(self->jackAutoConnectInputPorts, j));
+                for (i=0; i<num; i++) {
+                    portname = PyString_AsString(PyList_GetItem(PyList_GetItem(self->jackAutoConnectInputPorts, j), i));
+                    if (jack_port_by_name(be_data->jack_client, portname) != NULL) {
+                        if (jack_connect(be_data->jack_client, portname, jack_port_name(be_data->jack_in_ports[j]))) {
+                            Server_error(self, "Jack: cannot connect '%s' to input port %d\n", portname, j);
+                        }
                     }
-            }
-            else if ((ports = jack_get_ports(be_data->jack_client, portname, NULL, JackPortIsOutput)) == NULL) {
-                Server_error(self, "Jack: cannot connect input ports to %s\n", portname);
-            }
-            else {
-                i = 0;
-                while(ports[i] != NULL && be_data->jack_in_ports[i] != NULL){
-                    if (jack_connect(be_data->jack_client, ports[i], jack_port_name (be_data->jack_in_ports[i]))) {
-                        Server_error(self, "Jack: cannot connect input ports\n");
-                        ret = -1;
-                    }
-                    i++;
                 }
-                free (ports);
             }
         }
     }
 
     num = PyList_Size(self->jackAutoConnectOutputPorts);
     if (num > 0) {
-        for (j=0; j<num; j++) {
-            portname = PyString_AsString(PyList_GetItem(self->jackAutoConnectOutputPorts, j));
-            if (jack_port_by_name(be_data->jack_client, portname) != NULL && be_data->jack_out_ports[j] != NULL) {
-                    if (jack_connect(be_data->jack_client, jack_port_name(be_data->jack_out_ports[j]), portname)) {
-                        Server_error(self, "Jack: cannot connect output ports\n");
-                        ret = -1;
+        if (num != self->nchnls || !PyList_Check(PyList_GetItem(self->jackAutoConnectOutputPorts, 0))) {
+            Server_error(self, "Jack: auto-connect output ports list size does not match server.nchnls.\n");
+        } else {
+            for (j=0; j<self->nchnls; j++) {
+                num = PyList_Size(PyList_GetItem(self->jackAutoConnectOutputPorts, j));
+                for (i=0; i<num; i++) {
+                    portname = PyString_AsString(PyList_GetItem(PyList_GetItem(self->jackAutoConnectOutputPorts, j), i));
+                    if (jack_port_by_name(be_data->jack_client, portname) != NULL) {
+                        if (jack_connect(be_data->jack_client, jack_port_name(be_data->jack_out_ports[j]), portname)) {
+                            Server_error(self, "Jack: cannot connect output port %d to '%s'\n", j, portname);
+                        }
                     }
-            }
-            else if ((ports = jack_get_ports(be_data->jack_client, portname, NULL, JackPortIsInput)) == NULL) {
-                Server_error(self, "Jack: cannot connect output ports to %s\n", portname);
-            }
-            else {
-                i = 0;
-                while(ports[i] != NULL && be_data->jack_out_ports[i] != NULL){
-                    if (jack_connect(be_data->jack_client, jack_port_name(be_data->jack_out_ports[i]), ports[i])) {
-                        Server_error(self, "Jack: cannot connect output ports\n");
-                        ret = -1;
-                    }
-                    i++;
                 }
-                free(ports);
             }
         }
     }
-
-    return ret;
 }
 
 int

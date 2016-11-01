@@ -477,16 +477,11 @@ class Server(object):
 
         :Args:
 
-            ports : string or list of strings
-                Name of the Jack port(s) to auto-connect. This method first checks
-                for an exact port name match, otherwise it uses Regular Expressions
-                to find an applications ports.
-                
-        >>> s = Server(audio='jack')
-        >>> # will connect capture_3 and capture_4 from the system to inputs 1 and 2 of pyo.
-        >>> s.setJackAutoConnectInputPorts(['system:capture_3', 'system:capture_4'])
-        >>> # will connect capture_1 and capture_2 from the system to inputs 1 and 2 of pyo.
-        >>> s.setJackAutoConnectInputPorts('system')
+            ports : list of list of strings
+                Name of the Jack ports to auto-connect to pyo input channels. 
+                There must be exactly one list of port(s) for each pyo input channel.
+
+                [['ports', 'to', 'channel', '1'], ['ports', 'to', 'channel', '2'], ...]
 
         """
         ports, lmax = convertArgsToLists(ports)
@@ -498,16 +493,11 @@ class Server(object):
 
         :Args:
 
-            ports : string or list of strings
-                Name of the Jack port(s) to auto-connect. This method first checks
-                for an exact port name match, otherwise it uses Regular Expressions
-                to find an applications ports.
+            ports : list of list of strings
+                Name of the Jack ports to auto-connect to pyo output channels. 
+                There must be exactly one list of port(s) for each pyo output channel.
 
-        >>> s = Server(audio='jack')
-        >>> # will connect pyo's outputs 1 an 2 to system's playback_3 and playback_4.
-        >>> s.setJackAutoConnectOutputPorts(['system:playback_3', 'system:playback_4'])
-        >>> # will connect pyo's outputs 1 an 2 to system's playback_1 and playback_2.
-        >>> s.setJackAutoConnectOutputPorts('system')
+                [['ports', 'to', 'channel', '1'], ['ports', 'to', 'channel', '2'], ...]
 
         """
         ports, lmax = convertArgsToLists(ports)

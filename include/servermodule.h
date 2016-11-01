@@ -74,8 +74,8 @@ typedef struct {
     char *serverName; /* Only used for jack client name */
     int jackautoin; /* jack port auto-connection (on by default) */
     int jackautoout; /* jack port auto-connection (on by default) */
-    PyObject *jackAutoConnectInputPorts; /* list of regex to match for jack auto-connection */
-    PyObject *jackAutoConnectOutputPorts; /* list of regex to match for jack auto-connection */
+    PyObject *jackAutoConnectInputPorts; /* list of lists of jack auto-connection ports to pyo inputs */
+    PyObject *jackAutoConnectOutputPorts; /* list of lists of jack auto-connection ports from pyo outputs */
     PyoMidiEvent midiEvents[200];
     int midiin_count;
     int midiout_count;

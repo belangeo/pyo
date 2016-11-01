@@ -35,7 +35,7 @@ int jack_srate_cb(jack_nframes_t nframes, void *arg);
 int jack_bufsize_cb(jack_nframes_t nframes, void *arg);
 void jack_error_cb(const char *desc);
 void jack_shutdown_cb(void *arg);
-int Server_jack_autoconnect(Server *self);
+void Server_jack_autoconnect(Server *self);
 int Server_jack_init(Server *self);
 int Server_jack_deinit(Server *self);
 int Server_jack_start(Server *self);
