@@ -5849,7 +5849,7 @@ TableRead_readframes_i(TableRead *self) {
                 self->init = 0;
             self->pointerPos = size + self->pointerPos;
         }
-        else if (self->pointerPos >= size) {
+        else if (self->pointerPos >= size && self->go) {
             self->trigsBuffer[i] = 1.0;
             if (self->loop == 1)
                 self->pointerPos -= size;
@@ -5891,7 +5891,7 @@ TableRead_readframes_a(TableRead *self) {
                 self->init = 0;
             self->pointerPos = size + self->pointerPos;
         }
-        else if (self->pointerPos >= size) {
+        else if (self->pointerPos >= size && self->go) {
             self->trigsBuffer[i] = 1.0;
             if (self->loop == 1)
                 self->pointerPos -= size;
