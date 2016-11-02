@@ -136,6 +136,9 @@ Server_jack_autoconnect(Server *self) {
                             Server_error(self, "Jack: cannot connect '%s' to input port %d\n", portname, j);
                         }
                     }
+                    else {
+                        Server_error(self, "Jack: cannot find port '%s'\n", portname);
+                    }
                 }
             }
         }
@@ -154,6 +157,9 @@ Server_jack_autoconnect(Server *self) {
                         if (jack_connect(be_data->jack_client, jack_port_name(be_data->jack_out_ports[j]), portname)) {
                             Server_error(self, "Jack: cannot connect output port %d to '%s'\n", j, portname);
                         }
+                    }
+                    else {
+                        Server_error(self, "Jack: cannot find port '%s'\n", portname);
                     }
                 }
             }
