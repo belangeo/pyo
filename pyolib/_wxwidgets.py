@@ -38,8 +38,8 @@ def tFromValue(value, v1, v2):
 
 def clamp(v, minv, maxv):
     "clamps a value within a range"
-    if v<minv: v=minv
-    if v> maxv: v=maxv
+    if v < minv: v = minv
+    if v > maxv: v = maxv
     return v
 
 def toLog(t, v1, v2):
@@ -640,8 +640,8 @@ class RangeSlider(wx.Panel):
         self.sliderHeight = 15
         self.borderWidth = 1
         self.action = None
-        self.fillcolor = "#AAAAAA" #SLIDER_BACK_COLOUR
-        self.knobcolor = "#333333" #SLIDER_KNOB_COLOUR
+        self.fillcolor = "#AAAAAA"  # SLIDER_BACK_COLOUR
+        self.knobcolor = "#333333"  # SLIDER_KNOB_COLOUR
         self.handlecolor = wx.Colour(int(self.knobcolor[1:3])-10, int(self.knobcolor[3:5])-10, int(self.knobcolor[5:7])-10)
         self.outFunction = function
         if valtype.startswith('i'): self.myType = IntType
@@ -2617,9 +2617,9 @@ class ExprEditor(stc.StyledTextCtrl):
             accel_ctrl = wx.ACCEL_CTRL
             self.faces = {'mono' : 'Monospace', 'size' : 10}
 
-        atable = wx.AcceleratorTable([(accel_ctrl,  wx.WXK_RETURN, 10000),
-                                      (accel_ctrl,  ord("z"), wx.ID_UNDO),
-                                      (accel_ctrl|wx.ACCEL_SHIFT,  ord("z"), wx.ID_REDO)])
+        atable = wx.AcceleratorTable([(accel_ctrl, wx.WXK_RETURN, 10000),
+                                      (accel_ctrl, ord("z"), wx.ID_UNDO),
+                                      (accel_ctrl|wx.ACCEL_SHIFT, ord("z"), wx.ID_REDO)])
         self.SetAcceleratorTable(atable)
         
         self.Bind(wx.EVT_MENU, self.onExecute, id=10000)
@@ -2723,7 +2723,7 @@ class ExprEditor(stc.StyledTextCtrl):
         if braceAtCaret >= 0:
             braceOpposite = self.BraceMatch(braceAtCaret)
 
-        if braceAtCaret != -1  and braceOpposite == -1:
+        if braceAtCaret != -1 and braceOpposite == -1:
             self.BraceBadLight(braceAtCaret)
         else:
             self.BraceHighlight(braceAtCaret, braceOpposite)

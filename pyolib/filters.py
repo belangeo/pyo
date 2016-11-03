@@ -1533,7 +1533,7 @@ class Allpass(PyoObject):
         [obj.setFeedback(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [SLMap(0.001, self._maxdelay, 'log', 'delay',  self._delay),
+        self._map_list = [SLMap(0.001, self._maxdelay, 'log', 'delay', self._delay),
                           SLMap(0., 1., 'lin', 'feedback', self._feedback),
                           SLMapMul(self._mul)]
         PyoObject.ctrl(self, map_list, title, wxnoserver)
@@ -1716,7 +1716,7 @@ class Phaser(PyoObject):
         self._spread = spread
         self._q = q
         self._feedback = feedback
-        self._num= num
+        self._num = num
         self._in_fader = InputFader(input)
         in_fader, freq, spread, q, feedback, num, mul, add, lmax = convertArgsToLists(self._in_fader, freq, spread, q, feedback, num, mul, add)
         self._base_objs = [Phaser_base(wrap(in_fader,i), wrap(freq,i), wrap(spread,i), wrap(q,i), wrap(feedback,i), wrap(num,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
@@ -2020,7 +2020,7 @@ class Vocoder(PyoObject):
                           SLMap(0.25, 2, "lin", "spread", self._spread),
                           SLMap(0.5, 200, "log", "q", self._q),
                           SLMap(0, 1, "lin", "slope", self._slope),
-                          SLMap(2, 64, 'lin', 'stages',  self._stages, res="int", dataOnly=True),
+                          SLMap(2, 64, 'lin', 'stages', self._stages, res="int", dataOnly=True),
                           SLMapMul(self._mul)]
         PyoObject.ctrl(self, map_list, title, wxnoserver)
 

@@ -1412,11 +1412,11 @@ class Scale(PyoObject):
         [obj.setExp(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [SLMap(0., 127., 'lin', 'inmin',  self._inmin),
-                          SLMap(0., 127., 'lin', 'inmax',  self._inmax),
-                          SLMap(0., 127., 'lin', 'outmin',  self._outmin),
-                          SLMap(0., 127., 'lin', 'outmax',  self._outmax),
-                          SLMap(1., 10., 'lin', 'exp',  self._exp),
+        self._map_list = [SLMap(0., 127., 'lin', 'inmin', self._inmin),
+                          SLMap(0., 127., 'lin', 'inmax', self._inmax),
+                          SLMap(0., 127., 'lin', 'outmin', self._outmin),
+                          SLMap(0., 127., 'lin', 'outmax', self._outmax),
+                          SLMap(1., 10., 'lin', 'exp', self._exp),
                           SLMapMul(self._mul)]
         PyoObject.ctrl(self, map_list, title, wxnoserver)
 

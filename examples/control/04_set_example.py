@@ -21,9 +21,9 @@ def go():
     a.set("index", [uniform(5,9) for i in range(10)], 23)
 
 def reset():
-    a.carrier=[uniform(197,203) for i in range(10)]
-    a.ratio=[uniform(0.49,0.51) for i in range(10)]
-    a.index=[uniform(8,12) for i in range(10)]
+    a.carrier = [uniform(197,203) for i in range(10)]
+    a.ratio = [uniform(0.49,0.51) for i in range(10)]
+    a.index = [uniform(8,12) for i in range(10)]
     
 s.gui(locals())
 
