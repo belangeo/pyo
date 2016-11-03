@@ -605,7 +605,7 @@ class Mixer(PyoObject):
 
     def __getitem__(self, x):
         if type(x) == SliceType:
-            return [self._base_objs[j*self._chnls+i] for j in range(x.start or 0, x.stop or sys.maxint, x.step or 1) for i in range(self._chnls)]
+            return [self._base_objs[j*self._chnls+i] for j in range(x.start or 0, x.stop or sys.maxsize, x.step or 1) for i in range(self._chnls)]
         elif x < len(self._base_objs):
             return [self._base_objs[x*self._chnls+i] for i in range(self._chnls)]
         else:
