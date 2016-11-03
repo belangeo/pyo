@@ -465,7 +465,7 @@ class OscDataSend(PyoObject):
                 will be sent to all addresses managed by the object.
 
         """
-        if address == None:
+        if address is None:
             pyoArgsAssert(self, "l", msg)
             [obj.send(msg) for obj in self._base_objs]
         else:

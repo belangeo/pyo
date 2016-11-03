@@ -111,7 +111,7 @@ class ControlSlider(wx.Panel):
         self.propagate = True
         self.midictl = None
         self.new = ''
-        if init != None:
+        if init is not None:
             self.SetValue(init)
             self.init = init
         else:
@@ -335,7 +335,7 @@ class ControlSlider(wx.Panel):
         gc.SetBrush(brush)
         gc.DrawRoundedRectangle(rec[0], rec[1], rec[2], rec[3], 2)
 
-        if self.midictl != None:
+        if self.midictl is not None:
             if sys.platform in ['win32', 'linux2']:
                 dc.SetFont(wx.Font(6, wx.ROMAN, wx.NORMAL, wx.NORMAL))
             else:
@@ -649,7 +649,7 @@ class RangeSlider(wx.Panel):
         self.log = log
         self.SetRange(minvalue, maxvalue)
         self.handles = [minvalue, maxvalue]
-        if init != None:
+        if init is not None:
             if type(init) in [ListType, TupleType]:
                 if len(init) == 1:
                     self.SetValue([init[0],init[0]])
@@ -1118,7 +1118,7 @@ class SndViewTablePanel(wx.Panel):
         if self.background_bitmap is not None:
             self.refresh_from_selection = True
         self.Refresh()
-        if self.select_callback != None:
+        if self.select_callback is not None:
             self.select_callback((0.0, 1.0))
 
     def setSelection(self, start, stop):
@@ -1127,7 +1127,7 @@ class SndViewTablePanel(wx.Panel):
         if self.background_bitmap is not None:
             self.refresh_from_selection = True
         self.Refresh()
-        if self.select_callback != None:
+        if self.select_callback is not None:
             self.select_callback((self.selstart, self.selend))
 
     def setBegin(self, x):
@@ -1160,7 +1160,7 @@ class SndViewTablePanel(wx.Panel):
         else:
             pos = (float(pos[0])/size[0], 1.-(float(pos[1])/size[1]))
         pos = self.clipPos(pos)
-        if self.mouse_callback != None:
+        if self.mouse_callback is not None:
             self.mouse_callback(pos)
         self.CaptureMouse()
 
@@ -1180,7 +1180,7 @@ class SndViewTablePanel(wx.Panel):
             self.selstart = self.selend = None
             self.refresh_from_selection = True
             self.Refresh()
-            if self.select_callback != None:
+            if self.select_callback is not None:
                 self.select_callback((0.0, 1.0))
         else:
             self.createSelection = True
@@ -1197,7 +1197,7 @@ class SndViewTablePanel(wx.Panel):
                 pos = (float(pos[0])/size[0], 1.-(float(pos[1])/size[1]))
             pos = self.clipPos(pos)
             if evt.LeftIsDown():
-                if self.mouse_callback != None:
+                if self.mouse_callback is not None:
                     self.mouse_callback(pos)
             elif evt.RightIsDown():
                 refresh = False
@@ -1213,7 +1213,7 @@ class SndViewTablePanel(wx.Panel):
                 if refresh:
                     self.refresh_from_selection = True
                     self.Refresh()
-                    if self.select_callback != None:
+                    if self.select_callback is not None:
                         self.select_callback((self.selstart, self.selend))
 
     def OnMouseUp(self, evt):
@@ -1689,7 +1689,7 @@ class SpectrumPanel(wx.Panel):
                 i += 1
 
         # spectrum
-        if self.img != None:
+        if self.img is not None:
             last_tw = tw
             # legend
             tw, th = dc.GetTextExtent("chan 8")
@@ -1988,7 +1988,7 @@ class Grapher(wx.Panel):
         return values
 
     def sendValues(self):
-        if self.outFunction != None:
+        if self.outFunction is not None:
             values = self.getValues()
             self.outFunction(values)
 
@@ -2001,7 +2001,7 @@ class Grapher(wx.Panel):
         self.Refresh()
 
     def OnKeyDown(self, evt):
-        if self.selected != None and evt.GetKeyCode() in [wx.WXK_BACK, wx.WXK_DELETE, wx.WXK_NUMPAD_DELETE]:
+        if self.selected is not None and evt.GetKeyCode() in [wx.WXK_BACK, wx.WXK_DELETE, wx.WXK_NUMPAD_DELETE]:
             del self.points[self.selected]
             self.sendValues()
             self.selected = None
@@ -2047,7 +2047,7 @@ class Grapher(wx.Panel):
         self.pos = self.borderClip(evt.GetPosition())
         self.pos[1] = h - self.pos[1]
         if self.HasCapture():
-            if self.selected != None:
+            if self.selected is not None:
                 self.pos = self.pointClip(self.pos)
                 x, y = self.pixelsToPoint(self.pos)
                 if self.mode == 4 and y <= 0:
@@ -2252,24 +2252,24 @@ class Grapher(wx.Panel):
                     tmp2 = self.getCosPoints(tmp[i], tmp[i+1])
                     if i == 0 and len(tmp2) < 2:
                         gc.DrawLines([tmp[i], tmp[i+1]])
-                    if last_p != None:
+                    if last_p is not None:
                         gc.DrawLines([last_p, tmp[i]])
                     for j in range(len(tmp2)-1):
                         gc.DrawLines([tmp2[j], tmp2[j+1]])
                         last_p = tmp2[j+1]
-                if last_p != None:
+                if last_p is not None:
                     gc.DrawLines([last_p, tmp[-1]])
             elif self.mode == 2:
                 for i in range(len(tmp)-1):
                     tmp2 = self.getExpPoints(tmp[i], tmp[i+1])
                     if i == 0 and len(tmp2) < 2:
                         gc.DrawLines([tmp[i], tmp[i+1]])
-                    if last_p != None:
+                    if last_p is not None:
                         gc.DrawLines([last_p, tmp[i]])
                     for j in range(len(tmp2)-1):
                         gc.DrawLines([tmp2[j], tmp2[j+1]])
                         last_p = tmp2[j+1]
-                if last_p != None:
+                if last_p is not None:
                     gc.DrawLines([last_p, tmp[-1]])
             elif self.mode == 3:
                 curvetmp = self.addImaginaryPoints(tmp)
@@ -2277,12 +2277,12 @@ class Grapher(wx.Panel):
                     tmp2 = self.getCurvePoints(curvetmp[i-1], curvetmp[i], curvetmp[i+1], curvetmp[i+2])
                     if i == 1 and len(tmp2) < 2:
                         gc.DrawLines([curvetmp[i], curvetmp[i+1]])
-                    if last_p != None:
+                    if last_p is not None:
                         gc.DrawLines([last_p, curvetmp[i]])
                     for j in range(len(tmp2)-1):
                         gc.DrawLines([tmp2[j], tmp2[j+1]])
                         last_p = tmp2[j+1]
-                if last_p != None:
+                if last_p is not None:
                     gc.DrawLines([last_p, tmp[-1]])
             elif self.mode == 4:
                 back_tmp = [p for p in tmp]
@@ -2294,12 +2294,12 @@ class Grapher(wx.Panel):
                         tmp2[j] = (tmp2[j][0], int(round((1.0-tmp2[j][1]) * h)) + OFF + RAD)
                     if i == 0 and len(tmp2) < 2:
                         gc.DrawLines([back_tmp[i], back_tmp[i+1]])
-                    if last_p != None:
+                    if last_p is not None:
                         gc.DrawLines([last_p, back_tmp[i]])
                     for j in range(len(tmp2)-1):
                         gc.DrawLines([tmp2[j], tmp2[j+1]])
                         last_p = tmp2[j+1]
-                if last_p != None:
+                if last_p is not None:
                     gc.DrawLines([last_p, back_tmp[-1]])
                 tmp = [p for p in back_tmp]
             elif self.mode == 5:
@@ -2312,12 +2312,12 @@ class Grapher(wx.Panel):
                         tmp2[j] = (tmp2[j][0], int(round((1.0-tmp2[j][1]) * h)) + OFF + RAD)
                     if i == 0 and len(tmp2) < 2:
                         gc.DrawLines([back_tmp[i], back_tmp[i+1]])
-                    if last_p != None:
+                    if last_p is not None:
                         gc.DrawLines([last_p, back_tmp[i]])
                     for j in range(len(tmp2)-1):
                         gc.DrawLines([tmp2[j], tmp2[j+1]])
                         last_p = tmp2[j+1]
-                if last_p != None:
+                if last_p is not None:
                     gc.DrawLines([last_p, back_tmp[-1]])
                 tmp = [p for p in back_tmp]
 
@@ -2464,7 +2464,7 @@ class DataMultiSlider(wx.Panel):
         points.append((w,y))
         points.append((w,h))
         gc.DrawLines(points)
-        if self.outFunction != None:
+        if self.outFunction is not None:
             self.outFunction(self.values)
 
     def MouseDown(self, evt):
@@ -2878,7 +2878,7 @@ class ServerGUI(wx.Frame):
             self.timetext = wx.StaticText(panel, -1, "00 : 00 : 00 : 000")
             box.Add(self.timetext, 0, wx.LEFT, leftMargin)
 
-        if self.locals != None:
+        if self.locals is not None:
             box.AddSpacer(10)
             t = wx.StaticText(panel, -1, "Interpreter")
             box.Add(t, 0, wx.LEFT, leftMargin)

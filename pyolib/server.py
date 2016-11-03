@@ -113,7 +113,7 @@ class Server(object):
             audio = os.environ["PYO_SERVER_AUDIO"]
         self._time = time
         self._nchnls = nchnls
-        if ichnls == None:
+        if ichnls is None:
             self._ichnls = nchnls
         else:
             self._ichnls = ichnls
@@ -149,7 +149,7 @@ class Server(object):
         """
         self._gui_frame = None
         self._nchnls = nchnls
-        if ichnls == None:
+        if ichnls is None:
             self._ichnls = nchnls
         else:
             self._ichnls = ichnls
@@ -209,7 +209,7 @@ class Server(object):
         try:
             win.mainloop()
         except:
-            if win != None:
+            if win is not None:
                 win.MainLoop()
 
     def closeGui(self):
@@ -682,7 +682,7 @@ class Server(object):
         """
 
         self._dur = dur
-        if filename == None:
+        if filename is None:
             filename = os.path.join(os.path.expanduser("~"), "pyo_rec.wav")
         self._filename = filename
         ext = filename.rsplit('.')
@@ -712,8 +712,8 @@ class Server(object):
                 Name of the file to be created. Defaults to None.
 
         """
-        if filename == None:
-            if self._filename != None:
+        if filename is None:
+            if self._filename is not None:
                 filename = self._filename
             else:
                 filename = os.path.join(os.path.expanduser("~"), "pyo_rec.wav")

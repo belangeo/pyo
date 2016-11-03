@@ -479,7 +479,7 @@ class VoiceManager(PyoObject):
         self._triggers = triggers
         self._in_fader = InputFader(input)
         in_fader, mul, add, lmax = convertArgsToLists(self._in_fader, mul, add)
-        if triggers != None:
+        if triggers is not None:
             if type(triggers) == ListType:
                 try:
                     t_streams = [obj[0] for obj in triggers]
@@ -521,7 +521,7 @@ class VoiceManager(PyoObject):
         """
         #pyoArgsAssert(self, "o", x)
         self._triggers = x
-        if x != None:
+        if x is not None:
             if type(x) == ListType:
                 try:
                     t_streams = [obj[0] for obj in x]
@@ -642,7 +642,7 @@ class Mixer(PyoObject):
 
         """
         pyoArgsAssert(self, "o", input)
-        if voice == None:
+        if voice is None:
             voice = random.randint(0, 32767)
             while self._inputs.has_key(voice):
                 voice = random.randint(0, 32767)

@@ -18,7 +18,7 @@ if not os.path.isdir(output_folder):
     os.mkdir(output_folder)
 
 # get the list of files to process
-sounds = [file for file in os.listdir(folder_path) if sndinfo(os.path.join(folder_path, file)) != None]
+sounds = [file for file in os.listdir(folder_path) if sndinfo(os.path.join(folder_path, file)) is not None]
 
 # enter the batch processing loop
 for sound in sounds:

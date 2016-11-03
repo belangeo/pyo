@@ -328,7 +328,7 @@ class ServerGUI(Frame):
             self.timetext.grid(ipadx=5, row=row, column=0, columnspan=3)
             row += 1
 
-        if self.locals != None:
+        if self.locals is not None:
             self.interp_label = Label(self, text='Interpreter')
             self.interp_label.grid(ipadx=0, row=row, column=0, columnspan=3)
             row += 1

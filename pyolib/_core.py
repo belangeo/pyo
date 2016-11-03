@@ -704,7 +704,7 @@ class PyoObject(PyoObjectBase):
         return Wrap(self, 0, x)
 
     def __neg__(self):
-        if self._zeros == None:
+        if self._zeros is None:
             self._zeros = Sig(0)
         return self._zeros - self
 
@@ -727,7 +727,7 @@ class PyoObject(PyoObjectBase):
         return self.__do_comp__(comp=x, mode=">=")
 
     def __do_comp__(self, comp, mode, default=False):
-        if comp == None:
+        if comp is None:
             return default
         else:
             return Compare(self, comp=comp, mode=mode)
@@ -1067,7 +1067,7 @@ class PyoObject(PyoObjectBase):
         the server GUI before showing the controller window.
 
         """
-        if map_list == None:
+        if map_list is None:
             map_list = self._map_list
         if map_list == []:
             print("There is no controls for %s object." % self.__class__.__name__)
@@ -1645,11 +1645,11 @@ class PyoTableObject(PyoObjectBase):
         Updates the graphical display of the table, if applicable.
 
         """
-        if self.viewFrame != None:
+        if self.viewFrame is not None:
             size = self.viewFrame.wavePanel.GetSize()
             samples = self._base_objs[0].getViewTable((size[0], size[1]))
             self.viewFrame.update(samples)
-        if self.graphFrame != None:
+        if self.graphFrame is not None:
             self.graphFrame.update(self.getTable())
 
     @property
@@ -1836,7 +1836,7 @@ class PyoMatrixObject(PyoObjectBase):
         Updates the graphical display of the matrix, if applicable.
 
         """
-        if self.viewFrame != None:
+        if self.viewFrame is not None:
             samples = self._base_objs[0].getViewData()
             self.viewFrame.update(samples)
 
@@ -1981,7 +1981,7 @@ class PyoPVObject(PyoObjectBase):
         the server GUI before showing the controller window.
 
         """
-        if map_list == None:
+        if map_list is None:
             map_list = self._map_list
         if map_list == []:
             print("There is no controls for %s object." % self.__class__.__name__)

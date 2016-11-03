@@ -63,7 +63,7 @@ class NewMatrix(PyoMatrixObject):
         pyoArgsAssert(self, "IIL", width, height, init)
         PyoMatrixObject.__init__(self)
         self._size = (width, height)
-        if init == None:
+        if init is None:
             self._base_objs = [NewMatrix_base(width, height)]
         else:
             self._base_objs = [NewMatrix_base(width, height, init)]
