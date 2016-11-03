@@ -109,7 +109,7 @@ class Server(object):
     """
     def __init__(self, sr=44100, nchnls=2, buffersize=256, duplex=1,
                  audio='portaudio', jackname='pyo', ichnls=None):
-        if os.environ.has_key("PYO_SERVER_AUDIO") and "offline" not in audio and "embedded" not in audio:
+        if "PYO_SERVER_AUDIO" in os.environ and "offline" not in audio and "embedded" not in audio:
             audio = os.environ["PYO_SERVER_AUDIO"]
         self._time = time
         self._nchnls = nchnls
@@ -688,7 +688,7 @@ class Server(object):
         ext = filename.rsplit('.')
         if len(ext) >= 2:
             ext = ext[-1].lower()
-            if FILE_FORMATS.has_key(ext):
+            if ext in FILE_FORMATS:
                 fileformat = FILE_FORMATS[ext]
             else:
                 print 'Warning: Unknown file extension. Using fileformat value.'
@@ -720,7 +720,7 @@ class Server(object):
         ext = filename.rsplit('.')
         if len(ext) >= 2:
             ext = ext[-1].lower()
-            if FILE_FORMATS.has_key(ext):
+            if ext in FILE_FORMATS:
                 fileformat = FILE_FORMATS[ext]
                 if fileformat != self._fileformat:
                     self._fileformat = fileformat

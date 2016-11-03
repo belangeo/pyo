@@ -626,7 +626,7 @@ class Record(PyoObject):
         ext = filename.rsplit('.')
         if len(ext) >= 2:
             ext = ext[-1].lower()
-            if FILE_FORMATS.has_key(ext):
+            if ext in FILE_FORMATS:
                 fileformat = FILE_FORMATS[ext]
             else:
                 print 'Warning: Unknown file extension. Using fileformat value.'

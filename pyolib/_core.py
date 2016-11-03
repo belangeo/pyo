@@ -1029,7 +1029,7 @@ class PyoObject(PyoObjectBase):
         pyoArgsAssert(self, "Snn", attr, value, port)
         self._target_dict[attr] = value
         init = getattr(self, attr)
-        if self._signal_dict.has_key(attr):
+        if attr in self._signal_dict:
             if isinstance(self._signal_dict[attr], VarPort):
                 if self._signal_dict[attr].isPlaying():
                     init = self._signal_dict[attr].get(True)
@@ -1159,7 +1159,7 @@ class PyoTableObject(PyoObjectBase):
         ext = path.rsplit('.')
         if len(ext) >= 2:
             ext = ext[-1].lower()
-            if FILE_FORMATS.has_key(ext):
+            if ext in FILE_FORMATS:
                 format = FILE_FORMATS[ext]
         savefileFromTable(self, path, format, sampletype, quality)
 
@@ -1943,7 +1943,7 @@ class PyoPVObject(PyoObjectBase):
         pyoArgsAssert(self, "Snn", attr, value, port)
         self._target_dict[attr] = value
         init = getattr(self, attr)
-        if self._signal_dict.has_key(attr):
+        if attr in self._signal_dict:
             if isinstance(self._signal_dict[attr], VarPort):
                 if self._signal_dict[attr].isPlaying():
                     init = self._signal_dict[attr].get(True)
