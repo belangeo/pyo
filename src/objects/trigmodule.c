@@ -155,7 +155,7 @@ TrigRandInt_dealloc(TrigRandInt* self)
 {
     pyo_DEALLOC
     TrigRandInt_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -611,7 +611,7 @@ TrigRand_dealloc(TrigRand* self)
 {
     pyo_DEALLOC
     TrigRand_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -1012,7 +1012,7 @@ TrigChoice_dealloc(TrigChoice* self)
     pyo_DEALLOC
     free(self->choice);
     TrigChoice_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -1311,7 +1311,7 @@ TrigFunc_dealloc(TrigFunc* self)
 {
     pyo_DEALLOC
     TrigFunc_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -1643,7 +1643,7 @@ TrigEnv_dealloc(TrigEnv* self)
     pyo_DEALLOC
     free(self->trigsBuffer);
     TrigEnv_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -2087,7 +2087,7 @@ TrigLinseg_dealloc(TrigLinseg* self)
     free(self->times);
     free(self->trigsBuffer);
     TrigLinseg_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -2488,7 +2488,7 @@ TrigExpseg_dealloc(TrigExpseg* self)
     free(self->times);
     free(self->trigsBuffer);
     TrigExpseg_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -3185,7 +3185,7 @@ TrigXnoise_dealloc(TrigXnoise* self)
 {
     pyo_DEALLOC
     TrigXnoise_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -3960,7 +3960,7 @@ TrigXnoiseMidi_dealloc(TrigXnoiseMidi* self)
 {
     pyo_DEALLOC
     TrigXnoiseMidi_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -4419,7 +4419,7 @@ Counter_dealloc(Counter* self)
 {
     pyo_DEALLOC
     Counter_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -4849,7 +4849,7 @@ Thresh_dealloc(Thresh* self)
 {
     pyo_DEALLOC
     Thresh_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -5202,7 +5202,7 @@ Percent_dealloc(Percent* self)
 {
     pyo_DEALLOC
     Percent_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -5527,7 +5527,7 @@ Timer_dealloc(Timer* self)
 {
     pyo_DEALLOC
     Timer_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -5812,7 +5812,7 @@ Iter_dealloc(Iter* self)
     pyo_DEALLOC
     free(self->choice);
     Iter_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -6142,7 +6142,7 @@ Count_dealloc(Count* self)
 {
     pyo_DEALLOC
     Count_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -6447,7 +6447,7 @@ NextTrig_dealloc(NextTrig* self)
 {
     pyo_DEALLOC
     NextTrig_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -6748,7 +6748,7 @@ TrigVal_dealloc(TrigVal* self)
 {
     pyo_DEALLOC
     TrigVal_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *

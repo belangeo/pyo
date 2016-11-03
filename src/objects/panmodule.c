@@ -268,7 +268,7 @@ Panner_dealloc(Panner* self)
     pyo_DEALLOC
     free(self->buffer_streams);
     Panner_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -536,7 +536,7 @@ Pan_dealloc(Pan* self)
 {
     pyo_DEALLOC
     Pan_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -919,7 +919,7 @@ SPanner_dealloc(SPanner* self)
     pyo_DEALLOC
     free(self->buffer_streams);
     SPanner_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -1155,7 +1155,7 @@ SPan_dealloc(SPan* self)
 {
     pyo_DEALLOC
     SPan_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -1468,7 +1468,7 @@ Switcher_dealloc(Switcher* self)
     pyo_DEALLOC
     free(self->buffer_streams);
     Switcher_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -1701,7 +1701,7 @@ Switch_dealloc(Switch* self)
 {
     pyo_DEALLOC
     Switch_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -1992,7 +1992,7 @@ VoiceManager_dealloc(VoiceManager* self)
     if (self->voices != NULL)
         free(self->voices);
     VoiceManager_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -2306,7 +2306,7 @@ Mixer_dealloc(Mixer* self)
     pyo_DEALLOC
     free(self->buffer_streams);
     Mixer_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -2631,7 +2631,7 @@ MixerVoice_dealloc(MixerVoice* self)
 {
     pyo_DEALLOC
     MixerVoice_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -2966,7 +2966,7 @@ Selector_dealloc(Selector* self)
 {
     pyo_DEALLOC
     Selector_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *

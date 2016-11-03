@@ -122,7 +122,7 @@ Print_dealloc(Print* self)
 {
     pyo_DEALLOC
     Print_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -414,7 +414,7 @@ Snap_dealloc(Snap* self)
     pyo_DEALLOC
     free(self->choice);
     Snap_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -793,7 +793,7 @@ Interp_dealloc(Interp* self)
 {
     pyo_DEALLOC
     Interp_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -1161,7 +1161,7 @@ SampHold_dealloc(SampHold* self)
 {
     pyo_DEALLOC
     SampHold_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -1535,7 +1535,7 @@ TrackHold_dealloc(TrackHold* self)
 {
     pyo_DEALLOC
     TrackHold_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -1911,7 +1911,7 @@ Compare_dealloc(Compare* self)
 {
     pyo_DEALLOC
     Compare_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -2331,7 +2331,7 @@ Between_dealloc(Between* self)
 {
     pyo_DEALLOC
     Between_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -2681,7 +2681,7 @@ Denorm_dealloc(Denorm* self)
 {
     pyo_DEALLOC
     Denorm_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -2961,7 +2961,7 @@ DBToA_dealloc(DBToA* self)
 {
     pyo_DEALLOC
     DBToA_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -3241,7 +3241,7 @@ AToDB_dealloc(AToDB* self)
 {
     pyo_DEALLOC
     AToDB_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -3654,7 +3654,7 @@ Scale_dealloc(Scale* self)
 {
     pyo_DEALLOC
     Scale_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -4118,7 +4118,7 @@ CentsToTranspo_dealloc(CentsToTranspo* self)
 {
     pyo_DEALLOC
     CentsToTranspo_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -4394,7 +4394,7 @@ TranspoToCents_dealloc(TranspoToCents* self)
 {
     pyo_DEALLOC
     TranspoToCents_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -4670,7 +4670,7 @@ MToF_dealloc(MToF* self)
 {
     pyo_DEALLOC
     MToF_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -4948,7 +4948,7 @@ FToM_dealloc(FToM* self)
 {
     pyo_DEALLOC
     FToM_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -5225,7 +5225,7 @@ MToT_dealloc(MToT* self)
 {
     pyo_DEALLOC
     MToT_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -5640,7 +5640,7 @@ Resample_dealloc(Resample* self)
         free(self->pinput);
     }
     Resample_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *

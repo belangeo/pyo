@@ -35,7 +35,7 @@
 static void
 MatrixStream_dealloc(MatrixStream* self)
 {
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -220,7 +220,7 @@ NewMatrix_dealloc(NewMatrix* self)
     }
     free(self->data);
     NewMatrix_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -566,7 +566,7 @@ MatrixRec_dealloc(MatrixRec* self)
     pyo_DEALLOC
     free(self->trigsBuffer);
     MatrixRec_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -774,7 +774,7 @@ MatrixRecLoop_dealloc(MatrixRecLoop* self)
     pyo_DEALLOC
     free(self->trigsBuffer);
     MatrixRecLoop_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -985,7 +985,7 @@ MatrixMorph_dealloc(MatrixMorph* self)
     pyo_DEALLOC
     free(self->buffer);
     MatrixMorph_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *

@@ -305,7 +305,7 @@ Delay_dealloc(Delay* self)
     pyo_DEALLOC
     free(self->buffer);
     Delay_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -746,7 +746,7 @@ SDelay_dealloc(SDelay* self)
     pyo_DEALLOC
     free(self->buffer);
     SDelay_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -1430,7 +1430,7 @@ Waveguide_dealloc(Waveguide* self)
     pyo_DEALLOC
     free(self->buffer);
     Waveguide_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -2441,7 +2441,7 @@ AllpassWG_dealloc(AllpassWG* self)
         free(self->alpbuffer[i]);
     }
     AllpassWG_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -2845,7 +2845,7 @@ Delay1_dealloc(Delay1* self)
 {
     pyo_DEALLOC
     Delay1_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -3427,7 +3427,7 @@ SmoothDelay_dealloc(SmoothDelay* self)
     pyo_DEALLOC
     free(self->buffer);
     SmoothDelay_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *

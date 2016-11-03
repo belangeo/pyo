@@ -127,7 +127,7 @@ HilbertMain_dealloc(HilbertMain* self)
     pyo_DEALLOC
     free(self->buffer_streams);
     HilbertMain_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -319,7 +319,7 @@ Hilbert_dealloc(Hilbert* self)
 {
     pyo_DEALLOC
     Hilbert_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *

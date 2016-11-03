@@ -140,7 +140,7 @@ InputFader_dealloc(InputFader* self)
 {
     pyo_DEALLOC
     InputFader_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *

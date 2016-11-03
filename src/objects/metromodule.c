@@ -180,7 +180,7 @@ Metro_dealloc(Metro* self)
 {
     pyo_DEALLOC
     Metro_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -541,7 +541,7 @@ Seqer_dealloc(Seqer* self)
     pyo_DEALLOC
     free(self->buffer_streams);
     Seqer_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -803,7 +803,7 @@ Seq_dealloc(Seq* self)
 {
     pyo_DEALLOC
     Seq_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -1081,7 +1081,7 @@ Clouder_dealloc(Clouder* self)
     pyo_DEALLOC
     free(self->buffer_streams);
     Clouder_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -1308,7 +1308,7 @@ Cloud_dealloc(Cloud* self)
 {
     pyo_DEALLOC
     Cloud_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -1555,7 +1555,7 @@ Trig_dealloc(Trig* self)
 {
     pyo_DEALLOC
     Trig_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -2170,7 +2170,7 @@ Beater_dealloc(Beater* self)
     free(self->end_buffer_streams);
     free(self->amplitudes);
     Beater_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -2583,7 +2583,7 @@ Beat_dealloc(Beat* self)
 {
     pyo_DEALLOC
     Beat_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -2833,7 +2833,7 @@ BeatTapStream_dealloc(BeatTapStream* self)
 {
     pyo_DEALLOC
     BeatTapStream_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -3083,7 +3083,7 @@ BeatAmpStream_dealloc(BeatAmpStream* self)
 {
     pyo_DEALLOC
     BeatAmpStream_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -3333,7 +3333,7 @@ BeatDurStream_dealloc(BeatDurStream* self)
 {
     pyo_DEALLOC
     BeatDurStream_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -3583,7 +3583,7 @@ BeatEndStream_dealloc(BeatEndStream* self)
 {
     pyo_DEALLOC
     BeatEndStream_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -3895,7 +3895,7 @@ TrigBurster_dealloc(TrigBurster* self)
     free(self->currentAmp);
     free(self->currentDur);
     TrigBurster_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -4162,7 +4162,7 @@ TrigBurst_dealloc(TrigBurst* self)
 {
     pyo_DEALLOC
     TrigBurst_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -4412,7 +4412,7 @@ TrigBurstTapStream_dealloc(TrigBurstTapStream* self)
 {
     pyo_DEALLOC
     TrigBurstTapStream_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -4662,7 +4662,7 @@ TrigBurstAmpStream_dealloc(TrigBurstAmpStream* self)
 {
     pyo_DEALLOC
     TrigBurstAmpStream_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -4912,7 +4912,7 @@ TrigBurstDurStream_dealloc(TrigBurstDurStream* self)
 {
     pyo_DEALLOC
     TrigBurstDurStream_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -5162,7 +5162,7 @@ TrigBurstEndStream_dealloc(TrigBurstEndStream* self)
 {
     pyo_DEALLOC
     TrigBurstEndStream_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *

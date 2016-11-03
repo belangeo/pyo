@@ -87,7 +87,7 @@ MidiListener_dealloc(MidiListener* self)
     if (self->active == 1)
         PyObject_CallMethod((PyObject *)self, "stop", NULL);
     MidiListener_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *

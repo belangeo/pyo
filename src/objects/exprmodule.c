@@ -496,7 +496,7 @@ Expr_dealloc(Expr* self)
 {
     pyo_DEALLOC
     Expr_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *

@@ -134,7 +134,7 @@ Select_dealloc(Select* self)
 {
     pyo_DEALLOC
     Select_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -420,7 +420,7 @@ Change_dealloc(Change* self)
 {
     pyo_DEALLOC
     Change_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *

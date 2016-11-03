@@ -53,7 +53,7 @@ Stream_dealloc(Stream* self)
 {
     self->data = NULL;
     Stream_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 int
@@ -255,7 +255,7 @@ static void
 TriggerStream_dealloc(TriggerStream* self)
 {
     self->data = NULL;
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 MYFLT *

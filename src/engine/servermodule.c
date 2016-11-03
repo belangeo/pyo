@@ -569,7 +569,7 @@ Server_dealloc(Server* self)
     if (self->withGUI == 1)
         free(self->lastRms);
     my_server[self->thisServerID] = NULL;
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *

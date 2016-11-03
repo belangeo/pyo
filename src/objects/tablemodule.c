@@ -39,7 +39,7 @@
 static void
 TableStream_dealloc(TableStream* self)
 {
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -202,7 +202,7 @@ HarmTable_dealloc(HarmTable* self)
 {
     free(self->data);
     HarmTable_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -500,7 +500,7 @@ ChebyTable_dealloc(ChebyTable* self)
 {
     free(self->data);
     ChebyTable_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -815,7 +815,7 @@ HannTable_dealloc(HannTable* self)
 {
     free(self->data);
     HannTable_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -1041,7 +1041,7 @@ SincTable_dealloc(SincTable* self)
 {
     free(self->data);
     SincTable_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -1278,7 +1278,7 @@ WinTable_dealloc(WinTable* self)
 {
     free(self->data);
     WinTable_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -1515,7 +1515,7 @@ ParaTable_dealloc(ParaTable* self)
 {
     free(self->data);
     ParaTable_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -1751,7 +1751,7 @@ LinTable_dealloc(LinTable* self)
 {
     free(self->data);
     LinTable_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -2079,7 +2079,7 @@ LogTable_dealloc(LogTable* self)
 {
     free(self->data);
     LogTable_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -2385,7 +2385,7 @@ CosTable_dealloc(CosTable* self)
 {
     free(self->data);
     CosTable_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -2715,7 +2715,7 @@ CosLogTable_dealloc(CosLogTable* self)
 {
     free(self->data);
     CosLogTable_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -3046,7 +3046,7 @@ CurveTable_dealloc(CurveTable* self)
 {
     free(self->data);
     CurveTable_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -3420,7 +3420,7 @@ ExpTable_dealloc(ExpTable* self)
 {
     free(self->data);
     ExpTable_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -4108,7 +4108,7 @@ SndTable_dealloc(SndTable* self)
 {
     free(self->data);
     SndTable_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -4579,7 +4579,7 @@ NewTable_dealloc(NewTable* self)
 {
     free(self->data);
     NewTable_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -4899,7 +4899,7 @@ DataTable_dealloc(DataTable* self)
 {
     free(self->data);
     DataTable_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -5107,7 +5107,7 @@ AtanTable_dealloc(AtanTable* self)
 {
     free(self->data);
     AtanTable_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -5420,7 +5420,7 @@ PadSynthTable_dealloc(PadSynthTable* self)
     free(self->twiddle);
     free(self->data);
     PadSynthTable_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -5817,7 +5817,7 @@ TableRec_dealloc(TableRec* self)
     free(self->trigsBuffer);
     free(self->time_buffer_streams);
     TableRec_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -6051,7 +6051,7 @@ TableRecTimeStream_dealloc(TableRecTimeStream* self)
 {
     pyo_DEALLOC
     TableRecTimeStream_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -6307,7 +6307,7 @@ TableMorph_dealloc(TableMorph* self)
     pyo_DEALLOC
     free(self->buffer);
     TableMorph_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -6607,7 +6607,7 @@ TrigTableRec_dealloc(TrigTableRec* self)
     free(self->trigsBuffer);
     TrigTableRec_clear(self);
     free(self->time_buffer_streams);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -6842,7 +6842,7 @@ TrigTableRecTimeStream_dealloc(TrigTableRecTimeStream* self)
 {
     pyo_DEALLOC
     TrigTableRecTimeStream_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -7070,7 +7070,7 @@ TablePut_dealloc(TablePut* self)
     pyo_DEALLOC
     free(self->trigsBuffer);
     TablePut_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -7279,7 +7279,7 @@ TableWrite_dealloc(TableWrite* self)
 {
     pyo_DEALLOC
     TableWrite_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *

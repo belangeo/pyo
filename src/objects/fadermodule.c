@@ -202,7 +202,7 @@ Fader_dealloc(Fader* self)
 {
     pyo_DEALLOC
     Fader_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -612,7 +612,7 @@ Adsr_dealloc(Adsr* self)
 {
     pyo_DEALLOC
     Adsr_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -1052,7 +1052,7 @@ Linseg_dealloc(Linseg* self)
     free(self->targets);
     free(self->times);
     Linseg_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -1468,7 +1468,7 @@ Expseg_dealloc(Expseg* self)
     free(self->targets);
     free(self->times);
     Expseg_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *

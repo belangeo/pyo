@@ -110,7 +110,7 @@ Input_dealloc(Input* self)
 {
     pyo_DEALLOC
     Input_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *

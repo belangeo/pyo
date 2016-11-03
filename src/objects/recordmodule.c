@@ -111,7 +111,7 @@ Record_dealloc(Record* self)
     pyo_DEALLOC
     free(self->buffer);
     Record_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -376,7 +376,7 @@ ControlRec_dealloc(ControlRec* self)
     if (self->buffer != NULL)
         free(self->buffer);
     ControlRec_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -651,7 +651,7 @@ ControlRead_dealloc(ControlRead* self)
     free(self->values);
     free(self->trigsBuffer);
     ControlRead_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -991,7 +991,7 @@ NoteinRec_dealloc(NoteinRec* self)
 {
     pyo_DEALLOC
     NoteinRec_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -1254,7 +1254,7 @@ NoteinRead_dealloc(NoteinRead* self)
     free(self->timestamps);
     free(self->trigsBuffer);
     NoteinRead_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *

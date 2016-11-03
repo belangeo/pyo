@@ -472,7 +472,7 @@ WGVerb_dealloc(WGVerb* self)
         free(self->buffer[i]);
     }
     WGVerb_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -1446,7 +1446,7 @@ STReverb_dealloc(STReverb* self)
     }
     free(self->buffer_streams);
     STReverb_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -1916,7 +1916,7 @@ STRev_dealloc(STRev* self)
 {
     pyo_DEALLOC
     STRev_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *

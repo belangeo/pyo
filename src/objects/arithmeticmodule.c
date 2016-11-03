@@ -125,7 +125,7 @@ M_Sin_dealloc(M_Sin* self)
 {
     pyo_DEALLOC
     M_Sin_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -390,7 +390,7 @@ M_Cos_dealloc(M_Cos* self)
 {
     pyo_DEALLOC
     M_Cos_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -655,7 +655,7 @@ M_Tan_dealloc(M_Tan* self)
 {
     pyo_DEALLOC
     M_Tan_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -925,7 +925,7 @@ M_Abs_dealloc(M_Abs* self)
 {
     pyo_DEALLOC
     M_Abs_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -1195,7 +1195,7 @@ M_Sqrt_dealloc(M_Sqrt* self)
 {
     pyo_DEALLOC
     M_Sqrt_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -1465,7 +1465,7 @@ M_Log_dealloc(M_Log* self)
 {
     pyo_DEALLOC
     M_Log_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -1735,7 +1735,7 @@ M_Log10_dealloc(M_Log10* self)
 {
     pyo_DEALLOC
     M_Log10_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -2005,7 +2005,7 @@ M_Log2_dealloc(M_Log2* self)
 {
     pyo_DEALLOC
     M_Log2_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -2327,7 +2327,7 @@ M_Pow_dealloc(M_Pow* self)
 {
     pyo_DEALLOC
     M_Pow_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -2724,7 +2724,7 @@ M_Atan2_dealloc(M_Atan2* self)
 {
     pyo_DEALLOC
     M_Atan2_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -3064,7 +3064,7 @@ M_Floor_dealloc(M_Floor* self)
 {
     pyo_DEALLOC
     M_Floor_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -3329,7 +3329,7 @@ M_Ceil_dealloc(M_Ceil* self)
 {
     pyo_DEALLOC
     M_Ceil_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -3594,7 +3594,7 @@ M_Round_dealloc(M_Round* self)
 {
     pyo_DEALLOC
     M_Round_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -3859,7 +3859,7 @@ M_Tanh_dealloc(M_Tanh* self)
 {
     pyo_DEALLOC
     M_Tanh_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -4124,7 +4124,7 @@ M_Exp_dealloc(M_Exp* self)
 {
     pyo_DEALLOC
     M_Exp_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *

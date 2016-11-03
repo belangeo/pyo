@@ -137,7 +137,7 @@ OscListener_dealloc(OscListener* self)
 {
     lo_server_free(self->osc_server);
     OscListener_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *

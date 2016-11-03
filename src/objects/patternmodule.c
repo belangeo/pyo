@@ -155,7 +155,7 @@ Pattern_dealloc(Pattern* self)
 {
     pyo_DEALLOC
     Pattern_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -404,7 +404,7 @@ Score_dealloc(Score* self)
 {
     pyo_DEALLOC
     Score_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -567,7 +567,7 @@ CallAfter_dealloc(CallAfter* self)
 {
     pyo_DEALLOC
     CallAfter_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *

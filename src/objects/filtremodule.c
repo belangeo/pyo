@@ -338,7 +338,7 @@ Biquad_dealloc(Biquad* self)
 {
     pyo_DEALLOC
     Biquad_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -958,7 +958,7 @@ Biquadx_dealloc(Biquadx* self)
     free(self->y1);
     free(self->y2);
     Biquadx_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -1383,7 +1383,7 @@ Biquada_dealloc(Biquada* self)
 {
     pyo_DEALLOC
     Biquada_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -2074,7 +2074,7 @@ EQ_dealloc(EQ* self)
 {
     pyo_DEALLOC
     EQ_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -2602,7 +2602,7 @@ Port_dealloc(Port* self)
 {
     pyo_DEALLOC
     Port_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -3003,7 +3003,7 @@ Tone_dealloc(Tone* self)
 {
     pyo_DEALLOC
     Tone_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -3366,7 +3366,7 @@ Atone_dealloc(Atone* self)
 {
     pyo_DEALLOC
     Atone_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -3679,7 +3679,7 @@ DCBlock_dealloc(DCBlock* self)
 {
     pyo_DEALLOC
     DCBlock_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -4120,7 +4120,7 @@ Allpass_dealloc(Allpass* self)
     pyo_DEALLOC
     free(self->buffer);
     Allpass_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -4599,7 +4599,7 @@ Allpass2_dealloc(Allpass2* self)
 {
     pyo_DEALLOC
     Allpass2_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -5348,7 +5348,7 @@ Phaser_dealloc(Phaser* self)
     free(self->alpha);
     free(self->beta);
     Phaser_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -6579,7 +6579,7 @@ Vocoder_dealloc(Vocoder* self)
     free(self->a2);
     free(self->follow);
     Vocoder_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -7456,7 +7456,7 @@ SVF_dealloc(SVF* self)
 {
     pyo_DEALLOC
     SVF_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -7884,7 +7884,7 @@ Average_dealloc(Average* self)
     pyo_DEALLOC
     free(self->buffer);
     Average_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -8325,7 +8325,7 @@ Reson_dealloc(Reson* self)
 {
     pyo_DEALLOC
     Reson_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -8850,7 +8850,7 @@ Resonx_dealloc(Resonx* self)
     free(self->y1);
     free(self->y2);
     Resonx_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -9297,7 +9297,7 @@ ButLP_dealloc(ButLP* self)
 {
     pyo_DEALLOC
     ButLP_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -9686,7 +9686,7 @@ ButHP_dealloc(ButHP* self)
 {
     pyo_DEALLOC
     ButHP_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -10141,7 +10141,7 @@ ButBP_dealloc(ButBP* self)
 {
     pyo_DEALLOC
     ButBP_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -10635,7 +10635,7 @@ ButBR_dealloc(ButBR* self)
 {
     pyo_DEALLOC
     ButBR_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -11135,7 +11135,7 @@ ComplexRes_dealloc(ComplexRes* self)
 {
     pyo_DEALLOC
     ComplexRes_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -11645,7 +11645,7 @@ MoogLP_dealloc(MoogLP* self)
 {
     pyo_DEALLOC
     MoogLP_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *

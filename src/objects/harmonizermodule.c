@@ -422,7 +422,7 @@ Harmonizer_dealloc(Harmonizer* self)
     pyo_DEALLOC
     free(self->buffer);
     Harmonizer_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *

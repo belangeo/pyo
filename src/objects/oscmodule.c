@@ -86,7 +86,7 @@ OscReceiver_dealloc(OscReceiver* self)
     lo_server_free(self->osc_server);
     pyo_DEALLOC
     OscReceiver_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -343,7 +343,7 @@ OscReceive_dealloc(OscReceive* self)
 {
     pyo_DEALLOC
     OscReceive_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -594,7 +594,7 @@ OscSend_dealloc(OscSend* self)
 {
     pyo_DEALLOC
     OscSend_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -832,7 +832,7 @@ OscDataSend_dealloc(OscDataSend* self)
 {
     pyo_DEALLOC
     OscDataSend_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -1088,7 +1088,7 @@ OscDataReceive_dealloc(OscDataReceive* self)
     lo_server_free(self->osc_server);
     pyo_DEALLOC
     OscDataReceive_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -1288,7 +1288,7 @@ OscListReceiver_dealloc(OscListReceiver* self)
     lo_server_free(self->osc_server);
     pyo_DEALLOC
     OscListReceiver_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -1564,7 +1564,7 @@ OscListReceive_dealloc(OscListReceive* self)
 {
     pyo_DEALLOC
     OscListReceive_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *

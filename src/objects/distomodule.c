@@ -244,7 +244,7 @@ Disto_dealloc(Disto* self)
 {
     pyo_DEALLOC
     Disto_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -684,7 +684,7 @@ Clip_dealloc(Clip* self)
 {
     pyo_DEALLOC
     Clip_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -1153,7 +1153,7 @@ Mirror_dealloc(Mirror* self)
 {
     pyo_DEALLOC
     Mirror_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -1646,7 +1646,7 @@ Wrap_dealloc(Wrap* self)
 {
     pyo_DEALLOC
     Wrap_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -2128,7 +2128,7 @@ Degrade_dealloc(Degrade* self)
 {
     pyo_DEALLOC
     Degrade_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -2498,7 +2498,7 @@ Min_dealloc(Min* self)
 {
     pyo_DEALLOC
     Min_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -2828,7 +2828,7 @@ Max_dealloc(Max* self)
 {
     pyo_DEALLOC
     Max_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *

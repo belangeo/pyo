@@ -132,7 +132,7 @@ Noise_dealloc(Noise* self)
 {
     pyo_DEALLOC
     Noise_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -421,7 +421,7 @@ PinkNoise_dealloc(PinkNoise* self)
 {
     pyo_DEALLOC
     PinkNoise_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -681,7 +681,7 @@ BrownNoise_dealloc(BrownNoise* self)
 {
     pyo_DEALLOC
     BrownNoise_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *

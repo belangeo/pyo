@@ -34,7 +34,7 @@ PVStream_dealloc(PVStream* self)
 {
     self->magn = NULL;
     self->freq = NULL;
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 int

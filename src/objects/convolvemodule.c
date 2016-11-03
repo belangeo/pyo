@@ -147,7 +147,7 @@ Convolve_dealloc(Convolve* self)
     pyo_DEALLOC
     free(self->input_tmp);
     Convolve_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -617,7 +617,7 @@ IRWinSinc_dealloc(IRWinSinc* self)
     free(self->impulse);
     free(self->impulse_tmp);
     IRWinSinc_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -1024,7 +1024,7 @@ IRAverage_dealloc(IRAverage* self)
     free(self->input_tmp);
     free(self->impulse);
     IRAverage_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -1480,7 +1480,7 @@ IRPulse_dealloc(IRPulse* self)
     free(self->input_tmp);
     free(self->impulse);
     IRPulse_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -1963,7 +1963,7 @@ IRFM_dealloc(IRFM* self)
     free(self->input_tmp);
     free(self->impulse);
     IRFM_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *

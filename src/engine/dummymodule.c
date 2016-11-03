@@ -107,7 +107,7 @@ Dummy_dealloc(Dummy* self)
 {
     pyo_DEALLOC
     Dummy_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 PyObject *
@@ -368,7 +368,7 @@ TriggerDummy_dealloc(TriggerDummy* self)
 {
     pyo_DEALLOC
     TriggerDummy_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *

@@ -127,7 +127,7 @@ Mix_dealloc(Mix* self)
 {
     pyo_DEALLOC
     Mix_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *

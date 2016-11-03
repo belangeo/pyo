@@ -290,7 +290,7 @@ SfPlayer_dealloc(SfPlayer* self)
     free(self->trigsBuffer);
     free(self->samplesBuffer);
     SfPlayer_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -649,7 +649,7 @@ SfPlay_dealloc(SfPlay* self)
 {
     pyo_DEALLOC
     SfPlay_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -1086,7 +1086,7 @@ SfMarkerShuffler_dealloc(SfMarkerShuffler* self)
     free(self->samplesBuffer);
     free(self->markers);
     SfMarkerShuffler_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -1375,7 +1375,7 @@ SfMarkerShuffle_dealloc(SfMarkerShuffle* self)
 {
     pyo_DEALLOC
     SfMarkerShuffle_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -1826,7 +1826,7 @@ SfMarkerLooper_dealloc(SfMarkerLooper* self)
     free(self->samplesBuffer);
     free(self->markers);
     SfMarkerLooper_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -2152,7 +2152,7 @@ SfMarkerLoop_dealloc(SfMarkerLoop* self)
 {
     pyo_DEALLOC
     SfMarkerLoop_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *

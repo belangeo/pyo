@@ -177,7 +177,7 @@ FFTMain_dealloc(FFTMain* self)
     free(self->twiddle);
     free(self->twiddle2);
     FFTMain_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -401,7 +401,7 @@ FFT_dealloc(FFT* self)
 {
     pyo_DEALLOC
     FFT_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -742,7 +742,7 @@ IFFT_dealloc(IFFT* self)
     free(self->twiddle);
     free(self->twiddle2);
     IFFT_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -1073,7 +1073,7 @@ CarToPol_dealloc(CarToPol* self)
 {
     pyo_DEALLOC
     CarToPol_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -1356,7 +1356,7 @@ PolToCar_dealloc(PolToCar* self)
 {
     pyo_DEALLOC
     PolToCar_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -1624,7 +1624,7 @@ FrameDeltaMain_dealloc(FrameDeltaMain* self)
     free(self->frameBuffer);
     free(self->buffer_streams);
     FrameDeltaMain_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -1876,7 +1876,7 @@ FrameDelta_dealloc(FrameDelta* self)
 {
     pyo_DEALLOC
     FrameDelta_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -2133,7 +2133,7 @@ FrameAccumMain_dealloc(FrameAccumMain* self)
     free(self->frameBuffer);
     free(self->buffer_streams);
     FrameAccumMain_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -2385,7 +2385,7 @@ FrameAccum_dealloc(FrameAccum* self)
 {
     pyo_DEALLOC
     FrameAccum_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -2700,7 +2700,7 @@ VectralMain_dealloc(VectralMain* self)
     free(self->frameBuffer);
     free(self->buffer_streams);
     VectralMain_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -3062,7 +3062,7 @@ Vectral_dealloc(Vectral* self)
 {
     pyo_DEALLOC
     Vectral_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -3601,7 +3601,7 @@ CvlVerb_dealloc(CvlVerb* self)
     free(self->real);
     free(self->imag);
     CvlVerb_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -4042,7 +4042,7 @@ Spectrum_dealloc(Spectrum* self)
     }
     free(self->twiddle);
     Spectrum_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *

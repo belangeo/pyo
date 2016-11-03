@@ -179,7 +179,7 @@ Follower_dealloc(Follower* self)
 {
     pyo_DEALLOC
     Follower_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -640,7 +640,7 @@ Follower2_dealloc(Follower2* self)
 {
     pyo_DEALLOC
     Follower2_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -1001,7 +1001,7 @@ ZCross_dealloc(ZCross* self)
 {
     pyo_DEALLOC
     ZCross_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -1367,7 +1367,7 @@ Yin_dealloc(Yin* self)
     free(self->input_buffer);
     free(self->yin_buffer);
     Yin_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -1778,7 +1778,7 @@ Centroid_dealloc(Centroid* self)
     free(self->twiddle);
     free(self->window);
     Centroid_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -2110,7 +2110,7 @@ AttackDetector_dealloc(AttackDetector* self)
     pyo_DEALLOC
     free(self->buffer);
     AttackDetector_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -2488,7 +2488,7 @@ Scope_dealloc(Scope* self)
     pyo_DEALLOC
     free(self->buffer);
     Scope_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -2749,7 +2749,7 @@ PeakAmp_dealloc(PeakAmp* self)
 {
     pyo_DEALLOC
     PeakAmp_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *

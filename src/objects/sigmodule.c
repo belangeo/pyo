@@ -121,7 +121,7 @@ Sig_dealloc(Sig* self)
 {
     pyo_DEALLOC
     Sig_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -477,7 +477,7 @@ SigTo_dealloc(SigTo* self)
 {
     pyo_DEALLOC
     SigTo_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -858,7 +858,7 @@ VarPort_dealloc(VarPort* self)
 {
     pyo_DEALLOC
     VarPort_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *

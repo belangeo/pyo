@@ -87,7 +87,7 @@ CtlScan_dealloc(CtlScan* self)
 {
     pyo_DEALLOC
     CtlScan_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -288,7 +288,7 @@ CtlScan2_dealloc(CtlScan2* self)
 {
     pyo_DEALLOC
     CtlScan2_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -561,7 +561,7 @@ Midictl_dealloc(Midictl* self)
 {
     pyo_DEALLOC
     Midictl_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -981,7 +981,7 @@ Bendin_dealloc(Bendin* self)
 {
     pyo_DEALLOC
     Bendin_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -1342,7 +1342,7 @@ Touchin_dealloc(Touchin* self)
 {
     pyo_DEALLOC
     Touchin_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -1689,7 +1689,7 @@ Programin_dealloc(Programin* self)
 {
     pyo_DEALLOC
     Programin_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -2037,7 +2037,7 @@ MidiNote_dealloc(MidiNote* self)
     free(self->notebuf);
     free(self->trigger_streams);
     MidiNote_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static MYFLT *
@@ -2325,7 +2325,7 @@ Notein_dealloc(Notein* self)
 {
     pyo_DEALLOC
     Notein_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -2581,7 +2581,7 @@ NoteinTrig_dealloc(NoteinTrig* self)
 {
     pyo_DEALLOC
     NoteinTrig_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -2913,7 +2913,7 @@ MidiAdsr_dealloc(MidiAdsr* self)
     pyo_DEALLOC
     free(self->buf);
     MidiAdsr_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -3346,7 +3346,7 @@ MidiDelAdsr_dealloc(MidiDelAdsr* self)
     pyo_DEALLOC
     free(self->buf);
     MidiDelAdsr_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -3677,7 +3677,7 @@ RawMidi_dealloc(RawMidi* self)
 {
     pyo_DEALLOC
     RawMidi_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *

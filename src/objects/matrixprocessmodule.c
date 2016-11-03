@@ -136,7 +136,7 @@ MatrixPointer_dealloc(MatrixPointer* self)
 {
     pyo_DEALLOC
     MatrixPointer_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *

@@ -240,7 +240,7 @@ Compress_dealloc(Compress* self)
     pyo_DEALLOC
     free(self->lh_buffer);
     Compress_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -1218,7 +1218,7 @@ Gate_dealloc(Gate* self)
     pyo_DEALLOC
     free(self->lh_buffer);
     Gate_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -1714,7 +1714,7 @@ Balance_dealloc(Balance* self)
 {
     pyo_DEALLOC
     Balance_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *

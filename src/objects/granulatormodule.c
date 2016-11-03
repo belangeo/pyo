@@ -677,7 +677,7 @@ Granulator_dealloc(Granulator* self)
     free(self->gsize);
     free(self->lastppos);
     Granulator_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -1834,7 +1834,7 @@ Looper_dealloc(Looper* self)
     free(self->trigsBuffer);
     free(self->time_buffer);
     Looper_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -2431,7 +2431,7 @@ LooperTimeStream_dealloc(LooperTimeStream* self)
 {
     pyo_DEALLOC
     LooperTimeStream_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -2909,7 +2909,7 @@ Granule_dealloc(Granule* self)
     free(self->flags);
     free(self->phase);
     Granule_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -3911,7 +3911,7 @@ MainParticle_dealloc(MainParticle* self)
     free(self->amp2);
     free(self->buffer_streams);
     MainParticle_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 MYFLT *
@@ -4418,7 +4418,7 @@ Particle_dealloc(Particle* self)
 {
     pyo_DEALLOC
     Particle_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *

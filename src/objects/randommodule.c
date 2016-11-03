@@ -345,7 +345,7 @@ Randi_dealloc(Randi* self)
 {
     pyo_DEALLOC
     Randi_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -945,7 +945,7 @@ Randh_dealloc(Randh* self)
 {
     pyo_DEALLOC
     Randh_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -1380,7 +1380,7 @@ Choice_dealloc(Choice* self)
     pyo_DEALLOC
     free(self->choice);
     Choice_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -1806,7 +1806,7 @@ RandInt_dealloc(RandInt* self)
 {
     pyo_DEALLOC
     RandInt_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -2264,7 +2264,7 @@ RandDur_dealloc(RandDur* self)
 {
     pyo_DEALLOC
     RandDur_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -3113,7 +3113,7 @@ Xnoise_dealloc(Xnoise* self)
 {
     pyo_DEALLOC
     Xnoise_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -4053,7 +4053,7 @@ XnoiseMidi_dealloc(XnoiseMidi* self)
 {
     pyo_DEALLOC
     XnoiseMidi_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -4853,7 +4853,7 @@ XnoiseDur_dealloc(XnoiseDur* self)
 {
     pyo_DEALLOC
     XnoiseDur_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -5412,7 +5412,7 @@ Urn_dealloc(Urn* self)
     free(self->list);
     free(self->trigsBuffer);
     Urn_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -5851,7 +5851,7 @@ LogiMap_dealloc(LogiMap* self)
 {
     pyo_DEALLOC
     LogiMap_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *

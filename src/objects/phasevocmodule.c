@@ -210,7 +210,7 @@ PVAnal_dealloc(PVAnal* self)
     free(self->freq);
     free(self->count);
     PVAnal_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -587,7 +587,7 @@ PVSynth_dealloc(PVSynth* self)
     free(self->twiddle);
     free(self->window);
     PVSynth_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -1053,7 +1053,7 @@ PVAddSynth_dealloc(PVAddSynth* self)
     free(self->amp);
     free(self->freq);
     PVAddSynth_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -1538,7 +1538,7 @@ PVTranspose_dealloc(PVTranspose* self)
     free(self->freq);
     free(self->count);
     PVTranspose_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -2052,7 +2052,7 @@ PVVerb_dealloc(PVVerb* self)
     free(self->l_freq);
     free(self->count);
     PVVerb_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -2581,7 +2581,7 @@ PVGate_dealloc(PVGate* self)
     free(self->freq);
     free(self->count);
     PVGate_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -2987,7 +2987,7 @@ PVCross_dealloc(PVCross* self)
     free(self->freq);
     free(self->count);
     PVCross_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -3325,7 +3325,7 @@ PVMult_dealloc(PVMult* self)
     free(self->freq);
     free(self->count);
     PVMult_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -3687,7 +3687,7 @@ PVMorph_dealloc(PVMorph* self)
     free(self->freq);
     free(self->count);
     PVMorph_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -4123,7 +4123,7 @@ PVFilter_dealloc(PVFilter* self)
     free(self->freq);
     free(self->count);
     PVFilter_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -4600,7 +4600,7 @@ PVDelay_dealloc(PVDelay* self)
     free(self->freq_buf);
     free(self->count);
     PVDelay_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -5054,7 +5054,7 @@ PVBuffer_dealloc(PVBuffer* self)
     free(self->freq_buf);
     free(self->count);
     PVBuffer_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -5454,7 +5454,7 @@ PVShift_dealloc(PVShift* self)
     free(self->freq);
     free(self->count);
     PVShift_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -5925,7 +5925,7 @@ PVAmpMod_dealloc(PVAmpMod* self)
     free(self->pointers);
     free(self->count);
     PVAmpMod_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -6523,7 +6523,7 @@ PVFreqMod_dealloc(PVFreqMod* self)
     free(self->pointers);
     free(self->count);
     PVFreqMod_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -7055,7 +7055,7 @@ PVBufLoops_dealloc(PVBufLoops* self)
     free(self->speeds);
     free(self->pointers);
     PVBufLoops_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -7481,7 +7481,7 @@ PVBufTabLoops_dealloc(PVBufTabLoops* self)
     free(self->count);
     free(self->pointers);
     PVBufTabLoops_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -7789,7 +7789,7 @@ PVMix_dealloc(PVMix* self)
     free(self->freq);
     free(self->count);
     PVMix_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *

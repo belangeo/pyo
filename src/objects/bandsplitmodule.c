@@ -205,7 +205,7 @@ BandSplitter_dealloc(BandSplitter* self)
     free(self->a2);
     free(self->buffer_streams);
     BandSplitter_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -451,7 +451,7 @@ BandSplit_dealloc(BandSplit* self)
 {
     pyo_DEALLOC
     BandSplit_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -844,7 +844,7 @@ FourBandMain_dealloc(FourBandMain* self)
     pyo_DEALLOC
     free(self->buffer_streams);
     FourBandMain_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -1151,7 +1151,7 @@ FourBand_dealloc(FourBand* self)
 {
     pyo_DEALLOC
     FourBand_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
