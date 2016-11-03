@@ -252,7 +252,7 @@ static PyMethodDef Record_methods[] = {
 };
 
 PyTypeObject RecordType = {
-PyObject_HEAD_INIT(NULL)
+PyVarObject_HEAD_INIT(NULL, 0)
 0,                                              /*ob_size*/
 "_pyo.Record_base",                                   /*tp_name*/
 sizeof(Record),                                 /*tp_basicsize*/
@@ -476,7 +476,7 @@ static PyMethodDef ControlRec_methods[] = {
 };
 
 PyTypeObject ControlRecType = {
-    PyObject_HEAD_INIT(NULL)
+    PyVarObject_HEAD_INIT(NULL, 0)
     0,                                              /*ob_size*/
     "_pyo.ControlRec_base",                                   /*tp_name*/
     sizeof(ControlRec),                                 /*tp_basicsize*/
@@ -866,7 +866,7 @@ static PyNumberMethods ControlRead_as_number = {
 };
 
 PyTypeObject ControlReadType = {
-    PyObject_HEAD_INIT(NULL)
+    PyVarObject_HEAD_INIT(NULL, 0)
     0,                         /*ob_size*/
     "_pyo.ControlRead_base",         /*tp_name*/
     sizeof(ControlRead),         /*tp_basicsize*/
@@ -1083,7 +1083,7 @@ static PyMethodDef NoteinRec_methods[] = {
 };
 
 PyTypeObject NoteinRecType = {
-    PyObject_HEAD_INIT(NULL)
+    PyVarObject_HEAD_INIT(NULL, 0)
     0,                                              /*ob_size*/
     "_pyo.NoteinRec_base",                                   /*tp_name*/
     sizeof(NoteinRec),                                 /*tp_basicsize*/
@@ -1455,7 +1455,7 @@ static PyNumberMethods NoteinRead_as_number = {
 };
 
 PyTypeObject NoteinReadType = {
-    PyObject_HEAD_INIT(NULL)
+    PyVarObject_HEAD_INIT(NULL, 0)
     0,                         /*ob_size*/
     "_pyo.NoteinRead_base",         /*tp_name*/
     sizeof(NoteinRead),         /*tp_basicsize*/

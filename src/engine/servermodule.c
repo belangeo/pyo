@@ -2020,7 +2020,7 @@ static PyMemberDef Server_members[] = {
 };
 
 PyTypeObject ServerType = {
-    PyObject_HEAD_INIT(NULL)
+    PyVarObject_HEAD_INIT(NULL, 0)
     0,                         /*ob_size*/
     "_pyo.Server",         /*tp_name*/
     sizeof(Server),         /*tp_basicsize*/

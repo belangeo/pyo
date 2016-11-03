@@ -276,7 +276,7 @@ static PyNumberMethods Noise_as_number = {
 };
 
 PyTypeObject NoiseType = {
-PyObject_HEAD_INIT(NULL)
+PyVarObject_HEAD_INIT(NULL, 0)
 0,                         /*ob_size*/
 "_pyo.Noise_base",         /*tp_name*/
 sizeof(Noise),         /*tp_basicsize*/
@@ -546,7 +546,7 @@ static PyNumberMethods PinkNoise_as_number = {
 };
 
 PyTypeObject PinkNoiseType = {
-    PyObject_HEAD_INIT(NULL)
+    PyVarObject_HEAD_INIT(NULL, 0)
     0,                         /*ob_size*/
     "_pyo.PinkNoise_base",         /*tp_name*/
     sizeof(PinkNoise),         /*tp_basicsize*/
@@ -811,7 +811,7 @@ static PyNumberMethods BrownNoise_as_number = {
 };
 
 PyTypeObject BrownNoiseType = {
-    PyObject_HEAD_INIT(NULL)
+    PyVarObject_HEAD_INIT(NULL, 0)
     0,                         /*ob_size*/
     "_pyo.BrownNoise_base",         /*tp_name*/
     sizeof(BrownNoise),         /*tp_basicsize*/

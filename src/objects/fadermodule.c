@@ -392,7 +392,7 @@ static PyNumberMethods Fader_as_number = {
 };
 
 PyTypeObject FaderType = {
-PyObject_HEAD_INIT(NULL)
+PyVarObject_HEAD_INIT(NULL, 0)
 0,                         /*ob_size*/
 "_pyo.Fader_base",         /*tp_name*/
 sizeof(Fader),         /*tp_basicsize*/
@@ -852,7 +852,7 @@ static PyNumberMethods Adsr_as_number = {
 };
 
 PyTypeObject AdsrType = {
-PyObject_HEAD_INIT(NULL)
+PyVarObject_HEAD_INIT(NULL, 0)
 0,                         /*ob_size*/
 "_pyo.Adsr_base",         /*tp_name*/
 sizeof(Adsr),         /*tp_basicsize*/
@@ -1246,7 +1246,7 @@ static PyNumberMethods Linseg_as_number = {
 };
 
 PyTypeObject LinsegType = {
-PyObject_HEAD_INIT(NULL)
+PyVarObject_HEAD_INIT(NULL, 0)
 0,                         /*ob_size*/
 "_pyo.Linseg_base",         /*tp_name*/
 sizeof(Linseg),         /*tp_basicsize*/
@@ -1690,7 +1690,7 @@ static PyNumberMethods Expseg_as_number = {
 };
 
 PyTypeObject ExpsegType = {
-    PyObject_HEAD_INIT(NULL)
+    PyVarObject_HEAD_INIT(NULL, 0)
     0,                         /*ob_size*/
     "_pyo.Expseg_base",         /*tp_name*/
     sizeof(Expseg),         /*tp_basicsize*/

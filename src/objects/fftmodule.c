@@ -269,7 +269,7 @@ static PyMethodDef FFTMain_methods[] = {
 };
 
 PyTypeObject FFTMainType = {
-PyObject_HEAD_INIT(NULL)
+PyVarObject_HEAD_INIT(NULL, 0)
 0,                                              /*ob_size*/
 "_pyo.FFTMain_base",                                   /*tp_name*/
 sizeof(FFTMain),                                 /*tp_basicsize*/
@@ -525,7 +525,7 @@ static PyNumberMethods FFT_as_number = {
 };
 
 PyTypeObject FFTType = {
-PyObject_HEAD_INIT(NULL)
+PyVarObject_HEAD_INIT(NULL, 0)
 0,                         /*ob_size*/
 "_pyo.FFT_base",         /*tp_name*/
 sizeof(FFT),         /*tp_basicsize*/
@@ -921,7 +921,7 @@ static PyNumberMethods IFFT_as_number = {
 };
 
 PyTypeObject IFFTType = {
-    PyObject_HEAD_INIT(NULL)
+    PyVarObject_HEAD_INIT(NULL, 0)
     0,                         /*ob_size*/
     "_pyo.IFFT_base",         /*tp_name*/
     sizeof(IFFT),         /*tp_basicsize*/
@@ -1204,7 +1204,7 @@ static PyNumberMethods CarToPol_as_number = {
 };
 
 PyTypeObject CarToPolType = {
-    PyObject_HEAD_INIT(NULL)
+    PyVarObject_HEAD_INIT(NULL, 0)
     0,                         /*ob_size*/
     "_pyo.CarToPol_base",         /*tp_name*/
     sizeof(CarToPol),         /*tp_basicsize*/
@@ -1487,7 +1487,7 @@ static PyNumberMethods PolToCar_as_number = {
 };
 
 PyTypeObject PolToCarType = {
-    PyObject_HEAD_INIT(NULL)
+    PyVarObject_HEAD_INIT(NULL, 0)
     0,                         /*ob_size*/
     "_pyo.PolToCar_base",         /*tp_name*/
     sizeof(PolToCar),         /*tp_basicsize*/
@@ -1744,7 +1744,7 @@ static PyMethodDef FrameDeltaMain_methods[] = {
 };
 
 PyTypeObject FrameDeltaMainType = {
-    PyObject_HEAD_INIT(NULL)
+    PyVarObject_HEAD_INIT(NULL, 0)
     0,                         /*ob_size*/
     "_pyo.FrameDeltaMain_base",         /*tp_name*/
     sizeof(FrameDeltaMain),         /*tp_basicsize*/
@@ -2002,7 +2002,7 @@ static PyNumberMethods FrameDelta_as_number = {
 };
 
 PyTypeObject FrameDeltaType = {
-    PyObject_HEAD_INIT(NULL)
+    PyVarObject_HEAD_INIT(NULL, 0)
     0,                         /*ob_size*/
     "_pyo.FrameDelta_base",         /*tp_name*/
     sizeof(FrameDelta),         /*tp_basicsize*/
@@ -2253,7 +2253,7 @@ static PyMethodDef FrameAccumMain_methods[] = {
 };
 
 PyTypeObject FrameAccumMainType = {
-    PyObject_HEAD_INIT(NULL)
+    PyVarObject_HEAD_INIT(NULL, 0)
     0,                         /*ob_size*/
     "_pyo.FrameAccumMain_base",         /*tp_name*/
     sizeof(FrameAccumMain),         /*tp_basicsize*/
@@ -2511,7 +2511,7 @@ static PyNumberMethods FrameAccum_as_number = {
 };
 
 PyTypeObject FrameAccumType = {
-    PyObject_HEAD_INIT(NULL)
+    PyVarObject_HEAD_INIT(NULL, 0)
     0,                         /*ob_size*/
     "_pyo.FrameAccum_base",         /*tp_name*/
     sizeof(FrameAccum),         /*tp_basicsize*/
@@ -2930,7 +2930,7 @@ static PyMethodDef VectralMain_methods[] = {
 };
 
 PyTypeObject VectralMainType = {
-    PyObject_HEAD_INIT(NULL)
+    PyVarObject_HEAD_INIT(NULL, 0)
     0,                         /*ob_size*/
     "_pyo.VectralMain_base",         /*tp_name*/
     sizeof(VectralMain),         /*tp_basicsize*/
@@ -3188,7 +3188,7 @@ static PyNumberMethods Vectral_as_number = {
 };
 
 PyTypeObject VectralType = {
-    PyObject_HEAD_INIT(NULL)
+    PyVarObject_HEAD_INIT(NULL, 0)
     0,                         /*ob_size*/
     "_pyo.Vectral_base",         /*tp_name*/
     sizeof(Vectral),         /*tp_basicsize*/
@@ -3779,7 +3779,7 @@ static PyNumberMethods CvlVerb_as_number = {
 };
 
 PyTypeObject CvlVerbType = {
-PyObject_HEAD_INIT(NULL)
+PyVarObject_HEAD_INIT(NULL, 0)
 0,                                              /*ob_size*/
 "_pyo.CvlVerb_base",                                   /*tp_name*/
 sizeof(CvlVerb),                                 /*tp_basicsize*/
@@ -4253,7 +4253,7 @@ static PyMethodDef Spectrum_methods[] = {
 };
 
 PyTypeObject SpectrumType = {
-PyObject_HEAD_INIT(NULL)
+PyVarObject_HEAD_INIT(NULL, 0)
 0,                                              /*ob_size*/
 "_pyo.Spectrum_base",                                   /*tp_name*/
 sizeof(Spectrum),                                 /*tp_basicsize*/

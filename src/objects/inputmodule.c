@@ -233,7 +233,7 @@ static PyNumberMethods Input_as_number = {
 };
 
 PyTypeObject InputType = {
-    PyObject_HEAD_INIT(NULL)
+    PyVarObject_HEAD_INIT(NULL, 0)
     0,                         /*ob_size*/
     "_pyo.Input_base",         /*tp_name*/
     sizeof(Input),         /*tp_basicsize*/

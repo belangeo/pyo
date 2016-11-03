@@ -182,7 +182,7 @@ static PyMethodDef CtlScan_methods[] = {
 };
 
 PyTypeObject CtlScanType = {
-    PyObject_HEAD_INIT(NULL)
+    PyVarObject_HEAD_INIT(NULL, 0)
     0,                         /*ob_size*/
     "_pyo.CtlScan_base",         /*tp_name*/
     sizeof(CtlScan),         /*tp_basicsize*/
@@ -383,7 +383,7 @@ static PyMethodDef CtlScan2_methods[] = {
 };
 
 PyTypeObject CtlScan2Type = {
-    PyObject_HEAD_INIT(NULL)
+    PyVarObject_HEAD_INIT(NULL, 0)
     0,                         /*ob_size*/
     "_pyo.CtlScan2_base",         /*tp_name*/
     sizeof(CtlScan2),         /*tp_basicsize*/
@@ -808,7 +808,7 @@ static PyNumberMethods Midictl_as_number = {
 };
 
 PyTypeObject MidictlType = {
-    PyObject_HEAD_INIT(NULL)
+    PyVarObject_HEAD_INIT(NULL, 0)
     0,                         /*ob_size*/
     "_pyo.Midictl_base",         /*tp_name*/
     sizeof(Midictl),         /*tp_basicsize*/
@@ -1174,7 +1174,7 @@ static PyNumberMethods Bendin_as_number = {
 };
 
 PyTypeObject BendinType = {
-    PyObject_HEAD_INIT(NULL)
+    PyVarObject_HEAD_INIT(NULL, 0)
     0,                         /*ob_size*/
     "_pyo.Bendin_base",         /*tp_name*/
     sizeof(Bendin),         /*tp_basicsize*/
@@ -1527,7 +1527,7 @@ static PyNumberMethods Touchin_as_number = {
 };
 
 PyTypeObject TouchinType = {
-    PyObject_HEAD_INIT(NULL)
+    PyVarObject_HEAD_INIT(NULL, 0)
     0,                         /*ob_size*/
     "_pyo.Touchin_base",         /*tp_name*/
     sizeof(Touchin),         /*tp_basicsize*/
@@ -1831,7 +1831,7 @@ static PyNumberMethods Programin_as_number = {
 };
 
 PyTypeObject PrograminType = {
-    PyObject_HEAD_INIT(NULL)
+    PyVarObject_HEAD_INIT(NULL, 0)
     0,                         /*ob_size*/
     "_pyo.Programin_base",         /*tp_name*/
     sizeof(Programin),         /*tp_basicsize*/
@@ -2187,7 +2187,7 @@ static PyMethodDef MidiNote_methods[] = {
 };
 
 PyTypeObject MidiNoteType = {
-PyObject_HEAD_INIT(NULL)
+PyVarObject_HEAD_INIT(NULL, 0)
 0,                         /*ob_size*/
 "_pyo.MidiNote_base",         /*tp_name*/
 sizeof(MidiNote),         /*tp_basicsize*/
@@ -2451,7 +2451,7 @@ static PyNumberMethods Notein_as_number = {
 };
 
 PyTypeObject NoteinType = {
-PyObject_HEAD_INIT(NULL)
+PyVarObject_HEAD_INIT(NULL, 0)
 0,                         /*ob_size*/
 "_pyo.Notein_base",         /*tp_name*/
 sizeof(Notein),         /*tp_basicsize*/
@@ -2707,7 +2707,7 @@ static PyNumberMethods NoteinTrig_as_number = {
 };
 
 PyTypeObject NoteinTrigType = {
-PyObject_HEAD_INIT(NULL)
+PyVarObject_HEAD_INIT(NULL, 0)
 0,                         /*ob_size*/
 "_pyo.NoteinTrig_base",         /*tp_name*/
 sizeof(NoteinTrig),         /*tp_basicsize*/
@@ -3135,7 +3135,7 @@ static PyNumberMethods MidiAdsr_as_number = {
 };
 
 PyTypeObject MidiAdsrType = {
-    PyObject_HEAD_INIT(NULL)
+    PyVarObject_HEAD_INIT(NULL, 0)
     0,                         /*ob_size*/
     "_pyo.MidiAdsr_base",         /*tp_name*/
     sizeof(MidiAdsr),         /*tp_basicsize*/
@@ -3583,7 +3583,7 @@ static PyNumberMethods MidiDelAdsr_as_number = {
 };
 
 PyTypeObject MidiDelAdsrType = {
-    PyObject_HEAD_INIT(NULL)
+    PyVarObject_HEAD_INIT(NULL, 0)
     0,                         /*ob_size*/
     "_pyo.MidiDelAdsr_base",         /*tp_name*/
     sizeof(MidiDelAdsr),         /*tp_basicsize*/
@@ -3748,7 +3748,7 @@ static PyMethodDef RawMidi_methods[] = {
 };
 
 PyTypeObject RawMidiType = {
-    PyObject_HEAD_INIT(NULL)
+    PyVarObject_HEAD_INIT(NULL, 0)
     0,                         /*ob_size*/
     "_pyo.RawMidi_base",         /*tp_name*/
     sizeof(RawMidi),         /*tp_basicsize*/

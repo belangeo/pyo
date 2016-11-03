@@ -219,7 +219,7 @@ static PyMethodDef MidiListener_methods[] = {
 };
 
 PyTypeObject MidiListenerType = {
-    PyObject_HEAD_INIT(NULL)
+    PyVarObject_HEAD_INIT(NULL, 0)
     0,                         /*ob_size*/
     "_pyo.MidiListener_base",         /*tp_name*/
     sizeof(MidiListener),         /*tp_basicsize*/

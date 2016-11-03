@@ -736,7 +736,7 @@ static PyNumberMethods WGVerb_as_number = {
 };
 
 PyTypeObject WGVerbType = {
-PyObject_HEAD_INIT(NULL)
+PyVarObject_HEAD_INIT(NULL, 0)
 0,                         /*ob_size*/
 "_pyo.WGVerb_base",         /*tp_name*/
 sizeof(WGVerb),         /*tp_basicsize*/
@@ -1784,7 +1784,7 @@ static PyMethodDef STReverb_methods[] = {
 };
 
 PyTypeObject STReverbType = {
-PyObject_HEAD_INIT(NULL)
+PyVarObject_HEAD_INIT(NULL, 0)
 0,                         /*ob_size*/
 "_pyo.STReverb_base",         /*tp_name*/
 sizeof(STReverb),         /*tp_basicsize*/
@@ -2042,7 +2042,7 @@ static PyNumberMethods STRev_as_number = {
 };
 
 PyTypeObject STRevType = {
-PyObject_HEAD_INIT(NULL)
+PyVarObject_HEAD_INIT(NULL, 0)
 0,                         /*ob_size*/
 "_pyo.STRev_base",         /*tp_name*/
 sizeof(STRev),         /*tp_basicsize*/

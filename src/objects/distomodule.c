@@ -448,7 +448,7 @@ static PyNumberMethods Disto_as_number = {
 };
 
 PyTypeObject DistoType = {
-    PyObject_HEAD_INIT(NULL)
+    PyVarObject_HEAD_INIT(NULL, 0)
     0,                         /*ob_size*/
     "_pyo.Disto_base",         /*tp_name*/
     sizeof(Disto),         /*tp_basicsize*/
@@ -887,7 +887,7 @@ static PyNumberMethods Clip_as_number = {
 };
 
 PyTypeObject ClipType = {
-PyObject_HEAD_INIT(NULL)
+PyVarObject_HEAD_INIT(NULL, 0)
 0,                         /*ob_size*/
 "_pyo.Clip_base",         /*tp_name*/
 sizeof(Clip),         /*tp_basicsize*/
@@ -1356,7 +1356,7 @@ static PyNumberMethods Mirror_as_number = {
 };
 
 PyTypeObject MirrorType = {
-    PyObject_HEAD_INIT(NULL)
+    PyVarObject_HEAD_INIT(NULL, 0)
     0,                         /*ob_size*/
     "_pyo.Mirror_base",         /*tp_name*/
     sizeof(Mirror),         /*tp_basicsize*/
@@ -1849,7 +1849,7 @@ static PyNumberMethods Wrap_as_number = {
 };
 
 PyTypeObject WrapType = {
-    PyObject_HEAD_INIT(NULL)
+    PyVarObject_HEAD_INIT(NULL, 0)
     0,                         /*ob_size*/
     "_pyo.Wrap_base",         /*tp_name*/
     sizeof(Wrap),         /*tp_basicsize*/
@@ -2333,7 +2333,7 @@ static PyNumberMethods Degrade_as_number = {
 };
 
 PyTypeObject DegradeType = {
-PyObject_HEAD_INIT(NULL)
+PyVarObject_HEAD_INIT(NULL, 0)
 0,                         /*ob_size*/
 "_pyo.Degrade_base",         /*tp_name*/
 sizeof(Degrade),         /*tp_basicsize*/
@@ -2663,7 +2663,7 @@ static PyNumberMethods Min_as_number = {
 };
 
 PyTypeObject MinType = {
-PyObject_HEAD_INIT(NULL)
+PyVarObject_HEAD_INIT(NULL, 0)
 0,                                              /*ob_size*/
 "_pyo.Min_base",                                   /*tp_name*/
 sizeof(Min),                                 /*tp_basicsize*/
@@ -2993,7 +2993,7 @@ static PyNumberMethods Max_as_number = {
 };
 
 PyTypeObject MaxType = {
-PyObject_HEAD_INIT(NULL)
+PyVarObject_HEAD_INIT(NULL, 0)
 0,                                              /*ob_size*/
 "_pyo.Max_base",                                   /*tp_name*/
 sizeof(Max),                                 /*tp_basicsize*/

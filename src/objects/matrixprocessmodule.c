@@ -359,7 +359,7 @@ static PyNumberMethods MatrixPointer_as_number = {
 };
 
 PyTypeObject MatrixPointerType = {
-PyObject_HEAD_INIT(NULL)
+PyVarObject_HEAD_INIT(NULL, 0)
 0,                         /*ob_size*/
 "_pyo.MatrixPointer_base",         /*tp_name*/
 sizeof(MatrixPointer),         /*tp_basicsize*/

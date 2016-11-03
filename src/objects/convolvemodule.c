@@ -309,7 +309,7 @@ static PyNumberMethods Convolve_as_number = {
 };
 
 PyTypeObject ConvolveType = {
-PyObject_HEAD_INIT(NULL)
+PyVarObject_HEAD_INIT(NULL, 0)
 0,                                              /*ob_size*/
 "_pyo.Convolve_base",                                   /*tp_name*/
 sizeof(Convolve),                                 /*tp_basicsize*/
@@ -841,7 +841,7 @@ static PyNumberMethods IRWinSinc_as_number = {
 };
 
 PyTypeObject IRWinSincType = {
-    PyObject_HEAD_INIT(NULL)
+    PyVarObject_HEAD_INIT(NULL, 0)
     0,                                              /*ob_size*/
     "_pyo.IRWinSinc_base",                                   /*tp_name*/
     sizeof(IRWinSinc),                                 /*tp_basicsize*/
@@ -1153,7 +1153,7 @@ static PyNumberMethods IRAverage_as_number = {
 };
 
 PyTypeObject IRAverageType = {
-    PyObject_HEAD_INIT(NULL)
+    PyVarObject_HEAD_INIT(NULL, 0)
     0,                                              /*ob_size*/
     "_pyo.IRAverage_base",                                   /*tp_name*/
     sizeof(IRAverage),                                 /*tp_basicsize*/
@@ -1705,7 +1705,7 @@ static PyNumberMethods IRPulse_as_number = {
 };
 
 PyTypeObject IRPulseType = {
-    PyObject_HEAD_INIT(NULL)
+    PyVarObject_HEAD_INIT(NULL, 0)
     0,                                              /*ob_size*/
     "_pyo.IRPulse_base",                                   /*tp_name*/
     sizeof(IRPulse),                                 /*tp_basicsize*/
@@ -2206,7 +2206,7 @@ static PyNumberMethods IRFM_as_number = {
 };
 
 PyTypeObject IRFMType = {
-    PyObject_HEAD_INIT(NULL)
+    PyVarObject_HEAD_INIT(NULL, 0)
     0,                                              /*ob_size*/
     "_pyo.IRFM_base",                                   /*tp_name*/
     sizeof(IRFM),                                 /*tp_basicsize*/

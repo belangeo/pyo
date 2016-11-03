@@ -254,7 +254,7 @@ static PyNumberMethods Mix_as_number = {
 };
 
 PyTypeObject MixType = {
-    PyObject_HEAD_INIT(NULL)
+    PyVarObject_HEAD_INIT(NULL, 0)
     0,                         /*ob_size*/
     "_pyo.Mix_base",         /*tp_name*/
     sizeof(Mix),         /*tp_basicsize*/

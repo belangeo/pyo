@@ -272,7 +272,7 @@ static PyNumberMethods Select_as_number = {
 };
 
 PyTypeObject SelectType = {
-PyObject_HEAD_INIT(NULL)
+PyVarObject_HEAD_INIT(NULL, 0)
 0,                         /*ob_size*/
 "_pyo.Select_base",         /*tp_name*/
 sizeof(Select),         /*tp_basicsize*/
@@ -543,7 +543,7 @@ static PyNumberMethods Change_as_number = {
 };
 
 PyTypeObject ChangeType = {
-PyObject_HEAD_INIT(NULL)
+PyVarObject_HEAD_INIT(NULL, 0)
 0,                         /*ob_size*/
 "_pyo.Change_base",         /*tp_name*/
 sizeof(Change),         /*tp_basicsize*/

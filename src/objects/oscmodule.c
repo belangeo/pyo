@@ -200,7 +200,7 @@ static PyMethodDef OscReceiver_methods[] = {
 };
 
 PyTypeObject OscReceiverType = {
-PyObject_HEAD_INIT(NULL)
+PyVarObject_HEAD_INIT(NULL, 0)
 0,                         /*ob_size*/
 "_pyo.OscReceiver_base",         /*tp_name*/
 sizeof(OscReceiver),         /*tp_basicsize*/
@@ -493,7 +493,7 @@ static PyNumberMethods OscReceive_as_number = {
 };
 
 PyTypeObject OscReceiveType = {
-    PyObject_HEAD_INIT(NULL)
+    PyVarObject_HEAD_INIT(NULL, 0)
     0,                         /*ob_size*/
     "_pyo.OscReceive_base",         /*tp_name*/
     sizeof(OscReceive),         /*tp_basicsize*/
@@ -673,7 +673,7 @@ static PyMethodDef OscSend_methods[] = {
 };
 
 PyTypeObject OscSendType = {
-PyObject_HEAD_INIT(NULL)
+PyVarObject_HEAD_INIT(NULL, 0)
 0,                         /*ob_size*/
 "_pyo.OscSend_base",         /*tp_name*/
 sizeof(OscSend),         /*tp_basicsize*/
@@ -916,7 +916,7 @@ static PyMethodDef OscDataSend_methods[] = {
 };
 
 PyTypeObject OscDataSendType = {
-    PyObject_HEAD_INIT(NULL)
+    PyVarObject_HEAD_INIT(NULL, 0)
     0,                         /*ob_size*/
     "_pyo.OscDataSend_base",         /*tp_name*/
     sizeof(OscDataSend),         /*tp_basicsize*/
@@ -1183,7 +1183,7 @@ static PyMethodDef OscDataReceive_methods[] = {
 };
 
 PyTypeObject OscDataReceiveType = {
-    PyObject_HEAD_INIT(NULL)
+    PyVarObject_HEAD_INIT(NULL, 0)
     0,                         /*ob_size*/
     "_pyo.OscDataReceive_base",         /*tp_name*/
     sizeof(OscDataReceive),         /*tp_basicsize*/
@@ -1419,7 +1419,7 @@ static PyMethodDef OscListReceiver_methods[] = {
 };
 
 PyTypeObject OscListReceiverType = {
-    PyObject_HEAD_INIT(NULL)
+    PyVarObject_HEAD_INIT(NULL, 0)
     0,                         /*ob_size*/
     "_pyo.OscListReceiver_base",         /*tp_name*/
     sizeof(OscListReceiver),         /*tp_basicsize*/
@@ -1715,7 +1715,7 @@ static PyNumberMethods OscListReceive_as_number = {
 };
 
 PyTypeObject OscListReceiveType = {
-    PyObject_HEAD_INIT(NULL)
+    PyVarObject_HEAD_INIT(NULL, 0)
     0,                         /*ob_size*/
     "_pyo.OscListReceive_base",         /*tp_name*/
     sizeof(OscListReceive),         /*tp_basicsize*/

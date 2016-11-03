@@ -337,7 +337,7 @@ static PyNumberMethods Metro_as_number = {
 };
 
 PyTypeObject MetroType = {
-PyObject_HEAD_INIT(NULL)
+PyVarObject_HEAD_INIT(NULL, 0)
 0,                         /*ob_size*/
 "_pyo.Metro_base",         /*tp_name*/
 sizeof(Metro),         /*tp_basicsize*/
@@ -672,7 +672,7 @@ static PyMethodDef Seqer_methods[] = {
 };
 
 PyTypeObject SeqerType = {
-    PyObject_HEAD_INIT(NULL)
+    PyVarObject_HEAD_INIT(NULL, 0)
     0,                         /*ob_size*/
     "_pyo.Seqer_base",         /*tp_name*/
     sizeof(Seqer),         /*tp_basicsize*/
@@ -922,7 +922,7 @@ static PyNumberMethods Seq_as_number = {
 };
 
 PyTypeObject SeqType = {
-    PyObject_HEAD_INIT(NULL)
+    PyVarObject_HEAD_INIT(NULL, 0)
     0,                         /*ob_size*/
     "_pyo.Seq_base",         /*tp_name*/
     sizeof(Seq),         /*tp_basicsize*/
@@ -1177,7 +1177,7 @@ static PyMethodDef Clouder_methods[] = {
 };
 
 PyTypeObject ClouderType = {
-PyObject_HEAD_INIT(NULL)
+PyVarObject_HEAD_INIT(NULL, 0)
 0,                         /*ob_size*/
 "_pyo.Clouder_base",         /*tp_name*/
 sizeof(Clouder),         /*tp_basicsize*/
@@ -1427,7 +1427,7 @@ static PyNumberMethods Cloud_as_number = {
 };
 
 PyTypeObject CloudType = {
-PyObject_HEAD_INIT(NULL)
+PyVarObject_HEAD_INIT(NULL, 0)
 0,                         /*ob_size*/
 "_pyo.Cloud_base",         /*tp_name*/
 sizeof(Cloud),         /*tp_basicsize*/
@@ -1672,7 +1672,7 @@ static PyNumberMethods Trig_as_number = {
 };
 
 PyTypeObject TrigType = {
-PyObject_HEAD_INIT(NULL)
+PyVarObject_HEAD_INIT(NULL, 0)
 0,                         /*ob_size*/
 "_pyo.Trig_base",         /*tp_name*/
 sizeof(Trig),         /*tp_basicsize*/
@@ -2452,7 +2452,7 @@ static PyMethodDef Beater_methods[] = {
 };
 
 PyTypeObject BeaterType = {
-    PyObject_HEAD_INIT(NULL)
+    PyVarObject_HEAD_INIT(NULL, 0)
     0,                         /*ob_size*/
     "_pyo.Beater_base",         /*tp_name*/
     sizeof(Beater),         /*tp_basicsize*/
@@ -2702,7 +2702,7 @@ static PyNumberMethods Beat_as_number = {
 };
 
 PyTypeObject BeatType = {
-    PyObject_HEAD_INIT(NULL)
+    PyVarObject_HEAD_INIT(NULL, 0)
     0,                         /*ob_size*/
     "_pyo.Beat_base",         /*tp_name*/
     sizeof(Beat),         /*tp_basicsize*/
@@ -2952,7 +2952,7 @@ static PyNumberMethods BeatTapStream_as_number = {
 };
 
 PyTypeObject BeatTapStreamType = {
-    PyObject_HEAD_INIT(NULL)
+    PyVarObject_HEAD_INIT(NULL, 0)
     0,                         /*ob_size*/
     "_pyo.BeatTapStream_base",         /*tp_name*/
     sizeof(BeatTapStream),         /*tp_basicsize*/
@@ -3202,7 +3202,7 @@ static PyNumberMethods BeatAmpStream_as_number = {
 };
 
 PyTypeObject BeatAmpStreamType = {
-    PyObject_HEAD_INIT(NULL)
+    PyVarObject_HEAD_INIT(NULL, 0)
     0,                         /*ob_size*/
     "_pyo.BeatAmpStream_base",         /*tp_name*/
     sizeof(BeatAmpStream),         /*tp_basicsize*/
@@ -3452,7 +3452,7 @@ static PyNumberMethods BeatDurStream_as_number = {
 };
 
 PyTypeObject BeatDurStreamType = {
-    PyObject_HEAD_INIT(NULL)
+    PyVarObject_HEAD_INIT(NULL, 0)
     0,                         /*ob_size*/
     "_pyo.BeatDurStream_base",         /*tp_name*/
     sizeof(BeatDurStream),         /*tp_basicsize*/
@@ -3702,7 +3702,7 @@ static PyNumberMethods BeatEndStream_as_number = {
 };
 
 PyTypeObject BeatEndStreamType = {
-    PyObject_HEAD_INIT(NULL)
+    PyVarObject_HEAD_INIT(NULL, 0)
     0,                         /*ob_size*/
     "_pyo.BeatEndStream_base",         /*tp_name*/
     sizeof(BeatEndStream),         /*tp_basicsize*/
@@ -4031,7 +4031,7 @@ static PyMethodDef TrigBurster_methods[] = {
 };
 
 PyTypeObject TrigBursterType = {
-    PyObject_HEAD_INIT(NULL)
+    PyVarObject_HEAD_INIT(NULL, 0)
     0,                         /*ob_size*/
     "_pyo.TrigBurster_base",         /*tp_name*/
     sizeof(TrigBurster),         /*tp_basicsize*/
@@ -4281,7 +4281,7 @@ static PyNumberMethods TrigBurst_as_number = {
 };
 
 PyTypeObject TrigBurstType = {
-    PyObject_HEAD_INIT(NULL)
+    PyVarObject_HEAD_INIT(NULL, 0)
     0,                         /*ob_size*/
     "_pyo.TrigBurst_base",         /*tp_name*/
     sizeof(TrigBurst),         /*tp_basicsize*/
@@ -4531,7 +4531,7 @@ static PyNumberMethods TrigBurstTapStream_as_number = {
 };
 
 PyTypeObject TrigBurstTapStreamType = {
-    PyObject_HEAD_INIT(NULL)
+    PyVarObject_HEAD_INIT(NULL, 0)
     0,                         /*ob_size*/
     "_pyo.TrigBurstTapStream_base",         /*tp_name*/
     sizeof(TrigBurstTapStream),         /*tp_basicsize*/
@@ -4781,7 +4781,7 @@ static PyNumberMethods TrigBurstAmpStream_as_number = {
 };
 
 PyTypeObject TrigBurstAmpStreamType = {
-    PyObject_HEAD_INIT(NULL)
+    PyVarObject_HEAD_INIT(NULL, 0)
     0,                         /*ob_size*/
     "_pyo.TrigBurstAmpStream_base",         /*tp_name*/
     sizeof(TrigBurstAmpStream),         /*tp_basicsize*/
@@ -5031,7 +5031,7 @@ static PyNumberMethods TrigBurstDurStream_as_number = {
 };
 
 PyTypeObject TrigBurstDurStreamType = {
-    PyObject_HEAD_INIT(NULL)
+    PyVarObject_HEAD_INIT(NULL, 0)
     0,                         /*ob_size*/
     "_pyo.TrigBurstDurStream_base",         /*tp_name*/
     sizeof(TrigBurstDurStream),         /*tp_basicsize*/
@@ -5281,7 +5281,7 @@ static PyNumberMethods TrigBurstEndStream_as_number = {
 };
 
 PyTypeObject TrigBurstEndStreamType = {
-    PyObject_HEAD_INIT(NULL)
+    PyVarObject_HEAD_INIT(NULL, 0)
     0,                         /*ob_size*/
     "_pyo.TrigBurstEndStream_base",         /*tp_name*/
     sizeof(TrigBurstEndStream),         /*tp_basicsize*/

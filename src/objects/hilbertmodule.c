@@ -187,7 +187,7 @@ static PyMethodDef HilbertMain_methods[] = {
 };
 
 PyTypeObject HilbertMainType = {
-PyObject_HEAD_INIT(NULL)
+PyVarObject_HEAD_INIT(NULL, 0)
 0,                                              /*ob_size*/
 "_pyo.HilbertMain_base",                                   /*tp_name*/
 sizeof(HilbertMain),                                 /*tp_basicsize*/
@@ -445,7 +445,7 @@ static PyNumberMethods Hilbert_as_number = {
 };
 
 PyTypeObject HilbertType = {
-PyObject_HEAD_INIT(NULL)
+PyVarObject_HEAD_INIT(NULL, 0)
 0,                         /*ob_size*/
 "_pyo.Hilbert_base",         /*tp_name*/
 sizeof(Hilbert),         /*tp_basicsize*/

@@ -282,7 +282,7 @@ static PyNumberMethods Sig_as_number = {
 };
 
 PyTypeObject SigType = {
-PyObject_HEAD_INIT(NULL)
+PyVarObject_HEAD_INIT(NULL, 0)
 0,                         /*ob_size*/
 "_pyo.Sig_base",         /*tp_name*/
 sizeof(Sig),         /*tp_basicsize*/
@@ -669,7 +669,7 @@ static PyNumberMethods SigTo_as_number = {
 };
 
 PyTypeObject SigToType = {
-PyObject_HEAD_INIT(NULL)
+PyVarObject_HEAD_INIT(NULL, 0)
 0,                         /*ob_size*/
 "_pyo.SigTo_base",         /*tp_name*/
 sizeof(SigTo),         /*tp_basicsize*/
@@ -1078,7 +1078,7 @@ static PyNumberMethods VarPort_as_number = {
 };
 
 PyTypeObject VarPortType = {
-    PyObject_HEAD_INIT(NULL)
+    PyVarObject_HEAD_INIT(NULL, 0)
     0,                         /*ob_size*/
     "_pyo.VarPort_base",         /*tp_name*/
     sizeof(VarPort),         /*tp_basicsize*/

@@ -466,7 +466,7 @@ static PyNumberMethods Sine_as_number = {
 };
 
 PyTypeObject SineType = {
-PyObject_HEAD_INIT(NULL)
+PyVarObject_HEAD_INIT(NULL, 0)
 0,                         /*ob_size*/
 "_pyo.Sine_base",         /*tp_name*/
 sizeof(Sine),         /*tp_basicsize*/
@@ -1005,7 +1005,7 @@ static PyNumberMethods FastSine_as_number = {
 };
 
 PyTypeObject FastSineType = {
-PyObject_HEAD_INIT(NULL)
+PyVarObject_HEAD_INIT(NULL, 0)
 0,                         /*ob_size*/
 "_pyo.FastSine_base",         /*tp_name*/
 sizeof(FastSine),         /*tp_basicsize*/
@@ -1438,7 +1438,7 @@ static PyNumberMethods SineLoop_as_number = {
 };
 
 PyTypeObject SineLoopType = {
-	PyObject_HEAD_INIT(NULL)
+	PyVarObject_HEAD_INIT(NULL, 0)
 	0,                         /*ob_size*/
 	"_pyo.SineLoop_base",         /*tp_name*/
 	sizeof(SineLoop),         /*tp_basicsize*/
@@ -1969,7 +1969,7 @@ static PyNumberMethods Osc_as_number = {
 };
 
 PyTypeObject OscType = {
-    PyObject_HEAD_INIT(NULL)
+    PyVarObject_HEAD_INIT(NULL, 0)
     0,                         /*ob_size*/
     "_pyo.Osc_base",         /*tp_name*/
     sizeof(Osc),         /*tp_basicsize*/
@@ -2460,7 +2460,7 @@ static PyNumberMethods OscLoop_as_number = {
 };
 
 PyTypeObject OscLoopType = {
-    PyObject_HEAD_INIT(NULL)
+    PyVarObject_HEAD_INIT(NULL, 0)
     0,                         /*ob_size*/
     "_pyo.OscLoop_base",         /*tp_name*/
     sizeof(OscLoop),         /*tp_basicsize*/
@@ -3037,7 +3037,7 @@ static PyNumberMethods OscTrig_as_number = {
 };
 
 PyTypeObject OscTrigType = {
-    PyObject_HEAD_INIT(NULL)
+    PyVarObject_HEAD_INIT(NULL, 0)
     0,                         /*ob_size*/
     "_pyo.OscTrig_base",         /*tp_name*/
     sizeof(OscTrig),         /*tp_basicsize*/
@@ -3501,7 +3501,7 @@ static PyNumberMethods Phasor_as_number = {
 };
 
 PyTypeObject PhasorType = {
-PyObject_HEAD_INIT(NULL)
+PyVarObject_HEAD_INIT(NULL, 0)
 0,                         /*ob_size*/
 "_pyo.Phasor_base",         /*tp_name*/
 sizeof(Phasor),         /*tp_basicsize*/
@@ -3836,7 +3836,7 @@ static PyNumberMethods Pointer_as_number = {
 };
 
 PyTypeObject PointerType = {
-PyObject_HEAD_INIT(NULL)
+PyVarObject_HEAD_INIT(NULL, 0)
 0,                         /*ob_size*/
 "_pyo.Pointer_base",         /*tp_name*/
 sizeof(Pointer),         /*tp_basicsize*/
@@ -4239,7 +4239,7 @@ static PyNumberMethods Pointer2_as_number = {
 };
 
 PyTypeObject Pointer2Type = {
-PyObject_HEAD_INIT(NULL)
+PyVarObject_HEAD_INIT(NULL, 0)
 0,                         /*ob_size*/
 "_pyo.Pointer2_base",         /*tp_name*/
 sizeof(Pointer2),         /*tp_basicsize*/
@@ -4575,7 +4575,7 @@ static PyNumberMethods TableIndex_as_number = {
 };
 
 PyTypeObject TableIndexType = {
-    PyObject_HEAD_INIT(NULL)
+    PyVarObject_HEAD_INIT(NULL, 0)
     0,                         /*ob_size*/
     "_pyo.TableIndex_base",         /*tp_name*/
     sizeof(TableIndex),         /*tp_basicsize*/
@@ -4919,7 +4919,7 @@ static PyNumberMethods Lookup_as_number = {
 };
 
 PyTypeObject LookupType = {
-PyObject_HEAD_INIT(NULL)
+PyVarObject_HEAD_INIT(NULL, 0)
 0,                         /*ob_size*/
 "_pyo.Lookup_base",         /*tp_name*/
 sizeof(Lookup),         /*tp_basicsize*/
@@ -5767,7 +5767,7 @@ static PyNumberMethods Pulsar_as_number = {
 };
 
 PyTypeObject PulsarType = {
-PyObject_HEAD_INIT(NULL)
+PyVarObject_HEAD_INIT(NULL, 0)
 0,                         /*ob_size*/
 "_pyo.Pulsar_base",         /*tp_name*/
 sizeof(Pulsar),         /*tp_basicsize*/
@@ -6275,7 +6275,7 @@ static PyNumberMethods TableRead_as_number = {
 };
 
 PyTypeObject TableReadType = {
-PyObject_HEAD_INIT(NULL)
+PyVarObject_HEAD_INIT(NULL, 0)
 0,                         /*ob_size*/
 "_pyo.TableRead_base",         /*tp_name*/
 sizeof(TableRead),         /*tp_basicsize*/
@@ -6921,7 +6921,7 @@ static PyNumberMethods Fm_as_number = {
 };
 
 PyTypeObject FmType = {
-PyObject_HEAD_INIT(NULL)
+PyVarObject_HEAD_INIT(NULL, 0)
 0,                         /*ob_size*/
 "_pyo.Fm_base",         /*tp_name*/
 sizeof(Fm),         /*tp_basicsize*/
@@ -7438,7 +7438,7 @@ static PyNumberMethods CrossFm_as_number = {
 };
 
 PyTypeObject CrossFmType = {
-    PyObject_HEAD_INIT(NULL)
+    PyVarObject_HEAD_INIT(NULL, 0)
     0,                         /*ob_size*/
     "_pyo.CrossFm_base",         /*tp_name*/
     sizeof(CrossFm),         /*tp_basicsize*/
@@ -7902,7 +7902,7 @@ static PyNumberMethods Blit_as_number = {
 };
 
 PyTypeObject BlitType = {
-    PyObject_HEAD_INIT(NULL)
+    PyVarObject_HEAD_INIT(NULL, 0)
     0,                         /*ob_size*/
     "_pyo.Blit_base",         /*tp_name*/
     sizeof(Blit),         /*tp_basicsize*/
@@ -8426,7 +8426,7 @@ static PyNumberMethods Rossler_as_number = {
 };
 
 PyTypeObject RosslerType = {
-    PyObject_HEAD_INIT(NULL)
+    PyVarObject_HEAD_INIT(NULL, 0)
     0,                         /*ob_size*/
     "_pyo.Rossler_base",         /*tp_name*/
     sizeof(Rossler),         /*tp_basicsize*/
@@ -8677,7 +8677,7 @@ static PyNumberMethods RosslerAlt_as_number = {
 };
 
 PyTypeObject RosslerAltType = {
-    PyObject_HEAD_INIT(NULL)
+    PyVarObject_HEAD_INIT(NULL, 0)
     0,                         /*ob_size*/
     "_pyo.RosslerAlt_base",         /*tp_name*/
     sizeof(RosslerAlt),         /*tp_basicsize*/
@@ -9201,7 +9201,7 @@ static PyNumberMethods Lorenz_as_number = {
 };
 
 PyTypeObject LorenzType = {
-    PyObject_HEAD_INIT(NULL)
+    PyVarObject_HEAD_INIT(NULL, 0)
     0,                         /*ob_size*/
     "_pyo.Lorenz_base",         /*tp_name*/
     sizeof(Lorenz),         /*tp_basicsize*/
@@ -9452,7 +9452,7 @@ static PyNumberMethods LorenzAlt_as_number = {
 };
 
 PyTypeObject LorenzAltType = {
-    PyObject_HEAD_INIT(NULL)
+    PyVarObject_HEAD_INIT(NULL, 0)
     0,                         /*ob_size*/
     "_pyo.LorenzAlt_base",         /*tp_name*/
     sizeof(LorenzAlt),         /*tp_basicsize*/
@@ -9984,7 +9984,7 @@ static PyNumberMethods ChenLee_as_number = {
 };
 
 PyTypeObject ChenLeeType = {
-    PyObject_HEAD_INIT(NULL)
+    PyVarObject_HEAD_INIT(NULL, 0)
     0,                         /*ob_size*/
     "_pyo.ChenLee_base",         /*tp_name*/
     sizeof(ChenLee),         /*tp_basicsize*/
@@ -10235,7 +10235,7 @@ static PyNumberMethods ChenLeeAlt_as_number = {
 };
 
 PyTypeObject ChenLeeAltType = {
-    PyObject_HEAD_INIT(NULL)
+    PyVarObject_HEAD_INIT(NULL, 0)
     0,                         /*ob_size*/
     "_pyo.ChenLeeAlt_base",         /*tp_name*/
     sizeof(ChenLeeAlt),         /*tp_basicsize*/
@@ -10974,7 +10974,7 @@ static PyNumberMethods SumOsc_as_number = {
 };
 
 PyTypeObject SumOscType = {
-PyObject_HEAD_INIT(NULL)
+PyVarObject_HEAD_INIT(NULL, 0)
 0,                         /*ob_size*/
 "_pyo.SumOsc_base",         /*tp_name*/
 sizeof(SumOsc),         /*tp_basicsize*/
@@ -11827,7 +11827,7 @@ static PyNumberMethods SuperSaw_as_number = {
 };
 
 PyTypeObject SuperSawType = {
-PyObject_HEAD_INIT(NULL)
+PyVarObject_HEAD_INIT(NULL, 0)
 0,                         /*ob_size*/
 "_pyo.SuperSaw_base",         /*tp_name*/
 sizeof(SuperSaw),         /*tp_basicsize*/
@@ -12301,7 +12301,7 @@ static PyNumberMethods RCOsc_as_number = {
 };
 
 PyTypeObject RCOscType = {
-PyObject_HEAD_INIT(NULL)
+PyVarObject_HEAD_INIT(NULL, 0)
 0,                         /*ob_size*/
 "_pyo.RCOsc_base",         /*tp_name*/
 sizeof(RCOsc),         /*tp_basicsize*/
@@ -12660,7 +12660,7 @@ static PyNumberMethods TableScale_as_number = {
 };
 
 PyTypeObject TableScaleType = {
-PyObject_HEAD_INIT(NULL)
+PyVarObject_HEAD_INIT(NULL, 0)
 0,                         /*ob_size*/
 "_pyo.TableScale_base",         /*tp_name*/
 sizeof(TableScale),         /*tp_basicsize*/

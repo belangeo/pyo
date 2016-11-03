@@ -1224,7 +1224,7 @@ static PyNumberMethods LFO_as_number = {
 };
 
 PyTypeObject LFOType = {
-    PyObject_HEAD_INIT(NULL)
+    PyVarObject_HEAD_INIT(NULL, 0)
     0,                                              /*ob_size*/
     "_pyo.LFO_base",                                   /*tp_name*/
     sizeof(LFO),                                 /*tp_basicsize*/

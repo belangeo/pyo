@@ -445,7 +445,7 @@ where XXX is replaced by the name of the object.
 Fields in PyTypeObject that are not used should be 0.
 **************************************************************/
 PyTypeObject GainType = {
-PyObject_HEAD_INIT(NULL)
+PyVarObject_HEAD_INIT(NULL, 0)
 0,                                              /*ob_size*/
 /* How the object will be exposed to the 
 python interpreter. The name of the C component 

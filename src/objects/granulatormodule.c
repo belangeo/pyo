@@ -1042,7 +1042,7 @@ static PyNumberMethods Granulator_as_number = {
 };
 
 PyTypeObject GranulatorType = {
-    PyObject_HEAD_INIT(NULL)
+    PyVarObject_HEAD_INIT(NULL, 0)
     0,                         /*ob_pitch*/
     "_pyo.Granulator_base",         /*tp_name*/
     sizeof(Granulator),         /*tp_basicpitch*/
@@ -2305,7 +2305,7 @@ static PyNumberMethods Looper_as_number = {
 };
 
 PyTypeObject LooperType = {
-    PyObject_HEAD_INIT(NULL)
+    PyVarObject_HEAD_INIT(NULL, 0)
     0,                         /*ob_pitch*/
     "_pyo.Looper_base",         /*tp_name*/
     sizeof(Looper),         /*tp_basicpitch*/
@@ -2549,7 +2549,7 @@ static PyNumberMethods LooperTimeStream_as_number = {
 };
 
 PyTypeObject LooperTimeStreamType = {
-    PyObject_HEAD_INIT(NULL)
+    PyVarObject_HEAD_INIT(NULL, 0)
     0,                         /*ob_size*/
     "_pyo.LooperTimeStream_base",         /*tp_name*/
     sizeof(LooperTimeStream),         /*tp_basicsize*/
@@ -3281,7 +3281,7 @@ static PyNumberMethods Granule_as_number = {
 };
 
 PyTypeObject GranuleType = {
-    PyObject_HEAD_INIT(NULL)
+    PyVarObject_HEAD_INIT(NULL, 0)
     0,                         /*ob_pitch*/
     "_pyo.Granule_base",         /*tp_name*/
     sizeof(Granule),         /*tp_basicpitch*/
@@ -4289,7 +4289,7 @@ static PyMethodDef MainParticle_methods[] = {
 };
 
 PyTypeObject MainParticleType = {
-    PyObject_HEAD_INIT(NULL)
+    PyVarObject_HEAD_INIT(NULL, 0)
     0,                         /*ob_pitch*/
     "_pyo.MainParticle_base",         /*tp_name*/
     sizeof(MainParticle),         /*tp_basicpitch*/
@@ -4544,7 +4544,7 @@ static PyNumberMethods Particle_as_number = {
 };
 
 PyTypeObject ParticleType = {
-PyObject_HEAD_INIT(NULL)
+PyVarObject_HEAD_INIT(NULL, 0)
 0,                         /*ob_size*/
 "_pyo.Particle_base",         /*tp_name*/
 sizeof(Particle),         /*tp_basicsize*/

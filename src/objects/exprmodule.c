@@ -824,7 +824,7 @@ static PyNumberMethods Expr_as_number = {
 };
 
 PyTypeObject ExprType = {
-    PyObject_HEAD_INIT(NULL)
+    PyVarObject_HEAD_INIT(NULL, 0)
     0,                         /*ob_size*/
     "_pyo.Expr_base",         /*tp_name*/
     sizeof(Expr),         /*tp_basicsize*/
