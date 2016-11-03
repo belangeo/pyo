@@ -155,7 +155,7 @@ class MyVocoder(PyoObject):
             self._base_objs = [obj.out(wrap(chnl,i), wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._base_objs)]
         else:
             if chnl < 0:
-                self._base_objs = [obj.out(i*inc, wrap(dur,i), wrap(delay,i)) \
+                self._base_objs = [obj.out(i*inc, wrap(dur,i), wrap(delay,i))
                     for i, obj in enumerate(random.sample(self._base_objs, len(self._base_objs)))]
             else:
                 self._base_objs = [obj.out(chnl+i*inc, wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._base_objs)]
