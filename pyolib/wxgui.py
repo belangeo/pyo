@@ -10,24 +10,31 @@ from _widgets import PYO_USE_WX
 if not PYO_USE_WX:
     NO_WX_MESSAGE = "WxPython must be installed on the system to use pyo's wx widgets."
     class PyoGuiControlSlider:
+
         def __init__(self, *args, **kwargs):
             raise Exception(NO_WX_MESSAGE)
     class PyoGuiVuMeter:
+
         def __init__(self, *args, **kwargs):
             raise Exception(NO_WX_MESSAGE)
     class PyoGuiGrapher:
+
         def __init__(self, *args, **kwargs):
             raise Exception(NO_WX_MESSAGE)
     class PyoGuiMultiSlider:
+
         def __init__(self, *args, **kwargs):
             raise Exception(NO_WX_MESSAGE)
     class PyoGuiSpectrum:
+
         def __init__(self, *args, **kwargs):
             raise Exception(NO_WX_MESSAGE)
     class PyoGuiScope:
+
         def __init__(self, *args, **kwargs):
             raise Exception(NO_WX_MESSAGE)
     class PyoGuiSndView:
+
         def __init__(self, *args, **kwargs):
             raise Exception(NO_WX_MESSAGE)
 else:

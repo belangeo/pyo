@@ -7,6 +7,7 @@ twopi = math.pi * 2
 s = Server(duplex=0).boot()
 
 class PAF:
+
     def __init__(self, f0, fc, bw, fs, amp):
         self.bell = WinTable(8) # half-sine
         self.shape = WinTable(4) # {4, 5 or 6}

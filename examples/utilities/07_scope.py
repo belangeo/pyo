@@ -7,6 +7,7 @@ Simple scope example.
 from pyo import *
 
 class Scope:
+
     def __init__(self, input, length=0.05):
         self.input = input
         self.table = NewTable(length=length, chnls=len(input))

@@ -73,6 +73,7 @@ def GetRoundShape( w, h, r ):
     return wx.RegionFromBitmap( GetRoundBitmap(w,h,r) )
 
 class ControlSlider(wx.Panel):
+
     def __init__(self, parent, minvalue, maxvalue, init=None, pos=(0,0), size=(200,16), log=False,
                  outFunction=None, integer=False, powoftwo=False, backColour=None, orient=wx.HORIZONTAL):
         if size == (200,16) and orient == wx.VERTICAL:
@@ -403,6 +404,7 @@ class ControlSlider(wx.Panel):
 # TODO: key, command and slmap should be removed from the multislider widget.
 # It should work in the same way as the ControlSlider widget.
 class MultiSlider(wx.Panel):
+
     def __init__(self, parent, init, key, command, slmap):
         wx.Panel.__init__(self, parent, size=(250,250))
         self.backgroundColour = BACKGROUND_COLOUR
@@ -482,6 +484,7 @@ class MultiSlider(wx.Panel):
             self.Refresh()
 
 class VuMeter(wx.Panel):
+
     def __init__(self, parent, size=(200,11), numSliders=2, orient=wx.HORIZONTAL, 
                  pos=wx.DefaultPosition, style=0):
         if orient == wx.HORIZONTAL:
@@ -623,6 +626,7 @@ class VuMeter(wx.Panel):
 
 # TODO: BACKGROUND_COLOUR hard-coded all over the place in this class.
 class RangeSlider(wx.Panel):
+
     def __init__(self, parent, minvalue, maxvalue, init=None, pos=(0,0), size=(200,15),
                  valtype='int', log=False, function=None, backColour=None):
         wx.Panel.__init__(self, parent=parent, id=wx.ID_ANY, pos=pos, size=size, style=wx.NO_BORDER)
@@ -762,6 +766,7 @@ class RangeSlider(wx.Panel):
         self.handlePos = tmp
 
 class HRangeSlider(RangeSlider):
+
     def __init__(self, parent, minvalue, maxvalue, init=None, pos=(0,0), size=(200,15),
                  valtype='int', log=False, function=None, backColour=None):
         RangeSlider.__init__(self, parent, minvalue, maxvalue, init, pos, size, valtype, log, function, backColour)
@@ -873,6 +878,7 @@ class HRangeSlider(RangeSlider):
 ### Control window for PyoObject
 ######################################################################
 class Command:
+
     def __init__(self, func, key):
         self.func = func
         self.key = key
@@ -881,6 +887,7 @@ class Command:
         self.func(self.key, value)
 
 class PyoObjectControl(wx.Frame):
+
     def __init__(self, parent=None, obj=None, map_list=None):
         wx.Frame.__init__(self, parent)
         from controls import SigTo
@@ -966,6 +973,7 @@ class PyoObjectControl(wx.Frame):
 ### View window for PyoTableObject
 ######################################################################
 class ViewTable(wx.Frame):
+
     def __init__(self, parent, samples=None, tableclass=None, object=None):
         wx.Frame.__init__(self, parent, size=(500,200))
         self.SetMinSize((300, 150))
@@ -994,6 +1002,7 @@ class ViewTable(wx.Frame):
         self.Destroy()
 
 class ViewTablePanel(wx.Panel):
+
     def __init__(self, parent, obj):
         wx.Panel.__init__(self, parent)
         self.SetBackgroundStyle(wx.BG_STYLE_CUSTOM)
@@ -1028,6 +1037,7 @@ class ViewTablePanel(wx.Panel):
         wx.CallAfter(self.obj.refreshView)
 
 class SndViewTable(wx.Frame):
+
     def __init__(self, parent, obj=None, tableclass=None, mouse_callback=None):
         wx.Frame.__init__(self, parent, size=(500,250))
         self.SetMinSize((300, 150))
@@ -1064,6 +1074,7 @@ class SndViewTable(wx.Frame):
         self.Destroy()
 
 class SndViewTablePanel(wx.Panel):
+
     def __init__(self, parent, obj=None, mouse_callback=None, select_callback=None):
         wx.Panel.__init__(self, parent)
         self.SetBackgroundStyle(wx.BG_STYLE_CUSTOM)
@@ -1297,6 +1308,7 @@ class SndViewTablePanel(wx.Panel):
 ## View window for PyoMatrixObject
 #####################################################################
 class ViewMatrix(wx.Frame):
+
     def __init__(self, parent, size=None, object=None):
         wx.Frame.__init__(self, parent)
         self.object = object
@@ -1370,6 +1382,7 @@ class ViewMatrix_withoutPIL(ViewMatrix):
 ## Spectrum Display
 ######################################################################
 class SpectrumDisplay(wx.Frame):
+
     def __init__(self, parent, obj=None):
         wx.Frame.__init__(self, parent, size=(600,350))
         self.SetMinSize((400,240))
@@ -1500,6 +1513,7 @@ class SpectrumDisplay(wx.Frame):
 
 # TODO: Adjust the font size according to the size of the panel.
 class SpectrumPanel(wx.Panel):
+
     def __init__(self, parent, chnls, lowfreq, highfreq, fscaling, mscaling, 
                  pos=wx.DefaultPosition, size=wx.DefaultSize, style=0):
         wx.Panel.__init__(self, parent, pos=pos, size=size, style=style)
@@ -1692,6 +1706,7 @@ class SpectrumPanel(wx.Panel):
 ## Spectrum Display
 ######################################################################
 class ScopeDisplay(wx.Frame):
+
     def __init__(self, parent, obj=None):
         wx.Frame.__init__(self, parent, size=(600,350))
         self.SetMinSize((400,240))
@@ -1756,6 +1771,7 @@ class ScopeDisplay(wx.Frame):
         self.Destroy()
 
 class ScopePanel(wx.Panel):
+
     def __init__(self, parent, obj=None, pos=wx.DefaultPosition, 
                  size=wx.DefaultSize, style=0):
         wx.Panel.__init__(self, parent, pos=pos, size=size, style=style)
@@ -1861,6 +1877,7 @@ RAD2 = RAD*2
 AREA = RAD+2
 AREA2 = AREA*2
 class Grapher(wx.Panel):
+
     def __init__(self, parent, xlen=8192, yrange=(0.0, 1.0), init=[(0.0,0.0),(1.0,1.0)], mode=0,
                  exp=10.0, inverse=True, tension=0.0, bias=0.0, outFunction=None, pos=(0, 0),
                  size=(300, 200), style=0):
@@ -2326,6 +2343,7 @@ class Grapher(wx.Panel):
             dc.DrawText("%.3f, %.3f" % (xval, yval), w-75, OFF)
 
 class TableGrapher(wx.Frame):
+
     def __init__(self, parent=None, obj=None, mode=0, xlen=8192, yrange=(0.0, 1.0)):
         wx.Frame.__init__(self, parent, size=(500,250))
         pts = obj.getPoints()
@@ -2385,6 +2403,7 @@ class TableGrapher(wx.Frame):
         self.graph.reset()
 
 class DataMultiSlider(wx.Panel):
+
     def __init__(self, parent, init, yrange=(0,1), outFunction=None,
                 pos=(0, 0), size=(300, 200), style=0):
         wx.Panel.__init__(self, parent, pos=pos, size=size, style=style)
@@ -2499,6 +2518,7 @@ class DataMultiSlider(wx.Panel):
             self.Refresh()
 
 class DataTableGrapher(wx.Frame):
+
     def __init__(self, parent=None, obj=None, yrange=(0.0, 1.0)):
         wx.Frame.__init__(self, parent, size=(500,250))
         self.obj = obj
@@ -2584,6 +2604,7 @@ class ExprLexer(object):
                 start_pos += 1
 
 class ExprEditor(stc.StyledTextCtrl):    
+
     def __init__(self, parent, id=-1, obj=None):
         stc.StyledTextCtrl.__init__(self, parent, id)
 
@@ -2725,6 +2746,7 @@ class ExprEditor(stc.StyledTextCtrl):
         self.SetSelection(pos, pos)
 
 class ExprEditorFrame(wx.Frame):
+
     def __init__(self, parent=None, obj=None):
         wx.Frame.__init__(self, parent, size=(500,350))
         self.obj = obj
@@ -2779,6 +2801,7 @@ class ExprEditorFrame(wx.Frame):
         self.editor.SetText(text)
 
 class ServerGUI(wx.Frame):
+
     def __init__(self, parent=None, nchnls=2, startf=None, stopf=None, 
                 recstartf=None, recstopf=None, ampf=None, started=0, 
                 locals=None, shutdown=None, meter=True, timer=True, amp=1., 

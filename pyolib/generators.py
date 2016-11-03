@@ -99,7 +99,6 @@ class Sine(PyoObject):
         """
         [obj.reset() for i, obj in enumerate(self._base_objs)]
 
-
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
         self._map_list = [SLMapFreq(self._freq), SLMapPhase(self._phase), SLMapMul(self._mul)]
         PyoObject.ctrl(self, map_list, title, wxnoserver)
@@ -198,7 +197,6 @@ class FastSine(PyoObject):
 
         """
         [obj.reset() for i, obj in enumerate(self._base_objs)]
-
 
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
         self._map_list = [SLMapFreq(self._freq), 
@@ -373,7 +371,6 @@ class Phasor(PyoObject):
 
         """
         [obj.reset() for i, obj in enumerate(self._base_objs)]
-
 
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
         self._map_list = [SLMapFreq(self._freq), SLMapPhase(self._phase), SLMapMul(self._mul)]
@@ -1275,7 +1272,6 @@ class LFO(PyoObject):
 
         """
         [obj.reset() for i, obj in enumerate(self._base_objs)]
-
 
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
         self._map_list = [SLMap(0.1, self.getSamplingRate()*0.25, "log", "freq", self._freq),

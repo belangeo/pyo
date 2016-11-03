@@ -884,7 +884,6 @@ class TableRead(PyoObject):
         """
         [obj.reset() for i, obj in enumerate(self._base_objs)]
 
-
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
         self._map_list = [SLMap(0.0001, 1000, 'log', 'freq', self._freq),
                           SLMap(0, 1, 'lin', 'loop', self._loop, res="int", dataOnly=True),

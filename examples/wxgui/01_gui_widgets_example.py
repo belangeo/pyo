@@ -25,6 +25,7 @@ sp = Spectrum(f)
 sc = Scope(f)
 
 class MyFrame(wx.Frame):
+
     def __init__(self, parent, title, pos=(50, 50), size=(850, 600)):
         wx.Frame.__init__(self, parent, -1, title, pos, size)
         self.panel = wx.Panel(self)
