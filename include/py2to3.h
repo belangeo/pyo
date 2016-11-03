@@ -29,6 +29,9 @@
 #if PY_MAJOR_VERSION >= 3
 /* This is the default on Python3 and constant has been removed. */
 #define Py_TPFLAGS_CHECKTYPES 0
+/* This seems to be a Python 2 thing only for compatibility with even older versions of Python.
+ * It has been removed in Python 3. */
+#define Py_TPFLAGS_HAVE_NEWBUFFER 0
 #define PyFloat_FromString(a,removed_parameter) PyFloat_FromString(a)
 #endif
 
