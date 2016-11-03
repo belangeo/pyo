@@ -755,7 +755,7 @@ class Exp(PyoObject):
     """
     Calculates the value of e to the power of x.
 
-    Returns the value of e to the power of x, where e is the base of the 
+    Returns the value of e to the power of x, where e is the base of the
     natural logarithm, 2.718281828...
 
     :Parent: :py:class:`PyoObject`

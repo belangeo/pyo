@@ -85,19 +85,19 @@ def isMatrixObject(obj):
 
 def isPVObject(obj):
     return isinstance(obj, PyoPVObject) or hasattr(obj, "pv_stream")
-    
+
 def pyoArgsAssert(obj, format, *args):
     """
     Raise an Exception if an object got an invalid argument.
-    
+
     :Args:
-        
+
         obj : Pyo object on which method is called.
             Usually "self" in the function call.
         format :
             String of length equal to the number of arguments. Each character
             indicating the expected argument type.
-            
+
             - O : float or PyoObject
             - o : PyoObject
             - T : float or PyoTableObject
@@ -123,7 +123,7 @@ def pyoArgsAssert(obj, format, *args):
             - z : anything
         *args : any
             Arguments passed to the object's method.
-            
+
     """
     expected = ""
     for i in range(len(args)):
@@ -198,7 +198,7 @@ def pyoArgsAssert(obj, format, *args):
                 expected = "callable - list not allowed"
         elif f == "z":
             pass
-                
+
         if expected:
             break
 
@@ -1150,7 +1150,7 @@ class PyoTableObject(PyoObjectBase):
                     5. U-Law encoded
                     6. A-Law encoded
             quality : float, optional
-                The encoding quality value, between 0.0 (lowest quality) and 
+                The encoding quality value, between 0.0 (lowest quality) and
                 1.0 (highest quality). This argument has an effect only with
                 FLAC and OGG compressed formats. Defaults to 0.4.
 
@@ -1237,7 +1237,7 @@ class PyoTableObject(PyoObjectBase):
             arr = numpy.asarray(t.getBuffer())
 
         Now, every changes applied to the array will be reflected in the SndTable.
-        
+
         For more details about the buffer protocol, see PEP 3118 and python documentation.
 
         """
@@ -1577,9 +1577,9 @@ class PyoTableObject(PyoObjectBase):
     def rotate(self, pos):
         """
         Rotate the table content to the left around the position given as argument.
-        
+
         Samples between the given position and the end of the table will
-        be relocated in front of the samples from the beginning to the 
+        be relocated in front of the samples from the beginning to the
         given position.
 
         :Args:
@@ -1592,7 +1592,7 @@ class PyoTableObject(PyoObjectBase):
         pyoArgsAssert(self, "I", pos)
         [obj.rotate(pos) for obj in self._base_objs]
         self.refreshView()
-        
+
     def copy(self):
         """
         Returns a deep copy of the object.

@@ -226,7 +226,7 @@ class Adsr(PyoObject):
         The play() method starts the envelope.
 
         The stop() method calls the envelope's release phase if `dur` = 0.
-        
+
         As of version 0.8.0, exponential or logarithmic envelopes can be created
         with the exponent factor (see setExp() method).
 

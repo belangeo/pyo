@@ -9,8 +9,8 @@ input port.
 
 The audio streams of these objects are essentially intended to be
 controls and can't be sent to the output soundcard.
-    
-These objects are available only if pyo is built with OSC (Open Sound 
+
+These objects are available only if pyo is built with OSC (Open Sound
 Control) support.
 
 """

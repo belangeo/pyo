@@ -18,7 +18,7 @@ a = SineLoop(freqs, feedback=.05, mul=fade1).out(dur=5, delay=start1)
 start2 = 30
 dur2 = 40
 snds = ['../snds/alum1.wav', '../snds/alum2.wav', '../snds/alum3.wav', '../snds/alum4.wav']
-tabs = SndTable(snds) 
+tabs = SndTable(snds)
 fade2 = Fader(.05, 10, dur2, mul=.7).play(dur=dur2, delay=start2)
 b = Beat(time=.125, w1=[90,30,30,20], w2=[30,90,50,40], w3=[0,30,30,40], poly=1).play(dur=dur2, delay=start2)
 out = TrigEnv(b, tabs, b['dur'], mul=b['amp']*fade2).out(dur=dur2, delay=start2)

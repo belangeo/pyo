@@ -9,8 +9,8 @@ Player family:
     - **SfMarkerLooper** : AIFF with markers soundfile looper.
     - **SfMarkerShuffler** : AIFF with markers soundfile shuffler.
 
-Reading sound file from disk can save a lot of RAM, especially if 
-the soundfile is big, but it is more CPU expensive than loading 
+Reading sound file from disk can save a lot of RAM, especially if
+the soundfile is big, but it is more CPU expensive than loading
 the sound file in memory in a first pass.
 
 """

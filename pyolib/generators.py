@@ -122,10 +122,10 @@ class FastSine(PyoObject):
     A fast sine wave approximation using the formula of a parabola.
 
     This object implements two sin approximations that are even faster
-    than a linearly interpolated table lookup. With `quality` set to 1, 
+    than a linearly interpolated table lookup. With `quality` set to 1,
     the approximation is more accurate but also more expensive on the CPU
-    (still cheaper than a Sine object). With `quality` = 0, the algorithm  
-    gives a worse approximation of the sin function but it is very fast 
+    (still cheaper than a Sine object). With `quality` = 0, the algorithm
+    gives a worse approximation of the sin function but it is very fast
     (and well suitable for generating LFO).
 
     :Parent: :py:class:`PyoObject`
@@ -199,8 +199,8 @@ class FastSine(PyoObject):
         [obj.reset() for i, obj in enumerate(self._base_objs)]
 
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [SLMapFreq(self._freq), 
-                          SLMap(0, 1, "lin", "quality", self._quality, res="int", dataOnly=True), 
+        self._map_list = [SLMapFreq(self._freq),
+                          SLMap(0, 1, "lin", "quality", self._quality, res="int", dataOnly=True),
                           SLMapMul(self._mul)]
         PyoObject.ctrl(self, map_list, title, wxnoserver)
 
@@ -1088,7 +1088,7 @@ class ChenLee(PyoObject):
             If True, 2 streams will be generated, one with the X variable signal of
             the algorithm and a second composed of the Y variable signal of the algorithm.
             These two signal are strongly related in their frequency spectrum but
-            the Y signal is slightly out-of-phase. Useful to create alternating LFOs. 
+            the Y signal is slightly out-of-phase. Useful to create alternating LFOs.
             Available at initialization only. Defaults to False.
 
     .. seealso::

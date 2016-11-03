@@ -1654,14 +1654,14 @@ class TableWrite(PyoObject):
         input : PyoObject
             Audio signal to write in the table.
         pos : PyoObject
-            Audio signal specifying the position where to write the 
-            `input` samples. It is a normalized position (in the range 
+            Audio signal specifying the position where to write the
+            `input` samples. It is a normalized position (in the range
             0 to 1) in mode=0 or the raw position (in samples) for any
             other value of mode.
         table : NewTable
             The table where to write samples.
         mode : int, optional
-            Sets the writing pointer mode. If 0, the position must be 
+            Sets the writing pointer mode. If 0, the position must be
             normalized between 0 (beginning of the table) and 1 (end
             of the table). For any other value, the position must be
             in samples between 0 and the length of the table. Available
@@ -2320,8 +2320,8 @@ class Looper(PyoObject):
         of a loop. User can retrieve the trigger streams by calling obj['trig'].
 
         Looper also outputs a time stream, given the current position of the
-        reading pointer, normalized between 0.0 and 1.0 (1.0 means the beginning 
-        of the crossfade), inside the loop. User can retrieve the trigger streams 
+        reading pointer, normalized between 0.0 and 1.0 (1.0 means the beginning
+        of the crossfade), inside the loop. User can retrieve the trigger streams
         by calling obj['time']. New in version 0.8.1.
 
     .. seealso::
@@ -2537,12 +2537,12 @@ class Looper(PyoObject):
         :Args:
 
             x : boolean
-                If 0 (the default), the crossfade duration lies inside the 
-                loop duration, producing a loop that is shorter than the 
+                If 0 (the default), the crossfade duration lies inside the
+                loop duration, producing a loop that is shorter than the
                 `dur` value.
-                
-                If 1, the crossfade starts after the loop duration, expecting 
-                samples after the loop to perform the fadeout. This mode gives 
+
+                If 1, the crossfade starts after the loop duration, expecting
+                samples after the loop to perform the fadeout. This mode gives
                 a loop of a length of the `dur` value.
 
         """
@@ -2558,9 +2558,9 @@ class Looper(PyoObject):
         :Args:
 
             x : boolean
-                If 0 (the default), the crossfade duration (`xfade` value) is 
+                If 0 (the default), the crossfade duration (`xfade` value) is
                 a percent of the loop time, between 0 and 50.
-                
+
                 If 1, the crossfade duration (`xfade` value) is set in seconds,
                 between 0 and half the loop length.
 

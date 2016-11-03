@@ -32,10 +32,10 @@ class Disto(PyoObject):
     """
     Kind of Arc tangent distortion.
 
-    Apply a kind of arc tangent distortion with controllable drive, followed 
+    Apply a kind of arc tangent distortion with controllable drive, followed
     by a one pole lowpass filter, to the input signal.
-    
-    As of version 0.8.0, this object use a simple but very efficient (4x 
+
+    As of version 0.8.0, this object use a simple but very efficient (4x
     faster than tanh or atan2 functions) waveshaper formula describe here:
 
     http://musicdsp.org/archive.php?classid=4#46

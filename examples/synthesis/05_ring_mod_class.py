@@ -20,7 +20,7 @@ class Ring:
     def out(self):
         self.port.out()
         return self
-    
+
     def sig(self):
         return self.port
 

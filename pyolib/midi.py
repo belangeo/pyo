@@ -1318,7 +1318,7 @@ class RawMidi(PyoObject):
     """
     Raw Midi handler.
 
-    This object calls a python function for each raw midi data 
+    This object calls a python function for each raw midi data
     (status, data1, data2) event for further processing in Python.
 
     :Parent: :py:class:`PyoObject`

@@ -2217,23 +2217,23 @@ class PartialTable(PyoTableObject):
         return self._list
     @list.setter
     def list(self, x): self.replace(x)
-    
+
 class PadSynthTable(PyoTableObject):
     """
     Generates wavetable with the PadSynth algorithm from Nasca Octavian Paul.
-    
+
     This object generates a wavetable with the PadSynth algorithm describe here:
-        
+
     http://zynaddsubfx.sourceforge.net/doc/PADsynth/PADsynth.htm
-    
-    This algorithm generates some large wavetables that can played at 
-    different speeds to get the desired sound. This algorithm describes 
-    only how these wavetables are generated. The result is a perfectly 
-    looped wavetable. 
-    
+
+    This algorithm generates some large wavetables that can played at
+    different speeds to get the desired sound. This algorithm describes
+    only how these wavetables are generated. The result is a perfectly
+    looped wavetable.
+
     To get the desired pitch from the table, the playback speed must be
     `sr / table size`. This speed can be transposed to obtain different
-    pitches from a single wavetable. 
+    pitches from a single wavetable.
 
     :Parent: :py:class:`PyoTableObject`
 
@@ -2252,16 +2252,16 @@ class PadSynthTable(PyoTableObject):
             to control the harmonic profile using a gaussian distribution (bell
             shape). Defaults to 50.
         bwscl : float, optional
-            The bandswidth scale specifies how much the bandwidth of the 
+            The bandswidth scale specifies how much the bandwidth of the
             harmonic increase according to its frequency. Defaults to 1.
         nharms : int, optional
             The number of harmonics in the generated wavetable. Higher
             numbers of harmonics take more time to generate the wavetable.
-            Defaults to 64. 
+            Defaults to 64.
         damp : float, optional
             The amplitude damping factor specifies how much the amplitude
             of the harmonic decrease according to its order. It uses a
-            simple power serie, `amp = pow(damp, n)` where `n` is the 
+            simple power serie, `amp = pow(damp, n)` where `n` is the
             harmonic order. Defaults to 0.7.
         size : int, optional
             Table size in samples. Must be a power-of-two, usually a big one!

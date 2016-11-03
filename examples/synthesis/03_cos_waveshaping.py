@@ -30,5 +30,5 @@ a = OscBank(t, freq=frs, spread=.0001, slope=1, num=24, fjit=True, mul=f)
 b = Cos(math.pi * a + phi)
 b1 = DCBlock(b*phiscl)
 c = Sig(b1 / amp, mul=.2).out()
-    
+
 s.gui(locals())

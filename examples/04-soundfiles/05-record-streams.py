@@ -3,11 +3,11 @@
 
 The Record object can be used to record specific audio streams
 from a performance. It can be useful to record a sound in mutiple
-tracks to make post-processing on individual part easier. This 
-example record the bass, the mid and the higher part in three 
+tracks to make post-processing on individual part easier. This
+example record the bass, the mid and the higher part in three
 separated files on the user's desktop.
 
-The `fileformat` and `sampletype` arguments are the same as in 
+The `fileformat` and `sampletype` arguments are the same as in
 the Server's `recordOptions` method.
 
 """
@@ -38,9 +38,9 @@ hlfo = Sine(freq=[0.1, 0.11, 0.12, 0.13]).range(7000, 8000)
 high = Sine(freq=hlfo, mul=amp*0.1).out()
 
 # Creates the recorders
-brec = Record(bass, filename=bname, chnls=2, fileformat=0, sampletype=1) 
-mrec = Record(mid, filename=mname, chnls=2, fileformat=0, sampletype=1) 
-hrec = Record(high, filename=hname, chnls=2, fileformat=0, sampletype=1) 
+brec = Record(bass, filename=bname, chnls=2, fileformat=0, sampletype=1)
+mrec = Record(mid, filename=mname, chnls=2, fileformat=0, sampletype=1)
+hrec = Record(high, filename=hname, chnls=2, fileformat=0, sampletype=1)
 
 # After 10.1 seconds, recorder objects will be automatically deleted.
 # This will trigger their stop method and properly close the sound files.

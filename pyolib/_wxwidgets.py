@@ -485,7 +485,7 @@ class MultiSlider(wx.Panel):
 
 class VuMeter(wx.Panel):
 
-    def __init__(self, parent, size=(200,11), numSliders=2, orient=wx.HORIZONTAL, 
+    def __init__(self, parent, size=(200,11), numSliders=2, orient=wx.HORIZONTAL,
                  pos=wx.DefaultPosition, style=0):
         if orient == wx.HORIZONTAL:
             size = (size[0], numSliders * 5 + 1)
@@ -1129,7 +1129,7 @@ class SndViewTablePanel(wx.Panel):
         self.Refresh()
         if self.select_callback != None:
             self.select_callback((self.selstart, self.selend))
-        
+
     def setBegin(self, x):
         self.begin = x
 
@@ -1205,7 +1205,7 @@ class SndViewTablePanel(wx.Panel):
                     self.selend = pos[0]
                     refresh = True
                 elif self.moveSelection:
-                    diff = pos[0] - self.movepos 
+                    diff = pos[0] - self.movepos
                     self.movepos = pos[0]
                     self.selstart += diff
                     self.selend += diff
@@ -1514,7 +1514,7 @@ class SpectrumDisplay(wx.Frame):
 # TODO: Adjust the font size according to the size of the panel.
 class SpectrumPanel(wx.Panel):
 
-    def __init__(self, parent, chnls, lowfreq, highfreq, fscaling, mscaling, 
+    def __init__(self, parent, chnls, lowfreq, highfreq, fscaling, mscaling,
                  pos=wx.DefaultPosition, size=wx.DefaultSize, style=0):
         wx.Panel.__init__(self, parent, pos=pos, size=size, style=style)
         self.SetBackgroundStyle(wx.BG_STYLE_CUSTOM)
@@ -1573,7 +1573,7 @@ class SpectrumPanel(wx.Panel):
         dc = self.dcref(self)
         gc = wx.GraphicsContext_Create(dc)
         tw, th = dc.GetTextExtent("0")
-        
+
         # background
         background = gc.CreatePath()
         background.AddRectangle(0,0,w-1,h-1)
@@ -1772,7 +1772,7 @@ class ScopeDisplay(wx.Frame):
 
 class ScopePanel(wx.Panel):
 
-    def __init__(self, parent, obj=None, pos=wx.DefaultPosition, 
+    def __init__(self, parent, obj=None, pos=wx.DefaultPosition,
                  size=wx.DefaultSize, style=0):
         wx.Panel.__init__(self, parent, pos=pos, size=size, style=style)
         self.SetBackgroundStyle(wx.BG_STYLE_CUSTOM)
@@ -2542,7 +2542,7 @@ class ExprLexer(object):
     STC_EXPR_VARIABLE, STC_EXPR_LETVARIABLE = range(6)
     def __init__(self):
         super(ExprLexer, self).__init__()
-        
+
         self.alpha = "abcdefghijklmnopqrstuvwxyz"
         self.digits = "0123456789"
         self.keywords = ["sin", "cos", "tan", "tanh", "atan", "atan2", "sqrt", "log",
@@ -2603,7 +2603,7 @@ class ExprLexer(object):
                 stc.SetStyling(1, style)
                 start_pos += 1
 
-class ExprEditor(stc.StyledTextCtrl):    
+class ExprEditor(stc.StyledTextCtrl):
 
     def __init__(self, parent, id=-1, obj=None):
         stc.StyledTextCtrl.__init__(self, parent, id)
@@ -2621,14 +2621,14 @@ class ExprEditor(stc.StyledTextCtrl):
                                       (accel_ctrl, ord("z"), wx.ID_UNDO),
                                       (accel_ctrl|wx.ACCEL_SHIFT, ord("z"), wx.ID_REDO)])
         self.SetAcceleratorTable(atable)
-        
+
         self.Bind(wx.EVT_MENU, self.onExecute, id=10000)
         self.Bind(wx.EVT_MENU, self.undo, id=wx.ID_UNDO)
         self.Bind(wx.EVT_MENU, self.redo, id=wx.ID_REDO)
         self.Bind(stc.EVT_STC_UPDATEUI, self.OnUpdateUI)
 
         self.lexer = ExprLexer()
-        
+
         self.currentfile = ""
         self.modified = False
 
@@ -2767,7 +2767,7 @@ class ExprEditorFrame(wx.Frame):
         self.SetMenuBar(self.menubar)
 
     def open(self, evt):
-        dlg = wx.FileDialog(self, message="Choose a file", 
+        dlg = wx.FileDialog(self, message="Choose a file",
                             defaultDir=os.path.expanduser("~"),
                             defaultFile="", style=wx.OPEN)
         if dlg.ShowModal() == wx.ID_OK:
@@ -2788,7 +2788,7 @@ class ExprEditorFrame(wx.Frame):
 
     def saveas(self, evt):
         deffile = os.path.split(self.editor.currentfile)[1]
-        dlg = wx.FileDialog(self, message="Save file as ...", 
+        dlg = wx.FileDialog(self, message="Save file as ...",
                             defaultDir=os.path.expanduser("~"),
                             defaultFile=deffile, style=wx.SAVE)
         dlg.SetFilterIndex(0)
@@ -2802,9 +2802,9 @@ class ExprEditorFrame(wx.Frame):
 
 class ServerGUI(wx.Frame):
 
-    def __init__(self, parent=None, nchnls=2, startf=None, stopf=None, 
-                recstartf=None, recstopf=None, ampf=None, started=0, 
-                locals=None, shutdown=None, meter=True, timer=True, amp=1., 
+    def __init__(self, parent=None, nchnls=2, startf=None, stopf=None,
+                recstartf=None, recstopf=None, ampf=None, started=0,
+                locals=None, shutdown=None, meter=True, timer=True, amp=1.,
                 exit=True):
         wx.Frame.__init__(self, parent, style=wx.DEFAULT_FRAME_STYLE ^ wx.RESIZE_BORDER)
 

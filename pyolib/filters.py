@@ -3572,8 +3572,8 @@ class MoogLP(PyoObject):
         [obj.setRes(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [SLMapFreq(self._freq), 
-                          SLMap(0.,1., "lin", "res", self._res), 
+        self._map_list = [SLMapFreq(self._freq),
+                          SLMap(0.,1., "lin", "res", self._res),
                           SLMapMul(self._mul)]
         PyoObject.ctrl(self, map_list, title, wxnoserver)
 

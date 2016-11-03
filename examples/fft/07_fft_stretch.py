@@ -22,7 +22,7 @@ nframes = info[0] / size
 
 a = SfPlayer(snd, mul=.1)
 
-# "overlaps * chnls" Matrices of width FFTSIZE and height NUM_OF_FRAMES 
+# "overlaps * chnls" Matrices of width FFTSIZE and height NUM_OF_FRAMES
 # to record magnitude and phase analysis frames
 m_mag = [NewMatrix(width=size, height=nframes) for i in range(olaps*chnls)]
 m_pha = [NewMatrix(width=size, height=nframes) for i in range(olaps*chnls)]

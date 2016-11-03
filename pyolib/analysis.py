@@ -732,7 +732,7 @@ class AttackDetector(PyoObject):
 
         """
         [obj.readyToDetect() for obj in self._base_objs]
-        
+
     def out(self, chnl=0, inc=1, dur=0, delay=0):
         return self.play(dur, delay)
 

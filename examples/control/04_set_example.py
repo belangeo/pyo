@@ -11,8 +11,8 @@ from random import uniform
 
 s = Server(sr=44100, nchnls=2, buffersize=1024, duplex=0).boot()
 
-a = FM(carrier=[uniform(197,203) for i in range(10)], 
-       ratio=[uniform(0.49,0.51) for i in range(10)], 
+a = FM(carrier=[uniform(197,203) for i in range(10)],
+       ratio=[uniform(0.49,0.51) for i in range(10)],
        index=[uniform(10,15) for i in range(10)], mul=.05).out()
 
 def go():
@@ -24,6 +24,5 @@ def reset():
     a.carrier = [uniform(197,203) for i in range(10)]
     a.ratio = [uniform(0.49,0.51) for i in range(10)]
     a.index = [uniform(8,12) for i in range(10)]
-    
-s.gui(locals())
 
+s.gui(locals())

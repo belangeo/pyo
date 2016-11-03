@@ -21,5 +21,3 @@ for i in range(20):
 # Stop the audio Server before exiting
 pipe.write("s.stop()\ntime.sleep(0.25)\n")
 pipe.close()
-
-

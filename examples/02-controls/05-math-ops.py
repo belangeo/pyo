@@ -1,7 +1,7 @@
 """
 05-math-ops.py - Audio objects and arithmetic expresssions.
 
-This script shows how a PyoObject reacts when used inside an 
+This script shows how a PyoObject reacts when used inside an
 arithmetic expression.
 
 Multiplication, addition, division and substraction can be applied
@@ -11,7 +11,7 @@ returns a Dummy object that outputs the result of the operation.
 A Dummy object is only a place holder to keep track of arithmetic
 operations on audio objects.
 
-PyoObject can also be used in expression with the exponent (**), 
+PyoObject can also be used in expression with the exponent (**),
 modulo (%) and unary negative (-) operators.
 
 """
@@ -24,15 +24,15 @@ s.amp = 0.1
 a = Sine()
 
 # Creates a Dummy object `b` with `mul` attribute
-# set to 0.5 and leaves `a` unchanged. 
+# set to 0.5 and leaves `a` unchanged.
 b = a * 0.5
 b.out()
 
 # Instance of Dummy class
 print b
 
-# Computes a ring modulation between two PyoObjects 
-# and scales the amplitude of the resulting signal. 
+# Computes a ring modulation between two PyoObjects
+# and scales the amplitude of the resulting signal.
 c = Sine(300)
 d = a * c * 0.3
 d.out()

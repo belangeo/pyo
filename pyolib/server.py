@@ -73,8 +73,8 @@ class Server(object):
 
             'embedded' should be used when pyo is embedded inside an host environment via its C api.
 
-            If 'jack' is selected but jackd is not already started when the program is executed, pyo 
-            will ask jack to start in the background. Note that pyo never ask jack to close. It is 
+            If 'jack' is selected but jackd is not already started when the program is executed, pyo
+            will ask jack to start in the background. Note that pyo never ask jack to close. It is
             the user's responsability to manage the audio configuration of its system.
         jackname : string, optional
             Name of jack client. Defaults to 'pyo'
@@ -198,9 +198,9 @@ class Server(object):
                 Defaults to True.
 
         """
-        self._gui_frame, win = createServerGUI(self._nchnls, self.start, self.stop, 
-                                               self.recstart, self.recstop, self.setAmp, 
-                                               self.getIsStarted(), locals, self.shutdown, 
+        self._gui_frame, win = createServerGUI(self._nchnls, self.start, self.stop,
+                                               self.recstart, self.recstop, self.setAmp,
+                                               self.getIsStarted(), locals, self.shutdown,
                                                meter, timer, self._amp, exit)
         if meter:
             self._server.setAmpCallable(self._gui_frame)
@@ -224,12 +224,12 @@ class Server(object):
     def setTimeCallable(self, func):
         """
         Set a function callback that will receive the current time as argument.
-        
+
         The function will receive four integers in this format:
                 hours, minutes, seconds, milliseconds
 
         :Args:
-            
+
             func : python callable
                 Python function or method to call with current time as argument.
 
@@ -240,11 +240,11 @@ class Server(object):
     def setMeterCallable(self, func):
         """
         Set a function callback that will receive the current rms values as argument.
-        
+
         The function will receive a list containing the rms value for each audio channel.
 
         :Args:
-            
+
             func : python callable
                 Python function or method to call with current rms values as argument.
 
@@ -255,12 +255,12 @@ class Server(object):
     def setMeter(self, meter):
         """
         Registers a meter object to the server.
-        
+
         The object must have a method named `setRms`. This method will be called
         with the rms values of each audio channel as argument.
 
         :Args:
-            
+
             meter : python object
                 Python object with a `setRms` method.
 
@@ -478,7 +478,7 @@ class Server(object):
         :Args:
 
             ports : list of list of strings
-                Name of the Jack ports to auto-connect to pyo input channels. 
+                Name of the Jack ports to auto-connect to pyo input channels.
                 There must be exactly one list of port(s) for each pyo input channel.
 
                 [['ports', 'to', 'channel', '1'], ['ports', 'to', 'channel', '2'], ...]
@@ -494,7 +494,7 @@ class Server(object):
         :Args:
 
             ports : list of list of strings
-                Name of the Jack ports to auto-connect to pyo output channels. 
+                Name of the Jack ports to auto-connect to pyo output channels.
                 There must be exactly one list of port(s) for each pyo output channel.
 
                 [['ports', 'to', 'channel', '1'], ['ports', 'to', 'channel', '2'], ...]
@@ -547,18 +547,18 @@ class Server(object):
 
     def beginResamplingBlock(self, x):
         """
-        Starts a resampling block. 
-        
-        This factor must be a power-of-two. A positive value means 
-        upsampling and a negative value means downsampling. After this 
-        call, every PyoObject will be created with an internal sampling 
-        rate and buffer size relative to the resampling factor. The method 
-        `endResamplingBlock()` should be called at the end of the code 
+        Starts a resampling block.
+
+        This factor must be a power-of-two. A positive value means
+        upsampling and a negative value means downsampling. After this
+        call, every PyoObject will be created with an internal sampling
+        rate and buffer size relative to the resampling factor. The method
+        `endResamplingBlock()` should be called at the end of the code
         block using the resampling factor.
-        
-        The `Resample` object can be used inside the resampling block to 
-        perform up or down resampling of audio signal created before the 
-        block.  
+
+        The `Resample` object can be used inside the resampling block to
+        perform up or down resampling of audio signal created before the
+        block.
 
         :Args:
 
@@ -578,19 +578,19 @@ class Server(object):
 
     def endResamplingBlock(self):
         """
-        Ends a resampling block. 
-        
+        Ends a resampling block.
+
         This call ends a code block using a sample rate different from
         the current sampling rate of the system.
 
-        The `Resample` object can be used after the resampling blick to 
-        perform up or down resampling of audio signal created inside the 
-        block.  
+        The `Resample` object can be used after the resampling blick to
+        perform up or down resampling of audio signal created inside the
+        block.
 
         """
         self._resampling = 1
         self._server.endResamplingBlock()
-        
+
     def shutdown(self):
         """
         Shut down and clear the server. This method will erase all objects
@@ -675,7 +675,7 @@ class Server(object):
                     5. U-Law encoded
                     6. A-Law encoded
             quality : float, optional
-                The encoding quality value, between 0.0 (lowest quality) and 
+                The encoding quality value, between 0.0 (lowest quality) and
                 1.0 (highest quality). This argument has an effect only with
                 FLAC and OGG compressed formats. Defaults to 0.4.
 
@@ -891,7 +891,7 @@ class Server(object):
         :Args:
 
             msg : str
-                A valid system exclusive message as a string. The first byte 
+                A valid system exclusive message as a string. The first byte
                 must be 0xf0 and the last one must be 0xf7.
             timestamp : int, optional
                 The delay time, in milliseconds, before the message
@@ -905,10 +905,10 @@ class Server(object):
         """
         Add a MIDI event in the server processing loop.
 
-        This method can be used to  programatically simulate incomming 
+        This method can be used to  programatically simulate incomming
         MIDI events. In an embedded framework (ie. pyo inside puredata,
         openframeworks, etc.), this is useful to control a MIDI-driven
-        script from the host program. Arguments can be list of values to 
+        script from the host program. Arguments can be list of values to
         generate multiple events in one call.
 
         :Args:
@@ -923,11 +923,11 @@ class Server(object):
                     209 -> 223 : After touch
                     224 -> 239 : Pitch bend
             data1 : int, optional
-                The first data byte (pitch for a midi note, controller 
-                number for a control change). Defaults to 0. 
+                The first data byte (pitch for a midi note, controller
+                number for a control change). Defaults to 0.
             data2 : int, optional
-                The second data byte (velocity for a midi note, value 
-                for a control change). Defaults to 0. 
+                The second data byte (velocity for a midi note, value
+                for a control change). Defaults to 0.
 
         """
         status, data1, data2, lmax = convertArgsToLists(status, data1, data2)
