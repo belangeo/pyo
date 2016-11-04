@@ -1903,7 +1903,7 @@ Beater_makeSequence(Beater *self) {
 
 	j = 0;
 	for (i=0; i < self->taps; i++) {
-		if ((pyorand() % 100) < self->tapProb[i]) {
+		if ((int)(pyorand() % 100) < self->tapProb[i]) {
 			self->sequence[i] = 1;
 			self->tapList[j++] = i;
 		}

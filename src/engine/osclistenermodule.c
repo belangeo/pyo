@@ -55,7 +55,8 @@ int process_osc(const char *path, const char *types, lo_arg **argv, int argc,
     uint32_t blobsize = 0;
     PyObject *charlist = NULL; 
     tup = PyTuple_New(argc+1);
-    int i, j = 0;
+    int i = 0;
+    unsigned int j = 0;
 
     PyGILState_STATE s = PyGILState_Ensure();
     PyTuple_SET_ITEM(tup, 0, PyString_FromString(path));

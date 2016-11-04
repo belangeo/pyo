@@ -3743,14 +3743,14 @@ SndTable_loadSound(SndTable *self) {
     self->data = (MYFLT *)realloc(self->data, (self->size + 1) * sizeof(MYFLT));
 
     /* For sound longer than 1 minute, load 30 sec chunks. */
-    if (self->size > (self->sndSr * 60 * num_chnls)) {
+    if (self->size > (int)(self->sndSr * 60 * num_chnls)) {
         tmp = (MYFLT *)malloc(self->sndSr * 30 * num_chnls * sizeof(MYFLT));
         sf_seek(sf, start, SEEK_SET);
         num_items = self->sndSr * 30 * num_chnls;
         do {
             num = SF_READ(sf, tmp, num_items);
             for (i=0; i<num; i++) {
-                if ((i % num_chnls) == self->chnl) {
+                if ((int)(i % num_chnls) == self->chnl) {
                     self->data[(int)(num_count++)] = tmp[i];
                 }
             }
@@ -3764,7 +3764,7 @@ SndTable_loadSound(SndTable *self) {
         num = SF_READ(sf, tmp, num_items);
         sf_close(sf);
         for (i=0; i<num_items; i++) {
-            if ((i % num_chnls) == self->chnl) {
+            if ((int)(i % num_chnls) == self->chnl) {
                 self->data[(int)(i/num_chnls)] = tmp[i];
             }
         }
@@ -3814,7 +3814,7 @@ SndTable_appendSound(SndTable *self) {
     cross_in_samps = (unsigned int)(self->crossfade * self->sr);
     if (cross_in_samps >= to_load_size)
         cross_in_samps = to_load_size - 1;
-    if (cross_in_samps >= self->size)
+    if ((int)cross_in_samps >= self->size)
         cross_in_samps = self->size - 1;
 
     /* Allocate space for the data to be read, then read it. */
@@ -3826,7 +3826,7 @@ SndTable_appendSound(SndTable *self) {
     sf_close(sf);
 
     if (cross_in_samps != 0) {
-        for (i=0; i<self->size; i++) {
+        for (i=0; i<(unsigned int)self->size; i++) {
             tmp_data[i] = self->data[i];
         }
     }
@@ -3843,7 +3843,7 @@ SndTable_appendSound(SndTable *self) {
 
     if (self->crossfade == 0.0) {
         for (i=0; i<num_items; i++) {
-            if ((i % num_chnls) == self->chnl) {
+            if ((int)(i % num_chnls) == self->chnl) {
                 index = (int)(i/num_chnls);
                 real_index = cross_point + index;
                 self->data[real_index] = tmp[i];
@@ -3852,7 +3852,7 @@ SndTable_appendSound(SndTable *self) {
     }
     else {
         for (i=0; i<num_items; i++) {
-            if ((i % num_chnls) == self->chnl) {
+            if ((int)(i % num_chnls) == self->chnl) {
                 index = (int)(i/num_chnls);
                 real_index = cross_point + index;
                 if (index < cross_in_samps) {
@@ -3911,7 +3911,7 @@ SndTable_prependSound(SndTable *self) {
     cross_in_samps = (unsigned int)(self->crossfade * self->sr);
     if (cross_in_samps >= to_load_size)
         cross_in_samps = to_load_size - 1;
-    if (cross_in_samps >= self->size)
+    if ((int)cross_in_samps >= self->size)
         cross_in_samps = self->size - 1;
 
     /* Allocate space for the data to be read, then read it. */
@@ -3922,7 +3922,7 @@ SndTable_prependSound(SndTable *self) {
     SF_READ(sf, tmp, num_items);
     sf_close(sf);
 
-    for (i=0; i<self->size; i++) {
+    for (i=0; i<(unsigned int)self->size; i++) {
         tmp_data[i] = self->data[i];
     }
 
@@ -3932,7 +3932,7 @@ SndTable_prependSound(SndTable *self) {
 
     if (self->crossfade == 0.0) {
         for (i=0; i<num_items; i++) {
-            if ((i % num_chnls) == self->chnl) {
+            if ((int)(i % num_chnls) == self->chnl) {
                 index = (int)(i/num_chnls);
                 self->data[index] = tmp[i];
             }
@@ -3941,7 +3941,7 @@ SndTable_prependSound(SndTable *self) {
     }
     else {
         for (i=0; i<num_items; i++) {
-            if ((i % num_chnls) == self->chnl) {
+            if ((int)(i % num_chnls) == self->chnl) {
                 index = (int)(i/num_chnls);
                 if (index >= cross_point) {
                     cross_amp = MYSQRT((index-cross_point) / (MYFLT)cross_in_samps);
@@ -3953,7 +3953,7 @@ SndTable_prependSound(SndTable *self) {
         }
     }
 
-    for (i=(index+1); i<self->size; i++) {
+    for (i=(index+1); i<(unsigned int)self->size; i++) {
         self->data[i] = tmp_data[i - cross_point];
     }
 
@@ -4004,7 +4004,7 @@ SndTable_insertSound(SndTable *self) {
     num_items = to_load_size * num_chnls;
 
     insert_point = (unsigned int)(self->insertPos * self->sr);
-    if (insert_point >= self->size)
+    if ((int)insert_point >= self->size)
         insert_point = self->size - 1;
 
     cross_in_samps = (unsigned int)(self->crossfade * self->sr);
@@ -4023,7 +4023,7 @@ SndTable_insertSound(SndTable *self) {
     SF_READ(sf, tmp, num_items);
     sf_close(sf);
 
-    for (i=0; i<self->size; i++) {
+    for (i=0; i<(unsigned int)self->size; i++) {
         tmp_data[i] = self->data[i];
     }
 
@@ -4038,7 +4038,7 @@ SndTable_insertSound(SndTable *self) {
 
     if (self->crossfade == 0.0) {
         for (i=0; i<num_items; i++) {
-            if ((i % num_chnls) == self->chnl) {
+            if ((int)(i % num_chnls) == self->chnl) {
                 index = (int)(i/num_chnls);
                 self->data[index+cross_point] = tmp[i];
             }
@@ -4047,7 +4047,7 @@ SndTable_insertSound(SndTable *self) {
     }
     else {
         for (i=0; i<num_items; i++) {
-            if ((i % num_chnls) == self->chnl) {
+            if ((int)(i % num_chnls) == self->chnl) {
                 index = (int)(i/num_chnls);
                 real_index = index + cross_point;
                 if (index <= cross_in_samps) {
@@ -4066,7 +4066,7 @@ SndTable_insertSound(SndTable *self) {
     }
 
     read_point++;
-    for (i=(real_index+1); i<self->size; i++) {
+    for (i=(real_index+1); i<(unsigned int)self->size; i++) {
         self->data[i] = tmp_data[read_point];
         read_point++;
     }

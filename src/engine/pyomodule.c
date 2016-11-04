@@ -755,7 +755,7 @@ void lp_conv(MYFLT *samples, MYFLT *impulse, int num_samps, int size, int gain) 
 static PyObject *
 upsamp(PyObject *self, PyObject *args, PyObject *kwds)
 {
-    int i, j, k;
+    unsigned int i, j, k;
     char *inpath;
     char *outpath;
     SNDFILE *sf;
@@ -765,7 +765,7 @@ upsamp(PyObject *self, PyObject *args, PyObject *kwds)
     MYFLT *tmp;
     MYFLT **samples;
     MYFLT **upsamples;
-    int up = 4;
+    unsigned int up = 4;
     int order = 128;
     static char *kwlist[] = {"path", "outfile", "up", "order", NULL};
 
@@ -858,7 +858,7 @@ upsamp(PyObject *self, PyObject *args, PyObject *kwds)
 static PyObject *
 downsamp(PyObject *self, PyObject *args, PyObject *kwds)
 {
-    int i, j;
+    unsigned int i, j;
     char *inpath;
     char *outpath;
     SNDFILE *sf;

@@ -973,7 +973,8 @@ int OscDataReceive_handler(const char *path, const char *types, lo_arg **argv, i
     uint32_t blobsize = 0;
     PyObject *charlist = NULL; 
     tup = PyTuple_New(argc+1);
-    int i, ok = 0, j = 0;
+    int i, ok = 0;
+    uint32_t j = 0;
 
     Py_ssize_t lsize = PyList_Size(self->address_path);
     for (i=0; i<lsize; i++) {
