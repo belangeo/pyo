@@ -21,7 +21,7 @@ GNU Lesser General Public License for more details.
 You should have received a copy of the GNU Lesser General Public
 License along with pyo.  If not, see <http://www.gnu.org/licenses/>.
 """
-from types import BooleanType, ListType, TupleType, SliceType, LongType, IntType, FloatType, StringType, UnicodeType, NoneType
+import types
 import random, os, sys, inspect, tempfile
 from subprocess import call
 from weakref import proxy
@@ -128,76 +128,86 @@ def pyoArgsAssert(obj, format, *args):
             Arguments passed to the object's method.
             
     """
+    if sys.version_info[0] < 3:
+        # Python 2
+        unicodeType = types.UnicodeType
+        longType = long
+    else:
+        # Python 3
+        unicodeType = str
+        # Not used in Python 3, ignore it
+        longType = None
+
     expected = ""
     for i in range(len(args)):
         f = format[i]
         argtype = type(args[i])
         if f == "O":
             if not isAudioObject(args[i]) and \
-                    argtype not in [ListType, IntType, LongType, FloatType]:
+                    argtype not in [list, int, longType, float]:
                 expected = "float or PyoObject"
         elif f == "o":
-            if not isAudioObject(args[i]) and argtype not in [ListType]:
+            if not isAudioObject(args[i]) and argtype not in [list]:
                 expected = "PyoObject"
         elif f == "T":
-            if not isTableObject(args[i]) and argtype not in [FloatType, ListType]:
+            if not isTableObject(args[i]) and argtype not in [float, list]:
                 expected = "float or PyoTableObject"
         elif f == "t":
-            if not isTableObject(args[i]) and argtype not in [ListType]:
+            if not isTableObject(args[i]) and argtype not in [list]:
                 expected = "PyoTableObject"
         elif f == "m":
-            if not isMatrixObject(args[i]) and argtype not in [ListType]:
+            if not isMatrixObject(args[i]) and argtype not in [list]:
                 expected = "PyoMatrixObject"
         elif f == "p":
-            if not isPVObject(args[i]) and argtype not in [ListType]:
+            if not isPVObject(args[i]) and argtype not in [list]:
                 expected = "PyoPVObject"
         elif f == "n":
-            if argtype not in [ListType, IntType, LongType, FloatType]:
+            if argtype not in [list, int, longType, float]:
                 expected = "any number"
         elif f == "N":
-            if argtype not in [IntType, LongType, FloatType]:
+            if argtype not in [int, longType, float]:
                 expected = "any number - list not allowed"
         elif f == "f":
-            if argtype not in [ListType, FloatType]:
+            if argtype not in [list, float]:
                 expected = "float"
         elif f == "F":
-            if argtype not in [FloatType]:
+            if argtype not in [float]:
                 expected = "float - list not allowed"
         elif f == "i":
-            if argtype not in [ListType, IntType, LongType]:
+            if argtype not in [list, int, longType]:
                 expected = "integer"
         elif f == "I":
-            if argtype not in [IntType, LongType]:
+            if argtype not in [int, longType]:
                 expected = "integer - list not allowed"
         elif f == "s":
-            if argtype not in [ListType, StringType, UnicodeType]:
+            if argtype not in [list, bytes, unicodeType]:
                 expected = "string"
         elif f == "S":
-            if argtype not in [StringType, UnicodeType]:
+            if argtype not in [bytes, unicodeType]:
                 expected = "string - list not allowed"
         elif f == "b":
-            if argtype not in [BooleanType, ListType, IntType, LongType]:
+            if argtype not in [bool, list, int, longType]:
                 expected = "boolean"
         elif f == "B":
-            if argtype not in [BooleanType, IntType, LongType]:
+            if argtype not in [bool, int, longType]:
                 expected = "boolean - list not allowed"
         elif f == "l":
-            if argtype not in [ListType]:
+            if argtype not in [list]:
                 expected = "list"
         elif f == "L":
-            if argtype not in [ListType, NoneType]:
+            if argtype not in [list, type(None)]:
                 expected = "list or None"
         elif f == "u":
-            if argtype not in [TupleType]:
+            if argtype not in [tuple]:
                 expected = "tuple"
         elif f == "x":
-            if argtype not in [ListType, TupleType]:
+            if argtype not in [list, tuple]:
                 expected = "list or tuple"
         elif f == "c":
-            if not callable(args[i]) and argtype not in [ListType, TupleType, NoneType]:
+            if not callable(args[i]) and argtype not in [list, tuple, type(None)]:
                 expected = "callable"
         elif f == "C":
-            if not callable(args[i]) and argtype not in [NoneType]:
+            if not callable(args[i]) and argtype not in [type(None)]:
                 expected = "callable - list not allowed"
         elif f == "z":
             pass
