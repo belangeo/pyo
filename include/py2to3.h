@@ -52,6 +52,10 @@
 #define PyNumber_Int PyNumber_Long
 #define PyInt_Type PyLong_Type
 
+// See PEP 238
+#define PyNumber_Divide PyNumber_TrueDivide
+#define PyNumber_InPlaceDivide PyNumber_InPlaceTrueDivide
+
 #endif /* PY_MAJOR_VERSION >= 3 */
 
 #endif
