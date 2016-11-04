@@ -186,7 +186,6 @@ static PyMethodDef Stream_methods[] = {
 
 PyTypeObject StreamType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    0, /*ob_size*/
     "pyo.Stream", /*tp_name*/
     sizeof(Stream), /*tp_basicsize*/
     0, /*tp_itemsize*/
@@ -272,7 +271,6 @@ TriggerStream_setData(TriggerStream *self, MYFLT *data)
 
 PyTypeObject TriggerStreamType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    0, /*ob_size*/
     "pyo.TriggerStream", /*tp_name*/
     sizeof(TriggerStream), /*tp_basicsize*/
     0, /*tp_itemsize*/

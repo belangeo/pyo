@@ -602,7 +602,6 @@ static PyNumberMethods Randi_as_number = {
 
 PyTypeObject RandiType = {
 PyVarObject_HEAD_INIT(NULL, 0)
-0,                                              /*ob_size*/
 "_pyo.Randi_base",                                   /*tp_name*/
 sizeof(Randi),                                 /*tp_basicsize*/
 0,                                              /*tp_itemsize*/
@@ -1202,7 +1201,6 @@ static PyNumberMethods Randh_as_number = {
 
 PyTypeObject RandhType = {
 PyVarObject_HEAD_INIT(NULL, 0)
-0,                                              /*ob_size*/
 "_pyo.Randh_base",                                   /*tp_name*/
 sizeof(Randh),                                 /*tp_basicsize*/
 0,                                              /*tp_itemsize*/
@@ -1577,7 +1575,6 @@ static PyNumberMethods Choice_as_number = {
 
 PyTypeObject ChoiceType = {
 PyVarObject_HEAD_INIT(NULL, 0)
-0,                                              /*ob_size*/
 "_pyo.Choice_base",                                   /*tp_name*/
 sizeof(Choice),                                 /*tp_basicsize*/
 0,                                              /*tp_itemsize*/
@@ -2012,7 +2009,6 @@ static PyNumberMethods RandInt_as_number = {
 
 PyTypeObject RandIntType = {
 PyVarObject_HEAD_INIT(NULL, 0)
-0,                                              /*ob_size*/
 "_pyo.RandInt_base",                                   /*tp_name*/
 sizeof(RandInt),                                 /*tp_basicsize*/
 0,                                              /*tp_itemsize*/
@@ -2486,7 +2482,6 @@ static PyNumberMethods RandDur_as_number = {
 
 PyTypeObject RandDurType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    0,                                              /*ob_size*/
     "_pyo.RandDur_base",                                   /*tp_name*/
     sizeof(RandDur),                                 /*tp_basicsize*/
     0,                                              /*tp_itemsize*/
@@ -3390,7 +3385,6 @@ static PyNumberMethods Xnoise_as_number = {
 
 PyTypeObject XnoiseType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    0,                                              /*ob_size*/
     "_pyo.Xnoise_base",                                   /*tp_name*/
     sizeof(Xnoise),                                 /*tp_basicsize*/
     0,                                              /*tp_itemsize*/
@@ -4381,7 +4375,6 @@ static PyNumberMethods XnoiseMidi_as_number = {
 
 PyTypeObject XnoiseMidiType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    0,                                              /*ob_size*/
     "_pyo.XnoiseMidi_base",                                   /*tp_name*/
     sizeof(XnoiseMidi),                                 /*tp_basicsize*/
     0,                                              /*tp_itemsize*/
@@ -5184,7 +5177,6 @@ static PyNumberMethods XnoiseDur_as_number = {
 
 PyTypeObject XnoiseDurType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    0,                                              /*ob_size*/
     "_pyo.XnoiseDur_base",                                   /*tp_name*/
     sizeof(XnoiseDur),                                 /*tp_basicsize*/
     0,                                              /*tp_itemsize*/
@@ -5609,7 +5601,6 @@ static PyNumberMethods Urn_as_number = {
 
 PyTypeObject UrnType = {
 PyVarObject_HEAD_INIT(NULL, 0)
-0,                                              /*ob_size*/
 "_pyo.Urn_base",                                   /*tp_name*/
 sizeof(Urn),                                 /*tp_basicsize*/
 0,                                              /*tp_itemsize*/
@@ -6064,7 +6055,6 @@ static PyNumberMethods LogiMap_as_number = {
 
 PyTypeObject LogiMapType = {
 PyVarObject_HEAD_INIT(NULL, 0)
-0,                                              /*ob_size*/
 "_pyo.LogiMap_base",                                   /*tp_name*/
 sizeof(LogiMap),                                 /*tp_basicsize*/
 0,                                              /*tp_itemsize*/

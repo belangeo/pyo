@@ -302,7 +302,6 @@ static PyMethodDef Pattern_methods[] = {
 
 PyTypeObject PatternType = {
 PyVarObject_HEAD_INIT(NULL, 0)
-0,                         /*ob_size*/
 "_pyo.Pattern_base",         /*tp_name*/
 sizeof(Pattern),         /*tp_basicsize*/
 0,                         /*tp_itemsize*/
@@ -458,7 +457,6 @@ static PyMethodDef Score_methods[] = {
 
 PyTypeObject ScoreType = {
 PyVarObject_HEAD_INIT(NULL, 0)
-0,                         /*ob_size*/
 "_pyo.Score_base",         /*tp_name*/
 sizeof(Score),         /*tp_basicsize*/
 0,                         /*tp_itemsize*/
@@ -639,7 +637,6 @@ static PyMethodDef CallAfter_methods[] = {
 
 PyTypeObject CallAfterType = {
 PyVarObject_HEAD_INIT(NULL, 0)
-0,                         /*ob_size*/
 "_pyo.CallAfter_base",         /*tp_name*/
 sizeof(CallAfter),         /*tp_basicsize*/
 0,                         /*tp_itemsize*/

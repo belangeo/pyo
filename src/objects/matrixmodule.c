@@ -124,7 +124,6 @@ MatrixStream_setHeight(MatrixStream *self, int size)
 
 PyTypeObject MatrixStreamType = {
 PyVarObject_HEAD_INIT(NULL, 0)
-0, /*ob_size*/
 "_pyo.MatrixStream", /*tp_name*/
 sizeof(MatrixStream), /*tp_basicsize*/
 0, /*tp_itemsize*/
@@ -420,7 +419,6 @@ static PyMethodDef NewMatrix_methods[] = {
 
 PyTypeObject NewMatrixType = {
 PyVarObject_HEAD_INIT(NULL, 0)
-0,                         /*ob_size*/
 "_pyo.NewMatrix_base",         /*tp_name*/
 sizeof(NewMatrix),         /*tp_basicsize*/
 0,                         /*tp_itemsize*/
@@ -671,7 +669,6 @@ static PyMethodDef MatrixRec_methods[] = {
 
 PyTypeObject MatrixRecType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    0,                         /*ob_size*/
     "_pyo.MatrixRec_base",         /*tp_name*/
     sizeof(MatrixRec),         /*tp_basicsize*/
     0,                         /*tp_itemsize*/
@@ -861,7 +858,6 @@ static PyMethodDef MatrixRecLoop_methods[] = {
 
 PyTypeObject MatrixRecLoopType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    0,                         /*ob_size*/
     "_pyo.MatrixRecLoop_base",         /*tp_name*/
     sizeof(MatrixRecLoop),         /*tp_basicsize*/
     0,                         /*tp_itemsize*/
@@ -1088,7 +1084,6 @@ static PyMethodDef MatrixMorph_methods[] = {
 
 PyTypeObject MatrixMorphType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    0,                         /*ob_size*/
     "_pyo.MatrixMorph_base",         /*tp_name*/
     sizeof(MatrixMorph),         /*tp_basicsize*/
     0,                         /*tp_itemsize*/

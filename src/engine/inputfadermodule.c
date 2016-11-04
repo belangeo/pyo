@@ -253,7 +253,6 @@ static PyMethodDef InputFader_methods[] = {
 
 PyTypeObject InputFaderType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    0,                         /*ob_size*/
     "_pyo.InputFader_base",         /*tp_name*/
     sizeof(InputFader),         /*tp_basicsize*/
     0,                         /*tp_itemsize*/

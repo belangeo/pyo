@@ -106,7 +106,6 @@ static PyBufferProcs TableStream_as_buffer = {
 
 PyTypeObject TableStreamType = {
 PyVarObject_HEAD_INIT(NULL, 0)
-0, /*ob_size*/
 "_pyo.TableStream", /*tp_name*/
 sizeof(TableStream), /*tp_basicsize*/
 0, /*tp_itemsize*/
@@ -363,7 +362,6 @@ static PyMethodDef HarmTable_methods[] = {
 
 PyTypeObject HarmTableType = {
 PyVarObject_HEAD_INIT(NULL, 0)
-0,                         /*ob_size*/
 "_pyo.HarmTable_base",         /*tp_name*/
 sizeof(HarmTable),         /*tp_basicsize*/
 0,                         /*tp_itemsize*/
@@ -735,7 +733,6 @@ static PyMethodDef ChebyTable_methods[] = {
 
 PyTypeObject ChebyTableType = {
 PyVarObject_HEAD_INIT(NULL, 0)
-0,                         /*ob_size*/
 "_pyo.ChebyTable_base",         /*tp_name*/
 sizeof(ChebyTable),         /*tp_basicsize*/
 0,                         /*tp_itemsize*/
@@ -942,7 +939,6 @@ static PyMethodDef HannTable_methods[] = {
 
 PyTypeObject HannTableType = {
 PyVarObject_HEAD_INIT(NULL, 0)
-0,                         /*ob_size*/
 "_pyo.HannTable_base",         /*tp_name*/
 sizeof(HannTable),         /*tp_basicsize*/
 0,                         /*tp_itemsize*/
@@ -1206,7 +1202,6 @@ static PyMethodDef SincTable_methods[] = {
 
 PyTypeObject SincTableType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    0,                         /*ob_size*/
     "_pyo.SincTable_base",         /*tp_name*/
     sizeof(SincTable),         /*tp_basicsize*/
     0,                         /*tp_itemsize*/
@@ -1428,7 +1423,6 @@ static PyMethodDef WinTable_methods[] = {
 
 PyTypeObject WinTableType = {
 PyVarObject_HEAD_INIT(NULL, 0)
-0,                         /*ob_size*/
 "_pyo.WinTable_base",         /*tp_name*/
 sizeof(WinTable),         /*tp_basicsize*/
 0,                         /*tp_itemsize*/
@@ -1642,7 +1636,6 @@ static PyMethodDef ParaTable_methods[] = {
 
 PyTypeObject ParaTableType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    0,                         /*ob_size*/
     "_pyo.ParaTable_base",         /*tp_name*/
     sizeof(ParaTable),         /*tp_basicsize*/
     0,                         /*tp_itemsize*/
@@ -1946,7 +1939,6 @@ static PyMethodDef LinTable_methods[] = {
 
 PyTypeObject LinTableType = {
 PyVarObject_HEAD_INIT(NULL, 0)
-0,                         /*ob_size*/
 "_pyo.LinTable_base",         /*tp_name*/
 sizeof(LinTable),         /*tp_basicsize*/
 0,                         /*tp_itemsize*/
@@ -2274,7 +2266,6 @@ static PyMethodDef LogTable_methods[] = {
 
 PyTypeObject LogTableType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    0,                         /*ob_size*/
     "_pyo.LogTable_base",         /*tp_name*/
     sizeof(LogTable),         /*tp_basicsize*/
     0,                         /*tp_itemsize*/
@@ -2580,7 +2571,6 @@ static PyMethodDef CosTable_methods[] = {
 
 PyTypeObject CosTableType = {
 PyVarObject_HEAD_INIT(NULL, 0)
-0,                         /*ob_size*/
 "_pyo.CosTable_base",         /*tp_name*/
 sizeof(CosTable),         /*tp_basicsize*/
 0,                         /*tp_itemsize*/
@@ -2910,7 +2900,6 @@ static PyMethodDef CosLogTable_methods[] = {
 
 PyTypeObject CosLogTableType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    0,                         /*ob_size*/
     "_pyo.CosLogTable_base",         /*tp_name*/
     sizeof(CosLogTable),         /*tp_basicsize*/
     0,                         /*tp_itemsize*/
@@ -3287,7 +3276,6 @@ static PyMethodDef CurveTable_methods[] = {
 
 PyTypeObject CurveTableType = {
 PyVarObject_HEAD_INIT(NULL, 0)
-0,                         /*ob_size*/
 "_pyo.CurveTable_base",         /*tp_name*/
 sizeof(CurveTable),         /*tp_basicsize*/
 0,                         /*tp_itemsize*/
@@ -3660,7 +3648,6 @@ static PyMethodDef ExpTable_methods[] = {
 
 PyTypeObject ExpTableType = {
 PyVarObject_HEAD_INIT(NULL, 0)
-0,                         /*ob_size*/
 "_pyo.ExpTable_base",         /*tp_name*/
 sizeof(ExpTable),         /*tp_basicsize*/
 0,                         /*tp_itemsize*/
@@ -4473,7 +4460,6 @@ static PyMethodDef SndTable_methods[] = {
 
 PyTypeObject SndTableType = {
 PyVarObject_HEAD_INIT(NULL, 0)
-0,                         /*ob_size*/
 "_pyo.SndTable_base",         /*tp_name*/
 sizeof(SndTable),         /*tp_basicsize*/
 0,                         /*tp_itemsize*/
@@ -4827,7 +4813,6 @@ static PyMethodDef NewTable_methods[] = {
 
 PyTypeObject NewTableType = {
 PyVarObject_HEAD_INIT(NULL, 0)
-0,                         /*ob_size*/
 "_pyo.NewTable_base",         /*tp_name*/
 sizeof(NewTable),         /*tp_basicsize*/
 0,                         /*tp_itemsize*/
@@ -5020,7 +5005,6 @@ static PyMethodDef DataTable_methods[] = {
 
 PyTypeObject DataTableType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    0,                         /*ob_size*/
     "_pyo.DataTable_base",         /*tp_name*/
     sizeof(DataTable),         /*tp_basicsize*/
     0,                         /*tp_itemsize*/
@@ -5257,7 +5241,6 @@ static PyMethodDef AtanTable_methods[] = {
 
 PyTypeObject AtanTableType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    0,                         /*ob_size*/
     "_pyo.AtanTable_base",         /*tp_name*/
     sizeof(AtanTable),         /*tp_basicsize*/
     0,                         /*tp_itemsize*/
@@ -5665,7 +5648,6 @@ static PyMethodDef PadSynthTable_methods[] = {
 
 PyTypeObject PadSynthTableType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    0,                         /*ob_size*/
     "_pyo.PadSynthTable_base",         /*tp_name*/
     sizeof(PadSynthTable),         /*tp_basicsize*/
     0,                         /*tp_itemsize*/
@@ -5927,7 +5909,6 @@ static PyMethodDef TableRec_methods[] = {
 
 PyTypeObject TableRecType = {
 PyVarObject_HEAD_INIT(NULL, 0)
-0,                         /*ob_size*/
 "_pyo.TableRec_base",         /*tp_name*/
 sizeof(TableRec),         /*tp_basicsize*/
 0,                         /*tp_itemsize*/
@@ -6171,7 +6152,6 @@ static PyNumberMethods TableRecTimeStream_as_number = {
 
 PyTypeObject TableRecTimeStreamType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    0,                         /*ob_size*/
     "_pyo.TableRecTimeStream_base",         /*tp_name*/
     sizeof(TableRecTimeStream),         /*tp_basicsize*/
     0,                         /*tp_itemsize*/
@@ -6410,7 +6390,6 @@ static PyMethodDef TableMorph_methods[] = {
 
 PyTypeObject TableMorphType = {
 PyVarObject_HEAD_INIT(NULL, 0)
-0,                         /*ob_size*/
 "_pyo.TableMorph_base",         /*tp_name*/
 sizeof(TableMorph),         /*tp_basicsize*/
 0,                         /*tp_itemsize*/
@@ -6718,7 +6697,6 @@ static PyMethodDef TrigTableRec_methods[] = {
 
 PyTypeObject TrigTableRecType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    0,                         /*ob_size*/
     "_pyo.TrigTableRec_base",         /*tp_name*/
     sizeof(TrigTableRec),         /*tp_basicsize*/
     0,                         /*tp_itemsize*/
@@ -6962,7 +6940,6 @@ static PyNumberMethods TrigTableRecTimeStream_as_number = {
 
 PyTypeObject TrigTableRecTimeStreamType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    0,                         /*ob_size*/
     "_pyo.TrigTableRecTimeStream_base",         /*tp_name*/
     sizeof(TrigTableRecTimeStream),         /*tp_basicsize*/
     0,                         /*tp_itemsize*/
@@ -7170,7 +7147,6 @@ static PyMethodDef TablePut_methods[] = {
 
 PyTypeObject TablePutType = {
 PyVarObject_HEAD_INIT(NULL, 0)
-0,                         /*ob_size*/
 "_pyo.TablePut_base",         /*tp_name*/
 sizeof(TablePut),         /*tp_basicsize*/
 0,                         /*tp_itemsize*/
@@ -7391,7 +7367,6 @@ static PyMethodDef TableWrite_methods[] = {
 
 PyTypeObject TableWriteType = {
 PyVarObject_HEAD_INIT(NULL, 0)
-0,                         /*ob_size*/
 "_pyo.TableWrite_base",         /*tp_name*/
 sizeof(TableWrite),         /*tp_basicsize*/
 0,                         /*tp_itemsize*/

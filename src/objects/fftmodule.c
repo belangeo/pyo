@@ -271,7 +271,6 @@ static PyMethodDef FFTMain_methods[] = {
 
 PyTypeObject FFTMainType = {
 PyVarObject_HEAD_INIT(NULL, 0)
-0,                                              /*ob_size*/
 "_pyo.FFTMain_base",                                   /*tp_name*/
 sizeof(FFTMain),                                 /*tp_basicsize*/
 0,                                              /*tp_itemsize*/
@@ -527,7 +526,6 @@ static PyNumberMethods FFT_as_number = {
 
 PyTypeObject FFTType = {
 PyVarObject_HEAD_INIT(NULL, 0)
-0,                         /*ob_size*/
 "_pyo.FFT_base",         /*tp_name*/
 sizeof(FFT),         /*tp_basicsize*/
 0,                         /*tp_itemsize*/
@@ -923,7 +921,6 @@ static PyNumberMethods IFFT_as_number = {
 
 PyTypeObject IFFTType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    0,                         /*ob_size*/
     "_pyo.IFFT_base",         /*tp_name*/
     sizeof(IFFT),         /*tp_basicsize*/
     0,                         /*tp_itemsize*/
@@ -1206,7 +1203,6 @@ static PyNumberMethods CarToPol_as_number = {
 
 PyTypeObject CarToPolType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    0,                         /*ob_size*/
     "_pyo.CarToPol_base",         /*tp_name*/
     sizeof(CarToPol),         /*tp_basicsize*/
     0,                         /*tp_itemsize*/
@@ -1489,7 +1485,6 @@ static PyNumberMethods PolToCar_as_number = {
 
 PyTypeObject PolToCarType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    0,                         /*ob_size*/
     "_pyo.PolToCar_base",         /*tp_name*/
     sizeof(PolToCar),         /*tp_basicsize*/
     0,                         /*tp_itemsize*/
@@ -1746,7 +1741,6 @@ static PyMethodDef FrameDeltaMain_methods[] = {
 
 PyTypeObject FrameDeltaMainType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    0,                         /*ob_size*/
     "_pyo.FrameDeltaMain_base",         /*tp_name*/
     sizeof(FrameDeltaMain),         /*tp_basicsize*/
     0,                         /*tp_itemsize*/
@@ -2004,7 +1998,6 @@ static PyNumberMethods FrameDelta_as_number = {
 
 PyTypeObject FrameDeltaType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    0,                         /*ob_size*/
     "_pyo.FrameDelta_base",         /*tp_name*/
     sizeof(FrameDelta),         /*tp_basicsize*/
     0,                         /*tp_itemsize*/
@@ -2255,7 +2248,6 @@ static PyMethodDef FrameAccumMain_methods[] = {
 
 PyTypeObject FrameAccumMainType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    0,                         /*ob_size*/
     "_pyo.FrameAccumMain_base",         /*tp_name*/
     sizeof(FrameAccumMain),         /*tp_basicsize*/
     0,                         /*tp_itemsize*/
@@ -2513,7 +2505,6 @@ static PyNumberMethods FrameAccum_as_number = {
 
 PyTypeObject FrameAccumType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    0,                         /*ob_size*/
     "_pyo.FrameAccum_base",         /*tp_name*/
     sizeof(FrameAccum),         /*tp_basicsize*/
     0,                         /*tp_itemsize*/
@@ -2932,7 +2923,6 @@ static PyMethodDef VectralMain_methods[] = {
 
 PyTypeObject VectralMainType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    0,                         /*ob_size*/
     "_pyo.VectralMain_base",         /*tp_name*/
     sizeof(VectralMain),         /*tp_basicsize*/
     0,                         /*tp_itemsize*/
@@ -3190,7 +3180,6 @@ static PyNumberMethods Vectral_as_number = {
 
 PyTypeObject VectralType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    0,                         /*ob_size*/
     "_pyo.Vectral_base",         /*tp_name*/
     sizeof(Vectral),         /*tp_basicsize*/
     0,                         /*tp_itemsize*/
@@ -3781,7 +3770,6 @@ static PyNumberMethods CvlVerb_as_number = {
 
 PyTypeObject CvlVerbType = {
 PyVarObject_HEAD_INIT(NULL, 0)
-0,                                              /*ob_size*/
 "_pyo.CvlVerb_base",                                   /*tp_name*/
 sizeof(CvlVerb),                                 /*tp_basicsize*/
 0,                                              /*tp_itemsize*/
@@ -4255,7 +4243,6 @@ static PyMethodDef Spectrum_methods[] = {
 
 PyTypeObject SpectrumType = {
 PyVarObject_HEAD_INIT(NULL, 0)
-0,                                              /*ob_size*/
 "_pyo.Spectrum_base",                                   /*tp_name*/
 sizeof(Spectrum),                                 /*tp_basicsize*/
 0,                                              /*tp_itemsize*/

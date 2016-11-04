@@ -406,7 +406,6 @@ static PyMethodDef Panner_methods[] = {
 
 PyTypeObject PannerType = {
 PyVarObject_HEAD_INIT(NULL, 0)
-0,                                              /*ob_size*/
 "_pyo.Panner_base",                                   /*tp_name*/
 sizeof(Panner),                                 /*tp_basicsize*/
 0,                                              /*tp_itemsize*/
@@ -664,7 +663,6 @@ static PyNumberMethods Pan_as_number = {
 
 PyTypeObject PanType = {
 PyVarObject_HEAD_INIT(NULL, 0)
-0,                         /*ob_size*/
 "_pyo.Pan_base",         /*tp_name*/
 sizeof(Pan),         /*tp_basicsize*/
 0,                         /*tp_itemsize*/
@@ -1025,7 +1023,6 @@ static PyMethodDef SPanner_methods[] = {
 
 PyTypeObject SPannerType = {
 PyVarObject_HEAD_INIT(NULL, 0)
-0,                                              /*ob_size*/
 "_pyo.SPanner_base",                                   /*tp_name*/
 sizeof(SPanner),                                 /*tp_basicsize*/
 0,                                              /*tp_itemsize*/
@@ -1283,7 +1280,6 @@ static PyNumberMethods SPan_as_number = {
 
 PyTypeObject SPanType = {
 PyVarObject_HEAD_INIT(NULL, 0)
-0,                         /*ob_size*/
 "_pyo.SPan_base",         /*tp_name*/
 sizeof(SPan),         /*tp_basicsize*/
 0,                         /*tp_itemsize*/
@@ -1571,7 +1567,6 @@ static PyMethodDef Switcher_methods[] = {
 
 PyTypeObject SwitcherType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    0,                                              /*ob_size*/
     "_pyo.Switcher_base",                                   /*tp_name*/
     sizeof(Switcher),                                 /*tp_basicsize*/
     0,                                              /*tp_itemsize*/
@@ -1829,7 +1824,6 @@ static PyNumberMethods Switch_as_number = {
 
 PyTypeObject SwitchType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    0,                         /*ob_size*/
     "_pyo.Switch_base",         /*tp_name*/
     sizeof(Switch),         /*tp_basicsize*/
     0,                         /*tp_itemsize*/
@@ -2147,7 +2141,6 @@ static PyNumberMethods VoiceManager_as_number = {
 
 PyTypeObject VoiceManagerType = {
 PyVarObject_HEAD_INIT(NULL, 0)
-0,                                              /*ob_size*/
 "_pyo.VoiceManager_base",                                   /*tp_name*/
 sizeof(VoiceManager),                                 /*tp_basicsize*/
 0,                                              /*tp_itemsize*/
@@ -2501,7 +2494,6 @@ static PyMethodDef Mixer_methods[] = {
 
 PyTypeObject MixerType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    0,                                              /*ob_size*/
     "_pyo.Mixer_base",                                   /*tp_name*/
     sizeof(Mixer),                                 /*tp_basicsize*/
     0,                                              /*tp_itemsize*/
@@ -2757,7 +2749,6 @@ static PyNumberMethods MixerVoice_as_number = {
 
 PyTypeObject MixerVoiceType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    0,                         /*ob_size*/
     "_pyo.MixerVoice_base",         /*tp_name*/
     sizeof(MixerVoice),         /*tp_basicsize*/
     0,                         /*tp_itemsize*/
@@ -3156,7 +3147,6 @@ static PyNumberMethods Selector_as_number = {
 
 PyTypeObject SelectorType = {
 PyVarObject_HEAD_INIT(NULL, 0)
-0,                                              /*ob_size*/
 "_pyo.Selector_base",                                   /*tp_name*/
 sizeof(Selector),                                 /*tp_basicsize*/
 0,                                              /*tp_itemsize*/

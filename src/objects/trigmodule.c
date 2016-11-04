@@ -331,7 +331,6 @@ static PyNumberMethods TrigRandInt_as_number = {
 
 PyTypeObject TrigRandIntType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    0,                                              /*ob_size*/
     "_pyo.TrigRandInt_base",                                   /*tp_name*/
     sizeof(TrigRandInt),                                 /*tp_basicsize*/
     0,                                              /*tp_itemsize*/
@@ -847,7 +846,6 @@ static PyNumberMethods TrigRand_as_number = {
 
 PyTypeObject TrigRandType = {
 PyVarObject_HEAD_INIT(NULL, 0)
-0,                                              /*ob_size*/
 "_pyo.TrigRand_base",                                   /*tp_name*/
 sizeof(TrigRand),                                 /*tp_basicsize*/
 0,                                              /*tp_itemsize*/
@@ -1200,7 +1198,6 @@ static PyNumberMethods TrigChoice_as_number = {
 
 PyTypeObject TrigChoiceType = {
 PyVarObject_HEAD_INIT(NULL, 0)
-0,                                              /*ob_size*/
 "_pyo.TrigChoice_base",                                   /*tp_name*/
 sizeof(TrigChoice),                                 /*tp_basicsize*/
 0,                                              /*tp_itemsize*/
@@ -1407,7 +1404,6 @@ static PyMethodDef TrigFunc_methods[] = {
 
 PyTypeObject TrigFuncType = {
 PyVarObject_HEAD_INIT(NULL, 0)
-0,                                              /*ob_size*/
 "_pyo.TrigFunc_base",                                   /*tp_name*/
 sizeof(TrigFunc),                                 /*tp_basicsize*/
 0,                                              /*tp_itemsize*/
@@ -1878,7 +1874,6 @@ static PyNumberMethods TrigEnv_as_number = {
 
 PyTypeObject TrigEnvType = {
 PyVarObject_HEAD_INIT(NULL, 0)
-0,                         /*ob_size*/
 "_pyo.TrigEnv_base",         /*tp_name*/
 sizeof(TrigEnv),         /*tp_basicsize*/
 0,                         /*tp_itemsize*/
@@ -2256,7 +2251,6 @@ static PyNumberMethods TrigLinseg_as_number = {
 
 PyTypeObject TrigLinsegType = {
 PyVarObject_HEAD_INIT(NULL, 0)
-0,                         /*ob_size*/
 "_pyo.TrigLinseg_base",         /*tp_name*/
 sizeof(TrigLinseg),         /*tp_basicsize*/
 0,                         /*tp_itemsize*/
@@ -2684,7 +2678,6 @@ static PyNumberMethods TrigExpseg_as_number = {
 
 PyTypeObject TrigExpsegType = {
 PyVarObject_HEAD_INIT(NULL, 0)
-0,                         /*ob_size*/
 "_pyo.TrigExpseg_base",         /*tp_name*/
 sizeof(TrigExpseg),         /*tp_basicsize*/
 0,                         /*tp_itemsize*/
@@ -3425,7 +3418,6 @@ static PyNumberMethods TrigXnoise_as_number = {
 
 PyTypeObject TrigXnoiseType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    0,                                              /*ob_size*/
     "_pyo.TrigXnoise_base",                                   /*tp_name*/
     sizeof(TrigXnoise),                                 /*tp_basicsize*/
     0,                                              /*tp_itemsize*/
@@ -4251,7 +4243,6 @@ static PyNumberMethods TrigXnoiseMidi_as_number = {
 
 PyTypeObject TrigXnoiseMidiType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    0,                                              /*ob_size*/
     "_pyo.TrigXnoiseMidi_base",                                   /*tp_name*/
     sizeof(TrigXnoiseMidi),                                 /*tp_basicsize*/
     0,                                              /*tp_itemsize*/
@@ -4618,7 +4609,6 @@ static PyNumberMethods Counter_as_number = {
 
 PyTypeObject CounterType = {
 PyVarObject_HEAD_INIT(NULL, 0)
-0,                                              /*ob_size*/
 "_pyo.Counter_base",                                   /*tp_name*/
 sizeof(Counter),                                 /*tp_basicsize*/
 0,                                              /*tp_itemsize*/
@@ -5028,7 +5018,6 @@ static PyNumberMethods Thresh_as_number = {
 
 PyTypeObject ThreshType = {
 PyVarObject_HEAD_INIT(NULL, 0)
-0,                                              /*ob_size*/
 "_pyo.Thresh_base",                                   /*tp_name*/
 sizeof(Thresh),                                 /*tp_basicsize*/
 0,                                              /*tp_itemsize*/
@@ -5367,7 +5356,6 @@ static PyNumberMethods Percent_as_number = {
 
 PyTypeObject PercentType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    0,                                              /*ob_size*/
     "_pyo.Percent_base",                                   /*tp_name*/
     sizeof(Percent),                                 /*tp_basicsize*/
     0,                                              /*tp_itemsize*/
@@ -5663,7 +5651,6 @@ static PyNumberMethods Timer_as_number = {
 
 PyTypeObject TimerType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    0,                                              /*ob_size*/
     "_pyo.Timer_base",                                   /*tp_name*/
     sizeof(Timer),                                 /*tp_basicsize*/
     0,                                              /*tp_itemsize*/
@@ -5990,7 +5977,6 @@ static PyNumberMethods Iter_as_number = {
 
 PyTypeObject IterType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    0,                                              /*ob_size*/
     "_pyo.Iter_base",                                   /*tp_name*/
     sizeof(Iter),                                 /*tp_basicsize*/
     0,                                              /*tp_itemsize*/
@@ -6295,7 +6281,6 @@ static PyNumberMethods Count_as_number = {
 
 PyTypeObject CountType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    0,                                              /*ob_size*/
     "_pyo.Count_base",                                   /*tp_name*/
     sizeof(Count),                                 /*tp_basicsize*/
     0,                                              /*tp_itemsize*/
@@ -6581,7 +6566,6 @@ static PyNumberMethods NextTrig_as_number = {
 
 PyTypeObject NextTrigType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    0,                                              /*ob_size*/
     "_pyo.NextTrig_base",                                   /*tp_name*/
     sizeof(NextTrig),                                 /*tp_basicsize*/
     0,                                              /*tp_itemsize*/
@@ -6915,7 +6899,6 @@ static PyNumberMethods TrigVal_as_number = {
 
 PyTypeObject TrigValType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    0,                                              /*ob_size*/
     "_pyo.TrigVal_base",                                   /*tp_name*/
     sizeof(TrigVal),                                 /*tp_basicsize*/
     0,                                              /*tp_itemsize*/

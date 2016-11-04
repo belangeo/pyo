@@ -346,7 +346,6 @@ static PyNumberMethods Follower_as_number = {
 
 PyTypeObject FollowerType = {
 PyVarObject_HEAD_INIT(NULL, 0)
-0,                                              /*ob_size*/
 "_pyo.Follower_base",                                   /*tp_name*/
 sizeof(Follower),                                 /*tp_basicsize*/
 0,                                              /*tp_itemsize*/
@@ -847,7 +846,6 @@ static PyNumberMethods Follower2_as_number = {
 
 PyTypeObject Follower2Type = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    0,                                              /*ob_size*/
     "_pyo.Follower2_base",                                   /*tp_name*/
     sizeof(Follower2),                                 /*tp_basicsize*/
     0,                                              /*tp_itemsize*/
@@ -1144,7 +1142,6 @@ static PyNumberMethods ZCross_as_number = {
 
 PyTypeObject ZCrossType = {
 PyVarObject_HEAD_INIT(NULL, 0)
-0,                                              /*ob_size*/
 "_pyo.ZCross_base",                                   /*tp_name*/
 sizeof(ZCross),                                 /*tp_basicsize*/
 0,                                              /*tp_itemsize*/
@@ -1574,7 +1571,6 @@ static PyNumberMethods Yin_as_number = {
 
 PyTypeObject YinType = {
 PyVarObject_HEAD_INIT(NULL, 0)
-0,                                              /*ob_size*/
 "_pyo.Yin_base",                                   /*tp_name*/
 sizeof(Yin),                                 /*tp_basicsize*/
 0,                                              /*tp_itemsize*/
@@ -1917,7 +1913,6 @@ static PyNumberMethods Centroid_as_number = {
 
 PyTypeObject CentroidType = {
 PyVarObject_HEAD_INIT(NULL, 0)
-0,                                              /*ob_size*/
 "_pyo.Centroid_base",                                   /*tp_name*/
 sizeof(Centroid),                                 /*tp_basicsize*/
 0,                                              /*tp_itemsize*/
@@ -2369,7 +2364,6 @@ static PyNumberMethods AttackDetector_as_number = {
 
 PyTypeObject AttackDetectorType = {
 PyVarObject_HEAD_INIT(NULL, 0)
-0,                                              /*ob_size*/
 "_pyo.AttackDetector_base",                                   /*tp_name*/
 sizeof(AttackDetector),                                 /*tp_basicsize*/
 0,                                              /*tp_itemsize*/
@@ -2602,7 +2596,6 @@ static PyMethodDef Scope_methods[] = {
 
 PyTypeObject ScopeType = {
 PyVarObject_HEAD_INIT(NULL, 0)
-0,                                              /*ob_size*/
 "_pyo.Scope_base",                                   /*tp_name*/
 sizeof(Scope),                                 /*tp_basicsize*/
 0,                                              /*tp_itemsize*/
@@ -2882,7 +2875,6 @@ static PyNumberMethods PeakAmp_as_number = {
 
 PyTypeObject PeakAmpType = {
 PyVarObject_HEAD_INIT(NULL, 0)
-0,                                              /*ob_size*/
 "_pyo.PeakAmp_base",                                   /*tp_name*/
 sizeof(PeakAmp),                                 /*tp_basicsize*/
 0,                                              /*tp_itemsize*/

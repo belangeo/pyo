@@ -2551,7 +2551,6 @@ static PyNumberMethods LooperTimeStream_as_number = {
 
 PyTypeObject LooperTimeStreamType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    0,                         /*ob_size*/
     "_pyo.LooperTimeStream_base",         /*tp_name*/
     sizeof(LooperTimeStream),         /*tp_basicsize*/
     0,                         /*tp_itemsize*/
@@ -4546,7 +4545,6 @@ static PyNumberMethods Particle_as_number = {
 
 PyTypeObject ParticleType = {
 PyVarObject_HEAD_INIT(NULL, 0)
-0,                         /*ob_size*/
 "_pyo.Particle_base",         /*tp_name*/
 sizeof(Particle),         /*tp_basicsize*/
 0,                         /*tp_itemsize*/

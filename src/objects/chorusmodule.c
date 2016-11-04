@@ -683,7 +683,6 @@ static PyNumberMethods Chorus_as_number = {
 
 PyTypeObject ChorusType = {
 PyVarObject_HEAD_INIT(NULL, 0)
-0,                         /*ob_size*/
 "_pyo.Chorus_base",         /*tp_name*/
 sizeof(Chorus),         /*tp_basicsize*/
 0,                         /*tp_itemsize*/

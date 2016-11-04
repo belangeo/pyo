@@ -231,7 +231,6 @@ static PyMethodDef Print_methods[] = {
 
 PyTypeObject PrintType = {
 PyVarObject_HEAD_INIT(NULL, 0)
-0,                                              /*ob_size*/
 "_pyo.Print_base",                                   /*tp_name*/
 sizeof(Print),                                 /*tp_basicsize*/
 0,                                              /*tp_itemsize*/
@@ -607,7 +606,6 @@ static PyNumberMethods Snap_as_number = {
 
 PyTypeObject SnapType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    0,                                              /*ob_size*/
     "_pyo.Snap_base",                                   /*tp_name*/
     sizeof(Snap),                                 /*tp_basicsize*/
     0,                                              /*tp_itemsize*/
@@ -967,7 +965,6 @@ static PyNumberMethods Interp_as_number = {
 
 PyTypeObject InterpType = {
 PyVarObject_HEAD_INIT(NULL, 0)
-0,                                              /*ob_size*/
 "_pyo.Interp_base",                                   /*tp_name*/
 sizeof(Interp),                                 /*tp_basicsize*/
 0,                                              /*tp_itemsize*/
@@ -1337,7 +1334,6 @@ static PyNumberMethods SampHold_as_number = {
 
 PyTypeObject SampHoldType = {
 PyVarObject_HEAD_INIT(NULL, 0)
-0,                                              /*ob_size*/
 "_pyo.SampHold_base",                                   /*tp_name*/
 sizeof(SampHold),                                 /*tp_basicsize*/
 0,                                              /*tp_itemsize*/
@@ -1711,7 +1707,6 @@ static PyNumberMethods TrackHold_as_number = {
 
 PyTypeObject TrackHoldType = {
 PyVarObject_HEAD_INIT(NULL, 0)
-0,                                              /*ob_size*/
 "_pyo.TrackHold_base",                                   /*tp_name*/
 sizeof(TrackHold),                                 /*tp_basicsize*/
 0,                                              /*tp_itemsize*/
@@ -2109,7 +2104,6 @@ static PyNumberMethods Compare_as_number = {
 
 PyTypeObject CompareType = {
 PyVarObject_HEAD_INIT(NULL, 0)
-0,                                              /*ob_size*/
 "_pyo.Compare_base",                                   /*tp_name*/
 sizeof(Compare),                                 /*tp_basicsize*/
 0,                                              /*tp_itemsize*/
@@ -2536,7 +2530,6 @@ static PyNumberMethods Between_as_number = {
 
 PyTypeObject BetweenType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    0,                         /*ob_size*/
     "_pyo.Between_base",         /*tp_name*/
     sizeof(Between),         /*tp_basicsize*/
     0,                         /*tp_itemsize*/
@@ -2810,7 +2803,6 @@ static PyNumberMethods Denorm_as_number = {
 
 PyTypeObject DenormType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    0,                                              /*ob_size*/
     "_pyo.Denorm_base",                                   /*tp_name*/
     sizeof(Denorm),                                 /*tp_basicsize*/
     0,                                              /*tp_itemsize*/
@@ -3090,7 +3082,6 @@ static PyNumberMethods DBToA_as_number = {
 
 PyTypeObject DBToAType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    0,                                              /*ob_size*/
     "_pyo.DBToA_base",                                   /*tp_name*/
     sizeof(DBToA),                                 /*tp_basicsize*/
     0,                                              /*tp_itemsize*/
@@ -3370,7 +3361,6 @@ static PyNumberMethods AToDB_as_number = {
 
 PyTypeObject AToDBType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    0,                                              /*ob_size*/
     "_pyo.AToDB_base",                                   /*tp_name*/
     sizeof(AToDB),                                 /*tp_basicsize*/
     0,                                              /*tp_itemsize*/
@@ -3971,7 +3961,6 @@ static PyNumberMethods Scale_as_number = {
 
 PyTypeObject ScaleType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    0,                                              /*ob_size*/
     "_pyo.Scale_base",                                   /*tp_name*/
     sizeof(Scale),                                 /*tp_basicsize*/
     0,                                              /*tp_itemsize*/
@@ -4247,7 +4236,6 @@ static PyNumberMethods CentsToTranspo_as_number = {
 
 PyTypeObject CentsToTranspoType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    0,                                              /*ob_size*/
     "_pyo.CentsToTranspo_base",                                   /*tp_name*/
     sizeof(CentsToTranspo),                                 /*tp_basicsize*/
     0,                                              /*tp_itemsize*/
@@ -4523,7 +4511,6 @@ static PyNumberMethods TranspoToCents_as_number = {
 
 PyTypeObject TranspoToCentsType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    0,                                              /*ob_size*/
     "_pyo.TranspoToCents_base",                                   /*tp_name*/
     sizeof(TranspoToCents),                                 /*tp_basicsize*/
     0,                                              /*tp_itemsize*/
@@ -4799,7 +4786,6 @@ static PyNumberMethods MToF_as_number = {
 
 PyTypeObject MToFType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    0,                                              /*ob_size*/
     "_pyo.MToF_base",                                   /*tp_name*/
     sizeof(MToF),                                 /*tp_basicsize*/
     0,                                              /*tp_itemsize*/
@@ -5077,7 +5063,6 @@ static PyNumberMethods FToM_as_number = {
 
 PyTypeObject FToMType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    0,                                              /*ob_size*/
     "_pyo.FToM_base",                                   /*tp_name*/
     sizeof(FToM),                                 /*tp_basicsize*/
     0,                                              /*tp_itemsize*/
@@ -5371,7 +5356,6 @@ static PyNumberMethods MToT_as_number = {
 
 PyTypeObject MToTType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    0,                                              /*ob_size*/
     "_pyo.MToT_base",                                   /*tp_name*/
     sizeof(MToT),                                 /*tp_basicsize*/
     0,                                              /*tp_itemsize*/
@@ -5808,7 +5792,6 @@ static PyNumberMethods Resample_as_number = {
 
 PyTypeObject ResampleType = {
 PyVarObject_HEAD_INIT(NULL, 0)
-0,                                              /*ob_size*/
 "_pyo.Resample_base",                                   /*tp_name*/
 sizeof(Resample),                                 /*tp_basicsize*/
 0,                                              /*tp_itemsize*/

@@ -321,7 +321,6 @@ static PyMethodDef BandSplitter_methods[] = {
 
 PyTypeObject BandSplitterType = {
 PyVarObject_HEAD_INIT(NULL, 0)
-0,                                              /*ob_size*/
 "_pyo.BandSplitter_base",                                   /*tp_name*/
 sizeof(BandSplitter),                                 /*tp_basicsize*/
 0,                                              /*tp_itemsize*/
@@ -580,7 +579,6 @@ static PyNumberMethods BandSplit_as_number = {
 
 PyTypeObject BandSplitType = {
 PyVarObject_HEAD_INIT(NULL, 0)
-0,                         /*ob_size*/
 "_pyo.BandSplit_base",         /*tp_name*/
 sizeof(BandSplit),         /*tp_basicsize*/
 0,                         /*tp_itemsize*/
@@ -1021,7 +1019,6 @@ static PyMethodDef FourBandMain_methods[] = {
 
 PyTypeObject FourBandMainType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    0,                                              /*ob_size*/
     "_pyo.FourBandMain_base",                                   /*tp_name*/
     sizeof(FourBandMain),                                 /*tp_basicsize*/
     0,                                              /*tp_itemsize*/
@@ -1280,7 +1277,6 @@ static PyNumberMethods FourBand_as_number = {
 
 PyTypeObject FourBandType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    0,                         /*ob_size*/
     "_pyo.FourBand_base",         /*tp_name*/
     sizeof(FourBand),         /*tp_basicsize*/
     0,                         /*tp_itemsize*/

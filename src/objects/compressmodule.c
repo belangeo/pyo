@@ -573,7 +573,6 @@ static PyNumberMethods Compress_as_number = {
 
 PyTypeObject CompressType = {
 PyVarObject_HEAD_INIT(NULL, 0)
-0,                                              /*ob_size*/
 "_pyo.Compress_base",                                   /*tp_name*/
 sizeof(Compress),                                 /*tp_basicsize*/
 0,                                              /*tp_itemsize*/
@@ -1501,7 +1500,6 @@ static PyNumberMethods Gate_as_number = {
 
 PyTypeObject GateType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    0,                                              /*ob_size*/
     "_pyo.Gate_base",                                   /*tp_name*/
     sizeof(Gate),                                 /*tp_basicsize*/
     0,                                              /*tp_itemsize*/
@@ -1891,7 +1889,6 @@ static PyNumberMethods Balance_as_number = {
 
 PyTypeObject BalanceType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    0,                                              /*ob_size*/
     "_pyo.Balance_base",                                   /*tp_name*/
     sizeof(Balance),                                 /*tp_basicsize*/
     0,                                              /*tp_itemsize*/

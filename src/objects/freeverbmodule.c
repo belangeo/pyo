@@ -882,7 +882,6 @@ static PyNumberMethods Freeverb_as_number = {
 
 PyTypeObject FreeverbType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    0,                         /*ob_size*/
     "_pyo.Freeverb_base",         /*tp_name*/
     sizeof(Freeverb),         /*tp_basicsize*/
     0,                         /*tp_itemsize*/

@@ -202,7 +202,6 @@ static PyMethodDef OscReceiver_methods[] = {
 
 PyTypeObject OscReceiverType = {
 PyVarObject_HEAD_INIT(NULL, 0)
-0,                         /*ob_size*/
 "_pyo.OscReceiver_base",         /*tp_name*/
 sizeof(OscReceiver),         /*tp_basicsize*/
 0,                         /*tp_itemsize*/
@@ -495,7 +494,6 @@ static PyNumberMethods OscReceive_as_number = {
 
 PyTypeObject OscReceiveType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    0,                         /*ob_size*/
     "_pyo.OscReceive_base",         /*tp_name*/
     sizeof(OscReceive),         /*tp_basicsize*/
     0,                         /*tp_itemsize*/
@@ -675,7 +673,6 @@ static PyMethodDef OscSend_methods[] = {
 
 PyTypeObject OscSendType = {
 PyVarObject_HEAD_INIT(NULL, 0)
-0,                         /*ob_size*/
 "_pyo.OscSend_base",         /*tp_name*/
 sizeof(OscSend),         /*tp_basicsize*/
 0,                         /*tp_itemsize*/
@@ -918,7 +915,6 @@ static PyMethodDef OscDataSend_methods[] = {
 
 PyTypeObject OscDataSendType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    0,                         /*ob_size*/
     "_pyo.OscDataSend_base",         /*tp_name*/
     sizeof(OscDataSend),         /*tp_basicsize*/
     0,                         /*tp_itemsize*/
@@ -1185,7 +1181,6 @@ static PyMethodDef OscDataReceive_methods[] = {
 
 PyTypeObject OscDataReceiveType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    0,                         /*ob_size*/
     "_pyo.OscDataReceive_base",         /*tp_name*/
     sizeof(OscDataReceive),         /*tp_basicsize*/
     0,                         /*tp_itemsize*/
@@ -1421,7 +1416,6 @@ static PyMethodDef OscListReceiver_methods[] = {
 
 PyTypeObject OscListReceiverType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    0,                         /*ob_size*/
     "_pyo.OscListReceiver_base",         /*tp_name*/
     sizeof(OscListReceiver),         /*tp_basicsize*/
     0,                         /*tp_itemsize*/
@@ -1717,7 +1711,6 @@ static PyNumberMethods OscListReceive_as_number = {
 
 PyTypeObject OscListReceiveType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    0,                         /*ob_size*/
     "_pyo.OscListReceive_base",         /*tp_name*/
     sizeof(OscListReceive),         /*tp_basicsize*/
     0,                         /*tp_itemsize*/

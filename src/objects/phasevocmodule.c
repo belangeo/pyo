@@ -338,7 +338,6 @@ static PyMethodDef PVAnal_methods[] = {
 
 PyTypeObject PVAnalType = {
 PyVarObject_HEAD_INIT(NULL, 0)
-0,                                              /*ob_size*/
 "_pyo.PVAnal_base",                                   /*tp_name*/
 sizeof(PVAnal),                                 /*tp_basicsize*/
 0,                                              /*tp_itemsize*/
@@ -770,7 +769,6 @@ static PyNumberMethods PVSynth_as_number = {
 
 PyTypeObject PVSynthType = {
 PyVarObject_HEAD_INIT(NULL, 0)
-0,                                              /*ob_size*/
 "_pyo.PVSynth_base",                                   /*tp_name*/
 sizeof(PVSynth),                                 /*tp_basicsize*/
 0,                                              /*tp_itemsize*/
@@ -1318,7 +1316,6 @@ static PyNumberMethods PVAddSynth_as_number = {
 
 PyTypeObject PVAddSynthType = {
 PyVarObject_HEAD_INIT(NULL, 0)
-0,                                              /*ob_size*/
 "_pyo.PVAddSynth_base",                                   /*tp_name*/
 sizeof(PVAddSynth),                                 /*tp_basicsize*/
 0,                                              /*tp_itemsize*/
@@ -1677,7 +1674,6 @@ static PyMethodDef PVTranspose_methods[] = {
 
 PyTypeObject PVTransposeType = {
 PyVarObject_HEAD_INIT(NULL, 0)
-0,                                              /*ob_size*/
 "_pyo.PVTranspose_base",                                   /*tp_name*/
 sizeof(PVTranspose),                                 /*tp_basicsize*/
 0,                                              /*tp_itemsize*/
@@ -2229,7 +2225,6 @@ static PyMethodDef PVVerb_methods[] = {
 
 PyTypeObject PVVerbType = {
 PyVarObject_HEAD_INIT(NULL, 0)
-0,                                              /*ob_size*/
 "_pyo.PVVerb_base",                                   /*tp_name*/
 sizeof(PVVerb),                                 /*tp_basicsize*/
 0,                                              /*tp_itemsize*/
@@ -2773,7 +2768,6 @@ static PyMethodDef PVGate_methods[] = {
 
 PyTypeObject PVGateType = {
 PyVarObject_HEAD_INIT(NULL, 0)
-0,                                              /*ob_size*/
 "_pyo.PVGate_base",                                   /*tp_name*/
 sizeof(PVGate),                                 /*tp_basicsize*/
 0,                                              /*tp_itemsize*/
@@ -3163,7 +3157,6 @@ static PyMethodDef PVCross_methods[] = {
 
 PyTypeObject PVCrossType = {
 PyVarObject_HEAD_INIT(NULL, 0)
-0,                                              /*ob_size*/
 "_pyo.PVCross_base",                                   /*tp_name*/
 sizeof(PVCross),                                 /*tp_basicsize*/
 0,                                              /*tp_itemsize*/
@@ -3463,7 +3456,6 @@ static PyMethodDef PVMult_methods[] = {
 
 PyTypeObject PVMultType = {
 PyVarObject_HEAD_INIT(NULL, 0)
-0,                                              /*ob_size*/
 "_pyo.PVMult_base",                                   /*tp_name*/
 sizeof(PVMult),                                 /*tp_basicsize*/
 0,                                              /*tp_itemsize*/
@@ -3863,7 +3855,6 @@ static PyMethodDef PVMorph_methods[] = {
 
 PyTypeObject PVMorphType = {
 PyVarObject_HEAD_INIT(NULL, 0)
-0,                                              /*ob_size*/
 "_pyo.PVMorph_base",                                   /*tp_name*/
 sizeof(PVMorph),                                 /*tp_basicsize*/
 0,                                              /*tp_itemsize*/
@@ -4310,7 +4301,6 @@ static PyMethodDef PVFilter_methods[] = {
 
 PyTypeObject PVFilterType = {
 PyVarObject_HEAD_INIT(NULL, 0)
-0,                                              /*ob_size*/
 "_pyo.PVFilter_base",                                   /*tp_name*/
 sizeof(PVFilter),                                 /*tp_basicsize*/
 0,                                              /*tp_itemsize*/
@@ -4780,7 +4770,6 @@ static PyMethodDef PVDelay_methods[] = {
 
 PyTypeObject PVDelayType = {
 PyVarObject_HEAD_INIT(NULL, 0)
-0,                                              /*ob_size*/
 "_pyo.PVDelay_base",                                   /*tp_name*/
 sizeof(PVDelay),                                 /*tp_basicsize*/
 0,                                              /*tp_itemsize*/
@@ -5230,7 +5219,6 @@ static PyMethodDef PVBuffer_methods[] = {
 
 PyTypeObject PVBufferType = {
 PyVarObject_HEAD_INIT(NULL, 0)
-0,                                              /*ob_size*/
 "_pyo.PVBuffer_base",                                   /*tp_name*/
 sizeof(PVBuffer),                                 /*tp_basicsize*/
 0,                                              /*tp_itemsize*/
@@ -5593,7 +5581,6 @@ static PyMethodDef PVShift_methods[] = {
 
 PyTypeObject PVShiftType = {
 PyVarObject_HEAD_INIT(NULL, 0)
-0,                                              /*ob_size*/
 "_pyo.PVShift_base",                                   /*tp_name*/
 sizeof(PVShift),                                 /*tp_basicsize*/
 0,                                              /*tp_itemsize*/
@@ -6117,7 +6104,6 @@ static PyMethodDef PVAmpMod_methods[] = {
 
 PyTypeObject PVAmpModType = {
 PyVarObject_HEAD_INIT(NULL, 0)
-0,                                              /*ob_size*/
 "_pyo.PVAmpMod_base",                                   /*tp_name*/
 sizeof(PVAmpMod),                                 /*tp_basicsize*/
 0,                                              /*tp_itemsize*/
@@ -6753,7 +6739,6 @@ static PyMethodDef PVFreqMod_methods[] = {
 
 PyTypeObject PVFreqModType = {
 PyVarObject_HEAD_INIT(NULL, 0)
-0,                                              /*ob_size*/
 "_pyo.PVFreqMod_base",                                   /*tp_name*/
 sizeof(PVFreqMod),                                 /*tp_basicsize*/
 0,                                              /*tp_itemsize*/
@@ -7269,7 +7254,6 @@ static PyMethodDef PVBufLoops_methods[] = {
 
 PyTypeObject PVBufLoopsType = {
 PyVarObject_HEAD_INIT(NULL, 0)
-0,                                              /*ob_size*/
 "_pyo.PVBufLoops_base",                                   /*tp_name*/
 sizeof(PVBufLoops),                                 /*tp_basicsize*/
 0,                                              /*tp_itemsize*/
@@ -7620,7 +7604,6 @@ static PyMethodDef PVBufTabLoops_methods[] = {
 
 PyTypeObject PVBufTabLoopsType = {
 PyVarObject_HEAD_INIT(NULL, 0)
-0,                                              /*ob_size*/
 "_pyo.PVBufTabLoops_base",                                   /*tp_name*/
 sizeof(PVBufTabLoops),                                 /*tp_basicsize*/
 0,                                              /*tp_itemsize*/
@@ -7927,7 +7910,6 @@ static PyMethodDef PVMix_methods[] = {
 
 PyTypeObject PVMixType = {
 PyVarObject_HEAD_INIT(NULL, 0)
-0,                                              /*ob_size*/
 "_pyo.PVMix_base",                                   /*tp_name*/
 sizeof(PVMix),                                 /*tp_basicsize*/
 0,                                              /*tp_itemsize*/

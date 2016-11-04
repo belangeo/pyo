@@ -239,7 +239,6 @@ static PyNumberMethods Dummy_as_number = {
 
 PyTypeObject DummyType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    0,                                              /*ob_size*/
     "_pyo.Dummy_base",                                   /*tp_name*/
     sizeof(Dummy),                                 /*tp_basicsize*/
     0,                                              /*tp_itemsize*/
@@ -483,7 +482,6 @@ static PyNumberMethods TriggerDummy_as_number = {
 
 PyTypeObject TriggerDummyType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    0,                         /*ob_size*/
     "_pyo.TriggerDummy_base",         /*tp_name*/
     sizeof(TriggerDummy),         /*tp_basicsize*/
     0,                         /*tp_itemsize*/

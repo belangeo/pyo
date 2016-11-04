@@ -450,7 +450,6 @@ static PyNumberMethods Disto_as_number = {
 
 PyTypeObject DistoType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    0,                         /*ob_size*/
     "_pyo.Disto_base",         /*tp_name*/
     sizeof(Disto),         /*tp_basicsize*/
     0,                         /*tp_itemsize*/
@@ -889,7 +888,6 @@ static PyNumberMethods Clip_as_number = {
 
 PyTypeObject ClipType = {
 PyVarObject_HEAD_INIT(NULL, 0)
-0,                         /*ob_size*/
 "_pyo.Clip_base",         /*tp_name*/
 sizeof(Clip),         /*tp_basicsize*/
 0,                         /*tp_itemsize*/
@@ -1358,7 +1356,6 @@ static PyNumberMethods Mirror_as_number = {
 
 PyTypeObject MirrorType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    0,                         /*ob_size*/
     "_pyo.Mirror_base",         /*tp_name*/
     sizeof(Mirror),         /*tp_basicsize*/
     0,                         /*tp_itemsize*/
@@ -1851,7 +1848,6 @@ static PyNumberMethods Wrap_as_number = {
 
 PyTypeObject WrapType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    0,                         /*ob_size*/
     "_pyo.Wrap_base",         /*tp_name*/
     sizeof(Wrap),         /*tp_basicsize*/
     0,                         /*tp_itemsize*/
@@ -2335,7 +2331,6 @@ static PyNumberMethods Degrade_as_number = {
 
 PyTypeObject DegradeType = {
 PyVarObject_HEAD_INIT(NULL, 0)
-0,                         /*ob_size*/
 "_pyo.Degrade_base",         /*tp_name*/
 sizeof(Degrade),         /*tp_basicsize*/
 0,                         /*tp_itemsize*/
@@ -2665,7 +2660,6 @@ static PyNumberMethods Min_as_number = {
 
 PyTypeObject MinType = {
 PyVarObject_HEAD_INIT(NULL, 0)
-0,                                              /*ob_size*/
 "_pyo.Min_base",                                   /*tp_name*/
 sizeof(Min),                                 /*tp_basicsize*/
 0,                                              /*tp_itemsize*/
@@ -2995,7 +2989,6 @@ static PyNumberMethods Max_as_number = {
 
 PyTypeObject MaxType = {
 PyVarObject_HEAD_INIT(NULL, 0)
-0,                                              /*ob_size*/
 "_pyo.Max_base",                                   /*tp_name*/
 sizeof(Max),                                 /*tp_basicsize*/
 0,                                              /*tp_itemsize*/

@@ -567,7 +567,6 @@ static PyNumberMethods Biquad_as_number = {
 
 PyTypeObject BiquadType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    0,                                              /*ob_size*/
     "_pyo.Biquad_base",                                   /*tp_name*/
     sizeof(Biquad),                                 /*tp_basicsize*/
     0,                                              /*tp_itemsize*/
@@ -1206,7 +1205,6 @@ static PyNumberMethods Biquadx_as_number = {
 
 PyTypeObject BiquadxType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    0,                                              /*ob_size*/
     "_pyo.Biquadx_base",                                   /*tp_name*/
     sizeof(Biquadx),                                 /*tp_basicsize*/
     0,                                              /*tp_itemsize*/
@@ -1617,7 +1615,6 @@ static PyNumberMethods Biquada_as_number = {
 
 PyTypeObject BiquadaType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    0,                                              /*ob_size*/
     "_pyo.Biquada_base",                                   /*tp_name*/
     sizeof(Biquada),                                 /*tp_basicsize*/
     0,                                              /*tp_itemsize*/
@@ -2342,7 +2339,6 @@ static PyNumberMethods EQ_as_number = {
 
 PyTypeObject EQType = {
 PyVarObject_HEAD_INIT(NULL, 0)
-0,                                              /*ob_size*/
 "_pyo.EQ_base",                                   /*tp_name*/
 sizeof(EQ),                                 /*tp_basicsize*/
 0,                                              /*tp_itemsize*/
@@ -2814,7 +2810,6 @@ static PyNumberMethods Port_as_number = {
 
 PyTypeObject PortType = {
 PyVarObject_HEAD_INIT(NULL, 0)
-0,                                              /*ob_size*/
 "_pyo.Port_base",                                   /*tp_name*/
 sizeof(Port),                                 /*tp_basicsize*/
 0,                                              /*tp_itemsize*/
@@ -3175,7 +3170,6 @@ static PyNumberMethods Tone_as_number = {
 
 PyTypeObject ToneType = {
 PyVarObject_HEAD_INIT(NULL, 0)
-0,                                              /*ob_size*/
 "_pyo.Tone_base",                                   /*tp_name*/
 sizeof(Tone),                                 /*tp_basicsize*/
 0,                                              /*tp_itemsize*/
@@ -3538,7 +3532,6 @@ static PyNumberMethods Atone_as_number = {
 
 PyTypeObject AtoneType = {
 PyVarObject_HEAD_INIT(NULL, 0)
-0,                                              /*ob_size*/
 "_pyo.Atone_base",                                   /*tp_name*/
 sizeof(Atone),                                 /*tp_basicsize*/
 0,                                              /*tp_itemsize*/
@@ -3807,7 +3800,6 @@ static PyNumberMethods DCBlock_as_number = {
 
 PyTypeObject DCBlockType = {
 PyVarObject_HEAD_INIT(NULL, 0)
-0,                                              /*ob_size*/
 "_pyo.DCBlock_base",                                   /*tp_name*/
 sizeof(DCBlock),                                 /*tp_basicsize*/
 0,                                              /*tp_itemsize*/
@@ -4334,7 +4326,6 @@ static PyNumberMethods Allpass_as_number = {
 
 PyTypeObject AllpassType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    0,                         /*ob_size*/
     "_pyo.Allpass_base",         /*tp_name*/
     sizeof(Allpass),         /*tp_basicsize*/
     0,                         /*tp_itemsize*/
@@ -4810,7 +4801,6 @@ static PyNumberMethods Allpass2_as_number = {
 
 PyTypeObject Allpass2Type = {
 PyVarObject_HEAD_INIT(NULL, 0)
-0,                                              /*ob_size*/
 "_pyo.Allpass2_base",                                   /*tp_name*/
 sizeof(Allpass2),                                 /*tp_basicsize*/
 0,                                              /*tp_itemsize*/
@@ -5647,7 +5637,6 @@ static PyNumberMethods Phaser_as_number = {
 
 PyTypeObject PhaserType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    0,                                              /*ob_size*/
     "_pyo.Phaser_base",                                   /*tp_name*/
     sizeof(Phaser),                                 /*tp_basicsize*/
     0,                                              /*tp_itemsize*/
@@ -6902,7 +6891,6 @@ static PyNumberMethods Vocoder_as_number = {
 
 PyTypeObject VocoderType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    0,                                              /*ob_size*/
     "_pyo.Vocoder_base",                                   /*tp_name*/
     sizeof(Vocoder),                                 /*tp_basicsize*/
     0,                                              /*tp_itemsize*/
@@ -7706,7 +7694,6 @@ static PyNumberMethods SVF_as_number = {
 
 PyTypeObject SVFType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    0,                                              /*ob_size*/
     "_pyo.SVF_base",                                   /*tp_name*/
     sizeof(SVF),                                 /*tp_basicsize*/
     0,                                              /*tp_itemsize*/
@@ -8050,7 +8037,6 @@ static PyNumberMethods Average_as_number = {
 
 PyTypeObject AverageType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    0,                         /*ob_size*/
     "_pyo.Average_base",         /*tp_name*/
     sizeof(Average),         /*tp_basicsize*/
     0,                         /*tp_itemsize*/
@@ -8537,7 +8523,6 @@ static PyNumberMethods Reson_as_number = {
 
 PyTypeObject ResonType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    0,                                              /*ob_size*/
     "_pyo.Reson_base",                                   /*tp_name*/
     sizeof(Reson),                                 /*tp_basicsize*/
     0,                                              /*tp_itemsize*/
@@ -9081,7 +9066,6 @@ static PyNumberMethods Resonx_as_number = {
 
 PyTypeObject ResonxType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    0,                                              /*ob_size*/
     "_pyo.Resonx_base",                                   /*tp_name*/
     sizeof(Resonx),                                 /*tp_basicsize*/
     0,                                              /*tp_itemsize*/
@@ -9470,7 +9454,6 @@ static PyNumberMethods ButLP_as_number = {
 
 PyTypeObject ButLPType = {
 PyVarObject_HEAD_INIT(NULL, 0)
-0,                                              /*ob_size*/
 "_pyo.ButLP_base",                                   /*tp_name*/
 sizeof(ButLP),                                 /*tp_basicsize*/
 0,                                              /*tp_itemsize*/
@@ -9859,7 +9842,6 @@ static PyNumberMethods ButHP_as_number = {
 
 PyTypeObject ButHPType = {
 PyVarObject_HEAD_INIT(NULL, 0)
-0,                                              /*ob_size*/
 "_pyo.ButHP_base",                                   /*tp_name*/
 sizeof(ButHP),                                 /*tp_basicsize*/
 0,                                              /*tp_itemsize*/
@@ -10353,7 +10335,6 @@ static PyNumberMethods ButBP_as_number = {
 
 PyTypeObject ButBPType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    0,                                              /*ob_size*/
     "_pyo.ButBP_base",                                   /*tp_name*/
     sizeof(ButBP),                                 /*tp_basicsize*/
     0,                                              /*tp_itemsize*/
@@ -10847,7 +10828,6 @@ static PyNumberMethods ButBR_as_number = {
 
 PyTypeObject ButBRType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    0,                                              /*ob_size*/
     "_pyo.ButBR_base",                                   /*tp_name*/
     sizeof(ButBR),                                 /*tp_basicsize*/
     0,                                              /*tp_itemsize*/
@@ -11348,7 +11328,6 @@ static PyNumberMethods ComplexRes_as_number = {
 
 PyTypeObject ComplexResType = {
 PyVarObject_HEAD_INIT(NULL, 0)
-0,                                              /*ob_size*/
 "_pyo.ComplexRes_base",                                   /*tp_name*/
 sizeof(ComplexRes),                                 /*tp_basicsize*/
 0,                                              /*tp_itemsize*/
@@ -11856,7 +11835,6 @@ static PyNumberMethods MoogLP_as_number = {
 
 PyTypeObject MoogLPType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    0,                                              /*ob_size*/
     "_pyo.MoogLP_base",                                   /*tp_name*/
     sizeof(MoogLP),                                 /*tp_basicsize*/
     0,                                              /*tp_itemsize*/

@@ -534,7 +534,6 @@ static PyNumberMethods Delay_as_number = {
 
 PyTypeObject DelayType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    0,                         /*ob_size*/
     "_pyo.Delay_base",         /*tp_name*/
     sizeof(Delay),         /*tp_basicsize*/
     0,                         /*tp_itemsize*/
@@ -933,7 +932,6 @@ static PyNumberMethods SDelay_as_number = {
 
 PyTypeObject SDelayType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    0,                         /*ob_size*/
     "_pyo.SDelay_base",         /*tp_name*/
     sizeof(SDelay),         /*tp_basicsize*/
     0,                         /*tp_itemsize*/
@@ -1657,7 +1655,6 @@ static PyNumberMethods Waveguide_as_number = {
 
 PyTypeObject WaveguideType = {
 PyVarObject_HEAD_INIT(NULL, 0)
-0,                         /*ob_size*/
 "_pyo.Waveguide_base",         /*tp_name*/
 sizeof(Waveguide),         /*tp_basicsize*/
 0,                         /*tp_itemsize*/
@@ -2705,7 +2702,6 @@ static PyNumberMethods AllpassWG_as_number = {
 
 PyTypeObject AllpassWGType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    0,                         /*ob_size*/
     "_pyo.AllpassWG_base",         /*tp_name*/
     sizeof(AllpassWG),         /*tp_basicsize*/
     0,                         /*tp_itemsize*/
@@ -2973,7 +2969,6 @@ static PyNumberMethods Delay1_as_number = {
 
 PyTypeObject Delay1Type = {
 PyVarObject_HEAD_INIT(NULL, 0)
-0,                                              /*ob_size*/
 "_pyo.Delay1_base",                                   /*tp_name*/
 sizeof(Delay1),                                 /*tp_basicsize*/
 0,                                              /*tp_itemsize*/
@@ -3677,7 +3672,6 @@ static PyNumberMethods SmoothDelay_as_number = {
 
 PyTypeObject SmoothDelayType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    0,                         /*ob_size*/
     "_pyo.SmoothDelay_base",         /*tp_name*/
     sizeof(SmoothDelay),         /*tp_basicsize*/
     0,                         /*tp_itemsize*/

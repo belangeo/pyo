@@ -203,7 +203,6 @@ static PyMethodDef OscListener_methods[] = {
 
 PyTypeObject OscListenerType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    0,                         /*ob_size*/
     "_pyo.OscListener_base",         /*tp_name*/
     sizeof(OscListener),         /*tp_basicsize*/
     0,                         /*tp_itemsize*/

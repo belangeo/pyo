@@ -519,7 +519,6 @@ static PyMethodDef SfPlayer_methods[] = {
 
 PyTypeObject SfPlayerType = {
 PyVarObject_HEAD_INIT(NULL, 0)
-0,                         /*ob_size*/
 "_pyo.SfPlayer_base",         /*tp_name*/
 sizeof(SfPlayer),         /*tp_basicsize*/
 0,                         /*tp_itemsize*/
@@ -778,7 +777,6 @@ static PyNumberMethods SfPlay_as_number = {
 
 PyTypeObject SfPlayType = {
 PyVarObject_HEAD_INIT(NULL, 0)
-0,                         /*ob_size*/
 "_pyo.SfPlay_base",         /*tp_name*/
 sizeof(SfPlay),         /*tp_basicsize*/
 0,                         /*tp_itemsize*/
@@ -1245,7 +1243,6 @@ static PyMethodDef SfMarkerShuffler_methods[] = {
 
 PyTypeObject SfMarkerShufflerType = {
 PyVarObject_HEAD_INIT(NULL, 0)
-0,                         /*ob_size*/
 "_pyo.SfMarkerShuffler_base",         /*tp_name*/
 sizeof(SfMarkerShuffler),         /*tp_basicsize*/
 0,                         /*tp_itemsize*/
@@ -1504,7 +1501,6 @@ static PyNumberMethods SfMarkerShuffle_as_number = {
 
 PyTypeObject SfMarkerShuffleType = {
 PyVarObject_HEAD_INIT(NULL, 0)
-0,                         /*ob_size*/
 "_pyo.SfMarkerShuffle_base",         /*tp_name*/
 sizeof(SfMarkerShuffle),         /*tp_basicsize*/
 0,                         /*tp_itemsize*/
@@ -2022,7 +2018,6 @@ static PyMethodDef SfMarkerLooper_methods[] = {
 
 PyTypeObject SfMarkerLooperType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    0,                         /*ob_size*/
     "_pyo.SfMarkerLooper_base",         /*tp_name*/
     sizeof(SfMarkerLooper),         /*tp_basicsize*/
     0,                         /*tp_itemsize*/
@@ -2281,7 +2276,6 @@ static PyNumberMethods SfMarkerLoop_as_number = {
 
 PyTypeObject SfMarkerLoopType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    0,                         /*ob_size*/
     "_pyo.SfMarkerLoop_base",         /*tp_name*/
     sizeof(SfMarkerLoop),         /*tp_basicsize*/
     0,                         /*tp_itemsize*/

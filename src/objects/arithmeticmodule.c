@@ -252,7 +252,6 @@ static PyNumberMethods M_Sin_as_number = {
 
 PyTypeObject M_SinType = {
 PyVarObject_HEAD_INIT(NULL, 0)
-0,                                              /*ob_size*/
 "_pyo.M_Sin_base",                                   /*tp_name*/
 sizeof(M_Sin),                                 /*tp_basicsize*/
 0,                                              /*tp_itemsize*/
@@ -517,7 +516,6 @@ static PyNumberMethods M_Cos_as_number = {
 
 PyTypeObject M_CosType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    0,                                              /*ob_size*/
     "_pyo.M_Cos_base",                                   /*tp_name*/
     sizeof(M_Cos),                                 /*tp_basicsize*/
     0,                                              /*tp_itemsize*/
@@ -782,7 +780,6 @@ static PyNumberMethods M_Tan_as_number = {
 
 PyTypeObject M_TanType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    0,                                              /*ob_size*/
     "_pyo.M_Tan_base",                                   /*tp_name*/
     sizeof(M_Tan),                                 /*tp_basicsize*/
     0,                                              /*tp_itemsize*/
@@ -1052,7 +1049,6 @@ static PyNumberMethods M_Abs_as_number = {
 
 PyTypeObject M_AbsType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    0,                                              /*ob_size*/
     "_pyo.M_Abs_base",                                   /*tp_name*/
     sizeof(M_Abs),                                 /*tp_basicsize*/
     0,                                              /*tp_itemsize*/
@@ -1322,7 +1318,6 @@ static PyNumberMethods M_Sqrt_as_number = {
 
 PyTypeObject M_SqrtType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    0,                                              /*ob_size*/
     "_pyo.M_Sqrt_base",                                   /*tp_name*/
     sizeof(M_Sqrt),                                 /*tp_basicsize*/
     0,                                              /*tp_itemsize*/
@@ -1592,7 +1587,6 @@ static PyNumberMethods M_Log_as_number = {
 
 PyTypeObject M_LogType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    0,                                              /*ob_size*/
     "_pyo.M_Log_base",                                   /*tp_name*/
     sizeof(M_Log),                                 /*tp_basicsize*/
     0,                                              /*tp_itemsize*/
@@ -1862,7 +1856,6 @@ static PyNumberMethods M_Log10_as_number = {
 
 PyTypeObject M_Log10Type = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    0,                                              /*ob_size*/
     "_pyo.M_Log10_base",                                   /*tp_name*/
     sizeof(M_Log10),                                 /*tp_basicsize*/
     0,                                              /*tp_itemsize*/
@@ -2132,7 +2125,6 @@ static PyNumberMethods M_Log2_as_number = {
 
 PyTypeObject M_Log2Type = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    0,                                              /*ob_size*/
     "_pyo.M_Log2_base",                                   /*tp_name*/
     sizeof(M_Log2),                                 /*tp_basicsize*/
     0,                                              /*tp_itemsize*/
@@ -2529,7 +2521,6 @@ static PyNumberMethods M_Pow_as_number = {
 
 PyTypeObject M_PowType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    0,                         /*ob_size*/
     "_pyo.M_Pow_base",         /*tp_name*/
     sizeof(M_Pow),         /*tp_basicsize*/
     0,                         /*tp_itemsize*/
@@ -2926,7 +2917,6 @@ static PyNumberMethods M_Atan2_as_number = {
 
 PyTypeObject M_Atan2Type = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    0,                         /*ob_size*/
     "_pyo.M_Atan2_base",         /*tp_name*/
     sizeof(M_Atan2),         /*tp_basicsize*/
     0,                         /*tp_itemsize*/
@@ -3191,7 +3181,6 @@ static PyNumberMethods M_Floor_as_number = {
 
 PyTypeObject M_FloorType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    0,                                              /*ob_size*/
     "_pyo.M_Floor_base",                                   /*tp_name*/
     sizeof(M_Floor),                                 /*tp_basicsize*/
     0,                                              /*tp_itemsize*/
@@ -3456,7 +3445,6 @@ static PyNumberMethods M_Ceil_as_number = {
 
 PyTypeObject M_CeilType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    0,                                              /*ob_size*/
     "_pyo.M_Ceil_base",                                   /*tp_name*/
     sizeof(M_Ceil),                                 /*tp_basicsize*/
     0,                                              /*tp_itemsize*/
@@ -3721,7 +3709,6 @@ static PyNumberMethods M_Round_as_number = {
 
 PyTypeObject M_RoundType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    0,                                              /*ob_size*/
     "_pyo.M_Round_base",                                   /*tp_name*/
     sizeof(M_Round),                                 /*tp_basicsize*/
     0,                                              /*tp_itemsize*/
@@ -3986,7 +3973,6 @@ static PyNumberMethods M_Tanh_as_number = {
 
 PyTypeObject M_TanhType = {
 PyVarObject_HEAD_INIT(NULL, 0)
-0,                                              /*ob_size*/
 "_pyo.M_Tanh_base",                                   /*tp_name*/
 sizeof(M_Tanh),                                 /*tp_basicsize*/
 0,                                              /*tp_itemsize*/
@@ -4251,7 +4237,6 @@ static PyNumberMethods M_Exp_as_number = {
 
 PyTypeObject M_ExpType = {
 PyVarObject_HEAD_INIT(NULL, 0)
-0,                                              /*ob_size*/
 "_pyo.M_Exp_base",                                   /*tp_name*/
 sizeof(M_Exp),                                 /*tp_basicsize*/
 0,                                              /*tp_itemsize*/
