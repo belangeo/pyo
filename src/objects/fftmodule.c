@@ -500,12 +500,12 @@ static PyNumberMethods FFT_as_number = {
 0,              /*nb_and*/
 0,              /*nb_xor*/
 0,               /*nb_or*/
-0,                                          /*nb_coerce*/
+INITIALIZE_NB_COERCE_ZERO                   /*nb_coerce*/
 0,                       /*nb_int*/
 0,                      /*nb_long*/
 0,                     /*nb_float*/
-0,                       /*nb_oct*/
-0,                       /*nb_hex*/
+INITIALIZE_NB_OCT_ZERO   /*nb_oct*/
+INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
 (binaryfunc)FFT_inplace_add,              /*inplace_add*/
 (binaryfunc)FFT_inplace_sub,         /*inplace_subtract*/
 (binaryfunc)FFT_inplace_multiply,         /*inplace_multiply*/
@@ -895,12 +895,12 @@ static PyNumberMethods IFFT_as_number = {
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    0,                                          /*nb_coerce*/
+    INITIALIZE_NB_COERCE_ZERO                   /*nb_coerce*/
     0,                       /*nb_int*/
     0,                      /*nb_long*/
     0,                     /*nb_float*/
-    0,                       /*nb_oct*/
-    0,                       /*nb_hex*/
+    INITIALIZE_NB_OCT_ZERO   /*nb_oct*/
+    INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
     (binaryfunc)IFFT_inplace_add,              /*inplace_add*/
     (binaryfunc)IFFT_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)IFFT_inplace_multiply,         /*inplace_multiply*/
@@ -1177,12 +1177,12 @@ static PyNumberMethods CarToPol_as_number = {
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    0,                                          /*nb_coerce*/
+    INITIALIZE_NB_COERCE_ZERO                   /*nb_coerce*/
     0,                       /*nb_int*/
     0,                      /*nb_long*/
     0,                     /*nb_float*/
-    0,                       /*nb_oct*/
-    0,                       /*nb_hex*/
+    INITIALIZE_NB_OCT_ZERO   /*nb_oct*/
+    INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
     (binaryfunc)CarToPol_inplace_add,              /*inplace_add*/
     (binaryfunc)CarToPol_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)CarToPol_inplace_multiply,         /*inplace_multiply*/
@@ -1459,12 +1459,12 @@ static PyNumberMethods PolToCar_as_number = {
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    0,                                          /*nb_coerce*/
+    INITIALIZE_NB_COERCE_ZERO                   /*nb_coerce*/
     0,                       /*nb_int*/
     0,                      /*nb_long*/
     0,                     /*nb_float*/
-    0,                       /*nb_oct*/
-    0,                       /*nb_hex*/
+    INITIALIZE_NB_OCT_ZERO   /*nb_oct*/
+    INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
     (binaryfunc)PolToCar_inplace_add,              /*inplace_add*/
     (binaryfunc)PolToCar_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)PolToCar_inplace_multiply,         /*inplace_multiply*/
@@ -1972,12 +1972,12 @@ static PyNumberMethods FrameDelta_as_number = {
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    0,                                          /*nb_coerce*/
+    INITIALIZE_NB_COERCE_ZERO                   /*nb_coerce*/
     0,                       /*nb_int*/
     0,                      /*nb_long*/
     0,                     /*nb_float*/
-    0,                       /*nb_oct*/
-    0,                       /*nb_hex*/
+    INITIALIZE_NB_OCT_ZERO   /*nb_oct*/
+    INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
     (binaryfunc)FrameDelta_inplace_add,              /*inplace_add*/
     (binaryfunc)FrameDelta_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)FrameDelta_inplace_multiply,         /*inplace_multiply*/
@@ -2479,12 +2479,12 @@ static PyNumberMethods FrameAccum_as_number = {
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    0,                                          /*nb_coerce*/
+    INITIALIZE_NB_COERCE_ZERO                   /*nb_coerce*/
     0,                       /*nb_int*/
     0,                      /*nb_long*/
     0,                     /*nb_float*/
-    0,                       /*nb_oct*/
-    0,                       /*nb_hex*/
+    INITIALIZE_NB_OCT_ZERO   /*nb_oct*/
+    INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
     (binaryfunc)FrameAccum_inplace_add,              /*inplace_add*/
     (binaryfunc)FrameAccum_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)FrameAccum_inplace_multiply,         /*inplace_multiply*/
@@ -3154,12 +3154,12 @@ static PyNumberMethods Vectral_as_number = {
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    0,                                          /*nb_coerce*/
+    INITIALIZE_NB_COERCE_ZERO                   /*nb_coerce*/
     0,                       /*nb_int*/
     0,                      /*nb_long*/
     0,                     /*nb_float*/
-    0,                       /*nb_oct*/
-    0,                       /*nb_hex*/
+    INITIALIZE_NB_OCT_ZERO   /*nb_oct*/
+    INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
     (binaryfunc)Vectral_inplace_add,              /*inplace_add*/
     (binaryfunc)Vectral_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)Vectral_inplace_multiply,         /*inplace_multiply*/
@@ -3744,12 +3744,12 @@ static PyNumberMethods CvlVerb_as_number = {
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    0,                                          /*nb_coerce*/
+    INITIALIZE_NB_COERCE_ZERO                   /*nb_coerce*/
     0,                       /*nb_int*/
     0,                      /*nb_long*/
     0,                     /*nb_float*/
-    0,                       /*nb_oct*/
-    0,                       /*nb_hex*/
+    INITIALIZE_NB_OCT_ZERO   /*nb_oct*/
+    INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
     (binaryfunc)CvlVerb_inplace_add,              /*inplace_add*/
     (binaryfunc)CvlVerb_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)CvlVerb_inplace_multiply,         /*inplace_multiply*/

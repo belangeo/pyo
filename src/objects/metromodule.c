@@ -313,12 +313,12 @@ static PyNumberMethods Metro_as_number = {
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    0,                                              /*nb_coerce*/
+    INITIALIZE_NB_COERCE_ZERO                       /*nb_coerce*/
     0,                                              /*nb_int*/
     0,                                              /*nb_long*/
     0,                                              /*nb_float*/
-    0,                                              /*nb_oct*/
-    0,                                              /*nb_hex*/
+    INITIALIZE_NB_OCT_ZERO                          /*nb_oct*/
+    INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
     (binaryfunc)Metro_inplace_add,                 /*inplace_add*/
     (binaryfunc)Metro_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)Metro_inplace_multiply,            /*inplace_multiply*/
@@ -896,12 +896,12 @@ static PyNumberMethods Seq_as_number = {
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    0,                                              /*nb_coerce*/
+    INITIALIZE_NB_COERCE_ZERO                       /*nb_coerce*/
     0,                                              /*nb_int*/
     0,                                              /*nb_long*/
     0,                                              /*nb_float*/
-    0,                                              /*nb_oct*/
-    0,                                              /*nb_hex*/
+    INITIALIZE_NB_OCT_ZERO                          /*nb_oct*/
+    INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
     (binaryfunc)Seq_inplace_add,                 /*inplace_add*/
     (binaryfunc)Seq_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)Seq_inplace_multiply,            /*inplace_multiply*/
@@ -1399,12 +1399,12 @@ static PyNumberMethods Cloud_as_number = {
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    0,                                              /*nb_coerce*/
+    INITIALIZE_NB_COERCE_ZERO                       /*nb_coerce*/
     0,                                              /*nb_int*/
     0,                                              /*nb_long*/
     0,                                              /*nb_float*/
-    0,                                              /*nb_oct*/
-    0,                                              /*nb_hex*/
+    INITIALIZE_NB_OCT_ZERO                          /*nb_oct*/
+    INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
     (binaryfunc)Cloud_inplace_add,                 /*inplace_add*/
     (binaryfunc)Cloud_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)Cloud_inplace_multiply,            /*inplace_multiply*/
@@ -1643,12 +1643,12 @@ static PyNumberMethods Trig_as_number = {
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    0,                                              /*nb_coerce*/
+    INITIALIZE_NB_COERCE_ZERO                       /*nb_coerce*/
     0,                                              /*nb_int*/
     0,                                              /*nb_long*/
     0,                                              /*nb_float*/
-    0,                                              /*nb_oct*/
-    0,                                              /*nb_hex*/
+    INITIALIZE_NB_OCT_ZERO                          /*nb_oct*/
+    INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
     (binaryfunc)Trig_inplace_add,                 /*inplace_add*/
     (binaryfunc)Trig_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)Trig_inplace_multiply,            /*inplace_multiply*/
@@ -2671,12 +2671,12 @@ static PyNumberMethods Beat_as_number = {
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    0,                                              /*nb_coerce*/
+    INITIALIZE_NB_COERCE_ZERO                       /*nb_coerce*/
     0,                                              /*nb_int*/
     0,                                              /*nb_long*/
     0,                                              /*nb_float*/
-    0,                                              /*nb_oct*/
-    0,                                              /*nb_hex*/
+    INITIALIZE_NB_OCT_ZERO                          /*nb_oct*/
+    INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
     (binaryfunc)Beat_inplace_add,                 /*inplace_add*/
     (binaryfunc)Beat_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)Beat_inplace_multiply,            /*inplace_multiply*/
@@ -2920,12 +2920,12 @@ static PyNumberMethods BeatTapStream_as_number = {
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    0,                                              /*nb_coerce*/
+    INITIALIZE_NB_COERCE_ZERO                       /*nb_coerce*/
     0,                                              /*nb_int*/
     0,                                              /*nb_long*/
     0,                                              /*nb_float*/
-    0,                                              /*nb_oct*/
-    0,                                              /*nb_hex*/
+    INITIALIZE_NB_OCT_ZERO                          /*nb_oct*/
+    INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
     (binaryfunc)BeatTapStream_inplace_add,                 /*inplace_add*/
     (binaryfunc)BeatTapStream_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)BeatTapStream_inplace_multiply,            /*inplace_multiply*/
@@ -3169,12 +3169,12 @@ static PyNumberMethods BeatAmpStream_as_number = {
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    0,                                              /*nb_coerce*/
+    INITIALIZE_NB_COERCE_ZERO                       /*nb_coerce*/
     0,                                              /*nb_int*/
     0,                                              /*nb_long*/
     0,                                              /*nb_float*/
-    0,                                              /*nb_oct*/
-    0,                                              /*nb_hex*/
+    INITIALIZE_NB_OCT_ZERO                          /*nb_oct*/
+    INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
     (binaryfunc)BeatAmpStream_inplace_add,                 /*inplace_add*/
     (binaryfunc)BeatAmpStream_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)BeatAmpStream_inplace_multiply,            /*inplace_multiply*/
@@ -3418,12 +3418,12 @@ static PyNumberMethods BeatDurStream_as_number = {
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    0,                                              /*nb_coerce*/
+    INITIALIZE_NB_COERCE_ZERO                       /*nb_coerce*/
     0,                                              /*nb_int*/
     0,                                              /*nb_long*/
     0,                                              /*nb_float*/
-    0,                                              /*nb_oct*/
-    0,                                              /*nb_hex*/
+    INITIALIZE_NB_OCT_ZERO                          /*nb_oct*/
+    INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
     (binaryfunc)BeatDurStream_inplace_add,                 /*inplace_add*/
     (binaryfunc)BeatDurStream_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)BeatDurStream_inplace_multiply,            /*inplace_multiply*/
@@ -3667,12 +3667,12 @@ static PyNumberMethods BeatEndStream_as_number = {
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    0,                                              /*nb_coerce*/
+    INITIALIZE_NB_COERCE_ZERO                       /*nb_coerce*/
     0,                                              /*nb_int*/
     0,                                              /*nb_long*/
     0,                                              /*nb_float*/
-    0,                                              /*nb_oct*/
-    0,                                              /*nb_hex*/
+    INITIALIZE_NB_OCT_ZERO                          /*nb_oct*/
+    INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
     (binaryfunc)BeatEndStream_inplace_add,                 /*inplace_add*/
     (binaryfunc)BeatEndStream_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)BeatEndStream_inplace_multiply,            /*inplace_multiply*/
@@ -4244,12 +4244,12 @@ static PyNumberMethods TrigBurst_as_number = {
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    0,                                              /*nb_coerce*/
+    INITIALIZE_NB_COERCE_ZERO                       /*nb_coerce*/
     0,                                              /*nb_int*/
     0,                                              /*nb_long*/
     0,                                              /*nb_float*/
-    0,                                              /*nb_oct*/
-    0,                                              /*nb_hex*/
+    INITIALIZE_NB_OCT_ZERO                          /*nb_oct*/
+    INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
     (binaryfunc)TrigBurst_inplace_add,                 /*inplace_add*/
     (binaryfunc)TrigBurst_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)TrigBurst_inplace_multiply,            /*inplace_multiply*/
@@ -4493,12 +4493,12 @@ static PyNumberMethods TrigBurstTapStream_as_number = {
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    0,                                              /*nb_coerce*/
+    INITIALIZE_NB_COERCE_ZERO                       /*nb_coerce*/
     0,                                              /*nb_int*/
     0,                                              /*nb_long*/
     0,                                              /*nb_float*/
-    0,                                              /*nb_oct*/
-    0,                                              /*nb_hex*/
+    INITIALIZE_NB_OCT_ZERO                          /*nb_oct*/
+    INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
     (binaryfunc)TrigBurstTapStream_inplace_add,                 /*inplace_add*/
     (binaryfunc)TrigBurstTapStream_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)TrigBurstTapStream_inplace_multiply,            /*inplace_multiply*/
@@ -4742,12 +4742,12 @@ static PyNumberMethods TrigBurstAmpStream_as_number = {
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    0,                                              /*nb_coerce*/
+    INITIALIZE_NB_COERCE_ZERO                       /*nb_coerce*/
     0,                                              /*nb_int*/
     0,                                              /*nb_long*/
     0,                                              /*nb_float*/
-    0,                                              /*nb_oct*/
-    0,                                              /*nb_hex*/
+    INITIALIZE_NB_OCT_ZERO                          /*nb_oct*/
+    INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
     (binaryfunc)TrigBurstAmpStream_inplace_add,                 /*inplace_add*/
     (binaryfunc)TrigBurstAmpStream_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)TrigBurstAmpStream_inplace_multiply,            /*inplace_multiply*/
@@ -4991,12 +4991,12 @@ static PyNumberMethods TrigBurstDurStream_as_number = {
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    0,                                              /*nb_coerce*/
+    INITIALIZE_NB_COERCE_ZERO                       /*nb_coerce*/
     0,                                              /*nb_int*/
     0,                                              /*nb_long*/
     0,                                              /*nb_float*/
-    0,                                              /*nb_oct*/
-    0,                                              /*nb_hex*/
+    INITIALIZE_NB_OCT_ZERO                          /*nb_oct*/
+    INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
     (binaryfunc)TrigBurstDurStream_inplace_add,                 /*inplace_add*/
     (binaryfunc)TrigBurstDurStream_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)TrigBurstDurStream_inplace_multiply,            /*inplace_multiply*/
@@ -5240,12 +5240,12 @@ static PyNumberMethods TrigBurstEndStream_as_number = {
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    0,                                              /*nb_coerce*/
+    INITIALIZE_NB_COERCE_ZERO                       /*nb_coerce*/
     0,                                              /*nb_int*/
     0,                                              /*nb_long*/
     0,                                              /*nb_float*/
-    0,                                              /*nb_oct*/
-    0,                                              /*nb_hex*/
+    INITIALIZE_NB_OCT_ZERO                          /*nb_oct*/
+    INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
     (binaryfunc)TrigBurstEndStream_inplace_add,                 /*inplace_add*/
     (binaryfunc)TrigBurstEndStream_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)TrigBurstEndStream_inplace_multiply,            /*inplace_multiply*/

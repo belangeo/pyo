@@ -248,12 +248,12 @@ static PyNumberMethods Select_as_number = {
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    0,                                              /*nb_coerce*/
+    INITIALIZE_NB_COERCE_ZERO                       /*nb_coerce*/
     0,                                              /*nb_int*/
     0,                                              /*nb_long*/
     0,                                              /*nb_float*/
-    0,                                              /*nb_oct*/
-    0,                                              /*nb_hex*/
+    INITIALIZE_NB_OCT_ZERO                          /*nb_oct*/
+    INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
     (binaryfunc)Select_inplace_add,                 /*inplace_add*/
     (binaryfunc)Select_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)Select_inplace_multiply,            /*inplace_multiply*/
@@ -518,12 +518,12 @@ static PyNumberMethods Change_as_number = {
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    0,                                              /*nb_coerce*/
+    INITIALIZE_NB_COERCE_ZERO                       /*nb_coerce*/
     0,                                              /*nb_int*/
     0,                                              /*nb_long*/
     0,                                              /*nb_float*/
-    0,                                              /*nb_oct*/
-    0,                                              /*nb_hex*/
+    INITIALIZE_NB_OCT_ZERO                          /*nb_oct*/
+    INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
     (binaryfunc)Change_inplace_add,                 /*inplace_add*/
     (binaryfunc)Change_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)Change_inplace_multiply,            /*inplace_multiply*/

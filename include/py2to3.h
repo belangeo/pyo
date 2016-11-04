@@ -59,3 +59,15 @@
 #endif /* PY_MAJOR_VERSION >= 3 */
 
 #endif
+
+
+#if PY_MAJOR_VERSION >= 3
+// nb_coerce, nb_oct and nb_hex fields have been removed in Python 3
+#define INITIALIZE_NB_COERCE_ZERO
+#define INITIALIZE_NB_OCT_ZERO
+#define INITIALIZE_NB_HEX_ZERO
+#else
+#define INITIALIZE_NB_COERCE_ZERO 0,
+#define INITIALIZE_NB_OCT_ZERO 0,
+#define INITIALIZE_NB_HEX_ZERO 0,
+#endif

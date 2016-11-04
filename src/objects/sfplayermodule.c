@@ -751,12 +751,12 @@ static PyNumberMethods SfPlay_as_number = {
 0,              /*nb_and*/
 0,              /*nb_xor*/
 0,               /*nb_or*/
-0,                                          /*nb_coerce*/
+INITIALIZE_NB_COERCE_ZERO                   /*nb_coerce*/
 0,                       /*nb_int*/
 0,                      /*nb_long*/
 0,                     /*nb_float*/
-0,                       /*nb_oct*/
-0,                       /*nb_hex*/
+INITIALIZE_NB_OCT_ZERO   /*nb_oct*/
+INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
 (binaryfunc)SfPlay_inplace_add,              /*inplace_add*/
 (binaryfunc)SfPlay_inplace_sub,         /*inplace_subtract*/
 (binaryfunc)SfPlay_inplace_multiply,         /*inplace_multiply*/
@@ -1475,12 +1475,12 @@ static PyNumberMethods SfMarkerShuffle_as_number = {
 0,              /*nb_and*/
 0,              /*nb_xor*/
 0,               /*nb_or*/
-0,                                          /*nb_coerce*/
+INITIALIZE_NB_COERCE_ZERO                   /*nb_coerce*/
 0,                       /*nb_int*/
 0,                      /*nb_long*/
 0,                     /*nb_float*/
-0,                       /*nb_oct*/
-0,                       /*nb_hex*/
+INITIALIZE_NB_OCT_ZERO   /*nb_oct*/
+INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
 (binaryfunc)SfMarkerShuffle_inplace_add,              /*inplace_add*/
 (binaryfunc)SfMarkerShuffle_inplace_sub,         /*inplace_subtract*/
 (binaryfunc)SfMarkerShuffle_inplace_multiply,         /*inplace_multiply*/
@@ -2250,12 +2250,12 @@ static PyNumberMethods SfMarkerLoop_as_number = {
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    0,                                          /*nb_coerce*/
+    INITIALIZE_NB_COERCE_ZERO                   /*nb_coerce*/
     0,                       /*nb_int*/
     0,                      /*nb_long*/
     0,                     /*nb_float*/
-    0,                       /*nb_oct*/
-    0,                       /*nb_hex*/
+    INITIALIZE_NB_OCT_ZERO   /*nb_oct*/
+    INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
     (binaryfunc)SfMarkerLoop_inplace_add,              /*inplace_add*/
     (binaryfunc)SfMarkerLoop_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)SfMarkerLoop_inplace_multiply,         /*inplace_multiply*/

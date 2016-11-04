@@ -576,12 +576,12 @@ static PyNumberMethods Randi_as_number = {
 0,                                              /*nb_and*/
 0,                                              /*nb_xor*/
 0,                                              /*nb_or*/
-0,                                              /*nb_coerce*/
+INITIALIZE_NB_COERCE_ZERO                       /*nb_coerce*/
 0,                                              /*nb_int*/
 0,                                              /*nb_long*/
 0,                                              /*nb_float*/
-0,                                              /*nb_oct*/
-0,                                              /*nb_hex*/
+INITIALIZE_NB_OCT_ZERO                          /*nb_oct*/
+INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
 (binaryfunc)Randi_inplace_add,                 /*inplace_add*/
 (binaryfunc)Randi_inplace_sub,                 /*inplace_subtract*/
 (binaryfunc)Randi_inplace_multiply,            /*inplace_multiply*/
@@ -1175,12 +1175,12 @@ static PyNumberMethods Randh_as_number = {
 0,                                              /*nb_and*/
 0,                                              /*nb_xor*/
 0,                                              /*nb_or*/
-0,                                              /*nb_coerce*/
+INITIALIZE_NB_COERCE_ZERO                       /*nb_coerce*/
 0,                                              /*nb_int*/
 0,                                              /*nb_long*/
 0,                                              /*nb_float*/
-0,                                              /*nb_oct*/
-0,                                              /*nb_hex*/
+INITIALIZE_NB_OCT_ZERO                          /*nb_oct*/
+INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
 (binaryfunc)Randh_inplace_add,                 /*inplace_add*/
 (binaryfunc)Randh_inplace_sub,                 /*inplace_subtract*/
 (binaryfunc)Randh_inplace_multiply,            /*inplace_multiply*/
@@ -1549,12 +1549,12 @@ static PyNumberMethods Choice_as_number = {
 0,                                              /*nb_and*/
 0,                                              /*nb_xor*/
 0,                                              /*nb_or*/
-0,                                              /*nb_coerce*/
+INITIALIZE_NB_COERCE_ZERO                       /*nb_coerce*/
 0,                                              /*nb_int*/
 0,                                              /*nb_long*/
 0,                                              /*nb_float*/
-0,                                              /*nb_oct*/
-0,                                              /*nb_hex*/
+INITIALIZE_NB_OCT_ZERO                          /*nb_oct*/
+INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
 (binaryfunc)Choice_inplace_add,                 /*inplace_add*/
 (binaryfunc)Choice_inplace_sub,                 /*inplace_subtract*/
 (binaryfunc)Choice_inplace_multiply,            /*inplace_multiply*/
@@ -1983,12 +1983,12 @@ static PyNumberMethods RandInt_as_number = {
 0,                                              /*nb_and*/
 0,                                              /*nb_xor*/
 0,                                              /*nb_or*/
-0,                                              /*nb_coerce*/
+INITIALIZE_NB_COERCE_ZERO                       /*nb_coerce*/
 0,                                              /*nb_int*/
 0,                                              /*nb_long*/
 0,                                              /*nb_float*/
-0,                                              /*nb_oct*/
-0,                                              /*nb_hex*/
+INITIALIZE_NB_OCT_ZERO                          /*nb_oct*/
+INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
 (binaryfunc)RandInt_inplace_add,                 /*inplace_add*/
 (binaryfunc)RandInt_inplace_sub,                 /*inplace_subtract*/
 (binaryfunc)RandInt_inplace_multiply,            /*inplace_multiply*/
@@ -2456,12 +2456,12 @@ static PyNumberMethods RandDur_as_number = {
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    0,                                              /*nb_coerce*/
+    INITIALIZE_NB_COERCE_ZERO                       /*nb_coerce*/
     0,                                              /*nb_int*/
     0,                                              /*nb_long*/
     0,                                              /*nb_float*/
-    0,                                              /*nb_oct*/
-    0,                                              /*nb_hex*/
+    INITIALIZE_NB_OCT_ZERO                          /*nb_oct*/
+    INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
     (binaryfunc)RandDur_inplace_add,                 /*inplace_add*/
     (binaryfunc)RandDur_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)RandDur_inplace_multiply,            /*inplace_multiply*/
@@ -3359,12 +3359,12 @@ static PyNumberMethods Xnoise_as_number = {
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    0,                                              /*nb_coerce*/
+    INITIALIZE_NB_COERCE_ZERO                       /*nb_coerce*/
     0,                                              /*nb_int*/
     0,                                              /*nb_long*/
     0,                                              /*nb_float*/
-    0,                                              /*nb_oct*/
-    0,                                              /*nb_hex*/
+    INITIALIZE_NB_OCT_ZERO                          /*nb_oct*/
+    INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
     (binaryfunc)Xnoise_inplace_add,                 /*inplace_add*/
     (binaryfunc)Xnoise_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)Xnoise_inplace_multiply,            /*inplace_multiply*/
@@ -4349,12 +4349,12 @@ static PyNumberMethods XnoiseMidi_as_number = {
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    0,                                              /*nb_coerce*/
+    INITIALIZE_NB_COERCE_ZERO                       /*nb_coerce*/
     0,                                              /*nb_int*/
     0,                                              /*nb_long*/
     0,                                              /*nb_float*/
-    0,                                              /*nb_oct*/
-    0,                                              /*nb_hex*/
+    INITIALIZE_NB_OCT_ZERO                          /*nb_oct*/
+    INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
     (binaryfunc)XnoiseMidi_inplace_add,                 /*inplace_add*/
     (binaryfunc)XnoiseMidi_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)XnoiseMidi_inplace_multiply,            /*inplace_multiply*/
@@ -5151,12 +5151,12 @@ static PyNumberMethods XnoiseDur_as_number = {
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    0,                                              /*nb_coerce*/
+    INITIALIZE_NB_COERCE_ZERO                       /*nb_coerce*/
     0,                                              /*nb_int*/
     0,                                              /*nb_long*/
     0,                                              /*nb_float*/
-    0,                                              /*nb_oct*/
-    0,                                              /*nb_hex*/
+    INITIALIZE_NB_OCT_ZERO                          /*nb_oct*/
+    INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
     (binaryfunc)XnoiseDur_inplace_add,                 /*inplace_add*/
     (binaryfunc)XnoiseDur_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)XnoiseDur_inplace_multiply,            /*inplace_multiply*/
@@ -5575,12 +5575,12 @@ static PyNumberMethods Urn_as_number = {
 0,                                              /*nb_and*/
 0,                                              /*nb_xor*/
 0,                                              /*nb_or*/
-0,                                              /*nb_coerce*/
+INITIALIZE_NB_COERCE_ZERO                       /*nb_coerce*/
 0,                                              /*nb_int*/
 0,                                              /*nb_long*/
 0,                                              /*nb_float*/
-0,                                              /*nb_oct*/
-0,                                              /*nb_hex*/
+INITIALIZE_NB_OCT_ZERO                          /*nb_oct*/
+INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
 (binaryfunc)Urn_inplace_add,                 /*inplace_add*/
 (binaryfunc)Urn_inplace_sub,                 /*inplace_subtract*/
 (binaryfunc)Urn_inplace_multiply,            /*inplace_multiply*/
@@ -6029,12 +6029,12 @@ static PyNumberMethods LogiMap_as_number = {
 0,                                              /*nb_and*/
 0,                                              /*nb_xor*/
 0,                                              /*nb_or*/
-0,                                              /*nb_coerce*/
+INITIALIZE_NB_COERCE_ZERO                       /*nb_coerce*/
 0,                                              /*nb_int*/
 0,                                              /*nb_long*/
 0,                                              /*nb_float*/
-0,                                              /*nb_oct*/
-0,                                              /*nb_hex*/
+INITIALIZE_NB_OCT_ZERO                          /*nb_oct*/
+INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
 (binaryfunc)LogiMap_inplace_add,                 /*inplace_add*/
 (binaryfunc)LogiMap_inplace_sub,                 /*inplace_subtract*/
 (binaryfunc)LogiMap_inplace_multiply,            /*inplace_multiply*/

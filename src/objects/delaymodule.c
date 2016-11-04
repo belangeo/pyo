@@ -508,12 +508,12 @@ static PyNumberMethods Delay_as_number = {
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    0,                                          /*nb_coerce*/
+    INITIALIZE_NB_COERCE_ZERO                   /*nb_coerce*/
     0,                       /*nb_int*/
     0,                      /*nb_long*/
     0,                     /*nb_float*/
-    0,                       /*nb_oct*/
-    0,                       /*nb_hex*/
+    INITIALIZE_NB_OCT_ZERO   /*nb_oct*/
+    INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
     (binaryfunc)Delay_inplace_add,              /*inplace_add*/
     (binaryfunc)Delay_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)Delay_inplace_multiply,         /*inplace_multiply*/
@@ -906,12 +906,12 @@ static PyNumberMethods SDelay_as_number = {
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    0,                                          /*nb_coerce*/
+    INITIALIZE_NB_COERCE_ZERO                   /*nb_coerce*/
     0,                       /*nb_int*/
     0,                      /*nb_long*/
     0,                     /*nb_float*/
-    0,                       /*nb_oct*/
-    0,                       /*nb_hex*/
+    INITIALIZE_NB_OCT_ZERO   /*nb_oct*/
+    INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
     (binaryfunc)SDelay_inplace_add,              /*inplace_add*/
     (binaryfunc)SDelay_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)SDelay_inplace_multiply,         /*inplace_multiply*/
@@ -1629,12 +1629,12 @@ static PyNumberMethods Waveguide_as_number = {
 0,              /*nb_and*/
 0,              /*nb_xor*/
 0,               /*nb_or*/
-0,                                          /*nb_coerce*/
+INITIALIZE_NB_COERCE_ZERO                   /*nb_coerce*/
 0,                       /*nb_int*/
 0,                      /*nb_long*/
 0,                     /*nb_float*/
-0,                       /*nb_oct*/
-0,                       /*nb_hex*/
+INITIALIZE_NB_OCT_ZERO   /*nb_oct*/
+INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
 (binaryfunc)Waveguide_inplace_add,              /*inplace_add*/
 (binaryfunc)Waveguide_inplace_sub,         /*inplace_subtract*/
 (binaryfunc)Waveguide_inplace_multiply,         /*inplace_multiply*/
@@ -2676,12 +2676,12 @@ static PyNumberMethods AllpassWG_as_number = {
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    0,                                          /*nb_coerce*/
+    INITIALIZE_NB_COERCE_ZERO                   /*nb_coerce*/
     0,                       /*nb_int*/
     0,                      /*nb_long*/
     0,                     /*nb_float*/
-    0,                       /*nb_oct*/
-    0,                       /*nb_hex*/
+    INITIALIZE_NB_OCT_ZERO   /*nb_oct*/
+    INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
     (binaryfunc)AllpassWG_inplace_add,              /*inplace_add*/
     (binaryfunc)AllpassWG_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)AllpassWG_inplace_multiply,         /*inplace_multiply*/
@@ -2943,12 +2943,12 @@ static PyNumberMethods Delay1_as_number = {
 0,                                              /*nb_and*/
 0,                                              /*nb_xor*/
 0,                                              /*nb_or*/
-0,                                              /*nb_coerce*/
+INITIALIZE_NB_COERCE_ZERO                       /*nb_coerce*/
 0,                                              /*nb_int*/
 0,                                              /*nb_long*/
 0,                                              /*nb_float*/
-0,                                              /*nb_oct*/
-0,                                              /*nb_hex*/
+INITIALIZE_NB_OCT_ZERO                          /*nb_oct*/
+INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
 (binaryfunc)Delay1_inplace_add,                 /*inplace_add*/
 (binaryfunc)Delay1_inplace_sub,                 /*inplace_subtract*/
 (binaryfunc)Delay1_inplace_multiply,            /*inplace_multiply*/
@@ -3646,12 +3646,12 @@ static PyNumberMethods SmoothDelay_as_number = {
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    0,                                          /*nb_coerce*/
+    INITIALIZE_NB_COERCE_ZERO                   /*nb_coerce*/
     0,                       /*nb_int*/
     0,                      /*nb_long*/
     0,                     /*nb_float*/
-    0,                       /*nb_oct*/
-    0,                       /*nb_hex*/
+    INITIALIZE_NB_OCT_ZERO   /*nb_oct*/
+    INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
     (binaryfunc)SmoothDelay_inplace_add,              /*inplace_add*/
     (binaryfunc)SmoothDelay_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)SmoothDelay_inplace_multiply,         /*inplace_multiply*/

@@ -1018,12 +1018,12 @@ static PyNumberMethods Granulator_as_number = {
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    0,                                          /*nb_coerce*/
+    INITIALIZE_NB_COERCE_ZERO                   /*nb_coerce*/
     0,                       /*nb_int*/
     0,                      /*nb_long*/
     0,                     /*nb_float*/
-    0,                       /*nb_oct*/
-    0,                       /*nb_hex*/
+    INITIALIZE_NB_OCT_ZERO   /*nb_oct*/
+    INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
     (binaryfunc)Granulator_inplace_add,              /*inplace_add*/
     (binaryfunc)Granulator_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)Granulator_inplace_multiply,         /*inplace_multiply*/
@@ -2280,12 +2280,12 @@ static PyNumberMethods Looper_as_number = {
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    0,                                          /*nb_coerce*/
+    INITIALIZE_NB_COERCE_ZERO                   /*nb_coerce*/
     0,                       /*nb_int*/
     0,                      /*nb_long*/
     0,                     /*nb_float*/
-    0,                       /*nb_oct*/
-    0,                       /*nb_hex*/
+    INITIALIZE_NB_OCT_ZERO   /*nb_oct*/
+    INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
     (binaryfunc)Looper_inplace_add,              /*inplace_add*/
     (binaryfunc)Looper_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)Looper_inplace_multiply,         /*inplace_multiply*/
@@ -2523,12 +2523,12 @@ static PyNumberMethods LooperTimeStream_as_number = {
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    0,                                              /*nb_coerce*/
+    INITIALIZE_NB_COERCE_ZERO                       /*nb_coerce*/
     0,                                              /*nb_int*/
     0,                                              /*nb_long*/
     0,                                              /*nb_float*/
-    0,                                              /*nb_oct*/
-    0,                                              /*nb_hex*/
+    INITIALIZE_NB_OCT_ZERO                          /*nb_oct*/
+    INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
     (binaryfunc)LooperTimeStream_inplace_add,                 /*inplace_add*/
     (binaryfunc)LooperTimeStream_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)LooperTimeStream_inplace_multiply,            /*inplace_multiply*/
@@ -3254,12 +3254,12 @@ static PyNumberMethods Granule_as_number = {
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    0,                                          /*nb_coerce*/
+    INITIALIZE_NB_COERCE_ZERO                   /*nb_coerce*/
     0,                       /*nb_int*/
     0,                      /*nb_long*/
     0,                     /*nb_float*/
-    0,                       /*nb_oct*/
-    0,                       /*nb_hex*/
+    INITIALIZE_NB_OCT_ZERO   /*nb_oct*/
+    INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
     (binaryfunc)Granule_inplace_add,              /*inplace_add*/
     (binaryfunc)Granule_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)Granule_inplace_multiply,         /*inplace_multiply*/
@@ -4515,12 +4515,12 @@ static PyNumberMethods Particle_as_number = {
 0,              /*nb_and*/
 0,              /*nb_xor*/
 0,               /*nb_or*/
-0,                                          /*nb_coerce*/
+INITIALIZE_NB_COERCE_ZERO                   /*nb_coerce*/
 0,                       /*nb_int*/
 0,                      /*nb_long*/
 0,                     /*nb_float*/
-0,                       /*nb_oct*/
-0,                       /*nb_hex*/
+INITIALIZE_NB_OCT_ZERO   /*nb_oct*/
+INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
 (binaryfunc)Particle_inplace_add,              /*inplace_add*/
 (binaryfunc)Particle_inplace_sub,         /*inplace_subtract*/
 (binaryfunc)Particle_inplace_multiply,         /*inplace_multiply*/

@@ -305,12 +305,12 @@ static PyNumberMethods TrigRandInt_as_number = {
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    0,                                              /*nb_coerce*/
+    INITIALIZE_NB_COERCE_ZERO                       /*nb_coerce*/
     0,                                              /*nb_int*/
     0,                                              /*nb_long*/
     0,                                              /*nb_float*/
-    0,                                              /*nb_oct*/
-    0,                                              /*nb_hex*/
+    INITIALIZE_NB_OCT_ZERO                          /*nb_oct*/
+    INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
     (binaryfunc)TrigRandInt_inplace_add,                 /*inplace_add*/
     (binaryfunc)TrigRandInt_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)TrigRandInt_inplace_multiply,            /*inplace_multiply*/
@@ -820,12 +820,12 @@ static PyNumberMethods TrigRand_as_number = {
 0,                                              /*nb_and*/
 0,                                              /*nb_xor*/
 0,                                              /*nb_or*/
-0,                                              /*nb_coerce*/
+INITIALIZE_NB_COERCE_ZERO                       /*nb_coerce*/
 0,                                              /*nb_int*/
 0,                                              /*nb_long*/
 0,                                              /*nb_float*/
-0,                                              /*nb_oct*/
-0,                                              /*nb_hex*/
+INITIALIZE_NB_OCT_ZERO                          /*nb_oct*/
+INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
 (binaryfunc)TrigRand_inplace_add,                 /*inplace_add*/
 (binaryfunc)TrigRand_inplace_sub,                 /*inplace_subtract*/
 (binaryfunc)TrigRand_inplace_multiply,            /*inplace_multiply*/
@@ -1172,12 +1172,12 @@ static PyNumberMethods TrigChoice_as_number = {
 0,                                              /*nb_and*/
 0,                                              /*nb_xor*/
 0,                                              /*nb_or*/
-0,                                              /*nb_coerce*/
+INITIALIZE_NB_COERCE_ZERO                       /*nb_coerce*/
 0,                                              /*nb_int*/
 0,                                              /*nb_long*/
 0,                                              /*nb_float*/
-0,                                              /*nb_oct*/
-0,                                              /*nb_hex*/
+INITIALIZE_NB_OCT_ZERO                          /*nb_oct*/
+INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
 (binaryfunc)TrigChoice_inplace_add,                 /*inplace_add*/
 (binaryfunc)TrigChoice_inplace_sub,                 /*inplace_subtract*/
 (binaryfunc)TrigChoice_inplace_multiply,            /*inplace_multiply*/
@@ -1848,12 +1848,12 @@ static PyNumberMethods TrigEnv_as_number = {
 0,              /*nb_and*/
 0,              /*nb_xor*/
 0,               /*nb_or*/
-0,                                          /*nb_coerce*/
+INITIALIZE_NB_COERCE_ZERO                   /*nb_coerce*/
 0,                       /*nb_int*/
 0,                      /*nb_long*/
 0,                     /*nb_float*/
-0,                       /*nb_oct*/
-0,                       /*nb_hex*/
+INITIALIZE_NB_OCT_ZERO   /*nb_oct*/
+INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
 (binaryfunc)TrigEnv_inplace_add,              /*inplace_add*/
 (binaryfunc)TrigEnv_inplace_sub,         /*inplace_subtract*/
 (binaryfunc)TrigEnv_inplace_multiply,         /*inplace_multiply*/
@@ -2225,12 +2225,12 @@ static PyNumberMethods TrigLinseg_as_number = {
 0,              /*nb_and*/
 0,              /*nb_xor*/
 0,               /*nb_or*/
-0,                                          /*nb_coerce*/
+INITIALIZE_NB_COERCE_ZERO                   /*nb_coerce*/
 0,                       /*nb_int*/
 0,                      /*nb_long*/
 0,                     /*nb_float*/
-0,                       /*nb_oct*/
-0,                       /*nb_hex*/
+INITIALIZE_NB_OCT_ZERO   /*nb_oct*/
+INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
 (binaryfunc)TrigLinseg_inplace_add,              /*inplace_add*/
 (binaryfunc)TrigLinseg_inplace_sub,         /*inplace_subtract*/
 (binaryfunc)TrigLinseg_inplace_multiply,         /*inplace_multiply*/
@@ -2652,12 +2652,12 @@ static PyNumberMethods TrigExpseg_as_number = {
 0,              /*nb_and*/
 0,              /*nb_xor*/
 0,               /*nb_or*/
-0,                                          /*nb_coerce*/
+INITIALIZE_NB_COERCE_ZERO                   /*nb_coerce*/
 0,                       /*nb_int*/
 0,                      /*nb_long*/
 0,                     /*nb_float*/
-0,                       /*nb_oct*/
-0,                       /*nb_hex*/
+INITIALIZE_NB_OCT_ZERO   /*nb_oct*/
+INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
 (binaryfunc)TrigExpseg_inplace_add,              /*inplace_add*/
 (binaryfunc)TrigExpseg_inplace_sub,         /*inplace_subtract*/
 (binaryfunc)TrigExpseg_inplace_multiply,         /*inplace_multiply*/
@@ -3392,12 +3392,12 @@ static PyNumberMethods TrigXnoise_as_number = {
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    0,                                              /*nb_coerce*/
+    INITIALIZE_NB_COERCE_ZERO                       /*nb_coerce*/
     0,                                              /*nb_int*/
     0,                                              /*nb_long*/
     0,                                              /*nb_float*/
-    0,                                              /*nb_oct*/
-    0,                                              /*nb_hex*/
+    INITIALIZE_NB_OCT_ZERO                          /*nb_oct*/
+    INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
     (binaryfunc)TrigXnoise_inplace_add,                 /*inplace_add*/
     (binaryfunc)TrigXnoise_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)TrigXnoise_inplace_multiply,            /*inplace_multiply*/
@@ -4217,12 +4217,12 @@ static PyNumberMethods TrigXnoiseMidi_as_number = {
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    0,                                              /*nb_coerce*/
+    INITIALIZE_NB_COERCE_ZERO                       /*nb_coerce*/
     0,                                              /*nb_int*/
     0,                                              /*nb_long*/
     0,                                              /*nb_float*/
-    0,                                              /*nb_oct*/
-    0,                                              /*nb_hex*/
+    INITIALIZE_NB_OCT_ZERO                          /*nb_oct*/
+    INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
     (binaryfunc)TrigXnoiseMidi_inplace_add,                 /*inplace_add*/
     (binaryfunc)TrigXnoiseMidi_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)TrigXnoiseMidi_inplace_multiply,            /*inplace_multiply*/
@@ -4583,12 +4583,12 @@ static PyNumberMethods Counter_as_number = {
 0,                                              /*nb_and*/
 0,                                              /*nb_xor*/
 0,                                              /*nb_or*/
-0,                                              /*nb_coerce*/
+INITIALIZE_NB_COERCE_ZERO                       /*nb_coerce*/
 0,                                              /*nb_int*/
 0,                                              /*nb_long*/
 0,                                              /*nb_float*/
-0,                                              /*nb_oct*/
-0,                                              /*nb_hex*/
+INITIALIZE_NB_OCT_ZERO                          /*nb_oct*/
+INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
 (binaryfunc)Counter_inplace_add,                 /*inplace_add*/
 (binaryfunc)Counter_inplace_sub,                 /*inplace_subtract*/
 (binaryfunc)Counter_inplace_multiply,            /*inplace_multiply*/
@@ -4992,12 +4992,12 @@ static PyNumberMethods Thresh_as_number = {
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    0,                                              /*nb_coerce*/
+    INITIALIZE_NB_COERCE_ZERO                       /*nb_coerce*/
     0,                                              /*nb_int*/
     0,                                              /*nb_long*/
     0,                                              /*nb_float*/
-    0,                                              /*nb_oct*/
-    0,                                              /*nb_hex*/
+    INITIALIZE_NB_OCT_ZERO                          /*nb_oct*/
+    INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
     (binaryfunc)Thresh_inplace_add,                 /*inplace_add*/
     (binaryfunc)Thresh_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)Thresh_inplace_multiply,            /*inplace_multiply*/
@@ -5330,12 +5330,12 @@ static PyNumberMethods Percent_as_number = {
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    0,                                              /*nb_coerce*/
+    INITIALIZE_NB_COERCE_ZERO                       /*nb_coerce*/
     0,                                              /*nb_int*/
     0,                                              /*nb_long*/
     0,                                              /*nb_float*/
-    0,                                              /*nb_oct*/
-    0,                                              /*nb_hex*/
+    INITIALIZE_NB_OCT_ZERO                          /*nb_oct*/
+    INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
     (binaryfunc)Percent_inplace_add,                 /*inplace_add*/
     (binaryfunc)Percent_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)Percent_inplace_multiply,            /*inplace_multiply*/
@@ -5625,12 +5625,12 @@ static PyNumberMethods Timer_as_number = {
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    0,                                              /*nb_coerce*/
+    INITIALIZE_NB_COERCE_ZERO                       /*nb_coerce*/
     0,                                              /*nb_int*/
     0,                                              /*nb_long*/
     0,                                              /*nb_float*/
-    0,                                              /*nb_oct*/
-    0,                                              /*nb_hex*/
+    INITIALIZE_NB_OCT_ZERO                          /*nb_oct*/
+    INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
     (binaryfunc)Timer_inplace_add,                 /*inplace_add*/
     (binaryfunc)Timer_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)Timer_inplace_multiply,            /*inplace_multiply*/
@@ -5951,12 +5951,12 @@ static PyNumberMethods Iter_as_number = {
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    0,                                              /*nb_coerce*/
+    INITIALIZE_NB_COERCE_ZERO                       /*nb_coerce*/
     0,                                              /*nb_int*/
     0,                                              /*nb_long*/
     0,                                              /*nb_float*/
-    0,                                              /*nb_oct*/
-    0,                                              /*nb_hex*/
+    INITIALIZE_NB_OCT_ZERO                          /*nb_oct*/
+    INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
     (binaryfunc)Iter_inplace_add,                 /*inplace_add*/
     (binaryfunc)Iter_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)Iter_inplace_multiply,            /*inplace_multiply*/
@@ -6255,12 +6255,12 @@ static PyNumberMethods Count_as_number = {
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    0,                                              /*nb_coerce*/
+    INITIALIZE_NB_COERCE_ZERO                       /*nb_coerce*/
     0,                                              /*nb_int*/
     0,                                              /*nb_long*/
     0,                                              /*nb_float*/
-    0,                                              /*nb_oct*/
-    0,                                              /*nb_hex*/
+    INITIALIZE_NB_OCT_ZERO                          /*nb_oct*/
+    INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
     (binaryfunc)Count_inplace_add,                 /*inplace_add*/
     (binaryfunc)Count_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)Count_inplace_multiply,            /*inplace_multiply*/
@@ -6540,12 +6540,12 @@ static PyNumberMethods NextTrig_as_number = {
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    0,                                              /*nb_coerce*/
+    INITIALIZE_NB_COERCE_ZERO                       /*nb_coerce*/
     0,                                              /*nb_int*/
     0,                                              /*nb_long*/
     0,                                              /*nb_float*/
-    0,                                              /*nb_oct*/
-    0,                                              /*nb_hex*/
+    INITIALIZE_NB_OCT_ZERO                          /*nb_oct*/
+    INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
     (binaryfunc)NextTrig_inplace_add,                 /*inplace_add*/
     (binaryfunc)NextTrig_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)NextTrig_inplace_multiply,            /*inplace_multiply*/
@@ -6873,12 +6873,12 @@ static PyNumberMethods TrigVal_as_number = {
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    0,                                              /*nb_coerce*/
+    INITIALIZE_NB_COERCE_ZERO                       /*nb_coerce*/
     0,                                              /*nb_int*/
     0,                                              /*nb_long*/
     0,                                              /*nb_float*/
-    0,                                              /*nb_oct*/
-    0,                                              /*nb_hex*/
+    INITIALIZE_NB_OCT_ZERO                          /*nb_oct*/
+    INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
     (binaryfunc)TrigVal_inplace_add,                 /*inplace_add*/
     (binaryfunc)TrigVal_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)TrigVal_inplace_multiply,            /*inplace_multiply*/

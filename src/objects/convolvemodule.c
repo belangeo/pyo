@@ -285,12 +285,12 @@ static PyNumberMethods Convolve_as_number = {
 0,                                              /*nb_and*/
 0,                                              /*nb_xor*/
 0,                                              /*nb_or*/
-0,                                              /*nb_coerce*/
+INITIALIZE_NB_COERCE_ZERO                       /*nb_coerce*/
 0,                                              /*nb_int*/
 0,                                              /*nb_long*/
 0,                                              /*nb_float*/
-0,                                              /*nb_oct*/
-0,                                              /*nb_hex*/
+INITIALIZE_NB_OCT_ZERO                          /*nb_oct*/
+INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
 (binaryfunc)Convolve_inplace_add,                 /*inplace_add*/
 (binaryfunc)Convolve_inplace_sub,                 /*inplace_subtract*/
 (binaryfunc)Convolve_inplace_multiply,            /*inplace_multiply*/
@@ -816,12 +816,12 @@ static PyNumberMethods IRWinSinc_as_number = {
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    0,                                              /*nb_coerce*/
+    INITIALIZE_NB_COERCE_ZERO                       /*nb_coerce*/
     0,                                              /*nb_int*/
     0,                                              /*nb_long*/
     0,                                              /*nb_float*/
-    0,                                              /*nb_oct*/
-    0,                                              /*nb_hex*/
+    INITIALIZE_NB_OCT_ZERO                          /*nb_oct*/
+    INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
     (binaryfunc)IRWinSinc_inplace_add,                 /*inplace_add*/
     (binaryfunc)IRWinSinc_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)IRWinSinc_inplace_multiply,            /*inplace_multiply*/
@@ -1127,12 +1127,12 @@ static PyNumberMethods IRAverage_as_number = {
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    0,                                              /*nb_coerce*/
+    INITIALIZE_NB_COERCE_ZERO                       /*nb_coerce*/
     0,                                              /*nb_int*/
     0,                                              /*nb_long*/
     0,                                              /*nb_float*/
-    0,                                              /*nb_oct*/
-    0,                                              /*nb_hex*/
+    INITIALIZE_NB_OCT_ZERO                          /*nb_oct*/
+    INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
     (binaryfunc)IRAverage_inplace_add,                 /*inplace_add*/
     (binaryfunc)IRAverage_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)IRAverage_inplace_multiply,            /*inplace_multiply*/
@@ -1678,12 +1678,12 @@ static PyNumberMethods IRPulse_as_number = {
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    0,                                              /*nb_coerce*/
+    INITIALIZE_NB_COERCE_ZERO                       /*nb_coerce*/
     0,                                              /*nb_int*/
     0,                                              /*nb_long*/
     0,                                              /*nb_float*/
-    0,                                              /*nb_oct*/
-    0,                                              /*nb_hex*/
+    INITIALIZE_NB_OCT_ZERO                          /*nb_oct*/
+    INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
     (binaryfunc)IRPulse_inplace_add,                 /*inplace_add*/
     (binaryfunc)IRPulse_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)IRPulse_inplace_multiply,            /*inplace_multiply*/
@@ -2178,12 +2178,12 @@ static PyNumberMethods IRFM_as_number = {
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    0,                                              /*nb_coerce*/
+    INITIALIZE_NB_COERCE_ZERO                       /*nb_coerce*/
     0,                                              /*nb_int*/
     0,                                              /*nb_long*/
     0,                                              /*nb_float*/
-    0,                                              /*nb_oct*/
-    0,                                              /*nb_hex*/
+    INITIALIZE_NB_OCT_ZERO                          /*nb_oct*/
+    INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
     (binaryfunc)IRFM_inplace_add,                 /*inplace_add*/
     (binaryfunc)IRFM_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)IRFM_inplace_multiply,            /*inplace_multiply*/

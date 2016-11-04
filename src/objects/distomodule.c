@@ -424,12 +424,12 @@ static PyNumberMethods Disto_as_number = {
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    0,                                          /*nb_coerce*/
+    INITIALIZE_NB_COERCE_ZERO                   /*nb_coerce*/
     0,                       /*nb_int*/
     0,                      /*nb_long*/
     0,                     /*nb_float*/
-    0,                       /*nb_oct*/
-    0,                       /*nb_hex*/
+    INITIALIZE_NB_OCT_ZERO   /*nb_oct*/
+    INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
     (binaryfunc)Disto_inplace_add,              /*inplace_add*/
     (binaryfunc)Disto_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)Disto_inplace_multiply,         /*inplace_multiply*/
@@ -862,12 +862,12 @@ static PyNumberMethods Clip_as_number = {
 0,              /*nb_and*/
 0,              /*nb_xor*/
 0,               /*nb_or*/
-0,                                          /*nb_coerce*/
+INITIALIZE_NB_COERCE_ZERO                   /*nb_coerce*/
 0,                       /*nb_int*/
 0,                      /*nb_long*/
 0,                     /*nb_float*/
-0,                       /*nb_oct*/
-0,                       /*nb_hex*/
+INITIALIZE_NB_OCT_ZERO   /*nb_oct*/
+INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
 (binaryfunc)Clip_inplace_add,              /*inplace_add*/
 (binaryfunc)Clip_inplace_sub,         /*inplace_subtract*/
 (binaryfunc)Clip_inplace_multiply,         /*inplace_multiply*/
@@ -1330,12 +1330,12 @@ static PyNumberMethods Mirror_as_number = {
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    0,                                          /*nb_coerce*/
+    INITIALIZE_NB_COERCE_ZERO                   /*nb_coerce*/
     0,                       /*nb_int*/
     0,                      /*nb_long*/
     0,                     /*nb_float*/
-    0,                       /*nb_oct*/
-    0,                       /*nb_hex*/
+    INITIALIZE_NB_OCT_ZERO   /*nb_oct*/
+    INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
     (binaryfunc)Mirror_inplace_add,              /*inplace_add*/
     (binaryfunc)Mirror_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)Mirror_inplace_multiply,         /*inplace_multiply*/
@@ -1822,12 +1822,12 @@ static PyNumberMethods Wrap_as_number = {
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    0,                                          /*nb_coerce*/
+    INITIALIZE_NB_COERCE_ZERO                   /*nb_coerce*/
     0,                       /*nb_int*/
     0,                      /*nb_long*/
     0,                     /*nb_float*/
-    0,                       /*nb_oct*/
-    0,                       /*nb_hex*/
+    INITIALIZE_NB_OCT_ZERO   /*nb_oct*/
+    INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
     (binaryfunc)Wrap_inplace_add,              /*inplace_add*/
     (binaryfunc)Wrap_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)Wrap_inplace_multiply,         /*inplace_multiply*/
@@ -2305,12 +2305,12 @@ static PyNumberMethods Degrade_as_number = {
 0,              /*nb_and*/
 0,              /*nb_xor*/
 0,               /*nb_or*/
-0,                                          /*nb_coerce*/
+INITIALIZE_NB_COERCE_ZERO                   /*nb_coerce*/
 0,                       /*nb_int*/
 0,                      /*nb_long*/
 0,                     /*nb_float*/
-0,                       /*nb_oct*/
-0,                       /*nb_hex*/
+INITIALIZE_NB_OCT_ZERO   /*nb_oct*/
+INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
 (binaryfunc)Degrade_inplace_add,              /*inplace_add*/
 (binaryfunc)Degrade_inplace_sub,         /*inplace_subtract*/
 (binaryfunc)Degrade_inplace_multiply,         /*inplace_multiply*/
@@ -2634,12 +2634,12 @@ static PyNumberMethods Min_as_number = {
 0,                                              /*nb_and*/
 0,                                              /*nb_xor*/
 0,                                              /*nb_or*/
-0,                                              /*nb_coerce*/
+INITIALIZE_NB_COERCE_ZERO                       /*nb_coerce*/
 0,                                              /*nb_int*/
 0,                                              /*nb_long*/
 0,                                              /*nb_float*/
-0,                                              /*nb_oct*/
-0,                                              /*nb_hex*/
+INITIALIZE_NB_OCT_ZERO                          /*nb_oct*/
+INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
 (binaryfunc)Min_inplace_add,                 /*inplace_add*/
 (binaryfunc)Min_inplace_sub,                 /*inplace_subtract*/
 (binaryfunc)Min_inplace_multiply,            /*inplace_multiply*/
@@ -2963,12 +2963,12 @@ static PyNumberMethods Max_as_number = {
 0,                                              /*nb_and*/
 0,                                              /*nb_xor*/
 0,                                              /*nb_or*/
-0,                                              /*nb_coerce*/
+INITIALIZE_NB_COERCE_ZERO                       /*nb_coerce*/
 0,                                              /*nb_int*/
 0,                                              /*nb_long*/
 0,                                              /*nb_float*/
-0,                                              /*nb_oct*/
-0,                                              /*nb_hex*/
+INITIALIZE_NB_OCT_ZERO                          /*nb_oct*/
+INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
 (binaryfunc)Max_inplace_add,                 /*inplace_add*/
 (binaryfunc)Max_inplace_sub,                 /*inplace_subtract*/
 (binaryfunc)Max_inplace_multiply,            /*inplace_multiply*/
