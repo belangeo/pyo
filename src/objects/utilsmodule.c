@@ -201,10 +201,10 @@ Print_setMessage(Print *self, PyObject *arg)
 {
     ASSERT_ARG_NOT_NULL
 
-	int isString = PyString_Check(arg);
+	int isString = PyUnicode_Check(arg);
 
 	if (isString == 1) {
-		self->message = PyString_AsString(arg);
+		self->message = PyBytes_AsString(arg);
 	}
 
 	Py_INCREF(Py_None);

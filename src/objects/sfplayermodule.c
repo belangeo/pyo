@@ -418,7 +418,7 @@ SfPlayer_setSound(SfPlayer *self, PyObject *arg)
 
     ASSERT_ARG_NOT_NULL
 
-    self->path = PyString_AsString(arg);
+    self->path = PyBytes_AsString(arg);
 
     sf_close(self->sf);
 

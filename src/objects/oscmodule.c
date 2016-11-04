@@ -46,7 +46,7 @@ int OscReceiver_handler(const char *path, const char *types, lo_arg **argv, int 
                         void *data, void *user_data)
 {
     OscReceiver *self = user_data;
-    PyDict_SetItem(self->dict, PyString_FromString(path), PyFloat_FromDouble(argv[0]->FLOAT_VALUE));
+    PyDict_SetItem(self->dict, PyUnicode_FromString(path), PyFloat_FromDouble(argv[0]->FLOAT_VALUE));
     return 0;
 }
 
@@ -138,7 +138,7 @@ static PyObject *
 OscReceiver_addAddress(OscReceiver *self, PyObject *arg)
 {
     int i;
-    if (PyString_Check(arg) || PyUnicode_Check(arg)) {
+    if (PyUnicode_Check(arg) || PyUnicode_Check(arg)) {
         PyDict_SetItem(self->dict, arg, PyFloat_FromDouble(0.));
     }
     else if (PyList_Check(arg)) {
@@ -155,7 +155,7 @@ static PyObject *
 OscReceiver_delAddress(OscReceiver *self, PyObject *arg)
 {
     int i;
-    if (PyString_Check(arg) || PyUnicode_Check(arg)) {
+    if (PyUnicode_Check(arg) || PyUnicode_Check(arg)) {
         PyDict_DelItem(self->dict, arg);
     }
     else if (PyList_Check(arg)) {
@@ -385,7 +385,7 @@ OscReceive_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
-    if (!PyString_Check(pathtmp) && !PyUnicode_Check(pathtmp)) {
+    if (!PyUnicode_Check(pathtmp) && !PyUnicode_Check(pathtmp)) {
         PyErr_SetString(PyExc_TypeError, "The address attributes must be a string or a unicode.");
         Py_RETURN_NONE;
     }
@@ -556,10 +556,10 @@ OscSend_compute_next_data_frame(OscSend *self)
         MYFLT *in = Stream_getData((Stream *)self->input_stream);
         float value = (float)in[0];
 
-        if (PyString_Check(self->address_path))
-            path = PyString_AsString(self->address_path);
+        if (PyUnicode_Check(self->address_path))
+            path = PyBytes_AsString(self->address_path);
         else
-            path = PyString_AsString(PyUnicode_AsASCIIString(self->address_path));
+            path = PyBytes_AsString(PyUnicode_AsASCIIString(self->address_path));
 
         if (lo_send(self->address, path, "f", value) == -1) {
             PySys_WriteStdout("OSC error %d: %s\n", lo_address_errno(self->address), 
@@ -620,8 +620,8 @@ OscSend_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
-    if (!PyString_Check(pathtmp) && !PyUnicode_Check(pathtmp)) {
-        PyErr_SetString(PyExc_TypeError, "The address attributes must be a string or a unicode.");
+    if (!PyBytes_Check(pathtmp) && !PyUnicode_Check(pathtmp)) {
+        PyErr_SetString(PyExc_TypeError, "The address attributes must be a string or a unicode (bytes or string in Python 3).");
         Py_RETURN_NONE;
     }
 
@@ -738,10 +738,10 @@ OscDataSend_compute_next_data_frame(OscDataSend *self)
     lo_message *msg;
 
     if (self->something_to_send == 1) {
-        if (PyString_Check(self->address_path))
-            path = PyString_AsString(self->address_path);
+        if (PyUnicode_Check(self->address_path))
+            path = PyBytes_AsString(self->address_path);
         else
-            path = PyString_AsString(PyUnicode_AsASCIIString(self->address_path));
+            path = PyBytes_AsString(PyUnicode_AsASCIIString(self->address_path));
         msg = lo_message_new();
 
         for (i=0; i<self->num_items; i++) {
@@ -759,17 +759,17 @@ OscDataSend_compute_next_data_frame(OscDataSend *self)
                     lo_message_add_double(msg, (double)PyFloat_AsDouble(PyList_GET_ITEM(self->value, i)));
                     break;
                 case LO_STRING:
-                    lo_message_add_string(msg, PyString_AsString(PyList_GET_ITEM(self->value, i)));
+                    lo_message_add_string(msg, PyBytes_AsString(PyList_GET_ITEM(self->value, i)));
                     break;
                 case LO_CHAR:
-                    lo_message_add_char(msg, (char)PyString_AsString(PyList_GET_ITEM(self->value, i))[0]);
+                    lo_message_add_char(msg, (char)PyBytes_AsString(PyList_GET_ITEM(self->value, i))[0]);
                     break;
                 case LO_BLOB:
                     datalist = PyList_GET_ITEM(self->value, i);
                     blobsize = PyList_Size(datalist);
                     blobdata = (char *)malloc(blobsize * sizeof(char));
                     for (j=0; j<blobsize; j++) {
-                        blobdata[j] = (char)PyString_AsString(PyList_GET_ITEM(datalist, j))[0];
+                        blobdata[j] = (char)PyBytes_AsString(PyList_GET_ITEM(datalist, j))[0];
                     }
                     blob = lo_blob_new(blobsize * sizeof(char), blobdata);
                     lo_message_add_blob(msg, blob);
@@ -853,8 +853,8 @@ OscDataSend_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
-    if (!PyString_Check(pathtmp) && !PyUnicode_Check(pathtmp)) {
-        PyErr_SetString(PyExc_TypeError, "The address attributes must be of type string or unicode.");
+    if (!PyBytes_Check(pathtmp) && !PyUnicode_Check(pathtmp)) {
+        PyErr_SetString(PyExc_TypeError, "The address attributes must be of type string or unicode (bytes or string in Python 3).");
         Py_RETURN_NONE;
     }
 
@@ -978,21 +978,21 @@ int OscDataReceive_handler(const char *path, const char *types, lo_arg **argv, i
 
     Py_ssize_t lsize = PyList_Size(self->address_path);
     for (i=0; i<lsize; i++) {
-        if (PyString_Check(PyList_GET_ITEM(self->address_path, i))) {
-            if (lo_pattern_match(path, PyString_AsString(PyList_GET_ITEM(self->address_path, i)))) {
+        if (PyUnicode_Check(PyList_GET_ITEM(self->address_path, i))) {
+            if (lo_pattern_match(path, PyBytes_AsString(PyList_GET_ITEM(self->address_path, i)))) {
                 ok = 1;
                 break;
             }
         }
         else {
-            if (lo_pattern_match(path, PyString_AsString(PyUnicode_AsASCIIString(PyList_GET_ITEM(self->address_path, i))))) {
+            if (lo_pattern_match(path, PyBytes_AsString(PyUnicode_AsASCIIString(PyList_GET_ITEM(self->address_path, i))))) {
                 ok = 1;
                 break;
             }
         }
     }
     if (ok) {
-        PyTuple_SET_ITEM(tup, 0, PyString_FromString(path));
+        PyTuple_SET_ITEM(tup, 0, PyUnicode_FromString(path));
         for (i=0; i<argc; i++) {
             switch (types[i]) {
                 case LO_INT32:
@@ -1008,10 +1008,10 @@ int OscDataReceive_handler(const char *path, const char *types, lo_arg **argv, i
                     PyTuple_SET_ITEM(tup, i+1, PyFloat_FromDouble(argv[i]->d));
                     break;
                 case LO_STRING:
-                    PyTuple_SET_ITEM(tup, i+1, PyString_FromString(&argv[i]->s));
+                    PyTuple_SET_ITEM(tup, i+1, PyUnicode_FromString(&argv[i]->s));
                     break;
                 case LO_CHAR:
-                    PyTuple_SET_ITEM(tup, i+1, PyString_FromFormat("%c", argv[i]->c));
+                    PyTuple_SET_ITEM(tup, i+1, PyUnicode_FromFormat("%c", argv[i]->c));
                     break;
                 case LO_BLOB:
                     blob = (lo_blob)argv[i];
@@ -1019,7 +1019,7 @@ int OscDataReceive_handler(const char *path, const char *types, lo_arg **argv, i
                     blobdata = lo_blob_dataptr(blob);
                     charlist = PyList_New(blobsize);
                     for (j=0; j<blobsize; j++) {
-                        PyList_SET_ITEM(charlist, j, PyString_FromFormat("%c", blobdata[j]));
+                        PyList_SET_ITEM(charlist, j, PyUnicode_FromFormat("%c", blobdata[j]));
                     }
                     PyTuple_SET_ITEM(tup, i+1, charlist);
                     break;
@@ -1138,7 +1138,7 @@ static PyObject *
 OscDataReceive_addAddress(OscDataReceive *self, PyObject *arg) {
     int i;
     if (arg != NULL) {
-        if (PyString_Check(arg) || PyUnicode_Check(arg))
+        if (PyBytes_Check(arg) || PyUnicode_Check(arg))
             PyList_Append(self->address_path, arg);
         else if (PyList_Check(arg)) {
             Py_ssize_t len = PyList_Size(arg);
@@ -1243,7 +1243,7 @@ int OscListReceiver_handler(const char *path, const char *types, lo_arg **argv, 
     for (i=0; i<self->num; i++) {
         PyList_SET_ITEM(flist, i, PyFloat_FromDouble(argv[i]->FLOAT_VALUE));
     }
-    PyDict_SetItem(self->dict, PyString_FromString(path), flist);
+    PyDict_SetItem(self->dict, PyUnicode_FromString(path), flist);
     return 0;
 }
 
@@ -1344,7 +1344,7 @@ OscListReceiver_addAddress(OscListReceiver *self, PyObject *arg)
     PyObject *flist;
     int i, j;
 
-    if (PyString_Check(arg) || PyUnicode_Check(arg)) {
+    if (PyBytes_Check(arg) || PyUnicode_Check(arg)) {
         flist = PyList_New(self->num);
         for (j=0; j<self->num; j++) {
             PyList_SET_ITEM(flist, j, PyFloat_FromDouble(0.));
@@ -1369,7 +1369,7 @@ static PyObject *
 OscListReceiver_delAddress(OscListReceiver *self, PyObject *arg)
 {
     int i;
-    if (PyString_Check(arg) || PyUnicode_Check(arg)) {
+    if (PyBytes_Check(arg) || PyUnicode_Check(arg)) {
         PyDict_DelItem(self->dict, arg);
     }
     else if (PyList_Check(arg)) {
@@ -1603,7 +1603,7 @@ OscListReceive_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
-    if (!PyString_Check(pathtmp) && !PyUnicode_Check(pathtmp)) {
+    if (!PyBytes_Check(pathtmp) && !PyUnicode_Check(pathtmp)) {
         PyErr_SetString(PyExc_TypeError, "OscListReceive: the address attributes must be a string or a unicode.");
         Py_RETURN_NONE;
     }

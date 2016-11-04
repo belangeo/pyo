@@ -405,7 +405,7 @@ sndinfo(PyObject *self, PyObject *args, PyObject *kwds) {
                           fileformat, sampletype);
     PyObject *sndinfo = PyTuple_Pack(6, PyInt_FromLong(info.frames), PyFloat_FromDouble((float)info.frames / info.samplerate),
                                         PyFloat_FromDouble(info.samplerate), PyInt_FromLong(info.channels), 
-                                        PyString_FromString(fileformat), PyString_FromString(sampletype));
+                                        PyUnicode_FromString(fileformat), PyUnicode_FromString(sampletype));
     sf_close(sf);
     return sndinfo;
 }

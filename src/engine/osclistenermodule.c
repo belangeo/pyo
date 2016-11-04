@@ -59,7 +59,7 @@ int process_osc(const char *path, const char *types, lo_arg **argv, int argc,
     unsigned int j = 0;
 
     PyGILState_STATE s = PyGILState_Ensure();
-    PyTuple_SET_ITEM(tup, 0, PyString_FromString(path));
+    PyTuple_SET_ITEM(tup, 0, PyUnicode_FromString(path));
     for (i=0; i<argc; i++) {
         switch (types[i]) {
             case LO_INT32:
@@ -75,10 +75,10 @@ int process_osc(const char *path, const char *types, lo_arg **argv, int argc,
                 PyTuple_SET_ITEM(tup, i+1, PyFloat_FromDouble(argv[i]->d));
                 break;
             case LO_STRING:
-                PyTuple_SET_ITEM(tup, i+1, PyString_FromString(&argv[i]->s));
+                PyTuple_SET_ITEM(tup, i+1, PyUnicode_FromString(&argv[i]->s));
                 break;
             case LO_CHAR:
-                PyTuple_SET_ITEM(tup, i+1, PyString_FromFormat("%c", argv[i]->c));
+                PyTuple_SET_ITEM(tup, i+1, PyUnicode_FromFormat("%c", argv[i]->c));
                 break;
             case LO_BLOB:
                 blob = (lo_blob)argv[i];
@@ -86,7 +86,7 @@ int process_osc(const char *path, const char *types, lo_arg **argv, int argc,
                 blobdata = lo_blob_dataptr(blob);
                 charlist = PyList_New(blobsize);
                 for (j=0; j<blobsize; j++) {
-                    PyList_SET_ITEM(charlist, j, PyString_FromFormat("%c", blobdata[j]));
+                    PyList_SET_ITEM(charlist, j, PyUnicode_FromFormat("%c", blobdata[j]));
                 }
                 PyTuple_SET_ITEM(tup, i+1, charlist);
                 break;

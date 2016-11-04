@@ -423,7 +423,7 @@ portmidi_get_input_devices() {
         for (i=0; i < n; i++){
             const PmDeviceInfo *info = Pm_GetDeviceInfo(i);
             if (info->input){
-                PyList_Append(list, PyString_FromString(info->name));
+                PyList_Append(list, PyUnicode_FromString(info->name));
                 PyList_Append(list_index, PyInt_FromLong(i));
             }
         }
@@ -446,7 +446,7 @@ portmidi_get_output_devices() {
         for (i=0; i < n; i++){
             const PmDeviceInfo *info = Pm_GetDeviceInfo(i);
             if (info->output){
-                PyList_Append(list, PyString_FromString(info->name));
+                PyList_Append(list, PyUnicode_FromString(info->name));
                 PyList_Append(list_index, PyInt_FromLong(i));
             }
         }

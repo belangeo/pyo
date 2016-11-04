@@ -1854,7 +1854,7 @@ Server_getInputAddr(Server *self)
 {
     char address[32];
     sprintf(address, "%p", &self->input_buffer[0]);
-    return PyString_FromString(address);
+    return PyUnicode_FromString(address);
 }
 
 
@@ -1863,7 +1863,7 @@ Server_getOutputAddr(Server *self)
 {
     char address[32];
     sprintf(address, "%p", &self->output_buffer[0]);
-    return PyString_FromString(address);
+    return PyUnicode_FromString(address);
 }
 
 static PyObject *
@@ -1877,7 +1877,7 @@ Server_getServerAddr(Server *self)
 {
     char address[32];
     sprintf(address, "%p", &my_server[self->thisServerID]);
-    return PyString_FromString(address);
+    return PyUnicode_FromString(address);
 }
 
 void
@@ -1892,7 +1892,7 @@ Server_getThisServerFunc(Server *self)
 {
     char address[32];
     sprintf(address, "%p", &Server_getThisServer);
-    return PyString_FromString(address);
+    return PyUnicode_FromString(address);
 }
 */
 
@@ -1901,7 +1901,7 @@ Server_getEmbedICallbackAddr(Server *self)
 {
     char address[32];
     sprintf(address, "%p", &Server_embedded_i_startIdx);
-    return PyString_FromString(address);
+    return PyUnicode_FromString(address);
 }
 
 static PyObject *
@@ -1920,7 +1920,7 @@ Server_getCurrentTime(Server *self)
     minutes = minutes % 60;
     seconds = seconds % 60;
     sprintf(curtime, "%02d : %02d : %02d : %03d", hours, minutes, seconds, milliseconds);
-    return PyString_FromString(curtime);
+    return PyUnicode_FromString(curtime);
 }
 
 static PyObject *

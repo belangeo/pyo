@@ -58,7 +58,7 @@ inline unsigned long pyo_get_input_buffer_address(PyThreadState *interp) {
     PyEval_AcquireThread(interp);
     module = PyImport_AddModule("__main__");
     obj = PyObject_GetAttrString(module, "_in_address_");
-    address = PyString_AsString(obj);
+    address = PyBytes_AsString(obj);
     uadd = strtoul(address, NULL, 0);
     PyEval_ReleaseThread(interp);
     return uadd;
@@ -80,7 +80,7 @@ inline unsigned long long pyo_get_input_buffer_address_64(PyThreadState *interp)
     PyEval_AcquireThread(interp);
     module = PyImport_AddModule("__main__");
     obj = PyObject_GetAttrString(module, "_in_address_");
-    address = PyString_AsString(obj);
+    address = PyBytes_AsString(obj);
     uadd = strtoull(address, NULL, 0);
     PyEval_ReleaseThread(interp);
     return uadd;
@@ -102,7 +102,7 @@ inline unsigned long pyo_get_output_buffer_address(PyThreadState *interp) {
     PyEval_AcquireThread(interp);
     module = PyImport_AddModule("__main__");
     obj = PyObject_GetAttrString(module, "_out_address_");
-    address = PyString_AsString(obj);
+    address = PyBytes_AsString(obj);
     uadd = strtoul(address, NULL, 0);
     PyEval_ReleaseThread(interp);
     return uadd;
@@ -130,7 +130,7 @@ inline unsigned long pyo_get_embedded_callback_address(PyThreadState *interp) {
     PyEval_AcquireThread(interp);
     module = PyImport_AddModule("__main__");
     obj = PyObject_GetAttrString(module, "_emb_callback_");
-    address = PyString_AsString(obj);
+    address = PyBytes_AsString(obj);
     uadd = strtoul(address, NULL, 0);
     PyEval_ReleaseThread(interp);
     return uadd;
@@ -324,7 +324,7 @@ inline int pyo_exec_statement(PyThreadState *interp, char *msg, int debug) {
         module = PyImport_AddModule("__main__");
         obj = PyObject_GetAttrString(module, "_error_");
         if (obj != Py_None) {
-            strcpy(msg, PyString_AsString(obj));
+            strcpy(msg, PyBytes_AsString(obj));
             err = 1;
         }
         PyEval_ReleaseThread(interp);
