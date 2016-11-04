@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import division
 from __future__ import print_function
+from __future__ import absolute_import
 """
 Copyright 2009-2015 Olivier Belanger
 
@@ -33,8 +34,8 @@ else:
     import pyo as current_pyo
     from _pyo import *
 
-from _maps import *
-from _widgets import createCtrlWindow, createViewTableWindow, createViewMatrixWindow
+from ._maps import *
+from ._widgets import createCtrlWindow, createViewTableWindow, createViewMatrixWindow
 
 ######################################################################
 ### Utilities

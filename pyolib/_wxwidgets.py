@@ -1,4 +1,5 @@
 from __future__ import print_function
+from __future__ import absolute_import
 """
 Copyright 2009-2015 Olivier Belanger
 
@@ -884,7 +885,7 @@ class Command:
 class PyoObjectControl(wx.Frame):
     def __init__(self, parent=None, obj=None, map_list=None):
         wx.Frame.__init__(self, parent)
-        from controls import SigTo
+        from .controls import SigTo
         self.menubar = wx.MenuBar()
         self.fileMenu = wx.Menu()
         self.fileMenu.Append(-1, 'Close\tCtrl+W', kind=wx.ITEM_NORMAL)

@@ -8,6 +8,7 @@ used as controls and can't be sent to the output soundcard.
 
 """
 
+from __future__ import absolute_import
 """
 Copyright 2009-2015 Olivier Belanger
 
@@ -28,8 +29,8 @@ You should have received a copy of the GNU Lesser General Public
 License along with pyo.  If not, see <http://www.gnu.org/licenses/>.
 """
 import sys
-from _core import *
-from _maps import *
+from ._core import *
+from ._maps import *
 
 ######################################################################
 ### MIDI

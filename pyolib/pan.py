@@ -1,4 +1,5 @@
 from __future__ import print_function
+from __future__ import absolute_import
 """
 Set of objects to manage audio voice routing and spread of a sound
 signal into a new stereo or multi-channel sound field.
@@ -25,8 +26,8 @@ You should have received a copy of the GNU Lesser General Public
 License along with pyo.  If not, see <http://www.gnu.org/licenses/>.
 """
 import sys, random
-from _core import *
-from _maps import *
+from ._core import *
+from ._maps import *
 from types import SliceType
 
 class Pan(PyoObject):

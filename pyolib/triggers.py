@@ -1,4 +1,5 @@
 from __future__ import print_function
+from __future__ import absolute_import
 """
 Set of objects to manage triggers streams.
 
@@ -27,9 +28,9 @@ GNU Lesser General Public License for more details.
 You should have received a copy of the GNU Lesser General Public
 License along with pyo.  If not, see <http://www.gnu.org/licenses/>.
 """
-from _core import *
-from _maps import *
-from _widgets import createGraphWindow
+from ._core import *
+from ._maps import *
+from ._widgets import createGraphWindow
 from types import SliceType, ListType, TupleType
 import weakref
 

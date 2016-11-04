@@ -5,7 +5,8 @@ control and the visualization of audio signals. WxPython must be installed
 under the current Python distribution to access these classes.
 
 """
-from _widgets import PYO_USE_WX
+from __future__ import absolute_import
+from ._widgets import PYO_USE_WX
 
 if not PYO_USE_WX:
     NO_WX_MESSAGE = "WxPython must be installed on the system to use pyo's wx widgets."
@@ -33,8 +34,8 @@ if not PYO_USE_WX:
 else:
     import wx
     import wx.lib.newevent
-    from _wxwidgets import ControlSlider, VuMeter, Grapher, DataMultiSlider
-    from _wxwidgets import SpectrumPanel, ScopePanel, SndViewTablePanel, HRangeSlider
+    from ._wxwidgets import ControlSlider, VuMeter, Grapher, DataMultiSlider
+    from ._wxwidgets import SpectrumPanel, ScopePanel, SndViewTablePanel, HRangeSlider
     
     # Custom events
     PyoGuiControlSliderEvent, EVT_PYO_GUI_CONTROL_SLIDER = wx.lib.newevent.NewEvent()

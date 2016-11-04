@@ -1,4 +1,5 @@
 from __future__ import print_function
+from __future__ import absolute_import
 """
 Objects to manage values on an Open Sound Control port.
 
@@ -35,8 +36,8 @@ GNU Lesser General Public License for more details.
 You should have received a copy of the GNU Lesser General Public
 License along with pyo.  If not, see <http://www.gnu.org/licenses/>.
 """
-from _core import *
-from _maps import *
+from ._core import *
+from ._maps import *
 from types import ListType, StringType, UnicodeType
 
 def assertOSCSupport(obj):

@@ -7,6 +7,7 @@ time scaling, pitch transposition, and myriad other modifications of sounds.
 
 """
 
+from __future__ import absolute_import
 """
 Copyright 2009-2015 Olivier Belanger
 
@@ -26,10 +27,10 @@ GNU Lesser General Public License for more details.
 You should have received a copy of the GNU Lesser General Public
 License along with pyo.  If not, see <http://www.gnu.org/licenses/>.
 """
-from _core import *
-from _maps import *
-from _widgets import createSpectrumWindow
-from pattern import Pattern
+from ._core import *
+from ._maps import *
+from ._widgets import createSpectrumWindow
+from .pattern import Pattern
 
 class PVAnal(PyoPVObject):
     """

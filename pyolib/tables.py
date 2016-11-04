@@ -1,4 +1,5 @@
 from __future__ import print_function
+from __future__ import absolute_import
 """
 Copyright 2009-2015 Olivier Belanger
 
@@ -18,9 +19,9 @@ GNU Lesser General Public License for more details.
 You should have received a copy of the GNU Lesser General Public
 License along with pyo.  If not, see <http://www.gnu.org/licenses/>.
 """
-from _core import *
-from _maps import *
-from _widgets import createGraphWindow, createDataGraphWindow, createSndViewTableWindow
+from ._core import *
+from ._maps import *
+from ._widgets import createGraphWindow, createDataGraphWindow, createSndViewTableWindow
 from types import ListType
 from math import pi
 import copy

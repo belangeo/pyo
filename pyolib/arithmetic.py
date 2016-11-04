@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 """
 Tools to perform arithmetic operations on audio signals.
 
@@ -22,8 +23,8 @@ You should have received a copy of the GNU Lesser General Public
 License along with pyo.  If not, see <http://www.gnu.org/licenses/>.
 """
 
-from _core import *
-from _maps import *
+from ._core import *
+from ._maps import *
 
 class Sin(PyoObject):
     """

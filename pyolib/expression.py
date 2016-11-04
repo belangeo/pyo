@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 """
 Prefix expression evaluators.
 
@@ -250,9 +251,9 @@ You should have received a copy of the GNU Lesser General Public
 License along with pyo.  If not, see <http://www.gnu.org/licenses/>.
 """
 import os
-from _core import *
-from _maps import *
-from _widgets import createExprEditorWindow
+from ._core import *
+from ._maps import *
+from ._widgets import createExprEditorWindow
 
 class Expr(PyoObject):
     """

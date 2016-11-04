@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import print_function
+from __future__ import absolute_import
 """
 Copyright 2009-2015 Olivier Belanger
 
@@ -36,7 +37,7 @@ try:
     except:
         pass
     import wx
-    from _wxwidgets import *
+    from ._wxwidgets import *
     PYO_USE_WX = True
 except:
     PYO_USE_WX = False
@@ -45,7 +46,7 @@ PYO_USE_TK = False
 if not PYO_USE_WX:
     try:
         from Tkinter import *
-        from _tkwidgets import *
+        from ._tkwidgets import *
         PYO_USE_TK = True
         print("""
 WxPython is not found for the current python version.

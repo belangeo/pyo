@@ -2,6 +2,7 @@
 Set of objects that implement different kinds of random noise generators.
 
 """
+from __future__ import absolute_import
 """
 Copyright 2009-2015 Olivier Belanger
 
@@ -21,8 +22,8 @@ GNU Lesser General Public License for more details.
 You should have received a copy of the GNU Lesser General Public
 License along with pyo.  If not, see <http://www.gnu.org/licenses/>.
 """
-from _core import *
-from _maps import *
+from ._core import *
+from ._maps import *
 from types import StringType, ListType
 
 class Randi(PyoObject):

@@ -1,4 +1,5 @@
 from __future__ import print_function
+from __future__ import absolute_import
 """
 Copyright 2009-2015 Olivier Belanger
 
@@ -104,7 +105,7 @@ class Command:
 class PyoObjectControl(Frame):
     def __init__(self, master=None, obj=None, map_list=None):
         Frame.__init__(self, master, bd=1, relief=GROOVE)
-        from controls import SigTo
+        from .controls import SigTo
         self.bind('<Destroy>', self._destroy)
         self._obj = obj
         self._map_list = map_list
