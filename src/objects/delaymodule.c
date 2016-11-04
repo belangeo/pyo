@@ -494,7 +494,7 @@ static PyNumberMethods Delay_as_number = {
     (binaryfunc)Delay_add,                      /*nb_add*/
     (binaryfunc)Delay_sub,                 /*nb_subtract*/
     (binaryfunc)Delay_multiply,                 /*nb_multiply*/
-    (binaryfunc)Delay_div,                   /*nb_divide*/
+    INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
     0,                /*nb_remainder*/
     0,                   /*nb_divmod*/
     0,                   /*nb_power*/
@@ -517,7 +517,7 @@ static PyNumberMethods Delay_as_number = {
     (binaryfunc)Delay_inplace_add,              /*inplace_add*/
     (binaryfunc)Delay_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)Delay_inplace_multiply,         /*inplace_multiply*/
-    (binaryfunc)Delay_inplace_div,           /*inplace_divide*/
+    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
     0,        /*inplace_remainder*/
     0,           /*inplace_power*/
     0,       /*inplace_lshift*/
@@ -526,9 +526,9 @@ static PyNumberMethods Delay_as_number = {
     0,      /*inplace_xor*/
     0,       /*inplace_or*/
     0,             /*nb_floor_divide*/
-    0,              /*nb_true_divide*/
+    (binaryfunc)Delay_div,                       /*nb_true_divide*/
     0,     /*nb_inplace_floor_divide*/
-    0,      /*nb_inplace_true_divide*/
+    (binaryfunc)Delay_inplace_div,                       /*nb_inplace_true_divide*/
     0,                     /* nb_index */
 };
 
@@ -892,7 +892,7 @@ static PyNumberMethods SDelay_as_number = {
     (binaryfunc)SDelay_add,                      /*nb_add*/
     (binaryfunc)SDelay_sub,                 /*nb_subtract*/
     (binaryfunc)SDelay_multiply,                 /*nb_multiply*/
-    (binaryfunc)SDelay_div,                   /*nb_divide*/
+    INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
     0,                /*nb_remainder*/
     0,                   /*nb_divmod*/
     0,                   /*nb_power*/
@@ -915,7 +915,7 @@ static PyNumberMethods SDelay_as_number = {
     (binaryfunc)SDelay_inplace_add,              /*inplace_add*/
     (binaryfunc)SDelay_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)SDelay_inplace_multiply,         /*inplace_multiply*/
-    (binaryfunc)SDelay_inplace_div,           /*inplace_divide*/
+    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
     0,        /*inplace_remainder*/
     0,           /*inplace_power*/
     0,       /*inplace_lshift*/
@@ -924,9 +924,9 @@ static PyNumberMethods SDelay_as_number = {
     0,      /*inplace_xor*/
     0,       /*inplace_or*/
     0,             /*nb_floor_divide*/
-    0,              /*nb_true_divide*/
+    (binaryfunc)SDelay_div,                       /*nb_true_divide*/
     0,     /*nb_inplace_floor_divide*/
-    0,      /*nb_inplace_true_divide*/
+    (binaryfunc)SDelay_inplace_div,                       /*nb_inplace_true_divide*/
     0,                     /* nb_index */
 };
 
@@ -1615,7 +1615,7 @@ static PyNumberMethods Waveguide_as_number = {
 (binaryfunc)Waveguide_add,                      /*nb_add*/
 (binaryfunc)Waveguide_sub,                 /*nb_subtract*/
 (binaryfunc)Waveguide_multiply,                 /*nb_multiply*/
-(binaryfunc)Waveguide_div,                   /*nb_divide*/
+INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
 0,                /*nb_remainder*/
 0,                   /*nb_divmod*/
 0,                   /*nb_power*/
@@ -1638,7 +1638,7 @@ INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
 (binaryfunc)Waveguide_inplace_add,              /*inplace_add*/
 (binaryfunc)Waveguide_inplace_sub,         /*inplace_subtract*/
 (binaryfunc)Waveguide_inplace_multiply,         /*inplace_multiply*/
-(binaryfunc)Waveguide_inplace_div,           /*inplace_divide*/
+INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
 0,        /*inplace_remainder*/
 0,           /*inplace_power*/
 0,       /*inplace_lshift*/
@@ -1647,9 +1647,9 @@ INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
 0,      /*inplace_xor*/
 0,       /*inplace_or*/
 0,             /*nb_floor_divide*/
-0,              /*nb_true_divide*/
+(binaryfunc)Waveguide_div,                       /*nb_true_divide*/
 0,     /*nb_inplace_floor_divide*/
-0,      /*nb_inplace_true_divide*/
+(binaryfunc)Waveguide_inplace_div,                       /*nb_inplace_true_divide*/
 0,                     /* nb_index */
 };
 
@@ -2662,7 +2662,7 @@ static PyNumberMethods AllpassWG_as_number = {
     (binaryfunc)AllpassWG_add,                      /*nb_add*/
     (binaryfunc)AllpassWG_sub,                 /*nb_subtract*/
     (binaryfunc)AllpassWG_multiply,                 /*nb_multiply*/
-    (binaryfunc)AllpassWG_div,                   /*nb_divide*/
+    INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
     0,                /*nb_remainder*/
     0,                   /*nb_divmod*/
     0,                   /*nb_power*/
@@ -2685,7 +2685,7 @@ static PyNumberMethods AllpassWG_as_number = {
     (binaryfunc)AllpassWG_inplace_add,              /*inplace_add*/
     (binaryfunc)AllpassWG_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)AllpassWG_inplace_multiply,         /*inplace_multiply*/
-    (binaryfunc)AllpassWG_inplace_div,           /*inplace_divide*/
+    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
     0,        /*inplace_remainder*/
     0,           /*inplace_power*/
     0,       /*inplace_lshift*/
@@ -2694,9 +2694,9 @@ static PyNumberMethods AllpassWG_as_number = {
     0,      /*inplace_xor*/
     0,       /*inplace_or*/
     0,             /*nb_floor_divide*/
-    0,              /*nb_true_divide*/
+    (binaryfunc)AllpassWG_div,                       /*nb_true_divide*/
     0,     /*nb_inplace_floor_divide*/
-    0,      /*nb_inplace_true_divide*/
+    (binaryfunc)AllpassWG_inplace_div,                       /*nb_inplace_true_divide*/
     0,                     /* nb_index */
 };
 
@@ -2929,7 +2929,7 @@ static PyNumberMethods Delay1_as_number = {
 (binaryfunc)Delay1_add,                         /*nb_add*/
 (binaryfunc)Delay1_sub,                         /*nb_subtract*/
 (binaryfunc)Delay1_multiply,                    /*nb_multiply*/
-(binaryfunc)Delay1_div,                                              /*nb_divide*/
+INITIALIZE_NB_DIVIDE_ZERO                       /*nb_divide*/
 0,                                              /*nb_remainder*/
 0,                                              /*nb_divmod*/
 0,                                              /*nb_power*/
@@ -2952,7 +2952,7 @@ INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
 (binaryfunc)Delay1_inplace_add,                 /*inplace_add*/
 (binaryfunc)Delay1_inplace_sub,                 /*inplace_subtract*/
 (binaryfunc)Delay1_inplace_multiply,            /*inplace_multiply*/
-(binaryfunc)Delay1_inplace_div,                                              /*inplace_divide*/
+INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO                                           /*inplace_divide*/
 0,                                              /*inplace_remainder*/
 0,                                              /*inplace_power*/
 0,                                              /*inplace_lshift*/
@@ -2961,9 +2961,9 @@ INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
 0,                                              /*inplace_xor*/
 0,                                              /*inplace_or*/
 0,                                              /*nb_floor_divide*/
-0,                                              /*nb_true_divide*/
+(binaryfunc)Delay1_div,                       /*nb_true_divide*/
 0,                                              /*nb_inplace_floor_divide*/
-0,                                              /*nb_inplace_true_divide*/
+(binaryfunc)Delay1_inplace_div,                       /*nb_inplace_true_divide*/
 0,                                              /* nb_index */
 };
 
@@ -3632,7 +3632,7 @@ static PyNumberMethods SmoothDelay_as_number = {
     (binaryfunc)SmoothDelay_add,                      /*nb_add*/
     (binaryfunc)SmoothDelay_sub,                 /*nb_subtract*/
     (binaryfunc)SmoothDelay_multiply,                 /*nb_multiply*/
-    (binaryfunc)SmoothDelay_div,                   /*nb_divide*/
+    INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
     0,                /*nb_remainder*/
     0,                   /*nb_divmod*/
     0,                   /*nb_power*/
@@ -3655,7 +3655,7 @@ static PyNumberMethods SmoothDelay_as_number = {
     (binaryfunc)SmoothDelay_inplace_add,              /*inplace_add*/
     (binaryfunc)SmoothDelay_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)SmoothDelay_inplace_multiply,         /*inplace_multiply*/
-    (binaryfunc)SmoothDelay_inplace_div,           /*inplace_divide*/
+    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
     0,        /*inplace_remainder*/
     0,           /*inplace_power*/
     0,       /*inplace_lshift*/
@@ -3664,9 +3664,9 @@ static PyNumberMethods SmoothDelay_as_number = {
     0,      /*inplace_xor*/
     0,       /*inplace_or*/
     0,             /*nb_floor_divide*/
-    0,              /*nb_true_divide*/
+    (binaryfunc)SmoothDelay_div,                       /*nb_true_divide*/
     0,     /*nb_inplace_floor_divide*/
-    0,      /*nb_inplace_true_divide*/
+    (binaryfunc)SmoothDelay_inplace_div,                       /*nb_inplace_true_divide*/
     0,                     /* nb_index */
 };
 

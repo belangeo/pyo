@@ -428,7 +428,7 @@ static PyNumberMethods Sine_as_number = {
 (binaryfunc)Sine_add,                      /*nb_add*/
 (binaryfunc)Sine_sub,                 /*nb_subtract*/
 (binaryfunc)Sine_multiply,                 /*nb_multiply*/
-(binaryfunc)Sine_div,                   /*nb_divide*/
+INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
 0,                /*nb_remainder*/
 0,                   /*nb_divmod*/
 0,                   /*nb_power*/
@@ -451,7 +451,7 @@ INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
 (binaryfunc)Sine_inplace_add,              /*inplace_add*/
 (binaryfunc)Sine_inplace_sub,         /*inplace_subtract*/
 (binaryfunc)Sine_inplace_multiply,         /*inplace_multiply*/
-(binaryfunc)Sine_inplace_div,           /*inplace_divide*/
+INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
 0,        /*inplace_remainder*/
 0,           /*inplace_power*/
 0,       /*inplace_lshift*/
@@ -460,9 +460,9 @@ INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
 0,      /*inplace_xor*/
 0,       /*inplace_or*/
 0,             /*nb_floor_divide*/
-0,              /*nb_true_divide*/
+(binaryfunc)Sine_div,                       /*nb_true_divide*/
 0,     /*nb_inplace_floor_divide*/
-0,      /*nb_inplace_true_divide*/
+(binaryfunc)Sine_inplace_div,                       /*nb_inplace_true_divide*/
 0,                     /* nb_index */
 };
 
@@ -966,7 +966,7 @@ static PyNumberMethods FastSine_as_number = {
 (binaryfunc)FastSine_add,                      /*nb_add*/
 (binaryfunc)FastSine_sub,                 /*nb_subtract*/
 (binaryfunc)FastSine_multiply,                 /*nb_multiply*/
-(binaryfunc)FastSine_div,                   /*nb_divide*/
+INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
 0,                /*nb_remainder*/
 0,                   /*nb_divmod*/
 0,                   /*nb_power*/
@@ -989,7 +989,7 @@ INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
 (binaryfunc)FastSine_inplace_add,              /*inplace_add*/
 (binaryfunc)FastSine_inplace_sub,         /*inplace_subtract*/
 (binaryfunc)FastSine_inplace_multiply,         /*inplace_multiply*/
-(binaryfunc)FastSine_inplace_div,           /*inplace_divide*/
+INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
 0,        /*inplace_remainder*/
 0,           /*inplace_power*/
 0,       /*inplace_lshift*/
@@ -998,9 +998,9 @@ INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
 0,      /*inplace_xor*/
 0,       /*inplace_or*/
 0,             /*nb_floor_divide*/
-0,              /*nb_true_divide*/
+(binaryfunc)FastSine_div,                       /*nb_true_divide*/
 0,     /*nb_inplace_floor_divide*/
-0,      /*nb_inplace_true_divide*/
+(binaryfunc)FastSine_inplace_div,                       /*nb_inplace_true_divide*/
 0,                     /* nb_index */
 };
 
@@ -1398,7 +1398,7 @@ static PyNumberMethods SineLoop_as_number = {
 	(binaryfunc)SineLoop_add,                      /*nb_add*/
 	(binaryfunc)SineLoop_sub,                 /*nb_subtract*/
 	(binaryfunc)SineLoop_multiply,                 /*nb_multiply*/
-	(binaryfunc)SineLoop_div,                   /*nb_divide*/
+	INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
 	0,                /*nb_remainder*/
 	0,                   /*nb_divmod*/
 	0,                   /*nb_power*/
@@ -1421,7 +1421,7 @@ static PyNumberMethods SineLoop_as_number = {
 	(binaryfunc)SineLoop_inplace_add,              /*inplace_add*/
 	(binaryfunc)SineLoop_inplace_sub,         /*inplace_subtract*/
 	(binaryfunc)SineLoop_inplace_multiply,         /*inplace_multiply*/
-	(binaryfunc)SineLoop_inplace_div,           /*inplace_divide*/
+	INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
 	0,        /*inplace_remainder*/
 	0,           /*inplace_power*/
 	0,       /*inplace_lshift*/
@@ -1430,9 +1430,9 @@ static PyNumberMethods SineLoop_as_number = {
 	0,      /*inplace_xor*/
 	0,       /*inplace_or*/
 	0,             /*nb_floor_divide*/
-	0,              /*nb_true_divide*/
+	(binaryfunc)SineLoop_div,                       /*nb_true_divide*/
 	0,     /*nb_inplace_floor_divide*/
-	0,      /*nb_inplace_true_divide*/
+	(binaryfunc)SineLoop_inplace_div,                       /*nb_inplace_true_divide*/
 	0,                     /* nb_index */
 };
 
@@ -1928,7 +1928,7 @@ static PyNumberMethods Osc_as_number = {
     (binaryfunc)Osc_add,                      /*nb_add*/
     (binaryfunc)Osc_sub,                 /*nb_subtract*/
     (binaryfunc)Osc_multiply,                 /*nb_multiply*/
-    (binaryfunc)Osc_div,                   /*nb_divide*/
+    INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
     0,                /*nb_remainder*/
     0,                   /*nb_divmod*/
     0,                   /*nb_power*/
@@ -1951,7 +1951,7 @@ static PyNumberMethods Osc_as_number = {
     (binaryfunc)Osc_inplace_add,              /*inplace_add*/
     (binaryfunc)Osc_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)Osc_inplace_multiply,         /*inplace_multiply*/
-    (binaryfunc)Osc_inplace_div,           /*inplace_divide*/
+    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
     0,        /*inplace_remainder*/
     0,           /*inplace_power*/
     0,       /*inplace_lshift*/
@@ -1960,9 +1960,9 @@ static PyNumberMethods Osc_as_number = {
     0,      /*inplace_xor*/
     0,       /*inplace_or*/
     0,             /*nb_floor_divide*/
-    0,              /*nb_true_divide*/
+    (binaryfunc)Osc_div,                       /*nb_true_divide*/
     0,     /*nb_inplace_floor_divide*/
-    0,      /*nb_inplace_true_divide*/
+    (binaryfunc)Osc_inplace_div,                       /*nb_inplace_true_divide*/
     0,                     /* nb_index */
 };
 
@@ -2418,7 +2418,7 @@ static PyNumberMethods OscLoop_as_number = {
     (binaryfunc)OscLoop_add,                      /*nb_add*/
     (binaryfunc)OscLoop_sub,                 /*nb_subtract*/
     (binaryfunc)OscLoop_multiply,                 /*nb_multiply*/
-    (binaryfunc)OscLoop_div,                   /*nb_divide*/
+    INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
     0,                /*nb_remainder*/
     0,                   /*nb_divmod*/
     0,                   /*nb_power*/
@@ -2441,7 +2441,7 @@ static PyNumberMethods OscLoop_as_number = {
     (binaryfunc)OscLoop_inplace_add,              /*inplace_add*/
     (binaryfunc)OscLoop_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)OscLoop_inplace_multiply,         /*inplace_multiply*/
-    (binaryfunc)OscLoop_inplace_div,           /*inplace_divide*/
+    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
     0,        /*inplace_remainder*/
     0,           /*inplace_power*/
     0,       /*inplace_lshift*/
@@ -2450,9 +2450,9 @@ static PyNumberMethods OscLoop_as_number = {
     0,      /*inplace_xor*/
     0,       /*inplace_or*/
     0,             /*nb_floor_divide*/
-    0,              /*nb_true_divide*/
+    (binaryfunc)OscLoop_div,                       /*nb_true_divide*/
     0,     /*nb_inplace_floor_divide*/
-    0,      /*nb_inplace_true_divide*/
+    (binaryfunc)OscLoop_inplace_div,                       /*nb_inplace_true_divide*/
     0,                     /* nb_index */
 };
 
@@ -2994,7 +2994,7 @@ static PyNumberMethods OscTrig_as_number = {
     (binaryfunc)OscTrig_add,                      /*nb_add*/
     (binaryfunc)OscTrig_sub,                 /*nb_subtract*/
     (binaryfunc)OscTrig_multiply,                 /*nb_multiply*/
-    (binaryfunc)OscTrig_div,                   /*nb_divide*/
+    INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
     0,                /*nb_remainder*/
     0,                   /*nb_divmod*/
     0,                   /*nb_power*/
@@ -3017,7 +3017,7 @@ static PyNumberMethods OscTrig_as_number = {
     (binaryfunc)OscTrig_inplace_add,              /*inplace_add*/
     (binaryfunc)OscTrig_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)OscTrig_inplace_multiply,         /*inplace_multiply*/
-    (binaryfunc)OscTrig_inplace_div,           /*inplace_divide*/
+    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
     0,        /*inplace_remainder*/
     0,           /*inplace_power*/
     0,       /*inplace_lshift*/
@@ -3026,9 +3026,9 @@ static PyNumberMethods OscTrig_as_number = {
     0,      /*inplace_xor*/
     0,       /*inplace_or*/
     0,             /*nb_floor_divide*/
-    0,              /*nb_true_divide*/
+    (binaryfunc)OscTrig_div,                       /*nb_true_divide*/
     0,     /*nb_inplace_floor_divide*/
-    0,      /*nb_inplace_true_divide*/
+    (binaryfunc)OscTrig_inplace_div,                       /*nb_inplace_true_divide*/
     0,                     /* nb_index */
 };
 
@@ -3457,7 +3457,7 @@ static PyNumberMethods Phasor_as_number = {
 (binaryfunc)Phasor_add,                      /*nb_add*/
 (binaryfunc)Phasor_sub,                 /*nb_subtract*/
 (binaryfunc)Phasor_multiply,                 /*nb_multiply*/
-(binaryfunc)Phasor_div,                   /*nb_divide*/
+INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
 0,                /*nb_remainder*/
 0,                   /*nb_divmod*/
 0,                   /*nb_power*/
@@ -3480,7 +3480,7 @@ INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
 (binaryfunc)Phasor_inplace_add,              /*inplace_add*/
 (binaryfunc)Phasor_inplace_sub,         /*inplace_subtract*/
 (binaryfunc)Phasor_inplace_multiply,         /*inplace_multiply*/
-(binaryfunc)Phasor_inplace_div,           /*inplace_divide*/
+INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
 0,        /*inplace_remainder*/
 0,           /*inplace_power*/
 0,       /*inplace_lshift*/
@@ -3489,9 +3489,9 @@ INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
 0,      /*inplace_xor*/
 0,       /*inplace_or*/
 0,             /*nb_floor_divide*/
-0,              /*nb_true_divide*/
+(binaryfunc)Phasor_div,                       /*nb_true_divide*/
 0,     /*nb_inplace_floor_divide*/
-0,      /*nb_inplace_true_divide*/
+(binaryfunc)Phasor_inplace_div,                       /*nb_inplace_true_divide*/
 0,                     /* nb_index */
 };
 
@@ -3791,7 +3791,7 @@ static PyNumberMethods Pointer_as_number = {
 (binaryfunc)Pointer_add,                      /*nb_add*/
 (binaryfunc)Pointer_sub,                 /*nb_subtract*/
 (binaryfunc)Pointer_multiply,                 /*nb_multiply*/
-(binaryfunc)Pointer_div,                   /*nb_divide*/
+INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
 0,                /*nb_remainder*/
 0,                   /*nb_divmod*/
 0,                   /*nb_power*/
@@ -3814,7 +3814,7 @@ INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
 (binaryfunc)Pointer_inplace_add,              /*inplace_add*/
 (binaryfunc)Pointer_inplace_sub,         /*inplace_subtract*/
 (binaryfunc)Pointer_inplace_multiply,         /*inplace_multiply*/
-(binaryfunc)Pointer_inplace_div,           /*inplace_divide*/
+INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
 0,        /*inplace_remainder*/
 0,           /*inplace_power*/
 0,       /*inplace_lshift*/
@@ -3823,9 +3823,9 @@ INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
 0,      /*inplace_xor*/
 0,       /*inplace_or*/
 0,             /*nb_floor_divide*/
-0,              /*nb_true_divide*/
+(binaryfunc)Pointer_div,                       /*nb_true_divide*/
 0,     /*nb_inplace_floor_divide*/
-0,      /*nb_inplace_true_divide*/
+(binaryfunc)Pointer_inplace_div,                       /*nb_inplace_true_divide*/
 0,                     /* nb_index */
 };
 
@@ -4193,7 +4193,7 @@ static PyNumberMethods Pointer2_as_number = {
 (binaryfunc)Pointer2_add,                      /*nb_add*/
 (binaryfunc)Pointer2_sub,                 /*nb_subtract*/
 (binaryfunc)Pointer2_multiply,                 /*nb_multiply*/
-(binaryfunc)Pointer2_div,                   /*nb_divide*/
+INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
 0,                /*nb_remainder*/
 0,                   /*nb_divmod*/
 0,                   /*nb_power*/
@@ -4216,7 +4216,7 @@ INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
 (binaryfunc)Pointer2_inplace_add,              /*inplace_add*/
 (binaryfunc)Pointer2_inplace_sub,         /*inplace_subtract*/
 (binaryfunc)Pointer2_inplace_multiply,         /*inplace_multiply*/
-(binaryfunc)Pointer2_inplace_div,           /*inplace_divide*/
+INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
 0,        /*inplace_remainder*/
 0,           /*inplace_power*/
 0,       /*inplace_lshift*/
@@ -4225,9 +4225,9 @@ INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
 0,      /*inplace_xor*/
 0,       /*inplace_or*/
 0,             /*nb_floor_divide*/
-0,              /*nb_true_divide*/
+(binaryfunc)Pointer2_div,                       /*nb_true_divide*/
 0,     /*nb_inplace_floor_divide*/
-0,      /*nb_inplace_true_divide*/
+(binaryfunc)Pointer2_inplace_div,                       /*nb_inplace_true_divide*/
 0,                     /* nb_index */
 };
 
@@ -4528,7 +4528,7 @@ static PyNumberMethods TableIndex_as_number = {
     (binaryfunc)TableIndex_add,                      /*nb_add*/
     (binaryfunc)TableIndex_sub,                 /*nb_subtract*/
     (binaryfunc)TableIndex_multiply,                 /*nb_multiply*/
-    (binaryfunc)TableIndex_div,                   /*nb_divide*/
+    INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
     0,                /*nb_remainder*/
     0,                   /*nb_divmod*/
     0,                   /*nb_power*/
@@ -4551,7 +4551,7 @@ static PyNumberMethods TableIndex_as_number = {
     (binaryfunc)TableIndex_inplace_add,              /*inplace_add*/
     (binaryfunc)TableIndex_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)TableIndex_inplace_multiply,         /*inplace_multiply*/
-    (binaryfunc)TableIndex_inplace_div,           /*inplace_divide*/
+    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
     0,        /*inplace_remainder*/
     0,           /*inplace_power*/
     0,       /*inplace_lshift*/
@@ -4560,9 +4560,9 @@ static PyNumberMethods TableIndex_as_number = {
     0,      /*inplace_xor*/
     0,       /*inplace_or*/
     0,             /*nb_floor_divide*/
-    0,              /*nb_true_divide*/
+    (binaryfunc)TableIndex_div,                       /*nb_true_divide*/
     0,     /*nb_inplace_floor_divide*/
-    0,      /*nb_inplace_true_divide*/
+    (binaryfunc)TableIndex_inplace_div,                       /*nb_inplace_true_divide*/
     0,                     /* nb_index */
 };
 
@@ -4871,7 +4871,7 @@ static PyNumberMethods Lookup_as_number = {
 (binaryfunc)Lookup_add,                      /*nb_add*/
 (binaryfunc)Lookup_sub,                 /*nb_subtract*/
 (binaryfunc)Lookup_multiply,                 /*nb_multiply*/
-(binaryfunc)Lookup_div,                   /*nb_divide*/
+INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
 0,                /*nb_remainder*/
 0,                   /*nb_divmod*/
 0,                   /*nb_power*/
@@ -4894,7 +4894,7 @@ INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
 (binaryfunc)Lookup_inplace_add,              /*inplace_add*/
 (binaryfunc)Lookup_inplace_sub,         /*inplace_subtract*/
 (binaryfunc)Lookup_inplace_multiply,         /*inplace_multiply*/
-(binaryfunc)Lookup_inplace_div,           /*inplace_divide*/
+INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
 0,        /*inplace_remainder*/
 0,           /*inplace_power*/
 0,       /*inplace_lshift*/
@@ -4903,9 +4903,9 @@ INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
 0,      /*inplace_xor*/
 0,       /*inplace_or*/
 0,             /*nb_floor_divide*/
-0,              /*nb_true_divide*/
+(binaryfunc)Lookup_div,                       /*nb_true_divide*/
 0,     /*nb_inplace_floor_divide*/
-0,      /*nb_inplace_true_divide*/
+(binaryfunc)Lookup_inplace_div,                       /*nb_inplace_true_divide*/
 0,                     /* nb_index */
 };
 
@@ -5718,7 +5718,7 @@ static PyNumberMethods Pulsar_as_number = {
 (binaryfunc)Pulsar_add,                      /*nb_add*/
 (binaryfunc)Pulsar_sub,                 /*nb_subtract*/
 (binaryfunc)Pulsar_multiply,                 /*nb_multiply*/
-(binaryfunc)Pulsar_div,                   /*nb_divide*/
+INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
 0,                /*nb_remainder*/
 0,                   /*nb_divmod*/
 0,                   /*nb_power*/
@@ -5741,7 +5741,7 @@ INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
 (binaryfunc)Pulsar_inplace_add,              /*inplace_add*/
 (binaryfunc)Pulsar_inplace_sub,         /*inplace_subtract*/
 (binaryfunc)Pulsar_inplace_multiply,         /*inplace_multiply*/
-(binaryfunc)Pulsar_inplace_div,           /*inplace_divide*/
+INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
 0,        /*inplace_remainder*/
 0,           /*inplace_power*/
 0,       /*inplace_lshift*/
@@ -5750,9 +5750,9 @@ INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
 0,      /*inplace_xor*/
 0,       /*inplace_or*/
 0,             /*nb_floor_divide*/
-0,              /*nb_true_divide*/
+(binaryfunc)Pulsar_div,                       /*nb_true_divide*/
 0,     /*nb_inplace_floor_divide*/
-0,      /*nb_inplace_true_divide*/
+(binaryfunc)Pulsar_inplace_div,                       /*nb_inplace_true_divide*/
 0,                     /* nb_index */
 };
 
@@ -6225,7 +6225,7 @@ static PyNumberMethods TableRead_as_number = {
 (binaryfunc)TableRead_add,                      /*nb_add*/
 (binaryfunc)TableRead_sub,                 /*nb_subtract*/
 (binaryfunc)TableRead_multiply,                 /*nb_multiply*/
-(binaryfunc)TableRead_div,                   /*nb_divide*/
+INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
 0,                /*nb_remainder*/
 0,                   /*nb_divmod*/
 0,                   /*nb_power*/
@@ -6248,7 +6248,7 @@ INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
 (binaryfunc)TableRead_inplace_add,              /*inplace_add*/
 (binaryfunc)TableRead_inplace_sub,         /*inplace_subtract*/
 (binaryfunc)TableRead_inplace_multiply,         /*inplace_multiply*/
-(binaryfunc)TableRead_inplace_div,           /*inplace_divide*/
+INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
 0,        /*inplace_remainder*/
 0,           /*inplace_power*/
 0,       /*inplace_lshift*/
@@ -6257,9 +6257,9 @@ INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
 0,      /*inplace_xor*/
 0,       /*inplace_or*/
 0,             /*nb_floor_divide*/
-0,              /*nb_true_divide*/
+(binaryfunc)TableRead_div,                       /*nb_true_divide*/
 0,     /*nb_inplace_floor_divide*/
-0,      /*nb_inplace_true_divide*/
+(binaryfunc)TableRead_inplace_div,                       /*nb_inplace_true_divide*/
 0,                     /* nb_index */
 };
 
@@ -6870,7 +6870,7 @@ static PyNumberMethods Fm_as_number = {
 (binaryfunc)Fm_add,                      /*nb_add*/
 (binaryfunc)Fm_sub,                 /*nb_subtract*/
 (binaryfunc)Fm_multiply,                 /*nb_multiply*/
-(binaryfunc)Fm_div,                   /*nb_divide*/
+INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
 0,                /*nb_remainder*/
 0,                   /*nb_divmod*/
 0,                   /*nb_power*/
@@ -6893,7 +6893,7 @@ INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
 (binaryfunc)Fm_inplace_add,              /*inplace_add*/
 (binaryfunc)Fm_inplace_sub,         /*inplace_subtract*/
 (binaryfunc)Fm_inplace_multiply,         /*inplace_multiply*/
-(binaryfunc)Fm_inplace_div,           /*inplace_divide*/
+INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
 0,        /*inplace_remainder*/
 0,           /*inplace_power*/
 0,       /*inplace_lshift*/
@@ -6902,9 +6902,9 @@ INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
 0,      /*inplace_xor*/
 0,       /*inplace_or*/
 0,             /*nb_floor_divide*/
-0,              /*nb_true_divide*/
+(binaryfunc)Fm_div,                       /*nb_true_divide*/
 0,     /*nb_inplace_floor_divide*/
-0,      /*nb_inplace_true_divide*/
+(binaryfunc)Fm_inplace_div,                       /*nb_inplace_true_divide*/
 0,                     /* nb_index */
 };
 
@@ -7386,7 +7386,7 @@ static PyNumberMethods CrossFm_as_number = {
     (binaryfunc)CrossFm_add,                      /*nb_add*/
     (binaryfunc)CrossFm_sub,                 /*nb_subtract*/
     (binaryfunc)CrossFm_multiply,                 /*nb_multiply*/
-    (binaryfunc)CrossFm_div,                   /*nb_divide*/
+    INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
     0,                /*nb_remainder*/
     0,                   /*nb_divmod*/
     0,                   /*nb_power*/
@@ -7409,7 +7409,7 @@ static PyNumberMethods CrossFm_as_number = {
     (binaryfunc)CrossFm_inplace_add,              /*inplace_add*/
     (binaryfunc)CrossFm_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)CrossFm_inplace_multiply,         /*inplace_multiply*/
-    (binaryfunc)CrossFm_inplace_div,           /*inplace_divide*/
+    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
     0,        /*inplace_remainder*/
     0,           /*inplace_power*/
     0,       /*inplace_lshift*/
@@ -7418,9 +7418,9 @@ static PyNumberMethods CrossFm_as_number = {
     0,      /*inplace_xor*/
     0,       /*inplace_or*/
     0,             /*nb_floor_divide*/
-    0,              /*nb_true_divide*/
+    (binaryfunc)CrossFm_div,                       /*nb_true_divide*/
     0,     /*nb_inplace_floor_divide*/
-    0,      /*nb_inplace_true_divide*/
+    (binaryfunc)CrossFm_inplace_div,                       /*nb_inplace_true_divide*/
     0,                     /* nb_ind1 */
 };
 
@@ -7849,7 +7849,7 @@ static PyNumberMethods Blit_as_number = {
     (binaryfunc)Blit_add,                      /*nb_add*/
     (binaryfunc)Blit_sub,                 /*nb_subtract*/
     (binaryfunc)Blit_multiply,                 /*nb_multiply*/
-    (binaryfunc)Blit_div,                   /*nb_divide*/
+    INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
     0,                /*nb_remainder*/
     0,                   /*nb_divmod*/
     0,                   /*nb_power*/
@@ -7872,7 +7872,7 @@ static PyNumberMethods Blit_as_number = {
     (binaryfunc)Blit_inplace_add,              /*inplace_add*/
     (binaryfunc)Blit_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)Blit_inplace_multiply,         /*inplace_multiply*/
-    (binaryfunc)Blit_inplace_div,           /*inplace_divide*/
+    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
     0,        /*inplace_remainder*/
     0,           /*inplace_power*/
     0,       /*inplace_lshift*/
@@ -7881,9 +7881,9 @@ static PyNumberMethods Blit_as_number = {
     0,      /*inplace_xor*/
     0,       /*inplace_or*/
     0,             /*nb_floor_divide*/
-    0,              /*nb_true_divide*/
+    (binaryfunc)Blit_div,                       /*nb_true_divide*/
     0,     /*nb_inplace_floor_divide*/
-    0,      /*nb_inplace_true_divide*/
+    (binaryfunc)Blit_inplace_div,                       /*nb_inplace_true_divide*/
     0,                     /* nb_cutoff */
 };
 
@@ -8372,7 +8372,7 @@ static PyNumberMethods Rossler_as_number = {
     (binaryfunc)Rossler_add,                      /*nb_add*/
     (binaryfunc)Rossler_sub,                 /*nb_subtract*/
     (binaryfunc)Rossler_multiply,                 /*nb_multiply*/
-    (binaryfunc)Rossler_div,                   /*nb_divide*/
+    INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
     0,                /*nb_remainder*/
     0,                   /*nb_divmod*/
     0,                   /*nb_power*/
@@ -8395,7 +8395,7 @@ static PyNumberMethods Rossler_as_number = {
     (binaryfunc)Rossler_inplace_add,              /*inplace_add*/
     (binaryfunc)Rossler_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)Rossler_inplace_multiply,         /*inplace_multiply*/
-    (binaryfunc)Rossler_inplace_div,           /*inplace_divide*/
+    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
     0,        /*inplace_remainder*/
     0,           /*inplace_power*/
     0,       /*inplace_lshift*/
@@ -8404,9 +8404,9 @@ static PyNumberMethods Rossler_as_number = {
     0,      /*inplace_xor*/
     0,       /*inplace_or*/
     0,             /*nb_floor_divide*/
-    0,              /*nb_true_divide*/
+    (binaryfunc)Rossler_div,                       /*nb_true_divide*/
     0,     /*nb_inplace_floor_divide*/
-    0,      /*nb_inplace_true_divide*/
+    (binaryfunc)Rossler_inplace_div,                       /*nb_inplace_true_divide*/
     0,                     /* nb_index */
 };
 
@@ -8622,7 +8622,7 @@ static PyNumberMethods RosslerAlt_as_number = {
     (binaryfunc)RosslerAlt_add,                         /*nb_add*/
     (binaryfunc)RosslerAlt_sub,                         /*nb_subtract*/
     (binaryfunc)RosslerAlt_multiply,                    /*nb_multiply*/
-    (binaryfunc)RosslerAlt_div,                                              /*nb_divide*/
+    INITIALIZE_NB_DIVIDE_ZERO                       /*nb_divide*/
     0,                                              /*nb_remainder*/
     0,                                              /*nb_divmod*/
     0,                                              /*nb_power*/
@@ -8645,7 +8645,7 @@ static PyNumberMethods RosslerAlt_as_number = {
     (binaryfunc)RosslerAlt_inplace_add,                 /*inplace_add*/
     (binaryfunc)RosslerAlt_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)RosslerAlt_inplace_multiply,            /*inplace_multiply*/
-    (binaryfunc)RosslerAlt_inplace_div,                                              /*inplace_divide*/
+    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO                                           /*inplace_divide*/
     0,                                              /*inplace_remainder*/
     0,                                              /*inplace_power*/
     0,                                              /*inplace_lshift*/
@@ -8654,9 +8654,9 @@ static PyNumberMethods RosslerAlt_as_number = {
     0,                                              /*inplace_xor*/
     0,                                              /*inplace_or*/
     0,                                              /*nb_floor_divide*/
-    0,                                              /*nb_true_divide*/
+    (binaryfunc)RosslerAlt_div,                       /*nb_true_divide*/
     0,                                              /*nb_inplace_floor_divide*/
-    0,                                              /*nb_inplace_true_divide*/
+    (binaryfunc)RosslerAlt_inplace_div,                       /*nb_inplace_true_divide*/
     0,                                              /* nb_index */
 };
 
@@ -9145,7 +9145,7 @@ static PyNumberMethods Lorenz_as_number = {
     (binaryfunc)Lorenz_add,                      /*nb_add*/
     (binaryfunc)Lorenz_sub,                 /*nb_subtract*/
     (binaryfunc)Lorenz_multiply,                 /*nb_multiply*/
-    (binaryfunc)Lorenz_div,                   /*nb_divide*/
+    INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
     0,                /*nb_remainder*/
     0,                   /*nb_divmod*/
     0,                   /*nb_power*/
@@ -9168,7 +9168,7 @@ static PyNumberMethods Lorenz_as_number = {
     (binaryfunc)Lorenz_inplace_add,              /*inplace_add*/
     (binaryfunc)Lorenz_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)Lorenz_inplace_multiply,         /*inplace_multiply*/
-    (binaryfunc)Lorenz_inplace_div,           /*inplace_divide*/
+    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
     0,        /*inplace_remainder*/
     0,           /*inplace_power*/
     0,       /*inplace_lshift*/
@@ -9177,9 +9177,9 @@ static PyNumberMethods Lorenz_as_number = {
     0,      /*inplace_xor*/
     0,       /*inplace_or*/
     0,             /*nb_floor_divide*/
-    0,              /*nb_true_divide*/
+    (binaryfunc)Lorenz_div,                       /*nb_true_divide*/
     0,     /*nb_inplace_floor_divide*/
-    0,      /*nb_inplace_true_divide*/
+    (binaryfunc)Lorenz_inplace_div,                       /*nb_inplace_true_divide*/
     0,                     /* nb_index */
 };
 
@@ -9395,7 +9395,7 @@ static PyNumberMethods LorenzAlt_as_number = {
     (binaryfunc)LorenzAlt_add,                         /*nb_add*/
     (binaryfunc)LorenzAlt_sub,                         /*nb_subtract*/
     (binaryfunc)LorenzAlt_multiply,                    /*nb_multiply*/
-    (binaryfunc)LorenzAlt_div,                                              /*nb_divide*/
+    INITIALIZE_NB_DIVIDE_ZERO                       /*nb_divide*/
     0,                                              /*nb_remainder*/
     0,                                              /*nb_divmod*/
     0,                                              /*nb_power*/
@@ -9418,7 +9418,7 @@ static PyNumberMethods LorenzAlt_as_number = {
     (binaryfunc)LorenzAlt_inplace_add,                 /*inplace_add*/
     (binaryfunc)LorenzAlt_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)LorenzAlt_inplace_multiply,            /*inplace_multiply*/
-    (binaryfunc)LorenzAlt_inplace_div,                                              /*inplace_divide*/
+    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO                                           /*inplace_divide*/
     0,                                              /*inplace_remainder*/
     0,                                              /*inplace_power*/
     0,                                              /*inplace_lshift*/
@@ -9427,9 +9427,9 @@ static PyNumberMethods LorenzAlt_as_number = {
     0,                                              /*inplace_xor*/
     0,                                              /*inplace_or*/
     0,                                              /*nb_floor_divide*/
-    0,                                              /*nb_true_divide*/
+    (binaryfunc)LorenzAlt_div,                       /*nb_true_divide*/
     0,                                              /*nb_inplace_floor_divide*/
-    0,                                              /*nb_inplace_true_divide*/
+    (binaryfunc)LorenzAlt_inplace_div,                       /*nb_inplace_true_divide*/
     0,                                              /* nb_index */
 };
 
@@ -9926,7 +9926,7 @@ static PyNumberMethods ChenLee_as_number = {
     (binaryfunc)ChenLee_add,                      /*nb_add*/
     (binaryfunc)ChenLee_sub,                 /*nb_subtract*/
     (binaryfunc)ChenLee_multiply,                 /*nb_multiply*/
-    (binaryfunc)ChenLee_div,                   /*nb_divide*/
+    INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
     0,                /*nb_remainder*/
     0,                   /*nb_divmod*/
     0,                   /*nb_power*/
@@ -9949,7 +9949,7 @@ static PyNumberMethods ChenLee_as_number = {
     (binaryfunc)ChenLee_inplace_add,              /*inplace_add*/
     (binaryfunc)ChenLee_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)ChenLee_inplace_multiply,         /*inplace_multiply*/
-    (binaryfunc)ChenLee_inplace_div,           /*inplace_divide*/
+    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
     0,        /*inplace_remainder*/
     0,           /*inplace_power*/
     0,       /*inplace_lshift*/
@@ -9958,9 +9958,9 @@ static PyNumberMethods ChenLee_as_number = {
     0,      /*inplace_xor*/
     0,       /*inplace_or*/
     0,             /*nb_floor_divide*/
-    0,              /*nb_true_divide*/
+    (binaryfunc)ChenLee_div,                       /*nb_true_divide*/
     0,     /*nb_inplace_floor_divide*/
-    0,      /*nb_inplace_true_divide*/
+    (binaryfunc)ChenLee_inplace_div,                       /*nb_inplace_true_divide*/
     0,                     /* nb_index */
 };
 
@@ -10176,7 +10176,7 @@ static PyNumberMethods ChenLeeAlt_as_number = {
     (binaryfunc)ChenLeeAlt_add,                         /*nb_add*/
     (binaryfunc)ChenLeeAlt_sub,                         /*nb_subtract*/
     (binaryfunc)ChenLeeAlt_multiply,                    /*nb_multiply*/
-    (binaryfunc)ChenLeeAlt_div,                                              /*nb_divide*/
+    INITIALIZE_NB_DIVIDE_ZERO                       /*nb_divide*/
     0,                                              /*nb_remainder*/
     0,                                              /*nb_divmod*/
     0,                                              /*nb_power*/
@@ -10199,7 +10199,7 @@ static PyNumberMethods ChenLeeAlt_as_number = {
     (binaryfunc)ChenLeeAlt_inplace_add,                 /*inplace_add*/
     (binaryfunc)ChenLeeAlt_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)ChenLeeAlt_inplace_multiply,            /*inplace_multiply*/
-    (binaryfunc)ChenLeeAlt_inplace_div,                                              /*inplace_divide*/
+    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO                                           /*inplace_divide*/
     0,                                              /*inplace_remainder*/
     0,                                              /*inplace_power*/
     0,                                              /*inplace_lshift*/
@@ -10208,9 +10208,9 @@ static PyNumberMethods ChenLeeAlt_as_number = {
     0,                                              /*inplace_xor*/
     0,                                              /*inplace_or*/
     0,                                              /*nb_floor_divide*/
-    0,                                              /*nb_true_divide*/
+    (binaryfunc)ChenLeeAlt_div,                       /*nb_true_divide*/
     0,                                              /*nb_inplace_floor_divide*/
-    0,                                              /*nb_inplace_true_divide*/
+    (binaryfunc)ChenLeeAlt_inplace_div,                       /*nb_inplace_true_divide*/
     0,                                              /* nb_index */
 };
 
@@ -10914,7 +10914,7 @@ static PyNumberMethods SumOsc_as_number = {
 (binaryfunc)SumOsc_add,                      /*nb_add*/
 (binaryfunc)SumOsc_sub,                 /*nb_subtract*/
 (binaryfunc)SumOsc_multiply,                 /*nb_multiply*/
-(binaryfunc)SumOsc_div,                   /*nb_divide*/
+INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
 0,                /*nb_remainder*/
 0,                   /*nb_divmod*/
 0,                   /*nb_power*/
@@ -10937,7 +10937,7 @@ INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
 (binaryfunc)SumOsc_inplace_add,              /*inplace_add*/
 (binaryfunc)SumOsc_inplace_sub,         /*inplace_subtract*/
 (binaryfunc)SumOsc_inplace_multiply,         /*inplace_multiply*/
-(binaryfunc)SumOsc_inplace_div,           /*inplace_divide*/
+INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
 0,        /*inplace_remainder*/
 0,           /*inplace_power*/
 0,       /*inplace_lshift*/
@@ -10946,9 +10946,9 @@ INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
 0,      /*inplace_xor*/
 0,       /*inplace_or*/
 0,             /*nb_floor_divide*/
-0,              /*nb_true_divide*/
+(binaryfunc)SumOsc_div,                       /*nb_true_divide*/
 0,     /*nb_inplace_floor_divide*/
-0,      /*nb_inplace_true_divide*/
+(binaryfunc)SumOsc_inplace_div,                       /*nb_inplace_true_divide*/
 0,                     /* nb_index */
 };
 
@@ -11766,7 +11766,7 @@ static PyNumberMethods SuperSaw_as_number = {
 (binaryfunc)SuperSaw_add,                      /*nb_add*/
 (binaryfunc)SuperSaw_sub,                 /*nb_subtract*/
 (binaryfunc)SuperSaw_multiply,                 /*nb_multiply*/
-(binaryfunc)SuperSaw_div,                   /*nb_divide*/
+INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
 0,                /*nb_remainder*/
 0,                   /*nb_divmod*/
 0,                   /*nb_power*/
@@ -11789,7 +11789,7 @@ INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
 (binaryfunc)SuperSaw_inplace_add,              /*inplace_add*/
 (binaryfunc)SuperSaw_inplace_sub,         /*inplace_subtract*/
 (binaryfunc)SuperSaw_inplace_multiply,         /*inplace_multiply*/
-(binaryfunc)SuperSaw_inplace_div,           /*inplace_divide*/
+INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
 0,        /*inplace_remainder*/
 0,           /*inplace_power*/
 0,       /*inplace_lshift*/
@@ -11798,9 +11798,9 @@ INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
 0,      /*inplace_xor*/
 0,       /*inplace_or*/
 0,             /*nb_floor_divide*/
-0,              /*nb_true_divide*/
+(binaryfunc)SuperSaw_div,                       /*nb_true_divide*/
 0,     /*nb_inplace_floor_divide*/
-0,      /*nb_inplace_true_divide*/
+(binaryfunc)SuperSaw_inplace_div,                       /*nb_inplace_true_divide*/
 0,                     /* nb_index */
 };
 
@@ -12239,7 +12239,7 @@ static PyNumberMethods RCOsc_as_number = {
 (binaryfunc)RCOsc_add,                      /*nb_add*/
 (binaryfunc)RCOsc_sub,                 /*nb_subtract*/
 (binaryfunc)RCOsc_multiply,                 /*nb_multiply*/
-(binaryfunc)RCOsc_div,                   /*nb_divide*/
+INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
 0,                /*nb_remainder*/
 0,                   /*nb_divmod*/
 0,                   /*nb_power*/
@@ -12262,7 +12262,7 @@ INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
 (binaryfunc)RCOsc_inplace_add,              /*inplace_add*/
 (binaryfunc)RCOsc_inplace_sub,         /*inplace_subtract*/
 (binaryfunc)RCOsc_inplace_multiply,         /*inplace_multiply*/
-(binaryfunc)RCOsc_inplace_div,           /*inplace_divide*/
+INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
 0,        /*inplace_remainder*/
 0,           /*inplace_power*/
 0,       /*inplace_lshift*/
@@ -12271,9 +12271,9 @@ INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
 0,      /*inplace_xor*/
 0,       /*inplace_or*/
 0,             /*nb_floor_divide*/
-0,              /*nb_true_divide*/
+(binaryfunc)RCOsc_div,                       /*nb_true_divide*/
 0,     /*nb_inplace_floor_divide*/
-0,      /*nb_inplace_true_divide*/
+(binaryfunc)RCOsc_inplace_div,                       /*nb_inplace_true_divide*/
 0,                     /* nb_index */
 };
 
@@ -12597,7 +12597,7 @@ static PyNumberMethods TableScale_as_number = {
 (binaryfunc)TableScale_add,                      /*nb_add*/
 (binaryfunc)TableScale_sub,                 /*nb_subtract*/
 (binaryfunc)TableScale_multiply,                 /*nb_multiply*/
-(binaryfunc)TableScale_div,                   /*nb_divide*/
+INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
 0,                /*nb_remainder*/
 0,                   /*nb_divmod*/
 0,                   /*nb_power*/
@@ -12620,7 +12620,7 @@ INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
 (binaryfunc)TableScale_inplace_add,              /*inplace_add*/
 (binaryfunc)TableScale_inplace_sub,         /*inplace_subtract*/
 (binaryfunc)TableScale_inplace_multiply,         /*inplace_multiply*/
-(binaryfunc)TableScale_inplace_div,           /*inplace_divide*/
+INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
 0,        /*inplace_remainder*/
 0,           /*inplace_power*/
 0,       /*inplace_lshift*/
@@ -12629,9 +12629,9 @@ INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
 0,      /*inplace_xor*/
 0,       /*inplace_or*/
 0,             /*nb_floor_divide*/
-0,              /*nb_true_divide*/
+(binaryfunc)TableScale_div,                       /*nb_true_divide*/
 0,     /*nb_inplace_floor_divide*/
-0,      /*nb_inplace_true_divide*/
+(binaryfunc)TableScale_inplace_div,                       /*nb_inplace_true_divide*/
 0,                     /* nb_index */
 };
 

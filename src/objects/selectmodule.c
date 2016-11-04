@@ -234,7 +234,7 @@ static PyNumberMethods Select_as_number = {
     (binaryfunc)Select_add,                         /*nb_add*/
     (binaryfunc)Select_sub,                         /*nb_subtract*/
     (binaryfunc)Select_multiply,                    /*nb_multiply*/
-    (binaryfunc)Select_div,                                              /*nb_divide*/
+    INITIALIZE_NB_DIVIDE_ZERO                       /*nb_divide*/
     0,                                              /*nb_remainder*/
     0,                                              /*nb_divmod*/
     0,                                              /*nb_power*/
@@ -257,7 +257,7 @@ static PyNumberMethods Select_as_number = {
     (binaryfunc)Select_inplace_add,                 /*inplace_add*/
     (binaryfunc)Select_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)Select_inplace_multiply,            /*inplace_multiply*/
-    (binaryfunc)Select_inplace_div,                                              /*inplace_divide*/
+    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO                                           /*inplace_divide*/
     0,                                              /*inplace_remainder*/
     0,                                              /*inplace_power*/
     0,                                              /*inplace_lshift*/
@@ -266,9 +266,9 @@ static PyNumberMethods Select_as_number = {
     0,                                              /*inplace_xor*/
     0,                                              /*inplace_or*/
     0,                                              /*nb_floor_divide*/
-    0,                                              /*nb_true_divide*/
+    (binaryfunc)Select_div,                       /*nb_true_divide*/
     0,                                              /*nb_inplace_floor_divide*/
-    0,                                              /*nb_inplace_true_divide*/
+    (binaryfunc)Select_inplace_div,                       /*nb_inplace_true_divide*/
     0,                                              /* nb_index */
 };
 
@@ -504,7 +504,7 @@ static PyNumberMethods Change_as_number = {
     (binaryfunc)Change_add,                         /*nb_add*/
     (binaryfunc)Change_sub,                         /*nb_subtract*/
     (binaryfunc)Change_multiply,                    /*nb_multiply*/
-    (binaryfunc)Change_div,                                              /*nb_divide*/
+    INITIALIZE_NB_DIVIDE_ZERO                       /*nb_divide*/
     0,                                              /*nb_remainder*/
     0,                                              /*nb_divmod*/
     0,                                              /*nb_power*/
@@ -527,7 +527,7 @@ static PyNumberMethods Change_as_number = {
     (binaryfunc)Change_inplace_add,                 /*inplace_add*/
     (binaryfunc)Change_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)Change_inplace_multiply,            /*inplace_multiply*/
-    (binaryfunc)Change_inplace_div,                                              /*inplace_divide*/
+    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO                                           /*inplace_divide*/
     0,                                              /*inplace_remainder*/
     0,                                              /*inplace_power*/
     0,                                              /*inplace_lshift*/
@@ -536,9 +536,9 @@ static PyNumberMethods Change_as_number = {
     0,                                              /*inplace_xor*/
     0,                                              /*inplace_or*/
     0,                                              /*nb_floor_divide*/
-    0,                                              /*nb_true_divide*/
+    (binaryfunc)Change_div,                       /*nb_true_divide*/
     0,                                              /*nb_inplace_floor_divide*/
-    0,                                              /*nb_inplace_true_divide*/
+    (binaryfunc)Change_inplace_div,                       /*nb_inplace_true_divide*/
     0,                                              /* nb_index */
 };
 

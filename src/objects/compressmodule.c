@@ -533,7 +533,7 @@ static PyNumberMethods Compress_as_number = {
 (binaryfunc)Compress_add,                         /*nb_add*/
 (binaryfunc)Compress_sub,                         /*nb_subtract*/
 (binaryfunc)Compress_multiply,                    /*nb_multiply*/
-(binaryfunc)Compress_div,                                              /*nb_divide*/
+INITIALIZE_NB_DIVIDE_ZERO                       /*nb_divide*/
 0,                                              /*nb_remainder*/
 0,                                              /*nb_divmod*/
 0,                                              /*nb_power*/
@@ -556,7 +556,7 @@ INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
 (binaryfunc)Compress_inplace_add,                 /*inplace_add*/
 (binaryfunc)Compress_inplace_sub,                 /*inplace_subtract*/
 (binaryfunc)Compress_inplace_multiply,            /*inplace_multiply*/
-(binaryfunc)Compress_inplace_div,                                              /*inplace_divide*/
+INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO                                           /*inplace_divide*/
 0,                                              /*inplace_remainder*/
 0,                                              /*inplace_power*/
 0,                                              /*inplace_lshift*/
@@ -565,9 +565,9 @@ INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
 0,                                              /*inplace_xor*/
 0,                                              /*inplace_or*/
 0,                                              /*nb_floor_divide*/
-0,                                              /*nb_true_divide*/
+(binaryfunc)Compress_div,                       /*nb_true_divide*/
 0,                                              /*nb_inplace_floor_divide*/
-0,                                              /*nb_inplace_true_divide*/
+(binaryfunc)Compress_inplace_div,                       /*nb_inplace_true_divide*/
 0,                                              /* nb_index */
 };
 
@@ -1460,7 +1460,7 @@ static PyNumberMethods Gate_as_number = {
     (binaryfunc)Gate_add,                         /*nb_add*/
     (binaryfunc)Gate_sub,                         /*nb_subtract*/
     (binaryfunc)Gate_multiply,                    /*nb_multiply*/
-    (binaryfunc)Gate_div,                                              /*nb_divide*/
+    INITIALIZE_NB_DIVIDE_ZERO                       /*nb_divide*/
     0,                                              /*nb_remainder*/
     0,                                              /*nb_divmod*/
     0,                                              /*nb_power*/
@@ -1483,7 +1483,7 @@ static PyNumberMethods Gate_as_number = {
     (binaryfunc)Gate_inplace_add,                 /*inplace_add*/
     (binaryfunc)Gate_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)Gate_inplace_multiply,            /*inplace_multiply*/
-    (binaryfunc)Gate_inplace_div,                                              /*inplace_divide*/
+    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO                                           /*inplace_divide*/
     0,                                              /*inplace_remainder*/
     0,                                              /*inplace_power*/
     0,                                              /*inplace_lshift*/
@@ -1492,9 +1492,9 @@ static PyNumberMethods Gate_as_number = {
     0,                                              /*inplace_xor*/
     0,                                              /*inplace_or*/
     0,                                              /*nb_floor_divide*/
-    0,                                              /*nb_true_divide*/
+    (binaryfunc)Gate_div,                       /*nb_true_divide*/
     0,                                              /*nb_inplace_floor_divide*/
-    0,                                              /*nb_inplace_true_divide*/
+    (binaryfunc)Gate_inplace_div,                       /*nb_inplace_true_divide*/
     0,                                              /* nb_index */
 };
 
@@ -1849,7 +1849,7 @@ static PyNumberMethods Balance_as_number = {
     (binaryfunc)Balance_add,                         /*nb_add*/
     (binaryfunc)Balance_sub,                         /*nb_subtract*/
     (binaryfunc)Balance_multiply,                    /*nb_multiply*/
-    (binaryfunc)Balance_div,                                              /*nb_divide*/
+    INITIALIZE_NB_DIVIDE_ZERO                       /*nb_divide*/
     0,                                              /*nb_remainder*/
     0,                                              /*nb_divmod*/
     0,                                              /*nb_power*/
@@ -1872,7 +1872,7 @@ static PyNumberMethods Balance_as_number = {
     (binaryfunc)Balance_inplace_add,                 /*inplace_add*/
     (binaryfunc)Balance_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)Balance_inplace_multiply,            /*inplace_multiply*/
-    (binaryfunc)Balance_inplace_div,                                              /*inplace_divide*/
+    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO                                           /*inplace_divide*/
     0,                                              /*inplace_remainder*/
     0,                                              /*inplace_power*/
     0,                                              /*inplace_lshift*/
@@ -1881,9 +1881,9 @@ static PyNumberMethods Balance_as_number = {
     0,                                              /*inplace_xor*/
     0,                                              /*inplace_or*/
     0,                                              /*nb_floor_divide*/
-    0,                                              /*nb_true_divide*/
+    (binaryfunc)Balance_div,                       /*nb_true_divide*/
     0,                                              /*nb_inplace_floor_divide*/
-    0,                                              /*nb_inplace_true_divide*/
+    (binaryfunc)Balance_inplace_div,                       /*nb_inplace_true_divide*/
     0,                                              /* nb_index */
 };
 

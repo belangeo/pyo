@@ -216,7 +216,7 @@ static PyNumberMethods Mix_as_number = {
     (binaryfunc)Mix_add,                      /*nb_add*/
     (binaryfunc)Mix_sub,                 /*nb_subtract*/
     (binaryfunc)Mix_multiply,                 /*nb_multiply*/
-    (binaryfunc)Mix_div,                   /*nb_divide*/
+    INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
     0,                /*nb_remainder*/
     0,                   /*nb_divmod*/
     0,                   /*nb_power*/
@@ -239,7 +239,7 @@ static PyNumberMethods Mix_as_number = {
     (binaryfunc)Mix_inplace_add,              /*inplace_add*/
     (binaryfunc)Mix_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)Mix_inplace_multiply,         /*inplace_multiply*/
-    (binaryfunc)Mix_inplace_div,           /*inplace_divide*/
+    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
     0,        /*inplace_remainder*/
     0,           /*inplace_power*/
     0,       /*inplace_lshift*/
@@ -248,9 +248,9 @@ static PyNumberMethods Mix_as_number = {
     0,      /*inplace_xor*/
     0,       /*inplace_or*/
     0,             /*nb_floor_divide*/
-    0,              /*nb_true_divide*/
+    (binaryfunc)Mix_div,                       /*nb_true_divide*/
     0,     /*nb_inplace_floor_divide*/
-    0,      /*nb_inplace_true_divide*/
+    (binaryfunc)Mix_inplace_div,                       /*nb_inplace_true_divide*/
     0,                     /* nb_index */
 };
 

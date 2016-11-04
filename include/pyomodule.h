@@ -1495,7 +1495,7 @@ extern PyTypeObject LogiMapType;
     if (isNumber == 1) { \
         if (PyFloat_AsDouble(tmp) != 0.) { \
             Py_DECREF(self->mul); \
-            self->mul = PyNumber_Divide(PyFloat_FromDouble(1.), PyNumber_Float(tmp)); \
+            self->mul = PyNumber_TrueDivide(PyFloat_FromDouble(1.), PyNumber_Float(tmp)); \
             self->modebuffer[0] = 0; \
         } \
     } \

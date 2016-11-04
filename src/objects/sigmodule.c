@@ -244,7 +244,7 @@ static PyNumberMethods Sig_as_number = {
 (binaryfunc)Sig_add,                      /*nb_add*/
 (binaryfunc)Sig_sub,                 /*nb_subtract*/
 (binaryfunc)Sig_multiply,                 /*nb_multiply*/
-(binaryfunc)Sig_div,                   /*nb_divide*/
+INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
 0,                /*nb_remainder*/
 0,                   /*nb_divmod*/
 0,                   /*nb_power*/
@@ -267,7 +267,7 @@ INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
 (binaryfunc)Sig_inplace_add,              /*inplace_add*/
 (binaryfunc)Sig_inplace_sub,         /*inplace_subtract*/
 (binaryfunc)Sig_inplace_multiply,         /*inplace_multiply*/
-(binaryfunc)Sig_inplace_div,           /*inplace_divide*/
+INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
 0,        /*inplace_remainder*/
 0,           /*inplace_power*/
 0,       /*inplace_lshift*/
@@ -276,9 +276,9 @@ INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
 0,      /*inplace_xor*/
 0,       /*inplace_or*/
 0,             /*nb_floor_divide*/
-0,              /*nb_true_divide*/
+(binaryfunc)Sig_div,                       /*nb_true_divide*/
 0,     /*nb_inplace_floor_divide*/
-0,      /*nb_inplace_true_divide*/
+(binaryfunc)Sig_inplace_div,                       /*nb_inplace_true_divide*/
 0,                     /* nb_index */
 };
 
@@ -630,7 +630,7 @@ static PyNumberMethods SigTo_as_number = {
 (binaryfunc)SigTo_add,                      /*nb_add*/
 (binaryfunc)SigTo_sub,                 /*nb_subtract*/
 (binaryfunc)SigTo_multiply,                 /*nb_multiply*/
-(binaryfunc)SigTo_div,                   /*nb_divide*/
+INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
 0,                /*nb_remainder*/
 0,                   /*nb_divmod*/
 0,                   /*nb_power*/
@@ -653,7 +653,7 @@ INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
 (binaryfunc)SigTo_inplace_add,              /*inplace_add*/
 (binaryfunc)SigTo_inplace_sub,         /*inplace_subtract*/
 (binaryfunc)SigTo_inplace_multiply,         /*inplace_multiply*/
-(binaryfunc)SigTo_inplace_div,           /*inplace_divide*/
+INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
 0,        /*inplace_remainder*/
 0,           /*inplace_power*/
 0,       /*inplace_lshift*/
@@ -662,9 +662,9 @@ INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
 0,      /*inplace_xor*/
 0,       /*inplace_or*/
 0,             /*nb_floor_divide*/
-0,              /*nb_true_divide*/
+(binaryfunc)SigTo_div,                       /*nb_true_divide*/
 0,     /*nb_inplace_floor_divide*/
-0,      /*nb_inplace_true_divide*/
+(binaryfunc)SigTo_inplace_div,                       /*nb_inplace_true_divide*/
 0,                     /* nb_index */
 };
 
@@ -1038,7 +1038,7 @@ static PyNumberMethods VarPort_as_number = {
     (binaryfunc)VarPort_add,                      /*nb_add*/
     (binaryfunc)VarPort_sub,                 /*nb_subtract*/
     (binaryfunc)VarPort_multiply,                 /*nb_multiply*/
-    (binaryfunc)VarPort_div,                   /*nb_divide*/
+    INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
     0,                /*nb_remainder*/
     0,                   /*nb_divmod*/
     0,                   /*nb_power*/
@@ -1061,7 +1061,7 @@ static PyNumberMethods VarPort_as_number = {
     (binaryfunc)VarPort_inplace_add,              /*inplace_add*/
     (binaryfunc)VarPort_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)VarPort_inplace_multiply,         /*inplace_multiply*/
-    (binaryfunc)VarPort_inplace_div,           /*inplace_divide*/
+    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
     0,        /*inplace_remainder*/
     0,           /*inplace_power*/
     0,       /*inplace_lshift*/
@@ -1070,9 +1070,9 @@ static PyNumberMethods VarPort_as_number = {
     0,      /*inplace_xor*/
     0,       /*inplace_or*/
     0,             /*nb_floor_divide*/
-    0,              /*nb_true_divide*/
+    (binaryfunc)VarPort_div,                       /*nb_true_divide*/
     0,     /*nb_inplace_floor_divide*/
-    0,      /*nb_inplace_true_divide*/
+    (binaryfunc)VarPort_inplace_div,                       /*nb_inplace_true_divide*/
     0,                     /* nb_index */
 };
 

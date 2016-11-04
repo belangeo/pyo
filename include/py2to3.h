@@ -52,22 +52,25 @@
 #define PyNumber_Int PyNumber_Long
 #define PyInt_Type PyLong_Type
 
-// See PEP 238
-#define PyNumber_Divide PyNumber_TrueDivide
-#define PyNumber_InPlaceDivide PyNumber_InPlaceTrueDivide
-
 #endif /* PY_MAJOR_VERSION >= 3 */
 
 #endif
 
+// See PEP 238
+#define PyNumber_Divide PyNumber_TrueDivide
+#define PyNumber_InPlaceDivide PyNumber_InPlaceTrueDivide
 
 #if PY_MAJOR_VERSION >= 3
 // nb_coerce, nb_oct and nb_hex fields have been removed in Python 3
 #define INITIALIZE_NB_COERCE_ZERO
 #define INITIALIZE_NB_OCT_ZERO
 #define INITIALIZE_NB_HEX_ZERO
+#define INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO
+#define INITIALIZE_NB_DIVIDE_ZERO
 #else
 #define INITIALIZE_NB_COERCE_ZERO 0,
 #define INITIALIZE_NB_OCT_ZERO 0,
 #define INITIALIZE_NB_HEX_ZERO 0,
+#define INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO 0,
+#define INITIALIZE_NB_DIVIDE_ZERO 0,
 #endif

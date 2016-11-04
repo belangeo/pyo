@@ -826,7 +826,7 @@ static PyNumberMethods ControlRead_as_number = {
     (binaryfunc)ControlRead_add,                      /*nb_add*/
     (binaryfunc)ControlRead_sub,                 /*nb_subtract*/
     (binaryfunc)ControlRead_multiply,                 /*nb_multiply*/
-    (binaryfunc)ControlRead_div,                   /*nb_divide*/
+    INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
     0,                /*nb_remainder*/
     0,                   /*nb_divmod*/
     0,                   /*nb_power*/
@@ -849,7 +849,7 @@ static PyNumberMethods ControlRead_as_number = {
     (binaryfunc)ControlRead_inplace_add,              /*inplace_add*/
     (binaryfunc)ControlRead_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)ControlRead_inplace_multiply,         /*inplace_multiply*/
-    (binaryfunc)ControlRead_inplace_div,           /*inplace_divide*/
+    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
     0,        /*inplace_remainder*/
     0,           /*inplace_power*/
     0,       /*inplace_lshift*/
@@ -858,9 +858,9 @@ static PyNumberMethods ControlRead_as_number = {
     0,      /*inplace_xor*/
     0,       /*inplace_or*/
     0,             /*nb_floor_divide*/
-    0,              /*nb_true_divide*/
+    (binaryfunc)ControlRead_div,                       /*nb_true_divide*/
     0,     /*nb_inplace_floor_divide*/
-    0,      /*nb_inplace_true_divide*/
+    (binaryfunc)ControlRead_inplace_div,                       /*nb_inplace_true_divide*/
     0,                     /* nb_index */
 };
 
@@ -1413,7 +1413,7 @@ static PyNumberMethods NoteinRead_as_number = {
     (binaryfunc)NoteinRead_add,                      /*nb_add*/
     (binaryfunc)NoteinRead_sub,                 /*nb_subtract*/
     (binaryfunc)NoteinRead_multiply,                 /*nb_multiply*/
-    (binaryfunc)NoteinRead_div,                   /*nb_divide*/
+    INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
     0,                /*nb_remainder*/
     0,                   /*nb_divmod*/
     0,                   /*nb_power*/
@@ -1436,7 +1436,7 @@ static PyNumberMethods NoteinRead_as_number = {
     (binaryfunc)NoteinRead_inplace_add,              /*inplace_add*/
     (binaryfunc)NoteinRead_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)NoteinRead_inplace_multiply,         /*inplace_multiply*/
-    (binaryfunc)NoteinRead_inplace_div,           /*inplace_divide*/
+    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
     0,        /*inplace_remainder*/
     0,           /*inplace_power*/
     0,       /*inplace_lshift*/
@@ -1445,9 +1445,9 @@ static PyNumberMethods NoteinRead_as_number = {
     0,      /*inplace_xor*/
     0,       /*inplace_or*/
     0,             /*nb_floor_divide*/
-    0,              /*nb_true_divide*/
+    (binaryfunc)NoteinRead_div,                       /*nb_true_divide*/
     0,     /*nb_inplace_floor_divide*/
-    0,      /*nb_inplace_true_divide*/
+    (binaryfunc)NoteinRead_inplace_div,                       /*nb_inplace_true_divide*/
     0,                     /* nb_index */
 };
 

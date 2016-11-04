@@ -454,7 +454,7 @@ static PyNumberMethods OscReceive_as_number = {
     (binaryfunc)OscReceive_add,                      /*nb_add*/
     (binaryfunc)OscReceive_sub,                 /*nb_subtract*/
     (binaryfunc)OscReceive_multiply,                 /*nb_multiply*/
-    (binaryfunc)OscReceive_div,                   /*nb_divide*/
+    INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
     0,                /*nb_remainder*/
     0,                   /*nb_divmod*/
     0,                   /*nb_power*/
@@ -477,7 +477,7 @@ static PyNumberMethods OscReceive_as_number = {
     (binaryfunc)OscReceive_inplace_add,              /*inplace_add*/
     (binaryfunc)OscReceive_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)OscReceive_inplace_multiply,         /*inplace_multiply*/
-    (binaryfunc)OscReceive_inplace_div,           /*inplace_divide*/
+    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
     0,        /*inplace_remainder*/
     0,           /*inplace_power*/
     0,       /*inplace_lshift*/
@@ -486,9 +486,9 @@ static PyNumberMethods OscReceive_as_number = {
     0,      /*inplace_xor*/
     0,       /*inplace_or*/
     0,             /*nb_floor_divide*/
-    0,              /*nb_true_divide*/
+    (binaryfunc)OscReceive_div,                       /*nb_true_divide*/
     0,     /*nb_inplace_floor_divide*/
-    0,      /*nb_inplace_true_divide*/
+    (binaryfunc)OscReceive_inplace_div,                       /*nb_inplace_true_divide*/
     0,                     /* nb_index */
 };
 
@@ -1672,7 +1672,7 @@ static PyNumberMethods OscListReceive_as_number = {
     (binaryfunc)OscListReceive_add,                      /*nb_add*/
     (binaryfunc)OscListReceive_sub,                 /*nb_subtract*/
     (binaryfunc)OscListReceive_multiply,                 /*nb_multiply*/
-    (binaryfunc)OscListReceive_div,                   /*nb_divide*/
+    INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
     0,                /*nb_remainder*/
     0,                   /*nb_divmod*/
     0,                   /*nb_power*/
@@ -1695,7 +1695,7 @@ static PyNumberMethods OscListReceive_as_number = {
     (binaryfunc)OscListReceive_inplace_add,              /*inplace_add*/
     (binaryfunc)OscListReceive_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)OscListReceive_inplace_multiply,         /*inplace_multiply*/
-    (binaryfunc)OscListReceive_inplace_div,           /*inplace_divide*/
+    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
     0,        /*inplace_remainder*/
     0,           /*inplace_power*/
     0,       /*inplace_lshift*/
@@ -1704,9 +1704,9 @@ static PyNumberMethods OscListReceive_as_number = {
     0,      /*inplace_xor*/
     0,       /*inplace_or*/
     0,             /*nb_floor_divide*/
-    0,              /*nb_true_divide*/
+    (binaryfunc)OscListReceive_div,                       /*nb_true_divide*/
     0,     /*nb_inplace_floor_divide*/
-    0,      /*nb_inplace_true_divide*/
+    (binaryfunc)OscListReceive_inplace_div,                       /*nb_inplace_true_divide*/
     0,                     /* nb_index */
 };
 

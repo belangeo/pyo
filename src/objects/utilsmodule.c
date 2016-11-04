@@ -566,7 +566,7 @@ static PyNumberMethods Snap_as_number = {
     (binaryfunc)Snap_add,                         /*nb_add*/
     (binaryfunc)Snap_sub,                         /*nb_subtract*/
     (binaryfunc)Snap_multiply,                    /*nb_multiply*/
-    (binaryfunc)Snap_div,                                              /*nb_divide*/
+    INITIALIZE_NB_DIVIDE_ZERO                       /*nb_divide*/
     0,                                              /*nb_remainder*/
     0,                                              /*nb_divmod*/
     0,                                              /*nb_power*/
@@ -589,7 +589,7 @@ static PyNumberMethods Snap_as_number = {
     (binaryfunc)Snap_inplace_add,                 /*inplace_add*/
     (binaryfunc)Snap_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)Snap_inplace_multiply,            /*inplace_multiply*/
-    (binaryfunc)Snap_inplace_div,                                              /*inplace_divide*/
+    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO                                           /*inplace_divide*/
     0,                                              /*inplace_remainder*/
     0,                                              /*inplace_power*/
     0,                                              /*inplace_lshift*/
@@ -598,9 +598,9 @@ static PyNumberMethods Snap_as_number = {
     0,                                              /*inplace_xor*/
     0,                                              /*inplace_or*/
     0,                                              /*nb_floor_divide*/
-    0,                                              /*nb_true_divide*/
+    (binaryfunc)Snap_div,                       /*nb_true_divide*/
     0,                                              /*nb_inplace_floor_divide*/
-    0,                                              /*nb_inplace_true_divide*/
+    (binaryfunc)Snap_inplace_div,                       /*nb_inplace_true_divide*/
     0,                                              /* nb_index */
 };
 
@@ -925,7 +925,7 @@ static PyNumberMethods Interp_as_number = {
 (binaryfunc)Interp_add,                         /*nb_add*/
 (binaryfunc)Interp_sub,                         /*nb_subtract*/
 (binaryfunc)Interp_multiply,                    /*nb_multiply*/
-(binaryfunc)Interp_div,                                              /*nb_divide*/
+INITIALIZE_NB_DIVIDE_ZERO                       /*nb_divide*/
 0,                                              /*nb_remainder*/
 0,                                              /*nb_divmod*/
 0,                                              /*nb_power*/
@@ -948,7 +948,7 @@ INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
 (binaryfunc)Interp_inplace_add,                 /*inplace_add*/
 (binaryfunc)Interp_inplace_sub,                 /*inplace_subtract*/
 (binaryfunc)Interp_inplace_multiply,            /*inplace_multiply*/
-(binaryfunc)Interp_inplace_div,                                              /*inplace_divide*/
+INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO                                           /*inplace_divide*/
 0,                                              /*inplace_remainder*/
 0,                                              /*inplace_power*/
 0,                                              /*inplace_lshift*/
@@ -957,9 +957,9 @@ INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
 0,                                              /*inplace_xor*/
 0,                                              /*inplace_or*/
 0,                                              /*nb_floor_divide*/
-0,                                              /*nb_true_divide*/
+(binaryfunc)Interp_div,                       /*nb_true_divide*/
 0,                                              /*nb_inplace_floor_divide*/
-0,                                              /*nb_inplace_true_divide*/
+(binaryfunc)Interp_inplace_div,                       /*nb_inplace_true_divide*/
 0,                                              /* nb_index */
 };
 
@@ -1294,7 +1294,7 @@ static PyNumberMethods SampHold_as_number = {
 (binaryfunc)SampHold_add,                         /*nb_add*/
 (binaryfunc)SampHold_sub,                         /*nb_subtract*/
 (binaryfunc)SampHold_multiply,                    /*nb_multiply*/
-(binaryfunc)SampHold_div,                                              /*nb_divide*/
+INITIALIZE_NB_DIVIDE_ZERO                       /*nb_divide*/
 0,                                              /*nb_remainder*/
 0,                                              /*nb_divmod*/
 0,                                              /*nb_power*/
@@ -1317,7 +1317,7 @@ INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
 (binaryfunc)SampHold_inplace_add,                 /*inplace_add*/
 (binaryfunc)SampHold_inplace_sub,                 /*inplace_subtract*/
 (binaryfunc)SampHold_inplace_multiply,            /*inplace_multiply*/
-(binaryfunc)SampHold_inplace_div,                                              /*inplace_divide*/
+INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO                                           /*inplace_divide*/
 0,                                              /*inplace_remainder*/
 0,                                              /*inplace_power*/
 0,                                              /*inplace_lshift*/
@@ -1326,9 +1326,9 @@ INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
 0,                                              /*inplace_xor*/
 0,                                              /*inplace_or*/
 0,                                              /*nb_floor_divide*/
-0,                                              /*nb_true_divide*/
+(binaryfunc)SampHold_div,                       /*nb_true_divide*/
 0,                                              /*nb_inplace_floor_divide*/
-0,                                              /*nb_inplace_true_divide*/
+(binaryfunc)SampHold_inplace_div,                       /*nb_inplace_true_divide*/
 0,                                              /* nb_index */
 };
 
@@ -1667,7 +1667,7 @@ static PyNumberMethods TrackHold_as_number = {
 (binaryfunc)TrackHold_add,                         /*nb_add*/
 (binaryfunc)TrackHold_sub,                         /*nb_subtract*/
 (binaryfunc)TrackHold_multiply,                    /*nb_multiply*/
-(binaryfunc)TrackHold_div,                                              /*nb_divide*/
+INITIALIZE_NB_DIVIDE_ZERO                       /*nb_divide*/
 0,                                              /*nb_remainder*/
 0,                                              /*nb_divmod*/
 0,                                              /*nb_power*/
@@ -1690,7 +1690,7 @@ INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
 (binaryfunc)TrackHold_inplace_add,                 /*inplace_add*/
 (binaryfunc)TrackHold_inplace_sub,                 /*inplace_subtract*/
 (binaryfunc)TrackHold_inplace_multiply,            /*inplace_multiply*/
-(binaryfunc)TrackHold_inplace_div,                                              /*inplace_divide*/
+INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO                                           /*inplace_divide*/
 0,                                              /*inplace_remainder*/
 0,                                              /*inplace_power*/
 0,                                              /*inplace_lshift*/
@@ -1699,9 +1699,9 @@ INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
 0,                                              /*inplace_xor*/
 0,                                              /*inplace_or*/
 0,                                              /*nb_floor_divide*/
-0,                                              /*nb_true_divide*/
+(binaryfunc)TrackHold_div,                       /*nb_true_divide*/
 0,                                              /*nb_inplace_floor_divide*/
-0,                                              /*nb_inplace_true_divide*/
+(binaryfunc)TrackHold_inplace_div,                       /*nb_inplace_true_divide*/
 0,                                              /* nb_index */
 };
 
@@ -2064,7 +2064,7 @@ static PyNumberMethods Compare_as_number = {
 (binaryfunc)Compare_add,                         /*nb_add*/
 (binaryfunc)Compare_sub,                         /*nb_subtract*/
 (binaryfunc)Compare_multiply,                    /*nb_multiply*/
-(binaryfunc)Compare_div,                         /*nb_divide*/
+INITIALIZE_NB_DIVIDE_ZERO  /*nb_divide*/
 0,                                              /*nb_remainder*/
 0,                                              /*nb_divmod*/
 0,                                              /*nb_power*/
@@ -2087,7 +2087,7 @@ INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
 (binaryfunc)Compare_inplace_add,                 /*inplace_add*/
 (binaryfunc)Compare_inplace_sub,                 /*inplace_subtract*/
 (binaryfunc)Compare_inplace_multiply,            /*inplace_multiply*/
-(binaryfunc)Compare_inplace_div,                 /*inplace_divide*/
+INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO              /*inplace_divide*/
 0,                                              /*inplace_remainder*/
 0,                                              /*inplace_power*/
 0,                                              /*inplace_lshift*/
@@ -2096,9 +2096,9 @@ INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
 0,                                              /*inplace_xor*/
 0,                                              /*inplace_or*/
 0,                                              /*nb_floor_divide*/
-0,                                              /*nb_true_divide*/
+(binaryfunc)Compare_div,                       /*nb_true_divide*/
 0,                                              /*nb_inplace_floor_divide*/
-0,                                              /*nb_inplace_true_divide*/
+(binaryfunc)Compare_inplace_div,                       /*nb_inplace_true_divide*/
 0,                                              /* nb_index */
 };
 
@@ -2490,7 +2490,7 @@ static PyNumberMethods Between_as_number = {
     (binaryfunc)Between_add,                      /*nb_add*/
     (binaryfunc)Between_sub,                 /*nb_subtract*/
     (binaryfunc)Between_multiply,                 /*nb_multiply*/
-    (binaryfunc)Between_div,                   /*nb_divide*/
+    INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
     0,                /*nb_remainder*/
     0,                   /*nb_divmod*/
     0,                   /*nb_power*/
@@ -2513,7 +2513,7 @@ static PyNumberMethods Between_as_number = {
     (binaryfunc)Between_inplace_add,              /*inplace_add*/
     (binaryfunc)Between_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)Between_inplace_multiply,         /*inplace_multiply*/
-    (binaryfunc)Between_inplace_div,           /*inplace_divide*/
+    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
     0,        /*inplace_remainder*/
     0,           /*inplace_power*/
     0,       /*inplace_lshift*/
@@ -2522,9 +2522,9 @@ static PyNumberMethods Between_as_number = {
     0,      /*inplace_xor*/
     0,       /*inplace_or*/
     0,             /*nb_floor_divide*/
-    0,              /*nb_true_divide*/
+    (binaryfunc)Between_div,                       /*nb_true_divide*/
     0,     /*nb_inplace_floor_divide*/
-    0,      /*nb_inplace_true_divide*/
+    (binaryfunc)Between_inplace_div,                       /*nb_inplace_true_divide*/
     0,                     /* nb_index */
 };
 
@@ -2763,7 +2763,7 @@ static PyNumberMethods Denorm_as_number = {
     (binaryfunc)Denorm_add,                         /*nb_add*/
     (binaryfunc)Denorm_sub,                         /*nb_subtract*/
     (binaryfunc)Denorm_multiply,                    /*nb_multiply*/
-    (binaryfunc)Denorm_div,                                              /*nb_divide*/
+    INITIALIZE_NB_DIVIDE_ZERO                       /*nb_divide*/
     0,                                              /*nb_remainder*/
     0,                                              /*nb_divmod*/
     0,                                              /*nb_power*/
@@ -2786,7 +2786,7 @@ static PyNumberMethods Denorm_as_number = {
     (binaryfunc)Denorm_inplace_add,                 /*inplace_add*/
     (binaryfunc)Denorm_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)Denorm_inplace_multiply,            /*inplace_multiply*/
-    (binaryfunc)Denorm_inplace_div,                                              /*inplace_divide*/
+    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO                                           /*inplace_divide*/
     0,                                              /*inplace_remainder*/
     0,                                              /*inplace_power*/
     0,                                              /*inplace_lshift*/
@@ -2795,9 +2795,9 @@ static PyNumberMethods Denorm_as_number = {
     0,                                              /*inplace_xor*/
     0,                                              /*inplace_or*/
     0,                                              /*nb_floor_divide*/
-    0,                                              /*nb_true_divide*/
+    (binaryfunc)Denorm_div,                       /*nb_true_divide*/
     0,                                              /*nb_inplace_floor_divide*/
-    0,                                              /*nb_inplace_true_divide*/
+    (binaryfunc)Denorm_inplace_div,                       /*nb_inplace_true_divide*/
     0,                                              /* nb_index */
 };
 
@@ -3042,7 +3042,7 @@ static PyNumberMethods DBToA_as_number = {
     (binaryfunc)DBToA_add,                         /*nb_add*/
     (binaryfunc)DBToA_sub,                         /*nb_subtract*/
     (binaryfunc)DBToA_multiply,                    /*nb_multiply*/
-    (binaryfunc)DBToA_div,                                              /*nb_divide*/
+    INITIALIZE_NB_DIVIDE_ZERO                       /*nb_divide*/
     0,                                              /*nb_remainder*/
     0,                                              /*nb_divmod*/
     0,                                              /*nb_power*/
@@ -3065,7 +3065,7 @@ static PyNumberMethods DBToA_as_number = {
     (binaryfunc)DBToA_inplace_add,                 /*inplace_add*/
     (binaryfunc)DBToA_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)DBToA_inplace_multiply,            /*inplace_multiply*/
-    (binaryfunc)DBToA_inplace_div,                                              /*inplace_divide*/
+    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO                                           /*inplace_divide*/
     0,                                              /*inplace_remainder*/
     0,                                              /*inplace_power*/
     0,                                              /*inplace_lshift*/
@@ -3074,9 +3074,9 @@ static PyNumberMethods DBToA_as_number = {
     0,                                              /*inplace_xor*/
     0,                                              /*inplace_or*/
     0,                                              /*nb_floor_divide*/
-    0,                                              /*nb_true_divide*/
+    (binaryfunc)DBToA_div,                       /*nb_true_divide*/
     0,                                              /*nb_inplace_floor_divide*/
-    0,                                              /*nb_inplace_true_divide*/
+    (binaryfunc)DBToA_inplace_div,                       /*nb_inplace_true_divide*/
     0,                                              /* nb_index */
 };
 
@@ -3321,7 +3321,7 @@ static PyNumberMethods AToDB_as_number = {
     (binaryfunc)AToDB_add,                         /*nb_add*/
     (binaryfunc)AToDB_sub,                         /*nb_subtract*/
     (binaryfunc)AToDB_multiply,                    /*nb_multiply*/
-    (binaryfunc)AToDB_div,                                              /*nb_divide*/
+    INITIALIZE_NB_DIVIDE_ZERO                       /*nb_divide*/
     0,                                              /*nb_remainder*/
     0,                                              /*nb_divmod*/
     0,                                              /*nb_power*/
@@ -3344,7 +3344,7 @@ static PyNumberMethods AToDB_as_number = {
     (binaryfunc)AToDB_inplace_add,                 /*inplace_add*/
     (binaryfunc)AToDB_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)AToDB_inplace_multiply,            /*inplace_multiply*/
-    (binaryfunc)AToDB_inplace_div,                                              /*inplace_divide*/
+    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO                                           /*inplace_divide*/
     0,                                              /*inplace_remainder*/
     0,                                              /*inplace_power*/
     0,                                              /*inplace_lshift*/
@@ -3353,9 +3353,9 @@ static PyNumberMethods AToDB_as_number = {
     0,                                              /*inplace_xor*/
     0,                                              /*inplace_or*/
     0,                                              /*nb_floor_divide*/
-    0,                                              /*nb_true_divide*/
+    (binaryfunc)AToDB_div,                       /*nb_true_divide*/
     0,                                              /*nb_inplace_floor_divide*/
-    0,                                              /*nb_inplace_true_divide*/
+    (binaryfunc)AToDB_inplace_div,                       /*nb_inplace_true_divide*/
     0,                                              /* nb_index */
 };
 
@@ -3921,7 +3921,7 @@ static PyNumberMethods Scale_as_number = {
     (binaryfunc)Scale_add,                         /*nb_add*/
     (binaryfunc)Scale_sub,                         /*nb_subtract*/
     (binaryfunc)Scale_multiply,                    /*nb_multiply*/
-    (binaryfunc)Scale_div,                                              /*nb_divide*/
+    INITIALIZE_NB_DIVIDE_ZERO                       /*nb_divide*/
     0,                                              /*nb_remainder*/
     0,                                              /*nb_divmod*/
     0,                                              /*nb_power*/
@@ -3944,7 +3944,7 @@ static PyNumberMethods Scale_as_number = {
     (binaryfunc)Scale_inplace_add,                 /*inplace_add*/
     (binaryfunc)Scale_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)Scale_inplace_multiply,            /*inplace_multiply*/
-    (binaryfunc)Scale_inplace_div,                                              /*inplace_divide*/
+    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO                                           /*inplace_divide*/
     0,                                              /*inplace_remainder*/
     0,                                              /*inplace_power*/
     0,                                              /*inplace_lshift*/
@@ -3953,9 +3953,9 @@ static PyNumberMethods Scale_as_number = {
     0,                                              /*inplace_xor*/
     0,                                              /*inplace_or*/
     0,                                              /*nb_floor_divide*/
-    0,                                              /*nb_true_divide*/
+    (binaryfunc)Scale_div,                       /*nb_true_divide*/
     0,                                              /*nb_inplace_floor_divide*/
-    0,                                              /*nb_inplace_true_divide*/
+    (binaryfunc)Scale_inplace_div,                       /*nb_inplace_true_divide*/
     0,                                              /* nb_index */
 };
 
@@ -4196,7 +4196,7 @@ static PyNumberMethods CentsToTranspo_as_number = {
     (binaryfunc)CentsToTranspo_add,                         /*nb_add*/
     (binaryfunc)CentsToTranspo_sub,                         /*nb_subtract*/
     (binaryfunc)CentsToTranspo_multiply,                    /*nb_multiply*/
-    (binaryfunc)CentsToTranspo_div,                                              /*nb_divide*/
+    INITIALIZE_NB_DIVIDE_ZERO                       /*nb_divide*/
     0,                                              /*nb_remainder*/
     0,                                              /*nb_divmod*/
     0,                                              /*nb_power*/
@@ -4219,7 +4219,7 @@ static PyNumberMethods CentsToTranspo_as_number = {
     (binaryfunc)CentsToTranspo_inplace_add,                 /*inplace_add*/
     (binaryfunc)CentsToTranspo_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)CentsToTranspo_inplace_multiply,            /*inplace_multiply*/
-    (binaryfunc)CentsToTranspo_inplace_div,                                              /*inplace_divide*/
+    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO                                           /*inplace_divide*/
     0,                                              /*inplace_remainder*/
     0,                                              /*inplace_power*/
     0,                                              /*inplace_lshift*/
@@ -4228,9 +4228,9 @@ static PyNumberMethods CentsToTranspo_as_number = {
     0,                                              /*inplace_xor*/
     0,                                              /*inplace_or*/
     0,                                              /*nb_floor_divide*/
-    0,                                              /*nb_true_divide*/
+    (binaryfunc)CentsToTranspo_div,                       /*nb_true_divide*/
     0,                                              /*nb_inplace_floor_divide*/
-    0,                                              /*nb_inplace_true_divide*/
+    (binaryfunc)CentsToTranspo_inplace_div,                       /*nb_inplace_true_divide*/
     0,                                              /* nb_index */
 };
 
@@ -4471,7 +4471,7 @@ static PyNumberMethods TranspoToCents_as_number = {
     (binaryfunc)TranspoToCents_add,                         /*nb_add*/
     (binaryfunc)TranspoToCents_sub,                         /*nb_subtract*/
     (binaryfunc)TranspoToCents_multiply,                    /*nb_multiply*/
-    (binaryfunc)TranspoToCents_div,                                              /*nb_divide*/
+    INITIALIZE_NB_DIVIDE_ZERO                       /*nb_divide*/
     0,                                              /*nb_remainder*/
     0,                                              /*nb_divmod*/
     0,                                              /*nb_power*/
@@ -4494,7 +4494,7 @@ static PyNumberMethods TranspoToCents_as_number = {
     (binaryfunc)TranspoToCents_inplace_add,                 /*inplace_add*/
     (binaryfunc)TranspoToCents_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)TranspoToCents_inplace_multiply,            /*inplace_multiply*/
-    (binaryfunc)TranspoToCents_inplace_div,                                              /*inplace_divide*/
+    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO                                           /*inplace_divide*/
     0,                                              /*inplace_remainder*/
     0,                                              /*inplace_power*/
     0,                                              /*inplace_lshift*/
@@ -4503,9 +4503,9 @@ static PyNumberMethods TranspoToCents_as_number = {
     0,                                              /*inplace_xor*/
     0,                                              /*inplace_or*/
     0,                                              /*nb_floor_divide*/
-    0,                                              /*nb_true_divide*/
+    (binaryfunc)TranspoToCents_div,                       /*nb_true_divide*/
     0,                                              /*nb_inplace_floor_divide*/
-    0,                                              /*nb_inplace_true_divide*/
+    (binaryfunc)TranspoToCents_inplace_div,                       /*nb_inplace_true_divide*/
     0,                                              /* nb_index */
 };
 
@@ -4746,7 +4746,7 @@ static PyNumberMethods MToF_as_number = {
     (binaryfunc)MToF_add,                         /*nb_add*/
     (binaryfunc)MToF_sub,                         /*nb_subtract*/
     (binaryfunc)MToF_multiply,                    /*nb_multiply*/
-    (binaryfunc)MToF_div,                                              /*nb_divide*/
+    INITIALIZE_NB_DIVIDE_ZERO                       /*nb_divide*/
     0,                                              /*nb_remainder*/
     0,                                              /*nb_divmod*/
     0,                                              /*nb_power*/
@@ -4769,7 +4769,7 @@ static PyNumberMethods MToF_as_number = {
     (binaryfunc)MToF_inplace_add,                 /*inplace_add*/
     (binaryfunc)MToF_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)MToF_inplace_multiply,            /*inplace_multiply*/
-    (binaryfunc)MToF_inplace_div,                                              /*inplace_divide*/
+    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO                                           /*inplace_divide*/
     0,                                              /*inplace_remainder*/
     0,                                              /*inplace_power*/
     0,                                              /*inplace_lshift*/
@@ -4778,9 +4778,9 @@ static PyNumberMethods MToF_as_number = {
     0,                                              /*inplace_xor*/
     0,                                              /*inplace_or*/
     0,                                              /*nb_floor_divide*/
-    0,                                              /*nb_true_divide*/
+    (binaryfunc)MToF_div,                       /*nb_true_divide*/
     0,                                              /*nb_inplace_floor_divide*/
-    0,                                              /*nb_inplace_true_divide*/
+    (binaryfunc)MToF_inplace_div,                       /*nb_inplace_true_divide*/
     0,                                              /* nb_index */
 };
 
@@ -5023,7 +5023,7 @@ static PyNumberMethods FToM_as_number = {
     (binaryfunc)FToM_add,                         /*nb_add*/
     (binaryfunc)FToM_sub,                         /*nb_subtract*/
     (binaryfunc)FToM_multiply,                    /*nb_multiply*/
-    (binaryfunc)FToM_div,                                              /*nb_divide*/
+    INITIALIZE_NB_DIVIDE_ZERO                       /*nb_divide*/
     0,                                              /*nb_remainder*/
     0,                                              /*nb_divmod*/
     0,                                              /*nb_power*/
@@ -5046,7 +5046,7 @@ static PyNumberMethods FToM_as_number = {
     (binaryfunc)FToM_inplace_add,                 /*inplace_add*/
     (binaryfunc)FToM_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)FToM_inplace_multiply,            /*inplace_multiply*/
-    (binaryfunc)FToM_inplace_div,                                              /*inplace_divide*/
+    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO                                           /*inplace_divide*/
     0,                                              /*inplace_remainder*/
     0,                                              /*inplace_power*/
     0,                                              /*inplace_lshift*/
@@ -5055,9 +5055,9 @@ static PyNumberMethods FToM_as_number = {
     0,                                              /*inplace_xor*/
     0,                                              /*inplace_or*/
     0,                                              /*nb_floor_divide*/
-    0,                                              /*nb_true_divide*/
+    (binaryfunc)FToM_div,                       /*nb_true_divide*/
     0,                                              /*nb_inplace_floor_divide*/
-    0,                                              /*nb_inplace_true_divide*/
+    (binaryfunc)FToM_inplace_div,                       /*nb_inplace_true_divide*/
     0,                                              /* nb_index */
 };
 
@@ -5316,7 +5316,7 @@ static PyNumberMethods MToT_as_number = {
     (binaryfunc)MToT_add,                         /*nb_add*/
     (binaryfunc)MToT_sub,                         /*nb_subtract*/
     (binaryfunc)MToT_multiply,                    /*nb_multiply*/
-    (binaryfunc)MToT_div,                                              /*nb_divide*/
+    INITIALIZE_NB_DIVIDE_ZERO                       /*nb_divide*/
     0,                                              /*nb_remainder*/
     0,                                              /*nb_divmod*/
     0,                                              /*nb_power*/
@@ -5339,7 +5339,7 @@ static PyNumberMethods MToT_as_number = {
     (binaryfunc)MToT_inplace_add,                 /*inplace_add*/
     (binaryfunc)MToT_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)MToT_inplace_multiply,            /*inplace_multiply*/
-    (binaryfunc)MToT_inplace_div,                                              /*inplace_divide*/
+    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO                                           /*inplace_divide*/
     0,                                              /*inplace_remainder*/
     0,                                              /*inplace_power*/
     0,                                              /*inplace_lshift*/
@@ -5348,9 +5348,9 @@ static PyNumberMethods MToT_as_number = {
     0,                                              /*inplace_xor*/
     0,                                              /*inplace_or*/
     0,                                              /*nb_floor_divide*/
-    0,                                              /*nb_true_divide*/
+    (binaryfunc)MToT_div,                       /*nb_true_divide*/
     0,                                              /*nb_inplace_floor_divide*/
-    0,                                              /*nb_inplace_true_divide*/
+    (binaryfunc)MToT_inplace_div,                       /*nb_inplace_true_divide*/
     0,                                              /* nb_index */
 };
 
@@ -5752,7 +5752,7 @@ static PyNumberMethods Resample_as_number = {
 (binaryfunc)Resample_add,                         /*nb_add*/
 (binaryfunc)Resample_sub,                         /*nb_subtract*/
 (binaryfunc)Resample_multiply,                    /*nb_multiply*/
-(binaryfunc)Resample_div,                                              /*nb_divide*/
+INITIALIZE_NB_DIVIDE_ZERO                       /*nb_divide*/
 0,                                              /*nb_remainder*/
 0,                                              /*nb_divmod*/
 0,                                              /*nb_power*/
@@ -5775,7 +5775,7 @@ INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
 (binaryfunc)Resample_inplace_add,                 /*inplace_add*/
 (binaryfunc)Resample_inplace_sub,                 /*inplace_subtract*/
 (binaryfunc)Resample_inplace_multiply,            /*inplace_multiply*/
-(binaryfunc)Resample_inplace_div,                                              /*inplace_divide*/
+INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO                                           /*inplace_divide*/
 0,                                              /*inplace_remainder*/
 0,                                              /*inplace_power*/
 0,                                              /*inplace_lshift*/
@@ -5784,9 +5784,9 @@ INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
 0,                                              /*inplace_xor*/
 0,                                              /*inplace_or*/
 0,                                              /*nb_floor_divide*/
-0,                                              /*nb_true_divide*/
+(binaryfunc)Resample_div,                       /*nb_true_divide*/
 0,                                              /*nb_inplace_floor_divide*/
-0,                                              /*nb_inplace_true_divide*/
+(binaryfunc)Resample_inplace_div,                       /*nb_inplace_true_divide*/
 0,                                              /* nb_index */
 };
 

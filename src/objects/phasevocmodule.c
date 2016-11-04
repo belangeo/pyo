@@ -729,7 +729,7 @@ static PyNumberMethods PVSynth_as_number = {
 (binaryfunc)PVSynth_add,                         /*nb_add*/
 (binaryfunc)PVSynth_sub,                         /*nb_subtract*/
 (binaryfunc)PVSynth_multiply,                    /*nb_multiply*/
-(binaryfunc)PVSynth_div,                         /*nb_divide*/
+INITIALIZE_NB_DIVIDE_ZERO  /*nb_divide*/
 0,                                              /*nb_remainder*/
 0,                                              /*nb_divmod*/
 0,                                              /*nb_power*/
@@ -752,7 +752,7 @@ INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
 (binaryfunc)PVSynth_inplace_add,                 /*inplace_add*/
 (binaryfunc)PVSynth_inplace_sub,                 /*inplace_subtract*/
 (binaryfunc)PVSynth_inplace_multiply,            /*inplace_multiply*/
-(binaryfunc)PVSynth_inplace_div,                                              /*inplace_divide*/
+INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO                                           /*inplace_divide*/
 0,                                              /*inplace_remainder*/
 0,                                              /*inplace_power*/
 0,                                              /*inplace_lshift*/
@@ -761,9 +761,9 @@ INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
 0,                                              /*inplace_xor*/
 0,                                              /*inplace_or*/
 0,                                              /*nb_floor_divide*/
-0,                                              /*nb_true_divide*/
+(binaryfunc)PVSynth_div,                       /*nb_true_divide*/
 0,                                              /*nb_inplace_floor_divide*/
-0,                                              /*nb_inplace_true_divide*/
+(binaryfunc)PVSynth_inplace_div,                       /*nb_inplace_true_divide*/
 0,                                              /* nb_index */
 };
 
@@ -1276,7 +1276,7 @@ static PyNumberMethods PVAddSynth_as_number = {
 (binaryfunc)PVAddSynth_add,                         /*nb_add*/
 (binaryfunc)PVAddSynth_sub,                         /*nb_subtract*/
 (binaryfunc)PVAddSynth_multiply,                    /*nb_multiply*/
-(binaryfunc)PVAddSynth_div,                         /*nb_divide*/
+INITIALIZE_NB_DIVIDE_ZERO  /*nb_divide*/
 0,                                              /*nb_remainder*/
 0,                                              /*nb_divmod*/
 0,                                              /*nb_power*/
@@ -1299,7 +1299,7 @@ INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
 (binaryfunc)PVAddSynth_inplace_add,                 /*inplace_add*/
 (binaryfunc)PVAddSynth_inplace_sub,                 /*inplace_subtract*/
 (binaryfunc)PVAddSynth_inplace_multiply,            /*inplace_multiply*/
-(binaryfunc)PVAddSynth_inplace_div,                                              /*inplace_divide*/
+INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO                                           /*inplace_divide*/
 0,                                              /*inplace_remainder*/
 0,                                              /*inplace_power*/
 0,                                              /*inplace_lshift*/
@@ -1308,9 +1308,9 @@ INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
 0,                                              /*inplace_xor*/
 0,                                              /*inplace_or*/
 0,                                              /*nb_floor_divide*/
-0,                                              /*nb_true_divide*/
+(binaryfunc)PVAddSynth_div,                       /*nb_true_divide*/
 0,                                              /*nb_inplace_floor_divide*/
-0,                                              /*nb_inplace_true_divide*/
+(binaryfunc)PVAddSynth_inplace_div,                       /*nb_inplace_true_divide*/
 0,                                              /* nb_index */
 };
 

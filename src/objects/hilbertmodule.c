@@ -406,7 +406,7 @@ static PyNumberMethods Hilbert_as_number = {
 (binaryfunc)Hilbert_add,                      /*nb_add*/
 (binaryfunc)Hilbert_sub,                 /*nb_subtract*/
 (binaryfunc)Hilbert_multiply,                 /*nb_multiply*/
-(binaryfunc)Hilbert_div,                   /*nb_divide*/
+INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
 0,                /*nb_remainder*/
 0,                   /*nb_divmod*/
 0,                   /*nb_power*/
@@ -429,7 +429,7 @@ INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
 (binaryfunc)Hilbert_inplace_add,              /*inplace_add*/
 (binaryfunc)Hilbert_inplace_sub,         /*inplace_subtract*/
 (binaryfunc)Hilbert_inplace_multiply,         /*inplace_multiply*/
-(binaryfunc)Hilbert_inplace_div,           /*inplace_divide*/
+INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
 0,        /*inplace_remainder*/
 0,           /*inplace_power*/
 0,       /*inplace_lshift*/
@@ -438,9 +438,9 @@ INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
 0,      /*inplace_xor*/
 0,       /*inplace_or*/
 0,             /*nb_floor_divide*/
-0,              /*nb_true_divide*/
+(binaryfunc)Hilbert_div,                       /*nb_true_divide*/
 0,     /*nb_inplace_floor_divide*/
-0,      /*nb_inplace_true_divide*/
+(binaryfunc)Hilbert_inplace_div,                       /*nb_inplace_true_divide*/
 0,                     /* nb_index */
 };
 

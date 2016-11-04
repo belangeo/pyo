@@ -1004,7 +1004,7 @@ static PyNumberMethods Granulator_as_number = {
     (binaryfunc)Granulator_add,                      /*nb_add*/
     (binaryfunc)Granulator_sub,                 /*nb_subtract*/
     (binaryfunc)Granulator_multiply,                 /*nb_multiply*/
-    (binaryfunc)Granulator_div,                   /*nb_divide*/
+    INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
     0,                /*nb_remainder*/
     0,                   /*nb_divmod*/
     0,                   /*nb_power*/
@@ -1027,7 +1027,7 @@ static PyNumberMethods Granulator_as_number = {
     (binaryfunc)Granulator_inplace_add,              /*inplace_add*/
     (binaryfunc)Granulator_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)Granulator_inplace_multiply,         /*inplace_multiply*/
-    (binaryfunc)Granulator_inplace_div,           /*inplace_divide*/
+    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
     0,        /*inplace_remainder*/
     0,           /*inplace_power*/
     0,       /*inplace_lshift*/
@@ -1036,9 +1036,9 @@ static PyNumberMethods Granulator_as_number = {
     0,      /*inplace_xor*/
     0,       /*inplace_or*/
     0,             /*nb_floor_divide*/
-    0,              /*nb_true_divide*/
+    (binaryfunc)Granulator_div,                       /*nb_true_divide*/
     0,     /*nb_inplace_floor_divide*/
-    0,      /*nb_inplace_true_divide*/
+    (binaryfunc)Granulator_inplace_div,                       /*nb_inplace_true_divide*/
     0,                     /* nb_index */
 };
 
@@ -2266,7 +2266,7 @@ static PyNumberMethods Looper_as_number = {
     (binaryfunc)Looper_add,                      /*nb_add*/
     (binaryfunc)Looper_sub,                 /*nb_subtract*/
     (binaryfunc)Looper_multiply,                 /*nb_multiply*/
-    (binaryfunc)Looper_div,                   /*nb_divide*/
+    INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
     0,                /*nb_remainder*/
     0,                   /*nb_divmod*/
     0,                   /*nb_power*/
@@ -2289,7 +2289,7 @@ static PyNumberMethods Looper_as_number = {
     (binaryfunc)Looper_inplace_add,              /*inplace_add*/
     (binaryfunc)Looper_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)Looper_inplace_multiply,         /*inplace_multiply*/
-    (binaryfunc)Looper_inplace_div,           /*inplace_divide*/
+    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
     0,        /*inplace_remainder*/
     0,           /*inplace_power*/
     0,       /*inplace_lshift*/
@@ -2298,9 +2298,9 @@ static PyNumberMethods Looper_as_number = {
     0,      /*inplace_xor*/
     0,       /*inplace_or*/
     0,             /*nb_floor_divide*/
-    0,              /*nb_true_divide*/
+    (binaryfunc)Looper_div,                       /*nb_true_divide*/
     0,     /*nb_inplace_floor_divide*/
-    0,      /*nb_inplace_true_divide*/
+    (binaryfunc)Looper_inplace_div,                       /*nb_inplace_true_divide*/
     0,                     /* nb_index */
 };
 
@@ -2509,7 +2509,7 @@ static PyNumberMethods LooperTimeStream_as_number = {
     (binaryfunc)LooperTimeStream_add,                         /*nb_add*/
     (binaryfunc)LooperTimeStream_sub,                         /*nb_subtract*/
     (binaryfunc)LooperTimeStream_multiply,                    /*nb_multiply*/
-    (binaryfunc)LooperTimeStream_div,                                              /*nb_divide*/
+    INITIALIZE_NB_DIVIDE_ZERO                       /*nb_divide*/
     0,                                              /*nb_remainder*/
     0,                                              /*nb_divmod*/
     0,                                              /*nb_power*/
@@ -2532,7 +2532,7 @@ static PyNumberMethods LooperTimeStream_as_number = {
     (binaryfunc)LooperTimeStream_inplace_add,                 /*inplace_add*/
     (binaryfunc)LooperTimeStream_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)LooperTimeStream_inplace_multiply,            /*inplace_multiply*/
-    (binaryfunc)LooperTimeStream_inplace_div,                                              /*inplace_divide*/
+    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO                                           /*inplace_divide*/
     0,                                              /*inplace_remainder*/
     0,                                              /*inplace_power*/
     0,                                              /*inplace_lshift*/
@@ -2541,9 +2541,9 @@ static PyNumberMethods LooperTimeStream_as_number = {
     0,                                              /*inplace_xor*/
     0,                                              /*inplace_or*/
     0,                                              /*nb_floor_divide*/
-    0,                                              /*nb_true_divide*/
+    (binaryfunc)LooperTimeStream_div,                       /*nb_true_divide*/
     0,                                              /*nb_inplace_floor_divide*/
-    0,                                              /*nb_inplace_true_divide*/
+    (binaryfunc)LooperTimeStream_inplace_div,                       /*nb_inplace_true_divide*/
     0,                                              /* nb_index */
 };
 
@@ -3240,7 +3240,7 @@ static PyNumberMethods Granule_as_number = {
     (binaryfunc)Granule_add,                      /*nb_add*/
     (binaryfunc)Granule_sub,                 /*nb_subtract*/
     (binaryfunc)Granule_multiply,                 /*nb_multiply*/
-    (binaryfunc)Granule_div,                   /*nb_divide*/
+    INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
     0,                /*nb_remainder*/
     0,                   /*nb_divmod*/
     0,                   /*nb_power*/
@@ -3263,7 +3263,7 @@ static PyNumberMethods Granule_as_number = {
     (binaryfunc)Granule_inplace_add,              /*inplace_add*/
     (binaryfunc)Granule_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)Granule_inplace_multiply,         /*inplace_multiply*/
-    (binaryfunc)Granule_inplace_div,           /*inplace_divide*/
+    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
     0,        /*inplace_remainder*/
     0,           /*inplace_power*/
     0,       /*inplace_lshift*/
@@ -3272,9 +3272,9 @@ static PyNumberMethods Granule_as_number = {
     0,      /*inplace_xor*/
     0,       /*inplace_or*/
     0,             /*nb_floor_divide*/
-    0,              /*nb_true_divide*/
+    (binaryfunc)Granule_div,                       /*nb_true_divide*/
     0,     /*nb_inplace_floor_divide*/
-    0,      /*nb_inplace_true_divide*/
+    (binaryfunc)Granule_inplace_div,                       /*nb_inplace_true_divide*/
     0,                     /* nb_index */
 };
 
@@ -4501,7 +4501,7 @@ static PyNumberMethods Particle_as_number = {
 (binaryfunc)Particle_add,                      /*nb_add*/
 (binaryfunc)Particle_sub,                 /*nb_subtract*/
 (binaryfunc)Particle_multiply,                 /*nb_multiply*/
-(binaryfunc)Particle_div,                   /*nb_divide*/
+INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
 0,                /*nb_remainder*/
 0,                   /*nb_divmod*/
 0,                   /*nb_power*/
@@ -4524,7 +4524,7 @@ INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
 (binaryfunc)Particle_inplace_add,              /*inplace_add*/
 (binaryfunc)Particle_inplace_sub,         /*inplace_subtract*/
 (binaryfunc)Particle_inplace_multiply,         /*inplace_multiply*/
-(binaryfunc)Particle_inplace_div,           /*inplace_divide*/
+INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
 0,        /*inplace_remainder*/
 0,           /*inplace_power*/
 0,       /*inplace_lshift*/
@@ -4533,9 +4533,9 @@ INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
 0,      /*inplace_xor*/
 0,       /*inplace_or*/
 0,             /*nb_floor_divide*/
-0,              /*nb_true_divide*/
+(binaryfunc)Particle_div,                       /*nb_true_divide*/
 0,     /*nb_inplace_floor_divide*/
-0,      /*nb_inplace_true_divide*/
+(binaryfunc)Particle_inplace_div,                       /*nb_inplace_true_divide*/
 0,                     /* nb_index */
 };
 

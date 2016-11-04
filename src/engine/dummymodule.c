@@ -199,7 +199,7 @@ static PyNumberMethods Dummy_as_number = {
     (binaryfunc)Dummy_add,                         /*nb_add*/
     (binaryfunc)Dummy_sub,                         /*nb_subtract*/
     (binaryfunc)Dummy_multiply,                    /*nb_multiply*/
-    (binaryfunc)Dummy_div,                          /*nb_divide*/
+    INITIALIZE_NB_DIVIDE_ZERO   /*nb_divide*/
     0,                                              /*nb_remainder*/
     0,                                              /*nb_divmod*/
     0,                                              /*nb_power*/
@@ -222,7 +222,7 @@ static PyNumberMethods Dummy_as_number = {
     (binaryfunc)Dummy_inplace_add,                 /*inplace_add*/
     (binaryfunc)Dummy_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)Dummy_inplace_multiply,            /*inplace_multiply*/
-    (binaryfunc)Dummy_inplace_div,                  /*inplace_divide*/
+    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO               /*inplace_divide*/
     0,                                              /*inplace_remainder*/
     0,                                              /*inplace_power*/
     0,                                              /*inplace_lshift*/
@@ -231,9 +231,9 @@ static PyNumberMethods Dummy_as_number = {
     0,                                              /*inplace_xor*/
     0,                                              /*inplace_or*/
     0,                                              /*nb_floor_divide*/
-    0,                                              /*nb_true_divide*/
+    (binaryfunc)Dummy_div,                       /*nb_true_divide*/
     0,                                              /*nb_inplace_floor_divide*/
-    0,                                              /*nb_inplace_true_divide*/
+    (binaryfunc)Dummy_inplace_div,                       /*nb_inplace_true_divide*/
     0,                                              /* nb_index */
 };
 
@@ -442,7 +442,7 @@ static PyNumberMethods TriggerDummy_as_number = {
     (binaryfunc)TriggerDummy_add,                         /*nb_add*/
     (binaryfunc)TriggerDummy_sub,                         /*nb_subtract*/
     (binaryfunc)TriggerDummy_multiply,                    /*nb_multiply*/
-    (binaryfunc)TriggerDummy_div,                                              /*nb_divide*/
+    INITIALIZE_NB_DIVIDE_ZERO                       /*nb_divide*/
     0,                                              /*nb_remainder*/
     0,                                              /*nb_divmod*/
     0,                                              /*nb_power*/
@@ -465,7 +465,7 @@ static PyNumberMethods TriggerDummy_as_number = {
     (binaryfunc)TriggerDummy_inplace_add,                 /*inplace_add*/
     (binaryfunc)TriggerDummy_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)TriggerDummy_inplace_multiply,            /*inplace_multiply*/
-    (binaryfunc)TriggerDummy_inplace_div,                                              /*inplace_divide*/
+    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO                                           /*inplace_divide*/
     0,                                              /*inplace_remainder*/
     0,                                              /*inplace_power*/
     0,                                              /*inplace_lshift*/
@@ -474,9 +474,9 @@ static PyNumberMethods TriggerDummy_as_number = {
     0,                                              /*inplace_xor*/
     0,                                              /*inplace_or*/
     0,                                              /*nb_floor_divide*/
-    0,                                              /*nb_true_divide*/
+    (binaryfunc)TriggerDummy_div,                       /*nb_true_divide*/
     0,                                              /*nb_inplace_floor_divide*/
-    0,                                              /*nb_inplace_true_divide*/
+    (binaryfunc)TriggerDummy_inplace_div,                       /*nb_inplace_true_divide*/
     0,                                              /* nb_index */
 };
 

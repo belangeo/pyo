@@ -737,7 +737,7 @@ static PyNumberMethods SfPlay_as_number = {
 (binaryfunc)SfPlay_add,                      /*nb_add*/
 (binaryfunc)SfPlay_sub,                 /*nb_subtract*/
 (binaryfunc)SfPlay_multiply,                 /*nb_multiply*/
-(binaryfunc)SfPlay_div,                   /*nb_divide*/
+INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
 0,                /*nb_remainder*/
 0,                   /*nb_divmod*/
 0,                   /*nb_power*/
@@ -760,7 +760,7 @@ INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
 (binaryfunc)SfPlay_inplace_add,              /*inplace_add*/
 (binaryfunc)SfPlay_inplace_sub,         /*inplace_subtract*/
 (binaryfunc)SfPlay_inplace_multiply,         /*inplace_multiply*/
-(binaryfunc)SfPlay_inplace_div,           /*inplace_divide*/
+INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
 0,        /*inplace_remainder*/
 0,           /*inplace_power*/
 0,       /*inplace_lshift*/
@@ -769,9 +769,9 @@ INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
 0,      /*inplace_xor*/
 0,       /*inplace_or*/
 0,             /*nb_floor_divide*/
-0,              /*nb_true_divide*/
+(binaryfunc)SfPlay_div,                       /*nb_true_divide*/
 0,     /*nb_inplace_floor_divide*/
-0,      /*nb_inplace_true_divide*/
+(binaryfunc)SfPlay_inplace_div,                       /*nb_inplace_true_divide*/
 0,                     /* nb_index */
 };
 
@@ -1461,7 +1461,7 @@ static PyNumberMethods SfMarkerShuffle_as_number = {
 (binaryfunc)SfMarkerShuffle_add,                      /*nb_add*/
 (binaryfunc)SfMarkerShuffle_sub,                 /*nb_subtract*/
 (binaryfunc)SfMarkerShuffle_multiply,                 /*nb_multiply*/
-(binaryfunc)SfMarkerShuffle_div,                   /*nb_divide*/
+INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
 0,                /*nb_remainder*/
 0,                   /*nb_divmod*/
 0,                   /*nb_power*/
@@ -1484,7 +1484,7 @@ INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
 (binaryfunc)SfMarkerShuffle_inplace_add,              /*inplace_add*/
 (binaryfunc)SfMarkerShuffle_inplace_sub,         /*inplace_subtract*/
 (binaryfunc)SfMarkerShuffle_inplace_multiply,         /*inplace_multiply*/
-(binaryfunc)SfMarkerShuffle_inplace_div,           /*inplace_divide*/
+INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
 0,        /*inplace_remainder*/
 0,           /*inplace_power*/
 0,       /*inplace_lshift*/
@@ -1493,9 +1493,9 @@ INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
 0,      /*inplace_xor*/
 0,       /*inplace_or*/
 0,             /*nb_floor_divide*/
-0,              /*nb_true_divide*/
+(binaryfunc)SfMarkerShuffle_div,                       /*nb_true_divide*/
 0,     /*nb_inplace_floor_divide*/
-0,      /*nb_inplace_true_divide*/
+(binaryfunc)SfMarkerShuffle_inplace_div,                       /*nb_inplace_true_divide*/
 0,                     /* nb_index */
 };
 
@@ -2236,7 +2236,7 @@ static PyNumberMethods SfMarkerLoop_as_number = {
     (binaryfunc)SfMarkerLoop_add,                      /*nb_add*/
     (binaryfunc)SfMarkerLoop_sub,                 /*nb_subtract*/
     (binaryfunc)SfMarkerLoop_multiply,                 /*nb_multiply*/
-    (binaryfunc)SfMarkerLoop_div,                   /*nb_divide*/
+    INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
     0,                /*nb_remainder*/
     0,                   /*nb_divmod*/
     0,                   /*nb_power*/
@@ -2259,7 +2259,7 @@ static PyNumberMethods SfMarkerLoop_as_number = {
     (binaryfunc)SfMarkerLoop_inplace_add,              /*inplace_add*/
     (binaryfunc)SfMarkerLoop_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)SfMarkerLoop_inplace_multiply,         /*inplace_multiply*/
-    (binaryfunc)SfMarkerLoop_inplace_div,           /*inplace_divide*/
+    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
     0,        /*inplace_remainder*/
     0,           /*inplace_power*/
     0,       /*inplace_lshift*/
@@ -2268,9 +2268,9 @@ static PyNumberMethods SfMarkerLoop_as_number = {
     0,      /*inplace_xor*/
     0,       /*inplace_or*/
     0,             /*nb_floor_divide*/
-    0,              /*nb_true_divide*/
+    (binaryfunc)SfMarkerLoop_div,                       /*nb_true_divide*/
     0,     /*nb_inplace_floor_divide*/
-    0,      /*nb_inplace_true_divide*/
+    (binaryfunc)SfMarkerLoop_inplace_div,                       /*nb_inplace_true_divide*/
     0,                     /* nb_index */
 };
 
