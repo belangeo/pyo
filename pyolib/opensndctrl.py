@@ -1,5 +1,6 @@
 from __future__ import print_function
 from __future__ import absolute_import
+from six.moves import range
 """
 Objects to manage values on an Open Sound Control port.
 
@@ -398,7 +399,7 @@ class OscDataSend(PyoObject):
         Returns the addresses managed by the object.
 
         """
-        return self._addresses.keys()
+        return list(self._addresses.keys())
 
     def addAddress(self, types, port, address, host="127.0.0.1"):
         """
@@ -706,7 +707,7 @@ class OscListReceive(PyoObject):
         for ind in reversed(indexes):
             self._address.pop(ind)
             first = ind * self._num
-            for i in reversed(range(first, first+self._num)):
+            for i in reversed(list(range(first, first+self._num))):
                 obj = self._base_objs.pop(i)
 
     def setInterpolation(self, x):

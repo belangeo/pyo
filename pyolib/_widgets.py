@@ -45,7 +45,7 @@ except:
 PYO_USE_TK = False
 if not PYO_USE_WX:
     try:
-        from Tkinter import *
+        from six.moves.tkinter import *
         from ._tkwidgets import *
         PYO_USE_TK = True
         print("""

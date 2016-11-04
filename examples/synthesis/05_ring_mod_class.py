@@ -5,6 +5,7 @@ Ring modulators used as exciter of a waveguide bank.
 
 """
 from pyo import *
+from six.moves import range
 
 s = Server(duplex=0).boot()
 

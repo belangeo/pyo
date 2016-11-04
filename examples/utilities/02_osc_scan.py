@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # encoding: utf-8
 from __future__ import print_function
+from six.moves import input
 """
 Scan Open Sound Control inputs. Launch this script from a terminal.
 
@@ -8,7 +9,7 @@ Scan Open Sound Control inputs. Launch this script from a terminal.
 from pyo import *
 import time
 
-port = input("Enter the incoming port number : ")
+port = eval(input("Enter the incoming port number : "))
 
 s = Server().boot().start()
 
@@ -27,7 +28,7 @@ again = "y"
 while again == "y":
     time.sleep(10)
     go = False
-    again = raw_input("Do you want to continue ? (y/n) : ")
+    again = input("Do you want to continue ? (y/n) : ")
     if again == "y":
         print("Continue...")
         go = True

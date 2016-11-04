@@ -1,5 +1,6 @@
 from __future__ import print_function
 from __future__ import absolute_import
+from six.moves import range
 """
 Set of objects to manage audio voice routing and spread of a sound
 signal into a new stereo or multi-channel sound field.
@@ -699,7 +700,7 @@ class Mixer(PyoObject):
         Returns the list of current keys in the Mixer's channels dictionary.
 
         """
-        return self._inputs.keys()
+        return list(self._inputs.keys())
 
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
         self._map_list = [SLMap(0, 10, 'lin', 'time', self._time, dataOnly=True),

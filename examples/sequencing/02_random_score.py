@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # encoding: utf-8
 from __future__ import print_function
+from six.moves import range
 """
 Calling Python function from an audio stream with the Score object.
  
@@ -30,7 +31,7 @@ def event_0():
 
 def event_1():
     print("playing looped oscillator")
-    bsyn.freq = [random.choice(range(50,501,50))*random.uniform(0.99,1.01) for i in range(2)]
+    bsyn.freq = [random.choice(list(range(50,501,50)))*random.uniform(0.99,1.01) for i in range(2)]
     bsyn.feedback = random.uniform(0.01, 0.1)
     bamp.play()
 

@@ -2,6 +2,7 @@
 from __future__ import division
 from __future__ import print_function
 from __future__ import absolute_import
+from six.moves import range
 """
 Copyright 2009-2015 Olivier Belanger
 
@@ -26,7 +27,7 @@ import random, os, sys, inspect, tempfile
 from subprocess import call
 from weakref import proxy
 
-import __builtin__
+import six.moves.builtins
 if hasattr(__builtin__, 'pyo_use_double'):
     import pyo64 as current_pyo
     from _pyo64 import *
@@ -130,8 +131,8 @@ def pyoArgsAssert(obj, format, *args):
     """
     if sys.version_info[0] < 3:
         # Python 2
-        unicodeType = types.UnicodeType
-        longType = long
+        unicodeType = str
+        longType = int
     else:
         # Python 3
         unicodeType = str

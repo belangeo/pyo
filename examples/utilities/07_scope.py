@@ -5,6 +5,7 @@ Simple scope example.
 
 """
 from pyo import *
+from six.moves import range
 
 class Scope:
     def __init__(self, input, length=0.05):
@@ -27,7 +28,7 @@ s = Server(duplex=1).boot()
 CHNLS = 2
 LENGTH = 0.05
 
-inp = Input(chnl=range(CHNLS))
+inp = Input(chnl=list(range(CHNLS)))
 scope = Scope(inp, LENGTH)
 
 s.gui(locals())

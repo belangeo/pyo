@@ -11,7 +11,7 @@ import time
 
 pm_list_devices()
 
-num = input("Enter your Midi interface number : ")
+num = eval(input("Enter your Midi interface number : "))
 
 s = Server(duplex=0)
 s.setMidiInputDevice(num)
@@ -28,7 +28,7 @@ again = "y"
 while again == "y":
     time.sleep(10)
     scan.stop()
-    again = raw_input("Do you want to continue ? (y/n) : ")
+    again = input("Do you want to continue ? (y/n) : ")
     if again == "y":
         print("Continue...")
         scan.play()

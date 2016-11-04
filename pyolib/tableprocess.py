@@ -7,6 +7,7 @@ store audio samples or algorithmic sequences for future uses.
 """
 
 from __future__ import absolute_import
+from six.moves import range
 """
 Copyright 2009-2015 Olivier Belanger
 

@@ -1,5 +1,6 @@
 from __future__ import print_function
 from __future__ import absolute_import
+from six.moves import range
 """
 Different kinds of audio filtering operations.
 

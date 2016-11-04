@@ -1,5 +1,6 @@
 from __future__ import print_function
 from __future__ import absolute_import
+from six.moves import range
 """
 Copyright 2009-2015 Olivier Belanger
 
@@ -21,7 +22,7 @@ License along with pyo.  If not, see <http://www.gnu.org/licenses/>.
 """
 from types import ListType, FloatType, IntType
 import math, sys, os
-from Tkinter import *
+from six.moves.tkinter import *
 
 try:
     from PIL import Image, ImageDraw, ImageTk

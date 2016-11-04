@@ -1,4 +1,5 @@
 from __future__ import print_function
+from six.moves import range
 """
 08-handling-channels.py - Managing object's internal audio streams.
 

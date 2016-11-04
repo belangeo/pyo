@@ -1,5 +1,6 @@
 from __future__ import print_function
 from __future__ import absolute_import
+from six.moves import range
 """
 Copyright 2009-2015 Olivier Belanger
 
@@ -2521,7 +2522,7 @@ class DataTableGrapher(wx.Frame):
 class ExprLexer(object):
     """Defines simple interface for custom lexer objects."""
     STC_EXPR_DEFAULT, STC_EXPR_KEYWORD, STC_EXPR_KEYWORD2, STC_EXPR_COMMENT, \
-    STC_EXPR_VARIABLE, STC_EXPR_LETVARIABLE = range(6)
+    STC_EXPR_VARIABLE, STC_EXPR_LETVARIABLE = list(range(6))
     def __init__(self):
         super(ExprLexer, self).__init__()
         
