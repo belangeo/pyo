@@ -574,7 +574,7 @@ PyTypeObject BiquadType = {
     0,                                              /*tp_print*/
     0,                                              /*tp_getattr*/
     0,                                              /*tp_setattr*/
-    0,                                              /*tp_compare*/
+    0,                                              /*tp_as_async (tp_compare in Python 2)*/
     0,                                              /*tp_repr*/
     &Biquad_as_number,                              /*tp_as_number*/
     0,                                              /*tp_as_sequence*/
@@ -1212,7 +1212,7 @@ PyTypeObject BiquadxType = {
     0,                                              /*tp_print*/
     0,                                              /*tp_getattr*/
     0,                                              /*tp_setattr*/
-    0,                                              /*tp_compare*/
+    0,                                              /*tp_as_async (tp_compare in Python 2)*/
     0,                                              /*tp_repr*/
     &Biquadx_as_number,                              /*tp_as_number*/
     0,                                              /*tp_as_sequence*/
@@ -1622,7 +1622,7 @@ PyTypeObject BiquadaType = {
     0,                                              /*tp_print*/
     0,                                              /*tp_getattr*/
     0,                                              /*tp_setattr*/
-    0,                                              /*tp_compare*/
+    0,                                              /*tp_as_async (tp_compare in Python 2)*/
     0,                                              /*tp_repr*/
     &Biquada_as_number,                              /*tp_as_number*/
     0,                                              /*tp_as_sequence*/
@@ -2346,7 +2346,7 @@ sizeof(EQ),                                 /*tp_basicsize*/
 0,                                              /*tp_print*/
 0,                                              /*tp_getattr*/
 0,                                              /*tp_setattr*/
-0,                                              /*tp_compare*/
+0,                                              /*tp_as_async (tp_compare in Python 2)*/
 0,                                              /*tp_repr*/
 &EQ_as_number,                              /*tp_as_number*/
 0,                                              /*tp_as_sequence*/
@@ -2817,7 +2817,7 @@ sizeof(Port),                                 /*tp_basicsize*/
 0,                                              /*tp_print*/
 0,                                              /*tp_getattr*/
 0,                                              /*tp_setattr*/
-0,                                              /*tp_compare*/
+0,                                              /*tp_as_async (tp_compare in Python 2)*/
 0,                                              /*tp_repr*/
 &Port_as_number,                              /*tp_as_number*/
 0,                                              /*tp_as_sequence*/
@@ -3177,7 +3177,7 @@ sizeof(Tone),                                 /*tp_basicsize*/
 0,                                              /*tp_print*/
 0,                                              /*tp_getattr*/
 0,                                              /*tp_setattr*/
-0,                                              /*tp_compare*/
+0,                                              /*tp_as_async (tp_compare in Python 2)*/
 0,                                              /*tp_repr*/
 &Tone_as_number,                              /*tp_as_number*/
 0,                                              /*tp_as_sequence*/
@@ -3539,7 +3539,7 @@ sizeof(Atone),                                 /*tp_basicsize*/
 0,                                              /*tp_print*/
 0,                                              /*tp_getattr*/
 0,                                              /*tp_setattr*/
-0,                                              /*tp_compare*/
+0,                                              /*tp_as_async (tp_compare in Python 2)*/
 0,                                              /*tp_repr*/
 &Atone_as_number,                              /*tp_as_number*/
 0,                                              /*tp_as_sequence*/
@@ -3807,7 +3807,7 @@ sizeof(DCBlock),                                 /*tp_basicsize*/
 0,                                              /*tp_print*/
 0,                                              /*tp_getattr*/
 0,                                              /*tp_setattr*/
-0,                                              /*tp_compare*/
+0,                                              /*tp_as_async (tp_compare in Python 2)*/
 0,                                              /*tp_repr*/
 &DCBlock_as_number,                              /*tp_as_number*/
 0,                                              /*tp_as_sequence*/
@@ -4333,7 +4333,7 @@ PyTypeObject AllpassType = {
     0,                         /*tp_print*/
     0,                         /*tp_getattr*/
     0,                         /*tp_setattr*/
-    0,                         /*tp_compare*/
+    0,                         /*tp_as_async (tp_compare in Python 2)*/
     0,                         /*tp_repr*/
     &Allpass_as_number,             /*tp_as_number*/
     0,                         /*tp_as_sequence*/
@@ -4808,7 +4808,7 @@ sizeof(Allpass2),                                 /*tp_basicsize*/
 0,                                              /*tp_print*/
 0,                                              /*tp_getattr*/
 0,                                              /*tp_setattr*/
-0,                                              /*tp_compare*/
+0,                                              /*tp_as_async (tp_compare in Python 2)*/
 0,                                              /*tp_repr*/
 &Allpass2_as_number,                              /*tp_as_number*/
 0,                                              /*tp_as_sequence*/
@@ -5644,7 +5644,7 @@ PyTypeObject PhaserType = {
     0,                                              /*tp_print*/
     0,                                              /*tp_getattr*/
     0,                                              /*tp_setattr*/
-    0,                                              /*tp_compare*/
+    0,                                              /*tp_as_async (tp_compare in Python 2)*/
     0,                                              /*tp_repr*/
     &Phaser_as_number,                              /*tp_as_number*/
     0,                                              /*tp_as_sequence*/
@@ -6898,7 +6898,7 @@ PyTypeObject VocoderType = {
     0,                                              /*tp_print*/
     0,                                              /*tp_getattr*/
     0,                                              /*tp_setattr*/
-    0,                                              /*tp_compare*/
+    0,                                              /*tp_as_async (tp_compare in Python 2)*/
     0,                                              /*tp_repr*/
     &Vocoder_as_number,                              /*tp_as_number*/
     0,                                              /*tp_as_sequence*/
@@ -7701,7 +7701,7 @@ PyTypeObject SVFType = {
     0,                                              /*tp_print*/
     0,                                              /*tp_getattr*/
     0,                                              /*tp_setattr*/
-    0,                                              /*tp_compare*/
+    0,                                              /*tp_as_async (tp_compare in Python 2)*/
     0,                                              /*tp_repr*/
     &SVF_as_number,                              /*tp_as_number*/
     0,                                              /*tp_as_sequence*/
@@ -8044,7 +8044,7 @@ PyTypeObject AverageType = {
     0,                         /*tp_print*/
     0,                         /*tp_getattr*/
     0,                         /*tp_setattr*/
-    0,                         /*tp_compare*/
+    0,                         /*tp_as_async (tp_compare in Python 2)*/
     0,                         /*tp_repr*/
     &Average_as_number,             /*tp_as_number*/
     0,                         /*tp_as_sequence*/
@@ -8530,7 +8530,7 @@ PyTypeObject ResonType = {
     0,                                              /*tp_print*/
     0,                                              /*tp_getattr*/
     0,                                              /*tp_setattr*/
-    0,                                              /*tp_compare*/
+    0,                                              /*tp_as_async (tp_compare in Python 2)*/
     0,                                              /*tp_repr*/
     &Reson_as_number,                              /*tp_as_number*/
     0,                                              /*tp_as_sequence*/
@@ -9073,7 +9073,7 @@ PyTypeObject ResonxType = {
     0,                                              /*tp_print*/
     0,                                              /*tp_getattr*/
     0,                                              /*tp_setattr*/
-    0,                                              /*tp_compare*/
+    0,                                              /*tp_as_async (tp_compare in Python 2)*/
     0,                                              /*tp_repr*/
     &Resonx_as_number,                              /*tp_as_number*/
     0,                                              /*tp_as_sequence*/
@@ -9461,7 +9461,7 @@ sizeof(ButLP),                                 /*tp_basicsize*/
 0,                                              /*tp_print*/
 0,                                              /*tp_getattr*/
 0,                                              /*tp_setattr*/
-0,                                              /*tp_compare*/
+0,                                              /*tp_as_async (tp_compare in Python 2)*/
 0,                                              /*tp_repr*/
 &ButLP_as_number,                              /*tp_as_number*/
 0,                                              /*tp_as_sequence*/
@@ -9849,7 +9849,7 @@ sizeof(ButHP),                                 /*tp_basicsize*/
 0,                                              /*tp_print*/
 0,                                              /*tp_getattr*/
 0,                                              /*tp_setattr*/
-0,                                              /*tp_compare*/
+0,                                              /*tp_as_async (tp_compare in Python 2)*/
 0,                                              /*tp_repr*/
 &ButHP_as_number,                              /*tp_as_number*/
 0,                                              /*tp_as_sequence*/
@@ -10342,7 +10342,7 @@ PyTypeObject ButBPType = {
     0,                                              /*tp_print*/
     0,                                              /*tp_getattr*/
     0,                                              /*tp_setattr*/
-    0,                                              /*tp_compare*/
+    0,                                              /*tp_as_async (tp_compare in Python 2)*/
     0,                                              /*tp_repr*/
     &ButBP_as_number,                              /*tp_as_number*/
     0,                                              /*tp_as_sequence*/
@@ -10835,7 +10835,7 @@ PyTypeObject ButBRType = {
     0,                                              /*tp_print*/
     0,                                              /*tp_getattr*/
     0,                                              /*tp_setattr*/
-    0,                                              /*tp_compare*/
+    0,                                              /*tp_as_async (tp_compare in Python 2)*/
     0,                                              /*tp_repr*/
     &ButBR_as_number,                              /*tp_as_number*/
     0,                                              /*tp_as_sequence*/
@@ -11335,7 +11335,7 @@ sizeof(ComplexRes),                                 /*tp_basicsize*/
 0,                                              /*tp_print*/
 0,                                              /*tp_getattr*/
 0,                                              /*tp_setattr*/
-0,                                              /*tp_compare*/
+0,                                              /*tp_as_async (tp_compare in Python 2)*/
 0,                                              /*tp_repr*/
 &ComplexRes_as_number,                              /*tp_as_number*/
 0,                                              /*tp_as_sequence*/
@@ -11842,7 +11842,7 @@ PyTypeObject MoogLPType = {
     0,                                              /*tp_print*/
     0,                                              /*tp_getattr*/
     0,                                              /*tp_setattr*/
-    0,                                              /*tp_compare*/
+    0,                                              /*tp_as_async (tp_compare in Python 2)*/
     0,                                              /*tp_repr*/
     &MoogLP_as_number,                              /*tp_as_number*/
     0,                                              /*tp_as_sequence*/

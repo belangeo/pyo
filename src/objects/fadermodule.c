@@ -401,7 +401,7 @@ sizeof(Fader),         /*tp_basicsize*/
 0,                         /*tp_print*/
 0,                         /*tp_getattr*/
 0,                         /*tp_setattr*/
-0,                         /*tp_compare*/
+0,                         /*tp_as_async (tp_compare in Python 2)*/
 0,                         /*tp_repr*/
 &Fader_as_number,             /*tp_as_number*/
 0,                         /*tp_as_sequence*/
@@ -860,7 +860,7 @@ sizeof(Adsr),         /*tp_basicsize*/
 0,                         /*tp_print*/
 0,                         /*tp_getattr*/
 0,                         /*tp_setattr*/
-0,                         /*tp_compare*/
+0,                         /*tp_as_async (tp_compare in Python 2)*/
 0,                         /*tp_repr*/
 &Adsr_as_number,             /*tp_as_number*/
 0,                         /*tp_as_sequence*/
@@ -1253,7 +1253,7 @@ sizeof(Linseg),         /*tp_basicsize*/
 0,                         /*tp_print*/
 0,                         /*tp_getattr*/
 0,                         /*tp_setattr*/
-0,                         /*tp_compare*/
+0,                         /*tp_as_async (tp_compare in Python 2)*/
 0,                         /*tp_repr*/
 &Linseg_as_number,             /*tp_as_number*/
 0,                         /*tp_as_sequence*/
@@ -1696,7 +1696,7 @@ PyTypeObject ExpsegType = {
     0,                         /*tp_print*/
     0,                         /*tp_getattr*/
     0,                         /*tp_setattr*/
-    0,                         /*tp_compare*/
+    0,                         /*tp_as_async (tp_compare in Python 2)*/
     0,                         /*tp_repr*/
     &Expseg_as_number,             /*tp_as_number*/
     0,                         /*tp_as_sequence*/

@@ -261,7 +261,7 @@ sizeof(Record),                                 /*tp_basicsize*/
 0,                                              /*tp_print*/
 0,                                              /*tp_getattr*/
 0,                                              /*tp_setattr*/
-0,                                              /*tp_compare*/
+0,                                              /*tp_as_async (tp_compare in Python 2)*/
 0,                                              /*tp_repr*/
 0,												/*tp_as_number*/
 0,                                              /*tp_as_sequence*/
@@ -484,7 +484,7 @@ PyTypeObject ControlRecType = {
     0,                                              /*tp_print*/
     0,                                              /*tp_getattr*/
     0,                                              /*tp_setattr*/
-    0,                                              /*tp_compare*/
+    0,                                              /*tp_as_async (tp_compare in Python 2)*/
     0,                                              /*tp_repr*/
     0,												/*tp_as_number*/
     0,                                              /*tp_as_sequence*/
@@ -873,7 +873,7 @@ PyTypeObject ControlReadType = {
     0,                         /*tp_print*/
     0,                         /*tp_getattr*/
     0,                         /*tp_setattr*/
-    0,                         /*tp_compare*/
+    0,                         /*tp_as_async (tp_compare in Python 2)*/
     0,                         /*tp_repr*/
     &ControlRead_as_number,             /*tp_as_number*/
     0,                         /*tp_as_sequence*/
@@ -1089,7 +1089,7 @@ PyTypeObject NoteinRecType = {
     0,                                              /*tp_print*/
     0,                                              /*tp_getattr*/
     0,                                              /*tp_setattr*/
-    0,                                              /*tp_compare*/
+    0,                                              /*tp_as_async (tp_compare in Python 2)*/
     0,                                              /*tp_repr*/
     0,												/*tp_as_number*/
     0,                                              /*tp_as_sequence*/
@@ -1460,7 +1460,7 @@ PyTypeObject NoteinReadType = {
     0,                         /*tp_print*/
     0,                         /*tp_getattr*/
     0,                         /*tp_setattr*/
-    0,                         /*tp_compare*/
+    0,                         /*tp_as_async (tp_compare in Python 2)*/
     0,                         /*tp_repr*/
     &NoteinRead_as_number,             /*tp_as_number*/
     0,                         /*tp_as_sequence*/

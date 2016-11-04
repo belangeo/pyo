@@ -209,7 +209,7 @@ sizeof(OscReceiver),         /*tp_basicsize*/
 0,                         /*tp_print*/
 0,                         /*tp_getattr*/
 0,                         /*tp_setattr*/
-0,                         /*tp_compare*/
+0,                         /*tp_as_async (tp_compare in Python 2)*/
 0,                         /*tp_repr*/
 0,             /*tp_as_number*/
 0,                         /*tp_as_sequence*/
@@ -501,7 +501,7 @@ PyTypeObject OscReceiveType = {
     0,                         /*tp_print*/
     0,                         /*tp_getattr*/
     0,                         /*tp_setattr*/
-    0,                         /*tp_compare*/
+    0,                         /*tp_as_async (tp_compare in Python 2)*/
     0,                         /*tp_repr*/
     &OscReceive_as_number,             /*tp_as_number*/
     0,                         /*tp_as_sequence*/
@@ -680,7 +680,7 @@ sizeof(OscSend),         /*tp_basicsize*/
 0,                         /*tp_print*/
 0,                         /*tp_getattr*/
 0,                         /*tp_setattr*/
-0,                         /*tp_compare*/
+0,                         /*tp_as_async (tp_compare in Python 2)*/
 0,                         /*tp_repr*/
 0,             /*tp_as_number*/
 0,                         /*tp_as_sequence*/
@@ -922,7 +922,7 @@ PyTypeObject OscDataSendType = {
     0,                         /*tp_print*/
     0,                         /*tp_getattr*/
     0,                         /*tp_setattr*/
-    0,                         /*tp_compare*/
+    0,                         /*tp_as_async (tp_compare in Python 2)*/
     0,                         /*tp_repr*/
     0,             /*tp_as_number*/
     0,                         /*tp_as_sequence*/
@@ -1188,7 +1188,7 @@ PyTypeObject OscDataReceiveType = {
     0,                         /*tp_print*/
     0,                         /*tp_getattr*/
     0,                         /*tp_setattr*/
-    0,                         /*tp_compare*/
+    0,                         /*tp_as_async (tp_compare in Python 2)*/
     0,                         /*tp_repr*/
     0,             /*tp_as_number*/
     0,                         /*tp_as_sequence*/
@@ -1423,7 +1423,7 @@ PyTypeObject OscListReceiverType = {
     0,                         /*tp_print*/
     0,                         /*tp_getattr*/
     0,                         /*tp_setattr*/
-    0,                         /*tp_compare*/
+    0,                         /*tp_as_async (tp_compare in Python 2)*/
     0,                         /*tp_repr*/
     0,             /*tp_as_number*/
     0,                         /*tp_as_sequence*/
@@ -1718,7 +1718,7 @@ PyTypeObject OscListReceiveType = {
     0,                         /*tp_print*/
     0,                         /*tp_getattr*/
     0,                         /*tp_setattr*/
-    0,                         /*tp_compare*/
+    0,                         /*tp_as_async (tp_compare in Python 2)*/
     0,                         /*tp_repr*/
     &OscListReceive_as_number,             /*tp_as_number*/
     0,                         /*tp_as_sequence*/

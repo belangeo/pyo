@@ -457,7 +457,7 @@ PyTypeObject DistoType = {
     0,                         /*tp_print*/
     0,                         /*tp_getattr*/
     0,                         /*tp_setattr*/
-    0,                         /*tp_compare*/
+    0,                         /*tp_as_async (tp_compare in Python 2)*/
     0,                         /*tp_repr*/
     &Disto_as_number,             /*tp_as_number*/
     0,                         /*tp_as_sequence*/
@@ -895,7 +895,7 @@ sizeof(Clip),         /*tp_basicsize*/
 0,                         /*tp_print*/
 0,                         /*tp_getattr*/
 0,                         /*tp_setattr*/
-0,                         /*tp_compare*/
+0,                         /*tp_as_async (tp_compare in Python 2)*/
 0,                         /*tp_repr*/
 &Clip_as_number,             /*tp_as_number*/
 0,                         /*tp_as_sequence*/
@@ -1363,7 +1363,7 @@ PyTypeObject MirrorType = {
     0,                         /*tp_print*/
     0,                         /*tp_getattr*/
     0,                         /*tp_setattr*/
-    0,                         /*tp_compare*/
+    0,                         /*tp_as_async (tp_compare in Python 2)*/
     0,                         /*tp_repr*/
     &Mirror_as_number,             /*tp_as_number*/
     0,                         /*tp_as_sequence*/
@@ -1855,7 +1855,7 @@ PyTypeObject WrapType = {
     0,                         /*tp_print*/
     0,                         /*tp_getattr*/
     0,                         /*tp_setattr*/
-    0,                         /*tp_compare*/
+    0,                         /*tp_as_async (tp_compare in Python 2)*/
     0,                         /*tp_repr*/
     &Wrap_as_number,             /*tp_as_number*/
     0,                         /*tp_as_sequence*/
@@ -2338,7 +2338,7 @@ sizeof(Degrade),         /*tp_basicsize*/
 0,                         /*tp_print*/
 0,                         /*tp_getattr*/
 0,                         /*tp_setattr*/
-0,                         /*tp_compare*/
+0,                         /*tp_as_async (tp_compare in Python 2)*/
 0,                         /*tp_repr*/
 &Degrade_as_number,             /*tp_as_number*/
 0,                         /*tp_as_sequence*/
@@ -2667,7 +2667,7 @@ sizeof(Min),                                 /*tp_basicsize*/
 0,                                              /*tp_print*/
 0,                                              /*tp_getattr*/
 0,                                              /*tp_setattr*/
-0,                                              /*tp_compare*/
+0,                                              /*tp_as_async (tp_compare in Python 2)*/
 0,                                              /*tp_repr*/
 &Min_as_number,                              /*tp_as_number*/
 0,                                              /*tp_as_sequence*/
@@ -2996,7 +2996,7 @@ sizeof(Max),                                 /*tp_basicsize*/
 0,                                              /*tp_print*/
 0,                                              /*tp_getattr*/
 0,                                              /*tp_setattr*/
-0,                                              /*tp_compare*/
+0,                                              /*tp_as_async (tp_compare in Python 2)*/
 0,                                              /*tp_repr*/
 &Max_as_number,                              /*tp_as_number*/
 0,                                              /*tp_as_sequence*/

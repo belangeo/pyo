@@ -353,7 +353,7 @@ sizeof(Follower),                                 /*tp_basicsize*/
 0,                                              /*tp_print*/
 0,                                              /*tp_getattr*/
 0,                                              /*tp_setattr*/
-0,                                              /*tp_compare*/
+0,                                              /*tp_as_async (tp_compare in Python 2)*/
 0,                                              /*tp_repr*/
 &Follower_as_number,                              /*tp_as_number*/
 0,                                              /*tp_as_sequence*/
@@ -853,7 +853,7 @@ PyTypeObject Follower2Type = {
     0,                                              /*tp_print*/
     0,                                              /*tp_getattr*/
     0,                                              /*tp_setattr*/
-    0,                                              /*tp_compare*/
+    0,                                              /*tp_as_async (tp_compare in Python 2)*/
     0,                                              /*tp_repr*/
     &Follower2_as_number,                              /*tp_as_number*/
     0,                                              /*tp_as_sequence*/
@@ -1149,7 +1149,7 @@ sizeof(ZCross),                                 /*tp_basicsize*/
 0,                                              /*tp_print*/
 0,                                              /*tp_getattr*/
 0,                                              /*tp_setattr*/
-0,                                              /*tp_compare*/
+0,                                              /*tp_as_async (tp_compare in Python 2)*/
 0,                                              /*tp_repr*/
 &ZCross_as_number,                              /*tp_as_number*/
 0,                                              /*tp_as_sequence*/
@@ -1578,7 +1578,7 @@ sizeof(Yin),                                 /*tp_basicsize*/
 0,                                              /*tp_print*/
 0,                                              /*tp_getattr*/
 0,                                              /*tp_setattr*/
-0,                                              /*tp_compare*/
+0,                                              /*tp_as_async (tp_compare in Python 2)*/
 0,                                              /*tp_repr*/
 &Yin_as_number,                              /*tp_as_number*/
 0,                                              /*tp_as_sequence*/
@@ -1920,7 +1920,7 @@ sizeof(Centroid),                                 /*tp_basicsize*/
 0,                                              /*tp_print*/
 0,                                              /*tp_getattr*/
 0,                                              /*tp_setattr*/
-0,                                              /*tp_compare*/
+0,                                              /*tp_as_async (tp_compare in Python 2)*/
 0,                                              /*tp_repr*/
 &Centroid_as_number,                              /*tp_as_number*/
 0,                                              /*tp_as_sequence*/
@@ -2371,7 +2371,7 @@ sizeof(AttackDetector),                                 /*tp_basicsize*/
 0,                                              /*tp_print*/
 0,                                              /*tp_getattr*/
 0,                                              /*tp_setattr*/
-0,                                              /*tp_compare*/
+0,                                              /*tp_as_async (tp_compare in Python 2)*/
 0,                                              /*tp_repr*/
 &AttackDetector_as_number,                              /*tp_as_number*/
 0,                                              /*tp_as_sequence*/
@@ -2603,7 +2603,7 @@ sizeof(Scope),                                 /*tp_basicsize*/
 0,                                              /*tp_print*/
 0,                                              /*tp_getattr*/
 0,                                              /*tp_setattr*/
-0,                                              /*tp_compare*/
+0,                                              /*tp_as_async (tp_compare in Python 2)*/
 0,                                              /*tp_repr*/
 0,                              /*tp_as_number*/
 0,                                              /*tp_as_sequence*/
@@ -2882,7 +2882,7 @@ sizeof(PeakAmp),                                 /*tp_basicsize*/
 0,                                              /*tp_print*/
 0,                                              /*tp_getattr*/
 0,                                              /*tp_setattr*/
-0,                                              /*tp_compare*/
+0,                                              /*tp_as_async (tp_compare in Python 2)*/
 0,                                              /*tp_repr*/
 &PeakAmp_as_number,                              /*tp_as_number*/
 0,                                              /*tp_as_sequence*/

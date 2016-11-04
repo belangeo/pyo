@@ -338,7 +338,7 @@ PyTypeObject TrigRandIntType = {
     0,                                              /*tp_print*/
     0,                                              /*tp_getattr*/
     0,                                              /*tp_setattr*/
-    0,                                              /*tp_compare*/
+    0,                                              /*tp_as_async (tp_compare in Python 2)*/
     0,                                              /*tp_repr*/
     &TrigRandInt_as_number,                              /*tp_as_number*/
     0,                                              /*tp_as_sequence*/
@@ -853,7 +853,7 @@ sizeof(TrigRand),                                 /*tp_basicsize*/
 0,                                              /*tp_print*/
 0,                                              /*tp_getattr*/
 0,                                              /*tp_setattr*/
-0,                                              /*tp_compare*/
+0,                                              /*tp_as_async (tp_compare in Python 2)*/
 0,                                              /*tp_repr*/
 &TrigRand_as_number,                              /*tp_as_number*/
 0,                                              /*tp_as_sequence*/
@@ -1205,7 +1205,7 @@ sizeof(TrigChoice),                                 /*tp_basicsize*/
 0,                                              /*tp_print*/
 0,                                              /*tp_getattr*/
 0,                                              /*tp_setattr*/
-0,                                              /*tp_compare*/
+0,                                              /*tp_as_async (tp_compare in Python 2)*/
 0,                                              /*tp_repr*/
 &TrigChoice_as_number,                              /*tp_as_number*/
 0,                                              /*tp_as_sequence*/
@@ -1411,7 +1411,7 @@ sizeof(TrigFunc),                                 /*tp_basicsize*/
 0,                                              /*tp_print*/
 0,                                              /*tp_getattr*/
 0,                                              /*tp_setattr*/
-0,                                              /*tp_compare*/
+0,                                              /*tp_as_async (tp_compare in Python 2)*/
 0,                                              /*tp_repr*/
 0,                              /*tp_as_number*/
 0,                                              /*tp_as_sequence*/
@@ -1881,7 +1881,7 @@ sizeof(TrigEnv),         /*tp_basicsize*/
 0,                         /*tp_print*/
 0,                         /*tp_getattr*/
 0,                         /*tp_setattr*/
-0,                         /*tp_compare*/
+0,                         /*tp_as_async (tp_compare in Python 2)*/
 0,                         /*tp_repr*/
 &TrigEnv_as_number,             /*tp_as_number*/
 0,                         /*tp_as_sequence*/
@@ -2258,7 +2258,7 @@ sizeof(TrigLinseg),         /*tp_basicsize*/
 0,                         /*tp_print*/
 0,                         /*tp_getattr*/
 0,                         /*tp_setattr*/
-0,                         /*tp_compare*/
+0,                         /*tp_as_async (tp_compare in Python 2)*/
 0,                         /*tp_repr*/
 &TrigLinseg_as_number,             /*tp_as_number*/
 0,                         /*tp_as_sequence*/
@@ -2685,7 +2685,7 @@ sizeof(TrigExpseg),         /*tp_basicsize*/
 0,                         /*tp_print*/
 0,                         /*tp_getattr*/
 0,                         /*tp_setattr*/
-0,                         /*tp_compare*/
+0,                         /*tp_as_async (tp_compare in Python 2)*/
 0,                         /*tp_repr*/
 &TrigExpseg_as_number,             /*tp_as_number*/
 0,                         /*tp_as_sequence*/
@@ -3425,7 +3425,7 @@ PyTypeObject TrigXnoiseType = {
     0,                                              /*tp_print*/
     0,                                              /*tp_getattr*/
     0,                                              /*tp_setattr*/
-    0,                                              /*tp_compare*/
+    0,                                              /*tp_as_async (tp_compare in Python 2)*/
     0,                                              /*tp_repr*/
     &TrigXnoise_as_number,                              /*tp_as_number*/
     0,                                              /*tp_as_sequence*/
@@ -4250,7 +4250,7 @@ PyTypeObject TrigXnoiseMidiType = {
     0,                                              /*tp_print*/
     0,                                              /*tp_getattr*/
     0,                                              /*tp_setattr*/
-    0,                                              /*tp_compare*/
+    0,                                              /*tp_as_async (tp_compare in Python 2)*/
     0,                                              /*tp_repr*/
     &TrigXnoiseMidi_as_number,                              /*tp_as_number*/
     0,                                              /*tp_as_sequence*/
@@ -4616,7 +4616,7 @@ sizeof(Counter),                                 /*tp_basicsize*/
 0,                                              /*tp_print*/
 0,                                              /*tp_getattr*/
 0,                                              /*tp_setattr*/
-0,                                              /*tp_compare*/
+0,                                              /*tp_as_async (tp_compare in Python 2)*/
 0,                                              /*tp_repr*/
 &Counter_as_number,                              /*tp_as_number*/
 0,                                              /*tp_as_sequence*/
@@ -5025,7 +5025,7 @@ sizeof(Thresh),                                 /*tp_basicsize*/
 0,                                              /*tp_print*/
 0,                                              /*tp_getattr*/
 0,                                              /*tp_setattr*/
-0,                                              /*tp_compare*/
+0,                                              /*tp_as_async (tp_compare in Python 2)*/
 0,                                              /*tp_repr*/
 &Thresh_as_number,                              /*tp_as_number*/
 0,                                              /*tp_as_sequence*/
@@ -5363,7 +5363,7 @@ PyTypeObject PercentType = {
     0,                                              /*tp_print*/
     0,                                              /*tp_getattr*/
     0,                                              /*tp_setattr*/
-    0,                                              /*tp_compare*/
+    0,                                              /*tp_as_async (tp_compare in Python 2)*/
     0,                                              /*tp_repr*/
     &Percent_as_number,                              /*tp_as_number*/
     0,                                              /*tp_as_sequence*/
@@ -5658,7 +5658,7 @@ PyTypeObject TimerType = {
     0,                                              /*tp_print*/
     0,                                              /*tp_getattr*/
     0,                                              /*tp_setattr*/
-    0,                                              /*tp_compare*/
+    0,                                              /*tp_as_async (tp_compare in Python 2)*/
     0,                                              /*tp_repr*/
     &Timer_as_number,                              /*tp_as_number*/
     0,                                              /*tp_as_sequence*/
@@ -5984,7 +5984,7 @@ PyTypeObject IterType = {
     0,                                              /*tp_print*/
     0,                                              /*tp_getattr*/
     0,                                              /*tp_setattr*/
-    0,                                              /*tp_compare*/
+    0,                                              /*tp_as_async (tp_compare in Python 2)*/
     0,                                              /*tp_repr*/
     &Iter_as_number,                              /*tp_as_number*/
     0,                                              /*tp_as_sequence*/
@@ -6288,7 +6288,7 @@ PyTypeObject CountType = {
     0,                                              /*tp_print*/
     0,                                              /*tp_getattr*/
     0,                                              /*tp_setattr*/
-    0,                                              /*tp_compare*/
+    0,                                              /*tp_as_async (tp_compare in Python 2)*/
     0,                                              /*tp_repr*/
     &Count_as_number,                              /*tp_as_number*/
     0,                                              /*tp_as_sequence*/
@@ -6573,7 +6573,7 @@ PyTypeObject NextTrigType = {
     0,                                              /*tp_print*/
     0,                                              /*tp_getattr*/
     0,                                              /*tp_setattr*/
-    0,                                              /*tp_compare*/
+    0,                                              /*tp_as_async (tp_compare in Python 2)*/
     0,                                              /*tp_repr*/
     &NextTrig_as_number,                              /*tp_as_number*/
     0,                                              /*tp_as_sequence*/
@@ -6906,7 +6906,7 @@ PyTypeObject TrigValType = {
     0,                                              /*tp_print*/
     0,                                              /*tp_getattr*/
     0,                                              /*tp_setattr*/
-    0,                                              /*tp_compare*/
+    0,                                              /*tp_as_async (tp_compare in Python 2)*/
     0,                                              /*tp_repr*/
     &TrigVal_as_number,                              /*tp_as_number*/
     0,                                              /*tp_as_sequence*/

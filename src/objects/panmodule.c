@@ -413,7 +413,7 @@ sizeof(Panner),                                 /*tp_basicsize*/
 0,                                              /*tp_print*/
 0,                                              /*tp_getattr*/
 0,                                              /*tp_setattr*/
-0,                                              /*tp_compare*/
+0,                                              /*tp_as_async (tp_compare in Python 2)*/
 0,                                              /*tp_repr*/
 0,                              /*tp_as_number*/
 0,                                              /*tp_as_sequence*/
@@ -670,7 +670,7 @@ sizeof(Pan),         /*tp_basicsize*/
 0,                         /*tp_print*/
 0,                         /*tp_getattr*/
 0,                         /*tp_setattr*/
-0,                         /*tp_compare*/
+0,                         /*tp_as_async (tp_compare in Python 2)*/
 0,                         /*tp_repr*/
 &Pan_as_number,             /*tp_as_number*/
 0,                         /*tp_as_sequence*/
@@ -1030,7 +1030,7 @@ sizeof(SPanner),                                 /*tp_basicsize*/
 0,                                              /*tp_print*/
 0,                                              /*tp_getattr*/
 0,                                              /*tp_setattr*/
-0,                                              /*tp_compare*/
+0,                                              /*tp_as_async (tp_compare in Python 2)*/
 0,                                              /*tp_repr*/
 0,                              /*tp_as_number*/
 0,                                              /*tp_as_sequence*/
@@ -1287,7 +1287,7 @@ sizeof(SPan),         /*tp_basicsize*/
 0,                         /*tp_print*/
 0,                         /*tp_getattr*/
 0,                         /*tp_setattr*/
-0,                         /*tp_compare*/
+0,                         /*tp_as_async (tp_compare in Python 2)*/
 0,                         /*tp_repr*/
 &SPan_as_number,             /*tp_as_number*/
 0,                         /*tp_as_sequence*/
@@ -1574,7 +1574,7 @@ PyTypeObject SwitcherType = {
     0,                                              /*tp_print*/
     0,                                              /*tp_getattr*/
     0,                                              /*tp_setattr*/
-    0,                                              /*tp_compare*/
+    0,                                              /*tp_as_async (tp_compare in Python 2)*/
     0,                                              /*tp_repr*/
     0,                              /*tp_as_number*/
     0,                                              /*tp_as_sequence*/
@@ -1831,7 +1831,7 @@ PyTypeObject SwitchType = {
     0,                         /*tp_print*/
     0,                         /*tp_getattr*/
     0,                         /*tp_setattr*/
-    0,                         /*tp_compare*/
+    0,                         /*tp_as_async (tp_compare in Python 2)*/
     0,                         /*tp_repr*/
     &Switch_as_number,             /*tp_as_number*/
     0,                         /*tp_as_sequence*/
@@ -2148,7 +2148,7 @@ sizeof(VoiceManager),                                 /*tp_basicsize*/
 0,                                              /*tp_print*/
 0,                                              /*tp_getattr*/
 0,                                              /*tp_setattr*/
-0,                                              /*tp_compare*/
+0,                                              /*tp_as_async (tp_compare in Python 2)*/
 0,                                              /*tp_repr*/
 &VoiceManager_as_number,                              /*tp_as_number*/
 0,                                              /*tp_as_sequence*/
@@ -2501,7 +2501,7 @@ PyTypeObject MixerType = {
     0,                                              /*tp_print*/
     0,                                              /*tp_getattr*/
     0,                                              /*tp_setattr*/
-    0,                                              /*tp_compare*/
+    0,                                              /*tp_as_async (tp_compare in Python 2)*/
     0,                                              /*tp_repr*/
     0,                              /*tp_as_number*/
     0,                                              /*tp_as_sequence*/
@@ -2756,7 +2756,7 @@ PyTypeObject MixerVoiceType = {
     0,                         /*tp_print*/
     0,                         /*tp_getattr*/
     0,                         /*tp_setattr*/
-    0,                         /*tp_compare*/
+    0,                         /*tp_as_async (tp_compare in Python 2)*/
     0,                         /*tp_repr*/
     &MixerVoice_as_number,             /*tp_as_number*/
     0,                         /*tp_as_sequence*/
@@ -3154,7 +3154,7 @@ sizeof(Selector),                                 /*tp_basicsize*/
 0,                                              /*tp_print*/
 0,                                              /*tp_getattr*/
 0,                                              /*tp_setattr*/
-0,                                              /*tp_compare*/
+0,                                              /*tp_as_async (tp_compare in Python 2)*/
 0,                                              /*tp_repr*/
 &Selector_as_number,                              /*tp_as_number*/
 0,                                              /*tp_as_sequence*/

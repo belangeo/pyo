@@ -345,7 +345,7 @@ sizeof(PVAnal),                                 /*tp_basicsize*/
 0,                                              /*tp_print*/
 0,                                              /*tp_getattr*/
 0,                                              /*tp_setattr*/
-0,                                              /*tp_compare*/
+0,                                              /*tp_as_async (tp_compare in Python 2)*/
 0,                                              /*tp_repr*/
 0,                              /*tp_as_number*/
 0,                                              /*tp_as_sequence*/
@@ -776,7 +776,7 @@ sizeof(PVSynth),                                 /*tp_basicsize*/
 0,                                              /*tp_print*/
 0,                                              /*tp_getattr*/
 0,                                              /*tp_setattr*/
-0,                                              /*tp_compare*/
+0,                                              /*tp_as_async (tp_compare in Python 2)*/
 0,                                              /*tp_repr*/
 &PVSynth_as_number,                              /*tp_as_number*/
 0,                                              /*tp_as_sequence*/
@@ -1323,7 +1323,7 @@ sizeof(PVAddSynth),                                 /*tp_basicsize*/
 0,                                              /*tp_print*/
 0,                                              /*tp_getattr*/
 0,                                              /*tp_setattr*/
-0,                                              /*tp_compare*/
+0,                                              /*tp_as_async (tp_compare in Python 2)*/
 0,                                              /*tp_repr*/
 &PVAddSynth_as_number,                              /*tp_as_number*/
 0,                                              /*tp_as_sequence*/
@@ -1681,7 +1681,7 @@ sizeof(PVTranspose),                                 /*tp_basicsize*/
 0,                                              /*tp_print*/
 0,                                              /*tp_getattr*/
 0,                                              /*tp_setattr*/
-0,                                              /*tp_compare*/
+0,                                              /*tp_as_async (tp_compare in Python 2)*/
 0,                                              /*tp_repr*/
 0,                              /*tp_as_number*/
 0,                                              /*tp_as_sequence*/
@@ -2232,7 +2232,7 @@ sizeof(PVVerb),                                 /*tp_basicsize*/
 0,                                              /*tp_print*/
 0,                                              /*tp_getattr*/
 0,                                              /*tp_setattr*/
-0,                                              /*tp_compare*/
+0,                                              /*tp_as_async (tp_compare in Python 2)*/
 0,                                              /*tp_repr*/
 0,                              /*tp_as_number*/
 0,                                              /*tp_as_sequence*/
@@ -2775,7 +2775,7 @@ sizeof(PVGate),                                 /*tp_basicsize*/
 0,                                              /*tp_print*/
 0,                                              /*tp_getattr*/
 0,                                              /*tp_setattr*/
-0,                                              /*tp_compare*/
+0,                                              /*tp_as_async (tp_compare in Python 2)*/
 0,                                              /*tp_repr*/
 0,                              /*tp_as_number*/
 0,                                              /*tp_as_sequence*/
@@ -3164,7 +3164,7 @@ sizeof(PVCross),                                 /*tp_basicsize*/
 0,                                              /*tp_print*/
 0,                                              /*tp_getattr*/
 0,                                              /*tp_setattr*/
-0,                                              /*tp_compare*/
+0,                                              /*tp_as_async (tp_compare in Python 2)*/
 0,                                              /*tp_repr*/
 0,                              /*tp_as_number*/
 0,                                              /*tp_as_sequence*/
@@ -3463,7 +3463,7 @@ sizeof(PVMult),                                 /*tp_basicsize*/
 0,                                              /*tp_print*/
 0,                                              /*tp_getattr*/
 0,                                              /*tp_setattr*/
-0,                                              /*tp_compare*/
+0,                                              /*tp_as_async (tp_compare in Python 2)*/
 0,                                              /*tp_repr*/
 0,                              /*tp_as_number*/
 0,                                              /*tp_as_sequence*/
@@ -3862,7 +3862,7 @@ sizeof(PVMorph),                                 /*tp_basicsize*/
 0,                                              /*tp_print*/
 0,                                              /*tp_getattr*/
 0,                                              /*tp_setattr*/
-0,                                              /*tp_compare*/
+0,                                              /*tp_as_async (tp_compare in Python 2)*/
 0,                                              /*tp_repr*/
 0,                              /*tp_as_number*/
 0,                                              /*tp_as_sequence*/
@@ -4308,7 +4308,7 @@ sizeof(PVFilter),                                 /*tp_basicsize*/
 0,                                              /*tp_print*/
 0,                                              /*tp_getattr*/
 0,                                              /*tp_setattr*/
-0,                                              /*tp_compare*/
+0,                                              /*tp_as_async (tp_compare in Python 2)*/
 0,                                              /*tp_repr*/
 0,                              /*tp_as_number*/
 0,                                              /*tp_as_sequence*/
@@ -4777,7 +4777,7 @@ sizeof(PVDelay),                                 /*tp_basicsize*/
 0,                                              /*tp_print*/
 0,                                              /*tp_getattr*/
 0,                                              /*tp_setattr*/
-0,                                              /*tp_compare*/
+0,                                              /*tp_as_async (tp_compare in Python 2)*/
 0,                                              /*tp_repr*/
 0,                              /*tp_as_number*/
 0,                                              /*tp_as_sequence*/
@@ -5226,7 +5226,7 @@ sizeof(PVBuffer),                                 /*tp_basicsize*/
 0,                                              /*tp_print*/
 0,                                              /*tp_getattr*/
 0,                                              /*tp_setattr*/
-0,                                              /*tp_compare*/
+0,                                              /*tp_as_async (tp_compare in Python 2)*/
 0,                                              /*tp_repr*/
 0,                              /*tp_as_number*/
 0,                                              /*tp_as_sequence*/
@@ -5588,7 +5588,7 @@ sizeof(PVShift),                                 /*tp_basicsize*/
 0,                                              /*tp_print*/
 0,                                              /*tp_getattr*/
 0,                                              /*tp_setattr*/
-0,                                              /*tp_compare*/
+0,                                              /*tp_as_async (tp_compare in Python 2)*/
 0,                                              /*tp_repr*/
 0,                              /*tp_as_number*/
 0,                                              /*tp_as_sequence*/
@@ -6111,7 +6111,7 @@ sizeof(PVAmpMod),                                 /*tp_basicsize*/
 0,                                              /*tp_print*/
 0,                                              /*tp_getattr*/
 0,                                              /*tp_setattr*/
-0,                                              /*tp_compare*/
+0,                                              /*tp_as_async (tp_compare in Python 2)*/
 0,                                              /*tp_repr*/
 0,                              /*tp_as_number*/
 0,                                              /*tp_as_sequence*/
@@ -6746,7 +6746,7 @@ sizeof(PVFreqMod),                                 /*tp_basicsize*/
 0,                                              /*tp_print*/
 0,                                              /*tp_getattr*/
 0,                                              /*tp_setattr*/
-0,                                              /*tp_compare*/
+0,                                              /*tp_as_async (tp_compare in Python 2)*/
 0,                                              /*tp_repr*/
 0,                              /*tp_as_number*/
 0,                                              /*tp_as_sequence*/
@@ -7261,7 +7261,7 @@ sizeof(PVBufLoops),                                 /*tp_basicsize*/
 0,                                              /*tp_print*/
 0,                                              /*tp_getattr*/
 0,                                              /*tp_setattr*/
-0,                                              /*tp_compare*/
+0,                                              /*tp_as_async (tp_compare in Python 2)*/
 0,                                              /*tp_repr*/
 0,                              /*tp_as_number*/
 0,                                              /*tp_as_sequence*/
@@ -7611,7 +7611,7 @@ sizeof(PVBufTabLoops),                                 /*tp_basicsize*/
 0,                                              /*tp_print*/
 0,                                              /*tp_getattr*/
 0,                                              /*tp_setattr*/
-0,                                              /*tp_compare*/
+0,                                              /*tp_as_async (tp_compare in Python 2)*/
 0,                                              /*tp_repr*/
 0,                              /*tp_as_number*/
 0,                                              /*tp_as_sequence*/
@@ -7917,7 +7917,7 @@ sizeof(PVMix),                                 /*tp_basicsize*/
 0,                                              /*tp_print*/
 0,                                              /*tp_getattr*/
 0,                                              /*tp_setattr*/
-0,                                              /*tp_compare*/
+0,                                              /*tp_as_async (tp_compare in Python 2)*/
 0,                                              /*tp_repr*/
 0,                              /*tp_as_number*/
 0,                                              /*tp_as_sequence*/

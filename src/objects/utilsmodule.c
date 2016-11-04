@@ -238,7 +238,7 @@ sizeof(Print),                                 /*tp_basicsize*/
 0,                                              /*tp_print*/
 0,                                              /*tp_getattr*/
 0,                                              /*tp_setattr*/
-0,                                              /*tp_compare*/
+0,                                              /*tp_as_async (tp_compare in Python 2)*/
 0,                                              /*tp_repr*/
 0,                                              /*tp_as_number*/
 0,                                              /*tp_as_sequence*/
@@ -613,7 +613,7 @@ PyTypeObject SnapType = {
     0,                                              /*tp_print*/
     0,                                              /*tp_getattr*/
     0,                                              /*tp_setattr*/
-    0,                                              /*tp_compare*/
+    0,                                              /*tp_as_async (tp_compare in Python 2)*/
     0,                                              /*tp_repr*/
     &Snap_as_number,                              /*tp_as_number*/
     0,                                              /*tp_as_sequence*/
@@ -972,7 +972,7 @@ sizeof(Interp),                                 /*tp_basicsize*/
 0,                                              /*tp_print*/
 0,                                              /*tp_getattr*/
 0,                                              /*tp_setattr*/
-0,                                              /*tp_compare*/
+0,                                              /*tp_as_async (tp_compare in Python 2)*/
 0,                                              /*tp_repr*/
 &Interp_as_number,                              /*tp_as_number*/
 0,                                              /*tp_as_sequence*/
@@ -1341,7 +1341,7 @@ sizeof(SampHold),                                 /*tp_basicsize*/
 0,                                              /*tp_print*/
 0,                                              /*tp_getattr*/
 0,                                              /*tp_setattr*/
-0,                                              /*tp_compare*/
+0,                                              /*tp_as_async (tp_compare in Python 2)*/
 0,                                              /*tp_repr*/
 &SampHold_as_number,                              /*tp_as_number*/
 0,                                              /*tp_as_sequence*/
@@ -1714,7 +1714,7 @@ sizeof(TrackHold),                                 /*tp_basicsize*/
 0,                                              /*tp_print*/
 0,                                              /*tp_getattr*/
 0,                                              /*tp_setattr*/
-0,                                              /*tp_compare*/
+0,                                              /*tp_as_async (tp_compare in Python 2)*/
 0,                                              /*tp_repr*/
 &TrackHold_as_number,                              /*tp_as_number*/
 0,                                              /*tp_as_sequence*/
@@ -2111,7 +2111,7 @@ sizeof(Compare),                                 /*tp_basicsize*/
 0,                                              /*tp_print*/
 0,                                              /*tp_getattr*/
 0,                                              /*tp_setattr*/
-0,                                              /*tp_compare*/
+0,                                              /*tp_as_async (tp_compare in Python 2)*/
 0,                                              /*tp_repr*/
 &Compare_as_number,                              /*tp_as_number*/
 0,                                              /*tp_as_sequence*/
@@ -2537,7 +2537,7 @@ PyTypeObject BetweenType = {
     0,                         /*tp_print*/
     0,                         /*tp_getattr*/
     0,                         /*tp_setattr*/
-    0,                         /*tp_compare*/
+    0,                         /*tp_as_async (tp_compare in Python 2)*/
     0,                         /*tp_repr*/
     &Between_as_number,             /*tp_as_number*/
     0,                         /*tp_as_sequence*/
@@ -2810,7 +2810,7 @@ PyTypeObject DenormType = {
     0,                                              /*tp_print*/
     0,                                              /*tp_getattr*/
     0,                                              /*tp_setattr*/
-    0,                                              /*tp_compare*/
+    0,                                              /*tp_as_async (tp_compare in Python 2)*/
     0,                                              /*tp_repr*/
     &Denorm_as_number,                              /*tp_as_number*/
     0,                                              /*tp_as_sequence*/
@@ -3089,7 +3089,7 @@ PyTypeObject DBToAType = {
     0,                                              /*tp_print*/
     0,                                              /*tp_getattr*/
     0,                                              /*tp_setattr*/
-    0,                                              /*tp_compare*/
+    0,                                              /*tp_as_async (tp_compare in Python 2)*/
     0,                                              /*tp_repr*/
     &DBToA_as_number,                              /*tp_as_number*/
     0,                                              /*tp_as_sequence*/
@@ -3368,7 +3368,7 @@ PyTypeObject AToDBType = {
     0,                                              /*tp_print*/
     0,                                              /*tp_getattr*/
     0,                                              /*tp_setattr*/
-    0,                                              /*tp_compare*/
+    0,                                              /*tp_as_async (tp_compare in Python 2)*/
     0,                                              /*tp_repr*/
     &AToDB_as_number,                              /*tp_as_number*/
     0,                                              /*tp_as_sequence*/
@@ -3968,7 +3968,7 @@ PyTypeObject ScaleType = {
     0,                                              /*tp_print*/
     0,                                              /*tp_getattr*/
     0,                                              /*tp_setattr*/
-    0,                                              /*tp_compare*/
+    0,                                              /*tp_as_async (tp_compare in Python 2)*/
     0,                                              /*tp_repr*/
     &Scale_as_number,                              /*tp_as_number*/
     0,                                              /*tp_as_sequence*/
@@ -4243,7 +4243,7 @@ PyTypeObject CentsToTranspoType = {
     0,                                              /*tp_print*/
     0,                                              /*tp_getattr*/
     0,                                              /*tp_setattr*/
-    0,                                              /*tp_compare*/
+    0,                                              /*tp_as_async (tp_compare in Python 2)*/
     0,                                              /*tp_repr*/
     &CentsToTranspo_as_number,                              /*tp_as_number*/
     0,                                              /*tp_as_sequence*/
@@ -4518,7 +4518,7 @@ PyTypeObject TranspoToCentsType = {
     0,                                              /*tp_print*/
     0,                                              /*tp_getattr*/
     0,                                              /*tp_setattr*/
-    0,                                              /*tp_compare*/
+    0,                                              /*tp_as_async (tp_compare in Python 2)*/
     0,                                              /*tp_repr*/
     &TranspoToCents_as_number,                              /*tp_as_number*/
     0,                                              /*tp_as_sequence*/
@@ -4793,7 +4793,7 @@ PyTypeObject MToFType = {
     0,                                              /*tp_print*/
     0,                                              /*tp_getattr*/
     0,                                              /*tp_setattr*/
-    0,                                              /*tp_compare*/
+    0,                                              /*tp_as_async (tp_compare in Python 2)*/
     0,                                              /*tp_repr*/
     &MToF_as_number,                              /*tp_as_number*/
     0,                                              /*tp_as_sequence*/
@@ -5070,7 +5070,7 @@ PyTypeObject FToMType = {
     0,                                              /*tp_print*/
     0,                                              /*tp_getattr*/
     0,                                              /*tp_setattr*/
-    0,                                              /*tp_compare*/
+    0,                                              /*tp_as_async (tp_compare in Python 2)*/
     0,                                              /*tp_repr*/
     &FToM_as_number,                              /*tp_as_number*/
     0,                                              /*tp_as_sequence*/
@@ -5363,7 +5363,7 @@ PyTypeObject MToTType = {
     0,                                              /*tp_print*/
     0,                                              /*tp_getattr*/
     0,                                              /*tp_setattr*/
-    0,                                              /*tp_compare*/
+    0,                                              /*tp_as_async (tp_compare in Python 2)*/
     0,                                              /*tp_repr*/
     &MToT_as_number,                              /*tp_as_number*/
     0,                                              /*tp_as_sequence*/
@@ -5799,7 +5799,7 @@ sizeof(Resample),                                 /*tp_basicsize*/
 0,                                              /*tp_print*/
 0,                                              /*tp_getattr*/
 0,                                              /*tp_setattr*/
-0,                                              /*tp_compare*/
+0,                                              /*tp_as_async (tp_compare in Python 2)*/
 0,                                              /*tp_repr*/
 &Resample_as_number,                              /*tp_as_number*/
 0,                                              /*tp_as_sequence*/

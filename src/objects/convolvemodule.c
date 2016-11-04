@@ -318,7 +318,7 @@ sizeof(Convolve),                                 /*tp_basicsize*/
 0,                                              /*tp_print*/
 0,                                              /*tp_getattr*/
 0,                                              /*tp_setattr*/
-0,                                              /*tp_compare*/
+0,                                              /*tp_as_async (tp_compare in Python 2)*/
 0,                                              /*tp_repr*/
 &Convolve_as_number,                              /*tp_as_number*/
 0,                                              /*tp_as_sequence*/
@@ -849,7 +849,7 @@ PyTypeObject IRWinSincType = {
     0,                                              /*tp_print*/
     0,                                              /*tp_getattr*/
     0,                                              /*tp_setattr*/
-    0,                                              /*tp_compare*/
+    0,                                              /*tp_as_async (tp_compare in Python 2)*/
     0,                                              /*tp_repr*/
     &IRWinSinc_as_number,                              /*tp_as_number*/
     0,                                              /*tp_as_sequence*/
@@ -1160,7 +1160,7 @@ PyTypeObject IRAverageType = {
     0,                                              /*tp_print*/
     0,                                              /*tp_getattr*/
     0,                                              /*tp_setattr*/
-    0,                                              /*tp_compare*/
+    0,                                              /*tp_as_async (tp_compare in Python 2)*/
     0,                                              /*tp_repr*/
     &IRAverage_as_number,                              /*tp_as_number*/
     0,                                              /*tp_as_sequence*/
@@ -1711,7 +1711,7 @@ PyTypeObject IRPulseType = {
     0,                                              /*tp_print*/
     0,                                              /*tp_getattr*/
     0,                                              /*tp_setattr*/
-    0,                                              /*tp_compare*/
+    0,                                              /*tp_as_async (tp_compare in Python 2)*/
     0,                                              /*tp_repr*/
     &IRPulse_as_number,                              /*tp_as_number*/
     0,                                              /*tp_as_sequence*/
@@ -2211,7 +2211,7 @@ PyTypeObject IRFMType = {
     0,                                              /*tp_print*/
     0,                                              /*tp_getattr*/
     0,                                              /*tp_setattr*/
-    0,                                              /*tp_compare*/
+    0,                                              /*tp_as_async (tp_compare in Python 2)*/
     0,                                              /*tp_repr*/
     &IRFM_as_number,                              /*tp_as_number*/
     0,                                              /*tp_as_sequence*/

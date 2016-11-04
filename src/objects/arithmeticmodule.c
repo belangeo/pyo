@@ -259,7 +259,7 @@ sizeof(M_Sin),                                 /*tp_basicsize*/
 0,                                              /*tp_print*/
 0,                                              /*tp_getattr*/
 0,                                              /*tp_setattr*/
-0,                                              /*tp_compare*/
+0,                                              /*tp_as_async (tp_compare in Python 2)*/
 0,                                              /*tp_repr*/
 &M_Sin_as_number,                              /*tp_as_number*/
 0,                                              /*tp_as_sequence*/
@@ -523,7 +523,7 @@ PyTypeObject M_CosType = {
     0,                                              /*tp_print*/
     0,                                              /*tp_getattr*/
     0,                                              /*tp_setattr*/
-    0,                                              /*tp_compare*/
+    0,                                              /*tp_as_async (tp_compare in Python 2)*/
     0,                                              /*tp_repr*/
     &M_Cos_as_number,                              /*tp_as_number*/
     0,                                              /*tp_as_sequence*/
@@ -787,7 +787,7 @@ PyTypeObject M_TanType = {
     0,                                              /*tp_print*/
     0,                                              /*tp_getattr*/
     0,                                              /*tp_setattr*/
-    0,                                              /*tp_compare*/
+    0,                                              /*tp_as_async (tp_compare in Python 2)*/
     0,                                              /*tp_repr*/
     &M_Tan_as_number,                              /*tp_as_number*/
     0,                                              /*tp_as_sequence*/
@@ -1056,7 +1056,7 @@ PyTypeObject M_AbsType = {
     0,                                              /*tp_print*/
     0,                                              /*tp_getattr*/
     0,                                              /*tp_setattr*/
-    0,                                              /*tp_compare*/
+    0,                                              /*tp_as_async (tp_compare in Python 2)*/
     0,                                              /*tp_repr*/
     &M_Abs_as_number,                              /*tp_as_number*/
     0,                                              /*tp_as_sequence*/
@@ -1325,7 +1325,7 @@ PyTypeObject M_SqrtType = {
     0,                                              /*tp_print*/
     0,                                              /*tp_getattr*/
     0,                                              /*tp_setattr*/
-    0,                                              /*tp_compare*/
+    0,                                              /*tp_as_async (tp_compare in Python 2)*/
     0,                                              /*tp_repr*/
     &M_Sqrt_as_number,                              /*tp_as_number*/
     0,                                              /*tp_as_sequence*/
@@ -1594,7 +1594,7 @@ PyTypeObject M_LogType = {
     0,                                              /*tp_print*/
     0,                                              /*tp_getattr*/
     0,                                              /*tp_setattr*/
-    0,                                              /*tp_compare*/
+    0,                                              /*tp_as_async (tp_compare in Python 2)*/
     0,                                              /*tp_repr*/
     &M_Log_as_number,                              /*tp_as_number*/
     0,                                              /*tp_as_sequence*/
@@ -1863,7 +1863,7 @@ PyTypeObject M_Log10Type = {
     0,                                              /*tp_print*/
     0,                                              /*tp_getattr*/
     0,                                              /*tp_setattr*/
-    0,                                              /*tp_compare*/
+    0,                                              /*tp_as_async (tp_compare in Python 2)*/
     0,                                              /*tp_repr*/
     &M_Log10_as_number,                              /*tp_as_number*/
     0,                                              /*tp_as_sequence*/
@@ -2132,7 +2132,7 @@ PyTypeObject M_Log2Type = {
     0,                                              /*tp_print*/
     0,                                              /*tp_getattr*/
     0,                                              /*tp_setattr*/
-    0,                                              /*tp_compare*/
+    0,                                              /*tp_as_async (tp_compare in Python 2)*/
     0,                                              /*tp_repr*/
     &M_Log2_as_number,                              /*tp_as_number*/
     0,                                              /*tp_as_sequence*/
@@ -2528,7 +2528,7 @@ PyTypeObject M_PowType = {
     0,                         /*tp_print*/
     0,                         /*tp_getattr*/
     0,                         /*tp_setattr*/
-    0,                         /*tp_compare*/
+    0,                         /*tp_as_async (tp_compare in Python 2)*/
     0,                         /*tp_repr*/
     &M_Pow_as_number,             /*tp_as_number*/
     0,                         /*tp_as_sequence*/
@@ -2924,7 +2924,7 @@ PyTypeObject M_Atan2Type = {
     0,                         /*tp_print*/
     0,                         /*tp_getattr*/
     0,                         /*tp_setattr*/
-    0,                         /*tp_compare*/
+    0,                         /*tp_as_async (tp_compare in Python 2)*/
     0,                         /*tp_repr*/
     &M_Atan2_as_number,             /*tp_as_number*/
     0,                         /*tp_as_sequence*/
@@ -3188,7 +3188,7 @@ PyTypeObject M_FloorType = {
     0,                                              /*tp_print*/
     0,                                              /*tp_getattr*/
     0,                                              /*tp_setattr*/
-    0,                                              /*tp_compare*/
+    0,                                              /*tp_as_async (tp_compare in Python 2)*/
     0,                                              /*tp_repr*/
     &M_Floor_as_number,                              /*tp_as_number*/
     0,                                              /*tp_as_sequence*/
@@ -3452,7 +3452,7 @@ PyTypeObject M_CeilType = {
     0,                                              /*tp_print*/
     0,                                              /*tp_getattr*/
     0,                                              /*tp_setattr*/
-    0,                                              /*tp_compare*/
+    0,                                              /*tp_as_async (tp_compare in Python 2)*/
     0,                                              /*tp_repr*/
     &M_Ceil_as_number,                              /*tp_as_number*/
     0,                                              /*tp_as_sequence*/
@@ -3716,7 +3716,7 @@ PyTypeObject M_RoundType = {
     0,                                              /*tp_print*/
     0,                                              /*tp_getattr*/
     0,                                              /*tp_setattr*/
-    0,                                              /*tp_compare*/
+    0,                                              /*tp_as_async (tp_compare in Python 2)*/
     0,                                              /*tp_repr*/
     &M_Round_as_number,                              /*tp_as_number*/
     0,                                              /*tp_as_sequence*/
@@ -3980,7 +3980,7 @@ sizeof(M_Tanh),                                 /*tp_basicsize*/
 0,                                              /*tp_print*/
 0,                                              /*tp_getattr*/
 0,                                              /*tp_setattr*/
-0,                                              /*tp_compare*/
+0,                                              /*tp_as_async (tp_compare in Python 2)*/
 0,                                              /*tp_repr*/
 &M_Tanh_as_number,                              /*tp_as_number*/
 0,                                              /*tp_as_sequence*/
@@ -4244,7 +4244,7 @@ sizeof(M_Exp),                                 /*tp_basicsize*/
 0,                                              /*tp_print*/
 0,                                              /*tp_getattr*/
 0,                                              /*tp_setattr*/
-0,                                              /*tp_compare*/
+0,                                              /*tp_as_async (tp_compare in Python 2)*/
 0,                                              /*tp_repr*/
 &M_Exp_as_number,                              /*tp_as_number*/
 0,                                              /*tp_as_sequence*/

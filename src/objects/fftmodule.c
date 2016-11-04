@@ -278,7 +278,7 @@ sizeof(FFTMain),                                 /*tp_basicsize*/
 0,                                              /*tp_print*/
 0,                                              /*tp_getattr*/
 0,                                              /*tp_setattr*/
-0,                                              /*tp_compare*/
+0,                                              /*tp_as_async (tp_compare in Python 2)*/
 0,                                              /*tp_repr*/
 0,                              /*tp_as_number*/
 0,                                              /*tp_as_sequence*/
@@ -533,7 +533,7 @@ sizeof(FFT),         /*tp_basicsize*/
 0,                         /*tp_print*/
 0,                         /*tp_getattr*/
 0,                         /*tp_setattr*/
-0,                         /*tp_compare*/
+0,                         /*tp_as_async (tp_compare in Python 2)*/
 0,                         /*tp_repr*/
 &FFT_as_number,             /*tp_as_number*/
 0,                         /*tp_as_sequence*/
@@ -928,7 +928,7 @@ PyTypeObject IFFTType = {
     0,                         /*tp_print*/
     0,                         /*tp_getattr*/
     0,                         /*tp_setattr*/
-    0,                         /*tp_compare*/
+    0,                         /*tp_as_async (tp_compare in Python 2)*/
     0,                         /*tp_repr*/
     &IFFT_as_number,             /*tp_as_number*/
     0,                         /*tp_as_sequence*/
@@ -1210,7 +1210,7 @@ PyTypeObject CarToPolType = {
     0,                         /*tp_print*/
     0,                         /*tp_getattr*/
     0,                         /*tp_setattr*/
-    0,                         /*tp_compare*/
+    0,                         /*tp_as_async (tp_compare in Python 2)*/
     0,                         /*tp_repr*/
     &CarToPol_as_number,             /*tp_as_number*/
     0,                         /*tp_as_sequence*/
@@ -1492,7 +1492,7 @@ PyTypeObject PolToCarType = {
     0,                         /*tp_print*/
     0,                         /*tp_getattr*/
     0,                         /*tp_setattr*/
-    0,                         /*tp_compare*/
+    0,                         /*tp_as_async (tp_compare in Python 2)*/
     0,                         /*tp_repr*/
     &PolToCar_as_number,             /*tp_as_number*/
     0,                         /*tp_as_sequence*/
@@ -1748,7 +1748,7 @@ PyTypeObject FrameDeltaMainType = {
     0,                         /*tp_print*/
     0,                         /*tp_getattr*/
     0,                         /*tp_setattr*/
-    0,                         /*tp_compare*/
+    0,                         /*tp_as_async (tp_compare in Python 2)*/
     0,                         /*tp_repr*/
     0,                         /*tp_as_number*/
     0,                         /*tp_as_sequence*/
@@ -2005,7 +2005,7 @@ PyTypeObject FrameDeltaType = {
     0,                         /*tp_print*/
     0,                         /*tp_getattr*/
     0,                         /*tp_setattr*/
-    0,                         /*tp_compare*/
+    0,                         /*tp_as_async (tp_compare in Python 2)*/
     0,                         /*tp_repr*/
     &FrameDelta_as_number,             /*tp_as_number*/
     0,                         /*tp_as_sequence*/
@@ -2255,7 +2255,7 @@ PyTypeObject FrameAccumMainType = {
     0,                         /*tp_print*/
     0,                         /*tp_getattr*/
     0,                         /*tp_setattr*/
-    0,                         /*tp_compare*/
+    0,                         /*tp_as_async (tp_compare in Python 2)*/
     0,                         /*tp_repr*/
     0,                         /*tp_as_number*/
     0,                         /*tp_as_sequence*/
@@ -2512,7 +2512,7 @@ PyTypeObject FrameAccumType = {
     0,                         /*tp_print*/
     0,                         /*tp_getattr*/
     0,                         /*tp_setattr*/
-    0,                         /*tp_compare*/
+    0,                         /*tp_as_async (tp_compare in Python 2)*/
     0,                         /*tp_repr*/
     &FrameAccum_as_number,             /*tp_as_number*/
     0,                         /*tp_as_sequence*/
@@ -2930,7 +2930,7 @@ PyTypeObject VectralMainType = {
     0,                         /*tp_print*/
     0,                         /*tp_getattr*/
     0,                         /*tp_setattr*/
-    0,                         /*tp_compare*/
+    0,                         /*tp_as_async (tp_compare in Python 2)*/
     0,                         /*tp_repr*/
     0,                         /*tp_as_number*/
     0,                         /*tp_as_sequence*/
@@ -3187,7 +3187,7 @@ PyTypeObject VectralType = {
     0,                         /*tp_print*/
     0,                         /*tp_getattr*/
     0,                         /*tp_setattr*/
-    0,                         /*tp_compare*/
+    0,                         /*tp_as_async (tp_compare in Python 2)*/
     0,                         /*tp_repr*/
     &Vectral_as_number,             /*tp_as_number*/
     0,                         /*tp_as_sequence*/
@@ -3777,7 +3777,7 @@ sizeof(CvlVerb),                                 /*tp_basicsize*/
 0,                                              /*tp_print*/
 0,                                              /*tp_getattr*/
 0,                                              /*tp_setattr*/
-0,                                              /*tp_compare*/
+0,                                              /*tp_as_async (tp_compare in Python 2)*/
 0,                                              /*tp_repr*/
 &CvlVerb_as_number,                              /*tp_as_number*/
 0,                                              /*tp_as_sequence*/
@@ -4250,7 +4250,7 @@ sizeof(Spectrum),                                 /*tp_basicsize*/
 0,                                              /*tp_print*/
 0,                                              /*tp_getattr*/
 0,                                              /*tp_setattr*/
-0,                                              /*tp_compare*/
+0,                                              /*tp_as_async (tp_compare in Python 2)*/
 0,                                              /*tp_repr*/
 0,                              /*tp_as_number*/
 0,                                              /*tp_as_sequence*/

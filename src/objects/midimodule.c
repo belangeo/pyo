@@ -191,7 +191,7 @@ PyTypeObject CtlScanType = {
     0,                         /*tp_print*/
     0,                         /*tp_getattr*/
     0,                         /*tp_setattr*/
-    0,                         /*tp_compare*/
+    0,                         /*tp_as_async (tp_compare in Python 2)*/
     0,                         /*tp_repr*/
     0,             /*tp_as_number*/
     0,                         /*tp_as_sequence*/
@@ -391,7 +391,7 @@ PyTypeObject CtlScan2Type = {
     0,                         /*tp_print*/
     0,                         /*tp_getattr*/
     0,                         /*tp_setattr*/
-    0,                         /*tp_compare*/
+    0,                         /*tp_as_async (tp_compare in Python 2)*/
     0,                         /*tp_repr*/
     0,             /*tp_as_number*/
     0,                         /*tp_as_sequence*/
@@ -815,7 +815,7 @@ PyTypeObject MidictlType = {
     0,                         /*tp_print*/
     0,                         /*tp_getattr*/
     0,                         /*tp_setattr*/
-    0,                         /*tp_compare*/
+    0,                         /*tp_as_async (tp_compare in Python 2)*/
     0,                         /*tp_repr*/
     &Midictl_as_number,             /*tp_as_number*/
     0,                         /*tp_as_sequence*/
@@ -1180,7 +1180,7 @@ PyTypeObject BendinType = {
     0,                         /*tp_print*/
     0,                         /*tp_getattr*/
     0,                         /*tp_setattr*/
-    0,                         /*tp_compare*/
+    0,                         /*tp_as_async (tp_compare in Python 2)*/
     0,                         /*tp_repr*/
     &Bendin_as_number,             /*tp_as_number*/
     0,                         /*tp_as_sequence*/
@@ -1532,7 +1532,7 @@ PyTypeObject TouchinType = {
     0,                         /*tp_print*/
     0,                         /*tp_getattr*/
     0,                         /*tp_setattr*/
-    0,                         /*tp_compare*/
+    0,                         /*tp_as_async (tp_compare in Python 2)*/
     0,                         /*tp_repr*/
     &Touchin_as_number,             /*tp_as_number*/
     0,                         /*tp_as_sequence*/
@@ -1835,7 +1835,7 @@ PyTypeObject PrograminType = {
     0,                         /*tp_print*/
     0,                         /*tp_getattr*/
     0,                         /*tp_setattr*/
-    0,                         /*tp_compare*/
+    0,                         /*tp_as_async (tp_compare in Python 2)*/
     0,                         /*tp_repr*/
     &Programin_as_number,             /*tp_as_number*/
     0,                         /*tp_as_sequence*/
@@ -2190,7 +2190,7 @@ sizeof(MidiNote),         /*tp_basicsize*/
 0,                         /*tp_print*/
 0,                         /*tp_getattr*/
 0,                         /*tp_setattr*/
-0,                         /*tp_compare*/
+0,                         /*tp_as_async (tp_compare in Python 2)*/
 0,                         /*tp_repr*/
 0,             /*tp_as_number*/
 0,                         /*tp_as_sequence*/
@@ -2453,7 +2453,7 @@ sizeof(Notein),         /*tp_basicsize*/
 0,                         /*tp_print*/
 0,                         /*tp_getattr*/
 0,                         /*tp_setattr*/
-0,                         /*tp_compare*/
+0,                         /*tp_as_async (tp_compare in Python 2)*/
 0,                         /*tp_repr*/
 &Notein_as_number,             /*tp_as_number*/
 0,                         /*tp_as_sequence*/
@@ -2708,7 +2708,7 @@ sizeof(NoteinTrig),         /*tp_basicsize*/
 0,                         /*tp_print*/
 0,                         /*tp_getattr*/
 0,                         /*tp_setattr*/
-0,                         /*tp_compare*/
+0,                         /*tp_as_async (tp_compare in Python 2)*/
 0,                         /*tp_repr*/
 &NoteinTrig_as_number,             /*tp_as_number*/
 0,                         /*tp_as_sequence*/
@@ -3135,7 +3135,7 @@ PyTypeObject MidiAdsrType = {
     0,                         /*tp_print*/
     0,                         /*tp_getattr*/
     0,                         /*tp_setattr*/
-    0,                         /*tp_compare*/
+    0,                         /*tp_as_async (tp_compare in Python 2)*/
     0,                         /*tp_repr*/
     &MidiAdsr_as_number,             /*tp_as_number*/
     0,                         /*tp_as_sequence*/
@@ -3582,7 +3582,7 @@ PyTypeObject MidiDelAdsrType = {
     0,                         /*tp_print*/
     0,                         /*tp_getattr*/
     0,                         /*tp_setattr*/
-    0,                         /*tp_compare*/
+    0,                         /*tp_as_async (tp_compare in Python 2)*/
     0,                         /*tp_repr*/
     &MidiDelAdsr_as_number,             /*tp_as_number*/
     0,                         /*tp_as_sequence*/
@@ -3746,7 +3746,7 @@ PyTypeObject RawMidiType = {
     0,                         /*tp_print*/
     0,                         /*tp_getattr*/
     0,                         /*tp_setattr*/
-    0,                         /*tp_compare*/
+    0,                         /*tp_as_async (tp_compare in Python 2)*/
     0,                         /*tp_repr*/
     0,             /*tp_as_number*/
     0,                         /*tp_as_sequence*/

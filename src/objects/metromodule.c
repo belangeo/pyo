@@ -346,7 +346,7 @@ sizeof(Metro),         /*tp_basicsize*/
 0,                         /*tp_print*/
 0,                         /*tp_getattr*/
 0,                         /*tp_setattr*/
-0,                         /*tp_compare*/
+0,                         /*tp_as_async (tp_compare in Python 2)*/
 0,                         /*tp_repr*/
 &Metro_as_number,             /*tp_as_number*/
 0,                         /*tp_as_sequence*/
@@ -680,7 +680,7 @@ PyTypeObject SeqerType = {
     0,                         /*tp_print*/
     0,                         /*tp_getattr*/
     0,                         /*tp_setattr*/
-    0,                         /*tp_compare*/
+    0,                         /*tp_as_async (tp_compare in Python 2)*/
     0,                         /*tp_repr*/
     0,             /*tp_as_number*/
     0,                         /*tp_as_sequence*/
@@ -929,7 +929,7 @@ PyTypeObject SeqType = {
     0,                         /*tp_print*/
     0,                         /*tp_getattr*/
     0,                         /*tp_setattr*/
-    0,                         /*tp_compare*/
+    0,                         /*tp_as_async (tp_compare in Python 2)*/
     0,                         /*tp_repr*/
     &Seq_as_number,             /*tp_as_number*/
     0,                         /*tp_as_sequence*/
@@ -1183,7 +1183,7 @@ sizeof(Clouder),         /*tp_basicsize*/
 0,                         /*tp_print*/
 0,                         /*tp_getattr*/
 0,                         /*tp_setattr*/
-0,                         /*tp_compare*/
+0,                         /*tp_as_async (tp_compare in Python 2)*/
 0,                         /*tp_repr*/
 0,             /*tp_as_number*/
 0,                         /*tp_as_sequence*/
@@ -1432,7 +1432,7 @@ sizeof(Cloud),         /*tp_basicsize*/
 0,                         /*tp_print*/
 0,                         /*tp_getattr*/
 0,                         /*tp_setattr*/
-0,                         /*tp_compare*/
+0,                         /*tp_as_async (tp_compare in Python 2)*/
 0,                         /*tp_repr*/
 &Cloud_as_number,             /*tp_as_number*/
 0,                         /*tp_as_sequence*/
@@ -1676,7 +1676,7 @@ sizeof(Trig),         /*tp_basicsize*/
 0,                         /*tp_print*/
 0,                         /*tp_getattr*/
 0,                         /*tp_setattr*/
-0,                         /*tp_compare*/
+0,                         /*tp_as_async (tp_compare in Python 2)*/
 0,                         /*tp_repr*/
 &Trig_as_number,             /*tp_as_number*/
 0,                         /*tp_as_sequence*/
@@ -2455,7 +2455,7 @@ PyTypeObject BeaterType = {
     0,                         /*tp_print*/
     0,                         /*tp_getattr*/
     0,                         /*tp_setattr*/
-    0,                         /*tp_compare*/
+    0,                         /*tp_as_async (tp_compare in Python 2)*/
     0,                         /*tp_repr*/
     0,             /*tp_as_number*/
     0,                         /*tp_as_sequence*/
@@ -2704,7 +2704,7 @@ PyTypeObject BeatType = {
     0,                         /*tp_print*/
     0,                         /*tp_getattr*/
     0,                         /*tp_setattr*/
-    0,                         /*tp_compare*/
+    0,                         /*tp_as_async (tp_compare in Python 2)*/
     0,                         /*tp_repr*/
     &Beat_as_number,             /*tp_as_number*/
     0,                         /*tp_as_sequence*/
@@ -2953,7 +2953,7 @@ PyTypeObject BeatTapStreamType = {
     0,                         /*tp_print*/
     0,                         /*tp_getattr*/
     0,                         /*tp_setattr*/
-    0,                         /*tp_compare*/
+    0,                         /*tp_as_async (tp_compare in Python 2)*/
     0,                         /*tp_repr*/
     &BeatTapStream_as_number,             /*tp_as_number*/
     0,                         /*tp_as_sequence*/
@@ -3202,7 +3202,7 @@ PyTypeObject BeatAmpStreamType = {
     0,                         /*tp_print*/
     0,                         /*tp_getattr*/
     0,                         /*tp_setattr*/
-    0,                         /*tp_compare*/
+    0,                         /*tp_as_async (tp_compare in Python 2)*/
     0,                         /*tp_repr*/
     &BeatAmpStream_as_number,             /*tp_as_number*/
     0,                         /*tp_as_sequence*/
@@ -3451,7 +3451,7 @@ PyTypeObject BeatDurStreamType = {
     0,                         /*tp_print*/
     0,                         /*tp_getattr*/
     0,                         /*tp_setattr*/
-    0,                         /*tp_compare*/
+    0,                         /*tp_as_async (tp_compare in Python 2)*/
     0,                         /*tp_repr*/
     &BeatDurStream_as_number,             /*tp_as_number*/
     0,                         /*tp_as_sequence*/
@@ -3700,7 +3700,7 @@ PyTypeObject BeatEndStreamType = {
     0,                         /*tp_print*/
     0,                         /*tp_getattr*/
     0,                         /*tp_setattr*/
-    0,                         /*tp_compare*/
+    0,                         /*tp_as_async (tp_compare in Python 2)*/
     0,                         /*tp_repr*/
     &BeatEndStream_as_number,             /*tp_as_number*/
     0,                         /*tp_as_sequence*/
@@ -4028,7 +4028,7 @@ PyTypeObject TrigBursterType = {
     0,                         /*tp_print*/
     0,                         /*tp_getattr*/
     0,                         /*tp_setattr*/
-    0,                         /*tp_compare*/
+    0,                         /*tp_as_async (tp_compare in Python 2)*/
     0,                         /*tp_repr*/
     0,             /*tp_as_number*/
     0,                         /*tp_as_sequence*/
@@ -4277,7 +4277,7 @@ PyTypeObject TrigBurstType = {
     0,                         /*tp_print*/
     0,                         /*tp_getattr*/
     0,                         /*tp_setattr*/
-    0,                         /*tp_compare*/
+    0,                         /*tp_as_async (tp_compare in Python 2)*/
     0,                         /*tp_repr*/
     &TrigBurst_as_number,             /*tp_as_number*/
     0,                         /*tp_as_sequence*/
@@ -4526,7 +4526,7 @@ PyTypeObject TrigBurstTapStreamType = {
     0,                         /*tp_print*/
     0,                         /*tp_getattr*/
     0,                         /*tp_setattr*/
-    0,                         /*tp_compare*/
+    0,                         /*tp_as_async (tp_compare in Python 2)*/
     0,                         /*tp_repr*/
     &TrigBurstTapStream_as_number,             /*tp_as_number*/
     0,                         /*tp_as_sequence*/
@@ -4775,7 +4775,7 @@ PyTypeObject TrigBurstAmpStreamType = {
     0,                         /*tp_print*/
     0,                         /*tp_getattr*/
     0,                         /*tp_setattr*/
-    0,                         /*tp_compare*/
+    0,                         /*tp_as_async (tp_compare in Python 2)*/
     0,                         /*tp_repr*/
     &TrigBurstAmpStream_as_number,             /*tp_as_number*/
     0,                         /*tp_as_sequence*/
@@ -5024,7 +5024,7 @@ PyTypeObject TrigBurstDurStreamType = {
     0,                         /*tp_print*/
     0,                         /*tp_getattr*/
     0,                         /*tp_setattr*/
-    0,                         /*tp_compare*/
+    0,                         /*tp_as_async (tp_compare in Python 2)*/
     0,                         /*tp_repr*/
     &TrigBurstDurStream_as_number,             /*tp_as_number*/
     0,                         /*tp_as_sequence*/
@@ -5273,7 +5273,7 @@ PyTypeObject TrigBurstEndStreamType = {
     0,                         /*tp_print*/
     0,                         /*tp_getattr*/
     0,                         /*tp_setattr*/
-    0,                         /*tp_compare*/
+    0,                         /*tp_as_async (tp_compare in Python 2)*/
     0,                         /*tp_repr*/
     &TrigBurstEndStream_as_number,             /*tp_as_number*/
     0,                         /*tp_as_sequence*/

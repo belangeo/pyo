@@ -609,7 +609,7 @@ sizeof(Randi),                                 /*tp_basicsize*/
 0,                                              /*tp_print*/
 0,                                              /*tp_getattr*/
 0,                                              /*tp_setattr*/
-0,                                              /*tp_compare*/
+0,                                              /*tp_as_async (tp_compare in Python 2)*/
 0,                                              /*tp_repr*/
 &Randi_as_number,                              /*tp_as_number*/
 0,                                              /*tp_as_sequence*/
@@ -1208,7 +1208,7 @@ sizeof(Randh),                                 /*tp_basicsize*/
 0,                                              /*tp_print*/
 0,                                              /*tp_getattr*/
 0,                                              /*tp_setattr*/
-0,                                              /*tp_compare*/
+0,                                              /*tp_as_async (tp_compare in Python 2)*/
 0,                                              /*tp_repr*/
 &Randh_as_number,                              /*tp_as_number*/
 0,                                              /*tp_as_sequence*/
@@ -1582,7 +1582,7 @@ sizeof(Choice),                                 /*tp_basicsize*/
 0,                                              /*tp_print*/
 0,                                              /*tp_getattr*/
 0,                                              /*tp_setattr*/
-0,                                              /*tp_compare*/
+0,                                              /*tp_as_async (tp_compare in Python 2)*/
 0,                                              /*tp_repr*/
 &Choice_as_number,                              /*tp_as_number*/
 0,                                              /*tp_as_sequence*/
@@ -2016,7 +2016,7 @@ sizeof(RandInt),                                 /*tp_basicsize*/
 0,                                              /*tp_print*/
 0,                                              /*tp_getattr*/
 0,                                              /*tp_setattr*/
-0,                                              /*tp_compare*/
+0,                                              /*tp_as_async (tp_compare in Python 2)*/
 0,                                              /*tp_repr*/
 &RandInt_as_number,                              /*tp_as_number*/
 0,                                              /*tp_as_sequence*/
@@ -2489,7 +2489,7 @@ PyTypeObject RandDurType = {
     0,                                              /*tp_print*/
     0,                                              /*tp_getattr*/
     0,                                              /*tp_setattr*/
-    0,                                              /*tp_compare*/
+    0,                                              /*tp_as_async (tp_compare in Python 2)*/
     0,                                              /*tp_repr*/
     &RandDur_as_number,                              /*tp_as_number*/
     0,                                              /*tp_as_sequence*/
@@ -3392,7 +3392,7 @@ PyTypeObject XnoiseType = {
     0,                                              /*tp_print*/
     0,                                              /*tp_getattr*/
     0,                                              /*tp_setattr*/
-    0,                                              /*tp_compare*/
+    0,                                              /*tp_as_async (tp_compare in Python 2)*/
     0,                                              /*tp_repr*/
     &Xnoise_as_number,                              /*tp_as_number*/
     0,                                              /*tp_as_sequence*/
@@ -4382,7 +4382,7 @@ PyTypeObject XnoiseMidiType = {
     0,                                              /*tp_print*/
     0,                                              /*tp_getattr*/
     0,                                              /*tp_setattr*/
-    0,                                              /*tp_compare*/
+    0,                                              /*tp_as_async (tp_compare in Python 2)*/
     0,                                              /*tp_repr*/
     &XnoiseMidi_as_number,                              /*tp_as_number*/
     0,                                              /*tp_as_sequence*/
@@ -5184,7 +5184,7 @@ PyTypeObject XnoiseDurType = {
     0,                                              /*tp_print*/
     0,                                              /*tp_getattr*/
     0,                                              /*tp_setattr*/
-    0,                                              /*tp_compare*/
+    0,                                              /*tp_as_async (tp_compare in Python 2)*/
     0,                                              /*tp_repr*/
     &XnoiseDur_as_number,                              /*tp_as_number*/
     0,                                              /*tp_as_sequence*/
@@ -5608,7 +5608,7 @@ sizeof(Urn),                                 /*tp_basicsize*/
 0,                                              /*tp_print*/
 0,                                              /*tp_getattr*/
 0,                                              /*tp_setattr*/
-0,                                              /*tp_compare*/
+0,                                              /*tp_as_async (tp_compare in Python 2)*/
 0,                                              /*tp_repr*/
 &Urn_as_number,                              /*tp_as_number*/
 0,                                              /*tp_as_sequence*/
@@ -6062,7 +6062,7 @@ sizeof(LogiMap),                                 /*tp_basicsize*/
 0,                                              /*tp_print*/
 0,                                              /*tp_getattr*/
 0,                                              /*tp_setattr*/
-0,                                              /*tp_compare*/
+0,                                              /*tp_as_async (tp_compare in Python 2)*/
 0,                                              /*tp_repr*/
 &LogiMap_as_number,                              /*tp_as_number*/
 0,                                              /*tp_as_sequence*/

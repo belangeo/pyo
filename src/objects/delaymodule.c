@@ -541,7 +541,7 @@ PyTypeObject DelayType = {
     0,                         /*tp_print*/
     0,                         /*tp_getattr*/
     0,                         /*tp_setattr*/
-    0,                         /*tp_compare*/
+    0,                         /*tp_as_async (tp_compare in Python 2)*/
     0,                         /*tp_repr*/
     &Delay_as_number,             /*tp_as_number*/
     0,                         /*tp_as_sequence*/
@@ -939,7 +939,7 @@ PyTypeObject SDelayType = {
     0,                         /*tp_print*/
     0,                         /*tp_getattr*/
     0,                         /*tp_setattr*/
-    0,                         /*tp_compare*/
+    0,                         /*tp_as_async (tp_compare in Python 2)*/
     0,                         /*tp_repr*/
     &SDelay_as_number,             /*tp_as_number*/
     0,                         /*tp_as_sequence*/
@@ -1662,7 +1662,7 @@ sizeof(Waveguide),         /*tp_basicsize*/
 0,                         /*tp_print*/
 0,                         /*tp_getattr*/
 0,                         /*tp_setattr*/
-0,                         /*tp_compare*/
+0,                         /*tp_as_async (tp_compare in Python 2)*/
 0,                         /*tp_repr*/
 &Waveguide_as_number,             /*tp_as_number*/
 0,                         /*tp_as_sequence*/
@@ -2709,7 +2709,7 @@ PyTypeObject AllpassWGType = {
     0,                         /*tp_print*/
     0,                         /*tp_getattr*/
     0,                         /*tp_setattr*/
-    0,                         /*tp_compare*/
+    0,                         /*tp_as_async (tp_compare in Python 2)*/
     0,                         /*tp_repr*/
     &AllpassWG_as_number,             /*tp_as_number*/
     0,                         /*tp_as_sequence*/
@@ -2976,7 +2976,7 @@ sizeof(Delay1),                                 /*tp_basicsize*/
 0,                                              /*tp_print*/
 0,                                              /*tp_getattr*/
 0,                                              /*tp_setattr*/
-0,                                              /*tp_compare*/
+0,                                              /*tp_as_async (tp_compare in Python 2)*/
 0,                                              /*tp_repr*/
 &Delay1_as_number,                              /*tp_as_number*/
 0,                                              /*tp_as_sequence*/
@@ -3679,7 +3679,7 @@ PyTypeObject SmoothDelayType = {
     0,                         /*tp_print*/
     0,                         /*tp_getattr*/
     0,                         /*tp_setattr*/
-    0,                         /*tp_compare*/
+    0,                         /*tp_as_async (tp_compare in Python 2)*/
     0,                         /*tp_repr*/
     &SmoothDelay_as_number,             /*tp_as_number*/
     0,                         /*tp_as_sequence*/

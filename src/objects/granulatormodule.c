@@ -1052,7 +1052,7 @@ PyTypeObject GranulatorType = {
     0,                         /*tp_print*/
     0,                         /*tp_getattr*/
     0,                         /*tp_setattr*/
-    0,                         /*tp_compare*/
+    0,                         /*tp_as_async (tp_compare in Python 2)*/
     0,                         /*tp_repr*/
     &Granulator_as_number,             /*tp_as_number*/
     0,                         /*tp_as_sequence*/
@@ -2315,7 +2315,7 @@ PyTypeObject LooperType = {
     0,                         /*tp_print*/
     0,                         /*tp_getattr*/
     0,                         /*tp_setattr*/
-    0,                         /*tp_compare*/
+    0,                         /*tp_as_async (tp_compare in Python 2)*/
     0,                         /*tp_repr*/
     &Looper_as_number,             /*tp_as_number*/
     0,                         /*tp_as_sequence*/
@@ -2558,7 +2558,7 @@ PyTypeObject LooperTimeStreamType = {
     0,                         /*tp_print*/
     0,                         /*tp_getattr*/
     0,                         /*tp_setattr*/
-    0,                         /*tp_compare*/
+    0,                         /*tp_as_async (tp_compare in Python 2)*/
     0,                         /*tp_repr*/
     &LooperTimeStream_as_number,             /*tp_as_number*/
     0,                         /*tp_as_sequence*/
@@ -3290,7 +3290,7 @@ PyTypeObject GranuleType = {
     0,                         /*tp_print*/
     0,                         /*tp_getattr*/
     0,                         /*tp_setattr*/
-    0,                         /*tp_compare*/
+    0,                         /*tp_as_async (tp_compare in Python 2)*/
     0,                         /*tp_repr*/
     &Granule_as_number,             /*tp_as_number*/
     0,                         /*tp_as_sequence*/
@@ -4298,7 +4298,7 @@ PyTypeObject MainParticleType = {
     0,                         /*tp_print*/
     0,                         /*tp_getattr*/
     0,                         /*tp_setattr*/
-    0,                         /*tp_compare*/
+    0,                         /*tp_as_async (tp_compare in Python 2)*/
     0,                         /*tp_repr*/
     0,             /*tp_as_number*/
     0,                         /*tp_as_sequence*/
@@ -4552,7 +4552,7 @@ sizeof(Particle),         /*tp_basicsize*/
 0,                         /*tp_print*/
 0,                         /*tp_getattr*/
 0,                         /*tp_setattr*/
-0,                         /*tp_compare*/
+0,                         /*tp_as_async (tp_compare in Python 2)*/
 0,                         /*tp_repr*/
 &Particle_as_number,             /*tp_as_number*/
 0,                         /*tp_as_sequence*/

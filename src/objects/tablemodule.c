@@ -113,7 +113,7 @@ sizeof(TableStream), /*tp_basicsize*/
 0, /*tp_print*/
 0, /*tp_getattr*/
 0, /*tp_setattr*/
-0, /*tp_compare*/
+0, /*tp_as_async (tp_compare in Python 2)*/
 0, /*tp_repr*/
 0, /*tp_as_number*/
 0, /*tp_as_sequence*/
@@ -369,7 +369,7 @@ sizeof(HarmTable),         /*tp_basicsize*/
 0,                         /*tp_print*/
 0,                         /*tp_getattr*/
 0,                         /*tp_setattr*/
-0,                         /*tp_compare*/
+0,                         /*tp_as_async (tp_compare in Python 2)*/
 0,                         /*tp_repr*/
 0,                         /*tp_as_number*/
 0,                         /*tp_as_sequence*/
@@ -740,7 +740,7 @@ sizeof(ChebyTable),         /*tp_basicsize*/
 0,                         /*tp_print*/
 0,                         /*tp_getattr*/
 0,                         /*tp_setattr*/
-0,                         /*tp_compare*/
+0,                         /*tp_as_async (tp_compare in Python 2)*/
 0,                         /*tp_repr*/
 0,                         /*tp_as_number*/
 0,                         /*tp_as_sequence*/
@@ -946,7 +946,7 @@ sizeof(HannTable),         /*tp_basicsize*/
 0,                         /*tp_print*/
 0,                         /*tp_getattr*/
 0,                         /*tp_setattr*/
-0,                         /*tp_compare*/
+0,                         /*tp_as_async (tp_compare in Python 2)*/
 0,                         /*tp_repr*/
 0,                         /*tp_as_number*/
 0,                         /*tp_as_sequence*/
@@ -1209,7 +1209,7 @@ PyTypeObject SincTableType = {
     0,                         /*tp_print*/
     0,                         /*tp_getattr*/
     0,                         /*tp_setattr*/
-    0,                         /*tp_compare*/
+    0,                         /*tp_as_async (tp_compare in Python 2)*/
     0,                         /*tp_repr*/
     0,                         /*tp_as_number*/
     0,                         /*tp_as_sequence*/
@@ -1430,7 +1430,7 @@ sizeof(WinTable),         /*tp_basicsize*/
 0,                         /*tp_print*/
 0,                         /*tp_getattr*/
 0,                         /*tp_setattr*/
-0,                         /*tp_compare*/
+0,                         /*tp_as_async (tp_compare in Python 2)*/
 0,                         /*tp_repr*/
 0,                         /*tp_as_number*/
 0,                         /*tp_as_sequence*/
@@ -1643,7 +1643,7 @@ PyTypeObject ParaTableType = {
     0,                         /*tp_print*/
     0,                         /*tp_getattr*/
     0,                         /*tp_setattr*/
-    0,                         /*tp_compare*/
+    0,                         /*tp_as_async (tp_compare in Python 2)*/
     0,                         /*tp_repr*/
     0,                         /*tp_as_number*/
     0,                         /*tp_as_sequence*/
@@ -1946,7 +1946,7 @@ sizeof(LinTable),         /*tp_basicsize*/
 0,                         /*tp_print*/
 0,                         /*tp_getattr*/
 0,                         /*tp_setattr*/
-0,                         /*tp_compare*/
+0,                         /*tp_as_async (tp_compare in Python 2)*/
 0,                         /*tp_repr*/
 0,                         /*tp_as_number*/
 0,                         /*tp_as_sequence*/
@@ -2273,7 +2273,7 @@ PyTypeObject LogTableType = {
     0,                         /*tp_print*/
     0,                         /*tp_getattr*/
     0,                         /*tp_setattr*/
-    0,                         /*tp_compare*/
+    0,                         /*tp_as_async (tp_compare in Python 2)*/
     0,                         /*tp_repr*/
     0,                         /*tp_as_number*/
     0,                         /*tp_as_sequence*/
@@ -2578,7 +2578,7 @@ sizeof(CosTable),         /*tp_basicsize*/
 0,                         /*tp_print*/
 0,                         /*tp_getattr*/
 0,                         /*tp_setattr*/
-0,                         /*tp_compare*/
+0,                         /*tp_as_async (tp_compare in Python 2)*/
 0,                         /*tp_repr*/
 0,                         /*tp_as_number*/
 0,                         /*tp_as_sequence*/
@@ -2907,7 +2907,7 @@ PyTypeObject CosLogTableType = {
     0,                         /*tp_print*/
     0,                         /*tp_getattr*/
     0,                         /*tp_setattr*/
-    0,                         /*tp_compare*/
+    0,                         /*tp_as_async (tp_compare in Python 2)*/
     0,                         /*tp_repr*/
     0,                         /*tp_as_number*/
     0,                         /*tp_as_sequence*/
@@ -3283,7 +3283,7 @@ sizeof(CurveTable),         /*tp_basicsize*/
 0,                         /*tp_print*/
 0,                         /*tp_getattr*/
 0,                         /*tp_setattr*/
-0,                         /*tp_compare*/
+0,                         /*tp_as_async (tp_compare in Python 2)*/
 0,                         /*tp_repr*/
 0,                         /*tp_as_number*/
 0,                         /*tp_as_sequence*/
@@ -3655,7 +3655,7 @@ sizeof(ExpTable),         /*tp_basicsize*/
 0,                         /*tp_print*/
 0,                         /*tp_getattr*/
 0,                         /*tp_setattr*/
-0,                         /*tp_compare*/
+0,                         /*tp_as_async (tp_compare in Python 2)*/
 0,                         /*tp_repr*/
 0,                         /*tp_as_number*/
 0,                         /*tp_as_sequence*/
@@ -4467,7 +4467,7 @@ sizeof(SndTable),         /*tp_basicsize*/
 0,                         /*tp_print*/
 0,                         /*tp_getattr*/
 0,                         /*tp_setattr*/
-0,                         /*tp_compare*/
+0,                         /*tp_as_async (tp_compare in Python 2)*/
 0,                         /*tp_repr*/
 0,                         /*tp_as_number*/
 0,                         /*tp_as_sequence*/
@@ -4820,7 +4820,7 @@ sizeof(NewTable),         /*tp_basicsize*/
 0,                         /*tp_print*/
 0,                         /*tp_getattr*/
 0,                         /*tp_setattr*/
-0,                         /*tp_compare*/
+0,                         /*tp_as_async (tp_compare in Python 2)*/
 0,                         /*tp_repr*/
 0,                         /*tp_as_number*/
 0,                         /*tp_as_sequence*/
@@ -5012,7 +5012,7 @@ PyTypeObject DataTableType = {
     0,                         /*tp_print*/
     0,                         /*tp_getattr*/
     0,                         /*tp_setattr*/
-    0,                         /*tp_compare*/
+    0,                         /*tp_as_async (tp_compare in Python 2)*/
     0,                         /*tp_repr*/
     0,                         /*tp_as_number*/
     0,                         /*tp_as_sequence*/
@@ -5248,7 +5248,7 @@ PyTypeObject AtanTableType = {
     0,                         /*tp_print*/
     0,                         /*tp_getattr*/
     0,                         /*tp_setattr*/
-    0,                         /*tp_compare*/
+    0,                         /*tp_as_async (tp_compare in Python 2)*/
     0,                         /*tp_repr*/
     0,                         /*tp_as_number*/
     0,                         /*tp_as_sequence*/
@@ -5655,7 +5655,7 @@ PyTypeObject PadSynthTableType = {
     0,                         /*tp_print*/
     0,                         /*tp_getattr*/
     0,                         /*tp_setattr*/
-    0,                         /*tp_compare*/
+    0,                         /*tp_as_async (tp_compare in Python 2)*/
     0,                         /*tp_repr*/
     0,                         /*tp_as_number*/
     0,                         /*tp_as_sequence*/
@@ -5916,7 +5916,7 @@ sizeof(TableRec),         /*tp_basicsize*/
 0,                         /*tp_print*/
 0,                         /*tp_getattr*/
 0,                         /*tp_setattr*/
-0,                         /*tp_compare*/
+0,                         /*tp_as_async (tp_compare in Python 2)*/
 0,                         /*tp_repr*/
 0,             /*tp_as_number*/
 0,                         /*tp_as_sequence*/
@@ -6159,7 +6159,7 @@ PyTypeObject TableRecTimeStreamType = {
     0,                         /*tp_print*/
     0,                         /*tp_getattr*/
     0,                         /*tp_setattr*/
-    0,                         /*tp_compare*/
+    0,                         /*tp_as_async (tp_compare in Python 2)*/
     0,                         /*tp_repr*/
     &TableRecTimeStream_as_number,             /*tp_as_number*/
     0,                         /*tp_as_sequence*/
@@ -6397,7 +6397,7 @@ sizeof(TableMorph),         /*tp_basicsize*/
 0,                         /*tp_print*/
 0,                         /*tp_getattr*/
 0,                         /*tp_setattr*/
-0,                         /*tp_compare*/
+0,                         /*tp_as_async (tp_compare in Python 2)*/
 0,                         /*tp_repr*/
 0,             /*tp_as_number*/
 0,                         /*tp_as_sequence*/
@@ -6704,7 +6704,7 @@ PyTypeObject TrigTableRecType = {
     0,                         /*tp_print*/
     0,                         /*tp_getattr*/
     0,                         /*tp_setattr*/
-    0,                         /*tp_compare*/
+    0,                         /*tp_as_async (tp_compare in Python 2)*/
     0,                         /*tp_repr*/
     0,             /*tp_as_number*/
     0,                         /*tp_as_sequence*/
@@ -6947,7 +6947,7 @@ PyTypeObject TrigTableRecTimeStreamType = {
     0,                         /*tp_print*/
     0,                         /*tp_getattr*/
     0,                         /*tp_setattr*/
-    0,                         /*tp_compare*/
+    0,                         /*tp_as_async (tp_compare in Python 2)*/
     0,                         /*tp_repr*/
     &TrigTableRecTimeStream_as_number,             /*tp_as_number*/
     0,                         /*tp_as_sequence*/
@@ -7154,7 +7154,7 @@ sizeof(TablePut),         /*tp_basicsize*/
 0,                         /*tp_print*/
 0,                         /*tp_getattr*/
 0,                         /*tp_setattr*/
-0,                         /*tp_compare*/
+0,                         /*tp_as_async (tp_compare in Python 2)*/
 0,                         /*tp_repr*/
 0,             /*tp_as_number*/
 0,                         /*tp_as_sequence*/
@@ -7374,7 +7374,7 @@ sizeof(TableWrite),         /*tp_basicsize*/
 0,                         /*tp_print*/
 0,                         /*tp_getattr*/
 0,                         /*tp_setattr*/
-0,                         /*tp_compare*/
+0,                         /*tp_as_async (tp_compare in Python 2)*/
 0,                         /*tp_repr*/
 0,             /*tp_as_number*/
 0,                         /*tp_as_sequence*/

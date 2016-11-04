@@ -475,7 +475,7 @@ sizeof(Sine),         /*tp_basicsize*/
 0,                         /*tp_print*/
 0,                         /*tp_getattr*/
 0,                         /*tp_setattr*/
-0,                         /*tp_compare*/
+0,                         /*tp_as_async (tp_compare in Python 2)*/
 0,                         /*tp_repr*/
 &Sine_as_number,             /*tp_as_number*/
 0,                         /*tp_as_sequence*/
@@ -1013,7 +1013,7 @@ sizeof(FastSine),         /*tp_basicsize*/
 0,                         /*tp_print*/
 0,                         /*tp_getattr*/
 0,                         /*tp_setattr*/
-0,                         /*tp_compare*/
+0,                         /*tp_as_async (tp_compare in Python 2)*/
 0,                         /*tp_repr*/
 &FastSine_as_number,             /*tp_as_number*/
 0,                         /*tp_as_sequence*/
@@ -1445,7 +1445,7 @@ PyTypeObject SineLoopType = {
 	0,                         /*tp_print*/
 	0,                         /*tp_getattr*/
 	0,                         /*tp_setattr*/
-	0,                         /*tp_compare*/
+	0,                         /*tp_as_async (tp_compare in Python 2)*/
 	0,                         /*tp_repr*/
 	&SineLoop_as_number,             /*tp_as_number*/
 	0,                         /*tp_as_sequence*/
@@ -1975,7 +1975,7 @@ PyTypeObject OscType = {
     0,                         /*tp_print*/
     0,                         /*tp_getattr*/
     0,                         /*tp_setattr*/
-    0,                         /*tp_compare*/
+    0,                         /*tp_as_async (tp_compare in Python 2)*/
     0,                         /*tp_repr*/
     &Osc_as_number,             /*tp_as_number*/
     0,                         /*tp_as_sequence*/
@@ -2465,7 +2465,7 @@ PyTypeObject OscLoopType = {
     0,                         /*tp_print*/
     0,                         /*tp_getattr*/
     0,                         /*tp_setattr*/
-    0,                         /*tp_compare*/
+    0,                         /*tp_as_async (tp_compare in Python 2)*/
     0,                         /*tp_repr*/
     &OscLoop_as_number,             /*tp_as_number*/
     0,                         /*tp_as_sequence*/
@@ -3041,7 +3041,7 @@ PyTypeObject OscTrigType = {
     0,                         /*tp_print*/
     0,                         /*tp_getattr*/
     0,                         /*tp_setattr*/
-    0,                         /*tp_compare*/
+    0,                         /*tp_as_async (tp_compare in Python 2)*/
     0,                         /*tp_repr*/
     &OscTrig_as_number,             /*tp_as_number*/
     0,                         /*tp_as_sequence*/
@@ -3504,7 +3504,7 @@ sizeof(Phasor),         /*tp_basicsize*/
 0,                         /*tp_print*/
 0,                         /*tp_getattr*/
 0,                         /*tp_setattr*/
-0,                         /*tp_compare*/
+0,                         /*tp_as_async (tp_compare in Python 2)*/
 0,                         /*tp_repr*/
 &Phasor_as_number,             /*tp_as_number*/
 0,                         /*tp_as_sequence*/
@@ -3838,7 +3838,7 @@ sizeof(Pointer),         /*tp_basicsize*/
 0,                         /*tp_print*/
 0,                         /*tp_getattr*/
 0,                         /*tp_setattr*/
-0,                         /*tp_compare*/
+0,                         /*tp_as_async (tp_compare in Python 2)*/
 0,                         /*tp_repr*/
 &Pointer_as_number,             /*tp_as_number*/
 0,                         /*tp_as_sequence*/
@@ -4240,7 +4240,7 @@ sizeof(Pointer2),         /*tp_basicsize*/
 0,                         /*tp_print*/
 0,                         /*tp_getattr*/
 0,                         /*tp_setattr*/
-0,                         /*tp_compare*/
+0,                         /*tp_as_async (tp_compare in Python 2)*/
 0,                         /*tp_repr*/
 &Pointer2_as_number,             /*tp_as_number*/
 0,                         /*tp_as_sequence*/
@@ -4575,7 +4575,7 @@ PyTypeObject TableIndexType = {
     0,                         /*tp_print*/
     0,                         /*tp_getattr*/
     0,                         /*tp_setattr*/
-    0,                         /*tp_compare*/
+    0,                         /*tp_as_async (tp_compare in Python 2)*/
     0,                         /*tp_repr*/
     &TableIndex_as_number,             /*tp_as_number*/
     0,                         /*tp_as_sequence*/
@@ -4918,7 +4918,7 @@ sizeof(Lookup),         /*tp_basicsize*/
 0,                         /*tp_print*/
 0,                         /*tp_getattr*/
 0,                         /*tp_setattr*/
-0,                         /*tp_compare*/
+0,                         /*tp_as_async (tp_compare in Python 2)*/
 0,                         /*tp_repr*/
 &Lookup_as_number,             /*tp_as_number*/
 0,                         /*tp_as_sequence*/
@@ -5765,7 +5765,7 @@ sizeof(Pulsar),         /*tp_basicsize*/
 0,                         /*tp_print*/
 0,                         /*tp_getattr*/
 0,                         /*tp_setattr*/
-0,                         /*tp_compare*/
+0,                         /*tp_as_async (tp_compare in Python 2)*/
 0,                         /*tp_repr*/
 &Pulsar_as_number,             /*tp_as_number*/
 0,                         /*tp_as_sequence*/
@@ -6272,7 +6272,7 @@ sizeof(TableRead),         /*tp_basicsize*/
 0,                         /*tp_print*/
 0,                         /*tp_getattr*/
 0,                         /*tp_setattr*/
-0,                         /*tp_compare*/
+0,                         /*tp_as_async (tp_compare in Python 2)*/
 0,                         /*tp_repr*/
 &TableRead_as_number,             /*tp_as_number*/
 0,                         /*tp_as_sequence*/
@@ -6917,7 +6917,7 @@ sizeof(Fm),         /*tp_basicsize*/
 0,                         /*tp_print*/
 0,                         /*tp_getattr*/
 0,                         /*tp_setattr*/
-0,                         /*tp_compare*/
+0,                         /*tp_as_async (tp_compare in Python 2)*/
 0,                         /*tp_repr*/
 &Fm_as_number,             /*tp_as_number*/
 0,                         /*tp_as_sequence*/
@@ -7433,7 +7433,7 @@ PyTypeObject CrossFmType = {
     0,                         /*tp_print*/
     0,                         /*tp_getattr*/
     0,                         /*tp_setattr*/
-    0,                         /*tp_compare*/
+    0,                         /*tp_as_async (tp_compare in Python 2)*/
     0,                         /*tp_repr*/
     &CrossFm_as_number,             /*tp_as_number*/
     0,                         /*tp_as_sequence*/
@@ -7896,7 +7896,7 @@ PyTypeObject BlitType = {
     0,                         /*tp_print*/
     0,                         /*tp_getattr*/
     0,                         /*tp_setattr*/
-    0,                         /*tp_compare*/
+    0,                         /*tp_as_async (tp_compare in Python 2)*/
     0,                         /*tp_repr*/
     &Blit_as_number,             /*tp_as_number*/
     0,                         /*tp_as_sequence*/
@@ -8419,7 +8419,7 @@ PyTypeObject RosslerType = {
     0,                         /*tp_print*/
     0,                         /*tp_getattr*/
     0,                         /*tp_setattr*/
-    0,                         /*tp_compare*/
+    0,                         /*tp_as_async (tp_compare in Python 2)*/
     0,                         /*tp_repr*/
     &Rossler_as_number,             /*tp_as_number*/
     0,                         /*tp_as_sequence*/
@@ -8669,7 +8669,7 @@ PyTypeObject RosslerAltType = {
     0,                         /*tp_print*/
     0,                         /*tp_getattr*/
     0,                         /*tp_setattr*/
-    0,                         /*tp_compare*/
+    0,                         /*tp_as_async (tp_compare in Python 2)*/
     0,                         /*tp_repr*/
     &RosslerAlt_as_number,             /*tp_as_number*/
     0,                         /*tp_as_sequence*/
@@ -9192,7 +9192,7 @@ PyTypeObject LorenzType = {
     0,                         /*tp_print*/
     0,                         /*tp_getattr*/
     0,                         /*tp_setattr*/
-    0,                         /*tp_compare*/
+    0,                         /*tp_as_async (tp_compare in Python 2)*/
     0,                         /*tp_repr*/
     &Lorenz_as_number,             /*tp_as_number*/
     0,                         /*tp_as_sequence*/
@@ -9442,7 +9442,7 @@ PyTypeObject LorenzAltType = {
     0,                         /*tp_print*/
     0,                         /*tp_getattr*/
     0,                         /*tp_setattr*/
-    0,                         /*tp_compare*/
+    0,                         /*tp_as_async (tp_compare in Python 2)*/
     0,                         /*tp_repr*/
     &LorenzAlt_as_number,             /*tp_as_number*/
     0,                         /*tp_as_sequence*/
@@ -9973,7 +9973,7 @@ PyTypeObject ChenLeeType = {
     0,                         /*tp_print*/
     0,                         /*tp_getattr*/
     0,                         /*tp_setattr*/
-    0,                         /*tp_compare*/
+    0,                         /*tp_as_async (tp_compare in Python 2)*/
     0,                         /*tp_repr*/
     &ChenLee_as_number,             /*tp_as_number*/
     0,                         /*tp_as_sequence*/
@@ -10223,7 +10223,7 @@ PyTypeObject ChenLeeAltType = {
     0,                         /*tp_print*/
     0,                         /*tp_getattr*/
     0,                         /*tp_setattr*/
-    0,                         /*tp_compare*/
+    0,                         /*tp_as_async (tp_compare in Python 2)*/
     0,                         /*tp_repr*/
     &ChenLeeAlt_as_number,             /*tp_as_number*/
     0,                         /*tp_as_sequence*/
@@ -10961,7 +10961,7 @@ sizeof(SumOsc),         /*tp_basicsize*/
 0,                         /*tp_print*/
 0,                         /*tp_getattr*/
 0,                         /*tp_setattr*/
-0,                         /*tp_compare*/
+0,                         /*tp_as_async (tp_compare in Python 2)*/
 0,                         /*tp_repr*/
 &SumOsc_as_number,             /*tp_as_number*/
 0,                         /*tp_as_sequence*/
@@ -11813,7 +11813,7 @@ sizeof(SuperSaw),         /*tp_basicsize*/
 0,                         /*tp_print*/
 0,                         /*tp_getattr*/
 0,                         /*tp_setattr*/
-0,                         /*tp_compare*/
+0,                         /*tp_as_async (tp_compare in Python 2)*/
 0,                         /*tp_repr*/
 &SuperSaw_as_number,             /*tp_as_number*/
 0,                         /*tp_as_sequence*/
@@ -12286,7 +12286,7 @@ sizeof(RCOsc),         /*tp_basicsize*/
 0,                         /*tp_print*/
 0,                         /*tp_getattr*/
 0,                         /*tp_setattr*/
-0,                         /*tp_compare*/
+0,                         /*tp_as_async (tp_compare in Python 2)*/
 0,                         /*tp_repr*/
 &RCOsc_as_number,             /*tp_as_number*/
 0,                         /*tp_as_sequence*/
@@ -12644,7 +12644,7 @@ sizeof(TableScale),         /*tp_basicsize*/
 0,                         /*tp_print*/
 0,                         /*tp_getattr*/
 0,                         /*tp_setattr*/
-0,                         /*tp_compare*/
+0,                         /*tp_as_async (tp_compare in Python 2)*/
 0,                         /*tp_repr*/
 &TableScale_as_number,             /*tp_as_number*/
 0,                         /*tp_as_sequence*/
