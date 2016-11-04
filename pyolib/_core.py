@@ -18,6 +18,7 @@ GNU Lesser General Public License for more details.
 You should have received a copy of the GNU Lesser General Public
 License along with pyo.  If not, see <http://www.gnu.org/licenses/>.
 """
+from __future__ import division
 from types import BooleanType, ListType, TupleType, SliceType, LongType, IntType, FloatType, StringType, UnicodeType, NoneType
 import random, os, sys, inspect, tempfile
 from subprocess import call
@@ -577,7 +578,7 @@ class PyoObject(PyoObjectBase):
     def __add__(self, x):
         x, lmax = convertArgsToLists(x)
         if self.__len__() >= lmax:
-            _add_dummy = Dummy([obj + wrap(x,i/self._op_duplicate) for i, obj in enumerate(self._base_objs)])
+            _add_dummy = Dummy([obj + wrap(x,i//self._op_duplicate) for i, obj in enumerate(self._base_objs)])
         else:
             if isinstance(x, PyoObject):
                 _add_dummy = x + self
@@ -589,7 +590,7 @@ class PyoObject(PyoObjectBase):
     def __radd__(self, x):
         x, lmax = convertArgsToLists(x)
         if self.__len__() >= lmax:
-            _add_dummy = Dummy([obj + wrap(x,i/self._op_duplicate) for i, obj in enumerate(self._base_objs)])
+            _add_dummy = Dummy([obj + wrap(x,i//self._op_duplicate) for i, obj in enumerate(self._base_objs)])
         else:
             _add_dummy = Dummy([wrap(self._base_objs,i) + obj for i, obj in enumerate(x)])
         self._keep_trace.append(_add_dummy)
@@ -602,7 +603,7 @@ class PyoObject(PyoObjectBase):
     def __sub__(self, x):
         x, lmax = convertArgsToLists(x)
         if self.__len__() >= lmax:
-            _add_dummy = Dummy([obj - wrap(x,i/self._op_duplicate) for i, obj in enumerate(self._base_objs)])
+            _add_dummy = Dummy([obj - wrap(x,i//self._op_duplicate) for i, obj in enumerate(self._base_objs)])
         else:
             if isinstance(x, PyoObject):
                 _add_dummy = Dummy([wrap(self._base_objs,i) - wrap(x,i) for i in range(lmax)])
@@ -616,7 +617,7 @@ class PyoObject(PyoObjectBase):
         if self.__len__() >= lmax:
             tmp = []
             for i, obj in enumerate(self._base_objs):
-                sub_upsamp = Sig(wrap(x, i/self._op_duplicate))
+                sub_upsamp = Sig(wrap(x, i//self._op_duplicate))
                 self._keep_trace.append(sub_upsamp)
                 tmp.append(sub_upsamp - obj)
             _add_dummy = Dummy(tmp)
@@ -637,7 +638,7 @@ class PyoObject(PyoObjectBase):
     def __mul__(self, x):
         x, lmax = convertArgsToLists(x)
         if self.__len__() >= lmax:
-            _mul_dummy = Dummy([obj * wrap(x,i/self._op_duplicate) for i, obj in enumerate(self._base_objs)])
+            _mul_dummy = Dummy([obj * wrap(x,i//self._op_duplicate) for i, obj in enumerate(self._base_objs)])
         else:
             if isinstance(x, PyoObject):
                 _mul_dummy = x * self
@@ -649,7 +650,7 @@ class PyoObject(PyoObjectBase):
     def __rmul__(self, x):
         x, lmax = convertArgsToLists(x)
         if self.__len__() >= lmax:
-            _mul_dummy = Dummy([obj * wrap(x,i/self._op_duplicate) for i, obj in enumerate(self._base_objs)])
+            _mul_dummy = Dummy([obj * wrap(x,i//self._op_duplicate) for i, obj in enumerate(self._base_objs)])
         else:
             _mul_dummy = Dummy([wrap(self._base_objs,i) * obj for i, obj in enumerate(x)])
         self._keep_trace.append(_mul_dummy)
@@ -659,10 +660,19 @@ class PyoObject(PyoObjectBase):
         self.setMul(x)
         return self
 
+    def __truediv__(self, x):
+        return self.__div__(x)
+
+    def __rtruediv__(self, x):
+        return self.__rdiv__(x)
+
+    def __itruediv__(self, x):
+        return self.__idiv__(x)
+
     def __div__(self, x):
         x, lmax = convertArgsToLists(x)
         if self.__len__() >= lmax:
-            _mul_dummy = Dummy([obj / wrap(x,i/self._op_duplicate) for i, obj in enumerate(self._base_objs)])
+            _mul_dummy = Dummy([obj / wrap(x,i//self._op_duplicate) for i, obj in enumerate(self._base_objs)])
         else:
             if isinstance(x, PyoObject):
                 _mul_dummy = Dummy([wrap(self._base_objs,i) / wrap(x,i) for i in range(lmax)])
@@ -676,7 +686,7 @@ class PyoObject(PyoObjectBase):
         if self.__len__() >= lmax:
             tmp = []
             for i, obj in enumerate(self._base_objs):
-                div_upsamp = Sig(wrap(x, i/self._op_duplicate))
+                div_upsamp = Sig(wrap(x, i//self._op_duplicate))
                 self._keep_trace.append(div_upsamp)
                 tmp.append(div_upsamp / obj)
             _mul_dummy = Dummy(tmp)
@@ -961,7 +971,7 @@ class PyoObject(PyoObjectBase):
         pyoArgsAssert(self, "O", x)
         self._mul = x
         x, lmax = convertArgsToLists(x)
-        [obj.setMul(wrap(x,i/self._op_duplicate)) for i, obj in enumerate(self._base_objs)]
+        [obj.setMul(wrap(x,i//self._op_duplicate)) for i, obj in enumerate(self._base_objs)]
 
     def setAdd(self, x):
         """
@@ -976,7 +986,7 @@ class PyoObject(PyoObjectBase):
         pyoArgsAssert(self, "O", x)
         self._add = x
         x, lmax = convertArgsToLists(x)
-        [obj.setAdd(wrap(x,i/self._op_duplicate)) for i, obj in enumerate(self._base_objs)]
+        [obj.setAdd(wrap(x,i//self._op_duplicate)) for i, obj in enumerate(self._base_objs)]
 
     def setSub(self, x):
         """
@@ -991,7 +1001,7 @@ class PyoObject(PyoObjectBase):
         pyoArgsAssert(self, "O", x)
         self._add = x
         x, lmax = convertArgsToLists(x)
-        [obj.setSub(wrap(x,i/self._op_duplicate)) for i, obj in enumerate(self._base_objs)]
+        [obj.setSub(wrap(x,i//self._op_duplicate)) for i, obj in enumerate(self._base_objs)]
 
     def setDiv(self, x):
         """
@@ -1006,7 +1016,7 @@ class PyoObject(PyoObjectBase):
         pyoArgsAssert(self, "O", x)
         self._mul = x
         x, lmax = convertArgsToLists(x)
-        [obj.setDiv(wrap(x,i/self._op_duplicate)) for i, obj in enumerate(self._base_objs)]
+        [obj.setDiv(wrap(x,i//self._op_duplicate)) for i, obj in enumerate(self._base_objs)]
 
     def set(self, attr, value, port=0.025):
         """
