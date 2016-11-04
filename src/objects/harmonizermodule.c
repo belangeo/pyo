@@ -663,7 +663,6 @@ static PyNumberMethods Harmonizer_as_number = {
 
 PyTypeObject HarmonizerType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    0,                         /*ob_transpo*/
     "_pyo.Harmonizer_base",         /*tp_name*/
     sizeof(Harmonizer),         /*tp_basictranspo*/
     0,                         /*tp_itemtranspo*/
