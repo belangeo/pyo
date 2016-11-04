@@ -20,6 +20,7 @@
 
 #include <Python.h>
 #include <math.h>
+#include "py2to3.h"
 #include "sndfile.h"
 #include "pyomodule.h"
 #include "servermodule.h"

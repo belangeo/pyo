@@ -19,6 +19,7 @@
  *************************************************************************/
 
 #include "ad_portaudio.h"
+#include "py2to3.h"
 
 /* Audio server's functions. */
 

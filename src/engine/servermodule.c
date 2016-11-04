@@ -26,6 +26,7 @@
 #include <stdlib.h>
 #include <pthread.h>
 
+#include "py2to3.h"
 #include "structmember.h"
 #include "sndfile.h"
 #include "streammodule.h"

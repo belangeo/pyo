@@ -19,6 +19,7 @@
  *************************************************************************/
 
 #include "md_portmidi.h"
+#include "py2to3.h"
 
 static PyoMidiEvent PmEventToPyoMidiEvent(PmEvent buffer)
 {

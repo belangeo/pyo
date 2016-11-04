@@ -33,6 +33,25 @@
  * It has been removed in Python 3. */
 #define Py_TPFLAGS_HAVE_NEWBUFFER 0
 #define PyFloat_FromString(a,removed_parameter) PyFloat_FromString(a)
-#endif
+
+/* PyInt -> PyLong remapping */
+#define PyInt_AsLong PyLong_AsLong
+#define PyInt_Check PyLong_Check
+#define PyInt_FromString PyLong_FromString
+#define PyInt_FromUnicode PyLong_FromUnicode
+#define PyInt_FromLong PyLong_FromLong
+#define PyInt_FromSize_t PyLong_FromSize_t
+#define PyInt_FromSsize_t PyLong_FromSsize_t
+#define PyInt_AsLong PyLong_AsLong
+// Note: Slightly different semantics, the macro does not do any error checking
+#define PyInt_AS_LONG PyLong_AsLong
+#define PyInt_AsSsize_t PyLong_AsSsize_t
+#define PyInt_AsUnsignedLongMask PyLong_AsUnsignedLongMask
+#define PyInt_AsUnsignedLongLongMask PyLong_AsUnsignedLongLongMask
+
+#define PyNumber_Int PyNumber_Long
+#define PyInt_Type PyLong_Type
+
+#endif /* PY_MAJOR_VERSION >= 3 */
 
 #endif
