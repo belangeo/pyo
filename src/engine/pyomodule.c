@@ -1839,6 +1839,22 @@ static PyMethodDef pyo_functions[] = {
 {NULL, NULL, 0, NULL},
 };
 
+#if PY_MAJOR_VERSION >= 3
+// TODO: Pyo likely has a bunch of state stored in global variables right now, they should ideally be stored
+// in an interpreter specific struct as described in https://docs.python.org/3/howto/cporting.html
+static struct PyModuleDef pyo_moduledef = {
+    PyModuleDef_HEAD_INIT,
+    LIB_BASE_NAME,/* m_name */
+    "Python digital signal processing module.",/* m_doc */
+    0,/* m_size */
+    pyo_functions,/* m_methods */
+    NULL,/* m_reload */
+    NULL,/* m_traverse */
+    NULL,/* m_clear */
+    NULL,/* m_free */
+};
+#endif
+
 static PyObject *
 module_add_object(PyObject *module, const char *name, PyTypeObject *type) {
     if (PyType_Ready(type) < 0)
@@ -1857,7 +1873,11 @@ init_pyo64(void)
 {
     PyObject *m;
 
+#if PY_MAJOR_VERSION >= 3
+    m = PyModule_Create(&pyo_moduledef);
+#else
     m = Py_InitModule3(LIB_BASE_NAME, pyo_functions, "Python digital signal processing module.");
+#endif
 
 #ifndef NO_MESSAGES
 #ifndef USE_DOUBLE
@@ -2186,5 +2206,9 @@ init_pyo64(void)
     PyModule_AddIntConstant(m, "USE_DOUBLE", 0);
 #else
     PyModule_AddIntConstant(m, "USE_DOUBLE", 1);
+#endif
+
+#if PY_MAJOR_VERSION >= 3
+    return m;
 #endif
 }
