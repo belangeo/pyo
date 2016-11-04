@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # encoding: utf-8
+from __future__ import print_function
 """
 Wave terrain synthesis of a live recording of FM synthesis in the matrix.
 
@@ -24,7 +25,7 @@ c = MatrixPointer(matrix=mm, x=x, y=y, mul=.25)
 filt = Tone(input=c, freq=3000).out()
 
 def func():
-    print "End of recording"
+    print("End of recording")
 
 tr = TrigFunc(rec['trig'], func)
 

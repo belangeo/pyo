@@ -1,3 +1,4 @@
+from __future__ import print_function
 """
 06-multichannel-expansion.py - What is a `Stream`? Polyphonic objects.
 
@@ -43,7 +44,7 @@ amps = [0.33 / i for i in range(1, high) if i%2 == 1]
 # Creates all sine waves at once.
 a = Sine(freq=harms, mul=amps)
 # Prints the number of streams managed by "a".
-print len(a)
+print(len(a))
 
 # The mix(voices) method (defined in PyoObject) mixes 
 # the object streams into `voices` streams.

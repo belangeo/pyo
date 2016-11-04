@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # encoding: utf-8
+from __future__ import print_function
 """
 Scan Open Sound Control inputs. Launch this script from a terminal.
 
@@ -11,14 +12,14 @@ port = input("Enter the incoming port number : ")
 
 s = Server().boot().start()
 
-print "Play with your OSC interface..."
+print("Play with your OSC interface...")
 
 go = True
 def pp(address, *args): 
     if go:
-        print "Address =", address
-        print "Values =", args
-        print "---------------"
+        print("Address =", address)
+        print("Values =", args)
+        print("---------------")
 
 scan = OscDataReceive(port, "*", pp)
 
@@ -28,7 +29,7 @@ while again == "y":
     go = False
     again = raw_input("Do you want to continue ? (y/n) : ")
     if again == "y":
-        print "Continue..."
+        print("Continue...")
         go = True
     
 s.stop()

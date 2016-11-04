@@ -1,3 +1,4 @@
+from __future__ import print_function
 """
 Copyright 2009-2015 Olivier Belanger
 
@@ -2934,7 +2935,7 @@ class ServerGUI(wx.Frame):
         self.text.Clear()
         self._history.append(source)
         self._histo_count = len(self._history)
-        exec source in self.locals
+        exec(source, self.locals)
 
     def onChar(self, evt):
         key = evt.GetKeyCode()
@@ -2972,7 +2973,7 @@ def ensureNFD(unistr):
                 continue
             except:
                 decstr = "UnableToDecodeString"
-                print "Unicode encoding not in a recognized format..."
+                print("Unicode encoding not in a recognized format...")
                 break
     if decstr == "UnableToDecodeString":
         return unistr

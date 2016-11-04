@@ -1,3 +1,4 @@
+from __future__ import print_function
 """
 Set of objects to manage triggers streams.
 
@@ -7,7 +8,6 @@ TrigXXX objects use this kind of signal to generate different
 processes with sampling rate time accuracy.
 
 """
-
 """
 Copyright 2009-2015 Olivier Belanger
 
@@ -472,7 +472,7 @@ class Beat(PyoObject):
         if i < len(self._base_objs):
             return self._base_objs[i]
         else:
-            print "'i' too large!"
+            print("'i' too large!")
 
     def get(self, identifier="amp", all=False):
         """
@@ -3327,7 +3327,7 @@ class Euclide(PyoObject):
         if i < len(self._base_objs):
             return self._base_objs[i]
         else:
-            print "'i' too large!"
+            print("'i' too large!")
 
     def get(self, identifier="amp", all=False):
         """
@@ -3569,7 +3569,7 @@ class TrigBurst(PyoObject):
         if i < len(self._base_objs):
             return self._base_objs[i]
         else:
-            print "'i' too large!"
+            print("'i' too large!")
 
     def get(self, identifier="amp", all=False):
         """

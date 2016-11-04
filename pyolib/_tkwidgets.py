@@ -1,3 +1,4 @@
+from __future__ import print_function
 """
 Copyright 2009-2015 Olivier Belanger
 
@@ -186,7 +187,7 @@ class ViewTable_withPIL(Frame):
         self.height = 200
         self.half_height = self.height / 2
         self.canvas = Canvas(self, height=self.height, width=self.width, relief=SUNKEN, bd=1, bg="#EFEFEF")
-        print Image
+        print(Image)
         im = Image.new("L", (self.width, self.height), 255)
         draw = ImageDraw.Draw(im)
         draw.line(samples, fill=0, width=1)
@@ -360,7 +361,7 @@ class ServerGUI(Frame):
     def getText(self, event):
         source = self.text.get("1.0", END)
         self.text.delete("1.0", END)
-        exec source in self.locals
+        exec(source, self.locals)
         self._history.append(source)
         self._histo_count = len(self._history)
         return "break"

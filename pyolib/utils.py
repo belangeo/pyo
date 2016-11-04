@@ -1,3 +1,4 @@
+from __future__ import print_function
 """
 Miscellaneous objects.
 
@@ -626,12 +627,12 @@ class Record(PyoObject):
         ext = filename.rsplit('.')
         if len(ext) >= 2:
             ext = ext[-1].lower()
-            if FILE_FORMATS.has_key(ext):
+            if ext in FILE_FORMATS:
                 fileformat = FILE_FORMATS[ext]
             else:
-                print 'Warning: Unknown file extension. Using fileformat value.'
+                print('Warning: Unknown file extension. Using fileformat value.')
         else:
-            print 'Warning: Filename has no extension. Using fileformat value.'
+            print('Warning: Filename has no extension. Using fileformat value.')
         self._base_objs = [Record_base(self._in_fader.getBaseObjects(), filename, chnls, fileformat, sampletype, buffering, quality)]
 
     def out(self, chnl=0, inc=1, dur=0, delay=0):

@@ -1,3 +1,4 @@
+from __future__ import print_function
 """
 Play soundfiles from the disk.
 
@@ -138,7 +139,7 @@ class SfPlayer(PyoObject):
         except:
             return
         if _snd_chnls != curNchnls:
-            print "Soundfile must contains exactly %d channels." % curNchnls
+            print("Soundfile must contains exactly %d channels." % curNchnls)
             return
 
         self._path = path

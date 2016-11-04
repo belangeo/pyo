@@ -1,3 +1,4 @@
+from __future__ import print_function
 """
 08-handling-channels.py - Managing object's internal audio streams.
 
@@ -32,10 +33,10 @@ amps = [0.33 / i for i in range(1, high) if i%2 == 1]
 
 # Creates a square wave by additive synthesis.
 a = Sine(freq=harms, mul=amps)
-print "Number of Sine streams:", len(a)
+print("Number of Sine streams:", len(a))
 
 # Mix down the number of streams of "a" before computing the Chorus.
 b = Chorus(a.mix(2), feedback=0.5).out()
-print "Number of Chorus streams:", len(b)
+print("Number of Chorus streams:", len(b))
 
 s.gui(locals())

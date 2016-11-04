@@ -1,3 +1,4 @@
+from __future__ import print_function
 """
 Set of objects to manage audio voice routing and spread of a sound
 signal into a new stereo or multi-channel sound field.
@@ -609,7 +610,7 @@ class Mixer(PyoObject):
         elif x < len(self._base_objs):
             return [self._base_objs[x*self._chnls+i] for i in range(self._chnls)]
         else:
-            print "'x' too large!"
+            print("'x' too large!")
 
     def setTime(self, x):
         """
@@ -644,10 +645,10 @@ class Mixer(PyoObject):
         pyoArgsAssert(self, "o", input)
         if voice == None:
             voice = random.randint(0, 32767)
-            while self._inputs.has_key(voice):
+            while voice in self._inputs:
                 voice = random.randint(0, 32767)
-        if self._inputs.has_key(voice):
-            print >> sys.stderr, "Mixer has already a key named %s" % voice
+        if voice in self._inputs:
+            print("Mixer has already a key named %s" % voice, file=sys.stderr)
             return
         self._inputs[voice] = input
         input, lmax = convertArgsToLists(input)
@@ -664,7 +665,7 @@ class Mixer(PyoObject):
                 Key in the mixer dictionary assigned to the input to remove.
 
         """
-        if self._inputs.has_key(voice):
+        if voice in self._inputs:
             del self._inputs[voice]
             [obj.delInput(str(voice)) for i, obj in enumerate(self._base_players)]
 
@@ -682,7 +683,7 @@ class Mixer(PyoObject):
                 Amplitude value for this mixing channel.
 
         """
-        if self._inputs.has_key(vin) and vout < self._outs:
+        if vin in self._inputs and vout < self._outs:
             [obj.setAmp(str(vin), vout, amp) for i, obj in enumerate(self._base_players)]
 
     def getChannels(self):

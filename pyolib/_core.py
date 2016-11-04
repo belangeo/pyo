@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+from __future__ import division
+from __future__ import print_function
 """
 Copyright 2009-2015 Olivier Belanger
 
@@ -18,7 +20,6 @@ GNU Lesser General Public License for more details.
 You should have received a copy of the GNU Lesser General Public
 License along with pyo.  If not, see <http://www.gnu.org/licenses/>.
 """
-from __future__ import division
 from types import BooleanType, ListType, TupleType, SliceType, LongType, IntType, FloatType, StringType, UnicodeType, NoneType
 import random, os, sys, inspect, tempfile
 from subprocess import call
@@ -285,7 +286,7 @@ def example(cls, dur=5, toprint=True, double=False):
                 lines.append(line)
 
     if lines == []:
-        print "There is no manual example for %s object." % cls.__name__
+        print("There is no manual example for %s object." % cls.__name__)
         return
 
     ex_lines = [line.lstrip("    ") for line in lines if ">>>" in line or "..." in line]
@@ -343,7 +344,7 @@ def class_args(cls):
             if name in FUNCTIONS_INIT_LINES:
                 return FUNCTIONS_INIT_LINES[name]
         except:
-            print "class_args was unable to retrieve the init line of the object as an argument."
+            print("class_args was unable to retrieve the init line of the object as an argument.")
             return ""
 
 def getVersion():
@@ -485,9 +486,9 @@ class PyoObjectBase(object):
             return self._base_objs[i]
         else:
             if type(i) == StringType:
-                print "Object %s has no stream named '%s'!" % (self.__class__.__name__, i)
+                print("Object %s has no stream named '%s'!" % (self.__class__.__name__, i))
             else:
-                print "'i' too large in slicing %s object %s!" % (self._STREAM_TYPE, self.__class__.__name__)
+                print("'i' too large in slicing %s object %s!" % (self._STREAM_TYPE, self.__class__.__name__))
 
     def __len__(self):
         return len(self._base_objs)
@@ -1039,7 +1040,7 @@ class PyoObject(PyoObjectBase):
         pyoArgsAssert(self, "Snn", attr, value, port)
         self._target_dict[attr] = value
         init = getattr(self, attr)
-        if self._signal_dict.has_key(attr):
+        if attr in self._signal_dict:
             if isinstance(self._signal_dict[attr], VarPort):
                 if self._signal_dict[attr].isPlaying():
                     init = self._signal_dict[attr].get(True)
@@ -1080,7 +1081,7 @@ class PyoObject(PyoObjectBase):
         if map_list == None:
             map_list = self._map_list
         if map_list == []:
-            print("There is no controls for %s object." % self.__class__.__name__)
+            print(("There is no controls for %s object." % self.__class__.__name__))
             return
         createCtrlWindow(self, map_list, title, wxnoserver)
 
@@ -1169,7 +1170,7 @@ class PyoTableObject(PyoObjectBase):
         ext = path.rsplit('.')
         if len(ext) >= 2:
             ext = ext[-1].lower()
-            if FILE_FORMATS.has_key(ext):
+            if ext in FILE_FORMATS:
                 format = FILE_FORMATS[ext]
         savefileFromTable(self, path, format, sampletype, quality)
 
@@ -1252,7 +1253,7 @@ class PyoTableObject(PyoObjectBase):
 
         """
         if chnl < 0 or chnl >= len(self):
-            print "getBuffer(chnl): `chnl` argument out-of-range..."
+            print("getBuffer(chnl): `chnl` argument out-of-range...")
         else:
             return self._base_objs[chnl].getTableStream()
 
@@ -1953,7 +1954,7 @@ class PyoPVObject(PyoObjectBase):
         pyoArgsAssert(self, "Snn", attr, value, port)
         self._target_dict[attr] = value
         init = getattr(self, attr)
-        if self._signal_dict.has_key(attr):
+        if attr in self._signal_dict:
             if isinstance(self._signal_dict[attr], VarPort):
                 if self._signal_dict[attr].isPlaying():
                     init = self._signal_dict[attr].get(True)
@@ -1994,7 +1995,7 @@ class PyoPVObject(PyoObjectBase):
         if map_list == None:
             map_list = self._map_list
         if map_list == []:
-            print("There is no controls for %s object." % self.__class__.__name__)
+            print(("There is no controls for %s object." % self.__class__.__name__))
             return
         createCtrlWindow(self, map_list, title, wxnoserver)
 

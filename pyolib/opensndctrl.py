@@ -1,3 +1,4 @@
+from __future__ import print_function
 """
 Objects to manage values on an Open Sound Control port.
 
@@ -193,7 +194,7 @@ class OscReceive(PyoObject):
         elif i < len(self._base_objs):
             return self._base_objs[i]
         else:
-            print "'i' too large!"
+            print("'i' too large!")
 
     def getAddresses(self):
         """
@@ -275,7 +276,7 @@ class OscReceive(PyoObject):
             if p in self._address:
                 self._mainReceiver.setValue(p, wrap(value,i))
             else:
-                print 'Error: OscReceive.setValue, Illegal address "%s"' % p
+                print('Error: OscReceive.setValue, Illegal address "%s"' % p)
 
     def get(self, identifier=None, all=False):
         """
@@ -655,7 +656,7 @@ class OscListReceive(PyoObject):
             first = i * self._num
             return self._base_objs[first:first+self._num]
         else:
-            print "'i' too large!"
+            print("'i' too large!")
 
     def getAddresses(self):
         """
@@ -744,9 +745,9 @@ class OscListReceive(PyoObject):
                 if len(val) == self._num:
                     self._mainReceiver.setValue(p, val)
                 else:
-                    print 'Error: OscListReceive.setValue, value must be of the same length as the `num` attribute.'
+                    print('Error: OscListReceive.setValue, value must be of the same length as the `num` attribute.')
             else:
-                print 'Error: OscListReceive.setValue, Illegal address "%s"' % p
+                print('Error: OscListReceive.setValue, Illegal address "%s"' % p)
 
     def get(self, identifier=None, all=False):
         """
