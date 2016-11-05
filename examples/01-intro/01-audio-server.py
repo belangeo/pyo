@@ -9,7 +9,7 @@ drivers and also the one that keeps track of the processing chain.
 from pyo import *
 
 # Creates a Server object with default arguments.
-# See the manual about how to change the sampling rate, the buffer 
+# See the manual about how to change the sampling rate, the buffer
 # size, the number of channels or one of the other global settings.
 s = Server()
 
@@ -17,7 +17,7 @@ s = Server()
 # Audio and midi configurations (if any) must be done before that call.
 s.boot()
 
-# Starts the server. This step activates the server processing loop. 
+# Starts the server. This step activates the server processing loop.
 s.start()
 
 # Here comes the processing chain...

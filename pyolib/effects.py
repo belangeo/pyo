@@ -32,10 +32,10 @@ class Disto(PyoObject):
     """
     Kind of Arc tangent distortion.
 
-    Apply a kind of arc tangent distortion with controllable drive, followed 
+    Apply a kind of arc tangent distortion with controllable drive, followed
     by a one pole lowpass filter, to the input signal.
-    
-    As of version 0.8.0, this object use a simple but very efficient (4x 
+
+    As of version 0.8.0, this object use a simple but very efficient (4x
     faster than tanh or atan2 functions) waveshaper formula describe here:
 
     http://musicdsp.org/archive.php?classid=4#46
@@ -252,7 +252,7 @@ class Delay(PyoObject):
         [obj.reset() for obj in self._base_objs]
 
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [SLMap(0.001, self._maxdelay, 'log', 'delay',  self._delay),
+        self._map_list = [SLMap(0.001, self._maxdelay, 'log', 'delay', self._delay),
                           SLMap(0., 1., 'lin', 'feedback', self._feedback),
                           SLMapMul(self._mul)]
         PyoObject.ctrl(self, map_list, title, wxnoserver)
@@ -355,7 +355,7 @@ class SDelay(PyoObject):
         [obj.reset() for obj in self._base_objs]
 
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [SLMap(0.0001, self._maxdelay, 'log', 'delay',  self._delay),
+        self._map_list = [SLMap(0.0001, self._maxdelay, 'log', 'delay', self._delay),
                           SLMapMul(self._mul)]
         PyoObject.ctrl(self, map_list, title, wxnoserver)
 
@@ -460,7 +460,7 @@ class Waveguide(PyoObject):
         [obj.setDur(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [SLMap(10, 500., 'log', 'freq',  self._freq),
+        self._map_list = [SLMap(10, 500., 'log', 'freq', self._freq),
                           SLMapDur(self._dur),
                           SLMapMul(self._mul)]
         PyoObject.ctrl(self, map_list, title, wxnoserver)
@@ -594,7 +594,7 @@ class AllpassWG(PyoObject):
         [obj.setDetune(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [SLMap(20., 500., 'log', 'freq',  self._freq),
+        self._map_list = [SLMap(20., 500., 'log', 'freq', self._freq),
                           SLMap(0., 1., 'lin', 'feed', self._feed),
                           SLMap(0., 1., 'lin', 'detune', self._detune),
                           SLMapMul(self._mul)]
@@ -733,9 +733,9 @@ class Freeverb(PyoObject):
         [obj.setMix(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [SLMap(0., 1., 'lin', 'size',  self._size),
-                          SLMap(0., 1., 'lin', 'damp',  self._damp),
-                          SLMap(0., 1., 'lin', 'bal',  self._bal),
+        self._map_list = [SLMap(0., 1., 'lin', 'size', self._size),
+                          SLMap(0., 1., 'lin', 'damp', self._damp),
+                          SLMap(0., 1., 'lin', 'bal', self._bal),
                           SLMapMul(self._mul)]
         PyoObject.ctrl(self, map_list, title, wxnoserver)
 
@@ -1238,9 +1238,9 @@ class Harmonizer(PyoObject):
         [obj.setWinsize(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [SLMap(-24.0, 24.0, 'lin', 'transpo',  self._transpo),
+        self._map_list = [SLMap(-24.0, 24.0, 'lin', 'transpo', self._transpo),
                           SLMap(0., 1., 'lin', 'feedback', self._feedback),
-                          SLMap(0.001, 1, 'log', 'winsize',  self._winsize, dataOnly=True),
+                          SLMap(0.001, 1, 'log', 'winsize', self._winsize, dataOnly=True),
                           SLMapMul(self._mul)]
         PyoObject.ctrl(self, map_list, title, wxnoserver)
 
@@ -1492,11 +1492,11 @@ class STRev(PyoObject):
         [obj.setFirstRefGain(wrap(x,i)) for i, obj in enumerate(self._base_players)]
 
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [SLMap(0., 1., 'lin', 'inpos',  self._inpos),
-                          SLMap(0.01, 120., 'log', 'revtime',  self._revtime),
-                          SLMap(500., 15000., 'log', 'cutoff',  self._cutoff),
-                          SLMap(0., 1., 'lin', 'bal',  self._bal),
-                          SLMap(0.25, 4., 'lin', 'roomSize',  self._roomSize, dataOnly=True),
+        self._map_list = [SLMap(0., 1., 'lin', 'inpos', self._inpos),
+                          SLMap(0.01, 120., 'log', 'revtime', self._revtime),
+                          SLMap(500., 15000., 'log', 'cutoff', self._cutoff),
+                          SLMap(0., 1., 'lin', 'bal', self._bal),
+                          SLMap(0.25, 4., 'lin', 'roomSize', self._roomSize, dataOnly=True),
                           SLMap(-48, 12, 'lin', 'firstRefGain', self._firstRefGain, dataOnly=True),
                           SLMapMul(self._mul)]
         PyoObject.ctrl(self, map_list, title, wxnoserver)
@@ -1674,7 +1674,7 @@ class SmoothDelay(PyoObject):
         [obj.reset() for obj in self._base_objs]
 
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [SLMap(0.001, self._maxdelay, 'log', 'delay',  self._delay),
+        self._map_list = [SLMap(0.001, self._maxdelay, 'log', 'delay', self._delay),
                           SLMap(0., 1., 'lin', 'feedback', self._feedback),
                           SLMap(0., self._maxdelay, 'lin', 'crossfade', self._crossfade, dataOnly=True),
                           SLMapMul(self._mul)]

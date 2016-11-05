@@ -36,5 +36,3 @@ d2 = Osc(table=wav, freq=snp*1.002, mul=c).out()
 d3 = Osc(table=wav, freq=snp*0.997, mul=c).out()
 
 s.gui(locals())
-
-

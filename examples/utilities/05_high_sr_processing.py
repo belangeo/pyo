@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # encoding: utf-8
 """
-This script demonstrates how to use pyo to apply processing on an 
+This script demonstrates how to use pyo to apply processing on an
 up sampled sound. Steps are:
 
 1 - Up sampling the source.

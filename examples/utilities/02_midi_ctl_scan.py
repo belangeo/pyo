@@ -18,7 +18,7 @@ s.boot().start()
 
 print "Play with your Midi controllers..."
 
-def pp(x): 
+def pp(x):
     print "controller number =", x
 
 scan = CtlScan(pp, False)
@@ -31,8 +31,7 @@ while again == "y":
     if again == "y":
         print "Continue..."
         scan.play()
-    
+
 s.stop()
 time.sleep(1)
 exit()
-    

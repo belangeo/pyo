@@ -588,7 +588,7 @@ class Record(PyoObject):
             High buffering uses more memory but improves performance.
             Defaults to 4.
         quality : float, optional
-            The encoding quality value, between 0.0 (lowest quality) and 
+            The encoding quality value, between 0.0 (lowest quality) and
             1.0 (highest quality). This argument has an effect only with
             FLAC and OGG compressed formats. Defaults to 0.4.
 
@@ -626,7 +626,7 @@ class Record(PyoObject):
         ext = filename.rsplit('.')
         if len(ext) >= 2:
             ext = ext[-1].lower()
-            if FILE_FORMATS.has_key(ext):
+            if ext in FILE_FORMATS:
                 fileformat = FILE_FORMATS[ext]
             else:
                 print 'Warning: Unknown file extension. Using fileformat value.'
@@ -1412,11 +1412,11 @@ class Scale(PyoObject):
         [obj.setExp(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [SLMap(0., 127., 'lin', 'inmin',  self._inmin),
-                          SLMap(0., 127., 'lin', 'inmax',  self._inmax),
-                          SLMap(0., 127., 'lin', 'outmin',  self._outmin),
-                          SLMap(0., 127., 'lin', 'outmax',  self._outmax),
-                          SLMap(1., 10., 'lin', 'exp',  self._exp),
+        self._map_list = [SLMap(0., 127., 'lin', 'inmin', self._inmin),
+                          SLMap(0., 127., 'lin', 'inmax', self._inmax),
+                          SLMap(0., 127., 'lin', 'outmin', self._outmin),
+                          SLMap(0., 127., 'lin', 'outmax', self._outmax),
+                          SLMap(1., 10., 'lin', 'exp', self._exp),
                           SLMapMul(self._mul)]
         PyoObject.ctrl(self, map_list, title, wxnoserver)
 
@@ -1982,15 +1982,15 @@ class Resample(PyoObject):
     Realtime upsampling or downsampling of an audio signal.
 
     This object should be used in the context of a resampling block
-    created with the Server's methods `beginResamplingBlock` and 
-    `EndResamplingBlock`. 
-    
-    If used inside the block, it will resample its input signal according 
-    to the resampling factor given to `beginResamplingFactor`. If the factor 
-    is a negative value, the new virtual sampling rate will be 
-    `current sr / abs(factor)`. If the factor is a postive value, the new 
-    virtual sampling rate will be `current sr * factor`. 
-    
+    created with the Server's methods `beginResamplingBlock` and
+    `EndResamplingBlock`.
+
+    If used inside the block, it will resample its input signal according
+    to the resampling factor given to `beginResamplingFactor`. If the factor
+    is a negative value, the new virtual sampling rate will be
+    `current sr / abs(factor)`. If the factor is a postive value, the new
+    virtual sampling rate will be `current sr * factor`.
+
     If used after `endResamplingBlock`, it will resample its input signal
     to the current sampling rate of the server.
 
@@ -2012,13 +2012,13 @@ class Resample(PyoObject):
                 the FIR lowpass kernel length used to interpolate.
             For the downsampling process, possible values are:
                 0 or 1 : discard extra samples
-                2 or higher : the formula `mode * abs(resampling factor)` 
+                2 or higher : the formula `mode * abs(resampling factor)`
                 gives the FIR lowpass kernel length used for the decimation.
             Available at initialization time only.
 
     >>> s = Server().boot()
     >>> s.start()
-    >>> drv = Sine(.5, phase=[0, 0.5], mul=0.49, add=0.5)    
+    >>> drv = Sine(.5, phase=[0, 0.5], mul=0.49, add=0.5)
     >>> sig = SfPlayer(SNDS_PATH+"/transparent.aif", loop=True)
     >>> s.beginResamplingBlock(8)
     >>> sigup = Resample(sig, mode=32)

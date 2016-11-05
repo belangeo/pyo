@@ -21,7 +21,7 @@ for i in range(NUM):
     s.boot()
     note = 60 + i
     noteFreq = midiToHz(note)
-    s.recordOptions(dur=dur+.1, filename=os.path.join(output_folder, "file_%02d.wav" % note), 
+    s.recordOptions(dur=dur+.1, filename=os.path.join(output_folder, "file_%02d.wav" % note),
                     fileformat=0, sampletype=0)
 
     ### processing goes here ###
@@ -36,4 +36,3 @@ for i in range(NUM):
     s.shutdown()
 
 print "Batch processing done"
-

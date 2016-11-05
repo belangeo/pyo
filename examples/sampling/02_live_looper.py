@@ -2,7 +2,7 @@
 # encoding: utf-8
 """
 To record sound from input mic in the buffer (4 seconds), call:
-rec.play() 
+rec.play()
 
 The buffer is looped with some funny parameters...
 
@@ -22,7 +22,7 @@ a = Looper( table=tab, # table to loop in
             start=start, # loop start position
             dur=dur, # loop duration
             xfade=20, # crossfade duration in %
-            mode=1, # looping mode 
+            mode=1, # looping mode
             xfadeshape=0, # crossfade shape
             startfromloop=False, # first start position, False means from beginning of the table
             interp=4 # interpolation method

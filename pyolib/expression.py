@@ -87,20 +87,20 @@ Comments
 --------
 
 A comment starts with two slashs ( // ) and ends at the end of the line:
-    
+
     // This is a comment!
 
 Input and Output signals
 ------------------------
 
-User has access to the last buffer size of input and output samples. 
+User has access to the last buffer size of input and output samples.
 
 To use samples from past input, use $x[n] notation, where n is the position
 from the current time. $x[0] is the current input, $x[-1] is the previous
 one and $x[-buffersize] is the last available input sample.
 
 To use samples from past output, use $y[n] notation, where n is the position
-from the current time. $y[-1] is the previous output and $y[-buffersize] is 
+from the current time. $y[-1] is the previous output and $y[-buffersize] is
 the last available output sample.
 
 Here an example of a first-order IIR lowpass filter expression:
@@ -116,8 +116,8 @@ The define keyword starts the definition of a custom function.
 
 (define funcname (body))
 
-funcname is the name used to call the function in the expression and 
-body is the sequence of functions to execute. Arguments of the function 
+funcname is the name used to call the function in the expression and
+body is the sequence of functions to execute. Arguments of the function
 are extracted directly from the body. They must be named $1, $2, $3, ..., $9.
 
 Example of a sine wave function:
@@ -134,7 +134,7 @@ State variables
 ---------------
 
 User can create state variable with the keyword "let". This is useful
-to set an intermediate state to be used in multiple places in the 
+to set an intermediate state to be used in multiple places in the
 processing chain. The syntax is:
 
 (let #var (body))
@@ -159,11 +159,11 @@ The variable is private to a function if created inside a custom function.
     )
     * (+ (osc 1 #freq) (osc 2 #freq)) 0.2
 
-State variables can be used to do 1 sample feedback if used before created. 
+State variables can be used to do 1 sample feedback if used before created.
 Undefined variables are initialized to 0.
 
     (define oscloop (
-            (let #xsin 
+            (let #xsin
                 (sin (+ (* (~ $1) (twopi)) (* #xsin $2))) // #xsin used before...
             ) // ... "let" statement finished!
             #xsin // oscloop function outputs #xsin variable
@@ -175,23 +175,23 @@ Undefined variables are initialized to 0.
 User variables
 --------------
 
-User variables are created with the keyword "var". 
+User variables are created with the keyword "var".
 
-(var #var (init)) 
+(var #var (init))
 
 The variable name must begin with a "#".
 
 They are computed only at initialization, but can be changed from the python
 script with method calls (varname is a string and value is a float):
 
-obj.setVar(varname, value) 
+obj.setVar(varname, value)
 
 Library importation
 -------------------
 
-Custom functions can be defined in an external file and imported with the 
+Custom functions can be defined in an external file and imported with the
 "load" function:
-    
+
 (load path/to/the/file)
 
 The content of the file will be inserted where the load function is called
@@ -202,14 +202,14 @@ Examples
 --------
 
 A first-order IIR lowpass filter:
-    
+
     (var #sr 44100)
     (var #cutoff 1000)
     (let #coeff (exp (/ (* (* -2 (pi)) #cutoff) #sr)))
     + $x[0] (* (- $y[-1] $x[0]) #coeff)
 
 A LFO'ed hyperbolic tangent distortion:
-    
+
     // $1 = lfo frequency, $2 = lfo depth
     (define lfo (
             (+ (* (sin (* (twopi) (~ $1))) (- $2 1)) $2)
@@ -218,7 +218,7 @@ A LFO'ed hyperbolic tangent distortion:
     tanh (* $x[0] (lfo .25 10))
 
 A triangle waveform generator (use Sig(0) as input argument to bypass input):
-    
+
     (var #freq 440)
     // $1 = oscillator frequency
     (define triangle (
@@ -258,9 +258,9 @@ class Expr(PyoObject):
     """
     Prefix audio expression evaluator.
 
-    Expr implements a tiny functional programming language that can be 
+    Expr implements a tiny functional programming language that can be
     used to write synthesis or signal processing algorithms.
-    
+
     For documentation about the language, see the module's documentation.
 
     :Parent: :py:class:`PyoObject`
@@ -276,7 +276,7 @@ class Expr(PyoObject):
     >>> s.start()
     >>> proc = '''
     >>> (var #boost 1)
-    >>> (tanh (* $x[0] #boost)) 
+    >>> (tanh (* $x[0] #boost))
     >>> '''
     >>> sf = SfPlayer(SNDS_PATH + "/transparent.aif", loop=True)
     >>> ex = Expr(sf, proc, mul=0.4).out()
@@ -342,7 +342,7 @@ class Expr(PyoObject):
         pyoArgsAssert(self, "sn", varname, value)
         varname, value, lmax = convertArgsToLists(varname, value)
         [obj.setVar(wrap(varname,j), wrap(value,j)) for i, obj in enumerate(self._base_objs) for j in range(lmax)]
-        
+
     def _get_matching_bracket_pos(self, x, p1):
         count = 1
         p2 = p1 + 1
@@ -434,7 +434,7 @@ class Expr(PyoObject):
                         x = x[:pos] + body2 + x[pos+len(key):]
                 pos = x.find(key, pos+1)
         return x
-        
+
     def _change_var_names(self, funcname, funcbody):
         d = {}
         letpos = funcbody.find("let ")
@@ -452,7 +452,7 @@ class Expr(PyoObject):
         for label, newlabel in d.items():
             funcbody = funcbody.replace(label, newlabel)
         return funcbody
-        
+
     def _preproc(self, x):
         # replace load functions with file body
         while "(load" in x:
@@ -471,7 +471,7 @@ class Expr(PyoObject):
             start = x.find("//")
             end = x.find("\n", start)
             x = x[:start] + x[end:]
-        
+
         # expand defined functions
         _defined = []
         while "define" in x:

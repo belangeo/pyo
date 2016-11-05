@@ -4,7 +4,7 @@
 This example uses two frequency shifters (based on complex
 modulation) linearly shift the frequency content of a sound
 
-Frequency shifting is similar to ring modulation, except the 
+Frequency shifting is similar to ring modulation, except the
 upper and lower sidebands are separated into individual outputs.
 
 """
@@ -12,7 +12,7 @@ from pyo import *
 
 class ComplexMod:
     """
-    Complex modulation used to shift the frequency 
+    Complex modulation used to shift the frequency
     spectrum of the input sound.
     """
     def __init__(self, hilb, freq):
@@ -24,7 +24,7 @@ class ComplexMod:
         self._mod2 = hilb['imag'] * self._quad[0]
         # Up shift corresponds to the sum frequencies.
         self._up = (self._mod1 + self._mod2) * 0.7
-        
+
     def out(self, chnl=0):
         self._up.out(chnl)
         return self

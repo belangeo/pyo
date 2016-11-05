@@ -479,7 +479,7 @@ class VoiceManager(PyoObject):
         self._triggers = triggers
         self._in_fader = InputFader(input)
         in_fader, mul, add, lmax = convertArgsToLists(self._in_fader, mul, add)
-        if triggers != None:
+        if triggers is not None:
             if type(triggers) == ListType:
                 try:
                     t_streams = [obj[0] for obj in triggers]
@@ -521,7 +521,7 @@ class VoiceManager(PyoObject):
         """
         #pyoArgsAssert(self, "o", x)
         self._triggers = x
-        if x != None:
+        if x is not None:
             if type(x) == ListType:
                 try:
                     t_streams = [obj[0] for obj in x]
@@ -605,7 +605,7 @@ class Mixer(PyoObject):
 
     def __getitem__(self, x):
         if type(x) == SliceType:
-            return [self._base_objs[j*self._chnls+i] for j in range(x.start or 0, x.stop or sys.maxint, x.step or 1) for i in range(self._chnls)]
+            return [self._base_objs[j*self._chnls+i] for j in range(x.start or 0, x.stop or sys.maxsize, x.step or 1) for i in range(self._chnls)]
         elif x < len(self._base_objs):
             return [self._base_objs[x*self._chnls+i] for i in range(self._chnls)]
         else:
@@ -642,11 +642,11 @@ class Mixer(PyoObject):
 
         """
         pyoArgsAssert(self, "o", input)
-        if voice == None:
+        if voice is None:
             voice = random.randint(0, 32767)
-            while self._inputs.has_key(voice):
+            while voice in self._inputs:
                 voice = random.randint(0, 32767)
-        if self._inputs.has_key(voice):
+        if voice in self._inputs:
             print >> sys.stderr, "Mixer has already a key named %s" % voice
             return
         self._inputs[voice] = input
@@ -664,7 +664,7 @@ class Mixer(PyoObject):
                 Key in the mixer dictionary assigned to the input to remove.
 
         """
-        if self._inputs.has_key(voice):
+        if voice in self._inputs:
             del self._inputs[voice]
             [obj.delInput(str(voice)) for i, obj in enumerate(self._base_players)]
 
@@ -682,7 +682,7 @@ class Mixer(PyoObject):
                 Amplitude value for this mixing channel.
 
         """
-        if self._inputs.has_key(vin) and vout < self._outs:
+        if vin in self._inputs and vout < self._outs:
             [obj.setAmp(str(vin), vout, amp) for i, obj in enumerate(self._base_players)]
 
     def getChannels(self):

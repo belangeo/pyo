@@ -11,6 +11,7 @@ s = Server(sr=48000, nchnls=2, buffersize=512, duplex=0).boot()
 
 t = HarmTable([1,0.1])
 class FM3:
+
     def __init__(self, fcar, ratio1, ratio2, index1, index2, out=0):
         self.fmod = fcar * ratio1
         self.fmodmod = self.fmod * ratio2

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # encoding: utf-8
 """
-Split-Sideband Synthesis. Variation of three well known distortion techniques, 
+Split-Sideband Synthesis. Variation of three well known distortion techniques,
 Waveshaping, Singlesideband modulation and Frequency Modulation.
 
 Based on the article :

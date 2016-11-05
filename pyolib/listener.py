@@ -10,7 +10,7 @@ class MidiListener(threading.Thread):
     of the audio server (mainly to be able to receive Midi data even
     when the audio server is stopped). Although it runs in a separated
     thread, the same device can't be used by this object and the audio
-    server at the same time. It is adviced to call the deactivateMidi() 
+    server at the same time. It is adviced to call the deactivateMidi()
     method on the audio server to avoid conflicts.
 
     :Parent: threading.Thread
@@ -18,17 +18,17 @@ class MidiListener(threading.Thread):
     :Args:
 
         function : Python function (can't be a list)
-            Function that will be called when a new midi event is available. 
-            This function is called with the incoming midi data as 
+            Function that will be called when a new midi event is available.
+            This function is called with the incoming midi data as
             arguments. The signature of the function must be:
-                
+
             def myfunc(status, data1, data2)
 
         mididev : int, optional
-            Sets the midi input device (see `pm_list_devices()` for the 
+            Sets the midi input device (see `pm_list_devices()` for the
             available devices). The default, -1, means the system default
-            device. A number greater than the highest portmidi device index 
-            will open all available input devices. 
+            device. A number greater than the highest portmidi device index
+            will open all available input devices.
 
     .. note::
 
@@ -49,11 +49,11 @@ class MidiListener(threading.Thread):
         self._function = WeakMethod(function)
         self._mididev = mididev
         self._listener = MidiListener_base(self._function, self._mididev)
-        
+
     def run(self):
         """
         Starts the process. The thread runs as daemon, so no need to stop it.
-        
+
         """
         self._listener.play()
         while True:
@@ -70,21 +70,21 @@ class OscListener(threading.Thread):
 
     This object allows to setup an OSC server that is independent
     of the audio server (mainly to be able to receive OSC data even
-    when the audio server is stopped). 
+    when the audio server is stopped).
 
     :Parent: threadind.Thread
 
     :Args:
 
         function : Python function (can't be a list)
-            Function that will be called when a new OSC event is available. 
-            This function is called with the incoming address and values as 
+            Function that will be called when a new OSC event is available.
+            This function is called with the incoming address and values as
             arguments. The signature of the function must be:
-                
+
             def myfunc(address, *args)
 
         port : int, optional
-            The OSC port on which the values are received. Defaults to 9000. 
+            The OSC port on which the values are received. Defaults to 9000.
 
     >>> s = Server().boot()
     >>> def call(address, *args):
@@ -107,7 +107,7 @@ class OscListener(threading.Thread):
     def run(self):
         """
         Starts the process. The thread runs as daemon, so no need to stop it.
-        
+
         """
         while True:
             self._listener.get()

@@ -33,4 +33,3 @@ def setSize(x):
     fout.size = x
 
 s.gui(locals())
-

@@ -75,9 +75,9 @@ class SfPlayer(PyoObject):
 
         >>> sf = SfPlayer(SNDS_PATH + "/transparent.aif").out()
         >>> trig = TrigRand(sf['trig'])
-        
-        Note that the object will send as many trigs as there is channels 
-        in the sound file. If you want to retrieve only one trig, only give 
+
+        Note that the object will send as many trigs as there is channels
+        in the sound file. If you want to retrieve only one trig, only give
         the first stream to the next object:
 
         >>> def printing():

@@ -2,7 +2,7 @@
 # encoding: utf-8
 """
 Calling Python function from an audio stream with the Score object.
- 
+
 """
 from pyo import *
 import random

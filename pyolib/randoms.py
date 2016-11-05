@@ -1283,7 +1283,7 @@ class Urn(PyoObject):
     @freq.setter
     def freq(self, x):
         self.setFreq(x)
-        
+
 class LogiMap(PyoObject):
     """
     Random generator based on the logistic map.

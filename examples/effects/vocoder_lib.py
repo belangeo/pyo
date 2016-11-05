@@ -11,10 +11,10 @@ class MyVocoder(PyoObject):
     """
     Vocoder effect.
 
-    A vocoder is an analysis/synthesis system. In the encoder, the input is passed 
-    through a multiband filter, each band is passed through an envelope follower, 
-    and the control signals from the envelope followers are communicated to the 
-    decoder. The decoder applies these (amplitude) control signals to corresponding 
+    A vocoder is an analysis/synthesis system. In the encoder, the input is passed
+    through a multiband filter, each band is passed through an envelope follower,
+    and the control signals from the envelope followers are communicated to the
+    decoder. The decoder applies these (amplitude) control signals to corresponding
     filters in the (re)synthesizer.
 
 
@@ -27,7 +27,7 @@ class MyVocoder(PyoObject):
     in2 : PyoObject
         Audio source exciting the bank of filters.
     base : float or PyoObject, optional
-        Base frequency used to compute filter notch frequencies. 
+        Base frequency used to compute filter notch frequencies.
         Defaults to 50.
     spread : float or PyoObject, optional
         Spreading of the filter notch frequencies. Defaults to 1.5.
@@ -86,7 +86,7 @@ class MyVocoder(PyoObject):
 
         # Convert all arguments to lists for "list expansion"
         # convertArgsToLists function returns variables in argument as lists + maximum list size
-        in1_fader, in2_fader, base, spread, q, mul, add, lmax = convertArgsToLists(self._in1_fader, 
+        in1_fader, in2_fader, base, spread, q, mul, add, lmax = convertArgsToLists(self._in1_fader,
                                                             self._in2_fader, base, spread, q, mul, add)
 
         # Init some lists to keep track of created objects
@@ -100,7 +100,7 @@ class MyVocoder(PyoObject):
 
         # self._base_objs is the audio output seen by the outside world!
         # .play(), .out(), .stop() and .mix() methods act on this list
-        # "mul" and "add" attributes are also applied on this list's objects 
+        # "mul" and "add" attributes are also applied on this list's objects
         self._base_objs = []
 
         # Each cycle of the loop creates a mono stream of sound
@@ -155,7 +155,7 @@ class MyVocoder(PyoObject):
             self._base_objs = [obj.out(wrap(chnl,i), wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._base_objs)]
         else:
             if chnl < 0:
-                self._base_objs = [obj.out(i*inc, wrap(dur,i), wrap(delay,i)) \
+                self._base_objs = [obj.out(i*inc, wrap(dur,i), wrap(delay,i))
                     for i, obj in enumerate(random.sample(self._base_objs, len(self._base_objs)))]
             else:
                 self._base_objs = [obj.out(chnl+i*inc, wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._base_objs)]

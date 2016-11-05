@@ -2,7 +2,7 @@
 04-noise-generators.py - Different pseudo-random noise generators.
 
 There are three noise generators (beside random generators that
-will be covered later) in the library. These are the classic 
+will be covered later) in the library. These are the classic
 white noise, pink noise and brown noise.
 
 Noise:
@@ -31,7 +31,7 @@ n2 = PinkNoise(0.3)
 # Brown noise
 n3 = BrownNoise(0.3)
 
-# Interpolates between input objects to produce a single output 
+# Interpolates between input objects to produce a single output
 sel = Selector([n1, n2, n3]).out()
 sel.ctrl(title="Input interpolator (0=White, 1=Pink, 2=Brown)")
 

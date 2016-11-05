@@ -7,7 +7,7 @@ a first argument called "input". This argument takes the audio object
 to process.
 
 Note the input variable given to each processing object and the call
-to the out() method of each object that should send its samples to the 
+to the out() method of each object that should send its samples to the
 output.
 
 """

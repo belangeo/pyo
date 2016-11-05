@@ -10,15 +10,15 @@ user's desktop.
 You can control the recording with the Server's method called
 `recordOptions`, the arguments are:
 
-- dur : The duration of the recording, a value of -1 means 
+- dur : The duration of the recording, a value of -1 means
         record forever (recstop() must be called by the user).
 - filename : Indicates the location of the recorded file.
-- fileformat : The format of the audio file (see documentation 
+- fileformat : The format of the audio file (see documentation
                for available formats).
-- sampletype : The sample type of the audio file (see documentation 
+- sampletype : The sample type of the audio file (see documentation
                for available types).
 
-The recording can be triggered programmatically with the Server's 
+The recording can be triggered programmatically with the Server's
 methods `recstart()` and `recstop()`. In order to record multiple files
 from a unique performance, it is possible to set the filename
 with an argument to `recstart()`.

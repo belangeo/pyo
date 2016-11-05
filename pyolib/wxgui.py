@@ -1,5 +1,5 @@
 """
-The classes in this module are based on internal classes that where 
+The classes in this module are based on internal classes that where
 originally designed to help the creation of graphical tools for the
 control and the visualization of audio signals. WxPython must be installed
 under the current Python distribution to access these classes.
@@ -10,24 +10,31 @@ from _widgets import PYO_USE_WX
 if not PYO_USE_WX:
     NO_WX_MESSAGE = "WxPython must be installed on the system to use pyo's wx widgets."
     class PyoGuiControlSlider:
+
         def __init__(self, *args, **kwargs):
             raise Exception(NO_WX_MESSAGE)
     class PyoGuiVuMeter:
+
         def __init__(self, *args, **kwargs):
             raise Exception(NO_WX_MESSAGE)
     class PyoGuiGrapher:
+
         def __init__(self, *args, **kwargs):
             raise Exception(NO_WX_MESSAGE)
     class PyoGuiMultiSlider:
+
         def __init__(self, *args, **kwargs):
             raise Exception(NO_WX_MESSAGE)
     class PyoGuiSpectrum:
+
         def __init__(self, *args, **kwargs):
             raise Exception(NO_WX_MESSAGE)
     class PyoGuiScope:
+
         def __init__(self, *args, **kwargs):
             raise Exception(NO_WX_MESSAGE)
     class PyoGuiSndView:
+
         def __init__(self, *args, **kwargs):
             raise Exception(NO_WX_MESSAGE)
 else:
@@ -35,7 +42,7 @@ else:
     import wx.lib.newevent
     from _wxwidgets import ControlSlider, VuMeter, Grapher, DataMultiSlider
     from _wxwidgets import SpectrumPanel, ScopePanel, SndViewTablePanel, HRangeSlider
-    
+
     # Custom events
     PyoGuiControlSliderEvent, EVT_PYO_GUI_CONTROL_SLIDER = wx.lib.newevent.NewEvent()
     PyoGuiGrapherEvent, EVT_PYO_GUI_GRAPHER = wx.lib.newevent.NewEvent()
@@ -48,12 +55,12 @@ else:
         Floating-point control slider.
 
         :Parent: wx.Panel
-        
+
         :Events:
-            
+
             EVT_PYO_GUI_CONTROL_SLIDER
-                Sent after any change of the slider position. The current 
-                value of the slider can be retrieve with the `value` 
+                Sent after any change of the slider position. The current
+                value of the slider can be retrieve with the `value`
                 attribute of the generated event.
 
         :Args:
@@ -83,16 +90,16 @@ else:
                 value. Defaults to False.
             orient : {wx.HORIZONTAL or wx.VERTICAL}, optional
                 The slider's orientation. Defaults to wx.HORIZONTAL.
-        
+
         """
         def __init__(self, parent, minvalue, maxvalue, init=None, pos=(0, 0),
                      size=(200, 16), log=False, integer=False, powoftwo=False,
                      orient=wx.HORIZONTAL):
-            super(PyoGuiControlSlider, self).__init__(parent, minvalue, maxvalue, 
+            super(PyoGuiControlSlider, self).__init__(parent, minvalue, maxvalue,
                                                       init, pos, size, log,
-                                                      self._outFunction, integer, 
-                                                      powoftwo, 
-                                                      parent.GetBackgroundColour(), 
+                                                      self._outFunction, integer,
+                                                      powoftwo,
+                                                      parent.GetBackgroundColour(),
                                                       orient)
 
         def _outFunction(self, value):
@@ -109,7 +116,7 @@ else:
         def disable(self):
             """
             Disable the slider for user input.
-            
+
             """
             super(PyoGuiControlSlider, self).Disable()
 
@@ -126,7 +133,7 @@ else:
 
             """
             super(PyoGuiControlSlider, self).SetValue(x, propagate)
-            
+
         def setMidiCtl(self, x, propagate=True):
             """
             Sets the midi controller number to show on the slider.
@@ -158,73 +165,73 @@ else:
         def getValue(self):
             """
             Returns the current value of the slider.
-            
+
             """
             return super(PyoGuiControlSlider, self).GetValue()
 
         def getMidiCtl(self):
             """
             Returns the midi controller number, if any, assigned to the slider.
-            
+
             """
             return super(PyoGuiControlSlider, self).getMidiCtl()
 
         def getMinValue(self):
             """
             Returns the current minimum value.
-            
+
             """
             return super(PyoGuiControlSlider, self).getMinValue()
 
         def getMaxValue(self):
             """
             Returns the current maximum value.
-            
+
             """
             return super(PyoGuiControlSlider, self).getMaxValue()
 
         def getInit(self):
             """
             Returns the initial value.
-            
+
             """
             return super(PyoGuiControlSlider, self).getInit()
 
         def getRange(self):
             """
             Returns minimum and maximum values as a list.
-            
+
             """
             return super(PyoGuiControlSlider, self).getRange()
 
         def isInteger(self):
             """
             Returns True if the slider manage only integer, False otherwise.
-            
+
             """
             return self.integer
 
         def isLog(self):
             """
             Returns True if the slider is logarithmic, False otherwise.
-            
+
             """
             return self.log
 
         def isPowOfTwo(self):
             """
             Returns True if the slider manage only power-of-two values, False otherwise.
-            
+
             """
             return self.powoftwo
 
     class PyoGuiVuMeter(VuMeter):
         """
         Multi-channels Vu Meter.
-        
+
         When registered as the Server's meter, its internal method `setRms`
         will be called each buffer size with a list of normalized amplitudes
-        as argument. The `setRms` method can also be registered as the 
+        as argument. The `setRms` method can also be registered as the
         function callback of a PeakAmp object.
 
         :Parent: wx.Panel
@@ -243,7 +250,7 @@ else:
                 The meter's orientation. Defaults to wx.HORIZONTAL.
             style : int, optional
                 Window style (see wx.Window documentation). Defaults to 0.
-                
+
         """
         def __init__(self, parent, nchnls=2, pos=(0, 0), size=(200, 11),
                      orient=wx.HORIZONTAL, style=0):
@@ -267,12 +274,12 @@ else:
         Multi-modes break-points function editor.
 
         :Parent: wx.Panel
-        
+
         :Events:
-            
+
             EVT_PYO_GUI_GRAPHER
-                Sent after any change of the grapher function. The current 
-                list of points of the grapher can be retrieve with the `value` 
+                Sent after any change of the grapher function. The current
+                list of points of the grapher can be retrieve with the `value`
                 attribute of the generated event.
 
         :Args:
@@ -285,11 +292,11 @@ else:
                 A tuple indicating the minimum and maximum values of the Y-axis.
                 Defaults to (0, 1).
             init : list of two-values tuples, optional
-                The initial break-points function set as normalized values. 
-                A point is defined with its X and Y positions as a tuple. 
+                The initial break-points function set as normalized values.
+                A point is defined with its X and Y positions as a tuple.
                 Defaults to [(0.0, 0.0), (1.0, 1.0)].
             mode : int, optional
-                The grapher mode definning how line segments will be draw. 
+                The grapher mode definning how line segments will be draw.
                 Possible modes are:
                     0. linear (default)
                     1. cosine
@@ -321,7 +328,7 @@ else:
                      mode=0, exp=10, inverse=True, tension=0, bias=0, pos=(0, 0),
                      size=(300, 200), style=0):
             super(PyoGuiGrapher, self).__init__(parent, xlen, yrange, init, mode,
-                                                exp, inverse, tension, bias, 
+                                                exp, inverse, tension, bias,
                                                 self._outFunction, pos, size, style)
 
         def _outFunction(self, value):
@@ -342,14 +349,14 @@ else:
         def getPoints(self):
             """
             Returns the current normalized points of the grapher.
-            
+
             """
             return super(PyoGuiGrapher, self).getPoints()
 
         def getValues(self):
             """
             Returns the current points, according to Y-axis range, of the grapher.
-            
+
             """
             return super(PyoGuiGrapher, self).getValues()
 
@@ -481,12 +488,12 @@ else:
         Data multi-sliders editor.
 
         :Parent: wx.Panel
-        
+
         :Events:
-            
+
             EVT_PYO_GUI_MULTI_SLIDER
-                Sent after any change of the multi-sliders values. The current 
-                list of values of the multi-sliders can be retrieve with the 
+                Sent after any change of the multi-sliders values. The current
+                list of values of the multi-sliders can be retrieve with the
                 `value` attribute of the generated event.
 
         :Args:
@@ -499,8 +506,8 @@ else:
                 A tuple indicating the minimum and maximum values of the Y-axis.
                 Defaults to (0, 1).
             init : list values, optional
-                The initial list of values of the multi-sliders. 
-                Defaults to None, meaning all sliders initialized to the 
+                The initial list of values of the multi-sliders.
+                Defaults to None, meaning all sliders initialized to the
                 minimum value.
             pos : wx.Point, optional
                 Window position in pixels. Defaults to (0, 0).
@@ -519,7 +526,7 @@ else:
                     init += [yrange[0]] * (xlen - len(init))
                 elif len(init) > xlen:
                     init = init[:xlen]
-            super(PyoGuiMultiSlider, self).__init__(parent, init, yrange, 
+            super(PyoGuiMultiSlider, self).__init__(parent, init, yrange,
                                                     self._outFunction, pos,
                                                     size, style)
 
@@ -530,14 +537,14 @@ else:
         def reset(self):
             """
             Resets the sliders to their initial state.
-            
+
             """
             super(PyoGuiMultiSlider, self).reset()
 
         def getValues(self):
             """
             Returns the current values of the sliders.
-            
+
             """
             return [v for v in self.values]
 
@@ -570,14 +577,14 @@ else:
         """
         Frequency spectrum display.
 
-        This widget should be used with the Spectrum object, which measures 
-        the magnitude of an input signal versus frequency within a user 
-        defined range. It can show both magnitude and frequency on linear 
+        This widget should be used with the Spectrum object, which measures
+        the magnitude of an input signal versus frequency within a user
+        defined range. It can show both magnitude and frequency on linear
         or logarithmic scale.
-        
+
         To create the bridge between the analyzer and the display, the
         Spectrum object must be registered in the PyoGuiSpectrum object
-        with the setAnalyzer(obj) method. The Spectrum object will 
+        with the setAnalyzer(obj) method. The Spectrum object will
         automatically call the update(points) method to refresh the display.
 
         :Parent: wx.Panel
@@ -593,10 +600,10 @@ else:
                 The highest frequency, in Hz, to display on the X-axis.
                 Defaults to 22050.
             fscaling : int, optional
-                The frequency scaling on the X-axis. 0 means linear, 1 means 
+                The frequency scaling on the X-axis. 0 means linear, 1 means
                 logarithmic. Defaults to 0.
             mscaling : int, optional
-                The magnitude scaling on the Y-axis. 0 means linear, 1 means 
+                The magnitude scaling on the Y-axis. 0 means linear, 1 means
                 logarithmic. Defaults to 0.
             pos : wx.Point, optional
                 Window position in pixels. Defaults to (0, 0).
@@ -606,38 +613,38 @@ else:
                 Window style (see wx.Window documentation). Defaults to 0.
 
         """
-        def __init__(self, parent, lowfreq=0, highfreq=22050, fscaling=0, 
+        def __init__(self, parent, lowfreq=0, highfreq=22050, fscaling=0,
                      mscaling=0, pos=(0, 0), size=(300, 200), style=0):
-            super(PyoGuiSpectrum, self).__init__(parent, 1, lowfreq, highfreq, 
+            super(PyoGuiSpectrum, self).__init__(parent, 1, lowfreq, highfreq,
                                                  fscaling, mscaling, pos, size, style)
 
         def update(self, points):
             """
             Display updating method.
-            
+
             This method is automatically called by the audio analyzer
             object (Spectrum) with points to draw as arguments. The points
             are already formatted for the current drawing surface to save
             CPU cycles.
-            
+
             The method setAnalyzer(obj) must be used to register the audio
             analyzer object.
-            
+
             :Args:
-                
+
                 points : list of list of tuples
                     A list containing n-channels list of tuples. A tuple
                     is a point (X-Y coordinates) to draw.
 
             """
             wx.CallAfter(self.setImage, points)
-        
+
         def setAnalyzer(self, object):
             """
             Register an audio analyzer object (Spectrum).
 
             :Args:
-                
+
                 object : Spectrum object
                     The audio object performing the frequency analysis.
 
@@ -656,7 +663,7 @@ else:
             This method propagates the value to the audio analyzer.
 
             :Args:
-                
+
                 x : int or float
                     New lowest frequency.
 
@@ -672,7 +679,7 @@ else:
             This method propagates the value to the audio analyzer.
 
             :Args:
-                
+
                 x : int or float
                     New highest frequency.
 
@@ -688,7 +695,7 @@ else:
             This method propagates the value to the audio analyzer.
 
             :Args:
-                
+
                 x : int
                     0 means linear scaling, 1 means logarithmic scaling.
 
@@ -704,7 +711,7 @@ else:
             This method propagates the value to the audio analyzer.
 
             :Args:
-                
+
                 x : int
                     0 means linear scaling, 1 means logarithmic scaling.
 
@@ -718,11 +725,11 @@ else:
         Oscilloscope display.
 
         This widget should be used with the Scope object, which computes
-        the waveform of an input signal to display on a GUI. 
-        
+        the waveform of an input signal to display on a GUI.
+
         To create the bridge between the analyzer and the display, the
-        Scope object must be registered in the PyoGuiScope object with 
-        the setAnalyzer(obj) method. The Scope object will automatically 
+        Scope object must be registered in the PyoGuiScope object with
+        the setAnalyzer(obj) method. The Scope object will automatically
         call the update(points) method to refresh the display.
 
         :Parent: wx.Panel
@@ -745,7 +752,7 @@ else:
                 Window style (see wx.Window documentation). Defaults to 0.
 
         """
-        def __init__(self, parent, length=0.05, gain=0.67, pos=(0, 0), 
+        def __init__(self, parent, length=0.05, gain=0.67, pos=(0, 0),
                      size=(300, 200), style=0):
             super(PyoGuiScope, self).__init__(parent, None, pos, size, style)
             super(PyoGuiScope, self).setLength(length)
@@ -754,30 +761,30 @@ else:
         def update(self, points):
             """
             Display updating method.
-            
+
             This method is automatically called by the audio analyzer
             object (Scope) with points to draw as arguments. The points
             are already formatted for the current drawing surface to save
             CPU cycles.
-            
+
             The method setAnalyzer(obj) must be used to register the audio
             analyzer object.
-            
+
             :Args:
-                
+
                 points : list of list of tuples
                     A list containing n-channels list of tuples. A tuple
                     is a point (X-Y coordinates) to draw.
 
             """
             wx.CallAfter(self.setImage, points)
-        
+
         def setAnalyzer(self, object):
             """
             Register an audio analyzer object (Scope).
 
             :Args:
-                
+
                 object : Scope object
                     The audio object performing the waveform analysis.
 
@@ -794,7 +801,7 @@ else:
             This method propagates the value to the audio analyzer.
 
             :Args:
-                
+
                 x : float
                     New segment length in seconds.
 
@@ -810,7 +817,7 @@ else:
             This method propagates the value to the audio analyzer.
 
             :Args:
-                
+
                 x : float
                     New linear gain.
 
@@ -828,33 +835,33 @@ else:
         Soundfile display.
 
         This widget should be used with the SndTable object, which keeps
-        soundfile in memory and computes the waveform to display on the GUI. 
-        
+        soundfile in memory and computes the waveform to display on the GUI.
+
         To create the bridge between the audio memory and the display, the
-        SndTable object must be registered in the PyoGuiSndView object with 
-        the setTable(object) method. 
-        
-        The SndTable object will automatically call the update() method to 
+        SndTable object must be registered in the PyoGuiSndView object with
+        the setTable(object) method.
+
+        The SndTable object will automatically call the update() method to
         refresh the display when the table is modified.
 
         :Parent: wx.Panel
 
         :Events:
-            
+
             EVT_PYO_GUI_SNDVIEW_MOUSE_POSITION
                 Sent when the mouse is moving on the panel with the left
                 button pressed. The `value` attribute of the event will
                 hold the normalized position of the mouse into the sound.
                 For X-axis value, 0.0 is the beginning of the sound and 1.0
-                is the end of the sound. For the Y-axis, 0.0 is the bottom 
+                is the end of the sound. For the Y-axis, 0.0 is the bottom
                 of the panel and 1.0 is the top.
             EVT_PYO_GUI_SNDVIEW_SELECTION
-                Sent when a new region is selected on the panel. A new 
-                selection is created with a Right-click and drag on the panel. 
-                The current selection can be moved with Shift+Right-click and 
+                Sent when a new region is selected on the panel. A new
+                selection is created with a Right-click and drag on the panel.
+                The current selection can be moved with Shift+Right-click and
                 drag. Ctrl+Right-click (Cmd on OSX) remove the selected region.
-                The `value` attribute of the event will hold the normalized 
-                selection as a tuple (min, max). 0.0 means the beginning of 
+                The `value` attribute of the event will hold the normalized
+                selection as a tuple (min, max). 0.0 means the beginning of
                 the sound and 1.0 means the end of the sound.
 
         :Args:
@@ -873,11 +880,11 @@ else:
             wx.Panel.__init__(self, parent, pos=pos, size=size, style=style)
             box = wx.BoxSizer(wx.VERTICAL)
             self._curzoom = (0.0, 1.0)
-            self.sndview = SndViewTablePanel(self, None, 
-                                             self._position_callback, 
+            self.sndview = SndViewTablePanel(self, None,
+                                             self._position_callback,
                                              self._select_callback)
             box.Add(self.sndview, 1, wx.EXPAND|wx.LEFT|wx.RIGHT|wx.TOP, 5)
-            self.zoom = HRangeSlider(self, minvalue=0, maxvalue=1, 
+            self.zoom = HRangeSlider(self, minvalue=0, maxvalue=1,
                                      valtype='float', function=self._setZoom,
                                      backColour=parent.GetBackgroundColour())
             box.Add(self.zoom, 0, wx.EXPAND|wx.LEFT|wx.RIGHT, 5)
@@ -909,22 +916,22 @@ else:
         def update(self):
             """
             Display updating method.
-            
+
             This method is automatically called by the audio memory
             object (SndTable) when the table is modified.
-            
+
             The method setTable(obj) must be used to register the audio
             memory object.
 
             """
             wx.CallAfter(self.sndview.setImage)
-        
+
         def setTable(self, object):
             """
             Register an audio memory object (SndTable).
 
             :Args:
-                
+
                 object : SndTable object
                     The audio table keeping the sound in memory.
 
@@ -944,7 +951,7 @@ else:
             with a tuple (start, stop) as value.
 
             :Args:
-                
+
                 start : float
                     The starting point of the selected region. This value
                     must be normalized between 0 and 1 (0 is the beginning
@@ -956,11 +963,11 @@ else:
 
             """
             self.sndview.setSelection(start, stop)
-                
+
         def resetSelection(self):
             """
             Removes the selected region.
-            
+
             This method will trigger a EVT_PYO_GUI_SNDVIEW_SELECTION event
             with a tuple (0.0, 1.0) as value.
 

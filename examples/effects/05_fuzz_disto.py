@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # encoding: utf-8
 """
-Fuzz distortion. High gain followed by, asymmetrical clipping, 
+Fuzz distortion. High gain followed by, asymmetrical clipping,
 hard clip on top, soft compression on bottom.
 
 """

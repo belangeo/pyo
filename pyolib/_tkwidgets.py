@@ -41,6 +41,7 @@ else:
 ### Multisliders
 ######################################################################
 class MultiSlider(Frame):
+
     def __init__(self, master, init, key, command):
         Frame.__init__(self, master, bd=0, relief=FLAT)
         self._values = init
@@ -93,6 +94,7 @@ class MultiSlider(Frame):
 ### Control window for PyoObject
 ######################################################################
 class Command:
+
     def __init__(self, func, key):
         self.func = func
         self.key = key
@@ -101,6 +103,7 @@ class Command:
         self.func(self.key, value)
 
 class PyoObjectControl(Frame):
+
     def __init__(self, master=None, obj=None, map_list=None):
         Frame.__init__(self, master, bd=1, relief=GROOVE)
         from controls import SigTo
@@ -180,6 +183,7 @@ class PyoObjectControl(Frame):
 ### View window for PyoTableObject
 ######################################################################
 class ViewTable_withPIL(Frame):
+
     def __init__(self, master=None, samples=None):
         Frame.__init__(self, master, bd=1, relief=GROOVE)
         self.width = 500
@@ -197,6 +201,7 @@ class ViewTable_withPIL(Frame):
         self.grid(ipadx=10, ipady=10)
 
 class ViewTable_withoutPIL(Frame):
+
     def __init__(self, master=None, samples=None):
         Frame.__init__(self, master, bd=1, relief=GROOVE)
         self.width = 500
@@ -212,6 +217,7 @@ class ViewTable_withoutPIL(Frame):
 ## View window for PyoMatrixObject
 #####################################################################
 class ViewMatrix_withPIL(Frame):
+
     def __init__(self, master=None, samples=None, size=None):
         Frame.__init__(self, master, bd=1, relief=GROOVE)
         self.canvas = Canvas(self, width=size[0], height=size[1], relief=SUNKEN, bd=1, bg="#EFEFEF")
@@ -223,6 +229,7 @@ class ViewMatrix_withPIL(Frame):
         self.grid(ipadx=0, ipady=0)
 
 class ViewMatrix_withoutPIL(Frame):
+
     def __init__(self, master=None, samples=None, size=None):
         Frame.__init__(self, master, bd=1, relief=GROOVE)
         self.width = size[0]
@@ -248,6 +255,7 @@ class ViewMatrix_withoutPIL(Frame):
 ### Server Object User Interface (Tk)
 ######################################################################
 class ServerGUI(Frame):
+
     def __init__(self, master=None, nchnls=2, startf=None, stopf=None, recstartf=None,
                 recstopf=None, ampf=None, started=0, locals=None, shutdown=None, meter=True, timer=True, amp=1.):
         Frame.__init__(self, master, padx=10, pady=10, bd=2, relief=GROOVE)
@@ -274,7 +282,6 @@ class ServerGUI(Frame):
         self.createWidgets()
         if started == 1:
             self.start(True)
-
 
     def createWidgets(self):
         row = 0
@@ -321,7 +328,7 @@ class ServerGUI(Frame):
             self.timetext.grid(ipadx=5, row=row, column=0, columnspan=3)
             row += 1
 
-        if self.locals != None:
+        if self.locals is not None:
             self.interp_label = Label(self, text='Interpreter')
             self.interp_label.grid(ipadx=0, row=row, column=0, columnspan=3)
             row += 1
@@ -331,7 +338,6 @@ class ServerGUI(Frame):
             self.text.bind("<Return>", self.getText)
             self.text.bind("<Up>", self.getPrev)
             self.text.bind("<Down>", self.getNext)
-
 
     def on_quit(self):
         self.shutdown()

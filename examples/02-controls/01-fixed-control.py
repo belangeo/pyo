@@ -1,7 +1,7 @@
 """
 01-fixed-control.py - Number as argument.
 
-Audio objects behaviour can be controlled by passing 
+Audio objects behaviour can be controlled by passing
 value to their arguments at initialization time.
 
 """
@@ -13,7 +13,7 @@ s.amp = 0.1
 # Sets fundamental frequency
 freq = 200
 
-# Approximates a triangle waveform by adding odd harmonics with 
+# Approximates a triangle waveform by adding odd harmonics with
 # amplitude proportional to the inverse square of the harmonic number.
 h1 = Sine(freq=freq, mul=1).out()
 h2 = Sine(freq=freq*3, phase=0.5, mul=1./pow(3,2)).out()

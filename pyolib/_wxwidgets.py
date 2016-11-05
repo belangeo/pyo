@@ -38,8 +38,8 @@ def tFromValue(value, v1, v2):
 
 def clamp(v, minv, maxv):
     "clamps a value within a range"
-    if v<minv: v=minv
-    if v> maxv: v=maxv
+    if v < minv: v = minv
+    if v > maxv: v = maxv
     return v
 
 def toLog(t, v1, v2):
@@ -73,6 +73,7 @@ def GetRoundShape( w, h, r ):
     return wx.RegionFromBitmap( GetRoundBitmap(w,h,r) )
 
 class ControlSlider(wx.Panel):
+
     def __init__(self, parent, minvalue, maxvalue, init=None, pos=(0,0), size=(200,16), log=False,
                  outFunction=None, integer=False, powoftwo=False, backColour=None, orient=wx.HORIZONTAL):
         if size == (200,16) and orient == wx.VERTICAL:
@@ -110,7 +111,7 @@ class ControlSlider(wx.Panel):
         self.propagate = True
         self.midictl = None
         self.new = ''
-        if init != None:
+        if init is not None:
             self.SetValue(init)
             self.init = init
         else:
@@ -334,7 +335,7 @@ class ControlSlider(wx.Panel):
         gc.SetBrush(brush)
         gc.DrawRoundedRectangle(rec[0], rec[1], rec[2], rec[3], 2)
 
-        if self.midictl != None:
+        if self.midictl is not None:
             if sys.platform in ['win32', 'linux2']:
                 dc.SetFont(wx.Font(6, wx.ROMAN, wx.NORMAL, wx.NORMAL))
             else:
@@ -403,6 +404,7 @@ class ControlSlider(wx.Panel):
 # TODO: key, command and slmap should be removed from the multislider widget.
 # It should work in the same way as the ControlSlider widget.
 class MultiSlider(wx.Panel):
+
     def __init__(self, parent, init, key, command, slmap):
         wx.Panel.__init__(self, parent, size=(250,250))
         self.backgroundColour = BACKGROUND_COLOUR
@@ -482,7 +484,8 @@ class MultiSlider(wx.Panel):
             self.Refresh()
 
 class VuMeter(wx.Panel):
-    def __init__(self, parent, size=(200,11), numSliders=2, orient=wx.HORIZONTAL, 
+
+    def __init__(self, parent, size=(200,11), numSliders=2, orient=wx.HORIZONTAL,
                  pos=wx.DefaultPosition, style=0):
         if orient == wx.HORIZONTAL:
             size = (size[0], numSliders * 5 + 1)
@@ -623,6 +626,7 @@ class VuMeter(wx.Panel):
 
 # TODO: BACKGROUND_COLOUR hard-coded all over the place in this class.
 class RangeSlider(wx.Panel):
+
     def __init__(self, parent, minvalue, maxvalue, init=None, pos=(0,0), size=(200,15),
                  valtype='int', log=False, function=None, backColour=None):
         wx.Panel.__init__(self, parent=parent, id=wx.ID_ANY, pos=pos, size=size, style=wx.NO_BORDER)
@@ -636,8 +640,8 @@ class RangeSlider(wx.Panel):
         self.sliderHeight = 15
         self.borderWidth = 1
         self.action = None
-        self.fillcolor = "#AAAAAA" #SLIDER_BACK_COLOUR
-        self.knobcolor = "#333333" #SLIDER_KNOB_COLOUR
+        self.fillcolor = "#AAAAAA"  # SLIDER_BACK_COLOUR
+        self.knobcolor = "#333333"  # SLIDER_KNOB_COLOUR
         self.handlecolor = wx.Colour(int(self.knobcolor[1:3])-10, int(self.knobcolor[3:5])-10, int(self.knobcolor[5:7])-10)
         self.outFunction = function
         if valtype.startswith('i'): self.myType = IntType
@@ -645,7 +649,7 @@ class RangeSlider(wx.Panel):
         self.log = log
         self.SetRange(minvalue, maxvalue)
         self.handles = [minvalue, maxvalue]
-        if init != None:
+        if init is not None:
             if type(init) in [ListType, TupleType]:
                 if len(init) == 1:
                     self.SetValue([init[0],init[0]])
@@ -762,6 +766,7 @@ class RangeSlider(wx.Panel):
         self.handlePos = tmp
 
 class HRangeSlider(RangeSlider):
+
     def __init__(self, parent, minvalue, maxvalue, init=None, pos=(0,0), size=(200,15),
                  valtype='int', log=False, function=None, backColour=None):
         RangeSlider.__init__(self, parent, minvalue, maxvalue, init, pos, size, valtype, log, function, backColour)
@@ -873,6 +878,7 @@ class HRangeSlider(RangeSlider):
 ### Control window for PyoObject
 ######################################################################
 class Command:
+
     def __init__(self, func, key):
         self.func = func
         self.key = key
@@ -881,6 +887,7 @@ class Command:
         self.func(self.key, value)
 
 class PyoObjectControl(wx.Frame):
+
     def __init__(self, parent=None, obj=None, map_list=None):
         wx.Frame.__init__(self, parent)
         from controls import SigTo
@@ -966,6 +973,7 @@ class PyoObjectControl(wx.Frame):
 ### View window for PyoTableObject
 ######################################################################
 class ViewTable(wx.Frame):
+
     def __init__(self, parent, samples=None, tableclass=None, object=None):
         wx.Frame.__init__(self, parent, size=(500,200))
         self.SetMinSize((300, 150))
@@ -994,6 +1002,7 @@ class ViewTable(wx.Frame):
         self.Destroy()
 
 class ViewTablePanel(wx.Panel):
+
     def __init__(self, parent, obj):
         wx.Panel.__init__(self, parent)
         self.SetBackgroundStyle(wx.BG_STYLE_CUSTOM)
@@ -1028,6 +1037,7 @@ class ViewTablePanel(wx.Panel):
         wx.CallAfter(self.obj.refreshView)
 
 class SndViewTable(wx.Frame):
+
     def __init__(self, parent, obj=None, tableclass=None, mouse_callback=None):
         wx.Frame.__init__(self, parent, size=(500,250))
         self.SetMinSize((300, 150))
@@ -1064,6 +1074,7 @@ class SndViewTable(wx.Frame):
         self.Destroy()
 
 class SndViewTablePanel(wx.Panel):
+
     def __init__(self, parent, obj=None, mouse_callback=None, select_callback=None):
         wx.Panel.__init__(self, parent)
         self.SetBackgroundStyle(wx.BG_STYLE_CUSTOM)
@@ -1107,7 +1118,7 @@ class SndViewTablePanel(wx.Panel):
         if self.background_bitmap is not None:
             self.refresh_from_selection = True
         self.Refresh()
-        if self.select_callback != None:
+        if self.select_callback is not None:
             self.select_callback((0.0, 1.0))
 
     def setSelection(self, start, stop):
@@ -1116,9 +1127,9 @@ class SndViewTablePanel(wx.Panel):
         if self.background_bitmap is not None:
             self.refresh_from_selection = True
         self.Refresh()
-        if self.select_callback != None:
+        if self.select_callback is not None:
             self.select_callback((self.selstart, self.selend))
-        
+
     def setBegin(self, x):
         self.begin = x
 
@@ -1149,7 +1160,7 @@ class SndViewTablePanel(wx.Panel):
         else:
             pos = (float(pos[0])/size[0], 1.-(float(pos[1])/size[1]))
         pos = self.clipPos(pos)
-        if self.mouse_callback != None:
+        if self.mouse_callback is not None:
             self.mouse_callback(pos)
         self.CaptureMouse()
 
@@ -1169,7 +1180,7 @@ class SndViewTablePanel(wx.Panel):
             self.selstart = self.selend = None
             self.refresh_from_selection = True
             self.Refresh()
-            if self.select_callback != None:
+            if self.select_callback is not None:
                 self.select_callback((0.0, 1.0))
         else:
             self.createSelection = True
@@ -1186,7 +1197,7 @@ class SndViewTablePanel(wx.Panel):
                 pos = (float(pos[0])/size[0], 1.-(float(pos[1])/size[1]))
             pos = self.clipPos(pos)
             if evt.LeftIsDown():
-                if self.mouse_callback != None:
+                if self.mouse_callback is not None:
                     self.mouse_callback(pos)
             elif evt.RightIsDown():
                 refresh = False
@@ -1194,7 +1205,7 @@ class SndViewTablePanel(wx.Panel):
                     self.selend = pos[0]
                     refresh = True
                 elif self.moveSelection:
-                    diff = pos[0] - self.movepos 
+                    diff = pos[0] - self.movepos
                     self.movepos = pos[0]
                     self.selstart += diff
                     self.selend += diff
@@ -1202,7 +1213,7 @@ class SndViewTablePanel(wx.Panel):
                 if refresh:
                     self.refresh_from_selection = True
                     self.Refresh()
-                    if self.select_callback != None:
+                    if self.select_callback is not None:
                         self.select_callback((self.selstart, self.selend))
 
     def OnMouseUp(self, evt):
@@ -1297,6 +1308,7 @@ class SndViewTablePanel(wx.Panel):
 ## View window for PyoMatrixObject
 #####################################################################
 class ViewMatrix(wx.Frame):
+
     def __init__(self, parent, size=None, object=None):
         wx.Frame.__init__(self, parent)
         self.object = object
@@ -1370,6 +1382,7 @@ class ViewMatrix_withoutPIL(ViewMatrix):
 ## Spectrum Display
 ######################################################################
 class SpectrumDisplay(wx.Frame):
+
     def __init__(self, parent, obj=None):
         wx.Frame.__init__(self, parent, size=(600,350))
         self.SetMinSize((400,240))
@@ -1500,7 +1513,8 @@ class SpectrumDisplay(wx.Frame):
 
 # TODO: Adjust the font size according to the size of the panel.
 class SpectrumPanel(wx.Panel):
-    def __init__(self, parent, chnls, lowfreq, highfreq, fscaling, mscaling, 
+
+    def __init__(self, parent, chnls, lowfreq, highfreq, fscaling, mscaling,
                  pos=wx.DefaultPosition, size=wx.DefaultSize, style=0):
         wx.Panel.__init__(self, parent, pos=pos, size=size, style=style)
         self.SetBackgroundStyle(wx.BG_STYLE_CUSTOM)
@@ -1559,7 +1573,7 @@ class SpectrumPanel(wx.Panel):
         dc = self.dcref(self)
         gc = wx.GraphicsContext_Create(dc)
         tw, th = dc.GetTextExtent("0")
-        
+
         # background
         background = gc.CreatePath()
         background.AddRectangle(0,0,w-1,h-1)
@@ -1675,7 +1689,7 @@ class SpectrumPanel(wx.Panel):
                 i += 1
 
         # spectrum
-        if self.img != None:
+        if self.img is not None:
             last_tw = tw
             # legend
             tw, th = dc.GetTextExtent("chan 8")
@@ -1692,6 +1706,7 @@ class SpectrumPanel(wx.Panel):
 ## Spectrum Display
 ######################################################################
 class ScopeDisplay(wx.Frame):
+
     def __init__(self, parent, obj=None):
         wx.Frame.__init__(self, parent, size=(600,350))
         self.SetMinSize((400,240))
@@ -1756,7 +1771,8 @@ class ScopeDisplay(wx.Frame):
         self.Destroy()
 
 class ScopePanel(wx.Panel):
-    def __init__(self, parent, obj=None, pos=wx.DefaultPosition, 
+
+    def __init__(self, parent, obj=None, pos=wx.DefaultPosition,
                  size=wx.DefaultSize, style=0):
         wx.Panel.__init__(self, parent, pos=pos, size=size, style=style)
         self.SetBackgroundStyle(wx.BG_STYLE_CUSTOM)
@@ -1861,6 +1877,7 @@ RAD2 = RAD*2
 AREA = RAD+2
 AREA2 = AREA*2
 class Grapher(wx.Panel):
+
     def __init__(self, parent, xlen=8192, yrange=(0.0, 1.0), init=[(0.0,0.0),(1.0,1.0)], mode=0,
                  exp=10.0, inverse=True, tension=0.0, bias=0.0, outFunction=None, pos=(0, 0),
                  size=(300, 200), style=0):
@@ -1971,7 +1988,7 @@ class Grapher(wx.Panel):
         return values
 
     def sendValues(self):
-        if self.outFunction != None:
+        if self.outFunction is not None:
             values = self.getValues()
             self.outFunction(values)
 
@@ -1984,7 +2001,7 @@ class Grapher(wx.Panel):
         self.Refresh()
 
     def OnKeyDown(self, evt):
-        if self.selected != None and evt.GetKeyCode() in [wx.WXK_BACK, wx.WXK_DELETE, wx.WXK_NUMPAD_DELETE]:
+        if self.selected is not None and evt.GetKeyCode() in [wx.WXK_BACK, wx.WXK_DELETE, wx.WXK_NUMPAD_DELETE]:
             del self.points[self.selected]
             self.sendValues()
             self.selected = None
@@ -2030,7 +2047,7 @@ class Grapher(wx.Panel):
         self.pos = self.borderClip(evt.GetPosition())
         self.pos[1] = h - self.pos[1]
         if self.HasCapture():
-            if self.selected != None:
+            if self.selected is not None:
                 self.pos = self.pointClip(self.pos)
                 x, y = self.pixelsToPoint(self.pos)
                 if self.mode == 4 and y <= 0:
@@ -2235,24 +2252,24 @@ class Grapher(wx.Panel):
                     tmp2 = self.getCosPoints(tmp[i], tmp[i+1])
                     if i == 0 and len(tmp2) < 2:
                         gc.DrawLines([tmp[i], tmp[i+1]])
-                    if last_p != None:
+                    if last_p is not None:
                         gc.DrawLines([last_p, tmp[i]])
                     for j in range(len(tmp2)-1):
                         gc.DrawLines([tmp2[j], tmp2[j+1]])
                         last_p = tmp2[j+1]
-                if last_p != None:
+                if last_p is not None:
                     gc.DrawLines([last_p, tmp[-1]])
             elif self.mode == 2:
                 for i in range(len(tmp)-1):
                     tmp2 = self.getExpPoints(tmp[i], tmp[i+1])
                     if i == 0 and len(tmp2) < 2:
                         gc.DrawLines([tmp[i], tmp[i+1]])
-                    if last_p != None:
+                    if last_p is not None:
                         gc.DrawLines([last_p, tmp[i]])
                     for j in range(len(tmp2)-1):
                         gc.DrawLines([tmp2[j], tmp2[j+1]])
                         last_p = tmp2[j+1]
-                if last_p != None:
+                if last_p is not None:
                     gc.DrawLines([last_p, tmp[-1]])
             elif self.mode == 3:
                 curvetmp = self.addImaginaryPoints(tmp)
@@ -2260,12 +2277,12 @@ class Grapher(wx.Panel):
                     tmp2 = self.getCurvePoints(curvetmp[i-1], curvetmp[i], curvetmp[i+1], curvetmp[i+2])
                     if i == 1 and len(tmp2) < 2:
                         gc.DrawLines([curvetmp[i], curvetmp[i+1]])
-                    if last_p != None:
+                    if last_p is not None:
                         gc.DrawLines([last_p, curvetmp[i]])
                     for j in range(len(tmp2)-1):
                         gc.DrawLines([tmp2[j], tmp2[j+1]])
                         last_p = tmp2[j+1]
-                if last_p != None:
+                if last_p is not None:
                     gc.DrawLines([last_p, tmp[-1]])
             elif self.mode == 4:
                 back_tmp = [p for p in tmp]
@@ -2277,12 +2294,12 @@ class Grapher(wx.Panel):
                         tmp2[j] = (tmp2[j][0], int(round((1.0-tmp2[j][1]) * h)) + OFF + RAD)
                     if i == 0 and len(tmp2) < 2:
                         gc.DrawLines([back_tmp[i], back_tmp[i+1]])
-                    if last_p != None:
+                    if last_p is not None:
                         gc.DrawLines([last_p, back_tmp[i]])
                     for j in range(len(tmp2)-1):
                         gc.DrawLines([tmp2[j], tmp2[j+1]])
                         last_p = tmp2[j+1]
-                if last_p != None:
+                if last_p is not None:
                     gc.DrawLines([last_p, back_tmp[-1]])
                 tmp = [p for p in back_tmp]
             elif self.mode == 5:
@@ -2295,12 +2312,12 @@ class Grapher(wx.Panel):
                         tmp2[j] = (tmp2[j][0], int(round((1.0-tmp2[j][1]) * h)) + OFF + RAD)
                     if i == 0 and len(tmp2) < 2:
                         gc.DrawLines([back_tmp[i], back_tmp[i+1]])
-                    if last_p != None:
+                    if last_p is not None:
                         gc.DrawLines([last_p, back_tmp[i]])
                     for j in range(len(tmp2)-1):
                         gc.DrawLines([tmp2[j], tmp2[j+1]])
                         last_p = tmp2[j+1]
-                if last_p != None:
+                if last_p is not None:
                     gc.DrawLines([last_p, back_tmp[-1]])
                 tmp = [p for p in back_tmp]
 
@@ -2326,6 +2343,7 @@ class Grapher(wx.Panel):
             dc.DrawText("%.3f, %.3f" % (xval, yval), w-75, OFF)
 
 class TableGrapher(wx.Frame):
+
     def __init__(self, parent=None, obj=None, mode=0, xlen=8192, yrange=(0.0, 1.0)):
         wx.Frame.__init__(self, parent, size=(500,250))
         pts = obj.getPoints()
@@ -2385,6 +2403,7 @@ class TableGrapher(wx.Frame):
         self.graph.reset()
 
 class DataMultiSlider(wx.Panel):
+
     def __init__(self, parent, init, yrange=(0,1), outFunction=None,
                 pos=(0, 0), size=(300, 200), style=0):
         wx.Panel.__init__(self, parent, pos=pos, size=size, style=style)
@@ -2445,7 +2464,7 @@ class DataMultiSlider(wx.Panel):
         points.append((w,y))
         points.append((w,h))
         gc.DrawLines(points)
-        if self.outFunction != None:
+        if self.outFunction is not None:
             self.outFunction(self.values)
 
     def MouseDown(self, evt):
@@ -2499,6 +2518,7 @@ class DataMultiSlider(wx.Panel):
             self.Refresh()
 
 class DataTableGrapher(wx.Frame):
+
     def __init__(self, parent=None, obj=None, yrange=(0.0, 1.0)):
         wx.Frame.__init__(self, parent, size=(500,250))
         self.obj = obj
@@ -2522,7 +2542,7 @@ class ExprLexer(object):
     STC_EXPR_VARIABLE, STC_EXPR_LETVARIABLE = range(6)
     def __init__(self):
         super(ExprLexer, self).__init__()
-        
+
         self.alpha = "abcdefghijklmnopqrstuvwxyz"
         self.digits = "0123456789"
         self.keywords = ["sin", "cos", "tan", "tanh", "atan", "atan2", "sqrt", "log",
@@ -2583,7 +2603,8 @@ class ExprLexer(object):
                 stc.SetStyling(1, style)
                 start_pos += 1
 
-class ExprEditor(stc.StyledTextCtrl):    
+class ExprEditor(stc.StyledTextCtrl):
+
     def __init__(self, parent, id=-1, obj=None):
         stc.StyledTextCtrl.__init__(self, parent, id)
 
@@ -2596,18 +2617,18 @@ class ExprEditor(stc.StyledTextCtrl):
             accel_ctrl = wx.ACCEL_CTRL
             self.faces = {'mono' : 'Monospace', 'size' : 10}
 
-        atable = wx.AcceleratorTable([(accel_ctrl,  wx.WXK_RETURN, 10000),
-                                      (accel_ctrl,  ord("z"), wx.ID_UNDO),
-                                      (accel_ctrl|wx.ACCEL_SHIFT,  ord("z"), wx.ID_REDO)])
+        atable = wx.AcceleratorTable([(accel_ctrl, wx.WXK_RETURN, 10000),
+                                      (accel_ctrl, ord("z"), wx.ID_UNDO),
+                                      (accel_ctrl|wx.ACCEL_SHIFT, ord("z"), wx.ID_REDO)])
         self.SetAcceleratorTable(atable)
-        
+
         self.Bind(wx.EVT_MENU, self.onExecute, id=10000)
         self.Bind(wx.EVT_MENU, self.undo, id=wx.ID_UNDO)
         self.Bind(wx.EVT_MENU, self.redo, id=wx.ID_REDO)
         self.Bind(stc.EVT_STC_UPDATEUI, self.OnUpdateUI)
 
         self.lexer = ExprLexer()
-        
+
         self.currentfile = ""
         self.modified = False
 
@@ -2702,7 +2723,7 @@ class ExprEditor(stc.StyledTextCtrl):
         if braceAtCaret >= 0:
             braceOpposite = self.BraceMatch(braceAtCaret)
 
-        if braceAtCaret != -1  and braceOpposite == -1:
+        if braceAtCaret != -1 and braceOpposite == -1:
             self.BraceBadLight(braceAtCaret)
         else:
             self.BraceHighlight(braceAtCaret, braceOpposite)
@@ -2725,6 +2746,7 @@ class ExprEditor(stc.StyledTextCtrl):
         self.SetSelection(pos, pos)
 
 class ExprEditorFrame(wx.Frame):
+
     def __init__(self, parent=None, obj=None):
         wx.Frame.__init__(self, parent, size=(500,350))
         self.obj = obj
@@ -2745,7 +2767,7 @@ class ExprEditorFrame(wx.Frame):
         self.SetMenuBar(self.menubar)
 
     def open(self, evt):
-        dlg = wx.FileDialog(self, message="Choose a file", 
+        dlg = wx.FileDialog(self, message="Choose a file",
                             defaultDir=os.path.expanduser("~"),
                             defaultFile="", style=wx.OPEN)
         if dlg.ShowModal() == wx.ID_OK:
@@ -2766,7 +2788,7 @@ class ExprEditorFrame(wx.Frame):
 
     def saveas(self, evt):
         deffile = os.path.split(self.editor.currentfile)[1]
-        dlg = wx.FileDialog(self, message="Save file as ...", 
+        dlg = wx.FileDialog(self, message="Save file as ...",
                             defaultDir=os.path.expanduser("~"),
                             defaultFile=deffile, style=wx.SAVE)
         dlg.SetFilterIndex(0)
@@ -2779,9 +2801,10 @@ class ExprEditorFrame(wx.Frame):
         self.editor.SetText(text)
 
 class ServerGUI(wx.Frame):
-    def __init__(self, parent=None, nchnls=2, startf=None, stopf=None, 
-                recstartf=None, recstopf=None, ampf=None, started=0, 
-                locals=None, shutdown=None, meter=True, timer=True, amp=1., 
+
+    def __init__(self, parent=None, nchnls=2, startf=None, stopf=None,
+                recstartf=None, recstopf=None, ampf=None, started=0,
+                locals=None, shutdown=None, meter=True, timer=True, amp=1.,
                 exit=True):
         wx.Frame.__init__(self, parent, style=wx.DEFAULT_FRAME_STYLE ^ wx.RESIZE_BORDER)
 
@@ -2855,7 +2878,7 @@ class ServerGUI(wx.Frame):
             self.timetext = wx.StaticText(panel, -1, "00 : 00 : 00 : 000")
             box.Add(self.timetext, 0, wx.LEFT, leftMargin)
 
-        if self.locals != None:
+        if self.locals is not None:
             box.AddSpacer(10)
             t = wx.StaticText(panel, -1, "Interpreter")
             box.Add(t, 0, wx.LEFT, leftMargin)

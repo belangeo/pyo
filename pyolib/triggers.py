@@ -659,9 +659,9 @@ class Beat(PyoObject):
                 New `w3` attribute. Defaults to None.
 
         """
-        if w1 != None: self._w1 = w1
-        if w2 != None: self._w2 = w2
-        if w3 != None: self._w3 = w3
+        if w1 is not None: self._w1 = w1
+        if w2 is not None: self._w2 = w2
+        if w3 is not None: self._w3 = w3
         w1, w2, w3, lmax = convertArgsToLists(w1, w2, w3)
         [obj.setWeights(wrap(w1,i), wrap(w2,i), wrap(w3,i)) for i, obj in enumerate(self._base_players)]
 
@@ -1489,11 +1489,11 @@ class TrigLinseg(PyoObject):
         the server GUI before showing the controller window.
 
         """
-        if xlen == None:
+        if xlen is None:
             xlen = float(self._list[-1][0])
         else:
             xlen = float(xlen)
-        if yrange == None:
+        if yrange is None:
             ymin = float(min([x[1] for x in self._list]))
             ymax = float(max([x[1] for x in self._list]))
             if ymin == ymax:
@@ -1683,11 +1683,11 @@ class TrigExpseg(PyoObject):
         the server GUI before showing the controller window.
 
         """
-        if xlen == None:
+        if xlen is None:
             xlen = float(self._list[-1][0])
         else:
             xlen = float(xlen)
-        if yrange == None:
+        if yrange is None:
             ymin = float(min([x[1] for x in self._list]))
             ymax = float(max([x[1] for x in self._list]))
             if ymin == ymax:

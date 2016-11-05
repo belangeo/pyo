@@ -1,12 +1,12 @@
 """
 01-complex-oscs.py - Complex spectrum oscillators.
 
-This tutorial presents four objects of the library which are 
+This tutorial presents four objects of the library which are
 useful to generate complex spectrums by means of synthesis.
 
 Blit:
 Impulse train generator with control over the number of harmonics.
-    
+
 RCOsc:
 Aproximation of a RC circuit (a capacitor and a resistor in series).
 
@@ -44,7 +44,7 @@ osc3 = SineLoop(freq=freq, feedback=lfo3, mul=0.3)
 lfo4 = Sine(.1).range(0.1, 0.75)
 osc4 = SuperSaw(freq=freq, detune=lfo4, mul=0.3)
 
-# Interpolates between input objects to produce a single output 
+# Interpolates between input objects to produce a single output
 sel = Selector([osc1, osc2, osc3, osc4]).out()
 sel.ctrl(title="Input interpolator (0=Blit, 1=RCOsc, 2=SineLoop, 3=SuperSaw)")
 
