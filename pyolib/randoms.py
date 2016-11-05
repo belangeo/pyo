@@ -4,6 +4,7 @@ Set of objects that implement different kinds of random noise generators.
 """
 from __future__ import absolute_import
 from six.moves import range
+import six
 """
 Copyright 2009-2015 Olivier Belanger
 
@@ -25,7 +26,6 @@ License along with pyo.  If not, see <http://www.gnu.org/licenses/>.
 """
 from ._core import *
 from ._maps import *
-from types import StringType, ListType
 
 class Randi(PyoObject):
     """
@@ -275,7 +275,7 @@ class Choice(PyoObject):
         self._choice = choice
         self._freq = freq
         freq, mul, add, lmax = convertArgsToLists(freq, mul, add)
-        if type(choice[0]) != ListType:
+        if type(choice[0]) != list:
             self._base_objs = [Choice_base(choice, wrap(freq,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
         else:
             choicelen = len(choice)
@@ -294,7 +294,7 @@ class Choice(PyoObject):
         """
         pyoArgsAssert(self, "l", x)
         self._choice = x
-        if type(x[0]) != ListType:
+        if type(x[0]) != list:
             [obj.setChoice(self._choice) for i, obj in enumerate(self._base_objs)]
         else:
             [obj.setChoice(wrap(self._choice,i)) for i, obj in enumerate(self._base_objs)]
@@ -600,7 +600,7 @@ class Xnoise(PyoObject):
         self._x2 = x2
         dist, freq, x1, x2, mul, add, lmax = convertArgsToLists(dist, freq, x1, x2, mul, add)
         for i, t in enumerate(dist):
-            if type(t) == StringType: dist[i] = XNOISE_DICT.get(t, 0)
+            if type(t) == six.text_type: dist[i] = XNOISE_DICT.get(t, 0)
         self._base_objs = [Xnoise_base(wrap(dist,i), wrap(freq,i), wrap(x1,i), wrap(x2,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
 
     def setDist(self, x):
@@ -616,7 +616,7 @@ class Xnoise(PyoObject):
         self._dist = x
         x, lmax = convertArgsToLists(x)
         for i, t in enumerate(x):
-            if type(t) == StringType: x[i] = XNOISE_DICT.get(t, 0)
+            if type(t) == six.text_type: x[i] = XNOISE_DICT.get(t, 0)
         [obj.setType(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
     def setX1(self, x):
@@ -813,7 +813,7 @@ class XnoiseMidi(PyoObject):
         self._mrange = mrange
         dist, freq, x1, x2, scale, mrange, mul, add, lmax = convertArgsToLists(dist, freq, x1, x2, scale, mrange, mul, add)
         for i, t in enumerate(dist):
-            if type(t) == StringType: dist[i] = XNOISE_DICT.get(t, 0)
+            if type(t) == six.text_type: dist[i] = XNOISE_DICT.get(t, 0)
         self._base_objs = [XnoiseMidi_base(wrap(dist,i), wrap(freq,i), wrap(x1,i), wrap(x2,i), wrap(scale,i), wrap(mrange,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
 
     def setDist(self, x):
@@ -829,7 +829,7 @@ class XnoiseMidi(PyoObject):
         self._dist = x
         x, lmax = convertArgsToLists(x)
         for i, t in enumerate(x):
-            if type(t) == StringType: x[i] = XNOISE_DICT.get(t, 0)
+            if type(t) == six.text_type: x[i] = XNOISE_DICT.get(t, 0)
         [obj.setType(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
     def setScale(self, x):
@@ -1065,7 +1065,7 @@ class XnoiseDur(PyoObject):
         self._x2 = x2
         dist, min, max, x1, x2, mul, add, lmax = convertArgsToLists(dist, min, max, x1, x2, mul, add)
         for i, t in enumerate(dist):
-            if type(t) == StringType: dist[i] = XNOISE_DICT.get(t, 0)
+            if type(t) == six.text_type: dist[i] = XNOISE_DICT.get(t, 0)
         self._base_objs = [XnoiseDur_base(wrap(dist,i), wrap(min,i), wrap(max,i), wrap(x1,i), wrap(x2,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
 
     def setDist(self, x):
@@ -1081,7 +1081,7 @@ class XnoiseDur(PyoObject):
         self._dist = x
         x, lmax = convertArgsToLists(x)
         for i, t in enumerate(x):
-            if type(t) == StringType: x[i] = XNOISE_DICT.get(t, 0)
+            if type(t) == six.text_type: x[i] = XNOISE_DICT.get(t, 0)
         [obj.setType(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
     def setMin(self, x):

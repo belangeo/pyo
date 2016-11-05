@@ -152,7 +152,7 @@ class MyVocoder(PyoObject):
         [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._amps)]
         [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._excs)]
         [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._outs)]
-        if type(chnl) == ListType:
+        if type(chnl) == list:
             self._base_objs = [obj.out(wrap(chnl,i), wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._base_objs)]
         else:
             if chnl < 0:

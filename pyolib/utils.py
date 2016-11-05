@@ -27,7 +27,6 @@ License along with pyo.  If not, see <http://www.gnu.org/licenses/>.
 """
 from ._core import *
 from ._maps import *
-from types import SliceType
 import threading, time
 
 class Clean_objects(threading.Thread):
@@ -251,7 +250,7 @@ class Snap(PyoObject):
         self._scale = scale
         self._in_fader = InputFader(input)
         in_fader, scale, mul, add, lmax = convertArgsToLists(self._in_fader, scale, mul, add)
-        if type(choice[0]) != ListType:
+        if type(choice[0]) != list:
             self._base_objs = [Snap_base(wrap(in_fader,i), choice, wrap(scale,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
         else:
             choicelen = len(choice)

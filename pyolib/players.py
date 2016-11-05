@@ -30,7 +30,6 @@ License along with pyo.  If not, see <http://www.gnu.org/licenses/>.
 from ._core import *
 from ._maps import *
 import aifc
-from types import ListType
 
 class SfPlayer(PyoObject):
     """
@@ -128,11 +127,11 @@ class SfPlayer(PyoObject):
 
         """
         pyoArgsAssert(self, "s", path)
-        if type(self._path) == ListType:
+        if type(self._path) == list:
             curNchnls = sndinfo(self._path[0])[3]
         else:
             curNchnls = sndinfo(self._path)[3]
-        if type(path) == ListType:
+        if type(path) == list:
             p = path[0]
         else:
             p = path

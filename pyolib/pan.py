@@ -29,7 +29,6 @@ License along with pyo.  If not, see <http://www.gnu.org/licenses/>.
 import sys, random
 from ._core import *
 from ._maps import *
-from types import SliceType
 
 class Pan(PyoObject):
     """
@@ -483,7 +482,7 @@ class VoiceManager(PyoObject):
         self._in_fader = InputFader(input)
         in_fader, mul, add, lmax = convertArgsToLists(self._in_fader, mul, add)
         if triggers != None:
-            if type(triggers) == ListType:
+            if type(triggers) == list:
                 try:
                     t_streams = [obj[0] for obj in triggers]
                 except TypeError:
@@ -525,7 +524,7 @@ class VoiceManager(PyoObject):
         #pyoArgsAssert(self, "o", x)
         self._triggers = x
         if x != None:
-            if type(x) == ListType:
+            if type(x) == list:
                 try:
                     t_streams = [obj[0] for obj in x]
                 except TypeError:
@@ -607,7 +606,7 @@ class Mixer(PyoObject):
         self._base_objs = [MixerVoice_base(self._base_players[j], i, wrap(mul,i), wrap(add,i)) for i in range(outs) for j in range(chnls)]
 
     def __getitem__(self, x):
-        if type(x) == SliceType:
+        if type(x) == slice:
             return [self._base_objs[j*self._chnls+i] for j in range(x.start or 0, x.stop or sys.maxint, x.step or 1) for i in range(self._chnls)]
         elif x < len(self._base_objs):
             return [self._base_objs[x*self._chnls+i] for i in range(self._chnls)]

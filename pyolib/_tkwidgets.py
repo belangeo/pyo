@@ -20,7 +20,6 @@ GNU Lesser General Public License for more details.
 You should have received a copy of the GNU Lesser General Public
 License along with pyo.  If not, see <http://www.gnu.org/licenses/>.
 """
-from types import ListType, FloatType, IntType
 import math, sys, os
 from six.moves.tkinter import *
 
@@ -119,7 +118,7 @@ class PyoObjectControl(Frame):
         for i, m in enumerate(self._map_list):
             key, init = m.name, m.init
             # filters PyoObjects
-            if type(init) not in [ListType, FloatType, IntType]:
+            if type(init) not in [list, float, int]:
                 self._excluded.append(key)
             else:
                 self._maps[key] = m
@@ -127,7 +126,7 @@ class PyoObjectControl(Frame):
                 label = Label(self, height=1, width=10, highlightthickness=0, text=key)
                 label.grid(row=i, column=0)
                 # create and pack slider
-                if type(init) != ListType:
+                if type(init) != list:
                     self._sliders.append(Scale(self, command=Command(self.setval, key),
                                   orient=HORIZONTAL, relief=GROOVE, from_=0., to=1., showvalue=False,
                                   resolution=.0001, bd=1, length=225, troughcolor="#BCBCAA", width=12))
@@ -142,7 +141,7 @@ class PyoObjectControl(Frame):
                 display = Label(self, height=disp_height, width=10, highlightthickness=0, textvariable=textvar)
                 display.grid(row=i, column=2)
                 self._displays[key] = textvar
-                if type(init) != ListType:
+                if type(init) != list:
                     self._displays[key].set("%.4f" % init)
                 else:
                     self._displays[key].set("\n".join(["%.4f" % i for i in init]))
@@ -169,7 +168,7 @@ class PyoObjectControl(Frame):
                 del self._sigs[key]
 
     def setval(self, key, x):
-        if type(x) != ListType:
+        if type(x) != list:
             value = self._maps[key].get(float(x))
             self._displays[key].set("%.4f" % value)
         else:

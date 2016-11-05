@@ -39,7 +39,7 @@ License along with pyo.  If not, see <http://www.gnu.org/licenses/>.
 """
 from ._core import *
 from ._maps import *
-from types import ListType, StringType, UnicodeType
+import six
 
 def assertOSCSupport(obj):
     if not withOSC():
@@ -191,7 +191,7 @@ class OscReceive(PyoObject):
         self._base_objs = [OscReceive_base(self._mainReceiver, wrap(address,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
 
     def __getitem__(self, i):
-        if type(i) in [StringType, UnicodeType]:
+        if type(i) in [six.text_type, six.binary_type]:
             return self._base_objs[self._address.index(i)]
         elif i < len(self._base_objs):
             return self._base_objs[i]
@@ -651,7 +651,7 @@ class OscListReceive(PyoObject):
         self._base_objs = [OscListReceive_base(self._mainReceiver, wrap(address,i), j, wrap(mul,i), wrap(add,i)) for i in range(lmax) for j in range(self._num)]
 
     def __getitem__(self, i):
-        if type(i) in [StringType, UnicodeType]:
+        if type(i) in [six.text_type, six.binary_type]:
             first = self._address.index(i) * self._num
             return self._base_objs[first:first+self._num]
         elif i < len(self._base_objs):
@@ -740,7 +740,7 @@ class OscListReceive(PyoObject):
         for i in range(lmax):
             p = wrap(path,i)
             if p in self._address:
-                if type(value[0]) == ListType:
+                if type(value[0]) == list:
                     val = wrap(value,i)
                 else:
                     val = value

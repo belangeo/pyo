@@ -1,6 +1,7 @@
 from __future__ import print_function
 from __future__ import absolute_import
 from six.moves import range
+import six
 """
 Copyright 2009-2015 Olivier Belanger
 
@@ -21,7 +22,6 @@ You should have received a copy of the GNU Lesser General Public
 License along with pyo.  If not, see <http://www.gnu.org/licenses/>.
 """
 import wx, os, sys, math, time, random, unicodedata
-from types import ListType, FloatType, IntType, UnicodeType, TupleType
 import wx.stc as stc
 
 try:
@@ -643,13 +643,13 @@ class RangeSlider(wx.Panel):
         self.knobcolor = "#333333" #SLIDER_KNOB_COLOUR
         self.handlecolor = wx.Colour(int(self.knobcolor[1:3])-10, int(self.knobcolor[3:5])-10, int(self.knobcolor[5:7])-10)
         self.outFunction = function
-        if valtype.startswith('i'): self.myType = IntType
-        else: self.myType = FloatType
+        if valtype.startswith('i'): self.myType = int
+        else: self.myType = float
         self.log = log
         self.SetRange(minvalue, maxvalue)
         self.handles = [minvalue, maxvalue]
         if init != None:
-            if type(init) in [ListType, TupleType]:
+            if type(init) in [list, tuple]:
                 if len(init) == 1:
                     self.SetValue([init[0],init[0]])
                 else:
@@ -808,7 +808,7 @@ class HRangeSlider(RangeSlider):
         else:
             t = tFromValue(value, self.minvalue, self.maxvalue)
             value = interpFloat(t, self.minvalue, self.maxvalue)
-        if self.myType == IntType:
+        if self.myType == int:
             value = int(value)
         self.handles[which] = value
         self.OnResize(None)
@@ -824,7 +824,7 @@ class HRangeSlider(RangeSlider):
             else:
                 t = tFromValue(value, self.minvalue, self.maxvalue)
                 value = interpFloat(t, self.minvalue, self.maxvalue)
-            if self.myType == IntType:
+            if self.myType == int:
                 value = int(value)
             tmp.append(value)
         self.handles = tmp
@@ -838,7 +838,7 @@ class HRangeSlider(RangeSlider):
                 val = toExp(t, self.minvalue, self.maxvalue)
             else:
                 val = value
-            if self.myType == IntType:
+            if self.myType == int:
                 val = int(val)
             tmp.append(val)
         tmp = [min(tmp), max(tmp)]
@@ -911,7 +911,7 @@ class PyoObjectControl(wx.Frame):
         for i, m in enumerate(self._map_list):
             key, init, mini, maxi, scl, res, dataOnly = m.name, m.init, m.min, m.max, m.scale, m.res, m.dataOnly
             # filters PyoObjects
-            if type(init) not in [ListType, FloatType, IntType]:
+            if type(init) not in [list, float, int]:
                 self._excluded.append(key)
             else:
                 self._maps[key] = m
@@ -921,7 +921,7 @@ class PyoObjectControl(wx.Frame):
                 else:
                     label = wx.StaticText(panel, -1, key)
                 # create and pack slider
-                if type(init) != ListType:
+                if type(init) != list:
                     if scl == 'log': scl = True
                     else: scl = False
                     if res == 'int': res = True
@@ -1922,7 +1922,7 @@ class Grapher(wx.Panel):
 
     def pointToValues(self, pt):
         x = pt[0] * self.xlen
-        if type(self.xlen) == IntType:
+        if type(self.xlen) == int:
             x = int(x)
         y = pt[1] * (self.yrange[1]-self.yrange[0]) + self.yrange[0]
         return x, y
@@ -2198,7 +2198,7 @@ class Grapher(wx.Panel):
             ypos = i * ystep + OFF
             dc.DrawLine(OFF, ypos, w-OFF, ypos)
             if i > 0:
-                if type(self.xlen) == IntType:
+                if type(self.xlen) == int:
                     t = "%d" % int(self.xlen * i * 0.1)
                 else:
                     t = "%.2f" % (self.xlen * i * 0.1)
@@ -2323,7 +2323,7 @@ class Grapher(wx.Panel):
         dc.SetTextForeground("#222222")
         posptx, pospty = self.pixelsToPoint(self.pos)
         xval, yval = self.pointToValues((posptx, pospty))
-        if type(self.xlen) == IntType:
+        if type(self.xlen) == int:
             dc.DrawText("%d, %.3f" % (xval, yval), w-75, OFF)
         else:
             dc.DrawText("%.3f, %.3f" % (xval, yval), w-75, OFF)
@@ -2368,7 +2368,7 @@ class TableGrapher(wx.Frame):
             pstr = "["
             for i, pt in enumerate(pts):
                 pstr += "("
-                if type(pt[0]) == IntType:
+                if type(pt[0]) == int:
                     pstr += "%d," % pt[0]
                 else:
                     pstr += "%.4f," % pt[0]
@@ -2966,7 +2966,7 @@ def ensureNFD(unistr):
                      'macroman', 'iso-8859-1', 'utf-16']
         format = 'NFC'
     decstr = unistr
-    if type(decstr) != UnicodeType:
+    if type(decstr) != six.text_type:
         for encoding in encodings:
             try:
                 decstr = decstr.decode(encoding)

@@ -3,6 +3,8 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import absolute_import
 from six.moves import range
+from six.moves import builtins
+import six
 """
 Copyright 2009-2015 Olivier Belanger
 
@@ -27,8 +29,7 @@ import random, os, sys, inspect, tempfile
 from subprocess import call
 from weakref import proxy
 
-import six.moves.builtins
-if hasattr(__builtin__, 'pyo_use_double'):
+if hasattr(builtins, 'pyo_use_double'):
     import pyo64 as current_pyo
     from _pyo64 import *
 else:
@@ -131,11 +132,9 @@ def pyoArgsAssert(obj, format, *args):
     """
     if sys.version_info[0] < 3:
         # Python 2
-        unicodeType = str
         longType = int
     else:
         # Python 3
-        unicodeType = str
         # Not used in Python 3, ignore it
         longType = None
 
@@ -181,10 +180,10 @@ def pyoArgsAssert(obj, format, *args):
             if argtype not in [int, longType]:
                 expected = "integer - list not allowed"
         elif f == "s":
-            if argtype not in [list, bytes, unicodeType]:
+            if argtype not in [list, bytes, six.text_type]:
                 expected = "string"
         elif f == "S":
-            if argtype not in [bytes, unicodeType]:
+            if argtype not in [bytes, six.text_type]:
                 expected = "string - list not allowed"
         elif f == "b":
             if argtype not in [bool, list, int, longType]:
@@ -232,7 +231,7 @@ def convertStringToSysEncoding(str):
             String to convert.
 
     """
-    if type(str) != UnicodeType:
+    if type(str) != six.text_type:
         str = str.decode("utf-8")
     str = str.encode(sys.getfilesystemencoding())
     return str
@@ -245,7 +244,7 @@ def convertArgsToLists(*args):
     """
     converted = []
     for i in args:
-        if isinstance(i, PyoObjectBase) or type(i) == ListType:
+        if isinstance(i, PyoObjectBase) or type(i) == list:
             converted.append(i)
         else:
             converted.append([i])
@@ -302,7 +301,7 @@ def example(cls, dur=5, toprint=True, double=False):
         return
 
     ex_lines = [line.lstrip("    ") for line in lines if ">>>" in line or "..." in line]
-    if hasattr(__builtin__, 'pyo_use_double') or double:
+    if hasattr(builtins, 'pyo_use_double') or double:
         ex = "import time\nfrom pyo64 import *\n"
     else:
         ex = "import time\nfrom pyo import *\n"
@@ -320,9 +319,9 @@ def example(cls, dur=5, toprint=True, double=False):
     p = call(["python", f.name])
 
 def removeExtraDecimals(x):
-    if type(x) == FloatType:
+    if type(x) == float:
         return "=%.2f" % x
-    elif type(x) == StringType:
+    elif type(x) == six.text_type:
         return '="%s"' % x
     else:
         return "=" + str(x)
@@ -376,7 +375,7 @@ def getVersion():
     return (int(major), int(minor), int(rev))
 
 def getWeakMethodRef(x):
-    if type(x) in [ListType, TupleType]:
+    if type(x) in [list, tuple]:
         tmp = []
         for y in x:
             if hasattr(y, "__self__"):
@@ -494,10 +493,10 @@ class PyoObjectBase(object):
     def __getitem__(self, i):
         if i == 'trig': # not safe...
             return self._trig_objs
-        if type(i) == SliceType or i < len(self._base_objs):
+        if type(i) == slice or i < len(self._base_objs):
             return self._base_objs[i]
         else:
-            if type(i) == StringType:
+            if type(i) == six.text_type:
                 print("Object %s has no stream named '%s'!" % (self.__class__.__name__, i))
             else:
                 print("'i' too large in slicing %s object %s!" % (self._STREAM_TYPE, self.__class__.__name__))
@@ -842,7 +841,7 @@ class PyoObject(PyoObjectBase):
         pyoArgsAssert(self, "nn", dur, delay)
         dur, delay, lmax = convertArgsToLists(dur, delay)
         if hasattr(self, "_trig_objs"):
-            if type(self._trig_objs) == ListType:
+            if type(self._trig_objs) == list:
                 for i in range(lmax):
                     for obj in self._trig_objs:
                         obj.play(wrap(dur,i), wrap(delay,i))
@@ -887,7 +886,7 @@ class PyoObject(PyoObjectBase):
         pyoArgsAssert(self, "iInn", chnl, inc, dur, delay)
         dur, delay, lmax = convertArgsToLists(dur, delay)
         if hasattr(self, "_trig_objs"):
-            if type(self._trig_objs) == ListType:
+            if type(self._trig_objs) == list:
                 for i in range(lmax):
                     for obj in self._trig_objs:
                         obj.play(wrap(dur,i), wrap(delay,i))
@@ -895,7 +894,7 @@ class PyoObject(PyoObjectBase):
                 self._trig_objs.play(dur, delay)
         if hasattr(self, "_base_players"):
             [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._base_players)]
-        if type(chnl) == ListType:
+        if type(chnl) == list:
             [obj.out(wrap(chnl,i), wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._base_objs)]
         else:
             if chnl < 0:
@@ -913,7 +912,7 @@ class PyoObject(PyoObjectBase):
 
         """
         if hasattr(self, "_trig_objs"):
-            if type(self._trig_objs) == ListType:
+            if type(self._trig_objs) == list:
                 [obj.stop() for obj in self._trig_objs]
             else:
                 self._trig_objs.stop()
@@ -1302,7 +1301,7 @@ class PyoTableObject(PyoObjectBase):
         if all:
             return [obj.getSize() for obj in self._base_objs]
         else:
-            if type(self._size) == ListType:
+            if type(self._size) == list:
                 return self._size[0]
             else:
                 return self._size
@@ -1511,8 +1510,8 @@ class PyoTableObject(PyoObjectBase):
 
         """
         pyoArgsAssert(self, "T", x)
-        if type(x) == ListType:
-            if type(x[0]) == ListType:
+        if type(x) == list:
+            if type(x[0]) == list:
                 [obj.add(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
             else:
                 [obj.add(x) for obj in self._base_objs]
@@ -1536,8 +1535,8 @@ class PyoTableObject(PyoObjectBase):
 
         """
         pyoArgsAssert(self, "T", x)
-        if type(x) == ListType:
-            if type(x[0]) == ListType:
+        if type(x) == list:
+            if type(x[0]) == list:
                 [obj.sub(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
             else:
                 [obj.sub(x) for obj in self._base_objs]
@@ -1561,8 +1560,8 @@ class PyoTableObject(PyoObjectBase):
 
         """
         pyoArgsAssert(self, "T", x)
-        if type(x) == ListType:
-            if type(x[0]) == ListType:
+        if type(x) == list:
+            if type(x[0]) == list:
                 [obj.mul(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
             else:
                 [obj.mul(x) for obj in self._base_objs]
@@ -1624,7 +1623,7 @@ class PyoTableObject(PyoObjectBase):
         args = [getattr(self, att) for att in self.__dir__()]
         if self.__class__.__name__ == "SndTable":
             _size = self.getSize()
-            if type(_size) != ListType:
+            if type(_size) != list:
                 _size = [_size]
             _chnls = len(self._base_objs)
             args[0] = None
@@ -2057,7 +2056,7 @@ class Mix(PyoObject):
         PyoObject.__init__(self, mul, add)
         self._input = input
         mul, add, lmax = convertArgsToLists(mul, add)
-        if type(input) == ListType:
+        if type(input) == list:
             input_objs = []
             input_objs = [obj for pyoObj in input for obj in pyoObj.getBaseObjects()]
         else:

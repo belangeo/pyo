@@ -25,7 +25,7 @@ if sys.platform == "linux2":
 
 import os, string, inspect, keyword, wx, codecs, subprocess, unicodedata
 import contextlib, StringIO, shutil, copy, pprint, random, time, threading
-from types import UnicodeType, MethodType, ListType
+from types import UnicodeType, MethodType, list
 from wx.lib.wordwrap import wordwrap
 from wx.lib.embeddedimage import PyEmbeddedImage
 import wx.lib.colourselect as csel
@@ -2527,7 +2527,7 @@ class MainFrame(wx.Frame):
             with open(path, "r") as f:
                 try:
                     pastingList = eval(f.read())
-                    if type(pastingList) == ListType:
+                    if type(pastingList) == list:
                         self.pastingList = pastingList
                 except:
                     f.seek(0)
@@ -4632,7 +4632,7 @@ class Editor(stc.StyledTextCtrl):
             key = dic.keys()[0]
         except:
             return
-        if type(dic[key]) != ListType:
+        if type(dic[key]) != list:
             return
         self.markers_dict = dic
         for handle in self.markers_dict.keys():
@@ -6126,7 +6126,7 @@ class EPyoApp(wx.App):
         return True
 
     def MacOpenFiles(self, filenames):
-        if type(filenames) != ListType:
+        if type(filenames) != list:
             filenames = [filenames]
         for filename in filenames:
             if os.path.isdir(filename):

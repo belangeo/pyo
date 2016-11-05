@@ -23,7 +23,6 @@ License along with pyo.  If not, see <http://www.gnu.org/licenses/>.
 from ._core import *
 from ._maps import *
 from ._widgets import createGraphWindow, createDataGraphWindow, createSndViewTableWindow
-from types import ListType
 from math import pi
 import copy
 
@@ -1444,7 +1443,7 @@ class SndTable(PyoTableObject):
 
         """
         self._path = path
-        if type(path) == ListType:
+        if type(path) == list:
             self._size = []
             self._dur = []
             path, lmax = convertArgsToLists(path)
@@ -1491,7 +1490,7 @@ class SndTable(PyoTableObject):
                 means the end of the file.
 
         """
-        if type(path) == ListType:
+        if type(path) == list:
             self._size = []
             self._dur = []
             path, lmax = convertArgsToLists(path)
@@ -1543,7 +1542,7 @@ class SndTable(PyoTableObject):
                 means the end of the file.
 
         """
-        if type(path) == ListType:
+        if type(path) == list:
             self._size = []
             self._dur = []
             path, lmax = convertArgsToLists(path)
@@ -1579,7 +1578,7 @@ class SndTable(PyoTableObject):
                 first duration as a float.
 
         """
-        if type(self._path) == ListType:
+        if type(self._path) == list:
             _rate = [obj.getRate() for obj in self._base_objs]
         else:
             _rate = self._base_objs[0].getRate()
@@ -1587,7 +1586,7 @@ class SndTable(PyoTableObject):
         if all:
             return _rate
         else:
-            if type(_rate) == ListType:
+            if type(_rate) == list:
                 return _rate[0]
             else:
                 return _rate
@@ -1604,7 +1603,7 @@ class SndTable(PyoTableObject):
                 first duration as a float.
 
         """
-        if type(self._path) == ListType:
+        if type(self._path) == list:
             _dur = [1./obj.getRate() for obj in self._base_objs]
         else:
             _dur = 1./self._base_objs[0].getRate()
@@ -1612,7 +1611,7 @@ class SndTable(PyoTableObject):
         if all:
             return _dur
         else:
-            if type(_dur) == ListType:
+            if type(_dur) == list:
                 return _dur[0]
             else:
                 return _dur
@@ -1640,7 +1639,7 @@ class SndTable(PyoTableObject):
         if all:
             return _size
         else:
-            if type(_size) == ListType:
+            if type(_size) == list:
                 return _size[0]
             else:
                 return _size
@@ -1806,7 +1805,7 @@ class NewTable(PyoTableObject):
         if init == None:
             self._base_objs = [NewTable_base(length, None, feedback) for i in range(chnls)]
         else:
-            if type(init[0]) != ListType:
+            if type(init[0]) != list:
                 init = [init]
             self._base_objs = [NewTable_base(length, wrap(init,i), feedback) for i in range(chnls)]
         self._size = self._base_objs[0].getSize()
@@ -1825,7 +1824,7 @@ class NewTable(PyoTableObject):
 
         """
         pyoArgsAssert(self, "l", x)
-        if type(x[0]) != ListType:
+        if type(x[0]) != list:
             x = [x]
         [obj.setTable(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
         self.refreshView()
@@ -1996,7 +1995,7 @@ class DataTable(PyoTableObject):
         if init == None:
             self._base_objs = [DataTable_base(size) for i in range(chnls)]
         else:
-            if type(init[0]) != ListType:
+            if type(init[0]) != list:
                 init = [init]
             self._base_objs = [DataTable_base(size, wrap(init,i)) for i in range(chnls)]
 
@@ -2014,7 +2013,7 @@ class DataTable(PyoTableObject):
 
         """
         pyoArgsAssert(self, "l", x)
-        if type(x[0]) != ListType:
+        if type(x[0]) != list:
             x = [x]
         [obj.setTable(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
         self.refreshView()
