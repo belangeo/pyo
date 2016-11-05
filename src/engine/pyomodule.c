@@ -328,26 +328,19 @@ print : boolean, optional\n        If True, sndinfo will print sound infos to th
 
 static PyObject *
 sndinfo(PyObject *self, PyObject *args, PyObject *kwds) {
-
     SNDFILE *sf;
     SF_INFO info;
-    char *pathtmp;
     char *path;
     char fileformat[5];
-    char *sampletype;
-    int format;
-    int subformat;
-    int print = 0;
+    char sampletype[16];
+    int format, subformat, print = 0;
 
     static char *kwlist[] = {"path", "print", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "s|i", kwlist, &pathtmp, &print)) {
-        PySys_WriteStderr("sndinfo: failed to open the file.\n");
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "s|i", kwlist, &path, &print)) {
+        PySys_WriteStderr("sndinfo: called with wrong arguments.\n");
         Py_RETURN_NONE;
     }
-
-    path = malloc(strlen(pathtmp)+1);
-    strcpy(path, pathtmp);
 
     /* Open the sound file. */
     info.format = 0;
@@ -356,114 +349,64 @@ sndinfo(PyObject *self, PyObject *args, PyObject *kwds) {
         PySys_WriteStderr("sndinfo: failed to open the file.\n");
         Py_RETURN_NONE;
     }
-    else {
-        /* Retrieve file format */
-        format = (int)info.format;
-        if (format > SF_FORMAT_WAV && format < SF_FORMAT_AIFF) {
-            strcpy(fileformat, "WAVE");
-            subformat = format - SF_FORMAT_WAV;
-        }
-        else if (format > SF_FORMAT_AIFF && format < SF_FORMAT_AU) {
-            strcpy(fileformat, "AIFF");
-            subformat = format - SF_FORMAT_AIFF;
-        }
-        else if (format > SF_FORMAT_AU && format < SF_FORMAT_RAW) {
-            strcpy(fileformat, "AU");
-            subformat = format - SF_FORMAT_AU;
-        }
-        else if (format > SF_FORMAT_RAW && format < SF_FORMAT_PAF) {
-            strcpy(fileformat, "RAW");
-            subformat = format - SF_FORMAT_RAW;
-        }
-        else if (format > SF_FORMAT_SD2 && format < SF_FORMAT_FLAC) {
-            strcpy(fileformat, "SD2");
-            subformat = format - SF_FORMAT_SD2;
-        }
-        else if (format > SF_FORMAT_FLAC && format < SF_FORMAT_CAF) {
-            strcpy(fileformat, "FLAC");
-            subformat = format - SF_FORMAT_FLAC;
-        }
-        else if (format > SF_FORMAT_CAF && format < SF_FORMAT_WVE) {
-            strcpy(fileformat, "CAF");
-            subformat = format - SF_FORMAT_CAF;
-        }
-        else if (format > SF_FORMAT_OGG && format < SF_FORMAT_MPC2K) {
-            strcpy(fileformat, "OGG");
-            subformat = format - SF_FORMAT_OGG;
-        }
-        else if (format > SF_FORMAT_RF64 && format < 0x230000) {
-            strcpy(fileformat, "RF64");
-            subformat = format - SF_FORMAT_RF64;
-        }
-        else {
-            strcpy(fileformat, "????");
-            subformat = -1;
-        }
-        /* Retrieve sample type */
-        if (subformat != -1) {
-            switch (subformat) {
-                case SF_FORMAT_PCM_S8:
-                    sampletype = malloc(strlen("s8 bit int") + 1);
-                    strcpy(sampletype, "s8 bit int");
-                    break;
-                case SF_FORMAT_PCM_U8:
-                    sampletype = malloc(strlen("u8 bit int") + 1);
-                    strcpy(sampletype, "u8 bit int");
-                    break;
-                case SF_FORMAT_PCM_16:
-                    sampletype = malloc(strlen("16 bit int") + 1);
-                    strcpy(sampletype, "16 bit int");
-                    break;
-                case SF_FORMAT_PCM_24:
-                    sampletype = malloc(strlen("24 bit int") + 1);
-                    strcpy(sampletype, "24 bit int");
-                    break;
-                case SF_FORMAT_PCM_32:
-                    sampletype = malloc(strlen("32 bit int") + 1);
-                    strcpy(sampletype, "32 bit int");
-                    break;
-                case SF_FORMAT_FLOAT:
-                    sampletype = malloc(strlen("32 bit float") + 1);
-                    strcpy(sampletype, "32 bit float");
-                    break;
-                case SF_FORMAT_DOUBLE:
-                    sampletype = malloc(strlen("64 bit float") + 1);
-                    strcpy(sampletype, "64 bit float");
-                    break;
-                case SF_FORMAT_ULAW:
-                    sampletype = malloc(strlen("U-Law encoded") + 1);
-                    strcpy(sampletype, "U-Law encoded");
-                    break;
-                case SF_FORMAT_ALAW:
-                    sampletype = malloc(strlen("A-Law encoded") + 1);
-                    strcpy(sampletype, "A-Law encoded");
-                    break;
-                case SF_FORMAT_VORBIS:
-                    sampletype = malloc(strlen("vorbis encoding") + 1);
-                    strcpy(sampletype, "vorbis encoding");
-                    break;
-                default:
-                    /* PySys_WriteStdout("%d\n", subformat); */
-                    sampletype = malloc(strlen("Unknown...") + 1);
-                    strcpy(sampletype, "Unknown...");
-                    break;
-            }
-        }
-        else {
-            sampletype = malloc(strlen("Unknown...") + 1);
-            strcpy(sampletype, "Unknown...");
-        }
 
-        if (print)
-            PySys_WriteStdout("name: %s\nnumber of frames: %i\nduration: %.4f sec\nsr: %.2f\nchannels: %i\nformat: %s\nsample type: %s\n",
-                    path, (int)info.frames, ((float)info.frames / info.samplerate), (float)info.samplerate, (int)info.channels, fileformat, sampletype);
-        PyObject *sndinfo = PyTuple_Pack(6, PyInt_FromLong(info.frames), PyFloat_FromDouble((float)info.frames / info.samplerate),
-            PyFloat_FromDouble(info.samplerate), PyInt_FromLong(info.channels), PyString_FromString(fileformat), PyString_FromString(sampletype));
-        sf_close(sf);
-        free(path);
-        free(sampletype);
-        return sndinfo;
-    }
+    /* Retrieve file format */
+    format = (int)info.format & SF_FORMAT_TYPEMASK;
+    subformat = (int)info.format & SF_FORMAT_SUBMASK;
+    if (format == SF_FORMAT_WAV)
+        strcpy(fileformat, "WAVE");
+    else if (format == SF_FORMAT_AIFF)
+        strcpy(fileformat, "AIFF");
+    else if (format == SF_FORMAT_AU)
+        strcpy(fileformat, "AU");
+    else if (format == SF_FORMAT_RAW)
+        strcpy(fileformat, "RAW");
+    else if (format == SF_FORMAT_SD2)
+        strcpy(fileformat, "SD2");
+    else if (format == SF_FORMAT_FLAC)
+        strcpy(fileformat, "FLAC");
+    else if (format == SF_FORMAT_CAF)
+        strcpy(fileformat, "CAF");
+    else if (format == SF_FORMAT_OGG)
+        strcpy(fileformat, "OGG");
+    else if (format == SF_FORMAT_RF64)
+        strcpy(fileformat, "RF64");
+    else
+        strcpy(fileformat, "????");
+
+    /* Retrieve sample type */
+    if (subformat == SF_FORMAT_PCM_S8)
+        strcpy(sampletype, "s8 bit int");
+    else if (subformat == SF_FORMAT_PCM_U8)
+        strcpy(sampletype, "u8 bit int");
+    else if (subformat == SF_FORMAT_PCM_16)
+        strcpy(sampletype, "16 bit int");
+    else if (subformat == SF_FORMAT_PCM_24)
+        strcpy(sampletype, "24 bit int");
+    else if (subformat == SF_FORMAT_PCM_32)
+        strcpy(sampletype, "32 bit int");
+    else if (subformat == SF_FORMAT_FLOAT)
+        strcpy(sampletype, "32 bit float");
+    else if (subformat == SF_FORMAT_DOUBLE)
+        strcpy(sampletype, "64 bit float");
+    else if (subformat == SF_FORMAT_ULAW)
+        strcpy(sampletype, "U-Law encoded");
+    else if (subformat == SF_FORMAT_ALAW)
+        strcpy(sampletype, "A-Law encoded");
+    else if (subformat == SF_FORMAT_VORBIS)
+        strcpy(sampletype, "vorbis encoding");
+    else
+        strcpy(sampletype, "Unknown...");
+
+    if (print)
+        PySys_WriteStdout("name: %s\nnumber of frames: %i\nduration: %.4f sec\nsr: %.2f\nchannels: %i\nformat: %s\nsample type: %s\n",
+                          path, (int)info.frames, ((float)info.frames / info.samplerate), (float)info.samplerate, (int)info.channels, 
+                          fileformat, sampletype);
+    PyObject *sndinfo = PyTuple_Pack(6, PyInt_FromLong(info.frames), PyFloat_FromDouble((float)info.frames / info.samplerate),
+                                        PyFloat_FromDouble(info.samplerate), PyInt_FromLong(info.channels), 
+                                        PyString_FromString(fileformat), PyString_FromString(sampletype));
+    sf_close(sf);
+    return sndinfo;
 }
 
 #define savefile_info \
