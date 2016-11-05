@@ -1865,11 +1865,20 @@ module_add_object(PyObject *module, const char *name, PyTypeObject *type) {
 }
 
 PyMODINIT_FUNC
+#if PY_MAJOR_VERSION >= 3
+#ifndef USE_DOUBLE
+PyInit__pyo(void)
+#else
+PyInit__pyo64(void)
+#endif
+#else
 #ifndef USE_DOUBLE
 init_pyo(void)
 #else
 init_pyo64(void)
 #endif
+#endif
+
 {
     PyObject *m;
 
