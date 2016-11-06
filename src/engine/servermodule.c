@@ -975,7 +975,6 @@ Server_generateSeed(Server *self, int oid)
     count = ++rnd_objs_count[oid];
     mult = rnd_objs_mult[oid];
 
-    printf("globalSeed : %i\n", self->globalSeed);
     if (self->globalSeed > 0) {
         curseed = (self->globalSeed + count * mult) % PYO_RAND_MAX;
     }
@@ -985,7 +984,6 @@ Server_generateSeed(Server *self, int oid)
     }
 
     PYO_RAND_SEED = curseed;
-    printf("set seed to : %u\n", PYO_RAND_SEED);
 
     return 0;
 }
