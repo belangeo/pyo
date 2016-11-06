@@ -25,7 +25,7 @@ if sys.platform == "linux2":
 
 import os, string, inspect, keyword, wx, codecs, subprocess, unicodedata
 import contextlib, StringIO, shutil, copy, pprint, random, time, threading
-from types import UnicodeType, MethodType, list
+from types import UnicodeType, MethodType
 from wx.lib.wordwrap import wordwrap
 from wx.lib.embeddedimage import PyEmbeddedImage
 import wx.lib.colourselect as csel
