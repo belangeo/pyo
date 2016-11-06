@@ -17,6 +17,6 @@ GNU Lesser General Public License for more details.
 You should have received a copy of the GNU Lesser General Public
 License along with pyo.  If not, see <http://www.gnu.org/licenses/>.
 """
-import __builtin__
-__builtin__.pyo_use_double = True
+from six.moves import builtins
+builtins.pyo_use_double = True
 from pyo import *
