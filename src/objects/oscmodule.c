@@ -19,6 +19,7 @@
  *************************************************************************/
 
 #include <Python.h>
+#include "py2to3.h"
 #include "structmember.h"
 #include <math.h>
 #include "pyomodule.h"
@@ -45,7 +46,7 @@ int OscReceiver_handler(const char *path, const char *types, lo_arg **argv, int 
                         void *data, void *user_data)
 {
     OscReceiver *self = user_data;
-    PyDict_SetItem(self->dict, PyString_FromString(path), PyFloat_FromDouble(argv[0]->FLOAT_VALUE));
+    PyDict_SetItem(self->dict, PyUnicode_FromString(path), PyFloat_FromDouble(argv[0]->FLOAT_VALUE));
     return 0;
 }
 
@@ -86,7 +87,7 @@ OscReceiver_dealloc(OscReceiver* self)
     lo_server_free(self->osc_server);
     pyo_DEALLOC
     OscReceiver_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -137,7 +138,7 @@ static PyObject *
 OscReceiver_addAddress(OscReceiver *self, PyObject *arg)
 {
     int i;
-    if (PyString_Check(arg) || PyUnicode_Check(arg)) {
+    if (PyUnicode_Check(arg) || PyUnicode_Check(arg)) {
         PyDict_SetItem(self->dict, arg, PyFloat_FromDouble(0.));
     }
     else if (PyList_Check(arg)) {
@@ -154,7 +155,7 @@ static PyObject *
 OscReceiver_delAddress(OscReceiver *self, PyObject *arg)
 {
     int i;
-    if (PyString_Check(arg) || PyUnicode_Check(arg)) {
+    if (PyUnicode_Check(arg) || PyUnicode_Check(arg)) {
         PyDict_DelItem(self->dict, arg);
     }
     else if (PyList_Check(arg)) {
@@ -200,8 +201,7 @@ static PyMethodDef OscReceiver_methods[] = {
 };
 
 PyTypeObject OscReceiverType = {
-PyObject_HEAD_INIT(NULL)
-0,                         /*ob_size*/
+PyVarObject_HEAD_INIT(NULL, 0)
 "_pyo.OscReceiver_base",         /*tp_name*/
 sizeof(OscReceiver),         /*tp_basicsize*/
 0,                         /*tp_itemsize*/
@@ -209,7 +209,7 @@ sizeof(OscReceiver),         /*tp_basicsize*/
 0,                         /*tp_print*/
 0,                         /*tp_getattr*/
 0,                         /*tp_setattr*/
-0,                         /*tp_compare*/
+0,                         /*tp_as_async (tp_compare in Python 2)*/
 0,                         /*tp_repr*/
 0,             /*tp_as_number*/
 0,                         /*tp_as_sequence*/
@@ -343,7 +343,7 @@ OscReceive_dealloc(OscReceive* self)
 {
     pyo_DEALLOC
     OscReceive_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -385,7 +385,7 @@ OscReceive_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
-    if (!PyString_Check(pathtmp) && !PyUnicode_Check(pathtmp)) {
+    if (!PyUnicode_Check(pathtmp) && !PyUnicode_Check(pathtmp)) {
         PyErr_SetString(PyExc_TypeError, "The address attributes must be a string or a unicode.");
         Py_RETURN_NONE;
     }
@@ -454,7 +454,7 @@ static PyNumberMethods OscReceive_as_number = {
     (binaryfunc)OscReceive_add,                      /*nb_add*/
     (binaryfunc)OscReceive_sub,                 /*nb_subtract*/
     (binaryfunc)OscReceive_multiply,                 /*nb_multiply*/
-    (binaryfunc)OscReceive_div,                   /*nb_divide*/
+    INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
     0,                /*nb_remainder*/
     0,                   /*nb_divmod*/
     0,                   /*nb_power*/
@@ -468,16 +468,16 @@ static PyNumberMethods OscReceive_as_number = {
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    0,                                          /*nb_coerce*/
+    INITIALIZE_NB_COERCE_ZERO                   /*nb_coerce*/
     0,                       /*nb_int*/
     0,                      /*nb_long*/
     0,                     /*nb_float*/
-    0,                       /*nb_oct*/
-    0,                       /*nb_hex*/
+    INITIALIZE_NB_OCT_ZERO   /*nb_oct*/
+    INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
     (binaryfunc)OscReceive_inplace_add,              /*inplace_add*/
     (binaryfunc)OscReceive_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)OscReceive_inplace_multiply,         /*inplace_multiply*/
-    (binaryfunc)OscReceive_inplace_div,           /*inplace_divide*/
+    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
     0,        /*inplace_remainder*/
     0,           /*inplace_power*/
     0,       /*inplace_lshift*/
@@ -486,15 +486,14 @@ static PyNumberMethods OscReceive_as_number = {
     0,      /*inplace_xor*/
     0,       /*inplace_or*/
     0,             /*nb_floor_divide*/
-    0,              /*nb_true_divide*/
+    (binaryfunc)OscReceive_div,                       /*nb_true_divide*/
     0,     /*nb_inplace_floor_divide*/
-    0,      /*nb_inplace_true_divide*/
+    (binaryfunc)OscReceive_inplace_div,                       /*nb_inplace_true_divide*/
     0,                     /* nb_index */
 };
 
 PyTypeObject OscReceiveType = {
-    PyObject_HEAD_INIT(NULL)
-    0,                         /*ob_size*/
+    PyVarObject_HEAD_INIT(NULL, 0)
     "_pyo.OscReceive_base",         /*tp_name*/
     sizeof(OscReceive),         /*tp_basicsize*/
     0,                         /*tp_itemsize*/
@@ -502,7 +501,7 @@ PyTypeObject OscReceiveType = {
     0,                         /*tp_print*/
     0,                         /*tp_getattr*/
     0,                         /*tp_setattr*/
-    0,                         /*tp_compare*/
+    0,                         /*tp_as_async (tp_compare in Python 2)*/
     0,                         /*tp_repr*/
     &OscReceive_as_number,             /*tp_as_number*/
     0,                         /*tp_as_sequence*/
@@ -557,10 +556,10 @@ OscSend_compute_next_data_frame(OscSend *self)
         MYFLT *in = Stream_getData((Stream *)self->input_stream);
         float value = (float)in[0];
 
-        if (PyString_Check(self->address_path))
-            path = PyString_AsString(self->address_path);
+        if (PyUnicode_Check(self->address_path))
+            path = PyBytes_AsString(self->address_path);
         else
-            path = PyString_AsString(PyUnicode_AsASCIIString(self->address_path));
+            path = PyBytes_AsString(PyUnicode_AsASCIIString(self->address_path));
 
         if (lo_send(self->address, path, "f", value) == -1) {
             PySys_WriteStdout("OSC error %d: %s\n", lo_address_errno(self->address), 
@@ -594,7 +593,7 @@ OscSend_dealloc(OscSend* self)
 {
     pyo_DEALLOC
     OscSend_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -621,8 +620,8 @@ OscSend_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
-    if (!PyString_Check(pathtmp) && !PyUnicode_Check(pathtmp)) {
-        PyErr_SetString(PyExc_TypeError, "The address attributes must be a string or a unicode.");
+    if (!PyBytes_Check(pathtmp) && !PyUnicode_Check(pathtmp)) {
+        PyErr_SetString(PyExc_TypeError, "The address attributes must be a string or a unicode (bytes or string in Python 3).");
         Py_RETURN_NONE;
     }
 
@@ -673,8 +672,7 @@ static PyMethodDef OscSend_methods[] = {
 };
 
 PyTypeObject OscSendType = {
-PyObject_HEAD_INIT(NULL)
-0,                         /*ob_size*/
+PyVarObject_HEAD_INIT(NULL, 0)
 "_pyo.OscSend_base",         /*tp_name*/
 sizeof(OscSend),         /*tp_basicsize*/
 0,                         /*tp_itemsize*/
@@ -682,7 +680,7 @@ sizeof(OscSend),         /*tp_basicsize*/
 0,                         /*tp_print*/
 0,                         /*tp_getattr*/
 0,                         /*tp_setattr*/
-0,                         /*tp_compare*/
+0,                         /*tp_as_async (tp_compare in Python 2)*/
 0,                         /*tp_repr*/
 0,             /*tp_as_number*/
 0,                         /*tp_as_sequence*/
@@ -740,10 +738,10 @@ OscDataSend_compute_next_data_frame(OscDataSend *self)
     lo_message *msg;
 
     if (self->something_to_send == 1) {
-        if (PyString_Check(self->address_path))
-            path = PyString_AsString(self->address_path);
+        if (PyUnicode_Check(self->address_path))
+            path = PyBytes_AsString(self->address_path);
         else
-            path = PyString_AsString(PyUnicode_AsASCIIString(self->address_path));
+            path = PyBytes_AsString(PyUnicode_AsASCIIString(self->address_path));
         msg = lo_message_new();
 
         for (i=0; i<self->num_items; i++) {
@@ -761,17 +759,17 @@ OscDataSend_compute_next_data_frame(OscDataSend *self)
                     lo_message_add_double(msg, (double)PyFloat_AsDouble(PyList_GET_ITEM(self->value, i)));
                     break;
                 case LO_STRING:
-                    lo_message_add_string(msg, PyString_AsString(PyList_GET_ITEM(self->value, i)));
+                    lo_message_add_string(msg, PyBytes_AsString(PyList_GET_ITEM(self->value, i)));
                     break;
                 case LO_CHAR:
-                    lo_message_add_char(msg, (char)PyString_AsString(PyList_GET_ITEM(self->value, i))[0]);
+                    lo_message_add_char(msg, (char)PyBytes_AsString(PyList_GET_ITEM(self->value, i))[0]);
                     break;
                 case LO_BLOB:
                     datalist = PyList_GET_ITEM(self->value, i);
                     blobsize = PyList_Size(datalist);
                     blobdata = (char *)malloc(blobsize * sizeof(char));
                     for (j=0; j<blobsize; j++) {
-                        blobdata[j] = (char)PyString_AsString(PyList_GET_ITEM(datalist, j))[0];
+                        blobdata[j] = (char)PyBytes_AsString(PyList_GET_ITEM(datalist, j))[0];
                     }
                     blob = lo_blob_new(blobsize * sizeof(char), blobdata);
                     lo_message_add_blob(msg, blob);
@@ -832,7 +830,7 @@ OscDataSend_dealloc(OscDataSend* self)
 {
     pyo_DEALLOC
     OscDataSend_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -855,8 +853,8 @@ OscDataSend_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
-    if (!PyString_Check(pathtmp) && !PyUnicode_Check(pathtmp)) {
-        PyErr_SetString(PyExc_TypeError, "The address attributes must be of type string or unicode.");
+    if (!PyBytes_Check(pathtmp) && !PyUnicode_Check(pathtmp)) {
+        PyErr_SetString(PyExc_TypeError, "The address attributes must be of type string or unicode (bytes or string in Python 3).");
         Py_RETURN_NONE;
     }
 
@@ -916,8 +914,7 @@ static PyMethodDef OscDataSend_methods[] = {
 };
 
 PyTypeObject OscDataSendType = {
-    PyObject_HEAD_INIT(NULL)
-    0,                         /*ob_size*/
+    PyVarObject_HEAD_INIT(NULL, 0)
     "_pyo.OscDataSend_base",         /*tp_name*/
     sizeof(OscDataSend),         /*tp_basicsize*/
     0,                         /*tp_itemsize*/
@@ -925,7 +922,7 @@ PyTypeObject OscDataSendType = {
     0,                         /*tp_print*/
     0,                         /*tp_getattr*/
     0,                         /*tp_setattr*/
-    0,                         /*tp_compare*/
+    0,                         /*tp_as_async (tp_compare in Python 2)*/
     0,                         /*tp_repr*/
     0,             /*tp_as_number*/
     0,                         /*tp_as_sequence*/
@@ -976,25 +973,26 @@ int OscDataReceive_handler(const char *path, const char *types, lo_arg **argv, i
     uint32_t blobsize = 0;
     PyObject *charlist = NULL; 
     tup = PyTuple_New(argc+1);
-    int i, ok = 0, j = 0;
+    int i, ok = 0;
+    uint32_t j = 0;
 
     Py_ssize_t lsize = PyList_Size(self->address_path);
     for (i=0; i<lsize; i++) {
-        if (PyString_Check(PyList_GET_ITEM(self->address_path, i))) {
-            if (lo_pattern_match(path, PyString_AsString(PyList_GET_ITEM(self->address_path, i)))) {
+        if (PyUnicode_Check(PyList_GET_ITEM(self->address_path, i))) {
+            if (lo_pattern_match(path, PyBytes_AsString(PyList_GET_ITEM(self->address_path, i)))) {
                 ok = 1;
                 break;
             }
         }
         else {
-            if (lo_pattern_match(path, PyString_AsString(PyUnicode_AsASCIIString(PyList_GET_ITEM(self->address_path, i))))) {
+            if (lo_pattern_match(path, PyBytes_AsString(PyUnicode_AsASCIIString(PyList_GET_ITEM(self->address_path, i))))) {
                 ok = 1;
                 break;
             }
         }
     }
     if (ok) {
-        PyTuple_SET_ITEM(tup, 0, PyString_FromString(path));
+        PyTuple_SET_ITEM(tup, 0, PyUnicode_FromString(path));
         for (i=0; i<argc; i++) {
             switch (types[i]) {
                 case LO_INT32:
@@ -1010,10 +1008,10 @@ int OscDataReceive_handler(const char *path, const char *types, lo_arg **argv, i
                     PyTuple_SET_ITEM(tup, i+1, PyFloat_FromDouble(argv[i]->d));
                     break;
                 case LO_STRING:
-                    PyTuple_SET_ITEM(tup, i+1, PyString_FromString(&argv[i]->s));
+                    PyTuple_SET_ITEM(tup, i+1, PyUnicode_FromString(&argv[i]->s));
                     break;
                 case LO_CHAR:
-                    PyTuple_SET_ITEM(tup, i+1, PyString_FromFormat("%c", argv[i]->c));
+                    PyTuple_SET_ITEM(tup, i+1, PyUnicode_FromFormat("%c", argv[i]->c));
                     break;
                 case LO_BLOB:
                     blob = (lo_blob)argv[i];
@@ -1021,7 +1019,7 @@ int OscDataReceive_handler(const char *path, const char *types, lo_arg **argv, i
                     blobdata = lo_blob_dataptr(blob);
                     charlist = PyList_New(blobsize);
                     for (j=0; j<blobsize; j++) {
-                        PyList_SET_ITEM(charlist, j, PyString_FromFormat("%c", blobdata[j]));
+                        PyList_SET_ITEM(charlist, j, PyUnicode_FromFormat("%c", blobdata[j]));
                     }
                     PyTuple_SET_ITEM(tup, i+1, charlist);
                     break;
@@ -1088,7 +1086,7 @@ OscDataReceive_dealloc(OscDataReceive* self)
     lo_server_free(self->osc_server);
     pyo_DEALLOC
     OscDataReceive_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -1140,7 +1138,7 @@ static PyObject *
 OscDataReceive_addAddress(OscDataReceive *self, PyObject *arg) {
     int i;
     if (arg != NULL) {
-        if (PyString_Check(arg) || PyUnicode_Check(arg))
+        if (PyBytes_Check(arg) || PyUnicode_Check(arg))
             PyList_Append(self->address_path, arg);
         else if (PyList_Check(arg)) {
             Py_ssize_t len = PyList_Size(arg);
@@ -1183,8 +1181,7 @@ static PyMethodDef OscDataReceive_methods[] = {
 };
 
 PyTypeObject OscDataReceiveType = {
-    PyObject_HEAD_INIT(NULL)
-    0,                         /*ob_size*/
+    PyVarObject_HEAD_INIT(NULL, 0)
     "_pyo.OscDataReceive_base",         /*tp_name*/
     sizeof(OscDataReceive),         /*tp_basicsize*/
     0,                         /*tp_itemsize*/
@@ -1192,7 +1189,7 @@ PyTypeObject OscDataReceiveType = {
     0,                         /*tp_print*/
     0,                         /*tp_getattr*/
     0,                         /*tp_setattr*/
-    0,                         /*tp_compare*/
+    0,                         /*tp_as_async (tp_compare in Python 2)*/
     0,                         /*tp_repr*/
     0,             /*tp_as_number*/
     0,                         /*tp_as_sequence*/
@@ -1246,7 +1243,7 @@ int OscListReceiver_handler(const char *path, const char *types, lo_arg **argv, 
     for (i=0; i<self->num; i++) {
         PyList_SET_ITEM(flist, i, PyFloat_FromDouble(argv[i]->FLOAT_VALUE));
     }
-    PyDict_SetItem(self->dict, PyString_FromString(path), flist);
+    PyDict_SetItem(self->dict, PyUnicode_FromString(path), flist);
     return 0;
 }
 
@@ -1288,7 +1285,7 @@ OscListReceiver_dealloc(OscListReceiver* self)
     lo_server_free(self->osc_server);
     pyo_DEALLOC
     OscListReceiver_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -1347,7 +1344,7 @@ OscListReceiver_addAddress(OscListReceiver *self, PyObject *arg)
     PyObject *flist;
     int i, j;
 
-    if (PyString_Check(arg) || PyUnicode_Check(arg)) {
+    if (PyBytes_Check(arg) || PyUnicode_Check(arg)) {
         flist = PyList_New(self->num);
         for (j=0; j<self->num; j++) {
             PyList_SET_ITEM(flist, j, PyFloat_FromDouble(0.));
@@ -1372,7 +1369,7 @@ static PyObject *
 OscListReceiver_delAddress(OscListReceiver *self, PyObject *arg)
 {
     int i;
-    if (PyString_Check(arg) || PyUnicode_Check(arg)) {
+    if (PyBytes_Check(arg) || PyUnicode_Check(arg)) {
         PyDict_DelItem(self->dict, arg);
     }
     else if (PyList_Check(arg)) {
@@ -1419,8 +1416,7 @@ static PyMethodDef OscListReceiver_methods[] = {
 };
 
 PyTypeObject OscListReceiverType = {
-    PyObject_HEAD_INIT(NULL)
-    0,                         /*ob_size*/
+    PyVarObject_HEAD_INIT(NULL, 0)
     "_pyo.OscListReceiver_base",         /*tp_name*/
     sizeof(OscListReceiver),         /*tp_basicsize*/
     0,                         /*tp_itemsize*/
@@ -1428,7 +1424,7 @@ PyTypeObject OscListReceiverType = {
     0,                         /*tp_print*/
     0,                         /*tp_getattr*/
     0,                         /*tp_setattr*/
-    0,                         /*tp_compare*/
+    0,                         /*tp_as_async (tp_compare in Python 2)*/
     0,                         /*tp_repr*/
     0,             /*tp_as_number*/
     0,                         /*tp_as_sequence*/
@@ -1564,7 +1560,7 @@ OscListReceive_dealloc(OscListReceive* self)
 {
     pyo_DEALLOC
     OscListReceive_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -1607,7 +1603,7 @@ OscListReceive_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
-    if (!PyString_Check(pathtmp) && !PyUnicode_Check(pathtmp)) {
+    if (!PyBytes_Check(pathtmp) && !PyUnicode_Check(pathtmp)) {
         PyErr_SetString(PyExc_TypeError, "OscListReceive: the address attributes must be a string or a unicode.");
         Py_RETURN_NONE;
     }
@@ -1676,7 +1672,7 @@ static PyNumberMethods OscListReceive_as_number = {
     (binaryfunc)OscListReceive_add,                      /*nb_add*/
     (binaryfunc)OscListReceive_sub,                 /*nb_subtract*/
     (binaryfunc)OscListReceive_multiply,                 /*nb_multiply*/
-    (binaryfunc)OscListReceive_div,                   /*nb_divide*/
+    INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
     0,                /*nb_remainder*/
     0,                   /*nb_divmod*/
     0,                   /*nb_power*/
@@ -1690,16 +1686,16 @@ static PyNumberMethods OscListReceive_as_number = {
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    0,                                          /*nb_coerce*/
+    INITIALIZE_NB_COERCE_ZERO                   /*nb_coerce*/
     0,                       /*nb_int*/
     0,                      /*nb_long*/
     0,                     /*nb_float*/
-    0,                       /*nb_oct*/
-    0,                       /*nb_hex*/
+    INITIALIZE_NB_OCT_ZERO   /*nb_oct*/
+    INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
     (binaryfunc)OscListReceive_inplace_add,              /*inplace_add*/
     (binaryfunc)OscListReceive_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)OscListReceive_inplace_multiply,         /*inplace_multiply*/
-    (binaryfunc)OscListReceive_inplace_div,           /*inplace_divide*/
+    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
     0,        /*inplace_remainder*/
     0,           /*inplace_power*/
     0,       /*inplace_lshift*/
@@ -1708,15 +1704,14 @@ static PyNumberMethods OscListReceive_as_number = {
     0,      /*inplace_xor*/
     0,       /*inplace_or*/
     0,             /*nb_floor_divide*/
-    0,              /*nb_true_divide*/
+    (binaryfunc)OscListReceive_div,                       /*nb_true_divide*/
     0,     /*nb_inplace_floor_divide*/
-    0,      /*nb_inplace_true_divide*/
+    (binaryfunc)OscListReceive_inplace_div,                       /*nb_inplace_true_divide*/
     0,                     /* nb_index */
 };
 
 PyTypeObject OscListReceiveType = {
-    PyObject_HEAD_INIT(NULL)
-    0,                         /*ob_size*/
+    PyVarObject_HEAD_INIT(NULL, 0)
     "_pyo.OscListReceive_base",         /*tp_name*/
     sizeof(OscListReceive),         /*tp_basicsize*/
     0,                         /*tp_itemsize*/
@@ -1724,7 +1719,7 @@ PyTypeObject OscListReceiveType = {
     0,                         /*tp_print*/
     0,                         /*tp_getattr*/
     0,                         /*tp_setattr*/
-    0,                         /*tp_compare*/
+    0,                         /*tp_as_async (tp_compare in Python 2)*/
     0,                         /*tp_repr*/
     &OscListReceive_as_number,             /*tp_as_number*/
     0,                         /*tp_as_sequence*/

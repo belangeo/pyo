@@ -18,7 +18,6 @@ You should have received a copy of the GNU Lesser General Public
 License along with pyo.  If not, see <http://www.gnu.org/licenses/>.
 """
 import os, inspect, shutil
-from types import ListType
 from pyo import *
 
 #######################################################
@@ -212,7 +211,7 @@ creation of sophisticated signal processing chains with all the benefits of a ma
 for key in ['Server', 'Stream', 'TableStream', 'PyoObjectBase', 'Map', 'functions']:
     f.write('\chapter[%s</A> : %s]{%s}\n\n' % (key, getDocFirstLine(key), key))
     f.write(getDoc(key))
-    if type(OBJECTS_TREE[key]) == ListType:
+    if type(OBJECTS_TREE[key]) == list:
         for obj in OBJECTS_TREE[key]:
             f.write('\section[%s</A> : %s]{%s}\n\n' % (obj, getDocFirstLine(obj), obj))
             f.write(getDoc(obj))
@@ -222,7 +221,7 @@ for key in ['Server', 'Stream', 'TableStream', 'PyoObjectBase', 'Map', 'function
         for key2 in key2list:
             f.write('\section[%s</A> : %s]{%s}\n\n' % (key2, getDocFirstLine(key2), key2))
             f.write(getDoc(key2))
-            if type(OBJECTS_TREE[key][key2]) == ListType:
+            if type(OBJECTS_TREE[key][key2]) == list:
                 for obj in OBJECTS_TREE[key][key2]:
                     f.write('\subsection[%s</A> : %s]{%s}\n\n' % (obj, getDocFirstLine(obj), obj))
                     f.write(getDoc(obj))

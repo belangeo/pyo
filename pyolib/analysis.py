@@ -1,3 +1,5 @@
+from __future__ import absolute_import
+from six.moves import range
 """
 Tools to analyze audio signals.
 
@@ -27,10 +29,10 @@ You should have received a copy of the GNU Lesser General Public
 License along with pyo.  If not, see <http://www.gnu.org/licenses/>.
 """
 
-from _core import *
-from _maps import *
-from _widgets import createSpectrumWindow, createScopeWindow
-from pattern import Pattern
+from ._core import *
+from ._maps import *
+from ._widgets import createSpectrumWindow, createScopeWindow
+from .pattern import Pattern
 
 class Follower(PyoObject):
     """

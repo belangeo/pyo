@@ -19,6 +19,7 @@
  *************************************************************************/
 
 #include <Python.h>
+#include "py2to3.h"
 #include "structmember.h"
 #include <math.h>
 #include "pyomodule.h"
@@ -677,7 +678,7 @@ Granulator_dealloc(Granulator* self)
     free(self->gsize);
     free(self->lastppos);
     Granulator_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -1003,7 +1004,7 @@ static PyNumberMethods Granulator_as_number = {
     (binaryfunc)Granulator_add,                      /*nb_add*/
     (binaryfunc)Granulator_sub,                 /*nb_subtract*/
     (binaryfunc)Granulator_multiply,                 /*nb_multiply*/
-    (binaryfunc)Granulator_div,                   /*nb_divide*/
+    INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
     0,                /*nb_remainder*/
     0,                   /*nb_divmod*/
     0,                   /*nb_power*/
@@ -1017,16 +1018,16 @@ static PyNumberMethods Granulator_as_number = {
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    0,                                          /*nb_coerce*/
+    INITIALIZE_NB_COERCE_ZERO                   /*nb_coerce*/
     0,                       /*nb_int*/
     0,                      /*nb_long*/
     0,                     /*nb_float*/
-    0,                       /*nb_oct*/
-    0,                       /*nb_hex*/
+    INITIALIZE_NB_OCT_ZERO   /*nb_oct*/
+    INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
     (binaryfunc)Granulator_inplace_add,              /*inplace_add*/
     (binaryfunc)Granulator_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)Granulator_inplace_multiply,         /*inplace_multiply*/
-    (binaryfunc)Granulator_inplace_div,           /*inplace_divide*/
+    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
     0,        /*inplace_remainder*/
     0,           /*inplace_power*/
     0,       /*inplace_lshift*/
@@ -1035,15 +1036,14 @@ static PyNumberMethods Granulator_as_number = {
     0,      /*inplace_xor*/
     0,       /*inplace_or*/
     0,             /*nb_floor_divide*/
-    0,              /*nb_true_divide*/
+    (binaryfunc)Granulator_div,                       /*nb_true_divide*/
     0,     /*nb_inplace_floor_divide*/
-    0,      /*nb_inplace_true_divide*/
+    (binaryfunc)Granulator_inplace_div,                       /*nb_inplace_true_divide*/
     0,                     /* nb_index */
 };
 
 PyTypeObject GranulatorType = {
-    PyObject_HEAD_INIT(NULL)
-    0,                         /*ob_pitch*/
+    PyVarObject_HEAD_INIT(NULL, 0)
     "_pyo.Granulator_base",         /*tp_name*/
     sizeof(Granulator),         /*tp_basicpitch*/
     0,                         /*tp_itempitch*/
@@ -1051,7 +1051,7 @@ PyTypeObject GranulatorType = {
     0,                         /*tp_print*/
     0,                         /*tp_getattr*/
     0,                         /*tp_setattr*/
-    0,                         /*tp_compare*/
+    0,                         /*tp_as_async (tp_compare in Python 2)*/
     0,                         /*tp_repr*/
     &Granulator_as_number,             /*tp_as_number*/
     0,                         /*tp_as_sequence*/
@@ -1834,7 +1834,7 @@ Looper_dealloc(Looper* self)
     free(self->trigsBuffer);
     free(self->time_buffer);
     Looper_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -2266,7 +2266,7 @@ static PyNumberMethods Looper_as_number = {
     (binaryfunc)Looper_add,                      /*nb_add*/
     (binaryfunc)Looper_sub,                 /*nb_subtract*/
     (binaryfunc)Looper_multiply,                 /*nb_multiply*/
-    (binaryfunc)Looper_div,                   /*nb_divide*/
+    INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
     0,                /*nb_remainder*/
     0,                   /*nb_divmod*/
     0,                   /*nb_power*/
@@ -2280,16 +2280,16 @@ static PyNumberMethods Looper_as_number = {
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    0,                                          /*nb_coerce*/
+    INITIALIZE_NB_COERCE_ZERO                   /*nb_coerce*/
     0,                       /*nb_int*/
     0,                      /*nb_long*/
     0,                     /*nb_float*/
-    0,                       /*nb_oct*/
-    0,                       /*nb_hex*/
+    INITIALIZE_NB_OCT_ZERO   /*nb_oct*/
+    INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
     (binaryfunc)Looper_inplace_add,              /*inplace_add*/
     (binaryfunc)Looper_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)Looper_inplace_multiply,         /*inplace_multiply*/
-    (binaryfunc)Looper_inplace_div,           /*inplace_divide*/
+    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
     0,        /*inplace_remainder*/
     0,           /*inplace_power*/
     0,       /*inplace_lshift*/
@@ -2298,15 +2298,14 @@ static PyNumberMethods Looper_as_number = {
     0,      /*inplace_xor*/
     0,       /*inplace_or*/
     0,             /*nb_floor_divide*/
-    0,              /*nb_true_divide*/
+    (binaryfunc)Looper_div,                       /*nb_true_divide*/
     0,     /*nb_inplace_floor_divide*/
-    0,      /*nb_inplace_true_divide*/
+    (binaryfunc)Looper_inplace_div,                       /*nb_inplace_true_divide*/
     0,                     /* nb_index */
 };
 
 PyTypeObject LooperType = {
-    PyObject_HEAD_INIT(NULL)
-    0,                         /*ob_pitch*/
+    PyVarObject_HEAD_INIT(NULL, 0)
     "_pyo.Looper_base",         /*tp_name*/
     sizeof(Looper),         /*tp_basicpitch*/
     0,                         /*tp_itempitch*/
@@ -2314,7 +2313,7 @@ PyTypeObject LooperType = {
     0,                         /*tp_print*/
     0,                         /*tp_getattr*/
     0,                         /*tp_setattr*/
-    0,                         /*tp_compare*/
+    0,                         /*tp_as_async (tp_compare in Python 2)*/
     0,                         /*tp_repr*/
     &Looper_as_number,             /*tp_as_number*/
     0,                         /*tp_as_sequence*/
@@ -2431,7 +2430,7 @@ LooperTimeStream_dealloc(LooperTimeStream* self)
 {
     pyo_DEALLOC
     LooperTimeStream_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -2510,7 +2509,7 @@ static PyNumberMethods LooperTimeStream_as_number = {
     (binaryfunc)LooperTimeStream_add,                         /*nb_add*/
     (binaryfunc)LooperTimeStream_sub,                         /*nb_subtract*/
     (binaryfunc)LooperTimeStream_multiply,                    /*nb_multiply*/
-    (binaryfunc)LooperTimeStream_div,                                              /*nb_divide*/
+    INITIALIZE_NB_DIVIDE_ZERO                       /*nb_divide*/
     0,                                              /*nb_remainder*/
     0,                                              /*nb_divmod*/
     0,                                              /*nb_power*/
@@ -2524,16 +2523,16 @@ static PyNumberMethods LooperTimeStream_as_number = {
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    0,                                              /*nb_coerce*/
+    INITIALIZE_NB_COERCE_ZERO                       /*nb_coerce*/
     0,                                              /*nb_int*/
     0,                                              /*nb_long*/
     0,                                              /*nb_float*/
-    0,                                              /*nb_oct*/
-    0,                                              /*nb_hex*/
+    INITIALIZE_NB_OCT_ZERO                          /*nb_oct*/
+    INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
     (binaryfunc)LooperTimeStream_inplace_add,                 /*inplace_add*/
     (binaryfunc)LooperTimeStream_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)LooperTimeStream_inplace_multiply,            /*inplace_multiply*/
-    (binaryfunc)LooperTimeStream_inplace_div,                                              /*inplace_divide*/
+    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO                                           /*inplace_divide*/
     0,                                              /*inplace_remainder*/
     0,                                              /*inplace_power*/
     0,                                              /*inplace_lshift*/
@@ -2542,15 +2541,14 @@ static PyNumberMethods LooperTimeStream_as_number = {
     0,                                              /*inplace_xor*/
     0,                                              /*inplace_or*/
     0,                                              /*nb_floor_divide*/
-    0,                                              /*nb_true_divide*/
+    (binaryfunc)LooperTimeStream_div,                       /*nb_true_divide*/
     0,                                              /*nb_inplace_floor_divide*/
-    0,                                              /*nb_inplace_true_divide*/
+    (binaryfunc)LooperTimeStream_inplace_div,                       /*nb_inplace_true_divide*/
     0,                                              /* nb_index */
 };
 
 PyTypeObject LooperTimeStreamType = {
-    PyObject_HEAD_INIT(NULL)
-    0,                         /*ob_size*/
+    PyVarObject_HEAD_INIT(NULL, 0)
     "_pyo.LooperTimeStream_base",         /*tp_name*/
     sizeof(LooperTimeStream),         /*tp_basicsize*/
     0,                         /*tp_itemsize*/
@@ -2558,7 +2556,7 @@ PyTypeObject LooperTimeStreamType = {
     0,                         /*tp_print*/
     0,                         /*tp_getattr*/
     0,                         /*tp_setattr*/
-    0,                         /*tp_compare*/
+    0,                         /*tp_as_async (tp_compare in Python 2)*/
     0,                         /*tp_repr*/
     &LooperTimeStream_as_number,             /*tp_as_number*/
     0,                         /*tp_as_sequence*/
@@ -2909,7 +2907,7 @@ Granule_dealloc(Granule* self)
     free(self->flags);
     free(self->phase);
     Granule_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -3242,7 +3240,7 @@ static PyNumberMethods Granule_as_number = {
     (binaryfunc)Granule_add,                      /*nb_add*/
     (binaryfunc)Granule_sub,                 /*nb_subtract*/
     (binaryfunc)Granule_multiply,                 /*nb_multiply*/
-    (binaryfunc)Granule_div,                   /*nb_divide*/
+    INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
     0,                /*nb_remainder*/
     0,                   /*nb_divmod*/
     0,                   /*nb_power*/
@@ -3256,16 +3254,16 @@ static PyNumberMethods Granule_as_number = {
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    0,                                          /*nb_coerce*/
+    INITIALIZE_NB_COERCE_ZERO                   /*nb_coerce*/
     0,                       /*nb_int*/
     0,                      /*nb_long*/
     0,                     /*nb_float*/
-    0,                       /*nb_oct*/
-    0,                       /*nb_hex*/
+    INITIALIZE_NB_OCT_ZERO   /*nb_oct*/
+    INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
     (binaryfunc)Granule_inplace_add,              /*inplace_add*/
     (binaryfunc)Granule_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)Granule_inplace_multiply,         /*inplace_multiply*/
-    (binaryfunc)Granule_inplace_div,           /*inplace_divide*/
+    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
     0,        /*inplace_remainder*/
     0,           /*inplace_power*/
     0,       /*inplace_lshift*/
@@ -3274,15 +3272,14 @@ static PyNumberMethods Granule_as_number = {
     0,      /*inplace_xor*/
     0,       /*inplace_or*/
     0,             /*nb_floor_divide*/
-    0,              /*nb_true_divide*/
+    (binaryfunc)Granule_div,                       /*nb_true_divide*/
     0,     /*nb_inplace_floor_divide*/
-    0,      /*nb_inplace_true_divide*/
+    (binaryfunc)Granule_inplace_div,                       /*nb_inplace_true_divide*/
     0,                     /* nb_index */
 };
 
 PyTypeObject GranuleType = {
-    PyObject_HEAD_INIT(NULL)
-    0,                         /*ob_pitch*/
+    PyVarObject_HEAD_INIT(NULL, 0)
     "_pyo.Granule_base",         /*tp_name*/
     sizeof(Granule),         /*tp_basicpitch*/
     0,                         /*tp_itempitch*/
@@ -3290,7 +3287,7 @@ PyTypeObject GranuleType = {
     0,                         /*tp_print*/
     0,                         /*tp_getattr*/
     0,                         /*tp_setattr*/
-    0,                         /*tp_compare*/
+    0,                         /*tp_as_async (tp_compare in Python 2)*/
     0,                         /*tp_repr*/
     &Granule_as_number,             /*tp_as_number*/
     0,                         /*tp_as_sequence*/
@@ -3911,7 +3908,7 @@ MainParticle_dealloc(MainParticle* self)
     free(self->amp2);
     free(self->buffer_streams);
     MainParticle_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 MYFLT *
@@ -4289,8 +4286,7 @@ static PyMethodDef MainParticle_methods[] = {
 };
 
 PyTypeObject MainParticleType = {
-    PyObject_HEAD_INIT(NULL)
-    0,                         /*ob_pitch*/
+    PyVarObject_HEAD_INIT(NULL, 0)
     "_pyo.MainParticle_base",         /*tp_name*/
     sizeof(MainParticle),         /*tp_basicpitch*/
     0,                         /*tp_itempitch*/
@@ -4298,7 +4294,7 @@ PyTypeObject MainParticleType = {
     0,                         /*tp_print*/
     0,                         /*tp_getattr*/
     0,                         /*tp_setattr*/
-    0,                         /*tp_compare*/
+    0,                         /*tp_as_async (tp_compare in Python 2)*/
     0,                         /*tp_repr*/
     0,             /*tp_as_number*/
     0,                         /*tp_as_sequence*/
@@ -4418,7 +4414,7 @@ Particle_dealloc(Particle* self)
 {
     pyo_DEALLOC
     Particle_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -4505,7 +4501,7 @@ static PyNumberMethods Particle_as_number = {
 (binaryfunc)Particle_add,                      /*nb_add*/
 (binaryfunc)Particle_sub,                 /*nb_subtract*/
 (binaryfunc)Particle_multiply,                 /*nb_multiply*/
-(binaryfunc)Particle_div,                   /*nb_divide*/
+INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
 0,                /*nb_remainder*/
 0,                   /*nb_divmod*/
 0,                   /*nb_power*/
@@ -4519,16 +4515,16 @@ static PyNumberMethods Particle_as_number = {
 0,              /*nb_and*/
 0,              /*nb_xor*/
 0,               /*nb_or*/
-0,                                          /*nb_coerce*/
+INITIALIZE_NB_COERCE_ZERO                   /*nb_coerce*/
 0,                       /*nb_int*/
 0,                      /*nb_long*/
 0,                     /*nb_float*/
-0,                       /*nb_oct*/
-0,                       /*nb_hex*/
+INITIALIZE_NB_OCT_ZERO   /*nb_oct*/
+INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
 (binaryfunc)Particle_inplace_add,              /*inplace_add*/
 (binaryfunc)Particle_inplace_sub,         /*inplace_subtract*/
 (binaryfunc)Particle_inplace_multiply,         /*inplace_multiply*/
-(binaryfunc)Particle_inplace_div,           /*inplace_divide*/
+INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
 0,        /*inplace_remainder*/
 0,           /*inplace_power*/
 0,       /*inplace_lshift*/
@@ -4537,15 +4533,14 @@ static PyNumberMethods Particle_as_number = {
 0,      /*inplace_xor*/
 0,       /*inplace_or*/
 0,             /*nb_floor_divide*/
-0,              /*nb_true_divide*/
+(binaryfunc)Particle_div,                       /*nb_true_divide*/
 0,     /*nb_inplace_floor_divide*/
-0,      /*nb_inplace_true_divide*/
+(binaryfunc)Particle_inplace_div,                       /*nb_inplace_true_divide*/
 0,                     /* nb_index */
 };
 
 PyTypeObject ParticleType = {
-PyObject_HEAD_INIT(NULL)
-0,                         /*ob_size*/
+PyVarObject_HEAD_INIT(NULL, 0)
 "_pyo.Particle_base",         /*tp_name*/
 sizeof(Particle),         /*tp_basicsize*/
 0,                         /*tp_itemsize*/
@@ -4553,7 +4548,7 @@ sizeof(Particle),         /*tp_basicsize*/
 0,                         /*tp_print*/
 0,                         /*tp_getattr*/
 0,                         /*tp_setattr*/
-0,                         /*tp_compare*/
+0,                         /*tp_as_async (tp_compare in Python 2)*/
 0,                         /*tp_repr*/
 &Particle_as_number,             /*tp_as_number*/
 0,                         /*tp_as_sequence*/

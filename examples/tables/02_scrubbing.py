@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # encoding: utf-8
+from __future__ import print_function
 
 """
 Scrubbing in a sound window.
@@ -11,7 +12,7 @@ from pyo import *
 s = Server(buffersize=512, duplex=0).boot()
 
 def mouse(mpos):
-    print "X = %.2f, Y = %.2f" % tuple(mpos)
+    print("X = %.2f, Y = %.2f" % tuple(mpos))
     pos.value = mpos[0]
     l, r = 1. - mpos[1], mpos[1]
     mul.value = [l, r]

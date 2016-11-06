@@ -1,3 +1,4 @@
+from __future__ import print_function
 """
 01-data-signal-conversion.py - Conversion from number to audio stream.
 
@@ -25,7 +26,7 @@ astream = Sig(anumber)
 pp = Print(astream, interval=0.1, message="Audio stream value")
 
 # Use the get() method to extract a float from an audio stream.
-print "Float from audio stream : ", astream.get()
+print("Float from audio stream : ", astream.get())
 
 s.gui(locals())
 

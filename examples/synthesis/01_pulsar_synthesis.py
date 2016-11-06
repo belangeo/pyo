@@ -6,6 +6,7 @@ Hand-written pulsar synthesis.
 """
 from pyo import *
 import random
+from six.moves import range
 
 s = Server(sr=48000, nchnls=2, buffersize=512, duplex=0).boot()
 

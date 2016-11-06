@@ -19,6 +19,8 @@
  *************************************************************************/
 
 #include <Python.h>
+#include <object.h>
+#include "py2to3.h"
 #include "structmember.h"
 #include <math.h>
 #include "pyomodule.h"
@@ -39,7 +41,7 @@
 static void
 TableStream_dealloc(TableStream* self)
 {
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -86,26 +88,29 @@ TableStream_setSamplingRate(TableStream *self, double sr)
     self->samplingRate = sr;
 }
 
+#if PY_MAJOR_VERSION < 3
 static Py_ssize_t TableStream_getReadBuffer(TableStream *self, Py_ssize_t index, const void **ptr) { TABLESTREAM_READ_WRITE_BUFFER };
 static Py_ssize_t TableStream_getWriteBuffer(TableStream *self, Py_ssize_t index, const void **ptr) { TABLESTREAM_READ_WRITE_BUFFER };
 static Py_ssize_t TableStream_getSegCount(TableStream *self, Py_ssize_t *lenp) { TABLESTREAM_SEG_COUNT };
+#endif
 static int TableStream_getBuffer(PyObject *obj, Py_buffer *view, int flags) {
     TableStream *self = (TableStream *)obj;
     TABLESTREAM_GET_BUFFER
 };
 
 static PyBufferProcs TableStream_as_buffer = {
+#if PY_MAJOR_VERSION < 3
     (readbufferproc)TableStream_getReadBuffer,
     (writebufferproc)TableStream_getWriteBuffer,
     (segcountproc)TableStream_getSegCount,
     (charbufferproc)NULL,
+#endif
     (getbufferproc)TableStream_getBuffer,
     (releasebufferproc)NULL,
 };
 
 PyTypeObject TableStreamType = {
-PyObject_HEAD_INIT(NULL)
-0, /*ob_size*/
+PyVarObject_HEAD_INIT(NULL, 0)
 "_pyo.TableStream", /*tp_name*/
 sizeof(TableStream), /*tp_basicsize*/
 0, /*tp_itemsize*/
@@ -113,7 +118,7 @@ sizeof(TableStream), /*tp_basicsize*/
 0, /*tp_print*/
 0, /*tp_getattr*/
 0, /*tp_setattr*/
-0, /*tp_compare*/
+0, /*tp_as_async (tp_compare in Python 2)*/
 0, /*tp_repr*/
 0, /*tp_as_number*/
 0, /*tp_as_sequence*/
@@ -202,7 +207,7 @@ HarmTable_dealloc(HarmTable* self)
 {
     free(self->data);
     HarmTable_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -361,8 +366,7 @@ static PyMethodDef HarmTable_methods[] = {
 };
 
 PyTypeObject HarmTableType = {
-PyObject_HEAD_INIT(NULL)
-0,                         /*ob_size*/
+PyVarObject_HEAD_INIT(NULL, 0)
 "_pyo.HarmTable_base",         /*tp_name*/
 sizeof(HarmTable),         /*tp_basicsize*/
 0,                         /*tp_itemsize*/
@@ -370,7 +374,7 @@ sizeof(HarmTable),         /*tp_basicsize*/
 0,                         /*tp_print*/
 0,                         /*tp_getattr*/
 0,                         /*tp_setattr*/
-0,                         /*tp_compare*/
+0,                         /*tp_as_async (tp_compare in Python 2)*/
 0,                         /*tp_repr*/
 0,                         /*tp_as_number*/
 0,                         /*tp_as_sequence*/
@@ -500,7 +504,7 @@ ChebyTable_dealloc(ChebyTable* self)
 {
     free(self->data);
     ChebyTable_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -733,8 +737,7 @@ static PyMethodDef ChebyTable_methods[] = {
 };
 
 PyTypeObject ChebyTableType = {
-PyObject_HEAD_INIT(NULL)
-0,                         /*ob_size*/
+PyVarObject_HEAD_INIT(NULL, 0)
 "_pyo.ChebyTable_base",         /*tp_name*/
 sizeof(ChebyTable),         /*tp_basicsize*/
 0,                         /*tp_itemsize*/
@@ -742,7 +745,7 @@ sizeof(ChebyTable),         /*tp_basicsize*/
 0,                         /*tp_print*/
 0,                         /*tp_getattr*/
 0,                         /*tp_setattr*/
-0,                         /*tp_compare*/
+0,                         /*tp_as_async (tp_compare in Python 2)*/
 0,                         /*tp_repr*/
 0,                         /*tp_as_number*/
 0,                         /*tp_as_sequence*/
@@ -815,7 +818,7 @@ HannTable_dealloc(HannTable* self)
 {
     free(self->data);
     HannTable_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -940,8 +943,7 @@ static PyMethodDef HannTable_methods[] = {
 };
 
 PyTypeObject HannTableType = {
-PyObject_HEAD_INIT(NULL)
-0,                         /*ob_size*/
+PyVarObject_HEAD_INIT(NULL, 0)
 "_pyo.HannTable_base",         /*tp_name*/
 sizeof(HannTable),         /*tp_basicsize*/
 0,                         /*tp_itemsize*/
@@ -949,7 +951,7 @@ sizeof(HannTable),         /*tp_basicsize*/
 0,                         /*tp_print*/
 0,                         /*tp_getattr*/
 0,                         /*tp_setattr*/
-0,                         /*tp_compare*/
+0,                         /*tp_as_async (tp_compare in Python 2)*/
 0,                         /*tp_repr*/
 0,                         /*tp_as_number*/
 0,                         /*tp_as_sequence*/
@@ -1041,7 +1043,7 @@ SincTable_dealloc(SincTable* self)
 {
     free(self->data);
     SincTable_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -1204,8 +1206,7 @@ static PyMethodDef SincTable_methods[] = {
 };
 
 PyTypeObject SincTableType = {
-    PyObject_HEAD_INIT(NULL)
-    0,                         /*ob_size*/
+    PyVarObject_HEAD_INIT(NULL, 0)
     "_pyo.SincTable_base",         /*tp_name*/
     sizeof(SincTable),         /*tp_basicsize*/
     0,                         /*tp_itemsize*/
@@ -1213,7 +1214,7 @@ PyTypeObject SincTableType = {
     0,                         /*tp_print*/
     0,                         /*tp_getattr*/
     0,                         /*tp_setattr*/
-    0,                         /*tp_compare*/
+    0,                         /*tp_as_async (tp_compare in Python 2)*/
     0,                         /*tp_repr*/
     0,                         /*tp_as_number*/
     0,                         /*tp_as_sequence*/
@@ -1278,7 +1279,7 @@ WinTable_dealloc(WinTable* self)
 {
     free(self->data);
     WinTable_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -1426,8 +1427,7 @@ static PyMethodDef WinTable_methods[] = {
 };
 
 PyTypeObject WinTableType = {
-PyObject_HEAD_INIT(NULL)
-0,                         /*ob_size*/
+PyVarObject_HEAD_INIT(NULL, 0)
 "_pyo.WinTable_base",         /*tp_name*/
 sizeof(WinTable),         /*tp_basicsize*/
 0,                         /*tp_itemsize*/
@@ -1435,7 +1435,7 @@ sizeof(WinTable),         /*tp_basicsize*/
 0,                         /*tp_print*/
 0,                         /*tp_getattr*/
 0,                         /*tp_setattr*/
-0,                         /*tp_compare*/
+0,                         /*tp_as_async (tp_compare in Python 2)*/
 0,                         /*tp_repr*/
 0,                         /*tp_as_number*/
 0,                         /*tp_as_sequence*/
@@ -1515,7 +1515,7 @@ ParaTable_dealloc(ParaTable* self)
 {
     free(self->data);
     ParaTable_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -1640,8 +1640,7 @@ static PyMethodDef ParaTable_methods[] = {
 };
 
 PyTypeObject ParaTableType = {
-    PyObject_HEAD_INIT(NULL)
-    0,                         /*ob_size*/
+    PyVarObject_HEAD_INIT(NULL, 0)
     "_pyo.ParaTable_base",         /*tp_name*/
     sizeof(ParaTable),         /*tp_basicsize*/
     0,                         /*tp_itemsize*/
@@ -1649,7 +1648,7 @@ PyTypeObject ParaTableType = {
     0,                         /*tp_print*/
     0,                         /*tp_getattr*/
     0,                         /*tp_setattr*/
-    0,                         /*tp_compare*/
+    0,                         /*tp_as_async (tp_compare in Python 2)*/
     0,                         /*tp_repr*/
     0,                         /*tp_as_number*/
     0,                         /*tp_as_sequence*/
@@ -1751,7 +1750,7 @@ LinTable_dealloc(LinTable* self)
 {
     free(self->data);
     LinTable_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -1944,8 +1943,7 @@ static PyMethodDef LinTable_methods[] = {
 };
 
 PyTypeObject LinTableType = {
-PyObject_HEAD_INIT(NULL)
-0,                         /*ob_size*/
+PyVarObject_HEAD_INIT(NULL, 0)
 "_pyo.LinTable_base",         /*tp_name*/
 sizeof(LinTable),         /*tp_basicsize*/
 0,                         /*tp_itemsize*/
@@ -1953,7 +1951,7 @@ sizeof(LinTable),         /*tp_basicsize*/
 0,                         /*tp_print*/
 0,                         /*tp_getattr*/
 0,                         /*tp_setattr*/
-0,                         /*tp_compare*/
+0,                         /*tp_as_async (tp_compare in Python 2)*/
 0,                         /*tp_repr*/
 0,                         /*tp_as_number*/
 0,                         /*tp_as_sequence*/
@@ -2079,7 +2077,7 @@ LogTable_dealloc(LogTable* self)
 {
     free(self->data);
     LogTable_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -2272,8 +2270,7 @@ static PyMethodDef LogTable_methods[] = {
 };
 
 PyTypeObject LogTableType = {
-    PyObject_HEAD_INIT(NULL)
-    0,                         /*ob_size*/
+    PyVarObject_HEAD_INIT(NULL, 0)
     "_pyo.LogTable_base",         /*tp_name*/
     sizeof(LogTable),         /*tp_basicsize*/
     0,                         /*tp_itemsize*/
@@ -2281,7 +2278,7 @@ PyTypeObject LogTableType = {
     0,                         /*tp_print*/
     0,                         /*tp_getattr*/
     0,                         /*tp_setattr*/
-    0,                         /*tp_compare*/
+    0,                         /*tp_as_async (tp_compare in Python 2)*/
     0,                         /*tp_repr*/
     0,                         /*tp_as_number*/
     0,                         /*tp_as_sequence*/
@@ -2385,7 +2382,7 @@ CosTable_dealloc(CosTable* self)
 {
     free(self->data);
     CosTable_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -2578,8 +2575,7 @@ static PyMethodDef CosTable_methods[] = {
 };
 
 PyTypeObject CosTableType = {
-PyObject_HEAD_INIT(NULL)
-0,                         /*ob_size*/
+PyVarObject_HEAD_INIT(NULL, 0)
 "_pyo.CosTable_base",         /*tp_name*/
 sizeof(CosTable),         /*tp_basicsize*/
 0,                         /*tp_itemsize*/
@@ -2587,7 +2583,7 @@ sizeof(CosTable),         /*tp_basicsize*/
 0,                         /*tp_print*/
 0,                         /*tp_getattr*/
 0,                         /*tp_setattr*/
-0,                         /*tp_compare*/
+0,                         /*tp_as_async (tp_compare in Python 2)*/
 0,                         /*tp_repr*/
 0,                         /*tp_as_number*/
 0,                         /*tp_as_sequence*/
@@ -2715,7 +2711,7 @@ CosLogTable_dealloc(CosLogTable* self)
 {
     free(self->data);
     CosLogTable_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -2908,8 +2904,7 @@ static PyMethodDef CosLogTable_methods[] = {
 };
 
 PyTypeObject CosLogTableType = {
-    PyObject_HEAD_INIT(NULL)
-    0,                         /*ob_size*/
+    PyVarObject_HEAD_INIT(NULL, 0)
     "_pyo.CosLogTable_base",         /*tp_name*/
     sizeof(CosLogTable),         /*tp_basicsize*/
     0,                         /*tp_itemsize*/
@@ -2917,7 +2912,7 @@ PyTypeObject CosLogTableType = {
     0,                         /*tp_print*/
     0,                         /*tp_getattr*/
     0,                         /*tp_setattr*/
-    0,                         /*tp_compare*/
+    0,                         /*tp_as_async (tp_compare in Python 2)*/
     0,                         /*tp_repr*/
     0,                         /*tp_as_number*/
     0,                         /*tp_as_sequence*/
@@ -3046,7 +3041,7 @@ CurveTable_dealloc(CurveTable* self)
 {
     free(self->data);
     CurveTable_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -3285,8 +3280,7 @@ static PyMethodDef CurveTable_methods[] = {
 };
 
 PyTypeObject CurveTableType = {
-PyObject_HEAD_INIT(NULL)
-0,                         /*ob_size*/
+PyVarObject_HEAD_INIT(NULL, 0)
 "_pyo.CurveTable_base",         /*tp_name*/
 sizeof(CurveTable),         /*tp_basicsize*/
 0,                         /*tp_itemsize*/
@@ -3294,7 +3288,7 @@ sizeof(CurveTable),         /*tp_basicsize*/
 0,                         /*tp_print*/
 0,                         /*tp_getattr*/
 0,                         /*tp_setattr*/
-0,                         /*tp_compare*/
+0,                         /*tp_as_async (tp_compare in Python 2)*/
 0,                         /*tp_repr*/
 0,                         /*tp_as_number*/
 0,                         /*tp_as_sequence*/
@@ -3420,7 +3414,7 @@ ExpTable_dealloc(ExpTable* self)
 {
     free(self->data);
     ExpTable_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -3658,8 +3652,7 @@ static PyMethodDef ExpTable_methods[] = {
 };
 
 PyTypeObject ExpTableType = {
-PyObject_HEAD_INIT(NULL)
-0,                         /*ob_size*/
+PyVarObject_HEAD_INIT(NULL, 0)
 "_pyo.ExpTable_base",         /*tp_name*/
 sizeof(ExpTable),         /*tp_basicsize*/
 0,                         /*tp_itemsize*/
@@ -3667,7 +3660,7 @@ sizeof(ExpTable),         /*tp_basicsize*/
 0,                         /*tp_print*/
 0,                         /*tp_getattr*/
 0,                         /*tp_setattr*/
-0,                         /*tp_compare*/
+0,                         /*tp_as_async (tp_compare in Python 2)*/
 0,                         /*tp_repr*/
 0,                         /*tp_as_number*/
 0,                         /*tp_as_sequence*/
@@ -3750,14 +3743,14 @@ SndTable_loadSound(SndTable *self) {
     self->data = (MYFLT *)realloc(self->data, (self->size + 1) * sizeof(MYFLT));
 
     /* For sound longer than 1 minute, load 30 sec chunks. */
-    if (self->size > (self->sndSr * 60 * num_chnls)) {
+    if (self->size > (int)(self->sndSr * 60 * num_chnls)) {
         tmp = (MYFLT *)malloc(self->sndSr * 30 * num_chnls * sizeof(MYFLT));
         sf_seek(sf, start, SEEK_SET);
         num_items = self->sndSr * 30 * num_chnls;
         do {
             num = SF_READ(sf, tmp, num_items);
             for (i=0; i<num; i++) {
-                if ((i % num_chnls) == self->chnl) {
+                if ((int)(i % num_chnls) == self->chnl) {
                     self->data[(int)(num_count++)] = tmp[i];
                 }
             }
@@ -3771,7 +3764,7 @@ SndTable_loadSound(SndTable *self) {
         num = SF_READ(sf, tmp, num_items);
         sf_close(sf);
         for (i=0; i<num_items; i++) {
-            if ((i % num_chnls) == self->chnl) {
+            if ((int)(i % num_chnls) == self->chnl) {
                 self->data[(int)(i/num_chnls)] = tmp[i];
             }
         }
@@ -3821,7 +3814,7 @@ SndTable_appendSound(SndTable *self) {
     cross_in_samps = (unsigned int)(self->crossfade * self->sr);
     if (cross_in_samps >= to_load_size)
         cross_in_samps = to_load_size - 1;
-    if (cross_in_samps >= self->size)
+    if ((int)cross_in_samps >= self->size)
         cross_in_samps = self->size - 1;
 
     /* Allocate space for the data to be read, then read it. */
@@ -3833,7 +3826,7 @@ SndTable_appendSound(SndTable *self) {
     sf_close(sf);
 
     if (cross_in_samps != 0) {
-        for (i=0; i<self->size; i++) {
+        for (i=0; i<(unsigned int)self->size; i++) {
             tmp_data[i] = self->data[i];
         }
     }
@@ -3850,7 +3843,7 @@ SndTable_appendSound(SndTable *self) {
 
     if (self->crossfade == 0.0) {
         for (i=0; i<num_items; i++) {
-            if ((i % num_chnls) == self->chnl) {
+            if ((int)(i % num_chnls) == self->chnl) {
                 index = (int)(i/num_chnls);
                 real_index = cross_point + index;
                 self->data[real_index] = tmp[i];
@@ -3859,7 +3852,7 @@ SndTable_appendSound(SndTable *self) {
     }
     else {
         for (i=0; i<num_items; i++) {
-            if ((i % num_chnls) == self->chnl) {
+            if ((int)(i % num_chnls) == self->chnl) {
                 index = (int)(i/num_chnls);
                 real_index = cross_point + index;
                 if (index < cross_in_samps) {
@@ -3918,7 +3911,7 @@ SndTable_prependSound(SndTable *self) {
     cross_in_samps = (unsigned int)(self->crossfade * self->sr);
     if (cross_in_samps >= to_load_size)
         cross_in_samps = to_load_size - 1;
-    if (cross_in_samps >= self->size)
+    if ((int)cross_in_samps >= self->size)
         cross_in_samps = self->size - 1;
 
     /* Allocate space for the data to be read, then read it. */
@@ -3929,7 +3922,7 @@ SndTable_prependSound(SndTable *self) {
     SF_READ(sf, tmp, num_items);
     sf_close(sf);
 
-    for (i=0; i<self->size; i++) {
+    for (i=0; i<(unsigned int)self->size; i++) {
         tmp_data[i] = self->data[i];
     }
 
@@ -3939,7 +3932,7 @@ SndTable_prependSound(SndTable *self) {
 
     if (self->crossfade == 0.0) {
         for (i=0; i<num_items; i++) {
-            if ((i % num_chnls) == self->chnl) {
+            if ((int)(i % num_chnls) == self->chnl) {
                 index = (int)(i/num_chnls);
                 self->data[index] = tmp[i];
             }
@@ -3948,7 +3941,7 @@ SndTable_prependSound(SndTable *self) {
     }
     else {
         for (i=0; i<num_items; i++) {
-            if ((i % num_chnls) == self->chnl) {
+            if ((int)(i % num_chnls) == self->chnl) {
                 index = (int)(i/num_chnls);
                 if (index >= cross_point) {
                     cross_amp = MYSQRT((index-cross_point) / (MYFLT)cross_in_samps);
@@ -3960,7 +3953,7 @@ SndTable_prependSound(SndTable *self) {
         }
     }
 
-    for (i=(index+1); i<self->size; i++) {
+    for (i=(index+1); i<(unsigned int)self->size; i++) {
         self->data[i] = tmp_data[i - cross_point];
     }
 
@@ -4011,7 +4004,7 @@ SndTable_insertSound(SndTable *self) {
     num_items = to_load_size * num_chnls;
 
     insert_point = (unsigned int)(self->insertPos * self->sr);
-    if (insert_point >= self->size)
+    if ((int)insert_point >= self->size)
         insert_point = self->size - 1;
 
     cross_in_samps = (unsigned int)(self->crossfade * self->sr);
@@ -4030,7 +4023,7 @@ SndTable_insertSound(SndTable *self) {
     SF_READ(sf, tmp, num_items);
     sf_close(sf);
 
-    for (i=0; i<self->size; i++) {
+    for (i=0; i<(unsigned int)self->size; i++) {
         tmp_data[i] = self->data[i];
     }
 
@@ -4045,7 +4038,7 @@ SndTable_insertSound(SndTable *self) {
 
     if (self->crossfade == 0.0) {
         for (i=0; i<num_items; i++) {
-            if ((i % num_chnls) == self->chnl) {
+            if ((int)(i % num_chnls) == self->chnl) {
                 index = (int)(i/num_chnls);
                 self->data[index+cross_point] = tmp[i];
             }
@@ -4054,7 +4047,7 @@ SndTable_insertSound(SndTable *self) {
     }
     else {
         for (i=0; i<num_items; i++) {
-            if ((i % num_chnls) == self->chnl) {
+            if ((int)(i % num_chnls) == self->chnl) {
                 index = (int)(i/num_chnls);
                 real_index = index + cross_point;
                 if (index <= cross_in_samps) {
@@ -4073,7 +4066,7 @@ SndTable_insertSound(SndTable *self) {
     }
 
     read_point++;
-    for (i=(real_index+1); i<self->size; i++) {
+    for (i=(real_index+1); i<(unsigned int)self->size; i++) {
         self->data[i] = tmp_data[read_point];
         read_point++;
     }
@@ -4108,7 +4101,7 @@ SndTable_dealloc(SndTable* self)
 {
     free(self->data);
     SndTable_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -4471,8 +4464,7 @@ static PyMethodDef SndTable_methods[] = {
 };
 
 PyTypeObject SndTableType = {
-PyObject_HEAD_INIT(NULL)
-0,                         /*ob_size*/
+PyVarObject_HEAD_INIT(NULL, 0)
 "_pyo.SndTable_base",         /*tp_name*/
 sizeof(SndTable),         /*tp_basicsize*/
 0,                         /*tp_itemsize*/
@@ -4480,7 +4472,7 @@ sizeof(SndTable),         /*tp_basicsize*/
 0,                         /*tp_print*/
 0,                         /*tp_getattr*/
 0,                         /*tp_setattr*/
-0,                         /*tp_compare*/
+0,                         /*tp_as_async (tp_compare in Python 2)*/
 0,                         /*tp_repr*/
 0,                         /*tp_as_number*/
 0,                         /*tp_as_sequence*/
@@ -4579,7 +4571,7 @@ NewTable_dealloc(NewTable* self)
 {
     free(self->data);
     NewTable_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -4825,8 +4817,7 @@ static PyMethodDef NewTable_methods[] = {
 };
 
 PyTypeObject NewTableType = {
-PyObject_HEAD_INIT(NULL)
-0,                         /*ob_size*/
+PyVarObject_HEAD_INIT(NULL, 0)
 "_pyo.NewTable_base",         /*tp_name*/
 sizeof(NewTable),         /*tp_basicsize*/
 0,                         /*tp_itemsize*/
@@ -4834,7 +4825,7 @@ sizeof(NewTable),         /*tp_basicsize*/
 0,                         /*tp_print*/
 0,                         /*tp_getattr*/
 0,                         /*tp_setattr*/
-0,                         /*tp_compare*/
+0,                         /*tp_as_async (tp_compare in Python 2)*/
 0,                         /*tp_repr*/
 0,                         /*tp_as_number*/
 0,                         /*tp_as_sequence*/
@@ -4899,7 +4890,7 @@ DataTable_dealloc(DataTable* self)
 {
     free(self->data);
     DataTable_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -5018,8 +5009,7 @@ static PyMethodDef DataTable_methods[] = {
 };
 
 PyTypeObject DataTableType = {
-    PyObject_HEAD_INIT(NULL)
-    0,                         /*ob_size*/
+    PyVarObject_HEAD_INIT(NULL, 0)
     "_pyo.DataTable_base",         /*tp_name*/
     sizeof(DataTable),         /*tp_basicsize*/
     0,                         /*tp_itemsize*/
@@ -5027,7 +5017,7 @@ PyTypeObject DataTableType = {
     0,                         /*tp_print*/
     0,                         /*tp_getattr*/
     0,                         /*tp_setattr*/
-    0,                         /*tp_compare*/
+    0,                         /*tp_as_async (tp_compare in Python 2)*/
     0,                         /*tp_repr*/
     0,                         /*tp_as_number*/
     0,                         /*tp_as_sequence*/
@@ -5107,7 +5097,7 @@ AtanTable_dealloc(AtanTable* self)
 {
     free(self->data);
     AtanTable_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -5255,8 +5245,7 @@ static PyMethodDef AtanTable_methods[] = {
 };
 
 PyTypeObject AtanTableType = {
-    PyObject_HEAD_INIT(NULL)
-    0,                         /*ob_size*/
+    PyVarObject_HEAD_INIT(NULL, 0)
     "_pyo.AtanTable_base",         /*tp_name*/
     sizeof(AtanTable),         /*tp_basicsize*/
     0,                         /*tp_itemsize*/
@@ -5264,7 +5253,7 @@ PyTypeObject AtanTableType = {
     0,                         /*tp_print*/
     0,                         /*tp_getattr*/
     0,                         /*tp_setattr*/
-    0,                         /*tp_compare*/
+    0,                         /*tp_as_async (tp_compare in Python 2)*/
     0,                         /*tp_repr*/
     0,                         /*tp_as_number*/
     0,                         /*tp_as_sequence*/
@@ -5420,7 +5409,7 @@ PadSynthTable_dealloc(PadSynthTable* self)
     free(self->twiddle);
     free(self->data);
     PadSynthTable_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -5663,8 +5652,7 @@ static PyMethodDef PadSynthTable_methods[] = {
 };
 
 PyTypeObject PadSynthTableType = {
-    PyObject_HEAD_INIT(NULL)
-    0,                         /*ob_size*/
+    PyVarObject_HEAD_INIT(NULL, 0)
     "_pyo.PadSynthTable_base",         /*tp_name*/
     sizeof(PadSynthTable),         /*tp_basicsize*/
     0,                         /*tp_itemsize*/
@@ -5672,7 +5660,7 @@ PyTypeObject PadSynthTableType = {
     0,                         /*tp_print*/
     0,                         /*tp_getattr*/
     0,                         /*tp_setattr*/
-    0,                         /*tp_compare*/
+    0,                         /*tp_as_async (tp_compare in Python 2)*/
     0,                         /*tp_repr*/
     0,                         /*tp_as_number*/
     0,                         /*tp_as_sequence*/
@@ -5817,7 +5805,7 @@ TableRec_dealloc(TableRec* self)
     free(self->trigsBuffer);
     free(self->time_buffer_streams);
     TableRec_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -5925,8 +5913,7 @@ static PyMethodDef TableRec_methods[] = {
 };
 
 PyTypeObject TableRecType = {
-PyObject_HEAD_INIT(NULL)
-0,                         /*ob_size*/
+PyVarObject_HEAD_INIT(NULL, 0)
 "_pyo.TableRec_base",         /*tp_name*/
 sizeof(TableRec),         /*tp_basicsize*/
 0,                         /*tp_itemsize*/
@@ -5934,7 +5921,7 @@ sizeof(TableRec),         /*tp_basicsize*/
 0,                         /*tp_print*/
 0,                         /*tp_getattr*/
 0,                         /*tp_setattr*/
-0,                         /*tp_compare*/
+0,                         /*tp_as_async (tp_compare in Python 2)*/
 0,                         /*tp_repr*/
 0,             /*tp_as_number*/
 0,                         /*tp_as_sequence*/
@@ -6051,7 +6038,7 @@ TableRecTimeStream_dealloc(TableRecTimeStream* self)
 {
     pyo_DEALLOC
     TableRecTimeStream_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -6130,7 +6117,7 @@ static PyNumberMethods TableRecTimeStream_as_number = {
     (binaryfunc)TableRecTimeStream_add,                         /*nb_add*/
     (binaryfunc)TableRecTimeStream_sub,                         /*nb_subtract*/
     (binaryfunc)TableRecTimeStream_multiply,                    /*nb_multiply*/
-    (binaryfunc)TableRecTimeStream_div,                                              /*nb_divide*/
+    INITIALIZE_NB_DIVIDE_ZERO                       /*nb_divide*/
     0,                                              /*nb_remainder*/
     0,                                              /*nb_divmod*/
     0,                                              /*nb_power*/
@@ -6144,16 +6131,16 @@ static PyNumberMethods TableRecTimeStream_as_number = {
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    0,                                              /*nb_coerce*/
+    INITIALIZE_NB_COERCE_ZERO                       /*nb_coerce*/
     0,                                              /*nb_int*/
     0,                                              /*nb_long*/
     0,                                              /*nb_float*/
-    0,                                              /*nb_oct*/
-    0,                                              /*nb_hex*/
+    INITIALIZE_NB_OCT_ZERO                          /*nb_oct*/
+    INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
     (binaryfunc)TableRecTimeStream_inplace_add,                 /*inplace_add*/
     (binaryfunc)TableRecTimeStream_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)TableRecTimeStream_inplace_multiply,            /*inplace_multiply*/
-    (binaryfunc)TableRecTimeStream_inplace_div,                                              /*inplace_divide*/
+    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO                                           /*inplace_divide*/
     0,                                              /*inplace_remainder*/
     0,                                              /*inplace_power*/
     0,                                              /*inplace_lshift*/
@@ -6162,15 +6149,14 @@ static PyNumberMethods TableRecTimeStream_as_number = {
     0,                                              /*inplace_xor*/
     0,                                              /*inplace_or*/
     0,                                              /*nb_floor_divide*/
-    0,                                              /*nb_true_divide*/
+    (binaryfunc)TableRecTimeStream_div,                       /*nb_true_divide*/
     0,                                              /*nb_inplace_floor_divide*/
-    0,                                              /*nb_inplace_true_divide*/
+    (binaryfunc)TableRecTimeStream_inplace_div,                       /*nb_inplace_true_divide*/
     0,                                              /* nb_index */
 };
 
 PyTypeObject TableRecTimeStreamType = {
-    PyObject_HEAD_INIT(NULL)
-    0,                         /*ob_size*/
+    PyVarObject_HEAD_INIT(NULL, 0)
     "_pyo.TableRecTimeStream_base",         /*tp_name*/
     sizeof(TableRecTimeStream),         /*tp_basicsize*/
     0,                         /*tp_itemsize*/
@@ -6178,7 +6164,7 @@ PyTypeObject TableRecTimeStreamType = {
     0,                         /*tp_print*/
     0,                         /*tp_getattr*/
     0,                         /*tp_setattr*/
-    0,                         /*tp_compare*/
+    0,                         /*tp_as_async (tp_compare in Python 2)*/
     0,                         /*tp_repr*/
     &TableRecTimeStream_as_number,             /*tp_as_number*/
     0,                         /*tp_as_sequence*/
@@ -6307,7 +6293,7 @@ TableMorph_dealloc(TableMorph* self)
     pyo_DEALLOC
     free(self->buffer);
     TableMorph_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -6408,8 +6394,7 @@ static PyMethodDef TableMorph_methods[] = {
 };
 
 PyTypeObject TableMorphType = {
-PyObject_HEAD_INIT(NULL)
-0,                         /*ob_size*/
+PyVarObject_HEAD_INIT(NULL, 0)
 "_pyo.TableMorph_base",         /*tp_name*/
 sizeof(TableMorph),         /*tp_basicsize*/
 0,                         /*tp_itemsize*/
@@ -6417,7 +6402,7 @@ sizeof(TableMorph),         /*tp_basicsize*/
 0,                         /*tp_print*/
 0,                         /*tp_getattr*/
 0,                         /*tp_setattr*/
-0,                         /*tp_compare*/
+0,                         /*tp_as_async (tp_compare in Python 2)*/
 0,                         /*tp_repr*/
 0,             /*tp_as_number*/
 0,                         /*tp_as_sequence*/
@@ -6607,7 +6592,7 @@ TrigTableRec_dealloc(TrigTableRec* self)
     free(self->trigsBuffer);
     TrigTableRec_clear(self);
     free(self->time_buffer_streams);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -6716,8 +6701,7 @@ static PyMethodDef TrigTableRec_methods[] = {
 };
 
 PyTypeObject TrigTableRecType = {
-    PyObject_HEAD_INIT(NULL)
-    0,                         /*ob_size*/
+    PyVarObject_HEAD_INIT(NULL, 0)
     "_pyo.TrigTableRec_base",         /*tp_name*/
     sizeof(TrigTableRec),         /*tp_basicsize*/
     0,                         /*tp_itemsize*/
@@ -6725,7 +6709,7 @@ PyTypeObject TrigTableRecType = {
     0,                         /*tp_print*/
     0,                         /*tp_getattr*/
     0,                         /*tp_setattr*/
-    0,                         /*tp_compare*/
+    0,                         /*tp_as_async (tp_compare in Python 2)*/
     0,                         /*tp_repr*/
     0,             /*tp_as_number*/
     0,                         /*tp_as_sequence*/
@@ -6842,7 +6826,7 @@ TrigTableRecTimeStream_dealloc(TrigTableRecTimeStream* self)
 {
     pyo_DEALLOC
     TrigTableRecTimeStream_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -6921,7 +6905,7 @@ static PyNumberMethods TrigTableRecTimeStream_as_number = {
     (binaryfunc)TrigTableRecTimeStream_add,                         /*nb_add*/
     (binaryfunc)TrigTableRecTimeStream_sub,                         /*nb_subtract*/
     (binaryfunc)TrigTableRecTimeStream_multiply,                    /*nb_multiply*/
-    (binaryfunc)TrigTableRecTimeStream_div,                                              /*nb_divide*/
+    INITIALIZE_NB_DIVIDE_ZERO                       /*nb_divide*/
     0,                                              /*nb_remainder*/
     0,                                              /*nb_divmod*/
     0,                                              /*nb_power*/
@@ -6935,16 +6919,16 @@ static PyNumberMethods TrigTableRecTimeStream_as_number = {
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    0,                                              /*nb_coerce*/
+    INITIALIZE_NB_COERCE_ZERO                       /*nb_coerce*/
     0,                                              /*nb_int*/
     0,                                              /*nb_long*/
     0,                                              /*nb_float*/
-    0,                                              /*nb_oct*/
-    0,                                              /*nb_hex*/
+    INITIALIZE_NB_OCT_ZERO                          /*nb_oct*/
+    INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
     (binaryfunc)TrigTableRecTimeStream_inplace_add,                 /*inplace_add*/
     (binaryfunc)TrigTableRecTimeStream_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)TrigTableRecTimeStream_inplace_multiply,            /*inplace_multiply*/
-    (binaryfunc)TrigTableRecTimeStream_inplace_div,                                              /*inplace_divide*/
+    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO                                           /*inplace_divide*/
     0,                                              /*inplace_remainder*/
     0,                                              /*inplace_power*/
     0,                                              /*inplace_lshift*/
@@ -6953,15 +6937,14 @@ static PyNumberMethods TrigTableRecTimeStream_as_number = {
     0,                                              /*inplace_xor*/
     0,                                              /*inplace_or*/
     0,                                              /*nb_floor_divide*/
-    0,                                              /*nb_true_divide*/
+    (binaryfunc)TrigTableRecTimeStream_div,                       /*nb_true_divide*/
     0,                                              /*nb_inplace_floor_divide*/
-    0,                                              /*nb_inplace_true_divide*/
+    (binaryfunc)TrigTableRecTimeStream_inplace_div,                       /*nb_inplace_true_divide*/
     0,                                              /* nb_index */
 };
 
 PyTypeObject TrigTableRecTimeStreamType = {
-    PyObject_HEAD_INIT(NULL)
-    0,                         /*ob_size*/
+    PyVarObject_HEAD_INIT(NULL, 0)
     "_pyo.TrigTableRecTimeStream_base",         /*tp_name*/
     sizeof(TrigTableRecTimeStream),         /*tp_basicsize*/
     0,                         /*tp_itemsize*/
@@ -6969,7 +6952,7 @@ PyTypeObject TrigTableRecTimeStreamType = {
     0,                         /*tp_print*/
     0,                         /*tp_getattr*/
     0,                         /*tp_setattr*/
-    0,                         /*tp_compare*/
+    0,                         /*tp_as_async (tp_compare in Python 2)*/
     0,                         /*tp_repr*/
     &TrigTableRecTimeStream_as_number,             /*tp_as_number*/
     0,                         /*tp_as_sequence*/
@@ -7070,7 +7053,7 @@ TablePut_dealloc(TablePut* self)
     pyo_DEALLOC
     free(self->trigsBuffer);
     TablePut_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -7168,8 +7151,7 @@ static PyMethodDef TablePut_methods[] = {
 };
 
 PyTypeObject TablePutType = {
-PyObject_HEAD_INIT(NULL)
-0,                         /*ob_size*/
+PyVarObject_HEAD_INIT(NULL, 0)
 "_pyo.TablePut_base",         /*tp_name*/
 sizeof(TablePut),         /*tp_basicsize*/
 0,                         /*tp_itemsize*/
@@ -7177,7 +7159,7 @@ sizeof(TablePut),         /*tp_basicsize*/
 0,                         /*tp_print*/
 0,                         /*tp_getattr*/
 0,                         /*tp_setattr*/
-0,                         /*tp_compare*/
+0,                         /*tp_as_async (tp_compare in Python 2)*/
 0,                         /*tp_repr*/
 0,             /*tp_as_number*/
 0,                         /*tp_as_sequence*/
@@ -7279,7 +7261,7 @@ TableWrite_dealloc(TableWrite* self)
 {
     pyo_DEALLOC
     TableWrite_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -7389,8 +7371,7 @@ static PyMethodDef TableWrite_methods[] = {
 };
 
 PyTypeObject TableWriteType = {
-PyObject_HEAD_INIT(NULL)
-0,                         /*ob_size*/
+PyVarObject_HEAD_INIT(NULL, 0)
 "_pyo.TableWrite_base",         /*tp_name*/
 sizeof(TableWrite),         /*tp_basicsize*/
 0,                         /*tp_itemsize*/
@@ -7398,7 +7379,7 @@ sizeof(TableWrite),         /*tp_basicsize*/
 0,                         /*tp_print*/
 0,                         /*tp_getattr*/
 0,                         /*tp_setattr*/
-0,                         /*tp_compare*/
+0,                         /*tp_as_async (tp_compare in Python 2)*/
 0,                         /*tp_repr*/
 0,             /*tp_as_number*/
 0,                         /*tp_as_sequence*/

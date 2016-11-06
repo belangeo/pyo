@@ -19,6 +19,7 @@
  *************************************************************************/
 
 #include <Python.h>
+#include "py2to3.h"
 #include "structmember.h"
 #include <math.h>
 #include "pyomodule.h"
@@ -54,10 +55,11 @@ int process_osc(const char *path, const char *types, lo_arg **argv, int argc,
     uint32_t blobsize = 0;
     PyObject *charlist = NULL; 
     tup = PyTuple_New(argc+1);
-    int i, j = 0;
+    int i = 0;
+    unsigned int j = 0;
 
     PyGILState_STATE s = PyGILState_Ensure();
-    PyTuple_SET_ITEM(tup, 0, PyString_FromString(path));
+    PyTuple_SET_ITEM(tup, 0, PyUnicode_FromString(path));
     for (i=0; i<argc; i++) {
         switch (types[i]) {
             case LO_INT32:
@@ -73,10 +75,10 @@ int process_osc(const char *path, const char *types, lo_arg **argv, int argc,
                 PyTuple_SET_ITEM(tup, i+1, PyFloat_FromDouble(argv[i]->d));
                 break;
             case LO_STRING:
-                PyTuple_SET_ITEM(tup, i+1, PyString_FromString(&argv[i]->s));
+                PyTuple_SET_ITEM(tup, i+1, PyUnicode_FromString(&argv[i]->s));
                 break;
             case LO_CHAR:
-                PyTuple_SET_ITEM(tup, i+1, PyString_FromFormat("%c", argv[i]->c));
+                PyTuple_SET_ITEM(tup, i+1, PyUnicode_FromFormat("%c", argv[i]->c));
                 break;
             case LO_BLOB:
                 blob = (lo_blob)argv[i];
@@ -84,7 +86,7 @@ int process_osc(const char *path, const char *types, lo_arg **argv, int argc,
                 blobdata = lo_blob_dataptr(blob);
                 charlist = PyList_New(blobsize);
                 for (j=0; j<blobsize; j++) {
-                    PyList_SET_ITEM(charlist, j, PyString_FromFormat("%c", blobdata[j]));
+                    PyList_SET_ITEM(charlist, j, PyUnicode_FromFormat("%c", blobdata[j]));
                 }
                 PyTuple_SET_ITEM(tup, i+1, charlist);
                 break;
@@ -137,7 +139,7 @@ OscListener_dealloc(OscListener* self)
 {
     lo_server_free(self->osc_server);
     OscListener_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -201,8 +203,7 @@ static PyMethodDef OscListener_methods[] = {
 };
 
 PyTypeObject OscListenerType = {
-    PyObject_HEAD_INIT(NULL)
-    0,                         /*ob_size*/
+    PyVarObject_HEAD_INIT(NULL, 0)
     "_pyo.OscListener_base",         /*tp_name*/
     sizeof(OscListener),         /*tp_basicsize*/
     0,                         /*tp_itemsize*/
@@ -210,7 +211,7 @@ PyTypeObject OscListenerType = {
     0,                         /*tp_print*/
     0,                         /*tp_getattr*/
     0,                         /*tp_setattr*/
-    0,                         /*tp_compare*/
+    0,                         /*tp_as_async (tp_compare in Python 2)*/
     0,                         /*tp_repr*/
     0,             /*tp_as_number*/
     0,                         /*tp_as_sequence*/

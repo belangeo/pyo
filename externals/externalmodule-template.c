@@ -19,6 +19,7 @@
  *************************************************************************/
 
 #include <Python.h>
+#include "py2to3.h"
 #include "structmember.h"
 #include <math.h>
 #include "pyomodule.h"
@@ -222,7 +223,7 @@ Gain_dealloc(Gain* self)
 {
     pyo_DEALLOC
     Gain_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 /**********************************************************************
@@ -401,7 +402,7 @@ static PyNumberMethods Gain_as_number = {
 (binaryfunc)Gain_add,                           /*nb_add*/
 (binaryfunc)Gain_sub,                           /*nb_subtract*/
 (binaryfunc)Gain_multiply,                      /*nb_multiply*/
-(binaryfunc)Gain_div,                           /*nb_divide*/
+INITIALIZE_NB_DIVIDE_ZERO    /*nb_divide*/
 0,                                              /*nb_remainder*/
 0,                                              /*nb_divmod*/
 0,                                              /*nb_power*/
@@ -415,16 +416,16 @@ static PyNumberMethods Gain_as_number = {
 0,                                              /*nb_and*/
 0,                                              /*nb_xor*/
 0,                                              /*nb_or*/
-0,                                              /*nb_coerce*/
+INITIALIZE_NB_COERCE_ZERO                       /*nb_coerce*/
 0,                                              /*nb_int*/
 0,                                              /*nb_long*/
 0,                                              /*nb_float*/
-0,                                              /*nb_oct*/
-0,                                              /*nb_hex*/
+INITIALIZE_NB_OCT_ZERO                          /*nb_oct*/
+INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
 (binaryfunc)Gain_inplace_add,                   /*inplace_add*/
 (binaryfunc)Gain_inplace_sub,                   /*inplace_subtract*/
 (binaryfunc)Gain_inplace_multiply,              /*inplace_multiply*/
-(binaryfunc)Gain_inplace_div,                   /*inplace_divide*/
+INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO                /*inplace_divide*/
 0,                                              /*inplace_remainder*/
 0,                                              /*inplace_power*/
 0,                                              /*inplace_lshift*/
@@ -433,9 +434,9 @@ static PyNumberMethods Gain_as_number = {
 0,                                              /*inplace_xor*/
 0,                                              /*inplace_or*/
 0,                                              /*nb_floor_divide*/
-0,                                              /*nb_true_divide*/
+(binaryfunc)Gain_div,                       /*nb_true_divide*/
 0,                                              /*nb_inplace_floor_divide*/
-0,                                              /*nb_inplace_true_divide*/
+(binaryfunc)Gain_inplace_div,                       /*nb_inplace_true_divide*/
 0,                                              /* nb_index */
 };
 
@@ -445,8 +446,7 @@ where XXX is replaced by the name of the object.
 Fields in PyTypeObject that are not used should be 0.
 **************************************************************/
 PyTypeObject GainType = {
-PyObject_HEAD_INIT(NULL)
-0,                                              /*ob_size*/
+PyVarObject_HEAD_INIT(NULL, 0)
 /* How the object will be exposed to the 
 python interpreter. The name of the C component 
 of a PyoObject should be "XXX_base", where XXX

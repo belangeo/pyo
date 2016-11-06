@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # encoding: utf-8
+from __future__ import print_function
 """
 Mixing multiple inputs to multiple outputs with fade time.
 
@@ -42,7 +43,7 @@ def assign():
     vin = random.randint(0, 2)
     vout = random.randint(0, 2)
     amp = random.choice([0,0,.25,.33])
-    print "%s -> %s, amp = %f" % (inputs[vin], outputs[vout], amp)
+    print("%s -> %s, amp = %f" % (inputs[vin], outputs[vout], amp))
     mm.setAmp(vin=vin, vout=vout, amp=amp)
 
 pat = Pattern(function=assign, time=3).play()

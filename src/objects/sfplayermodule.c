@@ -19,6 +19,7 @@
  *************************************************************************/
 
 #include <Python.h>
+#include "py2to3.h"
 #include "structmember.h"
 #include <math.h>
 #include "pyomodule.h"
@@ -290,7 +291,7 @@ SfPlayer_dealloc(SfPlayer* self)
     free(self->trigsBuffer);
     free(self->samplesBuffer);
     SfPlayer_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -417,7 +418,7 @@ SfPlayer_setSound(SfPlayer *self, PyObject *arg)
 
     ASSERT_ARG_NOT_NULL
 
-    self->path = PyString_AsString(arg);
+    self->path = PyBytes_AsString(arg);
 
     sf_close(self->sf);
 
@@ -517,8 +518,7 @@ static PyMethodDef SfPlayer_methods[] = {
 };
 
 PyTypeObject SfPlayerType = {
-PyObject_HEAD_INIT(NULL)
-0,                         /*ob_size*/
+PyVarObject_HEAD_INIT(NULL, 0)
 "_pyo.SfPlayer_base",         /*tp_name*/
 sizeof(SfPlayer),         /*tp_basicsize*/
 0,                         /*tp_itemsize*/
@@ -526,7 +526,7 @@ sizeof(SfPlayer),         /*tp_basicsize*/
 0,                         /*tp_print*/
 0,                         /*tp_getattr*/
 0,                         /*tp_setattr*/
-0,                         /*tp_compare*/
+0,                         /*tp_as_async (tp_compare in Python 2)*/
 0,                         /*tp_repr*/
 0,             /*tp_as_number*/
 0,                         /*tp_as_sequence*/
@@ -649,7 +649,7 @@ SfPlay_dealloc(SfPlay* self)
 {
     pyo_DEALLOC
     SfPlay_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -737,7 +737,7 @@ static PyNumberMethods SfPlay_as_number = {
 (binaryfunc)SfPlay_add,                      /*nb_add*/
 (binaryfunc)SfPlay_sub,                 /*nb_subtract*/
 (binaryfunc)SfPlay_multiply,                 /*nb_multiply*/
-(binaryfunc)SfPlay_div,                   /*nb_divide*/
+INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
 0,                /*nb_remainder*/
 0,                   /*nb_divmod*/
 0,                   /*nb_power*/
@@ -751,16 +751,16 @@ static PyNumberMethods SfPlay_as_number = {
 0,              /*nb_and*/
 0,              /*nb_xor*/
 0,               /*nb_or*/
-0,                                          /*nb_coerce*/
+INITIALIZE_NB_COERCE_ZERO                   /*nb_coerce*/
 0,                       /*nb_int*/
 0,                      /*nb_long*/
 0,                     /*nb_float*/
-0,                       /*nb_oct*/
-0,                       /*nb_hex*/
+INITIALIZE_NB_OCT_ZERO   /*nb_oct*/
+INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
 (binaryfunc)SfPlay_inplace_add,              /*inplace_add*/
 (binaryfunc)SfPlay_inplace_sub,         /*inplace_subtract*/
 (binaryfunc)SfPlay_inplace_multiply,         /*inplace_multiply*/
-(binaryfunc)SfPlay_inplace_div,           /*inplace_divide*/
+INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
 0,        /*inplace_remainder*/
 0,           /*inplace_power*/
 0,       /*inplace_lshift*/
@@ -769,15 +769,14 @@ static PyNumberMethods SfPlay_as_number = {
 0,      /*inplace_xor*/
 0,       /*inplace_or*/
 0,             /*nb_floor_divide*/
-0,              /*nb_true_divide*/
+(binaryfunc)SfPlay_div,                       /*nb_true_divide*/
 0,     /*nb_inplace_floor_divide*/
-0,      /*nb_inplace_true_divide*/
+(binaryfunc)SfPlay_inplace_div,                       /*nb_inplace_true_divide*/
 0,                     /* nb_index */
 };
 
 PyTypeObject SfPlayType = {
-PyObject_HEAD_INIT(NULL)
-0,                         /*ob_size*/
+PyVarObject_HEAD_INIT(NULL, 0)
 "_pyo.SfPlay_base",         /*tp_name*/
 sizeof(SfPlay),         /*tp_basicsize*/
 0,                         /*tp_itemsize*/
@@ -785,7 +784,7 @@ sizeof(SfPlay),         /*tp_basicsize*/
 0,                         /*tp_print*/
 0,                         /*tp_getattr*/
 0,                         /*tp_setattr*/
-0,                         /*tp_compare*/
+0,                         /*tp_as_async (tp_compare in Python 2)*/
 0,                         /*tp_repr*/
 &SfPlay_as_number,             /*tp_as_number*/
 0,                         /*tp_as_sequence*/
@@ -1086,7 +1085,7 @@ SfMarkerShuffler_dealloc(SfMarkerShuffler* self)
     free(self->samplesBuffer);
     free(self->markers);
     SfMarkerShuffler_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -1243,8 +1242,7 @@ static PyMethodDef SfMarkerShuffler_methods[] = {
 };
 
 PyTypeObject SfMarkerShufflerType = {
-PyObject_HEAD_INIT(NULL)
-0,                         /*ob_size*/
+PyVarObject_HEAD_INIT(NULL, 0)
 "_pyo.SfMarkerShuffler_base",         /*tp_name*/
 sizeof(SfMarkerShuffler),         /*tp_basicsize*/
 0,                         /*tp_itemsize*/
@@ -1252,7 +1250,7 @@ sizeof(SfMarkerShuffler),         /*tp_basicsize*/
 0,                         /*tp_print*/
 0,                         /*tp_getattr*/
 0,                         /*tp_setattr*/
-0,                         /*tp_compare*/
+0,                         /*tp_as_async (tp_compare in Python 2)*/
 0,                         /*tp_repr*/
 0,             /*tp_as_number*/
 0,                         /*tp_as_sequence*/
@@ -1375,7 +1373,7 @@ SfMarkerShuffle_dealloc(SfMarkerShuffle* self)
 {
     pyo_DEALLOC
     SfMarkerShuffle_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -1463,7 +1461,7 @@ static PyNumberMethods SfMarkerShuffle_as_number = {
 (binaryfunc)SfMarkerShuffle_add,                      /*nb_add*/
 (binaryfunc)SfMarkerShuffle_sub,                 /*nb_subtract*/
 (binaryfunc)SfMarkerShuffle_multiply,                 /*nb_multiply*/
-(binaryfunc)SfMarkerShuffle_div,                   /*nb_divide*/
+INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
 0,                /*nb_remainder*/
 0,                   /*nb_divmod*/
 0,                   /*nb_power*/
@@ -1477,16 +1475,16 @@ static PyNumberMethods SfMarkerShuffle_as_number = {
 0,              /*nb_and*/
 0,              /*nb_xor*/
 0,               /*nb_or*/
-0,                                          /*nb_coerce*/
+INITIALIZE_NB_COERCE_ZERO                   /*nb_coerce*/
 0,                       /*nb_int*/
 0,                      /*nb_long*/
 0,                     /*nb_float*/
-0,                       /*nb_oct*/
-0,                       /*nb_hex*/
+INITIALIZE_NB_OCT_ZERO   /*nb_oct*/
+INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
 (binaryfunc)SfMarkerShuffle_inplace_add,              /*inplace_add*/
 (binaryfunc)SfMarkerShuffle_inplace_sub,         /*inplace_subtract*/
 (binaryfunc)SfMarkerShuffle_inplace_multiply,         /*inplace_multiply*/
-(binaryfunc)SfMarkerShuffle_inplace_div,           /*inplace_divide*/
+INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
 0,        /*inplace_remainder*/
 0,           /*inplace_power*/
 0,       /*inplace_lshift*/
@@ -1495,15 +1493,14 @@ static PyNumberMethods SfMarkerShuffle_as_number = {
 0,      /*inplace_xor*/
 0,       /*inplace_or*/
 0,             /*nb_floor_divide*/
-0,              /*nb_true_divide*/
+(binaryfunc)SfMarkerShuffle_div,                       /*nb_true_divide*/
 0,     /*nb_inplace_floor_divide*/
-0,      /*nb_inplace_true_divide*/
+(binaryfunc)SfMarkerShuffle_inplace_div,                       /*nb_inplace_true_divide*/
 0,                     /* nb_index */
 };
 
 PyTypeObject SfMarkerShuffleType = {
-PyObject_HEAD_INIT(NULL)
-0,                         /*ob_size*/
+PyVarObject_HEAD_INIT(NULL, 0)
 "_pyo.SfMarkerShuffle_base",         /*tp_name*/
 sizeof(SfMarkerShuffle),         /*tp_basicsize*/
 0,                         /*tp_itemsize*/
@@ -1511,7 +1508,7 @@ sizeof(SfMarkerShuffle),         /*tp_basicsize*/
 0,                         /*tp_print*/
 0,                         /*tp_getattr*/
 0,                         /*tp_setattr*/
-0,                         /*tp_compare*/
+0,                         /*tp_as_async (tp_compare in Python 2)*/
 0,                         /*tp_repr*/
 &SfMarkerShuffle_as_number,             /*tp_as_number*/
 0,                         /*tp_as_sequence*/
@@ -1826,7 +1823,7 @@ SfMarkerLooper_dealloc(SfMarkerLooper* self)
     free(self->samplesBuffer);
     free(self->markers);
     SfMarkerLooper_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -2020,8 +2017,7 @@ static PyMethodDef SfMarkerLooper_methods[] = {
 };
 
 PyTypeObject SfMarkerLooperType = {
-    PyObject_HEAD_INIT(NULL)
-    0,                         /*ob_size*/
+    PyVarObject_HEAD_INIT(NULL, 0)
     "_pyo.SfMarkerLooper_base",         /*tp_name*/
     sizeof(SfMarkerLooper),         /*tp_basicsize*/
     0,                         /*tp_itemsize*/
@@ -2029,7 +2025,7 @@ PyTypeObject SfMarkerLooperType = {
     0,                         /*tp_print*/
     0,                         /*tp_getattr*/
     0,                         /*tp_setattr*/
-    0,                         /*tp_compare*/
+    0,                         /*tp_as_async (tp_compare in Python 2)*/
     0,                         /*tp_repr*/
     0,             /*tp_as_number*/
     0,                         /*tp_as_sequence*/
@@ -2152,7 +2148,7 @@ SfMarkerLoop_dealloc(SfMarkerLoop* self)
 {
     pyo_DEALLOC
     SfMarkerLoop_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -2240,7 +2236,7 @@ static PyNumberMethods SfMarkerLoop_as_number = {
     (binaryfunc)SfMarkerLoop_add,                      /*nb_add*/
     (binaryfunc)SfMarkerLoop_sub,                 /*nb_subtract*/
     (binaryfunc)SfMarkerLoop_multiply,                 /*nb_multiply*/
-    (binaryfunc)SfMarkerLoop_div,                   /*nb_divide*/
+    INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
     0,                /*nb_remainder*/
     0,                   /*nb_divmod*/
     0,                   /*nb_power*/
@@ -2254,16 +2250,16 @@ static PyNumberMethods SfMarkerLoop_as_number = {
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    0,                                          /*nb_coerce*/
+    INITIALIZE_NB_COERCE_ZERO                   /*nb_coerce*/
     0,                       /*nb_int*/
     0,                      /*nb_long*/
     0,                     /*nb_float*/
-    0,                       /*nb_oct*/
-    0,                       /*nb_hex*/
+    INITIALIZE_NB_OCT_ZERO   /*nb_oct*/
+    INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
     (binaryfunc)SfMarkerLoop_inplace_add,              /*inplace_add*/
     (binaryfunc)SfMarkerLoop_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)SfMarkerLoop_inplace_multiply,         /*inplace_multiply*/
-    (binaryfunc)SfMarkerLoop_inplace_div,           /*inplace_divide*/
+    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
     0,        /*inplace_remainder*/
     0,           /*inplace_power*/
     0,       /*inplace_lshift*/
@@ -2272,15 +2268,14 @@ static PyNumberMethods SfMarkerLoop_as_number = {
     0,      /*inplace_xor*/
     0,       /*inplace_or*/
     0,             /*nb_floor_divide*/
-    0,              /*nb_true_divide*/
+    (binaryfunc)SfMarkerLoop_div,                       /*nb_true_divide*/
     0,     /*nb_inplace_floor_divide*/
-    0,      /*nb_inplace_true_divide*/
+    (binaryfunc)SfMarkerLoop_inplace_div,                       /*nb_inplace_true_divide*/
     0,                     /* nb_index */
 };
 
 PyTypeObject SfMarkerLoopType = {
-    PyObject_HEAD_INIT(NULL)
-    0,                         /*ob_size*/
+    PyVarObject_HEAD_INIT(NULL, 0)
     "_pyo.SfMarkerLoop_base",         /*tp_name*/
     sizeof(SfMarkerLoop),         /*tp_basicsize*/
     0,                         /*tp_itemsize*/
@@ -2288,7 +2283,7 @@ PyTypeObject SfMarkerLoopType = {
     0,                         /*tp_print*/
     0,                         /*tp_getattr*/
     0,                         /*tp_setattr*/
-    0,                         /*tp_compare*/
+    0,                         /*tp_as_async (tp_compare in Python 2)*/
     0,                         /*tp_repr*/
     &SfMarkerLoop_as_number,             /*tp_as_number*/
     0,                         /*tp_as_sequence*/

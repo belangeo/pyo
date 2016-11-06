@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # encoding: utf-8
+from __future__ import print_function
 
 """
 Scan for Midi controller numbers. Launch this script from a terminal.
@@ -10,16 +11,16 @@ import time
 
 pm_list_devices()
 
-num = input("Enter your Midi interface number : ")
+num = eval(input("Enter your Midi interface number : "))
 
 s = Server(duplex=0)
 s.setMidiInputDevice(num)
 s.boot().start()
 
-print "Play with your Midi controllers..."
+print("Play with your Midi controllers...")
 
 def pp(x): 
-    print "controller number =", x
+    print("controller number =", x)
 
 scan = CtlScan(pp, False)
 
@@ -27,9 +28,9 @@ again = "y"
 while again == "y":
     time.sleep(10)
     scan.stop()
-    again = raw_input("Do you want to continue ? (y/n) : ")
+    again = input("Do you want to continue ? (y/n) : ")
     if again == "y":
-        print "Continue..."
+        print("Continue...")
         scan.play()
     
 s.stop()

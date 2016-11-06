@@ -6,6 +6,8 @@ store audio samples or algorithmic sequences for future uses.
 
 """
 
+from __future__ import absolute_import
+from six.moves import range
 """
 Copyright 2009-2015 Olivier Belanger
 
@@ -25,9 +27,8 @@ GNU Lesser General Public License for more details.
 You should have received a copy of the GNU Lesser General Public
 License along with pyo.  If not, see <http://www.gnu.org/licenses/>.
 """
-from _core import *
-from _maps import *
-from types import SliceType
+from ._core import *
+from ._maps import *
 
 class Osc(PyoObject):
     """

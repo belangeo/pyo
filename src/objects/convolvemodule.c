@@ -19,6 +19,7 @@
  *************************************************************************/
 
 #include <Python.h>
+#include "py2to3.h"
 #include "structmember.h"
 #include "pyomodule.h"
 #include "streammodule.h"
@@ -147,7 +148,7 @@ Convolve_dealloc(Convolve* self)
     pyo_DEALLOC
     free(self->input_tmp);
     Convolve_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -270,7 +271,7 @@ static PyNumberMethods Convolve_as_number = {
 (binaryfunc)Convolve_add,                         /*nb_add*/
 (binaryfunc)Convolve_sub,                         /*nb_subtract*/
 (binaryfunc)Convolve_multiply,                    /*nb_multiply*/
-(binaryfunc)Convolve_div,                                              /*nb_divide*/
+INITIALIZE_NB_DIVIDE_ZERO                       /*nb_divide*/
 0,                                              /*nb_remainder*/
 0,                                              /*nb_divmod*/
 0,                                              /*nb_power*/
@@ -284,16 +285,16 @@ static PyNumberMethods Convolve_as_number = {
 0,                                              /*nb_and*/
 0,                                              /*nb_xor*/
 0,                                              /*nb_or*/
-0,                                              /*nb_coerce*/
+INITIALIZE_NB_COERCE_ZERO                       /*nb_coerce*/
 0,                                              /*nb_int*/
 0,                                              /*nb_long*/
 0,                                              /*nb_float*/
-0,                                              /*nb_oct*/
-0,                                              /*nb_hex*/
+INITIALIZE_NB_OCT_ZERO                          /*nb_oct*/
+INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
 (binaryfunc)Convolve_inplace_add,                 /*inplace_add*/
 (binaryfunc)Convolve_inplace_sub,                 /*inplace_subtract*/
 (binaryfunc)Convolve_inplace_multiply,            /*inplace_multiply*/
-(binaryfunc)Convolve_inplace_div,                                              /*inplace_divide*/
+INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO                                           /*inplace_divide*/
 0,                                              /*inplace_remainder*/
 0,                                              /*inplace_power*/
 0,                                              /*inplace_lshift*/
@@ -302,15 +303,14 @@ static PyNumberMethods Convolve_as_number = {
 0,                                              /*inplace_xor*/
 0,                                              /*inplace_or*/
 0,                                              /*nb_floor_divide*/
-0,                                              /*nb_true_divide*/
+(binaryfunc)Convolve_div,                       /*nb_true_divide*/
 0,                                              /*nb_inplace_floor_divide*/
-0,                                              /*nb_inplace_true_divide*/
+(binaryfunc)Convolve_inplace_div,                       /*nb_inplace_true_divide*/
 0,                                              /* nb_index */
 };
 
 PyTypeObject ConvolveType = {
-PyObject_HEAD_INIT(NULL)
-0,                                              /*ob_size*/
+PyVarObject_HEAD_INIT(NULL, 0)
 "_pyo.Convolve_base",                                   /*tp_name*/
 sizeof(Convolve),                                 /*tp_basicsize*/
 0,                                              /*tp_itemsize*/
@@ -318,7 +318,7 @@ sizeof(Convolve),                                 /*tp_basicsize*/
 0,                                              /*tp_print*/
 0,                                              /*tp_getattr*/
 0,                                              /*tp_setattr*/
-0,                                              /*tp_compare*/
+0,                                              /*tp_as_async (tp_compare in Python 2)*/
 0,                                              /*tp_repr*/
 &Convolve_as_number,                              /*tp_as_number*/
 0,                                              /*tp_as_sequence*/
@@ -617,7 +617,7 @@ IRWinSinc_dealloc(IRWinSinc* self)
     free(self->impulse);
     free(self->impulse_tmp);
     IRWinSinc_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -802,7 +802,7 @@ static PyNumberMethods IRWinSinc_as_number = {
     (binaryfunc)IRWinSinc_add,                         /*nb_add*/
     (binaryfunc)IRWinSinc_sub,                         /*nb_subtract*/
     (binaryfunc)IRWinSinc_multiply,                    /*nb_multiply*/
-    (binaryfunc)IRWinSinc_div,                                              /*nb_divide*/
+    INITIALIZE_NB_DIVIDE_ZERO                       /*nb_divide*/
     0,                                              /*nb_remainder*/
     0,                                              /*nb_divmod*/
     0,                                              /*nb_power*/
@@ -816,16 +816,16 @@ static PyNumberMethods IRWinSinc_as_number = {
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    0,                                              /*nb_coerce*/
+    INITIALIZE_NB_COERCE_ZERO                       /*nb_coerce*/
     0,                                              /*nb_int*/
     0,                                              /*nb_long*/
     0,                                              /*nb_float*/
-    0,                                              /*nb_oct*/
-    0,                                              /*nb_hex*/
+    INITIALIZE_NB_OCT_ZERO                          /*nb_oct*/
+    INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
     (binaryfunc)IRWinSinc_inplace_add,                 /*inplace_add*/
     (binaryfunc)IRWinSinc_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)IRWinSinc_inplace_multiply,            /*inplace_multiply*/
-    (binaryfunc)IRWinSinc_inplace_div,                                              /*inplace_divide*/
+    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO                                           /*inplace_divide*/
     0,                                              /*inplace_remainder*/
     0,                                              /*inplace_power*/
     0,                                              /*inplace_lshift*/
@@ -834,15 +834,14 @@ static PyNumberMethods IRWinSinc_as_number = {
     0,                                              /*inplace_xor*/
     0,                                              /*inplace_or*/
     0,                                              /*nb_floor_divide*/
-    0,                                              /*nb_true_divide*/
+    (binaryfunc)IRWinSinc_div,                       /*nb_true_divide*/
     0,                                              /*nb_inplace_floor_divide*/
-    0,                                              /*nb_inplace_true_divide*/
+    (binaryfunc)IRWinSinc_inplace_div,                       /*nb_inplace_true_divide*/
     0,                                              /* nb_index */
 };
 
 PyTypeObject IRWinSincType = {
-    PyObject_HEAD_INIT(NULL)
-    0,                                              /*ob_size*/
+    PyVarObject_HEAD_INIT(NULL, 0)
     "_pyo.IRWinSinc_base",                                   /*tp_name*/
     sizeof(IRWinSinc),                                 /*tp_basicsize*/
     0,                                              /*tp_itemsize*/
@@ -850,7 +849,7 @@ PyTypeObject IRWinSincType = {
     0,                                              /*tp_print*/
     0,                                              /*tp_getattr*/
     0,                                              /*tp_setattr*/
-    0,                                              /*tp_compare*/
+    0,                                              /*tp_as_async (tp_compare in Python 2)*/
     0,                                              /*tp_repr*/
     &IRWinSinc_as_number,                              /*tp_as_number*/
     0,                                              /*tp_as_sequence*/
@@ -1024,7 +1023,7 @@ IRAverage_dealloc(IRAverage* self)
     free(self->input_tmp);
     free(self->impulse);
     IRAverage_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -1114,7 +1113,7 @@ static PyNumberMethods IRAverage_as_number = {
     (binaryfunc)IRAverage_add,                         /*nb_add*/
     (binaryfunc)IRAverage_sub,                         /*nb_subtract*/
     (binaryfunc)IRAverage_multiply,                    /*nb_multiply*/
-    (binaryfunc)IRAverage_div,                                              /*nb_divide*/
+    INITIALIZE_NB_DIVIDE_ZERO                       /*nb_divide*/
     0,                                              /*nb_remainder*/
     0,                                              /*nb_divmod*/
     0,                                              /*nb_power*/
@@ -1128,16 +1127,16 @@ static PyNumberMethods IRAverage_as_number = {
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    0,                                              /*nb_coerce*/
+    INITIALIZE_NB_COERCE_ZERO                       /*nb_coerce*/
     0,                                              /*nb_int*/
     0,                                              /*nb_long*/
     0,                                              /*nb_float*/
-    0,                                              /*nb_oct*/
-    0,                                              /*nb_hex*/
+    INITIALIZE_NB_OCT_ZERO                          /*nb_oct*/
+    INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
     (binaryfunc)IRAverage_inplace_add,                 /*inplace_add*/
     (binaryfunc)IRAverage_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)IRAverage_inplace_multiply,            /*inplace_multiply*/
-    (binaryfunc)IRAverage_inplace_div,                                              /*inplace_divide*/
+    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO                                           /*inplace_divide*/
     0,                                              /*inplace_remainder*/
     0,                                              /*inplace_power*/
     0,                                              /*inplace_lshift*/
@@ -1146,15 +1145,14 @@ static PyNumberMethods IRAverage_as_number = {
     0,                                              /*inplace_xor*/
     0,                                              /*inplace_or*/
     0,                                              /*nb_floor_divide*/
-    0,                                              /*nb_true_divide*/
+    (binaryfunc)IRAverage_div,                       /*nb_true_divide*/
     0,                                              /*nb_inplace_floor_divide*/
-    0,                                              /*nb_inplace_true_divide*/
+    (binaryfunc)IRAverage_inplace_div,                       /*nb_inplace_true_divide*/
     0,                                              /* nb_index */
 };
 
 PyTypeObject IRAverageType = {
-    PyObject_HEAD_INIT(NULL)
-    0,                                              /*ob_size*/
+    PyVarObject_HEAD_INIT(NULL, 0)
     "_pyo.IRAverage_base",                                   /*tp_name*/
     sizeof(IRAverage),                                 /*tp_basicsize*/
     0,                                              /*tp_itemsize*/
@@ -1162,7 +1160,7 @@ PyTypeObject IRAverageType = {
     0,                                              /*tp_print*/
     0,                                              /*tp_getattr*/
     0,                                              /*tp_setattr*/
-    0,                                              /*tp_compare*/
+    0,                                              /*tp_as_async (tp_compare in Python 2)*/
     0,                                              /*tp_repr*/
     &IRAverage_as_number,                              /*tp_as_number*/
     0,                                              /*tp_as_sequence*/
@@ -1480,7 +1478,7 @@ IRPulse_dealloc(IRPulse* self)
     free(self->input_tmp);
     free(self->impulse);
     IRPulse_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -1666,7 +1664,7 @@ static PyNumberMethods IRPulse_as_number = {
     (binaryfunc)IRPulse_add,                         /*nb_add*/
     (binaryfunc)IRPulse_sub,                         /*nb_subtract*/
     (binaryfunc)IRPulse_multiply,                    /*nb_multiply*/
-    (binaryfunc)IRPulse_div,                                              /*nb_divide*/
+    INITIALIZE_NB_DIVIDE_ZERO                       /*nb_divide*/
     0,                                              /*nb_remainder*/
     0,                                              /*nb_divmod*/
     0,                                              /*nb_power*/
@@ -1680,16 +1678,16 @@ static PyNumberMethods IRPulse_as_number = {
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    0,                                              /*nb_coerce*/
+    INITIALIZE_NB_COERCE_ZERO                       /*nb_coerce*/
     0,                                              /*nb_int*/
     0,                                              /*nb_long*/
     0,                                              /*nb_float*/
-    0,                                              /*nb_oct*/
-    0,                                              /*nb_hex*/
+    INITIALIZE_NB_OCT_ZERO                          /*nb_oct*/
+    INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
     (binaryfunc)IRPulse_inplace_add,                 /*inplace_add*/
     (binaryfunc)IRPulse_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)IRPulse_inplace_multiply,            /*inplace_multiply*/
-    (binaryfunc)IRPulse_inplace_div,                                              /*inplace_divide*/
+    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO                                           /*inplace_divide*/
     0,                                              /*inplace_remainder*/
     0,                                              /*inplace_power*/
     0,                                              /*inplace_lshift*/
@@ -1698,15 +1696,14 @@ static PyNumberMethods IRPulse_as_number = {
     0,                                              /*inplace_xor*/
     0,                                              /*inplace_or*/
     0,                                              /*nb_floor_divide*/
-    0,                                              /*nb_true_divide*/
+    (binaryfunc)IRPulse_div,                       /*nb_true_divide*/
     0,                                              /*nb_inplace_floor_divide*/
-    0,                                              /*nb_inplace_true_divide*/
+    (binaryfunc)IRPulse_inplace_div,                       /*nb_inplace_true_divide*/
     0,                                              /* nb_index */
 };
 
 PyTypeObject IRPulseType = {
-    PyObject_HEAD_INIT(NULL)
-    0,                                              /*ob_size*/
+    PyVarObject_HEAD_INIT(NULL, 0)
     "_pyo.IRPulse_base",                                   /*tp_name*/
     sizeof(IRPulse),                                 /*tp_basicsize*/
     0,                                              /*tp_itemsize*/
@@ -1714,7 +1711,7 @@ PyTypeObject IRPulseType = {
     0,                                              /*tp_print*/
     0,                                              /*tp_getattr*/
     0,                                              /*tp_setattr*/
-    0,                                              /*tp_compare*/
+    0,                                              /*tp_as_async (tp_compare in Python 2)*/
     0,                                              /*tp_repr*/
     &IRPulse_as_number,                              /*tp_as_number*/
     0,                                              /*tp_as_sequence*/
@@ -1963,7 +1960,7 @@ IRFM_dealloc(IRFM* self)
     free(self->input_tmp);
     free(self->impulse);
     IRFM_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -2167,7 +2164,7 @@ static PyNumberMethods IRFM_as_number = {
     (binaryfunc)IRFM_add,                         /*nb_add*/
     (binaryfunc)IRFM_sub,                         /*nb_subtract*/
     (binaryfunc)IRFM_multiply,                    /*nb_multiply*/
-    (binaryfunc)IRFM_div,                                              /*nb_divide*/
+    INITIALIZE_NB_DIVIDE_ZERO                       /*nb_divide*/
     0,                                              /*nb_remainder*/
     0,                                              /*nb_divmod*/
     0,                                              /*nb_power*/
@@ -2181,16 +2178,16 @@ static PyNumberMethods IRFM_as_number = {
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    0,                                              /*nb_coerce*/
+    INITIALIZE_NB_COERCE_ZERO                       /*nb_coerce*/
     0,                                              /*nb_int*/
     0,                                              /*nb_long*/
     0,                                              /*nb_float*/
-    0,                                              /*nb_oct*/
-    0,                                              /*nb_hex*/
+    INITIALIZE_NB_OCT_ZERO                          /*nb_oct*/
+    INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
     (binaryfunc)IRFM_inplace_add,                 /*inplace_add*/
     (binaryfunc)IRFM_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)IRFM_inplace_multiply,            /*inplace_multiply*/
-    (binaryfunc)IRFM_inplace_div,                                              /*inplace_divide*/
+    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO                                           /*inplace_divide*/
     0,                                              /*inplace_remainder*/
     0,                                              /*inplace_power*/
     0,                                              /*inplace_lshift*/
@@ -2199,15 +2196,14 @@ static PyNumberMethods IRFM_as_number = {
     0,                                              /*inplace_xor*/
     0,                                              /*inplace_or*/
     0,                                              /*nb_floor_divide*/
-    0,                                              /*nb_true_divide*/
+    (binaryfunc)IRFM_div,                       /*nb_true_divide*/
     0,                                              /*nb_inplace_floor_divide*/
-    0,                                              /*nb_inplace_true_divide*/
+    (binaryfunc)IRFM_inplace_div,                       /*nb_inplace_true_divide*/
     0,                                              /* nb_index */
 };
 
 PyTypeObject IRFMType = {
-    PyObject_HEAD_INIT(NULL)
-    0,                                              /*ob_size*/
+    PyVarObject_HEAD_INIT(NULL, 0)
     "_pyo.IRFM_base",                                   /*tp_name*/
     sizeof(IRFM),                                 /*tp_basicsize*/
     0,                                              /*tp_itemsize*/
@@ -2215,7 +2211,7 @@ PyTypeObject IRFMType = {
     0,                                              /*tp_print*/
     0,                                              /*tp_getattr*/
     0,                                              /*tp_setattr*/
-    0,                                              /*tp_compare*/
+    0,                                              /*tp_as_async (tp_compare in Python 2)*/
     0,                                              /*tp_repr*/
     &IRFM_as_number,                              /*tp_as_number*/
     0,                                              /*tp_as_sequence*/

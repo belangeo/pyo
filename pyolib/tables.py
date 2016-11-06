@@ -1,3 +1,6 @@
+from __future__ import print_function
+from __future__ import absolute_import
+from six.moves import range
 """
 Copyright 2009-2015 Olivier Belanger
 
@@ -17,10 +20,9 @@ GNU Lesser General Public License for more details.
 You should have received a copy of the GNU Lesser General Public
 License along with pyo.  If not, see <http://www.gnu.org/licenses/>.
 """
-from _core import *
-from _maps import *
-from _widgets import createGraphWindow, createDataGraphWindow, createSndViewTableWindow
-from types import ListType
+from ._core import *
+from ._maps import *
+from ._widgets import createGraphWindow, createDataGraphWindow, createSndViewTableWindow
 from math import pi
 import copy
 
@@ -479,8 +481,8 @@ class LinTable(PyoTableObject):
         pyoArgsAssert(self, "lI", list, size)
         PyoTableObject.__init__(self, size)
         if size < list[-1][0]:
-            print "LinTable warning : size smaller than last point position."
-            print "                   Increased size to last point position + 1"
+            print("LinTable warning : size smaller than last point position.")
+            print("                   Increased size to last point position + 1")
             size = list[-1][0] + 1
             self._size = size
         self._base_objs = [LinTable_base(copy.deepcopy(list), size)]
@@ -612,8 +614,8 @@ class LogTable(PyoTableObject):
         pyoArgsAssert(self, "lI", list, size)
         PyoTableObject.__init__(self, size)
         if size < list[-1][0]:
-            print "LogTable warning : size smaller than last point position."
-            print "                   Increased size to last point position + 1"
+            print("LogTable warning : size smaller than last point position.")
+            print("                   Increased size to last point position + 1")
             size = list[-1][0] + 1
             self._size = size
         self._base_objs = [LogTable_base(copy.deepcopy(list), size)]
@@ -745,8 +747,8 @@ class CosLogTable(PyoTableObject):
         pyoArgsAssert(self, "lI", list, size)
         PyoTableObject.__init__(self, size)
         if size < list[-1][0]:
-            print "CosLogTable warning : size smaller than last point position."
-            print "                   Increased size to last point position + 1"
+            print("CosLogTable warning : size smaller than last point position.")
+            print("                   Increased size to last point position + 1")
             size = list[-1][0] + 1
             self._size = size
         self._base_objs = [CosLogTable_base(copy.deepcopy(list), size)]
@@ -877,8 +879,8 @@ class CosTable(PyoTableObject):
         pyoArgsAssert(self, "lI", list, size)
         PyoTableObject.__init__(self, size)
         if size < list[-1][0]:
-            print "CosTable warning : size smaller than last point position."
-            print "                   Increased size to last point position + 1"
+            print("CosTable warning : size smaller than last point position.")
+            print("                   Increased size to last point position + 1")
             size = list[-1][0] + 1
             self._size = size
         self._base_objs = [CosTable_base(copy.deepcopy(list), size)]
@@ -1025,8 +1027,8 @@ class CurveTable(PyoTableObject):
         pyoArgsAssert(self, "lNNI", list, tension, bias, size)
         PyoTableObject.__init__(self, size)
         if size < list[-1][0]:
-            print "CurveTable warning : size smaller than last point position."
-            print "                     Increased size to last point position + 1"
+            print("CurveTable warning : size smaller than last point position.")
+            print("                     Increased size to last point position + 1")
             size = list[-1][0] + 1
             self._size = size
         self._tension = tension
@@ -1213,8 +1215,8 @@ class ExpTable(PyoTableObject):
         pyoArgsAssert(self, "lNBI", list, exp, inverse, size)
         PyoTableObject.__init__(self, size)
         if size < list[-1][0]:
-            print "ExpTable warning : size smaller than last point position."
-            print "                   Increased size to last point position + 1"
+            print("ExpTable warning : size smaller than last point position.")
+            print("                   Increased size to last point position + 1")
             size = list[-1][0] + 1
             self._size = size
         self._exp = exp
@@ -1441,7 +1443,7 @@ class SndTable(PyoTableObject):
 
         """
         self._path = path
-        if type(path) == ListType:
+        if type(path) == list:
             self._size = []
             self._dur = []
             path, lmax = convertArgsToLists(path)
@@ -1488,7 +1490,7 @@ class SndTable(PyoTableObject):
                 means the end of the file.
 
         """
-        if type(path) == ListType:
+        if type(path) == list:
             self._size = []
             self._dur = []
             path, lmax = convertArgsToLists(path)
@@ -1540,7 +1542,7 @@ class SndTable(PyoTableObject):
                 means the end of the file.
 
         """
-        if type(path) == ListType:
+        if type(path) == list:
             self._size = []
             self._dur = []
             path, lmax = convertArgsToLists(path)
@@ -1576,7 +1578,7 @@ class SndTable(PyoTableObject):
                 first duration as a float.
 
         """
-        if type(self._path) == ListType:
+        if type(self._path) == list:
             _rate = [obj.getRate() for obj in self._base_objs]
         else:
             _rate = self._base_objs[0].getRate()
@@ -1584,7 +1586,7 @@ class SndTable(PyoTableObject):
         if all:
             return _rate
         else:
-            if type(_rate) == ListType:
+            if type(_rate) == list:
                 return _rate[0]
             else:
                 return _rate
@@ -1601,7 +1603,7 @@ class SndTable(PyoTableObject):
                 first duration as a float.
 
         """
-        if type(self._path) == ListType:
+        if type(self._path) == list:
             _dur = [1./obj.getRate() for obj in self._base_objs]
         else:
             _dur = 1./self._base_objs[0].getRate()
@@ -1609,13 +1611,13 @@ class SndTable(PyoTableObject):
         if all:
             return _dur
         else:
-            if type(_dur) == ListType:
+            if type(_dur) == list:
                 return _dur[0]
             else:
                 return _dur
 
     def setSize(self, x):
-        print "SndTable has no setSize method!"
+        print("SndTable has no setSize method!")
 
     def getSize(self, all=True):
         """
@@ -1637,7 +1639,7 @@ class SndTable(PyoTableObject):
         if all:
             return _size
         else:
-            if type(_size) == ListType:
+            if type(_size) == list:
                 return _size[0]
             else:
                 return _size
@@ -1733,27 +1735,27 @@ class SndTable(PyoTableObject):
         """int. Channel to read in."""
         return self._chnl
     @chnl.setter
-    def chnl(self, x): print "'chnl' attribute is read-only."
+    def chnl(self, x): print("'chnl' attribute is read-only.")
 
     @property
     def start(self):
         """float. Start point, in seconds, to read into the file."""
         return self._start
     @start.setter
-    def start(self, x): print "'start' attribute is read-only."
+    def start(self, x): print("'start' attribute is read-only.")
 
     @property
     def stop(self):
         """float. Stop point, in seconds, to read into the file."""
         return self._stop
     @stop.setter
-    def stop(self, x): print "SndTable 'stop' attribute is read-only."
+    def stop(self, x): print("SndTable 'stop' attribute is read-only.")
 
     @property
     def size(self):
         return self._size
     @size.setter
-    def size(self, x): print "SndTable 'size' attribute is read-only."
+    def size(self, x): print("SndTable 'size' attribute is read-only.")
 
 class NewTable(PyoTableObject):
     """
@@ -1803,7 +1805,7 @@ class NewTable(PyoTableObject):
         if init == None:
             self._base_objs = [NewTable_base(length, None, feedback) for i in range(chnls)]
         else:
-            if type(init[0]) != ListType:
+            if type(init[0]) != list:
                 init = [init]
             self._base_objs = [NewTable_base(length, wrap(init,i), feedback) for i in range(chnls)]
         self._size = self._base_objs[0].getSize()
@@ -1822,7 +1824,7 @@ class NewTable(PyoTableObject):
 
         """
         pyoArgsAssert(self, "l", x)
-        if type(x[0]) != ListType:
+        if type(x[0]) != list:
             x = [x]
         [obj.setTable(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
         self.refreshView()
@@ -1923,21 +1925,21 @@ class NewTable(PyoTableObject):
         """float. Length of the table in seconds."""
         return self._length
     @length.setter
-    def length(self, x): print "'length' attribute is read-only."
+    def length(self, x): print("'length' attribute is read-only.")
 
     @property
     def chnls(self):
         """int. Number of channels that will be handled by the table."""
         return self._chnls
     @chnls.setter
-    def chnls(self, x): print "'chnls' attribute is read-only."
+    def chnls(self, x): print("'chnls' attribute is read-only.")
 
     @property
     def init(self):
         """list of floats. Initial table."""
         return self._init
     @init.setter
-    def init(self, x): print "'init' attribute is read-only."
+    def init(self, x): print("'init' attribute is read-only.")
 
     @property
     def feedback(self):
@@ -1950,7 +1952,7 @@ class NewTable(PyoTableObject):
     def size(self):
         return self._size
     @size.setter
-    def size(self, x): print "NewTable 'size' attribute is read-only."
+    def size(self, x): print("NewTable 'size' attribute is read-only.")
 
 class DataTable(PyoTableObject):
     """
@@ -1993,7 +1995,7 @@ class DataTable(PyoTableObject):
         if init == None:
             self._base_objs = [DataTable_base(size) for i in range(chnls)]
         else:
-            if type(init[0]) != ListType:
+            if type(init[0]) != list:
                 init = [init]
             self._base_objs = [DataTable_base(size, wrap(init,i)) for i in range(chnls)]
 
@@ -2011,7 +2013,7 @@ class DataTable(PyoTableObject):
 
         """
         pyoArgsAssert(self, "l", x)
-        if type(x[0]) != ListType:
+        if type(x[0]) != list:
             x = [x]
         [obj.setTable(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
         self.refreshView()
@@ -2054,21 +2056,21 @@ class DataTable(PyoTableObject):
         """int. Length of the table in samples."""
         return self._size
     @size.setter
-    def size(self, x): print "DataTable 'size' attribute is read-only."
+    def size(self, x): print("DataTable 'size' attribute is read-only.")
 
     @property
     def chnls(self):
         """int. Number of channels that will be handled by the table."""
         return self._chnls
     @chnls.setter
-    def chnls(self, x): print "'chnls' attribute is read-only."
+    def chnls(self, x): print("'chnls' attribute is read-only.")
 
     @property
     def init(self):
         """list of floats. Initial table."""
         return self._init
     @init.setter
-    def init(self, x): print "'init' attribute is read-only."
+    def init(self, x): print("'init' attribute is read-only.")
 
 class AtanTable(PyoTableObject):
     """

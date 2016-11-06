@@ -8,6 +8,7 @@ call reset() to get back initial values.
 """
 from pyo import *
 from random import uniform
+from six.moves import range
 
 s = Server(sr=44100, nchnls=2, buffersize=1024, duplex=0).boot()
 

@@ -19,6 +19,7 @@
  *************************************************************************/
 
 #include <Python.h>
+#include "py2to3.h"
 #include "structmember.h"
 #include "pyomodule.h"
 #include "servermodule.h"
@@ -35,7 +36,7 @@
 static void
 MatrixStream_dealloc(MatrixStream* self)
 {
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -122,8 +123,7 @@ MatrixStream_setHeight(MatrixStream *self, int size)
 }
 
 PyTypeObject MatrixStreamType = {
-PyObject_HEAD_INIT(NULL)
-0, /*ob_size*/
+PyVarObject_HEAD_INIT(NULL, 0)
 "_pyo.MatrixStream", /*tp_name*/
 sizeof(MatrixStream), /*tp_basicsize*/
 0, /*tp_itemsize*/
@@ -131,7 +131,7 @@ sizeof(MatrixStream), /*tp_basicsize*/
 0, /*tp_print*/
 0, /*tp_getattr*/
 0, /*tp_setattr*/
-0, /*tp_compare*/
+0, /*tp_as_async (tp_compare in Python 2)*/
 0, /*tp_repr*/
 0, /*tp_as_number*/
 0, /*tp_as_sequence*/
@@ -220,7 +220,7 @@ NewMatrix_dealloc(NewMatrix* self)
     }
     free(self->data);
     NewMatrix_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -418,8 +418,7 @@ static PyMethodDef NewMatrix_methods[] = {
 };
 
 PyTypeObject NewMatrixType = {
-PyObject_HEAD_INIT(NULL)
-0,                         /*ob_size*/
+PyVarObject_HEAD_INIT(NULL, 0)
 "_pyo.NewMatrix_base",         /*tp_name*/
 sizeof(NewMatrix),         /*tp_basicsize*/
 0,                         /*tp_itemsize*/
@@ -427,7 +426,7 @@ sizeof(NewMatrix),         /*tp_basicsize*/
 0,                         /*tp_print*/
 0,                         /*tp_getattr*/
 0,                         /*tp_setattr*/
-0,                         /*tp_compare*/
+0,                         /*tp_as_async (tp_compare in Python 2)*/
 0,                         /*tp_repr*/
 0,                         /*tp_as_number*/
 0,                         /*tp_as_sequence*/
@@ -566,7 +565,7 @@ MatrixRec_dealloc(MatrixRec* self)
     pyo_DEALLOC
     free(self->trigsBuffer);
     MatrixRec_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -669,8 +668,7 @@ static PyMethodDef MatrixRec_methods[] = {
 };
 
 PyTypeObject MatrixRecType = {
-    PyObject_HEAD_INIT(NULL)
-    0,                         /*ob_size*/
+    PyVarObject_HEAD_INIT(NULL, 0)
     "_pyo.MatrixRec_base",         /*tp_name*/
     sizeof(MatrixRec),         /*tp_basicsize*/
     0,                         /*tp_itemsize*/
@@ -678,7 +676,7 @@ PyTypeObject MatrixRecType = {
     0,                         /*tp_print*/
     0,                         /*tp_getattr*/
     0,                         /*tp_setattr*/
-    0,                         /*tp_compare*/
+    0,                         /*tp_as_async (tp_compare in Python 2)*/
     0,                         /*tp_repr*/
     0,             /*tp_as_number*/
     0,                         /*tp_as_sequence*/
@@ -774,7 +772,7 @@ MatrixRecLoop_dealloc(MatrixRecLoop* self)
     pyo_DEALLOC
     free(self->trigsBuffer);
     MatrixRecLoop_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -859,8 +857,7 @@ static PyMethodDef MatrixRecLoop_methods[] = {
 };
 
 PyTypeObject MatrixRecLoopType = {
-    PyObject_HEAD_INIT(NULL)
-    0,                         /*ob_size*/
+    PyVarObject_HEAD_INIT(NULL, 0)
     "_pyo.MatrixRecLoop_base",         /*tp_name*/
     sizeof(MatrixRecLoop),         /*tp_basicsize*/
     0,                         /*tp_itemsize*/
@@ -868,7 +865,7 @@ PyTypeObject MatrixRecLoopType = {
     0,                         /*tp_print*/
     0,                         /*tp_getattr*/
     0,                         /*tp_setattr*/
-    0,                         /*tp_compare*/
+    0,                         /*tp_as_async (tp_compare in Python 2)*/
     0,                         /*tp_repr*/
     0,             /*tp_as_number*/
     0,                         /*tp_as_sequence*/
@@ -985,7 +982,7 @@ MatrixMorph_dealloc(MatrixMorph* self)
     pyo_DEALLOC
     free(self->buffer);
     MatrixMorph_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -1086,8 +1083,7 @@ static PyMethodDef MatrixMorph_methods[] = {
 };
 
 PyTypeObject MatrixMorphType = {
-    PyObject_HEAD_INIT(NULL)
-    0,                         /*ob_size*/
+    PyVarObject_HEAD_INIT(NULL, 0)
     "_pyo.MatrixMorph_base",         /*tp_name*/
     sizeof(MatrixMorph),         /*tp_basicsize*/
     0,                         /*tp_itemsize*/
@@ -1095,7 +1091,7 @@ PyTypeObject MatrixMorphType = {
     0,                         /*tp_print*/
     0,                         /*tp_getattr*/
     0,                         /*tp_setattr*/
-    0,                         /*tp_compare*/
+    0,                         /*tp_as_async (tp_compare in Python 2)*/
     0,                         /*tp_repr*/
     0,             /*tp_as_number*/
     0,                         /*tp_as_sequence*/

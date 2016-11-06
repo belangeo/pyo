@@ -1,4 +1,5 @@
-from _core import *
+from __future__ import absolute_import
+from ._core import *
 import time
 import threading
 

@@ -19,6 +19,7 @@
  *************************************************************************/
 
 #include <Python.h>
+#include "py2to3.h"
 #include "structmember.h"
 #include <math.h>
 #include "pyomodule.h"
@@ -613,7 +614,7 @@ Freeverb_dealloc(Freeverb* self)
         free(self->allpass_buf[i]);
     }
     Freeverb_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -841,7 +842,7 @@ static PyNumberMethods Freeverb_as_number = {
     (binaryfunc)Freeverb_add,                      /*nb_add*/
     (binaryfunc)Freeverb_sub,                 /*nb_subtract*/
     (binaryfunc)Freeverb_multiply,                 /*nb_multiply*/
-    (binaryfunc)Freeverb_div,                   /*nb_divide*/
+    INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
     0,                /*nb_remainder*/
     0,                   /*nb_divmod*/
     0,                   /*nb_power*/
@@ -855,16 +856,16 @@ static PyNumberMethods Freeverb_as_number = {
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    0,                                          /*nb_coerce*/
+    INITIALIZE_NB_COERCE_ZERO                   /*nb_coerce*/
     0,                       /*nb_int*/
     0,                      /*nb_long*/
     0,                     /*nb_float*/
-    0,                       /*nb_oct*/
-    0,                       /*nb_hex*/
+    INITIALIZE_NB_OCT_ZERO   /*nb_oct*/
+    INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
     (binaryfunc)Freeverb_inplace_add,              /*inplace_add*/
     (binaryfunc)Freeverb_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)Freeverb_inplace_multiply,         /*inplace_multiply*/
-    (binaryfunc)Freeverb_inplace_div,           /*inplace_divide*/
+    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
     0,        /*inplace_remainder*/
     0,           /*inplace_power*/
     0,       /*inplace_lshift*/
@@ -873,15 +874,14 @@ static PyNumberMethods Freeverb_as_number = {
     0,      /*inplace_xor*/
     0,       /*inplace_or*/
     0,             /*nb_floor_divide*/
-    0,              /*nb_true_divide*/
+    (binaryfunc)Freeverb_div,                       /*nb_true_divide*/
     0,     /*nb_inplace_floor_divide*/
-    0,      /*nb_inplace_true_divide*/
+    (binaryfunc)Freeverb_inplace_div,                       /*nb_inplace_true_divide*/
     0,                     /* nb_index */
 };
 
 PyTypeObject FreeverbType = {
-    PyObject_HEAD_INIT(NULL)
-    0,                         /*ob_size*/
+    PyVarObject_HEAD_INIT(NULL, 0)
     "_pyo.Freeverb_base",         /*tp_name*/
     sizeof(Freeverb),         /*tp_basicsize*/
     0,                         /*tp_itemsize*/
@@ -889,7 +889,7 @@ PyTypeObject FreeverbType = {
     0,                         /*tp_print*/
     0,                         /*tp_getattr*/
     0,                         /*tp_setattr*/
-    0,                         /*tp_compare*/
+    0,                         /*tp_as_async (tp_compare in Python 2)*/
     0,                         /*tp_repr*/
     &Freeverb_as_number,             /*tp_as_number*/
     0,                         /*tp_as_sequence*/

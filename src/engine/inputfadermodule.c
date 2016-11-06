@@ -19,6 +19,7 @@
  *************************************************************************/
 
 #include <Python.h>
+#include "py2to3.h"
 #include "structmember.h"
 #include <math.h>
 #include "pyomodule.h"
@@ -140,7 +141,7 @@ InputFader_dealloc(InputFader* self)
 {
     pyo_DEALLOC
     InputFader_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -251,8 +252,7 @@ static PyMethodDef InputFader_methods[] = {
 };
 
 PyTypeObject InputFaderType = {
-    PyObject_HEAD_INIT(NULL)
-    0,                         /*ob_size*/
+    PyVarObject_HEAD_INIT(NULL, 0)
     "_pyo.InputFader_base",         /*tp_name*/
     sizeof(InputFader),         /*tp_basicsize*/
     0,                         /*tp_itemsize*/
@@ -260,7 +260,7 @@ PyTypeObject InputFaderType = {
     0,                         /*tp_print*/
     0,                         /*tp_getattr*/
     0,                         /*tp_setattr*/
-    0,                         /*tp_compare*/
+    0,                         /*tp_as_async (tp_compare in Python 2)*/
     0,                         /*tp_repr*/
     0,             /*tp_as_number*/
     0,                         /*tp_as_sequence*/

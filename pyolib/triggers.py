@@ -1,3 +1,7 @@
+from __future__ import print_function
+from __future__ import absolute_import
+from six.moves import range
+import six
 """
 Set of objects to manage triggers streams.
 
@@ -7,7 +11,6 @@ TrigXXX objects use this kind of signal to generate different
 processes with sampling rate time accuracy.
 
 """
-
 """
 Copyright 2009-2015 Olivier Belanger
 
@@ -27,10 +30,9 @@ GNU Lesser General Public License for more details.
 You should have received a copy of the GNU Lesser General Public
 License along with pyo.  If not, see <http://www.gnu.org/licenses/>.
 """
-from _core import *
-from _maps import *
-from _widgets import createGraphWindow
-from types import SliceType, ListType, TupleType
+from ._core import *
+from ._maps import *
+from ._widgets import createGraphWindow
 import weakref
 
 class Trig(PyoObject):
@@ -206,7 +208,7 @@ class Seq(PyoObject):
         self._seq = seq
         self._poly = poly
         time, lmax = convertArgsToLists(time)
-        if type(seq[0]) != ListType:
+        if type(seq[0]) != list:
             self._base_players = [Seqer_base(wrap(time,i), seq, poly) for i in range(lmax)]
         else:
             seqlen = len(seq)
@@ -241,7 +243,7 @@ class Seq(PyoObject):
         """
         pyoArgsAssert(self, "l", x)
         self._seq = x
-        if type(x[0]) != ListType:
+        if type(x[0]) != list:
             [obj.setSeq(x) for i, obj in enumerate(self._base_players)]
         else:
             [obj.setSeq(wrap(x,i)) for i, obj in enumerate(self._base_players)]
@@ -467,12 +469,12 @@ class Beat(PyoObject):
         if i == 'end':
             self._end_dummy.append(Dummy([obj for obj in self._end_objs]))
             return self._end_dummy[-1]
-        if type(i) == SliceType:
+        if type(i) == slice:
             return self._base_objs[i]
         if i < len(self._base_objs):
             return self._base_objs[i]
         else:
-            print "'i' too large!"
+            print("'i' too large!")
 
     def get(self, identifier="amp", all=False):
         """
@@ -1011,7 +1013,7 @@ class TrigChoice(PyoObject):
         self._port = port
         self._in_fader = InputFader(input)
         in_fader, port, init, mul, add, lmax = convertArgsToLists(self._in_fader, port, init, mul, add)
-        if type(choice[0]) != ListType:
+        if type(choice[0]) != list:
             self._base_objs = [TrigChoice_base(wrap(in_fader,i), choice, wrap(port,i), wrap(init,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
         else:
             choicelen = len(choice)
@@ -1046,7 +1048,7 @@ class TrigChoice(PyoObject):
         """
         pyoArgsAssert(self, "l", x)
         self._choice = x
-        if type(x[0]) != ListType:
+        if type(x[0]) != list:
             [obj.setChoice(self._choice) for i, obj in enumerate(self._base_objs)]
         else:
             [obj.setChoice(wrap(self._choice,i)) for i, obj in enumerate(self._base_objs)]
@@ -1827,7 +1829,7 @@ class TrigXnoise(PyoObject):
         self._in_fader = InputFader(input)
         in_fader, dist, x1, x2, mul, add, lmax = convertArgsToLists(self._in_fader, dist, x1, x2, mul, add)
         for i, t in enumerate(dist):
-            if type(t) == StringType: dist[i] = XNOISE_DICT.get(t, 0)
+            if type(t) == six.text_type: dist[i] = XNOISE_DICT.get(t, 0)
         self._base_objs = [TrigXnoise_base(wrap(in_fader,i), wrap(dist,i), wrap(x1,i), wrap(x2,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
 
     def setInput(self, x, fadetime=0.05):
@@ -1859,7 +1861,7 @@ class TrigXnoise(PyoObject):
         self._dist = x
         x, lmax = convertArgsToLists(x)
         for i, t in enumerate(x):
-            if type(t) == StringType: x[i] = XNOISE_DICT.get(t, 0)
+            if type(t) == six.text_type: x[i] = XNOISE_DICT.get(t, 0)
         [obj.setType(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
     def setX1(self, x):
@@ -2036,7 +2038,7 @@ class TrigXnoiseMidi(PyoObject):
         self._in_fader = InputFader(input)
         in_fader, dist, x1, x2, scale, mrange, mul, add, lmax = convertArgsToLists(self._in_fader, dist, x1, x2, scale, mrange, mul, add)
         for i, t in enumerate(dist):
-            if type(t) == StringType: dist[i] = XNOISE_DICT.get(t, 0)
+            if type(t) == six.text_type: dist[i] = XNOISE_DICT.get(t, 0)
         self._base_objs = [TrigXnoiseMidi_base(wrap(in_fader,i), wrap(dist,i), wrap(x1,i), wrap(x2,i), wrap(scale,i), wrap(mrange,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
 
     def setInput(self, x, fadetime=0.05):
@@ -2068,7 +2070,7 @@ class TrigXnoiseMidi(PyoObject):
         self._dist = x
         x, lmax = convertArgsToLists(x)
         for i, t in enumerate(x):
-            if type(t) == StringType: x[i] = XNOISE_DICT.get(t, 0)
+            if type(t) == six.text_type: x[i] = XNOISE_DICT.get(t, 0)
         [obj.setType(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
     def setScale(self, x):
@@ -2849,7 +2851,7 @@ class Iter(PyoObject):
         self._choice = choice
         self._in_fader = InputFader(input)
         in_fader, init, mul, add, lmax = convertArgsToLists(self._in_fader, init, mul, add)
-        if type(choice[0]) != ListType:
+        if type(choice[0]) != list:
             self._base_objs = [Iter_base(wrap(in_fader,i), choice, wrap(init,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
         else:
             choicelen = len(choice)
@@ -2884,7 +2886,7 @@ class Iter(PyoObject):
         """
         pyoArgsAssert(self, "l", x)
         self._choice = x
-        if type(x[0]) != ListType:
+        if type(x[0]) != list:
             [obj.setChoice(self._choice) for i, obj in enumerate(self._base_objs)]
         else:
             [obj.setChoice(wrap(self._choice,i)) for i, obj in enumerate(self._base_objs)]
@@ -3322,12 +3324,12 @@ class Euclide(PyoObject):
         if i == 'end':
             self._end_dummy.append(Dummy([obj for obj in self._end_objs]))
             return self._end_dummy[-1]
-        if type(i) == SliceType:
+        if type(i) == slice:
             return self._base_objs[i]
         if i < len(self._base_objs):
             return self._base_objs[i]
         else:
-            print "'i' too large!"
+            print("'i' too large!")
 
     def get(self, identifier="amp", all=False):
         """
@@ -3564,12 +3566,12 @@ class TrigBurst(PyoObject):
         if i == 'end':
             self._end_dummy.append(Dummy([obj for obj in self._end_objs]))
             return self._end_dummy[-1]
-        if type(i) == SliceType:
+        if type(i) == slice:
             return self._base_objs[i]
         if i < len(self._base_objs):
             return self._base_objs[i]
         else:
-            print "'i' too large!"
+            print("'i' too large!")
 
     def get(self, identifier="amp", all=False):
         """

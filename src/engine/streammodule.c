@@ -53,7 +53,7 @@ Stream_dealloc(Stream* self)
 {
     self->data = NULL;
     Stream_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 int
@@ -185,8 +185,7 @@ static PyMethodDef Stream_methods[] = {
 };
 
 PyTypeObject StreamType = {
-    PyObject_HEAD_INIT(NULL)
-    0, /*ob_size*/
+    PyVarObject_HEAD_INIT(NULL, 0)
     "pyo.Stream", /*tp_name*/
     sizeof(Stream), /*tp_basicsize*/
     0, /*tp_itemsize*/
@@ -194,7 +193,7 @@ PyTypeObject StreamType = {
     0, /*tp_print*/
     0, /*tp_getattr*/
     0, /*tp_setattr*/
-    0, /*tp_compare*/
+    0, /*tp_as_async (tp_compare in Python 2)*/
     0, /*tp_repr*/
     0, /*tp_as_number*/
     0, /*tp_as_sequence*/
@@ -255,7 +254,7 @@ static void
 TriggerStream_dealloc(TriggerStream* self)
 {
     self->data = NULL;
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 MYFLT *
@@ -271,8 +270,7 @@ TriggerStream_setData(TriggerStream *self, MYFLT *data)
 }
 
 PyTypeObject TriggerStreamType = {
-    PyObject_HEAD_INIT(NULL)
-    0, /*ob_size*/
+    PyVarObject_HEAD_INIT(NULL, 0)
     "pyo.TriggerStream", /*tp_name*/
     sizeof(TriggerStream), /*tp_basicsize*/
     0, /*tp_itemsize*/
@@ -280,7 +278,7 @@ PyTypeObject TriggerStreamType = {
     0, /*tp_print*/
     0, /*tp_getattr*/
     0, /*tp_setattr*/
-    0, /*tp_compare*/
+    0, /*tp_as_async (tp_compare in Python 2)*/
     0, /*tp_repr*/
     0, /*tp_as_number*/
     0, /*tp_as_sequence*/

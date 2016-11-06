@@ -1495,7 +1495,7 @@ extern PyTypeObject LogiMapType;
     if (isNumber == 1) { \
         if (PyFloat_AsDouble(tmp) != 0.) { \
             Py_DECREF(self->mul); \
-            self->mul = PyNumber_Divide(PyFloat_FromDouble(1.), PyNumber_Float(tmp)); \
+            self->mul = PyNumber_TrueDivide(PyFloat_FromDouble(1.), PyNumber_Float(tmp)); \
             self->modebuffer[0] = 0; \
         } \
     } \
@@ -1759,6 +1759,7 @@ extern PyTypeObject LogiMapType;
     }
 
 /* Tables buffer protocol. */
+#if PY_MAJOR_VERSION < 3
 #define TABLESTREAM_READ_WRITE_BUFFER \
     if ( index != 0 ) { \
         PySys_WriteStdout("Accessing non-existent bytes segment..."); \
@@ -1771,6 +1772,7 @@ extern PyTypeObject LogiMapType;
     if ( lenp ) \
         *lenp = (Py_ssize_t)self->size * sizeof(MYFLT); \
     return 1;
+#endif
 
 #define TABLESTREAM_GET_BUFFER \
     if (view == NULL) { \

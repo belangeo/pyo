@@ -19,6 +19,7 @@
  *************************************************************************/
 
 #include <Python.h>
+#include "py2to3.h"
 #include "structmember.h"
 #include <math.h>
 #include "pyomodule.h"
@@ -422,7 +423,7 @@ Harmonizer_dealloc(Harmonizer* self)
     pyo_DEALLOC
     free(self->buffer);
     Harmonizer_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -622,7 +623,7 @@ static PyNumberMethods Harmonizer_as_number = {
     (binaryfunc)Harmonizer_add,                      /*nb_add*/
     (binaryfunc)Harmonizer_sub,                 /*nb_subtract*/
     (binaryfunc)Harmonizer_multiply,                 /*nb_multiply*/
-    (binaryfunc)Harmonizer_div,                   /*nb_divide*/
+    INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
     0,                /*nb_remainder*/
     0,                   /*nb_divmod*/
     0,                   /*nb_power*/
@@ -636,16 +637,16 @@ static PyNumberMethods Harmonizer_as_number = {
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    0,                                          /*nb_coerce*/
+    INITIALIZE_NB_COERCE_ZERO                   /*nb_coerce*/
     0,                       /*nb_int*/
     0,                      /*nb_long*/
     0,                     /*nb_float*/
-    0,                       /*nb_oct*/
-    0,                       /*nb_hex*/
+    INITIALIZE_NB_OCT_ZERO   /*nb_oct*/
+    INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
     (binaryfunc)Harmonizer_inplace_add,              /*inplace_add*/
     (binaryfunc)Harmonizer_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)Harmonizer_inplace_multiply,         /*inplace_multiply*/
-    (binaryfunc)Harmonizer_inplace_div,           /*inplace_divide*/
+    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
     0,        /*inplace_remainder*/
     0,           /*inplace_power*/
     0,       /*inplace_lshift*/
@@ -654,15 +655,14 @@ static PyNumberMethods Harmonizer_as_number = {
     0,      /*inplace_xor*/
     0,       /*inplace_or*/
     0,             /*nb_floor_divide*/
-    0,              /*nb_true_divide*/
+    (binaryfunc)Harmonizer_div,                       /*nb_true_divide*/
     0,     /*nb_inplace_floor_divide*/
-    0,      /*nb_inplace_true_divide*/
+    (binaryfunc)Harmonizer_inplace_div,                       /*nb_inplace_true_divide*/
     0,                     /* nb_index */
 };
 
 PyTypeObject HarmonizerType = {
-    PyObject_HEAD_INIT(NULL)
-    0,                         /*ob_transpo*/
+    PyVarObject_HEAD_INIT(NULL, 0)
     "_pyo.Harmonizer_base",         /*tp_name*/
     sizeof(Harmonizer),         /*tp_basictranspo*/
     0,                         /*tp_itemtranspo*/
@@ -670,7 +670,7 @@ PyTypeObject HarmonizerType = {
     0,                         /*tp_print*/
     0,                         /*tp_getattr*/
     0,                         /*tp_setattr*/
-    0,                         /*tp_compare*/
+    0,                         /*tp_as_async (tp_compare in Python 2)*/
     0,                         /*tp_repr*/
     &Harmonizer_as_number,             /*tp_as_number*/
     0,                         /*tp_as_sequence*/

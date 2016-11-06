@@ -19,6 +19,7 @@
  *************************************************************************/
 
 #include <Python.h>
+#include "py2to3.h"
 #include "structmember.h"
 #include <math.h>
 #include "pyomodule.h"
@@ -210,7 +211,7 @@ PVAnal_dealloc(PVAnal* self)
     free(self->freq);
     free(self->count);
     PVAnal_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -336,8 +337,7 @@ static PyMethodDef PVAnal_methods[] = {
 };
 
 PyTypeObject PVAnalType = {
-PyObject_HEAD_INIT(NULL)
-0,                                              /*ob_size*/
+PyVarObject_HEAD_INIT(NULL, 0)
 "_pyo.PVAnal_base",                                   /*tp_name*/
 sizeof(PVAnal),                                 /*tp_basicsize*/
 0,                                              /*tp_itemsize*/
@@ -345,7 +345,7 @@ sizeof(PVAnal),                                 /*tp_basicsize*/
 0,                                              /*tp_print*/
 0,                                              /*tp_getattr*/
 0,                                              /*tp_setattr*/
-0,                                              /*tp_compare*/
+0,                                              /*tp_as_async (tp_compare in Python 2)*/
 0,                                              /*tp_repr*/
 0,                              /*tp_as_number*/
 0,                                              /*tp_as_sequence*/
@@ -587,7 +587,7 @@ PVSynth_dealloc(PVSynth* self)
     free(self->twiddle);
     free(self->window);
     PVSynth_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -729,7 +729,7 @@ static PyNumberMethods PVSynth_as_number = {
 (binaryfunc)PVSynth_add,                         /*nb_add*/
 (binaryfunc)PVSynth_sub,                         /*nb_subtract*/
 (binaryfunc)PVSynth_multiply,                    /*nb_multiply*/
-(binaryfunc)PVSynth_div,                         /*nb_divide*/
+INITIALIZE_NB_DIVIDE_ZERO  /*nb_divide*/
 0,                                              /*nb_remainder*/
 0,                                              /*nb_divmod*/
 0,                                              /*nb_power*/
@@ -743,16 +743,16 @@ static PyNumberMethods PVSynth_as_number = {
 0,                                              /*nb_and*/
 0,                                              /*nb_xor*/
 0,                                              /*nb_or*/
-0,                                              /*nb_coerce*/
+INITIALIZE_NB_COERCE_ZERO                       /*nb_coerce*/
 0,                                              /*nb_int*/
 0,                                              /*nb_long*/
 0,                                              /*nb_float*/
-0,                                              /*nb_oct*/
-0,                                              /*nb_hex*/
+INITIALIZE_NB_OCT_ZERO                          /*nb_oct*/
+INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
 (binaryfunc)PVSynth_inplace_add,                 /*inplace_add*/
 (binaryfunc)PVSynth_inplace_sub,                 /*inplace_subtract*/
 (binaryfunc)PVSynth_inplace_multiply,            /*inplace_multiply*/
-(binaryfunc)PVSynth_inplace_div,                                              /*inplace_divide*/
+INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO                                           /*inplace_divide*/
 0,                                              /*inplace_remainder*/
 0,                                              /*inplace_power*/
 0,                                              /*inplace_lshift*/
@@ -761,15 +761,14 @@ static PyNumberMethods PVSynth_as_number = {
 0,                                              /*inplace_xor*/
 0,                                              /*inplace_or*/
 0,                                              /*nb_floor_divide*/
-0,                                              /*nb_true_divide*/
+(binaryfunc)PVSynth_div,                       /*nb_true_divide*/
 0,                                              /*nb_inplace_floor_divide*/
-0,                                              /*nb_inplace_true_divide*/
+(binaryfunc)PVSynth_inplace_div,                       /*nb_inplace_true_divide*/
 0,                                              /* nb_index */
 };
 
 PyTypeObject PVSynthType = {
-PyObject_HEAD_INIT(NULL)
-0,                                              /*ob_size*/
+PyVarObject_HEAD_INIT(NULL, 0)
 "_pyo.PVSynth_base",                                   /*tp_name*/
 sizeof(PVSynth),                                 /*tp_basicsize*/
 0,                                              /*tp_itemsize*/
@@ -777,7 +776,7 @@ sizeof(PVSynth),                                 /*tp_basicsize*/
 0,                                              /*tp_print*/
 0,                                              /*tp_getattr*/
 0,                                              /*tp_setattr*/
-0,                                              /*tp_compare*/
+0,                                              /*tp_as_async (tp_compare in Python 2)*/
 0,                                              /*tp_repr*/
 &PVSynth_as_number,                              /*tp_as_number*/
 0,                                              /*tp_as_sequence*/
@@ -1053,7 +1052,7 @@ PVAddSynth_dealloc(PVAddSynth* self)
     free(self->amp);
     free(self->freq);
     PVAddSynth_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -1277,7 +1276,7 @@ static PyNumberMethods PVAddSynth_as_number = {
 (binaryfunc)PVAddSynth_add,                         /*nb_add*/
 (binaryfunc)PVAddSynth_sub,                         /*nb_subtract*/
 (binaryfunc)PVAddSynth_multiply,                    /*nb_multiply*/
-(binaryfunc)PVAddSynth_div,                         /*nb_divide*/
+INITIALIZE_NB_DIVIDE_ZERO  /*nb_divide*/
 0,                                              /*nb_remainder*/
 0,                                              /*nb_divmod*/
 0,                                              /*nb_power*/
@@ -1291,16 +1290,16 @@ static PyNumberMethods PVAddSynth_as_number = {
 0,                                              /*nb_and*/
 0,                                              /*nb_xor*/
 0,                                              /*nb_or*/
-0,                                              /*nb_coerce*/
+INITIALIZE_NB_COERCE_ZERO                       /*nb_coerce*/
 0,                                              /*nb_int*/
 0,                                              /*nb_long*/
 0,                                              /*nb_float*/
-0,                                              /*nb_oct*/
-0,                                              /*nb_hex*/
+INITIALIZE_NB_OCT_ZERO                          /*nb_oct*/
+INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
 (binaryfunc)PVAddSynth_inplace_add,                 /*inplace_add*/
 (binaryfunc)PVAddSynth_inplace_sub,                 /*inplace_subtract*/
 (binaryfunc)PVAddSynth_inplace_multiply,            /*inplace_multiply*/
-(binaryfunc)PVAddSynth_inplace_div,                                              /*inplace_divide*/
+INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO                                           /*inplace_divide*/
 0,                                              /*inplace_remainder*/
 0,                                              /*inplace_power*/
 0,                                              /*inplace_lshift*/
@@ -1309,15 +1308,14 @@ static PyNumberMethods PVAddSynth_as_number = {
 0,                                              /*inplace_xor*/
 0,                                              /*inplace_or*/
 0,                                              /*nb_floor_divide*/
-0,                                              /*nb_true_divide*/
+(binaryfunc)PVAddSynth_div,                       /*nb_true_divide*/
 0,                                              /*nb_inplace_floor_divide*/
-0,                                              /*nb_inplace_true_divide*/
+(binaryfunc)PVAddSynth_inplace_div,                       /*nb_inplace_true_divide*/
 0,                                              /* nb_index */
 };
 
 PyTypeObject PVAddSynthType = {
-PyObject_HEAD_INIT(NULL)
-0,                                              /*ob_size*/
+PyVarObject_HEAD_INIT(NULL, 0)
 "_pyo.PVAddSynth_base",                                   /*tp_name*/
 sizeof(PVAddSynth),                                 /*tp_basicsize*/
 0,                                              /*tp_itemsize*/
@@ -1325,7 +1323,7 @@ sizeof(PVAddSynth),                                 /*tp_basicsize*/
 0,                                              /*tp_print*/
 0,                                              /*tp_getattr*/
 0,                                              /*tp_setattr*/
-0,                                              /*tp_compare*/
+0,                                              /*tp_as_async (tp_compare in Python 2)*/
 0,                                              /*tp_repr*/
 &PVAddSynth_as_number,                              /*tp_as_number*/
 0,                                              /*tp_as_sequence*/
@@ -1538,7 +1536,7 @@ PVTranspose_dealloc(PVTranspose* self)
     free(self->freq);
     free(self->count);
     PVTranspose_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -1675,8 +1673,7 @@ static PyMethodDef PVTranspose_methods[] = {
 };
 
 PyTypeObject PVTransposeType = {
-PyObject_HEAD_INIT(NULL)
-0,                                              /*ob_size*/
+PyVarObject_HEAD_INIT(NULL, 0)
 "_pyo.PVTranspose_base",                                   /*tp_name*/
 sizeof(PVTranspose),                                 /*tp_basicsize*/
 0,                                              /*tp_itemsize*/
@@ -1684,7 +1681,7 @@ sizeof(PVTranspose),                                 /*tp_basicsize*/
 0,                                              /*tp_print*/
 0,                                              /*tp_getattr*/
 0,                                              /*tp_setattr*/
-0,                                              /*tp_compare*/
+0,                                              /*tp_as_async (tp_compare in Python 2)*/
 0,                                              /*tp_repr*/
 0,                              /*tp_as_number*/
 0,                                              /*tp_as_sequence*/
@@ -2052,7 +2049,7 @@ PVVerb_dealloc(PVVerb* self)
     free(self->l_freq);
     free(self->count);
     PVVerb_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -2227,8 +2224,7 @@ static PyMethodDef PVVerb_methods[] = {
 };
 
 PyTypeObject PVVerbType = {
-PyObject_HEAD_INIT(NULL)
-0,                                              /*ob_size*/
+PyVarObject_HEAD_INIT(NULL, 0)
 "_pyo.PVVerb_base",                                   /*tp_name*/
 sizeof(PVVerb),                                 /*tp_basicsize*/
 0,                                              /*tp_itemsize*/
@@ -2236,7 +2232,7 @@ sizeof(PVVerb),                                 /*tp_basicsize*/
 0,                                              /*tp_print*/
 0,                                              /*tp_getattr*/
 0,                                              /*tp_setattr*/
-0,                                              /*tp_compare*/
+0,                                              /*tp_as_async (tp_compare in Python 2)*/
 0,                                              /*tp_repr*/
 0,                              /*tp_as_number*/
 0,                                              /*tp_as_sequence*/
@@ -2581,7 +2577,7 @@ PVGate_dealloc(PVGate* self)
     free(self->freq);
     free(self->count);
     PVGate_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -2771,8 +2767,7 @@ static PyMethodDef PVGate_methods[] = {
 };
 
 PyTypeObject PVGateType = {
-PyObject_HEAD_INIT(NULL)
-0,                                              /*ob_size*/
+PyVarObject_HEAD_INIT(NULL, 0)
 "_pyo.PVGate_base",                                   /*tp_name*/
 sizeof(PVGate),                                 /*tp_basicsize*/
 0,                                              /*tp_itemsize*/
@@ -2780,7 +2775,7 @@ sizeof(PVGate),                                 /*tp_basicsize*/
 0,                                              /*tp_print*/
 0,                                              /*tp_getattr*/
 0,                                              /*tp_setattr*/
-0,                                              /*tp_compare*/
+0,                                              /*tp_as_async (tp_compare in Python 2)*/
 0,                                              /*tp_repr*/
 0,                              /*tp_as_number*/
 0,                                              /*tp_as_sequence*/
@@ -2987,7 +2982,7 @@ PVCross_dealloc(PVCross* self)
     free(self->freq);
     free(self->count);
     PVCross_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -3161,8 +3156,7 @@ static PyMethodDef PVCross_methods[] = {
 };
 
 PyTypeObject PVCrossType = {
-PyObject_HEAD_INIT(NULL)
-0,                                              /*ob_size*/
+PyVarObject_HEAD_INIT(NULL, 0)
 "_pyo.PVCross_base",                                   /*tp_name*/
 sizeof(PVCross),                                 /*tp_basicsize*/
 0,                                              /*tp_itemsize*/
@@ -3170,7 +3164,7 @@ sizeof(PVCross),                                 /*tp_basicsize*/
 0,                                              /*tp_print*/
 0,                                              /*tp_getattr*/
 0,                                              /*tp_setattr*/
-0,                                              /*tp_compare*/
+0,                                              /*tp_as_async (tp_compare in Python 2)*/
 0,                                              /*tp_repr*/
 0,                              /*tp_as_number*/
 0,                                              /*tp_as_sequence*/
@@ -3325,7 +3319,7 @@ PVMult_dealloc(PVMult* self)
     free(self->freq);
     free(self->count);
     PVMult_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -3461,8 +3455,7 @@ static PyMethodDef PVMult_methods[] = {
 };
 
 PyTypeObject PVMultType = {
-PyObject_HEAD_INIT(NULL)
-0,                                              /*ob_size*/
+PyVarObject_HEAD_INIT(NULL, 0)
 "_pyo.PVMult_base",                                   /*tp_name*/
 sizeof(PVMult),                                 /*tp_basicsize*/
 0,                                              /*tp_itemsize*/
@@ -3470,7 +3463,7 @@ sizeof(PVMult),                                 /*tp_basicsize*/
 0,                                              /*tp_print*/
 0,                                              /*tp_getattr*/
 0,                                              /*tp_setattr*/
-0,                                              /*tp_compare*/
+0,                                              /*tp_as_async (tp_compare in Python 2)*/
 0,                                              /*tp_repr*/
 0,                              /*tp_as_number*/
 0,                                              /*tp_as_sequence*/
@@ -3687,7 +3680,7 @@ PVMorph_dealloc(PVMorph* self)
     free(self->freq);
     free(self->count);
     PVMorph_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -3861,8 +3854,7 @@ static PyMethodDef PVMorph_methods[] = {
 };
 
 PyTypeObject PVMorphType = {
-PyObject_HEAD_INIT(NULL)
-0,                                              /*ob_size*/
+PyVarObject_HEAD_INIT(NULL, 0)
 "_pyo.PVMorph_base",                                   /*tp_name*/
 sizeof(PVMorph),                                 /*tp_basicsize*/
 0,                                              /*tp_itemsize*/
@@ -3870,7 +3862,7 @@ sizeof(PVMorph),                                 /*tp_basicsize*/
 0,                                              /*tp_print*/
 0,                                              /*tp_getattr*/
 0,                                              /*tp_setattr*/
-0,                                              /*tp_compare*/
+0,                                              /*tp_as_async (tp_compare in Python 2)*/
 0,                                              /*tp_repr*/
 0,                              /*tp_as_number*/
 0,                                              /*tp_as_sequence*/
@@ -4123,7 +4115,7 @@ PVFilter_dealloc(PVFilter* self)
     free(self->freq);
     free(self->count);
     PVFilter_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -4308,8 +4300,7 @@ static PyMethodDef PVFilter_methods[] = {
 };
 
 PyTypeObject PVFilterType = {
-PyObject_HEAD_INIT(NULL)
-0,                                              /*ob_size*/
+PyVarObject_HEAD_INIT(NULL, 0)
 "_pyo.PVFilter_base",                                   /*tp_name*/
 sizeof(PVFilter),                                 /*tp_basicsize*/
 0,                                              /*tp_itemsize*/
@@ -4317,7 +4308,7 @@ sizeof(PVFilter),                                 /*tp_basicsize*/
 0,                                              /*tp_print*/
 0,                                              /*tp_getattr*/
 0,                                              /*tp_setattr*/
-0,                                              /*tp_compare*/
+0,                                              /*tp_as_async (tp_compare in Python 2)*/
 0,                                              /*tp_repr*/
 0,                              /*tp_as_number*/
 0,                                              /*tp_as_sequence*/
@@ -4600,7 +4591,7 @@ PVDelay_dealloc(PVDelay* self)
     free(self->freq_buf);
     free(self->count);
     PVDelay_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -4778,8 +4769,7 @@ static PyMethodDef PVDelay_methods[] = {
 };
 
 PyTypeObject PVDelayType = {
-PyObject_HEAD_INIT(NULL)
-0,                                              /*ob_size*/
+PyVarObject_HEAD_INIT(NULL, 0)
 "_pyo.PVDelay_base",                                   /*tp_name*/
 sizeof(PVDelay),                                 /*tp_basicsize*/
 0,                                              /*tp_itemsize*/
@@ -4787,7 +4777,7 @@ sizeof(PVDelay),                                 /*tp_basicsize*/
 0,                                              /*tp_print*/
 0,                                              /*tp_getattr*/
 0,                                              /*tp_setattr*/
-0,                                              /*tp_compare*/
+0,                                              /*tp_as_async (tp_compare in Python 2)*/
 0,                                              /*tp_repr*/
 0,                              /*tp_as_number*/
 0,                                              /*tp_as_sequence*/
@@ -5054,7 +5044,7 @@ PVBuffer_dealloc(PVBuffer* self)
     free(self->freq_buf);
     free(self->count);
     PVBuffer_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -5228,8 +5218,7 @@ static PyMethodDef PVBuffer_methods[] = {
 };
 
 PyTypeObject PVBufferType = {
-PyObject_HEAD_INIT(NULL)
-0,                                              /*ob_size*/
+PyVarObject_HEAD_INIT(NULL, 0)
 "_pyo.PVBuffer_base",                                   /*tp_name*/
 sizeof(PVBuffer),                                 /*tp_basicsize*/
 0,                                              /*tp_itemsize*/
@@ -5237,7 +5226,7 @@ sizeof(PVBuffer),                                 /*tp_basicsize*/
 0,                                              /*tp_print*/
 0,                                              /*tp_getattr*/
 0,                                              /*tp_setattr*/
-0,                                              /*tp_compare*/
+0,                                              /*tp_as_async (tp_compare in Python 2)*/
 0,                                              /*tp_repr*/
 0,                              /*tp_as_number*/
 0,                                              /*tp_as_sequence*/
@@ -5454,7 +5443,7 @@ PVShift_dealloc(PVShift* self)
     free(self->freq);
     free(self->count);
     PVShift_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -5591,8 +5580,7 @@ static PyMethodDef PVShift_methods[] = {
 };
 
 PyTypeObject PVShiftType = {
-PyObject_HEAD_INIT(NULL)
-0,                                              /*ob_size*/
+PyVarObject_HEAD_INIT(NULL, 0)
 "_pyo.PVShift_base",                                   /*tp_name*/
 sizeof(PVShift),                                 /*tp_basicsize*/
 0,                                              /*tp_itemsize*/
@@ -5600,7 +5588,7 @@ sizeof(PVShift),                                 /*tp_basicsize*/
 0,                                              /*tp_print*/
 0,                                              /*tp_getattr*/
 0,                                              /*tp_setattr*/
-0,                                              /*tp_compare*/
+0,                                              /*tp_as_async (tp_compare in Python 2)*/
 0,                                              /*tp_repr*/
 0,                              /*tp_as_number*/
 0,                                              /*tp_as_sequence*/
@@ -5925,7 +5913,7 @@ PVAmpMod_dealloc(PVAmpMod* self)
     free(self->pointers);
     free(self->count);
     PVAmpMod_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -6115,8 +6103,7 @@ static PyMethodDef PVAmpMod_methods[] = {
 };
 
 PyTypeObject PVAmpModType = {
-PyObject_HEAD_INIT(NULL)
-0,                                              /*ob_size*/
+PyVarObject_HEAD_INIT(NULL, 0)
 "_pyo.PVAmpMod_base",                                   /*tp_name*/
 sizeof(PVAmpMod),                                 /*tp_basicsize*/
 0,                                              /*tp_itemsize*/
@@ -6124,7 +6111,7 @@ sizeof(PVAmpMod),                                 /*tp_basicsize*/
 0,                                              /*tp_print*/
 0,                                              /*tp_getattr*/
 0,                                              /*tp_setattr*/
-0,                                              /*tp_compare*/
+0,                                              /*tp_as_async (tp_compare in Python 2)*/
 0,                                              /*tp_repr*/
 0,                              /*tp_as_number*/
 0,                                              /*tp_as_sequence*/
@@ -6523,7 +6510,7 @@ PVFreqMod_dealloc(PVFreqMod* self)
     free(self->pointers);
     free(self->count);
     PVFreqMod_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -6751,8 +6738,7 @@ static PyMethodDef PVFreqMod_methods[] = {
 };
 
 PyTypeObject PVFreqModType = {
-PyObject_HEAD_INIT(NULL)
-0,                                              /*ob_size*/
+PyVarObject_HEAD_INIT(NULL, 0)
 "_pyo.PVFreqMod_base",                                   /*tp_name*/
 sizeof(PVFreqMod),                                 /*tp_basicsize*/
 0,                                              /*tp_itemsize*/
@@ -6760,7 +6746,7 @@ sizeof(PVFreqMod),                                 /*tp_basicsize*/
 0,                                              /*tp_print*/
 0,                                              /*tp_getattr*/
 0,                                              /*tp_setattr*/
-0,                                              /*tp_compare*/
+0,                                              /*tp_as_async (tp_compare in Python 2)*/
 0,                                              /*tp_repr*/
 0,                              /*tp_as_number*/
 0,                                              /*tp_as_sequence*/
@@ -7055,7 +7041,7 @@ PVBufLoops_dealloc(PVBufLoops* self)
     free(self->speeds);
     free(self->pointers);
     PVBufLoops_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -7267,8 +7253,7 @@ static PyMethodDef PVBufLoops_methods[] = {
 };
 
 PyTypeObject PVBufLoopsType = {
-PyObject_HEAD_INIT(NULL)
-0,                                              /*ob_size*/
+PyVarObject_HEAD_INIT(NULL, 0)
 "_pyo.PVBufLoops_base",                                   /*tp_name*/
 sizeof(PVBufLoops),                                 /*tp_basicsize*/
 0,                                              /*tp_itemsize*/
@@ -7276,7 +7261,7 @@ sizeof(PVBufLoops),                                 /*tp_basicsize*/
 0,                                              /*tp_print*/
 0,                                              /*tp_getattr*/
 0,                                              /*tp_setattr*/
-0,                                              /*tp_compare*/
+0,                                              /*tp_as_async (tp_compare in Python 2)*/
 0,                                              /*tp_repr*/
 0,                              /*tp_as_number*/
 0,                                              /*tp_as_sequence*/
@@ -7481,7 +7466,7 @@ PVBufTabLoops_dealloc(PVBufTabLoops* self)
     free(self->count);
     free(self->pointers);
     PVBufTabLoops_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -7618,8 +7603,7 @@ static PyMethodDef PVBufTabLoops_methods[] = {
 };
 
 PyTypeObject PVBufTabLoopsType = {
-PyObject_HEAD_INIT(NULL)
-0,                                              /*ob_size*/
+PyVarObject_HEAD_INIT(NULL, 0)
 "_pyo.PVBufTabLoops_base",                                   /*tp_name*/
 sizeof(PVBufTabLoops),                                 /*tp_basicsize*/
 0,                                              /*tp_itemsize*/
@@ -7627,7 +7611,7 @@ sizeof(PVBufTabLoops),                                 /*tp_basicsize*/
 0,                                              /*tp_print*/
 0,                                              /*tp_getattr*/
 0,                                              /*tp_setattr*/
-0,                                              /*tp_compare*/
+0,                                              /*tp_as_async (tp_compare in Python 2)*/
 0,                                              /*tp_repr*/
 0,                              /*tp_as_number*/
 0,                                              /*tp_as_sequence*/
@@ -7789,7 +7773,7 @@ PVMix_dealloc(PVMix* self)
     free(self->freq);
     free(self->count);
     PVMix_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -7925,8 +7909,7 @@ static PyMethodDef PVMix_methods[] = {
 };
 
 PyTypeObject PVMixType = {
-PyObject_HEAD_INIT(NULL)
-0,                                              /*ob_size*/
+PyVarObject_HEAD_INIT(NULL, 0)
 "_pyo.PVMix_base",                                   /*tp_name*/
 sizeof(PVMix),                                 /*tp_basicsize*/
 0,                                              /*tp_itemsize*/
@@ -7934,7 +7917,7 @@ sizeof(PVMix),                                 /*tp_basicsize*/
 0,                                              /*tp_print*/
 0,                                              /*tp_getattr*/
 0,                                              /*tp_setattr*/
-0,                                              /*tp_compare*/
+0,                                              /*tp_as_async (tp_compare in Python 2)*/
 0,                                              /*tp_repr*/
 0,                              /*tp_as_number*/
 0,                                              /*tp_as_sequence*/

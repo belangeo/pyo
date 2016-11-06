@@ -19,6 +19,7 @@
  *************************************************************************/
 
 #include <Python.h>
+#include "py2to3.h"
 #include "structmember.h"
 #include <math.h>
 #include "pyomodule.h"
@@ -205,7 +206,7 @@ BandSplitter_dealloc(BandSplitter* self)
     free(self->a2);
     free(self->buffer_streams);
     BandSplitter_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -319,8 +320,7 @@ static PyMethodDef BandSplitter_methods[] = {
 };
 
 PyTypeObject BandSplitterType = {
-PyObject_HEAD_INIT(NULL)
-0,                                              /*ob_size*/
+PyVarObject_HEAD_INIT(NULL, 0)
 "_pyo.BandSplitter_base",                                   /*tp_name*/
 sizeof(BandSplitter),                                 /*tp_basicsize*/
 0,                                              /*tp_itemsize*/
@@ -328,7 +328,7 @@ sizeof(BandSplitter),                                 /*tp_basicsize*/
 0,                                              /*tp_print*/
 0,                                              /*tp_getattr*/
 0,                                              /*tp_setattr*/
-0,                                              /*tp_compare*/
+0,                                              /*tp_as_async (tp_compare in Python 2)*/
 0,                                              /*tp_repr*/
 0,                              /*tp_as_number*/
 0,                                              /*tp_as_sequence*/
@@ -451,7 +451,7 @@ BandSplit_dealloc(BandSplit* self)
 {
     pyo_DEALLOC
     BandSplit_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -539,7 +539,7 @@ static PyNumberMethods BandSplit_as_number = {
 (binaryfunc)BandSplit_add,                      /*nb_add*/
 (binaryfunc)BandSplit_sub,                 /*nb_subtract*/
 (binaryfunc)BandSplit_multiply,                 /*nb_multiply*/
-(binaryfunc)BandSplit_div,                   /*nb_divide*/
+INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
 0,                /*nb_remainder*/
 0,                   /*nb_divmod*/
 0,                   /*nb_power*/
@@ -553,16 +553,16 @@ static PyNumberMethods BandSplit_as_number = {
 0,              /*nb_and*/
 0,              /*nb_xor*/
 0,               /*nb_or*/
-0,                                          /*nb_coerce*/
+INITIALIZE_NB_COERCE_ZERO                   /*nb_coerce*/
 0,                       /*nb_int*/
 0,                      /*nb_long*/
 0,                     /*nb_float*/
-0,                       /*nb_oct*/
-0,                       /*nb_hex*/
+INITIALIZE_NB_OCT_ZERO   /*nb_oct*/
+INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
 (binaryfunc)BandSplit_inplace_add,              /*inplace_add*/
 (binaryfunc)BandSplit_inplace_sub,         /*inplace_subtract*/
 (binaryfunc)BandSplit_inplace_multiply,         /*inplace_multiply*/
-(binaryfunc)BandSplit_inplace_div,           /*inplace_divide*/
+INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
 0,        /*inplace_remainder*/
 0,           /*inplace_power*/
 0,       /*inplace_lshift*/
@@ -571,15 +571,14 @@ static PyNumberMethods BandSplit_as_number = {
 0,      /*inplace_xor*/
 0,       /*inplace_or*/
 0,             /*nb_floor_divide*/
-0,              /*nb_true_divide*/
+(binaryfunc)BandSplit_div,                       /*nb_true_divide*/
 0,     /*nb_inplace_floor_divide*/
-0,      /*nb_inplace_true_divide*/
+(binaryfunc)BandSplit_inplace_div,                       /*nb_inplace_true_divide*/
 0,                     /* nb_index */
 };
 
 PyTypeObject BandSplitType = {
-PyObject_HEAD_INIT(NULL)
-0,                         /*ob_size*/
+PyVarObject_HEAD_INIT(NULL, 0)
 "_pyo.BandSplit_base",         /*tp_name*/
 sizeof(BandSplit),         /*tp_basicsize*/
 0,                         /*tp_itemsize*/
@@ -587,7 +586,7 @@ sizeof(BandSplit),         /*tp_basicsize*/
 0,                         /*tp_print*/
 0,                         /*tp_getattr*/
 0,                         /*tp_setattr*/
-0,                         /*tp_compare*/
+0,                         /*tp_as_async (tp_compare in Python 2)*/
 0,                         /*tp_repr*/
 &BandSplit_as_number,             /*tp_as_number*/
 0,                         /*tp_as_sequence*/
@@ -844,7 +843,7 @@ FourBandMain_dealloc(FourBandMain* self)
     pyo_DEALLOC
     free(self->buffer_streams);
     FourBandMain_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -1019,8 +1018,7 @@ static PyMethodDef FourBandMain_methods[] = {
 };
 
 PyTypeObject FourBandMainType = {
-    PyObject_HEAD_INIT(NULL)
-    0,                                              /*ob_size*/
+    PyVarObject_HEAD_INIT(NULL, 0)
     "_pyo.FourBandMain_base",                                   /*tp_name*/
     sizeof(FourBandMain),                                 /*tp_basicsize*/
     0,                                              /*tp_itemsize*/
@@ -1028,7 +1026,7 @@ PyTypeObject FourBandMainType = {
     0,                                              /*tp_print*/
     0,                                              /*tp_getattr*/
     0,                                              /*tp_setattr*/
-    0,                                              /*tp_compare*/
+    0,                                              /*tp_as_async (tp_compare in Python 2)*/
     0,                                              /*tp_repr*/
     0,                              /*tp_as_number*/
     0,                                              /*tp_as_sequence*/
@@ -1151,7 +1149,7 @@ FourBand_dealloc(FourBand* self)
 {
     pyo_DEALLOC
     FourBand_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -1239,7 +1237,7 @@ static PyNumberMethods FourBand_as_number = {
     (binaryfunc)FourBand_add,                      /*nb_add*/
     (binaryfunc)FourBand_sub,                 /*nb_subtract*/
     (binaryfunc)FourBand_multiply,                 /*nb_multiply*/
-    (binaryfunc)FourBand_div,                   /*nb_divide*/
+    INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
     0,                /*nb_remainder*/
     0,                   /*nb_divmod*/
     0,                   /*nb_power*/
@@ -1253,16 +1251,16 @@ static PyNumberMethods FourBand_as_number = {
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    0,                                          /*nb_coerce*/
+    INITIALIZE_NB_COERCE_ZERO                   /*nb_coerce*/
     0,                       /*nb_int*/
     0,                      /*nb_long*/
     0,                     /*nb_float*/
-    0,                       /*nb_oct*/
-    0,                       /*nb_hex*/
+    INITIALIZE_NB_OCT_ZERO   /*nb_oct*/
+    INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
     (binaryfunc)FourBand_inplace_add,              /*inplace_add*/
     (binaryfunc)FourBand_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)FourBand_inplace_multiply,         /*inplace_multiply*/
-    (binaryfunc)FourBand_inplace_div,           /*inplace_divide*/
+    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
     0,        /*inplace_remainder*/
     0,           /*inplace_power*/
     0,       /*inplace_lshift*/
@@ -1271,15 +1269,14 @@ static PyNumberMethods FourBand_as_number = {
     0,      /*inplace_xor*/
     0,       /*inplace_or*/
     0,             /*nb_floor_divide*/
-    0,              /*nb_true_divide*/
+    (binaryfunc)FourBand_div,                       /*nb_true_divide*/
     0,     /*nb_inplace_floor_divide*/
-    0,      /*nb_inplace_true_divide*/
+    (binaryfunc)FourBand_inplace_div,                       /*nb_inplace_true_divide*/
     0,                     /* nb_index */
 };
 
 PyTypeObject FourBandType = {
-    PyObject_HEAD_INIT(NULL)
-    0,                         /*ob_size*/
+    PyVarObject_HEAD_INIT(NULL, 0)
     "_pyo.FourBand_base",         /*tp_name*/
     sizeof(FourBand),         /*tp_basicsize*/
     0,                         /*tp_itemsize*/
@@ -1287,7 +1284,7 @@ PyTypeObject FourBandType = {
     0,                         /*tp_print*/
     0,                         /*tp_getattr*/
     0,                         /*tp_setattr*/
-    0,                         /*tp_compare*/
+    0,                         /*tp_as_async (tp_compare in Python 2)*/
     0,                         /*tp_repr*/
     &FourBand_as_number,             /*tp_as_number*/
     0,                         /*tp_as_sequence*/

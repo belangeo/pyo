@@ -1,3 +1,6 @@
+from __future__ import print_function
+from __future__ import absolute_import
+from six.moves import range
 """
 Objects to manage values on an Open Sound Control port.
 
@@ -34,9 +37,9 @@ GNU Lesser General Public License for more details.
 You should have received a copy of the GNU Lesser General Public
 License along with pyo.  If not, see <http://www.gnu.org/licenses/>.
 """
-from _core import *
-from _maps import *
-from types import ListType, StringType, UnicodeType
+from ._core import *
+from ._maps import *
+import six
 
 def assertOSCSupport(obj):
     if not withOSC():
@@ -188,12 +191,12 @@ class OscReceive(PyoObject):
         self._base_objs = [OscReceive_base(self._mainReceiver, wrap(address,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
 
     def __getitem__(self, i):
-        if type(i) in [StringType, UnicodeType]:
+        if type(i) in [six.text_type, six.binary_type]:
             return self._base_objs[self._address.index(i)]
         elif i < len(self._base_objs):
             return self._base_objs[i]
         else:
-            print "'i' too large!"
+            print("'i' too large!")
 
     def getAddresses(self):
         """
@@ -275,7 +278,7 @@ class OscReceive(PyoObject):
             if p in self._address:
                 self._mainReceiver.setValue(p, wrap(value,i))
             else:
-                print 'Error: OscReceive.setValue, Illegal address "%s"' % p
+                print('Error: OscReceive.setValue, Illegal address "%s"' % p)
 
     def get(self, identifier=None, all=False):
         """
@@ -396,7 +399,7 @@ class OscDataSend(PyoObject):
         Returns the addresses managed by the object.
 
         """
-        return self._addresses.keys()
+        return list(self._addresses.keys())
 
     def addAddress(self, types, port, address, host="127.0.0.1"):
         """
@@ -648,14 +651,14 @@ class OscListReceive(PyoObject):
         self._base_objs = [OscListReceive_base(self._mainReceiver, wrap(address,i), j, wrap(mul,i), wrap(add,i)) for i in range(lmax) for j in range(self._num)]
 
     def __getitem__(self, i):
-        if type(i) in [StringType, UnicodeType]:
+        if type(i) in [six.text_type, six.binary_type]:
             first = self._address.index(i) * self._num
             return self._base_objs[first:first+self._num]
         elif i < len(self._base_objs):
             first = i * self._num
             return self._base_objs[first:first+self._num]
         else:
-            print "'i' too large!"
+            print("'i' too large!")
 
     def getAddresses(self):
         """
@@ -704,7 +707,7 @@ class OscListReceive(PyoObject):
         for ind in reversed(indexes):
             self._address.pop(ind)
             first = ind * self._num
-            for i in reversed(range(first, first+self._num)):
+            for i in reversed(list(range(first, first+self._num))):
                 obj = self._base_objs.pop(i)
 
     def setInterpolation(self, x):
@@ -737,16 +740,16 @@ class OscListReceive(PyoObject):
         for i in range(lmax):
             p = wrap(path,i)
             if p in self._address:
-                if type(value[0]) == ListType:
+                if type(value[0]) == list:
                     val = wrap(value,i)
                 else:
                     val = value
                 if len(val) == self._num:
                     self._mainReceiver.setValue(p, val)
                 else:
-                    print 'Error: OscListReceive.setValue, value must be of the same length as the `num` attribute.'
+                    print('Error: OscListReceive.setValue, value must be of the same length as the `num` attribute.')
             else:
-                print 'Error: OscListReceive.setValue, Illegal address "%s"' % p
+                print('Error: OscListReceive.setValue, Illegal address "%s"' % p)
 
     def get(self, identifier=None, all=False):
         """

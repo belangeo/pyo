@@ -19,6 +19,7 @@
  *************************************************************************/
 
 #include <Python.h>
+#include "py2to3.h"
 #include "structmember.h"
 #include "pyomodule.h"
 #include "streammodule.h"
@@ -155,7 +156,7 @@ Pattern_dealloc(Pattern* self)
 {
     pyo_DEALLOC
     Pattern_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -300,8 +301,7 @@ static PyMethodDef Pattern_methods[] = {
 };
 
 PyTypeObject PatternType = {
-PyObject_HEAD_INIT(NULL)
-0,                         /*ob_size*/
+PyVarObject_HEAD_INIT(NULL, 0)
 "_pyo.Pattern_base",         /*tp_name*/
 sizeof(Pattern),         /*tp_basicsize*/
 0,                         /*tp_itemsize*/
@@ -309,7 +309,7 @@ sizeof(Pattern),         /*tp_basicsize*/
 0,                         /*tp_print*/
 0,                         /*tp_getattr*/
 0,                         /*tp_setattr*/
-0,                         /*tp_compare*/
+0,                         /*tp_as_async (tp_compare in Python 2)*/
 0,                         /*tp_repr*/
 0,             /*tp_as_number*/
 0,                         /*tp_as_sequence*/
@@ -404,7 +404,7 @@ Score_dealloc(Score* self)
 {
     pyo_DEALLOC
     Score_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -456,8 +456,7 @@ static PyMethodDef Score_methods[] = {
 };
 
 PyTypeObject ScoreType = {
-PyObject_HEAD_INIT(NULL)
-0,                         /*ob_size*/
+PyVarObject_HEAD_INIT(NULL, 0)
 "_pyo.Score_base",         /*tp_name*/
 sizeof(Score),         /*tp_basicsize*/
 0,                         /*tp_itemsize*/
@@ -465,7 +464,7 @@ sizeof(Score),         /*tp_basicsize*/
 0,                         /*tp_print*/
 0,                         /*tp_getattr*/
 0,                         /*tp_setattr*/
-0,                         /*tp_compare*/
+0,                         /*tp_as_async (tp_compare in Python 2)*/
 0,                         /*tp_repr*/
 0,             /*tp_as_number*/
 0,                         /*tp_as_sequence*/
@@ -567,7 +566,7 @@ CallAfter_dealloc(CallAfter* self)
 {
     pyo_DEALLOC
     CallAfter_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -637,8 +636,7 @@ static PyMethodDef CallAfter_methods[] = {
 };
 
 PyTypeObject CallAfterType = {
-PyObject_HEAD_INIT(NULL)
-0,                         /*ob_size*/
+PyVarObject_HEAD_INIT(NULL, 0)
 "_pyo.CallAfter_base",         /*tp_name*/
 sizeof(CallAfter),         /*tp_basicsize*/
 0,                         /*tp_itemsize*/
@@ -646,7 +644,7 @@ sizeof(CallAfter),         /*tp_basicsize*/
 0,                         /*tp_print*/
 0,                         /*tp_getattr*/
 0,                         /*tp_setattr*/
-0,                         /*tp_compare*/
+0,                         /*tp_as_async (tp_compare in Python 2)*/
 0,                         /*tp_repr*/
 0,             /*tp_as_number*/
 0,                         /*tp_as_sequence*/

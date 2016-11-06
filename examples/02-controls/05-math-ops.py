@@ -1,3 +1,4 @@
+from __future__ import print_function
 """
 05-math-ops.py - Audio objects and arithmetic expresssions.
 
@@ -29,7 +30,7 @@ b = a * 0.5
 b.out()
 
 # Instance of Dummy class
-print b
+print(b)
 
 # Computes a ring modulation between two PyoObjects 
 # and scales the amplitude of the resulting signal. 

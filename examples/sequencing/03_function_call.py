@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # encoding: utf-8
+from __future__ import print_function
 """
 Python function regularly called with a Pattern object.
 
@@ -23,7 +24,7 @@ def change():
     f4 = random.uniform(2000,4000)
     lst = [f1, f2, f3, f4]
     frs.value = lst
-    print "%.2f, %.2f, %.2f, %.2f" % tuple(lst)
+    print("%.2f, %.2f, %.2f, %.2f" % tuple(lst))
 
 lfo = Sine(freq=.1, mul=.5, add=.75)
 pat = Pattern(function=change, time=lfo).play()

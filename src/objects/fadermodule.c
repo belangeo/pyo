@@ -19,6 +19,7 @@
  *************************************************************************/
 
 #include <Python.h>
+#include "py2to3.h"
 #include "structmember.h"
 #include "pyomodule.h"
 #include "streammodule.h"
@@ -202,7 +203,7 @@ Fader_dealloc(Fader* self)
 {
     pyo_DEALLOC
     Fader_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -353,7 +354,7 @@ static PyNumberMethods Fader_as_number = {
 (binaryfunc)Fader_add,                      /*nb_add*/
 (binaryfunc)Fader_sub,                 /*nb_subtract*/
 (binaryfunc)Fader_multiply,                 /*nb_multiply*/
-(binaryfunc)Fader_div,                   /*nb_divide*/
+INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
 0,                /*nb_remainder*/
 0,                   /*nb_divmod*/
 0,                   /*nb_power*/
@@ -367,16 +368,16 @@ static PyNumberMethods Fader_as_number = {
 0,              /*nb_and*/
 0,              /*nb_xor*/
 0,               /*nb_or*/
-0,                                          /*nb_coerce*/
+INITIALIZE_NB_COERCE_ZERO                   /*nb_coerce*/
 0,                       /*nb_int*/
 0,                      /*nb_long*/
 0,                     /*nb_float*/
-0,                       /*nb_oct*/
-0,                       /*nb_hex*/
+INITIALIZE_NB_OCT_ZERO   /*nb_oct*/
+INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
 (binaryfunc)Fader_inplace_add,              /*inplace_add*/
 (binaryfunc)Fader_inplace_sub,         /*inplace_subtract*/
 (binaryfunc)Fader_inplace_multiply,         /*inplace_multiply*/
-(binaryfunc)Fader_inplace_div,           /*inplace_divide*/
+INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
 0,        /*inplace_remainder*/
 0,           /*inplace_power*/
 0,       /*inplace_lshift*/
@@ -385,15 +386,14 @@ static PyNumberMethods Fader_as_number = {
 0,      /*inplace_xor*/
 0,       /*inplace_or*/
 0,             /*nb_floor_divide*/
-0,              /*nb_true_divide*/
+(binaryfunc)Fader_div,                       /*nb_true_divide*/
 0,     /*nb_inplace_floor_divide*/
-0,      /*nb_inplace_true_divide*/
+(binaryfunc)Fader_inplace_div,                       /*nb_inplace_true_divide*/
 0,                     /* nb_index */
 };
 
 PyTypeObject FaderType = {
-PyObject_HEAD_INIT(NULL)
-0,                         /*ob_size*/
+PyVarObject_HEAD_INIT(NULL, 0)
 "_pyo.Fader_base",         /*tp_name*/
 sizeof(Fader),         /*tp_basicsize*/
 0,                         /*tp_itemsize*/
@@ -401,7 +401,7 @@ sizeof(Fader),         /*tp_basicsize*/
 0,                         /*tp_print*/
 0,                         /*tp_getattr*/
 0,                         /*tp_setattr*/
-0,                         /*tp_compare*/
+0,                         /*tp_as_async (tp_compare in Python 2)*/
 0,                         /*tp_repr*/
 &Fader_as_number,             /*tp_as_number*/
 0,                         /*tp_as_sequence*/
@@ -612,7 +612,7 @@ Adsr_dealloc(Adsr* self)
 {
     pyo_DEALLOC
     Adsr_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -813,7 +813,7 @@ static PyNumberMethods Adsr_as_number = {
 (binaryfunc)Adsr_add,                      /*nb_add*/
 (binaryfunc)Adsr_sub,                 /*nb_subtract*/
 (binaryfunc)Adsr_multiply,                 /*nb_multiply*/
-(binaryfunc)Adsr_div,                   /*nb_divide*/
+INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
 0,                /*nb_remainder*/
 0,                   /*nb_divmod*/
 0,                   /*nb_power*/
@@ -827,16 +827,16 @@ static PyNumberMethods Adsr_as_number = {
 0,              /*nb_and*/
 0,              /*nb_xor*/
 0,               /*nb_or*/
-0,                                          /*nb_coerce*/
+INITIALIZE_NB_COERCE_ZERO                   /*nb_coerce*/
 0,                       /*nb_int*/
 0,                      /*nb_long*/
 0,                     /*nb_float*/
-0,                       /*nb_oct*/
-0,                       /*nb_hex*/
+INITIALIZE_NB_OCT_ZERO   /*nb_oct*/
+INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
 (binaryfunc)Adsr_inplace_add,              /*inplace_add*/
 (binaryfunc)Adsr_inplace_sub,         /*inplace_subtract*/
 (binaryfunc)Adsr_inplace_multiply,         /*inplace_multiply*/
-(binaryfunc)Adsr_inplace_div,           /*inplace_divide*/
+INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
 0,        /*inplace_remainder*/
 0,           /*inplace_power*/
 0,       /*inplace_lshift*/
@@ -845,15 +845,14 @@ static PyNumberMethods Adsr_as_number = {
 0,      /*inplace_xor*/
 0,       /*inplace_or*/
 0,             /*nb_floor_divide*/
-0,              /*nb_true_divide*/
+(binaryfunc)Adsr_div,                       /*nb_true_divide*/
 0,     /*nb_inplace_floor_divide*/
-0,      /*nb_inplace_true_divide*/
+(binaryfunc)Adsr_inplace_div,                       /*nb_inplace_true_divide*/
 0,                     /* nb_index */
 };
 
 PyTypeObject AdsrType = {
-PyObject_HEAD_INIT(NULL)
-0,                         /*ob_size*/
+PyVarObject_HEAD_INIT(NULL, 0)
 "_pyo.Adsr_base",         /*tp_name*/
 sizeof(Adsr),         /*tp_basicsize*/
 0,                         /*tp_itemsize*/
@@ -861,7 +860,7 @@ sizeof(Adsr),         /*tp_basicsize*/
 0,                         /*tp_print*/
 0,                         /*tp_getattr*/
 0,                         /*tp_setattr*/
-0,                         /*tp_compare*/
+0,                         /*tp_as_async (tp_compare in Python 2)*/
 0,                         /*tp_repr*/
 &Adsr_as_number,             /*tp_as_number*/
 0,                         /*tp_as_sequence*/
@@ -1052,7 +1051,7 @@ Linseg_dealloc(Linseg* self)
     free(self->targets);
     free(self->times);
     Linseg_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -1207,7 +1206,7 @@ static PyNumberMethods Linseg_as_number = {
 (binaryfunc)Linseg_add,                      /*nb_add*/
 (binaryfunc)Linseg_sub,                 /*nb_subtract*/
 (binaryfunc)Linseg_multiply,                 /*nb_multiply*/
-(binaryfunc)Linseg_div,                   /*nb_divide*/
+INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
 0,                /*nb_remainder*/
 0,                   /*nb_divmod*/
 0,                   /*nb_power*/
@@ -1221,16 +1220,16 @@ static PyNumberMethods Linseg_as_number = {
 0,              /*nb_and*/
 0,              /*nb_xor*/
 0,               /*nb_or*/
-0,                                          /*nb_coerce*/
+INITIALIZE_NB_COERCE_ZERO                   /*nb_coerce*/
 0,                       /*nb_int*/
 0,                      /*nb_long*/
 0,                     /*nb_float*/
-0,                       /*nb_oct*/
-0,                       /*nb_hex*/
+INITIALIZE_NB_OCT_ZERO   /*nb_oct*/
+INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
 (binaryfunc)Linseg_inplace_add,              /*inplace_add*/
 (binaryfunc)Linseg_inplace_sub,         /*inplace_subtract*/
 (binaryfunc)Linseg_inplace_multiply,         /*inplace_multiply*/
-(binaryfunc)Linseg_inplace_div,           /*inplace_divide*/
+INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
 0,        /*inplace_remainder*/
 0,           /*inplace_power*/
 0,       /*inplace_lshift*/
@@ -1239,15 +1238,14 @@ static PyNumberMethods Linseg_as_number = {
 0,      /*inplace_xor*/
 0,       /*inplace_or*/
 0,             /*nb_floor_divide*/
-0,              /*nb_true_divide*/
+(binaryfunc)Linseg_div,                       /*nb_true_divide*/
 0,     /*nb_inplace_floor_divide*/
-0,      /*nb_inplace_true_divide*/
+(binaryfunc)Linseg_inplace_div,                       /*nb_inplace_true_divide*/
 0,                     /* nb_index */
 };
 
 PyTypeObject LinsegType = {
-PyObject_HEAD_INIT(NULL)
-0,                         /*ob_size*/
+PyVarObject_HEAD_INIT(NULL, 0)
 "_pyo.Linseg_base",         /*tp_name*/
 sizeof(Linseg),         /*tp_basicsize*/
 0,                         /*tp_itemsize*/
@@ -1255,7 +1253,7 @@ sizeof(Linseg),         /*tp_basicsize*/
 0,                         /*tp_print*/
 0,                         /*tp_getattr*/
 0,                         /*tp_setattr*/
-0,                         /*tp_compare*/
+0,                         /*tp_as_async (tp_compare in Python 2)*/
 0,                         /*tp_repr*/
 &Linseg_as_number,             /*tp_as_number*/
 0,                         /*tp_as_sequence*/
@@ -1468,7 +1466,7 @@ Expseg_dealloc(Expseg* self)
     free(self->targets);
     free(self->times);
     Expseg_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -1651,7 +1649,7 @@ static PyNumberMethods Expseg_as_number = {
     (binaryfunc)Expseg_add,                      /*nb_add*/
     (binaryfunc)Expseg_sub,                 /*nb_subtract*/
     (binaryfunc)Expseg_multiply,                 /*nb_multiply*/
-    (binaryfunc)Expseg_div,                   /*nb_divide*/
+    INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
     0,                /*nb_remainder*/
     0,                   /*nb_divmod*/
     0,                   /*nb_power*/
@@ -1665,16 +1663,16 @@ static PyNumberMethods Expseg_as_number = {
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    0,                                          /*nb_coerce*/
+    INITIALIZE_NB_COERCE_ZERO                   /*nb_coerce*/
     0,                       /*nb_int*/
     0,                      /*nb_long*/
     0,                     /*nb_float*/
-    0,                       /*nb_oct*/
-    0,                       /*nb_hex*/
+    INITIALIZE_NB_OCT_ZERO   /*nb_oct*/
+    INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
     (binaryfunc)Expseg_inplace_add,              /*inplace_add*/
     (binaryfunc)Expseg_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)Expseg_inplace_multiply,         /*inplace_multiply*/
-    (binaryfunc)Expseg_inplace_div,           /*inplace_divide*/
+    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
     0,        /*inplace_remainder*/
     0,           /*inplace_power*/
     0,       /*inplace_lshift*/
@@ -1683,15 +1681,14 @@ static PyNumberMethods Expseg_as_number = {
     0,      /*inplace_xor*/
     0,       /*inplace_or*/
     0,             /*nb_floor_divide*/
-    0,              /*nb_true_divide*/
+    (binaryfunc)Expseg_div,                       /*nb_true_divide*/
     0,     /*nb_inplace_floor_divide*/
-    0,      /*nb_inplace_true_divide*/
+    (binaryfunc)Expseg_inplace_div,                       /*nb_inplace_true_divide*/
     0,                     /* nb_index */
 };
 
 PyTypeObject ExpsegType = {
-    PyObject_HEAD_INIT(NULL)
-    0,                         /*ob_size*/
+    PyVarObject_HEAD_INIT(NULL, 0)
     "_pyo.Expseg_base",         /*tp_name*/
     sizeof(Expseg),         /*tp_basicsize*/
     0,                         /*tp_itemsize*/
@@ -1699,7 +1696,7 @@ PyTypeObject ExpsegType = {
     0,                         /*tp_print*/
     0,                         /*tp_getattr*/
     0,                         /*tp_setattr*/
-    0,                         /*tp_compare*/
+    0,                         /*tp_as_async (tp_compare in Python 2)*/
     0,                         /*tp_repr*/
     &Expseg_as_number,             /*tp_as_number*/
     0,                         /*tp_as_sequence*/

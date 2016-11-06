@@ -1,3 +1,6 @@
+from __future__ import print_function
+from __future__ import absolute_import
+from six.moves import range
 """
 Different kinds of audio filtering operations.
 
@@ -35,8 +38,8 @@ GNU Lesser General Public License for more details.
 You should have received a copy of the GNU Lesser General Public
 License along with pyo.  If not, see <http://www.gnu.org/licenses/>.
 """
-from _core import *
-from _maps import *
+from ._core import *
+from ._maps import *
 
 class Biquad(PyoObject):
     """
@@ -2132,7 +2135,7 @@ class IRWinSinc(PyoObject):
         self._type = type
         if (order % 2) != 0:
             order += 1
-            print "order argument of IRWinSinc must be even, set to %i" % order
+            print("order argument of IRWinSinc must be even, set to %i" % order)
         self._order = order
         self._in_fader = InputFader(input)
         in_fader, freq, bw, type, order, mul, add, lmax = convertArgsToLists(self._in_fader, freq, bw, type, order, mul, add)
@@ -2280,7 +2283,7 @@ class IRAverage(PyoObject):
         self._input = input
         if (order % 2) != 0:
             order += 1
-            print "order argument of IRAverage must be even, set to %i" % order
+            print("order argument of IRAverage must be even, set to %i" % order)
         self._order = order
         self._in_fader = InputFader(input)
         in_fader, order, mul, add, lmax = convertArgsToLists(self._in_fader, order, mul, add)
@@ -2367,7 +2370,7 @@ class IRPulse(PyoObject):
         self._type = type
         if (order % 2) != 0:
             order += 1
-            print "order argument of IRPulse must be even, set to %i" % order
+            print("order argument of IRPulse must be even, set to %i" % order)
         self._order = order
         self._in_fader = InputFader(input)
         in_fader, freq, bw, type, order, mul, add, lmax = convertArgsToLists(self._in_fader, freq, bw, type, order, mul, add)
@@ -2526,7 +2529,7 @@ class IRFM(PyoObject):
         self._index = index
         if (order % 2) != 0:
             order += 1
-            print "order argument of IRFM must be even, set to %i" % order
+            print("order argument of IRFM must be even, set to %i" % order)
         self._order = order
         self._in_fader = InputFader(input)
         in_fader, carrier, ratio, index, order, mul, add, lmax = convertArgsToLists(self._in_fader, carrier, ratio, index, order, mul, add)

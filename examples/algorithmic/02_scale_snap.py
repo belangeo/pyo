@@ -1,3 +1,4 @@
+from __future__ import print_function
 """
 Algorithmic melody patterns snapped on a specific scale...
 
@@ -24,7 +25,7 @@ def changeScl():
     global curscl
     curscl = (curscl + 1) % len(scls)
     snp.choice = scls[curscl]
-    print snp.choice
+    print(snp.choice)
 
 metscl = Metro(time=8).play()
 tr = TrigFunc(metscl, function=changeScl)

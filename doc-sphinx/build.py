@@ -1,5 +1,4 @@
 import os, sys
-from types import ListType
 from pyo import *
 
 build_format = "html"
@@ -38,7 +37,7 @@ format = "- :py:class:`%s` : %s\n"
 lines = []
 for key in ['Server', 'Stream', 'TableStream', 'PyoObjectBase', 'Map', 
             'MidiListener', 'OscListener', 'PyoGui']:
-    if type(OBJECTS_TREE[key]) == ListType:
+    if type(OBJECTS_TREE[key]) == list:
         if key in ['MidiListener', 'OscListener']:
             lines.append(format % (key, getDocFirstLine(key)))
         else:
@@ -48,7 +47,7 @@ for key in ['Server', 'Stream', 'TableStream', 'PyoObjectBase', 'Map',
         if key == 'Map': key2list = ['SLMap']
         else: key2list = ['PyoMatrixObject', 'PyoTableObject', 'PyoObject', 'PyoPVObject']
         for key2 in key2list:
-            if type(OBJECTS_TREE[key][key2]) == ListType:
+            if type(OBJECTS_TREE[key][key2]) == list:
                 for obj in OBJECTS_TREE[key][key2]:
                     lines.append(format % (obj, getDocFirstLine(obj)))
             else:

@@ -1,3 +1,6 @@
+from __future__ import print_function
+from __future__ import absolute_import
+from six.moves import range
 """
 Set of objects to manage audio voice routing and spread of a sound
 signal into a new stereo or multi-channel sound field.
@@ -24,9 +27,8 @@ You should have received a copy of the GNU Lesser General Public
 License along with pyo.  If not, see <http://www.gnu.org/licenses/>.
 """
 import sys, random
-from _core import *
-from _maps import *
-from types import SliceType
+from ._core import *
+from ._maps import *
 
 class Pan(PyoObject):
     """
@@ -480,7 +482,7 @@ class VoiceManager(PyoObject):
         self._in_fader = InputFader(input)
         in_fader, mul, add, lmax = convertArgsToLists(self._in_fader, mul, add)
         if triggers != None:
-            if type(triggers) == ListType:
+            if type(triggers) == list:
                 try:
                     t_streams = [obj[0] for obj in triggers]
                 except TypeError:
@@ -522,7 +524,7 @@ class VoiceManager(PyoObject):
         #pyoArgsAssert(self, "o", x)
         self._triggers = x
         if x != None:
-            if type(x) == ListType:
+            if type(x) == list:
                 try:
                     t_streams = [obj[0] for obj in x]
                 except TypeError:
@@ -604,12 +606,12 @@ class Mixer(PyoObject):
         self._base_objs = [MixerVoice_base(self._base_players[j], i, wrap(mul,i), wrap(add,i)) for i in range(outs) for j in range(chnls)]
 
     def __getitem__(self, x):
-        if type(x) == SliceType:
+        if type(x) == slice:
             return [self._base_objs[j*self._chnls+i] for j in range(x.start or 0, x.stop or sys.maxint, x.step or 1) for i in range(self._chnls)]
         elif x < len(self._base_objs):
             return [self._base_objs[x*self._chnls+i] for i in range(self._chnls)]
         else:
-            print "'x' too large!"
+            print("'x' too large!")
 
     def setTime(self, x):
         """
@@ -644,10 +646,10 @@ class Mixer(PyoObject):
         pyoArgsAssert(self, "o", input)
         if voice == None:
             voice = random.randint(0, 32767)
-            while self._inputs.has_key(voice):
+            while voice in self._inputs:
                 voice = random.randint(0, 32767)
-        if self._inputs.has_key(voice):
-            print >> sys.stderr, "Mixer has already a key named %s" % voice
+        if voice in self._inputs:
+            print("Mixer has already a key named %s" % voice, file=sys.stderr)
             return
         self._inputs[voice] = input
         input, lmax = convertArgsToLists(input)
@@ -664,7 +666,7 @@ class Mixer(PyoObject):
                 Key in the mixer dictionary assigned to the input to remove.
 
         """
-        if self._inputs.has_key(voice):
+        if voice in self._inputs:
             del self._inputs[voice]
             [obj.delInput(str(voice)) for i, obj in enumerate(self._base_players)]
 
@@ -682,7 +684,7 @@ class Mixer(PyoObject):
                 Amplitude value for this mixing channel.
 
         """
-        if self._inputs.has_key(vin) and vout < self._outs:
+        if vin in self._inputs and vout < self._outs:
             [obj.setAmp(str(vin), vout, amp) for i, obj in enumerate(self._base_players)]
 
     def getChannels(self):
@@ -697,7 +699,7 @@ class Mixer(PyoObject):
         Returns the list of current keys in the Mixer's channels dictionary.
 
         """
-        return self._inputs.keys()
+        return list(self._inputs.keys())
 
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
         self._map_list = [SLMap(0, 10, 'lin', 'time', self._time, dataOnly=True),

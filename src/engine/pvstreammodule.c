@@ -34,7 +34,7 @@ PVStream_dealloc(PVStream* self)
 {
     self->magn = NULL;
     self->freq = NULL;
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 int
@@ -98,8 +98,7 @@ PVStream_setCount(PVStream *self, int *data)
 }
 
 PyTypeObject PVStreamType = {
-    PyObject_HEAD_INIT(NULL)
-    0, /*ob_size*/
+    PyVarObject_HEAD_INIT(NULL, 0)
     "pyo.PVStream", /*tp_name*/
     sizeof(PVStream), /*tp_basicsize*/
     0, /*tp_itemsize*/
@@ -107,7 +106,7 @@ PyTypeObject PVStreamType = {
     0, /*tp_print*/
     0, /*tp_getattr*/
     0, /*tp_setattr*/
-    0, /*tp_compare*/
+    0, /*tp_as_async (tp_compare in Python 2)*/
     0, /*tp_repr*/
     0, /*tp_as_number*/
     0, /*tp_as_sequence*/

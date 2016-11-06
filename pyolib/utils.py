@@ -1,3 +1,6 @@
+from __future__ import print_function
+from __future__ import absolute_import
+from six.moves import range
 """
 Miscellaneous objects.
 
@@ -22,9 +25,8 @@ GNU Lesser General Public License for more details.
 You should have received a copy of the GNU Lesser General Public
 License along with pyo.  If not, see <http://www.gnu.org/licenses/>.
 """
-from _core import *
-from _maps import *
-from types import SliceType
+from ._core import *
+from ._maps import *
 import threading, time
 
 class Clean_objects(threading.Thread):
@@ -248,7 +250,7 @@ class Snap(PyoObject):
         self._scale = scale
         self._in_fader = InputFader(input)
         in_fader, scale, mul, add, lmax = convertArgsToLists(self._in_fader, scale, mul, add)
-        if type(choice[0]) != ListType:
+        if type(choice[0]) != list:
             self._base_objs = [Snap_base(wrap(in_fader,i), choice, wrap(scale,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
         else:
             choicelen = len(choice)
@@ -626,12 +628,12 @@ class Record(PyoObject):
         ext = filename.rsplit('.')
         if len(ext) >= 2:
             ext = ext[-1].lower()
-            if FILE_FORMATS.has_key(ext):
+            if ext in FILE_FORMATS:
                 fileformat = FILE_FORMATS[ext]
             else:
-                print 'Warning: Unknown file extension. Using fileformat value.'
+                print('Warning: Unknown file extension. Using fileformat value.')
         else:
-            print 'Warning: Filename has no extension. Using fileformat value.'
+            print('Warning: Filename has no extension. Using fileformat value.')
         self._base_objs = [Record_base(self._in_fader.getBaseObjects(), filename, chnls, fileformat, sampletype, buffering, quality)]
 
     def out(self, chnl=0, inc=1, dur=0, delay=0):

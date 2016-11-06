@@ -19,6 +19,7 @@
  *************************************************************************/
 
 #include <Python.h>
+#include "py2to3.h"
 #include "structmember.h"
 #include "pyomodule.h"
 #include "streammodule.h"
@@ -111,7 +112,7 @@ Record_dealloc(Record* self)
     pyo_DEALLOC
     free(self->buffer);
     Record_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -252,8 +253,7 @@ static PyMethodDef Record_methods[] = {
 };
 
 PyTypeObject RecordType = {
-PyObject_HEAD_INIT(NULL)
-0,                                              /*ob_size*/
+PyVarObject_HEAD_INIT(NULL, 0)
 "_pyo.Record_base",                                   /*tp_name*/
 sizeof(Record),                                 /*tp_basicsize*/
 0,                                              /*tp_itemsize*/
@@ -261,7 +261,7 @@ sizeof(Record),                                 /*tp_basicsize*/
 0,                                              /*tp_print*/
 0,                                              /*tp_getattr*/
 0,                                              /*tp_setattr*/
-0,                                              /*tp_compare*/
+0,                                              /*tp_as_async (tp_compare in Python 2)*/
 0,                                              /*tp_repr*/
 0,												/*tp_as_number*/
 0,                                              /*tp_as_sequence*/
@@ -376,7 +376,7 @@ ControlRec_dealloc(ControlRec* self)
     if (self->buffer != NULL)
         free(self->buffer);
     ControlRec_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -476,8 +476,7 @@ static PyMethodDef ControlRec_methods[] = {
 };
 
 PyTypeObject ControlRecType = {
-    PyObject_HEAD_INIT(NULL)
-    0,                                              /*ob_size*/
+    PyVarObject_HEAD_INIT(NULL, 0)
     "_pyo.ControlRec_base",                                   /*tp_name*/
     sizeof(ControlRec),                                 /*tp_basicsize*/
     0,                                              /*tp_itemsize*/
@@ -485,7 +484,7 @@ PyTypeObject ControlRecType = {
     0,                                              /*tp_print*/
     0,                                              /*tp_getattr*/
     0,                                              /*tp_setattr*/
-    0,                                              /*tp_compare*/
+    0,                                              /*tp_as_async (tp_compare in Python 2)*/
     0,                                              /*tp_repr*/
     0,												/*tp_as_number*/
     0,                                              /*tp_as_sequence*/
@@ -651,7 +650,7 @@ ControlRead_dealloc(ControlRead* self)
     free(self->values);
     free(self->trigsBuffer);
     ControlRead_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -827,7 +826,7 @@ static PyNumberMethods ControlRead_as_number = {
     (binaryfunc)ControlRead_add,                      /*nb_add*/
     (binaryfunc)ControlRead_sub,                 /*nb_subtract*/
     (binaryfunc)ControlRead_multiply,                 /*nb_multiply*/
-    (binaryfunc)ControlRead_div,                   /*nb_divide*/
+    INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
     0,                /*nb_remainder*/
     0,                   /*nb_divmod*/
     0,                   /*nb_power*/
@@ -841,16 +840,16 @@ static PyNumberMethods ControlRead_as_number = {
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    0,                                          /*nb_coerce*/
+    INITIALIZE_NB_COERCE_ZERO                   /*nb_coerce*/
     0,                       /*nb_int*/
     0,                      /*nb_long*/
     0,                     /*nb_float*/
-    0,                       /*nb_oct*/
-    0,                       /*nb_hex*/
+    INITIALIZE_NB_OCT_ZERO   /*nb_oct*/
+    INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
     (binaryfunc)ControlRead_inplace_add,              /*inplace_add*/
     (binaryfunc)ControlRead_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)ControlRead_inplace_multiply,         /*inplace_multiply*/
-    (binaryfunc)ControlRead_inplace_div,           /*inplace_divide*/
+    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
     0,        /*inplace_remainder*/
     0,           /*inplace_power*/
     0,       /*inplace_lshift*/
@@ -859,15 +858,14 @@ static PyNumberMethods ControlRead_as_number = {
     0,      /*inplace_xor*/
     0,       /*inplace_or*/
     0,             /*nb_floor_divide*/
-    0,              /*nb_true_divide*/
+    (binaryfunc)ControlRead_div,                       /*nb_true_divide*/
     0,     /*nb_inplace_floor_divide*/
-    0,      /*nb_inplace_true_divide*/
+    (binaryfunc)ControlRead_inplace_div,                       /*nb_inplace_true_divide*/
     0,                     /* nb_index */
 };
 
 PyTypeObject ControlReadType = {
-    PyObject_HEAD_INIT(NULL)
-    0,                         /*ob_size*/
+    PyVarObject_HEAD_INIT(NULL, 0)
     "_pyo.ControlRead_base",         /*tp_name*/
     sizeof(ControlRead),         /*tp_basicsize*/
     0,                         /*tp_itemsize*/
@@ -875,7 +873,7 @@ PyTypeObject ControlReadType = {
     0,                         /*tp_print*/
     0,                         /*tp_getattr*/
     0,                         /*tp_setattr*/
-    0,                         /*tp_compare*/
+    0,                         /*tp_as_async (tp_compare in Python 2)*/
     0,                         /*tp_repr*/
     &ControlRead_as_number,             /*tp_as_number*/
     0,                         /*tp_as_sequence*/
@@ -991,7 +989,7 @@ NoteinRec_dealloc(NoteinRec* self)
 {
     pyo_DEALLOC
     NoteinRec_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -1083,8 +1081,7 @@ static PyMethodDef NoteinRec_methods[] = {
 };
 
 PyTypeObject NoteinRecType = {
-    PyObject_HEAD_INIT(NULL)
-    0,                                              /*ob_size*/
+    PyVarObject_HEAD_INIT(NULL, 0)
     "_pyo.NoteinRec_base",                                   /*tp_name*/
     sizeof(NoteinRec),                                 /*tp_basicsize*/
     0,                                              /*tp_itemsize*/
@@ -1092,7 +1089,7 @@ PyTypeObject NoteinRecType = {
     0,                                              /*tp_print*/
     0,                                              /*tp_getattr*/
     0,                                              /*tp_setattr*/
-    0,                                              /*tp_compare*/
+    0,                                              /*tp_as_async (tp_compare in Python 2)*/
     0,                                              /*tp_repr*/
     0,												/*tp_as_number*/
     0,                                              /*tp_as_sequence*/
@@ -1254,7 +1251,7 @@ NoteinRead_dealloc(NoteinRead* self)
     free(self->timestamps);
     free(self->trigsBuffer);
     NoteinRead_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -1416,7 +1413,7 @@ static PyNumberMethods NoteinRead_as_number = {
     (binaryfunc)NoteinRead_add,                      /*nb_add*/
     (binaryfunc)NoteinRead_sub,                 /*nb_subtract*/
     (binaryfunc)NoteinRead_multiply,                 /*nb_multiply*/
-    (binaryfunc)NoteinRead_div,                   /*nb_divide*/
+    INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
     0,                /*nb_remainder*/
     0,                   /*nb_divmod*/
     0,                   /*nb_power*/
@@ -1430,16 +1427,16 @@ static PyNumberMethods NoteinRead_as_number = {
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    0,                                          /*nb_coerce*/
+    INITIALIZE_NB_COERCE_ZERO                   /*nb_coerce*/
     0,                       /*nb_int*/
     0,                      /*nb_long*/
     0,                     /*nb_float*/
-    0,                       /*nb_oct*/
-    0,                       /*nb_hex*/
+    INITIALIZE_NB_OCT_ZERO   /*nb_oct*/
+    INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
     (binaryfunc)NoteinRead_inplace_add,              /*inplace_add*/
     (binaryfunc)NoteinRead_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)NoteinRead_inplace_multiply,         /*inplace_multiply*/
-    (binaryfunc)NoteinRead_inplace_div,           /*inplace_divide*/
+    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
     0,        /*inplace_remainder*/
     0,           /*inplace_power*/
     0,       /*inplace_lshift*/
@@ -1448,15 +1445,14 @@ static PyNumberMethods NoteinRead_as_number = {
     0,      /*inplace_xor*/
     0,       /*inplace_or*/
     0,             /*nb_floor_divide*/
-    0,              /*nb_true_divide*/
+    (binaryfunc)NoteinRead_div,                       /*nb_true_divide*/
     0,     /*nb_inplace_floor_divide*/
-    0,      /*nb_inplace_true_divide*/
+    (binaryfunc)NoteinRead_inplace_div,                       /*nb_inplace_true_divide*/
     0,                     /* nb_index */
 };
 
 PyTypeObject NoteinReadType = {
-    PyObject_HEAD_INIT(NULL)
-    0,                         /*ob_size*/
+    PyVarObject_HEAD_INIT(NULL, 0)
     "_pyo.NoteinRead_base",         /*tp_name*/
     sizeof(NoteinRead),         /*tp_basicsize*/
     0,                         /*tp_itemsize*/
@@ -1464,7 +1460,7 @@ PyTypeObject NoteinReadType = {
     0,                         /*tp_print*/
     0,                         /*tp_getattr*/
     0,                         /*tp_setattr*/
-    0,                         /*tp_compare*/
+    0,                         /*tp_as_async (tp_compare in Python 2)*/
     0,                         /*tp_repr*/
     &NoteinRead_as_number,             /*tp_as_number*/
     0,                         /*tp_as_sequence*/

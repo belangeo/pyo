@@ -1,4 +1,10 @@
 # -*- coding: utf-8 -*-
+from __future__ import division
+from __future__ import print_function
+from __future__ import absolute_import
+from six.moves import range
+from six.moves import builtins
+import six
 """
 Copyright 2009-2015 Olivier Belanger
 
@@ -18,21 +24,20 @@ GNU Lesser General Public License for more details.
 You should have received a copy of the GNU Lesser General Public
 License along with pyo.  If not, see <http://www.gnu.org/licenses/>.
 """
-from types import BooleanType, ListType, TupleType, SliceType, LongType, IntType, FloatType, StringType, UnicodeType, NoneType
+import types
 import random, os, sys, inspect, tempfile
 from subprocess import call
 from weakref import proxy
 
-import __builtin__
-if hasattr(__builtin__, 'pyo_use_double'):
+if hasattr(builtins, 'pyo_use_double'):
     import pyo64 as current_pyo
     from _pyo64 import *
 else:
     import pyo as current_pyo
     from _pyo import *
 
-from _maps import *
-from _widgets import createCtrlWindow, createViewTableWindow, createViewMatrixWindow
+from ._maps import *
+from ._widgets import createCtrlWindow, createViewTableWindow, createViewMatrixWindow
 
 ######################################################################
 ### Utilities
@@ -125,76 +130,84 @@ def pyoArgsAssert(obj, format, *args):
             Arguments passed to the object's method.
             
     """
+    if sys.version_info[0] < 3:
+        # Python 2
+        longType = int
+    else:
+        # Python 3
+        # Not used in Python 3, ignore it
+        longType = None
+
     expected = ""
     for i in range(len(args)):
         f = format[i]
         argtype = type(args[i])
         if f == "O":
             if not isAudioObject(args[i]) and \
-                    argtype not in [ListType, IntType, LongType, FloatType]:
+                    argtype not in [list, int, longType, float]:
                 expected = "float or PyoObject"
         elif f == "o":
-            if not isAudioObject(args[i]) and argtype not in [ListType]:
+            if not isAudioObject(args[i]) and argtype not in [list]:
                 expected = "PyoObject"
         elif f == "T":
-            if not isTableObject(args[i]) and argtype not in [FloatType, ListType]:
+            if not isTableObject(args[i]) and argtype not in [float, list]:
                 expected = "float or PyoTableObject"
         elif f == "t":
-            if not isTableObject(args[i]) and argtype not in [ListType]:
+            if not isTableObject(args[i]) and argtype not in [list]:
                 expected = "PyoTableObject"
         elif f == "m":
-            if not isMatrixObject(args[i]) and argtype not in [ListType]:
+            if not isMatrixObject(args[i]) and argtype not in [list]:
                 expected = "PyoMatrixObject"
         elif f == "p":
-            if not isPVObject(args[i]) and argtype not in [ListType]:
+            if not isPVObject(args[i]) and argtype not in [list]:
                 expected = "PyoPVObject"
         elif f == "n":
-            if argtype not in [ListType, IntType, LongType, FloatType]:
+            if argtype not in [list, int, longType, float]:
                 expected = "any number"
         elif f == "N":
-            if argtype not in [IntType, LongType, FloatType]:
+            if argtype not in [int, longType, float]:
                 expected = "any number - list not allowed"
         elif f == "f":
-            if argtype not in [ListType, FloatType]:
+            if argtype not in [list, float]:
                 expected = "float"
         elif f == "F":
-            if argtype not in [FloatType]:
+            if argtype not in [float]:
                 expected = "float - list not allowed"
         elif f == "i":
-            if argtype not in [ListType, IntType, LongType]:
+            if argtype not in [list, int, longType]:
                 expected = "integer"
         elif f == "I":
-            if argtype not in [IntType, LongType]:
+            if argtype not in [int, longType]:
                 expected = "integer - list not allowed"
         elif f == "s":
-            if argtype not in [ListType, StringType, UnicodeType]:
+            if argtype not in [list, bytes, six.text_type]:
                 expected = "string"
         elif f == "S":
-            if argtype not in [StringType, UnicodeType]:
+            if argtype not in [bytes, six.text_type]:
                 expected = "string - list not allowed"
         elif f == "b":
-            if argtype not in [BooleanType, ListType, IntType, LongType]:
+            if argtype not in [bool, list, int, longType]:
                 expected = "boolean"
         elif f == "B":
-            if argtype not in [BooleanType, IntType, LongType]:
+            if argtype not in [bool, int, longType]:
                 expected = "boolean - list not allowed"
         elif f == "l":
-            if argtype not in [ListType]:
+            if argtype not in [list]:
                 expected = "list"
         elif f == "L":
-            if argtype not in [ListType, NoneType]:
+            if argtype not in [list, type(None)]:
                 expected = "list or None"
         elif f == "u":
-            if argtype not in [TupleType]:
+            if argtype not in [tuple]:
                 expected = "tuple"
         elif f == "x":
-            if argtype not in [ListType, TupleType]:
+            if argtype not in [list, tuple]:
                 expected = "list or tuple"
         elif f == "c":
-            if not callable(args[i]) and argtype not in [ListType, TupleType, NoneType]:
+            if not callable(args[i]) and argtype not in [list, tuple, type(None)]:
                 expected = "callable"
         elif f == "C":
-            if not callable(args[i]) and argtype not in [NoneType]:
+            if not callable(args[i]) and argtype not in [type(None)]:
                 expected = "callable - list not allowed"
         elif f == "z":
             pass
@@ -218,7 +231,7 @@ def convertStringToSysEncoding(str):
             String to convert.
 
     """
-    if type(str) != UnicodeType:
+    if type(str) != six.text_type:
         str = str.decode("utf-8")
     str = str.encode(sys.getfilesystemencoding())
     return str
@@ -231,7 +244,7 @@ def convertArgsToLists(*args):
     """
     converted = []
     for i in args:
-        if isinstance(i, PyoObjectBase) or type(i) == ListType:
+        if isinstance(i, PyoObjectBase) or type(i) == list:
             converted.append(i)
         else:
             converted.append([i])
@@ -284,11 +297,11 @@ def example(cls, dur=5, toprint=True, double=False):
                 lines.append(line)
 
     if lines == []:
-        print "There is no manual example for %s object." % cls.__name__
+        print("There is no manual example for %s object." % cls.__name__)
         return
 
     ex_lines = [line.lstrip("    ") for line in lines if ">>>" in line or "..." in line]
-    if hasattr(__builtin__, 'pyo_use_double') or double:
+    if hasattr(builtins, 'pyo_use_double') or double:
         ex = "import time\nfrom pyo64 import *\n"
     else:
         ex = "import time\nfrom pyo import *\n"
@@ -306,9 +319,9 @@ def example(cls, dur=5, toprint=True, double=False):
     p = call(["python", f.name])
 
 def removeExtraDecimals(x):
-    if type(x) == FloatType:
+    if type(x) == float:
         return "=%.2f" % x
-    elif type(x) == StringType:
+    elif type(x) == six.text_type:
         return '="%s"' % x
     else:
         return "=" + str(x)
@@ -342,7 +355,7 @@ def class_args(cls):
             if name in FUNCTIONS_INIT_LINES:
                 return FUNCTIONS_INIT_LINES[name]
         except:
-            print "class_args was unable to retrieve the init line of the object as an argument."
+            print("class_args was unable to retrieve the init line of the object as an argument.")
             return ""
 
 def getVersion():
@@ -362,7 +375,7 @@ def getVersion():
     return (int(major), int(minor), int(rev))
 
 def getWeakMethodRef(x):
-    if type(x) in [ListType, TupleType]:
+    if type(x) in [list, tuple]:
         tmp = []
         for y in x:
             if hasattr(y, "__self__"):
@@ -480,13 +493,13 @@ class PyoObjectBase(object):
     def __getitem__(self, i):
         if i == 'trig': # not safe...
             return self._trig_objs
-        if type(i) == SliceType or i < len(self._base_objs):
+        if type(i) == slice or i < len(self._base_objs):
             return self._base_objs[i]
         else:
-            if type(i) == StringType:
-                print "Object %s has no stream named '%s'!" % (self.__class__.__name__, i)
+            if type(i) == six.text_type:
+                print("Object %s has no stream named '%s'!" % (self.__class__.__name__, i))
             else:
-                print "'i' too large in slicing %s object %s!" % (self._STREAM_TYPE, self.__class__.__name__)
+                print("'i' too large in slicing %s object %s!" % (self._STREAM_TYPE, self.__class__.__name__))
 
     def __len__(self):
         return len(self._base_objs)
@@ -577,7 +590,7 @@ class PyoObject(PyoObjectBase):
     def __add__(self, x):
         x, lmax = convertArgsToLists(x)
         if self.__len__() >= lmax:
-            _add_dummy = Dummy([obj + wrap(x,i/self._op_duplicate) for i, obj in enumerate(self._base_objs)])
+            _add_dummy = Dummy([obj + wrap(x,i//self._op_duplicate) for i, obj in enumerate(self._base_objs)])
         else:
             if isinstance(x, PyoObject):
                 _add_dummy = x + self
@@ -589,7 +602,7 @@ class PyoObject(PyoObjectBase):
     def __radd__(self, x):
         x, lmax = convertArgsToLists(x)
         if self.__len__() >= lmax:
-            _add_dummy = Dummy([obj + wrap(x,i/self._op_duplicate) for i, obj in enumerate(self._base_objs)])
+            _add_dummy = Dummy([obj + wrap(x,i//self._op_duplicate) for i, obj in enumerate(self._base_objs)])
         else:
             _add_dummy = Dummy([wrap(self._base_objs,i) + obj for i, obj in enumerate(x)])
         self._keep_trace.append(_add_dummy)
@@ -602,7 +615,7 @@ class PyoObject(PyoObjectBase):
     def __sub__(self, x):
         x, lmax = convertArgsToLists(x)
         if self.__len__() >= lmax:
-            _add_dummy = Dummy([obj - wrap(x,i/self._op_duplicate) for i, obj in enumerate(self._base_objs)])
+            _add_dummy = Dummy([obj - wrap(x,i//self._op_duplicate) for i, obj in enumerate(self._base_objs)])
         else:
             if isinstance(x, PyoObject):
                 _add_dummy = Dummy([wrap(self._base_objs,i) - wrap(x,i) for i in range(lmax)])
@@ -616,7 +629,7 @@ class PyoObject(PyoObjectBase):
         if self.__len__() >= lmax:
             tmp = []
             for i, obj in enumerate(self._base_objs):
-                sub_upsamp = Sig(wrap(x, i/self._op_duplicate))
+                sub_upsamp = Sig(wrap(x, i//self._op_duplicate))
                 self._keep_trace.append(sub_upsamp)
                 tmp.append(sub_upsamp - obj)
             _add_dummy = Dummy(tmp)
@@ -637,7 +650,7 @@ class PyoObject(PyoObjectBase):
     def __mul__(self, x):
         x, lmax = convertArgsToLists(x)
         if self.__len__() >= lmax:
-            _mul_dummy = Dummy([obj * wrap(x,i/self._op_duplicate) for i, obj in enumerate(self._base_objs)])
+            _mul_dummy = Dummy([obj * wrap(x,i//self._op_duplicate) for i, obj in enumerate(self._base_objs)])
         else:
             if isinstance(x, PyoObject):
                 _mul_dummy = x * self
@@ -649,7 +662,7 @@ class PyoObject(PyoObjectBase):
     def __rmul__(self, x):
         x, lmax = convertArgsToLists(x)
         if self.__len__() >= lmax:
-            _mul_dummy = Dummy([obj * wrap(x,i/self._op_duplicate) for i, obj in enumerate(self._base_objs)])
+            _mul_dummy = Dummy([obj * wrap(x,i//self._op_duplicate) for i, obj in enumerate(self._base_objs)])
         else:
             _mul_dummy = Dummy([wrap(self._base_objs,i) * obj for i, obj in enumerate(x)])
         self._keep_trace.append(_mul_dummy)
@@ -659,10 +672,19 @@ class PyoObject(PyoObjectBase):
         self.setMul(x)
         return self
 
+    def __truediv__(self, x):
+        return self.__div__(x)
+
+    def __rtruediv__(self, x):
+        return self.__rdiv__(x)
+
+    def __itruediv__(self, x):
+        return self.__idiv__(x)
+
     def __div__(self, x):
         x, lmax = convertArgsToLists(x)
         if self.__len__() >= lmax:
-            _mul_dummy = Dummy([obj / wrap(x,i/self._op_duplicate) for i, obj in enumerate(self._base_objs)])
+            _mul_dummy = Dummy([obj / wrap(x,i//self._op_duplicate) for i, obj in enumerate(self._base_objs)])
         else:
             if isinstance(x, PyoObject):
                 _mul_dummy = Dummy([wrap(self._base_objs,i) / wrap(x,i) for i in range(lmax)])
@@ -676,7 +698,7 @@ class PyoObject(PyoObjectBase):
         if self.__len__() >= lmax:
             tmp = []
             for i, obj in enumerate(self._base_objs):
-                div_upsamp = Sig(wrap(x, i/self._op_duplicate))
+                div_upsamp = Sig(wrap(x, i//self._op_duplicate))
                 self._keep_trace.append(div_upsamp)
                 tmp.append(div_upsamp / obj)
             _mul_dummy = Dummy(tmp)
@@ -819,7 +841,7 @@ class PyoObject(PyoObjectBase):
         pyoArgsAssert(self, "nn", dur, delay)
         dur, delay, lmax = convertArgsToLists(dur, delay)
         if hasattr(self, "_trig_objs"):
-            if type(self._trig_objs) == ListType:
+            if type(self._trig_objs) == list:
                 for i in range(lmax):
                     for obj in self._trig_objs:
                         obj.play(wrap(dur,i), wrap(delay,i))
@@ -864,7 +886,7 @@ class PyoObject(PyoObjectBase):
         pyoArgsAssert(self, "iInn", chnl, inc, dur, delay)
         dur, delay, lmax = convertArgsToLists(dur, delay)
         if hasattr(self, "_trig_objs"):
-            if type(self._trig_objs) == ListType:
+            if type(self._trig_objs) == list:
                 for i in range(lmax):
                     for obj in self._trig_objs:
                         obj.play(wrap(dur,i), wrap(delay,i))
@@ -872,7 +894,7 @@ class PyoObject(PyoObjectBase):
                 self._trig_objs.play(dur, delay)
         if hasattr(self, "_base_players"):
             [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._base_players)]
-        if type(chnl) == ListType:
+        if type(chnl) == list:
             [obj.out(wrap(chnl,i), wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._base_objs)]
         else:
             if chnl < 0:
@@ -890,7 +912,7 @@ class PyoObject(PyoObjectBase):
 
         """
         if hasattr(self, "_trig_objs"):
-            if type(self._trig_objs) == ListType:
+            if type(self._trig_objs) == list:
                 [obj.stop() for obj in self._trig_objs]
             else:
                 self._trig_objs.stop()
@@ -961,7 +983,7 @@ class PyoObject(PyoObjectBase):
         pyoArgsAssert(self, "O", x)
         self._mul = x
         x, lmax = convertArgsToLists(x)
-        [obj.setMul(wrap(x,i/self._op_duplicate)) for i, obj in enumerate(self._base_objs)]
+        [obj.setMul(wrap(x,i//self._op_duplicate)) for i, obj in enumerate(self._base_objs)]
 
     def setAdd(self, x):
         """
@@ -976,7 +998,7 @@ class PyoObject(PyoObjectBase):
         pyoArgsAssert(self, "O", x)
         self._add = x
         x, lmax = convertArgsToLists(x)
-        [obj.setAdd(wrap(x,i/self._op_duplicate)) for i, obj in enumerate(self._base_objs)]
+        [obj.setAdd(wrap(x,i//self._op_duplicate)) for i, obj in enumerate(self._base_objs)]
 
     def setSub(self, x):
         """
@@ -991,7 +1013,7 @@ class PyoObject(PyoObjectBase):
         pyoArgsAssert(self, "O", x)
         self._add = x
         x, lmax = convertArgsToLists(x)
-        [obj.setSub(wrap(x,i/self._op_duplicate)) for i, obj in enumerate(self._base_objs)]
+        [obj.setSub(wrap(x,i//self._op_duplicate)) for i, obj in enumerate(self._base_objs)]
 
     def setDiv(self, x):
         """
@@ -1006,7 +1028,7 @@ class PyoObject(PyoObjectBase):
         pyoArgsAssert(self, "O", x)
         self._mul = x
         x, lmax = convertArgsToLists(x)
-        [obj.setDiv(wrap(x,i/self._op_duplicate)) for i, obj in enumerate(self._base_objs)]
+        [obj.setDiv(wrap(x,i//self._op_duplicate)) for i, obj in enumerate(self._base_objs)]
 
     def set(self, attr, value, port=0.025):
         """
@@ -1029,7 +1051,7 @@ class PyoObject(PyoObjectBase):
         pyoArgsAssert(self, "Snn", attr, value, port)
         self._target_dict[attr] = value
         init = getattr(self, attr)
-        if self._signal_dict.has_key(attr):
+        if attr in self._signal_dict:
             if isinstance(self._signal_dict[attr], VarPort):
                 if self._signal_dict[attr].isPlaying():
                     init = self._signal_dict[attr].get(True)
@@ -1070,7 +1092,7 @@ class PyoObject(PyoObjectBase):
         if map_list == None:
             map_list = self._map_list
         if map_list == []:
-            print("There is no controls for %s object." % self.__class__.__name__)
+            print(("There is no controls for %s object." % self.__class__.__name__))
             return
         createCtrlWindow(self, map_list, title, wxnoserver)
 
@@ -1159,7 +1181,7 @@ class PyoTableObject(PyoObjectBase):
         ext = path.rsplit('.')
         if len(ext) >= 2:
             ext = ext[-1].lower()
-            if FILE_FORMATS.has_key(ext):
+            if ext in FILE_FORMATS:
                 format = FILE_FORMATS[ext]
         savefileFromTable(self, path, format, sampletype, quality)
 
@@ -1242,7 +1264,7 @@ class PyoTableObject(PyoObjectBase):
 
         """
         if chnl < 0 or chnl >= len(self):
-            print "getBuffer(chnl): `chnl` argument out-of-range..."
+            print("getBuffer(chnl): `chnl` argument out-of-range...")
         else:
             return self._base_objs[chnl].getTableStream()
 
@@ -1279,7 +1301,7 @@ class PyoTableObject(PyoObjectBase):
         if all:
             return [obj.getSize() for obj in self._base_objs]
         else:
-            if type(self._size) == ListType:
+            if type(self._size) == list:
                 return self._size[0]
             else:
                 return self._size
@@ -1488,8 +1510,8 @@ class PyoTableObject(PyoObjectBase):
 
         """
         pyoArgsAssert(self, "T", x)
-        if type(x) == ListType:
-            if type(x[0]) == ListType:
+        if type(x) == list:
+            if type(x[0]) == list:
                 [obj.add(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
             else:
                 [obj.add(x) for obj in self._base_objs]
@@ -1513,8 +1535,8 @@ class PyoTableObject(PyoObjectBase):
 
         """
         pyoArgsAssert(self, "T", x)
-        if type(x) == ListType:
-            if type(x[0]) == ListType:
+        if type(x) == list:
+            if type(x[0]) == list:
                 [obj.sub(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
             else:
                 [obj.sub(x) for obj in self._base_objs]
@@ -1538,8 +1560,8 @@ class PyoTableObject(PyoObjectBase):
 
         """
         pyoArgsAssert(self, "T", x)
-        if type(x) == ListType:
-            if type(x[0]) == ListType:
+        if type(x) == list:
+            if type(x[0]) == list:
                 [obj.mul(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
             else:
                 [obj.mul(x) for obj in self._base_objs]
@@ -1601,7 +1623,7 @@ class PyoTableObject(PyoObjectBase):
         args = [getattr(self, att) for att in self.__dir__()]
         if self.__class__.__name__ == "SndTable":
             _size = self.getSize()
-            if type(_size) != ListType:
+            if type(_size) != list:
                 _size = [_size]
             _chnls = len(self._base_objs)
             args[0] = None
@@ -1943,7 +1965,7 @@ class PyoPVObject(PyoObjectBase):
         pyoArgsAssert(self, "Snn", attr, value, port)
         self._target_dict[attr] = value
         init = getattr(self, attr)
-        if self._signal_dict.has_key(attr):
+        if attr in self._signal_dict:
             if isinstance(self._signal_dict[attr], VarPort):
                 if self._signal_dict[attr].isPlaying():
                     init = self._signal_dict[attr].get(True)
@@ -1984,7 +2006,7 @@ class PyoPVObject(PyoObjectBase):
         if map_list == None:
             map_list = self._map_list
         if map_list == []:
-            print("There is no controls for %s object." % self.__class__.__name__)
+            print(("There is no controls for %s object." % self.__class__.__name__))
             return
         createCtrlWindow(self, map_list, title, wxnoserver)
 
@@ -2034,7 +2056,7 @@ class Mix(PyoObject):
         PyoObject.__init__(self, mul, add)
         self._input = input
         mul, add, lmax = convertArgsToLists(mul, add)
-        if type(input) == ListType:
+        if type(input) == list:
             input_objs = []
             input_objs = [obj for pyoObj in input for obj in pyoObj.getBaseObjects()]
         else:

@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+from __future__ import print_function
+from __future__ import absolute_import
 """
 Copyright 2009-2015 Olivier Belanger
 
@@ -18,7 +20,6 @@ GNU Lesser General Public License for more details.
 You should have received a copy of the GNU Lesser General Public
 License along with pyo.  If not, see <http://www.gnu.org/licenses/>.
 """
-from types import ListType, FloatType, IntType
 import math, sys, os, random
 
 try:
@@ -35,7 +36,7 @@ try:
     except:
         pass
     import wx
-    from _wxwidgets import *
+    from ._wxwidgets import *
     PYO_USE_WX = True
 except:
     PYO_USE_WX = False
@@ -43,24 +44,24 @@ except:
 PYO_USE_TK = False
 if not PYO_USE_WX:
     try:
-        from Tkinter import *
-        from _tkwidgets import *
+        from six.moves.tkinter import *
+        from ._tkwidgets import *
         PYO_USE_TK = True
-        print """
+        print("""
 WxPython is not found for the current python version.
 Pyo will use a minimal GUI toolkit written with Tkinter.
 This toolkit has limited functionnalities and is no more
 maintained or updated. If you want to use all of pyo's
 GUI features, you should install WxPython, available here:
 http://www.wxpython.org/
-"""
+""")
     except:
         PYO_USE_TK = False
-        print """
+        print("""
 Neither WxPython nor Tkinter are found for the current python version.
 Pyo's GUI features are disabled. For a complete GUI toolkit, you should
 consider installing WxPython, available here: http://www.wxpython.org/
-"""
+""")
 
 X, Y, CURRENT_X, MAX_X, NEXT_Y = 800, 700, 30, 30, 30
 WINDOWS = []
@@ -222,7 +223,7 @@ def createCtrlWindow(obj, map_list, title, wxnoserver=False):
 
 def createGraphWindow(obj, mode, xlen, yrange, title, wxnoserver=False):
     if not PYO_USE_WX:
-        print "WxPython must be installed to use the 'graph()' method."
+        print("WxPython must be installed to use the 'graph()' method.")
     else:
         if wxnoserver or wx.GetApp() is not None:
             root = createRootWindow()
@@ -234,7 +235,7 @@ def createGraphWindow(obj, mode, xlen, yrange, title, wxnoserver=False):
 
 def createDataGraphWindow(obj, yrange, title, wxnoserver=False):
     if not PYO_USE_WX:
-        print "WxPython must be installed to use the 'graph()' method."
+        print("WxPython must be installed to use the 'graph()' method.")
     else:
         if wxnoserver or wx.GetApp() is not None:
             root = createRootWindow()
@@ -282,8 +283,8 @@ def createSndViewTableWindow(obj, title="Table waveform", wxnoserver=False, tabl
             SNDTABLEWINDOWS.append([obj, tableclass, title, mouse_callback])
 
 def createViewMatrixWindow(samples, size, title="Matrix viewer", wxnoserver=False, object=None):
-    if not WITH_PIL: print """The Python Imaging Library is not installed.
-It helps a lot to speed up matrix drawing!"""
+    if not WITH_PIL: print("""The Python Imaging Library is not installed.
+It helps a lot to speed up matrix drawing!""")
     if not PYO_USE_WX:
         createRootWindow()
         win = tkCreateToplevelWindow()
@@ -304,7 +305,7 @@ It helps a lot to speed up matrix drawing!"""
 
 def createSpectrumWindow(object, title, wxnoserver=False):
     if not PYO_USE_WX:
-        print "WxPython must be installed to use the Spectrum display."
+        print("WxPython must be installed to use the Spectrum display.")
     else:
         if wxnoserver or wx.GetApp() is not None:
             root = createRootWindow()
@@ -318,7 +319,7 @@ def createSpectrumWindow(object, title, wxnoserver=False):
 
 def createScopeWindow(object, title, wxnoserver=False):
     if not PYO_USE_WX:
-        print "WxPython must be installed to use the Scope display."
+        print("WxPython must be installed to use the Scope display.")
     else:
         if wxnoserver or wx.GetApp() is not None:
             root = createRootWindow()
@@ -332,7 +333,7 @@ def createScopeWindow(object, title, wxnoserver=False):
 
 def createExprEditorWindow(object, title, wxnoserver=False):
     if not PYO_USE_WX:
-        print "WxPython must be installed to use the Expr editor display."
+        print("WxPython must be installed to use the Expr editor display.")
     else:
         if wxnoserver or wx.GetApp() is not None:
             root = createRootWindow()

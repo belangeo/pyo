@@ -19,6 +19,7 @@
  *************************************************************************/
 
 #include <Python.h>
+#include "py2to3.h"
 #include "structmember.h"
 #include <math.h>
 #include "pyomodule.h"
@@ -177,7 +178,7 @@ FFTMain_dealloc(FFTMain* self)
     free(self->twiddle);
     free(self->twiddle2);
     FFTMain_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -269,8 +270,7 @@ static PyMethodDef FFTMain_methods[] = {
 };
 
 PyTypeObject FFTMainType = {
-PyObject_HEAD_INIT(NULL)
-0,                                              /*ob_size*/
+PyVarObject_HEAD_INIT(NULL, 0)
 "_pyo.FFTMain_base",                                   /*tp_name*/
 sizeof(FFTMain),                                 /*tp_basicsize*/
 0,                                              /*tp_itemsize*/
@@ -278,7 +278,7 @@ sizeof(FFTMain),                                 /*tp_basicsize*/
 0,                                              /*tp_print*/
 0,                                              /*tp_getattr*/
 0,                                              /*tp_setattr*/
-0,                                              /*tp_compare*/
+0,                                              /*tp_as_async (tp_compare in Python 2)*/
 0,                                              /*tp_repr*/
 0,                              /*tp_as_number*/
 0,                                              /*tp_as_sequence*/
@@ -401,7 +401,7 @@ FFT_dealloc(FFT* self)
 {
     pyo_DEALLOC
     FFT_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -486,7 +486,7 @@ static PyNumberMethods FFT_as_number = {
 (binaryfunc)FFT_add,                      /*nb_add*/
 (binaryfunc)FFT_sub,                 /*nb_subtract*/
 (binaryfunc)FFT_multiply,                 /*nb_multiply*/
-(binaryfunc)FFT_div,                   /*nb_divide*/
+INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
 0,                /*nb_remainder*/
 0,                   /*nb_divmod*/
 0,                   /*nb_power*/
@@ -500,16 +500,16 @@ static PyNumberMethods FFT_as_number = {
 0,              /*nb_and*/
 0,              /*nb_xor*/
 0,               /*nb_or*/
-0,                                          /*nb_coerce*/
+INITIALIZE_NB_COERCE_ZERO                   /*nb_coerce*/
 0,                       /*nb_int*/
 0,                      /*nb_long*/
 0,                     /*nb_float*/
-0,                       /*nb_oct*/
-0,                       /*nb_hex*/
+INITIALIZE_NB_OCT_ZERO   /*nb_oct*/
+INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
 (binaryfunc)FFT_inplace_add,              /*inplace_add*/
 (binaryfunc)FFT_inplace_sub,         /*inplace_subtract*/
 (binaryfunc)FFT_inplace_multiply,         /*inplace_multiply*/
-(binaryfunc)FFT_inplace_div,           /*inplace_divide*/
+INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
 0,        /*inplace_remainder*/
 0,           /*inplace_power*/
 0,       /*inplace_lshift*/
@@ -518,15 +518,14 @@ static PyNumberMethods FFT_as_number = {
 0,      /*inplace_xor*/
 0,       /*inplace_or*/
 0,             /*nb_floor_divide*/
-0,              /*nb_true_divide*/
+(binaryfunc)FFT_div,                       /*nb_true_divide*/
 0,     /*nb_inplace_floor_divide*/
-0,      /*nb_inplace_true_divide*/
+(binaryfunc)FFT_inplace_div,                       /*nb_inplace_true_divide*/
 0,                     /* nb_index */
 };
 
 PyTypeObject FFTType = {
-PyObject_HEAD_INIT(NULL)
-0,                         /*ob_size*/
+PyVarObject_HEAD_INIT(NULL, 0)
 "_pyo.FFT_base",         /*tp_name*/
 sizeof(FFT),         /*tp_basicsize*/
 0,                         /*tp_itemsize*/
@@ -534,7 +533,7 @@ sizeof(FFT),         /*tp_basicsize*/
 0,                         /*tp_print*/
 0,                         /*tp_getattr*/
 0,                         /*tp_setattr*/
-0,                         /*tp_compare*/
+0,                         /*tp_as_async (tp_compare in Python 2)*/
 0,                         /*tp_repr*/
 &FFT_as_number,             /*tp_as_number*/
 0,                         /*tp_as_sequence*/
@@ -742,7 +741,7 @@ IFFT_dealloc(IFFT* self)
     free(self->twiddle);
     free(self->twiddle2);
     IFFT_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -882,7 +881,7 @@ static PyNumberMethods IFFT_as_number = {
     (binaryfunc)IFFT_add,                      /*nb_add*/
     (binaryfunc)IFFT_sub,                 /*nb_subtract*/
     (binaryfunc)IFFT_multiply,                 /*nb_multiply*/
-    (binaryfunc)IFFT_div,                   /*nb_divide*/
+    INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
     0,                /*nb_remainder*/
     0,                   /*nb_divmod*/
     0,                   /*nb_power*/
@@ -896,16 +895,16 @@ static PyNumberMethods IFFT_as_number = {
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    0,                                          /*nb_coerce*/
+    INITIALIZE_NB_COERCE_ZERO                   /*nb_coerce*/
     0,                       /*nb_int*/
     0,                      /*nb_long*/
     0,                     /*nb_float*/
-    0,                       /*nb_oct*/
-    0,                       /*nb_hex*/
+    INITIALIZE_NB_OCT_ZERO   /*nb_oct*/
+    INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
     (binaryfunc)IFFT_inplace_add,              /*inplace_add*/
     (binaryfunc)IFFT_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)IFFT_inplace_multiply,         /*inplace_multiply*/
-    (binaryfunc)IFFT_inplace_div,           /*inplace_divide*/
+    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
     0,        /*inplace_remainder*/
     0,           /*inplace_power*/
     0,       /*inplace_lshift*/
@@ -914,15 +913,14 @@ static PyNumberMethods IFFT_as_number = {
     0,      /*inplace_xor*/
     0,       /*inplace_or*/
     0,             /*nb_floor_divide*/
-    0,              /*nb_true_divide*/
+    (binaryfunc)IFFT_div,                       /*nb_true_divide*/
     0,     /*nb_inplace_floor_divide*/
-    0,      /*nb_inplace_true_divide*/
+    (binaryfunc)IFFT_inplace_div,                       /*nb_inplace_true_divide*/
     0,                     /* nb_index */
 };
 
 PyTypeObject IFFTType = {
-    PyObject_HEAD_INIT(NULL)
-    0,                         /*ob_size*/
+    PyVarObject_HEAD_INIT(NULL, 0)
     "_pyo.IFFT_base",         /*tp_name*/
     sizeof(IFFT),         /*tp_basicsize*/
     0,                         /*tp_itemsize*/
@@ -930,7 +928,7 @@ PyTypeObject IFFTType = {
     0,                         /*tp_print*/
     0,                         /*tp_getattr*/
     0,                         /*tp_setattr*/
-    0,                         /*tp_compare*/
+    0,                         /*tp_as_async (tp_compare in Python 2)*/
     0,                         /*tp_repr*/
     &IFFT_as_number,             /*tp_as_number*/
     0,                         /*tp_as_sequence*/
@@ -1073,7 +1071,7 @@ CarToPol_dealloc(CarToPol* self)
 {
     pyo_DEALLOC
     CarToPol_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -1165,7 +1163,7 @@ static PyNumberMethods CarToPol_as_number = {
     (binaryfunc)CarToPol_add,                      /*nb_add*/
     (binaryfunc)CarToPol_sub,                 /*nb_subtract*/
     (binaryfunc)CarToPol_multiply,                 /*nb_multiply*/
-    (binaryfunc)CarToPol_div,                   /*nb_divide*/
+    INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
     0,                /*nb_remainder*/
     0,                   /*nb_divmod*/
     0,                   /*nb_power*/
@@ -1179,16 +1177,16 @@ static PyNumberMethods CarToPol_as_number = {
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    0,                                          /*nb_coerce*/
+    INITIALIZE_NB_COERCE_ZERO                   /*nb_coerce*/
     0,                       /*nb_int*/
     0,                      /*nb_long*/
     0,                     /*nb_float*/
-    0,                       /*nb_oct*/
-    0,                       /*nb_hex*/
+    INITIALIZE_NB_OCT_ZERO   /*nb_oct*/
+    INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
     (binaryfunc)CarToPol_inplace_add,              /*inplace_add*/
     (binaryfunc)CarToPol_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)CarToPol_inplace_multiply,         /*inplace_multiply*/
-    (binaryfunc)CarToPol_inplace_div,           /*inplace_divide*/
+    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
     0,        /*inplace_remainder*/
     0,           /*inplace_power*/
     0,       /*inplace_lshift*/
@@ -1197,15 +1195,14 @@ static PyNumberMethods CarToPol_as_number = {
     0,      /*inplace_xor*/
     0,       /*inplace_or*/
     0,             /*nb_floor_divide*/
-    0,              /*nb_true_divide*/
+    (binaryfunc)CarToPol_div,                       /*nb_true_divide*/
     0,     /*nb_inplace_floor_divide*/
-    0,      /*nb_inplace_true_divide*/
+    (binaryfunc)CarToPol_inplace_div,                       /*nb_inplace_true_divide*/
     0,                     /* nb_index */
 };
 
 PyTypeObject CarToPolType = {
-    PyObject_HEAD_INIT(NULL)
-    0,                         /*ob_size*/
+    PyVarObject_HEAD_INIT(NULL, 0)
     "_pyo.CarToPol_base",         /*tp_name*/
     sizeof(CarToPol),         /*tp_basicsize*/
     0,                         /*tp_itemsize*/
@@ -1213,7 +1210,7 @@ PyTypeObject CarToPolType = {
     0,                         /*tp_print*/
     0,                         /*tp_getattr*/
     0,                         /*tp_setattr*/
-    0,                         /*tp_compare*/
+    0,                         /*tp_as_async (tp_compare in Python 2)*/
     0,                         /*tp_repr*/
     &CarToPol_as_number,             /*tp_as_number*/
     0,                         /*tp_as_sequence*/
@@ -1356,7 +1353,7 @@ PolToCar_dealloc(PolToCar* self)
 {
     pyo_DEALLOC
     PolToCar_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -1448,7 +1445,7 @@ static PyNumberMethods PolToCar_as_number = {
     (binaryfunc)PolToCar_add,                      /*nb_add*/
     (binaryfunc)PolToCar_sub,                 /*nb_subtract*/
     (binaryfunc)PolToCar_multiply,                 /*nb_multiply*/
-    (binaryfunc)PolToCar_div,                   /*nb_divide*/
+    INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
     0,                /*nb_remainder*/
     0,                   /*nb_divmod*/
     0,                   /*nb_power*/
@@ -1462,16 +1459,16 @@ static PyNumberMethods PolToCar_as_number = {
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    0,                                          /*nb_coerce*/
+    INITIALIZE_NB_COERCE_ZERO                   /*nb_coerce*/
     0,                       /*nb_int*/
     0,                      /*nb_long*/
     0,                     /*nb_float*/
-    0,                       /*nb_oct*/
-    0,                       /*nb_hex*/
+    INITIALIZE_NB_OCT_ZERO   /*nb_oct*/
+    INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
     (binaryfunc)PolToCar_inplace_add,              /*inplace_add*/
     (binaryfunc)PolToCar_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)PolToCar_inplace_multiply,         /*inplace_multiply*/
-    (binaryfunc)PolToCar_inplace_div,           /*inplace_divide*/
+    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
     0,        /*inplace_remainder*/
     0,           /*inplace_power*/
     0,       /*inplace_lshift*/
@@ -1480,15 +1477,14 @@ static PyNumberMethods PolToCar_as_number = {
     0,      /*inplace_xor*/
     0,       /*inplace_or*/
     0,             /*nb_floor_divide*/
-    0,              /*nb_true_divide*/
+    (binaryfunc)PolToCar_div,                       /*nb_true_divide*/
     0,     /*nb_inplace_floor_divide*/
-    0,      /*nb_inplace_true_divide*/
+    (binaryfunc)PolToCar_inplace_div,                       /*nb_inplace_true_divide*/
     0,                     /* nb_index */
 };
 
 PyTypeObject PolToCarType = {
-    PyObject_HEAD_INIT(NULL)
-    0,                         /*ob_size*/
+    PyVarObject_HEAD_INIT(NULL, 0)
     "_pyo.PolToCar_base",         /*tp_name*/
     sizeof(PolToCar),         /*tp_basicsize*/
     0,                         /*tp_itemsize*/
@@ -1496,7 +1492,7 @@ PyTypeObject PolToCarType = {
     0,                         /*tp_print*/
     0,                         /*tp_getattr*/
     0,                         /*tp_setattr*/
-    0,                         /*tp_compare*/
+    0,                         /*tp_as_async (tp_compare in Python 2)*/
     0,                         /*tp_repr*/
     &PolToCar_as_number,             /*tp_as_number*/
     0,                         /*tp_as_sequence*/
@@ -1624,7 +1620,7 @@ FrameDeltaMain_dealloc(FrameDeltaMain* self)
     free(self->frameBuffer);
     free(self->buffer_streams);
     FrameDeltaMain_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -1744,8 +1740,7 @@ static PyMethodDef FrameDeltaMain_methods[] = {
 };
 
 PyTypeObject FrameDeltaMainType = {
-    PyObject_HEAD_INIT(NULL)
-    0,                         /*ob_size*/
+    PyVarObject_HEAD_INIT(NULL, 0)
     "_pyo.FrameDeltaMain_base",         /*tp_name*/
     sizeof(FrameDeltaMain),         /*tp_basicsize*/
     0,                         /*tp_itemsize*/
@@ -1753,7 +1748,7 @@ PyTypeObject FrameDeltaMainType = {
     0,                         /*tp_print*/
     0,                         /*tp_getattr*/
     0,                         /*tp_setattr*/
-    0,                         /*tp_compare*/
+    0,                         /*tp_as_async (tp_compare in Python 2)*/
     0,                         /*tp_repr*/
     0,                         /*tp_as_number*/
     0,                         /*tp_as_sequence*/
@@ -1876,7 +1871,7 @@ FrameDelta_dealloc(FrameDelta* self)
 {
     pyo_DEALLOC
     FrameDelta_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -1963,7 +1958,7 @@ static PyNumberMethods FrameDelta_as_number = {
     (binaryfunc)FrameDelta_add,                      /*nb_add*/
     (binaryfunc)FrameDelta_sub,                 /*nb_subtract*/
     (binaryfunc)FrameDelta_multiply,                 /*nb_multiply*/
-    (binaryfunc)FrameDelta_div,                   /*nb_divide*/
+    INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
     0,                /*nb_remainder*/
     0,                   /*nb_divmod*/
     0,                   /*nb_power*/
@@ -1977,16 +1972,16 @@ static PyNumberMethods FrameDelta_as_number = {
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    0,                                          /*nb_coerce*/
+    INITIALIZE_NB_COERCE_ZERO                   /*nb_coerce*/
     0,                       /*nb_int*/
     0,                      /*nb_long*/
     0,                     /*nb_float*/
-    0,                       /*nb_oct*/
-    0,                       /*nb_hex*/
+    INITIALIZE_NB_OCT_ZERO   /*nb_oct*/
+    INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
     (binaryfunc)FrameDelta_inplace_add,              /*inplace_add*/
     (binaryfunc)FrameDelta_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)FrameDelta_inplace_multiply,         /*inplace_multiply*/
-    (binaryfunc)FrameDelta_inplace_div,           /*inplace_divide*/
+    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
     0,        /*inplace_remainder*/
     0,           /*inplace_power*/
     0,       /*inplace_lshift*/
@@ -1995,15 +1990,14 @@ static PyNumberMethods FrameDelta_as_number = {
     0,      /*inplace_xor*/
     0,       /*inplace_or*/
     0,             /*nb_floor_divide*/
-    0,              /*nb_true_divide*/
+    (binaryfunc)FrameDelta_div,                       /*nb_true_divide*/
     0,     /*nb_inplace_floor_divide*/
-    0,      /*nb_inplace_true_divide*/
+    (binaryfunc)FrameDelta_inplace_div,                       /*nb_inplace_true_divide*/
     0,                     /* nb_index */
 };
 
 PyTypeObject FrameDeltaType = {
-    PyObject_HEAD_INIT(NULL)
-    0,                         /*ob_size*/
+    PyVarObject_HEAD_INIT(NULL, 0)
     "_pyo.FrameDelta_base",         /*tp_name*/
     sizeof(FrameDelta),         /*tp_basicsize*/
     0,                         /*tp_itemsize*/
@@ -2011,7 +2005,7 @@ PyTypeObject FrameDeltaType = {
     0,                         /*tp_print*/
     0,                         /*tp_getattr*/
     0,                         /*tp_setattr*/
-    0,                         /*tp_compare*/
+    0,                         /*tp_as_async (tp_compare in Python 2)*/
     0,                         /*tp_repr*/
     &FrameDelta_as_number,             /*tp_as_number*/
     0,                         /*tp_as_sequence*/
@@ -2133,7 +2127,7 @@ FrameAccumMain_dealloc(FrameAccumMain* self)
     free(self->frameBuffer);
     free(self->buffer_streams);
     FrameAccumMain_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -2253,8 +2247,7 @@ static PyMethodDef FrameAccumMain_methods[] = {
 };
 
 PyTypeObject FrameAccumMainType = {
-    PyObject_HEAD_INIT(NULL)
-    0,                         /*ob_size*/
+    PyVarObject_HEAD_INIT(NULL, 0)
     "_pyo.FrameAccumMain_base",         /*tp_name*/
     sizeof(FrameAccumMain),         /*tp_basicsize*/
     0,                         /*tp_itemsize*/
@@ -2262,7 +2255,7 @@ PyTypeObject FrameAccumMainType = {
     0,                         /*tp_print*/
     0,                         /*tp_getattr*/
     0,                         /*tp_setattr*/
-    0,                         /*tp_compare*/
+    0,                         /*tp_as_async (tp_compare in Python 2)*/
     0,                         /*tp_repr*/
     0,                         /*tp_as_number*/
     0,                         /*tp_as_sequence*/
@@ -2385,7 +2378,7 @@ FrameAccum_dealloc(FrameAccum* self)
 {
     pyo_DEALLOC
     FrameAccum_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -2472,7 +2465,7 @@ static PyNumberMethods FrameAccum_as_number = {
     (binaryfunc)FrameAccum_add,                      /*nb_add*/
     (binaryfunc)FrameAccum_sub,                 /*nb_subtract*/
     (binaryfunc)FrameAccum_multiply,                 /*nb_multiply*/
-    (binaryfunc)FrameAccum_div,                   /*nb_divide*/
+    INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
     0,                /*nb_remainder*/
     0,                   /*nb_divmod*/
     0,                   /*nb_power*/
@@ -2486,16 +2479,16 @@ static PyNumberMethods FrameAccum_as_number = {
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    0,                                          /*nb_coerce*/
+    INITIALIZE_NB_COERCE_ZERO                   /*nb_coerce*/
     0,                       /*nb_int*/
     0,                      /*nb_long*/
     0,                     /*nb_float*/
-    0,                       /*nb_oct*/
-    0,                       /*nb_hex*/
+    INITIALIZE_NB_OCT_ZERO   /*nb_oct*/
+    INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
     (binaryfunc)FrameAccum_inplace_add,              /*inplace_add*/
     (binaryfunc)FrameAccum_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)FrameAccum_inplace_multiply,         /*inplace_multiply*/
-    (binaryfunc)FrameAccum_inplace_div,           /*inplace_divide*/
+    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
     0,        /*inplace_remainder*/
     0,           /*inplace_power*/
     0,       /*inplace_lshift*/
@@ -2504,15 +2497,14 @@ static PyNumberMethods FrameAccum_as_number = {
     0,      /*inplace_xor*/
     0,       /*inplace_or*/
     0,             /*nb_floor_divide*/
-    0,              /*nb_true_divide*/
+    (binaryfunc)FrameAccum_div,                       /*nb_true_divide*/
     0,     /*nb_inplace_floor_divide*/
-    0,      /*nb_inplace_true_divide*/
+    (binaryfunc)FrameAccum_inplace_div,                       /*nb_inplace_true_divide*/
     0,                     /* nb_index */
 };
 
 PyTypeObject FrameAccumType = {
-    PyObject_HEAD_INIT(NULL)
-    0,                         /*ob_size*/
+    PyVarObject_HEAD_INIT(NULL, 0)
     "_pyo.FrameAccum_base",         /*tp_name*/
     sizeof(FrameAccum),         /*tp_basicsize*/
     0,                         /*tp_itemsize*/
@@ -2520,7 +2512,7 @@ PyTypeObject FrameAccumType = {
     0,                         /*tp_print*/
     0,                         /*tp_getattr*/
     0,                         /*tp_setattr*/
-    0,                         /*tp_compare*/
+    0,                         /*tp_as_async (tp_compare in Python 2)*/
     0,                         /*tp_repr*/
     &FrameAccum_as_number,             /*tp_as_number*/
     0,                         /*tp_as_sequence*/
@@ -2700,7 +2692,7 @@ VectralMain_dealloc(VectralMain* self)
     free(self->frameBuffer);
     free(self->buffer_streams);
     VectralMain_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -2930,8 +2922,7 @@ static PyMethodDef VectralMain_methods[] = {
 };
 
 PyTypeObject VectralMainType = {
-    PyObject_HEAD_INIT(NULL)
-    0,                         /*ob_size*/
+    PyVarObject_HEAD_INIT(NULL, 0)
     "_pyo.VectralMain_base",         /*tp_name*/
     sizeof(VectralMain),         /*tp_basicsize*/
     0,                         /*tp_itemsize*/
@@ -2939,7 +2930,7 @@ PyTypeObject VectralMainType = {
     0,                         /*tp_print*/
     0,                         /*tp_getattr*/
     0,                         /*tp_setattr*/
-    0,                         /*tp_compare*/
+    0,                         /*tp_as_async (tp_compare in Python 2)*/
     0,                         /*tp_repr*/
     0,                         /*tp_as_number*/
     0,                         /*tp_as_sequence*/
@@ -3062,7 +3053,7 @@ Vectral_dealloc(Vectral* self)
 {
     pyo_DEALLOC
     Vectral_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -3149,7 +3140,7 @@ static PyNumberMethods Vectral_as_number = {
     (binaryfunc)Vectral_add,                      /*nb_add*/
     (binaryfunc)Vectral_sub,                 /*nb_subtract*/
     (binaryfunc)Vectral_multiply,                 /*nb_multiply*/
-    (binaryfunc)Vectral_div,                   /*nb_divide*/
+    INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
     0,                /*nb_remainder*/
     0,                   /*nb_divmod*/
     0,                   /*nb_power*/
@@ -3163,16 +3154,16 @@ static PyNumberMethods Vectral_as_number = {
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    0,                                          /*nb_coerce*/
+    INITIALIZE_NB_COERCE_ZERO                   /*nb_coerce*/
     0,                       /*nb_int*/
     0,                      /*nb_long*/
     0,                     /*nb_float*/
-    0,                       /*nb_oct*/
-    0,                       /*nb_hex*/
+    INITIALIZE_NB_OCT_ZERO   /*nb_oct*/
+    INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
     (binaryfunc)Vectral_inplace_add,              /*inplace_add*/
     (binaryfunc)Vectral_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)Vectral_inplace_multiply,         /*inplace_multiply*/
-    (binaryfunc)Vectral_inplace_div,           /*inplace_divide*/
+    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
     0,        /*inplace_remainder*/
     0,           /*inplace_power*/
     0,       /*inplace_lshift*/
@@ -3181,15 +3172,14 @@ static PyNumberMethods Vectral_as_number = {
     0,      /*inplace_xor*/
     0,       /*inplace_or*/
     0,             /*nb_floor_divide*/
-    0,              /*nb_true_divide*/
+    (binaryfunc)Vectral_div,                       /*nb_true_divide*/
     0,     /*nb_inplace_floor_divide*/
-    0,      /*nb_inplace_true_divide*/
+    (binaryfunc)Vectral_inplace_div,                       /*nb_inplace_true_divide*/
     0,                     /* nb_index */
 };
 
 PyTypeObject VectralType = {
-    PyObject_HEAD_INIT(NULL)
-    0,                         /*ob_size*/
+    PyVarObject_HEAD_INIT(NULL, 0)
     "_pyo.Vectral_base",         /*tp_name*/
     sizeof(Vectral),         /*tp_basicsize*/
     0,                         /*tp_itemsize*/
@@ -3197,7 +3187,7 @@ PyTypeObject VectralType = {
     0,                         /*tp_print*/
     0,                         /*tp_getattr*/
     0,                         /*tp_setattr*/
-    0,                         /*tp_compare*/
+    0,                         /*tp_as_async (tp_compare in Python 2)*/
     0,                         /*tp_repr*/
     &Vectral_as_number,             /*tp_as_number*/
     0,                         /*tp_as_sequence*/
@@ -3601,7 +3591,7 @@ CvlVerb_dealloc(CvlVerb* self)
     free(self->real);
     free(self->imag);
     CvlVerb_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -3740,7 +3730,7 @@ static PyNumberMethods CvlVerb_as_number = {
     (binaryfunc)CvlVerb_add,                      /*nb_add*/
     (binaryfunc)CvlVerb_sub,                 /*nb_subtract*/
     (binaryfunc)CvlVerb_multiply,                 /*nb_multiply*/
-    (binaryfunc)CvlVerb_div,                   /*nb_divide*/
+    INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
     0,                /*nb_remainder*/
     0,                   /*nb_divmod*/
     0,                   /*nb_power*/
@@ -3754,16 +3744,16 @@ static PyNumberMethods CvlVerb_as_number = {
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    0,                                          /*nb_coerce*/
+    INITIALIZE_NB_COERCE_ZERO                   /*nb_coerce*/
     0,                       /*nb_int*/
     0,                      /*nb_long*/
     0,                     /*nb_float*/
-    0,                       /*nb_oct*/
-    0,                       /*nb_hex*/
+    INITIALIZE_NB_OCT_ZERO   /*nb_oct*/
+    INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
     (binaryfunc)CvlVerb_inplace_add,              /*inplace_add*/
     (binaryfunc)CvlVerb_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)CvlVerb_inplace_multiply,         /*inplace_multiply*/
-    (binaryfunc)CvlVerb_inplace_div,           /*inplace_divide*/
+    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
     0,        /*inplace_remainder*/
     0,           /*inplace_power*/
     0,       /*inplace_lshift*/
@@ -3772,15 +3762,14 @@ static PyNumberMethods CvlVerb_as_number = {
     0,      /*inplace_xor*/
     0,       /*inplace_or*/
     0,             /*nb_floor_divide*/
-    0,              /*nb_true_divide*/
+    (binaryfunc)CvlVerb_div,                       /*nb_true_divide*/
     0,     /*nb_inplace_floor_divide*/
-    0,      /*nb_inplace_true_divide*/
+    (binaryfunc)CvlVerb_inplace_div,                       /*nb_inplace_true_divide*/
     0,                     /* nb_index */
 };
 
 PyTypeObject CvlVerbType = {
-PyObject_HEAD_INIT(NULL)
-0,                                              /*ob_size*/
+PyVarObject_HEAD_INIT(NULL, 0)
 "_pyo.CvlVerb_base",                                   /*tp_name*/
 sizeof(CvlVerb),                                 /*tp_basicsize*/
 0,                                              /*tp_itemsize*/
@@ -3788,7 +3777,7 @@ sizeof(CvlVerb),                                 /*tp_basicsize*/
 0,                                              /*tp_print*/
 0,                                              /*tp_getattr*/
 0,                                              /*tp_setattr*/
-0,                                              /*tp_compare*/
+0,                                              /*tp_as_async (tp_compare in Python 2)*/
 0,                                              /*tp_repr*/
 &CvlVerb_as_number,                              /*tp_as_number*/
 0,                                              /*tp_as_sequence*/
@@ -4042,7 +4031,7 @@ Spectrum_dealloc(Spectrum* self)
     }
     free(self->twiddle);
     Spectrum_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -4253,8 +4242,7 @@ static PyMethodDef Spectrum_methods[] = {
 };
 
 PyTypeObject SpectrumType = {
-PyObject_HEAD_INIT(NULL)
-0,                                              /*ob_size*/
+PyVarObject_HEAD_INIT(NULL, 0)
 "_pyo.Spectrum_base",                                   /*tp_name*/
 sizeof(Spectrum),                                 /*tp_basicsize*/
 0,                                              /*tp_itemsize*/
@@ -4262,7 +4250,7 @@ sizeof(Spectrum),                                 /*tp_basicsize*/
 0,                                              /*tp_print*/
 0,                                              /*tp_getattr*/
 0,                                              /*tp_setattr*/
-0,                                              /*tp_compare*/
+0,                                              /*tp_as_async (tp_compare in Python 2)*/
 0,                                              /*tp_repr*/
 0,                              /*tp_as_number*/
 0,                                              /*tp_as_sequence*/

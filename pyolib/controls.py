@@ -9,6 +9,8 @@ soundcard.
 
 """
 
+from __future__ import absolute_import
+from six.moves import range
 """
 Copyright 2009-2015 Olivier Belanger
 
@@ -29,10 +31,9 @@ You should have received a copy of the GNU Lesser General Public
 License along with pyo.  If not, see <http://www.gnu.org/licenses/>.
 """
 import sys
-from _core import *
-from _maps import *
-from _widgets import createGraphWindow
-from types import ListType, TupleType
+from ._core import *
+from ._maps import *
+from ._widgets import createGraphWindow
 
 ######################################################################
 ### Controls
@@ -438,7 +439,7 @@ class Linseg(PyoObject):
         self._list = list
         self._loop = loop
         initToFirstVal, loop, mul, add, lmax = convertArgsToLists(initToFirstVal, loop, mul, add)
-        if type(list[0]) != ListType:
+        if type(list[0]) != list:
             self._base_objs = [Linseg_base(list, wrap(loop,i), wrap(initToFirstVal,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
         else:
             listlen = len(list)
@@ -460,7 +461,7 @@ class Linseg(PyoObject):
         """
         pyoArgsAssert(self, "l", x)
         self._list = x
-        if type(x[0]) != ListType:
+        if type(x[0]) != list:
             [obj.setList(x) for i, obj in enumerate(self._base_objs)]
         else:
             [obj.setList(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -606,7 +607,7 @@ class Expseg(PyoObject):
         self._exp = exp
         self._inverse = inverse
         loop, exp, inverse, initToFirstVal, mul, add, lmax = convertArgsToLists(loop, exp, inverse, initToFirstVal, mul, add)
-        if type(list[0]) != ListType:
+        if type(list[0]) != list:
             self._base_objs = [Expseg_base(list, wrap(loop,i), wrap(exp,i), wrap(inverse,i), wrap(initToFirstVal,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
         else:
             listlen = len(list)
@@ -628,7 +629,7 @@ class Expseg(PyoObject):
         """
         pyoArgsAssert(self, "l", x)
         self._list = x
-        if type(x[0]) != ListType:
+        if type(x[0]) != list:
             [obj.setList(x) for i, obj in enumerate(self._base_objs)]
         else:
             [obj.setList(wrap(x,i)) for i, obj in enumerate(self._base_objs)]

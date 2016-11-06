@@ -19,6 +19,7 @@
  *************************************************************************/
 
 #include <Python.h>
+#include "py2to3.h"
 #include "structmember.h"
 #include "pyomodule.h"
 #include "streammodule.h"
@@ -121,7 +122,7 @@ Sig_dealloc(Sig* self)
 {
     pyo_DEALLOC
     Sig_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -243,7 +244,7 @@ static PyNumberMethods Sig_as_number = {
 (binaryfunc)Sig_add,                      /*nb_add*/
 (binaryfunc)Sig_sub,                 /*nb_subtract*/
 (binaryfunc)Sig_multiply,                 /*nb_multiply*/
-(binaryfunc)Sig_div,                   /*nb_divide*/
+INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
 0,                /*nb_remainder*/
 0,                   /*nb_divmod*/
 0,                   /*nb_power*/
@@ -257,16 +258,16 @@ static PyNumberMethods Sig_as_number = {
 0,              /*nb_and*/
 0,              /*nb_xor*/
 0,               /*nb_or*/
-0,                                          /*nb_coerce*/
+INITIALIZE_NB_COERCE_ZERO                   /*nb_coerce*/
 0,                       /*nb_int*/
 0,                      /*nb_long*/
 0,                     /*nb_float*/
-0,                       /*nb_oct*/
-0,                       /*nb_hex*/
+INITIALIZE_NB_OCT_ZERO   /*nb_oct*/
+INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
 (binaryfunc)Sig_inplace_add,              /*inplace_add*/
 (binaryfunc)Sig_inplace_sub,         /*inplace_subtract*/
 (binaryfunc)Sig_inplace_multiply,         /*inplace_multiply*/
-(binaryfunc)Sig_inplace_div,           /*inplace_divide*/
+INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
 0,        /*inplace_remainder*/
 0,           /*inplace_power*/
 0,       /*inplace_lshift*/
@@ -275,15 +276,14 @@ static PyNumberMethods Sig_as_number = {
 0,      /*inplace_xor*/
 0,       /*inplace_or*/
 0,             /*nb_floor_divide*/
-0,              /*nb_true_divide*/
+(binaryfunc)Sig_div,                       /*nb_true_divide*/
 0,     /*nb_inplace_floor_divide*/
-0,      /*nb_inplace_true_divide*/
+(binaryfunc)Sig_inplace_div,                       /*nb_inplace_true_divide*/
 0,                     /* nb_index */
 };
 
 PyTypeObject SigType = {
-PyObject_HEAD_INIT(NULL)
-0,                         /*ob_size*/
+PyVarObject_HEAD_INIT(NULL, 0)
 "_pyo.Sig_base",         /*tp_name*/
 sizeof(Sig),         /*tp_basicsize*/
 0,                         /*tp_itemsize*/
@@ -291,7 +291,7 @@ sizeof(Sig),         /*tp_basicsize*/
 0,                         /*tp_print*/
 0,                         /*tp_getattr*/
 0,                         /*tp_setattr*/
-0,                         /*tp_compare*/
+0,                         /*tp_as_async (tp_compare in Python 2)*/
 0,                         /*tp_repr*/
 &Sig_as_number,             /*tp_as_number*/
 0,                         /*tp_as_sequence*/
@@ -477,7 +477,7 @@ SigTo_dealloc(SigTo* self)
 {
     pyo_DEALLOC
     SigTo_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -630,7 +630,7 @@ static PyNumberMethods SigTo_as_number = {
 (binaryfunc)SigTo_add,                      /*nb_add*/
 (binaryfunc)SigTo_sub,                 /*nb_subtract*/
 (binaryfunc)SigTo_multiply,                 /*nb_multiply*/
-(binaryfunc)SigTo_div,                   /*nb_divide*/
+INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
 0,                /*nb_remainder*/
 0,                   /*nb_divmod*/
 0,                   /*nb_power*/
@@ -644,16 +644,16 @@ static PyNumberMethods SigTo_as_number = {
 0,              /*nb_and*/
 0,              /*nb_xor*/
 0,               /*nb_or*/
-0,                                          /*nb_coerce*/
+INITIALIZE_NB_COERCE_ZERO                   /*nb_coerce*/
 0,                       /*nb_int*/
 0,                      /*nb_long*/
 0,                     /*nb_float*/
-0,                       /*nb_oct*/
-0,                       /*nb_hex*/
+INITIALIZE_NB_OCT_ZERO   /*nb_oct*/
+INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
 (binaryfunc)SigTo_inplace_add,              /*inplace_add*/
 (binaryfunc)SigTo_inplace_sub,         /*inplace_subtract*/
 (binaryfunc)SigTo_inplace_multiply,         /*inplace_multiply*/
-(binaryfunc)SigTo_inplace_div,           /*inplace_divide*/
+INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
 0,        /*inplace_remainder*/
 0,           /*inplace_power*/
 0,       /*inplace_lshift*/
@@ -662,15 +662,14 @@ static PyNumberMethods SigTo_as_number = {
 0,      /*inplace_xor*/
 0,       /*inplace_or*/
 0,             /*nb_floor_divide*/
-0,              /*nb_true_divide*/
+(binaryfunc)SigTo_div,                       /*nb_true_divide*/
 0,     /*nb_inplace_floor_divide*/
-0,      /*nb_inplace_true_divide*/
+(binaryfunc)SigTo_inplace_div,                       /*nb_inplace_true_divide*/
 0,                     /* nb_index */
 };
 
 PyTypeObject SigToType = {
-PyObject_HEAD_INIT(NULL)
-0,                         /*ob_size*/
+PyVarObject_HEAD_INIT(NULL, 0)
 "_pyo.SigTo_base",         /*tp_name*/
 sizeof(SigTo),         /*tp_basicsize*/
 0,                         /*tp_itemsize*/
@@ -678,7 +677,7 @@ sizeof(SigTo),         /*tp_basicsize*/
 0,                         /*tp_print*/
 0,                         /*tp_getattr*/
 0,                         /*tp_setattr*/
-0,                         /*tp_compare*/
+0,                         /*tp_as_async (tp_compare in Python 2)*/
 0,                         /*tp_repr*/
 &SigTo_as_number,             /*tp_as_number*/
 0,                         /*tp_as_sequence*/
@@ -858,7 +857,7 @@ VarPort_dealloc(VarPort* self)
 {
     pyo_DEALLOC
     VarPort_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -1039,7 +1038,7 @@ static PyNumberMethods VarPort_as_number = {
     (binaryfunc)VarPort_add,                      /*nb_add*/
     (binaryfunc)VarPort_sub,                 /*nb_subtract*/
     (binaryfunc)VarPort_multiply,                 /*nb_multiply*/
-    (binaryfunc)VarPort_div,                   /*nb_divide*/
+    INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
     0,                /*nb_remainder*/
     0,                   /*nb_divmod*/
     0,                   /*nb_power*/
@@ -1053,16 +1052,16 @@ static PyNumberMethods VarPort_as_number = {
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    0,                                          /*nb_coerce*/
+    INITIALIZE_NB_COERCE_ZERO                   /*nb_coerce*/
     0,                       /*nb_int*/
     0,                      /*nb_long*/
     0,                     /*nb_float*/
-    0,                       /*nb_oct*/
-    0,                       /*nb_hex*/
+    INITIALIZE_NB_OCT_ZERO   /*nb_oct*/
+    INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
     (binaryfunc)VarPort_inplace_add,              /*inplace_add*/
     (binaryfunc)VarPort_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)VarPort_inplace_multiply,         /*inplace_multiply*/
-    (binaryfunc)VarPort_inplace_div,           /*inplace_divide*/
+    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
     0,        /*inplace_remainder*/
     0,           /*inplace_power*/
     0,       /*inplace_lshift*/
@@ -1071,15 +1070,14 @@ static PyNumberMethods VarPort_as_number = {
     0,      /*inplace_xor*/
     0,       /*inplace_or*/
     0,             /*nb_floor_divide*/
-    0,              /*nb_true_divide*/
+    (binaryfunc)VarPort_div,                       /*nb_true_divide*/
     0,     /*nb_inplace_floor_divide*/
-    0,      /*nb_inplace_true_divide*/
+    (binaryfunc)VarPort_inplace_div,                       /*nb_inplace_true_divide*/
     0,                     /* nb_index */
 };
 
 PyTypeObject VarPortType = {
-    PyObject_HEAD_INIT(NULL)
-    0,                         /*ob_size*/
+    PyVarObject_HEAD_INIT(NULL, 0)
     "_pyo.VarPort_base",         /*tp_name*/
     sizeof(VarPort),         /*tp_basicsize*/
     0,                         /*tp_itemsize*/
@@ -1087,7 +1085,7 @@ PyTypeObject VarPortType = {
     0,                         /*tp_print*/
     0,                         /*tp_getattr*/
     0,                         /*tp_setattr*/
-    0,                         /*tp_compare*/
+    0,                         /*tp_as_async (tp_compare in Python 2)*/
     0,                         /*tp_repr*/
     &VarPort_as_number,             /*tp_as_number*/
     0,                         /*tp_as_sequence*/

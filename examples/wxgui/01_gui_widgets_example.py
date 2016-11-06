@@ -1,3 +1,5 @@
+from __future__ import print_function
+from six.moves import range
 """
 Demo script for showing how GUI classes from pyo can be used to build
 audio programs with graphical interface.
@@ -219,7 +221,7 @@ class MyFrame(wx.Frame):
         am.setChoice(evt.value)
 
     def mousePos(self, evt):
-        print(evt.value)
+        print((evt.value))
 
     def sndSelection(self, evt):
         pos.replace([(0.0, evt.value[0]), (m.time, evt.value[1])])

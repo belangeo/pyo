@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+from __future__ import print_function
+from __future__ import absolute_import
+from six.moves import range
 """
 Copyright 2009-2015 Olivier Belanger
 
@@ -19,8 +22,8 @@ You should have received a copy of the GNU Lesser General Public
 License along with pyo.  If not, see <http://www.gnu.org/licenses/>.
 """
 import os, time
-from _core import *
-from _widgets import createServerGUI
+from ._core import *
+from ._widgets import createServerGUI
 
 ######################################################################
 ### Proxy of Server object
@@ -109,7 +112,7 @@ class Server(object):
     """
     def __init__(self, sr=44100, nchnls=2, buffersize=256, duplex=1,
                  audio='portaudio', jackname='pyo', ichnls=None):
-        if os.environ.has_key("PYO_SERVER_AUDIO") and "offline" not in audio and "embedded" not in audio:
+        if "PYO_SERVER_AUDIO" in os.environ and "offline" not in audio and "embedded" not in audio:
             audio = os.environ["PYO_SERVER_AUDIO"]
         self._time = time
         self._nchnls = nchnls
@@ -574,7 +577,7 @@ class Server(object):
             self._resampling = realx
             self._server.beginResamplingBlock(realx)
         else:
-            print "Resampling factor must be a power-of-two (positive or negative)."
+            print("Resampling factor must be a power-of-two (positive or negative).")
 
     def endResamplingBlock(self):
         """
@@ -688,12 +691,12 @@ class Server(object):
         ext = filename.rsplit('.')
         if len(ext) >= 2:
             ext = ext[-1].lower()
-            if FILE_FORMATS.has_key(ext):
+            if ext in FILE_FORMATS:
                 fileformat = FILE_FORMATS[ext]
             else:
-                print 'Warning: Unknown file extension. Using fileformat value.'
+                print('Warning: Unknown file extension. Using fileformat value.')
         else:
-            print 'Warning: Filename has no extension. Using fileformat value.'
+            print('Warning: Filename has no extension. Using fileformat value.')
         self._fileformat = fileformat
         self._sampletype = sampletype
         self._server.recordOptions(dur, filename, fileformat, sampletype, quality)
@@ -720,7 +723,7 @@ class Server(object):
         ext = filename.rsplit('.')
         if len(ext) >= 2:
             ext = ext[-1].lower()
-            if FILE_FORMATS.has_key(ext):
+            if ext in FILE_FORMATS:
                 fileformat = FILE_FORMATS[ext]
                 if fileformat != self._fileformat:
                     self._fileformat = fileformat

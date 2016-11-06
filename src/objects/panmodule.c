@@ -19,6 +19,7 @@
  *************************************************************************/
 
 #include <Python.h>
+#include "py2to3.h"
 #include "structmember.h"
 #include <math.h>
 #include "pyomodule.h"
@@ -268,7 +269,7 @@ Panner_dealloc(Panner* self)
     pyo_DEALLOC
     free(self->buffer_streams);
     Panner_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -404,8 +405,7 @@ static PyMethodDef Panner_methods[] = {
 };
 
 PyTypeObject PannerType = {
-PyObject_HEAD_INIT(NULL)
-0,                                              /*ob_size*/
+PyVarObject_HEAD_INIT(NULL, 0)
 "_pyo.Panner_base",                                   /*tp_name*/
 sizeof(Panner),                                 /*tp_basicsize*/
 0,                                              /*tp_itemsize*/
@@ -413,7 +413,7 @@ sizeof(Panner),                                 /*tp_basicsize*/
 0,                                              /*tp_print*/
 0,                                              /*tp_getattr*/
 0,                                              /*tp_setattr*/
-0,                                              /*tp_compare*/
+0,                                              /*tp_as_async (tp_compare in Python 2)*/
 0,                                              /*tp_repr*/
 0,                              /*tp_as_number*/
 0,                                              /*tp_as_sequence*/
@@ -536,7 +536,7 @@ Pan_dealloc(Pan* self)
 {
     pyo_DEALLOC
     Pan_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -623,7 +623,7 @@ static PyNumberMethods Pan_as_number = {
 (binaryfunc)Pan_add,                      /*nb_add*/
 (binaryfunc)Pan_sub,                 /*nb_subtract*/
 (binaryfunc)Pan_multiply,                 /*nb_multiply*/
-(binaryfunc)Pan_div,                   /*nb_divide*/
+INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
 0,                /*nb_remainder*/
 0,                   /*nb_divmod*/
 0,                   /*nb_power*/
@@ -637,16 +637,16 @@ static PyNumberMethods Pan_as_number = {
 0,              /*nb_and*/
 0,              /*nb_xor*/
 0,               /*nb_or*/
-0,                                          /*nb_coerce*/
+INITIALIZE_NB_COERCE_ZERO                   /*nb_coerce*/
 0,                       /*nb_int*/
 0,                      /*nb_long*/
 0,                     /*nb_float*/
-0,                       /*nb_oct*/
-0,                       /*nb_hex*/
+INITIALIZE_NB_OCT_ZERO   /*nb_oct*/
+INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
 (binaryfunc)Pan_inplace_add,              /*inplace_add*/
 (binaryfunc)Pan_inplace_sub,         /*inplace_subtract*/
 (binaryfunc)Pan_inplace_multiply,         /*inplace_multiply*/
-(binaryfunc)Pan_inplace_div,           /*inplace_divide*/
+INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
 0,        /*inplace_remainder*/
 0,           /*inplace_power*/
 0,       /*inplace_lshift*/
@@ -655,15 +655,14 @@ static PyNumberMethods Pan_as_number = {
 0,      /*inplace_xor*/
 0,       /*inplace_or*/
 0,             /*nb_floor_divide*/
-0,              /*nb_true_divide*/
+(binaryfunc)Pan_div,                       /*nb_true_divide*/
 0,     /*nb_inplace_floor_divide*/
-0,      /*nb_inplace_true_divide*/
+(binaryfunc)Pan_inplace_div,                       /*nb_inplace_true_divide*/
 0,                     /* nb_index */
 };
 
 PyTypeObject PanType = {
-PyObject_HEAD_INIT(NULL)
-0,                         /*ob_size*/
+PyVarObject_HEAD_INIT(NULL, 0)
 "_pyo.Pan_base",         /*tp_name*/
 sizeof(Pan),         /*tp_basicsize*/
 0,                         /*tp_itemsize*/
@@ -671,7 +670,7 @@ sizeof(Pan),         /*tp_basicsize*/
 0,                         /*tp_print*/
 0,                         /*tp_getattr*/
 0,                         /*tp_setattr*/
-0,                         /*tp_compare*/
+0,                         /*tp_as_async (tp_compare in Python 2)*/
 0,                         /*tp_repr*/
 &Pan_as_number,             /*tp_as_number*/
 0,                         /*tp_as_sequence*/
@@ -919,7 +918,7 @@ SPanner_dealloc(SPanner* self)
     pyo_DEALLOC
     free(self->buffer_streams);
     SPanner_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -1023,8 +1022,7 @@ static PyMethodDef SPanner_methods[] = {
 };
 
 PyTypeObject SPannerType = {
-PyObject_HEAD_INIT(NULL)
-0,                                              /*ob_size*/
+PyVarObject_HEAD_INIT(NULL, 0)
 "_pyo.SPanner_base",                                   /*tp_name*/
 sizeof(SPanner),                                 /*tp_basicsize*/
 0,                                              /*tp_itemsize*/
@@ -1032,7 +1030,7 @@ sizeof(SPanner),                                 /*tp_basicsize*/
 0,                                              /*tp_print*/
 0,                                              /*tp_getattr*/
 0,                                              /*tp_setattr*/
-0,                                              /*tp_compare*/
+0,                                              /*tp_as_async (tp_compare in Python 2)*/
 0,                                              /*tp_repr*/
 0,                              /*tp_as_number*/
 0,                                              /*tp_as_sequence*/
@@ -1155,7 +1153,7 @@ SPan_dealloc(SPan* self)
 {
     pyo_DEALLOC
     SPan_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -1242,7 +1240,7 @@ static PyNumberMethods SPan_as_number = {
 (binaryfunc)SPan_add,                      /*nb_add*/
 (binaryfunc)SPan_sub,                 /*nb_subtract*/
 (binaryfunc)SPan_multiply,                 /*nb_multiply*/
-(binaryfunc)SPan_div,                   /*nb_divide*/
+INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
 0,                /*nb_remainder*/
 0,                   /*nb_divmod*/
 0,                   /*nb_power*/
@@ -1256,16 +1254,16 @@ static PyNumberMethods SPan_as_number = {
 0,              /*nb_and*/
 0,              /*nb_xor*/
 0,               /*nb_or*/
-0,                                          /*nb_coerce*/
+INITIALIZE_NB_COERCE_ZERO                   /*nb_coerce*/
 0,                       /*nb_int*/
 0,                      /*nb_long*/
 0,                     /*nb_float*/
-0,                       /*nb_oct*/
-0,                       /*nb_hex*/
+INITIALIZE_NB_OCT_ZERO   /*nb_oct*/
+INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
 (binaryfunc)SPan_inplace_add,              /*inplace_add*/
 (binaryfunc)SPan_inplace_sub,         /*inplace_subtract*/
 (binaryfunc)SPan_inplace_multiply,         /*inplace_multiply*/
-(binaryfunc)SPan_inplace_div,           /*inplace_divide*/
+INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
 0,        /*inplace_remainder*/
 0,           /*inplace_power*/
 0,       /*inplace_lshift*/
@@ -1274,15 +1272,14 @@ static PyNumberMethods SPan_as_number = {
 0,      /*inplace_xor*/
 0,       /*inplace_or*/
 0,             /*nb_floor_divide*/
-0,              /*nb_true_divide*/
+(binaryfunc)SPan_div,                       /*nb_true_divide*/
 0,     /*nb_inplace_floor_divide*/
-0,      /*nb_inplace_true_divide*/
+(binaryfunc)SPan_inplace_div,                       /*nb_inplace_true_divide*/
 0,                     /* nb_index */
 };
 
 PyTypeObject SPanType = {
-PyObject_HEAD_INIT(NULL)
-0,                         /*ob_size*/
+PyVarObject_HEAD_INIT(NULL, 0)
 "_pyo.SPan_base",         /*tp_name*/
 sizeof(SPan),         /*tp_basicsize*/
 0,                         /*tp_itemsize*/
@@ -1290,7 +1287,7 @@ sizeof(SPan),         /*tp_basicsize*/
 0,                         /*tp_print*/
 0,                         /*tp_getattr*/
 0,                         /*tp_setattr*/
-0,                         /*tp_compare*/
+0,                         /*tp_as_async (tp_compare in Python 2)*/
 0,                         /*tp_repr*/
 &SPan_as_number,             /*tp_as_number*/
 0,                         /*tp_as_sequence*/
@@ -1468,7 +1465,7 @@ Switcher_dealloc(Switcher* self)
     pyo_DEALLOC
     free(self->buffer_streams);
     Switcher_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -1569,8 +1566,7 @@ static PyMethodDef Switcher_methods[] = {
 };
 
 PyTypeObject SwitcherType = {
-    PyObject_HEAD_INIT(NULL)
-    0,                                              /*ob_size*/
+    PyVarObject_HEAD_INIT(NULL, 0)
     "_pyo.Switcher_base",                                   /*tp_name*/
     sizeof(Switcher),                                 /*tp_basicsize*/
     0,                                              /*tp_itemsize*/
@@ -1578,7 +1574,7 @@ PyTypeObject SwitcherType = {
     0,                                              /*tp_print*/
     0,                                              /*tp_getattr*/
     0,                                              /*tp_setattr*/
-    0,                                              /*tp_compare*/
+    0,                                              /*tp_as_async (tp_compare in Python 2)*/
     0,                                              /*tp_repr*/
     0,                              /*tp_as_number*/
     0,                                              /*tp_as_sequence*/
@@ -1701,7 +1697,7 @@ Switch_dealloc(Switch* self)
 {
     pyo_DEALLOC
     Switch_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -1788,7 +1784,7 @@ static PyNumberMethods Switch_as_number = {
     (binaryfunc)Switch_add,                      /*nb_add*/
     (binaryfunc)Switch_sub,                 /*nb_subtract*/
     (binaryfunc)Switch_multiply,                 /*nb_multiply*/
-    (binaryfunc)Switch_div,                   /*nb_divide*/
+    INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
     0,                /*nb_remainder*/
     0,                   /*nb_divmod*/
     0,                   /*nb_power*/
@@ -1802,16 +1798,16 @@ static PyNumberMethods Switch_as_number = {
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    0,                                          /*nb_coerce*/
+    INITIALIZE_NB_COERCE_ZERO                   /*nb_coerce*/
     0,                       /*nb_int*/
     0,                      /*nb_long*/
     0,                     /*nb_float*/
-    0,                       /*nb_oct*/
-    0,                       /*nb_hex*/
+    INITIALIZE_NB_OCT_ZERO   /*nb_oct*/
+    INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
     (binaryfunc)Switch_inplace_add,              /*inplace_add*/
     (binaryfunc)Switch_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)Switch_inplace_multiply,         /*inplace_multiply*/
-    (binaryfunc)Switch_inplace_div,           /*inplace_divide*/
+    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
     0,        /*inplace_remainder*/
     0,           /*inplace_power*/
     0,       /*inplace_lshift*/
@@ -1820,15 +1816,14 @@ static PyNumberMethods Switch_as_number = {
     0,      /*inplace_xor*/
     0,       /*inplace_or*/
     0,             /*nb_floor_divide*/
-    0,              /*nb_true_divide*/
+    (binaryfunc)Switch_div,                       /*nb_true_divide*/
     0,     /*nb_inplace_floor_divide*/
-    0,      /*nb_inplace_true_divide*/
+    (binaryfunc)Switch_inplace_div,                       /*nb_inplace_true_divide*/
     0,                     /* nb_index */
 };
 
 PyTypeObject SwitchType = {
-    PyObject_HEAD_INIT(NULL)
-    0,                         /*ob_size*/
+    PyVarObject_HEAD_INIT(NULL, 0)
     "_pyo.Switch_base",         /*tp_name*/
     sizeof(Switch),         /*tp_basicsize*/
     0,                         /*tp_itemsize*/
@@ -1836,7 +1831,7 @@ PyTypeObject SwitchType = {
     0,                         /*tp_print*/
     0,                         /*tp_getattr*/
     0,                         /*tp_setattr*/
-    0,                         /*tp_compare*/
+    0,                         /*tp_as_async (tp_compare in Python 2)*/
     0,                         /*tp_repr*/
     &Switch_as_number,             /*tp_as_number*/
     0,                         /*tp_as_sequence*/
@@ -1992,7 +1987,7 @@ VoiceManager_dealloc(VoiceManager* self)
     if (self->voices != NULL)
         free(self->voices);
     VoiceManager_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -2106,7 +2101,7 @@ static PyNumberMethods VoiceManager_as_number = {
 (binaryfunc)VoiceManager_add,                         /*nb_add*/
 (binaryfunc)VoiceManager_sub,                         /*nb_subtract*/
 (binaryfunc)VoiceManager_multiply,                    /*nb_multiply*/
-(binaryfunc)VoiceManager_div,                                              /*nb_divide*/
+INITIALIZE_NB_DIVIDE_ZERO                       /*nb_divide*/
 0,                                              /*nb_remainder*/
 0,                                              /*nb_divmod*/
 0,                                              /*nb_power*/
@@ -2120,16 +2115,16 @@ static PyNumberMethods VoiceManager_as_number = {
 0,                                              /*nb_and*/
 0,                                              /*nb_xor*/
 0,                                              /*nb_or*/
-0,                                              /*nb_coerce*/
+INITIALIZE_NB_COERCE_ZERO                       /*nb_coerce*/
 0,                                              /*nb_int*/
 0,                                              /*nb_long*/
 0,                                              /*nb_float*/
-0,                                              /*nb_oct*/
-0,                                              /*nb_hex*/
+INITIALIZE_NB_OCT_ZERO                          /*nb_oct*/
+INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
 (binaryfunc)VoiceManager_inplace_add,                 /*inplace_add*/
 (binaryfunc)VoiceManager_inplace_sub,                 /*inplace_subtract*/
 (binaryfunc)VoiceManager_inplace_multiply,            /*inplace_multiply*/
-(binaryfunc)VoiceManager_inplace_div,                                              /*inplace_divide*/
+INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO                                           /*inplace_divide*/
 0,                                              /*inplace_remainder*/
 0,                                              /*inplace_power*/
 0,                                              /*inplace_lshift*/
@@ -2138,15 +2133,14 @@ static PyNumberMethods VoiceManager_as_number = {
 0,                                              /*inplace_xor*/
 0,                                              /*inplace_or*/
 0,                                              /*nb_floor_divide*/
-0,                                              /*nb_true_divide*/
+(binaryfunc)VoiceManager_div,                       /*nb_true_divide*/
 0,                                              /*nb_inplace_floor_divide*/
-0,                                              /*nb_inplace_true_divide*/
+(binaryfunc)VoiceManager_inplace_div,                       /*nb_inplace_true_divide*/
 0,                                              /* nb_index */
 };
 
 PyTypeObject VoiceManagerType = {
-PyObject_HEAD_INIT(NULL)
-0,                                              /*ob_size*/
+PyVarObject_HEAD_INIT(NULL, 0)
 "_pyo.VoiceManager_base",                                   /*tp_name*/
 sizeof(VoiceManager),                                 /*tp_basicsize*/
 0,                                              /*tp_itemsize*/
@@ -2154,7 +2148,7 @@ sizeof(VoiceManager),                                 /*tp_basicsize*/
 0,                                              /*tp_print*/
 0,                                              /*tp_getattr*/
 0,                                              /*tp_setattr*/
-0,                                              /*tp_compare*/
+0,                                              /*tp_as_async (tp_compare in Python 2)*/
 0,                                              /*tp_repr*/
 &VoiceManager_as_number,                              /*tp_as_number*/
 0,                                              /*tp_as_sequence*/
@@ -2306,7 +2300,7 @@ Mixer_dealloc(Mixer* self)
     pyo_DEALLOC
     free(self->buffer_streams);
     Mixer_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -2499,8 +2493,7 @@ static PyMethodDef Mixer_methods[] = {
 };
 
 PyTypeObject MixerType = {
-    PyObject_HEAD_INIT(NULL)
-    0,                                              /*ob_size*/
+    PyVarObject_HEAD_INIT(NULL, 0)
     "_pyo.Mixer_base",                                   /*tp_name*/
     sizeof(Mixer),                                 /*tp_basicsize*/
     0,                                              /*tp_itemsize*/
@@ -2508,7 +2501,7 @@ PyTypeObject MixerType = {
     0,                                              /*tp_print*/
     0,                                              /*tp_getattr*/
     0,                                              /*tp_setattr*/
-    0,                                              /*tp_compare*/
+    0,                                              /*tp_as_async (tp_compare in Python 2)*/
     0,                                              /*tp_repr*/
     0,                              /*tp_as_number*/
     0,                                              /*tp_as_sequence*/
@@ -2631,7 +2624,7 @@ MixerVoice_dealloc(MixerVoice* self)
 {
     pyo_DEALLOC
     MixerVoice_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -2716,7 +2709,7 @@ static PyNumberMethods MixerVoice_as_number = {
     (binaryfunc)MixerVoice_add,                      /*nb_add*/
     (binaryfunc)MixerVoice_sub,                 /*nb_subtract*/
     (binaryfunc)MixerVoice_multiply,                 /*nb_multiply*/
-    (binaryfunc)MixerVoice_div,                   /*nb_divide*/
+    INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
     0,                /*nb_remainder*/
     0,                   /*nb_divmod*/
     0,                   /*nb_power*/
@@ -2730,16 +2723,16 @@ static PyNumberMethods MixerVoice_as_number = {
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    0,                                          /*nb_coerce*/
+    INITIALIZE_NB_COERCE_ZERO                   /*nb_coerce*/
     0,                       /*nb_int*/
     0,                      /*nb_long*/
     0,                     /*nb_float*/
-    0,                       /*nb_oct*/
-    0,                       /*nb_hex*/
+    INITIALIZE_NB_OCT_ZERO   /*nb_oct*/
+    INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
     (binaryfunc)MixerVoice_inplace_add,              /*inplace_add*/
     (binaryfunc)MixerVoice_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)MixerVoice_inplace_multiply,         /*inplace_multiply*/
-    (binaryfunc)MixerVoice_inplace_div,           /*inplace_divide*/
+    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
     0,        /*inplace_remainder*/
     0,           /*inplace_power*/
     0,       /*inplace_lshift*/
@@ -2748,15 +2741,14 @@ static PyNumberMethods MixerVoice_as_number = {
     0,      /*inplace_xor*/
     0,       /*inplace_or*/
     0,             /*nb_floor_divide*/
-    0,              /*nb_true_divide*/
+    (binaryfunc)MixerVoice_div,                       /*nb_true_divide*/
     0,     /*nb_inplace_floor_divide*/
-    0,      /*nb_inplace_true_divide*/
+    (binaryfunc)MixerVoice_inplace_div,                       /*nb_inplace_true_divide*/
     0,                     /* nb_index */
 };
 
 PyTypeObject MixerVoiceType = {
-    PyObject_HEAD_INIT(NULL)
-    0,                         /*ob_size*/
+    PyVarObject_HEAD_INIT(NULL, 0)
     "_pyo.MixerVoice_base",         /*tp_name*/
     sizeof(MixerVoice),         /*tp_basicsize*/
     0,                         /*tp_itemsize*/
@@ -2764,7 +2756,7 @@ PyTypeObject MixerVoiceType = {
     0,                         /*tp_print*/
     0,                         /*tp_getattr*/
     0,                         /*tp_setattr*/
-    0,                         /*tp_compare*/
+    0,                         /*tp_as_async (tp_compare in Python 2)*/
     0,                         /*tp_repr*/
     &MixerVoice_as_number,             /*tp_as_number*/
     0,                         /*tp_as_sequence*/
@@ -2966,7 +2958,7 @@ Selector_dealloc(Selector* self)
 {
     pyo_DEALLOC
     Selector_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -3115,7 +3107,7 @@ static PyNumberMethods Selector_as_number = {
 (binaryfunc)Selector_add,                         /*nb_add*/
 (binaryfunc)Selector_sub,                         /*nb_subtract*/
 (binaryfunc)Selector_multiply,                    /*nb_multiply*/
-(binaryfunc)Selector_div,                                              /*nb_divide*/
+INITIALIZE_NB_DIVIDE_ZERO                       /*nb_divide*/
 0,                                              /*nb_remainder*/
 0,                                              /*nb_divmod*/
 0,                                              /*nb_power*/
@@ -3129,16 +3121,16 @@ static PyNumberMethods Selector_as_number = {
 0,                                              /*nb_and*/
 0,                                              /*nb_xor*/
 0,                                              /*nb_or*/
-0,                                              /*nb_coerce*/
+INITIALIZE_NB_COERCE_ZERO                       /*nb_coerce*/
 0,                                              /*nb_int*/
 0,                                              /*nb_long*/
 0,                                              /*nb_float*/
-0,                                              /*nb_oct*/
-0,                                              /*nb_hex*/
+INITIALIZE_NB_OCT_ZERO                          /*nb_oct*/
+INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
 (binaryfunc)Selector_inplace_add,                 /*inplace_add*/
 (binaryfunc)Selector_inplace_sub,                 /*inplace_subtract*/
 (binaryfunc)Selector_inplace_multiply,            /*inplace_multiply*/
-(binaryfunc)Selector_inplace_div,                                              /*inplace_divide*/
+INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO                                           /*inplace_divide*/
 0,                                              /*inplace_remainder*/
 0,                                              /*inplace_power*/
 0,                                              /*inplace_lshift*/
@@ -3147,15 +3139,14 @@ static PyNumberMethods Selector_as_number = {
 0,                                              /*inplace_xor*/
 0,                                              /*inplace_or*/
 0,                                              /*nb_floor_divide*/
-0,                                              /*nb_true_divide*/
+(binaryfunc)Selector_div,                       /*nb_true_divide*/
 0,                                              /*nb_inplace_floor_divide*/
-0,                                              /*nb_inplace_true_divide*/
+(binaryfunc)Selector_inplace_div,                       /*nb_inplace_true_divide*/
 0,                                              /* nb_index */
 };
 
 PyTypeObject SelectorType = {
-PyObject_HEAD_INIT(NULL)
-0,                                              /*ob_size*/
+PyVarObject_HEAD_INIT(NULL, 0)
 "_pyo.Selector_base",                                   /*tp_name*/
 sizeof(Selector),                                 /*tp_basicsize*/
 0,                                              /*tp_itemsize*/
@@ -3163,7 +3154,7 @@ sizeof(Selector),                                 /*tp_basicsize*/
 0,                                              /*tp_print*/
 0,                                              /*tp_getattr*/
 0,                                              /*tp_setattr*/
-0,                                              /*tp_compare*/
+0,                                              /*tp_as_async (tp_compare in Python 2)*/
 0,                                              /*tp_repr*/
 &Selector_as_number,                              /*tp_as_number*/
 0,                                              /*tp_as_sequence*/

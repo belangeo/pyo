@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 # encoding: utf-8
+from __future__ import print_function
+from six.moves import range
 """
 This script demonstrates how to use pyo to do synthesis batch generation.
 
@@ -35,5 +37,5 @@ for i in range(NUM):
     # cleanup
     s.shutdown()
 
-print "Batch processing done"
+print("Batch processing done")
 

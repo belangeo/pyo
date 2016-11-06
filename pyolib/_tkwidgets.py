@@ -1,3 +1,6 @@
+from __future__ import print_function
+from __future__ import absolute_import
+from six.moves import range
 """
 Copyright 2009-2015 Olivier Belanger
 
@@ -17,9 +20,8 @@ GNU Lesser General Public License for more details.
 You should have received a copy of the GNU Lesser General Public
 License along with pyo.  If not, see <http://www.gnu.org/licenses/>.
 """
-from types import ListType, FloatType, IntType
 import math, sys, os
-from Tkinter import *
+from six.moves.tkinter import *
 
 try:
     from PIL import Image, ImageDraw, ImageTk
@@ -103,7 +105,7 @@ class Command:
 class PyoObjectControl(Frame):
     def __init__(self, master=None, obj=None, map_list=None):
         Frame.__init__(self, master, bd=1, relief=GROOVE)
-        from controls import SigTo
+        from .controls import SigTo
         self.bind('<Destroy>', self._destroy)
         self._obj = obj
         self._map_list = map_list
@@ -116,7 +118,7 @@ class PyoObjectControl(Frame):
         for i, m in enumerate(self._map_list):
             key, init = m.name, m.init
             # filters PyoObjects
-            if type(init) not in [ListType, FloatType, IntType]:
+            if type(init) not in [list, float, int]:
                 self._excluded.append(key)
             else:
                 self._maps[key] = m
@@ -124,7 +126,7 @@ class PyoObjectControl(Frame):
                 label = Label(self, height=1, width=10, highlightthickness=0, text=key)
                 label.grid(row=i, column=0)
                 # create and pack slider
-                if type(init) != ListType:
+                if type(init) != list:
                     self._sliders.append(Scale(self, command=Command(self.setval, key),
                                   orient=HORIZONTAL, relief=GROOVE, from_=0., to=1., showvalue=False,
                                   resolution=.0001, bd=1, length=225, troughcolor="#BCBCAA", width=12))
@@ -139,7 +141,7 @@ class PyoObjectControl(Frame):
                 display = Label(self, height=disp_height, width=10, highlightthickness=0, textvariable=textvar)
                 display.grid(row=i, column=2)
                 self._displays[key] = textvar
-                if type(init) != ListType:
+                if type(init) != list:
                     self._displays[key].set("%.4f" % init)
                 else:
                     self._displays[key].set("\n".join(["%.4f" % i for i in init]))
@@ -166,7 +168,7 @@ class PyoObjectControl(Frame):
                 del self._sigs[key]
 
     def setval(self, key, x):
-        if type(x) != ListType:
+        if type(x) != list:
             value = self._maps[key].get(float(x))
             self._displays[key].set("%.4f" % value)
         else:
@@ -186,7 +188,7 @@ class ViewTable_withPIL(Frame):
         self.height = 200
         self.half_height = self.height / 2
         self.canvas = Canvas(self, height=self.height, width=self.width, relief=SUNKEN, bd=1, bg="#EFEFEF")
-        print Image
+        print(Image)
         im = Image.new("L", (self.width, self.height), 255)
         draw = ImageDraw.Draw(im)
         draw.line(samples, fill=0, width=1)
@@ -360,7 +362,7 @@ class ServerGUI(Frame):
     def getText(self, event):
         source = self.text.get("1.0", END)
         self.text.delete("1.0", END)
-        exec source in self.locals
+        exec(source, self.locals)
         self._history.append(source)
         self._histo_count = len(self._history)
         return "break"
