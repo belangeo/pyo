@@ -955,21 +955,12 @@ Server_setJackAutoConnectOutputPorts(Server *self, PyObject *arg)
 static PyObject *
 Server_setGlobalSeed(Server *self, PyObject *arg)
 {
-    unsigned int tmp;
+    self->globalSeed = 0;
 
-    if (arg != NULL) {
-        if (PyInt_Check(arg)) {
-            tmp = PyInt_AsLong(arg);
-            if (tmp < 0)
-                self->globalSeed = 0;
-            else
-                self->globalSeed = tmp;
-        }
-        else
-            self->globalSeed = 0;
+    if (arg != NULL && PyLong_Check(arg)) {
+        self->globalSeed = (int)PyInt_AsLong(arg);
+        self->globalSeed = self->globalSeed > 0 ? self->globalSeed : 0;
     }
-    else
-        self->globalSeed = 0;
 
     Py_INCREF(Py_None);
     return Py_None;
@@ -983,6 +974,7 @@ Server_generateSeed(Server *self, int oid)
     count = ++rnd_objs_count[oid];
     mult = rnd_objs_mult[oid];
 
+    printf("globalSeed : %i\n", self->globalSeed);
     if (self->globalSeed > 0) {
         curseed = (self->globalSeed + count * mult) % PYO_RAND_MAX;
     }
@@ -992,6 +984,7 @@ Server_generateSeed(Server *self, int oid)
     }
 
     PYO_RAND_SEED = curseed;
+    printf("set seed to : %u\n", PYO_RAND_SEED);
 
     return 0;
 }
