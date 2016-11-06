@@ -6,7 +6,7 @@ multiplication, which is very similar to a digital filter.
 
 It is used here to create a rhythmic chime with varying
 resonance.
-        
+
 """
 from pyo import *
 import random
@@ -26,7 +26,7 @@ decay = Sine(.1).range(.01, .15)
 # Six ComplexRes filters.
 rezos = ComplexRes(pluck, freqs, decay, mul=5).out()
 
-# Change chime frequencies every 7.2 seconds 
+# Change chime frequencies every 7.2 seconds
 def new():
     freqs = [random.uniform(1000, 3000) for i in range(6)]
     rezos.freq = freqs

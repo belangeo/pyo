@@ -12,8 +12,8 @@ input port.
 
 The audio streams of these objects are essentially intended to be
 controls and can't be sent to the output soundcard.
-    
-These objects are available only if pyo is built with OSC (Open Sound 
+
+These objects are available only if pyo is built with OSC (Open Sound
 Control) support.
 
 """
@@ -468,7 +468,7 @@ class OscDataSend(PyoObject):
                 will be sent to all addresses managed by the object.
 
         """
-        if address == None:
+        if address is None:
             pyoArgsAssert(self, "l", msg)
             [obj.send(msg) for obj in self._base_objs]
         else:

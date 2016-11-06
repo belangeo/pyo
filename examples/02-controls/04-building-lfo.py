@@ -2,7 +2,7 @@
 04-building-lfo.py - Audio control of parameters.
 
 One of the most important thing with computer music is the
-trajectories taken by parameters over time. This is what 
+trajectories taken by parameters over time. This is what
 gives life to the synthesized sound.
 
 One way to create moving values is by connecting a low

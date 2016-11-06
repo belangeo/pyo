@@ -13,6 +13,7 @@ s = Server(sr=44100, nchnls=2, buffersize=512, duplex=0).boot()
 SCALES = [[0,2,5,7,9,11], [0,2,3,7,8,11], [0,3,5,7,8,10]]
 
 class Melo:
+
     def __init__(self, amp=.1, speed=1, midirange=(48,84)):
         # table to record new melody fragment
         self.table = NewTable(2)

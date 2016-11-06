@@ -1,19 +1,19 @@
 """
 02-linear-ramp.py - Portamento, glissando, ramping.
 
-The SigTo object allows to create audio glissando between the 
+The SigTo object allows to create audio glissando between the
 current value and the target value, within a user-defined time.
 The target value can be a float or another PyoObject. A new ramp
 is created everytime the target value changes.
 
 Also:
 
-The VarPort object acts similarly but works only with float and 
+The VarPort object acts similarly but works only with float and
 can call a user-defined callback when the ramp reaches the target
 value.
 
 The PyoObject.set() method is another way create a ramp for any
-given parameter that accept audio signal but is not already 
+given parameter that accept audio signal but is not already
 controlled with a PyoObject.
 
 """
@@ -39,4 +39,3 @@ freq.ctrl([SLMap(0, 0.25, "lin", "time", 0.01, dataOnly=True)])
 sig = RCOsc(freq, sharp=0.7, mul=amp).out()
 
 s.gui(locals())
-

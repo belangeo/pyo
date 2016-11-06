@@ -19,7 +19,7 @@ synth2 = FM(carrier=[100,50], ratio=[.495,1.01], index=10, mul=a).out()
 
 # LFO from 0 to 20
 c = Sine(.1, 0, 10, 10)
- 
+
 # Modifying the bias parameter 10 times per second
 def change():
     # get the current value of the LFO

@@ -30,7 +30,7 @@ mult = Sig(.1)
 mult.ctrl([SLMap(0.0001,1,"log","value",0.0001)], title="Gate Attenuation")
 
 amp = Compare(pol["mag"]*50, thresh, ">")
-scl = amp * (1 - mult) + mult 
+scl = amp * (1 - mult) + mult
 
 delta = Vectral(pol["mag"]*scl, framesize=size, overlaps=olaps, down=.35)
 delta.ctrl(title="Blur controls")

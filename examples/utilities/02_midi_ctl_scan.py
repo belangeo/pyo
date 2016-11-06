@@ -32,8 +32,7 @@ while again == "y":
     if again == "y":
         print("Continue...")
         scan.play()
-    
+
 s.stop()
 time.sleep(1)
 exit()
-    

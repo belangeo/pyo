@@ -6,7 +6,7 @@ Main script using hand-written vocoder (defined in vocoder_lib.py).
 """
 from pyo import *
 from vocoder_lib import MyVocoder
-                
+
 s = Server(sr=44100, nchnls=2, duplex=0).boot()
 
 a = SfPlayer('../snds/baseballmajeur_m.aif', loop=True)

@@ -734,7 +734,7 @@ class AttackDetector(PyoObject):
 
         """
         [obj.readyToDetect() for obj in self._base_objs]
-        
+
     def out(self, chnl=0, inc=1, dur=0, delay=0):
         return self.play(dur, delay)
 
@@ -856,7 +856,7 @@ class Spectrum(PyoObject):
         in_fader, size, wintype, lmax = convertArgsToLists(self._in_fader, size, wintype)
         self._base_objs = [Spectrum_base(wrap(in_fader,i), wrap(size,i), wrap(wintype,i)) for i in range(lmax)]
         self._timer = Pattern(self.refreshView, 0.05).play()
-        if function == None:
+        if function is None:
             self.view()
 
     def setInput(self, x, fadetime=0.05):
@@ -1083,7 +1083,7 @@ class Spectrum(PyoObject):
         self._fscaling = x
         x, lmax = convertArgsToLists(x)
         [obj.setFscaling(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
-        if self.viewFrame != None:
+        if self.viewFrame is not None:
             self.viewFrame.setFscaling(self._fscaling)
 
     def setMscaling(self, x):
@@ -1101,7 +1101,7 @@ class Spectrum(PyoObject):
         self._mscaling = x
         x, lmax = convertArgsToLists(x)
         [obj.setMscaling(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
-        if self.viewFrame != None:
+        if self.viewFrame is not None:
             self.viewFrame.setMscaling(self._mscaling)
 
     def getFscaling(self):
@@ -1167,9 +1167,9 @@ class Spectrum(PyoObject):
 
         """
         self.points = [obj.display() for obj in self._base_objs]
-        if self._function != None:
+        if self._function is not None:
             self._function(self.points)
-        if self.viewFrame != None:
+        if self.viewFrame is not None:
             self.viewFrame.update(self.points)
 
     @property
@@ -1295,7 +1295,7 @@ class Scope(PyoObject):
         in_fader, lmax = convertArgsToLists(self._in_fader)
         self._base_objs = [Scope_base(wrap(in_fader,i), length) for i in range(lmax)]
         self._timer = Pattern(self.refreshView, length).play()
-        if function == None:
+        if function is None:
             self.view()
 
     def setInput(self, x, fadetime=0.05):
@@ -1442,7 +1442,7 @@ class Scope(PyoObject):
 
         """
         self.points = [obj.display() for obj in self._base_objs]
-        if self.viewFrame != None:
+        if self.viewFrame is not None:
             self.viewFrame.update(self.points)
         if self._function is not None:
             self._function(self.points)
@@ -1565,7 +1565,7 @@ class PeakAmp(PyoObject):
         return self.play(dur, delay)
 
     def _buildList(self):
-        if self._function != None:
+        if self._function is not None:
             values = [obj.getValue() for obj in self._base_objs]
             self._function(*values)
 

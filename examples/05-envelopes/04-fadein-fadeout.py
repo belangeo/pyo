@@ -22,4 +22,3 @@ def play_note():
 pat = Pattern(play_note, time=2).play()
 
 s.gui(locals())
-

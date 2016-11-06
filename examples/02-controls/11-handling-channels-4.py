@@ -1,7 +1,7 @@
 """
 11-handling-channels-4.py - Explicit control of the physical outputs.
 
-If `chnl` is a list, successive values in the list will be assigned 
+If `chnl` is a list, successive values in the list will be assigned
 to successive streams.
 
 """
@@ -12,7 +12,7 @@ s = Server(nchnls=8).boot()
 
 amps = [.05,.1,.15,.2,.25,.3,.35,.4]
 
-# Generates 8 sine waves with 
+# Generates 8 sine waves with
 # increasing amplitudes
 a = Sine(freq=500, mul=amps)
 

@@ -13,6 +13,7 @@ tab_m = HarmTable([1,0,0,0,0,.3,0,0,0,0,0,.2,0,0,0,0,0,.1,0,0,0,0,.05]).normaliz
 tab_p = HarmTable([1,0,.33,0,.2,0,.143,0,.111])
 
 class Ring:
+
     def __init__(self, fport=250, fmod=100, amp=.3):
         self.mod = Osc(tab_m, freq=fmod, mul=amp)
         self.port = Osc(tab_p, freq=fport, mul=self.mod)
@@ -20,7 +21,7 @@ class Ring:
     def out(self):
         self.port.out()
         return self
-    
+
     def sig(self):
         return self.port
 

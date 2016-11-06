@@ -16,7 +16,7 @@ s = Server().boot().start()
 print("Play with your OSC interface...")
 
 go = True
-def pp(address, *args): 
+def pp(address, *args):
     if go:
         print("Address =", address)
         print("Values =", args)
@@ -32,8 +32,7 @@ while again == "y":
     if again == "y":
         print("Continue...")
         go = True
-    
+
 s.stop()
 time.sleep(1)
 exit()
-    

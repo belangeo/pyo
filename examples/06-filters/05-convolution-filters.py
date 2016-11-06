@@ -1,34 +1,34 @@
 """
 05-convolution-filters.py - Circular convolution.
 
-A circular convolution is defined as the integral of the 
+A circular convolution is defined as the integral of the
 product of two functions after one is reversed and shifted.
 
 Circular convolution allows to implement very complex FIR
 filters, at a CPU cost that is related to the filter impulse
 response (kernel) length.
 
-Within pyo, there is a family of IR* filter objects using 
+Within pyo, there is a family of IR* filter objects using
 circular convolution with predefined kernel:
 
-- IRAverage : moving average filter  
-- IRFM : FM-like filter  
-- IRPulse : comb-like filter  
+- IRAverage : moving average filter
+- IRFM : FM-like filter
+- IRPulse : comb-like filter
 - RWinSinc : break wall filters (lp, hp, hp, br)
-    
+
 For general circular convolution, use the Convolve object
 with a PyoTableObject as the kernel, as in this example:
 
-A white noise is filtered by four impulses taken from the 
+A white noise is filtered by four impulses taken from the
 input mic. Call r1.play(), r2.play(), r3.play() or r4.play()
-in the Interpreter field while making some noise in the mic 
-to fill the impulse response tables. The slider handles the 
+in the Interpreter field while making some noise in the mic
+to fill the impulse response tables. The slider handles the
 morphing between the four kernels.
 
-Call t1.view(), t2.view(), t3.view() or t4.view() to view 
+Call t1.view(), t2.view(), t3.view() or t4.view() to view
 impulse response tables.
 
-Because circular convolution is very expensive, TLEN (in 
+Because circular convolution is very expensive, TLEN (in
 samples) should be keep small.
 
 """

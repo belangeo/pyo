@@ -90,19 +90,19 @@ def isMatrixObject(obj):
 
 def isPVObject(obj):
     return isinstance(obj, PyoPVObject) or hasattr(obj, "pv_stream")
-    
+
 def pyoArgsAssert(obj, format, *args):
     """
     Raise an Exception if an object got an invalid argument.
-    
+
     :Args:
-        
+
         obj : Pyo object on which method is called.
             Usually "self" in the function call.
         format :
             String of length equal to the number of arguments. Each character
             indicating the expected argument type.
-            
+
             - O : float or PyoObject
             - o : PyoObject
             - T : float or PyoTableObject
@@ -128,7 +128,7 @@ def pyoArgsAssert(obj, format, *args):
             - z : anything
         *args : any
             Arguments passed to the object's method.
-            
+
     """
     if sys.version_info[0] < 3:
         # Python 2
@@ -211,7 +211,7 @@ def pyoArgsAssert(obj, format, *args):
                 expected = "callable - list not allowed"
         elif f == "z":
             pass
-                
+
         if expected:
             break
 
@@ -726,7 +726,7 @@ class PyoObject(PyoObjectBase):
         return Wrap(self, 0, x)
 
     def __neg__(self):
-        if self._zeros == None:
+        if self._zeros is None:
             self._zeros = Sig(0)
         return self._zeros - self
 
@@ -749,7 +749,7 @@ class PyoObject(PyoObjectBase):
         return self.__do_comp__(comp=x, mode=">=")
 
     def __do_comp__(self, comp, mode, default=False):
-        if comp == None:
+        if comp is None:
             return default
         else:
             return Compare(self, comp=comp, mode=mode)
@@ -1089,7 +1089,7 @@ class PyoObject(PyoObjectBase):
         the server GUI before showing the controller window.
 
         """
-        if map_list == None:
+        if map_list is None:
             map_list = self._map_list
         if map_list == []:
             print(("There is no controls for %s object." % self.__class__.__name__))
@@ -1172,7 +1172,7 @@ class PyoTableObject(PyoObjectBase):
                     5. U-Law encoded
                     6. A-Law encoded
             quality : float, optional
-                The encoding quality value, between 0.0 (lowest quality) and 
+                The encoding quality value, between 0.0 (lowest quality) and
                 1.0 (highest quality). This argument has an effect only with
                 FLAC and OGG compressed formats. Defaults to 0.4.
 
@@ -1259,7 +1259,7 @@ class PyoTableObject(PyoObjectBase):
             arr = numpy.asarray(t.getBuffer())
 
         Now, every changes applied to the array will be reflected in the SndTable.
-        
+
         For more details about the buffer protocol, see PEP 3118 and python documentation.
 
         """
@@ -1599,9 +1599,9 @@ class PyoTableObject(PyoObjectBase):
     def rotate(self, pos):
         """
         Rotate the table content to the left around the position given as argument.
-        
+
         Samples between the given position and the end of the table will
-        be relocated in front of the samples from the beginning to the 
+        be relocated in front of the samples from the beginning to the
         given position.
 
         :Args:
@@ -1614,7 +1614,7 @@ class PyoTableObject(PyoObjectBase):
         pyoArgsAssert(self, "I", pos)
         [obj.rotate(pos) for obj in self._base_objs]
         self.refreshView()
-        
+
     def copy(self):
         """
         Returns a deep copy of the object.
@@ -1667,11 +1667,11 @@ class PyoTableObject(PyoObjectBase):
         Updates the graphical display of the table, if applicable.
 
         """
-        if self.viewFrame != None:
+        if self.viewFrame is not None:
             size = self.viewFrame.wavePanel.GetSize()
             samples = self._base_objs[0].getViewTable((size[0], size[1]))
             self.viewFrame.update(samples)
-        if self.graphFrame != None:
+        if self.graphFrame is not None:
             self.graphFrame.update(self.getTable())
 
     @property
@@ -1858,7 +1858,7 @@ class PyoMatrixObject(PyoObjectBase):
         Updates the graphical display of the matrix, if applicable.
 
         """
-        if self.viewFrame != None:
+        if self.viewFrame is not None:
             samples = self._base_objs[0].getViewData()
             self.viewFrame.update(samples)
 
@@ -2003,7 +2003,7 @@ class PyoPVObject(PyoObjectBase):
         the server GUI before showing the controller window.
 
         """
-        if map_list == None:
+        if map_list is None:
             map_list = self._map_list
         if map_list == []:
             print(("There is no controls for %s object." % self.__class__.__name__))

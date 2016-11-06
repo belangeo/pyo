@@ -27,6 +27,7 @@ sp = Spectrum(f)
 sc = Scope(f)
 
 class MyFrame(wx.Frame):
+
     def __init__(self, parent, title, pos=(50, 50), size=(850, 600)):
         wx.Frame.__init__(self, parent, -1, title, pos, size)
         self.panel = wx.Panel(self)
@@ -65,7 +66,7 @@ class MyFrame(wx.Frame):
         midbox.Add(sizer6, 1, wx.ALL | wx.EXPAND, 5)
 
         rightbox.Add(sizer2, 1, wx.ALL | wx.EXPAND, 5)
-        
+
         mainsizer.Add(leftbox, 1, wx.ALL | wx.EXPAND, 5)
         mainsizer.Add(midbox, 1, wx.ALL | wx.EXPAND, 5)
         mainsizer.Add(rightbox, 0, wx.ALL | wx.EXPAND, 5)
@@ -76,14 +77,14 @@ class MyFrame(wx.Frame):
     def createFreqSlider(self):
         sizer = wx.BoxSizer(wx.VERTICAL)
         label = wx.StaticText(self.panel, -1, "PyoGuiControlSlider: filter's center frequency (log scale)")
-        sizer.Add(label, 0, wx.CENTER|wx.ALL, 5) 
-        self.freq = PyoGuiControlSlider(parent=self.panel, 
-                                        minvalue=20, 
-                                        maxvalue=20000, 
-                                        init=1000, 
-                                        pos=(0, 0), 
+        sizer.Add(label, 0, wx.CENTER|wx.ALL, 5)
+        self.freq = PyoGuiControlSlider(parent=self.panel,
+                                        minvalue=20,
+                                        maxvalue=20000,
+                                        init=1000,
+                                        pos=(0, 0),
                                         size=(200, 16),
-                                        log=True, 
+                                        log=True,
                                         integer=False,
                                         powoftwo=False,
                                         orient=wx.HORIZONTAL)
@@ -96,22 +97,22 @@ class MyFrame(wx.Frame):
     def createOutputBox(self):
         sizer = wx.BoxSizer(wx.VERTICAL)
         label = wx.StaticText(self.panel, -1, "dB slider - PyoGuiVuMeter")
-        sizer.Add(label, 0, wx.CENTER|wx.ALL, 5) 
+        sizer.Add(label, 0, wx.CENTER|wx.ALL, 5)
         sizer1 = wx.BoxSizer(wx.HORIZONTAL)
-        self.amp = PyoGuiControlSlider(parent=self.panel, 
-                                        minvalue=-60, 
-                                        maxvalue=18, 
-                                        init=-12, 
-                                        pos=(0, 0), 
+        self.amp = PyoGuiControlSlider(parent=self.panel,
+                                        minvalue=-60,
+                                        maxvalue=18,
+                                        init=-12,
+                                        pos=(0, 0),
                                         size=(200, 16),
-                                        log=False, 
+                                        log=False,
                                         integer=False,
                                         powoftwo=False,
                                         orient=wx.VERTICAL)
         self.amp.Bind(EVT_PYO_GUI_CONTROL_SLIDER, self.changeGain)
-        self.meter = PyoGuiVuMeter(parent=self.panel, 
-                                   nchnls=NCHNLS, 
-                                   pos=(0, 0), 
+        self.meter = PyoGuiVuMeter(parent=self.panel,
+                                   nchnls=NCHNLS,
+                                   pos=(0, 0),
                                    size=(5*NCHNLS, 200),
                                    orient=wx.VERTICAL,
                                    style=0)
@@ -130,13 +131,13 @@ class MyFrame(wx.Frame):
         sizer = wx.BoxSizer(wx.VERTICAL)
         label = wx.StaticText(self.panel, -1, "PyoGuiGrapher: Filter's Q automation")
         sizer.Add(label, 0, wx.CENTER|wx.ALL, 5)
-        self.graph = PyoGuiGrapher(parent=self.panel, 
-                                    xlen=8192, 
-                                    yrange=(1.0, 10.0), 
-                                    init=[(0.0, 0.0), (1.0, 1.0)], 
-                                    mode=2, 
+        self.graph = PyoGuiGrapher(parent=self.panel,
+                                    xlen=8192,
+                                    yrange=(1.0, 10.0),
+                                    init=[(0.0, 0.0), (1.0, 1.0)],
+                                    mode=2,
                                     exp=t2.exp,
-                                    inverse=True, 
+                                    inverse=True,
                                     tension=0.75,
                                     bias=8.0,
                                     size=(300,100),
@@ -152,9 +153,9 @@ class MyFrame(wx.Frame):
         sizer = wx.BoxSizer(wx.VERTICAL)
         label = wx.StaticText(self.panel, -1, "PyoGuiMultiSlider: Step Sequencer")
         sizer.Add(label, 0, wx.CENTER|wx.ALL, 5)
-        self.steps = PyoGuiMultiSlider(parent=self.panel, 
-                                    xlen=16, 
-                                    yrange=(0, 1), 
+        self.steps = PyoGuiMultiSlider(parent=self.panel,
+                                    xlen=16,
+                                    yrange=(0, 1),
                                     init=[1,0,0,0]*4,
                                     size=(300,100),
                                     style=0)
@@ -168,7 +169,7 @@ class MyFrame(wx.Frame):
         sizer = wx.BoxSizer(wx.VERTICAL)
         label = wx.StaticText(self.panel, -1, "PyoGuiSpectrum: Frequency display")
         sizer.Add(label, 0, wx.CENTER|wx.ALL, 5)
-        self.spectrum = PyoGuiSpectrum(parent=self.panel, 
+        self.spectrum = PyoGuiSpectrum(parent=self.panel,
                                     lowfreq=0,
                                     highfreq=22050,
                                     fscaling=1,
@@ -183,7 +184,7 @@ class MyFrame(wx.Frame):
         sizer = wx.BoxSizer(wx.VERTICAL)
         label = wx.StaticText(self.panel, -1, "PyoGuiScope: Oscilloscope display")
         sizer.Add(label, 0, wx.CENTER|wx.ALL, 5)
-        self.scope = PyoGuiScope(parent=self.panel, 
+        self.scope = PyoGuiScope(parent=self.panel,
                                     length=0.05,
                                     gain=1,
                                     size=(300,150),
@@ -198,7 +199,7 @@ class MyFrame(wx.Frame):
         sizer = wx.BoxSizer(wx.VERTICAL)
         label = wx.StaticText(self.panel, -1, "PyoGuiSndView: Soundfile display")
         sizer.Add(label, 0, wx.CENTER|wx.ALL, 5)
-        self.sndview = PyoGuiSndView(parent=self.panel, 
+        self.sndview = PyoGuiSndView(parent=self.panel,
                                     size=(300,200),
                                     style=0)
         self.sndview.setTable(snd)

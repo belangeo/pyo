@@ -1,12 +1,12 @@
 """
 06-vocoder.py - Analysis/resynthesis vocoder effect.
 
-A vocoder is an analysis/resynthesis process that 
-uses the spectral envelope of a first sound to shape 
-the spectrum of a second sound. Usually (for the best 
-results) the first sound should present a dynamic 
-spectrum (both frequencies and amplitudes) and the 
-second sound should contain a rich and stable spectrum. 
+A vocoder is an analysis/resynthesis process that
+uses the spectral envelope of a first sound to shape
+the spectrum of a second sound. Usually (for the best
+results) the first sound should present a dynamic
+spectrum (both frequencies and amplitudes) and the
+second sound should contain a rich and stable spectrum.
 
 In this example, LFOs are applied to every dynamic argument
 of the Vocoder object to show the range of sound effects
@@ -33,4 +33,3 @@ lf4 = Sine(freq=0.06, phase=random()).range(0.01, 0.99)
 voc = Vocoder(spktrm, excite, freq=lf1, spread=lf2, q=lf3, slope=lf4, stages=24).out()
 
 s.gui(locals())
-

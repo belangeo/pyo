@@ -4,7 +4,7 @@
 This example illustrates the difference between a simple IIR second-order
 bandpass filter and a cascade of second-order bandpass filters. A cascade
 of four bandpass filters with a high Q can be used as a efficient resonator
-on the signal. 
+on the signal.
 
 """
 from pyo import *
@@ -27,7 +27,7 @@ bp1 = Reson(n, freq, q=q)
 # Cascade of second-order bandpass filters
 bp2 = Resonx(n, freq, q=q, stages=4)
 
-# Interpolates between input objects to produce a single output 
+# Interpolates between input objects to produce a single output
 sel = Selector([bp1, bp2]).out()
 sel.ctrl(title="Filter selector (0=Reson, 1=Resonx)")
 

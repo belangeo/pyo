@@ -227,7 +227,7 @@ class Adsr(PyoObject):
         The play() method starts the envelope.
 
         The stop() method calls the envelope's release phase if `dur` = 0.
-        
+
         As of version 0.8.0, exponential or logarithmic envelopes can be created
         with the exponent factor (see setExp() method).
 
@@ -532,11 +532,11 @@ class Linseg(PyoObject):
         server GUI before showing the controller window.
 
         """
-        if xlen == None:
+        if xlen is None:
             xlen = float(self._list[-1][0])
         else:
             xlen = float(xlen)
-        if yrange == None:
+        if yrange is None:
             ymin = float(min([x[1] for x in self._list]))
             ymax = float(max([x[1] for x in self._list]))
             if ymin == ymax:
@@ -732,11 +732,11 @@ class Expseg(PyoObject):
         server GUI before showing the controller window.
 
         """
-        if xlen == None:
+        if xlen is None:
             xlen = float(self._list[-1][0])
         else:
             xlen = float(xlen)
-        if yrange == None:
+        if yrange is None:
             ymin = float(min([x[1] for x in self._list]))
             ymax = float(max([x[1] for x in self._list]))
             if ymin == ymax:

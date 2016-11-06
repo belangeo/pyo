@@ -1401,18 +1401,18 @@ class SndTable(PyoTableObject):
         self._dur = []
         self._base_objs = []
         path, lmax = convertArgsToLists(path)
-        if self._path == None:
+        if self._path is None:
             self._base_objs = [SndTable_base("", 0, 0) for i in range(initchnls)]
         else:
             for p in path:
                 _size, _dur, _snd_sr, _snd_chnls, _format, _type = sndinfo(p)
-                if chnl == None:
-                    if stop == None:
+                if chnl is None:
+                    if stop is None:
                         self._base_objs.extend([SndTable_base(p, i, start) for i in range(_snd_chnls)])
                     else:
                         self._base_objs.extend([SndTable_base(p, i, start, stop) for i in range(_snd_chnls)])
                 else:
-                    if stop == None:
+                    if stop is None:
                         self._base_objs.append(SndTable_base(p, chnl, start))
                     else:
                         self._base_objs.append(SndTable_base(p, chnl, start, stop))
@@ -1452,7 +1452,7 @@ class SndTable(PyoTableObject):
                 _size, _dur, _snd_sr, _snd_chnls, _format, _type = sndinfo(p)
                 self._size.append(_size)
                 self._dur.append(_dur)
-                if stop == None:
+                if stop is None:
                     obj.setSound(p, 0, start)
                 else:
                     obj.setSound(p, 0, start, stop)
@@ -1460,7 +1460,7 @@ class SndTable(PyoTableObject):
             _size, _dur, _snd_sr, _snd_chnls, _format, _type = sndinfo(path)
             self._size = _size
             self._dur = _dur
-            if stop == None:
+            if stop is None:
                 [obj.setSound(path, (i%_snd_chnls), start) for i, obj in enumerate(self._base_objs)]
             else:
                 [obj.setSound(path, (i%_snd_chnls), start, stop) for i, obj in enumerate(self._base_objs)]
@@ -1499,7 +1499,7 @@ class SndTable(PyoTableObject):
                 _size, _dur, _snd_sr, _snd_chnls, _format, _type = sndinfo(p)
                 self._size.append(_size)
                 self._dur.append(_dur)
-                if stop == None:
+                if stop is None:
                     obj.append(p, crossfade, 0, start)
                 else:
                     obj.append(p, crossfade, 0, start, stop)
@@ -1507,7 +1507,7 @@ class SndTable(PyoTableObject):
             _size, _dur, _snd_sr, _snd_chnls, _format, _type = sndinfo(path)
             self._size = _size
             self._dur = _dur
-            if stop == None:
+            if stop is None:
                 [obj.append(path, crossfade, (i%_snd_chnls), start) for i, obj in enumerate(self._base_objs)]
             else:
                 [obj.append(path, crossfade, (i%_snd_chnls), start, stop) for i, obj in enumerate(self._base_objs)]
@@ -1551,7 +1551,7 @@ class SndTable(PyoTableObject):
                 _size, _dur, _snd_sr, _snd_chnls, _format, _type = sndinfo(p)
                 self._size.append(_size)
                 self._dur.append(_dur)
-                if stop == None:
+                if stop is None:
                     obj.insert(p, pos, crossfade, 0, start)
                 else:
                     obj.insert(p, pos, crossfade, 0, start, stop)
@@ -1559,7 +1559,7 @@ class SndTable(PyoTableObject):
             _size, _dur, _snd_sr, _snd_chnls, _format, _type = sndinfo(path)
             self._size = _size
             self._dur = _dur
-            if stop == None:
+            if stop is None:
                 [obj.insert(path, pos, crossfade, (i%_snd_chnls), start) for i, obj in enumerate(self._base_objs)]
             else:
                 [obj.insert(path, pos, crossfade, (i%_snd_chnls), start, stop) for i, obj in enumerate(self._base_objs)]
@@ -1708,11 +1708,11 @@ class SndTable(PyoTableObject):
         createSndViewTableWindow(self, title, wxnoserver, self.__class__.__name__, mouse_callback)
 
     def refreshView(self):
-        if self.viewFrame != None:
+        if self.viewFrame is not None:
             self.viewFrame.update()
 
     def _resetView(self):
-        if self.viewFrame != None:
+        if self.viewFrame is not None:
             if hasattr(self.viewFrame, "_setZoom"):
                 self.viewFrame._setZoom()
 
@@ -1802,7 +1802,7 @@ class NewTable(PyoTableObject):
         self._chnls = chnls
         self._init = init
         self._feedback = feedback
-        if init == None:
+        if init is None:
             self._base_objs = [NewTable_base(length, None, feedback) for i in range(chnls)]
         else:
             if type(init[0]) != list:
@@ -1917,7 +1917,7 @@ class NewTable(PyoTableObject):
         createSndViewTableWindow(self, title, wxnoserver, self.__class__.__name__, mouse_callback)
 
     def refreshView(self):
-        if self.viewFrame != None:
+        if self.viewFrame is not None:
             self.viewFrame.update()
 
     @property
@@ -1992,7 +1992,7 @@ class DataTable(PyoTableObject):
         PyoTableObject.__init__(self, size)
         self._chnls = chnls
         self._init = init
-        if init == None:
+        if init is None:
             self._base_objs = [DataTable_base(size) for i in range(chnls)]
         else:
             if type(init[0]) != list:
@@ -2219,23 +2219,23 @@ class PartialTable(PyoTableObject):
         return self._list
     @list.setter
     def list(self, x): self.replace(x)
-    
+
 class PadSynthTable(PyoTableObject):
     """
     Generates wavetable with the PadSynth algorithm from Nasca Octavian Paul.
-    
+
     This object generates a wavetable with the PadSynth algorithm describe here:
-        
+
     http://zynaddsubfx.sourceforge.net/doc/PADsynth/PADsynth.htm
-    
-    This algorithm generates some large wavetables that can played at 
-    different speeds to get the desired sound. This algorithm describes 
-    only how these wavetables are generated. The result is a perfectly 
-    looped wavetable. 
-    
+
+    This algorithm generates some large wavetables that can played at
+    different speeds to get the desired sound. This algorithm describes
+    only how these wavetables are generated. The result is a perfectly
+    looped wavetable.
+
     To get the desired pitch from the table, the playback speed must be
     `sr / table size`. This speed can be transposed to obtain different
-    pitches from a single wavetable. 
+    pitches from a single wavetable.
 
     :Parent: :py:class:`PyoTableObject`
 
@@ -2254,16 +2254,16 @@ class PadSynthTable(PyoTableObject):
             to control the harmonic profile using a gaussian distribution (bell
             shape). Defaults to 50.
         bwscl : float, optional
-            The bandswidth scale specifies how much the bandwidth of the 
+            The bandswidth scale specifies how much the bandwidth of the
             harmonic increase according to its frequency. Defaults to 1.
         nharms : int, optional
             The number of harmonics in the generated wavetable. Higher
             numbers of harmonics take more time to generate the wavetable.
-            Defaults to 64. 
+            Defaults to 64.
         damp : float, optional
             The amplitude damping factor specifies how much the amplitude
             of the harmonic decrease according to its order. It uses a
-            simple power serie, `amp = pow(damp, n)` where `n` is the 
+            simple power serie, `amp = pow(damp, n)` where `n` is the
             harmonic order. Defaults to 0.7.
         size : int, optional
             Table size in samples. Must be a power-of-two, usually a big one!

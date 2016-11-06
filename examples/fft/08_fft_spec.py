@@ -4,7 +4,7 @@
 Display the sonogram of a sound using a PyoMatrixObject.
 A better display can be achieved by using a custom drawing.
 
-After the playback ending, call "m.view()" from the 
+After the playback ending, call "m.view()" from the
 interpreter widget of the Server window to show the spectrum.
 
 """

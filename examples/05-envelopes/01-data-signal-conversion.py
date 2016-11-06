@@ -4,7 +4,7 @@ from __future__ import print_function
 
 The Stream object is a new type introduced by pyo to represent an
 audio signal as a vector of floats. It is sometimes useful to be
-able to convert simple numbers (python's floats or integers) to 
+able to convert simple numbers (python's floats or integers) to
 audio signal or to extract numbers from an audio stream.
 
 The Sig object converts a number to an audio stream.
@@ -29,4 +29,3 @@ pp = Print(astream, interval=0.1, message="Audio stream value")
 print("Float from audio stream : ", astream.get())
 
 s.gui(locals())
-

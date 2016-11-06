@@ -52,14 +52,14 @@ class Pattern(PyoObject):
         The out() method is bypassed. Pattern doesn't return signal.
 
         Pattern has no `mul` and `add` attributes.
-        
+
         If `arg` is None, the function must be defined without argument:
-            
+
         >>> def tocall():
         >>>     # function's body
 
         If `arg` is not None, the function must be defined with one argument:
-            
+
         >>> def tocall(arg):
         >>>     print arg
 
@@ -278,12 +278,12 @@ class CallAfter(PyoObject):
         CallAfter has no `mul` and `add` attributes.
 
         If `arg` is None, the function must be defined without argument:
-            
+
         >>> def tocall():
         >>>     # function's body
 
         If `arg` is not None, the function must be defined with one argument:
-            
+
         >>> def tocall(arg):
         >>>     print arg
 

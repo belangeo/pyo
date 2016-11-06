@@ -529,12 +529,12 @@ class Compress(PyoObject):
         [obj.setKnee(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [SLMap(-60., 0., 'lin', 'thresh',  self._thresh),
-                          SLMap(1., 10., 'lin', 'ratio',  self._ratio),
-                          SLMap(0.001, .3, 'lin', 'risetime',  self._risetime),
-                          SLMap(0.001, .3, 'lin', 'falltime',  self._falltime),
-                          SLMap(0, 25, 'lin', 'lookahead',  self._lookahead, dataOnly=True),
-                          SLMap(0, 1, 'lin', 'knee',  self._knee, dataOnly=True),
+        self._map_list = [SLMap(-60., 0., 'lin', 'thresh', self._thresh),
+                          SLMap(1., 10., 'lin', 'ratio', self._ratio),
+                          SLMap(0.001, .3, 'lin', 'risetime', self._risetime),
+                          SLMap(0.001, .3, 'lin', 'falltime', self._falltime),
+                          SLMap(0, 25, 'lin', 'lookahead', self._lookahead, dataOnly=True),
+                          SLMap(0, 1, 'lin', 'knee', self._knee, dataOnly=True),
                           SLMapMul(self._mul)]
         PyoObject.ctrl(self, map_list, title, wxnoserver)
 
@@ -717,10 +717,10 @@ class Gate(PyoObject):
         [obj.setLookAhead(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [SLMap(-100., 0., 'lin', 'thresh',  self._thresh),
-                          SLMap(0.0001, .3, 'lin', 'risetime',  self._risetime),
-                          SLMap(0.0001, .3, 'lin', 'falltime',  self._falltime),
-                          SLMap(0, 25, 'lin', 'lookahead',  self._lookahead, dataOnly=True),
+        self._map_list = [SLMap(-100., 0., 'lin', 'thresh', self._thresh),
+                          SLMap(0.0001, .3, 'lin', 'risetime', self._risetime),
+                          SLMap(0.0001, .3, 'lin', 'falltime', self._falltime),
+                          SLMap(0, 25, 'lin', 'lookahead', self._lookahead, dataOnly=True),
                           SLMapMul(self._mul)]
         PyoObject.ctrl(self, map_list, title, wxnoserver)
 
