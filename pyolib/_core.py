@@ -580,6 +580,7 @@ class PyoObject(PyoObjectBase):
         PyoObjectBase.__init__(self)
         self._target_dict = {}
         self._signal_dict = {}
+        self._callback_dict = {}
         self._keep_trace = []
         self._mul = mul
         self._add = add
@@ -1030,7 +1031,7 @@ class PyoObject(PyoObjectBase):
         x, lmax = convertArgsToLists(x)
         [obj.setDiv(wrap(x,i//self._op_duplicate)) for i, obj in enumerate(self._base_objs)]
 
-    def set(self, attr, value, port=0.025):
+    def set(self, attr, value, port=0.025, callback=None):
         """
         Replace any attribute with portamento.
 
@@ -1046,10 +1047,13 @@ class PyoObject(PyoObjectBase):
                 New value.
             port : float, optional
                 Time, in seconds, to reach the new value.
+            callback : callable, optional
+                A python function to be called at the end of the ramp.
 
         """
-        pyoArgsAssert(self, "Snn", attr, value, port)
+        pyoArgsAssert(self, "SnnC", attr, value, port, callback)
         self._target_dict[attr] = value
+        self._callback_dict[attr] = callback
         init = getattr(self, attr)
         if attr in self._signal_dict:
             if isinstance(self._signal_dict[attr], VarPort):
@@ -1062,6 +1066,9 @@ class PyoObject(PyoObjectBase):
     def _reset_from_set(self, attr=None):
         if isinstance(getattr(self, attr), VarPort):
             setattr(self, attr, self._target_dict[attr])
+            if self._callback_dict[attr] is not None:
+                self._callback_dict[attr]()
+                del self._callback_dict[attr]
         self._signal_dict[attr].stop()
 
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
