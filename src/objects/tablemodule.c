@@ -5870,13 +5870,12 @@ static PyObject * TableRec_getTriggerStream(TableRec* self) { GET_TRIGGER_STREAM
 
 static PyObject * TableRec_play(TableRec *self, PyObject *args, PyObject *kwds)
 {
-    int i;
-    for (i=0; i<self->bufsize; i++) {
-        self->time_buffer_streams[i] = 0;
-    }
     self->pointer = 0;
     self->active = 1;
     PLAY
+    for (i=0; i<self->bufsize; i++) {
+        self->time_buffer_streams[i] = 0;
+    }
 };
 
 static PyObject * TableRec_stop(TableRec *self) { STOP };
