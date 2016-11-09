@@ -1,5 +1,7 @@
 from __future__ import absolute_import
 from six.moves import range
+import six
+
 """
 Prefix expression evaluators.
 
@@ -330,6 +332,7 @@ class Expr(PyoObject):
         if self._editor is not None:
             self._editor.update(x)
         x = self._preproc(x)
+        x = six.u(x)
         x, lmax = convertArgsToLists(x)
         [obj.setExpr(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
