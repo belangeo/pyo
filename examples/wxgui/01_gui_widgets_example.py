@@ -1,5 +1,3 @@
-from __future__ import print_function
-from six.moves import range
 """
 Demo script for showing how GUI classes from pyo can be used to build
 audio programs with graphical interface.

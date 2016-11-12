@@ -5,7 +5,6 @@ Time stretching using FFT/IFFT.
 
 """
 from pyo import *
-from six.moves import range
 
 s = Server(sr=44100, nchnls=2, buffersize=512, duplex=0).boot()
 

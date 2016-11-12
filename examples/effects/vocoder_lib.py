@@ -6,7 +6,6 @@ as any other builtin PyoObjects.
 
 """
 from pyo import *
-from six.moves import range
 
 class MyVocoder(PyoObject):
     """

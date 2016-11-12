@@ -5,7 +5,6 @@ as distortions, delays, chorus and reverbs.
 """
 
 from __future__ import absolute_import
-from six.moves import range
 """
 Copyright 2009-2015 Olivier Belanger
 

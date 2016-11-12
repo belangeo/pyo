@@ -1,13 +1,15 @@
 #!/usr/bin/env python
 # encoding: utf-8
 from __future__ import print_function
-from six.moves import input
 """
 Scan Open Sound Control inputs. Launch this script from a terminal.
 
 """
 from pyo import *
-import time
+import time, sys
+
+if sys.version_info[0] < 3:
+    input = raw_input
 
 port = eval(input("Enter the incoming port number : "))
 
@@ -35,4 +37,4 @@ while again == "y":
 
 s.stop()
 time.sleep(1)
-exit()
+sys.exit()

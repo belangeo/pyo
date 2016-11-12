@@ -8,7 +8,6 @@ noise.aif on the Desktop.
 from pyo import savefile
 from random import uniform
 import os
-from six.moves import range
 
 home = os.path.expanduser("~")
 path = os.path.join(home, "Desktop", "noise.aif")

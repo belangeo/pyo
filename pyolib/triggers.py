@@ -1,7 +1,5 @@
 from __future__ import print_function
 from __future__ import absolute_import
-from six.moves import range
-import six
 """
 Set of objects to manage triggers streams.
 
@@ -1829,7 +1827,7 @@ class TrigXnoise(PyoObject):
         self._in_fader = InputFader(input)
         in_fader, dist, x1, x2, mul, add, lmax = convertArgsToLists(self._in_fader, dist, x1, x2, mul, add)
         for i, t in enumerate(dist):
-            if type(t) == six.text_type: dist[i] = XNOISE_DICT.get(t, 0)
+            if type(t) in [bytes_t, unicode_t]: dist[i] = XNOISE_DICT.get(t, 0)
         self._base_objs = [TrigXnoise_base(wrap(in_fader,i), wrap(dist,i), wrap(x1,i), wrap(x2,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
 
     def setInput(self, x, fadetime=0.05):
@@ -1861,7 +1859,7 @@ class TrigXnoise(PyoObject):
         self._dist = x
         x, lmax = convertArgsToLists(x)
         for i, t in enumerate(x):
-            if type(t) == six.text_type: x[i] = XNOISE_DICT.get(t, 0)
+            if type(t) in [bytes_t, unicode_t]: x[i] = XNOISE_DICT.get(t, 0)
         [obj.setType(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
     def setX1(self, x):
@@ -2038,7 +2036,7 @@ class TrigXnoiseMidi(PyoObject):
         self._in_fader = InputFader(input)
         in_fader, dist, x1, x2, scale, mrange, mul, add, lmax = convertArgsToLists(self._in_fader, dist, x1, x2, scale, mrange, mul, add)
         for i, t in enumerate(dist):
-            if type(t) == six.text_type: dist[i] = XNOISE_DICT.get(t, 0)
+            if type(t) in [bytes_t, unicode_t]: dist[i] = XNOISE_DICT.get(t, 0)
         self._base_objs = [TrigXnoiseMidi_base(wrap(in_fader,i), wrap(dist,i), wrap(x1,i), wrap(x2,i), wrap(scale,i), wrap(mrange,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
 
     def setInput(self, x, fadetime=0.05):
@@ -2070,7 +2068,7 @@ class TrigXnoiseMidi(PyoObject):
         self._dist = x
         x, lmax = convertArgsToLists(x)
         for i, t in enumerate(x):
-            if type(t) == six.text_type: x[i] = XNOISE_DICT.get(t, 0)
+            if type(t) in [bytes_t, unicode_t]: x[i] = XNOISE_DICT.get(t, 0)
         [obj.setType(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
     def setScale(self, x):

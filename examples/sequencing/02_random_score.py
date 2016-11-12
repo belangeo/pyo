@@ -1,7 +1,5 @@
 #!/usr/bin/env python
 # encoding: utf-8
-from __future__ import print_function
-from six.moves import range
 """
 Calling Python function from an audio stream with the Score object.
 

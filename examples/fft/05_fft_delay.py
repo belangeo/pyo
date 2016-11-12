@@ -5,7 +5,6 @@ Apply spectral delays on a sound.
 
 """
 from pyo import *
-from six.moves import range
 
 s = Server(duplex=0).boot()
 

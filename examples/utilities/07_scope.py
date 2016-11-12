@@ -5,7 +5,6 @@ Simple scope example.
 
 """
 from pyo import *
-from six.moves import range
 
 class Scope:
 

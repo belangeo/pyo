@@ -1,7 +1,5 @@
 from __future__ import print_function
 from __future__ import absolute_import
-from six.moves import range
-import six
 """
 Copyright 2009-2015 Olivier Belanger
 
@@ -2989,7 +2987,7 @@ def ensureNFD(unistr):
                      'macroman', 'iso-8859-1', 'utf-16']
         format = 'NFC'
     decstr = unistr
-    if type(decstr) != six.text_type:
+    if type(decstr) != unicode_t:
         for encoding in encodings:
             try:
                 decstr = decstr.decode(encoding)

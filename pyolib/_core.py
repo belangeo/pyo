@@ -2,9 +2,6 @@
 from __future__ import division
 from __future__ import print_function
 from __future__ import absolute_import
-from six.moves import range
-from six.moves import builtins
-import six
 """
 Copyright 2009-2015 Olivier Belanger
 
@@ -29,6 +26,16 @@ import random, os, sys, inspect, tempfile
 from subprocess import call
 from weakref import proxy
 
+if sys.version_info[0] < 3:
+    import __builtin__
+    builtins = __builtin__
+    bytes_t = str
+    unicode_t = unicode
+else:
+    import builtins
+    bytes_t = bytes
+    unicode_t = str
+
 if hasattr(builtins, 'pyo_use_double'):
     import pyo64 as current_pyo
     from _pyo64 import *
@@ -38,7 +45,7 @@ else:
 
 from ._maps import *
 from ._widgets import createCtrlWindow, createViewTableWindow, createViewMatrixWindow
-
+    
 ######################################################################
 ### Utilities
 ######################################################################
@@ -180,10 +187,10 @@ def pyoArgsAssert(obj, format, *args):
             if argtype not in [int, longType]:
                 expected = "integer - list not allowed"
         elif f == "s":
-            if argtype not in [list, bytes, six.text_type]:
+            if argtype not in [list, bytes_t, unicode_t]:
                 expected = "string"
         elif f == "S":
-            if argtype not in [bytes, six.text_type]:
+            if argtype not in [bytes_t, unicode_t]:
                 expected = "string - list not allowed"
         elif f == "b":
             if argtype not in [bool, list, int, longType]:
@@ -231,7 +238,7 @@ def convertStringToSysEncoding(str):
             String to convert.
 
     """
-    if type(str) != six.text_type:
+    if type(str) not in [bytes_t, unicode_t]:
         str = str.decode("utf-8")
     str = str.encode(sys.getfilesystemencoding())
     return str
@@ -321,7 +328,7 @@ def example(cls, dur=5, toprint=True, double=False):
 def removeExtraDecimals(x):
     if type(x) == float:
         return "=%.2f" % x
-    elif type(x) == six.text_type:
+    elif type(x) in [bytes_t, unicode_t]:
         return '="%s"' % x
     else:
         return "=" + str(x)
@@ -338,7 +345,7 @@ def class_args(cls):
         cls : PyoObject class
             Class reference of the desired object's init line.
 
-    >>> print class_args(Sine)
+    >>> print(class_args(Sine))
     >>> 'Sine(freq=1000, phase=0, mul=1, add=0)'
 
     """
@@ -367,7 +374,7 @@ def getVersion():
 
     The returned tuple for version '0.4.1' will look like : (0, 4, 1)
 
-    >>> print getVersion()
+    >>> print(getVersion())
     >>> (0, 5, 1)
 
     """
@@ -496,7 +503,7 @@ class PyoObjectBase(object):
         if type(i) == slice or i < len(self._base_objs):
             return self._base_objs[i]
         else:
-            if type(i) == six.text_type:
+            if type(i) in [bytes_t, unicode_t]:
                 print("Object %s has no stream named '%s'!" % (self.__class__.__name__, i))
             else:
                 print("'i' too large in slicing %s object %s!" % (self._STREAM_TYPE, self.__class__.__name__))
@@ -2052,9 +2059,9 @@ class Mix(PyoObject):
     >>> s.start()
     >>> a = Sine([random.uniform(400,600) for i in range(50)], mul=.02)
     >>> b = Mix(a, voices=2).out()
-    >>> print len(a)
+    >>> print(len(a))
     50
-    >>> print len(b)
+    >>> print(len(b))
     1
 
     """
@@ -2113,9 +2120,9 @@ class Dummy(PyoObject):
 
         >>> a = Sine()
         >>> b = a * .5
-        >>> print a
+        >>> print(a)
         <pyolib.input.Sine object at 0x11fd610>
-        >>> print b
+        >>> print(b)
         <pyolib._core.Dummy object at 0x11fd710>
 
     >>> s = Server().boot()
@@ -2281,8 +2288,8 @@ class VarPort(PyoObject):
     >>> s = Server().boot()
     >>> s.start()
     >>> def callback(arg):
-    ...     print "end of line"
-    ...     print arg
+    ...     print("end of line")
+    ...     print(arg)
     ...
     >>> fr = VarPort(value=500, time=2, init=250, function=callback, arg="YEP!")
     >>> a = SineLoop(freq=[fr,fr*1.01], feedback=0.05, mul=.2).out()

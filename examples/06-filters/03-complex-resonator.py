@@ -10,7 +10,6 @@ resonance.
 """
 from pyo import *
 import random
-from six.moves import range
 
 s = Server().boot()
 

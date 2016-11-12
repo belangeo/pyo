@@ -1,5 +1,3 @@
-from __future__ import print_function
-from six.moves import range
 """
 06-multichannel-expansion.py - What is a `Stream`? Polyphonic objects.
 

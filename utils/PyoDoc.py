@@ -3,9 +3,13 @@
 import subprocess, threading, os, sys, unicodedata
 import wx
 import wx.stc  as  stc
-import six
 from wx.lib.embeddedimage import PyEmbeddedImage
 from pyo import *
+
+if sys.version_info[0] < 3:
+    unicode_t = unicode
+else:
+    unicode_t = str
 
 DOC_AS_SINGLE_APP = False
 
@@ -1075,7 +1079,7 @@ def ensureNFD(unistr):
                      'macroman', 'iso-8859-1', 'utf-16']
         format = 'NFC'
     decstr = unistr
-    if type(decstr) != six.text_type:
+    if type(decstr) != unicode_t:
         for encoding in encodings:
             try:
                 decstr = decstr.decode(encoding)

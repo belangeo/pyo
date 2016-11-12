@@ -1,6 +1,5 @@
 from __future__ import print_function
 from __future__ import absolute_import
-from six.moves import range
 """
 Objects to manage values on an Open Sound Control port.
 
@@ -39,7 +38,6 @@ License along with pyo.  If not, see <http://www.gnu.org/licenses/>.
 """
 from ._core import *
 from ._maps import *
-import six
 
 def assertOSCSupport(obj):
     if not withOSC():
@@ -196,7 +194,7 @@ class OscReceive(PyoObject):
         self._base_objs = [OscReceive_base(self._mainReceiver, wrap(address,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
 
     def __getitem__(self, i):
-        if type(i) in [six.text_type, six.binary_type]:
+        if type(i) in [bytes_t, unicode_t]:
             return self._base_objs[self._address.index(i)]
         elif i < len(self._base_objs):
             return self._base_objs[i]
@@ -662,7 +660,7 @@ class OscListReceive(PyoObject):
         self._base_objs = [OscListReceive_base(self._mainReceiver, wrap(address,i), j, wrap(mul,i), wrap(add,i)) for i in range(lmax) for j in range(self._num)]
 
     def __getitem__(self, i):
-        if type(i) in [six.text_type, six.binary_type]:
+        if type(i) in [bytes_t, unicode_t]:
             first = self._address.index(i) * self._num
             return self._base_objs[first:first+self._num]
         elif i < len(self._base_objs):

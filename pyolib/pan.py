@@ -1,6 +1,5 @@
 from __future__ import print_function
 from __future__ import absolute_import
-from six.moves import range
 """
 Set of objects to manage audio voice routing and spread of a sound
 signal into a new stereo or multi-channel sound field.

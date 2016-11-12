@@ -1,5 +1,4 @@
 from __future__ import absolute_import
-from six.moves import range
 """
 Tools to analyze audio signals.
 

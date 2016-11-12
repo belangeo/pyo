@@ -1,6 +1,4 @@
 from __future__ import absolute_import
-from six.moves import range
-import six
 
 """
 Prefix expression evaluators.
@@ -253,10 +251,17 @@ GNU Lesser General Public License for more details.
 You should have received a copy of the GNU Lesser General Public
 License along with pyo.  If not, see <http://www.gnu.org/licenses/>.
 """
-import os
+import os, sys
 from ._core import *
 from ._maps import *
 from ._widgets import createExprEditorWindow
+
+if sys.version_info[0] < 3:
+    def to_unicode(s):
+        return unicode(s.replace(r'\\', r'\\\\'), "unicode_escape")
+else:
+    def to_unicode(s):
+        return s
 
 class Expr(PyoObject):
     """
@@ -299,7 +304,7 @@ class Expr(PyoObject):
         expr = self._preproc(expr)
         self._in_fader = InputFader(input)
         in_fader, expr, mul, add, lmax = convertArgsToLists(self._in_fader, expr, mul, add)
-        self._base_objs = [Expr_base(wrap(in_fader,i), six.u(wrap(expr,i)), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+        self._base_objs = [Expr_base(wrap(in_fader,i), to_unicode(wrap(expr,i)), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
 
     def setInput(self, x, fadetime=0.05):
         """
@@ -332,7 +337,7 @@ class Expr(PyoObject):
         if self._editor is not None:
             self._editor.update(x)
         x = self._preproc(x)
-        x = six.u(x)
+        x = to_unicode(x)
         x, lmax = convertArgsToLists(x)
         [obj.setExpr(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 

@@ -6,7 +6,6 @@ Creates a new sound table from random chunks of a soundfile.
 """
 from pyo import *
 import random, os
-from six.moves import range
 
 s = Server(sr=44100, nchnls=2, buffersize=512, duplex=0).boot()
 

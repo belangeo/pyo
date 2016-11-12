@@ -6,7 +6,6 @@ See play_snd.py for subprocess sound player.
 
 """
 import subprocess, time, random
-from six.moves import range
 
 pipe = subprocess.Popen(["python -i play_snd.py"], shell=True, stdin=subprocess.PIPE).stdin
 
