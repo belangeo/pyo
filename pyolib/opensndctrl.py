@@ -45,6 +45,11 @@ def assertOSCSupport(obj):
     if not withOSC():
         raise Exception("Pyo built without OSC support! '%s' objects is not available." % obj.__class__.__name__)
 
+### TODO - Know bugs:
+### OscListReceive.setValue(address, value) make the program segfault on quit (python 2.7 and 3.5).
+### OscSend/OscReceive don't work with unicode on python 2.7 (ok on python 3.5)
+###
+
 ######################################################################
 ### Open Sound Control
 ######################################################################
@@ -410,11 +415,17 @@ class OscDataSend(PyoObject):
             types : str
                 String specifying the types sequence of the message to be sent.
                 Possible values are:
-                    - integer : "i"
-                    - long integer : "h"
-                    - float : "f"
-                    - double : "d"
-                    - string : "s"
+                - "i" : integer
+                - "h" : long integer
+                - "f" : float
+                - "d" : double
+                - "s" ; string
+                - "b" : blob (list of chars)
+                - "m" : MIDI packet (list of 4 bytes: [midi port, status, data1, data2])
+                - "c" : char
+                - "T" : True
+                - "F" : False
+                - "N" : None (nil)
 
                 The string "ssfi" indicates that the value to send will be a list
                 containing two strings followed by a float and an integer.

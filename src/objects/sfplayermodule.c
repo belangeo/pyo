@@ -406,8 +406,7 @@ SfPlayer_setSpeed(SfPlayer *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-	Py_INCREF(Py_None);
-	return Py_None;
+	Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -418,7 +417,7 @@ SfPlayer_setSound(SfPlayer *self, PyObject *arg)
 
     ASSERT_ARG_NOT_NULL
 
-    self->path = PyBytes_AsString(arg);
+    self->path = PY_STRING_AS_STRING(arg);
 
     sf_close(self->sf);
 
@@ -439,8 +438,7 @@ SfPlayer_setSound(SfPlayer *self, PyObject *arg)
     self->startPos = 0.0;
     self->pointerPos = self->startPos;
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -450,8 +448,7 @@ SfPlayer_setLoop(SfPlayer *self, PyObject *arg)
 
     self->loop = PyInt_AsLong(arg);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -467,8 +464,7 @@ SfPlayer_setOffset(SfPlayer *self, PyObject *arg)
             self->startPos = 0.0;
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -484,8 +480,7 @@ SfPlayer_setInterp(SfPlayer *self, PyObject *arg)
 
     SET_INTERP_POINTER
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 MYFLT *
@@ -1213,8 +1208,7 @@ SfMarkerShuffler_setInterp(SfMarkerShuffler *self, PyObject *arg)
     else if (self->interp == 4)
         self->interp_func_ptr = cubic;
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 MYFLT *
@@ -1986,8 +1980,7 @@ SfMarkerLooper_setInterp(SfMarkerLooper *self, PyObject *arg)
     else if (self->interp == 4)
         self->interp_func_ptr = cubic;
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 MYFLT *

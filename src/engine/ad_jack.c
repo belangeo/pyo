@@ -19,6 +19,7 @@
  *************************************************************************/
 
 #include "ad_jack.h"
+#include "py2to3.h"
 
 int
 jack_callback(jack_nframes_t nframes, void *arg) {
@@ -130,7 +131,7 @@ Server_jack_autoconnect(Server *self) {
             for (j=0; j<self->ichnls; j++) {
                 num = PyList_Size(PyList_GetItem(self->jackAutoConnectInputPorts, j));
                 for (i=0; i<num; i++) {
-                    portname = PyBytes_AsString(PyList_GetItem(PyList_GetItem(self->jackAutoConnectInputPorts, j), i));
+                    portname = PY_STRING_AS_STRING(PyList_GetItem(PyList_GetItem(self->jackAutoConnectInputPorts, j), i));
                     if (jack_port_by_name(be_data->jack_client, portname) != NULL) {
                         if (jack_connect(be_data->jack_client, portname, jack_port_name(be_data->jack_in_ports[j]))) {
                             Server_error(self, "Jack: cannot connect '%s' to input port %d\n", portname, j);
@@ -152,7 +153,7 @@ Server_jack_autoconnect(Server *self) {
             for (j=0; j<self->nchnls; j++) {
                 num = PyList_Size(PyList_GetItem(self->jackAutoConnectOutputPorts, j));
                 for (i=0; i<num; i++) {
-                    portname = PyBytes_AsString(PyList_GetItem(PyList_GetItem(self->jackAutoConnectOutputPorts, j), i));
+                    portname = PY_STRING_AS_STRING(PyList_GetItem(PyList_GetItem(self->jackAutoConnectOutputPorts, j), i));
                     if (jack_port_by_name(be_data->jack_client, portname) != NULL) {
                         if (jack_connect(be_data->jack_client, jack_port_name(be_data->jack_out_ports[j]), portname)) {
                             Server_error(self, "Jack: cannot connect output port %d to '%s'\n", j, portname);

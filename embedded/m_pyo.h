@@ -7,6 +7,16 @@
 extern "C" {
 #endif
 
+/* Unicode/string handling. */
+#if PY_MAJOR_VERSION >= 3
+#define PyInt_AsLong PyLong_AsLong
+#define PY_STRING_CHECK(a) PyUnicode_Check(arg) 
+#define PY_STRING_AS_STRING(a) PyUnicode_AsUTF8(a)
+#else
+#define PY_STRING_CHECK(a) (PyUnicode_Check(a) || PyBytes_Check(a))
+#define PY_STRING_AS_STRING(a) PyBytes_AsString(a)
+#endif
+
 /*
 ** Creates a new python interpreter and starts a pyo server in it.
 ** Each instance of pyo, in order to be fully independent of other
@@ -58,7 +68,7 @@ inline unsigned long pyo_get_input_buffer_address(PyThreadState *interp) {
     PyEval_AcquireThread(interp);
     module = PyImport_AddModule("__main__");
     obj = PyObject_GetAttrString(module, "_in_address_");
-    address = PyBytes_AsString(obj);
+    address = PY_STRING_AS_STRING(obj);
     uadd = strtoul(address, NULL, 0);
     PyEval_ReleaseThread(interp);
     return uadd;
@@ -80,7 +90,7 @@ inline unsigned long long pyo_get_input_buffer_address_64(PyThreadState *interp)
     PyEval_AcquireThread(interp);
     module = PyImport_AddModule("__main__");
     obj = PyObject_GetAttrString(module, "_in_address_");
-    address = PyBytes_AsString(obj);
+    address = PY_STRING_AS_STRING(obj);
     uadd = strtoull(address, NULL, 0);
     PyEval_ReleaseThread(interp);
     return uadd;
@@ -102,7 +112,7 @@ inline unsigned long pyo_get_output_buffer_address(PyThreadState *interp) {
     PyEval_AcquireThread(interp);
     module = PyImport_AddModule("__main__");
     obj = PyObject_GetAttrString(module, "_out_address_");
-    address = PyBytes_AsString(obj);
+    address = PY_STRING_AS_STRING(obj);
     uadd = strtoul(address, NULL, 0);
     PyEval_ReleaseThread(interp);
     return uadd;
@@ -130,7 +140,7 @@ inline unsigned long pyo_get_embedded_callback_address(PyThreadState *interp) {
     PyEval_AcquireThread(interp);
     module = PyImport_AddModule("__main__");
     obj = PyObject_GetAttrString(module, "_emb_callback_");
-    address = PyBytes_AsString(obj);
+    address = PY_STRING_AS_STRING(obj);
     uadd = strtoul(address, NULL, 0);
     PyEval_ReleaseThread(interp);
     return uadd;
@@ -280,7 +290,7 @@ inline int pyo_exec_file(PyThreadState *interp, const char *file, char *msg, int
     obj = PyObject_GetAttrString(module, "_ok_");
     ok = PyInt_AsLong(obj);
     if (ok) {
-        sprintf(msg, "try:\n    execfile('./%s')\nexcept:\n    execfile('%s')",
+        sprintf(msg, "try:\n    exec(open('./%s').read())\nexcept:\n    exec(open('%s').read())",
                 file, file);
         if (!add) {
             PyRun_SimpleString("_s_.setServer()\n_s_.stop()\n_s_.shutdown()");
@@ -324,7 +334,7 @@ inline int pyo_exec_statement(PyThreadState *interp, char *msg, int debug) {
         module = PyImport_AddModule("__main__");
         obj = PyObject_GetAttrString(module, "_error_");
         if (obj != Py_None) {
-            strcpy(msg, PyBytes_AsString(obj));
+            strcpy(msg, PY_STRING_AS_STRING(obj));
             err = 1;
         }
         PyEval_ReleaseThread(interp);

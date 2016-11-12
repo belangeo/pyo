@@ -74,3 +74,14 @@
 #define INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO 0,
 #define INITIALIZE_NB_DIVIDE_ZERO 0,
 #endif
+
+/* Unicode/string handling. */
+#if PY_MAJOR_VERSION >= 3
+#define PY_STRING_CHECK(a) PyUnicode_Check(a) 
+#define PY_STRING_AS_STRING(a) PyUnicode_AsUTF8(a)
+#define PY_UNICODE_AS_UNICODE(a) PyUnicode_AsUTF8(a)
+#else
+#define PY_STRING_CHECK(a) (PyUnicode_Check(a) || PyBytes_Check(a))
+#define PY_STRING_AS_STRING(a) PyBytes_AsString(a)
+#define PY_UNICODE_AS_UNICODE(a) PyBytes_AsString(PyUnicode_AsASCIIString(a))
+#endif

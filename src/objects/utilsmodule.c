@@ -170,15 +170,12 @@ Print_setMethod(Print *self, PyObject *arg)
 {
     ASSERT_ARG_NOT_NULL
 
-	int isNumber = PyNumber_Check(arg);
-
-	if (isNumber == 1) {
+	if (PyNumber_Check(arg) == 1) {
 		self->method = PyInt_AsLong(arg);
         (*self->mode_func_ptr)(self);
 	}
 
-	Py_INCREF(Py_None);
-	return Py_None;
+	Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -186,14 +183,10 @@ Print_setInterval(Print *self, PyObject *arg)
 {
     ASSERT_ARG_NOT_NULL
 
-	int isNumber = PyNumber_Check(arg);
-
-	if (isNumber == 1) {
+	if (PyNumber_Check(arg) == 1)
 		self->time = PyFloat_AsDouble(arg);
-	}
 
-	Py_INCREF(Py_None);
-	return Py_None;
+	Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -201,14 +194,10 @@ Print_setMessage(Print *self, PyObject *arg)
 {
     ASSERT_ARG_NOT_NULL
 
-	int isString = PyUnicode_Check(arg);
+    if (PY_STRING_CHECK(arg))
+        self->message = PY_STRING_AS_STRING(arg);
 
-	if (isString == 1) {
-		self->message = PyBytes_AsString(arg);
-	}
-
-	Py_INCREF(Py_None);
-	return Py_None;
+	Py_RETURN_NONE;
 }
 
 static PyMemberDef Print_members[] = {

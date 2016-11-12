@@ -178,7 +178,7 @@ void pyo_tilde_create(t_pyo_tilde *x, t_symbol *s, int argc, t_atom *argv) {
 }
 
 void pyo_tilde_midi_event(t_pyo_tilde *x, t_symbol *s, int argc, t_atom *argv) {
-    int status, data1 = 0, data2 = 0;
+    int status = 0, data1 = 0, data2 = 0;
     if (argc > 0)
         status = (int)atom_getfloat(argv);
     if (argc > 1)
