@@ -265,9 +265,10 @@ Server_jack_init(Server *self) {
 
 int
 Server_jack_deinit(Server *self) {
-    int ret = 0;
     PyoJackBackendData *be_data = (PyoJackBackendData *) self->audio_be_data;
-    ret = jack_client_close(be_data->jack_client);
+    int ret = jack_client_close(be_data->jack_client);
+    if (ret)
+        Server_error(self, "Jack error: cannot close client.\n");
     free(be_data->jack_in_ports);
     free(be_data->jack_out_ports);
     free(self->audio_be_data);
@@ -292,6 +293,8 @@ int
 Server_jack_stop(Server *self) {
     PyoJackBackendData *be_data = (PyoJackBackendData *) self->audio_be_data;
     int ret = jack_deactivate(be_data->jack_client);
+    if (ret)
+        Server_error(self, "Jack error: cannot deactivate jack client.\n");
     self->server_started = 0;
     return ret;
 }

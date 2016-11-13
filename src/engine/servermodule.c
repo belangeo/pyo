@@ -492,8 +492,7 @@ Server_shut_down(Server *self)
     int ret = -1;
     if (self->server_booted == 0) {
         Server_error(self, "The Server must be booted!\n");
-        Py_INCREF(Py_None);
-        return Py_None;
+        Py_RETURN_NONE;
     }
     if (self->server_started == 1) {
         Server_stop((Server *)self);
@@ -528,8 +527,7 @@ Server_shut_down(Server *self)
         Server_error(self, "Error closing audio backend.\n");
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static int
@@ -711,8 +709,7 @@ Server_setDefaultRecPath(Server *self, PyObject *args, PyObject *kwds)
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "s", kwlist, &self->recpath))
         return PyInt_FromLong(-1);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -720,15 +717,13 @@ Server_setInputOffset(Server *self, PyObject *arg)
 {
     if (self->server_booted) {
         Server_warning(self, "Can't change input offset for booted server.\n");
-        Py_INCREF(Py_None);
-        return Py_None;
+        Py_RETURN_NONE;
     }
     if (arg != NULL) {
         if (PyInt_Check(arg))
             self->input_offset = PyInt_AsLong(arg);
     }
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -736,15 +731,13 @@ Server_setOutputOffset(Server *self, PyObject *arg)
 {
     if (self->server_booted) {
         Server_warning(self, "Can't change output offset for booted server.\n");
-        Py_INCREF(Py_None);
-        return Py_None;
+        Py_RETURN_NONE;
     }
     if (arg != NULL) {
         if (PyInt_Check(arg))
             self->output_offset = PyInt_AsLong(arg);
     }
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -754,8 +747,7 @@ Server_setInputDevice(Server *self, PyObject *arg)
         if (PyInt_Check(arg))
             self->input = PyInt_AsLong(arg);
     }
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -767,8 +759,7 @@ Server_setInOutDevice(Server *self, PyObject *arg)
             self->output = PyInt_AsLong(arg);
         }
     }
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -778,8 +769,7 @@ Server_setOutputDevice(Server *self, PyObject *arg)
         if (PyInt_Check(arg))
             self->output = PyInt_AsLong(arg);
     }
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -789,8 +779,7 @@ Server_setMidiInputDevice(Server *self, PyObject *arg)
         if (PyInt_Check(arg))
             self->midi_input = PyInt_AsLong(arg);
     }
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -800,16 +789,14 @@ Server_setMidiOutputDevice(Server *self, PyObject *arg)
         if (PyInt_Check(arg))
             self->midi_output = PyInt_AsLong(arg);
     }
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
 Server_deactivateMidi(Server *self)
 {
     self->midiActive = 0;
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -817,8 +804,7 @@ Server_setSamplingRate(Server *self, PyObject *arg)
 {
     if (self->server_booted) {
         Server_warning(self, "Can't change sampling rate for booted server.\n");
-        Py_INCREF(Py_None);
-        return Py_None;
+        Py_RETURN_NONE;
     }
     if (arg != NULL && PyNumber_Check(arg)) {
         self->samplingRate = PyFloat_AsDouble(arg);
@@ -826,8 +812,7 @@ Server_setSamplingRate(Server *self, PyObject *arg)
     else {
         Server_error(self, "Sampling rate must be a number.\n");
     }
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -835,8 +820,7 @@ Server_setNchnls(Server *self, PyObject *arg)
 {
     if (self->server_booted) {
         Server_warning(self, "Can't change number of channels for booted server.\n");
-        Py_INCREF(Py_None);
-        return Py_None;
+        Py_RETURN_NONE;
     }
     if (arg != NULL && PyInt_Check(arg)) {
         self->nchnls = PyInt_AsLong(arg);
@@ -844,8 +828,7 @@ Server_setNchnls(Server *self, PyObject *arg)
     else {
         Server_error(self, "Number of channels must be an integer.\n");
     }
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -853,8 +836,7 @@ Server_setIchnls(Server *self, PyObject *arg)
 {
     if (self->server_booted) {
         Server_warning(self, "Can't change number of input channels for booted server.\n");
-        Py_INCREF(Py_None);
-        return Py_None;
+        Py_RETURN_NONE;
     }
     if (arg != NULL && PyInt_Check(arg)) {
         self->ichnls = PyInt_AsLong(arg);
@@ -862,8 +844,7 @@ Server_setIchnls(Server *self, PyObject *arg)
     else {
         Server_error(self, "Number of input channels must be an integer.\n");
     }
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -871,8 +852,7 @@ Server_setBufferSize(Server *self, PyObject *arg)
 {
     if (self->server_booted) {
         Server_warning(self, "Can't change buffer size for booted server.\n");
-        Py_INCREF(Py_None);
-        return Py_None;
+        Py_RETURN_NONE;
     }
     if (arg != NULL && PyInt_Check(arg)) {
         self->bufferSize = PyInt_AsLong(arg);
@@ -880,8 +860,7 @@ Server_setBufferSize(Server *self, PyObject *arg)
     else {
         Server_error(self, "Buffer size must be an integer.\n");
     }
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -889,15 +868,13 @@ Server_setDuplex(Server *self, PyObject *arg)
 {
     if (self->server_booted) {
         Server_warning(self,"Can't change duplex mode for booted server.\n");
-        Py_INCREF(Py_None);
-        return Py_None;
+        Py_RETURN_NONE;
     }
     if (arg != NULL) {
         if (PyInt_Check(arg))
             self->duplex = PyInt_AsLong(arg);
     }
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -906,15 +883,13 @@ Server_setJackAuto(Server *self, PyObject *args)
     int in=1, out=1;
 
     if (! PyArg_ParseTuple(args, "ii", &in, &out)) {
-        Py_INCREF(Py_None);
-        return Py_None;
+        Py_RETURN_NONE;
     }
 
     self->jackautoin = in;
     self->jackautoout = out;
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -931,8 +906,7 @@ Server_setJackAutoConnectInputPorts(Server *self, PyObject *arg)
         }
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -949,8 +923,7 @@ Server_setJackAutoConnectOutputPorts(Server *self, PyObject *arg)
         }
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -963,8 +936,7 @@ Server_setGlobalSeed(Server *self, PyObject *arg)
         self->globalSeed = self->globalSeed > 0 ? self->globalSeed : 0;
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 int
@@ -1000,8 +972,7 @@ Server_setAmp(Server *self, PyObject *arg)
                 self->resetAmp = self->amp;
         }
     }
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -1031,8 +1002,7 @@ Server_setAmpCallable(Server *self, PyObject *arg)
     self->gcount = 0;
     self->withGUI = 1;
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -1057,8 +1027,7 @@ Server_setTimeCallable(Server *self, PyObject *arg)
     self->tcount = 0;
     self->withTIME = 1;
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -1073,8 +1042,7 @@ Server_setCallback(Server *self, PyObject *arg)
     Py_INCREF(tmp);
     self->CALLBACK = tmp;
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -1088,8 +1056,7 @@ Server_setVerbosity(Server *self, PyObject *arg)
         }
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -1103,8 +1070,7 @@ Server_setStartOffset(Server *self, PyObject *arg)
         }
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -1114,8 +1080,7 @@ Server_boot(Server *self, PyObject *arg)
     int i;
     if (self->server_booted == 1) {
         Server_error(self, "Server already booted!\n");
-        Py_INCREF(Py_None);
-        return Py_None;
+        Py_RETURN_NONE;
     }
     self->server_started = 0;
     self->stream_count = 0;
@@ -1199,8 +1164,7 @@ Server_boot(Server *self, PyObject *arg)
         Server_error(self, "\nServer not booted.\n");
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -1209,14 +1173,12 @@ Server_start(Server *self)
     int err = -1, midierr = 0;
     if (self->server_started == 1) {
         Server_warning(self, "Server already started!\n");
-        Py_INCREF(Py_None);
-        return Py_None;
+        Py_RETURN_NONE;
     }
 
     if (self->server_booted == 0) {
         Server_warning(self, "The Server must be booted!\n");
-        Py_INCREF(Py_None);
-        return Py_None;
+        Py_RETURN_NONE;
     }
 
     Server_debug(self, "Server_start: number of streams %d\n", self->stream_count);
@@ -1278,41 +1240,33 @@ Server_start(Server *self)
         Server_error(self, "Error starting server.\n");
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 PyObject *
 Server_stop(Server *self)
 {
-    int err = -1;
+    int err = 0;
     if (self->server_started == 0) {
         Server_warning(self, "The Server must be started!\n");
-        Py_INCREF(Py_None);
-        return Py_None;
+        Py_RETURN_NONE;
     }
     switch (self->audio_be_type) {
         case PyoPortaudio:
-            err = Server_pa_stop(self);
-            break;
+            err = Server_pa_stop(self); break;
         case PyoCoreaudio:
-            err = Server_coreaudio_stop(self);
-            break;
+            err = Server_coreaudio_stop(self); break;
         case PyoJack:
-            err = Server_jack_stop(self);
-            break;
+            err = Server_jack_stop(self); break;
         case PyoOffline:
-            err = Server_offline_stop(self);
-            break;
+            err = Server_offline_stop(self); break;
         case PyoOfflineNB:
-            err = Server_offline_stop(self);
-            break;
+            err = Server_offline_stop(self); break;
         case PyoEmbedded:
-            err = Server_embedded_stop(self);
-            break;
+            err = Server_embedded_stop(self); break;
     }
 
-    if (err < 0) {
+    if (err != 0) {
         Server_error(self, "Error stopping server.\n");
     }
     else {
@@ -1326,8 +1280,7 @@ Server_stop(Server *self)
                 break;
         }
     }
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -1339,8 +1292,7 @@ Server_recordOptions(Server *self, PyObject *args, PyObject *kwds)
         return PyInt_FromLong(-1);
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -1355,8 +1307,7 @@ Server_start_rec(Server *self, PyObject *args, PyObject *kwds)
     }
     Server_start_rec_internal(self, filename);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 int
@@ -1455,8 +1406,7 @@ Server_stop_rec(Server *self, PyObject *args)
     self->record = 0;
     sf_close(self->recfile);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -1476,8 +1426,7 @@ Server_addStream(Server *self, PyObject *args)
 
     self->stream_count++;
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 PyObject *
@@ -1503,8 +1452,7 @@ Server_removeStream(Server *self, int id)
     }
     PyGILState_Release(s);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 PyObject *
@@ -1541,8 +1489,7 @@ Server_changeStreamPosition(Server *self, PyObject *args)
     PyList_Insert(self->streams, i, (PyObject *)cur_stream_tmp);
     self->stream_count++;
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 void pyoGetMidiEvents(Server *self) {
@@ -1573,8 +1520,7 @@ Server_noteout(Server *self, PyObject *args)
                 break;
         }
     }
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 PyObject *
@@ -1595,8 +1541,7 @@ Server_afterout(Server *self, PyObject *args)
                 break;
         }
     }
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 PyObject *
@@ -1617,8 +1562,7 @@ Server_ctlout(Server *self, PyObject *args)
                 break;
         }
     }
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 PyObject *
@@ -1639,8 +1583,7 @@ Server_programout(Server *self, PyObject *args)
                 break;
         }
     }
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 PyObject *
@@ -1661,8 +1604,7 @@ Server_pressout(Server *self, PyObject *args)
                 break;
         }
     }
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 PyObject *
@@ -1683,8 +1625,7 @@ Server_bendout(Server *self, PyObject *args)
                 break;
         }
     }
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 PyObject *
@@ -1706,8 +1647,7 @@ Server_sysexout(Server *self, PyObject *args)
                 break;
         }
     }
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 MYFLT *
@@ -1737,8 +1677,7 @@ Server_addMidiEvent(Server *self, PyObject *args)
     buffer.timestamp = 0;
     buffer.message = PyoMidi_Message(status, data1, data2);
     self->midiEvents[self->midi_count++] = buffer;
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 int
@@ -1794,8 +1733,7 @@ Server_beginResamplingBlock(Server *self, PyObject *arg)
         self->lastResampling = self->currentResampling;
         self->currentResampling = PyInt_AsLong(arg);
     }
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -1803,8 +1741,7 @@ Server_endResamplingBlock(Server *self)
 {
     self->lastResampling = self->currentResampling;
     self->currentResampling = 1;
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
