@@ -4523,6 +4523,8 @@ typedef struct {
     int pointer;
 } NewTable;
 
+void NewTable_resetRecordingPointer(NewTable *self) { self->pointer = 0; }
+
 static PyObject *
 NewTable_recordChunk(NewTable *self, MYFLT *data, int datasize)
 {
@@ -5876,6 +5878,7 @@ static PyObject * TableRec_play(TableRec *self, PyObject *args, PyObject *kwds)
     }
     self->pointer = 0;
     self->active = 1;
+    NewTable_resetRecordingPointer((NewTable *)self->table);
     PLAY
 };
 
@@ -6516,6 +6519,7 @@ TrigTableRec_compute_next_data_frame(TrigTableRec *self)
             if (trig[j] == 1.0) {
                 self->active = 1;
                 self->pointer = 0;
+                NewTable_resetRecordingPointer((NewTable *)self->table);
                 if (size >= self->bufsize)
                     num = self->bufsize - j;
                 else {
