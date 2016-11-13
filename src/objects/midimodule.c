@@ -2113,22 +2113,55 @@ static PyObject * MidiNote_play(MidiNote *self, PyObject *args, PyObject *kwds) 
 static PyObject * MidiNote_stop(MidiNote *self) { STOP };
 
 static PyObject *
-MidiNote_setChannel(MidiNote *self, PyObject *arg)
+MidiNote_setScale(MidiNote *self, PyObject *arg)
 {
-    int tmp;
-
     ASSERT_ARG_NOT_NULL
 
-	int isInt = PyInt_Check(arg);
+	if (PyInt_Check(arg) == 1) {
+		int tmp = PyInt_AsLong(arg);
+        if (tmp >= 0 && tmp < 3)
+            self->scale = tmp;
+	}
+	Py_RETURN_NONE;
+}
 
-	if (isInt == 1) {
-		tmp = PyInt_AsLong(arg);
+static PyObject *
+MidiNote_setFirst(MidiNote *self, PyObject *arg)
+{
+    ASSERT_ARG_NOT_NULL
+
+	if (PyInt_Check(arg) == 1) {
+		int tmp = PyInt_AsLong(arg);
+        if (tmp >= 0 && tmp < 128)
+            self->first = tmp;
+	}
+	Py_RETURN_NONE;
+}
+
+static PyObject *
+MidiNote_setLast(MidiNote *self, PyObject *arg)
+{
+    ASSERT_ARG_NOT_NULL
+
+	if (PyInt_Check(arg) == 1) {
+		int tmp = PyInt_AsLong(arg);
+        if (tmp >= 0 && tmp < 128)
+            self->last = tmp;
+	}
+	Py_RETURN_NONE;
+}
+
+static PyObject *
+MidiNote_setChannel(MidiNote *self, PyObject *arg)
+{
+    ASSERT_ARG_NOT_NULL
+
+	if (PyInt_Check(arg) == 1) {
+		int tmp = PyInt_AsLong(arg);
         if (tmp >= 0 && tmp < 128)
             self->channel = tmp;
 	}
-
-	Py_INCREF(Py_None);
-	return Py_None;
+	Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -2175,6 +2208,9 @@ static PyMethodDef MidiNote_methods[] = {
 {"_getStream", (PyCFunction)MidiNote_getStream, METH_NOARGS, "Returns stream object."},
 {"play", (PyCFunction)MidiNote_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
 {"stop", (PyCFunction)MidiNote_stop, METH_NOARGS, "Stops computing."},
+{"setScale", (PyCFunction)MidiNote_setScale, METH_O, "Sets the scale factor."},
+{"setFirst", (PyCFunction)MidiNote_setFirst, METH_O, "Sets the lowest midi note."},
+{"setLast", (PyCFunction)MidiNote_setLast, METH_O, "Sets the highest midi note."},
 {"setChannel", (PyCFunction)MidiNote_setChannel, METH_O, "Sets the midi channel."},
 {"setCentralKey", (PyCFunction)MidiNote_setCentralKey, METH_O, "Sets the midi key where there is no transposition."},
 {"setStealing", (PyCFunction)MidiNote_setStealing, METH_O, "Sets the stealing mode."},

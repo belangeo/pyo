@@ -172,6 +172,14 @@ class Midictl(PyoObject):
         x, lmax = convertArgsToLists(x)
         [obj.setInterpolation(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
+    def ctrl(self, map_list=None, title=None, wxnoserver=False):
+        self._map_list = [SLMap(0, 127, 'lin', 'ctlnumber', self._ctlnumber, res="int", dataOnly=True),
+                         SLMap(-1.0, 0.0, 'lin', 'minscale', self._minscale, dataOnly=True),
+                         SLMap(0.0, 1.0, 'lin', 'maxscale', self._maxscale, dataOnly=True),
+                         SLMap(0, 16, 'lin', 'channel', self._channel, res="int", dataOnly=True)
+                         ]
+        PyoObject.ctrl(self, map_list, title, wxnoserver)
+
     @property
     def ctlnumber(self):
         """int. Controller number."""
@@ -521,6 +529,48 @@ class Notein(PyoObject):
             self._trigoff_dummy.append(Dummy([self._trig_objs[i*2+1] for i in range(self._poly)]))
             return self._trigoff_dummy[-1]
 
+    def setScale(self, x):
+        """
+        Replace the `scale` attribute.
+
+        :Args:
+
+            x : int
+                new `scale` attribute. 0 = midi, 1 = hertz, 2 = transpo.
+
+        """
+        pyoArgsAssert(self, "I", x)
+        self._scale = x
+        self._base_handler.setScale(x)
+
+    def setFirst(self, x):
+        """
+        Replace the `first` attribute.
+
+        :Args:
+
+            x : int
+                new `first` attribute, between 0 and 127.
+
+        """
+        pyoArgsAssert(self, "I", x)
+        self._first = x
+        self._base_handler.setFirst(x)
+
+    def setLast(self, x):
+        """
+        Replace the `last` attribute.
+
+        :Args:
+
+            x : int
+                new `last` attribute, between 0 and 127.
+
+        """
+        pyoArgsAssert(self, "I", x)
+        self._last = x
+        self._base_handler.setLast(x)
+
     def setChannel(self, x):
         """
         Replace the `channel` attribute.
@@ -605,6 +655,35 @@ class Notein(PyoObject):
     def stop(self):
         self._base_handler.stop()
         return PyoObject.stop(self)
+
+    def ctrl(self, map_list=None, title=None, wxnoserver=False):
+        self._map_list = [SLMap(0, 2, 'lin', 'scale', self._scale, res="int", dataOnly=True),
+                         SLMap(0, 127, 'lin', 'first', self._first, res="int", dataOnly=True),
+                         SLMap(0, 127, 'lin', 'last', self._last, res="int", dataOnly=True),
+                         SLMap(0, 16, 'lin', 'channel', self._channel, res="int", dataOnly=True)
+                         ]
+        PyoObject.ctrl(self, map_list, title, wxnoserver)
+
+    @property
+    def scale(self):
+        """int. Output format. 0 = midi, 1 = hertz, 2 = transpo."""
+        return self._scale
+    @scale.setter
+    def scale(self, x): self.setScale(x)
+
+    @property
+    def first(self):
+        """int. Lowest midi value."""
+        return self._first
+    @first.setter
+    def first(self, x): self.setFirst(x)
+
+    @property
+    def last(self):
+        """int. Highest midi value."""
+        return self._last
+    @last.setter
+    def last(self, x): self.setLast(x)
 
     @property
     def channel(self):
@@ -709,6 +788,13 @@ class Bendin(PyoObject):
         self._channel = x
         x, lmax = convertArgsToLists(x)
         [obj.setChannel(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def ctrl(self, map_list=None, title=None, wxnoserver=False):
+        self._map_list = [SLMap(0.0, 12.0, 'lin', 'brange', self._brange, dataOnly=True),
+                         SLMap(0, 1, 'lin', 'scale', self._scale, res="int", dataOnly=True),
+                         SLMap(0, 16, 'lin', 'channel', self._channel, res="int", dataOnly=True)
+                         ]
+        PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
     def brange(self):
@@ -823,6 +909,13 @@ class Touchin(PyoObject):
         x, lmax = convertArgsToLists(x)
         [obj.setChannel(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
+    def ctrl(self, map_list=None, title=None, wxnoserver=False):
+        self._map_list = [SLMap(-1.0, 0.0, 'lin', 'minscale', self._minscale, dataOnly=True),
+                         SLMap(0.0, 1.0, 'lin', 'maxscale', self._maxscale, dataOnly=True),
+                         SLMap(0, 16, 'lin', 'channel', self._channel, res="int", dataOnly=True)
+                         ]
+        PyoObject.ctrl(self, map_list, title, wxnoserver)
+
     @property
     def minscale(self):
         """float. Minimum value for scaling."""
@@ -899,6 +992,10 @@ class Programin(PyoObject):
         self._channel = x
         x, lmax = convertArgsToLists(x)
         [obj.setChannel(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def ctrl(self, map_list=None, title=None, wxnoserver=False):
+        self._map_list = [SLMap(0, 16, 'lin', 'channel', self._channel, res="int", dataOnly=True)]
+        PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
     def channel(self):
