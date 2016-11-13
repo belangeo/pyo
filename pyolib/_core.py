@@ -1055,7 +1055,9 @@ class PyoObject(PyoObjectBase):
             port : float, optional
                 Time, in seconds, to reach the new value.
             callback : callable, optional
-                A python function to be called at the end of the ramp.
+                A python function to be called at the end of the ramp. If the
+                end of the ramp is not reached (ex.: called again before the
+                end of the portamento), the callback will not be called. 
 
         """
         pyoArgsAssert(self, "SnnC", attr, value, port, callback)
