@@ -1143,7 +1143,7 @@ class MidiAdsr(PyoObject):
 
     def setExp(self, x):
         """
-        Sets an exponent factor to create exponential or logarithmic envelope.
+        Sets an exponent factor to create exponential or logarithmic envelopes.
 
         The default value is 1.0, which means linear segments. A value
         higher than 1.0 will produce exponential segments while a value
@@ -1159,6 +1159,15 @@ class MidiAdsr(PyoObject):
         self._exp = x
         x, lmax = convertArgsToLists(x)
         [obj.setExp(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def ctrl(self, map_list=None, title=None, wxnoserver=False):
+        self._map_list = [SLMap(0.0, 1.0, 'lin', 'attack', self._attack, dataOnly=True),
+                          SLMap(0.0, 1.0, 'lin', 'decay', self._decay, dataOnly=True),
+                          SLMap(0.0, 1.0, 'lin', 'sustain', self._sustain, dataOnly=True),
+                          SLMap(0.0, 1.0, 'lin', 'release', self._release, dataOnly=True),
+                          SLMap(0.1, 10.0, 'log', 'exp', self._exp, dataOnly=True),
+                         ]
+        PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
     def attack(self):
@@ -1369,6 +1378,16 @@ class MidiDelAdsr(PyoObject):
         self._exp = x
         x, lmax = convertArgsToLists(x)
         [obj.setExp(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def ctrl(self, map_list=None, title=None, wxnoserver=False):
+        self._map_list = [SLMap(0.0, 1.0, 'lin', 'delay', self._delay, dataOnly=True),
+                          SLMap(0.0, 1.0, 'lin', 'attack', self._attack, dataOnly=True),
+                          SLMap(0.0, 1.0, 'lin', 'decay', self._decay, dataOnly=True),
+                          SLMap(0.0, 1.0, 'lin', 'sustain', self._sustain, dataOnly=True),
+                          SLMap(0.0, 1.0, 'lin', 'release', self._release, dataOnly=True),
+                          SLMap(0.1, 10.0, 'log', 'exp', self._exp, dataOnly=True),
+                         ]
+        PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
     def delay(self):
