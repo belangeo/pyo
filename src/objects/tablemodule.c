@@ -4525,6 +4525,8 @@ typedef struct {
 
 void NewTable_resetRecordingPointer(NewTable *self) { self->pointer = 0; }
 
+MYFLT NewTable_getFeedback(NewTable *self) { return self->feedback; }
+
 static PyObject *
 NewTable_recordChunk(NewTable *self, MYFLT *data, int datasize)
 {
@@ -5882,7 +5884,13 @@ static PyObject * TableRec_play(TableRec *self, PyObject *args, PyObject *kwds)
     PLAY
 };
 
-static PyObject * TableRec_stop(TableRec *self) { STOP };
+static PyObject * TableRec_stop(TableRec *self) { 
+    int j;
+    for (j=0; j<self->bufsize; j++) {
+        self->time_buffer_streams[j] = self->pointer;
+    }
+    STOP 
+};
 
 static PyObject *
 TableRec_setTable(TableRec *self, PyObject *arg)
@@ -7210,32 +7218,48 @@ typedef struct {
     Stream *pos_stream;
     NewTable *table;
     int mode;
+    int lastPos;
+    MYFLT lastValue;
 } TableWrite;
 
 static void
 TableWrite_compute_next_data_frame(TableWrite *self)
 {
-    int i, ipos;
+    int i, j, ipos;
     PyObject *table;
 
     table = PyObject_CallMethod((PyObject *)self->table, "getTableStream", "");
+    MYFLT feed = NewTable_getFeedback((NewTable *)self->table);
     MYFLT *tablelist = TableStream_getData((TableStream *)table);
     int size = TableStream_getSize((TableStream *)table);
 
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
     MYFLT *pos = Stream_getData((Stream *)self->pos_stream);
 
-    if (self->mode == 0) {
-        for (i=0; i<self->bufsize; i++) {
+    for (i=0; i<self->bufsize; i++) {
+        if (self->mode == 0)
             ipos = (int)(pos[i] * size + 0.5);
-            if (ipos >= 0 && ipos < size)
-                tablelist[ipos] = in[i];
-        }
-    } else {
-        for (i=0; i<self->bufsize; i++) {
-            ipos = (int)(pos[i]);
-            if (ipos >= 0 && ipos < size)
-                tablelist[ipos] = in[i];
+        else
+            ipos = (int)(pos[i] + 0.5);
+        if (ipos >= 0 && ipos < size) {
+            if (self->lastPos < 0) {
+                tablelist[ipos] = in[i] + tablelist[ipos] * feed;
+            }
+            else { /* need to handle slow pointer where samples accumulate on a single pos. */
+                int steps = ipos > self->lastPos ? ipos - self->lastPos : self->lastPos - ipos; /* and reverse ? */
+                if (steps < 2) {
+                    tablelist[ipos] = in[i] + tablelist[ipos] * feed;
+                }
+                else {
+                    MYFLT inc = (in[i] - self->lastValue) / steps;
+                    for (j=1; j<=steps; j++) {
+                        MYFLT val = self->lastValue + inc * j;
+                        tablelist[self->lastPos+j] = val + tablelist[self->lastPos+j] * feed;
+                    }
+                }
+            }
+            self->lastPos = ipos;
+            self->lastValue = in[i];
         }
     }
 }
@@ -7281,6 +7305,8 @@ TableWrite_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self = (TableWrite *)type->tp_alloc(type, 0);
 
     self->mode = 0;
+    self->lastPos = -1;
+    self->lastValue = 0.0;
 
     INIT_OBJECT_COMMON
 
