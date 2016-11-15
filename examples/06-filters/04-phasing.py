@@ -24,7 +24,7 @@ s = Server().boot()
 fade = Fader(fadein=.5, mul=.2).play()
 
 # Noisy source.
-a = Noise(fade)
+a = PinkNoise(fade)
 
 # These LFOs modulate the `freq`, `spread` and `q` arguments of
 # the Phaser object. We give a list of two frequencies in order

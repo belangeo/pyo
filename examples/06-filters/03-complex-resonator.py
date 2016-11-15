@@ -4,8 +4,7 @@
 ComplexRes implements a resonator derived from a complex
 multiplication, which is very similar to a digital filter.
 
-It is used here to create a rhythmic chime with varying
-resonance.
+It is used here to create a rhythmic chime with varying resonance.
 
 """
 from pyo import *

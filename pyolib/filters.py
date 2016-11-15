@@ -999,8 +999,8 @@ class Port(PyoObject):
         [obj.setFallTime(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [SLMap(0.001, 10., 'lin', 'risetime', self._risetime),
-                          SLMap(0.001, 10., 'lin', 'falltime', self._falltime)]
+        self._map_list = [SLMap(0.001, 10., 'log', 'risetime', self._risetime),
+                          SLMap(0.001, 10., 'log', 'falltime', self._falltime)]
         PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property

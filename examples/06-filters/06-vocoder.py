@@ -5,7 +5,7 @@ A vocoder is an analysis/resynthesis process that
 uses the spectral envelope of a first sound to shape
 the spectrum of a second sound. Usually (for the best
 results) the first sound should present a dynamic
-spectrum (both frequencies and amplitudes) and the
+spectrum (for both frequencies and amplitudes) and the
 second sound should contain a rich and stable spectrum.
 
 In this example, LFOs are applied to every dynamic argument
@@ -30,6 +30,6 @@ lf2 = Sine(freq=0.11, phase=random()).range(1.05, 1.5)
 lf3 = Sine(freq=0.07, phase=random()).range(1, 20)
 lf4 = Sine(freq=0.06, phase=random()).range(0.01, 0.99)
 
-voc = Vocoder(spktrm, excite, freq=lf1, spread=lf2, q=lf3, slope=lf4, stages=24).out()
+voc = Vocoder(spktrm, excite, freq=lf1, spread=lf2, q=lf3, slope=lf4, stages=32).out()
 
 s.gui(locals())

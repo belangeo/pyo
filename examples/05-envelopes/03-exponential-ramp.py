@@ -25,8 +25,7 @@ pp = Print(pick, method=1, message="Frequency")
 # Sharp attack for rising notes and long release for falling notes.
 freq = Port(pick, risetime=0.001, falltime=0.25, mul=[1, 1.005])
 # Play with portamento times.
-freq.ctrl([SLMap(0.001, 0.25, "lin", "risetime", 0.001),
-           SLMap(0.001, 0.25, "lin", "falltime", 0.25)])
+freq.ctrl()
 
 # Play a simple wave.
 sig = RCOsc(freq, sharp=0.7, mul=amp).out()

@@ -19,21 +19,22 @@ circular convolution with predefined kernel:
 For general circular convolution, use the Convolve object
 with a PyoTableObject as the kernel, as in this example:
 
-A white noise is filtered by four impulses taken from the
-input mic. Call r1.play(), r2.play(), r3.play() or r4.play()
-in the Interpreter field while making some noise in the mic
-to fill the impulse response tables. The slider handles the
-morphing between the four kernels.
+A white noise is filtered by four impulses taken from the input mic. 
 
-Call t1.view(), t2.view(), t3.view() or t4.view() to view
-impulse response tables.
+Call r1.play(), r2.play(), r3.play() or r4.play() in the Interpreter 
+field while making some noise in the mic to fill the impulse response 
+tables. The slider handles the morphing between the four kernels.
 
-Because circular convolution is very expensive, TLEN (in
-samples) should be keep small.
+Call t1.view(), t2.view(), t3.view() or t4.view() to view impulse 
+response tables.
+
+Because circular convolution is very expensive, TLEN (in samples) 
+should be keep small.
 
 """
 from pyo import *
 
+# duplex=1 to tell the Server we need both input and output sounds.
 s = Server(duplex=1).boot()
 
 # Length of the impulse response in samples.

@@ -2,7 +2,7 @@
 07-hilbert-transform.py - Barberpole-like phasing effect.
 
 This example uses two frequency shifters (based on complex
-modulation) linearly shift the frequency content of a sound
+modulation) linearly shifting the frequency content of a sound.
 
 Frequency shifting is similar to ring modulation, except the
 upper and lower sidebands are separated into individual outputs.
