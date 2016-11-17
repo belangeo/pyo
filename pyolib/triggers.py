@@ -1892,6 +1892,13 @@ class TrigXnoise(PyoObject):
         x, lmax = convertArgsToLists(x)
         [obj.setX2(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
+    def ctrl(self, map_list=None, title=None, wxnoserver=False):
+        self._map_list = [SLMap(0, 12, "lin", "dist", self._dist, res="int", dataOnly=True),
+                          SLMap(0.01, 10.0, "log", "x1", self._x1, dataOnly=True),
+                          SLMap(0.01, 10.0, "log", "x2", self._x2, dataOnly=True),
+                          SLMapMul(self._mul)]
+        PyoObject.ctrl(self, map_list, title, wxnoserver)
+
     @property
     def input(self):
         """PyoObject. Audio trigger signal."""
@@ -2137,6 +2144,13 @@ class TrigXnoiseMidi(PyoObject):
         self._x2 = x
         x, lmax = convertArgsToLists(x)
         [obj.setX2(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def ctrl(self, map_list=None, title=None, wxnoserver=False):
+        self._map_list = [SLMap(0, 12, "lin", "dist", self._dist, res="int", dataOnly=True),
+                          SLMap(0.01, 10.0, "log", "x1", self._x1, dataOnly=True),
+                          SLMap(0.01, 10.0, "log", "x2", self._x2, dataOnly=True),
+                          SLMapMul(self._mul)]
+        PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
     def input(self):
