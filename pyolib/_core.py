@@ -497,6 +497,11 @@ class PyoObjectBase(object):
         """
         return self._base_objs[0].getServer().getBufferSize()
 
+    def __iter__(self):
+        for i in range(len(self)):
+            yield self[i]
+        raise StopIteration
+
     def __getitem__(self, i):
         if i == 'trig': # not safe...
             return self._trig_objs
