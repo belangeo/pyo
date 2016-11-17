@@ -400,7 +400,7 @@ class Adsr(PyoObject):
 
 class Linseg(PyoObject):
     """
-    Trace a series of line segments between specified break-points.
+    Draw a series of line segments between specified break-points.
 
     The play() method starts the envelope and is not called at the
     object creation time.
@@ -560,7 +560,7 @@ class Linseg(PyoObject):
 
 class Expseg(PyoObject):
     """
-    Trace a series of exponential segments between specified break-points.
+    Draw a series of exponential segments between specified break-points.
 
     The play() method starts the envelope and is not called at the
     object creation time.

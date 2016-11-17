@@ -2700,21 +2700,21 @@ Xnoise_poisson(Xnoise *self) {
 // x1 = max value, x2 = max step
 static MYFLT
 Xnoise_walker(Xnoise *self) {
-    int modulo, dir;
+    unsigned int modulo, dir;
 
     if (self->xx2 < 0.002) self->xx2 = 0.002;
 
-    modulo = (int)(self->xx2 * 1000.0);
-    dir = pyorand() % 2;
+    modulo = (unsigned int)(self->xx2 * 1000.0);
+    dir = pyorand() % 100;
 
-    if (dir == 0)
-        self->walkerValue = self->walkerValue + (((pyorand() % modulo) - (modulo / 2)) * 0.001);
+    if (dir < 50)
+        self->walkerValue += ((MYFLT)(pyorand() % modulo) * 0.001);
     else
-        self->walkerValue = self->walkerValue - (((pyorand() % modulo) - (modulo / 2)) * 0.001);
+        self->walkerValue -= ((MYFLT)(pyorand() % modulo) * 0.001);
 
     if (self->walkerValue > self->xx1)
         self->walkerValue = self->xx1;
-    if (self->walkerValue < 0.0)
+    else if (self->walkerValue < 0.0)
         self->walkerValue = 0.0;
 
     return self->walkerValue;
@@ -2723,7 +2723,7 @@ Xnoise_walker(Xnoise *self) {
 // x1 = max value, x2 = max step
 static MYFLT
 Xnoise_loopseg(Xnoise *self) {
-    int modulo, dir;
+    unsigned int modulo, dir;
 
     if (self->loopChoice == 0) {
 
@@ -2731,17 +2731,17 @@ Xnoise_loopseg(Xnoise *self) {
 
         if (self->xx2 < 0.002) self->xx2 = 0.002;
 
-        modulo = (int)(self->xx2 * 1000.0);
-        dir = pyorand() % 2;
+        modulo = (unsigned int)(self->xx2 * 1000.0);
+        dir = pyorand() % 100;
 
-        if (dir == 0)
-            self->walkerValue = self->walkerValue + (((pyorand() % modulo) - (modulo / 2)) * 0.001);
+        if (dir < 50)
+            self->walkerValue += ((MYFLT)(pyorand() % modulo) * 0.001);
         else
-            self->walkerValue = self->walkerValue - (((pyorand() % modulo) - (modulo / 2)) * 0.001);
+            self->walkerValue -= ((MYFLT)(pyorand() % modulo) * 0.001);
 
         if (self->walkerValue > self->xx1)
             self->walkerValue = self->xx1;
-        if (self->walkerValue < 0.0)
+        else if (self->walkerValue < 0.0)
             self->walkerValue = 0.0;
 
         self->loop_buffer[self->loopCountRec++] = self->walkerValue;
@@ -3631,21 +3631,21 @@ XnoiseMidi_poisson(XnoiseMidi *self) {
 // x1 = max value, x2 = max step
 static MYFLT
 XnoiseMidi_walker(XnoiseMidi *self) {
-    int modulo, dir;
+    unsigned int modulo, dir;
 
     if (self->xx2 < 0.002) self->xx2 = 0.002;
 
-    modulo = (int)(self->xx2 * 1000.0);
-    dir = pyorand() % 2;
+    modulo = (unsigned int)(self->xx2 * 1000.0);
+    dir = pyorand() % 100;
 
-    if (dir == 0)
-        self->walkerValue = self->walkerValue + (((pyorand() % modulo) - (modulo / 2)) * 0.001);
+    if (dir < 50)
+        self->walkerValue += ((MYFLT)(pyorand() % modulo) * 0.001);
     else
-        self->walkerValue = self->walkerValue - (((pyorand() % modulo) - (modulo / 2)) * 0.001);
+        self->walkerValue -= ((MYFLT)(pyorand() % modulo) * 0.001);
 
     if (self->walkerValue > self->xx1)
         self->walkerValue = self->xx1;
-    if (self->walkerValue < 0.0)
+    else if (self->walkerValue < 0.0)
         self->walkerValue = 0.0;
 
     return self->walkerValue;
@@ -3654,7 +3654,7 @@ XnoiseMidi_walker(XnoiseMidi *self) {
 // x1 = max value, x2 = max step
 static MYFLT
 XnoiseMidi_loopseg(XnoiseMidi *self) {
-    int modulo, dir;
+    unsigned int modulo, dir;
 
     if (self->loopChoice == 0) {
 
@@ -3662,17 +3662,17 @@ XnoiseMidi_loopseg(XnoiseMidi *self) {
 
         if (self->xx2 < 0.002) self->xx2 = 0.002;
 
-        modulo = (int)(self->xx2 * 1000.0);
-        dir = pyorand() % 2;
+        modulo = (unsigned int)(self->xx2 * 1000.0);
+        dir = pyorand() % 100;
 
-        if (dir == 0)
-            self->walkerValue = self->walkerValue + (((pyorand() % modulo) - (modulo / 2)) * 0.001);
+        if (dir < 50)
+            self->walkerValue += ((MYFLT)(pyorand() % modulo) * 0.001);
         else
-            self->walkerValue = self->walkerValue - (((pyorand() % modulo) - (modulo / 2)) * 0.001);
+            self->walkerValue -= ((MYFLT)(pyorand() % modulo) * 0.001);
 
         if (self->walkerValue > self->xx1)
             self->walkerValue = self->xx1;
-        if (self->walkerValue < 0.0)
+        else if (self->walkerValue < 0.0)
             self->walkerValue = 0.0;
 
         self->loop_buffer[self->loopCountRec++] = self->walkerValue;
@@ -4596,21 +4596,21 @@ XnoiseDur_poisson(XnoiseDur *self) {
 // x1 = max value, x2 = max step
 static MYFLT
 XnoiseDur_walker(XnoiseDur *self) {
-    int modulo, dir;
+    unsigned int modulo, dir;
 
     if (self->xx2 < 0.002) self->xx2 = 0.002;
 
-    modulo = (int)(self->xx2 * 1000.0);
-    dir = pyorand() % 2;
+    modulo = (unsigned int)(self->xx2 * 1000.0);
+    dir = pyorand() % 100;
 
-    if (dir == 0)
-        self->walkerValue = self->walkerValue + (((pyorand() % modulo) - (modulo / 2)) * 0.001);
+    if (dir < 50)
+        self->walkerValue += ((MYFLT)(pyorand() % modulo) * 0.001);
     else
-        self->walkerValue = self->walkerValue - (((pyorand() % modulo) - (modulo / 2)) * 0.001);
+        self->walkerValue -= ((MYFLT)(pyorand() % modulo) * 0.001);
 
     if (self->walkerValue > self->xx1)
         self->walkerValue = self->xx1;
-    if (self->walkerValue < 0.0)
+    else if (self->walkerValue < 0.0)
         self->walkerValue = 0.0;
 
     return self->walkerValue;
@@ -4619,7 +4619,7 @@ XnoiseDur_walker(XnoiseDur *self) {
 // x1 = max value, x2 = max step
 static MYFLT
 XnoiseDur_loopseg(XnoiseDur *self) {
-    int modulo, dir;
+    unsigned int modulo, dir;
 
     if (self->loopChoice == 0) {
 
@@ -4627,17 +4627,17 @@ XnoiseDur_loopseg(XnoiseDur *self) {
 
         if (self->xx2 < 0.002) self->xx2 = 0.002;
 
-        modulo = (int)(self->xx2 * 1000.0);
-        dir = pyorand() % 2;
+        modulo = (unsigned int)(self->xx2 * 1000.0);
+        dir = pyorand() % 100;
 
-        if (dir == 0)
-            self->walkerValue = self->walkerValue + (((pyorand() % modulo) - (modulo / 2)) * 0.001);
+        if (dir < 50)
+            self->walkerValue += ((MYFLT)(pyorand() % modulo) * 0.001);
         else
-            self->walkerValue = self->walkerValue - (((pyorand() % modulo) - (modulo / 2)) * 0.001);
+            self->walkerValue -= ((MYFLT)(pyorand() % modulo) * 0.001);
 
         if (self->walkerValue > self->xx1)
             self->walkerValue = self->xx1;
-        if (self->walkerValue < 0.0)
+        else if (self->walkerValue < 0.0)
             self->walkerValue = 0.0;
 
         self->loop_buffer[self->loopCountRec++] = self->walkerValue;
