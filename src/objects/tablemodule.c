@@ -7220,6 +7220,9 @@ typedef struct {
     int mode;
     int lastPos;
     MYFLT lastValue;
+    int count;
+    MYFLT accum;
+    MYFLT valInTable;
 } TableWrite;
 
 static void
@@ -7242,19 +7245,38 @@ TableWrite_compute_next_data_frame(TableWrite *self)
         else
             ipos = (int)(pos[i] + 0.5);
         if (ipos >= 0 && ipos < size) {
-            if (self->lastPos < 0) {
+            if (self->lastPos < 0) { /* Init case. */
+                self->valInTable = tablelist[ipos];
+                self->count = 1;
+                self->accum = in[i];
                 tablelist[ipos] = in[i] + tablelist[ipos] * feed;
             }
-            else { /* need to handle slow pointer where samples accumulate on a single pos. */
-                int steps = ipos > self->lastPos ? ipos - self->lastPos : self->lastPos - ipos; /* and reverse ? */
-                if (steps < 2) {
+            else if (ipos == self->lastPos) { /* Same position, average inputs. */
+                self->count += 1;
+                self->accum += in[i];
+                tablelist[ipos] = self->accum / self->count + self->valInTable * feed;
+            }
+            else { /* Position changed. */
+                int steps, dir;
+                if (ipos > self->lastPos) { /* Move forward. */
+                    steps = ipos - self->lastPos;
+                    dir = 1;
+                }
+                else { /* Move backward. */
+                    steps = self->lastPos - ipos;
+                    dir = -1;
+                }
+                self->valInTable = tablelist[ipos];
+                self->count = 1;
+                self->accum = in[i];
+                if (steps < 2) { /* Moved one sample, no need to interpolate. */
                     tablelist[ipos] = in[i] + tablelist[ipos] * feed;
                 }
-                else {
+                else { /* Interpolate between last pos and current pos. */
                     MYFLT inc = (in[i] - self->lastValue) / steps;
                     for (j=1; j<=steps; j++) {
                         MYFLT val = self->lastValue + inc * j;
-                        tablelist[self->lastPos+j] = val + tablelist[self->lastPos+j] * feed;
+                        tablelist[self->lastPos+j*dir] = val + tablelist[self->lastPos+j*dir] * feed;
                     }
                 }
             }
@@ -7307,6 +7329,9 @@ TableWrite_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->mode = 0;
     self->lastPos = -1;
     self->lastValue = 0.0;
+    self->count = 0;
+    self->accum = 0.0;
+    self->valInTable = 0.0;
 
     INIT_OBJECT_COMMON
 
