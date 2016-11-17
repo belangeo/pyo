@@ -1913,6 +1913,7 @@ class Grapher(wx.Panel):
             self.dcref = wx.PaintDC
 
         self.SetFocus()
+        wx.CallAfter(self.sendValues)
 
     def setInitPoints(self, pts):
         self.init = [(p[0],p[1]) for p in pts]
