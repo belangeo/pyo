@@ -128,7 +128,7 @@ class ControlSlider(wx.Panel):
         self.Bind(wx.EVT_KEY_DOWN, self.keyDown)
         self.Bind(wx.EVT_KILL_FOCUS, self.LooseFocus)
 
-        if sys.platform == "win32":
+        if sys.platform in ["win32", "linux2"]:
             self.dcref = wx.BufferedPaintDC
         else:
             self.dcref = wx.PaintDC
@@ -1011,7 +1011,7 @@ class ViewTablePanel(wx.Panel):
         self.samples = []
         self.Bind(wx.EVT_PAINT, self.OnPaint)
         self.Bind(wx.EVT_SIZE, self.OnSize)
-        if sys.platform == "win32":
+        if sys.platform in ["win32", "linux2"]:
             self.dcref = wx.BufferedPaintDC
         else:
             self.dcref = wx.PaintDC
@@ -1102,7 +1102,7 @@ class SndViewTablePanel(wx.Panel):
         self.img = [[]]
         self.mouse_callback = mouse_callback
         self.select_callback = select_callback
-        if sys.platform == "win32":
+        if sys.platform in ["win32", "linux2"]:
             self.dcref = wx.BufferedPaintDC
         else:
             self.dcref = wx.PaintDC
@@ -1534,7 +1534,7 @@ class SpectrumPanel(wx.Panel):
         self.brushes = [wx.Brush(wx.Colour(166,4,0,128)), wx.Brush(wx.Colour(8,11,116,128)), wx.Brush(wx.Colour(0,204,0,128)),
                         wx.Brush(wx.Colour(255,167,0,128)), wx.Brush(wx.Colour(133,0,75,128)), wx.Brush(wx.Colour(255,236,0,128)),
                         wx.Brush(wx.Colour(1,147,154,128)), wx.Brush(wx.Colour(162,239,0,128))]
-        if sys.platform == "win32":
+        if sys.platform in ["win32", "linux2"]:
             self.dcref = wx.BufferedPaintDC
         else:
             self.dcref = wx.PaintDC
@@ -1792,7 +1792,7 @@ class ScopePanel(wx.Panel):
                     wx.Pen(wx.Colour(255,167,0), width=2), wx.Pen(wx.Colour(133,0,75), width=2), wx.Pen(wx.Colour(255,236,0), width=2),
                     wx.Pen(wx.Colour(1,147,154), width=2), wx.Pen(wx.Colour(162,239,0), width=2)]
 
-        if sys.platform == "win32":
+        if sys.platform in ["win32", "linux2"]:
             self.dcref = wx.BufferedPaintDC
         else:
             self.dcref = wx.PaintDC
@@ -1907,7 +1907,7 @@ class Grapher(wx.Panel):
         self.points = [tup for tup in init]
         self.outFunction = outFunction
 
-        if sys.platform == "win32":
+        if sys.platform in ["win32", "linux2"]:
             self.dcref = wx.BufferedPaintDC
         else:
             self.dcref = wx.PaintDC
@@ -2421,7 +2421,8 @@ class DataMultiSlider(wx.Panel):
         self.len = len(self.values)
         self.yrange = (float(yrange[0]), float(yrange[1]))
         self.outFunction = outFunction
-        if sys.platform == "win32":
+
+        if sys.platform in ["win32", "linux2"]:
             self.dcref = wx.BufferedPaintDC
         else:
             self.dcref = wx.PaintDC

@@ -8,7 +8,8 @@ from pyo import *
 
 NCHNLS = 2
 
-server = Server(nchnls=NCHNLS).boot().start()
+server = Server(nchnls=NCHNLS).boot()
+server.start()
 
 ### A basic audio process ###
 snd = SndTable([SNDS_PATH+"/transparent.aif"]*NCHNLS)
