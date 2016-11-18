@@ -1,5 +1,5 @@
 """
-03-simple-envelopes.py - ASR and ADSR envelopes.
+04-simple-envelopes.py - ASR and ADSR envelopes.
 
 The Fader object is a simple way to setup an Attack/Sustain/Release envelope.
 This envelope allows to apply fadein and fadeout on audio streams.
@@ -22,18 +22,23 @@ s = Server().boot()
 globalamp = Fader(fadein=2, fadeout=2, dur=0).play()
 
 # Envelope for discrete events, sharp attack, long release.
-env = Adsr(attack=0.01, decay=0.1, sustain=0.5, release=1.5, dur=2, mul=0.3)
+env = Adsr(attack=0.01, decay=0.1, sustain=0.5, release=1.5, dur=2, mul=0.5)
 # setExp method can be used to create exponential or logarithmic envelope.
-env.setExp(0.5)
+env.setExp(0.75)
 
 # Initialize  a simple wave player and apply both envelopes.
-sig = RCOsc([100,100], sharp=0.7, mul=globalamp*env).out()
+sig = SuperSaw(freq=[100,101], detune=0.6, bal=0.8, mul=globalamp*env).out()
 
 def play_note():
-    "Play a new note with random frequency."
-    freq = random.choice([200,250,300,350,400,450,500])
+    "Play a new note with random frequency and jitterized envelope."
+    freq = random.choice(midiToHz([36, 38, 41, 43, 45]))
     sig.freq = [freq, freq*1.005]
-    env.play() # Start the envelope for the event.
+    env.attack = random.uniform(0.002, 0.01)
+    env.decay = random.uniform(0.1, 0.5)
+    env.sustain = random.uniform(0.3, 0.6)
+    env.release = random.uniform(0.8, 1.4)
+    # Start the envelope for the event.
+    env.play()
 
 # Periodically call a function.
 pat = Pattern(play_note, time=2).play()
