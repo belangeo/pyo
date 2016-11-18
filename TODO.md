@@ -29,6 +29,13 @@ Examples
 - A section about building fx and synth classes.
 
 
+MIDI
+----
+
+- Create a MidiLinseg object that act like MidiAdsr but with a breakpoints
+  function as the envelope. The sustain point should settable by the user.
+
+
 GUI
 ---
 
