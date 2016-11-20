@@ -20,7 +20,10 @@ You should have received a copy of the GNU Lesser General Public
 License along with pyo.  If not, see <http://www.gnu.org/licenses/>.
 """
 import math, sys, os
-from six.moves.tkinter import *
+if sys.version_info[0] < 3:
+    from Tkinter import *
+else:
+    from tkinter import *
 
 try:
     from PIL import Image, ImageDraw, ImageTk

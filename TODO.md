@@ -39,6 +39,11 @@ MIDI
 GUI
 ---
 
+- Implement all GUI components with Tkinter and make it the default GUI
+  toolkit (instead of wxpython). WxPython classes could be removed from
+  pyo sources and built as an optional extra package (pyo-wxgui). The idea
+  is to remove an extra dependency, as tk is generally builtin with python.
+
 - MixerGUI, an interface to control the routing of a Mixer object.
 
 

@@ -28,33 +28,43 @@ try:
 except:
     WITH_PIL = False
 
-try:
-    try:
-        import wxversion
-        if (wxversion.checkInstalled("2.8")):
-            wxversion.ensureMinimal("2.8")
-    except:
-        pass
-    import wx
-    from ._wxwidgets import *
-    PYO_USE_WX = True
-except:
-    PYO_USE_WX = False
+use_wx = 1
+if "PYO_GUI_WX" in os.environ:
+    use_wx = int(os.environ["PYO_GUI_WX"])
 
-PYO_USE_TK = False
-if not PYO_USE_WX:
+if use_wx:
     try:
-        from six.moves.tkinter import *
-        from ._tkwidgets import *
-        PYO_USE_TK = True
+        try:
+            import wxversion
+            if (wxversion.checkInstalled("2.8")):
+                wxversion.ensureMinimal("2.8")
+        except:
+            pass
+        import wx
+        from ._wxwidgets import *
+        PYO_USE_WX = True
+    except:
+        PYO_USE_WX = False
         print("""
 WxPython is not found for the current python version.
-Pyo will use a minimal GUI toolkit written with Tkinter.
+Pyo will use a minimal GUI toolkit written with Tkinter (if available).
 This toolkit has limited functionnalities and is no more
 maintained or updated. If you want to use all of pyo's
 GUI features, you should install WxPython, available here:
 http://www.wxpython.org/
 """)
+else:
+    PYO_USE_WX = False
+
+PYO_USE_TK = False
+if not PYO_USE_WX:
+    try:
+        if sys.version_info[0] < 3:
+            from Tkinter import *
+        else:
+            from tkinter import *
+        from ._tkwidgets import *
+        PYO_USE_TK = True
     except:
         PYO_USE_TK = False
         print("""
