@@ -574,6 +574,22 @@ static PyObject * WGVerb_div(WGVerb *self, PyObject *arg) { DIV };
 static PyObject * WGVerb_inplace_div(WGVerb *self, PyObject *arg) { INPLACE_DIV };
 
 static PyObject *
+WGVerb_reset(WGVerb *self)
+{
+    int i, j;
+    for (i=0; i<8; i++) {
+        self->in_count[i] = 0;
+        self->lastSamples[i] = 0.0;
+        for (j=0; j<(self->size[i]+1); j++) {
+            self->buffer[i][j] = 0.;
+        }
+    }
+    self->total_signal = 0.0;
+
+	Py_RETURN_NONE;
+}
+
+static PyObject *
 WGVerb_setFeedback(WGVerb *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
@@ -684,6 +700,7 @@ static PyMethodDef WGVerb_methods[] = {
 {"play", (PyCFunction)WGVerb_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
 {"out", (PyCFunction)WGVerb_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
 {"stop", (PyCFunction)WGVerb_stop, METH_NOARGS, "Stops computing."},
+{"reset", (PyCFunction)WGVerb_reset, METH_NOARGS, "Reset the delay line."},
 {"setFeedback", (PyCFunction)WGVerb_setFeedback, METH_O, "Sets feedback value between 0 -> 1."},
 {"setCutoff", (PyCFunction)WGVerb_setCutoff, METH_O, "Sets lowpass filter cutoff."},
 {"setMix", (PyCFunction)WGVerb_setMix, METH_O, "Sets balance between dry and wet signals."},
@@ -1566,6 +1583,42 @@ static PyObject * STReverb_play(STReverb *self, PyObject *args, PyObject *kwds) 
 static PyObject * STReverb_stop(STReverb *self) { STOP };
 
 static PyObject *
+STReverb_reset(STReverb *self)
+{
+    int i, j, k, maxsize;
+    
+    for (k=0; k<2; k++) {
+        for (i=0; i<8; i++) {
+            self->in_count[k][i] = 0;
+            self->lastSamples[k][i] = 0.0;
+            for (j=0; j<self->size[k][i]; j++) {
+                self->buffer[k][i][j] = 0.;
+            }
+        }
+    }
+    for (k=0; k<NUM_REFS; k++) {
+        self->ref_in_count[k] = 0;
+        maxsize = (int)(first_ref_delays[k] * self->srfac * 4.0 + 0.5);
+        for (i=0; i<(maxsize+1); i++) {
+            self->ref_buffer[k][i] = 0.0;
+        }
+    }
+    for (k=0; k<2; k++) {
+        for (i=0; i<self->bufsize; i++) {
+            self->input_buffer[k][i] = 0.0;
+        }
+    }
+
+    for (i=0; i<(2 * self->bufsize); i++) {
+        self->buffer_streams[i] = 0.0;
+    }
+
+    self->total_signal[0] = self->total_signal[1] = 0.0;
+
+	Py_RETURN_NONE;
+}
+
+static PyObject *
 STReverb_setInpos(STReverb *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
@@ -1774,6 +1827,7 @@ static PyMethodDef STReverb_methods[] = {
 {"_getStream", (PyCFunction)STReverb_getStream, METH_NOARGS, "Returns stream object."},
 {"play", (PyCFunction)STReverb_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
 {"stop", (PyCFunction)STReverb_stop, METH_NOARGS, "Stops computing."},
+{"reset", (PyCFunction)STReverb_reset, METH_NOARGS, "Reset the delay line."},
 {"setInpos", (PyCFunction)STReverb_setInpos, METH_O, "Sets position of the source between 0 -> 1."},
 {"setRevtime", (PyCFunction)STReverb_setRevtime, METH_O, "Sets reverb duration in seconds."},
 {"setCutoff", (PyCFunction)STReverb_setCutoff, METH_O, "Sets lowpass filter cutoff."},

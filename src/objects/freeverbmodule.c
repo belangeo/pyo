@@ -685,14 +685,14 @@ Freeverb_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
             self->comb_buf[i][j] = 0.0;
         }
     }
-        for(i=0; i<NUM_ALLPASS; i++) {
-            nsamps = Freeverb_calc_nsamples((Freeverb *)self, allpass_delays[i] + rndSamps);
-            self->allpass_buf[i] = (MYFLT *)realloc(self->allpass_buf[i], (nsamps+1) * sizeof(MYFLT));
-            self->allpass_nSamples[i] = nsamps;
-            self->allpass_bufPos[i] = 0;
-            for(j=0; j<nsamps; j++) {
-                self->allpass_buf[i][j] = 0.0;
-            }
+    for(i=0; i<NUM_ALLPASS; i++) {
+        nsamps = Freeverb_calc_nsamples((Freeverb *)self, allpass_delays[i] + rndSamps);
+        self->allpass_buf[i] = (MYFLT *)realloc(self->allpass_buf[i], (nsamps+1) * sizeof(MYFLT));
+        self->allpass_nSamples[i] = nsamps;
+        self->allpass_bufPos[i] = 0;
+        for(j=0; j<nsamps; j++) {
+            self->allpass_buf[i][j] = 0.0;
+        }
     }
 
     return (PyObject *)self;
@@ -717,6 +717,26 @@ static PyObject * Freeverb_sub(Freeverb *self, PyObject *arg) { SUB };
 static PyObject * Freeverb_inplace_sub(Freeverb *self, PyObject *arg) { INPLACE_SUB };
 static PyObject * Freeverb_div(Freeverb *self, PyObject *arg) { DIV };
 static PyObject * Freeverb_inplace_div(Freeverb *self, PyObject *arg) { INPLACE_DIV };
+
+static PyObject *
+Freeverb_reset(Freeverb *self)
+{
+    int i, j;
+    for(i=0; i<NUM_COMB; i++) {
+        self->comb_bufPos[i] = 0;
+        self->comb_filterState[i] = 0.0;
+        for(j=0; j<self->comb_nSamples[i]; j++) {
+            self->comb_buf[i][j] = 0.0;
+        }
+    }
+    for(i=0; i<NUM_ALLPASS; i++) {
+        self->allpass_bufPos[i] = 0;
+        for(j=0; j<self->allpass_nSamples[i]; j++) {
+            self->allpass_buf[i][j] = 0.0;
+        }
+    }
+	Py_RETURN_NONE;
+}
 
 static PyObject *
 Freeverb_setSize(Freeverb *self, PyObject *arg)
@@ -828,6 +848,7 @@ static PyMethodDef Freeverb_methods[] = {
     {"play", (PyCFunction)Freeverb_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)Freeverb_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
     {"stop", (PyCFunction)Freeverb_stop, METH_NOARGS, "Stops computing."},
+    {"reset", (PyCFunction)Freeverb_reset, METH_NOARGS, "Reset the delay lines."},
 	{"setSize", (PyCFunction)Freeverb_setSize, METH_O, "Sets distortion size factor (0 -> 1)."},
     {"setDamp", (PyCFunction)Freeverb_setDamp, METH_O, "Sets lowpass filter damp factor."},
     {"setMix", (PyCFunction)Freeverb_setMix, METH_O, "Sets the mix factor."},

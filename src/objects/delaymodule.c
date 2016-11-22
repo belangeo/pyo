@@ -1524,6 +1524,24 @@ static PyObject * Waveguide_div(Waveguide *self, PyObject *arg) { DIV };
 static PyObject * Waveguide_inplace_div(Waveguide *self, PyObject *arg) { INPLACE_DIV };
 
 static PyObject *
+Waveguide_reset(Waveguide *self)
+{
+    int i;
+
+    for (i=0; i<(self->size+1); i++) {
+        self->buffer[i] = 0.;
+    }
+    for(i=0; i<4; i++) {
+        self->lagrange[i] = 0.0;
+    }
+    self->lpsamp = 0.0;
+    self->xn1 = 0.0;
+    self->yn1 = 0.0;
+
+	Py_RETURN_NONE;
+}
+
+static PyObject *
 Waveguide_setFreq(Waveguide *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
@@ -1602,6 +1620,7 @@ static PyMethodDef Waveguide_methods[] = {
 {"play", (PyCFunction)Waveguide_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
 {"out", (PyCFunction)Waveguide_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
 {"stop", (PyCFunction)Waveguide_stop, METH_NOARGS, "Stops computing."},
+{"reset", (PyCFunction)Waveguide_reset, METH_NOARGS, "Reset the delay line."},
 {"setFreq", (PyCFunction)Waveguide_setFreq, METH_O, "Sets freq time in seconds."},
 {"setDur", (PyCFunction)Waveguide_setDur, METH_O, "Sets dur value between 0 -> 1."},
 {"setMul", (PyCFunction)Waveguide_setMul, METH_O, "Sets oscillator mul factor."},
@@ -2538,6 +2557,24 @@ static PyObject * AllpassWG_div(AllpassWG *self, PyObject *arg) { DIV };
 static PyObject * AllpassWG_inplace_div(AllpassWG *self, PyObject *arg) { INPLACE_DIV };
 
 static PyObject *
+AllpassWG_reset(AllpassWG *self)
+{
+    int i, j;
+    for (i=0; i<(self->size+1); i++) {
+        self->buffer[i] = 0.;
+    }
+    for (i=0; i<3; i++) {
+        for (j=0; j<(self->alpsize+1); j++) {
+            self->alpbuffer[i][j] = 0.;
+        }
+    }
+    self->in_count = self->alp_in_count[0] = self->alp_in_count[1] = self->alp_in_count[2] = 0;
+    self->xn1 = self->yn1 = 0.0;
+
+	Py_RETURN_NONE;
+}
+
+static PyObject *
 AllpassWG_setFreq(AllpassWG *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
@@ -2648,6 +2685,7 @@ static PyMethodDef AllpassWG_methods[] = {
     {"play", (PyCFunction)AllpassWG_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)AllpassWG_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
     {"stop", (PyCFunction)AllpassWG_stop, METH_NOARGS, "Stops computing."},
+    {"reset", (PyCFunction)AllpassWG_reset, METH_NOARGS, "Reset the delay line."},
     {"setFreq", (PyCFunction)AllpassWG_setFreq, METH_O, "Sets freq time in seconds."},
     {"setFeed", (PyCFunction)AllpassWG_setFeed, METH_O, "Sets feed value between 0 -> 1."},
     {"setDetune", (PyCFunction)AllpassWG_setDetune, METH_O, "Sets detune value between 0 -> 1."},
@@ -3596,8 +3634,7 @@ SmoothDelay_reset(SmoothDelay *self)
     for (i=0; i<(self->size+1); i++) {
         self->buffer[i] = 0.;
     }
-	Py_INCREF(Py_None);
-	return Py_None;
+	Py_RETURN_NONE;
 }
 
 static PyMemberDef SmoothDelay_members[] = {

@@ -519,6 +519,18 @@ static PyObject * Chorus_div(Chorus *self, PyObject *arg) { DIV };
 static PyObject * Chorus_inplace_div(Chorus *self, PyObject *arg) { INPLACE_DIV };
 
 static PyObject *
+Chorus_reset(Chorus *self)
+{
+    int i, j;
+    for (i=0; i<8; i++) {
+        for (j=0; j<(self->size[i]+1); j++) {
+            self->buffer[i][j] = 0.;
+        }
+    }
+	Py_RETURN_NONE;
+}
+
+static PyObject *
 Chorus_setDepth(Chorus *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
@@ -629,6 +641,7 @@ static PyMethodDef Chorus_methods[] = {
 {"play", (PyCFunction)Chorus_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
 {"out", (PyCFunction)Chorus_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
 {"stop", (PyCFunction)Chorus_stop, METH_NOARGS, "Stops computing."},
+{"reset", (PyCFunction)Chorus_reset, METH_NOARGS, "Reset the delay line."},
 {"setFeedback", (PyCFunction)Chorus_setFeedback, METH_O, "Sets feedback value between 0 -> 1."},
 {"setDepth", (PyCFunction)Chorus_setDepth, METH_O, "Sets chorus depth."},
 {"setMix", (PyCFunction)Chorus_setMix, METH_O, "Sets balance between dry and wet signals."},

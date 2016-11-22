@@ -510,6 +510,16 @@ static PyObject * Harmonizer_div(Harmonizer *self, PyObject *arg) { DIV };
 static PyObject * Harmonizer_inplace_div(Harmonizer *self, PyObject *arg) { INPLACE_DIV };
 
 static PyObject *
+Harmonizer_reset(Harmonizer *self)
+{
+    int i;
+    for (i=0; i<(self->sr+1); i++) {
+        self->buffer[i] = 0.;
+    }
+	Py_RETURN_NONE;
+}
+
+static PyObject *
 Harmonizer_setTranspo(Harmonizer *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
@@ -609,6 +619,7 @@ static PyMethodDef Harmonizer_methods[] = {
     {"play", (PyCFunction)Harmonizer_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)Harmonizer_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
     {"stop", (PyCFunction)Harmonizer_stop, METH_NOARGS, "Stops computing."},
+    {"reset", (PyCFunction)Harmonizer_reset, METH_NOARGS, "Reset the delay line."},
 	{"setTranspo", (PyCFunction)Harmonizer_setTranspo, METH_O, "Sets global transpo factor."},
     {"setFeedback", (PyCFunction)Harmonizer_setFeedback, METH_O, "Sets feedback factor."},
     {"setWinsize", (PyCFunction)Harmonizer_setWinsize, METH_O, "Sets the window size."},

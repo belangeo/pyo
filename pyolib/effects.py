@@ -460,6 +460,13 @@ class Waveguide(PyoObject):
         x, lmax = convertArgsToLists(x)
         [obj.setDur(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
+    def reset(self):
+        """
+        Reset the memory buffer to zeros.
+
+        """
+        [obj.reset() for obj in self._base_objs]
+
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
         self._map_list = [SLMap(10, 500., 'log', 'freq', self._freq),
                           SLMapDur(self._dur),
@@ -593,6 +600,13 @@ class AllpassWG(PyoObject):
         self._detune = x
         x, lmax = convertArgsToLists(x)
         [obj.setDetune(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def reset(self):
+        """
+        Reset the memory buffer to zeros.
+
+        """
+        [obj.reset() for obj in self._base_objs]
 
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
         self._map_list = [SLMap(20., 500., 'log', 'freq', self._freq),
@@ -732,6 +746,13 @@ class Freeverb(PyoObject):
         self._bal = x
         x, lmax = convertArgsToLists(x)
         [obj.setMix(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def reset(self):
+        """
+        Reset the memory buffer to zeros.
+
+        """
+        [obj.reset() for obj in self._base_objs]
 
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
         self._map_list = [SLMap(0., 1., 'lin', 'size', self._size),
@@ -971,6 +992,13 @@ class WGVerb(PyoObject):
         x, lmax = convertArgsToLists(x)
         [obj.setMix(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
+    def reset(self):
+        """
+        Reset the memory buffer to zeros.
+
+        """
+        [obj.reset() for obj in self._base_objs]
+
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
         self._map_list = [SLMap(0., 1., 'lin', 'feedback', self._feedback),
                           SLMap(500., 15000., 'log', 'cutoff', self._cutoff),
@@ -1106,6 +1134,13 @@ class Chorus(PyoObject):
         x, lmax = convertArgsToLists(x)
         [obj.setMix(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
+    def reset(self):
+        """
+        Reset the memory buffer to zeros.
+
+        """
+        [obj.reset() for obj in self._base_objs]
+
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
         self._map_list = [SLMap(0., 5., 'lin', 'depth', self._depth),
                           SLMap(0., 1., 'lin', 'feedback', self._feedback),
@@ -1237,6 +1272,13 @@ class Harmonizer(PyoObject):
         self._winsize = x
         x, lmax = convertArgsToLists(x)
         [obj.setWinsize(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def reset(self):
+        """
+        Reset the memory buffer to zeros.
+
+        """
+        [obj.reset() for obj in self._base_objs]
 
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
         self._map_list = [SLMap(-24.0, 24.0, 'lin', 'transpo', self._transpo),
@@ -1491,6 +1533,13 @@ class STRev(PyoObject):
         self._firstRefGain = x
         x, lmax = convertArgsToLists(x)
         [obj.setFirstRefGain(wrap(x,i)) for i, obj in enumerate(self._base_players)]
+
+    def reset(self):
+        """
+        Reset the memory buffer to zeros.
+
+        """
+        [obj.reset() for obj in self._base_players]
 
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
         self._map_list = [SLMap(0., 1., 'lin', 'inpos', self._inpos),
