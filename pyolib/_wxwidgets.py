@@ -2936,7 +2936,7 @@ class ServerGUI(wx.Frame):
             self.shutdown()
         self.Destroy()
         if self.exit:
-            wx.GetApp().ExitMainLoop()
+            wx.Exit()
 
     def getPrev(self):
         self.text.Clear()
