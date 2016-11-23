@@ -438,6 +438,7 @@ class PyoObjectBase(object):
         >>> len(obj) # Return the number of streams managed by the object.
         >>> obj[x] # Return stream `x` of the object. `x` is a number from 0 to len(obj)-1.
         >>> dir(obj) # Return the list of attributes of the object.
+        >>> for x in obj: # Can be used as an iterator (iterates over object's streams).
 
     """
 
