@@ -446,6 +446,7 @@ class PyoObjectBase(object):
     _STREAM_TYPE = ''
 
     def __init__(self):
+        self.__index = 0
         if not serverCreated():
             raise PyoServerStateException("You must create and boot a Server before creating any audio object.")
         if not serverBooted():
@@ -498,9 +499,19 @@ class PyoObjectBase(object):
         return self._base_objs[0].getServer().getBufferSize()
 
     def __iter__(self):
-        for i in range(len(self)):
-            yield self[i]
-        raise StopIteration
+        self.__index = 0
+        return self
+    
+    def __next__(self):
+        if self.__index >= len(self):
+            raise StopIteration
+        x = self[self.__index]
+        self.__index += 1
+        return x
+
+    def next(self):
+        # In Python 2.x, __next__() method is called next().
+        return self.__next__()
 
     def __getitem__(self, i):
         if i == 'trig': # not safe...
