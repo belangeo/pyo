@@ -2934,9 +2934,10 @@ class ServerGUI(wx.Frame):
     def on_quit(self, evt):
         if self.exit:
             self.shutdown()
+            time.sleep(0.25)
         self.Destroy()
         if self.exit:
-            wx.Exit()
+            sys.exit()
 
     def getPrev(self):
         self.text.Clear()
