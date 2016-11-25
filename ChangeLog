@@ -1,6 +1,88 @@
+2016-11-23 belangeo <belangeo@gmail.com>
+
+    * Added __iter__(), __next__() and next() (python 2 compatibility) methods 
+      to PyoBaseObject.
+
+2016-11-22 belangeo <belangeo@gmail.com>
+
+    * Added reset method to various objects (AllpassWG, Chorus, Freeverb, 
+      Harmonizer, STRev, WGVerb, Waveguide).
+
+2016-11-16 belangeo <belangeo@gmail.com>
+
+    * TableWrite now takes into account the feedback argument of NewTable 
+      object and interpolates to fill in gaps if position moves faster than 
+      the sampling rate.
+
+2016-11-07 belangeo <belangeo@gmail.com>
+
+    * Added missing methods to Notein object and ctrl() method in midi.py. 
+
+2016-11-07 belangeo <belangeo@gmail.com>
+
+    * Added a `callback` argument to PyoObject.set() method. 
+
+2016-11-06 Aron Granberg <http://arongranberg.com>
+
+    * Python 3 migration. Still need to port pyo's GUI written with WxPython
+      to WxPython Phoenix (the port of WxPython Classic to python 3). Some
+      widgets are broken.  
+
+2016-11-02 belangeo <belangeo@gmail.com>
+
+    * Fixed jack ports auto-connection algorithm. 
+
+2016-10-28 belangeo <belangeo@gmail.com>
+
+    * Added an 'inverse' argument to PVGate object. When set to True, the 
+      damping factor is applied to bins with an amplitude above the threshold.
+
+2016-10-26 belangeo <belangeo@gmail.com>
+
+    * Added a time stream, which gives the current normalized position, to Looper object.
+    
+    * Added loopnow() method to Looper object.
+    
+    * Added appendFadeTime() and fadeInSeconds() methods to Looper object.
+
+2016-10-24 belangeo <belangeo@gmail.com>
+
+    * Added a new file, called `How to improve performance of your pyo
+      programs`, to the documentation.
+
+2016-10-21 belangeo <belangeo@gmail.com>
+
+    * Added Server.getCurrentTime() and Server.getCurrentAmp() methods.
+
 2016-10-04 belangeo <belangeo@gmail.com>
 
     * Added new object: LogiMap, random generator based on the logistic map.
+
+    * Added Server.setCallback method to allow the user to define a custom
+      process function. This function will be called once per buffer size, 
+      just before the computation of the audio object tree. 
+      
+    * Added PyoTableObject.getBuffer() method. The PyoTableObject now support 
+      the buffer protocol (see PEP 3118), which allow a table to share its 
+      data memory with any object that support the buffer protocol 
+      (ex. numpy ndarray). 
+
+2016-09-29 belangeo <belangeo@gmail.com>
+
+    * Added sysexout() method to the Server object.
+
+2016-09-08 belangeo <belangeo@gmail.com>
+
+    * Added new examples, 05-envelopes and 06-filters.
+
+2016-08-09 belangeo <belangeo@gmail.com>
+
+    * Replaced all printf statements with PySys_WriteStdout. This allow to
+      redirect message from pyo to a string or a file, instead of the stdout.
+
+2016-06-01 belangeo <belangeo@gmail.com>
+
+    * Added WDMKS in the portaudio build routine.
 
 2016-05-13 belangeo <belangeo@gmail.com>
 
