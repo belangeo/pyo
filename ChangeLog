@@ -1,3 +1,7 @@
+2016-11-25 belangeo <belangeo@gmail.com>
+
+    * SigTo ramp time now can be controlled at audio rate (issue #87).
+
 2016-11-23 belangeo <belangeo@gmail.com>
 
     * Added __iter__(), __next__() and next() (python 2 compatibility) methods 

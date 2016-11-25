@@ -330,25 +330,31 @@ typedef struct {
     pyo_audio_HEAD
     PyObject *value;
     Stream *value_stream;
+    PyObject *time;
+    Stream *time_stream;
     MYFLT lastValue;
     MYFLT currentValue;
-    MYFLT time;
     long timeStep;
     MYFLT stepVal;
     long timeCount;
-    int modebuffer[3];
+    int modebuffer[4];
 } SigTo;
 
 static void
 SigTo_generates_i(SigTo *self) {
     int i;
-    MYFLT value;
+    MYFLT value, time;
+
     if (self->modebuffer[2] == 0) {
         value = PyFloat_AS_DOUBLE(self->value);
         if (value != self->lastValue) {
+            if (self->modebuffer[3] == 0)
+                time = PyFloat_AS_DOUBLE(self->time);
+            else
+                time = Stream_getData((Stream *)self->time_stream)[0];
             self->timeCount = 0;
             self->lastValue = value;
-            self->timeStep = (long)(self->time * self->sr);
+            self->timeStep = (long)(time * self->sr);
             if (self->timeStep > 0)
                 self->stepVal = (value - self->currentValue) / self->timeStep;
         }
@@ -370,14 +376,18 @@ SigTo_generates_i(SigTo *self) {
             }
         }
     }
-    else { // TODO: with audio input, does not recover after getting 0.0 as ramp time. 
+    else { 
         MYFLT *vals = Stream_getData((Stream *)self->value_stream);
         for (i=0; i<self->bufsize; i++) {
             value = vals[i];
             if (value != self->lastValue) {
+                if (self->modebuffer[3] == 0)
+                    time = PyFloat_AS_DOUBLE(self->time);
+                else
+                    time = Stream_getData((Stream *)self->time_stream)[i];
                 self->timeCount = 0;
                 self->lastValue = value;
-                self->timeStep = (long)(self->time * self->sr);
+                self->timeStep = (long)(time * self->sr);
                 if (self->timeStep > 0)
                     self->stepVal = (value - self->currentValue) / self->timeStep;
             }
@@ -460,6 +470,8 @@ SigTo_traverse(SigTo *self, visitproc visit, void *arg)
     pyo_VISIT
     Py_VISIT(self->value);
     Py_VISIT(self->value_stream);
+    Py_VISIT(self->time);
+    Py_VISIT(self->time_stream);
     return 0;
 }
 
@@ -469,6 +481,8 @@ SigTo_clear(SigTo *self)
     pyo_CLEAR
     Py_CLEAR(self->value);
     Py_CLEAR(self->value_stream);
+    Py_CLEAR(self->time);
+    Py_CLEAR(self->time_stream);
     return 0;
 }
 
@@ -490,12 +504,14 @@ SigTo_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self = (SigTo *)type->tp_alloc(type, 0);
 
     self->value = PyFloat_FromDouble(0.0);
-    self->time = 0.025;
+    self->time = PyFloat_FromDouble(0.025);
     self->timeCount = 0;
     self->stepVal = 0.0;
+    self->timeStep = 0;
 	self->modebuffer[0] = 0;
 	self->modebuffer[1] = 0;
 	self->modebuffer[2] = 0;
+	self->modebuffer[3] = 0;
 
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, SigTo_compute_next_data_frame);
@@ -525,7 +541,6 @@ SigTo_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
     self->lastValue = self->currentValue = inittmp;
-    self->timeStep = (long)(self->time * self->sr);
 
     (*self->mode_func_ptr)(self);
 
@@ -561,14 +576,13 @@ SigTo_setValue(SigTo *self, PyObject *arg)
         self->modebuffer[2] = 1;
     }
 
-	Py_INCREF(Py_None);
-	return Py_None;
+	Py_RETURN_NONE;
 }
 
 static PyObject *
 SigTo_setTime(SigTo *self, PyObject *arg)
 {
-	PyObject *tmp;
+	PyObject *tmp, *streamtmp;
 
     ASSERT_ARG_NOT_NULL
 
@@ -576,12 +590,21 @@ SigTo_setTime(SigTo *self, PyObject *arg)
 
 	tmp = arg;
 	Py_INCREF(tmp);
+    Py_DECREF(self->time);
 	if (isNumber == 1) {
-		self->time = PyFloat_AsDouble(tmp);
-	}
+		self->time = PyNumber_Float(tmp);
+        self->modebuffer[3] = 0;
+    }
+    else {
+		self->time = tmp;
+        streamtmp = PyObject_CallMethod((PyObject *)self->time, "_getStream", NULL);
+        Py_INCREF(streamtmp);
+        Py_XDECREF(self->time_stream);
+        self->time_stream = (Stream *)streamtmp;
+        self->modebuffer[3] = 1;
+    }
 
-	Py_INCREF(Py_None);
-	return Py_None;
+	Py_RETURN_NONE;
 }
 
 static PyObject * SigTo_getServer(SigTo* self) { GET_SERVER };
@@ -607,6 +630,7 @@ static PyMemberDef SigTo_members[] = {
 {"server", T_OBJECT_EX, offsetof(SigTo, server), 0, "Pyo server."},
 {"stream", T_OBJECT_EX, offsetof(SigTo, stream), 0, "Stream object."},
 {"value", T_OBJECT_EX, offsetof(SigTo, value), 0, "Target value."},
+{"time", T_OBJECT_EX, offsetof(SigTo, time), 0, "Ramp time."},
 {"mul", T_OBJECT_EX, offsetof(SigTo, mul), 0, "Mul factor."},
 {"add", T_OBJECT_EX, offsetof(SigTo, add), 0, "Add factor."},
 {NULL}  /* Sentinel */

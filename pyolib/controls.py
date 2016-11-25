@@ -786,7 +786,7 @@ class SigTo(PyoObject):
 
         value : float or PyoObject
             Numerical value to convert.
-        time : float, optional
+        time : float or PyoObject, optional
             Ramp time, in seconds, to reach the new value. Defaults to 0.025.
         init : float, optional
             Initial value of the internal memory. Defaults to 0.
@@ -807,7 +807,7 @@ class SigTo(PyoObject):
 
     """
     def __init__(self, value, time=0.025, init=0.0, mul=1, add=0):
-        pyoArgsAssert(self, "OnnOO", value, time, init, mul, add)
+        pyoArgsAssert(self, "OOnOO", value, time, init, mul, add)
         PyoObject.__init__(self, mul, add)
         self._value = value
         self._time = time
@@ -835,17 +835,17 @@ class SigTo(PyoObject):
 
         :Args:
 
-            x : float
-                New ramp time.
+            x : float or PyoObject
+                New ramp time in seconds.
 
         """
-        pyoArgsAssert(self, "n", x)
+        pyoArgsAssert(self, "O", x)
         self._time = x
         x, lmax = convertArgsToLists(x)
         [obj.setTime(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [SLMap(0, 10, 'lin', 'time', self._time, dataOnly=True)]
+        self._map_list = [SLMap(0, 10, 'lin', 'time', self._time)]
         PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
@@ -857,7 +857,7 @@ class SigTo(PyoObject):
 
     @property
     def time(self):
-        """float. Ramp time."""
+        """floator PyoObject. Ramp time in seconds."""
         return self._time
     @time.setter
     def time(self, x): self.setTime(x)
