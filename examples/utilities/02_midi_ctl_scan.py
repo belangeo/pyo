@@ -1,13 +1,14 @@
 #!/usr/bin/env python
 # encoding: utf-8
-from __future__ import print_function
-
 """
 Scan for Midi controller numbers. Launch this script from a terminal.
 
 """
 from pyo import *
-import time
+import time, sys
+
+if sys.version_info[0] < 3:
+    input = raw_input
 
 pm_list_devices()
 
