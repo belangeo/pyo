@@ -59,6 +59,12 @@ Miscellaneous objects.
 .. autoclass:: Denorm
    :members:
 
+*FToM*
+-----------------------------------
+
+.. autoclass:: FToM
+   :members:
+
 *Interp*
 -----------------------------------
 

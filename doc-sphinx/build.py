@@ -6,6 +6,9 @@ build_folder = "./build_html"
 if "--latex" in sys.argv:
     build_format = "latex"
     build_folder = "./build_latex"
+elif "--man" in sys.argv:
+    build_format = "man"
+    build_folder = "./build_man"
 
 f = open(os.getcwd() + '/source/api/alphabetical.rst', 'w')
 

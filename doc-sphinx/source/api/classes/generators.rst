@@ -18,6 +18,12 @@ processing chain or as parameter's modifiers.
 .. autoclass:: BrownNoise
    :members:
 
+*ChenLee*
+-----------------------------------
+
+.. autoclass:: ChenLee
+   :members:
+
 *CrossFM*
 -----------------------------------
 
