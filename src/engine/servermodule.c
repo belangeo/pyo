@@ -1280,6 +1280,10 @@ Server_stop(Server *self)
                 break;
         }
     }
+    /* This call is needed to recover from thread fork with python3/jack on debian.*/
+    /* TODO: Need to be tested with other OSes and audio driver. */
+    PyOS_AfterFork();
+
     Py_RETURN_NONE;
 }
 
