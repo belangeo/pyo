@@ -331,11 +331,11 @@ class ControlSlider(wx.Panel):
         if self._enable: sliderColour =  "#99A7CC"
         else: sliderColour = "#BBBBBB"
         if self.orient == wx.VERTICAL:
-            w2 = (w - self.sliderWidth) / 2
+            w2 = (w - self.sliderWidth) // 2
             rec = wx.Rect(w2, 0, self.sliderWidth, h)
             brush = gc.CreateLinearGradientBrush(w2, 0, w2+self.sliderWidth, 0, "#646986", sliderColour)
         else:
-            h2 = self.sliderHeight / 4
+            h2 = self.sliderHeight // 4
             rec = wx.Rect(0, h2, w, self.sliderHeight)
             brush = gc.CreateLinearGradientBrush(0, h2, 0, h2+self.sliderHeight, "#646986", sliderColour)
         gc.SetBrush(brush)
@@ -453,14 +453,14 @@ class MultiSlider(wx.Panel):
             x = int(self._values[i] * w)
             y = self._height * i
             dc.DrawRectangle(0, y+1, x, self._height-2)
-            rec = wx.Rect(w/2-15, y, 30, self._height)
+            rec = wx.Rect(w//2-15, y, 30, self._height)
             dc.DrawLabel("%s" % self._labels[i], rec, wx.ALIGN_CENTER)
 
     def MouseDown(self, evt):
         w,h = self.GetSize()
         pos = evt.GetPosition()
-        slide = pos[1] / self._height
-        if 0 <= slide < self._nchnls:
+        slide = pos[1] // self._height
+        if slide >= 0 and slide < self._nchnls:
             self._values[slide] = pos[0] / float(w)
             if self._slmap._res == 'int':
                 self._labels = [int(self._slmap.get(x)) for x in self._values]
@@ -479,8 +479,8 @@ class MultiSlider(wx.Panel):
         w,h = self.GetSize()
         pos = evt.GetPosition()
         if evt.Dragging() and evt.LeftIsDown():
-            slide = pos[1] / self._height
-            if 0 <= slide < self._nchnls:
+            slide = pos[1] // self._height
+            if slide >= 0 and slide < self._nchnls:
                 self._values[slide] = pos[0] / float(w)
                 if self._slmap._res == 'int':
                     self._labels = [int(self._slmap.get(x)) for x in self._values]
@@ -682,7 +682,7 @@ class RangeSlider(wx.Panel):
         dc.DrawRectangle(0,0,w,h)
         dc.SetBrush(wx.Brush("#777777"))
         dc.SetPen(wx.Pen("#FFFFFF", width=1))
-        h2 = self.sliderHeight / 4
+        h2 = self.sliderHeight // 4
         dc.DrawRoundedRectangle(0, h2, w, self.sliderHeight, 4)
         dc.SelectObject(wx.NullBitmap)
         b.SetMaskColour("#777777")
@@ -720,7 +720,7 @@ class RangeSlider(wx.Panel):
     def MouseDown(self, evt):
         size = self.GetSize()
         xpos = evt.GetPosition()[0]
-        self.middle = (self.handlePos[1] - self.handlePos[0]) / 2 + self.handlePos[0]
+        self.middle = (self.handlePos[1] - self.handlePos[0]) // 2 + self.handlePos[0]
         midrec = wx.Rect(self.middle-7, 4, 15, size[1]-9)
         if midrec.Contains(evt.GetPosition()):
             self.lastpos = xpos
@@ -801,7 +801,7 @@ class HRangeSlider(RangeSlider):
         dc.DrawRectangle(0, 0, w, h)
 
         # Draw inner part
-        h2 = self.sliderHeight / 4
+        h2 = self.sliderHeight // 4
         rec = wx.Rect(0, h2, w, self.sliderHeight)
         dc.GradientFillLinear(rec, "#666666", self.fillcolor, wx.BOTTOM)
         dc.DrawBitmap(self.sliderMask, 0, 0, True)
@@ -868,13 +868,13 @@ class HRangeSlider(RangeSlider):
         dc.SetPen(wx.Pen(self.handlecolor, width=1, style=wx.SOLID))
         dc.SetBrush(wx.Brush(self.handlecolor))
 
-        rec = wx.Rect(self.handlePos[0], 3, self.handlePos[1]-self.handlePos[0], h-7)
-        dc.DrawRoundedRectangleRect(rec, 4)
+        rec = (self.handlePos[0], 3, self.handlePos[1]-self.handlePos[0], h-7)
+        dc.DrawRoundedRectangle(rec[0], rec[1], rec[2], rec[3], 4)
         dc.SetPen(wx.Pen(self.fillcolor, width=1, style=wx.SOLID))
         dc.SetBrush(wx.Brush(self.fillcolor))
-        mid = (self.handlePos[1]-self.handlePos[0]) / 2 + self.handlePos[0]
-        rec = wx.Rect(mid-4, 4, 8, h-9)
-        dc.DrawRoundedRectangleRect(rec, 3)
+        mid = (self.handlePos[1] - self.handlePos[0]) // 2 + self.handlePos[0]
+        rec = (mid-4, 4, 8, h-9)
+        dc.DrawRoundedRectangle(rec[0], rec[1], rec[2], rec[3], 3)
 
         # Send value
         if self.outFunction:
@@ -1037,7 +1037,7 @@ class ViewTablePanel(wx.Panel):
         gc.SetBrush(wx.Brush("#FFFFFF"))
         if len(self.samples) > 1:
             gc.DrawLines(self.samples)
-        dc.DrawLine(0, h/2+1, w, h/2+1)
+        dc.DrawLine(0, h//2+1, w, h//2+1)
 
     def OnSize(self, evt):
         wx.CallAfter(self.obj.refreshView)
@@ -1144,7 +1144,6 @@ class SndViewTablePanel(wx.Panel):
 
     def setImage(self):
         if self.obj is not None:
-            print(self.begin, self.end)
             self.img = self.obj.getViewTable(self.GetSize(), self.begin, self.end)
             self.Refresh()
 
@@ -1163,9 +1162,9 @@ class SndViewTablePanel(wx.Panel):
         size = self.GetSize()
         pos = evt.GetPosition()
         if pos[1] <= 0:
-            pos = (float(pos[0])/size[0], 1.0)
+            pos = (float(pos[0]) / size[0], 1.0)
         else:
-            pos = (float(pos[0])/size[0], 1.-(float(pos[1])/size[1]))
+            pos = (float(pos[0]) / size[0], 1. - (float(pos[1]) / size[1]))
         pos = self.clipPos(pos)
         if self.mouse_callback is not None:
             self.mouse_callback(pos)
@@ -1175,9 +1174,9 @@ class SndViewTablePanel(wx.Panel):
         size = self.GetSize()
         pos = evt.GetPosition()
         if pos[1] <= 0:
-            pos = (float(pos[0])/size[0], 1.0)
+            pos = (float(pos[0]) / size[0], 1.0)
         else:
-            pos = (float(pos[0])/size[0], 1.-(float(pos[1])/size[1]))
+            pos = (float(pos[0]) / size[0], 1. - (float(pos[1]) / size[1]))
         pos = self.clipPos(pos)
         if evt.ShiftDown():
             if self.selstart is not None and self.selend is not None:
@@ -1199,9 +1198,9 @@ class SndViewTablePanel(wx.Panel):
             size = self.GetSize()
             pos = evt.GetPosition()
             if pos[1] <= 0:
-                pos = (float(pos[0])/size[0], 1.0)
+                pos = (float(pos[0]) / size[0], 1.0)
             else:
-                pos = (float(pos[0])/size[0], 1.-(float(pos[1])/size[1]))
+                pos = (float(pos[0]) / size[0], 1. - (float(pos[1]) / size[1]))
             pos = self.clipPos(pos)
             if evt.LeftIsDown():
                 if self.mouse_callback is not None:
@@ -1237,7 +1236,7 @@ class SndViewTablePanel(wx.Panel):
         dc.Clear()
         dc.DrawRectangle(0,0,w,h)
 
-        off = h/self.chnls/2
+        off = h // self.chnls // 2
         gc.SetPen(wx.Pen('#000000', width=1, style=wx.SOLID))
         gc.SetBrush(wx.Brush("#FFFFFF", style=wx.TRANSPARENT))
         dc.SetTextForeground("#444444")
@@ -1249,7 +1248,7 @@ class SndViewTablePanel(wx.Panel):
             font = dc.GetFont()
             font.SetPointSize(8)
             dc.SetFont(font)
-        tickstep = w / 10
+        tickstep = w // 10
         if tickstep < 40:
             timelabel = "%.1f"
         elif tickstep < 80:
@@ -1260,7 +1259,7 @@ class SndViewTablePanel(wx.Panel):
             timelabel = "%.4f"
         timestep = (self.end - self.begin) * 0.1
         for i, samples in enumerate(self.img):
-            y = h/self.chnls*i
+            y = h // self.chnls * i
             if len(samples):
                 gc.DrawLines(samples)
             dc.SetPen(wx.Pen('#888888', width=1, style=wx.DOT))
@@ -1376,7 +1375,7 @@ class ViewMatrix_withoutPIL(ViewMatrix):
         dc = wx.PaintDC(self)
         for i in range(self.width*self.height):
             x = i % self.width
-            y = i / self.width
+            y = i // self.width
             amp = int(self.samples[i])
             amp = hex(amp).replace('0x', '')
             if len(amp) == 1:
@@ -1597,13 +1596,13 @@ class SpectrumPanel(wx.Panel):
             tw, th = dc.GetTextExtent(text)
             step = (self.highfreq - self.lowfreq) / 8
             dc.DrawText(text, 2, 2)
-            w8 = w / 8
+            w8 = w // 8
             for i in range(1,8):
-                pos = w8*i
+                pos = w8 * i
                 dc.DrawLine(pos, th+4, pos, h-2)
-                text = str(int(self.lowfreq+step*i))
+                text = str(int(self.lowfreq + step * i))
                 tw, th = dc.GetTextExtent(text)
-                dc.DrawText(text, pos-tw/2, 2)
+                dc.DrawText(text, pos - tw // 2, 2)
         # frequency logarithmic grid
         else:
             if self.lowfreq < 20:
@@ -1616,11 +1615,11 @@ class SpectrumPanel(wx.Panel):
             mag = pow(10.0, math.floor(lf))
             if lrange > 6:
                 t = pow(10.0, math.ceil(lf))
-                base = pow(10.0, math.floor(lrange/6))
+                base = pow(10.0, math.floor(lrange / 6))
                 def inc(t, floor_t):
                     return t*base-t
             else:
-                t = math.ceil(pow(10.0,lf)/mag)*mag
+                t = math.ceil(pow(10.0, lf) / mag) * mag
                 def inc(t, floor_t):
                     return pow(10.0, floor_t)
 
@@ -1634,18 +1633,18 @@ class SpectrumPanel(wx.Panel):
                     tw, th = dc.GetTextExtent(ticklabel)
                 else:
                     if hf-lf < 2:
-                        minortick = int(t/pow(10.0,majortick)+.5)
-                        ticklabel = '%de%d'%(minortick,majortick)
+                        minortick = int(t / pow(10.0, majortick) + .5)
+                        ticklabel = '%de%d' % (minortick, majortick)
                         ticklabel = str(int(float(ticklabel)))
                         tw, th = dc.GetTextExtent(ticklabel)
                         if not minortick%2 == 0:
                             ticklabel = ''
                     else:
                         ticklabel = ''
-                pos = (math.log10(t) - lf) / lrange * w
+                pos = int((math.log10(t) - lf) / lrange * w)
                 if pos < (w-25):
                     dc.DrawLine(pos, th+4, pos, h-2)
-                    dc.DrawText(ticklabel, pos-tw/2, 2)
+                    dc.DrawText(ticklabel, pos-tw//2, 2)
                 t += inc(t, floor_t)
 
         # magnitude linear grid
@@ -1656,7 +1655,7 @@ class SpectrumPanel(wx.Panel):
                 pos = int(h - i * step)
                 text = "%.1f" % (i * 0.1)
                 tw, th = dc.GetTextExtent(text)
-                dc.DrawText(text, w-tw-2, pos-th/2)
+                dc.DrawText(text, w-tw-2, pos - th // 2)
                 dc.DrawLine(0, pos, w-tw-4, pos)
             dc.SetPen(wx.Pen("#555555", style=wx.SOLID))
             dc.DrawLine(0, pos, w-tw-6, pos)
@@ -1666,7 +1665,7 @@ class SpectrumPanel(wx.Panel):
                 pos = int(h - i * step)
                 text = "%.1f" % (i * 0.1)
                 tw, th = dc.GetTextExtent(text)
-                dc.DrawText(text, w-tw-2, pos-th/2)
+                dc.DrawText(text, w-tw-2, pos - th // 2)
                 dc.DrawLine(0, pos, w-tw-6, pos)
                 i += 1
         # magnitude logarithmic grid
@@ -1681,7 +1680,7 @@ class SpectrumPanel(wx.Panel):
                     mval = 0
                 text = "%d" % mval
                 tw, th = dc.GetTextExtent(text)
-                dc.DrawText(text, w-tw-2, pos-th/2)
+                dc.DrawText(text, w-tw-2, pos - th // 2)
                 dc.DrawLine(0, pos, w-mw-6, pos)
             dc.SetPen(wx.Pen("#555555", style=wx.SOLID))
             dc.DrawLine(0, pos, w-mw-4, pos)
@@ -1691,7 +1690,7 @@ class SpectrumPanel(wx.Panel):
                 pos = int(h - i * step)
                 text = "%d" % int((10-i) * -6.0)
                 tw, th = dc.GetTextExtent(text)
-                dc.DrawText(text, w-tw-2, pos-th/2)
+                dc.DrawText(text, w-tw-2, pos - th // 2)
                 dc.DrawLine(0, pos, w-mw-6, pos)
                 i += 1
 
@@ -1844,18 +1843,18 @@ class ScopePanel(wx.Panel):
 
         dc.SetPen(wx.Pen('#888888', width=1, style=wx.DOT))
         # horizontal grid
-        step = h / 6
+        step = h // 6
         ampstep = 1.0 / 3.0 / self.gain
         for i in range(1, 6):
             pos = int(h - i * step)
             npos = i - 3
             text = "%.2f" % (ampstep * npos)
             tw, th = dc.GetTextExtent(text)
-            dc.DrawText(text, w-tw-2, pos-th/2)
+            dc.DrawText(text, w-tw-2, pos - th // 2)
             dc.DrawLine(0, pos, w-tw-10, pos)
 
         # vertical grid
-        tickstep = w / 4
+        tickstep = w // 4
         timestep = self.length * 0.25
         for j in range(4):
             dc.SetPen(wx.Pen('#888888', width=1, style=wx.DOT))
@@ -2212,8 +2211,8 @@ class Grapher(wx.Panel):
 
         # Draw grid
         dc.SetPen(wx.Pen("#CCCCCC", 1))
-        xstep = int(round((w-OFF2) / float(10)))
-        ystep = int(round((h-OFF2) / float(10)))
+        xstep = int(round((w-OFF2) / 10.0))
+        ystep = int(round((h-OFF2) / 10.0))
         for i in range(10):
             xpos = i * xstep + OFF
             dc.DrawLine(xpos, OFF, xpos, h-OFF)
@@ -2236,7 +2235,7 @@ class Grapher(wx.Panel):
         dc.SetBrush(wx.Brush("#000000"))
         # Draw bounding box
         for i in range(4):
-            dc.DrawLinePoint(corners[i], corners[(i+1)%4])
+            dc.DrawLine(corners[i][0], corners[i][1], corners[(i+1)%4][0], corners[(i+1)%4][1])
 
         # Convert points in pixels
         w,h = w-OFF2-RAD2, h-OFF2-RAD2

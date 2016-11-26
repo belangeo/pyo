@@ -1,3 +1,4 @@
+from __future__ import division
 from __future__ import print_function
 from __future__ import absolute_import
 """
@@ -108,7 +109,7 @@ class SawTable(PyoTableObject):
         pyoArgsAssert(self, "II", order, size)
         PyoTableObject.__init__(self, size)
         self._order = order
-        list = [1./i for i in range(1,(order+1))]
+        list = [1. / i for i in range(1,(order+1))]
         self._base_objs = [HarmTable_base(list, size)]
 
     def setOrder(self, x):
@@ -123,7 +124,7 @@ class SawTable(PyoTableObject):
         """
         pyoArgsAssert(self, "I", x)
         self._order = x
-        list = [1./i for i in range(1,(self._order+1))]
+        list = [1. / i for i in range(1,(self._order+1))]
         [obj.replace(list) for obj in self._base_objs]
         self.refreshView()
 
@@ -163,7 +164,7 @@ class SquareTable(PyoTableObject):
         list = []
         for i in range(1,(order*2)):
             if i%2 == 1:
-                list.append(1./i)
+                list.append(1. / i)
             else:
                 list.append(0.)
         self._base_objs = [HarmTable_base(list, size)]
@@ -183,7 +184,7 @@ class SquareTable(PyoTableObject):
         list = []
         for i in range(1,(self._order*2)):
             if i%2 == 1:
-                list.append(1./i)
+                list.append(1. / i)
             else:
                 list.append(0.)
         [obj.replace(list) for obj in self._base_objs]
@@ -1664,9 +1665,9 @@ class SndTable(PyoTableObject):
         w, h = size
         chnls = len(self._base_objs)
         img = []
-        imgHeight = h/chnls
+        imgHeight = h // chnls
         for i in range(chnls):
-            off = h/chnls*i
+            off = h // chnls * i
             img.append(self._base_objs[i].getViewTable((w, imgHeight), begin, end, off))
         return img
 
@@ -1888,9 +1889,9 @@ class NewTable(PyoTableObject):
         w, h = size
         chnls = len(self._base_objs)
         img = []
-        imgHeight = h/chnls
+        imgHeight = h // chnls
         for i in range(chnls):
-            off = h/chnls*i
+            off = h // chnls * i
             img.append(self._base_objs[i].getViewTable((w, imgHeight), begin, end, off))
         return img
 
