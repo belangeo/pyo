@@ -185,8 +185,11 @@ if PLATFORM == "darwin" and '/%s.app' % APP_NAME in os.getcwd():
 
 # Check for which Python to use #
 if PLATFORM == "win32":
-    WHICH_PYTHON = PREFERENCES.get("which_python",
-                            "C:\Python%d%d\python.exe" % sys.version_info[:2])
+    #WHICH_PYTHON = PREFERENCES.get("which_python", sys.executable)
+    # This way of finding the python executable assume that python is in the PATH variable.
+    proc = subprocess.Popen('python -c "import sys; print(sys.executable)"', shell=False,
+                            universal_newlines=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    WHICH_PYTHON = proc.communicate()[0][:-1]
 else:
     WHICH_PYTHON = PREFERENCES.get("which_python", "")
 INSTALLATION_ERROR_MESSAGE = ""
@@ -216,6 +219,7 @@ if WHICH_PYTHON == "":
                 if os.path.isfile("C:\Python2%d\python.exe" % i):
                     WHICH_PYTHON = "C:\Python2%d\python.exe" % i
                     break
+        ########################
         if WHICH_PYTHON == "":
             INSTALLATION_ERROR_MESSAGE = ("Python 2.x doesn't seem to be installed " 
                                           "on this computer. Check your Python "
@@ -1012,8 +1016,8 @@ class RunningThread(threading.Thread):
                                              universal_newlines=True, shell=True, stdout=subprocess.PIPE, 
                                              stderr=subprocess.STDOUT)
         elif PLATFORM == "win32":
-            self.proc = subprocess.Popen([WHICH_PYTHON, "-u", self.path], cwd=self.cwd, universal_newlines=True, 
-                                         shell=False, stdout=subprocess.PIPE, stderr=subprocess.STDOUT) # TODO: shell=True ?
+            self.proc = subprocess.Popen([WHICH_PYTHON, "-u", self.path], cwd=ensureNFD(self.cwd), universal_newlines=True, 
+                                         shell=False, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         else:
             self.proc = subprocess.Popen([WHICH_PYTHON, "-u", self.path], cwd=self.cwd, universal_newlines=True,
                                          stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
@@ -1093,7 +1097,7 @@ class BackgroundServerThread(threading.Thread):
     def run(self):
         if PLATFORM == "win32":
             self.proc = subprocess.Popen([WHICH_PYTHON, '-i', os.path.join(TEMP_PATH, "background_server.py")],
-                                         shell=True, cwd=self.cwd, stdout=subprocess.PIPE, universal_newlines=True,
+                                         shell=True, cwd=ensureNFD(self.cwd), stdout=subprocess.PIPE, universal_newlines=True,
                                          stdin=subprocess.PIPE, stderr=subprocess.STDOUT)
         else:
             self.proc = subprocess.Popen(["%s -i -u %s" % (WHICH_PYTHON, os.path.join(TEMP_PATH, "background_server.py"))],
@@ -4478,19 +4482,20 @@ class Editor(stc.StyledTextCtrl):
     def OnChar(self, evt):
         propagate = True
 
-        if chr(evt.GetKeyCode()) in ['[', '{', '(', '"', '`'] and self.auto_comp_container:
-            if chr(evt.GetKeyCode()) == '[':
-                self.AddText('[]')
-            elif chr(evt.GetKeyCode()) == '{':
-                self.AddText('{}')
-            elif chr(evt.GetKeyCode()) == '(':
-                self.AddText('()')
-            elif chr(evt.GetKeyCode()) == '"':
-                self.AddText('""')
-            elif chr(evt.GetKeyCode()) == '`':
-                self.AddText('``')
-            self.CharLeft()
-            propagate = False
+        if self.auto_comp_container:
+            if chr(evt.GetKeyCode()) in ['[', '{', '(', '"', '`']:
+                if chr(evt.GetKeyCode()) == '[':
+                    self.AddText('[]')
+                elif chr(evt.GetKeyCode()) == '{':
+                    self.AddText('{}')
+                elif chr(evt.GetKeyCode()) == '(':
+                    self.AddText('()')
+                elif chr(evt.GetKeyCode()) == '"':
+                    self.AddText('""')
+                elif chr(evt.GetKeyCode()) == '`':
+                    self.AddText('``')
+                self.CharLeft()
+                propagate = False
 
         if propagate:
             evt.Skip()
