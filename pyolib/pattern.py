@@ -38,11 +38,11 @@ class Pattern(PyoObject):
 
     :Args:
 
-        function : Python function
+        function: Python function
             Python function to be called periodically.
-        time : float or PyoObject, optional
+        time: float or PyoObject, optional
             Time, in seconds, between each call. Default to 1.
-        arg : anything, optional
+        arg: anything, optional
             Argument sent to the function's call. If None, the function
             will be called without argument. Defaults to None.
 
@@ -88,7 +88,7 @@ class Pattern(PyoObject):
 
         :Args:
 
-            x : Python function
+            x: Python function
                 new `function` attribute.
 
         """
@@ -103,7 +103,7 @@ class Pattern(PyoObject):
 
         :Args:
 
-            x : float or PyoObject
+            x: float or PyoObject
                 New `time` attribute.
 
         """
@@ -118,7 +118,7 @@ class Pattern(PyoObject):
 
         :Args:
 
-            x : Anything
+            x: Anything
                 new `arg` attribute.
 
         """
@@ -182,10 +182,10 @@ class Score(PyoObject):
 
     :Args:
 
-        input : PyoObject
+        input: PyoObject
             Audio signal. Must contains integer numbers. Integer must change
             before calling its function again.
-        fname : string, optional
+        fname: string, optional
             Name of the functions to be called. Defaults to "event_", meaning
             that the object will call the function "event_0", "event_1", "event_2",
             and so on... Available at initialization time only.
@@ -237,9 +237,9 @@ class Score(PyoObject):
 
         :Args:
 
-            x : PyoObject
+            x: PyoObject
                 New signal to process.
-            fadetime : float, optional
+            fadetime: float, optional
                 Crossfade time between old and new input. Defaults to 0.05.
 
         """
@@ -263,11 +263,11 @@ class CallAfter(PyoObject):
 
     :Args:
 
-        function : Python function
+        function: Python function
             Python callable execute after `time` seconds.
-        time : float, optional
+        time: float, optional
             Time, in seconds, before the call. Default to 1.
-        arg : any Python object, optional
+        arg: any Python object, optional
             Argument sent to the called function. Default to None.
 
     .. note::

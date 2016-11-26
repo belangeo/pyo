@@ -40,9 +40,9 @@ class Sine(PyoObject):
 
     :Args:
 
-        freq : float or PyoObject, optional
+        freq: float or PyoObject, optional
             Frequency in cycles per second. Defaults to 1000.
-        phase : float or PyoObject, optional
+        phase: float or PyoObject, optional
             Phase of sampling, expressed as a fraction of a cycle (0 to 1).
             Defaults to 0.
 
@@ -69,7 +69,7 @@ class Sine(PyoObject):
 
         :Args:
 
-            x : float or PyoObject
+            x: float or PyoObject
                 new `freq` attribute.
 
         """
@@ -84,7 +84,7 @@ class Sine(PyoObject):
 
         :Args:
 
-            x : float or PyoObject
+            x: float or PyoObject
                 new `phase` attribute.
 
         """
@@ -133,12 +133,12 @@ class FastSine(PyoObject):
 
     :Args:
 
-        freq : float or PyoObject, optional
+        freq: float or PyoObject, optional
             Frequency in cycles per second. Defaults to 1000.
-        initphase : float, optional
+        initphase: float, optional
             Initial phase of the oscillator, between 0 and 1. Available
             at initialization time only. Defaults to 0.
-        quality : int, optional
+        quality: int, optional
             Sets the approximation quality. 1 is more accurate but also
             more expensive on the CPU. 0 is a cheaper algorithm but is
             very fast. Defaults to 1.
@@ -168,7 +168,7 @@ class FastSine(PyoObject):
 
         :Args:
 
-            x : float or PyoObject
+            x: float or PyoObject
                 new `freq` attribute.
 
         """
@@ -183,7 +183,7 @@ class FastSine(PyoObject):
 
         :Args:
 
-            x : int {0 or 1}
+            x: int {0 or 1}
                 new `quality` attribute.
 
         """
@@ -230,9 +230,9 @@ class SineLoop(PyoObject):
 
     :Args:
 
-        freq : float or PyoObject, optional
+        freq: float or PyoObject, optional
             Frequency in cycles per second. Defaults to 1000.
-        feedback : float or PyoObject, optional
+        feedback: float or PyoObject, optional
             Amount of the output signal added to position increment, between 0 and 1.
             Controls the brightness. Defaults to 0.
 
@@ -260,7 +260,7 @@ class SineLoop(PyoObject):
 
         :Args:
 
-            x : float or PyoObject
+            x: float or PyoObject
                 new `freq` attribute.
 
         """
@@ -275,7 +275,7 @@ class SineLoop(PyoObject):
 
         :Args:
 
-            x : float or PyoObject
+            x: float or PyoObject
                 new `feedback` attribute.
 
         """
@@ -312,9 +312,9 @@ class Phasor(PyoObject):
 
     :Args:
 
-        freq : float or PyoObject, optional
+        freq: float or PyoObject, optional
             Frequency in cycles per second. Defaults to 100.
-        phase : float or PyoObject, optional
+        phase: float or PyoObject, optional
             Phase of sampling, expressed as a fraction of a cycle (0 to 1).
             Defaults to 0.
 
@@ -342,7 +342,7 @@ class Phasor(PyoObject):
 
         :Args:
 
-            x : float or PyoObject
+            x: float or PyoObject
                 new `freq` attribute.
 
         """
@@ -357,7 +357,7 @@ class Phasor(PyoObject):
 
         :Args:
 
-            x : float or PyoObject
+            x: float or PyoObject
                 new `phase` attribute.
 
         """
@@ -399,7 +399,7 @@ class Input(PyoObject):
 
     :Args:
 
-        chnl : int, optional
+        chnl: int, optional
             Input channel to read from. Defaults to 0.
 
     .. note::
@@ -447,7 +447,7 @@ class Noise(PyoObject):
 
         :Args:
 
-            x : int, {0, 1}
+            x: int, {0, 1}
                 0 uses the system rand() method to generate number. Used as default.
                 1 uses a simple linear congruential generator, cheaper than rand().
 
@@ -529,12 +529,12 @@ class FM(PyoObject):
 
     :Args:
 
-        carrier : float or PyoObject, optional
+        carrier: float or PyoObject, optional
             Carrier frequency in cycles per second. Defaults to 100.
-        ratio : float or PyoObject, optional
+        ratio: float or PyoObject, optional
             A factor that, when multiplied by the `carrier` parameter,
             gives the modulator frequency. Defaults to 0.5.
-        index : float or PyoObject, optional
+        index: float or PyoObject, optional
             The modulation index. This value multiplied by the modulator
             frequency gives the modulator amplitude. Defaults to 5.
 
@@ -561,7 +561,7 @@ class FM(PyoObject):
 
         :Args:
 
-            x : float or PyoObject
+            x: float or PyoObject
                 new `carrier` attribute.
 
         """
@@ -576,7 +576,7 @@ class FM(PyoObject):
 
         :Args:
 
-            x : float or PyoObject
+            x: float or PyoObject
                 new `ratio` attribute.
 
         """
@@ -591,7 +591,7 @@ class FM(PyoObject):
 
         :Args:
 
-            x : float or PyoObject
+            x: float or PyoObject
                 new `index` attribute.
 
         """
@@ -639,17 +639,17 @@ class CrossFM(PyoObject):
 
     :Args:
 
-        carrier : float or PyoObject, optional
+        carrier: float or PyoObject, optional
             Carrier frequency in cycles per second. Defaults to 100.
-        ratio : float or PyoObject, optional
+        ratio: float or PyoObject, optional
             A factor that, when multiplied by the `carrier` parameter,
             gives the modulator frequency. Defaults to 0.5.
-        ind1 : float or PyoObject, optional
+        ind1: float or PyoObject, optional
             The carrier index. This value multiplied by the carrier
             frequency gives the carrier amplitude for modulating the
             modulation oscillator frequency.
             Defaults to 2.
-        ind1 : float or PyoObject, optional
+        ind1: float or PyoObject, optional
             The modulation index. This value multiplied by the modulation
             frequency gives the modulation amplitude for modulating the
             carrier oscillator frequency.
@@ -679,7 +679,7 @@ class CrossFM(PyoObject):
 
         :Args:
 
-            x : float or PyoObject
+            x: float or PyoObject
                 new `carrier` attribute.
 
         """
@@ -694,7 +694,7 @@ class CrossFM(PyoObject):
 
         :Args:
 
-            x : float or PyoObject
+            x: float or PyoObject
                 new `ratio` attribute.
 
         """
@@ -709,7 +709,7 @@ class CrossFM(PyoObject):
 
         :Args:
 
-            x : float or PyoObject
+            x: float or PyoObject
                 new `ind1` attribute.
 
         """
@@ -724,7 +724,7 @@ class CrossFM(PyoObject):
 
         :Args:
 
-            x : float or PyoObject
+            x: float or PyoObject
                 new `ind2` attribute.
 
         """
@@ -780,9 +780,9 @@ class Blit(PyoObject):
 
     :Args:
 
-        freq : float or PyoObject, optional
+        freq: float or PyoObject, optional
             Frequency in cycles per second. Defaults to 100.
-        harms : float or PyoObject, optional
+        harms: float or PyoObject, optional
             Number of harmonics in the generated spectrum. Defaults to 40.
 
     >>> s = Server().boot()
@@ -806,7 +806,7 @@ class Blit(PyoObject):
 
         :Args:
 
-            x : float or PyoObject
+            x: float or PyoObject
                 new `freq` attribute.
 
         """
@@ -821,7 +821,7 @@ class Blit(PyoObject):
 
         :Args:
 
-            x : float or PyoObject
+            x: float or PyoObject
                 new `harms` attribute.
 
         """
@@ -863,12 +863,12 @@ class Rossler(PyoObject):
 
     :Args:
 
-        pitch : float or PyoObject, optional
+        pitch: float or PyoObject, optional
             Controls the speed, in the range 0 -> 1, of the variations. With values
             below 0.2, this object can be used as a low frequency oscillator (LFO)
             and above 0.2, it will generate a broad spectrum noise with harmonic peaks.
             Defaults to 0.25.
-        chaos : float or PyoObject, optional
+        chaos: float or PyoObject, optional
             Controls the chaotic behavior, in the range 0 -> 1, of the oscillator.
             0 means nearly periodic while 1 is totally chaotic. Defaults to 0.5.
         stereo, boolean, optional
@@ -908,7 +908,7 @@ class Rossler(PyoObject):
 
         :Args:
 
-            x : float or PyoObject
+            x: float or PyoObject
                 new `pitch` attribute. {0. -> 1.}
 
         """
@@ -926,7 +926,7 @@ class Rossler(PyoObject):
 
         :Args:
 
-            x : float or PyoObject
+            x: float or PyoObject
                 new `chaos` attribute. {0. -> 1.}
 
         """
@@ -970,12 +970,12 @@ class Lorenz(PyoObject):
 
     :Args:
 
-        pitch : float or PyoObject, optional
+        pitch: float or PyoObject, optional
             Controls the speed, in the range 0 -> 1, of the variations. With values
             below 0.2, this object can be used as a low frequency oscillator (LFO)
             and above 0.2, it will generate a broad spectrum noise with harmonic peaks.
             Defaults to 0.25.
-        chaos : float or PyoObject, optional
+        chaos: float or PyoObject, optional
             Controls the chaotic behavior, in the range 0 -> 1, of the oscillator.
             0 means nearly periodic while 1 is totally chaotic. Defaults to 0.5
         stereo, boolean, optional
@@ -1015,7 +1015,7 @@ class Lorenz(PyoObject):
 
         :Args:
 
-            x : float or PyoObject
+            x: float or PyoObject
                 new `pitch` attribute. {0. -> 1.}
 
         """
@@ -1033,7 +1033,7 @@ class Lorenz(PyoObject):
 
         :Args:
 
-            x : float or PyoObject
+            x: float or PyoObject
                 new `chaos` attribute. {0. -> 1.}
 
         """
@@ -1077,12 +1077,12 @@ class ChenLee(PyoObject):
 
     :Args:
 
-        pitch : float or PyoObject, optional
+        pitch: float or PyoObject, optional
             Controls the speed, in the range 0 -> 1, of the variations. With values
             below 0.2, this object can be used as a low frequency oscillator (LFO)
             and above 0.2, it will generate a broad spectrum noise with harmonic peaks.
             Defaults to 0.25.
-        chaos : float or PyoObject, optional
+        chaos: float or PyoObject, optional
             Controls the chaotic behavior, in the range 0 -> 1, of the oscillator.
             0 means nearly periodic while 1 is totally chaotic. Defaults to 0.5
         stereo, boolean, optional
@@ -1122,7 +1122,7 @@ class ChenLee(PyoObject):
 
         :Args:
 
-            x : float or PyoObject
+            x: float or PyoObject
                 new `pitch` attribute. {0. -> 1.}
 
         """
@@ -1140,7 +1140,7 @@ class ChenLee(PyoObject):
 
         :Args:
 
-            x : float or PyoObject
+            x: float or PyoObject
                 new `chaos` attribute. {0. -> 1.}
 
         """
@@ -1179,13 +1179,13 @@ class LFO(PyoObject):
 
     :Args:
 
-        freq : float or PyoObject, optional
+        freq: float or PyoObject, optional
             Oscillator frequency in cycles per second. The frequency is
             internally clamped between 0.00001 and sr/4. Defaults to 100.
-        sharp : float or PyoObject, optional
+        sharp: float or PyoObject, optional
             Sharpness factor between 0 and 1. Sharper waveform results
             in more harmonics in the spectrum. Defaults to 0.5.
-        type : int, optional
+        type: int, optional
             Waveform type. eight possible values :
                 0. Saw up (default)
                 1. Saw down
@@ -1219,7 +1219,7 @@ class LFO(PyoObject):
 
         :Args:
 
-            x : float or PyoObject
+            x: float or PyoObject
                 New `freq` attribute, in cycles per seconds.
 
         """
@@ -1234,7 +1234,7 @@ class LFO(PyoObject):
 
         :Args:
 
-            x : float or PyoObject
+            x: float or PyoObject
                 New `sharp` attribute, in the range 0 -> 1.
 
         """
@@ -1249,7 +1249,7 @@ class LFO(PyoObject):
 
         :Args:
 
-            x : int
+            x: int
                 New `type` attribute. Choices are :
                     0. Saw up
                     1. Saw down
@@ -1325,13 +1325,13 @@ class SumOsc(PyoObject):
 
     :Args:
 
-        freq : float or PyoObject, optional
+        freq: float or PyoObject, optional
             Base frequency in cycles per second. Defaults to 100.
-        ratio : float or PyoObject, optional
+        ratio: float or PyoObject, optional
             A factor used to stretch or compress the partial serie by
             manipulating the frequency of the modulation oscillator.
             Integer ratios give harmonic spectra. Defaults to 0.5.
-        index : float or PyoObject, optional
+        index: float or PyoObject, optional
             Damping of successive partials, between 0 and 1. With a
             value of 0.5, each partial is 6dB lower than the previous
             partial. Defaults to 0.5.
@@ -1359,7 +1359,7 @@ class SumOsc(PyoObject):
 
         :Args:
 
-            x : float or PyoObject
+            x: float or PyoObject
                 new `freq` attribute.
 
         """
@@ -1374,7 +1374,7 @@ class SumOsc(PyoObject):
 
         :Args:
 
-            x : float or PyoObject
+            x: float or PyoObject
                 new `ratio` attribute.
 
         """
@@ -1389,7 +1389,7 @@ class SumOsc(PyoObject):
 
         :Args:
 
-            x : float or PyoObject
+            x: float or PyoObject
                 new `index` attribute.
 
         """
@@ -1439,13 +1439,13 @@ class SuperSaw(PyoObject):
 
     :Args:
 
-        freq : float or PyoObject, optional
+        freq: float or PyoObject, optional
             Frequency in cycles per second. Defaults to 100.
-        detune : float or PyoObject, optional
+        detune: float or PyoObject, optional
             Depth of the detuning, between 0 and 1. 0 means all oscillators are
             tuned to the same frequency and 1 means sideband oscillators are at
             maximum detuning regarding the central frequency. Defaults to 0.5.
-        bal : float or PyoObject, optional
+        bal: float or PyoObject, optional
             Balance between central oscillator and sideband oscillators. A value
             of 0 outputs only the central oscillator while a value of 1 gives a
             mix of all oscillators with the central one lower than the sidebands.
@@ -1476,7 +1476,7 @@ class SuperSaw(PyoObject):
 
         :Args:
 
-            x : float or PyoObject
+            x: float or PyoObject
                 new `freq` attribute.
 
         """
@@ -1491,7 +1491,7 @@ class SuperSaw(PyoObject):
 
         :Args:
 
-            x : float or PyoObject
+            x: float or PyoObject
                 new `detune` attribute.
 
         """
@@ -1506,7 +1506,7 @@ class SuperSaw(PyoObject):
 
         :Args:
 
-            x : float or PyoObject
+            x: float or PyoObject
                 new `bal` attribute.
 
         """
@@ -1553,9 +1553,9 @@ class RCOsc(PyoObject):
 
     :Args:
 
-        freq : float or PyoObject, optional
+        freq: float or PyoObject, optional
             Frequency in cycles per second. Defaults to 100.
-        sharp : float or PyoObject, optional
+        sharp: float or PyoObject, optional
             Slope of the attack and decay of the waveform, between 0 and 1.
             A value of 0 gives a triangular waveform and 1 gives almost a
             square wave. Defaults to 0.25.
@@ -1584,7 +1584,7 @@ class RCOsc(PyoObject):
 
         :Args:
 
-            x : float or PyoObject
+            x: float or PyoObject
                 new `freq` attribute.
 
         """
@@ -1599,7 +1599,7 @@ class RCOsc(PyoObject):
 
         :Args:
 
-            x : float or PyoObject
+            x: float or PyoObject
                 new `sharp` attribute.
 
         """

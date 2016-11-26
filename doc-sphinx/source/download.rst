@@ -1,11 +1,15 @@
 Downloading the installer
 ==========================
 
-Installers are available for Windows (Win 7/8/10) and for Max OS X (from 10.6 to 10.11).
+Installers are available for Windows (Win XP/Vista/7/8/10) and for Max OS X 
+(from 10.5 to 10.12).
 
 To download the latest pre-compiled version of pyo, go to the pyo's `web page <http://ajaxsoundstudio.com/software/pyo/>`_.
 
-Under Debian and Fedora distros, you can get pyo from the package manager. The library's name is **python-pyo**.
+Under Debian and Fedora distros, you can get pyo from the package manager. 
+The library's name is **python-pyo**. 
+
+If you are running Arch linux, the package is called **python2-pyo**.
 
 
 Content of the installer

@@ -48,21 +48,21 @@ class PVAnal(PyoPVObject):
 
     :Args:
 
-        input : PyoObject
+        input: PyoObject
             Input signal to process.
-        size : int {pow-of-two > 4}, optional
+        size: int {pow-of-two > 4}, optional
             FFT size. Must be a power of two greater than 4.
             Defaults to 1024.
 
             The FFT size is the number of samples used in each
             analysis frame.
-        overlaps : int, optional
+        overlaps: int, optional
             The number of overlaped analysis block. Must be a
             power of two. Defaults to 4.
 
             More overlaps can greatly improved sound quality
             synthesis but it is also more CPU expensive.
-        wintype : int, optional
+        wintype: int, optional
             Shape of the envelope used to filter each input frame.
             Possible shapes are:
                 0. rectangular (no windowing)
@@ -99,9 +99,9 @@ class PVAnal(PyoPVObject):
 
         :Args:
 
-            x : PyoObject
+            x: PyoObject
                 New signal to process.
-            fadetime : float, optional
+            fadetime: float, optional
                 Crossfade time between old and new input. Default to 0.05.
 
         """
@@ -115,7 +115,7 @@ class PVAnal(PyoPVObject):
 
         :Args:
 
-            x : int
+            x: int
                 new `size` attribute.
 
         """
@@ -130,7 +130,7 @@ class PVAnal(PyoPVObject):
 
         :Args:
 
-            x : int
+            x: int
                 new `overlaps` attribute.
 
         """
@@ -145,7 +145,7 @@ class PVAnal(PyoPVObject):
 
         :Args:
 
-            x : int
+            x: int
                 new `wintype` attribute.
 
         """
@@ -194,9 +194,9 @@ class PVSynth(PyoObject):
 
     :Args:
 
-        input : PyoPVObject
+        input: PyoPVObject
             Phase vocoder streaming object to process.
-        wintype : int, optional
+        wintype: int, optional
             Shape of the envelope used to filter each input frame.
             Possible shapes are:
                 0. rectangular (no windowing)
@@ -230,7 +230,7 @@ class PVSynth(PyoObject):
 
         :Args:
 
-            x : PyoPVObject
+            x: PyoPVObject
                 New signal to process.
 
         """
@@ -245,7 +245,7 @@ class PVSynth(PyoObject):
 
         :Args:
 
-            x : int
+            x: int
                 new `wintype` attribute.
 
         """
@@ -285,17 +285,17 @@ class PVAddSynth(PyoObject):
 
     :Args:
 
-        input : PyoPVObject
+        input: PyoPVObject
             Phase vocoder streaming object to process.
-        pitch : float or PyoObject, optional
+        pitch: float or PyoObject, optional
             Transposition factor. Defaults to 1.
-        num : int, optional
+        num: int, optional
             Number of oscillators used to synthesize the
             output sound. Defaults to 100.
-        first : int, optional
+        first: int, optional
             The first bin to synthesize, starting from 0.
             Defaults to 0.
-        inc : int, optional
+        inc: int, optional
             Starting from bin `first`, resynthesize bins
             `inc` apart. Defaults to 1.
 
@@ -324,7 +324,7 @@ class PVAddSynth(PyoObject):
 
         :Args:
 
-            x : PyoPVObject
+            x: PyoPVObject
                 New signal to process.
 
         """
@@ -339,7 +339,7 @@ class PVAddSynth(PyoObject):
 
         :Args:
 
-            x : float or PyoObject
+            x: float or PyoObject
                 new `pitch` attribute.
 
         """
@@ -354,7 +354,7 @@ class PVAddSynth(PyoObject):
 
         :Args:
 
-            x : int
+            x: int
                 new `num` attribute.
 
         """
@@ -369,7 +369,7 @@ class PVAddSynth(PyoObject):
 
         :Args:
 
-            x : int
+            x: int
                 new `first` attribute.
 
         """
@@ -384,7 +384,7 @@ class PVAddSynth(PyoObject):
 
         :Args:
 
-            x : int
+            x: int
                 new `inc` attribute.
 
         """
@@ -441,9 +441,9 @@ class PVTranspose(PyoPVObject):
 
     :Args:
 
-        input : PyoPVObject
+        input: PyoPVObject
             Phase vocoder streaming object to process.
-        transpo : float or PyoObject, optional
+        transpo: float or PyoObject, optional
             Transposition factor. Defaults to 1.
 
     >>> s = Server().boot()
@@ -469,7 +469,7 @@ class PVTranspose(PyoPVObject):
 
         :Args:
 
-            x : PyoPVObject
+            x: PyoPVObject
                 New signal to process.
 
         """
@@ -484,7 +484,7 @@ class PVTranspose(PyoPVObject):
 
         :Args:
 
-            x : int
+            x: int
                 new `transpo` attribute.
 
         """
@@ -519,12 +519,12 @@ class PVVerb(PyoPVObject):
 
     :Args:
 
-        input : PyoPVObject
+        input: PyoPVObject
             Phase vocoder streaming object to process.
-        revtime : float or PyoObject, optional
+        revtime: float or PyoObject, optional
             Reverberation factor, between 0 and 1.
             Defaults to 0.75.
-        damp : float or PyoObject, optional
+        damp: float or PyoObject, optional
             High frequency damping factor, between 0 and 1.
             1 means no damping and 0 is the most damping.
             Defaults to 0.75.
@@ -554,7 +554,7 @@ class PVVerb(PyoPVObject):
 
         :Args:
 
-            x : PyoPVObject
+            x: PyoPVObject
                 New signal to process.
 
         """
@@ -569,7 +569,7 @@ class PVVerb(PyoPVObject):
 
         :Args:
 
-            x : int
+            x: int
                 new `revtime` attribute.
 
         """
@@ -584,7 +584,7 @@ class PVVerb(PyoPVObject):
 
         :Args:
 
-            x : int
+            x: int
                 new `damp` attribute.
 
         """
@@ -627,14 +627,14 @@ class PVGate(PyoPVObject):
 
     :Args:
 
-        input : PyoPVObject
+        input: PyoPVObject
             Phase vocoder streaming object to process.
-        thresh : float or PyoObject, optional
+        thresh: float or PyoObject, optional
             Threshold factor in dB. Bins below that threshold
             will be scaled by `damp` factor. Defaults to -20.
-        damp : float or PyoObject, optional
+        damp: float or PyoObject, optional
             Damping factor for low amplitude bins. Defaults to 0.
-        inverse : boolean, optional
+        inverse: boolean, optional
             If True, the damping factor will be applied to the bins
             with amplitude above the given threshold. If False, the
             damping factor is applied to bins with amplitude below
@@ -664,7 +664,7 @@ class PVGate(PyoPVObject):
 
         :Args:
 
-            x : PyoPVObject
+            x: PyoPVObject
                 New signal to process.
 
         """
@@ -679,7 +679,7 @@ class PVGate(PyoPVObject):
 
         :Args:
 
-            x : int
+            x: int
                 new `thresh` attribute.
 
         """
@@ -694,7 +694,7 @@ class PVGate(PyoPVObject):
 
         :Args:
 
-            x : int
+            x: int
                 new `damp` attribute.
 
         """
@@ -709,7 +709,7 @@ class PVGate(PyoPVObject):
 
         :Args:
 
-            x : boolean
+            x: boolean
                 new `inverse` attribute.
 
         """
@@ -762,13 +762,13 @@ class PVCross(PyoPVObject):
 
     :Args:
 
-        input : PyoPVObject
+        input: PyoPVObject
             Phase vocoder streaming object to process. Frequencies from
             this pv stream are used to compute the output signal.
-        input2 : PyoPVObject
+        input2: PyoPVObject
             Phase vocoder streaming object which gives the second set of
             magnitudes. Frequencies from this pv stream are not used.
-        fade : float or PyoObject, optional
+        fade: float or PyoObject, optional
             Scaling factor for the output amplitudes, between 0 and 1.
             0 means amplitudes from `input` and 1 means amplitudes from `input2`.
             Defaults to 1.
@@ -813,7 +813,7 @@ class PVCross(PyoPVObject):
 
         :Args:
 
-            x : PyoPVObject
+            x: PyoPVObject
                 New signal to process.
 
         """
@@ -828,7 +828,7 @@ class PVCross(PyoPVObject):
 
         :Args:
 
-            x : PyoPVObject
+            x: PyoPVObject
                 New signal to process.
 
         """
@@ -843,7 +843,7 @@ class PVCross(PyoPVObject):
 
         :Args:
 
-            x : float or PyoObject
+            x: float or PyoObject
                 new `fade` attribute.
 
         """
@@ -885,10 +885,10 @@ class PVMult(PyoPVObject):
 
     :Args:
 
-        input : PyoPVObject
+        input: PyoPVObject
             Phase vocoder streaming object to process. Frequencies from
             this pv stream are used to compute the output signal.
-        input2 : PyoPVObject
+        input2: PyoPVObject
             Phase vocoder streaming object which gives the second set of
             magnitudes. Frequencies from this pv stream are not used.
 
@@ -931,7 +931,7 @@ class PVMult(PyoPVObject):
 
         :Args:
 
-            x : PyoPVObject
+            x: PyoPVObject
                 New signal to process.
 
         """
@@ -946,7 +946,7 @@ class PVMult(PyoPVObject):
 
         :Args:
 
-            x : PyoPVObject
+            x: PyoPVObject
                 New signal to process.
 
         """
@@ -981,13 +981,13 @@ class PVMorph(PyoPVObject):
 
     :Args:
 
-        input : PyoPVObject
+        input: PyoPVObject
             Phase vocoder streaming object which gives the first set of
             magnitudes and frequencies.
-        input2 : PyoPVObject
+        input2: PyoPVObject
             Phase vocoder streaming object which gives the second set of
             magnitudes and frequencies.
-        fade : float or PyoObject, optional
+        fade: float or PyoObject, optional
             Scaling factor for the output amplitudes and frequencies,
             between 0 and 1. 0 is `input` and 1 in `input2`. Defaults to 0.5.
 
@@ -1031,7 +1031,7 @@ class PVMorph(PyoPVObject):
 
         :Args:
 
-            x : PyoPVObject
+            x: PyoPVObject
                 New signal to process.
 
         """
@@ -1046,7 +1046,7 @@ class PVMorph(PyoPVObject):
 
         :Args:
 
-            x : PyoPVObject
+            x: PyoPVObject
                 New signal to process.
 
         """
@@ -1061,7 +1061,7 @@ class PVMorph(PyoPVObject):
 
         :Args:
 
-            x : float or PyoObject
+            x: float or PyoObject
                 new `fade` attribute.
 
         """
@@ -1107,16 +1107,16 @@ class PVFilter(PyoPVObject):
 
     :Args:
 
-        input : PyoPVObject
+        input: PyoPVObject
             Phase vocoder streaming object to process.
-        table : PyoTableObject
+        table: PyoTableObject
             Table containing the filter shape. If the
             table length is smaller than fftsize/2,
             remaining bins will be set to 0.
-        gain : float or PyoObject, optional
+        gain: float or PyoObject, optional
             Gain of the filter applied to the input spectrum.
             Defaults to 1.
-        mode : int, optional
+        mode: int, optional
             Table scanning mode. Defaults to 0.
 
             If 0, bin indexes outside table size are set to 0.
@@ -1147,7 +1147,7 @@ class PVFilter(PyoPVObject):
 
         :Args:
 
-            x : PyoPVObject
+            x: PyoPVObject
                 New signal to process.
 
         """
@@ -1162,7 +1162,7 @@ class PVFilter(PyoPVObject):
 
         :Args:
 
-            x : PyoTableObject
+            x: PyoTableObject
                 new `table` attribute.
 
         """
@@ -1177,7 +1177,7 @@ class PVFilter(PyoPVObject):
 
         :Args:
 
-            x : float or PyoObject
+            x: float or PyoObject
                 new `gain` attribute.
 
         """
@@ -1192,7 +1192,7 @@ class PVFilter(PyoPVObject):
 
         :Args:
 
-            x : int
+            x: int
                 new `mode` attribute.
 
         """
@@ -1245,23 +1245,23 @@ class PVDelay(PyoPVObject):
 
     :Args:
 
-        input : PyoPVObject
+        input: PyoPVObject
             Phase vocoder streaming object to process.
-        deltable : PyoTableObject
+        deltable: PyoTableObject
             Table containing delay times, as integer multipliers
             of the FFT hopsize (fftsize / overlaps).
 
             If the table length is smaller than fftsize/2,
             remaining bins will be set to 0.
-        feedtable : PyoTableObject
+        feedtable: PyoTableObject
             Table containing feedback values, between -1 and 1.
 
             If the table length is smaller than fftsize/2,
             remaining bins will be set to 0.
-        maxdelay : float, optional
+        maxdelay: float, optional
             Maximum delay time in seconds. Available at initialization
             time only. Defaults to 1.0.
-        mode : int, optional
+        mode: int, optional
             Tables scanning mode. Defaults to 0.
 
             If 0, bin indexes outside table size are set to 0.
@@ -1300,7 +1300,7 @@ class PVDelay(PyoPVObject):
 
         :Args:
 
-            x : PyoPVObject
+            x: PyoPVObject
                 New signal to process.
 
         """
@@ -1315,7 +1315,7 @@ class PVDelay(PyoPVObject):
 
         :Args:
 
-            x : PyoTableObject
+            x: PyoTableObject
                 new `deltable` attribute.
 
         """
@@ -1330,7 +1330,7 @@ class PVDelay(PyoPVObject):
 
         :Args:
 
-            x : PyoTableObject
+            x: PyoTableObject
                 new `feedtable` attribute.
 
         """
@@ -1345,7 +1345,7 @@ class PVDelay(PyoPVObject):
 
         :Args:
 
-            x : int
+            x: int
                 new `mode` attribute.
 
         """
@@ -1393,14 +1393,14 @@ class PVBuffer(PyoPVObject):
 
     :Args:
 
-        input : PyoPVObject
+        input: PyoPVObject
             Phase vocoder streaming object to process.
-        index : PyoObject
+        index: PyoObject
             Playback position, as audio stream, normalized
             between 0 and 1.
-        pitch : float or PyoObject, optional
+        pitch: float or PyoObject, optional
             Transposition factor. Defaults to 1.
-        length : float, optional
+        length: float, optional
             Memory length in seconds. Available at initialization
             time only. Defaults to 1.0.
 
@@ -1436,7 +1436,7 @@ class PVBuffer(PyoPVObject):
 
         :Args:
 
-            x : PyoPVObject
+            x: PyoPVObject
                 New signal to process.
 
         """
@@ -1451,7 +1451,7 @@ class PVBuffer(PyoPVObject):
 
         :Args:
 
-            x : PyoObject
+            x: PyoObject
                 new `index` attribute.
 
         """
@@ -1466,7 +1466,7 @@ class PVBuffer(PyoPVObject):
 
         :Args:
 
-            x : float or PyoObject
+            x: float or PyoObject
                 new `pitch` attribute.
 
         """
@@ -1511,9 +1511,9 @@ class PVShift(PyoPVObject):
 
     :Args:
 
-        input : PyoPVObject
+        input: PyoPVObject
             Phase vocoder streaming object to process.
-        shift : float or PyoObject, optional
+        shift: float or PyoObject, optional
             Frequency shift factor. Defaults to 0.
 
     >>> s = Server().boot()
@@ -1538,7 +1538,7 @@ class PVShift(PyoPVObject):
 
         :Args:
 
-            x : PyoPVObject
+            x: PyoPVObject
                 New signal to process.
 
         """
@@ -1553,7 +1553,7 @@ class PVShift(PyoPVObject):
 
         :Args:
 
-            x : float or PyoObject
+            x: float or PyoObject
                 new `shift` attribute.
 
         """
@@ -1600,12 +1600,12 @@ class PVAmpMod(PyoPVObject):
 
     :Args:
 
-        input : PyoPVObject
+        input: PyoPVObject
             Phase vocoder streaming object to process.
-        basefreq : float or PyoObject, optional
+        basefreq: float or PyoObject, optional
             Base modulation frequency, in Hertz.
             Defaults to 1.
-        spread : float or PyoObject, optional
+        spread: float or PyoObject, optional
             Spreading factor for oscillator frequencies, between
             -1 and 1. 0 means every oscillator has the same frequency.
 
@@ -1632,7 +1632,7 @@ class PVAmpMod(PyoPVObject):
 
         :Args:
 
-            x : PyoPVObject
+            x: PyoPVObject
                 New signal to process.
 
         """
@@ -1647,7 +1647,7 @@ class PVAmpMod(PyoPVObject):
 
         :Args:
 
-            x : float or PyoObject
+            x: float or PyoObject
                 new `basefreq` attribute.
 
         """
@@ -1662,7 +1662,7 @@ class PVAmpMod(PyoPVObject):
 
         :Args:
 
-            x : float or PyoObject
+            x: float or PyoObject
                 new `spread` attribute.
 
         """
@@ -1724,15 +1724,15 @@ class PVFreqMod(PyoPVObject):
 
     :Args:
 
-        input : PyoPVObject
+        input: PyoPVObject
             Phase vocoder streaming object to process.
-        basefreq : float or PyoObject, optional
+        basefreq: float or PyoObject, optional
             Base modulation frequency, in Hertz.
             Defaults to 1.
-        spread : float or PyoObject, optional
+        spread: float or PyoObject, optional
             Spreading factor for oscillator frequencies, between
             -1 and 1. 0 means every oscillator has the same frequency.
-        depth : float or PyoObject, optional
+        depth: float or PyoObject, optional
             Amplitude of the modulating oscillators, between 0 and 1.
             Defaults to 0.1.
 
@@ -1760,7 +1760,7 @@ class PVFreqMod(PyoPVObject):
 
         :Args:
 
-            x : PyoPVObject
+            x: PyoPVObject
                 New signal to process.
 
         """
@@ -1775,7 +1775,7 @@ class PVFreqMod(PyoPVObject):
 
         :Args:
 
-            x : float or PyoObject
+            x: float or PyoObject
                 new `basefreq` attribute.
 
         """
@@ -1790,7 +1790,7 @@ class PVFreqMod(PyoPVObject):
 
         :Args:
 
-            x : float or PyoObject
+            x: float or PyoObject
                 new `spread` attribute.
 
         """
@@ -1805,7 +1805,7 @@ class PVFreqMod(PyoPVObject):
 
         :Args:
 
-            x : float or PyoObject
+            x: float or PyoObject
                 new `depth` attribute.
 
         """
@@ -1867,13 +1867,13 @@ class PVBufLoops(PyoPVObject):
 
     :Args:
 
-        input : PyoPVObject
+        input: PyoPVObject
             Phase vocoder streaming object to process.
-        low : float or PyoObject, optional
+        low: float or PyoObject, optional
             Lowest bin speed factor. Defaults to 1.0.
-        high : float or PyoObject, optional
+        high: float or PyoObject, optional
             Highest bin speed factor. Defaults to 1.0.
-        mode : int, optional
+        mode: int, optional
             Speed distribution algorithm. Available algorithms are:
                 0. linear, line between `low` and `high` (default)
                 1. exponential, exponential line between `low` and `high`
@@ -1883,7 +1883,7 @@ class PVBufLoops(PyoPVObject):
                 5. rand expon max, exponential random from `high` to `low`
                 6. rand bi-expon, bipolar exponential random between `low` and `high`
 
-        length : float, optional
+        length: float, optional
             Memory length in seconds. Available at initialization
             time only. Defaults to 1.0.
 
@@ -1919,7 +1919,7 @@ class PVBufLoops(PyoPVObject):
 
         :Args:
 
-            x : PyoPVObject
+            x: PyoPVObject
                 New signal to process.
 
         """
@@ -1934,7 +1934,7 @@ class PVBufLoops(PyoPVObject):
 
         :Args:
 
-            x : float or PyoObject
+            x: float or PyoObject
                 new `low` attribute.
 
         """
@@ -1949,7 +1949,7 @@ class PVBufLoops(PyoPVObject):
 
         :Args:
 
-            x : float or PyoObject
+            x: float or PyoObject
                 new `high` attribute.
 
         """
@@ -1964,7 +1964,7 @@ class PVBufLoops(PyoPVObject):
 
         :Args:
 
-            x : int
+            x: int
                 new `mode` attribute.
 
         """
@@ -2025,11 +2025,11 @@ class PVBufTabLoops(PyoPVObject):
 
     :Args:
 
-        input : PyoPVObject
+        input: PyoPVObject
             Phase vocoder streaming object to process.
-        speed : PyoTableObject
+        speed: PyoTableObject
             Table which specify the speed of bin playback readers.
-        length : float, optional
+        length: float, optional
             Memory length in seconds. Available at initialization
             time only. Defaults to 1.0.
 
@@ -2064,7 +2064,7 @@ class PVBufTabLoops(PyoPVObject):
 
         :Args:
 
-            x : PyoPVObject
+            x: PyoPVObject
                 New signal to process.
 
         """
@@ -2079,7 +2079,7 @@ class PVBufTabLoops(PyoPVObject):
 
         :Args:
 
-            x : PyoTableObject
+            x: PyoTableObject
                 new `speed` attribute.
 
         """
@@ -2117,9 +2117,9 @@ class PVMix(PyoPVObject):
 
     :Args:
 
-        input : PyoPVObject
+        input: PyoPVObject
             Phase vocoder streaming object 1.
-        input2 : PyoPVObject
+        input2: PyoPVObject
             Phase vocoder streaming object 2.
 
     .. note::
@@ -2161,7 +2161,7 @@ class PVMix(PyoPVObject):
 
         :Args:
 
-            x : PyoPVObject
+            x: PyoPVObject
                 New signal to process.
 
         """
@@ -2176,7 +2176,7 @@ class PVMix(PyoPVObject):
 
         :Args:
 
-            x : PyoPVObject
+            x: PyoPVObject
                 New signal to process.
 
         """

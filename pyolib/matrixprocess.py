@@ -46,14 +46,14 @@ class MatrixRec(PyoObject):
 
     :Args:
 
-        input : PyoObject
+        input: PyoObject
             Audio signal to write in the matrix.
-        matrix : PyoMatrixObject
+        matrix: PyoMatrixObject
             The matrix where to write samples.
-        fadetime : float, optional
+        fadetime: float, optional
             Fade time at the beginning and the end of the recording
             in seconds. Defaults to 0.
-        delay : int, optional
+        delay: int, optional
             Delay time, in samples, before the recording begins.
             Available at initialization time only. Defaults to 0.
 
@@ -111,9 +111,9 @@ class MatrixRec(PyoObject):
 
         :Args:
 
-            x : PyoObject
+            x: PyoObject
                 New signal to process.
-            fadetime : float, optional
+            fadetime: float, optional
                 Crossfade time between old and new input. Defaults to 0.05.
 
         """
@@ -127,7 +127,7 @@ class MatrixRec(PyoObject):
 
         :Args:
 
-            x : NewMatrix
+            x: NewMatrix
                 new `matrix` attribute.
 
         """
@@ -163,9 +163,9 @@ class MatrixRecLoop(PyoObject):
 
     :Args:
 
-        input : PyoObject
+        input: PyoObject
             Audio signal to write in the matrix.
-        matrix : PyoMatrixObject
+        matrix: PyoMatrixObject
             The matrix where to write samples.
 
     .. note::
@@ -221,9 +221,9 @@ class MatrixRecLoop(PyoObject):
 
         :Args:
 
-            x : PyoObject
+            x: PyoObject
                 New signal to process.
-            fadetime : float, optional
+            fadetime: float, optional
                 Crossfade time between old and new input. Defaults to 0.05.
 
         """
@@ -237,7 +237,7 @@ class MatrixRecLoop(PyoObject):
 
         :Args:
 
-            x : NewMatrix
+            x: NewMatrix
                 new `matrix` attribute.
 
         """
@@ -268,11 +268,11 @@ class MatrixPointer(PyoObject):
 
     :Args:
 
-        matrix : PyoMatrixObject
+        matrix: PyoMatrixObject
             Matrix containing the waveform samples.
-        x : PyoObject
+        x: PyoObject
             Normalized X position in the matrix between 0 and 1.
-        y : PyoObject
+        y: PyoObject
             Normalized Y position in the matrix between 0 and 1.
 
     >>> s = Server().boot()
@@ -305,7 +305,7 @@ class MatrixPointer(PyoObject):
 
         :Args:
 
-            x : PyoTableObject
+            x: PyoTableObject
                 new `matrix` attribute.
 
         """
@@ -320,7 +320,7 @@ class MatrixPointer(PyoObject):
 
         :Args:
 
-            x : PyoObject
+            x: PyoObject
                 new `x` attribute.
 
         """
@@ -335,7 +335,7 @@ class MatrixPointer(PyoObject):
 
         :Args:
 
-            y : PyoObject
+            y: PyoObject
                 new `y` attribute.
 
         """
@@ -382,12 +382,12 @@ class MatrixMorph(PyoObject):
 
     :Args:
 
-        input : PyoObject
+        input: PyoObject
             Morphing index between 0 and 1. 0 is the first matrix in the list
             and 1 is the last.
-        matrix : NewMatrix
+        matrix: NewMatrix
             The matrix where to write morphed function.
-        sources : list of PyoMatrixObject
+        sources: list of PyoMatrixObject
             List of matrices to interpolate from.
 
     .. note::
@@ -436,9 +436,9 @@ class MatrixMorph(PyoObject):
 
         :Args:
 
-            x : PyoObject
+            x: PyoObject
                 New signal to process.
-            fadetime : float, optional
+            fadetime: float, optional
                 Crossfade time between old and new input. Defaults to 0.05.
 
         """
@@ -452,7 +452,7 @@ class MatrixMorph(PyoObject):
 
         :Args:
 
-            x : NewMatrix
+            x: NewMatrix
                 new `matrix` attribute.
 
         """
@@ -467,7 +467,7 @@ class MatrixMorph(PyoObject):
 
         :Args:
 
-            x : list of PyoMatrixObject
+            x: list of PyoMatrixObject
                 new `sources` attribute.
 
         """

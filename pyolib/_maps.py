@@ -31,11 +31,11 @@ class Map:
 
     :Args:
 
-        min : int or float
+        min: int or float
             Lowest value of the range.
-        max : int or float
+        max: int or float
             Highest value of the range.
-        scale : string {'lin', 'log'}
+        scale: string {'lin', 'log'}
             Method used to scale the input value on the specified range.
 
     >>> m = Map(20., 20000., 'log')
@@ -79,7 +79,7 @@ class Map:
 
         :Args:
 
-            x : float
+            x: float
                 New `min` attribute.
 
         """
@@ -91,7 +91,7 @@ class Map:
 
         :Args:
 
-            x : float
+            x: float
                 New `max` attribute.
 
         """
@@ -103,7 +103,7 @@ class Map:
 
         :Args:
 
-            x : string
+            x: string
                 New `scale` attribute.
 
         """
@@ -142,23 +142,23 @@ class SLMap(Map):
 
     :Args:
 
-        min : int or float
+        min: int or float
             Smallest value of the range.
-        max : int or float
+        max: int or float
             Highest value of the range.
-        scale : string {'lin', 'log'}
+        scale: string {'lin', 'log'}
             Method used to scale the input value on the specified range.
-        name : string
+        name: string
             Name of the attributes the slider is affected to.
-        init : int or float
+        init: int or float
             Initial value. Specified in the real range, not between 0 and 1. Use
             the `set` method to retreive the normalized corresponding value.
-        res : string {'int', 'float'}, optional
+        res: string {'int', 'float'}, optional
             Sets the resolution of the slider. Defaults to 'float'.
-        ramp : float, optional
+        ramp: float, optional
             Ramp time, in seconds, used to smooth the signal sent from slider
             to object's attribute. Defaults to 0.025.
-        dataOnly : boolean, optional
+        dataOnly: boolean, optional
             Set this argument to True if the parameter does not accept audio
             signal as control but discreet values. If True, label will be
             marked with a star symbol (*). Defaults to False.
@@ -204,7 +204,7 @@ class SLMapFreq(SLMap):
 
     :Args:
 
-        init : int or float, optional
+        init: int or float, optional
             Initial value. Specified in the real range, not between 0 and 1.
             Defaults to 1000.
 
@@ -231,7 +231,7 @@ class SLMapMul(SLMap):
 
     :Args:
 
-        init : int or float, optional
+        init: int or float, optional
             Initial value. Specified in the real range, not between 0 and 1.
             Defaults to 1.
 
@@ -258,7 +258,7 @@ class SLMapPhase(SLMap):
 
     :Args:
 
-        init : int or float, optional
+        init: int or float, optional
             Initial value. Specified in the real range, not between 0 and 1.
             Defaults to 0.
 
@@ -285,7 +285,7 @@ class SLMapPan(SLMap):
 
     :Args:
 
-        init : int or float, optional
+        init: int or float, optional
             Initial value. Specified in the real range, not between 0 and 1.
             Defaults to 0.
 
@@ -312,7 +312,7 @@ class SLMapQ(SLMap):
 
     :Args:
 
-        init : int or float, optional
+        init: int or float, optional
             Initial value. Specified in the real range, not between 0 and 1.
             Defaults to 1.
 
@@ -339,7 +339,7 @@ class SLMapDur(SLMap):
 
     :Args:
 
-        init : int or float, optional
+        init: int or float, optional
             Initial value. Specified in the real range, not between 0 and 1.
             Defaults to 1.
 

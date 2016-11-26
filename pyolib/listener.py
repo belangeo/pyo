@@ -18,14 +18,14 @@ class MidiListener(threading.Thread):
 
     :Args:
 
-        function : Python function (can't be a list)
+        function: Python function (can't be a list)
             Function that will be called when a new midi event is available.
             This function is called with the incoming midi data as
             arguments. The signature of the function must be:
 
             def myfunc(status, data1, data2)
 
-        mididev : int, optional
+        mididev: int, optional
             Sets the midi input device (see `pm_list_devices()` for the
             available devices). The default, -1, means the system default
             device. A number greater than the highest portmidi device index
@@ -77,14 +77,14 @@ class OscListener(threading.Thread):
 
     :Args:
 
-        function : Python function (can't be a list)
+        function: Python function (can't be a list)
             Function that will be called when a new OSC event is available.
             This function is called with the incoming address and values as
             arguments. The signature of the function must be:
 
             def myfunc(address, *args)
 
-        port : int, optional
+        port: int, optional
             The OSC port on which the values are received. Defaults to 9000.
 
     >>> s = Server().boot()

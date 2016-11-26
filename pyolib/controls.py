@@ -51,11 +51,11 @@ class Fader(PyoObject):
 
     :Args:
 
-        fadein : float, optional
+        fadein: float, optional
             Rising time of the envelope in seconds. Defaults to 0.01.
-        fadeout : float, optional
+        fadeout: float, optional
             Falling time of the envelope in seconds. Defaults to 0.1.
-        dur : float, optional
+        dur: float, optional
             Total duration of the envelope. Defaults to 0, which means wait
             for the stop() method to start the fadeout.
 
@@ -98,7 +98,7 @@ class Fader(PyoObject):
 
         :Args:
 
-            x : float
+            x: float
                 new `fadein` attribute.
 
         """
@@ -113,7 +113,7 @@ class Fader(PyoObject):
 
         :Args:
 
-            x : float
+            x: float
                 new `fadeout` attribute.
 
         """
@@ -128,7 +128,7 @@ class Fader(PyoObject):
 
         :Args:
 
-            x : float
+            x: float
                 new `dur` attribute.
 
         """
@@ -147,7 +147,7 @@ class Fader(PyoObject):
 
         :Args:
 
-            x : float
+            x: float
                 new `exp` attribute.
 
         """
@@ -206,15 +206,15 @@ class Adsr(PyoObject):
 
     :Args:
 
-        attack : float, optional
+        attack: float, optional
             Duration of the attack phase in seconds. Defaults to 0.01.
-        decay : float, optional
+        decay: float, optional
             Duration of the decay in seconds. Defaults to 0.05.
-        sustain : float, optional
+        sustain: float, optional
             Amplitude of the sustain phase. Defaults to 0.707.
-        release : float, optional
+        release: float, optional
             Duration of the release in seconds. Defaults to 0.1.
-        dur : float, optional
+        dur: float, optional
             Total duration of the envelope. Defaults to 0, which means wait
             for the stop() method to start the release phase.
 
@@ -260,7 +260,7 @@ class Adsr(PyoObject):
 
         :Args:
 
-            x : float
+            x: float
                 new `attack` attribute.
 
         """
@@ -275,7 +275,7 @@ class Adsr(PyoObject):
 
         :Args:
 
-            x : float
+            x: float
                 new `decay` attribute.
 
         """
@@ -290,7 +290,7 @@ class Adsr(PyoObject):
 
         :Args:
 
-            x : float
+            x: float
                 new `sustain` attribute.
 
         """
@@ -305,7 +305,7 @@ class Adsr(PyoObject):
 
         :Args:
 
-            x : float
+            x: float
                 new `sustain` attribute.
 
         """
@@ -320,7 +320,7 @@ class Adsr(PyoObject):
 
         :Args:
 
-            x : float
+            x: float
                 new `dur` attribute.
 
         """
@@ -339,7 +339,7 @@ class Adsr(PyoObject):
 
         :Args:
 
-            x : float
+            x: float
                 new `exp` attribute.
 
         """
@@ -409,14 +409,14 @@ class Linseg(PyoObject):
 
     :Args:
 
-        list : list of tuples
+        list: list of tuples
             Points used to construct the line segments. Each tuple is a
             new point in the form (time, value).
 
             Times are given in seconds and must be in increasing order.
-        loop : boolean, optional
+        loop: boolean, optional
             Looping mode. Defaults to False.
-        initToFirstVal : boolean, optional
+        initToFirstVal: boolean, optional
             If True, audio buffer will be filled at initialization with the
             first value of the line. Defaults to False.
 
@@ -454,7 +454,7 @@ class Linseg(PyoObject):
 
         :Args:
 
-            x : list of tuples
+            x: list of tuples
                 new `list` attribute.
 
         """
@@ -471,7 +471,7 @@ class Linseg(PyoObject):
 
         :Args:
 
-            x : list of tuples
+            x: list of tuples
                 new `list` attribute.
 
         """
@@ -486,7 +486,7 @@ class Linseg(PyoObject):
 
         :Args:
 
-            x : boolean
+            x: boolean
                 new `loop` attribute.
 
         """
@@ -514,16 +514,16 @@ class Linseg(PyoObject):
 
         :Args:
 
-            xlen : float, optional
+            xlen: float, optional
                 Set the maximum value of the X axis of the graph. If None, the
                 maximum value is retrieve from the current list of points.
-            yrange : tuple, optional
+            yrange: tuple, optional
                 Set the min and max values of the Y axis of the graph. If
                 None, min and max are retrieve from the current list of points.
-            title : string, optional
+            title: string, optional
                 Title of the window. If none is provided, the name of the
                 class is used.
-            wxnoserver : boolean, optional
+            wxnoserver: boolean, optional
                 With wxPython graphical toolkit, if True, tells the
                 interpreter that there will be no server window.
 
@@ -569,20 +569,20 @@ class Expseg(PyoObject):
 
     :Args:
 
-        list : list of tuples
+        list: list of tuples
             Points used to construct the line segments. Each tuple is a
             new point in the form (time, value).
 
             Times are given in seconds and must be in increasing order.
-        loop : boolean, optional
+        loop: boolean, optional
             Looping mode. Defaults to False.
-        exp : float, optional
+        exp: float, optional
             Exponent factor. Used to control the slope of the curves.
             Defaults to 10.
-        inverse : boolean, optional
+        inverse: boolean, optional
             If True, downward slope will be inversed. Useful to create
             biexponential curves. Defaults to True.
-        initToFirstVal : boolean, optional
+        initToFirstVal: boolean, optional
             If True, audio buffer will be filled at initialization with the
             first value of the line. Defaults to False.
 
@@ -622,7 +622,7 @@ class Expseg(PyoObject):
 
         :Args:
 
-            x : list of tuples
+            x: list of tuples
                 new `list` attribute.
 
         """
@@ -639,7 +639,7 @@ class Expseg(PyoObject):
 
         :Args:
 
-            x : boolean
+            x: boolean
                 new `loop` attribute.
 
         """
@@ -654,7 +654,7 @@ class Expseg(PyoObject):
 
         :Args:
 
-            x : float
+            x: float
                 new `exp` attribute.
 
         """
@@ -669,7 +669,7 @@ class Expseg(PyoObject):
 
         :Args:
 
-            x : boolean
+            x: boolean
                 new `inverse` attribute.
 
         """
@@ -684,7 +684,7 @@ class Expseg(PyoObject):
 
         :Args:
 
-            x : list of tuples
+            x: list of tuples
                 new `list` attribute.
 
         """
@@ -712,18 +712,18 @@ class Expseg(PyoObject):
 
         :Args:
 
-            xlen : float, optional
+            xlen: float, optional
                 Set the maximum value of the X axis of the graph. If None, the
                 maximum value is retrieve from the current list of points.
                 Defaults to None.
-            yrange : tuple, optional
+            yrange: tuple, optional
                 Set the min and max values of the Y axis of the graph. If
                 None, min and max are retrieve from the current list of points.
                 Defaults to None.
-            title : string, optional
+            title: string, optional
                 Title of the window. If none is provided, the name of the
                 class is used.
-            wxnoserver : boolean, optional
+            wxnoserver: boolean, optional
                 With wxPython graphical toolkit, if True, tells the
                 interpreter that there will be no server window.
 
@@ -784,11 +784,11 @@ class SigTo(PyoObject):
 
     :Args:
 
-        value : float or PyoObject
+        value: float or PyoObject
             Numerical value to convert.
-        time : float or PyoObject, optional
+        time: float or PyoObject, optional
             Ramp time, in seconds, to reach the new value. Defaults to 0.025.
-        init : float, optional
+        init: float, optional
             Initial value of the internal memory. Defaults to 0.
 
     .. note::
@@ -820,7 +820,7 @@ class SigTo(PyoObject):
 
         :Args:
 
-            x : float or PyoObject
+            x: float or PyoObject
                 Numerical value to convert.
 
         """
@@ -835,7 +835,7 @@ class SigTo(PyoObject):
 
         :Args:
 
-            x : float or PyoObject
+            x: float or PyoObject
                 New ramp time in seconds.
 
         """

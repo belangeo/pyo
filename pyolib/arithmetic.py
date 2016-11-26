@@ -36,7 +36,7 @@ class Sin(PyoObject):
 
     :Args:
 
-        input : PyoObject
+        input: PyoObject
             Input signal, angle in radians.
 
     >>> s = Server().boot()
@@ -61,9 +61,9 @@ class Sin(PyoObject):
 
         :Args:
 
-            x : PyoObject
+            x: PyoObject
                 New signal to process.
-            fadetime : float, optional
+            fadetime: float, optional
                 Crossfade time between old and new input. Default to 0.05.
 
         """
@@ -88,7 +88,7 @@ class Cos(PyoObject):
 
     :Args:
 
-        input : PyoObject
+        input: PyoObject
             Input signal, angle in radians.
 
     >>> s = Server().boot()
@@ -112,9 +112,9 @@ class Cos(PyoObject):
 
         :Args:
 
-            x : PyoObject
+            x: PyoObject
                 New signal to process.
-            fadetime : float, optional
+            fadetime: float, optional
                 Crossfade time between old and new input. Default to 0.05.
 
         """
@@ -139,7 +139,7 @@ class Tan(PyoObject):
 
     :Args:
 
-        input : PyoObject
+        input: PyoObject
             Input signal, angle in radians.
 
     >>> s = Server().boot()
@@ -170,9 +170,9 @@ class Tan(PyoObject):
 
         :Args:
 
-            x : PyoObject
+            x: PyoObject
                 New signal to process.
-            fadetime : float, optional
+            fadetime: float, optional
                 Crossfade time between old and new input. Default to 0.05.
 
         """
@@ -197,7 +197,7 @@ class Abs(PyoObject):
 
     :Args:
 
-        input : PyoObject
+        input: PyoObject
             Input signal to process.
 
     >>> s = Server().boot()
@@ -223,9 +223,9 @@ class Abs(PyoObject):
 
         :Args:
 
-            x : PyoObject
+            x: PyoObject
                 New signal to process.
-            fadetime : float, optional
+            fadetime: float, optional
                 Crossfade time between old and new input. Default to 0.05.
 
         """
@@ -250,7 +250,7 @@ class Sqrt(PyoObject):
 
     :Args:
 
-        input : PyoObject
+        input: PyoObject
             Input signal to process.
 
     >>> s = Server().boot()
@@ -281,9 +281,9 @@ class Sqrt(PyoObject):
 
         :Args:
 
-            x : PyoObject
+            x: PyoObject
                 New signal to process.
-            fadetime : float, optional
+            fadetime: float, optional
                 Crossfade time between old and new input. Default to 0.05.
 
         """
@@ -309,7 +309,7 @@ class Log(PyoObject):
 
     :Args:
 
-        input : PyoObject
+        input: PyoObject
             Input signal to process.
 
     >>> s = Server().boot()
@@ -335,9 +335,9 @@ class Log(PyoObject):
 
         :Args:
 
-            x : PyoObject
+            x: PyoObject
                 New signal to process.
-            fadetime : float, optional
+            fadetime: float, optional
                 Crossfade time between old and new input. Default to 0.05.
 
         """
@@ -363,7 +363,7 @@ class Log2(PyoObject):
 
     :Args:
 
-        input : PyoObject
+        input: PyoObject
             Input signal to process.
 
     >>> s = Server().boot()
@@ -389,9 +389,9 @@ class Log2(PyoObject):
 
         :Args:
 
-            x : PyoObject
+            x: PyoObject
                 New signal to process.
-            fadetime : float, optional
+            fadetime: float, optional
                 Crossfade time between old and new input. Default to 0.05.
 
         """
@@ -417,7 +417,7 @@ class Log10(PyoObject):
 
     :Args:
 
-        input : PyoObject
+        input: PyoObject
             Input signal to process.
 
     >>> s = Server().boot()
@@ -443,9 +443,9 @@ class Log10(PyoObject):
 
         :Args:
 
-            x : PyoObject
+            x: PyoObject
                 New signal to process.
-            fadetime : float, optional
+            fadetime: float, optional
                 Crossfade time between old and new input. Default to 0.05.
 
         """
@@ -472,9 +472,9 @@ class Atan2(PyoObject):
 
     :Args:
 
-        b : float or PyoObject, optional
+        b: float or PyoObject, optional
             Numerator. Defaults to 1.
-        a : float or PyoObject, optional
+        a: float or PyoObject, optional
             Denominator. Defaults to 1.
 
     >>> s = Server().boot()
@@ -500,7 +500,7 @@ class Atan2(PyoObject):
 
         :Args:
 
-            x : float or PyoObject
+            x: float or PyoObject
                 new `b` attribute.
 
         """
@@ -515,7 +515,7 @@ class Atan2(PyoObject):
 
         :Args:
 
-            x : float or PyoObject
+            x: float or PyoObject
                 new `a` attribute.
 
         """
@@ -549,7 +549,7 @@ class Floor(PyoObject):
 
     :Args:
 
-        input : PyoObject
+        input: PyoObject
             Input signal to process.
 
     >>> s = Server().boot()
@@ -575,9 +575,9 @@ class Floor(PyoObject):
 
         :Args:
 
-            x : PyoObject
+            x: PyoObject
                 New signal to process.
-            fadetime : float, optional
+            fadetime: float, optional
                 Crossfade time between old and new input. Default to 0.05.
 
         """
@@ -603,7 +603,7 @@ class Ceil(PyoObject):
 
     :Args:
 
-        input : PyoObject
+        input: PyoObject
             Input signal to process.
 
     >>> s = Server().boot()
@@ -629,9 +629,9 @@ class Ceil(PyoObject):
 
         :Args:
 
-            x : PyoObject
+            x: PyoObject
                 New signal to process.
-            fadetime : float, optional
+            fadetime: float, optional
                 Crossfade time between old and new input. Default to 0.05.
 
         """
@@ -657,7 +657,7 @@ class Round(PyoObject):
 
     :Args:
 
-        input : PyoObject
+        input: PyoObject
             Input signal to process.
 
     >>> s = Server().boot()
@@ -683,9 +683,9 @@ class Round(PyoObject):
 
         :Args:
 
-            x : PyoObject
+            x: PyoObject
                 New signal to process.
-            fadetime : float, optional
+            fadetime: float, optional
                 Crossfade time between old and new input. Default to 0.05.
 
         """
@@ -710,7 +710,7 @@ class Tanh(PyoObject):
 
     :Args:
 
-        input : PyoObject
+        input: PyoObject
             Input signal, angle in radians.
 
     >>> s = Server().boot()
@@ -735,9 +735,9 @@ class Tanh(PyoObject):
 
         :Args:
 
-            x : PyoObject
+            x: PyoObject
                 New signal to process.
-            fadetime : float, optional
+            fadetime: float, optional
                 Crossfade time between old and new input. Default to 0.05.
 
         """
@@ -763,7 +763,7 @@ class Exp(PyoObject):
 
     :Args:
 
-        input : PyoObject
+        input: PyoObject
             Input signal, the exponent.
 
     >>> s = Server().boot()
@@ -791,9 +791,9 @@ class Exp(PyoObject):
 
         :Args:
 
-            x : PyoObject
+            x: PyoObject
                 New signal to process.
-            fadetime : float, optional
+            fadetime: float, optional
                 Crossfade time between old and new input. Default to 0.05.
 
         """

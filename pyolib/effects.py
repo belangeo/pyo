@@ -53,12 +53,12 @@ class Disto(PyoObject):
 
     :Args:
 
-        input : PyoObject
+        input: PyoObject
             Input signal to process.
-        drive : float or PyoObject, optional
+        drive: float or PyoObject, optional
             Amount of distortion applied to the signal, between 0 and 1.
             Defaults to 0.75.
-        slope : float or PyoObject, optional
+        slope: float or PyoObject, optional
             Slope of the lowpass filter applied after distortion,
             between 0 and 1. Defaults to 0.5.
 
@@ -85,9 +85,9 @@ class Disto(PyoObject):
 
         :Args:
 
-            x : PyoObject
+            x: PyoObject
                 New signal to process.
-            fadetime : float, optional
+            fadetime: float, optional
                 Crossfade time between old and new input. Defaults to 0.05.
 
         """
@@ -101,7 +101,7 @@ class Disto(PyoObject):
 
         :Args:
 
-            x : float or PyoObject
+            x: float or PyoObject
                 New `drive` attribute.
 
         """
@@ -116,7 +116,7 @@ class Disto(PyoObject):
 
         :Args:
 
-            x : float or PyoObject
+            x: float or PyoObject
                 New `slope` attribute.
 
         """
@@ -160,14 +160,14 @@ class Delay(PyoObject):
 
     :Args:
 
-        input : PyoObject
+        input: PyoObject
             Input signal to delayed.
-        delay : float or PyoObject, optional
+        delay: float or PyoObject, optional
             Delay time in seconds. Defaults to 0.25.
-        feedback : float or PyoObject, optional
+        feedback: float or PyoObject, optional
             Amount of output signal sent back into the delay line.
             Defaults to 0.
-        maxdelay : float, optional
+        maxdelay: float, optional
             Maximum delay length in seconds. Available only at initialization.
             Defaults to 1.
 
@@ -205,9 +205,9 @@ class Delay(PyoObject):
 
         :Args:
 
-            x : PyoObject
+            x: PyoObject
                 New signal to delayed.
-            fadetime : float, optional
+            fadetime: float, optional
                 Crossfade time between old and new input. Defaults to 0.05.
 
         """
@@ -221,7 +221,7 @@ class Delay(PyoObject):
 
         :Args:
 
-            x : float or PyoObject
+            x: float or PyoObject
                 New `delay` attribute.
 
         """
@@ -236,7 +236,7 @@ class Delay(PyoObject):
 
         :Args:
 
-            x : float or PyoObject
+            x: float or PyoObject
                 New `feedback` attribute.
 
         """
@@ -287,11 +287,11 @@ class SDelay(PyoObject):
 
     :Args:
 
-        input : PyoObject
+        input: PyoObject
             Input signal to delayed.
-        delay : float or PyoObject, optional
+        delay: float or PyoObject, optional
             Delay time in seconds. Defaults to 0.25.
-        maxdelay : float, optional
+        maxdelay: float, optional
             Maximum delay length in seconds. Available only at initialization.
             Defaults to 1.
 
@@ -323,9 +323,9 @@ class SDelay(PyoObject):
 
         :Args:
 
-            x : PyoObject
+            x: PyoObject
                 New signal to process.
-            fadetime : float, optional
+            fadetime: float, optional
                 Crossfade time between old and new input. Defaults to 0.05.
 
         """
@@ -339,7 +339,7 @@ class SDelay(PyoObject):
 
         :Args:
 
-            x : float or PyoObject
+            x: float or PyoObject
                 New `delay` attribute.
 
         """
@@ -385,15 +385,15 @@ class Waveguide(PyoObject):
 
     :Args:
 
-        input : PyoObject
+        input: PyoObject
             Input signal to process.
-        freq : float or PyoObject, optional
+        freq: float or PyoObject, optional
             Frequency, in cycle per second, of the waveguide (i.e. the inverse
             of delay time). Defaults to 100.
-        dur : float or PyoObject, optional
+        dur: float or PyoObject, optional
             Duration, in seconds, for the waveguide to drop 40 dB below it's
             maxima. Defaults to 10.
-        minfreq : float, optional
+        minfreq: float, optional
             Minimum possible frequency, used to initialized delay length.
             Available only at initialization. Defaults to 20.
 
@@ -420,9 +420,9 @@ class Waveguide(PyoObject):
 
         :Args:
 
-            x : PyoObject
+            x: PyoObject
                 New signal to process.
-            fadetime : float, optional
+            fadetime: float, optional
                 Crossfade time between old and new input. Defaults to 0.05.
 
         """
@@ -436,7 +436,7 @@ class Waveguide(PyoObject):
 
         :Args:
 
-            x : float or PyoObject
+            x: float or PyoObject
                 New `freq` attribute.
 
         """
@@ -451,7 +451,7 @@ class Waveguide(PyoObject):
 
         :Args:
 
-            x : float or PyoObject
+            x: float or PyoObject
                 New `dur` attribute.
 
         """
@@ -505,18 +505,18 @@ class AllpassWG(PyoObject):
 
     :Args:
 
-        input : PyoObject
+        input: PyoObject
             Input signal to process.
-        freq : float or PyoObject, optional
+        freq: float or PyoObject, optional
             Frequency, in cycle per second, of the waveguide (i.e. the inverse
             of delay time). Defaults to 100.
-        feed : float or PyoObject, optional
+        feed: float or PyoObject, optional
             Amount of output signal (between 0 and 1) sent back into the delay line.
             Defaults to 0.95.
-        detune : float or PyoObject, optional
+        detune: float or PyoObject, optional
             Control the depth of the allpass delay-line filter, i.e. the depth of
             the detuning. Should be in the range 0 to 1. Defaults to 0.5.
-        minfreq : float, optional
+        minfreq: float, optional
             Minimum possible frequency, used to initialized delay length.
             Available only at initialization. Defaults to 20.
 
@@ -546,9 +546,9 @@ class AllpassWG(PyoObject):
 
         :Args:
 
-            x : PyoObject
+            x: PyoObject
                 New signal to process.
-            fadetime : float, optional
+            fadetime: float, optional
                 Crossfade time between old and new input. Defaults to 0.05.
 
         """
@@ -562,7 +562,7 @@ class AllpassWG(PyoObject):
 
         :Args:
 
-            x : float or PyoObject
+            x: float or PyoObject
                 New `freq` attribute.
 
         """
@@ -577,7 +577,7 @@ class AllpassWG(PyoObject):
 
         :Args:
 
-            x : float or PyoObject
+            x: float or PyoObject
                 New `feed` attribute.
 
         """
@@ -592,7 +592,7 @@ class AllpassWG(PyoObject):
 
         :Args:
 
-            x : float or PyoObject
+            x: float or PyoObject
                 New `detune` attribute.
 
         """
@@ -656,16 +656,16 @@ class Freeverb(PyoObject):
 
     :Args:
 
-        input : PyoObject
+        input: PyoObject
             Input signal to process.
-        size : float or PyoObject, optional
+        size: float or PyoObject, optional
             Controls the length of the reverb,  between 0 and 1. A higher
             value means longer reverb. Defaults to 0.5.
-        damp : float or PyoObject, optional
+        damp: float or PyoObject, optional
             High frequency attenuation, between 0 and 1. A higher value
             will result in a faster decay of the high frequency range.
             Defaults to 0.5.
-        bal : float or PyoObject, optional
+        bal: float or PyoObject, optional
             Balance between wet and dry signal, between 0 and 1. 0 means no
             reverb. Defaults to 0.5.
 
@@ -692,9 +692,9 @@ class Freeverb(PyoObject):
 
         :Args:
 
-            x : PyoObject
+            x: PyoObject
                 New signal to process.
-            fadetime : float, optional
+            fadetime: float, optional
                 Crossfade time between old and new input. Defaults to 0.05.
 
         """
@@ -708,7 +708,7 @@ class Freeverb(PyoObject):
 
         :Args:
 
-            x : float or PyoObject
+            x: float or PyoObject
                 New `size` attribute.
 
         """
@@ -723,7 +723,7 @@ class Freeverb(PyoObject):
 
         :Args:
 
-            x : float or PyoObject
+            x: float or PyoObject
                 New `damp` attribute.
 
         """
@@ -738,7 +738,7 @@ class Freeverb(PyoObject):
 
         :Args:
 
-            x : float or PyoObject
+            x: float or PyoObject
                 New `bal` attribute.
 
         """
@@ -800,11 +800,11 @@ class Convolve(PyoObject):
 
     :Args:
 
-        input : PyoObject
+        input: PyoObject
             Input signal to process.
-        table : PyoTableObject
+        table: PyoTableObject
             Table containning the impulse response.
-        size : int
+        size: int
             Length, in samples, of the convolution. Available at initialization
             time only.
 
@@ -848,9 +848,9 @@ class Convolve(PyoObject):
 
         :Args:
 
-            x : PyoObject
+            x: PyoObject
                 New signal to process.
-            fadetime : float, optional
+            fadetime: float, optional
                 Crossfade time between old and new input. Default to 0.05.
 
         """
@@ -864,7 +864,7 @@ class Convolve(PyoObject):
 
         :Args:
 
-            x : PyoTableObject
+            x: PyoTableObject
                 new `table` attribute.
 
         """
@@ -899,18 +899,18 @@ class WGVerb(PyoObject):
 
     :Args:
 
-        input : PyoObject
+        input: PyoObject
             Input signal to process.
-        feedback : float or PyoObject, optional
+        feedback: float or PyoObject, optional
             Amount of output signal sent back into the delay lines.
             Defaults to 0.5.
 
             0.6 gives a good small "live" room sound, 0.8 a small hall,
             and 0.9 a large hall.
-        cutoff : float or PyoObject, optional
+        cutoff: float or PyoObject, optional
             cutoff frequency of simple first order lowpass filters in the
             feedback loop of delay lines, in Hz. Defaults to 5000.
-        bal : float or PyoObject, optional
+        bal: float or PyoObject, optional
             Balance between wet and dry signal, between 0 and 1. 0 means no
             reverb. Defaults to 0.5.
 
@@ -937,9 +937,9 @@ class WGVerb(PyoObject):
 
         :Args:
 
-            x : PyoObject
+            x: PyoObject
                 New signal to process.
-            fadetime : float, optional
+            fadetime: float, optional
                 Crossfade time between old and new input. Defaults to 0.05.
 
         """
@@ -953,7 +953,7 @@ class WGVerb(PyoObject):
 
         :Args:
 
-            x : float or PyoObject
+            x: float or PyoObject
                 New `feedback` attribute.
 
         """
@@ -968,7 +968,7 @@ class WGVerb(PyoObject):
 
         :Args:
 
-            x : float or PyoObject
+            x: float or PyoObject
                 New `cutoff` attribute.
 
         """
@@ -983,7 +983,7 @@ class WGVerb(PyoObject):
 
         :Args:
 
-            x : float or PyoObject
+            x: float or PyoObject
                 New `bal` attribute.
 
         """
@@ -1045,14 +1045,14 @@ class Chorus(PyoObject):
 
     :Args:
 
-        input : PyoObject
+        input: PyoObject
             Input signal to process.
-        depth : float or PyoObject, optional
+        depth: float or PyoObject, optional
             Chorus depth, between 0 and 5. Defaults to 1.
-        feedback : float or PyoObject, optional
+        feedback: float or PyoObject, optional
             Amount of output signal sent back into the delay lines.
             Defaults to 0.25.
-        bal : float or PyoObject, optional
+        bal: float or PyoObject, optional
             Balance between wet and dry signals, between 0 and 1. 0 means no
             chorus. Defaults to 0.5.
 
@@ -1079,9 +1079,9 @@ class Chorus(PyoObject):
 
         :Args:
 
-            x : PyoObject
+            x: PyoObject
                 New signal to process.
-            fadetime : float, optional
+            fadetime: float, optional
                 Crossfade time between old and new input. Defaults to 0.05.
 
         """
@@ -1095,7 +1095,7 @@ class Chorus(PyoObject):
 
         :Args:
 
-            x : float or PyoObject
+            x: float or PyoObject
                 New `depth` attribute.
 
         """
@@ -1110,7 +1110,7 @@ class Chorus(PyoObject):
 
         :Args:
 
-            x : float or PyoObject
+            x: float or PyoObject
                 New `feedback` attribute.
 
         """
@@ -1125,7 +1125,7 @@ class Chorus(PyoObject):
 
         :Args:
 
-            x : float or PyoObject
+            x: float or PyoObject
                 New `bal` attribute.
 
         """
@@ -1184,14 +1184,14 @@ class Harmonizer(PyoObject):
 
     :Args:
 
-        input : PyoObject
+        input: PyoObject
             Input signal to process.
-        transpo : float or PyoObject, optional
+        transpo: float or PyoObject, optional
            Transposition factor in semitone. Defaults to -7.0.
-        feedback : float or PyoObject, optional
+        feedback: float or PyoObject, optional
             Amount of output signal sent back into the delay line.
             Defaults to 0.
-        winsize : float, optional
+        winsize: float, optional
             Window size in seconds (max = 1.0).
             Defaults to 0.1.
 
@@ -1218,9 +1218,9 @@ class Harmonizer(PyoObject):
 
         :Args:
 
-            x : PyoObject
+            x: PyoObject
                 New signal to process.
-            fadetime : float, optional
+            fadetime: float, optional
                 Crossfade time between old and new input. Defaults to 0.05.
 
         """
@@ -1234,7 +1234,7 @@ class Harmonizer(PyoObject):
 
         :Args:
 
-            x : float or PyoObject
+            x: float or PyoObject
                 New `transpo` attribute.
 
         """
@@ -1249,7 +1249,7 @@ class Harmonizer(PyoObject):
 
         :Args:
 
-            x : float or PyoObject
+            x: float or PyoObject
                 New `feedback` attribute.
 
         """
@@ -1264,7 +1264,7 @@ class Harmonizer(PyoObject):
 
         :Args:
 
-            x : float
+            x: float
                 New `winsize` attribute.
 
         """
@@ -1323,7 +1323,7 @@ class Delay1(PyoObject):
 
     :Args:
 
-        input : PyoObject
+        input: PyoObject
             Input signal to process.
 
     >>> s = Server().boot()
@@ -1351,9 +1351,9 @@ class Delay1(PyoObject):
 
         :Args:
 
-            x : PyoObject
+            x: PyoObject
                 New signal to process.
-            fadetime : float, optional
+            fadetime: float, optional
                 Crossfade time between old and new input. Default to 0.05.
 
         """
@@ -1385,25 +1385,25 @@ class STRev(PyoObject):
 
     :Args:
 
-        input : PyoObject
+        input: PyoObject
             Input signal to process.
-        inpos : float or PyoObject, optional
+        inpos: float or PyoObject, optional
             Position of the source, between 0 and 1. 0 means fully left
             and 1 means fully right. Defaults to 0.5.
-        revtime : float or PyoObject, optional
+        revtime: float or PyoObject, optional
             Duration, in seconds, of the reverberated sound, defined as
             the time needed to the sound to drop 40 dB below its peak.
             Defaults to 1.
-        cutoff : float or PyoObject, optional
+        cutoff: float or PyoObject, optional
             cutoff frequency, in Hz, of a first order lowpass filters in the
             feedback loop of delay lines. Defaults to 5000.
-        bal : float or PyoObject, optional
+        bal: float or PyoObject, optional
             Balance between wet and dry signal, between 0 and 1. 0 means no
             reverb. Defaults to 0.5.
-        roomSize : float, optional
+        roomSize: float, optional
             Delay line length scaler, between 0.25 and 4. Values higher than
             1 make the delay lines longer and simulate larger rooms. Defaults to 1.
-        firstRefGain : float, optional
+        firstRefGain: float, optional
             Gain, in dB, of the first reflexions of the room. Defaults to -3.
 
     >>> s = Server().boot()
@@ -1434,9 +1434,9 @@ class STRev(PyoObject):
 
         :Args:
 
-            x : PyoObject
+            x: PyoObject
                 New signal to process.
-            fadetime : float, optional
+            fadetime: float, optional
                 Crossfade time between old and new input. Defaults to 0.05.
 
         """
@@ -1450,7 +1450,7 @@ class STRev(PyoObject):
 
         :Args:
 
-            x : float or PyoObject
+            x: float or PyoObject
                 New `inpos` attribute.
 
         """
@@ -1465,7 +1465,7 @@ class STRev(PyoObject):
 
         :Args:
 
-            x : float or PyoObject
+            x: float or PyoObject
                 New `revtime` attribute.
 
         """
@@ -1480,7 +1480,7 @@ class STRev(PyoObject):
 
         :Args:
 
-            x : float or PyoObject
+            x: float or PyoObject
                 New `cutoff` attribute.
 
         """
@@ -1495,7 +1495,7 @@ class STRev(PyoObject):
 
         :Args:
 
-            x : float or PyoObject
+            x: float or PyoObject
                 New `bal` attribute.
 
         """
@@ -1510,7 +1510,7 @@ class STRev(PyoObject):
 
         :Args:
 
-            x : float
+            x: float
                 Room size scaler, between 0.25 and 4.0.
 
         """
@@ -1525,7 +1525,7 @@ class STRev(PyoObject):
 
         :Args:
 
-            x : float
+            x: float
                 Gain, in dB, of the first reflexions.
 
         """
@@ -1611,17 +1611,17 @@ class SmoothDelay(PyoObject):
 
     :Args:
 
-        input : PyoObject
+        input: PyoObject
             Input signal to delayed.
-        delay : float or PyoObject, optional
+        delay: float or PyoObject, optional
             Delay time in seconds. Defaults to 0.25.
-        feedback : float or PyoObject, optional
+        feedback: float or PyoObject, optional
             Amount of output signal sent back into the delay line.
             Defaults to 0.
-        crossfade : float, optional
+        crossfade: float, optional
             Crossfade time, in seconds, between overlaped readers.
             Defaults to 0.05.
-        maxdelay : float, optional
+        maxdelay: float, optional
             Maximum delay length in seconds. Available only at initialization.
             Defaults to 1.
 
@@ -1661,9 +1661,9 @@ class SmoothDelay(PyoObject):
 
         :Args:
 
-            x : PyoObject
+            x: PyoObject
                 New signal to delayed.
-            fadetime : float, optional
+            fadetime: float, optional
                 Crossfade time between old and new input. Defaults to 0.05.
 
         """
@@ -1677,7 +1677,7 @@ class SmoothDelay(PyoObject):
 
         :Args:
 
-            x : float or PyoObject
+            x: float or PyoObject
                 New `delay` attribute.
 
         """
@@ -1692,7 +1692,7 @@ class SmoothDelay(PyoObject):
 
         :Args:
 
-            x : float or PyoObject
+            x: float or PyoObject
                 New `feedback` attribute.
 
         """
@@ -1707,7 +1707,7 @@ class SmoothDelay(PyoObject):
 
         :Args:
 
-            x : float
+            x: float
                 New `crossfade` attribute.
 
         """
@@ -1772,9 +1772,9 @@ class FreqShift(PyoObject):
 
     :Args:
 
-        input : PyoObject
+        input: PyoObject
             Input signal to process.
-        shift : float or PyoObject, optional
+        shift: float or PyoObject, optional
             Amount of shifting in Hertz. Defaults to 100.
 
     >>> s = Server().boot()
@@ -1836,9 +1836,9 @@ class FreqShift(PyoObject):
 
         Parameters:
 
-        x : PyoObject
+        x: PyoObject
             New signal to process.
-        fadetime : float, optional
+        fadetime: float, optional
             Crossfade time between old and new input. Defaults to 0.05.
 
         """
@@ -1852,7 +1852,7 @@ class FreqShift(PyoObject):
 
         Parameters:
 
-        x : float or PyoObject
+        x: float or PyoObject
             New `shift` attribute.
 
         """

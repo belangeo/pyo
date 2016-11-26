@@ -34,11 +34,11 @@ class Clip(PyoObject):
 
     :Args:
 
-        input : PyoObject
+        input: PyoObject
             Input signal to process.
-        min : float or PyoObject, optional
+        min: float or PyoObject, optional
             Minimum possible value. Defaults to -1.
-        max : float or PyoObject, optional
+        max: float or PyoObject, optional
             Maximum possible value. Defaults to 1.
 
     >>> s = Server().boot()
@@ -65,9 +65,9 @@ class Clip(PyoObject):
 
         :Args:
 
-            x : PyoObject
+            x: PyoObject
                 New signal to process.
-            fadetime : float, optional
+            fadetime: float, optional
                 Crossfade time between old and new input. Defaults to 0.05.
 
         """
@@ -81,7 +81,7 @@ class Clip(PyoObject):
 
         :Args:
 
-            x : float or PyoObject
+            x: float or PyoObject
                 New `min` attribute.
 
         """
@@ -96,7 +96,7 @@ class Clip(PyoObject):
 
         :Args:
 
-            x : float or PyoObject
+            x: float or PyoObject
                 New `max` attribute.
 
         """
@@ -143,11 +143,11 @@ class Mirror(PyoObject):
 
     :Args:
 
-        input : PyoObject
+        input: PyoObject
             Input signal to process.
-        min : float or PyoObject, optional
+        min: float or PyoObject, optional
             Minimum possible value. Defaults to 0.
-        max : float or PyoObject, optional
+        max: float or PyoObject, optional
             Maximum possible value. Defaults to 1.
 
     .. note::
@@ -179,9 +179,9 @@ class Mirror(PyoObject):
 
         :Args:
 
-            x : PyoObject
+            x: PyoObject
                 New signal to process.
-            fadetime : float, optional
+            fadetime: float, optional
                 Crossfade time between old and new input. Defaults to 0.05.
 
         """
@@ -195,7 +195,7 @@ class Mirror(PyoObject):
 
         :Args:
 
-            x : float or PyoObject
+            x: float or PyoObject
                 New `min` attribute.
 
         """
@@ -210,7 +210,7 @@ class Mirror(PyoObject):
 
         :Args:
 
-            x : float or PyoObject
+            x: float or PyoObject
                 New `max` attribute.
 
         """
@@ -257,12 +257,12 @@ class Degrade(PyoObject):
 
     :Args:
 
-        input : PyoObject
+        input: PyoObject
             Input signal to process.
-        bitdepth : float or PyoObject, optional
+        bitdepth: float or PyoObject, optional
             Signal quantization in bits. Must be in range 1 -> 32.
             Defaults to 16.
-        srscale : float or PyoObject, optional
+        srscale: float or PyoObject, optional
             Sampling rate multiplier. Must be in range 0.0009765625 -> 1.
             Defaults to 1.
 
@@ -291,9 +291,9 @@ class Degrade(PyoObject):
 
         :Args:
 
-            x : PyoObject
+            x: PyoObject
                 New signal to process.
-            fadetime : float, optional
+            fadetime: float, optional
                 Crossfade time between old and new input. Defaults to 0.05.
 
         """
@@ -307,7 +307,7 @@ class Degrade(PyoObject):
 
         :Args:
 
-            x : float or PyoObject
+            x: float or PyoObject
                 New `bitdepth` attribute.
 
         """
@@ -322,7 +322,7 @@ class Degrade(PyoObject):
 
         :Args:
 
-            x : float or PyoObject
+            x: float or PyoObject
                 New `srscale` attribute.
 
         """
@@ -369,30 +369,30 @@ class Compress(PyoObject):
 
     :Args:
 
-        input : PyoObject
+        input: PyoObject
             Input signal to process.
-        thresh : float or PyoObject, optional
+        thresh: float or PyoObject, optional
             Level, expressed in dB, above which the signal is reduced.
             Reference level is 0dB. Defaults to -20.
-        ratio : float or PyoObject, optional
+        ratio: float or PyoObject, optional
             Determines the input/output ratio for signals above the
             threshold. Defaults to 2.
-        risetime : float or PyoObject, optional
+        risetime: float or PyoObject, optional
             Used in amplitude follower, time to reach upward value in
             seconds. Defaults to 0.01.
-        falltime : float or PyoObject, optional
+        falltime: float or PyoObject, optional
             Used in amplitude follower, time to reach downward value in
             seconds. Defaults to 0.1.
-        lookahead : float, optional
+        lookahead: float, optional
             Delay length, in ms, for the "look-ahead" buffer. Range is
             0 -> 25 ms. Defaults to 5.0.
-        knee : float optional
+        knee: float optional
             Shape of the transfert function around the threshold, specified
             in the range 0 -> 1.
 
             A value of 0 means a hard knee and a value of 1.0 means a softer
             knee. Defaults to 0.
-        outputAmp : boolean, optional
+        outputAmp: boolean, optional
             If True, the object's output signal will be the compression level
             alone, not the compressed signal.
 
@@ -427,9 +427,9 @@ class Compress(PyoObject):
 
         :Args:
 
-            x : PyoObject
+            x: PyoObject
                 New signal to process.
-            fadetime : float, optional
+            fadetime: float, optional
                 Crossfade time between old and new input. Defaults to 0.05.
 
         """
@@ -443,7 +443,7 @@ class Compress(PyoObject):
 
         :Args:
 
-            x : float or PyoObject
+            x: float or PyoObject
                 New `thresh` attribute.
 
         """
@@ -458,7 +458,7 @@ class Compress(PyoObject):
 
         :Args:
 
-            x : float or PyoObject
+            x: float or PyoObject
                 New `ratio` attribute.
 
         """
@@ -473,7 +473,7 @@ class Compress(PyoObject):
 
         :Args:
 
-            x : float or PyoObject
+            x: float or PyoObject
                 New `risetime` attribute.
 
         """
@@ -488,7 +488,7 @@ class Compress(PyoObject):
 
         :Args:
 
-            x : float or PyoObject
+            x: float or PyoObject
                 New `falltime` attribute.
 
         """
@@ -503,7 +503,7 @@ class Compress(PyoObject):
 
         :Args:
 
-            x : float
+            x: float
                 New `lookahead` attribute.
 
         """
@@ -518,7 +518,7 @@ class Compress(PyoObject):
 
         :Args:
 
-            x : float
+            x: float
                 New `knee` attribute.
 
         """
@@ -600,19 +600,19 @@ class Gate(PyoObject):
 
     :Args:
 
-        input : PyoObject
+        input: PyoObject
             Input signal to process.
-        thresh : float or PyoObject, optional
+        thresh: float or PyoObject, optional
             Level, expressed in dB, below which the gate is closed.
             Reference level is 0dB. Defaults to -70.
-        risetime : float or PyoObject, optional
+        risetime: float or PyoObject, optional
             Time to open the gate in seconds. Defaults to 0.01.
-        falltime : float or PyoObject, optional
+        falltime: float or PyoObject, optional
             Time to close the gate in seconds. Defaults to 0.05.
-        lookahead : float, optional
+        lookahead: float, optional
             Delay length, in ms, for the "look-ahead" buffer. Range is
             0 -> 25 ms. Defaults to 5.0.
-        outputAmp : boolean, optional
+        outputAmp: boolean, optional
             If True, the object's output signal will be the gating level
             alone, not the gated signal.
 
@@ -645,9 +645,9 @@ class Gate(PyoObject):
 
         :Args:
 
-            x : PyoObject
+            x: PyoObject
                 New signal to process.
-            fadetime : float, optional
+            fadetime: float, optional
                 Crossfade time between old and new input. Defaults to 0.05.
 
         """
@@ -661,7 +661,7 @@ class Gate(PyoObject):
 
         :Args:
 
-            x : float or PyoObject
+            x: float or PyoObject
                 New `thresh` attribute.
 
         """
@@ -676,7 +676,7 @@ class Gate(PyoObject):
 
         :Args:
 
-            x : float or PyoObject
+            x: float or PyoObject
                 New `risetime` attribute.
 
         """
@@ -691,7 +691,7 @@ class Gate(PyoObject):
 
         :Args:
 
-            x : float or PyoObject
+            x: float or PyoObject
                 New `falltime` attribute.
 
         """
@@ -706,7 +706,7 @@ class Gate(PyoObject):
 
         :Args:
 
-            x : float
+            x: float
                 New `lookahead` attribute.
 
         """
@@ -768,11 +768,11 @@ class Balance(PyoObject):
 
     :Args:
 
-        input : PyoObject
+        input: PyoObject
             Input signal to process.
-        input2 : PyoObject
+        input2: PyoObject
             Comparator signal.
-        freq : float or PyoObject, optional
+        freq: float or PyoObject, optional
             Cutoff frequency of the lowpass filter in hertz. Default to 10.
 
     >>> s = Server().boot()
@@ -801,9 +801,9 @@ class Balance(PyoObject):
 
         :Args:
 
-            x : PyoObject
+            x: PyoObject
                 New signal to process.
-            fadetime : float, optional
+            fadetime: float, optional
                 Crossfade time between old and new input. Default to 0.05.
 
         """
@@ -819,9 +819,9 @@ class Balance(PyoObject):
 
         :Args:
 
-            x : PyoObject
+            x: PyoObject
                 New signal to process.
-            fadetime : float, optional
+            fadetime: float, optional
                 Crossfade time between old and new input. Default to 0.05.
 
         """
@@ -837,7 +837,7 @@ class Balance(PyoObject):
 
         :Args:
 
-            x : float or PyoObject
+            x: float or PyoObject
                 New `freq` attribute.
 
         """
@@ -879,9 +879,9 @@ class Min(PyoObject):
 
     :Args:
 
-        input : PyoObject
+        input: PyoObject
             Input signal to process.
-        comp : float or PyoObject, optional
+        comp: float or PyoObject, optional
             Comparison value. If `input` is lower than this value,
             `input` is send to the output, otherwise, `comp` is outputted.
 
@@ -908,9 +908,9 @@ class Min(PyoObject):
 
         :Args:
 
-            x : PyoObject
+            x: PyoObject
                 New signal to process.
-            fadetime : float, optional
+            fadetime: float, optional
                 Crossfade time between old and new input. Default to 0.05.
 
         """
@@ -924,7 +924,7 @@ class Min(PyoObject):
 
         :Args:
 
-            x : float or PyoObject
+            x: float or PyoObject
                 New `comp` attribute.
 
         """
@@ -959,9 +959,9 @@ class Max(PyoObject):
 
     :Args:
 
-        input : PyoObject
+        input: PyoObject
             Input signal to process.
-        comp : float or PyoObject, optional
+        comp: float or PyoObject, optional
             Comparison value. If `input` is higher than this value,
             `input` is send to the output, otherwise, `comp` is outputted.
 
@@ -988,9 +988,9 @@ class Max(PyoObject):
 
         :Args:
 
-            x : PyoObject
+            x: PyoObject
                 New signal to process.
-            fadetime : float, optional
+            fadetime: float, optional
                 Crossfade time between old and new input. Default to 0.05.
 
         """
@@ -1004,7 +1004,7 @@ class Max(PyoObject):
 
         :Args:
 
-            x : float or PyoObject
+            x: float or PyoObject
                 New `comp` attribute.
 
         """

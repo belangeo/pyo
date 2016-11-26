@@ -37,15 +37,15 @@ class Pan(PyoObject):
 
     :Args:
 
-        input : PyoObject
+        input: PyoObject
             Input signal to process.
-        outs : int, optional
+        outs: int, optional
             Number of channels on the panning circle. Available at
             initialization time only. Defaults to 2.
-        pan : float or PyoObject
+        pan: float or PyoObject
             Position of the sound on the panning circle, between 0 and 1.
             Defaults to 0.5.
-        spread : float or PyoObject
+        spread: float or PyoObject
             Amount of sound leaking to the surrounding channels,
             between 0 and 1. Defaults to 0.5.
 
@@ -77,9 +77,9 @@ class Pan(PyoObject):
 
         :Args:
 
-            x : PyoObject
+            x: PyoObject
                 New signal to process.
-            fadetime : float, optional
+            fadetime: float, optional
                 Crossfade time between old and new input. Default to 0.05.
 
         """
@@ -93,7 +93,7 @@ class Pan(PyoObject):
 
         :Args:
 
-            x : float or PyoObject
+            x: float or PyoObject
                 new `pan` attribute.
 
         """
@@ -108,7 +108,7 @@ class Pan(PyoObject):
 
         :Args:
 
-            x : float or PyoObject
+            x: float or PyoObject
                 new `spread` attribute.
 
         """
@@ -152,12 +152,12 @@ class SPan(PyoObject):
 
     :Args:
 
-        input : PyoObject
+        input: PyoObject
             Input signal to process.
-        outs : int, optional
+        outs: int, optional
             Number of channels on the panning circle. Available at
             initialization time only. Defaults to 2.
-        pan : float or PyoObject
+        pan: float or PyoObject
             Position of the sound on the panning circle, between 0 and 1.
             Defaults to 0.5.
 
@@ -188,9 +188,9 @@ class SPan(PyoObject):
 
         :Args:
 
-            x : PyoObject
+            x: PyoObject
                 New signal to process.
-            fadetime : float, optional
+            fadetime: float, optional
                 Crossfade time between old and new input. Default to 0.05.
 
         """
@@ -204,7 +204,7 @@ class SPan(PyoObject):
 
         :Args:
 
-            x : float or PyoObject
+            x: float or PyoObject
                 new `pan` attribute.
 
         """
@@ -245,12 +245,12 @@ class Switch(PyoObject):
 
     :Args:
 
-        input : PyoObject
+        input: PyoObject
             Input signal to process.
-        outs : int, optional
+        outs: int, optional
             Number of outputs. Available at initialization time only.
             Defaults to 2.
-        voice : float or PyoObject
+        voice: float or PyoObject
             Voice position pointer, between 0 and (outs-1) / len(input).
             Defaults to 0.
 
@@ -284,9 +284,9 @@ class Switch(PyoObject):
 
         :Args:
 
-            x : PyoObject
+            x: PyoObject
                 New signal to process.
-            fadetime : float, optional
+            fadetime: float, optional
                 Crossfade time between old and new input. Default to 0.05.
 
         """
@@ -300,7 +300,7 @@ class Switch(PyoObject):
 
         :Args:
 
-            x : float or PyoObject
+            x: float or PyoObject
                 new `voice` attribute.
 
         """
@@ -338,9 +338,9 @@ class Selector(PyoObject):
 
     :Args:
 
-        inputs : list of PyoObject
+        inputs: list of PyoObject
             Audio objects to interpolate from.
-        voice : float or PyoObject, optional
+        voice: float or PyoObject, optional
             Voice position pointer, between 0 and len(inputs)-1.
             Defaults to 0.
 
@@ -382,7 +382,7 @@ class Selector(PyoObject):
 
         :Args:
 
-            x : list of PyoObject
+            x: list of PyoObject
                 new `inputs` attribute.
 
         """
@@ -404,7 +404,7 @@ class Selector(PyoObject):
 
         :Args:
 
-            x : float or PyoObject
+            x: float or PyoObject
                 new `voice` attribute.
 
         """
@@ -453,9 +453,9 @@ class VoiceManager(PyoObject):
 
     :Args:
 
-        input : PyoObject
+        input: PyoObject
             Trigger stream asking for new voice numbers.
-        triggers : PyoObject or list of PyoObject, optional
+        triggers: PyoObject or list of PyoObject, optional
             List of mono PyoObject sending triggers. Can be a multi-streams
             PyoObject but not a mix of both.
 
@@ -500,9 +500,9 @@ class VoiceManager(PyoObject):
 
         :Args:
 
-            x : PyoObject
+            x: PyoObject
                 New signal to process.
-            fadetime : float, optional
+            fadetime: float, optional
                 Crossfade time between old and new input. Defaults to 0.05.
 
         """
@@ -516,7 +516,7 @@ class VoiceManager(PyoObject):
 
         :Args:
 
-            x : PyoObject or list of PyoObject
+            x: PyoObject or list of PyoObject
                 New `triggers` attribute.
 
         """
@@ -561,13 +561,13 @@ class Mixer(PyoObject):
 
     :Args:
 
-        outs : int, optional
+        outs: int, optional
             Number of outputs of the mixer. Available at initialization
             time only. Defaults to 2.
-        chnls : int, optional
+        chnls: int, optional
             Number of channels per output. Available at initialization
             time only. Defaults to 1.
-        time : float, optional
+        time: float, optional
             Duration, in seconds, of a portamento applied on
             a new amplitude value for a mixing channel.
             Defaults to 0.025.
@@ -618,7 +618,7 @@ class Mixer(PyoObject):
 
         :Args:
 
-            x : float
+            x: float
                 New portamento duration.
 
         """
@@ -635,10 +635,10 @@ class Mixer(PyoObject):
 
         :Args:
 
-            voice : int or string
+            voice: int or string
                 Key in the mixer dictionary for this input. If None, a unique key
                 between 0 and 32767 will be automatically generated.
-            input : PyoObject
+            input: PyoObject
                 Audio object to add to the mixer.
 
         """
@@ -661,7 +661,7 @@ class Mixer(PyoObject):
 
         :Args:
 
-            voice : int or string
+            voice: int or string
                 Key in the mixer dictionary assigned to the input to remove.
 
         """
@@ -675,11 +675,11 @@ class Mixer(PyoObject):
 
         :Args:
 
-            vin : int or string
+            vin: int or string
                 Key in the mixer dictionary of the desired input.
-            vout : int
+            vout: int
                 Ouput channel where to send the signal.
-            amp : float
+            amp: float
                 Amplitude value for this mixing channel.
 
         """

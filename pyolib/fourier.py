@@ -49,18 +49,18 @@ class FFT(PyoObject):
 
     :Args:
 
-        input : PyoObject
+        input: PyoObject
             Input signal to process.
-        size : int {pow-of-two > 4}, optional
+        size: int {pow-of-two > 4}, optional
             FFT size. Must be a power of two greater than 4.
             The FFT size is the number of samples used in each
             analysis frame. Defaults to 1024.
-        overlaps : int, optional
+        overlaps: int, optional
             The number of overlaped analysis block. Must be a
             positive integer. More overlaps can greatly improved
             sound quality synthesis but it is also more CPU
             expensive. Defaults to 4.
-        wintype : int, optional
+        wintype: int, optional
             Shape of the envelope used to filter each input frame.
             Possible shapes are :
                 0. rectangular (no windowing)
@@ -148,10 +148,10 @@ class FFT(PyoObject):
 
         :Args:
 
-            identifier : string {"real", "imag", "bin"}
+            identifier: string {"real", "imag", "bin"}
                 Address string parameter identifying audio stream.
                 Defaults to "real".
-            all : boolean, optional
+            all: boolean, optional
                 If True, the first value of each object's stream
                 will be returned as a list. Otherwise, only the value
                 of the first object's stream will be returned as a float.
@@ -169,9 +169,9 @@ class FFT(PyoObject):
 
         :Args:
 
-            x : PyoObject
+            x: PyoObject
                 New signal to process.
-            fadetime : float, optional
+            fadetime: float, optional
                 Crossfade time between old and new input. Default to 0.05.
 
         """
@@ -203,7 +203,7 @@ class FFT(PyoObject):
 
         :Args:
 
-            x : int
+            x: int
                 new `size` attribute.
 
         """
@@ -222,7 +222,7 @@ class FFT(PyoObject):
 
         :Args:
 
-            x : int
+            x: int
                 new `wintype` attribute.
 
         """
@@ -267,22 +267,22 @@ class IFFT(PyoObject):
 
     :Args:
 
-        inreal : PyoObject
+        inreal: PyoObject
             Input `real` signal.
-        inimag : PyoObject
+        inimag: PyoObject
             Input `imaginary` signal.
-        size : int {pow-of-two > 4}, optional
+        size: int {pow-of-two > 4}, optional
             FFT size. Must be a power of two greater than 4.
             The FFT size is the number of samples used in each
             analysis frame. This value must match the `size`
             attribute of the former FFT object. Defaults to 1024.
-        overlaps : int, optional
+        overlaps: int, optional
             The number of overlaped analysis block. Must be a
             positive integer. More overlaps can greatly improved
             sound quality synthesis but it is also more CPU
             expensive. This value must match the `overlaps`
             atribute of the former FFT object. Defaults to 4.
-        wintype : int, optional
+        wintype: int, optional
             Shape of the envelope used to filter each output frame.
             Possible shapes are :
                 0. rectangular (no windowing)
@@ -343,9 +343,9 @@ class IFFT(PyoObject):
 
         :Args:
 
-            x : PyoObject
+            x: PyoObject
                 New input `real` signal.
-            fadetime : float, optional
+            fadetime: float, optional
                 Crossfade time between old and new input. Default to 0.05.
 
         """
@@ -359,9 +359,9 @@ class IFFT(PyoObject):
 
         :Args:
 
-            x : PyoObject
+            x: PyoObject
                 New input `imag` signal.
-            fadetime : float, optional
+            fadetime: float, optional
                 Crossfade time between old and new input. Default to 0.05.
 
         """
@@ -375,7 +375,7 @@ class IFFT(PyoObject):
 
         :Args:
 
-            x : int
+            x: int
                 new `size` attribute.
 
         """
@@ -393,7 +393,7 @@ class IFFT(PyoObject):
 
         :Args:
 
-            x : int
+            x: int
                 new `wintype` attribute.
 
         """
@@ -450,9 +450,9 @@ class CarToPol(PyoObject):
 
     :Args:
 
-        inreal : PyoObject
+        inreal: PyoObject
             Real input signal.
-        inimag : PyoObject
+        inimag: PyoObject
             Imaginary input signal.
 
     .. note::
@@ -519,10 +519,10 @@ class CarToPol(PyoObject):
 
         :Args:
 
-            identifier : string {"mag", "ang"}
+            identifier: string {"mag", "ang"}
                 Address string parameter identifying audio stream.
                 Defaults to "mag".
-            all : boolean, optional
+            all: boolean, optional
                 If True, the first value of each object's stream
                 will be returned as a list. Otherwise, only the value
                 of the first object's stream will be returned as a float.
@@ -540,9 +540,9 @@ class CarToPol(PyoObject):
 
         :Args:
 
-            x : PyoObject
+            x: PyoObject
                 New signal to process.
-            fadetime : float, optional
+            fadetime: float, optional
                 Crossfade time between old and new input. Default to 0.05.
 
         """
@@ -556,9 +556,9 @@ class CarToPol(PyoObject):
 
         :Args:
 
-            x : PyoObject
+            x: PyoObject
                 New signal to process.
-            fadetime : float, optional
+            fadetime: float, optional
                 Crossfade time between old and new input. Default to 0.05.
 
         """
@@ -596,9 +596,9 @@ class PolToCar(PyoObject):
 
     :Args:
 
-        inmag : PyoObject
+        inmag: PyoObject
             Magintude input signal.
-        inang : PyoObject
+        inang: PyoObject
             Angle input signal.
 
     .. note::
@@ -665,10 +665,10 @@ class PolToCar(PyoObject):
 
         :Args:
 
-            identifier : string {"real", "imag"}
+            identifier: string {"real", "imag"}
                 Address string parameter identifying audio stream.
                 Defaults to "mag".
-            all : boolean, optional
+            all: boolean, optional
                 If True, the first value of each object's stream
                 will be returned as a list. Otherwise, only the value
                 of the first object's stream will be returned as a float.
@@ -686,9 +686,9 @@ class PolToCar(PyoObject):
 
         :Args:
 
-            x : PyoObject
+            x: PyoObject
                 New signal to process.
-            fadetime : float, optional
+            fadetime: float, optional
                 Crossfade time between old and new input. Default to 0.05.
 
         """
@@ -702,9 +702,9 @@ class PolToCar(PyoObject):
 
         :Args:
 
-            x : PyoObject
+            x: PyoObject
                 New signal to process.
-            fadetime : float, optional
+            fadetime: float, optional
                 Crossfade time between old and new input. Default to 0.05.
 
         """
@@ -744,12 +744,12 @@ class FrameDelta(PyoObject):
 
     :Args:
 
-        input : PyoObject
+        input: PyoObject
             Phase input signal, usually from an FFT analysis.
-        framesize : int, optional
+        framesize: int, optional
             Frame size in samples. Usually the same as the FFT size.
             Defaults to 1024.
-        overlaps : int, optional
+        overlaps: int, optional
             Number of overlaps in incomming signal. Usually the same
             as the FFT overlaps. Defaults to 4.
 
@@ -810,9 +810,9 @@ class FrameDelta(PyoObject):
 
         :Args:
 
-            x : PyoObject
+            x: PyoObject
                 New signal to process.
-            fadetime : float, optional
+            fadetime: float, optional
                 Crossfade time between old and new input. Default to 0.05.
 
         """
@@ -826,7 +826,7 @@ class FrameDelta(PyoObject):
 
         :Args:
 
-            x : int
+            x: int
                 new `framesize` attribute.
 
         """
@@ -867,12 +867,12 @@ class FrameAccum(PyoObject):
 
     :Args:
 
-        input : PyoObject
+        input: PyoObject
             Phase input signal.
-        framesize : int, optional
+        framesize: int, optional
             Frame size in samples. Usually same as the FFT size.
             Defaults to 1024.
-        overlaps : int, optional
+        overlaps: int, optional
             Number of overlaps in incomming signal. Usually the same
             as the FFT overlaps. Defaults to 4.
 
@@ -933,9 +933,9 @@ class FrameAccum(PyoObject):
 
         :Args:
 
-            x : PyoObject
+            x: PyoObject
                 New signal to process.
-            fadetime : float, optional
+            fadetime: float, optional
                 Crossfade time between old and new input. Default to 0.05.
 
         """
@@ -949,7 +949,7 @@ class FrameAccum(PyoObject):
 
         :Args:
 
-            x : int
+            x: int
                 new `framesize` attribute.
 
         """
@@ -983,23 +983,23 @@ class Vectral(PyoObject):
 
     :Args:
 
-        input : PyoObject
+        input: PyoObject
             Magnitude input signal, usually from an FFT analysis.
-        framesize : int, optional
+        framesize: int, optional
             Frame size in samples. Usually the same as the FFT size.
             Defaults to 1024.
-        overlaps : int, optional
+        overlaps: int, optional
             Number of overlaps in incomming signal. Usually the same
             as the FFT overlaps. Defaults to 4.
-        up : float or PyoObject, optional
+        up: float or PyoObject, optional
             Filter coefficient for increasing bins, between 0 and 1.
             Lower values results in a longer ramp time for bin magnitude.
             Defaults to 1.
-        down : float or PyoObject, optional
+        down: float or PyoObject, optional
             Filter coefficient for decreasing bins, between 0 and 1.
             Lower values results in a longer decay time for bin magnitude.
             Defaults to 0.7
-        damp : float or PyoObject, optional
+        damp: float or PyoObject, optional
             High frequencies damping factor, between 0 and 1. Lower values
             mean more damping. Defaults to 0.9.
 
@@ -1054,9 +1054,9 @@ class Vectral(PyoObject):
 
         :Args:
 
-            x : PyoObject
+            x: PyoObject
                 New signal to process.
-            fadetime : float, optional
+            fadetime: float, optional
                 Crossfade time between old and new input. Default to 0.05.
 
         """
@@ -1070,7 +1070,7 @@ class Vectral(PyoObject):
 
         :Args:
 
-            x : int
+            x: int
                 new `framesize` attribute.
 
         """
@@ -1085,7 +1085,7 @@ class Vectral(PyoObject):
 
         :Args:
 
-            x : float or PyoObject
+            x: float or PyoObject
                 new `up` attribute.
 
         """
@@ -1100,7 +1100,7 @@ class Vectral(PyoObject):
 
         :Args:
 
-            x : float or PyoObject
+            x: float or PyoObject
                 new `down` attribute.
 
         """
@@ -1115,7 +1115,7 @@ class Vectral(PyoObject):
 
         :Args:
 
-            x : float or PyoObject
+            x: float or PyoObject
                 new `damp` attribute.
 
         """
@@ -1178,20 +1178,20 @@ class CvlVerb(PyoObject):
 
     :Args:
 
-        input : PyoObject
+        input: PyoObject
             Input signal to process.
-        impulse : string, optional
+        impulse: string, optional
             Path to the impulse response soundfile. The file must have the same
             sampling rate as the server to get the proper convolution. Available at
             initialization time only. Defaults to 'IRMediumHallStereo.wav', located
             in pyolib SNDS_PATH folder.
-        size : int {pow-of-two}, optional
+        size: int {pow-of-two}, optional
             The size in samples of each partition of the impulse file. Small size means
             smaller latency but more computation time. If not a power-of-2, the object
             will find the next power-of-2 greater and use that as the actual partition size.
             This value must also be greater or equal than the server's buffer size.
             Available at initialization time only. Defaults to 1024.
-        bal : float or PyoObject, optional
+        bal: float or PyoObject, optional
             Balance between wet and dry signal, between 0 and 1. 0 means no
             reverb. Defaults to 0.25.
 
@@ -1223,9 +1223,9 @@ class CvlVerb(PyoObject):
 
         :Args:
 
-            x : PyoObject
+            x: PyoObject
                 New signal to process.
-            fadetime : float, optional
+            fadetime: float, optional
                 Crossfade time between old and new input. Default to 0.05.
 
         """
@@ -1239,7 +1239,7 @@ class CvlVerb(PyoObject):
 
         :Args:
 
-            x : float or PyoObject
+            x: float or PyoObject
                 new `bal` attribute.
 
         """

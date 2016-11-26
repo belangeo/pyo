@@ -37,11 +37,11 @@ class NewMatrix(PyoMatrixObject):
 
     :Args:
 
-        width : int
+        width: int
             Desired matrix width in samples.
-        height : int
+        height: int
             Desired matrix height in samples.
-        init : list of list of floats, optional
+        init: list of list of floats, optional
             Initial matrix. Defaults to None.
 
     .. seealso::
@@ -75,7 +75,7 @@ class NewMatrix(PyoMatrixObject):
 
         :Args:
 
-            x : list of list of floats
+            x: list of list of floats
                 New matrix. Must be of the same size as the actual matrix.
 
         """
@@ -97,10 +97,10 @@ class NewMatrix(PyoMatrixObject):
 
         :Args:
 
-            freq : float
+            freq: float
                 Frequency of sinusoids used to created the terrain.
                 Defaults to 1.
-            phase : float
+            phase: float
                 Phase deviation between rows of the terrain. Should be in
                 the range 0 -> 1. Defaults to 0.0625.
 

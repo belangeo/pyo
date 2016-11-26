@@ -73,7 +73,7 @@ Alphabetical class reference
 - :py:class:`Exp` :     Calculates the value of e to the power of x.
 - :py:class:`Expr` :     Prefix audio expression evaluator.
 - :py:class:`Expr` :     Prefix audio expression evaluator.
-- :py:class:`Expseg` :     Trace a series of exponential segments between specified break-points.
+- :py:class:`Expseg` :     Draw a series of exponential segments between specified break-points.
 - :py:class:`FFT` :     Fast Fourier Transform.
 - :py:class:`FM` :     A simple frequency modulation generator.
 - :py:class:`FToM` :     Returns the midi note equivalent to a frequency in Hz.
@@ -105,7 +105,7 @@ Alphabetical class reference
 - :py:class:`Iter` :     Triggers iterate over a list of values.
 - :py:class:`LFO` :     Band-limited Low Frequency Oscillator with different wave shapes.
 - :py:class:`LinTable` :     Construct a table from segments of straight lines in breakpoint fashion.
-- :py:class:`Linseg` :     Trace a series of line segments between specified break-points.
+- :py:class:`Linseg` :     Draw a series of line segments between specified break-points.
 - :py:class:`Log10` :     Performs a base 10 log function on audio signal.
 - :py:class:`Log2` :     Performs a base 2 log function on audio signal.
 - :py:class:`LogTable` :     Construct a table from logarithmic segments in breakpoint fashion.

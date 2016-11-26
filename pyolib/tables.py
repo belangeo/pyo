@@ -39,10 +39,10 @@ class HarmTable(PyoTableObject):
 
     :Args:
 
-        list : list, optional
+        list: list, optional
             Relative strengths of the fixed harmonic partial numbers 1,2,3, etc.
             Defaults to [1].
-        size : int, optional
+        size: int, optional
             Table size in samples. Defaults to 8192.
 
     >>> s = Server().boot()
@@ -65,7 +65,7 @@ class HarmTable(PyoTableObject):
 
         :Args:
 
-            list : list
+            list: list
                 Relative strengths of the fixed harmonic partial
                 numbers 1,2,3, etc.
 
@@ -92,10 +92,10 @@ class SawTable(PyoTableObject):
 
     :Args:
 
-        order : int, optional
+        order: int, optional
             Number of harmonics sawtooth is made of.
             Defaults to 10.
-        size : int, optional
+        size: int, optional
             Table size in samples. Defaults to 8192.
 
     >>> s = Server().boot()
@@ -117,7 +117,7 @@ class SawTable(PyoTableObject):
 
         :Args:
 
-            x : int
+            x: int
                 New number of harmonics
 
         """
@@ -144,10 +144,10 @@ class SquareTable(PyoTableObject):
 
     :Args:
 
-        order : int, optional
+        order: int, optional
             Number of harmonics square waveform is made of. The waveform will
             contains `order` odd harmonics. Defaults to 10.
-        size : int, optional
+        size: int, optional
             Table size in samples. Defaults to 8192.
 
     >>> s = Server().boot()
@@ -174,7 +174,7 @@ class SquareTable(PyoTableObject):
 
         :Args:
 
-            x : int
+            x: int
                 New number of harmonics
 
         """
@@ -208,11 +208,11 @@ class ChebyTable(PyoTableObject):
 
     :Args:
 
-        list : list, optional
+        list: list, optional
             Relative strengths of partials numbers 1,2,3, ..., 12 that will
             result when a sinusoid of amplitude 1 is waveshaped using this
             function table. Up to 12 partials can be specified. Defaults to [1].
-        size : int, optional
+        size: int, optional
             Table size in samples. Defaults to 8192.
 
     >>> s = Server().boot()
@@ -237,7 +237,7 @@ class ChebyTable(PyoTableObject):
 
         :Args:
 
-            list : list
+            list: list
                 Relative strengths of the fixed harmonic partial
                 numbers 1,2,3, ..., 12. Up to 12 partials can be specified.
 
@@ -274,7 +274,7 @@ class HannTable(PyoTableObject):
 
     :Args:
 
-        size : int, optional
+        size: int, optional
             Table size in samples. Defaults to 8192.
 
     >>> s = Server().boot()
@@ -298,11 +298,11 @@ class SincTable(PyoTableObject):
 
     :Args:
 
-        freq : float, optional
+        freq: float, optional
             Frequency, in radians, of the sinc function. Defaults to pi*2.
-        windowed : boolean, optional
+        windowed: boolean, optional
             If True, an hanning window is applied on the sinc function. Defaults to False.
-        size : int, optional
+        size: int, optional
             Table size in samples. Defaults to 8192.
 
     >>> import math
@@ -325,7 +325,7 @@ class SincTable(PyoTableObject):
 
         :Args:
 
-            x : float
+            x: float
                 New frequency in radians.
 
         """
@@ -340,7 +340,7 @@ class SincTable(PyoTableObject):
 
         :Args:
 
-            x : boolean
+            x: boolean
                 New windowed flag.
 
         """
@@ -370,7 +370,7 @@ class WinTable(PyoTableObject):
 
     :Args:
 
-        type : int, optional
+        type: int, optional
             Windowing function. Possible choices are:
                 0. Rectangular (no window)
                 1. Hamming
@@ -381,7 +381,7 @@ class WinTable(PyoTableObject):
                 6. Blackman-Harris 7-term
                 7. Tuckey (alpha = 0.66)
                 8. Sine (half-sine window)
-        size : int, optional
+        size: int, optional
             Table size in samples. Defaults to 8192.
 
     >>> s = Server().boot()
@@ -404,7 +404,7 @@ class WinTable(PyoTableObject):
 
         :Args:
 
-            type : int {0 -> 8}
+            type: int {0 -> 8}
                 Windowing function.
 
         """
@@ -431,7 +431,7 @@ class ParaTable(PyoTableObject):
 
     :Args:
 
-        size : int, optional
+        size: int, optional
             Table size in samples. Defaults to 8192.
 
     >>> s = Server().boot()
@@ -455,12 +455,12 @@ class LinTable(PyoTableObject):
 
     :Args:
 
-        list : list, optional
+        list: list, optional
             List of tuples indicating location and value of each points
             in the table. The default, [(0,0.), (8191, 1.)], creates a
             straight line from 0.0 at location 0 to 1.0 at the end of the
             table (size - 1). Location must be an integer.
-        size : int, optional
+        size: int, optional
             Table size in samples. Defaults to 8192.
 
     .. note::
@@ -480,7 +480,7 @@ class LinTable(PyoTableObject):
         pyoArgsAssert(self, "lI", list, size)
         PyoTableObject.__init__(self, size)
         if size < list[-1][0]:
-            print("LinTable warning : size smaller than last point position.")
+            print("LinTable warning: size smaller than last point position.")
             print("                   Increased size to last point position + 1")
             size = list[-1][0] + 1
             self._size = size
@@ -492,7 +492,7 @@ class LinTable(PyoTableObject):
 
         :Args:
 
-            list : list
+            list: list
                 List of tuples indicating location and value of each points
                 in the table. Location must be integer.
 
@@ -513,9 +513,9 @@ class LinTable(PyoTableObject):
 
         :Args:
 
-            filename : string
+            filename: string
                 Full path of an automation recording file.
-            tolerance : float, optional
+            tolerance: float, optional
                 Tolerance of the filter. A higher value will eliminate more points.
                 Defaults to 0.02.
 
@@ -556,13 +556,13 @@ class LinTable(PyoTableObject):
 
         :Args:
 
-            yrange : tuple, optional
+            yrange: tuple, optional
                 Set the min and max values of the Y axis of the graph.
                 Defaults to (0.0, 1.0).
-            title : string, optional
+            title: string, optional
                 Title of the window. If none is provided, the name of the
                 class is used.
-            wxnoserver : boolean, optional
+            wxnoserver: boolean, optional
                 With wxPython graphical toolkit, if True, tells the
                 interpreter that there will be no server window.
 
@@ -587,12 +587,12 @@ class LogTable(PyoTableObject):
 
     :Args:
 
-        list : list, optional
+        list: list, optional
             List of tuples indicating location and value of each points
             in the table. The default, [(0,0.), (8191, 1.)], creates a
             logarithmic line from 0.0 at location 0 to 1.0 at the end of
             the table (size - 1). Location must be an integer.
-        size : int, optional
+        size: int, optional
             Table size in samples. Defaults to 8192.
 
     .. note::
@@ -613,7 +613,7 @@ class LogTable(PyoTableObject):
         pyoArgsAssert(self, "lI", list, size)
         PyoTableObject.__init__(self, size)
         if size < list[-1][0]:
-            print("LogTable warning : size smaller than last point position.")
+            print("LogTable warning: size smaller than last point position.")
             print("                   Increased size to last point position + 1")
             size = list[-1][0] + 1
             self._size = size
@@ -625,7 +625,7 @@ class LogTable(PyoTableObject):
 
         :Args:
 
-            list : list
+            list: list
                 List of tuples indicating location and value of each points
                 in the table. Location must be integer.
 
@@ -646,9 +646,9 @@ class LogTable(PyoTableObject):
 
         :Args:
 
-            filename : string
+            filename: string
                 Full path of an automation recording file.
-            tolerance : float, optional
+            tolerance: float, optional
                 Tolerance of the filter. A higher value will eliminate more points.
                 Defaults to 0.02.
 
@@ -689,13 +689,13 @@ class LogTable(PyoTableObject):
 
         :Args:
 
-            yrange : tuple, optional
+            yrange: tuple, optional
                 Set the min and max values of the Y axis of the graph.
                 Defaults to (0.0, 1.0).
-            title : string, optional
+            title: string, optional
                 Title of the window. If none is provided, the name of the
                 class is used.
-            wxnoserver : boolean, optional
+            wxnoserver: boolean, optional
                 With wxPython graphical toolkit, if True, tells the
                 interpreter that there will be no server window.
 
@@ -720,12 +720,12 @@ class CosLogTable(PyoTableObject):
 
     :Args:
 
-        list : list, optional
+        list: list, optional
             List of tuples indicating location and value of each points
             in the table. The default, [(0,0.), (8191, 1.)], creates a
             logarithmic line from 0.0 at location 0 to 1.0 at the end of
             the table (size - 1). Location must be an integer.
-        size : int, optional
+        size: int, optional
             Table size in samples. Defaults to 8192.
 
     .. note::
@@ -746,7 +746,7 @@ class CosLogTable(PyoTableObject):
         pyoArgsAssert(self, "lI", list, size)
         PyoTableObject.__init__(self, size)
         if size < list[-1][0]:
-            print("CosLogTable warning : size smaller than last point position.")
+            print("CosLogTable warning: size smaller than last point position.")
             print("                   Increased size to last point position + 1")
             size = list[-1][0] + 1
             self._size = size
@@ -758,7 +758,7 @@ class CosLogTable(PyoTableObject):
 
         :Args:
 
-            list : list
+            list: list
                 List of tuples indicating location and value of each points
                 in the table. Location must be integer.
 
@@ -779,9 +779,9 @@ class CosLogTable(PyoTableObject):
 
         :Args:
 
-            filename : string
+            filename: string
                 Full path of an automation recording file.
-            tolerance : float, optional
+            tolerance: float, optional
                 Tolerance of the filter. A higher value will eliminate more points.
                 Defaults to 0.02.
 
@@ -822,13 +822,13 @@ class CosLogTable(PyoTableObject):
 
         :Args:
 
-            yrange : tuple, optional
+            yrange: tuple, optional
                 Set the min and max values of the Y axis of the graph.
                 Defaults to (0.0, 1.0).
-            title : string, optional
+            title: string, optional
                 Title of the window. If none is provided, the name of the
                 class is used.
-            wxnoserver : boolean, optional
+            wxnoserver: boolean, optional
                 With wxPython graphical toolkit, if True, tells the
                 interpreter that there will be no server window.
 
@@ -853,12 +853,12 @@ class CosTable(PyoTableObject):
 
     :Args:
 
-        list : list, optional
+        list: list, optional
             List of tuples indicating location and value of each points
             in the table. The default, [(0,0.), (8191, 1.)], creates a
             cosine line from 0.0 at location 0 to 1.0 at the end of the
             table (size - 1). Location must be an integer.
-        size : int, optional
+        size: int, optional
             Table size in samples. Defaults to 8192.
 
     .. note::
@@ -878,7 +878,7 @@ class CosTable(PyoTableObject):
         pyoArgsAssert(self, "lI", list, size)
         PyoTableObject.__init__(self, size)
         if size < list[-1][0]:
-            print("CosTable warning : size smaller than last point position.")
+            print("CosTable warning: size smaller than last point position.")
             print("                   Increased size to last point position + 1")
             size = list[-1][0] + 1
             self._size = size
@@ -890,7 +890,7 @@ class CosTable(PyoTableObject):
 
         :Args:
 
-            list : list
+            list: list
                 List of tuples indicating location and value of each points
                 in the table. Location must be integer.
 
@@ -911,9 +911,9 @@ class CosTable(PyoTableObject):
 
         :Args:
 
-            filename : string
+            filename: string
                 Full path of an automation recording file.
-            tolerance : float, optional
+            tolerance: float, optional
                 Tolerance of the filter. A higher value will eliminate more points.
                 Defaults to 0.02.
 
@@ -954,13 +954,13 @@ class CosTable(PyoTableObject):
 
         :Args:
 
-            yrange : tuple, optional
+            yrange: tuple, optional
                 Set the min and max values of the Y axis of the graph.
                 Defaults to (0.0, 1.0).
-            title : string, optional
+            title: string, optional
                 Title of the window. If none is provided, the name of the
                 class is used.
-            wxnoserver : boolean, optional
+            wxnoserver: boolean, optional
                 With wxPython graphical toolkit, if True, tells the
                 interpreter that there will be no server window.
 
@@ -991,19 +991,19 @@ class CurveTable(PyoTableObject):
 
     :Args:
 
-        list : list, optional
+        list: list, optional
             List of tuples indicating location and value of each points
             in the table. The default, [(0,0.), (8191, 1.)], creates a
             curved line from 0.0 at location 0 to 1.0 at the end of the
             table (size - 1). Location must be an integer.
-        tension : float, optional
+        tension: float, optional
             Curvature at the known points. 1 is high, 0 normal, -1 is low.
             Defaults to 0.
-        bias : float, optional
+        bias: float, optional
             Curve attraction (for each segments) toward bundary points.
             0 is even, positive is towards first point, negative is towards
             the second point. Defaults to 0.
-        size : int, optional
+        size: int, optional
             Table size in samples. Defaults to 8192.
 
     .. note::
@@ -1026,7 +1026,7 @@ class CurveTable(PyoTableObject):
         pyoArgsAssert(self, "lNNI", list, tension, bias, size)
         PyoTableObject.__init__(self, size)
         if size < list[-1][0]:
-            print("CurveTable warning : size smaller than last point position.")
+            print("CurveTable warning: size smaller than last point position.")
             print("                     Increased size to last point position + 1")
             size = list[-1][0] + 1
             self._size = size
@@ -1042,7 +1042,7 @@ class CurveTable(PyoTableObject):
 
         :Args:
 
-            x : float
+            x: float
                 New `tension` attribute.
 
         """
@@ -1060,7 +1060,7 @@ class CurveTable(PyoTableObject):
 
         :Args:
 
-            x : float
+            x: float
                 New `bias` attribute.
 
         """
@@ -1075,7 +1075,7 @@ class CurveTable(PyoTableObject):
 
         :Args:
 
-            list : list
+            list: list
                 List of tuples indicating location and value of each points
                 in the table. Location must be integer.
 
@@ -1096,9 +1096,9 @@ class CurveTable(PyoTableObject):
 
         :Args:
 
-            filename : string
+            filename: string
                 Full path of an automation recording file.
-            tolerance : float, optional
+            tolerance: float, optional
                 Tolerance of the filter. A higher value will eliminate more points.
                 Defaults to 0.02.
 
@@ -1139,13 +1139,13 @@ class CurveTable(PyoTableObject):
 
         :Args:
 
-            yrange : tuple, optional
+            yrange: tuple, optional
                 Set the min and max values of the Y axis of the graph.
                 Defaults to (0.0, 1.0).
-            title : string, optional
+            title: string, optional
                 Title of the window. If none is provided, the name of the
                 class is used.
-            wxnoserver : boolean, optional
+            wxnoserver: boolean, optional
                 With wxPython graphical toolkit, if True, tells the
                 interpreter that there will be no server window.
 
@@ -1184,18 +1184,18 @@ class ExpTable(PyoTableObject):
 
     :Args:
 
-        list : list, optional
+        list: list, optional
             List of tuples indicating location and value of each points
             in the table. The default, [(0,0.), (8192, 1.)], creates a
             exponential line from 0.0 at location 0 to 1.0 at the end of
             the table. Location must be an integer.
-        exp : float, optional
+        exp: float, optional
             Exponent factor. Used to control the slope of the curve.
             Defaults to 10.
-        inverse : boolean, optional
+        inverse: boolean, optional
             If True, downward slope will be inversed. Useful to create
             biexponential curves. Defaults to True.
-        size : int, optional
+        size: int, optional
             Table size in samples. Defaults to 8192.
 
     .. note::
@@ -1214,7 +1214,7 @@ class ExpTable(PyoTableObject):
         pyoArgsAssert(self, "lNBI", list, exp, inverse, size)
         PyoTableObject.__init__(self, size)
         if size < list[-1][0]:
-            print("ExpTable warning : size smaller than last point position.")
+            print("ExpTable warning: size smaller than last point position.")
             print("                   Increased size to last point position + 1")
             size = list[-1][0] + 1
             self._size = size
@@ -1228,7 +1228,7 @@ class ExpTable(PyoTableObject):
 
         :Args:
 
-            x : float
+            x: float
                 New `exp` attribute.
 
         """
@@ -1243,7 +1243,7 @@ class ExpTable(PyoTableObject):
 
         :Args:
 
-            x : boolean
+            x: boolean
                 New `inverse` attribute.
 
         """
@@ -1258,7 +1258,7 @@ class ExpTable(PyoTableObject):
 
         :Args:
 
-            list : list
+            list: list
                 List of tuples indicating location and value of each points
                 in the table. Location must be integer.
 
@@ -1279,9 +1279,9 @@ class ExpTable(PyoTableObject):
 
         :Args:
 
-            filename : string
+            filename: string
                 Full path of an automation recording file.
-            tolerance : float, optional
+            tolerance: float, optional
                 Tolerance of the filter. A higher value will eliminate more points.
                 Defaults to 0.02.
 
@@ -1322,13 +1322,13 @@ class ExpTable(PyoTableObject):
 
         :Args:
 
-            yrange : tuple, optional
+            yrange: tuple, optional
                 Set the min and max values of the Y axis of the graph.
                 Defaults to (0.0, 1.0).
-            title : string, optional
+            title: string, optional
                 Title of the window. If none is provided, the name of the
                 class is used.
-            wxnoserver : boolean, optional
+            wxnoserver: boolean, optional
                 With wxPython graphical toolkit, if True, tells the
                 interpreter that there will be no server window.
 
@@ -1368,16 +1368,16 @@ class SndTable(PyoTableObject):
 
     :Args:
 
-        path : string, optional
+        path: string, optional
             Full path name of the sound. The defaults, None, creates an empty
             table.
-        chnl : int, optional
+        chnl: int, optional
             Channel number to read in. Available at initialization time only.
             The default (None) reads all channels.
-        start : float, optional
+        start: float, optional
             Begins reading at `start` seconds into the file. Available at
             initialization time only. Defaults to 0.
-        stop : float, optional
+        stop: float, optional
             Stops reading at `stop` seconds into the file. Available at
             initialization time only. The default (None) means the end of
             the file.
@@ -1432,11 +1432,11 @@ class SndTable(PyoTableObject):
 
         :Args:
 
-            path : string
+            path: string
                 Full path of the new sound.
-            start : float, optional
+            start: float, optional
                 Begins reading at `start` seconds into the file. Defaults to 0.
-            stop : float, optional
+            stop: float, optional
                 Stops reading at `stop` seconds into the file. The default (None)
                 means the end of the file.
 
@@ -1477,14 +1477,14 @@ class SndTable(PyoTableObject):
 
         :Args:
 
-            path : string
+            path: string
                 Full path of the new sound.
-            crossfade : float, optional
+            crossfade: float, optional
                 Crossfade time, in seconds, between the sound already in the table
                 and the new one. Defaults to 0.
-            start : float, optional
+            start: float, optional
                 Begins reading at `start` seconds into the file. Defaults to 0.
-            stop : float, optional
+            stop: float, optional
                 Stops reading at `stop` seconds into the file. The default, None,
                 means the end of the file.
 
@@ -1526,17 +1526,17 @@ class SndTable(PyoTableObject):
 
         :Args:
 
-            path : string
+            path: string
                 Full path of the new sound.
-            pos : float, optional
+            pos: float, optional
                 Position in the table, in seconds, where to insert the new sound.
                 Defaults to 0.
-            crossfade : float, optional
+            crossfade: float, optional
                 Crossfade time, in seconds, between the sound already in the table
                 and the new one. Defaults to 0.
-            start : float, optional
+            start: float, optional
                 Begins reading at `start` seconds into the file. Defaults to 0.
-            stop : float, optional
+            stop: float, optional
                 Stops reading at `stop` seconds into the file. The default, None,
                 means the end of the file.
 
@@ -1571,7 +1571,7 @@ class SndTable(PyoTableObject):
 
         :Args:
 
-            all : boolean
+            all: boolean
                 If the table contains more than one sound and `all` is True,
                 returns a list of all durations. Otherwise, returns only the
                 first duration as a float.
@@ -1596,7 +1596,7 @@ class SndTable(PyoTableObject):
 
         :Args:
 
-            all : boolean
+            all: boolean
                 If the table contains more than one sound and `all` is True,
                 returns a list of all durations. Otherwise, returns only the
                 first duration as a float.
@@ -1624,7 +1624,7 @@ class SndTable(PyoTableObject):
 
         :Args:
 
-            all : boolean
+            all: boolean
                 If the table contains more than one sound and `all` is True,
                 returns a list of all sizes. Otherwise, returns only the
                 first size as an int.
@@ -1650,12 +1650,12 @@ class SndTable(PyoTableObject):
 
         :Args:
 
-            size : tuple
+            size: tuple
                 Size, (X, Y) pixel values, of the waveform container window.
-            begin : float, optional
+            begin: float, optional
                 First position in the the table, in seconds, where to get samples.
                 Defaults to 0.
-            end : float, optional
+            end: float, optional
                 Last position in the table, in seconds, where to get samples.
 
                 if this value is set to 0, that means the end of the table. Defaults to 0.
@@ -1679,7 +1679,7 @@ class SndTable(PyoTableObject):
 
         :Args:
 
-            points : int
+            points: int
                 Number of points of the amplitude analysis.
 
         """
@@ -1691,12 +1691,12 @@ class SndTable(PyoTableObject):
 
         :Args:
 
-            title : string, optional
+            title: string, optional
                 Window title. Defaults to "Table waveform".
-            wxnoserver : boolean, optional
+            wxnoserver: boolean, optional
                 With wxPython graphical toolkit, if True, tells the
                 interpreter that there will be no server window.
-            mouse_callback : callable
+            mouse_callback: callable
                 If provided, this function will be called with the mouse
                 position, inside the frame, as argument. Defaults to None.
 
@@ -1766,16 +1766,16 @@ class NewTable(PyoTableObject):
 
     :Args:
 
-        length : float
+        length: float
             Length of the table in seconds.
-        chnls : int, optional
+        chnls: int, optional
             Number of channels that will be handled by the table.
             Defaults to 1.
-        init : list of floats, optional
+        init: list of floats, optional
             Initial table. List of list can match the number of channels,
             otherwise, the list will be loaded in all tablestreams.
             Defaults to None.
-        feedback : float, optional
+        feedback: float, optional
             Amount of old data to mix with a new recording. Defaults to 0.0.
 
     .. seealso::
@@ -1815,7 +1815,7 @@ class NewTable(PyoTableObject):
 
         :Args:
 
-            x : list of floats
+            x: list of floats
                 New table. Must be of the same size as the actual table.
 
                 List of list can match the number of channels, otherwise,
@@ -1834,7 +1834,7 @@ class NewTable(PyoTableObject):
 
         :Args:
 
-            x : float
+            x: float
                 New `feedback` value.
 
         """
@@ -1874,12 +1874,12 @@ class NewTable(PyoTableObject):
 
         :Args:
 
-            size : tuple
+            size: tuple
                 Size, (X, Y) pixel values, of the waveform container window.
-            begin : float, optional
+            begin: float, optional
                 First position in the the table, in seconds, where to get samples.
                 Defaults to 0.
-            end : float, optional
+            end: float, optional
                 Last position in the table, in seconds, where to get samples.
 
                 if this value is set to 0, that means the end of the table. Defaults to 0.
@@ -1900,12 +1900,12 @@ class NewTable(PyoTableObject):
 
         :Args:
 
-            title : string, optional
+            title: string, optional
                 Window title. Defaults to "Table waveform".
-            wxnoserver : boolean, optional
+            wxnoserver: boolean, optional
                 With wxPython graphical toolkit, if True, tells the
                 interpreter that there will be no server window.
-            mouse_callback : callable
+            mouse_callback: callable
                 If provided, this function will be called with the mouse
                 position, inside the frame, as argument. Defaults to None.
 
@@ -1963,12 +1963,12 @@ class DataTable(PyoTableObject):
 
     :Args:
 
-        size : int
+        size: int
             Size of the table in samples.
-        chnls : int, optional
+        chnls: int, optional
             Number of channels that will be handled by the table.
             Defaults to 1.
-        init : list of floats, optional
+        init: list of floats, optional
             Initial table. List of list can match the number of channels,
             otherwise, the list will be loaded in all tablestreams.
 
@@ -2004,7 +2004,7 @@ class DataTable(PyoTableObject):
 
         :Args:
 
-            x : list of floats
+            x: list of floats
                 New table. Must be of the same size as the actual table.
 
                 List of list can match the number of channels, otherwise,
@@ -2034,13 +2034,13 @@ class DataTable(PyoTableObject):
 
         :Args:
 
-            yrange : tuple, optional
+            yrange: tuple, optional
                 Set the min and max values of the Y axis of the multislider.
                 Defaults to (0.0, 1.0).
-            title : string, optional
+            title: string, optional
                 Title of the window. If none is provided, the name of the
                 class is used.
-            wxnoserver : boolean, optional
+            wxnoserver: boolean, optional
                 With wxPython graphical toolkit, if True, tells the
                 interpreter that there will be no server window.
 
@@ -2083,9 +2083,9 @@ class AtanTable(PyoTableObject):
 
     :Args:
 
-        slope : float, optional
+        slope: float, optional
             Slope of the arctangent function, between 0 and 1. Defaults to 0.5.
-        size : int, optional
+        size: int, optional
             Table size in samples. Defaults to 8192.
 
     >>> import math
@@ -2108,7 +2108,7 @@ class AtanTable(PyoTableObject):
 
         :Args:
 
-            x : float
+            x: float
                 New slope between 0 and 1.
 
         """
@@ -2142,9 +2142,9 @@ class PartialTable(PyoTableObject):
 
     [(1, 1), (1.1, 0.7), (1.15, 0.5)] will draw a table with:
 
-    harmonic 100 : amplitude = 1
-    harmonic 110 : amplitude = 0.7
-    harmonic 115 : amplitude = 0.5
+    harmonic 100: amplitude = 1
+    harmonic 110: amplitude = 0.7
+    harmonic 115: amplitude = 0.5
 
     To listen to a signal composed of 200, 220 and 230 Hz, one should
     declared an oscillator like this (frequency of 200Hz divided by 100):
@@ -2155,11 +2155,11 @@ class PartialTable(PyoTableObject):
 
     :Args:
 
-        list : list of tuple, optional
+        list: list of tuple, optional
             List of 2-values tuples. First value is the partial number (float up
             to two decimal values) and second value is its amplitude (relative to
             the other harmonics). Defaults to [(1,1), (1.33,0.5),(1.67,0.3)].
-        size : int, optional
+        size: int, optional
             Table size in samples. Because computed harmonics are very high in
             frequency, the table size must be bigger than a classic HarmTable.
             Defaults to 65536.
@@ -2201,7 +2201,7 @@ class PartialTable(PyoTableObject):
 
         :Args:
 
-            list : list of tuples
+            list: list of tuples
                 Each tuple contains the partial number, as a float,
                 and its strength.
 
@@ -2240,31 +2240,31 @@ class PadSynthTable(PyoTableObject):
 
     :Args:
 
-        basefreq : float, optional
+        basefreq: float, optional
             The base frequencyof the algorithm in Hz. If the spreading factor
             is near 1.0, this frequency is the fundamental of the spectrum.
             Defaults to 440.
-        spread : float, optional
+        spread: float, optional
             The spreading factor for the harmonics. Each harmonic real frequency
             is computed as `basefreq * pow(n, spread)` where `n` is the harmonic
             order. Defaults to 1.
-        bw : float, optional
+        bw: float, optional
             The bandwidth of the first harmonic in cents. The bandwidth allows
             to control the harmonic profile using a gaussian distribution (bell
             shape). Defaults to 50.
-        bwscl : float, optional
+        bwscl: float, optional
             The bandswidth scale specifies how much the bandwidth of the
             harmonic increase according to its frequency. Defaults to 1.
-        nharms : int, optional
+        nharms: int, optional
             The number of harmonics in the generated wavetable. Higher
             numbers of harmonics take more time to generate the wavetable.
             Defaults to 64.
-        damp : float, optional
+        damp: float, optional
             The amplitude damping factor specifies how much the amplitude
             of the harmonic decrease according to its order. It uses a
             simple power serie, `amp = pow(damp, n)` where `n` is the
             harmonic order. Defaults to 0.7.
-        size : int, optional
+        size: int, optional
             Table size in samples. Must be a power-of-two, usually a big one!
             Defaults to 262144.
 
@@ -2297,9 +2297,9 @@ class PadSynthTable(PyoTableObject):
 
         :Args:
 
-            x : float
+            x: float
                 New base frequency in Hz.
-            generate : boolean, optional
+            generate: boolean, optional
                 If True, a new table will be computed with changed value.
 
         """
@@ -2315,9 +2315,9 @@ class PadSynthTable(PyoTableObject):
 
         :Args:
 
-            x : float
+            x: float
                 New spread factor.
-            generate : boolean, optional
+            generate: boolean, optional
                 If True, a new table will be computed with changed value.
 
         """
@@ -2333,9 +2333,9 @@ class PadSynthTable(PyoTableObject):
 
         :Args:
 
-            x : float
+            x: float
                 New bandwidth in cents.
-            generate : boolean, optional
+            generate: boolean, optional
                 If True, a new table will be computed with changed value.
 
         """
@@ -2351,9 +2351,9 @@ class PadSynthTable(PyoTableObject):
 
         :Args:
 
-            x : float
+            x: float
                 New bandwidth scaling factor.
-            generate : boolean, optional
+            generate: boolean, optional
                 If True, a new table will be computed with changed value.
 
         """
@@ -2369,9 +2369,9 @@ class PadSynthTable(PyoTableObject):
 
         :Args:
 
-            x : int
+            x: int
                 New number of harmonics.
-            generate : boolean, optional
+            generate: boolean, optional
                 If True, a new table will be computed with changed value.
 
         """
@@ -2387,9 +2387,9 @@ class PadSynthTable(PyoTableObject):
 
         :Args:
 
-            x : float
+            x: float
                 New amplitude damping factor.
-            generate : boolean, optional
+            generate: boolean, optional
                 If True, a new table will be computed with changed value.
 
         """
@@ -2407,9 +2407,9 @@ class PadSynthTable(PyoTableObject):
 
         :Args:
 
-            size : int
+            size: int
                 New table size in samples. Must be a power-of-two.
-            generate : boolean, optional
+            generate: boolean, optional
                 If True, a new table will be computed with changed value.
 
         """

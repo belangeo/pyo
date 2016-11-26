@@ -40,13 +40,13 @@ class Server(object):
 
     :Args:
 
-        sr : int, optional
+        sr: int, optional
             Sampling rate used by Portaudio and the Server to compute samples.
             Defaults to 44100.
-        nchnls : int, optional
+        nchnls: int, optional
             Number of output channels. The number of input channels will be the
             same if `ichnls` argument is not defined. Defaults to 2.
-        buffersize : int, optional
+        buffersize: int, optional
             Number of samples that Portaudio will request from the callback loop.
             Defaults to 256.
 
@@ -54,10 +54,10 @@ class Server(object):
             to compute) and on the latency of the system.
 
             Latency is `buffer size / sampling rate` in seconds.
-        duplex : int {0, 1}, optional
+        duplex: int {0, 1}, optional
             Input - output mode. 0 is output only and 1 is both ways.
             Defaults to 1.
-        audio : string {'portaudio', 'pa', 'jack', 'coreaudio', 'offline', 'offline_nb', 'embedded'}, optional
+        audio: string {'portaudio', 'pa', 'jack', 'coreaudio', 'offline', 'offline_nb', 'embedded'}, optional
             Audio backend to use. 'pa' is equivalent to 'portaudio'. Default is 'portaudio'.
 
             'offline' save the audio output in a soundfile as fast as possible in blocking mode,
@@ -78,30 +78,30 @@ class Server(object):
             If 'jack' is selected but jackd is not already started when the program is executed, pyo
             will ask jack to start in the background. Note that pyo never ask jack to close. It is
             the user's responsability to manage the audio configuration of its system.
-        jackname : string, optional
+        jackname: string, optional
             Name of jack client. Defaults to 'pyo'
-        ichnls : int, optional
+        ichnls: int, optional
             Number of input channels if different of output channels. If None (default), ichnls = nchnls.
 
     .. note::
 
         The following methods must be called **before** booting the server
 
-        - setInOutDevice(x) : Set both input and output devices. See `pa_list_devices()`.
-        - setInputDevice(x) : Set the audio input device number. See `pa_list_devices()`.
-        - setOutputDevice(x) : Set the audio output device number. See `pa_list_devices()`.
-        - setInputOffset(x) : Set the first physical input channel.
-        - setOutputOffset(x) : Set the first physical output channel.
-        - setInOutOffset(x) : Set the first physical input and output channels.
-        - setMidiInputDevice(x) : Set the MIDI input device number. See `pm_list_devices()`.
-        - setMidiOutputDevice(x) : Set the MIDI output device number. See `pm_list_devices()`.
-        - setSamplingRate(x) : Set the sampling rate used by the server.
-        - setBufferSize(x) : Set the buffer size used by the server.
-        - setNchnls(x) : Set the number of output (and input if `ichnls` = None) channels used by the server.
-        - setIchnls(x) : Set the number of input channels (if different of output channels) used by the server.
-        - setDuplex(x) : Set the duplex mode used by the server.
-        - setVerbosity(x) : Set the server's verbosity.
-        - reinit(sr, nchnls, buffersize, duplex, audio, jackname) : Reinit the server's settings.
+        - setInOutDevice(x): Set both input and output devices. See `pa_list_devices()`.
+        - setInputDevice(x): Set the audio input device number. See `pa_list_devices()`.
+        - setOutputDevice(x): Set the audio output device number. See `pa_list_devices()`.
+        - setInputOffset(x): Set the first physical input channel.
+        - setOutputOffset(x): Set the first physical output channel.
+        - setInOutOffset(x): Set the first physical input and output channels.
+        - setMidiInputDevice(x): Set the MIDI input device number. See `pm_list_devices()`.
+        - setMidiOutputDevice(x): Set the MIDI output device number. See `pm_list_devices()`.
+        - setSamplingRate(x): Set the sampling rate used by the server.
+        - setBufferSize(x): Set the buffer size used by the server.
+        - setNchnls(x): Set the number of output (and input if `ichnls` = None) channels used by the server.
+        - setIchnls(x): Set the number of input channels (if different of output channels) used by the server.
+        - setDuplex(x): Set the duplex mode used by the server.
+        - setVerbosity(x): Set the server's verbosity.
+        - reinit(sr, nchnls, buffersize, duplex, audio, jackname): Reinit the server's settings.
 
     >>> # For an 8 channels server in duplex mode with
     >>> # a sampling rate of 48000 Hz and buffer size of 512
@@ -185,16 +185,16 @@ class Server(object):
 
         :Args:
 
-            locals : locals namespace {locals(), None}, optional
+            locals: locals namespace {locals(), None}, optional
                 If locals() is given, the interface will show an interpreter extension,
                 giving a way to interact with the running script. Defaults to None.
-            meter : boolean, optinal
+            meter: boolean, optinal
                 If True, the interface will show a vumeter of the global output signal.
                 Defaults to True.
-            timer : boolean, optional
+            timer: boolean, optional
                 If True, the interface will show a clock of the current time.
                 Defaults to True.
-            exit : boolean, optional
+            exit: boolean, optional
                 If True, the python interpreter will exit when the 'Quit' button is pressed,
                 Otherwise, the GUI will be closed leaving the interpreter alive.
                 Defaults to True.
@@ -232,7 +232,7 @@ class Server(object):
 
         :Args:
 
-            func : python callable
+            func: python callable
                 Python function or method to call with current time as argument.
 
         """
@@ -247,7 +247,7 @@ class Server(object):
 
         :Args:
 
-            func : python callable
+            func: python callable
                 Python function or method to call with current rms values as argument.
 
         """
@@ -263,7 +263,7 @@ class Server(object):
 
         :Args:
 
-            meter : python object
+            meter: python object
                 Python object with a `setRms` method.
 
         """
@@ -275,7 +275,7 @@ class Server(object):
 
         :Args:
 
-            x : int
+            x: int
                 Number of the audio input and output devices.
 
         """
@@ -287,7 +287,7 @@ class Server(object):
 
         :Args:
 
-            x : int
+            x: int
                 Number of the audio device listed by Portaudio.
 
         """
@@ -299,7 +299,7 @@ class Server(object):
 
         :Args:
 
-            x : int
+            x: int
                 Number of the audio device listed by Portaudio.
 
         """
@@ -315,7 +315,7 @@ class Server(object):
 
         :Args:
 
-            x : int
+            x: int
                 Channel number.
 
         """
@@ -331,7 +331,7 @@ class Server(object):
 
         :Args:
 
-            x : int
+            x: int
                 Channel number.
 
         """
@@ -346,7 +346,7 @@ class Server(object):
 
         :Args:
 
-            x : int
+            x: int
                 Channel number.
 
         """
@@ -362,7 +362,7 @@ class Server(object):
 
         :Args:
 
-            x : int
+            x: int
                 Number of the Midi device listed by Portmidi.
 
         """
@@ -374,7 +374,7 @@ class Server(object):
 
         :Args:
 
-            x : int
+            x: int
                 Number of the Midi device listed by Portmidi.
 
         """
@@ -386,7 +386,7 @@ class Server(object):
 
         :Args:
 
-            x : int
+            x: int
                 New sampling rate, must be supported by the soundcard.
 
         """
@@ -398,7 +398,7 @@ class Server(object):
 
         :Args:
 
-            x : int
+            x: int
                 New buffer size.
 
         """
@@ -410,7 +410,7 @@ class Server(object):
 
         :Args:
 
-            x : int
+            x: int
                 New number of channels.
 
         """
@@ -423,7 +423,7 @@ class Server(object):
 
         :Args:
 
-            x : int
+            x: int
                 New number of input channels.
 
         """
@@ -436,7 +436,7 @@ class Server(object):
 
         :Args:
 
-            x : int {0 or 1}
+            x: int {0 or 1}
                 New mode. 0 is output only, 1 is both ways.
 
         """
@@ -448,7 +448,7 @@ class Server(object):
 
         :Args:
 
-            x : int
+            x: int
                 A sum of values to display different levels:
                     - 1 = error
                     - 2 = message
@@ -465,9 +465,9 @@ class Server(object):
 
         :Args:
 
-            xin : boolean
+            xin: boolean
                 Input Auto-connection switch. True is enabled (default) and False is disabled.
-            xout : boolean
+            xout: boolean
                 Output Auto-connection switch. True is enabled (default) and False is disabled.
 
         """
@@ -479,7 +479,7 @@ class Server(object):
 
         :Args:
 
-            ports : list of list of strings
+            ports: list of list of strings
                 Name of the Jack ports to auto-connect to pyo input channels.
                 There must be exactly one list of port(s) for each pyo input channel.
 
@@ -495,7 +495,7 @@ class Server(object):
 
         :Args:
 
-            ports : list of list of strings
+            ports: list of list of strings
                 Name of the Jack ports to auto-connect to pyo output channels.
                 There must be exactly one list of port(s) for each pyo output channel.
 
@@ -511,7 +511,7 @@ class Server(object):
 
         :Args:
 
-            x : int
+            x: int
                 A positive integer that will be used as the seed by random objects.
 
                 If zero, randoms will be seeded with the system clock current value.
@@ -527,7 +527,7 @@ class Server(object):
 
         :Args:
 
-            x : float
+            x: float
                 Starting time of the real-time processing.
 
         """
@@ -540,7 +540,7 @@ class Server(object):
 
         :Args:
 
-            x : float
+            x: float
                 New amplitude.
 
         """
@@ -564,7 +564,7 @@ class Server(object):
 
         :Args:
 
-            x : int, power-of-two
+            x: int, power-of-two
                 Resampling factor. Must be a power-of-two. A positive
                 value starts an upsampling block while a negative value
                 starts a downsampling block.
@@ -610,7 +610,7 @@ class Server(object):
 
         :Args:
 
-            newBuffer : bool
+            newBuffer: bool
                 Specify if the buffers need to be allocated or not. Useful to limit
                 the allocation of new buffers when the buffer size hasn't change.
 
@@ -645,14 +645,14 @@ class Server(object):
 
         :Args:
 
-            dur : float
+            dur: float
                 Duration, in seconds, of the recorded file. Only used by
                 offline rendering. Must be positive. Defaults to -1.
-            filename : string
+            filename: string
                 Full path of the file to create. If None, a file called
                 `pyo_rec.wav` will be created in the user's home directory.
                 Defaults to None.
-            fileformat : int, optional
+            fileformat: int, optional
                 Format type of the audio file. This function will first try to
                 set the format from the filename extension.
 
@@ -665,7 +665,7 @@ class Server(object):
                     5. FLAC - FLAC lossless file format {.flac}
                     6. CAF - Core Audio File format {.caf}
                     7. OGG - Xiph OGG container {.ogg}
-            sampletype : int, optional
+            sampletype: int, optional
                 Bit depth encoding of the audio file.
 
                 SD2 and FLAC only support 16 or 24 bit int. Supported types are:
@@ -676,7 +676,7 @@ class Server(object):
                     4. 64 bits float
                     5. U-Law encoded
                     6. A-Law encoded
-            quality : float, optional
+            quality: float, optional
                 The encoding quality value, between 0.0 (lowest quality) and
                 1.0 (highest quality). This argument has an effect only with
                 FLAC and OGG compressed formats. Defaults to 0.4.
@@ -710,7 +710,7 @@ class Server(object):
 
         :Args:
 
-            filename : string, optional
+            filename: string, optional
                 Name of the file to be created. Defaults to None.
 
         """
@@ -746,16 +746,16 @@ class Server(object):
 
         :Args:
 
-            pitch : int
+            pitch: int
                 Midi pitch, between 0 and 127.
-            velocity : int
+            velocity: int
                 Amplitude of the note, between 0 and 127. A note
                 with a velocity of 0 is equivalent to a note off.
-            channel : int, optional
+            channel: int, optional
                 The Midi channel, between 1 and 16, on which the
                 note is sent. A channel of 0 means all channels.
                 Defaults to 0.
-            timestamp : int, optional
+            timestamp: int, optional
                 The delay time, in milliseconds, before the note
                 is sent on the portmidi stream. A value of 0 means
                 to play the note now. Defaults to 0.
@@ -772,15 +772,15 @@ class Server(object):
 
         :Args:
 
-            pitch : int
+            pitch: int
                 Midi key pressed down, between 0 and 127.
-            velocity : int
+            velocity: int
                 Velocity of the pressure, between 0 and 127.
-            channel : int, optional
+            channel: int, optional
                 The Midi channel, between 1 and 16, on which the
                 note is sent. A channel of 0 means all channels.
                 Defaults to 0.
-            timestamp : int, optional
+            timestamp: int, optional
                 The delay time, in milliseconds, before the note
                 is sent on the portmidi stream. A value of 0 means
                 to play the note now. Defaults to 0.
@@ -797,15 +797,15 @@ class Server(object):
 
         :Args:
 
-            ctlnum : int
+            ctlnum: int
                 Controller number, between 0 and 127.
-            value : int
+            value: int
                 Value of the controller, between 0 and 127.
-            channel : int, optional
+            channel: int, optional
                 The Midi channel, between 1 and 16, on which the
                 message is sent. A channel of 0 means all channels.
                 Defaults to 0.
-            timestamp : int, optional
+            timestamp: int, optional
                 The delay time, in milliseconds, before the message
                 is sent on the portmidi stream. A value of 0 means
                 to play the message now. Defaults to 0.
@@ -822,13 +822,13 @@ class Server(object):
 
         :Args:
 
-            value : int
+            value: int
                 New program number, between 0 and 127.
-            channel : int, optional
+            channel: int, optional
                 The Midi channel, between 1 and 16, on which the
                 message is sent. A channel of 0 means all channels.
                 Defaults to 0.
-            timestamp : int, optional
+            timestamp: int, optional
                 The delay time, in milliseconds, before the message
                 is sent on the portmidi stream. A value of 0 means
                 to play the message now. Defaults to 0.
@@ -845,13 +845,13 @@ class Server(object):
 
         :Args:
 
-            value : int
+            value: int
                 Single greatest pressure value, between 0 and 127.
-            channel : int, optional
+            channel: int, optional
                 The Midi channel, between 1 and 16, on which the
                 message is sent. A channel of 0 means all channels.
                 Defaults to 0.
-            timestamp : int, optional
+            timestamp: int, optional
                 The delay time, in milliseconds, before the message
                 is sent on the portmidi stream. A value of 0 means
                 to play the message now. Defaults to 0.
@@ -868,14 +868,14 @@ class Server(object):
 
         :Args:
 
-            value : int
+            value: int
                 14 bits pitch bend value. 8192 is where there is no
                 bending, 0 is full down and 16383 is full up bending.
-            channel : int, optional
+            channel: int, optional
                 The Midi channel, between 1 and 16, on which the
                 message is sent. A channel of 0 means all channels.
                 Defaults to 0.
-            timestamp : int, optional
+            timestamp: int, optional
                 The delay time, in milliseconds, before the message
                 is sent on the portmidi stream. A value of 0 means
                 to play the message now. Defaults to 0.
@@ -892,10 +892,10 @@ class Server(object):
 
         :Args:
 
-            msg : str
+            msg: str
                 A valid system exclusive message as a string. The first byte
                 must be 0xf0 and the last one must be 0xf7.
-            timestamp : int, optional
+            timestamp: int, optional
                 The delay time, in milliseconds, before the message
                 is sent on the portmidi stream. A value of 0 means
                 to play the message now. Defaults to 0.
@@ -915,19 +915,19 @@ class Server(object):
 
         :Args:
 
-            status : int
+            status: int
                 The status byte, indicating the type of event and the
                 MIDI channel. Typical event type are:
-                    128 -> 143 : Noteoff
-                    144 -> 159 : Noteon
-                    176 -> 191 : Control change
-                    192 -> 207 : Program change
-                    209 -> 223 : After touch
-                    224 -> 239 : Pitch bend
-            data1 : int, optional
+                    128 -> 143: Noteoff
+                    144 -> 159: Noteon
+                    176 -> 191: Control change
+                    192 -> 207: Program change
+                    209 -> 223: After touch
+                    224 -> 239: Pitch bend
+            data1: int, optional
                 The first data byte (pitch for a midi note, controller
                 number for a control change). Defaults to 0.
-            data2 : int, optional
+            data2: int, optional
                 The second data byte (velocity for a midi note, value
                 for a control change). Defaults to 0.
 

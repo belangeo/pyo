@@ -43,9 +43,9 @@ class SfPlayer(PyoObject):
 
     :Args:
 
-        path : string
+        path: string
             Full path name of the sound to read.
-        speed : float or PyoObject, optional
+        speed: float or PyoObject, optional
             Transpose the pitch of input sound by this factor.
             Defaults to 1.
 
@@ -56,12 +56,12 @@ class SfPlayer(PyoObject):
 
             Although the `speed` attribute accepts audio
             rate signal, its value is updated only once per buffer size.
-        loop : bool, optional
+        loop: bool, optional
             If set to True, sound will play in loop. Defaults to False.
-        offset : float, optional
+        offset: float, optional
             Time in seconds of input sound to be skipped, assuming speed = 1.
             Defaults to 0.
-        interp : int, optional
+        interp: int, optional
             Interpolation type. Defaults to 2.
                 1. no interpolation
                 2. linear
@@ -121,7 +121,7 @@ class SfPlayer(PyoObject):
 
         :Args:
 
-            path : string
+            path: string
                 Full path of the new sound.
 
         """
@@ -155,7 +155,7 @@ class SfPlayer(PyoObject):
 
         :Args:
 
-            path : string
+            path: string
                 Full path of the new sound.
 
         """
@@ -167,7 +167,7 @@ class SfPlayer(PyoObject):
 
         :Args:
 
-            x : float or PyoObject
+            x: float or PyoObject
                 new `speed` attribute.
 
         """
@@ -182,7 +182,7 @@ class SfPlayer(PyoObject):
 
         :Args:
 
-            x : bool {True, False}
+            x: bool {True, False}
                 new `loop` attribute.
 
         """
@@ -199,7 +199,7 @@ class SfPlayer(PyoObject):
 
         :Args:
 
-            x : float
+            x: float
                 new `offset` attribute.
 
         """
@@ -214,7 +214,7 @@ class SfPlayer(PyoObject):
 
         :Args:
 
-            x : int {1, 2, 3, 4}
+            x: int {1, 2, 3, 4}
                 new `interp` attribute.
 
         """
@@ -289,10 +289,10 @@ class SfMarkerShuffler(PyoObject):
 
     :Args:
 
-        path : string
+        path: string
             Full path name of the sound to read. Can't e changed after
             initialization.
-        speed : float or PyoObject, optional
+        speed: float or PyoObject, optional
             Transpose the pitch of input sound by this factor.
             Defaults to 1.
 
@@ -303,7 +303,7 @@ class SfMarkerShuffler(PyoObject):
 
             Although the `speed` attribute accepts audio
             rate signal, its value is updated only once per buffer size.
-        interp : int, optional
+        interp: int, optional
             Choice of the interpolation method. Defaults to 2.
                 1. no interpolation
                 2. linear
@@ -343,7 +343,7 @@ class SfMarkerShuffler(PyoObject):
 
         :Args:
 
-            x : float or PyoObject
+            x: float or PyoObject
                 new `speed` attribute.
 
         """
@@ -358,7 +358,7 @@ class SfMarkerShuffler(PyoObject):
 
         :Args:
 
-            x : int {1, 2, 3, 4}
+            x: int {1, 2, 3, 4}
                 new `interp` attribute.
 
         """
@@ -411,9 +411,9 @@ class SfMarkerLooper(PyoObject):
 
     :Args:
 
-        path : string
+        path: string
             Full path name of the sound to read.
-        speed : float or PyoObject, optional
+        speed: float or PyoObject, optional
             Transpose the pitch of input sound by this factor.
             Defaults to 1.
 
@@ -424,10 +424,10 @@ class SfMarkerLooper(PyoObject):
 
             Although the `speed` attribute accepts audio
             rate signal, its value is updated only once per buffer size.
-        mark : float or PyoObject, optional
+        mark: float or PyoObject, optional
             Integer denoting the marker to loop, in the range
             0 -> len(getMarkers()). Defaults to 0.
-        interp : int, optional
+        interp: int, optional
             Choice of the interpolation method. Defaults to 2.
                 1. no interpolation
                 2. linear
@@ -470,7 +470,7 @@ class SfMarkerLooper(PyoObject):
 
         :Args:
 
-            x : float or PyoObject
+            x: float or PyoObject
                 new `speed` attribute.
 
         """
@@ -485,7 +485,7 @@ class SfMarkerLooper(PyoObject):
 
         :Args:
 
-            x : float or PyoObject
+            x: float or PyoObject
                 new `mark` attribute.
 
         """
@@ -500,7 +500,7 @@ class SfMarkerLooper(PyoObject):
 
         :Args:
 
-            x : int {1, 2, 3, 4}
+            x: int {1, 2, 3, 4}
                 new `interp` attribute.
 
         """

@@ -37,14 +37,14 @@ class Osc(PyoObject):
 
     :Args:
 
-        table : PyoTableObject
+        table: PyoTableObject
             Table containing the waveform samples.
-        freq : float or PyoObject, optional
+        freq: float or PyoObject, optional
             Frequency in cycles per second. Defaults to 1000.
-        phase : float or PyoObject, optional
+        phase: float or PyoObject, optional
             Phase of sampling, expressed as a fraction of a cycle (0 to 1).
             Defaults to 0.
-        interp : int, optional
+        interp: int, optional
             Choice of the interpolation method. Defaults to 2.
                 1. no interpolation
                 2. linear
@@ -77,7 +77,7 @@ class Osc(PyoObject):
 
         :Args:
 
-            x : PyoTableObject
+            x: PyoTableObject
                 new `table` attribute.
 
         """
@@ -92,7 +92,7 @@ class Osc(PyoObject):
 
         :Args:
 
-            x : float or PyoObject
+            x: float or PyoObject
                 new `freq` attribute.
 
         """
@@ -107,7 +107,7 @@ class Osc(PyoObject):
 
         :Args:
 
-            x : float or PyoObject
+            x: float or PyoObject
                 new `phase` attribute.
 
         """
@@ -122,7 +122,7 @@ class Osc(PyoObject):
 
         :Args:
 
-            x : int {1, 2, 3, 4}
+            x: int {1, 2, 3, 4}
                 new `interp` attribute.
 
         """
@@ -186,11 +186,11 @@ class OscLoop(PyoObject):
 
     :Args:
 
-        table : PyoTableObject
+        table: PyoTableObject
             Table containing the waveform samples.
-        freq : float or PyoObject, optional
+        freq: float or PyoObject, optional
             Frequency in cycles per second. Defaults to 1000.
-        feedback : float or PyoObject, optional
+        feedback: float or PyoObject, optional
             Amount of the output signal added to position increment, between 0 and 1.
             Controls the brightness. Defaults to 0.
 
@@ -220,7 +220,7 @@ class OscLoop(PyoObject):
 
         :Args:
 
-            x : PyoTableObject
+            x: PyoTableObject
                 new `table` attribute.
 
         """
@@ -235,7 +235,7 @@ class OscLoop(PyoObject):
 
         :Args:
 
-            x : float or PyoObject
+            x: float or PyoObject
                 new `freq` attribute.
 
         """
@@ -250,7 +250,7 @@ class OscLoop(PyoObject):
 
         :Args:
 
-            x : float or PyoObject
+            x: float or PyoObject
                 new `feedback` attribute.
 
         """
@@ -294,17 +294,17 @@ class OscTrig(PyoObject):
 
     :Args:
 
-        table : PyoTableObject
+        table: PyoTableObject
             Table containing the waveform samples.
-        trig : PyoObject
+        trig: PyoObject
             Trigger signal. Reset the table pointer position to zero on
             each trig.
-        freq : float or PyoObject, optional
+        freq: float or PyoObject, optional
             Frequency in cycles per second. Defaults to 1000.
-        phase : float or PyoObject, optional
+        phase: float or PyoObject, optional
             Phase of sampling, expressed as a fraction of a cycle (0 to 1).
             Defaults to 0.
-        interp : int, optional
+        interp: int, optional
             Choice of the interpolation method. Defaults to 2.
                 1. no interpolation
                 2. linear
@@ -340,7 +340,7 @@ class OscTrig(PyoObject):
 
         :Args:
 
-            x : PyoTableObject
+            x: PyoTableObject
                 new `table` attribute.
 
         """
@@ -355,7 +355,7 @@ class OscTrig(PyoObject):
 
         :Args:
 
-            x : PyoObject
+            x: PyoObject
                 new `trig` attribute.
 
         """
@@ -370,7 +370,7 @@ class OscTrig(PyoObject):
 
         :Args:
 
-            x : float or PyoObject
+            x: float or PyoObject
                 new `freq` attribute.
 
         """
@@ -385,7 +385,7 @@ class OscTrig(PyoObject):
 
         :Args:
 
-            x : float or PyoObject
+            x: float or PyoObject
                 new `phase` attribute.
 
         """
@@ -400,7 +400,7 @@ class OscTrig(PyoObject):
 
         :Args:
 
-            x : int {1, 2, 3, 4}
+            x: int {1, 2, 3, 4}
                 new `interp` attribute.
 
         """
@@ -476,40 +476,40 @@ class OscBank(PyoObject):
 
     :Args:
 
-        table : PyoTableObject
+        table: PyoTableObject
             Table containing the waveform samples.
-        freq : float or PyoObject, optional
+        freq: float or PyoObject, optional
             Base frequency in cycles per second. Defaults to 100.
-        spread : float or PyoObject, optional
+        spread: float or PyoObject, optional
             Coefficient of expansion used to compute partial frequencies.
             If `spread` is 0, all partials will be at the base frequency.
             A value of 1 will generate integer harmonics, a value of 2
             will skip even harmonics and non-integer values will generate
             different series of inharmonic frequencies. Defaults to 1.
-        slope : float or PyoObject, optional
+        slope: float or PyoObject, optional
             specifies the multiplier in the series of amplitude coefficients.
             This is a power series: the nth partial will have an amplitude of
             (slope ** n), i.e. strength values trace an exponential curve.
             Defaults to 1.
-        frndf : float or PyoObject, optional
+        frndf: float or PyoObject, optional
             Frequency, in cycle per second, of the frequency modulations.
             Defaults to 1.
-        frnda : float or PyoObject, optional
+        frnda: float or PyoObject, optional
             Maximum frequency deviation (positive and negative) in portion of
             the partial frequency. A value of 1 means that the frequency can
             drift from 0 Hz to twice the partial frequency. A value of 0
             deactivates the frequency deviations. Defaults to 0.
-        arndf : float or PyoObject, optional
+        arndf: float or PyoObject, optional
             Frequency, in cycle per second, of the amplitude modulations.
             Defaults to 1.
-        arnda : float or PyoObject, optional
+        arnda: float or PyoObject, optional
             Amount of amplitude deviation. 0 deactivates the amplitude
             modulations and 1 gives full amplitude modulations.
             Defaults to 0.
-        num : int, optional
+        num: int, optional
             Number of oscillators. Available at initialization only.
             Defaults to 24.
-        fjit : boolean, optional
+        fjit: boolean, optional
             If True, a small jitter is added to the frequency of each partial.
             For a large number of oscillators and a very small `spread`, the
             periodicity between partial frequencies can cause very strange
@@ -556,7 +556,7 @@ class OscBank(PyoObject):
 
         :Args:
 
-            x : PyoTableObject
+            x: PyoTableObject
                 new `table` attribute.
 
         """
@@ -571,7 +571,7 @@ class OscBank(PyoObject):
 
         :Args:
 
-            x : float or PyoObject
+            x: float or PyoObject
                 new `freq` attribute.
 
         """
@@ -586,7 +586,7 @@ class OscBank(PyoObject):
 
         :Args:
 
-            x : float or PyoObject
+            x: float or PyoObject
                 new `spread` attribute.
 
         """
@@ -601,7 +601,7 @@ class OscBank(PyoObject):
 
         :Args:
 
-            x : float or PyoObject
+            x: float or PyoObject
                 new `slope` attribute.
 
         """
@@ -616,7 +616,7 @@ class OscBank(PyoObject):
 
         :Args:
 
-            x : float or PyoObject
+            x: float or PyoObject
                 new `frndf` attribute.
 
         """
@@ -631,7 +631,7 @@ class OscBank(PyoObject):
 
         :Args:
 
-            x : float or PyoObject
+            x: float or PyoObject
                 new `frnda` attribute.
 
         """
@@ -646,7 +646,7 @@ class OscBank(PyoObject):
 
         :Args:
 
-            x : float or PyoObject
+            x: float or PyoObject
                 new `arndf` attribute.
 
         """
@@ -661,7 +661,7 @@ class OscBank(PyoObject):
 
         :Args:
 
-            x : float or PyoObject
+            x: float or PyoObject
                 new `arnda` attribute.
 
         """
@@ -676,7 +676,7 @@ class OscBank(PyoObject):
 
         :Args:
 
-            x : boolean
+            x: boolean
                 new `fjit` attribute.
 
         """
@@ -772,14 +772,14 @@ class TableRead(PyoObject):
 
     :Args:
 
-        table : PyoTableObject
+        table: PyoTableObject
             Table containing the waveform samples.
-        freq : float or PyoObject, optional
+        freq: float or PyoObject, optional
             Frequency in cycles per second. Defaults to 1.
-        loop : int {0, 1}, optional
+        loop: int {0, 1}, optional
             Looping mode, 0 means off, 1 means on.
             Defaults to 0.
-        interp : int, optional
+        interp: int, optional
             Choice of the interpolation method. Defaults to 2.
                 1. no interpolation
                 2. linear
@@ -823,7 +823,7 @@ class TableRead(PyoObject):
 
         :Args:
 
-            x : PyoTableObject
+            x: PyoTableObject
                 new `table` attribute.
 
         """
@@ -838,7 +838,7 @@ class TableRead(PyoObject):
 
         :Args:
 
-            x : float or PyoObject
+            x: float or PyoObject
                 new `freq` attribute.
 
         """
@@ -853,7 +853,7 @@ class TableRead(PyoObject):
 
         :Args:
 
-            x : int {0, 1}
+            x: int {0, 1}
                 new `loop` attribute.
 
         """
@@ -868,7 +868,7 @@ class TableRead(PyoObject):
 
         :Args:
 
-            x : int {1, 2, 3, 4}
+            x: int {1, 2, 3, 4}
                 new `interp` attribute.
 
         """
@@ -934,19 +934,19 @@ class Pulsar(PyoObject):
 
     :Args:
 
-        table : PyoTableObject
+        table: PyoTableObject
             Table containing the waveform samples.
-        env : PyoTableObject
+        env: PyoTableObject
             Table containing the envelope samples.
-        freq : float or PyoObject, optional
+        freq: float or PyoObject, optional
             Frequency in cycles per second. Defaults to 100.
-        frac : float or PyoObject, optional
+        frac: float or PyoObject, optional
             Fraction of the whole period (0 -> 1) given to the waveform.
             The rest will be filled with zeros. Defaults to 0.5.
-        phase : float or PyoObject, optional
+        phase: float or PyoObject, optional
             Phase of sampling, expressed as a fraction of a cycle (0 to 1).
             Defaults to 0.
-        interp : int, optional
+        interp: int, optional
             Choice of the interpolation method. Defaults to 2.
                 1. no interpolation
                 2. linear
@@ -983,7 +983,7 @@ class Pulsar(PyoObject):
 
         :Args:
 
-            x : PyoTableObject
+            x: PyoTableObject
                 new `table` attribute.
 
         """
@@ -998,7 +998,7 @@ class Pulsar(PyoObject):
 
         :Args:
 
-            x : PyoTableObject
+            x: PyoTableObject
                 new `env` attribute.
 
         """
@@ -1013,7 +1013,7 @@ class Pulsar(PyoObject):
 
         :Args:
 
-            x : float or PyoObject
+            x: float or PyoObject
                 new `freq` attribute.
 
         """
@@ -1028,7 +1028,7 @@ class Pulsar(PyoObject):
 
         :Args:
 
-            x : float or PyoObject
+            x: float or PyoObject
                 new `frac` attribute.
 
         """
@@ -1043,7 +1043,7 @@ class Pulsar(PyoObject):
 
         :Args:
 
-            x : float or PyoObject
+            x: float or PyoObject
                 new `phase` attribute.
 
         """
@@ -1058,7 +1058,7 @@ class Pulsar(PyoObject):
 
         :Args:
 
-            x : int {1, 2, 3, 4}
+            x: int {1, 2, 3, 4}
                 Choice of the interpolation method.
                     1. no interpolation
                     2. linear
@@ -1129,9 +1129,9 @@ class Pointer(PyoObject):
 
     :Args:
 
-        table : PyoTableObject
+        table: PyoTableObject
             Table containing the waveform samples.
-        index : PyoObject
+        index: PyoObject
             Normalized position in the table between 0 and 1.
 
     >>> s = Server().boot()
@@ -1156,7 +1156,7 @@ class Pointer(PyoObject):
 
         :Args:
 
-            x : PyoTableObject
+            x: PyoTableObject
                 new `table` attribute.
 
         """
@@ -1171,7 +1171,7 @@ class Pointer(PyoObject):
 
         :Args:
 
-            x : PyoObject
+            x: PyoObject
                 new `index` attribute.
 
         """
@@ -1206,17 +1206,17 @@ class Pointer2(PyoObject):
 
     :Args:
 
-        table : PyoTableObject
+        table: PyoTableObject
             Table containing the waveform samples.
-        index : PyoObject
+        index: PyoObject
             Normalized position in the table between 0 and 1.
-        interp : int {1, 2, 3, 4}, optional
+        interp: int {1, 2, 3, 4}, optional
             Choice of the interpolation method. Defaults to 4.
                 1. no interpolation
                 2. linear
                 3. cosinus
                 4. cubic
-        autosmooth : boolean, optional
+        autosmooth: boolean, optional
             If True, a lowpass filter, following the pitch, is applied on
 
             the output signal to reduce the quantization noise produced
@@ -1247,7 +1247,7 @@ class Pointer2(PyoObject):
 
         :Args:
 
-            x : PyoTableObject
+            x: PyoTableObject
                 new `table` attribute.
 
         """
@@ -1262,7 +1262,7 @@ class Pointer2(PyoObject):
 
         :Args:
 
-            x : PyoObject
+            x: PyoObject
                 new `index` attribute.
 
         """
@@ -1277,7 +1277,7 @@ class Pointer2(PyoObject):
 
         :Args:
 
-            x : int {1, 2, 3, 4}
+            x: int {1, 2, 3, 4}
                 new `interp` attribute.
                     1. no interpolation
                     2. linear interpolation
@@ -1300,7 +1300,7 @@ class Pointer2(PyoObject):
 
         :Args:
 
-            x : boolean
+            x: boolean
                 new `autosmooth` attribute.
 
         """
@@ -1349,9 +1349,9 @@ class TableIndex(PyoObject):
 
     :Args:
 
-        table : PyoTableObject
+        table: PyoTableObject
             Table containing the samples.
-        index : PyoObject
+        index: PyoObject
             Position in the table, as integer audio stream,
             between 0 and table's size - 1.
 
@@ -1379,7 +1379,7 @@ class TableIndex(PyoObject):
 
         :Args:
 
-            x : PyoTableObject
+            x: PyoTableObject
                 new `table` attribute.
 
         """
@@ -1394,7 +1394,7 @@ class TableIndex(PyoObject):
 
         :Args:
 
-            x : PyoObject
+            x: PyoObject
                 new `index` attribute.
 
         """
@@ -1434,9 +1434,9 @@ class Lookup(PyoObject):
 
     :Args:
 
-        table : PyoTableObject
+        table: PyoTableObject
             Table containing the transfert function.
-        index : PyoObject
+        index: PyoObject
             Audio signal, between -1 and 1, internally converted to be
             used as the index position in the table.
 
@@ -1462,7 +1462,7 @@ class Lookup(PyoObject):
 
         :Args:
 
-            x : PyoTableObject
+            x: PyoTableObject
                 new `table` attribute.
 
         """
@@ -1477,7 +1477,7 @@ class Lookup(PyoObject):
 
         :Args:
 
-            x : PyoObject
+            x: PyoObject
                 new `index` attribute.
 
         """
@@ -1520,11 +1520,11 @@ class TableRec(PyoObject):
 
     :Args:
 
-        input : PyoObject
+        input: PyoObject
             Audio signal to write in the table.
-        table : NewTable
+        table: NewTable
             The table where to write samples.
-        fadetime : float, optional
+        fadetime: float, optional
             Fade time at the beginning and the end of the recording
             in seconds. Defaults to 0.
 
@@ -1596,9 +1596,9 @@ class TableRec(PyoObject):
 
         :Args:
 
-            x : PyoObject
+            x: PyoObject
                 New signal to process.
-            fadetime : float, optional
+            fadetime: float, optional
                 Crossfade time between old and new input. Defaults to 0.05.
 
         """
@@ -1612,7 +1612,7 @@ class TableRec(PyoObject):
 
         :Args:
 
-            x : NewTable
+            x: NewTable
                 new `table` attribute.
 
         """
@@ -1651,16 +1651,16 @@ class TableWrite(PyoObject):
 
     :Args:
 
-        input : PyoObject
+        input: PyoObject
             Audio signal to write in the table.
-        pos : PyoObject
+        pos: PyoObject
             Audio signal specifying the position where to write the
             `input` samples. It is a normalized position (in the range
             0 to 1) in mode=0 or the raw position (in samples) for any
             other value of mode.
-        table : NewTable
+        table: NewTable
             The table where to write samples.
-        mode : int, optional
+        mode: int, optional
             Sets the writing pointer mode. If 0, the position must be
             normalized between 0 (beginning of the table) and 1 (end
             of the table). For any other value, the position must be
@@ -1713,9 +1713,9 @@ class TableWrite(PyoObject):
 
         :Args:
 
-            x : PyoObject
+            x: PyoObject
                 New signal to process.
-            fadetime : float, optional
+            fadetime: float, optional
                 Crossfade time between old and new input. Defaults to 0.05.
 
         """
@@ -1729,7 +1729,7 @@ class TableWrite(PyoObject):
 
         :Args:
 
-            x : NewTable
+            x: NewTable
                 new `table` attribute.
 
         """
@@ -1744,7 +1744,7 @@ class TableWrite(PyoObject):
 
         :Args:
 
-            x : PyoObject
+            x: PyoObject
                 new `pos` attribute.
 
         """
@@ -1787,12 +1787,12 @@ class TableMorph(PyoObject):
 
     :Args:
 
-        input : PyoObject
+        input: PyoObject
             Morphing index between 0 and 1. 0 is the first table in the list
             and 1 is the last.
-        table : NewTable
+        table: NewTable
             The table where to write morphed waveform.
-        sources : list of PyoTableObject
+        sources: list of PyoTableObject
             List of tables to interpolate from.
 
     .. note::
@@ -1837,9 +1837,9 @@ class TableMorph(PyoObject):
 
         :Args:
 
-            x : PyoObject
+            x: PyoObject
                 New signal to process.
-            fadetime : float, optional
+            fadetime: float, optional
                 Crossfade time between old and new input. Defaults to 0.05.
 
         """
@@ -1853,7 +1853,7 @@ class TableMorph(PyoObject):
 
         :Args:
 
-            x : NewTable
+            x: NewTable
                 new `table` attribute.
 
         """
@@ -1868,7 +1868,7 @@ class TableMorph(PyoObject):
 
         :Args:
 
-            x : list of PyoTableObject
+            x: list of PyoTableObject
                 new `sources` attribute.
 
         """
@@ -1906,25 +1906,25 @@ class Granulator(PyoObject):
 
     :Args:
 
-        table : PyoTableObject
+        table: PyoTableObject
             Table containing the waveform samples.
-        env : PyoTableObject
+        env: PyoTableObject
             Table containing the grain envelope.
-        pitch : float or PyoObject, optional
+        pitch: float or PyoObject, optional
             Overall pitch of the granulator. This value transpose the
             pitch of all grains. Defaults to 1.
-        pos : float or PyoObject, optional
+        pos: float or PyoObject, optional
             Pointer position, in samples, in the waveform table. Each
             grain sampled the current value of this stream at the beginning
             of its envelope and hold it until the end of the grain.
             Defaults to 0.
-        dur : float or PyoObject, optional
+        dur: float or PyoObject, optional
             Duration, in seconds, of the grain. Each grain sampled the
             current value of this stream at the beginning of its envelope
             and hold it until the end of the grain. Defaults to 0.1.
-        grains : int, optional
+        grains: int, optional
             Number of grains. Defaults to 8.
-        basedur : float, optional
+        basedur: float, optional
             Base duration used to calculate the speed of the pointer to
             read the grain at its original pitch. By changing the value of
             the `dur` parameter, transposition per grain can be generated.
@@ -1960,7 +1960,7 @@ class Granulator(PyoObject):
 
         :Args:
 
-            x : PyoTableObject
+            x: PyoTableObject
                 new `table` attribute.
 
         """
@@ -1975,7 +1975,7 @@ class Granulator(PyoObject):
 
         :Args:
 
-            x : PyoTableObject
+            x: PyoTableObject
                 new `env` attribute.
 
         """
@@ -1990,7 +1990,7 @@ class Granulator(PyoObject):
 
         :Args:
 
-            x : float or PyoObject
+            x: float or PyoObject
                 new `pitch` attribute.
 
         """
@@ -2005,7 +2005,7 @@ class Granulator(PyoObject):
 
         :Args:
 
-            x : float or PyoObject
+            x: float or PyoObject
                 new `pos` attribute.
 
         """
@@ -2020,7 +2020,7 @@ class Granulator(PyoObject):
 
         :Args:
 
-            x : float or PyoObject
+            x: float or PyoObject
                 new `dur` attribute.
 
         """
@@ -2035,7 +2035,7 @@ class Granulator(PyoObject):
 
         :Args:
 
-            x : int
+            x: int
                 new `grains` attribute.
 
         """
@@ -2050,7 +2050,7 @@ class Granulator(PyoObject):
 
         :Args:
 
-            x : float
+            x: float
                 new `basedur` attribute.
 
         """
@@ -2129,13 +2129,13 @@ class TrigTableRec(PyoObject):
 
     :Args:
 
-        input : PyoObject
+        input: PyoObject
             Audio signal to write in the table.
-        trig : PyoObject
+        trig: PyoObject
             Audio signal sending triggers.
-        table : NewTable
+        table: NewTable
             The table where to write samples.
-        fadetime : float, optional
+        fadetime: float, optional
             Fade time at the beginning and the end of the recording
             in seconds. Defaults to 0.
 
@@ -2200,9 +2200,9 @@ class TrigTableRec(PyoObject):
 
         :Args:
 
-            x : PyoObject
+            x: PyoObject
                 New signal to process.
-            fadetime : float, optional
+            fadetime: float, optional
                 Crossfade time between old and new input. Defaults to 0.05.
 
         """
@@ -2216,9 +2216,9 @@ class TrigTableRec(PyoObject):
 
         :Args:
 
-            x : PyoObject
+            x: PyoObject
                 New trigger signal.
-            fadetime : float, optional
+            fadetime: float, optional
                 Crossfade time between old and new input. Defaults to 0.05.
 
         """
@@ -2232,7 +2232,7 @@ class TrigTableRec(PyoObject):
 
         :Args:
 
-            x : NewTable
+            x: NewTable
                 new `table` attribute.
 
         """
@@ -2274,41 +2274,41 @@ class Looper(PyoObject):
 
     :Args:
 
-        table : PyoTableObject
+        table: PyoTableObject
             Table containing the waveform samples.
-        pitch : float or PyoObject, optional
+        pitch: float or PyoObject, optional
             Transposition factor. 1 is normal pitch, 0.5 is one octave lower, 2 is
             one octave higher. Negative values are not allowed. Defaults to 1.
-        start : float or PyoObject, optional
+        start: float or PyoObject, optional
             Starting point, in seconds, of the loop, updated only once per loop cycle.
             Defaults to 0.
-        dur : float or PyoObject, optional
+        dur: float or PyoObject, optional
             Duration, in seconds, of the loop, updated only once per loop cycle.
             Defaults to 1.
-        xfade : float or PyoObject {0 -> 50}, optional
+        xfade: float or PyoObject {0 -> 50}, optional
             Percent of the loop time used to crossfade readers, updated only once per
             loop cycle and clipped between 0 and 50. Defaults to 20.
-        mode : int {0, 1, 2, 3}, optional
+        mode: int {0, 1, 2, 3}, optional
             Loop modes. Defaults to 1.
                 0. no loop
                 1. forward
                 2. backward
                 3. back-and-forth
-        xfadeshape : int {0, 1, 2}, optional
+        xfadeshape: int {0, 1, 2}, optional
             Crossfade envelope shape. Defaults to 0.
                 0. linear
                 1. equal power
                 2. sigmoid
-        startfromloop : boolean, optional
+        startfromloop: boolean, optional
             If True, reading will begin directly at the loop start point. Otherwise, it
             begins at the beginning of the table. Defaults to False.
-        interp : int {1, 2, 3, 4}, optional
+        interp: int {1, 2, 3, 4}, optional
             Choice of the interpolation method. Defaults to 2.
                 1. no interpolation
                 2. linear
                 3. cosinus
                 4. cubic
-        autosmooth : boolean, optional
+        autosmooth: boolean, optional
             If True, a lowpass filter, following the pitch, is applied on the output signal
             to reduce the quantization noise produced by very low transpositions.
             Defaults to False.
@@ -2372,7 +2372,7 @@ class Looper(PyoObject):
 
         :Args:
 
-            x : PyoTableObject
+            x: PyoTableObject
                 new `table` attribute.
 
         """
@@ -2387,7 +2387,7 @@ class Looper(PyoObject):
 
         :Args:
 
-            x : float or PyoObject
+            x: float or PyoObject
                 new `pitch` attribute.
 
         """
@@ -2402,7 +2402,7 @@ class Looper(PyoObject):
 
         :Args:
 
-            x : float or PyoObject
+            x: float or PyoObject
                 new `start` attribute.
 
         """
@@ -2417,7 +2417,7 @@ class Looper(PyoObject):
 
         :Args:
 
-            x : float or PyoObject
+            x: float or PyoObject
                 new `dur` attribute.
 
         """
@@ -2432,7 +2432,7 @@ class Looper(PyoObject):
 
         :Args:
 
-            x : float or PyoObject
+            x: float or PyoObject
                 new `xfade` attribute.
 
         """
@@ -2447,7 +2447,7 @@ class Looper(PyoObject):
 
         :Args:
 
-            x : int
+            x: int
                 new `xfadeshape` attribute.
 
         """
@@ -2462,7 +2462,7 @@ class Looper(PyoObject):
 
         :Args:
 
-            x : boolean
+            x: boolean
                 new `startfromloop` attribute.
 
         """
@@ -2477,7 +2477,7 @@ class Looper(PyoObject):
 
         :Args:
 
-            x : int
+            x: int
                 new `mode` attribute.
 
         """
@@ -2492,7 +2492,7 @@ class Looper(PyoObject):
 
         :Args:
 
-            x : int
+            x: int
                 new `interp` attribute.
 
         """
@@ -2507,7 +2507,7 @@ class Looper(PyoObject):
 
         :Args:
 
-            x : boolean
+            x: boolean
                 new `autosmooth` attribute.
 
         """
@@ -2536,7 +2536,7 @@ class Looper(PyoObject):
 
         :Args:
 
-            x : boolean
+            x: boolean
                 If 0 (the default), the crossfade duration lies inside the
                 loop duration, producing a loop that is shorter than the
                 `dur` value.
@@ -2557,7 +2557,7 @@ class Looper(PyoObject):
 
         :Args:
 
-            x : boolean
+            x: boolean
                 If 0 (the default), the crossfade duration (`xfade` value) is
                 a percent of the loop time, between 0 and 50.
 
@@ -2671,9 +2671,9 @@ class TablePut(PyoObject):
 
     :Args:
 
-        input : PyoObject
+        input: PyoObject
             Audio signal to write in the table.
-        table : DataTable
+        table: DataTable
             The table where to write values.
 
     .. note::
@@ -2725,9 +2725,9 @@ class TablePut(PyoObject):
 
         :Args:
 
-            x : PyoObject
+            x: PyoObject
                 New signal to process.
-            fadetime : float, optional
+            fadetime: float, optional
                 Crossfade time between old and new input. Defaults to 0.05.
 
         """
@@ -2741,7 +2741,7 @@ class TablePut(PyoObject):
 
         :Args:
 
-            x : DataTable
+            x: DataTable
                 new `table` attribute.
 
         """
@@ -2775,21 +2775,21 @@ class Granule(PyoObject):
 
     :Args:
 
-        table : PyoTableObject
+        table: PyoTableObject
             Table containing the waveform samples.
-        env : PyoTableObject
+        env: PyoTableObject
             Table containing the grain envelope.
-        dens : float or PyoObject, optional
+        dens: float or PyoObject, optional
             Density of grains per second. Defaults to 50.
-        pitch : float or PyoObject, optional
+        pitch: float or PyoObject, optional
             Pitch of the grains. A new grain gets the current value
             of `pitch` as its reading speed. Defaults to 1.
-        pos : float or PyoObject, optional
+        pos: float or PyoObject, optional
             Pointer position, in samples, in the waveform table. Each
             grain sampled the current value of this stream at the beginning
             of its envelope and hold it until the end of the grain.
             Defaults to 0.
-        dur : float or PyoObject, optional
+        dur: float or PyoObject, optional
             Duration, in seconds, of the grain. Each grain sampled the
             current value of this stream at the beginning of its envelope
             and hold it until the end of the grain. Defaults to 0.1.
@@ -2825,7 +2825,7 @@ class Granule(PyoObject):
 
         :Args:
 
-            x : PyoTableObject
+            x: PyoTableObject
                 new `table` attribute.
 
         """
@@ -2840,7 +2840,7 @@ class Granule(PyoObject):
 
         :Args:
 
-            x : PyoTableObject
+            x: PyoTableObject
                 new `env` attribute.
 
         """
@@ -2855,7 +2855,7 @@ class Granule(PyoObject):
 
         :Args:
 
-            x : float or PyoObject
+            x: float or PyoObject
                 new `dens` attribute.
 
         """
@@ -2870,7 +2870,7 @@ class Granule(PyoObject):
 
         :Args:
 
-            x : float or PyoObject
+            x: float or PyoObject
                 new `pitch` attribute.
 
         """
@@ -2885,7 +2885,7 @@ class Granule(PyoObject):
 
         :Args:
 
-            x : float or PyoObject
+            x: float or PyoObject
                 new `pos` attribute.
 
         """
@@ -2900,7 +2900,7 @@ class Granule(PyoObject):
 
         :Args:
 
-            x : float or PyoObject
+            x: float or PyoObject
                 new `dur` attribute.
 
         """
@@ -2915,7 +2915,7 @@ class Granule(PyoObject):
 
         :Args:
 
-            x : boolean
+            x: boolean
                 True means synchronous granulation (the default)
                 while False means asynchronous.
 
@@ -2986,9 +2986,9 @@ class TableScale(PyoObject):
 
     :Args:
 
-        table : PyoTableObject
+        table: PyoTableObject
             Table containing the original values.
-        outtable : PyoTableObject
+        outtable: PyoTableObject
             Table where to write the scaled values.
 
     >>> s = Server().boot()
@@ -3018,7 +3018,7 @@ class TableScale(PyoObject):
 
         :Args:
 
-            x : PyoTableObject
+            x: PyoTableObject
                 new `table` attribute.
 
         """
@@ -3033,7 +3033,7 @@ class TableScale(PyoObject):
 
         :Args:
 
-            x : PyoTableObject
+            x: PyoTableObject
                 new `outtable` attribute.
 
         """
@@ -3068,35 +3068,35 @@ class Particle(PyoObject):
 
     :Args:
 
-        table : PyoTableObject
+        table: PyoTableObject
             Table containing the waveform samples.
-        env : PyoTableObject
+        env: PyoTableObject
             Table containing the grain envelope.
-        dens : float or PyoObject, optional
+        dens: float or PyoObject, optional
             Density of grains per second. Defaults to 50.
-        pitch : float or PyoObject, optional
+        pitch: float or PyoObject, optional
             Pitch of the grains. Each grain sampled the current value
             of this stream at the beginning of its envelope and hold
             it until the end of the grain. Defaults to 1.
-        pos : float or PyoObject, optional
+        pos: float or PyoObject, optional
             Pointer position, in samples, in the waveform table. Each
             grain sampled the current value of this stream at the beginning
             of its envelope and hold it until the end of the grain.
             Defaults to 0.
-        dur : float or PyoObject, optional
+        dur: float or PyoObject, optional
             Duration, in seconds, of the grain. Each grain sampled the
             current value of this stream at the beginning of its envelope
             and hold it until the end of the grain. Defaults to 0.1.
-        dev : float or PyoObject, optional
+        dev: float or PyoObject, optional
             Maximum deviation of the starting time of the grain, between 0 and
             1 (relative to the current duration of the grain). Each grain sampled
             the current value of this stream at the beginning of its envelope
             and hold it until the end of the grain. Defaults to 0.01.
-        pan : float or PyoObject, optional
+        pan: float or PyoObject, optional
             Panning factor of the grain (if chnls=1, this value is skipped).
             Each grain sampled the current value of this stream at the beginning
             of its envelope and hold it until the end of the grain. Defaults to 0.5.
-        chnls : integer, optional
+        chnls: integer, optional
             Number of output channels per audio stream (if chnls=2 and a stereo sound
             table is given at the table argument, the objet will create 4 output
             streams, 2 per table channel). Available at initialization only. Defaults to 1.
@@ -3145,7 +3145,7 @@ class Particle(PyoObject):
 
         :Args:
 
-            x : PyoTableObject
+            x: PyoTableObject
                 new `table` attribute.
 
         """
@@ -3160,7 +3160,7 @@ class Particle(PyoObject):
 
         :Args:
 
-            x : PyoTableObject
+            x: PyoTableObject
                 new `env` attribute.
 
         """
@@ -3175,7 +3175,7 @@ class Particle(PyoObject):
 
         :Args:
 
-            x : float or PyoObject
+            x: float or PyoObject
                 new `dens` attribute.
 
         """
@@ -3190,7 +3190,7 @@ class Particle(PyoObject):
 
         :Args:
 
-            x : float or PyoObject
+            x: float or PyoObject
                 new `pitch` attribute.
 
         """
@@ -3205,7 +3205,7 @@ class Particle(PyoObject):
 
         :Args:
 
-            x : float or PyoObject
+            x: float or PyoObject
                 new `pos` attribute.
 
         """
@@ -3220,7 +3220,7 @@ class Particle(PyoObject):
 
         :Args:
 
-            x : float or PyoObject
+            x: float or PyoObject
                 new `dur` attribute.
 
         """
@@ -3235,7 +3235,7 @@ class Particle(PyoObject):
 
         :Args:
 
-            x : float or PyoObject
+            x: float or PyoObject
                 new `dev` attribute.
 
         """
@@ -3250,7 +3250,7 @@ class Particle(PyoObject):
 
         :Args:
 
-            x : float or PyoObject
+            x: float or PyoObject
                 new `pan` attribute.
 
         """

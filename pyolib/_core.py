@@ -104,36 +104,36 @@ def pyoArgsAssert(obj, format, *args):
 
     :Args:
 
-        obj : Pyo object on which method is called.
+        obj: Pyo object on which method is called.
             Usually "self" in the function call.
         format :
             String of length equal to the number of arguments. Each character
             indicating the expected argument type.
 
-            - O : float or PyoObject
-            - o : PyoObject
-            - T : float or PyoTableObject
-            - t : PyoTableObject
-            - m : PyoMatrixObject
-            - p : PyoPVObject
-            - n : any number (int or float)
-            - N : any number (no list-expansion)
-            - f : float
-            - F : float (no list-expansion)
-            - i : integer
-            - I : integer (no list-expansion)
-            - s : string or unicode
-            - S : string or unicode (no list-expansion)
-            - b : boolean
-            - B : boolean (no list-expansion)
-            - l : list
-            - L : list or None
-            - u : tuple
-            - x : sequence (list or tuple)
-            - c : callable
-            - C : callable (no list-expansion)
-            - z : anything
-        *args : any
+            - O: float or PyoObject
+            - o: PyoObject
+            - T: float or PyoTableObject
+            - t: PyoTableObject
+            - m: PyoMatrixObject
+            - p: PyoPVObject
+            - n: any number (int or float)
+            - N: any number (no list-expansion)
+            - f: float
+            - F: float (no list-expansion)
+            - i: integer
+            - I: integer (no list-expansion)
+            - s: string or unicode
+            - S: string or unicode (no list-expansion)
+            - b: boolean
+            - B: boolean (no list-expansion)
+            - l: list
+            - L: list or None
+            - u: tuple
+            - x: sequence (list or tuple)
+            - c: callable
+            - C: callable (no list-expansion)
+            - z: anything
+        *args: any
             Arguments passed to the object's method.
 
     """
@@ -234,7 +234,7 @@ def convertStringToSysEncoding(str):
 
     :Args:
 
-        str : string
+        str: string
             String to convert.
 
     """
@@ -276,14 +276,14 @@ def example(cls, dur=5, toprint=True, double=False):
 
     :Args:
 
-        cls : PyoObject class
+        cls: PyoObject class
             Class reference of the desired object example.
-        dur : float, optional
+        dur: float, optional
             Duration of the example.
-        toprint : boolean, optional
+        toprint: boolean, optional
             If True, the example script will be printed to the console.
             Defaults to True.
-        double : boolean, optional
+        double: boolean, optional
             If True, force the example to run in double precision (64-bit)
             Defaults to False.
 
@@ -342,7 +342,7 @@ def class_args(cls):
 
     :Args:
 
-        cls : PyoObject class
+        cls: PyoObject class
             Class reference of the desired object's init line.
 
     >>> print(class_args(Sine))
@@ -372,7 +372,7 @@ def getVersion():
     This function returns the version number of the current pyo
     installation as a 3-ints tuple (major, minor, rev).
 
-    The returned tuple for version '0.4.1' will look like : (0, 4, 1)
+    The returned tuple for version '0.4.1' will look like: (0, 4, 1)
 
     >>> print(getVersion())
     >>> (0, 5, 1)
@@ -549,9 +549,9 @@ class PyoObject(PyoObjectBase):
 
     :Args:
 
-        mul : float or PyoObject, optional
+        mul: float or PyoObject, optional
             Multiplication factor. Defaults to 1.
-        add : float or PyoObject, optional
+        add: float or PyoObject, optional
             Addition factor. Defaults to 0.
 
     .. note::
@@ -575,10 +575,10 @@ class PyoObject(PyoObjectBase):
 
         **Exponent** and **modulo**
 
-        >>> a ** 10 # returns a Pow object created as : Pow(a, 10)
-        >>> 10 ** a # returns a Pow object created as : Pow(10, a)
-        >>> a % 4 # returns a Wrap object created as : Wrap(a, 0, 4)
-        >>> a % b # returns a Wrap object created as : Wrap(a, 0, b)
+        >>> a ** 10 # returns a Pow object created as: Pow(a, 10)
+        >>> 10 ** a # returns a Pow object created as: Pow(10, a)
+        >>> a % 4 # returns a Wrap object created as: Wrap(a, 0, 4)
+        >>> a % b # returns a Wrap object created as: Wrap(a, 0, b)
 
         **Unary negative** (**-**)
 
@@ -586,12 +586,12 @@ class PyoObject(PyoObjectBase):
 
         **Comparison operators**
 
-        >>> a < b # returns a Compare object created as : Compare(a, comp=b, mode="<")
-        >>> a <= b # returns a Compare object created as : Compare(a, comp=b, mode="<=")
-        >>> a == b # returns a Compare object created as : Compare(a, comp=b, mode="==")
-        >>> a != b # returns a Compare object created as : Compare(a, comp=b, mode="!=")
-        >>> a > b # returns a Compare object created as : Compare(a, comp=b, mode=">")
-        >>> a >= b # returns a Compare object created as : Compare(a, comp=b, mode=">=")
+        >>> a < b # returns a Compare object created as: Compare(a, comp=b, mode="<")
+        >>> a <= b # returns a Compare object created as: Compare(a, comp=b, mode="<=")
+        >>> a == b # returns a Compare object created as: Compare(a, comp=b, mode="==")
+        >>> a != b # returns a Compare object created as: Compare(a, comp=b, mode="!=")
+        >>> a > b # returns a Compare object created as: Compare(a, comp=b, mode=">")
+        >>> a >= b # returns a Compare object created as: Compare(a, comp=b, mode=">=")
 
         A special case concerns the comparison of a PyoObject with None. All operators
         return False except `a != None`, which returns True.
@@ -785,7 +785,7 @@ class PyoObject(PyoObjectBase):
 
         :Args:
 
-            all : boolean, optional
+            all: boolean, optional
                 If True, the object returns a list with the state of all
                 streams managed by the object.
 
@@ -805,7 +805,7 @@ class PyoObject(PyoObjectBase):
 
         :Args:
 
-            all : boolean, optional
+            all: boolean, optional
                 If True, the object returns a list with the state of all
                 streams managed by the object.
 
@@ -832,7 +832,7 @@ class PyoObject(PyoObjectBase):
 
         :Args:
 
-            all : boolean, optional
+            all: boolean, optional
                 If True, the first value of each object's stream
                 will be returned as a list.
 
@@ -856,10 +856,10 @@ class PyoObject(PyoObjectBase):
 
         :Args:
 
-            dur : float, optional
+            dur: float, optional
                 Duration, in seconds, of the object's activation. The default is 0
                 and means infinite duration.
-            delay : float, optional
+            delay: float, optional
                 Delay, in seconds, before the object's activation. Defaults to 0.
 
         """
@@ -886,15 +886,15 @@ class PyoObject(PyoObjectBase):
 
         :Args:
 
-            chnl : int, optional
+            chnl: int, optional
                 Physical output assigned to the first audio stream of the object.
                 Defaults to 0.
-            inc : int, optional
+            inc: int, optional
                 Output channel increment value. Defaults to 1.
-            dur : float, optional
+            dur: float, optional
                 Duration, in seconds, of the object's activation. The default is 0
                 and means infinite duration.
-            delay : float, optional
+            delay: float, optional
                 Delay, in seconds, before the object's activation. Defaults to 0.
 
         If `chnl` >= 0, successive streams increment the output number by
@@ -953,7 +953,7 @@ class PyoObject(PyoObjectBase):
 
         :Args:
 
-            voices : int, optional
+            voices: int, optional
                 Number of audio streams of the Mix object created by this method.
                 Defaults to 1.
 
@@ -977,9 +977,9 @@ class PyoObject(PyoObjectBase):
 
         :Args:
 
-            min : float
+            min: float
                 Minimum value of the output signal.
-            max : float
+            max: float
                 Maximum value of the output signal.
 
         """
@@ -1001,7 +1001,7 @@ class PyoObject(PyoObjectBase):
 
         :Args:
 
-            x : float or PyoObject
+            x: float or PyoObject
                 New `mul` attribute.
 
         """
@@ -1016,7 +1016,7 @@ class PyoObject(PyoObjectBase):
 
         :Args:
 
-            x : float or PyoObject
+            x: float or PyoObject
                 New `add` attribute.
 
         """
@@ -1031,7 +1031,7 @@ class PyoObject(PyoObjectBase):
 
         :Args:
 
-            x : float or PyoObject
+            x: float or PyoObject
                 New inversed `add` attribute.
 
         """
@@ -1046,7 +1046,7 @@ class PyoObject(PyoObjectBase):
 
         :Args:
 
-            x : float or PyoObject
+            x: float or PyoObject
                 New inversed `mul` attribute.
 
         """
@@ -1065,13 +1065,13 @@ class PyoObject(PyoObjectBase):
 
         :Args:
 
-            attr : string
+            attr: string
                 Name of the attribute as a string.
-            value : float
+            value: float
                 New value.
-            port : float, optional
+            port: float, optional
                 Time, in seconds, to reach the new value.
-            callback : callable, optional
+            callback: callable, optional
                 A python function to be called at the end of the ramp. If the
                 end of the ramp is not reached (ex.: called again before the
                 end of the portamento), the callback will not be called. 
@@ -1108,13 +1108,13 @@ class PyoObject(PyoObjectBase):
 
         :Args:
 
-            map_list : list of SLMap objects, optional
+            map_list: list of SLMap objects, optional
                 Users defined set of parameters scaling. There is default
                 scaling for each object that accept `ctrl` method.
-            title : string, optional
+            title: string, optional
                 Title of the window. If none is provided, the name of the
                 class is used.
-            wxnoserver : boolean, optional
+            wxnoserver: boolean, optional
                 With wxPython graphical toolkit, if True, tells the
                 interpreter that there will be no server window.
 
@@ -1158,7 +1158,7 @@ class PyoTableObject(PyoObjectBase):
 
     :Args:
 
-        size : int
+        size: int
             Length of the table in samples. Usually provided by the child object.
 
     """
@@ -1181,9 +1181,9 @@ class PyoTableObject(PyoObjectBase):
 
         :Args:
 
-            path : string
+            path: string
                 Full path (including extension) of the new file.
-            format : int, optional
+            format: int, optional
                 Format type of the new file. Supported formats are:
                     0. WAVE - Microsoft WAV format (little endian) {.wav, .wave}
                     1. AIFF - Apple/SGI AIFF format (big endian) {.aif, .aiff}
@@ -1193,7 +1193,7 @@ class PyoTableObject(PyoObjectBase):
                     5. FLAC - FLAC lossless file format {.flac}
                     6. CAF - Core Audio File format {.caf}
                     7. OGG - Xiph OGG container {.ogg}
-            sampletype : int, optional
+            sampletype: int, optional
                 Bit depth encoding of the audio file.
 
                 SD2 and FLAC only support 16 or 24 bit int. Supported types are:
@@ -1204,7 +1204,7 @@ class PyoTableObject(PyoObjectBase):
                     4. 64 bit float
                     5. U-Law encoded
                     6. A-Law encoded
-            quality : float, optional
+            quality: float, optional
                 The encoding quality value, between 0.0 (lowest quality) and
                 1.0 (highest quality). This argument has an effect only with
                 FLAC and OGG compressed formats. Defaults to 0.4.
@@ -1227,9 +1227,9 @@ class PyoTableObject(PyoObjectBase):
 
         :Args:
 
-            path : string
+            path: string
                 Full path of the generated file.
-            oneline : boolean, optional
+            oneline: boolean, optional
                 If True, list of samples will inserted on one line.
 
                 If False, list of samples will be truncated to 8 floats
@@ -1260,7 +1260,7 @@ class PyoTableObject(PyoObjectBase):
 
         :Args:
 
-            path : string
+            path: string
                 Full path of the file to read.
 
         The format is a list of lists of floats. For example, A two
@@ -1309,7 +1309,7 @@ class PyoTableObject(PyoObjectBase):
 
         :Args:
 
-            size : int
+            size: int
                 New table size in samples.
 
         """
@@ -1324,7 +1324,7 @@ class PyoTableObject(PyoObjectBase):
 
         :Args:
 
-            all : boolean
+            all: boolean
                 If the table contains more than one stream and `all` is True,
                 returns a list of all sizes. Otherwise, returns only the
                 first size as an int. Defaults to False.
@@ -1349,9 +1349,9 @@ class PyoTableObject(PyoObjectBase):
 
         :Args:
 
-            value : float
+            value: float
                 Value, as floating-point, to record in the table.
-            pos : int, optional
+            pos: int, optional
                 Position, in samples, where to record value. Defaults to 0.
 
         """
@@ -1369,7 +1369,7 @@ class PyoTableObject(PyoObjectBase):
 
         :Args:
 
-            pos : int, optional
+            pos: int, optional
                 Position, in samples, where to read the value. Defaults to 0.
 
         """
@@ -1384,7 +1384,7 @@ class PyoTableObject(PyoObjectBase):
 
         :Args:
 
-            all : boolean, optional
+            all: boolean, optional
                 If True, all sub tables are retrieved and returned as a list
                 of list of floats.
 
@@ -1458,7 +1458,7 @@ class PyoTableObject(PyoObjectBase):
 
         :Args:
 
-            exp : float, optional
+            exp: float, optional
                 Exponent factor. Defaults to 10.
 
         """
@@ -1473,9 +1473,9 @@ class PyoTableObject(PyoObjectBase):
 
         :Args:
 
-            gpos : float, optional
+            gpos: float, optional
                 Gain factor for positive samples. Defaults to 1.
-            gneg : float, optional
+            gneg: float, optional
                 Gain factor for negative samples. Defaults to 1.
 
         """
@@ -1490,7 +1490,7 @@ class PyoTableObject(PyoObjectBase):
 
         :Args:
 
-            freq : float, optional
+            freq: float, optional
                 Filter's cutoff, in Hertz. Defaults to 1000.
 
         """
@@ -1505,7 +1505,7 @@ class PyoTableObject(PyoObjectBase):
 
         :Args:
 
-            dur : float, optional
+            dur: float, optional
                 Fade in duration, in seconds. Defaults to 0.1.
 
         """
@@ -1520,7 +1520,7 @@ class PyoTableObject(PyoObjectBase):
 
         :Args:
 
-            dur : float, optional
+            dur: float, optional
                 Fade out duration, in seconds. Defaults to 0.1.
 
         """
@@ -1538,7 +1538,7 @@ class PyoTableObject(PyoObjectBase):
 
         :Args:
 
-            x : float, list or PyoTableObject
+            x: float, list or PyoTableObject
                 value(s) to add.
 
         """
@@ -1563,7 +1563,7 @@ class PyoTableObject(PyoObjectBase):
 
         :Args:
 
-            x : float, list or PyoTableObject
+            x: float, list or PyoTableObject
                 value(s) to substract.
 
         """
@@ -1588,7 +1588,7 @@ class PyoTableObject(PyoObjectBase):
 
         :Args:
 
-            x : float, list or PyoTableObject
+            x: float, list or PyoTableObject
                 value(s) to multiply.
 
         """
@@ -1612,14 +1612,14 @@ class PyoTableObject(PyoObjectBase):
 
         :Args:
 
-            table : PyoTableObject
+            table: PyoTableObject
                 The source table.
-            srcpos : int, optional
+            srcpos: int, optional
                 The start position in the source table. Defaults to 0.
             destpos ; int, optional
                 The start position in the destination (self) table. Defaults
                 to 0.
-            length : int, optional
+            length: int, optional
                 The number of samples to copy from source to destination. if
                 length is negative, the length of the smallest table is used.
                 Defaults to -1.
@@ -1639,7 +1639,7 @@ class PyoTableObject(PyoObjectBase):
 
         :Args:
 
-            pos : int
+            pos: int
                 The rotation position in samples. A negative position means
                 a rotation to the right.
 
@@ -1675,9 +1675,9 @@ class PyoTableObject(PyoObjectBase):
 
         :Args:
 
-            title : string, optional
+            title: string, optional
                 Window title. Defaults to "Table waveform".
-            wxnoserver : boolean, optional
+            wxnoserver: boolean, optional
                 With wxPython graphical toolkit, if True, tells the
                 interpreter that there will be no server window.
 
@@ -1745,7 +1745,7 @@ class PyoMatrixObject(PyoObjectBase):
 
         :Args:
 
-            path : string
+            path: string
                 Full path of the generated file.
 
         """
@@ -1771,7 +1771,7 @@ class PyoMatrixObject(PyoObjectBase):
 
         :Args:
 
-            path : string
+            path: string
                 Full path of the file to read.
 
         """
@@ -1810,11 +1810,11 @@ class PyoMatrixObject(PyoObjectBase):
 
         :Args:
 
-            min : float, optional
+            min: float, optional
                 Minimum value. Defaults to -1.0.
-            max : float, optional
+            max: float, optional
                 Maximum value. Defaults to 1.0.
-            boost : float, optional
+            boost: float, optional
                 Amount of boost applied on each value. Defaults to 0.01.
 
         """
@@ -1831,11 +1831,11 @@ class PyoMatrixObject(PyoObjectBase):
 
         :Args:
 
-            value : float
+            value: float
                 Value, as floating-point, to record in the matrix.
-            x : int, optional
+            x: int, optional
                 X position where to record value. Defaults to 0.
-            y : int, optional
+            y: int, optional
                 Y position where to record value. Defaults to 0.
 
         """
@@ -1852,9 +1852,9 @@ class PyoMatrixObject(PyoObjectBase):
 
         :Args:
 
-            x : int, optional
+            x: int, optional
                 X position where to get value. Defaults to 0.
-            y : int, optional
+            y: int, optional
                 Y position where to get value. Defaults to 0.
 
         """
@@ -1869,9 +1869,9 @@ class PyoMatrixObject(PyoObjectBase):
 
         :Args:
 
-            title : string, optional
+            title: string, optional
                 Window title. Defaults to "Matrix viewer".
-            wxnoserver : boolean, optional
+            wxnoserver: boolean, optional
                 With wxPython graphical toolkit, if True, tells the
                 interpreter that there will be no server window.
 
@@ -1922,7 +1922,7 @@ class PyoPVObject(PyoObjectBase):
 
         :Args:
 
-            all : boolean, optional
+            all: boolean, optional
                 If True, the object returns a list with the state of all
                 streams managed by the object.
 
@@ -1946,10 +1946,10 @@ class PyoPVObject(PyoObjectBase):
 
         :Args:
 
-            dur : float, optional
+            dur: float, optional
                 Duration, in seconds, of the object's activation. The default is 0
                 and means infinite duration.
-            delay : float, optional
+            delay: float, optional
                 Delay, in seconds, before the object's activation. Defaults to 0.
 
         """
@@ -1987,11 +1987,11 @@ class PyoPVObject(PyoObjectBase):
 
         :Args:
 
-            attr : string
+            attr: string
                 Name of the attribute as a string.
-            value : float
+            value: float
                 New value.
-            port : float, optional
+            port: float, optional
                 Time, in seconds, to reach the new value.
 
         """
@@ -2022,13 +2022,13 @@ class PyoPVObject(PyoObjectBase):
 
         :Args:
 
-            map_list : list of SLMap objects, optional
+            map_list: list of SLMap objects, optional
                 Users defined set of parameters scaling. There is default
                 scaling for each object that accept `ctrl` method.
-            title : string, optional
+            title: string, optional
                 Title of the window. If none is provided, the name of the
                 class is used.
-            wxnoserver : boolean, optional
+            wxnoserver: boolean, optional
                 With wxPython graphical toolkit, if True, tells the
                 interpreter that there will be no server window.
 
@@ -2057,9 +2057,9 @@ class Mix(PyoObject):
 
     :Args:
 
-        input : PyoObject or list of PyoObjects
+        input: PyoObject or list of PyoObjects
             Input signal(s) to mix the streams.
-        voices : int, optional
+        voices: int, optional
             Number of streams of the Mix object. If more than 1, input
             object's streams are alternated and added into Mix object's
             streams. Defaults to 1.
@@ -2122,7 +2122,7 @@ class Dummy(PyoObject):
 
     :Args:
 
-        objs_list : list of audio Stream objects
+        objs_list: list of audio Stream objects
             List of Stream objects return by the PyoObject hidden method
             getBaseObjects().
 
@@ -2170,7 +2170,7 @@ class InputFader(PyoObject):
 
     :Args:
 
-        input : PyoObject
+        input: PyoObject
             Input signal.
 
     .. note::
@@ -2201,9 +2201,9 @@ class InputFader(PyoObject):
 
         :Args:
 
-            x : PyoObject
+            x: PyoObject
                 New signal to process.
-            fadetime : float, optional
+            fadetime: float, optional
                 Crossfade time between old and new input. Defaults to 0.05.
 
         """
@@ -2227,7 +2227,7 @@ class Sig(PyoObject):
 
     :Args:
 
-        value : float or PyoObject
+        value: float or PyoObject
             Numerical value to convert.
 
     >>> import random
@@ -2255,7 +2255,7 @@ class Sig(PyoObject):
 
         :Args:
 
-            x : float or PyoObject
+            x: float or PyoObject
                 Numerical value to convert.
 
         """
@@ -2287,16 +2287,16 @@ class VarPort(PyoObject):
 
     :Args:
 
-        value : float
+        value: float
             Numerical value to convert.
-        time : float, optional
+        time: float, optional
             Ramp time, in seconds, to reach the new value. Defaults to 0.025.
-        init : float, optional
+        init: float, optional
             Initial value of the internal memory. Defaults to 0.
-        function : Python callable, optional
+        function: Python callable, optional
             If provided, it will be called at the end of the line.
             Defaults to None.
-        arg : any Python object, optional
+        arg: any Python object, optional
             Optional argument sent to the function called at the end of the line.
             Defaults to None.
 
@@ -2329,7 +2329,7 @@ class VarPort(PyoObject):
 
         :Args:
 
-            x : float
+            x: float
                 Numerical value to convert.
 
         """
@@ -2344,7 +2344,7 @@ class VarPort(PyoObject):
 
         :Args:
 
-            x : float
+            x: float
                 New ramp time.
 
         """
@@ -2359,7 +2359,7 @@ class VarPort(PyoObject):
 
         :Args:
 
-            x : Python function
+            x: Python function
                 new `function` attribute.
 
         """
@@ -2397,9 +2397,9 @@ class Pow(PyoObject):
 
     :Args:
 
-        base : float or PyoObject, optional
+        base: float or PyoObject, optional
             Base composant. Defaults to 10.
-        exponent : float or PyoObject, optional
+        exponent: float or PyoObject, optional
             Exponent composant. Defaults to 1.
 
     >>> s = Server().boot()
@@ -2424,7 +2424,7 @@ class Pow(PyoObject):
 
         :Args:
 
-            x : float or PyoObject
+            x: float or PyoObject
                 new `base` attribute.
 
         """
@@ -2439,7 +2439,7 @@ class Pow(PyoObject):
 
         :Args:
 
-            x : float or PyoObject
+            x: float or PyoObject
                 new `exponent` attribute.
 
         """
@@ -2473,11 +2473,11 @@ class Wrap(PyoObject):
 
     :Args:
 
-        input : PyoObject
+        input: PyoObject
             Input signal to process.
-        min : float or PyoObject, optional
+        min: float or PyoObject, optional
             Minimum possible value. Defaults to 0.
-        max : float or PyoObject, optional
+        max: float or PyoObject, optional
             Maximum possible value. Defaults to 1.
 
     .. note::
@@ -2513,9 +2513,9 @@ class Wrap(PyoObject):
 
         :Args:
 
-            x : PyoObject
+            x: PyoObject
                 New signal to process.
-            fadetime : float, optional
+            fadetime: float, optional
                 Crossfade time between old and new input. Defaults to 0.05.
 
         """
@@ -2529,7 +2529,7 @@ class Wrap(PyoObject):
 
         :Args:
 
-            x : float or PyoObject
+            x: float or PyoObject
                 New `min` attribute.
 
         """
@@ -2544,7 +2544,7 @@ class Wrap(PyoObject):
 
         :Args:
 
-            x : float or PyoObject
+            x: float or PyoObject
                 New `max` attribute.
 
         """
@@ -2592,11 +2592,11 @@ class Compare(PyoObject):
 
     :Args:
 
-        input : PyoObject
+        input: PyoObject
             Input signal.
-        comp : float or PyoObject
+        comp: float or PyoObject
             comparison signal.
-        mode : string, optional
+        mode: string, optional
             Comparison operator as a string. Allowed operator are "<", "<=",
             ">", ">=", "==", "!=". Default to "<".
 
@@ -2629,9 +2629,9 @@ class Compare(PyoObject):
 
         :Args:
 
-            x : PyoObject
+            x: PyoObject
                 New signal to process.
-            fadetime : float, optional
+            fadetime: float, optional
                 Crossfade time between old and new input. Default to 0.05.
 
         """
@@ -2645,7 +2645,7 @@ class Compare(PyoObject):
 
         :Args:
 
-            x : float or PyoObject
+            x: float or PyoObject
                 New comparison signal.
 
         """
@@ -2662,7 +2662,7 @@ class Compare(PyoObject):
 
         :Args:
 
-            x : string
+            x: string
                 New `mode` attribute.
 
         """

@@ -43,9 +43,9 @@ class Follower(PyoObject):
 
     :Args:
 
-        input : PyoObject
+        input: PyoObject
             Input signal to process.
-        freq : float or PyoObject, optional
+        freq: float or PyoObject, optional
             Cutoff frequency of the filter in hertz. Default to 20.
 
     .. note::
@@ -75,9 +75,9 @@ class Follower(PyoObject):
 
         :Args:
 
-            x : PyoObject
+            x: PyoObject
                 New signal to process.
-            fadetime : float, optional
+            fadetime: float, optional
                 Crossfade time between old and new input. Default to 0.05.
 
         """
@@ -91,7 +91,7 @@ class Follower(PyoObject):
 
         :Args:
 
-            x : float or PyoObject
+            x: float or PyoObject
                 New `freq` attribute.
 
         """
@@ -131,11 +131,11 @@ class Follower2(PyoObject):
 
     :Args:
 
-        input : PyoObject
+        input: PyoObject
             Input signal to process.
-        risetime : float or PyoObject, optional
+        risetime: float or PyoObject, optional
             Time to reach upward value in seconds. Default to 0.01.
-        falltime : float or PyoObject, optional
+        falltime: float or PyoObject, optional
             Time to reach downward value in seconds. Default to 0.1.
 
     .. note::
@@ -166,9 +166,9 @@ class Follower2(PyoObject):
 
         :Args:
 
-            x : PyoObject
+            x: PyoObject
                 New signal to process.
-            fadetime : float, optional
+            fadetime: float, optional
                 Crossfade time between old and new input. Default to 0.05.
 
         """
@@ -182,7 +182,7 @@ class Follower2(PyoObject):
 
         :Args:
 
-            x : float or PyoObject
+            x: float or PyoObject
                 New `risetime` attribute.
 
         """
@@ -197,7 +197,7 @@ class Follower2(PyoObject):
 
         :Args:
 
-            x : float or PyoObject
+            x: float or PyoObject
                 New `falltime` attribute.
 
         """
@@ -245,9 +245,9 @@ class ZCross(PyoObject):
 
     :Args:
 
-        input : PyoObject
+        input: PyoObject
             Input signal to process.
-        thresh : float, optional
+        thresh: float, optional
             Minimum amplitude difference allowed between adjacent samples
             to be included in the zeros count.
 
@@ -278,9 +278,9 @@ class ZCross(PyoObject):
 
         :Args:
 
-            x : PyoObject
+            x: PyoObject
                 New signal to process.
-            fadetime : float, optional
+            fadetime: float, optional
                 Crossfade time between old and new input. Default to 0.05.
 
         """
@@ -294,7 +294,7 @@ class ZCross(PyoObject):
 
         :Args:
 
-            x : float
+            x: float
                 New amplitude difference threshold.
 
         """
@@ -340,23 +340,23 @@ class Yin(PyoObject):
 
     :Args:
 
-        input : PyoObject
+        input: PyoObject
             Input signal to process.
-        tolerance : float, optional
+        tolerance: float, optional
             Parameter for minima selection, between 0 and 1. Defaults to 0.2.
-        minfreq : float, optional
+        minfreq: float, optional
             Minimum estimated frequency in Hz. Frequency below this threshold will
             be ignored. Defaults to 40.
-        maxfreq : float, optional
+        maxfreq: float, optional
             Maximum estimated frequency in Hz. Frequency above this threshold will
             be ignored. Defaults to 1000.
-        cutoff : float, optional
+        cutoff: float, optional
             Cutoff frequency, in Hz, of the lowpass filter applied on the input sound.
             Defaults to 1000.
 
             The lowpass filter helps the algorithm to detect the fundamental frequency by filtering
             higher harmonics.
-        winsize : int, optional
+        winsize: int, optional
             Size, in samples, of the analysis window. Must be higher that two period
             of the lowest desired frequency.
 
@@ -391,9 +391,9 @@ class Yin(PyoObject):
 
         :Args:
 
-            x : PyoObject
+            x: PyoObject
                 New signal to process.
-            fadetime : float, optional
+            fadetime: float, optional
                 Crossfade time between old and new input. Default to 0.05.
 
         """
@@ -407,7 +407,7 @@ class Yin(PyoObject):
 
         :Args:
 
-            x : float
+            x: float
                 New parameter for minima selection, between 0 and 1.
 
         """
@@ -422,7 +422,7 @@ class Yin(PyoObject):
 
         :Args:
 
-            x : float
+            x: float
                 New minimum frequency detected.
 
         """
@@ -437,7 +437,7 @@ class Yin(PyoObject):
 
         :Args:
 
-            x : float
+            x: float
                 New maximum frequency detected.
 
         """
@@ -452,7 +452,7 @@ class Yin(PyoObject):
 
         :Args:
 
-            x : float
+            x: float
                 New input lowpass filter cutoff frequency.
 
         """
@@ -521,9 +521,9 @@ class Centroid(PyoObject):
 
     :Args:
 
-        input : PyoObject
+        input: PyoObject
             Input signal to process.
-        size : int, optional
+        size: int, optional
             Size, as a power-of-two, of the FFT used to compute the centroid.
 
             Available at initialization time only.  Defaults to 1024.
@@ -557,9 +557,9 @@ class Centroid(PyoObject):
 
         :Args:
 
-            x : PyoObject
+            x: PyoObject
                 New signal to process.
-            fadetime : float, optional
+            fadetime: float, optional
                 Crossfade time between old and new input. Default to 0.05.
 
         """
@@ -595,23 +595,23 @@ class AttackDetector(PyoObject):
 
     :Args:
 
-        input : PyoObject
+        input: PyoObject
             Input signal to process.
-        deltime : float, optional
+        deltime: float, optional
             Delay time, in seconds, between previous and current rms analysis to compare.
             Defaults to 0.005.
-        cutoff : float, optional
+        cutoff: float, optional
             Cutoff frequency, in Hz, of the amplitude follower's lowpass filter.
             Defaults to 10.
 
             Higher values are more responsive and also more likely to give false onsets.
-        maxthresh : float, optional
+        maxthresh: float, optional
             Attack threshold in positive dB (current rms must be higher than previous
             rms + maxthresh to be reported as an attack). Defaults to 3.0.
-        minthresh : float, optional
+        minthresh: float, optional
             Minimum threshold in dB (signal must fall below this threshold to allow
             a new attack to be detected). Defaults to -30.0.
-        reltime : float, optional
+        reltime: float, optional
             Time, in seconds, to wait before reporting a new attack. Defaults to 0.1.
 
 
@@ -642,9 +642,9 @@ class AttackDetector(PyoObject):
 
         :Args:
 
-            x : PyoObject
+            x: PyoObject
                 New signal to process.
-            fadetime : float, optional
+            fadetime: float, optional
                 Crossfade time between old and new input. Default to 0.05.
 
         """
@@ -658,7 +658,7 @@ class AttackDetector(PyoObject):
 
         :Args:
 
-            x : float
+            x: float
                 New delay between rms analysis.
 
         """
@@ -673,7 +673,7 @@ class AttackDetector(PyoObject):
 
         :Args:
 
-            x : float
+            x: float
                 New cutoff for the follower lowpass filter.
 
         """
@@ -688,7 +688,7 @@ class AttackDetector(PyoObject):
 
         :Args:
 
-            x : float
+            x: float
                 New attack threshold in dB.
 
         """
@@ -703,7 +703,7 @@ class AttackDetector(PyoObject):
 
         :Args:
 
-            x : float
+            x: float
                 New minimum threshold in dB.
 
         """
@@ -718,7 +718,7 @@ class AttackDetector(PyoObject):
 
         :Args:
 
-            x : float
+            x: float
                 Time, in seconds, to wait before reporting a new attack.
 
         """
@@ -799,13 +799,13 @@ class Spectrum(PyoObject):
 
     :Args:
 
-        input : PyoObject
+        input: PyoObject
             Input signal to process.
-        size : int {pow-of-two > 4}, optional
+        size: int {pow-of-two > 4}, optional
             FFT size. Must be a power of two greater than 4.
             The FFT size is the number of samples used in each
             analysis frame. Defaults to 1024.
-        wintype : int, optional
+        wintype: int, optional
             Shape of the envelope used to filter each input frame.
             Possible shapes are :
                 0. rectangular (no windowing)
@@ -817,7 +817,7 @@ class Spectrum(PyoObject):
                 6. Blackman-Harris 7-term
                 7. Tuckey (alpha = 0.66)
                 8. Sine (half-sine window)
-        function : python callable, optional
+        function: python callable, optional
             If set, this function will be called with magnitudes (as
             list of lists, one list per channel). Useful if someone
             wants to save the analysis data into a text file.
@@ -864,9 +864,9 @@ class Spectrum(PyoObject):
 
         :Args:
 
-            x : PyoObject
+            x: PyoObject
                 New signal to process.
-            fadetime : float, optional
+            fadetime: float, optional
                 Crossfade time between old and new input. Default to 0.05.
 
         """
@@ -880,7 +880,7 @@ class Spectrum(PyoObject):
 
         :Args:
 
-            x : int
+            x: int
                 new `size` attribute.
 
         """
@@ -895,7 +895,7 @@ class Spectrum(PyoObject):
 
         :Args:
 
-            x : int
+            x: int
                 new `wintype` attribute.
 
         """
@@ -910,7 +910,7 @@ class Spectrum(PyoObject):
 
         :Args:
 
-            function : python callable
+            function: python callable
                 The function called by the internal timer to retrieve the
                 analysis data. The function must be created with one argument
                 and will receive the data as a list of lists (one list per channel).
@@ -925,7 +925,7 @@ class Spectrum(PyoObject):
 
         :Args:
 
-            active : boolean
+            active: boolean
                 If True, starts the analysis polling, False to stop it.
                 defaults to True.
 
@@ -942,7 +942,7 @@ class Spectrum(PyoObject):
 
         :Args:
 
-            time : float
+            time: float
                 Adjusts the frequency of the internal timer used to
                 retrieve the current analysis frame. defaults to 0.05.
 
@@ -956,7 +956,7 @@ class Spectrum(PyoObject):
 
         :Args:
 
-            x : float
+            x: float
                 New low frequency in Hz. Adjusts the `lowbound` attribute, as `x / sr`.
 
         """
@@ -972,7 +972,7 @@ class Spectrum(PyoObject):
 
         :Args:
 
-            x : float
+            x: float
                 New high frequency in Hz. Adjusts the `highbound` attribute, as `x / sr`.
 
         """
@@ -990,7 +990,7 @@ class Spectrum(PyoObject):
 
         :Args:
 
-            x : float {0 <= x <= 0.5}
+            x: float {0 <= x <= 0.5}
                 new `lowbound` attribute.
 
         """
@@ -1008,7 +1008,7 @@ class Spectrum(PyoObject):
 
         :Args:
 
-            x : float {0 <= x <= 0.5}
+            x: float {0 <= x <= 0.5}
                 new `highbound` attribute.
 
         """
@@ -1041,7 +1041,7 @@ class Spectrum(PyoObject):
 
         :Args:
 
-            x : int
+            x: int
                 new `width` attribute.
 
         """
@@ -1058,7 +1058,7 @@ class Spectrum(PyoObject):
 
         :Args:
 
-            x : int
+            x: int
                 new `height` attribute.
 
         """
@@ -1073,7 +1073,7 @@ class Spectrum(PyoObject):
 
         :Args:
 
-            x : boolean
+            x: boolean
                 If True, the frequency display is logarithmic. False turns
                 it back to linear. Defaults to False.
 
@@ -1091,7 +1091,7 @@ class Spectrum(PyoObject):
 
         :Args:
 
-            x : boolean
+            x: boolean
                 If True, the magnitude display is logarithmic (which means in dB).
                 False turns it back to linear. Defaults to True.
 
@@ -1127,7 +1127,7 @@ class Spectrum(PyoObject):
 
         :Args:
 
-            x : float
+            x: float
                 new `gain` attribute, as linear values.
 
         """
@@ -1142,9 +1142,9 @@ class Spectrum(PyoObject):
 
         :Args:
 
-            title : string, optional
+            title: string, optional
                 Window title. Defaults to "Spectrum".
-            wxnoserver : boolean, optional
+            wxnoserver: boolean, optional
                 With wxPython graphical toolkit, if True, tells the
                 interpreter that there will be no server window.
 
@@ -1252,15 +1252,15 @@ class Scope(PyoObject):
 
     :Args:
 
-        input : PyoObject
+        input: PyoObject
             Input signal to process.
-        length : float, optional
+        length: float, optional
             Length, in seconds, of the displayed window. Can't be a list.
             Defaults to 0.05.
-        gain : float, optional
+        gain: float, optional
             Linear gain applied to the signal to be displayed.
             Can't be a list. Defaults to 0.67.
-        function : python callable, optional
+        function: python callable, optional
             If set, this function will be called with samples (as
             list of lists, one list per channel). Useful if someone
             wants to save the analysis data into a text file.
@@ -1303,9 +1303,9 @@ class Scope(PyoObject):
 
         :Args:
 
-            x : PyoObject
+            x: PyoObject
                 New signal to process.
-            fadetime : float, optional
+            fadetime: float, optional
                 Crossfade time between old and new input. Default to 0.05.
 
         """
@@ -1319,7 +1319,7 @@ class Scope(PyoObject):
 
         :Args:
 
-            x : float
+            x: float
                 new `length` attribute.
 
         """
@@ -1334,7 +1334,7 @@ class Scope(PyoObject):
 
         :Args:
 
-            x : float
+            x: float
                 new `gain` attribute, as linear values.
 
         """
@@ -1349,7 +1349,7 @@ class Scope(PyoObject):
 
         :Args:
 
-            active : boolean
+            active: boolean
                 If True, starts the analysis polling, False to stop it.
                 defaults to True.
 
@@ -1369,7 +1369,7 @@ class Scope(PyoObject):
 
         :Args:
 
-            x : int
+            x: int
                 Width of the display in pixel value. The default
                 width is 500.
 
@@ -1387,7 +1387,7 @@ class Scope(PyoObject):
 
         :Args:
 
-            x : int
+            x: int
                 Height of the display in pixel value. The default
                 height is 400.
 
@@ -1402,9 +1402,9 @@ class Scope(PyoObject):
 
         :Args:
 
-            title : string, optional
+            title: string, optional
                 Window title. Defaults to "Spectrum".
-            wxnoserver : boolean, optional
+            wxnoserver: boolean, optional
                 With wxPython graphical toolkit, if True, tells the
                 interpreter that there will be no server window.
 
@@ -1421,7 +1421,7 @@ class Scope(PyoObject):
 
         :Args:
 
-            function : python callable
+            function: python callable
                 The function called by the internal timer to retrieve the
                 analysis data. The function must be created with one argument
                 and will receive the data as a list of lists (one list per channel).
@@ -1484,9 +1484,9 @@ class PeakAmp(PyoObject):
 
     :Args:
 
-        input : PyoObject
+        input: PyoObject
             Input signal to process.
-        function : callable, optional
+        function: callable, optional
             Function that will be called with amplitude values in arguments.
             Default to None.
 
@@ -1523,9 +1523,9 @@ class PeakAmp(PyoObject):
 
         :Args:
 
-            x : PyoObject
+            x: PyoObject
                 New signal to process.
-            fadetime : float, optional
+            fadetime: float, optional
                 Crossfade time between old and new input. Default to 0.05.
 
         """
@@ -1539,7 +1539,7 @@ class PeakAmp(PyoObject):
 
         :Args:
 
-            x : callable
+            x: callable
                 New function to call with amplitude values in arguments.
 
         """
@@ -1553,7 +1553,7 @@ class PeakAmp(PyoObject):
 
         :Args:
 
-            x : float
+            x: float
                 New polling time in seconds.
 
         """

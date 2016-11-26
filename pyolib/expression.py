@@ -276,9 +276,9 @@ class Expr(PyoObject):
 
     :Args:
 
-        input : PyoObject
+        input: PyoObject
             Input signal to process.
-        expr : str, optional
+        expr: str, optional
             Expression to evaluate as a string.
 
     >>> s = Server().boot()
@@ -312,9 +312,9 @@ class Expr(PyoObject):
 
         :Args:
 
-            x : PyoObject
+            x: PyoObject
                 New signal to process.
-            fadetime : float, optional
+            fadetime: float, optional
                 Crossfade time between old and new input. Defaults to 0.05.
 
         """
@@ -328,7 +328,7 @@ class Expr(PyoObject):
 
         :Args:
 
-            x : string
+            x: string
                 New expression to process.
 
         """
@@ -524,10 +524,10 @@ class Expr(PyoObject):
 
         :Args:
 
-            title : string, optional
+            title: string, optional
                 Title of the window. If none is provided, the name of the
                 class is used.
-            wxnoserver : boolean, optional
+            wxnoserver: boolean, optional
                 With wxPython graphical toolkit, if True, tells the
                 interpreter that there will be no server window.
 

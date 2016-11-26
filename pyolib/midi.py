@@ -46,15 +46,15 @@ class Midictl(PyoObject):
 
     :Args:
 
-        ctlnumber : int
+        ctlnumber: int
             Controller number.
-        minscale : float, optional
+        minscale: float, optional
             Low range value for mapping. Defaults to 0.
-        maxscale : float, optional
+        maxscale: float, optional
             High range value for mapping. Defaults to 1.
-        init : float, optional
+        init: float, optional
             Initial value. Defaults to 0.
-        channel : int, optional
+        channel: int, optional
             Midi channel. 0 means all channels. Defaults to 0.
 
     .. note::
@@ -90,7 +90,7 @@ class Midictl(PyoObject):
 
         :Args:
 
-            x : int
+            x: int
                 new `ctlnumber` attribute.
 
         """
@@ -105,7 +105,7 @@ class Midictl(PyoObject):
 
         :Args:
 
-            x : float
+            x: float
                 new `minscale` attribute.
 
         """
@@ -120,7 +120,7 @@ class Midictl(PyoObject):
 
         :Args:
 
-            x : float
+            x: float
                 new `maxscale` attribute.
 
         """
@@ -135,7 +135,7 @@ class Midictl(PyoObject):
 
         :Args:
 
-            x : int
+            x: int
                 new `channel` attribute.
 
         """
@@ -150,7 +150,7 @@ class Midictl(PyoObject):
 
         :Args:
 
-            x : float
+            x: float
                 new current value.
 
         """
@@ -164,7 +164,7 @@ class Midictl(PyoObject):
 
         :Args:
 
-            x : boolean
+            x: boolean
                 True activates the interpolation, False deactivates it.
 
         """
@@ -224,14 +224,14 @@ class CtlScan(PyoObject):
 
     :Args:
 
-        function : Python function (can't be a list)
+        function: Python function (can't be a list)
             Function to be called. The function must be declared
             with an argument for the controller number in input. Ex.:
 
             def ctl_scan(ctlnum):
                 print ctlnum
 
-        toprint : boolean, optional
+        toprint: boolean, optional
             If True, controller number and value will be print to
             the console.
 
@@ -284,7 +284,7 @@ class CtlScan(PyoObject):
 
         :Args:
 
-            x : Python function
+            x: Python function
                 new `function` attribute.
 
         """
@@ -298,7 +298,7 @@ class CtlScan(PyoObject):
 
         :Args:
 
-            x : int
+            x: int
                 new `toprint` attribute.
 
         """
@@ -334,7 +334,7 @@ class CtlScan2(PyoObject):
 
     :Args:
 
-        function : Python function (can't be a list)
+        function: Python function (can't be a list)
             Function to be called. The function must be declared
             with two arguments, one for the controller number and
             one for the midi channel. Ex.:
@@ -342,7 +342,7 @@ class CtlScan2(PyoObject):
             def ctl_scan(ctlnum, midichnl):
                 print ctlnum, midichnl
 
-        toprint : boolean, optional
+        toprint: boolean, optional
             If True, controller number and value will be print to
             the console.
 
@@ -395,7 +395,7 @@ class CtlScan2(PyoObject):
 
         :Args:
 
-            x : Python function
+            x: Python function
                 new `function` attribute.
 
         """
@@ -409,7 +409,7 @@ class CtlScan2(PyoObject):
 
         :Args:
 
-            x : int
+            x: int
                 new `toprint` attribute.
 
         """
@@ -446,9 +446,9 @@ class Notein(PyoObject):
 
     :Args:
 
-        poly : int, optional
+        poly: int, optional
             Number of streams of polyphony generated. Defaults to 10.
-        scale : int, optional
+        scale: int, optional
             Pitch output format.
                 0. Midi
                 1. Hertz
@@ -458,11 +458,11 @@ class Notein(PyoObject):
             there is no transposition) is (`first` + `last`) / 2.
 
             The central key can be changed with the setCentralKey method.
-        first : int, optional
+        first: int, optional
             Lowest Midi value. Defaults to 0.
-        last : int, optional
+        last: int, optional
             Highest Midi value. Defaults to 127.
-        channel : int, optional
+        channel: int, optional
             Midi channel. 0 means all channels. Defaults to 0.
 
     .. note::
@@ -535,7 +535,7 @@ class Notein(PyoObject):
 
         :Args:
 
-            x : int
+            x: int
                 new `scale` attribute. 0 = midi, 1 = hertz, 2 = transpo.
 
         """
@@ -549,7 +549,7 @@ class Notein(PyoObject):
 
         :Args:
 
-            x : int
+            x: int
                 new `first` attribute, between 0 and 127.
 
         """
@@ -563,7 +563,7 @@ class Notein(PyoObject):
 
         :Args:
 
-            x : int
+            x: int
                 new `last` attribute, between 0 and 127.
 
         """
@@ -577,7 +577,7 @@ class Notein(PyoObject):
 
         :Args:
 
-            x : int
+            x: int
                 new `channel` attribute.
 
         """
@@ -594,7 +594,7 @@ class Notein(PyoObject):
 
         :Args:
 
-            x : int
+            x: int
                 new centralkey value.
 
         """
@@ -611,7 +611,7 @@ class Notein(PyoObject):
 
         :Args:
 
-            x : boolean
+            x: boolean
                 True for stealing mode, False for non-stealing.
 
         """
@@ -629,10 +629,10 @@ class Notein(PyoObject):
 
         :Args:
 
-            identifier : string {"pitch", "velocity"}
+            identifier: string {"pitch", "velocity"}
                 Address string parameter identifying audio stream.
                 Defaults to "pitch".
-            all : boolean, optional
+            all: boolean, optional
                 If True, the first value of each object's stream
                 will be returned as a list.
 
@@ -704,17 +704,17 @@ class Bendin(PyoObject):
 
     :Args:
 
-        brange : float, optional
+        brange: float, optional
             Bipolar range of the pitch bend in semitones. Defaults to 2.
             -brange <= value < brange.
-        scale : int, optional
+        scale: int, optional
             Output format. Defaults to 0.
                 0. Midi
                 1. transpo.
 
             The transpo mode is useful if you want to transpose values that
             are in a frequency (Hz) format.
-        channel : int, optional
+        channel: int, optional
             Midi channel. 0 means all channels. Defaults to 0.
 
     .. note::
@@ -750,7 +750,7 @@ class Bendin(PyoObject):
 
         :Args:
 
-            x : float
+            x: float
                 new `brange` attribute.
 
         """
@@ -765,7 +765,7 @@ class Bendin(PyoObject):
 
         :Args:
 
-            x : int
+            x: int
                 new `scale` attribute.
 
         """
@@ -780,7 +780,7 @@ class Bendin(PyoObject):
 
         :Args:
 
-            x : int
+            x: int
                 new `channel` attribute.
 
         """
@@ -828,13 +828,13 @@ class Touchin(PyoObject):
 
     :Args:
 
-        minscale : float, optional
+        minscale: float, optional
             Low range value for mapping. Defaults to 0.
-        maxscale : float, optional
+        maxscale: float, optional
             High range value for mapping. Defaults to 1.
-        init : float, optional
+        init: float, optional
             Initial value. Defaults to 0.
-        channel : int, optional
+        channel: int, optional
             Midi channel. 0 means all channels. Defaults to 0.
 
     .. note::
@@ -870,7 +870,7 @@ class Touchin(PyoObject):
 
         :Args:
 
-            x : float
+            x: float
                 new `minscale` attribute.
 
         """
@@ -885,7 +885,7 @@ class Touchin(PyoObject):
 
         :Args:
 
-            x : float
+            x: float
                 new `maxscale` attribute.
 
         """
@@ -900,7 +900,7 @@ class Touchin(PyoObject):
 
         :Args:
 
-            x : int
+            x: int
                 new `channel` attribute.
 
         """
@@ -950,7 +950,7 @@ class Programin(PyoObject):
 
     :Args:
 
-        channel : int, optional
+        channel: int, optional
             Midi channel. 0 means all channels. Defaults to 0.
 
     .. note::
@@ -984,7 +984,7 @@ class Programin(PyoObject):
 
         :Args:
 
-            x : int
+            x: int
                 new `channel` attribute.
 
         """
@@ -1020,18 +1020,18 @@ class MidiAdsr(PyoObject):
 
     :Args:
 
-        input : PyoObject
+        input: PyoObject
             Input signal used to trigger the envelope. A positive value
             sets the peak amplitude and starts the envelope. A 0 starts
             the release part of the envelope.
-        attack : float, optional
+        attack: float, optional
             Duration of the attack phase in seconds. Defaults to 0.01.
-        decay : float, optional
+        decay: float, optional
             Duration of the decay phase in seconds. Defaults to 0.05.
-        sustain : float, optional
+        sustain: float, optional
             Amplitude of the sustain phase, as a fraction of the peak
             amplitude at the start of the envelope. Defaults to 0.7.
-        release : float, optional
+        release: float, optional
             Duration of the release phase in seconds. Defaults to 0.1.
 
     .. note::
@@ -1071,9 +1071,9 @@ class MidiAdsr(PyoObject):
 
         :Args:
 
-            x : PyoObject
+            x: PyoObject
                 New signal used to trigger the envelope.
-            fadetime : float, optional
+            fadetime: float, optional
                 Crossfade time between old and new input. Defaults to 0.05.
 
         """
@@ -1087,7 +1087,7 @@ class MidiAdsr(PyoObject):
 
         :Args:
 
-            x : float
+            x: float
                 new `attack` attribute.
 
         """
@@ -1102,7 +1102,7 @@ class MidiAdsr(PyoObject):
 
         :Args:
 
-            x : float
+            x: float
                 new `decay` attribute.
 
         """
@@ -1117,7 +1117,7 @@ class MidiAdsr(PyoObject):
 
         :Args:
 
-            x : float
+            x: float
                 new `sustain` attribute.
 
         """
@@ -1132,7 +1132,7 @@ class MidiAdsr(PyoObject):
 
         :Args:
 
-            x : float
+            x: float
                 new `sustain` attribute.
 
         """
@@ -1151,7 +1151,7 @@ class MidiAdsr(PyoObject):
 
         :Args:
 
-            x : float
+            x: float
                 new `exp` attribute.
 
         """
@@ -1219,21 +1219,21 @@ class MidiDelAdsr(PyoObject):
 
     :Args:
 
-        input : PyoObject
+        input: PyoObject
             Input signal used to trigger the envelope. A positive value
             sets the peak amplitude and starts the envelope. A 0 starts
             the release part of the envelope.
-        delay : float, optional
+        delay: float, optional
             Duration of the delay phase, before calling the envelope
             in seconds. Defaults to 0.
-        attack : float, optional
+        attack: float, optional
             Duration of the attack phase in seconds. Defaults to 0.01.
-        decay : float, optional
+        decay: float, optional
             Duration of the decay phase in seconds. Defaults to 0.05.
-        sustain : float, optional
+        sustain: float, optional
             Amplitude of the sustain phase, as a fraction of the peak
             amplitude at the start of the envelope. Defaults to 0.7.
-        release : float, optional
+        release: float, optional
             Duration of the release phase in seconds. Defaults to 0.1.
 
     .. note::
@@ -1275,9 +1275,9 @@ class MidiDelAdsr(PyoObject):
 
         :Args:
 
-            x : PyoObject
+            x: PyoObject
                 New signal used to trigger the envelope.
-            fadetime : float, optional
+            fadetime: float, optional
                 Crossfade time between old and new input. Defaults to 0.05.
 
         """
@@ -1291,7 +1291,7 @@ class MidiDelAdsr(PyoObject):
 
         :Args:
 
-            x : float
+            x: float
                 new `delay` attribute.
 
         """
@@ -1306,7 +1306,7 @@ class MidiDelAdsr(PyoObject):
 
         :Args:
 
-            x : float
+            x: float
                 new `attack` attribute.
 
         """
@@ -1321,7 +1321,7 @@ class MidiDelAdsr(PyoObject):
 
         :Args:
 
-            x : float
+            x: float
                 new `decay` attribute.
 
         """
@@ -1336,7 +1336,7 @@ class MidiDelAdsr(PyoObject):
 
         :Args:
 
-            x : float
+            x: float
                 new `sustain` attribute.
 
         """
@@ -1351,7 +1351,7 @@ class MidiDelAdsr(PyoObject):
 
         :Args:
 
-            x : float
+            x: float
                 new `sustain` attribute.
 
         """
@@ -1370,7 +1370,7 @@ class MidiDelAdsr(PyoObject):
 
         :Args:
 
-            x : float
+            x: float
                 new `exp` attribute.
 
         """
@@ -1442,7 +1442,7 @@ class RawMidi(PyoObject):
 
     :Args:
 
-        function : Python function (can't be a list)
+        function: Python function (can't be a list)
             Function to be called. The function must be declared
             with three arguments, one for the status byte and two
             for the data bytes. Ex.:
@@ -1491,7 +1491,7 @@ class RawMidi(PyoObject):
 
         :Args:
 
-            x : Python function
+            x: Python function
                 new `function` attribute.
 
         """

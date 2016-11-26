@@ -37,11 +37,11 @@ class Randi(PyoObject):
 
     :Args:
 
-        min : float or PyoObject, optional
+        min: float or PyoObject, optional
             Minimum value for the random generation. Defaults to 0.
-        max : float or PyoObject, optional
+        max: float or PyoObject, optional
             Maximum value for the random generation. Defaults to 1.
-        freq : float or PyoObject, optional
+        freq: float or PyoObject, optional
             Polling frequency. Defaults to 1.
 
     >>> s = Server().boot()
@@ -66,7 +66,7 @@ class Randi(PyoObject):
 
         :Args:
 
-            x : float or PyoObject
+            x: float or PyoObject
                 new `min` attribute.
 
         """
@@ -81,7 +81,7 @@ class Randi(PyoObject):
 
         :Args:
 
-            x : float or PyoObject
+            x: float or PyoObject
                 new `max` attribute.
 
         """
@@ -96,7 +96,7 @@ class Randi(PyoObject):
 
         :Args:
 
-            x : float or PyoObject
+            x: float or PyoObject
                 new `freq` attribute.
 
         """
@@ -146,11 +146,11 @@ class Randh(PyoObject):
 
     :Args:
 
-        min : float or PyoObject, optional
+        min: float or PyoObject, optional
             Minimum value for the random generation. Defaults to 0.
-        max : float or PyoObject, optional
+        max: float or PyoObject, optional
             Maximum value for the random generation. Defaults to 1.
-        freq : float or PyoObject, optional
+        freq: float or PyoObject, optional
             Polling frequency. Defaults to 1.
 
     >>> s = Server().boot()
@@ -175,7 +175,7 @@ class Randh(PyoObject):
 
         :Args:
 
-            x : float or PyoObject
+            x: float or PyoObject
                 new `min` attribute.
 
         """
@@ -190,7 +190,7 @@ class Randh(PyoObject):
 
         :Args:
 
-            x : float or PyoObject
+            x: float or PyoObject
                 new `max` attribute.
 
         """
@@ -205,7 +205,7 @@ class Randh(PyoObject):
 
         :Args:
 
-            x : float or PyoObject
+            x: float or PyoObject
                 new `freq` attribute.
 
         """
@@ -255,9 +255,9 @@ class Choice(PyoObject):
 
     :Args:
 
-        choice : list of floats or list of lists of floats
+        choice: list of floats or list of lists of floats
             Possible values for the random generation.
-        freq : float or PyoObject, optional
+        freq: float or PyoObject, optional
             Polling frequency. Defaults to 1.
 
     >>> s = Server().boot()
@@ -286,7 +286,7 @@ class Choice(PyoObject):
 
         :Args:
 
-            x : list of floats or list of lists of floats
+            x: list of floats or list of lists of floats
                 new `choice` attribute.
 
         """
@@ -303,7 +303,7 @@ class Choice(PyoObject):
 
         :Args:
 
-            x : float or PyoObject
+            x: float or PyoObject
                 new `freq` attribute.
 
         """
@@ -343,9 +343,9 @@ class RandInt(PyoObject):
 
     :Args:
 
-        max : float or PyoObject, optional
+        max: float or PyoObject, optional
             Maximum value for the random generation. Defaults to 100.
-        freq : float or PyoObject, optional
+        freq: float or PyoObject, optional
             Polling frequency. Defaults to 1.
 
     >>> s = Server().boot()
@@ -369,7 +369,7 @@ class RandInt(PyoObject):
 
         :Args:
 
-            x : float or PyoObject
+            x: float or PyoObject
                 new `max` attribute.
 
         """
@@ -384,7 +384,7 @@ class RandInt(PyoObject):
 
         :Args:
 
-            x : float or PyoObject
+            x: float or PyoObject
                 new `freq` attribute.
 
         """
@@ -426,9 +426,9 @@ class RandDur(PyoObject):
 
     :Args:
 
-        min : float or PyoObject, optional
+        min: float or PyoObject, optional
             Minimum value for the random generation. Defaults to 0.
-        max : float or PyoObject, optional
+        max: float or PyoObject, optional
             Maximum value for the random generation. Defaults to 1.
 
     >>> s = Server().boot()
@@ -455,7 +455,7 @@ class RandDur(PyoObject):
 
         :Args:
 
-            x : float or PyoObject
+            x: float or PyoObject
                 new `min` attribute.
 
         """
@@ -470,7 +470,7 @@ class RandDur(PyoObject):
 
         :Args:
 
-            x : float or PyoObject
+            x: float or PyoObject
                 new `max` attribute.
 
         """
@@ -511,13 +511,13 @@ class Xnoise(PyoObject):
 
     :Args:
 
-        dist : string or int, optional
+        dist: string or int, optional
             Distribution type. Defaults to 0.
-        freq : float or PyoObject, optional
+        freq: float or PyoObject, optional
             Polling frequency. Defaults to 1.
-        x1 : float or PyoObject, optional
+        x1: float or PyoObject, optional
             First parameter. Defaults to 0.5.
-        x2 : float or PyoObject, optional
+        x2: float or PyoObject, optional
             Second parameter. Defaults to 0.5.
 
     .. note::
@@ -542,44 +542,44 @@ class Xnoise(PyoObject):
         parameter):
 
             0. uniform
-                - x1 : not used
-                - x2 : not used
+                - x1: not used
+                - x2: not used
             1. linear_min
-                - x1 : not used
-                - x2 : not used
+                - x1: not used
+                - x2: not used
             2. linear_max
-                - x1 : not used
-                - x2 : not used
+                - x1: not used
+                - x2: not used
             3. triangle
-                - x1 : not used
-                - x2 : not used
+                - x1: not used
+                - x2: not used
             4. expon_min
-                - x1 : slope {0 = no slope -> 10 = sharp slope}
-                - x2 : not used
+                - x1: slope {0 = no slope -> 10 = sharp slope}
+                - x2: not used
             5. expon_max
-                - x1 : slope {0 = no slope -> 10 = sharp slope}
-                - x2 : not used
+                - x1: slope {0 = no slope -> 10 = sharp slope}
+                - x2: not used
             6. biexpon
-                - x1 : bandwidth {0 = huge bandwidth -> 10 = narrow bandwidth}
-                - x2 : not used
+                - x1: bandwidth {0 = huge bandwidth -> 10 = narrow bandwidth}
+                - x2: not used
             7. cauchy
-                - x1 : bandwidth {0 = narrow bandwidth -> 10 = huge bandwidth}
-                - x2 : not used
+                - x1: bandwidth {0 = narrow bandwidth -> 10 = huge bandwidth}
+                - x2: not used
             8. weibull
-                - x1 : mean location {0 -> 1}
-                - x2 : shape {0.5 = linear min, 1.5 = expon min, 3.5 = gaussian}
+                - x1: mean location {0 -> 1}
+                - x2: shape {0.5 = linear min, 1.5 = expon min, 3.5 = gaussian}
             9. gaussian
-                - x1 : mean location {0 -> 1}
-                - x2 : bandwidth {0 =  narrow bandwidth -> 10 = huge bandwidth}
+                - x1: mean location {0 -> 1}
+                - x2: bandwidth {0 =  narrow bandwidth -> 10 = huge bandwidth}
             10. poisson
-                 - x1 : gravity center {0 = low values -> 10 = high values}
-                 - x2 : compress/expand range {0.1 = full compress -> 4 full expand}
+                 - x1: gravity center {0 = low values -> 10 = high values}
+                 - x2: compress/expand range {0.1 = full compress -> 4 full expand}
             11. walker
-                 - x1 : maximum value {0.1 -> 1}
-                 - x2 : maximum step {0.1 -> 1}
+                 - x1: maximum value {0.1 -> 1}
+                 - x2: maximum step {0.1 -> 1}
             12. loopseg
-                 - x1 : maximum value {0.1 -> 1}
-                 - x2 : maximum step {0.1 -> 1}
+                 - x1: maximum value {0.1 -> 1}
+                 - x2: maximum step {0.1 -> 1}
 
     >>> s = Server().boot()
     >>> s.start()
@@ -607,7 +607,7 @@ class Xnoise(PyoObject):
 
         :Args:
 
-            x : string or int
+            x: string or int
                 new `dist` attribute.
 
         """
@@ -623,7 +623,7 @@ class Xnoise(PyoObject):
 
         :Args:
 
-            x : float or PyoObject
+            x: float or PyoObject
                 new `x1` attribute.
 
         """
@@ -638,7 +638,7 @@ class Xnoise(PyoObject):
 
         :Args:
 
-            x : float or PyoObject
+            x: float or PyoObject
                 new `x2` attribute.
 
         """
@@ -653,7 +653,7 @@ class Xnoise(PyoObject):
 
         :Args:
 
-            x : float or PyoObject
+            x: float or PyoObject
                 new `freq` attribute.
 
         """
@@ -713,20 +713,20 @@ class XnoiseMidi(PyoObject):
 
     :Args:
 
-        dist : string or int, optional
+        dist: string or int, optional
             Distribution type. Defaults to 0.
-        freq : float or PyoObject, optional
+        freq: float or PyoObject, optional
             Polling frequency. Defaults to 1.
-        x1 : float or PyoObject, optional
+        x1: float or PyoObject, optional
             First parameter. Defaults to 0.5.
-        x2 : float or PyoObject, optional
+        x2: float or PyoObject, optional
             Second parameter. Defaults to 0.5.
-        scale : int {0, 1, 2}, optional
+        scale: int {0, 1, 2}, optional
             Output format. 0 = Midi, 1 = Hertz, 2 = transposition factor.
             In the transposition mode, the central key (the key where there
             is no transposition) is (`minrange` + `maxrange`) / 2. Defaults
             to 0.
-        mrange : tuple of int, optional
+        mrange: tuple of int, optional
             Minimum and maximum possible values, in Midi notes. Available
             only at initialization time. Defaults to (0, 127).
 
@@ -752,44 +752,44 @@ class XnoiseMidi(PyoObject):
         parameter):
 
             0. uniform
-                - x1 : not used
-                - x2 : not used
+                - x1: not used
+                - x2: not used
             1. linear_min
-                - x1 : not used
-                - x2 : not used
+                - x1: not used
+                - x2: not used
             2. linear_max
-                - x1 : not used
-                - x2 : not used
+                - x1: not used
+                - x2: not used
             3. triangle
-                - x1 : not used
-                - x2 : not used
+                - x1: not used
+                - x2: not used
             4. expon_min
-                - x1 : slope {0 = no slope -> 10 = sharp slope}
-                - x2 : not used
+                - x1: slope {0 = no slope -> 10 = sharp slope}
+                - x2: not used
             5. expon_max
-                - x1 : slope {0 = no slope -> 10 = sharp slope}
-                - x2 : not used
+                - x1: slope {0 = no slope -> 10 = sharp slope}
+                - x2: not used
             6. biexpon
-                - x1 : bandwidth {0 = huge bandwidth -> 10 = narrow bandwidth}
-                - x2 : not used
+                - x1: bandwidth {0 = huge bandwidth -> 10 = narrow bandwidth}
+                - x2: not used
             7. cauchy
-                - x1 : bandwidth {0 = narrow bandwidth -> 10 = huge bandwidth}
-                - x2 : not used
+                - x1: bandwidth {0 = narrow bandwidth -> 10 = huge bandwidth}
+                - x2: not used
             8. weibull
-                - x1 : mean location {0 -> 1}
-                - x2 : shape {0.5 = linear min, 1.5 = expon min, 3.5 = gaussian}
+                - x1: mean location {0 -> 1}
+                - x2: shape {0.5 = linear min, 1.5 = expon min, 3.5 = gaussian}
             9. gaussian
-                - x1 : mean location {0 -> 1}
-                - x2 : bandwidth {0 =  narrow bandwidth -> 10 = huge bandwidth}
+                - x1: mean location {0 -> 1}
+                - x2: bandwidth {0 =  narrow bandwidth -> 10 = huge bandwidth}
             10. poisson
-                 - x1 : gravity center {0 = low values -> 10 = high values}
-                 - x2 : compress/expand range {0.1 = full compress -> 4 full expand}
+                 - x1: gravity center {0 = low values -> 10 = high values}
+                 - x2: compress/expand range {0.1 = full compress -> 4 full expand}
             11. walker
-                 - x1 : maximum value {0.1 -> 1}
-                 - x2 : maximum step {0.1 -> 1}
+                 - x1: maximum value {0.1 -> 1}
+                 - x2: maximum step {0.1 -> 1}
             12. loopseg
-                 - x1 : maximum value {0.1 -> 1}
-                 - x2 : maximum step {0.1 -> 1}
+                 - x1: maximum value {0.1 -> 1}
+                 - x2: maximum step {0.1 -> 1}
 
     >>> s = Server().boot()
     >>> s.start()
@@ -820,7 +820,7 @@ class XnoiseMidi(PyoObject):
 
         :Args:
 
-            x : string or int
+            x: string or int
                 new `dist` attribute.
 
         """
@@ -841,7 +841,7 @@ class XnoiseMidi(PyoObject):
 
         :Args:
 
-            x : int {0, 1, 2}
+            x: int {0, 1, 2}
                 new `scale` attribute.
 
         """
@@ -856,9 +856,9 @@ class XnoiseMidi(PyoObject):
 
         :Args:
 
-            mini : int
+            mini: int
                 minimum output midi range.
-            maxi : int
+            maxi: int
                 maximum output midi range.
 
         """
@@ -873,7 +873,7 @@ class XnoiseMidi(PyoObject):
 
         :Args:
 
-            x : float or PyoObject
+            x: float or PyoObject
                 new `x1` attribute.
 
         """
@@ -888,7 +888,7 @@ class XnoiseMidi(PyoObject):
 
         :Args:
 
-            x : float or PyoObject
+            x: float or PyoObject
                 new `x2` attribute.
 
         """
@@ -903,7 +903,7 @@ class XnoiseMidi(PyoObject):
 
         :Args:
 
-            x : float or PyoObject
+            x: float or PyoObject
                 new `freq` attribute.
 
         """
@@ -970,16 +970,16 @@ class XnoiseDur(PyoObject):
 
     :Args:
 
-        dist : string or int, optional
+        dist: string or int, optional
             Distribution type. Can be the name of the distribution as a string
             or its associated number. Defaults to 0.
-        min : float or PyoObject, optional
+        min: float or PyoObject, optional
             Minimum value for the random generation. Defaults to 0.
-        max : float or PyoObject, optional
+        max: float or PyoObject, optional
             Maximum value for the random generation. Defaults to 1.
-        x1 : float or PyoObject, optional
+        x1: float or PyoObject, optional
             First parameter. Defaults to 0.5.
-        x2 : float or PyoObject, optional
+        x2: float or PyoObject, optional
             Second parameter. Defaults to 0.5.
 
     .. note::
@@ -1004,44 +1004,44 @@ class XnoiseDur(PyoObject):
         parameter):
 
             0. uniform
-                - x1 : not used
-                - x2 : not used
+                - x1: not used
+                - x2: not used
             1. linear_min
-                - x1 : not used
-                - x2 : not used
+                - x1: not used
+                - x2: not used
             2. linear_max
-                - x1 : not used
-                - x2 : not used
+                - x1: not used
+                - x2: not used
             3. triangle
-                - x1 : not used
-                - x2 : not used
+                - x1: not used
+                - x2: not used
             4. expon_min
-                - x1 : slope {0 = no slope -> 10 = sharp slope}
-                - x2 : not used
+                - x1: slope {0 = no slope -> 10 = sharp slope}
+                - x2: not used
             5. expon_max
-                - x1 : slope {0 = no slope -> 10 = sharp slope}
-                - x2 : not used
+                - x1: slope {0 = no slope -> 10 = sharp slope}
+                - x2: not used
             6. biexpon
-                - x1 : bandwidth {0 = huge bandwidth -> 10 = narrow bandwidth}
-                - x2 : not used
+                - x1: bandwidth {0 = huge bandwidth -> 10 = narrow bandwidth}
+                - x2: not used
             7. cauchy
-                - x1 : bandwidth {0 = narrow bandwidth -> 10 = huge bandwidth}
-                - x2 : not used
+                - x1: bandwidth {0 = narrow bandwidth -> 10 = huge bandwidth}
+                - x2: not used
             8. weibull
-                - x1 : mean location {0 -> 1}
-                - x2 : shape {0.5 = linear min, 1.5 = expon min, 3.5 = gaussian}
+                - x1: mean location {0 -> 1}
+                - x2: shape {0.5 = linear min, 1.5 = expon min, 3.5 = gaussian}
             9. gaussian
-                - x1 : mean location {0 -> 1}
-                - x2 : bandwidth {0 =  narrow bandwidth -> 10 = huge bandwidth}
+                - x1: mean location {0 -> 1}
+                - x2: bandwidth {0 =  narrow bandwidth -> 10 = huge bandwidth}
             10. poisson
-                 - x1 : gravity center {0 = low values -> 10 = high values}
-                 - x2 : compress/expand range {0.1 = full compress -> 4 full expand}
+                 - x1: gravity center {0 = low values -> 10 = high values}
+                 - x2: compress/expand range {0.1 = full compress -> 4 full expand}
             11. walker
-                 - x1 : maximum value {0.1 -> 1}
-                 - x2 : maximum step {0.1 -> 1}
+                 - x1: maximum value {0.1 -> 1}
+                 - x2: maximum step {0.1 -> 1}
             12. loopseg
-                 - x1 : maximum value {0.1 -> 1}
-                 - x2 : maximum step {0.1 -> 1}
+                 - x1: maximum value {0.1 -> 1}
+                 - x2: maximum step {0.1 -> 1}
 
     >>> s = Server().boot()
     >>> s.start()
@@ -1072,7 +1072,7 @@ class XnoiseDur(PyoObject):
 
         :Args:
 
-            x : string or int
+            x: string or int
                 new `dist` attribute.
 
         """
@@ -1088,7 +1088,7 @@ class XnoiseDur(PyoObject):
 
         :Args:
 
-            x : float or PyoObject
+            x: float or PyoObject
                 new `min` attribute.
 
         """
@@ -1103,7 +1103,7 @@ class XnoiseDur(PyoObject):
 
         :Args:
 
-            x : float or PyoObject
+            x: float or PyoObject
                 new `max` attribute.
 
         """
@@ -1118,7 +1118,7 @@ class XnoiseDur(PyoObject):
 
         :Args:
 
-            x : float or PyoObject
+            x: float or PyoObject
                 new `x1` attribute.
 
         """
@@ -1133,7 +1133,7 @@ class XnoiseDur(PyoObject):
 
         :Args:
 
-            x : float or PyoObject
+            x: float or PyoObject
                 new `x2` attribute.
 
         """
@@ -1201,9 +1201,9 @@ class Urn(PyoObject):
 
     :Args:
 
-        max : int, optional
+        max: int, optional
             Maximum value for the random generation. Defaults to 100.
-        freq : float or PyoObject, optional
+        freq: float or PyoObject, optional
             Polling frequency. Defaults to 1.
 
     .. note::
@@ -1239,7 +1239,7 @@ class Urn(PyoObject):
 
         :Args:
 
-            x : int
+            x: int
                 new `max` attribute.
 
         """
@@ -1254,7 +1254,7 @@ class Urn(PyoObject):
 
         :Args:
 
-            x : float or PyoObject
+            x: float or PyoObject
                 new `freq` attribute.
 
         """
@@ -1303,11 +1303,11 @@ class LogiMap(PyoObject):
 
     :Args:
 
-        chaos : float or PyoObject, optional
+        chaos: float or PyoObject, optional
             Randomization factor, 0.0 < chaos < 1.0. Defaults to 0.6.
-        freq : float or PyoObject, optional
+        freq: float or PyoObject, optional
             Polling frequency. Defaults to 1.
-        init : float, optional
+        init: float, optional
             Initial value, 0.0 < init < 1.0. Defaults to 0.5.
 
     .. note::
@@ -1341,7 +1341,7 @@ class LogiMap(PyoObject):
 
         :Args:
 
-            x : float or PyoObject
+            x: float or PyoObject
                 new `chaos` attribute.
 
         """
@@ -1356,7 +1356,7 @@ class LogiMap(PyoObject):
 
         :Args:
 
-            x : float or PyoObject
+            x: float or PyoObject
                 new `freq` attribute.
 
         """

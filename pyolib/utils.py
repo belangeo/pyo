@@ -36,10 +36,10 @@ class Clean_objects(threading.Thread):
 
     :Args:
 
-        time : float
+        time: float
             Time, in seconds, to wait before calling stop on the given
             objects and deleting them.
-        *args : PyoObject(s)
+        *args: PyoObject(s)
             Objects to delete.
 
     >>> s = Server().boot()
@@ -72,16 +72,16 @@ class Print(PyoObject):
 
     :Args:
 
-        input : PyoObject
+        input: PyoObject
             Input signal to filter.
-        method : int {0, 1}, optional
+        method: int {0, 1}, optional
             There is two methods to set when a value is printed (Defaults to 0):
             0. at a periodic interval.
             1. everytime the value changed.
-        interval : float, optional
+        interval: float, optional
             Interval, in seconds, between each print. Used by method 0.
             Defaults to 0.25.
-        message : str, optional
+        message: str, optional
             Message to print before the current value. Defaults to "".
 
     .. note::
@@ -115,9 +115,9 @@ class Print(PyoObject):
 
         :Args:
 
-            x : PyoObject
+            x: PyoObject
                 New signal to process.
-            fadetime : float, optional
+            fadetime: float, optional
                 Crossfade time between old and new input. Default to 0.05.
 
         """
@@ -131,7 +131,7 @@ class Print(PyoObject):
 
         :Args:
 
-            x : int {0, 1}
+            x: int {0, 1}
                 New `method` attribute.
 
         """
@@ -146,7 +146,7 @@ class Print(PyoObject):
 
         :Args:
 
-            x : float
+            x: float
                 New `interval` attribute.
 
         """
@@ -161,7 +161,7 @@ class Print(PyoObject):
 
         :Args:
 
-            x : str
+            x: str
                 New `message` attribute.
 
         """
@@ -217,11 +217,11 @@ class Snap(PyoObject):
 
     :Args:
 
-        input : PyoObject
+        input: PyoObject
             Incoming Midi notes as an audio stream.
-        choice : list of floats
+        choice: list of floats
             Possible values, as midi notes, for output.
-        scale : int {0, 1, 2}, optional
+        scale: int {0, 1, 2}, optional
             Pitch output format.
                 0. MIDI (default)
                 1. Hertz
@@ -262,9 +262,9 @@ class Snap(PyoObject):
 
         :Args:
 
-            x : PyoObject
+            x: PyoObject
                 New signal to process.
-            fadetime : float, optional
+            fadetime: float, optional
                 Crossfade time between old and new input. Defaults to 0.05.
 
         """
@@ -278,7 +278,7 @@ class Snap(PyoObject):
 
         :Args:
 
-            x : list of floats
+            x: list of floats
                 new `choice` attribute.
 
         """
@@ -297,7 +297,7 @@ class Snap(PyoObject):
 
         :Args:
 
-            x : int {0, 1, 2}
+            x: int {0, 1, 2}
                 new `scale` attribute.
 
         """
@@ -336,11 +336,11 @@ class Interp(PyoObject):
 
     :Args:
 
-        input : PyoObject
+        input: PyoObject
             First input signal.
-        input2 : PyoObject
+        input2: PyoObject
             Second input signal.
-        interp : float or PyoObject, optional
+        interp: float or PyoObject, optional
             Averaging value. 0 means only first signal, 1 means only second
             signal. Default to 0.5.
 
@@ -369,9 +369,9 @@ class Interp(PyoObject):
 
         :Args:
 
-            x : PyoObject
+            x: PyoObject
                 New signal to process.
-            fadetime : float, optional
+            fadetime: float, optional
                 Crossfade time between old and new input. Default to 0.05.
 
         """
@@ -385,9 +385,9 @@ class Interp(PyoObject):
 
         :Args:
 
-            x : PyoObject
+            x: PyoObject
                 New signal to process.
-            fadetime : float, optional
+            fadetime: float, optional
                 Crossfade time between old and new input. Default to 0.05.
 
         """
@@ -401,7 +401,7 @@ class Interp(PyoObject):
 
         :Args:
 
-            x : float or PyoObject
+            x: float or PyoObject
                 New `interp` attribute.
 
         """
@@ -447,11 +447,11 @@ class SampHold(PyoObject):
 
     :Args:
 
-        input : PyoObject
+        input: PyoObject
             Input signal.
-        controlsig : PyoObject
+        controlsig: PyoObject
             Controls when to sample the signal.
-        value : float or PyoObject, optional
+        value: float or PyoObject, optional
             Sampling target value. Default to 0.0.
 
     >>> s = Server().boot()
@@ -479,9 +479,9 @@ class SampHold(PyoObject):
 
         :Args:
 
-            x : PyoObject
+            x: PyoObject
                 New signal to process.
-            fadetime : float, optional
+            fadetime: float, optional
                 Crossfade time between old and new input. Default to 0.05.
 
         """
@@ -495,9 +495,9 @@ class SampHold(PyoObject):
 
         :Args:
 
-            x : PyoObject
+            x: PyoObject
                 New control signal.
-            fadetime : float, optional
+            fadetime: float, optional
                 Crossfade time between old and new input. Default to 0.05.
 
         """
@@ -511,7 +511,7 @@ class SampHold(PyoObject):
 
         :Args:
 
-            x : float or PyoObject
+            x: float or PyoObject
                 New `value` attribute.
 
         """
@@ -552,13 +552,13 @@ class Record(PyoObject):
 
     :Args:
 
-        input : PyoObject
+        input: PyoObject
             Input signal to record.
-        filename : string
+        filename: string
             Full path of the file to create.
-        chnls : int, optional
+        chnls: int, optional
             Number of channels in the audio file. Defaults to 2.
-        fileformat : int, optional
+        fileformat: int, optional
             Format type of the audio file. Defaults to 0.
 
             Record will first try to set the format from the filename extension.
@@ -572,7 +572,7 @@ class Record(PyoObject):
                 5. FLAC - FLAC lossless file format {.flac}
                 6. CAF - Core Audio File format {.caf}
                 7. OGG - Xiph OGG container {.ogg}
-        sampletype : int, optional
+        sampletype: int, optional
             Bit depth encoding of the audio file.
 
             SD2 and FLAC only support 16 or 24 bit int. Supported types are:
@@ -583,12 +583,12 @@ class Record(PyoObject):
                 4. 64 bits float
                 5. U-Law encoded
                 6. A-Law encoded
-        buffering : int, optional
+        buffering: int, optional
             Number of bufferSize to wait before writing samples to disk.
 
             High buffering uses more memory but improves performance.
             Defaults to 4.
-        quality : float, optional
+        quality: float, optional
             The encoding quality value, between 0.0 (lowest quality) and
             1.0 (highest quality). This argument has an effect only with
             FLAC and OGG compressed formats. Defaults to 0.4.
@@ -644,9 +644,9 @@ class Record(PyoObject):
 
         :Args:
 
-            x : PyoObject
+            x: PyoObject
                 New signal to process.
-            fadetime : float, optional
+            fadetime: float, optional
                 Crossfade time between old and new input. Default to 0.05.
 
         """
@@ -673,7 +673,7 @@ class Denorm(PyoObject):
 
     :Args:
 
-        input : PyoObject
+        input: PyoObject
             Input signal to process.
 
     >>> s = Server().boot()
@@ -698,9 +698,9 @@ class Denorm(PyoObject):
 
         :Args:
 
-            x : PyoObject
+            x: PyoObject
                 New signal to process.
-            fadetime : float, optional
+            fadetime: float, optional
                 Crossfade time between old and new input. Default to 0.05.
 
         """
@@ -733,9 +733,9 @@ class ControlRec(PyoObject):
 
     :Args:
 
-        input : PyoObject
+        input: PyoObject
             Input signal to sample.
-        filename : string
+        filename: string
             Full path (without extension) used to create the files.
 
             "_000" will be added to file's names with increasing digits
@@ -743,9 +743,9 @@ class ControlRec(PyoObject):
 
             The same filename can be passed to a ControlRead object to
             read all related files.
-        rate : int, optional
+        rate: int, optional
             Rate at which the input values are sampled. Defaults to 1000.
-        dur : float, optional
+        dur: float, optional
             Duration of the recording, in seconds. If 0.0, the recording
             won't stop until the end of the performance.
 
@@ -816,7 +816,7 @@ class ControlRead(PyoObject):
 
     :Args:
 
-        filename : string
+        filename: string
             Full path (without extension) used to create the files.
 
             Usually the same filename as the one given to a ControlRec
@@ -824,12 +824,12 @@ class ControlRead(PyoObject):
 
             The directory will be scaned and all files
             named "filename_xxx" will add a new stream in the object.
-        rate : int, optional
+        rate: int, optional
             Rate at which the values are sampled. Defaults to 1000.
-        loop : boolean, optional
+        loop: boolean, optional
             Looping mode, False means off, True means on.
             Defaults to False.
-        interp : int, optional
+        interp: int, optional
             Choice of the interpolation method.
                 1. no interpolation
                 2. linear (default)
@@ -890,7 +890,7 @@ class ControlRead(PyoObject):
 
         :Args:
 
-            x : int
+            x: int
                 new `rate` attribute.
 
         """
@@ -905,7 +905,7 @@ class ControlRead(PyoObject):
 
         :Args:
 
-            x : boolean
+            x: boolean
                 new `loop` attribute.
 
         """
@@ -920,7 +920,7 @@ class ControlRead(PyoObject):
 
         :Args:
 
-            x : int {1, 2, 3, 4}
+            x: int {1, 2, 3, 4}
                 new `interp` attribute.
 
         """
@@ -968,9 +968,9 @@ class NoteinRec(PyoObject):
 
     :Args:
 
-        input : Notein
+        input: Notein
             Notein signal to sample.
-        filename : string
+        filename: string
             Full path (without extension) used to create the files.
 
             "_000" will be added to file's names with increasing digits
@@ -1035,7 +1035,7 @@ class NoteinRead(PyoObject):
 
     :Args:
 
-        filename : string
+        filename: string
             Full path (without extension) used to create the files.
 
             Usually the same filename as the one given to a NoteinRec
@@ -1043,7 +1043,7 @@ class NoteinRead(PyoObject):
 
             The directory will be scaned and all files
             named "filename_xxx" will add a new stream in the object.
-        loop : boolean, optional
+        loop: boolean, optional
             Looping mode, False means off, True means on.
             Defaults to False.
 
@@ -1120,10 +1120,10 @@ class NoteinRead(PyoObject):
 
         :Args:
 
-            identifier : string {"pitch", "velocity"}
+            identifier: string {"pitch", "velocity"}
                 Address string parameter identifying audio stream.
                 Defaults to "pitch".
-            all : boolean, optional
+            all: boolean, optional
                 If True, the first value of each object's stream
                 will be returned as a list.
 
@@ -1145,7 +1145,7 @@ class NoteinRead(PyoObject):
 
         :Args:
 
-            x : boolean
+            x: boolean
                 new `loop` attribute.
 
         """
@@ -1173,7 +1173,7 @@ class DBToA(PyoObject):
 
     :Args:
 
-        input : PyoObject
+        input: PyoObject
             Input signal, decibel value.
 
     >>> s = Server().boot()
@@ -1199,9 +1199,9 @@ class DBToA(PyoObject):
 
         :Args:
 
-            x : PyoObject
+            x: PyoObject
                 New signal to process.
-            fadetime : float, optional
+            fadetime: float, optional
                 Crossfade time between old and new input. Default to 0.05.
 
         """
@@ -1228,7 +1228,7 @@ class AToDB(PyoObject):
 
     :Args:
 
-        input : PyoObject
+        input: PyoObject
             Input signal, amplitude value.
 
     >>> s = Server().boot()
@@ -1255,9 +1255,9 @@ class AToDB(PyoObject):
 
         :Args:
 
-            x : PyoObject
+            x: PyoObject
                 New signal to process.
-            fadetime : float, optional
+            fadetime: float, optional
                 Crossfade time between old and new input. Default to 0.05.
 
         """
@@ -1284,17 +1284,17 @@ class Scale(PyoObject):
 
     :Args:
 
-        input : PyoObject
+        input: PyoObject
             Input signal to process.
-        inmin : float or PyoObject, optional
+        inmin: float or PyoObject, optional
             Minimum input value. Defaults to 0.
-        inmax : float or PyoObject, optional
+        inmax: float or PyoObject, optional
             Maximum input value. Defaults to 1.
-        outmin : float or PyoObject, optional
+        outmin: float or PyoObject, optional
             Minimum output value. Defaults to 0.
-        outmax : float or PyoObject, optional
+        outmax: float or PyoObject, optional
             Maximum output value. Defaults to 1.
-        exp : float, optional
+        exp: float, optional
             Exponent value, specifies the nature of the scaling curve.
             Values between 0 and 1 give a reversed curve.  Defaults to 1.0.
 
@@ -1327,9 +1327,9 @@ class Scale(PyoObject):
 
         :Args:
 
-            x : PyoObject
+            x: PyoObject
                 New signal to process.
-            fadetime : float, optional
+            fadetime: float, optional
                 Crossfade time between old and new input. Defaults to 0.05.
 
         """
@@ -1343,7 +1343,7 @@ class Scale(PyoObject):
 
         :Args:
 
-            x : float or PyoObject
+            x: float or PyoObject
                 New `inmin` attribute.
 
         """
@@ -1358,7 +1358,7 @@ class Scale(PyoObject):
 
         :Args:
 
-            x : float or PyoObject
+            x: float or PyoObject
                 New `inmax` attribute.
 
         """
@@ -1373,7 +1373,7 @@ class Scale(PyoObject):
 
         :Args:
 
-            x : float or PyoObject
+            x: float or PyoObject
                 New `outmin` attribute.
 
         """
@@ -1388,7 +1388,7 @@ class Scale(PyoObject):
 
         :Args:
 
-            x : float or PyoObject
+            x: float or PyoObject
                 New `outmax` attribute.
 
         """
@@ -1403,7 +1403,7 @@ class Scale(PyoObject):
 
         :Args:
 
-            x : float
+            x: float
                 New `exp` attribute.
 
         """
@@ -1473,7 +1473,7 @@ class CentsToTranspo(PyoObject):
 
     :Args:
 
-        input : PyoObject
+        input: PyoObject
             Input signal, cents value.
 
     >>> s = Server().boot()
@@ -1499,9 +1499,9 @@ class CentsToTranspo(PyoObject):
 
         :Args:
 
-            x : PyoObject
+            x: PyoObject
                 New signal to process.
-            fadetime : float, optional
+            fadetime: float, optional
                 Crossfade time between old and new input. Default to 0.05.
 
         """
@@ -1526,7 +1526,7 @@ class TranspoToCents(PyoObject):
 
     :Args:
 
-        input : PyoObject
+        input: PyoObject
             Input signal, transposition factor.
 
     >>> s = Server().boot()
@@ -1553,9 +1553,9 @@ class TranspoToCents(PyoObject):
 
         :Args:
 
-            x : PyoObject
+            x: PyoObject
                 New signal to process.
-            fadetime : float, optional
+            fadetime: float, optional
                 Crossfade time between old and new input. Default to 0.05.
 
         """
@@ -1581,7 +1581,7 @@ class MToF(PyoObject):
 
     :Args:
 
-        input : PyoObject
+        input: PyoObject
             Input signal as midi note.
 
     >>> s = Server().boot()
@@ -1607,9 +1607,9 @@ class MToF(PyoObject):
 
         :Args:
 
-            x : PyoObject
+            x: PyoObject
                 New signal to process.
-            fadetime : float, optional
+            fadetime: float, optional
                 Crossfade time between old and new input. Default to 0.05.
 
         """
@@ -1635,7 +1635,7 @@ class FToM(PyoObject):
 
     :Args:
 
-        input : PyoObject
+        input: PyoObject
             Input signal as frequency in Hz.
 
     >>> s = Server().boot()
@@ -1664,9 +1664,9 @@ class FToM(PyoObject):
 
         :Args:
 
-            x : PyoObject
+            x: PyoObject
                 New signal to process.
-            fadetime : float, optional
+            fadetime: float, optional
                 Crossfade time between old and new input. Default to 0.05.
 
         """
@@ -1692,9 +1692,9 @@ class MToT(PyoObject):
 
     :Args:
 
-        input : PyoObject
+        input: PyoObject
             Input signal as midi note.
-        centralkey : float, optional
+        centralkey: float, optional
             The midi note that returns a transposition factor of 1,
             that is to say no transposition. Defaults to 60.
 
@@ -1725,9 +1725,9 @@ class MToT(PyoObject):
 
         :Args:
 
-            x : PyoObject
+            x: PyoObject
                 New signal to process.
-            fadetime : float, optional
+            fadetime: float, optional
                 Crossfade time between old and new input. Default to 0.05.
 
         """
@@ -1741,7 +1741,7 @@ class MToT(PyoObject):
 
         :Args:
 
-            x : float
+            x: float
                 New `centralkey` attribute.
 
         """
@@ -1774,11 +1774,11 @@ class Between(PyoObject):
 
     :Args:
 
-        input : PyoObject
+        input: PyoObject
             Input signal to process.
-        min : float or PyoObject, optional
+        min: float or PyoObject, optional
             Minimum range value. Defaults to 0.
-        max : float or PyoObject, optional
+        max: float or PyoObject, optional
             Maximum range value. Defaults to 1.
 
     >>> s = Server().boot()
@@ -1805,9 +1805,9 @@ class Between(PyoObject):
 
         :Args:
 
-            x : PyoObject
+            x: PyoObject
                 New signal to process.
-            fadetime : float, optional
+            fadetime: float, optional
                 Crossfade time between old and new input. Defaults to 0.05.
 
         """
@@ -1821,7 +1821,7 @@ class Between(PyoObject):
 
         :Args:
 
-            x : float or PyoObject
+            x: float or PyoObject
                 New `min` attribute.
 
         """
@@ -1836,7 +1836,7 @@ class Between(PyoObject):
 
         :Args:
 
-            x : float or PyoObject
+            x: float or PyoObject
                 New `max` attribute.
 
         """
@@ -1884,11 +1884,11 @@ class TrackHold(PyoObject):
 
     :Args:
 
-        input : PyoObject
+        input: PyoObject
             Input signal.
-        controlsig : PyoObject
+        controlsig: PyoObject
             Controls when to sample the signal.
-        value : float or PyoObject, optional
+        value: float or PyoObject, optional
             Sampling target value. Default to 0.0.
 
     >>> s = Server().boot()
@@ -1916,9 +1916,9 @@ class TrackHold(PyoObject):
 
         :Args:
 
-            x : PyoObject
+            x: PyoObject
                 New signal to process.
-            fadetime : float, optional
+            fadetime: float, optional
                 Crossfade time between old and new input. Default to 0.05.
 
         """
@@ -1932,9 +1932,9 @@ class TrackHold(PyoObject):
 
         :Args:
 
-            x : PyoObject
+            x: PyoObject
                 New control signal.
-            fadetime : float, optional
+            fadetime: float, optional
                 Crossfade time between old and new input. Default to 0.05.
 
         """
@@ -1948,7 +1948,7 @@ class TrackHold(PyoObject):
 
         :Args:
 
-            x : float or PyoObject
+            x: float or PyoObject
                 New `value` attribute.
 
         """
@@ -2002,18 +2002,18 @@ class Resample(PyoObject):
 
     :Args:
 
-        input : PyoObject
+        input: PyoObject
             Input signal to resample.
-        mode : int, optional
+        mode: int, optional
             The interpolation/decimation mode. Defaults to 1.
             For the upsampling process, possible values are:
-                0 : zero-padding
-                1 : sample-and-hold
-                2 or higher : the formula `mode * resampling factor` gives
+                0: zero-padding
+                1: sample-and-hold
+                2 or higher: the formula `mode * resampling factor` gives
                 the FIR lowpass kernel length used to interpolate.
             For the downsampling process, possible values are:
-                0 or 1 : discard extra samples
-                2 or higher : the formula `mode * abs(resampling factor)`
+                0 or 1: discard extra samples
+                2 or higher: the formula `mode * abs(resampling factor)`
                 gives the FIR lowpass kernel length used for the decimation.
             Available at initialization time only.
 

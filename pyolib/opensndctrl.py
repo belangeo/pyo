@@ -63,15 +63,15 @@ class OscSend(PyoObject):
 
     :Args:
 
-        input : PyoObject
+        input: PyoObject
             Input signal.
-        port : int
+        port: int
             Port on which values are sent. Receiver should listen on the
             same port.
-        address : string
+        address: string
             Address used on the port to identify values. Address is in
             the form of a Unix path (ex.: '/pitch').
-        host : string, optional
+        host: string, optional
             IP address of the target computer. The default, '127.0.0.1',
             is the localhost.
 
@@ -103,9 +103,9 @@ class OscSend(PyoObject):
 
         :Args:
 
-            x : PyoObject
+            x: PyoObject
                 New signal to process.
-            fadetime : float, optional
+            fadetime: float, optional
                 Crossfade time between old and new input. Defaults to 0.05.
 
         """
@@ -128,7 +128,7 @@ class OscSend(PyoObject):
 
         :Args:
 
-            x : int
+            x: int
                 Changes the data output frequency in multiples of the buffer size.
                 Should be greater or equal to 1.
 
@@ -155,7 +155,7 @@ class OscReceive(PyoObject):
 
     :Args:
 
-        port : int
+        port: int
             Port on which values are received. Sender should output on
             the same port.
 
@@ -163,7 +163,7 @@ class OscReceive(PyoObject):
             object.
 
             Available at initialization time only.
-        address : string
+        address: string
             Address used on the port to identify values. Address is in
             the form of a Unix path (ex.: '/pitch').
 
@@ -214,11 +214,11 @@ class OscReceive(PyoObject):
 
         :Args:
 
-            path : string or list of strings
+            path: string or list of strings
                 New path(s) to receive from.
-            mul : float or PyoObject
+            mul: float or PyoObject
                 Multiplication factor. Defaults to 1.
-            add : float or PyoObject
+            add: float or PyoObject
                 Addition factor. Defaults to 0.
 
         """
@@ -237,7 +237,7 @@ class OscReceive(PyoObject):
 
         :Args:
 
-            path : string or list of strings
+            path: string or list of strings
                 Path(s) to remove.
 
         """
@@ -255,7 +255,7 @@ class OscReceive(PyoObject):
 
         :Args:
 
-            x : boolean
+            x: boolean
                 True activates the interpolation, False deactivates it.
 
         """
@@ -268,9 +268,9 @@ class OscReceive(PyoObject):
 
         :Args:
 
-            path : string
+            path: string
                 Address to which the value should be attributed.
-            value : float
+            value: float
                 Value to attribute to the given address.
 
         """
@@ -294,11 +294,11 @@ class OscReceive(PyoObject):
 
         :Args:
 
-            identifier : string
+            identifier: string
                 Address string parameter identifying audio stream.
                 Defaults to None, useful when `all` is True to
                 retreive all streams values.
-            all : boolean, optional
+            all: boolean, optional
                 If True, the first value of each object's stream
                 will be returned as a list. Otherwise, only the value
                 of the first object's stream will be returned as a float.
@@ -325,30 +325,30 @@ class OscDataSend(PyoObject):
 
     :Args:
 
-        types : str
+        types: str
             String specifying the types sequence of the message to be sent.
             Possible values are:
-                - "i" : integer
-                - "h" : long integer
-                - "f" : float
-                - "d" : double
+                - "i": integer
+                - "h": long integer
+                - "f": float
+                - "d": double
                 - "s" ; string
-                - "b" : blob (list of chars)
-                - "m" : MIDI packet (list of 4 bytes: [midi port, status, data1, data2])
-                - "c" : char
-                - "T" : True
-                - "F" : False
-                - "N" : None (nil)
+                - "b": blob (list of chars)
+                - "m": MIDI packet (list of 4 bytes: [midi port, status, data1, data2])
+                - "c": char
+                - "T": True
+                - "F": False
+                - "N": None (nil)
 
             The string "ssfi" indicates that the value to send will be a list
             containing two strings followed by a float and an integer.
-        port : int
+        port: int
             Port on which values are sent. Receiver should listen on the
             same port.
-        address : string
+        address: string
             Address used on the port to identify values. Address is in
             the form of a Unix path (ex.: '/pitch').
-        host : string, optional
+        host: string, optional
             IP address of the target computer. The default, '127.0.0.1',
             is the localhost.
 
@@ -410,30 +410,30 @@ class OscDataSend(PyoObject):
 
         :Args:
 
-            types : str
+            types: str
                 String specifying the types sequence of the message to be sent.
                 Possible values are:
-                - "i" : integer
-                - "h" : long integer
-                - "f" : float
-                - "d" : double
+                - "i": integer
+                - "h": long integer
+                - "f": float
+                - "d": double
                 - "s" ; string
-                - "b" : blob (list of chars)
-                - "m" : MIDI packet (list of 4 bytes: [midi port, status, data1, data2])
-                - "c" : char
-                - "T" : True
-                - "F" : False
-                - "N" : None (nil)
+                - "b": blob (list of chars)
+                - "m": MIDI packet (list of 4 bytes: [midi port, status, data1, data2])
+                - "c": char
+                - "T": True
+                - "F": False
+                - "N": None (nil)
 
                 The string "ssfi" indicates that the value to send will be a list
                 containing two strings followed by a float and an integer.
-            port : int
+            port: int
                 Port on which values are sent. Receiver should listen on the
                 same port.
-            address : string
+            address: string
                 Address used on the port to identify values. Address is in
                 the form of a Unix path (ex.: '/pitch').
-            host : string, optional
+            host: string, optional
                 IP address of the target computer. The default, '127.0.0.1',
                 is the localhost.
 
@@ -451,7 +451,7 @@ class OscDataSend(PyoObject):
 
         :Args:
 
-            path : string or list of strings
+            path: string or list of strings
                 Path(s) to remove.
 
         """
@@ -468,11 +468,11 @@ class OscDataSend(PyoObject):
 
         :Args:
 
-            msg : list
+            msg: list
                 List of values to send. Types of values in list
                 must be of the kind defined of `types` argument
                 given at the object's initialization.
-            address : string, optional
+            address: string, optional
                 Address destination to send values. If None, values
                 will be sent to all addresses managed by the object.
 
@@ -497,16 +497,16 @@ class OscDataReceive(PyoObject):
 
     :Args:
 
-        port : int
+        port: int
             Port on which values are received. Sender should output on
             the same port. Unlike OscDataSend object, there can be only
             one port per OscDataReceive object. Available at initialization
             time only.
-        address : string
+        address: string
             Address used on the port to identify values. Address is in
             the form of a Unix path (ex.: "/pitch"). There can be as many
             addresses as needed on a single port.
-        function : callable (can't be a list)
+        function: callable (can't be a list)
             This function will be called whenever a message with a known
             address is received. there can be only one function per
             OscDataReceive object. Available at initialization time only.
@@ -575,7 +575,7 @@ class OscDataReceive(PyoObject):
 
         :Args:
 
-            path : string or list of strings
+            path: string or list of strings
                 New path(s) to receive from.
 
         """
@@ -592,7 +592,7 @@ class OscDataReceive(PyoObject):
 
         :Args:
 
-            path : string or list of strings
+            path: string or list of strings
                 Path(s) to remove.
 
         """
@@ -616,15 +616,15 @@ class OscListReceive(PyoObject):
 
     :Args:
 
-        port : int
+        port: int
             Port on which values are received. Sender should output on
             the same port. Unlike OscSend object, there can be only one
             port per OscListReceive object. Available at initialization time
             only.
-        address : string
+        address: string
             Address used on the port to identify values. Address is in
             the form of a Unix path (ex.: '/pitch').
-        num : int, optional
+        num: int, optional
             Length of the lists in input. The object will generate `num` audio
             streams per given address. Available at initialization time only.
             This value can't be a list. That means all addresses managed by an
@@ -682,11 +682,11 @@ class OscListReceive(PyoObject):
 
         :Args:
 
-            path : string or list of strings
+            path: string or list of strings
                 New path(s) to receive from.
-            mul : float or PyoObject
+            mul: float or PyoObject
                 Multiplication factor. Defaults to 1.
-            add : float or PyoObject
+            add: float or PyoObject
                 Addition factor. Defaults to 0.
 
         """
@@ -705,7 +705,7 @@ class OscListReceive(PyoObject):
 
         :Args:
 
-            path : string or list of strings
+            path: string or list of strings
                 Path(s) to remove.
 
         """
@@ -725,7 +725,7 @@ class OscListReceive(PyoObject):
 
         :Args:
 
-            x : boolean
+            x: boolean
                 True activates the interpolation, False deactivates it.
 
         """
@@ -738,9 +738,9 @@ class OscListReceive(PyoObject):
 
         :Args:
 
-            path : string
+            path: string
                 Address to which the value should be attributed.
-            value : list of floats
+            value: list of floats
                 List of values to attribute to the given address.
 
         """
@@ -771,11 +771,11 @@ class OscListReceive(PyoObject):
 
         :Args:
 
-            identifier : string
+            identifier: string
                 Address string parameter identifying audio stream.
                 Defaults to None, useful when `all` is True to
                 retreive all streams values.
-            all : boolean, optional
+            all: boolean, optional
                 If True, the first list of values of each object's stream
                 will be returned as a list of lists. Otherwise, only the
                 the list of the object's identifier will be returned as a

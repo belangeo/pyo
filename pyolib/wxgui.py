@@ -66,30 +66,30 @@ else:
 
         :Args:
 
-            parent : wx.Window
+            parent: wx.Window
                 The parent window.
-            minvalue : float
+            minvalue: float
                 The minimum value of the slider.
-            maxvalue : float
+            maxvalue: float
                 The maximum value of the slider.
-            init : float, optional
+            init: float, optional
                 The initial value of the slider. If None, the slider
                 inits to the minimum value. Defaults to None.
-            pos : tuple, optional
+            pos: tuple, optional
                 The slider's position in pixel (x, y). Defaults to (0, 0).
-            size : tuple, optional
+            size: tuple, optional
                 The slider's size in pixel (x, y). Defaults to (200, 16).
-            log : boolean, optional
+            log: boolean, optional
                 If True, creates a logarithmic slider (minvalue must be
                 greater than 0). Defaults to False.
-            integer : boolean, optional
+            integer: boolean, optional
                 If True, creates an integer slider. Defaults to False.
-            powoftwo : boolean, optional
+            powoftwo: boolean, optional
                 If True, creates a power-of-two slider (log is automatically
                 False and integer is True). If True, minvalue and maxvalue
                 must be exponents to base 2 but init is a real power-of-two
                 value. Defaults to False.
-            orient : {wx.HORIZONTAL or wx.VERTICAL}, optional
+            orient: {wx.HORIZONTAL or wx.VERTICAL}, optional
                 The slider's orientation. Defaults to wx.HORIZONTAL.
 
         """
@@ -127,9 +127,9 @@ else:
 
             :Args:
 
-                x : int or float
+                x: int or float
                     The controller number.
-                propagate : boolean, optional
+                propagate: boolean, optional
                     If True, an event will be sent after the call.
 
             """
@@ -141,9 +141,9 @@ else:
 
             :Args:
 
-                x : int
+                x: int
                     The controller number.
-                propagate : boolean, optional
+                propagate: boolean, optional
                     If True, an event will be sent after the call.
 
             """
@@ -155,9 +155,9 @@ else:
 
             :Args:
 
-                minvalue : int or float
+                minvalue: int or float
                     The new minimum value.
-                maxvalue : int or float
+                maxvalue: int or float
                     The new maximum value.
 
             """
@@ -239,17 +239,17 @@ else:
 
         :Args:
 
-            parent : wx.Window
+            parent: wx.Window
                 The parent window.
-            nchnls : int, optional
+            nchnls: int, optional
                 The initial number of channels of the meter. Defaults to 2.
-            pos : wx.Point, optional
+            pos: wx.Point, optional
                 Window position in pixels. Defaults to (0, 0).
-            size : tuple, optional
+            size: tuple, optional
                 The meter's size in pixels (x, y). Defaults to (200, 11).
-            orient : {wx.HORIZONTAL or wx.VERTICAL}, optional
+            orient: {wx.HORIZONTAL or wx.VERTICAL}, optional
                 The meter's orientation. Defaults to wx.HORIZONTAL.
-            style : int, optional
+            style: int, optional
                 Window style (see wx.Window documentation). Defaults to 0.
 
         """
@@ -264,7 +264,7 @@ else:
 
             :Args:
 
-                nchnls : int
+                nchnls: int
                     The number of channels.
 
             """
@@ -285,18 +285,18 @@ else:
 
         :Args:
 
-            parent : wx.Window
+            parent: wx.Window
                 The parent window.
-            xlen : int, optional
+            xlen: int, optional
                 The length, in samples, of the grapher. Defaults to 8192.
-            yrange : two-values tuple, optional
+            yrange: two-values tuple, optional
                 A tuple indicating the minimum and maximum values of the Y-axis.
                 Defaults to (0, 1).
-            init : list of two-values tuples, optional
+            init: list of two-values tuples, optional
                 The initial break-points function set as normalized values.
                 A point is defined with its X and Y positions as a tuple.
                 Defaults to [(0.0, 0.0), (1.0, 1.0)].
-            mode : int, optional
+            mode: int, optional
                 The grapher mode definning how line segments will be draw.
                 Possible modes are:
                     0. linear (default)
@@ -305,23 +305,23 @@ else:
                     3. curve       (uses `tension` and `bias` arguments)
                     4. logarithmic
                     5. logarithmic cosine
-            exp : int or float, optional
+            exp: int or float, optional
                 The exponent factor for an exponential graph. Defaults to 10.0.
-            inverse : boolean, optional
+            inverse: boolean, optional
                 If True, downward slope will be inversed. Useful to create
                 biexponential curves. Defaults to True.
-            tension : int or float, optional
+            tension: int or float, optional
                 Curvature at the known points. 1 is high, 0 normal, -1 is low.
                 Defaults to 0.
-            bias : int or float, optional
+            bias: int or float, optional
                 Curve attraction (for each segments) toward bundary points.
                 0 is even, positive is towards first point, negative is towards
                 the second point. Defaults to 0.
-            pos : wx.Point, optional
+            pos: wx.Point, optional
                 Window position in pixels. Defaults to (0, 0).
-            size : wx.Size, optional
+            size: wx.Size, optional
                 Window size in pixels. Defaults to (300, 200).
-            style : int, optional
+            style: int, optional
                 Window style (see wx.Window documentation). Defaults to 0.
 
         """
@@ -367,7 +367,7 @@ else:
 
             :Args:
 
-                pts : list of two-values tuples
+                pts: list of two-values tuples
                     New normalized (between 0 and 1) points.
 
             """
@@ -380,7 +380,7 @@ else:
 
             :Args:
 
-                vals : list of two-values tuples
+                vals: list of two-values tuples
                     New real points.
 
             """
@@ -393,7 +393,7 @@ else:
 
             :Args:
 
-                yrange : two-values tuple
+                yrange: two-values tuple
                     New Y-axis range.
 
             """
@@ -407,7 +407,7 @@ else:
 
             :Args:
 
-                pts : list of two-values tuples
+                pts: list of two-values tuples
                     New normalized (between 0 and 1) initial points.
 
             """
@@ -419,7 +419,7 @@ else:
 
             :Args:
 
-                x : int
+                x: int
                     New mode. Possible modes are:
                         0. linear (default)
                         1. cosine
@@ -438,7 +438,7 @@ else:
 
             :Args:
 
-                x : float
+                x: float
                     New exponent factor.
 
             """
@@ -451,7 +451,7 @@ else:
 
             :Args:
 
-                x : boolean
+                x: boolean
                     New inverse factor.
 
             """
@@ -464,7 +464,7 @@ else:
 
             :Args:
 
-                x : float
+                x: float
                     New tension factor.
 
             """
@@ -477,7 +477,7 @@ else:
 
             :Args:
 
-                x : float
+                x: float
                     New bias factor.
 
             """
@@ -499,22 +499,22 @@ else:
 
         :Args:
 
-            parent : wx.Window
+            parent: wx.Window
                 The parent window.
-            xlen : int, optional
+            xlen: int, optional
                 The number of sliders in the multi-sliders. Defaults to 16.
-            yrange : two-values tuple
+            yrange: two-values tuple
                 A tuple indicating the minimum and maximum values of the Y-axis.
                 Defaults to (0, 1).
-            init : list values, optional
+            init: list values, optional
                 The initial list of values of the multi-sliders.
                 Defaults to None, meaning all sliders initialized to the
                 minimum value.
-            pos : wx.Point, optional
+            pos: wx.Point, optional
                 Window position in pixels. Defaults to (0, 0).
-            size : wx.Size, optional
+            size: wx.Size, optional
                 Window size in pixels. Defaults to (300, 200).
-            style : int, optional
+            style: int, optional
                 Window style (see wx.Window documentation). Defaults to 0.
 
         """
@@ -555,7 +555,7 @@ else:
 
             :Args:
 
-                vals : list of values
+                vals: list of values
                     New values.
 
             """
@@ -567,7 +567,7 @@ else:
 
             :Args:
 
-                yrange : two-values tuple
+                yrange: two-values tuple
                     New Y-axis range.
 
             """
@@ -592,25 +592,25 @@ else:
 
         :Args:
 
-            parent : wx.Window
+            parent: wx.Window
                 The parent window.
-            lowfreq : int or float, optional
+            lowfreq: int or float, optional
                 The lowest frequency, in Hz, to display on the X-axis.
                 Defaults to 0.
-            highfreq : int or float, optional
+            highfreq: int or float, optional
                 The highest frequency, in Hz, to display on the X-axis.
                 Defaults to 22050.
-            fscaling : int, optional
+            fscaling: int, optional
                 The frequency scaling on the X-axis. 0 means linear, 1 means
                 logarithmic. Defaults to 0.
-            mscaling : int, optional
+            mscaling: int, optional
                 The magnitude scaling on the Y-axis. 0 means linear, 1 means
                 logarithmic. Defaults to 0.
-            pos : wx.Point, optional
+            pos: wx.Point, optional
                 Window position in pixels. Defaults to (0, 0).
-            size : wx.Size, optional
+            size: wx.Size, optional
                 Window size in pixels. Defaults to (300, 200).
-            style : int, optional
+            style: int, optional
                 Window style (see wx.Window documentation). Defaults to 0.
 
         """
@@ -633,7 +633,7 @@ else:
 
             :Args:
 
-                points : list of list of tuples
+                points: list of list of tuples
                     A list containing n-channels list of tuples. A tuple
                     is a point (X-Y coordinates) to draw.
 
@@ -646,7 +646,7 @@ else:
 
             :Args:
 
-                object : Spectrum object
+                object: Spectrum object
                     The audio object performing the frequency analysis.
 
             """
@@ -665,7 +665,7 @@ else:
 
             :Args:
 
-                x : int or float
+                x: int or float
                     New lowest frequency.
 
             """
@@ -681,7 +681,7 @@ else:
 
             :Args:
 
-                x : int or float
+                x: int or float
                     New highest frequency.
 
             """
@@ -697,7 +697,7 @@ else:
 
             :Args:
 
-                x : int
+                x: int
                     0 means linear scaling, 1 means logarithmic scaling.
 
             """
@@ -713,7 +713,7 @@ else:
 
             :Args:
 
-                x : int
+                x: int
                     0 means linear scaling, 1 means logarithmic scaling.
 
             """
@@ -737,19 +737,19 @@ else:
 
         :Args:
 
-            parent : wx.Window
+            parent: wx.Window
                 The parent window.
-            length : float, optional
+            length: float, optional
                 Length, in seconds, of the waveform segment displayed on
                 the window. Defaults to 0.05.
-            gain : float, optional
+            gain: float, optional
                 Linear gain applied to the signal to be displayed.
                 Defaults to 0.67.
-            pos : wx.Point, optional
+            pos: wx.Point, optional
                 Window position in pixels. Defaults to (0, 0).
-            size : wx.Size, optional
+            size: wx.Size, optional
                 Window size in pixels. Defaults to (300, 200).
-            style : int, optional
+            style: int, optional
                 Window style (see wx.Window documentation). Defaults to 0.
 
         """
@@ -773,7 +773,7 @@ else:
 
             :Args:
 
-                points : list of list of tuples
+                points: list of list of tuples
                     A list containing n-channels list of tuples. A tuple
                     is a point (X-Y coordinates) to draw.
 
@@ -786,7 +786,7 @@ else:
 
             :Args:
 
-                object : Scope object
+                object: Scope object
                     The audio object performing the waveform analysis.
 
             """
@@ -803,7 +803,7 @@ else:
 
             :Args:
 
-                x : float
+                x: float
                     New segment length in seconds.
 
             """
@@ -819,7 +819,7 @@ else:
 
             :Args:
 
-                x : float
+                x: float
                     New linear gain.
 
             """
@@ -867,13 +867,13 @@ else:
 
         :Args:
 
-            parent : wx.Window
+            parent: wx.Window
                 The parent window.
-            pos : wx.Point, optional
+            pos: wx.Point, optional
                 Window position in pixels. Defaults to (0, 0).
-            size : wx.Size, optional
+            size: wx.Size, optional
                 Window size in pixels. Defaults to (300, 200).
-            style : int, optional
+            style: int, optional
                 Window style (see wx.Window documentation). Defaults to 0.
 
         """
@@ -933,7 +933,7 @@ else:
 
             :Args:
 
-                object : SndTable object
+                object: SndTable object
                     The audio table keeping the sound in memory.
 
             """
@@ -953,11 +953,11 @@ else:
 
             :Args:
 
-                start : float
+                start: float
                     The starting point of the selected region. This value
                     must be normalized between 0 and 1 (0 is the beginning
                     of the sound, 1 is the end).
-                stop : float
+                stop: float
                     The ending point of the selected region. This value
                     must be normalized between 0 and 1 (0 is the beginning
                     of the sound, 1 is the end).
