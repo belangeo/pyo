@@ -1,3 +1,4 @@
+from __future__ import division
 from __future__ import print_function
 from __future__ import absolute_import
 """
@@ -26,6 +27,10 @@ try:
     from PIL import Image, ImageDraw, ImageTk
 except:
     pass
+
+if "phoenix" in wx.version():
+    wx.GraphicsContext_Create = wx.GraphicsContext.Create
+    wx.EmptyBitmap = wx.Bitmap
 
 BACKGROUND_COLOUR = "#EBEBEB"
 
@@ -128,7 +133,7 @@ class ControlSlider(wx.Panel):
         self.Bind(wx.EVT_KEY_DOWN, self.keyDown)
         self.Bind(wx.EVT_KILL_FOCUS, self.LooseFocus)
 
-        if sys.platform in ["win32", "linux2"]:
+        if sys.platform == "win32" or sys.platform.startswith("linux"):
             self.dcref = wx.BufferedPaintDC
         else:
             self.dcref = wx.PaintDC
@@ -337,10 +342,10 @@ class ControlSlider(wx.Panel):
         gc.DrawRoundedRectangle(rec[0], rec[1], rec[2], rec[3], 2)
 
         if self.midictl is not None:
-            if sys.platform in ['win32', 'linux2']:
-                dc.SetFont(wx.Font(6, wx.ROMAN, wx.NORMAL, wx.NORMAL))
+            if sys.platform == 'win32' or sys.platform.startswith('linux'):
+                dc.SetFont(wx.Font(6, wx.FONTFAMILY_ROMAN, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL))
             else:
-                dc.SetFont(wx.Font(9, wx.ROMAN, wx.NORMAL, wx.NORMAL))
+                dc.SetFont(wx.Font(9, wx.FONTFAMILY_ROMAN, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL))
             dc.SetTextForeground('#FFFFFF')
             if self.orient == wx.VERTICAL:
                 dc.DrawLabel(str(self.midictl), wx.Rect(w2,2,self.sliderWidth,12), wx.ALIGN_CENTER)
@@ -369,10 +374,10 @@ class ControlSlider(wx.Panel):
             gc.SetBrush(brush)
             gc.DrawRoundedRectangle(rec[0], rec[1], rec[2], rec[3], 3)
 
-        if sys.platform in ['win32', 'linux2']:
-            dc.SetFont(wx.Font(7, wx.ROMAN, wx.NORMAL, wx.NORMAL))
+        if sys.platform == 'win32' or sys.platform.startswith('linux'):
+            dc.SetFont(wx.Font(7, wx.FONTFAMILY_ROMAN, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL))
         else:
-            dc.SetFont(wx.Font(10, wx.ROMAN, wx.NORMAL, wx.NORMAL))
+            dc.SetFont(wx.Font(10, wx.FONTFAMILY_ROMAN, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL))
 
         # Draw text
         if self.selected and self.new:
@@ -388,7 +393,7 @@ class ControlSlider(wx.Panel):
                 val = '%.3f' % self.GetValue()
             elif abs(self.GetValue()) < 10:
                 val = '%.4f' % self.GetValue()
-        if sys.platform == 'linux2':
+        if sys.platform.startswith('linux'):
             width = len(val) * (dc.GetCharWidth() - 3)
         else:
             width = len(val) * dc.GetCharWidth()
@@ -423,10 +428,10 @@ class MultiSlider(wx.Panel):
         self._key = key
         self._command = command
         self._height = 16
-        if sys.platform in ['win32', 'linux2']:
-            self._font = wx.Font(7, wx.ROMAN, wx.NORMAL, wx.NORMAL)
+        if sys.platform == 'win32' or sys.platform.startswith('linux'):
+            self._font = wx.Font(7, wx.FONTFAMILY_ROMAN, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL)
         else:
-            self._font = wx.Font(10, wx.ROMAN, wx.NORMAL, wx.NORMAL)
+            self._font = wx.Font(10, wx.FONTFAMILY_ROMAN, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL)
 
         self.SetSize((250, self._nchnls*16))
         self.SetMinSize((250,self._nchnls*16))
@@ -1011,7 +1016,7 @@ class ViewTablePanel(wx.Panel):
         self.samples = []
         self.Bind(wx.EVT_PAINT, self.OnPaint)
         self.Bind(wx.EVT_SIZE, self.OnSize)
-        if sys.platform in ["win32", "linux2"]:
+        if sys.platform == "win32" or sys.platform.startswith("linux"):
             self.dcref = wx.BufferedPaintDC
         else:
             self.dcref = wx.PaintDC
@@ -1102,7 +1107,7 @@ class SndViewTablePanel(wx.Panel):
         self.img = [[]]
         self.mouse_callback = mouse_callback
         self.select_callback = select_callback
-        if sys.platform in ["win32", "linux2"]:
+        if sys.platform == "win32" or sys.platform.startswith("linux"):
             self.dcref = wx.BufferedPaintDC
         else:
             self.dcref = wx.PaintDC
@@ -1139,6 +1144,7 @@ class SndViewTablePanel(wx.Panel):
 
     def setImage(self):
         if self.obj is not None:
+            print(self.begin, self.end)
             self.img = self.obj.getViewTable(self.GetSize(), self.begin, self.end)
             self.Refresh()
 
@@ -1534,7 +1540,7 @@ class SpectrumPanel(wx.Panel):
         self.brushes = [wx.Brush(wx.Colour(166,4,0,128)), wx.Brush(wx.Colour(8,11,116,128)), wx.Brush(wx.Colour(0,204,0,128)),
                         wx.Brush(wx.Colour(255,167,0,128)), wx.Brush(wx.Colour(133,0,75,128)), wx.Brush(wx.Colour(255,236,0,128)),
                         wx.Brush(wx.Colour(1,147,154,128)), wx.Brush(wx.Colour(162,239,0,128))]
-        if sys.platform in ["win32", "linux2"]:
+        if sys.platform == "win32" or sys.platform.startswith("linux"):
             self.dcref = wx.BufferedPaintDC
         else:
             self.dcref = wx.PaintDC
@@ -1792,7 +1798,7 @@ class ScopePanel(wx.Panel):
                     wx.Pen(wx.Colour(255,167,0), width=2), wx.Pen(wx.Colour(133,0,75), width=2), wx.Pen(wx.Colour(255,236,0), width=2),
                     wx.Pen(wx.Colour(1,147,154), width=2), wx.Pen(wx.Colour(162,239,0), width=2)]
 
-        if sys.platform in ["win32", "linux2"]:
+        if sys.platform == "win32" or sys.platform.startswith("linux"):
             self.dcref = wx.BufferedPaintDC
         else:
             self.dcref = wx.PaintDC
@@ -1907,7 +1913,7 @@ class Grapher(wx.Panel):
         self.points = [tup for tup in init]
         self.outFunction = outFunction
 
-        if sys.platform in ["win32", "linux2"]:
+        if sys.platform == "win32" or sys.platform.startswith("linux"):
             self.dcref = wx.BufferedPaintDC
         else:
             self.dcref = wx.PaintDC
@@ -2422,7 +2428,7 @@ class DataMultiSlider(wx.Panel):
         self.yrange = (float(yrange[0]), float(yrange[1]))
         self.outFunction = outFunction
 
-        if sys.platform in ["win32", "linux2"]:
+        if sys.platform == "win32" or sys.platform.startswith("linux"):
             self.dcref = wx.BufferedPaintDC
         else:
             self.dcref = wx.PaintDC
@@ -2905,28 +2911,31 @@ class ServerGUI(wx.Frame):
 
     def start(self, evt=None, justSet=False):
         if self._started == False:
-            if not justSet:
-                self.startf()
             self._started = True
             wx.CallAfter(self.startButton.SetLabel, 'Stop')
             if self.exit:
                 wx.CallAfter(self.quitButton.Disable)
+            if not justSet:
+                self.startf()
         else:
-            wx.CallLater(100, self.stopf)
             self._started = False
             wx.CallAfter(self.startButton.SetLabel, 'Start')
             if self.exit:
                 wx.CallAfter(self.quitButton.Enable)
+            # TODO: Need a common method for every OSes.
+            #wx.CallLater(100, self.stopf)
+            #wx.CallAfter(self.stopf)
+            self.stopf()
 
     def record(self, evt):
         if self._recstarted == False:
             self.recstartf()
             self._recstarted = True
-            self.recButton.SetLabel('Rec Stop')
+            wx.CallAfter(self.recButton.SetLabel, 'Rec Stop')
         else:
             self.recstopf()
             self._recstarted = False
-            self.recButton.SetLabel('Rec Start')
+            wx.CallAfter(self.recButton.SetLabel, 'Rec Start')
 
     def quit_from_code(self):
         wx.CallAfter(self.on_quit, None)
@@ -2954,7 +2963,7 @@ class ServerGUI(wx.Frame):
             self._histo_count = len(self._history)
         else:
             self.text.SetValue(self._history[self._histo_count])
-            self.text.SetInsertionPointEnd()
+            wx.CallAfter(self.text.SetInsertionPointEnd)
 
     def getText(self, evt):
         source = self.text.GetValue()
@@ -2981,7 +2990,7 @@ class ServerGUI(wx.Frame):
         self.meter.setRms(*args)
 
 def ensureNFD(unistr):
-    if sys.platform in ['linux2', 'win32']:
+    if sys.platform == 'win32' or sys.platform.startswith('linux'):
         encodings = [sys.getdefaultencoding(), sys.getfilesystemencoding(),
                      'cp1252', 'iso-8859-1', 'utf-16']
         format = 'NFC'

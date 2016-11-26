@@ -15,8 +15,8 @@ from __future__ import with_statement
 import sys
 import __builtin__
 __builtin__.EPYO_APP_OPENED = True
-        
-if sys.platform == "linux2":
+
+if sys.platform.startswith("linux"):
     import wxversion
     if wxversion.checkInstalled("3.0"):
         wxversion.select("3.0")
@@ -82,7 +82,7 @@ def convert_line_endings(temp, mode):
     return temp
 
 def ensureNFD(unistr):
-    if PLATFORM in ['linux2', 'win32']:
+    if PLATFORM == 'win32' or PLATFORM.startswith('linux'):
         encodings = [DEFAULT_ENCODING, ENCODING,
                      'cp1252', 'iso-8859-1', 'utf-16']
         format = 'NFC'
@@ -175,7 +175,7 @@ if WHICH_PYTHON == "":
         proc = subprocess.Popen(["which python"], shell=True, 
                                 stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         WHICH_PYTHON = proc.communicate()[0][:-1]
-    elif PLATFORM == "linux2":
+    elif PLATFORM.startswith("linux"):
         proc = subprocess.Popen(["which python"], shell=True, 
                                 stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         WHICH_PYTHON = proc.communicate()[0][:-1]
@@ -786,7 +786,7 @@ KEY_COMMANDS = {
 
 ############## Allowed Extensions ##############
 ALLOWED_EXT = PREFERENCES.get("allowed_ext", 
-                              ["py", "c5", "txt", "", "c", "h", "cpp", "hpp", "zy",
+                              ["py", "c5", "txt", "", "c", "h", "cpp", "hpp", "zy", "bat",
                                "sh", "rst", "iss", "sg", "md", "jsfx-inc", "lua", "css"])
 
 ############## Pyo keywords ##############
@@ -2343,7 +2343,7 @@ class MainFrame(wx.Frame):
             ststyle = wx.TE_PROCESS_ENTER|wx.NO_BORDER
             sth = self.status.GetSize()[1] #16
             cch = -1
-        elif PLATFORM == "linux2":
+        elif PLATFORM.startswith("linux"):
             ststyle = wx.TE_PROCESS_ENTER|wx.SIMPLE_BORDER
             sth = self.status.GetSize()[1]+1 #20
             cch = self.status.GetSize()[1] #21
@@ -2387,7 +2387,7 @@ class MainFrame(wx.Frame):
         if PLATFORM == "darwin":
             yoff1 = -1
             yoff2 = -5
-        elif PLATFORM == "linux2":
+        elif PLATFORM.startswith("linux"):
             yoff1 = -2
             yoff2 = -1
         elif PLATFORM == "win32":
@@ -5458,7 +5458,7 @@ class PreferencesDialog(wx.Dialog):
         font, entryfont, pointsize = self.GetFont(), self.GetFont(), self.GetFont().GetPointSize()
         
         font.SetWeight(wx.BOLD)
-        if PLATFORM == "linux2":
+        if PLATFORM.startswith("linux"):
             entryfont.SetPointSize(pointsize)
         elif PLATFORM == "win32":
             entryfont.SetPointSize(pointsize)

@@ -31,7 +31,7 @@ except:
     pass
 
 # constants for platform displays with Tk
-if sys.platform == 'linux2':
+if sys.platform.startswith('linux'):
     Y_OFFSET = 0
     VM_OFFSET = 2
 elif sys.platform == 'win32':

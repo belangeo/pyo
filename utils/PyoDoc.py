@@ -1070,7 +1070,7 @@ class RunningThread(threading.Thread):
             time.sleep(.25)
 
 def ensureNFD(unistr):
-    if PLATFORM in ['linux2', 'win32']:
+    if PLATFORM == 'win32' or PLATFORM.startswith('linux'):
         encodings = [DEFAULT_ENCODING, ENCODING,
                      'cp1252', 'iso-8859-1', 'utf-16']
         format = 'NFC'

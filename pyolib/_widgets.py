@@ -121,7 +121,7 @@ def wxDisplayWindow(f, title):
     global CURRENT_X, MAX_X, NEXT_Y
     f.SetTitle(title)
     x, y = f.GetSize()
-    if sys.platform == "linux2":
+    if sys.platform.startswith("linux"):
         y += 25
     if y + NEXT_Y < Y:
         px, py, NEXT_Y = CURRENT_X, NEXT_Y, NEXT_Y + y
@@ -368,7 +368,7 @@ def createServerGUI(nchnls, start, stop, recstart, recstop, setAmp, started, loc
         f.SetPosition((30, 30))
         f.Show()
         X,Y = wx.SystemSettings.GetMetric(wx.SYS_SCREEN_X)-50, wx.SystemSettings.GetMetric(wx.SYS_SCREEN_Y)-50
-        if sys.platform == "linux2":
+        if sys.platform.startswith("linux"):
             MAX_X, NEXT_Y = f.GetSize()[0]+30, f.GetSize()[1]+55
         else:
             MAX_X, NEXT_Y = f.GetSize()[0]+30, f.GetSize()[1]+30
