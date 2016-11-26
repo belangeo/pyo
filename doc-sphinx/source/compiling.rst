@@ -1,22 +1,29 @@
 Compiling pyo from sources
 ==========================
 
-Here is how you can compile pyo from sources on Linux and Mac OS X (if you are
-interested in the adventure of compiling pyo from sources on Windows, you
-can take a look at my personal notes in /scripts/win/windows-7-build-routine.txt).
+Here is how you can compile pyo from sources on Linux and MacOS (if you are
+interested in the adventure of compiling pyo from sources on Windows, you can 
+take a look at my personal notes in `windows-7-build-routine.txt 
+<https://github.com/belangeo/pyo/blob/master/scripts/win/windows-7-build-routine.txt>`_).
 
 Dependencies
 ------------
 
 To compile pyo with all its features, you will need the following dependencies: 
 
-- `Python 2.6 or 2.7 <https://www.python.org/downloads/>`_
+- `Python 2.7.x <https://www.python.org/downloads/>`_
 - `WxPython 3.0 <http://www.wxpython.org/download.php/>`_
 - `Portaudio <http://www.portaudio.com/>`_
 - `Portmidi <http://portmedia.sourceforge.net/portmidi/>`_
 - `libsndfile <http://www.mega-nerd.com/libsndfile/>`_
 - `liblo <http://liblo.sourceforge.net/>`_
 - `git <https://git-scm.com/>`_ (if you want the latest sources)
+
+.. note::
+    
+    Pyo can be compiled against python 3.5.x but it is still experimental.
+    Some GUI features of pyo have not yet been updated to WxPython Phoenix 
+    (the python 3 port of WxPython).
 
 Getting sources
 ---------------
@@ -31,7 +38,7 @@ You can download pyo's sources by checking out the source code
 Compilation
 ---------------
 
-Please note that under Mac OS X you will need to install the 
+Please note that under MacOS you will need to install the 
 **Apple's developer tools** to compile pyo.
 
 Once you have all the required dependencies, go in pyo's directory: 
@@ -42,7 +49,7 @@ Once you have all the required dependencies, go in pyo's directory:
 
 And build the library: 
 
-Mac OS X and Debian:
+MacOS and Debian:
     
 .. code-block:: bash
 
@@ -61,13 +68,13 @@ You can customize your compilation by giving some flags to the command line.
 Compilation flags
 *****************
 
-If you want to be able to use coreaudio (Mac OS X): 
+If you want to be able to use coreaudio (MacOS): 
 
 .. code-block:: bash
 
     --use-coreaudio
 
-If you want JACK support (Linux, Mac OS X): 
+If you want JACK support (Linux, MacOS): 
 
 .. code-block:: bash
 
@@ -86,11 +93,24 @@ If you want to disable most of messages printed to the console:
     
     --no-messages
 
-If you want to compile external classes defined in ./externals folder:
+If you want to compile external classes defined in pyo/externals folder:
 
 .. code-block:: bash
 
     --compile-externals
+
+By default, debug symbols are off. If you want to compile pyo with debug symbols:
+
+.. code-block:: bash
+
+    --debug
+
+By default, optimizations are activated. If you want to compile pyo without 
+optimizations:
+
+.. code-block:: bash
+
+    --fast-compile
 
 If you want to compile pyo with minimal dependencies (mostly for integrated use
 in a host environment):
@@ -113,13 +133,13 @@ To compile both 32-bit and 64-bit resolutions on linux (with jack support):
 
     sudo sh scripts/compile_linux_withJack.sh
 
-To compile both 32-bit and 64-bit resolutions on OS X (without Jack):
+To compile both 32-bit and 64-bit resolutions on macOS (without Jack):
 
 .. code-block:: bash
 
     sudo sh scripts/compile_OSX.sh
 
-To compile both 32-bit and 64-bit resolutions on OS X (with Jack):
+To compile both 32-bit and 64-bit resolutions on macOS (with Jack):
 
 .. code-block:: bash
 
@@ -141,12 +161,12 @@ Under Ubuntu you can type the following commands to get pyo up and running:
 
 * On Ubuntu system prior to vivid, wxpython 3.0 must be compiled from sources.
  
-OSX (Homebrew)
---------------
+MacOS (Homebrew)
+----------------
 
-Under OS X, it is very simple to build pyo from sources with the Homebrew package manager.
+Under macOS, it is very simple to build pyo from sources with the Homebrew package manager.
 
-First, you need to install `Homebrew <http://brew.sh/>`. Then, in a terminal window:
+First, you need to install `Homebrew <http://brew.sh/>`_. Then, in a terminal window:
 
 .. code-block:: bash
 
@@ -157,13 +177,13 @@ First, you need to install `Homebrew <http://brew.sh/>`. Then, in a terminal win
 
 * To build a universal portmidi library with homebrew, the formula must be modified like this:
     
-Add the option "universal":
+Add the option *universal*:
 
 .. code-block:: bash
 
     option :universal
 
-And modify the "install function" to add the universal variable:
+And modify the *install* function to add the universal variable:
     
 .. code-block:: bash
 
