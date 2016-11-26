@@ -17,21 +17,24 @@ benefits of a mature, and widely used, general programming language.
 
 Systems : macOS (10.5 -> 10.12), linux, Windows (XP, Vista, 7, 8, 10)
 
-Python versions : 2.7.x, 3.x.x
+Python versions : 2.7.x, 3.x.x (experimental)
 
 [PYO OFFICAL WEB SITE](http://ajaxsoundstudio.com/pyo/)
 
-**Download latest binaries, source release and documentation** [HERE](http://ajaxsoundstudio.com/pyo/)!
+**Download latest binaries, source release and documentation** 
+[HERE](http://ajaxsoundstudio.com/pyo/)!
 
 
 How to get pyo running from sources on OS X and linux:
 [INSTALL Instructions](http://ajaxsoundstudio.com/pyodoc/compiling.html)
 
-pyo was awarded **second prize** in the [Lomus 2012](http://concours.afim-asso.org/2012/) Free Software Competition.
+pyo was awarded **second prize** in the 
+[Lomus 2012](http://concours.afim-asso.org/2012/) Free Software Competition.
 
 ## Radio Pyo ##
 
-If you want to listen to scripts rendered in real-time, just connect to [Radio Pyo](http://radiopyo.acaia.ca/) !
+If you want to listen to scripts rendered in real-time, just connect to 
+[Radio Pyo](http://radiopyo.acaia.ca/) !
 
 You want to have your script played on the radio ? Follow the instructions on this
 [post](http://acaia.ca/~tiago/posts/introducing-radio-pyo-live-music-in-python/) !
@@ -40,11 +43,16 @@ You want to have your script played on the radio ? Follow the instructions on th
 
 [Zyne](https://github.com/belangeo/zyne) : A modular soft synthesizer.
 
-[Soundgrain](http://ajaxsoundstudio.com/software/soundgrain/) : A graphical interface where users can draw and edit trajectories to control granular sound synthesis.
+[Soundgrain](http://ajaxsoundstudio.com/software/soundgrain/) : 
+A graphical interface where users can draw and edit trajectories to control 
+granular sound synthesis.
 
-[Cecilia 5](http://ajaxsoundstudio.com/software/cecilia/) : An audio signal processing environment.
+[Cecilia 5](http://ajaxsoundstudio.com/software/cecilia/) : An audio signal 
+processing environment.
 
-[PsychoPy](http://www.psychopy.org/) : An open-source application to allow the presentation of stimuli and collection of data for a wide range of neuroscience, psychology and psychophysics experiments.
+[PsychoPy](http://www.psychopy.org/) : An open-source application to allow the 
+presentation of stimuli and collection of data for a wide range of neuroscience, 
+psychology and psychophysics experiments.
 
 ## Examples ##
 
