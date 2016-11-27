@@ -1,3 +1,4 @@
+from __future__ import division
 from __future__ import print_function
 from __future__ import absolute_import
 """
@@ -81,13 +82,13 @@ class MultiSlider(Frame):
 
     def move(self, event):
         if event.state == 0x0100:
-            slide = (event.y - Y_OFFSET) / self._height
+            slide = (event.y - Y_OFFSET) // self._height
             if 0 <= slide < len(self._lines):
                 self.update(event)
 
     def update(self, event):
         w = self.canvas.winfo_width()
-        slide = (event.y - Y_OFFSET) / self._height
+        slide = (event.y - Y_OFFSET) // self._height
         val = event.x / float(w)
         self._values[slide] = val
         y = self._height * slide + Y_OFFSET
@@ -192,14 +193,14 @@ class ViewTable_withPIL(Frame):
         Frame.__init__(self, master, bd=1, relief=GROOVE)
         self.width = 500
         self.height = 200
-        self.half_height = self.height / 2
+        self.half_height = self.height // 2
         self.canvas = Canvas(self, height=self.height, width=self.width, relief=SUNKEN, bd=1, bg="#EFEFEF")
         print(Image)
         im = Image.new("L", (self.width, self.height), 255)
         draw = ImageDraw.Draw(im)
         draw.line(samples, fill=0, width=1)
         self.img = ImageTk.PhotoImage(im)
-        self.canvas.create_image(self.width/2,self.height/2,image=self.img)
+        self.canvas.create_image(self.width // 2,self.height // 2, image=self.img)
         self.canvas.create_line(0, self.half_height+2, self.width, self.half_height+2, fill='grey', dash=(4,2))
         self.canvas.grid()
         self.grid(ipadx=10, ipady=10)
@@ -210,7 +211,7 @@ class ViewTable_withoutPIL(Frame):
         Frame.__init__(self, master, bd=1, relief=GROOVE)
         self.width = 500
         self.height = 200
-        self.half_height = self.height / 2
+        self.half_height = self.height // 2
         self.canvas = Canvas(self, height=self.height, width=self.width, relief=SUNKEN, bd=1, bg="#EFEFEF")
         self.canvas.create_line(0, self.half_height+Y_OFFSET, self.width, self.half_height+Y_OFFSET, fill='grey', dash=(4,2))
         self.canvas.create_line(*samples)
@@ -228,7 +229,7 @@ class ViewMatrix_withPIL(Frame):
         im = Image.new("L", size, None)
         im.putdata(samples)
         self.img = ImageTk.PhotoImage(im)
-        self.canvas.create_image(size[0]/2+Y_OFFSET,size[1]/2+Y_OFFSET,image=self.img)
+        self.canvas.create_image(size[0] // 2 + Y_OFFSET, size[1] // 2 + Y_OFFSET, image=self.img)
         self.canvas.grid()
         self.grid(ipadx=0, ipady=0)
 
@@ -241,11 +242,11 @@ class ViewMatrix_withoutPIL(Frame):
         self.canvas = Canvas(self, width=self.width, height=self.height, relief=SUNKEN, bd=1, bg="#EFEFEF")
         for i in range(self.width*self.height):
             x = i % self.width
-            y = i / self.width
-            x1 = x+Y_OFFSET
-            y1 = y+Y_OFFSET
-            x2 = x+Y_OFFSET+1
-            y2 = y+Y_OFFSET+1
+            y = i // self.width
+            x1 = x + Y_OFFSET
+            y1 = y + Y_OFFSET
+            x2 = x + Y_OFFSET + 1
+            y2 = y + Y_OFFSET + 1
             amp = int(samples[i])
             amp = hex(amp).replace('0x', '')
             if len(amp) == 1:

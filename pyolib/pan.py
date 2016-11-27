@@ -1,3 +1,4 @@
+from __future__ import division
 from __future__ import print_function
 from __future__ import absolute_import
 """
@@ -412,7 +413,7 @@ class Selector(PyoObject):
         self._voice = x
         x, lmax = convertArgsToLists(x)
         for i, obj in enumerate(self._base_objs):
-            obj.setVoice(wrap(x, i/self._length))
+            obj.setVoice(wrap(x, i // self._length))
 
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
         self._map_list = [SLMap(0, len(self._inputs)-1, "lin", "voice", self._voice), SLMapMul(self._mul)]

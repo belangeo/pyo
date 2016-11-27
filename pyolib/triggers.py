@@ -1,3 +1,4 @@
+from __future__ import division
 from __future__ import print_function
 from __future__ import absolute_import
 """
@@ -118,7 +119,7 @@ class Metro(PyoObject):
         self._time = time
         self._poly = poly
         time, lmax = convertArgsToLists(time)
-        self._base_objs = [Metro_base(wrap(time,i)*poly, (float(j)/poly)) for i in range(lmax) for j in range(poly)]
+        self._base_objs = [Metro_base(wrap(time,i)*poly, (float(j) / poly)) for i in range(lmax) for j in range(poly)]
 
     def setTime(self, x):
         """

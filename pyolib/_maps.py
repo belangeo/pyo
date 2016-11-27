@@ -57,7 +57,7 @@ class Map:
         elif x > 1: x = 1.0
 
         if self._scale == 'log':
-            return pow(10, x * log10(self._max/self._min) + log10(self._min))
+            return pow(10, x * log10(self._max / self._min) + log10(self._min))
         else:
             return (self._max - self._min) * x + self._min
 
@@ -69,7 +69,7 @@ class Map:
         """
 
         if self._scale == 'log':
-            return log10(x/self._min) / log10(self._max/self._min)
+            return log10(x / self._min) / log10(self._max / self._min)
         else:
             return (x - self._min) / (self._max - self._min)
 

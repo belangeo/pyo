@@ -1,3 +1,4 @@
+from __future__ import division
 from __future__ import print_function
 from __future__ import absolute_import
 """
@@ -334,7 +335,7 @@ class SfMarkerShuffler(PyoObject):
                 self._markers = []
             self._base_players.append(SfMarkerShuffler_base(wrap(path,i), self._markers, wrap(speed,i), wrap(interp,i)))
         for i in range(lmax * self._snd_chnls):
-            j = i / self._snd_chnls
+            j = i // self._snd_chnls
             self._base_objs.append(SfMarkerShuffle_base(wrap(self._base_players,j), i % self._snd_chnls, wrap(mul,j), wrap(add,j)))
 
     def setSpeed(self, x):
@@ -461,7 +462,7 @@ class SfMarkerLooper(PyoObject):
                 self._markers = []
             self._base_players.append(SfMarkerLooper_base(wrap(path,i), self._markers, wrap(speed,i), wrap(mark,i), wrap(interp,i)))
         for i in range(lmax * self._snd_chnls):
-            j = i / self._snd_chnls
+            j = i // self._snd_chnls
             self._base_objs.append(SfMarkerLoop_base(wrap(self._base_players,j), i % self._snd_chnls, wrap(mul,j), wrap(add,j)))
 
     def setSpeed(self, x):

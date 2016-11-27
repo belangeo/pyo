@@ -9,6 +9,7 @@ spectral domain.
 
 """
 
+from __future__ import division
 from __future__ import absolute_import
 """
 Copyright 2009-2015 Olivier Belanger
@@ -29,6 +30,7 @@ GNU Lesser General Public License for more details.
 You should have received a copy of the GNU Lesser General Public
 License along with pyo.  If not, see <http://www.gnu.org/licenses/>.
 """
+
 from ._core import *
 from ._maps import *
 
@@ -113,7 +115,7 @@ class FFT(PyoObject):
         self._base_players = []
         for j in range(overlaps):
             for i in range(lmax):
-                hopsize = wrap(size,i) * j / overlaps
+                hopsize = wrap(size,i) * j // overlaps
                 self._base_players.append(FFTMain_base(wrap(in_fader,i), wrap(size,i), hopsize, wrap(wintype,i)))
         self._real_objs = []
         self._imag_objs = []
@@ -210,10 +212,10 @@ class FFT(PyoObject):
         pyoArgsAssert(self, "i", x)
         self._size = x
         x, lmax = convertArgsToLists(x)
-        poly = len(self._base_players) / self._overlaps
+        poly = len(self._base_players) // self._overlaps
         for j in range(self._overlaps):
             for i in range(poly):
-                hopsize = wrap(x,i) * j / self._overlaps
+                hopsize = wrap(x,i) * j // self._overlaps
                 self._base_players[j*poly+i].setSize(wrap(x,i), hopsize)
 
     def setWinType(self, x):
@@ -329,9 +331,9 @@ class IFFT(PyoObject):
         self._in_fader2 = InputFader(inimag)
         in_fader, in_fader2, size, wintype, mul, add, lmax = convertArgsToLists(self._in_fader, self._in_fader2, size, wintype, mul, add)
         self._base_objs = []
-        ratio = lmax / overlaps
+        ratio = lmax // overlaps
         for i in range(lmax):
-            hopsize = wrap(size,i) * ((i/ratio)%overlaps) / overlaps
+            hopsize = wrap(size,i) * ((i // ratio) % overlaps) // overlaps
             self._base_objs.append(IFFT_base(wrap(in_fader,i), wrap(in_fader2,i), wrap(size,i), hopsize, wrap(wintype,i), wrap(mul,i), wrap(add,i)))
 
     def __len__(self):
@@ -382,9 +384,9 @@ class IFFT(PyoObject):
         pyoArgsAssert(self, "i", x)
         self._size = x
         x, lmax = convertArgsToLists(x)
-        ratio = len(self._base_objs) / self._overlaps
+        ratio = len(self._base_objs) // self._overlaps
         for i, obj in enumerate(self._base_objs):
-            hopsize = wrap(x,i) * ((i/ratio)%self._overlaps) / self._overlaps
+            hopsize = wrap(x,i) * ((i // ratio) % self._overlaps) // self._overlaps
             self._base_objs[i].setSize(wrap(x,i), hopsize)
 
     def setWinType(self, x):
@@ -787,7 +789,7 @@ class FrameDelta(PyoObject):
         self._overlaps = overlaps
         self._in_fader = InputFader(input)
         in_fader, framesize, overlaps, mul, add, lmax = convertArgsToLists(self._in_fader, framesize, overlaps, mul, add)
-        num_of_mains = len(self._in_fader) / self._overlaps
+        num_of_mains = len(self._in_fader) // self._overlaps
         self._base_players = []
         for j in range(num_of_mains):
             objs_list = []
@@ -798,7 +800,7 @@ class FrameDelta(PyoObject):
         self._base_objs = []
         for i in range(lmax):
             base_player = i % num_of_mains
-            overlap = i / num_of_mains
+            overlap = i // num_of_mains
             self._base_objs.append(FrameDelta_base(self._base_players[base_player], overlap, wrap(mul,i), wrap(add,i)))
 
     def out(self, chnl=0, inc=1, dur=0, delay=0):
@@ -910,7 +912,7 @@ class FrameAccum(PyoObject):
         self._overlaps = overlaps
         self._in_fader = InputFader(input)
         in_fader, framesize, overlaps, mul, add, lmax = convertArgsToLists(self._in_fader, framesize, overlaps, mul, add)
-        num_of_mains = len(self._in_fader) / self._overlaps
+        num_of_mains = len(self._in_fader) // self._overlaps
         self._base_players = []
         for j in range(num_of_mains):
             objs_list = []
@@ -921,7 +923,7 @@ class FrameAccum(PyoObject):
         self._base_objs = []
         for i in range(lmax):
             base_player = i % num_of_mains
-            overlap = i / num_of_mains
+            overlap = i // num_of_mains
             self._base_objs.append(FrameAccum_base(self._base_players[base_player], overlap, wrap(mul,i), wrap(add,i)))
 
     def out(self, chnl=0, inc=1, dur=0, delay=0):
@@ -1031,7 +1033,7 @@ class Vectral(PyoObject):
         self._damp = damp
         self._in_fader = InputFader(input)
         in_fader, framesize, overlaps, up, down, damp, mul, add, lmax = convertArgsToLists(self._in_fader, framesize, overlaps, up, down, damp, mul, add)
-        num_of_mains = len(self._in_fader) / self._overlaps
+        num_of_mains = len(self._in_fader) // self._overlaps
         self._base_players = []
         for j in range(num_of_mains):
             objs_list = []
@@ -1042,7 +1044,7 @@ class Vectral(PyoObject):
         self._base_objs = []
         for i in range(lmax):
             base_player = i % num_of_mains
-            overlap = i / num_of_mains
+            overlap = i // num_of_mains
             self._base_objs.append(Vectral_base(self._base_players[base_player], overlap, wrap(mul,i), wrap(add,i)))
 
     def out(self, chnl=0, inc=1, dur=0, delay=0):

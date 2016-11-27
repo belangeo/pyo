@@ -36,11 +36,11 @@ BACKGROUND_COLOUR = "#EBEBEB"
 
 def interpFloat(t, v1, v2):
     "interpolator for a single value; interprets t in [0-1] between v1 and v2"
-    return (v2-v1)*t + v1
+    return (v2 - v1) * t + v1
 
 def tFromValue(value, v1, v2):
     "returns a t (in range 0-1) given a value in the range v1 to v2"
-    return float(value-v1)/(v2-v1)
+    return float(value - v1) / (v2 - v1)
 
 def clamp(v, minv, maxv):
     "clamps a value within a range"
@@ -49,7 +49,7 @@ def clamp(v, minv, maxv):
     return v
 
 def toLog(t, v1, v2):
-    return math.log10(t/v1) / math.log10(v2/v1)
+    return math.log10(t / v1) / math.log10(v2 / v1)
 
 def toExp(t, v1, v2):
     return math.pow(10, t * (math.log10(v2) - math.log10(v1)) + math.log10(v1))
@@ -452,8 +452,8 @@ class MultiSlider(wx.Panel):
         for i in range(self._nchnls):
             x = int(self._values[i] * w)
             y = self._height * i
-            dc.DrawRectangle(0, y+1, x, self._height-2)
-            rec = wx.Rect(w//2-15, y, 30, self._height)
+            dc.DrawRectangle(0, y + 1, x, self._height-2)
+            rec = wx.Rect(w // 2 - 15, y, 30, self._height)
             dc.DrawLabel("%s" % self._labels[i], rec, wx.ALIGN_CENTER)
 
     def MouseDown(self, evt):
@@ -1037,7 +1037,7 @@ class ViewTablePanel(wx.Panel):
         gc.SetBrush(wx.Brush("#FFFFFF"))
         if len(self.samples) > 1:
             gc.DrawLines(self.samples)
-        dc.DrawLine(0, h//2+1, w, h//2+1)
+        dc.DrawLine(0, h // 2 + 1, w, h // 2 + 1)
 
     def OnSize(self, evt):
         wx.CallAfter(self.obj.refreshView)
@@ -1643,8 +1643,8 @@ class SpectrumPanel(wx.Panel):
                         ticklabel = ''
                 pos = int((math.log10(t) - lf) / lrange * w)
                 if pos < (w-25):
-                    dc.DrawLine(pos, th+4, pos, h-2)
-                    dc.DrawText(ticklabel, pos-tw//2, 2)
+                    dc.DrawLine(pos, th + 4, pos, h - 2)
+                    dc.DrawText(ticklabel, pos - tw // 2, 2)
                 t += inc(t, floor_t)
 
         # magnitude linear grid
@@ -1655,18 +1655,18 @@ class SpectrumPanel(wx.Panel):
                 pos = int(h - i * step)
                 text = "%.1f" % (i * 0.1)
                 tw, th = dc.GetTextExtent(text)
-                dc.DrawText(text, w-tw-2, pos - th // 2)
-                dc.DrawLine(0, pos, w-tw-4, pos)
+                dc.DrawText(text, w - tw - 2, pos - th // 2)
+                dc.DrawLine(0, pos, w - tw - 4, pos)
             dc.SetPen(wx.Pen("#555555", style=wx.SOLID))
-            dc.DrawLine(0, pos, w-tw-6, pos)
+            dc.DrawLine(0, pos, w - tw - 6, pos)
             dc.SetPen(wx.Pen("#555555", style=wx.DOT))
             i += 1
             while (i*step < (h-th-5)):
                 pos = int(h - i * step)
                 text = "%.1f" % (i * 0.1)
                 tw, th = dc.GetTextExtent(text)
-                dc.DrawText(text, w-tw-2, pos - th // 2)
-                dc.DrawLine(0, pos, w-tw-6, pos)
+                dc.DrawText(text, w - tw - 2, pos - th // 2)
+                dc.DrawLine(0, pos, w - tw - 6, pos)
                 i += 1
         # magnitude logarithmic grid
         else:
