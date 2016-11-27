@@ -20,6 +20,8 @@ TODO:
         In File "E-Pyo.py", line 1056, in sendText
         self.proc.stdin.write(line + "\n") does not send anything. (same in kill() method).
 
+    - current working directory, bytes vs str, encoding, windows, etc.
+
     Not sure if this is still relevant:
     - Output panel close button on OSX (display only).
     
@@ -1998,6 +2000,10 @@ class FileSelectorCombo(ComboCtrl):
         self.SetButtonBitmaps(bmp, True)
 
 class TreeCtrlComboPopup(ComboPopup):
+    def __init__(self):
+        ComboPopup.__init__(self)
+        self.tree = None
+
     def Init(self):
         self.value = None
         self.curitem = None
@@ -2021,14 +2027,12 @@ class TreeCtrlComboPopup(ComboPopup):
     def GetControl(self):
         return self.tree
 
-    def GetStringValue(self):
-        if self.value:
-            return self.tree.GetItemText(self.value)
-        return ""
-
     def OnPopup(self):
         self.tree.DeleteAllItems()
-        editor = self.GetCombo().GetParent().GetParent().panel.editor
+        if "phoenix" in wx.version():
+            editor = self.GetComboCtrl().GetParent().GetParent().panel.editor
+        else:
+            editor = self.GetCombo().GetParent().GetParent().panel.editor
         count = editor.GetLineCount()
         for i in range(count):
             text = editor.GetLine(i)
@@ -2037,43 +2041,36 @@ class TreeCtrlComboPopup(ComboPopup):
                 text = text[0:text.find(":")]
                 if len(text) > 50:
                     text = text[:50] + "...)"
-                item = self.AddItem(text, None, wx.TreeItemData(i))
+                item = self.AddItem(text, None, packItemData(i))
             elif text.startswith("def "):
                 text = text.replace("def ", "")
                 text = text[0:text.find(":")]
                 if len(text) > 50:
                     text = text[:50] + "...)"
-                item = self.AddItem(text, None, wx.TreeItemData(i))
+                item = self.AddItem(text, None, packItemData(i))
             elif text.lstrip().startswith("def "):
                 indent = editor.GetLineIndentation(i)
                 text = text.lstrip().replace("def ", "")
                 text = " "*indent + text[0:text.find(":")]
                 if len(text) > 50:
                     text = text[:50] + "...)"
-                item = self.AddItem(text, None, wx.TreeItemData(i))
+                item = self.AddItem(text, None, packItemData(i))
         self.tree.SetSize((400, 500))
 
     def SetStringValue(self, value):
-        root = self.tree.GetRootItem()
-        if not root:
-            return
-        found = self.FindItem(root, value)
-        if found:
-            self.value = found
-            self.tree.SelectItem(found)
+        if self.curitem is not None:
+            self.tree.SelectItem(self.curitem)
 
     def GetAdjustedSize(self, minWidth, prefHeight, maxHeight):
         return wx.Size(minWidth, min(200, maxHeight))
 
-    def FindItem(self, parentItem, text):
-        item, cookie = self.tree.GetFirstChild(parentItem)
-        while item:
-            if self.tree.GetItemText(item) == text:
-                return item
-            if self.tree.ItemHasChildren(item):
-                item = self.FindItem(item, text)
-            item, cookie = self.tree.GetNextChild(parentItem, cookie)
-        return wx.TreeItemId();
+    def FindItem(self, *args):
+        "Dummy with variable size args needed to avoid error on both classic and phoenix."
+        return True
+
+    def GetStringValue(self):
+        if self.curitem is not None:
+            return self.tree.GetItemText(self.curitem)
 
     def AddItem(self, value, parent=None, data=None):
         if not parent:
@@ -2088,22 +2085,22 @@ class TreeCtrlComboPopup(ComboPopup):
         item, flags = self.tree.HitTest(evt.GetPosition())
         if item and flags & wx.TREE_HITTEST_ONITEMLABEL:
             self.tree.SelectItem(item)
-            self.curitem = item
         evt.Skip()
 
     def OnLeftDown(self, evt):
         item, flags = self.tree.HitTest(evt.GetPosition())
         if item and flags & wx.TREE_HITTEST_ONITEMLABEL:
             self.curitem = item
-            self.value = item
             self.Dismiss()
-            editor = self.GetCombo().GetParent().GetParent().panel.editor
+            if "phoenix" in wx.version():
+                editor = self.GetComboCtrl().GetParent().GetParent().panel.editor
+            else:
+                editor = self.GetCombo().GetParent().GetParent().panel.editor
             line = unpackItemData(self.tree.GetItemData(item))
             editor.GotoLine(line)
             halfNumLinesOnScreen = editor.LinesOnScreen() // 2
             editor.ScrollToLine(line - halfNumLinesOnScreen)
             wx.CallAfter(editor.SetFocus)
-        evt.Skip()
 
 class MainFrame(wx.Frame):
     def __init__(self, parent, ID, title, pos=wx.DefaultPosition, size=wx.DefaultSize, style=wx.DEFAULT_FRAME_STYLE):
@@ -3179,10 +3176,13 @@ class MainFrame(wx.Frame):
                 cwd = toSysEncoding(os.path.split(path)[0])
             except:
                 pass
-        return cwd
+        return ensureNFD(cwd)
 
     def addCwdToSysPath(self, text):
         cwd = self.getCurrentWorkingDirectory()
+        if sys.platform == "win32":
+            cwd = cwd.replace("/", "\\")
+            cwd = cwd.replace("\\", "\\\\")
         check1 = check2 = True
         is_future = '__future__' in text
         future_found = not is_future
