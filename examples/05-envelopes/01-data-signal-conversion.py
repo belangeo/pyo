@@ -1,4 +1,3 @@
-from __future__ import print_function
 """
 01-data-signal-conversion.py - Conversion from number to audio stream.
 
@@ -12,6 +11,7 @@ The Sig object converts a number to an audio stream.
 The PyoObject.get() method extracts a float from an audio stream.
 
 """
+from __future__ import print_function
 from pyo import *
 
 s = Server().boot()

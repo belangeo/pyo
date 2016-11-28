@@ -1,4 +1,3 @@
-from __future__ import print_function
 """
 05-math-ops.py - Audio objects and arithmetic expresssions.
 
@@ -16,6 +15,7 @@ PyoObject can also be used in expression with the exponent (**),
 modulo (%) and unary negative (-) operators.
 
 """
+from __future__ import print_function
 from pyo import *
 
 s = Server().boot()
