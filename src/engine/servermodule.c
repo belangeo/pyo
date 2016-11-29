@@ -502,6 +502,15 @@ Server_shut_down(Server *self)
         rnd_objs_count[i] = 0;
     }
 
+    switch (self->midi_be_type) {
+        case PyoPortmidi:
+            if (self->withPortMidi == 1 || self->withPortMidiOut == 1)
+                ret = Server_pm_deinit(self);
+            break;
+        default:
+            break;
+    }
+
     switch (self->audio_be_type) {
         case PyoPortaudio:
             ret = Server_pa_deinit(self);
@@ -1076,7 +1085,7 @@ Server_setStartOffset(Server *self, PyObject *arg)
 static PyObject *
 Server_boot(Server *self, PyObject *arg)
 {
-    int audioerr = 0;
+    int audioerr = 0, midierr = 0;
     int i;
     if (self->server_booted == 1) {
         Server_error(self, "Server already booted!\n");
@@ -1164,13 +1173,26 @@ Server_boot(Server *self, PyObject *arg)
         Server_error(self, "\nServer not booted.\n");
     }
 
+    if (self->audio_be_type != PyoOffline && self->audio_be_type != PyoOfflineNB && self->audio_be_type != PyoEmbedded) {
+        switch (self->midi_be_type) {
+            case PyoPortmidi:
+                midierr = Server_pm_init(self);
+                if (midierr < 0) {
+                    Server_pm_deinit(self);
+                    if (midierr == -10)
+                        Server_error(self, "Pyo built without Portmidi support\n");
+                }
+                break;
+        }
+    }
+
     Py_RETURN_NONE;
 }
 
 static PyObject *
 Server_start(Server *self)
 {
-    int err = -1, midierr = 0;
+    int err = -1;
     if (self->server_started == 1) {
         Server_warning(self, "Server already started!\n");
         Py_RETURN_NONE;
@@ -1189,19 +1211,6 @@ Server_start(Server *self)
     self->server_stopped = 0;
     self->server_started = 1;
     self->timeStep = (int)(0.01 * self->samplingRate);
-
-    if (self->audio_be_type != PyoOffline && self->audio_be_type != PyoOfflineNB && self->audio_be_type != PyoEmbedded) {
-        switch (self->midi_be_type) {
-            case PyoPortmidi:
-                midierr = Server_pm_init(self);
-                if (midierr < 0) {
-                    Server_pm_deinit(self);
-                    if (midierr == -10)
-                        Server_error(self, "Pyo built without Portmidi support\n");
-                }
-                break;
-        }
-    }
 
     if (self->startoffset > 0.0) {
         Server_message(self,"Rendering %.2f seconds offline...\n", self->startoffset);
@@ -1271,15 +1280,8 @@ Server_stop(Server *self)
     }
     else {
         self->server_stopped = 1;
-        switch (self->midi_be_type) {
-            case PyoPortmidi:
-                if (self->withPortMidi == 1 || self->withPortMidiOut == 1)
-                    err = Server_pm_deinit(self);
-                break;
-            default:
-                break;
-        }
     }
+
     /* This call is needed to recover from thread fork with python3/jack on debian.*/
     /* TODO: Need to be tested with other OSes and audio driver. */
     PyOS_AfterFork();

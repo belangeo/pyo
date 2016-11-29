@@ -53,30 +53,6 @@ typedef struct {
     MYFLT (*interp_func_ptr)(MYFLT *, int, MYFLT, int);
 } SfPlayer;
 
-MYFLT max_arr(MYFLT *a,int n)
-{
-    int i;
-    MYFLT m;
-    m=*a;
-    for (i=1; i<n; i++) {
-        if (m < *(a+i))
-            m = *(a+i);
-    }
-    return m;
-}
-
-MYFLT min_arr(MYFLT *a,int n)
-{
-    int i;
-    MYFLT m;
-    m=*a;
-    for (i=1; i<n; i++) {
-        if (m > *(a+i))
-            m = *(a+i);
-    }
-    return m;
-}
-
 static void
 SfPlayer_readframes_i(SfPlayer *self) {
     MYFLT sp, frac, bufpos, delta, startPos;

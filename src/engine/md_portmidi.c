@@ -106,6 +106,10 @@ Server_pm_init(Server *self)
                         self->withPortMidi = 0;
                     }
                 }
+                else {
+                    Server_debug(self, "Can't get midi input device info : %d.\n", self->midi_input);
+                    self->withPortMidi = 0;
+                }
             }
             else if (self->midi_input >= num_devices) {
                 Server_debug(self, "Midi input device : all!\n");
@@ -161,6 +165,10 @@ Server_pm_init(Server *self)
                         Server_warning(self, "Portmidi warning: Midi Device (%s), not an output device!\n", outinfo->name);
                         self->withPortMidiOut = 0;
                     }
+                }
+                else {
+                    Server_debug(self, "Can't get midi output device info : %d.\n", self->midi_output);
+                    self->withPortMidiOut = 0;
                 }
             }
             else if (self->midi_output >= num_devices) {

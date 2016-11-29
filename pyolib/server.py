@@ -102,6 +102,7 @@ class Server(object):
         - setDuplex(x): Set the duplex mode used by the server.
         - setVerbosity(x): Set the server's verbosity.
         - reinit(sr, nchnls, buffersize, duplex, audio, jackname): Reinit the server's settings.
+        - deactivateMidi(): Deactivate Midi callback. 
 
     >>> # For an 8 channels server in duplex mode with
     >>> # a sampling rate of 48000 Hz and buffer size of 512
@@ -986,7 +987,7 @@ class Server(object):
 
     def deactivateMidi(self):
         """
-        Deactivate Midi callback. Must be called before the start() method.
+        Deactivate Midi callback. Must be called before the boot() method.
 
         """
         self._server.deactivateMidi()
