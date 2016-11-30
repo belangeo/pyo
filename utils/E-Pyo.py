@@ -218,7 +218,9 @@ if WHICH_PYTHON == "":
                     WHICH_PYTHON = "C:\Python2%d\python.exe" % i
                     break
         if WHICH_PYTHON == "":
-            INSTALLATION_ERROR_MESSAGE = "Python 2.x doesn't seem to be installed on this computer. Check your Python installation and try again."
+            INSTALLATION_ERROR_MESSAGE = ("Python 2.x doesn't seem to be installed " 
+                                          "on this computer. Check your Python "
+                                          "installation and try again.")
 
 # Check for WxPython / Pyo installation and architecture #
 if OSX_APP_BUNDLED:
@@ -227,8 +229,14 @@ if OSX_APP_BUNDLED:
     tmpexecpath = os.environ["EXECUTABLEPATH"]
     tmprscpath = os.environ["RESOURCEPATH"]
     tmpargv0 = os.environ["ARGVZERO"]
-    cmd = 'export -n PYTHONHOME PYTHONPATH EXECUTABLEPATH RESOURCEPATH ARGVZERO;env;%s -c "import pyo";export PYTHONHOME=%s;export PYTHONPATH=%s;export EXECUTABLEPATH=%s;export RESOURCEPATH=%s;export ARGVZERO=%s' % (WHICH_PYTHON, tmphome, tmppath, tmpexecpath, tmprscpath, tmpargv0)
-    cmd2 = 'export -n PYTHONHOME PYTHONPATH EXECUTABLEPATH RESOURCEPATH ARGVZERO;env;%s -c "import wx";export PYTHONHOME=%s;export PYTHONPATH=%s;export EXECUTABLEPATH=%s;export RESOURCEPATH=%s;export ARGVZERO=%s' % (WHICH_PYTHON, tmphome, tmppath, tmpexecpath, tmprscpath, tmpargv0)
+    cmd = ('export -n PYTHONHOME PYTHONPATH EXECUTABLEPATH RESOURCEPATH ARGVZERO;'
+           'env;%s -c "import pyo";export PYTHONHOME=%s;export PYTHONPATH=%s;'
+           'export EXECUTABLEPATH=%s;export RESOURCEPATH=%s;export ARGVZERO=%s' % 
+           (WHICH_PYTHON, tmphome, tmppath, tmpexecpath, tmprscpath, tmpargv0))
+    cmd2 = ('export -n PYTHONHOME PYTHONPATH EXECUTABLEPATH RESOURCEPATH ARGVZERO;'
+            'env;%s -c "import wx";export PYTHONHOME=%s;export PYTHONPATH=%s;'
+            'export EXECUTABLEPATH=%s;export RESOURCEPATH=%s;export ARGVZERO=%s' % 
+            (WHICH_PYTHON, tmphome, tmppath, tmpexecpath, tmprscpath, tmpargv0))
 else:
     cmd = '%s -c "import pyo"' % WHICH_PYTHON
     cmd2 = '%s -c "import wx"' % WHICH_PYTHON
@@ -238,12 +246,18 @@ IMPORT_PYO_STDOUT = ensureNFD(IMPORT_PYO_STDOUT)
 IMPORT_PYO_STDERR = ensureNFD(IMPORT_PYO_STDERR)
 if "ImportError" in IMPORT_PYO_STDERR:
     if "No module named" in IMPORT_PYO_STDERR:
-        INSTALLATION_ERROR_MESSAGE = "Pyo is not installed in the current Python installation. Audio programs won't run.\n\nCurrent Python path: %s\n" % WHICH_PYTHON
-    elif "no appropriate 64-bit architecture" in IMPORT_PYO_STDERR or "but wrong architecture" in IMPORT_PYO_STDERR:
+        INSTALLATION_ERROR_MESSAGE = ("Pyo is not installed in the current Python "
+                                      "installation. Audio programs won't run.\n\n"
+                                      "Current Python path: %s\n" % WHICH_PYTHON)
+    elif ("no appropriate 64-bit architecture" in IMPORT_PYO_STDERR 
+      or "but wrong architecture" in IMPORT_PYO_STDERR):
         CALLER_NEED_TO_INVOKE_32_BIT = True
-        INSTALLATION_ERROR_MESSAGE = "The current Python installation is running in 64-bit mode but pyo installation is 32-bit.\n\n"
+        INSTALLATION_ERROR_MESSAGE = ("The current Python installation is running "
+                                      "in 64-bit mode but pyo installation is 32-bit.\n\n")
         if PLATFORM == "darwin":
-            INSTALLATION_ERROR_MESSAGE += "'VERSIONER_PYTHON_PREFER_32_BIT=yes' will be invoked before calling python executable.\n\n"
+            INSTALLATION_ERROR_MESSAGE += ("'VERSIONER_PYTHON_PREFER_32_BIT=yes' "
+                                           "will be invoked before calling python "
+                                           "executable.\n\n")
         INSTALLATION_ERROR_MESSAGE += "Current Python path: %s\n" % WHICH_PYTHON
 else:
     proc = subprocess.Popen([cmd2], shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -252,12 +266,18 @@ else:
     IMPORT_WX_STDERR = ensureNFD(IMPORT_WX_STDERR)
     if "ImportError" in IMPORT_WX_STDERR:
         if "No module named" in IMPORT_WX_STDERR:
-            INSTALLATION_ERROR_MESSAGE = "WxPython is not installed in the current Python installation. It is needed by pyo to show graphical display.\n\nCurrent Python path: %s\n" % WHICH_PYTHON
+            INSTALLATION_ERROR_MESSAGE = ("WxPython is not installed in the current "
+                                          "Python installation. It is needed by pyo "
+                                          "to show graphical display.\n\nCurrent "
+                                          "Python path: %s\n" % WHICH_PYTHON)
         elif "no appropriate 64-bit architecture" in IMPORT_WX_STDERR:
             CALLER_NEED_TO_INVOKE_32_BIT = True
-            INSTALLATION_ERROR_MESSAGE = "The current Python installation is running in 64-bit mode but WxPython installation is 32-bit.\n\n"
+            INSTALLATION_ERROR_MESSAGE = ("The current Python installation is running in "
+                                          "64-bit mode but WxPython installation is 32-bit.\n\n")
             if PLATFORM == "darwin":
-                INSTALLATION_ERROR_MESSAGE += "'VERSIONER_PYTHON_PREFER_32_BIT=yes' will be invoked before calling python executable.\n\n"
+                INSTALLATION_ERROR_MESSAGE += ("'VERSIONER_PYTHON_PREFER_32_BIT=yes' "
+                                               "will be invoked before calling python "
+                                               "executable.\n\n")
             INSTALLATION_ERROR_MESSAGE += "Current Python path: %s\n" % WHICH_PYTHON
 
 if OSX_APP_BUNDLED:
