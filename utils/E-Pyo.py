@@ -8,6 +8,7 @@ You can do absolutely everything you want with this piece of software.
 Olivier Belanger - 2016
 
 TODO:
+    Python 3 know bugs:
     - When searching in the documentation frame:
         self.AddPage(win, key2)
             wx._core.wxAssertionError: C++ assertion "nPage <= m_pages.size()" 
@@ -19,8 +20,12 @@ TODO:
         In File "E-Pyo.py", line 1056, in sendText
         self.proc.stdin.write(line + "\n") does not send anything. (same in kill() method).
 
-    - Fix printing to pdf
-    - Output panel close button on OSX (display only)
+    Not sure if this is still relevant:
+    - Output panel close button on OSX (display only).
+    
+    For the long run:
+    - Fix printing to pdf.
+
 """
 from __future__ import division
 from __future__ import with_statement
