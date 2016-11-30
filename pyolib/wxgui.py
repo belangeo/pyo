@@ -44,6 +44,9 @@ else:
     from ._wxwidgets import ControlSlider, VuMeter, Grapher, DataMultiSlider
     from ._wxwidgets import SpectrumPanel, ScopePanel, SndViewTablePanel, HRangeSlider
 
+    if "phoenix" not in wx.version():
+        wx.QueueEvent = wx.PostEvent
+
     # Custom events
     PyoGuiControlSliderEvent, EVT_PYO_GUI_CONTROL_SLIDER = wx.lib.newevent.NewEvent()
     PyoGuiGrapherEvent, EVT_PYO_GUI_GRAPHER = wx.lib.newevent.NewEvent()
@@ -105,7 +108,7 @@ else:
 
         def _outFunction(self, value):
             evt = PyoGuiControlSliderEvent(value=value)
-            wx.PostEvent(self, evt)
+            wx.QueueEvent(self, evt)
 
         def enable(self):
             """
@@ -334,7 +337,7 @@ else:
 
         def _outFunction(self, value):
             evt = PyoGuiGrapherEvent(value=value)
-            wx.PostEvent(self, evt)
+            wx.QueueEvent(self, evt)
 
         def _refresh(self):
             self.Refresh()
@@ -533,7 +536,7 @@ else:
 
         def _outFunction(self, value):
             evt = PyoGuiMultiSliderEvent(value=value)
-            wx.PostEvent(self, evt)
+            wx.QueueEvent(self, evt)
 
         def reset(self):
             """
@@ -902,17 +905,16 @@ else:
 
         def _position_callback(self, pos):
             evt = PyoGuiSndViewMousePositionEvent(value=pos)
-            wx.PostEvent(self, evt)
+            wx.QueueEvent(self, evt)
 
         def _select_callback(self, selection):
             selection = (max(0.0, min(selection)), min(max(selection), 1.0))
             evt = PyoGuiSndViewSelectionEvent(value=selection)
-            wx.PostEvent(self, evt)
+            wx.QueueEvent(self, evt)
 
         def __del__(self):
             if self.sndview.obj is not None:
                 self.sndview.obj._setViewFrame(None)
-            self.Destroy()
 
         def update(self):
             """

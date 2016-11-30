@@ -29,6 +29,9 @@ class MyFrame(wx.Frame):
 
     def __init__(self, parent, title, pos=(50, 50), size=(850, 600)):
         wx.Frame.__init__(self, parent, -1, title, pos, size)
+        
+        self.Bind(wx.EVT_CLOSE, self.on_quit)
+
         self.panel = wx.Panel(self)
         vmainsizer = wx.BoxSizer(wx.VERTICAL)
         mainsizer = wx.BoxSizer(wx.HORIZONTAL)
@@ -72,6 +75,11 @@ class MyFrame(wx.Frame):
         vmainsizer.Add(mainsizer, 1, wx.ALL | wx.EXPAND, 5)
         vmainsizer.Add(sizer7, 1, wx.ALL | wx.EXPAND, 5)
         self.panel.SetSizerAndFit(vmainsizer)
+
+    def on_quit(self, evt):
+        server.stop()
+        time.sleep(0.25)
+        self.Destroy()
 
     def createFreqSlider(self):
         sizer = wx.BoxSizer(wx.VERTICAL)
@@ -230,9 +238,3 @@ app = wx.App(False)
 mainFrame = MyFrame(None, title='Test Pyo GUI objects')
 mainFrame.Show()
 app.MainLoop()
-
-# Clean up...
-server.stop()
-time.sleep(0.25)
-server.shutdown()
-time.sleep(0.25)
