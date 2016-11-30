@@ -31,10 +31,14 @@ if sys.version_info[0] < 3:
     builtins = __builtin__
     bytes_t = str
     unicode_t = unicode
+    def tobytes(str, encoding=None):
+        return bytes(str)
 else:
     import builtins
     bytes_t = bytes
     unicode_t = str
+    def tobytes(str, encoding="utf-8"):
+        return bytes(str, encoding=encoding)
 
 if hasattr(builtins, 'pyo_use_double'):
     import pyo64 as current_pyo
@@ -320,8 +324,8 @@ def example(cls, dur=5, toprint=True, double=False):
     ex += "time.sleep(%f)\ns.stop()\ntime.sleep(0.25)\ns.shutdown()\n" % dur
     f = tempfile.NamedTemporaryFile(delete=False)
     if toprint:
-        f.write('print """\n%s\n"""\n' % ex)
-    f.write(ex)
+        f.write(tobytes('print("""\n%s\n""")\n' % ex))
+    f.write(tobytes(ex))
     f.close()
     p = call(["python", f.name])
 

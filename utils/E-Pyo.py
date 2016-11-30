@@ -9,18 +9,18 @@ Olivier Belanger - 2016
 
 TODO:
     Python 3 know bugs:
-    - When searching in the documentation frame:
-        self.AddPage(win, key2)
-            wx._core.wxAssertionError: C++ assertion "nPage <= m_pages.size()" 
-            failed at /home/olivier/git/Phoenix/ext/wxWidgets/src/common/bookctrl.cpp(375) 
-            in InsertPage(): invalid page index in wxBookCtrlBase::InsertPage()
+        - When searching in the documentation frame:
+            self.AddPage(win, key2)
+                wx._core.wxAssertionError: C++ assertion "nPage <= m_pages.size()" 
+                failed at /home/olivier/git/Phoenix/ext/wxWidgets/src/common/bookctrl.cpp(375) 
+                in InsertPage(): invalid page index in wxBookCtrlBase::InsertPage()
 
-    - File "E-Pyo.py", line 3326, in sendSelectionToBackgroundServer
-        self.processes[1000][0].sendText(text)
-        In File "E-Pyo.py", line 1056, in sendText
-        self.proc.stdin.write(line + "\n") does not send anything. (same in kill() method).
+        - File "E-Pyo.py", line 3326, in sendSelectionToBackgroundServer
+            self.processes[1000][0].sendText(text)
+            In File "E-Pyo.py", line 1056, in sendText
+            self.proc.stdin.write(line + "\n") does not send anything. (same in kill() method).
 
-    - current working directory, bytes vs str, encoding, windows, etc.
+        - current working directory, bytes vs str, encoding, windows, etc.
 
     Not sure if this is still relevant:
     - Output panel close button on OSX (display only).
