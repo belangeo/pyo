@@ -4,6 +4,7 @@
 Time stretching using FFT/IFFT.
 
 """
+from __future__ import division
 from pyo import *
 
 s = Server(sr=44100, nchnls=2, buffersize=512, duplex=0).boot()
@@ -17,8 +18,8 @@ wintype = 7
 
 info = sndinfo(snd)
 chnls = info[3]
-hop = size/olaps
-nframes = info[0] / size
+hop = size // olaps
+nframes = info[0] // size
 
 a = SfPlayer(snd, mul=.1)
 

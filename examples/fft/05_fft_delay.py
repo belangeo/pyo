@@ -4,6 +4,7 @@
 Apply spectral delays on a sound.
 
 """
+from __future__ import division
 from pyo import *
 
 s = Server(duplex=0).boot()
@@ -27,7 +28,7 @@ binmax = duplicate([5,15,30,40,80,145], num)
 delays = duplicate([80,20,40,100,60,120], num)
 # delays conversion : number of frames -> seconds
 for i in range(len(delays)):
-    delays[i] = delays[i] * (size/2) / s.getSamplingRate()
+    delays[i] = delays[i] * (size//2) / s.getSamplingRate()
 
 fin = FFT(src*1.25, size=size, overlaps=olaps)
 

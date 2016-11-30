@@ -8,6 +8,7 @@ After the playback ending, call "m.view()" from the
 interpreter widget of the Server window to show the spectrum.
 
 """
+from __future__ import division
 from pyo import *
 
 s = Server(duplex=0).boot()
@@ -17,7 +18,7 @@ info = sndinfo(son)
 a = SfPlayer(son, mul=.25).mix(1).out()
 
 size = 512
-m = NewMatrix(width=size, height=info[0]/size)
+m = NewMatrix(width=size, height=info[0]//size)
 
 fin = FFT(a*100, overlaps=1)
 mag = Sqrt(fin["real"]*fin["real"] + fin["imag"]*fin["imag"])
