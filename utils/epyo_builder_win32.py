@@ -27,6 +27,7 @@ os.remove("E-Pyo.spec")
 shutil.rmtree("build")
 shutil.rmtree("dist")
 shutil.rmtree("Resources")
+shutil.rmtree("__pycache__")
 for f in os.listdir(os.getcwd()):
     if f.startswith("warn") or f.startswith("logdict"):
         os.remove(f)
