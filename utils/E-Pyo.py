@@ -8,12 +8,6 @@ You can do absolutely everything you want with this piece of software.
 Olivier Belanger - 2016
 
 TODO:
-    - Output panel does not show anything in py3
-        wx.PostEvent(self.event_receiver, data_event)
-            wx._core.wxAssertionError: C++ assertion "event" failed at 
-            /home/olivier/git/Phoenix/ext/wxWidgets/src/common/event.cpp(1246) 
-            in QueueEvent(): NULL event can't be posted
-
     - When searching in the documentation frame:
         self.AddPage(win, key2)
             wx._core.wxAssertionError: C++ assertion "nPage <= m_pages.size()" 
@@ -22,9 +16,8 @@ TODO:
 
     - File "E-Pyo.py", line 3326, in sendSelectionToBackgroundServer
         self.processes[1000][0].sendText(text)
-        File "E-Pyo.py", line 1056, in sendText
-        self.proc.stdin.write(line + "\n")
-        TypeError: a bytes-like object is required, not 'str'
+        In File "E-Pyo.py", line 1056, in sendText
+        self.proc.stdin.write(line + "\n") does not send anything. (same in kill() method).
 
     - Fix printing to pdf
     - Output panel close button on OSX (display only)
@@ -72,6 +65,7 @@ else:
         return wx.TreeItemData(obj)
     def unpackItemData(obj):
         return obj.GetData()
+    wx.QueueEvent = wx.PostEvent
 
 ################## SETUP ##################
 PLATFORM = sys.platform
@@ -996,35 +990,40 @@ class RunningThread(threading.Thread):
             vars_to_remove = "PYTHONHOME PYTHONPATH EXECUTABLEPATH RESOURCEPATH ARGVZERO PYTHONOPTIMIZE"
             prelude = "export -n %s;export PATH=/usr/local/bin:/usr/local/lib:$PATH;" % vars_to_remove
             if CALLER_NEED_TO_INVOKE_32_BIT:
-                self.proc = subprocess.Popen(['%s%s%s -u "%s"' % (prelude, SET_32_BIT_ARCH, WHICH_PYTHON, self.path)],
-                                shell=True, cwd=self.cwd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+                self.proc = subprocess.Popen(['%s%s%s -u "%s"' % (prelude, SET_32_BIT_ARCH, WHICH_PYTHON, self.path)], 
+                                             universal_newlines=True, shell=True, cwd=self.cwd, 
+                                             stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
             else:
-                self.proc = subprocess.Popen(['%s%s -u "%s"' % (prelude, WHICH_PYTHON, self.path)], cwd=self.cwd,
-                                    shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+                self.proc = subprocess.Popen(['%s%s -u "%s"' % (prelude, WHICH_PYTHON, self.path)], 
+                                             cwd=self.cwd, universal_newlines=True, shell=True, 
+                                             stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         elif PLATFORM == "darwin":
             if CALLER_NEED_TO_INVOKE_32_BIT:
-                self.proc = subprocess.Popen(['%s%s -u "%s"' % (SET_32_BIT_ARCH, WHICH_PYTHON, self.path)],
-                                shell=True, cwd=self.cwd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+                self.proc = subprocess.Popen(['%s%s -u "%s"' % (SET_32_BIT_ARCH, WHICH_PYTHON, self.path)], 
+                                             universal_newlines=True, shell=True, cwd=self.cwd, 
+                                             stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
             else:
-                self.proc = subprocess.Popen(['%s -u "%s"' % (WHICH_PYTHON, self.path)], cwd=self.cwd,
-                                shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+                self.proc = subprocess.Popen(['%s -u "%s"' % (WHICH_PYTHON, self.path)], cwd=self.cwd, 
+                                             universal_newlines=True, shell=True, stdout=subprocess.PIPE, 
+                                             stderr=subprocess.STDOUT)
         elif PLATFORM == "win32":
-            self.proc = subprocess.Popen([WHICH_PYTHON, "-u", self.path], cwd=self.cwd, shell=False, # TODO: shell=True ?
-                                stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+            self.proc = subprocess.Popen([WHICH_PYTHON, "-u", self.path], cwd=self.cwd, universal_newlines=True, 
+                                         shell=False, stdout=subprocess.PIPE, stderr=subprocess.STDOUT) # TODO: shell=True ?
         else:
-            self.proc = subprocess.Popen([WHICH_PYTHON, "-u", self.path], cwd=self.cwd,
-                                stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+            self.proc = subprocess.Popen([WHICH_PYTHON, "-u", self.path], cwd=self.cwd, universal_newlines=True,
+                                         stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 
-        header = '=== Output log of process "%s", launched: %s ===\n' % (self.filename, time.strftime('"%d %b %Y %H:%M:%S"', time.localtime()))
+        ltime = time.strftime('"%d %b %Y %H:%M:%S"', time.localtime())
+        header = '=== Output log of process "%s", launched: %s ===\n' % (self.filename, ltime)
         data_event = DataEvent({"log": header, "pid": self.pid, "filename": self.filename, "active": True})
-        wx.PostEvent(self.event_receiver, data_event)
+        wx.QueueEvent(self.event_receiver, data_event)
         while self.proc.poll() == None and not self.terminated:
             log = ""
             for line in self.proc.stdout.readline():
-                log = log + line
+                log = log + str(line)
             log = log.replace(">>> ", "").replace("... ", "")
             data_event = DataEvent({"log": log, "pid": self.pid, "filename": self.filename, "active": True})
-            wx.PostEvent(self.event_receiver, data_event)
+            wx.QueueEvent(self.event_receiver, data_event)
             sys.stdout.flush()
             time.sleep(.01)
         stdout, stderr = self.proc.communicate()
@@ -1062,7 +1061,7 @@ class RunningThread(threading.Thread):
             output = output + "\n=== Process killed. ==="
         data_event = DataEvent({"log": output, "pid": self.pid,
                                 "filename": self.filename, "active": False})
-        wx.PostEvent(self.event_receiver, data_event)
+        wx.QueueEvent(self.event_receiver, data_event)
 
 class BackgroundServerThread(threading.Thread):
     def __init__(self, cwd, event_receiver):
@@ -1088,30 +1087,29 @@ class BackgroundServerThread(threading.Thread):
 
     def run(self):
         if PLATFORM == "win32":
-            self.proc = subprocess.Popen(
-                    [WHICH_PYTHON, '-i', os.path.join(TEMP_PATH, "background_server.py")],
-                    shell=True, cwd=self.cwd, stdout=subprocess.PIPE,
-                    stdin=subprocess.PIPE, stderr=subprocess.STDOUT)
+            self.proc = subprocess.Popen([WHICH_PYTHON, '-i', os.path.join(TEMP_PATH, "background_server.py")],
+                                         shell=True, cwd=self.cwd, stdout=subprocess.PIPE, universal_newlines=True,
+                                         stdin=subprocess.PIPE, stderr=subprocess.STDOUT)
         else:
-            self.proc = subprocess.Popen(
-                    ["%s -i -u %s" % (WHICH_PYTHON, os.path.join(TEMP_PATH, "background_server.py"))],
-                    cwd=self.cwd, shell=True, stdout=subprocess.PIPE,
-                    stderr=subprocess.STDOUT, stdin=subprocess.PIPE)
+            self.proc = subprocess.Popen(["%s -i -u %s" % (WHICH_PYTHON, os.path.join(TEMP_PATH, "background_server.py"))],
+                                         cwd=self.cwd, shell=True, stdout=subprocess.PIPE, universal_newlines=True,
+                                         stderr=subprocess.STDOUT, stdin=subprocess.PIPE)
 
-        header = '=== Output log of background server, launched: %s ===\n' % time.strftime('"%d %b %Y %H:%M:%S"', time.localtime())
+        ltime = time.strftime('"%d %b %Y %H:%M:%S"', time.localtime())
+        header = '=== Output log of background server, launched: %s ===\n' % ltime
         data_event = DataEvent({"log": header, "pid": self.pid,
                                 "filename": 'background_server.py',
                                 "active": True})
-        wx.PostEvent(self.event_receiver, data_event)
+        wx.QueueEvent(self.event_receiver, data_event)
         while self.proc.poll() == None and not self.terminated:
             log = ""
             for line in self.proc.stdout.readline():
-                log = log + line
+                log = log + str(line)
             log = log.replace(">>> ", "").replace("... ", "")
             data_event = DataEvent({"log": log, "pid": self.pid,
                                     "filename": 'background_server.py',
                                     "active": True})
-            wx.PostEvent(self.event_receiver, data_event)
+            wx.QueueEvent(self.event_receiver, data_event)
             sys.stdout.flush()
             time.sleep(.01)
         stdout, stderr = self.proc.communicate()
@@ -1150,7 +1148,7 @@ class BackgroundServerThread(threading.Thread):
         data_event = DataEvent({"log": output, "pid": self.pid,
                                 "filename": 'background_server.py',
                                 "active": False})
-        wx.PostEvent(self.event_receiver, data_event)
+        wx.QueueEvent(self.event_receiver, data_event)
 
 class KeyCommandsFrame(wx.Frame):
     def __init__(self, parent):
@@ -4962,12 +4960,12 @@ class OutputLogPanel(wx.Panel):
         self.toolbar.AddSeparator()
         if PLATFORM == "win32":
             self.toolbar.AddSeparator()
-        self.processPopup = wx.Choice(self.toolbar, -1, choices=[])
+        self.processPopup = wx.Choice(self.toolbar, -1, choices=[], size=(150, -1))
         self.processPopup.SetFont(font)
         self.toolbar.AddControl(self.processPopup)
         if PLATFORM == "win32":
             self.toolbar.AddSeparator()
-        self.processKill = wx.Button(self.toolbar, -1, label="Kill", size=(40,self.processPopup.GetSize()[1]))
+        self.processKill = wx.Button(self.toolbar, -1, label="Kill", size=(40, self.processPopup.GetSize()[1]))
         self.processKill.SetFont(font)
         self.toolbar.AddControl(self.processKill)
         self.processKill.Bind(wx.EVT_BUTTON, self.killProcess)
@@ -5554,7 +5552,7 @@ class PreferencesDialog(wx.Dialog):
     def __init__(self):
         wx.Dialog.__init__(self, None, wx.ID_ANY, 'E-Pyo Preferences')
         mainSizer = wx.BoxSizer(wx.VERTICAL)
-        mainSizer.AddSpacer((-1,10))
+        mainSizer.AddSpacer(10)
         font, entryfont, pointsize = self.GetFont(), self.GetFont(), self.GetFont().GetPointSize()
 
         font.SetWeight(wx.BOLD)
@@ -5698,7 +5696,7 @@ class PreferencesDialog(wx.Dialog):
 
         btnSizer = self.CreateButtonSizer(wx.CANCEL|wx.OK)
 
-        mainSizer.AddSpacer((-1,5))
+        mainSizer.AddSpacer(5)
         mainSizer.Add(wx.StaticLine(self), 1, wx.EXPAND|wx.ALL, 2)
         mainSizer.Add(btnSizer, 0, wx.ALL | wx.ALIGN_RIGHT, 5)
         self.SetSizer(mainSizer)
