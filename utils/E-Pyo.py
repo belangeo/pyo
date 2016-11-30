@@ -5,52 +5,87 @@ E-Pyo is a simple text editor especially configured to edit pyo audio programs.
 
 You can do absolutely everything you want with this piece of software.
 
-Olivier Belanger - 2012
+Olivier Belanger - 2016
 
 TODO:
+    - Output panel does not show anything in py3
+        wx.PostEvent(self.event_receiver, data_event)
+            wx._core.wxAssertionError: C++ assertion "event" failed at 
+            /home/olivier/git/Phoenix/ext/wxWidgets/src/common/event.cpp(1246) 
+            in QueueEvent(): NULL event can't be posted
+
+    - When searching in the documentation frame:
+        self.AddPage(win, key2)
+            wx._core.wxAssertionError: C++ assertion "nPage <= m_pages.size()" 
+            failed at /home/olivier/git/Phoenix/ext/wxWidgets/src/common/bookctrl.cpp(375) 
+            in InsertPage(): invalid page index in wxBookCtrlBase::InsertPage()
+
+    - File "E-Pyo.py", line 3326, in sendSelectionToBackgroundServer
+        self.processes[1000][0].sendText(text)
+        File "E-Pyo.py", line 1056, in sendText
+        self.proc.stdin.write(line + "\n")
+        TypeError: a bytes-like object is required, not 'str'
+
     - Fix printing to pdf
-    - Output panel close button on OSX (display only) 
+    - Output panel close button on OSX (display only)
 """
+from __future__ import division
 from __future__ import with_statement
+from __future__ import print_function
 import sys
-import __builtin__
-__builtin__.EPYO_APP_OPENED = True
 
-if sys.platform.startswith("linux"):
-    import wxversion
-    if wxversion.checkInstalled("3.0"):
-        wxversion.select("3.0")
-    elif wxversion.checkInstalled("2.8"):
-        wxversion.select("2.8")
-
-import os, string, inspect, keyword, wx, codecs, subprocess, unicodedata
-import contextlib, StringIO, shutil, copy, pprint, random, time, threading
-from types import UnicodeType, MethodType
+import os, inspect, keyword, wx, codecs, subprocess, unicodedata
+import contextlib, shutil, copy, pprint, random, time, threading
+from types import MethodType
 from wx.lib.wordwrap import wordwrap
 from wx.lib.embeddedimage import PyEmbeddedImage
 import wx.lib.colourselect as csel
 import wx.lib.scrolledpanel as scrolled
 import wx.lib.dialogs
-import wx.combo
-import wx.stc  as stc
+import wx.stc as stc
 import wx.lib.agw.flatnotebook as FNB
 from pyo import *
 from PyoDoc import ManualFrame
 
-reload(sys)
-sys.setdefaultencoding("utf-8")
+if sys.version_info[0] < 3:
+    from StringIO import StringIO
+    unicode_t = unicode
+    reload(sys)
+    sys.setdefaultencoding("utf-8")
+else:
+    from io import StringIO as StringIO
+    unicode_t = str
+
+if "phoenix" in wx.version():
+    from wx.adv import AboutDialogInfo, AboutBox
+    from wx import ComboCtrl
+    from wx import ComboPopup
+    def packItemData(obj):
+        return obj
+    def unpackItemData(obj):
+        return obj
+else:
+    from wx import AboutDialogInfo, AboutBox
+    from wx.combo import ComboCtrl
+    from wx.combo import ComboPopup
+    def packItemData(obj):
+        return wx.TreeItemData(obj)
+    def unpackItemData(obj):
+        return obj.GetData()
 
 ################## SETUP ##################
 PLATFORM = sys.platform
+
+# Not sure if ENCODING stuff is needed anymore with python3/wxpython phoenix.
 DEFAULT_ENCODING = sys.getdefaultencoding()
 ENCODING = sys.getfilesystemencoding()
 ENCODING_LIST = ["utf_8", "latin_1", "mac_roman", "cp1252", "cp1250", "utf_16"]
-ENCODING_DICT = {'cp-1250': 'cp1250', 'cp-1251': 'cp1251', 'cp-1252': 'cp1252', 
-                 'latin-1': 'latin_1', 'mac-roman': 'mac_roman', 
-                 'utf-8': 'utf_8', 'utf-16': 'utf_16', 
-                 'utf-16 (Big Endian)': 'utf_16_be', 
-                 'utf-16 (Little Endian)': 'utf_16_le', 'utf-32': 'utf_32', 
-                 'utf-32 (Big Endian)': 'utf_32_be', 
+ENCODING_DICT = {'cp-1250': 'cp1250', 'cp-1251': 'cp1251', 'cp-1252': 'cp1252',
+                 'latin-1': 'latin_1', 'mac-roman': 'mac_roman',
+                 'utf-8': 'utf_8', 'utf-16': 'utf_16',
+                 'utf-16 (Big Endian)': 'utf_16_be',
+                 'utf-16 (Little Endian)': 'utf_16_le', 'utf-32': 'utf_32',
+                 'utf-32 (Big Endian)': 'utf_32_be',
                  'utf-32 (Little Endian)': 'utf_32_le'}
 
 APP_NAME = 'E-Pyo'
@@ -63,23 +98,10 @@ WIN_APP_BUNDLED = False
 def stdoutIO(stdout=None):
     old = sys.stdout
     if stdout is None:
-        stdout = StringIO.StringIO()
+        stdout = StringIO()
     sys.stdout = stdout
     yield stdout
     sys.stdout = old
-
-def convert_line_endings(temp, mode):
-    #modes:  0 - Unix, 1 - Mac, 2 - DOS
-    if mode == 0:
-        temp = string.replace(temp, '\r\n', '\n')
-        temp = string.replace(temp, '\r', '\n')
-    elif mode == 1:
-        temp = string.replace(temp, '\r\n', '\r')
-        temp = string.replace(temp, '\n', '\r')
-    elif mode == 2:
-        import re
-        temp = re.sub("\r(?!\n)|(?<!\r)\n", "\r\n", temp)
-    return temp
 
 def ensureNFD(unistr):
     if PLATFORM == 'win32' or PLATFORM.startswith('linux'):
@@ -91,7 +113,7 @@ def ensureNFD(unistr):
                      'macroman', 'iso-8859-1', 'utf-16']
         format = 'NFC'
     decstr = unistr
-    if type(decstr) != UnicodeType:
+    if type(decstr) != unicode_t:
         for encoding in encodings:
             try:
                 decstr = decstr.decode(encoding)
@@ -100,7 +122,7 @@ def ensureNFD(unistr):
                 continue
             except:
                 decstr = "UnableToDecodeString"
-                print "Unicode encoding not in a recognized format..."
+                print("Unicode encoding not in a recognized format...")
                 break
     if decstr == "UnableToDecodeString":
         return unistr
@@ -120,7 +142,10 @@ def toSysEncoding(unistr):
 def hex_to_rgb(value):
     value = value.lstrip('#')
     lv = len(value)
-    return tuple(int(value[i:i+lv/3], 16) for i in range(0, lv, lv/3))
+    return tuple(int(value[i:i+lv // 3], 16) for i in range(0, lv, lv // 3))
+
+LOWERCASE = 'abcdefghijklmnopqrstuvwxyz'
+UPPERCASE = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
 
 ################## Paths ##################
 TEMP_PATH = os.path.join(os.path.expanduser('~'), '.epyo')
@@ -135,13 +160,15 @@ if not os.path.isfile(PREFERENCES_PATH):
 epyo_prefs = {}
 with open(PREFERENCES_PATH, "r") as f:
     text = f.read()
-exec text in locals()
+spos = text.find("=")
+dictext = text[spos+1:]
+epyo_prefs = eval(dictext)
 PREFERENCES = copy.deepcopy(epyo_prefs)
 
 tmp_version = PREFERENCES.get("version", "no_version_pref")
 if tmp_version != APP_VERSION:
     tmp_version = APP_VERSION
-    print "Erasing preferences..."
+    print("Erasing preferences...")
     shutil.rmtree(os.path.join(TEMP_PATH, "doc"), True)
     PREFERENCES = {}
 PREFERENCES["version"] = tmp_version
@@ -156,10 +183,10 @@ if PLATFORM == "win32" and sys.executable.endswith("E-Pyo.exe"):
 
 if PLATFORM == "darwin" and '/%s.app' % APP_NAME in os.getcwd():
     OSX_APP_BUNDLED = True
-    
+
 # Check for which Python to use #
 if PLATFORM == "win32":
-    WHICH_PYTHON = PREFERENCES.get("which_python", 
+    WHICH_PYTHON = PREFERENCES.get("which_python",
                             "C:\Python%d%d\python.exe" % sys.version_info[:2])
 else:
     WHICH_PYTHON = PREFERENCES.get("which_python", "")
@@ -168,15 +195,15 @@ CALLER_NEED_TO_INVOKE_32_BIT = False
 SET_32_BIT_ARCH = "export VERSIONER_PYTHON_PREFER_32_BIT=yes;"
 if WHICH_PYTHON == "":
     if OSX_APP_BUNDLED:
-        proc = subprocess.Popen(["export PATH=/usr/local/bin:$PATH;which python"], 
+        proc = subprocess.Popen(["export PATH=/usr/local/bin:$PATH;which python"],
                     shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         WHICH_PYTHON = proc.communicate()[0][:-1]
     elif PLATFORM == "darwin":
-        proc = subprocess.Popen(["which python"], shell=True, 
+        proc = subprocess.Popen(["which python"], shell=True,
                                 stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         WHICH_PYTHON = proc.communicate()[0][:-1]
     elif PLATFORM.startswith("linux"):
-        proc = subprocess.Popen(["which python"], shell=True, 
+        proc = subprocess.Popen(["which python"], shell=True,
                                 stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         WHICH_PYTHON = proc.communicate()[0][:-1]
     else:
@@ -207,6 +234,8 @@ else:
     cmd2 = '%s -c "import wx"' % WHICH_PYTHON
 proc = subprocess.Popen([cmd], shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 IMPORT_PYO_STDOUT, IMPORT_PYO_STDERR = proc.communicate()
+IMPORT_PYO_STDOUT = ensureNFD(IMPORT_PYO_STDOUT)
+IMPORT_PYO_STDERR = ensureNFD(IMPORT_PYO_STDERR)
 if "ImportError" in IMPORT_PYO_STDERR:
     if "No module named" in IMPORT_PYO_STDERR:
         INSTALLATION_ERROR_MESSAGE = "Pyo is not installed in the current Python installation. Audio programs won't run.\n\nCurrent Python path: %s\n" % WHICH_PYTHON
@@ -219,6 +248,8 @@ if "ImportError" in IMPORT_PYO_STDERR:
 else:
     proc = subprocess.Popen([cmd2], shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     IMPORT_WX_STDOUT, IMPORT_WX_STDERR = proc.communicate()
+    IMPORT_WX_STDOUT = ensureNFD(IMPORT_WX_STDOUT)
+    IMPORT_WX_STDERR = ensureNFD(IMPORT_WX_STDERR)
     if "ImportError" in IMPORT_WX_STDERR:
         if "No module named" in IMPORT_WX_STDERR:
             INSTALLATION_ERROR_MESSAGE = "WxPython is not installed in the current Python installation. It is needed by pyo to show graphical display.\n\nCurrent Python path: %s\n" % WHICH_PYTHON
@@ -228,7 +259,7 @@ else:
             if PLATFORM == "darwin":
                 INSTALLATION_ERROR_MESSAGE += "'VERSIONER_PYTHON_PREFER_32_BIT=yes' will be invoked before calling python executable.\n\n"
             INSTALLATION_ERROR_MESSAGE += "Current Python path: %s\n" % WHICH_PYTHON
-        
+
 if OSX_APP_BUNDLED:
     EXAMPLE_PATH = os.path.join(os.getcwd(), "examples")
 elif WIN_APP_BUNDLED:
@@ -288,7 +319,7 @@ if not os.path.isdir(STYLES_PATH):
 DEFAULT_STYLE = os.path.join(STYLES_PATH, "Default")
 if not os.path.isfile(os.path.join(STYLES_PATH, "Default")):
     shutil.copy(os.path.join(os.getcwd(), "styles", "Default"), DEFAULT_STYLE)
-if PREFERENCES.has_key("pref_style"):
+if "pref_style" in PREFERENCES:
     PREF_STYLE = os.path.join(ensureNFD(STYLES_PATH), PREFERENCES["pref_style"])
 else:
     PREF_STYLE = DEFAULT_STYLE
@@ -324,7 +355,7 @@ s.gui(locals())
 CECILIA5_TEMPLATE = '''class Module(BaseModule):
     """
     Module's documentation
-    
+
     """
     def __init__(self):
         BaseModule.__init__(self)
@@ -355,7 +386,7 @@ ZYNE_TEMPLATE = '''class MySynth(BaseSynth):
 
 
 MODULES = {
-            "MySynth": { "title": "- Generic module -", "synth": MySynth, 
+            "MySynth": { "title": "- Generic module -", "synth": MySynth,
                     "p1": ["Ratio", 0.5, 0, 10, False, False],
                     "p2": ["Index", 5, 0, 20, False, False],
                     "p3": ["LP cutoff", 4000, 100, 15000, False, True]
@@ -379,18 +410,18 @@ class MyFrame(wx.Frame):
         self.freqPort = SigTo(value=250, time=0.05, init=250)
         self.sine = Sine(freq=self.freqPort, mul=0.3).mix(2).out()
 
-        self.onOffText = wx.StaticText(self.panel, id=-1, label="Audio", 
+        self.onOffText = wx.StaticText(self.panel, id=-1, label="Audio",
                                        pos=(28,10), size=wx.DefaultSize)
-        self.onOff = wx.ToggleButton(self.panel, id=-1, label="on / off", 
+        self.onOff = wx.ToggleButton(self.panel, id=-1, label="on / off",
                                      pos=(10,28), size=wx.DefaultSize)
         self.onOff.Bind(wx.EVT_TOGGLEBUTTON, self.handleAudio)
 
-        self.frTxt = wx.StaticText(self.panel, id=-1, label="Freq: 250.00", 
+        self.frTxt = wx.StaticText(self.panel, id=-1, label="Freq: 250.00",
                                       pos=(140,60), size=(250,50))
-        self.freq = wx.Slider(self.panel, id=-1, value=25000, minValue=5000, 
+        self.freq = wx.Slider(self.panel, id=-1, value=25000, minValue=5000,
                               maxValue=1000000, pos=(140,82), size=(250,50))
         self.freq.Bind(wx.EVT_SLIDER, self.changeFreq)
-        
+
     def handleAudio(self, evt):
         if evt.GetInt() == 1:
             s.start()
@@ -401,7 +432,7 @@ class MyFrame(wx.Frame):
         x = evt.GetInt() * 0.01
         self.frTxt.SetLabel("Freq: %.2f" % x)
         self.freqPort.value = x
-        
+
 app = wx.App(False)
 mainFrame = MyFrame(None, title='Simple App', pos=(100,100), size=(500,300))
 mainFrame.Show()
@@ -431,14 +462,14 @@ RADIOPYO_TEMPLATE = '''#!/usr/bin/env python
 """
 Template for a RadioPyo song (version 1.0).
 
-A RadioPyo song is a musical python script using the python-pyo 
+A RadioPyo song is a musical python script using the python-pyo
 module to create the audio processing chain. You can connect to
-the radio here : http://radiopyo.acaia.ca/ 
+the radio here : http://radiopyo.acaia.ca/
 
 There is only a few rules:
     1 - It must be a one-page script.
     2 - No soundfile, only synthesis.
-    3 - The script must be finite in time, with fade-in and fade-out 
+    3 - The script must be finite in time, with fade-in and fade-out
         to avoid clicks between pieces. Use the DURATION variable.
 
 belangeo - 2014
@@ -485,10 +516,10 @@ if not READY:
     s.gui(locals())
 '''
 
-TEMPLATE_NAMES = {98: "Header", 97: "Pyo", 96: "WxPython", 95: "Cecilia5", 
+TEMPLATE_NAMES = {98: "Header", 97: "Pyo", 96: "WxPython", 95: "Cecilia5",
                   94: "Zyne", 93: "Audio Interface", 92: "RadioPyo"}
-TEMPLATE_DICT = {98: HEADER_TEMPLATE, 97: PYO_TEMPLATE, 96: WXPYTHON_TEMPLATE, 
-                 95: CECILIA5_TEMPLATE, 94: ZYNE_TEMPLATE, 
+TEMPLATE_DICT = {98: HEADER_TEMPLATE, 97: PYO_TEMPLATE, 96: WXPYTHON_TEMPLATE,
+                 95: CECILIA5_TEMPLATE, 94: ZYNE_TEMPLATE,
                  93: AUDIO_INTERFACE_TEMPLATE, 92: RADIOPYO_TEMPLATE}
 
 TEMPLATE_PATH = os.path.join(RESOURCES_PATH, "templates")
@@ -496,7 +527,7 @@ if not os.path.isdir(TEMPLATE_PATH):
     os.mkdir(TEMPLATE_PATH)
 
 templateid = 91
-template_files = sorted([f for f in os.listdir(TEMPLATE_PATH) if f.endswith(".py")])   
+template_files = sorted([f for f in os.listdir(TEMPLATE_PATH) if f.endswith(".py")])
 for f in template_files:
     try:
         with open(os.path.join(TEMPLATE_PATH, f)) as ftemp:
@@ -517,7 +548,7 @@ RAISE_COMP = ''' Exception("`An exception occurred...`")
 TRY_COMP = ''':
     `expression`
 except:
-    `print "Ouch!"`
+    `print("Ouch!")`
 '''
 IF_COMP = ''' `expression1`:
     `pass`
@@ -537,17 +568,19 @@ CLASS_COMP = ''' `Cname`:
         `pass`
 '''
 FOR_COMP = """ i in range(`10`):
-    `print i`
+    `print(i)`
 """
 WHILE_COMP = """ `i` `>` `0`:
     `i -= 1`
-    `print i`
+    `print(i)`
 """
 ASSERT_COMP = ''' `expression` `>` `0`, "`expression should be positive`"
 '''
-BUILTINS_DICT = {"from": FROM_COMP, "try": TRY_COMP, "if": IF_COMP, 
-                 "def": DEF_COMP, "class": CLASS_COMP, "for": FOR_COMP, 
-                 "while": WHILE_COMP, "exec": EXEC_COMP, "raise": RAISE_COMP, 
+
+# TODO: Python 3 syntax (if possible, compatible with python 2)
+BUILTINS_DICT = {"from": FROM_COMP, "try": TRY_COMP, "if": IF_COMP,
+                 "def": DEF_COMP, "class": CLASS_COMP, "for": FOR_COMP,
+                 "while": WHILE_COMP, "exec": EXEC_COMP, "raise": RAISE_COMP,
                  "assert": ASSERT_COMP}
 
 ################## Interface Bitmaps ##################
@@ -785,7 +818,7 @@ KEY_COMMANDS = {
 }
 
 ############## Allowed Extensions ##############
-ALLOWED_EXT = PREFERENCES.get("allowed_ext", 
+ALLOWED_EXT = PREFERENCES.get("allowed_ext",
                               ["py", "c5", "txt", "", "c", "h", "cpp", "hpp", "zy", "bat",
                                "sh", "rst", "iss", "sg", "md", "jsfx-inc", "lua", "css"])
 
@@ -827,27 +860,29 @@ else:
 
 
 STYLES_GENERALS = ['default', 'background', 'selback', 'caret']
-STYLES_TEXT_COMP = ['comment', 'commentblock', 'number', 'operator', 'string', 
-                    'triple', 'keyword', 'pyokeyword', 'class', 'function', 
+STYLES_TEXT_COMP = ['comment', 'commentblock', 'number', 'operator', 'string',
+                    'triple', 'keyword', 'pyokeyword', 'class', 'function',
                     'linenumber']
-STYLES_INTER_COMP = ['marginback', 'foldmarginback', 'markerfg', 'markerbg', 
+STYLES_INTER_COMP = ['marginback', 'foldmarginback', 'markerfg', 'markerbg',
                      'bracelight', 'bracebad', 'lineedge']
-STYLES_LABELS = {'default': 'Foreground', 'background': 'Background', 
-                 'selback': 'Selection', 'caret': 'Caret', 'comment': 'Comment', 
-                 'commentblock': 'Comment Block', 'number': 'Number', 
-                 'string': 'String', 'triple': 'Triple String', 
-                 'keyword': 'Python Keyword', 'pyokeyword': 'Pyo Keyword', 
-                 'class': 'Class Name', 'function': 'Function Name', 
-                 'linenumber': 'Line Number', 'operator': 'Operator', 
+STYLES_LABELS = {'default': 'Foreground', 'background': 'Background',
+                 'selback': 'Selection', 'caret': 'Caret', 'comment': 'Comment',
+                 'commentblock': 'Comment Block', 'number': 'Number',
+                 'string': 'String', 'triple': 'Triple String',
+                 'keyword': 'Python Keyword', 'pyokeyword': 'Pyo Keyword',
+                 'class': 'Class Name', 'function': 'Function Name',
+                 'linenumber': 'Line Number', 'operator': 'Operator',
                  'foldmarginback': 'Folding Margin Background',
-                 'marginback': 'Number Margin Background', 
-                 'markerfg': 'Marker Foreground', 'markerbg': 'Marker Background', 
-                 'bracelight': 'Brace Match', 'bracebad': 'Brace Mismatch', 
+                 'marginback': 'Number Margin Background',
+                 'markerfg': 'Marker Foreground', 'markerbg': 'Marker Background',
+                 'bracelight': 'Brace Match', 'bracebad': 'Brace Mismatch',
                  'lineedge': 'Line Edge'}
 
 with open(PREF_STYLE) as f:
     text = f.read()
-exec text in locals()
+spos = text.find("=")
+dictext = text[spos+1:]
+style = eval(dictext)
 try:
     STYLES = copy.deepcopy(style)
 except:
@@ -873,11 +908,11 @@ except:
  'selback': {'colour': '#C0DFFF'},
  'string': {'bold': 0, 'colour': '#036A07', 'italic': 0, 'underline': 0},
  'triple': {'bold': 0, 'colour': '#03BA07', 'italic': 0, 'underline': 0}}
-if not STYLES.has_key('face'):
+if 'face' not in STYLES:
     STYLES['face'] = DEFAULT_FONT_FACE
-if not STYLES.has_key('size'):
+if 'size' not in STYLES:
     STYLES['size'] = FONT_SIZE
-if not STYLES.has_key('size2'):
+if 'size2' not in STYLES:
     STYLES['size2'] = FONT_SIZE2
 
 STYLES_PREVIEW_TEXT = '''# Comment
@@ -906,7 +941,7 @@ class DataEvent(wx.PyEvent):
         self.SetEventType(wxDATA_EVENT)
         self.data = data
 
-    def Clone (self): 
+    def Clone (self):
         self.__class__ (self.GetId())
 
 class RunningThread(threading.Thread):
@@ -917,7 +952,7 @@ class RunningThread(threading.Thread):
         self.event_receiver = event_receiver
         self.terminated = False
         self.pid = None
-    
+
     def setFileName(self, filename):
         self.filename = filename
 
@@ -930,7 +965,7 @@ class RunningThread(threading.Thread):
             try:
                 os.system("Taskkill /PID %d /F" % self.proc.pid)
             except:
-                print '"Taskkill" does not succeed to kill the process %d.' % self.proc.pid
+                print('"Taskkill" does not succeed to kill the process %d.' % self.proc.pid)
         else:
             self.proc.terminate()
         if self.proc.poll() == None:
@@ -941,23 +976,23 @@ class RunningThread(threading.Thread):
             vars_to_remove = "PYTHONHOME PYTHONPATH EXECUTABLEPATH RESOURCEPATH ARGVZERO PYTHONOPTIMIZE"
             prelude = "export -n %s;export PATH=/usr/local/bin:/usr/local/lib:$PATH;" % vars_to_remove
             if CALLER_NEED_TO_INVOKE_32_BIT:
-                self.proc = subprocess.Popen(['%s%s%s -u "%s"' % (prelude, SET_32_BIT_ARCH, WHICH_PYTHON, self.path)], 
+                self.proc = subprocess.Popen(['%s%s%s -u "%s"' % (prelude, SET_32_BIT_ARCH, WHICH_PYTHON, self.path)],
                                 shell=True, cwd=self.cwd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
             else:
-                self.proc = subprocess.Popen(['%s%s -u "%s"' % (prelude, WHICH_PYTHON, self.path)], cwd=self.cwd, 
+                self.proc = subprocess.Popen(['%s%s -u "%s"' % (prelude, WHICH_PYTHON, self.path)], cwd=self.cwd,
                                     shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         elif PLATFORM == "darwin":
             if CALLER_NEED_TO_INVOKE_32_BIT:
-                self.proc = subprocess.Popen(['%s%s -u "%s"' % (SET_32_BIT_ARCH, WHICH_PYTHON, self.path)], 
+                self.proc = subprocess.Popen(['%s%s -u "%s"' % (SET_32_BIT_ARCH, WHICH_PYTHON, self.path)],
                                 shell=True, cwd=self.cwd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
             else:
-                self.proc = subprocess.Popen(['%s -u "%s"' % (WHICH_PYTHON, self.path)], cwd=self.cwd, 
+                self.proc = subprocess.Popen(['%s -u "%s"' % (WHICH_PYTHON, self.path)], cwd=self.cwd,
                                 shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         elif PLATFORM == "win32":
             self.proc = subprocess.Popen([WHICH_PYTHON, "-u", self.path], cwd=self.cwd, shell=False, # TODO: shell=True ?
                                 stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         else:
-            self.proc = subprocess.Popen([WHICH_PYTHON, "-u", self.path], cwd=self.cwd, 
+            self.proc = subprocess.Popen([WHICH_PYTHON, "-u", self.path], cwd=self.cwd,
                                 stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 
         header = '=== Output log of process "%s", launched: %s ===\n' % (self.filename, time.strftime('"%d %b %Y %H:%M:%S"', time.localtime()))
@@ -969,7 +1004,7 @@ class RunningThread(threading.Thread):
                 log = log + line
             log = log.replace(">>> ", "").replace("... ", "")
             data_event = DataEvent({"log": log, "pid": self.pid, "filename": self.filename, "active": True})
-            wx.PostEvent(self.event_receiver, data_event)            
+            wx.PostEvent(self.event_receiver, data_event)
             sys.stdout.flush()
             time.sleep(.01)
         stdout, stderr = self.proc.communicate()
@@ -1005,7 +1040,7 @@ class RunningThread(threading.Thread):
                 pass
         if self.terminated:
             output = output + "\n=== Process killed. ==="
-        data_event = DataEvent({"log": output, "pid": self.pid, 
+        data_event = DataEvent({"log": output, "pid": self.pid,
                                 "filename": self.filename, "active": False})
         wx.PostEvent(self.event_receiver, data_event)
 
@@ -1034,18 +1069,18 @@ class BackgroundServerThread(threading.Thread):
     def run(self):
         if PLATFORM == "win32":
             self.proc = subprocess.Popen(
-                    [WHICH_PYTHON, '-i', os.path.join(TEMP_PATH, "background_server.py")], 
+                    [WHICH_PYTHON, '-i', os.path.join(TEMP_PATH, "background_server.py")],
                     shell=True, cwd=self.cwd, stdout=subprocess.PIPE,
                     stdin=subprocess.PIPE, stderr=subprocess.STDOUT)
         else:
             self.proc = subprocess.Popen(
-                    ["%s -i -u %s" % (WHICH_PYTHON, os.path.join(TEMP_PATH, "background_server.py"))], 
-                    cwd=self.cwd, shell=True, stdout=subprocess.PIPE, 
+                    ["%s -i -u %s" % (WHICH_PYTHON, os.path.join(TEMP_PATH, "background_server.py"))],
+                    cwd=self.cwd, shell=True, stdout=subprocess.PIPE,
                     stderr=subprocess.STDOUT, stdin=subprocess.PIPE)
 
         header = '=== Output log of background server, launched: %s ===\n' % time.strftime('"%d %b %Y %H:%M:%S"', time.localtime())
-        data_event = DataEvent({"log": header, "pid": self.pid, 
-                                "filename": 'background_server.py', 
+        data_event = DataEvent({"log": header, "pid": self.pid,
+                                "filename": 'background_server.py',
                                 "active": True})
         wx.PostEvent(self.event_receiver, data_event)
         while self.proc.poll() == None and not self.terminated:
@@ -1053,10 +1088,10 @@ class BackgroundServerThread(threading.Thread):
             for line in self.proc.stdout.readline():
                 log = log + line
             log = log.replace(">>> ", "").replace("... ", "")
-            data_event = DataEvent({"log": log, "pid": self.pid, 
-                                    "filename": 'background_server.py', 
+            data_event = DataEvent({"log": log, "pid": self.pid,
+                                    "filename": 'background_server.py',
                                     "active": True})
-            wx.PostEvent(self.event_receiver, data_event)            
+            wx.PostEvent(self.event_receiver, data_event)
             sys.stdout.flush()
             time.sleep(.01)
         stdout, stderr = self.proc.communicate()
@@ -1092,14 +1127,14 @@ class BackgroundServerThread(threading.Thread):
                 pass
         if self.terminated:
             output = output + "\n=== Process killed. ==="
-        data_event = DataEvent({"log": output, "pid": self.pid, 
-                                "filename": 'background_server.py', 
+        data_event = DataEvent({"log": output, "pid": self.pid,
+                                "filename": 'background_server.py',
                                 "active": False})
         wx.PostEvent(self.event_receiver, data_event)
 
 class KeyCommandsFrame(wx.Frame):
     def __init__(self, parent):
-        wx.Frame.__init__(self, parent, wx.ID_ANY, 
+        wx.Frame.__init__(self, parent, wx.ID_ANY,
                           title="Editor Key Commands List", size=(650,550))
         self.menuBar = wx.MenuBar()
         menu1 = wx.Menu()
@@ -1130,7 +1165,7 @@ class KeyCommandsFrame(wx.Frame):
         self.Hide()
 
 class EditorPreview(stc.StyledTextCtrl):
-    def __init__(self, parent, ID, pos=wx.DefaultPosition, size=wx.DefaultSize, 
+    def __init__(self, parent, ID, pos=wx.DefaultPosition, size=wx.DefaultSize,
                  style= wx.SUNKEN_BORDER | wx.WANTS_CHARS):
         stc.StyledTextCtrl.__init__(self, parent, ID, pos, size, style)
 
@@ -1153,7 +1188,6 @@ class EditorPreview(stc.StyledTextCtrl):
         self.SetProperty("fold", "1")
         self.SetProperty("tab.timmy.whinge.level", "1")
         self.SetMargins(5,5)
-        self.SetUseAntiAliasing(True)
         self.SetEdgeColour(STYLES["lineedge"]['colour'])
         self.SetEdgeMode(stc.STC_EDGE_LINE)
         self.SetEdgeColumn(60)
@@ -1161,12 +1195,12 @@ class EditorPreview(stc.StyledTextCtrl):
         self.SetMarginWidth(0, 12)
         self.SetMarginMask(0, ~wx.stc.STC_MASK_FOLDERS)
         self.SetMarginSensitive(0, True)
-        
+
         self.SetMarginType(1, stc.STC_MARGIN_NUMBER)
         self.SetMarginWidth(1, 28)
         self.SetMarginMask(1, 0)
         self.SetMarginSensitive(1, False)
-        
+
         self.SetMarginType(2, stc.STC_MARGIN_SYMBOL)
         self.SetMarginWidth(2, 12)
         self.SetMarginMask(2, stc.STC_MASK_FOLDERS)
@@ -1187,7 +1221,7 @@ class EditorPreview(stc.StyledTextCtrl):
                 st = "face:%s,fore:%s,size:%s" % (STYLES['face'], STYLES[forekey]['colour'], STYLES['size'])
             if backkey:
                 st += ",back:%s" % STYLES[backkey]['colour']
-            if STYLES[forekey].has_key('bold'):
+            if 'bold' in STYLES[forekey]:
                 if STYLES[forekey]['bold']:
                     st += ",bold"
                 if STYLES[forekey]['italic']:
@@ -1197,7 +1231,7 @@ class EditorPreview(stc.StyledTextCtrl):
             return st
 
         self.StyleSetSpec(stc.STC_STYLE_DEFAULT, buildStyle('default', 'background'))
-        self.StyleClearAll()  # Reset all to be like the default
+        self.StyleClearAll() # Reset all to be like the default
         self.MarkerDefine(0, stc.STC_MARK_SHORTARROW, STYLES['markerbg']['colour'], STYLES['markerbg']['colour'])
         self.MarkerDefine(stc.STC_MARKNUM_FOLDEROPEN, stc.STC_MARK_BOXMINUS, STYLES['markerfg']['colour'], STYLES['markerbg']['colour'])
         self.MarkerDefine(stc.STC_MARKNUM_FOLDER, stc.STC_MARK_BOXPLUS, STYLES['markerfg']['colour'], STYLES['markerbg']['colour'])
@@ -1255,18 +1289,18 @@ class ComponentPanel(scrolled.ScrolledPanel):
             btog.SetValue(STYLES[component]['bold'])
             box.Add(btog, 0, wx.TOP|wx.ALIGN_RIGHT, 1)
             btog.Bind(wx.EVT_TOGGLEBUTTON, self.OnBToggleButton)
-            self.bTogRefs[btog] = component          
+            self.bTogRefs[btog] = component
             itog = wx.ToggleButton(self, wx.ID_ANY, label="I", size=(24,20))
             itog.SetValue(STYLES[component]['italic'])
-            box.Add(itog, 0, wx.TOP|wx.ALIGN_RIGHT, 1)            
+            box.Add(itog, 0, wx.TOP|wx.ALIGN_RIGHT, 1)
             itog.Bind(wx.EVT_TOGGLEBUTTON, self.OnIToggleButton)
-            self.iTogRefs[itog] = component          
+            self.iTogRefs[itog] = component
             utog = wx.ToggleButton(self, wx.ID_ANY, label="U", size=(24,20))
             utog.SetValue(STYLES[component]['underline'])
-            box.Add(utog, 0, wx.TOP|wx.ALIGN_RIGHT, 1)  
+            box.Add(utog, 0, wx.TOP|wx.ALIGN_RIGHT, 1)
             utog.Bind(wx.EVT_TOGGLEBUTTON, self.OnUToggleButton)
-            self.uTogRefs[utog] = component          
-            box.AddSpacer(20)          
+            self.uTogRefs[utog] = component
+            box.AddSpacer(20)
             selector = csel.ColourSelect(self, -1, "", hex_to_rgb(STYLES[component]['colour']), size=(20,20))
             box.Add(selector, 0, wx.TOP|wx.ALIGN_RIGHT, 1)
             selector.Bind(csel.EVT_COLOURSELECT, self.OnSelectColour)
@@ -1374,10 +1408,10 @@ class ColourEditor(wx.Frame):
         facelist = enum.GetFacenames()
         facelist.sort()
 
-        buttonData = [  (STYLES_GENERALS[0], STYLES['default']['colour'], (50, 24), STYLES_LABELS['default']),
-                        (STYLES_GENERALS[1], STYLES['background']['colour'], (50, 24), STYLES_LABELS['background']),
-                        (STYLES_GENERALS[2], STYLES['selback']['colour'], (50, 24), STYLES_LABELS['selback']),
-                        (STYLES_GENERALS[3], STYLES['caret']['colour'], (50, 24), STYLES_LABELS['caret']) ]
+        buttonData = [ (STYLES_GENERALS[0], STYLES['default']['colour'], (50, 24), STYLES_LABELS['default']),
+                       (STYLES_GENERALS[1], STYLES['background']['colour'], (50, 24), STYLES_LABELS['background']),
+                       (STYLES_GENERALS[2], STYLES['selback']['colour'], (50, 24), STYLES_LABELS['selback']),
+                       (STYLES_GENERALS[3], STYLES['caret']['colour'], (50, 24), STYLES_LABELS['caret']) ]
 
         self.buttonRefs = {}
 
@@ -1405,7 +1439,7 @@ class ColourEditor(wx.Frame):
         mainSizer.Add(self.components, 1, wx.EXPAND|wx.LEFT|wx.RIGHT|wx.BOTTOM, 10)
 
         mainSizer.Add(wx.StaticLine(self.panel), 0, wx.LEFT|wx.RIGHT|wx.EXPAND, 10)
-        
+
         faceBox = wx.BoxSizer(wx.HORIZONTAL)
         faceLabel = wx.StaticText(self.panel, wx.ID_ANY, "Font Face:")
         faceBox.Add(faceLabel, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5)
@@ -1470,13 +1504,15 @@ class ColourEditor(wx.Frame):
         self.cur_style = stl
         with open(os.path.join(ensureNFD(STYLES_PATH), stl)) as f:
             text = f.read()
-        exec text in locals()
+        spos = text.find("=")
+        dictext = text[spos+1:]
+        style = eval(dictext)
         STYLES = copy.deepcopy(style)
-        if not STYLES.has_key('face'):
+        if 'face' not in STYLES:
             STYLES['face'] = DEFAULT_FONT_FACE
-        if not STYLES.has_key('size'):
+        if 'size' not in STYLES:
             STYLES['size'] = FONT_SIZE
-        if not STYLES.has_key('size2'):
+        if 'size2' not in STYLES:
             STYLES['size2'] = FONT_SIZE2
         self.editorPreview.setStyle()
         for but, name in self.buttonRefs.items():
@@ -1520,7 +1556,7 @@ class SearchProjectPanel(scrolled.ScrolledPanel):
             self.Bind(wx.EVT_BUTTON, self.onOpenFile, id=BUTID)
             BUTID += 1
             fileText = wx.StaticText(self, wx.ID_ANY, label="File : %s" % file)
-            off = (but.GetSize()[1] - textY) / 2
+            off = (but.GetSize()[1] - textY) // 2
             box.Add(fileText, 1, wx.EXPAND|wx.LEFT|wx.RIGHT|wx.TOP, off)
             mainSizer.Add(box, 1, wx.LEFT|wx.RIGHT|wx.EXPAND, 10)
             for i in range(len(self.dict[file][0])):
@@ -1539,7 +1575,7 @@ class SearchProjectPanel(scrolled.ScrolledPanel):
         for f in self.files:
             num_rows += len(self.dict[f][0])
         self.SetMaxSize((-1, max(h*num_rows, self.GetSize()[1])))
-    
+
     def onOpenFile(self, evt):
         filename = self.root + self.files[evt.GetId() - 25000]
         self.GetParent().GetParent().panel.addPage(filename)
@@ -1576,35 +1612,40 @@ class SnippetTree(wx.Panel):
         toolbarbox = wx.BoxSizer(wx.HORIZONTAL)
         self.toolbar = wx.ToolBar(self, -1)
         self.toolbar.SetToolBitmapSize(tsize)
-        self.toolbar.AddLabelTool(SNIPPET_ADD_FOLDER_ID, "Add Category", folder_add_bmp, shortHelp="Add a New Category")
-        self.toolbar.AddLabelTool(SNIPPET_DEL_FILE_ID, "Delete", file_add_bmp, shortHelp="Delete Snippet or Category")
+
+        if "phoenix" not in wx.version():
+            self.toolbar.AddLabelTool(SNIPPET_ADD_FOLDER_ID, "Add Category", folder_add_bmp, shortHelp="Add a New Category")
+            self.toolbar.AddLabelTool(SNIPPET_DEL_FILE_ID, "Delete", file_add_bmp, shortHelp="Delete Snippet or Category")
+        else:
+            self.toolbar.AddTool(SNIPPET_ADD_FOLDER_ID, "Add Category", folder_add_bmp, shortHelp="Add a New Category")
+            self.toolbar.AddTool(SNIPPET_DEL_FILE_ID, "Delete", file_add_bmp, shortHelp="Delete Snippet or Category")
+
         self.toolbar.EnableTool(SNIPPET_DEL_FILE_ID, False)
         self.toolbar.Realize()
         toolbarbox.Add(self.toolbar, 1, wx.ALIGN_LEFT | wx.EXPAND, 0)
 
-        wx.EVT_TOOL(self, SNIPPET_ADD_FOLDER_ID, self.onAdd)
-        wx.EVT_TOOL(self, SNIPPET_DEL_FILE_ID, self.onDelete)
+        self.Bind(wx.EVT_TOOL, self.onAdd, id=SNIPPET_ADD_FOLDER_ID)
+        self.Bind(wx.EVT_TOOL, self.onDelete, id=SNIPPET_DEL_FILE_ID)
 
         self.sizer.Add(toolbarbox, 0, wx.EXPAND)
 
         self.tree = wx.TreeCtrl(self, -1, (0, 26), size, wx.TR_DEFAULT_STYLE|wx.TR_HIDE_ROOT|wx.SUNKEN_BORDER|wx.EXPAND)
 
         if wx.Platform == '__WXMAC__':
-            self.tree.SetFont(wx.Font(11, wx.ROMAN, wx.NORMAL, wx.NORMAL, face=snip_faces['face']))
+            self.tree.SetFont(wx.Font(11, wx.ROMAN, wx.NORMAL, wx.NORMAL, False, snip_faces['face']))
         else:
-            self.tree.SetFont(wx.Font(8, wx.ROMAN, wx.NORMAL, wx.NORMAL, face=snip_faces['face']))
+            self.tree.SetFont(wx.Font(8, wx.ROMAN, wx.NORMAL, wx.NORMAL, False, snip_faces['face']))
 
         self.sizer.Add(self.tree, 1, wx.EXPAND)
         self.SetSizer(self.sizer)
 
         isz = (12,12)
         self.il = wx.ImageList(isz[0], isz[1])
-        self.fldridx     = self.il.Add(wx.ArtProvider_GetBitmap(wx.ART_FOLDER,      wx.ART_OTHER, isz))
-        self.fldropenidx = self.il.Add(wx.ArtProvider_GetBitmap(wx.ART_FILE_OPEN,   wx.ART_OTHER, isz))
-        self.fileidx     = self.il.Add(wx.ArtProvider_GetBitmap(wx.ART_NORMAL_FILE, wx.ART_OTHER, isz))
+        self.fldridx = self.il.Add(wx.ArtProvider.GetBitmap(wx.ART_FOLDER, wx.ART_OTHER, isz))
+        self.fldropenidx = self.il.Add(wx.ArtProvider.GetBitmap(wx.ART_FILE_OPEN, wx.ART_OTHER, isz))
+        self.fileidx = self.il.Add(wx.ArtProvider.GetBitmap(wx.ART_NORMAL_FILE, wx.ART_OTHER, isz))
 
         self.tree.SetImageList(self.il)
-        self.tree.SetSpacing(12)
         self.tree.SetIndent(6)
 
         self.root = self.tree.AddRoot("EPyo_Snippet_tree", self.fldridx, self.fldropenidx, None)
@@ -1788,7 +1829,7 @@ class SnippetFrame(wx.Frame):
         self.toolbar.AddControl(saveButton)
         self.Bind(wx.EVT_BUTTON, self.onSave, id=saveButton.GetId())
         self.toolbar.Realize()
-		
+
         toolbarBox.Add(self.toolbar, 1, wx.ALIGN_LEFT|wx.EXPAND|wx.LEFT, 5)
 
         toolbar2 = wx.ToolBar(self.panel, -1)
@@ -1834,11 +1875,10 @@ class SnippetFrame(wx.Frame):
             self.category_name = category
             with codecs.open(os.path.join(ensureNFD(SNIPPETS_PATH), self.category_name, self.snippet_name), "r", encoding="utf-8") as f:
                 text = f.read()
-            exec text in locals()
-            try:
-                self.entry.SetTextUTF8(snippet["value"])
-            except:
-                self.entry.SetText(snippet["value"])
+            spos = text.find("=")
+            dictext = text[spos+1:]
+            snippet = eval(dictext)
+            self.entry.SetText(snippet["value"])
             if snippet["shortcut"]:
                 self.short.SetValue(snippet["shortcut"])
                 self.short.SetForegroundColour("#000000")
@@ -1847,7 +1887,7 @@ class SnippetFrame(wx.Frame):
                 self.short.SetForegroundColour("#AAAAAA")
 
     def onSave(self, evt):
-        dlg = wx.SingleChoiceDialog(self, 'Choose the Snippet Category', 
+        dlg = wx.SingleChoiceDialog(self, 'Choose the Snippet Category',
                                     'Snippet Category', SNIPPETS_CATEGORIES, wx.OK)
         dlg.SetSize((250,300))
         dlg.CenterOnParent()
@@ -1865,7 +1905,7 @@ class SnippetFrame(wx.Frame):
                 short = self.short.GetValue()
                 if short == "Type your shortcut...":
                     short = ""
-                dic = {'shortcut': short, 'value': self.entry.GetTextUTF8()}
+                dic = {'shortcut': short, 'value': self.entry.GetText()}
                 with codecs.open(os.path.join(SNIPPETS_PATH, category, name), "w", encoding="utf-8") as f:
                     f.write("snippet = %s" % pprint.pformat(dic))
                 self.snippet_tree.addItem(name, category)
@@ -1901,7 +1941,7 @@ class SnippetFrame(wx.Frame):
             if txt == "":
                 return
             ch = chr(key)
-            if ch in string.lowercase:
+            if ch in LOWERCASE:
                 ch = ch.upper()
             txt += ch
             self.short.SetValue(txt)
@@ -1910,9 +1950,9 @@ class SnippetFrame(wx.Frame):
         else:
             evt.Skip()
 
-class FileSelectorCombo(wx.combo.ComboCtrl):
+class FileSelectorCombo(ComboCtrl):
     def __init__(self, *args, **kw):
-        wx.combo.ComboCtrl.__init__(self, *args, **kw)
+        ComboCtrl.__init__(self, *args, **kw)
         w, h = 12, 14
         bmp = wx.EmptyBitmap(w,h)
         dc = wx.MemoryDC(bmp)
@@ -1923,14 +1963,14 @@ class FileSelectorCombo(wx.combo.ComboCtrl):
 
         dc.SetBrush(wx.Brush("#444444"))
         dc.SetPen(wx.Pen("#444444"))
-        dc.DrawPolygon([wx.Point(4,h/2-2), wx.Point(w/2,2), wx.Point(w-4,h/2-2)])
-        dc.DrawPolygon([wx.Point(4,h/2+2), wx.Point(w/2,h-2), wx.Point(w-4,h/2+2)])
+        dc.DrawPolygon([wx.Point(4, h // 2 - 2), wx.Point(w // 2, 2), wx.Point(w - 4, h // 2 - 2)])
+        dc.DrawPolygon([wx.Point(4, h // 2 + 2), wx.Point(w // 2, h - 2), wx.Point(w - 4, h // 2 + 2)])
         del dc
 
         bmp.SetMaskColour(bgcolor)
         self.SetButtonBitmaps(bmp, True)
 
-class TreeCtrlComboPopup(wx.combo.ComboPopup):
+class TreeCtrlComboPopup(ComboPopup):
     def Init(self):
         self.value = None
         self.curitem = None
@@ -1949,6 +1989,7 @@ class TreeCtrlComboPopup(wx.combo.ComboPopup):
         self.tree.SetFont(font)
         self.tree.Bind(wx.EVT_MOTION, self.OnMotion)
         self.tree.Bind(wx.EVT_LEFT_DOWN, self.OnLeftDown)
+        return True
 
     def GetControl(self):
         return self.tree
@@ -1963,7 +2004,7 @@ class TreeCtrlComboPopup(wx.combo.ComboPopup):
         editor = self.GetCombo().GetParent().GetParent().panel.editor
         count = editor.GetLineCount()
         for i in range(count):
-            text = editor.GetLineUTF8(i)
+            text = editor.GetLine(i)
             if text.startswith("class "):
                 text = text.replace("class ", "")
                 text = text[0:text.find(":")]
@@ -2030,9 +2071,9 @@ class TreeCtrlComboPopup(wx.combo.ComboPopup):
             self.value = item
             self.Dismiss()
             editor = self.GetCombo().GetParent().GetParent().panel.editor
-            line = self.tree.GetPyData(item)
+            line = unpackItemData(self.tree.GetItemData(item))
             editor.GotoLine(line)
-            halfNumLinesOnScreen = editor.LinesOnScreen() / 2
+            halfNumLinesOnScreen = editor.LinesOnScreen() // 2
             editor.ScrollToLine(line - halfNumLinesOnScreen)
             wx.CallAfter(editor.SetFocus)
         evt.Skip()
@@ -2080,7 +2121,7 @@ class MainFrame(wx.Frame):
         self.submenu1 = wx.Menu()
         for key, name in sorted(TEMPLATE_NAMES.items(), reverse=True):
             self.submenu1.Append(key, "%s Template" % name)
-        menu1.AppendMenu(99, "New From Template", self.submenu1)
+        menu1.AppendSubMenu(self.submenu1, "New From Template")
         self.Bind(wx.EVT_MENU, self.newFromTemplate, id=min(TEMPLATE_NAMES.keys()), id2=max(TEMPLATE_NAMES.keys()))
         menu1.Append(wx.ID_OPEN, "Open\tCtrl+O")
         self.Bind(wx.EVT_MENU, self.open, id=wx.ID_OPEN)
@@ -2104,7 +2145,7 @@ class MainFrame(wx.Frame):
         if ID_OPEN_RECENT > 2000:
             for i in range(2000, ID_OPEN_RECENT):
                 self.Bind(wx.EVT_MENU, self.openRecent, id=i)
-        menu1.AppendMenu(1999, "Open Recent...", self.submenu2)
+        menu1.AppendSubMenu(self.submenu2, "Open Recent...")
         menu1.AppendSeparator()
         menu1.Append(wx.ID_CLOSE, "Close\tCtrl+W")
         self.Bind(wx.EVT_MENU, self.close, id=wx.ID_CLOSE)
@@ -2176,7 +2217,7 @@ class MainFrame(wx.Frame):
         submenublk.Append(401, "Insert Code Block Tail\tShift+Ctrl+B")
         submenublk.Append(402, "Select Code Block\tCtrl+,")
         self.Bind(wx.EVT_MENU, self.onCodeBlock, id=400, id2=402)
-        menu2.AppendMenu(-1, "Code Blocks", submenublk)
+        menu2.AppendSubMenu(submenublk, "Code Blocks")
         menu2.AppendSeparator()
         menu2.Append(114, "Auto Complete container syntax", kind=wx.ITEM_CHECK)
         self.Bind(wx.EVT_MENU, self.autoCompContainer, id=114)
@@ -2188,7 +2229,7 @@ class MainFrame(wx.Frame):
         self.Bind(wx.EVT_MENU, self.upperLower, id=170, id2=171)
         submenu2.Append(172, "Convert Tabs to Spaces")
         self.Bind(wx.EVT_MENU, self.tabsToSpaces, id=172)
-        menu2.AppendMenu(-1, "Text Converters", submenu2)
+        menu2.AppendSubMenu(submenu2, "Text Converters")
         menu2.AppendSeparator()
         menu2.Append(140, "Goto line...\tCtrl+L")
         self.Bind(wx.EVT_MENU, self.gotoLine, id=140)
@@ -2297,7 +2338,7 @@ class MainFrame(wx.Frame):
             for ex in sorted([exp for exp in os.listdir(os.path.join(EXAMPLE_PATH, folder.lower())) if exp[0] != "." and not exp.endswith("pyc")]):
                 exmenu.Append(ID_EXAMPLE, ex)
                 ID_EXAMPLE += 1
-            self.menu6.AppendMenu(-1, folder, exmenu)
+            self.menu6.AppendSubMenu(exmenu, folder)
             ID_EXAMPLE += 1
         self.Bind(wx.EVT_MENU, self.openExample, id=1000, id2=ID_EXAMPLE)
         self.menuBar.Append(self.menu6, "Pyo Examples")
@@ -2308,10 +2349,10 @@ class MainFrame(wx.Frame):
         self.Bind(wx.EVT_MENU, self.openFilters, id=11998)
         self.filters_menu.Append(11999, "Rebuild Filters Menu")
         self.Bind(wx.EVT_MENU, self.buildFilterMenu, id=11999)
-        self.filters_menu.AppendSeparator() 
+        self.filters_menu.AppendSeparator()
         self.buildFilterMenu()
         self.menuBar.Append(self.filters_menu, "Filters")
-            
+
         windowMenu = wx.Menu()
         aEntry = wx.AcceleratorEntry(wx.ACCEL_CTRL, wx.WXK_TAB, 10001)
         windowMenu.Append(10001, 'Navigate Tabs Forward\t%s' % aEntry.ToString())
@@ -2338,7 +2379,7 @@ class MainFrame(wx.Frame):
         self.status = self.CreateStatusBar()
         self.status.Bind(wx.EVT_SIZE, self.StatusOnSize)
         self.status.SetFieldsCount(3)
-        
+
         if PLATFORM == "darwin":
             ststyle = wx.TE_PROCESS_ENTER|wx.NO_BORDER
             sth = self.status.GetSize()[1] #16
@@ -2415,7 +2456,7 @@ class MainFrame(wx.Frame):
             self.menu3.SetLabel(299, "Revert Master Document to None")
         else:
             self.master_document = None
-            self.menu3.SetLabel(299, "Set Current Document as Master")                
+            self.menu3.SetLabel(299, "Set Current Document as Master")
 
     def StatusOnSize(self, evt):
         self.Reposition()
@@ -2423,7 +2464,7 @@ class MainFrame(wx.Frame):
     def rebuildStyleMenu(self):
         items = self.menu5.GetMenuItems()
         for item in items:
-            self.menu5.DeleteItem(item)
+            self.menu5.Delete(item.GetId())
         ID_STYLE = 500
         for st in [f for f in os.listdir(STYLES_PATH) if f[0] != "."]:
             self.menu5.Append(ID_STYLE, st, "", wx.ITEM_RADIO)
@@ -2437,7 +2478,7 @@ class MainFrame(wx.Frame):
     def reloadSnippetMenu(self):
         items = self.menu7.GetMenuItems()
         for item in items:
-            self.menu7.DeleteItem(item)
+            self.menu7.Delete(item.GetId())
         self.makeSnippetMenu()
 
     def makeSnippetMenu(self):
@@ -2449,7 +2490,9 @@ class MainFrame(wx.Frame):
             for file in files:
                 with open(os.path.join(SNIPPETS_PATH, cat, file), "r") as f:
                     text = f.read()
-                exec text in locals()
+                spos = text.find("=")
+                dictext = text[spos+1:]
+                snippet = eval(dictext)
                 short = snippet["shortcut"]
                 accel = 0
                 if "Shift" in short:
@@ -2479,12 +2522,11 @@ class MainFrame(wx.Frame):
                     submenu.Append(itemId, file)
                 self.Bind(wx.EVT_MENU, self.insertSnippet, id=itemId)
                 itemId += 1
-            self.menu7.AppendMenu(itemId, cat, submenu)
-            itemId += 1
-        if accel_entries != []:            
-            accel_table  = wx.AcceleratorTable(accel_entries)
+            self.menu7.AppendSubMenu(submenu, cat)
+        if accel_entries != []:
+            accel_table = wx.AcceleratorTable(accel_entries)
             self.SetAcceleratorTable(accel_table)
-        
+
         self.menu7.AppendSeparator()
         self.menu7.Append(51, "Open Snippet Editor")
         self.Bind(wx.EVT_MENU, self.showSnippetEditor, id=51)
@@ -2497,7 +2539,7 @@ class MainFrame(wx.Frame):
         self.panel.editor.Copy()
 
     def listCopy(self, evt):
-        text = self.panel.editor.GetSelectedTextUTF8()
+        text = self.panel.editor.GetSelectedText()
         self.pastingList.append(toSysEncoding(text))
 
     def paste(self, evt):
@@ -2511,16 +2553,18 @@ class MainFrame(wx.Frame):
 
     def saveListPaste(self, evt):
         if self.pastingList != []:
-            dlg = wx.FileDialog(self, message="Save file as ...", 
-                defaultDir=os.path.expanduser('~'), style=wx.SAVE)
+            dlg = wx.FileDialog(self, message="Save file as ...",
+                                defaultDir=os.path.expanduser('~'),
+                                style=wx.FD_SAVE)
             if dlg.ShowModal() == wx.ID_OK:
                 path = ensureNFD(dlg.GetPath())
                 with open(path, "w") as f:
                     f.write(str(self.pastingList))
 
     def loadListPaste(self, evt):
-        dlg = wx.FileDialog(self, message="Choose a file", 
-            defaultDir=os.path.expanduser("~"), style=wx.OPEN)
+        dlg = wx.FileDialog(self, message="Choose a file",
+                            defaultDir=os.path.expanduser("~"),
+                            style=wx.FD_OPEN)
         if dlg.ShowModal() == wx.ID_OK:
             path = dlg.GetPath()
             self.pastingList = []
@@ -2555,7 +2599,7 @@ class MainFrame(wx.Frame):
         if self.ID_FILTERS != 12000:
             for i in range(12000, self.ID_FILTERS):
                 self.filters_menu.Delete(i)
-        ID_FILTERS = 12000       
+        ID_FILTERS = 12000
         with open(FILTERS_FILE, "r") as f:
             for line in f.readlines():
                 if line.startswith("def "):
@@ -2571,19 +2615,22 @@ class MainFrame(wx.Frame):
         self.panel.addPage(FILTERS_FILE)
 
     def applyFilter(self, evt):
-        execfile(FILTERS_FILE, {}, locals())
+        with open(FILTERS_FILE, "r") as f:
+            text = f.read()
+        functions = {}
+        exec(text, functions)
         filter = self.filters[evt.GetId()]
-        try:
-            text = self.panel.editor.GetSelectedTextUTF8()
-        except:
-            text = self.panel.editor.GetSelectedText()
+        text = self.panel.editor.GetSelectedText()
         if text == "":
-            dlg = wx.MessageDialog(self, "You must select some text to apply a filter...", "No selected text!", style=wx.OK|wx.STAY_ON_TOP)
+            dlg = wx.MessageDialog(self,
+                                   "You must select some text to apply a filter...",
+                                   "No selected text!",
+                                   style=wx.OK | wx.STAY_ON_TOP)
             dlg.ShowModal()
             dlg.Destroy()
         else:
-            self.panel.editor.ReplaceSelection(locals()[filter](text))
-        
+            self.panel.editor.ReplaceSelection(functions[filter](text))
+
     def undo(self, evt):
         if evt.GetId() == wx.ID_UNDO:
             self.panel.editor.Undo()
@@ -2653,9 +2700,9 @@ class MainFrame(wx.Frame):
             self.panel.editor.GotoLine(val)
             first = self.panel.editor.GetFirstVisibleLine()
             if val == first:
-                self.panel.editor.LineScroll(0, -self.panel.editor.LinesOnScreen()/2)
+                self.panel.editor.LineScroll(0, -self.panel.editor.LinesOnScreen() // 2)
             else:
-                self.panel.editor.LineScroll(0, self.panel.editor.LinesOnScreen()/2)
+                self.panel.editor.LineScroll(0, self.panel.editor.LinesOnScreen() // 2)
             #self.panel.editor.SetCurrentPos(pos)
             #self.panel.editor.EnsureVisible(val)
             #self.panel.editor.EnsureCaretVisible()
@@ -2691,7 +2738,7 @@ class MainFrame(wx.Frame):
         word = self.panel.editor.getWordUnderCaret()
         self.status_search.SetValue(word)
         self.onQuickSearchEnter(None)
-        
+
     def onQuickSearchEnter(self, evt):
         str = self.status_search.GetValue()
         self.panel.editor.SetFocus()
@@ -2708,7 +2755,7 @@ class MainFrame(wx.Frame):
     def searchInProject(self, evt):
         ok = False
         search = ""
-        choices = self.panel.project.projectDict.keys()
+        choices = list(self.panel.project.projectDict.keys())
         if len(choices) == 0:
             dlg = wx.MessageDialog(self, 'You must load at least one folder to use the "Search in Project Files" option.',
                                     'No project folder', wx.OK | wx.ICON_INFORMATION)
@@ -2730,11 +2777,12 @@ class MainFrame(wx.Frame):
                 search = dlg.GetValue()
             dlg.Destroy()
             if search:
-                wx.CallAfter(self.doSearchInProject, rootdir, search)
-    
+                wx.CallAfter(self.doSearchInProject, rootdir, ensureNFD(search))
+
     def doSearchInProject(self, rootdir, search):
         result = {}
         filters = ["build"]
+        busy = wx.BusyCursor()
         for root, dirs, files in os.walk(rootdir):
             if os.path.split(root)[1].startswith("."):
                 filters.append(os.path.split(root)[1])
@@ -2750,37 +2798,41 @@ class MainFrame(wx.Frame):
                 filepath = os.path.join(root, file).replace(rootdir, "")
                 if filepath.endswith("~"):
                     continue
-                with open(os.path.join(root, file), "r") as f:
-                    for i, line in enumerate(f.readlines()):
-                        if "\0" in line:
-                            # binary file detected
-                            break
-                        if search.encode("utf-8").lower() in line.lower():
-                            if not result.has_key(filepath):
-                                result[filepath] = ([], [])
-                            result[filepath][0].append(i+1)
-                            if len(line) < 50:
-                                result[filepath][1].append(line.strip().replace("\n", ""))
-                            else:
-                                pos = line.lower().find(search.encode("utf-8").lower())
-                                p1 = pos - 25
-                                if p1 < 0:
-                                    p1, pre = 0, ""
+                try:
+                    with open(os.path.join(root, file), "r") as f:
+                        for i, line in enumerate(f.readlines()):
+                            if "\0" in line:
+                                # binary file detected
+                                break
+                            if search.lower() in line.lower():
+                                if filepath not in result:
+                                    result[filepath] = ([], [])
+                                result[filepath][0].append(i+1)
+                                if len(line) < 50:
+                                    result[filepath][1].append(line.strip().replace("\n", ""))
                                 else:
-                                    pre = "... "
-                                p2 = pos + 25
-                                if p2 >= len(line):
-                                    p2, post = len(line), ""
-                                else:
-                                    post = " ..."
-                                result[filepath][1].append(pre + line[p1:p2].strip().replace("\n", "") + post)
+                                    pos = line.lower().find(search.lower())
+                                    p1 = pos - 25
+                                    if p1 < 0:
+                                        p1, pre = 0, ""
+                                    else:
+                                        pre = "... "
+                                    p2 = pos + 25
+                                    if p2 >= len(line):
+                                        p2, post = len(line), ""
+                                    else:
+                                        post = " ..."
+                                    result[filepath][1].append(pre + line[p1:p2].strip().replace("\n", "") + post)
+                except:
+                    pass
+        del busy
         if result:
             f = SearchProjectFrame(self, rootdir, result)
 
     def insertPath(self, evt):
-        dlg = wx.FileDialog(self, message="Choose a file", 
+        dlg = wx.FileDialog(self, message="Choose a file",
                             defaultDir=PREFERENCES.get("insert_path", os.path.expanduser("~")),
-                            defaultFile="", style=wx.OPEN | wx.MULTIPLE)
+                            defaultFile="", style=wx.FD_OPEN | wx.FD_MULTIPLE)
         if dlg.ShowModal() == wx.ID_OK:
             paths = dlg.GetPaths()
             if len(paths) == 1:
@@ -2804,7 +2856,9 @@ class MainFrame(wx.Frame):
         category = item.GetMenu().GetTitle()
         with codecs.open(os.path.join(ensureNFD(SNIPPETS_PATH), category, name), "r", encoding="utf-8") as f:
             text = f.read()
-        exec text in locals()
+        spos = text.find("=")
+        dictext = text[spos+1:]
+        snippet = eval(dictext)
         self.panel.editor.insertSnippet(snippet["value"])
 
     def openStyleEditor(self, evt):
@@ -2816,18 +2870,20 @@ class MainFrame(wx.Frame):
         st = menu.FindItemById(id).GetLabel()
         self.setStyle(st, fromMenu=True)
         self.style_frame.setCurrentStyle(st)
-        
+
     def setStyle(self, st, fromMenu=False):
         global STYLES
         with open(os.path.join(ensureNFD(STYLES_PATH), st)) as f:
             text = f.read()
-        exec text in locals()
+        spos = text.find("=")
+        dictext = text[spos+1:]
+        style = eval(dictext)
         STYLES = copy.deepcopy(style)
-        if not STYLES.has_key('face'):
+        if 'face' not in STYLES:
             STYLES['face'] = DEFAULT_FONT_FACE
-        if not STYLES.has_key('size'):
+        if 'size' not in STYLES:
             STYLES['size'] = FONT_SIZE
-        if not STYLES.has_key('size2'):
+        if 'size2' not in STYLES:
             STYLES['size2'] = FONT_SIZE2
 
         for i in range(self.panel.notebook.GetPageCount()):
@@ -2884,11 +2940,11 @@ class MainFrame(wx.Frame):
             if not self.panel.splitter.IsSplit():
                 self.panel.splitter.SplitVertically(self.panel.left_splitter, self.panel.right_splitter, 175)
                 h = self.panel.GetSize()[1]
-                self.panel.left_splitter.SplitHorizontally(self.panel.project, self.panel.markers, h*3/4)
+                self.panel.left_splitter.SplitHorizontally(self.panel.project, self.panel.markers, h * 3 // 4)
                 self.panel.left_splitter.Unsplit(self.panel.markers)
             else:
                 h = self.panel.GetSize()[1]
-                self.panel.left_splitter.SplitHorizontally(self.panel.project, self.panel.markers, h*3/4)
+                self.panel.left_splitter.SplitHorizontally(self.panel.project, self.panel.markers, h * 3 // 4)
         else:
             if self.panel.markers.IsShown():
                 self.panel.left_splitter.Unsplit(self.panel.project)
@@ -2904,11 +2960,11 @@ class MainFrame(wx.Frame):
             if not self.panel.splitter.IsSplit():
                 self.panel.splitter.SplitVertically(self.panel.left_splitter, self.panel.right_splitter, 175)
                 h = self.panel.GetSize()[1]
-                self.panel.left_splitter.SplitHorizontally(self.panel.project, self.panel.markers, h*3/4)
+                self.panel.left_splitter.SplitHorizontally(self.panel.project, self.panel.markers, h * 3 // 4)
                 self.panel.left_splitter.Unsplit(self.panel.project)
             else:
                 h = self.panel.GetSize()[1]
-                self.panel.left_splitter.SplitHorizontally(self.panel.project, self.panel.markers, h*3/4)
+                self.panel.left_splitter.SplitHorizontally(self.panel.project, self.panel.markers, h * 3 // 4)
         else:
             if self.panel.project.IsShown():
                 self.panel.left_splitter.Unsplit(self.panel.markers)
@@ -2922,7 +2978,7 @@ class MainFrame(wx.Frame):
             if self.panel.outputlog.IsShownOnScreen():
                 return
             h = self.panel.GetSize()[1]
-            self.panel.right_splitter.SplitHorizontally(self.panel.notebook, self.panel.outputlog, h*4/5 - h)
+            self.panel.right_splitter.SplitHorizontally(self.panel.notebook, self.panel.outputlog, h * 4 // 5 - h)
         else:
             if not self.panel.outputlog.IsShownOnScreen():
                 return
@@ -2956,7 +3012,7 @@ class MainFrame(wx.Frame):
         subId2 = 2000
         if lines != []:
             for item in self.submenu2.GetMenuItems():
-                self.submenu2.DeleteItem(item)
+                self.submenu2.Delete(item.GetId())
             for file in lines:
                 self.submenu2.Append(subId2, toSysEncoding(file))
                 subId2 += 1
@@ -2971,9 +3027,9 @@ class MainFrame(wx.Frame):
         self.panel.addPage(ensureNFD(file))
 
     def open(self, event, encoding=None):
-        dlg = wx.FileDialog(self, message="Choose a file", 
+        dlg = wx.FileDialog(self, message="Choose a file",
             defaultDir=PREFERENCES.get("open_file_path", os.path.expanduser("~")),
-            defaultFile="", style=wx.OPEN | wx.MULTIPLE)
+            defaultFile="", style=wx.FD_OPEN | wx.FD_MULTIPLE)
         if dlg.ShowModal() == wx.ID_OK:
             paths = dlg.GetPaths()
             for path in paths:
@@ -3011,9 +3067,9 @@ class MainFrame(wx.Frame):
             self.panel.addPage(os.path.join(os.getcwd(), "Resources", filename))
         else:
             self.panel.addPage(os.path.join(os.getcwd(), filename))
-        
+
     def openFolder(self, event):
-        dlg = wx.DirDialog(self, message="Choose a folder", 
+        dlg = wx.DirDialog(self, message="Choose a folder",
             defaultPath=PREFERENCES.get("open_folder_path", os.path.expanduser("~")),
             style=wx.DD_DEFAULT_STYLE)
         if dlg.ShowModal() == wx.ID_OK:
@@ -3036,9 +3092,11 @@ class MainFrame(wx.Frame):
 
     def saveas(self, event):
         deffile = os.path.split(self.panel.editor.path)[1]
-        dlg = wx.FileDialog(self, message="Save file as ...", 
-            defaultDir=PREFERENCES.get("save_file_path", os.path.expanduser("~")),
-            defaultFile=deffile, style=wx.SAVE)
+        dlg = wx.FileDialog(self, message="Save file as ...",
+                            defaultDir=PREFERENCES.get("save_file_path",
+                                                       os.path.expanduser("~")),
+                            defaultFile=deffile,
+                            style=wx.FD_SAVE)
         dlg.SetFilterIndex(0)
         if dlg.ShowModal() == wx.ID_OK:
             path = ensureNFD(dlg.GetPath())
@@ -3061,10 +3119,7 @@ class MainFrame(wx.Frame):
             fname = dlg.GetValue()
             if not fname.endswith(".py"):
                 fname = fname + ".py"
-            try:
-                text = self.panel.editor.GetTextUTF8()
-            except:
-                text = self.panel.editor.GetText()
+            text = self.panel.editor.GetText()
             with open(os.path.join(TEMPLATE_PATH, fname), "w") as f:
                 f.write(text)
         dlg.Destroy()
@@ -3101,12 +3156,30 @@ class MainFrame(wx.Frame):
 
     def addCwdToSysPath(self, text):
         cwd = self.getCurrentWorkingDirectory()
-        check = True
+        check1 = check2 = True
+        is_future = '__future__' in text
+        future_found = not is_future
+        is_sys_import = 'import sys' in text
+        sys_found = not is_sys_import
         newtext = ""
         for line in text.splitlines():
-            if check and not line.startswith("#"):
-                newtext += '# encoding: utf-8\nimport sys\nsys.path.append("%s")\n' % cwd
-                check = False
+            if check1:
+                if not line.startswith("#"):
+                    if not '# encoding: utf-8' in text:
+                        newtext += '# encoding: utf-8\n'
+                    check1 = False
+            if not check1 and check2:
+                if is_future and '__future__' in line:
+                    future_found = True
+                if future_found and not '__future__' in line:
+                    if not is_sys_import:
+                        newtext += 'import sys\nsys.path.append("%s")\n' % cwd
+                        check2 = False
+                    elif is_sys_import and 'import sys' in line:
+                        sys_found = True
+                    elif sys_found:
+                        newtext += 'sys.path.append("%s")\n' % cwd
+                        check2 = False
             newtext += line + "\n"
         return newtext
 
@@ -3137,7 +3210,7 @@ class MainFrame(wx.Frame):
             with open(self.master_document, "r") as f:
                 text = f.read()
         else:
-            text = self.panel.editor.GetTextUTF8()
+            text = self.panel.editor.GetText()
         if text != "":
             text = self.addCwdToSysPath(text)
             with open(TEMP_FILE, "w") as f:
@@ -3145,7 +3218,7 @@ class MainFrame(wx.Frame):
             self.run(TEMP_FILE)
 
     def runSelection(self, event):
-        text = self.panel.editor.GetSelectedTextUTF8()
+        text = self.panel.editor.GetSelectedText()
         if text != "":
             text = self.addCwdToSysPath(text)
             with open(TEMP_FILE, "w") as f:
@@ -3153,11 +3226,11 @@ class MainFrame(wx.Frame):
             self.run(TEMP_FILE)
 
     def runSelectionAsPyo(self, event):
-        text = self.panel.editor.GetSelectedTextUTF8()
+        text = self.panel.editor.GetSelectedText()
         if text == "":
             pos = self.panel.editor.GetCurrentPos()
             line = self.panel.editor.LineFromPosition(pos)
-            text = self.panel.editor.GetLineUTF8(line)
+            text = self.panel.editor.GetLine(line)
         text = self.addCwdToSysPath(text)
         with open(TEMP_FILE, "w") as f:
             f.write("from pyo import *\ns = Server().boot()\n")
@@ -3166,13 +3239,13 @@ class MainFrame(wx.Frame):
         self.run(TEMP_FILE)
 
     def execSelection(self, event):
-        text = self.panel.editor.GetSelectedTextUTF8()
+        text = self.panel.editor.GetSelectedText()
         if text == "":
             pos = self.panel.editor.GetCurrentPos()
             line = self.panel.editor.LineFromPosition(pos)
-            text = self.panel.editor.GetLineUTF8(line)
-            if not text.startswith("print"):
-                text = "print " + text
+            text = self.panel.editor.GetLine(line)
+            if not text.startswith("print("):
+                text = "print(" + text + ")"
         else:
             pos = self.panel.editor.GetSelectionEnd()
         line = self.panel.editor.LineFromPosition(pos)
@@ -3180,7 +3253,7 @@ class MainFrame(wx.Frame):
         self.panel.editor.SetCurrentPos(pos)
         self.panel.editor.addText("\n", False)
         with stdoutIO() as s:
-            exec text
+            exec(text)
         self.panel.editor.addText(s.getvalue())
 
     def prepareBackgroundServer(self):
@@ -3234,7 +3307,7 @@ class MainFrame(wx.Frame):
         self.back_server_started = False
         self.backServerItem.SetItemLabel("Start Pyo Background Server")
         self.sendToServerItem.Enable(False)
-        
+
     def startStopBackgroundServer(self, evt):
         if not self.back_server_started:
             self.prepareBackgroundServer()
@@ -3255,11 +3328,11 @@ class MainFrame(wx.Frame):
 
     def sendSelectionToBackgroundServer(self, evt):
         end = None
-        text = self.panel.editor.GetSelectedTextUTF8()
+        text = self.panel.editor.GetSelectedText()
         if text == "":
             pos = self.panel.editor.GetCurrentPos()
             line = self.panel.editor.LineFromPosition(pos)
-            text = self.panel.editor.GetLineUTF8(line)
+            text = self.panel.editor.GetLine(line)
         else:
             end = self.panel.editor.GetSelectionEnd()
         if self.back_server_started:
@@ -3301,26 +3374,26 @@ class MainFrame(wx.Frame):
 
     def showDocString(self, evt):
         self.panel.editor.onShowDocString()
-        
+
     def onShowEditorKeyCommands(self, evt):
         if not self.keyCommandsFrame.IsShown():
             self.keyCommandsFrame.CenterOnParent()
             self.keyCommandsFrame.Show()
 
     def onHelpAbout(self, evt):
-        info = wx.AboutDialogInfo()
+        info = AboutDialogInfo()
         info.Name = APP_NAME
         info.Version = APP_VERSION
-        info.Copyright = u"(C) 2012 Olivier Belanger"
+        info.Copyright = u"(C) 2016 Olivier Belanger"
         info.Description = "E-Pyo is a text editor especially configured to edit pyo audio programs.\n\n"
-        wx.AboutBox(info)
+        AboutBox(info)
 
     def OnClose(self, event):
-	msg = "You are about to leave E-Pyo. Is this really what you want to do?"
-	dlg = wx.MessageDialog(self, msg, "Warning!", wx.YES_NO|wx.ICON_QUESTION)
-	if dlg.ShowModal() != wx.ID_YES:
-	    event.StopPropagation()
-	    return
+        msg = "You are about to leave E-Pyo. Is this really what you want to do?"
+        dlg = wx.MessageDialog(self, msg, "Warning!", wx.YES_NO|wx.ICON_QUESTION)
+        if dlg.ShowModal() != wx.ID_YES:
+            event.StopPropagation()
+            return
         if self.back_server_started == True:
             try:
                 self.startStopBackgroundServer(None)
@@ -3401,11 +3474,11 @@ class MainPanel(wx.Panel):
         self.markers = MarkersPanel(self.left_splitter, self, (-1, -1))
 
         self.notebook = FNB.FlatNotebook(self.right_splitter, size=(-1,-1))
-        self.notebook.SetAGWWindowStyleFlag(FNB.FNB_FF2|FNB.FNB_X_ON_TAB|FNB.FNB_NO_X_BUTTON|FNB.FNB_DROPDOWN_TABS_LIST|FNB.FNB_HIDE_ON_SINGLE_TAB)
+        self.notebook.SetAGWWindowStyleFlag(FNB.FNB_FANCY_TABS|FNB.FNB_X_ON_TAB|FNB.FNB_NO_X_BUTTON|FNB.FNB_DROPDOWN_TABS_LIST|FNB.FNB_HIDE_ON_SINGLE_TAB)
         self.addNewPage()
         self.outputlog = OutputLogPanel(self.right_splitter, self, size=(-1,150))
 
-        self.right_splitter.SplitHorizontally(self.notebook, self.outputlog, (self.GetSize()[1]*4/5) - self.GetSize()[1])
+        self.right_splitter.SplitHorizontally(self.notebook, self.outputlog, (self.GetSize()[1] * 4 // 5) - self.GetSize()[1])
 
         self.splitter.SplitVertically(self.left_splitter, self.right_splitter, 175)
         self.splitter.Unsplit(self.left_splitter)
@@ -3465,7 +3538,9 @@ class MainPanel(wx.Panel):
         if founded:
             with open(os.path.join(MARKERS_PATH, marker_file), "r") as f:
                 text = f.read()
-            exec text in locals()
+            spos = text.find("=")
+            dictext = text[spos+1:]
+            markers = eval(dictext)
             self.editor.setMarkers(copy.deepcopy(markers))
 
     def onClosingPage(self, evt):
@@ -3514,7 +3589,7 @@ class MainPanel(wx.Panel):
 
 #######################################################
 ### The idea of EditorPanel is to allow multiple views
-### at the same time in a single notebook page. 
+### at the same time in a single notebook page.
 ### Also: A tree view of classes and functions of the file
 ### Not yet implemented... ( TODO )
 #######################################################
@@ -3529,7 +3604,7 @@ class EditorPanel(wx.Panel):
         self.SetSizerAndFit(box)
 
 class Editor(stc.StyledTextCtrl):
-    def __init__(self, parent, ID, pos=wx.DefaultPosition, size=wx.DefaultSize, 
+    def __init__(self, parent, ID, pos=wx.DefaultPosition, size=wx.DefaultSize,
                  style= wx.NO_BORDER | wx.WANTS_CHARS, setTitle=None, getTitle=None):
         stc.StyledTextCtrl.__init__(self, parent, ID, pos, size, style)
 
@@ -3556,7 +3631,7 @@ class Editor(stc.StyledTextCtrl):
         self.auto_comp_container = PREFERENCES.get("auto_comp_container", 0)
 
 
-        self.alphaStr = string.lowercase + string.uppercase + '0123456789'
+        self.alphaStr = LOWERCASE + UPPERCASE + '0123456789'
 
         self.Colourise(0, -1)
         self.SetCurrentPos(0)
@@ -3581,7 +3656,6 @@ class Editor(stc.StyledTextCtrl):
         self.SetProperty("fold", "1")
         self.SetProperty("tab.timmy.whinge.level", "1")
         self.SetMargins(5, 5)
-        self.SetUseAntiAliasing(True)
         self.SetEdgeColour(STYLES["lineedge"]['colour'])
         self.SetEdgeColumn(78)
 
@@ -3655,7 +3729,7 @@ class Editor(stc.StyledTextCtrl):
                 st = "face:%s,fore:%s,size:%s" % (STYLES['face'], STYLES[forekey]['colour'], STYLES['size'])
             if backkey:
                 st += ",back:%s" % STYLES[backkey]['colour']
-            if STYLES[forekey].has_key('bold'):
+            if 'bold' in STYLES[forekey]:
                 if STYLES[forekey]['bold']:
                     st += ",bold"
                 if STYLES[forekey]['italic']:
@@ -3665,7 +3739,7 @@ class Editor(stc.StyledTextCtrl):
             return st
 
         self.StyleSetSpec(stc.STC_STYLE_DEFAULT, buildStyle('default', 'background'))
-        self.StyleClearAll()  # Reset all to be like the default
+        self.StyleClearAll() # Reset all to be like the default
 
         self.MarkerDefine(0, stc.STC_MARK_SHORTARROW, STYLES['markerbg']['colour'], STYLES['markerbg']['colour'])
         self.MarkerDefine(stc.STC_MARKNUM_FOLDEROPEN, stc.STC_MARK_BOXMINUS, STYLES['markerfg']['colour'], STYLES['markerbg']['colour'])
@@ -3882,7 +3956,7 @@ class Editor(stc.StyledTextCtrl):
                     last = self.GetCurrentLine() - 1
                     break
                 self.LineDown()
-            self.SetSelection(self.GetLineEndPosition(first)+1, 
+            self.SetSelection(self.GetLineEndPosition(first)+1,
                               self.GetLineEndPosition(last)+1)
             if evt is not None:
                 evt.StopPropagation()
@@ -3895,7 +3969,7 @@ class Editor(stc.StyledTextCtrl):
                     first = self.GetCurrentLine()
                     break
                 self.LineUp()
-            self.SetSelection(self.GetLineEndPosition(first)+1, 
+            self.SetSelection(self.GetLineEndPosition(first)+1,
                               self.GetLineEndPosition(last)+1)
             if evt is not None:
                 evt.StopPropagation()
@@ -3924,7 +3998,7 @@ class Editor(stc.StyledTextCtrl):
                 self.SearchAnchor()
                 res = self.SearchPrev(stc.STC_FIND_MATCHCASE, str)
         line = self.GetCurrentLine()
-        halfNumLinesOnScreen = self.LinesOnScreen() / 2
+        halfNumLinesOnScreen = self.LinesOnScreen() // 2
         self.ScrollToLine(line - halfNumLinesOnScreen)
 
     def OnShowFindReplace(self):
@@ -3985,7 +4059,7 @@ class Editor(stc.StyledTextCtrl):
                     self.anchor1 = startpos + newStrLen + 1
                     self.anchor2 += diffLen
         line = self.GetCurrentLine()
-        halfNumLinesOnScreen = self.LinesOnScreen() / 2
+        halfNumLinesOnScreen = self.LinesOnScreen() // 2
         self.ScrollToLine(line - halfNumLinesOnScreen)
 
     def OnFindClose(self, evt):
@@ -4000,22 +4074,20 @@ class Editor(stc.StyledTextCtrl):
             self.SetEdgeMode(stc.STC_EDGE_LINE)
         else:
             self.SetEdgeMode(stc.STC_EDGE_NONE)
-        
+
     def removeTrailingWhiteSpace(self):
-        text = self.GetTextUTF8()
+        text = self.GetText()
         lines = [line.rstrip() for line in text.splitlines(False)]
         text= "\n".join(lines)
         self.setText(text, False)
 
     def tabsToSpaces(self):
-        text = self.GetTextUTF8()
+        text = self.GetText()
         text = text.replace("\t", "    ")
         self.setText(text, False)
 
     ### Save and Close file ###
     def saveMyFile(self, file):
-        #with codecs.open(file, "w", encoding="utf-8") as f:
-         #   f.write(self.GetTextUTF8())
         self.SaveFile(file)
         self.path = file
         self.saveMark = False
@@ -4049,14 +4121,14 @@ class Editor(stc.StyledTextCtrl):
         if self.GetModify():
             if not self.path: f = "Untitled"
             else: f = self.path
-            dlg = wx.MessageDialog(None, 'file ' + f + ' has been modified. Do you want to save?', 
+            dlg = wx.MessageDialog(None, 'file ' + f + ' has been modified. Do you want to save?',
                                    'Warning!', wx.YES | wx.NO | wx.CANCEL)
             but = dlg.ShowModal()
             if but == wx.ID_YES:
                 dlg.Destroy()
                 if not self.path or "Untitled-" in self.path:
-                    dlg2 = wx.FileDialog(None, message="Save file as ...", defaultDir=os.getcwd(), 
-                                         defaultFile="", style=wx.SAVE|wx.FD_OVERWRITE_PROMPT)
+                    dlg2 = wx.FileDialog(None, message="Save file as ...", defaultDir=os.getcwd(),
+                                         defaultFile="", style=wx.FD_SAVE | wx.FD_OVERWRITE_PROMPT)
                     dlg2.SetFilterIndex(0)
                     if dlg2.ShowModal() == wx.ID_OK:
                         path = dlg2.GetPath()
@@ -4081,13 +4153,13 @@ class Editor(stc.StyledTextCtrl):
         if self.GetModify():
             if not self.path: f = "Untitled"
             else: f = os.path.split(self.path)[1]
-            dlg = wx.MessageDialog(None, 'file ' + f + ' has been modified. Do you want to save?', 
+            dlg = wx.MessageDialog(None, 'file ' + f + ' has been modified. Do you want to save?',
                                    'Warning!', wx.YES | wx.NO)
             if dlg.ShowModal() == wx.ID_YES:
                 dlg.Destroy()
                 if not self.path or "Untitled-" in self.path:
                     dlg2 = wx.FileDialog(None, message="Save file as ...", defaultDir=os.getcwd(),
-                                         defaultFile="", style=wx.SAVE|wx.FD_OVERWRITE_PROMPT)
+                                         defaultFile="", style=wx.FD_SAVE | wx.FD_OVERWRITE_PROMPT)
                     dlg2.SetFilterIndex(0)
 
                     if dlg2.ShowModal() == wx.ID_OK:
@@ -4111,30 +4183,21 @@ class Editor(stc.StyledTextCtrl):
 
     ### Text Methods ###
     def addText(self, text, update=True):
-        try:
-            self.AddTextUTF8(text)
-        except:
-            self.AddText(text)
+        self.AddText(text)
         if update:
             count = self.GetLineCount()
             for i in range(count):
                 self.updateVariableDict(i)
 
     def insertText(self, pos, text, update=True):
-        try:
-            self.InsertTextUTF8(pos, text)
-        except:
-            self.InsertText(pos, text)
+        self.InsertText(pos, text)
         if update:
             count = self.GetLineCount()
             for i in range(count):
                 self.updateVariableDict(i)
 
     def setText(self, text, update=True):
-        try:
-            self.SetTextUTF8(text)
-        except:
-            self.SetText(text)
+        self.SetText(text)
         if update:
             count = self.GetLineCount()
             for i in range(count):
@@ -4161,18 +4224,18 @@ class Editor(stc.StyledTextCtrl):
         caretPos = self.GetCurrentPos()
         startpos = self.WordStartPosition(caretPos, True)
         endpos = self.WordEndPosition(caretPos, True)
-        currentword = self.GetTextRangeUTF8(startpos, endpos)
+        currentword = self.GetTextRange(startpos, endpos)
         return currentword
 
     def showAutoCompContainer(self, state):
         self.auto_comp_container = state
-        
+
     def showAutoComp(self):
         propagate = True
         charBefore = " "
         caretPos = self.GetCurrentPos()
         if caretPos > 0:
-            charBefore = self.GetTextRangeUTF8(caretPos - 1, caretPos)
+            charBefore = self.GetTextRange(caretPos - 1, caretPos)
         currentword = self.getWordUnderCaret()
         if charBefore in self.alphaStr:
             list = ''
@@ -4194,7 +4257,7 @@ class Editor(stc.StyledTextCtrl):
                 braceend = False
             startpos = self.WordStartPosition(pos-2, True)
             endpos = self.WordEndPosition(pos-2, True)
-            currentword = self.GetTextRangeUTF8(startpos, endpos)
+            currentword = self.GetTextRange(startpos, endpos)
         for word in PYO_WORDLIST:
             if word == currentword:
                 text = class_args(eval(word)).replace(word, "")
@@ -4273,7 +4336,7 @@ class Editor(stc.StyledTextCtrl):
             self.SetCurrentPos(pos)
             wx.CallAfter(self.SetAnchor, self.GetCurrentPos())
         else:
-            self.selection = self.GetSelectedTextUTF8()
+            self.selection = self.GetSelectedText()
             pos = self.GetSelectionStart()
             wx.CallAfter(self.navigateSnips, pos)
 
@@ -4297,7 +4360,7 @@ class Editor(stc.StyledTextCtrl):
         while charat == ord("."):
             startpos = self.WordStartPosition(pos-2, True)
             endpos = self.WordEndPosition(pos-2, True)
-            currentword = "%s.%s" % (self.GetTextRangeUTF8(startpos, endpos), currentword)
+            currentword = "%s.%s" % (self.GetTextRange(startpos, endpos), currentword)
             pos = startpos - 1
             charat = self.GetCharAt(pos)
         if currentword != "":
@@ -4321,7 +4384,7 @@ class Editor(stc.StyledTextCtrl):
         return propagate
 
     def updateVariableDict(self, line):
-        text = self.GetLineUTF8(line).replace(" ", "")
+        text = self.GetLine(line).replace(" ", "")
         egpos = text.find("=")
         brpos = text.find("(")
         if egpos != -1 and brpos != -1:
@@ -4334,10 +4397,10 @@ class Editor(stc.StyledTextCtrl):
     def processReturn(self):
         prevline = self.GetCurrentLine() - 1
         self.updateVariableDict(prevline)
-        if self.GetLineUTF8(prevline).strip().endswith(":"):
+        if self.GetLine(prevline).strip().endswith(":"):
             indent = self.GetLineIndentation(prevline)
             self.addText(" "*(indent+4), False)
-        elif self.GetLineIndentation(prevline) != 0 and self.GetLineUTF8(prevline).strip() != "":
+        elif self.GetLineIndentation(prevline) != 0 and self.GetLine(prevline).strip() != "":
             indent = self.GetLineIndentation(prevline)
             self.addText(" "*indent, False)
 
@@ -4381,7 +4444,7 @@ class Editor(stc.StyledTextCtrl):
             if "import " in line:
                 text = text + line
         try:
-            exec text in locals()
+            exec(text, locals())
             docstr = eval(currentword).__doc__
             dlg = wx.lib.dialogs.ScrolledMessageDialog(self, docstr, "__doc__ string for %s" % currentword, size=(700,500))
             dlg.CenterOnParent()
@@ -4410,13 +4473,13 @@ class Editor(stc.StyledTextCtrl):
             evt.Skip()
         else:
             evt.StopPropagation()
-        
+
     def OnKeyDown(self, evt):
         if PLATFORM == "darwin":
             ControlDown = evt.CmdDown
         else:
             ControlDown = evt.ControlDown
-        
+
         propagate = True
         # Stop propagation on markers navigation --- Shift+Ctrl+Arrows up/down
         if evt.GetKeyCode() in [wx.WXK_DOWN,wx.WXK_UP] and evt.ShiftDown() and ControlDown():
@@ -4504,7 +4567,7 @@ class Editor(stc.StyledTextCtrl):
             wx.CallAfter(self.processReturn)
         # Process Tab key --- AutoCompletion, Insert object's args, snippet for builtin keywords
         elif evt.GetKeyCode() == wx.WXK_TAB:
-            autoCompActive =  self.AutoCompActive()
+            autoCompActive = self.AutoCompActive()
             currentword = self.getWordUnderCaret()
             currentline = self.GetCurrentLine()
             charat = self.GetCharAt(self.GetCurrentPos()-1)
@@ -4564,7 +4627,7 @@ class Editor(stc.StyledTextCtrl):
         if braceAtCaret >= 0:
             braceOpposite = self.BraceMatch(braceAtCaret)
 
-        if braceAtCaret != -1  and braceOpposite == -1:
+        if braceAtCaret != -1 and braceOpposite == -1:
             self.BraceBadLight(braceAtCaret)
         else:
             self.BraceHighlight(braceAtCaret, braceOpposite)
@@ -4574,11 +4637,6 @@ class Editor(stc.StyledTextCtrl):
             self.args_buffer = []
             self.quit_navigate_args = False
 
-        # if self.endOfLine:
-        #     for i in range(self.GetLineCount()):
-        #         pos = self.GetLineEndPosition(i)
-        #         if self.GetCharAt(pos-1) != 172:
-        #             self.InsertTextUTF8(pos, "¬")
         self.moveMarkers()
         self.checkScrollbar()
         self.OnModified()
@@ -4601,9 +4659,9 @@ class Editor(stc.StyledTextCtrl):
         for i in range(self.firstLine, self.endLine+1):
             lineLen = len(self.GetLine(i))
             pos = self.PositionFromLine(i)
-            if self.GetTextRangeUTF8(pos,pos+1) != '#' and lineLen > 2:
+            if self.GetTextRange(pos,pos+1) != '#' and lineLen > 2:
                 self.insertText(pos, '#', False)
-            elif self.GetTextRangeUTF8(pos,pos+1) == '#':
+            elif self.GetTextRange(pos,pos+1) == '#':
                 self.GotoPos(pos+1)
                 self.DelWordLeft()
 
@@ -4623,13 +4681,13 @@ class Editor(stc.StyledTextCtrl):
             handle = handles[self.current_marker]
             line = self.markers_dict[handle][0]
             self.GotoLine(line)
-            halfNumLinesOnScreen = self.LinesOnScreen() / 2
+            halfNumLinesOnScreen = self.LinesOnScreen() // 2
             self.ScrollToLine(line - halfNumLinesOnScreen)
             self.GetParent().GetParent().GetParent().GetParent().markers.setSelected(handle)
 
     def setMarkers(self, dic):
         try:
-            key = dic.keys()[0]
+            key = list(dic.keys())[0]
         except:
             return
         if type(dic[key]) != list:
@@ -4649,11 +4707,11 @@ class Editor(stc.StyledTextCtrl):
         if dict != self.markers_dict:
             self.markers_dict = dict
             self.GetParent().GetParent().GetParent().GetParent().markers.setDict(self.markers_dict)
-            
+
     def addMarker(self, line):
         if not self.MarkerGet(line):
             handle = self.MarkerAdd(line, 0)
-            self.markers_dict[handle] = [line, ""]            
+            self.markers_dict[handle] = [line, ""]
         comment = ""
         dlg = wx.TextEntryDialog(self, 'Enter a comment for that marker:', 'Marker Comment')
         if dlg.ShowModal() == wx.ID_OK:
@@ -4790,7 +4848,7 @@ class SimpleEditor(stc.StyledTextCtrl):
 
         self.panel = parent
 
-        self.alphaStr = string.lowercase + string.uppercase + '0123456789'
+        self.alphaStr = LOWERCASE + UPPERCASE + '0123456789'
 
         self.Colourise(0, -1)
         self.SetCurrentPos(0)
@@ -4809,7 +4867,6 @@ class SimpleEditor(stc.StyledTextCtrl):
         self.SetEdgeMode(0)
         self.SetWrapMode(stc.STC_WRAP_WORD)
 
-        self.SetUseAntiAliasing(True)
         self.SetEdgeColour(STYLES["lineedge"]['colour'])
         self.SetEdgeColumn(78)
         self.SetReadOnly(True)
@@ -4823,7 +4880,7 @@ class SimpleEditor(stc.StyledTextCtrl):
                 st = "face:%s,fore:%s,size:%s" % (STYLES['face'], STYLES[forekey]['colour'], STYLES['size'])
             if backkey:
                 st += ",back:%s" % STYLES[backkey]['colour']
-            if STYLES[forekey].has_key('bold'):
+            if 'bold' in STYLES[forekey]:
                 if STYLES[forekey]['bold']:
                     st += ",bold"
                 if STYLES[forekey]['italic']:
@@ -4832,7 +4889,7 @@ class SimpleEditor(stc.StyledTextCtrl):
                     st += ",underline"
             return st
         self.StyleSetSpec(stc.STC_STYLE_DEFAULT, buildStyle('default', 'background'))
-        self.StyleClearAll()  # Reset all to be like the default
+        self.StyleClearAll() # Reset all to be like the default
 
         self.StyleSetSpec(stc.STC_STYLE_DEFAULT, buildStyle('default', 'background'))
         self.StyleSetSpec(stc.STC_STYLE_LINENUMBER, buildStyle('linenumber', 'marginback', True))
@@ -4876,7 +4933,7 @@ class OutputLogPanel(wx.Panel):
         if PLATFORM == "darwin":
             font.SetPointSize(psize-1)
         self.toolbar.SetToolBitmapSize(tsize)
-        
+
         if PLATFORM == "win32":
             self.toolbar.AddSeparator()
         title = wx.StaticText(self.toolbar, -1, " Output panel")
@@ -4891,7 +4948,7 @@ class OutputLogPanel(wx.Panel):
         if PLATFORM == "win32":
             self.toolbar.AddSeparator()
         self.processKill = wx.Button(self.toolbar, -1, label="Kill", size=(40,self.processPopup.GetSize()[1]))
-        self.processKill.SetFont(font)        
+        self.processKill.SetFont(font)
         self.toolbar.AddControl(self.processKill)
         self.processKill.Bind(wx.EVT_BUTTON, self.killProcess)
         if PLATFORM == "win32":
@@ -4921,11 +4978,14 @@ class OutputLogPanel(wx.Panel):
         if PLATFORM == "darwin":
             tb2.SetToolBitmapSize(tsize)
         tb2.AddSeparator()
-        tb2.AddLabelTool(17, "Close Panel", close_panel_bmp, shortHelp="Close Panel")
+        if "phoenix" not in wx.version():
+            tb2.AddLabelTool(17, "Close Panel", close_panel_bmp, shortHelp="Close Panel")
+        else:
+            tb2.AddTool(17, "Close Panel", close_panel_bmp, shortHelp="Close Panel")
         tb2.Realize()
         toolbarbox.Add(tb2, 0, wx.ALIGN_RIGHT, 0)
 
-        wx.EVT_TOOL(self, 17, self.onCloseOutputPanel)
+        self.Bind(wx.EVT_TOOL, self.onCloseOutputPanel, id=17)
 
         self.sizer.Add(toolbarbox, 0, wx.EXPAND)
 
@@ -5006,10 +5066,7 @@ class PastingListEditorFrame(wx.Frame):
                 self.editors.append(editor)
                 if not line.endswith("\n"):
                     line = line + "\n"
-                try:
-                    editor.AddTextUTF8(line)
-                except:
-                    editor.AddText(line)
+                editor.AddText(line)
 
         Y = wx.SystemSettings.GetMetric(wx.SYS_SCREEN_Y)
         if heightSum > Y - 100:
@@ -5023,19 +5080,19 @@ class PastingListEditorFrame(wx.Frame):
     def close(self, evt):
         pastingList = []
         for editor in self.editors:
-            text = editor.GetTextUTF8()
+            text = editor.GetText()
             if text.replace("\n", "").strip() != "":
                 pastingList.append(text)
         self.parent.pastingList = pastingList
         self.Destroy()
- 
+
 TOOL_ADD_FILE_ID = 10
 TOOL_ADD_FOLDER_ID = 11
 TOOL_REFRESH_TREE_ID = 12
 class ProjectTree(wx.Panel):
     """Project panel"""
     def __init__(self, parent, mainPanel, size):
-        wx.Panel.__init__(self, parent, -1, size=size, 
+        wx.Panel.__init__(self, parent, -1, size=size,
                           style=wx.WANTS_CHARS|wx.SUNKEN_BORDER|wx.EXPAND)
         self.SetMinSize((150, -1))
         self.mainPanel = mainPanel
@@ -5055,27 +5112,41 @@ class ProjectTree(wx.Panel):
         toolbarbox = wx.BoxSizer(wx.HORIZONTAL)
         self.toolbar = wx.ToolBar(self, -1, size=(-1,36))
         self.toolbar.SetToolBitmapSize(tsize)
-        self.toolbar.AddLabelTool(TOOL_ADD_FILE_ID, "Add File", 
-                                  file_add_bmp, shortHelp="Add File")
-        self.toolbar.AddLabelTool(TOOL_ADD_FOLDER_ID, "Add Folder", 
-                                  folder_add_bmp, shortHelp="Add Folder")
-        self.toolbar.AddLabelTool(TOOL_REFRESH_TREE_ID, "Refresh Tree", 
-                                  refresh_tree_bmp, shortHelp="Refresh Tree")
+
+        if "phoenix" not in wx.version():
+            self.toolbar.AddLabelTool(TOOL_ADD_FILE_ID, "Add File",
+                                      file_add_bmp, shortHelp="Add File")
+            self.toolbar.AddLabelTool(TOOL_ADD_FOLDER_ID, "Add Folder",
+                                      folder_add_bmp, shortHelp="Add Folder")
+            self.toolbar.AddLabelTool(TOOL_REFRESH_TREE_ID, "Refresh Tree",
+                                      refresh_tree_bmp, shortHelp="Refresh Tree")
+        else:
+            self.toolbar.AddTool(TOOL_ADD_FILE_ID, "Add File",
+                                      file_add_bmp, shortHelp="Add File")
+            self.toolbar.AddTool(TOOL_ADD_FOLDER_ID, "Add Folder",
+                                      folder_add_bmp, shortHelp="Add Folder")
+            self.toolbar.AddTool(TOOL_REFRESH_TREE_ID, "Refresh Tree",
+                                      refresh_tree_bmp, shortHelp="Refresh Tree")
+
         self.toolbar.EnableTool(TOOL_ADD_FILE_ID, False)
         self.toolbar.Realize()
         toolbarbox.Add(self.toolbar, 1, wx.ALIGN_LEFT | wx.EXPAND, 0)
 
         tb2 = wx.ToolBar(self, -1, size=(-1,36))
         tb2.SetToolBitmapSize(tsize)
-        tb2.AddLabelTool(15, "Close Panel", close_panel_bmp, 
-                         shortHelp="Close Panel")
+
+        if "phoenix" not in wx.version():
+            tb2.AddLabelTool(15, "Close Panel", close_panel_bmp, shortHelp="Close Panel")
+        else:
+            tb2.AddTool(15, "Close Panel", close_panel_bmp, shortHelp="Close Panel")
+
         tb2.Realize()
         toolbarbox.Add(tb2, 0, wx.ALIGN_RIGHT, 0)
 
-        wx.EVT_TOOL(self, TOOL_ADD_FILE_ID, self.onAdd)
-        wx.EVT_TOOL(self, TOOL_ADD_FOLDER_ID, self.onAdd)
-        wx.EVT_TOOL(self, TOOL_REFRESH_TREE_ID, self.onRefresh)
-        wx.EVT_TOOL(self, 15, self.onCloseProjectPanel)
+        self.Bind(wx.EVT_TOOL, self.onAdd, id=TOOL_ADD_FILE_ID)
+        self.Bind(wx.EVT_TOOL, self.onAdd, id=TOOL_ADD_FOLDER_ID)
+        self.Bind(wx.EVT_TOOL, self.onRefresh, id=TOOL_REFRESH_TREE_ID)
+        self.Bind(wx.EVT_TOOL, self.onCloseProjectPanel, id=15)
 
         self.sizer.Add(toolbarbox, 0, wx.EXPAND)
 
@@ -5087,7 +5158,7 @@ class ProjectTree(wx.Panel):
             pt = 11
         else:
             pt = 8
-        fnt = wx.Font(pt, wx.ROMAN, wx.NORMAL, wx.NORMAL, face=STYLES['face'])
+        fnt = wx.Font(pt, wx.ROMAN, wx.NORMAL, wx.NORMAL, False, STYLES['face'])
         self.tree.SetFont(fnt)
 
         self.sizer.Add(self.tree, 1, wx.EXPAND)
@@ -5095,18 +5166,17 @@ class ProjectTree(wx.Panel):
 
         isz = (12,12)
         self.il = wx.ImageList(isz[0], isz[1])
-        bmp = wx.ArtProvider_GetBitmap(wx.ART_FOLDER, wx.ART_OTHER, isz)
+        bmp = wx.ArtProvider.GetBitmap(wx.ART_FOLDER, wx.ART_OTHER, isz)
         self.fldridx = self.il.Add(bmp)
-        bmp = wx.ArtProvider_GetBitmap(wx.ART_FILE_OPEN, wx.ART_OTHER, isz)
+        bmp = wx.ArtProvider.GetBitmap(wx.ART_FILE_OPEN, wx.ART_OTHER, isz)
         self.fldropenidx = self.il.Add(bmp)
-        bmp = wx.ArtProvider_GetBitmap(wx.ART_NORMAL_FILE, wx.ART_OTHER, isz)
+        bmp = wx.ArtProvider.GetBitmap(wx.ART_NORMAL_FILE, wx.ART_OTHER, isz)
         self.fileidx = self.il.Add(bmp)
 
         self.tree.SetImageList(self.il)
-        self.tree.SetSpacing(12)
         self.tree.SetIndent(6)
 
-        self.root = self.tree.AddRoot("EPyo_Project_tree", self.fldridx, 
+        self.root = self.tree.AddRoot("EPyo_Project_tree", self.fldridx,
                                       self.fldropenidx, None)
         self.tree.SetItemTextColour(self.root, STYLES['default']['colour'])
 
@@ -5140,7 +5210,7 @@ class ProjectTree(wx.Panel):
         expanded = []
         self._tree_analyze(self.root, expanded)
         self.tree.DeleteAllItems()
-        self.root = self.tree.AddRoot("EPyo_Project_tree", self.fldridx, 
+        self.root = self.tree.AddRoot("EPyo_Project_tree", self.fldridx,
                                       self.fldropenidx, None)
         for folder, path in self.projectDict.items():
             self.loadFolder(path)
@@ -5150,9 +5220,9 @@ class ProjectTree(wx.Panel):
         folderName = os.path.split(dirPath)[1]
         self.projectDict[folderName] = dirPath
         self.mainPanel.mainFrame.showProjectTree(True)
-        item = self.tree.AppendItem(self.root, folderName, self.fldridx, 
+        item = self.tree.AppendItem(self.root, folderName, self.fldridx,
                                     self.fldropenidx, None)
-        self.tree.SetPyData(item, dirPath)
+        self.tree.SetItemData(item, packItemData(dirPath))
         self.tree.SetItemTextColour(item, STYLES['default']['colour'])
         self.buildRecursiveTree(dirPath, item)
 
@@ -5164,14 +5234,14 @@ class ProjectTree(wx.Panel):
             if os.path.isfile(path):
                 if not path.endswith("~") and \
                        os.path.splitext(path)[1].strip(".") in ALLOWED_EXT:
-                    child = self.tree.AppendItem(item, elem, self.fileidx, 
+                    child = self.tree.AppendItem(item, elem, self.fileidx,
                                                  self.fileidx)
-                    self.tree.SetPyData(child, os.path.join(dir, path))
+                    self.tree.SetItemData(child, packItemData(os.path.join(dir, path)))
             elif os.path.isdir(path):
                 if elem != "build":
-                    child = self.tree.AppendItem(item, elem, self.fldridx, 
+                    child = self.tree.AppendItem(item, elem, self.fldridx,
                                                  self.fldropenidx)
-                    self.tree.SetPyData(child, os.path.join(dir, path))
+                    self.tree.SetItemData(child, packItemData(os.path.join(dir, path)))
                     self.buildRecursiveTree(path, child)
             if child is not None:
                 self.tree.SetItemTextColour(child, STYLES['default']['colour'])
@@ -5180,16 +5250,16 @@ class ProjectTree(wx.Panel):
         id = evt.GetId()
         treeItemId = self.tree.GetSelection()
         if self.selectedItem != None:
-            selPath = self.tree.GetPyData(self.selectedItem)
+            selPath = unpacItemData(self.tree.GetItemData(self.selectedItem))
             if os.path.isdir(selPath):
                 self.scope = selPath
             elif os.path.isfile(selPath):
                 treeItemId = self.tree.GetItemParent(treeItemId)
-                self.scope = self.tree.GetPyData(treeItemId)
+                self.scope = unpackItemData(self.tree.GetItemData(treeItemId))
         elif self.selectedItem == None and id == TOOL_ADD_FOLDER_ID:
-            dlg = wx.DirDialog(self, 
+            dlg = wx.DirDialog(self,
                                "Choose directory where to save your folder:",
-                               defaultPath=os.path.expanduser("~"), 
+                               defaultPath=os.path.expanduser("~"),
                                style=wx.DD_DEFAULT_STYLE)
             if dlg.ShowModal() == wx.ID_OK:
                 self.scope = dlg.GetPath()
@@ -5199,14 +5269,14 @@ class ProjectTree(wx.Panel):
                 return
             treeItemId = self.tree.GetRootItem()
         if id == TOOL_ADD_FILE_ID:
-            item = self.tree.AppendItem(treeItemId, "Untitled", self.fileidx, 
+            item = self.tree.AppendItem(treeItemId, "Untitled", self.fileidx,
                                         self.fileidx, None)
             self.edititem = item
         else:
-            item = self.tree.AppendItem(treeItemId, "Untitled", self.fldridx, 
+            item = self.tree.AppendItem(treeItemId, "Untitled", self.fldridx,
                                         self.fldropenidx, None)
             self.editfolder = item
-        self.tree.SetPyData(item, os.path.join(self.scope, "Untitled"))
+        self.tree.SetItemData(item, packItemData(os.path.join(self.scope, "Untitled")))
         self.tree.SetItemTextColour(item, STYLES['default']['colour'])
         self.tree.EnsureVisible(item)
         if PLATFORM == "darwin":
@@ -5236,7 +5306,7 @@ class ProjectTree(wx.Panel):
         pt = event.GetPosition();
         self.edititem, flags = self.tree.HitTest(pt)
         if self.edititem:
-            self.itempath = self.tree.GetPyData(self.edititem)
+            self.itempath = unpackItemData(self.tree.GetItemData(self.edititem))
             self.select(self.edititem)
             self.tree.EditLabel(self.edititem)
         else:
@@ -5250,14 +5320,14 @@ class ProjectTree(wx.Panel):
             if newlabel != "":
                 newpath = os.path.join(head, event.GetLabel())
                 os.rename(self.itempath, newpath)
-                self.tree.SetPyData(self.edititem, newpath)
+                self.tree.SetItemData(self.edititem, packItemData(newpath))
         elif self.edititem and self.scope:
             newitem = event.GetLabel()
             if not newitem:
                 newitem = "Untitled"
                 wx.CallAfter(self.tree.SetItemText, self.edititem, newitem)
             newpath = os.path.join(self.scope, newitem)
-            self.tree.SetPyData(self.edititem, newpath)
+            self.tree.SetItemData(self.edititem, packItemData(newpath))
             f = open(newpath, "w")
             f.close()
             self.mainPanel.addPage(newpath)
@@ -5267,7 +5337,7 @@ class ProjectTree(wx.Panel):
                 newitem = "Untitled"
                 wx.CallAfter(self.tree.SetItemText, self.editfolder, newitem)
             newpath = os.path.join(self.scope, newitem)
-            self.tree.SetPyData(self.editfolder, newpath)
+            self.tree.SetItemData(self.editfolder, packItemData(newpath))
             os.mkdir(newpath)
             if self.selectedItem == None:
                 self.projectDict[newitem] = self.scope
@@ -5295,7 +5365,7 @@ class ProjectTree(wx.Panel):
     def openPage(self, item):
         hasChild = self.tree.ItemHasChildren(item)
         if not hasChild:
-            path = self.tree.GetPyData(item)
+            path = unpackItemData(self.tree.GetItemData(item))
             self.mainPanel.addPage(path)
 
     def select(self, item):
@@ -5313,7 +5383,7 @@ class ProjectTree(wx.Panel):
 
 class MarkersListScroll(scrolled.ScrolledPanel):
     def __init__(self, parent, id=-1, pos=(25,25), size=(500,400)):
-        scrolled.ScrolledPanel.__init__(self, parent, wx.ID_ANY, pos=(0,0), 
+        scrolled.ScrolledPanel.__init__(self, parent, wx.ID_ANY, pos=(0,0),
                                         size=size, style=wx.SUNKEN_BORDER)
         self.parent = parent
         self.SetBackgroundColour(STYLES['background']['colour'])
@@ -5327,9 +5397,9 @@ class MarkersListScroll(scrolled.ScrolledPanel):
         self.selected2 = None
 
         if wx.Platform == '__WXMAC__':
-            self.font = wx.Font(11, wx.ROMAN, wx.NORMAL, wx.NORMAL, face=STYLES['face'])
+            self.font = wx.Font(11, wx.ROMAN, wx.NORMAL, wx.NORMAL, False, STYLES['face'])
         else:
-            self.font = wx.Font(8, wx.ROMAN, wx.NORMAL, wx.NORMAL, face=STYLES['face'])
+            self.font = wx.Font(8, wx.ROMAN, wx.NORMAL, wx.NORMAL, False, STYLES['face'])
 
         self.SetSizer(self.box)
         self.SetAutoLayout(1)
@@ -5369,7 +5439,7 @@ class MarkersListScroll(scrolled.ScrolledPanel):
                     self.selected = item.GetUserData()[0]
                     line = item.GetUserData()[1]
                     editor.GotoLine(line)
-                    halfNumLinesOnScreen = editor.LinesOnScreen() / 2
+                    halfNumLinesOnScreen = editor.LinesOnScreen() // 2
                     editor.ScrollToLine(line - halfNumLinesOnScreen)
                 else:
                     line = self.row_dict[self.selected][0]
@@ -5377,7 +5447,7 @@ class MarkersListScroll(scrolled.ScrolledPanel):
                     line2 = item.GetUserData()[1]
                     l1, l2 = min(line, line2), max(line, line2)
                     editor.GotoLine(l1)
-                    halfNumLinesOnScreen = editor.LinesOnScreen() / 2
+                    halfNumLinesOnScreen = editor.LinesOnScreen() // 2
                     editor.ScrollToLine(l1 - halfNumLinesOnScreen)
                     editor.SetSelection(editor.PositionFromLine(l1), editor.PositionFromLine(l2+1))
                 break
@@ -5417,18 +5487,28 @@ class MarkersPanel(wx.Panel):
         toolbarbox = wx.BoxSizer(wx.HORIZONTAL)
         self.toolbar = wx.ToolBar(self, -1, size=(-1,36))
         self.toolbar.SetToolBitmapSize(tsize)
-        self.toolbar.AddLabelTool(TOOL_DELETE_ALL_MARKERS_ID, "Delete All Markers", delete_all_markers, shortHelp="Delete All Markers")
+
+        if "phoenix" not in wx.version():
+            self.toolbar.AddLabelTool(TOOL_DELETE_ALL_MARKERS_ID, "Delete All Markers", delete_all_markers, shortHelp="Delete All Markers")
+        else:
+            self.toolbar.AddTool(TOOL_DELETE_ALL_MARKERS_ID, "Delete All Markers", delete_all_markers, shortHelp="Delete All Markers")
+
         self.toolbar.Realize()
         toolbarbox.Add(self.toolbar, 1, wx.ALIGN_LEFT | wx.EXPAND, 0)
 
         tb2 = wx.ToolBar(self, -1, size=(-1,36))
         tb2.SetToolBitmapSize(tsize)
-        tb2.AddLabelTool(16, "Close Panel", close_panel_bmp, shortHelp="Close Panel")
+
+        if "phoenix" not in wx.version():
+            tb2.AddLabelTool(16, "Close Panel", close_panel_bmp, shortHelp="Close Panel")
+        else:
+            tb2.AddTool(16, "Close Panel", close_panel_bmp, shortHelp="Close Panel")
+
         tb2.Realize()
         toolbarbox.Add(tb2, 0, wx.ALIGN_RIGHT, 0)
 
-        wx.EVT_TOOL(self, TOOL_DELETE_ALL_MARKERS_ID, self.onDeleteAll)
-        wx.EVT_TOOL(self, 16, self.onCloseMarkersPanel)
+        self.Bind(wx.EVT_TOOL, self.onDeleteAll, id=TOOL_DELETE_ALL_MARKERS_ID)
+        self.Bind(wx.EVT_TOOL, self.onCloseMarkersPanel, id=16)
 
         self.sizer.Add(toolbarbox, 0, wx.EXPAND)
 
@@ -5456,7 +5536,7 @@ class PreferencesDialog(wx.Dialog):
         mainSizer = wx.BoxSizer(wx.VERTICAL)
         mainSizer.AddSpacer((-1,10))
         font, entryfont, pointsize = self.GetFont(), self.GetFont(), self.GetFont().GetPointSize()
-        
+
         font.SetWeight(wx.BOLD)
         if PLATFORM.startswith("linux"):
             entryfont.SetPointSize(pointsize)
@@ -5477,7 +5557,7 @@ class PreferencesDialog(wx.Dialog):
         ctrlSizer.Add(self.entry_exe, 0, wx.ALL|wx.EXPAND, 5)
         but = wx.Button(self, id=wx.ID_ANY, label="Choose...")
         but.Bind(wx.EVT_BUTTON, self.setExecutable)
-        ctrlSizer.Add(but, 0, wx.ALL, 5)            
+        ctrlSizer.Add(but, 0, wx.ALL, 5)
         but2 = wx.Button(self, id=wx.ID_ANY, label="Revert")
         but2.Bind(wx.EVT_BUTTON, self.revertExecutable)
         ctrlSizer.Add(but2, 0, wx.ALL, 5)
@@ -5495,10 +5575,10 @@ class PreferencesDialog(wx.Dialog):
         ctrlSizer.Add(self.entry_res, 0, wx.ALL|wx.EXPAND, 5)
         but = wx.Button(self, id=wx.ID_ANY, label="Choose...")
         but.Bind(wx.EVT_BUTTON, self.setResourcesFolder)
-        ctrlSizer.Add(but, 0, wx.ALL, 5)            
+        ctrlSizer.Add(but, 0, wx.ALL, 5)
         but2 = wx.Button(self, id=wx.ID_ANY, label="Revert")
         but2.Bind(wx.EVT_BUTTON, self.revertResourcesFolder)
-        ctrlSizer.Add(but2, 0, wx.ALL, 5)            
+        ctrlSizer.Add(but2, 0, wx.ALL, 5)
         mainSizer.Add(ctrlSizer, 0, wx.BOTTOM|wx.LEFT|wx.RIGHT, 5)
 
         mainSizer.Add(wx.StaticLine(self, -1), 0, wx.EXPAND|wx.BOTTOM|wx.LEFT|wx.RIGHT, 5)
@@ -5516,7 +5596,7 @@ class PreferencesDialog(wx.Dialog):
         ctrlSizer.Add(self.server_args, 0, wx.ALL|wx.EXPAND, 5)
         but = wx.Button(self, id=wx.ID_ANY, label=" Restore default args ")
         but.Bind(wx.EVT_BUTTON, self.setServerDefaultArgs)
-        ctrlSizer.Add(but, 0, wx.ALL, 5)            
+        ctrlSizer.Add(but, 0, wx.ALL, 5)
         mainSizer.Add(ctrlSizer, 0, wx.BOTTOM|wx.LEFT|wx.RIGHT, 5)
 
         popupSizer = wx.FlexGridSizer(2, 4, 5, 10)
@@ -5597,7 +5677,7 @@ class PreferencesDialog(wx.Dialog):
         mainSizer.Add(ctrlSizer, 0, wx.EXPAND|wx.BOTTOM|wx.LEFT|wx.RIGHT, 5)
 
         btnSizer = self.CreateButtonSizer(wx.CANCEL|wx.OK)
- 
+
         mainSizer.AddSpacer((-1,5))
         mainSizer.Add(wx.StaticLine(self), 1, wx.EXPAND|wx.ALL, 2)
         mainSizer.Add(btnSizer, 0, wx.ALL | wx.ALIGN_RIGHT, 5)
@@ -5626,7 +5706,7 @@ class PreferencesDialog(wx.Dialog):
 
     def setServerDefaultArgs(self, evt):
         self.server_args.SetValue(BACKGROUND_SERVER_DEFAULT_ARGS)
-    
+
     def writePrefs(self):
         global ALLOWED_EXT, WHICH_PYTHON, RESOURCES_PATH, SNIPPETS_PATH, STYLES_PATH, BACKGROUND_SERVER_ARGS
 
@@ -5666,10 +5746,10 @@ class PreferencesDialog(wx.Dialog):
 
         extensions = [ext.strip() for ext in self.entry_ext.GetValue().split(",")]
         ALLOWED_EXT = PREFERENCES["allowed_ext"] = extensions
-        
+
         server_args = self.server_args.GetValue()
         BACKGROUND_SERVER_ARGS = PREFERENCES["background_server_args"] = server_args
-        
+
         PREFERENCES["background_server_out_device"] = self.popupOutDriver.GetStringSelection()
         PREFERENCES["background_server_in_device"] = self.popupInDriver.GetStringSelection()
         midiDevice = self.popupMidiInDriver.GetStringSelection()
@@ -5684,22 +5764,22 @@ class STCPrintout(wx.Printout):
     framework
 
     This class can be used for both printing to a printer and for print preview
-    functions.  Unless otherwise specified, the print is scaled based on the
+    functions. Unless otherwise specified, the print is scaled based on the
     size of the current font used in the STC so that specifying a larger font
     produces a larger font in the printed output (and correspondingly fewer
-    lines per page).  Alternatively, you can eihdec specify the number of
+    lines per page). Alternatively, you can eihdec specify the number of
     lines per page, or you can specify the print font size in points which
     produces a constant number of lines per inch regardless of the paper size.
 
     Note that line wrapping in the source STC is currently ignored and lines
-    will be truncated at the right margin instead of wrapping.  The STC doesn't
+    will be truncated at the right margin instead of wrapping. The STC doesn't
     provide a convenient method for determining where line breaks occur within
     a wrapped line, so it may be a difficult task to ever implement printing
     with line wrapping using the wx.StyledTextCtrl.FormatRange method.
     """
     debuglevel = 1
 
-    def __init__(self, stc, page_setup_data=None, print_mode=None, title=None, 
+    def __init__(self, stc, page_setup_data=None, print_mode=None, title=None,
                  border=False, lines_per_page=None, output_point_size=None):
         """Constructor.
 
@@ -5709,7 +5789,7 @@ class STCPrintout(wx.Printout):
         is used to determine the margins of the page.
 
         @kwarg print_mode: optional; of the wx.stc.STC_PRINT_*
-        flags indicating how to render color text.  Defaults to
+        flags indicating how to render color text. Defaults to
         wx.stc.STC_PRINT_COLOURONWHITEDEFAULTBG
 
         @kwarg title: optional text string to use as the title which will be
@@ -5719,14 +5799,14 @@ class STCPrintout(wx.Printout):
         border around the text on each page
 
         @kwarg lines_per_page: optional integer that will force the page to
-        contain the specified number of lines.  Either of C{output_point_size}
+        contain the specified number of lines. Either of C{output_point_size}
         and C{lines_per_page} fully specifies the page, so if both are
         specified, C{lines_per_page} will be used.
 
         @kwarg output_point_size: optional integer that will force the output
-        text to be drawn in the specified point size.  (Note that there are
+        text to be drawn in the specified point size. (Note that there are
         72 points per inch.) If not specified, the point size of the text in
-        the STC will be used unless C{lines_per_page} is specified.  Either of
+        the STC will be used unless C{lines_per_page} is specified. Either of
         C{output_point_size} and C{lines_per_page} fully specifies the page,
         so if both are specified, C{lines_per_page} will be used.
         """
@@ -5783,11 +5863,11 @@ class STCPrintout(wx.Printout):
         logical coordinates.
         """
         if self.debuglevel > 0:
-            print
+            print()
 
         dc.SetFont(self.stc.GetFont())
 
-        # Calculate pixels per inch of the various devices.  The dc_ppi will be
+        # Calculate pixels per inch of the various devices. The dc_ppi will be
         # equivalent to the page or screen PPI if the target is the printer or
         # a print preview, respectively.
         page_ppi_x, page_ppi_y = self.GetPPIPrinter()
@@ -5798,10 +5878,10 @@ class STCPrintout(wx.Printout):
             print("screen ppi: %dx%d" % (screen_ppi_x, screen_ppi_y))
             print("dc ppi: %dx%d" % (dc_ppi_x, dc_ppi_y))
 
-        # Calculate paper size.  Note that this is the size in pixels of the
+        # Calculate paper size. Note that this is the size in pixels of the
         # entire paper, which may be larger than the printable range of the
-        # printer.  We need to use the entire paper size because we calculate
-        # margins ourselves.  Note that GetPageSizePixels returns the
+        # printer. We need to use the entire paper size because we calculate
+        # margins ourselves. Note that GetPageSizePixels returns the
         # dimensions of the printable area.
         px, py, pw, ph = self.GetPaperRectPixels()
         page_width_inch = float(pw) / page_ppi_x
@@ -5858,7 +5938,7 @@ class STCPrintout(wx.Printout):
         @param dc: the Device Context
 
         @param usable_page_height_mm: height in mm of the printable part of the
-        page (i.e.  with the border height removed)
+        page (i.e. with the border height removed)
 
         @returns: the number of lines on the page
         """
@@ -5871,7 +5951,7 @@ class STCPrintout(wx.Printout):
         else:
             points_per_line = font.GetPointSize()
 
-        # desired lines per mm based on point size.  Note: printer points are
+        # desired lines per mm based on point size. Note: printer points are
         # defined as 72 points per inch
         lines_per_inch = 72.0 / float(points_per_line)
 
@@ -5899,7 +5979,7 @@ class STCPrintout(wx.Printout):
         # actual line height in pixels according to the DC
         dc_pixels_per_line = dc.GetCharHeight()
 
-        # actual line height in pixels according to the STC.  This can be
+        # actual line height in pixels according to the STC. This can be
         # different from dc_pixels_per_line even though it is the same font.
         # Don't know why this is the case; maybe because the STC takes into
         # account additional spacing?
@@ -6043,7 +6123,7 @@ class STCPrintout(wx.Printout):
         dc.SetFont(self.getHeaderFont())
         dc.SetTextForeground ("black")
         dum, yoffset = dc.GetTextExtent(".")
-        yoffset /= 2
+        yoffset = yoffset // 2
         if self.title:
             title_w, title_h = dc.GetTextExtent(self.title)
             dc.DrawText(self.title, self.x1, self.y1 - title_h - yoffset)
@@ -6091,7 +6171,7 @@ class STCPrintout(wx.Printout):
         if self.border_around_text:
             dc.SetPen(wx.BLACK_PEN)
             dc.SetBrush(wx.TRANSPARENT_BRUSH)
-            dc.DrawRectangle(self.x1, self.y1, self.x2 - self.x1 + 1, 
+            dc.DrawRectangle(self.x1, self.y1, self.x2 - self.x1 + 1,
                              self.y2 - self.y1 + 1)
 
 class MyFileDropTarget(wx.FileDropTarget):
@@ -6120,7 +6200,7 @@ class EPyoApp(wx.App):
         else: X = 850
         if Y < 750: Y -= 50
         else: Y = 750
-        self.frame = MainFrame(None, -1, title='E-Pyo Editor', 
+        self.frame = MainFrame(None, -1, title='E-Pyo Editor',
                                pos=(10,25), size=(X, Y))
         self.frame.Show()
         return True

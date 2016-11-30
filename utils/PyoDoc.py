@@ -1,8 +1,9 @@
 #!/usr/bin/env python
 # encoding: utf-8
+from __future__ import print_function
 import subprocess, threading, os, sys, unicodedata
 import wx
-import wx.stc  as  stc
+import wx.stc as stc
 from wx.lib.embeddedimage import PyEmbeddedImage
 from pyo import *
 
@@ -185,25 +186,25 @@ up_24_png = PyEmbeddedImage(
     "3Aey0QOcASDAAN0xfmdOgZiqAAAAAElFTkSuQmCC")
 catalog['up_24.png'] = up_24_png
 
-_INTRO_TEXT =   """
+_INTRO_TEXT = """
 pyo manual version %s
 
 pyo is a Python module written in C to help digital signal processing script creation.
 
-pyo is a Python module containing classes for a wide variety of audio signal processing types. 
-With pyo, user will be able to include signal processing chains directly in Python scripts or 
-projects, and to manipulate them in real-time through the interpreter. Tools in pyo module 
-offer primitives, like mathematical operations on audio signal, basic signal processing 
-(filters, delays, synthesis generators, etc.) together with complex algorithms to create 
-granulation and others creative sound manipulations. pyo supports OSC protocol (Open Sound 
-Control), to ease communications between softwares, and MIDI protocol, for generating sound 
-events and controlling process parameters. pyo allows creation of sophisticated signal 
-processing chains with all the benefits of a mature, and wild used, general programming 
+pyo is a Python module containing classes for a wide variety of audio signal processing types.
+With pyo, user will be able to include signal processing chains directly in Python scripts or
+projects, and to manipulate them in real-time through the interpreter. Tools in pyo module
+offer primitives, like mathematical operations on audio signal, basic signal processing
+(filters, delays, synthesis generators, etc.) together with complex algorithms to create
+granulation and others creative sound manipulations. pyo supports OSC protocol (Open Sound
+Control), to ease communications between softwares, and MIDI protocol, for generating sound
+events and controlling process parameters. pyo allows creation of sophisticated signal
+processing chains with all the benefits of a mature, and wild used, general programming
 language.
 
 Overview:
 
-Server : Main processing audio loop callback handler. 
+Server : Main processing audio loop callback handler.
 PyoObjectBase : Base class for all pyo objects.
 PyoObject : Base class for all pyo objects that manipulate vectors of samples.
 PyoTableObject : Base class for all pyo table objects.
@@ -214,16 +215,16 @@ functions : Miscellaneous functions.
 """ % PYO_VERSION
 
 PYOGUI_DOC = """
-The classes in this module are based on internal classes that where 
+The classes in this module are based on internal classes that where
 originally designed to help the creation of graphical tools for the
 control and the visualization of audio signals. WxPython must be installed
 under the current Python distribution to access these classes.
 
 """
 
-_DOC_KEYWORDS = ['Attributes', 'Examples', 'Methods', 'Notes', 'Methods details', 
+_DOC_KEYWORDS = ['Attributes', 'Examples', 'Methods', 'Notes', 'Methods details',
                  'Parentclass', 'Overview', 'Initline', 'Description', 'Parameters']
-_HEADERS = ["Server", "PyoObjectBase", "Map", "Stream", "TableStream", "functions", 
+_HEADERS = ["Server", "PyoObjectBase", "Map", "Stream", "TableStream", "functions",
             "MidiListener", "OscListener", "PyoGui"]
 _KEYWORDS_LIST = ['SLMap']
 _KEYWORDS_LIST.extend(_HEADERS)
@@ -245,7 +246,7 @@ for k1 in _HEADERS:
     else:
         _KEYWORDS_LIST.extend(OBJECTS_TREE[k1])
         _NUM_PAGES += len(OBJECTS_TREE[k1])
-        
+
 PYOOBJECTBASE_METHODS_FILTER = [x[0] for x in inspect.getmembers(PyoObjectBase, inspect.ismethod)]
 PYOOBJECT_METHODS_FILTER = [x[0] for x in inspect.getmembers(PyoObject, inspect.ismethod)]
 PYOMATRIXOBJECT_METHODS_FILTER = [x[0] for x in inspect.getmembers(PyoMatrixObject, inspect.ismethod)]
@@ -270,10 +271,10 @@ def _ed_set_style(editor, searchKey=None):
     editor.SetTabWidth(4)
     editor.SetUseTabs(False)
 
-    editor.StyleSetSpec(stc.STC_STYLE_DEFAULT,  "fore:%(default)s,face:%(face)s,size:%(size)d,back:%(background)s" % DOC_FACES)
+    editor.StyleSetSpec(stc.STC_STYLE_DEFAULT, "fore:%(default)s,face:%(face)s,size:%(size)d,back:%(background)s" % DOC_FACES)
     editor.StyleClearAll()
-    editor.StyleSetSpec(stc.STC_STYLE_DEFAULT,     "fore:%(default)s,face:%(face)s,size:%(size)d" % DOC_FACES)
-    editor.StyleSetSpec(stc.STC_STYLE_LINENUMBER,  "fore:%(linenumber)s,back:%(marginback)s,face:%(face)s,size:%(size2)d" % DOC_FACES)
+    editor.StyleSetSpec(stc.STC_STYLE_DEFAULT, "fore:%(default)s,face:%(face)s,size:%(size)d" % DOC_FACES)
+    editor.StyleSetSpec(stc.STC_STYLE_LINENUMBER, "fore:%(linenumber)s,back:%(marginback)s,face:%(face)s,size:%(size2)d" % DOC_FACES)
     editor.StyleSetSpec(stc.STC_STYLE_CONTROLCHAR, "fore:%(default)s,face:%(face)s" % DOC_FACES)
     editor.StyleSetSpec(stc.STC_P_DEFAULT, "fore:%(default)s,face:%(face)s,size:%(size)d" % DOC_FACES)
     editor.StyleSetSpec(stc.STC_P_COMMENTLINE, "fore:%(comment)s,face:%(face)s,size:%(size)d" % DOC_FACES)
@@ -398,7 +399,7 @@ class ManualPanel(wx.Treebook):
             dlg.Destroy()
         self.setStyle()
         self.getPage("Intro")
-        wx.FutureCall(100, self.AdjustSize)
+        wx.CallLater(100, self.AdjustSize)
 
     def parseOnSearchName(self, keyword):
         self.searchKey = None
@@ -564,7 +565,6 @@ class ManualPanel(wx.Treebook):
         wx.CallAfter(self.AdjustSize)
 
     def AdjustSize(self):
-        self.GetTreeCtrl().InvalidateBestSize()
         self.SendSizeEvent()
 
     def copy(self):
@@ -838,6 +838,7 @@ class ManualPanel(wx.Treebook):
         return text
 
     def setStyle(self):
+        return # TreeBook has no more a GetTreeCtrl method. Don't know how to retrieve it...
         tree = self.GetTreeCtrl()
         tree.SetBackgroundColour(DOC_STYLES['Default']['background'])
         root = tree.GetRootItem()
@@ -853,7 +854,7 @@ class ManualPanel(wx.Treebook):
             (child, cookie) = tree.GetNextChild(root, cookie)
 
 class ManualFrame(wx.Frame):
-    def __init__(self, parent=None, id=-1, title='Pyo Documentation', size=(940, 700), 
+    def __init__(self, parent=None, id=-1, title='Pyo Documentation', size=(940, 700),
                     osx_app_bundled=False, which_python="python",
                     caller_need_to_invoke_32_bit=False,
                     set_32_bit_arch="export VERSIONER_PYTHON_PREFER_32_BIT=yes;"):
@@ -872,32 +873,44 @@ class ManualFrame(wx.Frame):
         tb_size = 24
 
         self.toolbar = self.CreateToolBar()
-        self.toolbar.SetToolBitmapSize((tb_size, tb_size))  # sets icon size
+        self.toolbar.SetToolBitmapSize((tb_size, tb_size)) # sets icon size
 
         back_ico = catalog["previous_%d.png" % tb_size]
         forward_ico = catalog["next_%d.png" % tb_size]
         home_ico = catalog["up_%d.png" % tb_size]
         exec_ico = catalog["play_%d.png" % tb_size]
 
-        backTool = self.toolbar.AddSimpleTool(wx.ID_BACKWARD, back_ico.GetBitmap(), "Back")
+        if sys.version_info[0] < 3:
+            backTool = self.toolbar.AddSimpleTool(wx.ID_BACKWARD, back_ico.GetBitmap(), "Back")
+        else:
+            backTool = self.toolbar.AddTool(wx.ID_BACKWARD, "", back_ico.GetBitmap(), "Back")
         self.toolbar.EnableTool(wx.ID_BACKWARD, False)
         self.Bind(wx.EVT_MENU, self.onBack, backTool)
 
         self.toolbar.AddSeparator()
 
-        forwardTool = self.toolbar.AddSimpleTool(wx.ID_FORWARD, forward_ico.GetBitmap(), "Forward")
+        if sys.version_info[0] < 3:
+            forwardTool = self.toolbar.AddSimpleTool(wx.ID_FORWARD, forward_ico.GetBitmap(), "Forward")
+        else:
+            forwardTool = self.toolbar.AddTool(wx.ID_FORWARD, "", forward_ico.GetBitmap(), "Forward")
         self.toolbar.EnableTool(wx.ID_FORWARD, False)
         self.Bind(wx.EVT_MENU, self.onForward, forwardTool)
 
         self.toolbar.AddSeparator()
 
-        homeTool = self.toolbar.AddSimpleTool(wx.ID_HOME, home_ico.GetBitmap(), "Go Home")
+        if sys.version_info[0] < 3:
+            homeTool = self.toolbar.AddSimpleTool(wx.ID_HOME, home_ico.GetBitmap(), "Go Home")
+        else:
+            homeTool = self.toolbar.AddTool(wx.ID_HOME, "", home_ico.GetBitmap(), "Go Home")
         self.toolbar.EnableTool(wx.ID_HOME, True)
         self.Bind(wx.EVT_MENU, self.onHome, homeTool)
 
         self.toolbar.AddSeparator()
 
-        execTool = self.toolbar.AddSimpleTool(wx.ID_PREVIEW, exec_ico.GetBitmap(), "Run Example")
+        if sys.version_info[0] < 3:
+            execTool = self.toolbar.AddSimpleTool(wx.ID_PREVIEW, exec_ico.GetBitmap(), "Run Example")
+        else:
+            execTool = self.toolbar.AddTool(wx.ID_PREVIEW, "", exec_ico.GetBitmap(), "Run Example")
         self.toolbar.EnableTool(wx.ID_PREVIEW, True)
         self.Bind(wx.EVT_MENU, self.onRun, execTool)
 
@@ -1024,7 +1037,7 @@ class ManualFrame(wx.Frame):
             f.write(text)
         th = RunningThread(DOC_EXAMPLE_PATH, TEMP_PATH, self.which_python, self.osx_app_bundled, self.caller_need_to_invoke_32_bit, self.set_32_bit_arch)
         th.start()
-        wx.FutureCall(8000, self.status.SetStatusText, "", 0)
+        wx.CallLater(8000, self.status.SetStatusText, "", 0)
 
 class RunningThread(threading.Thread):
     def __init__(self, path, cwd, which_python, osx_app_bundled, caller_need_to_invoke_32_bit, set_32_bit_arch):
@@ -1046,23 +1059,23 @@ class RunningThread(threading.Thread):
             vars_to_remove = "PYTHONHOME PYTHONPATH EXECUTABLEPATH RESOURCEPATH ARGVZERO PYTHONOPTIMIZE"
             prelude = "export -n %s;export PATH=/usr/local/bin:/usr/local/lib:$PATH;env;" % vars_to_remove
             if self.caller_need_to_invoke_32_bit:
-                self.proc = subprocess.Popen(["%s%s%s %s" % (prelude, self.set_32_bit_arch, self.which_python, self.path)], 
+                self.proc = subprocess.Popen(["%s%s%s %s" % (prelude, self.set_32_bit_arch, self.which_python, self.path)],
                                 shell=True, cwd=self.cwd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             else:
-                self.proc = subprocess.Popen(["%s%s %s" % (prelude, self.which_python, self.path)], cwd=self.cwd, 
+                self.proc = subprocess.Popen(["%s%s %s" % (prelude, self.which_python, self.path)], cwd=self.cwd,
                                     shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         elif wx.Platform == '__WXMAC__':
             if self.caller_need_to_invoke_32_bit:
-                self.proc = subprocess.Popen(["%s%s %s" % (self.set_32_bit_arch, self.which_python, self.path)], 
+                self.proc = subprocess.Popen(["%s%s %s" % (self.set_32_bit_arch, self.which_python, self.path)],
                                 shell=True, cwd=self.cwd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             else:
-                self.proc = subprocess.Popen(["%s %s" % (self.which_python, self.path)], cwd=self.cwd, 
+                self.proc = subprocess.Popen(["%s %s" % (self.which_python, self.path)], cwd=self.cwd,
                                 shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         elif wx.Platform == "__WXMSW__":
-                self.proc = subprocess.Popen([self.which_python, self.path], cwd=self.cwd, 
+                self.proc = subprocess.Popen([self.which_python, self.path], cwd=self.cwd,
                                 shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         else:
-                self.proc = subprocess.Popen([self.which_python, self.path], cwd=self.cwd, 
+                self.proc = subprocess.Popen([self.which_python, self.path], cwd=self.cwd,
                                 stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
 
@@ -1088,7 +1101,7 @@ def ensureNFD(unistr):
                 continue
             except:
                 decstr = "UnableToDecodeString"
-                print "Unicode encoding not in a recognized format..."
+                print("Unicode encoding not in a recognized format...")
                 break
     if decstr == "UnableToDecodeString":
         return unistr
