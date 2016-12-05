@@ -310,19 +310,31 @@ class ManualPanel(wx.Treebook):
         wx.Treebook.__init__(self, parent, -1, style=wx.BK_DEFAULT | wx.SUNKEN_BORDER)
         self.parent = parent
         self.searchKey = None
+        self.needToParse = True
         self.Bind(wx.EVT_TREEBOOK_PAGE_CHANGED, self.OnPageChanged)
         self.parse()
-
+        
     def reset_history(self):
         self.fromToolbar = False
         self.oldPage = ""
         self.sequence = []
         self.seq_index = 0
 
+    def deleteAllPagesButOne(self):
+        c = self.GetPageCount()
+        c-= 1
+        while c != 0:
+            self.DeletePage(c)
+            c -= 1
+
     def parse(self):
         self.searchKey = None
-        self.DeleteAllPages()
         self.reset_history()
+
+        makeIntro = True
+        if self.GetPageCount() > 0:
+            self.deleteAllPagesButOne()
+            makeIntro = False
 
         self.needToParse = False
         if not os.path.isdir(DOC_PATH):
@@ -338,8 +350,9 @@ class ManualPanel(wx.Treebook):
                 dlg.SetSize((300, 100))
             keepGoing = True
         count = 1
-        win = self.makePanel("Intro")
-        self.AddPage(win, "Intro")
+        if makeIntro:
+            win = self.makePanel("Intro")
+            self.AddPage(win, "Intro")
         for key in _HEADERS:
             if type(OBJECTS_TREE[key]) == type([]):
                 count += 1
@@ -403,7 +416,7 @@ class ManualPanel(wx.Treebook):
 
     def parseOnSearchName(self, keyword):
         self.searchKey = None
-        self.DeleteAllPages()
+        self.deleteAllPagesButOne()
         self.reset_history()
 
         keyword = keyword.lower()
@@ -480,7 +493,7 @@ class ManualPanel(wx.Treebook):
 
     def parseOnSearchPage(self, keyword):
         self.searchKey = keyword
-        self.DeleteAllPages()
+        self.deleteAllPagesButOne()
         self.reset_history()
 
         keyword = keyword.lower()
@@ -972,7 +985,7 @@ class ManualFrame(wx.Frame):
         self.search.SetFocus()
 
     def onSearchEnter(self, evt):
-        self.doc_panel.GetTreeCtrl().SetFocus()
+        self.doc_panel.SetFocus()
 
     def onSearch(self, evt):
         if self.searchTimer != None:
