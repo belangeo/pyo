@@ -1,7 +1,7 @@
 #! /bin/sh
 
 # Removed older versions in the python site-packages builtin and in the python site-packages from python.org directories
-PATHS=/Library/Python/2.6/site-packages/:/Library/Python/2.7/site-packages/:/Library/Frameworks/Python.framework/Versions/2.6/lib/python2.6/site-packages/:/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/site-packages/
+PATHS=/Library/Python/2.6/site-packages/:/Library/Python/2.7/site-packages/:/Library/Python/3.5/site-packages/:/Library/Frameworks/Python.framework/Versions/2.6/lib/python2.6/site-packages/:/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/site-packages/:/Library/Frameworks/Python.framework/Versions/3.5/lib/python3.5/site-packages/
 for path in ${PATHS//:/ }; do
     if cd $path; then
         if [ -f pyo.py ]; then
@@ -41,23 +41,15 @@ else
     sudo cp -r /tmp/python27/* .
 fi
 
-if cd /Library/Python/2.6/site-packages/; then
-    sudo cp -r /tmp/python26/* .
+if cd /Library/Python/3.5/site-packages/; then
+    sudo cp -r /tmp/python35/* .
 else
-    sudo mkdir -p /Library/Python/2.6/site-packages/
-    cd /Library/Python/2.6/site-packages/
-    sudo cp -r /tmp/python26/* .
+    sudo mkdir -p /Library/Python/3.5/site-packages/
+    cd /Library/Python/3.5/site-packages/
+    sudo cp -r /tmp/python35/* .
 fi
 
 # Install pyo in the python.org site-packages directories
-if cd /Library/Frameworks/Python.framework/Versions/2.6/lib/python2.6/site-packages/; then  
-    sudo cp -r /tmp/python26/* .
-else
-    sudo mkdir -p /Library/Frameworks/Python.framework/Versions/2.6/lib/python2.6/site-packages/
-    cd /Library/Frameworks/Python.framework/Versions/2.6/lib/python2.6/site-packages/
-    sudo cp -r /tmp/python26/* .
-fi
-
 if cd /Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/site-packages/; then  
     sudo cp -r /tmp/python27/* .
 else
@@ -66,16 +58,26 @@ else
     sudo cp -r /tmp/python27/* .
 fi
 
-# Check if anaconda is already installed and copy files to site-packages directory
-if cd ~/anaconda/lib/python2.6/site-packages/; then  
-    sudo cp -r /tmp/python26/* .
+if cd /Library/Frameworks/Python.framework/Versions/3.5/lib/python3.5/site-packages/; then  
+    sudo cp -r /tmp/python35/* .
+else
+    sudo mkdir -p /Library/Frameworks/Python.framework/Versions/3.5/lib/python3.5/site-packages/
+    cd /Library/Frameworks/Python.framework/Versions/3.5/lib/python3.5/site-packages/
+    sudo cp -r /tmp/python35/* .
 fi
 
+# Check if anaconda is already installed and copy files to site-packages directory
 if cd ~/anaconda/lib/python2.7/site-packages/; then  
     sudo cp -r /tmp/python27/* .
 fi
 
-sudo rm -rf /tmp/python2*
+if cd ~/anaconda/lib/python3.5/site-packages/; then  
+    sudo cp -r /tmp/python35/* .
+fi
+
+# Clean up.
+sudo rm -rf /tmp/python27
+sudo rm -rf /tmp/python35
 
 # Add /usr/local/lib in .bash_profile if not already done
 searchString="/usr/local/lib"

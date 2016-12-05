@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # Need Xcode 3.2.6 or later (pkgbuild and productbuild)
-# with python 2.7.8 (32/64-bit) and wxpython 3.0.1.1 (cocoa) installed
+# with python 2.7.12 (32/64-bit) and wxpython 3.0.2.0 (cocoa) installed
 # 1. update pyo sources
 # 2. compile and install pyo float and double
 # 3. cd utils and build E-Pyo
@@ -28,23 +28,20 @@ cd ../..
 git checkout-index -a -f --prefix=installers/osx/installer/pyo-build/
 cd installers/osx/installer/pyo-build
 
-echo "building pyo for python 2.6 (64-bit)..."
-sudo /usr/bin/python setup.py install --use-coreaudio
-
-sudo rm -rf build/temp.macosx-10.6-universal-2.6
-sudo /usr/bin/python setup.py install --use-coreaudio --only-double
-
-sudo cp -R build/lib.macosx-10.6-universal-2.6 $PYO_MODULE_DIR/python26
-
 echo "building pyo for python 2.7 (64-bit)..."
 sudo /usr/local/bin/python2.7 setup.py install --use-coreaudio --use-double
 
 sudo cp -R build/lib.macosx-10.6-intel-2.7 $PYO_MODULE_DIR/python27
 
-sudo install_name_tool -change libportmidi.dylib /usr/local/lib/libportmidi.dylib $PYO_MODULE_DIR/python26/_pyo.so
-sudo install_name_tool -change libportmidi.dylib /usr/local/lib/libportmidi.dylib $PYO_MODULE_DIR/python26/_pyo64.so
+echo "building pyo for python 3.5 (64-bit)..."
+sudo /usr/local/bin/python3.5 setup.py install --use-coreaudio --use-double
+
+sudo cp -R build/lib.macosx-10.6-intel-3.5 $PYO_MODULE_DIR/python35
+
 sudo install_name_tool -change libportmidi.dylib /usr/local/lib/libportmidi.dylib $PYO_MODULE_DIR/python27/_pyo.so
 sudo install_name_tool -change libportmidi.dylib /usr/local/lib/libportmidi.dylib $PYO_MODULE_DIR/python27/_pyo64.so
+sudo install_name_tool -change libportmidi.dylib /usr/local/lib/libportmidi.dylib $PYO_MODULE_DIR/python35/_pyo.so
+sudo install_name_tool -change libportmidi.dylib /usr/local/lib/libportmidi.dylib $PYO_MODULE_DIR/python35/_pyo64.so
 
 cd ..
 
