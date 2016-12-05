@@ -1001,8 +1001,9 @@ class RunningThread(threading.Thread):
                                              universal_newlines=True, shell=True, stdout=subprocess.PIPE, 
                                              stderr=subprocess.STDOUT)
         elif PLATFORM == "win32":
-            self.proc = subprocess.Popen([WHICH_PYTHON, "-u", self.path], cwd=ensureNFD(self.cwd), universal_newlines=True, 
-                                         shell=False, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+            self.proc = subprocess.Popen([WHICH_PYTHON, "-u", self.path], cwd=ensureNFD(self.cwd), 
+                                                       universal_newlines=True,  shell=False, stdout=subprocess.PIPE, 
+                                                       stdin=subprocess.PIPE, stderr=subprocess.STDOUT)
         else:
             self.proc = subprocess.Popen([WHICH_PYTHON, "-u", self.path], cwd=self.cwd, universal_newlines=True,
                                          stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
@@ -1023,9 +1024,9 @@ class RunningThread(threading.Thread):
         stdout, stderr = self.proc.communicate()
         output = ""
         if stdout is not None:
-            output = output + stdout
+            output = output + str(stdout)
         if stderr is not None:
-            output = output + stderr
+            output = output + str(stderr)
         output = output.replace(">>> ", "").replace("... ", "")
         if "StartNotification name = default" in output:
             output = output.replace("StartNotification name = default", "")
@@ -1081,9 +1082,9 @@ class BackgroundServerThread(threading.Thread):
 
     def run(self):
         if PLATFORM == "win32":
-            self.proc = subprocess.Popen([WHICH_PYTHON, '-i', os.path.join(TEMP_PATH, "background_server.py")],
-                                         shell=True, cwd=ensureNFD(self.cwd), stdout=subprocess.PIPE, universal_newlines=True,
-                                         stdin=subprocess.PIPE, stderr=subprocess.STDOUT)
+            self.proc = subprocess.Popen([WHICH_PYTHON, '-i', '-u', os.path.join(TEMP_PATH, "background_server.py")],
+                                                        shell=True, cwd=ensureNFD(self.cwd), stdout=subprocess.PIPE, bufsize=0,
+                                                        universal_newlines=True, stdin=subprocess.PIPE, stderr=subprocess.STDOUT)
         else:
             self.proc = subprocess.Popen(["%s -i -u %s" % (WHICH_PYTHON, os.path.join(TEMP_PATH, "background_server.py"))],
                                          bufsize=0, cwd=self.cwd, shell=True, stdout=subprocess.PIPE, universal_newlines=True,
@@ -1109,9 +1110,9 @@ class BackgroundServerThread(threading.Thread):
         stdout, stderr = self.proc.communicate()
         output = ""
         if stdout is not None:
-            output = output + stdout
+            output = output + str(stdout)
         if stderr is not None:
-            output = output + stderr
+            output = output + str(stderr)
         output = output.replace(">>> ", "").replace("... ", "")
         if "StartNotification name = default" in output:
             output = output.replace("StartNotification name = default", "")
@@ -6199,6 +6200,7 @@ class MyFileDropTarget(wx.FileDropTarget):
                 self.window.GetTopLevelParent().panel.addPage(file)
             else:
                 pass
+        return True
 
 class EPyoApp(wx.App):
     def __init__(self, *args, **kwargs):

@@ -17,8 +17,7 @@ if version[0] < 3:
     os.system('C:\Python%d%d\Scripts\pyi-makespec -F -c --icon=Resources\E-PyoIcon.ico "E-Pyo.py"' % version)
     os.system('C:\Python%d%d\Scripts\pyi-build "E-Pyo.spec"' % version)
 else:
-    os.system('pyi-makespec -F -c --icon=Resources\E-PyoIcon.ico "E-Pyo.py"')
-    os.system('pyinstaller "E-Pyo.spec"')
+    os.system('pyinstaller --clean -F -c --icon=Resources\E-PyoIcon.ico "E-Pyo.py"')
 
 os.mkdir("E-Pyo_py%d%d" % version)
 shutil.copytree("Resources", "E-Pyo_py%d%d/Resources" % version)
@@ -27,7 +26,6 @@ os.remove("E-Pyo.spec")
 shutil.rmtree("build")
 shutil.rmtree("dist")
 shutil.rmtree("Resources")
-shutil.rmtree("__pycache__")
 for f in os.listdir(os.getcwd()):
     if f.startswith("warn") or f.startswith("logdict"):
         os.remove(f)
