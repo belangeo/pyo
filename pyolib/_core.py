@@ -1709,7 +1709,14 @@ class PyoTableObject(PyoObjectBase):
             samples = self._base_objs[0].getViewTable((size[0], size[1]))
             self.viewFrame.update(samples)
         if self.graphFrame is not None:
-            self.graphFrame.update(self.getTable())
+            data = self._get_current_data()
+            length = len(data)
+            flength = self.graphFrame.getLength()
+            if length < flength:
+                data = data + [0] * (flength - length)
+            elif length > flength:
+                data = data[:flength]
+            self.graphFrame.update(data)
 
     @property
     def size(self):

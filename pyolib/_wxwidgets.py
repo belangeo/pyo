@@ -2422,6 +2422,7 @@ class DataMultiSlider(wx.Panel):
         self.Bind(wx.EVT_LEFT_DOWN, self.MouseDown)
         self.Bind(wx.EVT_LEFT_UP, self.MouseUp)
         self.Bind(wx.EVT_MOTION, self.MouseMotion)
+        self.changed = True
         self.values = [v for v in init]
         self.len = len(self.values)
         self.yrange = (float(yrange[0]), float(yrange[1]))
@@ -2472,7 +2473,8 @@ class DataMultiSlider(wx.Panel):
         points.append((w,y))
         points.append((w,h))
         gc.DrawLines(points)
-        if self.outFunction is not None:
+        if self.outFunction is not None and self.changed:
+            self.changed = False
             self.outFunction(self.values)
 
     def MouseDown(self, evt):
@@ -2485,6 +2487,7 @@ class DataMultiSlider(wx.Panel):
         x = int(pos[0] / bw)
         y = (h - pos[1]) / float(h) * scl + mini
         self.values[x] = y
+        self.changed = True
         self.Refresh()
         evt.Skip()
 
@@ -2523,6 +2526,7 @@ class DataMultiSlider(wx.Panel):
             if x2 >= 0 and x2 < self.len:
                 self.values[x2] = y2
             self.lastpos = pos
+            self.changed = True
             self.Refresh()
 
 class DataTableGrapher(wx.Frame):
@@ -2530,13 +2534,17 @@ class DataTableGrapher(wx.Frame):
     def __init__(self, parent=None, obj=None, yrange=(0.0, 1.0)):
         wx.Frame.__init__(self, parent, size=(500,250))
         self.obj = obj
-        self.multi = DataMultiSlider(self, self.obj.getTable(), yrange, outFunction=self.obj.replace)
+        self.length = len(self.obj._get_current_data())
+        self.multi = DataMultiSlider(self, self.obj._get_current_data(), yrange, outFunction=self.obj.replace)
         self.menubar = wx.MenuBar()
         self.fileMenu = wx.Menu()
         self.fileMenu.Append(9999, 'Close\tCtrl+W', kind=wx.ITEM_NORMAL)
         self.Bind(wx.EVT_MENU, self.close, id=9999)
         self.menubar.Append(self.fileMenu, "&File")
         self.SetMenuBar(self.menubar)
+
+    def getLength(self):
+        return self.length
 
     def close(self, evt):
         self.Destroy()

@@ -56,8 +56,24 @@ class HarmTable(PyoTableObject):
     def __init__(self, list=[1., 0.], size=8192):
         pyoArgsAssert(self, "lI", list, size)
         PyoTableObject.__init__(self, size)
+        self._auto_normalize = False
         self._list = copy.deepcopy(list)
         self._base_objs = [HarmTable_base(self._list, size)]
+
+    def autoNormalize(self, x):
+        """
+        Activate/deactivate automatic normalization when harmonics changed.
+
+        :Args:
+
+            x: boolean
+                True for activating automatic normalization, False for
+                deactivating it.
+
+        """
+        self._auto_normalize = x
+        if self._auto_normalize:
+            self.normalize()
 
     def replace(self, list):
         """
@@ -74,7 +90,44 @@ class HarmTable(PyoTableObject):
         pyoArgsAssert(self, "l", list)
         self._list = list
         [obj.replace(list) for obj in self._base_objs]
+        if self._auto_normalize:
+            self.normalize()
         self.refreshView()
+
+    def _get_current_data(self):
+        # internal that returns the data to draw in a DataTableGrapher.
+        return self._list
+
+    def graph(self, yrange=(-1.0, 1.0), title=None, wxnoserver=False):
+        """
+        Opens a multislider window to control the data values.
+
+        When editing the grapher with the mouse, the new values are
+        sent to the object to replace the table content.
+
+        :Args:
+
+            yrange: tuple, optional
+                Set the min and max values of the Y axis of the multislider.
+                Defaults to (0.0, 1.0).
+            title: string, optional
+                Title of the window. If none is provided, the name of the
+                class is used.
+            wxnoserver: boolean, optional
+                With wxPython graphical toolkit, if True, tells the
+                interpreter that there will be no server window.
+
+        If `wxnoserver` is set to True, the interpreter will not wait for
+        the server GUI before showing the controller window.
+
+        .. note::
+            
+            The number of bars in the graph is initialized to the length
+            of the list of relative strentghs at the time the graph is 
+            created.
+
+        """
+        createDataGraphWindow(self, yrange, title, wxnoserver)
 
     @property
     def list(self):
@@ -227,8 +280,24 @@ class ChebyTable(PyoTableObject):
     def __init__(self, list=[1., 0.], size=8192):
         pyoArgsAssert(self, "lI", list, size)
         PyoTableObject.__init__(self, size)
+        self._auto_normalize = False
         self._list = copy.deepcopy(list)
         self._base_objs = [ChebyTable_base(self._list, size)]
+
+    def autoNormalize(self, x):
+        """
+        Activate/deactivate automatic normalization when harmonics changed.
+
+        :Args:
+
+            x: boolean
+                True for activating automatic normalization, False for
+                deactivating it.
+
+        """
+        self._auto_normalize = x
+        if self._auto_normalize:
+            self.normalize()
 
     def replace(self, list):
         """
@@ -246,6 +315,8 @@ class ChebyTable(PyoTableObject):
         pyoArgsAssert(self, "l", list)
         self._list = list
         [obj.replace(list) for obj in self._base_objs]
+        if self._auto_normalize:
+            self.normalize()
         self.refreshView()
 
     def getNormTable(self):
@@ -259,6 +330,41 @@ class ChebyTable(PyoTableObject):
         else:
             data = self._base_objs[0].getNormTable(1)
         return DataTable(size=len(data), init=data).normalize()
+
+    def _get_current_data(self):
+        # internal that returns the data to draw in a DataTableGrapher.
+        return self._list
+
+    def graph(self, yrange=(-1.0, 1.0), title=None, wxnoserver=False):
+        """
+        Opens a multislider window to control the data values.
+
+        When editing the grapher with the mouse, the new values are
+        sent to the object to replace the table content.
+
+        :Args:
+
+            yrange: tuple, optional
+                Set the min and max values of the Y axis of the multislider.
+                Defaults to (0.0, 1.0).
+            title: string, optional
+                Title of the window. If none is provided, the name of the
+                class is used.
+            wxnoserver: boolean, optional
+                With wxPython graphical toolkit, if True, tells the
+                interpreter that there will be no server window.
+
+        If `wxnoserver` is set to True, the interpreter will not wait for
+        the server GUI before showing the controller window.
+
+        .. note::
+            
+            The number of bars in the graph is initialized to the length
+            of the list of relative strentghs at the time the graph is 
+            created.
+
+        """
+        createDataGraphWindow(self, yrange, title, wxnoserver)
 
     @property
     def list(self):
@@ -2025,6 +2131,10 @@ class DataTable(PyoTableObject):
 
         """
         return self._base_objs[0].getRate()
+
+    def _get_current_data(self):
+        # internal that returns the data to draw in a DataTableGrapher.
+        return self.getTable()
 
     def graph(self, yrange=(0.0, 1.0), title=None, wxnoserver=False):
         """
