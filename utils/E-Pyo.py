@@ -5265,7 +5265,7 @@ class ProjectTree(wx.Panel):
         id = evt.GetId()
         treeItemId = self.tree.GetSelection()
         if self.selectedItem != None:
-            selPath = unpacItemData(self.tree.GetItemData(self.selectedItem))
+            selPath = unpackItemData(self.tree.GetItemData(self.selectedItem))
             if os.path.isdir(selPath):
                 self.scope = selPath
             elif os.path.isfile(selPath):
