@@ -8,20 +8,6 @@ You can do absolutely everything you want with this piece of software.
 Olivier Belanger - 2016
 
 TODO:
-    Python 3 know bugs:
-        - When searching in the documentation frame:
-            self.AddPage(win, key2)
-                wx._core.wxAssertionError: C++ assertion "nPage <= m_pages.size()" 
-                failed at /home/olivier/git/Phoenix/ext/wxWidgets/src/common/bookctrl.cpp(375) 
-                in InsertPage(): invalid page index in wxBookCtrlBase::InsertPage()
-
-        - File "E-Pyo.py", line 3326, in sendSelectionToBackgroundServer
-            self.processes[1000][0].sendText(text)
-            In File "E-Pyo.py", line 1056, in sendText
-            self.proc.stdin.write(line + "\n") does not send anything. (same in kill() method).
-
-        - current working directory, bytes vs str, encoding, windows, etc.
-
     Not sure if this is still relevant:
     - Output panel close button on OSX (display only).
     
@@ -200,14 +186,15 @@ SET_32_BIT_ARCH = "export VERSIONER_PYTHON_PREFER_32_BIT=yes;"
 if WHICH_PYTHON == "":
     if OSX_APP_BUNDLED:
         proc = subprocess.Popen(["export PATH=/usr/local/bin:$PATH;which python"],
-                    shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                    shell=True, universal_newlines=True, stdout=subprocess.PIPE, 
+                    stderr=subprocess.PIPE)
         WHICH_PYTHON = proc.communicate()[0][:-1]
     elif PLATFORM == "darwin":
-        proc = subprocess.Popen(["which python"], shell=True,
+        proc = subprocess.Popen(["which python"], shell=True, universal_newlines=True,
                                 stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         WHICH_PYTHON = proc.communicate()[0][:-1]
     elif PLATFORM.startswith("linux"):
-        proc = subprocess.Popen(["which python"], shell=True,
+        proc = subprocess.Popen(["which python"], shell=True, universal_newlines=True,
                                 stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         WHICH_PYTHON = proc.communicate()[0][:-1]
     else:
@@ -1103,7 +1090,7 @@ class BackgroundServerThread(threading.Thread):
                                          stdin=subprocess.PIPE, stderr=subprocess.STDOUT)
         else:
             self.proc = subprocess.Popen(["%s -i -u %s" % (WHICH_PYTHON, os.path.join(TEMP_PATH, "background_server.py"))],
-                                         cwd=self.cwd, shell=True, stdout=subprocess.PIPE, universal_newlines=True,
+                                         bufsize=0, cwd=self.cwd, shell=True, stdout=subprocess.PIPE, universal_newlines=True,
                                          stderr=subprocess.STDOUT, stdin=subprocess.PIPE)
 
         ltime = time.strftime('"%d %b %Y %H:%M:%S"', time.localtime())
@@ -3317,7 +3304,7 @@ class MainFrame(wx.Frame):
                 midiInDriverIndex = driverIndexes[driverList.index(preferedDriver)]
 
         with open(os.path.join(TEMP_PATH, "background_server.py"), "w") as f:
-            f.write("print 'Starting background server...'\nimport time, sys, os\nsys.path.append(os.getcwd())\nfrom pyo import *\n")
+            f.write("print('Starting background server...')\nimport time, sys, os\nsys.path.append(os.getcwd())\nfrom pyo import *\n")
             f.write("s = Server(%s)\n" % BACKGROUND_SERVER_ARGS)
             if outDriverIndex != -1:
                 f.write("s.setOutputDevice(%d)\n" % outDriverIndex)
