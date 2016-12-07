@@ -1129,7 +1129,7 @@ class PyoObject(PyoObjectBase):
         if map_list is None:
             map_list = self._map_list
         if map_list == []:
-            print(("There is no controls for %s object." % self.__class__.__name__))
+            print(("There are no controls for %s object." % self.__class__.__name__))
             return
         createCtrlWindow(self, map_list, title, wxnoserver)
 
@@ -2050,7 +2050,7 @@ class PyoPVObject(PyoObjectBase):
         if map_list is None:
             map_list = self._map_list
         if map_list == []:
-            print(("There is no controls for %s object." % self.__class__.__name__))
+            print(("There are no controls for %s object." % self.__class__.__name__))
             return
         createCtrlWindow(self, map_list, title, wxnoserver)
 
