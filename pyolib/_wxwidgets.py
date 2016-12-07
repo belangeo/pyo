@@ -23,14 +23,11 @@ License along with pyo.  If not, see <http://www.gnu.org/licenses/>.
 import wx, os, sys, math, time, random, unicodedata
 import wx.stc as stc
 
-try:
-    from PIL import Image, ImageDraw, ImageTk
-except:
-    pass
-
 if "phoenix" in wx.version():
     wx.GraphicsContext_Create = wx.GraphicsContext.Create
     wx.EmptyBitmap = wx.Bitmap
+    wx.EmptyImage = wx.Image
+    wx.BitmapFromImage = wx.Bitmap
 
 BACKGROUND_COLOUR = "#EBEBEB"
 
@@ -1313,7 +1310,7 @@ class SndViewTablePanel(wx.Panel):
 ######################################################################
 ## View window for PyoMatrixObject
 #####################################################################
-class ViewMatrix(wx.Frame):
+class ViewMatrixBase(wx.Frame):
 
     def __init__(self, parent, size=None, object=None):
         wx.Frame.__init__(self, parent)
@@ -1337,52 +1334,21 @@ class ViewMatrix(wx.Frame):
         self.object._setViewFrame(None)
         self.Destroy()
 
-class ViewMatrix_withPIL(ViewMatrix):
-    _WITH_PIL = True
+class ViewMatrix(ViewMatrixBase):
     def __init__(self, parent, samples=None, size=None, object=None):
-        ViewMatrix.__init__(self, parent, size, object)
+        ViewMatrixBase.__init__(self, parent, size, object)
         self.size = size
         self.setImage(samples)
 
     def setImage(self, samples):
-        im = Image.new("L", self.size, None)
-        im.putdata(samples)
         image = wx.EmptyImage(self.size[0], self.size[1])
-        try:
-            image.SetData(im.convert("RGB").tostring())
-        except:
-            image.SetData(im.convert("RGB").tobytes())
+        image.SetData(samples)
         self.img = wx.BitmapFromImage(image)
         self.Refresh()
 
     def OnPaint(self, evt):
         dc = wx.PaintDC(self)
         dc.DrawBitmap(self.img, 0, 0)
-
-class ViewMatrix_withoutPIL(ViewMatrix):
-    _WITH_PIL = False
-    def __init__(self, parent, samples=None, size=None, object=None):
-        ViewMatrix.__init__(self, parent, size, object)
-        self.width = size[0]
-        self.height = size[1]
-        self.setImage(samples)
-
-    def setImage(self, samples):
-        self.samples = samples
-        self.Refresh()
-
-    def OnPaint(self, evt):
-        dc = wx.PaintDC(self)
-        for i in range(self.width*self.height):
-            x = i % self.width
-            y = i // self.width
-            amp = int(self.samples[i])
-            amp = hex(amp).replace('0x', '')
-            if len(amp) == 1:
-                amp = "0%s" % amp
-            amp = "#%s%s%s" % (amp, amp, amp)
-            dc.SetPen(wx.Pen(amp, width=1, style=wx.SOLID))
-            dc.DrawPoint(x, y)
 
 ######################################################################
 ## Spectrum Display

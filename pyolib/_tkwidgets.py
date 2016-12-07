@@ -26,11 +26,6 @@ if sys.version_info[0] < 3:
 else:
     from tkinter import *
 
-try:
-    from PIL import Image, ImageDraw, ImageTk
-except:
-    pass
-
 # constants for platform displays with Tk
 if sys.platform.startswith('linux'):
     Y_OFFSET = 0
@@ -187,25 +182,7 @@ class PyoObjectControl(Frame):
 ######################################################################
 ### View window for PyoTableObject
 ######################################################################
-class ViewTable_withPIL(Frame):
-
-    def __init__(self, master=None, samples=None):
-        Frame.__init__(self, master, bd=1, relief=GROOVE)
-        self.width = 500
-        self.height = 200
-        self.half_height = self.height // 2
-        self.canvas = Canvas(self, height=self.height, width=self.width, relief=SUNKEN, bd=1, bg="#EFEFEF")
-        print(Image)
-        im = Image.new("L", (self.width, self.height), 255)
-        draw = ImageDraw.Draw(im)
-        draw.line(samples, fill=0, width=1)
-        self.img = ImageTk.PhotoImage(im)
-        self.canvas.create_image(self.width // 2,self.height // 2, image=self.img)
-        self.canvas.create_line(0, self.half_height+2, self.width, self.half_height+2, fill='grey', dash=(4,2))
-        self.canvas.grid()
-        self.grid(ipadx=10, ipady=10)
-
-class ViewTable_withoutPIL(Frame):
+class ViewTable(Frame):
 
     def __init__(self, master=None, samples=None):
         Frame.__init__(self, master, bd=1, relief=GROOVE)
@@ -221,19 +198,7 @@ class ViewTable_withoutPIL(Frame):
 ######################################################################
 ## View window for PyoMatrixObject
 #####################################################################
-class ViewMatrix_withPIL(Frame):
-
-    def __init__(self, master=None, samples=None, size=None):
-        Frame.__init__(self, master, bd=1, relief=GROOVE)
-        self.canvas = Canvas(self, width=size[0], height=size[1], relief=SUNKEN, bd=1, bg="#EFEFEF")
-        im = Image.new("L", size, None)
-        im.putdata(samples)
-        self.img = ImageTk.PhotoImage(im)
-        self.canvas.create_image(size[0] // 2 + Y_OFFSET, size[1] // 2 + Y_OFFSET, image=self.img)
-        self.canvas.grid()
-        self.grid(ipadx=0, ipady=0)
-
-class ViewMatrix_withoutPIL(Frame):
+class ViewMatrix(Frame):
 
     def __init__(self, master=None, samples=None, size=None):
         Frame.__init__(self, master, bd=1, relief=GROOVE)

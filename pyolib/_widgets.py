@@ -22,24 +22,12 @@ License along with pyo.  If not, see <http://www.gnu.org/licenses/>.
 """
 import math, sys, os, random
 
-try:
-    from PIL import Image, ImageDraw, ImageTk
-    WITH_PIL = True
-except:
-    WITH_PIL = False
-
 use_wx = 1
 if "PYO_GUI_WX" in os.environ:
     use_wx = int(os.environ["PYO_GUI_WX"])
 
 if use_wx:
     try:
-        try:
-            import wxversion
-            if (wxversion.checkInstalled("2.8")):
-                wxversion.ensureMinimal("2.8")
-        except:
-            pass
         import wx
         from ._wxwidgets import *
         PYO_USE_WX = True
@@ -183,8 +171,7 @@ def wxCreateDelayedMatrixWindows():
     global CURRENT_X, MAX_X, NEXT_Y
     for win in MATRIXWINDOWS:
         object = win[3]
-        if WITH_PIL: f = ViewMatrix_withPIL(None, win[0], win[1], object)
-        else: f = ViewMatrix_withoutPIL(None, win[0], win[1], object)
+        f = ViewMatrix(None, win[0], win[1], object)
         if object is not None:
             object._setViewFrame(f)
         wxDisplayWindow(f, win[2])
@@ -260,8 +247,7 @@ def createViewTableWindow(samples, title="Table waveform", wxnoserver=False, tab
     if not PYO_USE_WX:
         createRootWindow()
         win = tkCreateToplevelWindow()
-        if WITH_PIL: f = ViewTable_withPIL(win, samples)
-        else: f = ViewTable_withoutPIL(win, samples)
+        f = ViewTable(win, samples)
         win.resizable(False, False)
         win.title(title)
     else:
@@ -278,8 +264,7 @@ def createSndViewTableWindow(obj, title="Table waveform", wxnoserver=False, tabl
     if not PYO_USE_WX:
         createRootWindow()
         win = tkCreateToplevelWindow()
-        if WITH_PIL: f = ViewTable_withPIL(win, obj._base_objs[0].getViewTable())
-        else: f = ViewTable_withoutPIL(win, obj._base_objs[0].getViewTable())
+        f = ViewTable(win, obj._base_objs[0].getViewTable())
         win.resizable(False, False)
         win.title(title)
     else:
@@ -293,20 +278,16 @@ def createSndViewTableWindow(obj, title="Table waveform", wxnoserver=False, tabl
             SNDTABLEWINDOWS.append([obj, tableclass, title, mouse_callback])
 
 def createViewMatrixWindow(samples, size, title="Matrix viewer", wxnoserver=False, object=None):
-    if not WITH_PIL: print("""The Python Imaging Library is not installed.
-It helps a lot to speed up matrix drawing!""")
     if not PYO_USE_WX:
         createRootWindow()
         win = tkCreateToplevelWindow()
-        if WITH_PIL: f = ViewMatrix_withPIL(win, samples, size)
-        else: f = ViewMatrix_withoutPIL(win, samples, size)
+        f = ViewMatrix(win, samples, size)
         win.resizable(False, False)
         win.title(title)
     else:
         if wxnoserver or wx.GetApp() is not None:
             root = createRootWindow()
-            if WITH_PIL: f = ViewMatrix_withPIL(None, samples, size, object)
-            else: f = ViewMatrix_withoutPIL(None, samples, size, object)
+            f = ViewMatrix(None, samples, size, object)
             if object is not None:
                 object._setViewFrame(f)
             wxShowWindow(f, title, root)

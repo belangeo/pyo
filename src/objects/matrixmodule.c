@@ -336,6 +336,25 @@ NewMatrix_getViewData(NewMatrix *self)
 };
 
 static PyObject *
+NewMatrix_getImageData(NewMatrix *self)
+{
+    int i, j, w3, index;
+    char value;
+    char matrix[self->width*self->height*3];
+
+    w3 = self->width * 3;
+    for(i=0; i<self->height; i++) {
+        for (j=0; j<self->width; j++) {
+            value = (char)(self->data[i][j]*128+128);
+            index = i * w3 + j * 3;
+            matrix[index] = matrix[index+1] = matrix[index+2] = value;
+        }
+    }
+
+    return PyByteArray_FromStringAndSize(matrix, self->width*self->height*3);
+};
+
+static PyObject *
 NewMatrix_setMatrix(NewMatrix *self, PyObject *value)
 {
     int i, j;
@@ -403,6 +422,7 @@ static PyMethodDef NewMatrix_methods[] = {
 {"getServer", (PyCFunction)NewMatrix_getServer, METH_NOARGS, "Returns server object."},
 {"getData", (PyCFunction)NewMatrix_getData, METH_NOARGS, "Returns a list of matrix samples."},
 {"getViewData", (PyCFunction)NewMatrix_getViewData, METH_NOARGS, "Returns a list of matrix samples normalized between 0 and 256 ."},
+{"getImageData", (PyCFunction)NewMatrix_getImageData, METH_NOARGS, "Returns a list of matrix samples in tuple of 3 ints normalized between 0 and 256 ."},
 {"getMatrixStream", (PyCFunction)NewMatrix_getMatrixStream, METH_NOARGS, "Returns matrixstream object created by this matrix."},
 {"setMatrix", (PyCFunction)NewMatrix_setMatrix, METH_O, "Sets the matrix from a list of list of floats (must be the same size as the object size)."},
 {"setData", (PyCFunction)NewMatrix_setData, METH_O, "Sets the matrix from a list of list of floats (resizes the matrix)."},

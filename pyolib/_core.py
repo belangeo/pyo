@@ -1891,7 +1891,7 @@ class PyoMatrixObject(PyoObjectBase):
 
         """
         pyoArgsAssert(self, "SB", title, wxnoserver)
-        samples = self._base_objs[0].getViewData()
+        samples = self._base_objs[0].getImageData()
         createViewMatrixWindow(samples, self.getSize(), title, wxnoserver, self)
 
     def _setViewFrame(self, frame):
@@ -1903,7 +1903,7 @@ class PyoMatrixObject(PyoObjectBase):
 
         """
         if self.viewFrame is not None:
-            samples = self._base_objs[0].getViewData()
+            samples = self._base_objs[0].getImageData()
             self.viewFrame.update(samples)
 
 ######################################################################
