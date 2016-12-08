@@ -1243,7 +1243,7 @@ class TrigEnv(PyoObject):
 
     .. note::
 
-        TrigEnv will sends a trigger signal at the end of the playback.
+        TrigEnv will send a trigger signal at the end of the playback.
         User can retreive the trigger streams by calling obj['trig'].
         Useful to synchronize other processes.
 
@@ -1383,7 +1383,7 @@ class TrigLinseg(PyoObject):
 
     .. note::
 
-        TrigLinseg will sends a trigger signal at the end of the playback.
+        TrigLinseg will send a trigger signal at the end of the playback.
         User can retreive the trigger streams by calling obj['trig'].
         Useful to synchronize other processes.
 
@@ -1545,7 +1545,7 @@ class TrigExpseg(PyoObject):
 
     .. note::
 
-        TrigExpseg will sends a trigger signal at the end of the playback.
+        TrigExpseg will send a trigger signal at the end of the playback.
         User can retreive the trigger streams by calling obj['trig'].
         Useful to synchronize other processes.
 
@@ -2846,6 +2846,13 @@ class Iter(PyoObject):
             Initial value. Available at initialization time only.
             Defaults to 0.
 
+    .. note::
+
+        Iter will send a trigger signal when the iterator hits the
+        last value of the list `choice`. User can retreive the trigger 
+        streams by calling obj['trig']. Useful to synchronize other 
+        processes.
+
     >>> s = Server().boot()
     >>> s.start()
     >>> l1 = [300, 350, 400, 450, 500, 550]
@@ -2870,6 +2877,7 @@ class Iter(PyoObject):
             choicelen = len(choice)
             lmax = max(choicelen, lmax)
             self._base_objs = [Iter_base(wrap(in_fader,i), wrap(choice,i), wrap(init,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+        self._trig_objs = Dummy([TriggerDummy_base(obj) for obj in self._base_objs])
 
     def setInput(self, x, fadetime=0.05):
         """

@@ -63,7 +63,7 @@ class MatrixRec(PyoObject):
 
         MatrixRec has no `mul` and `add` attributes.
 
-        MatrixRec will sends a trigger signal at the end of the recording.
+        MatrixRec will send a trigger signal at the end of the recording.
         User can retreive the trigger streams by calling obj['trig']. See
         `TableRec` documentation for an example.
 
@@ -174,7 +174,7 @@ class MatrixRecLoop(PyoObject):
 
         MatrixRecLoop has no `mul` and `add` attributes.
 
-        MatrixRecLoop will sends a trigger signal when reaching the end
+        MatrixRecLoop will send a trigger signal when reaching the end
         of the matrix. User can retreive the trigger streams by calling
         obj['trig']. See `TableRec` documentation for an example.
 

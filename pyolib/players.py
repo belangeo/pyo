@@ -71,7 +71,7 @@ class SfPlayer(PyoObject):
 
     .. note::
 
-        SfPlayer will sends a trigger signal at the end of the playback if
+        SfPlayer will send a trigger signal at the end of the playback if
         loop is off or any time it wraps around if loop is on. User can
         retrieve the trigger streams by calling obj['trig']:
 

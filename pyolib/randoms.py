@@ -1208,7 +1208,7 @@ class Urn(PyoObject):
 
     .. note::
 
-        Urn will sends a trigger signal when the pool is empty.
+        Urn will send a trigger signal when the pool is empty.
         User can retreive the trigger streams by calling obj['trig'].
         Useful to synchronize other processes.
 

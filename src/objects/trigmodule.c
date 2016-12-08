@@ -5701,6 +5701,8 @@ typedef struct {
     int chCount;
     MYFLT *choice;
     MYFLT value;
+    MYFLT *trigsBuffer;
+    TriggerStream *trig_stream;
     int modebuffer[2]; // need at least 2 slots for mul & add
 } Iter;
 
@@ -5710,11 +5712,14 @@ Iter_generate(Iter *self) {
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
 
     for (i=0; i<self->bufsize; i++) {
+        self->trigsBuffer[i] = 0.0;
         if (in[i] == 1) {
             if (self->chCount >= self->chSize)
                 self->chCount = 0;
             self->value = self->choice[self->chCount];
             self->chCount++;
+            if (self->chCount == self->chSize)
+                self->trigsBuffer[i] = 1.0;
         }
         self->data[i] = self->value;
     }
@@ -5782,6 +5787,7 @@ Iter_traverse(Iter *self, visitproc visit, void *arg)
     pyo_VISIT
     Py_VISIT(self->input);
     Py_VISIT(self->input_stream);
+    Py_VISIT(self->trig_stream);
     return 0;
 }
 
@@ -5791,6 +5797,7 @@ Iter_clear(Iter *self)
     pyo_CLEAR
     Py_CLEAR(self->input);
     Py_CLEAR(self->input_stream);
+    Py_CLEAR(self->trig_stream);
     return 0;
 }
 
@@ -5799,6 +5806,7 @@ Iter_dealloc(Iter* self)
 {
     pyo_DEALLOC
     free(self->choice);
+    free(self->trigsBuffer);
     Iter_clear(self);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
@@ -5844,6 +5852,15 @@ Iter_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     self->value = inittmp;
 
+    self->trigsBuffer = (MYFLT *)realloc(self->trigsBuffer, self->bufsize * sizeof(MYFLT));
+
+    for (i=0; i<self->bufsize; i++) {
+        self->trigsBuffer[i] = 0.0;
+    }
+
+    MAKE_NEW_TRIGGER_STREAM(self->trig_stream, &TriggerStreamType, NULL);
+    TriggerStream_setData(self->trig_stream, self->trigsBuffer);
+
     (*self->mode_func_ptr)(self);
 
     return (PyObject *)self;
@@ -5851,6 +5868,7 @@ Iter_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
 static PyObject * Iter_getServer(Iter* self) { GET_SERVER };
 static PyObject * Iter_getStream(Iter* self) { GET_STREAM };
+static PyObject * Iter_getTriggerStream(Iter* self) { GET_TRIGGER_STREAM };
 static PyObject * Iter_setMul(Iter *self, PyObject *arg) { SET_MUL };
 static PyObject * Iter_setAdd(Iter *self, PyObject *arg) { SET_ADD };
 static PyObject * Iter_setSub(Iter *self, PyObject *arg) { SET_SUB };
@@ -5912,6 +5930,7 @@ Iter_reset(Iter *self, PyObject *arg)
 static PyMemberDef Iter_members[] = {
     {"server", T_OBJECT_EX, offsetof(Iter, server), 0, "Pyo server."},
     {"stream", T_OBJECT_EX, offsetof(Iter, stream), 0, "Stream object."},
+    {"trig_stream", T_OBJECT_EX, offsetof(Iter, trig_stream), 0, "Trigger Stream object."},
     {"input", T_OBJECT_EX, offsetof(Iter, input), 0, "Input sound object."},
     {"mul", T_OBJECT_EX, offsetof(Iter, mul), 0, "Mul factor."},
     {"add", T_OBJECT_EX, offsetof(Iter, add), 0, "Add factor."},
@@ -5921,6 +5940,7 @@ static PyMemberDef Iter_members[] = {
 static PyMethodDef Iter_methods[] = {
     {"getServer", (PyCFunction)Iter_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)Iter_getStream, METH_NOARGS, "Returns stream object."},
+    {"_getTriggerStream", (PyCFunction)Iter_getTriggerStream, METH_NOARGS, "Returns trigger stream object."},
     {"play", (PyCFunction)Iter_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)Iter_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
     {"stop", (PyCFunction)Iter_stop, METH_NOARGS, "Stops computing."},

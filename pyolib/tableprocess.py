@@ -788,7 +788,7 @@ class TableRead(PyoObject):
 
     .. note::
 
-        TableRead will sends a trigger signal at the end of the playback if
+        TableRead will send a trigger signal at the end of the playback if
         loop is off or any time it wraps around if loop is on. User can
         retreive the trigger streams by calling obj['trig']:
 
@@ -1534,7 +1534,7 @@ class TableRec(PyoObject):
 
         TableRec has no `mul` and `add` attributes.
 
-        TableRec will sends a trigger signal at the end of the recording.
+        TableRec will send a trigger signal at the end of the recording.
         User can retrieve the trigger streams by calling obj['trig']. In
         this example, the recorded table will be read automatically after
         a recording:
@@ -2145,7 +2145,7 @@ class TrigTableRec(PyoObject):
 
         TrigTableRec has no `mul` and `add` attributes.
 
-        TrigTableRec will sends a trigger signal at the end of the recording.
+        TrigTableRec will send a trigger signal at the end of the recording.
         User can retrieve the trigger streams by calling obj['trig'].
 
         obj['time'] outputs an audio stream of the current recording time,
@@ -2315,7 +2315,7 @@ class Looper(PyoObject):
 
     .. note::
 
-        Looper will sends a trigger signal every new playback starting point
+        Looper will send a trigger signal every new playback starting point
         (i.e. when the object is activated and at the beginning of the crossfade
         of a loop. User can retrieve the trigger streams by calling obj['trig'].
 
@@ -2682,7 +2682,7 @@ class TablePut(PyoObject):
 
         TablePut has no `mul` and `add` attributes.
 
-        TablePut will sends a trigger signal at the end of the recording.
+        TablePut will send a trigger signal at the end of the recording.
         User can retrieve the trigger streams by calling obj['trig'].
 
     .. seealso::

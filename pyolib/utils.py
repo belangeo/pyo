@@ -838,7 +838,7 @@ class ControlRead(PyoObject):
 
     .. note::
 
-        ControlRead will sends a trigger signal at the end of the playback if
+        ControlRead will send a trigger signal at the end of the playback if
         loop is off or any time it wraps around if loop is on. User can
         retreive the trigger streams by calling obj['trig']:
 
@@ -1049,7 +1049,7 @@ class NoteinRead(PyoObject):
 
     .. note::
 
-        NoteinRead will sends a trigger signal at the end of the playback if
+        NoteinRead will send a trigger signal at the end of the playback if
         loop is off or any time it wraps around if loop is on. User can
         retreive the trigger streams by calling obj['trig']:
 
