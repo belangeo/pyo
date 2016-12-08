@@ -95,6 +95,8 @@ for dir in folders:
             f.write("\n")
     index.close()
 
+os.system("cp ../utils/E-PyoIcon.png source/")
+
 os.system("sphinx-build -a -b %s ./source %s" % (build_format, build_folder))
 
 if build_format == "latex":
@@ -105,3 +107,5 @@ if rep == "y":
         os.system("scp -r build_html/* jeadum1@ajaxsoundstudio.com:/home/jeadum1/ajaxsoundstudio.com/pyodoc")
 
 os.system("rm -r source/examples")
+
+os.system("rm  source/E-PyoIcon.png")

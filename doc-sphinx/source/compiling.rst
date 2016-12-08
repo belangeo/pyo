@@ -11,7 +11,7 @@ Dependencies
 
 To compile pyo with all its features, you will need the following dependencies: 
 
-- `Python 2.7.x <https://www.python.org/downloads/>`_
+- `Python 2.7.x or 3.5.x <https://www.python.org/downloads/>`_
 - `WxPython 3.0 <http://www.wxpython.org/download.php/>`_
 - `Portaudio <http://www.portaudio.com/>`_
 - `Portmidi <http://portmedia.sourceforge.net/portmidi/>`_
@@ -19,11 +19,6 @@ To compile pyo with all its features, you will need the following dependencies:
 - `liblo <http://liblo.sourceforge.net/>`_
 - `git <https://git-scm.com/>`_ (if you want the latest sources)
 
-.. note::
-    
-    Pyo can be compiled against python 3.5.x but it is still experimental.
-    Some GUI features of pyo have not yet been updated to WxPython Phoenix 
-    (the python 3 port of WxPython).
 
 Getting sources
 ---------------
@@ -166,27 +161,13 @@ MacOS (Homebrew)
 
 Under macOS, it is very simple to build pyo from sources with the Homebrew package manager.
 
-First, you need to install `Homebrew <http://brew.sh/>`_. Then, in a terminal window:
+First, install Python and WxPython from the binary installers.
+
+Second, you need to install `Homebrew <http://brew.sh/>`_. Then, in a terminal window:
 
 .. code-block:: bash
 
-    brew install python liblo libsndfile portaudio portmidi --universal
+    brew install liblo libsndfile portaudio portmidi --universal
     git clone https://github.com/belangeo/pyo.git
     cd pyo
     python setup.py install --use-coreaudio --use-double 
-
-* To build a universal portmidi library with homebrew, the formula must be modified like this:
-    
-Add the option *universal*:
-
-.. code-block:: bash
-
-    option :universal
-
-And modify the *install* function to add the universal variable:
-    
-.. code-block:: bash
-
-    def install
-        ENV.universal_binary if build.universal?
-

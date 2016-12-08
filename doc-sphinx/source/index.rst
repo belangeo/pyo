@@ -3,8 +3,12 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Pyo 0.8.0 documentation
+Welcome to the pyo 0.8.1 documentation
 ===================================================
+
+.. image:: E-PyoIcon.png
+   :scale: 50 %
+   :align: center
 
 Pyo is a Python module written in C to help digital signal processing script 
 creation. It provides a complete set of classes to build audio softwares, 
