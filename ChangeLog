@@ -1,3 +1,15 @@
+2016-12-08 belangeo <belangeo@gmail.com>
+
+    * Upgraded version number to 0.8.1.
+
+2016-12-08 belangeo <belangeo@gmail.com>
+
+    * Iter now accepts PyoObjects in its list of values.
+
+2016-12-08 belangeo <belangeo@gmail.com>
+
+    * Iter now sends a thrigger when it reaches the last value.
+
 2016-11-25 belangeo <belangeo@gmail.com>
 
     * SigTo ramp time now can be controlled at audio rate (issue #87).

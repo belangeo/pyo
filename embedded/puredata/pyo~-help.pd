@@ -233,8 +233,8 @@ in pyo~ inputs).;
 #X text 26 96 play a soundfile to send audio signals to pyo;
 #N canvas 193 300 450 300 README 0;
 #X text 14 33 Author : Olivier Belanger;
-#X text 14 81 Last update : October 2015;
-#X text 14 57 Version : 0.8.0;
+#X text 14 81 Last update : December 2016;
+#X text 14 57 Version : 0.8.1;
 #X text 15 108 pyo website : http://ajaxsoundstudio.com/software/pyo/
 ;
 #X text 15 10 pyo~ : Embedded pyo scripting inside puredata.;
