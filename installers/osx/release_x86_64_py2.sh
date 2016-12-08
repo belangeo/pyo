@@ -1,20 +1,21 @@
 #!/bin/sh
 
 # Need Xcode 3.2.6 or later (pkgbuild and productbuild)
-# with python 2.7.12 (32/64-bit) and wxpython 3.0.2.0 (cocoa) installed
-# 1. update pyo sources
-# 2. compile and install pyo float and double
-# 3. cd utils and build E-Pyo
-# 4. cd installers/osx and build the realease, only x86_64 version
+# with python 2.7.12 (32/64-bit) and wxpython 3.0.2.0 (classic) installed
 
-export PACKAGE_NAME=pyo_0.8.0_x86_64.pkg
-export DMG_DIR="pyo 0.8.0 Universal"
-export DMG_NAME="pyo_0.8.0_OSX-universal.dmg"
+# 1. update pyo sources
+# 2. compile and install pyo float and double for python2
+# 3. cd utils and build E-Pyo for python2
+# 4. cd installers/osx and build the release for python2
+
+export PACKAGE_NAME=pyo_0.8.0_x86_64_py2.pkg
+export DMG_DIR="pyo 0.8.0 py2 Universal"
+export DMG_NAME="pyo_0.8.0_OSX_py2-universal.dmg"
 export INSTALLER_DIR=`pwd`/installer
 export PYO_MODULE_DIR=$INSTALLER_DIR/PyoModule/Package_Contents/tmp
 export SUPPORT_LIBS_DIR=$INSTALLER_DIR/SupportLibs/Package_Contents/usr/local/lib
 export BUILD_RESOURCES=$INSTALLER_DIR/PkgResources/English.lproj
-export PKG_RESOURCES=$INSTALLER_DIR/../PkgResources_x86_64
+export PKG_RESOURCES=$INSTALLER_DIR/../PkgResources_x86_64_py2
 
 mkdir -p $PYO_MODULE_DIR
 mkdir -p $SUPPORT_LIBS_DIR
@@ -33,15 +34,14 @@ sudo /usr/local/bin/python2.7 setup.py install --use-coreaudio --use-double
 
 sudo cp -R build/lib.macosx-10.6-intel-2.7 $PYO_MODULE_DIR/python27
 
-echo "building pyo for python 3.5 (64-bit)..."
-sudo /usr/local/bin/python3.5 setup.py install --use-coreaudio --use-double
-
-sudo cp -R build/lib.macosx-10.6-intel-3.5 $PYO_MODULE_DIR/python35
-
-sudo install_name_tool -change libportmidi.dylib /usr/local/lib/libportmidi.dylib $PYO_MODULE_DIR/python27/_pyo.so
-sudo install_name_tool -change libportmidi.dylib /usr/local/lib/libportmidi.dylib $PYO_MODULE_DIR/python27/_pyo64.so
-sudo install_name_tool -change libportmidi.dylib /usr/local/lib/libportmidi.dylib $PYO_MODULE_DIR/python35/_pyo.so
-sudo install_name_tool -change libportmidi.dylib /usr/local/lib/libportmidi.dylib $PYO_MODULE_DIR/python35/_pyo64.so
+sudo install_name_tool -change /usr/local/opt/portmidi/lib/libportmidi.dylib /usr/local/lib/libportmidi.dylib $PYO_MODULE_DIR/python27/_pyo.so
+sudo install_name_tool -change /usr/local/opt/portmidi/lib/libportmidi.dylib /usr/local/lib/libportmidi.dylib $PYO_MODULE_DIR/python27/_pyo64.so
+sudo install_name_tool -change /usr/local/opt/portaudio/lib/libportaudio.2.dylib /usr/local/lib/libportaudio.2.dylib $PYO_MODULE_DIR/python27/_pyo.so
+sudo install_name_tool -change /usr/local/opt/portaudio/lib/libportaudio.2.dylib /usr/local/lib/libportaudio.2.dylib $PYO_MODULE_DIR/python27/_pyo64.so
+sudo install_name_tool -change /usr/local/opt/liblo/lib/liblo.7.dylib /usr/local/lib/liblo.7.dylib $PYO_MODULE_DIR/python27/_pyo.so
+sudo install_name_tool -change /usr/local/opt/liblo/lib/liblo.7.dylib /usr/local/lib/liblo.7.dylib $PYO_MODULE_DIR/python27/_pyo64.so
+sudo install_name_tool -change /usr/local/opt/libsndfile/lib/libsndfile.1.dylib /usr/local/lib/libsndfile.1.dylib $PYO_MODULE_DIR/python27/_pyo.so
+sudo install_name_tool -change /usr/local/opt/libsndfile/lib/libsndfile.1.dylib /usr/local/lib/libsndfile.1.dylib $PYO_MODULE_DIR/python27/_pyo64.so
 
 cd ..
 
@@ -66,13 +66,13 @@ sudo chmod -R 755 SupportLibs/Package_Contents/usr
 
 echo "building packages..."
 
-pkgbuild    --identifier com.iact.umontreal.ca.pyo.tmp.pkg \
+pkgbuild    --identifier com.iact.umontreal.ca.pyo.py2.tmp.pkg \
             --root PyoModule/Package_Contents/ \
             --version 1.0 \
             --scripts $PKG_RESOURCES \
             PyoModule.pkg
 
-pkgbuild    --identifier com.iact.umontreal.ca.pyo.usr.pkg \
+pkgbuild    --identifier com.iact.umontreal.ca.pyo.py2.usr.pkg \
             --root SupportLibs/Package_Contents/ \
             --version 1.0 \
             SupportLibs.pkg
@@ -84,7 +84,7 @@ echo "assembling DMG..."
 mkdir "$DMG_DIR"
 cd "$DMG_DIR"
 cp ../$PACKAGE_NAME .
-cp -R ../../../../utils/E-Pyo.app .
+cp -R ../../../../utils/E-Pyo_OSX_py2/E-Pyo.app .
 ln -s /Applications .
 cd ..
 
@@ -95,5 +95,3 @@ mv installer/$DMG_NAME .
 
 echo "clean up resources..."
 sudo rm -rf installer
-
-

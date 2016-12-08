@@ -2401,11 +2401,12 @@ class DataMultiSlider(wx.Panel):
 
     def OnResize(self, event):
         self.Layout()
-        self.Refresh()
+        wx.CallAfter(self.Refresh)
 
     def update(self, points):
         self.values = points
-        self.Refresh()
+        self.changed = True
+        wx.CallAfter(self.Refresh)
 
     def OnPaint(self, event):
         w,h = self.GetSize()
@@ -2454,7 +2455,7 @@ class DataMultiSlider(wx.Panel):
         y = (h - pos[1]) / float(h) * scl + mini
         self.values[x] = y
         self.changed = True
-        self.Refresh()
+        wx.CallAfter(self.Refresh)
         evt.Skip()
 
     def MouseUp(self, evt):
@@ -2493,7 +2494,7 @@ class DataMultiSlider(wx.Panel):
                 self.values[x2] = y2
             self.lastpos = pos
             self.changed = True
-            self.Refresh()
+            wx.CallAfter(self.Refresh)
 
 class DataTableGrapher(wx.Frame):
 
@@ -2516,7 +2517,7 @@ class DataTableGrapher(wx.Frame):
         self.Destroy()
 
     def update(self, samples):
-        wx.CallAfter(self.multi.update, samples)
+        self.multi.update(samples)
 
 class ExprLexer(object):
     """Defines simple interface for custom lexer objects."""

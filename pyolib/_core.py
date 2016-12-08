@@ -327,7 +327,10 @@ def example(cls, dur=5, toprint=True, double=False):
         f.write(tobytes('print("""\n%s\n""")\n' % ex))
     f.write(tobytes(ex))
     f.close()
-    p = call(["python", f.name])
+    executable = sys.executable
+    if not executable or executable is None:
+        executable = "python"
+    p = call([executable, f.name])
 
 def removeExtraDecimals(x):
     if type(x) == float:

@@ -8,10 +8,6 @@ You can do absolutely everything you want with this piece of software.
 Olivier Belanger - 2016
 
 TODO:
-    Not sure if this is still relevant:
-    - Output panel close button on OSX (display only).
-    
-    For the long run:
     - Fix printing to pdf.
 
 """
@@ -30,7 +26,7 @@ import wx.lib.scrolledpanel as scrolled
 import wx.lib.dialogs
 import wx.stc as stc
 import wx.lib.agw.flatnotebook as FNB
-from pyo import *
+from pyo import * # what do we really need? OBJECTS_TREE, PYO_VERSION
 from PyoDoc import ManualFrame
 
 if sys.version_info[0] < 3:
