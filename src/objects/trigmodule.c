@@ -5697,9 +5697,11 @@ typedef struct {
     pyo_audio_HEAD
     PyObject *input;
     Stream *input_stream;
+    PyObject *choice;
+    Stream *audioval;
     int chSize;
     int chCount;
-    MYFLT *choice;
+    int curIsAudio;
     MYFLT value;
     MYFLT *trigsBuffer;
     TriggerStream *trig_stream;
@@ -5707,8 +5709,18 @@ typedef struct {
 } Iter;
 
 static void
+Iter_get_stream(Iter *self, PyObject *obj) {
+	PyObject *streamtmp;
+    streamtmp = PyObject_CallMethod((PyObject *)obj, "_getStream", NULL);
+    Py_INCREF(streamtmp);
+    Py_XDECREF(self->audioval);
+    self->audioval = (Stream *)streamtmp;
+}
+
+static void
 Iter_generate(Iter *self) {
     int i;
+    PyObject *obj;
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
 
     for (i=0; i<self->bufsize; i++) {
@@ -5716,12 +5728,26 @@ Iter_generate(Iter *self) {
         if (in[i] == 1) {
             if (self->chCount >= self->chSize)
                 self->chCount = 0;
-            self->value = self->choice[self->chCount];
+            obj = PyList_GetItem(self->choice, self->chCount);
+            if (PyNumber_Check(obj)) {
+                self->value = PyFloat_AsDouble(obj);
+                self->curIsAudio = 0;
+            }
+            else {
+                self->curIsAudio = 1;
+                Iter_get_stream(self, obj);
+            }
             self->chCount++;
             if (self->chCount == self->chSize)
                 self->trigsBuffer[i] = 1.0;
         }
-        self->data[i] = self->value;
+        if (self->curIsAudio) {
+            MYFLT *val = Stream_getData((Stream *)self->audioval);
+            self->data[i] = val[i];
+        }
+        else {
+            self->data[i] = self->value;
+        }
     }
 }
 
@@ -5787,6 +5813,8 @@ Iter_traverse(Iter *self, visitproc visit, void *arg)
     pyo_VISIT
     Py_VISIT(self->input);
     Py_VISIT(self->input_stream);
+    Py_VISIT(self->choice);
+    Py_VISIT(self->audioval);
     Py_VISIT(self->trig_stream);
     return 0;
 }
@@ -5797,6 +5825,8 @@ Iter_clear(Iter *self)
     pyo_CLEAR
     Py_CLEAR(self->input);
     Py_CLEAR(self->input_stream);
+    Py_CLEAR(self->choice);
+    Py_CLEAR(self->audioval);
     Py_CLEAR(self->trig_stream);
     return 0;
 }
@@ -5805,7 +5835,6 @@ static void
 Iter_dealloc(Iter* self)
 {
     pyo_DEALLOC
-    free(self->choice);
     free(self->trigsBuffer);
     Iter_clear(self);
     Py_TYPE(self)->tp_free((PyObject*)self);
@@ -5822,6 +5851,7 @@ Iter_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     self->value = 0.;
     self->chCount = 0;
+    self->curIsAudio = 0;
 	self->modebuffer[0] = 0;
 	self->modebuffer[1] = 0;
 
@@ -5890,26 +5920,20 @@ static PyObject * Iter_inplace_div(Iter *self, PyObject *arg) { INPLACE_DIV };
 static PyObject *
 Iter_setChoice(Iter *self, PyObject *arg)
 {
-    int i;
 	PyObject *tmp;
 
 	if (! PyList_Check(arg)) {
         PyErr_SetString(PyExc_TypeError, "The choice attribute must be a list.");
-		Py_INCREF(Py_None);
-		return Py_None;
+        Py_RETURN_NONE;
 	}
 
     tmp = arg;
     self->chSize = PyList_Size(tmp);
-    self->choice = (MYFLT *)realloc(self->choice, self->chSize * sizeof(MYFLT));
-    for (i=0; i<self->chSize; i++) {
-        self->choice[i] = PyFloat_AsDouble(PyList_GET_ITEM(tmp, i));
-    }
+    Py_INCREF(tmp);
+	Py_XDECREF(self->choice);
+    self->choice = tmp;
 
-    (*self->mode_func_ptr)(self);
-
-	Py_INCREF(Py_None);
-	return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -5923,8 +5947,7 @@ Iter_reset(Iter *self, PyObject *arg)
         else
             self->chCount = 0;
     }
-	Py_INCREF(Py_None);
-	return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyMemberDef Iter_members[] = {

@@ -2840,8 +2840,11 @@ class Iter(PyoObject):
 
         input: PyoObject
             Audio signal sending triggers.
-        choice: list of floats
-            Sequence of values over which to iterate.
+        choice: list of floats or PyoObjects
+            Sequence of values over which to iterate. If a PyoObject with
+            more than one audio streams is given, the streams will be 
+            flattened and inserted in the main list. See setChoice method
+            for more details.
         init: float, optional
             Initial value. Available at initialization time only.
             Defaults to 0.
@@ -2871,12 +2874,13 @@ class Iter(PyoObject):
         self._choice = choice
         self._in_fader = InputFader(input)
         in_fader, init, mul, add, lmax = convertArgsToLists(self._in_fader, init, mul, add)
-        if type(choice[0]) != list:
-            self._base_objs = [Iter_base(wrap(in_fader,i), choice, wrap(init,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+        x = self._flatten(choice)
+        if type(x[0]) != list:
+            self._base_objs = [Iter_base(wrap(in_fader,i), x, wrap(init,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
         else:
-            choicelen = len(choice)
+            choicelen = len(x)
             lmax = max(choicelen, lmax)
-            self._base_objs = [Iter_base(wrap(in_fader,i), wrap(choice,i), wrap(init,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+            self._base_objs = [Iter_base(wrap(in_fader,i), wrap(x,i), wrap(init,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
         self._trig_objs = Dummy([TriggerDummy_base(obj) for obj in self._base_objs])
 
     def setInput(self, x, fadetime=0.05):
@@ -2895,22 +2899,53 @@ class Iter(PyoObject):
         self._input = x
         self._in_fader.setInput(x, fadetime)
 
+    def _flatten(self, x):
+        if type(x[0]) != list:
+            lst = []
+            for ob in x:
+                if isinstance(ob, PyoObject):
+                    lst.extend(ob.getBaseObjects())
+                else:
+                    lst.append(ob)
+        else:
+            lst = []
+            for sub in x:
+                sublst = []
+                for ob in sub:
+                    if isinstance(ob, PyoObject):
+                        sublst.extend(ob.getBaseObjects())
+                    else:
+                        sublst.append(ob)
+                lst.append(sublst)
+        return lst
+
     def setChoice(self, x):
         """
         Replace the `choice` attribute.
 
+        `x` is a sequence of values over which to iterate. If a PyoObject 
+        with more than one audio streams is given, the streams will be 
+        flattened and inserted in the main list. For example, the choices:
+
+            [100, Randi(100,200,4), 200, Sig(250, mul=[1, 2])]
+
+        will expand to:
+            
+            [100, rand_val, 200, 250, 500] # the last two are audio streams.
+
         :Args:
 
-            x: list of floats
+            x: list of floats or PyoObjects
                 new `choice` attribute.
 
         """
         pyoArgsAssert(self, "l", x)
         self._choice = x
+        x = self._flatten(x)
         if type(x[0]) != list:
-            [obj.setChoice(self._choice) for i, obj in enumerate(self._base_objs)]
+            [obj.setChoice(x) for i, obj in enumerate(self._base_objs)]
         else:
-            [obj.setChoice(wrap(self._choice,i)) for i, obj in enumerate(self._base_objs)]
+            [obj.setChoice(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def reset(self, x=0):
         """
@@ -2934,7 +2969,7 @@ class Iter(PyoObject):
         self.setInput(x)
     @property
     def choice(self):
-        """list of floats. Possible values."""
+        """list of floats or PyoObjects. Possible values."""
         return self._choice
     @choice.setter
     def choice(self, x):
