@@ -1206,7 +1206,9 @@ Server_start(Server *self)
     Server_debug(self, "Server_start: number of streams %d\n", self->stream_count);
 
     /* Ensure Python is set up for threading */
-    PyEval_InitThreads();
+    if (!PyEval_ThreadsInitialized()) {
+        PyEval_InitThreads();
+    }
 
     self->server_stopped = 0;
     self->server_started = 1;
