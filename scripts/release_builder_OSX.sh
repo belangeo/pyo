@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# macOS release builder
+# macOS release builder.
 
 # Update sources
 git pull
@@ -17,7 +17,7 @@ sudo python3 setup.py install --use-coreaudio --use-double
 cd utils
 
 if [ -d E-Pyo_OSX_py2 ]; then
-   	sudo rm -rf E-Pyo_OSX_py2/;
+   sudo rm -rf E-Pyo_OSX_py2/;
 fi    
 
 if [ -d E-Pyo_OSX_py3 ]; then
