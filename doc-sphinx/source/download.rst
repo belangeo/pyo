@@ -2,7 +2,7 @@ Downloading the installer
 ==========================
 
 Installers are available for Windows (XP/Vista/7/8/10) and for MacOS 
-(from 10.5 to 10.12).
+(from 10.6 to 10.12).
 
 To download the latest pre-compiled version of pyo, go to the pyo's 
 `web page <http://ajaxsoundstudio.com/software/pyo/>`_.
@@ -24,10 +24,12 @@ E-Pyo, a simple text editor especially tuned to edit and run audio python script
 Pyo is a python module...
 -----------------------------
 
-... which means that python must be present (verion 2.7.x is the current one, 
-version 3.x.x is under development) on the system. If python 2.7.x is not
-installed, you can download it on `python.org <https://www.python.org/downloads/>`_.
+... which means that python must be present (version 2.7.x is the current one, 
+version 3.5.x is experimental but everything seems to work well so far) on the 
+system. If python is not installed, you can download it on 
+`python.org <https://www.python.org/downloads/>`_.
 
 Pyo also offers some GUI facilities to control or visualize the audio processing.
-If you want to use all of pyo's GUI features, you must install WxPython 3.0, 
-available on `wxpython.org <http://wxpython.org/download.php>`_.
+If you want to use all of pyo's GUI features, you must install WxPython 3.0 
+(**classic** for python 2.7.x and **phoenix** for python 3.5.x), available on 
+`wxpython.org <http://wxpython.org/download.php>`_.

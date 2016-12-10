@@ -21,9 +21,11 @@ widely used general programming language.
 
 Pyo is developed by Olivier Bélanger < belangeo@gmail.com >
 
-For questions and comments, please subscribe to the `pyo-discuss <http://groups.google.com/group/pyo-discuss>`_ mailing list.
+For questions and comments, please subscribe to the 
+`pyo-discuss <http://groups.google.com/group/pyo-discuss>`_ mailing list.
 
-To report a bug or to request a feature, use the `issues tracker <https://github.com/belangeo/pyo/issues>`_ on github.
+To report a bug or to request a feature, use the 
+`issues tracker <https://github.com/belangeo/pyo/issues>`_ on github.
 
 Sources and binaries can be downloaded at:
 http://ajaxsoundstudio.com/software/pyo/

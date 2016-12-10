@@ -54,32 +54,63 @@ from ._widgets import createCtrlWindow, createViewTableWindow, createViewMatrixW
 ### Utilities
 ######################################################################
 SNDS_PATH = os.path.join(os.path.dirname(current_pyo.__file__), "pyolib", "snds")
-XNOISE_DICT = {'uniform': 0, 'linear_min': 1, 'linear_max': 2, 'triangle': 3, 'expon_min': 4, 'expon_max': 5,
-               'biexpon': 6, 'cauchy': 7, 'weibull': 8, 'gaussian': 9, 'poisson': 10, 'walker': 11, 'loopseg': 12}
-FILE_FORMATS = {'wav': 0, 'wave': 0, 'aif': 1, 'aiff': 1, 'au': 2, '': 3, 'sd2': 4, 'flac': 5, 'caf': 6, 'ogg': 7}
-FUNCTIONS_INIT_LINES = {"pa_count_host_apis": "pa_count_host_apis()", "pa_list_host_apis": "pa_list_host_apis()",
-                        "pa_get_default_host_api": "pa_get_default_host_api()", "pa_count_devices": "pa_count_devices()",
-                        "pa_list_devices": "pa_list_devices()", "pa_get_devices_infos": "pa_get_devices_infos()",
-                        "pa_get_version": "pa_get_version()", "pa_get_version_text": "pa_get_version_text()",
-                        "pa_get_input_devices": "pa_get_input_devices()", "pa_get_output_devices": "pa_get_output_devices()",
-                        "pa_get_default_input": "pa_get_default_input()", "pa_get_default_output": "pa_get_default_output()",
-                        "pa_get_input_max_channels": "pa_get_input_max_channels(x)", "pa_get_output_max_channels": "pa_get_output_max_channels(x)",
-                        "pm_get_default_output": "pm_get_default_output()", "pm_get_default_input": "pm_get_default_input()",
-                        "pm_get_output_devices": "pm_get_output_devices()", "pm_get_input_devices": "pm_get_input_devices()",
-                        "pm_list_devices": "pm_list_devices()", "pm_count_devices": "pm_count_devices()",
-                        "sndinfo": "sndinfo(path, print=False)", "savefile": "savefile(samples, path, sr=44100, channels=1, fileformat=0, sampletype=0)",
-                        "savefileFromTable": "savefileFromTable(table, path, fileformat=0, sampletype=0)",
-                        "upsamp": "upsamp(path, outfile, up=4, order=128)", "downsamp": "downsamp(path, outfile, down=4, order=128)",
-                        "midiToHz": "midiToHz(x)", "hzToMidi": "hzToMidi(x)", "midiToTranspo": "midiToTranspo(x)", "sampsToSec": "sampsToSec(x)",
-                        "secToSamps": "secToSamps(x)", "linToCosCurve": "linToCosCurve(data, yrange=[0, 1], totaldur=1, points=1024, log=False)",
-                        "rescale": "rescale(data, xmin=0.0, xmax=1.0, ymin=0.0, ymax=1.0, xlog=False, ylog=False)",
-                        "distanceToSegment": "distanceToSegment(p, p1, p2, xmin=0.0, xmax=1.0, ymin=0.0, ymax=1.0, xlog=False, ylog=False)",
-                        "reducePoints": "reducePoints(pointlist, tolerance=0.02)", "serverCreated": "serverCreated()", "serverBooted": "serverBooted()",
-                        "example": "example(cls, dur=5, toprint=True, double=False)", "class_args": "class_args(cls)", "getVersion": "getVersion()",
-                        "convertStringToSysEncoding": "convertStringToSysEncoding(str)", "convertArgsToLists": "convertArgsToLists(*args)",
-                        "wrap": "wrap(arg, i)", "floatmap": "floatmap(x, min=0, max=1, exp=1)",
-                        "getPyoKeywords": "getPyoKeywords()"
-                        }
+XNOISE_DICT = {'uniform': 0, 'linear_min': 1, 'linear_max': 2, 'triangle': 3, 
+               'expon_min': 4, 'expon_max': 5, 'biexpon': 6, 'cauchy': 7, 
+               'weibull': 8, 'gaussian': 9, 'poisson': 10, 'walker': 11, 
+               'loopseg': 12}
+FILE_FORMATS = {'wav': 0, 'wave': 0, 'aif': 1, 'aiff': 1, 'au': 2, '': 3, 
+                'sd2': 4, 'flac': 5, 'caf': 6, 'ogg': 7}
+FUNCTIONS_INIT_LINES = {
+    "pa_count_host_apis": "pa_count_host_apis()", 
+    "pa_list_host_apis": "pa_list_host_apis()",
+    "pa_get_default_host_api": "pa_get_default_host_api()", 
+    "pa_count_devices": "pa_count_devices()",
+    "pa_list_devices": "pa_list_devices()", 
+    "pa_get_devices_infos": "pa_get_devices_infos()",
+    "pa_get_version": "pa_get_version()", 
+    "pa_get_version_text": "pa_get_version_text()",
+    "pa_get_input_devices": "pa_get_input_devices()", 
+    "pa_get_output_devices": "pa_get_output_devices()",
+    "pa_get_default_input": "pa_get_default_input()", 
+    "pa_get_default_output": "pa_get_default_output()",
+    "pa_get_input_max_channels": "pa_get_input_max_channels(x)", 
+    "pa_get_output_max_channels": "pa_get_output_max_channels(x)",
+    "pm_get_default_output": "pm_get_default_output()", 
+    "pm_get_default_input": "pm_get_default_input()",
+    "pm_get_output_devices": "pm_get_output_devices()", 
+    "pm_get_input_devices": "pm_get_input_devices()",
+    "pm_list_devices": "pm_list_devices()", 
+    "pm_count_devices": "pm_count_devices()",
+    "sndinfo": "sndinfo(path, print=False)", 
+    "savefile": 
+        "savefile(samples, path, sr=44100, channels=1, fileformat=0, sampletype=0)",
+    "savefileFromTable": 
+        "savefileFromTable(table, path, fileformat=0, sampletype=0)",
+    "upsamp": "upsamp(path, outfile, up=4, order=128)", 
+    "downsamp": "downsamp(path, outfile, down=4, order=128)",
+    "midiToHz": "midiToHz(x)", 
+    "hzToMidi": "hzToMidi(x)", 
+    "midiToTranspo": "midiToTranspo(x)", 
+    "sampsToSec": "sampsToSec(x)",
+    "secToSamps": "secToSamps(x)", 
+    "linToCosCurve": 
+        "linToCosCurve(data, yrange=[0, 1], totaldur=1, points=1024, log=False)",
+    "rescale": 
+        "rescale(data, xmin=0.0, xmax=1.0, ymin=0.0, ymax=1.0, xlog=False, ylog=False)",
+    "distanceToSegment": 
+        "distanceToSegment(p, p1, p2, xmin=0.0, xmax=1.0, ymin=0.0, ymax=1.0, xlog=False, ylog=False)",
+    "reducePoints": "reducePoints(pointlist, tolerance=0.02)", 
+    "serverCreated": "serverCreated()", 
+    "serverBooted": "serverBooted()",
+    "example": "example(cls, dur=5, toprint=True, double=False)", 
+    "class_args": "class_args(cls)", 
+    "getVersion": "getVersion()",
+    "convertStringToSysEncoding": "convertStringToSysEncoding(str)", 
+    "convertArgsToLists": "convertArgsToLists(*args)",
+    "wrap": "wrap(arg, i)", 
+    "floatmap": "floatmap(x, min=0, max=1, exp=1)",
+    "getPyoKeywords": "getPyoKeywords()"
+}
 
 class PyoError(Exception):
     """Base class for all pyo exceptions."""
@@ -228,7 +259,8 @@ def pyoArgsAssert(obj, format, *args):
 
     if expected:
         name = obj.__class__.__name__
-        raise PyoArgumentTypeError('bad argument at position %d to "%s" (%s expected, got %s)' % (i, name, expected, argtype))
+        err = 'bad argument at position %d to "%s" (%s expected, got %s)'
+        raise PyoArgumentTypeError(err % (i, name, expected, argtype))
 
 def convertStringToSysEncoding(str):
     """
@@ -311,7 +343,7 @@ def example(cls, dur=5, toprint=True, double=False):
         print("There is no manual example for %s object." % cls.__name__)
         return
 
-    ex_lines = [line.lstrip("    ") for line in lines if ">>>" in line or "..." in line]
+    ex_lines = [l.lstrip("    ") for l in lines if ">>>" in l or "..." in l]
     if hasattr(builtins, 'pyo_use_double') or double:
         ex = "import time\nfrom pyo64 import *\n"
     else:
@@ -360,7 +392,8 @@ def class_args(cls):
     try:
         # Try for a class __init__ function
         arg, varargs, varkw, defaults = inspect.getargspec(getattr(cls, "__init__"))
-        arg = inspect.formatargspec(arg, varargs, varkw, defaults, formatvalue=removeExtraDecimals)
+        arg = inspect.formatargspec(arg, varargs, varkw, defaults, 
+                                    formatvalue=removeExtraDecimals)
         arg = arg.replace("self, ", "")
         return name + arg
     except TypeError:
@@ -369,8 +402,9 @@ def class_args(cls):
             if name in FUNCTIONS_INIT_LINES:
                 return FUNCTIONS_INIT_LINES[name]
         except:
-            print("class_args was unable to retrieve the init line of the object as an argument.")
-            return ""
+            print("class_args was unable to retrieve the "
+                  "init line of the object as an argument.")
+        return ""
 
 def getVersion():
     """
@@ -442,10 +476,12 @@ class PyoObjectBase(object):
 
         **Operations allowed on all PyoObjectBase**
 
-        >>> len(obj) # Return the number of streams managed by the object.
-        >>> obj[x] # Return stream `x` of the object. `x` is a number from 0 to len(obj)-1.
-        >>> dir(obj) # Return the list of attributes of the object.
-        >>> for x in obj: # Can be used as an iterator (iterates over object's streams).
+        >>> len(obj)      # Return the number of streams managed by the object.
+        >>> obj[x]        # Return stream `x` of the object. 
+        >>>               # `x` is a number from 0 to len(obj)-1.
+        >>> dir(obj)      # Return the list of attributes of the object.
+        >>> for x in obj: # Can be used as an iterator (iterates over 
+        >>>               # object's audio streams).
 
     """
 
@@ -456,9 +492,11 @@ class PyoObjectBase(object):
     def __init__(self):
         self.__index = 0
         if not serverCreated():
-            raise PyoServerStateException("You must create and boot a Server before creating any audio object.")
+            raise PyoServerStateException("You must create and boot a Server "
+                                          "before creating any audio object.")
         if not serverBooted():
-            raise PyoServerStateException("The Server must be booted before creating any audio object.")
+            raise PyoServerStateException("The Server must be booted before "
+                                          "creating any audio object.")
 
     def dump(self):
         """

@@ -19,7 +19,6 @@ To compile pyo with all its features, you will need the following dependencies:
 - `liblo <http://liblo.sourceforge.net/>`_
 - `git <https://git-scm.com/>`_ (if you want the latest sources)
 
-
 Getting sources
 ---------------
 
@@ -44,13 +43,13 @@ Once you have all the required dependencies, go in pyo's directory:
 
 And build the library: 
 
-MacOS and Debian:
+MacOS:
     
 .. code-block:: bash
 
     sudo python setup.py install
 
-Ubuntu distros:
+Debian & Ubuntu:
     
 .. code-block:: bash
 
@@ -76,7 +75,8 @@ If you want JACK support (Linux, MacOS):
     --use-jack
 
 If you want to be able to use a 64-bit pyo (All platforms, this is the sample
-resolution, not the architecture), this will build both single and double precision: 
+resolution, not the architecture), this will build both single and double 
+precisions: 
 
 .. code-block:: bash
 
@@ -143,7 +143,8 @@ To compile both 32-bit and 64-bit resolutions on macOS (with Jack):
 Debian & Ubuntu (apt-get)
 -------------------------
 
-Under Ubuntu you can type the following commands to get pyo up and running: 
+Under Debian & Ubuntu you can type the following commands to get pyo up 
+and running: 
 
 .. code-block:: bash
 
@@ -159,11 +160,13 @@ Under Ubuntu you can type the following commands to get pyo up and running:
 MacOS (Homebrew)
 ----------------
 
-Under macOS, it is very simple to build pyo from sources with the Homebrew package manager.
+Under macOS, it is very simple to build pyo from sources with the Homebrew 
+package manager.
 
 First, install Python and WxPython from the binary installers.
 
-Second, you need to install `Homebrew <http://brew.sh/>`_. Then, in a terminal window:
+Second, you need to install `Homebrew <http://brew.sh/>`_. Then, in a terminal 
+window:
 
 .. code-block:: bash
 
