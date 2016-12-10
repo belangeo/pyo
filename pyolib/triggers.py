@@ -3355,6 +3355,8 @@ class Euclide(PyoObject):
         in a measure of length `k` (number of taps).
         Looping implementation, faster than recursive.
         """
+        if m < 1: m = 1
+        if k < 1: k = 1
         if m > k: m = k
         k -= m
         mv, kv = [1], [0]
