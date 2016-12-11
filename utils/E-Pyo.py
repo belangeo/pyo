@@ -3668,7 +3668,7 @@ class Editor(stc.StyledTextCtrl):
         self.SetProperty("tab.timmy.whinge.level", "1")
         self.SetMargins(5, 5)
         self.SetEdgeColour(STYLES["lineedge"]['colour'])
-        self.SetEdgeColumn(78)
+        self.SetEdgeColumn(80)
 
         self.SetMarginType(0, stc.STC_MARGIN_SYMBOL)
         self.SetMarginWidth(0, 12)

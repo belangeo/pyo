@@ -48,12 +48,15 @@ else:
     from _pyo import *
 
 from ._maps import *
-from ._widgets import createCtrlWindow, createViewTableWindow, createViewMatrixWindow
+from ._widgets import createCtrlWindow
+from ._widgets import createViewTableWindow
+from ._widgets import createViewMatrixWindow
     
 ######################################################################
 ### Utilities
 ######################################################################
-SNDS_PATH = os.path.join(os.path.dirname(current_pyo.__file__), "pyolib", "snds")
+current_pyo_path = os.path.dirname(current_pyo.__file__)
+SNDS_PATH = os.path.join(current_pyo_path, "pyolib", "snds")
 XNOISE_DICT = {'uniform': 0, 'linear_min': 1, 'linear_max': 2, 'triangle': 3, 
                'expon_min': 4, 'expon_max': 5, 'biexpon': 6, 'cauchy': 7, 
                'weibull': 8, 'gaussian': 9, 'poisson': 10, 'walker': 11, 

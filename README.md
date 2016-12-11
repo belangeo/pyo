@@ -15,7 +15,7 @@ MIDI protocol, for generating sound events and controlling process parameters.
 pyo allows creation of sophisticated signal processing chains with all the 
 benefits of a mature, and widely used, general programming language.
 
-Systems : macOS (10.5 -> 10.12), linux, Windows (XP, Vista, 7, 8, 10)
+Systems : macOS (10.6 -> 10.12), linux, Windows (XP, Vista, 7, 8, 10)
 
 Python versions : 2.7.x (stable), 3.x.x (still experimental)
 

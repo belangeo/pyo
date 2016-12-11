@@ -3,6 +3,8 @@ Prefix expression evaluators
 
 .. module:: pyo
 
+.. highlight:: none
+
 Prefix audio expression evaluator. 
 
 This family implements a tiny functional programming language that 
@@ -236,6 +238,8 @@ A triangle waveform generator (use Sig(0) as input argument to bypass input)::
         )
     )
     triangle #freq
+
+.. highlight:: python
 
 **Objects**
 -----------

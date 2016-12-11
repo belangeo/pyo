@@ -54,6 +54,10 @@ class Follower(PyoObject):
         The out() method is bypassed. Follower's signal can not be sent to
         audio outs.
 
+    .. seealso::
+
+        :py:class:`Follower2`, :py:class: `Balance`
+
     >>> s = Server().boot()
     >>> s.start()
     >>> sf = SfPlayer(SNDS_PATH + "/transparent.aif", loop=True, mul=.4).out()
@@ -143,6 +147,10 @@ class Follower2(PyoObject):
 
         The out() method is bypassed. Follower's signal can not be sent to
         audio outs.
+
+    .. seealso::
+
+        :py:class:`Follower`, :py:class: `Balance`
 
     >>> s = Server().boot()
     >>> s.start()
