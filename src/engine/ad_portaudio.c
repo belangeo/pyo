@@ -198,7 +198,7 @@ Server_pa_init(Server *self)
     outputParameters.device = outDevice;
     outputParameters.channelCount = self->nchnls + self->output_offset;
     outputParameters.sampleFormat = sampleFormat;
-    outputParameters.suggestedLatency = Pa_GetDeviceInfo( outputParameters.device )->defaultHighOutputLatency;
+    outputParameters.suggestedLatency = Pa_GetDeviceInfo( outputParameters.device )->defaultLowOutputLatency;
     outputParameters.hostApiSpecificStreamInfo = NULL;
 
     if (self->duplex == 1) {
@@ -206,7 +206,7 @@ Server_pa_init(Server *self)
         inputParameters.device = inDevice;
         inputParameters.channelCount = self->ichnls + self->input_offset;
         inputParameters.sampleFormat = sampleFormat;
-        inputParameters.suggestedLatency = Pa_GetDeviceInfo( inputParameters.device )->defaultHighInputLatency ;
+        inputParameters.suggestedLatency = Pa_GetDeviceInfo( inputParameters.device )->defaultLowInputLatency;
         inputParameters.hostApiSpecificStreamInfo = NULL;
     }
 
