@@ -789,6 +789,20 @@ class Bendin(PyoObject):
         x, lmax = convertArgsToLists(x)
         [obj.setChannel(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
+    def setInterpolation(self, x):
+        """
+        Activate/Deactivate interpolation. Activated by default.
+
+        :Args:
+
+            x: boolean
+                True activates the interpolation, False deactivates it.
+
+        """
+        pyoArgsAssert(self, "b", x)
+        x, lmax = convertArgsToLists(x)
+        [obj.setInterpolation(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
         self._map_list = [SLMap(0.0, 12.0, 'lin', 'brange', self._brange, dataOnly=True),
                          SLMap(0, 1, 'lin', 'scale', self._scale, res="int", dataOnly=True),
