@@ -1,5 +1,9 @@
 2016-12-17 belangeo <belangeo@gmail.com>
 
+    * Upgraded version number to 0.8.2.
+
+2016-12-17 belangeo <belangeo@gmail.com>
+
     * Fixed bug in Bendin value. Fixed midi input events handling. Set 
       interpolation to off by default for midi continuous controllers.
 

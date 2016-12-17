@@ -21,7 +21,7 @@
 #include "Python.h"
 #include <math.h>
 
-#define PYO_VERSION "0.8.1"
+#define PYO_VERSION "0.8.2"
 
 #ifndef __MYFLT_DEF
 #define __MYFLT_DEF
