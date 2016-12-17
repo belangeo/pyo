@@ -1,5 +1,9 @@
 2016-12-17 belangeo <belangeo@gmail.com>
 
+    * E-Pyo: Fixed a bug in the documentation window.
+
+2016-12-17 belangeo <belangeo@gmail.com>
+
     * TrigFunc and Pattern now accept tuple as arg argument (fixed issue #90).
 
 2016-12-15 belangeo <belangeo@gmail.com>

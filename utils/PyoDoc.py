@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # encoding: utf-8
 from __future__ import print_function
-import subprocess, threading, os, sys, unicodedata
+import subprocess, threading, os, sys, unicodedata, inspect
 import wx
 import wx.stc as stc
 from wx.lib.embeddedimage import PyEmbeddedImage
@@ -247,14 +247,21 @@ for k1 in _HEADERS:
         _KEYWORDS_LIST.extend(OBJECTS_TREE[k1])
         _NUM_PAGES += len(OBJECTS_TREE[k1])
 
-PYOOBJECTBASE_METHODS_FILTER = [x[0] for x in inspect.getmembers(PyoObjectBase, inspect.ismethod)]
-PYOOBJECT_METHODS_FILTER = [x[0] for x in inspect.getmembers(PyoObject, inspect.ismethod)]
-PYOMATRIXOBJECT_METHODS_FILTER = [x[0] for x in inspect.getmembers(PyoMatrixObject, inspect.ismethod)]
-PYOTABLEOBJECT_METHODS_FILTER = [x[0] for x in inspect.getmembers(PyoTableObject, inspect.ismethod)]
-PYOPVOBJECT_METHODS_FILTER = [x[0] for x in inspect.getmembers(PyoPVObject, inspect.ismethod)]
-MAP_METHODS_FILTER = [x[0] for x in inspect.getmembers(Map, inspect.ismethod)]
-SLMAP_METHODS_FILTER = [x[0] for x in inspect.getmembers(SLMap, inspect.ismethod)]
-WXPANEL_METHODS_FILTER = [x[0] for x in inspect.getmembers(wx.Panel, inspect.ismethod)]
+def get_object_methods(obj, filter=[]):
+    o = eval(obj)
+    meths = [f for f in dir(o) if callable(getattr(o, f))]
+    meths = [f for f in meths if not f.startswith("__") and not f.startswith("_")]
+    meths = [f for f in meths if f not in filter]
+    return meths
+
+PYOOBJECTBASE_METHODS_FILTER = get_object_methods("PyoObjectBase")
+PYOOBJECT_METHODS_FILTER = get_object_methods("PyoObject")
+PYOMATRIXOBJECT_METHODS_FILTER = get_object_methods("PyoMatrixObject")
+PYOTABLEOBJECT_METHODS_FILTER = get_object_methods("PyoTableObject")
+PYOPVOBJECT_METHODS_FILTER = get_object_methods("PyoPVObject")
+MAP_METHODS_FILTER = get_object_methods("Map")
+SLMAP_METHODS_FILTER = get_object_methods("SLMap")
+WXPANEL_METHODS_FILTER = get_object_methods("wx.Panel")
 
 def _ed_set_style(editor, searchKey=None):
     editor.SetLexer(stc.STC_LEX_PYTHON)
@@ -747,7 +754,7 @@ class ManualPanel(wx.Treebook):
             filter = WXPANEL_METHODS_FILTER
         else:
             filter = []
-        obj_meths = [x[0] for x in inspect.getmembers(eval(obj), inspect.ismethod) if x[0] not in filter]
+        obj_meths = get_object_methods(obj, filter)
         methods = ''
         for meth in obj_meths:
             docstr = getattr(eval(obj), meth).__doc__
