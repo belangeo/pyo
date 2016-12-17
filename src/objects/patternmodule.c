@@ -195,7 +195,14 @@ Pattern_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     }
 
     if (argtmp) {
-        PyObject_CallMethod((PyObject *)self, "setArg", "O", argtmp);
+        if (PyTuple_Check(argtmp)) {
+            PyObject *argument = PyTuple_New(1);
+            PyTuple_SetItem(argument, 0, argtmp);
+            PyObject_CallMethod((PyObject *)self, "setArg", "O", argument);
+        }
+        else {
+            PyObject_CallMethod((PyObject *)self, "setArg", "O", argtmp);
+        }
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
