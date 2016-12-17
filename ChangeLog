@@ -1,5 +1,10 @@
 2016-12-17 belangeo <belangeo@gmail.com>
 
+    * Fixed bug in Bendin value. Fixed midi input events handling. Set 
+      interpolation to off by default for midi continuous controllers.
+
+2016-12-17 belangeo <belangeo@gmail.com>
+
     * E-Pyo: Fixed a bug in the documentation window.
 
 2016-12-17 belangeo <belangeo@gmail.com>

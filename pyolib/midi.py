@@ -160,7 +160,7 @@ class Midictl(PyoObject):
 
     def setInterpolation(self, x):
         """
-        Activate/Deactivate interpolation. Activated by default.
+        Activate/Deactivate interpolation. Off by default.
 
         :Args:
 
@@ -791,7 +791,7 @@ class Bendin(PyoObject):
 
     def setInterpolation(self, x):
         """
-        Activate/Deactivate interpolation. Activated by default.
+        Activate/Deactivate interpolation. Off by default.
 
         :Args:
 
@@ -925,7 +925,7 @@ class Touchin(PyoObject):
 
     def setInterpolation(self, x):
         """
-        Activate/Deactivate interpolation. Activated by default.
+        Activate/Deactivate interpolation. Off by default.
 
         :Args:
 

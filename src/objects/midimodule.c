@@ -48,7 +48,7 @@ CtlScan_compute_next_data_frame(CtlScan *self)
 
     if (count > 0) {
         PyObject *tup;
-        for (i=count-1; i>=0; i--) {
+        for (i=0; i<count; i++) {
             int status = PyoMidi_MessageStatus(buffer[i].message);    // Temp note event holders
             int number = PyoMidi_MessageData1(buffer[i].message);
             int value = PyoMidi_MessageData2(buffer[i].message);
@@ -245,7 +245,7 @@ CtlScan2_compute_next_data_frame(CtlScan2 *self)
 
     if (count > 0) {
         PyObject *tup;
-        for (i=count-1; i>=0; i--) {
+        for (i=0; i<count; i++) {
             int status = PyoMidi_MessageStatus(buffer[i].message); // Temp note event holders
             int number = PyoMidi_MessageData1(buffer[i].message);
             int value = PyoMidi_MessageData2(buffer[i].message);
@@ -488,7 +488,7 @@ Midictl_setProcMode(Midictl *self)
 void translateMidi(Midictl *self, PyoMidiEvent *buffer, int count)
 {
     int i, ok;
-    for (i=count-1; i>=0; i--) {
+    for (i=0; i<count; i++) {
         int status = PyoMidi_MessageStatus(buffer[i].message);    // Temp note event holders
         int number = PyoMidi_MessageData1(buffer[i].message);
         int value = PyoMidi_MessageData2(buffer[i].message);
@@ -507,11 +507,11 @@ void translateMidi(Midictl *self, PyoMidiEvent *buffer, int count)
         }
 
         if (ok == 1 && number == self->ctlnumber) {
-            self->oldValue = self->value;
             self->value = (value / 127.) * (self->maxscale - self->minscale) + self->minscale;
             break;
         }
     }
+    self->oldValue = self->value;
 }
 
 static void
@@ -576,7 +576,7 @@ Midictl_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->oldValue = 0.;
     self->minscale = 0.;
     self->maxscale = 1.;
-    self->interp = 1;
+    self->interp = 0;
     self->modebuffer[0] = 0;
     self->modebuffer[1] = 0;
 
@@ -999,7 +999,7 @@ Bendin_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     self->channel = 0;
     self->scale = 0;
-    self->interp = 1;
+    self->interp = 0;
     self->value = 0.;
     self->oldValue = 0.;
     self->range = 2.;
@@ -1304,10 +1304,9 @@ Touchin_setProcMode(Touchin *self)
 void Touchin_translateMidi(Touchin *self, PyoMidiEvent *buffer, int count)
 {
     int i, ok;
-    for (i=count-1; i>=0; i--) {
+    for (i=0; i<count; i++) {
         int status = PyoMidi_MessageStatus(buffer[i].message);    // Temp note event holders
         int number = PyoMidi_MessageData1(buffer[i].message);
-        /* int value = PyoMidi_MessageData2(buffer[i].message); */
 
         if (self->channel == 0) {
             if ((status & 0xF0) == 0xd0)
@@ -1323,11 +1322,11 @@ void Touchin_translateMidi(Touchin *self, PyoMidiEvent *buffer, int count)
         }
 
         if (ok == 1) {
-            self->oldValue = self->value;
             self->value = (number / 127.) * (self->maxscale - self->minscale) + self->minscale;
             break;
         }
     }
+    self->oldValue = self->value;
 }
 
 static void
@@ -1392,7 +1391,7 @@ Touchin_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->oldValue = 0.;
     self->minscale = 0.;
     self->maxscale = 1.;
-    self->interp = 1;
+    self->interp = 0;
     self->modebuffer[0] = 0;
     self->modebuffer[1] = 0;
 
@@ -1683,7 +1682,7 @@ void Programin_translateMidi(Programin *self, PyoMidiEvent *buffer, int count)
 {
     int i, ok;
 
-    for (i=count-1; i>=0; i--) {
+    for (i=0; i<count; i++) {
         int status = PyoMidi_MessageStatus(buffer[i].message);    // Temp note event holders
         int number = PyoMidi_MessageData1(buffer[i].message);
 
@@ -3729,7 +3728,7 @@ RawMidi_compute_next_data_frame(RawMidi *self)
 
     if (count > 0) {
         PyObject *tup;
-        for (i=count-1; i>=0; i--) {
+        for (i=0; i<count; i++) {
             status = PyoMidi_MessageStatus(buffer[i].message);    // Temp note event holders
             data1 = PyoMidi_MessageData1(buffer[i].message);
             data2 = PyoMidi_MessageData2(buffer[i].message);
