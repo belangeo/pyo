@@ -923,6 +923,20 @@ class Touchin(PyoObject):
         x, lmax = convertArgsToLists(x)
         [obj.setChannel(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
+    def setInterpolation(self, x):
+        """
+        Activate/Deactivate interpolation. Activated by default.
+
+        :Args:
+
+            x: boolean
+                True activates the interpolation, False deactivates it.
+
+        """
+        pyoArgsAssert(self, "b", x)
+        x, lmax = convertArgsToLists(x)
+        [obj.setInterpolation(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
         self._map_list = [SLMap(-1.0, 0.0, 'lin', 'minscale', self._minscale, dataOnly=True),
                          SLMap(0.0, 1.0, 'lin', 'maxscale', self._maxscale, dataOnly=True),

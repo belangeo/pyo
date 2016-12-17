@@ -32,7 +32,7 @@ static PyoMidiEvent PmEventToPyoMidiEvent(PmEvent buffer)
 void portmidiGetEvents(Server *self)
 {
     int i;
-    PmError result;
+    PmError result, length;
     PmEvent buffer;
 
     PyoPmBackendData *be_data = (PyoPmBackendData *) self->midi_be_data;
@@ -41,9 +41,9 @@ void portmidiGetEvents(Server *self)
         do {
             result = Pm_Poll(be_data->midiin[i]);
             if (result) {
-                if (Pm_Read(be_data->midiin[i], &buffer, 1) == pmBufferOverflow)
-                    continue;
-                self->midiEvents[self->midi_count++] = PmEventToPyoMidiEvent(buffer);
+                length = Pm_Read(be_data->midiin[i], &buffer, 1);
+                if (length > 0)
+                    self->midiEvents[self->midi_count++] = PmEventToPyoMidiEvent(buffer);
             }
         } while (result);
     }

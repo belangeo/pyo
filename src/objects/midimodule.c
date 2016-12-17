@@ -911,7 +911,7 @@ void Bendin_translateMidi(Bendin *self, PyoMidiEvent *buffer, int count)
 {
     int i, ok;
     MYFLT val;
-    for (i=count-1; i>=0; i--) {
+    for (i=0; i<count; i++) {
         int status = PyoMidi_MessageStatus(buffer[i].message);    // Temp note event holders
         int number = PyoMidi_MessageData1(buffer[i].message);
         int value = PyoMidi_MessageData2(buffer[i].message);
@@ -930,7 +930,6 @@ void Bendin_translateMidi(Bendin *self, PyoMidiEvent *buffer, int count)
         }
 
         if (ok == 1) {
-            self->oldValue = self->value;
             val = (number + (value << 7) - 8192) / 8192.0 * self->range;
             if (self->scale == 0)
                 self->value = val;
@@ -939,6 +938,7 @@ void Bendin_translateMidi(Bendin *self, PyoMidiEvent *buffer, int count)
             break;
         }
     }
+    self->oldValue = self->value;
 }
 
 static void
@@ -949,7 +949,6 @@ Bendin_compute_next_data_frame(Bendin *self)
 
     tmp = Server_getMidiEventBuffer((Server *)self->server);
     count = Server_getMidiEventCount((Server *)self->server);
-
     if (count > 0)
         Bendin_translateMidi((Bendin *)self, tmp, count);
 
@@ -1247,6 +1246,7 @@ typedef struct {
     int channel;
     MYFLT minscale;
     MYFLT maxscale;
+    int interp;
     MYFLT value;
     MYFLT oldValue;
     MYFLT sampleToSec;
@@ -1341,10 +1341,17 @@ Touchin_compute_next_data_frame(Touchin *self)
 
     if (count > 0)
         Touchin_translateMidi((Touchin *)self, tmp, count);
-    MYFLT step = (self->value - self->oldValue) / self->bufsize;
 
-    for (i=0; i<self->bufsize; i++) {
-        self->data[i] = self->oldValue + step;
+    if (self->interp == 0) {
+        for (i=0; i<self->bufsize; i++) {
+            self->data[i] = self->value;
+        }
+    }
+    else {
+        MYFLT step = (self->value - self->oldValue) / self->bufsize;
+        for (i=0; i<self->bufsize; i++) {
+            self->data[i] = self->oldValue + step;
+        }
     }
 
     (*self->muladd_func_ptr)(self);
@@ -1385,6 +1392,7 @@ Touchin_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->oldValue = 0.;
     self->minscale = 0.;
     self->maxscale = 1.;
+    self->interp = 1;
     self->modebuffer[0] = 0;
     self->modebuffer[1] = 0;
 
@@ -1488,6 +1496,27 @@ Touchin_setChannel(Touchin *self, PyObject *arg)
     return Py_None;
 }
 
+static PyObject *
+Touchin_setInterpolation(Touchin *self, PyObject *arg)
+{
+    int tmp;
+
+    ASSERT_ARG_NOT_NULL
+
+	int isNum = PyInt_Check(arg);
+
+	if (isNum == 1) {
+		tmp = PyInt_AsLong(arg);
+        if (tmp == 0)
+            self->interp = 0;
+        else
+            self->interp = 1;
+	}
+
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
 static PyMemberDef Touchin_members[] = {
     {"server", T_OBJECT_EX, offsetof(Touchin, server), 0, "Pyo server."},
     {"stream", T_OBJECT_EX, offsetof(Touchin, stream), 0, "Stream object."},
@@ -1504,6 +1533,7 @@ static PyMethodDef Touchin_methods[] = {
     {"setMinScale", (PyCFunction)Touchin_setMinScale, METH_O, "Sets the minimum value of scaling."},
     {"setMaxScale", (PyCFunction)Touchin_setMaxScale, METH_O, "Sets the maximum value of scaling."},
     {"setChannel", (PyCFunction)Touchin_setChannel, METH_O, "Sets the midi channel."},
+	{"setInterpolation", (PyCFunction)Touchin_setInterpolation, METH_O, "Activate/Deactivate interpolation."},
     {"setMul", (PyCFunction)Touchin_setMul, METH_O, "Sets oscillator mul factor."},
     {"setAdd", (PyCFunction)Touchin_setAdd, METH_O, "Sets oscillator add factor."},
     {"setSub", (PyCFunction)Touchin_setSub, METH_O, "Sets inverse add factor."},
