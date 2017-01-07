@@ -166,7 +166,7 @@ void Server_error(Server *self, char * format, ...);
 void Server_message(Server *self, char * format, ...);
 void Server_warning(Server *self, char * format, ...);
 void Server_debug(Server *self, char * format, ...);
-PyObject * Server_shut_down(Server *self);
+PyObject * Server_shutdown(Server *self);
 PyObject *Server_stop(Server *self);
 void Server_process_gui(Server *server);
 void Server_process_time(Server *server);

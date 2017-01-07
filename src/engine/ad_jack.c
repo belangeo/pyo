@@ -25,12 +25,11 @@ int
 jack_callback(jack_nframes_t nframes, void *arg) {
     int i, j;
     Server *server = (Server *) arg;
+
     assert(nframes == server->bufferSize);
+
     jack_default_audio_sample_t *in_buffers[server->ichnls], *out_buffers[server->nchnls];
 
-    if (server->withPortMidi == 1) {
-        pyoGetMidiEvents(server);
-    }
     PyoJackBackendData *be_data = (PyoJackBackendData *) server->audio_be_data;
     for (i = 0; i < server->ichnls; i++) {
         in_buffers[i] = jack_port_get_buffer(be_data->jack_in_ports[i+server->input_offset], server->bufferSize);
@@ -39,6 +38,21 @@ jack_callback(jack_nframes_t nframes, void *arg) {
         out_buffers[i] = jack_port_get_buffer(be_data->jack_out_ports[i+server->output_offset], server->bufferSize);
 
     }
+
+    /* Outputs zeros while the audio server is not started. */
+    if (!server->server_started) {
+        for (i=0; i<server->bufferSize; i++) {
+            for (j=0; j<server->nchnls; j++) {
+                out_buffers[j][i] = 0.0;
+            }
+        }
+        return 0;
+    }
+
+    if (server->withPortMidi == 1) {
+        pyoGetMidiEvents(server);
+    }
+
     /* jack audio data is not interleaved */
     if (server->duplex == 1) {
         for (i=0; i<server->bufferSize; i++) {
@@ -81,7 +95,7 @@ jack_error_cb(const char *desc) {
 void
 jack_shutdown_cb(void *arg) {
     Server *s = (Server *) arg;
-    Server_shut_down(s);
+    Server_shutdown(s);
     Server_warning(s, "JACK server shutdown. Pyo Server shut down.\n");
 }
 
@@ -260,13 +274,27 @@ Server_jack_init(Server *self) {
     jack_set_sample_rate_callback(be_data->jack_client, jack_srate_cb, (void *) self);
     jack_on_shutdown(be_data->jack_client, jack_shutdown_cb, (void *) self);
     jack_set_buffer_size_callback(be_data->jack_client, jack_bufsize_cb, (void *) self);
+    jack_set_process_callback(be_data->jack_client, jack_callback, (void *) self);
+
+    if (jack_activate(be_data->jack_client)) {
+        Server_error(self, "Jack error: cannot activate jack client.\n");
+        //Server_shutdown(self);
+        return -1;
+    }
+
+    Server_jack_autoconnect(self);
+
     return 0;
 }
 
 int
 Server_jack_deinit(Server *self) {
+    int ret;
     PyoJackBackendData *be_data = (PyoJackBackendData *) self->audio_be_data;
-    int ret = jack_client_close(be_data->jack_client);
+    ret = jack_deactivate(be_data->jack_client);
+    if (ret)
+        Server_error(self, "Jack error: cannot deactivate jack client.\n");
+    ret = jack_client_close(be_data->jack_client);
     if (ret)
         Server_error(self, "Jack error: cannot close client.\n");
     free(be_data->jack_in_ports);
@@ -277,24 +305,10 @@ Server_jack_deinit(Server *self) {
 
 int
 Server_jack_start(Server *self) {
-    PyoJackBackendData *be_data = (PyoJackBackendData *) self->audio_be_data;
-    jack_set_process_callback(be_data->jack_client, jack_callback, (void *) self);
-    if (jack_activate(be_data->jack_client)) {
-        Server_error(self, "Jack error: cannot activate jack client.\n");
-        jack_client_close(be_data->jack_client);
-        Server_shut_down(self);
-        return -1;
-    }
-    Server_jack_autoconnect(self);
     return 0;
 }
 
 int
 Server_jack_stop(Server *self) {
-    PyoJackBackendData *be_data = (PyoJackBackendData *) self->audio_be_data;
-    int ret = jack_deactivate(be_data->jack_client);
-    if (ret)
-        Server_error(self, "Jack error: cannot deactivate jack client.\n");
-    self->server_started = 0;
-    return ret;
+    return 0;
 }

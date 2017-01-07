@@ -485,60 +485,6 @@ Server_process_time(Server *server)
     }
 }
 
-PyObject *
-Server_shut_down(Server *self)
-{
-    int i;
-    int ret = -1;
-    if (self->server_booted == 0) {
-        Server_error(self, "The Server must be booted!\n");
-        Py_RETURN_NONE;
-    }
-    if (self->server_started == 1) {
-        Server_stop((Server *)self);
-    }
-
-    for (i=0; i<num_rnd_objs; i++) {
-        rnd_objs_count[i] = 0;
-    }
-
-    switch (self->midi_be_type) {
-        case PyoPortmidi:
-            if (self->withPortMidi == 1 || self->withPortMidiOut == 1)
-                ret = Server_pm_deinit(self);
-            break;
-        default:
-            break;
-    }
-
-    switch (self->audio_be_type) {
-        case PyoPortaudio:
-            ret = Server_pa_deinit(self);
-            break;
-        case PyoCoreaudio:
-            ret = Server_coreaudio_deinit(self);
-            break;
-        case PyoJack:
-            ret = Server_jack_deinit(self);
-            break;
-        case PyoOffline:
-            ret = Server_offline_deinit(self);
-            break;
-        case PyoOfflineNB:
-            ret = Server_offline_deinit(self);
-            break;
-        case PyoEmbedded:
-            ret = Server_embedded_deinit(self);
-            break;
-    }
-    self->server_booted = 0;
-    if (ret < 0) {
-        Server_error(self, "Error closing audio backend.\n");
-    }
-
-    Py_RETURN_NONE;
-}
-
 static int
 Server_traverse(Server *self, visitproc visit, void *arg)
 {
@@ -569,7 +515,7 @@ static void
 Server_dealloc(Server* self)
 {
     if (self->server_booted == 1)
-        Server_shut_down(self);
+        Server_shutdown(self);
     Server_clear(self);
     free(self->input_buffer);
     free(self->output_buffer);
@@ -638,7 +584,7 @@ Server_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->midi_output = -1;
     self->midiActive = 1;
     self->amp = self->resetAmp = 1.;
-    self->currentAmp = self->lastAmp = 0.;
+    self->currentAmp = self->lastAmp = 1.; // If set to 0, there is a 5ms fadein at server start.
     self->withGUI = 0;
     self->withTIME = 0;
     self->verbosity = 7;
@@ -1082,11 +1028,67 @@ Server_setStartOffset(Server *self, PyObject *arg)
     Py_RETURN_NONE;
 }
 
+/*******************************************/
+/** Server shutdown / boot / start / stop **/
+/*******************************************/
+
+PyObject *
+Server_shutdown(Server *self)
+{
+    int i, ret = -1;
+    if (self->server_booted == 0) {
+        Server_error(self, "The Server must be booted!\n");
+        Py_RETURN_NONE;
+    }
+    if (self->server_started == 1) {
+        Server_stop((Server *)self);
+    }
+
+    for (i=0; i<num_rnd_objs; i++) {
+        rnd_objs_count[i] = 0;
+    }
+
+    switch (self->midi_be_type) {
+        case PyoPortmidi:
+            if (self->withPortMidi == 1 || self->withPortMidiOut == 1)
+                ret = Server_pm_deinit(self);
+            break;
+        default:
+            break;
+    }
+
+    switch (self->audio_be_type) {
+        case PyoPortaudio:
+            ret = Server_pa_deinit(self);
+            break;
+        case PyoCoreaudio:
+            ret = Server_coreaudio_deinit(self);
+            break;
+        case PyoJack:
+            ret = Server_jack_deinit(self);
+            break;
+        case PyoOffline:
+            ret = Server_offline_deinit(self);
+            break;
+        case PyoOfflineNB:
+            ret = Server_offline_deinit(self);
+            break;
+        case PyoEmbedded:
+            ret = Server_embedded_deinit(self);
+            break;
+    }
+    self->server_booted = 0;
+    if (ret < 0) {
+        Server_error(self, "Error closing audio backend.\n");
+    }
+
+    Py_RETURN_NONE;
+}
+
 static PyObject *
 Server_boot(Server *self, PyObject *arg)
 {
-    int audioerr = 0, midierr = 0;
-    int i;
+    int i, audioerr = 0, midierr = 0;
     if (self->server_booted == 1) {
         Server_error(self, "Server already booted!\n");
         Py_RETURN_NONE;
@@ -1094,6 +1096,11 @@ Server_boot(Server *self, PyObject *arg)
     self->server_started = 0;
     self->stream_count = 0;
     self->elapsedSamples = 0;
+
+    /* Ensure Python is set up for threading */
+    if (!PyEval_ThreadsInitialized()) {
+        PyEval_InitThreads();
+    }
 
     int needNewBuffer = 0;
     if (arg != NULL && PyBool_Check(arg)) {
@@ -1205,14 +1212,9 @@ Server_start(Server *self)
 
     Server_debug(self, "Server_start: number of streams %d\n", self->stream_count);
 
-    /* Ensure Python is set up for threading */
-    if (!PyEval_ThreadsInitialized()) {
-        PyEval_InitThreads();
-    }
-
     self->server_stopped = 0;
     self->server_started = 1;
-    self->timeStep = (int)(0.01 * self->samplingRate);
+    self->timeStep = (int)(0.005 * self->samplingRate);
 
     if (self->startoffset > 0.0) {
         Server_message(self,"Rendering %.2f seconds offline...\n", self->startoffset);
@@ -1282,11 +1284,12 @@ Server_stop(Server *self)
     }
     else {
         self->server_stopped = 1;
+        self->server_started = 0;
     }
 
     /* This call is needed to recover from thread fork with python3/jack on debian.*/
     /* TODO: Need to be tested with other OSes and audio driver. */
-    PyOS_AfterFork();
+    //PyOS_AfterFork();
 
     Py_RETURN_NONE;
 }
@@ -1910,7 +1913,7 @@ static PyMethodDef Server_methods[] = {
     {"setVerbosity", (PyCFunction)Server_setVerbosity, METH_O, "Sets the verbosity."},
     {"setStartOffset", (PyCFunction)Server_setStartOffset, METH_O, "Sets starting time offset."},
     {"boot", (PyCFunction)Server_boot, METH_O, "Setup and boot the server."},
-    {"shutdown", (PyCFunction)Server_shut_down, METH_NOARGS, "Shut down the server."},
+    {"shutdown", (PyCFunction)Server_shutdown, METH_NOARGS, "Shut down the server."},
     {"start", (PyCFunction)Server_start, METH_NOARGS, "Starts the server's callback loop."},
     {"stop", (PyCFunction)Server_stop, METH_NOARGS, "Stops the server's callback loop."},
     {"recordOptions", (PyCFunction)Server_recordOptions, METH_VARARGS|METH_KEYWORDS, "Sets format settings for offline rendering and global recording."},
