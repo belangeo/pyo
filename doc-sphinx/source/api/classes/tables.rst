@@ -125,3 +125,9 @@ in memory and access them quickly.
 
 .. autoclass:: PadSynthTable
    :members:
+
+*SharedTable*
+-----------------------------------
+
+.. autoclass:: SharedTable
+   :members:

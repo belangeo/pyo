@@ -56,6 +56,8 @@ GUI
 
 - MixerGUI, an interface to control the routing of a Mixer object.
 
+- Keyboard, a virtual MIDI keyboard (adapted from Zyne's one).
+
 
 Tables
 ------
