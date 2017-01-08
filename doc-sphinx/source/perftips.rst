@@ -42,34 +42,49 @@ sine wave computations to multiple processors.
     Spawning lot of sine waves to multiple processes.
     From the command line, run the script with -i flag.
 
+    Call quit() to stop the workers and quit the program.
+
     """
-    from pyo import *
+    import time
+    import multiprocessing
     from random import uniform
-    import time, multiprocessing
+    from pyo import Server, SineLoop
 
     class Group(multiprocessing.Process):
-        def __init__(self, n):
+        def __init__(self, num_of_sines):
             super(Group, self).__init__()
             self.daemon = True
-
-            self.s = Server()
-            self.s.deactivateMidi()
-            self.s.boot().start()
-
-            freqs = [uniform(400,800) for i in range(n)]
-            self.a = Sine(freq=freqs, mul=.005).out()
+            self._terminated = False
+            self.num_of_sines = num_of_sines
 
         def run(self):
-            while True:
+            # All code that should run on a separated
+            # core must be created in the run() method.
+            self.server = Server()
+            self.server.deactivateMidi()
+            self.server.boot().start()
+
+            freqs = [uniform(400,800) for i in range(self.num_of_sines)]
+            self.oscs = SineLoop(freq=freqs, feedback=0.1, mul=.005).out()
+
+            # Keeps the process alive...
+            while not self._terminated:
                 time.sleep(0.001)
 
+            self.server.stop()
+
+        def stop(self):
+            self._terminated = True
+
     if __name__ == '__main__':
-        jobs = []
-        # Starts four processes playing 500 sines each.
-        for i in range(4):
-            jobs.append(Group(500))
-        for job in jobs:
-            job.start()
+        # Starts four processes playing 500 oscillators each.
+        jobs = [Group(500) for i in range(4)]
+        [job.start() for job in jobs]
+
+        def quit():
+            "Stops the workers and quit the program."
+            [job.stop() for job in jobs]
+            exit()
 
 Avoid memory allocation after initialization
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
