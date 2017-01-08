@@ -2571,3 +2571,67 @@ class PadSynthTable(PyoTableObject):
         return self._damp
     @damp.setter
     def damp(self, x): self.setDamp(x)
+
+class SharedTable(PyoTableObject):
+    """
+    Create an inter-process shared memory table.
+
+    This table uses the given name to open an internal shared memory
+    object, used as the data memory of the table. Two or more tables
+    from different processes, if they use the same name, can read and
+    write to the same memory space.
+
+    :Parent: :py:class:`PyoTableObject`
+
+    :Args:
+
+        name: string
+            Unique name in the system shared memory. Two or more tables created
+            with the same name will shared the same memory space. The name
+            must conform to the construction rules for a unix pathname (ie.
+            it must begin with a slash). Available at initialization time only.
+        create: loolean
+            If True, an entry will be create in the system shared memory.
+            If False, the object will use an already created shared memory.
+            Can't be a list. Available at initialization time only.
+        size: int
+            Size of the table in samples. Can't be a list.
+            Available at initialization time only.
+
+    >>> s = Server().boot()
+    >>> s.start()
+    >>> # Creating parent table.
+    >>> table = SharedTable(["/sharedl", "/sharedr"], True, s.getBufferSize())
+    >>> # Creating child table.
+    >>> shared = SharedTable(["/sharedl", "/sharedr"], False, s.getBufferSize())
+    >>> # Read and output the content of the parent table.
+    >>> tabread = TableRead(table, table.getRate(), True).out()
+    >>> # Record some signal signal in the child table.
+    >>> lfo = Sine(freq=[0.2, 0.25]).range(98, 102)
+    >>> wave = LFO(freq=lfo, type=4, sharp=0.7, mul=0.3)
+    >>> pos = Phasor(shared.getRate())
+    >>> record = TableWrite(wave, pos, shared)
+
+    """
+    def __init__(self, name, create, size):
+        pyoArgsAssert(self, "sBI", name, create, size)
+        PyoTableObject.__init__(self, size)
+        self._name = name
+        self._create = create
+        name, lmax = convertArgsToLists(name)
+        self._base_objs = [SharedTable_base(wrap(name,i), create, size) for i in range(lmax)]
+
+    def getRate(self):
+        """
+        Returns the frequency (cycle per second) to give to an
+        oscillator to read the sound at its original pitch.
+
+        """
+        return self._base_objs[0].getRate()
+
+    @property
+    def size(self):
+        """int. Length of the table in samples."""
+        return self._size
+    @size.setter
+    def size(self, x): print("SharedTable 'size' attribute is read-only.")

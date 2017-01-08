@@ -20,6 +20,8 @@
 
 #include <Python.h>
 #include <object.h>
+#include <fcntl.h>
+#include <sys/mman.h>
 #include "py2to3.h"
 #include "structmember.h"
 #include <math.h>
@@ -4866,7 +4868,6 @@ NewTable_new,                 /* tp_new */
 /***********************/
 typedef struct {
     pyo_table_HEAD
-    int pointer;
 } DataTable;
 
 static void
@@ -4906,8 +4907,6 @@ DataTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self = (DataTable *)type->tp_alloc(type, 0);
 
     self->server = PyServer_get_server();
-
-    self->pointer = 0;
 
     MAKE_NEW_TABLESTREAM(self->tablestream, &TableStreamType, NULL);
 
@@ -7468,4 +7467,221 @@ TableWrite_members,             /* tp_members */
 0,      /* tp_init */
 0,                         /* tp_alloc */
 TableWrite_new,                 /* tp_new */
+};
+
+/*************************/
+/* SharedTable structure */
+/*************************/
+typedef struct {
+    pyo_table_HEAD
+    char *name;
+    int create;
+    int fd;
+} SharedTable;
+
+static int
+SharedTable_traverse(SharedTable *self, visitproc visit, void *arg)
+{
+    pyo_table_VISIT
+    return 0;
+}
+
+static int
+SharedTable_clear(SharedTable *self)
+{
+    pyo_table_CLEAR
+    return 0;
+}
+
+static void
+SharedTable_dealloc(SharedTable* self)
+{
+    close(self->fd);
+    if (self->create)
+        shm_unlink(self->name);
+    SharedTable_clear(self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
+}
+
+static PyObject *
+SharedTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    int i;
+    SharedTable *self;
+    self = (SharedTable *)type->tp_alloc(type, 0);
+
+    self->server = PyServer_get_server();
+
+    MAKE_NEW_TABLESTREAM(self->tablestream, &TableStreamType, NULL);
+
+    static char *kwlist[] = {"name", "create", "size", NULL};
+
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "sii", kwlist, &self->name, &self->create, &self->size))
+        Py_RETURN_NONE;
+
+    /* Open shared memory object. */
+    if (self->create) {
+        self->fd = shm_open(self->name, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR);
+        if (self->fd == -1) {
+            PySys_WriteStdout("SharedTable: failed to create shared memory.\n");
+            Py_RETURN_NONE;
+        }
+
+        if (ftruncate(self->fd, sizeof(MYFLT) * (self->size + 1)) == -1) {
+            PySys_WriteStdout("SharedTable: failed to truncate shared memory.\n");
+            close(self->fd);
+            shm_unlink(self->name);
+            Py_RETURN_NONE;
+        }
+    }
+    else {
+        self->fd = shm_open(self->name, O_RDWR, 0);
+        if (self->fd == -1) {
+            PySys_WriteStdout("SharedTable: failed to create shared memory.\n");
+            Py_RETURN_NONE;
+        }
+    }
+
+    /* Map shared memory object. */
+    self->data = mmap(NULL, sizeof(MYFLT) * (self->size + 1),
+                      PROT_READ | PROT_WRITE, MAP_SHARED, self->fd, 0);
+    if (self->data == MAP_FAILED) {
+        PySys_WriteStdout("SharedTable: failed to mmap shared memory.\n");
+        close(self->fd);
+        if (self->create)
+            shm_unlink(self->name);
+        Py_RETURN_NONE;
+    }
+
+    /* Initialize the memory. */
+    if (self->create) {
+        for (i=0; i<=self->size; i++) {
+            self->data[i] = 0.0;
+        }
+    }
+
+    TableStream_setSize(self->tablestream, self->size);
+    TableStream_setData(self->tablestream, self->data);
+
+    double sr = PyFloat_AsDouble(PyObject_CallMethod(self->server, "getSamplingRate", NULL));
+    TableStream_setSamplingRate(self->tablestream, sr);
+
+    return (PyObject *)self;
+}
+
+static PyObject * SharedTable_getServer(SharedTable* self) { GET_SERVER };
+static PyObject * SharedTable_getTableStream(SharedTable* self) { GET_TABLE_STREAM };
+static PyObject * SharedTable_setData(SharedTable *self, PyObject *arg) { SET_TABLE_DATA };
+static PyObject * SharedTable_normalize(SharedTable *self) { NORMALIZE };
+static PyObject * SharedTable_reset(SharedTable *self) { TABLE_RESET };
+static PyObject * SharedTable_removeDC(SharedTable *self) { REMOVE_DC };
+static PyObject * SharedTable_reverse(SharedTable *self) { REVERSE };
+static PyObject * SharedTable_invert(SharedTable *self) { INVERT };
+static PyObject * SharedTable_rectify(SharedTable *self) { RECTIFY };
+static PyObject * SharedTable_bipolarGain(SharedTable *self, PyObject *args, PyObject *kwds) { TABLE_BIPOLAR_GAIN };
+static PyObject * SharedTable_lowpass(SharedTable *self, PyObject *args, PyObject *kwds) { TABLE_LOWPASS };
+static PyObject * SharedTable_fadein(SharedTable *self, PyObject *args, PyObject *kwds) { TABLE_FADEIN };
+static PyObject * SharedTable_fadeout(SharedTable *self, PyObject *args, PyObject *kwds) { TABLE_FADEOUT };
+static PyObject * SharedTable_pow(SharedTable *self, PyObject *args, PyObject *kwds) { TABLE_POWER };
+static PyObject * SharedTable_copy(SharedTable *self, PyObject *arg) { COPY };
+static PyObject * SharedTable_copyData(SharedTable *self, PyObject *args, PyObject *kwds) { TABLE_COPYDATA };
+static PyObject * SharedTable_rotate(SharedTable *self, PyObject *args, PyObject *kwds) { TABLE_ROTATE };
+static PyObject * SharedTable_setTable(SharedTable *self, PyObject *arg) { SET_TABLE };
+static PyObject * SharedTable_getTable(SharedTable *self) { GET_TABLE };
+static PyObject * SharedTable_getViewTable(SharedTable *self, PyObject *args, PyObject *kwds) { GET_VIEW_TABLE };
+static PyObject * SharedTable_put(SharedTable *self, PyObject *args, PyObject *kwds) { TABLE_PUT };
+static PyObject * SharedTable_get(SharedTable *self, PyObject *args, PyObject *kwds) { TABLE_GET };
+static PyObject * SharedTable_add(SharedTable *self, PyObject *arg) { TABLE_ADD };
+static PyObject * SharedTable_sub(SharedTable *self, PyObject *arg) { TABLE_SUB };
+static PyObject * SharedTable_mul(SharedTable *self, PyObject *arg) { TABLE_MUL };
+
+static PyObject *
+SharedTable_getSize(SharedTable *self)
+{
+    return PyInt_FromLong(self->size);
+};
+
+static PyObject *
+SharedTable_getRate(SharedTable *self)
+{
+    MYFLT sr = PyFloat_AsDouble(PyObject_CallMethod(self->server, "getSamplingRate", NULL)); \
+    return PyFloat_FromDouble(sr / self->size);
+};
+
+static PyMemberDef SharedTable_members[] = {
+    {"server", T_OBJECT_EX, offsetof(SharedTable, server), 0, "Pyo server."},
+    {"tablestream", T_OBJECT_EX, offsetof(SharedTable, tablestream), 0, "Table stream object."},
+    {NULL}  /* Sentinel */
+};
+
+static PyMethodDef SharedTable_methods[] = {
+    {"getServer", (PyCFunction)SharedTable_getServer, METH_NOARGS, "Returns server object."},
+    {"copy", (PyCFunction)SharedTable_copy, METH_O, "Copy data from table given in argument."},
+    {"copyData", (PyCFunction)SharedTable_copyData, METH_VARARGS|METH_KEYWORDS, "Copy data from table given in argument."},
+    {"rotate", (PyCFunction)SharedTable_rotate, METH_VARARGS|METH_KEYWORDS, "Rotate table around position as argument."},
+    {"setTable", (PyCFunction)SharedTable_setTable, METH_O, "Sets the table content from a list of floats (must be the same size as the object size)."},
+    {"getTable", (PyCFunction)SharedTable_getTable, METH_NOARGS, "Returns a list of table samples."},
+    {"getViewTable", (PyCFunction)SharedTable_getViewTable, METH_VARARGS|METH_KEYWORDS, "Returns a list of pixel coordinates for drawing the table."},
+    {"getTableStream", (PyCFunction)SharedTable_getTableStream, METH_NOARGS, "Returns table stream object created by this table."},
+    {"setData", (PyCFunction)SharedTable_setData, METH_O, "Sets the table from samples in a text file."},
+    {"normalize", (PyCFunction)SharedTable_normalize, METH_NOARGS, "Normalize table samples between -1 and 1"},
+    {"reset", (PyCFunction)SharedTable_reset, METH_NOARGS, "Resets table samples to 0.0"},
+    {"removeDC", (PyCFunction)SharedTable_removeDC, METH_NOARGS, "Filter out DC offset from the table's data."},
+    {"reverse", (PyCFunction)SharedTable_reverse, METH_NOARGS, "Reverse the table's data."},
+    {"invert", (PyCFunction)SharedTable_invert, METH_NOARGS, "Reverse the table's data in amplitude."},
+    {"rectify", (PyCFunction)SharedTable_rectify, METH_NOARGS, "Positive rectification of the table's data."},
+    {"bipolarGain", (PyCFunction)SharedTable_bipolarGain, METH_VARARGS|METH_KEYWORDS, "Apply different amp values to positive and negative samples."},
+    {"lowpass", (PyCFunction)SharedTable_lowpass, METH_VARARGS|METH_KEYWORDS, "Apply a one-pole lowpass filter on table's samples."},
+    {"fadein", (PyCFunction)SharedTable_fadein, METH_VARARGS|METH_KEYWORDS, "Apply a gradual increase in the level of the table's samples."},
+    {"fadeout", (PyCFunction)SharedTable_fadeout, METH_VARARGS|METH_KEYWORDS, "Apply a gradual decrease in the level of the table's samples."},
+    {"pow", (PyCFunction)SharedTable_pow, METH_VARARGS|METH_KEYWORDS, "Apply a power function on each sample in the table."},
+    {"put", (PyCFunction)SharedTable_put, METH_VARARGS|METH_KEYWORDS, "Puts a value at specified position in the table."},
+    {"get", (PyCFunction)SharedTable_get, METH_VARARGS|METH_KEYWORDS, "Gets the value at specified position in the table."},
+    {"getSize", (PyCFunction)SharedTable_getSize, METH_NOARGS, "Return the size of the table in samples."},
+    {"getRate", (PyCFunction)SharedTable_getRate, METH_NOARGS, "Return the frequency (in cps) that reads the sound without pitch transposition."},
+    {"add", (PyCFunction)SharedTable_add, METH_O, "Performs table addition."},
+    {"sub", (PyCFunction)SharedTable_sub, METH_O, "Performs table substraction."},
+    {"mul", (PyCFunction)SharedTable_mul, METH_O, "Performs table multiplication."},
+    {NULL}  /* Sentinel */
+};
+
+PyTypeObject SharedTableType = {
+    PyVarObject_HEAD_INIT(NULL, 0)
+    "_pyo.SharedTable_base",         /*tp_name*/
+    sizeof(SharedTable),         /*tp_basicsize*/
+    0,                         /*tp_itemsize*/
+    (destructor)SharedTable_dealloc, /*tp_dealloc*/
+    0,                         /*tp_print*/
+    0,                         /*tp_getattr*/
+    0,                         /*tp_setattr*/
+    0,                         /*tp_as_async (tp_compare in Python 2)*/
+    0,                         /*tp_repr*/
+    0,                         /*tp_as_number*/
+    0,                         /*tp_as_sequence*/
+    0,                         /*tp_as_mapping*/
+    0,                         /*tp_hash */
+    0,                         /*tp_call*/
+    0,                         /*tp_str*/
+    0,                         /*tp_getattro*/
+    0,                         /*tp_setattro*/
+    0,                         /*tp_as_buffer*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
+    "SharedTable objects. Generates an empty table.",  /* tp_doc */
+    (traverseproc)SharedTable_traverse,   /* tp_traverse */
+    (inquiry)SharedTable_clear,           /* tp_clear */
+    0,		               /* tp_richcompare */
+    0,		               /* tp_weaklistoffset */
+    0,		               /* tp_iter */
+    0,		               /* tp_iternext */
+    SharedTable_methods,             /* tp_methods */
+    SharedTable_members,             /* tp_members */
+    0,                      /* tp_getset */
+    0,                         /* tp_base */
+    0,                         /* tp_dict */
+    0,                         /* tp_descr_get */
+    0,                         /* tp_descr_set */
+    0,                         /* tp_dictoffset */
+    0,      /* tp_init */
+    0,                         /* tp_alloc */
+    SharedTable_new,                 /* tp_new */
 };

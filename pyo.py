@@ -94,7 +94,7 @@ OBJECTS_TREE = {
                                   'SquareTable', 'ChebyTable', 'CosTable', 
                                   'CurveTable', 'ExpTable', 'DataTable', 
                                   'WinTable', 'SincTable', 'PartialTable', 
-                                  'AtanTable', 'PadSynthTable']),
+                                  'AtanTable', 'PadSynthTable', 'SharedTable']),
         'PyoPVObject' : sorted(['PVAnal', 'PVSynth', 'PVTranspose', 'PVVerb', 
                                 'PVGate', 'PVAddSynth', 'PVCross', 'PVMult',
                                 'PVMorph', 'PVFilter', 'PVDelay', 'PVBuffer', 

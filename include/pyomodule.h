@@ -506,6 +506,7 @@ extern PyTypeObject ResampleType;
 extern PyTypeObject ExprType;
 extern PyTypeObject PadSynthTableType;
 extern PyTypeObject LogiMapType;
+extern PyTypeObject SharedTableType;
 
 /* Constants */
 #define E M_E
@@ -692,7 +693,7 @@ extern PyTypeObject LogiMapType;
     else if (self->interp == 3) \
         self->interp_func_ptr = cosine; \
     else if (self->interp == 4) \
-        self->interp_func_ptr = cubic; \
+        self->interp_func_ptr = cubic;
 
 /* Set data */
 #define SET_TABLE_DATA \

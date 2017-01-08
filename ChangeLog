@@ -1,3 +1,11 @@
+2017-01-08 belangeo <belangeo@gmail.com>
+
+    * Added new object: SharedTable, an inter-process shared memory table.
+
+2017-01-07 belangeo <belangeo@gmail.com>
+
+    * Jack ports activation and auto-connection now happen in the boot process.
+
 2016-12-17 belangeo <belangeo@gmail.com>
 
     * Upgraded version number to 0.8.2.
