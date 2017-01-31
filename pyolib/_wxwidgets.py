@@ -53,9 +53,11 @@ def toExp(t, v1, v2):
 
 POWOFTWO = {2:1, 4:2, 8:3, 16:4, 32:5, 64:6, 128:7, 256:8, 512:9, 1024:10, 2048:11, 4096:12, 8192:13, 16384:14, 32768:15, 65536:16}
 def powOfTwo(x):
+    "Return 2 raised to the power of x."
     return 2**x
 
 def powOfTwoToInt(x):
+    "Return the exponent of 2 correponding to the value x."
     return POWOFTWO[x]
 
 def GetRoundBitmap( w, h, r ):

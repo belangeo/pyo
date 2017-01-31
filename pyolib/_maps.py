@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+# encoding: utf-8
 """
 Copyright 2009-2015 Olivier Belanger
 
@@ -23,7 +23,7 @@ from math import pow, log10
 ######################################################################
 ### Map -> rescale values from sliders
 ######################################################################
-class Map:
+class Map(object):
     """
     Converts value between 0 and 1 on various scales.
 
@@ -53,8 +53,10 @@ class Map:
         Takes `x` between 0 and 1 and returns scaled value.
 
         """
-        if x < 0: x = 0.0
-        elif x > 1: x = 1.0
+        if x < 0:
+            x = 0.0
+        elif x > 1:
+            x = 1.0
 
         if self._scale == 'log':
             return pow(10, x * log10(self._max / self._min) + log10(self._min))
@@ -151,8 +153,8 @@ class SLMap(Map):
         name: string
             Name of the attributes the slider is affected to.
         init: int or float
-            Initial value. Specified in the real range, not between 0 and 1. Use
-            the `set` method to retreive the normalized corresponding value.
+            Initial value. Specified in the real range, not between 0 and 1.
+            Use `set` method to retreive the normalized corresponding value.
         res: string {'int', 'float'}, optional
             Sets the resolution of the slider. Defaults to 'float'.
         ramp: float, optional
@@ -166,14 +168,21 @@ class SLMap(Map):
     >>> s = Server().boot()
     >>> s.start()
     >>> ifs = [350,360,375,388]
-    >>> maps = [SLMap(20., 2000., 'log', 'freq', ifs), SLMap(0, 0.25, 'lin', 'feedback', 0), SLMapMul(.1)]
+    >>> slmapfreq = SLMap(20., 2000., 'log', 'freq', ifs)
+    >>> slmapfeed = SLMap(0, 0.25, 'lin', 'feedback', 0)
+    >>> maps = [slmapfreq, slmapfeed, SLMapMul(.1)]
     >>> a = SineLoop(freq=ifs, mul=.1).out()
     >>> a.ctrl(maps)
 
     """
-    def __init__(self, min, max, scale, name, init, res='float', ramp=0.025, dataOnly=False):
+    def __init__(self, min, max, scale, name, init, res='float', ramp=0.025,
+                 dataOnly=False):
         Map.__init__(self, min, max, scale)
-        self._name, self._init, self._res, self._ramp, self._dataOnly = name, init, res, ramp, dataOnly
+        self._name = name
+        self._init = init
+        self._res = res
+        self._ramp = ramp
+        self._dataOnly = dataOnly
 
     @property
     def name(self):

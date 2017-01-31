@@ -3784,7 +3784,7 @@ class Editor(stc.StyledTextCtrl):
         if ext in ["py", "pyw", "c5"]:
             self.SetLexer(stc.STC_LEX_PYTHON)
             self.SetStyleBits(self.GetStyleBitsNeeded())
-            self.SetKeyWords(0, " ".join(keyword.kwlist) + " None True False ")
+            self.SetKeyWords(0, " ".join(keyword.kwlist) + " None True False print ")
             self.SetKeyWords(1, " ".join(PYO_WORDLIST))
             self.StyleSetSpec(stc.STC_P_DEFAULT, buildStyle('default'))
             self.StyleSetSpec(stc.STC_P_COMMENTLINE, buildStyle('comment'))
