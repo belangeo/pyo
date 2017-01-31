@@ -1,3 +1,7 @@
+2017-01-30 belangeo <belangeo@gmail.com>
+
+    * Added new object: Particle2, An even more full control granular synthesis generator.
+
 2017-01-08 belangeo <belangeo@gmail.com>
 
     * Added new object: SharedTable, an inter-process shared memory table.

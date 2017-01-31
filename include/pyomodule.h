@@ -500,6 +500,8 @@ extern PyTypeObject ScopeType;
 extern PyTypeObject PeakAmpType;
 extern PyTypeObject MainParticleType;
 extern PyTypeObject ParticleType;
+extern PyTypeObject MainParticle2Type;
+extern PyTypeObject Particle2Type;
 extern PyTypeObject AtanTableType;
 extern PyTypeObject RawMidiType;
 extern PyTypeObject ResampleType;

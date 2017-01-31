@@ -2197,6 +2197,8 @@ init_pyo64(void)
     module_add_object(m, "PeakAmp_base", &PeakAmpType);
     module_add_object(m, "MainParticle_base", &MainParticleType);
     module_add_object(m, "Particle_base", &ParticleType);
+    module_add_object(m, "MainParticle2_base", &MainParticle2Type);
+    module_add_object(m, "Particle2_base", &Particle2Type);
     module_add_object(m, "AtanTable_base", &AtanTableType);
     module_add_object(m, "RawMidi_base", &RawMidiType);
     module_add_object(m, "Resample_base", &ResampleType);

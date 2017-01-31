@@ -58,6 +58,7 @@ GUI
 
 - Keyboard, a virtual MIDI keyboard (adapted from Zyne's one).
 
+- Save item in ctrl() and DataTable graph() windows.
 
 Tables
 ------

@@ -62,6 +62,12 @@ store audio samples or algorithmic sequences for future uses.
 .. autoclass:: Particle
    :members:
 
+*Particle2*
+-----------------------------------
+
+.. autoclass:: Particle2
+   :members:
+
 *Pointer*
 -----------------------------------
 

@@ -2786,11 +2786,11 @@ class Granule(PyoObject):
             of `pitch` as its reading speed. Defaults to 1.
         pos: float or PyoObject, optional
             Pointer position, in samples, in the waveform table. Each
-            grain sampled the current value of this stream at the beginning
-            of its envelope and hold it until the end of the grain.
+            grain samples the current value of this stream at the beginning
+            of its envelope and holds it until the end of the grain.
             Defaults to 0.
         dur: float or PyoObject, optional
-            Duration, in seconds, of the grain. Each grain sampled the
+            Duration, in seconds, of the grain. Each grain samples the
             current value of this stream at the beginning of its envelope
             and hold it until the end of the grain. Defaults to 0.1.
 
@@ -3075,27 +3075,27 @@ class Particle(PyoObject):
         dens: float or PyoObject, optional
             Density of grains per second. Defaults to 50.
         pitch: float or PyoObject, optional
-            Pitch of the grains. Each grain sampled the current value
-            of this stream at the beginning of its envelope and hold
+            Pitch of the grains. Each grain samples the current value
+            of this stream at the beginning of its envelope and holds
             it until the end of the grain. Defaults to 1.
         pos: float or PyoObject, optional
             Pointer position, in samples, in the waveform table. Each
             grain sampled the current value of this stream at the beginning
-            of its envelope and hold it until the end of the grain.
+            of its envelope and holds it until the end of the grain.
             Defaults to 0.
         dur: float or PyoObject, optional
-            Duration, in seconds, of the grain. Each grain sampled the
+            Duration, in seconds, of the grain. Each grain samples the
             current value of this stream at the beginning of its envelope
-            and hold it until the end of the grain. Defaults to 0.1.
+            and holds it until the end of the grain. Defaults to 0.1.
         dev: float or PyoObject, optional
             Maximum deviation of the starting time of the grain, between 0 and
-            1 (relative to the current duration of the grain). Each grain sampled
+            1 (relative to the current duration of the grain). Each grain samples
             the current value of this stream at the beginning of its envelope
-            and hold it until the end of the grain. Defaults to 0.01.
+            and holds it until the end of the grain. Defaults to 0.01.
         pan: float or PyoObject, optional
             Panning factor of the grain (if chnls=1, this value is skipped).
-            Each grain sampled the current value of this stream at the beginning
-            of its envelope and hold it until the end of the grain. Defaults to 0.5.
+            Each grain samples the current value of this stream at the beginning
+            of its envelope and holds it until the end of the grain. Defaults to 0.5.
         chnls: integer, optional
             Number of output channels per audio stream (if chnls=2 and a stereo sound
             table is given at the table argument, the objet will create 4 output
@@ -3263,7 +3263,7 @@ class Particle(PyoObject):
         tablesize = self._table.getSize(False)
         self._map_list = [SLMap(1, 250, 'lin', 'dens', self._dens),
                           SLMap(0.25, 2., 'lin', 'pitch', self._pitch),
-                          SLMap(0, tablesize, 'lin', 'pos', self._pos),
+                          SLMap(0, tablesize, 'lin', 'pos', self._pos, res="int"),
                           SLMap(0.001, 1., 'lin', 'dur', self._dur),
                           SLMap(0., 1., 'lin', 'dev', self._dev),
                           SLMap(0., 1., 'lin', 'pan', self._pan),
@@ -3325,3 +3325,368 @@ class Particle(PyoObject):
         return self._pan
     @pan.setter
     def pan(self, x): self.setPan(x)
+
+class Particle2(PyoObject):
+    """
+    An even more full control granular synthesis generator.
+
+    This granulator object offers all the same controls as the
+    Particle object with additionally an independently controllable 
+    filter per grain. The filters use the same implementation as the
+    Biquad object.
+
+    :Parent: :py:class:`PyoObject`
+
+    :Args:
+
+        table: PyoTableObject
+            Table containing the waveform samples.
+        env: PyoTableObject
+            Table containing the grain envelope.
+        dens: float or PyoObject, optional
+            Density of grains per second. Defaults to 50.
+        pitch: float or PyoObject, optional
+            Pitch of the grains. Each grain samples the current value
+            of this stream at the beginning of its envelope and holds
+            it until the end of the grain. Defaults to 1.
+        pos: float or PyoObject, optional
+            Pointer position, in samples, in the waveform table. Each
+            grain samples the current value of this stream at the beginning
+            of its envelope and holds it until the end of the grain.
+            Defaults to 0.
+        dur: float or PyoObject, optional
+            Duration, in seconds, of the grain. Each grain samples the
+            current value of this stream at the beginning of its envelope
+            and holds it until the end of the grain. Defaults to 0.1.
+        dev: float or PyoObject, optional
+            Maximum deviation of the starting time of the grain, between 0 and
+            1 (relative to the current duration of the grain). Each grain samples
+            the current value of this stream at the beginning of its envelope
+            and holds it until the end of the grain. Defaults to 0.01.
+        pan: float or PyoObject, optional
+            Panning factor of the grain (if chnls=1, this value is skipped).
+            Each grain samples the current value of this stream at the beginning
+            of its envelope and holds it until the end of the grain. Defaults to 0.5.
+        filterfreq: float or PyoObject, optional
+            Center or cutoff frequency of the grain filter.
+            Each grain samples the current value of this stream at the beginning
+            of its envelope and hold it until the end of the grain. Defaults to 18000.
+        filterq: float or PyoObject, optional
+            Q of the grain filter.
+            Each grain samples the current value of this stream at the beginning
+            of its envelope and hold it until the end of the grain. Defaults to 0.7.
+        filtertype: float or PyoObject, optional
+            Type of the grain filter.
+            Each grain samples the current value of this stream at the beginning
+            of its envelope and hold it until the end of the grain. Thw value is
+            rounded to the nearest integer. Possible values are:
+                0. lowpass (default)
+                1. highpass
+                2. bandpass
+                3. bandstop
+                4. allpass
+
+        chnls: integer, optional
+            Number of output channels per audio stream (if chnls=2 and a stereo sound
+            table is given at the table argument, the objet will create 4 output
+            streams, 2 per table channel). Available at initialization only. Defaults to 1.
+
+    .. note::
+
+        Particle object compensate for the difference between sampling rate of the
+        loaded sound and the current sampling rate of the Server.
+
+    >>> s = Server().boot()
+    >>> s.start()
+    >>> snd = SndTable(SNDS_PATH+"/transparent.aif")
+    >>> end = snd.getSize() - s.getSamplingRate() * 0.25
+    >>> env = HannTable()
+    >>> dns = Randi(min=8, max=24, freq=.1)
+    >>> pit = Randh(min=0.49, max=0.51, freq=100)
+    >>> pos = Sine(0.05).range(0, end)
+    >>> dur = Randi(min=0.05, max=0.15, freq=0.15)
+    >>> dev = 0.001
+    >>> pan = Noise(0.5, 0.5)
+    >>> cf = Sine(0.07).range(75, 125)
+    >>> fcf = Choice(range(1, 40), freq=150, mul=cf)
+    >>> grn = Particle2(snd, env, dns, pit, pos, dur, dev, pan, fcf, 20, 2, chnls=2, mul=.3)
+    >>> grn.out()
+
+    """
+    def __init__(self, table, env, dens=50, pitch=1, pos=0, dur=.1, dev=0.01, pan=0.5, filterfreq=18000, filterq=0.7, filtertype=0, chnls=1, mul=1, add=0):
+        pyoArgsAssert(self, "ttOOOOOOOOOIOO", table, env, dens, pitch, pos, dur, dev, pan, filterfreq, filterq, filtertype, chnls, mul, add)
+        PyoObject.__init__(self, mul, add)
+        self._table = table
+        self._env = env
+        self._dens = dens
+        self._pitch = pitch
+        self._pos = pos
+        self._dur = dur
+        self._dev = dev
+        self._pan = pan
+        self._filterfreq = filterfreq
+        self._filterq = filterq
+        self._filtertype = filtertype
+        self._chnls = chnls
+        table, env, dens, pitch, pos, dur, dev, pan, filterfreq, filterq, filtertype, mul, add, lmax = convertArgsToLists(table, env, dens, pitch, pos, dur, dev, pan, filterfreq, filterq, filtertype, mul, add)
+        self._base_players = [MainParticle2_base(wrap(table,i), wrap(env,i), wrap(dens,i), wrap(pitch,i), wrap(pos,i), wrap(dur,i), wrap(dev,i), wrap(pan,i), wrap(filterfreq,i), wrap(filterq,i), wrap(filtertype,i), chnls) for i in range(lmax)]
+        self._base_objs = []
+        for i in range(lmax):
+            for j in range(chnls):
+                self._base_objs.append(Particle2_base(wrap(self._base_players,i), j, wrap(mul,i), wrap(add,i)))
+
+    def setTable(self, x):
+        """
+        Replace the `table` attribute.
+
+        :Args:
+
+            x: PyoTableObject
+                new `table` attribute.
+
+        """
+        pyoArgsAssert(self, "t", x)
+        self._table = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setTable(wrap(x,i)) for i, obj in enumerate(self._base_players)]
+
+    def setEnv(self, x):
+        """
+        Replace the `env` attribute.
+
+        :Args:
+
+            x: PyoTableObject
+                new `env` attribute.
+
+        """
+        pyoArgsAssert(self, "t", x)
+        self._env = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setEnv(wrap(x,i)) for i, obj in enumerate(self._base_players)]
+
+    def setDens(self, x):
+        """
+        Replace the `dens` attribute.
+
+        :Args:
+
+            x: float or PyoObject
+                new `dens` attribute.
+
+        """
+        pyoArgsAssert(self, "O", x)
+        self._dens = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setDens(wrap(x,i)) for i, obj in enumerate(self._base_players)]
+
+    def setPitch(self, x):
+        """
+        Replace the `pitch` attribute.
+
+        :Args:
+
+            x: float or PyoObject
+                new `pitch` attribute.
+
+        """
+        pyoArgsAssert(self, "O", x)
+        self._pitch = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setPitch(wrap(x,i)) for i, obj in enumerate(self._base_players)]
+
+    def setPos(self, x):
+        """
+        Replace the `pos` attribute.
+
+        :Args:
+
+            x: float or PyoObject
+                new `pos` attribute.
+
+        """
+        pyoArgsAssert(self, "O", x)
+        self._pos = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setPos(wrap(x,i)) for i, obj in enumerate(self._base_players)]
+
+    def setDur(self, x):
+        """
+        Replace the `dur` attribute.
+
+        :Args:
+
+            x: float or PyoObject
+                new `dur` attribute.
+
+        """
+        pyoArgsAssert(self, "O", x)
+        self._dur = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setDur(wrap(x,i)) for i, obj in enumerate(self._base_players)]
+
+    def setDev(self, x):
+        """
+        Replace the `dev` attribute.
+
+        :Args:
+
+            x: float or PyoObject
+                new `dev` attribute.
+
+        """
+        pyoArgsAssert(self, "O", x)
+        self._dev = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setDev(wrap(x,i)) for i, obj in enumerate(self._base_players)]
+
+    def setPan(self, x):
+        """
+        Replace the `pan` attribute.
+
+        :Args:
+
+            x: float or PyoObject
+                new `pan` attribute.
+
+        """
+        pyoArgsAssert(self, "O", x)
+        self._pan = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setPan(wrap(x,i)) for i, obj in enumerate(self._base_players)]
+
+    def setFilterfreq(self, x):
+        """
+        Replace the `filterfreq` attribute.
+
+        :Args:
+
+            x: float or PyoObject
+                new `filterfreq` attribute.
+
+        """
+        pyoArgsAssert(self, "O", x)
+        self._filterfreq = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setFilterfreq(wrap(x,i)) for i, obj in enumerate(self._base_players)]
+
+    def setFilterq(self, x):
+        """
+        Replace the `filterq` attribute.
+
+        :Args:
+
+            x: float or PyoObject
+                new `filterq` attribute.
+
+        """
+        pyoArgsAssert(self, "O", x)
+        self._filterq = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setFilterq(wrap(x,i)) for i, obj in enumerate(self._base_players)]
+
+    def setFiltertype(self, x):
+        """
+        Replace the `filtertype` attribute.
+
+        :Args:
+
+            x: float or PyoObject
+                new `filtertype` attribute.
+
+        """
+        pyoArgsAssert(self, "O", x)
+        self._filtertype = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setFiltertype(wrap(x,i)) for i, obj in enumerate(self._base_players)]
+
+    def ctrl(self, map_list=None, title=None, wxnoserver=False):
+        tablesize = self._table.getSize(False)
+        self._map_list = [SLMap(1, 250, 'lin', 'dens', self._dens),
+                          SLMap(0.25, 2., 'lin', 'pitch', self._pitch),
+                          SLMap(0, tablesize, 'lin', 'pos', self._pos, res="int"),
+                          SLMap(0.001, 1., 'lin', 'dur', self._dur),
+                          SLMap(0., 1., 'lin', 'dev', self._dev),
+                          SLMap(0., 1., 'lin', 'pan', self._pan),
+                          SLMap(50., 18000., 'log', 'filterfreq', self._filterfreq),
+                          SLMap(0.25, 100., 'log', 'filterq', self._filterq),
+                          SLMap(0, 4., 'lin', 'filtertype', self._filtertype, res="int"),
+                          SLMapMul(self._mul)]
+        PyoObject.ctrl(self, map_list, title, wxnoserver)
+
+    @property
+    def table(self):
+        """PyoTableObject. Table containing the waveform samples."""
+        return self._table
+    @table.setter
+    def table(self, x): self.setTable(x)
+
+    @property
+    def env(self):
+        """PyoTableObject. Table containing the grain envelope."""
+        return self._env
+    @env.setter
+    def env(self, x): self.setEnv(x)
+
+    @property
+    def dens(self):
+        """float or PyoObject. Density of grains per second."""
+        return self._dens
+    @dens.setter
+    def dens(self, x): self.setDens(x)
+
+    @property
+    def pitch(self):
+        """float or PyoObject. Transposition factor of the grain."""
+        return self._pitch
+    @pitch.setter
+    def pitch(self, x): self.setPitch(x)
+
+    @property
+    def pos(self):
+        """float or PyoObject. Position of the pointer in the sound table."""
+        return self._pos
+    @pos.setter
+    def pos(self, x): self.setPos(x)
+
+    @property
+    def dur(self):
+        """float or PyoObject. Duration, in seconds, of the grain."""
+        return self._dur
+    @dur.setter
+    def dur(self, x): self.setDur(x)
+
+    @property
+    def dev(self):
+        """float or PyoObject. Deviation of the starting point of the grain in the table."""
+        return self._dev
+    @dev.setter
+    def dev(self, x): self.setDev(x)
+
+    @property
+    def pan(self):
+        """float or PyoObject.Panning of the grain."""
+        return self._pan
+    @pan.setter
+    def pan(self, x): self.setPan(x)
+
+    @property
+    def filterfreq(self):
+        """float or PyoObject.Grain's filter center/cutoff frequency."""
+        return self._filterfreq
+    @filterfreq.setter
+    def filterfreq(self, x): self.setFilterfreq(x)
+
+    @property
+    def filterq(self):
+        """float or PyoObject.Grain's filter Q."""
+        return self._filterq
+    @filterq.setter
+    def filterq(self, x): self.setFilterq(x)
+
+    @property
+    def filtertype(self):
+        """float or PyoObject.Grain's filter type."""
+        return self._filtertype
+    @filtertype.setter
+    def filtertype(self, x): self.setFiltertype(x)
