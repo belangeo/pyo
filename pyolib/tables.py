@@ -2338,7 +2338,7 @@ class PadSynthTable(PyoTableObject):
 
     http://zynaddsubfx.sourceforge.net/doc/PADsynth/PADsynth.htm
 
-    This algorithm generates some large wavetables that can played at
+    This algorithm generates some large wavetables that can be played at
     different speeds to get the desired sound. This algorithm describes
     only how these wavetables are generated. The result is a perfectly
     looped wavetable.
@@ -2352,7 +2352,7 @@ class PadSynthTable(PyoTableObject):
     :Args:
 
         basefreq: float, optional
-            The base frequencyof the algorithm in Hz. If the spreading factor
+            The base frequency of the algorithm in Hz. If the spreading factor
             is near 1.0, this frequency is the fundamental of the spectrum.
             Defaults to 440.
         spread: float, optional

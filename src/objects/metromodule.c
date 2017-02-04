@@ -389,16 +389,17 @@ typedef struct {
     int modebuffer[1];
     double sampleToSec;
     double currentTime;
-    double duration;
     int *seq;
     int count;
+    int when;
     MYFLT *buffer_streams;
     int seqsize;
     int poly;
-    int flag;
     int tap;
     int voiceCount;
     int newseq;
+    int onlyonce;
+    int to_stop;
 } Seqer;
 
 static void
@@ -429,12 +430,19 @@ Seqer_generate_i(Seqer *self) {
         self->buffer_streams[i] = 0.0;
     }
 
+    if (self->to_stop) {
+        PyObject_CallMethod((PyObject *)self, "stop", NULL);
+        self->to_stop = 0;
+        return;
+    }
+
     for (i=0; i<self->bufsize; i++) {
         self->currentTime += self->sampleToSec;
         if (self->currentTime >= tm) {
             self->currentTime -= tm;
             self->count++;
-            if (self->count >= self->seq[self->tap]) {
+            if (self->count >= self->when) {
+                self->when = self->seq[self->tap];
                 self->count = 0;
                 self->buffer_streams[i + self->voiceCount * self->bufsize] = 1.0;
                 self->voiceCount++;
@@ -445,6 +453,10 @@ Seqer_generate_i(Seqer *self) {
                     self->tap = 0;
                     if (self->newseq == 1)
                         Seqer_reset(self);
+                    if (self->onlyonce) {
+                        self->to_stop = 1;
+                        return;
+                    }
                 }
             }
         }
@@ -466,13 +478,20 @@ Seqer_generate_a(Seqer *self) {
         self->buffer_streams[i] = 0.0;
     }
 
+    if (self->to_stop) {
+        PyObject_CallMethod((PyObject *)self, "stop", NULL);
+        self->to_stop = 0;
+        return;
+    }
+
     for (i=0; i<self->bufsize; i++) {
         tm = (double)time[i];
         self->currentTime += self->sampleToSec;
         if (self->currentTime >= tm) {
             self->currentTime -= tm;
             self->count++;
-            if (self->count >= self->seq[self->tap]) {
+            if (self->count >= self->when) {
+                self->when = self->seq[self->tap];
                 self->count = 0;
                 self->buffer_streams[i + self->voiceCount * self->bufsize] = 1.0;
                 self->voiceCount++;
@@ -483,6 +502,10 @@ Seqer_generate_a(Seqer *self) {
                     self->tap = 0;
                     if (self->newseq == 1)
                         Seqer_reset(self);
+                    if (self->onlyonce) {
+                        self->to_stop = 1;
+                        return;
+                    }
                 }
             }
         }
@@ -553,16 +576,16 @@ Seqer_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self = (Seqer *)type->tp_alloc(type, 0);
 
     self->time = PyFloat_FromDouble(1.);
-    self->flag = 1;
     self->poly = 1;
     self->seqsize = 1;
     self->seq = (int *)realloc(self->seq, self->seqsize * sizeof(int));
     self->seq[0] = 1;
     self->newseq = 0;
-    self->duration = -1.0;
     self->tap = 0;
     self->count = 0;
     self->voiceCount = 0;
+    self->onlyonce = 0;
+    self->to_stop = 0;
 	self->modebuffer[0] = 0;
 
     INIT_OBJECT_COMMON
@@ -574,9 +597,9 @@ Seqer_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->sampleToSec = 1.0 / self->sr;
     self->currentTime = -1.0;
 
-    static char *kwlist[] = {"time", "seq", "poly", NULL};
+    static char *kwlist[] = {"time", "seq", "poly", "onlyonce", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "|OOi", kwlist, &timetmp, &seqtmp, &self->poly))
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "|OOii", kwlist, &timetmp, &seqtmp, &self->poly, &self->onlyonce))
         Py_RETURN_NONE;
 
     if (timetmp) {
@@ -586,6 +609,7 @@ Seqer_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (seqtmp) {
         PyObject_CallMethod((PyObject *)self, "setSeq", "O", seqtmp);
     }
+    Seqer_reset(self);
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
@@ -599,7 +623,14 @@ Seqer_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 static PyObject * Seqer_getServer(Seqer* self) { GET_SERVER };
 static PyObject * Seqer_getStream(Seqer* self) { GET_STREAM };
 
-static PyObject * Seqer_play(Seqer *self, PyObject *args, PyObject *kwds) { PLAY };
+static PyObject * Seqer_play(Seqer *self, PyObject *args, PyObject *kwds) { 
+    self->currentTime = -1.0;
+    self->tap = 0;
+    self->count = 0;
+    self->voiceCount = 0;
+    self->when = 0;
+    PLAY
+};
 static PyObject * Seqer_stop(Seqer *self) { STOP };
 
 static PyObject *
@@ -654,6 +685,21 @@ Seqer_setSeq(Seqer *self, PyObject *arg)
 	return Py_None;
 }
 
+static PyObject *
+Seqer_setOnlyonce(Seqer *self, PyObject *arg)
+{
+    ASSERT_ARG_NOT_NULL
+
+	int isInt = PyInt_Check(arg);
+
+	if (isInt == 1) {
+        self->onlyonce = PyLong_AsLong(arg);
+    }
+
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
 static PyMemberDef Seqer_members[] = {
     {"server", T_OBJECT_EX, offsetof(Seqer, server), 0, "Pyo server."},
     {"stream", T_OBJECT_EX, offsetof(Seqer, stream), 0, "Stream object."},
@@ -668,6 +714,7 @@ static PyMethodDef Seqer_methods[] = {
     {"stop", (PyCFunction)Seqer_stop, METH_NOARGS, "Stops computing."},
     {"setTime", (PyCFunction)Seqer_setTime, METH_O, "Sets time factor."},
     {"setSeq", (PyCFunction)Seqer_setSeq, METH_O, "Sets duration sequence."},
+    {"setOnlyonce", (PyCFunction)Seqer_setOnlyonce, METH_O, "Sets onlyonce attribute."},
     {NULL}  /* Sentinel */
 };
 
