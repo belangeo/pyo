@@ -143,7 +143,7 @@ OBJECTS_TREE = {
                                     'Granule', 'TableRead', 'TableMorph', 
                                     'Looper', 'TableIndex', 'OscBank', 'OscTrig',
                                     'TablePut', 'TableScale', 'Particle', 
-                                     'Particle2', 'TableWrite']),
+                                     'Particle2', 'TableWrite', 'TableFill']),
             'matrixprocess': sorted(['MatrixRec', 'MatrixPointer', 'MatrixMorph', 
                                      'MatrixRecLoop']),
             'triggers': sorted(['Metro', 'Beat', 'TrigEnv', 'TrigRand', 'Trig', 

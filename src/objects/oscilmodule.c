@@ -12675,3 +12675,175 @@ TableScale_members,             /* tp_members */
 0,                         /* tp_alloc */
 TableScale_new,                 /* tp_new */
 };
+
+/******************************/
+/* TableFill object definition */
+/******************************/
+typedef struct {
+    pyo_audio_HEAD
+    PyObject *input;
+    Stream *input_stream;
+    PyObject *table;
+    int pointer;
+} TableFill;
+
+static void
+TableFill_compute_next_data_frame(TableFill *self)
+{
+    int i;
+    int size = TableStream_getSize(self->table);
+    MYFLT *tablelist = TableStream_getData(self->table);
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
+
+    for (i=0; i<self->bufsize; i++) {
+        tablelist[self->pointer++] = in[i];
+        if (self->pointer >= size)
+            self->pointer = 0;
+    }
+}
+
+static int
+TableFill_traverse(TableFill *self, visitproc visit, void *arg)
+{
+    pyo_VISIT
+    Py_VISIT(self->input);
+    Py_VISIT(self->input_stream);
+    Py_VISIT(self->table);
+    return 0;
+}
+
+static int
+TableFill_clear(TableFill *self)
+{
+    pyo_CLEAR
+    Py_CLEAR(self->input);
+    Py_CLEAR(self->input_stream);
+    Py_CLEAR(self->table);
+    return 0;
+}
+
+static void
+TableFill_dealloc(TableFill* self)
+{
+    pyo_DEALLOC
+    TableFill_clear(self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
+}
+
+static PyObject *
+TableFill_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    int i;
+    PyObject *inputtmp, *input_streamtmp, *tabletmp;
+    TableFill *self;
+    self = (TableFill *)type->tp_alloc(type, 0);
+
+    self->pointer = 0;
+
+    INIT_OBJECT_COMMON
+
+    Stream_setFunctionPtr(self->stream, TableFill_compute_next_data_frame);
+
+    static char *kwlist[] = {"input", "table", NULL};
+
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "OO", kwlist, &inputtmp, &tabletmp))
+        Py_RETURN_NONE;
+
+    INIT_INPUT_STREAM
+
+    if ( PyObject_HasAttrString((PyObject *)tabletmp, "getTableStream") == 0 ) {
+        PyErr_SetString(PyExc_TypeError, "\"table\" argument of TableFill must be a PyoTableObject.\n");
+        Py_RETURN_NONE;
+    }
+    Py_XDECREF(self->table);
+    self->table = PyObject_CallMethod((PyObject *)tabletmp, "getTableStream", "");
+
+    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+
+    return (PyObject *)self;
+}
+
+static PyObject * TableFill_getServer(TableFill* self) { GET_SERVER };
+static PyObject * TableFill_getStream(TableFill* self) { GET_STREAM };
+
+static PyObject * TableFill_play(TableFill *self, PyObject *args, PyObject *kwds)
+{
+    self->pointer = 0;
+    PLAY
+};
+
+static PyObject * TableFill_stop(TableFill *self) { STOP };
+
+static PyObject *
+TableFill_setTable(TableFill *self, PyObject *arg)
+{
+	PyObject *tmp;
+
+    ASSERT_ARG_NOT_NULL
+
+	tmp = arg;
+    Py_INCREF(tmp);
+	Py_DECREF(self->table);
+    self->table = PyObject_CallMethod((PyObject *)tmp, "getTableStream", "");
+
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
+static PyMemberDef TableFill_members[] = {
+{"server", T_OBJECT_EX, offsetof(TableFill, server), 0, "Pyo server."},
+{"stream", T_OBJECT_EX, offsetof(TableFill, stream), 0, "Stream object."},
+{"input", T_OBJECT_EX, offsetof(TableFill, input), 0, "Input sound object."},
+{"table", T_OBJECT_EX, offsetof(TableFill, table), 0, "Table to record in."},
+{NULL}  /* Sentinel */
+};
+
+static PyMethodDef TableFill_methods[] = {
+{"getServer", (PyCFunction)TableFill_getServer, METH_NOARGS, "Returns server object."},
+{"_getStream", (PyCFunction)TableFill_getStream, METH_NOARGS, "Returns stream object."},
+{"setTable", (PyCFunction)TableFill_setTable, METH_O, "Sets a new table to fill."},
+{"play", (PyCFunction)TableFill_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+{"stop", (PyCFunction)TableFill_stop, METH_NOARGS, "Stops computing."},
+{NULL}  /* Sentinel */
+};
+
+PyTypeObject TableFillType = {
+PyVarObject_HEAD_INIT(NULL, 0)
+"_pyo.TableFill_base",         /*tp_name*/
+sizeof(TableFill),         /*tp_basicsize*/
+0,                         /*tp_itemsize*/
+(destructor)TableFill_dealloc, /*tp_dealloc*/
+0,                         /*tp_print*/
+0,                         /*tp_getattr*/
+0,                         /*tp_setattr*/
+0,                         /*tp_as_async (tp_compare in Python 2)*/
+0,                         /*tp_repr*/
+0,             /*tp_as_number*/
+0,                         /*tp_as_sequence*/
+0,                         /*tp_as_mapping*/
+0,                         /*tp_hash */
+0,                         /*tp_call*/
+0,                         /*tp_str*/
+0,                         /*tp_getattro*/
+0,                         /*tp_setattro*/
+0,                         /*tp_as_buffer*/
+Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+"TableFill objects. Fill a table object with values in input.",           /* tp_doc */
+(traverseproc)TableFill_traverse,   /* tp_traverse */
+(inquiry)TableFill_clear,           /* tp_clear */
+0,		               /* tp_richcompare */
+0,		               /* tp_weaklistoffset */
+0,		               /* tp_iter */
+0,		               /* tp_iternext */
+TableFill_methods,             /* tp_methods */
+TableFill_members,             /* tp_members */
+0,                      /* tp_getset */
+0,                         /* tp_base */
+0,                         /* tp_dict */
+0,                         /* tp_descr_get */
+0,                         /* tp_descr_set */
+0,                         /* tp_dictoffset */
+0,      /* tp_init */
+0,                         /* tp_alloc */
+TableFill_new,                 /* tp_new */
+};

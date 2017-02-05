@@ -1,3 +1,11 @@
+2017-02-05 belangeo <belangeo@gmail.com>
+
+    * Added new object: TableFill, continuously fills a table with incoming samples.
+
+2017-02-04 belangeo <belangeo@gmail.com>
+
+    * Added onlyonce argument to Seq object.
+
 2017-01-30 belangeo <belangeo@gmail.com>
 
     * Added new object: Particle2, An even more full control granular synthesis generator.

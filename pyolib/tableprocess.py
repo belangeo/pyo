@@ -2764,6 +2764,108 @@ class TablePut(PyoObject):
     @table.setter
     def table(self, x): self.setTable(x)
 
+class TableFill(PyoObject):
+    """
+    Continuously fills a table with incoming samples.
+
+    See :py:class:`DataTable` or :py:class:`NewTable` to create an empty table.
+
+    TableFill takes an audio input and writes values into a PyoTableObject,
+    samples by samples. It wraps around the table length when reaching the end
+    of the table.
+
+    Calling the play method reset the writing position to 0.
+
+    :Parent: :py:class:`PyoObject`
+
+    :Args:
+
+        input: PyoObject
+            Audio signal to write in the table.
+        table: PyoTableObject
+            The table where to write values.
+
+    .. note::
+
+        The out() method is bypassed. TableFill returns no signal.
+
+        TableFill has no `mul` and `add` attributes.
+
+    .. seealso::
+
+        :py:class:`TableWrite`, :py:class:`TablePut`, :py:class:`TableRec`
+
+    >>> s = Server().boot()
+    >>> s.start()
+    >>> table = DataTable(s.getBufferSize(), chnls=2)
+    >>> sig = Sine([400,500], mul=0.3)
+    >>> fill = TableFill(sig, table)
+    >>> read = TableRead(table, table.getRate(), loop=True).out()
+
+    """
+    def __init__(self, input, table):
+        pyoArgsAssert(self, "ot", input, table)
+        PyoObject.__init__(self)
+        self._input = input
+        self._table = table
+        self._in_fader = InputFader(input)
+        in_fader, table, lmax = convertArgsToLists(self._in_fader, table)
+        self._base_objs = [TableFill_base(wrap(in_fader,i), wrap(table,i)) for i in range(len(table))]
+
+    def out(self, chnl=0, inc=1, dur=0, delay=0):
+        return self.play(dur, delay)
+
+    def setMul(self, x):
+        pass
+
+    def setAdd(self, x):
+        pass
+
+    def setInput(self, x, fadetime=0.05):
+        """
+        Replace the `input` attribute.
+
+        :Args:
+
+            x: PyoObject
+                New signal to process.
+            fadetime: float, optional
+                Crossfade time between old and new input. Defaults to 0.05.
+
+        """
+        pyoArgsAssert(self, "oN", x, fadetime)
+        self._input = x
+        self._in_fader.setInput(x, fadetime)
+
+    def setTable(self, x):
+        """
+        Replace the `table` attribute.
+
+        :Args:
+
+            x: PyoTableObject
+                new `table` attribute.
+
+        """
+        pyoArgsAssert(self, "t", x)
+        self._table = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setTable(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    @property
+    def input(self):
+        """PyoObject. Audio signal to write in the table."""
+        return self._input
+    @input.setter
+    def input(self, x): self.setInput(x)
+
+    @property
+    def table(self):
+        """PyoTableObject. The table where to write values."""
+        return self._table
+    @table.setter
+    def table(self, x): self.setTable(x)
+
 class Granule(PyoObject):
     """
     Another granular synthesis generator.

@@ -128,3 +128,8 @@ store audio samples or algorithmic sequences for future uses.
 .. autoclass:: TableScale
    :members:
 
+*TableFill*
+-----------------------------------
+
+.. autoclass:: TableFill
+   :members:

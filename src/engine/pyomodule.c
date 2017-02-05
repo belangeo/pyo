@@ -2206,6 +2206,7 @@ init_pyo64(void)
     module_add_object(m, "PadSynthTable_base", &PadSynthTableType);
     module_add_object(m, "LogiMap_base", &LogiMapType);
     module_add_object(m, "SharedTable_base", &SharedTableType);
+    module_add_object(m, "TableFill_base", &TableFillType);
 
     PyModule_AddStringConstant(m, "PYO_VERSION", PYO_VERSION);
 #ifdef COMPILE_EXTERNALS
