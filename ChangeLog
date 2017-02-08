@@ -1,5 +1,9 @@
 2017-02-12 belangeo <belangeo@gmail.com>
 
+    * Prevents the creation of a SharedTable object on Windows (not implemented yet).
+
+2017-02-12 belangeo <belangeo@gmail.com>
+
     * Fader and Adsr now start a new envelope from the current amplitude value
       if the previous ramp has not finished yet.
 
@@ -1369,7 +1373,7 @@
 
 2011-07-22 belangeo <belangeo@gmail.com>
 
-    * Added new function : reducePoints(), apply a Douglasâ€“Peucker curve reduction algorithm. 
+    * Added new function : reducePoints(), apply a Douglas–Peucker curve reduction algorithm. 
       Added loadRecFile() method to table objects.
     - rev 688
 

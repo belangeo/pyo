@@ -20,8 +20,6 @@
 
 #include <Python.h>
 #include <object.h>
-#include <fcntl.h>
-#include <sys/mman.h>
 #include "py2to3.h"
 #include "structmember.h"
 #include <math.h>
@@ -32,6 +30,11 @@
 #include "sndfile.h"
 #include "wind.h"
 #include "fft.h"
+
+#if !defined(_WIN32) && !defined(_WIN64)
+#include <fcntl.h>
+#include <sys/mman.h>
+#endif
 
 #define __TABLE_MODULE
 #include "tablemodule.h"
@@ -7499,9 +7502,11 @@ SharedTable_clear(SharedTable *self)
 static void
 SharedTable_dealloc(SharedTable* self)
 {
+#if !defined(_WIN32) && !defined(_WIN64)
     close(self->fd);
     if (self->create)
         shm_unlink(self->name);
+#endif
     SharedTable_clear(self);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
@@ -7522,6 +7527,7 @@ SharedTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "sii", kwlist, &self->name, &self->create, &self->size))
         Py_RETURN_NONE;
 
+#if !defined(_WIN32) && !defined(_WIN64)
     /* Open shared memory object. */
     if (self->create) {
         self->fd = shm_open(self->name, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR);
@@ -7562,6 +7568,7 @@ SharedTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
             self->data[i] = 0.0;
         }
     }
+#endif
 
     TableStream_setSize(self->tablestream, self->size);
     TableStream_setData(self->tablestream, self->data);

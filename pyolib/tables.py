@@ -2581,6 +2581,10 @@ class SharedTable(PyoTableObject):
     from different processes, if they use the same name, can read and
     write to the same memory space.
 
+    .. note::
+
+        SharedTable is not implemented yet for Windows (unix only).
+
     :Parent: :py:class:`PyoTableObject`
 
     :Args:
@@ -2614,6 +2618,8 @@ class SharedTable(PyoTableObject):
 
     """
     def __init__(self, name, create, size):
+        if sys.platform == "win32":
+            raise Exception("SharedTable is not implemented yet for Windows.")
         pyoArgsAssert(self, "sBI", name, create, size)
         PyoTableObject.__init__(self, size)
         self._name = name
