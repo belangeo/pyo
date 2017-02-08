@@ -7217,6 +7217,7 @@ typedef struct {
     Stream *pos_stream;
     NewTable *table;
     int mode;
+    int maxwindow;
     int lastPos;
     MYFLT lastValue;
     int count;
@@ -7259,10 +7260,14 @@ TableWrite_compute_next_data_frame(TableWrite *self)
                 int steps, dir;
                 if (ipos > self->lastPos) { /* Move forward. */
                     steps = ipos - self->lastPos;
+                    if (steps > self->maxwindow)
+                        steps = 1;
                     dir = 1;
                 }
                 else { /* Move backward. */
                     steps = self->lastPos - ipos;
+                    if (steps > self->maxwindow)
+                        steps = 1;
                     dir = -1;
                 }
                 self->valInTable = tablelist[ipos];
@@ -7326,6 +7331,7 @@ TableWrite_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self = (TableWrite *)type->tp_alloc(type, 0);
 
     self->mode = 0;
+    self->maxwindow = 1024;
     self->lastPos = -1;
     self->lastValue = 0.0;
     self->count = 0;
@@ -7337,9 +7343,9 @@ TableWrite_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     Stream_setFunctionPtr(self->stream, TableWrite_compute_next_data_frame);
     Stream_setStreamActive(self->stream, 1);
 
-    static char *kwlist[] = {"input", "pos", "table", "mode", NULL};
+    static char *kwlist[] = {"input", "pos", "table", "mode", "maxwindow", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "OOOi", kwlist, &inputtmp, &postmp, &tabletmp, &self->mode))
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "OOOii", kwlist, &inputtmp, &postmp, &tabletmp, &self->mode, &self->maxwindow))
         Py_RETURN_NONE;
 
     INIT_INPUT_STREAM

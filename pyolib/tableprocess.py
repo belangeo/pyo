@@ -1666,6 +1666,11 @@ class TableWrite(PyoObject):
             of the table). For any other value, the position must be
             in samples between 0 and the length of the table. Available
             at initialization time only.
+        maxwindow: int optional
+            Maximum length, in samples, of the interpolated window when
+            the position is moving fast. Useful to avoid interpolation
+            over the entire table if using a circular writing position.
+            Available at initialization time only. Defaults to 1024.
 
     .. note::
 
@@ -1687,16 +1692,17 @@ class TableWrite(PyoObject):
     >>> pat = Pattern(tab.refreshView, 0.05).play()
 
     """
-    def __init__(self, input, pos, table, mode=0):
-        pyoArgsAssert(self, "ooti", input, pos, table, mode)
+    def __init__(self, input, pos, table, mode=0, maxwindow=1024):
+        pyoArgsAssert(self, "ootii", input, pos, table, mode, maxwindow)
         PyoObject.__init__(self)
         self._input = input
         self._pos = pos
         self._table = table
         self._mode = mode
+        self._maxwindow = maxwindow
         self._in_fader = InputFader(input)
-        in_fader, pos, table, mode, lmax = convertArgsToLists(self._in_fader, pos, table, mode)
-        self._base_objs = [TableWrite_base(wrap(in_fader,i), wrap(pos,i), wrap(table,i), wrap(mode,i)) for i in range(len(table))]
+        in_fader, pos, table, mode, maxwindow, lmax = convertArgsToLists(self._in_fader, pos, table, mode, maxwindow)
+        self._base_objs = [TableWrite_base(wrap(in_fader,i), wrap(pos,i), wrap(table,i), wrap(mode,i), wrap(maxwindow,i)) for i in range(len(table))]
 
     def out(self, chnl=0, inc=1, dur=0, delay=0):
         return self.play(dur, delay)
