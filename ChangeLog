@@ -1,4 +1,8 @@
-2017-02-07 belangeo <belangeo@gmail.com>
+2017-02-08 belangeo <belangeo@gmail.com>
+
+    * Added onlyonce argument to Beat object.
+
+2017-02-08 belangeo <belangeo@gmail.com>
 
     * Seq now accepts floating-point values as time units.
 

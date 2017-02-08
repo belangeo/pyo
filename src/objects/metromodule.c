@@ -1772,6 +1772,8 @@ typedef struct {
     MYFLT tapDur;
     double sampleToSec;
     double currentTime;
+    int onlyonce;
+    int to_stop;
     MYFLT *buffer_streams;
     MYFLT *tap_buffer_streams;
     MYFLT *amp_buffer_streams;
@@ -1991,6 +1993,12 @@ Beater_generate_i(Beater *self) {
         self->buffer_streams[i] = self->end_buffer_streams[i] = 0.0;
     }
 
+    if (self->to_stop) {
+        PyObject_CallMethod((PyObject *)self, "stop", NULL);
+        self->to_stop = 0;
+        return;
+    }
+
     for (i=0; i<self->bufsize; i++) {
         self->tap_buffer_streams[i + self->voiceCount * self->bufsize] = (MYFLT)self->currentTap;
         for (j=0; j<self->poly; j++) {
@@ -1999,8 +2007,9 @@ Beater_generate_i(Beater *self) {
         self->dur_buffer_streams[i + self->voiceCount * self->bufsize] = self->durations[self->tapCount];
         if (self->currentTime >= tm) {
             self->currentTime -= tm;
-            if (self->tapCount == (self->last_taps-2))
+            if (self->tapCount == (self->last_taps-2)) {
                 self->end_buffer_streams[i + self->voiceCount * self->bufsize] = 1.0;
+            }
             if (self->sequence[self->tapCount] == 1) {
                 self->currentTap = self->tapCount;
                 self->amplitudes[self->voiceCount] = self->accentTable[self->tapCount];
@@ -2036,6 +2045,10 @@ Beater_generate_i(Beater *self) {
                     Beater_makeTable(self, 0);
                     Beater_makeSequence(self);
                 }
+                if (self->onlyonce) {
+                    self->to_stop = 1;
+                    return;
+                }
             }
         }
         self->currentTime += self->sampleToSec;
@@ -2058,6 +2071,12 @@ Beater_generate_a(Beater *self) {
 
     for (i=0; i<(self->poly*self->bufsize); i++) {
         self->buffer_streams[i] = self->end_buffer_streams[i] = 0.0;
+    }
+
+    if (self->to_stop) {
+        PyObject_CallMethod((PyObject *)self, "stop", NULL);
+        self->to_stop = 0;
+        return;
     }
 
     for (i=0; i<self->bufsize; i++) {
@@ -2106,6 +2125,10 @@ Beater_generate_a(Beater *self) {
                     self->tapDur = time[i];
                     Beater_makeTable(self, 0);
                     Beater_makeSequence(self);
+                }
+                if (self->onlyonce) {
+                    self->to_stop = 1;
+                    return;
                 }
             }
         }
@@ -2213,6 +2236,8 @@ Beater_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->time = PyFloat_FromDouble(0.125);
     self->tapDur = 0.125;
     self->poly = 1;
+    self->onlyonce = 0;
+    self->to_stop = 0;
     self->voiceCount = 0;
 	self->modebuffer[0] = 0;
 
@@ -2235,9 +2260,9 @@ Beater_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     Stream_setStreamActive(self->stream, 0);
 
-    static char *kwlist[] = {"time", "taps", "weight1", "weight2", "weight3", "poly", NULL};
+    static char *kwlist[] = {"time", "taps", "weight1", "weight2", "weight3", "poly", "onlyonce", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "|Oiiiii", kwlist, &timetmp, &self->taps, &self->weight1, &self->weight2, &self->weight3, &self->poly))
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "|Oiiiiii", kwlist, &timetmp, &self->taps, &self->weight1, &self->weight2, &self->weight3, &self->poly, &self->onlyonce))
         Py_RETURN_NONE;
 
     if (timetmp) {
@@ -2272,7 +2297,14 @@ Beater_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 static PyObject * Beater_getServer(Beater* self) { GET_SERVER };
 static PyObject * Beater_getStream(Beater* self) { GET_STREAM };
 
-static PyObject * Beater_play(Beater *self, PyObject *args, PyObject *kwds) { PLAY };
+static PyObject * Beater_play(Beater *self, PyObject *args, PyObject *kwds) {
+    self->to_stop = 0;
+    self->voiceCount = 0;
+    self->tapCount = 0;
+    self->currentTap = 0;
+    self->currentTime = -1.0;
+    PLAY
+};
 static PyObject * Beater_stop(Beater *self) { STOP };
 
 static PyObject *
@@ -2356,9 +2388,17 @@ Beater_setWeights(Beater *self, PyObject *args, PyObject *kwds)
 }
 
 static PyObject *
-Beater_newPattern(Beater *self)
+Beater_newPattern(Beater *self, PyObject *arg)
 {
-    self->newFlag = 1;
+    if (PyInt_Check(arg)) {
+        if (PyInt_AsLong(arg)) {
+            Beater_makeTable(self, 0);
+            Beater_makeSequence(self);
+        }
+        else {
+            self->newFlag = 1;
+        }
+    }
 	Py_INCREF(Py_None);
 	return Py_None;
 }
@@ -2448,6 +2488,21 @@ Beater_setPresets(Beater *self, PyObject *arg) {
     return Py_None;
 }
 
+static PyObject *
+Beater_setOnlyonce(Beater *self, PyObject *arg)
+{
+    ASSERT_ARG_NOT_NULL
+
+	int isInt = PyInt_Check(arg);
+
+	if (isInt == 1) {
+        self->onlyonce = PyLong_AsLong(arg);
+    }
+
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
 static PyMemberDef Beater_members[] = {
     {"server", T_OBJECT_EX, offsetof(Beater, server), 0, "Pyo server."},
     {"stream", T_OBJECT_EX, offsetof(Beater, stream), 0, "Stream object."},
@@ -2463,12 +2518,13 @@ static PyMethodDef Beater_methods[] = {
     {"setTime", (PyCFunction)Beater_setTime, METH_O, "Sets tap duration."},
     {"setTaps", (PyCFunction)Beater_setTaps, METH_O, "Sets number of taps in the pattern."},
     {"setWeights", (PyCFunction)Beater_setWeights, METH_VARARGS|METH_KEYWORDS, "Sets probabilities for time accents in the pattern."},
-    {"new", (PyCFunction)Beater_newPattern, METH_NOARGS, "Generates a new pattern."},
+    {"new", (PyCFunction)Beater_newPattern, METH_O, "Generates a new pattern."},
     {"fill", (PyCFunction)Beater_fillPattern, METH_NOARGS, "Generates a fillin pattern and then restore the current pattern."},
     {"store", (PyCFunction)Beater_storePreset, METH_O, "Store the current pattern in a memory slot."},
     {"recall", (PyCFunction)Beater_recallPreset, METH_O, "Recall a pattern previously stored in a memory slot."},
     {"getPresets", (PyCFunction)Beater_getPresets, METH_NOARGS, "Returns the list of stored presets."},
     {"setPresets", (PyCFunction)Beater_setPresets, METH_O, "Store a list of presets."},
+    {"setOnlyonce", (PyCFunction)Beater_setOnlyonce, METH_O, "Sets onlyonce attribute."},
     {"reset", (PyCFunction)Beater_reset, METH_NOARGS, "Resets counters to 0."},
     {NULL}  /* Sentinel */
 };
