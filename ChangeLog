@@ -1,5 +1,9 @@
 2017-02-07 belangeo <belangeo@gmail.com>
 
+    * Seq now accepts floating-point values as time units.
+
+2017-02-07 belangeo <belangeo@gmail.com>
+
     * Added maxwindow argument to TableWrite. This is the maximum number of samples
       over which the object is allowed to interpolate. Useful to avoid interpolation
       over the entire table when using a circular writing pointer.

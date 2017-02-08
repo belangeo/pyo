@@ -389,9 +389,8 @@ typedef struct {
     int modebuffer[1];
     double sampleToSec;
     double currentTime;
-    int *seq;
-    int count;
-    int when;
+    double *seq;
+    double when;
     MYFLT *buffer_streams;
     int seqsize;
     int poly;
@@ -408,9 +407,9 @@ Seqer_reset(Seqer *self)
     int i;
 
     self->seqsize = PyList_Size(self->tmp);
-    self->seq = (int *)realloc(self->seq, self->seqsize * sizeof(int));
+    self->seq = (double *)realloc(self->seq, self->seqsize * sizeof(double));
     for (i=0; i<self->seqsize; i++) {
-        self->seq[i] = PyInt_AS_LONG(PyNumber_Int(PyList_GET_ITEM(self->tmp, i)));
+        self->seq[i] = PyFloat_AsDouble(PyList_GET_ITEM(self->tmp, i));
     }
     self->newseq = 0;
 }
@@ -422,10 +421,6 @@ Seqer_generate_i(Seqer *self) {
 
     tm = PyFloat_AS_DOUBLE(self->time);
 
-    if (self->currentTime == -1.0) {
-        self->currentTime = tm;
-    }
-
     for (i=0; i<(self->poly*self->bufsize); i++) {
         self->buffer_streams[i] = 0.0;
     }
@@ -438,25 +433,21 @@ Seqer_generate_i(Seqer *self) {
 
     for (i=0; i<self->bufsize; i++) {
         self->currentTime += self->sampleToSec;
-        if (self->currentTime >= tm) {
-            self->currentTime -= tm;
-            self->count++;
-            if (self->count >= self->when) {
-                self->when = self->seq[self->tap];
-                self->count = 0;
-                self->buffer_streams[i + self->voiceCount * self->bufsize] = 1.0;
-                self->voiceCount++;
-                if (self->voiceCount >= self->poly)
-                    self->voiceCount = 0;
-                self->tap++;
-                if (self->tap >= self->seqsize) {
-                    self->tap = 0;
-                    if (self->newseq == 1)
-                        Seqer_reset(self);
-                    if (self->onlyonce) {
-                        self->to_stop = 1;
-                        return;
-                    }
+        if (self->currentTime >= self->when) {
+            self->currentTime -= self->when;
+            self->when = self->seq[self->tap] * tm;
+            self->buffer_streams[i + self->voiceCount * self->bufsize] = 1.0;
+            self->voiceCount++;
+            if (self->voiceCount >= self->poly)
+                self->voiceCount = 0;
+            self->tap++;
+            if (self->tap >= self->seqsize) {
+                self->tap = 0;
+                if (self->newseq == 1)
+                    Seqer_reset(self);
+                if (self->onlyonce) {
+                    self->to_stop = 1;
+                    return;
                 }
             }
         }
@@ -465,14 +456,9 @@ Seqer_generate_i(Seqer *self) {
 
 static void
 Seqer_generate_a(Seqer *self) {
-    double tm;
     int i;
 
     MYFLT *time = Stream_getData((Stream *)self->time_stream);
-
-    if (self->currentTime == -1.0) {
-        self->currentTime = time[0];
-    }
 
     for (i=0; i<(self->poly*self->bufsize); i++) {
         self->buffer_streams[i] = 0.0;
@@ -485,27 +471,22 @@ Seqer_generate_a(Seqer *self) {
     }
 
     for (i=0; i<self->bufsize; i++) {
-        tm = (double)time[i];
         self->currentTime += self->sampleToSec;
-        if (self->currentTime >= tm) {
-            self->currentTime -= tm;
-            self->count++;
-            if (self->count >= self->when) {
-                self->when = self->seq[self->tap];
-                self->count = 0;
-                self->buffer_streams[i + self->voiceCount * self->bufsize] = 1.0;
-                self->voiceCount++;
-                if (self->voiceCount >= self->poly)
-                    self->voiceCount = 0;
-                self->tap++;
-                if (self->tap >= self->seqsize) {
-                    self->tap = 0;
-                    if (self->newseq == 1)
-                        Seqer_reset(self);
-                    if (self->onlyonce) {
-                        self->to_stop = 1;
-                        return;
-                    }
+        if (self->currentTime >= self->when) {
+            self->currentTime -= self->when;
+            self->when = self->seq[self->tap] * (double)time[i];
+            self->buffer_streams[i + self->voiceCount * self->bufsize] = 1.0;
+            self->voiceCount++;
+            if (self->voiceCount >= self->poly)
+                self->voiceCount = 0;
+            self->tap++;
+            if (self->tap >= self->seqsize) {
+                self->tap = 0;
+                if (self->newseq == 1)
+                    Seqer_reset(self);
+                if (self->onlyonce) {
+                    self->to_stop = 1;
+                    return;
                 }
             }
         }
@@ -562,6 +543,7 @@ static void
 Seqer_dealloc(Seqer* self)
 {
     pyo_DEALLOC
+    free(self->seq);
     free(self->buffer_streams);
     Seqer_clear(self);
     Py_TYPE(self)->tp_free((PyObject*)self);
@@ -578,11 +560,10 @@ Seqer_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->time = PyFloat_FromDouble(1.);
     self->poly = 1;
     self->seqsize = 1;
-    self->seq = (int *)realloc(self->seq, self->seqsize * sizeof(int));
-    self->seq[0] = 1;
+    self->seq = (double *)realloc(self->seq, self->seqsize * sizeof(double));
+    self->seq[0] = 1.0;
     self->newseq = 0;
     self->tap = 0;
-    self->count = 0;
     self->voiceCount = 0;
     self->onlyonce = 0;
     self->to_stop = 0;
@@ -595,7 +576,7 @@ Seqer_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     Stream_setStreamActive(self->stream, 0);
 
     self->sampleToSec = 1.0 / self->sr;
-    self->currentTime = -1.0;
+    self->currentTime = 0.0;
 
     static char *kwlist[] = {"time", "seq", "poly", "onlyonce", NULL};
 
@@ -624,11 +605,10 @@ static PyObject * Seqer_getServer(Seqer* self) { GET_SERVER };
 static PyObject * Seqer_getStream(Seqer* self) { GET_STREAM };
 
 static PyObject * Seqer_play(Seqer *self, PyObject *args, PyObject *kwds) { 
-    self->currentTime = -1.0;
+    self->currentTime = 0.0;
+    self->when = 0.0;
     self->tap = 0;
-    self->count = 0;
     self->voiceCount = 0;
-    self->when = 0;
     PLAY
 };
 static PyObject * Seqer_stop(Seqer *self) { STOP };

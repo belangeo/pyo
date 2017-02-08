@@ -177,7 +177,7 @@ class Seq(PyoObject):
 
         time: float or PyoObject, optional
             Base time between each trigger in seconds. Defaults to 1.
-        seq: list of ints, optional
+        seq: list of floats, optional
             Sequence of beat durations in time's unit. Defaults to [1].
         poly: int, optional
             Seq polyphony. Denotes how many independent streams are
@@ -240,7 +240,7 @@ class Seq(PyoObject):
 
         :Args:
 
-            x: list of ints
+            x: list of floats
                 New `seq` attribute.
 
         """
@@ -293,7 +293,7 @@ class Seq(PyoObject):
 
     @property
     def seq(self):
-        """List of ints. Sequence of beat durations in time's unit."""
+        """List of floats. Sequence of beat durations in time's unit."""
         return self._seq
     @seq.setter
     def seq(self, x): self.setSeq(x)
