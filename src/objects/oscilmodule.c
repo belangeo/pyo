@@ -12790,6 +12790,10 @@ TableFill_setTable(TableFill *self, PyObject *arg)
 	return Py_None;
 }
 
+static PyObject * TableFill_getCurrentPos(TableFill *self) { 
+    return PyLong_FromLong(self->pointer);
+};
+
 static PyMemberDef TableFill_members[] = {
 {"server", T_OBJECT_EX, offsetof(TableFill, server), 0, "Pyo server."},
 {"stream", T_OBJECT_EX, offsetof(TableFill, stream), 0, "Stream object."},
@@ -12804,6 +12808,7 @@ static PyMethodDef TableFill_methods[] = {
 {"setTable", (PyCFunction)TableFill_setTable, METH_O, "Sets a new table to fill."},
 {"play", (PyCFunction)TableFill_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
 {"stop", (PyCFunction)TableFill_stop, METH_NOARGS, "Stops computing."},
+{"getCurrentPos", (PyCFunction)TableFill_getCurrentPos, METH_NOARGS, "Returns the current position."},
 {NULL}  /* Sentinel */
 };
 

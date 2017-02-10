@@ -2858,6 +2858,26 @@ class TableFill(PyoObject):
         x, lmax = convertArgsToLists(x)
         [obj.setTable(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
+    def getCurrentPos(self, all=False):
+        """
+        Returns the current pointer position, in samples, in the table.
+
+        :Args:
+
+            all: boolean, optional
+                If True, returns the current position of all
+                internal objects as a list.
+
+                If False, only the current position of the first object's 
+                stream will be returned as a float.
+
+        """
+        pyoArgsAssert(self, "B", all)
+        if not all:
+            return self._base_objs[0].getCurrentPos()
+        else:
+            return [obj.getCurrentPos() for obj in self._base_objs]
+
     @property
     def input(self):
         """PyoObject. Audio signal to write in the table."""
