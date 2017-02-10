@@ -1608,6 +1608,16 @@ class PVAmpMod(PyoPVObject):
         spread: float or PyoObject, optional
             Spreading factor for oscillator frequencies, between
             -1 and 1. 0 means every oscillator has the same frequency.
+        shape: int, optional
+            Modulation oscillator waveform. Possible shapes are:
+                0. Sine (default)
+                1. Sawtooth
+                2. Ramp (inverse sawtooth)
+                3. Square
+                4. Triangle
+                5. Brown Noise
+                6. Pink Noise
+                7. White Noise
 
     >>> s = Server().boot()
     >>> s.start()
@@ -1617,14 +1627,15 @@ class PVAmpMod(PyoPVObject):
     >>> pvs = PVSynth(pvm).out()
 
     """
-    def __init__(self, input, basefreq=1, spread=0):
-        pyoArgsAssert(self, "pOO", input, basefreq, spread)
+    def __init__(self, input, basefreq=1, spread=0, shape=0):
+        pyoArgsAssert(self, "pOOi", input, basefreq, spread, shape)
         PyoPVObject.__init__(self)
         self._input = input
         self._basefreq = basefreq
         self._spread = spread
-        input, basefreq, spread, lmax = convertArgsToLists(self._input, basefreq, spread)
-        self._base_objs = [PVAmpMod_base(wrap(input,i), wrap(basefreq,i), wrap(spread,i)) for i in range(lmax)]
+        self._shape = shape
+        input, basefreq, spread, shape, lmax = convertArgsToLists(self._input, basefreq, spread, shape)
+        self._base_objs = [PVAmpMod_base(wrap(input,i), wrap(basefreq,i), wrap(spread,i), wrap(shape,i)) for i in range(lmax)]
 
     def setInput(self, x):
         """
@@ -1671,6 +1682,29 @@ class PVAmpMod(PyoPVObject):
         x, lmax = convertArgsToLists(x)
         [obj.setSpread(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
+    def setShape(self, x):
+        """
+        Replace the `shape` attribute.
+
+        :Args:
+
+            x: int
+                new `shape` attribute. Possible shapes are:
+                    0. Sine (default)
+                    1. Sawtooth
+                    2. Ramp (inverse sawtooth)
+                    3. Square
+                    4. Triangle
+                    5. Brown Noise
+                    6. Pink Noise
+                    7. White Noise
+
+        """
+        pyoArgsAssert(self, "i", x)
+        self._shape = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setShape(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
     def reset(self):
         """
         Resets modulation pointers to 0.
@@ -1704,6 +1738,13 @@ class PVAmpMod(PyoPVObject):
     @spread.setter
     def spread(self, x): self.setSpread(x)
 
+    @property
+    def shape(self):
+        """int. Modulation oscillator waveform."""
+        return self._shape
+    @shape.setter
+    def shape(self, x): self.setShape(x)
+
 class PVFreqMod(PyoPVObject):
     """
     Performs frequency independent frequency modulations.
@@ -1735,6 +1776,16 @@ class PVFreqMod(PyoPVObject):
         depth: float or PyoObject, optional
             Amplitude of the modulating oscillators, between 0 and 1.
             Defaults to 0.1.
+        shape: int, optional
+            Modulation oscillator waveform. Possible shapes are:
+                0. Sine (default)
+                1. Sawtooth
+                2. Ramp (inverse sawtooth)
+                3. Square
+                4. Triangle
+                5. Brown Noise
+                6. Pink Noise
+                7. White Noise
 
     >>> s = Server().boot()
     >>> s.start()
@@ -1744,15 +1795,16 @@ class PVFreqMod(PyoPVObject):
     >>> pvs = PVSynth(pvm).out()
 
     """
-    def __init__(self, input, basefreq=1, spread=0, depth=0.1):
-        pyoArgsAssert(self, "pOOO", input, basefreq, spread, depth)
+    def __init__(self, input, basefreq=1, spread=0, depth=0.1, shape=0):
+        pyoArgsAssert(self, "pOOOi", input, basefreq, spread, depth, shape)
         PyoPVObject.__init__(self)
         self._input = input
         self._basefreq = basefreq
         self._spread = spread
         self._depth = depth
-        input, basefreq, spread, depth, lmax = convertArgsToLists(self._input, basefreq, spread, depth)
-        self._base_objs = [PVFreqMod_base(wrap(input,i), wrap(basefreq,i), wrap(spread,i), wrap(depth,i)) for i in range(lmax)]
+        self._shape = shape
+        input, basefreq, spread, depth, shape, lmax = convertArgsToLists(self._input, basefreq, spread, depth, shape)
+        self._base_objs = [PVFreqMod_base(wrap(input,i), wrap(basefreq,i), wrap(spread,i), wrap(depth,i), wrap(shape,i)) for i in range(lmax)]
 
     def setInput(self, x):
         """
@@ -1814,6 +1866,29 @@ class PVFreqMod(PyoPVObject):
         x, lmax = convertArgsToLists(x)
         [obj.setDepth(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
+    def setShape(self, x):
+        """
+        Replace the `shape` attribute.
+
+        :Args:
+
+            x: int
+                new `shape` attribute. Possible shapes are:
+                    0. Sine (default)
+                    1. Sawtooth
+                    2. Ramp (inverse sawtooth)
+                    3. Square
+                    4. Triangle
+                    5. Brown Noise
+                    6. Pink Noise
+                    7. White Noise
+
+        """
+        pyoArgsAssert(self, "i", x)
+        self._shape = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setShape(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
     def reset(self):
         """
         Resets modulation pointers to 0.
@@ -1854,6 +1929,13 @@ class PVFreqMod(PyoPVObject):
         return self._depth
     @depth.setter
     def depth(self, x): self.setDepth(x)
+
+    @property
+    def shape(self):
+        """int. Modulation oscillator waveform."""
+        return self._shape
+    @shape.setter
+    def shape(self, x): self.setShape(x)
 
 class PVBufLoops(PyoPVObject):
     """

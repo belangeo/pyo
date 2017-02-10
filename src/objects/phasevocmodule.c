@@ -5623,6 +5623,71 @@ PVShift_new,                                     /* tp_new */
 /*****************/
 /** PVAmpMod **/
 /*****************/
+static void
+PVMod_setTable(MYFLT *table, int shape) {
+    int i;
+
+    if (shape < 0 || shape > 7)
+        shape = 0;
+
+    if (shape == 0) {
+        for (i=0; i<8192; i++)
+            table[i] = (MYFLT)(MYSIN(TWOPI * i / 8192.0) * 0.5 + 0.5);
+    }
+    else if (shape == 1) {
+        for (i=0; i<8192; i++)
+            table[i] = (MYFLT)(1.0 - (i / 8191.0));
+    }
+    else if (shape == 2) {
+        for (i=0; i<8192; i++)
+            table[i] = (MYFLT)(i / 8191.0);
+    }
+    else if (shape == 3) {
+        for (i=0; i<4096; i++)
+            table[i] = 1.0;
+        for (i=4096; i<8192; i++)
+            table[i] = 0.0;
+    }
+    else if (shape == 4) {
+        for (i=0; i<2048; i++)
+            table[i] = (MYFLT)(i / 4095.0) + 0.5;
+        for (i=2048; i<6144; i++)
+            table[i] = (MYFLT)(1.0 - ((i - 2048) / 4095.0));
+        for (i=6144; i<8192; i++)
+            table[i] = (MYFLT)((i - 6144) / 4095.0);
+    }
+    else if (shape == 5) {
+        MYFLT val = RANDOM_UNIFORM;
+        table[0] = val;
+        for (i=1; i<8192; i++) {
+            val += RANDOM_UNIFORM * 0.04 - 0.02;
+            if (val < 0)
+                val = -val;
+            else if (val >= 1.0)
+                val = 1.0 - (val - 1.0);
+            table[i] = val;
+        }
+    }
+    else if (shape == 6) {
+        MYFLT val = RANDOM_UNIFORM;
+        table[0] = val;
+        for (i=1; i<8192; i++) {
+            val += RANDOM_UNIFORM * 0.14 - 0.07;
+            if (val < 0)
+                val = -val;
+            else if (val >= 1.0)
+                val = 1.0 - (val - 1.0);
+            table[i] = val;
+        }
+    }
+    else if (shape == 7) {
+        for (i=0; i<8192; i++) {
+            table[i] = RANDOM_UNIFORM;
+        }
+    }
+    table[8192] = table[0];
+}
+
 typedef struct {
     pyo_audio_HEAD
     PyObject *input;
@@ -5919,7 +5984,7 @@ PVAmpMod_dealloc(PVAmpMod* self)
 static PyObject *
 PVAmpMod_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
-    int i;
+    int i, shape = 0;
     PyObject *inputtmp, *input_streamtmp, *basefreqtmp=NULL, *spreadtmp=NULL;
     PVAmpMod *self;
     self = (PVAmpMod *)type->tp_alloc(type, 0);
@@ -5932,9 +5997,9 @@ PVAmpMod_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     Stream_setFunctionPtr(self->stream, PVAmpMod_compute_next_data_frame);
     self->mode_func_ptr = PVAmpMod_setProcMode;
 
-    static char *kwlist[] = {"input", "basefreq", "spread", NULL};
+    static char *kwlist[] = {"input", "basefreq", "spread", "shape", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OO", kwlist, &inputtmp, &basefreqtmp, &spreadtmp))
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOi", kwlist, &inputtmp, &basefreqtmp, &spreadtmp, &shape))
         Py_RETURN_NONE;
 
     if ( PyObject_HasAttrString((PyObject *)inputtmp, "pv_stream") == 0 ) {
@@ -5967,9 +6032,7 @@ PVAmpMod_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->count = (int *)realloc(self->count, self->bufsize * sizeof(int));
 
     self->table = (MYFLT *)realloc(self->table, 8193 * sizeof(MYFLT));
-    for (i=0; i<8192; i++)
-        self->table[i] = (MYFLT)(MYSIN(TWOPI * i / 8192.0) * 0.5 + 0.5);
-    self->table[8192] = 0.5;
+    PVMod_setTable(self->table, shape);
 
     PVAmpMod_realloc_memories(self);
 
@@ -6071,6 +6134,19 @@ PVAmpMod_setSpread(PVAmpMod *self, PyObject *arg)
 }
 
 static PyObject *
+PVAmpMod_setShape(PVAmpMod *self, PyObject *arg)
+{
+    ASSERT_ARG_NOT_NULL
+
+	if (PyNumber_Check(arg)) {
+        PVMod_setTable(self->table, PyInt_AsLong(arg));
+    }
+
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
+static PyObject *
 PVAmpMod_reset(PVAmpMod *self) {
     int i;
     for (i=0; i<self->hsize; i++)
@@ -6096,6 +6172,7 @@ static PyMethodDef PVAmpMod_methods[] = {
 {"setInput", (PyCFunction)PVAmpMod_setInput, METH_O, "Sets a new input object."},
 {"setBasefreq", (PyCFunction)PVAmpMod_setBasefreq, METH_O, "Sets the modulator's base frequency."},
 {"setSpread", (PyCFunction)PVAmpMod_setSpread, METH_O, "Sets the high frequency spreading factor."},
+{"setShape", (PyCFunction)PVAmpMod_setShape, METH_O, "Sets the modulation oscillator waveform."},
 {"reset", (PyCFunction)PVAmpMod_reset, METH_NOARGS, "Resets pointer positions."},
 {"play", (PyCFunction)PVAmpMod_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
 {"stop", (PyCFunction)PVAmpMod_stop, METH_NOARGS, "Stops computing."},
@@ -6516,7 +6593,7 @@ PVFreqMod_dealloc(PVFreqMod* self)
 static PyObject *
 PVFreqMod_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
-    int i;
+    int i, shape = 0;
     PyObject *inputtmp, *input_streamtmp, *basefreqtmp=NULL, *spreadtmp=NULL, *depthtmp=NULL;
     PVFreqMod *self;
     self = (PVFreqMod *)type->tp_alloc(type, 0);
@@ -6530,9 +6607,9 @@ PVFreqMod_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     Stream_setFunctionPtr(self->stream, PVFreqMod_compute_next_data_frame);
     self->mode_func_ptr = PVFreqMod_setProcMode;
 
-    static char *kwlist[] = {"input", "basefreq", "spread", "depth", NULL};
+    static char *kwlist[] = {"input", "basefreq", "spread", "depth", "shape", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOO", kwlist, &inputtmp, &basefreqtmp, &spreadtmp, &depthtmp))
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOOi", kwlist, &inputtmp, &basefreqtmp, &spreadtmp, &depthtmp, &shape))
         Py_RETURN_NONE;
 
     if ( PyObject_HasAttrString((PyObject *)inputtmp, "pv_stream") == 0 ) {
@@ -6569,9 +6646,7 @@ PVFreqMod_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->count = (int *)realloc(self->count, self->bufsize * sizeof(int));
 
     self->table = (MYFLT *)realloc(self->table, 8193 * sizeof(MYFLT));
-    for (i=0; i<8192; i++)
-        self->table[i] = (MYFLT)(MYSIN(TWOPI * i / 8192.0) * 0.5 + 0.5);
-    self->table[8192] = 0.5;
+    PVMod_setTable(self->table, shape);
 
     PVFreqMod_realloc_memories(self);
 
@@ -6704,6 +6779,19 @@ PVFreqMod_setDepth(PVFreqMod *self, PyObject *arg)
 }
 
 static PyObject *
+PVFreqMod_setShape(PVFreqMod *self, PyObject *arg)
+{
+    ASSERT_ARG_NOT_NULL
+
+	if (PyNumber_Check(arg)) {
+        PVMod_setTable(self->table, PyInt_AsLong(arg));
+    }
+
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
+static PyObject *
 PVFreqMod_reset(PVFreqMod *self) {
     int i;
     for (i=0; i<self->hsize; i++)
@@ -6731,6 +6819,7 @@ static PyMethodDef PVFreqMod_methods[] = {
 {"setBasefreq", (PyCFunction)PVFreqMod_setBasefreq, METH_O, "Sets the modulator's base frequency."},
 {"setSpread", (PyCFunction)PVFreqMod_setSpread, METH_O, "Sets the high frequency spreading factor."},
 {"setDepth", (PyCFunction)PVFreqMod_setDepth, METH_O, "Sets the modulator's depth."},
+{"setShape", (PyCFunction)PVFreqMod_setShape, METH_O, "Sets the modulation oscillator waveform."},
 {"reset", (PyCFunction)PVFreqMod_reset, METH_NOARGS, "Resets pointer positions."},
 {"play", (PyCFunction)PVFreqMod_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
 {"stop", (PyCFunction)PVFreqMod_stop, METH_NOARGS, "Stops computing."},

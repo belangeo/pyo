@@ -1,3 +1,8 @@
+2017-02-09 belangeo <belangeo@gmail.com>
+
+    * Added shape argument to PVAmpMod and PVFreqMod objects. 
+      It allows to change the modulation oscllator's waveform.
+
 2017-02-08 belangeo <belangeo@gmail.com>
 
     * Added onlyonce argument to Beat object.
