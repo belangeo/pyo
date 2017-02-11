@@ -59,6 +59,7 @@ class Randi(PyoObject):
         self._freq = freq
         min, max, freq, mul, add, lmax = convertArgsToLists(min, max, freq, mul, add)
         self._base_objs = [Randi_base(wrap(min,i), wrap(max,i), wrap(freq,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+        self.play()
 
     def setMin(self, x):
         """
@@ -168,6 +169,7 @@ class Randh(PyoObject):
         self._freq = freq
         min, max, freq, mul, add, lmax = convertArgsToLists(min, max, freq, mul, add)
         self._base_objs = [Randh_base(wrap(min,i), wrap(max,i), wrap(freq,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+        self.play()
 
     def setMin(self, x):
         """
@@ -279,6 +281,7 @@ class Choice(PyoObject):
             choicelen = len(choice)
             lmax = max(choicelen, lmax)
             self._base_objs = [Choice_base(wrap(choice,i), wrap(freq,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+        self.play()
 
     def setChoice(self, x):
         """
@@ -362,6 +365,7 @@ class RandInt(PyoObject):
         self._freq = freq
         max, freq, mul, add, lmax = convertArgsToLists(max, freq, mul, add)
         self._base_objs = [RandInt_base(wrap(max,i), wrap(freq,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+        self.play()
 
     def setMax(self, x):
         """
@@ -448,6 +452,7 @@ class RandDur(PyoObject):
         self._max = max
         min, max, mul, add, lmax = convertArgsToLists(min, max, mul, add)
         self._base_objs = [RandDur_base(wrap(min,i), wrap(max,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+        self.play()
 
     def setMin(self, x):
         """
@@ -600,6 +605,7 @@ class Xnoise(PyoObject):
         for i, t in enumerate(dist):
             if type(t) in [bytes_t, unicode_t]: dist[i] = XNOISE_DICT.get(t, 0)
         self._base_objs = [Xnoise_base(wrap(dist,i), wrap(freq,i), wrap(x1,i), wrap(x2,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+        self.play()
 
     def setDist(self, x):
         """
@@ -813,6 +819,7 @@ class XnoiseMidi(PyoObject):
         for i, t in enumerate(dist):
             if type(t) in [bytes_t, unicode_t]: dist[i] = XNOISE_DICT.get(t, 0)
         self._base_objs = [XnoiseMidi_base(wrap(dist,i), wrap(freq,i), wrap(x1,i), wrap(x2,i), wrap(scale,i), wrap(mrange,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+        self.play()
 
     def setDist(self, x):
         """
@@ -1065,6 +1072,7 @@ class XnoiseDur(PyoObject):
         for i, t in enumerate(dist):
             if type(t) in [bytes_t, unicode_t]: dist[i] = XNOISE_DICT.get(t, 0)
         self._base_objs = [XnoiseDur_base(wrap(dist,i), wrap(min,i), wrap(max,i), wrap(x1,i), wrap(x2,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+        self.play()
 
     def setDist(self, x):
         """
@@ -1229,6 +1237,7 @@ class Urn(PyoObject):
         max, freq, mul, add, lmax = convertArgsToLists(max, freq, mul, add)
         self._base_objs = [Urn_base(wrap(max,i), wrap(freq,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
         self._trig_objs = Dummy([TriggerDummy_base(obj) for obj in self._base_objs])
+        self.play()
 
     def out(self, chnl=0, inc=1, dur=0, delay=0):
         return self
@@ -1331,6 +1340,7 @@ class LogiMap(PyoObject):
         self._freq = freq
         chaos, freq, init, mul, add, lmax = convertArgsToLists(chaos, freq, init, mul, add)
         self._base_objs = [LogiMap_base(wrap(chaos,i), wrap(freq,i), wrap(init,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+        self.play()
 
     def out(self, chnl=0, inc=1, dur=0, delay=0):
         return self

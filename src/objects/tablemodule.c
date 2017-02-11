@@ -5826,7 +5826,6 @@ TableRec_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     INIT_OBJECT_COMMON
 
     Stream_setFunctionPtr(self->stream, TableRec_compute_next_data_frame);
-    Stream_setStreamActive(self->stream, 0);
 
     static char *kwlist[] = {"input", "table", "fadetime", NULL};
 
@@ -7086,7 +7085,6 @@ TablePut_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     INIT_OBJECT_COMMON
 
     Stream_setFunctionPtr(self->stream, TablePut_compute_next_data_frame);
-    Stream_setStreamActive(self->stream, 0);
 
     static char *kwlist[] = {"input", "table", NULL};
 
@@ -7341,7 +7339,6 @@ TableWrite_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     INIT_OBJECT_COMMON
 
     Stream_setFunctionPtr(self->stream, TableWrite_compute_next_data_frame);
-    Stream_setStreamActive(self->stream, 1);
 
     static char *kwlist[] = {"input", "pos", "table", "mode", "maxwindow", NULL};
 

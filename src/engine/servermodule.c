@@ -592,6 +592,8 @@ Server_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->recformat = 0;
     self->rectype = 0;
     self->recquality = 0.4;
+    self->globalDur = 0.0;
+    self->globalDel = 0.0;
     self->startoffset = 0.0;
     self->globalSeed = 0;
     self->CALLBACK = NULL;
@@ -814,6 +816,24 @@ Server_setBufferSize(Server *self, PyObject *arg)
     }
     else {
         Server_error(self, "Buffer size must be an integer.\n");
+    }
+    Py_RETURN_NONE;
+}
+
+static PyObject *
+Server_setGlobalDur(Server *self, PyObject *arg)
+{
+    if (arg != NULL && PyNumber_Check(arg)) {
+        self->globalDur = PyFloat_AsDouble(arg);
+    }
+    Py_RETURN_NONE;
+}
+
+static PyObject *
+Server_setGlobalDel(Server *self, PyObject *arg)
+{
+    if (arg != NULL && PyNumber_Check(arg)) {
+        self->globalDel = PyFloat_AsDouble(arg);
     }
     Py_RETURN_NONE;
 }
@@ -1738,6 +1758,18 @@ Server_getBufferSize(Server *self)
 }
 
 static PyObject *
+Server_getGlobalDur(Server *self)
+{
+    return PyFloat_FromDouble(self->globalDur);
+}
+
+static PyObject *
+Server_getGlobalDel(Server *self)
+{
+    return PyFloat_FromDouble(self->globalDel);
+}
+
+static PyObject *
 Server_beginResamplingBlock(Server *self, PyObject *arg)
 {
     if (PyInt_Check(arg)) {
@@ -1897,6 +1929,8 @@ static PyMethodDef Server_methods[] = {
     {"deactivateMidi", (PyCFunction)Server_deactivateMidi, METH_NOARGS, "Deactivates midi callback."},
     {"setSamplingRate", (PyCFunction)Server_setSamplingRate, METH_O, "Sets the server's sampling rate."},
     {"setBufferSize", (PyCFunction)Server_setBufferSize, METH_O, "Sets the server's buffer size."},
+    {"setGlobalDur", (PyCFunction)Server_setGlobalDur, METH_O, "Sets the server's globalDur attribute."},
+    {"setGlobalDel", (PyCFunction)Server_setGlobalDel, METH_O, "Sets the server's globalDel attribute."},
     {"beginResamplingBlock", (PyCFunction)Server_beginResamplingBlock, METH_O, "Starts a resampling code block."},
     {"endResamplingBlock", (PyCFunction)Server_endResamplingBlock, METH_NOARGS, "Stops a resampling code block."},
     {"setNchnls", (PyCFunction)Server_setNchnls, METH_O, "Sets the server's number of output/input channels."},
@@ -1939,6 +1973,8 @@ static PyMethodDef Server_methods[] = {
     {"getIchnls", (PyCFunction)Server_getIchnls, METH_NOARGS, "Returns the server's current number of input channels."},
     {"getGlobalSeed", (PyCFunction)Server_getGlobalSeed, METH_NOARGS, "Returns the server's global seed."},
     {"getBufferSize", (PyCFunction)Server_getBufferSize, METH_NOARGS, "Returns the server's buffer size."},
+    {"getGlobalDur", (PyCFunction)Server_getGlobalDur, METH_NOARGS, "Returns the server's globalDur attribute."},
+    {"getGlobalDel", (PyCFunction)Server_getGlobalDel, METH_NOARGS, "Returns the server's globalDel attribute."},
     {"getIsBooted", (PyCFunction)Server_getIsBooted, METH_NOARGS, "Returns 1 if the server is booted, otherwise returns 0."},
     {"getIsStarted", (PyCFunction)Server_getIsStarted, METH_NOARGS, "Returns 1 if the server is started, otherwise returns 0."},
     {"getMidiActive", (PyCFunction)Server_getMidiActive, METH_NOARGS, "Returns 1 if midi callback is active, otherwise returns 0."},

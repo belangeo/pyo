@@ -92,6 +92,7 @@ class PVAnal(PyoPVObject):
         self._in_fader = InputFader(input)
         in_fader, size, overlaps, wintype, lmax = convertArgsToLists(self._in_fader, size, overlaps, wintype)
         self._base_objs = [PVAnal_base(wrap(in_fader,i), wrap(size,i), wrap(overlaps,i), wrap(wintype,i)) for i in range(lmax)]
+        self.play()
 
     def setInput(self, x, fadetime=0.05):
         """
@@ -223,6 +224,7 @@ class PVSynth(PyoObject):
         self._wintype = wintype
         input, wintype, mul, add, lmax = convertArgsToLists(self._input, wintype, mul, add)
         self._base_objs = [PVSynth_base(wrap(input,i), wrap(wintype,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+        self.play()
 
     def setInput(self, x):
         """
@@ -317,6 +319,7 @@ class PVAddSynth(PyoObject):
         self._inc = inc
         input, pitch, num, first, inc, mul, add, lmax = convertArgsToLists(self._input, pitch, num, first, inc, mul, add)
         self._base_objs = [PVAddSynth_base(wrap(input,i), wrap(pitch,i), wrap(num,i), wrap(first,i), wrap(inc,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+        self.play()
 
     def setInput(self, x):
         """
@@ -462,6 +465,7 @@ class PVTranspose(PyoPVObject):
         self._transpo = transpo
         input, transpo, lmax = convertArgsToLists(self._input, transpo)
         self._base_objs = [PVTranspose_base(wrap(input,i), wrap(transpo,i)) for i in range(lmax)]
+        self.play()
 
     def setInput(self, x):
         """
@@ -547,6 +551,7 @@ class PVVerb(PyoPVObject):
         self._damp = damp
         input, revtime, damp, lmax = convertArgsToLists(self._input, revtime, damp)
         self._base_objs = [PVVerb_base(wrap(input,i), wrap(revtime,i), wrap(damp,i)) for i in range(lmax)]
+        self.play()
 
     def setInput(self, x):
         """
@@ -657,6 +662,7 @@ class PVGate(PyoPVObject):
         self._inverse = inverse
         input, thresh, damp, inverse, lmax = convertArgsToLists(self._input, thresh, damp, inverse)
         self._base_objs = [PVGate_base(wrap(input,i), wrap(thresh,i), wrap(damp,i), wrap(inverse,i)) for i in range(lmax)]
+        self.play()
 
     def setInput(self, x):
         """
@@ -806,6 +812,7 @@ class PVCross(PyoPVObject):
         self._fade = fade
         input, input2, fade, lmax = convertArgsToLists(self._input, self._input2, fade)
         self._base_objs = [PVCross_base(wrap(input,i), wrap(input2,i), wrap(fade,i)) for i in range(lmax)]
+        self.play()
 
     def setInput(self, x):
         """
@@ -924,6 +931,7 @@ class PVMult(PyoPVObject):
         self._input2 = input2
         input, input2, lmax = convertArgsToLists(self._input, self._input2)
         self._base_objs = [PVMult_base(wrap(input,i), wrap(input2,i)) for i in range(lmax)]
+        self.play()
 
     def setInput(self, x):
         """
@@ -1024,6 +1032,7 @@ class PVMorph(PyoPVObject):
         self._fade = fade
         input, input2, fade, lmax = convertArgsToLists(self._input, self._input2, fade)
         self._base_objs = [PVMorph_base(wrap(input,i), wrap(input2,i), wrap(fade,i)) for i in range(lmax)]
+        self.play()
 
     def setInput(self, x):
         """
@@ -1140,6 +1149,7 @@ class PVFilter(PyoPVObject):
         self._mode = mode
         input, table, gain, mode, lmax = convertArgsToLists(self._input, table, gain, mode)
         self._base_objs = [PVFilter_base(wrap(input,i), wrap(table,i), wrap(gain,i), wrap(mode,i)) for i in range(lmax)]
+        self.play()
 
     def setInput(self, x):
         """
@@ -1293,6 +1303,7 @@ class PVDelay(PyoPVObject):
         self._mode = mode
         input, deltable, feedtable, maxdelay, mode, lmax = convertArgsToLists(self._input, deltable, feedtable, maxdelay, mode)
         self._base_objs = [PVDelay_base(wrap(input,i), wrap(deltable,i), wrap(feedtable,i), wrap(maxdelay,i), wrap(mode,i)) for i in range(lmax)]
+        self.play()
 
     def setInput(self, x):
         """
@@ -1429,6 +1440,7 @@ class PVBuffer(PyoPVObject):
         self._length = length
         input, index, pitch, length, lmax = convertArgsToLists(self._input, index, pitch, length)
         self._base_objs = [PVBuffer_base(wrap(input,i), wrap(index,i), wrap(pitch,i), wrap(length,i)) for i in range(lmax)]
+        self.play()
 
     def setInput(self, x):
         """
@@ -1531,6 +1543,7 @@ class PVShift(PyoPVObject):
         self._shift = shift
         input, shift, lmax = convertArgsToLists(self._input, shift)
         self._base_objs = [PVShift_base(wrap(input,i), wrap(shift,i)) for i in range(lmax)]
+        self.play()
 
     def setInput(self, x):
         """
@@ -1636,6 +1649,7 @@ class PVAmpMod(PyoPVObject):
         self._shape = shape
         input, basefreq, spread, shape, lmax = convertArgsToLists(self._input, basefreq, spread, shape)
         self._base_objs = [PVAmpMod_base(wrap(input,i), wrap(basefreq,i), wrap(spread,i), wrap(shape,i)) for i in range(lmax)]
+        self.play()
 
     def setInput(self, x):
         """
@@ -1805,6 +1819,7 @@ class PVFreqMod(PyoPVObject):
         self._shape = shape
         input, basefreq, spread, depth, shape, lmax = convertArgsToLists(self._input, basefreq, spread, depth, shape)
         self._base_objs = [PVFreqMod_base(wrap(input,i), wrap(basefreq,i), wrap(spread,i), wrap(depth,i), wrap(shape,i)) for i in range(lmax)]
+        self.play()
 
     def setInput(self, x):
         """
@@ -1994,6 +2009,7 @@ class PVBufLoops(PyoPVObject):
         self._length = length
         input, low, high, mode, length, lmax = convertArgsToLists(self._input, low, high, mode, length)
         self._base_objs = [PVBufLoops_base(wrap(input,i), wrap(low,i), wrap(high,i), wrap(mode,i), wrap(length,i)) for i in range(lmax)]
+        self.play()
 
     def setInput(self, x):
         """
@@ -2139,6 +2155,7 @@ class PVBufTabLoops(PyoPVObject):
         self._length = length
         input, speed, length, lmax = convertArgsToLists(self._input, speed, length)
         self._base_objs = [PVBufTabLoops_base(wrap(input,i), wrap(speed,i), wrap(length,i)) for i in range(lmax)]
+        self.play()
 
     def setInput(self, x):
         """
@@ -2236,6 +2253,7 @@ class PVMix(PyoPVObject):
         self._input2 = input2
         input, input2, lmax = convertArgsToLists(self._input, self._input2)
         self._base_objs = [PVMix_base(wrap(input,i), wrap(input2,i)) for i in range(lmax)]
+        self.play()
 
     def setInput(self, x):
         """

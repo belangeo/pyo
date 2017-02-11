@@ -229,8 +229,6 @@ Fader_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     Stream_setFunctionPtr(self->stream, Fader_compute_next_data_frame);
     self->mode_func_ptr = Fader_setProcMode;
 
-    Stream_setStreamActive(self->stream, 0);
-
     self->sampleToSec = 1. / self->sr;
 
     static char *kwlist[] = {"fadein", "fadeout", "dur", "mul", "add", NULL};
@@ -638,8 +636,6 @@ Adsr_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, Adsr_compute_next_data_frame);
     self->mode_func_ptr = Adsr_setProcMode;
-
-    Stream_setStreamActive(self->stream, 0);
 
     self->sampleToSec = 1. / self->sr;
 
@@ -1072,8 +1068,6 @@ Linseg_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     Stream_setFunctionPtr(self->stream, Linseg_compute_next_data_frame);
     self->mode_func_ptr = Linseg_setProcMode;
 
-    Stream_setStreamActive(self->stream, 0);
-
     self->sampleToSec = 1. / self->sr;
 
     static char *kwlist[] = {"list", "loop", "initToFirstVal", "mul", "add", NULL};
@@ -1488,8 +1482,6 @@ Expseg_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, Expseg_compute_next_data_frame);
     self->mode_func_ptr = Expseg_setProcMode;
-
-    Stream_setStreamActive(self->stream, 0);
 
     self->sampleToSec = 1. / self->sr;
 

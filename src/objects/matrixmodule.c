@@ -604,7 +604,6 @@ MatrixRec_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     INIT_OBJECT_COMMON
 
     Stream_setFunctionPtr(self->stream, MatrixRec_compute_next_data_frame);
-    Stream_setStreamActive(self->stream, 0);
 
     static char *kwlist[] = {"input", "matrix", "fadetime", "delay", NULL};
 

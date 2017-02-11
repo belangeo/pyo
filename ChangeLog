@@ -1,7 +1,13 @@
+2017-02-08 belangeo <belangeo@gmail.com>
+
+    * Added setGlobalDur, setGlobalDel, getGlobalDur and getGlobalDel methods
+      to the Server object. These methods allow the user to manage starttime
+      and duration of audio objects globally.
+
 2017-02-09 belangeo <belangeo@gmail.com>
 
     * Added shape argument to PVAmpMod and PVFreqMod objects. 
-      It allows to change the modulation oscllator's waveform.
+      It allows to change the modulation oscillator's waveform.
 
 2017-02-08 belangeo <belangeo@gmail.com>
 

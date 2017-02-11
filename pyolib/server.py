@@ -460,6 +460,36 @@ class Server(object):
         self._verbosity = x
         self._server.setVerbosity(x)
 
+    def setGlobalDur(self, x):
+        """
+        Set the global object duration (time to wait before stopping the object).
+
+        This value, if not 0, will override the `dur` argument of object's
+        play() and out() methods.
+
+        :Args:
+
+            x: float
+                New global duration.
+
+        """
+        self._server.setGlobalDur(x)
+
+    def setGlobalDel(self, x):
+        """
+        Set the global object delay time (time to wait before activating the object).
+
+        This value, if not 0, will override the `del` argument of object's
+        play() and out() methods.
+
+        :Args:
+
+            x: float
+                New global delay time.
+
+        """
+        self._server.setGlobalDel(x)
+
     def setJackAuto(self, xin=True, xout=True):
         """
         Tells the server to auto-connect (or not) Jack ports to System ports.
@@ -963,6 +993,20 @@ class Server(object):
 
         """
         return self._server.getBufferSize()
+
+    def getGlobalDur(self):
+        """
+        Return the current global duration.
+
+        """
+        return self._server.getGlobalDur()
+
+    def getGlobalDel(self):
+        """
+        Return the current global delay time.
+
+        """
+        return self._server.getGlobalDel()
 
     def getGlobalSeed(self):
         """

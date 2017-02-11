@@ -71,6 +71,7 @@ class Pan(PyoObject):
         for i in range(lmax):
             for j in range(outs):
                 self._base_objs.append(Pan_base(wrap(self._base_players,i), j, wrap(mul,i), wrap(add,i)))
+        self.play()
 
     def setInput(self, x, fadetime=0.05):
         """
@@ -182,6 +183,7 @@ class SPan(PyoObject):
         for i in range(lmax):
             for j in range(outs):
                 self._base_objs.append(SPan_base(wrap(self._base_players,i), j, wrap(mul,i), wrap(add,i)))
+        self.play()
 
     def setInput(self, x, fadetime=0.05):
         """
@@ -278,6 +280,7 @@ class Switch(PyoObject):
         for j in range(outs):
             for i in range(lmax):
                 self._base_objs.append(Switch_base(wrap(self._base_players,i), j, wrap(mul,i), wrap(add,i)))
+        self.play()
 
     def setInput(self, x, fadetime=0.05):
         """
@@ -376,6 +379,7 @@ class Selector(PyoObject):
                     except:
                         choice.append(obj)
                 self._base_objs.append(Selector_base(choice, wrap(voice,i), wrap(mul,i), wrap(add,i)))
+        self.play()
 
     def setInputs(self, x):
         """
@@ -494,6 +498,7 @@ class VoiceManager(PyoObject):
         else:
             t_streams = None
         self._base_objs = [VoiceManager_base(wrap(in_fader,i), t_streams, wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+        self.play()
 
     def setInput(self, x, fadetime=0.05):
         """
@@ -604,6 +609,7 @@ class Mixer(PyoObject):
         time, mul, add, lmax = convertArgsToLists(time, mul, add)
         self._base_players = [Mixer_base(outs, wrap(time,i)) for i in range(chnls)]
         self._base_objs = [MixerVoice_base(self._base_players[j], i, wrap(mul,i), wrap(add,i)) for i in range(outs) for j in range(chnls)]
+        self.play()
 
     def __getitem__(self, x):
         if type(x) == slice:

@@ -144,6 +144,10 @@ typedef struct {
     /* custom callback */
     PyObject *CALLBACK;
 
+    /* Globals dur and del times. */
+    float globalDur;
+    float globalDel;
+
     /* Properties */
     int verbosity; /* a sum of values to display different levels: 1 = error */
                    /* 2 = message, 4 = warning , 8 = debug. Default 7.*/

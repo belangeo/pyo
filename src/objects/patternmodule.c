@@ -176,8 +176,6 @@ Pattern_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     Stream_setFunctionPtr(self->stream, Pattern_compute_next_data_frame);
     self->mode_func_ptr = Pattern_setProcMode;
 
-    Stream_setStreamActive(self->stream, 0);
-
     self->sampleToSec = 1. / self->sr;
     self->currentTime = 0.;
 

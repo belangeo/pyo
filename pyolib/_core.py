@@ -2252,6 +2252,7 @@ class Mix(PyoObject):
             sub_lists[i % voices].append(obj)
         self._base_objs = [Mix_base(l, wrap(mul, i),
                                     wrap(add, i)) for i, l in enumerate(sub_lists)]
+        self.play()
 
 class Dummy(PyoObject):
     """
@@ -2335,6 +2336,7 @@ class InputFader(PyoObject):
         self._input = input
         input, lmax = convertArgsToLists(input)
         self._base_objs = [InputFader_base(wrap(input, i)) for i in range(lmax)]
+        self.play()
 
     def setInput(self, x, fadetime=0.05):
         """
@@ -2392,6 +2394,7 @@ class Sig(PyoObject):
         value, mul, add, lmax = convertArgsToLists(value, mul, add)
         self._base_objs = [Sig_base(wrap(value, i), wrap(mul, i),
                                     wrap(add, i)) for i in range(lmax)]
+        self.play()
 
     def setValue(self, x):
         """
@@ -2472,6 +2475,7 @@ class VarPort(PyoObject):
         self._base_objs = [VarPort_base(wrap(value, i), wrap(time, i), wrap(init, i),
                                         WeakMethod(wrap(function, i)), wrap(arg, i),
                                         wrap(mul, i), wrap(add, i)) for i in range(lmax)]
+        self.play()
 
     def setValue(self, x):
         """
@@ -2572,6 +2576,7 @@ class Pow(PyoObject):
         base, exponent, mul, add, lmax = convertArgsToLists(base, exponent, mul, add)
         self._base_objs = [M_Pow_base(wrap(base, i), wrap(exponent, i),
                                       wrap(mul, i), wrap(add, i)) for i in range(lmax)]
+        self.play()
 
     def setBase(self, x):
         """
@@ -2666,6 +2671,7 @@ class Wrap(PyoObject):
             self._in_fader, min, max, mul, add)
         self._base_objs = [Wrap_base(wrap(in_fader, i), wrap(min, i), wrap(max, i),
                                      wrap(mul, i), wrap(add, i)) for i in range(lmax)]
+        self.play()
 
     def setInput(self, x, fadetime=0.05):
         """
@@ -2787,6 +2793,7 @@ class Compare(PyoObject):
                                         self.comp_dict[wrap(mode, i)],
                                         wrap(mul, i),
                                         wrap(add, i)) for i in range(lmax)]
+        self.play()
 
     def out(self, chnl=0, inc=1, dur=0, delay=0):
         return self.play(dur, delay)

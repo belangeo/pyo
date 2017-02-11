@@ -814,6 +814,7 @@ class SigTo(PyoObject):
         self._time = time
         value, time, init, mul ,add, lmax = convertArgsToLists(value, time, init, mul, add)
         self._base_objs = [SigTo_base(wrap(value,i), wrap(time,i), wrap(init,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+        self.play()
 
     def setValue(self, x):
         """

@@ -1571,6 +1571,8 @@ extern PyTypeObject TableFillType;
 #define PLAY \
     float del = 0; \
     float dur = 0; \
+    float globdel = 0; \
+    float globdur = 0; \
     int nearestBuf = 0; \
     int i; \
  \
@@ -1578,6 +1580,14 @@ extern PyTypeObject TableFillType;
  \
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "|ff", kwlist, &dur, &del)) \
         return PyInt_FromLong(-1); \
+ \
+    globdel = PyFloat_AsDouble(PyObject_CallMethod(PyServer_get_server(), "getGlobalDel", NULL)); \
+    globdur = PyFloat_AsDouble(PyObject_CallMethod(PyServer_get_server(), "getGlobalDur", NULL)); \
+ \
+    if (globdel != 0) \
+        del = globdel; \
+    if (globdur != 0) \
+        dur = globdur; \
  \
     Stream_setStreamToDac(self->stream, 0); \
     if (del == 0) { \
@@ -1610,6 +1620,8 @@ extern PyTypeObject TableFillType;
     int chnltmp = 0; \
     float del = 0; \
     float dur = 0; \
+    float globdel = 0; \
+    float globdur = 0; \
     int nearestBuf = 0; \
     int i; \
 \
@@ -1617,6 +1629,14 @@ extern PyTypeObject TableFillType;
  \
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "|iff", kwlist, &chnltmp, &dur, &del)) \
         return PyInt_FromLong(-1); \
+ \
+    globdel = PyFloat_AsDouble(PyObject_CallMethod(PyServer_get_server(), "getGlobalDel", NULL)); \
+    globdur = PyFloat_AsDouble(PyObject_CallMethod(PyServer_get_server(), "getGlobalDur", NULL)); \
+ \
+    if (globdel != 0) \
+        del = globdel; \
+    if (globdur != 0) \
+        dur = globdur; \
  \
     Stream_setStreamChnl(self->stream, chnltmp % self->nchnls); \
     Stream_setStreamToDac(self->stream, 1); \

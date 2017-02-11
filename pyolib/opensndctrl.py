@@ -96,6 +96,7 @@ class OscSend(PyoObject):
         self._in_fader = InputFader(input)
         in_fader, port, address, host, lmax = convertArgsToLists(self._in_fader, port, address, host)
         self._base_objs = [OscSend_base(wrap(in_fader,i), wrap(port,i), wrap(address,i), wrap(host,i)) for i in range(lmax)]
+        self.play()
 
     def setInput(self, x, fadetime=0.05):
         """
@@ -192,6 +193,7 @@ class OscReceive(PyoObject):
         self._address = address
         self._mainReceiver = OscReceiver_base(port, address)
         self._base_objs = [OscReceive_base(self._mainReceiver, wrap(address,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+        self.play()
 
     def __getitem__(self, i):
         if type(i) in [bytes_t, unicode_t]:
@@ -387,6 +389,7 @@ class OscDataSend(PyoObject):
         self._addresses = {}
         for i, adr in enumerate(address):
             self._addresses[adr] = self._base_objs[i]
+        self.play()
 
     def out(self, chnl=0, inc=1, dur=0, delay=0):
         return self.play(dur, delay)
@@ -552,6 +555,7 @@ class OscDataReceive(PyoObject):
         self._address, lmax = convertArgsToLists(address)
         # self._address is linked with list at C level
         self._base_objs = [OscDataReceive_base(port, self._address, self._function)]
+        self.play()
 
     def setMul(self, x):
         pass
@@ -658,6 +662,7 @@ class OscListReceive(PyoObject):
         self._address = address
         self._mainReceiver = OscListReceiver_base(port, address, num)
         self._base_objs = [OscListReceive_base(self._mainReceiver, wrap(address,i), j, wrap(mul,i), wrap(add,i)) for i in range(lmax) for j in range(self._num)]
+        self.play()
 
     def __getitem__(self, i):
         if type(i) in [bytes_t, unicode_t]:
