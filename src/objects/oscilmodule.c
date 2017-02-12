@@ -12852,3 +12852,316 @@ TableFill_members,             /* tp_members */
 0,                         /* tp_alloc */
 TableFill_new,                 /* tp_new */
 };
+
+/**************/
+/* TableScan object */
+/**************/
+typedef struct {
+    pyo_audio_HEAD
+    PyObject *table;
+    int modebuffer[2];
+    int pointerPos;
+} TableScan;
+
+static void
+TableScan_readframes(TableScan *self) {
+    int i;
+    MYFLT *tablelist = TableStream_getData(self->table);
+    int size = TableStream_getSize(self->table);
+
+    for (i=0; i<self->bufsize; i++) {
+        self->data[i] = tablelist[self->pointerPos++];
+        if (self->pointerPos >= size)
+            self->pointerPos = 0;
+    }
+}
+
+static void TableScan_postprocessing_ii(TableScan *self) { POST_PROCESSING_II };
+static void TableScan_postprocessing_ai(TableScan *self) { POST_PROCESSING_AI };
+static void TableScan_postprocessing_ia(TableScan *self) { POST_PROCESSING_IA };
+static void TableScan_postprocessing_aa(TableScan *self) { POST_PROCESSING_AA };
+static void TableScan_postprocessing_ireva(TableScan *self) { POST_PROCESSING_IREVA };
+static void TableScan_postprocessing_areva(TableScan *self) { POST_PROCESSING_AREVA };
+static void TableScan_postprocessing_revai(TableScan *self) { POST_PROCESSING_REVAI };
+static void TableScan_postprocessing_revaa(TableScan *self) { POST_PROCESSING_REVAA };
+static void TableScan_postprocessing_revareva(TableScan *self) { POST_PROCESSING_REVAREVA };
+
+static void
+TableScan_setProcMode(TableScan *self)
+{
+    int muladdmode;
+    muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
+
+    self->proc_func_ptr = TableScan_readframes;
+
+	switch (muladdmode) {
+        case 0:
+            self->muladd_func_ptr = TableScan_postprocessing_ii;
+            break;
+        case 1:
+            self->muladd_func_ptr = TableScan_postprocessing_ai;
+            break;
+        case 2:
+            self->muladd_func_ptr = TableScan_postprocessing_revai;
+            break;
+        case 10:
+            self->muladd_func_ptr = TableScan_postprocessing_ia;
+            break;
+        case 11:
+            self->muladd_func_ptr = TableScan_postprocessing_aa;
+            break;
+        case 12:
+            self->muladd_func_ptr = TableScan_postprocessing_revaa;
+            break;
+        case 20:
+            self->muladd_func_ptr = TableScan_postprocessing_ireva;
+            break;
+        case 21:
+            self->muladd_func_ptr = TableScan_postprocessing_areva;
+            break;
+        case 22:
+            self->muladd_func_ptr = TableScan_postprocessing_revareva;
+            break;
+    }
+}
+
+static void
+TableScan_compute_next_data_frame(TableScan *self)
+{
+    (*self->proc_func_ptr)(self);
+    (*self->muladd_func_ptr)(self);
+}
+
+static int
+TableScan_traverse(TableScan *self, visitproc visit, void *arg)
+{
+    pyo_VISIT
+    Py_VISIT(self->table);
+    return 0;
+}
+
+static int
+TableScan_clear(TableScan *self)
+{
+    pyo_CLEAR
+    Py_CLEAR(self->table);
+    return 0;
+}
+
+static void
+TableScan_dealloc(TableScan* self)
+{
+    pyo_DEALLOC
+    TableScan_clear(self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
+}
+
+static PyObject *
+TableScan_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    int i;
+    PyObject *tabletmp, *multmp=NULL, *addtmp=NULL;
+    TableScan *self;
+    self = (TableScan *)type->tp_alloc(type, 0);
+
+	self->modebuffer[0] = 0;
+	self->modebuffer[1] = 0;
+    self->pointerPos = 0;
+
+    INIT_OBJECT_COMMON
+    Stream_setFunctionPtr(self->stream, TableScan_compute_next_data_frame);
+    self->mode_func_ptr = TableScan_setProcMode;
+
+    static char *kwlist[] = {"table", "mul", "add", NULL};
+
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OO", kwlist, &tabletmp, &multmp, &addtmp))
+        Py_RETURN_NONE;
+
+    if ( PyObject_HasAttrString((PyObject *)tabletmp, "getTableStream") == 0 ) {
+        PyErr_SetString(PyExc_TypeError, "\"table\" argument of TableScan must be a PyoTableObject.\n");
+        Py_RETURN_NONE;
+    }
+    Py_XDECREF(self->table);
+    self->table = PyObject_CallMethod((PyObject *)tabletmp, "getTableStream", "");
+
+    if (multmp) {
+        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+    }
+
+    if (addtmp) {
+        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+    }
+
+    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+
+    (*self->mode_func_ptr)(self);
+
+    return (PyObject *)self;
+}
+
+static PyObject * TableScan_getServer(TableScan* self) { GET_SERVER };
+static PyObject * TableScan_getStream(TableScan* self) { GET_STREAM };
+static PyObject * TableScan_setMul(TableScan *self, PyObject *arg) { SET_MUL };
+static PyObject * TableScan_setAdd(TableScan *self, PyObject *arg) { SET_ADD };
+static PyObject * TableScan_setSub(TableScan *self, PyObject *arg) { SET_SUB };
+static PyObject * TableScan_setDiv(TableScan *self, PyObject *arg) { SET_DIV };
+
+static PyObject * TableScan_play(TableScan *self, PyObject *args, PyObject *kwds)
+{
+    self->pointerPos = 0;
+    PLAY
+};
+
+static PyObject * TableScan_out(TableScan *self, PyObject *args, PyObject *kwds)
+{
+    self->pointerPos = 0;
+    OUT
+};
+static PyObject * TableScan_stop(TableScan *self) { STOP };
+
+static PyObject * TableScan_multiply(TableScan *self, PyObject *arg) { MULTIPLY };
+static PyObject * TableScan_inplace_multiply(TableScan *self, PyObject *arg) { INPLACE_MULTIPLY };
+static PyObject * TableScan_add(TableScan *self, PyObject *arg) { ADD };
+static PyObject * TableScan_inplace_add(TableScan *self, PyObject *arg) { INPLACE_ADD };
+static PyObject * TableScan_sub(TableScan *self, PyObject *arg) { SUB };
+static PyObject * TableScan_inplace_sub(TableScan *self, PyObject *arg) { INPLACE_SUB };
+static PyObject * TableScan_div(TableScan *self, PyObject *arg) { DIV };
+static PyObject * TableScan_inplace_div(TableScan *self, PyObject *arg) { INPLACE_DIV };
+
+static PyObject *
+TableScan_getTable(TableScan* self)
+{
+    Py_INCREF(self->table);
+    return self->table;
+};
+
+static PyObject *
+TableScan_setTable(TableScan *self, PyObject *arg)
+{
+	PyObject *tmp;
+
+    ASSERT_ARG_NOT_NULL
+
+	tmp = arg;
+	Py_DECREF(self->table);
+    self->table = PyObject_CallMethod((PyObject *)tmp, "getTableStream", "");
+
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
+static PyObject *
+TableScan_reset(TableScan *self)
+{
+    self->pointerPos = 0;
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static PyMemberDef TableScan_members[] = {
+{"server", T_OBJECT_EX, offsetof(TableScan, server), 0, "Pyo server."},
+{"stream", T_OBJECT_EX, offsetof(TableScan, stream), 0, "Stream object."},
+{"table", T_OBJECT_EX, offsetof(TableScan, table), 0, "Waveform table."},
+{"mul", T_OBJECT_EX, offsetof(TableScan, mul), 0, "Mul factor."},
+{"add", T_OBJECT_EX, offsetof(TableScan, add), 0, "Add factor."},
+{NULL}  /* Sentinel */
+};
+
+static PyMethodDef TableScan_methods[] = {
+{"getTable", (PyCFunction)TableScan_getTable, METH_NOARGS, "Returns waveform table object."},
+{"getServer", (PyCFunction)TableScan_getServer, METH_NOARGS, "Returns server object."},
+{"_getStream", (PyCFunction)TableScan_getStream, METH_NOARGS, "Returns stream object."},
+{"play", (PyCFunction)TableScan_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+{"out", (PyCFunction)TableScan_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
+{"stop", (PyCFunction)TableScan_stop, METH_NOARGS, "Stops computing."},
+{"setTable", (PyCFunction)TableScan_setTable, METH_O, "Sets oscillator table."},
+{"reset", (PyCFunction)TableScan_reset, METH_NOARGS, "Resets pointer position to 0."},
+{"setMul", (PyCFunction)TableScan_setMul, METH_O, "Sets oscillator mul factor."},
+{"setAdd", (PyCFunction)TableScan_setAdd, METH_O, "Sets oscillator add factor."},
+{"setSub", (PyCFunction)TableScan_setSub, METH_O, "Sets oscillator inverse add factor."},
+{"setDiv", (PyCFunction)TableScan_setDiv, METH_O, "Sets inverse mul factor."},
+{NULL}  /* Sentinel */
+};
+
+static PyNumberMethods TableScan_as_number = {
+(binaryfunc)TableScan_add,                      /*nb_add*/
+(binaryfunc)TableScan_sub,                 /*nb_subtract*/
+(binaryfunc)TableScan_multiply,                 /*nb_multiply*/
+INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
+0,                /*nb_remainder*/
+0,                   /*nb_divmod*/
+0,                   /*nb_power*/
+0,                  /*nb_neg*/
+0,                /*nb_pos*/
+0,                  /*(unaryfunc)array_abs,*/
+0,                    /*nb_nonzero*/
+0,                    /*nb_invert*/
+0,               /*nb_lshift*/
+0,              /*nb_rshift*/
+0,              /*nb_and*/
+0,              /*nb_xor*/
+0,               /*nb_or*/
+INITIALIZE_NB_COERCE_ZERO                   /*nb_coerce*/
+0,                       /*nb_int*/
+0,                      /*nb_long*/
+0,                     /*nb_float*/
+INITIALIZE_NB_OCT_ZERO   /*nb_oct*/
+INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
+(binaryfunc)TableScan_inplace_add,              /*inplace_add*/
+(binaryfunc)TableScan_inplace_sub,         /*inplace_subtract*/
+(binaryfunc)TableScan_inplace_multiply,         /*inplace_multiply*/
+INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
+0,        /*inplace_remainder*/
+0,           /*inplace_power*/
+0,       /*inplace_lshift*/
+0,      /*inplace_rshift*/
+0,      /*inplace_and*/
+0,      /*inplace_xor*/
+0,       /*inplace_or*/
+0,             /*nb_floor_divide*/
+(binaryfunc)TableScan_div,                       /*nb_true_divide*/
+0,     /*nb_inplace_floor_divide*/
+(binaryfunc)TableScan_inplace_div,                       /*nb_inplace_true_divide*/
+0,                     /* nb_index */
+};
+
+PyTypeObject TableScanType = {
+PyVarObject_HEAD_INIT(NULL, 0)
+"_pyo.TableScan_base",         /*tp_name*/
+sizeof(TableScan),         /*tp_basicsize*/
+0,                         /*tp_itemsize*/
+(destructor)TableScan_dealloc, /*tp_dealloc*/
+0,                         /*tp_print*/
+0,                         /*tp_getattr*/
+0,                         /*tp_setattr*/
+0,                         /*tp_as_async (tp_compare in Python 2)*/
+0,                         /*tp_repr*/
+&TableScan_as_number,             /*tp_as_number*/
+0,                         /*tp_as_sequence*/
+0,                         /*tp_as_mapping*/
+0,                         /*tp_hash */
+0,                         /*tp_call*/
+0,                         /*tp_str*/
+0,                         /*tp_getattro*/
+0,                         /*tp_setattro*/
+0,                         /*tp_as_buffer*/
+Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+"TableScan objects. Scan the content of a table in loop.",           /* tp_doc */
+(traverseproc)TableScan_traverse,   /* tp_traverse */
+(inquiry)TableScan_clear,           /* tp_clear */
+0,		               /* tp_richcompare */
+0,		               /* tp_weaklistoffset */
+0,		               /* tp_iter */
+0,		               /* tp_iternext */
+TableScan_methods,             /* tp_methods */
+TableScan_members,             /* tp_members */
+0,                      /* tp_getset */
+0,                         /* tp_base */
+0,                         /* tp_dict */
+0,                         /* tp_descr_get */
+0,                         /* tp_descr_set */
+0,                         /* tp_dictoffset */
+0,      /* tp_init */
+0,                         /* tp_alloc */
+TableScan_new,                 /* tp_new */
+};

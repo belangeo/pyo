@@ -1,4 +1,9 @@
-2017-02-08 belangeo <belangeo@gmail.com>
+2017-02-12 belangeo <belangeo@gmail.com>
+
+    * Added new object: TableScan, Reads the content of a table in loop,
+      without interpolation.
+
+2017-02-11 belangeo <belangeo@gmail.com>
 
     * Added setGlobalDur, setGlobalDel, getGlobalDur and getGlobalDel methods
       to the Server object. These methods allow the user to manage starttime

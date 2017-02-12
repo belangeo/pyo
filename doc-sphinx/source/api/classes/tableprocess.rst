@@ -133,3 +133,9 @@ store audio samples or algorithmic sequences for future uses.
 
 .. autoclass:: TableFill
    :members:
+
+*TableScan*
+-----------------------------------
+
+.. autoclass:: TableScan
+   :members:

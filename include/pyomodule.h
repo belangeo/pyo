@@ -510,6 +510,7 @@ extern PyTypeObject PadSynthTableType;
 extern PyTypeObject LogiMapType;
 extern PyTypeObject SharedTableType;
 extern PyTypeObject TableFillType;
+extern PyTypeObject TableScanType;
 
 /* Constants */
 #define E M_E

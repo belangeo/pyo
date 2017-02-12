@@ -3837,3 +3837,66 @@ class Particle2(PyoObject):
         return self._filtertype
     @filtertype.setter
     def filtertype(self, x): self.setFiltertype(x)
+
+class TableScan(PyoObject):
+    """
+    Reads the content of a table in loop, without interpolation.
+
+    A simple table reader, sample by sample, with wrap-around when
+    reaching the end of the table.
+
+    :Parent: :py:class:`PyoObject`
+
+    :Args:
+
+        table: PyoTableObject
+            Table containing the waveform samples.
+
+    .. seealso::
+
+        :py:class:`Osc`, :py:class:`TableRead`
+
+    >>> s = Server().boot()
+    >>> s.start()
+    >>> tab = DataTable(s.getBufferSize(), 2)
+    >>> sig = Sine([500, 600], mul=0.3)
+    >>> fill = TableFill(sig, tab)
+    >>> scan = TableScan(tab).out()
+
+    """
+    def __init__(self, table, mul=1, add=0):
+        pyoArgsAssert(self, "tOO", table, mul, add)
+        PyoObject.__init__(self, mul, add)
+        self._table = table
+        table, mul, add, lmax = convertArgsToLists(table, mul, add)
+        self._base_objs = [TableScan_base(wrap(table,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+        self.play()
+
+    def setTable(self, x):
+        """
+        Replace the `table` attribute.
+
+        :Args:
+
+            x: PyoTableObject
+                new `table` attribute.
+
+        """
+        pyoArgsAssert(self, "t", x)
+        self._table = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setTable(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def reset(self):
+        """
+        Resets current phase to 0.
+
+        """
+        [obj.reset() for i, obj in enumerate(self._base_objs)]
+
+    @property
+    def table(self):
+        """PyoTableObject. Table containing the waveform samples."""
+        return self._table
+    @table.setter
+    def table(self, x): self.setTable(x)
