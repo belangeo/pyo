@@ -1,5 +1,10 @@
 2017-02-12 belangeo <belangeo@gmail.com>
 
+    * Fader and Adsr now start a new envelope from the current amplitude value
+      if the previous ramp has not finished yet.
+
+2017-02-12 belangeo <belangeo@gmail.com>
+
     * Added new object: TableScan, Reads the content of a table in loop,
       without interpolation.
 
