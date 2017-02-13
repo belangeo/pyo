@@ -36,6 +36,8 @@ typedef struct {
     MYFLT release;
     MYFLT duration;
     MYFLT exp;
+    MYFLT offset;
+    MYFLT currentVal;
     double currentTime;
     MYFLT sampleToSec;
 } Fader;
@@ -65,7 +67,7 @@ Fader_generate_auto(Fader *self) {
 
     for (i=0; i<self->bufsize; i++) {
         if (self->currentTime <= self->attack)
-            val = self->currentTime * iatt;
+            val = self->currentTime * iatt * (1.0 - self->offset) + self->offset;
         else if (self->currentTime > self->duration) {
             val = 0.;
             self->ended = 1;
@@ -75,7 +77,7 @@ Fader_generate_auto(Fader *self) {
         else
             val = 1.;
 
-        self->data[i] = val;
+        self->data[i] = self->currentVal = val;
         self->currentTime += self->sampleToSec;
     }
 
@@ -101,9 +103,8 @@ Fader_generate_wait(Fader *self) {
 
     for (i=0; i<self->bufsize; i++) {
         if (self->fademode == 0) {
-
             if (self->currentTime <= self->attack)
-                val = self->currentTime * iatt;
+                val = self->currentTime * iatt * (1.0 - self->offset) + self->offset;
             else
                 val = 1.;
             self->topValue = val;
@@ -114,7 +115,7 @@ Fader_generate_wait(Fader *self) {
             else
                 val = 0.;
         }
-        self->data[i] = val;
+        self->data[i] = self->currentVal = val;
         self->currentTime += self->sampleToSec;
     }
     
@@ -224,6 +225,8 @@ Fader_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->duration = 0.0;
     self->exp = 1.0;
     self->currentTime = 0.0;
+    self->offset = 0.0;
+    self->currentVal = 0.0;
 
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, Fader_compute_next_data_frame);
@@ -263,6 +266,7 @@ static PyObject * Fader_play(Fader *self, PyObject *args, PyObject *kwds)
     self->fademode = 0;
     self->ended = 0;
     self->currentTime = 0.0;
+    self->offset = self->currentVal;
     (*self->mode_func_ptr)(self);
     PLAY
 };
@@ -442,6 +446,8 @@ typedef struct {
     MYFLT release;
     MYFLT duration;
     MYFLT exp;
+    MYFLT offset;
+    MYFLT currentVal;
     double currentTime;
     MYFLT sampleToSec;
 } Adsr;
@@ -470,7 +476,7 @@ Adsr_generate_auto(Adsr *self) {
 
     for (i=0; i<self->bufsize; i++) {
         if (self->currentTime <= self->attack)
-            val = self->currentTime * invatt;
+            val = self->currentTime * invatt * (1.0 - self->offset) + self->offset;
         else if (self->currentTime <= (self->attack + self->decay))
             val = (self->decay - (self->currentTime - self->attack)) * invdec * (1. - self->sustain) + self->sustain;
         else if (self->currentTime > self->duration)
@@ -480,7 +486,7 @@ Adsr_generate_auto(Adsr *self) {
         else
             val = self->sustain;
 
-        self->data[i] = val;
+        self->data[i] = self->currentVal = val;
         self->currentTime += self->sampleToSec;
     }
 
@@ -505,9 +511,8 @@ Adsr_generate_wait(Adsr *self) {
 
     for (i=0; i<self->bufsize; i++) {
         if (self->fademode == 0) {
-
             if (self->currentTime <= self->attack)
-                val = self->currentTime * invatt;
+                val = self->currentTime * invatt * (1.0 - self->offset) + self->offset;
             else if (self->currentTime <= (self->attack + self->decay))
                 val = (self->decay - (self->currentTime - self->attack)) * invdec * (1. - self->sustain) + self->sustain;
             else
@@ -521,7 +526,7 @@ Adsr_generate_wait(Adsr *self) {
             else
                 val = 0.;
         }
-        self->data[i] = val;
+        self->data[i] = self->currentVal = val;
         self->currentTime += self->sampleToSec;
     }
 
@@ -632,6 +637,8 @@ Adsr_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->duration = 0.0;
     self->exp = 1.0;
     self->currentTime = 0.0;
+    self->offset = 0.0;
+    self->currentVal = 0.0;
 
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, Adsr_compute_next_data_frame);
@@ -681,6 +688,7 @@ static PyObject * Adsr_play(Adsr *self, PyObject *args, PyObject *kwds)
 {
     self->fademode = 0;
     self->currentTime = 0.0;
+    self->offset = self->currentVal;
     (*self->mode_func_ptr)(self);
     PLAY
 };
