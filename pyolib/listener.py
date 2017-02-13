@@ -83,9 +83,7 @@ class MidiListener(threading.Thread):
 
         Dictionary format is:
 
-            {"id": device_id as integer, 
-             "name": device_name as string, 
-             "interface": interface_driver as string}
+        {"id": device_id (int), "name": device_name (str), "interface": interface (str)}
 
         """
         infos = self._listener.getDeviceInfos()
@@ -194,9 +192,7 @@ class MidiDispatcher(threading.Thread):
 
         Dictionary format is:
 
-            {"id": device_id as integer, 
-             "name": device_name as string, 
-             "interface": interface_driver as string}
+        {"id": device_id (int), "name": device_name (str), "interface": interface (str)}
 
         """
         infos = self._dispatcher.getDeviceInfos()
