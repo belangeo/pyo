@@ -1,5 +1,9 @@
 2017-02-12 belangeo <belangeo@gmail.com>
 
+    * Upgraded version number to 0.8.3.
+
+2017-02-12 belangeo <belangeo@gmail.com>
+
     * Prevents the creation of a SharedTable object on Windows (not implemented yet).
 
 2017-02-12 belangeo <belangeo@gmail.com>
@@ -1373,7 +1377,7 @@
 
 2011-07-22 belangeo <belangeo@gmail.com>
 
-    * Added new function : reducePoints(), apply a Douglas–Peucker curve reduction algorithm. 
+    * Added new function : reducePoints(), apply a DouglasÂ–Peucker curve reduction algorithm. 
       Added loadRecFile() method to table objects.
     - rev 688
 
