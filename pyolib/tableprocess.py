@@ -3554,7 +3554,7 @@ class Particle2(PyoObject):
     >>> dev = 0.001
     >>> pan = Noise(0.5, 0.5)
     >>> cf = Sine(0.07).range(75, 125)
-    >>> fcf = Choice(range(1, 40), freq=150, mul=cf)
+    >>> fcf = Choice(list(range(1, 40)), freq=150, mul=cf)
     >>> grn = Particle2(snd, env, dns, pit, pos, dur, dev, pan, fcf, 20, 2, chnls=2, mul=.3)
     >>> grn.out()
 
