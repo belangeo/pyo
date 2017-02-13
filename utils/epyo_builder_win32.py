@@ -14,8 +14,7 @@ shutil.copytree("snippets", "Resources/snippets")
 shutil.copytree("styles", "Resources/styles")
 
 if version[0] < 3:
-    os.system('C:\Python%d%d\Scripts\pyi-makespec -F -c --icon=Resources\E-PyoIcon.ico "E-Pyo.py"' % version)
-    os.system('C:\Python%d%d\Scripts\pyi-build "E-Pyo.spec"' % version)
+    os.system('C:\Python%d%d\Scripts\pyinstaller --clean -F -c --icon=Resources\E-PyoIcon.ico "E-Pyo.py"' % version)
 else:
     os.system('pyinstaller --clean -F -c --icon=Resources\E-PyoIcon.ico "E-Pyo.py"')
 

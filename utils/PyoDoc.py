@@ -1072,7 +1072,15 @@ class RunningThread(threading.Thread):
 
     def kill(self):
         self.terminated = True
-        self.proc.terminate()
+        if PLATFORM == "win32":
+            try:
+                os.system("Taskkill /PID %d /F" % self.proc.pid)
+            except:
+                print('"Taskkill" does not succeed to kill the process %d.' % self.proc.pid)
+        else:
+            self.proc.terminate()
+        if self.proc.poll() == None:
+            self.proc.kill()
 
     def run(self):
         if self.osx_app_bundled:
@@ -1080,23 +1088,23 @@ class RunningThread(threading.Thread):
             prelude = "export -n %s;export PATH=/usr/local/bin:/usr/local/lib:$PATH;env;" % vars_to_remove
             if self.caller_need_to_invoke_32_bit:
                 self.proc = subprocess.Popen(["%s%s%s %s" % (prelude, self.set_32_bit_arch, self.which_python, self.path)],
-                                shell=True, cwd=self.cwd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                                universal_newlines=True, shell=True, cwd=self.cwd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             else:
                 self.proc = subprocess.Popen(["%s%s %s" % (prelude, self.which_python, self.path)], cwd=self.cwd,
-                                    shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                                    universal_newlines=True, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         elif wx.Platform == '__WXMAC__':
             if self.caller_need_to_invoke_32_bit:
                 self.proc = subprocess.Popen(["%s%s %s" % (self.set_32_bit_arch, self.which_python, self.path)],
-                                shell=True, cwd=self.cwd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                                universal_newlines=True, shell=True, cwd=self.cwd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             else:
                 self.proc = subprocess.Popen(["%s %s" % (self.which_python, self.path)], cwd=self.cwd,
-                                shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                                universal_newlines=True, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         elif wx.Platform == "__WXMSW__":
-                self.proc = subprocess.Popen([self.which_python, self.path], cwd=self.cwd,
-                                shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                self.proc = subprocess.Popen([self.which_python, "-u", self.path], cwd=ensureNFD(self.cwd),
+                                universal_newlines=True,  shell=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         else:
                 self.proc = subprocess.Popen([self.which_python, self.path], cwd=self.cwd,
-                                stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                                universal_newlines=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
 
         while self.proc.poll() == None and not self.terminated:
