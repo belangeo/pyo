@@ -25,11 +25,20 @@ class MidiListener(threading.Thread):
 
             def myfunc(status, data1, data2)
 
-        mididev: int, optional
+        mididev: int or list of ints, optional
             Sets the midi input device (see `pm_list_devices()` for the
             available devices). The default, -1, means the system default
             device. A number greater than the highest portmidi device index
-            will open all available input devices.
+            will open all available input devices. Specific devices can be
+            set with a list of integers.
+
+        reportdevice: boolean, optional
+            If True, the device ID will be reported as a fourth argument to
+            the callback. The signature will then be:
+
+            def myfunc(status, data1, data2, id)
+
+            Available at initialization only. Defaults to False.
 
     .. note::
 
@@ -44,12 +53,15 @@ class MidiListener(threading.Thread):
     >>> listen.start()
 
     """
-    def __init__(self, function, mididev=-1):
+    def __init__(self, function, mididev=-1, reportdevice=False):
         threading.Thread.__init__(self)
         self.daemon = True
         self._function = WeakMethod(function)
         self._mididev = mididev
-        self._listener = MidiListener_base(self._function, self._mididev)
+        if type(mididev) is not list:
+            mididev = [mididev]
+        self._reportdevice = reportdevice
+        self._listener = MidiListener_base(self._function, mididev, self._reportdevice)
 
     def run(self):
         """
@@ -62,6 +74,144 @@ class MidiListener(threading.Thread):
                 time.sleep(0.001)
             except:
                 pass
+
+    def getDeviceInfos(self):
+        """
+        Returns infos about connected midi devices.
+
+        This method returns a list of dictionaries, one per device.
+
+        Dictionary format is:
+
+            {"id": device_id as integer, 
+             "name": device_name as string, 
+             "interface": interface_driver as string}
+
+        """
+        infos = self._listener.getDeviceInfos()
+        if infos:
+            lst = []
+            for info in infos:
+                dct = {}
+                items = info.split(", ")
+                for item in items:
+                    isplit = item.split(": ")
+                    dct[isplit[0]] = isplit[1]
+                dct["id"] = int(dct["id"])
+                lst.append(dct)
+            return lst
+        return []
+
+class MidiDispatcher(threading.Thread):
+    """
+    Self-contained midi dispatcher thread.
+
+    This object allows to setup a Midi server that is independent
+    of the audio server (mainly to be able to send Midi data even
+    when the audio server is stopped). Although it runs in a separated
+    thread, the same device can't be used by this object and the audio
+    server at the same time. It is adviced to call the deactivateMidi()
+    method on the audio server to avoid conflicts.
+
+    Use the `send` method to send midi event to connected devices.
+
+    :Parent: threading.Thread
+
+    :Args:
+
+        mididev: int or list of ints, optional
+            Sets the midi output device (see `pm_list_devices()` for the
+            available devices). The default, -1, means the system default
+            device. A number greater than the highest portmidi device index
+            will open all available input devices. Specific devices can be
+            set with a list of integers.
+
+    .. note::
+
+        This object is available only if pyo is built with portmidi support
+        (see withPortmidi function).
+
+    >>> s = Server().boot()
+    >>> s.deactivateMidi()
+    >>> dispatch = MidiDispatcher(5)
+    >>> dispatch.start()
+    >>> dispatch.send(144, 60, 127)
+
+    """
+    def __init__(self, mididev=-1):
+        threading.Thread.__init__(self)
+        self.daemon = True
+        self._mididev = mididev
+        if type(mididev) is not list:
+            mididev = [mididev]
+        self._dispatcher = MidiDispatcher_base(mididev)
+
+    def run(self):
+        """
+        Starts the process. The thread runs as daemon, so no need to stop it.
+
+        """
+        self._dispatcher.play()
+        while True:
+            try:
+                time.sleep(0.001)
+            except:
+                pass
+
+    def send(self, status, data1, data2=0, timestamp=0, device=-1):
+        """
+        Send a MIDI message to the selected midi output device.
+
+        Arguments can be list of values to generate multiple events
+        in one call.
+
+        :Args:
+
+            status: int
+                Status byte.
+            data1: int
+                First data byte.
+            data2: int, optional
+                Second data byte. Defaults to 0.
+            timestamp: int, optional
+                The delay time, in milliseconds, before the note
+                is sent on the portmidi stream. A value of 0 means
+                to play the note now. Defaults to 0.
+            device: int, optional
+                The index of the device to which the message will
+                be sent. The default (-1) means all devices. See
+                `getDeviceInfos()` to retrieve device indexes.
+
+        """
+        status, data1, data2, timestamp, device, lmax = convertArgsToLists(status, data1, data2, timestamp, device)
+        [self._dispatcher.send(wrap(status,i), wrap(data1,i), wrap(data2,i), wrap(timestamp,i), wrap(device,i)) for i in range(lmax)]
+
+    def getDeviceInfos(self):
+        """
+        Returns infos about connected midi devices.
+
+        This method returns a list of dictionaries, one per device.
+
+        Dictionary format is:
+
+            {"id": device_id as integer, 
+             "name": device_name as string, 
+             "interface": interface_driver as string}
+
+        """
+        infos = self._dispatcher.getDeviceInfos()
+        if infos:
+            lst = []
+            for info in infos:
+                dct = {}
+                items = info.split(", ")
+                for item in items:
+                    isplit = item.split(": ")
+                    dct[isplit[0]] = isplit[1]
+                dct["id"] = int(dct["id"])
+                lst.append(dct)
+            return lst
+        return []
 
 OscListenerLock = threading.Lock()
 

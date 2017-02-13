@@ -30,9 +30,11 @@ typedef struct {
     PyObject_HEAD
     PyObject *midicallable;
     PmStream *midiin[64];
-    int mididev;
+    PyObject *mididev;
+    int ids[64];
     int midicount;
     int active;
+    int reportdevice;
 } MidiListener;
 
 void process_midi(PtTimestamp timestamp, void *userData)
@@ -55,11 +57,21 @@ void process_midi(PtTimestamp timestamp, void *userData)
                 status = Pm_MessageStatus(buffer.message);
                 data1 = Pm_MessageData1(buffer.message);
                 data2 = Pm_MessageData2(buffer.message);
-                tup = PyTuple_New(3);
-                PyTuple_SetItem(tup, 0, PyInt_FromLong(status));
-                PyTuple_SetItem(tup, 1, PyInt_FromLong(data1));
-                PyTuple_SetItem(tup, 2, PyInt_FromLong(data2));
-                PyObject_Call((PyObject *)server->midicallable, tup, NULL);
+                if (server->reportdevice) {
+                    tup = PyTuple_New(4);
+                    PyTuple_SetItem(tup, 0, PyInt_FromLong(status));
+                    PyTuple_SetItem(tup, 1, PyInt_FromLong(data1));
+                    PyTuple_SetItem(tup, 2, PyInt_FromLong(data2));
+                    PyTuple_SetItem(tup, 3, PyInt_FromLong(server->ids[i]));
+                    PyObject_Call((PyObject *)server->midicallable, tup, NULL);
+                }
+                else {
+                    tup = PyTuple_New(3);
+                    PyTuple_SetItem(tup, 0, PyInt_FromLong(status));
+                    PyTuple_SetItem(tup, 1, PyInt_FromLong(data1));
+                    PyTuple_SetItem(tup, 2, PyInt_FromLong(data2));
+                    PyObject_Call((PyObject *)server->midicallable, tup, NULL);
+                }
             }
         }
     } while (result);
@@ -72,6 +84,7 @@ static int
 MidiListener_traverse(MidiListener *self, visitproc visit, void *arg)
 {
     Py_VISIT(self->midicallable);
+    Py_VISIT(self->mididev);
     return 0;
 }
 
@@ -79,6 +92,7 @@ static int
 MidiListener_clear(MidiListener *self)
 {
     Py_CLEAR(self->midicallable);
+    Py_CLEAR(self->mididev);
     return 0;
 }
 
@@ -94,28 +108,33 @@ MidiListener_dealloc(MidiListener* self)
 static PyObject *
 MidiListener_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
-    PyObject *midicalltmp=NULL;
+    PyObject *midicalltmp=NULL, *mididevtmp=NULL;
     MidiListener *self;
 
     self = (MidiListener *)type->tp_alloc(type, 0);
 
-    self->active = self->midicount = 0;
-    self->mididev = -1;
+    self->active = self->midicount = self->reportdevice = 0;
 
-    static char *kwlist[] = {"midicallable", "mididevice", NULL};
+    static char *kwlist[] = {"midicallable", "mididevice", "reportdevice", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "Oi", kwlist, &midicalltmp, &self->mididev))
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "OOi", kwlist, &midicalltmp, &mididevtmp, &self->reportdevice))
         Py_RETURN_NONE;
 
     if (midicalltmp) {
         PyObject_CallMethod((PyObject *)self, "setMidiFunction", "O", midicalltmp);
     }
 
+    if (mididevtmp) {
+        Py_INCREF(mididevtmp);
+        Py_XDECREF(self->mididev);
+        self->mididev = mididevtmp;
+    }
+
     return (PyObject *)self;
 }
 
 static PyObject * MidiListener_play(MidiListener *self) {
-    int i, num_devices;
+    int i, num_devices, lsize, mididev;
     PmError pmerr;
 
     /* always start the timer before you start midi */
@@ -126,28 +145,55 @@ static PyObject * MidiListener_play(MidiListener *self) {
         PySys_WriteStdout("Portmidi warning: could not initialize Portmidi: %s\n", Pm_GetErrorText(pmerr));
     }
 
+    lsize = PyList_Size(self->mididev);
+
     num_devices = Pm_CountDevices();
     if (num_devices > 0) {
-        if (self->mididev < num_devices) {
-            if (self->mididev == -1)
-                self->mididev = Pm_GetDefaultInputDeviceID();
-            const PmDeviceInfo *info = Pm_GetDeviceInfo(self->mididev);
-            if (info != NULL) {
-                if (info->input) {
-                    pmerr = Pm_OpenInput(&self->midiin[0], self->mididev, NULL, 100, NULL, NULL);
-                    if (pmerr) {
-                        PySys_WriteStdout("Portmidi warning: could not open midi input %d (%s): %s\n",
-                             self->mididev, info->name, Pm_GetErrorText(pmerr));
+        if (lsize == 1) {
+            mididev = PyLong_AsLong(PyList_GetItem(self->mididev, 0));
+            if (mididev < num_devices) {
+                if (mididev == -1)
+                    mididev = Pm_GetDefaultInputDeviceID();
+                const PmDeviceInfo *info = Pm_GetDeviceInfo(mididev);
+                if (info != NULL) {
+                    if (info->input) {
+                        pmerr = Pm_OpenInput(&self->midiin[0], mididev, NULL, 100, NULL, NULL);
+                        if (pmerr) {
+                            PySys_WriteStdout("Portmidi warning: could not open midi input %d (%s): %s\n",
+                                 mididev, info->name, Pm_GetErrorText(pmerr));
+                        }
+                        else {
+                            self->midicount = 1;
+                            self->ids[0] = mididev;
+                        }
                     }
-                    else {
-                        self->midicount = 1;
+                }
+            }
+            else if (mididev >= num_devices) {
+                self->midicount = 0;
+                for (i=0; i<num_devices; i++) {
+                    const PmDeviceInfo *info = Pm_GetDeviceInfo(i);
+                    if (info != NULL) {
+                        if (info->input) {
+                            pmerr = Pm_OpenInput(&self->midiin[self->midicount], i, NULL, 100, NULL, NULL);
+                            if (pmerr) {
+                                PySys_WriteStdout("Portmidi warning: could not open midi input %d (%s): %s\n",
+                                        i, info->name, Pm_GetErrorText(pmerr));
+                            }
+                            else {
+                                self->ids[self->midicount] = i;
+                                self->midicount++;
+                            }
+                        }
                     }
                 }
             }
         }
-        else if (self->mididev >= num_devices) {
+        else {
             self->midicount = 0;
             for (i=0; i<num_devices; i++) {
+                if (PySequence_Contains(self->mididev, PyLong_FromLong(i)) == 0)
+                    continue;
                 const PmDeviceInfo *info = Pm_GetDeviceInfo(i);
                 if (info != NULL) {
                     if (info->input) {
@@ -157,6 +203,7 @@ static PyObject * MidiListener_play(MidiListener *self) {
                                     i, info->name, Pm_GetErrorText(pmerr));
                         }
                         else {
+                            self->ids[self->midicount] = i;
                             self->midicount++;
                         }
                     }
@@ -208,6 +255,19 @@ MidiListener_setMidiFunction(MidiListener *self, PyObject *arg)
 	return Py_None;
 }
 
+PyObject *
+MidiListener_getDeviceInfos(MidiListener *self) {
+    int i;
+    PyObject *str;
+    PyObject *lst = PyList_New(0);
+    for (i = 0; i < self->midicount; i++) {
+        const PmDeviceInfo *info = Pm_GetDeviceInfo(self->ids[i]);
+        str = PyBytes_FromFormat("id: %d, name: %s, interface: %s\n", self->ids[i], info->name, info->interf);
+        PyList_Append(lst, str);
+    }
+    return lst;
+}
+
 static PyMemberDef MidiListener_members[] = {
     {NULL}  /* Sentinel */
 };
@@ -216,6 +276,7 @@ static PyMethodDef MidiListener_methods[] = {
     {"play", (PyCFunction)MidiListener_play, METH_NOARGS, "Starts computing without sending sound to soundcard."},
     {"stop", (PyCFunction)MidiListener_stop, METH_NOARGS, "Stops computing."},
     {"setMidiFunction", (PyCFunction)MidiListener_setMidiFunction, METH_O, "Sets the function to be called."},
+    {"getDeviceInfos", (PyCFunction)MidiListener_getDeviceInfos, METH_NOARGS, "Returns a list of device infos."},
     {NULL}  /* Sentinel */
 };
 
@@ -258,4 +319,254 @@ PyTypeObject MidiListenerType = {
     0,      /* tp_init */
     0,                         /* tp_alloc */
     MidiListener_new,                 /* tp_new */
+};
+
+typedef struct {
+    PyObject_HEAD
+    PmStream *midiout[64];
+    PyObject *mididev;
+    int ids[64];
+    int midicount;
+    int active;
+} MidiDispatcher;
+
+static int
+MidiDispatcher_traverse(MidiDispatcher *self, visitproc visit, void *arg) {
+    return 0;
+}
+
+static int
+MidiDispatcher_clear(MidiDispatcher *self) {
+    return 0;
+}
+
+static void
+MidiDispatcher_dealloc(MidiDispatcher* self) {
+    if (self->active == 1)
+        PyObject_CallMethod((PyObject *)self, "stop", NULL);
+    MidiDispatcher_clear(self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
+}
+
+static PyObject *
+MidiDispatcher_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    PyObject *mididevtmp=NULL;
+    MidiDispatcher *self;
+
+    self = (MidiDispatcher *)type->tp_alloc(type, 0);
+
+    self->active = self->midicount = 0;
+
+    static char *kwlist[] = {"mididevice", NULL};
+
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O", kwlist, &mididevtmp))
+        Py_RETURN_NONE;
+
+    if (mididevtmp) {
+        Py_INCREF(mididevtmp);
+        Py_XDECREF(self->mididev);
+        self->mididev = mididevtmp;
+    }
+
+    return (PyObject *)self;
+}
+
+static PyObject * MidiDispatcher_play(MidiDispatcher *self) {
+    int i, num_devices, lsize, mididev;
+    PmError pmerr;
+
+    /* always start the timer before you start midi */
+    Pt_Start(1, 0, 0);
+    
+    pmerr = Pm_Initialize();
+    if (pmerr) {
+        PySys_WriteStdout("Portmidi warning: could not initialize Portmidi: %s\n", Pm_GetErrorText(pmerr));
+    }
+
+    lsize = PyList_Size(self->mididev);
+
+    num_devices = Pm_CountDevices();
+    if (num_devices > 0) {
+        if (lsize == 1) {
+            mididev = PyLong_AsLong(PyList_GetItem(self->mididev, 0));
+            if (mididev < num_devices) {
+                if (mididev == -1)
+                    mididev = Pm_GetDefaultOutputDeviceID();
+                const PmDeviceInfo *info = Pm_GetDeviceInfo(mididev);
+                if (info != NULL) {
+                    if (info->output) {
+                        pmerr = Pm_OpenOutput(&self->midiout[0], mididev, NULL, 100, NULL, NULL, 1);
+                        if (pmerr) {
+                            PySys_WriteStdout("Portmidi warning: could not open midi output %d (%s): %s\n",
+                                 mididev, info->name, Pm_GetErrorText(pmerr));
+                        }
+                        else {
+                            self->midicount = 1;
+                            self->ids[0] = mididev;
+                        }
+                    }
+                }
+            }
+            else if (mididev >= num_devices) {
+                self->midicount = 0;
+                for (i=0; i<num_devices; i++) {
+                    const PmDeviceInfo *info = Pm_GetDeviceInfo(i);
+                    if (info != NULL) {
+                        if (info->output) {
+                            pmerr = Pm_OpenOutput(&self->midiout[self->midicount], i, NULL, 100, NULL, NULL, 1);
+                            if (pmerr) {
+                                PySys_WriteStdout("Portmidi warning: could not open midi output %d (%s): %s\n",
+                                        i, info->name, Pm_GetErrorText(pmerr));
+                            }
+                            else {
+                                self->ids[self->midicount] = i;
+                                self->midicount++;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        else {
+            self->midicount = 0;
+            for (i=0; i<num_devices; i++) {
+                if (PySequence_Contains(self->mididev, PyLong_FromLong(i)) == 0)
+                    continue;
+                const PmDeviceInfo *info = Pm_GetDeviceInfo(i);
+                if (info != NULL) {
+                    if (info->output) {
+                        pmerr = Pm_OpenOutput(&self->midiout[self->midicount], i, NULL, 100, NULL, NULL, 1);
+                        if (pmerr) {
+                            PySys_WriteStdout("Portmidi warning: could not open midi output %d (%s): %s\n",
+                                    i, info->name, Pm_GetErrorText(pmerr));
+                        }
+                        else {
+                            self->ids[self->midicount] = i;
+                            self->midicount++;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    if (self->midicount > 0)
+        self->active = 1;
+
+	Py_INCREF(Py_None);
+	return Py_None;
+};
+
+static PyObject * MidiDispatcher_stop(MidiDispatcher *self) { 
+    int i;
+    Pt_Stop();
+    for (i=0; i<self->midicount; i++) {
+        Pm_Close(self->midiout[i]);
+    }
+    Pm_Terminate();    
+    self->active = 0;
+	Py_INCREF(Py_None);
+	return Py_None;
+};
+
+PyObject *
+MidiDispatcher_send(MidiDispatcher *self, PyObject *args)
+{
+    int i, status, data1, data2, device, curtime;
+    PmTimestamp timestamp;
+    PmEvent buffer[1];
+
+    if (! PyArg_ParseTuple(args, "iiili", &status, &data1, &data2, &timestamp, &device))
+        return PyInt_FromLong(-1);
+
+    curtime = Pt_Time();
+    buffer[0].timestamp = curtime + timestamp;
+    buffer[0].message = Pm_Message(status, data1, data2);
+    if (device == -1 && self->midicount > 1) {
+        for (i=0; i<self->midicount; i++) {
+            Pm_Write(self->midiout[i], buffer, 1);
+        }
+    }
+    else if (self->midicount == 1)
+        Pm_Write(self->midiout[0], buffer, 1);
+    else {
+        for (i=0; i<self->midicount; i++) {
+            if (self->ids[i] == device) {
+                device = i;
+                break;
+            }
+        }
+        if (device < 0 || device >= self->midicount)
+            device = 0;
+        Pm_Write(self->midiout[device], buffer, 1);
+    }
+
+    Py_RETURN_NONE;
+}
+
+PyObject *
+MidiDispatcher_getDeviceInfos(MidiDispatcher *self) {
+    int i;
+    PyObject *str;
+    PyObject *lst = PyList_New(0);
+    for (i = 0; i < self->midicount; i++) {
+        const PmDeviceInfo *info = Pm_GetDeviceInfo(self->ids[i]);
+        str = PyBytes_FromFormat("id: %d, name: %s, interface: %s\n", self->ids[i], info->name, info->interf);
+        PyList_Append(lst, str);
+    }
+    return lst;
+}
+
+static PyMemberDef MidiDispatcher_members[] = {
+    {NULL}  /* Sentinel */
+};
+
+static PyMethodDef MidiDispatcher_methods[] = {
+    {"play", (PyCFunction)MidiDispatcher_play, METH_NOARGS, "Starts computing without sending sound to soundcard."},
+    {"stop", (PyCFunction)MidiDispatcher_stop, METH_NOARGS, "Stops computing."},
+    {"getDeviceInfos", (PyCFunction)MidiDispatcher_getDeviceInfos, METH_NOARGS, "Returns a list of device infos."},
+    {"send", (PyCFunction)MidiDispatcher_send, METH_VARARGS, "Send a raw midi event."},
+    {NULL}  /* Sentinel */
+};
+
+PyTypeObject MidiDispatcherType = {
+    PyVarObject_HEAD_INIT(NULL, 0)
+    "_pyo.MidiDispatcher_base",         /*tp_name*/
+    sizeof(MidiDispatcher),         /*tp_basicsize*/
+    0,                         /*tp_itemsize*/
+    (destructor)MidiDispatcher_dealloc, /*tp_dealloc*/
+    0,                         /*tp_print*/
+    0,                         /*tp_getattr*/
+    0,                         /*tp_setattr*/
+    0,                         /*tp_as_async (tp_compare in Python 2)*/
+    0,                         /*tp_repr*/
+    0,             /*tp_as_number*/
+    0,                         /*tp_as_sequence*/
+    0,                         /*tp_as_mapping*/
+    0,                         /*tp_hash */
+    0,                         /*tp_call*/
+    0,                         /*tp_str*/
+    0,                         /*tp_getattro*/
+    0,                         /*tp_setattro*/
+    0,                         /*tp_as_buffer*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    "MidiDispatcher objects. Calls a function with midi data as arguments.",           /* tp_doc */
+    (traverseproc)MidiDispatcher_traverse,   /* tp_traverse */
+    (inquiry)MidiDispatcher_clear,           /* tp_clear */
+    0,		               /* tp_richcompare */
+    0,		               /* tp_weaklistoffset */
+    0,		               /* tp_iter */
+    0,		               /* tp_iternext */
+    MidiDispatcher_methods,             /* tp_methods */
+    MidiDispatcher_members,             /* tp_members */
+    0,                      /* tp_getset */
+    0,                         /* tp_base */
+    0,                         /* tp_dict */
+    0,                         /* tp_descr_get */
+    0,                         /* tp_descr_set */
+    0,                         /* tp_dictoffset */
+    0,      /* tp_init */
+    0,                         /* tp_alloc */
+    MidiDispatcher_new,                 /* tp_new */
 };

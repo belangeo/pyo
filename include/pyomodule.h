@@ -207,6 +207,7 @@
 
 #ifdef USE_PORTMIDI
 extern PyTypeObject MidiListenerType;
+extern PyTypeObject MidiDispatcherType;
 #endif
 #ifdef USE_OSC
 extern PyTypeObject OscListenerType;

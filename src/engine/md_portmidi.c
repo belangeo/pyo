@@ -147,7 +147,7 @@ Server_pm_init(Server *self)
                 if (outinfo != NULL) {
                     if (outinfo->output) {
                         Pt_Start(1, 0, 0); /* start a timer with millisecond accuracy */
-                        pmerr = Pm_OpenOutput(&be_data->midiout[0], self->midi_output, NULL, 0, NULL, NULL, 1);
+                        pmerr = Pm_OpenOutput(&be_data->midiout[0], self->midi_output, NULL, 100, NULL, NULL, 1);
                         if (pmerr) {
                             Server_warning(self,
                                      "Portmidi warning: could not open midi output %d (%s): %s\n",

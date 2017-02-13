@@ -1,3 +1,8 @@
+2017-02-13 belangeo <belangeo@gmail.com>
+
+    * Added new object: MidiDispatcher, self-contained midi dispatcher thread.
+      Updated MidiListener.
+
 2017-02-12 belangeo <belangeo@gmail.com>
 
     * Upgraded version number to 0.8.3.

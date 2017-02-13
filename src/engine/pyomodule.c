@@ -1899,6 +1899,7 @@ init_pyo64(void)
     module_add_object(m, "Server_base", &ServerType);
 #ifdef USE_PORTMIDI
     module_add_object(m, "MidiListener_base", &MidiListenerType);
+    module_add_object(m, "MidiDispatcher_base", &MidiDispatcherType);
 #endif
 #ifdef USE_OSC
     module_add_object(m, "OscListener_base", &OscListenerType);

@@ -169,6 +169,7 @@ OBJECTS_TREE = {
                                  'SLMapQ', 'SLMapDur', 'SLMapPan'])},
         'Server': [],
         'MidiListener': [],
+        'MidiDispatcher': [],
         'OscListener': [],
         'Stream': [],
         'TableStream': [],

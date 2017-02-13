@@ -170,6 +170,7 @@ Alphabetical class reference
 - :py:class:`Pan` :     Cosinus panner with control on the spread factor.
 - :py:class:`ParaTable` :     Generates parabola window function.
 - :py:class:`PartialTable` :     Inharmonic waveform generator.
+- :py:class:`Particle2` :     An even more full control granular synthesis generator.
 - :py:class:`Particle` :     A full control granular synthesis generator.
 - :py:class:`Pattern` :     Periodically calls a Python function.
 - :py:class:`PeakAmp` :     Peak amplitude follower.
@@ -225,6 +226,7 @@ Alphabetical class reference
 - :py:class:`SfMarkerLooper` :     AIFF with markers soundfile looper.
 - :py:class:`SfMarkerShuffler` :     AIFF with markers soundfile shuffler.
 - :py:class:`SfPlayer` :     Soundfile player.
+- :py:class:`SharedTable` :     Create an inter-process shared memory table.
 - :py:class:`SigTo` :     Convert numeric value to PyoObject signal with portamento.
 - :py:class:`Sig` :     Convert numeric value to PyoObject signal.
 - :py:class:`Sin` :     Performs a sine function on audio signal.
@@ -240,12 +242,14 @@ Alphabetical class reference
 - :py:class:`SumOsc` :     Discrete summation formulae to produce complex spectra.
 - :py:class:`SuperSaw` :     Roland JP-8000 Supersaw emulator.
 - :py:class:`Switch` :     Audio switcher.
+- :py:class:`TableFill` :     Continuously fills a table with incoming samples.
 - :py:class:`TableIndex` :     Table reader by sample position without interpolation.
 - :py:class:`TableMorph` :     Morphs between multiple PyoTableObjects.
 - :py:class:`TablePut` :     Writes values, without repetitions, from an audio stream into a DataTable.
 - :py:class:`TableRead` :     Simple waveform table reader.
 - :py:class:`TableRec` :     TableRec is for writing samples into a previously created NewTable.
 - :py:class:`TableScale` :     Scales all the values contained in a PyoTableObject.
+- :py:class:`TableScan` :     Reads the content of a table in loop, without interpolation.
 - :py:class:`TableWrite` :     TableWrite writes samples into a previously created NewTable.
 - :py:class:`Tan` :     Performs a tangent function on audio signal.
 - :py:class:`Tanh` :     Performs a hyperbolic tangent function on audio signal.
