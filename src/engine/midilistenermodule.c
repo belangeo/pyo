@@ -77,7 +77,6 @@ void process_midi(PtTimestamp timestamp, void *userData)
     } while (result);
 
     PyGILState_Release(s);
-    //Py_XDECREF(tup);
 }
 
 static int
@@ -512,7 +511,7 @@ MidiDispatcher_getDeviceInfos(MidiDispatcher *self) {
     PyObject *lst = PyList_New(0);
     for (i = 0; i < self->midicount; i++) {
         const PmDeviceInfo *info = Pm_GetDeviceInfo(self->ids[i]);
-        str = PyBytes_FromFormat("id: %d, name: %s, interface: %s\n", self->ids[i], info->name, info->interf);
+        str = PyUnicode_FromFormat("id: %d, name: %s, interface: %s\n", self->ids[i], info->name, info->interf);
         PyList_Append(lst, str);
     }
     return lst;
