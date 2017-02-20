@@ -938,7 +938,7 @@ class Server(object):
         """
         Add a MIDI event in the server processing loop.
 
-        This method can be used to  programatically simulate incomming
+        This method can be used to  programmatically simulate incoming
         MIDI events. In an embedded framework (ie. pyo inside puredata,
         openframeworks, etc.), this is useful to control a MIDI-driven
         script from the host program. Arguments can be list of values to
