@@ -74,9 +74,6 @@ def GetRoundBitmap( w, h, r ):
     b.SetMaskColour(maskColor)
     return b
 
-def GetRoundShape( w, h, r ):
-    return wx.RegionFromBitmap( GetRoundBitmap(w,h,r) )
-
 class ControlSlider(wx.Panel):
 
     def __init__(self, parent, minvalue, maxvalue, init=None, pos=(0,0), size=(200,16), log=False,
