@@ -264,7 +264,7 @@ Server_pa_deinit(Server *self)
     PaError err;
     PyoPaBackendData *be_data = (PyoPaBackendData *) self->audio_be_data;
 
-    if (Pa_IsStreamActive(be_data->stream) || ! Pa_IsStreamStopped(be_data->stream)) {
+    if (!Pa_IsStreamStopped(be_data->stream)) {
         self->server_started = 0;
         err = Pa_AbortStream(be_data->stream);
         portaudio_assert(err, "Pa_AbortStream");
@@ -286,7 +286,7 @@ Server_pa_start(Server *self)
     PaError err;
     PyoPaBackendData *be_data = (PyoPaBackendData *) self->audio_be_data;
 
-    if (Pa_IsStreamActive(be_data->stream) || ! Pa_IsStreamStopped(be_data->stream)) {
+    if (!Pa_IsStreamStopped(be_data->stream)) {
         err = Pa_AbortStream(be_data->stream);
         portaudio_assert(err, "Pa_AbortStream");
     }
@@ -300,7 +300,7 @@ Server_pa_stop(Server *self)
 {
     PyoPaBackendData *be_data = (PyoPaBackendData *) self->audio_be_data;
 
-    if (Pa_IsStreamActive(be_data->stream) || ! Pa_IsStreamStopped(be_data->stream)) {
+    if (!Pa_IsStreamStopped(be_data->stream)) {
 #ifndef _OSX_
         PaError err = Pa_AbortStream(be_data->stream);
         portaudio_assert(err, "Pa_AbortStream");
