@@ -113,6 +113,8 @@ class MidiDispatcher(threading.Thread):
 
     Use the `send` method to send midi event to connected devices.
 
+    Use the `sendx` method to send sysex event to connected devices.
+
     :Parent: threading.Thread
 
     :Args:
@@ -183,6 +185,31 @@ class MidiDispatcher(threading.Thread):
         """
         status, data1, data2, timestamp, device, lmax = convertArgsToLists(status, data1, data2, timestamp, device)
         [self._dispatcher.send(wrap(status,i), wrap(data1,i), wrap(data2,i), wrap(timestamp,i), wrap(device,i)) for i in range(lmax)]
+
+    def sendx(self, msg, timestamp=0, device=-1):
+        """
+        Send a MIDI system exclusive message to the selected midi output device.
+
+        Arguments can be list of values to generate multiple events
+        in one call.
+
+        :Args:
+
+            msg: str
+                A valid system exclusive message as a string. The first byte
+                must be 0xf0 and the last one must be 0xf7.
+            timestamp: int, optional
+                The delay time, in milliseconds, before the note
+                is sent on the portmidi stream. A value of 0 means
+                to play the note now. Defaults to 0.
+            device: int, optional
+                The index of the device to which the message will
+                be sent. The default (-1) means all devices. See
+                `getDeviceInfos()` to retrieve device indexes.
+
+        """
+        msg, timestamp, device, lmax = convertArgsToLists(msg, timestamp, device)
+        [self._dispatcher.sendx(wrap(msg,i), wrap(timestamp,i), wrap(device,i)) for i in range(lmax)]
 
     def getDeviceInfos(self):
         """

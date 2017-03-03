@@ -472,7 +472,8 @@ static PyObject * MidiDispatcher_stop(MidiDispatcher *self) {
 PyObject *
 MidiDispatcher_send(MidiDispatcher *self, PyObject *args)
 {
-    int i, status, data1, data2, device, curtime;
+    int i, status, data1, data2, device;
+    long curtime;
     PmTimestamp timestamp;
     PmEvent buffer[1];
 
@@ -505,6 +506,40 @@ MidiDispatcher_send(MidiDispatcher *self, PyObject *args)
 }
 
 PyObject *
+MidiDispatcher_sendx(MidiDispatcher *self, PyObject *args)
+{
+    unsigned char *msg;
+    int i, size, device;
+    long curtime;
+    PmTimestamp timestamp;
+
+    if (! PyArg_ParseTuple(args, "s#li", &msg, &size, &timestamp, &device))
+        return PyInt_FromLong(-1);
+
+    curtime = Pt_Time();
+    if (device == -1 && self->midicount > 1) {
+        for (i=0; i<self->midicount; i++) {
+            Pm_WriteSysEx(self->midiout[i], curtime + timestamp, msg);
+        }
+    }
+    else if (self->midicount == 1)
+        Pm_WriteSysEx(self->midiout[0], curtime + timestamp, msg);
+    else {
+        for (i=0; i<self->midicount; i++) {
+            if (self->ids[i] == device) {
+                device = i;
+                break;
+            }
+        }
+        if (device < 0 || device >= self->midicount)
+            device = 0;
+        Pm_WriteSysEx(self->midiout[device], curtime + timestamp, msg);
+    }
+
+    Py_RETURN_NONE;
+}
+
+PyObject *
 MidiDispatcher_getDeviceInfos(MidiDispatcher *self) {
     int i;
     PyObject *str;
@@ -526,6 +561,7 @@ static PyMethodDef MidiDispatcher_methods[] = {
     {"stop", (PyCFunction)MidiDispatcher_stop, METH_NOARGS, "Stops computing."},
     {"getDeviceInfos", (PyCFunction)MidiDispatcher_getDeviceInfos, METH_NOARGS, "Returns a list of device infos."},
     {"send", (PyCFunction)MidiDispatcher_send, METH_VARARGS, "Send a raw midi event."},
+    {"sendx", (PyCFunction)MidiDispatcher_sendx, METH_VARARGS, "Send a sysex midi event."},
     {NULL}  /* Sentinel */
 };
 
