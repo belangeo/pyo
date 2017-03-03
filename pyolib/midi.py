@@ -161,17 +161,10 @@ class Midictl(PyoObject):
 
     def setInterpolation(self, x):
         """
-        Activate/Deactivate interpolation. Off by default.
-
-        :Args:
-
-            x: boolean
-                True activates the interpolation, False deactivates it.
+        Deprecated method. If needed, use Port or SigTo to interpolate between values.
 
         """
-        pyoArgsAssert(self, "b", x)
-        x, lmax = convertArgsToLists(x)
-        [obj.setInterpolation(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        print("setInterpolation() is deprecated. If needed, use Port or SigTo to interpolate between values.")
 
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
         self._map_list = [SLMap(0, 127, 'lin', 'ctlnumber', self._ctlnumber, res="int", dataOnly=True),
@@ -796,17 +789,10 @@ class Bendin(PyoObject):
 
     def setInterpolation(self, x):
         """
-        Activate/Deactivate interpolation. Off by default.
-
-        :Args:
-
-            x: boolean
-                True activates the interpolation, False deactivates it.
+        Deprecated method. If needed, use Port or SigTo to interpolate between values.
 
         """
-        pyoArgsAssert(self, "b", x)
-        x, lmax = convertArgsToLists(x)
-        [obj.setInterpolation(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        print("setInterpolation() is deprecated. If needed, use Port or SigTo to interpolate between values.")
 
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
         self._map_list = [SLMap(0.0, 12.0, 'lin', 'brange', self._brange, dataOnly=True),
@@ -931,17 +917,10 @@ class Touchin(PyoObject):
 
     def setInterpolation(self, x):
         """
-        Activate/Deactivate interpolation. Off by default.
-
-        :Args:
-
-            x: boolean
-                True activates the interpolation, False deactivates it.
+        Deprecated method. If needed, use Port or SigTo to interpolate between values.
 
         """
-        pyoArgsAssert(self, "b", x)
-        x, lmax = convertArgsToLists(x)
-        [obj.setInterpolation(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        print("setInterpolation() is deprecated. If needed, use Port or SigTo to interpolate between values.")
 
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
         self._map_list = [SLMap(-1.0, 0.0, 'lin', 'minscale', self._minscale, dataOnly=True),

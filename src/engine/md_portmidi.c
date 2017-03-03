@@ -89,6 +89,7 @@ Server_pm_init(Server *self)
                 const PmDeviceInfo *info = Pm_GetDeviceInfo(self->midi_input);
                 if (info != NULL) {
                     if (info->input) {
+                        Pt_Start(1, 0, 0); /* start a timer with millisecond accuracy */
                         pmerr = Pm_OpenInput(&be_data->midiin[0], self->midi_input, NULL, 100, NULL, NULL);
                         if (pmerr) {
                             Server_warning(self,
@@ -114,6 +115,7 @@ Server_pm_init(Server *self)
             else if (self->midi_input >= num_devices) {
                 Server_debug(self, "Midi input device : all!\n");
                 self->midiin_count = 0;
+                Pt_Start(1, 0, 0); /* start a timer with millisecond accuracy */
                 for (i=0; i<num_devices; i++) {
                     const PmDeviceInfo *info = Pm_GetDeviceInfo(i);
                     if (info != NULL) {
@@ -146,7 +148,8 @@ Server_pm_init(Server *self)
                 const PmDeviceInfo *outinfo = Pm_GetDeviceInfo(self->midi_output);
                 if (outinfo != NULL) {
                     if (outinfo->output) {
-                        Pt_Start(1, 0, 0); /* start a timer with millisecond accuracy */
+                        if (!Pt_Started())
+                            Pt_Start(1, 0, 0); /* start a timer with millisecond accuracy */
                         pmerr = Pm_OpenOutput(&be_data->midiout[0], self->midi_output, NULL, 100, NULL, NULL, 1);
                         if (pmerr) {
                             Server_warning(self,
@@ -174,7 +177,8 @@ Server_pm_init(Server *self)
             else if (self->midi_output >= num_devices) {
                 Server_debug(self, "Midi output device : all!\n");
                 self->midiout_count = 0;
-                Pt_Start(1, 0, 0); /* start a timer with millisecond accuracy */
+                if (!Pt_Started())
+                    Pt_Start(1, 0, 0); /* start a timer with millisecond accuracy */
                 for (i=0; i<num_devices; i++) {
                     const PmDeviceInfo *outinfo = Pm_GetDeviceInfo(i);
                     if (outinfo != NULL) {
@@ -193,8 +197,6 @@ Server_pm_init(Server *self)
                     }
                 }
                 if (self->midiout_count == 0) {
-                    if (Pt_Started())
-                        Pt_Stop();
                     self->withPortMidiOut = 0;
                 }
             }
@@ -204,6 +206,8 @@ Server_pm_init(Server *self)
             }
 
             if (self->withPortMidi == 0 && self->withPortMidiOut == 0) {
+                if (Pt_Started())
+                    Pt_Stop();
                 Pm_Terminate();
                 Server_warning(self, "Portmidi closed.\n");
                 ret = -1;
@@ -389,6 +393,15 @@ pm_sysexout(Server *self, unsigned char *msg, long timestamp)
     for (i=0; i<self->midiout_count; i++) {
         Pm_WriteSysEx(be_data->midiout[i], curtime + timestamp, msg);
     }
+}
+
+long
+pm_get_current_time()
+{
+    if (Pt_Started())
+        return Pt_Time();
+    else
+        return 0;
 }
 
 /* Query functions. */

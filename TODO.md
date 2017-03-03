@@ -58,7 +58,9 @@ GUI
 
 - Keyboard, a virtual MIDI keyboard (adapted from Zyne's one).
 
-- Save item in ctrl() and DataTable graph() windows.
+- Save menu item in ctrl() and DataTable graph() windows.
+
+- Add a "title" argument to Server.gui() method.
 
 Tables
 ------

@@ -944,6 +944,12 @@ class Server(object):
         script from the host program. Arguments can be list of values to
         generate multiple events in one call.
 
+        The MIDI event buffer is emptied at the end of each processing
+        block. So, for events to be processed, addMidiEvent should be
+        called at the beginning of the block. If you use audio objects
+        to generate MIDI events, they should be created before the rest
+        of the processing chain.
+
         :Args:
 
             status: int

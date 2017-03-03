@@ -80,6 +80,7 @@ typedef struct {
     int midiin_count;
     int midiout_count;
     int midi_count;
+    long midi_time_offset;
     double samplingRate;
     int nchnls;
     int ichnls;
@@ -160,6 +161,8 @@ extern PyObject * Server_removeStream(Server *self, int sid);
 extern MYFLT * Server_getInputBuffer(Server *self);
 extern PyoMidiEvent * Server_getMidiEventBuffer(Server *self);
 extern int Server_getMidiEventCount(Server *self);
+extern long Server_getMidiTimeOffset(Server *self);
+extern unsigned long Server_getElapsedTime(Server *self);
 extern int Server_getCurrentResamplingFactor(Server *self);
 extern int Server_getLastResamplingFactor(Server *self);
 extern int Server_generateSeed(Server *self, int oid);

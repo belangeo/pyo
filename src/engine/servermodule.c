@@ -73,6 +73,7 @@ void pm_programout(Server *self, int value, int chan, long timestamp) {};
 void pm_pressout(Server *self, int value, int chan, long timestamp) {};
 void pm_bendout(Server *self, int value, int chan, long timestamp) {};
 void pm_sysexout(Server *self, unsigned char *msg, long timestamp) {};
+long pm_get_current_time() { return 0; };
 #endif
 
 /** Array of Server objects. **/
@@ -350,6 +351,9 @@ Server_process_buffers(Server *server)
     */
     PyGILState_STATE s = PyGILState_Ensure();
 
+    if (server->elapsedSamples == 0)
+        server->midi_time_offset = pm_get_current_time();
+
     if (server->CALLBACK != NULL)
         PyObject_Call((PyObject *)server->CALLBACK, PyTuple_New(0), NULL);
 
@@ -583,6 +587,7 @@ Server_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->midi_input = -1;
     self->midi_output = -1;
     self->midiActive = 1;
+    self->midi_time_offset = 0;
     self->amp = self->resetAmp = 1.;
     self->currentAmp = self->lastAmp = 1.; // If set to 0, there is a 5ms fadein at server start.
     self->withGUI = 0;
@@ -1694,6 +1699,15 @@ Server_getMidiEventBuffer(Server *self) {
 int
 Server_getMidiEventCount(Server *self) {
     return self->midi_count;
+}
+
+long
+Server_getMidiTimeOffset(Server *self) {
+    return self->midi_time_offset;
+}
+
+unsigned long Server_getElapsedTime(Server *self) {
+    return self->elapsedSamples;
 }
 
 static PyObject *
