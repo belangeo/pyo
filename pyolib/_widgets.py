@@ -387,21 +387,23 @@ def createExprEditorWindow(object, title, wxnoserver=False):
             EXPREDITORWINDOWS.append([object, title])
 
 def createServerGUI(nchnls, start, stop, recstart, recstop, setAmp, started,
-                    locals, shutdown, meter, timer, amp, exit):
+                    locals, shutdown, meter, timer, amp, exit, title):
     "Creates the server's GUI."
     global X, Y, MAX_X, NEXT_Y
+    if title is None:
+        title = "Pyo Server"
     if not PYO_USE_WX:
         createRootWindow()
         win = tkCreateToplevelWindow()
         f = ServerGUI(win, nchnls, start, stop, recstart, recstop, setAmp,
                       started, locals, shutdown, meter, timer, amp)
-        f.master.title("pyo server")
+        f.master.title(title)
         f.focus_set()
     else:
         win = createRootWindow()
         f = ServerGUI(None, nchnls, start, stop, recstart, recstop, setAmp,
                       started, locals, shutdown, meter, timer, amp, exit)
-        f.SetTitle("pyo server")
+        f.SetTitle(title)
         f.SetPosition((30, 30))
         f.Show()
         X, Y = (wx.SystemSettings.GetMetric(wx.SYS_SCREEN_X) - 50,

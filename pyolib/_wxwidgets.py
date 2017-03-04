@@ -2790,8 +2790,6 @@ class ServerGUI(wx.Frame):
                 exit=True):
         wx.Frame.__init__(self, parent, style=wx.DEFAULT_FRAME_STYLE ^ wx.RESIZE_BORDER)
 
-        self.SetTitle("pyo server")
-
         self.menubar = wx.MenuBar()
         self.menu = wx.Menu()
         self.menu.Append(22999, 'Start/Stop\tCtrl+R', kind=wx.ITEM_NORMAL)

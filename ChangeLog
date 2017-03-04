@@ -1,7 +1,15 @@
+2017-03-04 belangeo <belangeo@gmail.com>
+
+    * Added a "title" argument to Server.gui() method.
+
+2017-03-03 belangeo <belangeo@gmail.com>
+
+    * MidiDispatcher can send sysex message with sendx() method.
+
 2017-03-03 belangeo <belangeo@gmail.com>
 
     * Midi input refactoring. Events are now spreaded over the buffer size
-	according to the event's timestamp.
+	  according to the event's timestamp.
 
 2017-02-19 belangeo <belangeo@gmail.com>
 

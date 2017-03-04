@@ -180,7 +180,7 @@ class Server(object):
         if callable(callback):
             self._server.setCallback(callback)
 
-    def gui(self, locals=None, meter=True, timer=True, exit=True):
+    def gui(self, locals=None, meter=True, timer=True, exit=True, title=None):
         """
         Show the server's user interface.
 
@@ -199,12 +199,15 @@ class Server(object):
                 If True, the python interpreter will exit when the 'Quit' button is pressed,
                 Otherwise, the GUI will be closed leaving the interpreter alive.
                 Defaults to True.
+            title: str, optional
+                Alternate title for the server window. If None (default), generic
+                title, "Pyo Server" is used.
 
         """
         self._gui_frame, win = createServerGUI(self._nchnls, self.start, self.stop,
                                                self.recstart, self.recstop, self.setAmp,
                                                self.getIsStarted(), locals, self.shutdown,
-                                               meter, timer, self._amp, exit)
+                                               meter, timer, self._amp, exit, title)
         if meter:
             self._server.setAmpCallable(self._gui_frame)
         if timer:

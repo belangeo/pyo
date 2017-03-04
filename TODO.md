@@ -60,8 +60,6 @@ GUI
 
 - Save menu item in ctrl() and DataTable graph() windows.
 
-- Add a "title" argument to Server.gui() method.
-
 Tables
 ------
 
