@@ -986,8 +986,8 @@ SfMarkerShuffler_chooseNewMark(SfMarkerShuffler *self, int dir)
     if (dir == 1) {
         if (self->startPos == -1) {
             mark = (int)(self->markers_size * RANDOM_UNIFORM);
-            self->startPos = self->markers[mark] * self->srScale;
-            self->endPos = self->markers[mark+1] * self->srScale;
+            self->startPos = self->markers[mark];
+            self->endPos = self->markers[mark+1];
         }
         else {
             self->startPos = self->nextStartPos;
@@ -995,14 +995,14 @@ SfMarkerShuffler_chooseNewMark(SfMarkerShuffler *self, int dir)
         }
 
         mark = (int)(self->markers_size * RANDOM_UNIFORM);
-        self->nextStartPos = self->markers[mark] * self->srScale;
-        self->nextEndPos = self->markers[mark+1] * self->srScale;
+        self->nextStartPos = self->markers[mark];
+        self->nextEndPos = self->markers[mark+1];
     }
     else {
         if (self->startPos == -1) {
             mark = self->markers_size - (int)(self->markers_size * RANDOM_UNIFORM);
-            self->startPos = self->markers[mark] * self->srScale;
-            self->endPos = self->markers[mark-1] * self->srScale;
+            self->startPos = self->markers[mark];
+            self->endPos = self->markers[mark-1];
         }
         else {
             self->startPos = self->nextStartPos;
@@ -1010,8 +1010,8 @@ SfMarkerShuffler_chooseNewMark(SfMarkerShuffler *self, int dir)
         }
 
         mark = self->markers_size - (int)(self->markers_size * RANDOM_UNIFORM);
-        self->nextStartPos = self->markers[mark] * self->srScale;
-        self->nextEndPos = self->markers[mark-1] * self->srScale;
+        self->nextStartPos = self->markers[mark];
+        self->nextEndPos = self->markers[mark-1];
     }
 }
 
@@ -1723,28 +1723,28 @@ SfMarkerLooper_chooseNewMark(SfMarkerLooper *self, int dir)
 
     if (dir == 1) {
         if (self->startPos == -1) {
-            self->startPos = self->markers[mark] * self->srScale;
-            self->endPos = self->markers[mark+1] * self->srScale;
+            self->startPos = self->markers[mark];
+            self->endPos = self->markers[mark+1];
         }
         else {
             self->startPos = self->nextStartPos;
             self->endPos = self->nextEndPos;
         }
-        self->nextStartPos = self->markers[mark] * self->srScale;
-        self->nextEndPos = self->markers[mark+1] * self->srScale;
+        self->nextStartPos = self->markers[mark];
+        self->nextEndPos = self->markers[mark+1];
     }
     else {
         mark = self->markers_size - mark;
         if (self->startPos == -1) {
-            self->startPos = self->markers[mark] * self->srScale;
-            self->endPos = self->markers[mark-1] * self->srScale;
+            self->startPos = self->markers[mark];
+            self->endPos = self->markers[mark-1];
         }
         else {
             self->startPos = self->nextStartPos;
             self->endPos = self->nextEndPos;
         }
-        self->nextStartPos = self->markers[mark] * self->srScale;
-        self->nextEndPos = self->markers[mark-1] * self->srScale;
+        self->nextStartPos = self->markers[mark];
+        self->nextEndPos = self->markers[mark-1];
     }
 }
 
