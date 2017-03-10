@@ -1,3 +1,14 @@
+2017-03-10 belangeo <belangeo@gmail.com>
+
+    * Added a setMode method to Selector object to switch between
+      equal power mode and linear fade.
+
+2017-03-06 belangeo <belangeo@gmail.com>
+
+    * Fixed SfMarkerLooper and SfMarkerShuffler markers not accurate
+      when soundfile sampling rate is not the same as the server's
+      sampling rate.
+
 2017-03-04 belangeo <belangeo@gmail.com>
 
     * Added a "title" argument to Server.gui() method.

@@ -2797,6 +2797,7 @@ typedef struct {
     PyObject *voice;
     Stream *voice_stream;
     int chSize;
+    int mode;
     int modebuffer[3]; // need at least 2 slots for mul & add
 } Selector;
 
@@ -2836,6 +2837,27 @@ Selector_generate_i(Selector *self) {
 }
 
 static void
+Selector_generate_lin_i(Selector *self) {
+    int j1, j, i;
+    MYFLT voice = Selector_clip_voice(self, PyFloat_AS_DOUBLE(self->voice));
+
+    j1 = (int)voice;
+    j = j1 + 1;
+    if (j1 >= (self->chSize-1)) {
+        j1--; j--;
+    }
+
+    MYFLT *st1 = Stream_getData((Stream *)PyObject_CallMethod((PyObject *)PyList_GET_ITEM(self->inputs, j1), "_getStream", NULL));
+    MYFLT *st2 = Stream_getData((Stream *)PyObject_CallMethod((PyObject *)PyList_GET_ITEM(self->inputs, j), "_getStream", NULL));
+
+    voice = P_clip(voice - j1);
+
+    for (i=0; i<self->bufsize; i++) {
+        self->data[i] = st1[i] * (1.0 - voice) + st2[i] * voice;
+    }
+}
+
+static void
 Selector_generate_a(Selector *self) {
     int old_j1, old_j, j1, j, i;
     MYFLT  voice;
@@ -2870,6 +2892,41 @@ Selector_generate_a(Selector *self) {
     }
 }
 
+static void
+Selector_generate_lin_a(Selector *self) {
+    int old_j1, old_j, j1, j, i;
+    MYFLT  voice;
+    MYFLT *st1, *st2;
+    MYFLT *vc = Stream_getData((Stream *)self->voice_stream);
+
+    old_j1 = 0;
+    old_j = 1;
+    st1 = Stream_getData((Stream *)PyObject_CallMethod((PyObject *)PyList_GET_ITEM(self->inputs, old_j1), "_getStream", NULL));
+    st2 = Stream_getData((Stream *)PyObject_CallMethod((PyObject *)PyList_GET_ITEM(self->inputs, old_j), "_getStream", NULL));
+
+    for (i=0; i<self->bufsize; i++) {
+        voice = Selector_clip_voice(self, vc[i]);
+
+        j1 = (int)voice;
+        j = j1 + 1;
+        if (j1 >= (self->chSize-1)) {
+            j1--; j--;
+        }
+        if (j1 != old_j1) {
+            st1 = Stream_getData((Stream *)PyObject_CallMethod((PyObject *)PyList_GET_ITEM(self->inputs, j1), "_getStream", NULL));
+            old_j1 = j1;
+        }
+        if (j != old_j) {
+            st2 = Stream_getData((Stream *)PyObject_CallMethod((PyObject *)PyList_GET_ITEM(self->inputs, j), "_getStream", NULL));
+            old_j = j;
+        }
+
+        voice = P_clip(voice - j1);
+
+        self->data[i] = st1[i] * (1.0 - voice) + st2[i] * voice;
+    }
+}
+
 static void Selector_postprocessing_ii(Selector *self) { POST_PROCESSING_II };
 static void Selector_postprocessing_ai(Selector *self) { POST_PROCESSING_AI };
 static void Selector_postprocessing_ia(Selector *self) { POST_PROCESSING_IA };
@@ -2889,10 +2946,16 @@ Selector_setProcMode(Selector *self)
 
 	switch (procmode) {
         case 0:
-            self->proc_func_ptr = Selector_generate_i;
+            if (self->mode == 0)
+                self->proc_func_ptr = Selector_generate_i;
+            else
+                self->proc_func_ptr = Selector_generate_lin_i;
             break;
         case 1:
-            self->proc_func_ptr = Selector_generate_a;
+            if (self->mode == 0)
+                self->proc_func_ptr = Selector_generate_a;
+            else
+                self->proc_func_ptr = Selector_generate_lin_a;
             break;
     }
 	switch (muladdmode) {
@@ -2970,6 +3033,7 @@ Selector_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self = (Selector *)type->tp_alloc(type, 0);
 
     self->voice = PyFloat_FromDouble(0.);
+    self->mode = 0;
 	self->modebuffer[0] = 0;
 	self->modebuffer[1] = 0;
 	self->modebuffer[2] = 0;
@@ -3078,6 +3142,21 @@ Selector_setVoice(Selector *self, PyObject *arg)
 	return Py_None;
 }
 
+static PyObject *
+Selector_setMode(Selector *self, PyObject *arg)
+{
+    ASSERT_ARG_NOT_NULL
+
+	if (PyInt_Check(arg) == 1) {
+		self->mode = PyLong_AsLong(arg);
+	}
+
+    (*self->mode_func_ptr)(self);
+
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
 static PyMemberDef Selector_members[] = {
 {"server", T_OBJECT_EX, offsetof(Selector, server), 0, "Pyo server."},
 {"stream", T_OBJECT_EX, offsetof(Selector, stream), 0, "Stream object."},
@@ -3096,6 +3175,7 @@ static PyMethodDef Selector_methods[] = {
 {"stop", (PyCFunction)Selector_stop, METH_NOARGS, "Stops computing."},
 {"setInputs", (PyCFunction)Selector_setInputs, METH_O, "Sets list of input streams."},
 {"setVoice", (PyCFunction)Selector_setVoice, METH_O, "Sets voice position pointer."},
+{"setMode", (PyCFunction)Selector_setMode, METH_O, "Sets interpolation algorithm."},
 {"setMul", (PyCFunction)Selector_setMul, METH_O, "Sets mul factor."},
 {"setAdd", (PyCFunction)Selector_setAdd, METH_O, "Sets add factor."},
 {"setSub", (PyCFunction)Selector_setSub, METH_O, "Sets inverse add factor."},

@@ -362,6 +362,7 @@ class Selector(PyoObject):
         PyoObject.__init__(self, mul, add)
         self._inputs = inputs
         self._voice = voice
+        self._mode = 0
         voice, mul, add, self._lmax = convertArgsToLists(voice, mul, add)
         self._length = 1
         for obj in self._inputs:
@@ -418,6 +419,24 @@ class Selector(PyoObject):
         x, lmax = convertArgsToLists(x)
         for i, obj in enumerate(self._base_objs):
             obj.setVoice(wrap(x, i // self._length))
+
+    def setMode(self, x):
+        """
+        Change the algorithm used to interpolate between inputs.
+
+        if inputs are phase correlated you should use a linear fade. 
+
+        :Args:
+
+            x: int {0, 1}
+                If 0 (the default) the equal power law is used to
+                interpolate bewtween sources. If 1, linear fade is
+                used instead.
+
+        """
+        pyoArgsAssert(self, "i", x)
+        self._mode = x
+        [obj.setMode(x) for obj in self._base_objs]
 
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
         self._map_list = [SLMap(0, len(self._inputs)-1, "lin", "voice", self._voice), SLMapMul(self._mul)]
