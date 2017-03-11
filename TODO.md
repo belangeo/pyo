@@ -45,6 +45,8 @@ MIDI
 - Create a MidiLinseg object that act like MidiAdsr but with a breakpoints
   function as the envelope. The sustain point should settable by the user.
 
+- sysex support in MidiListener.
+
 
 GUI
 ---

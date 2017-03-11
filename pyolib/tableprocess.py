@@ -817,6 +817,7 @@ class TableRead(PyoObject):
         self._freq = freq
         self._loop = loop
         self._interp = interp
+        self._keeplast = 0
         table, freq, loop, interp, mul, add, lmax = convertArgsToLists(table, freq, loop, interp, mul, add)
         self._base_objs = [TableRead_base(wrap(table,i), wrap(freq,i), wrap(loop,i), wrap(interp,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
         self._trig_objs = Dummy([TriggerDummy_base(obj) for obj in self._base_objs])
@@ -880,6 +881,22 @@ class TableRead(PyoObject):
         self._interp = x
         x, lmax = convertArgsToLists(x)
         [obj.setInterp(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def setKeepLast(self, x):
+        """
+        If anything but zero, the object will hold the last value when stopped.
+
+        :Args:
+
+            x: bool
+                If 0, the object will be reset to 0 when stopped, otherwise
+                it will hold its last value.
+
+        """
+        pyoArgsAssert(self, "b", x)
+        self._keeplast = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setKeepLast(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
     def reset(self):
         """
