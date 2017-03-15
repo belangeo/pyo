@@ -451,13 +451,11 @@ portaudio_get_devices_infos(){
 	err = Pa_Initialize();
     if (err != paNoError) {
         portaudio_assert(err, "Pa_Initialize");
-		Py_RETURN_NONE;
 	}
     else {
         n = Pa_GetDeviceCount();
         if (n < 0){
             portaudio_assert(n, "Pa_GetDeviceCount");
-            Py_RETURN_NONE;
         }
         else {
             for (i=0; i < n; ++i){
@@ -479,9 +477,9 @@ portaudio_get_devices_infos(){
                     PyDict_SetItem(outDict, PyInt_FromLong(i), PyDict_Copy(tmpDict));
                 }
             }
-            return Py_BuildValue("(OO)", inDict, outDict);
         }
     }
+    return Py_BuildValue("(OO)", inDict, outDict);
 }
 
 PyObject *
@@ -496,13 +494,11 @@ portaudio_get_output_devices(){
 	err = Pa_Initialize();
     if (err != paNoError) {
         portaudio_assert(err, "Pa_Initialize");
-		Py_RETURN_NONE;
 	}
     else {
         n = Pa_GetDeviceCount();
         if (n < 0){
             portaudio_assert(n, "Pa_GetDeviceCount");
-            Py_RETURN_NONE;
         }
         else {
             for (i=0; i < n; ++i){
@@ -513,9 +509,9 @@ portaudio_get_output_devices(){
                     PyList_Append(list_index, PyInt_FromLong(i));
                 }
             }
-            return Py_BuildValue("OO", list, list_index);
         }
     }
+    return Py_BuildValue("OO", list, list_index);
 }
 
 PyObject *
@@ -578,13 +574,11 @@ portaudio_get_input_devices(){
 	err = Pa_Initialize();
     if (err != paNoError) {
         portaudio_assert(err, "Pa_Initialize");
-		Py_RETURN_NONE;
 	}
     else {
         n = Pa_GetDeviceCount();
         if (n < 0){
             portaudio_assert(n, "Pa_GetDeviceCount");
-            Py_RETURN_NONE;
         }
         else {
             for (i=0; i < n; ++i){
@@ -595,9 +589,9 @@ portaudio_get_input_devices(){
                     PyList_Append(list_index, PyInt_FromLong(i));
                 }
             }
-            return Py_BuildValue("OO", list, list_index);
         }
     }
+    return Py_BuildValue("OO", list, list_index);
 }
 
 PyObject *

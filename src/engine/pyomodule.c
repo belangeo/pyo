@@ -138,7 +138,7 @@ AUDIO devices:\n\
 
 #define portaudio_get_devices_infos_info \
 "\nReturns informations about all devices found by Portaudio.\n\n\
-This function returns two dictionaries, one containing a dictionary for each input device and one containing a dictionary for each output device.\
+This function returns two dictionaries, one containing a dictionary for each input device and one containing a dictionary for each output device. \
 Keys of outer dictionaries are the device index as returned by Portaudio. Keys of inner dictionaries are: 'name', 'host api index', 'default sr' and 'latency'.\n\n\
 >>> inputs, outputs = pa_get_devices_infos()\n\
 >>> print '- Inputs:'\n\
