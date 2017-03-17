@@ -61,7 +61,10 @@ Server_pm_init(Server *self)
         return 0;
     }
 
+    Py_BEGIN_ALLOW_THREADS
     pmerr = Pm_Initialize();
+    Py_END_ALLOW_THREADS
+
     if (pmerr) {
         Server_warning(self, "Portmidi warning: could not initialize Portmidi: %s\n", Pm_GetErrorText(pmerr));
         self->withPortMidi = 0;
@@ -89,8 +92,12 @@ Server_pm_init(Server *self)
                 const PmDeviceInfo *info = Pm_GetDeviceInfo(self->midi_input);
                 if (info != NULL) {
                     if (info->input) {
+
+                        Py_BEGIN_ALLOW_THREADS
                         Pt_Start(1, 0, 0); /* start a timer with millisecond accuracy */
                         pmerr = Pm_OpenInput(&be_data->midiin[0], self->midi_input, NULL, 100, NULL, NULL);
+                        Py_END_ALLOW_THREADS
+
                         if (pmerr) {
                             Server_warning(self,
                                  "Portmidi warning: could not open midi input %d (%s): %s\n",
@@ -115,12 +122,20 @@ Server_pm_init(Server *self)
             else if (self->midi_input >= num_devices) {
                 Server_debug(self, "Midi input device : all!\n");
                 self->midiin_count = 0;
+
+                Py_BEGIN_ALLOW_THREADS
                 Pt_Start(1, 0, 0); /* start a timer with millisecond accuracy */
+                Py_END_ALLOW_THREADS
+
                 for (i=0; i<num_devices; i++) {
                     const PmDeviceInfo *info = Pm_GetDeviceInfo(i);
                     if (info != NULL) {
                         if (info->input) {
+
+                            Py_BEGIN_ALLOW_THREADS
                             pmerr = Pm_OpenInput(&be_data->midiin[self->midiin_count], i, NULL, 100, NULL, NULL);
+                            Py_END_ALLOW_THREADS
+
                             if (pmerr) {
                                 Server_warning(self,
                                      "Portmidi warning: could not open midi input %d (%s): %s\n",
@@ -148,16 +163,24 @@ Server_pm_init(Server *self)
                 const PmDeviceInfo *outinfo = Pm_GetDeviceInfo(self->midi_output);
                 if (outinfo != NULL) {
                     if (outinfo->output) {
+
+                        Py_BEGIN_ALLOW_THREADS
                         if (!Pt_Started())
                             Pt_Start(1, 0, 0); /* start a timer with millisecond accuracy */
                         pmerr = Pm_OpenOutput(&be_data->midiout[0], self->midi_output, NULL, 100, NULL, NULL, 1);
+                        Py_END_ALLOW_THREADS
+
                         if (pmerr) {
                             Server_warning(self,
                                      "Portmidi warning: could not open midi output %d (%s): %s\n",
                                      self->midi_output, outinfo->name, Pm_GetErrorText(pmerr));
                             self->withPortMidiOut = 0;
+
+                            Py_BEGIN_ALLOW_THREADS
                             if (Pt_Started())
                                 Pt_Stop();
+                            Py_END_ALLOW_THREADS
+
                         }
                         else {
                             Server_debug(self, "Midi output (%s) opened.\n", outinfo->name);
@@ -177,13 +200,21 @@ Server_pm_init(Server *self)
             else if (self->midi_output >= num_devices) {
                 Server_debug(self, "Midi output device : all!\n");
                 self->midiout_count = 0;
+
+                Py_BEGIN_ALLOW_THREADS
                 if (!Pt_Started())
                     Pt_Start(1, 0, 0); /* start a timer with millisecond accuracy */
+                Py_END_ALLOW_THREADS
+
                 for (i=0; i<num_devices; i++) {
                     const PmDeviceInfo *outinfo = Pm_GetDeviceInfo(i);
                     if (outinfo != NULL) {
                         if (outinfo->output) {
+
+                            Py_BEGIN_ALLOW_THREADS
                             pmerr = Pm_OpenOutput(&be_data->midiout[self->midiout_count], i, NULL, 100, NULL, NULL, 1);
+                            Py_END_ALLOW_THREADS
+
                             if (pmerr) {
                                 Server_warning(self,
                                      "Portmidi warning: could not open midi output %d (%s): %s\n",
@@ -206,9 +237,13 @@ Server_pm_init(Server *self)
             }
 
             if (self->withPortMidi == 0 && self->withPortMidiOut == 0) {
+
+                Py_BEGIN_ALLOW_THREADS
                 if (Pt_Started())
                     Pt_Stop();
                 Pm_Terminate();
+                Py_END_ALLOW_THREADS
+
                 Server_warning(self, "Portmidi closed.\n");
                 ret = -1;
             }
@@ -217,7 +252,11 @@ Server_pm_init(Server *self)
             Server_warning(self, "Portmidi warning: no midi device found!\nPortmidi closed.\n");
             self->withPortMidi = 0;
             self->withPortMidiOut = 0;
+
+            Py_BEGIN_ALLOW_THREADS
             Pm_Terminate();
+            Py_END_ALLOW_THREADS
+
             ret = -1;
         }
     }
@@ -235,28 +274,43 @@ Server_pm_deinit(Server *self)
 {
     int i = 0;
 
-    //PyoPmBackendData *be_data = (PyoPmBackendData *) self->midi_be_data;
+    PyoPmBackendData *be_data = (PyoPmBackendData *) self->midi_be_data;
 
     /* An opened stream should be properly closed 
        but Pm_Close segfaults now and then so...
        This hack need to be tested on Windows and OSX. */
 
+    /* Restored with macros to protect Close statements. */
+
     if (self->withPortMidi == 1) {
         for (i=0; i<self->midiin_count; i++) {
-            //if (be_data->midiin[i] != NULL)
-                //Pm_Close(be_data->midiin[i]);
+            if (be_data->midiin[i] != NULL) {
+
+                Py_BEGIN_ALLOW_THREADS
+                Pm_Close(be_data->midiin[i]);
+                Py_END_ALLOW_THREADS
+
+            }
         }
     }
     if (self->withPortMidiOut == 1) {
         for (i=0; i<self->midiout_count; i++) {
-            //if (be_data->midiout[i] != NULL)
-                //Pm_Close(be_data->midiout[i]);
+            if (be_data->midiout[i] != NULL)
+
+                Py_BEGIN_ALLOW_THREADS
+                Pm_Close(be_data->midiout[i]);
+                Py_END_ALLOW_THREADS
+
         }
     }
     if (self->withPortMidi == 1 || self->withPortMidiOut == 1) {
+
+        Py_BEGIN_ALLOW_THREADS
         if (Pt_Started())
             Pt_Stop();
         Pm_Terminate();
+        Py_END_ALLOW_THREADS
+
     }
     self->withPortMidi = 0;
     self->withPortMidiOut = 0;
