@@ -1479,7 +1479,8 @@ class SndTable(PyoTableObject):
             Full path name of the sound. The defaults, None, creates an empty
             table.
         chnl: int, optional
-            Channel number to read in. Available at initialization time only.
+            Channel number to read in. The count starts at 0 (first channel is
+            is 0, second is 1 and so on). Available at initialization time only.
             The default (None) reads all channels.
         start: float, optional
             Begins reading at `start` seconds into the file. Available at
