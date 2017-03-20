@@ -1,3 +1,8 @@
+2017-03-20 belangeo <belangeo@gmail.com>
+
+    * Added setIsJackTransportSlave method to Server object (it allows to
+      start/stop the Server from jack transport).
+
 2017-03-11 belangeo <belangeo@gmail.com>
 
     * Added a setKeepLast method to TableRead object (will hold last value).

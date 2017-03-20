@@ -72,6 +72,41 @@ jack_callback(jack_nframes_t nframes, void *arg) {
 }
 
 int
+jack_transport_cb(jack_transport_state_t state, jack_position_t *pos, void *arg) {
+    Server *server = (Server *) arg;
+
+    if (server->jack_transport_state == state)
+        return 0;
+
+    switch (state) {
+        case JackTransportStopped:
+            if (server->server_started) {
+                PyGILState_STATE s = PyGILState_Ensure();
+                Server_stop(server);
+                PyGILState_Release(s);
+            }
+            break;
+        case JackTransportRolling:
+            if (!server->server_started) {
+                PyGILState_STATE s = PyGILState_Ensure();
+                Server_start(server);
+                PyGILState_Release(s);
+            }
+            break;
+        case JackTransportStarting:
+            break;
+        case JackTransportLooping:
+            break;
+        case JackTransportNetStarting:
+            break;
+    }
+
+    server->jack_transport_state = state;
+
+    return 0;
+}
+
+int
 jack_srate_cb(jack_nframes_t nframes, void *arg) {
     Server *server = (Server *) arg;
     server->samplingRate = (double) nframes;
@@ -338,6 +373,9 @@ Server_jack_init(Server *self) {
     jack_on_shutdown(be_data->jack_client, jack_shutdown_cb, (void *) self);
     jack_set_buffer_size_callback(be_data->jack_client, jack_bufsize_cb, (void *) self);
     jack_set_process_callback(be_data->jack_client, jack_callback, (void *) self);
+
+    if (self->isJackTransportSlave)
+        jack_set_sync_callback(be_data->jack_client, jack_transport_cb, (void *) self);
 
     Py_BEGIN_ALLOW_THREADS
     ret = jack_activate(be_data->jack_client);

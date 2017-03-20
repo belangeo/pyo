@@ -22,6 +22,12 @@ Server
 - Remove, if possible, PyGILState_Ensure/PyGILState_Release from 
   the process_buffers function.
 
+Jack
+----
+
+- Ability to name the output ports. It is possible to hack around that
+and rename them after creation or with jack metadata but giving a name
+during port creation is the proper way.
 
 Examples
 --------
@@ -37,7 +43,9 @@ Objects
   Where `inputs` are a list of trigger objects and `values` (list of floats) 
   the corresponding values to output depending which trigger has been detected.
   A trigger from the second object will make the object output the second value
-  from the list. 
+  from the list.
+
+- Added random distribution in SfMarkerShuffler.
 
 MIDI
 ----

@@ -102,7 +102,8 @@ class Server(object):
         - setDuplex(x): Set the duplex mode used by the server.
         - setVerbosity(x): Set the server's verbosity.
         - reinit(sr, nchnls, buffersize, duplex, audio, jackname): Reinit the server's settings.
-        - deactivateMidi(): Deactivate Midi callback. 
+        - deactivateMidi(): Deactivate Midi callback.
+        - setIsJackTransportSlave(x): Set if pyo's server is slave to jack transport or not.
 
     >>> # For an 8 channels server in duplex mode with
     >>> # a sampling rate of 48000 Hz and buffer size of 512
@@ -127,6 +128,9 @@ class Server(object):
         self._filename = None
         self._fileformat = 0
         self._sampletype = 0
+        self._globalseed = 0
+        self._resampling = 1
+        self._isJackTransportSlave = False
         self._server = Server_base(sr, nchnls, buffersize, duplex, audio, jackname, self._ichnls)
         self._server._setDefaultRecPath(os.path.join(os.path.expanduser("~"), "pyo_rec.wav"))
 
@@ -165,6 +169,7 @@ class Server(object):
         self._sampletype = 0
         self._globalseed = 0
         self._resampling = 1
+        self._isJackTransportSlave = False
         self._server.__init__(sr, nchnls, buffersize, duplex, audio, jackname, self._ichnls)
 
     def setCallback(self, callback):
@@ -538,6 +543,22 @@ class Server(object):
         """
         ports, lmax = convertArgsToLists(ports)
         self._server.setJackAutoConnectOutputPorts(ports)
+
+    def setIsJackTransportSlave(self, x):
+        """
+        Set if pyo's server is slave to jack transport or not.
+
+        This method must be called before booting the server.
+
+        :Args:
+
+            x: boolean
+                If True, the server's start and stop command will be slave to
+                Jack transport. If False (the default) jack transport is ignored.
+
+        """
+        self._isJackTransportSlave = x
+        self._server.setIsJackTransportSlave(x)
 
     def setGlobalSeed(self, x):
         """

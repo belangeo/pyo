@@ -2960,6 +2960,18 @@ class ServerGUI(wx.Frame):
     def setRms(self, *args):
         self.meter.setRms(*args)
 
+    def setStartButtonState(self, state):
+        if state:
+            self._started = True
+            wx.CallAfter(self.startButton.SetLabel, 'Stop')
+            if self.exit:
+                wx.CallAfter(self.quitButton.Disable)
+        else:
+            self._started = False
+            wx.CallAfter(self.startButton.SetLabel, 'Start')
+            if self.exit:
+                wx.CallAfter(self.quitButton.Enable)
+
 def ensureNFD(unistr):
     if sys.platform == 'win32' or sys.platform.startswith('linux'):
         encodings = [sys.getdefaultencoding(), sys.getfilesystemencoding(),

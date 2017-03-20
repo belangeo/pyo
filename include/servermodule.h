@@ -76,6 +76,8 @@ typedef struct {
     int jackautoout; /* jack port auto-connection (on by default) */
     PyObject *jackAutoConnectInputPorts; /* list of lists of jack auto-connection ports to pyo inputs */
     PyObject *jackAutoConnectOutputPorts; /* list of lists of jack auto-connection ports from pyo outputs */
+    int isJackTransportSlave;
+    int jack_transport_state; /* 0 = stopped, 1 = started */
     PyoMidiEvent midiEvents[200];
     int midiin_count;
     int midiout_count;
@@ -174,7 +176,9 @@ void Server_message(Server *self, char * format, ...);
 void Server_warning(Server *self, char * format, ...);
 void Server_debug(Server *self, char * format, ...);
 PyObject * Server_shutdown(Server *self);
-PyObject *Server_stop(Server *self);
+PyObject * Server_stop(Server *self);
+PyObject * Server_start(Server *self);
+PyObject * Server_boot(Server *self, PyObject *arg);
 void Server_process_gui(Server *server);
 void Server_process_time(Server *server);
 int Server_start_rec_internal(Server *self, char *filename);

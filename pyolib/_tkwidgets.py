@@ -457,3 +457,13 @@ class ServerGUI(tk.Frame):
                 self.vumeter.coords(self.green[i], 0, y, self.B1, y)
                 self.vumeter.coords(self.yellow[i], self.B1, y, self.B2, y)
                 self.vumeter.coords(self.red[i], self.B2, y, amp, y)
+
+    def setStartButtonState(self, state):
+        if state:
+            self._started = True
+            self.startStringVar.set('Stop')
+            self.quitButton.configure(state=tk.DISABLED)
+        else:
+            self._started = False
+            self.startStringVar.set('Start')
+            self.quitButton.configure(state=tk.NORMAL)
