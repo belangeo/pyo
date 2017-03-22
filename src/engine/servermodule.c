@@ -1335,7 +1335,7 @@ Server_start(Server *self)
         Server_error(self, "Error starting server.\n");
     }
 
-    if (self->withGUI)
+    if (self->withGUI && PyObject_HasAttrString((PyObject *)self->GUI, "setStartButtonState"))
         PyObject_CallMethod((PyObject *)self->GUI, "setStartButtonState", "i", 1);
 
     Py_RETURN_NONE;
@@ -1372,7 +1372,7 @@ Server_stop(Server *self)
         self->server_started = 0;
     }
 
-    if (self->withGUI)
+    if (self->withGUI && PyObject_HasAttrString((PyObject *)self->GUI, "setStartButtonState"))
         PyObject_CallMethod((PyObject *)self->GUI, "setStartButtonState", "i", 0);
 
     Py_RETURN_NONE;
