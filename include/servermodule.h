@@ -76,6 +76,8 @@ typedef struct {
     int jackautoout; /* jack port auto-connection (on by default) */
     PyObject *jackAutoConnectInputPorts; /* list of lists of jack auto-connection ports to pyo inputs */
     PyObject *jackAutoConnectOutputPorts; /* list of lists of jack auto-connection ports from pyo outputs */
+    PyObject *jackInputPortNames; /* string or list of strings (input port short names for jack server */
+    PyObject *jackOutputPortNames; /* string or list of strings (output port short names for jack server */
     int isJackTransportSlave;
     int jack_transport_state; /* 0 = stopped, 1 = started */
     PyoMidiEvent midiEvents[200];

@@ -544,6 +544,40 @@ class Server(object):
         ports, lmax = convertArgsToLists(ports)
         self._server.setJackAutoConnectOutputPorts(ports)
 
+    def setJackInputPortNames(self, name):
+        """
+        Change the short name of pyo's input ports for the jack server.
+
+        This method must be called after the server is booted.
+
+        :Args:
+
+            name: string or list of strings
+                New name of input ports for the jack server. If `name` is a string,
+                '_xxx' (where xxx is the channel number) will be added to it for
+                each input channel. If `name` is a list of strings, They will be
+                used as is and there must be one for each input channel.
+
+        """
+        self._server.setJackInputPortNames(name)
+
+    def setJackOutputPortNames(self, name):
+        """
+        Change the short name of pyo's output ports for the jack server.
+
+        This method must be called after the server is booted.
+
+        :Args:
+
+            name: string or list of strings
+                New name of output ports for the jack server. If `name` is a string,
+                '_xxx' (where xxx is the channel number) will be added to it for
+                each output channel. If `name` is a list of strings, They will be
+                used as is and there must be one for each output channel.
+
+        """
+        self._server.setJackOutputPortNames(name)
+
     def setIsJackTransportSlave(self, x):
         """
         Set if pyo's server is slave to jack transport or not.

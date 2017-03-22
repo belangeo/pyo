@@ -418,6 +418,84 @@ Server_jack_deinit(Server *self) {
 }
 
 int
+jack_input_port_set_names(Server *self) {
+    int i, err, lsize;
+    char *name;
+    char result[128];
+    PyoJackBackendData *be_data = (PyoJackBackendData *) self->audio_be_data;
+
+    if (PyList_Check(self->jackInputPortNames)) {
+        lsize = PyList_Size(self->jackInputPortNames);
+        for (i=0; i<self->ichnls && i<lsize; i++) {
+            name = PY_STRING_AS_STRING(PyList_GetItem(self->jackInputPortNames, i));
+
+            Py_BEGIN_ALLOW_THREADS
+            err = jack_port_rename(be_data->jack_client, be_data->jack_in_ports[i], name);
+            Py_END_ALLOW_THREADS
+
+            if (err)
+                Server_error(self, "Jack error: cannot change port short name.\n");
+        }
+    }
+    else if (PY_STRING_CHECK(self->jackInputPortNames)) {
+        name = PY_STRING_AS_STRING(self->jackInputPortNames);
+        for (i=0; i<self->ichnls; i++) {
+            sprintf(result, "%s_%d", name, i);
+
+            Py_BEGIN_ALLOW_THREADS
+            err = jack_port_rename(be_data->jack_client, be_data->jack_in_ports[i], result);
+            Py_END_ALLOW_THREADS
+
+            if (err)
+                Server_error(self, "Jack error: cannot change port short name.\n");
+        }
+    }
+    else
+        Server_error(self, "Jack error: input port names must be a string or a list of strings.\n");
+
+    return 0;
+}
+
+int
+jack_output_port_set_names(Server *self) {
+    int i, err, lsize;
+    char *name;
+    char result[128];
+    PyoJackBackendData *be_data = (PyoJackBackendData *) self->audio_be_data;
+
+    if (PyList_Check(self->jackOutputPortNames)) {
+        lsize = PyList_Size(self->jackOutputPortNames);
+        for (i=0; i<self->nchnls && i<lsize; i++) {
+            name = PY_STRING_AS_STRING(PyList_GetItem(self->jackOutputPortNames, i));
+
+            Py_BEGIN_ALLOW_THREADS
+            err = jack_port_rename(be_data->jack_client, be_data->jack_out_ports[i], name);
+            Py_END_ALLOW_THREADS
+
+            if (err)
+                Server_error(self, "Jack error: cannot change port short name.\n");
+        }
+    }
+    else if (PY_STRING_CHECK(self->jackOutputPortNames)) {
+        name = PY_STRING_AS_STRING(self->jackOutputPortNames);
+        for (i=0; i<self->nchnls; i++) {
+            sprintf(result, "%s_%d", name, i);
+
+            Py_BEGIN_ALLOW_THREADS
+            err = jack_port_rename(be_data->jack_client, be_data->jack_out_ports[i], result);
+            Py_END_ALLOW_THREADS
+
+            if (err)
+                Server_error(self, "Jack error: cannot change port short name.\n");
+        }
+    }
+    else
+        Server_error(self, "Jack error: output port names must be a string or a list of strings.\n");
+
+    return 0;
+}
+
+int
 Server_jack_start(Server *self) {
     return 0;
 }

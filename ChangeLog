@@ -1,3 +1,8 @@
+2017-03-22 belangeo <belangeo@gmail.com>
+
+    * Added setJackInputPortNames and setJackOutputPortNames methods to the
+      Server object. This allow the user to rename jack input/output ports.
+
 2017-03-21 belangeo <belangeo@gmail.com>
 
     * Updated portaudio interface to make it much more secure.

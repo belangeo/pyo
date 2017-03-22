@@ -22,13 +22,6 @@ Server
 - Remove, if possible, PyGILState_Ensure/PyGILState_Release from 
   the process_buffers function.
 
-Jack
-----
-
-- Ability to name the output ports. It is possible to hack around that
-and rename them after creation or with jack metadata but giving a name
-during port creation is the proper way.
-
 Examples
 --------
 

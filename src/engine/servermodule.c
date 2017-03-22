@@ -49,6 +49,9 @@ int Server_jack_init(Server *self) { return -10; };
 int Server_jack_deinit(Server *self) { return 0; };
 int Server_jack_start(Server *self) { return 0; };
 int Server_jack_stop(Server *self) { return 0; };
+int jack_input_port_set_names(Server *self) { return 0; };
+int jack_output_port_set_names(Server *self) { return 0; };
+
 #endif
 
 #ifdef USE_COREAUDIO
@@ -902,6 +905,44 @@ Server_setJackAutoConnectOutputPorts(Server *self, PyObject *arg)
             Py_XDECREF(self->jackAutoConnectOutputPorts);
             Py_INCREF(tmp);
             self->jackAutoConnectOutputPorts = tmp;
+        }
+    }
+
+    Py_RETURN_NONE;
+}
+
+static PyObject *
+Server_setJackInputPortNames(Server *self, PyObject *arg)
+{
+    PyObject *tmp;
+
+    if (arg != NULL) {
+        if (PyList_Check(arg) || PY_STRING_CHECK(arg)) {
+            tmp = arg;
+            Py_XDECREF(self->jackInputPortNames);
+            Py_INCREF(tmp);
+            self->jackInputPortNames = tmp;
+
+            jack_input_port_set_names(self);
+        }
+    }
+
+    Py_RETURN_NONE;
+}
+
+static PyObject *
+Server_setJackOutputPortNames(Server *self, PyObject *arg)
+{
+    PyObject *tmp;
+
+    if (arg != NULL) {
+        if (PyList_Check(arg) || PY_STRING_CHECK(arg)) {
+            tmp = arg;
+            Py_XDECREF(self->jackOutputPortNames);
+            Py_INCREF(tmp);
+            self->jackOutputPortNames = tmp;
+
+            jack_output_port_set_names(self);
         }
     }
 
@@ -1971,6 +2012,8 @@ static PyMethodDef Server_methods[] = {
     {"setJackAuto", (PyCFunction)Server_setJackAuto, METH_VARARGS, "Tells the server to auto-connect Jack ports (0 = disable, 1 = enable)."},
     {"setJackAutoConnectInputPorts", (PyCFunction)Server_setJackAutoConnectInputPorts, METH_O, "Sets a list of ports to auto-connect inputs when using Jack."},
     {"setJackAutoConnectOutputPorts", (PyCFunction)Server_setJackAutoConnectOutputPorts, METH_O, "Sets a list of ports to auto-connect outputs when using Jack."},
+    {"setJackInputPortNames", (PyCFunction)Server_setJackInputPortNames, METH_O, "Sets the short name of input ports for jack server."},
+    {"setJackOutputPortNames", (PyCFunction)Server_setJackOutputPortNames, METH_O, "Sets the short name of output ports for jack server."},
     {"setIsJackTransportSlave", (PyCFunction)Server_setIsJackTransportSlave, METH_O, "Sets if the server's start/stop is slave of jack transport."},
     {"setGlobalSeed", (PyCFunction)Server_setGlobalSeed, METH_O, "Sets the server's global seed for random objects."},
     {"setAmp", (PyCFunction)Server_setAmp, METH_O, "Sets the overall amplitude."},
