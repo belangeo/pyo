@@ -25,7 +25,17 @@ print('pa_get_default_output:', pa_get_default_output())
 
 print("--------------- Device Infos -------------------")
 print('pa_get_devices_infos:')
-pa_get_devices_infos()
+inputs, outputs = pa_get_devices_infos()
+print('- Inputs:')
+for index in sorted(list(inputs.keys())):
+    print('  Device index:', index)
+    for key in ['name', 'host api index', 'default sr', 'latency']:
+        print('    %s:' % key, inputs[index][key])
+print('- Outputs:')
+for index in sorted(list(outputs.keys())):
+    print('  Device index:', index)
+    for key in ['name', 'host api index', 'default sr', 'latency']:
+        print('    %s:' % key, outputs[index][key])
 
 print("--------------- Channels -------------------")
 dev_list, dev_index =  pa_get_output_devices()
