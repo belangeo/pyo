@@ -65,7 +65,9 @@ else:
             EVT_PYO_GUI_CONTROL_SLIDER
                 Sent after any change of the slider position. The current
                 value of the slider can be retrieve with the `value`
-                attribute of the generated event.
+                attribute of the generated event. The object itself can be
+                retrieve with the `object` attribute of the event and the
+                object's id with the `id` attrbute.
 
         :Args:
 
@@ -107,7 +109,7 @@ else:
                                                       orient)
 
         def _outFunction(self, value):
-            evt = PyoGuiControlSliderEvent(value=value)
+            evt = PyoGuiControlSliderEvent(value=value, id=self.GetId(), object=self)
             wx.QueueEvent(self, evt)
 
         def enable(self):
@@ -284,7 +286,9 @@ else:
             EVT_PYO_GUI_GRAPHER
                 Sent after any change of the grapher function. The current
                 list of points of the grapher can be retrieve with the `value`
-                attribute of the generated event.
+                attribute of the generated event. The object itself can be
+                retrieve with the `object` attribute of the event and the
+                object's id with the `id` attrbute.
 
         :Args:
 
@@ -336,7 +340,7 @@ else:
                                                 self._outFunction, pos, size, style)
 
         def _outFunction(self, value):
-            evt = PyoGuiGrapherEvent(value=value)
+            evt = PyoGuiGrapherEvent(value=value, id=self.GetId(), object=self)
             wx.QueueEvent(self, evt)
 
         def _refresh(self):
@@ -498,7 +502,9 @@ else:
             EVT_PYO_GUI_MULTI_SLIDER
                 Sent after any change of the multi-sliders values. The current
                 list of values of the multi-sliders can be retrieve with the
-                `value` attribute of the generated event.
+                `value` attribute of the generated event. The object itself can
+                be retrieve with the `object` attribute of the event and the
+                object's id with the `id` attrbute.
 
         :Args:
 
@@ -535,7 +541,7 @@ else:
                                                     size, style)
 
         def _outFunction(self, value):
-            evt = PyoGuiMultiSliderEvent(value=value)
+            evt = PyoGuiMultiSliderEvent(value=value, id=self.GetId(), object=self)
             wx.QueueEvent(self, evt)
 
         def reset(self):
@@ -858,7 +864,9 @@ else:
                 hold the normalized position of the mouse into the sound.
                 For X-axis value, 0.0 is the beginning of the sound and 1.0
                 is the end of the sound. For the Y-axis, 0.0 is the bottom
-                of the panel and 1.0 is the top.
+                of the panel and 1.0 is the top. The object itself can be
+                retrieve with the `object` attribute of the event and the
+                object's id with the `id` attrbute.
             EVT_PYO_GUI_SNDVIEW_SELECTION
                 Sent when a new region is selected on the panel. A new
                 selection is created with a Right-click and drag on the panel.
@@ -866,7 +874,9 @@ else:
                 drag. Ctrl+Right-click (Cmd on OSX) remove the selected region.
                 The `value` attribute of the event will hold the normalized
                 selection as a tuple (min, max). 0.0 means the beginning of
-                the sound and 1.0 means the end of the sound.
+                the sound and 1.0 means the end of the sound. The object itself
+                can be retrieve with the `object` attribute of the event and the
+                object's id with the `id` attrbute.
 
         :Args:
 
@@ -904,12 +914,12 @@ else:
             self.update()
 
         def _position_callback(self, pos):
-            evt = PyoGuiSndViewMousePositionEvent(value=pos)
+            evt = PyoGuiSndViewMousePositionEvent(value=pos, id=self.GetId(), object=self)
             wx.QueueEvent(self, evt)
 
         def _select_callback(self, selection):
             selection = (max(0.0, min(selection)), min(max(selection), 1.0))
-            evt = PyoGuiSndViewSelectionEvent(value=selection)
+            evt = PyoGuiSndViewSelectionEvent(value=selection, id=self.GetId(), object=self)
             wx.QueueEvent(self, evt)
 
         def __del__(self):
