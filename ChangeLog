@@ -1,3 +1,7 @@
+2017-03-23 belangeo <belangeo@gmail.com>
+
+    * Added `id` and `object` attributes to wxgui's object events.
+
 2017-03-22 belangeo <belangeo@gmail.com>
 
     * Added setJackInputPortNames and setJackOutputPortNames methods to the
@@ -11,6 +15,10 @@
 
     * Added setIsJackTransportSlave method to Server object (it allows to
       start/stop the Server from jack transport).
+
+2017-03-17 belangeo <belangeo@gmail.com>
+
+    * Fixed GIL conflicts with portaudio, portmidi and jack library calls.
 
 2017-03-11 belangeo <belangeo@gmail.com>
 
@@ -43,6 +51,11 @@
 2017-02-19 belangeo <belangeo@gmail.com>
 
     * Added examples about multicore audio programming with pyo.
+
+2017-02-14 belangeo <belangeo@gmail.com>
+
+    * Fixed segfault in MidiListener callback function with python3.
+    * Fixed string versus unicode in MidiDispatcher's getDeviceInfos method.
 
 2017-02-13 belangeo <belangeo@gmail.com>
 
