@@ -1,3 +1,7 @@
+2017-03-24 belangeo <belangeo@gmail.com>
+
+    * Upgraded version number to 0.8.4.
+
 2017-03-23 belangeo <belangeo@gmail.com>
 
     * Added `id` and `object` attributes to wxgui's object events.

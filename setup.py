@@ -22,7 +22,7 @@ from distutils.sysconfig import get_python_lib
 from distutils.core import setup, Extension
 import os, sys, py_compile
 
-pyo_version = "0.8.3"
+pyo_version = "0.8.4"
 build_with_jack_support = False
 compile_externals = False
 
