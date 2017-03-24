@@ -12,7 +12,7 @@ Ann Arbor, MPublishing, University of Michigan Library, August 2008
 from pyo import *
 import math
 
-s = Server(sr=48000, nchnls=2, buffersize=512, duplex=0).boot()
+s = Server(duplex=0).boot()
 
 twopi = 2 * math.pi
 oneOverTwoPi = 1.0 / twopi

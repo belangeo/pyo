@@ -7,7 +7,7 @@ Mixing multiple inputs to multiple outputs with fade time.
 """
 from pyo import *
 
-s = Server(sr=44100, nchnls=2, buffersize=512, duplex=0).boot()
+s = Server(duplex=0).boot()
 
 # Inputs
 a = SfPlayer("../snds/ounkmaster.aif", loop=True, mul=.3)

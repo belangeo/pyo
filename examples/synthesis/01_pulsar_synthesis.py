@@ -7,7 +7,7 @@ Hand-written pulsar synthesis.
 from pyo import *
 import random
 
-s = Server(sr=48000, nchnls=2, buffersize=512, duplex=0).boot()
+s = Server(duplex=0).boot()
 
 # simple pulsar waveform
 t = HarmTable([1,0,.3,0,.2,0,0,.1], size=32768)

@@ -7,7 +7,7 @@ The Melo class records 16 notes in a table and reads it at variable speed.
 from pyo import *
 import random
 
-s = Server(sr=44100, nchnls=2, buffersize=512, duplex=0).boot()
+s = Server(duplex=0).boot()
 
 SCALES = [[0,2,5,7,9,11], [0,2,3,7,8,11], [0,3,5,7,8,10]]
 

@@ -7,7 +7,7 @@ Exponential cloud of sounds...
 
 from pyo import *
 
-s = Server(sr=44100, nchnls=2, buffersize=512, duplex=0).boot()
+s = Server(duplex=0).boot()
 
 snds = ['../snds/snd_%d.aif' % i for i in range(1,7)]
 num = len(snds)

@@ -6,7 +6,7 @@ Audio control with LFOs.
 """
 from pyo import *
 
-s = Server(sr=44100, nchnls=2, buffersize=512, duplex=0).boot()
+s = Server(duplex=0).boot()
 
 # LFO (sine wave) +/- 5 (mul) around 10 (add), range = 5 -> 15.
 # Control the frequency of the square wave LFO.

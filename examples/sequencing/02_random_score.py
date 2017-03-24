@@ -7,7 +7,7 @@ Calling Python function from an audio stream with the Score object.
 from pyo import *
 import random
 
-s = Server(sr=44100, nchnls=2, buffersize=256, duplex=0).boot()
+s = Server(duplex=0).boot()
 
 # Frequency of event generation in Hz
 GEN_FREQ = .25

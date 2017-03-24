@@ -9,7 +9,7 @@ The buffer is looped with some funny parameters...
 """
 from pyo import *
 
-s = Server(sr=44100, nchnls=2, buffersize=512, duplex=1).boot()
+s = Server(duplex=1).boot()
 
 tab = NewTable(4)
 rec = TableRec(Input(), tab)

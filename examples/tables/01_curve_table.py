@@ -6,7 +6,7 @@ Curve table variations used as an amplitude envelope.
 """
 from pyo import *
 
-s = Server(sr=44100, nchnls=2, buffersize=512, duplex=0).boot()
+s = Server(duplex=0).boot()
 
 t = CurveTable([(0,0),(2048,.5),(4096, .2),(6144,.5),(8192,0)], tension=0, bias=20).normalize()
 t.view(title="Waveform at initialization")

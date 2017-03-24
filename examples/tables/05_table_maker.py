@@ -7,7 +7,7 @@ Creates a new sound table from random chunks of a soundfile.
 from pyo import *
 import random, os
 
-s = Server(sr=44100, nchnls=2, buffersize=512, duplex=0).boot()
+s = Server(duplex=0).boot()
 
 path = "../snds/baseballmajeur_m.aif"
 dur = sndinfo(path)[1]

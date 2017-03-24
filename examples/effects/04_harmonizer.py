@@ -6,7 +6,7 @@ Hand-written harmonizer.
 """
 from pyo import *
 
-s = Server(sr=44100, nchnls=2, buffersize=512, duplex=0).boot()
+s = Server(duplex=0).boot()
 
 sf = SfPlayer('../snds/flute.aif', speed=1, loop=True, mul=.5).out()
 

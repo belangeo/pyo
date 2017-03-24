@@ -8,7 +8,7 @@ Call r.play() (as many times as you want) to record a buffer from the input mic.
 """
 from pyo import *
 
-s = Server(sr=44100, nchnls=2, buffersize=512, duplex=1).boot()
+s = Server(duplex=1).boot()
 
 buffer_length = 1 # seconds
 

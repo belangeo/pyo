@@ -9,7 +9,7 @@ Give the focus to the Scrubbing window then click and move the mouse...
 """
 
 from pyo import *
-s = Server(buffersize=512, duplex=0).boot()
+s = Server(duplex=0).boot()
 
 def mouse(mpos):
     print("X = %.2f, Y = %.2f" % tuple(mpos))

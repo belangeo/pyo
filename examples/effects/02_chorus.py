@@ -6,7 +6,7 @@ Hand-written 8 delay lines chorus.
 """
 from pyo import *
 
-s = Server(sr=44100, nchnls=2, buffersize=512, duplex=0).boot()
+s = Server(duplex=0).boot()
 
 #--> Start a sound
 sf = SfPlayer('../snds/baseballmajeur_m.aif', speed=1, loop=True, mul=.3)

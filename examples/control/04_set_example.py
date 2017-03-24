@@ -9,7 +9,7 @@ call reset() to get back initial values.
 from pyo import *
 from random import uniform
 
-s = Server(sr=44100, nchnls=2, buffersize=1024, duplex=0).boot()
+s = Server(duplex=0).boot()
 
 a = FM(carrier=[uniform(197,203) for i in range(10)],
        ratio=[uniform(0.49,0.51) for i in range(10)],

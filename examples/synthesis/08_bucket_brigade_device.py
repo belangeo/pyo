@@ -8,7 +8,7 @@ filter inside each delay line. The delay lines are feeded with a sine wave.
 """
 from pyo import *
 
-s = Server(sr=48000, nchnls=2, buffersize=512, duplex=0).boot()
+s = Server(duplex=0).boot()
 
 t = HarmTable(size=32768)
 src = Osc(t, 100)

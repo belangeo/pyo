@@ -7,7 +7,7 @@
 from pyo import *
 import math
 
-s = Server(sr=48000, nchnls=2, buffersize=512, duplex=0).boot()
+s = Server(duplex=0).boot()
 
 t = HarmTable([1,0.1])
 class FM3:

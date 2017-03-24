@@ -6,7 +6,7 @@ Simple flanger.
 """
 from pyo import *
 
-s = Server(sr=44100, nchnls=2, buffersize=512, duplex=0).boot()
+s = Server(duplex=0).boot()
 
 #-->
 src = BrownNoise(.1).mix(2).out()

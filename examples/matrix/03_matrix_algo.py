@@ -7,7 +7,7 @@ algorithmic generation of notes.
 """
 from pyo import *
 
-s = Server(sr=44100, nchnls=2, buffersize=512, duplex=0).boot()
+s = Server(duplex=0).boot()
 
 mat = [[36,41,43,48], [48,51,53,57], [60,62,67,68], [70,72,74,77]]
 
