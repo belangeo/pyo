@@ -313,7 +313,7 @@ class Server(object):
         host_default_out = pa_get_default_output()
 
         # Retrieve host apis infos.
-        tempfile = "pa_retrieve_host_apis"
+        tempfile = os.path.join(os.path.expanduser("~"), "pa_retrieve_host_apis")
         with open(tempfile, "w") as f:
             with f as sys.stdout:
                 pa_list_host_apis()
