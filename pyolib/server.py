@@ -20,7 +20,7 @@ GNU Lesser General Public License for more details.
 You should have received a copy of the GNU Lesser General Public
 License along with pyo.  If not, see <http://www.gnu.org/licenses/>.
 """
-import os, time
+import os, sys, time
 from ._core import *
 from ._widgets import createServerGUI
 
@@ -90,6 +90,7 @@ class Server(object):
         - setInOutDevice(x): Set both input and output devices. See `pa_list_devices()`.
         - setInputDevice(x): Set the audio input device number. See `pa_list_devices()`.
         - setOutputDevice(x): Set the audio output device number. See `pa_list_devices()`.
+        - setInOutDefaultDeviceFromHost(host): Set both input and output devices from host. See `pa_list_host_apis()`.
         - setInputOffset(x): Set the first physical input channel.
         - setOutputOffset(x): Set the first physical output channel.
         - setInOutOffset(x): Set the first physical input and output channels.
@@ -289,6 +290,72 @@ class Server(object):
 
         """
         self._server.setInOutDevice(x)
+
+    def setInOutDefaultDeviceFromHost(self, host):
+        """
+        Set both input and output audio devices using defaults for a given host.
+
+        :Args:
+
+            host: string
+                The host for which we want to use the default devices.
+        
+        .. note::
+
+            Possible hosts are:
+
+            - Windows: mme, directsound, asio, wasapi or wdm-ks.
+            - Linux: alsa, oss, pulse or jack.
+            - MacOS: core audio, jack or soundflower.
+
+        """
+        host_default_in = pa_get_default_input()
+        host_default_out = pa_get_default_output()
+
+        # Retrieve host apis infos.
+        tempfile = "pa_retrieve_host_apis"
+        with open(tempfile, "w") as f:
+            with f as sys.stdout:
+                pa_list_host_apis()
+            sys.stdout = sys.__stdout__
+
+        with open(tempfile, "r") as f:
+            lines = f.readlines()
+
+        os.remove(tempfile)
+
+        # Build the list of currently available hosts.
+        host_names = []
+        for line in lines:
+            p1 = line.find("name: ") + 6
+            p2 = line.find(",", p1+1)
+            host_names.append(line[p1:p2])
+
+        # Search for the desired host.
+        found = False
+        for line in lines:
+            if host.lower() in line.lower():
+                splitted = line.replace("\n", "").split(", ")
+                attributes = [x.split(": ") for x in splitted]
+                found = True
+                break
+
+        # If not found, return portaudio default values.
+        if not found:
+            print("Can't find host '%s'.\nAvailable hosts are:" % host)
+            for host in host_names:
+                print(host.lower())
+            return host_default_in, host_default_out
+
+        # If found, search default device indexes.
+        for attribute in attributes:
+            if attribute[0] == "default in":
+                host_default_in = int(attribute[1])
+            elif attribute[0] == "default out":
+                host_default_out = int(attribute[1])
+
+        self._server.setInputDevice(host_default_in)
+        self._server.setOutputDevice(host_default_out)
 
     def setInputDevice(self, x):
         """
