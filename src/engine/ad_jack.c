@@ -430,7 +430,11 @@ jack_input_port_set_names(Server *self) {
             name = PY_STRING_AS_STRING(PyList_GetItem(self->jackInputPortNames, i));
 
             Py_BEGIN_ALLOW_THREADS
+#ifdef JACK_NEW_API
             err = jack_port_rename(be_data->jack_client, be_data->jack_in_ports[i], name);
+#else
+            err = jack_port_set_name(be_data->jack_in_ports[i], name);
+#endif
             Py_END_ALLOW_THREADS
 
             if (err)
@@ -443,7 +447,11 @@ jack_input_port_set_names(Server *self) {
             sprintf(result, "%s_%d", name, i);
 
             Py_BEGIN_ALLOW_THREADS
+#ifdef JACK_NEW_API
             err = jack_port_rename(be_data->jack_client, be_data->jack_in_ports[i], result);
+#else
+            err = jack_port_set_name(be_data->jack_in_ports[i], result);
+#endif
             Py_END_ALLOW_THREADS
 
             if (err)
@@ -469,7 +477,11 @@ jack_output_port_set_names(Server *self) {
             name = PY_STRING_AS_STRING(PyList_GetItem(self->jackOutputPortNames, i));
 
             Py_BEGIN_ALLOW_THREADS
+#ifdef JACK_NEW_API
             err = jack_port_rename(be_data->jack_client, be_data->jack_out_ports[i], name);
+#else
+            err = jack_port_set_name(be_data->jack_out_ports[i], name);
+#endif
             Py_END_ALLOW_THREADS
 
             if (err)
@@ -482,7 +494,11 @@ jack_output_port_set_names(Server *self) {
             sprintf(result, "%s_%d", name, i);
 
             Py_BEGIN_ALLOW_THREADS
+#ifdef JACK_NEW_API
             err = jack_port_rename(be_data->jack_client, be_data->jack_out_ports[i], result);
+#else
+            err = jack_port_set_name(be_data->jack_out_ports[i], result);
+#endif
             Py_END_ALLOW_THREADS
 
             if (err)

@@ -1824,7 +1824,7 @@ class ScopePanel(wx.Panel):
         for j in range(4):
             dc.SetPen(wx.Pen('#888888', width=1, style=wx.DOT))
             dc.DrawLine(j*tickstep, 0, j*tickstep, h)
-            dc.DrawText("%.3f" % (j*timestep), j*tickstep+2, h-12)
+            dc.DrawText("%.3f" % (j*timestep), j*tickstep+2, h-15)
         # draw waveforms
         for i, samples in enumerate(self.img):
             gc.SetPen(self.pens[i%8])
