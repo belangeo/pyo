@@ -3,6 +3,9 @@
 
 An artificial reverberation based on the work of Manfred Schroeder.
 
+This reverberator takes a monopkonic input and outputs two uncorrelated
+reverberated signals. 
+
 This algorithm presents four parallel comb filters fedding two serial
 allpass filters. An additional lowpass filter is used at the end to 
 control the brightness of the reverberator.
@@ -15,9 +18,10 @@ from pyo import *
 
 s = Server(duplex=0).boot()
 
-soundfile = SNDS_PATH + "/transparent.aif"
+soundfile = SndTable(SNDS_PATH + "/transparent.aif")
 
-src = SfPlayer(soundfile, loop=True, mul=0.3).mix(2).out()
+src = Looper(soundfile, dur=2, xfade=0, mul=0.3)
+src2 = src.mix(2).out()
 
 # Four parallel stereo comb filters. The delay times are chosen 
 # to be as uncorrelated as possible. Prime numbers are a good
