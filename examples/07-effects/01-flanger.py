@@ -17,14 +17,14 @@ s = Server().boot()
 amp = Fader(fadein=0.25, mul=0.5).play()
 src = PinkNoise(amp).mix(2)
 
-# Flanger parameters	                        == unit ==
-middelay = 0.005	                            # seconds
+# Flanger parameters                        == unit ==
+middelay = 0.005                            # seconds
 
-depth = Sig(0.99)		                        # 0 --> 1
+depth = Sig(0.99)                           # 0 --> 1
 depth.ctrl(title="Modulation Depth")
-lfospeed = Sig(0.2)		                        # Hertz
+lfospeed = Sig(0.2)                         # Hertz
 lfospeed.ctrl(title="LFO Frequency in Hz")
-feedback = Sig(0.5, mul=0.95)		            # 0 --> 1
+feedback = Sig(0.5, mul=0.95)               # 0 --> 1
 feedback.ctrl(title="Feedback")
 
 # LFO with adjusted output range to control the delay time in seconds.
