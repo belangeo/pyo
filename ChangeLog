@@ -1,3 +1,13 @@
+2017-03-31 belangeo <belangeo@gmail.com>
+
+    * Removed Server.setInOutDefaultDeviceFromHost(host) method.
+      Added a new winhost argument to the Server's initialization.
+      Added pa_get_default_devices_from_host(host) function.
+
+2017-03-26 belangeo <belangeo@gmail.com>
+
+    * Added setInOutDefaultDeviceFromHost(host) to the Server object.
+
 2017-03-24 belangeo <belangeo@gmail.com>
 
     * Upgraded version number to 0.8.4.

@@ -77,6 +77,7 @@ FUNCTIONS_INIT_LINES = {
     "pa_count_host_apis": "pa_count_host_apis()",
     "pa_list_host_apis": "pa_list_host_apis()",
     "pa_get_default_host_api": "pa_get_default_host_api()",
+    "pa_get_default_devices_from_host": "pa_get_default_devices_from_host(host)",
     "pa_count_devices": "pa_count_devices()",
     "pa_list_devices": "pa_list_devices()",
     "pa_get_devices_infos": "pa_get_devices_infos()",
@@ -443,6 +444,72 @@ def getVersion():
     """
     major, minor, rev = PYO_VERSION.split('.')
     return (int(major), int(minor), int(rev))
+
+def pa_get_default_devices_from_host(host):
+    """
+    Returns the default input and output devices for a given audio host.
+
+    This function can greatly help finding the device indexes (especially
+    on Windows) to give to the server in order to use to desired audio host.
+
+    :Args:
+
+        host: string
+            Name of the desired audio host. Possible hosts are:
+
+            - For Windows: mme, directsound, asio, wasapi or wdm-ks.
+            - For linux: alsa, oss, pulse or jack.
+            - For MacOS: core audio, jack or soundflower.
+
+    Return: (default_input_device, default_output_device)
+
+    """
+    host_default_in = pa_get_default_input()
+    host_default_out = pa_get_default_output()
+
+    # Retrieve host apis infos.
+    tempfile = os.path.join(os.path.expanduser("~"), "pa_retrieve_host_apis")
+    with open(tempfile, "w") as f:
+        with f as sys.stdout:
+            pa_list_host_apis()
+        sys.stdout = sys.__stdout__
+
+    with open(tempfile, "r") as f:
+        lines = f.readlines()
+
+    os.remove(tempfile)
+
+    # Build the list of currently available hosts.
+    host_names = []
+    for line in lines:
+        p1 = line.find("name: ") + 6
+        p2 = line.find(",", p1+1)
+        host_names.append(line[p1:p2])
+
+    # Search for the desired host.
+    found = False
+    for line in lines:
+        if host.lower() in line.lower():
+            splitted = line.replace("\n", "").split(", ")
+            attributes = [x.split(": ") for x in splitted]
+            found = True
+            break
+
+    # If not found, return portaudio default values.
+    if not found:
+        print("Pyo can't find audio host '%s'. Currently available hosts are:" % host)
+        for host in host_names:
+            print("    %s" % host.lower())
+        return host_default_in, host_default_out
+
+    # If found, search default device indexes.
+    for attribute in attributes:
+        if attribute[0] == "default in":
+            host_default_in = int(attribute[1])
+        elif attribute[0] == "default out":
+            host_default_out = int(attribute[1])
+
+    return host_default_in, host_default_out
 
 def getWeakMethodRef(x):
     "Return a callable object as a weak method reference."

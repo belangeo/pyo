@@ -20,7 +20,7 @@ GNU Lesser General Public License for more details.
 You should have received a copy of the GNU Lesser General Public
 License along with pyo.  If not, see <http://www.gnu.org/licenses/>.
 """
-import os, time
+import os, sys, time
 from ._core import *
 from ._widgets import createServerGUI
 
@@ -82,6 +82,9 @@ class Server(object):
             Name of jack client. Defaults to 'pyo'
         ichnls: int, optional
             Number of input channels if different of output channels. If None (default), ichnls = nchnls.
+        winhost: string, optional
+            Under Windows, pyo's Server will try to use the default devices of the given host.
+            This behaviour can be changed with the SetXXXDevice methods.
 
     .. note::
 
@@ -112,7 +115,7 @@ class Server(object):
 
     """
     def __init__(self, sr=44100, nchnls=2, buffersize=256, duplex=1,
-                 audio='portaudio', jackname='pyo', ichnls=None):
+                 audio='portaudio', jackname='pyo', ichnls=None, winhost="wasapi"):
         if "PYO_SERVER_AUDIO" in os.environ and "offline" not in audio and "embedded" not in audio:
             audio = os.environ["PYO_SERVER_AUDIO"]
         self._time = time
@@ -121,6 +124,7 @@ class Server(object):
             self._ichnls = nchnls
         else:
             self._ichnls = ichnls
+        self._winhost = winhost
         self._amp = 1.
         self._verbosity = 7
         self._startoffset = 0
@@ -134,6 +138,11 @@ class Server(object):
         self._server = Server_base(sr, nchnls, buffersize, duplex, audio, jackname, self._ichnls)
         self._server._setDefaultRecPath(os.path.join(os.path.expanduser("~"), "pyo_rec.wav"))
 
+        if sys.platform.startswith("win"):
+            host_default_in, host_default_out = pa_get_default_devices_from_host(winhost)
+            self._server.setInputDevice(host_default_in)
+            self._server.setOutputDevice(host_default_out)
+
     def __del__(self):
         self.setTime = None
         self.setRms = None
@@ -145,7 +154,7 @@ class Server(object):
             self._time.sleep(.25)
 
     def reinit(self, sr=44100, nchnls=2, buffersize=256, duplex=1,
-               audio='portaudio', jackname='pyo', ichnls=None):
+               audio='portaudio', jackname='pyo', ichnls=None, winhost="wasapi"):
         """
         Reinit the server'settings. Useful to alternate between real-time and offline server.
 
@@ -160,6 +169,7 @@ class Server(object):
             self._ichnls = nchnls
         else:
             self._ichnls = ichnls
+        self._winhost = winhost
         self._amp = 1.
         self._verbosity = 7
         self._startoffset = 0
@@ -171,6 +181,11 @@ class Server(object):
         self._resampling = 1
         self._isJackTransportSlave = False
         self._server.__init__(sr, nchnls, buffersize, duplex, audio, jackname, self._ichnls)
+
+        if sys.platform.startswith("win"):
+            host_default_in, host_default_out = pa_get_default_devices_from_host(winhost)
+            self._server.setInputDevice(host_default_in)
+            self._server.setOutputDevice(host_default_out)
 
     def setCallback(self, callback):
         """
