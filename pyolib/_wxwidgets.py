@@ -37,7 +37,10 @@ def interpFloat(t, v1, v2):
 
 def tFromValue(value, v1, v2):
     "returns a t (in range 0-1) given a value in the range v1 to v2"
-    return float(value - v1) / (v2 - v1)
+    if (v2 - v1) == 0:
+        return 1.0
+    else:
+        return float(value - v1) / (v2 - v1)
 
 def clamp(v, minv, maxv):
     "clamps a value within a range"
