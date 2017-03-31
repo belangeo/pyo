@@ -1,8 +1,17 @@
 2017-03-31 belangeo <belangeo@gmail.com>
 
+    * Added two examples in 07-effects, 01-flanger.py and 02-schroeder-reverb.py.
+
+2017-03-31 belangeo <belangeo@gmail.com>
+
     * Removed Server.setInOutDefaultDeviceFromHost(host) method.
       Added a new winhost argument to the Server's initialization.
       Added pa_get_default_devices_from_host(host) function.
+
+2017-03-27 belangeo <belangeo@gmail.com>
+
+    * Check the jack api version before compiling to ensure existing
+    functions are used (jack_port_set_name/jack_port_rename).
 
 2017-03-26 belangeo <belangeo@gmail.com>
 
