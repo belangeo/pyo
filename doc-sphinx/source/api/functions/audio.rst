@@ -34,6 +34,11 @@ Set of functions to inspect the system's audio configuration.
 
 .. autofunction:: pa_get_default_host_api
 
+*pa_get_default_devices_from_host*
+-------------------------------------
+
+.. autofunction:: pa_get_default_devices_from_host
+
 *pa_count_devices*
 ---------------------------------
 

@@ -74,6 +74,7 @@ OBJECTS_TREE = {
                          'pa_get_default_output', 'pm_get_input_devices',
                          'pa_list_devices', 'pa_count_host_apis', 
                          'pa_list_host_apis', 'pa_get_default_host_api',
+                         'pa_get_default_devices_from_host',
                          'pm_count_devices', 'pm_list_devices', 'sndinfo', 
                          'savefile', 'pa_get_output_devices',
                          'pa_get_input_devices', 'midiToHz', 'hzToMidi', 

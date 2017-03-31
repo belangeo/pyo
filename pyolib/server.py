@@ -82,6 +82,9 @@ class Server(object):
             Name of jack client. Defaults to 'pyo'
         ichnls: int, optional
             Number of input channels if different of output channels. If None (default), ichnls = nchnls.
+        winhost: string, optional
+            Under Windows, pyo's Server will try to use the default devices of the given host.
+            This behaviour can be changed with the SetXXXDevice methods.
 
     .. note::
 
@@ -90,7 +93,6 @@ class Server(object):
         - setInOutDevice(x): Set both input and output devices. See `pa_list_devices()`.
         - setInputDevice(x): Set the audio input device number. See `pa_list_devices()`.
         - setOutputDevice(x): Set the audio output device number. See `pa_list_devices()`.
-        - setInOutDefaultDeviceFromHost(host): Set both input and output devices from host. See `pa_list_host_apis()`.
         - setInputOffset(x): Set the first physical input channel.
         - setOutputOffset(x): Set the first physical output channel.
         - setInOutOffset(x): Set the first physical input and output channels.
@@ -113,7 +115,7 @@ class Server(object):
 
     """
     def __init__(self, sr=44100, nchnls=2, buffersize=256, duplex=1,
-                 audio='portaudio', jackname='pyo', ichnls=None):
+                 audio='portaudio', jackname='pyo', ichnls=None, winhost="wasapi"):
         if "PYO_SERVER_AUDIO" in os.environ and "offline" not in audio and "embedded" not in audio:
             audio = os.environ["PYO_SERVER_AUDIO"]
         self._time = time
@@ -122,6 +124,7 @@ class Server(object):
             self._ichnls = nchnls
         else:
             self._ichnls = ichnls
+        self._winhost = winhost
         self._amp = 1.
         self._verbosity = 7
         self._startoffset = 0
@@ -135,6 +138,11 @@ class Server(object):
         self._server = Server_base(sr, nchnls, buffersize, duplex, audio, jackname, self._ichnls)
         self._server._setDefaultRecPath(os.path.join(os.path.expanduser("~"), "pyo_rec.wav"))
 
+        if sys.platform.startswith("win"):
+            host_default_in, host_default_out = pa_get_default_devices_from_host(winhost)
+            self._server.setInputDevice(host_default_in)
+            self._server.setOutputDevice(host_default_out)
+
     def __del__(self):
         self.setTime = None
         self.setRms = None
@@ -146,7 +154,7 @@ class Server(object):
             self._time.sleep(.25)
 
     def reinit(self, sr=44100, nchnls=2, buffersize=256, duplex=1,
-               audio='portaudio', jackname='pyo', ichnls=None):
+               audio='portaudio', jackname='pyo', ichnls=None, winhost="wasapi"):
         """
         Reinit the server'settings. Useful to alternate between real-time and offline server.
 
@@ -161,6 +169,7 @@ class Server(object):
             self._ichnls = nchnls
         else:
             self._ichnls = ichnls
+        self._winhost = winhost
         self._amp = 1.
         self._verbosity = 7
         self._startoffset = 0
@@ -172,6 +181,11 @@ class Server(object):
         self._resampling = 1
         self._isJackTransportSlave = False
         self._server.__init__(sr, nchnls, buffersize, duplex, audio, jackname, self._ichnls)
+
+        if sys.platform.startswith("win"):
+            host_default_in, host_default_out = pa_get_default_devices_from_host(winhost)
+            self._server.setInputDevice(host_default_in)
+            self._server.setOutputDevice(host_default_out)
 
     def setCallback(self, callback):
         """
@@ -290,72 +304,6 @@ class Server(object):
 
         """
         self._server.setInOutDevice(x)
-
-    def setInOutDefaultDeviceFromHost(self, host):
-        """
-        Set both input and output audio devices using defaults for a given host.
-
-        :Args:
-
-            host: string
-                The host for which we want to use the default devices.
-        
-        .. note::
-
-            Possible hosts are:
-
-            - Windows: mme, directsound, asio, wasapi or wdm-ks.
-            - Linux: alsa, oss, pulse or jack.
-            - MacOS: core audio, jack or soundflower.
-
-        """
-        host_default_in = pa_get_default_input()
-        host_default_out = pa_get_default_output()
-
-        # Retrieve host apis infos.
-        tempfile = os.path.join(os.path.expanduser("~"), "pa_retrieve_host_apis")
-        with open(tempfile, "w") as f:
-            with f as sys.stdout:
-                pa_list_host_apis()
-            sys.stdout = sys.__stdout__
-
-        with open(tempfile, "r") as f:
-            lines = f.readlines()
-
-        os.remove(tempfile)
-
-        # Build the list of currently available hosts.
-        host_names = []
-        for line in lines:
-            p1 = line.find("name: ") + 6
-            p2 = line.find(",", p1+1)
-            host_names.append(line[p1:p2])
-
-        # Search for the desired host.
-        found = False
-        for line in lines:
-            if host.lower() in line.lower():
-                splitted = line.replace("\n", "").split(", ")
-                attributes = [x.split(": ") for x in splitted]
-                found = True
-                break
-
-        # If not found, return portaudio default values.
-        if not found:
-            print("Can't find host '%s'.\nAvailable hosts are:" % host)
-            for host in host_names:
-                print(host.lower())
-            return host_default_in, host_default_out
-
-        # If found, search default device indexes.
-        for attribute in attributes:
-            if attribute[0] == "default in":
-                host_default_in = int(attribute[1])
-            elif attribute[0] == "default out":
-                host_default_out = int(attribute[1])
-
-        self._server.setInputDevice(host_default_in)
-        self._server.setOutputDevice(host_default_out)
 
     def setInputDevice(self, x):
         """
