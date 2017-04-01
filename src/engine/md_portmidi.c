@@ -295,12 +295,13 @@ Server_pm_deinit(Server *self)
     }
     if (self->withPortMidiOut == 1) {
         for (i=0; i<self->midiout_count; i++) {
-            if (be_data->midiout[i] != NULL)
+            if (be_data->midiout[i] != NULL) {
 
                 Py_BEGIN_ALLOW_THREADS
                 Pm_Close(be_data->midiout[i]);
                 Py_END_ALLOW_THREADS
 
+            }
         }
     }
     if (self->withPortMidi == 1 || self->withPortMidiOut == 1) {
