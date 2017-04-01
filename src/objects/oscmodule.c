@@ -100,6 +100,7 @@ OscReceiver_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, OscReceiver_compute_next_data_frame);
+    Stream_setStreamActive(self->stream, 1);
 
     static char *kwlist[] = {"port", "address", NULL};
 
@@ -1293,6 +1294,7 @@ OscListReceiver_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, OscListReceiver_compute_next_data_frame);
+    Stream_setStreamActive(self->stream, 1);
 
     static char *kwlist[] = {"port", "address", "num", NULL};
 

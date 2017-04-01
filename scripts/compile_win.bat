@@ -1,5 +1,7 @@
 echo off
 
+RMDIR /S /Q build
+
 echo *** Compile for python2.7 ***
 C:\Python27\python.exe setup.py install --use-double
 
