@@ -17,7 +17,7 @@ benefits of a mature, and widely used, general programming language.
 
 Systems : macOS (10.6 -> 10.12), linux, Windows (XP, Vista, 7, 8, 10)
 
-Python versions : 2.7.x (stable), 3.x.x (still experimental)
+Python versions : 2.7.x (stable), 3.x.x (still experimental but fully functional)
 
 [PYO OFFICAL WEB SITE](http://ajaxsoundstudio.com/pyo/)
 
@@ -53,6 +53,10 @@ processing environment.
 [PsychoPy](http://www.psychopy.org/) : An open-source application to allow the 
 presentation of stimuli and collection of data for a wide range of neuroscience, 
 psychology and psychophysics experiments.
+
+[Pyo Synth](https://github.com/alexandrepoirier/PyoSynth) : Pyo Synth is an open
+source application that makes the manipulation of pyo scripts easier by letting
+you control it with a midi keyboard. 
 
 ## Examples ##
 
