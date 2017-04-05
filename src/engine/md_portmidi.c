@@ -280,27 +280,25 @@ Server_pm_deinit(Server *self)
        but Pm_Close segfaults now and then so...
        This hack need to be tested on Windows and OSX. */
 
-    /* Restored with macros to protect Close statements. */
-
     if (self->withPortMidi == 1) {
         for (i=0; i<self->midiin_count; i++) {
             if (be_data->midiin[i] != NULL) {
-
+/*
                 Py_BEGIN_ALLOW_THREADS
                 Pm_Close(be_data->midiin[i]);
                 Py_END_ALLOW_THREADS
-
+*/
             }
         }
     }
     if (self->withPortMidiOut == 1) {
         for (i=0; i<self->midiout_count; i++) {
             if (be_data->midiout[i] != NULL) {
-
+/*
                 Py_BEGIN_ALLOW_THREADS
                 Pm_Close(be_data->midiout[i]);
                 Py_END_ALLOW_THREADS
-
+*/
             }
         }
     }
