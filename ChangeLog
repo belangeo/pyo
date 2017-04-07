@@ -1,5 +1,9 @@
 2017-04-06 belangeo <belangeo@gmail.com>
 
+    * Fixed TableRead which continues to play when freq is negative and loop is off.
+
+2017-04-06 belangeo <belangeo@gmail.com>
+
     * Added "speed" argument to Seq object. Useful to create continuous time
       deceleration or acceleration.
 

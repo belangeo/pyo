@@ -5834,8 +5834,11 @@ TableRead_readframes_i(TableRead *self) {
     for (i=0; i<self->bufsize; i++) {
         self->trigsBuffer[i] = 0.0;
         if (self->pointerPos < 0) {
-            if (self->init == 0)
+            if (self->init == 0) {
                 self->trigsBuffer[i] = 1.0;
+                if (self->loop == 0)
+                    self->go = 0;
+            }
             else
                 self->init = 0;
             self->pointerPos = size + self->pointerPos;
@@ -5880,8 +5883,11 @@ TableRead_readframes_a(TableRead *self) {
     for (i=0; i<self->bufsize; i++) {
         self->trigsBuffer[i] = 0.0;
         if (self->pointerPos < 0) {
-            if (self->init == 0)
+            if (self->init == 0) {
                 self->trigsBuffer[i] = 1.0;
+                if (self->loop == 0)
+                    self->go = 0;
+            }
             else
                 self->init = 0;
             self->pointerPos = size + self->pointerPos;
