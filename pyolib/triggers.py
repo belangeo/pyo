@@ -188,6 +188,10 @@ class Seq(PyoObject):
         onlyonce: boolean, optional
             If True, the sequence will play only once and automatically stop.
             Defaults to False.
+        speed: float or PyoObject, optional
+            Continuous speed factor. This factor multiplies the speed of the
+            internal timer continuously. It can be useful to create time
+            deceleration or acceleration. Defaults to 1.
 
     .. note::
 
@@ -204,20 +208,21 @@ class Seq(PyoObject):
     >>> a = SineLoop(tr, feedback=0.07, mul=amp).out()
 
     """
-    def __init__(self, time=1, seq=[1], poly=1, onlyonce=False):
-        pyoArgsAssert(self, "OlIB", time, seq, poly)
+    def __init__(self, time=1, seq=[1], poly=1, onlyonce=False, speed=1):
+        pyoArgsAssert(self, "OlIBO", time, seq, poly, onlyonce, speed)
         PyoObject.__init__(self)
         self._time = time
         self._seq = seq
         self._poly = poly
         self._onlyonce = onlyonce
-        time, lmax = convertArgsToLists(time)
+        self._speed = speed
+        time, speed, lmax = convertArgsToLists(time, speed)
         if type(seq[0]) != list:
-            self._base_players = [Seqer_base(wrap(time,i), seq, poly, onlyonce) for i in range(lmax)]
+            self._base_players = [Seqer_base(wrap(time,i), seq, poly, onlyonce, wrap(speed,i)) for i in range(lmax)]
         else:
             seqlen = len(seq)
             lmax = max(seqlen, lmax)
-            self._base_players = [Seqer_base(wrap(time,i), wrap(seq,i), poly, onlyonce) for i in range(lmax)]
+            self._base_players = [Seqer_base(wrap(time,i), wrap(seq,i), poly, onlyonce, wrap(speed,i)) for i in range(lmax)]
         self._base_objs = [Seq_base(wrap(self._base_players,j), i) for i in range(poly) for j in range(lmax)]
 
     def setTime(self, x):
@@ -234,6 +239,21 @@ class Seq(PyoObject):
         self._time = x
         x, lmax = convertArgsToLists(x)
         [obj.setTime(wrap(x,i)) for i, obj in enumerate(self._base_players)]
+
+    def setSpeed(self, x):
+        """
+        Replace the `speed` attribute.
+
+        :Args:
+
+            x: float or PyoObject
+                New `speed` attribute.
+
+        """
+        pyoArgsAssert(self, "O", x)
+        self._speed = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setSpeed(wrap(x,i)) for i, obj in enumerate(self._base_players)]
 
     def setSeq(self, x):
         """
@@ -291,6 +311,13 @@ class Seq(PyoObject):
         return self._time
     @time.setter
     def time(self, x): self.setTime(x)
+
+    @property
+    def speed(self):
+        """float or PyoObject. Continuous speed factor."""
+        return self._speed
+    @speed.setter
+    def speed(self, x): self.setSpeed(x)
 
     @property
     def seq(self):
