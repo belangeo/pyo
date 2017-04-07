@@ -1,3 +1,7 @@
+2017-04-07 belangeo <belangeo@gmail.com>
+
+    * Fixed CallAfter segfault when deleted inside its own callback.
+
 2017-04-06 belangeo <belangeo@gmail.com>
 
     * Fixed TableRead which continues to play when freq is negative and loop is off.

@@ -529,7 +529,8 @@ CallAfter_generate(CallAfter *self) {
             result = PyObject_Call(self->callable, tuple, NULL);
             if (result == NULL)
                 PyErr_Print();
-            PyObject_CallMethod((PyObject *)self, "stop", NULL);
+            if (self->stream != NULL)
+                PyObject_CallMethod((PyObject *)self, "stop", NULL);
             break;
         }
         self->currentTime += self->sampleToSec;
