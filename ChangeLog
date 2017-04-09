@@ -1,3 +1,7 @@
+2017-04-09 belangeo <belangeo@gmail.com>
+
+    * Fixed segfault when updating ControlSlider value from the audio thread.
+
 2017-04-07 belangeo <belangeo@gmail.com>
 
     * Fixed CallAfter segfault when deleted inside its own callback.

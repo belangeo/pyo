@@ -153,11 +153,11 @@ class ControlSlider(wx.Panel):
 
     def Enable(self):
         self._enable = True
-        self.Refresh()
+        wx.CallAfter(self.Refresh)
 
     def Disable(self):
         self._enable = False
-        self.Refresh()
+        wx.CallAfter(self.Refresh)
 
     def setSliderHeight(self, height):
         self.sliderHeight = height
@@ -208,7 +208,7 @@ class ControlSlider(wx.Panel):
             self.value = powOfTwo(self.value)
         self.clampPos()
         self.selected = False
-        self.Refresh()
+        wx.CallAfter(self.Refresh)
 
     def GetValue(self):
         if self.log:
@@ -1000,7 +1000,7 @@ class ViewTable(wx.Frame):
         self.update(samples)
 
     def update(self, samples):
-        wx.CallAfter(self.wavePanel.draw, samples)
+        self.wavePanel.draw(samples)
 
     def _destroy(self, evt):
         self.object._setViewFrame(None)
@@ -1022,7 +1022,7 @@ class ViewTablePanel(wx.Panel):
 
     def draw(self, samples):
         self.samples = samples
-        self.Refresh()
+        wx.CallAfter(self.Refresh)
 
     def OnPaint(self, evt):
         w,h = self.GetSize()
@@ -1072,7 +1072,7 @@ class SndViewTable(wx.Frame):
         self.update()
 
     def update(self):
-        wx.CallAfter(self.wavePanel.setImage)
+        self.wavePanel.setImage()
 
     def _destroy(self, evt):
         self.obj._setViewFrame(None)
@@ -1144,7 +1144,7 @@ class SndViewTablePanel(wx.Panel):
     def setImage(self):
         if self.obj is not None:
             self.img = self.obj.getViewTable(self.GetSize(), self.begin, self.end)
-            self.Refresh()
+            wx.CallAfter(self.Refresh)
 
     def clipPos(self, pos):
         if pos[0] < 0.0: x = 0.0
@@ -1330,7 +1330,7 @@ class ViewMatrixBase(wx.Frame):
         self.SetMaxSize(self.GetSize())
 
     def update(self, samples):
-        wx.CallAfter(self.setImage, samples)
+        self.setImage(samples)
 
     def _destroy(self, evt):
         self.object._setViewFrame(None)
@@ -1346,7 +1346,7 @@ class ViewMatrix(ViewMatrixBase):
         image = wx.EmptyImage(self.size[0], self.size[1])
         image.SetData(samples)
         self.img = wx.BitmapFromImage(image)
-        self.Refresh()
+        wx.CallAfter(self.Refresh)
 
     def OnPaint(self, evt):
         dc = wx.PaintDC(self)
@@ -1471,7 +1471,7 @@ class SpectrumDisplay(wx.Frame):
         self.obj.setHeight(size[1])
 
     def update(self, points):
-        wx.CallAfter(self.spectrumPanel.setImage, points)
+        self.spectrumPanel.setImage(points)
 
     def setFscaling(self, x):
         self.spectrumPanel.setFscaling(x)
@@ -1738,7 +1738,7 @@ class ScopeDisplay(wx.Frame):
         self.obj.setGain(gain)
 
     def update(self, points):
-        wx.CallAfter(self.scopePanel.setImage, points)
+        self.scopePanel.setImage(points)
 
     def _destroy(self, evt):
         self.obj._setViewFrame(None)
