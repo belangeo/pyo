@@ -110,7 +110,10 @@ else:
     macros.append(('USE_OSC', None))
     ad_files.append("osclistenermodule.c")
     obj_files.append("oscmodule.c")
-    libraries += ["lo"]
+    if sys.platform == "win32":
+        libraries += ["liblo-7"]
+    else:
+        libraries += ["lo"]
 
 # Optional Audio / Midi drivers
 if '--use-jack' in sys.argv: 
@@ -157,8 +160,8 @@ else:
 if sys.platform == "win32":
     include_dirs = ['C:\portaudio\include', 'C:\portmidi\pm_common', 'include',
                     'C:\Program Files (x86)\Mega-Nerd\libsndfile\include',
-                    'C:\liblo', 'C:\pthreads\include', 'C:\portmidi\porttime']
-    library_dirs = ['C:\portaudio', 'C:\portmidi', 'C:\liblo', 'C:\pthreads\lib', 
+                    'C:\liblo-0.28', 'C:\pthreads\include', 'C:\portmidi\porttime']
+    library_dirs = ['C:\portaudio', 'C:\portmidi', 'C:\liblo-0.28\src\.libs', 'C:\pthreads\lib', 
                     'C:/Program Files (x86)/Mega-Nerd/libsndfile/bin']
     libraries += ['libsndfile-1', 'pthreadVC2']
     if 'portmidi' in libraries:

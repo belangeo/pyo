@@ -41,7 +41,7 @@ Source: "C:\Python27\Lib\site-packages\pyolib\*"; DestDir: "{app}\Lib\site-packa
 Source: "C:\Python27\Lib\site-packages\_pyo.pyd"; DestDir: "{app}\Lib\site-packages"; Flags: ignoreversion
 Source: "C:\Python27\Lib\site-packages\_pyo64.pyd"; DestDir: "{app}\Lib\site-packages"; Flags: ignoreversion
 Source: "C:\Python27\Lib\site-packages\libsndfile-1.dll"; DestDir: "{app}\Lib\site-packages"; Flags: ignoreversion
-Source: "C:\Python27\Lib\site-packages\lo.dll"; DestDir: "{app}\Lib\site-packages"; Flags: ignoreversion
+Source: "C:\Python27\Lib\site-packages\liblo-7.dll"; DestDir: "{app}\Lib\site-packages"; Flags: ignoreversion
 Source: "C:\Python27\Lib\site-packages\portaudio.dll"; DestDir: "{app}\Lib\site-packages"; Flags: ignoreversion
 Source: "C:\Python27\Lib\site-packages\portmidi.dll"; DestDir: "{app}\Lib\site-packages"; Flags: ignoreversion
 Source: "C:\Python27\Lib\site-packages\porttime.dll"; DestDir: "{app}\Lib\site-packages"; Flags: ignoreversion
