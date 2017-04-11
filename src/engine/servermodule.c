@@ -195,6 +195,7 @@ void
     Server *self;
     self = (Server *)arg;
 
+    PyGILState_STATE s = PyGILState_Ensure();
     if (self->recdur < 0) {
         Server_error(self,"Duration must be specified for Offline Server (see Server.recordOptions).");
     }
@@ -211,6 +212,8 @@ void
         sf_close(self->recfile);
         Server_message(self,"Offline Server rendering finished.\n");
     }
+    PyGILState_Release(s);
+
     return NULL;
 }
 
