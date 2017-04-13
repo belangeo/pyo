@@ -5605,7 +5605,7 @@ Resample_dealloc(Resample* self)
 {
     int i;
     pyo_DEALLOC
-    if (self->size > 0) {
+    if (self->size > self->factor) {
         for (i=0; i<self->factor; i++) {
             free(self->pimpulse[i]);
             free(self->pinput[i]);
