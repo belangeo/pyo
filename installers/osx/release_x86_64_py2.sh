@@ -58,7 +58,10 @@ sudo cp /usr/local/lib/libogg.0.dylib $SUPPORT_LIBS_DIR/libogg.0.dylib
 sudo install_name_tool -change /usr/local/opt/flac/lib/libFLAC.8.dylib /usr/local/lib/libFLAC.8.dylib $SUPPORT_LIBS_DIR/libsndfile.1.dylib
 sudo install_name_tool -change /usr/local/opt/libogg/lib/libogg.0.dylib /usr/local/lib/libogg.0.dylib $SUPPORT_LIBS_DIR/libsndfile.1.dylib
 sudo install_name_tool -change /usr/local/opt/libvorbis/lib/libvorbis.0.dylib /usr/local/lib/libvorbis.0.dylib $SUPPORT_LIBS_DIR/libsndfile.1.dylib
-sudo install_name_tool -change /usr/local/opt/libvorbis/lib/libvorbisenc.2.dylib /usr/local/lib/libvorbis.2.dylib $SUPPORT_LIBS_DIR/libsndfile.1.dylib
+sudo install_name_tool -change /usr/local/opt/libvorbis/lib/libvorbisenc.2.dylib /usr/local/lib/libvorbisenc.2.dylib $SUPPORT_LIBS_DIR/libsndfile.1.dylib
+sudo install_name_tool -change /usr/local/opt/libogg/lib/libogg.0.dylib /usr/local/lib/libogg.0.dylib $SUPPORT_LIBS_DIR/libvorbis.0.dylib
+sudo install_name_tool -change /usr/local/opt/libogg/lib/libogg.0.dylib /usr/local/lib/libogg.0.dylib $SUPPORT_LIBS_DIR/libvorbisenc.2.dylib
+sudo install_name_tool -change /usr/local/Cellar/libvorbis/1.3.5/lib/libvorbis.0.dylib /usr/local/lib/libvorbis.0.dylib $SUPPORT_LIBS_DIR/libvorbisenc.2.dylib
 
 echo "setting permissions..."
 sudo chgrp -R admin PyoModule/Package_Contents/tmp
