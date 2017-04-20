@@ -756,6 +756,7 @@ class PyoObject(PyoObjectBase):
         self._map_list = []
         self._zeros = None
         self._base_players = None
+        self._time_objs = None
 
     def __add__(self, x):
         x, lmax = convertArgsToLists(x)
@@ -1037,6 +1038,10 @@ class PyoObject(PyoObjectBase):
         if self._base_players is not None:
             [obj.play(wrap(dur, i), wrap(delay, i)) \
              for i, obj in enumerate(self._base_players)]
+        if self._time_objs is not None:
+            [obj.play(wrap(dur, i), wrap(delay, i)) \
+             for i, obj in enumerate(self._time_objs)]
+
         [obj.play(wrap(dur, i), wrap(delay, i)) \
          for i, obj in enumerate(self._base_objs)]
         return self
@@ -1085,6 +1090,10 @@ class PyoObject(PyoObjectBase):
         if self._base_players is not None:
             [obj.play(wrap(dur, i), wrap(delay, i))
              for i, obj in enumerate(self._base_players)]
+        if self._time_objs is not None:
+            [obj.play(wrap(dur, i), wrap(delay, i))
+             for i, obj in enumerate(self._time_objs)]
+
         if isinstance(chnl, list):
             [obj.out(wrap(chnl, i), wrap(dur, i), wrap(delay, i)) \
              for i, obj in enumerate(self._base_objs)]
@@ -1113,6 +1122,9 @@ class PyoObject(PyoObjectBase):
                 self._trig_objs.stop()
         if self._base_players is not None:
             [obj.stop() for obj in self._base_players]
+        if self._time_objs is not None:
+            [obj.stop() for obj in self._time_objs]
+
         [obj.stop() for obj in self._base_objs]
         return self
 

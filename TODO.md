@@ -38,13 +38,13 @@ Objects
   A trigger from the second object will make the object output the second value
   from the list.
 
-- Added random distribution in SfMarkerShuffler.
+- Add random distribution in SfMarkerShuffler.
 
 MIDI
 ----
 
 - Create a MidiLinseg object that act like MidiAdsr but with a breakpoints
-  function as the envelope. The sustain point should settable by the user.
+  function as the envelope. The sustain point should be settable by the user.
 
 - sysex support in MidiListener.
 
@@ -71,9 +71,15 @@ Tables
 - Objects that can write to tables should accept any PyoTableObject,
   not just a NewTable or a DataTable.
 
+Matrices
+--------
+
+- Implement the buffer protocol as in the PyoTableObject.
 
 E-Pyo
 -----
+
+- Complete review of E-Pyo on Windows. Lot of features don't seem to work.
 
 - Window splitter to show more than one file at the time (multiple 
   views) ?

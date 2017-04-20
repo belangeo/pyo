@@ -1,3 +1,7 @@
+2017-04-20 belangeo <belangeo@gmail.com>
+
+    * Fixed TableRec, TrigTableRec and Looper time stream not started on play.
+
 2017-04-13 belangeo <belangeo@gmail.com>
 
     * Fixed segfault in Resample_dealloc function.
