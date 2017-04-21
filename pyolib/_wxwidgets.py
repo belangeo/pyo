@@ -80,7 +80,8 @@ def GetRoundBitmap( w, h, r ):
 class ControlSlider(wx.Panel):
 
     def __init__(self, parent, minvalue, maxvalue, init=None, pos=(0,0), size=(200,16), log=False,
-                 outFunction=None, integer=False, powoftwo=False, backColour=None, orient=wx.HORIZONTAL):
+                 outFunction=None, integer=False, powoftwo=False, backColour=None, orient=wx.HORIZONTAL,
+                 ctrllabel=""):
         if size == (200,16) and orient == wx.VERTICAL:
             size = (40, 200)
         wx.Panel.__init__(self, parent=parent, id=wx.ID_ANY, pos=pos, size=size,
@@ -109,6 +110,7 @@ class ControlSlider(wx.Panel):
         if self.powoftwo:
             self.integer = True
             self.log = False
+        self.ctrllabel = ctrllabel
         self.SetRange(minvalue, maxvalue)
         self.borderWidth = 1
         self.selected = False
@@ -136,6 +138,9 @@ class ControlSlider(wx.Panel):
             self.dcref = wx.BufferedPaintDC
         else:
             self.dcref = wx.PaintDC
+
+    def getCtrlLabel(self):
+        return self.ctrllabel
 
     def setMidiCtl(self, x, propagate=True):
         self.propagate = propagate
@@ -410,7 +415,7 @@ class ControlSlider(wx.Panel):
 # It should work in the same way as the ControlSlider widget.
 class MultiSlider(wx.Panel):
 
-    def __init__(self, parent, init, key, command, slmap):
+    def __init__(self, parent, init, key, command, slmap, ctrllabel=""):
         wx.Panel.__init__(self, parent, size=(250,250))
         self.backgroundColour = BACKGROUND_COLOUR
         self.SetBackgroundStyle(wx.BG_STYLE_CUSTOM)
@@ -421,6 +426,7 @@ class MultiSlider(wx.Panel):
         self.Bind(wx.EVT_LEFT_UP, self.MouseUp)
         self.Bind(wx.EVT_MOTION, self.MouseMotion)
         self._slmap = slmap
+        self.ctrllabel = ctrllabel
         self._values = [slmap.set(x) for x in init]
         self._nchnls = len(init)
         self._labels = init
@@ -434,6 +440,9 @@ class MultiSlider(wx.Panel):
 
         self.SetSize((250, self._nchnls*16))
         self.SetMinSize((250,self._nchnls*16))
+
+    def getCtrlLabel(self):
+        return self.ctrllabel
 
     def OnResize(self, event):
         self.Layout()
@@ -487,6 +496,9 @@ class MultiSlider(wx.Panel):
                     self._labels = [self._slmap.get(x) for x in self._values]
                 self._command(self._key, self._labels)
             self.Refresh()
+
+    def GetValue(self):
+        return self._labels
 
 class VuMeter(wx.Panel):
 
@@ -898,8 +910,13 @@ class PyoObjectControl(wx.Frame):
         from .controls import SigTo
         self.menubar = wx.MenuBar()
         self.fileMenu = wx.Menu()
-        self.fileMenu.Append(-1, 'Close\tCtrl+W', kind=wx.ITEM_NORMAL)
-        self.fileMenu.Bind(wx.EVT_MENU, self._destroy)
+        self.fileMenu.Append(9999, 'Close\tCtrl+W', kind=wx.ITEM_NORMAL)
+        self.fileMenu.Bind(wx.EVT_MENU, self._destroy, id=9999)
+        self.fileMenu.AppendSeparator()
+        self.fileMenu.Append(10000, 'Copy all parameters to the clipboard (4 digits of precision)\tCtrl+C', kind=wx.ITEM_NORMAL)
+        self.Bind(wx.EVT_MENU, self.copy, id=10000)
+        self.fileMenu.Append(10001, 'Copy all parameters to the clipboard (full precision)\tShift+Ctrl+C', kind=wx.ITEM_NORMAL)
+        self.Bind(wx.EVT_MENU, self.copy, id=10001)
         self.menubar.Append(self.fileMenu, "&File")
         self.SetMenuBar(self.menubar)
         self.Bind(wx.EVT_CLOSE, self._destroy)
@@ -936,10 +953,10 @@ class PyoObjectControl(wx.Frame):
                     if res == 'int': res = True
                     else: res = False
                     self._sliders.append(ControlSlider(panel, mini, maxi, init, log=scl, size=(300,16),
-                                        outFunction=Command(self.setval, key), integer=res))
+                                        outFunction=Command(self.setval, key), integer=res, ctrllabel=key))
                     self.box.AddMany([(label, 0, wx.LEFT, 5), (self._sliders[-1], 1, wx.EXPAND | wx.LEFT, 5)])
                 else:
-                    self._sliders.append(MultiSlider(panel, init, key, self.setval, m))
+                    self._sliders.append(MultiSlider(panel, init, key, self.setval, m, ctrllabel=key))
                     self.box.AddMany([(label, 0, wx.LEFT, 5), (self._sliders[-1], 1, wx.EXPAND | wx.LEFT, 5)])
                 # set obj attribute to PyoObject SigTo
                 if not dataOnly:
@@ -973,6 +990,39 @@ class PyoObjectControl(wx.Frame):
             setattr(self._sigs[key], "value", x)
         else:
             setattr(self._obj, key, x)
+
+    def copy(self, evt):
+        labels = [slider.getCtrlLabel() for slider in self._sliders]
+        values = [slider.GetValue() for slider in self._sliders]
+        if evt.GetId() == 10000:
+            pstr = ""
+            for i in range(len(labels)):
+                pstr += "%s=" % labels[i]
+                if type(values[i]) == list:
+                    pstr += "["
+                    pstr += ", ".join(["%.4f" % val for val in values[i]])
+                    pstr += "]"
+                else:
+                    pstr += "%.4f" % values[i]
+                if i < (len(labels)-1):
+                    pstr += ", "
+        else:
+            pstr = ""
+            for i in range(len(labels)):
+                pstr += "%s=" % labels[i]
+                if type(values[i]) == list:
+                    pstr += "["
+                    pstr += ", ".join([str(val) for val in values[i]])
+                    pstr += "]"
+                else:
+                    pstr += str(values[i])
+                if i < (len(labels)-1):
+                    pstr += ", "
+        data = wx.TextDataObject(pstr)
+        if wx.TheClipboard.Open():
+            wx.TheClipboard.Clear()
+            wx.TheClipboard.SetData(data)
+            wx.TheClipboard.Close()
 
 ######################################################################
 ### View window for PyoTableObject
@@ -2410,6 +2460,9 @@ class DataMultiSlider(wx.Panel):
         self.changed = True
         wx.CallAfter(self.Refresh)
 
+    def getValues(self):
+        return self.values
+
     def OnPaint(self, event):
         w,h = self.GetSize()
         dc = self.dcref(self)
@@ -2509,6 +2562,11 @@ class DataTableGrapher(wx.Frame):
         self.fileMenu = wx.Menu()
         self.fileMenu.Append(9999, 'Close\tCtrl+W', kind=wx.ITEM_NORMAL)
         self.Bind(wx.EVT_MENU, self.close, id=9999)
+        self.fileMenu.AppendSeparator()
+        self.fileMenu.Append(10000, 'Copy all points to the clipboard (4 digits of precision)\tCtrl+C', kind=wx.ITEM_NORMAL)
+        self.Bind(wx.EVT_MENU, self.copy, id=10000)
+        self.fileMenu.Append(10001, 'Copy all points to the clipboard (full precision)\tShift+Ctrl+C', kind=wx.ITEM_NORMAL)
+        self.Bind(wx.EVT_MENU, self.copy, id=10001)
         self.menubar.Append(self.fileMenu, "&File")
         self.SetMenuBar(self.menubar)
 
@@ -2520,6 +2578,23 @@ class DataTableGrapher(wx.Frame):
 
     def update(self, samples):
         self.multi.update(samples)
+
+    def copy(self, evt):
+        values = self.multi.getValues()
+        if evt.GetId() == 10000:
+            pstr = "["
+            for i, val in enumerate(values):
+                pstr += "%.4f" % val
+                if i < (len(values)-1):
+                    pstr += ", "
+            pstr += "]"
+        else:
+            pstr = str(values)
+        data = wx.TextDataObject(pstr)
+        if wx.TheClipboard.Open():
+            wx.TheClipboard.Clear()
+            wx.TheClipboard.SetData(data)
+            wx.TheClipboard.Close()
 
 class ExprLexer(object):
     """Defines simple interface for custom lexer objects."""

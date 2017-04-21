@@ -1,5 +1,9 @@
 2017-04-20 belangeo <belangeo@gmail.com>
 
+    * Added a Copy menu item in PyoObject.ctrl() and DataTable.graph() windows.
+
+2017-04-20 belangeo <belangeo@gmail.com>
+
     * Added setRandomType(dist, x) method to SfMarkerShuffler object.
 
 2017-04-20 belangeo <belangeo@gmail.com>

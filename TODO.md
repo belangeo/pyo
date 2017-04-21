@@ -59,8 +59,6 @@ GUI
 
 - Keyboard, a virtual MIDI keyboard (adapted from Zyne's one).
 
-- Save menu item in ctrl() and DataTable graph() windows.
-
 - Ability to set channel "name" in the view of PyoGuiScope and PyoGuiSpectrum.
 
 Tables
