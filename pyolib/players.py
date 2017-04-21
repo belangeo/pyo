@@ -314,7 +314,9 @@ class SfMarkerShuffler(PyoObject):
 
     >>> s = Server().boot()
     >>> s.start()
-    >>> sf = SfMarkerShuffler(SNDS_PATH + "/transparent.aif", speed=[1,1], mul=.3).out()
+    >>> sound = SNDS_PATH + "/transparent.aif"
+    >>> sf = SfMarkerShuffler(sound, speed=[1,1], mul=.3).out()
+    >>> sf.setRandomType("expon_min", 0.6)
 
     """
     def __init__(self, path, speed=1, interp=2, mul=1, add=0):
@@ -369,6 +371,62 @@ class SfMarkerShuffler(PyoObject):
         self._interp = x
         x, lmax = convertArgsToLists(x)
         [obj.setInterp(wrap(x,i)) for i, obj in enumerate(self._base_players)]
+
+    def setRandomType(self, dist=0, x=0.5):
+        """
+        Set the random distribution type used to choose the markers.
+
+        :Args:
+
+            dist: int or string
+                The distribution type. Available distributions are:
+                    0. uniform (default)
+                    1. linear minimum
+                    2. linear maximum
+                    3. triangular
+                    4. exponential minimum
+                    5. exponential maximum
+                    6. double (bi)exponential
+                    7. cauchy
+                    8. weibull
+                    9. gaussian
+            x: float
+                Distribution specific parameter, if applicable, as a float
+                between 0 and 1. Defaults to 0.5.
+
+        .. note::
+
+            Depending on the distribution type, `x` parameter is applied as
+            follow (names as string, or associated number can be used as `dist`
+            parameter):
+
+            0. uniform
+                - x: not used
+            1. linear_min
+                - x: not used
+            2. linear_max
+                - x: not used
+            3. triangle
+                - x: not used
+            4. expon_min
+                - x: slope {0 = no slope -> 1 = sharp slope}
+            5. expon_max
+                - x: slope {0 = no slope -> 1 = sharp slope}
+            6. biexpon
+                - x: bandwidth {0 = huge bandwidth -> 1 = narrow bandwidth}
+            7. cauchy
+                - x: bandwidth {0 = huge bandwidth -> 1 = narroe bandwidth}
+            8. weibull
+                - x: shape {0 = expon min => linear min => 1 = gaussian}
+            9. gaussian
+                - x: bandwidth {0 = huge bandwidth -> 1 = narrow bandwidth}
+
+        """
+        dist, x, lmax = convertArgsToLists(dist, x)
+        for i, t in enumerate(dist):
+            if type(t) in [bytes_t, unicode_t]:
+                dist[i] = XNOISE_DICT.get(t, 0)
+        [obj.setRandomType(wrap(dist,i), wrap(x,i)) for i, obj in enumerate(self._base_players)]
 
     def getMarkers(self):
         """

@@ -812,12 +812,130 @@ typedef struct {
     MYFLT *samplesBuffer;
     MYFLT *markers;
     int markers_size;
+    MYFLT x;
+    MYFLT (*type_func_ptr)();
     MYFLT (*interp_func_ptr)(MYFLT *, int, MYFLT, int);
 } SfMarkerShuffler;
 
 /*** PROTOTYPES ***/
 static void SfMarkerShuffler_chooseNewMark(SfMarkerShuffler *self, int dir);
 /******************/
+
+// no parameter
+static MYFLT
+SfMarkerShuffler_uniform(SfMarkerShuffler *self) {
+    return RANDOM_UNIFORM;
+}
+
+static MYFLT
+SfMarkerShuffler_linear_min(SfMarkerShuffler *self) {
+    MYFLT a = RANDOM_UNIFORM;
+    MYFLT b = RANDOM_UNIFORM;
+    if (a < b) return a;
+    else return b;
+}
+
+static MYFLT
+SfMarkerShuffler_linear_max(SfMarkerShuffler *self) {
+    MYFLT a = RANDOM_UNIFORM;
+    MYFLT b = RANDOM_UNIFORM;
+    if (a > b) return a;
+    else return b;
+}
+
+static MYFLT
+SfMarkerShuffler_triangle(SfMarkerShuffler *self) {
+    MYFLT a = RANDOM_UNIFORM;
+    MYFLT b = RANDOM_UNIFORM;
+    return ((a + b) * 0.5);
+}
+
+// x1 = slope
+static MYFLT
+SfMarkerShuffler_expon_min(SfMarkerShuffler *self) {
+    if (self->x <= 0.0) self->x = 0.00001;
+    MYFLT val = -MYLOG(RANDOM_UNIFORM) / self->x;
+    if (val < 0.0) return 0.0;
+    else if (val > 1.0) return 1.0;
+    else return val;
+}
+
+static MYFLT
+SfMarkerShuffler_expon_max(SfMarkerShuffler *self) {
+    if (self->x <= 0.0) self->x = 0.00001;
+    MYFLT val = 1.0 - (-MYLOG(RANDOM_UNIFORM) / self->x);
+    if (val < 0.0) return 0.0;
+    else if (val > 1.0) return 1.0;
+    else return val;
+}
+
+// x1 = bandwidth
+static MYFLT
+SfMarkerShuffler_biexpon(SfMarkerShuffler *self) {
+    MYFLT polar, val;
+    if (self->x <= 0.0) self->x = 0.00001;
+    MYFLT sum = RANDOM_UNIFORM * 2.0;
+
+    if (sum > 1.0) {
+        polar = -1;
+        sum = 2.0 - sum;
+    }
+    else
+        polar = 1;
+
+    val = 0.5 * (polar * MYLOG(sum) / self->x) + 0.5;
+
+    if (val < 0.0) return 0.0;
+    else if (val > 1.0) return 1.0;
+    else return val;
+}
+
+static MYFLT
+SfMarkerShuffler_cauchy(SfMarkerShuffler *self) {
+    MYFLT rnd, val, dir;
+    do {
+        rnd = RANDOM_UNIFORM;
+    }
+    while (rnd == 0.5);
+
+    if (pyorand() < (PYO_RAND_MAX / 2))
+        dir = -1;
+    else
+        dir = 1;
+
+    val = 0.5 * (MYTAN(rnd) * self->x * dir) + 0.5;
+
+    if (val < 0.0) return 0.0;
+    else if (val > 1.0) return 1.0;
+    else return val;
+}
+
+// x = shape
+static MYFLT
+SfMarkerShuffler_weibull(SfMarkerShuffler *self) {
+    MYFLT rnd, val;
+    if (self->x <= 0.0) self->x = 0.00001;
+
+    rnd = 1.0 / (1.0 - RANDOM_UNIFORM);
+    val = 0.5 * MYPOW(MYLOG(rnd), (1.0 / self->x));
+
+    if (val < 0.0) return 0.0;
+    else if (val > 1.0) return 1.0;
+    else return val;
+}
+
+// x = bandwidth
+static MYFLT
+SfMarkerShuffler_gaussian(SfMarkerShuffler *self) {
+    MYFLT rnd, val;
+
+    rnd = (RANDOM_UNIFORM + RANDOM_UNIFORM + RANDOM_UNIFORM + RANDOM_UNIFORM + RANDOM_UNIFORM + RANDOM_UNIFORM);
+    val = (self->x * (rnd - 3.0) * 0.33 + 0.5);
+
+    if (val < 0.0) return 0.0;
+    else if (val > 1.0) return 1.0;
+    else return val;
+}
 
 static void
 SfMarkerShuffler_readframes_i(SfMarkerShuffler *self) {
@@ -985,7 +1103,7 @@ SfMarkerShuffler_chooseNewMark(SfMarkerShuffler *self, int dir)
     int mark;
     if (dir == 1) {
         if (self->startPos == -1) {
-            mark = (int)(self->markers_size * RANDOM_UNIFORM);
+            mark = (int)(self->markers_size * (*self->type_func_ptr)(self) * 0.99);
             self->startPos = self->markers[mark];
             self->endPos = self->markers[mark+1];
         }
@@ -994,13 +1112,13 @@ SfMarkerShuffler_chooseNewMark(SfMarkerShuffler *self, int dir)
             self->endPos = self->nextEndPos;
         }
 
-        mark = (int)(self->markers_size * RANDOM_UNIFORM);
+        mark = (int)(self->markers_size * (*self->type_func_ptr)(self) * 0.99);
         self->nextStartPos = self->markers[mark];
         self->nextEndPos = self->markers[mark+1];
     }
     else {
         if (self->startPos == -1) {
-            mark = self->markers_size - (int)(self->markers_size * RANDOM_UNIFORM);
+            mark = self->markers_size - (int)(self->markers_size * (*self->type_func_ptr)(self) * 0.99);
             self->startPos = self->markers[mark];
             self->endPos = self->markers[mark-1];
         }
@@ -1009,7 +1127,7 @@ SfMarkerShuffler_chooseNewMark(SfMarkerShuffler *self, int dir)
             self->endPos = self->nextEndPos;
         }
 
-        mark = self->markers_size - (int)(self->markers_size * RANDOM_UNIFORM);
+        mark = self->markers_size - (int)(self->markers_size * (*self->type_func_ptr)(self) * 0.99);
         self->nextStartPos = self->markers[mark];
         self->nextEndPos = self->markers[mark-1];
     }
@@ -1073,6 +1191,7 @@ SfMarkerShuffler_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->endPos = -1;
 	self->modebuffer[0] = 0;
     self->lastDir = 1;
+    self->x = 0.5;
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, SfMarkerShuffler_compute_next_data_frame);
     self->mode_func_ptr = SfMarkerShuffler_setProcMode;
@@ -1089,6 +1208,8 @@ SfMarkerShuffler_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
     (*self->mode_func_ptr)(self);
+
+    self->type_func_ptr = SfMarkerShuffler_uniform;
 
     if (self->interp == 0)
         self->interp = 2;
@@ -1187,6 +1308,72 @@ SfMarkerShuffler_setInterp(SfMarkerShuffler *self, PyObject *arg)
     Py_RETURN_NONE;
 }
 
+static PyObject *
+SfMarkerShuffler_setRandomType(SfMarkerShuffler *self, PyObject *args, PyObject *kwds)
+{
+    int dist = 0;
+    MYFLT x = 0.5;
+
+    static char *kwlist[] = {"dist", "x", NULL};
+
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE__IF, kwlist, &dist, &x))
+        Py_RETURN_NONE;
+
+    if (dist < 0 || dist > 9) {
+        Py_RETURN_NONE;
+    }
+
+    if (x < 0.0)
+        self->x = 0.0;
+    else if (x >= 1.0)
+        self->x = 1.0;
+    else
+        self->x = x;
+
+    switch (dist) {
+        case 0:
+            self->type_func_ptr = SfMarkerShuffler_uniform;
+            break;
+        case 1:
+            self->type_func_ptr = SfMarkerShuffler_linear_min;
+            break;
+        case 2:
+            self->type_func_ptr = SfMarkerShuffler_linear_max;
+            break;
+        case 3:
+            self->type_func_ptr = SfMarkerShuffler_triangle;
+            break;
+        case 4:
+            self->type_func_ptr = SfMarkerShuffler_expon_min;
+            self->x *= 10.0;
+            break;
+        case 5:
+            self->type_func_ptr = SfMarkerShuffler_expon_max;
+            self->x *= 10.0;
+            break;
+        case 6:
+            self->type_func_ptr = SfMarkerShuffler_biexpon;
+            self->x *= 10.0;
+            break;
+        case 7:
+            self->type_func_ptr = SfMarkerShuffler_cauchy;
+            self->x *= 10.0;
+            self->x = 10.0 - self->x;
+            break;
+        case 8:
+            self->type_func_ptr = SfMarkerShuffler_weibull;
+            self->x = self->x * 5.0 + 0.1;
+            break;
+        case 9:
+            self->type_func_ptr = SfMarkerShuffler_gaussian;
+            self->x *= 10.0;
+            self->x = 10.0 - self->x;
+            break;
+    }
+
+    Py_RETURN_NONE;
+}
+
 MYFLT *
 SfMarkerShuffler_getSamplesBuffer(SfMarkerShuffler *self)
 {
@@ -1208,6 +1395,7 @@ static PyMethodDef SfMarkerShuffler_methods[] = {
 {"stop", (PyCFunction)SfMarkerShuffler_stop, METH_NOARGS, "Stops computing."},
 {"setSpeed", (PyCFunction)SfMarkerShuffler_setSpeed, METH_O, "Sets sfplayer reading speed."},
 {"setInterp", (PyCFunction)SfMarkerShuffler_setInterp, METH_O, "Sets sfplayer interpolation mode."},
+{"setRandomType", (PyCFunction)SfMarkerShuffler_setRandomType, METH_VARARGS|METH_KEYWORDS, "Sets sfplayer random type."},
 {NULL}  /* Sentinel */
 };
 

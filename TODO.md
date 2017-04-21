@@ -38,8 +38,6 @@ Objects
   A trigger from the second object will make the object output the second value
   from the list.
 
-- Add random distribution in SfMarkerShuffler.
-
 MIDI
 ----
 

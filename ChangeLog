@@ -1,5 +1,9 @@
 2017-04-20 belangeo <belangeo@gmail.com>
 
+    * Added setRandomType(dist, x) method to SfMarkerShuffler object.
+
+2017-04-20 belangeo <belangeo@gmail.com>
+
     * Fixed TableRec, TrigTableRec and Looper time stream not started on play.
 
 2017-04-13 belangeo <belangeo@gmail.com>
