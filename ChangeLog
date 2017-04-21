@@ -1,5 +1,9 @@
 2017-04-20 belangeo <belangeo@gmail.com>
 
+    * Upgraded version number to 0.8.6.
+
+2017-04-20 belangeo <belangeo@gmail.com>
+
     * Added a Copy menu item in PyoObject.ctrl() and DataTable.graph() windows.
 
 2017-04-20 belangeo <belangeo@gmail.com>
@@ -10,9 +14,23 @@
 
     * Fixed TableRec, TrigTableRec and Looper time stream not started on play.
 
+2017-04-18 belangeo <belangeo@gmail.com>
+
+    * Fixed libraries dynamic links in MacOS installer scripts.
+
 2017-04-13 belangeo <belangeo@gmail.com>
 
     * Fixed segfault in Resample_dealloc function.
+
+2017-04-10 belangeo <belangeo@gmail.com>
+
+    * Wrapped non-blocking offline processing between PyGILState_Ensure and
+    PyGILState_Release calls.
+
+2017-04-10 belangeo <belangeo@gmail.com>
+
+    * Updated liblo from 0.26 to 0.28 on Windows. This fixes a bug with socket
+    not properly closed.
 
 2017-04-09 belangeo <belangeo@gmail.com>
 
