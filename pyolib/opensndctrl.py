@@ -363,8 +363,8 @@ class OscDataSend(PyoObject):
     >>> s = Server().boot()
     >>> s.start()
     >>> def pp(address, *args):
-    ...     print address
-    ...     print args
+    ...     print(address)
+    ...     print(args)
     >>> r = OscDataReceive(9900, "/data/test", pp)
     >>> # Send various types
     >>> a = OscDataSend("fissif", 9900, "/data/test")
@@ -528,8 +528,8 @@ class OscDataReceive(PyoObject):
     >>> s = Server().boot()
     >>> s.start()
     >>> def pp(address, *args):
-    ...     print address
-    ...     print args
+    ...     print(address)
+    ...     print(args)
     >>> r = OscDataReceive(9900, "/data/test", pp)
     >>> # Send various types
     >>> a = OscDataSend("fissif", 9900, "/data/test")
