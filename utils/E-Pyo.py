@@ -2789,7 +2789,7 @@ class MainFrame(wx.Frame):
 
     def doSearchInProject(self, rootdir, search):
         result = {}
-        filters = ["build"]
+        filters = ["build", "__pycache__"]
         busy = wx.BusyCursor()
         for root, dirs, files in os.walk(rootdir):
             if os.path.split(root)[1].startswith("."):
@@ -5250,7 +5250,7 @@ class ProjectTree(wx.Panel):
                                                  self.fileidx)
                     self.tree.SetItemData(child, packItemData(os.path.join(dir, path)))
             elif os.path.isdir(path):
-                if elem != "build":
+                if elem not in ["build", "__pycache__"]:
                     child = self.tree.AppendItem(item, elem, self.fldridx,
                                                  self.fldropenidx)
                     self.tree.SetItemData(child, packItemData(os.path.join(dir, path)))
