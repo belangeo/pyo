@@ -90,19 +90,19 @@ PyObject * with_osc() { Py_INCREF(Py_False); return Py_False; };
 #define portaudio_count_host_apis_info \
 "\nReturns the number of host apis found by Portaudio.\n\n\
 >>> c = pa_count_host_apis()\n\
->>> print c\n\
+>>> print(c)\n\
 1\n\n"
 
 #define portaudio_get_version_info \
 "\nReturns the version number, as an integer, of the current portaudio installation.\n\n\
 >>> v = pa_get_version()\n\
->>> print v\n\
+>>> print(v)\n\
 1899\n\n"
 
 #define portaudio_get_version_text_info \
 "\nReturns the textual description of the current portaudio installation.\n\n\
 >>> desc = pa_get_version_text()\n\
->>> print desc\n\
+>>> print(desc)\n\
 PortAudio V19-devel (built Oct 8 2012 16:25:16)\n\n"
 
 #define portaudio_list_host_apis_info \
@@ -113,13 +113,13 @@ index: 0, id: 5, name: Core Audio, num devices: 6, default in: 0, default out: 2
 #define portaudio_get_default_host_api_info \
 "\nReturns the index number of Portaudio's default host api.\n\n\
 >>> h = pa_get_default_host_api()\n\
->>> print h\n\
+>>> print(h)\n\
 0\n\n"
 
 #define portaudio_count_devices_info \
 "\nReturns the number of devices found by Portaudio.\n\n\
 >>> c = pa_count_devices()\n\
->>> print c\n\
+>>> print(c)\n\
 6\n\n"
 
 #define portaudio_list_devices_info \
@@ -141,21 +141,21 @@ AUDIO devices:\n\
 This function returns two dictionaries, one containing a dictionary for each input device and one containing a dictionary for each output device. \
 Keys of outer dictionaries are the device index as returned by Portaudio. Keys of inner dictionaries are: 'name', 'host api index', 'default sr' and 'latency'.\n\n\
 >>> inputs, outputs = pa_get_devices_infos()\n\
->>> print '- Inputs:'\n\
+>>> print('- Inputs:')\n\
 >>> for index in sorted(inputs.keys()):\n\
-...     print '  Device index:', index\n\
+...     print('  Device index:', index)\n\
 ...     for key in ['name', 'host api index', 'default sr', 'latency']:\n\
-...         print '    %s:' % key, inputs[index][key]\n\
->>> print '- Outputs:'\n\
+...         print('    %s:' % key, inputs[index][key])\n\
+>>> print('- Outputs:')\n\
 >>> for index in sorted(outputs.keys()):\n\
-...     print '  Device index:', index\n\
+...     print('  Device index:', index)\n\
 ...     for key in ['name', 'host api index', 'default sr', 'latency']:\n\
-...         print '    %s:' % key, outputs[index][key]\n\n"
+...         print('    %s:' % key, outputs[index][key])\n\n"
 
 #define portaudio_get_output_devices_info \
 "\nReturns output devices (device names, device indexes) found by Portaudio.\n\n`device names` is a list of strings and `device indexes` is a list of the actual\nPortaudio index of each device.\n\n\
 >>> outs = pa_get_output_devices()\n\
->>> print outs\n\
+>>> print(outs)\n\
 (['Built-in Output', 'UA-4FX', 'Soundflower (2ch)', 'Soundflower (16ch)'], [2, 3, 4, 5])\n\n"
 
 #define portaudio_get_output_max_channels_info \
@@ -164,11 +164,11 @@ x: int\n        Device index as listed by Portaudio (see pa_get_output_devices).
 >>> device = 'HDA Intel PCH: STAC92xx Analog (hw:0,0)'\n\
 >>> dev_list, dev_index =  pa_get_output_devices()\n\
 >>> dev = dev_index[dev_list.index(device)]\n\
->>> print 'Device index:', dev\n\
+>>> print('Device index:', dev)\n\
 >>> maxouts = pa_get_output_max_channels(dev)\n\
 >>> maxins = pa_get_input_max_channels(dev)\n\
->>> print 'Max outputs:', maxouts\n\
->>> print 'Max inputs:', maxins\n\
+>>> print('Max outputs:', maxouts)\n\
+>>> print('Max inputs:', maxins)\n\
 >>> if maxouts >= 2 and maxins >= 2:\n\
 ...     nchnls = 2\n\
 >>> else:\n\
@@ -180,11 +180,11 @@ x: int\n        Device index as listed by Portaudio (see pa_get_input_devices).\
 >>> device = 'HDA Intel PCH: STAC92xx Analog (hw:0,0)'\n\
 >>> dev_list, dev_index =  pa_get_output_devices()\n\
 >>> dev = dev_index[dev_list.index(device)]\n\
->>> print 'Device index:', dev\n\
+>>> print('Device index:', dev)\n\
 >>> maxouts = pa_get_output_max_channels(dev)\n\
 >>> maxins = pa_get_input_max_channels(dev)\n\
->>> print 'Max outputs', maxouts\n\
->>> print 'Max inputs:', maxins\n\
+>>> print('Max outputs', maxouts)\n\
+>>> print('Max inputs:', maxins)\n\
 >>> if maxouts >= 2 and maxins >= 2:\n\
 ...     nchnls = 2\n\
 >>> else:\n\
@@ -193,21 +193,21 @@ x: int\n        Device index as listed by Portaudio (see pa_get_input_devices).\
 #define portaudio_get_input_devices_info \
 "\nReturns input devices (device names, device indexes) found by Portaudio.\n\n`device names` is a list of strings and `device indexes` is a list of the actual\nPortaudio index of each device.\n\n\
 >>> ins = pa_get_input_devices()\n\
->>> print ins\n\
+>>> print(ins)\n\
 (['Built-in Microphone', 'Built-in Input', 'UA-4FX', 'Soundflower (2ch)', 'Soundflower (16ch)'], [0, 1, 3, 4, 5])\n\n"
 
 #define portaudio_get_default_input_info \
 "\nReturns the index number of Portaudio's default input device.\n\n\
 >>> names, indexes = pa_get_input_devices()\n\
 >>> name = names[indexes.index(pa_get_default_input())]\n\
->>> print name\n\
+>>> print(name)\n\
 'Built-in Microphone'\n\n"
 
 #define portaudio_get_default_output_info \
 "\nReturns the index number of Portaudio's default output device.\n\n\
 >>> names, indexes = pa_get_output_devices()\n\
 >>> name = names[indexes.index(pa_get_default_output())]\n\
->>> print name\n\
+>>> print(name)\n\
 'UA-4FX'\n\n"
 
 /** Portmidi utility functions __doc__ strings. **/
@@ -216,7 +216,7 @@ x: int\n        Device index as listed by Portaudio (see pa_get_input_devices).\
 #define portmidi_count_devices_info \
 "\nReturns the number of devices found by Portmidi.\n\n\
 >>> c = pm_count_devices()\n\
->>> print c\n\
+>>> print(c)\n\
 6\n\n"
 
 #define portmidi_list_devices_info \
@@ -233,27 +233,27 @@ MIDI devices:\n\
 #define portmidi_get_input_devices_info \
 "\nReturns midi input devices (device names, device indexes) found by Portmidi.\n\n`device names` is a list of strings and `device indexes` is a list of the actual\nPortmidi index of each device.\n\n\
 >>> ins = pm_get_input_devices()\n\
->>> print ins\n\
+>>> print(ins)\n\
 (['IAC Driver Bus 1', 'from MaxMSP 1', 'from MaxMSP 2'], [0, 1, 2])\n\n"
 
 #define portmidi_get_output_devices_info \
 "\nReturns midi output devices (device names, device indexes) found by Portmidi.\n\n`device names` is a list of strings and `device indexes` is a list of the actual\nPortmidi index of each device.\n\n\
 >>> outs = pm_get_output_devices()\n\
->>> print outs\n\
+>>> print(outs)\n\
 (['IAC Driver Bus 1', 'to MaxMSP 1', 'to MaxMSP 2'], [3, 4, 5])\n\n"
 
 #define portmidi_get_default_input_info \
 "\nReturns the index number of Portmidi's default input device.\n\n\
 >>> names, indexes = pm_get_input_devices()\n\
 >>> name = names[indexes.index(pm_get_default_input())]\n\
->>> print name\n\
+>>> print(name)\n\
 'IAC Driver Bus 1'\n\n"
 
 #define portmidi_get_default_output_info \
 "\nReturns the index number of Portmidi's default output device.\n\n\
 >>> names, indexes = pm_get_output_devices()\n\
 >>> name = names[indexes.index(pm_get_default_output())]\n\
->>> print name\n\
+>>> print(name)\n\
 'IAC Driver Bus 1'\n\n"
 
 
@@ -321,10 +321,10 @@ Prints the infos of the given soundfile to the console and returns a tuple conta
 path : string\n        Path of a valid soundfile.\n    \
 print : boolean, optional\n        If True, sndinfo will print sound infos to the console. Defaults to False.\n\n\
 >>> path = SNDS_PATH + '/transparent.aif'\n\
->>> print path\n\
+>>> print(path)\n\
 /usr/lib/python2.7/dist-packages/pyolib/snds/transparent.aif\n\
 >>> info = sndinfo(path)\n\
->>> print info\n\
+>>> print(info)\n\
 (29877, 0.6774829931972789, 44100.0, 1, 'AIFF', '16 bit int')\n\n"
 
 static PyObject *
@@ -1339,11 +1339,11 @@ xlog : boolean, optional\n        Set this argument to True if the input range h
 ylog : boolean, optional\n        Set this argument to True if the output range has a logarithmic scaling.\n\n\
 >>> a = 0.5\n\
 >>> b = rescale(a, 0, 1, 20, 20000, False, True)\n\
->>> print b\n\
+>>> print(b)\n\
 632.453369141\n\
 >>> a = [0, .4, .8]\n\
 >>> b = rescale(a, 0, 1, 20, 20000, False, True)\n\
->>> print b\n\
+>>> print(b)\n\
 [20.000001907348633, 316.97738647460938, 5023.7705078125]\n\n"
 
 static PyObject *
@@ -1474,7 +1474,7 @@ max : float, optional\n        Maximum value of the output range. Defaults to 1.
 exp : float, optional\n        Power factor (1 (default) is linear, les than 1 is logarithmic, greter than 1 is exponential).\n\n\
 >>> a = 0.5\n\
 >>> b = floatmap(a, 0, 1, 4)\n\
->>> print b\n\
+>>> print(b)\n\
 0.0625\n\n"
 
 static PyObject *
@@ -1506,14 +1506,14 @@ floatmap(PyObject *self, PyObject *args, PyObject *kwds)
 x : int or float\n        Midi note. `x` can be a number, a list or a tuple, otherwise the function returns None.\n\n\
 >>> a = (48, 60, 62, 67)\n\
 >>> b = midiToHz(a)\n\
->>> print b\n\
+>>> print(b)\n\
 (130.8127826503271, 261.62556530066814, 293.66476791748823, 391.9954359818656)\n\
 >>> a = [48, 60, 62, 67]\n\
 >>> b = midiToHz(a)\n\
->>> print b\n\
+>>> print(b)\n\
 [130.8127826503271, 261.62556530066814, 293.66476791748823, 391.9954359818656]\n\
 >>> b = midiToHz(60.0)\n\
->>> print b\n\
+>>> print(b)\n\
 261.625565301\n\n"
 
 static PyObject *
@@ -1551,14 +1551,14 @@ midiToHz(PyObject *self, PyObject *arg) {
 x : float\n        Frequency in Hertz. `x` can be a number, a list or a tuple, otherwise the function returns None.\n\n\
 >>> a = (110.0, 220.0, 440.0, 880.0)\n\
 >>> b = hzToMidi(a)\n\
->>> print b\n\
+>>> print(b)\n\
 (45.0, 57.0, 69.0, 81.0)\n\
 >>> a = [110.0, 220.0, 440.0, 880.0]\n\
 >>> b = hzToMidi(a)\n\
->>> print b\n\
+>>> print(b)\n\
 [45.0, 57.0, 69.0, 81.0]\n\
 >>> b = hzToMidi(440.0)\n\
->>> print b\n\
+>>> print(b)\n\
 69.0\n\n"
 
 static PyObject *
@@ -1596,14 +1596,14 @@ hzToMidi(PyObject *self, PyObject *arg) {
 x : int or float\n        Midi note. `x` can be a number, a list or a tuple, otherwise the function returns None.\n\n\
 >>> a = (48, 60, 62, 67)\n\
 >>> b = midiToTranspo(a)\n\
->>> print b\n    \
+>>> print(b)\n    \
 (0.49999999999997335, 1.0, 1.122462048309383, 1.4983070768767281)\n\
 >>> a = [48, 60, 62, 67]\n\
 >>> b = midiToTranspo(a)\n\
->>> print b\n\
+>>> print(b)\n\
 [0.49999999999997335, 1.0, 1.122462048309383, 1.4983070768767281]\n\
 >>> b = midiToTranspo(60.0)\n\
->>> print b\n\
+>>> print(b)\n\
 1.0\n\n"
 
 static PyObject *
@@ -1642,14 +1642,14 @@ x : int or float\n        Duration in samples. `x` can be a number, a list or a 
 >>> s = Server().boot()\n\
 >>> a = (64, 128, 256)\n\
 >>> b = sampsToSec(a)\n\
->>> print b\n\
+>>> print(b)\n\
 (0.0014512471655328798, 0.0029024943310657597, 0.0058049886621315194)\n\
 >>> a = [64, 128, 256]\n\
 >>> b = sampsToSec(a)\n\
->>> print b\n\
+>>> print(b)\n\
 [0.0014512471655328798, 0.0029024943310657597, 0.0058049886621315194]\n\
 >>> b = sampsToSec(8192)\n\
->>> print b\n\
+>>> print(b)\n\
 0.185759637188\n\n"
 
 static PyObject *
@@ -1694,14 +1694,14 @@ x : int or float\n        Duration in seconds. `x` can be a number, a list or a 
 >>> s = Server().boot()\n\
 >>> a = (0.1, 0.25, 0.5, 1)\n\
 >>> b = secToSamps(a)\n\
->>> print b\n\
+>>> print(b)\n\
 (4410, 11025, 22050, 44100)\n\
 >>> a = [0.1, 0.25, 0.5, 1]\n\
 >>> b = secToSamps(a)\n\
->>> print b\n\
+>>> print(b)\n\
 [4410, 11025, 22050, 44100]\n\
 >>> b = secToSamps(2.5)\n\
->>> print b\n\
+>>> print(b)\n\
 110250\n\n"
 
 static PyObject *
@@ -1743,10 +1743,10 @@ secToSamps(PyObject *self, PyObject *arg) {
 /************* Server quieries *************/
 #define serverCreated_info \
 "\nReturns True if a Server object is already created, otherwise, returns False.\n\n\
->>> print serverCreated()\n\
+>>> print(serverCreated())\n\
 False\n\
 >>> s = Server()\n\
->>> print serverCreated()\n\
+>>> print(serverCreated())\n\
 True\n\n"
 
 static PyObject *
@@ -1764,10 +1764,10 @@ serverCreated(PyObject *self) {
 #define serverBooted_info \
 "\nReturns True if an already created Server is booted, otherwise, returns False.\n\n\
 >>> s = Server()\n\
->>> print serverBooted()\n\
+>>> print(serverBooted())\n\
 False\n\
 >>> s.boot()\n\
->>> print serverBooted()\n\
+>>> print(serverBooted())\n\
 True\n\n"
 
 static PyObject *

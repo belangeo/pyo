@@ -39,9 +39,9 @@ class Map(object):
             Method used to scale the input value on the specified range.
 
     >>> m = Map(20., 20000., 'log')
-    >>> print m.get(.5)
+    >>> print(m.get(.5))
     632.455532034
-    >>> print m.set(12000)
+    >>> print(m.set(12000))
     0.926050416795
 
     """

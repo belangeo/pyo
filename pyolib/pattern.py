@@ -60,7 +60,7 @@ class Pattern(PyoObject):
         If `arg` is not None, the function must be defined with one argument:
 
         >>> def tocall(arg):
-        >>>     print arg
+        >>>     print(arg)
 
     >>> s = Server().boot()
     >>> s.start()
@@ -285,7 +285,7 @@ class CallAfter(PyoObject):
         If `arg` is not None, the function must be defined with one argument:
 
         >>> def tocall(arg):
-        >>>     print arg
+        >>>     print(arg)
 
         The object is not deleted after the call. The user must delete it himself.
 

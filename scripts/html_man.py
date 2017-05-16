@@ -30,7 +30,7 @@ if man_file == 'manual-dev':
     man_version = 'latest sources'
 else:
     man_version = 'version %s' % PYO_VERSION
-print PYO_VERSION
+print(PYO_VERSION)
 
 try:
     os.mkdir(os.getcwd() + '/doc')
@@ -279,7 +279,7 @@ shutil.copy('scripts/prettify.css', 'doc/%s' % man_file)
 shutil.copy('scripts/prettify.js', 'doc/%s' % man_file)
 
 # Upload on iACT server
-print "Upload documentation (y/n)?"
+print("Upload documentation (y/n)?")
 ans = raw_input()
 if (ans == 'y'):
     os.system('scp -r doc/%s sysop@132.204.178.49:/Library/WebServer/Documents/pyo/' % man_file)

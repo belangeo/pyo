@@ -48,7 +48,7 @@ class MidiListener(threading.Thread):
     >>> s = Server().boot()
     >>> s.deactivateMidi()
     >>> def midicall(status, data1, data2):
-    ...     print status, data1, data2
+    ...     print(status, data1, data2)
     >>> listen = MidiListener(midicall, 5)
     >>> listen.start()
 
@@ -262,7 +262,7 @@ class OscListener(threading.Thread):
 
     >>> s = Server().boot()
     >>> def call(address, *args):
-    ...     print address, args
+    ...     print(address, args)
     >>> listen = OscListener(call, 9901)
     >>> listen.start()
 

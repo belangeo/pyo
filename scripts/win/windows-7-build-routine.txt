@@ -54,8 +54,8 @@ MinGW SConstruct for PortAudio
 Michael Gogins
 Modified by Olivier Belanger on september 2010
 '''
-print __doc__
-print
+print(__doc__)
+print()
 
 import os
 import string
@@ -145,8 +145,8 @@ portAudio = commonEnvironment.SharedLibrary('portaudio', portAudioSources)
 MinGW SConstruct for PortMidi
 Michael Gogins
 '''
-print __doc__
-print
+print(__doc__)
+print()
 
 import os
 import string

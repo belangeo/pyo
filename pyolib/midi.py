@@ -223,10 +223,10 @@ class CtlScan(PyoObject):
             with an argument for the controller number in input. Ex.:
 
             def ctl_scan(ctlnum):
-                print ctlnum
+                print(ctlnum)
 
         toprint: boolean, optional
-            If True, controller number and value will be print to
+            If True, controller number and value will be printed to
             the console.
 
     .. note::
@@ -239,7 +239,7 @@ class CtlScan(PyoObject):
     >>> s.boot()
     >>> s.start()
     >>> def ctl_scan(ctlnum):
-    ...     print ctlnum
+    ...     print(ctlnum)
     >>> a = CtlScan(ctl_scan)
 
     """
@@ -311,7 +311,7 @@ class CtlScan(PyoObject):
         self.setFunction(x)
     @property
     def toprint(self):
-        """boolean. If True, print values to the console."""
+        """boolean. If True, prints values to the console."""
         return self._toprint
     @toprint.setter
     def toprint(self, x):
@@ -335,10 +335,10 @@ class CtlScan2(PyoObject):
             one for the midi channel. Ex.:
 
             def ctl_scan(ctlnum, midichnl):
-                print ctlnum, midichnl
+                print(ctlnum, midichnl)
 
         toprint: boolean, optional
-            If True, controller number and value will be print to
+            If True, controller number and value will be printed to
             the console.
 
     .. note::
@@ -351,7 +351,7 @@ class CtlScan2(PyoObject):
     >>> s.boot()
     >>> s.start()
     >>> def ctl_scan(ctlnum, midichnl):
-    ...     print ctlnum, midichnl
+    ...     print(ctlnum, midichnl)
     >>> a = CtlScan2(ctl_scan)
 
     """
@@ -423,7 +423,7 @@ class CtlScan2(PyoObject):
         self.setFunction(x)
     @property
     def toprint(self):
-        """boolean. If True, print values to the console."""
+        """boolean. If True, prints values to the console."""
         return self._toprint
     @toprint.setter
     def toprint(self, x):
@@ -1464,7 +1464,7 @@ class RawMidi(PyoObject):
             for the data bytes. Ex.:
 
             def event(status, data1, data2):
-                print status, data1, data2
+                print(status, data1, data2)
 
     .. note::
 
@@ -1476,7 +1476,7 @@ class RawMidi(PyoObject):
     >>> s.boot()
     >>> s.start()
     >>> def event(status, data1, data2):
-    ...     print status, data1, data2
+    ...     print(status, data1, data2)
     >>> a = RawMidi(event)
 
     """

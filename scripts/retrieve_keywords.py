@@ -21,7 +21,7 @@ l.append("Server")
 with open("pyo_keywords.txt", "w") as f:
     for i, word in enumerate(l):
         if word not in t2:
-            print word
+            print(word)
         if (i % 10) == 0:
             f.write("\n")
         f.write(word + " ")

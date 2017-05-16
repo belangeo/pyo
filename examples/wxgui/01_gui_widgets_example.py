@@ -95,8 +95,8 @@ class MyFrame(wx.Frame):
                                         integer=False,
                                         powoftwo=False,
                                         orient=wx.HORIZONTAL)
-        #print self.freq.getRange()
-        #print self.freq.isPowOfTwo()
+        #print(self.freq.getRange())
+        #print(self.freq.isPowOfTwo())
         self.freq.Bind(EVT_PYO_GUI_CONTROL_SLIDER, self.changeFreq)
         sizer.Add(self.freq, 0, wx.ALL | wx.EXPAND, 5)
         return sizer

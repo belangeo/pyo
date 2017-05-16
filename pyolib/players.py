@@ -83,7 +83,7 @@ class SfPlayer(PyoObject):
         the first stream to the next object:
 
         >>> def printing():
-        ...     print "one trig!"
+        ...     print("one trig!")
         >>> sf = SfPlayer("/stereo/sound/file.aif").out()
         >>> trig = TrigFunc(sf['trig'][0], printing)
 
