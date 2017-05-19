@@ -163,7 +163,7 @@ if sys.platform == "win32":
                     'C:\liblo-0.28', 'C:\pthreads\include', 'C:\portmidi\porttime']
     library_dirs = ['C:\portaudio', 'C:\portmidi', 'C:\liblo-0.28\src\.libs', 'C:\pthreads\lib', 
                     'C:/Program Files (x86)/Mega-Nerd/libsndfile/bin']
-    libraries += ['libsndfile-1', 'pthreadVC2']
+    libraries += ['libsndfile-1', 'pthreadGC2']
     if 'portmidi' in libraries:
         libraries.append('porttime')
 else:
