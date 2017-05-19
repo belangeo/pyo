@@ -101,6 +101,7 @@ typedef struct {
     int withPortMidi;
     int withPortMidiOut;
     int midiActive;
+    int allowMMMapper;
     int server_started;
     int server_stopped; /* for fadeout */
     int server_booted;

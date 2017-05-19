@@ -107,6 +107,7 @@ class Server(object):
         - reinit(sr, nchnls, buffersize, duplex, audio, jackname): Reinit the server's settings.
         - deactivateMidi(): Deactivate Midi callback.
         - setIsJackTransportSlave(x): Set if pyo's server is slave to jack transport or not.
+        - allowMicrosoftMidiDevices(): Allows the Microsoft Midi Mapper or GS Wavetable Synth devices.
 
     >>> # For an 8 channels server in duplex mode with
     >>> # a sampling rate of 48000 Hz and buffer size of 512
@@ -403,6 +404,15 @@ class Server(object):
 
         """
         self._server.setMidiOutputDevice(x)
+
+    def allowMicrosoftMidiDevices(self):
+        """
+        Allows the Microsoft Midi Mapper or GS Wavetable Synth device.
+
+        These are off by default because they crash on some systems.
+
+        """
+        self._server.allowMicrosoftMidiDevices()
 
     def setSamplingRate(self, x):
         """

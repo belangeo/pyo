@@ -162,7 +162,12 @@ Server_pm_init(Server *self)
                 Server_debug(self, "Midi output device : %d.\n", self->midi_output);
                 const PmDeviceInfo *outinfo = Pm_GetDeviceInfo(self->midi_output);
                 if (outinfo != NULL) {
-                    if (outinfo->output) {
+                    if ((strcmp(outinfo->name, "Microsoft MIDI Mapper") == 0 || 
+                          strcmp(outinfo->name, "Microsoft GS Wavetable Synth") == 0) && 
+                         self->allowMMMapper == 0) {
+                        self->withPortMidiOut = 0;
+                    }
+                    else if (outinfo->output) {
 
                         Py_BEGIN_ALLOW_THREADS
                         if (!Pt_Started())
@@ -209,7 +214,12 @@ Server_pm_init(Server *self)
                 for (i=0; i<num_devices; i++) {
                     const PmDeviceInfo *outinfo = Pm_GetDeviceInfo(i);
                     if (outinfo != NULL) {
-                        if (outinfo->output) {
+                        if ((strcmp(outinfo->name, "Microsoft MIDI Mapper") == 0 || 
+                              strcmp(outinfo->name, "Microsoft GS Wavetable Synth") == 0) && 
+                             self->allowMMMapper == 0) {
+                            continue;
+                        }
+                        else if (outinfo->output) {
 
                             Py_BEGIN_ALLOW_THREADS
                             pmerr = Pm_OpenOutput(&be_data->midiout[self->midiout_count], i, NULL, 100, NULL, NULL, 1);

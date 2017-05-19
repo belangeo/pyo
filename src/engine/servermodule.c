@@ -595,6 +595,7 @@ Server_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->midi_input = -1;
     self->midi_output = -1;
     self->midiActive = 1;
+    self->allowMMMapper = 0; // Disable Microsoft MIDI Mapper by default.
     self->midi_time_offset = 0;
     self->amp = self->resetAmp = 1.;
     self->currentAmp = self->lastAmp = 1.; // If set to 0, there is a 5ms fadein at server start.
@@ -1110,6 +1111,13 @@ Server_setStartOffset(Server *self, PyObject *arg)
         }
     }
 
+    Py_RETURN_NONE;
+}
+
+static PyObject *
+Server_allowMicrosoftMidiDevices(Server *self)
+{
+    self->allowMMMapper = 1;
     Py_RETURN_NONE;
 }
 
@@ -2024,6 +2032,7 @@ static PyMethodDef Server_methods[] = {
     {"setTimeCallable", (PyCFunction)Server_setTimeCallable, METH_O, "Sets the Server's TIME callable object."},
     {"setCallback", (PyCFunction)Server_setCallback, METH_O, "Sets the Server's CALLBACK callable object."},
     {"setVerbosity", (PyCFunction)Server_setVerbosity, METH_O, "Sets the verbosity."},
+    {"allowMicrosoftMidiDevices", (PyCFunction)Server_allowMicrosoftMidiDevices, METH_NOARGS, "Allow Microsoft Midi Mapper or GS Wavetable Synth devices."},
     {"setStartOffset", (PyCFunction)Server_setStartOffset, METH_O, "Sets starting time offset."},
     {"boot", (PyCFunction)Server_boot, METH_O, "Setup and boot the server."},
     {"shutdown", (PyCFunction)Server_shutdown, METH_NOARGS, "Shut down the server."},
