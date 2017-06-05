@@ -335,10 +335,11 @@ sndinfo(PyObject *self, PyObject *args, PyObject *kwds) {
     char fileformat[5];
     char sampletype[16];
     int format, subformat, print = 0;
+    Py_ssize_t psize;
 
     static char *kwlist[] = {"path", "print", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "s|i", kwlist, &path, &print)) {
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "s#|i", kwlist, &path, &psize, &print)) {
         PySys_WriteStderr("sndinfo: called with wrong arguments.\n");
         Py_RETURN_NONE;
     }

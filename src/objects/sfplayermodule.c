@@ -274,6 +274,7 @@ static PyObject *
 SfPlayer_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     int i;
+    Py_ssize_t psize;
     MYFLT offset = 0.;
     PyObject *speedtmp=NULL;
     SfPlayer *self;
@@ -291,7 +292,7 @@ SfPlayer_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"path", "speed", "loop", "offset", "interp", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_S__OIFI, kwlist, &self->path, &speedtmp, &self->loop, &offset, &self->interp))
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_P__OIFI, kwlist, &self->path, &psize, &speedtmp, &self->loop, &offset, &self->interp))
         Py_RETURN_NONE;
 
     if (speedtmp) {
