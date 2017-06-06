@@ -275,6 +275,7 @@ static PyObject * NewMatrix_blur(NewMatrix *self) { MATRIX_BLUR };
 static PyObject * NewMatrix_boost(NewMatrix *self, PyObject *args, PyObject *kwds) { MATRIX_BOOST };
 static PyObject * NewMatrix_put(NewMatrix *self, PyObject *args, PyObject *kwds) { MATRIX_PUT };
 static PyObject * NewMatrix_get(NewMatrix *self, PyObject *args, PyObject *kwds) { MATRIX_GET };
+static PyObject * NewMatrix_getInterpolated(NewMatrix *self, PyObject *args, PyObject *kwds) { MATRIX_GET_INTERPOLATED };
 
 static PyObject *
 NewMatrix_getSize(NewMatrix *self)
@@ -432,6 +433,7 @@ static PyMethodDef NewMatrix_methods[] = {
 {"boost", (PyCFunction)NewMatrix_boost, METH_VARARGS|METH_KEYWORDS, "Boost the contrast of the matrix."},
 {"put", (PyCFunction)NewMatrix_put, METH_VARARGS|METH_KEYWORDS, "Puts a value at specified position in the matrix."},
 {"get", (PyCFunction)NewMatrix_get, METH_VARARGS|METH_KEYWORDS, "Gets the value at specified position in the matrix."},
+{"getInterpolated", (PyCFunction)NewMatrix_getInterpolated, METH_VARARGS|METH_KEYWORDS, "Gets the value at normalized position in the matrix."},
 {"getSize", (PyCFunction)NewMatrix_getSize, METH_NOARGS, "Return the size of the matrix in samples."},
 {"getRate", (PyCFunction)NewMatrix_getRate, METH_NOARGS, "Return the frequency (in cps) that reads the sound without pitch transposition."},
 {NULL}  /* Sentinel */

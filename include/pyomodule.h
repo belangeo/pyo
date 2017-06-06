@@ -1346,6 +1346,25 @@ extern PyTypeObject TableScanType;
  \
     return PyFloat_FromDouble(self->data[y][x]); \
 
+#define MATRIX_GET_INTERPOLATED \
+    MYFLT x = 0.0, y = 0.0; \
+    static char *kwlist[] = {"x", "y", NULL}; \
+ \
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE__FF, kwlist, &x, &y)) \
+        return PyInt_FromLong(-1); \
+ \
+    if (x < 0.0 || x > 1.0) { \
+        PyErr_SetString(PyExc_TypeError, "X position outside of matrix boundaries!."); \
+        return PyInt_FromLong(-1); \
+    } \
+ \
+    if (y < 0.0 || y > 1.0) { \
+        PyErr_SetString(PyExc_TypeError, "Y position outside of matrix boundaries!."); \
+        return PyInt_FromLong(-1); \
+    } \
+ \
+    return PyFloat_FromDouble(MatrixStream_getInterpPointFromPos(self->matrixstream, x, y)); \
+
 /* GETS & SETS */
 #define GET_SERVER \
     if (self->server == NULL) { \

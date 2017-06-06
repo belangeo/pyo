@@ -2053,7 +2053,7 @@ class PyoMatrixObject(PyoObjectBase):
         pyoArgsAssert(self, "NII", value, x, y)
         [obj.put(value, x, y) for obj in self._base_objs]
 
-    def get(self, x, y):
+    def get(self, x=0, y=0):
         """
         Returns the value, as float, at specified position in the matrix.
 
@@ -2071,6 +2071,29 @@ class PyoMatrixObject(PyoObjectBase):
         """
         pyoArgsAssert(self, "II", x, y)
         values = [obj.get(x, y) for obj in self._base_objs]
+        if len(values) == 1:
+            return values[0]
+        else:
+            return values
+
+    def getInterpolated(self, x=0.0, y=0.0):
+        """
+        Returns the value, as float, at a normalized position in the matrix.
+
+        If the object has more than 1 matrixstream, the default is to
+        return a list with the value of each matrixstream. User can call
+        obj[x].getInterpolated() to get the value of a specific matrix.
+
+        :Args:
+
+            x: float {0 -> 1}
+                X normalized position where to get value. Defaults to 0.0.
+            y: int {0 -> 1}
+                Y normalized position where to get value. Defaults to 0.0.
+
+        """
+        pyoArgsAssert(self, "FF", x, y)
+        values = [obj.getInterpolated(x, y) for obj in self._base_objs]
         if len(values) == 1:
             return values[0]
         else:
