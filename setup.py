@@ -32,7 +32,12 @@ else:
         return bytes(strng, encoding=encoding)
 
 def get_jack_api():
-    output = subprocess.Popen(["jackd", "-V"], stdout=subprocess.PIPE)
+    try:
+        output = subprocess.Popen(["jackd", "-V"], stdout=subprocess.PIPE)
+    except FileNotFoundError:
+        # jack2-dbus is probably installed instead of jackd.
+        return "JACK_OLD_API"
+
     text = output.communicate()[0]
     if text != "":
         line = text.splitlines()[0]
