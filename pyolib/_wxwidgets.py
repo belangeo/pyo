@@ -2705,7 +2705,6 @@ class ExprEditor(stc.StyledTextCtrl):
         self.Redo()
 
     def setup(self):
-        self.SetUseAntiAliasing(True)
         self.SetIndent(2)
         self.SetBackSpaceUnIndents(True)
         self.SetTabIndents(True)
@@ -2801,7 +2800,7 @@ class ExprEditor(stc.StyledTextCtrl):
 
     def onExecute(self, evt):
         pos = self.GetCurrentPos()
-        self.obj.expr = self.GetTextRaw()
+        self.obj.expr = self.GetText()
         self.SetCurrentPos(pos)
         self.SetSelection(pos, pos)
 

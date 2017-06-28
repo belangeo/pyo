@@ -259,7 +259,11 @@ from ._widgets import createExprEditorWindow
 
 if sys.version_info[0] < 3:
     def to_unicode(s):
-        return unicode(s.replace(r'\\', r'\\\\'), "unicode_escape")
+        try:
+            s = unicode(s.replace(r'\\', r'\\\\'), "unicode_escape")
+        except:
+            pass
+        return s
 else:
     def to_unicode(s):
         return s
