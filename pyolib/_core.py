@@ -126,6 +126,12 @@ FUNCTIONS_INIT_LINES = {
     "getPyoKeywords": "getPyoKeywords()"
 }
 
+def stringencode(st):
+    if sys.version_info[0] >= 3:
+        if type(st) is str:
+            st = st.encode(sys.getfilesystemencoding())
+    return st
+
 def sndinfo(path, print=False):
     """
     Retrieve informations about a soundfile.
@@ -152,8 +158,7 @@ def sndinfo(path, print=False):
     (29877, 0.6774829931972789, 44100.0, 1, 'AIFF', '16 bit int')
 
     """
-    if sys.version_info[0] >= 3:
-        path = path.encode(sys.getfilesystemencoding())
+    path = stringencode(path)
     return p_sndinfo(path, print)
 
 def savefile(samples, path, sr=44100, channels=1, fileformat=0, sampletype=0,
@@ -204,8 +209,7 @@ def savefile(samples, path, sr=44100, channels=1, fileformat=0, sampletype=0,
     >>> savefile(samples=samples, path=path, sr=sr, channels=chnls, fileformat=1, sampletype=1)
 
     """
-    if sys.version_info[0] >= 3:
-        path = path.encode(sys.getfilesystemencoding())
+    path = stringencode(path)
     p_savefile(samples, path, sr, channels, fileformat, sampletype, quality)
 
 def savefileFromTable(table, path, fileformat=0, sampletype=0, quality=0.4):
@@ -251,8 +255,7 @@ def savefileFromTable(table, path, fileformat=0, sampletype=0, quality=0.4):
     >>> savefileFromTable(table=t, path=path, fileformat=1, sampletype=1)
 
     """
-    if sys.version_info[0] >= 3:
-        path = path.encode(sys.getfilesystemencoding())
+    path = stringencode(path)
     p_savefileFromTable(table, path, fileformat, sampletype, quality)
 
 def upsamp(path, outfile, up=4, order=128):
@@ -282,9 +285,8 @@ def upsamp(path, outfile, up=4, order=128):
     >>> downsamp(upfile, downfile, 3, 256)
 
     """
-    if sys.version_info[0] >= 3:
-        path = path.encode(sys.getfilesystemencoding())
-        outfile = outfile.encode(sys.getfilesystemencoding())
+    path = stringencode(path)
+    outfile = stringencode(outfile)
     p_upsamp(path, outfile, up, order)
 
 def downsamp(path, outfile, down=4, order=128):
@@ -314,9 +316,8 @@ def downsamp(path, outfile, down=4, order=128):
     >>> downsamp(upfile, downfile, 3, 256)
 
     """
-    if sys.version_info[0] >= 3:
-        path = path.encode(sys.getfilesystemencoding())
-        outfile = outfile.encode(sys.getfilesystemencoding())
+    path = stringencode(path)
+    outfile = stringencode(outfile)
     p_downsamp(path, outfile, down, order)
 
 class PyoError(Exception):

@@ -387,14 +387,18 @@ SfPlayer_setSpeed(SfPlayer *self, PyObject *arg)
 }
 
 static PyObject *
-SfPlayer_setSound(SfPlayer *self, PyObject *arg)
+SfPlayer_setSound(SfPlayer *self, PyObject *args)
 {
     /* Need to perform a check to be sure that the new 
        sound is of the same number of channels. */
+    Py_ssize_t psize;
 
-    ASSERT_ARG_NOT_NULL
+    //ASSERT_ARG_NOT_NULL
 
-    self->path = PY_STRING_AS_STRING(arg);
+    if (! PyArg_ParseTuple(args, "s#", &self->path, &psize))
+        Py_RETURN_NONE;
+
+    //self->path = PY_STRING_AS_STRING(arg);
 
     sf_close(self->sf);
 
@@ -481,7 +485,7 @@ static PyMethodDef SfPlayer_methods[] = {
 {"play", (PyCFunction)SfPlayer_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
 {"out", (PyCFunction)SfPlayer_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
 {"stop", (PyCFunction)SfPlayer_stop, METH_NOARGS, "Stops computing."},
-{"setSound", (PyCFunction)SfPlayer_setSound, METH_O, "Sets sfplayer sound path."},
+{"setSound", (PyCFunction)SfPlayer_setSound, METH_VARARGS, "Sets sfplayer sound path."},
 {"setSpeed", (PyCFunction)SfPlayer_setSpeed, METH_O, "Sets sfplayer reading speed."},
 {"setLoop", (PyCFunction)SfPlayer_setLoop, METH_O, "Sets sfplayer loop mode (0 = no loop, 1 = loop)."},
 {"setOffset", (PyCFunction)SfPlayer_setOffset, METH_O, "Sets sfplayer start position."},
