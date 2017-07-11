@@ -315,20 +315,8 @@ libsndfile_get_format(int fileformat, int sampletype) {
     return format;
 }
 
-#define sndinfo_info \
-"\nRetrieve informations about a soundfile.\n\n\
-Prints the infos of the given soundfile to the console and returns a tuple containing:\n\n(number of frames, duration in seconds, sampling rate,\nnumber of channels, file format, sample type).\n\n:Args:\n\n    \
-path : string\n        Path of a valid soundfile.\n    \
-print : boolean, optional\n        If True, sndinfo will print sound infos to the console. Defaults to False.\n\n\
->>> path = SNDS_PATH + '/transparent.aif'\n\
->>> print(path)\n\
-/usr/lib/python2.7/dist-packages/pyolib/snds/transparent.aif\n\
->>> info = sndinfo(path)\n\
->>> print(info)\n\
-(29877, 0.6774829931972789, 44100.0, 1, 'AIFF', '16 bit int')\n\n"
-
 static PyObject *
-sndinfo(PyObject *self, PyObject *args, PyObject *kwds) {
+p_sndinfo(PyObject *self, PyObject *args, PyObject *kwds) {
     SNDFILE *sf;
     SF_INFO info;
     char *path;
@@ -404,49 +392,15 @@ sndinfo(PyObject *self, PyObject *args, PyObject *kwds) {
         PySys_WriteStdout("name: %s\nnumber of frames: %i\nduration: %.4f sec\nsr: %.2f\nchannels: %i\nformat: %s\nsample type: %s\n",
                           path, (int)info.frames, ((float)info.frames / info.samplerate), (float)info.samplerate, (int)info.channels, 
                           fileformat, sampletype);
-    PyObject *sndinfo = PyTuple_Pack(6, PyInt_FromLong(info.frames), PyFloat_FromDouble((float)info.frames / info.samplerate),
+    PyObject *sndinfos = PyTuple_Pack(6, PyInt_FromLong(info.frames), PyFloat_FromDouble((float)info.frames / info.samplerate),
                                         PyFloat_FromDouble(info.samplerate), PyInt_FromLong(info.channels), 
                                         PyUnicode_FromString(fileformat), PyUnicode_FromString(sampletype));
     sf_close(sf);
-    return sndinfo;
+    return sndinfos;
 }
 
-#define savefile_info \
-"\nCreates an audio file from a list of floats.\n\n:Args:\n\n    \
-samples : list of floats\n        list of samples data, or list of list of samples data if more than 1 channels.\n    \
-path : string\n        Full path (including extension) of the new file.\n    \
-sr : int, optional\n        Sampling rate of the new file. Defaults to 44100.\n    \
-channels : int, optional\n        number of channels of the new file. Defaults to 1.\n    \
-fileformat : int, optional\n        Format type of the new file. Defaults to 0. Supported formats are:\n            \
-0. WAVE - Microsoft WAV format (little endian) {.wav, .wave}\n            \
-1. AIFF - Apple/SGI AIFF format (big endian) {.aif, .aiff}\n            \
-2. AU - Sun/NeXT AU format (big endian) {.au}\n            \
-3. RAW - RAW PCM data {no extension}\n            \
-4. SD2 - Sound Designer 2 {.sd2}\n            \
-5. FLAC - FLAC lossless file format {.flac}\n            \
-6. CAF - Core Audio File format {.caf}\n            \
-7. OGG - Xiph OGG container {.ogg}\n    \
-sampletype ; int, optional\n        Bit depth encoding of the audio file. Defaults to 0.\n        \
-SD2 and FLAC only support 16 or 24 bit int. Supported types are:\n            \
-0. 16 bit int\n            \
-1. 24 bit int\n            \
-2. 32 bit int\n            \
-3. 32 bit float\n            \
-4. 64 bit float\n            \
-5. U-Law encoded\n            \
-6. A-Law encoded\n    \
-quality : float, optional\n        The encoding quality value, between 0.0 (lowest quality) and\n        \
-1.0 (highest quality). This argument has an effect only with\n        \
-FLAC and OGG compressed formats. Defaults to 0.4.\n\n\
->>> from random import uniform\n\
->>> import os\n\
->>> home = os.path.expanduser('~')\n\
->>> sr, dur, chnls, path = 44100, 5, 2, os.path.join(home, 'noise.aif')\n\
->>> samples = [[uniform(-0.5,0.5) for i in range(sr*dur)] for i in range(chnls)]\n\
->>> savefile(samples=samples, path=path, sr=sr, channels=chnls, fileformat=1, sampletype=1)\n\n"
-
 static PyObject *
-savefile(PyObject *self, PyObject *args, PyObject *kwds) {
+p_savefile(PyObject *self, PyObject *args, PyObject *kwds) {
     int i, j, size;
     char *recpath;
     PyObject *samples;
@@ -458,9 +412,10 @@ savefile(PyObject *self, PyObject *args, PyObject *kwds) {
     double quality = 0.4;
     SNDFILE *recfile;
     SF_INFO recinfo;
+    Py_ssize_t psize;
     static char *kwlist[] = {"samples", "path", "sr", "channels", "fileformat", "sampletype", "quality", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "Os|iiiid", kwlist, &samples, &recpath, &sr, &channels, &fileformat, &sampletype, &quality))
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "Os#|iiiid", kwlist, &samples, &recpath, &psize, &sr, &channels, &fileformat, &sampletype, &quality))
         return PyInt_FromLong(-1);
 
     recinfo.samplerate = sr;
@@ -504,40 +459,8 @@ savefile(PyObject *self, PyObject *args, PyObject *kwds) {
     Py_RETURN_NONE;
 }
 
-#define savefileFromTable_info \
-"\nCreates an audio file from the content of a table.\n\n:Args:\n\n    \
-table : PyoTableObject\n        table from which to retrieve samples to write.\n    \
-path : string\n        Full path (including extension) of the new file.\n    \
-fileformat : int, optional\n        Format type of the new file. Defaults to 0. Supported formats are:\n            \
-0. WAVE - Microsoft WAV format (little endian) {.wav, .wave}\n            \
-1. AIFF - Apple/SGI AIFF format (big endian) {.aif, .aiff}\n            \
-2. AU - Sun/NeXT AU format (big endian) {.au}\n            \
-3. RAW - RAW PCM data {no extension}\n            \
-4. SD2 - Sound Designer 2 {.sd2}\n            \
-5. FLAC - FLAC lossless file format {.flac}\n            \
-6. CAF - Core Audio File format {.caf}\n            \
-7. OGG - Xiph OGG container {.ogg}\n    \
-sampletype ; int, optional\n        Bit depth encoding of the audio file. Defaults to 0.\n        \
-SD2 and FLAC only support 16 or 24 bit int. Supported types are:\n            \
-0. 16 bit int\n            \
-1. 24 bit int\n            \
-2. 32 bit int\n            \
-3. 32 bit float\n            \
-4. 64 bit float\n            \
-5. U-Law encoded\n            \
-6. A-Law encoded\n    \
-quality : float, optional\n        The encoding quality value, between 0.0 (lowest quality) and\n        \
-1.0 (highest quality). This argument has an effect only with\n        \
-FLAC and OGG compressed formats. Defaults to 0.4.\n\n\
->>> import os\n\
->>> home = os.path.expanduser('~')\n\
->>> path1 = SNDS_PATH + '/transparent.aif'\n\
->>> path2 = os.path.join(home, '/transparent2.aif')\n\
->>> t = SndTable(path1)\n\
->>> savefileFromTable(table=t, path=path, fileformat=1, sampletype=1)\n\n"
-
 static PyObject *
-savefileFromTable(PyObject *self, PyObject *args, PyObject *kwds) {
+p_savefileFromTable(PyObject *self, PyObject *args, PyObject *kwds) {
     int i, j, size;
     char *recpath;
     PyObject *table;
@@ -553,9 +476,10 @@ savefileFromTable(PyObject *self, PyObject *args, PyObject *kwds) {
     int num_items = 0;
     SNDFILE *recfile;
     SF_INFO recinfo;
+    Py_ssize_t psize;
     static char *kwlist[] = {"table", "path", "fileformat", "sampletype", "quality", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "Os|iid", kwlist, &table, &recpath, &fileformat, &sampletype, &quality))
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "Os#|iid", kwlist, &table, &recpath, &psize, &fileformat, &sampletype, &quality))
         return PyInt_FromLong(-1);
 
     base_objs = PyObject_GetAttrString(table, "_base_objs");
@@ -650,37 +574,6 @@ savefileFromTable(PyObject *self, PyObject *args, PyObject *kwds) {
 }
 
 /****** Sampling rate conversions ******/
-#define upsamp_info \
-"\nIncreases the sampling rate of an audio file.\n\n:Args:\n\n    \
-path : string\n        Full path (including extension) of the audio file to convert.\n    \
-outfile : string\n        Full path (including extension) of the new file.\n    \
-up : int, optional\n        Upsampling factor. Defaults to 4.\n    \
-order : int, optional\n        Length, in samples, of the anti-aliasing lowpass filter. Defaults to 128.\n\n\
->>> import os\n\
->>> home = os.path.expanduser('~')\n\
->>> f = SNDS_PATH+'/transparent.aif'\n\
->>> # upsample a signal 3 times\n\
->>> upfile = os.path.join(home, 'trans_upsamp_2.aif')\n\
->>> upsamp(f, upfile, 2, 256)\n\
->>> # downsample the upsampled signal 3 times\n\
->>> downfile = os.path.join(home, 'trans_downsamp_3.aif')\n\
->>> downsamp(upfile, downfile, 3, 256)\n\n"
-
-#define downsamp_info \
-"\nDecreases the sampling rate of an audio file.\n\n:Args:\n\n    \
-path : string\n        Full path (including extension) of the audio file to convert.\n    \
-outfile : string\n        Full path (including extension) of the new file.\n    \
-down : int, optional\n        Downsampling factor. Defaults to 4.\n    \
-order : int, optional\n        Length, in samples, of the anti-aliasing lowpass filter. Defaults to 128.\n\n\
->>> import os\n\
->>> home = os.path.expanduser('~')\n\
->>> f = SNDS_PATH+'/transparent.aif'\n\
->>> # upsample a signal 3 times\n\
->>> upfile = os.path.join(home, 'trans_upsamp_2.aif')\n\
->>> upsamp(f, upfile, 2, 256)\n\
->>> # downsample the upsampled signal 3 times\n\
->>> downfile = os.path.join(home, 'trans_downsamp_3.aif')\n\
->>> downsamp(upfile, downfile, 3, 256)\n\n"
 
 MYFLT HALF_BLACKMAN[513] = {5.999999848427251e-05, 6.0518785176100209e-05, 6.2141079979483038e-05, 6.4805892179720104e-05, 6.8557070335373282e-05, 7.335994450841099e-05, 7.9284000094048679e-05, 8.6251806351356208e-05, 9.4344803073909134e-05, 0.00010353395919082686, 0.0001138320003519766, 0.0001252776273759082, 0.00013784394832327962, 0.00015158756286837161, 0.00016646583389956504, 0.00018252100562676787, 0.00019978794443886727, 0.00021828405442647636, 0.00023800843337085098, 0.00025901006301864982, 0.0002812814200296998, 0.00030484798480756581, 0.00032972017652355134, 0.00035596732050180435, 0.00038358545862138271, 0.0004126313142478466, 0.00044307118514552712, 0.00047501336666755378, 0.00050844199722632766, 0.00054337596520781517, 0.00057988864136859775, 0.00061800965340808034, 0.00065775914117693901, 0.000699152413289994, 0.00074227934237569571, 0.00078715570271015167, 0.00083377416012808681, 0.00088227324886247516, 0.0009326221770606935, 0.00098489224910736084, 0.0010391034884378314, 0.0010953464079648256, 0.001153626712039113, 0.0012140328763052821, 0.0012765693245455623, 0.001341317780315876, 0.0014083425048738718, 0.0014776336029171944, 0.001549328095279634, 0.0016234172508120537, 0.0017000052612274885, 0.0017791179707273841, 0.0018608199898153543, 0.0019451823318377137, 0.0020322385244071484, 0.0021220885682851076, 0.0022147782146930695, 0.0023103870917111635, 0.0024089745711535215, 0.0025105655658990145, 0.0026152802165597677, 0.0027231767307966948, 0.0028343265876173973, 0.0029487889260053635, 0.0030666270758956671, 0.0031879479065537453, 0.0033128033392131329, 0.0034412886016070843, 0.0035734693519771099, 0.0037094042636454105, 0.0038491983432322741, 0.0039929361082613468, 0.0041406778618693352, 0.004292510449886322, 0.0044485158286988735, 0.004608803428709507, 0.0047734435647726059, 0.0049425391480326653, 0.005116121843457222, 0.0052943285554647446, 0.0054772454313933849, 0.0056649716570973396, 0.0058575910516083241, 0.0060551739297807217, 0.0062578483484685421, 0.0064656869508326054, 0.0066788033582270145, 0.0068972636945545673, 0.0071212123148143291, 0.0073507223278284073, 0.007585874292999506, 0.0078268209472298622, 0.0080736298114061356, 0.0083263935521245003, 0.0085852388292551041, 0.0088502718135714531, 0.0091215828433632851, 0.0093993041664361954, 0.0096835149452090263, 0.0099743194878101349, 0.010271874256432056, 0.010576239787042141, 0.010887577198445797, 0.01120593398809433, 0.01153149176388979, 0.011864298023283482, 0.012204526923596859, 0.012552268803119659, 0.012907638214528561, 0.013270745985209942, 0.013641729019582272, 0.014020670205354691, 0.014407743699848652, 0.014803030528128147, 0.015206646174192429, 0.015618747100234032, 0.016039434820413589, 0.0164688341319561, 0.01690707728266716, 0.017354268580675125, 0.017810540273785591, 0.018276045098900795, 0.018750874325633049, 0.019235162064433098, 0.01972905732691288, 0.020232660695910454, 0.020746102556586266, 0.021269544959068298, 0.021803082898259163, 0.022346852347254753, 0.022900991141796112, 0.023465657606720924, 0.024040926247835159, 0.024626968428492546, 0.025223886594176292, 0.025831848382949829, 0.026450937613844872, 0.02708134613931179, 0.027723187580704689, 0.02837657742202282, 0.029041649773716927, 0.029718579724431038, 0.030407454818487167, 0.03110840916633606, 0.03182162344455719, 0.032547183334827423, 0.033285260200500488, 0.034035947173833847, 0.034799445420503616, 0.035575807094573975, 0.036365248262882233, 0.037167854607105255, 0.037983741611242294, 0.038813117891550064, 0.039656046777963638, 0.040512733161449432, 0.041383236646652222, 0.042267743498086929, 0.043166369199752808, 0.044079229235649109, 0.045006513595581055, 0.045948274433612823, 0.046904727816581726, 0.047875978052616119, 0.048862140625715256, 0.049863360822200775, 0.050879742950201035, 0.051911454647779465, 0.052958611398935318, 0.054021358489990234, 0.055099856108427048, 0.056194130331277847, 0.057304393500089645, 0.0584307461977005, 0.059573329985141754, 0.060732249170541763, 0.061907690018415451, 0.063099689781665802, 0.064308419823646545, 0.065534010529518127, 0.066776573657989502, 0.068036213517189026, 0.069313108921051025, 0.070607319474220276, 0.071918979287147522, 0.073248207569122314, 0.074595145881175995, 0.075959883630275726, 0.07734256237745285, 0.078743241727352142, 0.080162093043327332, 0.08159918338060379, 0.083054669201374054, 0.084528610110282898, 0.086021184921264648, 0.087532415986061096, 0.089062459766864777, 0.090611375868320465, 0.092179328203201294, 0.093766368925571442, 0.095372647047042847, 0.096998192369937897, 0.098643146455287933, 0.10030759125947952, 0.10199161618947983, 0.10369531810283661, 0.10541882365942001, 0.10716214776039124, 0.10892540961503983, 0.11070869863033295, 0.11251209676265717, 0.11433566361665726, 0.11617954820394516, 0.11804373562335968, 0.11992833018302917, 0.12183342128992081, 0.12375906854867935, 0.12570534646511078, 0.12767235934734344, 0.12966008484363556, 0.13166864216327667, 0.13369807600975037, 0.13574843108654022, 0.13781978189945221, 0.13991223275661469, 0.14202572405338287, 0.14416038990020752, 0.14631621539592743, 0.14849328994750977, 0.15069162845611572, 0.15291133522987366, 0.15515235066413879, 0.15741473436355591, 0.15969853103160858, 0.1620037853717804, 0.16433051228523254, 0.16667875647544861, 0.16904847323894501, 0.17143970727920532, 0.17385250329971313, 0.17628686130046844, 0.17874275147914886, 0.18122029304504395, 0.18371935188770294, 0.18623997271060944, 0.18878217041492462, 0.1913459450006485, 0.19393126666545868, 0.19653819501399994, 0.19916661083698273, 0.20181652903556824, 0.20448794960975647, 0.20718084275722504, 0.20989517867565155, 0.2126309871673584, 0.21538813412189484, 0.21816661953926086, 0.2209663987159729, 0.22378745675086975, 0.22662979364395142, 0.22949324548244476, 0.23237781226634979, 0.23528343439102173, 0.23821006715297699, 0.24115763604640961, 0.24412614107131958, 0.24711540341377258, 0.25012537837028503, 0.25315603613853455, 0.25620725750923157, 0.25927898287773132, 0.26237118244171143, 0.26548364758491516, 0.26861634850502014, 0.27176916599273682, 0.27494201064109802, 0.2781347930431366, 0.28134745359420776, 0.28457978367805481, 0.28783169388771057, 0.29110309481620789, 0.29439383745193481, 0.29770383238792419, 0.30103299021720886, 0.30438104271888733, 0.30774796009063721, 0.31113356351852417, 0.31453773379325867, 0.31796032190322876, 0.3214012086391449, 0.32486018538475037, 0.32833707332611084, 0.33183175325393677, 0.33534407615661621, 0.33887386322021484, 0.34242099523544312, 0.34598517417907715, 0.34956631064414978, 0.35316416621208191, 0.35677862167358398, 0.3604094386100769, 0.36405652761459351, 0.36771953105926514, 0.37139829993247986, 0.37509268522262573, 0.37880244851112366, 0.38252738118171692, 0.38626736402511597, 0.39002197980880737, 0.39379113912582397, 0.39757457375526428, 0.40137210488319397, 0.40518343448638916, 0.40900847315788269, 0.41284680366516113, 0.41669824719429016, 0.42056256532669067, 0.42443951964378357, 0.42832884192466736, 0.4322303831577301, 0.43614372611045837, 0.44006863236427307, 0.44400492310523987, 0.4479522705078125, 0.45191043615341187, 0.45587921142578125, 0.45985805988311768, 0.46384698152542114, 0.46784573793411255, 0.47185373306274414, 0.47587084770202637, 0.47989678382873535, 0.48393124341964722, 0.48797392845153809, 0.49202454090118408, 0.49608278274536133, 0.50014835596084595, 0.50422090291976929, 0.50830012559890747, 0.5123857855796814, 0.51647758483886719, 0.52057504653930664, 0.52467787265777588, 0.5287858247756958, 0.53289848566055298, 0.53701561689376831, 0.54113680124282837, 0.54526180028915405, 0.54939013719558716, 0.55352163314819336, 0.55765581130981445, 0.56179243326187134, 0.56593120098114014, 0.57007157802581787, 0.57421320676803589, 0.57835590839385986, 0.58249920606613159, 0.58664274215698242, 0.59078621864318848, 0.59492921829223633, 0.5990714430809021, 0.60321247577667236, 0.60735195875167847, 0.61148953437805176, 0.61562496423721313, 0.61975759267807007, 0.62388718128204346, 0.62801331281661987, 0.63213574886322021, 0.6362539529800415, 0.64036762714385986, 0.64447635412216187, 0.64857983589172363, 0.65267753601074219, 0.65676921606063843, 0.66085445880889893, 0.6649329662322998, 0.66900408267974854, 0.67306756973266602, 0.67712306976318359, 0.68117010593414307, 0.68520838022232056, 0.68923747539520264, 0.69325697422027588, 0.69726645946502686, 0.70126563310623169, 0.70525401830673218, 0.70923143625259399, 0.71319711208343506, 0.71715086698532104, 0.72109222412109375, 0.7250208854675293, 0.72893643379211426, 0.73283845186233521, 0.73672652244567871, 0.74060028791427612, 0.74445939064025879, 0.74830329418182373, 0.75213176012039185, 0.75594443082809448, 0.75974071025848389, 0.76352030038833618, 0.76728278398513794, 0.77102780342102051, 0.77475500106811523, 0.77846395969390869, 0.78215426206588745, 0.78582549095153809, 0.78947734832763672, 0.79310941696166992, 0.79672133922576904, 0.80031275749206543, 0.80388307571411133, 0.80743205547332764, 0.8109593391418457, 0.81446456909179688, 0.81794726848602295, 0.82140713930130005, 0.82484376430511475, 0.82825678586959839, 0.83164584636688232, 0.8350105881690979, 0.83835059404373169, 0.84166562557220459, 0.84495508670806885, 0.84821879863739014, 0.85145628452301025, 0.8546673059463501, 0.85785144567489624, 0.86100828647613525, 0.86413758993148804, 0.86723899841308594, 0.87031209468841553, 0.87335652112960815, 0.87637203931808472, 0.87935841083526611, 0.88231492042541504, 0.88524156808853149, 0.88813787698745728, 0.89100354909896851, 0.89383822679519653, 0.89664167165756226, 0.89941352605819702, 0.90215343236923218, 0.90486115217208862, 0.90753632783889771, 0.91017866134643555, 0.91278791427612305, 0.91536372900009155, 0.91790568828582764, 0.92041373252868652, 0.92288732528686523, 0.92532640695571899, 0.92773056030273438, 0.93009954690933228, 0.93243312835693359, 0.93473094701766968, 0.93699288368225098, 0.93921846151351929, 0.94140768051147461, 0.94356006383895874, 0.94567543268203735, 0.94775348901748657, 0.94979411363601685, 0.95179694890975952, 0.95376187562942505, 0.95568859577178955, 0.95757681131362915, 0.95942646265029907, 0.96123719215393066, 0.9630088210105896, 0.96474123001098633, 0.96643412113189697, 0.96808725595474243, 0.96970051527023315, 0.97127372026443481, 0.97280663251876831, 0.97429907321929932, 0.97575092315673828, 0.9771619439125061, 0.97853195667266846, 0.97986090183258057, 0.98114854097366333, 0.98239481449127197, 0.98359936475753784, 0.98476219177246094, 0.98588317632675171, 0.98696213960647583, 0.98799896240234375, 0.98899352550506592, 0.98994570970535278, 0.99085539579391479, 0.9917224645614624, 0.99254685640335083, 0.99332839250564575, 0.99406707286834717, 0.99476277828216553, 0.99541538953781128, 0.99602478742599487, 0.99659103155136108, 0.99711394309997559, 0.99759352207183838, 0.99802964925765991, 0.99842232465744019, 0.9987715482711792, 0.99907714128494263, 0.99933922290802002, 0.99955761432647705, 0.9997323751449585, 0.99986344575881958, 0.9999508261680603, 0.99999451637268066, 0.99999451637268066};
 /*
@@ -754,13 +647,14 @@ void lp_conv(MYFLT *samples, MYFLT *impulse, int num_samps, int size, int gain) 
 }
 
 static PyObject *
-upsamp(PyObject *self, PyObject *args, PyObject *kwds)
+p_upsamp(PyObject *self, PyObject *args, PyObject *kwds)
 {
     unsigned int i, j, k;
     char *inpath;
     char *outpath;
     SNDFILE *sf;
     SF_INFO info;
+    Py_ssize_t psize, psize2;
     unsigned int snd_size, snd_sr, snd_chnls, num_items;
     MYFLT *sincfunc;
     MYFLT *tmp;
@@ -770,7 +664,7 @@ upsamp(PyObject *self, PyObject *args, PyObject *kwds)
     int order = 128;
     static char *kwlist[] = {"path", "outfile", "up", "order", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "ss|ii", kwlist, &inpath, &outpath, &up, &order))
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "s#s#|ii", kwlist, &inpath, &psize, &outpath, &psize2, &up, &order))
         return PyInt_FromLong(-1);
 
     /* opening input soundfile */
@@ -857,13 +751,14 @@ upsamp(PyObject *self, PyObject *args, PyObject *kwds)
 }
 
 static PyObject *
-downsamp(PyObject *self, PyObject *args, PyObject *kwds)
+p_downsamp(PyObject *self, PyObject *args, PyObject *kwds)
 {
     unsigned int i, j;
     char *inpath;
     char *outpath;
     SNDFILE *sf;
     SF_INFO info;
+    Py_ssize_t psize, psize2;
     unsigned int snd_size, snd_sr, snd_chnls, num_items, samples_per_channels;
     MYFLT *sincfunc;
     MYFLT *tmp;
@@ -873,7 +768,7 @@ downsamp(PyObject *self, PyObject *args, PyObject *kwds)
     int order = 128;
     static char *kwlist[] = {"path", "outfile", "down", "order", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "ss|ii", kwlist, &inpath, &outpath, &down, &order))
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "s#s#|ii", kwlist, &inpath, &psize, &outpath, &psize2, &down, &order))
         return PyInt_FromLong(-1);
 
     /* opening input soundfile */
@@ -971,8 +866,8 @@ This function receives a list of points as input and returns a simplified list b
 A point is a tuple (or a list) of two floats, time and value. A list of points looks like:\n\n        \
 [ (0, 0), (0.1, 0.7), (0.2, 0.5), ... ] \n\n\
 :Args:\n\n    \
-pointlist : list of lists or list of tuples\n        List of points (time, value) to filter.\n    \
-tolerance : float, optional\n        Normalized distance threshold under which a point is\n        excluded from the list. Defaults to 0.02."
+pointlist: list of lists or list of tuples\n        List of points (time, value) to filter.\n    \
+tolerance: float, optional\n        Normalized distance threshold under which a point is\n        excluded from the list. Defaults to 0.02."
 
 typedef struct STACK_RECORD {
     int nAnchorIndex;
@@ -1135,15 +1030,15 @@ reducePoints(PyObject *self, PyObject *args, PyObject *kwds)
 This function returns the shortest distance from a point to a line segment\nnormalized between 0 and 1.\n\n\
 A point is a tuple (or a list) of two floats, time and value. `p` is the point for which\nto find the distance from line `p1` to `p2`.\n\n\
 :Args:\n\n    \
-p : list or tuple\n        Point for which to find the distance.\n    \
-p1 : list or tuple\n        First point of the segment.\n    \
-p2 : list or tuple\n        Second point of the segment.\n    \
-xmin : float, optional\n        Minimum value on the X axis.\n    \
-xmax : float, optional\n        Maximum value on the X axis.\n    \
-ymin : float, optional\n        Minimum value on the Y axis.\n    \
-ymax : float, optional\n        Maximum value on the Y axis.\n    \
-xlog : boolean, optional\n        Set this argument to True if X axis has a logarithmic scaling.\n    \
-ylog : boolean, optional\n        Set this argument to True if Y axis has a logarithmic scaling."
+p: list or tuple\n        Point for which to find the distance.\n    \
+p1: list or tuple\n        First point of the segment.\n    \
+p2: list or tuple\n        Second point of the segment.\n    \
+xmin: float, optional\n        Minimum value on the X axis.\n    \
+xmax: float, optional\n        Maximum value on the X axis.\n    \
+ymin: float, optional\n        Minimum value on the Y axis.\n    \
+ymax: float, optional\n        Maximum value on the Y axis.\n    \
+xlog: boolean, optional\n        Set this argument to True if X axis has a logarithmic scaling.\n    \
+ylog: boolean, optional\n        Set this argument to True if Y axis has a logarithmic scaling."
 
 static PyObject *
 distanceToSegment(PyObject *self, PyObject *args, PyObject *kwds)
@@ -1210,11 +1105,11 @@ distanceToSegment(PyObject *self, PyObject *args, PyObject *kwds)
 #define linToCosCurve_info \
 "\nCreates a cosinus interpolated curve from a list of points.\n\n\
 A point is a tuple (or a list) of two floats, time and value.\n\n:Args:\n\n    \
-data : list of points\n        Set of points between which will be inserted interpolated segments.\n    \
-yrange : list of 2 floats, optional\n        Minimum and maximum values on the Y axis. Defaults to [0., 1.].\n    \
-totaldur : float, optional\n        X axis duration. Defaults to 1.\n    \
-points : int, optional\n        Number of points in the output list. Defaults to 1024.\n    \
-log : boolean, optional\n        Set this value to True if the Y axis has a logarithmic scale. Defaults to False\n\n\
+data: list of points\n        Set of points between which will be inserted interpolated segments.\n    \
+yrange: list of 2 floats, optional\n        Minimum and maximum values on the Y axis. Defaults to [0., 1.].\n    \
+totaldur: float, optional\n        X axis duration. Defaults to 1.\n    \
+points: int, optional\n        Number of points in the output list. Defaults to 1024.\n    \
+log: boolean, optional\n        Set this value to True if the Y axis has a logarithmic scale. Defaults to False\n\n\
 >>> s = Server().boot()\n\
 >>> a = [(0,0), (0.25, 1), (0.33, 1), (1,0)]\n\
 >>> b = linToCosCurve(a, yrange=[0, 1], totaldur=1, points=8192)\n\
@@ -1331,13 +1226,13 @@ linToCosCurve(PyObject *self, PyObject *args, PyObject *kwds)
 This function takes data in the range `xmin` - `xmax` and returns corresponding values\nin the range `ymin` - `ymax`.\n\n\
 `data` can be either a number or a list. Return value is of the same type as `data`\nwith all values rescaled.\n\n\
 :Argss:\n\n    \
-data : float or list of floats\n        Values to convert.\n    \
-xmin : float, optional\n        Minimum value of the input range.\n    \
-xmax : float, optional\n        Maximum value of the input range.\n    \
-ymin : float, optional\n        Minimum value of the output range.\n    \
-ymax : float, optional\n        Maximum value of the output range.\n    \
-xlog : boolean, optional\n        Set this argument to True if the input range has a logarithmic scaling.\n    \
-ylog : boolean, optional\n        Set this argument to True if the output range has a logarithmic scaling.\n\n\
+data: float or list of floats\n        Values to convert.\n    \
+xmin: float, optional\n        Minimum value of the input range.\n    \
+xmax: float, optional\n        Maximum value of the input range.\n    \
+ymin: float, optional\n        Minimum value of the output range.\n    \
+ymax: float, optional\n        Maximum value of the output range.\n    \
+xlog: boolean, optional\n        Set this argument to True if the input range has a logarithmic scaling.\n    \
+ylog: boolean, optional\n        Set this argument to True if the output range has a logarithmic scaling.\n\n\
 >>> a = 0.5\n\
 >>> b = rescale(a, 0, 1, 20, 20000, False, True)\n\
 >>> print(b)\n\
@@ -1469,10 +1364,10 @@ rescale(PyObject *self, PyObject *args, PyObject *kwds)
 "\nConverts values from a 0-1 range to an output range.\n\n\
 This function takes data in the range `0` - `1` and returns corresponding values\nin the range `min` - `max`.\n\n\
 :Argss:\n\n    \
-x : float\n        Value to convert, in the range 0 to 1.\n    \
-min : float, optional\n        Minimum value of the output range. Defaults to 0.\n    \
-max : float, optional\n        Maximum value of the output range. Defaults to 1.\n    \
-exp : float, optional\n        Power factor (1 (default) is linear, les than 1 is logarithmic, greter than 1 is exponential).\n\n\
+x: float\n        Value to convert, in the range 0 to 1.\n    \
+min: float, optional\n        Minimum value of the output range. Defaults to 0.\n    \
+max: float, optional\n        Maximum value of the output range. Defaults to 1.\n    \
+exp: float, optional\n        Power factor (1 (default) is linear, les than 1 is logarithmic, greter than 1 is exponential).\n\n\
 >>> a = 0.5\n\
 >>> b = floatmap(a, 0, 1, 4)\n\
 >>> print(b)\n\
@@ -1504,7 +1399,7 @@ floatmap(PyObject *self, PyObject *args, PyObject *kwds)
 /****** Conversion utilities ******/
 #define midiToHz_info \
 "\nConverts a midi note value to frequency in Hertz.\n\n:Args:\n\n    \
-x : int or float\n        Midi note. `x` can be a number, a list or a tuple, otherwise the function returns None.\n\n\
+x: int or float\n        Midi note. `x` can be a number, a list or a tuple, otherwise the function returns None.\n\n\
 >>> a = (48, 60, 62, 67)\n\
 >>> b = midiToHz(a)\n\
 >>> print(b)\n\
@@ -1549,7 +1444,7 @@ midiToHz(PyObject *self, PyObject *arg) {
 
 #define hzToMidi_info \
 "\nConverts a frequency in Hertz to a midi note value.\n\n:Args:\n\n    \
-x : float\n        Frequency in Hertz. `x` can be a number, a list or a tuple, otherwise the function returns None.\n\n\
+x: float\n        Frequency in Hertz. `x` can be a number, a list or a tuple, otherwise the function returns None.\n\n\
 >>> a = (110.0, 220.0, 440.0, 880.0)\n\
 >>> b = hzToMidi(a)\n\
 >>> print(b)\n\
@@ -1594,7 +1489,7 @@ hzToMidi(PyObject *self, PyObject *arg) {
 
 #define midiToTranspo_info \
 "\nConverts a midi note value to transposition factor (central key = 60).\n\n:Args:\n\n    \
-x : int or float\n        Midi note. `x` can be a number, a list or a tuple, otherwise the function returns None.\n\n\
+x: int or float\n        Midi note. `x` can be a number, a list or a tuple, otherwise the function returns None.\n\n\
 >>> a = (48, 60, 62, 67)\n\
 >>> b = midiToTranspo(a)\n\
 >>> print(b)\n    \
@@ -1639,7 +1534,7 @@ midiToTranspo(PyObject *self, PyObject *arg) {
 
 #define sampsToSec_info \
 "\nReturns the duration in seconds equivalent to the number of samples given as an argument.\n\n:Args:\n\n    \
-x : int or float\n        Duration in samples. `x` can be a number, a list or a tuple, otherwise function returns None.\n\n\
+x: int or float\n        Duration in samples. `x` can be a number, a list or a tuple, otherwise function returns None.\n\n\
 >>> s = Server().boot()\n\
 >>> a = (64, 128, 256)\n\
 >>> b = sampsToSec(a)\n\
@@ -1691,7 +1586,7 @@ sampsToSec(PyObject *self, PyObject *arg) {
 
 #define secToSamps_info \
 "\nReturns the number of samples equivalent to the duration in seconds given as an argument.\n\n:Args:\n\n    \
-x : int or float\n        Duration in seconds. `x` can be a number, a list or a tuple, otherwise function returns None.\n\n\
+x: int or float\n        Duration in seconds. `x` can be a number, a list or a tuple, otherwise function returns None.\n\n\
 >>> s = Server().boot()\n\
 >>> a = (0.1, 0.25, 0.5, 1)\n\
 >>> b = secToSamps(a)\n\
@@ -1815,11 +1710,11 @@ static PyMethodDef pyo_functions[] = {
 {"pm_get_default_input", (PyCFunction)portmidi_get_default_input, METH_NOARGS, portmidi_get_default_input_info},
 {"pm_get_output_devices", (PyCFunction)portmidi_get_output_devices, METH_NOARGS, portmidi_get_output_devices_info},
 {"pm_get_default_output", (PyCFunction)portmidi_get_default_output, METH_NOARGS, portmidi_get_default_output_info},
-{"sndinfo", (PyCFunction)sndinfo, METH_VARARGS|METH_KEYWORDS, sndinfo_info},
-{"savefile", (PyCFunction)savefile, METH_VARARGS|METH_KEYWORDS, savefile_info},
-{"savefileFromTable", (PyCFunction)savefileFromTable, METH_VARARGS|METH_KEYWORDS, savefileFromTable_info},
-{"upsamp", (PyCFunction)upsamp, METH_VARARGS|METH_KEYWORDS, upsamp_info},
-{"downsamp", (PyCFunction)downsamp, METH_VARARGS|METH_KEYWORDS, downsamp_info},
+{"p_sndinfo", (PyCFunction)p_sndinfo, METH_VARARGS|METH_KEYWORDS, ""},
+{"p_savefile", (PyCFunction)p_savefile, METH_VARARGS|METH_KEYWORDS, ""},
+{"p_savefileFromTable", (PyCFunction)p_savefileFromTable, METH_VARARGS|METH_KEYWORDS, ""},
+{"p_upsamp", (PyCFunction)p_upsamp, METH_VARARGS|METH_KEYWORDS, ""},
+{"p_downsamp", (PyCFunction)p_downsamp, METH_VARARGS|METH_KEYWORDS, ""},
 {"reducePoints", (PyCFunction)reducePoints, METH_VARARGS|METH_KEYWORDS, reducePoints_info},
 {"distanceToSegment", (PyCFunction)distanceToSegment, METH_VARARGS|METH_KEYWORDS, distanceToSegment_info},
 {"rescale", (PyCFunction)rescale, METH_VARARGS|METH_KEYWORDS, rescale_info},

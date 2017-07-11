@@ -3176,8 +3176,8 @@ class MainFrame(wx.Frame):
         for line in text.splitlines():
             if check1:
                 if not line.startswith("#"):
-                    if not '# encoding: utf-8' in text:
-                        newtext += '# encoding: utf-8\n'
+                    if not '# encoding:' in text:
+                        newtext += '# -*- encoding: %s -*-\n' % sys.getfilesystemencoding()
                     check1 = False
             if not check1 and check2:
                 if is_future and '__future__' in line:

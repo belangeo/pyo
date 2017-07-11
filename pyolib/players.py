@@ -106,7 +106,7 @@ class SfPlayer(PyoObject):
         self._base_objs = []
         _trig_objs_tmp = []
         for i in range(lmax):
-            _snd_size, _dur, _snd_sr, _snd_chnls, _format, _type  = sndinfo(path[0])
+            _snd_size, _dur, _snd_sr, _snd_chnls, _format, _type = sndinfo(path[0])
             self._base_players.append(SfPlayer_base(wrap(path,i), wrap(speed,i), wrap(loop,i), wrap(offset,i), wrap(interp,i)))
             for j in range(_snd_chnls):
                 self._base_objs.append(SfPlay_base(self._base_players[-1], j, wrap(mul,i), wrap(add,i)))

@@ -3,7 +3,6 @@
 ### sys.getfilesystemencoding() should be used to set
 ### the encoding line added by E-Pyo.
 
-
 import os
 import sys
 import locale
@@ -18,7 +17,6 @@ print("Locale default encoding: ", locale.getdefaultlocale())
 s = Server().boot()
 
 ### Need a python layer to encode the path in python 3.
-
 # Python 3
 #p = 'bébêtte/noise.aif'.encode(sys.getfilesystemencoding())
 # Python 2
@@ -52,7 +50,11 @@ downfile = os.path.join("bébêtte", 'downsamp.aif')
 downsamp(upfile, downfile, 3, 256)
 print("downsamp record:", os.path.isfile(os.path.join("bébêtte", 'downsamp.aif')))
 
-sf = SfPlayer(downfile, mul=0.1).out()
+sf = SfPlayer(p, mul=0.1).out()
+sf.setPath(downfile)
+
+######### SfMarker ###########
+sf = SfMarkerLooper('bébêtte/transparent.aif', mul=0.3).out()
 
 s.gui(locals(), exit=False)
 
