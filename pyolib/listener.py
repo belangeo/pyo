@@ -45,8 +45,9 @@ class MidiListener(threading.Thread):
         This object is available only if pyo is built with portmidi support
         (see withPortmidi function).
 
-    >>> s = Server().boot()
+    >>> s = Server()
     >>> s.deactivateMidi()
+    >>> s.boot()
     >>> def midicall(status, data1, data2):
     ...     print(status, data1, data2)
     >>> listen = MidiListener(midicall, 5)
@@ -131,8 +132,9 @@ class MidiDispatcher(threading.Thread):
         This object is available only if pyo is built with portmidi support
         (see withPortmidi function).
 
-    >>> s = Server().boot()
+    >>> s = Server()
     >>> s.deactivateMidi()
+    >>> s.boot()
     >>> dispatch = MidiDispatcher(5)
     >>> dispatch.start()
     >>> dispatch.send(144, 60, 127)
