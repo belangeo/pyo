@@ -69,6 +69,8 @@ if __name__ == '__main__':
     signal, child = multiprocessing.Pipe()
     p1, p2 = Proc(1, child), Proc(2, child)
     main = Main()
-    p1.start(); p2.start(); main.start()
+    p1.start(); p2.start();
+    time.sleep(.05)
+    main.start()
     time.sleep(.05)
     signal.send(1)
