@@ -1,3 +1,7 @@
+2017-08-07 belangeo <belangeo@gmail.com>
+
+    * OscDataSend now can send more than one message per buffer size.
+
 2017-05-18 belangeo <belangeo@gmail.com>
 
 	* Disable Microsoft Midi devices by default. Added
