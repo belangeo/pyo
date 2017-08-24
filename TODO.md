@@ -1,3 +1,18 @@
+To do before releasing 0.8.7
+============================
+
+- Compile with python 3.6.
+
+- Fix dependencies on windows 10. **done**
+
+- Finish the unicode path handling on windows.
+
+- Fix E-Pyo on OSX 10.12.6. **is it really buggy?**
+
+- Fix ending point of current time in TableRec.
+
+- Jack on windows...
+
 This is a list of features/fixes to implement for future releases
 =================================================================
 

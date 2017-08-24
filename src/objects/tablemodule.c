@@ -4113,6 +4113,7 @@ static PyObject *
 SndTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     int i;
+    Py_ssize_t psize;
     SndTable *self;
 
     self = (SndTable *)type->tp_alloc(type, 0);
@@ -4129,7 +4130,7 @@ SndTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"path", "chnl", "start", "stop", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_S_IFF, kwlist, &self->path, &self->chnl, &self->start, &self->stop))
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_P_IFF, kwlist, &self->path, &psize, &self->chnl, &self->start, &self->stop))
         return PyInt_FromLong(-1);
 
     if (strcmp(self->path, "") == 0) {
@@ -4317,11 +4318,12 @@ SndTable_getEnvelope(SndTable *self, PyObject *arg) {
 static PyObject *
 SndTable_setSound(SndTable *self, PyObject *args, PyObject *kwds)
 {
+    Py_ssize_t psize;
     static char *kwlist[] = {"path", "chnl", "start", "stop", NULL};
 
     MYFLT stoptmp = -1.0;
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_S_IFF, kwlist, &self->path, &self->chnl, &self->start, &stoptmp)) {
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_P_IFF, kwlist, &self->path, &psize, &self->chnl, &self->start, &stoptmp)) {
         Py_INCREF(Py_None);
         return Py_None;
     }
@@ -4336,12 +4338,13 @@ SndTable_setSound(SndTable *self, PyObject *args, PyObject *kwds)
 static PyObject *
 SndTable_append(SndTable *self, PyObject *args, PyObject *kwds)
 {
+    Py_ssize_t psize;
     static char *kwlist[] = {"path", "crossfade", "chnl", "start", "stop", NULL};
 
     MYFLT stoptmp = -1.0;
     MYFLT crosstmp = 0.0;
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_S_FIFF, kwlist, &self->path, &crosstmp, &self->chnl, &self->start, &stoptmp)) {
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_P_FIFF, kwlist, &self->path, &psize, &crosstmp, &self->chnl, &self->start, &stoptmp)) {
         Py_INCREF(Py_None);
         return Py_None;
     }
@@ -4361,13 +4364,14 @@ SndTable_append(SndTable *self, PyObject *args, PyObject *kwds)
 static PyObject *
 SndTable_insert(SndTable *self, PyObject *args, PyObject *kwds)
 {
+    Py_ssize_t psize;
     static char *kwlist[] = {"path", "pos", "crossfade", "chnl", "start", "stop", NULL};
 
     MYFLT stoptmp = -1.0;
     MYFLT crosstmp = 0.0;
     MYFLT postmp = 0.0;
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_S_FFIFF, kwlist, &self->path, &postmp, &crosstmp, &self->chnl, &self->start, &stoptmp)) {
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_P_FFIFF, kwlist, &self->path, &psize, &postmp, &crosstmp, &self->chnl, &self->start, &stoptmp)) {
         Py_INCREF(Py_None);
         return Py_None;
     }

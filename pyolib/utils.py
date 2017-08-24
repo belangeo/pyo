@@ -637,7 +637,7 @@ class Record(PyoObject):
                 print('Warning: Unknown file extension. Using fileformat value.')
         else:
             print('Warning: Filename has no extension. Using fileformat value.')
-        self._base_objs = [Record_base(self._in_fader.getBaseObjects(), filename, chnls, fileformat, sampletype, buffering, quality)]
+        self._base_objs = [Record_base(self._in_fader.getBaseObjects(), stringencode(filename), chnls, fileformat, sampletype, buffering, quality)]
         self.play()
 
     def out(self, chnl=0, inc=1, dur=0, delay=0):
