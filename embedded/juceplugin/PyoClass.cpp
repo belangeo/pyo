@@ -32,9 +32,9 @@ Pyo::~Pyo() {
 }
 
 /*
-** This function fills pyo's input buffers with new samples, tells pyo to 
-** process a buffer of samples and fills the host's output buffer with new 
-** samples. Should be called once per process block, inside the host's 
+** This function fills pyo's input buffers with new samples, tells pyo to
+** process a buffer of samples and fills the host's output buffer with new
+** samples. Should be called once per process block, inside the host's
 ** processBlock function.
 **
 ** arguments:
@@ -62,7 +62,7 @@ void Pyo::process(AudioSampleBuffer& buffer) {
 ** reboot or not.
 **
 ** arguments:
-**   file : const char * or const String &, 
+**   file : const char * or const String &,
 **             filename to execute as a python script. The file is first
 **             searched in the current working directory. If not found,
 **             the module will try to open it as an absolute path.
@@ -111,7 +111,7 @@ int Pyo::value(const String &name, float value) {
 ** Sends an array of numerical values to an existing Sig or SigTo object.
 **
 ** arguments:
-**   name : const char * or const String &, 
+**   name : const char * or const String &,
 **          variable name of the object.
 **   value : float *, array of floats.
 **   len : int, number of elements in the array.
@@ -154,7 +154,7 @@ int Pyo::value(const String &name, float *value, int len) {
 ** Sends a numerical value to a Pyo object's attribute.
 **
 ** arguments:
-**   name : const char * or const String &, 
+**   name : const char * or const String &,
 **          object name and attribute separated by a dot.
 **   value : float, value to be assigned.
 **
@@ -183,7 +183,7 @@ int Pyo::set(const String &name, float value) {
 ** Sends an array of numerical values to a Pyo object's attribute.
 **
 ** arguments:
-**   name : const char * or const String &, 
+**   name : const char * or const String &,
 **          object name and attribute separated by a dot.
 **   value : float *, array of floats.
 **   len : int, number of elements in the array.
@@ -223,7 +223,7 @@ int Pyo::set(const String &name, float *value, int len) {
 }
 
 /*
-** Executes any raw valid python statement. With this function, one can 
+** Executes any raw valid python statement. With this function, one can
 ** dynamically creates and manipulates audio objects and algorithms.
 **
 ** arguments:
@@ -244,6 +244,19 @@ int Pyo::exec(const char *_msg) {
 int Pyo::exec(const String &_msg) {
     strcpy(pyoMsg, _msg.getCharPointer());
     return pyo_exec_statement(interpreter, pyoMsg, 0);
+}
+
+/*
+** Sends a MIDI messges to the Server.
+**
+** Example (for a Pyo object named `pyo`):
+**
+** pyo.midi(144, 60, 127) //Send a Note on message on channel 1 for note # 60
+** pyo.midi(128, 60, 0)   //Send a Note off messge on channel 1 for note # 60
+*/
+
+void Pyo::midi(int status, int data1, int data2) {
+    return pyo_add_midi_event(interpreter, status, data1, data2);
 }
 
 /*

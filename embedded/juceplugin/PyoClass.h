@@ -24,6 +24,7 @@ class Pyo {
         int set(const String &name, float value);
         int set(const char *name, float *value, int len);
         int set(const String &name, float *value, int len);
+        void midi(int status, int data1, int data2);
 
     private:
         int nChannels;
