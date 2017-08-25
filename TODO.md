@@ -11,9 +11,11 @@ To do before releasing 0.8.7
 
 - Fix E-Pyo on OSX 10.12.6. **is it really buggy?**
 
-- Fix ending point of current time in TableRec.
+- Fix ending point of current time in TableRec. **done**
 
 - Pull request about midi events. **done**
+
+- Fix segfault with VoiceManager (see mail from Jeremy Van Burskirk.
 
 
 This is a list of features/fixes to implement for future releases

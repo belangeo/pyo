@@ -1233,7 +1233,8 @@ class PyoObject(PyoObjectBase):
             [obj.play(wrap(dur, i), wrap(delay, i)) \
              for i, obj in enumerate(self._base_players)]
         if self._time_objs is not None:
-            [obj.play(wrap(dur, i), wrap(delay, i)) \
+            # We don't send 'dur' argument to time_stream to avoid a stop() call.
+            [obj.play(0, wrap(delay, i)) \
              for i, obj in enumerate(self._time_objs)]
 
         [obj.play(wrap(dur, i), wrap(delay, i)) \
@@ -1285,7 +1286,8 @@ class PyoObject(PyoObjectBase):
             [obj.play(wrap(dur, i), wrap(delay, i))
              for i, obj in enumerate(self._base_players)]
         if self._time_objs is not None:
-            [obj.play(wrap(dur, i), wrap(delay, i))
+            # We don't send 'dur' argument to time_stream to avoid a stop() call.
+            [obj.play(0, wrap(delay, i))
              for i, obj in enumerate(self._time_objs)]
 
         if isinstance(chnl, list):
@@ -1316,8 +1318,10 @@ class PyoObject(PyoObjectBase):
                 self._trig_objs.stop()
         if self._base_players is not None:
             [obj.stop() for obj in self._base_players]
-        if self._time_objs is not None:
-            [obj.stop() for obj in self._time_objs]
+        # This is not good for TableRec objects, only for Looper.
+        # It's move locally to the Looper definition.
+        #if self._time_objs is not None:
+        #    [obj.stop() for obj in self._time_objs]
 
         [obj.stop() for obj in self._base_objs]
         return self

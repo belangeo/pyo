@@ -5753,8 +5753,6 @@ TableRec_compute_next_data_frame(TableRec *self)
     if (self->pointer < size) {
         upBound = (int)(size - self->fadeInSample);
 
-        //MYFLT buffer[num];
-        //memset(&buffer, 0, sizeof(buffer));
         for (i=0; i<self->bufsize; i++) {
             self->buffer[i] = 0.0;
         }
