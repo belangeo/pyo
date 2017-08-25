@@ -72,7 +72,7 @@ tabplay = Osc(tab1, [tab1.getRate(), tab1.getRate() * 1.01], mul=0.5)
 
 ######### CvlVerb impulse path ###########
 impl = os.path.join("bébêtte", 'IRMediumHallStereo.wav')
-cv = CvlVerb(tabplay, impl, size=1024, bal=0.7)
+cv = CvlVerb(tabplay, impl, size=1024, bal=0.7).out()
 
 ######### Record ###########
 recfile = os.path.join("bébêtte", 'recfile.wav')
@@ -82,11 +82,16 @@ def reccallback():
     global rec, recplay
     rec.stop()
     del rec
-    recplay = SfPlayer(recfile, loop=True).out()
-    print("Start playback!")
+#    recplay = SfPlayer(recfile, loop=True).out()
+#    print("Start playback!")
 print("Recording 4 seconds of sounds...")
 after = CallAfter(reccallback, 4)
 
+######### Server ###########
+servrecfile = os.path.join("bébêtte", 'servrecfile.wav')
+s.recordOptions(dur=-1, filename=servrecfile)
+servrecfile = os.path.join("bébêtte", 'servrecfile2.wav')
+s.recstart(servrecfile)
 
 s.gui(locals(), exit=False)
 
@@ -102,6 +107,8 @@ delfile(os.path.join("bébêtte", 'savefileFromTable.aif'))
 delfile(os.path.join("bébêtte", 'upsamp.aif'))
 delfile(os.path.join("bébêtte", 'downsamp.aif'))
 delfile(os.path.join("bébêtte", 'recfile.wav'))
+delfile(os.path.join("bébêtte", 'servrecfile.wav'))
+delfile(os.path.join("bébêtte", 'servrecfile2.wav'))
 
 """
 1 - Adapt encoding line for E-Pyo tempfile. **done**
@@ -110,6 +117,7 @@ delfile(os.path.join("bébêtte", 'recfile.wav'))
 
 3 - "if sys.version > 2" -> path.encode(sys.getfilesystemencoding())
     For python2, don't do anything.
+    Function stringencode(strng) in _core.py
  
 Objects with file input:
 sndinfo, savefile, savefileFromTable, upsamp, downsamp **done**
@@ -117,13 +125,13 @@ Sf_family **done**
 CvlVerb **
 SndTable **
 Record **
+Server: recordOptions, recstart **
+
 ControlRead, ControlRec *nothing to do?*
 Expr *to_unicode?* *nothing to do?*
 NoteinRead, NoteinRec *nothing to do?*
-
-Server: recordOptions, recstart
-PyoTableObject: save, write, read  
-PyoMatrixObject: write, read
+PyoTableObject: write, read *nothing to do?*
+PyoMatrixObject: write, read *nothing to do?*
 
 4 - For method of a C class, use stringencode(st) before the call and
     PyArg_ParseTuple(args, "s#", &self->path, &psize) in the method body.

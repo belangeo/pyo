@@ -1416,9 +1416,10 @@ Server_stop(Server *self)
 static PyObject *
 Server_recordOptions(Server *self, PyObject *args, PyObject *kwds)
 {
+    Py_ssize_t psize;
     static char *kwlist[] = {"dur", "filename", "fileformat", "sampletype", "quality", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "d|siid", kwlist, &self->recdur, &self->recpath, &self->recformat, &self->rectype, &self->recquality)) {
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "d|s#iid", kwlist, &self->recdur, &self->recpath, &psize, &self->recformat, &self->rectype, &self->recquality)) {
         return PyInt_FromLong(-1);
     }
 
@@ -1428,11 +1429,12 @@ Server_recordOptions(Server *self, PyObject *args, PyObject *kwds)
 static PyObject *
 Server_start_rec(Server *self, PyObject *args, PyObject *kwds)
 {
+    Py_ssize_t psize;
     char *filename=NULL;
 
     static char *kwlist[] = {"filename", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "|s", kwlist, &filename)) {
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "|s#", kwlist, &filename, &psize)) {
         return PyInt_FromLong(-1);
     }
     Server_start_rec_internal(self, filename);

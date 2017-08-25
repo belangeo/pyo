@@ -812,7 +812,7 @@ class Server(object):
             print('Warning: Filename has no extension. Using fileformat value.')
         self._fileformat = fileformat
         self._sampletype = sampletype
-        self._server.recordOptions(dur, filename, fileformat, sampletype, quality)
+        self._server.recordOptions(dur, stringencode(filename), fileformat, sampletype, quality)
 
     def recstart(self, filename=None):
         """
@@ -840,7 +840,7 @@ class Server(object):
                 fileformat = FILE_FORMATS[ext]
                 if fileformat != self._fileformat:
                     self._fileformat = fileformat
-                    self._server.recordOptions(self._dur, filename, self._fileformat, self._sampletype)
+                    self._server.recordOptions(self._dur, stringencode(filename), self._fileformat, self._sampletype)
 
         self._server.recstart(filename)
 

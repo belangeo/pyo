@@ -5,13 +5,16 @@ To do before releasing 0.8.7
 
 - Fix dependencies on windows 10. **done**
 
+- Jack on windows.
+
 - Finish the unicode path handling on windows.
 
 - Fix E-Pyo on OSX 10.12.6. **is it really buggy?**
 
 - Fix ending point of current time in TableRec.
 
-- Jack on windows...
+- Pull request about midi events. **done**
+
 
 This is a list of features/fixes to implement for future releases
 =================================================================
