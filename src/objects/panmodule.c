@@ -1963,20 +1963,26 @@ VoiceManager_compute_next_data_frame(VoiceManager *self)
 static int
 VoiceManager_traverse(VoiceManager *self, visitproc visit, void *arg)
 {
+    int i;
     pyo_VISIT
     Py_VISIT(self->input);
     Py_VISIT(self->input_stream);
-    Py_VISIT(self->trigger_streams);
+    for (i=0; i<self->maxVoices; i++) {
+        Py_VISIT(self->trigger_streams[i]);
+    }
     return 0;
 }
 
 static int
 VoiceManager_clear(VoiceManager *self)
 {
+    int i;
     pyo_CLEAR
     Py_CLEAR(self->input);
     Py_CLEAR(self->input_stream);
-    Py_CLEAR(self->trigger_streams);
+    for (i=0; i<self->maxVoices; i++) {
+        Py_CLEAR(self->trigger_streams[i]);
+    }
     return 0;
 }
 
@@ -1986,6 +1992,7 @@ VoiceManager_dealloc(VoiceManager* self)
     pyo_DEALLOC
     if (self->voices != NULL)
         free(self->voices);
+        free(self->trigger_streams);
     VoiceManager_clear(self);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
