@@ -10,12 +10,12 @@ cp -R styles Resources/
 
 rm -rf build dist
 
-python3 setup.py py2app
+python3.5 setup.py py2app
 
 rm -rf build
-mv dist E-Pyo_OSX_py3
+mv dist E-Pyo_OSX_py35
 
-if cd E-Pyo_OSX_py3;
+if cd E-Pyo_OSX_py35;
 then
     find . -name .git -depth -exec rm -rf {} \
     find . -name *.pyc -depth -exec rm -f {} \
