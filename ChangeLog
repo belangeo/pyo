@@ -1,3 +1,8 @@
+2017-08-28 belangeo <belangeo@gmail.com>
+
+    * Update MacOS and Windows build routine to compile for python 2.7,
+      3.5 and 3.6.
+
 2017-08-xx belangeo <belangeo@gmail.com>
 
     * Fixed encoding of path for various objects.
@@ -10,6 +15,10 @@
 
     * Fixed ending point of TableRec's time stream (now keep the last 
       value instead of switching back to 0).
+
+2017-08-23 belangeo <belangeo@gmail.com>
+
+    * Fixed windows 10 dependencies.
 
 2017-08-07 belangeo <belangeo@gmail.com>
 
