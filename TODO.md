@@ -5,8 +5,6 @@ To do before releasing 0.8.7
 
 - Fix dependencies on windows 10. **done**
 
-- Jack on windows.
-
 - Finish the unicode path handling on windows.
 
 - Fix E-Pyo on OSX 10.12.6. **is it really buggy?**
@@ -15,7 +13,7 @@ To do before releasing 0.8.7
 
 - Pull request about midi events. **done**
 
-- Fix segfault with VoiceManager (see mail from Jeremy Van Burskirk.
+- Fix segfault with VoiceManager. **done**
 
 
 This is a list of features/fixes to implement for future releases
@@ -60,6 +58,8 @@ Objects
 
 MIDI
 ----
+
+- Jack on windows.
 
 - Create a MidiLinseg object that act like MidiAdsr but with a breakpoints
   function as the envelope. The sustain point should be settable by the user.

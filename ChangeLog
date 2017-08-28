@@ -1,11 +1,45 @@
+2017-08-xx belangeo <belangeo@gmail.com>
+
+    * Fixed encoding of path for various objects.
+
+2017-08-25 belangeo <belangeo@gmail.com>
+
+    * Fixed clean-up of VoiceManager object.
+
+2017-08-25 belangeo <belangeo@gmail.com>
+
+    * Fixed ending point of TableRec's time stream (now keep the last 
+      value instead of switching back to 0).
+
 2017-08-07 belangeo <belangeo@gmail.com>
 
     * OscDataSend now can send more than one message per buffer size.
+
+2017-06-28 belangeo <belangeo@gmail.com>
+
+    * Fixed Expr unicode handling.
+
+2017-06-27 belangeo <belangeo@gmail.com>
+
+    * Wrap jack api detection inside a try-except statement in case
+      jack2-dbus is used instead of jackd.
+
+2017-06-05 belangeo <belangeo@gmail.com>
+
+    * Added getInterpolated method to PyoMatrixObject class.
+
+2017-06-05 belangeo <belangeo@gmail.com>
+
+    * The server now allow up to 16 channel rms outputs for GUI drawing.
 
 2017-05-18 belangeo <belangeo@gmail.com>
 
 	* Disable Microsoft Midi devices by default. Added
 	  Server.allowMicrosoftMidiDevices() method to enable them.
+
+2017-05-16 belangeo <belangeo@gmail.com>
+
+    * Converted remaining print statements to function calls.
 
 2017-04-20 belangeo <belangeo@gmail.com>
 
