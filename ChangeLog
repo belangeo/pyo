@@ -1,5 +1,9 @@
 2017-08-28 belangeo <belangeo@gmail.com>
 
+    * Upgraded version number to 0.8.7.
+
+2017-08-28 belangeo <belangeo@gmail.com>
+
     * Update MacOS and Windows build routine to compile for python 2.7,
       3.5 and 3.6.
 
