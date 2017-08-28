@@ -1,21 +1,21 @@
 #!/bin/sh
 
 # Need Xcode 3.2.6 or later (pkgbuild and productbuild)
-# with python 3.5.2 (32/64-bit) and wxpython 3.0.3.0 (phoenix) installed
+# with python 3.6.2 (32/64-bit) and wxpython 4.0.0b1 (phoenix) installed
 
 # 1. update pyo sources
-# 2. compile and install pyo float and double for python3
-# 3. cd utils and build E-Pyo for python3
-# 4. cd installers/osx and build the release for python3
+# 2. compile and install pyo float and double for python3.6
+# 3. cd utils and build E-Pyo for python3.6
+# 4. cd installers/osx and build the release for python3.6
 
-export PACKAGE_NAME=pyo_0.8.6_x86_64_py3.pkg
-export DMG_DIR="pyo 0.8.6 py3 Universal"
-export DMG_NAME="pyo_0.8.6_OSX_py3-universal.dmg"
+export PACKAGE_NAME=pyo_0.8.6_x86_64_py36.pkg
+export DMG_DIR="pyo 0.8.6 py36 Universal"
+export DMG_NAME="pyo_0.8.6_OSX_py36-universal.dmg"
 export INSTALLER_DIR=`pwd`/installer
 export PYO_MODULE_DIR=$INSTALLER_DIR/PyoModule/Package_Contents/tmp
 export SUPPORT_LIBS_DIR=$INSTALLER_DIR/SupportLibs/Package_Contents/usr/local/lib
 export BUILD_RESOURCES=$INSTALLER_DIR/PkgResources/English.lproj
-export PKG_RESOURCES=$INSTALLER_DIR/../PkgResources_x86_64_py3
+export PKG_RESOURCES=$INSTALLER_DIR/../PkgResources_x86_64_py36
 
 mkdir -p $PYO_MODULE_DIR
 mkdir -p $SUPPORT_LIBS_DIR
@@ -29,19 +29,19 @@ cd ../..
 git checkout-index -a -f --prefix=installers/osx/installer/pyo-build/
 cd installers/osx/installer/pyo-build
 
-echo "building pyo for python 3.5 (64-bit)..."
-sudo /usr/local/bin/python3.5 setup.py install --use-coreaudio --use-double
+echo "building pyo for python 3.6 (64-bit)..."
+sudo /usr/local/bin/python3.6 setup.py install --use-coreaudio --use-double
 
-sudo cp -R build/lib.macosx-10.6-intel-3.5 $PYO_MODULE_DIR/python35
+sudo cp -R build/lib.macosx-10.6-intel-3.6 $PYO_MODULE_DIR/python36
 
-sudo install_name_tool -change /usr/local/opt/portmidi/lib/libportmidi.dylib /usr/local/lib/libportmidi.dylib $PYO_MODULE_DIR/python35/_pyo.cpython-35m-darwin.so
-sudo install_name_tool -change /usr/local/opt/portmidi/lib/libportmidi.dylib /usr/local/lib/libportmidi.dylib $PYO_MODULE_DIR/python35/_pyo64.cpython-35m-darwin.so
-sudo install_name_tool -change /usr/local/opt/portaudio/lib/libportaudio.2.dylib /usr/local/lib/libportaudio.2.dylib $PYO_MODULE_DIR/python35/_pyo.cpython-35m-darwin.so
-sudo install_name_tool -change /usr/local/opt/portaudio/lib/libportaudio.2.dylib /usr/local/lib/libportaudio.2.dylib $PYO_MODULE_DIR/python35/_pyo64.cpython-35m-darwin.so
-sudo install_name_tool -change /usr/local/opt/liblo/lib/liblo.7.dylib /usr/local/lib/liblo.7.dylib $PYO_MODULE_DIR/python35/_pyo.cpython-35m-darwin.so
-sudo install_name_tool -change /usr/local/opt/liblo/lib/liblo.7.dylib /usr/local/lib/liblo.7.dylib $PYO_MODULE_DIR/python35/_pyo64.cpython-35m-darwin.so
-sudo install_name_tool -change /usr/local/opt/libsndfile/lib/libsndfile.1.dylib /usr/local/lib/libsndfile.1.dylib $PYO_MODULE_DIR/python35/_pyo.cpython-35m-darwin.so
-sudo install_name_tool -change /usr/local/opt/libsndfile/lib/libsndfile.1.dylib /usr/local/lib/libsndfile.1.dylib $PYO_MODULE_DIR/python35/_pyo64.cpython-35m-darwin.so
+sudo install_name_tool -change /usr/local/opt/portmidi/lib/libportmidi.dylib /usr/local/lib/libportmidi.dylib $PYO_MODULE_DIR/python36/_pyo.cpython-36m-darwin.so
+sudo install_name_tool -change /usr/local/opt/portmidi/lib/libportmidi.dylib /usr/local/lib/libportmidi.dylib $PYO_MODULE_DIR/python36/_pyo64.cpython-36m-darwin.so
+sudo install_name_tool -change /usr/local/opt/portaudio/lib/libportaudio.2.dylib /usr/local/lib/libportaudio.2.dylib $PYO_MODULE_DIR/python36/_pyo.cpython-36m-darwin.so
+sudo install_name_tool -change /usr/local/opt/portaudio/lib/libportaudio.2.dylib /usr/local/lib/libportaudio.2.dylib $PYO_MODULE_DIR/python36/_pyo64.cpython-36m-darwin.so
+sudo install_name_tool -change /usr/local/opt/liblo/lib/liblo.7.dylib /usr/local/lib/liblo.7.dylib $PYO_MODULE_DIR/python36/_pyo.cpython-36m-darwin.so
+sudo install_name_tool -change /usr/local/opt/liblo/lib/liblo.7.dylib /usr/local/lib/liblo.7.dylib $PYO_MODULE_DIR/python36/_pyo64.cpython-36m-darwin.so
+sudo install_name_tool -change /usr/local/opt/libsndfile/lib/libsndfile.1.dylib /usr/local/lib/libsndfile.1.dylib $PYO_MODULE_DIR/python36/_pyo.cpython-36m-darwin.so
+sudo install_name_tool -change /usr/local/opt/libsndfile/lib/libsndfile.1.dylib /usr/local/lib/libsndfile.1.dylib $PYO_MODULE_DIR/python36/_pyo64.cpython-36m-darwin.so
 
 cd ..
 
@@ -74,13 +74,13 @@ sudo chmod -R 755 SupportLibs/Package_Contents/usr
 
 echo "building packages..."
 
-pkgbuild    --identifier com.iact.umontreal.ca.pyo.py3.tmp.pkg \
+pkgbuild    --identifier com.iact.umontreal.ca.pyo.py36.tmp.pkg \
             --root PyoModule/Package_Contents/ \
             --version 1.0 \
             --scripts $PKG_RESOURCES \
             PyoModule.pkg
 
-pkgbuild    --identifier com.iact.umontreal.ca.pyo.py3.usr.pkg \
+pkgbuild    --identifier com.iact.umontreal.ca.pyo.py36.usr.pkg \
             --root SupportLibs/Package_Contents/ \
             --version 1.0 \
             SupportLibs.pkg
@@ -92,7 +92,7 @@ echo "assembling DMG..."
 mkdir "$DMG_DIR"
 cd "$DMG_DIR"
 cp ../$PACKAGE_NAME .
-cp -R ../../../../utils/E-Pyo_OSX_py3/E-Pyo.app .
+cp -R ../../../../utils/E-Pyo_OSX_py36/E-Pyo.app .
 ln -s /Applications .
 cd ..
 
