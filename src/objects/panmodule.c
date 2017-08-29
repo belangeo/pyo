@@ -1990,9 +1990,10 @@ static void
 VoiceManager_dealloc(VoiceManager* self)
 {
     pyo_DEALLOC
-    if (self->voices != NULL)
+    if (self->voices != NULL) {
         free(self->voices);
         free(self->trigger_streams);
+    }
     VoiceManager_clear(self);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
