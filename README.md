@@ -31,6 +31,11 @@ How to get pyo running from sources on OS X and linux:
 pyo was awarded **second prize** in the 
 [Lomus 2012](http://concours.afim-asso.org/2012/) Free Software Competition.
 
+**You want to help the development of pyo ?** Go to the
+[pyo features market](https://github.com/belangeo/pyo/wiki/Pyo-features-market) 
+and make a donation for the feature you want to promote. You can also submit new
+features on the mailing-list ( pyo-discuss@googlegroups.com ).
+
 ## Radio Pyo ##
 
 If you want to listen to scripts rendered in real-time, just connect to 
