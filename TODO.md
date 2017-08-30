@@ -1,3 +1,17 @@
+To do ASAP!
+===========
+
+- [DOC] A page in the documentation on how to find the good audio device 
+  (especially on windows).
+
+- [DOC] Review of documentation about dependencies and compilation.
+
+- [DOC] Compilation for anaconda (mail from Stanley Rosenbaum).
+
+- [DOC] Live recording without xruns, use Server.recstart() to record to a
+  file on a tmpfs, which is bsically a filesystem in RAM.
+  mail: "Server recording to wav generates many xruns (Aug 26)".
+
 This is a list of features/fixes to implement for future releases
 =================================================================
 
@@ -15,6 +29,9 @@ Internal
 
 Server
 ------
+
+- The Server should perform a check, especially on Windows, to find the
+  most suitable audio driver to use.
 
 - A method to retrieve a graph of the internal state of the server 
   (active objects, connections, attribute values, ...).
@@ -76,6 +93,8 @@ Matrices
 
 E-Pyo
 -----
+
+- Split the file name (shown in the notebook tab) with the last dot, not the first.
 
 - Complete review of E-Pyo on Windows. Lot of features don't seem to work.
 
