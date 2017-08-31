@@ -83,7 +83,7 @@ if '--debug' in sys.argv:
     sys.argv.remove('--debug')
     gflag = ["-g3", "-UNDEBUG"]
 else:
-    gflag = ["-g0" "-DNDEBUG"]
+    gflag = ["-g0", "-DNDEBUG"]
 
 if '--fast-compile' in sys.argv:
     sys.argv.remove('--fast-compile')
