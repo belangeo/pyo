@@ -81,15 +81,15 @@ if '--compile-externals' in sys.argv:
 
 if '--debug' in sys.argv:
     sys.argv.remove('--debug')
-    gflag = "-g3"
+    gflag = ["-g3", "-UNDEBUG"]
 else:
-    gflag = "-g0"
+    gflag = ["-g0" "-DNDEBUG"]
 
 if '--fast-compile' in sys.argv:
     sys.argv.remove('--fast-compile')
-    oflag = "-O0"
+    oflag = ["-O0"]
 else:
-    oflag = "-O3"
+    oflag = ["-O3"]
 
 # Specific audio drivers source files to compile
 ad_files = []
@@ -181,7 +181,7 @@ else:
         libraries.append('jack')
 
 libraries += ['m']
-extra_compile_args = ['-Wno-strict-prototypes', '-Wno-strict-aliasing', oflag, gflag]
+extra_compile_args = ['-Wno-strict-prototypes', '-Wno-strict-aliasing'] + oflag + gflag
 
 extensions = []
 for extension_name, extra_macros in zip(extension_names, extra_macros_per_extension):
