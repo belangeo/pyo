@@ -12,6 +12,9 @@ To do ASAP!
   file on a tmpfs, which is bsically a filesystem in RAM.
   mail: "Server recording to wav generates many xruns (Aug 26)".
 
+- Better error message when trying to open an input device but there is
+  none on the system.
+
 This is a list of features/fixes to implement for future releases
 =================================================================
 
@@ -97,6 +100,8 @@ E-Pyo
 - Split the file name (shown in the notebook tab) with the last dot, not the first.
 
 - Complete review of E-Pyo on Windows. Lot of features don't seem to work.
+
+    - Project tree refresh function doesn't work.
 
 - Window splitter to show more than one file at the time (multiple 
   views) ?
