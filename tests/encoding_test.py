@@ -15,46 +15,47 @@ print("Locale preferred encoding: ", locale.getpreferredencoding())
 print("Locale default encoding: ", locale.getdefaultlocale())
 
 s = Server().boot()
+s.verbosity = 15
 
 ### Need a python layer to encode the path in python 3.
 # Python 3
-#p = 'bébêtte/noise.aif'.encode(sys.getfilesystemencoding())
+#p = 'bÃ©bÃªtte/noise.aif'.encode(sys.getfilesystemencoding())
 # Python 2
-p = 'bébêtte/noise.aif'
+p = 'bÃ©bÃªtte/noise.aif'
 
 ########## SNDINFO ###############
 info = sndinfo(p)
 print("sndinfo output:\n", info)
 
 ####### SAVEFILE ##############
-sr, dur, chnls, path = 44100, 5, 2, os.path.join("bébêtte", 'savefile.aif')
+sr, dur, chnls, path = 44100, 5, 2, os.path.join("bÃ©bÃªtte", 'savefile.aif')
 samples = [[uniform(-0.5,0.5) for i in range(sr*dur)] for i in range(chnls)]
 savefile(samples=samples, path=path, sr=sr, channels=chnls, fileformat=1, sampletype=1)
-print("Savefile record:", os.path.isfile(os.path.join("bébêtte", 'savefile.aif')))
+print("Savefile record:", os.path.isfile(os.path.join("bÃ©bÃªtte", 'savefile.aif')))
 
 ####### SAVEFILEFROMTABLE #########
 home = os.path.expanduser('~')
 path1 = SNDS_PATH + '/transparent.aif'
-path2 = os.path.join("bébêtte", 'savefileFromTable.aif')
+path2 = os.path.join("bÃ©bÃªtte", 'savefileFromTable.aif')
 t = SndTable(path1)
 savefileFromTable(table=t, path=path2, fileformat=1, sampletype=1)
-print("SavefileFromTable record:", os.path.isfile(os.path.join("bébêtte", 'savefileFromTable.aif')))
+print("SavefileFromTable record:", os.path.isfile(os.path.join("bÃ©bÃªtte", 'savefileFromTable.aif')))
 
 ##### UPSAMP/DOWNSAMP ######
 # upsample a signal 3 times
-upfile = os.path.join("bébêtte", 'upsamp.aif')
+upfile = os.path.join("bÃ©bÃªtte", 'upsamp.aif')
 upsamp(p, upfile, 2, 256)
-print("upsamp record:", os.path.isfile(os.path.join("bébêtte", 'upsamp.aif')))
+print("upsamp record:", os.path.isfile(os.path.join("bÃ©bÃªtte", 'upsamp.aif')))
 # downsample the upsampled signal 3 times
-downfile = os.path.join("bébêtte", 'downsamp.aif')
+downfile = os.path.join("bÃ©bÃªtte", 'downsamp.aif')
 downsamp(upfile, downfile, 3, 256)
-print("downsamp record:", os.path.isfile(os.path.join("bébêtte", 'downsamp.aif')))
+print("downsamp record:", os.path.isfile(os.path.join("bÃ©bÃªtte", 'downsamp.aif')))
 
 ######### SfPlayer ###########
 sf1 = SfPlayer(p, mul=0.1)
 sf1.setPath(downfile)
 
-p2 = os.path.join("bébêtte", 'transparent.aif')
+p2 = os.path.join("bÃ©bÃªtte", 'transparent.aif')
 ######### SfMarkerShuffler ###########
 sf2 = SfMarkerShuffler(p2, mul=0.3)
 
@@ -71,11 +72,11 @@ tab1.insert(p2, 0.1, 0.1)
 tabplay = Osc(tab1, [tab1.getRate(), tab1.getRate() * 1.01], mul=0.5)
 
 ######### CvlVerb impulse path ###########
-impl = os.path.join("bébêtte", 'IRMediumHallStereo.wav')
+impl = os.path.join("bÃ©bÃªtte", 'IRMediumHallStereo.wav')
 cv = CvlVerb(tabplay, impl, size=1024, bal=0.7).out()
 
 ######### Record ###########
-recfile = os.path.join("bébêtte", 'recfile.wav')
+recfile = os.path.join("bÃ©bÃªtte", 'recfile.wav')
 rec = Record(cv, recfile, chnls=2, fileformat=0, sampletype=0, buffering=4, quality=0.40)
 recplay = None
 def reccallback():
@@ -88,10 +89,10 @@ def reccallback():
 after = CallAfter(reccallback, 4)
 
 ######### Server ###########
-servrecfile = os.path.join("bébêtte", 'servrecfile.wav')
-#s.recordOptions(dur=-1, filename=servrecfile)
-servrecfile = os.path.join("bébêtte", 'servrecfile2.wav')
-s.recstart(servrecfile)
+servrecfile = os.path.join("bÃ©bÃªtte", 'servrecfile.wav')
+s.recordOptions(dur=-1, filename=servrecfile)
+#servrecfile = os.path.join("bÃ©bÃªtte", 'servrecfile2.wav')
+#s.recstart(servrecfile)
 
 s.gui(locals(), exit=False)
 
@@ -102,13 +103,13 @@ def delfile(f):
 # On windows, we should delete Sf* objects before deleting the audio files.
 del sf1
 del recplay
-delfile(os.path.join("bébêtte", 'savefile.aif'))
-delfile(os.path.join("bébêtte", 'savefileFromTable.aif'))
-delfile(os.path.join("bébêtte", 'upsamp.aif'))
-delfile(os.path.join("bébêtte", 'downsamp.aif'))
-delfile(os.path.join("bébêtte", 'recfile.wav'))
-delfile(os.path.join("bébêtte", 'servrecfile.wav'))
-delfile(os.path.join("bébêtte", 'servrecfile2.wav'))
+delfile(os.path.join("bÃ©bÃªtte", 'savefile.aif'))
+delfile(os.path.join("bÃ©bÃªtte", 'savefileFromTable.aif'))
+delfile(os.path.join("bÃ©bÃªtte", 'upsamp.aif'))
+delfile(os.path.join("bÃ©bÃªtte", 'downsamp.aif'))
+delfile(os.path.join("bÃ©bÃªtte", 'recfile.wav'))
+delfile(os.path.join("bÃ©bÃªtte", 'servrecfile.wav'))
+delfile(os.path.join("bÃ©bÃªtte", 'servrecfile2.wav'))
 
 """
 1 - Adapt encoding line for E-Pyo tempfile. **done**
