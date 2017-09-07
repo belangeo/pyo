@@ -26,6 +26,7 @@ Parts of the documentation
    compiling
    structure
    gettingstarted
+   winaudioinspect
    perftips
    api/index
 
