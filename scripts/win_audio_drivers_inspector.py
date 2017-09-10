@@ -15,34 +15,21 @@ else:
     exit()
 
 
-print("\n=========================================")
-print("Checking for any available audio input...")
-print("=========================================")
+print("* Checking for any available audio input... *")
 
 input_names, input_indexes  = pa_get_input_devices()
 
-if len(input_names) == 0:
-    duplex = False
-else:
-    duplex = True
-
-print("\n==============================")
-print("Checking audio output hosts...")
-print("==============================")
+print("* Checking audio output hosts... *")
 
 s = Server(duplex=0)
 s.verbosity = 0
 
 host_results = []
-
 for host in host_apis:
-    print("\n===============")
-    print("Testing %s..." % host)
-    print("===============\n")
+    print("* Testing %s... *" % host)
     try:
-        s.reinit(duplex=0, winhost=host)
-        s.boot()
-        s.start()
+        s.reinit(buffersize=1024, duplex=0, winhost=host)
+        s.boot().start()
         a = Sine(freq=440, mul=0.2).out()
         time.sleep(2)
         s.stop()
@@ -51,12 +38,11 @@ for host in host_apis:
     except:
         host_results.append(False)
 
-print("\n========")
-print("Results:")
-print("========\n")
+print("\nResults")
+print("-------\n")
 
-if duplex:
-    print("Duplex mode  OK!")
+if len(input_names):
+    print("Duplex mode OK!")
     print("Initialize the Server with duplex=1 as argument.\n")
 else:
     print("No input available. Duplex mode should be turned off.")
