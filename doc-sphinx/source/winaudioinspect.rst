@@ -1,7 +1,13 @@
-How to choose the audio host api on Windows
-===========================================
+Configuring the audio output (especially on Windows)
+====================================================
 
-Choosing the good audio API under Windows can turn out to be a real headache.
+Here is some tips to help you to configure the audio input/output on Windows. 
+Some of these procedures are also valid for other systems.
+
+How to choose the audio host api on Windows
+-------------------------------------------
+
+Choosing the good audio API on Windows can turn out to be a real headache.
 
 This document presents a script that will inspect your system and tell you if:
 
@@ -119,4 +125,37 @@ Server initialization examples
 Choosing a specific device
 --------------------------
 
+A single host API can target more than one available devices.
+
+There is some useful functions that can help you in the choice of the audio device:
+
+- **pa_list_host_apis()**: Prints the list of audio host APIs.
+- **pa_list_devices()**: Prints the list of audio devices. The first column if the index of the device.
+- **pa_get_default_input()**: Returns the index of the default input device.
+- **pa_get_default_output()**: Returns the index of the default output device.
+- **pa_get_default_devices_from_host(host)**: Returns the default input and output devices for a given audio host.
+
+Run this code to see the current state of your audio setup:
+
+.. code-block:: python
+
+    from pyo import *
+
+    print("Audio host APIS:")
+    pa_list_host_apis()
+    pa_list_devices()
+    print("Default input device: %i" % pa_get_default_input())
+    print("Default output device: %i" % pa_get_default_output())
+
+If the default device for the desired host is not the one you want, you can tell the Server
+which device you want to use with the *setInputDevice(x)* and *setOutputDevice(x)* methods. These 
+methods take the index of the desired device and must be called before booting the Server. Ex:
+
+.. code-block:: python
+
+    from pyo import *
+    
+    s = Server(duplex=0)
+    s.setOutputDevice(0)
+    s.boot()
 
