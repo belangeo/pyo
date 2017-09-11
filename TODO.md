@@ -1,11 +1,6 @@
 To do ASAP!
 ===========
 
-- [DOC] A page in the documentation on how to find the good audio device 
-  (especially on windows).
-
-- [DOC] Review of documentation about dependencies and compilation.
-
 - [DOC] Compilation for anaconda (mail from Stanley Rosenbaum).
 
 - [DOC] Live recording without xruns, use Server.recstart() to record to a
