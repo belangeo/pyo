@@ -1014,8 +1014,10 @@ class RunningThread(threading.Thread):
         wx.QueueEvent(self.event_receiver, data_event)
         while self.proc.poll() == None and not self.terminated:
             log = ""
-            for line in self.proc.stdout.readline():
-                log = log + str(line)
+            line = self.proc.stdout.readline()
+            if line.startswith("ALSA lib"):
+                continue
+            log = log + str(line)
             log = log.replace(">>> ", "").replace("... ", "")
             data_event = DataEvent({"log": log, "pid": self.pid, "filename": self.filename, "active": True})
             wx.QueueEvent(self.event_receiver, data_event)
