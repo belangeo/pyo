@@ -2894,56 +2894,49 @@ class ServerGUI(wx.Frame):
         panel.SetBackgroundColour(BACKGROUND_COLOUR)
         box = wx.BoxSizer(wx.VERTICAL)
 
-        if sys.platform == "win32":
-            leftMargin = 24
-        else:
-            leftMargin = 25
-
         buttonBox = wx.BoxSizer(wx.HORIZONTAL)
-        self.startButton = wx.Button(panel, -1, 'Start', (20,20), (72,-1))
+        self.startButton = wx.Button(panel, -1, 'Start')
         self.startButton.Bind(wx.EVT_BUTTON, self.start)
-        buttonBox.Add(self.startButton, 0, wx.RIGHT, 5)
+        buttonBox.Add(self.startButton, 0, wx.LEFT | wx.RIGHT, 5)
 
-        self.recButton = wx.Button(panel, -1, 'Rec Start', (20,20), (72,-1))
+        self.recButton = wx.Button(panel, -1, 'Rec Start')
         self.recButton.Bind(wx.EVT_BUTTON, self.record)
         buttonBox.Add(self.recButton, 0, wx.RIGHT, 5)
 
-        self.quitButton = wx.Button(panel, -1, 'Quit', (20,20), (72,-1))
+        self.quitButton = wx.Button(panel, -1, 'Quit')
         self.quitButton.Bind(wx.EVT_BUTTON, self.on_quit)
-        buttonBox.Add(self.quitButton, 0, wx.RIGHT, 0)
+        buttonBox.Add(self.quitButton, 0, wx.RIGHT, 5)
 
-        box.Add(buttonBox, 0, wx.TOP | wx.LEFT | wx.RIGHT, 10)
+        box.Add(buttonBox, 0, wx.TOP, 10)
         box.AddSpacer(10)
 
-        box.Add(wx.StaticText(panel, -1, "Amplitude (dB)"), 0, wx.LEFT, leftMargin)
-        ampBox = wx.BoxSizer(wx.HORIZONTAL)
+        box.Add(wx.StaticText(panel, -1, "Amplitude (dB)"), 0, wx.LEFT, 5)
         self.ampScale = ControlSlider(panel, -60, 18, 20.0 * math.log10(amp), size=(202, 16), outFunction=self.setAmp)
-        ampBox.Add(self.ampScale, 0, wx.LEFT, leftMargin-10)
-        box.Add(ampBox, 0, wx.LEFT | wx.RIGHT, 8)
+        box.Add(self.ampScale, 0, wx.LEFT | wx.RIGHT | wx.EXPAND, 5)
 
         if meter:
             box.AddSpacer(10)
             self.meter = VuMeter(panel, size=(200,5*self.nchnls+1), numSliders=self.nchnls)
-            box.Add(self.meter, 0, wx.LEFT, leftMargin-1)
+            box.Add(self.meter, 0, wx.LEFT | wx.RIGHT | wx.EXPAND, 5)
             box.AddSpacer(5)
 
         if timer:
             box.AddSpacer(10)
             tt = wx.StaticText(panel, -1, "Elapsed time (hh:mm:ss:ms)")
-            box.Add(tt, 0, wx.LEFT, leftMargin)
+            box.Add(tt, 0, wx.LEFT, 5)
             box.AddSpacer(3)
             self.timetext = wx.StaticText(panel, -1, "00 : 00 : 00 : 000")
-            box.Add(self.timetext, 0, wx.LEFT, leftMargin)
+            box.Add(self.timetext, 0, wx.LEFT, 5)
 
         if self.locals is not None:
             box.AddSpacer(10)
             t = wx.StaticText(panel, -1, "Interpreter")
-            box.Add(t, 0, wx.LEFT, leftMargin)
+            box.Add(t, 0, wx.LEFT, 5)
             tw, th = self.GetTextExtent("|")
             self.text = wx.TextCtrl(panel, -1, "", size=(202, th+8), style=wx.TE_PROCESS_ENTER)
             self.text.Bind(wx.EVT_TEXT_ENTER, self.getText)
             self.text.Bind(wx.EVT_CHAR, self.onChar)
-            box.Add(self.text, 0, wx.LEFT, leftMargin-1)
+            box.Add(self.text, 0, wx.LEFT | wx.RIGHT | wx.EXPAND, 5)
 
         box.AddSpacer(10)
         panel.SetSizerAndFit(box)
