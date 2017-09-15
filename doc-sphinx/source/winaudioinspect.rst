@@ -82,7 +82,7 @@ In the hope that this will help you having a good experience with pyo under Wind
 
     print("\nFinished!")
 
-Tunning the Windows WASPI driver
+Tunning the Windows WASAPI driver
 --------------------------------
 
 The Windows Audio Session API (WASAPI) is Microsoft's most modern method for talking with audio devices.
