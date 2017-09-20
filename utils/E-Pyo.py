@@ -141,6 +141,7 @@ if not os.path.isfile(PREFERENCES_PATH):
         f.write("epyo_prefs = {}")
 
 epyo_prefs = {}
+# TODO: Should handle utf-8 encoding!
 with open(PREFERENCES_PATH, "r") as f:
     text = f.read()
 spos = text.find("=")
