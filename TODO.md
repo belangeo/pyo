@@ -8,13 +8,23 @@ To do ASAP!
   mail: "Server recording to wav generates many xruns (Aug 26)".
 
 - Better error message when trying to open an input device but there is
-  none on the system.
+  none on the system. Automatic deactivation of duplex mode if no input.
 
 - E-Pyo: Reading preferences file should handle utf-8 paths.
 
-- Unicode path don't work with python 3.6 on Windows.
+- E-Pyo: style preference with unicode characters in the font name.
+
+- Unicode paths don't work with python 3.6 on Windows.
 
 - Jack midi.
+
+    Server(sr=44100, nchnls=2, buffersize=256, duplex=1, audio="portaudio",
+           jackname="pyo", ichnls=None, winhost="wasapi", midi="portmidi")
+    Server.setJackMidiAutoConnectInputPorts(ports)
+    Server.setJackMidiAutoConnectOutputPorts(ports)
+    Server.setJackMidiInputPortNames(name)
+    Server.setJackMidiOutputPortNames(name)
+
 
 This is a list of features/fixes to implement for future releases
 =================================================================
