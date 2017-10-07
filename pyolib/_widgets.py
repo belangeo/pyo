@@ -27,7 +27,6 @@ License along with pyo.  If not, see <http://www.gnu.org/licenses/>.
 """
 import sys
 import os
-import random
 
 use_wx = 1
 if "PYO_GUI_WX" in os.environ:
@@ -136,7 +135,8 @@ def wxDisplayWindow(f, title):
             MAX_X = x + CURRENT_X
         f.SetPosition((px, py))
     else:
-        f.SetPosition((random.randint(250, 500), random.randint(200, 400)))
+        CURRENT_X, MAX_X, NEXT_Y = 50, 50, 50
+        wxDisplayWindow(f, title)
     f.Show()
 
 def wxShowWindow(f, title, root):

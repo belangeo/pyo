@@ -28,7 +28,7 @@ License along with pyo.  If not, see <http://www.gnu.org/licenses/>.
 """
 import os
 import sys
-import random
+import time
 import inspect
 import tempfile
 from subprocess import call
@@ -125,6 +125,20 @@ FUNCTIONS_INIT_LINES = {
     "floatmap": "floatmap(x, min=0, max=1, exp=1)",
     "getPyoKeywords": "getPyoKeywords()"
 }
+
+def listscramble(lst):
+    if sys.version_info[0] < 3 and sys.version_info[1] < 3:
+        seed = int(str(time.clock()).split(".")[1])
+    else:
+        seed = int(str(time.process_time()).split(".")[1])
+    l = lst[:]
+    new = []
+    pos = 1
+    while l:
+        pos = (pos * seed) % len(l)
+        new.append(l[pos])
+        del l[pos]
+    return new
 
 def stringencode(st):
     if sys.version_info[0] >= 3:
@@ -506,7 +520,8 @@ def convertArgsToLists(*args):
             converted.append([i])
 
     max_length = max(len(i) for i in converted)
-    return tuple(converted + [max_length])
+    converted.append(max_length)
+    return tuple(converted)
 
 def wrap(arg, i):
     """
@@ -1296,8 +1311,7 @@ class PyoObject(PyoObjectBase):
         else:
             if chnl < 0:
                 [obj.out(i*inc, wrap(dur, i), wrap(delay, i)) \
-                 for i, obj in enumerate(random.sample(self._base_objs,
-                                                       len(self._base_objs)))]
+                 for i, obj in enumerate(listscramble(self._base_objs))] # TODO: listsramble needs to be tested.
             else:
                 [obj.out(chnl+i*inc, wrap(dur, i), wrap(delay, i)) \
                  for i, obj in enumerate(self._base_objs)]
