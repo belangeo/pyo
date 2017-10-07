@@ -422,4 +422,4 @@ def createServerGUI(nchnls, start, stop, recstart, recstop, setAmp, started,
         wx.CallAfter(wxCreateDelayedScopeWindows)
         wx.CallAfter(wxCreateDelayedExprEditorWindows)
         wx.CallAfter(f.Raise)
-    return f, win
+    return f, win, PYO_USE_WX

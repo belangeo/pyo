@@ -225,7 +225,7 @@ class Server(object):
                 title, "Pyo Server" is used.
 
         """
-        self._gui_frame, win = createServerGUI(self._nchnls, self.start, self.stop,
+        self._gui_frame, win, withWX = createServerGUI(self._nchnls, self.start, self.stop,
                                                self.recstart, self.recstop, self.setAmp,
                                                self.getIsStarted(), locals, self.shutdown,
                                                meter, timer, self._amp, exit, title)
@@ -233,11 +233,10 @@ class Server(object):
             self._server.setAmpCallable(self._gui_frame)
         if timer:
             self._server.setTimeCallable(self._gui_frame)
-        try:
+        if withWX:
+            win.MainLoop()
+        else:
             win.mainloop()
-        except:
-            if win is not None:
-                win.MainLoop()
 
     def closeGui(self):
         """
