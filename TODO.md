@@ -14,6 +14,10 @@ To do ASAP!
 
 - E-Pyo: style preference with unicode characters in the font name.
 
+- E-Pyo: template, snippets and other features should default to python3.
+
+- E-Pyo: Fix rectangular selection.
+
 - Unicode paths don't work with python 3.6 on Windows.
 
 - Jack midi.
@@ -24,7 +28,6 @@ To do ASAP!
     Server.setJackMidiAutoConnectOutputPorts(ports)
     Server.setJackMidiInputPortNames(name)
     Server.setJackMidiOutputPortNames(name)
-
 
 This is a list of features/fixes to implement for future releases
 =================================================================
