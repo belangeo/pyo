@@ -863,8 +863,8 @@ elif wx.Platform == '__WXMAC__':
     FONT_SIZE2 = 9
     DEFAULT_FONT_FACE = 'Monaco'
 else:
-    FONT_SIZE = 8
-    FONT_SIZE2 = 7
+    FONT_SIZE = 11
+    FONT_SIZE2 = 8
     DEFAULT_FONT_FACE = 'Monospace'
 
 
@@ -4989,7 +4989,7 @@ class OutputLogPanel(wx.Panel):
         self.toolbar.Realize()
         toolbarbox.Add(self.toolbar, 1, wx.ALIGN_LEFT | wx.ALIGN_CENTER_VERTICAL | wx.EXPAND, 0)
 
-        tb2 = wx.ToolBar(self, -1, size=(-1,32))
+        tb2 = wx.ToolBar(self, -1)
         if PLATFORM == "darwin":
             tb2.SetToolBitmapSize(tsize)
         tb2.AddSeparator()
@@ -5116,7 +5116,6 @@ class ProjectTree(wx.Panel):
         self.selectedItem = None
         self.edititem = self.editfolder = self.itempath = self.scope = None
 
-        tsize = (24, 24)
         file_add_bmp = catalog['file_add_icon.png'].GetBitmap()
         folder_add_bmp = catalog['folder_add_icon.png'].GetBitmap()
         close_panel_bmp = catalog['close_panel_icon.png'].GetBitmap()
@@ -5125,8 +5124,7 @@ class ProjectTree(wx.Panel):
         self.sizer = wx.BoxSizer(wx.VERTICAL)
 
         toolbarbox = wx.BoxSizer(wx.HORIZONTAL)
-        self.toolbar = wx.ToolBar(self, -1, size=(-1,36))
-        self.toolbar.SetToolBitmapSize(tsize)
+        self.toolbar = wx.ToolBar(self, -1)
 
         if "phoenix" not in wx.version():
             self.toolbar.AddLabelTool(TOOL_ADD_FILE_ID, "Add File",
@@ -5147,8 +5145,7 @@ class ProjectTree(wx.Panel):
         self.toolbar.Realize()
         toolbarbox.Add(self.toolbar, 1, wx.ALIGN_LEFT | wx.EXPAND, 0)
 
-        tb2 = wx.ToolBar(self, -1, size=(-1,36))
-        tb2.SetToolBitmapSize(tsize)
+        tb2 = wx.ToolBar(self, -1)
 
         if "phoenix" not in wx.version():
             tb2.AddLabelTool(15, "Close Panel", close_panel_bmp, shortHelp="Close Panel")
@@ -5171,6 +5168,8 @@ class ProjectTree(wx.Panel):
 
         if PLATFORM == 'darwin':
             pt = 11
+        elif PLATFORM.startswith("linux"):
+            pt = 10
         else:
             pt = 8
         fnt = wx.Font(pt, wx.ROMAN, wx.NORMAL, wx.NORMAL, False, STYLES['face'])
