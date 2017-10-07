@@ -1311,7 +1311,7 @@ class PyoObject(PyoObjectBase):
         else:
             if chnl < 0:
                 [obj.out(i*inc, wrap(dur, i), wrap(delay, i)) \
-                 for i, obj in enumerate(listscramble(self._base_objs))] # TODO: listsramble needs to be tested.
+                 for i, obj in enumerate(listscramble(self._base_objs))]
             else:
                 [obj.out(chnl+i*inc, wrap(dur, i), wrap(delay, i)) \
                  for i, obj in enumerate(self._base_objs)]
