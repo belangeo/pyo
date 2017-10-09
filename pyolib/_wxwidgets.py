@@ -20,7 +20,7 @@ GNU Lesser General Public License for more details.
 You should have received a copy of the GNU Lesser General Public
 License along with pyo.  If not, see <http://www.gnu.org/licenses/>.
 """
-import wx, os, sys, math, time, random, unicodedata
+import wx, os, sys, math, time, unicodedata
 import wx.stc as stc
 
 if "phoenix" in wx.version():
