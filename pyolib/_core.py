@@ -512,14 +512,12 @@ def convertArgsToLists(*args):
     Return new args and maximum list length.
 
     """
-    converted = []
-    for i in args:
-        if isinstance(i, PyoObjectBase) or isinstance(i, list):
-            converted.append(i)
-        else:
-            converted.append([i])
+    converted = list(args)
+    for i, arg in enumerate(converted):
+        if not isinstance(arg, PyoObjectBase) and not isinstance(arg, list):
+            converted[i] = [arg]
 
-    max_length = max(len(i) for i in converted)
+    max_length = max(len(arg) for arg in converted)
     converted.append(max_length)
     return tuple(converted)
 
