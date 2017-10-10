@@ -1,3 +1,7 @@
+2017-10-09 belangeo <belangeo@gmail.com>
+
+    * Added Jack midi support to the Server.
+
 2017-10-07 belangeo <belangeo@gmail.com>
 
     * Removed internal import of the random module. Scripts importing

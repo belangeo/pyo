@@ -51,6 +51,14 @@ int Server_jack_start(Server *self) { return 0; };
 int Server_jack_stop(Server *self) { return 0; };
 int jack_input_port_set_names(Server *self) { return 0; };
 int jack_output_port_set_names(Server *self) { return 0; };
+int jack_midi_input_port_set_name(Server *self) { return 0; };
+int jack_midi_output_port_set_name(Server *self) { return 0; };
+void jack_noteout(Server *self, int pit, int vel, int chan, long timestamp) {};
+void jack_afterout(Server *self, int pit, int vel, int chan, long timestamp) {};
+void jack_ctlout(Server *self, int ctlnum, int value, int chan, long timestamp) {};
+void jack_programout(Server *self, int value, int chan, long timestamp) {};
+void jack_pressout(Server *self, int value, int chan, long timestamp) {};
+void jack_bendout(Server *self, int value, int chan, long timestamp) {};
 
 #endif
 
@@ -526,9 +534,12 @@ Server_traverse(Server *self, visitproc visit, void *arg)
     Py_VISIT(self->TIME);
     if (self->CALLBACK != NULL)
         Py_VISIT(self->CALLBACK);
-    Py_VISIT(self->streams);
+    if (PyList_Size(self->streams) > 0)
+        Py_VISIT(self->streams);
     Py_VISIT(self->jackAutoConnectInputPorts);
     Py_VISIT(self->jackAutoConnectOutputPorts);
+    Py_VISIT(self->jackAutoConnectMidiInputPort);
+    Py_VISIT(self->jackAutoConnectMidiOutputPort);
     return 0;
 }
 
@@ -539,9 +550,12 @@ Server_clear(Server *self)
     Py_CLEAR(self->TIME);
     if (self->CALLBACK != NULL)
         Py_CLEAR(self->CALLBACK);
-    Py_CLEAR(self->streams);
+    if (PyList_Size(self->streams) > 0)
+        Py_CLEAR(self->streams);
     Py_CLEAR(self->jackAutoConnectInputPorts);
     Py_CLEAR(self->jackAutoConnectOutputPorts);
+    Py_CLEAR(self->jackAutoConnectMidiInputPort);
+    Py_CLEAR(self->jackAutoConnectMidiOutputPort);
     return 0;
 }
 
@@ -570,11 +584,12 @@ Server_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     int  bufferSize = 256;
     int  duplex = 0;
     char *audioType = "portaudio";
+    char *midiType = "portmidi";
     char *serverName = "pyo";
 
-    static char *kwlist[] = {"sr", "nchnls", "buffersize", "duplex", "audio", "jackname", "ichnls", NULL};
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "|diiissi", kwlist,
-            &samplingRate, &nchnls, &bufferSize, &duplex, &audioType, &serverName, &ichnls)) {
+    static char *kwlist[] = {"sr", "nchnls", "buffersize", "duplex", "audio", "jackname", "ichnls", "midi", NULL};
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "|diiissis", kwlist,
+            &samplingRate, &nchnls, &bufferSize, &duplex, &audioType, &serverName, &ichnls, &midiType)) {
         Py_INCREF(Py_False);
         return Py_False;
     }
@@ -600,8 +615,11 @@ Server_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->jackautoout = 1;
     self->jackAutoConnectInputPorts = PyList_New(0);
     self->jackAutoConnectOutputPorts = PyList_New(0);
+    self->jackAutoConnectMidiInputPort = PyList_New(0);
+    self->jackAutoConnectMidiOutputPort = PyList_New(0);
     self->isJackTransportSlave = 0;
     self->jack_transport_state = 0;
+    self->withJackMidi = 0;
     self->samplingRate = 44100.0;
     self->nchnls = 2;
     self->ichnls = 2;
@@ -622,7 +640,7 @@ Server_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->allowMMMapper = 0; // Disable Microsoft MIDI Mapper by default.
     self->midi_time_offset = 0;
     self->amp = self->resetAmp = 1.;
-    self->currentAmp = self->lastAmp = 1.; // If set to 0, there is a 5ms fadein at server start.
+    self->currentAmp = self->lastAmp = 0.; // If set to 0, there is a 5ms fadein at server start.
     self->withGUI = 0;
     self->withTIME = 0;
     self->verbosity = 7;
@@ -644,14 +662,14 @@ Server_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 static int
 Server_init(Server *self, PyObject *args, PyObject *kwds)
 {
-    static char *kwlist[] = {"sr", "nchnls", "buffersize", "duplex", "audio", "jackname", "ichnls", NULL};
+    static char *kwlist[] = {"sr", "nchnls", "buffersize", "duplex", "audio", "jackname", "ichnls", "midi", NULL};
 
     char *audioType = "portaudio";
     char *midiType = "portmidi";
     char *serverName = "pyo";
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "|diiissi", kwlist,
-            &self->samplingRate, &self->nchnls, &self->bufferSize, &self->duplex, &audioType, &serverName, &self->ichnls))
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "|diiissis", kwlist,
+            &self->samplingRate, &self->nchnls, &self->bufferSize, &self->duplex, &audioType, &serverName, &self->ichnls, &midiType))
         return -1;
 
     if (strcmp(audioType, "jack") == 0) {
@@ -677,8 +695,13 @@ Server_init(Server *self, PyObject *args, PyObject *kwds)
         self->audio_be_type = PyoPortaudio;
     }
 
+    self->withJackMidi = 0;
     if (strcmp(midiType, "portmidi") == 0 || strcmp(midiType, "pm") == 0 ) {
         self->midi_be_type = PyoPortmidi;
+    }
+    else if (strcmp(midiType, "jack") == 0) {
+        self->midi_be_type = PyoJackMidi;
+        self->withJackMidi = 1;
     }
     else {
         Server_warning(self, "Unknown midi type. Using Portmidi\n");
@@ -940,6 +963,40 @@ Server_setJackAutoConnectOutputPorts(Server *self, PyObject *arg)
 }
 
 static PyObject *
+Server_setJackAutoConnectMidiInputPort(Server *self, PyObject *arg)
+{
+    PyObject *tmp;
+
+    if (arg != NULL) {
+        if (PyList_Check(arg)) {
+            tmp = arg;
+            Py_XDECREF(self->jackAutoConnectMidiInputPort);
+            Py_INCREF(tmp);
+            self->jackAutoConnectMidiInputPort = tmp;
+        }
+    }
+
+    Py_RETURN_NONE;
+}
+
+static PyObject *
+Server_setJackAutoConnectMidiOutputPort(Server *self, PyObject *arg)
+{
+    PyObject *tmp;
+
+    if (arg != NULL) {
+        if (PyList_Check(arg)) {
+            tmp = arg;
+            Py_XDECREF(self->jackAutoConnectMidiOutputPort);
+            Py_INCREF(tmp);
+            self->jackAutoConnectMidiOutputPort = tmp;
+        }
+    }
+
+    Py_RETURN_NONE;
+}
+
+static PyObject *
 Server_setJackInputPortNames(Server *self, PyObject *arg)
 {
     PyObject *tmp;
@@ -971,6 +1028,44 @@ Server_setJackOutputPortNames(Server *self, PyObject *arg)
             self->jackOutputPortNames = tmp;
 
             jack_output_port_set_names(self);
+        }
+    }
+
+    Py_RETURN_NONE;
+}
+
+static PyObject *
+Server_setJackMidiInputPortName(Server *self, PyObject *arg)
+{
+    PyObject *tmp;
+
+    if (arg != NULL) {
+        if (PY_STRING_CHECK(arg)) {
+            tmp = arg;
+            Py_XDECREF(self->jackMidiInputPortName);
+            Py_INCREF(tmp);
+            self->jackMidiInputPortName = tmp;
+
+            jack_midi_input_port_set_name(self);
+        }
+    }
+
+    Py_RETURN_NONE;
+}
+
+static PyObject *
+Server_setJackMidiOutputPortName(Server *self, PyObject *arg)
+{
+    PyObject *tmp;
+
+    if (arg != NULL) {
+        if (PY_STRING_CHECK(arg)) {
+            tmp = arg;
+            Py_XDECREF(self->jackMidiOutputPortName);
+            Py_INCREF(tmp);
+            self->jackMidiOutputPortName = tmp;
+
+            jack_midi_output_port_set_name(self);
         }
     }
 
@@ -1307,6 +1402,12 @@ Server_boot(Server *self, PyObject *arg)
                         Server_error(self, "Pyo built without Portmidi support\n");
                 }
                 break;
+            case PyoJackMidi:
+                /* Initialized inside the jack audio backend. */
+                if (self->audio_be_type != PyoJack) {
+                    Server_error(self, "To use jack midi, you must also use jack as the audio backend.\n"); 
+                }
+                break;
         }
     }
 
@@ -1567,8 +1668,7 @@ Server_removeStream(Server *self, int id)
     int i, sid;
     Stream *stream_tmp;
     PyGILState_STATE s = PyGILState_Ensure();
-    //if (PyObject_HasAttrString((PyObject *)self, "streams")) {
-    if (PySequence_Size(self->streams) != -1) {
+    if (my_server[self->thisServerID] != NULL && PySequence_Size(self->streams) != -1) {
         for (i=0; i<self->stream_count; i++) {
             stream_tmp = (Stream *)PyList_GetItem(self->streams, i);
             if (stream_tmp != NULL) {
@@ -1627,8 +1727,12 @@ Server_changeStreamPosition(Server *self, PyObject *args)
 void pyoGetMidiEvents(Server *self) {
     switch (self->midi_be_type) {
         case PyoPortmidi:
-            portmidiGetEvents(self);
+            if (self->withPortMidi == 1) {
+                portmidiGetEvents(self);
+            }
             break;
+        case PyoJackMidi:
+            /* Handled inside jack audio callback! */
         default:
             break;
     }
@@ -1643,14 +1747,17 @@ Server_noteout(Server *self, PyObject *args)
     if (! PyArg_ParseTuple(args, "iiil", &pit, &vel, &chan, &timestamp))
         return PyInt_FromLong(-1);
 
-    if (self->withPortMidiOut) {
-        switch (self->midi_be_type) {
-            case PyoPortmidi:
+    switch (self->midi_be_type) {
+        case PyoPortmidi:
+            if (self->withPortMidiOut) {
                 pm_noteout(self, pit, vel, chan, timestamp);
-                break;
-            default:
-                break;
-        }
+            }
+            break;
+        case PyoJackMidi:
+            jack_noteout(self, pit, vel, chan, timestamp);
+            break;
+        default:
+            break;
     }
     Py_RETURN_NONE;
 }
@@ -1664,14 +1771,17 @@ Server_afterout(Server *self, PyObject *args)
     if (! PyArg_ParseTuple(args, "iiil", &pit, &vel, &chan, &timestamp))
         return PyInt_FromLong(-1);
 
-    if (self->withPortMidiOut) {
-        switch (self->midi_be_type) {
-            case PyoPortmidi:
+    switch (self->midi_be_type) {
+        case PyoPortmidi:
+            if (self->withPortMidiOut) {
                 pm_afterout(self, pit, vel, chan, timestamp);
-                break;
-            default:
-                break;
-        }
+            }
+            break;
+        case PyoJackMidi:
+            jack_afterout(self, pit, vel, chan, timestamp);
+            break;
+        default:
+            break;
     }
     Py_RETURN_NONE;
 }
@@ -1685,14 +1795,17 @@ Server_ctlout(Server *self, PyObject *args)
     if (! PyArg_ParseTuple(args, "iiil", &ctlnum, &value, &chan, &timestamp))
         return PyInt_FromLong(-1);
 
-    if (self->withPortMidiOut) {
-        switch (self->midi_be_type) {
-            case PyoPortmidi:
+    switch (self->midi_be_type) {
+        case PyoPortmidi:
+            if (self->withPortMidiOut) {
                 pm_ctlout(self, ctlnum, value, chan, timestamp);
-                break;
-            default:
-                break;
-        }
+            }
+            break;
+        case PyoJackMidi:
+            jack_ctlout(self, ctlnum, value, chan, timestamp);
+            break;
+        default:
+            break;
     }
     Py_RETURN_NONE;
 }
@@ -1706,14 +1819,17 @@ Server_programout(Server *self, PyObject *args)
     if (! PyArg_ParseTuple(args, "iil", &value, &chan, &timestamp))
         return PyInt_FromLong(-1);
 
-    if (self->withPortMidiOut) {
-        switch (self->midi_be_type) {
-            case PyoPortmidi:
+    switch (self->midi_be_type) {
+        case PyoPortmidi:
+            if (self->withPortMidiOut) {
                 pm_programout(self, value, chan, timestamp);
-                break;
-            default:
-                break;
-        }
+            }
+            break;
+        case PyoJackMidi:
+            jack_programout(self, value, chan, timestamp);
+            break;
+        default:
+            break;
     }
     Py_RETURN_NONE;
 }
@@ -1727,14 +1843,17 @@ Server_pressout(Server *self, PyObject *args)
     if (! PyArg_ParseTuple(args, "iil", &value, &chan, &timestamp))
         return PyInt_FromLong(-1);
 
-    if (self->withPortMidiOut) {
-        switch (self->midi_be_type) {
-            case PyoPortmidi:
+    switch (self->midi_be_type) {
+        case PyoPortmidi:
+            if (self->withPortMidiOut) {
                 pm_pressout(self, value, chan, timestamp);
-                break;
-            default:
-                break;
-        }
+            }
+            break;
+        case PyoJackMidi:
+            jack_pressout(self, value, chan, timestamp);
+            break;
+        default:
+            break;
     }
     Py_RETURN_NONE;
 }
@@ -1748,14 +1867,17 @@ Server_bendout(Server *self, PyObject *args)
     if (! PyArg_ParseTuple(args, "iil", &value, &chan, &timestamp))
         return PyInt_FromLong(-1);
 
-    if (self->withPortMidiOut) {
-        switch (self->midi_be_type) {
-            case PyoPortmidi:
+    switch (self->midi_be_type) {
+        case PyoPortmidi:
+            if (self->withPortMidiOut) {
                 pm_bendout(self, value, chan, timestamp);
-                break;
-            default:
-                break;
-        }
+            }
+            break;
+        case PyoJackMidi:
+            jack_bendout(self, value, chan, timestamp);
+            break;
+        default:
+            break;
     }
     Py_RETURN_NONE;
 }
@@ -2049,8 +2171,12 @@ static PyMethodDef Server_methods[] = {
     {"setJackAuto", (PyCFunction)Server_setJackAuto, METH_VARARGS, "Tells the server to auto-connect Jack ports (0 = disable, 1 = enable)."},
     {"setJackAutoConnectInputPorts", (PyCFunction)Server_setJackAutoConnectInputPorts, METH_O, "Sets a list of ports to auto-connect inputs when using Jack."},
     {"setJackAutoConnectOutputPorts", (PyCFunction)Server_setJackAutoConnectOutputPorts, METH_O, "Sets a list of ports to auto-connect outputs when using Jack."},
+    {"setJackAutoConnectMidiInputPort", (PyCFunction)Server_setJackAutoConnectMidiInputPort, METH_O, "Sets a list of ports to auto-connect midi inputs when using JackMidi."},
+    {"setJackAutoConnectMidiOutputPort", (PyCFunction)Server_setJackAutoConnectMidiOutputPort, METH_O, "Sets a list of ports to auto-connect midi outputs when using JackMidi."},
     {"setJackInputPortNames", (PyCFunction)Server_setJackInputPortNames, METH_O, "Sets the short name of input ports for jack server."},
     {"setJackOutputPortNames", (PyCFunction)Server_setJackOutputPortNames, METH_O, "Sets the short name of output ports for jack server."},
+    {"setJackMidiInputPortName", (PyCFunction)Server_setJackMidiInputPortName, METH_O, "Sets the short name of midi input port for jack server."},
+    {"setJackMidiOutputPortName", (PyCFunction)Server_setJackMidiOutputPortName, METH_O, "Sets the short name of midi output port for jack server."},
     {"setIsJackTransportSlave", (PyCFunction)Server_setIsJackTransportSlave, METH_O, "Sets if the server's start/stop is slave of jack transport."},
     {"setGlobalSeed", (PyCFunction)Server_setGlobalSeed, METH_O, "Sets the server's global seed for random objects."},
     {"setAmp", (PyCFunction)Server_setAmp, METH_O, "Sets the overall amplitude."},
