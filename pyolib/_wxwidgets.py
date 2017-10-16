@@ -1580,12 +1580,6 @@ class SpectrumPanel(wx.Panel):
             rgb = wx.Image_HSVtoRGB(hsv)
             self.pens.append(wx.Pen(wx.Colour(rgb.red, rgb.green, rgb.blue)))
             self.brushes.append(wx.Brush(wx.Colour(rgb.red, rgb.green, rgb.blue, 128)))
-#        self.pens = [wx.Pen(wx.Colour(166,4,0)), wx.Pen(wx.Colour(8,11,116)), wx.Pen(wx.Colour(0,204,0)),
-#                    wx.Pen(wx.Colour(255,167,0)), wx.Pen(wx.Colour(133,0,75)), wx.Pen(wx.Colour(255,236,0)),
-#                    wx.Pen(wx.Colour(1,147,154)), wx.Pen(wx.Colour(162,239,0))]
-#        self.brushes = [wx.Brush(wx.Colour(166,4,0,128)), wx.Brush(wx.Colour(8,11,116,128)), wx.Brush(wx.Colour(0,204,0,128)),
-#                        wx.Brush(wx.Colour(255,167,0,128)), wx.Brush(wx.Colour(133,0,75,128)), wx.Brush(wx.Colour(255,236,0,128)),
-#                        wx.Brush(wx.Colour(1,147,154,128)), wx.Brush(wx.Colour(162,239,0,128))]
         if sys.platform == "win32" or sys.platform.startswith("linux"):
             self.dcref = wx.BufferedPaintDC
         else:
@@ -1856,9 +1850,6 @@ class ScopePanel(wx.Panel):
             hsv = wx.Image_HSVValue(x / float(self.chnls), 1.0, 1.0)
             rgb = wx.Image_HSVtoRGB(hsv)
             self.pens.append(wx.Pen(wx.Colour(rgb.red, rgb.green, rgb.blue)))
-#        self.pens = [wx.Pen(wx.Colour(166,4,0), width=2), wx.Pen(wx.Colour(8,11,116), width=2), wx.Pen(wx.Colour(0,204,0), width=2),
-#                    wx.Pen(wx.Colour(255,167,0), width=2), wx.Pen(wx.Colour(133,0,75), width=2), wx.Pen(wx.Colour(255,236,0), width=2),
-#                    wx.Pen(wx.Colour(1,147,154), width=2), wx.Pen(wx.Colour(162,239,0), width=2)]
 
         if sys.platform == "win32" or sys.platform.startswith("linux"):
             self.dcref = wx.BufferedPaintDC
