@@ -86,8 +86,6 @@ GUI
 
 - Keyboard, a virtual MIDI keyboard (adapted from Zyne's one).
 
-- Ability to set channel "name" in the view of PyoGuiScope and PyoGuiSpectrum.
-
 Tables
 ------
 

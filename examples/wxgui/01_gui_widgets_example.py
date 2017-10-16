@@ -27,7 +27,7 @@ sc = Scope(f)
 
 class MyFrame(wx.Frame):
 
-    def __init__(self, parent, title, pos=(50, 50), size=(850, 600)):
+    def __init__(self, parent, title, pos=(50, 50), size=(1000, 600)):
         wx.Frame.__init__(self, parent, -1, title, pos, size)
         
         self.Bind(wx.EVT_CLOSE, self.on_quit)
