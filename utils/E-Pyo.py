@@ -26,7 +26,7 @@ import wx.lib.scrolledpanel as scrolled
 import wx.lib.dialogs
 import wx.stc as stc
 import wx.lib.agw.flatnotebook as FNB
-from pyo import * # what do we really need? OBJECTS_TREE, PYO_VERSION
+from pyo import * # TODO: what do we really need? OBJECTS_TREE, PYO_VERSION
 from PyoDoc import ManualFrame
 
 if sys.version_info[0] < 3:
@@ -34,9 +34,11 @@ if sys.version_info[0] < 3:
     unicode_t = unicode
     reload(sys)
     sys.setdefaultencoding("utf-8")
+    exec_string = "python"
 else:
     from io import StringIO as StringIO
     unicode_t = str
+    exec_string = "python3"
 
 if "phoenix" in wx.version():
     from wx.adv import AboutDialogInfo, AboutBox
@@ -345,11 +347,11 @@ BACKGROUND_SERVER_DEFAULT_ARGS = 'sr=44100, nchnls=2, buffersize=256, duplex=1, 
 BACKGROUND_SERVER_ARGS = PREFERENCES.get("background_server_args", BACKGROUND_SERVER_DEFAULT_ARGS)
 
 ################## TEMPLATES ##################
-HEADER_TEMPLATE = """#!/usr/bin/env python
+HEADER_TEMPLATE = """#!/usr/bin/env %s
 # encoding: utf-8
-"""
+""" % exec_string
 
-PYO_TEMPLATE = """#!/usr/bin/env python
+PYO_TEMPLATE = """#!/usr/bin/env %s
 # encoding: utf-8
 from pyo import *
 
@@ -359,7 +361,7 @@ s = Server(sr=44100, nchnls=2, buffersize=512, duplex=1).boot()
 
 
 s.gui(locals())
-"""
+""" % exec_string
 
 CECILIA5_TEMPLATE = '''class Module(BaseModule):
     """
@@ -448,7 +450,7 @@ mainFrame.Show()
 app.MainLoop()
 '''
 
-WXPYTHON_TEMPLATE = '''#!/usr/bin/env python
+WXPYTHON_TEMPLATE = '''#!/usr/bin/env %s
 # encoding: utf-8
 import wx
 
@@ -464,7 +466,7 @@ if __name__ == "__main__":
     mainFrame = MyFrame(None, title='Simple App', pos=(100,100), size=(500,300))
     mainFrame.Show()
     app.MainLoop()
-'''
+''' % exec_string
 
 RADIOPYO_TEMPLATE = '''#!/usr/bin/env python
 # encoding: utf-8
@@ -550,8 +552,13 @@ for f in template_files:
 ################## BUILTIN KEYWORDS COMPLETION ##################
 FROM_COMP = ''' `module` import `*`
 '''
-EXEC_COMP = ''' "`expression`" in `self.locals`
+if sys.version_info[0] < 3:
+    EXEC_COMP = ''' "`expression`" in `self.locals`
 '''
+else:
+    EXEC_COMP = '''("`expression`", `globals()`, `locals()`)
+'''
+
 RAISE_COMP = ''' Exception("`An exception occurred...`")
 '''
 TRY_COMP = ''':
@@ -586,7 +593,6 @@ WHILE_COMP = """ `i` `>` `0`:
 ASSERT_COMP = ''' `expression` `>` `0`, "`expression should be positive`"
 '''
 
-# TODO: Python 3 syntax (if possible, compatible with python 2)
 BUILTINS_DICT = {"from": FROM_COMP, "try": TRY_COMP, "if": IF_COMP,
                  "def": DEF_COMP, "class": CLASS_COMP, "for": FOR_COMP,
                  "while": WHILE_COMP, "exec": EXEC_COMP, "raise": RAISE_COMP,
@@ -3787,7 +3793,10 @@ class Editor(stc.StyledTextCtrl):
         if ext in ["py", "pyw", "c5"]:
             self.SetLexer(stc.STC_LEX_PYTHON)
             self.SetStyleBits(self.GetStyleBitsNeeded())
-            self.SetKeyWords(0, " ".join(keyword.kwlist) + " None True False print ")
+            if sys.version_info[0] < 3:
+                self.SetKeyWords(0, " ".join(keyword.kwlist) + " None True False print ")
+            else:
+                self.SetKeyWords(0, " ".join(keyword.kwlist) + " None True False ")
             self.SetKeyWords(1, " ".join(PYO_WORDLIST))
             self.StyleSetSpec(stc.STC_P_DEFAULT, buildStyle('default'))
             self.StyleSetSpec(stc.STC_P_COMMENTLINE, buildStyle('comment'))

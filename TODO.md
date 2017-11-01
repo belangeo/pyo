@@ -4,17 +4,16 @@ To do ASAP!
 - [DOC] Compilation for anaconda (mail from Stanley Rosenbaum).
 
 - [DOC] Live recording without xruns, use Server.recstart() to record to a
-  file on a tmpfs, which is bsically a filesystem in RAM.
+  file on a tmpfs, which is basically a filesystem in RAM.
   mail: "Server recording to wav generates many xruns (Aug 26)".
 
 - Better error message when trying to open an input device but there is
   none on the system. Automatic deactivation of duplex mode if no input.
 
 - E-Pyo: Reading preferences file should handle utf-8 paths.
+    - linux = ok
 
 - E-Pyo: style preference with unicode characters in the font name.
-
-- E-Pyo: template, snippets and other features should default to python3.
 
 - E-Pyo: Fix rectangular selection.
 
@@ -38,14 +37,8 @@ Internal
 Server
 ------
 
-- The Server should perform a check, especially on Windows, to find the
-  most suitable audio driver to use.
-
 - A method to retrieve a graph of the internal state of the server 
   (active objects, connections, attribute values, ...).
-
-- Remove, if possible, PyGILState_Ensure/PyGILState_Release from 
-  the process_buffers function.
 
 Examples
 --------
