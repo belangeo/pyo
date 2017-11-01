@@ -144,7 +144,7 @@ if not os.path.isfile(PREFERENCES_PATH):
 
 epyo_prefs = {}
 # TODO: Should handle utf-8 encoding!
-with open(PREFERENCES_PATH, "r") as f:
+with codecs.open(PREFERENCES_PATH, "r", encoding="utf-8") as f:
     text = f.read()
 spos = text.find("=")
 dictext = text[spos+1:]
@@ -541,7 +541,7 @@ templateid = 91
 template_files = sorted([f for f in os.listdir(TEMPLATE_PATH) if f.endswith(".py")])
 for f in template_files:
     try:
-        with open(os.path.join(TEMPLATE_PATH, f)) as ftemp:
+        with codecs.open(os.path.join(TEMPLATE_PATH, f), "r", encoding="utf-8") as ftemp:
             ftext = ftemp.read()
         TEMPLATE_NAMES[templateid] = f.replace(".py", "")
         TEMPLATE_DICT[templateid] = ftext
@@ -893,7 +893,7 @@ STYLES_LABELS = {'default': 'Foreground', 'background': 'Background',
                  'bracelight': 'Brace Match', 'bracebad': 'Brace Mismatch',
                  'lineedge': 'Line Edge'}
 
-with open(PREF_STYLE) as f:
+with codecs.open(PREF_STYLE, "r", encoding="utf-8") as f:
     text = f.read()
 spos = text.find("=")
 dictext = text[spos+1:]
@@ -1524,7 +1524,7 @@ class ColourEditor(wx.Frame):
         global STYLES
         stl = event.GetString()
         self.cur_style = stl
-        with open(os.path.join(ensureNFD(STYLES_PATH), stl)) as f:
+        with codecs.open(os.path.join(ensureNFD(STYLES_PATH), stl), "r", encoding="utf-8") as f:
             text = f.read()
         spos = text.find("=")
         dictext = text[spos+1:]
@@ -2505,7 +2505,7 @@ class MainFrame(wx.Frame):
             submenu = wx.Menu(title=cat)
             files = [f for f in os.listdir(os.path.join(SNIPPETS_PATH, cat))]
             for file in files:
-                with open(os.path.join(SNIPPETS_PATH, cat, file), "r") as f:
+                with codecs.open(os.path.join(SNIPPETS_PATH, cat, file), "r", encoding="utf-8") as f:
                     text = f.read()
                 spos = text.find("=")
                 dictext = text[spos+1:]
@@ -2617,7 +2617,7 @@ class MainFrame(wx.Frame):
             for i in range(12000, self.ID_FILTERS):
                 self.filters_menu.Delete(i)
         ID_FILTERS = 12000
-        with open(FILTERS_FILE, "r") as f:
+        with codecs.open(FILTERS_FILE, "r", encoding="utf-8") as f:
             for line in f.readlines():
                 if line.startswith("def "):
                     ppos = line.find("(")
@@ -2632,7 +2632,7 @@ class MainFrame(wx.Frame):
         self.panel.addPage(FILTERS_FILE)
 
     def applyFilter(self, evt):
-        with open(FILTERS_FILE, "r") as f:
+        with codecs.open(FILTERS_FILE, "r", encoding="utf-8") as f:
             text = f.read()
         functions = {}
         exec(text, functions)
@@ -2890,7 +2890,7 @@ class MainFrame(wx.Frame):
 
     def setStyle(self, st, fromMenu=False):
         global STYLES
-        with open(os.path.join(ensureNFD(STYLES_PATH), st)) as f:
+        with codecs.open(os.path.join(ensureNFD(STYLES_PATH), st), "r", encoding="utf-8") as f:
             text = f.read()
         spos = text.find("=")
         dictext = text[spos+1:]
@@ -3227,7 +3227,7 @@ class MainFrame(wx.Frame):
 
     def runner(self, event):
         if self.master_document != None:
-            with open(self.master_document, "r") as f:
+            with codecs.open(self.master_document, "r", encoding="utf-8") as f:
                 text = f.read()
         else:
             text = self.panel.editor.GetText()
