@@ -151,16 +151,22 @@ class PyoObjectControl(tk.Frame):
         self._displays = {}
         self._maps = {}
         self._sigs = {}
+        self._res = {}
         for i, m in enumerate(self._map_list):
-            key, init = m.name, m.init
+            key, init, res, dataOnly = m.name, m.init, m.res, m.dataOnly
             # filters PyoObjects
             if type(init) not in [list, float, int]:
                 self._excluded.append(key)
             else:
                 self._maps[key] = m
+                self._res[key] = res
                 # label (param name)
-                label = tk.Label(self, height=1, width=10, highlightthickness=0,
-                                 text=key)
+                if dataOnly:
+                    label = tk.Label(self, height=1, width=10, highlightthickness=0,
+                                     text=key+" *")
+                else:
+                    label = tk.Label(self, height=1, width=10, highlightthickness=0,
+                                     text=key)
                 label.grid(row=i, column=0)
                 # create and pack slider
                 if not isinstance(init, list):
@@ -189,13 +195,15 @@ class PyoObjectControl(tk.Frame):
                 else:
                     self._displays[key].set("\n".join(["%.4f" % i for i in init]))
                 # set obj attribute to PyoObject SigTo
-                self._sigs[key] = SigTo(init, .025, init)
-                refStream = self._obj.getBaseObjects()[0]._getStream()
-                server = self._obj.getBaseObjects()[0].getServer()
-                for k in range(len(self._sigs[key].getBaseObjects())):
-                    curStream = self._sigs[key].getBaseObjects()[k]._getStream()
-                    server.changeStreamPosition(refStream, curStream)
-                setattr(self._obj, key, self._sigs[key])
+                if not dataOnly:
+                    self._values[key] = init
+                    self._sigs[key] = SigTo(init, .025, init)
+                    refStream = self._obj.getBaseObjects()[0]._getStream()
+                    server = self._obj.getBaseObjects()[0].getServer()
+                    for k in range(len(self._sigs[key].getBaseObjects())):
+                        curStream = self._sigs[key].getBaseObjects()[k]._getStream()
+                        server.changeStreamPosition(refStream, curStream)
+                    setattr(self._obj, key, self._sigs[key])
         # padding
         top = self.winfo_toplevel()
         top.rowconfigure(0, weight=1)
@@ -219,8 +227,14 @@ class PyoObjectControl(tk.Frame):
             value = [self._maps[key].get(float(y)) for y in x]
             self._displays[key].set("\n".join(["%.4f" % i for i in value]))
 
-        self._values[key] = value
-        setattr(self._sigs[key], "value", value)
+        if self._res[key].startswith("i"):
+            value = int(value)
+
+        if key in self._values:
+            self._values[key] = value
+            setattr(self._sigs[key], "value", value)
+        else:
+            setattr(self._obj, key, value)
 
 ######################################################################
 ### View window for PyoTableObject
