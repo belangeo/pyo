@@ -12,10 +12,7 @@ To do ASAP!
 
 - E-Pyo: Reading preferences file should handle utf-8 paths.
     - linux = ok
-
-- E-Pyo: style preference with unicode characters in the font name.
-
-- E-Pyo: Fix rectangular selection.
+    - osx = ok
 
 - Unicode paths don't work with python 3.6 on Windows.
 

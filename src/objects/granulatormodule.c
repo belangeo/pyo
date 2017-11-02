@@ -50,6 +50,7 @@ typedef struct {
     MYFLT *gsize;
     MYFLT *gphase;
     MYFLT *lastppos;
+    MYFLT srScale;
     int modebuffer[5];
 } Granulator;
 
@@ -89,7 +90,7 @@ Granulator_transform_iii(Granulator *self) {
 
             if (ppos < self->lastppos[j]) {
                 self->startPos[j] = pos;
-                self->gsize[j] = dur * self->sr;
+                self->gsize[j] = dur * self->sr * self->srScale;
             }
             self->lastppos[j] = ppos;
 
@@ -152,7 +153,7 @@ Granulator_transform_aii(Granulator *self) {
 
             if (ppos < self->lastppos[j]) {
                 self->startPos[j] = pos;
-                self->gsize[j] = dur * self->sr;
+                self->gsize[j] = dur * self->sr * self->srScale;
             }
             self->lastppos[j] = ppos;
 
@@ -195,7 +196,7 @@ Granulator_transform_iai(Granulator *self) {
 
     inc = pit * (1.0 / self->basedur) / self->sr;
 
-    MYFLT gsize = dur * self->sr;
+    MYFLT gsize = dur * self->sr * self->srScale;
 
     for (j=0; j<self->ngrains; j++) {
         self->gsize[j] = gsize;
@@ -282,7 +283,7 @@ Granulator_transform_aai(Granulator *self) {
 
             if (ppos < self->lastppos[j]) {
                 self->startPos[j] = pos[i];
-                self->gsize[j] = dur * self->sr;
+                self->gsize[j] = dur * self->sr * self->srScale;
             }
             self->lastppos[j] = ppos;
 
@@ -344,7 +345,7 @@ Granulator_transform_iia(Granulator *self) {
 
             if (ppos < self->lastppos[j]) {
                 self->startPos[j] = pos;
-                self->gsize[j] = dur[i] * self->sr;
+                self->gsize[j] = dur[i] * self->sr * self->srScale;
             }
             self->lastppos[j] = ppos;
 
@@ -407,7 +408,7 @@ Granulator_transform_aia(Granulator *self) {
 
             if (ppos < self->lastppos[j]) {
                 self->startPos[j] = pos;
-                self->gsize[j] = dur[i] * self->sr;
+                self->gsize[j] = dur[i] * self->sr * self->srScale;
             }
             self->lastppos[j] = ppos;
 
@@ -469,7 +470,7 @@ Granulator_transform_iaa(Granulator *self) {
 
             if (ppos < self->lastppos[j]) {
                 self->startPos[j] = pos[i];
-                self->gsize[j] = dur[i] * self->sr;
+                self->gsize[j] = dur[i] * self->sr * self->srScale;
             }
             self->lastppos[j] = ppos;
 
@@ -532,7 +533,7 @@ Granulator_transform_aaa(Granulator *self) {
 
             if (ppos < self->lastppos[j]) {
                 self->startPos[j] = pos[i];
-                self->gsize[j] = dur[i] * self->sr;
+                self->gsize[j] = dur[i] * self->sr * self->srScale;
             }
             self->lastppos[j] = ppos;
 
@@ -696,6 +697,7 @@ Granulator_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->ngrains = 8;
     self->basedur = 0.1;
     self->pointerPos = 1.0;
+    self->srScale = 1.0;
 	self->modebuffer[0] = 0;
 	self->modebuffer[1] = 0;
 	self->modebuffer[2] = 0;
@@ -717,6 +719,7 @@ Granulator_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     }
     Py_XDECREF(self->table);
     self->table = PyObject_CallMethod((PyObject *)tabletmp, "getTableStream", "");
+    self->srScale = TableStream_getSamplingRate(self->table) / self->sr;
 
     if ( PyObject_HasAttrString((PyObject *)envtmp, "getTableStream") == 0 ) {
         PyErr_SetString(PyExc_TypeError, "\"env\" argument of Granulator must be a PyoTableObject.\n");
