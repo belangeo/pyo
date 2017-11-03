@@ -1,3 +1,8 @@
+2017-11-03 belangeo <belangeo@gmail.com>
+
+    * Added a callback attribute to PVAnal. The function receives magnitudes
+      and true frequencies for every analysis frame.
+
 2017-10-09 belangeo <belangeo@gmail.com>
 
     * Added Jack midi support to the Server.

@@ -2027,10 +2027,11 @@ class PyoTableObject(PyoObjectBase):
             table: PyoTableObject
                 The source table.
             srcpos: int, optional
-                The start position in the source table. Defaults to 0.
+                The start position, in samples, in the source table.
+                Defaults to 0.
             destpos ; int, optional
-                The start position in the destination (self) table. Defaults
-                to 0.
+                The start position, in samples, in the destination (self) table.
+                Defaults to 0.
             length: int, optional
                 The number of samples to copy from source to destination. if
                 length is negative, the length of the smallest table is used.
