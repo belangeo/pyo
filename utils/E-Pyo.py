@@ -3520,7 +3520,7 @@ class MainPanel(wx.Panel):
 
     def addPage(self, file, encoding=None):
         editor = Editor(self.notebook, -1, size=(0, -1), setTitle=self.SetTitle, getTitle=self.GetTitle)
-        label = os.path.split(file)[1].split('.')[0]
+        label = os.path.split(file)[1]
         self.notebook.AddPage(editor, label, True)
         text = ""
         if encoding != None:
