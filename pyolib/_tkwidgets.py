@@ -289,7 +289,8 @@ class ServerGUI(tk.Frame):
     "Server's graphical interface."
     def __init__(self, master=None, nchnls=2, startf=None, stopf=None,
                  recstartf=None, recstopf=None, ampf=None, started=0,
-                 locals=None, shutdown=None, meter=True, timer=True, amp=1.):
+                 locals=None, shutdown=None, meter=True, timer=True, amp=1.,
+                 getIsBooted=None):
         tk.Frame.__init__(self, master, padx=10, pady=10, bd=2, relief=tk.GROOVE)
         self.shutdown = shutdown
         self.locals = locals
@@ -302,6 +303,7 @@ class ServerGUI(tk.Frame):
         self.recstopf = recstopf
         self.ampf = ampf
         self.amp = amp
+        self.getIsBooted = getIsBooted
         self._started = False
         self._recstarted = False
         self.B1, self.B2 = 193 - VM_OFFSET, 244 - VM_OFFSET
@@ -388,7 +390,8 @@ class ServerGUI(tk.Frame):
 
     def on_quit(self):
         "Clean up on quit."
-        self.shutdown()
+        if self.getIsBooted():
+            self.shutdown()
         self.quit()
 
     def getPrev(self, event):

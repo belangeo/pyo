@@ -33,6 +33,7 @@ typedef struct {
 } PyoJackMidiEvent;
 
 typedef struct {
+    int activated;
     jack_client_t *jack_client;
     jack_port_t **jack_in_ports;
     jack_port_t **jack_out_ports;

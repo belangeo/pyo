@@ -2908,7 +2908,7 @@ class ServerGUI(wx.Frame):
     def __init__(self, parent=None, nchnls=2, startf=None, stopf=None,
                 recstartf=None, recstopf=None, ampf=None, started=0,
                 locals=None, shutdown=None, meter=True, timer=True, amp=1.,
-                exit=True):
+                exit=True, getIsBooted=None):
         wx.Frame.__init__(self, parent, style=wx.DEFAULT_FRAME_STYLE ^ wx.RESIZE_BORDER)
 
         self.menubar = wx.MenuBar()
@@ -2929,6 +2929,7 @@ class ServerGUI(wx.Frame):
         self.recstopf = recstopf
         self.ampf = ampf
         self.exit = exit
+        self.getIsBooted = getIsBooted
         self._started = False
         self._recstarted = False
         self._history = []
@@ -3026,7 +3027,7 @@ class ServerGUI(wx.Frame):
         wx.CallAfter(self.on_quit, None)
 
     def on_quit(self, evt):
-        if self.exit:
+        if self.exit and self.getIsBooted():
             self.shutdown()
             time.sleep(0.25)
         self.Destroy()

@@ -90,8 +90,6 @@ Matrices
 E-Pyo
 -----
 
-- Split the file name (shown in the notebook tab) with the last dot, not the first.
-
 - Complete review of E-Pyo on Windows. Lot of features don't seem to work.
 
     - Project tree refresh function doesn't work.

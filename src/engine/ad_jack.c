@@ -69,6 +69,7 @@ jack_callback(jack_nframes_t nframes, void *arg) {
     jack_default_audio_sample_t *in_buffers[server->ichnls], *out_buffers[server->nchnls];
 
     PyoJackBackendData *be_data = (PyoJackBackendData *) server->audio_be_data;
+
     for (i = 0; i < server->ichnls; i++) {
         in_buffers[i] = jack_port_get_buffer(be_data->jack_in_ports[i+server->input_offset], server->bufferSize);
     }
@@ -198,18 +199,24 @@ jack_bufsize_cb(jack_nframes_t nframes, void *arg) {
 
 static void
 jack_error_cb(const char *desc) {
+#ifndef NDEBUG
     PyGILState_STATE s = PyGILState_Ensure();
     PySys_WriteStdout("JACK error: %s\n", desc);
     PyGILState_Release(s);
+#endif
 }
 
 static void
 jack_shutdown_cb(void *arg) {
     Server *server = (Server *) arg;
 
+    PyoJackBackendData *be_data = (PyoJackBackendData *) server->audio_be_data;
+
+    be_data->activated = 0;
+
     PyGILState_STATE s = PyGILState_Ensure();
     Server_shutdown(server);
-    Server_warning(server, "JACK server shutdown. Pyo Server shut down.\n");
+    Server_warning(server, "JACK server shutdown. Pyo Server also shutdown.\n");
     PyGILState_Release(s);
 }
 
@@ -388,6 +395,7 @@ Server_jack_init(Server *self) {
     assert(self->audio_be_data == NULL);
     PyoJackBackendData *be_data = (PyoJackBackendData *) malloc(sizeof(PyoJackBackendData *));
     self->audio_be_data = (void *) be_data;
+    be_data->activated = 0;
     strncpy(client_name, self->serverName, 32);
 
     Py_BEGIN_ALLOW_THREADS
@@ -515,6 +523,8 @@ Server_jack_init(Server *self) {
         return -1;
     }
 
+    be_data->activated = 1;
+
     Server_jack_autoconnect(self);
 
     return 0;
@@ -522,22 +532,28 @@ Server_jack_init(Server *self) {
 
 int
 Server_jack_deinit(Server *self) {
-    int ret;
+    int ret = 0;
     PyoJackBackendData *be_data = (PyoJackBackendData *) self->audio_be_data;
 
-    Py_BEGIN_ALLOW_THREADS
-    ret = jack_deactivate(be_data->jack_client);
-    Py_END_ALLOW_THREADS
+    if (be_data->activated == 1) {
 
-    if (ret)
-        Server_error(self, "Jack error: cannot deactivate jack client.\n");
+        Py_BEGIN_ALLOW_THREADS
+        ret = jack_deactivate(be_data->jack_client);
+        Py_END_ALLOW_THREADS
 
-    Py_BEGIN_ALLOW_THREADS
-    ret = jack_client_close(be_data->jack_client);
-    Py_END_ALLOW_THREADS
+        if (ret)
+            Server_error(self, "Jack error: cannot deactivate jack client.\n");
 
-    if (ret)
-        Server_error(self, "Jack error: cannot close client.\n");
+
+        Py_BEGIN_ALLOW_THREADS
+        ret = jack_client_close(be_data->jack_client);
+        Py_END_ALLOW_THREADS
+
+        if (ret)
+            Server_error(self, "Jack error: cannot close client.\n");
+    }
+
+    be_data->activated = 0;
 
     free(be_data->jack_in_ports);
     free(be_data->jack_out_ports);

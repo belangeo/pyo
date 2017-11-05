@@ -234,7 +234,8 @@ class Server(object):
         self._gui_frame, win, withWX = createServerGUI(self._nchnls, self.start, self.stop,
                                                self.recstart, self.recstop, self.setAmp,
                                                self.getIsStarted(), locals, self.shutdown,
-                                               meter, timer, self._amp, exit, title)
+                                               meter, timer, self._amp, exit, title,
+                                               self.getIsBooted)
         if meter:
             self._server.setAmpCallable(self._gui_frame)
         if timer:

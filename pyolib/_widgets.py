@@ -387,7 +387,7 @@ def createExprEditorWindow(object, title, wxnoserver=False):
             EXPREDITORWINDOWS.append([object, title])
 
 def createServerGUI(nchnls, start, stop, recstart, recstop, setAmp, started,
-                    locals, shutdown, meter, timer, amp, exit, title):
+                    locals, shutdown, meter, timer, amp, exit, title, getIsBooted):
     "Creates the server's GUI."
     global X, Y, MAX_X, NEXT_Y
     if title is None:
@@ -396,13 +396,13 @@ def createServerGUI(nchnls, start, stop, recstart, recstop, setAmp, started,
         createRootWindow()
         win = tkCreateToplevelWindow()
         f = ServerGUI(win, nchnls, start, stop, recstart, recstop, setAmp,
-                      started, locals, shutdown, meter, timer, amp)
+                      started, locals, shutdown, meter, timer, amp, getIsBooted)
         f.master.title(title)
         f.focus_set()
     else:
         win = createRootWindow()
         f = ServerGUI(None, nchnls, start, stop, recstart, recstop, setAmp,
-                      started, locals, shutdown, meter, timer, amp, exit)
+                      started, locals, shutdown, meter, timer, amp, exit, getIsBooted)
         f.SetTitle(title)
         f.SetPosition((30, 30))
         f.Show()
