@@ -536,6 +536,10 @@ Server_traverse(Server *self, visitproc visit, void *arg)
         Py_VISIT(self->CALLBACK);
     if (PyList_Size(self->streams) > 0)
         Py_VISIT(self->streams);
+    Py_VISIT(self->jackInputPortNames);
+    Py_VISIT(self->jackOutputPortNames);
+    Py_VISIT(self->jackMidiInputPortName);
+    Py_VISIT(self->jackMidiOutputPortName);
     Py_VISIT(self->jackAutoConnectInputPorts);
     Py_VISIT(self->jackAutoConnectOutputPorts);
     Py_VISIT(self->jackAutoConnectMidiInputPort);
@@ -552,6 +556,10 @@ Server_clear(Server *self)
         Py_CLEAR(self->CALLBACK);
     if (PyList_Size(self->streams) > 0)
         Py_CLEAR(self->streams);
+    Py_CLEAR(self->jackInputPortNames);
+    Py_CLEAR(self->jackOutputPortNames);
+    Py_CLEAR(self->jackMidiInputPortName);
+    Py_CLEAR(self->jackMidiOutputPortName);
     Py_CLEAR(self->jackAutoConnectInputPorts);
     Py_CLEAR(self->jackAutoConnectOutputPorts);
     Py_CLEAR(self->jackAutoConnectMidiInputPort);
@@ -613,6 +621,10 @@ Server_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->serverName = (char *) calloc(32, sizeof(char));
     self->jackautoin = 1;
     self->jackautoout = 1;
+    self->jackInputPortNames = PY_BYTES_FROM_STRING("");
+    self->jackOutputPortNames = PY_BYTES_FROM_STRING("");
+    self->jackMidiInputPortName = PY_BYTES_FROM_STRING("");
+    self->jackMidiOutputPortName = PY_BYTES_FROM_STRING("");
     self->jackAutoConnectInputPorts = PyList_New(0);
     self->jackAutoConnectOutputPorts = PyList_New(0);
     self->jackAutoConnectMidiInputPort = PyList_New(0);
