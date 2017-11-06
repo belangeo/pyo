@@ -393,7 +393,7 @@ Server_jack_init(Server *self) {
     int index = 0;
     int ret = 0;
     assert(self->audio_be_data == NULL);
-    PyoJackBackendData *be_data = (PyoJackBackendData *) malloc(sizeof(PyoJackBackendData *));
+    PyoJackBackendData *be_data = (PyoJackBackendData *) malloc(sizeof(PyoJackBackendData));
     self->audio_be_data = (void *) be_data;
     be_data->activated = 0;
     strncpy(client_name, self->serverName, 32);
@@ -560,11 +560,8 @@ Server_jack_deinit(Server *self) {
     if (self->withJackMidi == 1) {
         free(be_data->midi_events);
     }
-    /* Since I add midi_event_count entry in the PyoJackBackendData struct,
-       freeing the struct gives an error "free(): invalid next size (fast)".
-       until I find the correct solution, I'll just let leak the struct when
-       we shutdown the server. */
-    //free(self->audio_be_data);
+
+    free(self->audio_be_data);
 
     return ret;
 }

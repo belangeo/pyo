@@ -164,7 +164,7 @@ Server_pa_init(Server *self)
         portaudio_assert(n, "Pa_GetDeviceCount");
     }
 
-    PyoPaBackendData *be_data = (PyoPaBackendData *) malloc(sizeof(PyoPaBackendData *));
+    PyoPaBackendData *be_data = (PyoPaBackendData *) malloc(sizeof(PyoPaBackendData));
     self->audio_be_data = (void *) be_data;
 
     if (self->output == -1)
