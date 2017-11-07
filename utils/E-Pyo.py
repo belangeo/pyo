@@ -36,13 +36,13 @@ if sys.version_info[0] < 3:
     reload(sys)
     sys.setdefaultencoding("utf-8")
     exec_string = "python"
-    if sys.platform.startswith("win"):
+    if sys.platform == "win32":
         encoding_to_add = "utf-8"
 else:
     from io import StringIO as StringIO
     unicode_t = str
     exec_string = "python3"
-    if sys.platform.startswith("win"):
+    if sys.platform == "win32":
         encoding_to_add = "mbcs"
 
 if "phoenix" in wx.version():
