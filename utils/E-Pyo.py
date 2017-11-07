@@ -3110,7 +3110,7 @@ class MainFrame(wx.Frame):
             self.panel.editor.saveMyFile(path)
             self.SetTitle(path)
             tab = self.panel.notebook.GetSelection()
-            self.panel.notebook.SetPageText(tab, os.path.split(path)[1].split('.')[0])
+            self.panel.notebook.SetPageText(tab, os.path.split(path)[1])
 
     def saveas(self, event):
         deffile = os.path.split(self.panel.editor.path)[1]
@@ -3130,7 +3130,7 @@ class MainFrame(wx.Frame):
             self.panel.editor.saveMyFile(path)
             self.SetTitle(path)
             tab = self.panel.notebook.GetSelection()
-            self.panel.notebook.SetPageText(tab, os.path.split(path)[1].split('.')[0])
+            self.panel.notebook.SetPageText(tab, os.path.split(path)[1])
             self.newRecent(path)
             PREFERENCES["save_file_path"] = os.path.split(path)[0]
         dlg.Destroy()
@@ -4119,7 +4119,7 @@ class Editor(stc.StyledTextCtrl):
         self.SaveFile(file)
         self.path = file
         self.saveMark = False
-        marker_file = os.path.split(self.path)[1].split(".")[0]
+        marker_file = os.path.split(self.path)[1].rsplit(".")[0]
         marker_file += "%04d" % random.randint(0,1000)
         with open(MARKERS_FILE, "r") as f:
             lines = [line.replace("\n", "").split("=") for line in f.readlines()]

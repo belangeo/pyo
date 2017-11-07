@@ -10,11 +10,6 @@ To do ASAP!
 - Better error message when trying to open an input device but there is
   none on the system. Automatic deactivation of duplex mode if no input.
 
-- E-Pyo: Reading preferences file should handle utf-8 paths.
-    - linux = ok
-    - osx = ok
-
-- Unicode paths don't work with python 3.6 on Windows.
 
 This is a list of features/fixes to implement for future releases
 =================================================================
