@@ -2,19 +2,88 @@
 
     * Upgraded version number to 0.8.8.
 
+2017-11-07 belangeo <belangeo@gmail.com>
+
+    * E-Pyo: fixed tempfile encoding on windows.
+
+2017-11-07 belangeo <belangeo@gmail.com>
+
+    * Fixed path encoding on windows for python 3.6.
+
+2017-11-06 belangeo <belangeo@gmail.com>
+
+    * Properly incref and decref server references inside pyo objects.
+
+2017-11-06 belangeo <belangeo@gmail.com>
+
+    * Added missing objects in server's garbage collecting process.
+
+2017-11-06 belangeo <belangeo@gmail.com>
+
+    * Fixed audio and midi backends memory allocation.
+
+2017-11-05 belangeo <belangeo@gmail.com>
+
+    * Don't try to deactivate jack if it is stopped externally (ex. from
+      qjackctl). Fixed issue #109.
+
 2017-11-03 belangeo <belangeo@gmail.com>
 
     * Added a callback attribute to PVAnal. The function receives magnitudes
       and true frequencies for every analysis frame.
 
+2017-11-02 belangeo <belangeo@gmail.com>
+
+    * Fixed PyoArgumentTypeError when ctrl() is called for an object with
+      dataOnly parameter and tk is used instead of wxpython.
+
+2017-11-02 belangeo <belangeo@gmail.com>
+
+    * Granulator now compensates for the difference between the loaded sound's
+      sampling rate and pyo's sampling rate, if any.
+
+2017-11-01 belangeo <belangeo@gmail.com>
+
+    * E-Pyo: Fixed crash when preferences contains unicode characters.
+
+2017-10-31 belangeo <belangeo@gmail.com>
+
+    * E-Pyo: template, snippets and other features now defaults to python3.
+
+2017-10-15 belangeo <belangeo@gmail.com>
+
+    * Added a new init argument (wintitle) to Scope and Spectrum objects to
+      allow the user to set the title name of their window. Also added a
+      method to show/hide the channel labels in their window.
+
 2017-10-09 belangeo <belangeo@gmail.com>
 
     * Added Jack midi support to the Server.
+
+2017-10-09 belangeo <belangeo@gmail.com>
+
+    * Added missing static declaration to functions in pyomodule.
 
 2017-10-07 belangeo <belangeo@gmail.com>
 
     * Removed internal import of the random module. Scripts importing
       both pyo and random modules segfault on garbagge collection at exit.
+
+2017-09-15 belangeo <belangeo@gmail.com>
+
+    * Added missing binding to stop method in MidiListener.
+
+2017-09-06 belangeo <belangeo@gmail.com>
+
+    * Added windows audio inspector script.
+
+2017-08-31 belangeo <belangeo@gmail.com>
+
+    * Fixed compiling with debug symbols on MacOS.
+
+2017-08-28 belangeo <belangeo@gmail.com>
+
+    * Fixed VoiceManager dealloc function.
 
 2017-08-28 belangeo <belangeo@gmail.com>
 
