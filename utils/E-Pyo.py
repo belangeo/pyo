@@ -29,16 +29,21 @@ import wx.lib.agw.flatnotebook as FNB
 from pyo import * # TODO: what do we really need? OBJECTS_TREE, PYO_VERSION
 from PyoDoc import ManualFrame
 
+encoding_to_add = sys.getfilesystemencoding()
 if sys.version_info[0] < 3:
     from StringIO import StringIO
     unicode_t = unicode
     reload(sys)
     sys.setdefaultencoding("utf-8")
     exec_string = "python"
+    if sys.platform.startswith("win"):
+        encoding_to_add = "utf-8"
 else:
     from io import StringIO as StringIO
     unicode_t = str
     exec_string = "python3"
+    if sys.platform.startswith("win"):
+        encoding_to_add = "mbcs"
 
 if "phoenix" in wx.version():
     from wx.adv import AboutDialogInfo, AboutBox
@@ -348,11 +353,11 @@ BACKGROUND_SERVER_ARGS = PREFERENCES.get("background_server_args", BACKGROUND_SE
 
 ################## TEMPLATES ##################
 HEADER_TEMPLATE = """#!/usr/bin/env %s
-# encoding: utf-8
-""" % exec_string
+# encoding: %s
+""" % (exec_string, encoding_to_add)
 
 PYO_TEMPLATE = """#!/usr/bin/env %s
-# encoding: utf-8
+# encoding: %s
 from pyo import *
 
 s = Server(sr=44100, nchnls=2, buffersize=512, duplex=1).boot()
@@ -361,7 +366,7 @@ s = Server(sr=44100, nchnls=2, buffersize=512, duplex=1).boot()
 
 
 s.gui(locals())
-""" % exec_string
+""" % (exec_string, encoding_to_add)
 
 CECILIA5_TEMPLATE = '''class Module(BaseModule):
     """
@@ -406,7 +411,7 @@ MODULES = {
 '''
 
 AUDIO_INTERFACE_TEMPLATE = '''#!/usr/bin/env python
-# encoding: utf-8
+# encoding: %s
 import wx
 from pyo import *
 
@@ -448,10 +453,10 @@ app = wx.App(False)
 mainFrame = MyFrame(None, title='Simple App', pos=(100,100), size=(500,300))
 mainFrame.Show()
 app.MainLoop()
-'''
+''' % encoding_to_add
 
 WXPYTHON_TEMPLATE = '''#!/usr/bin/env %s
-# encoding: utf-8
+# encoding: %s
 import wx
 
 class MyFrame(wx.Frame):
@@ -466,7 +471,7 @@ if __name__ == "__main__":
     mainFrame = MyFrame(None, title='Simple App', pos=(100,100), size=(500,300))
     mainFrame.Show()
     app.MainLoop()
-''' % exec_string
+''' % (exec_string, encoding_to_add)
 
 RADIOPYO_TEMPLATE = '''#!/usr/bin/env python
 # encoding: utf-8
@@ -3186,7 +3191,7 @@ class MainFrame(wx.Frame):
             if check1:
                 if not line.startswith("#"):
                     if not '# encoding:' in text:
-                        newtext += '# -*- encoding: %s -*-\n' % sys.getfilesystemencoding()
+                        newtext += '# -*- encoding: %s -*-\n' % encoding_to_add
                     check1 = False
             if not check1 and check2:
                 if is_future and '__future__' in line:
