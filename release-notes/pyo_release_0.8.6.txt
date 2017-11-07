@@ -1,0 +1,156 @@
+[English version follows]
+
+Bonjour à tous,
+
+La version 0.8.6 de pyo est maintenant disponible en téléchargement :
+
+http://ajaxsoundstudio.com/software/pyo/
+
+La documentation:
+
+http://ajaxsoundstudio.com/pyodoc/
+
+Sources and suivi des bugs:
+    
+https://github.com/belangeo/pyo
+
+
+Bugs corrigés:
+
+- Correction de l'objet TableRead qui continuait à jouer lorsque la vitesse est
+négative et le mode loop à off.
+
+- Correction de l'objet CallAfter (segfault) lorsque détruit à l'intérieur de
+son propre appel de fonction.
+
+- Correction d'un segfault lorsque l'objet graphique ControlSlider est mis à 
+jour depuis le thread audio.
+
+- Mise à jour de liblo (de 0.26 à 0.28) sous Windows. Correction d'un bug où
+les ports réseau n'étaient pas proprement fermés après utilisation.
+
+- Correction d'un segfault à la destruction de l'objet Resample.
+
+- Correction de certains liens dynamiques dans les librairies à la création
+des installeurs sous MacOS.
+
+- Correction des flux audio "time" des objets TableRec, TrigTableRec et Looper.
+
+Amélioration:
+
+- Ajout d'un attribut "speed" à l'objet Seq. Cela permet des modifications
+temporelles continues.
+
+- Ajout d'une méthode "setRandomType(dist, x)" à l'objet SfMarkerShuffler.
+
+- Ajout d'un item "Copy" dans le menu des fenêtres ouvertes via les méthodes
+PyoObject.ctrl() et DataTable.graph().
+
+
+Olivier
+
+---
+
+Hello all,
+
+pyo 0.8.6 is now available to download on pyo's web site :
+
+http://ajaxsoundstudio.com/software/pyo/
+
+pyo's documentation:
+
+http://ajaxsoundstudio.com/pyodoc/
+
+Latest sources and bug tracker:
+    
+https://github.com/belangeo/pyo
+
+
+Bug Fixes:
+    
+- Fixed TableRead which continues to play when freq is negative and loop is off.
+
+- Fixed CallAfter segfault when deleted inside its own callback.
+
+- Fixed segfault when updating ControlSlider value from the audio thread.
+
+- Updated liblo from 0.26 to 0.28 on Windows. This fixes a bug with socket
+not properly closed.
+
+- Fixed segfault in Resample_dealloc function.
+
+- Fixed libraries dynamic links in MacOS installer scripts.
+
+- Fixed TableRec, TrigTableRec and Looper time stream not started on play.
+
+Enhancements:
+
+- Added "speed" argument to Seq object. Useful to create continuous time
+deceleration or acceleration.
+
+- Added setRandomType(dist, x) method to SfMarkerShuffler object.
+
+- Added a "Copy" menu item in PyoObject.ctrl() and DataTable.graph() windows.
+
+
+Olivier
+
+================================================================================
+
+Hello all,
+
+I'm glad to announce the release of pyo 0.8.6, available for python 2.7 and 3.5.
+
+Pyo is a Python module written in C to help real-time digital signal processing
+script creation. It is available for Windows, macOS and linux. It is released
+under the LGPL 3 license.
+
+For more info, downloads and other links, see the official web site:
+
+http://ajaxsoundstudio.com/software/pyo/
+
+The documentation:
+
+http://ajaxsoundstudio.com/pyodoc/
+
+For the latest sources and bug tracker:
+
+https://github.com/belangeo/pyo
+
+
+Bug Fixes:
+    
+- Fixed TableRead which continues to play when freq is negative and loop is off.
+
+- Fixed CallAfter segfault when deleted inside its own callback.
+
+- Fixed segfault when updating ControlSlider value from the audio thread.
+
+- Updated liblo from 0.26 to 0.28 on Windows. This fixes a bug with socket
+not properly closed.
+
+- Fixed segfault in Resample_dealloc function.
+
+- Fixed libraries dynamic links in MacOS installer scripts.
+
+- Fixed TableRec, TrigTableRec and Looper time stream not started on play.
+
+Enhancements:
+
+- Added "speed" argument to Seq object. Useful to create continuous time
+deceleration or acceleration.
+
+- Added setRandomType(dist, x) method to SfMarkerShuffler object.
+
+- Added a "Copy" menu item in PyoObject.ctrl() and DataTable.graph() windows.
+
+
+Olivier Belanger
+belangeo@gmail.com
+http://olivier.ajaxsoundstudio.com/
+
+----
+
+P><A HREF="http://ajaxsoundstudio.com/software/pyo/">Pyo 0.8.6</A>
+Python DSP library. (21-Apr-17)
+

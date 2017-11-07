@@ -1,0 +1,162 @@
+[English version follows]
+
+Bonjour à tous,
+
+La version 0.8.7 de pyo est maintenant disponible en téléchargement :
+
+http://ajaxsoundstudio.com/software/pyo/
+
+La documentation:
+
+http://ajaxsoundstudio.com/pyodoc/
+
+Sources and suivi des bugs:
+    
+https://github.com/belangeo/pyo
+
+
+Bugs corrigés:
+
+- Désactivation des interfaces MIDI Microsoft par défaut. Une méthode a été
+  ajoutée au Server pour les activer, Server.allowMicrosoftMidiDevices().
+
+- La recherche de l'API de jack est inclu dans une exception pour les cas où
+  jack2-dbus est installé plutôt que jackd.
+
+- Correction de bugs dans la gestion des encodages de l'objet Expr.
+
+- Correction des dépendances sous Windows 10.
+
+- L'objet VoiceManager est maintenant proprement détruit.
+
+- Correction de l'encodage des chemins de fichiers, en particulier sous Windows.
+
+Amélioration:
+
+- La fenêtre graphique du serveur permet maintenant de dessiner les vu-mètres
+  jusqu'à 16 canaux. 
+
+- Ajout d'une méthode getInterpolated() à l'objet PyoMatrixObject. Permet de
+  récupérer la valeur d'une position donnée en nombres décimaux.
+
+- OscDataSend peut maintenant envoyer plus d'une message par buffer size.
+
+- Mise à jour des routines de compilation sous MacOS et Windows pour produire
+  des installeurs pour les versions 2.7, 3.5 et 3.6 de python.
+
+Olivier
+
+---
+
+Hello all,
+
+pyo 0.8.7 is now available to download on pyo's web site :
+
+http://ajaxsoundstudio.com/software/pyo/
+
+pyo's documentation:
+
+http://ajaxsoundstudio.com/pyodoc/
+
+Latest sources and bug tracker:
+    
+https://github.com/belangeo/pyo
+
+
+Bug Fixes:
+    
+- Disable Microsoft Midi devices by default. Added
+  Server.allowMicrosoftMidiDevices() method to enable them.
+
+- Wrap jack api detection inside a try-except statement in case
+  jack2-dbus is used instead of jackd.
+
+- Fixed bugs in Expr object's unicode handling.
+
+- Fixed windows 10 dependencies.
+
+- Fixed ending point of TableRec's time stream (now keep the last 
+  value instead of switching back to 0).
+
+- Fixed clean-up of VoiceManager object.
+
+- Fixed encoding of file path on windows for various objects.
+
+Enhancements:
+
+- The server now allow up to 16 channel rms outputs for GUI drawing.
+
+- Added getInterpolated method to PyoMatrixObject class. Returns the 
+  interpolated value for a floating-point position in the matrix.
+
+- OscDataSend now can send more than one message per buffer size.
+
+- Update MacOS and Windows build routine to compile for python 2.7,
+  3.5 and 3.6.
+      
+Olivier
+
+================================================================================
+
+Hello all,
+
+I'm glad to announce the release of pyo 0.8.7, available for python 2.7, 3.5 and 3.6.
+
+Pyo is a Python module written in C to help real-time digital signal processing
+script creation. It is available for Windows, macOS and linux. It is released
+under the LGPL 3 license.
+
+For more info, downloads and other links, see the official web site:
+
+http://ajaxsoundstudio.com/software/pyo/
+
+The documentation:
+
+http://ajaxsoundstudio.com/pyodoc/
+
+For the latest sources and bug tracker:
+
+https://github.com/belangeo/pyo
+
+
+Bug Fixes:
+    
+- Disable Microsoft Midi devices by default. Added
+  Server.allowMicrosoftMidiDevices() method to enable them.
+
+- Wrap jack api detection inside a try-except statement in case
+  jack2-dbus is used instead of jackd.
+
+- Fixed bugs in Expr object's unicode handling.
+
+- Fixed windows 10 dependencies.
+
+- Fixed ending point of TableRec's time stream (now keep the last 
+  value instead of switching back to 0).
+
+- Fixed clean-up of VoiceManager object.
+
+- Fixed encoding of file path on windows for various objects.
+
+Enhancements:
+
+- The server now allow up to 16 channel rms outputs for GUI drawing.
+
+- Added getInterpolated method to PyoMatrixObject class. Returns the 
+  interpolated value for a floating-point position in the matrix.
+
+- OscDataSend now can send more than one message per buffer size.
+
+- Update MacOS and Windows build routine to compile for python 2.7,
+  3.5 and 3.6.
+
+
+Olivier Belanger
+belangeo@gmail.com
+http://olivier.ajaxsoundstudio.com/
+
+----
+
+P><A HREF="http://ajaxsoundstudio.com/software/pyo/">Pyo 0.8.7</A>
+Python DSP library. (29-Aug-17)
+
