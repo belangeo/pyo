@@ -31,6 +31,7 @@ import sys
 import time
 import inspect
 import tempfile
+import locale
 from subprocess import call
 from weakref import proxy
 
@@ -149,8 +150,12 @@ def listscramble(lst):
 
 def stringencode(st):
     if sys.version_info[0] >= 3:
-        if type(st) is str:
-            st = st.encode(sys.getfilesystemencoding())
+        if sys.version_info[1] <= 5:
+            if type(st) is str:
+                st = st.encode(sys.getfilesystemencoding())
+        else:
+            if type(st) is str:
+                st = st.encode(locale.getpreferredencoding())
     return st
 
 def sndinfo(path, print=False):
