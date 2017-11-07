@@ -906,7 +906,7 @@ class Server(object):
                     self._fileformat = fileformat
                     self._server.recordOptions(self._dur, filename, self._fileformat, self._sampletype)
 
-        self._server.recstart(filename)
+        self._server.recstart(stringencode(filename))
 
     def recstop(self):
         """
