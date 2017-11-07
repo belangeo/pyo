@@ -621,6 +621,7 @@ extern PyTypeObject TableScanType;
 
 #define pyo_CLEAR \
     if (self->server != NULL) { \
+        Py_DECREF(self->server); \
         self->server = NULL; \
     } \
     if (self->stream != NULL) \
@@ -632,6 +633,7 @@ extern PyTypeObject TableScanType;
 
 #define pyo_table_CLEAR \
     if (self->server != NULL) { \
+        Py_DECREF(self->server); \
         self->server = NULL; \
     } \
     if (self->tablestream != NULL) \
@@ -639,6 +641,7 @@ extern PyTypeObject TableScanType;
 
 #define pyo_matrix_CLEAR \
     if (self->server != NULL) { \
+        Py_DECREF(self->server); \
         self->server = NULL; \
     } \
     if (self->matrixstream != NULL) \
@@ -681,6 +684,7 @@ extern PyTypeObject TableScanType;
 /* Init Server & Stream */
 #define INIT_OBJECT_COMMON \
     self->server = PyServer_get_server(); \
+    Py_INCREF(self->server); \
     self->mul = PyFloat_FromDouble(1); \
     self->add = PyFloat_FromDouble(0); \
     self->bufsize = PyInt_AsLong(PyObject_CallMethod(self->server, "getBufferSize", NULL)); \

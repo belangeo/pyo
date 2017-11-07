@@ -445,7 +445,6 @@ typedef struct {
     pyo_audio_HEAD
     PyObject *input;
     PVStream *input_stream;
-    //PVStream *pv_stream;
     int size;
     int hsize;
     int olaps;
@@ -616,7 +615,6 @@ PVSynth_traverse(PVSynth *self, visitproc visit, void *arg)
     pyo_VISIT
     Py_VISIT(self->input);
     Py_VISIT(self->input_stream);
-    //Py_VISIT(self->pv_stream);
     return 0;
 }
 
@@ -626,7 +624,6 @@ PVSynth_clear(PVSynth *self)
     pyo_CLEAR
     Py_CLEAR(self->input);
     Py_CLEAR(self->input_stream);
-    //Py_CLEAR(self->pv_stream);
     return 0;
 }
 
@@ -763,7 +760,6 @@ static PyObject * PVSynth_inplace_div(PVSynth *self, PyObject *arg) { INPLACE_DI
 static PyMemberDef PVSynth_members[] = {
 {"server", T_OBJECT_EX, offsetof(PVSynth, server), 0, "Pyo server."},
 {"stream", T_OBJECT_EX, offsetof(PVSynth, stream), 0, "Stream object."},
-//{"pv_stream", T_OBJECT_EX, offsetof(PVSynth, pv_stream), 0, "Phase Vocoder Stream object."},
 {"input", T_OBJECT_EX, offsetof(PVSynth, input), 0, "FFT sound object."},
 {"mul", T_OBJECT_EX, offsetof(PVSynth, mul), 0, "Mul factor."},
 {"add", T_OBJECT_EX, offsetof(PVSynth, add), 0, "Add factor."},
@@ -773,7 +769,6 @@ static PyMemberDef PVSynth_members[] = {
 static PyMethodDef PVSynth_methods[] = {
 {"getServer", (PyCFunction)PVSynth_getServer, METH_NOARGS, "Returns server object."},
 {"_getStream", (PyCFunction)PVSynth_getStream, METH_NOARGS, "Returns stream object."},
-//{"_getPVStream", (PyCFunction)PVSynth_getPVStream, METH_NOARGS, "Returns pvstream object."},
 {"play", (PyCFunction)PVSynth_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
 {"out", (PyCFunction)PVSynth_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
 {"stop", (PyCFunction)PVSynth_stop, METH_NOARGS, "Stops computing."},
