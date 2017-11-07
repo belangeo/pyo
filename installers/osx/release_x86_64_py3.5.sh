@@ -8,9 +8,9 @@
 # 3. cd utils and build E-Pyo for python3.5
 # 4. cd installers/osx and build the release for python3.5
 
-export PACKAGE_NAME=pyo_0.8.7_x86_64_py35.pkg
-export DMG_DIR="pyo 0.8.7 py35 Universal"
-export DMG_NAME="pyo_0.8.7_OSX_py35-universal.dmg"
+export PACKAGE_NAME=pyo_0.8.8_x86_64_py35.pkg
+export DMG_DIR="pyo 0.8.8 py35 Universal"
+export DMG_NAME="pyo_0.8.8_OSX_py35-universal.dmg"
 export INSTALLER_DIR=`pwd`/installer
 export PYO_MODULE_DIR=$INSTALLER_DIR/PyoModule/Package_Contents/tmp
 export SUPPORT_LIBS_DIR=$INSTALLER_DIR/SupportLibs/Package_Contents/usr/local/lib
