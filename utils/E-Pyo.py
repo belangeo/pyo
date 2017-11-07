@@ -446,7 +446,7 @@ class MyFrame(wx.Frame):
 
     def changeFreq(self, evt):
         x = evt.GetInt() * 0.01
-        self.frTxt.SetLabel("Freq: %.2f" % x)
+        self.frTxt.SetLabel("Freq: " + str(x))
         self.freqPort.value = x
 
 app = wx.App(False)
