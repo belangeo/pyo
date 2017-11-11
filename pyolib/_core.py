@@ -431,8 +431,8 @@ def pyoArgsAssert(obj, format, *args):
             if not isAudioObject(arg) and argtype not in [list]:
                 expected = "PyoObject"
         elif f == "T":
-            if not isTableObject(arg) and argtype not in [float, list]:
-                expected = "float or PyoTableObject"
+            if not isTableObject(arg) and argtype not in [int, float, list]:
+                expected = "int, float or PyoTableObject"
         elif f == "t":
             if not isTableObject(arg) and argtype not in [list]:
                 expected = "PyoTableObject"
