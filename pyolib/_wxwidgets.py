@@ -2908,7 +2908,7 @@ class ServerGUI(wx.Frame):
     def __init__(self, parent=None, nchnls=2, startf=None, stopf=None,
                 recstartf=None, recstopf=None, ampf=None, started=0,
                 locals=None, shutdown=None, meter=True, timer=True, amp=1.,
-                exit=True, getIsBooted=None):
+                exit=True, getIsBooted=None, getIsStarted=None):
         wx.Frame.__init__(self, parent, style=wx.DEFAULT_FRAME_STYLE ^ wx.RESIZE_BORDER)
 
         self.menubar = wx.MenuBar()
@@ -2930,6 +2930,7 @@ class ServerGUI(wx.Frame):
         self.ampf = ampf
         self.exit = exit
         self.getIsBooted = getIsBooted
+        self.getIsStarted = getIsStarted
         self._started = False
         self._recstarted = False
         self._history = []
@@ -3011,7 +3012,8 @@ class ServerGUI(wx.Frame):
             # TODO: Need a common method for every OSes.
             #wx.CallLater(100, self.stopf)
             #wx.CallAfter(self.stopf)
-            self.stopf()
+            if self.getIsStarted():
+                self.stopf()
 
     def record(self, evt):
         if self._recstarted == False:

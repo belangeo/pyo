@@ -235,7 +235,7 @@ class Server(object):
                                                self.recstart, self.recstop, self.setAmp,
                                                self.getIsStarted(), locals, self.shutdown,
                                                meter, timer, self._amp, exit, title,
-                                               self.getIsBooted)
+                                               self.getIsBooted, self.getIsStarted)
         if meter:
             self._server.setAmpCallable(self._gui_frame)
         if timer:
