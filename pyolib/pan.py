@@ -50,6 +50,16 @@ class Pan(PyoObject):
             Amount of sound leaking to the surrounding channels,
             between 0 and 1. Defaults to 0.5.
 
+    .. note::
+
+        When used with two output channels, the algorithm used is the
+        cosine/sine constant power panning law. The SPan object uses
+        the square root of intensity constant power panning law.
+
+    .. seealso::
+
+        :py:class:`SPan`, :py:class:`Switch`, :py:class:`Selector`
+
     >>> s = Server(nchnls=2).boot()
     >>> s.start()
     >>> a = Noise(mul=.2)
@@ -162,6 +172,16 @@ class SPan(PyoObject):
         pan: float or PyoObject
             Position of the sound on the panning circle, between 0 and 1.
             Defaults to 0.5.
+
+    .. note::
+
+        When used with two output channels, the algorithm used is the
+        square root of intensity constant power panning law. The Pan
+        object uses the cosine/sine constant power panning law.
+
+    .. seealso::
+
+        :py:class:`Pan`, :py:class:`Switch`, :py:class:`Selector`
 
     >>> s = Server(nchnls=2).boot()
     >>> s.start()

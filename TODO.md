@@ -10,7 +10,6 @@ To do ASAP!
 - Better error message when trying to open an input device but there is
   none on the system. Automatic deactivation of duplex mode if no input.
 
-
 This is a list of features/fixes to implement for future releases
 =================================================================
 
@@ -70,6 +69,8 @@ GUI
 - MixerGUI, an interface to control the routing of a Mixer object.
 
 - Keyboard, a virtual MIDI keyboard (adapted from Zyne's one).
+
+- A graphical representation of a parametric EQ.
 
 Tables
 ------

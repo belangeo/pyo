@@ -62,37 +62,33 @@ Panner_splitter_thru(Panner *self) {
 
 static void
 Panner_splitter_st_i(Panner *self) {
-    MYFLT val, inval;
     int i;
+    MYFLT inval, pi_over_two = PI / 2.0;
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
 
     MYFLT pan = PyFloat_AS_DOUBLE(self->pan);
-    pan = P_clip(pan);
+    pan = P_clip(pan) * pi_over_two;
 
     for (i=0; i<self->bufsize; i++) {
         inval = in[i];
-        val = inval * MYSQRT(1.0 - pan);
-        self->buffer_streams[i] = val;
-        val = inval * MYSQRT(pan);
-        self->buffer_streams[i+self->bufsize] = val;
+        self->buffer_streams[i] = inval * MYCOS(pan);
+        self->buffer_streams[i+self->bufsize] = inval * MYSIN(pan);
     }
 }
 
 static void
 Panner_splitter_st_a(Panner *self) {
-    MYFLT val, inval, panval;
     int i;
+    MYFLT inval, panval, pi_over_two = PI / 2.0;
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
 
     MYFLT *pan = Stream_getData((Stream *)self->pan_stream);
 
     for (i=0; i<self->bufsize; i++) {
         inval = in[i];
-        panval = P_clip(pan[i]);
-        val = inval * MYSQRT(1.0 - panval);
-        self->buffer_streams[i] = val;
-        val = inval * MYSQRT(panval);
-        self->buffer_streams[i+self->bufsize] = val;
+        panval = P_clip(pan[i]) * pi_over_two;
+        self->buffer_streams[i] = inval * MYCOS(panval);
+        self->buffer_streams[i+self->bufsize] = inval * MYSIN(panval);
     }
 }
 
