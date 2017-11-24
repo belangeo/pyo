@@ -50,6 +50,8 @@ Objects
 MIDI
 ----
 
+- Add a Server.makenote(pitch, velocity, duration, channel=0, timestamp=0) method.
+
 - Jack on windows.
 
 - Create a MidiLinseg object that act like MidiAdsr but with a breakpoints
