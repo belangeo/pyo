@@ -8134,7 +8134,7 @@ Reson_filters_ii(Reson *self) {
     }
 
     for (i=0; i<self->bufsize; i++) {
-        val = (self->a * in[i]) - (self->a * self->x2) - (self->b1 * self->y1) - (self->b2 * self->y2);
+        val = self->a * (in[i] - self->x2) - (self->b1 * self->y1) - (self->b2 * self->y2);
         self->y2 = self->y1;
         self->data[i] = self->y1 = val;
         self->x2 = self->x1;
@@ -8157,7 +8157,7 @@ Reson_filters_ai(Reson *self) {
             self->last_q = q;
             Reson_compute_coeffs(self, fr, q);
         }
-        val = (self->a * in[i]) - (self->a * self->x2) - (self->b1 * self->y1) - (self->b2 * self->y2);
+        val = self->a * (in[i] - self->x2) - (self->b1 * self->y1) - (self->b2 * self->y2);
         self->y2 = self->y1;
         self->data[i] = self->y1 = val;
         self->x2 = self->x1;
@@ -8180,7 +8180,7 @@ Reson_filters_ia(Reson *self) {
             self->last_q = q;
             Reson_compute_coeffs(self, fr, q);
         }
-        val = (self->a * in[i]) - (self->a * self->x2) - (self->b1 * self->y1) - (self->b2 * self->y2);
+        val = self->a * (in[i] - self->x2) - (self->b1 * self->y1) - (self->b2 * self->y2);
         self->y2 = self->y1;
         self->data[i] = self->y1 = val;
         self->x2 = self->x1;
@@ -8204,7 +8204,7 @@ Reson_filters_aa(Reson *self) {
             self->last_q = q;
             Reson_compute_coeffs(self, fr, q);
         }
-        val = (self->a * in[i]) - (self->a * self->x2) - (self->b1 * self->y1) - (self->b2 * self->y2);
+        val = self->a * (in[i] - self->x2) - (self->b1 * self->y1) - (self->b2 * self->y2);
         self->y2 = self->y1;
         self->data[i] = self->y1 = val;
         self->x2 = self->x1;
@@ -8637,7 +8637,7 @@ Resonx_filters_ii(Resonx *self) {
     for (i=0; i<self->bufsize; i++) {
         vin = in[i];
         for (j=0; j<self->stages; j++) {
-            vout = (self->a * vin) - (self->a * self->x2[j]) - (self->b1 * self->y1[j]) - (self->b2 * self->y2[j]);
+            vout = self->a * (vin - self->x2[j]) - (self->b1 * self->y1[j]) - (self->b2 * self->y2[j]);
             self->x2[j] = self->x1[j];
             self->x1[j] = vin;
             self->y2[j] = self->y1[j];
@@ -8665,7 +8665,7 @@ Resonx_filters_ai(Resonx *self) {
             Resonx_compute_coeffs(self, fr, q);
         }
         for (j=0; j<self->stages; j++) {
-            vout = (self->a * vin) - (self->a * self->x2[j]) - (self->b1 * self->y1[j]) - (self->b2 * self->y2[j]);
+            vout = self->a * (vin - self->x2[j]) - (self->b1 * self->y1[j]) - (self->b2 * self->y2[j]);
             self->x2[j] = self->x1[j];
             self->x1[j] = vin;
             self->y2[j] = self->y1[j];
@@ -8693,7 +8693,7 @@ Resonx_filters_ia(Resonx *self) {
             Resonx_compute_coeffs(self, fr, q);
         }
         for (j=0; j<self->stages; j++) {
-            vout = (self->a * vin) - (self->a * self->x2[j]) - (self->b1 * self->y1[j]) - (self->b2 * self->y2[j]);
+            vout = self->a * (vin - self->x2[j]) - (self->b1 * self->y1[j]) - (self->b2 * self->y2[j]);
             self->x2[j] = self->x1[j];
             self->x1[j] = vin;
             self->y2[j] = self->y1[j];
@@ -8722,7 +8722,7 @@ Resonx_filters_aa(Resonx *self) {
             Resonx_compute_coeffs(self, fr, q);
         }
         for (j=0; j<self->stages; j++) {
-            vout = (self->a * vin) - (self->a * self->x2[j]) - (self->b1 * self->y1[j]) - (self->b2 * self->y2[j]);
+            vout = self->a * (vin - self->x2[j]) - (self->b1 * self->y1[j]) - (self->b2 * self->y2[j]);
             self->x2[j] = self->x1[j];
             self->x1[j] = vin;
             self->y2[j] = self->y1[j];
