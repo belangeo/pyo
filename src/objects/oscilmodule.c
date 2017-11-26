@@ -4993,7 +4993,7 @@ Pulsar_readframes_iii(Pulsar *self) {
             e_pos = scl_pos * envsize;
             ipart = (int)e_pos;
             fpart = e_pos - ipart;
-            self->data[i] = tmp * (envlist[ipart] * (1.0 - fpart) + envlist[ipart+1] * fpart);
+            self->data[i] = tmp * (envlist[ipart] + (envlist[ipart+1] - envlist[ipart]) * fpart);
         }
         else {
             self->data[i] = 0.0;
@@ -5037,7 +5037,7 @@ Pulsar_readframes_aii(Pulsar *self) {
             e_pos = scl_pos * envsize;
             ipart = (int)e_pos;
             fpart = e_pos - ipart;
-            self->data[i] = tmp * (envlist[ipart] * (1.0 - fpart) + envlist[ipart+1] * fpart);
+            self->data[i] = tmp * (envlist[ipart] + (envlist[ipart+1] - envlist[ipart]) * fpart);
         }
         else {
             self->data[i] = 0.0;
@@ -5080,7 +5080,7 @@ Pulsar_readframes_iai(Pulsar *self) {
             e_pos = scl_pos * envsize;
             ipart = (int)e_pos;
             fpart = e_pos - ipart;
-            self->data[i] = tmp * (envlist[ipart] * (1.0 - fpart) + envlist[ipart+1] * fpart);
+            self->data[i] = tmp * (envlist[ipart] + (envlist[ipart+1] - envlist[ipart]) * fpart);
         }
         else {
             self->data[i] = 0.0;
@@ -5124,7 +5124,7 @@ Pulsar_readframes_aai(Pulsar *self) {
             e_pos = scl_pos * envsize;
             ipart = (int)e_pos;
             fpart = e_pos - ipart;
-            self->data[i] = tmp * (envlist[ipart] * (1.0 - fpart) + envlist[ipart+1] * fpart);
+            self->data[i] = tmp * (envlist[ipart] + (envlist[ipart+1] - envlist[ipart]) * fpart);
         }
         else {
             self->data[i] = 0.0;
@@ -5167,7 +5167,7 @@ Pulsar_readframes_iia(Pulsar *self) {
             e_pos = scl_pos * envsize;
             ipart = (int)e_pos;
             fpart = e_pos - ipart;
-            self->data[i] = tmp * (envlist[ipart] * (1.0 - fpart) + envlist[ipart+1] * fpart);
+            self->data[i] = tmp * (envlist[ipart] + (envlist[ipart+1] - envlist[ipart]) * fpart);
         }
         else {
             self->data[i] = 0.0;
@@ -5211,7 +5211,7 @@ Pulsar_readframes_aia(Pulsar *self) {
             e_pos = scl_pos * envsize;
             ipart = (int)e_pos;
             fpart = e_pos - ipart;
-            self->data[i] = tmp * (envlist[ipart] * (1.0 - fpart) + envlist[ipart+1] * fpart);
+            self->data[i] = tmp * (envlist[ipart] + (envlist[ipart+1] - envlist[ipart]) * fpart);
         }
         else {
             self->data[i] = 0.0;
@@ -5254,7 +5254,7 @@ Pulsar_readframes_iaa(Pulsar *self) {
             e_pos = scl_pos * envsize;
             ipart = (int)e_pos;
             fpart = e_pos - ipart;
-            self->data[i] = tmp * (envlist[ipart] * (1.0 - fpart) + envlist[ipart+1] * fpart);
+            self->data[i] = tmp * (envlist[ipart] + (envlist[ipart+1] - envlist[ipart]) * fpart);
         }
         else {
             self->data[i] = 0.0;
@@ -5298,7 +5298,7 @@ Pulsar_readframes_aaa(Pulsar *self) {
             e_pos = scl_pos * envsize;
             ipart = (int)e_pos;
             fpart = e_pos - ipart;
-            self->data[i] = tmp * (envlist[ipart] * (1.0 - fpart) + envlist[ipart+1] * fpart);
+            self->data[i] = tmp * (envlist[ipart] + (envlist[ipart+1] - envlist[ipart]) * fpart);
         }
         else {
             self->data[i] = 0.0;
@@ -6373,7 +6373,7 @@ Fm_readframes_iii(Fm *self) {
         self->pointerPos_mod = Sine_clip(self->pointerPos_mod);
         ipart = (int)self->pointerPos_mod;
         fpart = self->pointerPos_mod - ipart;
-        mod_val = mod_amp * (SINE_ARRAY[ipart] * (1.0 - fpart) + SINE_ARRAY[ipart+1] * fpart);
+        mod_val = mod_amp * (SINE_ARRAY[ipart] + (SINE_ARRAY[ipart+1] - SINE_ARRAY[ipart]) * fpart);
         self->pointerPos_mod += mod_delta;
 
         car_freq = car + mod_val;
@@ -6381,7 +6381,7 @@ Fm_readframes_iii(Fm *self) {
         self->pointerPos_car = Sine_clip(self->pointerPos_car);
         ipart = (int)self->pointerPos_car;
         fpart = self->pointerPos_car - ipart;
-        self->data[i] = SINE_ARRAY[ipart] * (1.0 - fpart) + SINE_ARRAY[ipart+1] * fpart;
+        self->data[i] = SINE_ARRAY[ipart] + (SINE_ARRAY[ipart+1] - SINE_ARRAY[ipart]) * fpart;
         self->pointerPos_car += car_delta;
     }
 }
@@ -6402,7 +6402,7 @@ Fm_readframes_aii(Fm *self) {
         self->pointerPos_mod = Sine_clip(self->pointerPos_mod);
         ipart = (int)self->pointerPos_mod;
         fpart = self->pointerPos_mod - ipart;
-        mod_val = mod_amp * (SINE_ARRAY[ipart] * (1.0 - fpart) + SINE_ARRAY[ipart+1] * fpart);
+        mod_val = mod_amp * (SINE_ARRAY[ipart] + (SINE_ARRAY[ipart+1] - SINE_ARRAY[ipart]) * fpart);
         self->pointerPos_mod += mod_delta;
 
         car_freq = car[i] + mod_val;
@@ -6410,7 +6410,7 @@ Fm_readframes_aii(Fm *self) {
         self->pointerPos_car = Sine_clip(self->pointerPos_car);
         ipart = (int)self->pointerPos_car;
         fpart = self->pointerPos_car - ipart;
-        self->data[i] = SINE_ARRAY[ipart] * (1.0 - fpart) + SINE_ARRAY[ipart+1] * fpart;
+        self->data[i] = SINE_ARRAY[ipart] + (SINE_ARRAY[ipart+1] - SINE_ARRAY[ipart]) * fpart;
         self->pointerPos_car += car_delta;
     }
 }
@@ -6431,7 +6431,7 @@ Fm_readframes_iai(Fm *self) {
         self->pointerPos_mod = Sine_clip(self->pointerPos_mod);
         ipart = (int)self->pointerPos_mod;
         fpart = self->pointerPos_mod - ipart;
-        mod_val = mod_amp * (SINE_ARRAY[ipart] * (1.0 - fpart) + SINE_ARRAY[ipart+1] * fpart);
+        mod_val = mod_amp * (SINE_ARRAY[ipart] + (SINE_ARRAY[ipart+1] - SINE_ARRAY[ipart]) * fpart);
         self->pointerPos_mod += mod_delta;
 
         car_freq = car + mod_val;
@@ -6439,7 +6439,7 @@ Fm_readframes_iai(Fm *self) {
         self->pointerPos_car = Sine_clip(self->pointerPos_car);
         ipart = (int)self->pointerPos_car;
         fpart = self->pointerPos_car - ipart;
-        self->data[i] = SINE_ARRAY[ipart] * (1.0 - fpart) + SINE_ARRAY[ipart+1] * fpart;
+        self->data[i] = SINE_ARRAY[ipart] + (SINE_ARRAY[ipart+1] - SINE_ARRAY[ipart]) * fpart;
         self->pointerPos_car += car_delta;
     }
 }
@@ -6460,7 +6460,7 @@ Fm_readframes_aai(Fm *self) {
         self->pointerPos_mod = Sine_clip(self->pointerPos_mod);
         ipart = (int)self->pointerPos_mod;
         fpart = self->pointerPos_mod - ipart;
-        mod_val = mod_amp * (SINE_ARRAY[ipart] * (1.0 - fpart) + SINE_ARRAY[ipart+1] * fpart);
+        mod_val = mod_amp * (SINE_ARRAY[ipart] + (SINE_ARRAY[ipart+1] - SINE_ARRAY[ipart]) * fpart);
         self->pointerPos_mod += mod_delta;
 
         car_freq = car[i] + mod_val;
@@ -6468,7 +6468,7 @@ Fm_readframes_aai(Fm *self) {
         self->pointerPos_car = Sine_clip(self->pointerPos_car);
         ipart = (int)self->pointerPos_car;
         fpart = self->pointerPos_car - ipart;
-        self->data[i] = SINE_ARRAY[ipart] * (1.0 - fpart) + SINE_ARRAY[ipart+1] * fpart;
+        self->data[i] = SINE_ARRAY[ipart] + (SINE_ARRAY[ipart+1] - SINE_ARRAY[ipart]) * fpart;
         self->pointerPos_car += car_delta;
     }}
 
@@ -6489,7 +6489,7 @@ Fm_readframes_iia(Fm *self) {
         self->pointerPos_mod = Sine_clip(self->pointerPos_mod);
         ipart = (int)self->pointerPos_mod;
         fpart = self->pointerPos_mod - ipart;
-        mod_val = mod_amp * (SINE_ARRAY[ipart] * (1.0 - fpart) + SINE_ARRAY[ipart+1] * fpart);
+        mod_val = mod_amp * (SINE_ARRAY[ipart] + (SINE_ARRAY[ipart+1] - SINE_ARRAY[ipart]) * fpart);
         self->pointerPos_mod += mod_delta;
 
         car_freq = car + mod_val;
@@ -6497,7 +6497,7 @@ Fm_readframes_iia(Fm *self) {
         self->pointerPos_car = Sine_clip(self->pointerPos_car);
         ipart = (int)self->pointerPos_car;
         fpart = self->pointerPos_car - ipart;
-        self->data[i] = SINE_ARRAY[ipart] * (1.0 - fpart) + SINE_ARRAY[ipart+1] * fpart;
+        self->data[i] = SINE_ARRAY[ipart] + (SINE_ARRAY[ipart+1] - SINE_ARRAY[ipart]) * fpart;
         self->pointerPos_car += car_delta;
     }
 }
@@ -6518,7 +6518,7 @@ Fm_readframes_aia(Fm *self) {
         self->pointerPos_mod = Sine_clip(self->pointerPos_mod);
         ipart = (int)self->pointerPos_mod;
         fpart = self->pointerPos_mod - ipart;
-        mod_val = mod_amp * (SINE_ARRAY[ipart] * (1.0 - fpart) + SINE_ARRAY[ipart+1] * fpart);
+        mod_val = mod_amp * (SINE_ARRAY[ipart] + (SINE_ARRAY[ipart+1] - SINE_ARRAY[ipart]) * fpart);
         self->pointerPos_mod += mod_delta;
 
         car_freq = car[i] + mod_val;
@@ -6526,7 +6526,7 @@ Fm_readframes_aia(Fm *self) {
         self->pointerPos_car = Sine_clip(self->pointerPos_car);
         ipart = (int)self->pointerPos_car;
         fpart = self->pointerPos_car - ipart;
-        self->data[i] = SINE_ARRAY[ipart] * (1.0 - fpart) + SINE_ARRAY[ipart+1] * fpart;
+        self->data[i] = SINE_ARRAY[ipart] + (SINE_ARRAY[ipart+1] - SINE_ARRAY[ipart]) * fpart;
         self->pointerPos_car += car_delta;
     }
 }
@@ -6547,7 +6547,7 @@ Fm_readframes_iaa(Fm *self) {
         self->pointerPos_mod = Sine_clip(self->pointerPos_mod);
         ipart = (int)self->pointerPos_mod;
         fpart = self->pointerPos_mod - ipart;
-        mod_val = mod_amp * (SINE_ARRAY[ipart] * (1.0 - fpart) + SINE_ARRAY[ipart+1] * fpart);
+        mod_val = mod_amp * (SINE_ARRAY[ipart] + (SINE_ARRAY[ipart+1] - SINE_ARRAY[ipart]) * fpart);
         self->pointerPos_mod += mod_delta;
 
         car_freq = car + mod_val;
@@ -6555,7 +6555,7 @@ Fm_readframes_iaa(Fm *self) {
         self->pointerPos_car = Sine_clip(self->pointerPos_car);
         ipart = (int)self->pointerPos_car;
         fpart = self->pointerPos_car - ipart;
-        self->data[i] = SINE_ARRAY[ipart] * (1.0 - fpart) + SINE_ARRAY[ipart+1] * fpart;
+        self->data[i] = SINE_ARRAY[ipart] + (SINE_ARRAY[ipart+1] - SINE_ARRAY[ipart]) * fpart;
         self->pointerPos_car += car_delta;
     }
 }
@@ -6576,7 +6576,7 @@ Fm_readframes_aaa(Fm *self) {
         self->pointerPos_mod = Sine_clip(self->pointerPos_mod);
         ipart = (int)self->pointerPos_mod;
         fpart = self->pointerPos_mod - ipart;
-        mod_val = mod_amp * (SINE_ARRAY[ipart] * (1.0 - fpart) + SINE_ARRAY[ipart+1] * fpart);
+        mod_val = mod_amp * (SINE_ARRAY[ipart] + (SINE_ARRAY[ipart+1] - SINE_ARRAY[ipart]) * fpart);
         self->pointerPos_mod += mod_delta;
 
         car_freq = car[i] + mod_val;
@@ -6584,7 +6584,7 @@ Fm_readframes_aaa(Fm *self) {
         self->pointerPos_car = Sine_clip(self->pointerPos_car);
         ipart = (int)self->pointerPos_car;
         fpart = self->pointerPos_car - ipart;
-        self->data[i] = SINE_ARRAY[ipart] * (1.0 - fpart) + SINE_ARRAY[ipart+1] * fpart;
+        self->data[i] = SINE_ARRAY[ipart] + (SINE_ARRAY[ipart+1] - SINE_ARRAY[ipart]) * fpart;
         self->pointerPos_car += car_delta;
     }
 }
@@ -7073,7 +7073,7 @@ CrossFm_readframes(CrossFm *self) {
         self->pointerPos_mod = Sine_clip(self->pointerPos_mod);
         ipart = (int)self->pointerPos_mod;
         fpart = self->pointerPos_mod - ipart;
-        mod_val = SINE_ARRAY[ipart] * (1.0 - fpart) + SINE_ARRAY[ipart+1] * fpart;
+        mod_val = SINE_ARRAY[ipart] + (SINE_ARRAY[ipart+1] - SINE_ARRAY[ipart]) * fpart;
         self->pointerPos_mod += mod_delta;
 
         car_freq = car[i] + (mod_val * mod_amp);
@@ -7081,7 +7081,7 @@ CrossFm_readframes(CrossFm *self) {
         self->pointerPos_car = Sine_clip(self->pointerPos_car);
         ipart = (int)self->pointerPos_car;
         fpart = self->pointerPos_car - ipart;
-        self->car_val = SINE_ARRAY[ipart] * (1.0 - fpart) + SINE_ARRAY[ipart+1] * fpart;
+        self->car_val = SINE_ARRAY[ipart] + (SINE_ARRAY[ipart+1] - SINE_ARRAY[ipart]) * fpart;
         self->pointerPos_car += car_delta;
         self->data[i] = (self->car_val + mod_val) * 0.5;
     }
