@@ -1335,7 +1335,7 @@ Switcher_clip_voice(Switcher *self, MYFLT v) {
 
 static void
 Switcher_splitter_i(Switcher *self) {
-    MYFLT val, inval, voice1, voice2;
+    MYFLT inval, voice1, voice2;
     int j1, j, i;
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
     MYFLT voice = Switcher_clip_voice(self, PyFloat_AS_DOUBLE(self->voice));
@@ -1360,10 +1360,8 @@ Switcher_splitter_i(Switcher *self) {
 
     for (i=0; i<self->bufsize; i++) {
         inval = in[i];
-        val = inval * voice1;
-        self->buffer_streams[i+self->k1] = val;
-        val = inval * voice2;
-        self->buffer_streams[i+self->k2] = val;
+        self->buffer_streams[i+self->k1] = inval * voice1;
+        self->buffer_streams[i+self->k2] = inval * voice2;
     }
 }
 
