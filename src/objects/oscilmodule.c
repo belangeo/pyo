@@ -75,7 +75,7 @@ typedef struct {
 
 static void
 Sine_readframes_ii(Sine *self) {
-    MYFLT inc, fr, ph, pos, fpart;
+    MYFLT inc, fr, ph, pos;
     int i, ipart;
 
     fr = PyFloat_AS_DOUBLE(self->freq);
@@ -88,15 +88,14 @@ Sine_readframes_ii(Sine *self) {
         if (pos >= 512)
             pos -= 512;
         ipart = (int)pos;
-        fpart = pos - ipart;
-        self->data[i] = SINE_ARRAY[ipart] * (1.0 - fpart) + SINE_ARRAY[ipart+1] * fpart;
+        self->data[i] = SINE_ARRAY[ipart] + (SINE_ARRAY[ipart+1] - SINE_ARRAY[ipart]) * (pos - ipart);
         self->pointerPos += inc;
     }
 }
 
 static void
 Sine_readframes_ai(Sine *self) {
-    MYFLT inc, ph, pos, fpart, fac;
+    MYFLT inc, ph, pos, fac;
     int i, ipart;
 
     MYFLT *fr = Stream_getData((Stream *)self->freq_stream);
@@ -110,15 +109,14 @@ Sine_readframes_ai(Sine *self) {
         if (pos >= 512)
             pos -= 512;
         ipart = (int)pos;
-        fpart = pos - ipart;
-        self->data[i] = SINE_ARRAY[ipart] * (1.0 - fpart) + SINE_ARRAY[ipart+1] * fpart;
+        self->data[i] = SINE_ARRAY[ipart] + (SINE_ARRAY[ipart+1] - SINE_ARRAY[ipart]) * (pos - ipart);
         self->pointerPos += inc;
     }
 }
 
 static void
 Sine_readframes_ia(Sine *self) {
-    MYFLT inc, fr, pos, fpart;
+    MYFLT inc, fr, pos;
     int i, ipart;
 
     fr = PyFloat_AS_DOUBLE(self->freq);
@@ -131,15 +129,14 @@ Sine_readframes_ia(Sine *self) {
         if (pos >= 512)
             pos -= 512;
         ipart = (int)pos;
-        fpart = pos - ipart;
-        self->data[i] = SINE_ARRAY[ipart] * (1.0 - fpart) + SINE_ARRAY[ipart+1] * fpart;
+        self->data[i] = SINE_ARRAY[ipart] + (SINE_ARRAY[ipart+1] - SINE_ARRAY[ipart]) * (pos - ipart);
         self->pointerPos += inc;
     }
 }
 
 static void
 Sine_readframes_aa(Sine *self) {
-    MYFLT inc, pos, fpart, fac;
+    MYFLT inc, pos, fac;
     int i, ipart;
 
     MYFLT *fr = Stream_getData((Stream *)self->freq_stream);
@@ -153,8 +150,7 @@ Sine_readframes_aa(Sine *self) {
         if (pos >= 512)
             pos -= 512;
         ipart = (int)pos;
-        fpart = pos - ipart;
-        self->data[i] = SINE_ARRAY[ipart] * (1.0 - fpart) + SINE_ARRAY[ipart+1] * fpart;
+        self->data[i] = SINE_ARRAY[ipart] + (SINE_ARRAY[ipart+1] - SINE_ARRAY[ipart]) * (pos - ipart);
         self->pointerPos += inc;
     }
 }
@@ -1061,7 +1057,7 @@ typedef struct {
 
 static void
 SineLoop_readframes_ii(SineLoop *self) {
-    MYFLT inc, fr, feed, pos, fpart;
+    MYFLT inc, fr, feed, pos;
     int i, ipart;
 
     fr = PyFloat_AS_DOUBLE(self->freq);
@@ -1072,15 +1068,14 @@ SineLoop_readframes_ii(SineLoop *self) {
         self->pointerPos = Sine_clip(self->pointerPos);
         pos = Sine_clip(self->pointerPos + self->lastValue * feed);
         ipart = (int)pos;
-        fpart = pos - ipart;
-        self->data[i] = self->lastValue = SINE_ARRAY[ipart] * (1.0 - fpart) + SINE_ARRAY[ipart+1] * fpart;
+        self->data[i] = self->lastValue = SINE_ARRAY[ipart] + (SINE_ARRAY[ipart+1] - SINE_ARRAY[ipart]) * (pos - ipart);
         self->pointerPos += inc;
     }
 }
 
 static void
 SineLoop_readframes_ai(SineLoop *self) {
-    MYFLT inc, feed, pos, fpart, fac;
+    MYFLT inc, feed, pos, fac;
     int i, ipart;
 
     MYFLT *fr = Stream_getData((Stream *)self->freq_stream);
@@ -1092,15 +1087,14 @@ SineLoop_readframes_ai(SineLoop *self) {
         self->pointerPos = Sine_clip(self->pointerPos);
         pos = Sine_clip(self->pointerPos + self->lastValue * feed);
         ipart = (int)pos;
-        fpart = pos - ipart;
-        self->data[i] = self->lastValue = SINE_ARRAY[ipart] * (1.0 - fpart) + SINE_ARRAY[ipart+1] * fpart;
+        self->data[i] = self->lastValue = SINE_ARRAY[ipart] + (SINE_ARRAY[ipart+1] - SINE_ARRAY[ipart]) * (pos - ipart);
         self->pointerPos += inc;
     }
 }
 
 static void
 SineLoop_readframes_ia(SineLoop *self) {
-    MYFLT inc, fr, feed, pos, fpart;
+    MYFLT inc, fr, feed, pos;
     int i, ipart;
 
     fr = PyFloat_AS_DOUBLE(self->freq);
@@ -1112,15 +1106,14 @@ SineLoop_readframes_ia(SineLoop *self) {
         self->pointerPos = Sine_clip(self->pointerPos);
         pos = Sine_clip(self->pointerPos + self->lastValue * feed);
         ipart = (int)pos;
-        fpart = pos - ipart;
-        self->data[i] = self->lastValue = SINE_ARRAY[ipart] * (1.0 - fpart) + SINE_ARRAY[ipart+1] * fpart;
+        self->data[i] = self->lastValue = SINE_ARRAY[ipart] + (SINE_ARRAY[ipart+1] - SINE_ARRAY[ipart]) * (pos - ipart);
         self->pointerPos += inc;
     }
 }
 
 static void
 SineLoop_readframes_aa(SineLoop *self) {
-    MYFLT inc, feed, pos, fpart, fac;
+    MYFLT inc, feed, pos, fac;
     int i, ipart;
 
     MYFLT *fr = Stream_getData((Stream *)self->freq_stream);
@@ -1133,8 +1126,7 @@ SineLoop_readframes_aa(SineLoop *self) {
         self->pointerPos = Sine_clip(self->pointerPos);
         pos = Sine_clip(self->pointerPos + self->lastValue * feed);
         ipart = (int)pos;
-        fpart = pos - ipart;
-        self->data[i] = self->lastValue = SINE_ARRAY[ipart] * (1.0 - fpart) + SINE_ARRAY[ipart+1] * fpart;
+        self->data[i] = self->lastValue = SINE_ARRAY[ipart] + (SINE_ARRAY[ipart+1] - SINE_ARRAY[ipart]) * (pos - ipart);
         self->pointerPos += inc;
     }
 }
