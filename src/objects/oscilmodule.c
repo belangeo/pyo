@@ -2016,7 +2016,7 @@ typedef struct {
 
 static void
 OscLoop_readframes_ii(OscLoop *self) {
-    MYFLT fr, feed, pos, inc, fpart;
+    MYFLT fr, feed, pos, inc;
     int i, ipart;
     MYFLT *tablelist = TableStream_getData(self->table);
     int size = TableStream_getSize(self->table);
@@ -2034,14 +2034,13 @@ OscLoop_readframes_ii(OscLoop *self) {
         else if (pos < 0)
             pos += size;
         ipart = (int)pos;
-        fpart = pos - ipart;
-        self->data[i] = self->lastValue = tablelist[ipart] * (1.0 - fpart) + tablelist[ipart+1] * fpart;
+        self->data[i] = self->lastValue = tablelist[ipart] + (tablelist[ipart+1] - tablelist[ipart]) * (pos - ipart);
     }
 }
 
 static void
 OscLoop_readframes_ai(OscLoop *self) {
-    MYFLT inc, feed, pos, fpart, sizeOnSr;
+    MYFLT inc, feed, pos, sizeOnSr;
     int i, ipart;
     MYFLT *tablelist = TableStream_getData(self->table);
     int size = TableStream_getSize(self->table);
@@ -2060,14 +2059,13 @@ OscLoop_readframes_ai(OscLoop *self) {
         else if (pos < 0)
             pos += size;
         ipart = (int)pos;
-        fpart = pos - ipart;
-        self->data[i] = self->lastValue = tablelist[ipart] * (1.0 - fpart) + tablelist[ipart+1] * fpart;
+        self->data[i] = self->lastValue = tablelist[ipart] + (tablelist[ipart+1] - tablelist[ipart]) * (pos - ipart);
     }
 }
 
 static void
 OscLoop_readframes_ia(OscLoop *self) {
-    MYFLT fr, feed, pos, inc, fpart;
+    MYFLT fr, feed, pos, inc;
     int i, ipart;
     MYFLT *tablelist = TableStream_getData(self->table);
     int size = TableStream_getSize(self->table);
@@ -2086,14 +2084,13 @@ OscLoop_readframes_ia(OscLoop *self) {
         else if (pos < 0)
             pos += size;
         ipart = (int)pos;
-        fpart = pos - ipart;
-        self->data[i] = self->lastValue = tablelist[ipart] * (1.0 - fpart) + tablelist[ipart+1] * fpart;
+        self->data[i] = self->lastValue = tablelist[ipart] + (tablelist[ipart+1] - tablelist[ipart]) * (pos - ipart);
     }
 }
 
 static void
 OscLoop_readframes_aa(OscLoop *self) {
-    MYFLT inc, feed, pos, fpart, sizeOnSr;
+    MYFLT inc, feed, pos, sizeOnSr;
     int i, ipart;
     MYFLT *tablelist = TableStream_getData(self->table);
     int size = TableStream_getSize(self->table);
@@ -2113,8 +2110,7 @@ OscLoop_readframes_aa(OscLoop *self) {
         else if (pos < 0)
             pos += size;
         ipart = (int)pos;
-        fpart = pos - ipart;
-        self->data[i] = self->lastValue = tablelist[ipart] * (1.0 - fpart) + tablelist[ipart+1] * fpart;
+        self->data[i] = self->lastValue = tablelist[ipart] + (tablelist[ipart+1] - tablelist[ipart]) * (pos - ipart);
     }
 }
 
