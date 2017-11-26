@@ -650,7 +650,6 @@ typedef struct {
 
 static void
 Interp_filters_i(Interp *self) {
-    MYFLT amp2;
     int i;
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
     MYFLT *in2 = Stream_getData((Stream *)self->input2_stream);
@@ -661,15 +660,14 @@ Interp_filters_i(Interp *self) {
     else if (inter > 1.0)
         inter = 1.0;
 
-    amp2 = 1.0 - inter;
     for (i=0; i<self->bufsize; i++) {
-        self->data[i] = in[i] * amp2 + in2[i] * inter;
+        self->data[i] = in[i] + (in2[i] - in[i]) * inter;
     }
 }
 
 static void
 Interp_filters_a(Interp *self) {
-    MYFLT amp1, amp2;
+    MYFLT amp1;
     int i;
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
     MYFLT *in2 = Stream_getData((Stream *)self->input2_stream);
@@ -682,8 +680,7 @@ Interp_filters_a(Interp *self) {
         else if (amp1 > 1.0)
             amp1 = 1.0;
 
-        amp2 = 1.0 - amp1;
-        self->data[i] = in[i] * amp2 + in2[i] * amp1;
+        self->data[i] = in[i] + (in2[i] - in[i]) * amp1;
     }
 }
 
