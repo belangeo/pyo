@@ -3871,14 +3871,14 @@ typedef struct {
     int autosmooth; /* 0 = off, > 0 = on */
     MYFLT y1;
     MYFLT y2;
-    MYFLT c;
     MYFLT lastPh;
+    MYFLT mTwoPiOverSr;
     MYFLT (*interp_func_ptr)(MYFLT *, int, MYFLT, int);
 } Pointer2;
 
 static void
 Pointer2_readframes_a(Pointer2 *self) {
-    MYFLT fpart, phdiff, b, fr;
+    MYFLT fpart, phdiff, c, fr;
     double ph;
     int i, ipart;
     MYFLT *tablelist = TableStream_getData(self->table);
@@ -3905,10 +3905,9 @@ Pointer2_readframes_a(Pointer2 *self) {
             self->lastPh = ph;
             if (phdiff < 1) {
                 fr = phdiff * tableSr * 0.45;
-                b = 2.0 - MYCOS(TWOPI * fr / self->sr);
-                self->c = (b - MYSQRT(b * b - 1.0));
-                self->y1 = self->data[i] + (self->y1 - self->data[i]) * self->c;
-                self->data[i] = self->y2 = self->y1 + (self->y2 - self->y1) * self->c;
+                c = MYEXP(self->mTwoPiOverSr * fr);
+                self->y1 = self->data[i] + (self->y1 - self->data[i]) * c;
+                self->data[i] = self->y2 = self->y1 + (self->y2 - self->y1) * c;
             }
             else
                 self->y1 = self->y2 = self->data[i];
@@ -4012,11 +4011,13 @@ Pointer2_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 	self->modebuffer[1] = 0;
     self->interp = 4;
     self->autosmooth = 1;
-    self->y1 = self->y2 = self->c = self->lastPh = 0.0;
+    self->y1 = self->y2 = self->lastPh = 0.0;
 
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, Pointer2_compute_next_data_frame);
     self->mode_func_ptr = Pointer2_setProcMode;
+
+    self->mTwoPiOverSr = -TWOPI / self->sr;
 
     static char *kwlist[] = {"table", "index", "interp", "autosmooth", "mul", "add", NULL};
 
