@@ -76,7 +76,7 @@ Noise_setProcMode(Noise *self)
             self->proc_func_ptr = Noise_generate_cheap;
             break;
     }
-	switch (muladdmode) {
+    switch (muladdmode) {
         case 0:
             self->muladd_func_ptr = Noise_postprocessing_ii;
             break;
@@ -145,8 +145,8 @@ Noise_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self = (Noise *)type->tp_alloc(type, 0);
 
     self->type = 0;
-	self->modebuffer[0] = 0;
-	self->modebuffer[1] = 0;
+    self->modebuffer[0] = 0;
+    self->modebuffer[1] = 0;
 
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, Noise_compute_next_data_frame);
@@ -300,10 +300,10 @@ Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECK
 "Noise objects. White noise generator.",           /* tp_doc */
 (traverseproc)Noise_traverse,   /* tp_traverse */
 (inquiry)Noise_clear,           /* tp_clear */
-0,		               /* tp_richcompare */
-0,		               /* tp_weaklistoffset */
-0,		               /* tp_iter */
-0,		               /* tp_iternext */
+0,                         /* tp_richcompare */
+0,                         /* tp_weaklistoffset */
+0,                         /* tp_iter */
+0,                         /* tp_iternext */
 Noise_methods,             /* tp_methods */
 Noise_members,             /* tp_members */
 0,                      /* tp_getset */
@@ -364,7 +364,7 @@ PinkNoise_setProcMode(PinkNoise *self)
     int muladdmode;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
 
-	switch (muladdmode) {
+    switch (muladdmode) {
         case 0:
             self->muladd_func_ptr = PinkNoise_postprocessing_ii;
             break;
@@ -433,8 +433,8 @@ PinkNoise_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self = (PinkNoise *)type->tp_alloc(type, 0);
 
     self->c0 = self->c1 = self->c2 = self->c3 = self->c4 = self->c5 = self->c6 = 0.0;
-	self->modebuffer[0] = 0;
-	self->modebuffer[1] = 0;
+    self->modebuffer[0] = 0;
+    self->modebuffer[1] = 0;
 
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, PinkNoise_compute_next_data_frame);
@@ -569,10 +569,10 @@ PyTypeObject PinkNoiseType = {
     "PinkNoise objects. Pink noise generator.",           /* tp_doc */
     (traverseproc)PinkNoise_traverse,   /* tp_traverse */
     (inquiry)PinkNoise_clear,           /* tp_clear */
-    0,		               /* tp_richcompare */
-    0,		               /* tp_weaklistoffset */
-    0,		               /* tp_iter */
-    0,		               /* tp_iternext */
+    0,                         /* tp_richcompare */
+    0,                         /* tp_weaklistoffset */
+    0,                         /* tp_iter */
+    0,                         /* tp_iternext */
     PinkNoise_methods,             /* tp_methods */
     PinkNoise_members,             /* tp_members */
     0,                      /* tp_getset */
@@ -590,20 +590,18 @@ typedef struct {
     pyo_audio_HEAD
     int modebuffer[2];
     MYFLT y1;
-    MYFLT c1;
-    MYFLT c2;
+    MYFLT c;
 } BrownNoise;
 
 static void
 BrownNoise_generate(BrownNoise *self) {
-    MYFLT rnd, val;
+    MYFLT rnd;
     int i;
 
     for (i=0; i<self->bufsize; i++) {
         rnd = RANDOM_UNIFORM * 1.98 - 0.99;
-        val = self->c1 * rnd + self->c2 * self->y1;
-        self->y1 = val;
-        self->data[i] = val * 20.0; /* gain compensation */
+        self->y1 = rnd + (self->y1 - rnd) * self->c;
+        self->data[i] = self->y1 * 20.0; /* gain compensation */
     }
 }
 
@@ -623,7 +621,7 @@ BrownNoise_setProcMode(BrownNoise *self)
     int muladdmode;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
 
-	switch (muladdmode) {
+    switch (muladdmode) {
         case 0:
             self->muladd_func_ptr = BrownNoise_postprocessing_ii;
             break;
@@ -692,9 +690,9 @@ BrownNoise_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     BrownNoise *self;
     self = (BrownNoise *)type->tp_alloc(type, 0);
 
-	self->modebuffer[0] = 0;
-	self->modebuffer[1] = 0;
-    self->y1 = self->c1 = self->c2 = 0.0;
+    self->modebuffer[0] = 0;
+    self->modebuffer[1] = 0;
+    self->y1 = self->c = 0.0;
 
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, BrownNoise_compute_next_data_frame);
@@ -716,8 +714,7 @@ BrownNoise_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
     b = 2.0 - MYCOS(TWOPI * 20.0 / self->sr);
-    self->c2 = (b - MYSQRT(b * b - 1.0));
-    self->c1 = 1.0 - self->c2;
+    self->c = (b - MYSQRT(b * b - 1.0));
 
     (*self->mode_func_ptr)(self);
 
@@ -833,10 +830,10 @@ PyTypeObject BrownNoiseType = {
     "BrownNoise objects. Brown noise generator (-6dB/octave rolloff).",           /* tp_doc */
     (traverseproc)BrownNoise_traverse,   /* tp_traverse */
     (inquiry)BrownNoise_clear,           /* tp_clear */
-    0,		               /* tp_richcompare */
-    0,		               /* tp_weaklistoffset */
-    0,		               /* tp_iter */
-    0,		               /* tp_iternext */
+    0,                         /* tp_richcompare */
+    0,                         /* tp_weaklistoffset */
+    0,                         /* tp_iter */
+    0,                         /* tp_iternext */
     BrownNoise_methods,             /* tp_methods */
     BrownNoise_members,             /* tp_members */
     0,                      /* tp_getset */
