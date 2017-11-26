@@ -726,26 +726,23 @@ SPanner_splitter_thru(SPanner *self) {
 
 static void
 SPanner_splitter_st_i(SPanner *self) {
-    MYFLT val, inval;
     int i;
+    MYFLT inval;
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
 
-    MYFLT pan = PyFloat_AS_DOUBLE(self->pan);
-    pan = P_clip(pan);
+    MYFLT pan = P_clip(PyFloat_AS_DOUBLE(self->pan));
 
     for (i=0; i<self->bufsize; i++) {
         inval = in[i];
-        val = inval * MYSQRT(1.0 - pan);
-        self->buffer_streams[i] = val;
-        val = inval * MYSQRT(pan);
-        self->buffer_streams[i+self->bufsize] = val;
+        self->buffer_streams[i] = inval * MYSQRT(1.0 - pan);
+        self->buffer_streams[i+self->bufsize] = inval * MYSQRT(pan);
     }
 }
 
 static void
 SPanner_splitter_st_a(SPanner *self) {
-    MYFLT val, inval, panval;
     int i;
+    MYFLT inval, panval;
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
 
     MYFLT *pan = Stream_getData((Stream *)self->pan_stream);
@@ -753,16 +750,14 @@ SPanner_splitter_st_a(SPanner *self) {
     for (i=0; i<self->bufsize; i++) {
         inval = in[i];
         panval = P_clip(pan[i]);
-        val = inval * MYSQRT(1.0 - panval);
-        self->buffer_streams[i] = val;
-        val = inval * MYSQRT(panval);
-        self->buffer_streams[i+self->bufsize] = val;
+        self->buffer_streams[i] = inval * MYSQRT(1.0 - panval);
+        self->buffer_streams[i+self->bufsize] = inval * MYSQRT(panval);
     }
 }
 
 static void
 SPanner_splitter_i(SPanner *self) {
-    MYFLT val, inval, min, pan1, pan2;
+    MYFLT inval, min, pan1, pan2;
     int j, i;
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
     MYFLT pan = PyFloat_AS_DOUBLE(self->pan);
@@ -795,16 +790,14 @@ SPanner_splitter_i(SPanner *self) {
     pan2 = MYSQRT(pan);
     for (i=0; i<self->bufsize; i++) {
         inval = in[i];
-        val = inval * pan1;
-        self->buffer_streams[i+self->k1] = val;
-        val = inval * pan2;
-        self->buffer_streams[i+self->k2] = val;
+        self->buffer_streams[i+self->k1] = inval * pan1;
+        self->buffer_streams[i+self->k2] = inval * pan2;
     }
 }
 
 static void
 SPanner_splitter_a(SPanner *self) {
-    MYFLT val, inval, min, pan;
+    MYFLT inval, min, pan;
     int i, j, j1, len;
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
     MYFLT *apan = Stream_getData((Stream *)self->pan_stream);
@@ -836,10 +829,8 @@ SPanner_splitter_a(SPanner *self) {
         }
 
         pan = P_clip((pan - min) * self->chnls);
-        val = inval * MYSQRT(1.0 - pan);
-        self->buffer_streams[i+self->k1] = val;
-        val = inval * MYSQRT(pan);
-        self->buffer_streams[i+self->k2] = val;
+        self->buffer_streams[i+self->k1] = inval * MYSQRT(1.0 - pan);
+        self->buffer_streams[i+self->k2] = inval * MYSQRT(pan);
     }
 }
 
