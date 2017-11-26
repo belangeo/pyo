@@ -95,7 +95,7 @@ Freeverb_calc_nsamples(Freeverb *self, MYFLT delTime)
 
 static void
 Freeverb_transform_iii(Freeverb *self) {
-    MYFLT x, feedback, damp1, damp2, mix1, mix2;
+    MYFLT x, feedback, damp, mix1, mix2;
     int i, j;
 
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
@@ -104,8 +104,7 @@ Freeverb_transform_iii(Freeverb *self) {
     MYFLT mix = _clip(PyFloat_AS_DOUBLE(self->mix));
 
     feedback = siz * scaleRoom + offsetRoom;
-    damp1 = dam * scaleDamp;
-    damp2 = 1.0 - damp1;
+    damp = dam * scaleDamp;
 
     mix1 = MYSQRT(mix);
     mix2 = MYSQRT(1.0 - mix);
@@ -117,7 +116,7 @@ Freeverb_transform_iii(Freeverb *self) {
         for (i=0; i<NUM_COMB; i++) {
             x = self->comb_buf[i][self->comb_bufPos[i]];
             tmp[j] += x;
-            self->comb_filterState[i] = (self->comb_filterState[i] * damp1) + (x * damp2);
+            self->comb_filterState[i] = x + (self->comb_filterState[i] - x) * damp;
             x = self->comb_filterState[i] * feedback + in[j];
             self->comb_buf[i][self->comb_bufPos[i]] = x;
             self->comb_bufPos[i]++;
@@ -145,7 +144,7 @@ Freeverb_transform_iii(Freeverb *self) {
 
 static void
 Freeverb_transform_aii(Freeverb *self) {
-    MYFLT x, feedback, damp1, damp2, mix1, mix2;
+    MYFLT x, feedback, damp, mix1, mix2;
     int i, j;
 
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
@@ -153,8 +152,7 @@ Freeverb_transform_aii(Freeverb *self) {
     MYFLT dam = _clip(PyFloat_AS_DOUBLE(self->damp));
     MYFLT mix = _clip(PyFloat_AS_DOUBLE(self->mix));
 
-    damp1 = dam * scaleDamp;
-    damp2 = 1.0 - damp1;
+    damp = dam * scaleDamp;
 
     mix1 = MYSQRT(mix);
     mix2 = MYSQRT(1.0 - mix);
@@ -167,7 +165,7 @@ Freeverb_transform_aii(Freeverb *self) {
         for (i=0; i<NUM_COMB; i++) {
             x = self->comb_buf[i][self->comb_bufPos[i]];
             tmp[j] += x;
-            self->comb_filterState[i] = (self->comb_filterState[i] * damp1) + (x * damp2);
+            self->comb_filterState[i] = x + (self->comb_filterState[i] - x) * damp;
             x = self->comb_filterState[i] * feedback + in[j];
             self->comb_buf[i][self->comb_bufPos[i]] = x;
             self->comb_bufPos[i]++;
@@ -195,7 +193,7 @@ Freeverb_transform_aii(Freeverb *self) {
 
 static void
 Freeverb_transform_iai(Freeverb *self) {
-    MYFLT x, feedback, damp1, damp2, mix1, mix2;
+    MYFLT x, feedback, damp, mix1, mix2;
     int i, j;
 
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
@@ -212,12 +210,11 @@ Freeverb_transform_iai(Freeverb *self) {
     memset(&tmp, 0, sizeof(tmp));
 
     for (j=0; j<self->bufsize; j++) {
-        damp1 = _clip(dam[j]) * scaleDamp;
-        damp2 = 1.0 - damp1;
+        damp = _clip(dam[j]) * scaleDamp;
         for (i=0; i<NUM_COMB; i++) {
             x = self->comb_buf[i][self->comb_bufPos[i]];
             tmp[j] += x;
-            self->comb_filterState[i] = (self->comb_filterState[i] * damp1) + (x * damp2);
+            self->comb_filterState[i] = x + (self->comb_filterState[i] - x) * damp;
             x = self->comb_filterState[i] * feedback + in[j];
             self->comb_buf[i][self->comb_bufPos[i]] = x;
             self->comb_bufPos[i]++;
@@ -245,7 +242,7 @@ Freeverb_transform_iai(Freeverb *self) {
 
 static void
 Freeverb_transform_aai(Freeverb *self) {
-    MYFLT x, feedback, damp1, damp2, mix1, mix2;
+    MYFLT x, feedback, damp, mix1, mix2;
     int i, j;
 
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
@@ -261,12 +258,11 @@ Freeverb_transform_aai(Freeverb *self) {
 
     for (j=0; j<self->bufsize; j++) {
         feedback = _clip(siz[j]) * scaleRoom + offsetRoom;
-        damp1 = _clip(dam[j]) * scaleDamp;
-        damp2 = 1.0 - damp1;
+        damp = _clip(dam[j]) * scaleDamp;
         for (i=0; i<NUM_COMB; i++) {
             x = self->comb_buf[i][self->comb_bufPos[i]];
             tmp[j] += x;
-            self->comb_filterState[i] = (self->comb_filterState[i] * damp1) + (x * damp2);
+            self->comb_filterState[i] = x + (self->comb_filterState[i] - x) * damp;
             x = self->comb_filterState[i] * feedback + in[j];
             self->comb_buf[i][self->comb_bufPos[i]] = x;
             self->comb_bufPos[i]++;
@@ -294,7 +290,7 @@ Freeverb_transform_aai(Freeverb *self) {
 
 static void
 Freeverb_transform_iia(Freeverb *self) {
-    MYFLT x, feedback, damp1, damp2, mix1, mix2, mixtmp;
+    MYFLT x, feedback, damp, mix1, mix2, mixtmp;
     int i, j;
 
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
@@ -303,8 +299,7 @@ Freeverb_transform_iia(Freeverb *self) {
     MYFLT *mix = Stream_getData((Stream *)self->mix_stream);
 
     feedback = siz * scaleRoom + offsetRoom;
-    damp1 = dam * scaleDamp;
-    damp2 = 1.0 - damp1;
+    damp = dam * scaleDamp;
 
     MYFLT tmp[self->bufsize];
     memset(&tmp, 0, sizeof(tmp));
@@ -313,7 +308,7 @@ Freeverb_transform_iia(Freeverb *self) {
         for (i=0; i<NUM_COMB; i++) {
             x = self->comb_buf[i][self->comb_bufPos[i]];
             tmp[j] += x;
-            self->comb_filterState[i] = (self->comb_filterState[i] * damp1) + (x * damp2);
+            self->comb_filterState[i] = x + (self->comb_filterState[i] - x) * damp;
             x = self->comb_filterState[i] * feedback + in[j];
             self->comb_buf[i][self->comb_bufPos[i]] = x;
             self->comb_bufPos[i]++;
@@ -344,7 +339,7 @@ Freeverb_transform_iia(Freeverb *self) {
 
 static void
 Freeverb_transform_aia(Freeverb *self) {
-    MYFLT x, feedback, damp1, damp2, mix1, mix2, mixtmp;
+    MYFLT x, feedback, damp, mix1, mix2, mixtmp;
     int i, j;
 
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
@@ -352,8 +347,7 @@ Freeverb_transform_aia(Freeverb *self) {
     MYFLT dam = _clip(PyFloat_AS_DOUBLE(self->damp));
     MYFLT *mix = Stream_getData((Stream *)self->mix_stream);
 
-    damp1 = dam * scaleDamp;
-    damp2 = 1.0 - damp1;
+    damp = dam * scaleDamp;
 
     MYFLT tmp[self->bufsize];
     memset(&tmp, 0, sizeof(tmp));
@@ -363,7 +357,7 @@ Freeverb_transform_aia(Freeverb *self) {
         for (i=0; i<NUM_COMB; i++) {
             x = self->comb_buf[i][self->comb_bufPos[i]];
             tmp[j] += x;
-            self->comb_filterState[i] = (self->comb_filterState[i] * damp1) + (x * damp2);
+            self->comb_filterState[i] = x + (self->comb_filterState[i] - x) * damp;
             x = self->comb_filterState[i] * feedback + in[j];
             self->comb_buf[i][self->comb_bufPos[i]] = x;
             self->comb_bufPos[i]++;
@@ -394,7 +388,7 @@ Freeverb_transform_aia(Freeverb *self) {
 
 static void
 Freeverb_transform_iaa(Freeverb *self) {
-    MYFLT x, feedback, damp1, damp2, mix1, mix2, mixtmp;
+    MYFLT x, feedback, damp, mix1, mix2, mixtmp;
     int i, j;
 
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
@@ -408,12 +402,11 @@ Freeverb_transform_iaa(Freeverb *self) {
     memset(&tmp, 0, sizeof(tmp));
 
     for (j=0; j<self->bufsize; j++) {
-        damp1 = _clip(dam[j]) * scaleDamp;
-        damp2 = 1.0 - damp1;
+        damp = _clip(dam[j]) * scaleDamp;
         for (i=0; i<NUM_COMB; i++) {
             x = self->comb_buf[i][self->comb_bufPos[i]];
             tmp[j] += x;
-            self->comb_filterState[i] = (self->comb_filterState[i] * damp1) + (x * damp2);
+            self->comb_filterState[i] = x + (self->comb_filterState[i] - x) * damp;
             x = self->comb_filterState[i] * feedback + in[j];
             self->comb_buf[i][self->comb_bufPos[i]] = x;
             self->comb_bufPos[i]++;
@@ -444,7 +437,7 @@ Freeverb_transform_iaa(Freeverb *self) {
 
 static void
 Freeverb_transform_aaa(Freeverb *self) {
-    MYFLT x, feedback, damp1, damp2, mix1, mix2, mixtmp;
+    MYFLT x, feedback, damp, mix1, mix2, mixtmp;
     int i, j;
 
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
@@ -457,12 +450,11 @@ Freeverb_transform_aaa(Freeverb *self) {
 
     for (j=0; j<self->bufsize; j++) {
         feedback = _clip(siz[j]) * scaleRoom + offsetRoom;
-        damp1 = _clip(dam[j]) * scaleDamp;
-        damp2 = 1.0 - damp1;
+        damp = _clip(dam[j]) * scaleDamp;
         for (i=0; i<NUM_COMB; i++) {
             x = self->comb_buf[i][self->comb_bufPos[i]];
             tmp[j] += x;
-            self->comb_filterState[i] = (self->comb_filterState[i] * damp1) + (x * damp2);
+            self->comb_filterState[i] = x + (self->comb_filterState[i] - x) * damp;
             x = self->comb_filterState[i] * feedback + in[j];
             self->comb_buf[i][self->comb_bufPos[i]] = x;
             self->comb_bufPos[i]++;
