@@ -95,13 +95,11 @@ OscBank_setFrequencies(OscBank *self, MYFLT freq, MYFLT spread) {
             seed = (seed * 15625 + 1) & 0xFFFF;
             rnd = seed * 1.52587890625e-07 - 0.005 + 1.0;
             self->frequencies[i] = (freq + scl * i) * rnd;
-            /* PySys_WriteStdout("harm %d : %f Hz\n", i, self->frequencies[i]); */
         }
     }
     else {
         for (i=0; i<self->stages; i++) {
             self->frequencies[i] = freq + scl * i;
-            /* PySys_WriteStdout("harm %d : %f Hz\n", i, self->frequencies[i]); */
         }
     }
 }
@@ -311,7 +309,7 @@ OscBank_setProcMode(OscBank *self)
 
     self->proc_func_ptr = OscBank_readframes;
 
-	switch (muladdmode) {
+    switch (muladdmode) {
         case 0:
             self->muladd_func_ptr = OscBank_postprocessing_ii;
             break;
@@ -432,15 +430,15 @@ OscBank_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->finc = 0.0;
     self->atime = 1.0;
     self->ainc = 0.0;
-	self->modebuffer[0] = 0;
-	self->modebuffer[1] = 0;
-	self->modebuffer[2] = 0;
-	self->modebuffer[3] = 0;
-	self->modebuffer[4] = 0;
-	self->modebuffer[5] = 0;
-	self->modebuffer[6] = 0;
-	self->modebuffer[7] = 0;
-	self->modebuffer[8] = 0;
+    self->modebuffer[0] = 0;
+    self->modebuffer[1] = 0;
+    self->modebuffer[2] = 0;
+    self->modebuffer[3] = 0;
+    self->modebuffer[4] = 0;
+    self->modebuffer[5] = 0;
+    self->modebuffer[6] = 0;
+    self->modebuffer[7] = 0;
+    self->modebuffer[8] = 0;
 
     INIT_OBJECT_COMMON
 
@@ -547,219 +545,219 @@ OscBank_getTable(OscBank *self)
 static PyObject *
 OscBank_setTable(OscBank *self, PyObject *arg)
 {
-	PyObject *tmp;
+    PyObject *tmp;
 
     ASSERT_ARG_NOT_NULL
 
-	tmp = arg;
-	Py_DECREF(self->table);
+    tmp = arg;
+    Py_DECREF(self->table);
     self->table = PyObject_CallMethod((PyObject *)tmp, "getTableStream", "");
 
-	Py_INCREF(Py_None);
-	return Py_None;
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
 static PyObject *
 OscBank_setFreq(OscBank *self, PyObject *arg)
 {
-	PyObject *tmp, *streamtmp;
+    PyObject *tmp, *streamtmp;
 
     ASSERT_ARG_NOT_NULL
 
-	int isNumber = PyNumber_Check(arg);
+    int isNumber = PyNumber_Check(arg);
 
-	tmp = arg;
-	Py_INCREF(tmp);
-	Py_DECREF(self->freq);
-	if (isNumber == 1) {
-		self->freq = PyNumber_Float(tmp);
+    tmp = arg;
+    Py_INCREF(tmp);
+    Py_DECREF(self->freq);
+    if (isNumber == 1) {
+        self->freq = PyNumber_Float(tmp);
         self->modebuffer[2] = 0;
-	}
-	else {
-		self->freq = tmp;
+    }
+    else {
+        self->freq = tmp;
         streamtmp = PyObject_CallMethod((PyObject *)self->freq, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->freq_stream);
         self->freq_stream = (Stream *)streamtmp;
-		self->modebuffer[2] = 1;
-	}
+        self->modebuffer[2] = 1;
+    }
 
-	Py_INCREF(Py_None);
-	return Py_None;
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
 static PyObject *
 OscBank_setSpread(OscBank *self, PyObject *arg)
 {
-	PyObject *tmp, *streamtmp;
+    PyObject *tmp, *streamtmp;
 
     ASSERT_ARG_NOT_NULL
 
-	int isNumber = PyNumber_Check(arg);
+    int isNumber = PyNumber_Check(arg);
 
-	tmp = arg;
-	Py_INCREF(tmp);
-	Py_DECREF(self->spread);
-	if (isNumber == 1) {
-		self->spread = PyNumber_Float(tmp);
+    tmp = arg;
+    Py_INCREF(tmp);
+    Py_DECREF(self->spread);
+    if (isNumber == 1) {
+        self->spread = PyNumber_Float(tmp);
         self->modebuffer[3] = 0;
-	}
-	else {
-		self->spread = tmp;
+    }
+    else {
+        self->spread = tmp;
         streamtmp = PyObject_CallMethod((PyObject *)self->spread, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->spread_stream);
         self->spread_stream = (Stream *)streamtmp;
-		self->modebuffer[3] = 1;
-	}
+        self->modebuffer[3] = 1;
+    }
 
-	Py_INCREF(Py_None);
-	return Py_None;
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
 static PyObject *
 OscBank_setSlope(OscBank *self, PyObject *arg)
 {
-	PyObject *tmp, *streamtmp;
+    PyObject *tmp, *streamtmp;
 
     ASSERT_ARG_NOT_NULL
 
-	int isNumber = PyNumber_Check(arg);
+    int isNumber = PyNumber_Check(arg);
 
-	tmp = arg;
-	Py_INCREF(tmp);
-	Py_DECREF(self->slope);
-	if (isNumber == 1) {
-		self->slope = PyNumber_Float(tmp);
+    tmp = arg;
+    Py_INCREF(tmp);
+    Py_DECREF(self->slope);
+    if (isNumber == 1) {
+        self->slope = PyNumber_Float(tmp);
         self->modebuffer[4] = 0;
-	}
-	else {
-		self->slope = tmp;
+    }
+    else {
+        self->slope = tmp;
         streamtmp = PyObject_CallMethod((PyObject *)self->slope, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->slope_stream);
         self->slope_stream = (Stream *)streamtmp;
-		self->modebuffer[4] = 1;
-	}
+        self->modebuffer[4] = 1;
+    }
 
-	Py_INCREF(Py_None);
-	return Py_None;
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
 static PyObject *
 OscBank_setFrndf(OscBank *self, PyObject *arg)
 {
-	PyObject *tmp, *streamtmp;
+    PyObject *tmp, *streamtmp;
 
     ASSERT_ARG_NOT_NULL
 
-	int isNumber = PyNumber_Check(arg);
+    int isNumber = PyNumber_Check(arg);
 
-	tmp = arg;
-	Py_INCREF(tmp);
-	Py_DECREF(self->frndf);
-	if (isNumber == 1) {
-		self->frndf = PyNumber_Float(tmp);
+    tmp = arg;
+    Py_INCREF(tmp);
+    Py_DECREF(self->frndf);
+    if (isNumber == 1) {
+        self->frndf = PyNumber_Float(tmp);
         self->modebuffer[5] = 0;
-	}
-	else {
-		self->frndf = tmp;
+    }
+    else {
+        self->frndf = tmp;
         streamtmp = PyObject_CallMethod((PyObject *)self->frndf, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->frndf_stream);
         self->frndf_stream = (Stream *)streamtmp;
-		self->modebuffer[5] = 1;
-	}
+        self->modebuffer[5] = 1;
+    }
 
-	Py_INCREF(Py_None);
-	return Py_None;
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
 static PyObject *
 OscBank_setFrnda(OscBank *self, PyObject *arg)
 {
-	PyObject *tmp, *streamtmp;
+    PyObject *tmp, *streamtmp;
 
     ASSERT_ARG_NOT_NULL
 
-	int isNumber = PyNumber_Check(arg);
+    int isNumber = PyNumber_Check(arg);
 
-	tmp = arg;
-	Py_INCREF(tmp);
-	Py_DECREF(self->frnda);
-	if (isNumber == 1) {
-		self->frnda = PyNumber_Float(tmp);
+    tmp = arg;
+    Py_INCREF(tmp);
+    Py_DECREF(self->frnda);
+    if (isNumber == 1) {
+        self->frnda = PyNumber_Float(tmp);
         self->modebuffer[6] = 0;
-	}
-	else {
-		self->frnda = tmp;
+    }
+    else {
+        self->frnda = tmp;
         streamtmp = PyObject_CallMethod((PyObject *)self->frnda, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->frnda_stream);
         self->frnda_stream = (Stream *)streamtmp;
-		self->modebuffer[6] = 1;
-	}
+        self->modebuffer[6] = 1;
+    }
 
-	Py_INCREF(Py_None);
-	return Py_None;
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
 static PyObject *
 OscBank_setArndf(OscBank *self, PyObject *arg)
 {
-	PyObject *tmp, *streamtmp;
+    PyObject *tmp, *streamtmp;
 
     ASSERT_ARG_NOT_NULL
 
-	int isNumber = PyNumber_Check(arg);
+    int isNumber = PyNumber_Check(arg);
 
-	tmp = arg;
-	Py_INCREF(tmp);
-	Py_DECREF(self->arndf);
-	if (isNumber == 1) {
-		self->arndf = PyNumber_Float(tmp);
+    tmp = arg;
+    Py_INCREF(tmp);
+    Py_DECREF(self->arndf);
+    if (isNumber == 1) {
+        self->arndf = PyNumber_Float(tmp);
         self->modebuffer[7] = 0;
-	}
-	else {
-		self->arndf = tmp;
+    }
+    else {
+        self->arndf = tmp;
         streamtmp = PyObject_CallMethod((PyObject *)self->arndf, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->arndf_stream);
         self->arndf_stream = (Stream *)streamtmp;
-		self->modebuffer[7] = 1;
-	}
+        self->modebuffer[7] = 1;
+    }
 
-	Py_INCREF(Py_None);
-	return Py_None;
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
 static PyObject *
 OscBank_setArnda(OscBank *self, PyObject *arg)
 {
-	PyObject *tmp, *streamtmp;
+    PyObject *tmp, *streamtmp;
 
     ASSERT_ARG_NOT_NULL
 
-	int isNumber = PyNumber_Check(arg);
+    int isNumber = PyNumber_Check(arg);
 
-	tmp = arg;
-	Py_INCREF(tmp);
-	Py_DECREF(self->arnda);
-	if (isNumber == 1) {
-		self->arnda = PyNumber_Float(tmp);
+    tmp = arg;
+    Py_INCREF(tmp);
+    Py_DECREF(self->arnda);
+    if (isNumber == 1) {
+        self->arnda = PyNumber_Float(tmp);
         self->modebuffer[8] = 0;
-	}
-	else {
-		self->arnda = tmp;
+    }
+    else {
+        self->arnda = tmp;
         streamtmp = PyObject_CallMethod((PyObject *)self->arnda, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->arnda_stream);
         self->arnda_stream = (Stream *)streamtmp;
-		self->modebuffer[8] = 1;
-	}
+        self->modebuffer[8] = 1;
+    }
 
-	Py_INCREF(Py_None);
-	return Py_None;
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
 static PyObject *
@@ -767,12 +765,12 @@ OscBank_setFjit(OscBank *self, PyObject *arg)
 {
     int isInt = PyInt_Check(arg);
 
-	if (isInt) {
+    if (isInt) {
         self->fjit = PyInt_AS_LONG(arg);
     }
 
-	Py_INCREF(Py_None);
-	return Py_None;
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
 static PyMemberDef OscBank_members[] = {
@@ -839,7 +837,7 @@ static PyNumberMethods OscBank_as_number = {
     (binaryfunc)OscBank_inplace_add,                 /*inplace_add*/
     (binaryfunc)OscBank_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)OscBank_inplace_multiply,            /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO                                           /*inplace_divide*/
+    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO               /*inplace_divide*/
     0,                                              /*inplace_remainder*/
     0,                                              /*inplace_power*/
     0,                                              /*inplace_lshift*/
