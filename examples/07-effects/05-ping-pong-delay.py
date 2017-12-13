@@ -26,7 +26,7 @@ delay_feed.ctrl()
 # Because the right delay gets its input sound from the left delay, while
 # it is computed before (to send its output sound to the left delay), it
 # will be one buffer size late. To compensate this additional delay on the
-# right, we substract one buffer size from the real delay time . 
+# right, we substract one buffer size from the real delay time. 
 delay_time_r = Sig(delay_time_l, add=-buftime)
 
 # Setup up a soundfile player.
@@ -43,7 +43,7 @@ right = Delay(Sig(0), delay=delay_time_r).out(1)
 # delay signal (multiplied by the feedback value) as input.
 left = Delay(sf + right * delay_feed, delay=delay_time_l).out()
 
-# One issue with cross-delay with feedback is if we set the feedback to
+# One issue with recursive cross-delay is if we set the feedback to
 # 0, the right delay never gets any signal. To resolve this, we add a
 # non-recursive delay, with a gain that is the inverse of the feedback,
 # to the right delay input.  
