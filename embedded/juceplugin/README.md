@@ -62,7 +62,10 @@ explorer. Save your project. This should add two files, "BinaryData.h" and
  
 ------------------------------------------------------------------------------
 
-**For all the remaining steps, don't forget to replace XXX by your plugin's name.**
+**For all the remaining steps, don't forget to replace XXX by your plugin's
+name.**
+
+------------------------------------------------------------------------------
 
 Step 6 - Edit Source/PluginProcessor.h
 
@@ -77,13 +80,13 @@ Add a Pyo object to the public attributes of the XXXAudioProcessor class:
 ------------------------------------------------------------------------------
 Step 7 - Edit Source/PluginProcessor.cpp
 
-- Add these line to XXXAudioProcessor::prepareToPlay method:
+Add these line to XXXAudioProcessor::prepareToPlay method:
 
     pyo.setup(getTotalNumOutputChannels(), samplesPerBlock, sampleRate);
     pyo.exec(BinaryData::stereoDelay_py);
 
-- Replace the processing part of XXXAudioProcessor::processBlock method with
-this line:
+Replace the processing part of XXXAudioProcessor::processBlock method with this
+line:
 
     pyo.process(buffer);
 
@@ -93,11 +96,12 @@ The processing part is the code after this comment:
     // audio processing...
 
 ------------------------------------------------------------------------------
+
 Here you go! Compile, Run and Enjoy!
 
 
 Adding GUI controls to your plugin
-==================================
+----------------------------------
 
 Now, we will add two sliders to control the delay time and the feedback
 of our process.
@@ -105,17 +109,17 @@ of our process.
 ------------------------------------------------------------------------------
 Step 8 - Edit Source/PluginEditor.h
 
-- Add the inheritance to Slider::Listener to your XXXAudioProcessorEditor
+Add the inheritance to Slider::Listener to your XXXAudioProcessorEditor
 class definition:
-    
-class XXXAudioProcessorEditor  : public AudioProcessorEditor, 
-                                 private Slider::Listener
+
+    class XXXAudioProcessorEditor  : public AudioProcessorEditor, 
+                                     private Slider::Listener
  
-- Add the default callback function in the public attributes of the class:
+Add the default callback function in the public attributes of the class:
     
     void sliderValueChanged(Slider* slider) override;
 
-- Create two sliders in the public attributes of the class:
+Create two sliders in the public attributes of the class:
     
     Slider p1;
     Slider p2;
@@ -123,7 +127,7 @@ class XXXAudioProcessorEditor  : public AudioProcessorEditor,
 ------------------------------------------------------------------------------
 Step 9 - Edit Source/PluginEditor.cpp
 
-- Set the sliders properties in the editor constructor function named
+Set the sliders properties in the editor constructor function named
 XXXAudioProcessorEditor::XXXAudioProcessorEditor (this is the first function
 in the PluginEditor.cpp file). Add these lines at the end of the function:
     
@@ -147,29 +151,30 @@ in the PluginEditor.cpp file). Add these lines at the end of the function:
     p2.addListener(this);
     addAndMakeVisible(&p2);
 
-- Set the size and position of the sliders. Add these lines in 
+Set the size and position of the sliders. Add these lines in 
 XXXAudioProcessorEditor::resized() function:
     
     p1.setBounds(40, 30, 20, getHeight() - 60);
     p2.setBounds(70, 30, 20, getHeight() - 60);
 
 ------------------------------------------------------------------------------
-Step 10 - Connect the sliders to the audio proces
+Step 10 - Connect the sliders to the audio process
 
-- At the end of the file PluginEditor.cpp, create the slider's callback 
+At the end of the file PluginEditor.cpp, create the slider's callback 
 function which will pass the values to the audio processing objects:
     
-void XXXAudioProcessorEditor::sliderValueChanged (Slider* slider)
-{
-    processor.pyo.value("dtime", p1.getValue());
-    processor.pyo.value("feed", p2.getValue());
-}
+    void XXXAudioProcessorEditor::sliderValueChanged (Slider* slider)
+    {
+        processor.pyo.value("dtime", p1.getValue());
+        processor.pyo.value("feed", p2.getValue());
+    }
 
 ------------------------------------------------------------------------------
+
 That's it! Compile and Run...
 
 Documentation
-=============
+-------------
 
 For a complete description of functions used to communicate with the pyo 
 embedded processes, see documentation comments in the file PyoClass.cpp.
