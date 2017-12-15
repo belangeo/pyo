@@ -25,8 +25,13 @@ flags for your selected exporter. For example, on linux, if you select
 "Linux Makefile", you can add extra compiler and linker flags. Add 
 these in the specific fields:
 
-Extra linker flags : `python-config --ldflags`
-Extra compiler flags : `python-config --cflags`
+Extra linker flags :
+
+    `python-config --ldflags`
+
+Extra compiler flags :
+
+    `python-config --cflags`
 
 ------------------------------------------------------------------------------
 Step 4 - Make sure that your project links to the Steinberg's VST SDK.
