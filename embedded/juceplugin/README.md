@@ -73,19 +73,19 @@ Include PyoClass definition:
 
     #include "PyoClass.h"
 
-Add a Pyo object to the public attributes of the XXXAudioProcessor class:
+Add a Pyo object to the public attributes of the *XXXAudioProcessor* class:
 
     Pyo pyo;
 
 ------------------------------------------------------------------------------
 Step 7 - Edit Source/PluginProcessor.cpp
 
-Add these line to XXXAudioProcessor::prepareToPlay method:
+Add these line to *XXXAudioProcessor::prepareToPlay* method:
 
     pyo.setup(getTotalNumOutputChannels(), samplesPerBlock, sampleRate);
     pyo.exec(BinaryData::stereoDelay_py);
 
-Replace the processing part of XXXAudioProcessor::processBlock method with this
+Replace the processing part of *XXXAudioProcessor::processBlock* method with this
 line:
 
     pyo.process(buffer);
@@ -109,7 +109,7 @@ of our process.
 ------------------------------------------------------------------------------
 Step 8 - Edit Source/PluginEditor.h
 
-Add the inheritance to Slider::Listener to your XXXAudioProcessorEditor
+Add the inheritance to *Slider::Listener* to your *XXXAudioProcessorEditor*
 class definition:
 
     class XXXAudioProcessorEditor  : public AudioProcessorEditor, 
@@ -128,7 +128,7 @@ Create two sliders in the public attributes of the class:
 Step 9 - Edit Source/PluginEditor.cpp
 
 Set the sliders properties in the editor constructor function named
-XXXAudioProcessorEditor::XXXAudioProcessorEditor (this is the first function
+*XXXAudioProcessorEditor::XXXAudioProcessorEditor* (this is the first function
 in the PluginEditor.cpp file). Add these lines at the end of the function:
     
     // these define the parameters of our slider object
@@ -152,7 +152,7 @@ in the PluginEditor.cpp file). Add these lines at the end of the function:
     addAndMakeVisible(&p2);
 
 Set the size and position of the sliders. Add these lines in 
-XXXAudioProcessorEditor::resized() function:
+*XXXAudioProcessorEditor::resized* function:
     
     p1.setBounds(40, 30, 20, getHeight() - 60);
     p2.setBounds(70, 30, 20, getHeight() - 60);
