@@ -80,7 +80,7 @@ Add a Pyo object to the public attributes of the *XXXAudioProcessor* class:
 ------------------------------------------------------------------------------
 Step 7 - Edit Source/PluginProcessor.cpp
 
-Add these line to *XXXAudioProcessor::prepareToPlay* method:
+Add these lines to *XXXAudioProcessor::prepareToPlay* method:
 
     pyo.setup(getTotalNumOutputChannels(), samplesPerBlock, sampleRate);
     pyo.exec(BinaryData::stereoDelay_py);
