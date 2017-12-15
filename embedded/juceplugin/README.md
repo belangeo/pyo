@@ -36,27 +36,29 @@ Extra compiler flags :
 ------------------------------------------------------------------------------
 Step 4 - Make sure that your project links to the Steinberg's VST SDK.
 VST SDK can be freely downloaded from Steinberg web site:
-http://www.steinberg.net/en/company/developers/
-Enter the path in the field "VST3 SDK" in the "Global Search Paths" window.
+http://www.steinberg.net/en/company/developers/ .
+
+Enter the path of your SDK in the field "VST3 SDK" in the "Global Search Paths"
+window.
 
 ------------------------------------------------------------------------------
 Step 5 - Create a python file, named "stereoDelay.py", with these lines in 
 it:
 
-# Retrieve the stereo input of the plugin.
-st_input = Input([0,1])
-# Parameters to change.
-dtime = SigTo(.5, 0.05, .5)
-feed = SigTo(.5, 0.05, .5)
-# Simple process. Stereo delay -> reverb.
-st_delay = SmoothDelay(st_input, delay=dtime, feedback=feed)
-st_rev = WGVerb(st_delay, feedback=0.8, cutoff=4000, bal=0.25).out()
+    # Retrieve the stereo input of the plugin.
+    st_input = Input([0,1])
+    # Parameters to change.
+    dtime = SigTo(.5, 0.05, .5)
+    feed = SigTo(.5, 0.05, .5)
+    # Simple process. Stereo delay -> reverb.
+    st_delay = SmoothDelay(st_input, delay=dtime, feedback=feed)
+    st_rev = WGVerb(st_delay, feedback=0.8, cutoff=4000, bal=0.25).out()
 
-Save "stereoDelay.py" in the "Source" folder, add it to the project 
-(drag and drop to the file explorer in the Projucer) and ensure that 
-the option "Binary Resources" is checked. Save your project.
-This should add two files, "BinaryData.h" and "BinaryData.cpp", 
-in the "JuceLibraryCode" folder.
+Save "stereoDelay.py" in your project "Source" folder, add it to the project 
+(drag-and-drop to the File explorer in the Projucer) and ensure that the 
+option "Binary Resources" is checked when you select "Source" in the File 
+explorer. Save your project. This should add two files, "BinaryData.h" and 
+"BinaryData.cpp", in the "JuceLibraryCode" folder.
  
 ------------------------------------------------------------------------------
 
