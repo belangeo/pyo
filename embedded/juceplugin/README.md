@@ -62,15 +62,15 @@ explorer. Save your project. This should add two files, "BinaryData.h" and
  
 ------------------------------------------------------------------------------
 
-*For all the remaining steps, don't forget to replace XXX by your plugin's name.*
+**For all the remaining steps, don't forget to replace XXX by your plugin's name.**
 
 Step 6 - Edit Source/PluginProcessor.h
 
-- Include PyoClass definition:
+Include PyoClass definition:
 
-#include "PyoClass.h"
+    #include "PyoClass.h"
 
-- Add a Pyo object to the public attributes of the XXXAudioProcessor class:
+Add a Pyo object to the public attributes of the XXXAudioProcessor class:
 
     Pyo pyo;
 
