@@ -2,22 +2,21 @@ Introduction on how to use pyo inside a Juce audio plugin.
 ========================================================== 
 
 To use pyo inside a Juce audio plugin, first you need a working 
-install of pyo on your system. After installing pyo, you can move 
-on and create a Juce audio plugin project.
+install of pyo (for python 2.7 at the moment) on your system.
+After installing pyo, you can move on and create a Juce audio plugin project.
 
 ------------------------------------------------------------------------------
 Step 1 - Create an Audio Plug-In project with the Projucer. 
 
 ------------------------------------------------------------------------------
-Step 2 - Add pyo files to your project. You only need to copy 
-these files in your project "Source" folder:
+Step 2 - Add pyo files to your project. You need to copy these files in your
+project "Source" folder and add them in Projucer:
 
 - from this folder:
-PyoClass.cpp
-PyoClass.h
-
+  * PyoClass.cpp
+  * PyoClass.h
 - from the folder "embedded":
-m_pyo.h
+  * m_pyo.h
 
 ------------------------------------------------------------------------------
 Step 3 - Make sure that your project includes flags for compiling 
