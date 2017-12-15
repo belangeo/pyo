@@ -1,7 +1,9 @@
 #include <stdlib.h>
+#include <dlfcn.h>
 #include "Python.h"
 
 #ifndef __m_pyo_h_
+#define __m_pyo_h_
 
 #if defined(_LANGUAGE_C_PLUS_PLUS) || defined(__cplusplus)
 extern "C" {
@@ -16,6 +18,10 @@ extern "C" {
 #define PY_STRING_CHECK(a) (PyUnicode_Check(a) || PyBytes_Check(a))
 #define PY_STRING_AS_STRING(a) PyBytes_AsString(a)
 #endif
+
+/* libpython handle. libpython must be made available to the program loaded
+** in a new interpreter. */
+static void *libpython_handle;
 
 /*
 ** Creates a new python interpreter and starts a pyo server in it.
@@ -38,6 +44,15 @@ inline PyThreadState * pyo_new_interpreter(float sr, int bufsize, int chnls) {
         PyEval_InitThreads();
         PyEval_ReleaseLock();
     }
+
+    /* This call hardcodes 2.7 as the python version to be used to embed pyo in
+       a C or C++ program. This is not a good idea and must be fixed when everthing
+       is stable.
+    */
+    if (libpython_handle == NULL) {
+        libpython_handle = dlopen("libpython2.7.so", RTLD_LAZY | RTLD_GLOBAL);
+    }
+
     PyEval_AcquireLock();              /* get the GIL */
     interp = Py_NewInterpreter();      /* add a new sub-interpreter */
     PyRun_SimpleString("from pyo import *");
@@ -187,6 +202,10 @@ inline void pyo_end_interpreter(PyThreadState *interp) {
     PyThreadState_Swap(NULL);
     PyThreadState_Clear(interp);
     PyThreadState_Delete(interp);
+
+    if (libpython_handle != NULL) {
+        dlclose(libpython_handle);
+    }
 }
 
 /*
@@ -351,5 +370,4 @@ inline int pyo_exec_statement(PyThreadState *interp, char *msg, int debug) {
 }
 #endif
 
-#define __m_pyo_h_
 #endif /* __m_pyo_h_  */

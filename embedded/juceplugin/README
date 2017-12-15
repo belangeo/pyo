@@ -6,7 +6,7 @@ install of pyo on your system. After installing pyo, you can move
 on and create a Juce audio plugin project.
 
 ------------------------------------------------------------------------------
-Step 1 - Create an Audio Plug-In project with the Introjucer. 
+Step 1 - Create an Audio Plug-In project with the Projucer. 
 
 ------------------------------------------------------------------------------
 Step 2 - Add pyo files to your project. You only need to copy 
@@ -21,10 +21,10 @@ m_pyo.h
 
 ------------------------------------------------------------------------------
 Step 3 - Make sure that your project includes flags for compiling 
-and linking against Python. Within the Introjucer, you can set extra
-flags in the "Config" tab. For example, on linux, if you select "Linux
-Makefile", you can add extra compiler and linker flags. Add these in
-the specific fields:
+and linking against Python. Within the Projucer, you can set extra
+flags for your selected exporter. For example, on linux, if you select
+"Linux Makefile", you can add extra compiler and linker flags. Add 
+these in the specific fields:
 
 Extra linker flags : `python-config --ldflags`
 Extra compiler flags : `python-config --cflags`
@@ -33,7 +33,7 @@ Extra compiler flags : `python-config --cflags`
 Step 4 - Make sure that your project links to the Steinberg's VST SDK.
 VST SDK can be freely downloaded from Steinberg web site:
 http://www.steinberg.net/en/company/developers/
-Enter the path in the field "VST Folder" in the export configuration.
+Enter the path in the field "VST3 SDK" in the "Global Search Paths" window.
 
 ------------------------------------------------------------------------------
 Step 5 - Create a python file, named "stereoDelay.py", with these lines in 
@@ -48,12 +48,16 @@ feed = SigTo(.5, 0.05, .5)
 st_delay = SmoothDelay(st_input, delay=dtime, feedback=feed)
 st_rev = WGVerb(st_delay, feedback=0.8, cutoff=4000, bal=0.25).out()
 
-Save "stereoDelay.py" in the "Source" folder, add it to the project in the
-Introjucer and ensure that the option "Add to Binary Resources" is checked.
-Save your project. This should add two files, "BinaryData.h" and 
-"BinaryData.cpp", in the "JuceLibraryCode" folder.
+Save "stereoDelay.py" in the "Source" folder, add it to the project 
+(drag and drop to the file explorer in the Projucer) and ensure that 
+the option "Binary Resources" is checked. Save your project.
+This should add two files, "BinaryData.h" and "BinaryData.cpp", 
+in the "JuceLibraryCode" folder.
  
 ------------------------------------------------------------------------------
+
+*For all the remaining steps, don't forget to replace XXX by your plugin's name.*
+
 Step 6 - Edit Source/PluginProcessor.h
 
 - Include PyoClass definition:
@@ -69,16 +73,22 @@ Step 7 - Edit Source/PluginProcessor.cpp
 
 - Add these line to XXXAudioProcessor::prepareToPlay method:
 
-    pyo.setup(getNumOutputChannels(), samplesPerBlock, sampleRate);
+    pyo.setup(getTotalNumOutputChannels(), samplesPerBlock, sampleRate);
     pyo.exec(BinaryData::stereoDelay_py);
 
-- Replace the content of XXXAudioProcessor::processBlock method with
+- Replace the processing part of XXXAudioProcessor::processBlock method with
 this line:
 
     pyo.process(buffer);
 
+The processing part is the code after this comment:
+
+    // This is the place where you'd normally do the guts of your plugin's
+    // audio processing...
+
 ------------------------------------------------------------------------------
 Here you go! Compile, Run and Enjoy!
+
 
 Adding GUI controls to your plugin
 ==================================
@@ -159,4 +169,4 @@ For a complete description of functions used to communicate with the pyo
 embedded processes, see documentation comments in the file PyoClass.cpp.
 
 
-(c) 2015 - belangeo
+(c) 2017 - belangeo

@@ -28,7 +28,9 @@ void Pyo::setup(int _nChannels, int _bufferSize, int _sampleRate) {
 ** Terminates this object's interpreter.
 */
 Pyo::~Pyo() {
-    pyo_end_interpreter(interpreter);
+    if (interpreter != NULL) {
+        pyo_end_interpreter(interpreter);
+    }
 }
 
 /*
