@@ -33,6 +33,17 @@ Extra compiler flags :
 
     `python-config --cflags`
 
+On MacOS, the default compiler in Xcode is LLVM and it will complain about 
+python-config command. All you have to do is to run these two commands (without
+the backtick symbols) in a terminal window and copy the results in the appropriate
+field (you can leave out "-Wstrict-prototypes" flag as it is not valid in C++.
+
+On MacOS, add the Python framework to your project. In the field "Extra Frameworks",
+add :
+
+	Python
+
+
 ------------------------------------------------------------------------------
 Step 4 - Make sure that your project links to the Steinberg's VST SDK.
 VST SDK can be freely downloaded from Steinberg web site:
@@ -40,6 +51,9 @@ http://www.steinberg.net/en/company/developers/ .
 
 Enter the path of your SDK in the field "VST3 SDK" in the "Global Search Paths"
 window.
+
+On MacOS, I managed to build both VST 2 and VST 3 plugins but only the VST 3 
+plugin actually runs in Reaper. The VST 2 plugin crashes the app.
 
 ------------------------------------------------------------------------------
 Step 5 - Create a python file, named "stereoDelay.py", with these lines in 
@@ -135,7 +149,7 @@ in the PluginEditor.cpp file). Add these lines at the end of the function:
     p1.setSliderStyle(Slider::LinearBarVertical);
     p1.setRange(0.0, 1.0, 0.01);
     p1.setTextBoxStyle(Slider::NoTextBox, false, 90, 0);
-    p1.setPopupDisplayEnabled(true, this);
+    p1.setPopupDisplayEnabled(true, true, this);
     p1.setTextValueSuffix(" Delay Time");
     p1.setValue(0.5);
     p1.addListener(this);
@@ -145,7 +159,7 @@ in the PluginEditor.cpp file). Add these lines at the end of the function:
     p2.setSliderStyle(Slider::LinearBarVertical);
     p2.setRange(0.0, 1.0, 0.01);
     p2.setTextBoxStyle(Slider::NoTextBox, false, 90, 0);
-    p2.setPopupDisplayEnabled(true, this);
+    p2.setPopupDisplayEnabled(true, true, this);
     p2.setTextValueSuffix(" Delay Feedback");
     p2.setValue(0.5);
     p2.addListener(this);
