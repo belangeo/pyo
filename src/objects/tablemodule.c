@@ -223,6 +223,7 @@ HarmTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self = (HarmTable *)type->tp_alloc(type, 0);
 
     self->server = PyServer_get_server();
+    Py_INCREF(self->server);
 
     self->amplist = PyList_New(0);
     PyList_Append(self->amplist, PyFloat_FromDouble(1.));
@@ -520,6 +521,7 @@ ChebyTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self = (ChebyTable *)type->tp_alloc(type, 0);
 
     self->server = PyServer_get_server();
+    Py_INCREF(self->server);
 
     self->amplist = PyList_New(0);
     PyList_Append(self->amplist, PyFloat_FromDouble(1.));
@@ -833,6 +835,7 @@ HannTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self = (HannTable *)type->tp_alloc(type, 0);
 
     self->server = PyServer_get_server();
+    Py_INCREF(self->server);
 
     self->size = 8192;
 
@@ -1058,6 +1061,7 @@ SincTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self = (SincTable *)type->tp_alloc(type, 0);
 
     self->server = PyServer_get_server();
+    Py_INCREF(self->server);
 
     self->size = 8192;
     self->freq = TWOPI;
@@ -1294,6 +1298,7 @@ WinTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self = (WinTable *)type->tp_alloc(type, 0);
 
     self->server = PyServer_get_server();
+    Py_INCREF(self->server);
 
     self->size = 8192;
     self->type = 2;
@@ -1530,6 +1535,7 @@ ParaTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self = (ParaTable *)type->tp_alloc(type, 0);
 
     self->server = PyServer_get_server();
+    Py_INCREF(self->server);
 
     self->size = 8192;
 
@@ -1766,6 +1772,7 @@ LinTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self = (LinTable *)type->tp_alloc(type, 0);
 
     self->server = PyServer_get_server();
+    Py_INCREF(self->server);
 
     self->pointslist = PyList_New(0);
     self->size = 8192;
@@ -2093,6 +2100,7 @@ LogTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self = (LogTable *)type->tp_alloc(type, 0);
 
     self->server = PyServer_get_server();
+    Py_INCREF(self->server);
 
     self->pointslist = PyList_New(0);
     self->size = 8192;
@@ -2398,6 +2406,7 @@ CosTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self = (CosTable *)type->tp_alloc(type, 0);
 
     self->server = PyServer_get_server();
+    Py_INCREF(self->server);
 
     self->pointslist = PyList_New(0);
     self->size = 8192;
@@ -2727,6 +2736,7 @@ CosLogTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self = (CosLogTable *)type->tp_alloc(type, 0);
 
     self->server = PyServer_get_server();
+    Py_INCREF(self->server);
 
     self->pointslist = PyList_New(0);
     self->size = 8192;
@@ -3057,6 +3067,7 @@ CurveTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self = (CurveTable *)type->tp_alloc(type, 0);
 
     self->server = PyServer_get_server();
+    Py_INCREF(self->server);
 
     self->pointslist = PyList_New(0);
     self->size = 8192;
@@ -3430,6 +3441,7 @@ ExpTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self = (ExpTable *)type->tp_alloc(type, 0);
 
     self->server = PyServer_get_server();
+    Py_INCREF(self->server);
 
     self->pointslist = PyList_New(0);
     self->size = 8192;
@@ -4113,11 +4125,14 @@ static PyObject *
 SndTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     int i;
+    Py_ssize_t psize;
     SndTable *self;
 
     self = (SndTable *)type->tp_alloc(type, 0);
 
     self->server = PyServer_get_server();
+    Py_INCREF(self->server);
+
     self->sr = (MYFLT)PyFloat_AsDouble(PyObject_CallMethod(self->server, "getSamplingRate", NULL));
 
     self->chnl = 0;
@@ -4129,7 +4144,7 @@ SndTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"path", "chnl", "start", "stop", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_S_IFF, kwlist, &self->path, &self->chnl, &self->start, &self->stop))
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_P_IFF, kwlist, &self->path, &psize, &self->chnl, &self->start, &self->stop))
         return PyInt_FromLong(-1);
 
     if (strcmp(self->path, "") == 0) {
@@ -4317,11 +4332,12 @@ SndTable_getEnvelope(SndTable *self, PyObject *arg) {
 static PyObject *
 SndTable_setSound(SndTable *self, PyObject *args, PyObject *kwds)
 {
+    Py_ssize_t psize;
     static char *kwlist[] = {"path", "chnl", "start", "stop", NULL};
 
     MYFLT stoptmp = -1.0;
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_S_IFF, kwlist, &self->path, &self->chnl, &self->start, &stoptmp)) {
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_P_IFF, kwlist, &self->path, &psize, &self->chnl, &self->start, &stoptmp)) {
         Py_INCREF(Py_None);
         return Py_None;
     }
@@ -4336,12 +4352,13 @@ SndTable_setSound(SndTable *self, PyObject *args, PyObject *kwds)
 static PyObject *
 SndTable_append(SndTable *self, PyObject *args, PyObject *kwds)
 {
+    Py_ssize_t psize;
     static char *kwlist[] = {"path", "crossfade", "chnl", "start", "stop", NULL};
 
     MYFLT stoptmp = -1.0;
     MYFLT crosstmp = 0.0;
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_S_FIFF, kwlist, &self->path, &crosstmp, &self->chnl, &self->start, &stoptmp)) {
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_P_FIFF, kwlist, &self->path, &psize, &crosstmp, &self->chnl, &self->start, &stoptmp)) {
         Py_INCREF(Py_None);
         return Py_None;
     }
@@ -4361,13 +4378,14 @@ SndTable_append(SndTable *self, PyObject *args, PyObject *kwds)
 static PyObject *
 SndTable_insert(SndTable *self, PyObject *args, PyObject *kwds)
 {
+    Py_ssize_t psize;
     static char *kwlist[] = {"path", "pos", "crossfade", "chnl", "start", "stop", NULL};
 
     MYFLT stoptmp = -1.0;
     MYFLT crosstmp = 0.0;
     MYFLT postmp = 0.0;
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_S_FFIFF, kwlist, &self->path, &postmp, &crosstmp, &self->chnl, &self->start, &stoptmp)) {
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_P_FFIFF, kwlist, &self->path, &psize, &postmp, &crosstmp, &self->chnl, &self->start, &stoptmp)) {
         Py_INCREF(Py_None);
         return Py_None;
     }
@@ -4592,6 +4610,7 @@ NewTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self = (NewTable *)type->tp_alloc(type, 0);
 
     self->server = PyServer_get_server();
+    Py_INCREF(self->server);
 
     self->pointer = 0;
     self->feedback = 0.0;
@@ -4910,6 +4929,7 @@ DataTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self = (DataTable *)type->tp_alloc(type, 0);
 
     self->server = PyServer_get_server();
+    Py_INCREF(self->server);
 
     MAKE_NEW_TABLESTREAM(self->tablestream, &TableStreamType, NULL);
 
@@ -5113,6 +5133,7 @@ AtanTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self = (AtanTable *)type->tp_alloc(type, 0);
 
     self->server = PyServer_get_server();
+    Py_INCREF(self->server);
 
     self->size = 8192;
     self->slope = 0.5;
@@ -5425,6 +5446,7 @@ PadSynthTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self = (PadSynthTable *)type->tp_alloc(type, 0);
 
     self->server = PyServer_get_server();
+    Py_INCREF(self->server);
 
     self->size = 262144;
     self->basefreq = 440;
@@ -5749,8 +5771,6 @@ TableRec_compute_next_data_frame(TableRec *self)
     if (self->pointer < size) {
         upBound = (int)(size - self->fadeInSample);
 
-        //MYFLT buffer[num];
-        //memset(&buffer, 0, sizeof(buffer));
         for (i=0; i<self->bufsize; i++) {
             self->buffer[i] = 0.0;
         }
@@ -7519,6 +7539,7 @@ SharedTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self = (SharedTable *)type->tp_alloc(type, 0);
 
     self->server = PyServer_get_server();
+    Py_INCREF(self->server);
 
     MAKE_NEW_TABLESTREAM(self->tablestream, &TableStreamType, NULL);
 

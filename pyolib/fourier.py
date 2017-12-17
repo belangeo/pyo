@@ -1224,7 +1224,7 @@ class CvlVerb(PyoObject):
         for file in impulse:
             _size, _dur, _snd_sr, _snd_chnls, _format, _type = sndinfo(file)
             lmax3 = max(lmax, _snd_chnls)
-            self._base_objs.extend([CvlVerb_base(wrap(in_fader,i), file, wrap(bal,i), wrap(size,i), i%_snd_chnls, wrap(mul,i), wrap(add,i)) for i in range(lmax3)])
+            self._base_objs.extend([CvlVerb_base(wrap(in_fader,i), stringencode(file), wrap(bal,i), wrap(size,i), i%_snd_chnls, wrap(mul,i), wrap(add,i)) for i in range(lmax3)])
         self.play()
 
     def setInput(self, x, fadetime=0.05):

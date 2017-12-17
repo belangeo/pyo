@@ -3,7 +3,7 @@
 
 #define appName "pyo"
 #define pyVer "2.7"
-#define appVer "0.8.6"
+#define appVer "0.8.8"
 
 [Setup]
 ; NOTE: The value of AppId uniquely identifies this application.
@@ -46,7 +46,9 @@ Source: "C:\Python27\Lib\site-packages\portaudio.dll"; DestDir: "{app}\Lib\site-
 Source: "C:\Python27\Lib\site-packages\portmidi.dll"; DestDir: "{app}\Lib\site-packages"; Flags: ignoreversion
 Source: "C:\Python27\Lib\site-packages\porttime.dll"; DestDir: "{app}\Lib\site-packages"; Flags: ignoreversion
 Source: "C:\Python27\Lib\site-packages\pthreadGC2.dll"; DestDir: "{app}\Lib\site-packages"; Flags: ignoreversion
+Source: "C:\Python27\Lib\site-packages\pthreadVC2.dll"; DestDir: "{app}\Lib\site-packages"; Flags: ignoreversion
 Source: "C:\Python27\Lib\site-packages\msvcr90.dll"; DestDir: "{app}\Lib\site-packages"; Flags: ignoreversion
+Source: "C:\Python27\Lib\site-packages\msvcr100.dll"; DestDir: "{app}\Lib\site-packages"; Flags: ignoreversion
 Source: "C:\MinGW\bin\libgcc_s_dw2-1.dll"; DestDir: "{app}\Lib\site-packages"; Flags: ignoreversion
 Source: "C:\MinGW\bin\libstdc++-6.dll"; DestDir: "{app}\Lib\site-packages"; Flags: ignoreversion
 Source: "C:\Python27\Lib\site-packages\pyo-{#appVer}-py{#pyVer}.egg-info"; DestDir: "{app}\Lib\site-packages"; Flags: ignoreversion

@@ -1,3 +1,15 @@
+To do ASAP!
+===========
+
+- [DOC] Compilation for anaconda (mail from Stanley Rosenbaum).
+
+- [DOC] Live recording without xruns, use Server.recstart() to record to a
+  file on a tmpfs, which is basically a filesystem in RAM.
+  mail: "Server recording to wav generates many xruns (Aug 26)".
+
+- Better error message when trying to open an input device but there is
+  none on the system. Automatic deactivation of duplex mode if no input.
+
 This is a list of features/fixes to implement for future releases
 =================================================================
 
@@ -19,9 +31,6 @@ Server
 - A method to retrieve a graph of the internal state of the server 
   (active objects, connections, attribute values, ...).
 
-- Remove, if possible, PyGILState_Ensure/PyGILState_Release from 
-  the process_buffers function.
-
 Examples
 --------
 
@@ -41,6 +50,10 @@ Objects
 MIDI
 ----
 
+- Add a Server.makenote(pitch, velocity, duration, channel=0, timestamp=0) method.
+
+- Jack on windows.
+
 - Create a MidiLinseg object that act like MidiAdsr but with a breakpoints
   function as the envelope. The sustain point should be settable by the user.
 
@@ -59,7 +72,7 @@ GUI
 
 - Keyboard, a virtual MIDI keyboard (adapted from Zyne's one).
 
-- Ability to set channel "name" in the view of PyoGuiScope and PyoGuiSpectrum.
+- A graphical representation of a parametric EQ.
 
 Tables
 ------
@@ -76,6 +89,10 @@ E-Pyo
 -----
 
 - Complete review of E-Pyo on Windows. Lot of features don't seem to work.
+
+    - Project tree refresh function doesn't work.
+
+- Add the ability to remove a project from the project tree.
 
 - Window splitter to show more than one file at the time (multiple 
   views) ?

@@ -21,7 +21,7 @@
 #include "Python.h"
 #include <math.h>
 
-#define PYO_VERSION "0.8.6"
+#define PYO_VERSION "0.8.8"
 
 #ifndef __MYFLT_DEF
 #define __MYFLT_DEF
@@ -51,8 +51,11 @@
 #define TYPE_O_IF "O|if"
 #define TYPE_O_IFS "O|ifs"
 #define TYPE_S_IFF "s|iff"
+#define TYPE_P_IFF "s#|iff"
 #define TYPE_S_FIFF "s|fiff"
+#define TYPE_P_FIFF "s#|fiff"
 #define TYPE_S_FFIFF "s|ffiff"
+#define TYPE_P_FFIFF "s#|ffiff"
 #define TYPE_S__OIFI "s|Oifi"
 #define TYPE_P__OIFI "s#|Oifi"
 #define TYPE__FFFOO "|fffOO"
@@ -138,8 +141,11 @@
 #define TYPE_O_IF "O|id"
 #define TYPE_O_IFS "O|ids"
 #define TYPE_S_IFF "s|idd"
+#define TYPE_P_IFF "s#|idd"
 #define TYPE_S_FIFF "s|didd"
+#define TYPE_P_FIFF "s#|didd"
 #define TYPE_S_FFIFF "s|ddidd"
+#define TYPE_P_FFIFF "s#|ddidd"
 #define TYPE_S__OIFI "s|Oidi"
 #define TYPE_P__OIFI "s#|Oidi"
 #define TYPE__FFFOO "|dddOO"
@@ -615,6 +621,7 @@ extern PyTypeObject TableScanType;
 
 #define pyo_CLEAR \
     if (self->server != NULL) { \
+        Py_DECREF(self->server); \
         self->server = NULL; \
     } \
     if (self->stream != NULL) \
@@ -626,6 +633,7 @@ extern PyTypeObject TableScanType;
 
 #define pyo_table_CLEAR \
     if (self->server != NULL) { \
+        Py_DECREF(self->server); \
         self->server = NULL; \
     } \
     if (self->tablestream != NULL) \
@@ -633,6 +641,7 @@ extern PyTypeObject TableScanType;
 
 #define pyo_matrix_CLEAR \
     if (self->server != NULL) { \
+        Py_DECREF(self->server); \
         self->server = NULL; \
     } \
     if (self->matrixstream != NULL) \
@@ -675,6 +684,7 @@ extern PyTypeObject TableScanType;
 /* Init Server & Stream */
 #define INIT_OBJECT_COMMON \
     self->server = PyServer_get_server(); \
+    Py_INCREF(self->server); \
     self->mul = PyFloat_FromDouble(1); \
     self->add = PyFloat_FromDouble(0); \
     self->bufsize = PyInt_AsLong(PyObject_CallMethod(self->server, "getBufferSize", NULL)); \

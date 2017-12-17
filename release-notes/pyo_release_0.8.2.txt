@@ -1,0 +1,63 @@
+[English version follows]
+
+Bonjour à tous,
+
+La version 0.8.2 de pyo est maintenant disponible en téléchargement :
+
+http://ajaxsoundstudio.com/software/pyo/
+
+La documentation:
+
+http://ajaxsoundstudio.com/pyodoc/
+
+Sources and suivi des bugs:
+    
+https://github.com/belangeo/pyo
+
+
+Changements:
+
+- Problème de latence élevée avec portaudio réglé.
+
+- Les objets TrigFunc et Pattern acceptent maintenant un tuple comme argument "arg".
+
+- E-Pyo: La fenêtre de documentation affiche correctement la documentation des objets.
+
+- Amélioration de la gestion des évènements midi en entrée.
+
+- L'interpolation des contrôleurs midi continus est maintenant à off par défaut.
+
+
+Olivier
+
+---
+
+Hello all,
+
+pyo 0.8.2 is now available to download on pyo's web site :
+
+http://ajaxsoundstudio.com/software/pyo/
+
+pyo's documentation:
+
+http://ajaxsoundstudio.com/pyodoc/
+
+Latest sources and bug tracker:
+    
+https://github.com/belangeo/pyo
+
+
+What's new:
+    
+- Fixed latency issue when using portaudio as audio backend.
+
+- TrigFunc and Pattern now accept a tuple as "arg" argument (fixed issue #90).
+
+- E-Pyo: Fixed a bug in the documentation window.
+
+- Fixed midi input events handling.
+
+- Set interpolation to off by default for midi continuous controllers.
+
+
+Olivier

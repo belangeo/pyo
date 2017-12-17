@@ -3,7 +3,7 @@
 
 #define appName "pyo"
 #define pyVer "3.5"
-#define appVer "0.8.6"
+#define appVer "0.8.8"
 
 [Setup]
 ; NOTE: The value of AppId uniquely identifies this application.
@@ -45,10 +45,12 @@ Source: "C:\Users\olivier\AppData\Local\Programs\Python\Python35-32\Lib\site-pac
 Source: "C:\Users\olivier\AppData\Local\Programs\Python\Python35-32\Lib\site-packages\portaudio.dll"; DestDir: "{app}\Lib\site-packages"; Flags: ignoreversion
 Source: "C:\Users\olivier\AppData\Local\Programs\Python\Python35-32\Lib\site-packages\portmidi.dll"; DestDir: "{app}\Lib\site-packages"; Flags: ignoreversion
 Source: "C:\Users\olivier\AppData\Local\Programs\Python\Python35-32\Lib\site-packages\porttime.dll"; DestDir: "{app}\Lib\site-packages"; Flags: ignoreversion
+Source: "C:\Users\olivier\AppData\Local\Programs\Python\Python35-32\Lib\site-packages\pthreadVC2.dll"; DestDir: "{app}\Lib\site-packages"; Flags: ignoreversion
 Source: "C:\Users\olivier\AppData\Local\Programs\Python\Python35-32\Lib\site-packages\pthreadGC2.dll"; DestDir: "{app}\Lib\site-packages"; Flags: ignoreversion
 Source: "C:\Users\olivier\AppData\Local\Programs\Python\Python35-32\Lib\site-packages\dcomp.dll"; DestDir: "{app}\Lib\site-packages"; Flags: ignoreversion
 Source: "C:\Users\olivier\AppData\Local\Programs\Python\Python35-32\Lib\site-packages\gpsvc.dll"; DestDir: "{app}\Lib\site-packages"; Flags: ignoreversion
 Source: "C:\Users\olivier\AppData\Local\Programs\Python\Python35-32\Lib\site-packages\sysntfy.dll"; DestDir: "{app}\Lib\site-packages"; Flags: ignoreversion
+Source: "C:\Users\olivier\AppData\Local\Programs\Python\Python35-32\Lib\site-packages\msvcr100.dll"; DestDir: "{app}\Lib\site-packages"; Flags: ignoreversion
 Source: "C:\MinGW\bin\libgcc_s_dw2-1.dll"; DestDir: "{app}\Lib\site-packages"; Flags: ignoreversion
 Source: "C:\MinGW\bin\libstdc++-6.dll"; DestDir: "{app}\Lib\site-packages"; Flags: ignoreversion
 Source: "C:\Users\olivier\AppData\Local\Programs\Python\Python35-32\Lib\site-packages\pyo-{#appVer}-py{#pyVer}.egg-info"; DestDir: "{app}\Lib\site-packages"; Flags: ignoreversion

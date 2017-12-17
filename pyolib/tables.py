@@ -1515,14 +1515,14 @@ class SndTable(PyoTableObject):
                 _size, _dur, _snd_sr, _snd_chnls, _format, _type = sndinfo(p)
                 if chnl is None:
                     if stop is None:
-                        self._base_objs.extend([SndTable_base(p, i, start) for i in range(_snd_chnls)])
+                        self._base_objs.extend([SndTable_base(stringencode(p), i, start) for i in range(_snd_chnls)])
                     else:
-                        self._base_objs.extend([SndTable_base(p, i, start, stop) for i in range(_snd_chnls)])
+                        self._base_objs.extend([SndTable_base(stringencode(p), i, start, stop) for i in range(_snd_chnls)])
                 else:
                     if stop is None:
-                        self._base_objs.append(SndTable_base(p, chnl, start))
+                        self._base_objs.append(SndTable_base(stringencode(p), chnl, start))
                     else:
-                        self._base_objs.append(SndTable_base(p, chnl, start, stop))
+                        self._base_objs.append(SndTable_base(stringencode(p), chnl, start, stop))
                 self._size.append(self._base_objs[-1].getSize())
                 self._dur.append(self._size[-1] / float(_snd_sr))
             if lmax == 1:
@@ -1560,17 +1560,17 @@ class SndTable(PyoTableObject):
                 self._size.append(_size)
                 self._dur.append(_dur)
                 if stop is None:
-                    obj.setSound(p, 0, start)
+                    obj.setSound(stringencode(p), 0, start)
                 else:
-                    obj.setSound(p, 0, start, stop)
+                    obj.setSound(stringencode(p), 0, start, stop)
         else:
             _size, _dur, _snd_sr, _snd_chnls, _format, _type = sndinfo(path)
             self._size = _size
             self._dur = _dur
             if stop is None:
-                [obj.setSound(path, (i%_snd_chnls), start) for i, obj in enumerate(self._base_objs)]
+                [obj.setSound(stringencode(path), (i%_snd_chnls), start) for i, obj in enumerate(self._base_objs)]
             else:
-                [obj.setSound(path, (i%_snd_chnls), start, stop) for i, obj in enumerate(self._base_objs)]
+                [obj.setSound(stringencode(path), (i%_snd_chnls), start, stop) for i, obj in enumerate(self._base_objs)]
         self.refreshView()
         self._resetView()
 
@@ -1607,17 +1607,17 @@ class SndTable(PyoTableObject):
                 self._size.append(_size)
                 self._dur.append(_dur)
                 if stop is None:
-                    obj.append(p, crossfade, 0, start)
+                    obj.append(stringencode(p), crossfade, 0, start)
                 else:
-                    obj.append(p, crossfade, 0, start, stop)
+                    obj.append(stringencode(p), crossfade, 0, start, stop)
         else:
             _size, _dur, _snd_sr, _snd_chnls, _format, _type = sndinfo(path)
             self._size = _size
             self._dur = _dur
             if stop is None:
-                [obj.append(path, crossfade, (i%_snd_chnls), start) for i, obj in enumerate(self._base_objs)]
+                [obj.append(stringencode(path), crossfade, (i%_snd_chnls), start) for i, obj in enumerate(self._base_objs)]
             else:
-                [obj.append(path, crossfade, (i%_snd_chnls), start, stop) for i, obj in enumerate(self._base_objs)]
+                [obj.append(stringencode(path), crossfade, (i%_snd_chnls), start, stop) for i, obj in enumerate(self._base_objs)]
         self.refreshView()
 
     def insert(self, path, pos=0, crossfade=0, start=0, stop=None):
@@ -1659,17 +1659,17 @@ class SndTable(PyoTableObject):
                 self._size.append(_size)
                 self._dur.append(_dur)
                 if stop is None:
-                    obj.insert(p, pos, crossfade, 0, start)
+                    obj.insert(stringencode(p), pos, crossfade, 0, start)
                 else:
-                    obj.insert(p, pos, crossfade, 0, start, stop)
+                    obj.insert(stringencode(p), pos, crossfade, 0, start, stop)
         else:
             _size, _dur, _snd_sr, _snd_chnls, _format, _type = sndinfo(path)
             self._size = _size
             self._dur = _dur
             if stop is None:
-                [obj.insert(path, pos, crossfade, (i%_snd_chnls), start) for i, obj in enumerate(self._base_objs)]
+                [obj.insert(stringencode(path), pos, crossfade, (i%_snd_chnls), start) for i, obj in enumerate(self._base_objs)]
             else:
-                [obj.insert(path, pos, crossfade, (i%_snd_chnls), start, stop) for i, obj in enumerate(self._base_objs)]
+                [obj.insert(stringencode(path), pos, crossfade, (i%_snd_chnls), start, stop) for i, obj in enumerate(self._base_objs)]
         self.refreshView()
 
     def getRate(self, all=True):

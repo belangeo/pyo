@@ -233,6 +233,7 @@ NewMatrix_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self = (NewMatrix *)type->tp_alloc(type, 0);
 
     self->server = PyServer_get_server();
+    Py_INCREF(self->server);
 
     self->x_pointer = self->y_pointer = 0;
 

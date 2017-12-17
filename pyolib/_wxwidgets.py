@@ -20,7 +20,7 @@ GNU Lesser General Public License for more details.
 You should have received a copy of the GNU Lesser General Public
 License along with pyo.  If not, see <http://www.gnu.org/licenses/>.
 """
-import wx, os, sys, math, time, random, unicodedata
+import wx, os, sys, math, time, unicodedata
 import wx.stc as stc
 
 if "phoenix" in wx.version():
@@ -28,6 +28,8 @@ if "phoenix" in wx.version():
     wx.EmptyBitmap = wx.Bitmap
     wx.EmptyImage = wx.Image
     wx.BitmapFromImage = wx.Bitmap
+    wx.Image_HSVValue = wx.Image.HSVValue
+    wx.Image_HSVtoRGB = wx.Image.HSVtoRGB
 
 BACKGROUND_COLOUR = "#EBEBEB"
 
@@ -1436,6 +1438,14 @@ class SpectrumDisplay(wx.Frame):
             X_OFF = 24
         else:
             X_OFF = 16
+
+        if self.obj is None:
+            initgain = 0.0
+            self.channelNamesVisible = True
+        else:
+            initgain = self.obj.gain
+            self.channelNamesVisible = self.obj.channelNamesVisible
+
         tw, th = self.GetTextExtent("Start")
         self.activeTog = wx.ToggleButton(self.panel, -1, label="Start", size=(tw+X_OFF, th+10))
         self.activeTog.SetValue(1)
@@ -1473,7 +1483,7 @@ class SpectrumDisplay(wx.Frame):
                  valtype='float', log=False, function=self.setZoomH)
         self.box.Add(self.zoomH, 0, wx.EXPAND|wx.LEFT|wx.RIGHT, 5)
         self.dispBox.Add(self.box, 1, wx.EXPAND, 0)
-        self.gainSlider = ControlSlider(self.panel, -24, 24, 0, outFunction=self.setGain, orient=wx.VERTICAL)
+        self.gainSlider = ControlSlider(self.panel, -24, 24, initgain, outFunction=self.setGain, orient=wx.VERTICAL)
         self.dispBox.Add(self.gainSlider, 0, wx.EXPAND|wx.TOP, 5)
         self.dispBox.AddSpacer(5)
         self.mainBox.Add(self.dispBox, 1, wx.EXPAND)
@@ -1531,6 +1541,10 @@ class SpectrumDisplay(wx.Frame):
         self.spectrumPanel.setMscaling(x)
         wx.CallAfter(self.spectrumPanel.Refresh)
 
+    def showChannelNames(self, visible):
+        self.spectrumPanel.showChannelNames(visible)
+        self.channelNamesVisible = visible
+
     def _destroy(self, evt):
         self.obj._setViewFrame(None)
         self.Destroy()
@@ -1542,21 +1556,30 @@ class SpectrumPanel(wx.Panel):
                  pos=wx.DefaultPosition, size=wx.DefaultSize, style=0):
         wx.Panel.__init__(self, parent, pos=pos, size=size, style=style)
         self.SetBackgroundStyle(wx.BG_STYLE_CUSTOM)
+        self.SetMinSize((300,100))
         self.Bind(wx.EVT_PAINT, self.OnPaint)
         self.Bind(wx.EVT_SIZE, self.OnSize)
-        #self.chnls = chnls
+        if chnls == 1:
+            self.chnls = 64
+        else:
+            self.chnls = chnls
+        try:
+            self.channelNamesVisible = self.GetParent().GetParent().channelNamesVisible
+        except:
+            self.channelNamesVisible = True
         self.img = None
         self.obj = None
         self.lowfreq = lowfreq
         self.highfreq = highfreq
         self.fscaling = fscaling
         self.mscaling = mscaling
-        self.pens = [wx.Pen(wx.Colour(166,4,0)), wx.Pen(wx.Colour(8,11,116)), wx.Pen(wx.Colour(0,204,0)),
-                    wx.Pen(wx.Colour(255,167,0)), wx.Pen(wx.Colour(133,0,75)), wx.Pen(wx.Colour(255,236,0)),
-                    wx.Pen(wx.Colour(1,147,154)), wx.Pen(wx.Colour(162,239,0))]
-        self.brushes = [wx.Brush(wx.Colour(166,4,0,128)), wx.Brush(wx.Colour(8,11,116,128)), wx.Brush(wx.Colour(0,204,0,128)),
-                        wx.Brush(wx.Colour(255,167,0,128)), wx.Brush(wx.Colour(133,0,75,128)), wx.Brush(wx.Colour(255,236,0,128)),
-                        wx.Brush(wx.Colour(1,147,154,128)), wx.Brush(wx.Colour(162,239,0,128))]
+        self.pens = []
+        self.brushes = []
+        for x in range(self.chnls):
+            hsv = wx.Image_HSVValue(x / float(self.chnls), 1.0, 1.0)
+            rgb = wx.Image_HSVtoRGB(hsv)
+            self.pens.append(wx.Pen(wx.Colour(rgb.red, rgb.green, rgb.blue)))
+            self.brushes.append(wx.Brush(wx.Colour(rgb.red, rgb.green, rgb.blue, 128)))
         if sys.platform == "win32" or sys.platform.startswith("linux"):
             self.dcref = wx.BufferedPaintDC
         else:
@@ -1591,6 +1614,9 @@ class SpectrumPanel(wx.Panel):
 
     def setHighFreq(self, x):
         self.highfreq = x
+
+    def showChannelNames(self, visible):
+        self.channelNamesVisible = visible
 
     def OnPaint(self, evt):
         w,h = self.GetSize()
@@ -1716,14 +1742,15 @@ class SpectrumPanel(wx.Panel):
         if self.img is not None:
             last_tw = tw
             # legend
-            tw, th = dc.GetTextExtent("chan 8")
-            for i in range(len(self.img)):
-                dc.SetTextForeground(self.pens[i%8].GetColour())
-                dc.DrawText("chan %d" % (i+1), w-tw-20-last_tw, i*th+th+7)
+            if len(self.img) > 1 and self.channelNamesVisible:
+                tw, th = dc.GetTextExtent("chan 8")
+                for i in range(len(self.img)):
+                    dc.SetTextForeground(self.pens[i%self.chnls].GetColour())
+                    dc.DrawText("chan %d" % (i+1), w-tw-20-last_tw, i*th+th+7)
             # channel spectrums
             for i, samples in enumerate(self.img):
-                gc.SetPen(self.pens[i%8])
-                gc.SetBrush(self.brushes[i%8])
+                gc.SetPen(self.pens[i%self.chnls])
+                gc.SetBrush(self.brushes[i%self.chnls])
                 gc.DrawLines(samples)
 
 ######################################################################
@@ -1790,6 +1817,9 @@ class ScopeDisplay(wx.Frame):
     def update(self, points):
         self.scopePanel.setImage(points)
 
+    def showChannelNames(self, visible):
+        self.scopePanel.showChannelNames(visible)
+
     def _destroy(self, evt):
         self.obj._setViewFrame(None)
         self.Destroy()
@@ -1800,6 +1830,7 @@ class ScopePanel(wx.Panel):
                  size=wx.DefaultSize, style=0):
         wx.Panel.__init__(self, parent, pos=pos, size=size, style=style)
         self.SetBackgroundStyle(wx.BG_STYLE_CUSTOM)
+        self.SetMinSize((300,100))
         self.Bind(wx.EVT_PAINT, self.OnPaint)
         self.Bind(wx.EVT_SIZE, self.OnSize)
         self.img = [[]]
@@ -1807,13 +1838,18 @@ class ScopePanel(wx.Panel):
         if self.obj is not None:
             self.gain = self.obj.gain
             self.length = self.obj.length
+            self.chnls = len(self.obj)
+            self.channelNamesVisible = self.obj.channelNamesVisible
         else:
             self.gain = 1
             self.length = 0.05
-        #self.chnls = len(self.obj)
-        self.pens = [wx.Pen(wx.Colour(166,4,0), width=2), wx.Pen(wx.Colour(8,11,116), width=2), wx.Pen(wx.Colour(0,204,0), width=2),
-                    wx.Pen(wx.Colour(255,167,0), width=2), wx.Pen(wx.Colour(133,0,75), width=2), wx.Pen(wx.Colour(255,236,0), width=2),
-                    wx.Pen(wx.Colour(1,147,154), width=2), wx.Pen(wx.Colour(162,239,0), width=2)]
+            self.chnls = 64
+            self.channelNamesVisible = True
+        self.pens = []
+        for x in range(self.chnls):
+            hsv = wx.Image_HSVValue(x / float(self.chnls), 1.0, 1.0)
+            rgb = wx.Image_HSVtoRGB(hsv)
+            self.pens.append(wx.Pen(wx.Colour(rgb.red, rgb.green, rgb.blue)))
 
         if sys.platform == "win32" or sys.platform.startswith("linux"):
             self.dcref = wx.BufferedPaintDC
@@ -1839,6 +1875,9 @@ class ScopePanel(wx.Panel):
         self.img = points
         wx.CallAfter(self.Refresh)
 
+    def showChannelNames(self, visible=True):
+        self.channelNamesVisible = visible
+
     def OnPaint(self, evt):
         w,h = self.GetSize()
         dc = self.dcref(self)
@@ -1850,9 +1889,13 @@ class ScopePanel(wx.Panel):
         gc.SetPen(wx.Pen('#000000', width=1, style=wx.SOLID))
         gc.SetBrush(wx.Brush("#FFFFFF", style=wx.TRANSPARENT))
         dc.SetTextForeground("#444444")
-        if sys.platform in "darwin":
+        if sys.platform == "darwin":
             font, ptsize = dc.GetFont(), dc.GetFont().GetPointSize()
             font.SetPointSize(ptsize - 3)
+            dc.SetFont(font)
+        elif sys.platform.startswith("linux"):
+            font, ptsize = dc.GetFont(), dc.GetFont().GetPointSize()
+            font.SetPointSize(ptsize - 1)
             dc.SetFont(font)
         elif sys.platform == "win32":
             font = dc.GetFont()
@@ -1881,15 +1924,16 @@ class ScopePanel(wx.Panel):
         # draw waveforms
         for i, samples in enumerate(self.img):
             gc.SetPen(self.pens[i%8])
-            if len(samples):
+            if len(samples) > 1:
                 gc.DrawLines(samples)
 
         # legend
         last_tw = tw
-        tw, th = dc.GetTextExtent("chan 8")
-        for i in range(len(self.img)):
-            dc.SetTextForeground(self.pens[i%8].GetColour())
-            dc.DrawText("chan %d" % (i+1), w-tw-20-last_tw, i*th+10)
+        if len(self.img) > 1 and self.channelNamesVisible:
+            tw, th = dc.GetTextExtent("chan 8")
+            for i in range(len(self.img)):
+                dc.SetTextForeground(self.pens[i % self.chnls].GetColour())
+                dc.DrawText("chan %d" % (i+1), w-tw-20-last_tw, i*th+10)
 
 ######################################################################
 ## Grapher window for PyoTableObject control
@@ -2864,7 +2908,7 @@ class ServerGUI(wx.Frame):
     def __init__(self, parent=None, nchnls=2, startf=None, stopf=None,
                 recstartf=None, recstopf=None, ampf=None, started=0,
                 locals=None, shutdown=None, meter=True, timer=True, amp=1.,
-                exit=True):
+                exit=True, getIsBooted=None, getIsStarted=None):
         wx.Frame.__init__(self, parent, style=wx.DEFAULT_FRAME_STYLE ^ wx.RESIZE_BORDER)
 
         self.menubar = wx.MenuBar()
@@ -2885,6 +2929,8 @@ class ServerGUI(wx.Frame):
         self.recstopf = recstopf
         self.ampf = ampf
         self.exit = exit
+        self.getIsBooted = getIsBooted
+        self.getIsStarted = getIsStarted
         self._started = False
         self._recstarted = False
         self._history = []
@@ -2894,56 +2940,49 @@ class ServerGUI(wx.Frame):
         panel.SetBackgroundColour(BACKGROUND_COLOUR)
         box = wx.BoxSizer(wx.VERTICAL)
 
-        if sys.platform == "win32":
-            leftMargin = 24
-        else:
-            leftMargin = 25
-
         buttonBox = wx.BoxSizer(wx.HORIZONTAL)
-        self.startButton = wx.Button(panel, -1, 'Start', (20,20), (72,-1))
+        self.startButton = wx.Button(panel, -1, 'Start')
         self.startButton.Bind(wx.EVT_BUTTON, self.start)
-        buttonBox.Add(self.startButton, 0, wx.RIGHT, 5)
+        buttonBox.Add(self.startButton, 0, wx.LEFT | wx.RIGHT, 5)
 
-        self.recButton = wx.Button(panel, -1, 'Rec Start', (20,20), (72,-1))
+        self.recButton = wx.Button(panel, -1, 'Rec Start')
         self.recButton.Bind(wx.EVT_BUTTON, self.record)
         buttonBox.Add(self.recButton, 0, wx.RIGHT, 5)
 
-        self.quitButton = wx.Button(panel, -1, 'Quit', (20,20), (72,-1))
+        self.quitButton = wx.Button(panel, -1, 'Quit')
         self.quitButton.Bind(wx.EVT_BUTTON, self.on_quit)
-        buttonBox.Add(self.quitButton, 0, wx.RIGHT, 0)
+        buttonBox.Add(self.quitButton, 0, wx.RIGHT, 5)
 
-        box.Add(buttonBox, 0, wx.TOP | wx.LEFT | wx.RIGHT, 10)
+        box.Add(buttonBox, 0, wx.TOP, 10)
         box.AddSpacer(10)
 
-        box.Add(wx.StaticText(panel, -1, "Amplitude (dB)"), 0, wx.LEFT, leftMargin)
-        ampBox = wx.BoxSizer(wx.HORIZONTAL)
+        box.Add(wx.StaticText(panel, -1, "Amplitude (dB)"), 0, wx.LEFT, 5)
         self.ampScale = ControlSlider(panel, -60, 18, 20.0 * math.log10(amp), size=(202, 16), outFunction=self.setAmp)
-        ampBox.Add(self.ampScale, 0, wx.LEFT, leftMargin-10)
-        box.Add(ampBox, 0, wx.LEFT | wx.RIGHT, 8)
+        box.Add(self.ampScale, 0, wx.LEFT | wx.RIGHT | wx.EXPAND, 5)
 
         if meter:
             box.AddSpacer(10)
             self.meter = VuMeter(panel, size=(200,5*self.nchnls+1), numSliders=self.nchnls)
-            box.Add(self.meter, 0, wx.LEFT, leftMargin-1)
+            box.Add(self.meter, 0, wx.LEFT | wx.RIGHT | wx.EXPAND, 5)
             box.AddSpacer(5)
 
         if timer:
             box.AddSpacer(10)
             tt = wx.StaticText(panel, -1, "Elapsed time (hh:mm:ss:ms)")
-            box.Add(tt, 0, wx.LEFT, leftMargin)
+            box.Add(tt, 0, wx.LEFT, 5)
             box.AddSpacer(3)
             self.timetext = wx.StaticText(panel, -1, "00 : 00 : 00 : 000")
-            box.Add(self.timetext, 0, wx.LEFT, leftMargin)
+            box.Add(self.timetext, 0, wx.LEFT, 5)
 
         if self.locals is not None:
             box.AddSpacer(10)
             t = wx.StaticText(panel, -1, "Interpreter")
-            box.Add(t, 0, wx.LEFT, leftMargin)
+            box.Add(t, 0, wx.LEFT, 5)
             tw, th = self.GetTextExtent("|")
             self.text = wx.TextCtrl(panel, -1, "", size=(202, th+8), style=wx.TE_PROCESS_ENTER)
             self.text.Bind(wx.EVT_TEXT_ENTER, self.getText)
             self.text.Bind(wx.EVT_CHAR, self.onChar)
-            box.Add(self.text, 0, wx.LEFT, leftMargin-1)
+            box.Add(self.text, 0, wx.LEFT | wx.RIGHT | wx.EXPAND, 5)
 
         box.AddSpacer(10)
         panel.SetSizerAndFit(box)
@@ -2973,7 +3012,8 @@ class ServerGUI(wx.Frame):
             # TODO: Need a common method for every OSes.
             #wx.CallLater(100, self.stopf)
             #wx.CallAfter(self.stopf)
-            self.stopf()
+            if self.getIsStarted():
+                self.stopf()
 
     def record(self, evt):
         if self._recstarted == False:
@@ -2989,7 +3029,7 @@ class ServerGUI(wx.Frame):
         wx.CallAfter(self.on_quit, None)
 
     def on_quit(self, evt):
-        if self.exit:
+        if self.exit and self.getIsBooted():
             self.shutdown()
             time.sleep(0.25)
         self.Destroy()

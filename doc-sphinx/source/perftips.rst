@@ -287,8 +287,8 @@ the same noise for multiple denormalizations:
 Use a PyoObject when available
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Always look first if a PyoObject does what you want, it will always more
-efficient than a the same process written from scratch.
+Always look first if a PyoObject does what you want, it will always be more
+efficient than the same process written from scratch.
 
 This construct, although pedagogically valid, will never be more efficient, in
 term of CPU and memory usage, than a native PyoObject (Phaser) written in C.

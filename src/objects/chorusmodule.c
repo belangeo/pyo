@@ -93,7 +93,7 @@ Chorus_process_ii(Chorus *self) {
                 self->pointerPos[j] -= 512.0;
             ipart = (int)self->pointerPos[j];
             fpart = self->pointerPos[j] - ipart;
-            lfo = self->delay_devs[j] * dpth * (LFO_ARRAY[ipart] * (1.0 - fpart) + LFO_ARRAY[ipart+1] * fpart) + self->delays[j];
+            lfo = self->delay_devs[j] * dpth * (LFO_ARRAY[ipart] + (LFO_ARRAY[ipart+1] - LFO_ARRAY[ipart]) * fpart) + self->delays[j];
             self->pointerPos[j] += self->inc[j];
 
             pos = self->in_count[j] - lfo;
@@ -101,7 +101,7 @@ Chorus_process_ii(Chorus *self) {
                 pos += self->size[j];
             ipart = (int)pos;
             fpart = pos - ipart;
-            val = (self->buffer[j][ipart] * (1.0 - fpart) + self->buffer[j][ipart+1] * fpart);
+            val = self->buffer[j][ipart] + (self->buffer[j][ipart+1] - self->buffer[j][ipart]) * fpart;
             self->total_signal += val;
 
             self->buffer[j][self->in_count[j]] = inval + val * feed;
@@ -140,7 +140,7 @@ Chorus_process_ai(Chorus *self) {
                 self->pointerPos[j] -= 512.0;
             ipart = (int)self->pointerPos[j];
             fpart = self->pointerPos[j] - ipart;
-            lfo = self->delay_devs[j] * dpth * (LFO_ARRAY[ipart] * (1.0 - fpart) + LFO_ARRAY[ipart+1] * fpart) + self->delays[j];
+            lfo = self->delay_devs[j] * dpth * (LFO_ARRAY[ipart] + (LFO_ARRAY[ipart+1] - LFO_ARRAY[ipart]) * fpart) + self->delays[j];
             self->pointerPos[j] += self->inc[j];
 
             pos = self->in_count[j] - lfo;
@@ -148,7 +148,7 @@ Chorus_process_ai(Chorus *self) {
                 pos += self->size[j];
             ipart = (int)pos;
             fpart = pos - ipart;
-            val = (self->buffer[j][ipart] * (1.0 - fpart) + self->buffer[j][ipart+1] * fpart);
+            val = self->buffer[j][ipart] + (self->buffer[j][ipart+1] - self->buffer[j][ipart]) * fpart;
             self->total_signal += val;
 
             self->buffer[j][self->in_count[j]] = inval + val * feed;
@@ -187,7 +187,7 @@ Chorus_process_ia(Chorus *self) {
                 self->pointerPos[j] -= 512.0;
             ipart = (int)self->pointerPos[j];
             fpart = self->pointerPos[j] - ipart;
-            lfo = self->delay_devs[j] * dpth * (LFO_ARRAY[ipart] * (1.0 - fpart) + LFO_ARRAY[ipart+1] * fpart) + self->delays[j];
+            lfo = self->delay_devs[j] * dpth * (LFO_ARRAY[ipart] + (LFO_ARRAY[ipart+1] - LFO_ARRAY[ipart]) * fpart) + self->delays[j];
             self->pointerPos[j] += self->inc[j];
 
             pos = self->in_count[j] - lfo;
@@ -195,7 +195,7 @@ Chorus_process_ia(Chorus *self) {
                 pos += self->size[j];
             ipart = (int)pos;
             fpart = pos - ipart;
-            val = (self->buffer[j][ipart] * (1.0 - fpart) + self->buffer[j][ipart+1] * fpart);
+            val = self->buffer[j][ipart] + (self->buffer[j][ipart+1] - self->buffer[j][ipart]) * fpart;
             self->total_signal += val;
 
             self->buffer[j][self->in_count[j]] = inval + val * feed;
@@ -239,7 +239,7 @@ Chorus_process_aa(Chorus *self) {
                 self->pointerPos[j] -= 512.0;
             ipart = (int)self->pointerPos[j];
             fpart = self->pointerPos[j] - ipart;
-            lfo = self->delay_devs[j] * dpth * (LFO_ARRAY[ipart] * (1.0 - fpart) + LFO_ARRAY[ipart+1] * fpart) + self->delays[j];
+            lfo = self->delay_devs[j] * dpth * (LFO_ARRAY[ipart] + (LFO_ARRAY[ipart+1] - LFO_ARRAY[ipart]) * fpart) + self->delays[j];
             self->pointerPos[j] += self->inc[j];
 
             pos = self->in_count[j] - lfo;
@@ -247,7 +247,7 @@ Chorus_process_aa(Chorus *self) {
                 pos += self->size[j];
             ipart = (int)pos;
             fpart = pos - ipart;
-            val = (self->buffer[j][ipart] * (1.0 - fpart) + self->buffer[j][ipart+1] * fpart);
+            val = self->buffer[j][ipart] + (self->buffer[j][ipart+1] - self->buffer[j][ipart]) * fpart;
             self->total_signal += val;
 
             self->buffer[j][self->in_count[j]] = inval + val * feed;

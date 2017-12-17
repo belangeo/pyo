@@ -727,6 +727,7 @@ OscDataSend_compute_next_data_frame(OscDataSend *self)
 {
     int i, j = 0;
     Py_ssize_t blobsize = 0;
+    PyObject *inlist = NULL;
     PyObject *datalist = NULL;
     char *blobdata = NULL;
     uint8_t midi[4];
@@ -734,35 +735,37 @@ OscDataSend_compute_next_data_frame(OscDataSend *self)
     char *path=NULL;
     lo_message *msg;
 
-    if (self->something_to_send == 1) {
+    while (self->something_to_send) {
         if (PyBytes_Check(self->address_path))
             path = PyBytes_AsString(self->address_path);
         else
             path = PY_UNICODE_AS_UNICODE(self->address_path);
         msg = lo_message_new();
 
+        self->something_to_send--;
+        inlist = PyList_GetItem(self->value, self->something_to_send);
         for (i=0; i<self->num_items; i++) {
             switch (self->types[i]) {
                 case LO_INT32:
-                    lo_message_add_int32(msg, PyInt_AS_LONG(PyList_GET_ITEM(self->value, i)));
+                    lo_message_add_int32(msg, PyInt_AS_LONG(PyList_GET_ITEM(inlist, i)));
                     break;
                 case LO_INT64:
-                    lo_message_add_int64(msg, (long)PyLong_AsLong(PyList_GET_ITEM(self->value, i)));
+                    lo_message_add_int64(msg, (long)PyLong_AsLong(PyList_GET_ITEM(inlist, i)));
                     break;
                 case LO_FLOAT:
-                    lo_message_add_float(msg, (float)PyFloat_AsDouble(PyList_GET_ITEM(self->value, i)));
+                    lo_message_add_float(msg, (float)PyFloat_AsDouble(PyList_GET_ITEM(inlist, i)));
                     break;
                 case LO_DOUBLE:
-                    lo_message_add_double(msg, (double)PyFloat_AsDouble(PyList_GET_ITEM(self->value, i)));
+                    lo_message_add_double(msg, (double)PyFloat_AsDouble(PyList_GET_ITEM(inlist, i)));
                     break;
                 case LO_STRING:
-                    lo_message_add_string(msg, PY_STRING_AS_STRING(PyList_GET_ITEM(self->value, i)));
+                    lo_message_add_string(msg, PY_STRING_AS_STRING(PyList_GET_ITEM(inlist, i)));
                     break;
                 case LO_CHAR:
-                    lo_message_add_char(msg, (char)PY_STRING_AS_STRING(PyList_GET_ITEM(self->value, i))[0]);
+                    lo_message_add_char(msg, (char)PY_STRING_AS_STRING(PyList_GET_ITEM(inlist, i))[0]);
                     break;
                 case LO_BLOB:
-                    datalist = PyList_GET_ITEM(self->value, i);
+                    datalist = PyList_GET_ITEM(inlist, i);
                     blobsize = PyList_Size(datalist);
                     blobdata = (char *)malloc(blobsize * sizeof(char));
                     for (j=0; j<blobsize; j++) {
@@ -772,7 +775,7 @@ OscDataSend_compute_next_data_frame(OscDataSend *self)
                     lo_message_add_blob(msg, blob);
                     break;
                 case LO_MIDI:
-                    datalist = PyList_GET_ITEM(self->value, i);
+                    datalist = PyList_GET_ITEM(inlist, i);
                     for (j=0; j<4; j++) {
                         midi[j] = (uint8_t)PyInt_AS_LONG(PyList_GET_ITEM(datalist, j));
                     }
@@ -795,7 +798,8 @@ OscDataSend_compute_next_data_frame(OscDataSend *self)
             PySys_WriteStdout("OSC error %d: %s\n", lo_address_errno(self->address), 
                                          lo_address_errstr(self->address));
         }
-        self->something_to_send = 0;
+        Py_DECREF(inlist);
+        PySequence_DelItem(self->value, self->something_to_send);
         lo_message_free(msg);
         if (blob != NULL)
             lo_blob_free(blob);
@@ -838,6 +842,8 @@ OscDataSend_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     OscDataSend *self;
     self = (OscDataSend *)type->tp_alloc(type, 0);
 
+    self->value = PyList_New(0);
+    self->something_to_send = 0;
     self->host = NULL;
 
     INIT_OBJECT_COMMON
@@ -883,10 +889,9 @@ OscDataSend_send(OscDataSend *self, PyObject *arg)
 
     if (PyList_Check(arg)) {
         tmp = arg;
-        Py_XDECREF(self->value);
         Py_INCREF(tmp);
-        self->value = tmp;
-        self->something_to_send = 1;
+        PyList_Append(self->value, tmp);
+        self->something_to_send++;
     }
     else
         PySys_WriteStdout("OscDataSend: argument to send() method must be a list of values.\n");

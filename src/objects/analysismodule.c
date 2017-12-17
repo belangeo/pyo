@@ -402,6 +402,7 @@ typedef struct {
     MYFLT last_falltime;
     MYFLT risefactor;
     MYFLT fallfactor;
+    MYFLT mTwoPiOverSr;
 } Follower2;
 
 static void
@@ -418,12 +419,12 @@ Follower2_filters_ii(Follower2 *self) {
         falltime = 0.000001;
 
     if (risetime != self->last_risetime) {
-        self->risefactor = MYEXP(-TWOPI * (1.0 / risetime) / self->sr);
+        self->risefactor = MYEXP(self->mTwoPiOverSr / risetime);
         self->last_risetime = risetime;
     }
 
     if (falltime != self->last_falltime) {
-        self->fallfactor = MYEXP(-TWOPI * (1.0 / falltime) / self->sr);
+        self->fallfactor = MYEXP(self->mTwoPiOverSr / falltime);
         self->last_falltime = falltime;
     }
 
@@ -450,7 +451,7 @@ Follower2_filters_ai(Follower2 *self) {
         falltime = 0.000001;
 
     if (falltime != self->last_falltime) {
-        self->fallfactor = MYEXP(-TWOPI * (1.0 / falltime) / self->sr);
+        self->fallfactor = MYEXP(self->mTwoPiOverSr / falltime);
         self->last_falltime = falltime;
     }
 
@@ -459,7 +460,7 @@ Follower2_filters_ai(Follower2 *self) {
         if (risetime <= 0.0)
             risetime = 0.000001;
         if (risetime != self->last_risetime) {
-            self->risefactor = MYEXP(-TWOPI * (1.0 / risetime) / self->sr);
+            self->risefactor = MYEXP(self->mTwoPiOverSr / risetime);
             self->last_risetime = risetime;
         }
         absin = in[i];
@@ -484,7 +485,7 @@ Follower2_filters_ia(Follower2 *self) {
     MYFLT *fall = Stream_getData((Stream *)self->falltime_stream);
 
     if (risetime != self->last_risetime) {
-        self->risefactor = MYEXP(-TWOPI * (1.0 / risetime) / self->sr);
+        self->risefactor = MYEXP(self->mTwoPiOverSr / risetime);
         self->last_risetime = risetime;
     }
 
@@ -493,7 +494,7 @@ Follower2_filters_ia(Follower2 *self) {
         if (falltime <= 0.0)
             falltime = 0.000001;
         if (falltime != self->last_falltime) {
-            self->fallfactor = MYEXP(-TWOPI * (1.0 / falltime) / self->sr);
+            self->fallfactor = MYEXP(self->mTwoPiOverSr / falltime);
             self->last_falltime = falltime;
         }
         absin = in[i];
@@ -520,14 +521,14 @@ Follower2_filters_aa(Follower2 *self) {
         if (risetime <= 0.0)
             risetime = 0.000001;
         if (risetime != self->last_risetime) {
-            self->risefactor = MYEXP(-TWOPI * (1.0 / risetime) / self->sr);
+            self->risefactor = MYEXP(self->mTwoPiOverSr / risetime);
             self->last_risetime = risetime;
         }
         falltime = fall[i];
         if (falltime <= 0.0)
             falltime = 0.000001;
         if (falltime != self->last_falltime) {
-            self->fallfactor = MYEXP(-TWOPI * (1.0 / falltime) / self->sr);
+            self->fallfactor = MYEXP(self->mTwoPiOverSr / falltime);
             self->last_falltime = falltime;
         }
         absin = in[i];
@@ -665,6 +666,8 @@ Follower2_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, Follower2_compute_next_data_frame);
     self->mode_func_ptr = Follower2_setProcMode;
+
+    self->mTwoPiOverSr = -TWOPI / self->sr;
 
     static char *kwlist[] = {"input", "risetime", "falltime", "mul", "add", NULL};
 

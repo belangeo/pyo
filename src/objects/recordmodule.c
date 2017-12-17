@@ -122,6 +122,7 @@ Record_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     int fileformat = 0;
     int sampletype = 0;
     double quality = 0.4;
+    Py_ssize_t psize;
     PyObject *input_listtmp;
     Record *self;
     self = (Record *)type->tp_alloc(type, 0);
@@ -136,7 +137,7 @@ Record_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"input", "filename", "chnls", "fileformat", "sampletype", "buffering", "quality", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "Os|iiiid", kwlist, &input_listtmp, &self->recpath, &self->chnls, &fileformat, &sampletype, &self->buffering, &quality))
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "Os#|iiiid", kwlist, &input_listtmp, &self->recpath, &psize, &self->chnls, &fileformat, &sampletype, &self->buffering, &quality))
         Py_RETURN_NONE;
 
     Py_XDECREF(self->input_list);

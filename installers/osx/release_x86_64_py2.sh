@@ -1,16 +1,16 @@
 #!/bin/sh
 
 # Need Xcode 3.2.6 or later (pkgbuild and productbuild)
-# with python 2.7.12 (32/64-bit) and wxpython 3.0.2.0 (classic) installed
+# with python 2.7.13 (32/64-bit) and wxpython 3.0.2.0 (classic) installed
 
 # 1. update pyo sources
 # 2. compile and install pyo float and double for python2
 # 3. cd utils and build E-Pyo for python2
 # 4. cd installers/osx and build the release for python2
 
-export PACKAGE_NAME=pyo_0.8.6_x86_64_py2.pkg
-export DMG_DIR="pyo 0.8.6 py2 Universal"
-export DMG_NAME="pyo_0.8.6_OSX_py2-universal.dmg"
+export PACKAGE_NAME=pyo_0.8.8_x86_64_py2.pkg
+export DMG_DIR="pyo 0.8.8 py2 Universal"
+export DMG_NAME="pyo_0.8.8_OSX_py2-universal.dmg"
 export INSTALLER_DIR=`pwd`/installer
 export PYO_MODULE_DIR=$INSTALLER_DIR/PyoModule/Package_Contents/tmp
 export SUPPORT_LIBS_DIR=$INSTALLER_DIR/SupportLibs/Package_Contents/usr/local/lib

@@ -32,56 +32,56 @@
 
 #ifdef USE_PORTAUDIO
 #include "ad_portaudio.h"
-PyObject * with_portaudio() { Py_INCREF(Py_True); return Py_True; };
+static PyObject * with_portaudio() { Py_INCREF(Py_True); return Py_True; };
 #else
 #define pa_warning "Pyo built without Portaudio support.\n"
-PyObject * portaudio_get_version() { PySys_WriteStdout(pa_warning); Py_RETURN_NONE; };
-PyObject * portaudio_get_version_text() { PySys_WriteStdout(pa_warning); Py_RETURN_NONE; };
-PyObject * portaudio_count_host_apis() { PySys_WriteStdout(pa_warning); Py_RETURN_NONE; };
-PyObject * portaudio_list_host_apis() { PySys_WriteStdout(pa_warning); Py_RETURN_NONE; };
-PyObject * portaudio_get_default_host_api() { PySys_WriteStdout(pa_warning); Py_RETURN_NONE; };
-PyObject * portaudio_count_devices() { PySys_WriteStdout(pa_warning); Py_RETURN_NONE; };
-PyObject * portaudio_list_devices() { PySys_WriteStdout(pa_warning); Py_RETURN_NONE; };
-PyObject * portaudio_get_devices_infos() { PySys_WriteStdout(pa_warning); Py_RETURN_NONE; };
-PyObject * portaudio_get_output_devices() { PySys_WriteStdout(pa_warning); Py_RETURN_NONE; };
-PyObject * portaudio_get_output_max_channels(PyObject *self, PyObject *arg) { PySys_WriteStdout(pa_warning); Py_RETURN_NONE; };
-PyObject * portaudio_get_input_max_channels(PyObject *self, PyObject *arg) { PySys_WriteStdout(pa_warning); Py_RETURN_NONE; };
-PyObject * portaudio_get_input_devices() { PySys_WriteStdout(pa_warning); Py_RETURN_NONE; };
-PyObject * portaudio_get_default_input() { PySys_WriteStdout(pa_warning); Py_RETURN_NONE; };
-PyObject * portaudio_get_default_output() { PySys_WriteStdout(pa_warning); Py_RETURN_NONE; };
-PyObject * with_portaudio() { Py_INCREF(Py_False); return Py_False; };
+static PyObject * portaudio_get_version() { PySys_WriteStdout(pa_warning); Py_RETURN_NONE; };
+static PyObject * portaudio_get_version_text() { PySys_WriteStdout(pa_warning); Py_RETURN_NONE; };
+static PyObject * portaudio_count_host_apis() { PySys_WriteStdout(pa_warning); Py_RETURN_NONE; };
+static PyObject * portaudio_list_host_apis() { PySys_WriteStdout(pa_warning); Py_RETURN_NONE; };
+static PyObject * portaudio_get_default_host_api() { PySys_WriteStdout(pa_warning); Py_RETURN_NONE; };
+static PyObject * portaudio_count_devices() { PySys_WriteStdout(pa_warning); Py_RETURN_NONE; };
+static PyObject * portaudio_list_devices() { PySys_WriteStdout(pa_warning); Py_RETURN_NONE; };
+static PyObject * portaudio_get_devices_infos() { PySys_WriteStdout(pa_warning); Py_RETURN_NONE; };
+static PyObject * portaudio_get_output_devices() { PySys_WriteStdout(pa_warning); Py_RETURN_NONE; };
+static PyObject * portaudio_get_output_max_channels(PyObject *self, PyObject *arg) { PySys_WriteStdout(pa_warning); Py_RETURN_NONE; };
+static PyObject * portaudio_get_input_max_channels(PyObject *self, PyObject *arg) { PySys_WriteStdout(pa_warning); Py_RETURN_NONE; };
+static PyObject * portaudio_get_input_devices() { PySys_WriteStdout(pa_warning); Py_RETURN_NONE; };
+static PyObject * portaudio_get_default_input() { PySys_WriteStdout(pa_warning); Py_RETURN_NONE; };
+static PyObject * portaudio_get_default_output() { PySys_WriteStdout(pa_warning); Py_RETURN_NONE; };
+static PyObject * with_portaudio() { Py_INCREF(Py_False); return Py_False; };
 #endif
 
 #ifdef USE_PORTMIDI
 #include "md_portmidi.h"
-PyObject * with_portmidi() { Py_INCREF(Py_True); return Py_True; };
+static PyObject * with_portmidi() { Py_INCREF(Py_True); return Py_True; };
 #else
 #define pm_warning "Pyo built without Portmidi sipport.\n"
-PyObject * portmidi_count_devices() { PySys_WriteStdout(pm_warning); Py_RETURN_NONE; };
-PyObject * portmidi_list_devices() { PySys_WriteStdout(pm_warning); Py_RETURN_NONE; };
-PyObject * portmidi_get_input_devices() { PySys_WriteStdout(pm_warning); Py_RETURN_NONE; };
-PyObject * portmidi_get_output_devices() { PySys_WriteStdout(pm_warning); Py_RETURN_NONE; };
-PyObject * portmidi_get_default_input() { PySys_WriteStdout(pm_warning); Py_RETURN_NONE; };
-PyObject * portmidi_get_default_output() { PySys_WriteStdout(pm_warning); Py_RETURN_NONE; };
-PyObject * with_portmidi() { Py_INCREF(Py_False); return Py_False; };
+static PyObject * portmidi_count_devices() { PySys_WriteStdout(pm_warning); Py_RETURN_NONE; };
+static PyObject * portmidi_list_devices() { PySys_WriteStdout(pm_warning); Py_RETURN_NONE; };
+static PyObject * portmidi_get_input_devices() { PySys_WriteStdout(pm_warning); Py_RETURN_NONE; };
+static PyObject * portmidi_get_output_devices() { PySys_WriteStdout(pm_warning); Py_RETURN_NONE; };
+static PyObject * portmidi_get_default_input() { PySys_WriteStdout(pm_warning); Py_RETURN_NONE; };
+static PyObject * portmidi_get_default_output() { PySys_WriteStdout(pm_warning); Py_RETURN_NONE; };
+static PyObject * with_portmidi() { Py_INCREF(Py_False); return Py_False; };
 #endif
 
 #ifdef USE_JACK
-PyObject * with_jack() { Py_INCREF(Py_True); return Py_True; };
+static PyObject * with_jack() { Py_INCREF(Py_True); return Py_True; };
 #else
-PyObject * with_jack() { Py_INCREF(Py_False); return Py_False; };
+static PyObject * with_jack() { Py_INCREF(Py_False); return Py_False; };
 #endif
 
 #ifdef USE_COREAUDIO
-PyObject * with_coreaudio() { Py_INCREF(Py_True); return Py_True; };
+static PyObject * with_coreaudio() { Py_INCREF(Py_True); return Py_True; };
 #else
-PyObject * with_coreaudio() { Py_INCREF(Py_False); return Py_False; };
+static PyObject * with_coreaudio() { Py_INCREF(Py_False); return Py_False; };
 #endif
 
 #ifdef USE_OSC
-PyObject * with_osc() { Py_INCREF(Py_True); return Py_True; };
+static PyObject * with_osc() { Py_INCREF(Py_True); return Py_True; };
 #else
-PyObject * with_osc() { Py_INCREF(Py_False); return Py_False; };
+static PyObject * with_osc() { Py_INCREF(Py_False); return Py_False; };
 #endif
 
 /** Portaudio utility functions __doc__ strings. **/
@@ -582,7 +582,8 @@ MYFLT HALF_BLACKMAN[513] = {5.999999848427251e-05, 6.0518785176100209e-05, 6.214
  size is the convolution impulse response length in samples.
  freq is the cutoff frequency in radians.
 */
-void gen_lp_impulse(MYFLT *array, int size, float freq) {
+static void
+gen_lp_impulse(MYFLT *array, int size, float freq) {
     int i, ppi;
     MYFLT pp, ppf, env, scl, invSum, val;
     int half = size / 2;
@@ -621,7 +622,8 @@ void gen_lp_impulse(MYFLT *array, int size, float freq) {
  size is the filter order. Minimum suggested = 16, ideal = 128 or higher.
  gain is the gain of the filter.
 */
-void lp_conv(MYFLT *samples, MYFLT *impulse, int num_samps, int size, int gain) {
+static void
+lp_conv(MYFLT *samples, MYFLT *impulse, int num_samps, int size, int gain) {
     int i, j, count, tmp_count;
     MYFLT val;
     MYFLT intmp[size];
@@ -877,7 +879,7 @@ typedef struct STACK_RECORD {
 
 STACK_RECORD *m_pStack = NULL;
 
-void StackPush( int nAnchorIndex, int nFloaterIndex )
+static void StackPush( int nAnchorIndex, int nFloaterIndex )
 {
     STACK_RECORD *precPrev = m_pStack;
     m_pStack = (STACK_RECORD *)malloc( sizeof(STACK_RECORD) );
@@ -886,7 +888,7 @@ void StackPush( int nAnchorIndex, int nFloaterIndex )
     m_pStack->precPrev = precPrev;
 }
 
-int StackPop( int *pnAnchorIndex, int *pnFloaterIndex )
+static int StackPop( int *pnAnchorIndex, int *pnFloaterIndex )
 {
     STACK_RECORD *precStack = m_pStack;
     if ( precStack == NULL )
@@ -924,6 +926,7 @@ reducePoints(PyObject *self, PyObject *args, PyObject *kwds)
 
         nPointsCount = PyList_Size(pointlist);
 
+	// TODO: these malloc's are never freed.
         pPointsX = (MYFLT *)malloc(nPointsCount * sizeof(MYFLT));
         pPointsY = (MYFLT *)malloc(nPointsCount * sizeof(MYFLT));
         pnUseFlag = (int *)malloc(nPointsCount * sizeof(int));

@@ -75,7 +75,7 @@ typedef struct {
 
 static void
 Sine_readframes_ii(Sine *self) {
-    MYFLT inc, fr, ph, pos, fpart;
+    MYFLT inc, fr, ph, pos;
     int i, ipart;
 
     fr = PyFloat_AS_DOUBLE(self->freq);
@@ -88,15 +88,14 @@ Sine_readframes_ii(Sine *self) {
         if (pos >= 512)
             pos -= 512;
         ipart = (int)pos;
-        fpart = pos - ipart;
-        self->data[i] = SINE_ARRAY[ipart] * (1.0 - fpart) + SINE_ARRAY[ipart+1] * fpart;
+        self->data[i] = SINE_ARRAY[ipart] + (SINE_ARRAY[ipart+1] - SINE_ARRAY[ipart]) * (pos - ipart);
         self->pointerPos += inc;
     }
 }
 
 static void
 Sine_readframes_ai(Sine *self) {
-    MYFLT inc, ph, pos, fpart, fac;
+    MYFLT inc, ph, pos, fac;
     int i, ipart;
 
     MYFLT *fr = Stream_getData((Stream *)self->freq_stream);
@@ -110,15 +109,14 @@ Sine_readframes_ai(Sine *self) {
         if (pos >= 512)
             pos -= 512;
         ipart = (int)pos;
-        fpart = pos - ipart;
-        self->data[i] = SINE_ARRAY[ipart] * (1.0 - fpart) + SINE_ARRAY[ipart+1] * fpart;
+        self->data[i] = SINE_ARRAY[ipart] + (SINE_ARRAY[ipart+1] - SINE_ARRAY[ipart]) * (pos - ipart);
         self->pointerPos += inc;
     }
 }
 
 static void
 Sine_readframes_ia(Sine *self) {
-    MYFLT inc, fr, pos, fpart;
+    MYFLT inc, fr, pos;
     int i, ipart;
 
     fr = PyFloat_AS_DOUBLE(self->freq);
@@ -131,15 +129,14 @@ Sine_readframes_ia(Sine *self) {
         if (pos >= 512)
             pos -= 512;
         ipart = (int)pos;
-        fpart = pos - ipart;
-        self->data[i] = SINE_ARRAY[ipart] * (1.0 - fpart) + SINE_ARRAY[ipart+1] * fpart;
+        self->data[i] = SINE_ARRAY[ipart] + (SINE_ARRAY[ipart+1] - SINE_ARRAY[ipart]) * (pos - ipart);
         self->pointerPos += inc;
     }
 }
 
 static void
 Sine_readframes_aa(Sine *self) {
-    MYFLT inc, pos, fpart, fac;
+    MYFLT inc, pos, fac;
     int i, ipart;
 
     MYFLT *fr = Stream_getData((Stream *)self->freq_stream);
@@ -153,8 +150,7 @@ Sine_readframes_aa(Sine *self) {
         if (pos >= 512)
             pos -= 512;
         ipart = (int)pos;
-        fpart = pos - ipart;
-        self->data[i] = SINE_ARRAY[ipart] * (1.0 - fpart) + SINE_ARRAY[ipart+1] * fpart;
+        self->data[i] = SINE_ARRAY[ipart] + (SINE_ARRAY[ipart+1] - SINE_ARRAY[ipart]) * (pos - ipart);
         self->pointerPos += inc;
     }
 }
@@ -1061,7 +1057,7 @@ typedef struct {
 
 static void
 SineLoop_readframes_ii(SineLoop *self) {
-    MYFLT inc, fr, feed, pos, fpart;
+    MYFLT inc, fr, feed, pos;
     int i, ipart;
 
     fr = PyFloat_AS_DOUBLE(self->freq);
@@ -1072,15 +1068,14 @@ SineLoop_readframes_ii(SineLoop *self) {
         self->pointerPos = Sine_clip(self->pointerPos);
         pos = Sine_clip(self->pointerPos + self->lastValue * feed);
         ipart = (int)pos;
-        fpart = pos - ipart;
-        self->data[i] = self->lastValue = SINE_ARRAY[ipart] * (1.0 - fpart) + SINE_ARRAY[ipart+1] * fpart;
+        self->data[i] = self->lastValue = SINE_ARRAY[ipart] + (SINE_ARRAY[ipart+1] - SINE_ARRAY[ipart]) * (pos - ipart);
         self->pointerPos += inc;
     }
 }
 
 static void
 SineLoop_readframes_ai(SineLoop *self) {
-    MYFLT inc, feed, pos, fpart, fac;
+    MYFLT inc, feed, pos, fac;
     int i, ipart;
 
     MYFLT *fr = Stream_getData((Stream *)self->freq_stream);
@@ -1092,15 +1087,14 @@ SineLoop_readframes_ai(SineLoop *self) {
         self->pointerPos = Sine_clip(self->pointerPos);
         pos = Sine_clip(self->pointerPos + self->lastValue * feed);
         ipart = (int)pos;
-        fpart = pos - ipart;
-        self->data[i] = self->lastValue = SINE_ARRAY[ipart] * (1.0 - fpart) + SINE_ARRAY[ipart+1] * fpart;
+        self->data[i] = self->lastValue = SINE_ARRAY[ipart] + (SINE_ARRAY[ipart+1] - SINE_ARRAY[ipart]) * (pos - ipart);
         self->pointerPos += inc;
     }
 }
 
 static void
 SineLoop_readframes_ia(SineLoop *self) {
-    MYFLT inc, fr, feed, pos, fpart;
+    MYFLT inc, fr, feed, pos;
     int i, ipart;
 
     fr = PyFloat_AS_DOUBLE(self->freq);
@@ -1112,15 +1106,14 @@ SineLoop_readframes_ia(SineLoop *self) {
         self->pointerPos = Sine_clip(self->pointerPos);
         pos = Sine_clip(self->pointerPos + self->lastValue * feed);
         ipart = (int)pos;
-        fpart = pos - ipart;
-        self->data[i] = self->lastValue = SINE_ARRAY[ipart] * (1.0 - fpart) + SINE_ARRAY[ipart+1] * fpart;
+        self->data[i] = self->lastValue = SINE_ARRAY[ipart] + (SINE_ARRAY[ipart+1] - SINE_ARRAY[ipart]) * (pos - ipart);
         self->pointerPos += inc;
     }
 }
 
 static void
 SineLoop_readframes_aa(SineLoop *self) {
-    MYFLT inc, feed, pos, fpart, fac;
+    MYFLT inc, feed, pos, fac;
     int i, ipart;
 
     MYFLT *fr = Stream_getData((Stream *)self->freq_stream);
@@ -1133,8 +1126,7 @@ SineLoop_readframes_aa(SineLoop *self) {
         self->pointerPos = Sine_clip(self->pointerPos);
         pos = Sine_clip(self->pointerPos + self->lastValue * feed);
         ipart = (int)pos;
-        fpart = pos - ipart;
-        self->data[i] = self->lastValue = SINE_ARRAY[ipart] * (1.0 - fpart) + SINE_ARRAY[ipart+1] * fpart;
+        self->data[i] = self->lastValue = SINE_ARRAY[ipart] + (SINE_ARRAY[ipart+1] - SINE_ARRAY[ipart]) * (pos - ipart);
         self->pointerPos += inc;
     }
 }
@@ -2024,7 +2016,7 @@ typedef struct {
 
 static void
 OscLoop_readframes_ii(OscLoop *self) {
-    MYFLT fr, feed, pos, inc, fpart;
+    MYFLT fr, feed, pos, inc;
     int i, ipart;
     MYFLT *tablelist = TableStream_getData(self->table);
     int size = TableStream_getSize(self->table);
@@ -2042,14 +2034,13 @@ OscLoop_readframes_ii(OscLoop *self) {
         else if (pos < 0)
             pos += size;
         ipart = (int)pos;
-        fpart = pos - ipart;
-        self->data[i] = self->lastValue = tablelist[ipart] * (1.0 - fpart) + tablelist[ipart+1] * fpart;
+        self->data[i] = self->lastValue = tablelist[ipart] + (tablelist[ipart+1] - tablelist[ipart]) * (pos - ipart);
     }
 }
 
 static void
 OscLoop_readframes_ai(OscLoop *self) {
-    MYFLT inc, feed, pos, fpart, sizeOnSr;
+    MYFLT inc, feed, pos, sizeOnSr;
     int i, ipart;
     MYFLT *tablelist = TableStream_getData(self->table);
     int size = TableStream_getSize(self->table);
@@ -2068,14 +2059,13 @@ OscLoop_readframes_ai(OscLoop *self) {
         else if (pos < 0)
             pos += size;
         ipart = (int)pos;
-        fpart = pos - ipart;
-        self->data[i] = self->lastValue = tablelist[ipart] * (1.0 - fpart) + tablelist[ipart+1] * fpart;
+        self->data[i] = self->lastValue = tablelist[ipart] + (tablelist[ipart+1] - tablelist[ipart]) * (pos - ipart);
     }
 }
 
 static void
 OscLoop_readframes_ia(OscLoop *self) {
-    MYFLT fr, feed, pos, inc, fpart;
+    MYFLT fr, feed, pos, inc;
     int i, ipart;
     MYFLT *tablelist = TableStream_getData(self->table);
     int size = TableStream_getSize(self->table);
@@ -2094,14 +2084,13 @@ OscLoop_readframes_ia(OscLoop *self) {
         else if (pos < 0)
             pos += size;
         ipart = (int)pos;
-        fpart = pos - ipart;
-        self->data[i] = self->lastValue = tablelist[ipart] * (1.0 - fpart) + tablelist[ipart+1] * fpart;
+        self->data[i] = self->lastValue = tablelist[ipart] + (tablelist[ipart+1] - tablelist[ipart]) * (pos - ipart);
     }
 }
 
 static void
 OscLoop_readframes_aa(OscLoop *self) {
-    MYFLT inc, feed, pos, fpart, sizeOnSr;
+    MYFLT inc, feed, pos, sizeOnSr;
     int i, ipart;
     MYFLT *tablelist = TableStream_getData(self->table);
     int size = TableStream_getSize(self->table);
@@ -2121,8 +2110,7 @@ OscLoop_readframes_aa(OscLoop *self) {
         else if (pos < 0)
             pos += size;
         ipart = (int)pos;
-        fpart = pos - ipart;
-        self->data[i] = self->lastValue = tablelist[ipart] * (1.0 - fpart) + tablelist[ipart+1] * fpart;
+        self->data[i] = self->lastValue = tablelist[ipart] + (tablelist[ipart+1] - tablelist[ipart]) * (pos - ipart);
     }
 }
 
@@ -3883,14 +3871,14 @@ typedef struct {
     int autosmooth; /* 0 = off, > 0 = on */
     MYFLT y1;
     MYFLT y2;
-    MYFLT c;
     MYFLT lastPh;
+    MYFLT mTwoPiOverSr;
     MYFLT (*interp_func_ptr)(MYFLT *, int, MYFLT, int);
 } Pointer2;
 
 static void
 Pointer2_readframes_a(Pointer2 *self) {
-    MYFLT fpart, phdiff, b, fr;
+    MYFLT fpart, phdiff, c, fr;
     double ph;
     int i, ipart;
     MYFLT *tablelist = TableStream_getData(self->table);
@@ -3917,10 +3905,9 @@ Pointer2_readframes_a(Pointer2 *self) {
             self->lastPh = ph;
             if (phdiff < 1) {
                 fr = phdiff * tableSr * 0.45;
-                b = 2.0 - MYCOS(TWOPI * fr / self->sr);
-                self->c = (b - MYSQRT(b * b - 1.0));
-                self->y1 = self->data[i] + (self->y1 - self->data[i]) * self->c;
-                self->data[i] = self->y2 = self->y1 + (self->y2 - self->y1) * self->c;
+                c = MYEXP(self->mTwoPiOverSr * fr);
+                self->y1 = self->data[i] + (self->y1 - self->data[i]) * c;
+                self->data[i] = self->y2 = self->y1 + (self->y2 - self->y1) * c;
             }
             else
                 self->y1 = self->y2 = self->data[i];
@@ -4024,11 +4011,13 @@ Pointer2_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 	self->modebuffer[1] = 0;
     self->interp = 4;
     self->autosmooth = 1;
-    self->y1 = self->y2 = self->c = self->lastPh = 0.0;
+    self->y1 = self->y2 = self->lastPh = 0.0;
 
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, Pointer2_compute_next_data_frame);
     self->mode_func_ptr = Pointer2_setProcMode;
+
+    self->mTwoPiOverSr = -TWOPI / self->sr;
 
     static char *kwlist[] = {"table", "index", "interp", "autosmooth", "mul", "add", NULL};
 
@@ -5004,7 +4993,7 @@ Pulsar_readframes_iii(Pulsar *self) {
             e_pos = scl_pos * envsize;
             ipart = (int)e_pos;
             fpart = e_pos - ipart;
-            self->data[i] = tmp * (envlist[ipart] * (1.0 - fpart) + envlist[ipart+1] * fpart);
+            self->data[i] = tmp * (envlist[ipart] + (envlist[ipart+1] - envlist[ipart]) * fpart);
         }
         else {
             self->data[i] = 0.0;
@@ -5048,7 +5037,7 @@ Pulsar_readframes_aii(Pulsar *self) {
             e_pos = scl_pos * envsize;
             ipart = (int)e_pos;
             fpart = e_pos - ipart;
-            self->data[i] = tmp * (envlist[ipart] * (1.0 - fpart) + envlist[ipart+1] * fpart);
+            self->data[i] = tmp * (envlist[ipart] + (envlist[ipart+1] - envlist[ipart]) * fpart);
         }
         else {
             self->data[i] = 0.0;
@@ -5091,7 +5080,7 @@ Pulsar_readframes_iai(Pulsar *self) {
             e_pos = scl_pos * envsize;
             ipart = (int)e_pos;
             fpart = e_pos - ipart;
-            self->data[i] = tmp * (envlist[ipart] * (1.0 - fpart) + envlist[ipart+1] * fpart);
+            self->data[i] = tmp * (envlist[ipart] + (envlist[ipart+1] - envlist[ipart]) * fpart);
         }
         else {
             self->data[i] = 0.0;
@@ -5135,7 +5124,7 @@ Pulsar_readframes_aai(Pulsar *self) {
             e_pos = scl_pos * envsize;
             ipart = (int)e_pos;
             fpart = e_pos - ipart;
-            self->data[i] = tmp * (envlist[ipart] * (1.0 - fpart) + envlist[ipart+1] * fpart);
+            self->data[i] = tmp * (envlist[ipart] + (envlist[ipart+1] - envlist[ipart]) * fpart);
         }
         else {
             self->data[i] = 0.0;
@@ -5178,7 +5167,7 @@ Pulsar_readframes_iia(Pulsar *self) {
             e_pos = scl_pos * envsize;
             ipart = (int)e_pos;
             fpart = e_pos - ipart;
-            self->data[i] = tmp * (envlist[ipart] * (1.0 - fpart) + envlist[ipart+1] * fpart);
+            self->data[i] = tmp * (envlist[ipart] + (envlist[ipart+1] - envlist[ipart]) * fpart);
         }
         else {
             self->data[i] = 0.0;
@@ -5222,7 +5211,7 @@ Pulsar_readframes_aia(Pulsar *self) {
             e_pos = scl_pos * envsize;
             ipart = (int)e_pos;
             fpart = e_pos - ipart;
-            self->data[i] = tmp * (envlist[ipart] * (1.0 - fpart) + envlist[ipart+1] * fpart);
+            self->data[i] = tmp * (envlist[ipart] + (envlist[ipart+1] - envlist[ipart]) * fpart);
         }
         else {
             self->data[i] = 0.0;
@@ -5265,7 +5254,7 @@ Pulsar_readframes_iaa(Pulsar *self) {
             e_pos = scl_pos * envsize;
             ipart = (int)e_pos;
             fpart = e_pos - ipart;
-            self->data[i] = tmp * (envlist[ipart] * (1.0 - fpart) + envlist[ipart+1] * fpart);
+            self->data[i] = tmp * (envlist[ipart] + (envlist[ipart+1] - envlist[ipart]) * fpart);
         }
         else {
             self->data[i] = 0.0;
@@ -5309,7 +5298,7 @@ Pulsar_readframes_aaa(Pulsar *self) {
             e_pos = scl_pos * envsize;
             ipart = (int)e_pos;
             fpart = e_pos - ipart;
-            self->data[i] = tmp * (envlist[ipart] * (1.0 - fpart) + envlist[ipart+1] * fpart);
+            self->data[i] = tmp * (envlist[ipart] + (envlist[ipart+1] - envlist[ipart]) * fpart);
         }
         else {
             self->data[i] = 0.0;
@@ -6384,7 +6373,7 @@ Fm_readframes_iii(Fm *self) {
         self->pointerPos_mod = Sine_clip(self->pointerPos_mod);
         ipart = (int)self->pointerPos_mod;
         fpart = self->pointerPos_mod - ipart;
-        mod_val = mod_amp * (SINE_ARRAY[ipart] * (1.0 - fpart) + SINE_ARRAY[ipart+1] * fpart);
+        mod_val = mod_amp * (SINE_ARRAY[ipart] + (SINE_ARRAY[ipart+1] - SINE_ARRAY[ipart]) * fpart);
         self->pointerPos_mod += mod_delta;
 
         car_freq = car + mod_val;
@@ -6392,7 +6381,7 @@ Fm_readframes_iii(Fm *self) {
         self->pointerPos_car = Sine_clip(self->pointerPos_car);
         ipart = (int)self->pointerPos_car;
         fpart = self->pointerPos_car - ipart;
-        self->data[i] = SINE_ARRAY[ipart] * (1.0 - fpart) + SINE_ARRAY[ipart+1] * fpart;
+        self->data[i] = SINE_ARRAY[ipart] + (SINE_ARRAY[ipart+1] - SINE_ARRAY[ipart]) * fpart;
         self->pointerPos_car += car_delta;
     }
 }
@@ -6413,7 +6402,7 @@ Fm_readframes_aii(Fm *self) {
         self->pointerPos_mod = Sine_clip(self->pointerPos_mod);
         ipart = (int)self->pointerPos_mod;
         fpart = self->pointerPos_mod - ipart;
-        mod_val = mod_amp * (SINE_ARRAY[ipart] * (1.0 - fpart) + SINE_ARRAY[ipart+1] * fpart);
+        mod_val = mod_amp * (SINE_ARRAY[ipart] + (SINE_ARRAY[ipart+1] - SINE_ARRAY[ipart]) * fpart);
         self->pointerPos_mod += mod_delta;
 
         car_freq = car[i] + mod_val;
@@ -6421,7 +6410,7 @@ Fm_readframes_aii(Fm *self) {
         self->pointerPos_car = Sine_clip(self->pointerPos_car);
         ipart = (int)self->pointerPos_car;
         fpart = self->pointerPos_car - ipart;
-        self->data[i] = SINE_ARRAY[ipart] * (1.0 - fpart) + SINE_ARRAY[ipart+1] * fpart;
+        self->data[i] = SINE_ARRAY[ipart] + (SINE_ARRAY[ipart+1] - SINE_ARRAY[ipart]) * fpart;
         self->pointerPos_car += car_delta;
     }
 }
@@ -6442,7 +6431,7 @@ Fm_readframes_iai(Fm *self) {
         self->pointerPos_mod = Sine_clip(self->pointerPos_mod);
         ipart = (int)self->pointerPos_mod;
         fpart = self->pointerPos_mod - ipart;
-        mod_val = mod_amp * (SINE_ARRAY[ipart] * (1.0 - fpart) + SINE_ARRAY[ipart+1] * fpart);
+        mod_val = mod_amp * (SINE_ARRAY[ipart] + (SINE_ARRAY[ipart+1] - SINE_ARRAY[ipart]) * fpart);
         self->pointerPos_mod += mod_delta;
 
         car_freq = car + mod_val;
@@ -6450,7 +6439,7 @@ Fm_readframes_iai(Fm *self) {
         self->pointerPos_car = Sine_clip(self->pointerPos_car);
         ipart = (int)self->pointerPos_car;
         fpart = self->pointerPos_car - ipart;
-        self->data[i] = SINE_ARRAY[ipart] * (1.0 - fpart) + SINE_ARRAY[ipart+1] * fpart;
+        self->data[i] = SINE_ARRAY[ipart] + (SINE_ARRAY[ipart+1] - SINE_ARRAY[ipart]) * fpart;
         self->pointerPos_car += car_delta;
     }
 }
@@ -6471,7 +6460,7 @@ Fm_readframes_aai(Fm *self) {
         self->pointerPos_mod = Sine_clip(self->pointerPos_mod);
         ipart = (int)self->pointerPos_mod;
         fpart = self->pointerPos_mod - ipart;
-        mod_val = mod_amp * (SINE_ARRAY[ipart] * (1.0 - fpart) + SINE_ARRAY[ipart+1] * fpart);
+        mod_val = mod_amp * (SINE_ARRAY[ipart] + (SINE_ARRAY[ipart+1] - SINE_ARRAY[ipart]) * fpart);
         self->pointerPos_mod += mod_delta;
 
         car_freq = car[i] + mod_val;
@@ -6479,7 +6468,7 @@ Fm_readframes_aai(Fm *self) {
         self->pointerPos_car = Sine_clip(self->pointerPos_car);
         ipart = (int)self->pointerPos_car;
         fpart = self->pointerPos_car - ipart;
-        self->data[i] = SINE_ARRAY[ipart] * (1.0 - fpart) + SINE_ARRAY[ipart+1] * fpart;
+        self->data[i] = SINE_ARRAY[ipart] + (SINE_ARRAY[ipart+1] - SINE_ARRAY[ipart]) * fpart;
         self->pointerPos_car += car_delta;
     }}
 
@@ -6500,7 +6489,7 @@ Fm_readframes_iia(Fm *self) {
         self->pointerPos_mod = Sine_clip(self->pointerPos_mod);
         ipart = (int)self->pointerPos_mod;
         fpart = self->pointerPos_mod - ipart;
-        mod_val = mod_amp * (SINE_ARRAY[ipart] * (1.0 - fpart) + SINE_ARRAY[ipart+1] * fpart);
+        mod_val = mod_amp * (SINE_ARRAY[ipart] + (SINE_ARRAY[ipart+1] - SINE_ARRAY[ipart]) * fpart);
         self->pointerPos_mod += mod_delta;
 
         car_freq = car + mod_val;
@@ -6508,7 +6497,7 @@ Fm_readframes_iia(Fm *self) {
         self->pointerPos_car = Sine_clip(self->pointerPos_car);
         ipart = (int)self->pointerPos_car;
         fpart = self->pointerPos_car - ipart;
-        self->data[i] = SINE_ARRAY[ipart] * (1.0 - fpart) + SINE_ARRAY[ipart+1] * fpart;
+        self->data[i] = SINE_ARRAY[ipart] + (SINE_ARRAY[ipart+1] - SINE_ARRAY[ipart]) * fpart;
         self->pointerPos_car += car_delta;
     }
 }
@@ -6529,7 +6518,7 @@ Fm_readframes_aia(Fm *self) {
         self->pointerPos_mod = Sine_clip(self->pointerPos_mod);
         ipart = (int)self->pointerPos_mod;
         fpart = self->pointerPos_mod - ipart;
-        mod_val = mod_amp * (SINE_ARRAY[ipart] * (1.0 - fpart) + SINE_ARRAY[ipart+1] * fpart);
+        mod_val = mod_amp * (SINE_ARRAY[ipart] + (SINE_ARRAY[ipart+1] - SINE_ARRAY[ipart]) * fpart);
         self->pointerPos_mod += mod_delta;
 
         car_freq = car[i] + mod_val;
@@ -6537,7 +6526,7 @@ Fm_readframes_aia(Fm *self) {
         self->pointerPos_car = Sine_clip(self->pointerPos_car);
         ipart = (int)self->pointerPos_car;
         fpart = self->pointerPos_car - ipart;
-        self->data[i] = SINE_ARRAY[ipart] * (1.0 - fpart) + SINE_ARRAY[ipart+1] * fpart;
+        self->data[i] = SINE_ARRAY[ipart] + (SINE_ARRAY[ipart+1] - SINE_ARRAY[ipart]) * fpart;
         self->pointerPos_car += car_delta;
     }
 }
@@ -6558,7 +6547,7 @@ Fm_readframes_iaa(Fm *self) {
         self->pointerPos_mod = Sine_clip(self->pointerPos_mod);
         ipart = (int)self->pointerPos_mod;
         fpart = self->pointerPos_mod - ipart;
-        mod_val = mod_amp * (SINE_ARRAY[ipart] * (1.0 - fpart) + SINE_ARRAY[ipart+1] * fpart);
+        mod_val = mod_amp * (SINE_ARRAY[ipart] + (SINE_ARRAY[ipart+1] - SINE_ARRAY[ipart]) * fpart);
         self->pointerPos_mod += mod_delta;
 
         car_freq = car + mod_val;
@@ -6566,7 +6555,7 @@ Fm_readframes_iaa(Fm *self) {
         self->pointerPos_car = Sine_clip(self->pointerPos_car);
         ipart = (int)self->pointerPos_car;
         fpart = self->pointerPos_car - ipart;
-        self->data[i] = SINE_ARRAY[ipart] * (1.0 - fpart) + SINE_ARRAY[ipart+1] * fpart;
+        self->data[i] = SINE_ARRAY[ipart] + (SINE_ARRAY[ipart+1] - SINE_ARRAY[ipart]) * fpart;
         self->pointerPos_car += car_delta;
     }
 }
@@ -6587,7 +6576,7 @@ Fm_readframes_aaa(Fm *self) {
         self->pointerPos_mod = Sine_clip(self->pointerPos_mod);
         ipart = (int)self->pointerPos_mod;
         fpart = self->pointerPos_mod - ipart;
-        mod_val = mod_amp * (SINE_ARRAY[ipart] * (1.0 - fpart) + SINE_ARRAY[ipart+1] * fpart);
+        mod_val = mod_amp * (SINE_ARRAY[ipart] + (SINE_ARRAY[ipart+1] - SINE_ARRAY[ipart]) * fpart);
         self->pointerPos_mod += mod_delta;
 
         car_freq = car[i] + mod_val;
@@ -6595,7 +6584,7 @@ Fm_readframes_aaa(Fm *self) {
         self->pointerPos_car = Sine_clip(self->pointerPos_car);
         ipart = (int)self->pointerPos_car;
         fpart = self->pointerPos_car - ipart;
-        self->data[i] = SINE_ARRAY[ipart] * (1.0 - fpart) + SINE_ARRAY[ipart+1] * fpart;
+        self->data[i] = SINE_ARRAY[ipart] + (SINE_ARRAY[ipart+1] - SINE_ARRAY[ipart]) * fpart;
         self->pointerPos_car += car_delta;
     }
 }
@@ -7084,7 +7073,7 @@ CrossFm_readframes(CrossFm *self) {
         self->pointerPos_mod = Sine_clip(self->pointerPos_mod);
         ipart = (int)self->pointerPos_mod;
         fpart = self->pointerPos_mod - ipart;
-        mod_val = SINE_ARRAY[ipart] * (1.0 - fpart) + SINE_ARRAY[ipart+1] * fpart;
+        mod_val = SINE_ARRAY[ipart] + (SINE_ARRAY[ipart+1] - SINE_ARRAY[ipart]) * fpart;
         self->pointerPos_mod += mod_delta;
 
         car_freq = car[i] + (mod_val * mod_amp);
@@ -7092,7 +7081,7 @@ CrossFm_readframes(CrossFm *self) {
         self->pointerPos_car = Sine_clip(self->pointerPos_car);
         ipart = (int)self->pointerPos_car;
         fpart = self->pointerPos_car - ipart;
-        self->car_val = SINE_ARRAY[ipart] * (1.0 - fpart) + SINE_ARRAY[ipart+1] * fpart;
+        self->car_val = SINE_ARRAY[ipart] + (SINE_ARRAY[ipart+1] - SINE_ARRAY[ipart]) * fpart;
         self->pointerPos_car += car_delta;
         self->data[i] = (self->car_val + mod_val) * 0.5;
     }

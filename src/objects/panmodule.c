@@ -62,37 +62,33 @@ Panner_splitter_thru(Panner *self) {
 
 static void
 Panner_splitter_st_i(Panner *self) {
-    MYFLT val, inval;
     int i;
+    MYFLT inval, pi_over_two = PI / 2.0;
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
 
     MYFLT pan = PyFloat_AS_DOUBLE(self->pan);
-    pan = P_clip(pan);
+    pan = P_clip(pan) * pi_over_two;
 
     for (i=0; i<self->bufsize; i++) {
         inval = in[i];
-        val = inval * MYSQRT(1.0 - pan);
-        self->buffer_streams[i] = val;
-        val = inval * MYSQRT(pan);
-        self->buffer_streams[i+self->bufsize] = val;
+        self->buffer_streams[i] = inval * MYCOS(pan);
+        self->buffer_streams[i+self->bufsize] = inval * MYSIN(pan);
     }
 }
 
 static void
 Panner_splitter_st_a(Panner *self) {
-    MYFLT val, inval, panval;
     int i;
+    MYFLT inval, panval, pi_over_two = PI / 2.0;
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
 
     MYFLT *pan = Stream_getData((Stream *)self->pan_stream);
 
     for (i=0; i<self->bufsize; i++) {
         inval = in[i];
-        panval = P_clip(pan[i]);
-        val = inval * MYSQRT(1.0 - panval);
-        self->buffer_streams[i] = val;
-        val = inval * MYSQRT(panval);
-        self->buffer_streams[i+self->bufsize] = val;
+        panval = P_clip(pan[i]) * pi_over_two;
+        self->buffer_streams[i] = inval * MYCOS(panval);
+        self->buffer_streams[i+self->bufsize] = inval * MYSIN(panval);
     }
 }
 
@@ -730,26 +726,23 @@ SPanner_splitter_thru(SPanner *self) {
 
 static void
 SPanner_splitter_st_i(SPanner *self) {
-    MYFLT val, inval;
     int i;
+    MYFLT inval;
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
 
-    MYFLT pan = PyFloat_AS_DOUBLE(self->pan);
-    pan = P_clip(pan);
+    MYFLT pan = P_clip(PyFloat_AS_DOUBLE(self->pan));
 
     for (i=0; i<self->bufsize; i++) {
         inval = in[i];
-        val = inval * MYSQRT(1.0 - pan);
-        self->buffer_streams[i] = val;
-        val = inval * MYSQRT(pan);
-        self->buffer_streams[i+self->bufsize] = val;
+        self->buffer_streams[i] = inval * MYSQRT(1.0 - pan);
+        self->buffer_streams[i+self->bufsize] = inval * MYSQRT(pan);
     }
 }
 
 static void
 SPanner_splitter_st_a(SPanner *self) {
-    MYFLT val, inval, panval;
     int i;
+    MYFLT inval, panval;
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
 
     MYFLT *pan = Stream_getData((Stream *)self->pan_stream);
@@ -757,16 +750,14 @@ SPanner_splitter_st_a(SPanner *self) {
     for (i=0; i<self->bufsize; i++) {
         inval = in[i];
         panval = P_clip(pan[i]);
-        val = inval * MYSQRT(1.0 - panval);
-        self->buffer_streams[i] = val;
-        val = inval * MYSQRT(panval);
-        self->buffer_streams[i+self->bufsize] = val;
+        self->buffer_streams[i] = inval * MYSQRT(1.0 - panval);
+        self->buffer_streams[i+self->bufsize] = inval * MYSQRT(panval);
     }
 }
 
 static void
 SPanner_splitter_i(SPanner *self) {
-    MYFLT val, inval, min, pan1, pan2;
+    MYFLT inval, min, pan1, pan2;
     int j, i;
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
     MYFLT pan = PyFloat_AS_DOUBLE(self->pan);
@@ -799,16 +790,14 @@ SPanner_splitter_i(SPanner *self) {
     pan2 = MYSQRT(pan);
     for (i=0; i<self->bufsize; i++) {
         inval = in[i];
-        val = inval * pan1;
-        self->buffer_streams[i+self->k1] = val;
-        val = inval * pan2;
-        self->buffer_streams[i+self->k2] = val;
+        self->buffer_streams[i+self->k1] = inval * pan1;
+        self->buffer_streams[i+self->k2] = inval * pan2;
     }
 }
 
 static void
 SPanner_splitter_a(SPanner *self) {
-    MYFLT val, inval, min, pan;
+    MYFLT inval, min, pan;
     int i, j, j1, len;
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
     MYFLT *apan = Stream_getData((Stream *)self->pan_stream);
@@ -840,10 +829,8 @@ SPanner_splitter_a(SPanner *self) {
         }
 
         pan = P_clip((pan - min) * self->chnls);
-        val = inval * MYSQRT(1.0 - pan);
-        self->buffer_streams[i+self->k1] = val;
-        val = inval * MYSQRT(pan);
-        self->buffer_streams[i+self->k2] = val;
+        self->buffer_streams[i+self->k1] = inval * MYSQRT(1.0 - pan);
+        self->buffer_streams[i+self->k2] = inval * MYSQRT(pan);
     }
 }
 
@@ -1348,7 +1335,7 @@ Switcher_clip_voice(Switcher *self, MYFLT v) {
 
 static void
 Switcher_splitter_i(Switcher *self) {
-    MYFLT val, inval, voice1, voice2;
+    MYFLT inval, voice1, voice2;
     int j1, j, i;
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
     MYFLT voice = Switcher_clip_voice(self, PyFloat_AS_DOUBLE(self->voice));
@@ -1373,10 +1360,8 @@ Switcher_splitter_i(Switcher *self) {
 
     for (i=0; i<self->bufsize; i++) {
         inval = in[i];
-        val = inval * voice1;
-        self->buffer_streams[i+self->k1] = val;
-        val = inval * voice2;
-        self->buffer_streams[i+self->k2] = val;
+        self->buffer_streams[i+self->k1] = inval * voice1;
+        self->buffer_streams[i+self->k2] = inval * voice2;
     }
 }
 
@@ -1963,20 +1948,26 @@ VoiceManager_compute_next_data_frame(VoiceManager *self)
 static int
 VoiceManager_traverse(VoiceManager *self, visitproc visit, void *arg)
 {
+    int i;
     pyo_VISIT
     Py_VISIT(self->input);
     Py_VISIT(self->input_stream);
-    Py_VISIT(self->trigger_streams);
+    for (i=0; i<self->maxVoices; i++) {
+        Py_VISIT(self->trigger_streams[i]);
+    }
     return 0;
 }
 
 static int
 VoiceManager_clear(VoiceManager *self)
 {
+    int i;
     pyo_CLEAR
     Py_CLEAR(self->input);
     Py_CLEAR(self->input_stream);
-    Py_CLEAR(self->trigger_streams);
+    for (i=0; i<self->maxVoices; i++) {
+        Py_CLEAR(self->trigger_streams[i]);
+    }
     return 0;
 }
 
@@ -1984,9 +1975,11 @@ static void
 VoiceManager_dealloc(VoiceManager* self)
 {
     pyo_DEALLOC
-    if (self->voices != NULL)
-        free(self->voices);
     VoiceManager_clear(self);
+    if (self->voices != NULL) {
+        free(self->voices);
+        free(self->trigger_streams);
+    }
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 

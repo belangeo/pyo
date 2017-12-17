@@ -426,19 +426,24 @@ PyTypeObject CtlScan2Type = {
 int
 getPosToWrite(long timestamp, Server *server, double sr, int bufsize)
 {
-    int offset = 0;
-    long realtimestamp, elapsed, ms;
-    realtimestamp = timestamp - Server_getMidiTimeOffset(server);
-    if (realtimestamp < 0)
-        return 0;
-    elapsed = (long)(Server_getElapsedTime(server) / sr * 1000);
-    ms = realtimestamp - (elapsed - (long)(bufsize / sr * 1000));
-    offset = (int)(ms * 0.001 * sr);
-    if (offset < 0)
-        offset = 0;
-    else if (offset >= bufsize)
-        offset = bufsize - 1;
-    return offset;
+    /* With JackMidi, the timestamp is already a sample offset inside the buffer size. */
+    if (server->withJackMidi) {
+        return (int)timestamp;
+    } else {
+        int offset = 0;
+        long realtimestamp, elapsed, ms;
+        realtimestamp = timestamp - Server_getMidiTimeOffset(server);
+        if (realtimestamp < 0)
+            return 0;
+        elapsed = (long)(Server_getElapsedTime(server) / sr * 1000);
+        ms = realtimestamp - (elapsed - (long)(bufsize / sr * 1000));
+        offset = (int)(ms * 0.001 * sr);
+        if (offset < 0)
+            offset = 0;
+        else if (offset >= bufsize)
+            offset = bufsize - 1;
+        return offset;
+    }
 }
 
 typedef struct {

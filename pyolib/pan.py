@@ -26,7 +26,7 @@ GNU Lesser General Public License for more details.
 You should have received a copy of the GNU Lesser General Public
 License along with pyo.  If not, see <http://www.gnu.org/licenses/>.
 """
-import sys, random
+import sys
 from ._core import *
 from ._maps import *
 
@@ -49,6 +49,16 @@ class Pan(PyoObject):
         spread: float or PyoObject
             Amount of sound leaking to the surrounding channels,
             between 0 and 1. Defaults to 0.5.
+
+    .. note::
+
+        When used with two output channels, the algorithm used is the
+        cosine/sine constant power panning law. The SPan object uses
+        the square root of intensity constant power panning law.
+
+    .. seealso::
+
+        :py:class:`SPan`, :py:class:`Switch`, :py:class:`Selector`
 
     >>> s = Server(nchnls=2).boot()
     >>> s.start()
@@ -162,6 +172,16 @@ class SPan(PyoObject):
         pan: float or PyoObject
             Position of the sound on the panning circle, between 0 and 1.
             Defaults to 0.5.
+
+    .. note::
+
+        When used with two output channels, the algorithm used is the
+        square root of intensity constant power panning law. The Pan
+        object uses the cosine/sine constant power panning law.
+
+    .. seealso::
+
+        :py:class:`Pan`, :py:class:`Switch`, :py:class:`Selector`
 
     >>> s = Server(nchnls=2).boot()
     >>> s.start()
@@ -670,9 +690,9 @@ class Mixer(PyoObject):
         """
         pyoArgsAssert(self, "o", input)
         if voice is None:
-            voice = random.randint(0, 32767)
+            voice = get_random_integer(mx=32767)
             while voice in self._inputs:
-                voice = random.randint(0, 32767)
+                voice = get_random_integer(mx=32767)
         if voice in self._inputs:
             print("Mixer has already a key named %s" % voice, file=sys.stderr)
             return

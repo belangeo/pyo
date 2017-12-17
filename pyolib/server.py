@@ -85,6 +85,12 @@ class Server(object):
         winhost: string, optional
             Under Windows, pyo's Server will try to use the default devices of the given host.
             This behaviour can be changed with the SetXXXDevice methods.
+        midi: string {'portmidi', 'pm', 'jack'}, optional
+            Midi backend to use. 'pm' is equivalent to 'portmidi'. Default is 'portmidi'.
+
+            If 'jack' is selected but jackd is not already started when the program is executed, pyo
+            will ask jack to start in the background. Note that pyo never ask jack to close. It is
+            the user's responsability to manage the audio/midi configuration of its system.
 
     .. note::
 
@@ -115,8 +121,8 @@ class Server(object):
     >>> s.start()
 
     """
-    def __init__(self, sr=44100, nchnls=2, buffersize=256, duplex=1,
-                 audio='portaudio', jackname='pyo', ichnls=None, winhost="wasapi"):
+    def __init__(self, sr=44100, nchnls=2, buffersize=256, duplex=1, audio='portaudio', 
+                 jackname='pyo', ichnls=None, winhost="wasapi", midi="portmidi"):
         if "PYO_SERVER_AUDIO" in os.environ and "offline" not in audio and "embedded" not in audio:
             audio = os.environ["PYO_SERVER_AUDIO"]
         self._time = time
@@ -136,7 +142,7 @@ class Server(object):
         self._globalseed = 0
         self._resampling = 1
         self._isJackTransportSlave = False
-        self._server = Server_base(sr, nchnls, buffersize, duplex, audio, jackname, self._ichnls)
+        self._server = Server_base(sr, nchnls, buffersize, duplex, audio, jackname, self._ichnls, midi)
         self._server._setDefaultRecPath(os.path.join(os.path.expanduser("~"), "pyo_rec.wav"))
 
         if sys.platform.startswith("win"):
@@ -154,8 +160,8 @@ class Server(object):
             self.shutdown()
             self._time.sleep(.25)
 
-    def reinit(self, sr=44100, nchnls=2, buffersize=256, duplex=1,
-               audio='portaudio', jackname='pyo', ichnls=None, winhost="wasapi"):
+    def reinit(self, sr=44100, nchnls=2, buffersize=256, duplex=1, audio='portaudio', 
+               jackname='pyo', ichnls=None, winhost="wasapi", midi="portmidi"):
         """
         Reinit the server'settings. Useful to alternate between real-time and offline server.
 
@@ -181,7 +187,7 @@ class Server(object):
         self._globalseed = 0
         self._resampling = 1
         self._isJackTransportSlave = False
-        self._server.__init__(sr, nchnls, buffersize, duplex, audio, jackname, self._ichnls)
+        self._server.__init__(sr, nchnls, buffersize, duplex, audio, jackname, self._ichnls, midi)
 
         if sys.platform.startswith("win"):
             host_default_in, host_default_out = pa_get_default_devices_from_host(winhost)
@@ -225,19 +231,19 @@ class Server(object):
                 title, "Pyo Server" is used.
 
         """
-        self._gui_frame, win = createServerGUI(self._nchnls, self.start, self.stop,
+        self._gui_frame, win, withWX = createServerGUI(self._nchnls, self.start, self.stop,
                                                self.recstart, self.recstop, self.setAmp,
                                                self.getIsStarted(), locals, self.shutdown,
-                                               meter, timer, self._amp, exit, title)
+                                               meter, timer, self._amp, exit, title,
+                                               self.getIsBooted, self.getIsStarted)
         if meter:
             self._server.setAmpCallable(self._gui_frame)
         if timer:
             self._server.setTimeCallable(self._gui_frame)
-        try:
+        if withWX:
+            win.MainLoop()
+        else:
             win.mainloop()
-        except:
-            if win is not None:
-                win.MainLoop()
 
     def closeGui(self):
         """
@@ -603,6 +609,64 @@ class Server(object):
         """
         self._server.setJackOutputPortNames(name)
 
+    def setJackAutoConnectMidiInputPort(self, ports):
+        """
+        Tells the server to auto-connect Jack midi input port to pre-defined Jack ports.
+
+        :Args:
+
+            ports: string or list of strings
+                Name of the Jack ports to auto-connect to pyo midi input channel.
+
+                ['ports', 'to', 'midi', 'input', ...]
+
+        """
+        ports, lmax = convertArgsToLists(ports)
+        self._server.setJackAutoConnectMidiInputPort(ports)
+
+    def setJackAutoConnectMidiOutputPort(self, ports):
+        """
+        Tells the server to auto-connect Jack midi output port to pre-defined Jack ports.
+
+        :Args:
+
+            ports: string or list of strings
+                Name of the Jack ports to auto-connect to pyo midi output channel.
+
+                ['ports', 'to', 'midi', 'output', ...]
+
+        """
+        ports, lmax = convertArgsToLists(ports)
+        self._server.setJackAutoConnectMidiOutputPort(ports)
+
+    def setJackMidiInputPortName(self, name):
+        """
+        Change the short name of pyo's midi input port for the jack server.
+
+        This method must be called after the server is booted.
+
+        :Args:
+
+            name: string
+                New name of midi input port for the jack server.
+
+        """
+        self._server.setJackMidiInputPortName(name)
+
+    def setJackMidiOutputPortName(self, name):
+        """
+        Change the short name of pyo's midi output port for the jack server.
+
+        This method must be called after the server is booted.
+
+        :Args:
+
+            name: string
+                New name of midi output port for the jack server.
+
+        """
+        self._server.setJackMidiOutputPortName(name)
+
     def setIsJackTransportSlave(self, x):
         """
         Set if pyo's server is slave to jack transport or not.
@@ -842,7 +906,7 @@ class Server(object):
                     self._fileformat = fileformat
                     self._server.recordOptions(self._dur, filename, self._fileformat, self._sampletype)
 
-        self._server.recstart(filename)
+        self._server.recstart(stringencode(filename))
 
     def recstop(self):
         """
@@ -870,9 +934,9 @@ class Server(object):
                 note is sent. A channel of 0 means all channels.
                 Defaults to 0.
             timestamp: int, optional
-                The delay time, in milliseconds, before the note
-                is sent on the portmidi stream. A value of 0 means
-                to play the note now. Defaults to 0.
+                The delay time, in milliseconds, before the message
+                is sent to the output midi stream. A value of 0 
+                means to play the note now. Defaults to 0.
         """
         pitch, velocity, channel, timestamp, lmax = convertArgsToLists(pitch, velocity, channel, timestamp)
         [self._server.noteout(wrap(pitch,i), wrap(velocity,i), wrap(channel,i), wrap(timestamp,i)) for i in range(lmax)]
@@ -895,9 +959,9 @@ class Server(object):
                 note is sent. A channel of 0 means all channels.
                 Defaults to 0.
             timestamp: int, optional
-                The delay time, in milliseconds, before the note
-                is sent on the portmidi stream. A value of 0 means
-                to play the note now. Defaults to 0.
+                The delay time, in milliseconds, before the message
+                is sent to the output midi stream. A value of 0 
+                means to play the note now. Defaults to 0.
         """
         pitch, velocity, channel, timestamp, lmax = convertArgsToLists(pitch, velocity, channel, timestamp)
         [self._server.afterout(wrap(pitch,i), wrap(velocity,i), wrap(channel,i), wrap(timestamp,i)) for i in range(lmax)]
@@ -921,8 +985,8 @@ class Server(object):
                 Defaults to 0.
             timestamp: int, optional
                 The delay time, in milliseconds, before the message
-                is sent on the portmidi stream. A value of 0 means
-                to play the message now. Defaults to 0.
+                is sent to the output midi stream. A value of 0 
+                means to play the note now. Defaults to 0.
         """
         ctlnum, value, channel, timestamp, lmax = convertArgsToLists(ctlnum, value, channel, timestamp)
         [self._server.ctlout(wrap(ctlnum,i), wrap(value,i), wrap(channel,i), wrap(timestamp,i)) for i in range(lmax)]
@@ -944,8 +1008,8 @@ class Server(object):
                 Defaults to 0.
             timestamp: int, optional
                 The delay time, in milliseconds, before the message
-                is sent on the portmidi stream. A value of 0 means
-                to play the message now. Defaults to 0.
+                is sent to the output midi stream. A value of 0 
+                means to play the note now. Defaults to 0.
         """
         value, channel, timestamp, lmax = convertArgsToLists(value, channel, timestamp)
         [self._server.programout(wrap(value,i), wrap(channel,i), wrap(timestamp,i)) for i in range(lmax)]
@@ -967,8 +1031,8 @@ class Server(object):
                 Defaults to 0.
             timestamp: int, optional
                 The delay time, in milliseconds, before the message
-                is sent on the portmidi stream. A value of 0 means
-                to play the message now. Defaults to 0.
+                is sent to the output midi stream. A value of 0 
+                means to play the note now. Defaults to 0.
         """
         value, channel, timestamp, lmax = convertArgsToLists(value, channel, timestamp)
         [self._server.pressout(wrap(value,i), wrap(channel,i), wrap(timestamp,i)) for i in range(lmax)]
@@ -991,8 +1055,8 @@ class Server(object):
                 Defaults to 0.
             timestamp: int, optional
                 The delay time, in milliseconds, before the message
-                is sent on the portmidi stream. A value of 0 means
-                to play the message now. Defaults to 0.
+                is sent to the output midi stream. A value of 0 
+                means to play the note now. Defaults to 0.
         """
         value, channel, timestamp, lmax = convertArgsToLists(value, channel, timestamp)
         [self._server.bendout(wrap(value,i), wrap(channel,i), wrap(timestamp,i)) for i in range(lmax)]
@@ -1002,7 +1066,8 @@ class Server(object):
         Send a system exclusive message to the selected midi output device.
 
         Arguments can be list of values/messages to generate multiple events
-        in one call.
+        in one call. Implemented only for portmidi, this method is not available
+        when using jack as the midi backend.
 
         :Args:
 
@@ -1011,7 +1076,7 @@ class Server(object):
                 must be 0xf0 and the last one must be 0xf7.
             timestamp: int, optional
                 The delay time, in milliseconds, before the message
-                is sent on the portmidi stream. A value of 0 means
+                is sent to the output midi stream. A value of 0 means
                 to play the message now. Defaults to 0.
         """
         msg, timestamp, lmax = convertArgsToLists(msg, timestamp)

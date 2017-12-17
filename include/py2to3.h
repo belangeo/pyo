@@ -80,8 +80,10 @@
 #define PY_STRING_CHECK(a) PyUnicode_Check(a) 
 #define PY_STRING_AS_STRING(a) PyUnicode_AsUTF8(a)
 #define PY_UNICODE_AS_UNICODE(a) PyUnicode_AsUTF8(a)
+#define PY_BYTES_FROM_STRING(a) PyBytes_FromString(a)
 #else
 #define PY_STRING_CHECK(a) (PyUnicode_Check(a) || PyBytes_Check(a))
 #define PY_STRING_AS_STRING(a) PyBytes_AsString(a)
 #define PY_UNICODE_AS_UNICODE(a) PyBytes_AsString(PyUnicode_AsASCIIString(a))
+#define PY_BYTES_FROM_STRING(a) PyString_FromString(a)
 #endif
