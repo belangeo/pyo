@@ -175,7 +175,7 @@ else:
     include_dirs = ['include', '/usr/local/include']
     if sys.platform == "darwin":
         include_dirs.append('/opt/local/include')
-    library_dirs = []
+    library_dirs = ['/usr/local/lib']
     libraries += ['sndfile']
     if build_with_jack_support:
         libraries.append('jack')
