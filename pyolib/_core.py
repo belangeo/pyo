@@ -128,14 +128,14 @@ FUNCTIONS_INIT_LINES = {
 }
 
 def get_random_integer(mx=32767):
-    if sys.version_info[0] < 3 and sys.version_info[1] < 3:
+    if sys.version_info[0] < 3 or sys.version_info[1] < 3:
         seed = int(str(time.clock()).split(".")[1])
     else:
         seed = int(str(time.process_time()).split(".")[1])
     return (seed * 31351 + 21997) % mx
 
 def listscramble(lst):
-    if sys.version_info[0] < 3 and sys.version_info[1] < 3:
+    if sys.version_info[0] < 3 or sys.version_info[1] < 3:
         seed = int(str(time.clock()).split(".")[1])
     else:
         seed = int(str(time.process_time()).split(".")[1])
