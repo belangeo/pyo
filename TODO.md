@@ -1,6 +1,8 @@
 To do ASAP!
 ===========
 
+- Remove DC at the end of an analyzed spectrum (drawing of computation?).
+
 - [DOC] Compilation for anaconda (mail from Stanley Rosenbaum).
 
 - [DOC] Live recording without xruns, use Server.recstart() to record to a

@@ -665,6 +665,7 @@ else:
             self.obj.setHighFreq(self.highfreq)
             self.obj.setFscaling(self.fscaling)
             self.obj.setMscaling(self.mscaling)
+            self.setChnls(len(self.obj))
 
         def setLowFreq(self, x):
             """
@@ -803,6 +804,7 @@ else:
             self.obj.setFunction(self.update)
             self.obj.setLength(self.length)
             self.obj.setGain(self.gain)
+            self.setChnls(len(self.obj))
 
         def setLength(self, x):
             """

@@ -22,6 +22,7 @@ License along with pyo.  If not, see <http://www.gnu.org/licenses/>.
 """
 import wx, os, sys, math, time, unicodedata
 import wx.stc as stc
+from ._core import rescale
 
 if "phoenix" in wx.version():
     wx.GraphicsContext_Create = wx.GraphicsContext.Create
@@ -1576,7 +1577,8 @@ class SpectrumPanel(wx.Panel):
         self.pens = []
         self.brushes = []
         for x in range(self.chnls):
-            hsv = wx.Image_HSVValue(x / float(self.chnls), 1.0, 1.0)
+            hue = rescale(x, xmin=0, xmax=self.chnls-1, ymin=0, ymax=2./3)
+            hsv = wx.Image_HSVValue(hue, 1.0, 1.0)
             rgb = wx.Image_HSVtoRGB(hsv)
             self.pens.append(wx.Pen(wx.Colour(rgb.red, rgb.green, rgb.blue)))
             self.brushes.append(wx.Brush(wx.Colour(rgb.red, rgb.green, rgb.blue, 128)))
@@ -1602,6 +1604,20 @@ class SpectrumPanel(wx.Panel):
     def setImage(self, points):
         self.img = [points[i] for i in range(len(points))]
         wx.CallAfter(self.Refresh)
+
+    def setChnls(self, x):
+        if x == 1:
+            self.chnls = 64
+        else:
+            self.chnls = x
+        self.pens = []
+        self.brushes = []
+        for x in range(self.chnls):
+            hue = rescale(x, xmin=0, xmax=self.chnls-1, ymin=0, ymax=2./3)
+            hsv = wx.Image_HSVValue(hue, 1.0, 1.0)
+            rgb = wx.Image_HSVtoRGB(hsv)
+            self.pens.append(wx.Pen(wx.Colour(rgb.red, rgb.green, rgb.blue)))
+            self.brushes.append(wx.Brush(wx.Colour(rgb.red, rgb.green, rgb.blue, 128)))
 
     def setFscaling(self, x):
         self.fscaling = x
@@ -1847,9 +1863,10 @@ class ScopePanel(wx.Panel):
             self.channelNamesVisible = True
         self.pens = []
         for x in range(self.chnls):
-            hsv = wx.Image_HSVValue(x / float(self.chnls), 1.0, 1.0)
+            hue = rescale(x, xmin=0, xmax=self.chnls-1, ymin=0, ymax=2./3)
+            hsv = wx.Image_HSVValue(hue, 1.0, 1.0)
             rgb = wx.Image_HSVtoRGB(hsv)
-            self.pens.append(wx.Pen(wx.Colour(rgb.red, rgb.green, rgb.blue)))
+            self.pens.append(wx.Pen(wx.Colour(rgb.red, rgb.green, rgb.blue), 1))
 
         if sys.platform == "win32" or sys.platform.startswith("linux"):
             self.dcref = wx.BufferedPaintDC
@@ -1864,6 +1881,18 @@ class ScopePanel(wx.Panel):
         except:
             pass
         wx.CallAfter(self.Refresh)
+
+    def setChnls(self, x):
+        if x == 1:
+            self.chnls = 64
+        else:
+            self.chnls = x
+        self.pens = []
+        for x in range(self.chnls):
+            hue = rescale(x, xmin=0, xmax=self.chnls-1, ymin=0, ymax=2./3)
+            hsv = wx.Image_HSVValue(hue, 1.0, 1.0)
+            rgb = wx.Image_HSVtoRGB(hsv)
+            self.pens.append(wx.Pen(wx.Colour(rgb.red, rgb.green, rgb.blue), 1))
 
     def setGain(self, gain):
         self.gain = gain
