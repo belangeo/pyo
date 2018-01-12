@@ -5433,6 +5433,23 @@ Resample_create_impulse(Resample *self) {
 }
 
 static void
+Resample_update_mode(Resample *self) {
+    int i = 0, j = 0;
+    if (self->size > self->factor) {
+        self->pimpulse = (MYFLT **)realloc(self->pimpulse, self->factor * sizeof(MYFLT *));
+        self->pinput = (MYFLT **)realloc(self->pinput, self->factor * sizeof(MYFLT *));
+        for (j=0; j<self->factor; j++) {
+            self->pimpulse[j] = (MYFLT *)malloc(self->size / self->factor * sizeof(MYFLT));
+            self->pinput[j] = (MYFLT *)malloc(self->size / self->factor * sizeof(MYFLT));
+            for (i=0; i<self->size/self->factor; i++) {
+                self->pinput[j][i] = 0.0;
+            }
+        }
+        Resample_create_impulse(self);
+    }
+}
+
+static void
 Resample_downsample(Resample *self) {
     int i, j, k, tmp_count, len;
     MYFLT filtout;
@@ -5617,7 +5634,7 @@ Resample_dealloc(Resample* self)
 static PyObject *
 Resample_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
-    int i, j, lfac, cfac, mode;
+    int i, lfac, cfac, mode;
     PyObject *inputtmp, *input_streamtmp, *multmp=NULL, *addtmp=NULL;
     Resample *self;
     self = (Resample *)type->tp_alloc(type, 0);
@@ -5659,23 +5676,12 @@ Resample_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     }
     
     self->size = self->factor * mode;
+    Resample_update_mode(self);
 
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, Resample_compute_next_data_frame);
     self->mode_func_ptr = Resample_setProcMode;
 
-    if (self->size > self->factor) {
-        self->pimpulse = (MYFLT **)realloc(self->pimpulse, self->factor * sizeof(MYFLT *));
-        self->pinput = (MYFLT **)realloc(self->pinput, self->factor * sizeof(MYFLT *));
-        for (j=0; j<self->factor; j++) {
-            self->pimpulse[j] = (MYFLT *)malloc(self->size / self->factor * sizeof(MYFLT));
-            self->pinput[j] = (MYFLT *)malloc(self->size / self->factor * sizeof(MYFLT));
-            for (i=0; i<self->size/self->factor; i++) {
-                self->pinput[j][i] = 0.0;
-            }
-        }
-        Resample_create_impulse(self);
-    }
 
     if (multmp) {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
@@ -5690,6 +5696,25 @@ Resample_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     (*self->mode_func_ptr)(self);
 
     return (PyObject *)self;
+}
+
+static PyObject *
+Resample_setMode(Resample *self, PyObject *arg)
+{
+    int mode = -1;
+    ASSERT_ARG_NOT_NULL
+
+	if (PyInt_Check(arg) == 1) {
+		mode = PyInt_AsLong(arg);
+	}
+
+    if (mode >= 0) {
+        self->size = self->factor * mode;
+        Resample_update_mode(self);
+    }
+
+	Py_INCREF(Py_None);
+	return Py_None;
 }
 
 static PyObject * Resample_getServer(Resample* self) { GET_SERVER };
@@ -5727,6 +5752,7 @@ static PyMethodDef Resample_methods[] = {
 {"play", (PyCFunction)Resample_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
 {"stop", (PyCFunction)Resample_stop, METH_NOARGS, "Stops computing."},
 {"out", (PyCFunction)Resample_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
+{"setMode", (PyCFunction)Resample_setMode, METH_O, "Sets mode factor."},
 {"setMul", (PyCFunction)Resample_setMul, METH_O, "Sets oscillator mul factor."},
 {"setAdd", (PyCFunction)Resample_setAdd, METH_O, "Sets oscillator add factor."},
 {"setSub", (PyCFunction)Resample_setSub, METH_O, "Sets inverse add factor."},
