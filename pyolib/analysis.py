@@ -1324,7 +1324,7 @@ class Scope(PyoObject):
         self._in_fader = InputFader(input)
         in_fader, lmax = convertArgsToLists(self._in_fader)
         self._base_objs = [Scope_base(wrap(in_fader,i), length) for i in range(lmax)]
-        self._timer = Pattern(self.refreshView, length).play()
+        self._base_objs[0].setFunc(self.refreshView)
         if function is None:
             self.view(wintitle)
         self.play()
@@ -1357,7 +1357,6 @@ class Scope(PyoObject):
         """
         pyoArgsAssert(self, "N", x)
         self._length = x
-        self._timer.time = x
         [obj.setLength(x) for obj in self._base_objs]
 
     def setGain(self, x):
@@ -1387,10 +1386,7 @@ class Scope(PyoObject):
 
         """
         pyoArgsAssert(self, "B", active)
-        if active:
-            self._timer.play()
-        else:
-            self._timer.stop()
+        [obj.setPoll(active) for obj in self._base_objs]
 
     def setWidth(self, x):
         """
