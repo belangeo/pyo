@@ -573,20 +573,20 @@ portaudio_get_devices_infos(){
                 assert(info);
                 tmpDict = PyDict_New();
                 if (info->maxInputChannels > 0) {
-                    if (PyUnicode_FromString(info->name) == NULL)
+                    if (PyUnicode_FromFormat("%s", info->name) == NULL)
                         PyDict_SetItemString(tmpDict, "name", PyUnicode_FromString("???"));
                     else
-                        PyDict_SetItemString(tmpDict, "name", PyBytes_FromString(info->name));
+                        PyDict_SetItemString(tmpDict, "name", PyUnicode_FromFormat("%s", info->name));
                     PyDict_SetItemString(tmpDict, "host api index", PyInt_FromLong((int)info->hostApi));
                     PyDict_SetItemString(tmpDict, "default sr", PyInt_FromLong((int)info->defaultSampleRate));
                     PyDict_SetItemString(tmpDict, "latency", PyFloat_FromDouble((float)info->defaultLowInputLatency));
                     PyDict_SetItem(inDict, PyInt_FromLong(i), PyDict_Copy(tmpDict));
                 }
                 if (info->maxOutputChannels > 0) {
-                    if (PyUnicode_FromString(info->name) == NULL)
+                    if (PyUnicode_FromFormat("%s", info->name) == NULL)
                         PyDict_SetItemString(tmpDict, "name", PyUnicode_FromString("???"));
                     else
-                        PyDict_SetItemString(tmpDict, "name", PyBytes_FromString(info->name));
+                        PyDict_SetItemString(tmpDict, "name", PyUnicode_FromFormat("%s", info->name));
                     PyDict_SetItemString(tmpDict, "host api index", PyInt_FromLong((int)info->hostApi));
                     PyDict_SetItemString(tmpDict, "default sr", PyInt_FromLong((int)info->defaultSampleRate));
                     PyDict_SetItemString(tmpDict, "latency", PyFloat_FromDouble((float)info->defaultLowOutputLatency));
@@ -630,10 +630,10 @@ portaudio_get_output_devices(){
                 assert(info);
                 if (info->maxOutputChannels > 0) {
                     PyList_Append(list_index, PyInt_FromLong(i));
-                    if (PyUnicode_FromString(info->name) == NULL)
+                    if (PyUnicode_FromFormat("%s", info->name) == NULL)
                         PyList_Append(list, PyUnicode_FromString("???"));
                     else
-                        PyList_Append(list, PyBytes_FromString(info->name));
+                        PyList_Append(list, PyUnicode_FromFormat("%s", info->name));
                 }
             }
         }
@@ -737,10 +737,10 @@ portaudio_get_input_devices(){
                 assert(info);
                 if (info->maxInputChannels > 0) {
                     PyList_Append(list_index, PyInt_FromLong(i));
-                    if (PyUnicode_FromString(info->name) == NULL)
+                    if (PyUnicode_FromFormat("%s", info->name) == NULL)
                         PyList_Append(list, PyUnicode_FromString("???"));
                     else
-                        PyList_Append(list, PyBytes_FromString(info->name));
+                        PyList_Append(list, PyUnicode_FromFormat("%s", info->name));
                 }
             }
         }
