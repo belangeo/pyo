@@ -2413,10 +2413,13 @@ typedef struct {
     pyo_audio_HEAD
     PyObject *input;
     Stream *input_stream;
+    PyObject *func;
     int size;
+    int newsize;
     int width;
     int height;
     int pointer;
+    int poll;
     MYFLT gain;
     MYFLT *buffer;
 } Scope;
@@ -2426,8 +2429,14 @@ Scope_generate(Scope *self) {
     int i;
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
     for (i=0; i<self->bufsize; i++) {
-        if (self->pointer >= self->size)
+        if (self->pointer >= self->size) {
+            if (self->func != Py_None && self->poll) {
+                PyObject_Call(self->func, PyTuple_New(0), NULL);
+            }
             self->pointer = 0;
+            if (self->newsize != self->size)
+                self->size = self->newsize;
+        }
         self->buffer[self->pointer] = in[i];
         self->pointer++;
     }
@@ -2468,6 +2477,9 @@ Scope_traverse(Scope *self, visitproc visit, void *arg)
     pyo_VISIT
     Py_VISIT(self->input);
     Py_VISIT(self->input_stream);
+    if (self->func != Py_None) {
+        Py_VISIT(self->func);
+    }
     return 0;
 }
 
@@ -2477,6 +2489,9 @@ Scope_clear(Scope *self)
     pyo_CLEAR
     Py_CLEAR(self->input);
     Py_CLEAR(self->input_stream);
+    if (self->func != Py_None) {
+        Py_CLEAR(self->func);
+    }
     return 0;
 }
 
@@ -2492,7 +2507,7 @@ Scope_dealloc(Scope* self)
 static PyObject *
 Scope_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
-    int i, maxsize;
+    int i, maxsize, target;
     MYFLT length = 0.05;
     PyObject *inputtmp, *input_streamtmp;
     Scope *self;
@@ -2501,6 +2516,9 @@ Scope_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->gain = 1.0;
     self->width = 500;
     self->height = 400;
+    self->poll = 1;
+
+    self->func = Py_None;
 
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, Scope_compute_next_data_frame);
@@ -2512,11 +2530,20 @@ Scope_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     INIT_INPUT_STREAM
 
-    maxsize = (int)(self->sr * 0.25);
+    maxsize = (int)(self->sr);
     self->buffer = (MYFLT *)realloc(self->buffer, maxsize * sizeof(MYFLT));
-    self->size = (int)(length * self->sr);
-    if (self->size > maxsize)
+
+    self->size = 0;
+    target = (int)(length * self->sr);
+    while (self->size < target) {
+        self->size += self->bufsize;
+    }
+    self->size -= self->bufsize;
+    if (self->size < self->bufsize)
+        self->size += self->bufsize;
+    else if (self->size > maxsize)
         self->size = maxsize;
+    self->newsize = self->size;
     self->pointer = 0;
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -2533,15 +2560,22 @@ static PyObject * Scope_stop(Scope *self) { STOP };
 static PyObject *
 Scope_setLength(Scope *self, PyObject *arg)
 {
+    int target;
     MYFLT length;
-    int maxsize = (int)(self->sr * 0.25);
+    int maxsize = (int)(self->sr);
 
     if (PyNumber_Check(arg)) {
         length = PyFloat_AsDouble(arg);
-        self->size = (int)(length * self->sr);
-        if (self->size > maxsize)
-            self->size = maxsize;
-        self->pointer = 0;
+        self->newsize = 0;
+        target = (int)(length * self->sr);
+        while (self->newsize < target) {
+            self->newsize += self->bufsize;
+        }
+        self->newsize -= self->bufsize;
+    if (self->newsize < self->bufsize)
+        self->newsize += self->bufsize;
+    else if (self->newsize > maxsize)
+        self->newsize = maxsize;
     }
 	Py_INCREF(Py_None);
 	return Py_None;
@@ -2577,6 +2611,36 @@ Scope_setHeight(Scope *self, PyObject *arg)
 	return Py_None;
 }
 
+static PyObject *
+Scope_setFunc(Scope *self, PyObject *arg)
+{
+	PyObject *tmp;
+
+	if (! PyCallable_Check(arg)) {
+        PyErr_SetString(PyExc_TypeError, "The function attribute must be callable.");
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+
+    tmp = arg;
+    Py_XDECREF(self->func);
+    Py_INCREF(tmp);
+    self->func = tmp;
+
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
+static PyObject *
+Scope_setPoll(Scope *self, PyObject *arg)
+{
+    if (PyInt_Check(arg)) {
+        self->poll = PyInt_AsLong(arg);
+    }
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
 static PyMemberDef Scope_members[] = {
 {"server", T_OBJECT_EX, offsetof(Scope, server), 0, "Pyo server."},
 {"stream", T_OBJECT_EX, offsetof(Scope, stream), 0, "Stream object."},
@@ -2594,6 +2658,8 @@ static PyMethodDef Scope_methods[] = {
 {"setGain", (PyCFunction)Scope_setGain, METH_O, "Sets gain compensation."},
 {"setWidth", (PyCFunction)Scope_setWidth, METH_O, "Sets the width of the display."},
 {"setHeight", (PyCFunction)Scope_setHeight, METH_O, "Sets the height of the display."},
+{"setFunc", (PyCFunction)Scope_setFunc, METH_O, "Sets callback function."},
+{"setPoll", (PyCFunction)Scope_setPoll, METH_O, "Activate/deactivate polling."},
 {NULL}  /* Sentinel */
 };
 

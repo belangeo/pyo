@@ -28,7 +28,7 @@ from pyo import *
 s = Server().boot()
 
 # Sets fundamental frequency.
-freq = 200
+freq = 187.5
 
 # LFO applied to the `sharp` attribute
 lfo = Sine(.2, mul=0.5, add=0.5)
