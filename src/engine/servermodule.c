@@ -534,8 +534,7 @@ Server_traverse(Server *self, visitproc visit, void *arg)
     Py_VISIT(self->TIME);
     if (self->CALLBACK != NULL)
         Py_VISIT(self->CALLBACK);
-    if (PyList_Size(self->streams) > 0)
-        Py_VISIT(self->streams);
+    Py_VISIT(self->streams);
     Py_VISIT(self->jackInputPortNames);
     Py_VISIT(self->jackOutputPortNames);
     Py_VISIT(self->jackMidiInputPortName);
@@ -554,8 +553,7 @@ Server_clear(Server *self)
     Py_CLEAR(self->TIME);
     if (self->CALLBACK != NULL)
         Py_CLEAR(self->CALLBACK);
-    if (PyList_Size(self->streams) > 0)
-        Py_CLEAR(self->streams);
+    Py_CLEAR(self->streams);
     Py_CLEAR(self->jackInputPortNames);
     Py_CLEAR(self->jackOutputPortNames);
     Py_CLEAR(self->jackMidiInputPortName);
@@ -621,6 +619,7 @@ Server_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->serverName = (char *) calloc(32, sizeof(char));
     self->jackautoin = 1;
     self->jackautoout = 1;
+    self->streams = PyList_New(0);
     self->jackInputPortNames = PY_BYTES_FROM_STRING("");
     self->jackOutputPortNames = PY_BYTES_FROM_STRING("");
     self->jackMidiInputPortName = PY_BYTES_FROM_STRING("");
@@ -1306,6 +1305,16 @@ Server_shutdown(Server *self)
         Server_error(self, "Error closing audio backend.\n");
     }
 
+    /* Cleaning list of audio streams. */
+    PyGILState_STATE s = PyGILState_Ensure();
+    if (PyList_Size(self->streams) > 0) {
+        for (i=PyList_Size(self->streams); i>0; i--) {
+            PySequence_DelItem(self->streams, i-1);
+        }
+    }
+    self->stream_count = 0;
+    PyGILState_Release(s);
+
     Py_RETURN_NONE;
 }
 
@@ -1334,7 +1343,8 @@ Server_boot(Server *self, PyObject *arg)
         Server_error(self, "The argument to set for a new buffer must be a boolean.\n");
     }
 
-    self->streams = PyList_New(0);
+    Server_debug(self, "Server_boot: streams list size (must always be 0): %d\n",
+                 PyList_Size(self->streams));
     switch (self->audio_be_type) {
         case PyoPortaudio:
             audioerr = Server_pa_init(self);
