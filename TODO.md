@@ -1,7 +1,7 @@
 To do ASAP!
 ===========
 
-- Remove DC at the end of an analyzed spectrum (drawing of computation?).
+- Remove DC at the end of an analyzed spectrum (drawing or computation?).
 
 - [DOC] Compilation for anaconda (mail from Stanley Rosenbaum).
 
@@ -91,7 +91,7 @@ E-Pyo
 -----
 
 - Complete review of E-Pyo on Windows. Lot of features don't seem to work.
-
+    - Does not seem to save file with utf-8 encoding.
     - Project tree refresh function doesn't work.
 
 - Add the ability to remove a project from the project tree.
