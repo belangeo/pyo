@@ -1861,12 +1861,8 @@ class ScopePanel(wx.Panel):
             self.length = 0.05
             self.chnls = 64
             self.channelNamesVisible = True
-        self.pens = []
-        for x in range(self.chnls):
-            hue = rescale(x, xmin=0, xmax=self.chnls-1, ymin=0, ymax=2./3)
-            hsv = wx.Image_HSVValue(hue, 1.0, 1.0)
-            rgb = wx.Image_HSVtoRGB(hsv)
-            self.pens.append(wx.Pen(wx.Colour(rgb.red, rgb.green, rgb.blue), 1))
+
+        self.setPens()
 
         if sys.platform == "win32" or sys.platform.startswith("linux"):
             self.dcref = wx.BufferedPaintDC
@@ -1887,12 +1883,15 @@ class ScopePanel(wx.Panel):
             self.chnls = 64
         else:
             self.chnls = x
+        self.setPens()
+
+    def setPens(self):
         self.pens = []
         for x in range(self.chnls):
             hue = rescale(x, xmin=0, xmax=self.chnls-1, ymin=0, ymax=2./3)
             hsv = wx.Image_HSVValue(hue, 1.0, 1.0)
             rgb = wx.Image_HSVtoRGB(hsv)
-            self.pens.append(wx.Pen(wx.Colour(rgb.red, rgb.green, rgb.blue), 1))
+            self.pens.append(wx.Pen(wx.Colour(rgb.red, rgb.green, rgb.blue), 2))
 
     def setGain(self, gain):
         self.gain = gain
