@@ -323,7 +323,12 @@ class ControlSlider(wx.Panel):
         self.Refresh()
 
     def OnPaint(self, evt):
-        w,h = self.GetSize()
+        w, h = self.GetSize()
+
+        if w <= 0 or h <= 0:
+            evt.Skip()
+            return
+
         dc = self.dcref(self)
         gc = wx.GraphicsContext_Create(dc)
 
