@@ -1574,14 +1574,7 @@ class SpectrumPanel(wx.Panel):
         self.highfreq = highfreq
         self.fscaling = fscaling
         self.mscaling = mscaling
-        self.pens = []
-        self.brushes = []
-        for x in range(self.chnls):
-            hue = rescale(x, xmin=0, xmax=self.chnls-1, ymin=0, ymax=2./3)
-            hsv = wx.Image_HSVValue(hue, 1.0, 1.0)
-            rgb = wx.Image_HSVtoRGB(hsv)
-            self.pens.append(wx.Pen(wx.Colour(rgb.red, rgb.green, rgb.blue)))
-            self.brushes.append(wx.Brush(wx.Colour(rgb.red, rgb.green, rgb.blue, 128)))
+        self.setPens()
         if sys.platform == "win32" or sys.platform.startswith("linux"):
             self.dcref = wx.BufferedPaintDC
         else:
@@ -1605,19 +1598,22 @@ class SpectrumPanel(wx.Panel):
         self.img = [points[i] for i in range(len(points))]
         wx.CallAfter(self.Refresh)
 
+    def setPens(self):
+        self.pens = []
+        self.brushes = []
+        for x in range(self.chnls):
+            hue = rescale(x, xmin=0, xmax=self.chnls-1, ymin=0, ymax=2./3)
+            hsv = wx.Image_HSVValue(hue, 1.0, 0.6)
+            rgb = wx.Image_HSVtoRGB(hsv)
+            self.pens.append(wx.Pen(wx.Colour(rgb.red, rgb.green, rgb.blue), 1))
+            self.brushes.append(wx.Brush(wx.Colour(rgb.red, rgb.green, rgb.blue, 128)))
+
     def setChnls(self, x):
         if x == 1:
             self.chnls = 64
         else:
             self.chnls = x
-        self.pens = []
-        self.brushes = []
-        for x in range(self.chnls):
-            hue = rescale(x, xmin=0, xmax=self.chnls-1, ymin=0, ymax=2./3)
-            hsv = wx.Image_HSVValue(hue, 1.0, 1.0)
-            rgb = wx.Image_HSVtoRGB(hsv)
-            self.pens.append(wx.Pen(wx.Colour(rgb.red, rgb.green, rgb.blue)))
-            self.brushes.append(wx.Brush(wx.Colour(rgb.red, rgb.green, rgb.blue, 128)))
+        self.setPens()
 
     def setFscaling(self, x):
         self.fscaling = x
@@ -1889,7 +1885,7 @@ class ScopePanel(wx.Panel):
         self.pens = []
         for x in range(self.chnls):
             hue = rescale(x, xmin=0, xmax=self.chnls-1, ymin=0, ymax=2./3)
-            hsv = wx.Image_HSVValue(hue, 1.0, 1.0)
+            hsv = wx.Image_HSVValue(hue, 1.0, 0.6)
             rgb = wx.Image_HSVtoRGB(hsv)
             self.pens.append(wx.Pen(wx.Colour(rgb.red, rgb.green, rgb.blue), 2))
 
