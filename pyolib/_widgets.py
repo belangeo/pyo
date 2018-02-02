@@ -35,7 +35,6 @@ if "PYO_GUI_WX" in os.environ:
 if use_wx:
     try:
         import wx
-        from ._wxwidgets import *
         PYO_USE_WX = True
     except:
         PYO_USE_WX = False
@@ -50,6 +49,9 @@ http://www.wxpython.org/
 else:
     PYO_USE_WX = False
 
+if PYO_USE_WX:
+    from ._wxwidgets import *
+
 PYO_USE_TK = False
 if not PYO_USE_WX:
     try:
@@ -57,7 +59,6 @@ if not PYO_USE_WX:
             import Tkinter as tk
         else:
             import tkinter as tk
-        from ._tkwidgets import *
         PYO_USE_TK = True
     except:
         PYO_USE_TK = False
@@ -66,6 +67,9 @@ Neither WxPython nor Tkinter are found for the current python version.
 Pyo's GUI features are disabled. For a complete GUI toolkit, you should
 consider installing WxPython, available here: http://www.wxpython.org/
 """)
+
+if PYO_USE_TK:
+    from ._tkwidgets import *
 
 X, Y, CURRENT_X, MAX_X, NEXT_Y = 800, 700, 30, 30, 30
 WINDOWS = []
