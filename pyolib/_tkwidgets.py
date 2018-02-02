@@ -43,6 +43,11 @@ else:
     Y_OFFSET = 4
     VM_OFFSET = 0
 
+def ptoi(pix):
+    # return pix
+    return "%fi" % (pix / 96)
+
+
 ######################################################################
 ### Multisliders
 ######################################################################
@@ -340,33 +345,35 @@ class ServerGUI(tk.Frame):
         self.ampScale = tk.Scale(self, command=self.setAmp, digits=4,
                                  label='Amplitude (dB)', orient=tk.HORIZONTAL,
                                  relief=tk.GROOVE, from_=-60.0, to=18.0,
-                                 resolution=.01, bd=1, length=250,
-                                 troughcolor="#BCBCAA", width=10)
+                                 resolution=.01, bd=1, length=ptoi(250),
+                                 troughcolor="#BCBCAA", width=ptoi(10))
         self.ampScale.set(20.0 * math.log10(self.amp))
-        self.ampScale.grid(ipadx=5, ipady=5, row=row, column=0, columnspan=3)
+        self.ampScale.grid(ipadx=ptoi(5), ipady=ptoi(5), row=row, column=0, columnspan=3)
         row += 1
 
         if self.meter:
-            self.vumeter = tk.Canvas(self, height=5*self.nchnls+1, width=250,
+            self.vumeter = tk.Canvas(self, height=ptoi(5*self.nchnls+1), width=ptoi(250),
                                      relief=tk.FLAT, bd=0, bg="#323232")
             self.green = []
             self.yellow = []
             self.red = []
             for i in range(self.nchnls):
                 y = 5 * (i + 1) + 1 - VM_OFFSET
-                self.green.append(self.vumeter.create_line(0, y, 1, y, width=4,
-                                                           fill='green',
-                                                           dash=(9, 1),
-                                                           dashoff=6+VM_OFFSET))
-                self.yellow.append(self.vumeter.create_line(self.B1, y, self.B1,
-                                                            y, width=4,
-                                                            fill='yellow',
-                                                            dash=(9, 1),
-                                                            dashoff=9))
-                self.red.append(self.vumeter.create_line(self.B2, y, self.B2, y,
-                                                         width=4, fill='red',
-                                                         dash=(9, 1), dashoff=0))
-            self.vumeter.grid(ipadx=5, row=row, column=0, columnspan=3)
+                vum = self.vumeter
+                self.green.append(vum.create_line(0, ptoi(y), ptoi(1), ptoi(y),
+                                                  width=ptoi(4), fill='green',
+                                                  dash=(9, 1),
+                                                  dashoff=ptoi(6+VM_OFFSET)))
+                self.yellow.append(vum.create_line(ptoi(self.B1), ptoi(y),
+                                                   ptoi(self.B1), ptoi(y),
+                                                   width=ptoi(4),
+                                                   fill='yellow', dash=(9, 1),
+                                                   dashoff=ptoi(9)))
+                self.red.append(vum.create_line(ptoi(self.B2), ptoi(y),
+                                                ptoi(self.B2), ptoi(y),
+                                                width=ptoi(4), fill='red',
+                                                dash=(9, 1), dashoff=0))
+            self.vumeter.grid(ipadx=ptoi(5), row=row, column=0, columnspan=3)
             row += 1
 
         if self.timer:
@@ -465,17 +472,26 @@ class ServerGUI(tk.Frame):
             db = math.log10(args[i]+0.00001) * 0.2 + 1.
             amp = int(db*250)
             if amp <= self.B1:
-                self.vumeter.coords(self.green[i], 0, y, amp, y)
-                self.vumeter.coords(self.yellow[i], self.B1, y, self.B1, y)
-                self.vumeter.coords(self.red[i], self.B2, y, self.B2, y)
+                self.vumeter.coords(self.green[i], 0, ptoi(y), ptoi(amp),
+                                    ptoi(y))
+                self.vumeter.coords(self.yellow[i], ptoi(self.B1), ptoi(y),
+                                    ptoi(self.B1), ptoi(y))
+                self.vumeter.coords(self.red[i], ptoi(self.B2), ptoi(y),
+                                    ptoi(self.B2), ptoi(y))
             elif amp <= self.B2:
-                self.vumeter.coords(self.green[i], 0, y, self.B1, y)
-                self.vumeter.coords(self.yellow[i], self.B1, y, amp, y)
-                self.vumeter.coords(self.red[i], self.B2, y, self.B2, y)
+                self.vumeter.coords(self.green[i], 0, ptoi(y), ptoi(self.B1),
+                                    ptoi(y))
+                self.vumeter.coords(self.yellow[i], ptoi(self.B1), ptoi(y),
+                                    ptoi(amp), ptoi(y))
+                self.vumeter.coords(self.red[i], ptoi(self.B2), ptoi(y),
+                                    ptoi(self.B2), ptoi(y))
             else:
-                self.vumeter.coords(self.green[i], 0, y, self.B1, y)
-                self.vumeter.coords(self.yellow[i], self.B1, y, self.B2, y)
-                self.vumeter.coords(self.red[i], self.B2, y, amp, y)
+                self.vumeter.coords(self.green[i], 0, ptoi(y), ptoi(self.B1),
+                                    ptoi(y))
+                self.vumeter.coords(self.yellow[i], ptoi(self.B1), ptoi(y),
+                                    ptoi(self.B2), ptoi(y))
+                self.vumeter.coords(self.red[i], ptoi(self.B2), ptoi(y),
+                                    ptoi(amp), ptoi(y))
 
     def setStartButtonState(self, state):
         if state:

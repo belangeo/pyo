@@ -119,6 +119,13 @@ def tkCreateToplevelWindow():
     WINDOWS.append(win)
     win.protocol('WM_DELETE_WINDOW', lambda win=win: tkCloseWindow(win))
     win.bind("<Escape>", tkCloseWindowFromKeyboard)
+    dpi_value = int(win.winfo_fpixels('1i'))
+    win.tk.eval("""
+        foreach font [font names] {
+            set cursize [font configure $font -size]
+            font configure $font -size [expr {int($cursize * %d / 96.0)}]
+        }
+    """ % dpi_value)
     return win
 
 def wxDisplayWindow(f, title):
