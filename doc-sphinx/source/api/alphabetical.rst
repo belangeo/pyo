@@ -90,6 +90,7 @@ Alphabetical class reference
 - :py:class:`Gate` :     Allows a signal to pass only when its amplitude is above a set threshold.
 - :py:class:`Granulator` :     Granular synthesis generator.
 - :py:class:`Granule` :     Another granular synthesis generator.
+- :py:class:`HRTF` :     Head-Related Transfert Function 3D spatialization.
 - :py:class:`HannTable` :     Generates Hanning window function.
 - :py:class:`HarmTable` :     Harmonic waveform generator.
 - :py:class:`Harmonizer` :     Generates harmonizing voices in synchrony with its audio input.

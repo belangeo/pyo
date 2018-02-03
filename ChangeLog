@@ -1,6 +1,36 @@
 2018-02-03 belangeo <belangeo@gmail.com>
 
-    * Added new object: HRTF, Head-Related Transfert Function spatialization.
+    * Added new object: HRTF, Head-Related Transfert Function 3D spatialization.
+
+2018-02-01 belangeo <belangeo@gmail.com>
+
+    * Fixed crash when trying to draw a ControlSlider with width or height of 0.
+
+2018-01-31 belangeo <belangeo@gmail.com>
+
+    * Fixed window shape in the Harmonizer object (use an halfsine instead 
+      of an hanning).
+
+2018-01-25 belangeo <belangeo@gmail.com>
+
+    * Fixed segfault at exit when a Server object is created but never 
+      booted (fixed issue #117).
+
+2018-01-14 belangeo <belangeo@gmail.com>
+
+    * Fixed pa_get_devices_infos() function on Windows.
+
+2018-01-12 belangeo <belangeo@gmail.com>
+
+    * Allow the "mode" argument of Resample object to be changed dynamically.
+
+2017-12-16 belangeo <belangeo@gmail.com>
+
+    * Fixed erroneous condition in listscramble function.
+
+2017-11-26 belangeo <belangeo@gmail.com>
+
+    * Speed-up computation for various objects.
 
 2017-11-07 belangeo <belangeo@gmail.com>
 

@@ -97,7 +97,8 @@ for dir in folders:
 
 os.system("cp ../utils/E-PyoIcon.png source/")
 
-os.system("sphinx-build -a -E -j 4 -b %s ./source %s" % (build_format, build_folder))
+#os.system("sphinx-build -a -E -j 4 -b %s ./source %s" % (build_format, build_folder))
+os.system("sphinx-build -a -E -b %s ./source %s" % (build_format, build_folder))
 
 if build_format == "latex":
     os.system("cd build_latex; pdflatex -interaction nonstopmode Pyo;  pdflatex -interaction nonstopmode Pyo")
