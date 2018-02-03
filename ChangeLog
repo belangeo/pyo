@@ -1,3 +1,7 @@
+2018-02-03 belangeo <belangeo@gmail.com>
+
+    * Added new object: HRTF, Head-Related Transfert Function spatialization.
+
 2017-11-07 belangeo <belangeo@gmail.com>
 
     * Changed the stereo panning law for cosine/sine within Pan object.

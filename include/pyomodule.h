@@ -520,6 +520,9 @@ extern PyTypeObject LogiMapType;
 extern PyTypeObject SharedTableType;
 extern PyTypeObject TableFillType;
 extern PyTypeObject TableScanType;
+extern PyTypeObject HRTFDataType;
+extern PyTypeObject HRTFSpatterType;
+extern PyTypeObject HRTFType;
 
 /* Constants */
 #define E M_E

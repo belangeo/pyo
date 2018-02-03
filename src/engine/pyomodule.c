@@ -2108,6 +2108,9 @@ init_pyo64(void)
     module_add_object(m, "SharedTable_base", &SharedTableType);
     module_add_object(m, "TableFill_base", &TableFillType);
     module_add_object(m, "TableScan_base", &TableScanType);
+    module_add_object(m, "HRTFData_base", &HRTFDataType);
+    module_add_object(m, "HRTFSpatter_base", &HRTFSpatterType);
+    module_add_object(m, "HRTF_base", &HRTFType);
 
     PyModule_AddStringConstant(m, "PYO_VERSION", PYO_VERSION);
 #ifdef COMPILE_EXTERNALS

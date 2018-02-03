@@ -42,3 +42,8 @@ signal into a stereo or multi-channel sound field.
 .. autoclass:: VoiceManager
    :members:
 
+*HRTF*
+-----------------------------------
+
+.. autoclass:: HRTF
+   :members:
