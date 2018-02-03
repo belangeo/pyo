@@ -53,7 +53,7 @@ def get_hrtf_file_names(folder):
     files = [f for f in os.listdir(path) if f.endswith(".wav")]
     return files
 
-pyo_version = "0.8.8"
+pyo_version = "0.8.9"
 build_with_jack_support = False
 compile_externals = False
 
