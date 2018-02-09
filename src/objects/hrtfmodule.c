@@ -314,18 +314,18 @@ HRTFSpatter_splitter_ii(HRTFSpatter *self) {
                 for (k=0; k<self->length; k++) {
                     self->previous_impulses[0][k] = self->current_impulses[0][k];
                     self->previous_impulses[1][k] = self->current_impulses[1][k];
-                    self->current_impulses[0][k] = elev_frac *
-                                        (azim_frac_down * hrtf_left[elev_index_array][azim_index_down][k] +
-                                        azim_frac_inv_down * hrtf_left[elev_index_array][azim_index_down+1][k]) +
-                                        elev_frac_inv *
-                                        (azim_frac_up * hrtf_left[elev_index_array+1][azim_index_up][k] +
-                                        azim_frac_inv_up * hrtf_left[elev_index_array+1][azim_index_up+1][k]);
-                    self->current_impulses[1][k] = elev_frac *
-                                        (azim_frac_down * hrtf_right[elev_index_array][azim_index_down][k] +
-                                        azim_frac_inv_down * hrtf_right[elev_index_array][azim_index_down+1][k]) +
-                                        elev_frac_inv *
-                                        (azim_frac_up * hrtf_right[elev_index_array+1][azim_index_up][k] +
-                                        azim_frac_inv_up * hrtf_right[elev_index_array+1][azim_index_up+1][k]);
+                    self->current_impulses[0][k] = elev_frac_inv *
+                                        (azim_frac_inv_down * hrtf_left[elev_index_array][azim_index_down][k] +
+                                        azim_frac_down * hrtf_left[elev_index_array][azim_index_down+1][k]) +
+                                        elev_frac *
+                                        (azim_frac_inv_up * hrtf_left[elev_index_array+1][azim_index_up][k] +
+                                        azim_frac_up * hrtf_left[elev_index_array+1][azim_index_up+1][k]);
+                    self->current_impulses[1][k] = elev_frac_inv *
+                                        (azim_frac_inv_down * hrtf_right[elev_index_array][azim_index_down][k] +
+                                        azim_frac_down * hrtf_right[elev_index_array][azim_index_down+1][k]) +
+                                        elev_frac *
+                                        (azim_frac_inv_up * hrtf_right[elev_index_array+1][azim_index_up][k] +
+                                        azim_frac_up * hrtf_right[elev_index_array+1][azim_index_up+1][k]);
                 }
             // if elevation is 80 degrees or more, interpolation requires only three points (there's only one HRIR at 90 deg).
             } else {
@@ -335,14 +335,14 @@ HRTFSpatter_splitter_ii(HRTFSpatter *self) {
                 for (k=0; k<self->length; k++) {
                     self->previous_impulses[0][k] = self->current_impulses[0][k];
                     self->previous_impulses[1][k] = self->current_impulses[1][k];
-                    self->current_impulses[0][k] = elev_frac *
-                                        (azim_frac_down * hrtf_left[elev_index_array][azim_index_down][k] +
-                                        azim_frac_inv_down * hrtf_left[elev_index_array][azim_index_down+1][k]) +
-                                        elev_frac_inv * hrtf_left[13][0][k];
-                    self->current_impulses[1][k] = elev_frac *
-                                        (azim_frac_down * hrtf_right[elev_index_array][azim_index_down][k] +
-                                        azim_frac_inv_down * hrtf_right[elev_index_array][azim_index_down+1][k]) +
-                                        elev_frac_inv * hrtf_right[13][0][k];
+                    self->current_impulses[0][k] = elev_frac_inv *
+                                        (azim_frac_inv_down * hrtf_left[elev_index_array][azim_index_down][k] +
+                                        azim_frac_down * hrtf_left[elev_index_array][azim_index_down+1][k]) +
+                                        elev_frac * hrtf_left[13][0][k];
+                    self->current_impulses[1][k] = elev_frac_inv *
+                                        (azim_frac_inv_down * hrtf_right[elev_index_array][azim_index_down][k] +
+                                        azim_frac_down * hrtf_right[elev_index_array][azim_index_down+1][k]) +
+                                        elev_frac * hrtf_right[13][0][k];
                 }
             }
         }
@@ -431,18 +431,18 @@ HRTFSpatter_splitter_ai(HRTFSpatter *self) {
                 for (k=0; k<self->length; k++) {
                     self->previous_impulses[0][k] = self->current_impulses[0][k];
                     self->previous_impulses[1][k] = self->current_impulses[1][k];
-                    self->current_impulses[0][k] = elev_frac *
-                                        (azim_frac_down * hrtf_left[elev_index_array][azim_index_down][k] +
-                                        azim_frac_inv_down * hrtf_left[elev_index_array][azim_index_down+1][k]) +
-                                        elev_frac_inv *
-                                        (azim_frac_up * hrtf_left[elev_index_array+1][azim_index_up][k] +
-                                        azim_frac_inv_up * hrtf_left[elev_index_array+1][azim_index_up+1][k]);
-                    self->current_impulses[1][k] = elev_frac *
-                                        (azim_frac_down * hrtf_right[elev_index_array][azim_index_down][k] +
-                                        azim_frac_inv_down * hrtf_right[elev_index_array][azim_index_down+1][k]) +
-                                        elev_frac_inv *
-                                        (azim_frac_up * hrtf_right[elev_index_array+1][azim_index_up][k] +
-                                        azim_frac_inv_up * hrtf_right[elev_index_array+1][azim_index_up+1][k]);
+                    self->current_impulses[0][k] = elev_frac_inv *
+                                        (azim_frac_inv_down * hrtf_left[elev_index_array][azim_index_down][k] +
+                                        azim_frac_down * hrtf_left[elev_index_array][azim_index_down+1][k]) +
+                                        elev_frac *
+                                        (azim_frac_inv_up * hrtf_left[elev_index_array+1][azim_index_up][k] +
+                                        azim_frac_up * hrtf_left[elev_index_array+1][azim_index_up+1][k]);
+                    self->current_impulses[1][k] = elev_frac_inv *
+                                        (azim_frac_inv_down * hrtf_right[elev_index_array][azim_index_down][k] +
+                                        azim_frac_down * hrtf_right[elev_index_array][azim_index_down+1][k]) +
+                                        elev_frac *
+                                        (azim_frac_inv_up * hrtf_right[elev_index_array+1][azim_index_up][k] +
+                                        azim_frac_up * hrtf_right[elev_index_array+1][azim_index_up+1][k]);
                 }
             // if elevation is 80 degrees or more, interpolation requires only three points (there's only one HRIR at 90 deg).
             } else {
@@ -452,14 +452,14 @@ HRTFSpatter_splitter_ai(HRTFSpatter *self) {
                 for (k=0; k<self->length; k++) {
                     self->previous_impulses[0][k] = self->current_impulses[0][k];
                     self->previous_impulses[1][k] = self->current_impulses[1][k];
-                    self->current_impulses[0][k] = elev_frac *
-                                        (azim_frac_down * hrtf_left[elev_index_array][azim_index_down][k] +
-                                        azim_frac_inv_down * hrtf_left[elev_index_array][azim_index_down+1][k]) +
-                                        elev_frac_inv * hrtf_left[13][0][k];
-                    self->current_impulses[1][k] = elev_frac *
-                                        (azim_frac_down * hrtf_right[elev_index_array][azim_index_down][k] +
-                                        azim_frac_inv_down * hrtf_right[elev_index_array][azim_index_down+1][k]) +
-                                        elev_frac_inv * hrtf_right[13][0][k];
+                    self->current_impulses[0][k] = elev_frac_inv *
+                                        (azim_frac_inv_down * hrtf_left[elev_index_array][azim_index_down][k] +
+                                        azim_frac_down * hrtf_left[elev_index_array][azim_index_down+1][k]) +
+                                        elev_frac * hrtf_left[13][0][k];
+                    self->current_impulses[1][k] = elev_frac_inv *
+                                        (azim_frac_inv_down * hrtf_right[elev_index_array][azim_index_down][k] +
+                                        azim_frac_down * hrtf_right[elev_index_array][azim_index_down+1][k]) +
+                                        elev_frac * hrtf_right[13][0][k];
                 }
             }
         }
@@ -550,18 +550,18 @@ HRTFSpatter_splitter_ia(HRTFSpatter *self) {
                 for (k=0; k<self->length; k++) {
                     self->previous_impulses[0][k] = self->current_impulses[0][k];
                     self->previous_impulses[1][k] = self->current_impulses[1][k];
-                    self->current_impulses[0][k] = elev_frac *
-                                        (azim_frac_down * hrtf_left[elev_index_array][azim_index_down][k] +
-                                        azim_frac_inv_down * hrtf_left[elev_index_array][azim_index_down+1][k]) +
-                                        elev_frac_inv *
-                                        (azim_frac_up * hrtf_left[elev_index_array+1][azim_index_up][k] +
-                                        azim_frac_inv_up * hrtf_left[elev_index_array+1][azim_index_up+1][k]);
-                    self->current_impulses[1][k] = elev_frac *
-                                        (azim_frac_down * hrtf_right[elev_index_array][azim_index_down][k] +
-                                        azim_frac_inv_down * hrtf_right[elev_index_array][azim_index_down+1][k]) +
-                                        elev_frac_inv *
-                                        (azim_frac_up * hrtf_right[elev_index_array+1][azim_index_up][k] +
-                                        azim_frac_inv_up * hrtf_right[elev_index_array+1][azim_index_up+1][k]);
+                    self->current_impulses[0][k] = elev_frac_inv *
+                                        (azim_frac_inv_down * hrtf_left[elev_index_array][azim_index_down][k] +
+                                        azim_frac_down * hrtf_left[elev_index_array][azim_index_down+1][k]) +
+                                        elev_frac *
+                                        (azim_frac_inv_up * hrtf_left[elev_index_array+1][azim_index_up][k] +
+                                        azim_frac_up * hrtf_left[elev_index_array+1][azim_index_up+1][k]);
+                    self->current_impulses[1][k] = elev_frac_inv *
+                                        (azim_frac_inv_down * hrtf_right[elev_index_array][azim_index_down][k] +
+                                        azim_frac_down * hrtf_right[elev_index_array][azim_index_down+1][k]) +
+                                        elev_frac *
+                                        (azim_frac_inv_up * hrtf_right[elev_index_array+1][azim_index_up][k] +
+                                        azim_frac_up * hrtf_right[elev_index_array+1][azim_index_up+1][k]);
                 }
             // if elevation is 80 degrees or more, interpolation requires only three points (there's only one HRIR at 90 deg).
             } else {
@@ -571,14 +571,14 @@ HRTFSpatter_splitter_ia(HRTFSpatter *self) {
                 for (k=0; k<self->length; k++) {
                     self->previous_impulses[0][k] = self->current_impulses[0][k];
                     self->previous_impulses[1][k] = self->current_impulses[1][k];
-                    self->current_impulses[0][k] = elev_frac *
-                                        (azim_frac_down * hrtf_left[elev_index_array][azim_index_down][k] +
-                                        azim_frac_inv_down * hrtf_left[elev_index_array][azim_index_down+1][k]) +
-                                        elev_frac_inv * hrtf_left[13][0][k];
-                    self->current_impulses[1][k] = elev_frac *
-                                        (azim_frac_down * hrtf_right[elev_index_array][azim_index_down][k] +
-                                        azim_frac_inv_down * hrtf_right[elev_index_array][azim_index_down+1][k]) +
-                                        elev_frac_inv * hrtf_right[13][0][k];
+                    self->current_impulses[0][k] = elev_frac_inv *
+                                        (azim_frac_inv_down * hrtf_left[elev_index_array][azim_index_down][k] +
+                                        azim_frac_down * hrtf_left[elev_index_array][azim_index_down+1][k]) +
+                                        elev_frac * hrtf_left[13][0][k];
+                    self->current_impulses[1][k] = elev_frac_inv *
+                                        (azim_frac_inv_down * hrtf_right[elev_index_array][azim_index_down][k] +
+                                        azim_frac_down * hrtf_right[elev_index_array][azim_index_down+1][k]) +
+                                        elev_frac * hrtf_right[13][0][k];
                 }
             }
         }
@@ -670,18 +670,18 @@ HRTFSpatter_splitter_aa(HRTFSpatter *self) {
                 for (k=0; k<self->length; k++) {
                     self->previous_impulses[0][k] = self->current_impulses[0][k];
                     self->previous_impulses[1][k] = self->current_impulses[1][k];
-                    self->current_impulses[0][k] = elev_frac *
-                                        (azim_frac_down * hrtf_left[elev_index_array][azim_index_down][k] +
-                                        azim_frac_inv_down * hrtf_left[elev_index_array][azim_index_down+1][k]) +
-                                        elev_frac_inv *
-                                        (azim_frac_up * hrtf_left[elev_index_array+1][azim_index_up][k] +
-                                        azim_frac_inv_up * hrtf_left[elev_index_array+1][azim_index_up+1][k]);
-                    self->current_impulses[1][k] = elev_frac *
-                                        (azim_frac_down * hrtf_right[elev_index_array][azim_index_down][k] +
-                                        azim_frac_inv_down * hrtf_right[elev_index_array][azim_index_down+1][k]) +
-                                        elev_frac_inv *
-                                        (azim_frac_up * hrtf_right[elev_index_array+1][azim_index_up][k] +
-                                        azim_frac_inv_up * hrtf_right[elev_index_array+1][azim_index_up+1][k]);
+                    self->current_impulses[0][k] = elev_frac_inv *
+                                        (azim_frac_inv_down * hrtf_left[elev_index_array][azim_index_down][k] +
+                                        azim_frac_down * hrtf_left[elev_index_array][azim_index_down+1][k]) +
+                                        elev_frac *
+                                        (azim_frac_inv_up * hrtf_left[elev_index_array+1][azim_index_up][k] +
+                                        azim_frac_up * hrtf_left[elev_index_array+1][azim_index_up+1][k]);
+                    self->current_impulses[1][k] = elev_frac_inv *
+                                        (azim_frac_inv_down * hrtf_right[elev_index_array][azim_index_down][k] +
+                                        azim_frac_down * hrtf_right[elev_index_array][azim_index_down+1][k]) +
+                                        elev_frac *
+                                        (azim_frac_inv_up * hrtf_right[elev_index_array+1][azim_index_up][k] +
+                                        azim_frac_up * hrtf_right[elev_index_array+1][azim_index_up+1][k]);
                 }
             // if elevation is 80 degrees or more, interpolation requires only three points (there's only one HRIR at 90 deg).
             } else {
@@ -691,14 +691,14 @@ HRTFSpatter_splitter_aa(HRTFSpatter *self) {
                 for (k=0; k<self->length; k++) {
                     self->previous_impulses[0][k] = self->current_impulses[0][k];
                     self->previous_impulses[1][k] = self->current_impulses[1][k];
-                    self->current_impulses[0][k] = elev_frac *
-                                        (azim_frac_down * hrtf_left[elev_index_array][azim_index_down][k] +
-                                        azim_frac_inv_down * hrtf_left[elev_index_array][azim_index_down+1][k]) +
-                                        elev_frac_inv * hrtf_left[13][0][k];
-                    self->current_impulses[1][k] = elev_frac *
-                                        (azim_frac_down * hrtf_right[elev_index_array][azim_index_down][k] +
-                                        azim_frac_inv_down * hrtf_right[elev_index_array][azim_index_down+1][k]) +
-                                        elev_frac_inv * hrtf_right[13][0][k];
+                    self->current_impulses[0][k] = elev_frac_inv *
+                                        (azim_frac_inv_down * hrtf_left[elev_index_array][azim_index_down][k] +
+                                        azim_frac_down * hrtf_left[elev_index_array][azim_index_down+1][k]) +
+                                        elev_frac * hrtf_left[13][0][k];
+                    self->current_impulses[1][k] = elev_frac_inv *
+                                        (azim_frac_inv_down * hrtf_right[elev_index_array][azim_index_down][k] +
+                                        azim_frac_down * hrtf_right[elev_index_array][azim_index_down+1][k]) +
+                                        elev_frac * hrtf_right[13][0][k];
                 }
             }
         }

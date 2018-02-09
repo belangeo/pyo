@@ -74,6 +74,8 @@ GUI
 
 - A graphical representation of a parametric EQ.
 
+- Analysis display (cartesian plane, sonnagram, filter frequency response)
+
 Tables
 ------
 
