@@ -35,7 +35,6 @@ class HRTFData:
             path = os.path.join(SNDS_PATH, "hrtf_compact")
         else:
             print("HRTF custom dataset is not supported yet.")
-            return
 
         root = []
         subfolders = os.listdir(path)
