@@ -27,6 +27,8 @@
 #include "servermodule.h"
 #include "dummymodule.h"
 #include "sndfile.h"
+#include "fft.h"
+#include "wind.h"
 
 /************************************************************************************************/
 /* HRTFData streamer object */
@@ -36,10 +38,12 @@ typedef struct {
     int length;
     MYFLT hrtf_diff[14];
     int files_per_folder[14];
-    MYFLT *hrtf_interp_rise;
-    MYFLT *hrtf_interp_down;
     MYFLT ***hrtf_left;
     MYFLT ***hrtf_right;
+    MYFLT ***mag_left;
+    MYFLT ***ang_left;
+    MYFLT ***mag_right;
+    MYFLT ***ang_right;
 } HRTFData;
 
 static int
@@ -63,14 +67,24 @@ HRTFData_dealloc(HRTFData* self)
         for (j=0; j<howmany; j++) {
             free(self->hrtf_left[i][j]);
             free(self->hrtf_right[i][j]);
+            free(self->mag_left[i][j]);
+            free(self->ang_left[i][j]);
+            free(self->mag_right[i][j]);
+            free(self->ang_right[i][j]);
         }
         free(self->hrtf_left[i]);
         free(self->hrtf_right[i]);
+        free(self->mag_left[i]);
+        free(self->ang_left[i]);
+        free(self->mag_right[i]);
+        free(self->ang_right[i]);
     }
     free(self->hrtf_left);
     free(self->hrtf_right);
-    free(self->hrtf_interp_rise);
-    free(self->hrtf_interp_down);
+    free(self->mag_left);
+    free(self->ang_left);
+    free(self->mag_right);
+    free(self->ang_right);
     HRTFData_clear(self);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
@@ -87,16 +101,28 @@ HRTFData_getHRTFRight(HRTFData *self)
     return (MYFLT ***)self->hrtf_right;
 }
 
-MYFLT *
-HRTFData_getHRTFInterpRise(HRTFData *self)
+MYFLT ***
+HRTFData_getMagLeft(HRTFData *self)
 {
-    return (MYFLT *)self->hrtf_interp_rise;
+    return (MYFLT ***)self->mag_left;
 }
 
-MYFLT *
-HRTFData_getHRTFInterpDown(HRTFData *self)
+MYFLT ***
+HRTFData_getAngLeft(HRTFData *self)
 {
-    return (MYFLT *)self->hrtf_interp_down;
+    return (MYFLT ***)self->ang_left;
+}
+
+MYFLT ***
+HRTFData_getMagRight(HRTFData *self)
+{
+    return (MYFLT ***)self->mag_right;
+}
+
+MYFLT ***
+HRTFData_getAngRight(HRTFData *self)
+{
+    return (MYFLT ***)self->ang_right;
 }
 
 MYFLT *
@@ -137,6 +163,7 @@ HRTFData_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     tmp = (MYFLT *)malloc(self->length * 2 * sizeof(MYFLT));
 
+    /* Store HRIRs. */
     self->hrtf_left = (MYFLT ***)realloc(self->hrtf_left, 14 * sizeof(MYFLT **));
     self->hrtf_right = (MYFLT ***)realloc(self->hrtf_right, 14 * sizeof(MYFLT **));
     for (i=0; i<14; i++) {
@@ -170,16 +197,79 @@ HRTFData_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
             }
         }
     }
-
-    self->hrtf_interp_rise = (MYFLT *)realloc(self->hrtf_interp_rise, self->length * sizeof(MYFLT));
-    self->hrtf_interp_down = (MYFLT *)realloc(self->hrtf_interp_down, self->length * sizeof(MYFLT));
-
-    for (j=0; j<self->length; j++) {
-        self->hrtf_interp_rise[j] = 0.5 * MYCOS((MYFLT)j / (self->length - 1.0) * PI - PI) + 0.5;
-        self->hrtf_interp_down[j] = 0.5 * MYCOS((MYFLT)j / (self->length - 1.0) * PI) + 0.5;
-    }
-
     free(tmp);
+
+    /* Compute magnitudes and unwrapped phases for each impulse. */
+    MYFLT re, im, ma, ph;
+    int hsize = self->length / 2;
+    int n8 = self->length >> 3;
+    MYFLT outframe[self->length];
+    for (i=0; i<self->length; i++) {
+        outframe[i] = 0.0;
+    }
+    MYFLT real[hsize], imag[hsize], magn[hsize], freq[hsize];
+    for (i=0; i<hsize; i++) {
+        real[i] = imag[i] = magn[i] = freq[i] = 0.0;
+    }
+    MYFLT **twiddle = (MYFLT **)malloc(4 * sizeof(MYFLT *));
+    for(i=0; i<4; i++)
+        twiddle[i] = (MYFLT *)malloc(n8 * sizeof(MYFLT));
+    fft_compute_split_twiddle(twiddle, self->length);
+
+    self->mag_left = (MYFLT ***)realloc(self->mag_left, 14 * sizeof(MYFLT **));
+    self->ang_left = (MYFLT ***)realloc(self->ang_left, 14 * sizeof(MYFLT **));
+    self->mag_right = (MYFLT ***)realloc(self->mag_right, 14 * sizeof(MYFLT **));
+    self->ang_right = (MYFLT ***)realloc(self->ang_right, 14 * sizeof(MYFLT **));
+    for (i=0; i<14; i++) {
+        howmany = files_per_folder[i];
+        self->mag_left[i] = (MYFLT **)malloc((howmany*2-1) * sizeof(MYFLT *));
+        self->ang_left[i] = (MYFLT **)malloc((howmany*2-1) * sizeof(MYFLT *));
+        self->mag_right[i] = (MYFLT **)malloc((howmany*2-1) * sizeof(MYFLT *));
+        self->ang_right[i] = (MYFLT **)malloc((howmany*2-1) * sizeof(MYFLT *));
+        for (j=0; j<(howmany*2-1); j++) {
+            self->mag_left[i][j] = (MYFLT *)malloc(hsize * sizeof(MYFLT));
+            self->ang_left[i][j] = (MYFLT *)malloc(hsize * sizeof(MYFLT));
+            self->mag_right[i][j] = (MYFLT *)malloc(hsize * sizeof(MYFLT));
+            self->ang_right[i][j] = (MYFLT *)malloc(hsize * sizeof(MYFLT));
+
+            /* Left channel */
+            realfft_split(self->hrtf_left[i][j], outframe, self->length, twiddle);
+            real[0] = outframe[0];
+            imag[0] = 0.0;
+            for (k=1; k<hsize; k++) {
+                real[k] = outframe[k];
+                imag[k] = outframe[self->length - k];
+            }
+            for (k=0; k<hsize; k++) {
+                re = real[k];
+                im = imag[k];
+                ma = MYSQRT(re*re + im*im);
+                ph = MYATAN2(im, re);
+                while (ph > PI) ph -= TWOPI;
+                while (ph < -PI) ph += TWOPI;
+                self->mag_left[i][j][k] = ma;
+                self->ang_left[i][j][k] = ph;
+            }
+            /* Right channel */
+            realfft_split(self->hrtf_right[i][j], outframe, self->length, twiddle);
+            real[0] = outframe[0];
+            imag[0] = 0.0;
+            for (k=1; k<hsize; k++) {
+                real[k] = outframe[k];
+                imag[k] = outframe[self->length - k];
+            }
+            for (k=0; k<hsize; k++) {
+                re = real[k];
+                im = imag[k];
+                ma = MYSQRT(re*re + im*im);
+                ph = MYATAN2(im, re);
+                while (ph > PI) ph -= TWOPI;
+                while (ph < -PI) ph += TWOPI;
+                self->mag_right[i][j][k] = ma;
+                self->ang_right[i][j][k] = ph;
+            }
+        }
+    }
 
     return (PyObject *)self;
 }
@@ -254,398 +344,52 @@ typedef struct {
     MYFLT *hrtf_input_tmp;
     MYFLT **current_impulses;
     MYFLT **previous_impulses;
+    MYFLT **twiddle;
     int modebuffer[2];
     MYFLT *buffer_streams;
 } HRTFSpatter;
 
 static void
-HRTFSpatter_splitter_ii(HRTFSpatter *self) {
-    int i, k;
-    int tmp_count, azim_index_down, azim_index_up, elev_index, elev_index_array;
-    MYFLT norm_elev, sig, elev_frac, elev_frac_inv;
-    MYFLT azim_frac_down, azim_frac_inv_down, azim_frac_up, azim_frac_inv_up, cross_coeff, cross_coeff_inv;
-
-    MYFLT *interp_rise = HRTFData_getHRTFInterpRise((HRTFData *)self->hrtfdata);
-    MYFLT *interp_down = HRTFData_getHRTFInterpDown((HRTFData *)self->hrtfdata);
-    MYFLT *hrtf_diff = HRTFData_getHRTFDiff((HRTFData *)self->hrtfdata);
-    MYFLT ***hrtf_left = HRTFData_getHRTFLeft((HRTFData *)self->hrtfdata);
-    MYFLT ***hrtf_right = HRTFData_getHRTFRight((HRTFData *)self->hrtfdata);
-
-    MYFLT *in = Stream_getData((Stream *)self->input_stream);
-
-    MYFLT azi = PyFloat_AS_DOUBLE(self->azi);
-    MYFLT ele = PyFloat_AS_DOUBLE(self->ele);
-
-    if (azi < 0.0f) {
-        azi += 360.0f;
-    }
-    if (azi >= 359.9999f) {
-        azi = 359.9999f;
-    }
-
-    if (ele < -39.9999f) { 
-        ele = -39.9999f;
-    } else if (ele >= 89.9999f) {
-        ele = 89.9999f;
-    }
-    for (i=0; i<self->bufsize; i++) {
-        if (self->hrtf_sample_count == 0) {
-            /* Removes the chirp at 360->0 degrees azimuth boundary. */
-            if (MYFABS(self->hrtf_last_azi - azi) > 300.0f) {
-                self->hrtf_last_azi = azi;
-            }
-
-            self->hrtf_last_azi = azi + (self->hrtf_last_azi - azi) * 0.5;
-            self->hrtf_last_ele = ele + (self->hrtf_last_ele - ele) * 0.5;
-
-            norm_elev = self->hrtf_last_ele * 0.1f;
-            elev_index = (int)MYFLOOR(norm_elev);
-            elev_index_array = elev_index + 4;
-            elev_frac = norm_elev - elev_index;
-            elev_frac_inv = 1.0f - elev_frac;
-            // If elevation is less than 80 degrees.
-            if (norm_elev < 8.0f) {
-                azim_index_down = (int)(self->hrtf_last_azi / hrtf_diff[elev_index_array]);
-                azim_frac_down = (self->hrtf_last_azi / hrtf_diff[elev_index_array]) - azim_index_down;
-                azim_frac_inv_down = 1.0f - azim_frac_down;
-                azim_index_up = (int)(self->hrtf_last_azi / hrtf_diff[elev_index_array+1]);
-                azim_frac_up = (self->hrtf_last_azi / hrtf_diff[elev_index_array+1]) - azim_index_up;
-                azim_frac_inv_up = 1.0f - azim_frac_up;
-                for (k=0; k<self->length; k++) {
-                    self->previous_impulses[0][k] = self->current_impulses[0][k];
-                    self->previous_impulses[1][k] = self->current_impulses[1][k];
-                    self->current_impulses[0][k] = elev_frac_inv *
-                                        (azim_frac_inv_down * hrtf_left[elev_index_array][azim_index_down][k] +
-                                        azim_frac_down * hrtf_left[elev_index_array][azim_index_down+1][k]) +
-                                        elev_frac *
-                                        (azim_frac_inv_up * hrtf_left[elev_index_array+1][azim_index_up][k] +
-                                        azim_frac_up * hrtf_left[elev_index_array+1][azim_index_up+1][k]);
-                    self->current_impulses[1][k] = elev_frac_inv *
-                                        (azim_frac_inv_down * hrtf_right[elev_index_array][azim_index_down][k] +
-                                        azim_frac_down * hrtf_right[elev_index_array][azim_index_down+1][k]) +
-                                        elev_frac *
-                                        (azim_frac_inv_up * hrtf_right[elev_index_array+1][azim_index_up][k] +
-                                        azim_frac_up * hrtf_right[elev_index_array+1][azim_index_up+1][k]);
-                }
-            // if elevation is 80 degrees or more, interpolation requires only three points (there's only one HRIR at 90 deg).
-            } else {
-                azim_index_down = (int)(self->hrtf_last_azi / hrtf_diff[elev_index_array]);
-                azim_frac_down = (self->hrtf_last_azi / hrtf_diff[elev_index_array]) - azim_index_down;
-                azim_frac_inv_down = 1.0f - azim_frac_down;
-                for (k=0; k<self->length; k++) {
-                    self->previous_impulses[0][k] = self->current_impulses[0][k];
-                    self->previous_impulses[1][k] = self->current_impulses[1][k];
-                    self->current_impulses[0][k] = elev_frac_inv *
-                                        (azim_frac_inv_down * hrtf_left[elev_index_array][azim_index_down][k] +
-                                        azim_frac_down * hrtf_left[elev_index_array][azim_index_down+1][k]) +
-                                        elev_frac * hrtf_left[13][0][k];
-                    self->current_impulses[1][k] = elev_frac_inv *
-                                        (azim_frac_inv_down * hrtf_right[elev_index_array][azim_index_down][k] +
-                                        azim_frac_down * hrtf_right[elev_index_array][azim_index_down+1][k]) +
-                                        elev_frac * hrtf_right[13][0][k];
-                }
-            }
-        }
-        tmp_count = self->hrtf_count;
-        cross_coeff = interp_rise[self->hrtf_sample_count];
-        cross_coeff_inv = interp_down[self->hrtf_sample_count];
-        self->buffer_streams[i] = 0.0;
-        self->buffer_streams[i+self->bufsize] = 0.0;
-        for (k=0; k<self->length; k++) {
-            if (tmp_count < 0) {
-                tmp_count += self->length;
-            }
-            sig = self->hrtf_input_tmp[tmp_count];
-            self->buffer_streams[i] += sig * (cross_coeff * self->current_impulses[0][k] + cross_coeff_inv * self->previous_impulses[0][k]);
-            self->buffer_streams[i+self->bufsize] += sig * (cross_coeff * self->current_impulses[1][k] + cross_coeff_inv * self->previous_impulses[1][k]);
-            tmp_count--;
-        }
-        self->hrtf_count++;
-        if (self->hrtf_count >= self->length) {
-            self->hrtf_count = 0;
-        }
-        self->hrtf_input_tmp[self->hrtf_count] = in[i];
-
-        self->hrtf_sample_count += 1;
-        if (self->hrtf_sample_count >= self->length) {
-            self->hrtf_sample_count = 0;
-        }
-    }
-}
-
-static void
-HRTFSpatter_splitter_ai(HRTFSpatter *self) {
-    int i, k;
-    int tmp_count, azim_index_down, azim_index_up, elev_index, elev_index_array;
-    MYFLT azi, norm_elev, sig, elev_frac, elev_frac_inv;
-    MYFLT azim_frac_down, azim_frac_inv_down, azim_frac_up, azim_frac_inv_up, cross_coeff, cross_coeff_inv;
-
-    MYFLT *interp_rise = HRTFData_getHRTFInterpRise((HRTFData *)self->hrtfdata);
-    MYFLT *interp_down = HRTFData_getHRTFInterpDown((HRTFData *)self->hrtfdata);
-    MYFLT *hrtf_diff = HRTFData_getHRTFDiff((HRTFData *)self->hrtfdata);
-    MYFLT ***hrtf_left = HRTFData_getHRTFLeft((HRTFData *)self->hrtfdata);
-    MYFLT ***hrtf_right = HRTFData_getHRTFRight((HRTFData *)self->hrtfdata);
-
-    MYFLT *in = Stream_getData((Stream *)self->input_stream);
-
-    MYFLT *azim = Stream_getData((Stream *)self->azi_stream);
-    MYFLT ele = PyFloat_AS_DOUBLE(self->ele);
-
-    if (ele < -39.9999f) { 
-        ele = -39.9999f;
-    } else if (ele >= 89.9999f) {
-        ele = 89.9999f;
-    }
-    for (i=0; i<self->bufsize; i++) {
-
-        azi = azim[i];
-        if (azi < 0.0f) {
-            azi += 360.0f;
-        }
-        if (azi >= 359.9999f) {
-            azi = 359.9999f;
-        }
-
-        if (self->hrtf_sample_count == 0) {
-            /* Removes the chirp at 360->0 degrees azimuth boundary. */
-            if (MYFABS(self->hrtf_last_azi - azi) > 300.0f) {
-                self->hrtf_last_azi = azi;
-            }
-
-            self->hrtf_last_azi = azi + (self->hrtf_last_azi - azi) * 0.5;
-            self->hrtf_last_ele = ele + (self->hrtf_last_ele - ele) * 0.5;
-
-            norm_elev = self->hrtf_last_ele * 0.1f;
-            elev_index = (int)MYFLOOR(norm_elev);
-            elev_index_array = elev_index + 4;
-            elev_frac = norm_elev - elev_index;
-            elev_frac_inv = 1.0f - elev_frac;
-            // If elevation is less than 80 degrees.
-            if (norm_elev < 8.0f) {
-                azim_index_down = (int)(self->hrtf_last_azi / hrtf_diff[elev_index_array]);
-                azim_frac_down = (self->hrtf_last_azi / hrtf_diff[elev_index_array]) - azim_index_down;
-                azim_frac_inv_down = 1.0f - azim_frac_down;
-                azim_index_up = (int)(self->hrtf_last_azi / hrtf_diff[elev_index_array+1]);
-                azim_frac_up = (self->hrtf_last_azi / hrtf_diff[elev_index_array+1]) - azim_index_up;
-                azim_frac_inv_up = 1.0f - azim_frac_up;
-                for (k=0; k<self->length; k++) {
-                    self->previous_impulses[0][k] = self->current_impulses[0][k];
-                    self->previous_impulses[1][k] = self->current_impulses[1][k];
-                    self->current_impulses[0][k] = elev_frac_inv *
-                                        (azim_frac_inv_down * hrtf_left[elev_index_array][azim_index_down][k] +
-                                        azim_frac_down * hrtf_left[elev_index_array][azim_index_down+1][k]) +
-                                        elev_frac *
-                                        (azim_frac_inv_up * hrtf_left[elev_index_array+1][azim_index_up][k] +
-                                        azim_frac_up * hrtf_left[elev_index_array+1][azim_index_up+1][k]);
-                    self->current_impulses[1][k] = elev_frac_inv *
-                                        (azim_frac_inv_down * hrtf_right[elev_index_array][azim_index_down][k] +
-                                        azim_frac_down * hrtf_right[elev_index_array][azim_index_down+1][k]) +
-                                        elev_frac *
-                                        (azim_frac_inv_up * hrtf_right[elev_index_array+1][azim_index_up][k] +
-                                        azim_frac_up * hrtf_right[elev_index_array+1][azim_index_up+1][k]);
-                }
-            // if elevation is 80 degrees or more, interpolation requires only three points (there's only one HRIR at 90 deg).
-            } else {
-                azim_index_down = (int)(self->hrtf_last_azi / hrtf_diff[elev_index_array]);
-                azim_frac_down = (self->hrtf_last_azi / hrtf_diff[elev_index_array]) - azim_index_down;
-                azim_frac_inv_down = 1.0f - azim_frac_down;
-                for (k=0; k<self->length; k++) {
-                    self->previous_impulses[0][k] = self->current_impulses[0][k];
-                    self->previous_impulses[1][k] = self->current_impulses[1][k];
-                    self->current_impulses[0][k] = elev_frac_inv *
-                                        (azim_frac_inv_down * hrtf_left[elev_index_array][azim_index_down][k] +
-                                        azim_frac_down * hrtf_left[elev_index_array][azim_index_down+1][k]) +
-                                        elev_frac * hrtf_left[13][0][k];
-                    self->current_impulses[1][k] = elev_frac_inv *
-                                        (azim_frac_inv_down * hrtf_right[elev_index_array][azim_index_down][k] +
-                                        azim_frac_down * hrtf_right[elev_index_array][azim_index_down+1][k]) +
-                                        elev_frac * hrtf_right[13][0][k];
-                }
-            }
-        }
-        tmp_count = self->hrtf_count;
-        cross_coeff = interp_rise[self->hrtf_sample_count];
-        cross_coeff_inv = interp_down[self->hrtf_sample_count];
-        self->buffer_streams[i] = 0.0;
-        self->buffer_streams[i+self->bufsize] = 0.0;
-        for (k=0; k<self->length; k++) {
-            if (tmp_count < 0) {
-                tmp_count += self->length;
-            }
-            sig = self->hrtf_input_tmp[tmp_count];
-            self->buffer_streams[i] += sig * (cross_coeff * self->current_impulses[0][k] + cross_coeff_inv * self->previous_impulses[0][k]);
-            self->buffer_streams[i+self->bufsize] += sig * (cross_coeff * self->current_impulses[1][k] + cross_coeff_inv * self->previous_impulses[1][k]);
-            tmp_count--;
-        }
-        self->hrtf_count++;
-        if (self->hrtf_count >= self->length) {
-            self->hrtf_count = 0;
-        }
-        self->hrtf_input_tmp[self->hrtf_count] = in[i];
-
-        self->hrtf_sample_count += 1;
-        if (self->hrtf_sample_count >= self->length) {
-            self->hrtf_sample_count = 0;
-        }
-    }
-}
-
-static void
-HRTFSpatter_splitter_ia(HRTFSpatter *self) {
-    int i, k;
-    int tmp_count, azim_index_down, azim_index_up, elev_index, elev_index_array;
-    MYFLT ele, norm_elev, sig, elev_frac, elev_frac_inv;
-    MYFLT azim_frac_down, azim_frac_inv_down, azim_frac_up, azim_frac_inv_up, cross_coeff, cross_coeff_inv;
-
-    MYFLT *interp_rise = HRTFData_getHRTFInterpRise((HRTFData *)self->hrtfdata);
-    MYFLT *interp_down = HRTFData_getHRTFInterpDown((HRTFData *)self->hrtfdata);
-    MYFLT *hrtf_diff = HRTFData_getHRTFDiff((HRTFData *)self->hrtfdata);
-    MYFLT ***hrtf_left = HRTFData_getHRTFLeft((HRTFData *)self->hrtfdata);
-    MYFLT ***hrtf_right = HRTFData_getHRTFRight((HRTFData *)self->hrtfdata);
-
-    MYFLT *in = Stream_getData((Stream *)self->input_stream);
-
-    MYFLT azi = PyFloat_AS_DOUBLE(self->azi);
-    MYFLT *elev = Stream_getData((Stream *)self->ele_stream);
-
-    if (azi < 0.0f) {
-        azi += 360.0f;
-    }
-    if (azi >= 359.9999f) {
-        azi = 359.9999f;
-    }
-
-    for (i=0; i<self->bufsize; i++) {
-
-        ele = elev[i];
-
-        if (ele < -39.9999f) { 
-            ele = -39.9999f;
-        } else if (ele >= 89.9999f) {
-            ele = 89.9999f;
-        }
-
-        if (self->hrtf_sample_count == 0) {
-            /* Removes the chirp at 360->0 degrees azimuth boundary. */
-            if (MYFABS(self->hrtf_last_azi - azi) > 300.0f) {
-                self->hrtf_last_azi = azi;
-            }
-
-            self->hrtf_last_azi = azi + (self->hrtf_last_azi - azi) * 0.5;
-            self->hrtf_last_ele = ele + (self->hrtf_last_ele - ele) * 0.5;
-
-            norm_elev = self->hrtf_last_ele * 0.1f;
-            elev_index = (int)MYFLOOR(norm_elev);
-            elev_index_array = elev_index + 4;
-            elev_frac = norm_elev - elev_index;
-            elev_frac_inv = 1.0f - elev_frac;
-            // If elevation is less than 80 degrees.
-            if (norm_elev < 8.0f) {
-                azim_index_down = (int)(self->hrtf_last_azi / hrtf_diff[elev_index_array]);
-                azim_frac_down = (self->hrtf_last_azi / hrtf_diff[elev_index_array]) - azim_index_down;
-                azim_frac_inv_down = 1.0f - azim_frac_down;
-                azim_index_up = (int)(self->hrtf_last_azi / hrtf_diff[elev_index_array+1]);
-                azim_frac_up = (self->hrtf_last_azi / hrtf_diff[elev_index_array+1]) - azim_index_up;
-                azim_frac_inv_up = 1.0f - azim_frac_up;
-                for (k=0; k<self->length; k++) {
-                    self->previous_impulses[0][k] = self->current_impulses[0][k];
-                    self->previous_impulses[1][k] = self->current_impulses[1][k];
-                    self->current_impulses[0][k] = elev_frac_inv *
-                                        (azim_frac_inv_down * hrtf_left[elev_index_array][azim_index_down][k] +
-                                        azim_frac_down * hrtf_left[elev_index_array][azim_index_down+1][k]) +
-                                        elev_frac *
-                                        (azim_frac_inv_up * hrtf_left[elev_index_array+1][azim_index_up][k] +
-                                        azim_frac_up * hrtf_left[elev_index_array+1][azim_index_up+1][k]);
-                    self->current_impulses[1][k] = elev_frac_inv *
-                                        (azim_frac_inv_down * hrtf_right[elev_index_array][azim_index_down][k] +
-                                        azim_frac_down * hrtf_right[elev_index_array][azim_index_down+1][k]) +
-                                        elev_frac *
-                                        (azim_frac_inv_up * hrtf_right[elev_index_array+1][azim_index_up][k] +
-                                        azim_frac_up * hrtf_right[elev_index_array+1][azim_index_up+1][k]);
-                }
-            // if elevation is 80 degrees or more, interpolation requires only three points (there's only one HRIR at 90 deg).
-            } else {
-                azim_index_down = (int)(self->hrtf_last_azi / hrtf_diff[elev_index_array]);
-                azim_frac_down = (self->hrtf_last_azi / hrtf_diff[elev_index_array]) - azim_index_down;
-                azim_frac_inv_down = 1.0f - azim_frac_down;
-                for (k=0; k<self->length; k++) {
-                    self->previous_impulses[0][k] = self->current_impulses[0][k];
-                    self->previous_impulses[1][k] = self->current_impulses[1][k];
-                    self->current_impulses[0][k] = elev_frac_inv *
-                                        (azim_frac_inv_down * hrtf_left[elev_index_array][azim_index_down][k] +
-                                        azim_frac_down * hrtf_left[elev_index_array][azim_index_down+1][k]) +
-                                        elev_frac * hrtf_left[13][0][k];
-                    self->current_impulses[1][k] = elev_frac_inv *
-                                        (azim_frac_inv_down * hrtf_right[elev_index_array][azim_index_down][k] +
-                                        azim_frac_down * hrtf_right[elev_index_array][azim_index_down+1][k]) +
-                                        elev_frac * hrtf_right[13][0][k];
-                }
-            }
-        }
-        tmp_count = self->hrtf_count;
-        cross_coeff = interp_rise[self->hrtf_sample_count];
-        cross_coeff_inv = interp_down[self->hrtf_sample_count];
-        self->buffer_streams[i] = 0.0;
-        self->buffer_streams[i+self->bufsize] = 0.0;
-        for (k=0; k<self->length; k++) {
-            if (tmp_count < 0) {
-                tmp_count += self->length;
-            }
-            sig = self->hrtf_input_tmp[tmp_count];
-            self->buffer_streams[i] += sig * (cross_coeff * self->current_impulses[0][k] + cross_coeff_inv * self->previous_impulses[0][k]);
-            self->buffer_streams[i+self->bufsize] += sig * (cross_coeff * self->current_impulses[1][k] + cross_coeff_inv * self->previous_impulses[1][k]);
-            tmp_count--;
-        }
-        self->hrtf_count++;
-        if (self->hrtf_count >= self->length) {
-            self->hrtf_count = 0;
-        }
-        self->hrtf_input_tmp[self->hrtf_count] = in[i];
-
-        self->hrtf_sample_count += 1;
-        if (self->hrtf_sample_count >= self->length) {
-            self->hrtf_sample_count = 0;
-        }
-    }
-}
-
-static void
-HRTFSpatter_splitter_aa(HRTFSpatter *self) {
-    int i, k;
+HRTFSpatter_splitter(HRTFSpatter *self) {
+    int i, k, hsize = self->length / 2;
     int tmp_count, azim_index_down, azim_index_up, elev_index, elev_index_array;
     MYFLT azi, ele, norm_elev, sig, elev_frac, elev_frac_inv;
     MYFLT azim_frac_down, azim_frac_inv_down, azim_frac_up, azim_frac_inv_up, cross_coeff, cross_coeff_inv;
-
-    MYFLT *interp_rise = HRTFData_getHRTFInterpRise((HRTFData *)self->hrtfdata);
-    MYFLT *interp_down = HRTFData_getHRTFInterpDown((HRTFData *)self->hrtfdata);
+    MYFLT magL, angL, magR, angR;
+    MYFLT inframeL[self->length], inframeR[self->length];
+    MYFLT realL[hsize], imagL[hsize], realR[hsize], imagR[hsize];
     MYFLT *hrtf_diff = HRTFData_getHRTFDiff((HRTFData *)self->hrtfdata);
-    MYFLT ***hrtf_left = HRTFData_getHRTFLeft((HRTFData *)self->hrtfdata);
-    MYFLT ***hrtf_right = HRTFData_getHRTFRight((HRTFData *)self->hrtfdata);
+    MYFLT ***mag_left = HRTFData_getMagLeft((HRTFData *)self->hrtfdata);
+    MYFLT ***ang_left = HRTFData_getAngLeft((HRTFData *)self->hrtfdata);
+    MYFLT ***mag_right = HRTFData_getMagRight((HRTFData *)self->hrtfdata);
+    MYFLT ***ang_right = HRTFData_getAngRight((HRTFData *)self->hrtfdata);
 
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
 
-    MYFLT *azim = Stream_getData((Stream *)self->azi_stream);
-    MYFLT *elev = Stream_getData((Stream *)self->ele_stream);
-
     for (i=0; i<self->bufsize; i++) {
-
-        azi = azim[i];
-        ele = elev[i];
-
-        if (azi < 0.0f) {
-            azi += 360.0f;
-        }
-        if (azi >= 359.9999f) {
-            azi = 359.9999f;
-        }
-
-        if (ele < -39.9999f) { 
-            ele = -39.9999f;
-        } else if (ele >= 89.9999f) {
-            ele = 89.9999f;
-        }
-
         if (self->hrtf_sample_count == 0) {
+            if (self->modebuffer[0])
+                azi = Stream_getData((Stream *)self->azi_stream)[i];
+            else
+                azi = PyFloat_AS_DOUBLE(self->azi);
+            if (self->modebuffer[1])
+                ele = Stream_getData((Stream *)self->ele_stream)[i];
+            else
+                ele = PyFloat_AS_DOUBLE(self->ele);
+
+            if (azi < 0.0f) {
+                azi += 360.0f;
+            }
+            if (azi >= 359.9999f) {
+                azi = 359.9999f;
+            }
+
+            if (ele < -39.9999f) { 
+                ele = -39.9999f;
+            } else if (ele >= 89.9999f) {
+                ele = 89.9999f;
+            }
+
             /* Removes the chirp at 360->0 degrees azimuth boundary. */
             if (MYFABS(self->hrtf_last_azi - azi) > 300.0f) {
                 self->hrtf_last_azi = azi;
@@ -654,57 +398,96 @@ HRTFSpatter_splitter_aa(HRTFSpatter *self) {
             self->hrtf_last_azi = azi + (self->hrtf_last_azi - azi) * 0.5;
             self->hrtf_last_ele = ele + (self->hrtf_last_ele - ele) * 0.5;
 
+            for (k=0; k<self->length; k++) {
+                self->previous_impulses[0][k] = self->current_impulses[0][k];
+                self->previous_impulses[1][k] = self->current_impulses[1][k];
+            }
+
             norm_elev = self->hrtf_last_ele * 0.1f;
             elev_index = (int)MYFLOOR(norm_elev);
             elev_index_array = elev_index + 4;
             elev_frac = norm_elev - elev_index;
             elev_frac_inv = 1.0f - elev_frac;
-            // If elevation is less than 80 degrees.
-            if (norm_elev < 8.0f) {
+            if (norm_elev < 8.0f) { // If elevation is less than 80 degrees.
                 azim_index_down = (int)(self->hrtf_last_azi / hrtf_diff[elev_index_array]);
                 azim_frac_down = (self->hrtf_last_azi / hrtf_diff[elev_index_array]) - azim_index_down;
                 azim_frac_inv_down = 1.0f - azim_frac_down;
                 azim_index_up = (int)(self->hrtf_last_azi / hrtf_diff[elev_index_array+1]);
                 azim_frac_up = (self->hrtf_last_azi / hrtf_diff[elev_index_array+1]) - azim_index_up;
                 azim_frac_inv_up = 1.0f - azim_frac_up;
-                for (k=0; k<self->length; k++) {
-                    self->previous_impulses[0][k] = self->current_impulses[0][k];
-                    self->previous_impulses[1][k] = self->current_impulses[1][k];
-                    self->current_impulses[0][k] = elev_frac_inv *
-                                        (azim_frac_inv_down * hrtf_left[elev_index_array][azim_index_down][k] +
-                                        azim_frac_down * hrtf_left[elev_index_array][azim_index_down+1][k]) +
-                                        elev_frac *
-                                        (azim_frac_inv_up * hrtf_left[elev_index_array+1][azim_index_up][k] +
-                                        azim_frac_up * hrtf_left[elev_index_array+1][azim_index_up+1][k]);
-                    self->current_impulses[1][k] = elev_frac_inv *
-                                        (azim_frac_inv_down * hrtf_right[elev_index_array][azim_index_down][k] +
-                                        azim_frac_down * hrtf_right[elev_index_array][azim_index_down+1][k]) +
-                                        elev_frac *
-                                        (azim_frac_inv_up * hrtf_right[elev_index_array+1][azim_index_up][k] +
-                                        azim_frac_up * hrtf_right[elev_index_array+1][azim_index_up+1][k]);
+                for (k=0; k<hsize; k++) {
+                    magL = elev_frac_inv *
+                           (azim_frac_inv_down * mag_left[elev_index_array][azim_index_down][k] +
+                           azim_frac_down * mag_left[elev_index_array][azim_index_down+1][k]) +
+                           elev_frac *
+                           (azim_frac_inv_up * mag_left[elev_index_array+1][azim_index_up][k] +
+                          azim_frac_up * mag_left[elev_index_array+1][azim_index_up+1][k]);
+                    angL = elev_frac_inv *
+                           (azim_frac_inv_down * ang_left[elev_index_array][azim_index_down][k] +
+                           azim_frac_down * ang_left[elev_index_array][azim_index_down+1][k]) +
+                           elev_frac *
+                           (azim_frac_inv_up * ang_left[elev_index_array+1][azim_index_up][k] +
+                           azim_frac_up * ang_left[elev_index_array+1][azim_index_up+1][k]);
+                    magR = elev_frac_inv *
+                           (azim_frac_inv_down * mag_right[elev_index_array][azim_index_down][k] +
+                           azim_frac_down * mag_right[elev_index_array][azim_index_down+1][k]) +
+                           elev_frac *
+                           (azim_frac_inv_up * mag_right[elev_index_array+1][azim_index_up][k] +
+                           azim_frac_up * mag_right[elev_index_array+1][azim_index_up+1][k]);
+                    angR = elev_frac_inv *
+                           (azim_frac_inv_down * ang_right[elev_index_array][azim_index_down][k] +
+                           azim_frac_down * ang_right[elev_index_array][azim_index_down+1][k]) +
+                           elev_frac *
+                           (azim_frac_inv_up * ang_right[elev_index_array+1][azim_index_up][k] +
+                           azim_frac_up * ang_right[elev_index_array+1][azim_index_up+1][k]);
+                    realL[k] = magL * MYCOS(angL);
+                    imagL[k] = magL * MYSIN(angL);
+                    realR[k] = magR * MYCOS(angR);
+                    imagR[k] = magR * MYSIN(angR);
                 }
-            // if elevation is 80 degrees or more, interpolation requires only three points (there's only one HRIR at 90 deg).
-            } else {
+            } else { // if elevation is 80 degrees or more, interpolation requires only three points (there's only one HRIR at 90 deg).
                 azim_index_down = (int)(self->hrtf_last_azi / hrtf_diff[elev_index_array]);
                 azim_frac_down = (self->hrtf_last_azi / hrtf_diff[elev_index_array]) - azim_index_down;
                 azim_frac_inv_down = 1.0f - azim_frac_down;
-                for (k=0; k<self->length; k++) {
-                    self->previous_impulses[0][k] = self->current_impulses[0][k];
-                    self->previous_impulses[1][k] = self->current_impulses[1][k];
-                    self->current_impulses[0][k] = elev_frac_inv *
-                                        (azim_frac_inv_down * hrtf_left[elev_index_array][azim_index_down][k] +
-                                        azim_frac_down * hrtf_left[elev_index_array][azim_index_down+1][k]) +
-                                        elev_frac * hrtf_left[13][0][k];
-                    self->current_impulses[1][k] = elev_frac_inv *
-                                        (azim_frac_inv_down * hrtf_right[elev_index_array][azim_index_down][k] +
-                                        azim_frac_down * hrtf_right[elev_index_array][azim_index_down+1][k]) +
-                                        elev_frac * hrtf_right[13][0][k];
+                for (k=0; k<hsize; k++) {
+                    magL = elev_frac_inv *
+                           (azim_frac_inv_down * mag_left[elev_index_array][azim_index_down][k] +
+                           azim_frac_down * mag_left[elev_index_array][azim_index_down+1][k]) +
+                           elev_frac * mag_left[13][0][k];
+                    angL = elev_frac_inv *
+                           (azim_frac_inv_down * ang_left[elev_index_array][azim_index_down][k] +
+                           azim_frac_down * ang_left[elev_index_array][azim_index_down+1][k]) +
+                           elev_frac * ang_left[13][0][k];
+                    magR = elev_frac_inv *
+                           (azim_frac_inv_down * mag_right[elev_index_array][azim_index_down][k] +
+                           azim_frac_down * mag_right[elev_index_array][azim_index_down+1][k]) +
+                           elev_frac * mag_right[13][0][k];
+                    angR = elev_frac_inv *
+                           (azim_frac_inv_down * ang_right[elev_index_array][azim_index_down][k] +
+                           azim_frac_down * ang_right[elev_index_array][azim_index_down+1][k]) +
+                           elev_frac * ang_right[13][0][k];
+                    realL[k] = magL * MYCOS(angL);
+                    imagL[k] = magL * MYSIN(angL);
+                    realR[k] = magR * MYCOS(angR);
+                    imagR[k] = magR * MYSIN(angR);
                 }
             }
+            inframeL[0] = realL[0];
+            inframeR[0] = realR[0];
+            inframeL[hsize] = 0.0;
+            inframeR[hsize] = 0.0;
+            for (k=1; k<hsize; k++) {
+                inframeL[k] = realL[k];
+                inframeL[self->length - k] = imagL[k];
+                inframeR[k] = realR[k];
+                inframeR[self->length - k] = imagR[k];
+            }
+            irealfft_split(inframeL, self->current_impulses[0], self->length, self->twiddle);
+            irealfft_split(inframeR, self->current_impulses[1], self->length, self->twiddle);
         }
         tmp_count = self->hrtf_count;
-        cross_coeff = interp_rise[self->hrtf_sample_count];
-        cross_coeff_inv = interp_down[self->hrtf_sample_count];
+        cross_coeff = (MYFLT)self->hrtf_sample_count / (MYFLT)self->length;
+        cross_coeff_inv = 1.0 - cross_coeff;
         self->buffer_streams[i] = 0.0;
         self->buffer_streams[i+self->bufsize] = 0.0;
         for (k=0; k<self->length; k++) {
@@ -712,8 +495,10 @@ HRTFSpatter_splitter_aa(HRTFSpatter *self) {
                 tmp_count += self->length;
             }
             sig = self->hrtf_input_tmp[tmp_count];
-            self->buffer_streams[i] += sig * (cross_coeff * self->current_impulses[0][k] + cross_coeff_inv * self->previous_impulses[0][k]);
-            self->buffer_streams[i+self->bufsize] += sig * (cross_coeff * self->current_impulses[1][k] + cross_coeff_inv * self->previous_impulses[1][k]);
+            self->buffer_streams[i] += sig * (cross_coeff * self->current_impulses[0][k] + 
+                                              cross_coeff_inv * self->previous_impulses[0][k]);
+            self->buffer_streams[i+self->bufsize] += sig * (cross_coeff * self->current_impulses[1][k] + 
+                                                            cross_coeff_inv * self->previous_impulses[1][k]);
             tmp_count--;
         }
         self->hrtf_count++;
@@ -738,23 +523,7 @@ HRTFSpatter_getSamplesBuffer(HRTFSpatter *self)
 static void
 HRTFSpatter_setProcMode(HRTFSpatter *self)
 {
-    int procmode;
-    procmode = self->modebuffer[0] + self->modebuffer[1] * 10;
-
-    switch (procmode) {
-        case 0:
-            self->proc_func_ptr = HRTFSpatter_splitter_ii;
-            break;
-        case 1:
-            self->proc_func_ptr = HRTFSpatter_splitter_ai;
-            break;
-        case 10:
-            self->proc_func_ptr = HRTFSpatter_splitter_ia;
-            break;
-        case 11:
-            self->proc_func_ptr = HRTFSpatter_splitter_aa;
-            break;
-    }
+    self->proc_func_ptr = HRTFSpatter_splitter;
 }
 
 static void
@@ -767,6 +536,7 @@ static int
 HRTFSpatter_traverse(HRTFSpatter *self, visitproc visit, void *arg)
 {
     pyo_VISIT
+    Py_VISIT(self->hrtfdata);
     Py_VISIT(self->input);
     Py_VISIT(self->input_stream);
     Py_VISIT(self->azi);
@@ -780,6 +550,7 @@ static int
 HRTFSpatter_clear(HRTFSpatter *self)
 {
     pyo_CLEAR
+    Py_CLEAR(self->hrtfdata);
     Py_CLEAR(self->input);
     Py_CLEAR(self->input_stream);
     Py_CLEAR(self->azi);
@@ -802,6 +573,10 @@ HRTFSpatter_dealloc(HRTFSpatter* self)
     }
     free(self->current_impulses);
     free(self->previous_impulses);
+    for(i=0; i<4; i++) {
+        free(self->twiddle[i]);
+    }
+    free(self->twiddle);
     HRTFSpatter_clear(self);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
@@ -869,6 +644,12 @@ HRTFSpatter_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     for (k=0; k<self->length; k++) {
         self->hrtf_input_tmp[k] = 0.0;
     }
+
+    int n8 = self->length >> 3;
+    self->twiddle = (MYFLT **)realloc(self->twiddle, 4 * sizeof(MYFLT *));
+    for(i=0; i<4; i++)
+        self->twiddle[i] = (MYFLT *)malloc(n8 * sizeof(MYFLT));
+    fft_compute_split_twiddle(self->twiddle, self->length);
 
     (*self->mode_func_ptr)(self);
 
@@ -946,6 +727,7 @@ HRTFSpatter_setElevation(HRTFSpatter *self, PyObject *arg)
 static PyMemberDef HRTFSpatter_members[] = {
 {"server", T_OBJECT_EX, offsetof(HRTFSpatter, server), 0, "Pyo server."},
 {"stream", T_OBJECT_EX, offsetof(HRTFSpatter, stream), 0, "Stream object."},
+{"hrtfdata", T_OBJECT_EX, offsetof(HRTFSpatter, hrtfdata), 0, "HRIR dataset."},
 {"input", T_OBJECT_EX, offsetof(HRTFSpatter, input), 0, "Input sound object."},
 {"azi", T_OBJECT_EX, offsetof(HRTFSpatter, azi), 0, "Azimuth object."},
 {"ele", T_OBJECT_EX, offsetof(HRTFSpatter, ele), 0, "Elevation object."},
