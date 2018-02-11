@@ -65,6 +65,8 @@ from pyolib.phasevoc import *
 from pyolib._core import *
 from pyolib.wxgui import *
 import pyolib.wxgui as wxgui
+from pyolib.hrtf import *
+import pyolib.hrtf as hrtf
 if WITH_EXTERNALS:
     import pyolib.external as external
     from pyolib.external import *
@@ -133,7 +135,7 @@ OBJECTS_TREE = {
             'opensndctrl': sorted(['OscReceive', 'OscSend', 'OscDataSend', 
                                    'OscDataReceive', 'OscListReceive']),
             'pan': sorted(['Pan', 'SPan', 'Switch', 'Selector', 'Mixer', 
-                           'VoiceManager']),
+                           'VoiceManager', 'HRTF']),
             'pattern': sorted(['Pattern', 'Score', 'CallAfter']),
             'randoms': sorted(['Randi', 'Randh', 'Choice', 'RandInt', 'Xnoise', 
                                'XnoiseMidi', 'RandDur', 'XnoiseDur', 'Urn',

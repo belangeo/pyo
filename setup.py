@@ -48,7 +48,12 @@ def get_jack_api():
     else:
         return "JACK_NEW_API"
 
-pyo_version = "0.8.6"
+def get_hrtf_file_names(folder):
+    path = os.path.join("pyolib", "snds", "hrtf_compact", folder)
+    files = [f for f in os.listdir(path) if f.endswith(".wav")]
+    return files
+
+pyo_version = "0.8.9"
 build_with_jack_support = False
 compile_externals = False
 
@@ -81,15 +86,15 @@ if '--compile-externals' in sys.argv:
 
 if '--debug' in sys.argv:
     sys.argv.remove('--debug')
-    gflag = "-g3"
+    gflag = ["-g3", "-UNDEBUG"]
 else:
-    gflag = "-g0"
+    gflag = ["-g0", "-DNDEBUG"]
 
 if '--fast-compile' in sys.argv:
     sys.argv.remove('--fast-compile')
-    oflag = "-O0"
+    oflag = ["-O0"]
 else:
-    oflag = "-O3"
+    oflag = ["-O3"]
 
 # Specific audio drivers source files to compile
 ad_files = []
@@ -143,7 +148,7 @@ files = ['pyomodule.c', 'streammodule.c', 'servermodule.c', 'pvstreammodule.c',
 source_files = [os.path.join(path, f) for f in files]
 
 path = 'src/objects'
-files = ['filtremodule.c', 'arithmeticmodule.c', 'oscilmodule.c', 
+files = ['hrtfmodule.c', 'filtremodule.c', 'arithmeticmodule.c', 'oscilmodule.c', 
          'randommodule.c', 'analysismodule.c', 'sfplayermodule.c', 
          'oscbankmodule.c', 'lfomodule.c', 'exprmodule.c', 'utilsmodule.c', 
          'granulatormodule.c', 'matrixmodule.c', 'noisemodule.c', 'distomodule.c', 
@@ -175,13 +180,13 @@ else:
     include_dirs = ['include', '/usr/local/include']
     if sys.platform == "darwin":
         include_dirs.append('/opt/local/include')
-    library_dirs = []
+    library_dirs = ['/usr/local/lib']
     libraries += ['sndfile']
     if build_with_jack_support:
         libraries.append('jack')
 
 libraries += ['m']
-extra_compile_args = ['-Wno-strict-prototypes', '-Wno-strict-aliasing', oflag, gflag]
+extra_compile_args = ['-Wno-strict-prototypes', '-Wno-strict-aliasing'] + oflag + gflag
 
 extensions = []
 for extension_name, extra_macros in zip(extension_names, extra_macros_per_extension):
@@ -194,7 +199,7 @@ if compile_externals:
     include_dirs.append('externals')
     os.system('cp externals/external.py pyolib')
 
-soundfiles = [f for f in os.listdir('pyolib/snds') if f[-3:] in ['aif', 'wav']]
+soundfiles = [f for f in os.listdir(os.path.join('pyolib', 'snds')) if f[-3:] in ['aif', 'wav']]
 ldesc = "Python module written in C to help digital signal processing script creation."
 setup(  name = "pyo",
         author = "Olivier Belanger",
@@ -204,9 +209,30 @@ setup(  name = "pyo",
         long_description = ldesc,
         url = "https://github.com/belangeo/pyo",
         license = "LGPLv3+",
-        packages = ['pyolib', 'pyolib.snds'],
+        packages = ['pyolib', 'pyolib.snds', 'pyolib.snds.hrtf_compact', 
+                    'pyolib.snds.hrtf_compact.elev0', 'pyolib.snds.hrtf_compact.elev10',
+                    'pyolib.snds.hrtf_compact.elev20', 'pyolib.snds.hrtf_compact.elev30',
+                    'pyolib.snds.hrtf_compact.elev40', 'pyolib.snds.hrtf_compact.elev50',
+                    'pyolib.snds.hrtf_compact.elev60', 'pyolib.snds.hrtf_compact.elev70',
+                    'pyolib.snds.hrtf_compact.elev80', 'pyolib.snds.hrtf_compact.elev90',
+                    'pyolib.snds.hrtf_compact.elev-10', 'pyolib.snds.hrtf_compact.elev-20',
+                    'pyolib.snds.hrtf_compact.elev-30', 'pyolib.snds.hrtf_compact.elev-40'],
         py_modules = main_modules,
-        package_data = {'pyolib.snds': soundfiles},
+        package_data = {'pyolib.snds': soundfiles,
+                        'pyolib.snds.hrtf_compact.elev0': get_hrtf_file_names("elev0"),
+                        'pyolib.snds.hrtf_compact.elev10': get_hrtf_file_names("elev10"),
+                        'pyolib.snds.hrtf_compact.elev20': get_hrtf_file_names("elev20"),
+                        'pyolib.snds.hrtf_compact.elev30': get_hrtf_file_names("elev30"),
+                        'pyolib.snds.hrtf_compact.elev40': get_hrtf_file_names("elev40"),
+                        'pyolib.snds.hrtf_compact.elev50': get_hrtf_file_names("elev50"),
+                        'pyolib.snds.hrtf_compact.elev60': get_hrtf_file_names("elev60"),
+                        'pyolib.snds.hrtf_compact.elev70': get_hrtf_file_names("elev70"),
+                        'pyolib.snds.hrtf_compact.elev80': get_hrtf_file_names("elev80"),
+                        'pyolib.snds.hrtf_compact.elev90': get_hrtf_file_names("elev90"),
+                        'pyolib.snds.hrtf_compact.elev-10': get_hrtf_file_names("elev-10"),
+                        'pyolib.snds.hrtf_compact.elev-20': get_hrtf_file_names("elev-20"),
+                        'pyolib.snds.hrtf_compact.elev-30': get_hrtf_file_names("elev-30"),
+                        'pyolib.snds.hrtf_compact.elev-40': get_hrtf_file_names("elev-40")},
         ext_modules = extensions)
 
 if compile_externals:

@@ -1,0 +1,187 @@
+[English version follows]
+
+Bonjour à tous,
+
+La version 0.8.8 de pyo est maintenant disponible en téléchargement :
+
+http://ajaxsoundstudio.com/software/pyo/
+
+La documentation:
+
+http://ajaxsoundstudio.com/pyodoc/
+
+Sources et suivi des bugs:
+    
+https://github.com/belangeo/pyo
+
+Bugs corrigés:
+
+- Ajout de la méthode manquante stop à l'objet MidiListener.
+
+- Retrait des imports interne du module random. Les scripts qui
+importent les modules pyo et random crashent au moment de quitter.
+
+- Ajout des déclarations "static" aux fonctions dans pyomodule.c.
+
+- E-Pyo: Correction d'un crash au démarrage quand les préférences contiennent
+des caractères unicodes.
+
+- L'objet Granulator compense pour la différence entre la fréquence
+d'échantillonnage du son chargé et celui du serveur.
+
+- Correction d'une erreur PyoArgumentTypeError à l'appel de la méthode
+ctrl() pour un objet qui contient un paramètre "dataOnly" et que le 
+toolkit graphique utilisé est Tk.
+
+- Le serveur n'essaie plus de désactiver jack si ce dernier a été arrêté de
+l'extérieur (exemple par qjackctl).
+
+- Correction d'un bug dans l'allocation de mémoire des backend audio et midi.
+
+- Les objet pyo incrémente et décrémente correctement les références au serveur
+audio.
+
+- Correction des paths contenant des caractères unicode sous Windows avec python 3.6.
+
+
+Amélioration:
+
+- Ajout du support Jack midi au serveur.
+
+- Ajout d'un argument wintitle aux objet Scope et Spectrum pour permettre de
+spécifier le titre de la fenêtre graphique. Ajout d'une méthode pour cacher ou
+afficher le nom des canaux dans le GUI.
+
+- Ajout d'un attribut "callback" à l'objet PVAnal. Cette fonction reçoit
+les magnitudes et fréquences analysées pour chaque tranche d'analyse. 
+
+
+Olivier
+
+---
+
+Hello all,
+
+pyo 0.8.8 is now available to download on pyo's web site :
+
+http://ajaxsoundstudio.com/software/pyo/
+
+pyo's documentation:
+
+http://ajaxsoundstudio.com/pyodoc/
+
+Latest sources and bug tracker:
+    
+https://github.com/belangeo/pyo
+
+
+Bug Fixes:
+    
+- Added missing binding to stop method in MidiListener.
+
+- Removed internal import of the random module. Scripts importing
+both pyo and random modules segfault on garbage collection at exit.
+
+- Added missing static declaration to functions in pyomodule.
+
+- E-Pyo: Fixed startup crash when preferences contains unicode characters.
+
+- Granulator now compensates for the difference between the loaded sound's
+sampling rate and pyo's sampling rate, if any.
+
+- Fixed PyoArgumentTypeError when ctrl() is called for an object with
+dataOnly parameter and tk is used instead of wxpython.
+
+- Don't try to deactivate jack if it is stopped externally (ex. from qjackctl).
+
+- Fixed audio and midi backends memory allocation.
+
+- Properly incref and decref server references inside pyo objects.
+
+- Fixed path encoding on windows for python 3.6.
+
+
+Enhancements:
+
+- Added Jack midi support to the Server.
+
+- Added a new init argument (wintitle) to Scope and Spectrum objects to
+allow the user to set the title name of their windows. Also added a
+method to show/hide the channel labels in the GUI.
+
+- Added a callback attribute to PVAnal. The function receives magnitudes
+and true frequencies for every analysis frame.
+
+      
+Olivier
+
+================================================================================
+
+Hello all,
+
+I'm glad to announce the release of pyo 0.8.8, available for python 2.7, 3.5 and 3.6.
+
+Pyo is a Python module written in C to help real-time digital signal processing
+script creation. It is available for Windows, macOS and linux. It is released
+under the LGPL 3 license.
+
+For more info, downloads and other links, see the official web site:
+
+http://ajaxsoundstudio.com/software/pyo/
+
+The documentation:
+
+http://ajaxsoundstudio.com/pyodoc/
+
+For the latest sources and bug tracker:
+
+https://github.com/belangeo/pyo
+
+
+Bug Fixes:
+    
+- Added missing binding to stop method in MidiListener.
+
+- Removed internal import of the random module. Scripts importing
+both pyo and random modules segfault on garbage collection at exit.
+
+- Added missing static declaration to functions in pyomodule.
+
+- E-Pyo: Fixed startup crash when preferences contains unicode characters.
+
+- Granulator now compensates for the difference between the loaded sound's
+sampling rate and pyo's sampling rate, if any.
+
+- Fixed PyoArgumentTypeError when ctrl() is called for an object with
+dataOnly parameter and tk is used instead of wxpython.
+
+- Don't try to deactivate jack if it is stopped externally (ex. from qjackctl).
+
+- Fixed audio and midi backends memory allocation.
+
+- Properly incref and decref server references inside pyo objects.
+
+- Fixed path encoding on windows for python 3.6.
+
+
+Enhancements:
+
+- Added Jack midi support to the Server.
+
+- Added a new init argument (wintitle) to Scope and Spectrum objects to
+allow the user to set the title name of their windows. Also added a
+method to show/hide the channel labels in the GUI.
+
+- Added a callback attribute to PVAnal. The function receives magnitudes
+and true frequencies for every analysis frame.
+
+
+Olivier Belanger
+belangeo@gmail.com
+http://olivier.ajaxsoundstudio.com/
+
+----
+
+P><A HREF="http://ajaxsoundstudio.com/software/pyo/">Pyo 0.8.8</A>
+Python DSP library. (08-Nov-17)
+

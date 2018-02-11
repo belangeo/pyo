@@ -26,17 +26,24 @@ import wx.lib.scrolledpanel as scrolled
 import wx.lib.dialogs
 import wx.stc as stc
 import wx.lib.agw.flatnotebook as FNB
-from pyo import * # what do we really need? OBJECTS_TREE, PYO_VERSION
+from pyo import * # TODO: what do we really need? OBJECTS_TREE, PYO_VERSION
 from PyoDoc import ManualFrame
 
+encoding_to_add = sys.getfilesystemencoding()
 if sys.version_info[0] < 3:
     from StringIO import StringIO
     unicode_t = unicode
     reload(sys)
     sys.setdefaultencoding("utf-8")
+    exec_string = "python"
+    if sys.platform == "win32":
+        encoding_to_add = "utf-8"
 else:
     from io import StringIO as StringIO
     unicode_t = str
+    exec_string = "python3"
+    if sys.platform == "win32":
+        encoding_to_add = "mbcs"
 
 if "phoenix" in wx.version():
     from wx.adv import AboutDialogInfo, AboutBox
@@ -141,7 +148,7 @@ if not os.path.isfile(PREFERENCES_PATH):
         f.write("epyo_prefs = {}")
 
 epyo_prefs = {}
-with open(PREFERENCES_PATH, "r") as f:
+with codecs.open(PREFERENCES_PATH, "r", encoding=encoding_to_add) as f:
     text = f.read()
 spos = text.find("=")
 dictext = text[spos+1:]
@@ -344,12 +351,12 @@ BACKGROUND_SERVER_DEFAULT_ARGS = 'sr=44100, nchnls=2, buffersize=256, duplex=1, 
 BACKGROUND_SERVER_ARGS = PREFERENCES.get("background_server_args", BACKGROUND_SERVER_DEFAULT_ARGS)
 
 ################## TEMPLATES ##################
-HEADER_TEMPLATE = """#!/usr/bin/env python
-# encoding: utf-8
-"""
+HEADER_TEMPLATE = """#!/usr/bin/env %s
+# encoding: %s
+""" % (exec_string, encoding_to_add)
 
-PYO_TEMPLATE = """#!/usr/bin/env python
-# encoding: utf-8
+PYO_TEMPLATE = """#!/usr/bin/env %s
+# encoding: %s
 from pyo import *
 
 s = Server(sr=44100, nchnls=2, buffersize=512, duplex=1).boot()
@@ -358,7 +365,7 @@ s = Server(sr=44100, nchnls=2, buffersize=512, duplex=1).boot()
 
 
 s.gui(locals())
-"""
+""" % (exec_string, encoding_to_add)
 
 CECILIA5_TEMPLATE = '''class Module(BaseModule):
     """
@@ -403,7 +410,7 @@ MODULES = {
 '''
 
 AUDIO_INTERFACE_TEMPLATE = '''#!/usr/bin/env python
-# encoding: utf-8
+# encoding: %s
 import wx
 from pyo import *
 
@@ -438,17 +445,17 @@ class MyFrame(wx.Frame):
 
     def changeFreq(self, evt):
         x = evt.GetInt() * 0.01
-        self.frTxt.SetLabel("Freq: %.2f" % x)
+        self.frTxt.SetLabel("Freq: " + str(x))
         self.freqPort.value = x
 
 app = wx.App(False)
 mainFrame = MyFrame(None, title='Simple App', pos=(100,100), size=(500,300))
 mainFrame.Show()
 app.MainLoop()
-'''
+''' % encoding_to_add
 
-WXPYTHON_TEMPLATE = '''#!/usr/bin/env python
-# encoding: utf-8
+WXPYTHON_TEMPLATE = '''#!/usr/bin/env %s
+# encoding: %s
 import wx
 
 class MyFrame(wx.Frame):
@@ -463,7 +470,7 @@ if __name__ == "__main__":
     mainFrame = MyFrame(None, title='Simple App', pos=(100,100), size=(500,300))
     mainFrame.Show()
     app.MainLoop()
-'''
+''' % (exec_string, encoding_to_add)
 
 RADIOPYO_TEMPLATE = '''#!/usr/bin/env python
 # encoding: utf-8
@@ -538,7 +545,7 @@ templateid = 91
 template_files = sorted([f for f in os.listdir(TEMPLATE_PATH) if f.endswith(".py")])
 for f in template_files:
     try:
-        with open(os.path.join(TEMPLATE_PATH, f)) as ftemp:
+        with codecs.open(os.path.join(TEMPLATE_PATH, f), "r", encoding="utf-8") as ftemp:
             ftext = ftemp.read()
         TEMPLATE_NAMES[templateid] = f.replace(".py", "")
         TEMPLATE_DICT[templateid] = ftext
@@ -549,8 +556,13 @@ for f in template_files:
 ################## BUILTIN KEYWORDS COMPLETION ##################
 FROM_COMP = ''' `module` import `*`
 '''
-EXEC_COMP = ''' "`expression`" in `self.locals`
+if sys.version_info[0] < 3:
+    EXEC_COMP = ''' "`expression`" in `self.locals`
 '''
+else:
+    EXEC_COMP = '''("`expression`", `globals()`, `locals()`)
+'''
+
 RAISE_COMP = ''' Exception("`An exception occurred...`")
 '''
 TRY_COMP = ''':
@@ -585,7 +597,6 @@ WHILE_COMP = """ `i` `>` `0`:
 ASSERT_COMP = ''' `expression` `>` `0`, "`expression should be positive`"
 '''
 
-# TODO: Python 3 syntax (if possible, compatible with python 2)
 BUILTINS_DICT = {"from": FROM_COMP, "try": TRY_COMP, "if": IF_COMP,
                  "def": DEF_COMP, "class": CLASS_COMP, "for": FOR_COMP,
                  "while": WHILE_COMP, "exec": EXEC_COMP, "raise": RAISE_COMP,
@@ -828,7 +839,8 @@ KEY_COMMANDS = {
 ############## Allowed Extensions ##############
 ALLOWED_EXT = PREFERENCES.get("allowed_ext",
                               ["py", "c5", "txt", "", "c", "h", "cpp", "hpp", "zy", "bat",
-                               "sh", "rst", "iss", "sg", "md", "jsfx-inc", "lua", "css"])
+                               "sh", "rst", "iss", "sg", "md", "jsfx-inc", "lua", "css",
+                               "plist"])
 
 ############## Pyo keywords ##############
 tree = OBJECTS_TREE
@@ -862,8 +874,8 @@ elif wx.Platform == '__WXMAC__':
     FONT_SIZE2 = 9
     DEFAULT_FONT_FACE = 'Monaco'
 else:
-    FONT_SIZE = 8
-    FONT_SIZE2 = 7
+    FONT_SIZE = 11
+    FONT_SIZE2 = 8
     DEFAULT_FONT_FACE = 'Monospace'
 
 
@@ -886,7 +898,7 @@ STYLES_LABELS = {'default': 'Foreground', 'background': 'Background',
                  'bracelight': 'Brace Match', 'bracebad': 'Brace Mismatch',
                  'lineedge': 'Line Edge'}
 
-with open(PREF_STYLE) as f:
+with codecs.open(PREF_STYLE, "r", encoding="utf-8") as f:
     text = f.read()
 spos = text.find("=")
 dictext = text[spos+1:]
@@ -1014,8 +1026,10 @@ class RunningThread(threading.Thread):
         wx.QueueEvent(self.event_receiver, data_event)
         while self.proc.poll() == None and not self.terminated:
             log = ""
-            for line in self.proc.stdout.readline():
-                log = log + str(line)
+            line = self.proc.stdout.readline()
+            if line.startswith("ALSA lib"):
+                continue
+            log = log + str(line)
             log = log.replace(">>> ", "").replace("... ", "")
             data_event = DataEvent({"log": log, "pid": self.pid, "filename": self.filename, "active": True})
             wx.QueueEvent(self.event_receiver, data_event)
@@ -1515,7 +1529,7 @@ class ColourEditor(wx.Frame):
         global STYLES
         stl = event.GetString()
         self.cur_style = stl
-        with open(os.path.join(ensureNFD(STYLES_PATH), stl)) as f:
+        with codecs.open(os.path.join(ensureNFD(STYLES_PATH), stl), "r", encoding="utf-8") as f:
             text = f.read()
         spos = text.find("=")
         dictext = text[spos+1:]
@@ -2496,7 +2510,7 @@ class MainFrame(wx.Frame):
             submenu = wx.Menu(title=cat)
             files = [f for f in os.listdir(os.path.join(SNIPPETS_PATH, cat))]
             for file in files:
-                with open(os.path.join(SNIPPETS_PATH, cat, file), "r") as f:
+                with codecs.open(os.path.join(SNIPPETS_PATH, cat, file), "r", encoding="utf-8") as f:
                     text = f.read()
                 spos = text.find("=")
                 dictext = text[spos+1:]
@@ -2608,7 +2622,7 @@ class MainFrame(wx.Frame):
             for i in range(12000, self.ID_FILTERS):
                 self.filters_menu.Delete(i)
         ID_FILTERS = 12000
-        with open(FILTERS_FILE, "r") as f:
+        with codecs.open(FILTERS_FILE, "r", encoding="utf-8") as f:
             for line in f.readlines():
                 if line.startswith("def "):
                     ppos = line.find("(")
@@ -2623,7 +2637,7 @@ class MainFrame(wx.Frame):
         self.panel.addPage(FILTERS_FILE)
 
     def applyFilter(self, evt):
-        with open(FILTERS_FILE, "r") as f:
+        with codecs.open(FILTERS_FILE, "r", encoding="utf-8") as f:
             text = f.read()
         functions = {}
         exec(text, functions)
@@ -2881,7 +2895,7 @@ class MainFrame(wx.Frame):
 
     def setStyle(self, st, fromMenu=False):
         global STYLES
-        with open(os.path.join(ensureNFD(STYLES_PATH), st)) as f:
+        with codecs.open(os.path.join(ensureNFD(STYLES_PATH), st), "r", encoding="utf-8") as f:
             text = f.read()
         spos = text.find("=")
         dictext = text[spos+1:]
@@ -3096,7 +3110,7 @@ class MainFrame(wx.Frame):
             self.panel.editor.saveMyFile(path)
             self.SetTitle(path)
             tab = self.panel.notebook.GetSelection()
-            self.panel.notebook.SetPageText(tab, os.path.split(path)[1].split('.')[0])
+            self.panel.notebook.SetPageText(tab, os.path.split(path)[1])
 
     def saveas(self, event):
         deffile = os.path.split(self.panel.editor.path)[1]
@@ -3116,7 +3130,7 @@ class MainFrame(wx.Frame):
             self.panel.editor.saveMyFile(path)
             self.SetTitle(path)
             tab = self.panel.notebook.GetSelection()
-            self.panel.notebook.SetPageText(tab, os.path.split(path)[1].split('.')[0])
+            self.panel.notebook.SetPageText(tab, os.path.split(path)[1])
             self.newRecent(path)
             PREFERENCES["save_file_path"] = os.path.split(path)[0]
         dlg.Destroy()
@@ -3177,7 +3191,7 @@ class MainFrame(wx.Frame):
             if check1:
                 if not line.startswith("#"):
                     if not '# encoding:' in text:
-                        newtext += '# -*- encoding: %s -*-\n' % sys.getfilesystemencoding()
+                        newtext += '# -*- encoding: %s -*-\n' % encoding_to_add
                     check1 = False
             if not check1 and check2:
                 if is_future and '__future__' in line:
@@ -3218,7 +3232,7 @@ class MainFrame(wx.Frame):
 
     def runner(self, event):
         if self.master_document != None:
-            with open(self.master_document, "r") as f:
+            with codecs.open(self.master_document, "r", encoding="utf-8") as f:
                 text = f.read()
         else:
             text = self.panel.editor.GetText()
@@ -3511,7 +3525,7 @@ class MainPanel(wx.Panel):
 
     def addPage(self, file, encoding=None):
         editor = Editor(self.notebook, -1, size=(0, -1), setTitle=self.SetTitle, getTitle=self.GetTitle)
-        label = os.path.split(file)[1].split('.')[0]
+        label = os.path.split(file)[1]
         self.notebook.AddPage(editor, label, True)
         text = ""
         if encoding != None:
@@ -3784,7 +3798,10 @@ class Editor(stc.StyledTextCtrl):
         if ext in ["py", "pyw", "c5"]:
             self.SetLexer(stc.STC_LEX_PYTHON)
             self.SetStyleBits(self.GetStyleBitsNeeded())
-            self.SetKeyWords(0, " ".join(keyword.kwlist) + " None True False print ")
+            if sys.version_info[0] < 3:
+                self.SetKeyWords(0, " ".join(keyword.kwlist) + " None True False print ")
+            else:
+                self.SetKeyWords(0, " ".join(keyword.kwlist) + " None True False ")
             self.SetKeyWords(1, " ".join(PYO_WORDLIST))
             self.StyleSetSpec(stc.STC_P_DEFAULT, buildStyle('default'))
             self.StyleSetSpec(stc.STC_P_COMMENTLINE, buildStyle('comment'))
@@ -4102,7 +4119,7 @@ class Editor(stc.StyledTextCtrl):
         self.SaveFile(file)
         self.path = file
         self.saveMark = False
-        marker_file = os.path.split(self.path)[1].split(".")[0]
+        marker_file = os.path.split(self.path)[1].rsplit(".")[0]
         marker_file += "%04d" % random.randint(0,1000)
         with open(MARKERS_FILE, "r") as f:
             lines = [line.replace("\n", "").split("=") for line in f.readlines()]
@@ -4986,7 +5003,7 @@ class OutputLogPanel(wx.Panel):
         self.toolbar.Realize()
         toolbarbox.Add(self.toolbar, 1, wx.ALIGN_LEFT | wx.ALIGN_CENTER_VERTICAL | wx.EXPAND, 0)
 
-        tb2 = wx.ToolBar(self, -1, size=(-1,32))
+        tb2 = wx.ToolBar(self, -1)
         if PLATFORM == "darwin":
             tb2.SetToolBitmapSize(tsize)
         tb2.AddSeparator()
@@ -5113,7 +5130,6 @@ class ProjectTree(wx.Panel):
         self.selectedItem = None
         self.edititem = self.editfolder = self.itempath = self.scope = None
 
-        tsize = (24, 24)
         file_add_bmp = catalog['file_add_icon.png'].GetBitmap()
         folder_add_bmp = catalog['folder_add_icon.png'].GetBitmap()
         close_panel_bmp = catalog['close_panel_icon.png'].GetBitmap()
@@ -5122,8 +5138,7 @@ class ProjectTree(wx.Panel):
         self.sizer = wx.BoxSizer(wx.VERTICAL)
 
         toolbarbox = wx.BoxSizer(wx.HORIZONTAL)
-        self.toolbar = wx.ToolBar(self, -1, size=(-1,36))
-        self.toolbar.SetToolBitmapSize(tsize)
+        self.toolbar = wx.ToolBar(self, -1)
 
         if "phoenix" not in wx.version():
             self.toolbar.AddLabelTool(TOOL_ADD_FILE_ID, "Add File",
@@ -5144,8 +5159,7 @@ class ProjectTree(wx.Panel):
         self.toolbar.Realize()
         toolbarbox.Add(self.toolbar, 1, wx.ALIGN_LEFT | wx.EXPAND, 0)
 
-        tb2 = wx.ToolBar(self, -1, size=(-1,36))
-        tb2.SetToolBitmapSize(tsize)
+        tb2 = wx.ToolBar(self, -1)
 
         if "phoenix" not in wx.version():
             tb2.AddLabelTool(15, "Close Panel", close_panel_bmp, shortHelp="Close Panel")
@@ -5168,6 +5182,8 @@ class ProjectTree(wx.Panel):
 
         if PLATFORM == 'darwin':
             pt = 11
+        elif PLATFORM.startswith("linux"):
+            pt = 10
         else:
             pt = 8
         fnt = wx.Font(pt, wx.ROMAN, wx.NORMAL, wx.NORMAL, False, STYLES['face'])

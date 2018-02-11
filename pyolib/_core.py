@@ -28,9 +28,10 @@ License along with pyo.  If not, see <http://www.gnu.org/licenses/>.
 """
 import os
 import sys
-import random
+import time
 import inspect
 import tempfile
+import locale
 from subprocess import call
 from weakref import proxy
 
@@ -126,10 +127,35 @@ FUNCTIONS_INIT_LINES = {
     "getPyoKeywords": "getPyoKeywords()"
 }
 
+def get_random_integer(mx=32767):
+    if sys.version_info[0] < 3 or sys.version_info[1] < 3:
+        seed = int(str(time.clock()).split(".")[1])
+    else:
+        seed = int(str(time.process_time()).split(".")[1])
+    return (seed * 31351 + 21997) % mx
+
+def listscramble(lst):
+    if sys.version_info[0] < 3 or sys.version_info[1] < 3:
+        seed = int(str(time.clock()).split(".")[1])
+    else:
+        seed = int(str(time.process_time()).split(".")[1])
+    l = lst[:]
+    new = []
+    pos = 1
+    while l:
+        pos = (pos * seed) % len(l)
+        new.append(l[pos])
+        del l[pos]
+    return new
+
 def stringencode(st):
     if sys.version_info[0] >= 3:
-        if type(st) is str:
-            st = st.encode(sys.getfilesystemencoding())
+        if sys.version_info[1] <= 5:
+            if type(st) is str:
+                st = st.encode(sys.getfilesystemencoding())
+        else:
+            if type(st) is str:
+                st = st.encode(locale.getpreferredencoding())
     return st
 
 def sndinfo(path, print=False):
@@ -405,8 +431,8 @@ def pyoArgsAssert(obj, format, *args):
             if not isAudioObject(arg) and argtype not in [list]:
                 expected = "PyoObject"
         elif f == "T":
-            if not isTableObject(arg) and argtype not in [float, list]:
-                expected = "float or PyoTableObject"
+            if not isTableObject(arg) and argtype not in [int, float, list]:
+                expected = "int, float or PyoTableObject"
         elif f == "t":
             if not isTableObject(arg) and argtype not in [list]:
                 expected = "PyoTableObject"
@@ -498,15 +524,14 @@ def convertArgsToLists(*args):
     Return new args and maximum list length.
 
     """
-    converted = []
-    for i in args:
-        if isinstance(i, PyoObjectBase) or isinstance(i, list):
-            converted.append(i)
-        else:
-            converted.append([i])
+    converted = list(args)
+    for i, arg in enumerate(converted):
+        if not isinstance(arg, PyoObjectBase) and not isinstance(arg, list):
+            converted[i] = [arg]
 
-    max_length = max(len(i) for i in converted)
-    return tuple(converted + [max_length])
+    max_length = max(len(arg) for arg in converted)
+    converted.append(max_length)
+    return tuple(converted)
 
 def wrap(arg, i):
     """
@@ -1233,7 +1258,8 @@ class PyoObject(PyoObjectBase):
             [obj.play(wrap(dur, i), wrap(delay, i)) \
              for i, obj in enumerate(self._base_players)]
         if self._time_objs is not None:
-            [obj.play(wrap(dur, i), wrap(delay, i)) \
+            # We don't send 'dur' argument to time_stream to avoid a stop() call.
+            [obj.play(0, wrap(delay, i)) \
              for i, obj in enumerate(self._time_objs)]
 
         [obj.play(wrap(dur, i), wrap(delay, i)) \
@@ -1285,7 +1311,8 @@ class PyoObject(PyoObjectBase):
             [obj.play(wrap(dur, i), wrap(delay, i))
              for i, obj in enumerate(self._base_players)]
         if self._time_objs is not None:
-            [obj.play(wrap(dur, i), wrap(delay, i))
+            # We don't send 'dur' argument to time_stream to avoid a stop() call.
+            [obj.play(0, wrap(delay, i))
              for i, obj in enumerate(self._time_objs)]
 
         if isinstance(chnl, list):
@@ -1294,8 +1321,7 @@ class PyoObject(PyoObjectBase):
         else:
             if chnl < 0:
                 [obj.out(i*inc, wrap(dur, i), wrap(delay, i)) \
-                 for i, obj in enumerate(random.sample(self._base_objs,
-                                                       len(self._base_objs)))]
+                 for i, obj in enumerate(listscramble(self._base_objs))]
             else:
                 [obj.out(chnl+i*inc, wrap(dur, i), wrap(delay, i)) \
                  for i, obj in enumerate(self._base_objs)]
@@ -1316,8 +1342,10 @@ class PyoObject(PyoObjectBase):
                 self._trig_objs.stop()
         if self._base_players is not None:
             [obj.stop() for obj in self._base_players]
-        if self._time_objs is not None:
-            [obj.stop() for obj in self._time_objs]
+        # This is not good for TableRec objects, only for Looper.
+        # It's move locally to the Looper definition.
+        #if self._time_objs is not None:
+        #    [obj.stop() for obj in self._time_objs]
 
         [obj.stop() for obj in self._base_objs]
         return self
@@ -2004,10 +2032,11 @@ class PyoTableObject(PyoObjectBase):
             table: PyoTableObject
                 The source table.
             srcpos: int, optional
-                The start position in the source table. Defaults to 0.
+                The start position, in samples, in the source table.
+                Defaults to 0.
             destpos ; int, optional
-                The start position in the destination (self) table. Defaults
-                to 0.
+                The start position, in samples, in the destination (self) table.
+                Defaults to 0.
             length: int, optional
                 The number of samples to copy from source to destination. if
                 length is negative, the length of the smallest table is used.

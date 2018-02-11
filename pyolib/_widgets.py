@@ -27,7 +27,6 @@ License along with pyo.  If not, see <http://www.gnu.org/licenses/>.
 """
 import sys
 import os
-import random
 
 use_wx = 1
 if "PYO_GUI_WX" in os.environ:
@@ -36,7 +35,6 @@ if "PYO_GUI_WX" in os.environ:
 if use_wx:
     try:
         import wx
-        from ._wxwidgets import *
         PYO_USE_WX = True
     except:
         PYO_USE_WX = False
@@ -51,6 +49,9 @@ http://www.wxpython.org/
 else:
     PYO_USE_WX = False
 
+if PYO_USE_WX:
+    from ._wxwidgets import *
+
 PYO_USE_TK = False
 if not PYO_USE_WX:
     try:
@@ -58,7 +59,6 @@ if not PYO_USE_WX:
             import Tkinter as tk
         else:
             import tkinter as tk
-        from ._tkwidgets import *
         PYO_USE_TK = True
     except:
         PYO_USE_TK = False
@@ -67,6 +67,9 @@ Neither WxPython nor Tkinter are found for the current python version.
 Pyo's GUI features are disabled. For a complete GUI toolkit, you should
 consider installing WxPython, available here: http://www.wxpython.org/
 """)
+
+if PYO_USE_TK:
+    from ._tkwidgets import *
 
 X, Y, CURRENT_X, MAX_X, NEXT_Y = 800, 700, 30, 30, 30
 WINDOWS = []
@@ -116,6 +119,13 @@ def tkCreateToplevelWindow():
     WINDOWS.append(win)
     win.protocol('WM_DELETE_WINDOW', lambda win=win: tkCloseWindow(win))
     win.bind("<Escape>", tkCloseWindowFromKeyboard)
+    dpi_value = int(win.winfo_fpixels('1i'))
+    win.tk.eval("""
+        foreach font [font names] {
+            set cursize [font configure $font -size]
+            font configure $font -size [expr {int($cursize * %d / 96.0)}]
+        }
+    """ % dpi_value)
     return win
 
 def wxDisplayWindow(f, title):
@@ -136,7 +146,8 @@ def wxDisplayWindow(f, title):
             MAX_X = x + CURRENT_X
         f.SetPosition((px, py))
     else:
-        f.SetPosition((random.randint(250, 500), random.randint(200, 400)))
+        CURRENT_X, MAX_X, NEXT_Y = 50, 50, 50
+        wxDisplayWindow(f, title)
     f.Show()
 
 def wxShowWindow(f, title, root):
@@ -387,7 +398,8 @@ def createExprEditorWindow(object, title, wxnoserver=False):
             EXPREDITORWINDOWS.append([object, title])
 
 def createServerGUI(nchnls, start, stop, recstart, recstop, setAmp, started,
-                    locals, shutdown, meter, timer, amp, exit, title):
+                    locals, shutdown, meter, timer, amp, exit, title, getIsBooted,
+                    getIsStarted):
     "Creates the server's GUI."
     global X, Y, MAX_X, NEXT_Y
     if title is None:
@@ -396,13 +408,15 @@ def createServerGUI(nchnls, start, stop, recstart, recstop, setAmp, started,
         createRootWindow()
         win = tkCreateToplevelWindow()
         f = ServerGUI(win, nchnls, start, stop, recstart, recstop, setAmp,
-                      started, locals, shutdown, meter, timer, amp)
+                      started, locals, shutdown, meter, timer, amp, getIsBooted,
+                      getIsStarted)
         f.master.title(title)
         f.focus_set()
     else:
         win = createRootWindow()
         f = ServerGUI(None, nchnls, start, stop, recstart, recstop, setAmp,
-                      started, locals, shutdown, meter, timer, amp, exit)
+                      started, locals, shutdown, meter, timer, amp, exit, getIsBooted,
+                      getIsStarted)
         f.SetTitle(title)
         f.SetPosition((30, 30))
         f.Show()
@@ -422,4 +436,4 @@ def createServerGUI(nchnls, start, stop, recstart, recstop, setAmp, started,
         wx.CallAfter(wxCreateDelayedScopeWindows)
         wx.CallAfter(wxCreateDelayedExprEditorWindows)
         wx.CallAfter(f.Raise)
-    return f, win
+    return f, win, PYO_USE_WX

@@ -1,0 +1,108 @@
+[English version follows]
+
+Bonjour à tous,
+
+La version 0.8.1 de pyo est maintenant disponible en téléchargement :
+
+http://ajaxsoundstudio.com/software/pyo/
+
+La documentation:
+
+http://ajaxsoundstudio.com/pyodoc/
+
+Sources and suivi des bugs:
+    
+https://github.com/belangeo/pyo
+
+Nouveautés:
+
+- Pyo supporte maintenant les versions 2.7.x et 3.5.x de python. À première
+  vue, python 3.5.x semble plus stable et légèrement plus efficace que 
+  python 2.7.x.
+
+Pour la liste complète des changements apportés à cette version, voir la 
+section "What's new" plus bas.
+
+Olivier
+
+---
+
+Hello all,
+
+pyo 0.8.1 is now available to download on pyo's web site :
+
+http://ajaxsoundstudio.com/software/pyo/
+
+pyo's documentation:
+
+http://ajaxsoundstudio.com/pyodoc/
+
+Latest sources and bug tracker:
+    
+https://github.com/belangeo/pyo
+
+News:
+    
+- Pyo now fully supports both python 2.7.x and 3.5.x. At first glance,
+  python 3.5.x seems to be more stable and a little more efficient than
+  python 2.7.x.
+
+Olivier
+
+--- 
+
+What's new:
+
+New objects:
+
+- LogiMap, random generator based on the logistic map.
+
+
+New functionalities:
+
+- Added a method (sysexout()) to send sysex messages to the Server object.
+- Added PyoTableObject.getBuffer() method. The PyoTableObject now support 
+  the buffer protocol (see PEP 3118), which allow a table to share its data 
+  memory with any object that support the buffer protocol (ex. numpy array).
+- Added Server.setCallback() method to allow the user to define a custom
+  process function. This function will be called once per buffer size, just 
+  before the computation of the audio objects tree.
+- Added Server.getCurrentTime() and Server.getCurrentAmp() methods.
+- Improve Looper object: Added a time stream, which gives the current 
+  normalized position. Added loopnow() method, which allows to start a new
+  loop immediately with crossfade. Added appendFadeTime() and fadeInSeconds() 
+  methods to give a more flexible control of the behavior of the object.
+- Added an 'inverse' argument to PVGate object. When set to True, the 
+  damping factor is applied to bins with an amplitude above the threshold.
+- Added a `callback` argument to PyoObject.set() method. The given callback
+  will be executed at the end of the ramp.
+- Added ctrl() method (and some missing setter) to midi objects.
+- TableWrite object now takes into account the feedback argument of NewTable 
+  object and interpolates to fill in gaps if its writing pointer moves faster 
+  than the sampling rate.
+- Added a reset() method to various delay line-based objects (AllpassWG, 
+  Chorus, Freeverb, Harmonizer, STRev, WGVerb, Waveguide).
+- All objects can be used as iterator (will iterate over its internal sterams).
+- SigTo ramp time now can be controlled at audio rate.
+- Iter object now sends a trigger when it reaches the last value.
+- Iter object now accepts PyoObjects in its list of values.
+
+
+Bug fixes:
+
+- Fixed jack ports auto-connection algorithm.
+- Several minor bug fixes.
+
+
+Improvements:
+
+- Added low-latency driver WDMKS in the portaudio build routine for Windows.
+- Replaced all printf calls with PySys_WriteStdout. This allow to redirect 
+  messages from pyo to a string or a file, instead of the stdout.
+  
+
+Documentation:
+
+- Added new examples, 05-envelopes/ and 06-filters/.
+- Added a new file, called "How to improve performance of your pyo programs", 
+  to the documentation.

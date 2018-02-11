@@ -2403,6 +2403,11 @@ class Looper(PyoObject):
             return self._time_dummy[-1]
         return PyoObject.__getitem__(self, i)
 
+    def stop(self):
+        if self._time_objs is not None:
+            [obj.stop() for obj in self._time_objs]
+        return PyoObject.stop(self)
+
     def setTable(self, x):
         """
         Replace the `table` attribute.

@@ -77,7 +77,7 @@ Server_pm_init(Server *self)
         self->withPortMidiOut = 1;
     }
 
-    PyoPmBackendData *be_data = (PyoPmBackendData *) malloc(sizeof(PyoPmBackendData *));
+    PyoPmBackendData *be_data = (PyoPmBackendData *) malloc(sizeof(PyoPmBackendData));
     self->midi_be_data = (void *) be_data;
 
     if (self->withPortMidi == 1) {

@@ -74,6 +74,16 @@ class PVAnal(PyoPVObject):
                 6. Blackman-Harris 7-term
                 7. Tuckey (alpha = 0.66)
                 8. Sine (half-sine window)
+        callback: callable, optional
+            If not None (default), this function will be called with the result
+            of the analysis at the end of every overlap. The function will
+            receive two arguments, a list of floats for both the magnitudes
+            and the frequencies. The signature is:
+
+                callback(magnitudes, frequencies)
+
+            If you analyse a multi-channel signal, you should pass a list
+            of callables, one per channel to analyse.
 
     >>> s = Server().boot()
     >>> s.start()
@@ -82,16 +92,17 @@ class PVAnal(PyoPVObject):
     >>> pvs = PVSynth(pva).mix(2).out()
 
     """
-    def __init__(self, input, size=1024, overlaps=4, wintype=2):
-        pyoArgsAssert(self, "oiii", input, size, overlaps, wintype)
+    def __init__(self, input, size=1024, overlaps=4, wintype=2, callback=None):
+        pyoArgsAssert(self, "oiiic", input, size, overlaps, wintype, callback)
         PyoPVObject.__init__(self)
         self._input = input
         self._size = size
         self._overlaps = overlaps
         self._wintype = wintype
+        self._callback = callback
         self._in_fader = InputFader(input)
-        in_fader, size, overlaps, wintype, lmax = convertArgsToLists(self._in_fader, size, overlaps, wintype)
-        self._base_objs = [PVAnal_base(wrap(in_fader,i), wrap(size,i), wrap(overlaps,i), wrap(wintype,i)) for i in range(lmax)]
+        in_fader, size, overlaps, wintype, callback, lmax = convertArgsToLists(self._in_fader, size, overlaps, wintype, callback)
+        self._base_objs = [PVAnal_base(wrap(in_fader,i), wrap(size,i), wrap(overlaps,i), wrap(wintype,i), wrap(callback,i)) for i in range(lmax)]
         self.play()
 
     def setInput(self, x, fadetime=0.05):
@@ -150,9 +161,25 @@ class PVAnal(PyoPVObject):
                 new `wintype` attribute.
 
         """
+        pyoArgsAssert(self, "i", x)
         self._wintype = x
         x, lmax = convertArgsToLists(x)
         [obj.setWinType(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def setCallback(self, x):
+        """
+        Replace the `callback` attribute.
+
+        :Args:
+
+            x: callable
+                new `callback` attribute.
+
+        """
+        pyoArgsAssert(self, "c", x)
+        self._callback = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setCallback(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
     @property
     def input(self):

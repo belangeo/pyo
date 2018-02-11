@@ -76,6 +76,13 @@ class MidiListener(threading.Thread):
             except:
                 pass
 
+    def stop(self):
+        """
+        Stops the listener and properly close the midi ports.
+
+        """
+        self._listener.stop()
+
     def getDeviceInfos(self):
         """
         Returns infos about connected midi devices.

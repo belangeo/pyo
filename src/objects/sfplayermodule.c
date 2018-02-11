@@ -1186,6 +1186,7 @@ static PyObject *
 SfMarkerShuffler_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     int i;
+    Py_ssize_t psize;
     PyObject *speedtmp=NULL, *markerstmp=NULL;
     SfMarkerShuffler *self;
     self = (SfMarkerShuffler *)type->tp_alloc(type, 0);
@@ -1203,7 +1204,7 @@ SfMarkerShuffler_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"path", "markers", "speed", "interp", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "sO|Oi", kwlist, &self->path, &markerstmp, &speedtmp, &self->interp))
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "s#O|Oi", kwlist, &self->path, &psize, &markerstmp, &speedtmp, &self->interp))
         Py_RETURN_NONE;
 
     if (speedtmp) {
@@ -1993,6 +1994,7 @@ static PyObject *
 SfMarkerLooper_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     int i;
+    Py_ssize_t psize;
     PyObject *speedtmp=NULL, *marktmp=NULL, *markerstmp=NULL;
     SfMarkerLooper *self;
     self = (SfMarkerLooper *)type->tp_alloc(type, 0);
@@ -2013,7 +2015,7 @@ SfMarkerLooper_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"path", "markers", "speed", "mark", "interp", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "sO|OOi", kwlist, &self->path, &markerstmp, &speedtmp, &marktmp, &self->interp))
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "s#O|OOi", kwlist, &self->path, &psize, &markerstmp, &speedtmp, &marktmp, &self->interp))
         Py_RETURN_NONE;
 
     if (speedtmp) {

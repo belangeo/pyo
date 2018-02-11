@@ -71,7 +71,7 @@ Delay_process_ii(Delay *self) {
             xind += self->size;
         ind = (long)xind;
         frac = xind - ind;
-        val = self->buffer[ind] * (1.0 - frac) + self->buffer[ind+1] * frac;
+        val = self->buffer[ind] + (self->buffer[ind+1] - self->buffer[ind]) * frac;
         self->data[i] = val;
 
         self->buffer[self->in_count] = in[i] + (val * feed);
@@ -111,7 +111,7 @@ Delay_process_ai(Delay *self) {
             xind += self->size;
         ind = (long)xind;
         frac = xind - ind;
-        val = self->buffer[ind] * (1.0 - frac) + self->buffer[ind+1] * frac;
+        val = self->buffer[ind] + (self->buffer[ind+1] - self->buffer[ind]) * frac;
         self->data[i] = val;
 
         self->buffer[self->in_count] = in[i]  + (val * feed);
@@ -146,7 +146,7 @@ Delay_process_ia(Delay *self) {
             xind += self->size;
         ind = (long)xind;
         frac = xind - ind;
-        val = self->buffer[ind] * (1.0 - frac) + self->buffer[ind+1] * frac;
+        val = self->buffer[ind] + (self->buffer[ind+1] - self->buffer[ind]) * frac;
         self->data[i] = val;
 
         feed = fdb[i];
@@ -187,7 +187,7 @@ Delay_process_aa(Delay *self) {
             xind += self->size;
         ind = (long)xind;
         frac = xind - ind;
-        val = self->buffer[ind] * (1.0 - frac) + self->buffer[ind+1] * frac;
+        val = self->buffer[ind] + (self->buffer[ind+1] - self->buffer[ind]) * frac;
         self->data[i] = val;
 
         feed = fdb[i];

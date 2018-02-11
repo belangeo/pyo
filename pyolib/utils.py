@@ -637,7 +637,7 @@ class Record(PyoObject):
                 print('Warning: Unknown file extension. Using fileformat value.')
         else:
             print('Warning: Filename has no extension. Using fileformat value.')
-        self._base_objs = [Record_base(self._in_fader.getBaseObjects(), filename, chnls, fileformat, sampletype, buffering, quality)]
+        self._base_objs = [Record_base(self._in_fader.getBaseObjects(), stringencode(filename), chnls, fileformat, sampletype, buffering, quality)]
         self.play()
 
     def out(self, chnl=0, inc=1, dur=0, delay=0):
@@ -2033,7 +2033,6 @@ class Resample(PyoObject):
                 0 or 1: discard extra samples
                 2 or higher: the formula `mode * abs(resampling factor)`
                 gives the FIR lowpass kernel length used for the decimation.
-            Available at initialization time only.
 
     >>> s = Server().boot()
     >>> s.start()
@@ -2056,3 +2055,26 @@ class Resample(PyoObject):
         _input, mode, mul, add, lmax = convertArgsToLists(input, mode, mul, add)
         self._base_objs = [Resample_base(wrap(_input,i), wrap(mode,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
         self.play()
+
+    def setMode(self, x):
+        """
+        Replace the `mode` attribute.
+
+        :Args:
+
+            x: int
+                New `mode` attribute.
+
+        """
+        pyoArgsAssert(self, "i", x)
+        self._mode = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setMode(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    @property
+    def mode(self):
+        """int. The interpolation/decimation mode."""
+        return self._mode
+    @mode.setter
+    def mode(self, x): self.setMode(x)
+

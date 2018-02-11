@@ -3,14 +3,14 @@
 
 An artificial reverberation based on the work of Manfred Schroeder.
 
-This reverberator takes a monopkonic input and outputs two uncorrelated
+This reverberator takes a monophonic input and outputs two uncorrelated
 reverberated signals. 
 
 This algorithm presents four parallel comb filters fedding two serial
 allpass filters. An additional lowpass filter is used at the end to 
 control the brightness of the reverberator.
 
-The manual example for the Allpass object presents an other Schroeder
+The manual example for the Allpass object presents an other Schroeder's
 reverberator.
 
 """

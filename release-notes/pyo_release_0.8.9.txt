@@ -1,0 +1,148 @@
+[English version follows]
+
+Bonjour à tous,
+
+La version 0.8.9 de pyo est maintenant disponible en téléchargement :
+
+http://ajaxsoundstudio.com/software/pyo/
+
+La documentation:
+
+http://ajaxsoundstudio.com/pyodoc/
+
+Sources et suivi des bugs:
+    
+https://github.com/belangeo/pyo
+
+Bugs corrigés:
+
+- Correction d'une condition erronée dans la fonction listscramble.
+
+- Correction de la fonction pa_get_devices_infos() sous Windows.
+
+- Correction d'un crash au moment de quitter l'interpréteur lorsqu'un
+objet Server a été créé mais pas activé (issue #117).
+
+- Correction de l'enveloppe d'amplitude de l'objet Harmonizer (utilise
+maintenant une fenêtre sinus/cosinus au lieu d'une fenêtre hanning).
+
+- Correction d'un crash lors du dessin d'un ControlSlider lorsqu'il a
+une longueur ou une hauteur de 0 pixel.
+
+Amélioration:
+
+- L'objet Pan utilise maintenant une loi de panoramisation sinus/cosinus 
+en mode stéréo.
+
+- Optimisation du calcul d'un certain nombre d'objets.
+
+- L'argument "mode" de l'objet Resample peut maintenant être chagé de
+façon dynamique.
+
+- Ajout d'un nouvel objet : HRTF, Head-Related Transfert Function pour
+faire de la spatialisation 3D en stéréo.
+
+
+Olivier
+
+---
+
+Hello all,
+
+pyo 0.8.9 is now available to download on pyo's web site :
+
+http://ajaxsoundstudio.com/software/pyo/
+
+pyo's documentation:
+
+http://ajaxsoundstudio.com/pyodoc/
+
+Latest sources and bug tracker:
+    
+https://github.com/belangeo/pyo
+
+
+Bug Fixes:
+    
+- Fixed erroneous condition in listscramble function.
+
+- Fixed pa_get_devices_infos() function on Windows.
+
+- Fixed segfault at exit when a Server object is created but never 
+booted (fixed issue #117).
+
+- Fixed window shape in the Harmonizer object (use an halfsine instead 
+of an hanning).
+
+- Fixed crash when trying to draw a ControlSlider with width or height of 0.
+
+Enhancements:
+
+- Changed the stereo panning law for cosine/sine within Pan object.
+
+- Speed-up computation for various objects.
+
+- Allow the "mode" argument of Resample object to be changed dynamically.
+
+- Added new object: HRTF, Head-Related Transfert Function 3D spatialization.
+
+
+Olivier
+
+================================================================================
+
+Hello all,
+
+I'm glad to announce the release of pyo 0.8.9, available for python 2.7, 3.5 and 3.6.
+
+Pyo is a Python module written in C to help real-time digital signal processing
+script creation. It is available for Windows, macOS and linux. It is released
+under the LGPL 3 license.
+
+For more info, downloads and other links, see the official web site:
+
+http://ajaxsoundstudio.com/software/pyo/
+
+The documentation:
+
+http://ajaxsoundstudio.com/pyodoc/
+
+For the latest sources and bug tracker:
+
+https://github.com/belangeo/pyo
+
+
+Bug Fixes:
+    
+- Fixed erroneous condition in listscramble function.
+
+- Fixed pa_get_devices_infos() function on Windows.
+
+- Fixed segfault at exit when a Server object is created but never 
+booted (fixed issue #117).
+
+- Fixed window shape in the Harmonizer object (use an halfsine instead 
+of an hanning).
+
+- Fixed crash when trying to draw a ControlSlider with width or height of 0.
+
+Enhancements:
+
+- Changed the stereo panning law for cosine/sine within Pan object.
+
+- Speed-up computation for various objects.
+
+- Allow the "mode" argument of Resample object to be changed dynamically.
+
+- Added new object: HRTF, Head-Related Transfert Function 3D spatialization.
+
+
+Olivier Belanger
+belangeo@gmail.com
+http://olivier.ajaxsoundstudio.com/
+
+----
+
+P><A HREF="http://ajaxsoundstudio.com/software/pyo/">Pyo 0.8.9</A>
+Python DSP library. (05-Feb-18)
+

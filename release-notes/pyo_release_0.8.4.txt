@@ -1,0 +1,164 @@
+[English version follows]
+
+Bonjour à tous,
+
+En ce jour qui marque mes quarante ans d'existence, je me suis fait un 
+petit cadeau, une nouvelle version de pyo qui, grâce à la correction d'un
+bug majeur, est sans conteste la version la plus stable jamais produite!
+
+La version 0.8.4 de pyo est maintenant disponible en téléchargement :
+
+http://ajaxsoundstudio.com/software/pyo/
+
+La documentation:
+
+http://ajaxsoundstudio.com/pyodoc/
+
+Sources and suivi des bugs:
+    
+https://github.com/belangeo/pyo
+
+
+Changements:
+
+Correction de bugs:
+
+- Correction des conflits entre le GIL de python et les appels des librairies
+  portaudio, portmidi et jack.
+- Interface portaudio mise à jour pour la rendre beaucoup plus sécuritaire.
+- Correction des segfaults dans le retour de MidiListener avec python3.
+- Correction des marqueurs de SfMarkerLooper et SfMarkerShuffler. Ils n'étaient 
+  pas précis lorsque la fréquence d'échantillonnage du fichier son n'était pas 
+  la même que celle du serveur de pyo.
+
+Nouvelles fonctionnalités:
+    
+- Refonte de la gestion des événements MIDI en entrée. Les événements sont 
+  maintenant répartis sur la durée du buffersize selon le timestamp de l'événement.
+- MidiDispatcher peut maintenant envoyer un message sysex avec la méthode sendx().
+- Ajout d'un argument "title" à la méthode Server.gui().
+- Ajout d'une méthode "setMode" à l'objet Selector pour basculer entre le mode 
+  de puissance égale et un fondu linéaire.
+- Ajout d'une méthode "setKeepLast" à l'objet TableRead (il conservera la 
+  dernière valeur reçue après arrêt).
+- Ajout de la méthode "setIsJackTransportSlave" à l'objet Server (elle permet de
+  démarrer/arrêter le serveur de pyo à partir du transport de jack).
+- Ajout des méthodes "setJackInputPortNames" et "setJackOutputPortNames" à l'objet 
+  serveur. Cela permet à l'utilisateur de renommer les ports d'entrée/sortie jack.
+- Ajout des attributs "id" et "object" aux événements envoyés par les objets
+  GUI de pyo (section wxgui).
+
+
+Olivier
+
+---
+
+Hello all,
+
+On this day that marks my forty years of existence, I made myself a 
+small gift, a new version of pyo which, thanks to the correction of 
+a major bug, is undoubtedly the most stable version ever produced!
+
+pyo 0.8.4 is now available to download on pyo's web site :
+
+http://ajaxsoundstudio.com/software/pyo/
+
+pyo's documentation:
+
+http://ajaxsoundstudio.com/pyodoc/
+
+Latest sources and bug tracker:
+    
+https://github.com/belangeo/pyo
+
+
+What's new:
+
+Bug fixes:
+
+- Fixed GIL conflicts with portaudio, portmidi and jack library calls.
+- Updated portaudio interface to make it much more secure.
+- Fixed segfault in MidiListener callback function with python3.
+- Fixed SfMarkerLooper and SfMarkerShuffler markers not accurate
+  when soundfile sampling rate is not the same as the server's
+  sampling rate.
+
+New features:
+    
+- Midi input refactoring. Events are now spreaded over the buffer size
+  according to the event's timestamp.
+- MidiDispatcher can send sysex message with sendx() method.
+- Added a "title" argument to Server.gui() method.
+- Added a "setMode" method to Selector object to switch between
+  equal power mode and linear fade.
+- Added a "setKeepLast" method to TableRead object (will hold last value).
+- Added "setIsJackTransportSlave" method to Server object (it allows to
+  start/stop the Server from jack transport).
+- Added "setJackInputPortNames" and "setJackOutputPortNames" methods to
+  Server object. This allow the user to rename jack input/output ports.
+- Added "id" and "object" attributes to wxgui's object events.
+
+
+Olivier
+
+================================================================================
+
+Hello all,
+
+On this day that marks my forty years of existence, I made myself a small gift, 
+a new version of pyo which, thanks to the correction of a major bug, is 
+undoubtedly the most stable version ever produced!
+
+I'm glad to announce the release of pyo 0.8.4, available for python 2.7 and 3.5.
+
+Pyo is a Python module written in C to help real-time digital signal processing
+script creation. It is available for Windows, macOS and linux. It is released
+under the LGPL 3 license.
+
+For more info, downloads and other links, see the official web site:
+
+http://ajaxsoundstudio.com/software/pyo/
+
+The documentation:
+
+http://ajaxsoundstudio.com/pyodoc/
+
+For the latest sources and bug tracker:
+
+https://github.com/belangeo/pyo
+
+What's new:
+
+Bug fixes:
+
+- Fixed GIL conflicts with portaudio, portmidi and jack library calls.
+- Updated portaudio interface to make it much more secure.
+- Fixed segfault in MidiListener callback function with python3.
+- Fixed SfMarkerLooper and SfMarkerShuffler markers not accurate
+  when soundfile sampling rate is not the same as the server's
+  sampling rate.
+
+New features:
+    
+- Midi input refactoring. Events are now spreaded over the buffer size
+  according to the event's timestamp.
+- MidiDispatcher can send sysex message with sendx() method.
+- Added a "title" argument to Server.gui() method.
+- Added a "setMode" method to Selector object to switch between
+  equal power mode and linear fade.
+- Added a "setKeepLast" method to TableRead object (will hold last value).
+- Added "setIsJackTransportSlave" method to Server object (it allows to
+  start/stop the Server from jack transport).
+- Added "setJackInputPortNames" and "setJackOutputPortNames" methods to
+  Server object. This allow the user to rename jack input/output ports.
+- Added "id" and "object" attributes to wxgui's object events.
+
+
+Olivier Belanger
+belangeo@gmail.com
+http://olivier.ajaxsoundstudio.com/
+
+----
+
+P><A HREF="http://ajaxsoundstudio.com/software/pyo/">Pyo 0.8.4</A>
+Python DSP library. (24-Mar-17)

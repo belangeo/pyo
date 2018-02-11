@@ -38,6 +38,7 @@ isPowerOfTwo(int x) {
 
 typedef struct {
     pyo_audio_HEAD
+    PyObject *callback;
     PyObject *input;
     Stream *input_stream;
     PVStream *pv_stream;
@@ -110,6 +111,30 @@ PVAnal_realloc_memories(PVAnal *self) {
 }
 
 static void
+PVAnal_data_callback(PVAnal *self) {
+    int i;
+    PyObject *tuple, *result, *magnitudes, *frequencies;
+
+    magnitudes = PyList_New(self->hsize);
+    frequencies = PyList_New(self->hsize);
+    for (i=0; i<self->hsize; i++) {
+        PyList_SET_ITEM(magnitudes, i, PyFloat_FromDouble(self->magn[self->overcount][i]));
+        PyList_SET_ITEM(frequencies, i, PyFloat_FromDouble(self->freq[self->overcount][i]));
+    }
+
+    tuple = PyTuple_New(2);
+    PyTuple_SET_ITEM(tuple, 0, magnitudes);
+    PyTuple_SET_ITEM(tuple, 1, frequencies);
+    result = PyObject_Call(self->callback, tuple, NULL);
+    if (result == NULL) {
+        PyErr_Print();
+    }
+
+    Py_DECREF(magnitudes);
+    Py_DECREF(frequencies);
+}
+
+static void
 PVAnal_process(PVAnal *self) {
     int i, k, mod;
     MYFLT real, imag, mag, phase, tmp;
@@ -145,6 +170,9 @@ PVAnal_process(PVAnal *self) {
                 self->magn[self->overcount][k] = mag;
                 self->freq[self->overcount][k] = (tmp + k * self->scale) * self->factor;
             }
+            if (self->callback != Py_None) {
+                PVAnal_data_callback(self);
+            }
             for (k=0; k<self->inputLatency; k++) {
                 self->input_buffer[k] = self->input_buffer[k + self->hopsize];
             }
@@ -174,6 +202,9 @@ PVAnal_traverse(PVAnal *self, visitproc visit, void *arg)
     Py_VISIT(self->input);
     Py_VISIT(self->input_stream);
     Py_VISIT(self->pv_stream);
+    if (self->callback != Py_None) {
+        Py_VISIT(self->callback);
+    }
     return 0;
 }
 
@@ -184,6 +215,9 @@ PVAnal_clear(PVAnal *self)
     Py_CLEAR(self->input);
     Py_CLEAR(self->input_stream);
     Py_CLEAR(self->pv_stream);
+    if (self->callback != Py_None) {
+        Py_CLEAR(self->callback);
+    }
     return 0;
 }
 
@@ -218,10 +252,12 @@ static PyObject *
 PVAnal_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     int i, k;
-    PyObject *inputtmp, *input_streamtmp;
+    PyObject *inputtmp, *input_streamtmp, *callbacktmp=NULL;
     PVAnal *self;
     self = (PVAnal *)type->tp_alloc(type, 0);
 
+    Py_INCREF(Py_None);
+    self->callback = Py_None;
     self->size = 1024;
     self->olaps = 4;
     self->wintype = 2;
@@ -229,12 +265,16 @@ PVAnal_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     Stream_setFunctionPtr(self->stream, PVAnal_compute_next_data_frame);
     self->mode_func_ptr = PVAnal_setProcMode;
 
-    static char *kwlist[] = {"input", "size", "olaps", "wintype", NULL};
+    static char *kwlist[] = {"input", "size", "olaps", "wintype", "callback", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|iii", kwlist, &inputtmp, &self->size, &self->olaps, &self->wintype))
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|iiiO", kwlist, &inputtmp, &self->size, &self->olaps, &self->wintype, &callbacktmp))
         Py_RETURN_NONE;
 
     INIT_INPUT_STREAM
+
+    if (callbacktmp) {
+        PyObject_CallMethod((PyObject *)self, "setCallback", "O", callbacktmp);
+    }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
@@ -316,6 +356,26 @@ PVAnal_setWinType(PVAnal *self, PyObject *arg)
     return Py_None;
 }
 
+static PyObject *
+PVAnal_setCallback(PVAnal *self, PyObject *arg)
+{
+	PyObject *tmp;
+
+	if (! PyCallable_Check(arg) && arg != Py_None) {
+        PyErr_SetString(PyExc_TypeError, "The callback attribute must be callable.");
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+
+    tmp = arg;
+    Py_XDECREF(self->callback);
+    Py_INCREF(tmp);
+    self->callback = tmp;
+
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
 static PyMemberDef PVAnal_members[] = {
 {"server", T_OBJECT_EX, offsetof(PVAnal, server), 0, "Pyo server."},
 {"stream", T_OBJECT_EX, offsetof(PVAnal, stream), 0, "Stream object."},
@@ -333,6 +393,7 @@ static PyMethodDef PVAnal_methods[] = {
 {"setSize", (PyCFunction)PVAnal_setSize, METH_O, "Sets a new FFT size."},
 {"setOverlaps", (PyCFunction)PVAnal_setOverlaps, METH_O, "Sets a new number of overlaps."},
 {"setWinType", (PyCFunction)PVAnal_setWinType, METH_O, "Sets a new window type."},
+{"setCallback", (PyCFunction)PVAnal_setCallback, METH_O, "Sets a callback function."},
 {NULL}  /* Sentinel */
 };
 
@@ -384,7 +445,6 @@ typedef struct {
     pyo_audio_HEAD
     PyObject *input;
     PVStream *input_stream;
-    //PVStream *pv_stream;
     int size;
     int hsize;
     int olaps;
@@ -555,7 +615,6 @@ PVSynth_traverse(PVSynth *self, visitproc visit, void *arg)
     pyo_VISIT
     Py_VISIT(self->input);
     Py_VISIT(self->input_stream);
-    //Py_VISIT(self->pv_stream);
     return 0;
 }
 
@@ -565,7 +624,6 @@ PVSynth_clear(PVSynth *self)
     pyo_CLEAR
     Py_CLEAR(self->input);
     Py_CLEAR(self->input_stream);
-    //Py_CLEAR(self->pv_stream);
     return 0;
 }
 
@@ -702,7 +760,6 @@ static PyObject * PVSynth_inplace_div(PVSynth *self, PyObject *arg) { INPLACE_DI
 static PyMemberDef PVSynth_members[] = {
 {"server", T_OBJECT_EX, offsetof(PVSynth, server), 0, "Pyo server."},
 {"stream", T_OBJECT_EX, offsetof(PVSynth, stream), 0, "Stream object."},
-//{"pv_stream", T_OBJECT_EX, offsetof(PVSynth, pv_stream), 0, "Phase Vocoder Stream object."},
 {"input", T_OBJECT_EX, offsetof(PVSynth, input), 0, "FFT sound object."},
 {"mul", T_OBJECT_EX, offsetof(PVSynth, mul), 0, "Mul factor."},
 {"add", T_OBJECT_EX, offsetof(PVSynth, add), 0, "Add factor."},
@@ -712,7 +769,6 @@ static PyMemberDef PVSynth_members[] = {
 static PyMethodDef PVSynth_methods[] = {
 {"getServer", (PyCFunction)PVSynth_getServer, METH_NOARGS, "Returns server object."},
 {"_getStream", (PyCFunction)PVSynth_getStream, METH_NOARGS, "Returns stream object."},
-//{"_getPVStream", (PyCFunction)PVSynth_getPVStream, METH_NOARGS, "Returns pvstream object."},
 {"play", (PyCFunction)PVSynth_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
 {"out", (PyCFunction)PVSynth_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
 {"stop", (PyCFunction)PVSynth_stop, METH_NOARGS, "Stops computing."},

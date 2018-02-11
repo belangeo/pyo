@@ -26,7 +26,7 @@ from pyo import *
 s = Server().boot()
 
 # Sets fundamental frequency.
-freq = 200
+freq = 187.5
 
 # Impulse train generator.
 lfo1 = Sine(.1).range(1, 50)

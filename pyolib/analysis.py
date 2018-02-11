@@ -837,6 +837,8 @@ class Spectrum(PyoObject):
             list of lists, one list per channel). Useful if someone
             wants to save the analysis data into a text file.
             Defaults to None.
+        wintitle: string, optional
+            GUI window title. Defaults to "Spectrum".
 
     .. note::
 
@@ -850,11 +852,12 @@ class Spectrum(PyoObject):
     >>> spec = Spectrum(a, size=1024)
 
     """
-    def __init__(self, input, size=1024, wintype=2, function=None):
-        pyoArgsAssert(self, "oiiC", input, size, wintype, function)
+    def __init__(self, input, size=1024, wintype=2, function=None, wintitle="Spectrum"):
+        pyoArgsAssert(self, "oiiCS", input, size, wintype, function, wintitle)
         PyoObject.__init__(self)
         self.points = None
         self.viewFrame = None
+        self.channelNamesVisible = True
         self._input = input
         self._size = size
         self._wintype = wintype
@@ -871,7 +874,7 @@ class Spectrum(PyoObject):
         self._base_objs = [Spectrum_base(wrap(in_fader,i), wrap(size,i), wrap(wintype,i)) for i in range(lmax)]
         self._timer = Pattern(self.refreshView, 0.05).play()
         if function is None:
-            self.view()
+            self.view(wintitle)
         self.play()
 
     def setInput(self, x, fadetime=0.05):
@@ -1171,6 +1174,15 @@ class Spectrum(PyoObject):
         pyoArgsAssert(self, "SB", title, wxnoserver)
         createSpectrumWindow(self, title, wxnoserver)
 
+    def showChannelNames(self, visible=True):
+        """
+        If True (the default), channel names will be displayed in the window.
+
+        """
+        self.channelNamesVisible = visible
+        if self.viewFrame is not None:
+            self.viewFrame.showChannelNames(visible)
+
     def _setViewFrame(self, frame):
         self.viewFrame = frame
 
@@ -1281,6 +1293,8 @@ class Scope(PyoObject):
             list of lists, one list per channel). Useful if someone
             wants to save the analysis data into a text file.
             Defaults to None.
+        wintitle: string, optional
+            GUI window title. Defaults to "Scope".
 
     .. note::
 
@@ -1295,8 +1309,8 @@ class Scope(PyoObject):
     >>> scope = Scope(a+b)
 
     """
-    def __init__(self, input, length=0.05, gain=0.67, function=None):
-        pyoArgsAssert(self, "oNNC", input, length, gain, function)
+    def __init__(self, input, length=0.05, gain=0.67, function=None, wintitle="Scope"):
+        pyoArgsAssert(self, "oNNCS", input, length, gain, function, wintitle)
         PyoObject.__init__(self)
         self.points = None
         self.viewFrame = None
@@ -1306,12 +1320,13 @@ class Scope(PyoObject):
         self._function = function
         self._width = 500
         self._height = 400
+        self.channelNamesVisible = True
         self._in_fader = InputFader(input)
         in_fader, lmax = convertArgsToLists(self._in_fader)
         self._base_objs = [Scope_base(wrap(in_fader,i), length) for i in range(lmax)]
-        self._timer = Pattern(self.refreshView, length).play()
+        self._base_objs[0].setFunc(self.refreshView)
         if function is None:
-            self.view()
+            self.view(wintitle)
         self.play()
 
     def setInput(self, x, fadetime=0.05):
@@ -1342,7 +1357,6 @@ class Scope(PyoObject):
         """
         pyoArgsAssert(self, "N", x)
         self._length = x
-        self._timer.time = x
         [obj.setLength(x) for obj in self._base_objs]
 
     def setGain(self, x):
@@ -1372,10 +1386,7 @@ class Scope(PyoObject):
 
         """
         pyoArgsAssert(self, "B", active)
-        if active:
-            self._timer.play()
-        else:
-            self._timer.stop()
+        [obj.setPoll(active) for obj in self._base_objs]
 
     def setWidth(self, x):
         """
@@ -1415,12 +1426,12 @@ class Scope(PyoObject):
 
     def view(self, title="Scope", wxnoserver=False):
         """
-        Opens a window showing the result of the analysis.
+        Opens a window showing the incoming waveform.
 
         :Args:
 
             title: string, optional
-                Window title. Defaults to "Spectrum".
+                Window title. Defaults to "Scope".
             wxnoserver: boolean, optional
                 With wxPython graphical toolkit, if True, tells the
                 interpreter that there will be no server window.
@@ -1446,6 +1457,15 @@ class Scope(PyoObject):
         """
         pyoArgsAssert(self, "C", function)
         self._function = getWeakMethodRef(function)
+
+    def showChannelNames(self, visible=True):
+        """
+        If True (the default), channel names will be displayed in the window.
+
+        """
+        self.channelNamesVisible = visible
+        if self.viewFrame is not None:
+            self.viewFrame.showChannelNames(visible)
 
     def _setViewFrame(self, frame):
         self.viewFrame = frame

@@ -1,0 +1,115 @@
+[English version follows]
+
+Bonjour à tous,
+
+La version 0.8.5 de pyo est maintenant disponible en téléchargement :
+
+http://ajaxsoundstudio.com/software/pyo/
+
+La documentation:
+
+http://ajaxsoundstudio.com/pyodoc/
+
+Sources and suivi des bugs:
+    
+https://github.com/belangeo/pyo
+
+
+Changements:
+
+- Nouvelle fonction: pa_get_default_devices_from_host(host). Cette fonction 
+permet de récupérer le numéro des interfaces d'entrée et de sortie pour un 
+pilote audio donné. Particulièrement utile sous Windows.
+
+- Nouvel argument "winhost" à l'initialisation de l'objet Server. Sous Windows,
+le serveur utilise dorénavant le pilote WASAPI par défaut.
+
+- Correction d'un problème de compatibilité avec l'ancien et le nouvel API de Jack.
+
+- Deux nouveaux exemples, dans la section 07-effects: 01-flanger.py et
+02-schroeder-reverb.py.
+
+
+Olivier
+
+---
+
+Hello all,
+
+pyo 0.8.5 is now available to download on pyo's web site :
+
+http://ajaxsoundstudio.com/software/pyo/
+
+pyo's documentation:
+
+http://ajaxsoundstudio.com/pyodoc/
+
+Latest sources and bug tracker:
+    
+https://github.com/belangeo/pyo
+
+
+What's new:
+    
+- Added pa_get_default_devices_from_host(host) function. This function can 
+greatly help finding the device indexes (especially on Windows) to give to 
+the server in order to use to desired audio host.
+
+- Added a new winhost argument to the Server's initialization. On Windows, it
+defaults to WASAPI.
+
+- Check the jack api version before compiling to ensure existing functions are 
+used (jack_port_set_name/jack_port_rename).
+
+- Added two examples in 07-effects, 01-flanger.py and 02-schroeder-reverb.py.
+
+
+Olivier
+
+================================================================================
+
+Hello all,
+
+I'm glad to announce the release of pyo 0.8.5, available for python 2.7 and 3.5.
+
+Pyo is a Python module written in C to help real-time digital signal processing
+script creation. It is available for Windows, macOS and linux. It is released
+under the LGPL 3 license.
+
+For more info, downloads and other links, see the official web site:
+
+http://ajaxsoundstudio.com/software/pyo/
+
+The documentation:
+
+http://ajaxsoundstudio.com/pyodoc/
+
+For the latest sources and bug tracker:
+
+https://github.com/belangeo/pyo
+
+
+What's new:
+
+- Added pa_get_default_devices_from_host(host) function. This function can 
+greatly help finding the device indexes (especially on Windows) to give to 
+the server in order to use to desired audio host.
+
+- Added a new winhost argument to the Server's initialization. On Windows, it
+defaults to WASAPI.
+
+- Check the jack api version before compiling to ensure existing functions are 
+used (jack_port_set_name/jack_port_rename).
+
+- Added two examples in 07-effects, 01-flanger.py and 02-schroeder-reverb.py.
+
+
+Olivier Belanger
+belangeo@gmail.com
+http://olivier.ajaxsoundstudio.com/
+
+----
+
+P><A HREF="http://ajaxsoundstudio.com/software/pyo/">Pyo 0.8.5</A>
+Python DSP library. (01-Apr-17)
+

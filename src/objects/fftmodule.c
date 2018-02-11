@@ -3598,6 +3598,7 @@ static PyObject *
 CvlVerb_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     int i, k;
+    Py_ssize_t psize;
     PyObject *inputtmp, *input_streamtmp, *baltmp=NULL, *multmp=NULL, *addtmp=NULL;
     CvlVerb *self;
     self = (CvlVerb *)type->tp_alloc(type, 0);
@@ -3613,7 +3614,7 @@ CvlVerb_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"input", "impulse", "bal", "size", "chnl", "mul", "add", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "Os|OiiOO", kwlist, &inputtmp, &self->impulse_path, &baltmp, &self->size, &self->chnl, &multmp, &addtmp))
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "Os#|OiiOO", kwlist, &inputtmp, &self->impulse_path, &psize, &baltmp, &self->size, &self->chnl, &multmp, &addtmp))
         Py_RETURN_NONE;
 
     if (self->size < self->bufsize) {
