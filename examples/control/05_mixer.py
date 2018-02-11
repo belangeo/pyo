@@ -6,6 +6,7 @@ Mixing multiple inputs to multiple outputs with fade time.
 
 """
 from pyo import *
+import random
 
 s = Server(duplex=0).boot()
 
