@@ -1927,3 +1927,596 @@ PyTypeObject BalanceType = {
     0,                                              /* tp_alloc */
     Balance_new,                                     /* tp_new */
 };
+
+/* Expander */
+typedef struct {
+    pyo_audio_HEAD
+    PyObject *input;
+    Stream *input_stream;
+    PyObject *risetime;
+    PyObject *falltime;
+    PyObject *upthresh;
+    PyObject *downthresh;
+    PyObject *ratio;
+    Stream *risetime_stream;
+    Stream *falltime_stream;
+    Stream *upthresh_stream;
+    Stream *downthresh_stream;
+    Stream *ratio_stream;
+    int modebuffer[7]; // need at least 2 slots for mul & add
+    int outputAmp;
+    MYFLT follow;
+    long lh_delay;
+    long lh_size;
+    long lh_in_count;
+    MYFLT *lh_buffer;
+} Expand;
+
+static void
+Expand_compress_soft(Expand *self) {
+    MYFLT samp, absin, indb, diff, outa;
+    MYFLT risetime, falltime, upthresh, downthresh, ratio;
+    int i;
+    long ind;
+
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
+
+    if (self->modebuffer[2] == 0)
+        risetime = PyFloat_AS_DOUBLE(self->risetime);
+    else
+        risetime = Stream_getData((Stream *)self->risetime_stream)[0];
+    if (risetime <= 0.0)
+        risetime = 0.001;
+    if (self->modebuffer[3] == 0)
+        falltime = PyFloat_AS_DOUBLE(self->falltime);
+    else
+        falltime = Stream_getData((Stream *)self->falltime_stream)[0];
+    if (falltime <= 0.0)
+        falltime = 0.001;
+    if (self->modebuffer[4] == 0)
+        upthresh = PyFloat_AS_DOUBLE(self->upthresh);
+    else
+        upthresh = Stream_getData((Stream *)self->upthresh_stream)[0];
+    if (upthresh > 0.0)
+        upthresh = 0.0;
+    if (self->modebuffer[5] == 0)
+        downthresh = PyFloat_AS_DOUBLE(self->downthresh);
+    else
+        downthresh = Stream_getData((Stream *)self->downthresh_stream)[0];
+    if (downthresh < -120.0)
+        downthresh = -120.0;
+    else if (downthresh > upthresh)
+        downthresh = upthresh;
+    if (self->modebuffer[6] == 0)
+        ratio = PyFloat_AS_DOUBLE(self->ratio);
+    else
+        ratio = Stream_getData((Stream *)self->ratio_stream)[0];
+
+    ratio = 1.0 / ratio;
+    risetime = MYEXP(-1.0 / (self->sr * risetime));
+    falltime = MYEXP(-1.0 / (self->sr * falltime));
+
+    for (i=0; i<self->bufsize; i++) {
+        /* Envelope follower */
+        absin = in[i];
+        if (absin < 0.0)
+            absin = -absin;
+        if (self->follow < absin)
+            self->follow = absin + risetime * (self->follow - absin);
+        else
+            self->follow = absin + falltime * (self->follow - absin);
+
+        /* Look ahead */
+        ind = self->lh_in_count - self->lh_delay;
+        if (ind < 0)
+            ind += self->lh_size;
+        samp = self->lh_buffer[ind];
+
+        self->lh_buffer[self->lh_in_count] = in[i];
+        self->lh_in_count++;
+        if (self->lh_in_count >= self->lh_size)
+            self->lh_in_count = 0;
+
+        /* Expand signal */
+        outa = 1.0;
+        indb = 20.0 * MYLOG10(C_clip(self->follow));
+        if (indb > upthresh) { /* Above upper threshold */
+            diff = indb - upthresh;
+            outa = MYPOW(10.0, (diff * ratio - diff) * 0.05);
+        } else if (indb < downthresh) { /* Below lower threshold */
+            diff = downthresh - indb;
+            outa = MYPOW(10.0, (diff - diff * ratio) * 0.05);
+        }
+        outa = 1.0 / outa;
+
+        if (self->outputAmp == 0)
+            self->data[i] = samp * outa;
+        else
+            self->data[i] = outa;
+    }
+}
+
+static void Expand_postprocessing_ii(Expand *self) { POST_PROCESSING_II };
+static void Expand_postprocessing_ai(Expand *self) { POST_PROCESSING_AI };
+static void Expand_postprocessing_ia(Expand *self) { POST_PROCESSING_IA };
+static void Expand_postprocessing_aa(Expand *self) { POST_PROCESSING_AA };
+static void Expand_postprocessing_ireva(Expand *self) { POST_PROCESSING_IREVA };
+static void Expand_postprocessing_areva(Expand *self) { POST_PROCESSING_AREVA };
+static void Expand_postprocessing_revai(Expand *self) { POST_PROCESSING_REVAI };
+static void Expand_postprocessing_revaa(Expand *self) { POST_PROCESSING_REVAA };
+static void Expand_postprocessing_revareva(Expand *self) { POST_PROCESSING_REVAREVA };
+
+static void
+Expand_setProcMode(Expand *self)
+{
+    int muladdmode;
+    muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
+
+	switch (muladdmode) {
+        case 0:
+            self->muladd_func_ptr = Expand_postprocessing_ii;
+            break;
+        case 1:
+            self->muladd_func_ptr = Expand_postprocessing_ai;
+            break;
+        case 2:
+            self->muladd_func_ptr = Expand_postprocessing_revai;
+            break;
+        case 10:
+            self->muladd_func_ptr = Expand_postprocessing_ia;
+            break;
+        case 11:
+            self->muladd_func_ptr = Expand_postprocessing_aa;
+            break;
+        case 12:
+            self->muladd_func_ptr = Expand_postprocessing_revaa;
+            break;
+        case 20:
+            self->muladd_func_ptr = Expand_postprocessing_ireva;
+            break;
+        case 21:
+            self->muladd_func_ptr = Expand_postprocessing_areva;
+            break;
+        case 22:
+            self->muladd_func_ptr = Expand_postprocessing_revareva;
+            break;
+    }
+}
+
+static void
+Expand_compute_next_data_frame(Expand *self)
+{
+    (*self->proc_func_ptr)(self);
+    (*self->muladd_func_ptr)(self);
+}
+
+static int
+Expand_traverse(Expand *self, visitproc visit, void *arg)
+{
+    pyo_VISIT
+    Py_VISIT(self->input);
+    Py_VISIT(self->input_stream);
+    Py_VISIT(self->risetime);
+    Py_VISIT(self->risetime_stream);
+    Py_VISIT(self->falltime);
+    Py_VISIT(self->falltime_stream);
+    Py_VISIT(self->upthresh);
+    Py_VISIT(self->upthresh_stream);
+    Py_VISIT(self->downthresh);
+    Py_VISIT(self->downthresh_stream);
+    Py_VISIT(self->ratio);
+    Py_VISIT(self->ratio_stream);
+    return 0;
+}
+
+static int
+Expand_clear(Expand *self)
+{
+    pyo_CLEAR
+    Py_CLEAR(self->input);
+    Py_CLEAR(self->input_stream);
+    Py_CLEAR(self->risetime);
+    Py_CLEAR(self->risetime_stream);
+    Py_CLEAR(self->falltime);
+    Py_CLEAR(self->falltime_stream);
+    Py_CLEAR(self->upthresh);
+    Py_CLEAR(self->upthresh_stream);
+    Py_CLEAR(self->downthresh);
+    Py_CLEAR(self->downthresh_stream);
+    Py_CLEAR(self->ratio);
+    Py_CLEAR(self->ratio_stream);
+    return 0;
+}
+
+static void
+Expand_dealloc(Expand* self)
+{
+    pyo_DEALLOC
+    free(self->lh_buffer);
+    Expand_clear(self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
+}
+
+static PyObject *
+Expand_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    int i;
+    PyObject *inputtmp, *input_streamtmp, *upthreshtmp=NULL, *downthreshtmp=NULL, *ratiotmp=NULL, *risetimetmp=NULL, *falltimetmp=NULL, *multmp=NULL, *addtmp=NULL;
+    PyObject *looktmp=NULL;
+    Expand *self;
+    self = (Expand *)type->tp_alloc(type, 0);
+
+    self->downthresh = PyFloat_FromDouble(-60.0);
+    self->upthresh = PyFloat_FromDouble(-20.0);
+    self->ratio = PyFloat_FromDouble(2.0);
+    self->risetime = PyFloat_FromDouble(0.01);
+    self->falltime = PyFloat_FromDouble(0.1);
+	self->modebuffer[0] = 0;
+	self->modebuffer[1] = 0;
+	self->modebuffer[2] = 0;
+	self->modebuffer[3] = 0;
+	self->modebuffer[4] = 0;
+	self->modebuffer[5] = 0;
+	self->modebuffer[6] = 0;
+    self->outputAmp = 0;
+    self->follow = 0.0;
+    self->lh_delay = 0;
+    self->lh_in_count = 0;
+
+    INIT_OBJECT_COMMON
+
+    Stream_setFunctionPtr(self->stream, Expand_compute_next_data_frame);
+    self->mode_func_ptr = Expand_setProcMode;
+
+    static char *kwlist[] = {"input", "downthresh", "upthresh", "ratio", "risetime", "falltime", "lookahead", "outputAmp", "mul", "add", NULL};
+
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOOOOOiOO", kwlist, &inputtmp, &downthreshtmp, &upthreshtmp, &ratiotmp, &risetimetmp, &falltimetmp, &looktmp, &self->outputAmp, &multmp, &addtmp))
+        Py_RETURN_NONE;
+
+    INIT_INPUT_STREAM
+
+    if (downthreshtmp) {
+        PyObject_CallMethod((PyObject *)self, "setDownThresh", "O", downthreshtmp);
+    }
+
+    if (upthreshtmp) {
+        PyObject_CallMethod((PyObject *)self, "setUpThresh", "O", upthreshtmp);
+    }
+
+    if (ratiotmp) {
+        PyObject_CallMethod((PyObject *)self, "setRatio", "O", ratiotmp);
+    }
+
+    if (risetimetmp) {
+        PyObject_CallMethod((PyObject *)self, "setRiseTime", "O", risetimetmp);
+    }
+
+    if (falltimetmp) {
+        PyObject_CallMethod((PyObject *)self, "setFallTime", "O", falltimetmp);
+    }
+
+    if (multmp) {
+        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+    }
+
+    if (addtmp) {
+        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+    }
+
+    PyObject_CallMethod((PyObject *)self, "setLookAhead", "O", looktmp);
+
+    self->lh_size = (long)(0.025 * self->sr + 0.5);
+    self->lh_buffer = (MYFLT *)realloc(self->lh_buffer, (self->lh_size+1) * sizeof(MYFLT));
+    for (i=0; i<(self->lh_size+1); i++) {
+        self->lh_buffer[i] = 0.;
+    }
+
+    self->proc_func_ptr = Expand_compress_soft;
+
+    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+
+    (*self->mode_func_ptr)(self);
+
+    return (PyObject *)self;
+}
+
+static PyObject * Expand_getServer(Expand* self) { GET_SERVER };
+static PyObject * Expand_getStream(Expand* self) { GET_STREAM };
+static PyObject * Expand_setMul(Expand *self, PyObject *arg) { SET_MUL };
+static PyObject * Expand_setAdd(Expand *self, PyObject *arg) { SET_ADD };
+static PyObject * Expand_setSub(Expand *self, PyObject *arg) { SET_SUB };
+static PyObject * Expand_setDiv(Expand *self, PyObject *arg) { SET_DIV };
+
+static PyObject * Expand_play(Expand *self, PyObject *args, PyObject *kwds) { PLAY };
+static PyObject * Expand_out(Expand *self, PyObject *args, PyObject *kwds) { OUT };
+static PyObject * Expand_stop(Expand *self) { STOP };
+
+static PyObject * Expand_multiply(Expand *self, PyObject *arg) { MULTIPLY };
+static PyObject * Expand_inplace_multiply(Expand *self, PyObject *arg) { INPLACE_MULTIPLY };
+static PyObject * Expand_add(Expand *self, PyObject *arg) { ADD };
+static PyObject * Expand_inplace_add(Expand *self, PyObject *arg) { INPLACE_ADD };
+static PyObject * Expand_sub(Expand *self, PyObject *arg) { SUB };
+static PyObject * Expand_inplace_sub(Expand *self, PyObject *arg) { INPLACE_SUB };
+static PyObject * Expand_div(Expand *self, PyObject *arg) { DIV };
+static PyObject * Expand_inplace_div(Expand *self, PyObject *arg) { INPLACE_DIV };
+
+static PyObject *
+Expand_setDownThresh(Expand *self, PyObject *arg)
+{
+	PyObject *tmp, *streamtmp;
+
+    ASSERT_ARG_NOT_NULL
+
+	int isNumber = PyNumber_Check(arg);
+
+	tmp = arg;
+	Py_INCREF(tmp);
+	Py_DECREF(self->downthresh);
+	if (isNumber == 1) {
+		self->downthresh = PyNumber_Float(tmp);
+        self->modebuffer[5] = 0;
+	}
+	else {
+		self->downthresh = tmp;
+        streamtmp = PyObject_CallMethod((PyObject *)self->downthresh, "_getStream", NULL);
+        Py_INCREF(streamtmp);
+        Py_XDECREF(self->downthresh_stream);
+        self->downthresh_stream = (Stream *)streamtmp;
+		self->modebuffer[5] = 1;
+	}
+
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
+static PyObject *
+Expand_setUpThresh(Expand *self, PyObject *arg)
+{
+	PyObject *tmp, *streamtmp;
+
+    ASSERT_ARG_NOT_NULL
+
+	int isNumber = PyNumber_Check(arg);
+
+	tmp = arg;
+	Py_INCREF(tmp);
+	Py_DECREF(self->upthresh);
+	if (isNumber == 1) {
+		self->upthresh = PyNumber_Float(tmp);
+        self->modebuffer[4] = 0;
+	}
+	else {
+		self->upthresh = tmp;
+        streamtmp = PyObject_CallMethod((PyObject *)self->upthresh, "_getStream", NULL);
+        Py_INCREF(streamtmp);
+        Py_XDECREF(self->upthresh_stream);
+        self->upthresh_stream = (Stream *)streamtmp;
+		self->modebuffer[4] = 1;
+	}
+
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
+static PyObject *
+Expand_setRatio(Expand *self, PyObject *arg)
+{
+	PyObject *tmp, *streamtmp;
+
+    ASSERT_ARG_NOT_NULL
+
+	int isNumber = PyNumber_Check(arg);
+
+	tmp = arg;
+	Py_INCREF(tmp);
+	Py_DECREF(self->ratio);
+	if (isNumber == 1) {
+		self->ratio = PyNumber_Float(tmp);
+        self->modebuffer[6] = 0;
+	}
+	else {
+		self->ratio = tmp;
+        streamtmp = PyObject_CallMethod((PyObject *)self->ratio, "_getStream", NULL);
+        Py_INCREF(streamtmp);
+        Py_XDECREF(self->ratio_stream);
+        self->ratio_stream = (Stream *)streamtmp;
+		self->modebuffer[6] = 1;
+	}
+
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
+static PyObject *
+Expand_setRiseTime(Expand *self, PyObject *arg)
+{
+	PyObject *tmp, *streamtmp;
+
+    ASSERT_ARG_NOT_NULL
+
+	int isNumber = PyNumber_Check(arg);
+
+	tmp = arg;
+	Py_INCREF(tmp);
+	Py_DECREF(self->risetime);
+	if (isNumber == 1) {
+		self->risetime = PyNumber_Float(tmp);
+        self->modebuffer[2] = 0;
+	}
+	else {
+		self->risetime = tmp;
+        streamtmp = PyObject_CallMethod((PyObject *)self->risetime, "_getStream", NULL);
+        Py_INCREF(streamtmp);
+        Py_XDECREF(self->risetime_stream);
+        self->risetime_stream = (Stream *)streamtmp;
+		self->modebuffer[2] = 1;
+	}
+
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
+static PyObject *
+Expand_setFallTime(Expand *self, PyObject *arg)
+{
+	PyObject *tmp, *streamtmp;
+
+    ASSERT_ARG_NOT_NULL
+
+	int isNumber = PyNumber_Check(arg);
+
+	tmp = arg;
+	Py_INCREF(tmp);
+	Py_DECREF(self->falltime);
+	if (isNumber == 1) {
+		self->falltime = PyNumber_Float(tmp);
+        self->modebuffer[3] = 0;
+	}
+	else {
+		self->falltime = tmp;
+        streamtmp = PyObject_CallMethod((PyObject *)self->falltime, "_getStream", NULL);
+        Py_INCREF(streamtmp);
+        Py_XDECREF(self->falltime_stream);
+        self->falltime_stream = (Stream *)streamtmp;
+		self->modebuffer[3] = 1;
+	}
+
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
+static PyObject *
+Expand_setLookAhead(Expand *self, PyObject *arg)
+{
+    MYFLT tmp;
+
+    ASSERT_ARG_NOT_NULL
+
+	if (PyNumber_Check(arg)) {
+		tmp = PyFloat_AsDouble(arg);
+        if (tmp <= 25.0)
+            self->lh_delay = (long)(tmp * 0.001 * self->sr);
+        else
+            PySys_WriteStdout("Expand: lookahead argument must be less than 25.0 ms.\n");
+	}
+
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
+static PyMemberDef Expand_members[] = {
+{"server", T_OBJECT_EX, offsetof(Expand, server), 0, "Pyo server."},
+{"stream", T_OBJECT_EX, offsetof(Expand, stream), 0, "Stream object."},
+{"input", T_OBJECT_EX, offsetof(Expand, input), 0, "Input sound object."},
+{"downthresh", T_OBJECT_EX, offsetof(Expand, downthresh), 0, "Expander lower threshold."},
+{"upthresh", T_OBJECT_EX, offsetof(Expand, upthresh), 0, "Expander upper threshold."},
+{"ratio", T_OBJECT_EX, offsetof(Expand, ratio), 0, "Expandor ratio."},
+{"risetime", T_OBJECT_EX, offsetof(Expand, risetime), 0, "Rising portamento time in seconds."},
+{"falltime", T_OBJECT_EX, offsetof(Expand, falltime), 0, "Falling portamento time in seconds."},
+{"mul", T_OBJECT_EX, offsetof(Expand, mul), 0, "Mul factor."},
+{"add", T_OBJECT_EX, offsetof(Expand, add), 0, "Add factor."},
+{NULL}  /* Sentinel */
+};
+
+static PyMethodDef Expand_methods[] = {
+{"getServer", (PyCFunction)Expand_getServer, METH_NOARGS, "Returns server object."},
+{"_getStream", (PyCFunction)Expand_getStream, METH_NOARGS, "Returns stream object."},
+{"play", (PyCFunction)Expand_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+{"out", (PyCFunction)Expand_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
+{"stop", (PyCFunction)Expand_stop, METH_NOARGS, "Stops computing."},
+{"setDownThresh", (PyCFunction)Expand_setDownThresh, METH_O, "Sets expander lower threshold."},
+{"setUpThresh", (PyCFunction)Expand_setUpThresh, METH_O, "Sets expander upper threshold."},
+{"setRatio", (PyCFunction)Expand_setRatio, METH_O, "Sets expander ratio."},
+{"setRiseTime", (PyCFunction)Expand_setRiseTime, METH_O, "Sets rising portamento time in seconds."},
+{"setFallTime", (PyCFunction)Expand_setFallTime, METH_O, "Sets falling portamento time in seconds."},
+{"setLookAhead", (PyCFunction)Expand_setLookAhead, METH_O, "Sets look ahead time in ms."},
+{"setMul", (PyCFunction)Expand_setMul, METH_O, "Sets mul factor."},
+{"setAdd", (PyCFunction)Expand_setAdd, METH_O, "Sets add factor."},
+{"setSub", (PyCFunction)Expand_setSub, METH_O, "Sets inverse add factor."},
+{"setDiv", (PyCFunction)Expand_setDiv, METH_O, "Sets inverse mul factor."},
+{NULL}  /* Sentinel */
+};
+
+static PyNumberMethods Expand_as_number = {
+(binaryfunc)Expand_add,                         /*nb_add*/
+(binaryfunc)Expand_sub,                         /*nb_subtract*/
+(binaryfunc)Expand_multiply,                    /*nb_multiply*/
+INITIALIZE_NB_DIVIDE_ZERO                       /*nb_divide*/
+0,                                              /*nb_remainder*/
+0,                                              /*nb_divmod*/
+0,                                              /*nb_power*/
+0,                                              /*nb_neg*/
+0,                                              /*nb_pos*/
+0,                                              /*(unaryfunc)array_abs,*/
+0,                                              /*nb_nonzero*/
+0,                                              /*nb_invert*/
+0,                                              /*nb_lshift*/
+0,                                              /*nb_rshift*/
+0,                                              /*nb_and*/
+0,                                              /*nb_xor*/
+0,                                              /*nb_or*/
+INITIALIZE_NB_COERCE_ZERO                       /*nb_coerce*/
+0,                                              /*nb_int*/
+0,                                              /*nb_long*/
+0,                                              /*nb_float*/
+INITIALIZE_NB_OCT_ZERO                          /*nb_oct*/
+INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
+(binaryfunc)Expand_inplace_add,                 /*inplace_add*/
+(binaryfunc)Expand_inplace_sub,                 /*inplace_subtract*/
+(binaryfunc)Expand_inplace_multiply,            /*inplace_multiply*/
+INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO                                           /*inplace_divide*/
+0,                                              /*inplace_remainder*/
+0,                                              /*inplace_power*/
+0,                                              /*inplace_lshift*/
+0,                                              /*inplace_rshift*/
+0,                                              /*inplace_and*/
+0,                                              /*inplace_xor*/
+0,                                              /*inplace_or*/
+0,                                              /*nb_floor_divide*/
+(binaryfunc)Expand_div,                       /*nb_true_divide*/
+0,                                              /*nb_inplace_floor_divide*/
+(binaryfunc)Expand_inplace_div,                       /*nb_inplace_true_divide*/
+0,                                              /* nb_index */
+};
+
+PyTypeObject ExpandType = {
+PyVarObject_HEAD_INIT(NULL, 0)
+"_pyo.Expand_base",                                   /*tp_name*/
+sizeof(Expand),                                 /*tp_basicsize*/
+0,                                              /*tp_itemsize*/
+(destructor)Expand_dealloc,                     /*tp_dealloc*/
+0,                                              /*tp_print*/
+0,                                              /*tp_getattr*/
+0,                                              /*tp_setattr*/
+0,                                              /*tp_as_async (tp_compare in Python 2)*/
+0,                                              /*tp_repr*/
+&Expand_as_number,                              /*tp_as_number*/
+0,                                              /*tp_as_sequence*/
+0,                                              /*tp_as_mapping*/
+0,                                              /*tp_hash */
+0,                                              /*tp_call*/
+0,                                              /*tp_str*/
+0,                                              /*tp_getattro*/
+0,                                              /*tp_setattro*/
+0,                                              /*tp_as_buffer*/
+Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+"Expand objects. Expand audio signal by a certain ratio when below or above certain thresholds.", /* tp_doc */
+(traverseproc)Expand_traverse,                  /* tp_traverse */
+(inquiry)Expand_clear,                          /* tp_clear */
+0,                                              /* tp_richcompare */
+0,                                              /* tp_weaklistoffset */
+0,                                              /* tp_iter */
+0,                                              /* tp_iternext */
+Expand_methods,                                 /* tp_methods */
+Expand_members,                                 /* tp_members */
+0,                                              /* tp_getset */
+0,                                              /* tp_base */
+0,                                              /* tp_dict */
+0,                                              /* tp_descr_get */
+0,                                              /* tp_descr_set */
+0,                                              /* tp_dictoffset */
+0,                          /* tp_init */
+0,                                              /* tp_alloc */
+Expand_new,                                     /* tp_new */
+};
+

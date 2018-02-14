@@ -1039,3 +1039,238 @@ class Max(PyoObject):
         return self._comp
     @comp.setter
     def comp(self, x): self.setComp(x)
+
+class Expand(PyoObject):
+    """
+    Expand the dynamic range of an audio signal.
+
+    The Expand object will boost the volume of the input sound if it rises
+    above the upper threshold. It will also reduce the volume of the input
+    sound if it falls below the lower threshold. This process will "expand"
+    the audio signal's dynamic range.
+
+    :Parent: :py:class:`PyoObject`
+
+    :Args:
+
+        input: PyoObject
+            Input signal to process.
+        downthresh: float or PyoObject, optional
+            Level, expressed in dB, below which the signal is getting 
+            softer, according to the `ratio`. Reference level is 0dB. 
+            Defaults to -20.
+        upthresh: float or PyoObject, optional
+            Level, expressed in dB, above which the signal is getting 
+            louder, according to the same `ratio` as the lower threshold. 
+            Reference level is 0dB. Defaults to -20.
+        ratio: float or PyoObject, optional
+            The `ratio` argument controls is the amount of expansion (with 
+            a ratio of 4, if there is a rise of 2 dB above the upper 
+            threshold, the output signal will rises by 8 dB), and contrary 
+            for the lower threshold. Defaults to 2.
+        risetime: float or PyoObject, optional
+            Used in amplitude follower, time to reach upward value in
+            seconds. Defaults to 0.01.
+        falltime: float or PyoObject, optional
+            Used in amplitude follower, time to reach downward value in
+            seconds. Defaults to 0.1.
+        lookahead: float, optional
+            Delay length, in ms, for the "look-ahead" buffer. Range is
+            0 -> 25 ms. Defaults to 5.0.
+        outputAmp: boolean, optional
+            If True, the object's output signal will be the expansion level
+            alone, not the compressed signal.
+
+            It can be useful if 2 or more channels need to linked on the same
+            expansion slope. Defaults to False.
+
+            Available at initialization only.
+
+    >>> s = Server().boot()
+    >>> s.start()
+    >>> # original to the left channel
+    >>> sf = SfPlayer(SNDS_PATH + "/transparent.aif", loop=True, mul=0.7)
+    >>> ori = Delay(sf, 0.005).out()
+    >>> # expanded to the right channel
+    >>> ex = Expand(sf, downthresh=-20, upthresh=-20, ratio=4, mul=0.5).out(1)
+
+    """
+    def __init__(self, input, downthresh=-40, upthresh=-10, ratio=2, risetime=0.01, falltime=0.1, lookahead=5.0, outputAmp=False, mul=1, add=0):
+        pyoArgsAssert(self, "oOOOOOnbOO", input, downthresh, upthresh, ratio, risetime, falltime, lookahead, outputAmp, mul, add)
+        PyoObject.__init__(self, mul, add)
+        self._input = input
+        self._downthresh = downthresh
+        self._upthresh = upthresh
+        self._ratio = ratio
+        self._risetime = risetime
+        self._falltime = falltime
+        self._lookahead = lookahead
+        self._in_fader = InputFader(input)
+        in_fader, downthresh, upthresh, ratio, risetime, falltime, lookahead, outputAmp, mul, add, lmax = convertArgsToLists(self._in_fader, downthresh, upthresh, ratio, risetime, falltime, lookahead, outputAmp, mul, add)
+        self._base_objs = [Expand_base(wrap(in_fader,i), wrap(downthresh,i), wrap(upthresh,i), wrap(ratio,i), wrap(risetime,i), wrap(falltime,i), wrap(lookahead,i), wrap(outputAmp,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+        self.play()
+
+    def setInput(self, x, fadetime=0.05):
+        """
+        Replace the `input` attribute.
+
+        :Args:
+
+            x: PyoObject
+                New signal to process.
+            fadetime: float, optional
+                Crossfade time between old and new input. Defaults to 0.05.
+
+        """
+        pyoArgsAssert(self, "oN", x, fadetime)
+        self._input = x
+        self._in_fader.setInput(x, fadetime)
+
+    def setDownThresh(self, x):
+        """
+        Replace the `downthresh` attribute.
+
+        :Args:
+
+            x: float or PyoObject
+                New `downthresh` attribute.
+
+        """
+        pyoArgsAssert(self, "O", x)
+        self._downthresh = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setDownThresh(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def setUpThresh(self, x):
+        """
+        Replace the `upthresh` attribute.
+
+        :Args:
+
+            x: float or PyoObject
+                New `upthresh` attribute.
+
+        """
+        pyoArgsAssert(self, "O", x)
+        self._upthresh = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setUpThresh(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def setRatio(self, x):
+        """
+        Replace the `ratio` attribute.
+
+        :Args:
+
+            x: float or PyoObject
+                New `ratio` attribute.
+
+        """
+        pyoArgsAssert(self, "O", x)
+        self._ratio = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setRatio(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def setRiseTime(self, x):
+        """
+        Replace the `risetime` attribute.
+
+        :Args:
+
+            x: float or PyoObject
+                New `risetime` attribute.
+
+        """
+        pyoArgsAssert(self, "O", x)
+        self._risetime = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setRiseTime(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def setFallTime(self, x):
+        """
+        Replace the `falltime` attribute.
+
+        :Args:
+
+            x: float or PyoObject
+                New `falltime` attribute.
+
+        """
+        pyoArgsAssert(self, "O", x)
+        self._falltime = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setFallTime(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def setLookAhead(self, x):
+        """
+        Replace the `lookahead` attribute.
+
+        :Args:
+
+            x: float
+                New `lookahead` attribute.
+
+        """
+        pyoArgsAssert(self, "n", x)
+        self._lookahead = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setLookAhead(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def ctrl(self, map_list=None, title=None, wxnoserver=False):
+        self._map_list = [SLMap(-90., 0., 'lin', 'downthresh', self._downthresh),
+                          SLMap(-60., 0., 'lin', 'upthresh', self._upthresh),
+                          SLMap(1., 10., 'lin', 'ratio', self._ratio),
+                          SLMap(0.001, .3, 'lin', 'risetime', self._risetime),
+                          SLMap(0.001, .3, 'lin', 'falltime', self._falltime),
+                          SLMap(0, 25, 'lin', 'lookahead', self._lookahead, dataOnly=True),
+                          SLMapMul(self._mul)]
+        PyoObject.ctrl(self, map_list, title, wxnoserver)
+
+    @property
+    def input(self):
+        """PyoObject. Input signal to process."""
+        return self._input
+    @input.setter
+    def input(self, x): self.setInput(x)
+
+    @property
+    def downthresh(self):
+        """float or PyoObject. Level below which the signal is reduced."""
+        return self._downthresh
+    @downthresh.setter
+    def downthresh(self, x): self.setDownThresh(x)
+
+    @property
+    def upthresh(self):
+        """float or PyoObject. Level above which the signal is boosted."""
+        return self._upthresh
+    @upthresh.setter
+    def upthresh(self, x): self.setUpThresh(x)
+
+    @property
+    def ratio(self):
+        """float or PyoObject. in/out ratio for signals outside thresholds."""
+        return self._ratio
+    @ratio.setter
+    def ratio(self, x): self.setRatio(x)
+
+    @property
+    def risetime(self):
+        """float or PyoObject. Time to reach upward value in seconds."""
+        return self._risetime
+    @risetime.setter
+    def risetime(self, x): self.setRiseTime(x)
+
+    @property
+    def falltime(self):
+        """float or PyoObject. Time to reach downward value in seconds."""
+        return self._falltime
+    @falltime.setter
+    def falltime(self, x): self.setFallTime(x)
+
+    @property
+    def lookahead(self):
+        """float. Delay length, in ms, of the "look-ahead" buffer."""
+        return self._lookahead
+    @lookahead.setter
+    def lookahead(self, x): self.setLookAhead(x)

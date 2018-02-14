@@ -1,3 +1,12 @@
+2018-02-13 belangeo <belangeo@gmail.com>
+
+    * Added a new object: Expand, which expand the dynamic range of an audio signal.
+
+2018-02-10 belangeo <belangeo@gmail.com>
+
+    * HRTF impulse responses are now interpolated in the spectral domain to 
+      avoid phase cancellation in the time domain.
+
 2018-02-03 belangeo <belangeo@gmail.com>
 
     * Upgraded version number to 0.8.9.

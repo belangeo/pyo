@@ -59,3 +59,8 @@ Objects to modify the dynamic range and sample quality of audio signals.
 .. autoclass:: Wrap
    :members:
 
+*Expand*
+------------
+
+.. autoclass:: Expand
+   :members:

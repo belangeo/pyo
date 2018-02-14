@@ -2111,6 +2111,7 @@ init_pyo64(void)
     module_add_object(m, "HRTFData_base", &HRTFDataType);
     module_add_object(m, "HRTFSpatter_base", &HRTFSpatterType);
     module_add_object(m, "HRTF_base", &HRTFType);
+    module_add_object(m, "Expand_base", &ExpandType);
 
     PyModule_AddStringConstant(m, "PYO_VERSION", PYO_VERSION);
 #ifdef COMPILE_EXTERNALS
