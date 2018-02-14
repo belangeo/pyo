@@ -2982,3 +2982,277 @@ PeakAmp_members,                                 /* tp_members */
 0,                                              /* tp_alloc */
 PeakAmp_new,                                     /* tp_new */
 };
+
+/************/
+/* RMS */
+/************/
+typedef struct {
+    pyo_audio_HEAD
+    PyObject *input;
+    Stream *input_stream;
+    int modebuffer[2]; // need at least 2 slots for mul & add
+    MYFLT follow;
+} RMS;
+
+static void
+RMS_filters_i(RMS *self) {
+    MYFLT sum = 0.0;
+    int i;
+
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
+
+    for (i=0; i<self->bufsize; i++) {
+        self->data[i] = self->follow;
+        sum += in[i] * in[i];
+    }
+    self->follow = MYSQRT(sum / self->bufsize);
+}
+
+static void RMS_postprocessing_ii(RMS *self) { POST_PROCESSING_II };
+static void RMS_postprocessing_ai(RMS *self) { POST_PROCESSING_AI };
+static void RMS_postprocessing_ia(RMS *self) { POST_PROCESSING_IA };
+static void RMS_postprocessing_aa(RMS *self) { POST_PROCESSING_AA };
+static void RMS_postprocessing_ireva(RMS *self) { POST_PROCESSING_IREVA };
+static void RMS_postprocessing_areva(RMS *self) { POST_PROCESSING_AREVA };
+static void RMS_postprocessing_revai(RMS *self) { POST_PROCESSING_REVAI };
+static void RMS_postprocessing_revaa(RMS *self) { POST_PROCESSING_REVAA };
+static void RMS_postprocessing_revareva(RMS *self) { POST_PROCESSING_REVAREVA };
+
+static void
+RMS_setProcMode(RMS *self)
+{
+    int muladdmode;
+    muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
+
+    self->proc_func_ptr = RMS_filters_i;
+	switch (muladdmode) {
+        case 0:
+            self->muladd_func_ptr = RMS_postprocessing_ii;
+            break;
+        case 1:
+            self->muladd_func_ptr = RMS_postprocessing_ai;
+            break;
+        case 2:
+            self->muladd_func_ptr = RMS_postprocessing_revai;
+            break;
+        case 10:
+            self->muladd_func_ptr = RMS_postprocessing_ia;
+            break;
+        case 11:
+            self->muladd_func_ptr = RMS_postprocessing_aa;
+            break;
+        case 12:
+            self->muladd_func_ptr = RMS_postprocessing_revaa;
+            break;
+        case 20:
+            self->muladd_func_ptr = RMS_postprocessing_ireva;
+            break;
+        case 21:
+            self->muladd_func_ptr = RMS_postprocessing_areva;
+            break;
+        case 22:
+            self->muladd_func_ptr = RMS_postprocessing_revareva;
+            break;
+    }
+}
+
+static void
+RMS_compute_next_data_frame(RMS *self)
+{
+    (*self->proc_func_ptr)(self);
+    (*self->muladd_func_ptr)(self);
+}
+
+static int
+RMS_traverse(RMS *self, visitproc visit, void *arg)
+{
+    pyo_VISIT
+    Py_VISIT(self->input);
+    Py_VISIT(self->input_stream);
+    return 0;
+}
+
+static int
+RMS_clear(RMS *self)
+{
+    pyo_CLEAR
+    Py_CLEAR(self->input);
+    Py_CLEAR(self->input_stream);
+    return 0;
+}
+
+static void
+RMS_dealloc(RMS* self)
+{
+    pyo_DEALLOC
+    RMS_clear(self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
+}
+
+static PyObject *
+RMS_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    int i;
+    PyObject *inputtmp, *input_streamtmp, *multmp=NULL, *addtmp=NULL;
+    RMS *self;
+    self = (RMS *)type->tp_alloc(type, 0);
+
+    self->follow = 0.0;
+	self->modebuffer[0] = 0;
+	self->modebuffer[1] = 0;
+
+    INIT_OBJECT_COMMON
+    Stream_setFunctionPtr(self->stream, RMS_compute_next_data_frame);
+    self->mode_func_ptr = RMS_setProcMode;
+
+    static char *kwlist[] = {"input", "mul", "add", NULL};
+
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OO", kwlist, &inputtmp, &multmp, &addtmp))
+        Py_RETURN_NONE;
+
+    INIT_INPUT_STREAM
+
+    if (multmp) {
+        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+    }
+
+    if (addtmp) {
+        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+    }
+
+    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+
+    (*self->mode_func_ptr)(self);
+
+    return (PyObject *)self;
+}
+
+static PyObject * RMS_getServer(RMS* self) { GET_SERVER };
+static PyObject * RMS_getStream(RMS* self) { GET_STREAM };
+static PyObject * RMS_setMul(RMS *self, PyObject *arg) { SET_MUL };
+static PyObject * RMS_setAdd(RMS *self, PyObject *arg) { SET_ADD };
+static PyObject * RMS_setSub(RMS *self, PyObject *arg) { SET_SUB };
+static PyObject * RMS_setDiv(RMS *self, PyObject *arg) { SET_DIV };
+
+static PyObject * RMS_play(RMS *self, PyObject *args, PyObject *kwds) { PLAY };
+static PyObject * RMS_stop(RMS *self) { STOP };
+
+static PyObject * RMS_multiply(RMS *self, PyObject *arg) { MULTIPLY };
+static PyObject * RMS_inplace_multiply(RMS *self, PyObject *arg) { INPLACE_MULTIPLY };
+static PyObject * RMS_add(RMS *self, PyObject *arg) { ADD };
+static PyObject * RMS_inplace_add(RMS *self, PyObject *arg) { INPLACE_ADD };
+static PyObject * RMS_sub(RMS *self, PyObject *arg) { SUB };
+static PyObject * RMS_inplace_sub(RMS *self, PyObject *arg) { INPLACE_SUB };
+static PyObject * RMS_div(RMS *self, PyObject *arg) { DIV };
+static PyObject * RMS_inplace_div(RMS *self, PyObject *arg) { INPLACE_DIV };
+
+static PyObject *
+RMS_getValue(RMS *self)
+{
+    return PyFloat_FromDouble(self->follow);
+}
+
+static PyMemberDef RMS_members[] = {
+{"server", T_OBJECT_EX, offsetof(RMS, server), 0, "Pyo server."},
+{"stream", T_OBJECT_EX, offsetof(RMS, stream), 0, "Stream object."},
+{"input", T_OBJECT_EX, offsetof(RMS, input), 0, "Input sound object."},
+{"mul", T_OBJECT_EX, offsetof(RMS, mul), 0, "Mul factor."},
+{"add", T_OBJECT_EX, offsetof(RMS, add), 0, "Add factor."},
+{NULL}  /* Sentinel */
+};
+
+static PyMethodDef RMS_methods[] = {
+{"getServer", (PyCFunction)RMS_getServer, METH_NOARGS, "Returns server object."},
+{"_getStream", (PyCFunction)RMS_getStream, METH_NOARGS, "Returns stream object."},
+{"play", (PyCFunction)RMS_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+{"stop", (PyCFunction)RMS_stop, METH_NOARGS, "Stops computing."},
+{"getValue", (PyCFunction)RMS_getValue, METH_NOARGS, "Returns the current peaking value."},
+{"setMul", (PyCFunction)RMS_setMul, METH_O, "Sets oscillator mul factor."},
+{"setAdd", (PyCFunction)RMS_setAdd, METH_O, "Sets oscillator add factor."},
+{"setSub", (PyCFunction)RMS_setSub, METH_O, "Sets inverse add factor."},
+{"setDiv", (PyCFunction)RMS_setDiv, METH_O, "Sets inverse mul factor."},
+{NULL}  /* Sentinel */
+};
+
+static PyNumberMethods RMS_as_number = {
+(binaryfunc)RMS_add,                         /*nb_add*/
+(binaryfunc)RMS_sub,                         /*nb_subtract*/
+(binaryfunc)RMS_multiply,                    /*nb_multiply*/
+INITIALIZE_NB_DIVIDE_ZERO                       /*nb_divide*/
+0,                                              /*nb_remainder*/
+0,                                              /*nb_divmod*/
+0,                                              /*nb_power*/
+0,                                              /*nb_neg*/
+0,                                              /*nb_pos*/
+0,                                              /*(unaryfunc)array_abs,*/
+0,                                              /*nb_nonzero*/
+0,                                              /*nb_invert*/
+0,                                              /*nb_lshift*/
+0,                                              /*nb_rshift*/
+0,                                              /*nb_and*/
+0,                                              /*nb_xor*/
+0,                                              /*nb_or*/
+INITIALIZE_NB_COERCE_ZERO                       /*nb_coerce*/
+0,                                              /*nb_int*/
+0,                                              /*nb_long*/
+0,                                              /*nb_float*/
+INITIALIZE_NB_OCT_ZERO                          /*nb_oct*/
+INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
+(binaryfunc)RMS_inplace_add,                 /*inplace_add*/
+(binaryfunc)RMS_inplace_sub,                 /*inplace_subtract*/
+(binaryfunc)RMS_inplace_multiply,            /*inplace_multiply*/
+INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO                                           /*inplace_divide*/
+0,                                              /*inplace_remainder*/
+0,                                              /*inplace_power*/
+0,                                              /*inplace_lshift*/
+0,                                              /*inplace_rshift*/
+0,                                              /*inplace_and*/
+0,                                              /*inplace_xor*/
+0,                                              /*inplace_or*/
+0,                                              /*nb_floor_divide*/
+(binaryfunc)RMS_div,                       /*nb_true_divide*/
+0,                                              /*nb_inplace_floor_divide*/
+(binaryfunc)RMS_inplace_div,                       /*nb_inplace_true_divide*/
+0,                                              /* nb_index */
+};
+
+PyTypeObject RMSType = {
+PyVarObject_HEAD_INIT(NULL, 0)
+"_pyo.RMS_base",                                   /*tp_name*/
+sizeof(RMS),                                 /*tp_basicsize*/
+0,                                              /*tp_itemsize*/
+(destructor)RMS_dealloc,                     /*tp_dealloc*/
+0,                                              /*tp_print*/
+0,                                              /*tp_getattr*/
+0,                                              /*tp_setattr*/
+0,                                              /*tp_as_async (tp_compare in Python 2)*/
+0,                                              /*tp_repr*/
+&RMS_as_number,                              /*tp_as_number*/
+0,                                              /*tp_as_sequence*/
+0,                                              /*tp_as_mapping*/
+0,                                              /*tp_hash */
+0,                                              /*tp_call*/
+0,                                              /*tp_str*/
+0,                                              /*tp_getattro*/
+0,                                              /*tp_setattro*/
+0,                                              /*tp_as_buffer*/
+Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+"RMS objects. Envelope follower.",           /* tp_doc */
+(traverseproc)RMS_traverse,                  /* tp_traverse */
+(inquiry)RMS_clear,                          /* tp_clear */
+0,                                              /* tp_richcompare */
+0,                                              /* tp_weaklistoffset */
+0,                                              /* tp_iter */
+0,                                              /* tp_iternext */
+RMS_methods,                                 /* tp_methods */
+RMS_members,                                 /* tp_members */
+0,                                              /* tp_getset */
+0,                                              /* tp_base */
+0,                                              /* tp_dict */
+0,                                              /* tp_descr_get */
+0,                                              /* tp_descr_set */
+0,                                              /* tp_dictoffset */
+0,                          /* tp_init */
+0,                                              /* tp_alloc */
+RMS_new,                                     /* tp_new */
+};

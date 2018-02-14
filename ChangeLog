@@ -1,5 +1,9 @@
 2018-02-13 belangeo <belangeo@gmail.com>
 
+    * Added a new object: RMS, which return the rms value of an audio signal.
+
+2018-02-13 belangeo <belangeo@gmail.com>
+
     * Added a new object: Expand, which expand the dynamic range of an audio signal.
 
 2018-02-10 belangeo <belangeo@gmail.com>

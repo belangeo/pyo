@@ -524,6 +524,7 @@ extern PyTypeObject HRTFDataType;
 extern PyTypeObject HRTFSpatterType;
 extern PyTypeObject HRTFType;
 extern PyTypeObject ExpandType;
+extern PyTypeObject RMSType;
 
 /* Constants */
 #define E M_E

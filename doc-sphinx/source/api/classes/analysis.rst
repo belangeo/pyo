@@ -62,3 +62,9 @@ can use them for controlling parameters of others objects.
 
 .. autoclass:: PeakAmp
    :members:
+
+*RMS*
+-----------------------------------
+
+.. autoclass:: RMS
+   :members:

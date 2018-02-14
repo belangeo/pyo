@@ -106,7 +106,7 @@ OBJECTS_TREE = {
         'PyoObject': {
             'analysis': sorted(['Follower', 'Follower2', 'ZCross', 'Yin', 
                                 'Centroid', 'AttackDetector', 'Scope',
-                                'Spectrum', 'PeakAmp']),
+                                'Spectrum', 'PeakAmp', 'RMS']),
             'arithmetic': sorted(['Sin', 'Cos', 'Tan', 'Abs', 'Sqrt', 'Log', 
                                   'Log2', 'Log10', 'Pow', 'Atan2', 'Floor',
                                   'Round', 'Ceil', 'Tanh', 'Exp']),
