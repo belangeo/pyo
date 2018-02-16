@@ -58,6 +58,7 @@ void jack_ctlout(Server *self, int ctlnum, int value, int chan, long timestamp);
 void jack_programout(Server *self, int value, int chan, long timestamp);
 void jack_pressout(Server *self, int value, int chan, long timestamp);
 void jack_bendout(Server *self, int value, int chan, long timestamp);
+void jack_makenote(Server *self, int pit, int vel, int dur, int chan);
 
 #endif 
 /* _AD_JACK_H */

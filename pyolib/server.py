@@ -1082,6 +1082,35 @@ class Server(object):
         msg, timestamp, lmax = convertArgsToLists(msg, timestamp)
         [self._server.sysexout(wrap(msg,i), wrap(timestamp,i)) for i in range(lmax)]
 
+    def makenote(self, pitch, velocity, duration, channel=0):
+        """
+        Send MIDI noteon/noteoff messages to the selected midi output device.
+
+        This method will send a noteon message to the selected midi output
+        device and after a delay of `duration` milliseconds, it will send
+        the corresponding noteoff message.
+
+        Arguments can be list of values to generate multiple events
+        in one call.
+
+        :Args:
+
+            pitch: int
+                Midi pitch, between 0 and 127.
+            velocity: int
+                Amplitude of the note, between 0 and 127. A note
+                with a velocity of 0 is equivalent to a note off.
+            duration: int
+                The delay time, in milliseconds, before the noteoff
+                message is sent to the output midi stream.
+            channel: int, optional
+                The Midi channel, between 1 and 16, on which the
+                note is sent. A channel of 0 means all channels.
+                Defaults to 0.
+        """
+        pitch, velocity, duration, channel, lmax = convertArgsToLists(pitch, velocity, duration, channel)
+        [self._server.makenote(wrap(pitch,i), wrap(velocity,i), wrap(duration,i), wrap(channel,i)) for i in range(lmax)]
+
     def addMidiEvent(self, status, data1=0, data2=0):
         """
         Add a MIDI event in the server processing loop.

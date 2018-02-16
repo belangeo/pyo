@@ -1,3 +1,7 @@
+2018-02-16 belangeo <belangeo@gmail.com>
+
+    * Added a Server.makenote(pitch, velocity, duration, channel=0) method.
+
 2018-02-15 belangeo <belangeo@gmail.com>
 
     * Added a new object: MidiLinseg, a midi-triggered breakpoints envelope.

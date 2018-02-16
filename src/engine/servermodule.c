@@ -59,6 +59,7 @@ void jack_ctlout(Server *self, int ctlnum, int value, int chan, long timestamp) 
 void jack_programout(Server *self, int value, int chan, long timestamp) {};
 void jack_pressout(Server *self, int value, int chan, long timestamp) {};
 void jack_bendout(Server *self, int value, int chan, long timestamp) {};
+void jack_makenote(Server *self, int pit, int vel, int dur, int chan) {};
 
 #endif
 
@@ -84,6 +85,7 @@ void pm_programout(Server *self, int value, int chan, long timestamp) {};
 void pm_pressout(Server *self, int value, int chan, long timestamp) {};
 void pm_bendout(Server *self, int value, int chan, long timestamp) {};
 void pm_sysexout(Server *self, unsigned char *msg, long timestamp) {};
+void pm_makenote(Server *self, int pit, int vel, int dur, int chan) {};
 long pm_get_current_time() { return 0; };
 #endif
 
@@ -1926,6 +1928,29 @@ Server_sysexout(Server *self, PyObject *args)
     Py_RETURN_NONE;
 }
 
+PyObject *
+Server_makenote(Server *self, PyObject *args)
+{
+    int pit, vel, dur, chan;
+
+    if (! PyArg_ParseTuple(args, "iiii", &pit, &vel, &dur, &chan))
+        return PyInt_FromLong(-1);
+
+    switch (self->midi_be_type) {
+        case PyoPortmidi:
+            if (self->withPortMidiOut) {
+                pm_makenote(self, pit, vel, dur, chan);
+            }
+            break;
+        case PyoJackMidi:
+            jack_makenote(self, pit, vel, dur, chan);
+            break;
+        default:
+            break;
+    }
+    Py_RETURN_NONE;
+}
+
 MYFLT *
 Server_getInputBuffer(Server *self) {
     return (MYFLT *)self->input_buffer;
@@ -2228,6 +2253,7 @@ static PyMethodDef Server_methods[] = {
     {"pressout", (PyCFunction)Server_pressout, METH_VARARGS, "Send a channel pressure event to Portmidi output stream."},
     {"bendout", (PyCFunction)Server_bendout, METH_VARARGS, "Send a pitch bend event to Portmidi output stream."},
     {"sysexout", (PyCFunction)Server_sysexout, METH_VARARGS, "Send a system exclusive message to midi output stream."},
+    {"makenote", (PyCFunction)Server_makenote, METH_VARARGS, "Send a Midi noteon event followed by its corresponding noteoff event."},
     {"addMidiEvent", (PyCFunction)Server_addMidiEvent, METH_VARARGS, "Add a midi event manually (without using portmidi callback)."},
     {"getStreams", (PyCFunction)Server_getStreams, METH_NOARGS, "Returns the list of streams added to the server."},
     {"getSamplingRate", (PyCFunction)Server_getSamplingRate, METH_NOARGS, "Returns the server's sampling rate."},

@@ -10,10 +10,6 @@ To do ASAP!
 - Better error message when trying to open an input device but there is
   none on the system. Automatic deactivation of duplex mode if no input.
 
-- Add a Server.makenote(pitch, velocity, duration, channel=0, timestamp=0) method.
-
-- Binary installer with jack support for MacOS.
-
 This is a list of features/fixes to implement for future releases
 =================================================================
 

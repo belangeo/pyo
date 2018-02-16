@@ -881,3 +881,44 @@ jack_bendout(Server *self, int value, int chan, long timestamp)
         }
     }
 }
+
+void
+jack_makenote(Server *self, int pit, int vel, int dur, int chan)
+{
+    int i, channel;
+    unsigned long elapsed = Server_getElapsedTime(self);
+
+    PyoJackBackendData *be_data = (PyoJackBackendData *) self->audio_be_data;
+
+    PyoJackMidiEvent eventon, eventoff;
+
+    channel = (chan == 0) ? 0x90 : 0x90 | (chan - 1);
+
+    /* noteon */
+    eventon.timestamp = elapsed;
+    eventon.status = channel;
+    eventon.data1 = pit;
+    eventon.data2 = vel;
+
+    for (i=0; i<512; i++) {
+        if (be_data->midi_events[i].timestamp == -1) {
+            be_data->midi_events[i] = eventon;
+            be_data->midi_event_count++;
+            break;
+        }
+    }
+
+    /* noteoff */
+    eventoff.timestamp = elapsed + (unsigned long)(dur * 0.001 * self->samplingRate);
+    eventoff.status = channel;
+    eventoff.data1 = pit;
+    eventoff.data2 = 0;
+
+    for (i=0; i<512; i++) {
+        if (be_data->midi_events[i].timestamp == -1) {
+            be_data->midi_events[i] = eventoff;
+            be_data->midi_event_count++;
+            break;
+        }
+    }
+}

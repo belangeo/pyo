@@ -458,6 +458,28 @@ pm_sysexout(Server *self, unsigned char *msg, long timestamp)
     }
 }
 
+void
+pm_makenote(Server *self, int pit, int vel, int dur, int chan)
+{
+    int i, curtime, channel;
+    PmEvent buffer[2];
+
+    PyoPmBackendData *be_data = (PyoPmBackendData *) self->midi_be_data;
+
+    curtime = Pt_Time();
+    channel = (chan == 0) ? 0x90 : 0x90 | (chan - 1);
+
+    buffer[0].timestamp = curtime;
+    buffer[0].message = Pm_Message(channel, pit, vel);
+
+    buffer[1].timestamp = curtime + dur;
+    buffer[1].message = Pm_Message(channel, pit, 0);
+
+    for (i=0; i<self->midiout_count; i++) {
+        Pm_Write(be_data->midiout[i], buffer, 2);
+    }
+}
+
 long
 pm_get_current_time()
 {

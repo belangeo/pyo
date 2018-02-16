@@ -41,6 +41,7 @@ void pm_programout(Server *self, int value, int chan, long timestamp);
 void pm_pressout(Server *self, int value, int chan, long timestamp);
 void pm_bendout(Server *self, int value, int chan, long timestamp);
 void pm_sysexout(Server *self, unsigned char *msg, long timestamp);
+void pm_makenote(Server *self, int pit, int vel, int dur, int chan);
 long pm_get_current_time();
 
 /* Queries. */
