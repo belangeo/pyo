@@ -10,6 +10,8 @@ To do ASAP!
 - Better error message when trying to open an input device but there is
   none on the system. Automatic deactivation of duplex mode if no input.
 
+- Add a Server.makenote(pitch, velocity, duration, channel=0, timestamp=0) method.
+
 - Binary installer with jack support for MacOS.
 
 This is a list of features/fixes to implement for future releases
@@ -26,7 +28,6 @@ Internal
   code much simple and easier to maintain/extend, and also reduce 
   compiling time and binary size.
 
-
 Server
 ------
 
@@ -37,7 +38,6 @@ Examples
 --------
 
 - A section about building fx and synth classes.
-
 
 Objects
 -------
@@ -52,15 +52,9 @@ Objects
 MIDI
 ----
 
-- Add a Server.makenote(pitch, velocity, duration, channel=0, timestamp=0) method.
-
 - Jack on windows.
 
-- Create a MidiLinseg object that act like MidiAdsr but with a breakpoints
-  function as the envelope. The sustain point should be settable by the user.
-
 - sysex support in MidiListener.
-
 
 GUI
 ---

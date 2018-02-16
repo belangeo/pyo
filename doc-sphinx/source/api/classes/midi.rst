@@ -69,3 +69,9 @@ used as controls and can't be sent to the output soundcard.
 
 .. autoclass:: RawMidi
    :members:
+
+*MidiLinseg*
+-----------------------------------
+
+.. autoclass:: MidiLinseg
+   :members:

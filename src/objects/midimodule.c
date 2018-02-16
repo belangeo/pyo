@@ -3843,3 +3843,437 @@ PyTypeObject RawMidiType = {
     0,                         /* tp_alloc */
     RawMidi_new,                 /* tp_new */
 };
+
+/*********************************************************************************************/
+/* MidiLinseg *********************************************************************************/
+/*********************************************************************************************/
+typedef struct {
+    pyo_audio_HEAD
+    PyObject *pointslist;
+    PyObject *input;
+    Stream *input_stream;
+    int modebuffer[2];
+    double currentTime;
+    double currentValue;
+    MYFLT sampleToSec;
+    double increment;
+    MYFLT *targets;
+    MYFLT *times;
+    MYFLT ampscaling;
+    int which;
+    int flag;
+    int noteon;
+    int hold;
+    int tmphold;
+    int waiting;
+    int newlist;
+    int listsize;
+    int startFromLast;
+    MYFLT *trigsBuffer;
+    TriggerStream *trig_stream;
+} MidiLinseg;
+
+static void
+MidiLinseg_convert_pointslist(MidiLinseg *self) {
+    int i;
+    PyObject *tup;
+
+    self->listsize = PyList_Size(self->pointslist);
+    self->targets = (MYFLT *)realloc(self->targets, self->listsize * sizeof(MYFLT));
+    self->times = (MYFLT *)realloc(self->times, self->listsize * sizeof(MYFLT));
+    for (i=0; i<self->listsize; i++) {
+        tup = PyList_GET_ITEM(self->pointslist, i);
+        self->times[i] = PyFloat_AsDouble(PyTuple_GET_ITEM(tup, 0));
+        self->targets[i] = PyFloat_AsDouble(PyTuple_GET_ITEM(tup, 1));
+    }
+}
+
+static void
+MidiLinseg_reinit(MidiLinseg *self) {
+    if (self->newlist == 1) {
+        MidiLinseg_convert_pointslist((MidiLinseg *)self);
+        self->newlist = 0;
+    }
+    if (self->tmphold != self->hold) {
+        self->hold = self->tmphold;
+    }
+    if (self->hold < 1 || self->hold >= self->listsize) {
+        self->hold = self->listsize / 2;
+    }
+    self->currentTime = 0.0;
+    if (self->currentValue == 0.0) {
+        self->currentValue = self->targets[0];
+        self->startFromLast = 0;
+    } else {
+        self->startFromLast = 1;
+    }
+    self->which = 0;
+    self->flag = 1;
+    self->noteon = 1;
+    self->waiting = 0;
+}
+
+static void
+MidiLinseg_generate(MidiLinseg *self) {
+    int i;
+    MYFLT timefactor = 1.0;
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
+
+    for (i=0; i<self->bufsize; i++) {
+        self->trigsBuffer[i] = 0.0;
+        if (in[i] > 0.0 && self->noteon == 0) {
+            MidiLinseg_reinit((MidiLinseg *)self);
+            self->ampscaling = in[i];
+        } else if (in[i] == 0.0 && self->noteon == 1) {
+            self->noteon = 0;
+            self->waiting = 0;
+        }
+
+        if (self->flag == 1) {
+            if (self->currentTime >= self->times[self->which]) {
+                self->which++;
+                if (self->which == self->listsize) {
+                    self->trigsBuffer[i] = 1.0;
+                    self->flag = 0;
+                    self->currentValue = self->targets[self->which-1] * self->ampscaling;
+                } else {
+                    if ((self->which-1) == self->hold && self->noteon) {
+                        self->currentValue = self->targets[self->which-1] * self->ampscaling;
+                        self->waiting = 1;
+                    }
+                    if ((self->times[self->which] - self->times[self->which-1]) <= 0) {
+                        self->increment = self->targets[self->which] * self->ampscaling - self->currentValue;
+                    } else {
+                        timefactor = (self->times[self->which] - self->times[self->which-1]) / self->sampleToSec;
+                        if (self->startFromLast) {
+                            self->increment = (self->targets[self->which] * self->ampscaling - self->currentValue) / timefactor;
+                            self->startFromLast = 0;
+                        } else {
+                            self->increment = (self->targets[self->which] - self->targets[self->which-1]) * self->ampscaling / timefactor;
+                        } 
+                    }
+                }
+            }
+            if (self->waiting == 0 && self->currentTime <= self->times[self->listsize-1]) {
+                self->currentValue += self->increment;
+            }
+
+            self->data[i] = (MYFLT)self->currentValue;
+
+            if (self->waiting == 0) {
+                self->currentTime += self->sampleToSec;
+            }
+        }
+        else
+            self->data[i] = (MYFLT)self->currentValue;
+    }
+}
+
+static void MidiLinseg_postprocessing_ii(MidiLinseg *self) { POST_PROCESSING_II };
+static void MidiLinseg_postprocessing_ai(MidiLinseg *self) { POST_PROCESSING_AI };
+static void MidiLinseg_postprocessing_ia(MidiLinseg *self) { POST_PROCESSING_IA };
+static void MidiLinseg_postprocessing_aa(MidiLinseg *self) { POST_PROCESSING_AA };
+static void MidiLinseg_postprocessing_ireva(MidiLinseg *self) { POST_PROCESSING_IREVA };
+static void MidiLinseg_postprocessing_areva(MidiLinseg *self) { POST_PROCESSING_AREVA };
+static void MidiLinseg_postprocessing_revai(MidiLinseg *self) { POST_PROCESSING_REVAI };
+static void MidiLinseg_postprocessing_revaa(MidiLinseg *self) { POST_PROCESSING_REVAA };
+static void MidiLinseg_postprocessing_revareva(MidiLinseg *self) { POST_PROCESSING_REVAREVA };
+
+static void
+MidiLinseg_setProcMode(MidiLinseg *self)
+{
+    int muladdmode;
+    muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
+
+    self->proc_func_ptr = MidiLinseg_generate;
+
+	switch (muladdmode) {
+        case 0:
+            self->muladd_func_ptr = MidiLinseg_postprocessing_ii;
+            break;
+        case 1:
+            self->muladd_func_ptr = MidiLinseg_postprocessing_ai;
+            break;
+        case 2:
+            self->muladd_func_ptr = MidiLinseg_postprocessing_revai;
+            break;
+        case 10:
+            self->muladd_func_ptr = MidiLinseg_postprocessing_ia;
+            break;
+        case 11:
+            self->muladd_func_ptr = MidiLinseg_postprocessing_aa;
+            break;
+        case 12:
+            self->muladd_func_ptr = MidiLinseg_postprocessing_revaa;
+            break;
+        case 20:
+            self->muladd_func_ptr = MidiLinseg_postprocessing_ireva;
+            break;
+        case 21:
+            self->muladd_func_ptr = MidiLinseg_postprocessing_areva;
+            break;
+        case 22:
+            self->muladd_func_ptr = MidiLinseg_postprocessing_revareva;
+            break;
+    }
+}
+
+static void
+MidiLinseg_compute_next_data_frame(MidiLinseg *self)
+{
+    (*self->proc_func_ptr)(self);
+    (*self->muladd_func_ptr)(self);
+}
+
+static int
+MidiLinseg_traverse(MidiLinseg *self, visitproc visit, void *arg)
+{
+    pyo_VISIT
+    Py_VISIT(self->pointslist);
+    Py_VISIT(self->trig_stream);
+    Py_VISIT(self->input);
+    Py_VISIT(self->input_stream);
+    return 0;
+}
+
+static int
+MidiLinseg_clear(MidiLinseg *self)
+{
+    pyo_CLEAR
+    Py_CLEAR(self->pointslist);
+    Py_CLEAR(self->trig_stream);
+    Py_CLEAR(self->input);
+    Py_CLEAR(self->input_stream);
+    return 0;
+}
+
+static void
+MidiLinseg_dealloc(MidiLinseg* self)
+{
+    pyo_DEALLOC
+    free(self->targets);
+    free(self->times);
+    free(self->trigsBuffer);
+    MidiLinseg_clear(self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
+}
+
+static PyObject *
+MidiLinseg_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    int i;
+    PyObject *inputtmp, *input_streamtmp, *pointslist=NULL, *multmp=NULL, *addtmp=NULL;
+    MidiLinseg *self;
+    self = (MidiLinseg *)type->tp_alloc(type, 0);
+
+    self->noteon = 0;
+    self->newlist = 1;
+    self->waiting = 0;
+    self->ampscaling = 1.0;
+	self->modebuffer[0] = 0;
+	self->modebuffer[1] = 0;
+
+    INIT_OBJECT_COMMON
+    Stream_setFunctionPtr(self->stream, MidiLinseg_compute_next_data_frame);
+    self->mode_func_ptr = MidiLinseg_setProcMode;
+
+    self->sampleToSec = 1. / self->sr;
+
+    static char *kwlist[] = {"input", "list", "hold", "mul", "add", NULL};
+
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "OO|iOO", kwlist, &inputtmp, &pointslist, &self->hold, &multmp, &addtmp))
+        Py_RETURN_NONE;
+
+    INIT_INPUT_STREAM
+
+    Py_INCREF(pointslist);
+    Py_XDECREF(self->pointslist);
+    self->pointslist = pointslist;
+    MidiLinseg_convert_pointslist((MidiLinseg *)self);
+
+    self->tmphold = self->hold;
+
+    if (multmp) {
+        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+    }
+
+    if (addtmp) {
+        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+    }
+
+    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+
+    self->trigsBuffer = (MYFLT *)realloc(self->trigsBuffer, self->bufsize * sizeof(MYFLT));
+
+    for (i=0; i<self->bufsize; i++) {
+        self->trigsBuffer[i] = 0.0;
+    }
+
+    MAKE_NEW_TRIGGER_STREAM(self->trig_stream, &TriggerStreamType, NULL);
+    TriggerStream_setData(self->trig_stream, self->trigsBuffer);
+
+    (*self->mode_func_ptr)(self);
+
+    return (PyObject *)self;
+}
+
+static PyObject * MidiLinseg_getServer(MidiLinseg* self) { GET_SERVER };
+static PyObject * MidiLinseg_getStream(MidiLinseg* self) { GET_STREAM };
+static PyObject * MidiLinseg_getTriggerStream(MidiLinseg* self) { GET_TRIGGER_STREAM };
+static PyObject * MidiLinseg_setMul(MidiLinseg *self, PyObject *arg) { SET_MUL };
+static PyObject * MidiLinseg_setAdd(MidiLinseg *self, PyObject *arg) { SET_ADD };
+static PyObject * MidiLinseg_setSub(MidiLinseg *self, PyObject *arg) { SET_SUB };
+static PyObject * MidiLinseg_setDiv(MidiLinseg *self, PyObject *arg) { SET_DIV };
+
+static PyObject * MidiLinseg_play(MidiLinseg *self, PyObject *args, PyObject *kwds) { PLAY };
+static PyObject * MidiLinseg_stop(MidiLinseg *self) { STOP };
+
+static PyObject * MidiLinseg_multiply(MidiLinseg *self, PyObject *arg) { MULTIPLY };
+static PyObject * MidiLinseg_inplace_multiply(MidiLinseg *self, PyObject *arg) { INPLACE_MULTIPLY };
+static PyObject * MidiLinseg_add(MidiLinseg *self, PyObject *arg) { ADD };
+static PyObject * MidiLinseg_inplace_add(MidiLinseg *self, PyObject *arg) { INPLACE_ADD };
+static PyObject * MidiLinseg_sub(MidiLinseg *self, PyObject *arg) { SUB };
+static PyObject * MidiLinseg_inplace_sub(MidiLinseg *self, PyObject *arg) { INPLACE_SUB };
+static PyObject * MidiLinseg_div(MidiLinseg *self, PyObject *arg) { DIV };
+static PyObject * MidiLinseg_inplace_div(MidiLinseg *self, PyObject *arg) { INPLACE_DIV };
+
+static PyObject *
+MidiLinseg_setList(MidiLinseg *self, PyObject *value)
+{
+    if (value == NULL) {
+        PyErr_SetString(PyExc_TypeError, "Cannot delete the list attribute.");
+        return PyInt_FromLong(-1);
+    }
+
+    if (! PyList_Check(value)) {
+        PyErr_SetString(PyExc_TypeError, "The points list attribute value must be a list of tuples.");
+        return PyInt_FromLong(-1);
+    }
+
+    Py_INCREF(value);
+    Py_DECREF(self->pointslist);
+    self->pointslist = value;
+
+    self->newlist = 1;
+
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static PyObject *
+MidiLinseg_setHold(MidiLinseg *self, PyObject *arg)
+{
+    if (PyInt_Check(arg)) {
+        self->tmphold = PyInt_AsLong(arg);
+    }
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static PyMemberDef MidiLinseg_members[] = {
+{"server", T_OBJECT_EX, offsetof(MidiLinseg, server), 0, "Pyo server."},
+{"stream", T_OBJECT_EX, offsetof(MidiLinseg, stream), 0, "Stream object."},
+{"trig_stream", T_OBJECT_EX, offsetof(MidiLinseg, trig_stream), 0, "Trigger Stream object."},
+{"pointslist", T_OBJECT_EX, offsetof(MidiLinseg, pointslist), 0, "List of target points."},
+{"mul", T_OBJECT_EX, offsetof(MidiLinseg, mul), 0, "Mul factor."},
+{"add", T_OBJECT_EX, offsetof(MidiLinseg, add), 0, "Add factor."},
+{NULL}  /* Sentinel */
+};
+
+static PyMethodDef MidiLinseg_methods[] = {
+{"getServer", (PyCFunction)MidiLinseg_getServer, METH_NOARGS, "Returns server object."},
+{"_getStream", (PyCFunction)MidiLinseg_getStream, METH_NOARGS, "Returns stream object."},
+{"_getTriggerStream", (PyCFunction)MidiLinseg_getTriggerStream, METH_NOARGS, "Returns trigger stream object."},
+{"play", (PyCFunction)MidiLinseg_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+{"stop", (PyCFunction)MidiLinseg_stop, METH_NOARGS, "Starts fadeout and stops computing."},
+{"setList", (PyCFunction)MidiLinseg_setList, METH_O, "Sets target points list."},
+{"setHold", (PyCFunction)MidiLinseg_setHold, METH_O, "Sets hold point."},
+{"setMul", (PyCFunction)MidiLinseg_setMul, METH_O, "Sets MidiLinseg mul factor."},
+{"setAdd", (PyCFunction)MidiLinseg_setAdd, METH_O, "Sets MidiLinseg add factor."},
+{"setSub", (PyCFunction)MidiLinseg_setSub, METH_O, "Sets inverse add factor."},
+{"setDiv", (PyCFunction)MidiLinseg_setDiv, METH_O, "Sets inverse mul factor."},
+{NULL}  /* Sentinel */
+};
+
+static PyNumberMethods MidiLinseg_as_number = {
+(binaryfunc)MidiLinseg_add,                      /*nb_add*/
+(binaryfunc)MidiLinseg_sub,                 /*nb_subtract*/
+(binaryfunc)MidiLinseg_multiply,                 /*nb_multiply*/
+INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
+0,                /*nb_remainder*/
+0,                   /*nb_divmod*/
+0,                   /*nb_power*/
+0,                  /*nb_neg*/
+0,                /*nb_pos*/
+0,                  /*(unaryfunc)array_abs,*/
+0,                    /*nb_nonzero*/
+0,                    /*nb_invert*/
+0,               /*nb_lshift*/
+0,              /*nb_rshift*/
+0,              /*nb_and*/
+0,              /*nb_xor*/
+0,               /*nb_or*/
+INITIALIZE_NB_COERCE_ZERO                   /*nb_coerce*/
+0,                       /*nb_int*/
+0,                      /*nb_long*/
+0,                     /*nb_float*/
+INITIALIZE_NB_OCT_ZERO   /*nb_oct*/
+INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
+(binaryfunc)MidiLinseg_inplace_add,              /*inplace_add*/
+(binaryfunc)MidiLinseg_inplace_sub,         /*inplace_subtract*/
+(binaryfunc)MidiLinseg_inplace_multiply,         /*inplace_multiply*/
+INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
+0,        /*inplace_remainder*/
+0,           /*inplace_power*/
+0,       /*inplace_lshift*/
+0,      /*inplace_rshift*/
+0,      /*inplace_and*/
+0,      /*inplace_xor*/
+0,       /*inplace_or*/
+0,             /*nb_floor_divide*/
+(binaryfunc)MidiLinseg_div,                       /*nb_true_divide*/
+0,     /*nb_inplace_floor_divide*/
+(binaryfunc)MidiLinseg_inplace_div,                       /*nb_inplace_true_divide*/
+0,                     /* nb_index */
+};
+
+PyTypeObject MidiLinsegType = {
+PyVarObject_HEAD_INIT(NULL, 0)
+"_pyo.MidiLinseg_base",         /*tp_name*/
+sizeof(MidiLinseg),         /*tp_basicsize*/
+0,                         /*tp_itemsize*/
+(destructor)MidiLinseg_dealloc, /*tp_dealloc*/
+0,                         /*tp_print*/
+0,                         /*tp_getattr*/
+0,                         /*tp_setattr*/
+0,                         /*tp_as_async (tp_compare in Python 2)*/
+0,                         /*tp_repr*/
+&MidiLinseg_as_number,             /*tp_as_number*/
+0,                         /*tp_as_sequence*/
+0,                         /*tp_as_mapping*/
+0,                         /*tp_hash */
+0,                         /*tp_call*/
+0,                         /*tp_str*/
+0,                         /*tp_getattro*/
+0,                         /*tp_setattro*/
+0,                         /*tp_as_buffer*/
+Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+"MidiLinseg objects. Generates a linear segments break-points line.",           /* tp_doc */
+(traverseproc)MidiLinseg_traverse,   /* tp_traverse */
+(inquiry)MidiLinseg_clear,           /* tp_clear */
+0,		               /* tp_richcompare */
+0,		               /* tp_weaklistoffset */
+0,		               /* tp_iter */
+0,		               /* tp_iternext */
+MidiLinseg_methods,             /* tp_methods */
+MidiLinseg_members,             /* tp_members */
+0,                      /* tp_getset */
+0,                         /* tp_base */
+0,                         /* tp_dict */
+0,                         /* tp_descr_get */
+0,                         /* tp_descr_set */
+0,                         /* tp_dictoffset */
+0,      /* tp_init */
+0,                         /* tp_alloc */
+MidiLinseg_new,                 /* tp_new */
+};

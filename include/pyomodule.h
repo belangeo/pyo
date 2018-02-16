@@ -525,6 +525,7 @@ extern PyTypeObject HRTFSpatterType;
 extern PyTypeObject HRTFType;
 extern PyTypeObject ExpandType;
 extern PyTypeObject RMSType;
+extern PyTypeObject MidiLinsegType;
 
 /* Constants */
 #define E M_E

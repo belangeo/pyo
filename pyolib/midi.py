@@ -31,6 +31,7 @@ License along with pyo.  If not, see <http://www.gnu.org/licenses/>.
 import sys
 from ._core import *
 from ._maps import *
+from ._widgets import createGraphWindow
 
 ######################################################################
 ### MIDI
@@ -1523,3 +1524,192 @@ class RawMidi(PyoObject):
     @function.setter
     def function(self, x):
         self.setFunction(x)
+
+class MidiLinseg(PyoObject):
+    """
+    Line segments trigger.
+
+    TrigLinseg starts reading a break-points line segments each time it
+    receives a trigger in its `input` parameter.
+
+    :Parent: :py:class:`PyoObject`
+
+    :Args:
+
+        input: PyoObject
+            Input signal used to trigger the envelope. A positive value
+            sets the peak amplitude and starts the envelope. A 0 starts
+            the release part of the envelope.
+        list: list of tuples
+            Points used to construct the line segments. Each tuple is a
+            new point in the form (time, value).
+
+            Times are given in seconds and must be in increasing order.
+        hold: int, optional
+            The point, starting at 0, acting as the sustain point. The
+            envelope will hold this value as long as the input signal
+            is positive. The release part is the remaining points.
+            Defaults to 1.
+
+    .. note::
+
+        MidiLinseg will send a trigger signal at the end of the playback.
+        User can retreive the trigger streams by calling obj['trig'].
+        Useful to synchronize other processes.
+
+        The out() method is bypassed. MidiLinseg's signal can not be sent
+        to audio outs.
+
+    >>> s = Server().boot()
+    >>> s.start()
+    >>> mid = Notein(scale=1)
+    >>> env = [(0,0), (0.1,1), (0.2,0.5), (0.4,0.7), (0.5,0.3), (1,1), (2,0)]
+    >>> env = MidiLinseg(mid['velocity'], env, hold=4)
+    >>> a = SineLoop(freq=mid['pitch'], feedback=.1, mul=env).out()
+    >>> b = SineLoop(freq=mid['pitch']*1.005, feedback=.1, mul=env).out(1)
+
+    """
+    def __init__(self, input, list, hold=1, mul=1, add=0):
+        pyoArgsAssert(self, "oliOO", input, list, hold, mul, add)
+        PyoObject.__init__(self, mul, add)
+        self._input = input
+        self._list = list
+        self._hold = hold
+        self._in_fader = InputFader(input)
+        in_fader, hold, mul, add, lmax = convertArgsToLists(self._in_fader, hold, mul, add)
+        self._base_objs = [MidiLinseg_base(wrap(in_fader,i), list, wrap(hold,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+        self._trig_objs = Dummy([TriggerDummy_base(obj) for obj in self._base_objs])
+        self.play()
+
+    def out(self, chnl=0, inc=1, dur=0, delay=0):
+        return self.play(dur, delay)
+
+    def setInput(self, x, fadetime=0.05):
+        """
+        Replace the `input` attribute.
+
+        :Args:
+
+            x: PyoObject
+                New signal to process.
+            fadetime: float, optional
+                Crossfade time between old and new input. Defaults to 0.05.
+
+        """
+        pyoArgsAssert(self, "oN", x, fadetime)
+        self._input = x
+        self._in_fader.setInput(x, fadetime)
+
+    def setList(self, x):
+        """
+        Replace the `list` attribute.
+
+        :Args:
+
+            x: list of tuples
+                new `list` attribute.
+
+        """
+        pyoArgsAssert(self, "l", x)
+        self._list = x
+        [obj.setList(x) for i, obj in enumerate(self._base_objs)]
+
+    def replace(self, x):
+        """
+        Alias for `setList` method.
+
+        :Args:
+
+            x: list of tuples
+                new `list` attribute.
+
+        """
+        self.setList(x)
+
+    def setHold(self, x):
+        """
+        Replace the `hold` attribute.
+
+        :Args:
+
+            x: int
+                new `hold` attribute.
+
+        """
+        pyoArgsAssert(self, "i", x)
+        self._hold = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setHold(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def getPoints(self):
+        return self._list
+
+    def ctrl(self, map_list=None, title=None, wxnoserver=False):
+        self._map_list = [SLMapMul(self._mul)]
+        PyoObject.ctrl(self, map_list, title, wxnoserver)
+
+    def graph(self, xlen=None, yrange=None, title=None, wxnoserver=False):
+        """
+        Opens a grapher window to control the shape of the envelope.
+
+        When editing the grapher with the mouse, the new set of points
+        will be send to the object on mouse up.
+
+        Ctrl+C with focus on the grapher will copy the list of points to the
+        clipboard, giving an easy way to insert the new shape in a script.
+
+        :Args:
+
+            xlen: float, optional
+                Set the maximum value of the X axis of the graph. If None, the
+                maximum value is retrieve from the current list of points.
+                Defaults to None.
+            yrange: tuple, optional
+                Set the min and max values of the Y axis of the graph. If
+                None, min and max are retrieve from the current list of points.
+                Defaults to None.
+            title: string, optional
+                Title of the window. If none is provided, the name of the
+                class is used.
+            wxnoserver: boolean, optional
+                With wxPython graphical toolkit, if True, tells the
+                interpreter that there will be no server window.
+
+        If `wxnoserver` is set to True, the interpreter will not wait for
+        the server GUI before showing the controller window.
+
+        """
+        if xlen is None:
+            xlen = float(self._list[-1][0])
+        else:
+            xlen = float(xlen)
+        if yrange is None:
+            ymin = float(min([x[1] for x in self._list]))
+            ymax = float(max([x[1] for x in self._list]))
+            if ymin == ymax:
+                yrange = (0, ymax)
+            else:
+                yrange = (ymin, ymax)
+        createGraphWindow(self, 0, xlen, yrange, title, wxnoserver)
+
+    @property
+    def input(self):
+        """PyoObject. Audio trigger signal."""
+        return self._input
+    @input.setter
+    def input(self, x):
+        self.setInput(x)
+    @property
+    def list(self):
+        """list of tuples. Points used to construct the line segments."""
+        return self._list
+    @list.setter
+    def list(self, x):
+        self.setList(x)
+    @property
+    def hold(self):
+        """int. The sustain point."""
+        return self._hold
+    @hold.setter
+    def hold(self, x):
+        self.setHold(x)

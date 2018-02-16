@@ -2113,6 +2113,7 @@ init_pyo64(void)
     module_add_object(m, "HRTF_base", &HRTFType);
     module_add_object(m, "Expand_base", &ExpandType);
     module_add_object(m, "RMS_base", &RMSType);
+    module_add_object(m, "MidiLinseg_base", &MidiLinsegType);
 
     PyModule_AddStringConstant(m, "PYO_VERSION", PYO_VERSION);
 #ifdef COMPILE_EXTERNALS

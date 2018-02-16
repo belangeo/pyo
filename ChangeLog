@@ -1,3 +1,7 @@
+2018-02-15 belangeo <belangeo@gmail.com>
+
+    * Added a new object: MidiLinseg, a midi-triggered breakpoints envelope.
+
 2018-02-13 belangeo <belangeo@gmail.com>
 
     * Added a new object: RMS, which return the rms value of an audio signal.

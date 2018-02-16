@@ -132,7 +132,7 @@ OBJECTS_TREE = {
             'internals': sorted(['Dummy', 'InputFader', 'Mix', 'VarPort']),
             'midi': sorted(['Midictl', 'CtlScan', 'CtlScan2', 'Notein', 
                             'MidiAdsr', 'MidiDelAdsr', 'Bendin', 'Touchin', 
-                            'Programin', 'RawMidi']),
+                            'Programin', 'RawMidi', 'MidiLinseg']),
             'opensndctrl': sorted(['OscReceive', 'OscSend', 'OscDataSend', 
                                    'OscDataReceive', 'OscListReceive']),
             'pan': sorted(['Pan', 'SPan', 'Switch', 'Selector', 'Mixer', 
