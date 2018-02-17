@@ -1,0 +1,126 @@
+[English version follows]
+
+Bonjour à tous,
+
+La version 0.9.0 de pyo est maintenant disponible en téléchargement :
+
+http://ajaxsoundstudio.com/software/pyo/
+
+La documentation:
+
+http://ajaxsoundstudio.com/pyodoc/
+
+Sources et suivi des bugs:
+    
+https://github.com/belangeo/pyo
+
+Bugs corrigés:
+
+- Correction de l'interpolation des réponses impulsionnelles dans l'objet HRTF.
+L'interpolation est maintenant effectuée dans le domaine fréquentiel afin
+d'éviter les cancellations de phase provoquées par l'interpolation dans le 
+domaine temporel.
+
+
+Nouvelles fonctionnalités:
+
+- Nouvel objet: Expand, augmente la dynamique d'un signal.
+
+- Nouvel objet: RMS, retourne la valeur efficace d'un signal.
+
+- Nouvel objet: MidiLinseg, une envelope par segments de droite déclenchée par
+la vélocité d'une note MIDI.
+
+- Ajout d'une méthode makenote(pitch, velocity, duration, channel=0) à l'objet
+Server. Cette méthode envoit les messages MIDI pour le noteon et le noteoff.
+
+
+Olivier
+
+---
+
+Hello all,
+
+pyo 0.9.0 is now available to download on pyo's web site :
+
+http://ajaxsoundstudio.com/software/pyo/
+
+pyo's documentation:
+
+http://ajaxsoundstudio.com/pyodoc/
+
+Latest sources and bug tracker:
+    
+https://github.com/belangeo/pyo
+
+
+Bug Fixes:
+    
+- Fixed HRTF impulse responses interpolation. Interpolation is perform in the
+spectral domain to avoid phase cancellation that occur in the time domain.
+
+
+New features:
+
+- Added a new object: Expand, which expand the dynamic range of an audio signal.
+
+- Added a new object: RMS, which return the rms value of an audio signal.
+
+- Added a new object: MidiLinseg, a midi-triggered breakpoints envelope.
+
+- Added a Server.makenote(pitch, velocity, duration, channel=0) method, which
+build both noteon and noteof messages.
+
+
+Olivier
+
+================================================================================
+
+Hello all,
+
+I'm glad to announce the release of pyo 0.9.0, available for python 2.7, 3.5 and 3.6.
+
+Pyo is a Python module written in C to help real-time digital signal processing
+script creation. It is available for Windows, macOS and linux. It is released
+under the LGPL 3 license.
+
+For more info, downloads and other links, see the official web site:
+
+http://ajaxsoundstudio.com/software/pyo/
+
+The documentation:
+
+http://ajaxsoundstudio.com/pyodoc/
+
+For the latest sources and bug tracker:
+
+https://github.com/belangeo/pyo
+
+
+Bug Fixes:
+    
+- Fixed HRTF impulse responses interpolation. Interpolation is perform in the
+spectral domain to avoid phase cancellation that occur in the time domain.
+
+
+New features:
+
+- Added a new object: Expand, which expand the dynamic range of an audio signal.
+
+- Added a new object: RMS, which return the rms value of an audio signal.
+
+- Added a new object: MidiLinseg, a midi-triggered breakpoints envelope.
+
+- Added a Server.makenote(pitch, velocity, duration, channel=0) method, which
+build both noteon and noteof messages.
+
+
+Olivier Belanger
+belangeo@gmail.com
+http://olivier.ajaxsoundstudio.com/
+
+----
+
+P><A HREF="http://ajaxsoundstudio.com/software/pyo/">Pyo 0.9.0</A>
+Python DSP library. (17-Feb-18)
+
