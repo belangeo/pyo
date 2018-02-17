@@ -4,9 +4,9 @@ Pyo is a Python module written in C to help digital signal processing script cre
 
 http://www.python.org/download/
 
-To use the WxPython toolkit for widgets, you need to install wxPython Phoenix (3.0.3+) for python 3.5:
+To use the WxPython toolkit for widgets, you need to install wxPython Phoenix (4.0.1) for python 3.5:
 
-http://www.wxpython.org/download.php#stable
+https://wxpython.org/pages/downloads/index.html
 
 This installer will leave a folder called pyo_examples on the Desktop, 
 it's a good starting point to explore the library!

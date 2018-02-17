@@ -8,9 +8,9 @@
 # 3. cd utils and build E-Pyo for python3.6
 # 4. cd installers/osx and build the release for python3.6
 
-export PACKAGE_NAME=pyo_0.8.9_x86_64_py36.pkg
-export DMG_DIR="pyo 0.8.9 py36 Universal"
-export DMG_NAME="pyo_0.8.9_OSX_py36-universal.dmg"
+export PACKAGE_NAME=pyo_0.9.0_x86_64_py36.pkg
+export DMG_DIR="pyo 0.9.0 py36 Universal"
+export DMG_NAME="pyo_0.9.0_OSX_py36-universal.dmg"
 export INSTALLER_DIR=`pwd`/installer
 export PYO_MODULE_DIR=$INSTALLER_DIR/PyoModule/Package_Contents/tmp
 export SUPPORT_LIBS_DIR=$INSTALLER_DIR/SupportLibs/Package_Contents/usr/local/lib
