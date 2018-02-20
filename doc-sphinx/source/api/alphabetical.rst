@@ -71,6 +71,7 @@ Alphabetical class reference
 - :py:class:`Euclide` :     Euclidean rhythm generator.
 - :py:class:`ExpTable` :     Construct a table from exponential interpolated segments.
 - :py:class:`Exp` :     Calculates the value of e to the power of x.
+- :py:class:`Expand` :     Expand the dynamic range of an audio signal.
 - :py:class:`Expr` :     Prefix audio expression evaluator.
 - :py:class:`Expr` :     Prefix audio expression evaluator.
 - :py:class:`Expseg` :     Draw a series of exponential segments between specified break-points.
@@ -125,6 +126,7 @@ Alphabetical class reference
 - :py:class:`Metro` :     Generates isochronous trigger signals.
 - :py:class:`MidiAdsr` :     Midi triggered ADSR envelope generator.
 - :py:class:`MidiDelAdsr` :     Midi triggered ADSR envelope generator with pre-delay.
+- :py:class:`MidiLinseg` :     Line segments trigger.
 - :py:class:`MidiListener` :     Self-contained midi listener thread.
 - :py:class:`Midictl` :     Get the current value of a Midi controller.
 - :py:class:`Min` :     Outputs the minimum of two values.
@@ -195,6 +197,7 @@ Alphabetical class reference
 - :py:class:`PyoGuiSpectrum` :         Frequency spectrum display.
 - :py:class:`PyoGuiVuMeter` :         Multi-channels Vu Meter.
 - :py:class:`RCOsc` :     Waveform aproximation of a RC circuit.
+- :py:class:`RMS` :     Returns the RMS (Root-Mean-Square) value of a signal.
 - :py:class:`RandDur` :     Recursive time varying pseudo-random generator.
 - :py:class:`RandInt` :     Periodic pseudo-random integer generator.
 - :py:class:`Randh` :     Periodic pseudo-random generator.
