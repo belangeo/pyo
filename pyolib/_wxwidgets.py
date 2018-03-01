@@ -3010,7 +3010,7 @@ class ServerGUI(wx.Frame):
             tw, th = self.GetTextExtent("|")
             self.text = wx.TextCtrl(panel, -1, "", size=(202, th+8), style=wx.TE_PROCESS_ENTER)
             self.text.Bind(wx.EVT_TEXT_ENTER, self.getText)
-            self.text.Bind(wx.EVT_CHAR, self.onChar)
+            self.text.Bind(wx.EVT_KEY_DOWN, self.onChar)
             box.Add(self.text, 0, wx.LEFT | wx.RIGHT | wx.EXPAND, 5)
 
         box.AddSpacer(10)
