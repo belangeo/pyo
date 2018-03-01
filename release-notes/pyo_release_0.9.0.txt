@@ -122,5 +122,5 @@ http://olivier.ajaxsoundstudio.com/
 ----
 
 P><A HREF="http://ajaxsoundstudio.com/software/pyo/">Pyo 0.9.0</A>
-Python DSP library. (17-Feb-18)
+Python DSP library. (20-Feb-18)
 
