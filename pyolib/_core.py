@@ -120,6 +120,7 @@ FUNCTIONS_INIT_LINES = {
     "example": "example(cls, dur=5, toprint=True, double=False)",
     "class_args": "class_args(cls)",
     "getVersion": "getVersion()",
+    "getPrecision": "getPrecision()",
     "convertStringToSysEncoding": "convertStringToSysEncoding(str)",
     "convertArgsToLists": "convertArgsToLists(*args)",
     "wrap": "wrap(arg, i)",
@@ -663,6 +664,19 @@ def getVersion():
     """
     major, minor, rev = PYO_VERSION.split('.')
     return (int(major), int(minor), int(rev))
+
+def getPrecision():
+    """
+    Returns the current sample precision as an integer.
+
+    This function returns the current sample precision as an integer,
+    either 32 for 32-bit (single) or 64 for 64-bit (double).
+
+    """
+    if hasattr(builtins, 'pyo_use_double'):
+        return 64
+    else:
+        return 32
 
 def pa_get_default_devices_from_host(host):
     """

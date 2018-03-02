@@ -1,5 +1,10 @@
 2018-03-02 belangeo <belangeo@gmail.com>
 
+    * Added getPrecision() function. Removed print statement when importing pyo.
+      User should use getVersion() and getPrecision() functions if needed.
+
+2018-03-02 belangeo <belangeo@gmail.com>
+
     * Fixed crash when asking for more input or output channels than available.
 
 2018-02-16 belangeo <belangeo@gmail.com>

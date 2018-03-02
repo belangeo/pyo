@@ -7,8 +7,10 @@ To do ASAP!
   file on a tmpfs, which is basically a filesystem in RAM.
   mail: "Server recording to wav generates many xruns (Aug 26)".
 
-- Better error message when trying to open an input device but there is
-  none on the system. Automatic deactivation of duplex mode if no input.
+- Push all messages to a more verbose mode.
+    . pyo version 0.9.0 (uses single precision)
+    . Portmidi warning: ...
+    . etc.
 
 This is a list of features/fixes to implement for future releases
 =================================================================

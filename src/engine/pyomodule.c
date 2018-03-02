@@ -1787,14 +1787,6 @@ init_pyo64(void)
     m = Py_InitModule3(LIB_BASE_NAME, pyo_functions, "Python digital signal processing module.");
 #endif
 
-#ifndef NO_MESSAGES
-#ifndef USE_DOUBLE
-    PySys_WriteStdout("pyo version %s (uses single precision)\n", PYO_VERSION);
-#else
-    PySys_WriteStdout("pyo version %s (uses double precision)\n", PYO_VERSION);
-#endif
-#endif
-
     module_add_object(m, "Server_base", &ServerType);
 #ifdef USE_PORTMIDI
     module_add_object(m, "MidiListener_base", &MidiListenerType);

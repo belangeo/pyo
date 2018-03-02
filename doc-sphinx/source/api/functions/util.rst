@@ -18,6 +18,11 @@ Utilities
 
 .. autofunction:: getVersion
 
+*getPrecision*
+---------------------------------
+
+.. autofunction:: getPrecision
+
 *getPyoKeywords*
 ---------------------------------
 

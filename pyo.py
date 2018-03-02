@@ -88,7 +88,8 @@ OBJECTS_TREE = {
                          'linToCosCurve', 'convertStringToSysEncoding', 
                          'savefileFromTable', 'pa_get_input_max_channels', 
                          'pa_get_output_max_channels', 'pa_get_devices_infos', 
-                         'pa_get_version', 'pa_get_version_text', 'floatmap']),
+                         'pa_get_version', 'pa_get_version_text', 'floatmap',
+                         'getPrecision']),
     'PyoObjectBase': {
         'PyoMatrixObject': sorted(['NewMatrix']),
         'PyoTableObject': sorted(['LinTable', 'NewTable', 'SndTable', 
