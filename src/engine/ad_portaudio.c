@@ -1,5 +1,5 @@
 /**************************************************************************
- * Copyright 2009-2016 Olivier Belanger                                   *
+ * Copyright 2009-2018 Olivier Belanger                                   *
  *                                                                        *
  * This file is part of pyo, a python module to help digital signal       *
  * processing script creation.                                            *
@@ -206,6 +206,13 @@ Server_pa_init(Server *self)
     /* setup output and input streams */
     memset(&outputParameters, 0, sizeof(outputParameters));
     outputParameters.device = outDevice;
+    if (self->nchnls + self->output_offset > Pa_GetDeviceInfo(outDevice)->maxOutputChannels) {
+        Server_warning(self, "Portaudio: output device `%s` has fewer channels (%d) than requested (%d).\n",
+                       Pa_GetDeviceInfo(outDevice)->name, Pa_GetDeviceInfo(outDevice)->maxOutputChannels,
+                       self->nchnls + self->output_offset);
+        self->nchnls = Pa_GetDeviceInfo(outDevice)->maxOutputChannels;
+        self->output_offset = 0;
+    }
     outputParameters.channelCount = self->nchnls + self->output_offset;
     outputParameters.sampleFormat = sampleFormat;
     outputParameters.suggestedLatency = Pa_GetDeviceInfo( outputParameters.device )->defaultLowOutputLatency;
@@ -214,6 +221,13 @@ Server_pa_init(Server *self)
     if (self->duplex == 1) {
         memset(&inputParameters, 0, sizeof(inputParameters));
         inputParameters.device = inDevice;
+        if (self->ichnls + self->input_offset > Pa_GetDeviceInfo(inDevice)->maxInputChannels) {
+            Server_warning(self, "Portaudio: input device `%s` has fewer channels (%d) than requested (%d).\n",
+                           Pa_GetDeviceInfo(inDevice)->name, Pa_GetDeviceInfo(inDevice)->maxInputChannels,
+                           self->ichnls + self->input_offset);
+            self->ichnls = Pa_GetDeviceInfo(inDevice)->maxInputChannels;
+            self->input_offset = 0;
+        }
         inputParameters.channelCount = self->ichnls + self->input_offset;
         inputParameters.sampleFormat = sampleFormat;
         inputParameters.suggestedLatency = Pa_GetDeviceInfo( inputParameters.device )->defaultLowInputLatency;
@@ -282,7 +296,7 @@ Server_pa_init(Server *self)
     }
     portaudio_assert(err, "Pa_OpenStream");
     if (err < 0) {
-        Server_error(self, "Portaudio error: %s", Pa_GetErrorText(err));
+        Server_error(self, "Portaudio error: %s\n", Pa_GetErrorText(err));
         return -1;
     }
     return 0;

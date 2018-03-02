@@ -1,3 +1,7 @@
+2018-03-02 belangeo <belangeo@gmail.com>
+
+    * Fixed crash when asking for more input or output channels than available.
+
 2018-02-16 belangeo <belangeo@gmail.com>
 
     * Added release-notes for version 0.9.0.
