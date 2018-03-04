@@ -1,3 +1,7 @@
+2018-03-04 belangeo <belangeo@gmail.com>
+
+    * Added the ability to remove a project from the project tree.
+
 2018-03-02 belangeo <belangeo@gmail.com>
 
     * Added getPrecision() function. Removed print statement when importing pyo.

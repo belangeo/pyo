@@ -679,6 +679,38 @@ folder_add_icon_png = PyEmbeddedImage(
     "P36+7719TjKZnJPvXwAAAP//AwDmNHbvm7mEowAAAABJRU5ErkJggg==")
 catalog['folder_add_icon.png'] = folder_add_icon_png
 
+folder_delete_icon_png = PyEmbeddedImage(
+    b'iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAFx0lEQVR42pWVaWxUZRSGz3e3'
+    b'2WGmtNPpDJ1OsSyW2NIWWqAsTUmFUjARIwkgGPmhfwgRUbAhgIoE2QIVFANGEjAhRFRQ1EQQ'
+    b'oywWpBWERhqWUqdTO11m7Wx3O34zpU0jTYvz68693znPPe8577kERvi1Ne4ioswaFNRnSjLm'
+    b'KoqUqyKXq7ImF6uxjGM4g0vgQ9acHPNOjami9r/xZPAfT+PuLIaBSo5V8wgqufSWS0xEc6IS'
+    b'l4lcupY35hDB5EKd0UEDJQDZTbSaIAoaDhCxjtVWrBsW0Hp1+/c2q1odk0aBIrgABAcw2rGg'
+    b'N1iAZVkghKYVoyBGmkCrDQPPswOxiLCf0VYOD3Bf21pvzeBKQ9xsSLPPTj7DQedQURTia7+B'
+    b'Vluw/ybB/jMIdYyuanhAGwVkDAKIoohdnZ2gokqMRhP2dHcTkmjFvAk4OP4RAOsYffXIAGsG'
+    b'XxZMAWaBqqoQCATAaDRCLBZLnfG1N8C43Pjj05CUyLj4SSrgH1Uwi8iyjKFgEAjDEApDgeep'
+    b'RA2Y4wwPKRE76vmRAO8MkogCJAm7e7qBYViiKgoKgkDCXTcxx+HvjyY0cb9edax56cgA2uQB'
+    b'iWhTwe/zpaaH43mQJAkSgSZwWDuGkAj3s2krnqyCMAVYaAWpJnd1gkFvSElBqyAhbyO6HJ2P'
+    b'SYTI1PHpK/8fIB6PJycn+fZEp9OhKCaI3/M7Ztt6QUQzTcoTxDhqmAAQWa0z5Kx6wh6wSUA5'
+    b'oZKg19tBTaUj1GhIG02YRBR7zp+D4B+NIIXDhBs9Go2FU8BUVtQkejtWjK9c/OcwgHdTPQgw'
+    b'5WDOmgmJRALCoVCqByq1qtp0C5p3bKNNZ4DX62k0Sa4IkCIRAI4D5/qNEYXjXpw0r+qHIQGe'
+    b'hh3XM9LUYh+ZCSbrdDqmEgapDyRZJrqHLXhn80ZisFpRY7aAQqcrSaYA5KyZEPV6Sczvx+yt'
+    b'20JyIlGUv+i5lgGAu2G/hg77IYsptlLgZK4bp4MhvQxkRYZIby8YBB7uvrKc7h4eXGvXg7Gg'
+    b'EFq31ILc7gFN3nhwbnkfun/6EdqOHgGZFyBj83vH84qKVw0A7l7ZO8Nhw8s8iwRVETvVMtBa'
+    b'ptIeiBiNRsHw1y3SsXs7CmnpZOyGTWicRuG+HvAdPULSX1uDDHW6+7tviO/wx6gGfGDcsLmX'
+    b'EQTH+PnV4RTg/pWdFXY7d4EjagrQIU8DfnQJda+CkXAIdF+fJEr9BZRVnrC08WPefBuMc+cl'
+    b'FUpJ5D7zFYQP7qOr3IS8HIdE5ULCPFNYMqFqfmMf4Lddc+xZ3C8co9CVKcE/UgkQ4xS6mkWQ'
+    b'pQQYjn8K6p0GQCkI0t8e0BaXgv3QF0BHCxQ6CPdeqgH2XjMIrmxqCD0kppaDWlI6Z9LCRRf7'
+    b'APV7ZtltzK8c01eBJ15MzxWkmhyN9IL98s8kevo4KpE2oisqROu2z4ExmSHW5SW6jEyUezqh'
+    b'462lRGpuQUafBeqy1YhO18S8ZxfcSwEe1O+dmZVJLtEvWQrgjhaBrJ2ccnIw4Id8DUN6Xl6C'
+    b'jJkj2acu0o+bjWr+JcSO1RLH+o/QUFoF0fvNxL2sGtk4AeGzEy1qODxh3LwqpQ9wdV+ZzYr1'
+    b'PKvSfSBCa6QQRCEfKAACfh84HVmgP/gB9J7/FnQVFSCXL4Do4U2g4+hnk9HBqLV7oPXYUTDe'
+    b'bAT9kuUQr6p5I29Oxb6BKXp4/UB+hkW8LfB9U9QSLoAoO5Feq0hXNTUWIWP1AkZrXyXx27cQ'
+    b'eJqX79umSNumUg4RgWhKyxBf33IJ2z2VrgU18gDAe/tDQkd9Hc/E1gq86rwfKpB64Smhz6io'
+    b'UOc26kE5azcbq8VTh6eHz5wENRilmVMmR8ZiAsMLK0GqWHxObXcvc1bV+IZ0su/OgSkSMUc8'
+    b'8Um1EuqdNPo0ffmzUwuefph83tl0g+c4bjXRCGuw48FkNegnOGqMBLbca/Gerk8YSTrhmDFX'
+    b'GZzzX/6B8DdUg60gAAAAAElFTkSuQmCC')
+catalog['folder_delete_icon.png'] = folder_delete_icon_png
+
 refresh_tree_icon_png = PyEmbeddedImage(
     "iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAABmJLR0QA/wD/AP+gvaeTAAAA"
     "CXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH3wIHETgo92WyxQAABKJJREFUSMfdlVtsVFUY"
@@ -2960,7 +2992,7 @@ class MainFrame(wx.Frame):
             if self.panel.project.IsShownOnScreen():
                 return
             if not self.panel.splitter.IsSplit():
-                self.panel.splitter.SplitVertically(self.panel.left_splitter, self.panel.right_splitter, 175)
+                self.panel.splitter.SplitVertically(self.panel.left_splitter, self.panel.right_splitter, 200)
                 h = self.panel.GetSize()[1]
                 self.panel.left_splitter.SplitHorizontally(self.panel.project, self.panel.markers, h * 3 // 4)
                 self.panel.left_splitter.Unsplit(self.panel.markers)
@@ -2980,7 +3012,7 @@ class MainFrame(wx.Frame):
             if self.panel.markers.IsShownOnScreen():
                 return
             if not self.panel.splitter.IsSplit():
-                self.panel.splitter.SplitVertically(self.panel.left_splitter, self.panel.right_splitter, 175)
+                self.panel.splitter.SplitVertically(self.panel.left_splitter, self.panel.right_splitter, 200)
                 h = self.panel.GetSize()[1]
                 self.panel.left_splitter.SplitHorizontally(self.panel.project, self.panel.markers, h * 3 // 4)
                 self.panel.left_splitter.Unsplit(self.panel.project)
@@ -3505,7 +3537,7 @@ class MainPanel(wx.Panel):
 
         self.right_splitter.SplitHorizontally(self.notebook, self.outputlog, (self.GetSize()[1] * 4 // 5) - self.GetSize()[1])
 
-        self.splitter.SplitVertically(self.left_splitter, self.right_splitter, 175)
+        self.splitter.SplitVertically(self.left_splitter, self.right_splitter, 200)
         self.splitter.Unsplit(self.left_splitter)
 
         mainBox.Add(self.splitter, 1, wx.EXPAND)
@@ -5117,6 +5149,7 @@ class PastingListEditorFrame(wx.Frame):
 
 TOOL_ADD_FILE_ID = 10
 TOOL_ADD_FOLDER_ID = 11
+TOOL_DEL_FOLDER_ID = 13
 TOOL_REFRESH_TREE_ID = 12
 class ProjectTree(wx.Panel):
     """Project panel"""
@@ -5132,6 +5165,7 @@ class ProjectTree(wx.Panel):
 
         file_add_bmp = catalog['file_add_icon.png'].GetBitmap()
         folder_add_bmp = catalog['folder_add_icon.png'].GetBitmap()
+        folder_del_bmp = catalog['folder_delete_icon.png'].GetBitmap()
         close_panel_bmp = catalog['close_panel_icon.png'].GetBitmap()
         refresh_tree_bmp = catalog['refresh_tree_icon.png'].GetBitmap()
 
@@ -5145,6 +5179,8 @@ class ProjectTree(wx.Panel):
                                       file_add_bmp, shortHelp="Add File")
             self.toolbar.AddLabelTool(TOOL_ADD_FOLDER_ID, "Add Folder",
                                       folder_add_bmp, shortHelp="Add Folder")
+            self.toolbar.AddLabelTool(TOOL_DEL_FOLDER_ID, "Remove Folder",
+                                      folder_del_bmp, shortHelp="Remove Folder")
             self.toolbar.AddLabelTool(TOOL_REFRESH_TREE_ID, "Refresh Tree",
                                       refresh_tree_bmp, shortHelp="Refresh Tree")
         else:
@@ -5152,6 +5188,8 @@ class ProjectTree(wx.Panel):
                                       file_add_bmp, shortHelp="Add File")
             self.toolbar.AddTool(TOOL_ADD_FOLDER_ID, "Add Folder",
                                       folder_add_bmp, shortHelp="Add Folder")
+            self.toolbar.AddTool(TOOL_DEL_FOLDER_ID, "Remove Folder",
+                                      folder_del_bmp, shortHelp="Remove Folder")
             self.toolbar.AddTool(TOOL_REFRESH_TREE_ID, "Refresh Tree",
                                       refresh_tree_bmp, shortHelp="Refresh Tree")
 
@@ -5171,6 +5209,7 @@ class ProjectTree(wx.Panel):
 
         self.Bind(wx.EVT_TOOL, self.onAdd, id=TOOL_ADD_FILE_ID)
         self.Bind(wx.EVT_TOOL, self.onAdd, id=TOOL_ADD_FOLDER_ID)
+        self.Bind(wx.EVT_TOOL, self.onRemove, id=TOOL_DEL_FOLDER_ID)
         self.Bind(wx.EVT_TOOL, self.onRefresh, id=TOOL_REFRESH_TREE_ID)
         self.Bind(wx.EVT_TOOL, self.onCloseProjectPanel, id=15)
 
@@ -5315,6 +5354,17 @@ class ProjectTree(wx.Panel):
             txtctrl.SelectAll()
         else:
             self.tree.EditLabel(item)
+
+    def onRemove(self, evt):
+        id = evt.GetId()
+        treeItemId = self.tree.GetSelection()
+        if self.selectedItem == None or self.selectedItem == self.tree.GetRootItem():
+            return
+        else:
+            while self.tree.GetItemParent(treeItemId) != self.tree.GetRootItem():
+                treeItemId = self.tree.GetItemParent(treeItemId)
+            proj = unpackItemData(self.tree.GetItemData(treeItemId))
+            self.tree.Delete(treeItemId)
 
     def setStyle(self):
         def set_item_style(root_item, colour):

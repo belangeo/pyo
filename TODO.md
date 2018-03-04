@@ -85,8 +85,6 @@ E-Pyo
     - Does not seem to save file with utf-8 encoding.
     - Project tree refresh function doesn't work.
 
-- Add the ability to remove a project from the project tree.
-
 - Window splitter to show more than one file at the time (multiple 
   views) ?
 
