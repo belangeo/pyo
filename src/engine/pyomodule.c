@@ -328,7 +328,7 @@ p_sndinfo(PyObject *self, PyObject *args, PyObject *kwds) {
     static char *kwlist[] = {"path", "print", NULL};
 
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "s#|i", kwlist, &path, &psize, &print)) {
-        PySys_WriteStderr("sndinfo: called with wrong arguments.\n");
+        PySys_WriteStderr("Pyo error: sndinfo called with wrong arguments.\n");
         Py_RETURN_NONE;
     }
 
@@ -336,7 +336,6 @@ p_sndinfo(PyObject *self, PyObject *args, PyObject *kwds) {
     info.format = 0;
     sf = sf_open(path, SFM_READ, &info);
     if (sf == NULL) {
-        PySys_WriteStderr("sndinfo: failed to open the file.\n");
         Py_RETURN_NONE;
     }
 
@@ -431,7 +430,7 @@ p_savefile(PyObject *self, PyObject *args, PyObject *kwds) {
     }
     else {
         if (PyList_Size(samples) != channels) {
-            PySys_WriteStdout("savefile: samples list size and channels must be the same!\n");
+            PySys_WriteStdout("Pyo error: savefile's samples list size and channels number must be the same!\n");
             return PyInt_FromLong(-1);
         }
         size = PyList_Size(PyList_GET_ITEM(samples, 0)) * channels;
@@ -443,7 +442,7 @@ p_savefile(PyObject *self, PyObject *args, PyObject *kwds) {
         }
     }
     if (! (recfile = sf_open(recpath, SFM_WRITE, &recinfo))) {
-        PySys_WriteStdout("savefile: failed to open output file %s.\n", recpath);
+        PySys_WriteStdout("Pyo error: savefile failed to open output file %s.\n", recpath);
         return PyInt_FromLong(-1);
     }
 
@@ -496,7 +495,7 @@ p_savefileFromTable(PyObject *self, PyObject *args, PyObject *kwds) {
     recinfo.format = libsndfile_get_format(fileformat, sampletype);
 
     if (! (recfile = sf_open(recpath, SFM_WRITE, &recinfo))) {
-        PySys_WriteStdout("savefileFromTable: failed to open output file %s.\n", recpath);
+        PySys_WriteStdout("Pyo error: savefileFromTable failed to open output file %s.\n", recpath);
         Py_XDECREF(base_objs);
         Py_XDECREF(tablestreamlist);
         return PyInt_FromLong(-1);
@@ -673,7 +672,7 @@ p_upsamp(PyObject *self, PyObject *args, PyObject *kwds)
     info.format = 0;
     sf = sf_open(inpath, SFM_READ, &info);
     if (sf == NULL) {
-        PySys_WriteStdout("upsamp: failed to open the input file %s.\n", inpath);
+        PySys_WriteStdout("Pyo error: upsamp failed to open the input file %s.\n", inpath);
         return PyInt_FromLong(-1);
     }
     snd_size = info.frames;
@@ -726,7 +725,7 @@ p_upsamp(PyObject *self, PyObject *args, PyObject *kwds)
     }
 
     if (! (sf = sf_open(outpath, SFM_WRITE, &info))) {
-        PySys_WriteStdout("upsamp: failed to open output file %s.\n", outpath);
+        PySys_WriteStdout("Pyo error: upsamp failed to open output file %s.\n", outpath);
         free(tmp);
         for (i=0; i<snd_chnls; i++) {
             free(samples[i]);
@@ -777,7 +776,7 @@ p_downsamp(PyObject *self, PyObject *args, PyObject *kwds)
     info.format = 0;
     sf = sf_open(inpath, SFM_READ, &info);
     if (sf == NULL) {
-        PySys_WriteStdout("downsamp: failed to open the input file %s.\n", inpath);
+        PySys_WriteStdout("Pyo error: downsamp failed to open the input file %s.\n", inpath);
         return PyInt_FromLong(-1);
     }
     snd_size = info.frames;
@@ -835,7 +834,7 @@ p_downsamp(PyObject *self, PyObject *args, PyObject *kwds)
     }
 
     if (! (sf = sf_open(outpath, SFM_WRITE, &info))) {
-        PySys_WriteStdout("downsamp: failed to open the output file %s.\n", outpath);
+        PySys_WriteStdout("Pyo error: downsamp failed to open the output file %s.\n", outpath);
         free(tmp);
         for (i=0; i<snd_chnls; i++) {
             free(samples[i]);
@@ -1555,7 +1554,7 @@ static PyObject *
 sampsToSec(PyObject *self, PyObject *arg) {
     PyObject *server = PyServer_get_server();
     if (server == NULL) {
-        PySys_WriteStdout("Warning: A Server must be booted before calling `sampsToSec` function.\n");
+        PySys_WriteStdout("Pyo error: A Server must be booted before calling `sampsToSec` function.\n");
         Py_RETURN_NONE;
     }
     double sr = PyFloat_AsDouble(PyObject_CallMethod(server, "getSamplingRate", NULL));
@@ -1607,7 +1606,7 @@ static PyObject *
 secToSamps(PyObject *self, PyObject *arg) {
     PyObject *server = PyServer_get_server();
     if (server == NULL) {
-        PySys_WriteStdout("Warning: A Server must be booted before calling `secToSamps` function.\n");
+        PySys_WriteStdout("Pyo error: A Server must be booted before calling `secToSamps` function.\n");
         Py_RETURN_NONE;
     }
     double sr = PyFloat_AsDouble(PyObject_CallMethod(server, "getSamplingRate", NULL));
@@ -1686,7 +1685,7 @@ serverBooted(PyObject *self) {
         }
     }
     else {
-        PySys_WriteStdout("Warning: A Server must be created before calling `serverBooted` function.\n");
+        PySys_WriteStdout("Pyo Warning: A Server must be created before calling `serverBooted` function.\n");
         Py_INCREF(Py_False);
         return Py_False;
     }

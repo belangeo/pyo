@@ -7,10 +7,7 @@ To do ASAP!
   file on a tmpfs, which is basically a filesystem in RAM.
   mail: "Server recording to wav generates many xruns (Aug 26)".
 
-- Push all messages to a more verbose mode.
-    . pyo version 0.9.0 (uses single precision)
-    . Portmidi warning: ...
-    . etc.
+- Review every "PyErr_SetString(PyExc_TypeError)" and "PySys_WriteStdout()" calls.
 
 This is a list of features/fixes to implement for future releases
 =================================================================

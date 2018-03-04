@@ -131,7 +131,7 @@ Server_error(Server *self, char * format, ...)
         vsprintf (buffer,format, args);
         va_end (args);
 
-        PySys_WriteStdout("%s",buffer);
+        PySys_WriteStdout("Pyo error: %s", buffer);
     }
 }
 
@@ -147,7 +147,7 @@ Server_message(Server *self, char * format, ...)
         vsprintf (buffer,format, args);
         va_end (args);
 
-        PySys_WriteStdout("%s",buffer);
+        PySys_WriteStdout("Pyo message: %s", buffer);
     }
 }
 
@@ -163,7 +163,7 @@ Server_warning(Server *self, char * format, ...)
         va_start (args, format);
         vsprintf (buffer,format, args);
         va_end (args);
-        PySys_WriteStdout("%s",buffer);
+        PySys_WriteStdout("Pyo warning: %s", buffer);
     }
 #endif
 }
@@ -180,7 +180,7 @@ Server_debug(Server *self, char * format, ...)
         vsprintf (buffer,format, args);
         va_end (args);
 
-        PySys_WriteStdout("%s",buffer);
+        PySys_WriteStdout("Pyo debug: %s", buffer);
     }
 }
 
@@ -207,12 +207,12 @@ void
 
     PyGILState_STATE s = PyGILState_Ensure();
     if (self->recdur < 0) {
-        Server_error(self,"Duration must be specified for Offline Server (see Server.recordOptions).");
+        Server_error(self, "Duration must be specified for Offline Server (see Server.recordOptions).");
     }
     else {
-        Server_message(self,"Offline Server rendering file %s dur=%f\n", self->recpath, self->recdur);
+        Server_message(self, "Offline Server rendering file %s dur=%f\n", self->recpath, self->recdur);
         numBlocks = ceil(self->recdur * self->samplingRate/self->bufferSize);
-        Server_debug(self,"Number of blocks: %i\n", numBlocks);
+        Server_debug(self,"Offline Server rendering, number of blocks = %i\n", numBlocks);
         Server_start_rec_internal(self, self->recpath);
         while (numBlocks-- > 0 && self->server_stopped == 0) {
             offline_process_block((Server *) self);
@@ -220,7 +220,7 @@ void
         self->server_started = 0;
         self->record = 0;
         sf_close(self->recfile);
-        Server_message(self,"Offline Server rendering finished.\n");
+        Server_message(self, "Offline Server rendering finished.\n");
     }
     PyGILState_Release(s);
 
@@ -241,12 +241,12 @@ Server_offline_start(Server *self)
     int numBlocks;
 
     if (self->recdur < 0) {
-        Server_error(self,"Duration must be specified for Offline Server (see Server.recordOptions).");
+        Server_error(self, "Duration must be specified for Offline Server (see Server.recordOptions).");
         return -1;
     }
-    Server_message(self,"Offline Server rendering file %s dur=%f\n", self->recpath, self->recdur);
+    Server_message(self, "Offline Server rendering file %s dur=%f\n", self->recpath, self->recdur);
     numBlocks = ceil(self->recdur * self->samplingRate/self->bufferSize);
-    Server_debug(self,"Number of blocks: %i\n", numBlocks);
+    Server_debug(self,"Offline Server rendering, number of blocks = %i\n", numBlocks);
     Server_start_rec_internal(self, self->recpath);
     while (numBlocks-- > 0 && self->server_stopped == 0) {
         offline_process_block((Server *) self);
@@ -255,7 +255,7 @@ Server_offline_start(Server *self)
     self->server_stopped = 1;
     self->record = 0;
     sf_close(self->recfile);
-    Server_message(self,"Offline Server rendering finished.\n");
+    Server_message(self, "Offline Server rendering finished.\n");
     return 0;
 }
 
@@ -747,7 +747,7 @@ static PyObject *
 Server_setInputOffset(Server *self, PyObject *arg)
 {
     if (self->server_booted) {
-        Server_warning(self, "Can't change input offset for booted server.\n");
+        Server_warning(self, "Can't change input offset when the Server is already booted.\n");
         Py_RETURN_NONE;
     }
     if (arg != NULL) {
@@ -761,7 +761,7 @@ static PyObject *
 Server_setOutputOffset(Server *self, PyObject *arg)
 {
     if (self->server_booted) {
-        Server_warning(self, "Can't change output offset for booted server.\n");
+        Server_warning(self, "Can't change output offset when the Server is already booted.\n");
         Py_RETURN_NONE;
     }
     if (arg != NULL) {
@@ -834,7 +834,7 @@ static PyObject *
 Server_setSamplingRate(Server *self, PyObject *arg)
 {
     if (self->server_booted) {
-        Server_warning(self, "Can't change sampling rate for booted server.\n");
+        Server_warning(self, "Can't change sampling rate when the Server is already booted.\n");
         Py_RETURN_NONE;
     }
     if (arg != NULL && PyNumber_Check(arg)) {
@@ -850,7 +850,7 @@ static PyObject *
 Server_setNchnls(Server *self, PyObject *arg)
 {
     if (self->server_booted) {
-        Server_warning(self, "Can't change number of channels for booted server.\n");
+        Server_warning(self, "Can't change number of channels when the Server is already booted.\n");
         Py_RETURN_NONE;
     }
     if (arg != NULL && PyInt_Check(arg)) {
@@ -866,7 +866,7 @@ static PyObject *
 Server_setIchnls(Server *self, PyObject *arg)
 {
     if (self->server_booted) {
-        Server_warning(self, "Can't change number of input channels for booted server.\n");
+        Server_warning(self, "Can't change number of input channels when the Server is already booted.\n");
         Py_RETURN_NONE;
     }
     if (arg != NULL && PyInt_Check(arg)) {
@@ -882,7 +882,7 @@ static PyObject *
 Server_setBufferSize(Server *self, PyObject *arg)
 {
     if (self->server_booted) {
-        Server_warning(self, "Can't change buffer size for booted server.\n");
+        Server_warning(self, "Can't change buffer size when the Server is already booted.\n");
         Py_RETURN_NONE;
     }
     if (arg != NULL && PyInt_Check(arg)) {
@@ -916,7 +916,7 @@ static PyObject *
 Server_setDuplex(Server *self, PyObject *arg)
 {
     if (self->server_booted) {
-        Server_warning(self,"Can't change duplex mode for booted server.\n");
+        Server_warning(self,"Can't change duplex mode when the Server is already booted.\n");
         Py_RETURN_NONE;
     }
     if (arg != NULL) {
@@ -1089,7 +1089,7 @@ static PyObject *
 Server_setIsJackTransportSlave(Server *self, PyObject *arg)
 {
     if (self->server_booted) {
-        Server_warning(self,"Can't change isJackTransportSlave mode for booted server.\n");
+        Server_warning(self,"Can't change isJackTransportSlave mode when the Server is already booted.\n");
         Py_RETURN_NONE;
     }
     if (arg != NULL) {
@@ -1345,7 +1345,7 @@ Server_boot(Server *self, PyObject *arg)
         Server_error(self, "The argument to set for a new buffer must be a boolean.\n");
     }
 
-    Server_debug(self, "Server_boot: streams list size (must always be 0): %d\n",
+    Server_debug(self, "Streams list size at Server boot (must always be 0) = %d\n",
                  PyList_Size(self->streams));
     switch (self->audio_be_type) {
         case PyoPortaudio:
@@ -1448,24 +1448,24 @@ Server_start(Server *self)
     }
 
     if (self->server_booted == 0) {
-        Server_warning(self, "The Server must be booted!\n");
+        Server_warning(self, "The Server must be booted before calling the start method!\n");
         Py_RETURN_NONE;
     }
 
-    Server_debug(self, "Server_start: number of streams %d\n", self->stream_count);
+    Server_debug(self, "Number of streams at Server start = %d\n", self->stream_count);
 
     self->server_stopped = 0;
     self->server_started = 1;
     self->timeStep = (int)(0.005 * self->samplingRate);
 
     if (self->startoffset > 0.0) {
-        Server_message(self,"Rendering %.2f seconds offline...\n", self->startoffset);
+        Server_message(self, "Rendering %.2f seconds offline...\n", self->startoffset);
         int numBlocks = ceil(self->startoffset * self->samplingRate/self->bufferSize);
         self->lastAmp = 1.0; self->amp = 0.0;
         while (numBlocks-- > 0) {
             offline_process_block((Server *) self);
         }
-        Server_message(self,"Offline rendering completed. Start realtime processing.\n");
+        Server_message(self, "Offline rendering completed. Start realtime processing.\n");
         self->startoffset = 0.0;
     }
 
@@ -1574,8 +1574,8 @@ Server_start_rec_internal(Server *self, char *filename)
     self->recinfo.samplerate = (int)self->samplingRate;
     self->recinfo.channels = self->nchnls;
 
-    Server_debug(self, "recinfo.samplerate : %i\n", self->recinfo.samplerate);
-    Server_debug(self, "recinfo.channels : %i\n", self->recinfo.channels);
+    Server_debug(self, "Recording samplerate = %i\n", self->recinfo.samplerate);
+    Server_debug(self, "Recording number of channels = %i\n", self->recinfo.channels);
 
     switch (self->recformat) {
         case 0:
@@ -1628,11 +1628,11 @@ Server_start_rec_internal(Server *self, char *filename)
                 break;
         }
     }
-    Server_debug(self, "recinfo.format : %i\n", self->recinfo.format);
+    Server_debug(self, "Recording format = %i\n", self->recinfo.format);
 
     /* Open the output file. */
     if (filename == NULL) {
-        Server_debug(self, "recpath : %s\n", self->recpath);
+        Server_debug(self, "Recording path = %s\n", self->recpath);
         if (! (self->recfile = sf_open(self->recpath, SFM_WRITE, &self->recinfo))) {
             Server_error(self, "Not able to open output file %s.\n", self->recpath);
             Server_debug(self, "%s\n", sf_strerror(self->recfile));
@@ -1640,7 +1640,7 @@ Server_start_rec_internal(Server *self, char *filename)
         }
     }
     else {
-        Server_debug(self, "filename : %s\n", filename);
+        Server_debug(self, "Recording filename path = %s\n", filename);
         if (! (self->recfile = sf_open(filename, SFM_WRITE, &self->recinfo))) {
             Server_error(self, "Not able to open output file %s.\n", filename);
             Server_debug(self, "%s\n", sf_strerror(self->recfile));
@@ -1675,7 +1675,7 @@ Server_addStream(Server *self, PyObject *args)
         return PyInt_FromLong(-1);
 
     if (tmp == NULL) {
-        Server_error(self, "Server_addStream needs a pyo object as argument.\n");
+        Server_error(self, "Server_addStream function needs a PyoObject as argument.\n");
         return PyInt_FromLong(-1);
     }
 

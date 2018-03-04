@@ -201,7 +201,7 @@ static void
 jack_error_cb(const char *desc) {
 #ifndef NDEBUG
     PyGILState_STATE s = PyGILState_Ensure();
-    PySys_WriteStdout("JACK error: %s\n", desc);
+    PySys_WriteStdout("Jack error: %s\n", desc);
     PyGILState_Release(s);
 #endif
 }
@@ -216,7 +216,7 @@ jack_shutdown_cb(void *arg) {
 
     PyGILState_STATE s = PyGILState_Ensure();
     Server_shutdown(server);
-    Server_warning(server, "JACK server shutdown. Pyo Server also shutdown.\n");
+    Server_warning(server, "Jack server shutdown. Pyo Server also shutdown.\n");
     PyGILState_Release(s);
 }
 
@@ -234,7 +234,7 @@ Server_jack_autoconnect(Server *self) {
         Py_END_ALLOW_THREADS
 
         if (ports == NULL) {
-            Server_error(self, "Jack: Cannot find any physical capture ports called 'system'\n");
+            Server_error(self, "Jack cannot find any physical capture ports called 'system'\n");
         }
 
         i = 0;
@@ -245,7 +245,7 @@ Server_jack_autoconnect(Server *self) {
             Py_END_ALLOW_THREADS
 
             if (err) {
-                Server_error(self, "Jack: cannot connect 'system' to input ports\n");
+                Server_error(self, "Jack cannot connect 'system' to input ports\n");
             }
             i++;
         }
@@ -259,7 +259,7 @@ Server_jack_autoconnect(Server *self) {
         Py_END_ALLOW_THREADS
 
         if (ports == NULL) {
-            Server_error(self, "Jack: Cannot find any physical playback ports called 'system'\n");
+            Server_error(self, "Jack cannot find any physical playback ports called 'system'\n");
         }
 
         i = 0;
@@ -270,7 +270,7 @@ Server_jack_autoconnect(Server *self) {
             Py_END_ALLOW_THREADS
 
             if (err) {
-                Server_error(self, "Jack: cannot connect output ports to 'system'\n");
+                Server_error(self, "Jack cannot connect output ports to 'system'\n");
             }
             i++;
         }
@@ -280,7 +280,7 @@ Server_jack_autoconnect(Server *self) {
     num = PyList_Size(self->jackAutoConnectInputPorts);
     if (num > 0) {
         if (num != self->ichnls || !PyList_Check(PyList_GetItem(self->jackAutoConnectInputPorts, 0))) {
-            Server_error(self, "Jack: auto-connect input ports list size does not match server.ichnls.\n");
+            Server_error(self, "Jack auto-connect input ports list size does not match server.ichnls.\n");
         } 
         else {
             for (j=0; j<self->ichnls; j++) {
@@ -295,11 +295,11 @@ Server_jack_autoconnect(Server *self) {
                         Py_END_ALLOW_THREADS
 
                         if (err) {
-                            Server_error(self, "Jack: cannot connect '%s' to input port %d\n", portname, j);
+                            Server_error(self, "Jack cannot connect '%s' to input port %d\n", portname, j);
                         }
                     }
                     else {
-                        Server_error(self, "Jack: cannot find port '%s'\n", portname);
+                        Server_error(self, "Jack cannot find port '%s'\n", portname);
                     }
                 }
             }
@@ -309,7 +309,7 @@ Server_jack_autoconnect(Server *self) {
     num = PyList_Size(self->jackAutoConnectOutputPorts);
     if (num > 0) {
         if (num != self->nchnls || !PyList_Check(PyList_GetItem(self->jackAutoConnectOutputPorts, 0))) {
-            Server_error(self, "Jack: auto-connect output ports list size does not match server.nchnls.\n");
+            Server_error(self, "Jack auto-connect output ports list size does not match server.nchnls.\n");
         } else {
             for (j=0; j<self->nchnls; j++) {
                 num = PyList_Size(PyList_GetItem(self->jackAutoConnectOutputPorts, j));
@@ -322,11 +322,11 @@ Server_jack_autoconnect(Server *self) {
                         Py_END_ALLOW_THREADS
 
                         if (err) {
-                            Server_error(self, "Jack: cannot connect output port %d to '%s'\n", j, portname);
+                            Server_error(self, "Jack cannot connect output port %d to '%s'\n", j, portname);
                         }
                     }
                     else {
-                        Server_error(self, "Jack: cannot find port '%s'\n", portname);
+                        Server_error(self, "Jack cannot find port '%s'\n", portname);
                     }
                 }
             }
@@ -346,11 +346,11 @@ Server_jack_autoconnect(Server *self) {
                     Py_END_ALLOW_THREADS
 
                     if (err) {
-                        Server_error(self, "Jack: cannot connect '%s' to midi input port\n", portname);
+                        Server_error(self, "Jack cannot connect '%s' to midi input port\n", portname);
                     }
                 }
                 else {
-                    Server_error(self, "Jack: cannot find port '%s'\n", portname);
+                    Server_error(self, "Jack cannot find port '%s'\n", portname);
                 }
             }
         }
@@ -367,11 +367,11 @@ Server_jack_autoconnect(Server *self) {
                     Py_END_ALLOW_THREADS
 
                     if (err) {
-                        Server_error(self, "Jack: cannot connect '%s' to midi output port\n", portname);
+                        Server_error(self, "Jack cannot connect '%s' to midi output port\n", portname);
                     }
                 }
                 else {
-                    Server_error(self, "Jack: cannot find port '%s'\n", portname);
+                    Server_error(self, "Jack cannot find port '%s'\n", portname);
                 }
             }
         }
@@ -412,19 +412,19 @@ Server_jack_init(Server *self) {
     Py_END_ALLOW_THREADS
 
     if (be_data->jack_client == NULL) {
-        Server_error(self, "Jack error: Unable to create JACK client\n");
+        Server_error(self, "Jack unable to create client\n");
         if (status & JackServerFailed) {
-            Server_debug(self, "Jack error: jack_client_open() failed, "
-            "status = 0x%2.0x\n", status);
+            Server_debug(self, "Jack jack_client_open() failed, "
+                         "status = 0x%2.0x\n", status);
         }
         return -1;
     }
     if (status & JackServerStarted) {
-        Server_warning(self, "JACK server started.\n");
+        Server_warning(self, "Jack server started.\n");
     }
     if (strcmp(self->serverName, jack_get_client_name(be_data->jack_client)) ) {
         strcpy(self->serverName, jack_get_client_name(be_data->jack_client));
-        Server_warning(self, "Jack name `%s' assigned\n", self->serverName);
+        Server_warning(self, "Jack name `%s' assigned.\n", self->serverName);
     }
 
     sampleRate = jack_get_sample_rate(be_data->jack_client);
@@ -436,7 +436,7 @@ Server_jack_init(Server *self) {
         Server_debug(self, "Jack engine sample rate: %" PRIu32 "\n", sampleRate);
     }
     if (sampleRate <= 0) {
-        Server_error(self, "Invalid Jack engine sample rate.");
+        Server_error(self, "Jack invalid engine sample rate.");
 
         Py_BEGIN_ALLOW_THREADS
         jack_client_close(be_data->jack_client);
@@ -481,7 +481,7 @@ Server_jack_init(Server *self) {
         }
 
         if ((be_data->jack_in_ports[index] == NULL)) {
-            Server_error(self, "Jack: no more JACK input ports available\n");
+            Server_error(self, "No more Jack input ports available\n");
             return -1;
         }
     }
@@ -501,7 +501,7 @@ Server_jack_init(Server *self) {
 
         }
         if ((be_data->jack_out_ports[index] == NULL)) {
-            Server_error(self, "Jack: no more JACK output ports available\n");
+            Server_error(self, "No more Jack output ports available\n");
             return -1;
         }
     }
@@ -519,7 +519,7 @@ Server_jack_init(Server *self) {
     Py_END_ALLOW_THREADS
 
     if (ret) {
-        Server_error(self, "Jack error: cannot activate jack client.\n");
+        Server_error(self, "Jack cannot activate jack client.\n");
         return -1;
     }
 
@@ -542,7 +542,7 @@ Server_jack_deinit(Server *self) {
         Py_END_ALLOW_THREADS
 
         if (ret)
-            Server_error(self, "Jack error: cannot deactivate jack client.\n");
+            Server_error(self, "Jack cannot deactivate jack client.\n");
 
 
         Py_BEGIN_ALLOW_THREADS
@@ -550,7 +550,7 @@ Server_jack_deinit(Server *self) {
         Py_END_ALLOW_THREADS
 
         if (ret)
-            Server_error(self, "Jack error: cannot close client.\n");
+            Server_error(self, "Jack cannot close client.\n");
     }
 
     be_data->activated = 0;
@@ -587,7 +587,7 @@ jack_input_port_set_names(Server *self) {
             Py_END_ALLOW_THREADS
 
             if (err)
-                Server_error(self, "Jack error: cannot change port short name.\n");
+                Server_error(self, "Jack cannot change port short name.\n");
         }
     }
     else if (PY_STRING_CHECK(self->jackInputPortNames)) {
@@ -604,11 +604,11 @@ jack_input_port_set_names(Server *self) {
             Py_END_ALLOW_THREADS
 
             if (err)
-                Server_error(self, "Jack error: cannot change port short name.\n");
+                Server_error(self, "Jack cannot change port short name.\n");
         }
     }
     else
-        Server_error(self, "Jack error: input port names must be a string or a list of strings.\n");
+        Server_error(self, "Jack input port names must be a string or a list of strings.\n");
 
     return 0;
 }
@@ -634,7 +634,7 @@ jack_output_port_set_names(Server *self) {
             Py_END_ALLOW_THREADS
 
             if (err)
-                Server_error(self, "Jack error: cannot change port short name.\n");
+                Server_error(self, "Jack cannot change port short name.\n");
         }
     }
     else if (PY_STRING_CHECK(self->jackOutputPortNames)) {
@@ -651,11 +651,11 @@ jack_output_port_set_names(Server *self) {
             Py_END_ALLOW_THREADS
 
             if (err)
-                Server_error(self, "Jack error: cannot change port short name.\n");
+                Server_error(self, "Jack cannot change port short name.\n");
         }
     }
     else
-        Server_error(self, "Jack error: output port names must be a string or a list of strings.\n");
+        Server_error(self, "Jack output port names must be a string or a list of strings.\n");
 
     return 0;
 }
@@ -678,10 +678,10 @@ jack_midi_input_port_set_name(Server *self) {
         Py_END_ALLOW_THREADS
 
         if (err)
-            Server_error(self, "Jack error: cannot change midi input port short name.\n");
+            Server_error(self, "Jack cannot change midi input port short name.\n");
     }
     else
-        Server_error(self, "Jack error: midi input port name must be a string.\n");
+        Server_error(self, "Jack midi input port name must be a string.\n");
 
     return 0;
 }
@@ -704,10 +704,10 @@ jack_midi_output_port_set_name(Server *self) {
         Py_END_ALLOW_THREADS
 
         if (err)
-            Server_error(self, "Jack error: cannot change midi output port short name.\n");
+            Server_error(self, "Jack cannot change midi output port short name.\n");
     }
     else
-        Server_error(self, "Jack error: midi output port name must be a string.\n");
+        Server_error(self, "Jack midi output port name must be a string.\n");
 
     return 0;
 }

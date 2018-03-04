@@ -29,7 +29,7 @@ static void portaudio_assert(PaError ecode, const char* cmdName) {
         if (!eText) {
             eText = "???";
         }
-        PySys_WriteStdout("portaudio error in %s: %s\n", cmdName, eText);
+        PySys_WriteStdout("Portaudio error in %s: %s\n", cmdName, eText);
 
         if (strcmp(cmdName, "Pa_Initialize") != 0) {
 
@@ -207,7 +207,7 @@ Server_pa_init(Server *self)
     memset(&outputParameters, 0, sizeof(outputParameters));
     outputParameters.device = outDevice;
     if (self->nchnls + self->output_offset > Pa_GetDeviceInfo(outDevice)->maxOutputChannels) {
-        Server_warning(self, "Portaudio: output device `%s` has fewer channels (%d) than requested (%d).\n",
+        Server_warning(self, "Portaudio output device `%s` has fewer channels (%d) than requested (%d).\n",
                        Pa_GetDeviceInfo(outDevice)->name, Pa_GetDeviceInfo(outDevice)->maxOutputChannels,
                        self->nchnls + self->output_offset);
         self->nchnls = Pa_GetDeviceInfo(outDevice)->maxOutputChannels;
@@ -222,7 +222,7 @@ Server_pa_init(Server *self)
         memset(&inputParameters, 0, sizeof(inputParameters));
         inputParameters.device = inDevice;
         if (self->ichnls + self->input_offset > Pa_GetDeviceInfo(inDevice)->maxInputChannels) {
-            Server_warning(self, "Portaudio: input device `%s` has fewer channels (%d) than requested (%d).\n",
+            Server_warning(self, "Portaudio input device `%s` has fewer channels (%d) than requested (%d).\n",
                            Pa_GetDeviceInfo(inDevice)->name, Pa_GetDeviceInfo(inDevice)->maxInputChannels,
                            self->ichnls + self->input_offset);
             self->ichnls = Pa_GetDeviceInfo(inDevice)->maxInputChannels;
@@ -296,7 +296,7 @@ Server_pa_init(Server *self)
     }
     portaudio_assert(err, "Pa_OpenStream");
     if (err < 0) {
-        Server_error(self, "Portaudio error: %s\n", Pa_GetErrorText(err));
+        Server_error(self, "From portaudio, %s\n", Pa_GetErrorText(err));
         return -1;
     }
     return 0;
@@ -448,6 +448,7 @@ portaudio_list_host_apis(){
             portaudio_assert(n, "Pa_GetHostApiCount");
         }
         else {
+            PySys_WriteStdout("Host APIS:\n");
             for (i=0; i < n; ++i){
                 const PaHostApiInfo *info = Pa_GetHostApiInfo(i);
                 assert(info);
@@ -455,6 +456,7 @@ portaudio_list_host_apis(){
                                   i, (int)info->type, info->name, (int)info->deviceCount, (int)info->defaultInputDevice, 
                                   (int)info->defaultOutputDevice);
             }
+            PySys_WriteStdout("\n");
         }
 
         Py_BEGIN_ALLOW_THREADS

@@ -145,6 +145,11 @@ static PyObject * MidiListener_play(MidiListener *self) {
 
     if (pmerr) {
         PySys_WriteStdout("Portmidi warning: could not initialize Portmidi: %s\n", Pm_GetErrorText(pmerr));
+        if (Pt_Started()) {
+            Pt_Stop();
+        }
+        Py_INCREF(Py_None);
+        return Py_None;
     }
 
     lsize = PyList_Size(self->mididev);
@@ -166,7 +171,7 @@ static PyObject * MidiListener_play(MidiListener *self) {
 
                         if (pmerr) {
                             PySys_WriteStdout("Portmidi warning: could not open midi input %d (%s): %s\n",
-                                 mididev, info->name, Pm_GetErrorText(pmerr));
+                                              mididev, info->name, Pm_GetErrorText(pmerr));
                         }
                         else {
                             self->midicount = 1;
@@ -188,7 +193,7 @@ static PyObject * MidiListener_play(MidiListener *self) {
 
                             if (pmerr) {
                                 PySys_WriteStdout("Portmidi warning: could not open midi input %d (%s): %s\n",
-                                        i, info->name, Pm_GetErrorText(pmerr));
+                                                  i, info->name, Pm_GetErrorText(pmerr));
                             }
                             else {
                                 self->ids[self->midicount] = i;
@@ -214,7 +219,7 @@ static PyObject * MidiListener_play(MidiListener *self) {
 
                         if (pmerr) {
                             PySys_WriteStdout("Portmidi warning: could not open midi input %d (%s): %s\n",
-                                    i, info->name, Pm_GetErrorText(pmerr));
+                                              i, info->name, Pm_GetErrorText(pmerr));
                         }
                         else {
                             self->ids[self->midicount] = i;
@@ -232,6 +237,11 @@ static PyObject * MidiListener_play(MidiListener *self) {
 
     if (self->midicount > 0)
         self->active = 1;
+    else {
+        if (Pt_Started()) {
+            Pt_Stop();
+        }
+    }
 
 	Py_INCREF(Py_None);
 	return Py_None;
@@ -241,7 +251,9 @@ static PyObject * MidiListener_stop(MidiListener *self) {
     int i;
 
     Py_BEGIN_ALLOW_THREADS
-    Pt_Stop();
+    if (Pt_Started()) {
+        Pt_Stop();
+    }
     for (i=0; i<self->midicount; i++) {
         Pm_Close(self->midiin[i]);
     }
@@ -259,7 +271,7 @@ MidiListener_setMidiFunction(MidiListener *self, PyObject *arg)
 	PyObject *tmp;
 
 	if (! PyCallable_Check(arg)) {
-        PyErr_SetString(PyExc_TypeError, "The callable attribute must be a valid Python function.");
+        PyErr_SetString(PyExc_TypeError, "Pyo error: MidiListener callable attribute must be a valid Python function.");
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
@@ -403,6 +415,11 @@ static PyObject * MidiDispatcher_play(MidiDispatcher *self) {
 
     if (pmerr) {
         PySys_WriteStdout("Portmidi warning: could not initialize Portmidi: %s\n", Pm_GetErrorText(pmerr));
+        if (Pt_Started()) {
+            Pt_Stop();
+        }
+        Py_INCREF(Py_None);
+        return Py_None;
     }
 
     lsize = PyList_Size(self->mididev);
@@ -424,7 +441,7 @@ static PyObject * MidiDispatcher_play(MidiDispatcher *self) {
 
                         if (pmerr) {
                             PySys_WriteStdout("Portmidi warning: could not open midi output %d (%s): %s\n",
-                                 mididev, info->name, Pm_GetErrorText(pmerr));
+                                              mididev, info->name, Pm_GetErrorText(pmerr));
                         }
                         else {
                             self->midicount = 1;
@@ -446,7 +463,7 @@ static PyObject * MidiDispatcher_play(MidiDispatcher *self) {
 
                             if (pmerr) {
                                 PySys_WriteStdout("Portmidi warning: could not open midi output %d (%s): %s\n",
-                                        i, info->name, Pm_GetErrorText(pmerr));
+                                                  i, info->name, Pm_GetErrorText(pmerr));
                             }
                             else {
                                 self->ids[self->midicount] = i;
@@ -472,7 +489,7 @@ static PyObject * MidiDispatcher_play(MidiDispatcher *self) {
 
                         if (pmerr) {
                             PySys_WriteStdout("Portmidi warning: could not open midi output %d (%s): %s\n",
-                                    i, info->name, Pm_GetErrorText(pmerr));
+                                              i, info->name, Pm_GetErrorText(pmerr));
                         }
                         else {
                             self->ids[self->midicount] = i;
@@ -486,6 +503,11 @@ static PyObject * MidiDispatcher_play(MidiDispatcher *self) {
 
     if (self->midicount > 0)
         self->active = 1;
+    else {
+        if (Pt_Started()) {
+            Pt_Stop();
+        }
+    }
 
 	Py_INCREF(Py_None);
 	return Py_None;
@@ -495,7 +517,9 @@ static PyObject * MidiDispatcher_stop(MidiDispatcher *self) {
     int i;
 
     Py_BEGIN_ALLOW_THREADS
-    Pt_Stop();
+    if (Pt_Started()) {
+        Pt_Stop();
+    }
     for (i=0; i<self->midicount; i++) {
         Pm_Close(self->midiout[i]);
     }
