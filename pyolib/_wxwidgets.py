@@ -139,8 +139,10 @@ class ControlSlider(wx.Panel):
 
         if sys.platform == "win32" or sys.platform.startswith("linux"):
             self.dcref = wx.BufferedPaintDC
+            self.font = wx.Font(7, wx.FONTFAMILY_TELETYPE, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL)
         else:
             self.dcref = wx.PaintDC
+            self.font = wx.Font(10, wx.FONTFAMILY_TELETYPE, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL)
 
     def getCtrlLabel(self):
         return self.ctrllabel
@@ -386,10 +388,7 @@ class ControlSlider(wx.Panel):
             gc.SetBrush(brush)
             gc.DrawRoundedRectangle(rec[0], rec[1], rec[2], rec[3], 3)
 
-        if sys.platform == 'win32' or sys.platform.startswith('linux'):
-            dc.SetFont(wx.Font(7, wx.FONTFAMILY_ROMAN, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL))
-        else:
-            dc.SetFont(wx.Font(10, wx.FONTFAMILY_ROMAN, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL))
+        dc.SetFont(self.font)
 
         # Draw text
         if self.selected and self.new:
