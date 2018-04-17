@@ -53,8 +53,8 @@ typedef struct {
 static MYFLT
 C_clip(MYFLT x)
 {
-    if (x < 0.00000001)
-        return 0.00000001;
+    if (x < 1.0e-20)
+        return 1.0e-20;
     else if (x > 1.0)
         return 1.0;
     else
@@ -127,7 +127,7 @@ Compress_compress_soft(Compress *self) {
         /* Compress signal */
         outa = 1.0;
         if (self->follow > ampthresh) { /* Above threshold */
-            indb = 20.0 * MYLOG10(C_clip(self->follow));
+            indb = 20.0 * MYLOG10(self->follow + 1.0e-20);
             diff = indb - thresh;
             outdb = diff - diff * ratio;
             outa = MYPOW(10.0, -outdb * 0.05);
@@ -135,7 +135,7 @@ Compress_compress_soft(Compress *self) {
         else if (self->follow > kneethresh) { /* Under the knee */
             kneescl = (self->follow - kneethresh) * invKneeRange;
             kneeratio = (((knee + 1.0) * kneescl) / (knee + kneescl)) * (ratio - 1.0) + 1.0;
-            indb = 20.0 * MYLOG10(C_clip(self->follow));
+            indb = 20.0 * MYLOG10(self->follow + 1.0e-20);
             diff = indb - thresh;
             outdb = diff - diff * kneeratio;
             outa = MYPOW(10.0, -outdb * 0.05);
