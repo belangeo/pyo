@@ -9,6 +9,8 @@ To do ASAP!
 
 - Review every "PyErr_SetString(PyExc_TypeError)" and "PySys_WriteStdout()" calls.
 
+- 'directsound' as default on Windows ?
+
 This is a list of features/fixes to implement for future releases
 =================================================================
 
