@@ -872,7 +872,7 @@ KEY_COMMANDS = {
 ALLOWED_EXT = PREFERENCES.get("allowed_ext",
                               ["py", "c5", "txt", "", "c", "h", "cpp", "hpp", "zy", "bat",
                                "sh", "rst", "iss", "sg", "md", "jsfx-inc", "lua", "css",
-                               "plist"])
+                               "plist", "dt", "dtlib"])
 
 ############## Pyo keywords ##############
 tree = OBJECTS_TREE
@@ -1536,7 +1536,7 @@ class ColourEditor(wx.Frame):
         choices = [f for f in os.listdir(STYLES_PATH) if f[0] != "."]
         self.choiceMenu.SetItems(choices)
         self.choiceMenu.SetSelection(0)
-        evt = wx.CommandEvent(10006, self.choiceMenu.GetId())
+        evt = wx.CommandEvent(wx.EVT_CHOICE.typeId, self.choiceMenu.GetId())
         evt.SetInt(0)
         evt.SetString(choices[0])
         self.choiceMenu.ProcessEvent(evt)
