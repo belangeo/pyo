@@ -526,6 +526,8 @@ extern PyTypeObject HRTFType;
 extern PyTypeObject ExpandType;
 extern PyTypeObject RMSType;
 extern PyTypeObject MidiLinsegType;
+extern PyTypeObject MultiBandMainType;
+extern PyTypeObject MultiBandType;
 
 /* Constants */
 #define E M_E

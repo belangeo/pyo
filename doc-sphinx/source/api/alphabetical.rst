@@ -134,6 +134,7 @@ Alphabetical class reference
 - :py:class:`Mix` :     Mix audio streams to arbitrary number of streams.
 - :py:class:`Mixer` :     Audio mixer.
 - :py:class:`MoogLP` :     A fourth-order resonant lowpass filter.
+- :py:class:`MultiBand` :     Splits an input signal into multiple frequency bands.
 - :py:class:`NewMatrix` :     Create a new matrix ready for recording.
 - :py:class:`NewTable` :     Create an empty table ready for recording.
 - :py:class:`NextTrig` :     A trigger in the second stream opens a gate only for the next one in the first stream.

@@ -125,7 +125,7 @@ OBJECTS_TREE = {
                                'Biquadx', 'IRWinSinc', 'IRAverage', 'IRPulse', 
                                'IRFM', 'FourBand', 'Biquada', 'Atone', 'SVF', 
                                'Average', 'Reson', 'Resonx', 'ButLP', 'ButHP', 
-                               'ButBP', 'ButBR', 'ComplexRes', 'MoogLP']),
+                               'ButBP', 'ButBR', 'ComplexRes', 'MoogLP', 'MultiBand']),
             'generators': sorted(['Noise', 'Phasor', 'Sine', 'Input', 'CrossFM', 
                                   'SineLoop', 'Blit', 'PinkNoise', 'FM', 'LFO', 
                                   'BrownNoise', 'Rossler', 'Lorenz', 'ChenLee', 

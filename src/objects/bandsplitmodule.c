@@ -1315,3 +1315,584 @@ PyTypeObject FourBandType = {
     0,                         /* tp_alloc */
     FourBand_new,                 /* tp_new */
 };
+
+/*****************/
+/* MultiBand main */
+/*****************/
+typedef struct {
+    pyo_audio_HEAD
+    PyObject *input;
+    Stream *input_stream;
+    int nbands; // 2 -> 32
+    // sample memories
+    double x1[62];
+    double x2[62];
+    double x3[62];
+    double x4[62];
+    double y1[62];
+    double y2[62];
+    double y3[62];
+    double y4[62];
+    // coefficients
+    double b1[31];
+    double b2[31];
+    double b3[31];
+    double b4[31];
+    double la0[31];
+    double la1[31];
+    double la2[31];
+    double ha0[31];
+    double ha1[31];
+    double ha2[31];
+    MYFLT *buffer_streams;
+} MultiBandMain;
+
+static void
+MultiBandMain_compute_variables(MultiBandMain *self, double freq, int band)
+{
+    double wc = TWOPI * freq;
+    double wc2 = wc * wc;
+    double wc3 = wc2 * wc;
+    double wc4 = wc2 * wc2;
+    double k = wc / tan(PI * freq / self->sr);
+    double k2 = k * k;
+    double k3 = k2 * k;
+    double k4 = k2 * k2;
+    double sqrt2 = sqrt(2.0);
+    double sq_tmp1 = sqrt2 * wc3 * k;
+    double sq_tmp2 = sqrt2 * wc * k3;
+    double a_tmp = 4.0 * wc2 * k2 + 2.0 * sq_tmp1 + k4 + 2.0 * sq_tmp2 + wc4;
+    double wc4_a_tmp = wc4 / a_tmp;
+    double k4_a_tmp = k4 / a_tmp;
+
+    /* common */
+    self->b1[band] = (4.0 * (wc4 + sq_tmp1 - k4 - sq_tmp2)) / a_tmp;
+    self->b2[band] = (6.0 * wc4 - 8.0 * wc2 * k2 + 6.0 * k4) / a_tmp;
+    self->b3[band] = (4.0 * (wc4 - sq_tmp1 + sq_tmp2 - k4)) / a_tmp;
+    self->b4[band] = (k4 - 2.0 * sq_tmp1 + wc4 - 2.0 * sq_tmp2 + 4.0 * wc2 * k2) / a_tmp;
+
+    /* lowpass */
+    self->la0[band] = wc4_a_tmp;
+    self->la1[band] = 4.0 * wc4_a_tmp;
+    self->la2[band] = 6.0 * wc4_a_tmp;
+
+    /* highpass */
+    self->ha0[band] = k4_a_tmp;
+    self->ha1[band] = -4.0 * k4_a_tmp;
+    self->ha2[band] = 6.0 * k4_a_tmp;
+}
+
+static void
+MultiBandMain_set_filter_frequencies(MultiBandMain *self)
+{
+    int i, nbounds = self->nbands - 1, minfreq = 50, maxfreq = 15000;
+    int frange = maxfreq - minfreq;
+    double norm, freq, step = 1.0 / self->nbands;
+    for (i=0; i<nbounds; i++) {
+        norm = pow((i + 1) * step, 3);
+        freq = norm * frange + minfreq;
+        MultiBandMain_compute_variables(self, freq, i);
+    }
+}
+
+static void
+MultiBandMain_filters(MultiBandMain *self) {
+    double val, inval, tmp;
+    int i, j, j1, ind, ind1;
+    int nb1 = self->nbands - 1;
+    int nb2 = self->nbands - 2;
+    int last = (self->nbands - 1) * 2 - 1;
+
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
+
+    for (i=0; i<self->bufsize; i++) {
+        inval = (double)in[i];
+        /* First band */
+        val = self->la0[0] * inval + self->la1[0] * self->x1[0] + self->la2[0] * self->x2[0] + 
+              self->la1[0] * self->x3[0] + self->la0[0] * self->x4[0] - self->b1[0] * self->y1[0] - 
+              self->b2[0] * self->y2[0] - self->b3[0] * self->y3[0] - self->b4[0] * self->y4[0];
+        self->y4[0] = self->y3[0];
+        self->y3[0] = self->y2[0];
+        self->y2[0] = self->y1[0];
+        self->y1[0] = val;
+        self->x4[0] = self->x3[0];
+        self->x3[0] = self->x2[0];
+        self->x2[0] = self->x1[0];
+        self->x1[0] = inval;
+        self->buffer_streams[i] = (MYFLT)val;
+
+        /* Second and third bands */
+        for (j=0; j<nb2; j++) {
+            j1 = j + 1;
+            ind = j * 2 + 1;
+            ind1 = ind + 1;
+            tmp = self->ha0[j] * inval + self->ha1[j] * self->x1[ind] + self->ha2[j] * self->x2[ind] + 
+                  self->ha1[j] * self->x3[ind] + self->ha0[j] * self->x4[ind] - self->b1[j] * self->y1[ind] - 
+                  self->b2[j] * self->y2[ind] - self->b3[j] * self->y3[ind] - self->b4[j] * self->y4[ind];
+            self->y4[ind] = self->y3[ind];
+            self->y3[ind] = self->y2[ind];
+            self->y2[ind] = self->y1[ind];
+            self->y1[ind] = tmp;
+            self->x4[ind] = self->x3[ind];
+            self->x3[ind] = self->x2[ind];
+            self->x2[ind] = self->x1[ind];
+            self->x1[ind] = inval;
+
+            val = self->la0[j1] * tmp + self->la1[j1] * self->x1[ind1] + self->la2[j1] * self->x2[ind1] + 
+                  self->la1[j1] * self->x3[ind1] + self->la0[j1] * self->x4[ind1] - self->b1[j1] * self->y1[ind1] - 
+                  self->b2[j1] * self->y2[ind1] - self->b3[j1] * self->y3[ind1] - self->b4[j1] * self->y4[ind1];
+            self->y4[ind1] = self->y3[ind1];
+            self->y3[ind1] = self->y2[ind1];
+            self->y2[ind1] = self->y1[ind1];
+            self->y1[ind1] = val;
+            self->x4[ind1] = self->x3[ind1];
+            self->x3[ind1] = self->x2[ind1];
+            self->x2[ind1] = self->x1[ind1];
+            self->x1[ind1] = tmp;
+
+            self->buffer_streams[i + j1 * self->bufsize] = (MYFLT)val;
+        }
+
+        val = self->ha0[nb2] * inval + self->ha1[nb2] * self->x1[last] + self->ha2[nb2] * self->x2[last] + 
+              self->ha1[nb2] * self->x3[last] + self->ha0[nb2] * self->x4[last] - self->b1[nb2] * self->y1[last] - 
+              self->b2[nb2] * self->y2[last] - self->b3[nb2] * self->y3[last] - self->b4[nb2] * self->y4[last];
+        self->y4[last] = self->y3[last];
+        self->y3[last] = self->y2[last];
+        self->y2[last] = self->y1[last];
+        self->y1[last] = val;
+        self->x4[last] = self->x3[last];
+        self->x3[last] = self->x2[last];
+        self->x2[last] = self->x1[last];
+        self->x1[last] = inval;
+        self->buffer_streams[i + nb1 * self->bufsize] = (MYFLT)val;
+    }
+}
+
+MYFLT *
+MultiBandMain_getSamplesBuffer(MultiBandMain *self)
+{
+    return (MYFLT *)self->buffer_streams;
+}
+
+static void
+MultiBandMain_setProcMode(MultiBandMain *self)
+{
+    self->proc_func_ptr = MultiBandMain_filters;
+}
+
+static void
+MultiBandMain_compute_next_data_frame(MultiBandMain *self)
+{
+    (*self->proc_func_ptr)(self);
+}
+
+static int
+MultiBandMain_traverse(MultiBandMain *self, visitproc visit, void *arg)
+{
+    pyo_VISIT
+    Py_VISIT(self->input);
+    Py_VISIT(self->input_stream);
+    return 0;
+}
+
+static int
+MultiBandMain_clear(MultiBandMain *self)
+{
+    pyo_CLEAR
+    Py_CLEAR(self->input);
+    Py_CLEAR(self->input_stream);
+    return 0;
+}
+
+static void
+MultiBandMain_dealloc(MultiBandMain* self)
+{
+    pyo_DEALLOC
+    free(self->buffer_streams);
+    MultiBandMain_clear(self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
+}
+
+static PyObject *
+MultiBandMain_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    int i;
+    PyObject *inputtmp, *input_streamtmp;
+    MultiBandMain *self;
+    self = (MultiBandMain *)type->tp_alloc(type, 0);
+
+    INIT_OBJECT_COMMON
+    Stream_setFunctionPtr(self->stream, MultiBandMain_compute_next_data_frame);
+    self->mode_func_ptr = MultiBandMain_setProcMode;
+
+    static char *kwlist[] = {"input", "num", NULL};
+
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "Oi", kwlist, &inputtmp, &self->nbands))
+        Py_RETURN_NONE;
+
+    INIT_INPUT_STREAM
+
+    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+
+    if (self->nbands < 2)
+        self->nbands = 2;
+    else if (self->nbands > 32)
+        self->nbands = 32;
+
+    for (i=0; i<62; i++) {
+        self->x1[i] = self->x2[i] = self->x3[i] = self->x4[i] = 0.0;
+        self->y1[i] = self->y2[i] = self->y3[i] = self->y4[i] = 0.0;
+    }
+    for (i=0; i<31; i++) {
+        self->b1[i] = self->b2[i] = self->b3[i] = self->b4[i] = self->la0[i] = 0.0;
+        self->la1[i] = self->la2[i] = self->ha0[i] = self->ha1[i] = self->ha2[i] = 0.0;
+    }
+
+    self->buffer_streams = (MYFLT *)realloc(self->buffer_streams, self->nbands * self->bufsize * sizeof(MYFLT));
+
+    for (i=0; i<(self->nbands * self->bufsize); i++) {
+        self->buffer_streams[i] = 0.0;
+    }
+
+    MultiBandMain_set_filter_frequencies(self);
+
+    (*self->mode_func_ptr)(self);
+
+    return (PyObject *)self;
+}
+
+static PyObject *
+MultiBandMain_setFrequencies(MultiBandMain* self, PyObject *arg) {
+    int i;
+    if PyList_Check(arg) {
+        if (PyList_Size(arg) == self->nbands) {
+            for (i=0; i<self->nbands; i++) {
+                MultiBandMain_compute_variables(self, PyFloat_AsDouble(PyList_GetItem(arg, i)), i);
+            }
+        }
+    }
+
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
+static PyObject * MultiBandMain_getServer(MultiBandMain* self) { GET_SERVER };
+static PyObject * MultiBandMain_getStream(MultiBandMain* self) { GET_STREAM };
+
+static PyObject * MultiBandMain_play(MultiBandMain *self, PyObject *args, PyObject *kwds) { PLAY };
+static PyObject * MultiBandMain_stop(MultiBandMain *self) { STOP };
+
+static PyMemberDef MultiBandMain_members[] = {
+    {"server", T_OBJECT_EX, offsetof(MultiBandMain, server), 0, "Pyo server."},
+    {"stream", T_OBJECT_EX, offsetof(MultiBandMain, stream), 0, "Stream object."},
+    {"input", T_OBJECT_EX, offsetof(MultiBandMain, input), 0, "Input sound object."},
+    {NULL}  /* Sentinel */
+};
+
+static PyMethodDef MultiBandMain_methods[] = {
+    {"getServer", (PyCFunction)MultiBandMain_getServer, METH_NOARGS, "Returns server object."},
+    {"_getStream", (PyCFunction)MultiBandMain_getStream, METH_NOARGS, "Returns stream object."},
+    {"setFrequencies", (PyCFunction)MultiBandMain_setFrequencies, METH_O, "Sets new filter cutoff frequencies."},
+    {"play", (PyCFunction)MultiBandMain_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+    {"stop", (PyCFunction)MultiBandMain_stop, METH_NOARGS, "Stops computing."},
+    {NULL}  /* Sentinel */
+};
+
+PyTypeObject MultiBandMainType = {
+    PyVarObject_HEAD_INIT(NULL, 0)
+    "_pyo.MultiBandMain_base",                                   /*tp_name*/
+    sizeof(MultiBandMain),                                 /*tp_basicsize*/
+    0,                                              /*tp_itemsize*/
+    (destructor)MultiBandMain_dealloc,                     /*tp_dealloc*/
+    0,                                              /*tp_print*/
+    0,                                              /*tp_getattr*/
+    0,                                              /*tp_setattr*/
+    0,                                              /*tp_as_async (tp_compare in Python 2)*/
+    0,                                              /*tp_repr*/
+    0,                              /*tp_as_number*/
+    0,                                              /*tp_as_sequence*/
+    0,                                              /*tp_as_mapping*/
+    0,                                              /*tp_hash */
+    0,                                              /*tp_call*/
+    0,                                              /*tp_str*/
+    0,                                              /*tp_getattro*/
+    0,                                              /*tp_setattro*/
+    0,                                              /*tp_as_buffer*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    "MultiBandMain objects. Split audio stream in four flat frequency and phase bands.",           /* tp_doc */
+    (traverseproc)MultiBandMain_traverse,                  /* tp_traverse */
+    (inquiry)MultiBandMain_clear,                          /* tp_clear */
+    0,                                              /* tp_richcompare */
+    0,                                              /* tp_weaklistoffset */
+    0,                                              /* tp_iter */
+    0,                                              /* tp_iternext */
+    MultiBandMain_methods,                                 /* tp_methods */
+    MultiBandMain_members,                                 /* tp_members */
+    0,                                              /* tp_getset */
+    0,                                              /* tp_base */
+    0,                                              /* tp_dict */
+    0,                                              /* tp_descr_get */
+    0,                                              /* tp_descr_set */
+    0,                                              /* tp_dictoffset */
+    0,                          /* tp_init */
+    0,                                              /* tp_alloc */
+    MultiBandMain_new,                                     /* tp_new */
+};
+
+/************************************************************************************************/
+/* MultiBand streamer object */
+/************************************************************************************************/
+typedef struct {
+    pyo_audio_HEAD
+    MultiBandMain *mainSplitter;
+    int modebuffer[2];
+    int chnl;
+} MultiBand;
+
+static void MultiBand_postprocessing_ii(MultiBand *self) { POST_PROCESSING_II };
+static void MultiBand_postprocessing_ai(MultiBand *self) { POST_PROCESSING_AI };
+static void MultiBand_postprocessing_ia(MultiBand *self) { POST_PROCESSING_IA };
+static void MultiBand_postprocessing_aa(MultiBand *self) { POST_PROCESSING_AA };
+static void MultiBand_postprocessing_ireva(MultiBand *self) { POST_PROCESSING_IREVA };
+static void MultiBand_postprocessing_areva(MultiBand *self) { POST_PROCESSING_AREVA };
+static void MultiBand_postprocessing_revai(MultiBand *self) { POST_PROCESSING_REVAI };
+static void MultiBand_postprocessing_revaa(MultiBand *self) { POST_PROCESSING_REVAA };
+static void MultiBand_postprocessing_revareva(MultiBand *self) { POST_PROCESSING_REVAREVA };
+
+static void
+MultiBand_setProcMode(MultiBand *self)
+{
+    int muladdmode;
+    muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
+
+	switch (muladdmode) {
+        case 0:
+            self->muladd_func_ptr = MultiBand_postprocessing_ii;
+            break;
+        case 1:
+            self->muladd_func_ptr = MultiBand_postprocessing_ai;
+            break;
+        case 2:
+            self->muladd_func_ptr = MultiBand_postprocessing_revai;
+            break;
+        case 10:
+            self->muladd_func_ptr = MultiBand_postprocessing_ia;
+            break;
+        case 11:
+            self->muladd_func_ptr = MultiBand_postprocessing_aa;
+            break;
+        case 12:
+            self->muladd_func_ptr = MultiBand_postprocessing_revaa;
+            break;
+        case 20:
+            self->muladd_func_ptr = MultiBand_postprocessing_ireva;
+            break;
+        case 21:
+            self->muladd_func_ptr = MultiBand_postprocessing_areva;
+            break;
+        case 22:
+            self->muladd_func_ptr = MultiBand_postprocessing_revareva;
+            break;
+    }
+}
+
+static void
+MultiBand_compute_next_data_frame(MultiBand *self)
+{
+    int i;
+    MYFLT *tmp;
+    int offset = self->chnl * self->bufsize;
+    tmp = MultiBandMain_getSamplesBuffer((MultiBandMain *)self->mainSplitter);
+    for (i=0; i<self->bufsize; i++) {
+        self->data[i] = tmp[i + offset];
+    }
+    (*self->muladd_func_ptr)(self);
+}
+
+static int
+MultiBand_traverse(MultiBand *self, visitproc visit, void *arg)
+{
+    pyo_VISIT
+    Py_VISIT(self->mainSplitter);
+    return 0;
+}
+
+static int
+MultiBand_clear(MultiBand *self)
+{
+    pyo_CLEAR
+    Py_CLEAR(self->mainSplitter);
+    return 0;
+}
+
+static void
+MultiBand_dealloc(MultiBand* self)
+{
+    pyo_DEALLOC
+    MultiBand_clear(self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
+}
+
+static PyObject *
+MultiBand_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    int i;
+    PyObject *maintmp=NULL, *multmp=NULL, *addtmp=NULL;
+    MultiBand *self;
+    self = (MultiBand *)type->tp_alloc(type, 0);
+
+    self->chnl = 0;
+	self->modebuffer[0] = 0;
+	self->modebuffer[1] = 0;
+
+    INIT_OBJECT_COMMON
+    Stream_setFunctionPtr(self->stream, MultiBand_compute_next_data_frame);
+    self->mode_func_ptr = MultiBand_setProcMode;
+
+    static char *kwlist[] = {"mainSplitter", "chnl", "mul", "add", NULL};
+
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|iOO", kwlist, &maintmp, &self->chnl, &multmp, &addtmp))
+        Py_RETURN_NONE;
+
+    Py_XDECREF(self->mainSplitter);
+    Py_INCREF(maintmp);
+    self->mainSplitter = (MultiBandMain *)maintmp;
+
+    if (multmp) {
+        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+    }
+
+    if (addtmp) {
+        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+    }
+
+    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+
+    (*self->mode_func_ptr)(self);
+
+    return (PyObject *)self;
+}
+
+static PyObject * MultiBand_getServer(MultiBand* self) { GET_SERVER };
+static PyObject * MultiBand_getStream(MultiBand* self) { GET_STREAM };
+static PyObject * MultiBand_setMul(MultiBand *self, PyObject *arg) { SET_MUL };
+static PyObject * MultiBand_setAdd(MultiBand *self, PyObject *arg) { SET_ADD };
+static PyObject * MultiBand_setSub(MultiBand *self, PyObject *arg) { SET_SUB };
+static PyObject * MultiBand_setDiv(MultiBand *self, PyObject *arg) { SET_DIV };
+
+static PyObject * MultiBand_play(MultiBand *self, PyObject *args, PyObject *kwds) { PLAY };
+static PyObject * MultiBand_out(MultiBand *self, PyObject *args, PyObject *kwds) { OUT };
+static PyObject * MultiBand_stop(MultiBand *self) { STOP };
+
+static PyObject * MultiBand_multiply(MultiBand *self, PyObject *arg) { MULTIPLY };
+static PyObject * MultiBand_inplace_multiply(MultiBand *self, PyObject *arg) { INPLACE_MULTIPLY };
+static PyObject * MultiBand_add(MultiBand *self, PyObject *arg) { ADD };
+static PyObject * MultiBand_inplace_add(MultiBand *self, PyObject *arg) { INPLACE_ADD };
+static PyObject * MultiBand_sub(MultiBand *self, PyObject *arg) { SUB };
+static PyObject * MultiBand_inplace_sub(MultiBand *self, PyObject *arg) { INPLACE_SUB };
+static PyObject * MultiBand_div(MultiBand *self, PyObject *arg) { DIV };
+static PyObject * MultiBand_inplace_div(MultiBand *self, PyObject *arg) { INPLACE_DIV };
+
+static PyMemberDef MultiBand_members[] = {
+    {"server", T_OBJECT_EX, offsetof(MultiBand, server), 0, "Pyo server."},
+    {"stream", T_OBJECT_EX, offsetof(MultiBand, stream), 0, "Stream object."},
+    {"mul", T_OBJECT_EX, offsetof(MultiBand, mul), 0, "Mul factor."},
+    {"add", T_OBJECT_EX, offsetof(MultiBand, add), 0, "Add factor."},
+    {NULL}  /* Sentinel */
+};
+
+static PyMethodDef MultiBand_methods[] = {
+    {"getServer", (PyCFunction)MultiBand_getServer, METH_NOARGS, "Returns server object."},
+    {"_getStream", (PyCFunction)MultiBand_getStream, METH_NOARGS, "Returns stream object."},
+    {"play", (PyCFunction)MultiBand_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+    {"out", (PyCFunction)MultiBand_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
+    {"stop", (PyCFunction)MultiBand_stop, METH_NOARGS, "Stops computing."},
+    {"setMul", (PyCFunction)MultiBand_setMul, METH_O, "Sets MultiBand mul factor."},
+    {"setAdd", (PyCFunction)MultiBand_setAdd, METH_O, "Sets MultiBand add factor."},
+    {"setSub", (PyCFunction)MultiBand_setSub, METH_O, "Sets inverse add factor."},
+    {"setDiv", (PyCFunction)MultiBand_setDiv, METH_O, "Sets inverse mul factor."},
+    {NULL}  /* Sentinel */
+};
+
+static PyNumberMethods MultiBand_as_number = {
+    (binaryfunc)MultiBand_add,                      /*nb_add*/
+    (binaryfunc)MultiBand_sub,                 /*nb_subtract*/
+    (binaryfunc)MultiBand_multiply,                 /*nb_multiply*/
+    INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
+    0,                /*nb_remainder*/
+    0,                   /*nb_divmod*/
+    0,                   /*nb_power*/
+    0,                  /*nb_neg*/
+    0,                /*nb_pos*/
+    0,                  /*(unaryfunc)array_abs,*/
+    0,                    /*nb_nonzero*/
+    0,                    /*nb_invert*/
+    0,               /*nb_lshift*/
+    0,              /*nb_rshift*/
+    0,              /*nb_and*/
+    0,              /*nb_xor*/
+    0,               /*nb_or*/
+    INITIALIZE_NB_COERCE_ZERO                   /*nb_coerce*/
+    0,                       /*nb_int*/
+    0,                      /*nb_long*/
+    0,                     /*nb_float*/
+    INITIALIZE_NB_OCT_ZERO   /*nb_oct*/
+    INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
+    (binaryfunc)MultiBand_inplace_add,              /*inplace_add*/
+    (binaryfunc)MultiBand_inplace_sub,         /*inplace_subtract*/
+    (binaryfunc)MultiBand_inplace_multiply,         /*inplace_multiply*/
+    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
+    0,        /*inplace_remainder*/
+    0,           /*inplace_power*/
+    0,       /*inplace_lshift*/
+    0,      /*inplace_rshift*/
+    0,      /*inplace_and*/
+    0,      /*inplace_xor*/
+    0,       /*inplace_or*/
+    0,             /*nb_floor_divide*/
+    (binaryfunc)MultiBand_div,                       /*nb_true_divide*/
+    0,     /*nb_inplace_floor_divide*/
+    (binaryfunc)MultiBand_inplace_div,                       /*nb_inplace_true_divide*/
+    0,                     /* nb_index */
+};
+
+PyTypeObject MultiBandType = {
+    PyVarObject_HEAD_INIT(NULL, 0)
+    "_pyo.MultiBand_base",         /*tp_name*/
+    sizeof(MultiBand),         /*tp_basicsize*/
+    0,                         /*tp_itemsize*/
+    (destructor)MultiBand_dealloc, /*tp_dealloc*/
+    0,                         /*tp_print*/
+    0,                         /*tp_getattr*/
+    0,                         /*tp_setattr*/
+    0,                         /*tp_as_async (tp_compare in Python 2)*/
+    0,                         /*tp_repr*/
+    &MultiBand_as_number,             /*tp_as_number*/
+    0,                         /*tp_as_sequence*/
+    0,                         /*tp_as_mapping*/
+    0,                         /*tp_hash */
+    0,                         /*tp_call*/
+    0,                         /*tp_str*/
+    0,                         /*tp_getattro*/
+    0,                         /*tp_setattro*/
+    0,                         /*tp_as_buffer*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES,  /*tp_flags*/
+    "MultiBand objects. Reads one band from a MultiBandMain process.",           /* tp_doc */
+    (traverseproc)MultiBand_traverse,   /* tp_traverse */
+    (inquiry)MultiBand_clear,           /* tp_clear */
+    0,		               /* tp_richcompare */
+    0,		               /* tp_weaklistoffset */
+    0,		               /* tp_iter */
+    0,		               /* tp_iternext */
+    MultiBand_methods,             /* tp_methods */
+    MultiBand_members,             /* tp_members */
+    0,                      /* tp_getset */
+    0,                         /* tp_base */
+    0,                         /* tp_dict */
+    0,                         /* tp_descr_get */
+    0,                         /* tp_descr_set */
+    0,                         /* tp_dictoffset */
+    0,      /* tp_init */
+    0,                         /* tp_alloc */
+    MultiBand_new,                 /* tp_new */
+};

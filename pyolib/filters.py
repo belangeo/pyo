@@ -1109,6 +1109,10 @@ class BandSplit(PyoObject):
             Q of the filters, defined as center frequency / bandwidth.
             Should be between 1 and 500. Defaults to 1.
 
+    .. seealso::
+
+        :py:class:`FourBand`, :py:class:`MultiBand`
+
     >>> s = Server().boot()
     >>> s.start()
     >>> lfos = Sine(freq=[.3,.4,.5,.6,.7,.8], mul=.5, add=.5)
@@ -1211,6 +1215,10 @@ class FourBand(PyoObject):
             Third crossover frequency. It's the upper limit of the third
             band signal and fourth band will contain signal from `freq3`
             to sr/2. Defaults to 2000.
+
+    .. seealso::
+
+        :py:class:`BandSplit`, :py:class:`MultiBand`
 
     >>> s = Server().boot()
     >>> s.start()
@@ -1332,6 +1340,98 @@ class FourBand(PyoObject):
         return self._freq3
     @freq3.setter
     def freq3(self, x): self.setFreq3(x)
+
+class MultiBand(PyoObject):
+    """
+    Splits an input signal into multiple frequency bands.
+
+    The input signal will be separated into `num` logarithmically spaced 
+    frequency bands using fourth-order Linkwitz-Riley lowpass and highpass
+    filters. Each band will then be assigned to an independent audio
+    stream. The sum of all bands reproduces the same signal as the `input`.
+    Useful for multiband processing.
+
+    User-defined frequencies can be assigned with the `setFrequencies()` method.
+
+    :Parent: :py:class:`PyoObject`
+
+    :Args:
+
+        input: PyoObject
+            Input signal to process.
+        num: int, optional
+            Number of frequency bands created. Available at initialization
+            time only. Defaults to 8.
+
+    .. seealso::
+
+        :py:class:`BandSplit`, :py:class:`FourBand`
+
+    >>> s = Server().boot()
+    >>> s.start()
+    >>> lfos = Sine(freq=[.1,.2,.3,.4,.5,.6,.7,.8], mul=.5, add=.5)
+    >>> n = PinkNoise(.3)
+    >>> a = MultiBand(n, num=8, mul=lfos).out()
+
+    """
+    def __init__(self, input, num=8, mul=1, add=0):
+        pyoArgsAssert(self, "oIOO", input, num, mul, add)
+        PyoObject.__init__(self, mul, add)
+        self._input = input
+        self._num = num
+        self._in_fader = InputFader(input)
+        in_fader, lmax = convertArgsToLists(self._in_fader)
+        self._op_duplicate = lmax
+        mul, add, lmax2 = convertArgsToLists(mul, add)
+        self._base_players = [MultiBandMain_base(wrap(in_fader,i), num) for i in range(lmax)]
+        self._base_objs = []
+        for j in range(num):
+            for i in range(lmax):
+                self._base_objs.append(MultiBand_base(wrap(self._base_players,i), j, wrap(mul,j), wrap(add,j)))
+        self.play()
+
+    def setInput(self, x, fadetime=0.05):
+        """
+        Replace the `input` attribute.
+
+        :Args:
+
+            x: PyoObject
+                New signal to process.
+            fadetime: float, optional
+                Crossfade time between old and new input. Defaults to 0.05.
+
+        """
+        pyoArgsAssert(self, "oN", x, fadetime)
+        self._input = x
+        self._in_fader.setInput(x, fadetime)
+
+    def setFrequencies(self, freqs):
+        """
+        Change the filters cutoff frequencies.
+
+        This method can be used to change filter frequencies to a particular set.
+        Frequency list length must be egal to the `num` attribute value set at
+        initialzation.
+
+        :Args:
+
+            freqs: list of floats
+                New frequencies used as filter cutoff frequencies.
+
+        """
+        pyoArgsAssert(self, "l", freqs)
+        if len(freqs) != self._num:
+            print("pyo warning: MultiBand frequency list length must be egal to the number of bands of the object.")
+            return
+        [obj.setFrequencies(freqs) for obj in self._base_players]
+
+    @property
+    def input(self):
+        """PyoObject. Input signal to process."""
+        return self._input
+    @input.setter
+    def input(self, x): self.setInput(x)
 
 class Hilbert(PyoObject):
     """

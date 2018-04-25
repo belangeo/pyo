@@ -78,6 +78,12 @@ sinusoidal component according to its frequency.
 .. autoclass:: FourBand
    :members:
 
+*MultiBand*
+------------
+
+.. autoclass:: MultiBand
+   :members:
+
 *Hilbert*
 ------------
 
