@@ -11,6 +11,8 @@ To do ASAP!
 
 - 'directsound' as default on Windows ?
 
+- stdlib for Expr object.
+
 This is a list of features/fixes to implement for future releases
 =================================================================
 
