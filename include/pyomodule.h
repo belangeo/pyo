@@ -1651,7 +1651,7 @@ extern PyTypeObject MultiBandType;
     if (dur == 0) \
         Stream_setDuration(self->stream, 0); \
     else { \
-        nearestBuf = (int)roundf((dur * self->sr) / self->bufsize); \
+        nearestBuf = (int)roundf((dur * self->sr) / self->bufsize + 0.5); \
         Stream_setDuration(self->stream, nearestBuf); \
     } \
     Py_INCREF(self); \
@@ -1695,7 +1695,7 @@ extern PyTypeObject MultiBandType;
     if (dur == 0) \
         Stream_setDuration(self->stream, 0); \
     else { \
-        nearestBuf = (int)roundf((dur * self->sr) / self->bufsize); \
+        nearestBuf = (int)roundf((dur * self->sr) / self->bufsize + 0.5); \
         Stream_setDuration(self->stream, nearestBuf); \
     } \
     Py_INCREF(self); \
