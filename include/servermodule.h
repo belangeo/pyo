@@ -164,6 +164,7 @@ typedef struct {
     int verbosity; /* a sum of values to display different levels: 1 = error */
                    /* 2 = message, 4 = warning , 8 = debug. Default 7.*/
     int globalSeed; /* initial seed for random objects. If <= 0, objects are seeded with the clock. */
+    int autoStartChildren; /* if true, calls to play, out and stop propagate to children objects. */
 } Server;
 
 PyObject * PyServer_get_server();

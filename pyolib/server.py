@@ -1294,6 +1294,9 @@ class Server(object):
         """
         return self._server.getCurrentAmp()
 
+    def setAutoStartChildren(self, state):
+        self._server.setAutoStartChildren(state)
+
     @property
     def amp(self):
         """float. Overall amplitude."""

@@ -1242,6 +1242,37 @@ class PyoObject(PyoObjectBase):
         else:
             return [obj._getStream().getValue() for obj in self._base_objs]
 
+    def _autoplay(self, dur=0, delay=0):
+        if self.getServer().getAutoStartChildren():
+            for at in dir(self):
+                if isAudioObject(getattr(self, at)):
+                    getattr(self, at).play(dur, delay)
+                # Handle list of audio objects.
+                elif type(getattr(self, at)) is list:
+                    for subat in getattr(self, at):
+                        if isAudioObject(subat):
+                            subat.play(dur, delay)
+
+    def _autostop(self, wait=0):
+        if self.getServer().getAutoStartChildren():
+            for at in dir(self):
+                if isAudioObject(getattr(self, at)):
+                    if at == "mul":
+                        # Start fadeout immediately.
+                        getattr(self, at).stop()
+                    else:
+                        # Every other attributes wait.
+                        getattr(self, at).stop(wait)
+                # Handle list of audio objects.
+                elif type(getattr(self, at)) is list:
+                    ismul = at == "mul"
+                    for subat in getattr(self, at):
+                        if isAudioObject(subat):
+                            if ismul:
+                                subat.stop()
+                            else:
+                                subat.stop(wait)
+
     def play(self, dur=0, delay=0):
         """
         Start processing without sending samples to output.
@@ -1261,6 +1292,7 @@ class PyoObject(PyoObjectBase):
         """
         pyoArgsAssert(self, "nn", dur, delay)
         dur, delay, lmax = convertArgsToLists(dur, delay)
+        self._autoplay(dur, delay)
         if self._trig_objs is not None:
             if isinstance(self._trig_objs, list):
                 for i in range(lmax):
@@ -1314,6 +1346,7 @@ class PyoObject(PyoObjectBase):
         """
         pyoArgsAssert(self, "iInn", chnl, inc, dur, delay)
         dur, delay, lmax = convertArgsToLists(dur, delay)
+        self._autoplay(dur, delay)
         if self._trig_objs is not None:
             if isinstance(self._trig_objs, list):
                 for i in range(lmax):
@@ -1341,7 +1374,7 @@ class PyoObject(PyoObjectBase):
                  for i, obj in enumerate(self._base_objs)]
         return self
 
-    def stop(self):
+    def stop(self, wait=0):
         """
         Stop processing.
 
@@ -1349,19 +1382,20 @@ class PyoObject(PyoObjectBase):
         creation.
 
         """
+        self._autostop(wait)
         if self._trig_objs is not None:
             if isinstance(self._trig_objs, list):
-                [obj.stop() for obj in self._trig_objs]
+                [obj.stop(wait) for obj in self._trig_objs]
             else:
                 self._trig_objs.stop()
         if self._base_players is not None:
-            [obj.stop() for obj in self._base_players]
+            [obj.stop(wait) for obj in self._base_players]
         # This is not good for TableRec objects, only for Looper.
-        # It's move locally to the Looper definition.
+        # It's moved locally to the Looper definition.
         #if self._time_objs is not None:
         #    [obj.stop() for obj in self._time_objs]
 
-        [obj.stop() for obj in self._base_objs]
+        [obj.stop(wait) for obj in self._base_objs]
         return self
 
     def mix(self, voices=1):
