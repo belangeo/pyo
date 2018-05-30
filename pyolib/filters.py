@@ -1360,8 +1360,8 @@ class MultiBand(PyoObject):
         input: PyoObject
             Input signal to process.
         num: int, optional
-            Number of frequency bands created. Available at initialization
-            time only. Defaults to 8.
+            Number of frequency bands created, between 2 and 16. 
+            Available at initialization time only. Defaults to 8.
 
     .. seealso::
 
@@ -1411,8 +1411,7 @@ class MultiBand(PyoObject):
         Change the filters splitting frequencies.
 
         This method can be used to change filter frequencies to a particular set.
-        Frequency list length must be egal to the `num` attribute, set at
-        initialzation, minus 1.
+        Frequency list length must be egal to the number of bands minus 1.
 
         :Args:
 
