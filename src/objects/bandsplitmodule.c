@@ -1563,10 +1563,10 @@ MultiBandMain_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
 static PyObject *
 MultiBandMain_setFrequencies(MultiBandMain* self, PyObject *arg) {
-    int i;
+    int i, bounds = self->nbands - 1;
     if PyList_Check(arg) {
-        if (PyList_Size(arg) == self->nbands) {
-            for (i=0; i<self->nbands; i++) {
+        if (PyList_Size(arg) == bounds) {
+            for (i=0; i<bounds; i++) {
                 MultiBandMain_compute_variables(self, PyFloat_AsDouble(PyList_GetItem(arg, i)), i);
             }
         }

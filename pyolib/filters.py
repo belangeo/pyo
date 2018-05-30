@@ -1408,11 +1408,11 @@ class MultiBand(PyoObject):
 
     def setFrequencies(self, freqs):
         """
-        Change the filters cutoff frequencies.
+        Change the filters splitting frequencies.
 
         This method can be used to change filter frequencies to a particular set.
-        Frequency list length must be egal to the `num` attribute value set at
-        initialzation.
+        Frequency list length must be egal to the `num` attribute, set at
+        initialzation, minus 1.
 
         :Args:
 
@@ -1421,8 +1421,8 @@ class MultiBand(PyoObject):
 
         """
         pyoArgsAssert(self, "l", freqs)
-        if len(freqs) != self._num:
-            print("pyo warning: MultiBand frequency list length must be egal to the number of bands of the object.")
+        if len(freqs) != (self._num - 1):
+            print("pyo warning: MultiBand frequency list length must be egal to the number of bands, minus 1, of the object.")
             return
         [obj.setFrequencies(freqs) for obj in self._base_players]
 
