@@ -1,67 +1,9 @@
 Introduction on how to use pyo on the BeagleBone Black with bela
 ================================================================ 
 
-------------------------------------------------------------------------
-------------------------------------------------------------------------
-Step 1 - Changes made to the image bela_stable_2016.04.19.img
+If you want to try pyo on the Bela platform, please follow the
+instructions of the pyo-bela project:
 
-1) Need the python-dev package
+[https://github.com/belangeo/pyo-bela](https://github.com/belangeo/pyo-bela)
 
-    sudo apt-get install python-dev
-
-2) Compile a minimalistic pyo (libsndfile as only dependency)
-
-    git -c http.sslVerify=false clone https://github.com/belangeo/pyo.git
-    cd pyo
-    sudo python setup.py install --minimal
-
-3) Modify the Makefile to compile and link with python
-
-line 11:
-    
-LIBS := -lrt -lnative -lxenomai -lsndfile `python-config --ldflags`
-
-line 20:
-    
-CPP_FLAGS := -O3 -march=armv7-a -mtune=cortex-a8 -mfloat-abi=hard -mfpu=neon -ftree-vectorize `python-config --cflags`
-
-
-------------------------------------------------------------------------
-------------------------------------------------------------------------
-Step 2 - On the host computer, clone the beaglert repository:
-    
-    hg clone https://code.soundsoftware.ac.uk/hg/beaglert
-
-------------------------------------------------------------------------
-Step 3 - Create a folder "pyo" in the beaglert/projects directory and copy:
-these files into it:
-
-- from the folder pyo/embedded:
-m_pyo.h
-
-- from the folder pyo/embedded/bela:
-main.cpp
-render.cpp
-main.py
-PyoClass.cpp
-PyoClass.h
-
-------------------------------------------------------------------------
-Step 3 - From the script folder, with the bbb plugged to the host computer,
-comple and run your project:
-    
-    ./build_project.sh ../projects/pyo
-
-See the bela wiki for more options when building projects on the bbb board.
-
-https://code.soundsoftware.ac.uk/projects/beaglert/wiki/_Compiling_Bela_projects_on_the_board
-
-Documentation
-=============
-
-For a complete description of functions that can be used to communicate 
-with the pyo embedded processes, see documentation comments in the file 
-PyoClass.cpp.
-
-(c) 2016 - belangeo
-
+(c) 2018 - belangeo
