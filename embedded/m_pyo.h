@@ -6,7 +6,10 @@
 #define __m_pyo_h_
 
 #if defined(_LANGUAGE_C_PLUS_PLUS) || defined(__cplusplus)
+#define INLINE inline
 extern "C" {
+#else
+#define INLINE
 #endif
 
 /* Unicode/string handling. */
@@ -36,7 +39,7 @@ static void *libpython_handle;
 **
 ** returns the new python thread's interpreter state.
 */
-inline PyThreadState * pyo_new_interpreter(float sr, int bufsize, int chnls) {
+INLINE PyThreadState * pyo_new_interpreter(float sr, int bufsize, int chnls) {
     char msg[64];
     PyThreadState *interp;
     if(!Py_IsInitialized()) {
@@ -76,7 +79,7 @@ inline PyThreadState * pyo_new_interpreter(float sr, int bufsize, int chnls) {
 **
 ** returns an "unsigned long" that should be recast to a float pointer.
 */
-inline unsigned long pyo_get_input_buffer_address(PyThreadState *interp) {
+INLINE unsigned long pyo_get_input_buffer_address(PyThreadState *interp) {
     PyObject *module, *obj;
     char *address;
     unsigned long uadd;
@@ -98,7 +101,7 @@ inline unsigned long pyo_get_input_buffer_address(PyThreadState *interp) {
 **
 ** returns an "unsigned long long" that should be recast to a double pointer.
 */
-inline unsigned long long pyo_get_input_buffer_address_64(PyThreadState *interp) {
+INLINE unsigned long long pyo_get_input_buffer_address_64(PyThreadState *interp) {
     PyObject *module, *obj;
     char *address;
     unsigned long long uadd;
@@ -120,7 +123,7 @@ inline unsigned long long pyo_get_input_buffer_address_64(PyThreadState *interp)
 **
 ** returns an "unsigned long" that should be recast to a float pointer.
 */
-inline unsigned long pyo_get_output_buffer_address(PyThreadState *interp) {
+INLINE unsigned long pyo_get_output_buffer_address(PyThreadState *interp) {
     PyObject *module, *obj;
     char *address;
     unsigned long uadd;
@@ -148,7 +151,7 @@ inline unsigned long pyo_get_output_buffer_address(PyThreadState *interp) {
 ** Prototype:
 ** void (*callback)(int);
 */
-inline unsigned long pyo_get_embedded_callback_address(PyThreadState *interp) {
+INLINE unsigned long pyo_get_embedded_callback_address(PyThreadState *interp) {
     PyObject *module, *obj;
     char *address;
     unsigned long uadd;
@@ -170,7 +173,7 @@ inline unsigned long pyo_get_embedded_callback_address(PyThreadState *interp) {
 **
 ** returns an integer.
 */
-inline int pyo_get_server_id(PyThreadState *interp) {
+INLINE int pyo_get_server_id(PyThreadState *interp) {
     PyObject *module, *obj;
     int id;
     PyEval_AcquireThread(interp);
@@ -187,7 +190,7 @@ inline int pyo_get_server_id(PyThreadState *interp) {
 ** arguments:
 **  interp : pointer, pointer to the targeted Python thread state.
 */
-inline void pyo_end_interpreter(PyThreadState *interp) {
+INLINE void pyo_end_interpreter(PyThreadState *interp) {
     PyEval_AcquireThread(interp);
     PyRun_SimpleString("_s_.setServer()\n_s_.stop()\n_s_.shutdown()");
     PyEval_ReleaseThread(interp);
@@ -214,7 +217,7 @@ inline void pyo_end_interpreter(PyThreadState *interp) {
 ** arguments:
 **  interp : pointer, pointer to the targeted Python thread state.
 */
-inline void pyo_server_reboot(PyThreadState *interp) {
+INLINE void pyo_server_reboot(PyThreadState *interp) {
     PyEval_AcquireThread(interp);
     PyRun_SimpleString("_s_.setServer()\n_s_.stop()\n_s_.shutdown()");
     PyRun_SimpleString("_s_.boot(newBuffer=False).start()");
@@ -229,7 +232,7 @@ inline void pyo_server_reboot(PyThreadState *interp) {
 **  sr : float, host sampling rate.
 **  bufsize : int, host buffer size.
 */
-inline void pyo_set_server_params(PyThreadState *interp, float sr, int bufsize) {
+INLINE void pyo_set_server_params(PyThreadState *interp, float sr, int bufsize) {
     char msg[64];
     PyEval_AcquireThread(interp);
     PyRun_SimpleString("_s_.setServer()\n_s_.stop()\n_s_.shutdown()");
@@ -253,7 +256,7 @@ inline void pyo_set_server_params(PyThreadState *interp, float sr, int bufsize) 
 **  data1 : int, first data byte.
 **  data2 : int, second data byte.
 */
-inline void pyo_add_midi_event(PyThreadState *interp, int status, int data1, int data2) {
+INLINE void pyo_add_midi_event(PyThreadState *interp, int status, int data1, int data2) {
     char msg[64];
     PyEval_AcquireThread(interp);
     sprintf(msg, "_s_.addMidiEvent(%d, %d, %d)", status, data1, data2);
@@ -268,7 +271,7 @@ inline void pyo_add_midi_event(PyThreadState *interp, int status, int data1, int
 ** arguments:
 **  interp : pointer, pointer to the targeted Python thread state.
 */
-inline int pyo_is_server_started(PyThreadState *interp) {
+INLINE int pyo_is_server_started(PyThreadState *interp) {
     int started;
     PyObject *module, *obj;
     PyEval_AcquireThread(interp);
@@ -297,7 +300,7 @@ inline int pyo_is_server_started(PyThreadState *interp) {
 **            is already running in the pyo server. If 0, the server will be
 **            shutdown and reboot before executing the file.
 */
-inline int pyo_exec_file(PyThreadState *interp, const char *file, char *msg, int add) {
+INLINE int pyo_exec_file(PyThreadState *interp, const char *file, char *msg, int add) {
     int ok, err = 0;
     PyObject *module, *obj;
     PyEval_AcquireThread(interp);
@@ -340,7 +343,7 @@ inline int pyo_exec_file(PyThreadState *interp, const char *file, char *msg, int
 **              statement. If 0, there will be no error checking, which is
 **              much faster.
 */
-inline int pyo_exec_statement(PyThreadState *interp, char *msg, int debug) {
+INLINE int pyo_exec_statement(PyThreadState *interp, char *msg, int debug) {
     int err = 0;
     if (debug) {
         PyObject *module, *obj;

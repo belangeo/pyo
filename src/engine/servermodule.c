@@ -1308,14 +1308,14 @@ Server_shutdown(Server *self)
     }
 
     /* Cleaning list of audio streams. */
-    PyGILState_STATE s = PyGILState_Ensure();
+    //PyGILState_STATE s = PyGILState_Ensure();
     if (PyList_Size(self->streams) > 0) {
         for (i=PyList_Size(self->streams); i>0; i--) {
             PySequence_DelItem(self->streams, i-1);
         }
     }
     self->stream_count = 0;
-    PyGILState_Release(s);
+    //PyGILState_Release(s);
 
     Py_RETURN_NONE;
 }

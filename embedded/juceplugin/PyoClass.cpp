@@ -40,9 +40,9 @@ Pyo::~Pyo() {
 ** processBlock function.
 **
 ** arguments:
-**   buffer : AudioSampleBuffer&, Juce's audio buffer object.
+**   buffer : AudioBuffer<float>&, Juce's audio buffer object.
 */
-void Pyo::process(AudioSampleBuffer& buffer) {
+void Pyo::process(AudioBuffer<float>& buffer) {
     for (int channel = 0; channel < nChannels; ++channel) {
         float *channelData = buffer.getWritePointer(channel);
         for (int sample = 0; sample < bufferSize; sample++) {
