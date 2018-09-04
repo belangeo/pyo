@@ -11,8 +11,6 @@ To do ASAP!
 
 - stdlib for Expr object.
 
-- Upgrade version number to 0.9.1.
-
 This is a list of features/fixes to implement for future releases
 =================================================================
 

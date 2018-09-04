@@ -53,7 +53,7 @@ def get_hrtf_file_names(folder):
     files = [f for f in os.listdir(path) if f.endswith(".wav")]
     return files
 
-pyo_version = "0.9.0"
+pyo_version = "0.9.1"
 build_with_jack_support = False
 compile_externals = False
 
@@ -102,11 +102,9 @@ obj_files = []
 
 # Special flag to build without portaudio, portmidi and liblo deps.
 if '--minimal' in sys.argv:
-    minimal_build = True
     sys.argv.remove('--minimal') 
     libraries = []
 else:
-    minimal_build = False
     # portaudio
     macros.append(('USE_PORTAUDIO', None))
     ad_files.append("ad_portaudio.c")
