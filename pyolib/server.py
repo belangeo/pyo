@@ -84,7 +84,7 @@ class Server(object):
             Number of input channels if different of output channels. If None (default), ichnls = nchnls.
         winhost: string, optional
             Under Windows, pyo's Server will try to use the default devices of the given host.
-            This behaviour can be changed with the SetXXXDevice methods.
+            This behaviour can be changed with the SetXXXDevice methods. Defaults to "directsound".
         midi: string {'portmidi', 'pm', 'jack'}, optional
             Midi backend to use. 'pm' is equivalent to 'portmidi'. Default is 'portmidi'.
 
@@ -122,7 +122,7 @@ class Server(object):
 
     """
     def __init__(self, sr=44100, nchnls=2, buffersize=256, duplex=1, audio='portaudio', 
-                 jackname='pyo', ichnls=None, winhost="wasapi", midi="portmidi"):
+                 jackname='pyo', ichnls=None, winhost="directsound", midi="portmidi"):
         if "PYO_SERVER_AUDIO" in os.environ and "offline" not in audio and "embedded" not in audio:
             audio = os.environ["PYO_SERVER_AUDIO"]
         self._time = time
@@ -161,7 +161,7 @@ class Server(object):
             self._time.sleep(.25)
 
     def reinit(self, sr=44100, nchnls=2, buffersize=256, duplex=1, audio='portaudio', 
-               jackname='pyo', ichnls=None, winhost="wasapi", midi="portmidi"):
+               jackname='pyo', ichnls=None, winhost="directsound", midi="portmidi"):
         """
         Reinit the server'settings. Useful to alternate between real-time and offline server.
 

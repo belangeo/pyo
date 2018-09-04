@@ -9,9 +9,9 @@ To do ASAP!
 
 - Review every "PyErr_SetString(PyExc_TypeError)" and "PySys_WriteStdout()" calls.
 
-- 'directsound' as default on Windows ?
-
 - stdlib for Expr object.
+
+- Upgrade version number to 0.9.1.
 
 This is a list of features/fixes to implement for future releases
 =================================================================
