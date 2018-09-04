@@ -5365,6 +5365,10 @@ class ProjectTree(wx.Panel):
                 treeItemId = self.tree.GetItemParent(treeItemId)
             proj = unpackItemData(self.tree.GetItemData(treeItemId))
             self.tree.Delete(treeItemId)
+            for project in self.projectDict.keys():
+                if self.projectDict[project] == proj:
+                    del self.projectDict[project]
+                    break
 
     def setStyle(self):
         def set_item_style(root_item, colour):
