@@ -5,7 +5,7 @@ E-Pyo is a simple text editor especially configured to edit pyo audio programs.
 
 You can do absolutely everything you want with this piece of software.
 
-Olivier Belanger - 2016
+Olivier Belanger - 2018
 
 TODO:
     - Fix printing to pdf.
@@ -3441,7 +3441,7 @@ class MainFrame(wx.Frame):
         info = AboutDialogInfo()
         info.Name = APP_NAME
         info.Version = APP_VERSION
-        info.Copyright = u"(C) 2016 Olivier Belanger"
+        info.Copyright = u"(C) 2018 Olivier Belanger"
         info.Description = "E-Pyo is a text editor especially configured to edit pyo audio programs.\n\n"
         AboutBox(info)
 
