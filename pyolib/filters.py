@@ -359,7 +359,7 @@ class Biquada(PyoObject):
     A general purpose biquadratic digital filter (floating-point arguments).
 
     A digital biquad filter is a second-order recursive linear filter, containing
-    two poles and two zeros. Biquadi is a "Direct Form 1" implementation of a Biquad
+    two poles and two zeros. Biquada is a "Direct Form 1" implementation of a Biquad
     filter:
 
     y[n] = ( b0*x[n] + b1*x[n-1] + b2*x[n-2] - a1*y[n-1] - a2*y[n-2] ) / a0
