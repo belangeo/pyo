@@ -1,0 +1,149 @@
+[English version follows]
+
+Bonjour à tous,
+
+La version 0.9.1 de pyo est maintenant disponible en téléchargement :
+
+http://ajaxsoundstudio.com/software/pyo/
+
+La documentation:
+
+http://ajaxsoundstudio.com/pyodoc/
+
+Sources et suivi des bugs:
+    
+https://github.com/belangeo/pyo
+
+
+Bugs corrigés:
+
+- Correction de la navigation dans l'historique de commandes du champs
+  "Interpreter" de la fenêtre graphique du serveur.
+
+- Correction du crash lorsque l'utilisateur demande plus d'entrées ou
+  de sorties que celles disponibles sur le système.
+  
+- Correction du niveau de sortie de l'objet Compress lorsque le signal 
+  est au-dessus du niveau nominal.
+
+- Correction de la cancellation de phase entre les bandes de l'objet FourBand.
+
+- Sous Windows, le pilote 'directsound' est utilisé par défaut (plus fiable que
+  le pilote 'wasapi').
+
+
+Nouvelles fonctionnalités:
+
+- Nouvel objet: MultiBand, un séparateur de fréquence (entre 2 et 16 bandes)
+  utilisant les fitres Linkwitz-Riley.
+
+- Ajout de la fonction getPrecision(). La version de pyo n'est plus affichée dans
+la console à l'ouverture. Les fonctions getVersion() et getPrecision() devraient
+être utilisées à la place.
+
+- E-Pyo: On peut maintenant retirer un projet dans la liste des projets ouverts.
+
+
+Olivier
+
+---
+
+Hello all,
+
+pyo 0.9.1 is now available to download on pyo's web site :
+
+http://ajaxsoundstudio.com/software/pyo/
+
+pyo's documentation:
+
+http://ajaxsoundstudio.com/pyodoc/
+
+Latest sources and bug tracker:
+    
+https://github.com/belangeo/pyo
+
+
+Bug Fixes:
+    
+- Fixed Server window's Interpreter field scrolling history on MacOS.
+
+- Fixed crash when asking for more input or output channels than available.
+
+- Fixed Compress output level when input's rms is above unity.
+
+- Fixed phase shifting between the frequency bands of FourBand.
+
+- On Windows, use 'directsound' as the default audio host (much more 
+  reliable than 'wasapi').
+
+
+New features:
+
+- Added getPrecision() function. Removed print statement when importing pyo.
+  User should use getVersion() and getPrecision() functions if needed.
+
+- E-Pyo: Added the ability to remove a project from the project tree.
+
+- Added a new object: MultiBand, frequency splitter using Linkwitz-Riley 
+  crossover filters.
+
+      
+Olivier
+
+================================================================================
+
+Hello all,
+
+I'm glad to announce the release of pyo 0.9.1, available for python 2.7, 3.5 and 3.6.
+
+Pyo is a Python module written in C to help real-time digital signal processing
+script creation. It is available for Windows, macOS and linux. It is released
+under the LGPL 3 license.
+
+For more info, downloads and other links, see the official web site:
+
+http://ajaxsoundstudio.com/software/pyo/
+
+The documentation:
+
+http://ajaxsoundstudio.com/pyodoc/
+
+For the latest sources and bug tracker:
+
+https://github.com/belangeo/pyo
+
+
+Bug Fixes:
+    
+- Fixed Server window's Interpreter field scrolling history on MacOS.
+
+- Fixed crash when asking for more input or output channels than available.
+
+- Fixed Compress output level when input's rms is above unity.
+
+- Fixed phase shifting between the frequency bands of FourBand.
+
+- On Windows, use 'directsound' as the default audio host (much more 
+  reliable than 'wasapi').
+
+
+New features:
+
+- Added getPrecision() function. Removed print statement when importing pyo.
+  User should use getVersion() and getPrecision() functions if needed.
+
+- E-Pyo: Added the ability to remove a project from the project tree.
+
+- Added a new object: MultiBand, frequency splitter using Linkwitz-Riley 
+  crossover filters.
+
+
+Olivier Belanger
+belangeo@gmail.com
+http://olivier.ajaxsoundstudio.com/
+
+----
+
+P><A HREF="http://ajaxsoundstudio.com/software/pyo/">Pyo 0.9.1</A>
+Python DSP library. (04-Sep-18)
+
