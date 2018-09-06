@@ -24,7 +24,7 @@ spktrm = SfPlayer("../snds/baseballmajeur_m.aif", speed=[1,1.001], loop=True)
 # Second sound - rich and stable spectrum.
 excite = Noise(0.2)
 
-# LFOs to modulated every parameters of the Vocoder object.
+# LFOs to modulate every parameters of the Vocoder object.
 lf1 = Sine(freq=0.1, phase=random()).range(60, 100)
 lf2 = Sine(freq=0.11, phase=random()).range(1.05, 1.5)
 lf3 = Sine(freq=0.07, phase=random()).range(1, 20)

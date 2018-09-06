@@ -125,6 +125,11 @@ class Server(object):
                  jackname='pyo', ichnls=None, winhost="directsound", midi="portmidi"):
         if "PYO_SERVER_AUDIO" in os.environ and "offline" not in audio and "embedded" not in audio:
             audio = os.environ["PYO_SERVER_AUDIO"]
+        if "PYO_SERVER_MIDI" in os.environ:
+            midi = os.environ["PYO_SERVER_MIDI"]
+        if "PYO_SERVER_WINHOST" in os.environ:
+            winhost = os.environ["PYO_SERVER_WINHOST"]
+
         self._time = time
         self._nchnls = nchnls
         if ichnls is None:
@@ -170,6 +175,13 @@ class Server(object):
             Same as in the __init__ method.
 
         """
+        if "PYO_SERVER_AUDIO" in os.environ and "offline" not in audio and "embedded" not in audio:
+            audio = os.environ["PYO_SERVER_AUDIO"]
+        if "PYO_SERVER_MIDI" in os.environ:
+            midi = os.environ["PYO_SERVER_MIDI"]
+        if "PYO_SERVER_WINHOST" in os.environ:
+            winhost = os.environ["PYO_SERVER_WINHOST"]
+
         self._gui_frame = None
         self._nchnls = nchnls
         if ichnls is None:
