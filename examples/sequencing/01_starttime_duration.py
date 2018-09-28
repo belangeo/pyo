@@ -6,6 +6,7 @@ methods to sequence events over time.
 
 """
 from pyo import *
+import random
 
 s = Server(duplex=0).boot()
 
