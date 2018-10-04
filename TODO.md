@@ -11,6 +11,8 @@ To do ASAP!
 
 - stdlib for Expr object.
 
+- pyo with jack support for Windows and MacOS.
+
 This is a list of features/fixes to implement for future releases
 =================================================================
 
