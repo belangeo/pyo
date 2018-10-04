@@ -152,8 +152,12 @@ with codecs.open(PREFERENCES_PATH, "r", encoding=encoding_to_add) as f:
     text = f.read()
 spos = text.find("=")
 dictext = text[spos+1:]
-epyo_prefs = eval(dictext)
-PREFERENCES = copy.deepcopy(epyo_prefs)
+try:
+    epyo_prefs = eval(dictext)
+    PREFERENCES = copy.deepcopy(epyo_prefs)
+except:
+    epyo_prefs = {}
+    PREFERENCES = {}
 
 tmp_version = PREFERENCES.get("version", "no_version_pref")
 if tmp_version != APP_VERSION:
