@@ -198,15 +198,72 @@ if compile_externals:
     os.system('cp externals/external.py pyolib')
 
 soundfiles = [f for f in os.listdir(os.path.join('pyolib', 'snds')) if f[-3:] in ['aif', 'wav']]
-ldesc = "Python module written in C to help digital signal processing script creation."
+short_desc = "Python module to build digital signal processing program."
+long_desc = """
+pyo is a Python module containing classes for a wide variety of audio signal processing types. 
+With pyo, user will be able to include signal processing chains directly in Python scripts or 
+projects, and to manipulate them in real time through the interpreter. Tools in pyo module offer 
+primitives, like mathematical operations on audio signal, basic signal processing (filters, 
+delays, synthesis generators, etc.), but also complex algorithms to create sound granulation 
+and others creative audio manipulations. pyo supports OSC protocol (Open Sound Control), to ease 
+communications between softwares, and MIDI protocol, for generating sound events and controlling 
+process parameters. pyo allows creation of sophisticated signal processing chains with all the 
+benefits of a mature, and widely used, general programming language.
+"""
+
+classifiers = [
+                # How mature is this project? Common values are
+                #   3 - Alpha
+                #   4 - Beta
+                #   5 - Production/Stable
+                'Development Status :: 5 - Production/Stable',
+
+                # Indicate who your project is intended for
+                'Intended Audience :: Developers',
+                'Intended Audience :: End Users/Desktop',
+                'Intended Audience :: Science/Research',
+                'Intended Audience :: Other Audience',
+
+                # Operating systems
+                'Operating System :: MacOS :: MacOS X',
+                'Operating System :: Microsoft :: Windows',
+                'Operating System :: POSIX :: Linux',
+
+                # Pick your license as you wish (should match "license" above)
+                 'License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)',
+
+                # Topics
+                'Topic :: Multimedia :: Sound/Audio',
+                'Topic :: Multimedia :: Sound/Audio :: Analysis',
+                'Topic :: Multimedia :: Sound/Audio :: Capture/Recording',
+                'Topic :: Multimedia :: Sound/Audio :: Sound Synthesis',
+
+                # Specify the Python versions you support here. In particular, ensure
+                # that you indicate whether you support Python 2, Python 3 or both.
+                'Programming Language :: Python :: 2',
+                'Programming Language :: Python :: 2.7',
+                'Programming Language :: Python :: 3',
+                'Programming Language :: Python :: 3.5',
+                'Programming Language :: Python :: 3.6',
+                'Programming Language :: Python :: 3.7',
+             ]
+
 setup(  name = "pyo",
         author = "Olivier Belanger",
         author_email = "belangeo@gmail.com",
         version = pyo_version,
-        description = "Python dsp module.",
-        long_description = ldesc,
-        url = "https://github.com/belangeo/pyo",
+        description = short_desc,
+        long_description = long_desc,
+        url = "http://ajaxsoundstudio.com/software/pyo/",
+        project_urls = {"Bug Tracker": "https://github.com/belangeo/pyo/issues",
+                        "Documentation": "http://ajaxsoundstudio.com/pyodoc/",
+                        "Source Code": "https://github.com/belangeo/pyo",
+                       },
+        classifiers = classifiers,
+        keywords = "audio sound dsp synthesis signal-processing music",
         license = "LGPLv3+",
+        install_requires=['wxPython>=4.0.0'],
+        python_requires='>=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*, <4',
         packages = ['pyolib', 'pyolib.snds', 'pyolib.snds.hrtf_compact', 
                     'pyolib.snds.hrtf_compact.elev0', 'pyolib.snds.hrtf_compact.elev10',
                     'pyolib.snds.hrtf_compact.elev20', 'pyolib.snds.hrtf_compact.elev30',
@@ -231,7 +288,11 @@ setup(  name = "pyo",
                         'pyolib.snds.hrtf_compact.elev-20': get_hrtf_file_names("elev-20"),
                         'pyolib.snds.hrtf_compact.elev-30': get_hrtf_file_names("elev-30"),
                         'pyolib.snds.hrtf_compact.elev-40': get_hrtf_file_names("elev-40")},
-        ext_modules = extensions)
+        ext_modules = extensions,
+
+        # To install files outside the package (third-party libs).
+        # data_files = [(directory, files), (directory, files)]
+)
 
 if compile_externals:
     os.system('rm pyolib/external.py')
