@@ -3483,7 +3483,7 @@ class MainFrame(wx.Frame):
         self.menu6 = wx.Menu()
         ID_EXAMPLE = 1000
         for folder in EXAMPLE_FOLDERS:
-            if folder == "__init__.py" or folder == "__pycache__":
+            if folder.startswith("__init__)" or folder == "__pycache__":
                 continue
             exmenu = wx.Menu(folder.lower())
             for ex in sorted([exp for exp in os.listdir(os.path.join(EXAMPLE_PATH, folder.lower())) if exp != "__pycache__" and exp != "__init__.py" and exp[0] != "." and not exp.endswith("pyc")]):
