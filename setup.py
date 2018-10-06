@@ -183,6 +183,24 @@ else:
     if build_with_jack_support:
         libraries.append('jack')
 
+# Platform-specific data files
+if sys.platform == "win32":
+    data_files = []
+elif sys.platform == "darwin":
+    if os.path.isdir("temp_libs"):
+        data_files = [("/pyodeps", ["temp_libs/liblo.7.dylib",
+                                    "temp_libs/libportaudio.2.dylib",
+                                    "temp_libs/libportmidi.dylib",
+                                    "temp_libs/libsndfile.1.dylib",
+                                    "temp_libs/libFLAC.8.dylib",
+                                    "temp_libs/libvorbisenc.2.dylib",
+                                    "temp_libs/libvorbis.0.dylib",
+                                    "temp_libs/libogg.0.dylib"])]
+    else:
+        data_files = []
+else:
+    data_files = []
+
 libraries += ['m']
 extra_compile_args = ['-Wno-strict-prototypes', '-Wno-strict-aliasing'] + oflag + gflag
 
@@ -262,7 +280,6 @@ setup(  name = "pyo",
         classifiers = classifiers,
         keywords = "audio sound dsp synthesis signal-processing music",
         license = "LGPLv3+",
-        install_requires=['wxPython>=4.0.0'],
         python_requires='>=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*, <4',
         packages = ['pyolib', 'pyolib.snds', 'pyolib.snds.hrtf_compact', 
                     'pyolib.snds.hrtf_compact.elev0', 'pyolib.snds.hrtf_compact.elev10',
@@ -271,7 +288,17 @@ setup(  name = "pyo",
                     'pyolib.snds.hrtf_compact.elev60', 'pyolib.snds.hrtf_compact.elev70',
                     'pyolib.snds.hrtf_compact.elev80', 'pyolib.snds.hrtf_compact.elev90',
                     'pyolib.snds.hrtf_compact.elev-10', 'pyolib.snds.hrtf_compact.elev-20',
-                    'pyolib.snds.hrtf_compact.elev-30', 'pyolib.snds.hrtf_compact.elev-40'],
+                    'pyolib.snds.hrtf_compact.elev-30', 'pyolib.snds.hrtf_compact.elev-40',
+                    'pyolib.editor', 'pyolib.editor.styles', 'pyolib.editor.snippets',
+                    'pyolib.editor.snippets.Audio', 'pyolib.editor.snippets.Control',
+                    'pyolib.editor.snippets.Interface', 'pyolib.editor.snippets.Utilities',
+                    'pyolib.examples', 'pyolib.examples.01-intro', 'pyolib.examples.02-controls',
+                    'pyolib.examples.03-generators', 'pyolib.examples.04-soundfiles',
+                    'pyolib.examples.05-envelopes', 'pyolib.examples.06-filters',
+                    'pyolib.examples.07-effects', 'pyolib.examples.18-multicore', 'pyolib.examples.algorithmic',
+                    'pyolib.examples.control', 'pyolib.examples.effects', 'pyolib.examples.fft', 'pyolib.examples.matrix',
+                    'pyolib.examples.sampling', 'pyolib.examples.sequencing', 'pyolib.examples.snds', 'pyolib.examples.synthesis',
+                    'pyolib.examples.tables', 'pyolib.examples.utilities', 'pyolib.examples.wxgui'],
         py_modules = main_modules,
         package_data = {'pyolib.snds': soundfiles,
                         'pyolib.snds.hrtf_compact.elev0': get_hrtf_file_names("elev0"),
@@ -287,11 +314,22 @@ setup(  name = "pyo",
                         'pyolib.snds.hrtf_compact.elev-10': get_hrtf_file_names("elev-10"),
                         'pyolib.snds.hrtf_compact.elev-20': get_hrtf_file_names("elev-20"),
                         'pyolib.snds.hrtf_compact.elev-30': get_hrtf_file_names("elev-30"),
-                        'pyolib.snds.hrtf_compact.elev-40': get_hrtf_file_names("elev-40")},
+                        'pyolib.snds.hrtf_compact.elev-40': get_hrtf_file_names("elev-40"),
+                        'pyolib.editor.styles': ["Custom", "Default", "Espresso", "Smooth", "Soft",
+                                                 "Monokai-Soda", "Solarized (dark)", "Solarized (light)"],
+                        'pyolib.editor.snippets.Audio': ["SoundPlayer", "TableOsc"],
+                        'pyolib.editor.snippets.Control': ["ChorusJit", "Vibrato"],
+                        'pyolib.editor.snippets.Interface': ["NewFrame", "PaintPanel"],
+                        'pyolib.editor.snippets.Utilities': ["ChooseAudioDev", "Incrementor"],
+                        'pyolib.examples.snds': ["alum1.wav", "alum2.wav", "alum3,wav", "alum4.wav", "baseballmajeur_m.aif",
+                                                 "drumloop.wav", "flute.aif", "ounkmaster.aif", "snd_1.aif", "snd_2.aif",
+                                                 "snd_3.aif", "snd_4.aif", "snd_5.aif", "snd_6.aif"]
+      },
         ext_modules = extensions,
 
         # To install files outside the package (third-party libs).
-        # data_files = [(directory, files), (directory, files)]
+        data_files = data_files,
+        entry_points = {'console_scripts' : ["epyo = pyolib.editor.EPyo:main"]}
 )
 
 if compile_externals:
