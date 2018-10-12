@@ -11,7 +11,7 @@ Dependencies
 
 To compile pyo with all its features, you will need the following dependencies: 
 
-- `Python 2.7 or 3.5 or 3.6 (recommended) <https://www.python.org/downloads/>`_. On Windows, install the 32-bit version of Python.
+- `Python 2.7 or 3.5 or higher <https://www.python.org/downloads/>`_. On Windows, install the 32-bit version of Python.
 - `WxPython 3.0.2.0 (classic) or 4.0.0 (phoenix, recommended) <http://www.wxpython.org/download.php/>`_
 - `Portaudio <http://www.portaudio.com/>`_
 - `Portmidi <http://portmedia.sourceforge.net/portmidi/>`_
@@ -42,18 +42,10 @@ Once you have all the required dependencies, go in pyo's directory:
     cd path/to/pyo
 
 And build the library: 
-
-MacOS:
     
 .. code-block:: bash
 
     sudo python setup.py install
-
-Debian & Ubuntu:
-    
-.. code-block:: bash
-
-    sudo python setup.py install --install-layout=deb
 
 You can customize your compilation by giving some flags to the command line.
 
@@ -156,12 +148,12 @@ For Python 2.7
     sudo apt-get install python-dev python-tk python-imaging-tk python-wxgtk3.0
     git clone https://github.com/belangeo/pyo.git
     cd pyo
-    sudo python setup.py install --install-layout=deb --use-jack --use-double
+    sudo python setup.py install --use-jack --use-double
 
 * On Ubuntu system prior to vivid, wxpython 3.0 must be compiled from sources.
 
-For Python 3.5
-************** 
+For Python 3.5 and higher
+*************************
 
 .. code-block:: bash
 
@@ -169,19 +161,11 @@ For Python 3.5
     sudo apt-get install python3-dev python3-tk python3-pil.imagetk python3-pip
     git clone https://github.com/belangeo/pyo.git
     cd pyo
-    sudo python3 setup.py install --install-layout=deb --use-jack --use-double
+    sudo python3 setup.py install --use-jack --use-double
 
-If you want to be able to use all of pyo's gui widgets, you will need wxPython-phoenix. 
+If you want to be able to use all of pyo's gui widgets, you will need wxPython Phoenix. 
 
-- Install requirements outlined in the README.rst at `https://github.com/wxWidgets/Phoenix/blob/master/README.rst <https://github.com/wxWidgets/Phoenix/blob/master/README.rst>`_
-
-- Install wxPython with pip:
-
-.. code-block:: bash
-
-    sudo pip3 install -U wxPython
-
-Be patient, the last step will take a while!
+- To install wxPython with pip on linux, follow the instructions on the wxPython's `downloads <https://wxpython.org/pages/downloads/>`_ page. 
 
 MacOS (Homebrew)
 ----------------
@@ -189,14 +173,21 @@ MacOS (Homebrew)
 Under macOS, it is very simple to build pyo from sources with the Homebrew 
 package manager.
 
-First, install Python and WxPython from their respective download pages (`Python <https://www.python.org/downloads/>`_, `WxPython <http://www.wxpython.org/download.php/>`_).
+The first step is to install the official `Python <https://www.python.org/downloads/>`_ from python.org. 
 
-Second, you need to install `Homebrew <http://brew.sh/>`_. Then, in a terminal 
-window:
+Second step, if you want to be able to use all of pyo's gui widgets, you will need wxPython Phoenix. Install with pip:
 
 .. code-block:: bash
 
-    brew install liblo libsndfile portaudio portmidi --universal
+    sudo pip3 install -U wxpython
+
+The third step is to install `Homebrew <http://brew.sh/>`_.
+
+Finally, in a terminal window, install pyo's dependencies, clone and build pyo:
+
+.. code-block:: bash
+
+    brew install liblo libsndfile portaudio portmidi
     git clone https://github.com/belangeo/pyo.git
     cd pyo
     python setup.py install --use-coreaudio --use-double 
