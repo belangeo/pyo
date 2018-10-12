@@ -2289,7 +2289,7 @@ class BackgroundServerThread(threading.Thread):
 class KeyCommandsFrame(wx.Frame):
     def __init__(self, parent):
         wx.Frame.__init__(self, parent, wx.ID_ANY,
-                          title="Editor Key Commands List", size=(650,550))
+                          title="Editor Key Commands List", size=(750,650))
         self.menuBar = wx.MenuBar()
         menu1 = wx.Menu()
         menu1.Append(351, "Close\tCtrl+W")
@@ -4217,7 +4217,8 @@ class MainFrame(wx.Frame):
         if WIN_APP_BUNDLED:
             self.panel.addPage(os.path.join(os.getcwd(), "Resources", filename))
         else:
-            self.panel.addPage(os.path.join(os.getcwd(), filename))
+            filedir = os.path.dirname(os.path.abspath(__file__))
+            self.panel.addPage(os.path.join(filedir, filename))
 
     def openFolder(self, event):
         dlg = wx.DirDialog(self, message="Choose a folder",
@@ -4627,7 +4628,7 @@ class MainPanel(wx.Panel):
         self.project = ProjectTree(self.left_splitter, self, (-1, -1))
         self.markers = MarkersPanel(self.left_splitter, self, (-1, -1))
 
-        self.notebook = FNB.FlatNotebook(self.right_splitter, size=(-1,-1))
+        self.notebook = FNB.FlatNotebook(self.right_splitter, size=(-1, -1))
         self.notebook.SetAGWWindowStyleFlag(FNB.FNB_FANCY_TABS|FNB.FNB_X_ON_TAB|FNB.FNB_NO_X_BUTTON|FNB.FNB_DROPDOWN_TABS_LIST|FNB.FNB_HIDE_ON_SINGLE_TAB)
         self.addNewPage()
         self.outputlog = OutputLogPanel(self.right_splitter, self, size=(-1,150))
@@ -6657,15 +6658,13 @@ class MarkersPanel(wx.Panel):
         wx.Panel.__init__(self, parent, wx.ID_ANY, size=size, style=wx.SUNKEN_BORDER)
         self.mainPanel = mainPanel
 
-        tsize = (24, 24)
         delete_all_markers = catalog['delete_all_markers.png'].GetBitmap()
         close_panel_bmp = catalog['close_panel_icon.png'].GetBitmap()
 
         self.sizer = wx.BoxSizer(wx.VERTICAL)
 
         toolbarbox = wx.BoxSizer(wx.HORIZONTAL)
-        self.toolbar = wx.ToolBar(self, -1, size=(-1,36))
-        self.toolbar.SetToolBitmapSize(tsize)
+        self.toolbar = wx.ToolBar(self, -1)
 
         if "phoenix" not in wx.version():
             self.toolbar.AddLabelTool(TOOL_DELETE_ALL_MARKERS_ID, "Delete All Markers", delete_all_markers, shortHelp="Delete All Markers")
@@ -6675,8 +6674,7 @@ class MarkersPanel(wx.Panel):
         self.toolbar.Realize()
         toolbarbox.Add(self.toolbar, 1, wx.ALIGN_LEFT | wx.EXPAND, 0)
 
-        tb2 = wx.ToolBar(self, -1, size=(-1,36))
-        tb2.SetToolBitmapSize(tsize)
+        tb2 = wx.ToolBar(self, -1)
 
         if "phoenix" not in wx.version():
             tb2.AddLabelTool(16, "Close Panel", close_panel_bmp, shortHelp="Close Panel")
