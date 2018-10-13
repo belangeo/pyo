@@ -359,7 +359,7 @@ class Biquada(PyoObject):
     A general purpose biquadratic digital filter (floating-point arguments).
 
     A digital biquad filter is a second-order recursive linear filter, containing
-    two poles and two zeros. Biquadi is a "Direct Form 1" implementation of a Biquad
+    two poles and two zeros. Biquada is a "Direct Form 1" implementation of a Biquad
     filter:
 
     y[n] = ( b0*x[n] + b1*x[n-1] + b2*x[n-2] - a1*y[n-1] - a2*y[n-2] ) / a0
@@ -1360,8 +1360,8 @@ class MultiBand(PyoObject):
         input: PyoObject
             Input signal to process.
         num: int, optional
-            Number of frequency bands created. Available at initialization
-            time only. Defaults to 8.
+            Number of frequency bands created, between 2 and 16. 
+            Available at initialization time only. Defaults to 8.
 
     .. seealso::
 
@@ -1408,11 +1408,10 @@ class MultiBand(PyoObject):
 
     def setFrequencies(self, freqs):
         """
-        Change the filters cutoff frequencies.
+        Change the filters splitting frequencies.
 
         This method can be used to change filter frequencies to a particular set.
-        Frequency list length must be egal to the `num` attribute value set at
-        initialzation.
+        Frequency list length must be egal to the number of bands minus 1.
 
         :Args:
 
@@ -1421,8 +1420,8 @@ class MultiBand(PyoObject):
 
         """
         pyoArgsAssert(self, "l", freqs)
-        if len(freqs) != self._num:
-            print("pyo warning: MultiBand frequency list length must be egal to the number of bands of the object.")
+        if len(freqs) != (self._num - 1):
+            print("pyo warning: MultiBand frequency list length must be egal to the number of bands, minus 1, of the object.")
             return
         [obj.setFrequencies(freqs) for obj in self._base_players]
 

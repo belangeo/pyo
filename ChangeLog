@@ -1,7 +1,29 @@
+2018-09-06 belangeo <belangeo@gmail.com>
+
+    * Added PYO_SERVER_MIDI and PYO_SERVER_WINHOST environment variables to set
+      default values for the audio server.
+
+2018-09-04 belangeo <belangeo@gmail.com>
+
+    * Upgraded version number to 0.9.1.
+
+2018-09-04 belangeo <belangeo@gmail.com>
+
+    * On Windows, use 'directsound' as the default audio host (much more 
+      reliable than 'wasapi').
+
+2018-05-30 belangeo <belangeo@gmail.com>
+
+    * Fixed phase shifting between the frequency bands of FourBand and MultiBand.
+
 2018-04-24 belangeo <belangeo@gmail.com>
 
     * Added a new object: MultiBand, frequency splitter using Linkwitz-Riley 
       crossover filters.
+
+2018-04-17 belangeo <belangeo@gmail.com>
+
+    * Fixed Compress output level when input's rms is above unity.
 
 2018-03-04 belangeo <belangeo@gmail.com>
 
@@ -15,6 +37,10 @@
 2018-03-02 belangeo <belangeo@gmail.com>
 
     * Fixed crash when asking for more input or output channels than available.
+
+2018-03-01 belangeo <belangeo@gmail.com>
+
+    * Fixed Server window's Interpreter field scrolling history on MacOS.
 
 2018-02-16 belangeo <belangeo@gmail.com>
 

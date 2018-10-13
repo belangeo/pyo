@@ -1,0 +1,1 @@
+snippet = {'shortcut': u'Shift-Alt-3', 'value': u'num_voices = `10`\nfjit = Randi(min=`0.99`, max=`1.01`, freq=[(x+5)*0.07 for x in range(num_voices)])\najit = Randi(min=`0.25`, max=`0.75`, freq=[(x+5)*0.17 for x in range(num_voices)])\n'}

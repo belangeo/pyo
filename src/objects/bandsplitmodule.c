@@ -635,14 +635,14 @@ typedef struct {
     double last_freq2;
     double last_freq3;
     // sample memories
-    double x1[6];
-    double x2[6];
-    double x3[6];
-    double x4[6];
-    double y1[6];
-    double y2[6];
-    double y3[6];
-    double y4[6];
+    double x1[12];
+    double x2[12];
+    double x3[12];
+    double x4[12];
+    double y1[12];
+    double y2[12];
+    double y3[12];
+    double y4[12];
     // coefficients
     double b1[3];
     double b2[3];
@@ -658,9 +658,8 @@ typedef struct {
     int modebuffer[3];
 } FourBandMain;
 
-
 static void
-FourBandMain_compute_variables(FourBandMain *self, double freq, int band)
+FourBandMain_compute_variables(FourBandMain *self, double freq, int bound)
 {
     double wc = TWOPI * freq;
     double wc2 = wc * wc;
@@ -678,26 +677,110 @@ FourBandMain_compute_variables(FourBandMain *self, double freq, int band)
     double k4_a_tmp = k4 / a_tmp;
 
     /* common */
-    self->b1[band] = (4.0 * (wc4 + sq_tmp1 - k4 - sq_tmp2)) / a_tmp;
-    self->b2[band] = (6.0 * wc4 - 8.0 * wc2 * k2 + 6.0 * k4) / a_tmp;
-    self->b3[band] = (4.0 * (wc4 - sq_tmp1 + sq_tmp2 - k4)) / a_tmp;
-    self->b4[band] = (k4 - 2.0 * sq_tmp1 + wc4 - 2.0 * sq_tmp2 + 4.0 * wc2 * k2) / a_tmp;
+    self->b1[bound] = (4.0 * (wc4 + sq_tmp1 - k4 - sq_tmp2)) / a_tmp;
+    self->b2[bound] = (6.0 * wc4 - 8.0 * wc2 * k2 + 6.0 * k4) / a_tmp;
+    self->b3[bound] = (4.0 * (wc4 - sq_tmp1 + sq_tmp2 - k4)) / a_tmp;
+    self->b4[bound] = (k4 - 2.0 * sq_tmp1 + wc4 - 2.0 * sq_tmp2 + 4.0 * wc2 * k2) / a_tmp;
 
     /* lowpass */
-    self->la0[band] = wc4_a_tmp;
-    self->la1[band] = 4.0 * wc4_a_tmp;
-    self->la2[band] = 6.0 * wc4_a_tmp;
+    self->la0[bound] = wc4_a_tmp;
+    self->la1[bound] = 4.0 * wc4_a_tmp;
+    self->la2[bound] = 6.0 * wc4_a_tmp;
 
     /* highpass */
-    self->ha0[band] = k4_a_tmp;
-    self->ha1[band] = -4.0 * k4_a_tmp;
-    self->ha2[band] = 6.0 * k4_a_tmp;
+    self->ha0[bound] = k4_a_tmp;
+    self->ha1[bound] = -4.0 * k4_a_tmp;
+    self->ha2[bound] = 6.0 * k4_a_tmp;
+}
+
+static int
+FourBandMain_splitter(FourBandMain *self, MYFLT *input, MYFLT *outlow, MYFLT *outhigh, int bound, int filtercount) {
+    int i, indl = filtercount, indh = filtercount + 1;
+    double val, inval;
+    for (i=0; i<self->bufsize; i++) {
+        inval = (double)input[i];
+        /* lowpass */
+        val = self->la0[bound] * inval + self->la1[bound] * self->x1[indl] + self->la2[bound] * self->x2[indl] + 
+              self->la1[bound] * self->x3[indl] + self->la0[bound] * self->x4[indl] - self->b1[bound] * self->y1[indl] - 
+              self->b2[bound] * self->y2[indl] - self->b3[bound] * self->y3[indl] - self->b4[bound] * self->y4[indl];
+        self->y4[indl] = self->y3[indl];
+        self->y3[indl] = self->y2[indl];
+        self->y2[indl] = self->y1[indl];
+        self->y1[indl] = val;
+        self->x4[indl] = self->x3[indl];
+        self->x3[indl] = self->x2[indl];
+        self->x2[indl] = self->x1[indl];
+        self->x1[indl] = inval;
+        outlow[i] = (MYFLT)val;
+
+        /* highpass */
+        val = self->ha0[bound] * inval + self->ha1[bound] * self->x1[indh] + self->ha2[bound] * self->x2[indh] + 
+              self->ha1[bound] * self->x3[indh] + self->ha0[bound] * self->x4[indh] - self->b1[bound] * self->y1[indh] - 
+              self->b2[bound] * self->y2[indh] - self->b3[bound] * self->y3[indh] - self->b4[bound] * self->y4[indh];
+        self->y4[indh] = self->y3[indh];
+        self->y3[indh] = self->y2[indh];
+        self->y2[indh] = self->y1[indh];
+        self->y1[indh] = val;
+        self->x4[indh] = self->x3[indh];
+        self->x3[indh] = self->x2[indh];
+        self->x2[indh] = self->x1[indh];
+        self->x1[indh] = inval;
+        outhigh[i] = (MYFLT)val;
+    }
+    return filtercount + 2;
+}
+
+static int
+FourBandMain_phase_align(FourBandMain *self, MYFLT *input, int bound, int filtercount) {
+    int i, indl = filtercount, indh = filtercount + 1;
+    double val, inval;
+    MYFLT tmplow[self->bufsize], tmphigh[self->bufsize];
+
+    for (i=0; i<self->bufsize; i++) {
+        inval = (double)input[i];
+        /* lowpass */
+        val = self->la0[bound] * inval + self->la1[bound] * self->x1[indl] + self->la2[bound] * self->x2[indl] + 
+              self->la1[bound] * self->x3[indl] + self->la0[bound] * self->x4[indl] - self->b1[bound] * self->y1[indl] - 
+              self->b2[bound] * self->y2[indl] - self->b3[bound] * self->y3[indl] - self->b4[bound] * self->y4[indl];
+        self->y4[indl] = self->y3[indl];
+        self->y3[indl] = self->y2[indl];
+        self->y2[indl] = self->y1[indl];
+        self->y1[indl] = val;
+        self->x4[indl] = self->x3[indl];
+        self->x3[indl] = self->x2[indl];
+        self->x2[indl] = self->x1[indl];
+        self->x1[indl] = inval;
+        tmplow[i] = (MYFLT)val;
+
+        /* highpass */
+        val = self->ha0[bound] * inval + self->ha1[bound] * self->x1[indh] + self->ha2[bound] * self->x2[indh] + 
+              self->ha1[bound] * self->x3[indh] + self->ha0[bound] * self->x4[indh] - self->b1[bound] * self->y1[indh] - 
+              self->b2[bound] * self->y2[indh] - self->b3[bound] * self->y3[indh] - self->b4[bound] * self->y4[indh];
+        self->y4[indh] = self->y3[indh];
+        self->y3[indh] = self->y2[indh];
+        self->y2[indh] = self->y1[indh];
+        self->y1[indh] = val;
+        self->x4[indh] = self->x3[indh];
+        self->x3[indh] = self->x2[indh];
+        self->x2[indh] = self->x1[indh];
+        self->x1[indh] = inval;
+        tmphigh[i] = (MYFLT)val;
+    }
+
+    for (i=0; i<self->bufsize; i++) {
+        input[i] = tmplow[i] + tmphigh[i];
+    }
+
+    return filtercount + 2;
 }
 
 static void
 FourBandMain_filters(FourBandMain *self) {
-    double val, inval, tmp, f1, f2, f3;
-    int i, j, j1, ind, ind1;
+    int i, bound, align, filtercount = 0;
+    int bounds = 3;
+    double f1, f2, f3;
+    MYFLT *input;
+    MYFLT outlow[self->bufsize], outhigh[self->bufsize];
 
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
 
@@ -729,63 +812,19 @@ FourBandMain_filters(FourBandMain *self) {
         FourBandMain_compute_variables(self, f3, 2);
     }
 
-
-    for (i=0; i<self->bufsize; i++) {
-        inval = (double)in[i];
-        /* First band */
-        val = self->la0[0] * inval + self->la1[0] * self->x1[0] + self->la2[0] * self->x2[0] + self->la1[0] * self->x3[0] + self->la0[0] * self->x4[0] -
-              self->b1[0] * self->y1[0] - self->b2[0] * self->y2[0] - self->b3[0] * self->y3[0] - self->b4[0] * self->y4[0];
-        self->y4[0] = self->y3[0];
-        self->y3[0] = self->y2[0];
-        self->y2[0] = self->y1[0];
-        self->y1[0] = val;
-        self->x4[0] = self->x3[0];
-        self->x3[0] = self->x2[0];
-        self->x2[0] = self->x1[0];
-        self->x1[0] = inval;
-        self->buffer_streams[i] = (MYFLT)val;
-
-        /* Second and third bands */
-        for (j=0; j<2; j++) {
-            j1 = j + 1;
-            ind = j * 2 + 1;
-            ind1 = ind + 1;
-            tmp = self->ha0[j] * inval + self->ha1[j] * self->x1[ind] + self->ha2[j] * self->x2[ind] + self->ha1[j] * self->x3[ind] + self->ha0[j] * self->x4[ind] -
-                  self->b1[j] * self->y1[ind] - self->b2[j] * self->y2[ind] - self->b3[j] * self->y3[ind] - self->b4[j] * self->y4[ind];
-            self->y4[ind] = self->y3[ind];
-            self->y3[ind] = self->y2[ind];
-            self->y2[ind] = self->y1[ind];
-            self->y1[ind] = tmp;
-            self->x4[ind] = self->x3[ind];
-            self->x3[ind] = self->x2[ind];
-            self->x2[ind] = self->x1[ind];
-            self->x1[ind] = inval;
-
-            val = self->la0[j1] * tmp + self->la1[j1] * self->x1[ind1] + self->la2[j1] * self->x2[ind1] + self->la1[j1] * self->x3[ind1] + self->la0[j1] * self->x4[ind1] -
-                  self->b1[j1] * self->y1[ind1] - self->b2[j1] * self->y2[ind1] - self->b3[j1] * self->y3[ind1] - self->b4[j1] * self->y4[ind1];
-            self->y4[ind1] = self->y3[ind1];
-            self->y3[ind1] = self->y2[ind1];
-            self->y2[ind1] = self->y1[ind1];
-            self->y1[ind1] = val;
-            self->x4[ind1] = self->x3[ind1];
-            self->x3[ind1] = self->x2[ind1];
-            self->x2[ind1] = self->x1[ind1];
-            self->x1[ind1] = tmp;
-
-            self->buffer_streams[i + j1 * self->bufsize] = (MYFLT)val;
+    input = in;
+    for (bound=0; bound<bounds; bound++) {
+        filtercount = FourBandMain_splitter(self, input, outlow, outhigh, bound, filtercount);
+        for (align=bound+1; align<bounds; align++) {
+            filtercount = FourBandMain_phase_align(self, outlow, align, filtercount);
         }
-
-        val = self->ha0[2] * inval + self->ha1[2] * self->x1[5] + self->ha2[2] * self->x2[5] + self->ha1[2] * self->x3[5] + self->ha0[2] * self->x4[5] -
-              self->b1[2] * self->y1[5] - self->b2[2] * self->y2[5] - self->b3[2] * self->y3[5] - self->b4[2] * self->y4[5];
-        self->y4[5] = self->y3[5];
-        self->y3[5] = self->y2[5];
-        self->y2[5] = self->y1[5];
-        self->y1[5] = val;
-        self->x4[5] = self->x3[5];
-        self->x3[5] = self->x2[5];
-        self->x2[5] = self->x1[5];
-        self->x1[5] = inval;
-        self->buffer_streams[i + 3 * self->bufsize] = (MYFLT)val;
+        for (i=0; i<self->bufsize; i++) {
+            self->buffer_streams[i + bound * self->bufsize] = outlow[i];
+        }
+        input = outhigh;
+    }
+    for (i=0; i<self->bufsize; i++) {
+        self->buffer_streams[i + bounds * self->bufsize] = outhigh[i];
     }
 }
 
@@ -1323,32 +1362,32 @@ typedef struct {
     pyo_audio_HEAD
     PyObject *input;
     Stream *input_stream;
-    int nbands; // 2 -> 32
+    int nbands; // 2 -> 16
     // sample memories
-    double x1[62];
-    double x2[62];
-    double x3[62];
-    double x4[62];
-    double y1[62];
-    double y2[62];
-    double y3[62];
-    double y4[62];
+    double x1[240];
+    double x2[240];
+    double x3[240];
+    double x4[240];
+    double y1[240];
+    double y2[240];
+    double y3[240];
+    double y4[240];
     // coefficients
-    double b1[31];
-    double b2[31];
-    double b3[31];
-    double b4[31];
-    double la0[31];
-    double la1[31];
-    double la2[31];
-    double ha0[31];
-    double ha1[31];
-    double ha2[31];
+    double b1[15];
+    double b2[15];
+    double b3[15];
+    double b4[15];
+    double la0[15];
+    double la1[15];
+    double la2[15];
+    double ha0[15];
+    double ha1[15];
+    double ha2[15];
     MYFLT *buffer_streams;
 } MultiBandMain;
 
 static void
-MultiBandMain_compute_variables(MultiBandMain *self, double freq, int band)
+MultiBandMain_compute_variables(MultiBandMain *self, double freq, int bound)
 {
     double wc = TWOPI * freq;
     double wc2 = wc * wc;
@@ -1366,20 +1405,20 @@ MultiBandMain_compute_variables(MultiBandMain *self, double freq, int band)
     double k4_a_tmp = k4 / a_tmp;
 
     /* common */
-    self->b1[band] = (4.0 * (wc4 + sq_tmp1 - k4 - sq_tmp2)) / a_tmp;
-    self->b2[band] = (6.0 * wc4 - 8.0 * wc2 * k2 + 6.0 * k4) / a_tmp;
-    self->b3[band] = (4.0 * (wc4 - sq_tmp1 + sq_tmp2 - k4)) / a_tmp;
-    self->b4[band] = (k4 - 2.0 * sq_tmp1 + wc4 - 2.0 * sq_tmp2 + 4.0 * wc2 * k2) / a_tmp;
+    self->b1[bound] = (4.0 * (wc4 + sq_tmp1 - k4 - sq_tmp2)) / a_tmp;
+    self->b2[bound] = (6.0 * wc4 - 8.0 * wc2 * k2 + 6.0 * k4) / a_tmp;
+    self->b3[bound] = (4.0 * (wc4 - sq_tmp1 + sq_tmp2 - k4)) / a_tmp;
+    self->b4[bound] = (k4 - 2.0 * sq_tmp1 + wc4 - 2.0 * sq_tmp2 + 4.0 * wc2 * k2) / a_tmp;
 
     /* lowpass */
-    self->la0[band] = wc4_a_tmp;
-    self->la1[band] = 4.0 * wc4_a_tmp;
-    self->la2[band] = 6.0 * wc4_a_tmp;
+    self->la0[bound] = wc4_a_tmp;
+    self->la1[bound] = 4.0 * wc4_a_tmp;
+    self->la2[bound] = 6.0 * wc4_a_tmp;
 
     /* highpass */
-    self->ha0[band] = k4_a_tmp;
-    self->ha1[band] = -4.0 * k4_a_tmp;
-    self->ha2[band] = 6.0 * k4_a_tmp;
+    self->ha0[bound] = k4_a_tmp;
+    self->ha1[bound] = -4.0 * k4_a_tmp;
+    self->ha2[bound] = 6.0 * k4_a_tmp;
 }
 
 static void
@@ -1395,76 +1434,109 @@ MultiBandMain_set_filter_frequencies(MultiBandMain *self)
     }
 }
 
+static int
+MultiBandMain_splitter(MultiBandMain *self, MYFLT *input, MYFLT *outlow, MYFLT *outhigh, int bound, int filtercount) {
+    int i, indl = filtercount, indh = filtercount + 1;
+    double val, inval;
+    for (i=0; i<self->bufsize; i++) {
+        inval = (double)input[i];
+        /* lowpass */
+        val = self->la0[bound] * inval + self->la1[bound] * self->x1[indl] + self->la2[bound] * self->x2[indl] + 
+              self->la1[bound] * self->x3[indl] + self->la0[bound] * self->x4[indl] - self->b1[bound] * self->y1[indl] - 
+              self->b2[bound] * self->y2[indl] - self->b3[bound] * self->y3[indl] - self->b4[bound] * self->y4[indl];
+        self->y4[indl] = self->y3[indl];
+        self->y3[indl] = self->y2[indl];
+        self->y2[indl] = self->y1[indl];
+        self->y1[indl] = val;
+        self->x4[indl] = self->x3[indl];
+        self->x3[indl] = self->x2[indl];
+        self->x2[indl] = self->x1[indl];
+        self->x1[indl] = inval;
+        outlow[i] = (MYFLT)val;
+
+        /* highpass */
+        val = self->ha0[bound] * inval + self->ha1[bound] * self->x1[indh] + self->ha2[bound] * self->x2[indh] + 
+              self->ha1[bound] * self->x3[indh] + self->ha0[bound] * self->x4[indh] - self->b1[bound] * self->y1[indh] - 
+              self->b2[bound] * self->y2[indh] - self->b3[bound] * self->y3[indh] - self->b4[bound] * self->y4[indh];
+        self->y4[indh] = self->y3[indh];
+        self->y3[indh] = self->y2[indh];
+        self->y2[indh] = self->y1[indh];
+        self->y1[indh] = val;
+        self->x4[indh] = self->x3[indh];
+        self->x3[indh] = self->x2[indh];
+        self->x2[indh] = self->x1[indh];
+        self->x1[indh] = inval;
+        outhigh[i] = (MYFLT)val;
+    }
+    return filtercount + 2;
+}
+
+static int
+MultiBandMain_phase_align(MultiBandMain *self, MYFLT *input, int bound, int filtercount) {
+    int i, indl = filtercount, indh = filtercount + 1;
+    double val, inval;
+    MYFLT tmplow[self->bufsize], tmphigh[self->bufsize];
+
+    for (i=0; i<self->bufsize; i++) {
+        inval = (double)input[i];
+        /* lowpass */
+        val = self->la0[bound] * inval + self->la1[bound] * self->x1[indl] + self->la2[bound] * self->x2[indl] + 
+              self->la1[bound] * self->x3[indl] + self->la0[bound] * self->x4[indl] - self->b1[bound] * self->y1[indl] - 
+              self->b2[bound] * self->y2[indl] - self->b3[bound] * self->y3[indl] - self->b4[bound] * self->y4[indl];
+        self->y4[indl] = self->y3[indl];
+        self->y3[indl] = self->y2[indl];
+        self->y2[indl] = self->y1[indl];
+        self->y1[indl] = val;
+        self->x4[indl] = self->x3[indl];
+        self->x3[indl] = self->x2[indl];
+        self->x2[indl] = self->x1[indl];
+        self->x1[indl] = inval;
+        tmplow[i] = (MYFLT)val;
+
+        /* highpass */
+        val = self->ha0[bound] * inval + self->ha1[bound] * self->x1[indh] + self->ha2[bound] * self->x2[indh] + 
+              self->ha1[bound] * self->x3[indh] + self->ha0[bound] * self->x4[indh] - self->b1[bound] * self->y1[indh] - 
+              self->b2[bound] * self->y2[indh] - self->b3[bound] * self->y3[indh] - self->b4[bound] * self->y4[indh];
+        self->y4[indh] = self->y3[indh];
+        self->y3[indh] = self->y2[indh];
+        self->y2[indh] = self->y1[indh];
+        self->y1[indh] = val;
+        self->x4[indh] = self->x3[indh];
+        self->x3[indh] = self->x2[indh];
+        self->x2[indh] = self->x1[indh];
+        self->x1[indh] = inval;
+        tmphigh[i] = (MYFLT)val;
+    }
+
+    for (i=0; i<self->bufsize; i++) {
+        input[i] = tmplow[i] + tmphigh[i];
+    }
+
+    return filtercount + 2;
+}
+
 static void
 MultiBandMain_filters(MultiBandMain *self) {
-    double val, inval, tmp;
-    int i, j, j1, ind, ind1;
-    int nb1 = self->nbands - 1;
-    int nb2 = self->nbands - 2;
-    int last = (self->nbands - 1) * 2 - 1;
+    int i, bound, align, filtercount = 0;
+    int bounds = self->nbands - 1;
+    MYFLT *input;
+    MYFLT outlow[self->bufsize], outhigh[self->bufsize];
 
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
 
-    for (i=0; i<self->bufsize; i++) {
-        inval = (double)in[i];
-        /* First band */
-        val = self->la0[0] * inval + self->la1[0] * self->x1[0] + self->la2[0] * self->x2[0] + 
-              self->la1[0] * self->x3[0] + self->la0[0] * self->x4[0] - self->b1[0] * self->y1[0] - 
-              self->b2[0] * self->y2[0] - self->b3[0] * self->y3[0] - self->b4[0] * self->y4[0];
-        self->y4[0] = self->y3[0];
-        self->y3[0] = self->y2[0];
-        self->y2[0] = self->y1[0];
-        self->y1[0] = val;
-        self->x4[0] = self->x3[0];
-        self->x3[0] = self->x2[0];
-        self->x2[0] = self->x1[0];
-        self->x1[0] = inval;
-        self->buffer_streams[i] = (MYFLT)val;
-
-        /* Second and third bands */
-        for (j=0; j<nb2; j++) {
-            j1 = j + 1;
-            ind = j * 2 + 1;
-            ind1 = ind + 1;
-            tmp = self->ha0[j] * inval + self->ha1[j] * self->x1[ind] + self->ha2[j] * self->x2[ind] + 
-                  self->ha1[j] * self->x3[ind] + self->ha0[j] * self->x4[ind] - self->b1[j] * self->y1[ind] - 
-                  self->b2[j] * self->y2[ind] - self->b3[j] * self->y3[ind] - self->b4[j] * self->y4[ind];
-            self->y4[ind] = self->y3[ind];
-            self->y3[ind] = self->y2[ind];
-            self->y2[ind] = self->y1[ind];
-            self->y1[ind] = tmp;
-            self->x4[ind] = self->x3[ind];
-            self->x3[ind] = self->x2[ind];
-            self->x2[ind] = self->x1[ind];
-            self->x1[ind] = inval;
-
-            val = self->la0[j1] * tmp + self->la1[j1] * self->x1[ind1] + self->la2[j1] * self->x2[ind1] + 
-                  self->la1[j1] * self->x3[ind1] + self->la0[j1] * self->x4[ind1] - self->b1[j1] * self->y1[ind1] - 
-                  self->b2[j1] * self->y2[ind1] - self->b3[j1] * self->y3[ind1] - self->b4[j1] * self->y4[ind1];
-            self->y4[ind1] = self->y3[ind1];
-            self->y3[ind1] = self->y2[ind1];
-            self->y2[ind1] = self->y1[ind1];
-            self->y1[ind1] = val;
-            self->x4[ind1] = self->x3[ind1];
-            self->x3[ind1] = self->x2[ind1];
-            self->x2[ind1] = self->x1[ind1];
-            self->x1[ind1] = tmp;
-
-            self->buffer_streams[i + j1 * self->bufsize] = (MYFLT)val;
+    input = in;
+    for (bound=0; bound<bounds; bound++) {
+        filtercount = MultiBandMain_splitter(self, input, outlow, outhigh, bound, filtercount);
+        for (align=bound+1; align<bounds; align++) {
+            filtercount = MultiBandMain_phase_align(self, outlow, align, filtercount);
         }
-
-        val = self->ha0[nb2] * inval + self->ha1[nb2] * self->x1[last] + self->ha2[nb2] * self->x2[last] + 
-              self->ha1[nb2] * self->x3[last] + self->ha0[nb2] * self->x4[last] - self->b1[nb2] * self->y1[last] - 
-              self->b2[nb2] * self->y2[last] - self->b3[nb2] * self->y3[last] - self->b4[nb2] * self->y4[last];
-        self->y4[last] = self->y3[last];
-        self->y3[last] = self->y2[last];
-        self->y2[last] = self->y1[last];
-        self->y1[last] = val;
-        self->x4[last] = self->x3[last];
-        self->x3[last] = self->x2[last];
-        self->x2[last] = self->x1[last];
-        self->x1[last] = inval;
-        self->buffer_streams[i + nb1 * self->bufsize] = (MYFLT)val;
+        for (i=0; i<self->bufsize; i++) {
+            self->buffer_streams[i + bound * self->bufsize] = outlow[i];
+        }
+        input = outhigh;
+    }
+    for (i=0; i<self->bufsize; i++) {
+        self->buffer_streams[i + bounds * self->bufsize] = outhigh[i];
     }
 }
 
@@ -1536,14 +1608,14 @@ MultiBandMain_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     if (self->nbands < 2)
         self->nbands = 2;
-    else if (self->nbands > 32)
-        self->nbands = 32;
+    else if (self->nbands > 16)
+        self->nbands = 16;
 
-    for (i=0; i<62; i++) {
+    for (i=0; i<240; i++) {
         self->x1[i] = self->x2[i] = self->x3[i] = self->x4[i] = 0.0;
         self->y1[i] = self->y2[i] = self->y3[i] = self->y4[i] = 0.0;
     }
-    for (i=0; i<31; i++) {
+    for (i=0; i<15; i++) {
         self->b1[i] = self->b2[i] = self->b3[i] = self->b4[i] = self->la0[i] = 0.0;
         self->la1[i] = self->la2[i] = self->ha0[i] = self->ha1[i] = self->ha2[i] = 0.0;
     }
@@ -1563,10 +1635,10 @@ MultiBandMain_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
 static PyObject *
 MultiBandMain_setFrequencies(MultiBandMain* self, PyObject *arg) {
-    int i;
+    int i, bounds = self->nbands - 1;
     if PyList_Check(arg) {
-        if (PyList_Size(arg) == self->nbands) {
-            for (i=0; i<self->nbands; i++) {
+        if (PyList_Size(arg) == bounds) {
+            for (i=0; i<bounds; i++) {
                 MultiBandMain_compute_variables(self, PyFloat_AsDouble(PyList_GetItem(arg, i)), i);
             }
         }

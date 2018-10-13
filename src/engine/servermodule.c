@@ -1262,6 +1262,8 @@ PyObject *
 Server_shutdown(Server *self)
 {
     int i, ret = -1;
+    PyGILState_STATE s = 0;
+
     if (self->server_booted == 0) {
         Server_error(self, "The Server must be booted!\n");
         Py_RETURN_NONE;
@@ -1308,15 +1310,20 @@ Server_shutdown(Server *self)
         Server_error(self, "Error closing audio backend.\n");
     }
 
-    /* Cleaning list of audio streams. */
-    PyGILState_STATE s = PyGILState_Ensure();
+    /* Cleaning list of audio streams. 
+       Note: Grabbing the GIL crashes embedded servers. */
+    if (self->audio_be_type != PyoEmbedded) {
+        s = PyGILState_Ensure();
+    }
     if (PyList_Size(self->streams) > 0) {
         for (i=PyList_Size(self->streams); i>0; i--) {
             PySequence_DelItem(self->streams, i-1);
         }
     }
     self->stream_count = 0;
-    PyGILState_Release(s);
+    if (self->audio_be_type != PyoEmbedded) {
+        PyGILState_Release(s);
+    }
 
     Py_RETURN_NONE;
 }
@@ -1692,7 +1699,11 @@ Server_removeStream(Server *self, int id)
 {
     int i, sid;
     Stream *stream_tmp;
-    PyGILState_STATE s = PyGILState_Ensure();
+    PyGILState_STATE s = 0;
+
+    if (self->audio_be_type != PyoEmbedded) {
+        s = PyGILState_Ensure();
+    }
     if (my_server[self->thisServerID] != NULL && PySequence_Size(self->streams) != -1) {
         for (i=0; i<self->stream_count; i++) {
             stream_tmp = (Stream *)PyList_GetItem(self->streams, i);
@@ -1707,7 +1718,9 @@ Server_removeStream(Server *self, int id)
             }
         }
     }
-    PyGILState_Release(s);
+    if (self->audio_be_type != PyoEmbedded) {
+        PyGILState_Release(s);
+    }
 
     Py_RETURN_NONE;
 }

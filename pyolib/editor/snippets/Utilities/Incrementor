@@ -1,0 +1,1 @@
+snippet = {'shortcut': u'Shift-Alt-8', 'value': u'count = 0\ndef incrementor():\n    global count\n    count += 1\n    print(count)\n\npat = Pattern(function=incrementor, time=1).play()\n'}

@@ -86,7 +86,8 @@ Tunning the Windows WASAPI driver
 ---------------------------------
 
 The Windows Audio Session API (WASAPI) is Microsoft's most modern method for talking with audio devices.
-It is available in Windows since Vista. Pyo's default host is the WASAPI. If the script above tells you:
+It is available in Windows since Vista. Pyo's default host is DIRECTSOUND but you can change it to WASAPI
+by changing the `winhost` argument of the **Server** object. If the script above tells you:
 
     Host: wasapi ==> Failed...
 
@@ -110,11 +111,14 @@ Server initialization examples
 
 .. code-block:: python
 
-    # sampling rate = 44100 Hz, buffer size = 256, channels = 2, full duplex, host = WASAPI
+    # sampling rate = 44100 Hz, buffer size = 256, channels = 2, full duplex, host = DIRECTSOUND
     s = Server()
 
-    # sampling rate = 48000 Hz, buffer size = 1024, channels = 2, full duplex, host = WASAPI
+    # sampling rate = 48000 Hz, buffer size = 1024, channels = 2, full duplex, host = DIRECTSOUND
     s = Server(sr=48000, buffersize=1024)
+
+    # sampling rate = 48000 Hz, buffer size = 512, channels = 2, full duplex, host = WASAPI
+    s = Server(sr=48000, buffersize=512, winhost="wasapi")
 
     # sampling rate = 48000 Hz, buffer size = 512, channels = 2, output only, host = ASIO
     s = Server(sr=48000, buffersize=512, duplex=0, winhost="asio")

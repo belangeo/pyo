@@ -397,13 +397,13 @@ class ControlSlider(wx.Panel):
             if self.integer:
                 val = '%d' % self.GetValue()
             elif abs(self.GetValue()) >= 1000:
-                val = '%.1f' % self.GetValue()
+                val = '%.0f' % self.GetValue()
             elif abs(self.GetValue()) >= 100:
-                val = '%.2f' % self.GetValue()
+                val = '%.1f' % self.GetValue()
             elif abs(self.GetValue()) >= 10:
-                val = '%.3f' % self.GetValue()
+                val = '%.2f' % self.GetValue()
             elif abs(self.GetValue()) < 10:
-                val = '%.4f' % self.GetValue()
+                val = '%.3f' % self.GetValue()
         if sys.platform.startswith('linux'):
             width = len(val) * (dc.GetCharWidth() - 3)
         else:
