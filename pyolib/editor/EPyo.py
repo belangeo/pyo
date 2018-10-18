@@ -21,6 +21,7 @@ import contextlib, shutil, copy, pprint, random, time, threading
 from types import MethodType
 from wx.lib.wordwrap import wordwrap
 from wx.lib.embeddedimage import PyEmbeddedImage
+from wx.lib.splitter import MultiSplitterWindow
 import wx.lib.colourselect as csel
 import wx.lib.scrolledpanel as scrolled
 import wx.lib.dialogs
@@ -3296,6 +3297,11 @@ class MainFrame(wx.Frame):
                 self.Bind(wx.EVT_MENU, self.openRecent, id=i)
         menu1.AppendSubMenu(self.submenu2, "Open Recent...")
         menu1.AppendSeparator()
+        menu1.Append(3050, "Split Window")
+        self.Bind(wx.EVT_MENU, self.splitWindow, id=3050)
+        menu1.Append(3051, "Unsplit Window")
+        self.Bind(wx.EVT_MENU, self.unsplitWindow, id=3051)
+        menu1.AppendSeparator()
         menu1.Append(wx.ID_CLOSE, "Close\tCtrl+W")
         self.Bind(wx.EVT_MENU, self.close, id=wx.ID_CLOSE)
         menu1.Append(wx.ID_CLOSE_ALL, "Close All Tabs\tShift+Ctrl+W")
@@ -3574,6 +3580,12 @@ class MainFrame(wx.Frame):
                 self.panel.addPage(f)
 
         wx.CallAfter(self.buildDoc)
+
+    def splitWindow(self, evt):
+        self.panel.splitWindow()
+
+    def unsplitWindow(self, evt):
+        self.panel.unsplitWindow()
 
     def Reposition(self):
         if PLATFORM == "darwin":
@@ -4129,7 +4141,7 @@ class MainFrame(wx.Frame):
             if self.panel.outputlog.IsShownOnScreen():
                 return
             h = self.panel.GetSize()[1]
-            self.panel.right_splitter.SplitHorizontally(self.panel.notebook, self.panel.outputlog, h * 4 // 5 - h)
+            self.panel.right_splitter.SplitHorizontally(self.panel.editorPanel, self.panel.outputlog, h * 4 // 5 - h)
         else:
             if not self.panel.outputlog.IsShownOnScreen():
                 return
@@ -4628,12 +4640,17 @@ class MainPanel(wx.Panel):
         self.project = ProjectTree(self.left_splitter, self, (-1, -1))
         self.markers = MarkersPanel(self.left_splitter, self, (-1, -1))
 
-        self.notebook = FNB.FlatNotebook(self.right_splitter, size=(-1, -1))
-        self.notebook.SetAGWWindowStyleFlag(FNB.FNB_FANCY_TABS|FNB.FNB_X_ON_TAB|FNB.FNB_NO_X_BUTTON|FNB.FNB_DROPDOWN_TABS_LIST|FNB.FNB_HIDE_ON_SINGLE_TAB)
-        self.addNewPage()
-        self.outputlog = OutputLogPanel(self.right_splitter, self, size=(-1,150))
+        self.editorPanel = MultiSplitterWindow(self.right_splitter, style=wx.SP_LIVE_UPDATE|wx.SP_3DSASH)
 
-        self.right_splitter.SplitHorizontally(self.notebook, self.outputlog, (self.GetSize()[1] * 4 // 5) - self.GetSize()[1])
+        self.notebook = FNB.FlatNotebook(self.editorPanel, size=(-1, -1))
+        self.notebook.SetAGWWindowStyleFlag(FNB.FNB_FANCY_TABS|FNB.FNB_X_ON_TAB|FNB.FNB_NO_X_BUTTON|FNB.FNB_DROPDOWN_TABS_LIST|FNB.FNB_HIDE_ON_SINGLE_TAB)
+        self.editorPanel.AppendWindow(self.notebook)
+        self.notebooks = [self.notebook]
+        self.addNewPage()
+
+        self.outputlog = OutputLogPanel(self.right_splitter, self, size=(-1, 150))
+
+        self.right_splitter.SplitHorizontally(self.editorPanel, self.outputlog, (self.GetSize()[1] * 4 // 5) - self.GetSize()[1])
 
         self.splitter.SplitVertically(self.left_splitter, self.right_splitter, 200)
         self.splitter.Unsplit(self.left_splitter)
@@ -4641,16 +4658,41 @@ class MainPanel(wx.Panel):
         mainBox.Add(self.splitter, 1, wx.EXPAND)
         self.SetSizer(mainBox)
 
+        self.Bind(wx.EVT_SIZE, self.onSizeChange)
         self.notebook.Bind(FNB.EVT_FLATNOTEBOOK_PAGE_CHANGED, self.onPageChange)
         self.notebook.Bind(FNB.EVT_FLATNOTEBOOK_PAGE_CLOSING, self.onClosingPage)
 
-    def addNewPage(self):
+    def splitWindow(self):
+        notebook = FNB.FlatNotebook(self.editorPanel, size=(-1, -1))
+        notebook.SetAGWWindowStyleFlag(FNB.FNB_FANCY_TABS|FNB.FNB_X_ON_TAB|FNB.FNB_NO_X_BUTTON|FNB.FNB_DROPDOWN_TABS_LIST|FNB.FNB_HIDE_ON_SINGLE_TAB)
+        self.notebooks.append(notebook)
+        self.editorPanel.AppendWindow(notebook)
+        self.addNewPage(len(self.notebooks)-1)
+        wx.CallAfter(self.setSashPositions)
+
+    def unsplitWindow(self):
+        if len(self.notebooks) > 1:
+            self.editorPanel.DetachWindow(self.notebooks[-1])
+            self.notebooks[-1].Destroy()
+            del self.notebooks[-1]
+            wx.CallAfter(self.setSashPositions)
+
+    def onSizeChange(self, evt):
+        wx.CallAfter(self.setSashPositions)
+        evt.Skip()
+
+    def setSashPositions(self):
+        numPanes = len(self.notebooks)
+        for i in range(numPanes-1):
+            self.editorPanel.SetSashPosition(i, self.right_splitter.GetSize()[0] / numPanes)
+
+    def addNewPage(self, book=0):
         title = "Untitled-%i.py" % self.new_inc
         self.new_inc += 1
         editor = Editor(self.notebook, -1, size=(0, -1), setTitle=self.SetTitle, getTitle=self.GetTitle)
         editor.path = title
         editor.setStyle()
-        self.notebook.AddPage(editor, title, True)
+        self.notebooks[book].AddPage(editor, title, True)
         self.editor = editor
 
     def addPage(self, file, encoding=None):
