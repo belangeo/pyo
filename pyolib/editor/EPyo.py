@@ -1647,6 +1647,7 @@ class ManualPanel(wx.Treebook):
                 panel.win.SetText(_INTRO_TEXT)
 
             panel.win.SaveFile(os.path.join(DOC_PATH, obj))
+
         return panel
 
     def getExample(self, text):
@@ -3371,6 +3372,9 @@ class MainFrame(wx.Frame):
         menu2.Append(114, "Auto Complete container syntax", kind=wx.ITEM_CHECK)
         self.Bind(wx.EVT_MENU, self.autoCompContainer, id=114)
         menu2.Check(114, PREFERENCES.get("auto_comp_container", 0))
+        menu2.Append(115, "Auto Complete CPP class attributes", kind=wx.ITEM_CHECK)
+        self.Bind(wx.EVT_MENU, self.autoCompCpp, id=115)
+        menu2.Check(115, PREFERENCES.get("auto_comp_cpp", 0))
         menu2.AppendSeparator()
         submenu2 = wx.Menu()
         submenu2.Append(170, "Convert Selection to Uppercase\tCtrl+U")
@@ -3876,6 +3880,11 @@ class MainFrame(wx.Frame):
         PREFERENCES["auto_comp_container"] = state
         self.panel.editor.showAutoCompContainer(state)
 
+    def autoCompCpp(self, evt):
+        state = evt.GetInt()
+        PREFERENCES["auto_comp_cpp"] = state
+        self.panel.editor.showAutoCompCpp(state)
+
     def showFind(self, evt):
         self.panel.editor.OnShowFindReplace()
 
@@ -4252,7 +4261,6 @@ class MainFrame(wx.Frame):
         dlg.SetFilterIndex(0)
         if dlg.ShowModal() == wx.ID_OK:
             path = ensureNFD(dlg.GetPath())
-            self.panel.editor.path = path
             self.panel.editor.setStyle()
             self.panel.editor.SetCurrentPos(0)
             self.panel.editor.addText(" ", False)
@@ -4648,7 +4656,7 @@ class MainPanel(wx.Panel):
         title = "Untitled-%i.py" % self.new_inc
         self.new_inc += 1
         editor = Editor(self.notebook, -1, size=(0, -1), setTitle=self.SetTitle, getTitle=self.GetTitle)
-        editor.path = title
+        editor.setPath(title)
         editor.setStyle()
         self.notebook.AddPage(editor, title, True)
         self.editor = editor
@@ -4675,7 +4683,7 @@ class MainPanel(wx.Panel):
         editor.GotoLine(editor.GetLineCount())
         wx.CallAfter(editor.GotoLine, 0)
 
-        editor.path = file
+        editor.setPath(file)
         editor.saveMark = True
         editor.EmptyUndoBuffer()
         editor.SetSavePoint()
@@ -4784,7 +4792,8 @@ class Editor(stc.StyledTextCtrl):
         self.current_marker = -1
         self.objs_attr_dict = {}
         self.auto_comp_container = PREFERENCES.get("auto_comp_container", 0)
-
+        self.auto_comp_cpp = PREFERENCES.get("auto_comp_cpp", 0)
+        self.auto_comp_cpp_list = []
 
         self.alphaStr = LOWERCASE + UPPERCASE + '0123456789'
 
@@ -4875,6 +4884,11 @@ class Editor(stc.StyledTextCtrl):
 
         wx.CallAfter(self.SetAnchor, 0)
         self.Refresh()
+
+    def setPath(self, path):
+        self.path = path
+        self.auto_comp_cpp_list = []
+        self.setAutoCompCppList()
 
     def setStyle(self):
         def buildStyle(forekey, backkey=None, smallsize=False):
@@ -5247,7 +5261,7 @@ class Editor(stc.StyledTextCtrl):
     ### Save and Close file ###
     def saveMyFile(self, file):
         self.SaveFile(file)
-        self.path = file
+        self.setPath(file)
         self.saveMark = False
         marker_file = os.path.split(self.path)[1].rsplit(".")[0]
         marker_file += "%04d" % random.randint(0,1000)
@@ -5385,8 +5399,112 @@ class Editor(stc.StyledTextCtrl):
         currentword = self.GetTextRange(startpos, endpos)
         return currentword
 
+    def retrieveAutoCompCppList(self, header):
+        with open(header, "r", encoding="utf-8") as f:
+            text = f.read()
+
+        # Filter out multiline comments
+        while "/*" in text:
+            pos1 = text.find("/*")
+            pos2 = text.find("*/", pos1) + 2
+            text = text[:pos1] + text[pos2:]
+
+        # Filter out singleline comments
+        lines = text.splitlines()
+        for i in range(len(lines)):
+            if "//" in lines[i]:
+                pos = lines[i].find("//")
+                if pos:
+                    lines[i] = lines[i][:pos]
+
+        # Filter out pre-processing directives (but keep #define)
+        for i in range(len(lines)):
+            if lines[i].strip().startswith("#"):
+                if lines[i].strip().startswith("#define"):
+                    lines[i] = lines[i].replace("#define ", "")
+                else:
+                    lines[i] = ""
+
+        # Remove extra spaces
+        lines = [line.strip() for line in lines]
+
+        # Remove braces
+        for i in range(len(lines)):
+            if "(" in lines[i] and ")" in lines[i]:
+                pos1 = lines[i].find("(")
+                pos2 = lines[i].rfind(")")
+                lines[i] = lines[i][:pos1] + lines[i][pos2+1:]
+            elif "(" in lines[i]:
+                pos1 = lines[i].find("(")
+                lines[i] = lines[i][:pos1]
+            elif ")" in lines[i]:
+                lines[i] = ""
+
+        # Remove brackets
+        for i in range(len(lines)):
+            if "[" in lines[i] and "]" in lines[i]:
+                pos1 = lines[i].find("[")
+                pos2 = lines[i].rfind("]")
+                lines[i] = lines[i][:pos1] + lines[i][pos2+1:]
+
+        # Remove curly braces
+        for i in range(len(lines)):
+            if "{" in lines[i] and "}" in lines[i]:
+                pos1 = lines[i].find("{")
+                pos2 = lines[i].rfind("}")
+                lines[i] = lines[i][:pos1] + lines[i][pos2+1:]
+            elif "{" in lines[i]:
+                pos1 = lines[i].find("{")
+                lines[i] = lines[i][:pos1]
+            elif "}" in lines[i]:
+                lines[i] = ""
+
+        # Remove special characters
+        lines = [line.replace(";", "").replace("~", "").replace("*", "").replace(":", "").replace("=", "").replace("{", "").replace("}", "") for line in lines]
+
+        # Remove cpp keywords
+        keywords = ["class ", "public", "private", "protected", "void ", "nullptr", "int ", "char ", "bool ", "long ", "float ", "double "]
+        for i in range(len(lines)):
+            for word in keywords:
+                if word in lines[i]:
+                    lines[i] = lines[i].replace(word, "")
+
+        # Remove empty strings
+        lines = [line for line in lines if line]
+
+        # Remove extra spaces
+        lines = [line.strip() for line in lines]
+
+        # Everything ending up in a list of two if probably an identifier and an attribute. Keep only the attribute.
+        for i in range(len(lines)):
+            if " " in lines[i]:
+                lines[i] = lines[i].split()[1]
+
+        # Remove duplicates
+        lines = list(set(lines))
+
+        # Resort
+        lines.sort()
+
+        return lines
+
+    def setAutoCompCppList(self):
+        extensions = [".cpp", ".cc", ".cxx", ".cp", ".c++"]
+        if os.path.splitext(self.path)[1] in extensions:
+            for hext in [".h", ".hpp", ".hp", ".hh", ".hxx", ".h++"]:
+                header = os.path.splitext(self.path)[0] + hext
+                if (os.path.isfile(header)):
+                    self.auto_comp_cpp_list = self.retrieveAutoCompCppList(header)
+                    break
+
     def showAutoCompContainer(self, state):
         self.auto_comp_container = state
+
+    def showAutoCompCpp(self, state):
+        self.auto_comp_cpp = state
+        self.auto_comp_cpp_list = []
+        if state and self.path:
+            self.setAutoCompCppList()
 
     def showAutoComp(self):
         propagate = True
@@ -5563,13 +5681,33 @@ class Editor(stc.StyledTextCtrl):
             self.addText(" "*indent, False)
 
     def processTab(self, currentword, autoCompActive, charat, pos):
-        propagate = self.showAutoComp()
-        if propagate:
-            propagate = self.insertDefArgs(currentword, charat)
+        propagate = True
+
+        if self.path.endswith(".cpp"):
+            if self.auto_comp_cpp:
+                currentword = self.getWordUnderCaret()
+                if chr(charat).isalpha() or charat == ord('_'):
+                    lst = [word for word in self.auto_comp_cpp_list if word.startswith(currentword) and currentword != word]
+                else:
+                    lst = []
+                if lst:
+                    lst = " ".join(lst)
+                    self.AutoCompShow(len(currentword), lst)
+                    propagate = False
+                else:
+                    propagate = True
+            else:
+                propagate = True
+
+        elif self.path.endswith(".py"):
+            propagate = self.showAutoComp()
             if propagate:
-                propagate = self.checkForBuiltinComp()
+                propagate = self.insertDefArgs(currentword, charat)
                 if propagate:
-                    propagate = self.checkForAttributes(charat, pos)
+                    propagate = self.checkForBuiltinComp()
+                    if propagate:
+                        propagate = self.checkForAttributes(charat, pos)
+
         return propagate
 
     def onShowTip(self):
@@ -5755,6 +5893,7 @@ class Editor(stc.StyledTextCtrl):
                 propagate = True
             else:
                 propagate = self.processTab(currentword, autoCompActive, charat, pos)
+
 
         if propagate:
             evt.Skip()
