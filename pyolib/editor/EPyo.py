@@ -8,6 +8,7 @@ You can do absolutely everything you want with this piece of software.
 Olivier Belanger - 2018
 
 TODO:
+    - auto-search when typing in the doc page.
     - Fix printing to pdf.
 
 """
@@ -16,7 +17,7 @@ from __future__ import with_statement
 from __future__ import print_function
 import sys
 
-import os, inspect, keyword, wx, codecs, subprocess, unicodedata
+import os, inspect, keyword, wx, codecs, subprocess, unicodedata, types
 import contextlib, shutil, copy, pprint, random, time, threading
 from types import MethodType
 from wx.lib.wordwrap import wordwrap
@@ -998,16 +999,10 @@ DOC_STYLES = {'Default': {'default': '#000000', 'comment': '#007F7F', 'commentbl
                     'background': '#EEEEEE', 'linenumber': '#000000', 'marginback': '#B0B0B0', 'markerfg': '#CCCCCC',
                     'markerbg': '#000000', 'bracelight': '#AABBDD', 'bracebad': '#DD0000', 'lineedge': '#CCCCCC'}}
 
-if wx.Platform == '__WXMSW__':
-  DOC_FACES = {'face': 'Verdana', 'size' : 8, 'size2': 7}
-elif wx.Platform == '__WXMAC__':
-  DOC_FACES = {'face': 'Monaco', 'size' : 12, 'size2': 9}
-else:
-  DOC_FACES = {'face': 'Monospace', 'size' : 8, 'size2': 7}
-DOC_FACES['size3'] = DOC_FACES['size2'] + 4
+DOC_FACES = {'face': DEFAULT_FONT_FACE, 'size' : FONT_SIZE, 'size2': FONT_SIZE2}
+DOC_FACES['size3'] = DOC_FACES['size2'] + 6
 for key, value in DOC_STYLES['Default'].items():
   DOC_FACES[key] = value
-
 
 #----------------------------------------------------------------------
 next_24_png = PyEmbeddedImage(
@@ -1154,18 +1149,20 @@ catalog['up_24.png'] = up_24_png
 _INTRO_TEXT = """
 pyo manual version %s
 
-pyo is a Python module written in C to help digital signal processing script creation.
+pyo is a Python module written in C to help digital signal processing script 
+creation.
 
-pyo is a Python module containing classes for a wide variety of audio signal processing types.
-With pyo, user will be able to include signal processing chains directly in Python scripts or
-projects, and to manipulate them in real-time through the interpreter. Tools in pyo module
-offer primitives, like mathematical operations on audio signal, basic signal processing
-(filters, delays, synthesis generators, etc.) together with complex algorithms to create
-granulation and others creative sound manipulations. pyo supports OSC protocol (Open Sound
-Control), to ease communications between softwares, and MIDI protocol, for generating sound
-events and controlling process parameters. pyo allows creation of sophisticated signal
-processing chains with all the benefits of a mature, and wild used, general programming
-language.
+pyo is a Python module containing classes for a wide variety of audio signal 
+processing types. With pyo, user will be able to include signal processing 
+chains directly in Python scripts or projects, and to manipulate them in 
+real-time through the interpreter. Tools in pyo module offer primitives, like 
+mathematical operations on audio signal, basic signal processing (filters, 
+delays, synthesis generators, etc.) together with complex algorithms to create
+granulation and others creative sound manipulations. pyo supports OSC protocol 
+(Open Sound Control), to ease communications between softwares, and MIDI 
+protocol, for generating sound events and controlling process parameters. pyo 
+allows creation of sophisticated signal processing chains with all the benefits 
+of a mature, and wild used, general programming language.
 
 Overview:
 
@@ -1567,6 +1564,7 @@ class ManualPanel(wx.Treebook):
         if new != old:
             text = self.GetPageText(new)
             self.getPage(text)
+        wx.CallAfter(self.GetCurrentPage().SetFocus)
         event.Skip()
 
     def makePanel(self, obj=None):
@@ -1617,8 +1615,17 @@ class ManualPanel(wx.Treebook):
                         panel.win = stc.StyledTextCtrl(panel, -1, size=(600, 600), style=wx.SUNKEN_BORDER)
                         panel.win.SetText(args + text_form + methods)
                     except:
-                        panel.win = stc.StyledTextCtrl(panel, -1, size=(600, 600), style=wx.SUNKEN_BORDER)
-                        panel.win.SetText(args + "\nNot documented yet...\n\n")
+                        text = eval(obj).__doc__
+                        if text:
+                            if type(eval(obj)) is types.ModuleType:
+                                if obj in OBJECTS_TREE["PyoObjectBase"]["PyoObject"].keys():
+                                    text += "\nOverview:\n"
+                                    for o in OBJECTS_TREE["PyoObjectBase"]["PyoObject"][obj]:
+                                        text += o + ": " + self.getDocFirstLine(o)
+                            panel.win = stc.StyledTextCtrl(panel, -1, size=(600, 600), style=wx.SUNKEN_BORDER)
+                            panel.win.SetText(text)
+                        else:
+                            panel.win.SetText(args + "\nNot documented yet...\n\n")
                 else:
                     try:
                         text = eval(obj).__doc__
@@ -1634,13 +1641,14 @@ class ManualPanel(wx.Treebook):
                             text += "\nOverview:\n"
                             for o in OBJECTS_TREE["PyoGui"]:
                                 text += o + ": " + self.getDocFirstLine(o)
+                        elif obj == "internals":
+                            text = "Pyo's internal objects. Objects in the library use them all the time, maybe you will too!\n"
                         else:
                             text = "\nNot documented yet...\n\n"
                     if obj in OBJECTS_TREE["PyoObjectBase"]["PyoObject"].keys():
                         text += "\nOverview:\n"
                         for o in OBJECTS_TREE["PyoObjectBase"]["PyoObject"][obj]:
                             text += o + ": " + self.getDocFirstLine(o)
-                        obj = "PyoObj - " + obj
                     panel.win = stc.StyledTextCtrl(panel, -1, size=(600, 600), style=wx.SUNKEN_BORDER)
                     panel.win.SetText(text)
             else:
@@ -1648,6 +1656,7 @@ class ManualPanel(wx.Treebook):
                 panel.win.SetText(_INTRO_TEXT)
 
             panel.win.SaveFile(os.path.join(DOC_PATH, obj))
+
         return panel
 
     def getExample(self, text):
@@ -1779,6 +1788,15 @@ class ManualPanel(wx.Treebook):
         if word == self.oldPage:
             self.fromToolbar = False
             return
+
+        if "PyoObj - " in word:
+            stripname = word.replace("PyoObj - ", "")
+        else:
+            stripname = word
+
+        if not os.path.isfile(os.path.join(ensureNFD(DOC_PATH), stripname)):
+            return
+
         page_count = self.GetPageCount()
         for i in range(page_count):
             text = self.GetPageText(i)
@@ -1795,7 +1813,7 @@ class ManualPanel(wx.Treebook):
                 if not panel.isLoad:
                     panel.isLoad = True
                     panel.win = stc.StyledTextCtrl(panel, -1, size=panel.GetSize(), style=wx.SUNKEN_BORDER)
-                    panel.win.LoadFile(os.path.join(ensureNFD(DOC_PATH), word))
+                    panel.win.LoadFile(os.path.join(ensureNFD(DOC_PATH), stripname))
                     panel.win.SetMarginWidth(1, 0)
                     panel.win.Bind(wx.EVT_LEFT_DOWN, self.MouseDown)
                     if self.searchKey != None:
@@ -1823,8 +1841,8 @@ class ManualPanel(wx.Treebook):
         return text
 
     def setStyle(self):
-        return # TreeBook has no more a GetTreeCtrl method. Don't know how to retrieve it...
-        tree = self.GetTreeCtrl()
+        #tree = self.GetTreeCtrl() # Should be there now...
+        tree = [x for x in self.GetChildren() if isinstance(x, wx.TreeCtrl)][0]
         tree.SetBackgroundColour(DOC_STYLES['Default']['background'])
         root = tree.GetRootItem()
         tree.SetItemTextColour(root, DOC_STYLES['Default']['identifier'])
@@ -1839,7 +1857,7 @@ class ManualPanel(wx.Treebook):
             (child, cookie) = tree.GetNextChild(root, cookie)
 
 class ManualFrame(wx.Frame):
-    def __init__(self, parent=None, id=-1, title='Pyo Documentation', size=(940, 700),
+    def __init__(self, parent=None, id=-1, title='Pyo Documentation', size=(1000, 700),
                     osx_app_bundled=False, which_python="python",
                     caller_need_to_invoke_32_bit=False,
                     set_32_bit_arch="export VERSIONER_PYTHON_PREFER_32_BIT=yes;"):
@@ -1940,6 +1958,10 @@ class ManualFrame(wx.Frame):
 
         menu2 = wx.Menu()
         menu2.Append(101, "Copy\tCtrl+C")
+        menu2.AppendSeparator()
+        menu2.Append(wx.ID_ZOOM_IN, "Zoom in\tCtrl+=")
+        menu2.Append(wx.ID_ZOOM_OUT, "Zoom out\tCtrl+-")
+        self.Bind(wx.EVT_MENU, self.zoom, id=wx.ID_ZOOM_IN, id2=wx.ID_ZOOM_OUT)
         self.menuBar.Append(menu2, 'Text')
 
         self.SetMenuBar(self.menuBar)
@@ -1987,6 +2009,17 @@ class ManualFrame(wx.Frame):
 
     def copy(self, evt):
         self.doc_panel.copy()
+
+    def zoom(self, evt):
+        page = self.doc_panel.GetCurrentPage()
+        if page is None:
+            return
+
+        if evt.GetId() == wx.ID_ZOOM_IN:
+            page.win.SetZoom(page.win.GetZoom() + 1)
+        else:
+            page.win.SetZoom(page.win.GetZoom() - 1)
+        evt.Skip()
 
     def quit(self, evt):
         self.Destroy()
@@ -2952,7 +2985,7 @@ class SnippetFrame(wx.Frame):
 
         self.menuBar = wx.MenuBar()
         menu1 = wx.Menu()
-        self.tagItem = menu1.Append(249, "Tag Selection\tCtrl+T")
+        self.tagItem = menu1.Append(249, "Tag Selection\tCtrl+`")
         menu1.AppendSeparator()
         menu1.Append(250, "Close\tCtrl+W")
         self.menuBar.Append(menu1, 'File')
@@ -3297,10 +3330,15 @@ class MainFrame(wx.Frame):
                 self.Bind(wx.EVT_MENU, self.openRecent, id=i)
         menu1.AppendSubMenu(self.submenu2, "Open Recent...")
         menu1.AppendSeparator()
+        menu1.Append(11600, "Reload Current File\tCtrl+1")
+        self.Bind(wx.EVT_MENU, self.reloadCurrentFile, id=11600)
+        menu1.AppendSeparator()
         menu1.Append(3050, "Split Window")
         self.Bind(wx.EVT_MENU, self.splitWindow, id=3050)
         menu1.Append(3051, "Unsplit Window")
         self.Bind(wx.EVT_MENU, self.unsplitWindow, id=3051)
+        menu1.Append(11600, "Reload Current File\tCtrl+1")
+        self.Bind(wx.EVT_MENU, self.reloadCurrentFile, id=11600)
         menu1.AppendSeparator()
         menu1.Append(wx.ID_CLOSE, "Close\tCtrl+W")
         self.Bind(wx.EVT_MENU, self.close, id=wx.ID_CLOSE)
@@ -3377,6 +3415,9 @@ class MainFrame(wx.Frame):
         menu2.Append(114, "Auto Complete container syntax", kind=wx.ITEM_CHECK)
         self.Bind(wx.EVT_MENU, self.autoCompContainer, id=114)
         menu2.Check(114, PREFERENCES.get("auto_comp_container", 0))
+        menu2.Append(115, "Auto Complete CPP class attributes", kind=wx.ITEM_CHECK)
+        self.Bind(wx.EVT_MENU, self.autoCompCpp, id=115)
+        menu2.Check(115, PREFERENCES.get("auto_comp_cpp", 0))
         menu2.AppendSeparator()
         submenu2 = wx.Menu()
         submenu2.Append(170, "Convert Selection to Uppercase\tCtrl+U")
@@ -3888,6 +3929,11 @@ class MainFrame(wx.Frame):
         PREFERENCES["auto_comp_container"] = state
         self.panel.editor.showAutoCompContainer(state)
 
+    def autoCompCpp(self, evt):
+        state = evt.GetInt()
+        PREFERENCES["auto_comp_cpp"] = state
+        self.panel.editor.showAutoCompCpp(state)
+
     def showFind(self, evt):
         self.panel.editor.OnShowFindReplace()
 
@@ -4244,6 +4290,9 @@ class MainFrame(wx.Frame):
             PREFERENCES["open_folder_path"] = os.path.split(path)[0]
         dlg.Destroy()
 
+    def reloadCurrentFile(self, event):
+        self.panel.reloadPage()
+
     def save(self, event):
         path = self.panel.editor.path
         if not path or "Untitled-" in path:
@@ -4264,7 +4313,6 @@ class MainFrame(wx.Frame):
         dlg.SetFilterIndex(0)
         if dlg.ShowModal() == wx.ID_OK:
             path = ensureNFD(dlg.GetPath())
-            self.panel.editor.path = path
             self.panel.editor.setStyle()
             self.panel.editor.SetCurrentPos(0)
             self.panel.editor.addText(" ", False)
@@ -4690,7 +4738,7 @@ class MainPanel(wx.Panel):
         title = "Untitled-%i.py" % self.new_inc
         self.new_inc += 1
         editor = Editor(self.notebook, -1, size=(0, -1), setTitle=self.SetTitle, getTitle=self.GetTitle)
-        editor.path = title
+        editor.setPath(title)
         editor.setStyle()
         self.notebooks[book].AddPage(editor, title, True)
         self.editor = editor
@@ -4717,7 +4765,7 @@ class MainPanel(wx.Panel):
         editor.GotoLine(editor.GetLineCount())
         wx.CallAfter(editor.GotoLine, 0)
 
-        editor.path = file
+        editor.setPath(file)
         editor.saveMark = True
         editor.EmptyUndoBuffer()
         editor.SetSavePoint()
@@ -4739,6 +4787,22 @@ class MainPanel(wx.Panel):
             dictext = text[spos+1:]
             markers = eval(dictext)
             self.editor.setMarkers(copy.deepcopy(markers))
+
+    def reloadPage(self):
+        if not self.editor.path:
+            return
+
+        text = ""
+        with codecs.open(self.editor.path, "r", encoding="utf-8") as f:
+            text = f.read()
+        self.editor.setText(ensureNFD(text))
+
+        # Scan the entire document (needed for FoldAll to fold everything)
+        self.editor.GotoLine(self.editor.GetLineCount())
+        self.editor.saveMark = True
+        self.editor.EmptyUndoBuffer()
+        self.editor.SetSavePoint()
+        wx.CallAfter(self.editor.GotoLine, 0)
 
     def onClosingPage(self, evt):
         if not self.close_from_menu:
@@ -4826,7 +4890,8 @@ class Editor(stc.StyledTextCtrl):
         self.current_marker = -1
         self.objs_attr_dict = {}
         self.auto_comp_container = PREFERENCES.get("auto_comp_container", 0)
-
+        self.auto_comp_cpp = PREFERENCES.get("auto_comp_cpp", 0)
+        self.auto_comp_cpp_list = []
 
         self.alphaStr = LOWERCASE + UPPERCASE + '0123456789'
 
@@ -4917,6 +4982,11 @@ class Editor(stc.StyledTextCtrl):
 
         wx.CallAfter(self.SetAnchor, 0)
         self.Refresh()
+
+    def setPath(self, path):
+        self.path = path
+        self.auto_comp_cpp_list = []
+        self.setAutoCompCppList()
 
     def setStyle(self):
         def buildStyle(forekey, backkey=None, smallsize=False):
@@ -5289,7 +5359,7 @@ class Editor(stc.StyledTextCtrl):
     ### Save and Close file ###
     def saveMyFile(self, file):
         self.SaveFile(file)
-        self.path = file
+        self.setPath(file)
         self.saveMark = False
         marker_file = os.path.split(self.path)[1].rsplit(".")[0]
         marker_file += "%04d" % random.randint(0,1000)
@@ -5427,8 +5497,112 @@ class Editor(stc.StyledTextCtrl):
         currentword = self.GetTextRange(startpos, endpos)
         return currentword
 
+    def retrieveAutoCompCppList(self, header):
+        with open(header, "r", encoding="utf-8") as f:
+            text = f.read()
+
+        # Filter out multiline comments
+        while "/*" in text:
+            pos1 = text.find("/*")
+            pos2 = text.find("*/", pos1) + 2
+            text = text[:pos1] + text[pos2:]
+
+        # Filter out singleline comments
+        lines = text.splitlines()
+        for i in range(len(lines)):
+            if "//" in lines[i]:
+                pos = lines[i].find("//")
+                if pos:
+                    lines[i] = lines[i][:pos]
+
+        # Filter out pre-processing directives (but keep #define)
+        for i in range(len(lines)):
+            if lines[i].strip().startswith("#"):
+                if lines[i].strip().startswith("#define"):
+                    lines[i] = lines[i].replace("#define ", "")
+                else:
+                    lines[i] = ""
+
+        # Remove extra spaces
+        lines = [line.strip() for line in lines]
+
+        # Remove braces
+        for i in range(len(lines)):
+            if "(" in lines[i] and ")" in lines[i]:
+                pos1 = lines[i].find("(")
+                pos2 = lines[i].rfind(")")
+                lines[i] = lines[i][:pos1] + lines[i][pos2+1:]
+            elif "(" in lines[i]:
+                pos1 = lines[i].find("(")
+                lines[i] = lines[i][:pos1]
+            elif ")" in lines[i]:
+                lines[i] = ""
+
+        # Remove brackets
+        for i in range(len(lines)):
+            if "[" in lines[i] and "]" in lines[i]:
+                pos1 = lines[i].find("[")
+                pos2 = lines[i].rfind("]")
+                lines[i] = lines[i][:pos1] + lines[i][pos2+1:]
+
+        # Remove curly braces
+        for i in range(len(lines)):
+            if "{" in lines[i] and "}" in lines[i]:
+                pos1 = lines[i].find("{")
+                pos2 = lines[i].rfind("}")
+                lines[i] = lines[i][:pos1] + lines[i][pos2+1:]
+            elif "{" in lines[i]:
+                pos1 = lines[i].find("{")
+                lines[i] = lines[i][:pos1]
+            elif "}" in lines[i]:
+                lines[i] = ""
+
+        # Remove special characters
+        lines = [line.replace(";", "").replace("~", "").replace("*", "").replace(":", "").replace("=", "").replace("{", "").replace("}", "") for line in lines]
+
+        # Remove cpp keywords
+        keywords = ["class ", "public", "private", "protected", "void ", "nullptr", "int ", "char ", "bool ", "long ", "float ", "double "]
+        for i in range(len(lines)):
+            for word in keywords:
+                if word in lines[i]:
+                    lines[i] = lines[i].replace(word, "")
+
+        # Remove empty strings
+        lines = [line for line in lines if line]
+
+        # Remove extra spaces
+        lines = [line.strip() for line in lines]
+
+        # Everything ending up in a list of two if probably an identifier and an attribute. Keep only the attribute.
+        for i in range(len(lines)):
+            if " " in lines[i]:
+                lines[i] = lines[i].split()[1]
+
+        # Remove duplicates
+        lines = list(set(lines))
+
+        # Resort
+        lines.sort()
+
+        return lines
+
+    def setAutoCompCppList(self):
+        extensions = [".cpp", ".cc", ".cxx", ".cp", ".c++"]
+        if os.path.splitext(self.path)[1] in extensions:
+            for hext in [".h", ".hpp", ".hp", ".hh", ".hxx", ".h++"]:
+                header = os.path.splitext(self.path)[0] + hext
+                if (os.path.isfile(header)):
+                    self.auto_comp_cpp_list = self.retrieveAutoCompCppList(header)
+                    break
+
     def showAutoCompContainer(self, state):
         self.auto_comp_container = state
+
+    def showAutoCompCpp(self, state):
+        self.auto_comp_cpp = state
+        self.auto_comp_cpp_list = []
+        if state and self.path:
+            self.setAutoCompCppList()
 
     def showAutoComp(self):
         propagate = True
@@ -5605,13 +5779,33 @@ class Editor(stc.StyledTextCtrl):
             self.addText(" "*indent, False)
 
     def processTab(self, currentword, autoCompActive, charat, pos):
-        propagate = self.showAutoComp()
-        if propagate:
-            propagate = self.insertDefArgs(currentword, charat)
+        propagate = True
+
+        if self.path.endswith(".cpp"):
+            if self.auto_comp_cpp:
+                currentword = self.getWordUnderCaret()
+                if chr(charat).isalpha() or charat == ord('_'):
+                    lst = [word for word in self.auto_comp_cpp_list if word.startswith(currentword) and currentword != word]
+                else:
+                    lst = []
+                if lst:
+                    lst = " ".join(lst)
+                    self.AutoCompShow(len(currentword), lst)
+                    propagate = False
+                else:
+                    propagate = True
+            else:
+                propagate = True
+
+        elif self.path.endswith(".py"):
+            propagate = self.showAutoComp()
             if propagate:
-                propagate = self.checkForBuiltinComp()
+                propagate = self.insertDefArgs(currentword, charat)
                 if propagate:
-                    propagate = self.checkForAttributes(charat, pos)
+                    propagate = self.checkForBuiltinComp()
+                    if propagate:
+                        propagate = self.checkForAttributes(charat, pos)
+
         return propagate
 
     def onShowTip(self):
@@ -5797,6 +5991,7 @@ class Editor(stc.StyledTextCtrl):
                 propagate = True
             else:
                 propagate = self.processTab(currentword, autoCompActive, charat, pos)
+
 
         if propagate:
             evt.Skip()

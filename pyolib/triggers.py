@@ -1,6 +1,3 @@
-from __future__ import division
-from __future__ import print_function
-from __future__ import absolute_import
 """
 Set of objects to manage triggers streams.
 
@@ -10,6 +7,10 @@ TrigXXX objects use this kind of signal to generate different
 processes with sampling rate time accuracy.
 
 """
+from __future__ import division
+from __future__ import print_function
+from __future__ import absolute_import
+
 """
 Copyright 2009-2015 Olivier Belanger
 
