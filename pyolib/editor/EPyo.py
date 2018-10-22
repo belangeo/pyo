@@ -997,16 +997,10 @@ DOC_STYLES = {'Default': {'default': '#000000', 'comment': '#007F7F', 'commentbl
                     'background': '#EEEEEE', 'linenumber': '#000000', 'marginback': '#B0B0B0', 'markerfg': '#CCCCCC',
                     'markerbg': '#000000', 'bracelight': '#AABBDD', 'bracebad': '#DD0000', 'lineedge': '#CCCCCC'}}
 
-if wx.Platform == '__WXMSW__':
-  DOC_FACES = {'face': 'Verdana', 'size' : 8, 'size2': 7}
-elif wx.Platform == '__WXMAC__':
-  DOC_FACES = {'face': 'Monaco', 'size' : 12, 'size2': 9}
-else:
-  DOC_FACES = {'face': 'Monospace', 'size' : 8, 'size2': 7}
-DOC_FACES['size3'] = DOC_FACES['size2'] + 4
+DOC_FACES = {'face': DEFAULT_FONT_FACE, 'size' : FONT_SIZE, 'size2': FONT_SIZE2}
+DOC_FACES['size3'] = DOC_FACES['size2'] + 6
 for key, value in DOC_STYLES['Default'].items():
   DOC_FACES[key] = value
-
 
 #----------------------------------------------------------------------
 next_24_png = PyEmbeddedImage(
@@ -1153,18 +1147,20 @@ catalog['up_24.png'] = up_24_png
 _INTRO_TEXT = """
 pyo manual version %s
 
-pyo is a Python module written in C to help digital signal processing script creation.
+pyo is a Python module written in C to help digital signal processing script 
+creation.
 
-pyo is a Python module containing classes for a wide variety of audio signal processing types.
-With pyo, user will be able to include signal processing chains directly in Python scripts or
-projects, and to manipulate them in real-time through the interpreter. Tools in pyo module
-offer primitives, like mathematical operations on audio signal, basic signal processing
-(filters, delays, synthesis generators, etc.) together with complex algorithms to create
-granulation and others creative sound manipulations. pyo supports OSC protocol (Open Sound
-Control), to ease communications between softwares, and MIDI protocol, for generating sound
-events and controlling process parameters. pyo allows creation of sophisticated signal
-processing chains with all the benefits of a mature, and wild used, general programming
-language.
+pyo is a Python module containing classes for a wide variety of audio signal 
+processing types. With pyo, user will be able to include signal processing 
+chains directly in Python scripts or projects, and to manipulate them in 
+real-time through the interpreter. Tools in pyo module offer primitives, like 
+mathematical operations on audio signal, basic signal processing (filters, 
+delays, synthesis generators, etc.) together with complex algorithms to create
+granulation and others creative sound manipulations. pyo supports OSC protocol 
+(Open Sound Control), to ease communications between softwares, and MIDI 
+protocol, for generating sound events and controlling process parameters. pyo 
+allows creation of sophisticated signal processing chains with all the benefits 
+of a mature, and wild used, general programming language.
 
 Overview:
 
@@ -1566,6 +1562,7 @@ class ManualPanel(wx.Treebook):
         if new != old:
             text = self.GetPageText(new)
             self.getPage(text)
+        wx.CallAfter(self.GetCurrentPage().SetFocus)
         event.Skip()
 
     def makePanel(self, obj=None):
@@ -1858,7 +1855,7 @@ class ManualPanel(wx.Treebook):
             (child, cookie) = tree.GetNextChild(root, cookie)
 
 class ManualFrame(wx.Frame):
-    def __init__(self, parent=None, id=-1, title='Pyo Documentation', size=(940, 700),
+    def __init__(self, parent=None, id=-1, title='Pyo Documentation', size=(1000, 700),
                     osx_app_bundled=False, which_python="python",
                     caller_need_to_invoke_32_bit=False,
                     set_32_bit_arch="export VERSIONER_PYTHON_PREFER_32_BIT=yes;"):
@@ -1959,6 +1956,10 @@ class ManualFrame(wx.Frame):
 
         menu2 = wx.Menu()
         menu2.Append(101, "Copy\tCtrl+C")
+        menu2.AppendSeparator()
+        menu2.Append(wx.ID_ZOOM_IN, "Zoom in\tCtrl+=")
+        menu2.Append(wx.ID_ZOOM_OUT, "Zoom out\tCtrl+-")
+        self.Bind(wx.EVT_MENU, self.zoom, id=wx.ID_ZOOM_IN, id2=wx.ID_ZOOM_OUT)
         self.menuBar.Append(menu2, 'Text')
 
         self.SetMenuBar(self.menuBar)
@@ -2006,6 +2007,17 @@ class ManualFrame(wx.Frame):
 
     def copy(self, evt):
         self.doc_panel.copy()
+
+    def zoom(self, evt):
+        page = self.doc_panel.GetCurrentPage()
+        if page is None:
+            return
+
+        if evt.GetId() == wx.ID_ZOOM_IN:
+            page.win.SetZoom(page.win.GetZoom() + 1)
+        else:
+            page.win.SetZoom(page.win.GetZoom() - 1)
+        evt.Skip()
 
     def quit(self, evt):
         self.Destroy()
