@@ -1,5 +1,3 @@
-from __future__ import absolute_import
-
 """
 Prefix expression evaluators.
 
@@ -231,6 +229,7 @@ A triangle waveform generator (use Sig(0) as input argument to bypass input):
     triangle #freq
 
 """
+from __future__ import absolute_import
 
 """
 Copyright 2015-16 Olivier Belanger

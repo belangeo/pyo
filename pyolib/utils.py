@@ -1,9 +1,9 @@
-from __future__ import print_function
-from __future__ import absolute_import
 """
 Miscellaneous objects.
 
 """
+from __future__ import print_function
+from __future__ import absolute_import
 
 """
 Copyright 2009-2015 Olivier Belanger

@@ -16,7 +16,7 @@ from __future__ import with_statement
 from __future__ import print_function
 import sys
 
-import os, inspect, keyword, wx, codecs, subprocess, unicodedata
+import os, inspect, keyword, wx, codecs, subprocess, unicodedata, types
 import contextlib, shutil, copy, pprint, random, time, threading
 from types import MethodType
 from wx.lib.wordwrap import wordwrap
@@ -1616,8 +1616,17 @@ class ManualPanel(wx.Treebook):
                         panel.win = stc.StyledTextCtrl(panel, -1, size=(600, 600), style=wx.SUNKEN_BORDER)
                         panel.win.SetText(args + text_form + methods)
                     except:
-                        panel.win = stc.StyledTextCtrl(panel, -1, size=(600, 600), style=wx.SUNKEN_BORDER)
-                        panel.win.SetText(args + "\nNot documented yet...\n\n")
+                        text = eval(obj).__doc__
+                        if text:
+                            if type(eval(obj)) is types.ModuleType:
+                                if obj in OBJECTS_TREE["PyoObjectBase"]["PyoObject"].keys():
+                                    text += "\nOverview:\n"
+                                    for o in OBJECTS_TREE["PyoObjectBase"]["PyoObject"][obj]:
+                                        text += o + ": " + self.getDocFirstLine(o)
+                            panel.win = stc.StyledTextCtrl(panel, -1, size=(600, 600), style=wx.SUNKEN_BORDER)
+                            panel.win.SetText(text)
+                        else:
+                            panel.win.SetText(args + "\nNot documented yet...\n\n")
                 else:
                     try:
                         text = eval(obj).__doc__
@@ -1633,13 +1642,14 @@ class ManualPanel(wx.Treebook):
                             text += "\nOverview:\n"
                             for o in OBJECTS_TREE["PyoGui"]:
                                 text += o + ": " + self.getDocFirstLine(o)
+                        elif obj == "internals":
+                            text = "Pyo's internal objects. Objects in the library use them all the time, maybe you will too!\n"
                         else:
                             text = "\nNot documented yet...\n\n"
                     if obj in OBJECTS_TREE["PyoObjectBase"]["PyoObject"].keys():
                         text += "\nOverview:\n"
                         for o in OBJECTS_TREE["PyoObjectBase"]["PyoObject"][obj]:
                             text += o + ": " + self.getDocFirstLine(o)
-                        obj = "PyoObj - " + obj
                     panel.win = stc.StyledTextCtrl(panel, -1, size=(600, 600), style=wx.SUNKEN_BORDER)
                     panel.win.SetText(text)
             else:
@@ -1779,6 +1789,15 @@ class ManualPanel(wx.Treebook):
         if word == self.oldPage:
             self.fromToolbar = False
             return
+
+        if "PyoObj - " in word:
+            stripname = word.replace("PyoObj - ", "")
+        else:
+            stripname = word
+
+        if not os.path.isfile(os.path.join(ensureNFD(DOC_PATH), stripname)):
+            return
+
         page_count = self.GetPageCount()
         for i in range(page_count):
             text = self.GetPageText(i)
@@ -1795,7 +1814,7 @@ class ManualPanel(wx.Treebook):
                 if not panel.isLoad:
                     panel.isLoad = True
                     panel.win = stc.StyledTextCtrl(panel, -1, size=panel.GetSize(), style=wx.SUNKEN_BORDER)
-                    panel.win.LoadFile(os.path.join(ensureNFD(DOC_PATH), word))
+                    panel.win.LoadFile(os.path.join(ensureNFD(DOC_PATH), stripname))
                     panel.win.SetMarginWidth(1, 0)
                     panel.win.Bind(wx.EVT_LEFT_DOWN, self.MouseDown)
                     if self.searchKey != None:
@@ -1823,8 +1842,8 @@ class ManualPanel(wx.Treebook):
         return text
 
     def setStyle(self):
-        return # TreeBook has no more a GetTreeCtrl method. Don't know how to retrieve it...
-        tree = self.GetTreeCtrl()
+        #tree = self.GetTreeCtrl() # Should be there now...
+        tree = [x for x in self.GetChildren() if isinstance(x, wx.TreeCtrl)][0]
         tree.SetBackgroundColour(DOC_STYLES['Default']['background'])
         root = tree.GetRootItem()
         tree.SetItemTextColour(root, DOC_STYLES['Default']['identifier'])

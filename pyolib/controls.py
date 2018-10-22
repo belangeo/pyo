@@ -8,8 +8,8 @@ The audio streams of these objects can't be sent to the output
 soundcard.
 
 """
-
 from __future__ import absolute_import
+
 """
 Copyright 2009-2015 Olivier Belanger
 

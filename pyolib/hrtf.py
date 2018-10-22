@@ -1,10 +1,10 @@
-from __future__ import division
-from __future__ import print_function
-from __future__ import absolute_import
 """
 Set of objects to manage 3D spatialization with HRTF algorithm.
 
 """
+from __future__ import division
+from __future__ import print_function
+from __future__ import absolute_import
 
 """
 Copyright 2009-2018 Olivier Belanger
