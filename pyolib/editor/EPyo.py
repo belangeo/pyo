@@ -2952,7 +2952,7 @@ class SnippetFrame(wx.Frame):
 
         self.menuBar = wx.MenuBar()
         menu1 = wx.Menu()
-        self.tagItem = menu1.Append(249, "Tag Selection\tCtrl+T")
+        self.tagItem = menu1.Append(249, "Tag Selection\tCtrl+`")
         menu1.AppendSeparator()
         menu1.Append(250, "Close\tCtrl+W")
         self.menuBar.Append(menu1, 'File')
@@ -3296,6 +3296,9 @@ class MainFrame(wx.Frame):
             for i in range(2000, ID_OPEN_RECENT):
                 self.Bind(wx.EVT_MENU, self.openRecent, id=i)
         menu1.AppendSubMenu(self.submenu2, "Open Recent...")
+        menu1.AppendSeparator()
+        menu1.Append(11600, "Reload Current File\tCtrl+1")
+        self.Bind(wx.EVT_MENU, self.reloadCurrentFile, id=11600)
         menu1.AppendSeparator()
         menu1.Append(wx.ID_CLOSE, "Close\tCtrl+W")
         self.Bind(wx.EVT_MENU, self.close, id=wx.ID_CLOSE)
@@ -4241,6 +4244,9 @@ class MainFrame(wx.Frame):
             PREFERENCES["open_folder_path"] = os.path.split(path)[0]
         dlg.Destroy()
 
+    def reloadCurrentFile(self, event):
+        self.panel.reloadPage()
+
     def save(self, event):
         path = self.panel.editor.path
         if not path or "Untitled-" in path:
@@ -4705,6 +4711,22 @@ class MainPanel(wx.Panel):
             dictext = text[spos+1:]
             markers = eval(dictext)
             self.editor.setMarkers(copy.deepcopy(markers))
+
+    def reloadPage(self):
+        if not self.editor.path:
+            return
+
+        text = ""
+        with codecs.open(self.editor.path, "r", encoding="utf-8") as f:
+            text = f.read()
+        self.editor.setText(ensureNFD(text))
+
+        # Scan the entire document (needed for FoldAll to fold everything)
+        self.editor.GotoLine(self.editor.GetLineCount())
+        self.editor.saveMark = True
+        self.editor.EmptyUndoBuffer()
+        self.editor.SetSavePoint()
+        wx.CallAfter(self.editor.GotoLine, 0)
 
     def onClosingPage(self, evt):
         if not self.close_from_menu:
