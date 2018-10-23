@@ -3333,12 +3333,10 @@ class MainFrame(wx.Frame):
         menu1.Append(11600, "Reload Current File\tCtrl+1")
         self.Bind(wx.EVT_MENU, self.reloadCurrentFile, id=11600)
         menu1.AppendSeparator()
-        menu1.Append(3050, "Split Window")
+        menu1.Append(3050, "Split Window\tCtrl++")
         self.Bind(wx.EVT_MENU, self.splitWindow, id=3050)
-        menu1.Append(3051, "Unsplit Window")
+        menu1.Append(3051, "Unsplit Window\tCtrl+_")
         self.Bind(wx.EVT_MENU, self.unsplitWindow, id=3051)
-        menu1.Append(11600, "Reload Current File\tCtrl+1")
-        self.Bind(wx.EVT_MENU, self.reloadCurrentFile, id=11600)
         menu1.AppendSeparator()
         menu1.Append(wx.ID_CLOSE, "Close\tCtrl+W")
         self.Bind(wx.EVT_MENU, self.close, id=wx.ID_CLOSE)
@@ -3850,24 +3848,27 @@ class MainFrame(wx.Frame):
     def showInvisibles(self, evt):
         state = evt.GetInt()
         PREFERENCES["show_invisibles"] = state
-        for i in range(self.panel.notebook.GetPageCount()):
-            ed = self.panel.notebook.GetPage(i)
-            ed.showInvisibles(state)
+        for notebook in self.panel.notebooks:
+            for i in range(notebook.GetPageCount()):
+                ed = notebook.GetPage(i)
+                ed.showInvisibles(state)
 
     def showEdge(self, evt):
         state = evt.GetInt()
         PREFERENCES["show_edge_line"] = state
-        for i in range(self.panel.notebook.GetPageCount()):
-            ed = self.panel.notebook.GetPage(i)
-            ed.showEdge(state)
+        for notebook in self.panel.notebooks:
+            for i in range(notebook.GetPageCount()):
+                ed = notebook.GetPage(i)
+                ed.showEdge(state)
 
     def wrapMode(self, evt):
         state = evt.GetInt()
         PREFERENCES["wrap_text_line"] = state
         mode = {0: stc.STC_WRAP_NONE, 1: stc.STC_WRAP_WORD}[state]
-        for i in range(self.panel.notebook.GetPageCount()):
-            ed = self.panel.notebook.GetPage(i)
-            ed.SetWrapMode(mode)
+        for notebook in self.panel.notebooks:
+            for i in range(notebook.GetPageCount()):
+                ed = notebook.GetPage(i)
+                ed.SetWrapMode(mode)
 
     def removeTrailingWhiteSpace(self, evt):
         self.panel.editor.removeTrailingWhiteSpace()
@@ -4095,9 +4096,10 @@ class MainFrame(wx.Frame):
         if 'size2' not in STYLES:
             STYLES['size2'] = FONT_SIZE2
 
-        for i in range(self.panel.notebook.GetPageCount()):
-            ed = self.panel.notebook.GetPage(i)
-            ed.setStyle()
+        for notebook in self.panel.notebooks:
+            for i in range(notebook.GetPageCount()):
+                ed = notebook.GetPage(i)
+                ed.setStyle()
         self.panel.project.setStyle()
         self.panel.markers.scroll.setStyle()
         self.panel.outputlog.editor.setStyle()
@@ -4715,15 +4717,29 @@ class MainPanel(wx.Panel):
         notebook.SetAGWWindowStyleFlag(FNB.FNB_FANCY_TABS|FNB.FNB_X_ON_TAB|FNB.FNB_NO_X_BUTTON|FNB.FNB_DROPDOWN_TABS_LIST|FNB.FNB_HIDE_ON_SINGLE_TAB)
         self.notebooks.append(notebook)
         self.editorPanel.AppendWindow(notebook)
-        self.addNewPage(len(self.notebooks)-1)
+        self.notebook = notebook
+        self.addNewPage()
+        self.notebook.Bind(FNB.EVT_FLATNOTEBOOK_PAGE_CHANGED, self.onPageChange)
+        self.notebook.Bind(FNB.EVT_FLATNOTEBOOK_PAGE_CLOSING, self.onClosingPage)
         wx.CallAfter(self.setSashPositions)
 
     def unsplitWindow(self):
         if len(self.notebooks) > 1:
+            for i in range(self.notebooks[-1].GetPageCount()):
+                ed = self.notebooks[-1].GetPage(i)
+                ed.Close()
             self.editorPanel.DetachWindow(self.notebooks[-1])
             self.notebooks[-1].Destroy()
             del self.notebooks[-1]
+            self.notebooks[0].GetCurrentPage().SetFocus()
             wx.CallAfter(self.setSashPositions)
+
+    def onSetFocus(self, evt):
+        self.markers.setDict({})
+        self.editor = evt.GetEventObject()
+        self.notebook = self.editor.GetParent()
+        self.markers.setDict(self.editor.markers_dict)
+        evt.Skip()
 
     def onSizeChange(self, evt):
         wx.CallAfter(self.setSashPositions)
@@ -4734,14 +4750,15 @@ class MainPanel(wx.Panel):
         for i in range(numPanes-1):
             self.editorPanel.SetSashPosition(i, self.right_splitter.GetSize()[0] / numPanes)
 
-    def addNewPage(self, book=0):
+    def addNewPage(self):
         title = "Untitled-%i.py" % self.new_inc
         self.new_inc += 1
         editor = Editor(self.notebook, -1, size=(0, -1), setTitle=self.SetTitle, getTitle=self.GetTitle)
         editor.setPath(title)
         editor.setStyle()
-        self.notebooks[book].AddPage(editor, title, True)
+        self.notebook.AddPage(editor, title, True)
         self.editor = editor
+        self.editor.Bind(wx.EVT_SET_FOCUS, self.onSetFocus)
 
     def addPage(self, file, encoding=None):
         editor = Editor(self.notebook, -1, size=(0, -1), setTitle=self.SetTitle, getTitle=self.GetTitle)
@@ -4771,6 +4788,8 @@ class MainPanel(wx.Panel):
         editor.SetSavePoint()
         editor.setStyle()
         self.editor = editor
+        self.editor.Bind(wx.EVT_SET_FOCUS, self.onSetFocus)
+
         self.SetTitle(file)
         with open(MARKERS_FILE, "r") as f:
             lines = [line.replace("\n", "").split("=") for line in f.readlines()]
@@ -4790,6 +4809,8 @@ class MainPanel(wx.Panel):
 
     def reloadPage(self):
         if not self.editor.path:
+            return
+        if not os.path.isfile(self.editor.path):
             return
 
         text = ""
@@ -4844,25 +4865,10 @@ class MainPanel(wx.Panel):
         return self.mainFrame.GetTitle()
 
     def OnQuit(self):
-        for i in range(self.notebook.GetPageCount()):
-            ed = self.notebook.GetPage(i)
-            ed.Close()
-
-#######################################################
-### The idea of EditorPanel is to allow multiple views
-### at the same time in a single notebook page.
-### Also: A tree view of classes and functions of the file
-### Not yet implemented... ( TODO )
-#######################################################
-class EditorPanel(wx.Panel):
-    def __init__(self, parent):
-        wx.Panel.__init__(self, parent, -1)
-        self.editor = Editor(parent, -1, size=(0, -1))
-        self.editor2 = Editor(parent, -1, size=(0, -1))
-        box = wx.BoxSizer(wx.HORIZONTAL)
-        box.Add(self.editor, 1, wx.ALL|wx.EXPAND, 5)
-        box.Add(self.editor2, 1, wx.ALL|wx.EXPAND, 5)
-        self.SetSizerAndFit(box)
+        for notebook in self.notebooks:
+            for i in range(notebook.GetPageCount()):
+                ed = notebook.GetPage(i)
+                ed.Close()
 
 class Editor(stc.StyledTextCtrl):
     def __init__(self, parent, ID, pos=wx.DefaultPosition, size=wx.DefaultSize,
@@ -5950,11 +5956,11 @@ class Editor(stc.StyledTextCtrl):
 
         # Show documentation for pyo object under the caret
         elif evt.GetKeyCode() == ord('D') and ControlDown():
-            self.GetParent().GetParent().GetParent().GetParent().GetParent().showDoc(None)
+            self.GetTopLevelParent().showDoc(None)
             propagate = False
         # Goto line
         elif evt.GetKeyCode() == ord('L') and ControlDown():
-            self.GetParent().GetParent().GetParent().GetParent().GetParent().gotoLine(None)
+            self.GetTopLevelParent().gotoLine(None)
             propagate = False
 
         # Process Return key --- automatic indentation
@@ -6079,7 +6085,7 @@ class Editor(stc.StyledTextCtrl):
             self.GotoLine(line)
             halfNumLinesOnScreen = self.LinesOnScreen() // 2
             self.ScrollToLine(line - halfNumLinesOnScreen)
-            self.GetParent().GetParent().GetParent().GetParent().markers.setSelected(handle)
+            self.GetTopLevelParent().panel.markers.setSelected(handle)
 
     def setMarkers(self, dic):
         try:
@@ -6092,7 +6098,7 @@ class Editor(stc.StyledTextCtrl):
         for handle in self.markers_dict.keys():
             line = self.markers_dict[handle][0]
             self.MarkerAdd(line, 0)
-        self.GetParent().GetParent().GetParent().GetParent().markers.setDict(self.markers_dict)
+        self.GetTopLevelParent().panel.markers.setDict(self.markers_dict)
 
     def moveMarkers(self):
         dict = {}
@@ -6102,7 +6108,7 @@ class Editor(stc.StyledTextCtrl):
             dict[handle] = [line, comment]
         if dict != self.markers_dict:
             self.markers_dict = dict
-            self.GetParent().GetParent().GetParent().GetParent().markers.setDict(self.markers_dict)
+            self.GetTopLevelParent().panel.markers.setDict(self.markers_dict)
 
     def addMarker(self, line):
         if not self.MarkerGet(line):
@@ -6117,19 +6123,20 @@ class Editor(stc.StyledTextCtrl):
             dlg.Destroy()
             return
         self.markers_dict[handle][1] = comment
-        self.GetParent().GetParent().GetParent().GetParent().markers.setDict(self.markers_dict)
+        self.GetTopLevelParent().panel.markers.setDict(self.markers_dict)
 
     def deleteMarker(self, line):
-        for handle in self.markers_dict.keys():
+        handles = list(self.markers_dict.keys())
+        for handle in handles:
             if line == self.markers_dict[handle][0]:
                 del self.markers_dict[handle]
                 self.MarkerDeleteHandle(handle)
-                self.GetParent().GetParent().GetParent().GetParent().markers.setDict(self.markers_dict)
+                self.GetTopLevelParent().panel.markers.setDict(self.markers_dict)
 
     def deleteAllMarkers(self):
         self.markers_dict = {}
         self.MarkerDeleteAll(0)
-        self.GetParent().GetParent().GetParent().GetParent().markers.setDict(self.markers_dict)
+        self.GetTopLevelParent().panel.markers.setDict(self.markers_dict)
 
     def OnMarginClick(self, evt):
         if evt.GetMargin() == 0:

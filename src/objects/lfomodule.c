@@ -18,6 +18,8 @@
  * License along with pyo.  If not, see <http://www.gnu.org/licenses/>.   *
  *************************************************************************/
 
+// TODO: Fix phase offset for the Sawtooth wavefom (need to add 0.5).
+
 #include <Python.h>
 #include "py2to3.h"
 #include "structmember.h"
