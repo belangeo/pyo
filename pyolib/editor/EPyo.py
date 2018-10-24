@@ -861,7 +861,7 @@ KEY_COMMANDS = {
 "23. Alt + Shift + BACK": "Delete the word to the right of the caret",
 "24. Ctrl/Cmd + BACK": "Delete back from the current position to the start of the line",
 "25. Ctrl/Cmd + Shift + BACK": "Delete forwards from the current position to the end of the line",
-"26. TAB": "If selection is empty or all on one line replace the selection with a tab character. If more than one line selected, indent the lines. In the middle of a word, trig the AutoCompletion of pyo keywords. Just after an open brace following a pyo keyword, insert its default arguments. Just after a complete python builtin keyword, insert a default structure snippet. Just after a variable name, representing a pyo object, followed by a dot, trig the AutoCompletion of the object's attributes.",
+"26. TAB": "If selection is empty or span on only one line, replace the selection with a tab character. \nIf there is more than one line selected, indent the lines. \nIn the middle of a word, trig the AutoCompletion of pyo keywords. \nJust after an open brace following a pyo keyword, insert its default arguments. \nJust after a complete python builtin keyword, insert a default structure snippet. \nJust after a variable name, representing a pyo object, followed by a dot, trig the AutoCompletion of the object's attributes.  \nIf 'Auto Complete CPP Class Attributes' is checked, triggers the auto-completion of class attributes based on corresponding header file (must be located in the same folder as the cpp file).",
 "27. Shift + TAB": "Dedent the selected lines",
 "28. Alt + 'C'": "Line Copy",
 "29. Alt + 'D'": "Line Duplicate",
@@ -2323,7 +2323,7 @@ class BackgroundServerThread(threading.Thread):
 class KeyCommandsFrame(wx.Frame):
     def __init__(self, parent):
         wx.Frame.__init__(self, parent, wx.ID_ANY,
-                          title="Editor Key Commands List", size=(750,650))
+                          title="Editor Key Commands List", size=(900,700))
         self.menuBar = wx.MenuBar()
         menu1 = wx.Menu()
         menu1.Append(351, "Close\tCtrl+W")
@@ -2341,7 +2341,7 @@ class KeyCommandsFrame(wx.Frame):
             short = key.replace("Ctrl/Cmd", accel)
             command = wx.StaticText(panel, wx.ID_ANY, label=short)
             box.Add(command, 0, wx.ALIGN_LEFT)
-            action = wx.StaticText(panel, wx.ID_ANY, label=wordwrap(value, 350, wx.ClientDC(self)))
+            action = wx.StaticText(panel, wx.ID_ANY, label=wordwrap(value, 500, wx.ClientDC(self)))
             box.Add(action, 1, wx.ALIGN_LEFT)
 
         mainSizer.Add(box, 1, wx.ALL, 15)
@@ -3410,10 +3410,10 @@ class MainFrame(wx.Frame):
         self.Bind(wx.EVT_MENU, self.onCodeBlock, id=400, id2=402)
         menu2.AppendSubMenu(submenublk, "Code Blocks")
         menu2.AppendSeparator()
-        menu2.Append(114, "Auto Complete container syntax", kind=wx.ITEM_CHECK)
+        menu2.Append(114, "Auto Complete Container Syntax", kind=wx.ITEM_CHECK)
         self.Bind(wx.EVT_MENU, self.autoCompContainer, id=114)
         menu2.Check(114, PREFERENCES.get("auto_comp_container", 0))
-        menu2.Append(115, "Auto Complete CPP class attributes", kind=wx.ITEM_CHECK)
+        menu2.Append(115, "Auto Complete CPP Class Attributes", kind=wx.ITEM_CHECK)
         self.Bind(wx.EVT_MENU, self.autoCompCpp, id=115)
         menu2.Check(115, PREFERENCES.get("auto_comp_cpp", 0))
         menu2.AppendSeparator()
@@ -3560,7 +3560,8 @@ class MainFrame(wx.Frame):
         helpmenu = wx.Menu()
         helpItem = helpmenu.Append(wx.ID_ABOUT, '&About %s %s' % (APP_NAME, APP_VERSION), 'wxPython RULES!!!')
         self.Bind(wx.EVT_MENU, self.onHelpAbout, helpItem)
-        helpmenu.Append(999, 'Show Editor Key Commands')
+        aEntry = wx.AcceleratorEntry(wx.ACCEL_NORMAL, wx.WXK_HELP, 10001)
+        helpmenu.Append(999, 'Show Editor Key Commands\t%s' % aEntry.ToString())
         self.Bind(wx.EVT_MENU, self.onShowEditorKeyCommands, id=999)
         helpmenu.Append(998, 'Tutorial: How to Create a Custom PyoObject - RingMod')
         self.Bind(wx.EVT_MENU, self.openTutorial, id=998)
