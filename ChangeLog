@@ -1,5 +1,9 @@
 2018-10-23 belangeo <belangeo@gmail.com>
 
+    * Fixed phase of sawtooth and ramp waveform in the LFO object.
+
+2018-10-23 belangeo <belangeo@gmail.com>
+
     * Epyo: Added multiple views (splitted windows) functionnality.
 
 2018-10-22 belangeo <belangeo@gmail.com>
