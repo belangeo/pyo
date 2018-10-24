@@ -3550,9 +3550,9 @@ class MainFrame(wx.Frame):
         self.menuBar.Append(self.filters_menu, "Filters")
 
         windowMenu = wx.Menu()
-        aEntry = wx.AcceleratorEntry(wx.ACCEL_CTRL, wx.WXK_TAB, 10001)
+        aEntry = wx.AcceleratorEntry(wx.ACCEL_CTRL, ord("`"), 10001)
         windowMenu.Append(10001, 'Navigate Tabs Forward\t%s' % aEntry.ToString())
-        aEntry = wx.AcceleratorEntry(wx.ACCEL_CTRL|wx.ACCEL_SHIFT, wx.WXK_TAB, 10002)
+        aEntry = wx.AcceleratorEntry(wx.ACCEL_CTRL, ord("~"), 10002)
         windowMenu.Append(10002, 'Navigate Tabs Backward\t%s' % aEntry.ToString())
         self.Bind(wx.EVT_MENU, self.onSwitchTabs, id=10001, id2=10002)
         self.menuBar.Append(windowMenu, '&Window')
@@ -3909,7 +3909,7 @@ class MainFrame(wx.Frame):
             else:
                 self.panel.editor.LineScroll(0, self.panel.editor.LinesOnScreen() // 2)
             #self.panel.editor.SetCurrentPos(pos)
-            #self.panel.editor.EnsureVisible(val)
+            self.panel.editor.EnsureVisible(val)
             #self.panel.editor.EnsureCaretVisible()
             wx.CallAfter(self.panel.editor.SetAnchor, pos)
 
@@ -3928,12 +3928,16 @@ class MainFrame(wx.Frame):
     def autoCompContainer(self, evt):
         state = evt.GetInt()
         PREFERENCES["auto_comp_container"] = state
-        self.panel.editor.showAutoCompContainer(state)
+        for notebook in self.panel.notebooks:
+            for i in range(notebook.GetPageCount()):
+                notebook.GetPage(i).showAutoCompContainer(state)
 
     def autoCompCpp(self, evt):
         state = evt.GetInt()
         PREFERENCES["auto_comp_cpp"] = state
-        self.panel.editor.showAutoCompCpp(state)
+        for notebook in self.panel.notebooks:
+            for i in range(notebook.GetPageCount()):
+                notebook.GetPage(i).showAutoCompCpp(state)
 
     def showFind(self, evt):
         self.panel.editor.OnShowFindReplace()
