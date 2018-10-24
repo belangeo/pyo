@@ -1,3 +1,31 @@
+2018-10-23 belangeo <belangeo@gmail.com>
+
+    * Epyo: Added multiple views (splitted windows) functionnality.
+
+2018-10-22 belangeo <belangeo@gmail.com>
+
+    * Epyo Doc: Bug fixes and added zoomin/zoomout function.
+
+2018-10-21 belangeo <belangeo@gmail.com>
+
+    * Epyo: Added a 'Reload Current File' menu command.
+
+2018-10-21 belangeo <belangeo@gmail.com>
+
+    * Epyo: Added auto complete for cpp file (from corresponding header file).
+
+2018-10-05 belangeo <belangeo@gmail.com>
+
+    * Merged E-Pyo and PyoDoc in a single file (now in pyolib/editor/EPyo.py).
+
+2018-10-05 belangeo <belangeo@gmail.com>
+
+    * Modified setup.py to be pip compliant.
+
+2018-10-04 belangeo <belangeo@gmail.com>
+
+    * E-Pyo: Fixed crash when trying to read a faulty preferences file.
+
 2018-09-06 belangeo <belangeo@gmail.com>
 
     * Added PYO_SERVER_MIDI and PYO_SERVER_WINHOST environment variables to set
