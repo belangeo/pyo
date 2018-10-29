@@ -226,7 +226,7 @@ A triangle waveform generator (use Sig(0) as input argument to bypass input):
             (- (* (min #ph (- 1 #ph)) 4) 1)
         )
     )
-    triangle #freq
+    (triangle #freq)
 
 """
 from __future__ import absolute_import
