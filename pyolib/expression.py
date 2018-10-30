@@ -75,6 +75,7 @@ Filter functions:
 (sah x y) : samples and holds x value whenever y is smaller than its previous state.
 (rpole x y) : real one-pole recursive filter. returns x + last_out * y.
 (rzero x y) : real one-zero non-recursive filter. returns x - last_x * y.
+(delay x) : one sample delay.
 
 Constants:
 

@@ -78,6 +78,7 @@
 // filters
 #define OP_RPOLE 70
 #define OP_RZERO 71
+#define OP_DELAY 72
 
 // random functions
 #define OP_RANDF 80
@@ -176,6 +177,7 @@ initexpr(const char *op, int size)
     else if (strcmp(op, "sah") == 0) {value = OP_SAH; num = 2; } // stream, trigger
     else if (strcmp(op, "rpole") == 0) {value = OP_RPOLE; num = 2; }
     else if (strcmp(op, "rzero") == 0) {value = OP_RZERO; num = 2; }
+    else if (strcmp(op, "delay") == 0) {value = OP_DELAY; num = 1; }
     else if (strcmp(op, "const") == 0) {value = OP_CONST; num = 1; }
     else if (strcmp(op, "pi") == 0) {value = OP_PI; num = 0; }
     else if (strcmp(op, "twopi") == 0) {value = OP_TWOPI; num = 0; }
@@ -390,6 +392,10 @@ Expr_process(Expr *self) {
                         break;
                     case OP_RZERO:
                         self->lexp[j].result = self->lexp[j].values[0] - self->lexp[j].previous[0] * self->lexp[j].values[1];
+                        self->lexp[j].previous[0] = self->lexp[j].values[0];
+                        break;
+                    case OP_DELAY:
+                        self->lexp[j].result = self->lexp[j].previous[0];
                         self->lexp[j].previous[0] = self->lexp[j].values[0];
                         break;
                     case OP_CONST:
