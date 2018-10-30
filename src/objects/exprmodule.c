@@ -92,6 +92,7 @@
 #define OP_PI 100
 #define OP_TWOPI 101
 #define OP_E 102
+#define OP_SR 103
 
 typedef struct t_expr {
     int type_op;
@@ -182,6 +183,7 @@ initexpr(const char *op, int size)
     else if (strcmp(op, "pi") == 0) {value = OP_PI; num = 0; }
     else if (strcmp(op, "twopi") == 0) {value = OP_TWOPI; num = 0; }
     else if (strcmp(op, "e") == 0) {value = OP_E; num = 0; }
+    else if (strcmp(op, "sr") == 0) {value = OP_SR; num = 0; }
     else if (size == 1) {value = OP_CONST; num = 1; }
     ex.type_op = value;
     ex.num = num;
@@ -409,6 +411,9 @@ Expr_process(Expr *self) {
                         break;
                     case OP_E:
                         self->lexp[j].result = E;
+                        break;
+                    case OP_SR:
+                        self->lexp[j].result = self->sr;
                         break;
                 }
                 result = self->lexp[j].result;

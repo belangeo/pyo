@@ -2677,7 +2677,7 @@ class ExprLexer(object):
 
         self.alpha = "abcdefghijklmnopqrstuvwxyz"
         self.digits = "0123456789"
-        self.keywords = ["sin", "cos", "tan", "tanh", "atan", "atan2", "sqrt", "log",
+        self.keywords = ["sin", "cos", "tan", "tanh", "atan", "atan2", "sqrt", "log", "sr",
                          "log2", "log10", "pow", "abs", "floor", "ceil", "exp", "round",
                          "min", "max", "randf", "randi", "sah", "count", "pi", "twopi",
                          "e", "if", "rpole", "rzero", "neg", "and", "or", "wrap", "delay"]
