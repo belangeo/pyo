@@ -7,6 +7,13 @@ finally lowpass filtered to smooth out the sound. Balance between the
 dry and the distorted sound is applied before sending the signal to the 
 outputs.
 
+Builtin objects to distort an audio signal:
+
+    Disto, Clip, Mirror, Wrap
+
+Degrade object applies some kind of distortion to a signal by changing
+its sampling rate and bit depth. 
+
 """
 from pyo import *
 
