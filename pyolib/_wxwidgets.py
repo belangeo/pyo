@@ -1467,8 +1467,8 @@ class SpectrumDisplay(wx.Frame):
         self.magTog.Bind(wx.EVT_TOGGLEBUTTON, self.setMagScale)
         self.toolBox.Add(self.magTog, 0, wx.TOP|wx.LEFT, 5)
         tw, th = self.GetTextExtent("Blackman 3-term")
-        self.winPopup = wx.Choice(self.panel, -1, choices=["Rectangular", "Hamming", "Hanning", "Bartlett", "Blackman 3-term",
-                                    "Blackman-Harris 4-term", "Blackman-Harris 7-term", "Tuckey", "Half-sine"], size=(tw+X_OFF, th+10))
+        self.winPopup = wx.Choice(self.panel, -1, choices=["Rectangular", "Hamming", "Hanning", "Bartlett", "Blackman 3",
+                                    "Blackman-H 4", "Blackman-H 7", "Tuckey", "Half-sine"], size=(tw+X_OFF, th+10))
         self.winPopup.SetSelection(2)
         self.winPopup.Bind(wx.EVT_CHOICE, self.setWinType)
         self.toolBox.Add(self.winPopup, 0, wx.TOP|wx.LEFT, 5)
@@ -2680,7 +2680,8 @@ class ExprLexer(object):
         self.keywords = ["sin", "cos", "tan", "tanh", "atan", "atan2", "sqrt", "log", "sr",
                          "log2", "log10", "pow", "abs", "floor", "ceil", "exp", "round",
                          "min", "max", "randf", "randi", "sah", "count", "pi", "twopi",
-                         "e", "if", "rpole", "rzero", "neg", "and", "or", "wrap", "delay"]
+                         "e", "if", "rpole", "rzero", "neg", "and", "or", "wrap", "delay",
+                         "complex", "real", "imag", "cpole", "czero"]
         self.keywords2 = ["define", "load", "var", "let"]
 
     def StyleText(self, evt):

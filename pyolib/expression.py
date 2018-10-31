@@ -70,12 +70,20 @@ Random fuctions:
 (randf x y) : returns a pseudo-random floating-point number in the range between x and y.
 (randi x y) : returns a pseudo-random integral number in the range between x and y.
 
+Complex numbers:
+
+(complex x y) : returns a complex number where x is the real part and y the imaginary part.
+(real x) : returns the real part of the complex number x.
+(imag x) : returns the imaginary part of the complex number x.
+
 Filter functions:
 
+(delay x) : one sample delay.
 (sah x y) : samples and holds x value whenever y is smaller than its previous state.
 (rpole x y) : real one-pole recursive filter. returns x + last_out * y.
 (rzero x y) : real one-zero non-recursive filter. returns x - last_x * y.
-(delay x) : one sample delay.
+(cpole x y) : complex one-pole recursive filter. x is the complex signal to filter, y is a complex coefficient, it returns a complex signal.
+(czero x y) : complex one-zero non-recursive filter. x is the complex signal to filter, y is a complex coefficient, it returns a complex signal.
 
 Constants:
 
@@ -199,6 +207,24 @@ Custom functions can be defined in an external file and imported with the
 The content of the file will be inserted where the load function is called
 and all functions defined inside the file will then be accessible. The path
 can be absolute or relative to the current working directory.
+
+Complex numbers
+---------------
+
+A complex number is created with the `complex` function:
+
+(complex x y)
+
+We can retrieve one part of a complex number with `real` and `imag` functions:
+
+    // get the real part (x) of a number
+    (real (complex x y))
+
+If a complex number is used somewhere not waiting for a complex, real value
+will be used.
+
+If a real number is used somewhere waiting for a complex, the imaginary part
+is set to 0.0.
 
 Examples
 --------

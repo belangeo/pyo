@@ -79,11 +79,20 @@ Builtin functions
 - (randf x y) : returns a pseudo-random floating-point number in the range between x and y.
 - (randi x y) : returns a pseudo-random integral number in the range between x and y.
 
+**Complex numbers**
+
+- (complex x y) : returns a complex number where x is the real part and y the imaginary part.
+- (real x) : returns the real part of the complex number x.
+- (imag x) : returns the imaginary part of the complex number x.
+
 **Filter functions**
 
+- (delay x) : one sample delay.
 - (sah x y) : samples and holds x value whenever y is smaller than its previous state.
 - (rpole x y) : real one-pole recursive filter. returns x + last_out * y.
 - (rzero x y) : real one-zero non-recursive filter. returns x - last_x * y.
+- (cpole x y) : complex one-pole recursive filter. x is the complex signal to filter, y is a complex coefficient, it returns a complex signal.
+- (czero x y) : complex one-zero non-recursive filter. x is the complex signal to filter, y is a complex coefficient, it returns a complex signal.
 
 **Constants**
 
@@ -91,7 +100,7 @@ Builtin functions
 - (pi) : returns an approximated value of pi.
 - (twopi) : returns a constant with value pi*2.
 - \(e\) : returns an approximated value of e.
-
+- (sr) : returns the curretn sampling rate.
 
 Comments
 --------
@@ -122,7 +131,7 @@ Here an example of a first-order IIR lowpass filter expression::
 Defining custom functions
 -------------------------
 
-The define keyword starts the definition of a custom function::
+The `define` keyword starts the definition of a custom function::
 
     (define funcname (body))
 
@@ -143,13 +152,13 @@ Example of a sine wave function::
 State variables
 ---------------
 
-User can create state variable with the keyword "let". This is useful
+User can create state variable with the keyword `let`. This is useful
 to set an intermediate state to be used in multiple places in the 
 processing chain. The syntax is::
 
     (let #var (body))
 
-The variable name must begin with a "#"::
+The variable name must begin with a `#`::
 
     (let #sr 44100)
     (let #freq 1000)
@@ -184,11 +193,11 @@ Undefined variables are initialized to 0::
 User variables
 --------------
 
-User variables are created with the keyword "var"::
+User variables are created with the keyword `var`::
 
     (var #var (init)) 
 
-The variable name must begin with a "#".
+The variable name must begin with a `#`.
 
 They are computed only at initialization, but can be changed from the python
 script with method calls (varname is a string and value is a float)::
@@ -199,13 +208,31 @@ Library importation
 -------------------
 
 Custom functions can be defined in an external file and imported with the 
-"load" function::
+`load` function::
     
     (load path/to/the/file)
 
 The content of the file will be inserted where the load function is called
 and all functions defined inside the file will then be accessible. The path
 can be absolute or relative to the current working directory.
+
+Complex numbers
+---------------
+
+A complex number is created with the `complex` function::
+
+    (complex x y)
+
+We can retrieve one part of a complex number with `real` and `imag` functions::
+
+    // get the real part (x) of a number
+    (real (complex x y))
+
+If a complex number is used somewhere not waiting for a complex, real value
+will be used.
+
+If a real number is used somewhere waiting for a complex, the imaginary part
+is set to 0.0.
 
 Examples
 --------
