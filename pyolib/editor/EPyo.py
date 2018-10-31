@@ -8,6 +8,7 @@ You can do absolutely everything you want with this piece of software.
 Olivier Belanger - 2018
 
 TODO:
+    - example files should be read-only.
     - auto-search when typing in the doc page.
     - Fix printing to pdf.
 
