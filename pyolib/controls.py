@@ -57,8 +57,8 @@ class Fader(PyoObject):
         fadeout: float, optional
             Falling time of the envelope in seconds. Defaults to 0.1.
         dur: float, optional
-            Total duration of the envelope. Defaults to 0, which means wait
-            for the stop() method to start the fadeout.
+            Total duration of the envelope in seocnds. Defaults to 0,
+            which means wait for the stop() method to start the fadeout.
 
     .. note::
 
@@ -216,8 +216,8 @@ class Adsr(PyoObject):
         release: float, optional
             Duration of the release in seconds. Defaults to 0.1.
         dur: float, optional
-            Total duration of the envelope. Defaults to 0, which means wait
-            for the stop() method to start the release phase.
+            Total duration of the envelope in seconds. Defaults to 0,
+            which means wait for the stop() method to start the release phase.
 
 
     .. note::
