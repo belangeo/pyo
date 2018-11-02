@@ -418,10 +418,20 @@ Expr_process(Expr *self) {
                         self->lexp[j].previous[0] = self->lexp[j].values[0];
                         break;
                     case OP_CZERO:
-                        nextre = self->lexp[self->lexp[j].nodes[0]].result;
-                        nextim = self->lexp[self->lexp[j].nodes[0]].result2;
-                        coefre = self->lexp[self->lexp[j].nodes[1]].result;
-                        coefim = self->lexp[self->lexp[j].nodes[1]].result2;
+                        if (self->lexp[j].nodes[0] != -1) {
+                            nextre = self->lexp[self->lexp[j].nodes[0]].result;
+                            nextim = self->lexp[self->lexp[j].nodes[0]].result2;
+                        } else {
+                            nextre = 0.0;
+                            nextim = 0.0;
+                        }
+                        if (self->lexp[j].nodes[1] != -1) {
+                            coefre = self->lexp[self->lexp[j].nodes[1]].result;
+                            coefim = self->lexp[self->lexp[j].nodes[1]].result2;
+                        } else {
+                            coefre = 0.0;
+                            coefim = 0.0;
+                        }
                         lastre = self->lexp[j].previous[0];
                         lastim = self->lexp[j].previous[1];
                         self->lexp[j].result = nextre - lastre * coefre + lastim * coefim;
@@ -430,10 +440,20 @@ Expr_process(Expr *self) {
                         self->lexp[j].previous[1] = nextim;
                         break;
                     case OP_CPOLE:
-                        nextre = self->lexp[self->lexp[j].nodes[0]].result;
-                        nextim = self->lexp[self->lexp[j].nodes[0]].result2;
-                        coefre = self->lexp[self->lexp[j].nodes[1]].result;
-                        coefim = self->lexp[self->lexp[j].nodes[1]].result2;
+                        if (self->lexp[j].nodes[0] != -1) {
+                            nextre = self->lexp[self->lexp[j].nodes[0]].result;
+                            nextim = self->lexp[self->lexp[j].nodes[0]].result2;
+                        } else {
+                            nextre = 0.0;
+                            nextim = 0.0;
+                        }
+                        if (self->lexp[j].nodes[1] != -1) {
+                            coefre = self->lexp[self->lexp[j].nodes[1]].result;
+                            coefim = self->lexp[self->lexp[j].nodes[1]].result2;
+                        } else {
+                            coefre = 0.0;
+                            coefim = 0.0;
+                        }
                         lastre = self->lexp[j].previous[0];
                         lastim = self->lexp[j].previous[1];
                         tmp = self->lexp[j].result = nextre + lastre * coefre - lastim * coefim;

@@ -181,6 +181,12 @@ Undefined variables are initialized to 0.
     )
     * (oscloop 200 0.7) 0.3
 
+A state variable can only be a single value. The variable created with the
+`let` keyword can't hold a complex number (`complex`, `cpole`, `czero`). In
+the following statement, the state variable will only hold the real part of
+the complex number:
+
+    (let #v (complex 0.2 0.7)) // #v = 0.2
 
 User variables
 --------------
