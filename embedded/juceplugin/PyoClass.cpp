@@ -1,5 +1,9 @@
 #include "PyoClass.h"
 
+Pyo::Pyo() {
+    interpreter = nullptr;
+}
+
 /*
 ** Creates a python interpreter and initialize a pyo server inside it.
 ** This function must be called, once per Pyo object, before any other

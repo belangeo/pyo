@@ -8,6 +8,7 @@ typedef int callPtr(int);
 
 class Pyo {
     public:
+        Pyo();
         ~Pyo();
         void setup(int nChannels, int bufferSize, int sampleRate);
         void process(AudioSampleBuffer& buffer);
