@@ -53,11 +53,19 @@ INLINE PyThreadState * pyo_new_interpreter(float sr, int bufsize, int chnls) {
        is stable.
     */
     if (libpython_handle == NULL) {
+#ifdef __linux__
         libpython_handle = dlopen("libpython2.7.so", RTLD_LAZY | RTLD_GLOBAL);
+#elif __APPLE__
+        libpython_handle = dlopen("libpython2.7.dylib", RTLD_LAZY | RTLD_GLOBAL);
+#endif
     }
 
     PyEval_AcquireLock();              /* get the GIL */
     interp = Py_NewInterpreter();      /* add a new sub-interpreter */
+
+    /* On MacOS, trying to import wxPython in embedded python hang the process. */
+    PyRun_SimpleString("import os; os.environ['PYO_GUI_WX'] = '0'");
+
     PyRun_SimpleString("from pyo import *");
     sprintf(msg, "_s_ = Server(%f, %d, %d, 1, 'embedded')", sr, chnls, bufsize);
     PyRun_SimpleString(msg);
