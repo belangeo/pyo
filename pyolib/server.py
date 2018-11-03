@@ -1148,7 +1148,7 @@ class Server(object):
                     144 -> 159: Noteon
                     176 -> 191: Control change
                     192 -> 207: Program change
-                    209 -> 223: After touch
+                    208 -> 223: After touch
                     224 -> 239: Pitch bend
             data1: int, optional
                 The first data byte (pitch for a midi note, controller
