@@ -98,6 +98,11 @@ INLINE PyThreadState * pyo_new_interpreter(float sr, int bufsize, int chnls) {
     PyRun_SimpleString(msg);
     PyRun_SimpleString("_s_.boot()\n_s_.start()\n_s_.setServer()");
     PyRun_SimpleString("_server_id_ = _s_.getServerID()");
+
+    /* 
+    ** printf %p specifier behaves differently in Linux/MacOS and Windows.
+    */
+
 #if defined(_WIN32)
     PyRun_SimpleString("_in_address_ = '0x' + _s_.getInputAddr().lower()");
     PyRun_SimpleString("_out_address_ = '0x' + _s_.getOutputAddr().lower()");
