@@ -11,6 +11,7 @@ class Pyo {
         Pyo();
         ~Pyo();
         void setup(int nChannels, int bufferSize, int sampleRate);
+        void setbpm(double bpm);
         void process(AudioSampleBuffer& buffer);
         void clear();
         int loadfile(const char *file, int add);

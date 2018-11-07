@@ -93,6 +93,9 @@ INLINE PyThreadState * pyo_new_interpreter(float sr, int bufsize, int chnls) {
     /* On MacOS, trying to import wxPython in embedded python hang the process. */
     PyRun_SimpleString("import os; os.environ['PYO_GUI_WX'] = '0'");
 
+    /* Set the default BPM (60 beat per minute). */
+    PyRun_SimpleString("BPM = 60.0");
+
     PyRun_SimpleString("from pyo import *");
     sprintf(msg, "_s_ = Server(%f, %d, %d, 1, 'embedded')", sr, chnls, bufsize);
     PyRun_SimpleString(msg);
@@ -290,6 +293,23 @@ INLINE void pyo_set_server_params(PyThreadState *interp, float sr, int bufsize) 
     sprintf(msg, "_s_.setBufferSize(%d)", bufsize);
     PyRun_SimpleString(msg);
     PyRun_SimpleString("_s_.boot(newBuffer=False).start()");
+    PyEval_ReleaseThread(interp);
+}
+
+/*
+** This function can be used to pass the DAW's bpm value to the 
+** python interpreter. Changes the value of the BPM variable 
+** (which defaults to 60).
+**
+** arguments:
+**  interp : pointer, pointer to the targeted Python thread state.
+**  bpm : double, new BPM.
+*/
+INLINE void pyo_set_bpm(PyThreadState *interp, double bpm) {
+    char msg[64];
+    PyEval_AcquireThread(interp);
+    sprintf(msg, "BPM = %f", bpm);
+    PyRun_SimpleString(msg);
     PyEval_ReleaseThread(interp);
 }
 
