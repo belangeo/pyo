@@ -304,9 +304,11 @@ if not os.path.isdir(SNIPPETS_PATH):
                 for file in files:
                     shutil.copy(os.path.join(os.getcwd(), "Resources", "snippets", rep, file), os.path.join(SNIPPETS_PATH, rep))
             else:
-                files = [f for f in os.listdir(os.path.join(os.getcwd(), "snippets", rep)) if f[0] != "."]
+                filedir = os.path.dirname(os.path.abspath(__file__))
+                snippetspath = os.path.join(filedir, "snippets")
+                files = [f for f in os.listdir(os.path.join(snippetspath, rep)) if f[0] != "." and not f.startswith("__")]
                 for file in files:
-                    shutil.copy(os.path.join(os.getcwd(), "snippets", rep, file), os.path.join(SNIPPETS_PATH, rep))
+                    shutil.copy(os.path.join(snippetspath, rep, file), os.path.join(SNIPPETS_PATH, rep))
 SNIPPETS_CATEGORIES = [rep for rep in os.listdir(SNIPPETS_PATH) if os.path.isdir(os.path.join(SNIPPETS_PATH, rep))]
 SNIPPET_DEL_FILE_ID = 30
 SNIPPET_ADD_FOLDER_ID = 31
@@ -335,12 +337,16 @@ if not os.path.isdir(STYLES_PATH):
         for file in files:
             shutil.copy(os.path.join(os.getcwd(), "Resources", "styles", file), os.path.join(STYLES_PATH, file))
     else:
-        files = [f for f in os.listdir(os.path.join(os.getcwd(), "styles")) if f[0] != "."]
+        filedir = os.path.dirname(os.path.abspath(__file__))
+        stylespath = os.path.join(filedir, "styles")
+        files = [f for f in os.listdir(stylespath) if f[0] != "." and not f.startswith("__")]
         for file in files:
-            shutil.copy(os.path.join(os.getcwd(), "styles", file), os.path.join(STYLES_PATH, file))
+            shutil.copy(os.path.join(stylespath, file), os.path.join(STYLES_PATH, file))
 DEFAULT_STYLE = os.path.join(STYLES_PATH, "Default")
-if not os.path.isfile(os.path.join(STYLES_PATH, "Default")):
-    shutil.copy(os.path.join(os.getcwd(), "styles", "Default"), DEFAULT_STYLE)
+if not os.path.isfile(DEFAULT_STYLE):
+    filedir = os.path.dirname(os.path.abspath(__file__))
+    stylespath = os.path.join(filedir, "styles")
+    shutil.copy(os.path.join(stylespath, "Default"), DEFAULT_STYLE)
 if "pref_style" in PREFERENCES:
     PREF_STYLE = os.path.join(ensureNFD(STYLES_PATH), PREFERENCES["pref_style"])
 else:
@@ -966,7 +972,8 @@ except:
  'pyokeyword': {'bold': 1, 'colour': '#5555FF', 'italic': 0, 'underline': 0},
  'selback': {'colour': '#C0DFFF'},
  'string': {'bold': 0, 'colour': '#036A07', 'italic': 0, 'underline': 0},
- 'triple': {'bold': 0, 'colour': '#03BA07', 'italic': 0, 'underline': 0}}
+ 'triple': {'bold': 0, 'colour': '#03BA07', 'italic': 0, 'underline': 0},
+ 'preproc': {'bold': 0, 'colour': '#975cb3', 'italic': 0, 'underline': 0}}
 if 'face' not in STYLES:
     STYLES['face'] = DEFAULT_FONT_FACE
 if 'size' not in STYLES:
@@ -5091,7 +5098,7 @@ class Editor(stc.StyledTextCtrl):
             self.StyleSetSpec(stc.STC_C_WORD, buildStyle('keyword'))
             self.StyleSetSpec(stc.STC_C_OPERATOR, buildStyle('operator'))
             self.StyleSetSpec(stc.STC_C_IDENTIFIER, buildStyle('default'))
-            self.StyleSetSpec(stc.STC_C_PREPROCESSOR, buildStyle('commentblock'))
+            self.StyleSetSpec(stc.STC_C_PREPROCESSOR, buildStyle('preproc'))
         elif ext == "sh":
             self.SetLexer(stc.STC_LEX_BASH)
             self.SetStyleBits(self.GetStyleBitsNeeded())
@@ -7670,3 +7677,4 @@ def main():
 
 if __name__ == '__main__':
     main()
+

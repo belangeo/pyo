@@ -22,4 +22,5 @@ style = {'background': {'colour': u'#222222'},
  'size': 12,
  'size2': 9,
  'string': {'bold': 0, 'colour': u'#E6DB74', 'italic': 0, 'underline': 0},
- 'triple': {'bold': 0, 'colour': u'#E6DB74', 'italic': 0, 'underline': 0}}
+ 'triple': {'bold': 0, 'colour': u'#E6DB74', 'italic': 0, 'underline': 0},
+ 'preproc': {'bold': 0, 'colour': '#0000FF', 'italic': 0, 'underline': 0}}
