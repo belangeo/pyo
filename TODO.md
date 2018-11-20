@@ -41,12 +41,6 @@ Examples
 Objects
 -------
 
-- TrigMap(inputs, values, init=0, mul=1, add=0)
-
-  Where `inputs` are a list of trigger objects and `values` (list of floats) 
-  the corresponding values to output depending which trigger has been detected.
-  A trigger from the second object will make the object output the second value
-  from the list.
 
 MIDI
 ----
@@ -64,8 +58,6 @@ GUI
   is to remove an extra dependency, as tk is generally builtin with python.
 
 - MixerGUI, an interface to control the routing of a Mixer object.
-
-- Keyboard, a virtual MIDI keyboard (adapted from Zyne's one).
 
 - A graphical representation of a parametric EQ.
 
@@ -88,9 +80,6 @@ E-Pyo
 - Complete review of E-Pyo on Windows. Lot of features don't seem to work.
     - Does not seem to save file with utf-8 encoding.
     - Project tree refresh function doesn't work.
-
-- Window splitter to show more than one file at the time (multiple 
-  views) ?
 
 - We need A way to let the user interact with the script via input() 
   and raw_input() functions.
