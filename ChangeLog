@@ -2,6 +2,27 @@
 
     * Added a new object: PyoGuiKeyboard, a virtual MIDI keyboard.
 
+2018-11-06 belangeo <belangeo@gmail.com>
+
+    * Embedded: Added a BPM variable in the embedded interpreter and a function in 
+      PyoClass to change it according to the BPm of a DAW, for instance.
+
+2018-11-02 belangeo <belangeo@gmail.com>
+
+    * Embedded: Remove the wx import before importing pyo to prevent a crash on MacOS.
+
+2018-11-02 belangeo <belangeo@gmail.com>
+
+    * Fixed crash on first load when embedding pyo in a juce plugin.
+
+2018-10-30 belangeo <belangeo@gmail.com>
+
+    * Added complex numbers (and complex one-pole/one-zero filters) to the Expr API
+
+2018-10-23 belangeo <belangeo@gmail.com>
+
+    * Added one-sample delay function and sr constant to the Expr api.
+
 2018-10-23 belangeo <belangeo@gmail.com>
 
     * Fixed phase of sawtooth and ramp waveform in the LFO object.
