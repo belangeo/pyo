@@ -80,10 +80,8 @@ ENCODING_DICT = {'cp-1250': 'cp1250', 'cp-1251': 'cp1251', 'cp-1252': 'cp1252',
                  'utf-32 (Big Endian)': 'utf_32_be',
                  'utf-32 (Little Endian)': 'utf_32_le'}
 
-APP_NAME = 'E-Pyo'
+APP_NAME = 'EPyo'
 APP_VERSION = PYO_VERSION
-OSX_APP_BUNDLED = False
-WIN_APP_BUNDLED = False
 
 ################## Utility Functions ##################
 @contextlib.contextmanager
@@ -173,74 +171,14 @@ RESOURCES_PATH = PREFERENCES.get("resources_path", TEMP_PATH)
 
 TEMP_FILE = os.path.join(TEMP_PATH, 'epyo_tempfile.py')
 
-if PLATFORM == "win32" and sys.executable.endswith("E-Pyo.exe"):
-    os.chdir(os.path.dirname(sys.executable))
-    WIN_APP_BUNDLED = True
-
-if PLATFORM == "darwin" and '/%s.app' % APP_NAME in os.getcwd():
-    OSX_APP_BUNDLED = True
-
 # Check for which Python to use #
-if PLATFORM == "win32":
-    #WHICH_PYTHON = PREFERENCES.get("which_python", sys.executable)
-    # This way of finding the python executable assume that python is in the PATH variable.
-    proc = subprocess.Popen('python -c "import sys; print(sys.executable)"', shell=False,
-                            universal_newlines=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    WHICH_PYTHON = proc.communicate()[0][:-1]
-else:
-    WHICH_PYTHON = PREFERENCES.get("which_python", "")
+WHICH_PYTHON = PREFERENCES.get("which_python", sys.executable)
+
 INSTALLATION_ERROR_MESSAGE = ""
-CALLER_NEED_TO_INVOKE_32_BIT = False
-SET_32_BIT_ARCH = "export VERSIONER_PYTHON_PREFER_32_BIT=yes;"
-if WHICH_PYTHON == "":
-    if OSX_APP_BUNDLED:
-        proc = subprocess.Popen(["export PATH=/usr/local/bin:$PATH;which python"],
-                    shell=True, universal_newlines=True, stdout=subprocess.PIPE, 
-                    stderr=subprocess.PIPE)
-        WHICH_PYTHON = proc.communicate()[0][:-1]
-    elif PLATFORM == "darwin":
-        proc = subprocess.Popen(["which python"], shell=True, universal_newlines=True,
-                                stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        WHICH_PYTHON = proc.communicate()[0][:-1]
-    elif PLATFORM.startswith("linux"):
-        proc = subprocess.Popen(["which python"], shell=True, universal_newlines=True,
-                                stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        WHICH_PYTHON = proc.communicate()[0][:-1]
-    else:
-        ### No more used on Windows ###
-        if "Python" in os.getenv("Path"):
-            pos = os.getenv("Path").index("Python")
-            ver = os.getenv("Path")[pos+6:pos+8]
-            WHICH_PYTHON = "C:\Python%s\python.exe" % ver
-        else:
-            for i in reversed(range(5, 8)):
-                if os.path.isfile("C:\Python2%d\python.exe" % i):
-                    WHICH_PYTHON = "C:\Python2%d\python.exe" % i
-                    break
-        ########################
-        if WHICH_PYTHON == "":
-            INSTALLATION_ERROR_MESSAGE = ("Python 2.x doesn't seem to be installed " 
-                                          "on this computer. Check your Python "
-                                          "installation and try again.")
 
 # Check for WxPython / Pyo installation and architecture #
-if OSX_APP_BUNDLED:
-    tmphome = os.environ["PYTHONHOME"]
-    tmppath = os.environ["PYTHONPATH"]
-    tmpexecpath = os.environ["EXECUTABLEPATH"]
-    tmprscpath = os.environ["RESOURCEPATH"]
-    tmpargv0 = os.environ["ARGVZERO"]
-    cmd = ('export -n PYTHONHOME PYTHONPATH EXECUTABLEPATH RESOURCEPATH ARGVZERO;'
-           'env;%s -c "import pyo";export PYTHONHOME=%s;export PYTHONPATH=%s;'
-           'export EXECUTABLEPATH=%s;export RESOURCEPATH=%s;export ARGVZERO=%s' % 
-           (WHICH_PYTHON, tmphome, tmppath, tmpexecpath, tmprscpath, tmpargv0))
-    cmd2 = ('export -n PYTHONHOME PYTHONPATH EXECUTABLEPATH RESOURCEPATH ARGVZERO;'
-            'env;%s -c "import wx";export PYTHONHOME=%s;export PYTHONPATH=%s;'
-            'export EXECUTABLEPATH=%s;export RESOURCEPATH=%s;export ARGVZERO=%s' % 
-            (WHICH_PYTHON, tmphome, tmppath, tmpexecpath, tmprscpath, tmpargv0))
-else:
-    cmd = '%s -c "import pyo"' % WHICH_PYTHON
-    cmd2 = '%s -c "import wx"' % WHICH_PYTHON
+cmd = '%s -c "import pyo"' % WHICH_PYTHON
+cmd2 = '%s -c "import wx"' % WHICH_PYTHON
 proc = subprocess.Popen([cmd], shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 IMPORT_PYO_STDOUT, IMPORT_PYO_STDERR = proc.communicate()
 IMPORT_PYO_STDOUT = ensureNFD(IMPORT_PYO_STDOUT)
@@ -250,16 +188,6 @@ if "ImportError" in IMPORT_PYO_STDERR:
         INSTALLATION_ERROR_MESSAGE = ("Pyo is not installed in the current Python "
                                       "installation. Audio programs won't run.\n\n"
                                       "Current Python path: %s\n" % WHICH_PYTHON)
-    elif ("no appropriate 64-bit architecture" in IMPORT_PYO_STDERR 
-      or "but wrong architecture" in IMPORT_PYO_STDERR):
-        CALLER_NEED_TO_INVOKE_32_BIT = True
-        INSTALLATION_ERROR_MESSAGE = ("The current Python installation is running "
-                                      "in 64-bit mode but pyo installation is 32-bit.\n\n")
-        if PLATFORM == "darwin":
-            INSTALLATION_ERROR_MESSAGE += ("'VERSIONER_PYTHON_PREFER_32_BIT=yes' "
-                                           "will be invoked before calling python "
-                                           "executable.\n\n")
-        INSTALLATION_ERROR_MESSAGE += "Current Python path: %s\n" % WHICH_PYTHON
 else:
     proc = subprocess.Popen([cmd2], shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     IMPORT_WX_STDOUT, IMPORT_WX_STDERR = proc.communicate()
@@ -271,23 +199,9 @@ else:
                                           "Python installation. It is needed by pyo "
                                           "to show graphical display.\n\nCurrent "
                                           "Python path: %s\n" % WHICH_PYTHON)
-        elif "no appropriate 64-bit architecture" in IMPORT_WX_STDERR:
-            CALLER_NEED_TO_INVOKE_32_BIT = True
-            INSTALLATION_ERROR_MESSAGE = ("The current Python installation is running in "
-                                          "64-bit mode but WxPython installation is 32-bit.\n\n")
-            if PLATFORM == "darwin":
-                INSTALLATION_ERROR_MESSAGE += ("'VERSIONER_PYTHON_PREFER_32_BIT=yes' "
-                                               "will be invoked before calling python "
-                                               "executable.\n\n")
-            INSTALLATION_ERROR_MESSAGE += "Current Python path: %s\n" % WHICH_PYTHON
 
-if OSX_APP_BUNDLED:
-    EXAMPLE_PATH = os.path.join(os.getcwd(), "examples")
-elif WIN_APP_BUNDLED:
-    EXAMPLE_PATH = os.path.join(os.getcwd(), "Resources", "examples")
-else:
-    filedir = os.path.dirname(os.path.abspath(__file__))
-    EXAMPLE_PATH = os.path.join(filedir, "../examples")
+filedir = os.path.dirname(os.path.abspath(__file__))
+EXAMPLE_PATH = os.path.join(filedir, "../examples")
 EXAMPLE_FOLDERS = [folder.capitalize() for folder in os.listdir(EXAMPLE_PATH) if folder[0] != "." and folder not in ["snds", "fft"]]
 EXAMPLE_FOLDERS.append("FFT")
 EXAMPLE_FOLDERS.sort()
@@ -299,16 +213,11 @@ if not os.path.isdir(SNIPPETS_PATH):
     for rep in SNIPPET_BUILTIN_CATEGORIES:
         if not os.path.isdir(os.path.join(SNIPPETS_PATH, rep)):
             os.mkdir(os.path.join(SNIPPETS_PATH, rep))
-            if WIN_APP_BUNDLED:
-                files = [f for f in os.listdir(os.path.join(os.getcwd(), "Resources", "snippets", rep)) if f[0] != "."]
-                for file in files:
-                    shutil.copy(os.path.join(os.getcwd(), "Resources", "snippets", rep, file), os.path.join(SNIPPETS_PATH, rep))
-            else:
-                filedir = os.path.dirname(os.path.abspath(__file__))
-                snippetspath = os.path.join(filedir, "snippets")
-                files = [f for f in os.listdir(os.path.join(snippetspath, rep)) if f[0] != "." and not f.startswith("__")]
-                for file in files:
-                    shutil.copy(os.path.join(snippetspath, rep, file), os.path.join(SNIPPETS_PATH, rep))
+            filedir = os.path.dirname(os.path.abspath(__file__))
+            snippetspath = os.path.join(filedir, "snippets")
+            files = [f for f in os.listdir(os.path.join(snippetspath, rep)) if f[0] != "." and not f.startswith("__")]
+            for file in files:
+                shutil.copy(os.path.join(snippetspath, rep, file), os.path.join(SNIPPETS_PATH, rep))
 SNIPPETS_CATEGORIES = [rep for rep in os.listdir(SNIPPETS_PATH) if os.path.isdir(os.path.join(SNIPPETS_PATH, rep))]
 SNIPPET_DEL_FILE_ID = 30
 SNIPPET_ADD_FOLDER_ID = 31
@@ -332,16 +241,11 @@ if not os.path.isfile(FILTERS_FILE):
 STYLES_PATH = os.path.join(RESOURCES_PATH, "styles")
 if not os.path.isdir(STYLES_PATH):
     os.mkdir(STYLES_PATH)
-    if WIN_APP_BUNDLED:
-        files = [f for f in os.listdir(os.path.join(os.getcwd(), "Resources", "styles")) if f[0] != "."]
-        for file in files:
-            shutil.copy(os.path.join(os.getcwd(), "Resources", "styles", file), os.path.join(STYLES_PATH, file))
-    else:
-        filedir = os.path.dirname(os.path.abspath(__file__))
-        stylespath = os.path.join(filedir, "styles")
-        files = [f for f in os.listdir(stylespath) if f[0] != "." and not f.startswith("__")]
-        for file in files:
-            shutil.copy(os.path.join(stylespath, file), os.path.join(STYLES_PATH, file))
+    filedir = os.path.dirname(os.path.abspath(__file__))
+    stylespath = os.path.join(filedir, "styles")
+    files = [f for f in os.listdir(stylespath) if f[0] != "." and not f.startswith("__")]
+    for file in files:
+        shutil.copy(os.path.join(stylespath, file), os.path.join(STYLES_PATH, file))
 DEFAULT_STYLE = os.path.join(STYLES_PATH, "Default")
 if not os.path.isfile(DEFAULT_STYLE):
     filedir = os.path.dirname(os.path.abspath(__file__))
@@ -888,26 +792,7 @@ ALLOWED_EXT = PREFERENCES.get("allowed_ext",
                                "plist", "dt", "dtlib", "expr"])
 
 ############## Pyo keywords ##############
-tree = OBJECTS_TREE
-PYO_WORDLIST = []
-for k1 in tree.keys():
-    if type(tree[k1]) == type({}):
-        for k2 in tree[k1].keys():
-            if type(tree[k1][k2]) == type({}):
-                for k3 in tree[k1][k2].keys():
-                    for val in tree[k1][k2][k3]:
-                        PYO_WORDLIST.append(val)
-            else:
-                for val in tree[k1][k2]:
-                    PYO_WORDLIST.append(val)
-    else:
-        for val in tree[k1]:
-            PYO_WORDLIST.append(val)
-PYO_WORDLIST.append("PyoObject")
-PYO_WORDLIST.append("PyoTableObject")
-PYO_WORDLIST.append("PyoMatrixObject")
-PYO_WORDLIST.append("PyoPVObject")
-PYO_WORDLIST.append("Server")
+PYO_WORDLIST = getPyoKeywords()
 
 ############## Styles Constants ##############
 if wx.Platform == '__WXMSW__':
@@ -922,7 +807,6 @@ else:
     FONT_SIZE = 11
     FONT_SIZE2 = 8
     DEFAULT_FONT_FACE = 'Monospace'
-
 
 STYLES_GENERALS = ['default', 'background', 'selback', 'caret']
 STYLES_TEXT_COMP = ['comment', 'commentblock', 'number', 'operator', 'string',
@@ -952,28 +836,28 @@ try:
     STYLES = copy.deepcopy(style)
 except:
     STYLES = {'background': {'colour': '#FFFFFF'},
- 'bracebad': {'colour': '#DD0000'},
- 'bracelight': {'colour': '#AABBDD'},
- 'caret': {'colour': '#000000'},
- 'class': {'bold': 1, 'colour': '#000097', 'italic': 0, 'underline': 0},
- 'comment': {'bold': 0, 'colour': '#0066FF', 'italic': 1, 'underline': 0},
- 'commentblock': {'bold': 0, 'colour': u'#468EFF', 'italic': 1, 'underline': 0},
- 'default': {'bold': 0, 'colour': '#000000', 'italic': 0, 'underline': 0},
- 'foldmarginback': {'colour': '#D0D0D0'},
- 'function': {'bold': 1, 'colour': '#0000A2', 'italic': 0, 'underline': 0},
- 'keyword': {'bold': 1, 'colour': '#0000FF', 'italic': 0, 'underline': 0},
- 'lineedge': {'colour': '#DDDDDD'},
- 'linenumber': {'bold': 0, 'colour': '#000000', 'italic': 0, 'underline': 0},
- 'marginback': {'colour': '#B0B0B0'},
- 'markerbg': {'colour': '#000000'},
- 'markerfg': {'colour': '#CCCCCC'},
- 'number': {'bold': 1, 'colour': '#0000CD', 'italic': 0, 'underline': 0},
- 'operator': {'bold': 1, 'colour': '#000000', 'italic': 0, 'underline': 0},
- 'pyokeyword': {'bold': 1, 'colour': '#5555FF', 'italic': 0, 'underline': 0},
- 'selback': {'colour': '#C0DFFF'},
- 'string': {'bold': 0, 'colour': '#036A07', 'italic': 0, 'underline': 0},
- 'triple': {'bold': 0, 'colour': '#03BA07', 'italic': 0, 'underline': 0},
- 'preproc': {'bold': 0, 'colour': '#975cb3', 'italic': 0, 'underline': 0}}
+              'bracebad': {'colour': '#DD0000'},
+              'bracelight': {'colour': '#AABBDD'},
+              'caret': {'colour': '#000000'},
+              'class': {'bold': 1, 'colour': '#000097', 'italic': 0, 'underline': 0},
+              'comment': {'bold': 0, 'colour': '#0066FF', 'italic': 1, 'underline': 0},
+              'commentblock': {'bold': 0, 'colour': u'#468EFF', 'italic': 1, 'underline': 0},
+              'default': {'bold': 0, 'colour': '#000000', 'italic': 0, 'underline': 0},
+              'foldmarginback': {'colour': '#D0D0D0'},
+              'function': {'bold': 1, 'colour': '#0000A2', 'italic': 0, 'underline': 0},
+              'keyword': {'bold': 1, 'colour': '#0000FF', 'italic': 0, 'underline': 0},
+              'lineedge': {'colour': '#DDDDDD'},
+              'linenumber': {'bold': 0, 'colour': '#000000', 'italic': 0, 'underline': 0},
+              'marginback': {'colour': '#B0B0B0'},
+              'markerbg': {'colour': '#000000'},
+              'markerfg': {'colour': '#CCCCCC'},
+              'number': {'bold': 1, 'colour': '#0000CD', 'italic': 0, 'underline': 0},
+              'operator': {'bold': 1, 'colour': '#000000', 'italic': 0, 'underline': 0},
+              'pyokeyword': {'bold': 1, 'colour': '#5555FF', 'italic': 0, 'underline': 0},
+              'selback': {'colour': '#C0DFFF'},
+              'string': {'bold': 0, 'colour': '#036A07', 'italic': 0, 'underline': 0},
+              'triple': {'bold': 0, 'colour': '#03BA07', 'italic': 0, 'underline': 0},
+              'preproc': {'bold': 0, 'colour': '#975cb3', 'italic': 0, 'underline': 0}}
 if 'face' not in STYLES:
     STYLES['face'] = DEFAULT_FONT_FACE
 if 'size' not in STYLES:
@@ -996,16 +880,15 @@ class Bidule:
 snip_faces = {'face': DEFAULT_FONT_FACE, 'size': FONT_SIZE}
 
 ##### Pyo documentation stuff (from PyoDoc.py file)
-DOC_AS_SINGLE_APP = False
-
 DOC_PATH = os.path.join(TEMP_PATH, 'doc')
 DOC_EXAMPLE_PATH = os.path.join(TEMP_PATH, 'manual_example.py')
 
 DOC_STYLES = {'Default': {'default': '#000000', 'comment': '#007F7F', 'commentblock': '#7F7F7F', 'selback': '#CCCCCC',
-                    'number': '#005000', 'string': '#7F007F', 'triple': '#7F0000', 'keyword': '#00007F', 'keyword2': '#007F9F',
-                    'class': '#0000FF', 'function': '#007F7F', 'identifier': '#000000', 'caret': '#00007E',
-                    'background': '#EEEEEE', 'linenumber': '#000000', 'marginback': '#B0B0B0', 'markerfg': '#CCCCCC',
-                    'markerbg': '#000000', 'bracelight': '#AABBDD', 'bracebad': '#DD0000', 'lineedge': '#CCCCCC'}}
+                          'number': '#005000', 'string': '#7F007F', 'triple': '#7F0000', 'keyword': '#00007F',
+                          'keyword2': '#007F9F', 'class': '#0000FF', 'function': '#007F7F', 'identifier': '#000000',
+                          'caret': '#00007E', 'background': '#EEEEEE', 'linenumber': '#000000', 'marginback': '#B0B0B0',
+                          'markerfg': '#CCCCCC', 'markerbg': '#000000', 'bracelight': '#AABBDD', 'bracebad': '#DD0000',
+                          'lineedge': '#CCCCCC'}}
 
 DOC_FACES = {'face': DEFAULT_FONT_FACE, 'size' : FONT_SIZE, 'size2': FONT_SIZE2}
 DOC_FACES['size3'] = DOC_FACES['size2'] + 6
@@ -1866,16 +1749,11 @@ class ManualPanel(wx.Treebook):
 
 class ManualFrame(wx.Frame):
     def __init__(self, parent=None, id=-1, title='Pyo Documentation', size=(1000, 700),
-                    osx_app_bundled=False, which_python="python",
-                    caller_need_to_invoke_32_bit=False,
-                    set_32_bit_arch="export VERSIONER_PYTHON_PREFER_32_BIT=yes;"):
+                    which_python="python"):
         wx.Frame.__init__(self, parent=parent, id=id, title=title, size=size)
         self.SetMinSize((600, -1))
 
-        self.osx_app_bundled = osx_app_bundled
         self.which_python = which_python
-        self.caller_need_to_invoke_32_bit = caller_need_to_invoke_32_bit
-        self.set_32_bit_arch = set_32_bit_arch
         gosearchID = 1000
         aTable = wx.AcceleratorTable([(wx.ACCEL_NORMAL, 47, gosearchID)])
         self.SetAcceleratorTable(aTable)
@@ -1958,10 +1836,7 @@ class ManualFrame(wx.Frame):
         menu1 = wx.Menu()
         menu1.Append(100, "Run Example\tCtrl+R")
         menu1.AppendSeparator()
-        if DOC_AS_SINGLE_APP:
-            menu1.Append(wx.ID_EXIT, "Quit\tCtrl+Q")
-        else:
-            menu1.Append(99, "Close\tCtrl+W")
+        menu1.Append(99, "Close\tCtrl+W")
         self.menuBar.Append(menu1, 'Action')
 
         menu2 = wx.Menu()
@@ -1976,12 +1851,8 @@ class ManualFrame(wx.Frame):
 
         self.Bind(wx.EVT_MENU, self.onRun, id=100)
         self.Bind(wx.EVT_MENU, self.copy, id=101)
-        if DOC_AS_SINGLE_APP:
-            self.Bind(wx.EVT_MENU, self.quit, id=wx.ID_EXIT)
-            self.Bind(wx.EVT_CLOSE, self.quit)
-        else:
-            self.Bind(wx.EVT_MENU, self.close, id=99)
-            self.Bind(wx.EVT_CLOSE, self.close)
+        self.Bind(wx.EVT_MENU, self.close, id=99)
+        self.Bind(wx.EVT_CLOSE, self.close)
 
     def setSearchFocus(self, evt):
         self.search.SetFocus()
@@ -2061,19 +1932,16 @@ class ManualFrame(wx.Frame):
         text = self.doc_panel.getExampleScript()
         with open(DOC_EXAMPLE_PATH, "w") as f:
             f.write(text)
-        th = DocRunningThread(DOC_EXAMPLE_PATH, TEMP_PATH, self.which_python, self.osx_app_bundled, self.caller_need_to_invoke_32_bit, self.set_32_bit_arch)
+        th = DocRunningThread(DOC_EXAMPLE_PATH, TEMP_PATH, self.which_python)
         th.start()
         wx.CallLater(8000, self.status.SetStatusText, "", 0)
 
 class DocRunningThread(threading.Thread):
-    def __init__(self, path, cwd, which_python, osx_app_bundled, caller_need_to_invoke_32_bit, set_32_bit_arch):
+    def __init__(self, path, cwd, which_python):
         threading.Thread.__init__(self)
         self.path = path
         self.cwd = cwd
         self.which_python = which_python
-        self.osx_app_bundled = osx_app_bundled
-        self.caller_need_to_invoke_32_bit = caller_need_to_invoke_32_bit
-        self.set_32_bit_arch = set_32_bit_arch
         self.terminated = False
 
     def kill(self):
@@ -2089,29 +1957,18 @@ class DocRunningThread(threading.Thread):
             self.proc.kill()
 
     def run(self):
-        if self.osx_app_bundled:
-            vars_to_remove = "PYTHONHOME PYTHONPATH EXECUTABLEPATH RESOURCEPATH ARGVZERO PYTHONOPTIMIZE"
-            prelude = "export -n %s;export PATH=/usr/local/bin:/usr/local/lib:$PATH;env;" % vars_to_remove
-            if self.caller_need_to_invoke_32_bit:
-                self.proc = subprocess.Popen(["%s%s%s %s" % (prelude, self.set_32_bit_arch, self.which_python, self.path)],
-                                universal_newlines=True, shell=True, cwd=self.cwd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-            else:
-                self.proc = subprocess.Popen(["%s%s %s" % (prelude, self.which_python, self.path)], cwd=self.cwd,
-                                    universal_newlines=True, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        elif wx.Platform == '__WXMAC__':
-            if self.caller_need_to_invoke_32_bit:
-                self.proc = subprocess.Popen(["%s%s %s" % (self.set_32_bit_arch, self.which_python, self.path)],
-                                universal_newlines=True, shell=True, cwd=self.cwd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-            else:
-                self.proc = subprocess.Popen(["%s %s" % (self.which_python, self.path)], cwd=self.cwd,
-                                universal_newlines=True, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        if wx.Platform == '__WXMAC__':
+            self.proc = subprocess.Popen(["%s %s" % (self.which_python, self.path)], cwd=self.cwd,
+                                         universal_newlines=True, shell=True, stdout=subprocess.PIPE,
+                                         stderr=subprocess.PIPE)
         elif wx.Platform == "__WXMSW__":
-                self.proc = subprocess.Popen([self.which_python, "-u", self.path], cwd=ensureNFD(self.cwd),
-                                universal_newlines=True,  shell=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            self.proc = subprocess.Popen([self.which_python, "-u", self.path], cwd=ensureNFD(self.cwd),
+                                         universal_newlines=True,  shell=False, stdout=subprocess.PIPE,
+                                         stderr=subprocess.PIPE)
         else:
-                self.proc = subprocess.Popen([self.which_python, self.path], cwd=self.cwd,
-                                universal_newlines=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-
+            self.proc = subprocess.Popen([self.which_python, self.path], cwd=self.cwd,
+                                         universal_newlines=True, stdout=subprocess.PIPE,
+                                         stderr=subprocess.PIPE)
 
         while self.proc.poll() == None and not self.terminated:
             time.sleep(.25)
@@ -2161,26 +2018,10 @@ class RunningThread(threading.Thread):
             self.proc.kill()
 
     def run(self):
-        if OSX_APP_BUNDLED:
-            vars_to_remove = "PYTHONHOME PYTHONPATH EXECUTABLEPATH RESOURCEPATH ARGVZERO PYTHONOPTIMIZE"
-            prelude = "export -n %s;export PATH=/usr/local/bin:/usr/local/lib:$PATH;" % vars_to_remove
-            if CALLER_NEED_TO_INVOKE_32_BIT:
-                self.proc = subprocess.Popen(['%s%s%s -u "%s"' % (prelude, SET_32_BIT_ARCH, WHICH_PYTHON, self.path)], 
-                                             universal_newlines=True, shell=True, cwd=self.cwd, 
-                                             stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-            else:
-                self.proc = subprocess.Popen(['%s%s -u "%s"' % (prelude, WHICH_PYTHON, self.path)], 
-                                             cwd=self.cwd, universal_newlines=True, shell=True, 
-                                             stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-        elif PLATFORM == "darwin":
-            if CALLER_NEED_TO_INVOKE_32_BIT:
-                self.proc = subprocess.Popen(['%s%s -u "%s"' % (SET_32_BIT_ARCH, WHICH_PYTHON, self.path)], 
-                                             universal_newlines=True, shell=True, cwd=self.cwd, 
-                                             stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-            else:
-                self.proc = subprocess.Popen(['%s -u "%s"' % (WHICH_PYTHON, self.path)], cwd=self.cwd, 
-                                             universal_newlines=True, shell=True, stdout=subprocess.PIPE, 
-                                             stderr=subprocess.STDOUT)
+        if PLATFORM == "darwin":
+            self.proc = subprocess.Popen(['%s -u "%s"' % (WHICH_PYTHON, self.path)], cwd=self.cwd, 
+                                         universal_newlines=True, shell=True, stdout=subprocess.PIPE, 
+                                         stderr=subprocess.STDOUT)
         elif PLATFORM == "win32":
             self.proc = subprocess.Popen([WHICH_PYTHON, "-u", self.path], cwd=ensureNFD(self.cwd), 
                                                        universal_newlines=True,  shell=False, stdout=subprocess.PIPE, 
@@ -4287,11 +4128,8 @@ class MainFrame(wx.Frame):
 
     def openTutorial(self, event):
         filename = {998: "Tutorial_01_RingMod.py", 997: "Tutorial_02_Flanger.py", 996: "Tutorial_03_TriTable.py"}[event.GetId()]
-        if WIN_APP_BUNDLED:
-            self.panel.addPage(os.path.join(os.getcwd(), "Resources", filename))
-        else:
-            filedir = os.path.dirname(os.path.abspath(__file__))
-            self.panel.addPage(os.path.join(filedir, filename))
+        filedir = os.path.dirname(os.path.abspath(__file__))
+        self.panel.addPage(os.path.join(filedir, filename))
 
     def openFolder(self, event):
         dlg = wx.DirDialog(self, message="Choose a folder",
@@ -4576,9 +4414,7 @@ class MainFrame(wx.Frame):
         self.panel.editor.SetSelectionEnd(pos)
 
     def buildDoc(self):
-        self.doc_frame = ManualFrame(osx_app_bundled=OSX_APP_BUNDLED, which_python=WHICH_PYTHON,
-                                    caller_need_to_invoke_32_bit=CALLER_NEED_TO_INVOKE_32_BIT,
-                                    set_32_bit_arch=SET_32_BIT_ARCH)
+        self.doc_frame = ManualFrame(which_python=WHICH_PYTHON)
 
     def showDoc(self, evt):
         if not self.doc_frame.IsShown():
