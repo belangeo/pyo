@@ -1,14 +1,13 @@
 #! /usr/bin/env python
 # encoding: utf-8
 """
-E-Pyo is a simple text editor especially configured to edit pyo audio programs.
+EPyo is a simple text editor especially configured to edit pyo audio programs.
 
 You can do absolutely everything you want with this piece of software.
 
 Olivier Belanger - 2018
 
 TODO:
-    - example files should be read-only.
     - auto-search when typing in the doc page.
     - Fix printing to pdf.
 
@@ -29,7 +28,7 @@ import wx.lib.scrolledpanel as scrolled
 import wx.lib.dialogs
 import wx.stc as stc
 import wx.lib.agw.flatnotebook as FNB
-from pyo import * # TODO: what do we really need? OBJECTS_TREE, PYO_VERSION
+from pyo import * # TODO: what do we really need? OBJECTS_TREE, PYO_VERSION, getPyoKeywords()
 
 encoding_to_add = sys.getfilesystemencoding()
 if sys.version_info[0] < 3:
@@ -4148,7 +4147,7 @@ class MainFrame(wx.Frame):
 
     def save(self, event):
         path = self.panel.editor.path
-        if not path or "Untitled-" in path:
+        if not path or "Untitled-" in path or EXAMPLE_PATH in path:
             self.saveas(None)
         else:
             self.panel.editor.saveMyFile(path)
