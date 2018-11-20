@@ -1,21 +1,34 @@
 import sys
 import wx
+#import wx.lib.newevent
+from pyo import *
+from pyolib._wxwidgets import BACKGROUND_COLOUR
 
-KEYBOARD_BACKGROUND_COLOUR = "#CCCCCC"
+KEYBOARD_BACKGROUND_COLOUR = BACKGROUND_COLOUR#"#CCCCCC"
+
+#if "phoenix" not in wx.version():
+#    wx.QueueEvent = wx.PostEvent
+
+#PyoGuiKeyboardEvent, EVT_PYO_GUI_KEYBOARD = wx.lib.newevent.NewEvent()
+#evt = PyoGuiKeyboardEvent(value=note, id=self.GetId(), object=self)
+#wx.QueueEvent(self, evt)
+
 
 class Keyboard(wx.Panel):
     def __init__(self, parent, id=wx.ID_ANY, pos=wx.DefaultPosition,
-                 size=wx.DefaultSize, poly=64, style=wx.TAB_TRAVERSAL):
+                 size=wx.DefaultSize, poly=64, outFunction=None, 
+                 style=wx.TAB_TRAVERSAL):
         wx.Panel.__init__(self, parent, id, pos, size, style)
         self.SetBackgroundStyle(wx.BG_STYLE_CUSTOM)  
         self.SetBackgroundColour(KEYBOARD_BACKGROUND_COLOUR)
         self.parent = parent
+        self.outFunction = outFunction
 
         self.poly = poly
         self.gap = 0
         self.offset = 12
         self.w1 = 15
-        self.w2 = self.w1 // 2 + 1
+        self.w2 = int(self.w1 / 2) + 1
         self.hold = 1
         self.keyPressed = None
 
@@ -33,41 +46,55 @@ class Keyboard(wx.Panel):
         self.whiteKeys = []
         self.blackKeys = []
 
-        wx.CallAfter(self.setRects)
+        wx.CallAfter(self._setRects)
    
-    def getNotes(self):
+    def getCurrentNotes(self):
+        "Returns a list of the current notes."
         notes = []
         for key in self.whiteSelected:
-            notes.append((self.white[key % 7] + key // 7 * 12  + self.offset,
+            notes.append((self.white[key % 7] + int(key / 7) * 12  + self.offset,
                           127 - self.whiteVelocities[key]))
         for key in self.blackSelected:
-            notes.append((self.black[key % 5] + key // 5 * 12  + self.offset,
+            notes.append((self.black[key % 5] + int(key / 5) * 12  + self.offset,
                           127 - self.blackVelocities[key]))
         notes.sort()
         return notes
 
     def reset(self):
+        "Resets the keyboard state."
+        for key in self.blackSelected:
+            pit = self.black[key % 5] + int(key / 5) * 12  + self.offset
+            note = (pit, 0)
+            if self.outFunction:
+                self.outFunction(note)
+        for key in self.whiteSelected:
+            pit = self.white[key % 7] + int(key / 7) * 12  + self.offset
+            note = (pit, 0)
+            if self.outFunction:
+                self.outFunction(note)
         self.whiteSelected = []
         self.blackSelected = []
         self.whiteVelocities = {}
         self.blackVelocities = {}
         wx.CallAfter(self.Refresh)
-    
+
     def setPoly(self, poly):
+        "Sets the maximum number of notes that can be held at the same time."
         self.poly = poly
-    
-    def setRects(self):
+
+    def _setRects(self):
         w, h = self.GetSize()
-        self.offRec = wx.Rect(w - 55, 0, 21, h)
-        self.holdRec = wx.Rect(w - 34, 0, 21, h)
-        num = w // self.w1
+        print(w, h)
+        self.offRec = wx.Rect(w - 55, 0, 28, h)
+        self.holdRec = wx.Rect(w - 27, 0, 27, h)
+        num = int(w / self.w1)
         self.gap = w - num * self.w1
-        self.whiteKeys = [wx.Rect(i * self.w1, 0, self.w1 - 1, h) for i in range(num)]
+        self.whiteKeys = [wx.Rect(i * self.w1, 0, self.w1 - 1, h - 1) for i in range(num)]
         self.blackKeys = []
-        height2 = h * 4 // 7
-        for i in range(num // 7 + 1):
+        height2 = int(h * 4 / 7)
+        for i in range(int(num / 7) + 1):
             space2 = self.w1 * 7 * i
-            off = self.w1 // 2 + space2 + 3
+            off = int(self.w1 / 2) + space2 + 3
             self.blackKeys.append(wx.Rect(off, 0, self.w2, height2))
             off += self.w1
             self.blackKeys.append(wx.Rect(off, 0, self.w2, height2))
@@ -80,7 +107,7 @@ class Keyboard(wx.Panel):
         wx.CallAfter(self.Refresh)
     
     def OnSize(self, evt):
-        self.setRects()
+        self._setRects()
         wx.CallAfter(self.Refresh)
 
     def MouseUp(self, evt):
@@ -94,6 +121,8 @@ class Keyboard(wx.Panel):
                 self.whiteSelected.remove(key)
                 del self.whiteVelocities[key]
             note = (pit, 0)
+            if self.outFunction:
+                self.outFunction(note)
             self.keyPressed = None
             wx.CallAfter(self.Refresh)
 
@@ -103,6 +132,7 @@ class Keyboard(wx.Panel):
         if self.holdRec.Contains(pos):
             if self.hold:
                 self.hold = 0
+                self.reset()
             else:
                 self.hold = 1
             wx.CallAfter(self.Refresh)
@@ -126,14 +156,14 @@ class Keyboard(wx.Panel):
         if self.hold:
             for i, rec in enumerate(self.blackKeys):
                 if rec.Contains(pos):
-                    pit = self.black[i % 5] + i // 5 * 12  + self.offset
+                    pit = self.black[i % 5] + int(i / 5) * 12  + self.offset
                     if i in self.blackSelected:
                         self.blackSelected.remove(i)
                         del self.blackVelocities[i]
                         vel = 0
                     else:
-                        hb = h * 4 // 7
-                        vel = (hb - pos[1]) * 127 // hb
+                        hb = int(h * 4 / 7)
+                        vel = int((hb - pos[1]) * 127 / hb)
                         if total < self.poly:
                             self.blackSelected.append(i)
                             self.blackVelocities[i] = int(127 - vel)
@@ -143,31 +173,28 @@ class Keyboard(wx.Panel):
             if scanWhite:
                 for i, rec in enumerate(self.whiteKeys):
                     if rec.Contains(pos):
-                        pit = self.white[i % 7] + i // 7 * 12  + self.offset
+                        pit = self.white[i % 7] + int(i / 7) * 12  + self.offset
                         if i in self.whiteSelected:
                             self.whiteSelected.remove(i)
                             del self.whiteVelocities[i]
                             vel = 0
                         else:
-                            vel = (h - pos[1]) * 127 // h
+                            vel = int((h - pos[1]) * 127 / h)
                             if total < self.poly:
                                 self.whiteSelected.append(i)
                                 self.whiteVelocities[i] = int(127 - vel)
                         note = (pit, vel)
                         break
-            if note:
-                if note[1] == 0:
-                    pass
-                elif total < self.poly:
-                    pass
+            if note and self.outFunction and total < self.poly:
+                self.outFunction(note)
         else:
             self.keyPressed = None
             for i, rec in enumerate(self.blackKeys):
                 if rec.Contains(pos):
-                    pit = self.black[i % 5] + i // 5 * 12  + self.offset
+                    pit = self.black[i % 5] + int(i / 5) * 12  + self.offset
                     if i not in self.blackSelected:
-                        hb = h * 4 // 7
-                        vel = (hb - pos[1]) * 127 // hb
+                        hb = int(h * 4 / 7)
+                        vel = int((hb - pos[1]) * 127 / hb)
                         if total < self.poly:
                             self.blackSelected.append(i)
                             self.blackVelocities[i] = int(127 - vel)
@@ -178,22 +205,21 @@ class Keyboard(wx.Panel):
             if scanWhite:
                 for i, rec in enumerate(self.whiteKeys):
                     if rec.Contains(pos):
-                        pit = self.white[i % 7] + i // 7 * 12 + self.offset
+                        pit = self.white[i % 7] + int(i / 7) * 12 + self.offset
                         if i not in self.whiteSelected:
-                            vel = (h - pos[1]) * 127 // h
+                            vel = int((h - pos[1]) * 127 / h)
                             if total < self.poly:
                                 self.whiteSelected.append(i)
                                 self.whiteVelocities[i] = int(127 - vel)
                         note = (pit, vel)
                         self.keyPressed = (i, pit)
                         break
-            if note:
-                if total < self.poly:
-                    pass
+            if note and self.outFunction and total < self.poly:
+                self.outFunction(note)
         wx.CallAfter(self.Refresh)
     
     def OnPaint(self, evt):
-        w,h = self.GetSize()
+        w, h = self.GetSize()
         dc = wx.AutoBufferedPaintDC(self)
         dc.SetBrush(wx.Brush("#000000", wx.SOLID))
         dc.Clear()
@@ -215,9 +241,9 @@ class Keyboard(wx.Panel):
                 dc.SetPen(wx.Pen("#CCCCCC", width=1, style=wx.SOLID))
             else:
                 dc.SetBrush(wx.Brush("#FFFFFF", wx.SOLID))
-                dc.SetPen(wx.Pen("#FFFFFF", width=1, style=wx.SOLID))
+                dc.SetPen(wx.Pen("#CCCCCC", width=1, style=wx.SOLID))
                 dc.DrawRectangle(rec)
-            if i == (35 - (7 * (self.offset // 12))):
+            if i == (35 - (7 * int(self.offset / 12))):
                 if i in self.whiteSelected:
                     dc.SetTextForeground("#FFFFFF")
                 else:
@@ -242,8 +268,7 @@ class Keyboard(wx.Panel):
         dc.SetPen(wx.Pen("#AAAAAA", width=1, style=wx.SOLID))
         dc.DrawRectangle(self.offRec)
         dc.DrawRectangle(self.holdRec)
-        dc.DrawRectangle(wx.Rect(w - 14, 0, 14, h))
-        
+
         dc.SetTextForeground("#000000")
         dc.DrawText("oct", self.offRec[0] + 3, 15)
         x1, y1 = self.offRec[0], self.offRec[1]
@@ -256,37 +281,29 @@ class Keyboard(wx.Panel):
                             wx.Point(x1 + 17, 55)])
             self.offDownRec = wx.Rect(x1, 54, x1 + 20, 10)
         else:
-            dc.DrawPolygon([wx.Point(x1 + 3, 38), wx.Point(x1 + 10, 31),
-                            wx.Point(x1 + 17, 38)])
+            dc.DrawPolygon([wx.Point(x1 + 5, 38), wx.Point(x1 + 12, 31),
+                            wx.Point(x1 + 19, 38)])
             self.offUpRec = wx.Rect(x1, 30, x1 + 20, 10)
-            dc.DrawPolygon([wx.Point(x1 + 3, 57), wx.Point(x1 + 10, 64),
-                            wx.Point(x1 + 17, 57)])
+            dc.DrawPolygon([wx.Point(x1 + 5, 57), wx.Point(x1 + 12, 64),
+                            wx.Point(x1 + 19, 57)])
             self.offDownRec = wx.Rect(x1, 56, x1 + 20, 10)
             
-        dc.DrawText("%d" % (self.offset // 12), x1 + 7, 41)
+        dc.DrawText("%d" % int(self.offset / 12), x1 + 9, 41)
     
         if self.hold:
             dc.SetTextForeground("#0000CC")
         else:
             dc.SetTextForeground("#000000")
         for i, c in enumerate("HOLD"):
-            dc.DrawText(c, self.holdRec[0] + 6, self.holdRec[3] // 6 * i + 15)
-        
-        dc.SetBrush(wx.Brush(KEYBOARD_BACKGROUND_COLOUR, wx.SOLID))
-        dc.SetPen(wx.Pen(KEYBOARD_BACKGROUND_COLOUR, width=1, style=wx.SOLID))
-        dc.DrawRectangle(w - self.gap, 0, self.gap, h)
-        dc.SetPen(wx.Pen("#000000", width=1, style=wx.SOLID))
-        dc.DrawLine(0, 3, w, 3)
-        dc.SetPen(wx.Pen("#444444", width=1, style=wx.SOLID))
-        dc.DrawLine(0, 2, w, 2)
-        dc.SetPen(wx.Pen("#888888", width=1, style=wx.SOLID))
-        dc.DrawLine(0, 1, w, 1)
-        dc.SetPen(wx.Pen("#CCCCCC", width=1, style=wx.SOLID))
-        dc.DrawLine(0, 0, w, 0)
+            dc.DrawText(c, self.holdRec[0] + 8, int(self.holdRec[3] / 6) * i + 15)
 
 if __name__ == "__main__":
+    def ppp(note):
+        print(note)
+
     app = wx.App()
     frame = wx.Frame(None, title="Piano keyboard test", size=(650, 110))
-    keyboard = Keyboard(frame)
+    keyboard = Keyboard(frame, outFunction=ppp)
+    #keyboard.Bind(EVT_PYO_GUI_KEYBOARD, ppp)
     frame.Show()
     app.MainLoop()

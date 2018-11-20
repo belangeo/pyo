@@ -1,3 +1,7 @@
+2018-11-20 belangeo <belangeo@gmail.com>
+
+    * Added a new object: PyoGuiKeyboard, a virtual MIDI keyboard.
+
 2018-10-23 belangeo <belangeo@gmail.com>
 
     * Fixed phase of sawtooth and ramp waveform in the LFO object.

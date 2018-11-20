@@ -50,3 +50,9 @@ under the current Python distribution to access these classes.
 
 .. autoclass:: PyoGuiSndView
    :members:
+
+*PyoGuiKeyboard*
+-----------------------------------
+
+.. autoclass:: PyoGuiKeyboard
+   :members:

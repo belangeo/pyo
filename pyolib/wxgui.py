@@ -11,38 +11,41 @@ from ._widgets import PYO_USE_WX
 if not PYO_USE_WX:
     NO_WX_MESSAGE = "WxPython must be installed on the system to use pyo's wx widgets."
     class PyoGuiControlSlider:
-
         def __init__(self, *args, **kwargs):
             raise Exception(NO_WX_MESSAGE)
+
     class PyoGuiVuMeter:
-
         def __init__(self, *args, **kwargs):
             raise Exception(NO_WX_MESSAGE)
+
     class PyoGuiGrapher:
-
         def __init__(self, *args, **kwargs):
             raise Exception(NO_WX_MESSAGE)
+
     class PyoGuiMultiSlider:
-
         def __init__(self, *args, **kwargs):
             raise Exception(NO_WX_MESSAGE)
+
     class PyoGuiSpectrum:
-
         def __init__(self, *args, **kwargs):
             raise Exception(NO_WX_MESSAGE)
+
     class PyoGuiScope:
-
         def __init__(self, *args, **kwargs):
             raise Exception(NO_WX_MESSAGE)
-    class PyoGuiSndView:
 
+    class PyoGuiSndView:
+        def __init__(self, *args, **kwargs):
+            raise Exception(NO_WX_MESSAGE)
+
+    class PyoGuiKeyboard:
         def __init__(self, *args, **kwargs):
             raise Exception(NO_WX_MESSAGE)
 else:
     import wx
     import wx.lib.newevent
-    from ._wxwidgets import ControlSlider, VuMeter, Grapher, DataMultiSlider
-    from ._wxwidgets import SpectrumPanel, ScopePanel, SndViewTablePanel, HRangeSlider
+    from ._wxwidgets import ControlSlider, VuMeter, Grapher, DataMultiSlider, HRangeSlider
+    from ._wxwidgets import SpectrumPanel, ScopePanel, SndViewTablePanel, Keyboard
 
     if "phoenix" not in wx.version():
         wx.QueueEvent = wx.PostEvent
@@ -53,6 +56,7 @@ else:
     PyoGuiMultiSliderEvent, EVT_PYO_GUI_MULTI_SLIDER = wx.lib.newevent.NewEvent()
     PyoGuiSndViewMousePositionEvent, EVT_PYO_GUI_SNDVIEW_MOUSE_POSITION = wx.lib.newevent.NewEvent()
     PyoGuiSndViewSelectionEvent, EVT_PYO_GUI_SNDVIEW_SELECTION = wx.lib.newevent.NewEvent()
+    PyoGuiKeyboardEvent, EVT_PYO_GUI_KEYBOARD = wx.lib.newevent.NewEvent()
 
     class PyoGuiControlSlider(ControlSlider):
         """
@@ -988,3 +992,66 @@ else:
 
             """
             self.sndview.resetSelection()
+
+    class PyoGuiKeyboard(Keyboard):
+        """
+        Virtual MIDI keyboard.
+
+        :Parent: wx.Panel
+
+        :Events:
+
+            EVT_PYO_GUI_KEYBOARD
+                Sent whenever a note change on the keyboard. The `value` 
+                attribute of the event will hold a (pitch, velocity) tuple. 
+                The object itself can be retrieve with the `object` 
+                attribute of the event and the object's id with the `id` attrbute.
+
+        :Args:
+
+            parent: wx.Window
+                The parent window.
+            poly: int, optional
+                Maximum number of notes that can be held at the same time. 
+                Defaults to 64.
+            pos: wx.Point, optional
+                Window position in pixels. Defaults to (0, 0).
+            size: wx.Size, optional
+                Window size in pixels. Defaults to (300, 200).
+            style: int, optional
+                Window style (see wx.Window documentation). Defaults to 0.
+
+        """
+        def __init__(self, parent, poly=64, pos=(0, 0), size=(600, 100), style=0):
+            super(PyoGuiKeyboard, self).__init__(parent, wx.ID_ANY, pos, size, 
+                                                 poly, self._outFunction, style)
+
+        def _outFunction(self, value):
+            evt = PyoGuiKeyboardEvent(value=value, id=self.GetId(), object=self)
+            wx.QueueEvent(self, evt)
+
+        def getCurrentNotes(self):
+            """
+            Returns a list of the current notes.
+
+            """
+            return super(PyoGuiKeyboard, self).getCurrentNotes()
+
+        def reset(self):
+            """
+            Resets the keyboard state.
+
+            """
+            return super(PyoGuiKeyboard, self).reset()
+
+        def setPoly(self, poly):
+            """
+            Sets the maximum number of notes that can be held at the same time.
+
+            :Args:
+
+                poly: int
+                    New maximum number of notes held at once.
+            
+            """
+            super(PyoGuiKeyboard, self).setPoly(poly)

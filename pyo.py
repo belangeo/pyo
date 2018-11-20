@@ -180,7 +180,7 @@ OBJECTS_TREE = {
         'TableStream': [],
         'PyoGui': ['PyoGuiControlSlider', 'PyoGuiVuMeter', 'PyoGuiGrapher', 
                    'PyoGuiMultiSlider', 'PyoGuiSpectrum', 'PyoGuiScope',
-                   'PyoGuiSndView']}
+                   'PyoGuiSndView', 'PyoGuiKeyboard']}
 
 DOC_KEYWORDS = ['Attributes', 'Examples', 'Parameters', 'Methods', 'Notes', 
                 'Methods details', 'See also', 'Parentclass']
