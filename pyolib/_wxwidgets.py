@@ -3214,6 +3214,22 @@ class Keyboard(wx.Panel):
         for i, c in enumerate("HOLD"):
             dc.DrawText(c, self.holdRec[0] + 8, int(self.holdRec[3] / 6) * i + 15)
 
+class NoteinKeyboardFrame(wx.Frame):
+
+    def __init__(self, parent=None, obj=None):
+        wx.Frame.__init__(self, parent, size=(900,150))
+        self.obj = obj
+        self.keyboard = Keyboard(self, -1, outFunction=self.obj._newNote)
+        self.menubar = wx.MenuBar()
+        self.fileMenu = wx.Menu()
+        self.fileMenu.Append(wx.ID_CLOSE, 'Close\tCtrl+W', kind=wx.ITEM_NORMAL)
+        self.Bind(wx.EVT_MENU, self.close, id=wx.ID_CLOSE)
+        self.menubar.Append(self.fileMenu, "&File")
+        self.SetMenuBar(self.menubar)
+
+    def close(self, evt):
+        self.Destroy()
+
 class ServerGUI(wx.Frame):
 
     def __init__(self, parent=None, nchnls=2, startf=None, stopf=None,
