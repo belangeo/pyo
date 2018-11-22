@@ -9,8 +9,6 @@ To do ASAP!
 
 - Review every "PyErr_SetString(PyExc_TypeError)" and "PySys_WriteStdout()" calls.
 
-- stdlib for Expr object.
-
 - pyo with jack support for Windows and MacOS.
 
 This is a list of features/fixes to implement for future releases
