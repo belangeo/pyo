@@ -2595,7 +2595,7 @@ class SharedTable(PyoTableObject):
             with the same name will shared the same memory space. The name
             must conform to the construction rules for a unix pathname (ie.
             it must begin with a slash). Available at initialization time only.
-        create: loolean
+        create: boolean
             If True, an entry will be create in the system shared memory.
             If False, the object will use an already created shared memory.
             Can't be a list. Available at initialization time only.
