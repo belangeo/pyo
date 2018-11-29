@@ -5651,7 +5651,7 @@ class Editor(stc.StyledTextCtrl):
             else:
                 propagate = True
 
-        elif self.path.endswith(".py"):
+        elif self.path.endswith(".py") or self.path.endswith(".c5"):
             propagate = self.showAutoComp()
             if propagate:
                 propagate = self.insertDefArgs(currentword, charat)

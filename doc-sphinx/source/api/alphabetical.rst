@@ -192,6 +192,7 @@ Alphabetical class reference
 - :py:class:`Pulsar` :     Pulsar synthesis oscillator.
 - :py:class:`PyoGuiControlSlider` :         Floating-point control slider.
 - :py:class:`PyoGuiGrapher` :         Multi-modes break-points function editor.
+- :py:class:`PyoGuiKeyboard` :         Virtual MIDI keyboard.
 - :py:class:`PyoGuiMultiSlider` :         Data multi-sliders editor.
 - :py:class:`PyoGuiScope` :         Oscilloscope display.
 - :py:class:`PyoGuiSndView` :         Soundfile display.
