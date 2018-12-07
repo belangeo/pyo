@@ -1191,7 +1191,7 @@ class TrigFunc(PyoObject):
 
         input: PyoObject
             Audio signal sending triggers.
-        function: Python function
+        function: Python callable (function or method)
             Function to be called.
         arg: anything, optional
             Argument sent to the function's call. If None, the function
@@ -1262,7 +1262,7 @@ class TrigFunc(PyoObject):
 
         :Args:
 
-            x: Python function
+            x: Python callable (function or method)
                 new `function` attribute.
 
         """
