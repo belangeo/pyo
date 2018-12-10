@@ -1307,7 +1307,7 @@ class PVDelay(PyoPVObject):
     >>> s = Server().boot()
     >>> s.start()
     >>> SIZE = 1024
-    >>> SIZE2 = SIZE / 2
+    >>> SIZE2 = int(SIZE / 2)
     >>> OLAPS = 4
     >>> MAXDEL = 2.0 # two seconds delay memories
     >>> FRAMES = int(MAXDEL * s.getSamplingRate() / (SIZE / OLAPS))

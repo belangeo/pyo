@@ -1870,6 +1870,8 @@ typedef struct {
     int centralkey;
     int channel;
     int stealing;
+    PyoMidiEvent midiEvents[64];
+    int eventcount;
     MYFLT *trigger_streams;
 } MidiNote;
 
@@ -2002,6 +2004,11 @@ MidiNote_compute_next_data_frame(MidiNote *self)
         self->trigger_streams[i] = 0.0;
     }
 
+    if (self->eventcount > 0) {
+        grabMidiNotes((MidiNote *)self, self->midiEvents, self->eventcount);
+    }
+    self->eventcount = 0;
+
     tmp = Server_getMidiEventBuffer((Server *)self->server);
     count = Server_getMidiEventCount((Server *)self->server);
     if (count > 0)
@@ -2053,6 +2060,7 @@ MidiNote_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->last = 127;
     self->channel = 0;
     self->stealing = 0;
+    self->eventcount = 0;
 
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, MidiNote_compute_next_data_frame);
@@ -2106,6 +2114,30 @@ MidiNote_getValue(MidiNote *self, int voice, int which, int *posto)
     *posto = self->notebuf[voice*3+2];
 
     return val;
+}
+
+static PyObject *
+MidiNote_addMidiEvent(MidiNote *self, PyObject *args)
+{
+    int status, data1, data2;
+    PyoMidiEvent buffer;
+
+    if (! PyArg_ParseTuple(args, "ii", &data1, &data2))
+        return PyInt_FromLong(-1);
+
+    if (self->channel == 0) {
+        status = 0x90;
+    } else {
+        status = 0x90 | (self->channel - 1);
+    }
+
+    buffer.timestamp = 0;
+    buffer.message = PyoMidi_Message(status, data1, data2);
+    self->midiEvents[self->eventcount++] = buffer;
+    if (self->eventcount == 64) {
+        self->eventcount = 0;
+    }
+    Py_RETURN_NONE;
 }
 
 static PyObject * MidiNote_getServer(MidiNote* self) { GET_SERVER };
@@ -2216,6 +2248,7 @@ static PyMethodDef MidiNote_methods[] = {
 {"setChannel", (PyCFunction)MidiNote_setChannel, METH_O, "Sets the midi channel."},
 {"setCentralKey", (PyCFunction)MidiNote_setCentralKey, METH_O, "Sets the midi key where there is no transposition."},
 {"setStealing", (PyCFunction)MidiNote_setStealing, METH_O, "Sets the stealing mode."},
+{"addMidiEvent", (PyCFunction)MidiNote_addMidiEvent, METH_VARARGS|METH_KEYWORDS, "Add a new midi event in the internal queue."},
 {NULL}  /* Sentinel */
 };
 

@@ -32,6 +32,7 @@ import sys
 from ._core import *
 from ._maps import *
 from ._widgets import createGraphWindow
+from ._widgets import createNoteinKeyboardWindow
 
 ######################################################################
 ### MIDI
@@ -661,6 +662,28 @@ class Notein(PyoObject):
                          SLMap(0, 16, 'lin', 'channel', self._channel, res="int", dataOnly=True)
                          ]
         PyoObject.ctrl(self, map_list, title, wxnoserver)
+
+    def keyboard(self, title="Notein keyboard", wxnoserver=False):
+        """
+        Opens a virtual midi keyboard for this object.
+
+        :Args:
+
+            title: string, optional
+                Title of the window. If none is provided, the name of the
+                class is used.
+            wxnoserver: boolean, optional
+                With wxPython graphical toolkit, if True, tells the
+                interpreter that there will be no server window.
+
+        If `wxnoserver` is set to True, the interpreter will not wait for
+        the server GUI before showing the controller window.
+
+        """
+        createNoteinKeyboardWindow(self, title, wxnoserver)
+
+    def _newNote(self, note):
+        self._base_handler.addMidiEvent(note[0], note[1])
 
     @property
     def scale(self):

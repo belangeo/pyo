@@ -400,8 +400,8 @@ class Compress(PyoObject):
             If True, the object's output signal will be the compression level
             alone, not the compressed signal.
 
-            It can be useful if 2 or more channels need to linked on the same
-            compression slope. Defaults to False.
+            It can be useful if 2 or more channels need to be linked on the
+            same compression slope. Defaults to False.
 
             Available at initialization only.
 
@@ -1079,10 +1079,10 @@ class Expand(PyoObject):
             0 -> 25 ms. Defaults to 5.0.
         outputAmp: boolean, optional
             If True, the object's output signal will be the expansion level
-            alone, not the compressed signal.
+            alone, not the expanded signal.
 
-            It can be useful if 2 or more channels need to linked on the same
-            expansion slope. Defaults to False.
+            It can be useful if 2 or more channels need to be linked on the
+            same expansion slope. Defaults to False.
 
             Available at initialization only.
 

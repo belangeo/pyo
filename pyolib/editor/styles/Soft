@@ -19,4 +19,5 @@ style = {'background': {'colour': '#EFEFEF'},
  'pyokeyword': {'bold': 1, 'colour': u'#000000', 'italic': 0, 'underline': 0},
  'selback': {'colour': '#CBCBCB'},
  'string': {'bold': 0, 'colour': u'#272727', 'italic': 1, 'underline': 0},
- 'triple': {'bold': 0, 'colour': '#333333', 'italic': 1, 'underline': 0}}
+ 'triple': {'bold': 0, 'colour': '#333333', 'italic': 1, 'underline': 0},
+ 'preproc': {'bold': 0, 'colour': '#222222', 'italic': 0, 'underline': 0}}

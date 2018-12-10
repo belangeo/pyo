@@ -1,5 +1,28 @@
+/**************************************************************************
+ * Copyright 2014-2018 Olivier Belanger                                   *
+ *                                                                        *
+ * This file is part of pyo, a python module to help digital signal       *
+ * processing script creation.                                            *
+ *                                                                        *
+ * pyo is free software: you can redistribute it and/or modify            *
+ * it under the terms of the GNU Lesser General Public License as         *
+ * published by the Free Software Foundation, either version 3 of the     *
+ * License, or (at your option) any later version.                        *
+ *                                                                        *
+ * pyo is distributed in the hope that it will be useful,                 *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of         *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the          *
+ * GNU Lesser General Public License for more details.                    *
+ *                                                                        *
+ * You should have received a copy of the GNU Lesser General Public       *
+ * License along with pyo.  If not, see <http://www.gnu.org/licenses/>.   *
+ *************************************************************************/
 #include <stdlib.h>
+
+#if !defined(_WIN32)
 #include <dlfcn.h>
+#endif
+
 #include "Python.h"
 
 #ifndef __m_pyo_h_
@@ -22,9 +45,11 @@ extern "C" {
 #define PY_STRING_AS_STRING(a) PyBytes_AsString(a)
 #endif
 
+#if !defined(_WIN32)
 /* libpython handle. libpython must be made available to the program loaded
 ** in a new interpreter. */
 static void *libpython_handle;
+#endif
 
 /*
 ** Creates a new python interpreter and starts a pyo server in it.
@@ -48,24 +73,48 @@ INLINE PyThreadState * pyo_new_interpreter(float sr, int bufsize, int chnls) {
         PyEval_ReleaseLock();
     }
 
+#if !defined(_WIN32)
     /* This call hardcodes 2.7 as the python version to be used to embed pyo in
        a C or C++ program. This is not a good idea and must be fixed when everthing
        is stable.
     */
     if (libpython_handle == NULL) {
+#ifdef __linux__
         libpython_handle = dlopen("libpython2.7.so", RTLD_LAZY | RTLD_GLOBAL);
+#elif __APPLE__
+        libpython_handle = dlopen("libpython2.7.dylib", RTLD_LAZY | RTLD_GLOBAL);
+#endif
     }
+#endif
 
     PyEval_AcquireLock();              /* get the GIL */
     interp = Py_NewInterpreter();      /* add a new sub-interpreter */
+
+    /* On MacOS, trying to import wxPython in embedded python hang the process. */
+    PyRun_SimpleString("import os; os.environ['PYO_GUI_WX'] = '0'");
+
+    /* Set the default BPM (60 beat per minute). */
+    PyRun_SimpleString("BPM = 60.0");
+
     PyRun_SimpleString("from pyo import *");
     sprintf(msg, "_s_ = Server(%f, %d, %d, 1, 'embedded')", sr, chnls, bufsize);
     PyRun_SimpleString(msg);
     PyRun_SimpleString("_s_.boot()\n_s_.start()\n_s_.setServer()");
+    PyRun_SimpleString("_server_id_ = _s_.getServerID()");
+
+    /* 
+    ** printf %p specifier behaves differently in Linux/MacOS and Windows.
+    */
+
+#if defined(_WIN32)
+    PyRun_SimpleString("_in_address_ = '0x' + _s_.getInputAddr().lower()");
+    PyRun_SimpleString("_out_address_ = '0x' + _s_.getOutputAddr().lower()");
+    PyRun_SimpleString("_emb_callback_ = '0x' + _s_.getEmbedICallbackAddr().lower()");
+#else
     PyRun_SimpleString("_in_address_ = _s_.getInputAddr()");
     PyRun_SimpleString("_out_address_ = _s_.getOutputAddr()");
-    PyRun_SimpleString("_server_id_ = _s_.getServerID()");
     PyRun_SimpleString("_emb_callback_ = _s_.getEmbedICallbackAddr()");
+#endif
     PyEval_ReleaseThread(interp);
     return interp;
 }
@@ -206,9 +255,12 @@ INLINE void pyo_end_interpreter(PyThreadState *interp) {
     PyThreadState_Clear(interp);
     PyThreadState_Delete(interp);
 
+#if !defined(_WIN32)
     if (libpython_handle != NULL) {
         dlclose(libpython_handle);
     }
+#endif
+
 }
 
 /*
@@ -241,6 +293,23 @@ INLINE void pyo_set_server_params(PyThreadState *interp, float sr, int bufsize) 
     sprintf(msg, "_s_.setBufferSize(%d)", bufsize);
     PyRun_SimpleString(msg);
     PyRun_SimpleString("_s_.boot(newBuffer=False).start()");
+    PyEval_ReleaseThread(interp);
+}
+
+/*
+** This function can be used to pass the DAW's bpm value to the 
+** python interpreter. Changes the value of the BPM variable 
+** (which defaults to 60).
+**
+** arguments:
+**  interp : pointer, pointer to the targeted Python thread state.
+**  bpm : double, new BPM.
+*/
+INLINE void pyo_set_bpm(PyThreadState *interp, double bpm) {
+    char msg[64];
+    PyEval_AcquireThread(interp);
+    sprintf(msg, "BPM = %f", bpm);
+    PyRun_SimpleString(msg);
     PyEval_ReleaseThread(interp);
 }
 

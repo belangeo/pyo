@@ -1,6 +1,3 @@
-from __future__ import division
-from __future__ import print_function
-from __future__ import absolute_import
 """
 Set of objects to manage triggers streams.
 
@@ -10,6 +7,10 @@ TrigXXX objects use this kind of signal to generate different
 processes with sampling rate time accuracy.
 
 """
+from __future__ import division
+from __future__ import print_function
+from __future__ import absolute_import
+
 """
 Copyright 2009-2015 Olivier Belanger
 
@@ -1190,7 +1191,7 @@ class TrigFunc(PyoObject):
 
         input: PyoObject
             Audio signal sending triggers.
-        function: Python function
+        function: Python callable (function or method)
             Function to be called.
         arg: anything, optional
             Argument sent to the function's call. If None, the function
@@ -1261,7 +1262,7 @@ class TrigFunc(PyoObject):
 
         :Args:
 
-            x: Python function
+            x: Python callable (function or method)
                 new `function` attribute.
 
         """

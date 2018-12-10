@@ -1,13 +1,14 @@
 #! /usr/bin/env python
 # encoding: utf-8
 """
-E-Pyo is a simple text editor especially configured to edit pyo audio programs.
+EPyo is a simple text editor especially configured to edit pyo audio programs.
 
 You can do absolutely everything you want with this piece of software.
 
 Olivier Belanger - 2018
 
 TODO:
+    - auto-search when typing in the doc page.
     - Fix printing to pdf.
 
 """
@@ -16,17 +17,18 @@ from __future__ import with_statement
 from __future__ import print_function
 import sys
 
-import os, inspect, keyword, wx, codecs, subprocess, unicodedata
+import os, inspect, keyword, wx, codecs, subprocess, unicodedata, types
 import contextlib, shutil, copy, pprint, random, time, threading
 from types import MethodType
 from wx.lib.wordwrap import wordwrap
 from wx.lib.embeddedimage import PyEmbeddedImage
+from wx.lib.splitter import MultiSplitterWindow
 import wx.lib.colourselect as csel
 import wx.lib.scrolledpanel as scrolled
 import wx.lib.dialogs
 import wx.stc as stc
 import wx.lib.agw.flatnotebook as FNB
-from pyo import * # TODO: what do we really need? OBJECTS_TREE, PYO_VERSION
+from pyo import * # TODO: what do we really need? OBJECTS_TREE, PYO_VERSION, getPyoKeywords()
 
 encoding_to_add = sys.getfilesystemencoding()
 if sys.version_info[0] < 3:
@@ -77,10 +79,8 @@ ENCODING_DICT = {'cp-1250': 'cp1250', 'cp-1251': 'cp1251', 'cp-1252': 'cp1252',
                  'utf-32 (Big Endian)': 'utf_32_be',
                  'utf-32 (Little Endian)': 'utf_32_le'}
 
-APP_NAME = 'E-Pyo'
+APP_NAME = 'EPyo'
 APP_VERSION = PYO_VERSION
-OSX_APP_BUNDLED = False
-WIN_APP_BUNDLED = False
 
 ################## Utility Functions ##################
 @contextlib.contextmanager
@@ -170,74 +170,14 @@ RESOURCES_PATH = PREFERENCES.get("resources_path", TEMP_PATH)
 
 TEMP_FILE = os.path.join(TEMP_PATH, 'epyo_tempfile.py')
 
-if PLATFORM == "win32" and sys.executable.endswith("E-Pyo.exe"):
-    os.chdir(os.path.dirname(sys.executable))
-    WIN_APP_BUNDLED = True
-
-if PLATFORM == "darwin" and '/%s.app' % APP_NAME in os.getcwd():
-    OSX_APP_BUNDLED = True
-
 # Check for which Python to use #
-if PLATFORM == "win32":
-    #WHICH_PYTHON = PREFERENCES.get("which_python", sys.executable)
-    # This way of finding the python executable assume that python is in the PATH variable.
-    proc = subprocess.Popen('python -c "import sys; print(sys.executable)"', shell=False,
-                            universal_newlines=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    WHICH_PYTHON = proc.communicate()[0][:-1]
-else:
-    WHICH_PYTHON = PREFERENCES.get("which_python", "")
+WHICH_PYTHON = PREFERENCES.get("which_python", sys.executable)
+
 INSTALLATION_ERROR_MESSAGE = ""
-CALLER_NEED_TO_INVOKE_32_BIT = False
-SET_32_BIT_ARCH = "export VERSIONER_PYTHON_PREFER_32_BIT=yes;"
-if WHICH_PYTHON == "":
-    if OSX_APP_BUNDLED:
-        proc = subprocess.Popen(["export PATH=/usr/local/bin:$PATH;which python"],
-                    shell=True, universal_newlines=True, stdout=subprocess.PIPE, 
-                    stderr=subprocess.PIPE)
-        WHICH_PYTHON = proc.communicate()[0][:-1]
-    elif PLATFORM == "darwin":
-        proc = subprocess.Popen(["which python"], shell=True, universal_newlines=True,
-                                stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        WHICH_PYTHON = proc.communicate()[0][:-1]
-    elif PLATFORM.startswith("linux"):
-        proc = subprocess.Popen(["which python"], shell=True, universal_newlines=True,
-                                stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        WHICH_PYTHON = proc.communicate()[0][:-1]
-    else:
-        ### No more used on Windows ###
-        if "Python" in os.getenv("Path"):
-            pos = os.getenv("Path").index("Python")
-            ver = os.getenv("Path")[pos+6:pos+8]
-            WHICH_PYTHON = "C:\Python%s\python.exe" % ver
-        else:
-            for i in reversed(range(5, 8)):
-                if os.path.isfile("C:\Python2%d\python.exe" % i):
-                    WHICH_PYTHON = "C:\Python2%d\python.exe" % i
-                    break
-        ########################
-        if WHICH_PYTHON == "":
-            INSTALLATION_ERROR_MESSAGE = ("Python 2.x doesn't seem to be installed " 
-                                          "on this computer. Check your Python "
-                                          "installation and try again.")
 
 # Check for WxPython / Pyo installation and architecture #
-if OSX_APP_BUNDLED:
-    tmphome = os.environ["PYTHONHOME"]
-    tmppath = os.environ["PYTHONPATH"]
-    tmpexecpath = os.environ["EXECUTABLEPATH"]
-    tmprscpath = os.environ["RESOURCEPATH"]
-    tmpargv0 = os.environ["ARGVZERO"]
-    cmd = ('export -n PYTHONHOME PYTHONPATH EXECUTABLEPATH RESOURCEPATH ARGVZERO;'
-           'env;%s -c "import pyo";export PYTHONHOME=%s;export PYTHONPATH=%s;'
-           'export EXECUTABLEPATH=%s;export RESOURCEPATH=%s;export ARGVZERO=%s' % 
-           (WHICH_PYTHON, tmphome, tmppath, tmpexecpath, tmprscpath, tmpargv0))
-    cmd2 = ('export -n PYTHONHOME PYTHONPATH EXECUTABLEPATH RESOURCEPATH ARGVZERO;'
-            'env;%s -c "import wx";export PYTHONHOME=%s;export PYTHONPATH=%s;'
-            'export EXECUTABLEPATH=%s;export RESOURCEPATH=%s;export ARGVZERO=%s' % 
-            (WHICH_PYTHON, tmphome, tmppath, tmpexecpath, tmprscpath, tmpargv0))
-else:
-    cmd = '%s -c "import pyo"' % WHICH_PYTHON
-    cmd2 = '%s -c "import wx"' % WHICH_PYTHON
+cmd = '%s -c "import pyo"' % WHICH_PYTHON
+cmd2 = '%s -c "import wx"' % WHICH_PYTHON
 proc = subprocess.Popen([cmd], shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 IMPORT_PYO_STDOUT, IMPORT_PYO_STDERR = proc.communicate()
 IMPORT_PYO_STDOUT = ensureNFD(IMPORT_PYO_STDOUT)
@@ -247,16 +187,6 @@ if "ImportError" in IMPORT_PYO_STDERR:
         INSTALLATION_ERROR_MESSAGE = ("Pyo is not installed in the current Python "
                                       "installation. Audio programs won't run.\n\n"
                                       "Current Python path: %s\n" % WHICH_PYTHON)
-    elif ("no appropriate 64-bit architecture" in IMPORT_PYO_STDERR 
-      or "but wrong architecture" in IMPORT_PYO_STDERR):
-        CALLER_NEED_TO_INVOKE_32_BIT = True
-        INSTALLATION_ERROR_MESSAGE = ("The current Python installation is running "
-                                      "in 64-bit mode but pyo installation is 32-bit.\n\n")
-        if PLATFORM == "darwin":
-            INSTALLATION_ERROR_MESSAGE += ("'VERSIONER_PYTHON_PREFER_32_BIT=yes' "
-                                           "will be invoked before calling python "
-                                           "executable.\n\n")
-        INSTALLATION_ERROR_MESSAGE += "Current Python path: %s\n" % WHICH_PYTHON
 else:
     proc = subprocess.Popen([cmd2], shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     IMPORT_WX_STDOUT, IMPORT_WX_STDERR = proc.communicate()
@@ -268,23 +198,9 @@ else:
                                           "Python installation. It is needed by pyo "
                                           "to show graphical display.\n\nCurrent "
                                           "Python path: %s\n" % WHICH_PYTHON)
-        elif "no appropriate 64-bit architecture" in IMPORT_WX_STDERR:
-            CALLER_NEED_TO_INVOKE_32_BIT = True
-            INSTALLATION_ERROR_MESSAGE = ("The current Python installation is running in "
-                                          "64-bit mode but WxPython installation is 32-bit.\n\n")
-            if PLATFORM == "darwin":
-                INSTALLATION_ERROR_MESSAGE += ("'VERSIONER_PYTHON_PREFER_32_BIT=yes' "
-                                               "will be invoked before calling python "
-                                               "executable.\n\n")
-            INSTALLATION_ERROR_MESSAGE += "Current Python path: %s\n" % WHICH_PYTHON
 
-if OSX_APP_BUNDLED:
-    EXAMPLE_PATH = os.path.join(os.getcwd(), "examples")
-elif WIN_APP_BUNDLED:
-    EXAMPLE_PATH = os.path.join(os.getcwd(), "Resources", "examples")
-else:
-    filedir = os.path.dirname(os.path.abspath(__file__))
-    EXAMPLE_PATH = os.path.join(filedir, "../examples")
+filedir = os.path.dirname(os.path.abspath(__file__))
+EXAMPLE_PATH = os.path.join(filedir, "../examples")
 EXAMPLE_FOLDERS = [folder.capitalize() for folder in os.listdir(EXAMPLE_PATH) if folder[0] != "." and folder not in ["snds", "fft"]]
 EXAMPLE_FOLDERS.append("FFT")
 EXAMPLE_FOLDERS.sort()
@@ -296,14 +212,11 @@ if not os.path.isdir(SNIPPETS_PATH):
     for rep in SNIPPET_BUILTIN_CATEGORIES:
         if not os.path.isdir(os.path.join(SNIPPETS_PATH, rep)):
             os.mkdir(os.path.join(SNIPPETS_PATH, rep))
-            if WIN_APP_BUNDLED:
-                files = [f for f in os.listdir(os.path.join(os.getcwd(), "Resources", "snippets", rep)) if f[0] != "."]
-                for file in files:
-                    shutil.copy(os.path.join(os.getcwd(), "Resources", "snippets", rep, file), os.path.join(SNIPPETS_PATH, rep))
-            else:
-                files = [f for f in os.listdir(os.path.join(os.getcwd(), "snippets", rep)) if f[0] != "."]
-                for file in files:
-                    shutil.copy(os.path.join(os.getcwd(), "snippets", rep, file), os.path.join(SNIPPETS_PATH, rep))
+            filedir = os.path.dirname(os.path.abspath(__file__))
+            snippetspath = os.path.join(filedir, "snippets")
+            files = [f for f in os.listdir(os.path.join(snippetspath, rep)) if f[0] != "." and not f.startswith("__")]
+            for file in files:
+                shutil.copy(os.path.join(snippetspath, rep, file), os.path.join(SNIPPETS_PATH, rep))
 SNIPPETS_CATEGORIES = [rep for rep in os.listdir(SNIPPETS_PATH) if os.path.isdir(os.path.join(SNIPPETS_PATH, rep))]
 SNIPPET_DEL_FILE_ID = 30
 SNIPPET_ADD_FOLDER_ID = 31
@@ -327,17 +240,16 @@ if not os.path.isfile(FILTERS_FILE):
 STYLES_PATH = os.path.join(RESOURCES_PATH, "styles")
 if not os.path.isdir(STYLES_PATH):
     os.mkdir(STYLES_PATH)
-    if WIN_APP_BUNDLED:
-        files = [f for f in os.listdir(os.path.join(os.getcwd(), "Resources", "styles")) if f[0] != "."]
-        for file in files:
-            shutil.copy(os.path.join(os.getcwd(), "Resources", "styles", file), os.path.join(STYLES_PATH, file))
-    else:
-        files = [f for f in os.listdir(os.path.join(os.getcwd(), "styles")) if f[0] != "."]
-        for file in files:
-            shutil.copy(os.path.join(os.getcwd(), "styles", file), os.path.join(STYLES_PATH, file))
+    filedir = os.path.dirname(os.path.abspath(__file__))
+    stylespath = os.path.join(filedir, "styles")
+    files = [f for f in os.listdir(stylespath) if f[0] != "." and not f.startswith("__")]
+    for file in files:
+        shutil.copy(os.path.join(stylespath, file), os.path.join(STYLES_PATH, file))
 DEFAULT_STYLE = os.path.join(STYLES_PATH, "Default")
-if not os.path.isfile(os.path.join(STYLES_PATH, "Default")):
-    shutil.copy(os.path.join(os.getcwd(), "styles", "Default"), DEFAULT_STYLE)
+if not os.path.isfile(DEFAULT_STYLE):
+    filedir = os.path.dirname(os.path.abspath(__file__))
+    stylespath = os.path.join(filedir, "styles")
+    shutil.copy(os.path.join(stylespath, "Default"), DEFAULT_STYLE)
 if "pref_style" in PREFERENCES:
     PREF_STYLE = os.path.join(ensureNFD(STYLES_PATH), PREFERENCES["pref_style"])
 else:
@@ -859,7 +771,7 @@ KEY_COMMANDS = {
 "23. Alt + Shift + BACK": "Delete the word to the right of the caret",
 "24. Ctrl/Cmd + BACK": "Delete back from the current position to the start of the line",
 "25. Ctrl/Cmd + Shift + BACK": "Delete forwards from the current position to the end of the line",
-"26. TAB": "If selection is empty or all on one line replace the selection with a tab character. If more than one line selected, indent the lines. In the middle of a word, trig the AutoCompletion of pyo keywords. Just after an open brace following a pyo keyword, insert its default arguments. Just after a complete python builtin keyword, insert a default structure snippet. Just after a variable name, representing a pyo object, followed by a dot, trig the AutoCompletion of the object's attributes.",
+"26. TAB": "If selection is empty or span on only one line, replace the selection with a tab character. \nIf there is more than one line selected, indent the lines. \nIn the middle of a word, trig the AutoCompletion of pyo keywords. \nJust after an open brace following a pyo keyword, insert its default arguments. \nJust after a complete python builtin keyword, insert a default structure snippet. \nJust after a variable name, representing a pyo object, followed by a dot, trig the AutoCompletion of the object's attributes.  \nIf 'Auto Complete CPP Class Attributes' is checked, triggers the auto-completion of class attributes based on corresponding header file (must be located in the same folder as the cpp file).",
 "27. Shift + TAB": "Dedent the selected lines",
 "28. Alt + 'C'": "Line Copy",
 "29. Alt + 'D'": "Line Duplicate",
@@ -879,26 +791,7 @@ ALLOWED_EXT = PREFERENCES.get("allowed_ext",
                                "plist", "dt", "dtlib", "expr"])
 
 ############## Pyo keywords ##############
-tree = OBJECTS_TREE
-PYO_WORDLIST = []
-for k1 in tree.keys():
-    if type(tree[k1]) == type({}):
-        for k2 in tree[k1].keys():
-            if type(tree[k1][k2]) == type({}):
-                for k3 in tree[k1][k2].keys():
-                    for val in tree[k1][k2][k3]:
-                        PYO_WORDLIST.append(val)
-            else:
-                for val in tree[k1][k2]:
-                    PYO_WORDLIST.append(val)
-    else:
-        for val in tree[k1]:
-            PYO_WORDLIST.append(val)
-PYO_WORDLIST.append("PyoObject")
-PYO_WORDLIST.append("PyoTableObject")
-PYO_WORDLIST.append("PyoMatrixObject")
-PYO_WORDLIST.append("PyoPVObject")
-PYO_WORDLIST.append("Server")
+PYO_WORDLIST = getPyoKeywords()
 
 ############## Styles Constants ##############
 if wx.Platform == '__WXMSW__':
@@ -913,7 +806,6 @@ else:
     FONT_SIZE = 11
     FONT_SIZE2 = 8
     DEFAULT_FONT_FACE = 'Monospace'
-
 
 STYLES_GENERALS = ['default', 'background', 'selback', 'caret']
 STYLES_TEXT_COMP = ['comment', 'commentblock', 'number', 'operator', 'string',
@@ -943,27 +835,28 @@ try:
     STYLES = copy.deepcopy(style)
 except:
     STYLES = {'background': {'colour': '#FFFFFF'},
- 'bracebad': {'colour': '#DD0000'},
- 'bracelight': {'colour': '#AABBDD'},
- 'caret': {'colour': '#000000'},
- 'class': {'bold': 1, 'colour': '#000097', 'italic': 0, 'underline': 0},
- 'comment': {'bold': 0, 'colour': '#0066FF', 'italic': 1, 'underline': 0},
- 'commentblock': {'bold': 0, 'colour': u'#468EFF', 'italic': 1, 'underline': 0},
- 'default': {'bold': 0, 'colour': '#000000', 'italic': 0, 'underline': 0},
- 'foldmarginback': {'colour': '#D0D0D0'},
- 'function': {'bold': 1, 'colour': '#0000A2', 'italic': 0, 'underline': 0},
- 'keyword': {'bold': 1, 'colour': '#0000FF', 'italic': 0, 'underline': 0},
- 'lineedge': {'colour': '#DDDDDD'},
- 'linenumber': {'bold': 0, 'colour': '#000000', 'italic': 0, 'underline': 0},
- 'marginback': {'colour': '#B0B0B0'},
- 'markerbg': {'colour': '#000000'},
- 'markerfg': {'colour': '#CCCCCC'},
- 'number': {'bold': 1, 'colour': '#0000CD', 'italic': 0, 'underline': 0},
- 'operator': {'bold': 1, 'colour': '#000000', 'italic': 0, 'underline': 0},
- 'pyokeyword': {'bold': 1, 'colour': '#5555FF', 'italic': 0, 'underline': 0},
- 'selback': {'colour': '#C0DFFF'},
- 'string': {'bold': 0, 'colour': '#036A07', 'italic': 0, 'underline': 0},
- 'triple': {'bold': 0, 'colour': '#03BA07', 'italic': 0, 'underline': 0}}
+              'bracebad': {'colour': '#DD0000'},
+              'bracelight': {'colour': '#AABBDD'},
+              'caret': {'colour': '#000000'},
+              'class': {'bold': 1, 'colour': '#000097', 'italic': 0, 'underline': 0},
+              'comment': {'bold': 0, 'colour': '#0066FF', 'italic': 1, 'underline': 0},
+              'commentblock': {'bold': 0, 'colour': u'#468EFF', 'italic': 1, 'underline': 0},
+              'default': {'bold': 0, 'colour': '#000000', 'italic': 0, 'underline': 0},
+              'foldmarginback': {'colour': '#D0D0D0'},
+              'function': {'bold': 1, 'colour': '#0000A2', 'italic': 0, 'underline': 0},
+              'keyword': {'bold': 1, 'colour': '#0000FF', 'italic': 0, 'underline': 0},
+              'lineedge': {'colour': '#DDDDDD'},
+              'linenumber': {'bold': 0, 'colour': '#000000', 'italic': 0, 'underline': 0},
+              'marginback': {'colour': '#B0B0B0'},
+              'markerbg': {'colour': '#000000'},
+              'markerfg': {'colour': '#CCCCCC'},
+              'number': {'bold': 1, 'colour': '#0000CD', 'italic': 0, 'underline': 0},
+              'operator': {'bold': 1, 'colour': '#000000', 'italic': 0, 'underline': 0},
+              'pyokeyword': {'bold': 1, 'colour': '#5555FF', 'italic': 0, 'underline': 0},
+              'selback': {'colour': '#C0DFFF'},
+              'string': {'bold': 0, 'colour': '#036A07', 'italic': 0, 'underline': 0},
+              'triple': {'bold': 0, 'colour': '#03BA07', 'italic': 0, 'underline': 0},
+              'preproc': {'bold': 0, 'colour': '#975cb3', 'italic': 0, 'underline': 0}}
 if 'face' not in STYLES:
     STYLES['face'] = DEFAULT_FONT_FACE
 if 'size' not in STYLES:
@@ -986,27 +879,20 @@ class Bidule:
 snip_faces = {'face': DEFAULT_FONT_FACE, 'size': FONT_SIZE}
 
 ##### Pyo documentation stuff (from PyoDoc.py file)
-DOC_AS_SINGLE_APP = False
-
 DOC_PATH = os.path.join(TEMP_PATH, 'doc')
 DOC_EXAMPLE_PATH = os.path.join(TEMP_PATH, 'manual_example.py')
 
 DOC_STYLES = {'Default': {'default': '#000000', 'comment': '#007F7F', 'commentblock': '#7F7F7F', 'selback': '#CCCCCC',
-                    'number': '#005000', 'string': '#7F007F', 'triple': '#7F0000', 'keyword': '#00007F', 'keyword2': '#007F9F',
-                    'class': '#0000FF', 'function': '#007F7F', 'identifier': '#000000', 'caret': '#00007E',
-                    'background': '#EEEEEE', 'linenumber': '#000000', 'marginback': '#B0B0B0', 'markerfg': '#CCCCCC',
-                    'markerbg': '#000000', 'bracelight': '#AABBDD', 'bracebad': '#DD0000', 'lineedge': '#CCCCCC'}}
+                          'number': '#005000', 'string': '#7F007F', 'triple': '#7F0000', 'keyword': '#00007F',
+                          'keyword2': '#007F9F', 'class': '#0000FF', 'function': '#007F7F', 'identifier': '#000000',
+                          'caret': '#00007E', 'background': '#EEEEEE', 'linenumber': '#000000', 'marginback': '#B0B0B0',
+                          'markerfg': '#CCCCCC', 'markerbg': '#000000', 'bracelight': '#AABBDD', 'bracebad': '#DD0000',
+                          'lineedge': '#CCCCCC'}}
 
-if wx.Platform == '__WXMSW__':
-  DOC_FACES = {'face': 'Verdana', 'size' : 8, 'size2': 7}
-elif wx.Platform == '__WXMAC__':
-  DOC_FACES = {'face': 'Monaco', 'size' : 12, 'size2': 9}
-else:
-  DOC_FACES = {'face': 'Monospace', 'size' : 8, 'size2': 7}
-DOC_FACES['size3'] = DOC_FACES['size2'] + 4
+DOC_FACES = {'face': DEFAULT_FONT_FACE, 'size' : FONT_SIZE, 'size2': FONT_SIZE2}
+DOC_FACES['size3'] = DOC_FACES['size2'] + 6
 for key, value in DOC_STYLES['Default'].items():
   DOC_FACES[key] = value
-
 
 #----------------------------------------------------------------------
 next_24_png = PyEmbeddedImage(
@@ -1153,18 +1039,20 @@ catalog['up_24.png'] = up_24_png
 _INTRO_TEXT = """
 pyo manual version %s
 
-pyo is a Python module written in C to help digital signal processing script creation.
+pyo is a Python module written in C to help digital signal processing script 
+creation.
 
-pyo is a Python module containing classes for a wide variety of audio signal processing types.
-With pyo, user will be able to include signal processing chains directly in Python scripts or
-projects, and to manipulate them in real-time through the interpreter. Tools in pyo module
-offer primitives, like mathematical operations on audio signal, basic signal processing
-(filters, delays, synthesis generators, etc.) together with complex algorithms to create
-granulation and others creative sound manipulations. pyo supports OSC protocol (Open Sound
-Control), to ease communications between softwares, and MIDI protocol, for generating sound
-events and controlling process parameters. pyo allows creation of sophisticated signal
-processing chains with all the benefits of a mature, and wild used, general programming
-language.
+pyo is a Python module containing classes for a wide variety of audio signal 
+processing types. With pyo, user will be able to include signal processing 
+chains directly in Python scripts or projects, and to manipulate them in 
+real-time through the interpreter. Tools in pyo module offer primitives, like 
+mathematical operations on audio signal, basic signal processing (filters, 
+delays, synthesis generators, etc.) together with complex algorithms to create
+granulation and others creative sound manipulations. pyo supports OSC protocol 
+(Open Sound Control), to ease communications between softwares, and MIDI 
+protocol, for generating sound events and controlling process parameters. pyo 
+allows creation of sophisticated signal processing chains with all the benefits 
+of a mature, and wild used, general programming language.
 
 Overview:
 
@@ -1566,6 +1454,7 @@ class ManualPanel(wx.Treebook):
         if new != old:
             text = self.GetPageText(new)
             self.getPage(text)
+        wx.CallAfter(self.GetCurrentPage().SetFocus)
         event.Skip()
 
     def makePanel(self, obj=None):
@@ -1616,8 +1505,17 @@ class ManualPanel(wx.Treebook):
                         panel.win = stc.StyledTextCtrl(panel, -1, size=(600, 600), style=wx.SUNKEN_BORDER)
                         panel.win.SetText(args + text_form + methods)
                     except:
-                        panel.win = stc.StyledTextCtrl(panel, -1, size=(600, 600), style=wx.SUNKEN_BORDER)
-                        panel.win.SetText(args + "\nNot documented yet...\n\n")
+                        text = eval(obj).__doc__
+                        if text:
+                            if type(eval(obj)) is types.ModuleType:
+                                if obj in OBJECTS_TREE["PyoObjectBase"]["PyoObject"].keys():
+                                    text += "\nOverview:\n"
+                                    for o in OBJECTS_TREE["PyoObjectBase"]["PyoObject"][obj]:
+                                        text += o + ": " + self.getDocFirstLine(o)
+                            panel.win = stc.StyledTextCtrl(panel, -1, size=(600, 600), style=wx.SUNKEN_BORDER)
+                            panel.win.SetText(text)
+                        else:
+                            panel.win.SetText(args + "\nNot documented yet...\n\n")
                 else:
                     try:
                         text = eval(obj).__doc__
@@ -1633,13 +1531,14 @@ class ManualPanel(wx.Treebook):
                             text += "\nOverview:\n"
                             for o in OBJECTS_TREE["PyoGui"]:
                                 text += o + ": " + self.getDocFirstLine(o)
+                        elif obj == "internals":
+                            text = "Pyo's internal objects. Objects in the library use them all the time, maybe you will too!\n"
                         else:
                             text = "\nNot documented yet...\n\n"
                     if obj in OBJECTS_TREE["PyoObjectBase"]["PyoObject"].keys():
                         text += "\nOverview:\n"
                         for o in OBJECTS_TREE["PyoObjectBase"]["PyoObject"][obj]:
                             text += o + ": " + self.getDocFirstLine(o)
-                        obj = "PyoObj - " + obj
                     panel.win = stc.StyledTextCtrl(panel, -1, size=(600, 600), style=wx.SUNKEN_BORDER)
                     panel.win.SetText(text)
             else:
@@ -1647,6 +1546,7 @@ class ManualPanel(wx.Treebook):
                 panel.win.SetText(_INTRO_TEXT)
 
             panel.win.SaveFile(os.path.join(DOC_PATH, obj))
+
         return panel
 
     def getExample(self, text):
@@ -1778,6 +1678,15 @@ class ManualPanel(wx.Treebook):
         if word == self.oldPage:
             self.fromToolbar = False
             return
+
+        if "PyoObj - " in word:
+            stripname = word.replace("PyoObj - ", "")
+        else:
+            stripname = word
+
+        if not os.path.isfile(os.path.join(ensureNFD(DOC_PATH), stripname)):
+            return
+
         page_count = self.GetPageCount()
         for i in range(page_count):
             text = self.GetPageText(i)
@@ -1794,7 +1703,7 @@ class ManualPanel(wx.Treebook):
                 if not panel.isLoad:
                     panel.isLoad = True
                     panel.win = stc.StyledTextCtrl(panel, -1, size=panel.GetSize(), style=wx.SUNKEN_BORDER)
-                    panel.win.LoadFile(os.path.join(ensureNFD(DOC_PATH), word))
+                    panel.win.LoadFile(os.path.join(ensureNFD(DOC_PATH), stripname))
                     panel.win.SetMarginWidth(1, 0)
                     panel.win.Bind(wx.EVT_LEFT_DOWN, self.MouseDown)
                     if self.searchKey != None:
@@ -1822,8 +1731,8 @@ class ManualPanel(wx.Treebook):
         return text
 
     def setStyle(self):
-        return # TreeBook has no more a GetTreeCtrl method. Don't know how to retrieve it...
-        tree = self.GetTreeCtrl()
+        #tree = self.GetTreeCtrl() # Should be there now...
+        tree = [x for x in self.GetChildren() if isinstance(x, wx.TreeCtrl)][0]
         tree.SetBackgroundColour(DOC_STYLES['Default']['background'])
         root = tree.GetRootItem()
         tree.SetItemTextColour(root, DOC_STYLES['Default']['identifier'])
@@ -1838,17 +1747,12 @@ class ManualPanel(wx.Treebook):
             (child, cookie) = tree.GetNextChild(root, cookie)
 
 class ManualFrame(wx.Frame):
-    def __init__(self, parent=None, id=-1, title='Pyo Documentation', size=(940, 700),
-                    osx_app_bundled=False, which_python="python",
-                    caller_need_to_invoke_32_bit=False,
-                    set_32_bit_arch="export VERSIONER_PYTHON_PREFER_32_BIT=yes;"):
+    def __init__(self, parent=None, id=-1, title='Pyo Documentation', size=(1000, 700),
+                    which_python="python"):
         wx.Frame.__init__(self, parent=parent, id=id, title=title, size=size)
         self.SetMinSize((600, -1))
 
-        self.osx_app_bundled = osx_app_bundled
         self.which_python = which_python
-        self.caller_need_to_invoke_32_bit = caller_need_to_invoke_32_bit
-        self.set_32_bit_arch = set_32_bit_arch
         gosearchID = 1000
         aTable = wx.AcceleratorTable([(wx.ACCEL_NORMAL, 47, gosearchID)])
         self.SetAcceleratorTable(aTable)
@@ -1931,26 +1835,23 @@ class ManualFrame(wx.Frame):
         menu1 = wx.Menu()
         menu1.Append(100, "Run Example\tCtrl+R")
         menu1.AppendSeparator()
-        if DOC_AS_SINGLE_APP:
-            menu1.Append(wx.ID_EXIT, "Quit\tCtrl+Q")
-        else:
-            menu1.Append(99, "Close\tCtrl+W")
+        menu1.Append(99, "Close\tCtrl+W")
         self.menuBar.Append(menu1, 'Action')
 
         menu2 = wx.Menu()
         menu2.Append(101, "Copy\tCtrl+C")
+        menu2.AppendSeparator()
+        menu2.Append(wx.ID_ZOOM_IN, "Zoom in\tCtrl+=")
+        menu2.Append(wx.ID_ZOOM_OUT, "Zoom out\tCtrl+-")
+        self.Bind(wx.EVT_MENU, self.zoom, id=wx.ID_ZOOM_IN, id2=wx.ID_ZOOM_OUT)
         self.menuBar.Append(menu2, 'Text')
 
         self.SetMenuBar(self.menuBar)
 
         self.Bind(wx.EVT_MENU, self.onRun, id=100)
         self.Bind(wx.EVT_MENU, self.copy, id=101)
-        if DOC_AS_SINGLE_APP:
-            self.Bind(wx.EVT_MENU, self.quit, id=wx.ID_EXIT)
-            self.Bind(wx.EVT_CLOSE, self.quit)
-        else:
-            self.Bind(wx.EVT_MENU, self.close, id=99)
-            self.Bind(wx.EVT_CLOSE, self.close)
+        self.Bind(wx.EVT_MENU, self.close, id=99)
+        self.Bind(wx.EVT_CLOSE, self.close)
 
     def setSearchFocus(self, evt):
         self.search.SetFocus()
@@ -1987,6 +1888,17 @@ class ManualFrame(wx.Frame):
     def copy(self, evt):
         self.doc_panel.copy()
 
+    def zoom(self, evt):
+        page = self.doc_panel.GetCurrentPage()
+        if page is None:
+            return
+
+        if evt.GetId() == wx.ID_ZOOM_IN:
+            page.win.SetZoom(page.win.GetZoom() + 1)
+        else:
+            page.win.SetZoom(page.win.GetZoom() - 1)
+        evt.Skip()
+
     def quit(self, evt):
         self.Destroy()
 
@@ -2019,19 +1931,16 @@ class ManualFrame(wx.Frame):
         text = self.doc_panel.getExampleScript()
         with open(DOC_EXAMPLE_PATH, "w") as f:
             f.write(text)
-        th = DocRunningThread(DOC_EXAMPLE_PATH, TEMP_PATH, self.which_python, self.osx_app_bundled, self.caller_need_to_invoke_32_bit, self.set_32_bit_arch)
+        th = DocRunningThread(DOC_EXAMPLE_PATH, TEMP_PATH, self.which_python)
         th.start()
         wx.CallLater(8000, self.status.SetStatusText, "", 0)
 
 class DocRunningThread(threading.Thread):
-    def __init__(self, path, cwd, which_python, osx_app_bundled, caller_need_to_invoke_32_bit, set_32_bit_arch):
+    def __init__(self, path, cwd, which_python):
         threading.Thread.__init__(self)
         self.path = path
         self.cwd = cwd
         self.which_python = which_python
-        self.osx_app_bundled = osx_app_bundled
-        self.caller_need_to_invoke_32_bit = caller_need_to_invoke_32_bit
-        self.set_32_bit_arch = set_32_bit_arch
         self.terminated = False
 
     def kill(self):
@@ -2047,29 +1956,18 @@ class DocRunningThread(threading.Thread):
             self.proc.kill()
 
     def run(self):
-        if self.osx_app_bundled:
-            vars_to_remove = "PYTHONHOME PYTHONPATH EXECUTABLEPATH RESOURCEPATH ARGVZERO PYTHONOPTIMIZE"
-            prelude = "export -n %s;export PATH=/usr/local/bin:/usr/local/lib:$PATH;env;" % vars_to_remove
-            if self.caller_need_to_invoke_32_bit:
-                self.proc = subprocess.Popen(["%s%s%s %s" % (prelude, self.set_32_bit_arch, self.which_python, self.path)],
-                                universal_newlines=True, shell=True, cwd=self.cwd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-            else:
-                self.proc = subprocess.Popen(["%s%s %s" % (prelude, self.which_python, self.path)], cwd=self.cwd,
-                                    universal_newlines=True, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        elif wx.Platform == '__WXMAC__':
-            if self.caller_need_to_invoke_32_bit:
-                self.proc = subprocess.Popen(["%s%s %s" % (self.set_32_bit_arch, self.which_python, self.path)],
-                                universal_newlines=True, shell=True, cwd=self.cwd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-            else:
-                self.proc = subprocess.Popen(["%s %s" % (self.which_python, self.path)], cwd=self.cwd,
-                                universal_newlines=True, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        if wx.Platform == '__WXMAC__':
+            self.proc = subprocess.Popen(["%s %s" % (self.which_python, self.path)], cwd=self.cwd,
+                                         universal_newlines=True, shell=True, stdout=subprocess.PIPE,
+                                         stderr=subprocess.PIPE)
         elif wx.Platform == "__WXMSW__":
-                self.proc = subprocess.Popen([self.which_python, "-u", self.path], cwd=ensureNFD(self.cwd),
-                                universal_newlines=True,  shell=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            self.proc = subprocess.Popen([self.which_python, "-u", self.path], cwd=ensureNFD(self.cwd),
+                                         universal_newlines=True,  shell=False, stdout=subprocess.PIPE,
+                                         stderr=subprocess.PIPE)
         else:
-                self.proc = subprocess.Popen([self.which_python, self.path], cwd=self.cwd,
-                                universal_newlines=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-
+            self.proc = subprocess.Popen([self.which_python, self.path], cwd=self.cwd,
+                                         universal_newlines=True, stdout=subprocess.PIPE,
+                                         stderr=subprocess.PIPE)
 
         while self.proc.poll() == None and not self.terminated:
             time.sleep(.25)
@@ -2119,26 +2017,10 @@ class RunningThread(threading.Thread):
             self.proc.kill()
 
     def run(self):
-        if OSX_APP_BUNDLED:
-            vars_to_remove = "PYTHONHOME PYTHONPATH EXECUTABLEPATH RESOURCEPATH ARGVZERO PYTHONOPTIMIZE"
-            prelude = "export -n %s;export PATH=/usr/local/bin:/usr/local/lib:$PATH;" % vars_to_remove
-            if CALLER_NEED_TO_INVOKE_32_BIT:
-                self.proc = subprocess.Popen(['%s%s%s -u "%s"' % (prelude, SET_32_BIT_ARCH, WHICH_PYTHON, self.path)], 
-                                             universal_newlines=True, shell=True, cwd=self.cwd, 
-                                             stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-            else:
-                self.proc = subprocess.Popen(['%s%s -u "%s"' % (prelude, WHICH_PYTHON, self.path)], 
-                                             cwd=self.cwd, universal_newlines=True, shell=True, 
-                                             stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-        elif PLATFORM == "darwin":
-            if CALLER_NEED_TO_INVOKE_32_BIT:
-                self.proc = subprocess.Popen(['%s%s -u "%s"' % (SET_32_BIT_ARCH, WHICH_PYTHON, self.path)], 
-                                             universal_newlines=True, shell=True, cwd=self.cwd, 
-                                             stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-            else:
-                self.proc = subprocess.Popen(['%s -u "%s"' % (WHICH_PYTHON, self.path)], cwd=self.cwd, 
-                                             universal_newlines=True, shell=True, stdout=subprocess.PIPE, 
-                                             stderr=subprocess.STDOUT)
+        if PLATFORM == "darwin":
+            self.proc = subprocess.Popen(['%s -u "%s"' % (WHICH_PYTHON, self.path)], cwd=self.cwd, 
+                                         universal_newlines=True, shell=True, stdout=subprocess.PIPE, 
+                                         stderr=subprocess.STDOUT)
         elif PLATFORM == "win32":
             self.proc = subprocess.Popen([WHICH_PYTHON, "-u", self.path], cwd=ensureNFD(self.cwd), 
                                                        universal_newlines=True,  shell=False, stdout=subprocess.PIPE, 
@@ -2289,7 +2171,7 @@ class BackgroundServerThread(threading.Thread):
 class KeyCommandsFrame(wx.Frame):
     def __init__(self, parent):
         wx.Frame.__init__(self, parent, wx.ID_ANY,
-                          title="Editor Key Commands List", size=(750,650))
+                          title="Editor Key Commands List", size=(900,700))
         self.menuBar = wx.MenuBar()
         menu1 = wx.Menu()
         menu1.Append(351, "Close\tCtrl+W")
@@ -2307,7 +2189,7 @@ class KeyCommandsFrame(wx.Frame):
             short = key.replace("Ctrl/Cmd", accel)
             command = wx.StaticText(panel, wx.ID_ANY, label=short)
             box.Add(command, 0, wx.ALIGN_LEFT)
-            action = wx.StaticText(panel, wx.ID_ANY, label=wordwrap(value, 350, wx.ClientDC(self)))
+            action = wx.StaticText(panel, wx.ID_ANY, label=wordwrap(value, 500, wx.ClientDC(self)))
             box.Add(action, 1, wx.ALIGN_LEFT)
 
         mainSizer.Add(box, 1, wx.ALL, 15)
@@ -2951,7 +2833,7 @@ class SnippetFrame(wx.Frame):
 
         self.menuBar = wx.MenuBar()
         menu1 = wx.Menu()
-        self.tagItem = menu1.Append(249, "Tag Selection\tCtrl+T")
+        self.tagItem = menu1.Append(249, "Tag Selection\tCtrl+`")
         menu1.AppendSeparator()
         menu1.Append(250, "Close\tCtrl+W")
         self.menuBar.Append(menu1, 'File')
@@ -3296,6 +3178,14 @@ class MainFrame(wx.Frame):
                 self.Bind(wx.EVT_MENU, self.openRecent, id=i)
         menu1.AppendSubMenu(self.submenu2, "Open Recent...")
         menu1.AppendSeparator()
+        menu1.Append(11600, "Reload Current File\tCtrl+1")
+        self.Bind(wx.EVT_MENU, self.reloadCurrentFile, id=11600)
+        menu1.AppendSeparator()
+        menu1.Append(3050, "Split Window\tCtrl++")
+        self.Bind(wx.EVT_MENU, self.splitWindow, id=3050)
+        menu1.Append(3051, "Unsplit Window\tCtrl+_")
+        self.Bind(wx.EVT_MENU, self.unsplitWindow, id=3051)
+        menu1.AppendSeparator()
         menu1.Append(wx.ID_CLOSE, "Close\tCtrl+W")
         self.Bind(wx.EVT_MENU, self.close, id=wx.ID_CLOSE)
         menu1.Append(wx.ID_CLOSE_ALL, "Close All Tabs\tShift+Ctrl+W")
@@ -3368,9 +3258,12 @@ class MainFrame(wx.Frame):
         self.Bind(wx.EVT_MENU, self.onCodeBlock, id=400, id2=402)
         menu2.AppendSubMenu(submenublk, "Code Blocks")
         menu2.AppendSeparator()
-        menu2.Append(114, "Auto Complete container syntax", kind=wx.ITEM_CHECK)
+        menu2.Append(114, "Auto Complete Container Syntax", kind=wx.ITEM_CHECK)
         self.Bind(wx.EVT_MENU, self.autoCompContainer, id=114)
         menu2.Check(114, PREFERENCES.get("auto_comp_container", 0))
+        menu2.Append(115, "Auto Complete CPP Class Attributes", kind=wx.ITEM_CHECK)
+        self.Bind(wx.EVT_MENU, self.autoCompCpp, id=115)
+        menu2.Check(115, PREFERENCES.get("auto_comp_cpp", 0))
         menu2.AppendSeparator()
         submenu2 = wx.Menu()
         submenu2.Append(170, "Convert Selection to Uppercase\tCtrl+U")
@@ -3505,9 +3398,9 @@ class MainFrame(wx.Frame):
         self.menuBar.Append(self.filters_menu, "Filters")
 
         windowMenu = wx.Menu()
-        aEntry = wx.AcceleratorEntry(wx.ACCEL_CTRL, wx.WXK_TAB, 10001)
+        aEntry = wx.AcceleratorEntry(wx.ACCEL_CTRL, ord("`"), 10001)
         windowMenu.Append(10001, 'Navigate Tabs Forward\t%s' % aEntry.ToString())
-        aEntry = wx.AcceleratorEntry(wx.ACCEL_CTRL|wx.ACCEL_SHIFT, wx.WXK_TAB, 10002)
+        aEntry = wx.AcceleratorEntry(wx.ACCEL_CTRL, ord("~"), 10002)
         windowMenu.Append(10002, 'Navigate Tabs Backward\t%s' % aEntry.ToString())
         self.Bind(wx.EVT_MENU, self.onSwitchTabs, id=10001, id2=10002)
         self.menuBar.Append(windowMenu, '&Window')
@@ -3515,7 +3408,8 @@ class MainFrame(wx.Frame):
         helpmenu = wx.Menu()
         helpItem = helpmenu.Append(wx.ID_ABOUT, '&About %s %s' % (APP_NAME, APP_VERSION), 'wxPython RULES!!!')
         self.Bind(wx.EVT_MENU, self.onHelpAbout, helpItem)
-        helpmenu.Append(999, 'Show Editor Key Commands')
+        aEntry = wx.AcceleratorEntry(wx.ACCEL_NORMAL, wx.WXK_HELP, 10001)
+        helpmenu.Append(999, 'Show Editor Key Commands\t%s' % aEntry.ToString())
         self.Bind(wx.EVT_MENU, self.onShowEditorKeyCommands, id=999)
         helpmenu.Append(998, 'Tutorial: How to Create a Custom PyoObject - RingMod')
         self.Bind(wx.EVT_MENU, self.openTutorial, id=998)
@@ -3574,6 +3468,12 @@ class MainFrame(wx.Frame):
                 self.panel.addPage(f)
 
         wx.CallAfter(self.buildDoc)
+
+    def splitWindow(self, evt):
+        self.panel.splitWindow()
+
+    def unsplitWindow(self, evt):
+        self.panel.unsplitWindow()
 
     def Reposition(self):
         if PLATFORM == "darwin":
@@ -3797,24 +3697,27 @@ class MainFrame(wx.Frame):
     def showInvisibles(self, evt):
         state = evt.GetInt()
         PREFERENCES["show_invisibles"] = state
-        for i in range(self.panel.notebook.GetPageCount()):
-            ed = self.panel.notebook.GetPage(i)
-            ed.showInvisibles(state)
+        for notebook in self.panel.notebooks:
+            for i in range(notebook.GetPageCount()):
+                ed = notebook.GetPage(i)
+                ed.showInvisibles(state)
 
     def showEdge(self, evt):
         state = evt.GetInt()
         PREFERENCES["show_edge_line"] = state
-        for i in range(self.panel.notebook.GetPageCount()):
-            ed = self.panel.notebook.GetPage(i)
-            ed.showEdge(state)
+        for notebook in self.panel.notebooks:
+            for i in range(notebook.GetPageCount()):
+                ed = notebook.GetPage(i)
+                ed.showEdge(state)
 
     def wrapMode(self, evt):
         state = evt.GetInt()
         PREFERENCES["wrap_text_line"] = state
         mode = {0: stc.STC_WRAP_NONE, 1: stc.STC_WRAP_WORD}[state]
-        for i in range(self.panel.notebook.GetPageCount()):
-            ed = self.panel.notebook.GetPage(i)
-            ed.SetWrapMode(mode)
+        for notebook in self.panel.notebooks:
+            for i in range(notebook.GetPageCount()):
+                ed = notebook.GetPage(i)
+                ed.SetWrapMode(mode)
 
     def removeTrailingWhiteSpace(self, evt):
         self.panel.editor.removeTrailingWhiteSpace()
@@ -3855,7 +3758,7 @@ class MainFrame(wx.Frame):
             else:
                 self.panel.editor.LineScroll(0, self.panel.editor.LinesOnScreen() // 2)
             #self.panel.editor.SetCurrentPos(pos)
-            #self.panel.editor.EnsureVisible(val)
+            self.panel.editor.EnsureVisible(val)
             #self.panel.editor.EnsureCaretVisible()
             wx.CallAfter(self.panel.editor.SetAnchor, pos)
 
@@ -3874,7 +3777,16 @@ class MainFrame(wx.Frame):
     def autoCompContainer(self, evt):
         state = evt.GetInt()
         PREFERENCES["auto_comp_container"] = state
-        self.panel.editor.showAutoCompContainer(state)
+        for notebook in self.panel.notebooks:
+            for i in range(notebook.GetPageCount()):
+                notebook.GetPage(i).showAutoCompContainer(state)
+
+    def autoCompCpp(self, evt):
+        state = evt.GetInt()
+        PREFERENCES["auto_comp_cpp"] = state
+        for notebook in self.panel.notebooks:
+            for i in range(notebook.GetPageCount()):
+                notebook.GetPage(i).showAutoCompCpp(state)
 
     def showFind(self, evt):
         self.panel.editor.OnShowFindReplace()
@@ -4037,9 +3949,10 @@ class MainFrame(wx.Frame):
         if 'size2' not in STYLES:
             STYLES['size2'] = FONT_SIZE2
 
-        for i in range(self.panel.notebook.GetPageCount()):
-            ed = self.panel.notebook.GetPage(i)
-            ed.setStyle()
+        for notebook in self.panel.notebooks:
+            for i in range(notebook.GetPageCount()):
+                ed = notebook.GetPage(i)
+                ed.setStyle()
         self.panel.project.setStyle()
         self.panel.markers.scroll.setStyle()
         self.panel.outputlog.editor.setStyle()
@@ -4129,7 +4042,7 @@ class MainFrame(wx.Frame):
             if self.panel.outputlog.IsShownOnScreen():
                 return
             h = self.panel.GetSize()[1]
-            self.panel.right_splitter.SplitHorizontally(self.panel.notebook, self.panel.outputlog, h * 4 // 5 - h)
+            self.panel.right_splitter.SplitHorizontally(self.panel.editorPanel, self.panel.outputlog, h * 4 // 5 - h)
         else:
             if not self.panel.outputlog.IsShownOnScreen():
                 return
@@ -4214,11 +4127,8 @@ class MainFrame(wx.Frame):
 
     def openTutorial(self, event):
         filename = {998: "Tutorial_01_RingMod.py", 997: "Tutorial_02_Flanger.py", 996: "Tutorial_03_TriTable.py"}[event.GetId()]
-        if WIN_APP_BUNDLED:
-            self.panel.addPage(os.path.join(os.getcwd(), "Resources", filename))
-        else:
-            filedir = os.path.dirname(os.path.abspath(__file__))
-            self.panel.addPage(os.path.join(filedir, filename))
+        filedir = os.path.dirname(os.path.abspath(__file__))
+        self.panel.addPage(os.path.join(filedir, filename))
 
     def openFolder(self, event):
         dlg = wx.DirDialog(self, message="Choose a folder",
@@ -4232,9 +4142,12 @@ class MainFrame(wx.Frame):
             PREFERENCES["open_folder_path"] = os.path.split(path)[0]
         dlg.Destroy()
 
+    def reloadCurrentFile(self, event):
+        self.panel.reloadPage()
+
     def save(self, event):
         path = self.panel.editor.path
-        if not path or "Untitled-" in path:
+        if not path or "Untitled-" in path or EXAMPLE_PATH in path:
             self.saveas(None)
         else:
             self.panel.editor.saveMyFile(path)
@@ -4252,7 +4165,6 @@ class MainFrame(wx.Frame):
         dlg.SetFilterIndex(0)
         if dlg.ShowModal() == wx.ID_OK:
             path = ensureNFD(dlg.GetPath())
-            self.panel.editor.path = path
             self.panel.editor.setStyle()
             self.panel.editor.SetCurrentPos(0)
             self.panel.editor.addText(" ", False)
@@ -4501,9 +4413,7 @@ class MainFrame(wx.Frame):
         self.panel.editor.SetSelectionEnd(pos)
 
     def buildDoc(self):
-        self.doc_frame = ManualFrame(osx_app_bundled=OSX_APP_BUNDLED, which_python=WHICH_PYTHON,
-                                    caller_need_to_invoke_32_bit=CALLER_NEED_TO_INVOKE_32_BIT,
-                                    set_32_bit_arch=SET_32_BIT_ARCH)
+        self.doc_frame = ManualFrame(which_python=WHICH_PYTHON)
 
     def showDoc(self, evt):
         if not self.doc_frame.IsShown():
@@ -4628,12 +4538,17 @@ class MainPanel(wx.Panel):
         self.project = ProjectTree(self.left_splitter, self, (-1, -1))
         self.markers = MarkersPanel(self.left_splitter, self, (-1, -1))
 
-        self.notebook = FNB.FlatNotebook(self.right_splitter, size=(-1, -1))
-        self.notebook.SetAGWWindowStyleFlag(FNB.FNB_FANCY_TABS|FNB.FNB_X_ON_TAB|FNB.FNB_NO_X_BUTTON|FNB.FNB_DROPDOWN_TABS_LIST|FNB.FNB_HIDE_ON_SINGLE_TAB)
-        self.addNewPage()
-        self.outputlog = OutputLogPanel(self.right_splitter, self, size=(-1,150))
+        self.editorPanel = MultiSplitterWindow(self.right_splitter, style=wx.SP_LIVE_UPDATE|wx.SP_3DSASH)
 
-        self.right_splitter.SplitHorizontally(self.notebook, self.outputlog, (self.GetSize()[1] * 4 // 5) - self.GetSize()[1])
+        self.notebook = FNB.FlatNotebook(self.editorPanel, size=(-1, -1))
+        self.notebook.SetAGWWindowStyleFlag(FNB.FNB_FANCY_TABS|FNB.FNB_X_ON_TAB|FNB.FNB_NO_X_BUTTON|FNB.FNB_DROPDOWN_TABS_LIST|FNB.FNB_HIDE_ON_SINGLE_TAB)
+        self.editorPanel.AppendWindow(self.notebook)
+        self.notebooks = [self.notebook]
+        self.addNewPage()
+
+        self.outputlog = OutputLogPanel(self.right_splitter, self, size=(-1, 150))
+
+        self.right_splitter.SplitHorizontally(self.editorPanel, self.outputlog, (self.GetSize()[1] * 4 // 5) - self.GetSize()[1])
 
         self.splitter.SplitVertically(self.left_splitter, self.right_splitter, 200)
         self.splitter.Unsplit(self.left_splitter)
@@ -4641,17 +4556,57 @@ class MainPanel(wx.Panel):
         mainBox.Add(self.splitter, 1, wx.EXPAND)
         self.SetSizer(mainBox)
 
+        self.Bind(wx.EVT_SIZE, self.onSizeChange)
         self.notebook.Bind(FNB.EVT_FLATNOTEBOOK_PAGE_CHANGED, self.onPageChange)
         self.notebook.Bind(FNB.EVT_FLATNOTEBOOK_PAGE_CLOSING, self.onClosingPage)
+
+    def splitWindow(self):
+        notebook = FNB.FlatNotebook(self.editorPanel, size=(-1, -1))
+        notebook.SetAGWWindowStyleFlag(FNB.FNB_FANCY_TABS|FNB.FNB_X_ON_TAB|FNB.FNB_NO_X_BUTTON|FNB.FNB_DROPDOWN_TABS_LIST|FNB.FNB_HIDE_ON_SINGLE_TAB)
+        self.notebooks.append(notebook)
+        self.editorPanel.AppendWindow(notebook)
+        self.notebook = notebook
+        self.addNewPage()
+        self.notebook.Bind(FNB.EVT_FLATNOTEBOOK_PAGE_CHANGED, self.onPageChange)
+        self.notebook.Bind(FNB.EVT_FLATNOTEBOOK_PAGE_CLOSING, self.onClosingPage)
+        wx.CallAfter(self.setSashPositions)
+
+    def unsplitWindow(self):
+        if len(self.notebooks) > 1:
+            for i in range(self.notebooks[-1].GetPageCount()):
+                ed = self.notebooks[-1].GetPage(i)
+                ed.Close()
+            self.editorPanel.DetachWindow(self.notebooks[-1])
+            self.notebooks[-1].Destroy()
+            del self.notebooks[-1]
+            self.notebooks[0].GetCurrentPage().SetFocus()
+            wx.CallAfter(self.setSashPositions)
+
+    def onSetFocus(self, evt):
+        self.markers.setDict({})
+        self.editor = evt.GetEventObject()
+        self.notebook = self.editor.GetParent()
+        self.markers.setDict(self.editor.markers_dict)
+        evt.Skip()
+
+    def onSizeChange(self, evt):
+        wx.CallAfter(self.setSashPositions)
+        evt.Skip()
+
+    def setSashPositions(self):
+        numPanes = len(self.notebooks)
+        for i in range(numPanes-1):
+            self.editorPanel.SetSashPosition(i, self.right_splitter.GetSize()[0] / numPanes)
 
     def addNewPage(self):
         title = "Untitled-%i.py" % self.new_inc
         self.new_inc += 1
         editor = Editor(self.notebook, -1, size=(0, -1), setTitle=self.SetTitle, getTitle=self.GetTitle)
-        editor.path = title
+        editor.setPath(title)
         editor.setStyle()
         self.notebook.AddPage(editor, title, True)
         self.editor = editor
+        self.editor.Bind(wx.EVT_SET_FOCUS, self.onSetFocus)
 
     def addPage(self, file, encoding=None):
         editor = Editor(self.notebook, -1, size=(0, -1), setTitle=self.SetTitle, getTitle=self.GetTitle)
@@ -4675,12 +4630,14 @@ class MainPanel(wx.Panel):
         editor.GotoLine(editor.GetLineCount())
         wx.CallAfter(editor.GotoLine, 0)
 
-        editor.path = file
+        editor.setPath(file)
         editor.saveMark = True
         editor.EmptyUndoBuffer()
         editor.SetSavePoint()
         editor.setStyle()
         self.editor = editor
+        self.editor.Bind(wx.EVT_SET_FOCUS, self.onSetFocus)
+
         self.SetTitle(file)
         with open(MARKERS_FILE, "r") as f:
             lines = [line.replace("\n", "").split("=") for line in f.readlines()]
@@ -4697,6 +4654,24 @@ class MainPanel(wx.Panel):
             dictext = text[spos+1:]
             markers = eval(dictext)
             self.editor.setMarkers(copy.deepcopy(markers))
+
+    def reloadPage(self):
+        if not self.editor.path:
+            return
+        if not os.path.isfile(self.editor.path):
+            return
+
+        text = ""
+        with codecs.open(self.editor.path, "r", encoding="utf-8") as f:
+            text = f.read()
+        self.editor.setText(ensureNFD(text))
+
+        # Scan the entire document (needed for FoldAll to fold everything)
+        self.editor.GotoLine(self.editor.GetLineCount())
+        self.editor.saveMark = True
+        self.editor.EmptyUndoBuffer()
+        self.editor.SetSavePoint()
+        wx.CallAfter(self.editor.GotoLine, 0)
 
     def onClosingPage(self, evt):
         if not self.close_from_menu:
@@ -4738,25 +4713,10 @@ class MainPanel(wx.Panel):
         return self.mainFrame.GetTitle()
 
     def OnQuit(self):
-        for i in range(self.notebook.GetPageCount()):
-            ed = self.notebook.GetPage(i)
-            ed.Close()
-
-#######################################################
-### The idea of EditorPanel is to allow multiple views
-### at the same time in a single notebook page.
-### Also: A tree view of classes and functions of the file
-### Not yet implemented... ( TODO )
-#######################################################
-class EditorPanel(wx.Panel):
-    def __init__(self, parent):
-        wx.Panel.__init__(self, parent, -1)
-        self.editor = Editor(parent, -1, size=(0, -1))
-        self.editor2 = Editor(parent, -1, size=(0, -1))
-        box = wx.BoxSizer(wx.HORIZONTAL)
-        box.Add(self.editor, 1, wx.ALL|wx.EXPAND, 5)
-        box.Add(self.editor2, 1, wx.ALL|wx.EXPAND, 5)
-        self.SetSizerAndFit(box)
+        for notebook in self.notebooks:
+            for i in range(notebook.GetPageCount()):
+                ed = notebook.GetPage(i)
+                ed.Close()
 
 class Editor(stc.StyledTextCtrl):
     def __init__(self, parent, ID, pos=wx.DefaultPosition, size=wx.DefaultSize,
@@ -4784,7 +4744,8 @@ class Editor(stc.StyledTextCtrl):
         self.current_marker = -1
         self.objs_attr_dict = {}
         self.auto_comp_container = PREFERENCES.get("auto_comp_container", 0)
-
+        self.auto_comp_cpp = PREFERENCES.get("auto_comp_cpp", 0)
+        self.auto_comp_cpp_list = []
 
         self.alphaStr = LOWERCASE + UPPERCASE + '0123456789'
 
@@ -4875,6 +4836,11 @@ class Editor(stc.StyledTextCtrl):
 
         wx.CallAfter(self.SetAnchor, 0)
         self.Refresh()
+
+    def setPath(self, path):
+        self.path = path
+        self.auto_comp_cpp_list = []
+        self.setAutoCompCppList()
 
     def setStyle(self):
         def buildStyle(forekey, backkey=None, smallsize=False):
@@ -4967,7 +4933,7 @@ class Editor(stc.StyledTextCtrl):
             self.StyleSetSpec(stc.STC_C_WORD, buildStyle('keyword'))
             self.StyleSetSpec(stc.STC_C_OPERATOR, buildStyle('operator'))
             self.StyleSetSpec(stc.STC_C_IDENTIFIER, buildStyle('default'))
-            self.StyleSetSpec(stc.STC_C_PREPROCESSOR, buildStyle('commentblock'))
+            self.StyleSetSpec(stc.STC_C_PREPROCESSOR, buildStyle('preproc'))
         elif ext == "sh":
             self.SetLexer(stc.STC_LEX_BASH)
             self.SetStyleBits(self.GetStyleBitsNeeded())
@@ -5247,7 +5213,7 @@ class Editor(stc.StyledTextCtrl):
     ### Save and Close file ###
     def saveMyFile(self, file):
         self.SaveFile(file)
-        self.path = file
+        self.setPath(file)
         self.saveMark = False
         marker_file = os.path.split(self.path)[1].rsplit(".")[0]
         marker_file += "%04d" % random.randint(0,1000)
@@ -5385,8 +5351,112 @@ class Editor(stc.StyledTextCtrl):
         currentword = self.GetTextRange(startpos, endpos)
         return currentword
 
+    def retrieveAutoCompCppList(self, header):
+        with open(header, "r", encoding="utf-8") as f:
+            text = f.read()
+
+        # Filter out multiline comments
+        while "/*" in text:
+            pos1 = text.find("/*")
+            pos2 = text.find("*/", pos1) + 2
+            text = text[:pos1] + text[pos2:]
+
+        # Filter out singleline comments
+        lines = text.splitlines()
+        for i in range(len(lines)):
+            if "//" in lines[i]:
+                pos = lines[i].find("//")
+                if pos:
+                    lines[i] = lines[i][:pos]
+
+        # Filter out pre-processing directives (but keep #define)
+        for i in range(len(lines)):
+            if lines[i].strip().startswith("#"):
+                if lines[i].strip().startswith("#define"):
+                    lines[i] = lines[i].replace("#define ", "")
+                else:
+                    lines[i] = ""
+
+        # Remove extra spaces
+        lines = [line.strip() for line in lines]
+
+        # Remove braces
+        for i in range(len(lines)):
+            if "(" in lines[i] and ")" in lines[i]:
+                pos1 = lines[i].find("(")
+                pos2 = lines[i].rfind(")")
+                lines[i] = lines[i][:pos1] + lines[i][pos2+1:]
+            elif "(" in lines[i]:
+                pos1 = lines[i].find("(")
+                lines[i] = lines[i][:pos1]
+            elif ")" in lines[i]:
+                lines[i] = ""
+
+        # Remove brackets
+        for i in range(len(lines)):
+            if "[" in lines[i] and "]" in lines[i]:
+                pos1 = lines[i].find("[")
+                pos2 = lines[i].rfind("]")
+                lines[i] = lines[i][:pos1] + lines[i][pos2+1:]
+
+        # Remove curly braces
+        for i in range(len(lines)):
+            if "{" in lines[i] and "}" in lines[i]:
+                pos1 = lines[i].find("{")
+                pos2 = lines[i].rfind("}")
+                lines[i] = lines[i][:pos1] + lines[i][pos2+1:]
+            elif "{" in lines[i]:
+                pos1 = lines[i].find("{")
+                lines[i] = lines[i][:pos1]
+            elif "}" in lines[i]:
+                lines[i] = ""
+
+        # Remove special characters
+        lines = [line.replace(";", "").replace("~", "").replace("*", "").replace(":", "").replace("=", "").replace("{", "").replace("}", "") for line in lines]
+
+        # Remove cpp keywords
+        keywords = ["class ", "public", "private", "protected", "void ", "nullptr", "int ", "char ", "bool ", "long ", "float ", "double "]
+        for i in range(len(lines)):
+            for word in keywords:
+                if word in lines[i]:
+                    lines[i] = lines[i].replace(word, "")
+
+        # Remove empty strings
+        lines = [line for line in lines if line]
+
+        # Remove extra spaces
+        lines = [line.strip() for line in lines]
+
+        # Everything ending up in a list of two if probably an identifier and an attribute. Keep only the attribute.
+        for i in range(len(lines)):
+            if " " in lines[i]:
+                lines[i] = lines[i].split()[1]
+
+        # Remove duplicates
+        lines = list(set(lines))
+
+        # Resort
+        lines.sort()
+
+        return lines
+
+    def setAutoCompCppList(self):
+        extensions = [".cpp", ".cc", ".cxx", ".cp", ".c++"]
+        if os.path.splitext(self.path)[1] in extensions:
+            for hext in [".h", ".hpp", ".hp", ".hh", ".hxx", ".h++"]:
+                header = os.path.splitext(self.path)[0] + hext
+                if (os.path.isfile(header)):
+                    self.auto_comp_cpp_list = self.retrieveAutoCompCppList(header)
+                    break
+
     def showAutoCompContainer(self, state):
         self.auto_comp_container = state
+
+    def showAutoCompCpp(self, state):
+        self.auto_comp_cpp = state
+        self.auto_comp_cpp_list = []
+        if state and self.path:
+            self.setAutoCompCppList()
 
     def showAutoComp(self):
         propagate = True
@@ -5563,13 +5633,33 @@ class Editor(stc.StyledTextCtrl):
             self.addText(" "*indent, False)
 
     def processTab(self, currentword, autoCompActive, charat, pos):
-        propagate = self.showAutoComp()
-        if propagate:
-            propagate = self.insertDefArgs(currentword, charat)
+        propagate = True
+
+        if self.path.endswith(".cpp"):
+            if self.auto_comp_cpp:
+                currentword = self.getWordUnderCaret()
+                if chr(charat).isalpha() or charat == ord('_'):
+                    lst = [word for word in self.auto_comp_cpp_list if word.startswith(currentword) and currentword != word]
+                else:
+                    lst = []
+                if lst:
+                    lst = " ".join(lst)
+                    self.AutoCompShow(len(currentword), lst)
+                    propagate = False
+                else:
+                    propagate = True
+            else:
+                propagate = True
+
+        elif self.path.endswith(".py") or self.path.endswith(".c5"):
+            propagate = self.showAutoComp()
             if propagate:
-                propagate = self.checkForBuiltinComp()
+                propagate = self.insertDefArgs(currentword, charat)
                 if propagate:
-                    propagate = self.checkForAttributes(charat, pos)
+                    propagate = self.checkForBuiltinComp()
+                    if propagate:
+                        propagate = self.checkForAttributes(charat, pos)
+
         return propagate
 
     def onShowTip(self):
@@ -5714,11 +5804,11 @@ class Editor(stc.StyledTextCtrl):
 
         # Show documentation for pyo object under the caret
         elif evt.GetKeyCode() == ord('D') and ControlDown():
-            self.GetParent().GetParent().GetParent().GetParent().GetParent().showDoc(None)
+            self.GetTopLevelParent().showDoc(None)
             propagate = False
         # Goto line
         elif evt.GetKeyCode() == ord('L') and ControlDown():
-            self.GetParent().GetParent().GetParent().GetParent().GetParent().gotoLine(None)
+            self.GetTopLevelParent().gotoLine(None)
             propagate = False
 
         # Process Return key --- automatic indentation
@@ -5755,6 +5845,7 @@ class Editor(stc.StyledTextCtrl):
                 propagate = True
             else:
                 propagate = self.processTab(currentword, autoCompActive, charat, pos)
+
 
         if propagate:
             evt.Skip()
@@ -5842,7 +5933,7 @@ class Editor(stc.StyledTextCtrl):
             self.GotoLine(line)
             halfNumLinesOnScreen = self.LinesOnScreen() // 2
             self.ScrollToLine(line - halfNumLinesOnScreen)
-            self.GetParent().GetParent().GetParent().GetParent().markers.setSelected(handle)
+            self.GetTopLevelParent().panel.markers.setSelected(handle)
 
     def setMarkers(self, dic):
         try:
@@ -5855,7 +5946,7 @@ class Editor(stc.StyledTextCtrl):
         for handle in self.markers_dict.keys():
             line = self.markers_dict[handle][0]
             self.MarkerAdd(line, 0)
-        self.GetParent().GetParent().GetParent().GetParent().markers.setDict(self.markers_dict)
+        self.GetTopLevelParent().panel.markers.setDict(self.markers_dict)
 
     def moveMarkers(self):
         dict = {}
@@ -5865,7 +5956,7 @@ class Editor(stc.StyledTextCtrl):
             dict[handle] = [line, comment]
         if dict != self.markers_dict:
             self.markers_dict = dict
-            self.GetParent().GetParent().GetParent().GetParent().markers.setDict(self.markers_dict)
+            self.GetTopLevelParent().panel.markers.setDict(self.markers_dict)
 
     def addMarker(self, line):
         if not self.MarkerGet(line):
@@ -5880,19 +5971,20 @@ class Editor(stc.StyledTextCtrl):
             dlg.Destroy()
             return
         self.markers_dict[handle][1] = comment
-        self.GetParent().GetParent().GetParent().GetParent().markers.setDict(self.markers_dict)
+        self.GetTopLevelParent().panel.markers.setDict(self.markers_dict)
 
     def deleteMarker(self, line):
-        for handle in self.markers_dict.keys():
+        handles = list(self.markers_dict.keys())
+        for handle in handles:
             if line == self.markers_dict[handle][0]:
                 del self.markers_dict[handle]
                 self.MarkerDeleteHandle(handle)
-                self.GetParent().GetParent().GetParent().GetParent().markers.setDict(self.markers_dict)
+                self.GetTopLevelParent().panel.markers.setDict(self.markers_dict)
 
     def deleteAllMarkers(self):
         self.markers_dict = {}
         self.MarkerDeleteAll(0)
-        self.GetParent().GetParent().GetParent().GetParent().markers.setDict(self.markers_dict)
+        self.GetTopLevelParent().panel.markers.setDict(self.markers_dict)
 
     def OnMarginClick(self, evt):
         if evt.GetMargin() == 0:
@@ -7420,3 +7512,4 @@ def main():
 
 if __name__ == '__main__':
     main()
+

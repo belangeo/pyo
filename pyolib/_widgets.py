@@ -82,6 +82,7 @@ MATRIXWINDOWS = []
 SPECTRUMWINDOWS = []
 SCOPEWINDOWS = []
 EXPREDITORWINDOWS = []
+NOTEINKEYBOARDWINDOWS = []
 
 def createRootWindow():
     "Creates the main window (app object)."
@@ -244,6 +245,16 @@ def wxCreateDelayedExprEditorWindows():
             title = win[1]
         wxDisplayWindow(f, title)
 
+def wxCreateDelayedNoteinKeyboardWindows():
+    "Postponed a wxpython window display."
+    for win in NOTEINKEYBOARDWINDOWS:
+        f = NoteinKeyboardFrame(None, win[0])
+        if win[1] is None:
+            title = win[0].__class__.__name__
+        else:
+            title = win[1]
+        wxDisplayWindow(f, title)
+
 def createCtrlWindow(obj, map_list, title, wxnoserver=False):
     "Creates a controller window (from a .ctrl() method."
     if not PYO_USE_WX:
@@ -397,6 +408,20 @@ def createExprEditorWindow(object, title, wxnoserver=False):
         else:
             EXPREDITORWINDOWS.append([object, title])
 
+def createNoteinKeyboardWindow(object, title, wxnoserver=False):
+    "Creates avirtual midi keyboard window."
+    if not PYO_USE_WX:
+        print("WxPython must be installed to use the Notein keyboard display.")
+    else:
+        if wxnoserver or wx.GetApp() is not None:
+            root = createRootWindow()
+            f = NoteinKeyboardFrame(None, object)
+            if title is None:
+                title = object.__class__.__name__
+            wxShowWindow(f, title, root)
+        else:
+            NOTEINKEYBOARDWINDOWS.append([object, title])
+
 def createServerGUI(nchnls, start, stop, recstart, recstop, setAmp, started,
                     locals, shutdown, meter, timer, amp, exit, title, getIsBooted,
                     getIsStarted):
@@ -435,5 +460,6 @@ def createServerGUI(nchnls, start, stop, recstart, recstop, setAmp, started,
         wx.CallAfter(wxCreateDelayedSpectrumWindows)
         wx.CallAfter(wxCreateDelayedScopeWindows)
         wx.CallAfter(wxCreateDelayedExprEditorWindows)
+        wx.CallAfter(wxCreateDelayedNoteinKeyboardWindows)
         wx.CallAfter(f.Raise)
     return f, win, PYO_USE_WX

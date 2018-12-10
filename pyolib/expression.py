@@ -1,5 +1,3 @@
-from __future__ import absolute_import
-
 """
 Prefix expression evaluators.
 
@@ -72,11 +70,20 @@ Random fuctions:
 (randf x y) : returns a pseudo-random floating-point number in the range between x and y.
 (randi x y) : returns a pseudo-random integral number in the range between x and y.
 
+Complex numbers:
+
+(complex x y) : returns a complex number where x is the real part and y the imaginary part.
+(real x) : returns the real part of the complex number x.
+(imag x) : returns the imaginary part of the complex number x.
+
 Filter functions:
 
+(delay x) : one sample delay.
 (sah x y) : samples and holds x value whenever y is smaller than its previous state.
 (rpole x y) : real one-pole recursive filter. returns x + last_out * y.
 (rzero x y) : real one-zero non-recursive filter. returns x - last_x * y.
+(cpole x y) : complex one-pole recursive filter. x is the complex signal to filter, y is a complex coefficient, it returns a complex signal.
+(czero x y) : complex one-zero non-recursive filter. x is the complex signal to filter, y is a complex coefficient, it returns a complex signal.
 
 Constants:
 
@@ -84,6 +91,7 @@ Constants:
 (pi) : returns an approximated value of pi.
 (twopi) : returns a constant with value pi*2.
 (e) : returns an approximated value of e.
+(sr) : returns the curretn sampling rate.
 
 Comments
 --------
@@ -173,6 +181,12 @@ Undefined variables are initialized to 0.
     )
     * (oscloop 200 0.7) 0.3
 
+A state variable can only be a single value. The variable created with the
+`let` keyword can't hold a complex number (`complex`, `cpole`, `czero`). In
+the following statement, the state variable will only hold the real part of
+the complex number:
+
+    (let #v (complex 0.2 0.7)) // #v = 0.2
 
 User variables
 --------------
@@ -199,6 +213,24 @@ Custom functions can be defined in an external file and imported with the
 The content of the file will be inserted where the load function is called
 and all functions defined inside the file will then be accessible. The path
 can be absolute or relative to the current working directory.
+
+Complex numbers
+---------------
+
+A complex number is created with the `complex` function:
+
+(complex x y)
+
+We can retrieve one part of a complex number with `real` and `imag` functions:
+
+    // get the real part (x) of a number
+    (real (complex x y))
+
+If a complex number is used somewhere not waiting for a complex, real value
+will be used.
+
+If a real number is used somewhere waiting for a complex, the imaginary part
+is set to 0.0.
 
 Examples
 --------
@@ -228,9 +260,10 @@ A triangle waveform generator (use Sig(0) as input argument to bypass input):
             (- (* (min #ph (- 1 #ph)) 4) 1)
         )
     )
-    triangle #freq
+    (triangle #freq)
 
 """
+from __future__ import absolute_import
 
 """
 Copyright 2015-16 Olivier Belanger

@@ -38,7 +38,7 @@ class Pattern(PyoObject):
 
     :Args:
 
-        function: Python function
+        function: Python callable (function or method)
             Python function to be called periodically.
         time: float or PyoObject, optional
             Time, in seconds, between each call. Default to 1.
@@ -88,7 +88,7 @@ class Pattern(PyoObject):
 
         :Args:
 
-            x: Python function
+            x: Python callable (function or method)
                 new `function` attribute.
 
         """
@@ -147,7 +147,7 @@ class Pattern(PyoObject):
 
     @property
     def function(self):
-        """Python function. Function to be called."""
+        """Python callable. Function to be called."""
         return self._function
     @function.setter
     def function(self, x):
@@ -264,7 +264,7 @@ class CallAfter(PyoObject):
 
     :Args:
 
-        function: Python function
+        function: Python callable (function or method)
             Python callable execute after `time` seconds.
         time: float, optional
             Time, in seconds, before the call. Default to 1.

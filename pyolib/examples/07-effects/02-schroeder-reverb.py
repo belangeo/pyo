@@ -13,6 +13,14 @@ control the brightness of the reverberator.
 The manual example for the Allpass object presents an other Schroeder's
 reverberator.
 
+If you are interested in builtin reverberation objects, see:
+
+    Freeverb, WGVerb, STRev, CvlVerb
+
+Not really reverbs, but you can build some cool resonant effects with:
+
+    Waveguide, AllpassWG
+
 """
 from pyo import *
 

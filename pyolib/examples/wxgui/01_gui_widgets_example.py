@@ -27,7 +27,7 @@ sc = Scope(f)
 
 class MyFrame(wx.Frame):
 
-    def __init__(self, parent, title, pos=(50, 50), size=(1000, 600)):
+    def __init__(self, parent, title, pos=(50, 50), size=(1000, 700)):
         wx.Frame.__init__(self, parent, -1, title, pos, size)
         
         self.Bind(wx.EVT_CLOSE, self.on_quit)
@@ -60,6 +60,9 @@ class MyFrame(wx.Frame):
         ### PyoGuiSndView - Soundfile display ###
         sizer7 = self.createSndView()
 
+        keyboard = PyoGuiKeyboard(self.panel)
+        keyboard.Bind(EVT_PYO_GUI_KEYBOARD, self.onMidiNote)
+
         leftbox.Add(sizer1, 0, wx.ALL | wx.EXPAND, 5)
         leftbox.Add(sizer3, 1, wx.ALL | wx.EXPAND, 5)
         leftbox.Add(sizer4, 1, wx.ALL | wx.EXPAND, 5)
@@ -74,12 +77,17 @@ class MyFrame(wx.Frame):
         mainsizer.Add(rightbox, 0, wx.ALL | wx.EXPAND, 5)
         vmainsizer.Add(mainsizer, 1, wx.ALL | wx.EXPAND, 5)
         vmainsizer.Add(sizer7, 1, wx.ALL | wx.EXPAND, 5)
+        vmainsizer.Add(keyboard, 0, wx.ALL | wx.EXPAND, 5)
         self.panel.SetSizerAndFit(vmainsizer)
 
     def on_quit(self, evt):
         server.stop()
         time.sleep(0.25)
         self.Destroy()
+
+    def onMidiNote(self, evt):
+        print("Pitch:    %d" % evt.value[0])
+        print("Velocity: %d" % evt.value[1])
 
     def createFreqSlider(self):
         sizer = wx.BoxSizer(wx.VERTICAL)
