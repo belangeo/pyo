@@ -131,15 +131,15 @@ class MyVocoder(PyoObject):
         self._base_objs = [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._base_objs)]
         return self
 
-    def stop(self):
-        [obj.stop() for obj in self._pows]
-        [obj.stop() for obj in self._bases]
-        [obj.stop() for obj in self._freqs]
-        [obj.stop() for obj in self._srcs]
-        [obj.stop() for obj in self._amps]
-        [obj.stop() for obj in self._excs]
-        [obj.stop() for obj in self._outs]
-        [obj.stop() for obj in self._base_objs]
+    def stop(self, wait=0):
+        [obj.stop(wait) for obj in self._pows]
+        [obj.stop(wait) for obj in self._bases]
+        [obj.stop(wait) for obj in self._freqs]
+        [obj.stop(wait) for obj in self._srcs]
+        [obj.stop(wait) for obj in self._amps]
+        [obj.stop(wait) for obj in self._excs]
+        [obj.stop(wait) for obj in self._outs]
+        [obj.stop(wait) for obj in self._base_objs]
         return self
 
     def out(self, chnl=0, inc=1, dur=0, delay=0):

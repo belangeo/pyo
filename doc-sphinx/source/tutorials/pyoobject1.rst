@@ -200,9 +200,9 @@ definition of these methods in the PyoObject man page to understand the meaning 
         self._mod.play(dur, delay)
         return PyoObject.play(self, dur, delay)
 
-    def stop(self):
-        self._mod.stop()
-        return PyoObject.stop(self)
+    def stop(self, wait=0):
+        self._mod.stop(wait)
+        return PyoObject.stop(self, wait)
 
     def out(self, chnl=0, inc=1, dur=0, delay=0):
         self._mod.play(dur, delay)
@@ -284,9 +284,9 @@ Complete class definition and test
             self._mod.play(dur, delay)
             return PyoObject.play(self, dur, delay)
 
-        def stop(self):
-            self._mod.stop()
-            return PyoObject.stop(self)
+        def stop(self, wait=0):
+            self._mod.stop(wait)
+            return PyoObject.stop(self, wait)
 
         def out(self, chnl=0, inc=1, dur=0, delay=0):
             self._mod.play(dur, delay)

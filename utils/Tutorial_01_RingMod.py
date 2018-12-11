@@ -185,9 +185,9 @@ class RingMod(PyoObject):
         self._mod.play(dur, delay)
         return PyoObject.play(self, dur, delay)
 
-    def stop(self):
-        self._mod.stop()
-        return PyoObject.stop(self)
+    def stop(self, wait=0):
+        self._mod.stop(wait)
+        return PyoObject.stop(self, wait)
 
     def out(self, chnl=0, inc=1, dur=0, delay=0):
         self._mod.play(dur, delay)
