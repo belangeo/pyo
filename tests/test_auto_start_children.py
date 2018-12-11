@@ -1,4 +1,3 @@
-
 from pyo import *
 
 # The purpose of setAutoStartChildren() method is to allow the user
@@ -21,7 +20,7 @@ from pyo import *
 s = Server(sr=44100, nchnls=2, buffersize=512, duplex=1).boot()
 s.setAutoStartChildren(True)
 
-TEST = 0
+TEST = 7
 
 if TEST == 0:
     # Simple oscillator with an amplitude envelope. Call a.stop(1) to fadeout.
@@ -62,5 +61,13 @@ elif TEST == 6:
     osc = Osc(tab, tab.getRate(), mul=Fader(1, 1, mul=amp))
     osc.addLinkedObject(rec)
     osc.out()
+elif TEST == 7:
+    # When you don't want to loose an object used at multiple places,
+    # just call preventAutoStart() on it to stop the play/out/stop
+    # methods propagation.Calling a.stop(1) here does not stop the lfo.
+    lfo = Sine(4).range(500, 700)
+    lfo.preventAutoStart()
+    a = Sine(freq=lfo, mul=Fader(1, 1, mul=.2)).out()
+    b = Sine(freq=lfo, mul=Fader(1, 1, mul=.2)).out(1)
 
 s.gui(locals())

@@ -818,6 +818,7 @@ class PyoObjectBase(object):
         self.__index = 0
         self._is_mul_attribute = False
         self._use_wait_time_on_stop = False
+        self._allow_auto_start = True
         self._linked_objects = []
         if not serverCreated():
             raise PyoServerStateException("You must create and boot a Server "
@@ -871,6 +872,16 @@ class PyoObjectBase(object):
 
         """
         return self._base_objs[0].getServer().getBufferSize()
+
+    def preventAutoStart(self):
+        """
+        When autoStartChildren is activated in the Server, call this method
+        to stop the propagation of play/out/stop methods to this object. This
+        is useful when an object is used at multiple places and you don't want
+        to loose it when you stop one dsp block.
+
+        """
+        self._allow_auto_start = False
 
     def useWaitTimeOnStop(self):
         """
@@ -950,18 +961,18 @@ class PyoObjectBase(object):
         if self.getServer().getAutoStartChildren():
             children = [getattr(self, at) for at in dir(self)] + self._linked_objects
             for obj in children:
-                if isAudioObject(obj):
+                if isAudioObject(obj) and obj._allow_auto_start:
                     obj.play(dur, delay)
                 elif type(obj) is list:             # Handle list of audio objects.
                     for subobj in obj:
-                        if isAudioObject(subobj):
+                        if isAudioObject(subobj) and subobj._allow_auto_start:
                             subobj.play(dur, delay)
 
     def _autostop(self, wait=0):
         if self.getServer().getAutoStartChildren():
             children = [(getattr(self, at), at) for at in dir(self)] + [(obj, "") for obj in self._linked_objects]
             for tup in children:
-                if isAudioObject(tup[0]):
+                if isAudioObject(tup[0]) and tup[0]._allow_auto_start:
                     if tup[1] == "mul":
                         # Start fadeout immediately.
                         tup[0]._is_mul_attribute = True
@@ -974,7 +985,7 @@ class PyoObjectBase(object):
                 elif type(tup[0]) is list:
                     ismul = tup[1] == "mul"
                     for subobj in tup[0]:
-                        if isAudioObject(subobj):
+                        if isAudioObject(subobj) and subobj._allow_auto_start:
                             if ismul:
                                 subobj._is_mul_attribute = True
                                 subobj.stop(wait)
