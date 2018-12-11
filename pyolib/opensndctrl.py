@@ -447,6 +447,7 @@ class OscDataSend(PyoObject):
         self._base_objs.extend(objs)
         for i, adr in enumerate(address):
             self._addresses[adr] = objs[i]
+        self.play()
 
     def delAddress(self, path):
         """

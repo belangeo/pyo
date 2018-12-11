@@ -1,5 +1,9 @@
 2018-12-11 belangeo <belangeo@gmail.com>
 
+    * Fixed bug in OscDataSend.addAddress().
+
+2018-12-11 belangeo <belangeo@gmail.com>
+
     * Added autoStartChildren feature. For detail, see doc for Server.setAutoStartChildren,
       PyoObjectBase.useWaitTimeOnStop, PyoObjectBase.addLinkedObject and PyoObject.stop.
 
