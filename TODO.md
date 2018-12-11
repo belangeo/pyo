@@ -85,7 +85,7 @@ pyo/
     ChangeLog
     README.md
     TODO.md
-    doc/ (old doc-sphinx)
+    doc/
     embedded/
     examples_DEPRECATED/
     externals/
