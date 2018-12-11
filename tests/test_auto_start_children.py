@@ -21,7 +21,7 @@ from pyo import *
 s = Server(sr=44100, nchnls=2, buffersize=512, duplex=1).boot()
 s.setAutoStartChildren(True)
 
-TEST = 6
+TEST = 0
 
 if TEST == 0:
     # Simple oscillator with an amplitude envelope. Call a.stop(1) to fadeout.
