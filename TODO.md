@@ -85,12 +85,14 @@ pyo/
     ChangeLog
     README.md
     TODO.md
+    deprecated/
+        examples/
+        installers/
+        utils/
     doc/
     embedded/
-    examples_DEPRECATED/
     externals/
     include/
-    installers_DEPRECATED/
     pyo/
         __init__.py (old pyo.py, should handle double precision somehow)
         lib/ (old pyolib)
@@ -101,6 +103,5 @@ pyo/
     setup.py
     src/
     tests/
-    utils_DEPRECATED/
     work-in-progress/
 
