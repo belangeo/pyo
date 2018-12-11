@@ -1,3 +1,8 @@
+2018-12-11 belangeo <belangeo@gmail.com>
+
+    * Added autoStartChildren feature. For detail, see doc for Server.setAutoStartChildren,
+      PyoObjectBase.useWaitTimeOnStop, PyoObjectBase.addLinkedObject and PyoObject.stop.
+
 2018-11-22 belangeo <belangeo@gmail.com>
 
     * Added keyboard method to the Notein object (opens a virtual midi keyboard).

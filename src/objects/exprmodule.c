@@ -641,7 +641,7 @@ static PyObject * Expr_setDiv(Expr *self, PyObject *arg) { SET_DIV };
 
 static PyObject * Expr_play(Expr *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * Expr_out(Expr *self, PyObject *args, PyObject *kwds) { OUT };
-static PyObject * Expr_stop(Expr *self) { STOP };
+static PyObject * Expr_stop(Expr *self, PyObject *args, PyObject *kwds) { STOP };
 
 static PyObject * Expr_multiply(Expr *self, PyObject *arg) { MULTIPLY };
 static PyObject * Expr_inplace_multiply(Expr *self, PyObject *arg) { INPLACE_MULTIPLY };
@@ -847,7 +847,7 @@ static PyMethodDef Expr_methods[] = {
     {"_getStream", (PyCFunction)Expr_getStream, METH_NOARGS, "Returns stream object."},
     {"play", (PyCFunction)Expr_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)Expr_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-    {"stop", (PyCFunction)Expr_stop, METH_NOARGS, "Stops computing."},
+    {"stop", (PyCFunction)Expr_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
     {"printNodes", (PyCFunction)Expr_printNodes, METH_NOARGS, "Print the list of nodes."},
 	{"setVar", (PyCFunction)Expr_setVar, METH_VARARGS|METH_KEYWORDS, "Sets a variable value."},
 	{"setExpr", (PyCFunction)Expr_setExpr, METH_O, "Sets a new expression."},

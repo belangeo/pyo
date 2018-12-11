@@ -1254,42 +1254,44 @@ class Server(object):
 
     def setServer(self):
         """
-        Sets this server as the one to use for new objects when using the embedded device
+        Sets this server as the one to use for new objects when using
+        the embedded device.
 
         """
         return self._server.setServer()
 
     def getInputAddr(self):
         """
-        Return the address of the input buffer
+        Return the address of the input buffer.
 
         """
         return self._server.getInputAddr()
 
     def getOutputAddr(self):
         """
-        Return the address of the output buffer
+        Return the address of the output buffer.
 
         """
         return self._server.getOutputAddr()
 
     def getServerID(self):
         """
-        Return the server ID
+        Return the server ID.
 
         """
         return self._server.getServerID()
 
     def getServerAddr(self):
         """
-        Return the address of the server
+        Return the address of the server.
 
         """
         return self._server.getServerAddr()
 
     def getEmbedICallbackAddr(self):
         """
-        Return the address of the interleaved embedded callback function
+        Return the address of the interleaved embedded
+        callback function.
 
         """
         return self._server.getEmbedICallbackAddr()
@@ -1307,6 +1309,48 @@ class Server(object):
         return self._server.getCurrentAmp()
 
     def setAutoStartChildren(self, state):
+        """
+        Giving True to this method tells pyo that a call to the `play`,
+        `out` or `stop` method of audio objects should propagate to the
+        other audio objects given as arguments. This can be used to
+        control an entire dsp chain just by calling methods on the
+        very last object.
+
+        With setAutoStartChildren(True), a call to the `out` method
+        will automatically triggers the `play` method of the Fader
+        object given as `mul` argument.
+
+        >>> a = RCOsc(freq=150, mul=Fader(1, 1, mul=.3)).out()
+
+        With setAutoStartChildren(True), a call to the `stop` method
+        will also propagate to audio objects given as arguments. The
+        `stop` method has an argument `wait`, useful to postpone the
+        moment when to really stop the process. The `waiting value is
+        also propagated to the other audio objects, but not for the
+        objects assigned to a `mul` argument. This property allows to
+        do things like the next snippet. On a call `a.stop(1)` , while
+        the Linseg assigned to the frequency waits for 1 second before
+        actually stopping its process, the Fader assigned to the `mul`
+        argument starts its fadeout immediately.
+
+        >>> freq = Linseg([(0,500),(1, 750),(2, 500)], loop=True)
+        >>> a = Sine(freq=freq, mul=Fader(1, 1, mul=.2)).out()
+
+        Sometime, we still want the process assigned to a `mul` attribute
+        to wait before stopping its process. See the next case. The
+        amplitude envelope is itself modulated in amplitude by another
+        envelope. We still want the fadeout to start immediately, but
+        its own envelope has to wait, otherwise, the amplitude will cut
+        off before having the time to complete the fadeout. To do this,
+        we call `useWaitTimeOnStop()` on the object we want to force to
+        wait.
+
+        >>> lf = Linseg([(0,0),(0.2,0.1),(0.4,0)], loop=True)
+        >>> lf.useWaitTimeOnStop()
+        >>> freq = Linseg([(0,500),(1, 750),(2, 500)], loop=True)
+        >>> a = Sine(freq=freq, mul=Fader(1, 1, mul=lf)).out()
+
+        """
         self._server.setAutoStartChildren(state)
 
     @property

@@ -302,7 +302,7 @@ static PyObject * PVAnal_getStream(PVAnal* self) { GET_STREAM };
 static PyObject * PVAnal_getPVStream(PVAnal* self) { GET_PV_STREAM };
 
 static PyObject * PVAnal_play(PVAnal *self, PyObject *args, PyObject *kwds) { PLAY };
-static PyObject * PVAnal_stop(PVAnal *self) { STOP };
+static PyObject * PVAnal_stop(PVAnal *self, PyObject *args, PyObject *kwds) { STOP };
 
 static PyObject *
 PVAnal_setSize(PVAnal *self, PyObject *arg)
@@ -389,7 +389,7 @@ static PyMethodDef PVAnal_methods[] = {
 {"_getStream", (PyCFunction)PVAnal_getStream, METH_NOARGS, "Returns stream object."},
 {"_getPVStream", (PyCFunction)PVAnal_getPVStream, METH_NOARGS, "Returns pvstream object."},
 {"play", (PyCFunction)PVAnal_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-{"stop", (PyCFunction)PVAnal_stop, METH_NOARGS, "Stops computing."},
+{"stop", (PyCFunction)PVAnal_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
 {"setSize", (PyCFunction)PVAnal_setSize, METH_O, "Sets a new FFT size."},
 {"setOverlaps", (PyCFunction)PVAnal_setOverlaps, METH_O, "Sets a new number of overlaps."},
 {"setWinType", (PyCFunction)PVAnal_setWinType, METH_O, "Sets a new window type."},
@@ -746,7 +746,7 @@ static PyObject * PVSynth_setDiv(PVSynth *self, PyObject *arg) { SET_DIV };
 
 static PyObject * PVSynth_play(PVSynth *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * PVSynth_out(PVSynth *self, PyObject *args, PyObject *kwds) { OUT };
-static PyObject * PVSynth_stop(PVSynth *self) { STOP };
+static PyObject * PVSynth_stop(PVSynth *self, PyObject *args, PyObject *kwds) { STOP };
 
 static PyObject * PVSynth_multiply(PVSynth *self, PyObject *arg) { MULTIPLY };
 static PyObject * PVSynth_inplace_multiply(PVSynth *self, PyObject *arg) { INPLACE_MULTIPLY };
@@ -771,7 +771,7 @@ static PyMethodDef PVSynth_methods[] = {
 {"_getStream", (PyCFunction)PVSynth_getStream, METH_NOARGS, "Returns stream object."},
 {"play", (PyCFunction)PVSynth_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
 {"out", (PyCFunction)PVSynth_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-{"stop", (PyCFunction)PVSynth_stop, METH_NOARGS, "Stops computing."},
+{"stop", (PyCFunction)PVSynth_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
 {"setInput", (PyCFunction)PVSynth_setInput, METH_O, "Sets a new input object."},
 {"setWinType", (PyCFunction)PVSynth_setWinType, METH_O, "Sets a new window type."},
 {"setMul", (PyCFunction)PVSynth_setMul, METH_O, "Sets oscillator mul factor."},
@@ -1289,7 +1289,7 @@ static PyObject * PVAddSynth_setDiv(PVAddSynth *self, PyObject *arg) { SET_DIV }
 
 static PyObject * PVAddSynth_play(PVAddSynth *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * PVAddSynth_out(PVAddSynth *self, PyObject *args, PyObject *kwds) { OUT };
-static PyObject * PVAddSynth_stop(PVAddSynth *self) { STOP };
+static PyObject * PVAddSynth_stop(PVAddSynth *self, PyObject *args, PyObject *kwds) { STOP };
 
 static PyObject * PVAddSynth_multiply(PVAddSynth *self, PyObject *arg) { MULTIPLY };
 static PyObject * PVAddSynth_inplace_multiply(PVAddSynth *self, PyObject *arg) { INPLACE_MULTIPLY };
@@ -1315,7 +1315,7 @@ static PyMethodDef PVAddSynth_methods[] = {
 {"_getStream", (PyCFunction)PVAddSynth_getStream, METH_NOARGS, "Returns stream object."},
 {"play", (PyCFunction)PVAddSynth_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
 {"out", (PyCFunction)PVAddSynth_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-{"stop", (PyCFunction)PVAddSynth_stop, METH_NOARGS, "Stops computing."},
+{"stop", (PyCFunction)PVAddSynth_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
 {"setInput", (PyCFunction)PVAddSynth_setInput, METH_O, "Sets a new input object."},
 {"setPitch", (PyCFunction)PVAddSynth_setPitch, METH_O, "Sets a new transposition factor."},
 {"setNum", (PyCFunction)PVAddSynth_setNum, METH_O, "Sets the number of oscillators."},
@@ -1652,7 +1652,7 @@ static PyObject * PVTranspose_getStream(PVTranspose* self) { GET_STREAM };
 static PyObject * PVTranspose_getPVStream(PVTranspose* self) { GET_PV_STREAM };
 
 static PyObject * PVTranspose_play(PVTranspose *self, PyObject *args, PyObject *kwds) { PLAY };
-static PyObject * PVTranspose_stop(PVTranspose *self) { STOP };
+static PyObject * PVTranspose_stop(PVTranspose *self, PyObject *args, PyObject *kwds) { STOP };
 
 static PyObject *
 PVTranspose_setInput(PVTranspose *self, PyObject *arg)
@@ -1724,7 +1724,7 @@ static PyMethodDef PVTranspose_methods[] = {
 {"setInput", (PyCFunction)PVTranspose_setInput, METH_O, "Sets a new input object."},
 {"setTranspo", (PyCFunction)PVTranspose_setTranspo, METH_O, "Sets the transposition factor."},
 {"play", (PyCFunction)PVTranspose_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-{"stop", (PyCFunction)PVTranspose_stop, METH_NOARGS, "Stops computing."},
+{"stop", (PyCFunction)PVTranspose_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
 {NULL}  /* Sentinel */
 };
 
@@ -2170,7 +2170,7 @@ static PyObject * PVVerb_getStream(PVVerb* self) { GET_STREAM };
 static PyObject * PVVerb_getPVStream(PVVerb* self) { GET_PV_STREAM };
 
 static PyObject * PVVerb_play(PVVerb *self, PyObject *args, PyObject *kwds) { PLAY };
-static PyObject * PVVerb_stop(PVVerb *self) { STOP };
+static PyObject * PVVerb_stop(PVVerb *self, PyObject *args, PyObject *kwds) { STOP };
 
 static PyObject *
 PVVerb_setInput(PVVerb *self, PyObject *arg)
@@ -2275,7 +2275,7 @@ static PyMethodDef PVVerb_methods[] = {
 {"setRevtime", (PyCFunction)PVVerb_setRevtime, METH_O, "Sets the reverberation factor."},
 {"setDamp", (PyCFunction)PVVerb_setDamp, METH_O, "Sets the high frequency damping factor."},
 {"play", (PyCFunction)PVVerb_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-{"stop", (PyCFunction)PVVerb_stop, METH_NOARGS, "Stops computing."},
+{"stop", (PyCFunction)PVVerb_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
 {NULL}  /* Sentinel */
 };
 
@@ -2699,7 +2699,7 @@ static PyObject * PVGate_getStream(PVGate* self) { GET_STREAM };
 static PyObject * PVGate_getPVStream(PVGate* self) { GET_PV_STREAM };
 
 static PyObject * PVGate_play(PVGate *self, PyObject *args, PyObject *kwds) { PLAY };
-static PyObject * PVGate_stop(PVGate *self) { STOP };
+static PyObject * PVGate_stop(PVGate *self, PyObject *args, PyObject *kwds) { STOP };
 
 static PyObject *
 PVGate_setInput(PVGate *self, PyObject *arg)
@@ -2818,7 +2818,7 @@ static PyMethodDef PVGate_methods[] = {
 {"setDamp", (PyCFunction)PVGate_setDamp, METH_O, "Sets the damping factor."},
 {"setInverse", (PyCFunction)PVGate_setInverse, METH_O, "Sets the inverse mode."},
 {"play", (PyCFunction)PVGate_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-{"stop", (PyCFunction)PVGate_stop, METH_NOARGS, "Stops computing."},
+{"stop", (PyCFunction)PVGate_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
 {NULL}  /* Sentinel */
 };
 
@@ -3110,7 +3110,7 @@ static PyObject * PVCross_getStream(PVCross* self) { GET_STREAM };
 static PyObject * PVCross_getPVStream(PVCross* self) { GET_PV_STREAM };
 
 static PyObject * PVCross_play(PVCross *self, PyObject *args, PyObject *kwds) { PLAY };
-static PyObject * PVCross_stop(PVCross *self) { STOP };
+static PyObject * PVCross_stop(PVCross *self, PyObject *args, PyObject *kwds) { STOP };
 
 static PyObject *
 PVCross_setInput(PVCross *self, PyObject *arg)
@@ -3207,7 +3207,7 @@ static PyMethodDef PVCross_methods[] = {
 {"setInput2", (PyCFunction)PVCross_setInput2, METH_O, "Sets a new input object."},
 {"setFade", (PyCFunction)PVCross_setFade, METH_O, "Sets the fadesition factor."},
 {"play", (PyCFunction)PVCross_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-{"stop", (PyCFunction)PVCross_stop, METH_NOARGS, "Stops computing."},
+{"stop", (PyCFunction)PVCross_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
 {NULL}  /* Sentinel */
 };
 
@@ -3442,7 +3442,7 @@ static PyObject * PVMult_getStream(PVMult* self) { GET_STREAM };
 static PyObject * PVMult_getPVStream(PVMult* self) { GET_PV_STREAM };
 
 static PyObject * PVMult_play(PVMult *self, PyObject *args, PyObject *kwds) { PLAY };
-static PyObject * PVMult_stop(PVMult *self) { STOP };
+static PyObject * PVMult_stop(PVMult *self, PyObject *args, PyObject *kwds) { STOP };
 
 static PyObject *
 PVMult_setInput(PVMult *self, PyObject *arg)
@@ -3506,7 +3506,7 @@ static PyMethodDef PVMult_methods[] = {
 {"setInput", (PyCFunction)PVMult_setInput, METH_O, "Sets a new input object."},
 {"setInput2", (PyCFunction)PVMult_setInput2, METH_O, "Sets a new input object."},
 {"play", (PyCFunction)PVMult_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-{"stop", (PyCFunction)PVMult_stop, METH_NOARGS, "Stops computing."},
+{"stop", (PyCFunction)PVMult_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
 {NULL}  /* Sentinel */
 };
 
@@ -3808,7 +3808,7 @@ static PyObject * PVMorph_getStream(PVMorph* self) { GET_STREAM };
 static PyObject * PVMorph_getPVStream(PVMorph* self) { GET_PV_STREAM };
 
 static PyObject * PVMorph_play(PVMorph *self, PyObject *args, PyObject *kwds) { PLAY };
-static PyObject * PVMorph_stop(PVMorph *self) { STOP };
+static PyObject * PVMorph_stop(PVMorph *self, PyObject *args, PyObject *kwds) { STOP };
 
 static PyObject *
 PVMorph_setInput(PVMorph *self, PyObject *arg)
@@ -3905,7 +3905,7 @@ static PyMethodDef PVMorph_methods[] = {
 {"setInput2", (PyCFunction)PVMorph_setInput2, METH_O, "Sets a new input object."},
 {"setFade", (PyCFunction)PVMorph_setFade, METH_O, "Sets the fadesition factor."},
 {"play", (PyCFunction)PVMorph_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-{"stop", (PyCFunction)PVMorph_stop, METH_NOARGS, "Stops computing."},
+{"stop", (PyCFunction)PVMorph_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
 {NULL}  /* Sentinel */
 };
 
@@ -4236,7 +4236,7 @@ static PyObject * PVFilter_getStream(PVFilter* self) { GET_STREAM };
 static PyObject * PVFilter_getPVStream(PVFilter* self) { GET_PV_STREAM };
 
 static PyObject * PVFilter_play(PVFilter *self, PyObject *args, PyObject *kwds) { PLAY };
-static PyObject * PVFilter_stop(PVFilter *self) { STOP };
+static PyObject * PVFilter_stop(PVFilter *self, PyObject *args, PyObject *kwds) { STOP };
 
 static PyObject *
 PVFilter_setInput(PVFilter *self, PyObject *arg)
@@ -4351,7 +4351,7 @@ static PyMethodDef PVFilter_methods[] = {
 {"setGain", (PyCFunction)PVFilter_setGain, METH_O, "Sets the gain factor."},
 {"setMode", (PyCFunction)PVFilter_setMode, METH_O, "Sets the table scanning mode."},
 {"play", (PyCFunction)PVFilter_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-{"stop", (PyCFunction)PVFilter_stop, METH_NOARGS, "Stops computing."},
+{"stop", (PyCFunction)PVFilter_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
 {NULL}  /* Sentinel */
 };
 
@@ -4711,7 +4711,7 @@ static PyObject * PVDelay_getStream(PVDelay* self) { GET_STREAM };
 static PyObject * PVDelay_getPVStream(PVDelay* self) { GET_PV_STREAM };
 
 static PyObject * PVDelay_play(PVDelay *self, PyObject *args, PyObject *kwds) { PLAY };
-static PyObject * PVDelay_stop(PVDelay *self) { STOP };
+static PyObject * PVDelay_stop(PVDelay *self, PyObject *args, PyObject *kwds) { STOP };
 
 static PyObject *
 PVDelay_setInput(PVDelay *self, PyObject *arg)
@@ -4820,7 +4820,7 @@ static PyMethodDef PVDelay_methods[] = {
 {"setFeedtable", (PyCFunction)PVDelay_setFeedtable, METH_O, "Sets feedbacks table."},
 {"setMode", (PyCFunction)PVDelay_setMode, METH_O, "Table scanning method."},
 {"play", (PyCFunction)PVDelay_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-{"stop", (PyCFunction)PVDelay_stop, METH_NOARGS, "Stops computing."},
+{"stop", (PyCFunction)PVDelay_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
 {NULL}  /* Sentinel */
 };
 
@@ -5169,7 +5169,7 @@ static PyObject * PVBuffer_play(PVBuffer *self, PyObject *args, PyObject *kwds) 
     PLAY
 };
 
-static PyObject * PVBuffer_stop(PVBuffer *self) { STOP };
+static PyObject * PVBuffer_stop(PVBuffer *self, PyObject *args, PyObject *kwds) { STOP };
 
 static PyObject *
 PVBuffer_setInput(PVBuffer *self, PyObject *arg)
@@ -5269,7 +5269,7 @@ static PyMethodDef PVBuffer_methods[] = {
 {"setIndex", (PyCFunction)PVBuffer_setIndex, METH_O, "Sets a new pointer object."},
 {"setPitch", (PyCFunction)PVBuffer_setPitch, METH_O, "Sets a new transposition factor."},
 {"play", (PyCFunction)PVBuffer_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-{"stop", (PyCFunction)PVBuffer_stop, METH_NOARGS, "Stops computing."},
+{"stop", (PyCFunction)PVBuffer_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
 {NULL}  /* Sentinel */
 };
 
@@ -5559,7 +5559,7 @@ static PyObject * PVShift_getStream(PVShift* self) { GET_STREAM };
 static PyObject * PVShift_getPVStream(PVShift* self) { GET_PV_STREAM };
 
 static PyObject * PVShift_play(PVShift *self, PyObject *args, PyObject *kwds) { PLAY };
-static PyObject * PVShift_stop(PVShift *self) { STOP };
+static PyObject * PVShift_stop(PVShift *self, PyObject *args, PyObject *kwds) { STOP };
 
 static PyObject *
 PVShift_setInput(PVShift *self, PyObject *arg)
@@ -5631,7 +5631,7 @@ static PyMethodDef PVShift_methods[] = {
 {"setInput", (PyCFunction)PVShift_setInput, METH_O, "Sets a new input object."},
 {"setShift", (PyCFunction)PVShift_setShift, METH_O, "Sets the frequency shifting factor."},
 {"play", (PyCFunction)PVShift_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-{"stop", (PyCFunction)PVShift_stop, METH_NOARGS, "Stops computing."},
+{"stop", (PyCFunction)PVShift_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
 {NULL}  /* Sentinel */
 };
 
@@ -6102,7 +6102,7 @@ static PyObject * PVAmpMod_getStream(PVAmpMod* self) { GET_STREAM };
 static PyObject * PVAmpMod_getPVStream(PVAmpMod* self) { GET_PV_STREAM };
 
 static PyObject * PVAmpMod_play(PVAmpMod *self, PyObject *args, PyObject *kwds) { PLAY };
-static PyObject * PVAmpMod_stop(PVAmpMod *self) { STOP };
+static PyObject * PVAmpMod_stop(PVAmpMod *self, PyObject *args, PyObject *kwds) { STOP };
 
 static PyObject *
 PVAmpMod_setInput(PVAmpMod *self, PyObject *arg)
@@ -6231,7 +6231,7 @@ static PyMethodDef PVAmpMod_methods[] = {
 {"setShape", (PyCFunction)PVAmpMod_setShape, METH_O, "Sets the modulation oscillator waveform."},
 {"reset", (PyCFunction)PVAmpMod_reset, METH_NOARGS, "Resets pointer positions."},
 {"play", (PyCFunction)PVAmpMod_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-{"stop", (PyCFunction)PVAmpMod_stop, METH_NOARGS, "Stops computing."},
+{"stop", (PyCFunction)PVAmpMod_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
 {NULL}  /* Sentinel */
 };
 
@@ -6716,7 +6716,7 @@ static PyObject * PVFreqMod_getStream(PVFreqMod* self) { GET_STREAM };
 static PyObject * PVFreqMod_getPVStream(PVFreqMod* self) { GET_PV_STREAM };
 
 static PyObject * PVFreqMod_play(PVFreqMod *self, PyObject *args, PyObject *kwds) { PLAY };
-static PyObject * PVFreqMod_stop(PVFreqMod *self) { STOP };
+static PyObject * PVFreqMod_stop(PVFreqMod *self, PyObject *args, PyObject *kwds) { STOP };
 
 static PyObject *
 PVFreqMod_setInput(PVFreqMod *self, PyObject *arg)
@@ -6878,7 +6878,7 @@ static PyMethodDef PVFreqMod_methods[] = {
 {"setShape", (PyCFunction)PVFreqMod_setShape, METH_O, "Sets the modulation oscillator waveform."},
 {"reset", (PyCFunction)PVFreqMod_reset, METH_NOARGS, "Resets pointer positions."},
 {"play", (PyCFunction)PVFreqMod_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-{"stop", (PyCFunction)PVFreqMod_stop, METH_NOARGS, "Stops computing."},
+{"stop", (PyCFunction)PVFreqMod_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
 {NULL}  /* Sentinel */
 };
 
@@ -7262,7 +7262,7 @@ static PyObject * PVBufLoops_play(PVBufLoops *self, PyObject *args, PyObject *kw
     PLAY
 };
 
-static PyObject * PVBufLoops_stop(PVBufLoops *self) { STOP };
+static PyObject * PVBufLoops_stop(PVBufLoops *self, PyObject *args, PyObject *kwds) { STOP };
 
 static PyObject *
 PVBufLoops_setInput(PVBufLoops *self, PyObject *arg)
@@ -7393,7 +7393,7 @@ static PyMethodDef PVBufLoops_methods[] = {
 {"setMode", (PyCFunction)PVBufLoops_setMode, METH_O, "Sets a new mode."},
 {"reset", (PyCFunction)PVBufLoops_reset, METH_NOARGS, "Preset pointer positions."},
 {"play", (PyCFunction)PVBufLoops_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-{"stop", (PyCFunction)PVBufLoops_stop, METH_NOARGS, "Stops computing."},
+{"stop", (PyCFunction)PVBufLoops_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
 {NULL}  /* Sentinel */
 };
 
@@ -7677,7 +7677,7 @@ static PyObject * PVBufTabLoops_play(PVBufTabLoops *self, PyObject *args, PyObje
     PLAY
 };
 
-static PyObject * PVBufTabLoops_stop(PVBufTabLoops *self) { STOP };
+static PyObject * PVBufTabLoops_stop(PVBufTabLoops *self, PyObject *args, PyObject *kwds) { STOP };
 
 static PyObject *
 PVBufTabLoops_setInput(PVBufTabLoops *self, PyObject *arg)
@@ -7743,7 +7743,7 @@ static PyMethodDef PVBufTabLoops_methods[] = {
 {"setSpeed", (PyCFunction)PVBufTabLoops_setSpeed, METH_O, "Change speed table."},
 {"reset", (PyCFunction)PVBufTabLoops_reset, METH_NOARGS, "Preset pointer positions."},
 {"play", (PyCFunction)PVBufTabLoops_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-{"stop", (PyCFunction)PVBufTabLoops_stop, METH_NOARGS, "Stops computing."},
+{"stop", (PyCFunction)PVBufTabLoops_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
 {NULL}  /* Sentinel */
 };
 
@@ -7985,7 +7985,7 @@ static PyObject * PVMix_getStream(PVMix* self) { GET_STREAM };
 static PyObject * PVMix_getPVStream(PVMix* self) { GET_PV_STREAM };
 
 static PyObject * PVMix_play(PVMix *self, PyObject *args, PyObject *kwds) { PLAY };
-static PyObject * PVMix_stop(PVMix *self) { STOP };
+static PyObject * PVMix_stop(PVMix *self, PyObject *args, PyObject *kwds) { STOP };
 
 static PyObject *
 PVMix_setInput(PVMix *self, PyObject *arg)
@@ -8049,7 +8049,7 @@ static PyMethodDef PVMix_methods[] = {
 {"setInput", (PyCFunction)PVMix_setInput, METH_O, "Sets a new input object."},
 {"setInput2", (PyCFunction)PVMix_setInput2, METH_O, "Sets a new input object."},
 {"play", (PyCFunction)PVMix_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-{"stop", (PyCFunction)PVMix_stop, METH_NOARGS, "Stops computing."},
+{"stop", (PyCFunction)PVMix_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
 {NULL}  /* Sentinel */
 };
 

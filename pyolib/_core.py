@@ -816,6 +816,9 @@ class PyoObjectBase(object):
         self._base_objs = []
         self._trig_objs = None
         self.__index = 0
+        self._is_mul_attribute = False
+        self._use_wait_time_on_stop = False
+        self._linked_objects = []
         if not serverCreated():
             raise PyoServerStateException("You must create and boot a Server "
                                           "before creating any audio object.")
@@ -869,6 +872,36 @@ class PyoObjectBase(object):
         """
         return self._base_objs[0].getServer().getBufferSize()
 
+    def useWaitTimeOnStop(self):
+        """
+        When autoStartChildren is activated in the Server, call this method
+        to force an object given to the `mul` attribute of another object to
+        use the  wait time from the stop method instead of being stopped
+        immediately.
+
+        """
+        self._use_wait_time_on_stop = True
+
+    def addLinkedObject(self, x):
+        """
+        When autoStartChildren is activated in the Server, use this method
+        to explicitly add an object in a dsp chain, which is generally
+        controlled by the last object of the chain. Here is an example
+        where we want an object to be linked to the chain but it can't be
+        automatically detected:
+
+        >>> tab = NewTable(length=2, chnls=1)
+        >>> rec = TableRec(Sine(500), tab, .01)
+        >>> amp = TrigVal(rec["trig"], 0.5)
+        >>> osc = Osc(tab, tab.getRate(), mul=Fader(1, 1, mul=.2))
+        >>> # "osc" can't know for sure that "rec" should be linked
+        >>> # to this dsp chain, so we add it manually.
+        >>> osc.addLinkedObject(rec)
+        >>> osc.out()
+
+        """
+        self._linked_objects.append(x)
+
     def __iter__(self):
         self.__index = 0
         return self
@@ -881,7 +914,10 @@ class PyoObjectBase(object):
         return x
 
     def next(self):
-        "Alias for __next__ method."
+        """
+        Alias for __next__ method.
+
+        """
         # In Python 2.x, __next__() method is called next().
         return self.__next__()
 
@@ -909,6 +945,42 @@ class PyoObjectBase(object):
         args, _, _, _ = inspect.getargspec(init)
         args = [a for a in args if hasattr(self.__class__, a) and a != "self"]
         return args
+
+    def _autoplay(self, dur=0, delay=0):
+        if self.getServer().getAutoStartChildren():
+            children = [getattr(self, at) for at in dir(self)] + self._linked_objects
+            for obj in children:
+                if isAudioObject(obj):
+                    obj.play(dur, delay)
+                elif type(obj) is list:             # Handle list of audio objects.
+                    for subobj in obj:
+                        if isAudioObject(subobj):
+                            subobj.play(dur, delay)
+
+    def _autostop(self, wait=0):
+        if self.getServer().getAutoStartChildren():
+            children = [(getattr(self, at), at) for at in dir(self)] + [(obj, "") for obj in self._linked_objects]
+            for tup in children:
+                if isAudioObject(tup[0]):
+                    if tup[1] == "mul":
+                        # Start fadeout immediately.
+                        tup[0]._is_mul_attribute = True
+                        tup[0].stop(wait)
+                        tup[0]._is_mul_attribute = False
+                    else:
+                        # Every other attributes wait.
+                        tup[0].stop(wait)
+                # Handle list of audio objects.
+                elif type(tup[0]) is list:
+                    ismul = tup[1] == "mul"
+                    for subobj in tup[0]:
+                        if isAudioObject(subobj):
+                            if ismul:
+                                subobj._is_mul_attribute = True
+                                subobj.stop(wait)
+                                subobj._is_mul_attribute = False
+                            else:
+                                subobj.stop(wait)
 
 ######################################################################
 ### PyoObject -> base class for pyo sound objects
@@ -1242,37 +1314,6 @@ class PyoObject(PyoObjectBase):
         else:
             return [obj._getStream().getValue() for obj in self._base_objs]
 
-    def _autoplay(self, dur=0, delay=0):
-        if self.getServer().getAutoStartChildren():
-            for at in dir(self):
-                if isAudioObject(getattr(self, at)):
-                    getattr(self, at).play(dur, delay)
-                # Handle list of audio objects.
-                elif type(getattr(self, at)) is list:
-                    for subat in getattr(self, at):
-                        if isAudioObject(subat):
-                            subat.play(dur, delay)
-
-    def _autostop(self, wait=0):
-        if self.getServer().getAutoStartChildren():
-            for at in dir(self):
-                if isAudioObject(getattr(self, at)):
-                    if at == "mul":
-                        # Start fadeout immediately.
-                        getattr(self, at).stop()
-                    else:
-                        # Every other attributes wait.
-                        getattr(self, at).stop(wait)
-                # Handle list of audio objects.
-                elif type(getattr(self, at)) is list:
-                    ismul = at == "mul"
-                    for subat in getattr(self, at):
-                        if isAudioObject(subat):
-                            if ismul:
-                                subat.stop()
-                            else:
-                                subat.stop(wait)
-
     def play(self, dur=0, delay=0):
         """
         Start processing without sending samples to output.
@@ -1381,8 +1422,24 @@ class PyoObject(PyoObjectBase):
         This method returns `self`, allowing it to be applied at the object
         creation.
 
+        :Args:
+
+            wait: float, optional
+                Delay, in seconds, before the process is actually stopped.
+                If autoStartChildren is activated in the Server, this value
+                is propagated to the children objects. Defaults to 0.
+
+        .. note::
+
+            Fader and Adsr objects ignore waiting time given to the stop
+            method because they already implement a delayed processing
+            triggered by the stop call.
+
         """
         self._autostop(wait)
+        if self._is_mul_attribute and not self._use_wait_time_on_stop:
+            wait = 0
+
         if self._trig_objs is not None:
             if isinstance(self._trig_objs, list):
                 [obj.stop(wait) for obj in self._trig_objs]
@@ -1394,7 +1451,6 @@ class PyoObject(PyoObjectBase):
         # It's moved locally to the Looper definition.
         #if self._time_objs is not None:
         #    [obj.stop() for obj in self._time_objs]
-
         [obj.stop(wait) for obj in self._base_objs]
         return self
 
@@ -2464,6 +2520,7 @@ class PyoPVObject(PyoObjectBase):
         """
         pyoArgsAssert(self, "nn", dur, delay)
         dur, delay, _ = convertArgsToLists(dur, delay)
+        self._autoplay(dur, delay)
         if self._trig_objs is not None:
             self._trig_objs.play(dur, delay)
         if self._base_players is not None:
@@ -2473,14 +2530,22 @@ class PyoPVObject(PyoObjectBase):
          for i, obj in enumerate(self._base_objs)]
         return self
 
-    def stop(self):
+    def stop(self, wait=0):
         """
         Stop processing.
 
         This method returns `self`, allowing it to be applied at the object
         creation.
 
+        :Args:
+
+            wait: float, optional
+                Delay, in seconds, before the process is actually stopped.
+                If autoStartChildren is activated in the Server, this value
+                is propagated to the children objects. Defaults to 0.
+
         """
+        self._autostop(wait)
         if self._trig_objs is not None:
             self._trig_objs.stop()
         if self._base_players is not None:

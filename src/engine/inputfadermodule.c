@@ -231,7 +231,7 @@ static PyObject * InputFader_getStream(InputFader* self) { GET_STREAM };
 
 static PyObject * InputFader_play(InputFader *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * InputFader_out(InputFader *self, PyObject *args, PyObject *kwds) { OUT };
-static PyObject * InputFader_stop(InputFader *self) { STOP };
+static PyObject * InputFader_stop(InputFader *self, PyObject *args, PyObject *kwds) { STOP };
 
 static PyMemberDef InputFader_members[] = {
     {"server", T_OBJECT_EX, offsetof(InputFader, server), 0, "Pyo server."},
@@ -247,7 +247,7 @@ static PyMethodDef InputFader_methods[] = {
     {"play", (PyCFunction)InputFader_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)InputFader_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
     {"setInput", (PyCFunction)InputFader_setInput, METH_VARARGS|METH_KEYWORDS, "Crossfade between current stream and given stream."},
-    {"stop", (PyCFunction)InputFader_stop, METH_NOARGS, "Stops computing."},
+    {"stop", (PyCFunction)InputFader_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
     {NULL}  /* Sentinel */
 };
 

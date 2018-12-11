@@ -651,9 +651,9 @@ class Notein(PyoObject):
     def out(self, chnl=0, inc=1, dur=0, delay=0):
         return self.play(dur, delay)
 
-    def stop(self):
-        self._base_handler.stop()
-        return PyoObject.stop(self)
+    def stop(self, wait=0):
+        self._base_handler.stop(wait)
+        return PyoObject.stop(self, wait)
 
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
         self._map_list = [SLMap(0, 2, 'lin', 'scale', self._scale, res="int", dataOnly=True),

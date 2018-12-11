@@ -562,7 +562,7 @@ static PyObject * WGVerb_setDiv(WGVerb *self, PyObject *arg) { SET_DIV };
 
 static PyObject * WGVerb_play(WGVerb *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * WGVerb_out(WGVerb *self, PyObject *args, PyObject *kwds) { OUT };
-static PyObject * WGVerb_stop(WGVerb *self) { STOP };
+static PyObject * WGVerb_stop(WGVerb *self, PyObject *args, PyObject *kwds) { STOP };
 
 static PyObject * WGVerb_multiply(WGVerb *self, PyObject *arg) { MULTIPLY };
 static PyObject * WGVerb_inplace_multiply(WGVerb *self, PyObject *arg) { INPLACE_MULTIPLY };
@@ -699,7 +699,7 @@ static PyMethodDef WGVerb_methods[] = {
 {"_getStream", (PyCFunction)WGVerb_getStream, METH_NOARGS, "Returns stream object."},
 {"play", (PyCFunction)WGVerb_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
 {"out", (PyCFunction)WGVerb_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-{"stop", (PyCFunction)WGVerb_stop, METH_NOARGS, "Stops computing."},
+{"stop", (PyCFunction)WGVerb_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
 {"reset", (PyCFunction)WGVerb_reset, METH_NOARGS, "Reset the delay line."},
 {"setFeedback", (PyCFunction)WGVerb_setFeedback, METH_O, "Sets feedback value between 0 -> 1."},
 {"setCutoff", (PyCFunction)WGVerb_setCutoff, METH_O, "Sets lowpass filter cutoff."},
@@ -1580,7 +1580,7 @@ static PyObject * STReverb_getServer(STReverb* self) { GET_SERVER };
 static PyObject * STReverb_getStream(STReverb* self) { GET_STREAM };
 
 static PyObject * STReverb_play(STReverb *self, PyObject *args, PyObject *kwds) { PLAY };
-static PyObject * STReverb_stop(STReverb *self) { STOP };
+static PyObject * STReverb_stop(STReverb *self, PyObject *args, PyObject *kwds) { STOP };
 
 static PyObject *
 STReverb_reset(STReverb *self)
@@ -1826,7 +1826,7 @@ static PyMethodDef STReverb_methods[] = {
 {"getServer", (PyCFunction)STReverb_getServer, METH_NOARGS, "Returns server object."},
 {"_getStream", (PyCFunction)STReverb_getStream, METH_NOARGS, "Returns stream object."},
 {"play", (PyCFunction)STReverb_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-{"stop", (PyCFunction)STReverb_stop, METH_NOARGS, "Stops computing."},
+{"stop", (PyCFunction)STReverb_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
 {"reset", (PyCFunction)STReverb_reset, METH_NOARGS, "Reset the delay line."},
 {"setInpos", (PyCFunction)STReverb_setInpos, METH_O, "Sets position of the source between 0 -> 1."},
 {"setRevtime", (PyCFunction)STReverb_setRevtime, METH_O, "Sets reverb duration in seconds."},
@@ -2020,7 +2020,7 @@ static PyObject * STRev_setDiv(STRev *self, PyObject *arg) { SET_DIV };
 
 static PyObject * STRev_play(STRev *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * STRev_out(STRev *self, PyObject *args, PyObject *kwds) { OUT };
-static PyObject * STRev_stop(STRev *self) { STOP };
+static PyObject * STRev_stop(STRev *self, PyObject *args, PyObject *kwds) { STOP };
 
 static PyObject * STRev_multiply(STRev *self, PyObject *arg) { MULTIPLY };
 static PyObject * STRev_inplace_multiply(STRev *self, PyObject *arg) { INPLACE_MULTIPLY };
@@ -2044,7 +2044,7 @@ static PyMethodDef STRev_methods[] = {
 {"_getStream", (PyCFunction)STRev_getStream, METH_NOARGS, "Returns stream object."},
 {"play", (PyCFunction)STRev_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
 {"out", (PyCFunction)STRev_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-{"stop", (PyCFunction)STRev_stop, METH_NOARGS, "Stops computing."},
+{"stop", (PyCFunction)STRev_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
 {"setMul", (PyCFunction)STRev_setMul, METH_O, "Sets STRev mul factor."},
 {"setAdd", (PyCFunction)STRev_setAdd, METH_O, "Sets STRev add factor."},
 {"setSub", (PyCFunction)STRev_setSub, METH_O, "Sets inverse add factor."},

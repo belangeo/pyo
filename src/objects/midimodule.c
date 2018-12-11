@@ -124,7 +124,7 @@ static PyObject * CtlScan_getServer(CtlScan* self) { GET_SERVER };
 static PyObject * CtlScan_getStream(CtlScan* self) { GET_STREAM };
 
 static PyObject * CtlScan_play(CtlScan *self, PyObject *args, PyObject *kwds) { PLAY };
-static PyObject * CtlScan_stop(CtlScan *self) { STOP };
+static PyObject * CtlScan_stop(CtlScan *self, PyObject *args, PyObject *kwds) { STOP };
 
 static PyObject *
 CtlScan_reset(CtlScan *self)
@@ -175,7 +175,7 @@ static PyMethodDef CtlScan_methods[] = {
     {"getServer", (PyCFunction)CtlScan_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)CtlScan_getStream, METH_NOARGS, "Returns stream object."},
     {"play", (PyCFunction)CtlScan_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"stop", (PyCFunction)CtlScan_stop, METH_NOARGS, "Stops computing."},
+    {"stop", (PyCFunction)CtlScan_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
     {"reset", (PyCFunction)CtlScan_reset, METH_NOARGS, "Resets the scanned number."},
     {"setFunction", (PyCFunction)CtlScan_setFunction, METH_O, "Sets the function to be called."},
     {"setToprint", (PyCFunction)CtlScan_setToprint, METH_O, "If True, print values to the console."},
@@ -324,7 +324,7 @@ static PyObject * CtlScan2_getServer(CtlScan2* self) { GET_SERVER };
 static PyObject * CtlScan2_getStream(CtlScan2* self) { GET_STREAM };
 
 static PyObject * CtlScan2_play(CtlScan2 *self, PyObject *args, PyObject *kwds) { PLAY };
-static PyObject * CtlScan2_stop(CtlScan2 *self) { STOP };
+static PyObject * CtlScan2_stop(CtlScan2 *self, PyObject *args, PyObject *kwds) { STOP };
 
 static PyObject *
 CtlScan2_reset(CtlScan2 *self)
@@ -375,7 +375,7 @@ static PyMethodDef CtlScan2_methods[] = {
     {"getServer", (PyCFunction)CtlScan2_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)CtlScan2_getStream, METH_NOARGS, "Returns stream object."},
     {"play", (PyCFunction)CtlScan2_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"stop", (PyCFunction)CtlScan2_stop, METH_NOARGS, "Stops computing."},
+    {"stop", (PyCFunction)CtlScan2_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
     {"reset", (PyCFunction)CtlScan2_reset, METH_NOARGS, "Reset scanned numbers."},
     {"setFunction", (PyCFunction)CtlScan2_setFunction, METH_O, "Sets the function to be called."},
     {"setToprint", (PyCFunction)CtlScan2_setToprint, METH_O, "If True, print values to the console."},
@@ -634,7 +634,7 @@ static PyObject * Midictl_setSub(Midictl *self, PyObject *arg) { SET_SUB };
 static PyObject * Midictl_setDiv(Midictl *self, PyObject *arg) { SET_DIV };
 
 static PyObject * Midictl_play(Midictl *self, PyObject *args, PyObject *kwds) { PLAY };
-static PyObject * Midictl_stop(Midictl *self) { STOP };
+static PyObject * Midictl_stop(Midictl *self, PyObject *args, PyObject *kwds) { STOP };
 
 static PyObject * Midictl_multiply(Midictl *self, PyObject *arg) { MULTIPLY };
 static PyObject * Midictl_inplace_multiply(Midictl *self, PyObject *arg) { INPLACE_MULTIPLY };
@@ -740,7 +740,7 @@ static PyMethodDef Midictl_methods[] = {
     {"getServer", (PyCFunction)Midictl_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)Midictl_getStream, METH_NOARGS, "Returns stream object."},
     {"play", (PyCFunction)Midictl_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"stop", (PyCFunction)Midictl_stop, METH_NOARGS, "Stops computing."},
+    {"stop", (PyCFunction)Midictl_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
     {"setValue", (PyCFunction)Midictl_setValue, METH_O, "Resets audio stream to value in argument."},
     {"setMinScale", (PyCFunction)Midictl_setMinScale, METH_O, "Sets the minimum value of scaling."},
     {"setMaxScale", (PyCFunction)Midictl_setMaxScale, METH_O, "Sets the maximum value of scaling."},
@@ -1033,7 +1033,7 @@ static PyObject * Bendin_setSub(Bendin *self, PyObject *arg) { SET_SUB };
 static PyObject * Bendin_setDiv(Bendin *self, PyObject *arg) { SET_DIV };
 
 static PyObject * Bendin_play(Bendin *self, PyObject *args, PyObject *kwds) { PLAY };
-static PyObject * Bendin_stop(Bendin *self) { STOP };
+static PyObject * Bendin_stop(Bendin *self, PyObject *args, PyObject *kwds) { STOP };
 
 static PyObject * Bendin_multiply(Bendin *self, PyObject *arg) { MULTIPLY };
 static PyObject * Bendin_inplace_multiply(Bendin *self, PyObject *arg) { INPLACE_MULTIPLY };
@@ -1115,7 +1115,7 @@ static PyMethodDef Bendin_methods[] = {
     {"getServer", (PyCFunction)Bendin_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)Bendin_getStream, METH_NOARGS, "Returns stream object."},
     {"play", (PyCFunction)Bendin_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"stop", (PyCFunction)Bendin_stop, METH_NOARGS, "Stops computing."},
+    {"stop", (PyCFunction)Bendin_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
     {"setBrange", (PyCFunction)Bendin_setBrange, METH_O, "Sets the bending bipolar range."},
     {"setScale", (PyCFunction)Bendin_setScale, METH_O, "Sets the output type, midi vs transpo."},
     {"setChannel", (PyCFunction)Bendin_setChannel, METH_O, "Sets the midi channel."},
@@ -1396,7 +1396,7 @@ static PyObject * Touchin_setSub(Touchin *self, PyObject *arg) { SET_SUB };
 static PyObject * Touchin_setDiv(Touchin *self, PyObject *arg) { SET_DIV };
 
 static PyObject * Touchin_play(Touchin *self, PyObject *args, PyObject *kwds) { PLAY };
-static PyObject * Touchin_stop(Touchin *self) { STOP };
+static PyObject * Touchin_stop(Touchin *self, PyObject *args, PyObject *kwds) { STOP };
 
 static PyObject * Touchin_multiply(Touchin *self, PyObject *arg) { MULTIPLY };
 static PyObject * Touchin_inplace_multiply(Touchin *self, PyObject *arg) { INPLACE_MULTIPLY };
@@ -1462,7 +1462,7 @@ static PyMethodDef Touchin_methods[] = {
     {"getServer", (PyCFunction)Touchin_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)Touchin_getStream, METH_NOARGS, "Returns stream object."},
     {"play", (PyCFunction)Touchin_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"stop", (PyCFunction)Touchin_stop, METH_NOARGS, "Stops computing."},
+    {"stop", (PyCFunction)Touchin_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
     {"setMinScale", (PyCFunction)Touchin_setMinScale, METH_O, "Sets the minimum value of scaling."},
     {"setMaxScale", (PyCFunction)Touchin_setMaxScale, METH_O, "Sets the maximum value of scaling."},
     {"setChannel", (PyCFunction)Touchin_setChannel, METH_O, "Sets the midi channel."},
@@ -1725,7 +1725,7 @@ static PyObject * Programin_setSub(Programin *self, PyObject *arg) { SET_SUB };
 static PyObject * Programin_setDiv(Programin *self, PyObject *arg) { SET_DIV };
 
 static PyObject * Programin_play(Programin *self, PyObject *args, PyObject *kwds) { PLAY };
-static PyObject * Programin_stop(Programin *self) { STOP };
+static PyObject * Programin_stop(Programin *self, PyObject *args, PyObject *kwds) { STOP };
 
 static PyObject * Programin_multiply(Programin *self, PyObject *arg) { MULTIPLY };
 static PyObject * Programin_inplace_multiply(Programin *self, PyObject *arg) { INPLACE_MULTIPLY };
@@ -1767,7 +1767,7 @@ static PyMethodDef Programin_methods[] = {
     {"getServer", (PyCFunction)Programin_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)Programin_getStream, METH_NOARGS, "Returns stream object."},
     {"play", (PyCFunction)Programin_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"stop", (PyCFunction)Programin_stop, METH_NOARGS, "Stops computing."},
+    {"stop", (PyCFunction)Programin_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
     {"setChannel", (PyCFunction)Programin_setChannel, METH_O, "Sets the midi channel."},
     {"setMul", (PyCFunction)Programin_setMul, METH_O, "Sets oscillator mul factor."},
     {"setAdd", (PyCFunction)Programin_setAdd, METH_O, "Sets oscillator add factor."},
@@ -2144,7 +2144,7 @@ static PyObject * MidiNote_getServer(MidiNote* self) { GET_SERVER };
 static PyObject * MidiNote_getStream(MidiNote* self) { GET_STREAM };
 
 static PyObject * MidiNote_play(MidiNote *self, PyObject *args, PyObject *kwds) { PLAY };
-static PyObject * MidiNote_stop(MidiNote *self) { STOP };
+static PyObject * MidiNote_stop(MidiNote *self, PyObject *args, PyObject *kwds) { STOP };
 
 static PyObject *
 MidiNote_setScale(MidiNote *self, PyObject *arg)
@@ -2241,7 +2241,7 @@ static PyMethodDef MidiNote_methods[] = {
 {"getServer", (PyCFunction)MidiNote_getServer, METH_NOARGS, "Returns server object."},
 {"_getStream", (PyCFunction)MidiNote_getStream, METH_NOARGS, "Returns stream object."},
 {"play", (PyCFunction)MidiNote_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-{"stop", (PyCFunction)MidiNote_stop, METH_NOARGS, "Stops computing."},
+{"stop", (PyCFunction)MidiNote_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
 {"setScale", (PyCFunction)MidiNote_setScale, METH_O, "Sets the scale factor."},
 {"setFirst", (PyCFunction)MidiNote_setFirst, METH_O, "Sets the lowest midi note."},
 {"setLast", (PyCFunction)MidiNote_setLast, METH_O, "Sets the highest midi note."},
@@ -2470,7 +2470,7 @@ static PyObject * Notein_setSub(Notein *self, PyObject *arg) { SET_SUB };
 static PyObject * Notein_setDiv(Notein *self, PyObject *arg) { SET_DIV };
 
 static PyObject * Notein_play(Notein *self, PyObject *args, PyObject *kwds) { PLAY };
-static PyObject * Notein_stop(Notein *self) { STOP };
+static PyObject * Notein_stop(Notein *self, PyObject *args, PyObject *kwds) { STOP };
 
 static PyObject * Notein_multiply(Notein *self, PyObject *arg) { MULTIPLY };
 static PyObject * Notein_inplace_multiply(Notein *self, PyObject *arg) { INPLACE_MULTIPLY };
@@ -2493,7 +2493,7 @@ static PyMethodDef Notein_methods[] = {
 {"getServer", (PyCFunction)Notein_getServer, METH_NOARGS, "Returns server object."},
 {"_getStream", (PyCFunction)Notein_getStream, METH_NOARGS, "Returns stream object."},
 {"play", (PyCFunction)Notein_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-{"stop", (PyCFunction)Notein_stop, METH_NOARGS, "Stops computing."},
+{"stop", (PyCFunction)Notein_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
 {"setMul", (PyCFunction)Notein_setMul, METH_O, "Sets Notein mul factor."},
 {"setAdd", (PyCFunction)Notein_setAdd, METH_O, "Sets Notein add factor."},
 {"setSub", (PyCFunction)Notein_setSub, METH_O, "Sets inverse add factor."},
@@ -2725,7 +2725,7 @@ static PyObject * NoteinTrig_setSub(NoteinTrig *self, PyObject *arg) { SET_SUB }
 static PyObject * NoteinTrig_setDiv(NoteinTrig *self, PyObject *arg) { SET_DIV };
 
 static PyObject * NoteinTrig_play(NoteinTrig *self, PyObject *args, PyObject *kwds) { PLAY };
-static PyObject * NoteinTrig_stop(NoteinTrig *self) { STOP };
+static PyObject * NoteinTrig_stop(NoteinTrig *self, PyObject *args, PyObject *kwds) { STOP };
 
 static PyObject * NoteinTrig_multiply(NoteinTrig *self, PyObject *arg) { MULTIPLY };
 static PyObject * NoteinTrig_inplace_multiply(NoteinTrig *self, PyObject *arg) { INPLACE_MULTIPLY };
@@ -2748,7 +2748,7 @@ static PyMethodDef NoteinTrig_methods[] = {
 {"getServer", (PyCFunction)NoteinTrig_getServer, METH_NOARGS, "Returns server object."},
 {"_getStream", (PyCFunction)NoteinTrig_getStream, METH_NOARGS, "Returns stream object."},
 {"play", (PyCFunction)NoteinTrig_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-{"stop", (PyCFunction)NoteinTrig_stop, METH_NOARGS, "Stops computing."},
+{"stop", (PyCFunction)NoteinTrig_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
 {"setMul", (PyCFunction)NoteinTrig_setMul, METH_O, "Sets NoteinTrig mul factor."},
 {"setAdd", (PyCFunction)NoteinTrig_setAdd, METH_O, "Sets NoteinTrig add factor."},
 {"setSub", (PyCFunction)NoteinTrig_setSub, METH_O, "Sets inverse add factor."},
@@ -3079,7 +3079,7 @@ static PyObject * MidiAdsr_setSub(MidiAdsr *self, PyObject *arg) { SET_SUB };
 static PyObject * MidiAdsr_setDiv(MidiAdsr *self, PyObject *arg) { SET_DIV };
 
 static PyObject * MidiAdsr_play(MidiAdsr *self, PyObject *args, PyObject *kwds) { PLAY };
-static PyObject * MidiAdsr_stop(MidiAdsr *self) { STOP }
+static PyObject * MidiAdsr_stop(MidiAdsr *self, PyObject *args, PyObject *kwds) { STOP }
 
 static PyObject * MidiAdsr_multiply(MidiAdsr *self, PyObject *arg) { MULTIPLY };
 static PyObject * MidiAdsr_inplace_multiply(MidiAdsr *self, PyObject *arg) { INPLACE_MULTIPLY };
@@ -3170,7 +3170,7 @@ static PyMethodDef MidiAdsr_methods[] = {
     {"getServer", (PyCFunction)MidiAdsr_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)MidiAdsr_getStream, METH_NOARGS, "Returns stream object."},
     {"play", (PyCFunction)MidiAdsr_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"stop", (PyCFunction)MidiAdsr_stop, METH_NOARGS, "Starts fadeout and stops computing."},
+    {"stop", (PyCFunction)MidiAdsr_stop, METH_VARARGS|METH_KEYWORDS, "Starts fadeout and stops computing."},
     {"setMul", (PyCFunction)MidiAdsr_setMul, METH_O, "Sets MidiAdsr mul factor."},
     {"setAdd", (PyCFunction)MidiAdsr_setAdd, METH_O, "Sets MidiAdsr add factor."},
     {"setSub", (PyCFunction)MidiAdsr_setSub, METH_O, "Sets inverse add factor."},
@@ -3512,7 +3512,7 @@ static PyObject * MidiDelAdsr_setSub(MidiDelAdsr *self, PyObject *arg) { SET_SUB
 static PyObject * MidiDelAdsr_setDiv(MidiDelAdsr *self, PyObject *arg) { SET_DIV };
 
 static PyObject * MidiDelAdsr_play(MidiDelAdsr *self, PyObject *args, PyObject *kwds) { PLAY };
-static PyObject * MidiDelAdsr_stop(MidiDelAdsr *self) { STOP }
+static PyObject * MidiDelAdsr_stop(MidiDelAdsr *self, PyObject *args, PyObject *kwds) { STOP }
 
 static PyObject * MidiDelAdsr_multiply(MidiDelAdsr *self, PyObject *arg) { MULTIPLY };
 static PyObject * MidiDelAdsr_inplace_multiply(MidiDelAdsr *self, PyObject *arg) { INPLACE_MULTIPLY };
@@ -3616,7 +3616,7 @@ static PyMethodDef MidiDelAdsr_methods[] = {
     {"getServer", (PyCFunction)MidiDelAdsr_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)MidiDelAdsr_getStream, METH_NOARGS, "Returns stream object."},
     {"play", (PyCFunction)MidiDelAdsr_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"stop", (PyCFunction)MidiDelAdsr_stop, METH_NOARGS, "Starts fadeout and stops computing."},
+    {"stop", (PyCFunction)MidiDelAdsr_stop, METH_VARARGS|METH_KEYWORDS, "Starts fadeout and stops computing."},
     {"setMul", (PyCFunction)MidiDelAdsr_setMul, METH_O, "Sets MidiDelAdsr mul factor."},
     {"setAdd", (PyCFunction)MidiDelAdsr_setAdd, METH_O, "Sets MidiDelAdsr add factor."},
     {"setSub", (PyCFunction)MidiDelAdsr_setSub, METH_O, "Sets inverse add factor."},
@@ -3799,7 +3799,7 @@ static PyObject * RawMidi_getServer(RawMidi* self) { GET_SERVER };
 static PyObject * RawMidi_getStream(RawMidi* self) { GET_STREAM };
 
 static PyObject * RawMidi_play(RawMidi *self, PyObject *args, PyObject *kwds) { PLAY };
-static PyObject * RawMidi_stop(RawMidi *self) { STOP };
+static PyObject * RawMidi_stop(RawMidi *self, PyObject *args, PyObject *kwds) { STOP };
 
 static PyObject *
 RawMidi_setFunction(RawMidi *self, PyObject *arg)
@@ -3831,7 +3831,7 @@ static PyMethodDef RawMidi_methods[] = {
     {"getServer", (PyCFunction)RawMidi_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)RawMidi_getStream, METH_NOARGS, "Returns stream object."},
     {"play", (PyCFunction)RawMidi_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"stop", (PyCFunction)RawMidi_stop, METH_NOARGS, "Stops computing."},
+    {"stop", (PyCFunction)RawMidi_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
     {"setFunction", (PyCFunction)RawMidi_setFunction, METH_O, "Sets the function to be called."},
     {NULL}  /* Sentinel */
 };
@@ -4159,7 +4159,7 @@ static PyObject * MidiLinseg_setSub(MidiLinseg *self, PyObject *arg) { SET_SUB }
 static PyObject * MidiLinseg_setDiv(MidiLinseg *self, PyObject *arg) { SET_DIV };
 
 static PyObject * MidiLinseg_play(MidiLinseg *self, PyObject *args, PyObject *kwds) { PLAY };
-static PyObject * MidiLinseg_stop(MidiLinseg *self) { STOP };
+static PyObject * MidiLinseg_stop(MidiLinseg *self, PyObject *args, PyObject *kwds) { STOP };
 
 static PyObject * MidiLinseg_multiply(MidiLinseg *self, PyObject *arg) { MULTIPLY };
 static PyObject * MidiLinseg_inplace_multiply(MidiLinseg *self, PyObject *arg) { INPLACE_MULTIPLY };
@@ -4218,7 +4218,7 @@ static PyMethodDef MidiLinseg_methods[] = {
 {"_getStream", (PyCFunction)MidiLinseg_getStream, METH_NOARGS, "Returns stream object."},
 {"_getTriggerStream", (PyCFunction)MidiLinseg_getTriggerStream, METH_NOARGS, "Returns trigger stream object."},
 {"play", (PyCFunction)MidiLinseg_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-{"stop", (PyCFunction)MidiLinseg_stop, METH_NOARGS, "Starts fadeout and stops computing."},
+{"stop", (PyCFunction)MidiLinseg_stop, METH_VARARGS|METH_KEYWORDS, "Starts fadeout and stops computing."},
 {"setList", (PyCFunction)MidiLinseg_setList, METH_O, "Sets target points list."},
 {"setHold", (PyCFunction)MidiLinseg_setHold, METH_O, "Sets hold point."},
 {"setMul", (PyCFunction)MidiLinseg_setMul, METH_O, "Sets MidiLinseg mul factor."},

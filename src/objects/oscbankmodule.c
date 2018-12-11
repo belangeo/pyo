@@ -524,7 +524,7 @@ static PyObject * OscBank_setDiv(OscBank *self, PyObject *arg) { SET_DIV };
 
 static PyObject * OscBank_play(OscBank *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * OscBank_out(OscBank *self, PyObject *args, PyObject *kwds) { OUT };
-static PyObject * OscBank_stop(OscBank *self) { STOP };
+static PyObject * OscBank_stop(OscBank *self, PyObject *args, PyObject *kwds) { STOP };
 
 static PyObject * OscBank_multiply(OscBank *self, PyObject *arg) { MULTIPLY };
 static PyObject * OscBank_inplace_multiply(OscBank *self, PyObject *arg) { INPLACE_MULTIPLY };
@@ -793,7 +793,7 @@ static PyMethodDef OscBank_methods[] = {
     {"_getStream", (PyCFunction)OscBank_getStream, METH_NOARGS, "Returns stream object."},
     {"play", (PyCFunction)OscBank_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)OscBank_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-    {"stop", (PyCFunction)OscBank_stop, METH_NOARGS, "Stops computing."},
+    {"stop", (PyCFunction)OscBank_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
     {"setTable", (PyCFunction)OscBank_setTable, METH_O, "Sets oscillator table."},
     {"setFreq", (PyCFunction)OscBank_setFreq, METH_O, "Sets base frequency in Hertz."},
     {"setSpread", (PyCFunction)OscBank_setSpread, METH_O, "Sets spreading factor."},

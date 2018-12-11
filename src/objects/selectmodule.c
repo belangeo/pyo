@@ -185,7 +185,7 @@ static PyObject * Select_setSub(Select *self, PyObject *arg) { SET_SUB };
 static PyObject * Select_setDiv(Select *self, PyObject *arg) { SET_DIV };
 
 static PyObject * Select_play(Select *self, PyObject *args, PyObject *kwds) { PLAY };
-static PyObject * Select_stop(Select *self) { STOP };
+static PyObject * Select_stop(Select *self, PyObject *args, PyObject *kwds) { STOP };
 
 static PyObject * Select_multiply(Select *self, PyObject *arg) { MULTIPLY };
 static PyObject * Select_inplace_multiply(Select *self, PyObject *arg) { INPLACE_MULTIPLY };
@@ -221,7 +221,7 @@ static PyMethodDef Select_methods[] = {
 {"getServer", (PyCFunction)Select_getServer, METH_NOARGS, "Returns server object."},
 {"_getStream", (PyCFunction)Select_getStream, METH_NOARGS, "Returns stream object."},
 {"play", (PyCFunction)Select_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-{"stop", (PyCFunction)Select_stop, METH_NOARGS, "Stops computing."},
+{"stop", (PyCFunction)Select_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
 {"setValue", (PyCFunction)Select_setValue, METH_O, "Sets value to select."},
 {"setMul", (PyCFunction)Select_setMul, METH_O, "Sets mul factor."},
 {"setAdd", (PyCFunction)Select_setAdd, METH_O, "Sets add factor."},
@@ -469,7 +469,7 @@ static PyObject * Change_setSub(Change *self, PyObject *arg) { SET_SUB };
 static PyObject * Change_setDiv(Change *self, PyObject *arg) { SET_DIV };
 
 static PyObject * Change_play(Change *self, PyObject *args, PyObject *kwds) { PLAY };
-static PyObject * Change_stop(Change *self) { STOP };
+static PyObject * Change_stop(Change *self, PyObject *args, PyObject *kwds) { STOP };
 
 static PyObject * Change_multiply(Change *self, PyObject *arg) { MULTIPLY };
 static PyObject * Change_inplace_multiply(Change *self, PyObject *arg) { INPLACE_MULTIPLY };
@@ -492,7 +492,7 @@ static PyMethodDef Change_methods[] = {
 {"getServer", (PyCFunction)Change_getServer, METH_NOARGS, "Returns server object."},
 {"_getStream", (PyCFunction)Change_getStream, METH_NOARGS, "Returns stream object."},
 {"play", (PyCFunction)Change_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-{"stop", (PyCFunction)Change_stop, METH_NOARGS, "Stops computing."},
+{"stop", (PyCFunction)Change_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
 {"setMul", (PyCFunction)Change_setMul, METH_O, "Sets mul factor."},
 {"setAdd", (PyCFunction)Change_setAdd, METH_O, "Sets add factor."},
 {"setSub", (PyCFunction)Change_setSub, METH_O, "Sets inverse add factor."},

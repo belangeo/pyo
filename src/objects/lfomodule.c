@@ -1075,7 +1075,7 @@ static PyObject * LFO_setDiv(LFO *self, PyObject *arg) { SET_DIV };
 
 static PyObject * LFO_play(LFO *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * LFO_out(LFO *self, PyObject *args, PyObject *kwds) { OUT };
-static PyObject * LFO_stop(LFO *self) { STOP };
+static PyObject * LFO_stop(LFO *self, PyObject *args, PyObject *kwds) { STOP };
 
 static PyObject * LFO_multiply(LFO *self, PyObject *arg) { MULTIPLY };
 static PyObject * LFO_inplace_multiply(LFO *self, PyObject *arg) { INPLACE_MULTIPLY };
@@ -1194,7 +1194,7 @@ static PyMethodDef LFO_methods[] = {
     {"_getStream", (PyCFunction)LFO_getStream, METH_NOARGS, "Returns stream object."},
     {"play", (PyCFunction)LFO_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)LFO_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-    {"stop", (PyCFunction)LFO_stop, METH_NOARGS, "Stops computing."},
+    {"stop", (PyCFunction)LFO_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
 	{"setFreq", (PyCFunction)LFO_setFreq, METH_O, "Sets oscillator frequency in cycle per second."},
     {"setSharp", (PyCFunction)LFO_setSharp, METH_O, "Sets the sharpness factor."},
     {"setType", (PyCFunction)LFO_setType, METH_O, "Sets waveform type."},

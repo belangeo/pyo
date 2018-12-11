@@ -237,7 +237,7 @@ static PyObject * Follower_setSub(Follower *self, PyObject *arg) { SET_SUB };
 static PyObject * Follower_setDiv(Follower *self, PyObject *arg) { SET_DIV };
 
 static PyObject * Follower_play(Follower *self, PyObject *args, PyObject *kwds) { PLAY };
-static PyObject * Follower_stop(Follower *self) { STOP };
+static PyObject * Follower_stop(Follower *self, PyObject *args, PyObject *kwds) { STOP };
 
 static PyObject * Follower_multiply(Follower *self, PyObject *arg) { MULTIPLY };
 static PyObject * Follower_inplace_multiply(Follower *self, PyObject *arg) { INPLACE_MULTIPLY };
@@ -293,7 +293,7 @@ static PyMethodDef Follower_methods[] = {
 {"getServer", (PyCFunction)Follower_getServer, METH_NOARGS, "Returns server object."},
 {"_getStream", (PyCFunction)Follower_getStream, METH_NOARGS, "Returns stream object."},
 {"play", (PyCFunction)Follower_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-{"stop", (PyCFunction)Follower_stop, METH_NOARGS, "Stops computing."},
+{"stop", (PyCFunction)Follower_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
 {"setFreq", (PyCFunction)Follower_setFreq, METH_O, "Sets filter cutoff frequency in cycle per second."},
 {"setMul", (PyCFunction)Follower_setMul, METH_O, "Sets oscillator mul factor."},
 {"setAdd", (PyCFunction)Follower_setAdd, METH_O, "Sets oscillator add factor."},
@@ -707,7 +707,7 @@ static PyObject * Follower2_setSub(Follower2 *self, PyObject *arg) { SET_SUB };
 static PyObject * Follower2_setDiv(Follower2 *self, PyObject *arg) { SET_DIV };
 
 static PyObject * Follower2_play(Follower2 *self, PyObject *args, PyObject *kwds) { PLAY };
-static PyObject * Follower2_stop(Follower2 *self) { STOP };
+static PyObject * Follower2_stop(Follower2 *self, PyObject *args, PyObject *kwds) { STOP };
 
 static PyObject * Follower2_multiply(Follower2 *self, PyObject *arg) { MULTIPLY };
 static PyObject * Follower2_inplace_multiply(Follower2 *self, PyObject *arg) { INPLACE_MULTIPLY };
@@ -795,7 +795,7 @@ static PyMethodDef Follower2_methods[] = {
     {"getServer", (PyCFunction)Follower2_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)Follower2_getStream, METH_NOARGS, "Returns stream object."},
     {"play", (PyCFunction)Follower2_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"stop", (PyCFunction)Follower2_stop, METH_NOARGS, "Stops computing."},
+    {"stop", (PyCFunction)Follower2_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
     {"setRisetime", (PyCFunction)Follower2_setRisetime, METH_O, "Sets filter risetime in second."},
     {"setFalltime", (PyCFunction)Follower2_setFalltime, METH_O, "Sets filter falltime in second."},
     {"setMul", (PyCFunction)Follower2_setMul, METH_O, "Sets oscillator mul factor."},
@@ -1053,7 +1053,7 @@ static PyObject * ZCross_setSub(ZCross *self, PyObject *arg) { SET_SUB };
 static PyObject * ZCross_setDiv(ZCross *self, PyObject *arg) { SET_DIV };
 
 static PyObject * ZCross_play(ZCross *self, PyObject *args, PyObject *kwds) { PLAY };
-static PyObject * ZCross_stop(ZCross *self) { STOP };
+static PyObject * ZCross_stop(ZCross *self, PyObject *args, PyObject *kwds) { STOP };
 
 static PyObject * ZCross_multiply(ZCross *self, PyObject *arg) { MULTIPLY };
 static PyObject * ZCross_inplace_multiply(ZCross *self, PyObject *arg) { INPLACE_MULTIPLY };
@@ -1092,7 +1092,7 @@ static PyMethodDef ZCross_methods[] = {
 {"getServer", (PyCFunction)ZCross_getServer, METH_NOARGS, "Returns server object."},
 {"_getStream", (PyCFunction)ZCross_getStream, METH_NOARGS, "Returns stream object."},
 {"play", (PyCFunction)ZCross_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-{"stop", (PyCFunction)ZCross_stop, METH_NOARGS, "Stops computing."},
+{"stop", (PyCFunction)ZCross_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
 {"setThresh", (PyCFunction)ZCross_setThresh, METH_O, "Sets the threshold factor."},
 {"setMul", (PyCFunction)ZCross_setMul, METH_O, "Sets oscillator mul factor."},
 {"setAdd", (PyCFunction)ZCross_setAdd, METH_O, "Sets oscillator add factor."},
@@ -1438,7 +1438,7 @@ static PyObject * Yin_setSub(Yin *self, PyObject *arg) { SET_SUB };
 static PyObject * Yin_setDiv(Yin *self, PyObject *arg) { SET_DIV };
 
 static PyObject * Yin_play(Yin *self, PyObject *args, PyObject *kwds) { PLAY };
-static PyObject * Yin_stop(Yin *self) { STOP };
+static PyObject * Yin_stop(Yin *self, PyObject *args, PyObject *kwds) { STOP };
 
 static PyObject * Yin_multiply(Yin *self, PyObject *arg) { MULTIPLY };
 static PyObject * Yin_inplace_multiply(Yin *self, PyObject *arg) { INPLACE_MULTIPLY };
@@ -1518,7 +1518,7 @@ static PyMethodDef Yin_methods[] = {
 {"getServer", (PyCFunction)Yin_getServer, METH_NOARGS, "Returns server object."},
 {"_getStream", (PyCFunction)Yin_getStream, METH_NOARGS, "Returns stream object."},
 {"play", (PyCFunction)Yin_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-{"stop", (PyCFunction)Yin_stop, METH_NOARGS, "Stops computing."},
+{"stop", (PyCFunction)Yin_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
 {"setTolerance", (PyCFunction)Yin_setTolerance, METH_O, "Sets the tolerance factor."},
 {"setMinfreq", (PyCFunction)Yin_setMinfreq, METH_O, "Sets the minimum frequency in output."},
 {"setMaxfreq", (PyCFunction)Yin_setMaxfreq, METH_O, "Sets the maximum frequency in output."},
@@ -1839,7 +1839,7 @@ static PyObject * Centroid_setSub(Centroid *self, PyObject *arg) { SET_SUB };
 static PyObject * Centroid_setDiv(Centroid *self, PyObject *arg) { SET_DIV };
 
 static PyObject * Centroid_play(Centroid *self, PyObject *args, PyObject *kwds) { PLAY };
-static PyObject * Centroid_stop(Centroid *self) { STOP };
+static PyObject * Centroid_stop(Centroid *self, PyObject *args, PyObject *kwds) { STOP };
 
 static PyObject * Centroid_multiply(Centroid *self, PyObject *arg) { MULTIPLY };
 static PyObject * Centroid_inplace_multiply(Centroid *self, PyObject *arg) { INPLACE_MULTIPLY };
@@ -1864,7 +1864,7 @@ static PyMethodDef Centroid_methods[] = {
 {"getServer", (PyCFunction)Centroid_getServer, METH_NOARGS, "Returns server object."},
 {"_getStream", (PyCFunction)Centroid_getStream, METH_NOARGS, "Returns stream object."},
 {"play", (PyCFunction)Centroid_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-{"stop", (PyCFunction)Centroid_stop, METH_NOARGS, "Stops computing."},
+{"stop", (PyCFunction)Centroid_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
 {"setMul", (PyCFunction)Centroid_setMul, METH_O, "Sets Centroid mul factor."},
 {"setAdd", (PyCFunction)Centroid_setAdd, METH_O, "Sets Centroid add factor."},
 {"setSub", (PyCFunction)Centroid_setSub, METH_O, "Sets Centroid add factor."},
@@ -2195,7 +2195,7 @@ static PyObject * AttackDetector_setSub(AttackDetector *self, PyObject *arg) { S
 static PyObject * AttackDetector_setDiv(AttackDetector *self, PyObject *arg) { SET_DIV };
 
 static PyObject * AttackDetector_play(AttackDetector *self, PyObject *args, PyObject *kwds) { PLAY };
-static PyObject * AttackDetector_stop(AttackDetector *self) { STOP };
+static PyObject * AttackDetector_stop(AttackDetector *self, PyObject *args, PyObject *kwds) { STOP };
 
 static PyObject * AttackDetector_multiply(AttackDetector *self, PyObject *arg) { MULTIPLY };
 static PyObject * AttackDetector_inplace_multiply(AttackDetector *self, PyObject *arg) { INPLACE_MULTIPLY };
@@ -2309,7 +2309,7 @@ static PyMethodDef AttackDetector_methods[] = {
 {"getServer", (PyCFunction)AttackDetector_getServer, METH_NOARGS, "Returns server object."},
 {"_getStream", (PyCFunction)AttackDetector_getStream, METH_NOARGS, "Returns stream object."},
 {"play", (PyCFunction)AttackDetector_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-{"stop", (PyCFunction)AttackDetector_stop, METH_NOARGS, "Stops computing."},
+{"stop", (PyCFunction)AttackDetector_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
 {"setDeltime", (PyCFunction)AttackDetector_setDeltime, METH_O, "Sets the delay time between current and previous analysis."},
 {"setCutoff", (PyCFunction)AttackDetector_setCutoff, METH_O, "Sets the frequency of the internal lowpass filter."},
 {"setMaxthresh", (PyCFunction)AttackDetector_setMaxthresh, METH_O, "Sets the higher threshold."},
@@ -2555,7 +2555,7 @@ static PyObject * Scope_getServer(Scope* self) { GET_SERVER };
 static PyObject * Scope_getStream(Scope* self) { GET_STREAM };
 
 static PyObject * Scope_play(Scope *self, PyObject *args, PyObject *kwds) { PLAY };
-static PyObject * Scope_stop(Scope *self) { STOP };
+static PyObject * Scope_stop(Scope *self, PyObject *args, PyObject *kwds) { STOP };
 
 static PyObject *
 Scope_setLength(Scope *self, PyObject *arg)
@@ -2652,7 +2652,7 @@ static PyMethodDef Scope_methods[] = {
 {"getServer", (PyCFunction)Scope_getServer, METH_NOARGS, "Returns server object."},
 {"_getStream", (PyCFunction)Scope_getStream, METH_NOARGS, "Returns stream object."},
 {"play", (PyCFunction)Scope_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-{"stop", (PyCFunction)Scope_stop, METH_NOARGS, "Stops computing."},
+{"stop", (PyCFunction)Scope_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
 {"display", (PyCFunction)Scope_display, METH_NOARGS, "Computes the samples to draw."},
 {"setLength", (PyCFunction)Scope_setLength, METH_O, "Sets function's argument."},
 {"setGain", (PyCFunction)Scope_setGain, METH_O, "Sets gain compensation."},
@@ -2861,7 +2861,7 @@ static PyObject * PeakAmp_setSub(PeakAmp *self, PyObject *arg) { SET_SUB };
 static PyObject * PeakAmp_setDiv(PeakAmp *self, PyObject *arg) { SET_DIV };
 
 static PyObject * PeakAmp_play(PeakAmp *self, PyObject *args, PyObject *kwds) { PLAY };
-static PyObject * PeakAmp_stop(PeakAmp *self) { STOP };
+static PyObject * PeakAmp_stop(PeakAmp *self, PyObject *args, PyObject *kwds) { STOP };
 
 static PyObject * PeakAmp_multiply(PeakAmp *self, PyObject *arg) { MULTIPLY };
 static PyObject * PeakAmp_inplace_multiply(PeakAmp *self, PyObject *arg) { INPLACE_MULTIPLY };
@@ -2891,7 +2891,7 @@ static PyMethodDef PeakAmp_methods[] = {
 {"getServer", (PyCFunction)PeakAmp_getServer, METH_NOARGS, "Returns server object."},
 {"_getStream", (PyCFunction)PeakAmp_getStream, METH_NOARGS, "Returns stream object."},
 {"play", (PyCFunction)PeakAmp_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-{"stop", (PyCFunction)PeakAmp_stop, METH_NOARGS, "Stops computing."},
+{"stop", (PyCFunction)PeakAmp_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
 {"getValue", (PyCFunction)PeakAmp_getValue, METH_NOARGS, "Returns the current peaking value."},
 {"setMul", (PyCFunction)PeakAmp_setMul, METH_O, "Sets oscillator mul factor."},
 {"setAdd", (PyCFunction)PeakAmp_setAdd, METH_O, "Sets oscillator add factor."},
@@ -3135,7 +3135,7 @@ static PyObject * RMS_setSub(RMS *self, PyObject *arg) { SET_SUB };
 static PyObject * RMS_setDiv(RMS *self, PyObject *arg) { SET_DIV };
 
 static PyObject * RMS_play(RMS *self, PyObject *args, PyObject *kwds) { PLAY };
-static PyObject * RMS_stop(RMS *self) { STOP };
+static PyObject * RMS_stop(RMS *self, PyObject *args, PyObject *kwds) { STOP };
 
 static PyObject * RMS_multiply(RMS *self, PyObject *arg) { MULTIPLY };
 static PyObject * RMS_inplace_multiply(RMS *self, PyObject *arg) { INPLACE_MULTIPLY };
@@ -3165,7 +3165,7 @@ static PyMethodDef RMS_methods[] = {
 {"getServer", (PyCFunction)RMS_getServer, METH_NOARGS, "Returns server object."},
 {"_getStream", (PyCFunction)RMS_getStream, METH_NOARGS, "Returns stream object."},
 {"play", (PyCFunction)RMS_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-{"stop", (PyCFunction)RMS_stop, METH_NOARGS, "Stops computing."},
+{"stop", (PyCFunction)RMS_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
 {"getValue", (PyCFunction)RMS_getValue, METH_NOARGS, "Returns the current peaking value."},
 {"setMul", (PyCFunction)RMS_setMul, METH_O, "Sets oscillator mul factor."},
 {"setAdd", (PyCFunction)RMS_setAdd, METH_O, "Sets oscillator add factor."},

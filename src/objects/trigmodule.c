@@ -221,7 +221,7 @@ static PyObject * TrigRandInt_setDiv(TrigRandInt *self, PyObject *arg) { SET_DIV
 
 static PyObject * TrigRandInt_play(TrigRandInt *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * TrigRandInt_out(TrigRandInt *self, PyObject *args, PyObject *kwds) { OUT };
-static PyObject * TrigRandInt_stop(TrigRandInt *self) { STOP };
+static PyObject * TrigRandInt_stop(TrigRandInt *self, PyObject *args, PyObject *kwds) { STOP };
 
 static PyObject * TrigRandInt_multiply(TrigRandInt *self, PyObject *arg) { MULTIPLY };
 static PyObject * TrigRandInt_inplace_multiply(TrigRandInt *self, PyObject *arg) { INPLACE_MULTIPLY };
@@ -278,7 +278,7 @@ static PyMethodDef TrigRandInt_methods[] = {
     {"_getStream", (PyCFunction)TrigRandInt_getStream, METH_NOARGS, "Returns stream object."},
     {"play", (PyCFunction)TrigRandInt_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)TrigRandInt_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-    {"stop", (PyCFunction)TrigRandInt_stop, METH_NOARGS, "Stops computing."},
+    {"stop", (PyCFunction)TrigRandInt_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
     {"setMax", (PyCFunction)TrigRandInt_setMax, METH_O, "Sets maximum possible value."},
     {"setMul", (PyCFunction)TrigRandInt_setMul, METH_O, "Sets oscillator mul factor."},
     {"setAdd", (PyCFunction)TrigRandInt_setAdd, METH_O, "Sets oscillator add factor."},
@@ -682,7 +682,7 @@ static PyObject * TrigRand_setDiv(TrigRand *self, PyObject *arg) { SET_DIV };
 
 static PyObject * TrigRand_play(TrigRand *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * TrigRand_out(TrigRand *self, PyObject *args, PyObject *kwds) { OUT };
-static PyObject * TrigRand_stop(TrigRand *self) { STOP };
+static PyObject * TrigRand_stop(TrigRand *self, PyObject *args, PyObject *kwds) { STOP };
 
 static PyObject * TrigRand_multiply(TrigRand *self, PyObject *arg) { MULTIPLY };
 static PyObject * TrigRand_inplace_multiply(TrigRand *self, PyObject *arg) { INPLACE_MULTIPLY };
@@ -791,7 +791,7 @@ static PyMethodDef TrigRand_methods[] = {
 {"_getStream", (PyCFunction)TrigRand_getStream, METH_NOARGS, "Returns stream object."},
 {"play", (PyCFunction)TrigRand_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
 {"out", (PyCFunction)TrigRand_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-{"stop", (PyCFunction)TrigRand_stop, METH_NOARGS, "Stops computing."},
+{"stop", (PyCFunction)TrigRand_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
 {"setMin", (PyCFunction)TrigRand_setMin, METH_O, "Sets minimum possible value."},
 {"setMax", (PyCFunction)TrigRand_setMax, METH_O, "Sets maximum possible value."},
 {"setPort", (PyCFunction)TrigRand_setPort, METH_O, "Sets a new ramp time value."},
@@ -1074,7 +1074,7 @@ static PyObject * TrigChoice_setDiv(TrigChoice *self, PyObject *arg) { SET_DIV }
 
 static PyObject * TrigChoice_play(TrigChoice *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * TrigChoice_out(TrigChoice *self, PyObject *args, PyObject *kwds) { OUT };
-static PyObject * TrigChoice_stop(TrigChoice *self) { STOP };
+static PyObject * TrigChoice_stop(TrigChoice *self, PyObject *args, PyObject *kwds) { STOP };
 
 static PyObject * TrigChoice_multiply(TrigChoice *self, PyObject *arg) { MULTIPLY };
 static PyObject * TrigChoice_inplace_multiply(TrigChoice *self, PyObject *arg) { INPLACE_MULTIPLY };
@@ -1144,7 +1144,7 @@ static PyMethodDef TrigChoice_methods[] = {
 {"_getStream", (PyCFunction)TrigChoice_getStream, METH_NOARGS, "Returns stream object."},
 {"play", (PyCFunction)TrigChoice_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
 {"out", (PyCFunction)TrigChoice_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-{"stop", (PyCFunction)TrigChoice_stop, METH_NOARGS, "Stops computing."},
+{"stop", (PyCFunction)TrigChoice_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
 {"setChoice", (PyCFunction)TrigChoice_setChoice, METH_O, "Sets possible values."},
 {"setPort", (PyCFunction)TrigChoice_setPort, METH_O, "Sets new portamento time."},
 {"setMul", (PyCFunction)TrigChoice_setMul, METH_O, "Sets oscillator mul factor."},
@@ -1356,7 +1356,7 @@ static PyObject * TrigFunc_getServer(TrigFunc* self) { GET_SERVER };
 static PyObject * TrigFunc_getStream(TrigFunc* self) { GET_STREAM };
 
 static PyObject * TrigFunc_play(TrigFunc *self, PyObject *args, PyObject *kwds) { PLAY };
-static PyObject * TrigFunc_stop(TrigFunc *self) { STOP };
+static PyObject * TrigFunc_stop(TrigFunc *self, PyObject *args, PyObject *kwds) { STOP };
 
 static PyObject *
 TrigFunc_setFunction(TrigFunc *self, PyObject *arg)
@@ -1403,7 +1403,7 @@ static PyMethodDef TrigFunc_methods[] = {
 {"getServer", (PyCFunction)TrigFunc_getServer, METH_NOARGS, "Returns server object."},
 {"_getStream", (PyCFunction)TrigFunc_getStream, METH_NOARGS, "Returns stream object."},
 {"play", (PyCFunction)TrigFunc_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-{"stop", (PyCFunction)TrigFunc_stop, METH_NOARGS, "Stops computing."},
+{"stop", (PyCFunction)TrigFunc_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
 {"setFunction", (PyCFunction)TrigFunc_setFunction, METH_O, "Sets function to be called."},
 {"setArg", (PyCFunction)TrigFunc_setArg, METH_O, "Sets function's argument."},
 {NULL}  /* Sentinel */
@@ -1727,7 +1727,7 @@ static PyObject * TrigEnv_setDiv(TrigEnv *self, PyObject *arg) { SET_DIV };
 
 static PyObject * TrigEnv_play(TrigEnv *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * TrigEnv_out(TrigEnv *self, PyObject *args, PyObject *kwds) { OUT };
-static PyObject * TrigEnv_stop(TrigEnv *self) { STOP };
+static PyObject * TrigEnv_stop(TrigEnv *self, PyObject *args, PyObject *kwds) { STOP };
 
 static PyObject * TrigEnv_multiply(TrigEnv *self, PyObject *arg) { MULTIPLY };
 static PyObject * TrigEnv_inplace_multiply(TrigEnv *self, PyObject *arg) { INPLACE_MULTIPLY };
@@ -1826,7 +1826,7 @@ static PyMethodDef TrigEnv_methods[] = {
 {"_getTriggerStream", (PyCFunction)TrigEnv_getTriggerStream, METH_NOARGS, "Returns trigger stream object."},
 {"play", (PyCFunction)TrigEnv_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
 {"out", (PyCFunction)TrigEnv_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-{"stop", (PyCFunction)TrigEnv_stop, METH_NOARGS, "Stops computing."},
+{"stop", (PyCFunction)TrigEnv_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
 {"setTable", (PyCFunction)TrigEnv_setTable, METH_O, "Sets envelope table."},
 {"setDur", (PyCFunction)TrigEnv_setDur, METH_O, "Sets envelope duration in second."},
 {"setInterp", (PyCFunction)TrigEnv_setInterp, METH_O, "Sets oscillator interpolation mode."},
@@ -2156,7 +2156,7 @@ static PyObject * TrigLinseg_setSub(TrigLinseg *self, PyObject *arg) { SET_SUB }
 static PyObject * TrigLinseg_setDiv(TrigLinseg *self, PyObject *arg) { SET_DIV };
 
 static PyObject * TrigLinseg_play(TrigLinseg *self, PyObject *args, PyObject *kwds) { PLAY };
-static PyObject * TrigLinseg_stop(TrigLinseg *self) { STOP };
+static PyObject * TrigLinseg_stop(TrigLinseg *self, PyObject *args, PyObject *kwds) { STOP };
 
 static PyObject * TrigLinseg_multiply(TrigLinseg *self, PyObject *arg) { MULTIPLY };
 static PyObject * TrigLinseg_inplace_multiply(TrigLinseg *self, PyObject *arg) { INPLACE_MULTIPLY };
@@ -2205,7 +2205,7 @@ static PyMethodDef TrigLinseg_methods[] = {
 {"_getStream", (PyCFunction)TrigLinseg_getStream, METH_NOARGS, "Returns stream object."},
 {"_getTriggerStream", (PyCFunction)TrigLinseg_getTriggerStream, METH_NOARGS, "Returns trigger stream object."},
 {"play", (PyCFunction)TrigLinseg_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-{"stop", (PyCFunction)TrigLinseg_stop, METH_NOARGS, "Starts fadeout and stops computing."},
+{"stop", (PyCFunction)TrigLinseg_stop, METH_VARARGS|METH_KEYWORDS, "Starts fadeout and stops computing."},
 {"setList", (PyCFunction)TrigLinseg_setList, METH_O, "Sets target points list."},
 {"setMul", (PyCFunction)TrigLinseg_setMul, METH_O, "Sets TrigLinseg mul factor."},
 {"setAdd", (PyCFunction)TrigLinseg_setAdd, METH_O, "Sets TrigLinseg add factor."},
@@ -2558,7 +2558,7 @@ static PyObject * TrigExpseg_setSub(TrigExpseg *self, PyObject *arg) { SET_SUB }
 static PyObject * TrigExpseg_setDiv(TrigExpseg *self, PyObject *arg) { SET_DIV };
 
 static PyObject * TrigExpseg_play(TrigExpseg *self, PyObject *args, PyObject *kwds) { PLAY };
-static PyObject * TrigExpseg_stop(TrigExpseg *self) { STOP };
+static PyObject * TrigExpseg_stop(TrigExpseg *self, PyObject *args, PyObject *kwds) { STOP };
 
 static PyObject * TrigExpseg_multiply(TrigExpseg *self, PyObject *arg) { MULTIPLY };
 static PyObject * TrigExpseg_inplace_multiply(TrigExpseg *self, PyObject *arg) { INPLACE_MULTIPLY };
@@ -2630,7 +2630,7 @@ static PyMethodDef TrigExpseg_methods[] = {
 {"_getStream", (PyCFunction)TrigExpseg_getStream, METH_NOARGS, "Returns stream object."},
 {"_getTriggerStream", (PyCFunction)TrigExpseg_getTriggerStream, METH_NOARGS, "Returns trigger stream object."},
 {"play", (PyCFunction)TrigExpseg_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-{"stop", (PyCFunction)TrigExpseg_stop, METH_NOARGS, "Starts fadeout and stops computing."},
+{"stop", (PyCFunction)TrigExpseg_stop, METH_VARARGS|METH_KEYWORDS, "Starts fadeout and stops computing."},
 {"setList", (PyCFunction)TrigExpseg_setList, METH_O, "Sets target points list."},
 {"setExp", (PyCFunction)TrigExpseg_setExp, METH_O, "Sets exponent factor."},
 {"setInverse", (PyCFunction)TrigExpseg_setInverse, METH_O, "Sets inverse factor."},
@@ -3265,7 +3265,7 @@ static PyObject * TrigXnoise_setDiv(TrigXnoise *self, PyObject *arg) { SET_DIV }
 
 static PyObject * TrigXnoise_play(TrigXnoise *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * TrigXnoise_out(TrigXnoise *self, PyObject *args, PyObject *kwds) { OUT };
-static PyObject * TrigXnoise_stop(TrigXnoise *self) { STOP };
+static PyObject * TrigXnoise_stop(TrigXnoise *self, PyObject *args, PyObject *kwds) { STOP };
 
 static PyObject * TrigXnoise_multiply(TrigXnoise *self, PyObject *arg) { MULTIPLY };
 static PyObject * TrigXnoise_inplace_multiply(TrigXnoise *self, PyObject *arg) { INPLACE_MULTIPLY };
@@ -3370,7 +3370,7 @@ static PyMethodDef TrigXnoise_methods[] = {
     {"_getStream", (PyCFunction)TrigXnoise_getStream, METH_NOARGS, "Returns stream object."},
     {"play", (PyCFunction)TrigXnoise_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)TrigXnoise_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-    {"stop", (PyCFunction)TrigXnoise_stop, METH_NOARGS, "Stops computing."},
+    {"stop", (PyCFunction)TrigXnoise_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
     {"setType", (PyCFunction)TrigXnoise_setType, METH_O, "Sets distribution type."},
     {"setX1", (PyCFunction)TrigXnoise_setX1, METH_O, "Sets first param."},
     {"setX2", (PyCFunction)TrigXnoise_setX2, METH_O, "Sets second param."},
@@ -4047,7 +4047,7 @@ static PyObject * TrigXnoiseMidi_setDiv(TrigXnoiseMidi *self, PyObject *arg) { S
 
 static PyObject * TrigXnoiseMidi_play(TrigXnoiseMidi *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * TrigXnoiseMidi_out(TrigXnoiseMidi *self, PyObject *args, PyObject *kwds) { OUT };
-static PyObject * TrigXnoiseMidi_stop(TrigXnoiseMidi *self) { STOP };
+static PyObject * TrigXnoiseMidi_stop(TrigXnoiseMidi *self, PyObject *args, PyObject *kwds) { STOP };
 
 static PyObject * TrigXnoiseMidi_multiply(TrigXnoiseMidi *self, PyObject *arg) { MULTIPLY };
 static PyObject * TrigXnoiseMidi_inplace_multiply(TrigXnoiseMidi *self, PyObject *arg) { INPLACE_MULTIPLY };
@@ -4193,7 +4193,7 @@ static PyMethodDef TrigXnoiseMidi_methods[] = {
     {"_getStream", (PyCFunction)TrigXnoiseMidi_getStream, METH_NOARGS, "Returns stream object."},
     {"play", (PyCFunction)TrigXnoiseMidi_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)TrigXnoiseMidi_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-    {"stop", (PyCFunction)TrigXnoiseMidi_stop, METH_NOARGS, "Stops computing."},
+    {"stop", (PyCFunction)TrigXnoiseMidi_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
     {"setType", (PyCFunction)TrigXnoiseMidi_setType, METH_O, "Sets distribution type."},
     {"setScale", (PyCFunction)TrigXnoiseMidi_setScale, METH_O, "Sets output scale."},
     {"setRange", (PyCFunction)TrigXnoiseMidi_setRange, METH_VARARGS, "Sets range in midi notes (min, max)."},
@@ -4475,7 +4475,7 @@ static PyObject * Counter_setSub(Counter *self, PyObject *arg) { SET_SUB };
 static PyObject * Counter_setDiv(Counter *self, PyObject *arg) { SET_DIV };
 
 static PyObject * Counter_play(Counter *self, PyObject *args, PyObject *kwds) { PLAY };
-static PyObject * Counter_stop(Counter *self) { STOP };
+static PyObject * Counter_stop(Counter *self, PyObject *args, PyObject *kwds) { STOP };
 
 static PyObject * Counter_multiply(Counter *self, PyObject *arg) { MULTIPLY };
 static PyObject * Counter_inplace_multiply(Counter *self, PyObject *arg) { INPLACE_MULTIPLY };
@@ -4560,7 +4560,7 @@ static PyMethodDef Counter_methods[] = {
 {"getServer", (PyCFunction)Counter_getServer, METH_NOARGS, "Returns server object."},
 {"_getStream", (PyCFunction)Counter_getStream, METH_NOARGS, "Returns stream object."},
 {"play", (PyCFunction)Counter_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-{"stop", (PyCFunction)Counter_stop, METH_NOARGS, "Stops computing."},
+{"stop", (PyCFunction)Counter_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
 {"setMin", (PyCFunction)Counter_setMin, METH_O, "Sets minimum value."},
 {"setMax", (PyCFunction)Counter_setMax, METH_O, "Sets maximum value."},
 {"setDir", (PyCFunction)Counter_setDir, METH_O, "Sets direction. 0 = forward, 1 = backward, 2 = back and forth"},
@@ -4902,7 +4902,7 @@ static PyObject * Thresh_setSub(Thresh *self, PyObject *arg) { SET_SUB };
 static PyObject * Thresh_setDiv(Thresh *self, PyObject *arg) { SET_DIV };
 
 static PyObject * Thresh_play(Thresh *self, PyObject *args, PyObject *kwds) { PLAY };
-static PyObject * Thresh_stop(Thresh *self) { STOP };
+static PyObject * Thresh_stop(Thresh *self, PyObject *args, PyObject *kwds) { STOP };
 
 static PyObject * Thresh_multiply(Thresh *self, PyObject *arg) { MULTIPLY };
 static PyObject * Thresh_inplace_multiply(Thresh *self, PyObject *arg) { INPLACE_MULTIPLY };
@@ -4971,7 +4971,7 @@ static PyMethodDef Thresh_methods[] = {
 {"getServer", (PyCFunction)Thresh_getServer, METH_NOARGS, "Returns server object."},
 {"_getStream", (PyCFunction)Thresh_getStream, METH_NOARGS, "Returns stream object."},
 {"play", (PyCFunction)Thresh_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-{"stop", (PyCFunction)Thresh_stop, METH_NOARGS, "Stops computing."},
+{"stop", (PyCFunction)Thresh_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
 {"setThreshold", (PyCFunction)Thresh_setThreshold, METH_O, "Sets threshold value."},
 {"setDir", (PyCFunction)Thresh_setDir, METH_O, "Sets direction. 0 = upward, 1 = downward, 2 = up and down"},
 {"setMul", (PyCFunction)Thresh_setMul, METH_O, "Sets mul factor."},
@@ -5254,7 +5254,7 @@ static PyObject * Percent_setSub(Percent *self, PyObject *arg) { SET_SUB };
 static PyObject * Percent_setDiv(Percent *self, PyObject *arg) { SET_DIV };
 
 static PyObject * Percent_play(Percent *self, PyObject *args, PyObject *kwds) { PLAY };
-static PyObject * Percent_stop(Percent *self) { STOP };
+static PyObject * Percent_stop(Percent *self, PyObject *args, PyObject *kwds) { STOP };
 
 static PyObject * Percent_multiply(Percent *self, PyObject *arg) { MULTIPLY };
 static PyObject * Percent_inplace_multiply(Percent *self, PyObject *arg) { INPLACE_MULTIPLY };
@@ -5310,7 +5310,7 @@ static PyMethodDef Percent_methods[] = {
     {"getServer", (PyCFunction)Percent_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)Percent_getStream, METH_NOARGS, "Returns stream object."},
     {"play", (PyCFunction)Percent_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"stop", (PyCFunction)Percent_stop, METH_NOARGS, "Stops computing."},
+    {"stop", (PyCFunction)Percent_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
     {"setPercent", (PyCFunction)Percent_setPercent, METH_O, "Sets percentange value."},
     {"setMul", (PyCFunction)Percent_setMul, METH_O, "Sets mul factor."},
     {"setAdd", (PyCFunction)Percent_setAdd, METH_O, "Sets add factor."},
@@ -5581,7 +5581,7 @@ static PyObject * Timer_setSub(Timer *self, PyObject *arg) { SET_SUB };
 static PyObject * Timer_setDiv(Timer *self, PyObject *arg) { SET_DIV };
 
 static PyObject * Timer_play(Timer *self, PyObject *args, PyObject *kwds) { PLAY };
-static PyObject * Timer_stop(Timer *self) { STOP };
+static PyObject * Timer_stop(Timer *self, PyObject *args, PyObject *kwds) { STOP };
 
 static PyObject * Timer_multiply(Timer *self, PyObject *arg) { MULTIPLY };
 static PyObject * Timer_inplace_multiply(Timer *self, PyObject *arg) { INPLACE_MULTIPLY };
@@ -5606,7 +5606,7 @@ static PyMethodDef Timer_methods[] = {
     {"getServer", (PyCFunction)Timer_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)Timer_getStream, METH_NOARGS, "Returns stream object."},
     {"play", (PyCFunction)Timer_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"stop", (PyCFunction)Timer_stop, METH_NOARGS, "Stops computing."},
+    {"stop", (PyCFunction)Timer_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
     {"setMul", (PyCFunction)Timer_setMul, METH_O, "Sets mul factor."},
     {"setAdd", (PyCFunction)Timer_setAdd, METH_O, "Sets add factor."},
     {"setSub", (PyCFunction)Timer_setSub, METH_O, "Sets inverse add factor."},
@@ -5913,7 +5913,7 @@ static PyObject * Iter_setDiv(Iter *self, PyObject *arg) { SET_DIV };
 
 static PyObject * Iter_play(Iter *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * Iter_out(Iter *self, PyObject *args, PyObject *kwds) { OUT };
-static PyObject * Iter_stop(Iter *self) { STOP };
+static PyObject * Iter_stop(Iter *self, PyObject *args, PyObject *kwds) { STOP };
 
 static PyObject * Iter_multiply(Iter *self, PyObject *arg) { MULTIPLY };
 static PyObject * Iter_inplace_multiply(Iter *self, PyObject *arg) { INPLACE_MULTIPLY };
@@ -5973,7 +5973,7 @@ static PyMethodDef Iter_methods[] = {
     {"_getTriggerStream", (PyCFunction)Iter_getTriggerStream, METH_NOARGS, "Returns trigger stream object."},
     {"play", (PyCFunction)Iter_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)Iter_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-    {"stop", (PyCFunction)Iter_stop, METH_NOARGS, "Stops computing."},
+    {"stop", (PyCFunction)Iter_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
     {"setChoice", (PyCFunction)Iter_setChoice, METH_O, "Sets possible values."},
     {"reset", (PyCFunction)Iter_reset, METH_O, "Resets count to 0."},
     {"setMul", (PyCFunction)Iter_setMul, METH_O, "Sets oscillator mul factor."},
@@ -6231,7 +6231,7 @@ static PyObject * Count_setSub(Count *self, PyObject *arg) { SET_SUB };
 static PyObject * Count_setDiv(Count *self, PyObject *arg) { SET_DIV };
 
 static PyObject * Count_play(Count *self, PyObject *args, PyObject *kwds) { PLAY };
-static PyObject * Count_stop(Count *self) { STOP };
+static PyObject * Count_stop(Count *self, PyObject *args, PyObject *kwds) { STOP };
 
 static PyObject * Count_multiply(Count *self, PyObject *arg) { MULTIPLY };
 static PyObject * Count_inplace_multiply(Count *self, PyObject *arg) { INPLACE_MULTIPLY };
@@ -6277,7 +6277,7 @@ static PyMethodDef Count_methods[] = {
     {"getServer", (PyCFunction)Count_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)Count_getStream, METH_NOARGS, "Returns stream object."},
     {"play", (PyCFunction)Count_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"stop", (PyCFunction)Count_stop, METH_NOARGS, "Stops computing."},
+    {"stop", (PyCFunction)Count_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
     {"setMin", (PyCFunction)Count_setMin, METH_O, "Sets the minimum value."},
     {"setMax", (PyCFunction)Count_setMax, METH_O, "Sets the maximum value."},
     {"setMul", (PyCFunction)Count_setMul, METH_O, "Sets mul factor."},
@@ -6539,7 +6539,7 @@ static PyObject * NextTrig_setSub(NextTrig *self, PyObject *arg) { SET_SUB };
 static PyObject * NextTrig_setDiv(NextTrig *self, PyObject *arg) { SET_DIV };
 
 static PyObject * NextTrig_play(NextTrig *self, PyObject *args, PyObject *kwds) { PLAY };
-static PyObject * NextTrig_stop(NextTrig *self) { STOP };
+static PyObject * NextTrig_stop(NextTrig *self, PyObject *args, PyObject *kwds) { STOP };
 
 static PyObject * NextTrig_multiply(NextTrig *self, PyObject *arg) { MULTIPLY };
 static PyObject * NextTrig_inplace_multiply(NextTrig *self, PyObject *arg) { INPLACE_MULTIPLY };
@@ -6564,7 +6564,7 @@ static PyMethodDef NextTrig_methods[] = {
     {"getServer", (PyCFunction)NextTrig_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)NextTrig_getStream, METH_NOARGS, "Returns stream object."},
     {"play", (PyCFunction)NextTrig_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"stop", (PyCFunction)NextTrig_stop, METH_NOARGS, "Stops computing."},
+    {"stop", (PyCFunction)NextTrig_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
     {"setMul", (PyCFunction)NextTrig_setMul, METH_O, "Sets mul factor."},
     {"setAdd", (PyCFunction)NextTrig_setAdd, METH_O, "Sets add factor."},
     {"setSub", (PyCFunction)NextTrig_setSub, METH_O, "Sets inverse add factor."},
@@ -6839,7 +6839,7 @@ static PyObject * TrigVal_setDiv(TrigVal *self, PyObject *arg) { SET_DIV };
 
 static PyObject * TrigVal_play(TrigVal *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * TrigVal_out(TrigVal *self, PyObject *args, PyObject *kwds) { OUT };
-static PyObject * TrigVal_stop(TrigVal *self) { STOP };
+static PyObject * TrigVal_stop(TrigVal *self, PyObject *args, PyObject *kwds) { STOP };
 
 static PyObject * TrigVal_multiply(TrigVal *self, PyObject *arg) { MULTIPLY };
 static PyObject * TrigVal_inplace_multiply(TrigVal *self, PyObject *arg) { INPLACE_MULTIPLY };
@@ -6896,7 +6896,7 @@ static PyMethodDef TrigVal_methods[] = {
     {"_getStream", (PyCFunction)TrigVal_getStream, METH_NOARGS, "Returns stream object."},
     {"play", (PyCFunction)TrigVal_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)TrigVal_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-    {"stop", (PyCFunction)TrigVal_stop, METH_NOARGS, "Stops computing."},
+    {"stop", (PyCFunction)TrigVal_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
     {"setValue", (PyCFunction)TrigVal_setValue, METH_O, "Sets the next value."},
     {"setMul", (PyCFunction)TrigVal_setMul, METH_O, "Sets oscillator mul factor."},
     {"setAdd", (PyCFunction)TrigVal_setAdd, METH_O, "Sets oscillator add factor."},

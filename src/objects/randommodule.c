@@ -427,7 +427,7 @@ static PyObject * Randi_setDiv(Randi *self, PyObject *arg) { SET_DIV };
 
 static PyObject * Randi_play(Randi *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * Randi_out(Randi *self, PyObject *args, PyObject *kwds) { OUT };
-static PyObject * Randi_stop(Randi *self) { STOP };
+static PyObject * Randi_stop(Randi *self, PyObject *args, PyObject *kwds) { STOP };
 
 static PyObject * Randi_multiply(Randi *self, PyObject *arg) { MULTIPLY };
 static PyObject * Randi_inplace_multiply(Randi *self, PyObject *arg) { INPLACE_MULTIPLY };
@@ -547,7 +547,7 @@ static PyMethodDef Randi_methods[] = {
 {"_getStream", (PyCFunction)Randi_getStream, METH_NOARGS, "Returns stream object."},
 {"play", (PyCFunction)Randi_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
 {"out", (PyCFunction)Randi_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-{"stop", (PyCFunction)Randi_stop, METH_NOARGS, "Stops computing."},
+{"stop", (PyCFunction)Randi_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
 {"setMin", (PyCFunction)Randi_setMin, METH_O, "Sets minimum possible value."},
 {"setMax", (PyCFunction)Randi_setMax, METH_O, "Sets maximum possible value."},
 {"setFreq", (PyCFunction)Randi_setFreq, METH_O, "Sets polling frequency."},
@@ -1026,7 +1026,7 @@ static PyObject * Randh_setDiv(Randh *self, PyObject *arg) { SET_DIV };
 
 static PyObject * Randh_play(Randh *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * Randh_out(Randh *self, PyObject *args, PyObject *kwds) { OUT };
-static PyObject * Randh_stop(Randh *self) { STOP };
+static PyObject * Randh_stop(Randh *self, PyObject *args, PyObject *kwds) { STOP };
 
 static PyObject * Randh_multiply(Randh *self, PyObject *arg) { MULTIPLY };
 static PyObject * Randh_inplace_multiply(Randh *self, PyObject *arg) { INPLACE_MULTIPLY };
@@ -1146,7 +1146,7 @@ static PyMethodDef Randh_methods[] = {
 {"_getStream", (PyCFunction)Randh_getStream, METH_NOARGS, "Returns stream object."},
 {"play", (PyCFunction)Randh_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
 {"out", (PyCFunction)Randh_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-{"stop", (PyCFunction)Randh_stop, METH_NOARGS, "Stops computing."},
+{"stop", (PyCFunction)Randh_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
 {"setMin", (PyCFunction)Randh_setMin, METH_O, "Sets minimum possible value."},
 {"setMax", (PyCFunction)Randh_setMax, METH_O, "Sets maximum possible value."},
 {"setFreq", (PyCFunction)Randh_setFreq, METH_O, "Sets polling frequency."},
@@ -1440,7 +1440,7 @@ static PyObject * Choice_setDiv(Choice *self, PyObject *arg) { SET_DIV };
 
 static PyObject * Choice_play(Choice *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * Choice_out(Choice *self, PyObject *args, PyObject *kwds) { OUT };
-static PyObject * Choice_stop(Choice *self) { STOP };
+static PyObject * Choice_stop(Choice *self, PyObject *args, PyObject *kwds) { STOP };
 
 static PyObject * Choice_multiply(Choice *self, PyObject *arg) { MULTIPLY };
 static PyObject * Choice_inplace_multiply(Choice *self, PyObject *arg) { INPLACE_MULTIPLY };
@@ -1521,7 +1521,7 @@ static PyMethodDef Choice_methods[] = {
 {"_getStream", (PyCFunction)Choice_getStream, METH_NOARGS, "Returns stream object."},
 {"play", (PyCFunction)Choice_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
 {"out", (PyCFunction)Choice_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-{"stop", (PyCFunction)Choice_stop, METH_NOARGS, "Stops computing."},
+{"stop", (PyCFunction)Choice_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
 {"setChoice", (PyCFunction)Choice_setChoice, METH_O, "Sets list of possible floats."},
 {"setFreq", (PyCFunction)Choice_setFreq, METH_O, "Sets polling frequency."},
 {"setMul", (PyCFunction)Choice_setMul, METH_O, "Sets oscillator mul factor."},
@@ -1867,7 +1867,7 @@ static PyObject * RandInt_setDiv(RandInt *self, PyObject *arg) { SET_DIV };
 
 static PyObject * RandInt_play(RandInt *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * RandInt_out(RandInt *self, PyObject *args, PyObject *kwds) { OUT };
-static PyObject * RandInt_stop(RandInt *self) { STOP };
+static PyObject * RandInt_stop(RandInt *self, PyObject *args, PyObject *kwds) { STOP };
 
 static PyObject * RandInt_multiply(RandInt *self, PyObject *arg) { MULTIPLY };
 static PyObject * RandInt_inplace_multiply(RandInt *self, PyObject *arg) { INPLACE_MULTIPLY };
@@ -1955,7 +1955,7 @@ static PyMethodDef RandInt_methods[] = {
 {"_getStream", (PyCFunction)RandInt_getStream, METH_NOARGS, "Returns stream object."},
 {"play", (PyCFunction)RandInt_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
 {"out", (PyCFunction)RandInt_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-{"stop", (PyCFunction)RandInt_stop, METH_NOARGS, "Stops computing."},
+{"stop", (PyCFunction)RandInt_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
 {"setMax", (PyCFunction)RandInt_setMax, METH_O, "Sets maximum possible value."},
 {"setFreq", (PyCFunction)RandInt_setFreq, METH_O, "Sets polling frequency."},
 {"setMul", (PyCFunction)RandInt_setMul, METH_O, "Sets oscillator mul factor."},
@@ -2340,7 +2340,7 @@ static PyObject * RandDur_setDiv(RandDur *self, PyObject *arg) { SET_DIV };
 
 static PyObject * RandDur_play(RandDur *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * RandDur_out(RandDur *self, PyObject *args, PyObject *kwds) { OUT };
-static PyObject * RandDur_stop(RandDur *self) { STOP };
+static PyObject * RandDur_stop(RandDur *self, PyObject *args, PyObject *kwds) { STOP };
 
 static PyObject * RandDur_multiply(RandDur *self, PyObject *arg) { MULTIPLY };
 static PyObject * RandDur_inplace_multiply(RandDur *self, PyObject *arg) { INPLACE_MULTIPLY };
@@ -2428,7 +2428,7 @@ static PyMethodDef RandDur_methods[] = {
     {"_getStream", (PyCFunction)RandDur_getStream, METH_NOARGS, "Returns stream object."},
     {"play", (PyCFunction)RandDur_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)RandDur_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-    {"stop", (PyCFunction)RandDur_stop, METH_NOARGS, "Stops computing."},
+    {"stop", (PyCFunction)RandDur_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
     {"setMin", (PyCFunction)RandDur_setMin, METH_O, "Sets minimum possible value."},
     {"setMax", (PyCFunction)RandDur_setMax, METH_O, "Sets maximum possible value."},
     {"setMul", (PyCFunction)RandDur_setMul, METH_O, "Sets oscillator mul factor."},
@@ -3193,7 +3193,7 @@ static PyObject * Xnoise_setDiv(Xnoise *self, PyObject *arg) { SET_DIV };
 
 static PyObject * Xnoise_play(Xnoise *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * Xnoise_out(Xnoise *self, PyObject *args, PyObject *kwds) { OUT };
-static PyObject * Xnoise_stop(Xnoise *self) { STOP };
+static PyObject * Xnoise_stop(Xnoise *self, PyObject *args, PyObject *kwds) { STOP };
 
 static PyObject * Xnoise_multiply(Xnoise *self, PyObject *arg) { MULTIPLY };
 static PyObject * Xnoise_inplace_multiply(Xnoise *self, PyObject *arg) { INPLACE_MULTIPLY };
@@ -3329,7 +3329,7 @@ static PyMethodDef Xnoise_methods[] = {
     {"_getStream", (PyCFunction)Xnoise_getStream, METH_NOARGS, "Returns stream object."},
     {"play", (PyCFunction)Xnoise_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)Xnoise_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-    {"stop", (PyCFunction)Xnoise_stop, METH_NOARGS, "Stops computing."},
+    {"stop", (PyCFunction)Xnoise_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
     {"setType", (PyCFunction)Xnoise_setType, METH_O, "Sets distribution type."},
     {"setX1", (PyCFunction)Xnoise_setX1, METH_O, "Sets first param."},
     {"setX2", (PyCFunction)Xnoise_setX2, METH_O, "Sets second param."},
@@ -4140,7 +4140,7 @@ static PyObject * XnoiseMidi_setDiv(XnoiseMidi *self, PyObject *arg) { SET_DIV }
 
 static PyObject * XnoiseMidi_play(XnoiseMidi *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * XnoiseMidi_out(XnoiseMidi *self, PyObject *args, PyObject *kwds) { OUT };
-static PyObject * XnoiseMidi_stop(XnoiseMidi *self) { STOP };
+static PyObject * XnoiseMidi_stop(XnoiseMidi *self, PyObject *args, PyObject *kwds) { STOP };
 
 static PyObject * XnoiseMidi_multiply(XnoiseMidi *self, PyObject *arg) { MULTIPLY };
 static PyObject * XnoiseMidi_inplace_multiply(XnoiseMidi *self, PyObject *arg) { INPLACE_MULTIPLY };
@@ -4317,7 +4317,7 @@ static PyMethodDef XnoiseMidi_methods[] = {
     {"_getStream", (PyCFunction)XnoiseMidi_getStream, METH_NOARGS, "Returns stream object."},
     {"play", (PyCFunction)XnoiseMidi_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)XnoiseMidi_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-    {"stop", (PyCFunction)XnoiseMidi_stop, METH_NOARGS, "Stops computing."},
+    {"stop", (PyCFunction)XnoiseMidi_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
     {"setType", (PyCFunction)XnoiseMidi_setType, METH_O, "Sets distribution type."},
     {"setScale", (PyCFunction)XnoiseMidi_setScale, METH_O, "Sets output scale."},
     {"setRange", (PyCFunction)XnoiseMidi_setRange, METH_VARARGS, "Sets range in midi notes (min, max)."},
@@ -4952,7 +4952,7 @@ static PyObject * XnoiseDur_setDiv(XnoiseDur *self, PyObject *arg) { SET_DIV };
 
 static PyObject * XnoiseDur_play(XnoiseDur *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * XnoiseDur_out(XnoiseDur *self, PyObject *args, PyObject *kwds) { OUT };
-static PyObject * XnoiseDur_stop(XnoiseDur *self) { STOP };
+static PyObject * XnoiseDur_stop(XnoiseDur *self, PyObject *args, PyObject *kwds) { STOP };
 
 static PyObject * XnoiseDur_multiply(XnoiseDur *self, PyObject *arg) { MULTIPLY };
 static PyObject * XnoiseDur_inplace_multiply(XnoiseDur *self, PyObject *arg) { INPLACE_MULTIPLY };
@@ -5120,7 +5120,7 @@ static PyMethodDef XnoiseDur_methods[] = {
     {"_getStream", (PyCFunction)XnoiseDur_getStream, METH_NOARGS, "Returns stream object."},
     {"play", (PyCFunction)XnoiseDur_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)XnoiseDur_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-    {"stop", (PyCFunction)XnoiseDur_stop, METH_NOARGS, "Stops computing."},
+    {"stop", (PyCFunction)XnoiseDur_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
     {"setType", (PyCFunction)XnoiseDur_setType, METH_O, "Sets distribution type."},
     {"setX1", (PyCFunction)XnoiseDur_setX1, METH_O, "Sets first param."},
     {"setX2", (PyCFunction)XnoiseDur_setX2, METH_O, "Sets second param."},
@@ -5477,7 +5477,7 @@ static PyObject * Urn_setDiv(Urn *self, PyObject *arg) { SET_DIV };
 
 static PyObject * Urn_play(Urn *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * Urn_out(Urn *self, PyObject *args, PyObject *kwds) { OUT };
-static PyObject * Urn_stop(Urn *self) { STOP };
+static PyObject * Urn_stop(Urn *self, PyObject *args, PyObject *kwds) { STOP };
 
 static PyObject * Urn_multiply(Urn *self, PyObject *arg) { MULTIPLY };
 static PyObject * Urn_inplace_multiply(Urn *self, PyObject *arg) { INPLACE_MULTIPLY };
@@ -5547,7 +5547,7 @@ static PyMethodDef Urn_methods[] = {
 {"_getTriggerStream", (PyCFunction)Urn_getTriggerStream, METH_NOARGS, "Returns trigger stream object."},
 {"play", (PyCFunction)Urn_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
 {"out", (PyCFunction)Urn_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-{"stop", (PyCFunction)Urn_stop, METH_NOARGS, "Stops computing."},
+{"stop", (PyCFunction)Urn_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
 {"setMax", (PyCFunction)Urn_setMax, METH_O, "Sets maximum possible value."},
 {"setFreq", (PyCFunction)Urn_setFreq, METH_O, "Sets polling frequency."},
 {"setMul", (PyCFunction)Urn_setMul, METH_O, "Sets oscillator mul factor."},
@@ -5913,7 +5913,7 @@ static PyObject * LogiMap_play(LogiMap *self, PyObject *args, PyObject *kwds) {
     PLAY 
 };
 static PyObject * LogiMap_out(LogiMap *self, PyObject *args, PyObject *kwds) { OUT };
-static PyObject * LogiMap_stop(LogiMap *self) { STOP };
+static PyObject * LogiMap_stop(LogiMap *self, PyObject *args, PyObject *kwds) { STOP };
 
 static PyObject * LogiMap_multiply(LogiMap *self, PyObject *arg) { MULTIPLY };
 static PyObject * LogiMap_inplace_multiply(LogiMap *self, PyObject *arg) { INPLACE_MULTIPLY };
@@ -6001,7 +6001,7 @@ static PyMethodDef LogiMap_methods[] = {
 {"_getStream", (PyCFunction)LogiMap_getStream, METH_NOARGS, "Returns stream object."},
 {"play", (PyCFunction)LogiMap_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
 {"out", (PyCFunction)LogiMap_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-{"stop", (PyCFunction)LogiMap_stop, METH_NOARGS, "Stops computing."},
+{"stop", (PyCFunction)LogiMap_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
 {"setChaos", (PyCFunction)LogiMap_setChaos, METH_O, "Sets the randomization degree."},
 {"setFreq", (PyCFunction)LogiMap_setFreq, METH_O, "Sets polling frequency."},
 {"setMul", (PyCFunction)LogiMap_setMul, METH_O, "Sets oscillator mul factor."},

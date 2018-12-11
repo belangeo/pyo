@@ -332,7 +332,7 @@ static PyObject * Compress_setDiv(Compress *self, PyObject *arg) { SET_DIV };
 
 static PyObject * Compress_play(Compress *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * Compress_out(Compress *self, PyObject *args, PyObject *kwds) { OUT };
-static PyObject * Compress_stop(Compress *self) { STOP };
+static PyObject * Compress_stop(Compress *self, PyObject *args, PyObject *kwds) { STOP };
 
 static PyObject * Compress_multiply(Compress *self, PyObject *arg) { MULTIPLY };
 static PyObject * Compress_inplace_multiply(Compress *self, PyObject *arg) { INPLACE_MULTIPLY };
@@ -515,7 +515,7 @@ static PyMethodDef Compress_methods[] = {
 {"_getStream", (PyCFunction)Compress_getStream, METH_NOARGS, "Returns stream object."},
 {"play", (PyCFunction)Compress_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
 {"out", (PyCFunction)Compress_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-{"stop", (PyCFunction)Compress_stop, METH_NOARGS, "Stops computing."},
+{"stop", (PyCFunction)Compress_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
 {"setThresh", (PyCFunction)Compress_setThresh, METH_O, "Sets compressor threshold."},
 {"setRatio", (PyCFunction)Compress_setRatio, METH_O, "Sets compressor ratio."},
 {"setRiseTime", (PyCFunction)Compress_setRiseTime, METH_O, "Sets rising portamento time in seconds."},
@@ -1304,7 +1304,7 @@ static PyObject * Gate_setDiv(Gate *self, PyObject *arg) { SET_DIV };
 
 static PyObject * Gate_play(Gate *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * Gate_out(Gate *self, PyObject *args, PyObject *kwds) { OUT };
-static PyObject * Gate_stop(Gate *self) { STOP };
+static PyObject * Gate_stop(Gate *self, PyObject *args, PyObject *kwds) { STOP };
 
 static PyObject * Gate_multiply(Gate *self, PyObject *arg) { MULTIPLY };
 static PyObject * Gate_inplace_multiply(Gate *self, PyObject *arg) { INPLACE_MULTIPLY };
@@ -1444,7 +1444,7 @@ static PyMethodDef Gate_methods[] = {
     {"_getStream", (PyCFunction)Gate_getStream, METH_NOARGS, "Returns stream object."},
     {"play", (PyCFunction)Gate_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)Gate_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-    {"stop", (PyCFunction)Gate_stop, METH_NOARGS, "Stops computing."},
+    {"stop", (PyCFunction)Gate_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
     {"setThresh", (PyCFunction)Gate_setThresh, METH_O, "Sets the threshold in dB."},
     {"setRiseTime", (PyCFunction)Gate_setRiseTime, METH_O, "Sets filter risetime in second."},
     {"setFallTime", (PyCFunction)Gate_setFallTime, METH_O, "Sets filter falltime in second."},
@@ -1778,7 +1778,7 @@ static PyObject * Balance_setDiv(Balance *self, PyObject *arg) { SET_DIV };
 
 static PyObject * Balance_play(Balance *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * Balance_out(Balance *self, PyObject *args, PyObject *kwds) { OUT };
-static PyObject * Balance_stop(Balance *self) { STOP };
+static PyObject * Balance_stop(Balance *self, PyObject *args, PyObject *kwds) { STOP };
 
 static PyObject * Balance_multiply(Balance *self, PyObject *arg) { MULTIPLY };
 static PyObject * Balance_inplace_multiply(Balance *self, PyObject *arg) { INPLACE_MULTIPLY };
@@ -1836,7 +1836,7 @@ static PyMethodDef Balance_methods[] = {
     {"_getStream", (PyCFunction)Balance_getStream, METH_NOARGS, "Returns stream object."},
     {"play", (PyCFunction)Balance_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)Balance_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-    {"stop", (PyCFunction)Balance_stop, METH_NOARGS, "Stops computing."},
+    {"stop", (PyCFunction)Balance_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
     {"setFreq", (PyCFunction)Balance_setFreq, METH_O, "Sets filter cutoff frequency in cycle per second."},
     {"setMul", (PyCFunction)Balance_setMul, METH_O, "Sets oscillator mul factor."},
     {"setAdd", (PyCFunction)Balance_setAdd, METH_O, "Sets oscillator add factor."},
@@ -2229,7 +2229,7 @@ static PyObject * Expand_setDiv(Expand *self, PyObject *arg) { SET_DIV };
 
 static PyObject * Expand_play(Expand *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * Expand_out(Expand *self, PyObject *args, PyObject *kwds) { OUT };
-static PyObject * Expand_stop(Expand *self) { STOP };
+static PyObject * Expand_stop(Expand *self, PyObject *args, PyObject *kwds) { STOP };
 
 static PyObject * Expand_multiply(Expand *self, PyObject *arg) { MULTIPLY };
 static PyObject * Expand_inplace_multiply(Expand *self, PyObject *arg) { INPLACE_MULTIPLY };
@@ -2423,7 +2423,7 @@ static PyMethodDef Expand_methods[] = {
 {"_getStream", (PyCFunction)Expand_getStream, METH_NOARGS, "Returns stream object."},
 {"play", (PyCFunction)Expand_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
 {"out", (PyCFunction)Expand_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-{"stop", (PyCFunction)Expand_stop, METH_NOARGS, "Stops computing."},
+{"stop", (PyCFunction)Expand_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
 {"setDownThresh", (PyCFunction)Expand_setDownThresh, METH_O, "Sets expander lower threshold."},
 {"setUpThresh", (PyCFunction)Expand_setUpThresh, METH_O, "Sets expander upper threshold."},
 {"setRatio", (PyCFunction)Expand_setRatio, METH_O, "Sets expander ratio."},

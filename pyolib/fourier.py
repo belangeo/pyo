@@ -184,17 +184,19 @@ class FFT(PyoObject):
 
     def play(self, dur=0, delay=0):
         dur, delay, lmax = convertArgsToLists(dur, delay)
+        self._autoplay(dur, delay)
         self._base_players = [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._base_players)]
         self._real_objs = [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._real_objs)]
         self._imag_objs = [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._imag_objs)]
         self._bin_objs = [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._bin_objs)]
         return self
 
-    def stop(self):
-        [obj.stop() for obj in self._base_players]
-        [obj.stop() for obj in self._real_objs]
-        [obj.stop() for obj in self._imag_objs]
-        [obj.stop() for obj in self._bin_objs]
+    def stop(self, wait=0):
+        self._autostop(wait)
+        [obj.stop(wait) for obj in self._base_players]
+        [obj.stop(wait) for obj in self._real_objs]
+        [obj.stop(wait) for obj in self._imag_objs]
+        [obj.stop(wait) for obj in self._bin_objs]
         return self
 
     def out(self, chnl=0, inc=1, dur=0, delay=0):

@@ -499,7 +499,7 @@ static PyObject * Harmonizer_setDiv(Harmonizer *self, PyObject *arg) { SET_DIV }
 
 static PyObject * Harmonizer_play(Harmonizer *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * Harmonizer_out(Harmonizer *self, PyObject *args, PyObject *kwds) { OUT };
-static PyObject * Harmonizer_stop(Harmonizer *self) { STOP };
+static PyObject * Harmonizer_stop(Harmonizer *self, PyObject *args, PyObject *kwds) { STOP };
 
 static PyObject * Harmonizer_multiply(Harmonizer *self, PyObject *arg) { MULTIPLY };
 static PyObject * Harmonizer_inplace_multiply(Harmonizer *self, PyObject *arg) { INPLACE_MULTIPLY };
@@ -619,7 +619,7 @@ static PyMethodDef Harmonizer_methods[] = {
     {"_getStream", (PyCFunction)Harmonizer_getStream, METH_NOARGS, "Returns stream object."},
     {"play", (PyCFunction)Harmonizer_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)Harmonizer_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-    {"stop", (PyCFunction)Harmonizer_stop, METH_NOARGS, "Stops computing."},
+    {"stop", (PyCFunction)Harmonizer_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
     {"reset", (PyCFunction)Harmonizer_reset, METH_NOARGS, "Reset the delay line."},
 	{"setTranspo", (PyCFunction)Harmonizer_setTranspo, METH_O, "Sets global transpo factor."},
     {"setFeedback", (PyCFunction)Harmonizer_setFeedback, METH_O, "Sets feedback factor."},

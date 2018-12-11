@@ -5905,12 +5905,31 @@ static PyObject * TableRec_play(TableRec *self, PyObject *args, PyObject *kwds)
     PLAY
 };
 
-static PyObject * TableRec_stop(TableRec *self) { 
-    int j;
-    for (j=0; j<self->bufsize; j++) {
-        self->time_buffer_streams[j] = self->pointer;
+static PyObject * TableRec_stop(TableRec *self, PyObject *args, PyObject *kwds) {
+    int i, nearestBuf = 0;
+    float wait = 0.0;
+
+    static char *kwlist[] = {"wait", NULL};
+
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "|f", kwlist, &wait))
+        return PyInt_FromLong(-1);
+
+    if (wait == 0) {
+        Stream_setStreamActive(self->stream, 0);
+        Stream_setStreamChnl(self->stream, 0);
+        Stream_setStreamToDac(self->stream, 0);
+        for (i=0; i<self->bufsize; i++) {
+            self->time_buffer_streams[i] = self->pointer;
+            self->data[i] = 0;
+        }
     }
-    STOP 
+    else {
+        Stream_resetBufferCount(self->stream);
+        nearestBuf = (int)roundf((wait * self->sr) / self->bufsize + 0.5);
+        Stream_setDuration(self->stream, nearestBuf);
+    }
+    Py_INCREF(Py_None);
+    return Py_None;
 };
 
 static PyObject *
@@ -5944,7 +5963,7 @@ static PyMethodDef TableRec_methods[] = {
 {"_getTriggerStream", (PyCFunction)TableRec_getTriggerStream, METH_NOARGS, "Returns trigger stream object."},
 {"setTable", (PyCFunction)TableRec_setTable, METH_O, "Sets a new table."},
 {"play", (PyCFunction)TableRec_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-{"stop", (PyCFunction)TableRec_stop, METH_NOARGS, "Stops computing."},
+{"stop", (PyCFunction)TableRec_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
 {NULL}  /* Sentinel */
 };
 
@@ -6117,7 +6136,7 @@ static PyObject * TableRecTimeStream_setDiv(TableRecTimeStream *self, PyObject *
 
 static PyObject * TableRecTimeStream_play(TableRecTimeStream *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * TableRecTimeStream_out(TableRecTimeStream *self, PyObject *args, PyObject *kwds) { OUT };
-static PyObject * TableRecTimeStream_stop(TableRecTimeStream *self) { STOP };
+static PyObject * TableRecTimeStream_stop(TableRecTimeStream *self, PyObject *args, PyObject *kwds) { STOP };
 
 static PyObject * TableRecTimeStream_multiply(TableRecTimeStream *self, PyObject *arg) { MULTIPLY };
 static PyObject * TableRecTimeStream_inplace_multiply(TableRecTimeStream *self, PyObject *arg) { INPLACE_MULTIPLY };
@@ -6141,7 +6160,7 @@ static PyMethodDef TableRecTimeStream_methods[] = {
     {"_getStream", (PyCFunction)TableRecTimeStream_getStream, METH_NOARGS, "Returns stream object."},
     {"play", (PyCFunction)TableRecTimeStream_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)TableRecTimeStream_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-    {"stop", (PyCFunction)TableRecTimeStream_stop, METH_NOARGS, "Stops computing."},
+    {"stop", (PyCFunction)TableRecTimeStream_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
     {"setMul", (PyCFunction)TableRecTimeStream_setMul, METH_O, "Sets oscillator mul factor."},
     {"setAdd", (PyCFunction)TableRecTimeStream_setAdd, METH_O, "Sets oscillator add factor."},
     {"setSub", (PyCFunction)TableRecTimeStream_setSub, METH_O, "Sets inverse add factor."},
@@ -6374,7 +6393,7 @@ static PyObject * TableMorph_getServer(TableMorph* self) { GET_SERVER };
 static PyObject * TableMorph_getStream(TableMorph* self) { GET_STREAM };
 
 static PyObject * TableMorph_play(TableMorph *self, PyObject *args, PyObject *kwds) { PLAY };
-static PyObject * TableMorph_stop(TableMorph *self) { STOP };
+static PyObject * TableMorph_stop(TableMorph *self, PyObject *args, PyObject *kwds) { STOP };
 
 static PyObject *
 TableMorph_setTable(TableMorph *self, PyObject *arg)
@@ -6425,7 +6444,7 @@ static PyMethodDef TableMorph_methods[] = {
 {"setTable", (PyCFunction)TableMorph_setTable, METH_O, "Sets a new table."},
 {"setSources", (PyCFunction)TableMorph_setSources, METH_O, "Changes the sources tables."},
 {"play", (PyCFunction)TableMorph_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-{"stop", (PyCFunction)TableMorph_stop, METH_NOARGS, "Stops computing."},
+{"stop", (PyCFunction)TableMorph_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
 {NULL}  /* Sentinel */
 };
 
@@ -6699,7 +6718,7 @@ static PyObject * TrigTableRec_getStream(TrigTableRec* self) { GET_STREAM };
 static PyObject * TrigTableRec_getTriggerStream(TrigTableRec* self) { GET_TRIGGER_STREAM };
 
 static PyObject * TrigTableRec_play(TrigTableRec *self, PyObject *args, PyObject *kwds) { PLAY };
-static PyObject * TrigTableRec_stop(TrigTableRec *self) { STOP };
+static PyObject * TrigTableRec_stop(TrigTableRec *self, PyObject *args, PyObject *kwds) { STOP };
 
 static PyObject *
 TrigTableRec_setTable(TrigTableRec *self, PyObject *arg)
@@ -6733,7 +6752,7 @@ static PyMethodDef TrigTableRec_methods[] = {
     {"_getTriggerStream", (PyCFunction)TrigTableRec_getTriggerStream, METH_NOARGS, "Returns trigger stream object."},
     {"setTable", (PyCFunction)TrigTableRec_setTable, METH_O, "Sets a new table."},
     {"play", (PyCFunction)TrigTableRec_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"stop", (PyCFunction)TrigTableRec_stop, METH_NOARGS, "Stops computing."},
+    {"stop", (PyCFunction)TrigTableRec_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
     {NULL}  /* Sentinel */
 };
 
@@ -6906,7 +6925,7 @@ static PyObject * TrigTableRecTimeStream_setDiv(TrigTableRecTimeStream *self, Py
 
 static PyObject * TrigTableRecTimeStream_play(TrigTableRecTimeStream *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * TrigTableRecTimeStream_out(TrigTableRecTimeStream *self, PyObject *args, PyObject *kwds) { OUT };
-static PyObject * TrigTableRecTimeStream_stop(TrigTableRecTimeStream *self) { STOP };
+static PyObject * TrigTableRecTimeStream_stop(TrigTableRecTimeStream *self, PyObject *args, PyObject *kwds) { STOP };
 
 static PyObject * TrigTableRecTimeStream_multiply(TrigTableRecTimeStream *self, PyObject *arg) { MULTIPLY };
 static PyObject * TrigTableRecTimeStream_inplace_multiply(TrigTableRecTimeStream *self, PyObject *arg) { INPLACE_MULTIPLY };
@@ -6930,7 +6949,7 @@ static PyMethodDef TrigTableRecTimeStream_methods[] = {
     {"_getStream", (PyCFunction)TrigTableRecTimeStream_getStream, METH_NOARGS, "Returns stream object."},
     {"play", (PyCFunction)TrigTableRecTimeStream_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)TrigTableRecTimeStream_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-    {"stop", (PyCFunction)TrigTableRecTimeStream_stop, METH_NOARGS, "Stops computing."},
+    {"stop", (PyCFunction)TrigTableRecTimeStream_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
     {"setMul", (PyCFunction)TrigTableRecTimeStream_setMul, METH_O, "Sets oscillator mul factor."},
     {"setAdd", (PyCFunction)TrigTableRecTimeStream_setAdd, METH_O, "Sets oscillator add factor."},
     {"setSub", (PyCFunction)TrigTableRecTimeStream_setSub, METH_O, "Sets inverse add factor."},
@@ -7149,7 +7168,7 @@ static PyObject * TablePut_play(TablePut *self, PyObject *args, PyObject *kwds)
     PLAY
 };
 
-static PyObject * TablePut_stop(TablePut *self) { STOP };
+static PyObject * TablePut_stop(TablePut *self, PyObject *args, PyObject *kwds) { STOP };
 
 static PyObject *
 TablePut_setTable(TablePut *self, PyObject *arg)
@@ -7182,7 +7201,7 @@ static PyMethodDef TablePut_methods[] = {
 {"_getTriggerStream", (PyCFunction)TablePut_getTriggerStream, METH_NOARGS, "Returns trigger stream object."},
 {"setTable", (PyCFunction)TablePut_setTable, METH_O, "Sets a new data table."},
 {"play", (PyCFunction)TablePut_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-{"stop", (PyCFunction)TablePut_stop, METH_NOARGS, "Stops computing."},
+{"stop", (PyCFunction)TablePut_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
 {NULL}  /* Sentinel */
 };
 
@@ -7391,7 +7410,7 @@ static PyObject * TableWrite_getServer(TableWrite* self) { GET_SERVER };
 static PyObject * TableWrite_getStream(TableWrite* self) { GET_STREAM };
 
 static PyObject * TableWrite_play(TableWrite *self, PyObject *args, PyObject *kwds) { PLAY };
-static PyObject * TableWrite_stop(TableWrite *self) { STOP };
+static PyObject * TableWrite_stop(TableWrite *self, PyObject *args, PyObject *kwds) { STOP };
 
 static PyObject *
 TableWrite_setPos(TableWrite *self, PyObject *arg)
@@ -7450,7 +7469,7 @@ static PyMethodDef TableWrite_methods[] = {
 {"setTable", (PyCFunction)TableWrite_setTable, METH_O, "Sets a new table."},
 {"setPos", (PyCFunction)TableWrite_setPos, METH_O, "Sets position in the sound table."},
 {"play", (PyCFunction)TableWrite_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-{"stop", (PyCFunction)TableWrite_stop, METH_NOARGS, "Stops computing."},
+{"stop", (PyCFunction)TableWrite_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
 {NULL}  /* Sentinel */
 };
 

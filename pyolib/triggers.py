@@ -753,12 +753,12 @@ class Beat(PyoObject):
         self._end_objs = [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._end_objs)]
         return PyoObject.play(self, dur, delay)
 
-    def stop(self):
-        [obj.stop() for obj in self._tap_objs]
-        [obj.stop() for obj in self._amp_objs]
-        [obj.stop() for obj in self._dur_objs]
-        [obj.stop() for obj in self._end_objs]
-        return PyoObject.stop(self)
+    def stop(self, wait=0):
+        [obj.stop(wait) for obj in self._tap_objs]
+        [obj.stop(wait) for obj in self._amp_objs]
+        [obj.stop(wait) for obj in self._dur_objs]
+        [obj.stop(wait) for obj in self._end_objs]
+        return PyoObject.stop(self, wait)
 
     def out(self, chnl=0, inc=1, dur=0, delay=0):
         return self.play(dur, delay)
@@ -3587,12 +3587,12 @@ class Euclide(PyoObject):
         self._end_objs = [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._end_objs)]
         return PyoObject.play(self, dur, delay)
 
-    def stop(self):
-        [obj.stop() for obj in self._tap_objs]
-        [obj.stop() for obj in self._amp_objs]
-        [obj.stop() for obj in self._dur_objs]
-        [obj.stop() for obj in self._end_objs]
-        return PyoObject.stop(self)
+    def stop(self, wait=0):
+        [obj.stop(wait) for obj in self._tap_objs]
+        [obj.stop(wait) for obj in self._amp_objs]
+        [obj.stop(wait) for obj in self._dur_objs]
+        [obj.stop(wait) for obj in self._end_objs]
+        return PyoObject.stop(self, wait)
 
     def out(self, chnl=0, inc=1, dur=0, delay=0):
         return self.play(dur, delay)
@@ -3848,12 +3848,12 @@ class TrigBurst(PyoObject):
         self._end_objs = [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._end_objs)]
         return PyoObject.play(self, dur, delay)
 
-    def stop(self):
-        [obj.stop() for obj in self._tap_objs]
-        [obj.stop() for obj in self._amp_objs]
-        [obj.stop() for obj in self._dur_objs]
-        [obj.stop() for obj in self._end_objs]
-        return PyoObject.stop(self)
+    def stop(self, wait=0):
+        [obj.stop(wait) for obj in self._tap_objs]
+        [obj.stop(wait) for obj in self._amp_objs]
+        [obj.stop(wait) for obj in self._dur_objs]
+        [obj.stop(wait) for obj in self._end_objs]
+        return PyoObject.stop(self, wait)
 
     def out(self, chnl=0, inc=1, dur=0, delay=0):
         return self.play(dur, delay)

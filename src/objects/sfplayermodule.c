@@ -354,7 +354,7 @@ static PyObject * SfPlayer_out(SfPlayer *self, PyObject *args, PyObject *kwds)
     OUT
 };
 
-static PyObject * SfPlayer_stop(SfPlayer *self) { STOP };
+static PyObject * SfPlayer_stop(SfPlayer *self, PyObject *args, PyObject *kwds) { STOP };
 
 static PyObject *
 SfPlayer_setSpeed(SfPlayer *self, PyObject *arg)
@@ -484,7 +484,7 @@ static PyMethodDef SfPlayer_methods[] = {
 {"_getTriggerStream", (PyCFunction)SfPlayer_getTriggerStream, METH_NOARGS, "Returns trigger stream object."},
 {"play", (PyCFunction)SfPlayer_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
 {"out", (PyCFunction)SfPlayer_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-{"stop", (PyCFunction)SfPlayer_stop, METH_NOARGS, "Stops computing."},
+{"stop", (PyCFunction)SfPlayer_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
 {"setSound", (PyCFunction)SfPlayer_setSound, METH_VARARGS, "Sets sfplayer sound path."},
 {"setSpeed", (PyCFunction)SfPlayer_setSpeed, METH_O, "Sets sfplayer reading speed."},
 {"setLoop", (PyCFunction)SfPlayer_setLoop, METH_O, "Sets sfplayer loop mode (0 = no loop, 1 = loop)."},
@@ -677,7 +677,7 @@ static PyObject * SfPlay_setDiv(SfPlay *self, PyObject *arg) { SET_DIV };
 
 static PyObject * SfPlay_play(SfPlay *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * SfPlay_out(SfPlay *self, PyObject *args, PyObject *kwds) { OUT };
-static PyObject * SfPlay_stop(SfPlay *self) { STOP };
+static PyObject * SfPlay_stop(SfPlay *self, PyObject *args, PyObject *kwds) { STOP };
 
 static PyObject * SfPlay_multiply(SfPlay *self, PyObject *arg) { MULTIPLY };
 static PyObject * SfPlay_inplace_multiply(SfPlay *self, PyObject *arg) { INPLACE_MULTIPLY };
@@ -701,7 +701,7 @@ static PyMethodDef SfPlay_methods[] = {
 {"_getStream", (PyCFunction)SfPlay_getStream, METH_NOARGS, "Returns stream object."},
 {"play", (PyCFunction)SfPlay_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
 {"out", (PyCFunction)SfPlay_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-{"stop", (PyCFunction)SfPlay_stop, METH_NOARGS, "Stops computing."},
+{"stop", (PyCFunction)SfPlay_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
 {"setMul", (PyCFunction)SfPlay_setMul, METH_O, "Sets SfPlay mul factor."},
 {"setAdd", (PyCFunction)SfPlay_setAdd, METH_O, "Sets SfPlay add factor."},
 {"setSub", (PyCFunction)SfPlay_setSub, METH_O, "Sets inverse add factor."},
@@ -1256,7 +1256,7 @@ static PyObject * SfMarkerShuffler_getStream(SfMarkerShuffler* self) { GET_STREA
 
 static PyObject * SfMarkerShuffler_play(SfMarkerShuffler *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * SfMarkerShuffler_out(SfMarkerShuffler *self, PyObject *args, PyObject *kwds) { OUT };
-static PyObject * SfMarkerShuffler_stop(SfMarkerShuffler *self) { STOP };
+static PyObject * SfMarkerShuffler_stop(SfMarkerShuffler *self, PyObject *args, PyObject *kwds) { STOP };
 
 static PyObject *
 SfMarkerShuffler_setSpeed(SfMarkerShuffler *self, PyObject *arg)
@@ -1398,7 +1398,7 @@ static PyMethodDef SfMarkerShuffler_methods[] = {
 {"_getStream", (PyCFunction)SfMarkerShuffler_getStream, METH_NOARGS, "Returns stream object."},
 {"play", (PyCFunction)SfMarkerShuffler_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
 {"out", (PyCFunction)SfMarkerShuffler_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-{"stop", (PyCFunction)SfMarkerShuffler_stop, METH_NOARGS, "Stops computing."},
+{"stop", (PyCFunction)SfMarkerShuffler_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
 {"setSpeed", (PyCFunction)SfMarkerShuffler_setSpeed, METH_O, "Sets sfplayer reading speed."},
 {"setInterp", (PyCFunction)SfMarkerShuffler_setInterp, METH_O, "Sets sfplayer interpolation mode."},
 {"setRandomType", (PyCFunction)SfMarkerShuffler_setRandomType, METH_VARARGS|METH_KEYWORDS, "Sets sfplayer random type."},
@@ -1589,7 +1589,7 @@ static PyObject * SfMarkerShuffle_setDiv(SfMarkerShuffle *self, PyObject *arg) {
 
 static PyObject * SfMarkerShuffle_play(SfMarkerShuffle *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * SfMarkerShuffle_out(SfMarkerShuffle *self, PyObject *args, PyObject *kwds) { OUT };
-static PyObject * SfMarkerShuffle_stop(SfMarkerShuffle *self) { STOP };
+static PyObject * SfMarkerShuffle_stop(SfMarkerShuffle *self, PyObject *args, PyObject *kwds) { STOP };
 
 static PyObject * SfMarkerShuffle_multiply(SfMarkerShuffle *self, PyObject *arg) { MULTIPLY };
 static PyObject * SfMarkerShuffle_inplace_multiply(SfMarkerShuffle *self, PyObject *arg) { INPLACE_MULTIPLY };
@@ -1613,7 +1613,7 @@ static PyMethodDef SfMarkerShuffle_methods[] = {
 {"_getStream", (PyCFunction)SfMarkerShuffle_getStream, METH_NOARGS, "Returns stream object."},
 {"play", (PyCFunction)SfMarkerShuffle_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
 {"out", (PyCFunction)SfMarkerShuffle_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-{"stop", (PyCFunction)SfMarkerShuffle_stop, METH_NOARGS, "Stops computing."},
+{"stop", (PyCFunction)SfMarkerShuffle_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
 {"setMul", (PyCFunction)SfMarkerShuffle_setMul, METH_O, "Sets SfMarkerShuffle mul factor."},
 {"setAdd", (PyCFunction)SfMarkerShuffle_setAdd, METH_O, "Sets SfMarkerShuffle add factor."},
 {"setSub", (PyCFunction)SfMarkerShuffle_setSub, METH_O, "Sets inverse add factor."},
@@ -2069,7 +2069,7 @@ static PyObject * SfMarkerLooper_getStream(SfMarkerLooper* self) { GET_STREAM };
 
 static PyObject * SfMarkerLooper_play(SfMarkerLooper *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * SfMarkerLooper_out(SfMarkerLooper *self, PyObject *args, PyObject *kwds) { OUT };
-static PyObject * SfMarkerLooper_stop(SfMarkerLooper *self) { STOP };
+static PyObject * SfMarkerLooper_stop(SfMarkerLooper *self, PyObject *args, PyObject *kwds) { STOP };
 
 static PyObject *
 SfMarkerLooper_setSpeed(SfMarkerLooper *self, PyObject *arg)
@@ -2173,7 +2173,7 @@ static PyMethodDef SfMarkerLooper_methods[] = {
     {"_getStream", (PyCFunction)SfMarkerLooper_getStream, METH_NOARGS, "Returns stream object."},
     {"play", (PyCFunction)SfMarkerLooper_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)SfMarkerLooper_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-    {"stop", (PyCFunction)SfMarkerLooper_stop, METH_NOARGS, "Stops computing."},
+    {"stop", (PyCFunction)SfMarkerLooper_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
     {"setSpeed", (PyCFunction)SfMarkerLooper_setSpeed, METH_O, "Sets sfplayer reading speed."},
     {"setMark", (PyCFunction)SfMarkerLooper_setMark, METH_O, "Sets marker to loop."},
     {"setInterp", (PyCFunction)SfMarkerLooper_setInterp, METH_O, "Sets sfplayer interpolation mode."},
@@ -2364,7 +2364,7 @@ static PyObject * SfMarkerLoop_setDiv(SfMarkerLoop *self, PyObject *arg) { SET_D
 
 static PyObject * SfMarkerLoop_play(SfMarkerLoop *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * SfMarkerLoop_out(SfMarkerLoop *self, PyObject *args, PyObject *kwds) { OUT };
-static PyObject * SfMarkerLoop_stop(SfMarkerLoop *self) { STOP };
+static PyObject * SfMarkerLoop_stop(SfMarkerLoop *self, PyObject *args, PyObject *kwds) { STOP };
 
 static PyObject * SfMarkerLoop_multiply(SfMarkerLoop *self, PyObject *arg) { MULTIPLY };
 static PyObject * SfMarkerLoop_inplace_multiply(SfMarkerLoop *self, PyObject *arg) { INPLACE_MULTIPLY };
@@ -2388,7 +2388,7 @@ static PyMethodDef SfMarkerLoop_methods[] = {
     {"_getStream", (PyCFunction)SfMarkerLoop_getStream, METH_NOARGS, "Returns stream object."},
     {"play", (PyCFunction)SfMarkerLoop_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)SfMarkerLoop_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-    {"stop", (PyCFunction)SfMarkerLoop_stop, METH_NOARGS, "Stops computing."},
+    {"stop", (PyCFunction)SfMarkerLoop_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
     {"setMul", (PyCFunction)SfMarkerLoop_setMul, METH_O, "Sets SfMarkerLoop mul factor."},
     {"setAdd", (PyCFunction)SfMarkerLoop_setAdd, METH_O, "Sets SfMarkerLoop add factor."},
     {"setSub", (PyCFunction)SfMarkerLoop_setSub, METH_O, "Sets inverse add factor."},

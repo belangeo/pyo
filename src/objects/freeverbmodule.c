@@ -699,7 +699,7 @@ static PyObject * Freeverb_setDiv(Freeverb *self, PyObject *arg) { SET_DIV };
 
 static PyObject * Freeverb_play(Freeverb *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * Freeverb_out(Freeverb *self, PyObject *args, PyObject *kwds) { OUT };
-static PyObject * Freeverb_stop(Freeverb *self) { STOP };
+static PyObject * Freeverb_stop(Freeverb *self, PyObject *args, PyObject *kwds) { STOP };
 
 static PyObject * Freeverb_multiply(Freeverb *self, PyObject *arg) { MULTIPLY };
 static PyObject * Freeverb_inplace_multiply(Freeverb *self, PyObject *arg) { INPLACE_MULTIPLY };
@@ -839,7 +839,7 @@ static PyMethodDef Freeverb_methods[] = {
     {"_getStream", (PyCFunction)Freeverb_getStream, METH_NOARGS, "Returns stream object."},
     {"play", (PyCFunction)Freeverb_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)Freeverb_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-    {"stop", (PyCFunction)Freeverb_stop, METH_NOARGS, "Stops computing."},
+    {"stop", (PyCFunction)Freeverb_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
     {"reset", (PyCFunction)Freeverb_reset, METH_NOARGS, "Reset the delay lines."},
 	{"setSize", (PyCFunction)Freeverb_setSize, METH_O, "Sets distortion size factor (0 -> 1)."},
     {"setDamp", (PyCFunction)Freeverb_setDamp, METH_O, "Sets lowpass filter damp factor."},

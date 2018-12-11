@@ -307,7 +307,7 @@ static PyObject * Disto_setDiv(Disto *self, PyObject *arg) { SET_DIV };
 
 static PyObject * Disto_play(Disto *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * Disto_out(Disto *self, PyObject *args, PyObject *kwds) { OUT };
-static PyObject * Disto_stop(Disto *self) { STOP };
+static PyObject * Disto_stop(Disto *self, PyObject *args, PyObject *kwds) { STOP };
 
 static PyObject * Disto_multiply(Disto *self, PyObject *arg) { MULTIPLY };
 static PyObject * Disto_inplace_multiply(Disto *self, PyObject *arg) { INPLACE_MULTIPLY };
@@ -396,7 +396,7 @@ static PyMethodDef Disto_methods[] = {
     {"_getStream", (PyCFunction)Disto_getStream, METH_NOARGS, "Returns stream object."},
     {"play", (PyCFunction)Disto_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)Disto_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-    {"stop", (PyCFunction)Disto_stop, METH_NOARGS, "Stops computing."},
+    {"stop", (PyCFunction)Disto_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
 	{"setDrive", (PyCFunction)Disto_setDrive, METH_O, "Sets distortion drive factor (0 -> 1)."},
     {"setSlope", (PyCFunction)Disto_setSlope, METH_O, "Sets lowpass filter slope factor."},
 	{"setMul", (PyCFunction)Disto_setMul, METH_O, "Sets oscillator mul factor."},
@@ -745,7 +745,7 @@ static PyObject * Clip_setDiv(Clip *self, PyObject *arg) { SET_DIV };
 
 static PyObject * Clip_play(Clip *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * Clip_out(Clip *self, PyObject *args, PyObject *kwds) { OUT };
-static PyObject * Clip_stop(Clip *self) { STOP };
+static PyObject * Clip_stop(Clip *self, PyObject *args, PyObject *kwds) { STOP };
 
 static PyObject * Clip_multiply(Clip *self, PyObject *arg) { MULTIPLY };
 static PyObject * Clip_inplace_multiply(Clip *self, PyObject *arg) { INPLACE_MULTIPLY };
@@ -834,7 +834,7 @@ static PyMethodDef Clip_methods[] = {
 {"_getStream", (PyCFunction)Clip_getStream, METH_NOARGS, "Returns stream object."},
 {"play", (PyCFunction)Clip_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
 {"out", (PyCFunction)Clip_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-{"stop", (PyCFunction)Clip_stop, METH_NOARGS, "Stops computing."},
+{"stop", (PyCFunction)Clip_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
 {"setMin", (PyCFunction)Clip_setMin, METH_O, "Sets the minimum value."},
 {"setMax", (PyCFunction)Clip_setMax, METH_O, "Sets the maximum value."},
 {"setMul", (PyCFunction)Clip_setMul, METH_O, "Sets oscillator mul factor."},
@@ -1213,7 +1213,7 @@ static PyObject * Mirror_setDiv(Mirror *self, PyObject *arg) { SET_DIV };
 
 static PyObject * Mirror_play(Mirror *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * Mirror_out(Mirror *self, PyObject *args, PyObject *kwds) { OUT };
-static PyObject * Mirror_stop(Mirror *self) { STOP };
+static PyObject * Mirror_stop(Mirror *self, PyObject *args, PyObject *kwds) { STOP };
 
 static PyObject * Mirror_multiply(Mirror *self, PyObject *arg) { MULTIPLY };
 static PyObject * Mirror_inplace_multiply(Mirror *self, PyObject *arg) { INPLACE_MULTIPLY };
@@ -1302,7 +1302,7 @@ static PyMethodDef Mirror_methods[] = {
     {"_getStream", (PyCFunction)Mirror_getStream, METH_NOARGS, "Returns stream object."},
     {"play", (PyCFunction)Mirror_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)Mirror_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-    {"stop", (PyCFunction)Mirror_stop, METH_NOARGS, "Stops computing."},
+    {"stop", (PyCFunction)Mirror_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
     {"setMin", (PyCFunction)Mirror_setMin, METH_O, "Sets the minimum value."},
     {"setMax", (PyCFunction)Mirror_setMax, METH_O, "Sets the maximum value."},
     {"setMul", (PyCFunction)Mirror_setMul, METH_O, "Sets oscillator mul factor."},
@@ -1705,7 +1705,7 @@ static PyObject * Wrap_setDiv(Wrap *self, PyObject *arg) { SET_DIV };
 
 static PyObject * Wrap_play(Wrap *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * Wrap_out(Wrap *self, PyObject *args, PyObject *kwds) { OUT };
-static PyObject * Wrap_stop(Wrap *self) { STOP };
+static PyObject * Wrap_stop(Wrap *self, PyObject *args, PyObject *kwds) { STOP };
 
 static PyObject * Wrap_multiply(Wrap *self, PyObject *arg) { MULTIPLY };
 static PyObject * Wrap_inplace_multiply(Wrap *self, PyObject *arg) { INPLACE_MULTIPLY };
@@ -1794,7 +1794,7 @@ static PyMethodDef Wrap_methods[] = {
     {"_getStream", (PyCFunction)Wrap_getStream, METH_NOARGS, "Returns stream object."},
     {"play", (PyCFunction)Wrap_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)Wrap_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-    {"stop", (PyCFunction)Wrap_stop, METH_NOARGS, "Stops computing."},
+    {"stop", (PyCFunction)Wrap_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
     {"setMin", (PyCFunction)Wrap_setMin, METH_O, "Sets the minimum value."},
     {"setMax", (PyCFunction)Wrap_setMax, METH_O, "Sets the maximum value."},
     {"setMul", (PyCFunction)Wrap_setMul, METH_O, "Sets oscillator mul factor."},
@@ -2188,7 +2188,7 @@ static PyObject * Degrade_setDiv(Degrade *self, PyObject *arg) { SET_DIV };
 
 static PyObject * Degrade_play(Degrade *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * Degrade_out(Degrade *self, PyObject *args, PyObject *kwds) { OUT };
-static PyObject * Degrade_stop(Degrade *self) { STOP };
+static PyObject * Degrade_stop(Degrade *self, PyObject *args, PyObject *kwds) { STOP };
 
 static PyObject * Degrade_multiply(Degrade *self, PyObject *arg) { MULTIPLY };
 static PyObject * Degrade_inplace_multiply(Degrade *self, PyObject *arg) { INPLACE_MULTIPLY };
@@ -2277,7 +2277,7 @@ static PyMethodDef Degrade_methods[] = {
 {"_getStream", (PyCFunction)Degrade_getStream, METH_NOARGS, "Returns stream object."},
 {"play", (PyCFunction)Degrade_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
 {"out", (PyCFunction)Degrade_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-{"stop", (PyCFunction)Degrade_stop, METH_NOARGS, "Stops computing."},
+{"stop", (PyCFunction)Degrade_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
 {"setBitdepth", (PyCFunction)Degrade_setBitdepth, METH_O, "Sets the bitdepth value."},
 {"setSrscale", (PyCFunction)Degrade_setSrscale, METH_O, "Sets the srscale value."},
 {"setMul", (PyCFunction)Degrade_setMul, METH_O, "Sets oscillator mul factor."},
@@ -2550,7 +2550,7 @@ static PyObject * Min_setDiv(Min *self, PyObject *arg) { SET_DIV };
 
 static PyObject * Min_play(Min *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * Min_out(Min *self, PyObject *args, PyObject *kwds) { OUT };
-static PyObject * Min_stop(Min *self) { STOP };
+static PyObject * Min_stop(Min *self, PyObject *args, PyObject *kwds) { STOP };
 
 static PyObject * Min_multiply(Min *self, PyObject *arg) { MULTIPLY };
 static PyObject * Min_inplace_multiply(Min *self, PyObject *arg) { INPLACE_MULTIPLY };
@@ -2607,7 +2607,7 @@ static PyMethodDef Min_methods[] = {
 {"_getStream", (PyCFunction)Min_getStream, METH_NOARGS, "Returns stream object."},
 {"play", (PyCFunction)Min_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
 {"out", (PyCFunction)Min_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-{"stop", (PyCFunction)Min_stop, METH_NOARGS, "Stops computing."},
+{"stop", (PyCFunction)Min_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
 {"setComp", (PyCFunction)Min_setComp, METH_O, "Sets comparator."},
 {"setMul", (PyCFunction)Min_setMul, METH_O, "Sets oscillator mul factor."},
 {"setAdd", (PyCFunction)Min_setAdd, METH_O, "Sets oscillator add factor."},
@@ -2879,7 +2879,7 @@ static PyObject * Max_setDiv(Max *self, PyObject *arg) { SET_DIV };
 
 static PyObject * Max_play(Max *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * Max_out(Max *self, PyObject *args, PyObject *kwds) { OUT };
-static PyObject * Max_stop(Max *self) { STOP };
+static PyObject * Max_stop(Max *self, PyObject *args, PyObject *kwds) { STOP };
 
 static PyObject * Max_multiply(Max *self, PyObject *arg) { MULTIPLY };
 static PyObject * Max_inplace_multiply(Max *self, PyObject *arg) { INPLACE_MULTIPLY };
@@ -2936,7 +2936,7 @@ static PyMethodDef Max_methods[] = {
 {"_getStream", (PyCFunction)Max_getStream, METH_NOARGS, "Returns stream object."},
 {"play", (PyCFunction)Max_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
 {"out", (PyCFunction)Max_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-{"stop", (PyCFunction)Max_stop, METH_NOARGS, "Stops computing."},
+{"stop", (PyCFunction)Max_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
 {"setComp", (PyCFunction)Max_setComp, METH_O, "Sets comparator."},
 {"setMul", (PyCFunction)Max_setMul, METH_O, "Sets oscillator mul factor."},
 {"setAdd", (PyCFunction)Max_setAdd, METH_O, "Sets oscillator add factor."},

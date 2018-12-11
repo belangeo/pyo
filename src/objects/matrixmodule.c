@@ -652,7 +652,7 @@ static PyObject * MatrixRec_play(MatrixRec *self, PyObject *args, PyObject *kwds
     PLAY
 };
 
-static PyObject * MatrixRec_stop(MatrixRec *self) { STOP };
+static PyObject * MatrixRec_stop(MatrixRec *self, PyObject *args, PyObject *kwds) { STOP };
 
 static PyObject *
 MatrixRec_setMatrix(MatrixRec *self, PyObject *arg)
@@ -685,7 +685,7 @@ static PyMethodDef MatrixRec_methods[] = {
     {"_getTriggerStream", (PyCFunction)MatrixRec_getTriggerStream, METH_NOARGS, "Returns trigger stream object."},
     {"setMatrix", (PyCFunction)MatrixRec_setMatrix, METH_O, "Sets a new Matrix."},
     {"play", (PyCFunction)MatrixRec_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"stop", (PyCFunction)MatrixRec_stop, METH_NOARGS, "Stops computing."},
+    {"stop", (PyCFunction)MatrixRec_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
     {NULL}  /* Sentinel */
 };
 
@@ -841,7 +841,7 @@ static PyObject * MatrixRecLoop_getStream(MatrixRecLoop* self) { GET_STREAM };
 static PyObject * MatrixRecLoop_getTriggerStream(MatrixRecLoop* self) { GET_TRIGGER_STREAM };
 
 static PyObject * MatrixRecLoop_play(MatrixRecLoop *self, PyObject *args, PyObject *kwds) { PLAY };
-static PyObject * MatrixRecLoop_stop(MatrixRecLoop *self) { STOP };
+static PyObject * MatrixRecLoop_stop(MatrixRecLoop *self, PyObject *args, PyObject *kwds) { STOP };
 
 static PyObject *
 MatrixRecLoop_setMatrix(MatrixRecLoop *self, PyObject *arg)
@@ -874,7 +874,7 @@ static PyMethodDef MatrixRecLoop_methods[] = {
     {"_getTriggerStream", (PyCFunction)MatrixRecLoop_getTriggerStream, METH_NOARGS, "Returns trigger stream object."},
     {"setMatrix", (PyCFunction)MatrixRecLoop_setMatrix, METH_O, "Sets a new Matrix."},
     {"play", (PyCFunction)MatrixRecLoop_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"stop", (PyCFunction)MatrixRecLoop_stop, METH_NOARGS, "Stops computing."},
+    {"stop", (PyCFunction)MatrixRecLoop_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
     {NULL}  /* Sentinel */
 };
 
@@ -1049,7 +1049,7 @@ static PyObject * MatrixMorph_getServer(MatrixMorph* self) { GET_SERVER };
 static PyObject * MatrixMorph_getStream(MatrixMorph* self) { GET_STREAM };
 
 static PyObject * MatrixMorph_play(MatrixMorph *self, PyObject *args, PyObject *kwds) { PLAY };
-static PyObject * MatrixMorph_stop(MatrixMorph *self) { STOP };
+static PyObject * MatrixMorph_stop(MatrixMorph *self, PyObject *args, PyObject *kwds) { STOP };
 
 static PyObject *
 MatrixMorph_setMatrix(MatrixMorph *self, PyObject *arg)
@@ -1100,7 +1100,7 @@ static PyMethodDef MatrixMorph_methods[] = {
     {"setMatrix", (PyCFunction)MatrixMorph_setMatrix, METH_O, "Sets a new matrix."},
     {"setSources", (PyCFunction)MatrixMorph_setSources, METH_O, "Changes the sources matrixs."},
     {"play", (PyCFunction)MatrixMorph_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"stop", (PyCFunction)MatrixMorph_stop, METH_NOARGS, "Stops computing."},
+    {"stop", (PyCFunction)MatrixMorph_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
     {NULL}  /* Sentinel */
 };
 
