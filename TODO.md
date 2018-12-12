@@ -86,9 +86,6 @@ pyo/
     README.md
     TODO.md
     deprecated/
-        examples/
-        installers/
-        utils/
     doc/
     embedded/
     externals/
