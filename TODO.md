@@ -9,6 +9,11 @@ To do ASAP!
 
 - make pip packages.
 
+- TOFIX:
+
+    t = LinTable(list=[(0, 0.0), (200, 1), (1500, 0.5), (1000, 0.1)], size=1001)
+    ===> malloc(): corrupted top size
+
 This is a list of features/fixes to implement for future releases
 =================================================================
 

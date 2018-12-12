@@ -59,21 +59,18 @@ build_with_jack_support = False
 compile_externals = False
 
 macros = []
-extension_names = ['_pyo']
-main_modules = ['pyo']
+extension_names = ['pyo._pyo']
 extra_macros_per_extension = [[]]
 
 if '--use-double' in sys.argv:
     sys.argv.remove('--use-double') 
     if not '--only-double' in sys.argv: 
-        extension_names.append('_pyo64')
-        main_modules.append('pyo64')
+        extension_names.append('pyo._pyo64')
         extra_macros_per_extension.append([('USE_DOUBLE',None)])
 
 if '--only-double' in sys.argv:
     sys.argv.remove('--only-double') 
-    extension_names = ['_pyo64']
-    main_modules = ['pyo64']
+    extension_names = ['pyo._pyo64']
     extra_macros_per_extension = [[('USE_DOUBLE',None)]]
 
 if '--no-messages' in sys.argv:    
@@ -282,7 +279,7 @@ setup(  name = "pyo",
         keywords = "audio sound dsp synthesis signal-processing music",
         license = "LGPLv3+",
         python_requires='>=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*, <4',
-        packages = ['pyo.lib', 'pyo.lib.snds', 'pyo.lib.snds.hrtf_compact', 
+        packages = ['pyo', 'pyo.lib', 'pyo.lib.snds', 'pyo.lib.snds.hrtf_compact',
                     'pyo.lib.snds.hrtf_compact.elev0', 'pyo.lib.snds.hrtf_compact.elev10',
                     'pyo.lib.snds.hrtf_compact.elev20', 'pyo.lib.snds.hrtf_compact.elev30',
                     'pyo.lib.snds.hrtf_compact.elev40', 'pyo.lib.snds.hrtf_compact.elev50',
@@ -300,7 +297,6 @@ setup(  name = "pyo",
                     'pyo.examples.control', 'pyo.examples.effects', 'pyo.examples.fft', 'pyo.examples.matrix',
                     'pyo.examples.sampling', 'pyo.examples.sequencing', 'pyo.examples.snds', 'pyo.examples.synthesis',
                     'pyo.examples.tables', 'pyo.examples.utilities', 'pyo.examples.wxgui'],
-        py_modules = main_modules,
         package_data = {'pyo.lib.snds': soundfiles,
                         'pyo.lib.snds.hrtf_compact.elev0': get_hrtf_file_names("elev0"),
                         'pyo.lib.snds.hrtf_compact.elev10': get_hrtf_file_names("elev10"),

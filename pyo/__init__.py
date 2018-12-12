@@ -17,59 +17,59 @@ GNU Lesser General Public License for more details.
 You should have received a copy of the GNU Lesser General Public
 License along with pyo.  If not, see <http://www.gnu.org/licenses/>.
 """
-from lib._maps import *
-import lib.analysis as analysis
-from lib.analysis import *
-import lib.controls as controls
-from lib.controls import *
-import lib.dynamics as dynamics
-from lib.dynamics import *
-import lib.effects as effects
-from lib.effects import *
-import lib.filters as filters
-from lib.filters import *
-import lib.generators as generators
-from lib.generators import *
-import lib.arithmetic as arithmetic
-from lib.arithmetic import *
-import lib.midi as midi
-from lib.midi import *
-import lib.opensndctrl as opensndctrl
-from lib.opensndctrl import *
-import lib.pan as pan
-from lib.pan import *
-import lib.pattern as pattern
-from lib.pattern import *
-import lib.randoms as randoms
-from lib.randoms import *
-from lib.server import *
-from lib.listener import *
-import lib.players as players
-from lib.players import *
-import lib.tableprocess as tableprocess
-from lib.tableprocess import *
-import lib.matrixprocess as matrixprocess
-from lib.matrixprocess import *
-from lib.tables import *
-from lib.matrix import *
-import lib.triggers as triggers
-from lib.triggers import *
-import lib.utils as utils
-from lib.utils import *
-import lib.expression as expression
-from lib.expression import *
-import lib.fourier as fourier
-from lib.fourier import *
-import lib.phasevoc as phasevoc
-from lib.phasevoc import *
-from lib._core import *
-from lib.wxgui import *
-import lib.wxgui as wxgui
-from lib.hrtf import *
-import lib.hrtf as hrtf
+from .lib._maps import *
+from .lib import analysis as analysis
+from .lib.analysis import *
+from .lib import controls as controls
+from .lib.controls import *
+from .lib import dynamics as dynamics
+from .lib.dynamics import *
+from .lib import effects as effects
+from .lib.effects import *
+from .lib import filters as filters
+from .lib.filters import *
+from .lib import generators as generators
+from .lib.generators import *
+from .lib import arithmetic as arithmetic
+from .lib.arithmetic import *
+from .lib import midi as midi
+from .lib.midi import *
+from .lib import opensndctrl as opensndctrl
+from .lib.opensndctrl import *
+from .lib import pan as pan
+from .lib.pan import *
+from .lib import pattern as pattern
+from .lib.pattern import *
+from .lib import randoms as randoms
+from .lib.randoms import *
+from .lib.server import *
+from .lib.listener import *
+from .lib import players as players
+from .lib.players import *
+from .lib import tableprocess as tableprocess
+from .lib.tableprocess import *
+from .lib import matrixprocess as matrixprocess
+from .lib.matrixprocess import *
+from .lib.tables import *
+from .lib.matrix import *
+from .lib import triggers as triggers
+from .lib.triggers import *
+from .lib import utils as utils
+from .lib.utils import *
+from .lib import expression as expression
+from .lib.expression import *
+from .lib import fourier as fourier
+from .lib.fourier import *
+from .lib import phasevoc as phasevoc
+from .lib.phasevoc import *
+from .lib._core import *
+from .lib.wxgui import *
+from .lib import wxgui as wxgui
+from .lib.hrtf import *
+from .lib import hrtf as hrtf
 if WITH_EXTERNALS:
-    import lib.external as external
-    from lib.external import *
+    from .lib import external as external
+    from .lib.external import *
 
 OBJECTS_TREE = {
     'functions': sorted(['pa_count_devices', 'pa_get_default_input', 

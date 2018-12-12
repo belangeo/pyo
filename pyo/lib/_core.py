@@ -55,7 +55,7 @@ if hasattr(builtins, 'pyo_use_double'):
     from _pyo64 import *
     import pyo64 as current_pyo
 else:
-    from _pyo import *
+    from .._pyo import *
     import pyo as current_pyo
 
 from ._maps import SLMap, SLMapMul
