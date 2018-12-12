@@ -17,59 +17,59 @@ GNU Lesser General Public License for more details.
 You should have received a copy of the GNU Lesser General Public
 License along with pyo.  If not, see <http://www.gnu.org/licenses/>.
 """
-from pyolib._maps import *
-import pyolib.analysis as analysis
-from pyolib.analysis import *
-import pyolib.controls as controls
-from pyolib.controls import *
-import pyolib.dynamics as dynamics
-from pyolib.dynamics import *
-import pyolib.effects as effects
-from pyolib.effects import *
-import pyolib.filters as filters
-from pyolib.filters import *
-import pyolib.generators as generators
-from pyolib.generators import *
-import pyolib.arithmetic as arithmetic
-from pyolib.arithmetic import *
-import pyolib.midi as midi
-from pyolib.midi import *
-import pyolib.opensndctrl as opensndctrl
-from pyolib.opensndctrl import *
-import pyolib.pan as pan
-from pyolib.pan import *
-import pyolib.pattern as pattern
-from pyolib.pattern import *
-import pyolib.randoms as randoms
-from pyolib.randoms import *
-from pyolib.server import *
-from pyolib.listener import *
-import pyolib.players as players
-from pyolib.players import *
-import pyolib.tableprocess as tableprocess
-from pyolib.tableprocess import *
-import pyolib.matrixprocess as matrixprocess
-from pyolib.matrixprocess import *
-from pyolib.tables import *
-from pyolib.matrix import *
-import pyolib.triggers as triggers
-from pyolib.triggers import *
-import pyolib.utils as utils
-from pyolib.utils import *
-import pyolib.expression as expression
-from pyolib.expression import *
-import pyolib.fourier as fourier
-from pyolib.fourier import *
-import pyolib.phasevoc as phasevoc
-from pyolib.phasevoc import *
-from pyolib._core import *
-from pyolib.wxgui import *
-import pyolib.wxgui as wxgui
-from pyolib.hrtf import *
-import pyolib.hrtf as hrtf
+from lib._maps import *
+import lib.analysis as analysis
+from lib.analysis import *
+import lib.controls as controls
+from lib.controls import *
+import lib.dynamics as dynamics
+from lib.dynamics import *
+import lib.effects as effects
+from lib.effects import *
+import lib.filters as filters
+from lib.filters import *
+import lib.generators as generators
+from lib.generators import *
+import lib.arithmetic as arithmetic
+from lib.arithmetic import *
+import lib.midi as midi
+from lib.midi import *
+import lib.opensndctrl as opensndctrl
+from lib.opensndctrl import *
+import lib.pan as pan
+from lib.pan import *
+import lib.pattern as pattern
+from lib.pattern import *
+import lib.randoms as randoms
+from lib.randoms import *
+from lib.server import *
+from lib.listener import *
+import lib.players as players
+from lib.players import *
+import lib.tableprocess as tableprocess
+from lib.tableprocess import *
+import lib.matrixprocess as matrixprocess
+from lib.matrixprocess import *
+from lib.tables import *
+from lib.matrix import *
+import lib.triggers as triggers
+from lib.triggers import *
+import lib.utils as utils
+from lib.utils import *
+import lib.expression as expression
+from lib.expression import *
+import lib.fourier as fourier
+from lib.fourier import *
+import lib.phasevoc as phasevoc
+from lib.phasevoc import *
+from lib._core import *
+from lib.wxgui import *
+import lib.wxgui as wxgui
+from lib.hrtf import *
+import lib.hrtf as hrtf
 if WITH_EXTERNALS:
-    import pyolib.external as external
-    from pyolib.external import *
+    import lib.external as external
+    from lib.external import *
 
 OBJECTS_TREE = {
     'functions': sorted(['pa_count_devices', 'pa_get_default_input', 

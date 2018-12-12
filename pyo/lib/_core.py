@@ -67,7 +67,7 @@ from ._widgets import createViewMatrixWindow
 ### Utilities
 ######################################################################
 current_pyo_path = os.path.dirname(current_pyo.__file__)
-SNDS_PATH = os.path.join(current_pyo_path, "pyolib", "snds")
+SNDS_PATH = os.path.join(current_pyo_path, "lib", "snds")
 XNOISE_DICT = {'uniform': 0, 'linear_min': 1, 'linear_max': 2, 'triangle': 3,
                'expon_min': 4, 'expon_max': 5, 'biexpon': 6, 'cauchy': 7,
                'weibull': 8, 'gaussian': 9, 'poisson': 10, 'walker': 11,
@@ -179,7 +179,7 @@ def sndinfo(path, print=False):
 
     >>> path = SNDS_PATH + '/transparent.aif'
     >>> print(path)
-    /usr/lib/python2.7/dist-packages/pyolib/snds/transparent.aif
+    /usr/lib/python2.7/dist-packages/pyo/lib/snds/transparent.aif
     >>> info = sndinfo(path)
     >>> print(info)
     (29877, 0.6774829931972789, 44100.0, 1, 'AIFF', '16 bit int')
@@ -2731,9 +2731,9 @@ class Dummy(PyoObject):
         >>> a = Sine()
         >>> b = a * .5
         >>> print(a)
-        <pyolib.input.Sine object at 0x11fd610>
+        <pyo.lib.input.Sine object at 0x11fd610>
         >>> print(b)
-        <pyolib._core.Dummy object at 0x11fd710>
+        <pyo.lib._core.Dummy object at 0x11fd710>
 
     >>> s = Server().boot()
     >>> s.start()

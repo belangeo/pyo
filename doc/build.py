@@ -65,7 +65,7 @@ for line in lines:
 f.close()
 
 # New examples listing
-src_example_dir = "../pyolib/examples"
+src_example_dir = "../pyo/examples"
 os.mkdir("source/examples")
 folders = sorted([d for d in os.listdir(src_example_dir) if d[0] in ['0', '1']])
 for dir in folders:

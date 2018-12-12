@@ -1195,7 +1195,7 @@ class CvlVerb(PyoObject):
             Path to the impulse response soundfile. The file must have the same
             sampling rate as the server to get the proper convolution. Available at
             initialization time only. Defaults to 'IRMediumHallStereo.wav', located
-            in pyolib SNDS_PATH folder.
+            in pyo SNDS_PATH folder.
         size: int {pow-of-two}, optional
             The size in samples of each partition of the impulse file. Small size means
             smaller latency but more computation time. If not a power-of-2, the object
