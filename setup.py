@@ -200,10 +200,12 @@ if sys.platform == "win32":
         data_files_dest = os.path.join("Lib", "site-packages", "pyo")
     else:
         data_files_dest = "pyo"
-    data_files_path = os.path.join("win32dlls", 
-                                   "win32_pyo_data_files_py%d%d" % (sys.version_info.major, sys.version_info.minor))
+    data_files_common_path = os.path.join("win32dlls", "win32_pyo_data_files_common")
+    data_files_path = os.path.join("win32dlls", "win32_pyo_data_files_py%d" % sys.version_info.major)
     if os.path.isdir(data_files_path):
         data_files = [(data_files_dest,
+                       [os.path.join(data_files_common_path, f) for f in os.listdir(data_files_common_path) if f.endswith(".dll")]),
+                      (data_files_dest,
                        [os.path.join(data_files_path, f) for f in os.listdir(data_files_path) if f.endswith(".dll")])]
     else:
         data_files = []
