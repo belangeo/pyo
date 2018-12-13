@@ -183,7 +183,10 @@ else:
 
 # Platform-specific data files
 if sys.platform == "win32":
-    data_files = []
+    if os.path.isdir("temp_libs"):
+        data_files = [("", ["temp_libs/%s" % f for f in os.listdir("temp_libs") if f.endswith(".dll")])]
+    else:
+        data_files = []
 elif sys.platform == "darwin":
     if os.path.isdir("temp_libs"):
         data_files = [("/pyodeps", ["temp_libs/liblo.7.dylib",
