@@ -704,6 +704,7 @@ class OscListReceive(PyoObject):
                 self._mainReceiver.addAddress(p)
                 self._address.append(p)
                 self._base_objs.extend([OscListReceive_base(self._mainReceiver, p, j, wrap(mul,i), wrap(add,i)) for j in range(self._num)])
+        self.play()
 
     def delAddress(self, path):
         """
