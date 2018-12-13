@@ -61,17 +61,30 @@ compile_externals = False
 macros = []
 extension_names = ['pyo._pyo']
 extra_macros_per_extension = [[]]
+packages = ['pyo', 'pyo.lib', 'pyo.lib.snds', 'pyo.lib.snds.hrtf_compact',
+            'pyo.lib.snds.hrtf_compact.elev0', 'pyo.lib.snds.hrtf_compact.elev10',
+            'pyo.lib.snds.hrtf_compact.elev20', 'pyo.lib.snds.hrtf_compact.elev30',
+            'pyo.lib.snds.hrtf_compact.elev40', 'pyo.lib.snds.hrtf_compact.elev50',
+            'pyo.lib.snds.hrtf_compact.elev60', 'pyo.lib.snds.hrtf_compact.elev70',
+            'pyo.lib.snds.hrtf_compact.elev80', 'pyo.lib.snds.hrtf_compact.elev90',
+            'pyo.lib.snds.hrtf_compact.elev-10', 'pyo.lib.snds.hrtf_compact.elev-20',
+            'pyo.lib.snds.hrtf_compact.elev-30', 'pyo.lib.snds.hrtf_compact.elev-40',
+            'pyo.editor', 'pyo.editor.styles', 'pyo.editor.snippets',
+            'pyo.editor.snippets.Audio', 'pyo.editor.snippets.Control',
+            'pyo.editor.snippets.Interface', 'pyo.editor.snippets.Utilities',
+            'pyo.examples', 'pyo.examples.01-intro', 'pyo.examples.02-controls',
+            'pyo.examples.03-generators', 'pyo.examples.04-soundfiles',
+            'pyo.examples.05-envelopes', 'pyo.examples.06-filters',
+            'pyo.examples.07-effects', 'pyo.examples.18-multicore', 'pyo.examples.algorithmic',
+            'pyo.examples.control', 'pyo.examples.effects', 'pyo.examples.fft', 'pyo.examples.matrix',
+            'pyo.examples.sampling', 'pyo.examples.sequencing', 'pyo.examples.snds', 'pyo.examples.synthesis',
+            'pyo.examples.tables', 'pyo.examples.utilities', 'pyo.examples.wxgui']
 
 if '--use-double' in sys.argv:
     sys.argv.remove('--use-double') 
-    if not '--only-double' in sys.argv: 
-        extension_names.append('pyo._pyo64')
-        extra_macros_per_extension.append([('USE_DOUBLE',None)])
-
-if '--only-double' in sys.argv:
-    sys.argv.remove('--only-double') 
-    extension_names = ['pyo._pyo64']
-    extra_macros_per_extension = [[('USE_DOUBLE',None)]]
+    packages.append('pyo64')
+    extension_names.append('pyo._pyo64')
+    extra_macros_per_extension.append([('USE_DOUBLE',None)])
 
 if '--no-messages' in sys.argv:    
     sys.argv.remove('--no-messages') 
@@ -183,8 +196,15 @@ else:
 
 # Platform-specific data files
 if sys.platform == "win32":
-    if os.path.isdir("temp_libs"):
-        data_files = [("", ["temp_libs/%s" % f for f in os.listdir("temp_libs") if f.endswith(".dll")])]
+    if 'bdist_wheel' in sys.argv:
+        data_files_dest = os.path.join("Lib", "site-packages", "pyo")
+    else:
+        data_files_dest = "pyo"
+    data_files_path = os.path.join("win32dlls", 
+                                   "win32_pyo_data_files_py%d%d" % (sys.version_info.major, sys.version_info.minor))
+    if os.path.isdir(data_files_path):
+        data_files = [(data_files_dest,
+                       [os.path.join(data_files_path, f) for f in os.listdir(data_files_path) if f.endswith(".dll")])]
     else:
         data_files = []
 elif sys.platform == "darwin":
@@ -283,24 +303,7 @@ setup(  name = "pyo",
         license = "LGPLv3+",
         python_requires='>=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*, <4',
         zip_safe = False,
-        packages = ['pyo64', 'pyo', 'pyo.lib', 'pyo.lib.snds', 'pyo.lib.snds.hrtf_compact',
-                    'pyo.lib.snds.hrtf_compact.elev0', 'pyo.lib.snds.hrtf_compact.elev10',
-                    'pyo.lib.snds.hrtf_compact.elev20', 'pyo.lib.snds.hrtf_compact.elev30',
-                    'pyo.lib.snds.hrtf_compact.elev40', 'pyo.lib.snds.hrtf_compact.elev50',
-                    'pyo.lib.snds.hrtf_compact.elev60', 'pyo.lib.snds.hrtf_compact.elev70',
-                    'pyo.lib.snds.hrtf_compact.elev80', 'pyo.lib.snds.hrtf_compact.elev90',
-                    'pyo.lib.snds.hrtf_compact.elev-10', 'pyo.lib.snds.hrtf_compact.elev-20',
-                    'pyo.lib.snds.hrtf_compact.elev-30', 'pyo.lib.snds.hrtf_compact.elev-40',
-                    'pyo.editor', 'pyo.editor.styles', 'pyo.editor.snippets',
-                    'pyo.editor.snippets.Audio', 'pyo.editor.snippets.Control',
-                    'pyo.editor.snippets.Interface', 'pyo.editor.snippets.Utilities',
-                    'pyo.examples', 'pyo.examples.01-intro', 'pyo.examples.02-controls',
-                    'pyo.examples.03-generators', 'pyo.examples.04-soundfiles',
-                    'pyo.examples.05-envelopes', 'pyo.examples.06-filters',
-                    'pyo.examples.07-effects', 'pyo.examples.18-multicore', 'pyo.examples.algorithmic',
-                    'pyo.examples.control', 'pyo.examples.effects', 'pyo.examples.fft', 'pyo.examples.matrix',
-                    'pyo.examples.sampling', 'pyo.examples.sequencing', 'pyo.examples.snds', 'pyo.examples.synthesis',
-                    'pyo.examples.tables', 'pyo.examples.utilities', 'pyo.examples.wxgui'],
+        packages = packages,
         package_data = {'pyo.lib.snds': soundfiles,
                         'pyo.lib.snds.hrtf_compact.elev0': get_hrtf_file_names("elev0"),
                         'pyo.lib.snds.hrtf_compact.elev10': get_hrtf_file_names("elev10"),
@@ -327,7 +330,6 @@ setup(  name = "pyo",
                                               "snd_3.aif", "snd_4.aif", "snd_5.aif", "snd_6.aif"]
       },
         ext_modules = extensions,
-
         # To install files outside the package (third-party libs).
         data_files = data_files,
         entry_points = {'console_scripts' : ["epyo = pyo.editor.EPyo:main"]}
