@@ -1712,6 +1712,11 @@ LinTable_generate(LinTable *self) {
 
     listsize = PyList_Size(self->pointslist);
 
+    if (listsize < 2) {
+        PySys_WriteStderr("LinTable error: There should be at least two points in a LinTable.\n");
+        return;
+    }
+
     for(i=0; i<(listsize-1); i++) {
         tup = PyList_GET_ITEM(self->pointslist, i);
         x1 = PyInt_AsLong(PyNumber_Long(PyTuple_GET_ITEM(tup, 0)));
@@ -1719,9 +1724,13 @@ LinTable_generate(LinTable *self) {
         tup2 = PyList_GET_ITEM(self->pointslist, i+1);
         y1 = PyInt_AsLong(PyNumber_Long(PyTuple_GET_ITEM(tup2, 0)));
         y2 = PyFloat_AsDouble(PyTuple_GET_ITEM(tup2, 1));
+
         steps = y1 - x1;
-        if (steps <= 0)
-            continue;
+        if (steps <= 0) {
+            PySys_WriteStderr("LinTable error: point position smaller than previous one.\n");
+            return;
+        }
+
         diff = (y2 - x2) / steps;
         for(j=0; j<steps; j++) {
             self->data[x1+j] = x2 + diff * j;
@@ -2016,6 +2025,11 @@ LogTable_generate(LogTable *self) {
 
     listsize = PyList_Size(self->pointslist);
 
+    if (listsize < 2) {
+        PySys_WriteStderr("LogTable error: There should be at least two points in a LogTable.\n");
+        return;
+    }
+
     for(i=0; i<(listsize-1); i++) {
         tup = PyList_GET_ITEM(self->pointslist, i);
         x1 = PyInt_AsLong(PyNumber_Long(PyTuple_GET_ITEM(tup, 0)));
@@ -2037,11 +2051,14 @@ LogTable_generate(LogTable *self) {
         }
 
         steps = y1 - x1;
+        if (steps <= 0) {
+            PySys_WriteStderr("LogTable error: point position smaller than previous one.\n");
+            return;
+        }
+
         range = high - low;
         logrange = MYLOG10(high) - MYLOG10(low);
         logmin = MYLOG10(low);
-        if (steps <= 0)
-            continue;
         if (range == 0) {
             for(j=0; j<steps; j++) {
                 self->data[x1+j] = x2;
@@ -2344,6 +2361,11 @@ CosTable_generate(CosTable *self) {
 
     listsize = PyList_Size(self->pointslist);
 
+    if (listsize < 2) {
+        PySys_WriteStderr("CosTable error: There should be at least two points in a CosTable.\n");
+        return;
+    }
+
     for(i=0; i<(listsize-1); i++) {
         tup = PyList_GET_ITEM(self->pointslist, i);
         x1 = PyInt_AsLong(PyNumber_Long(PyTuple_GET_ITEM(tup, 0)));
@@ -2353,8 +2375,11 @@ CosTable_generate(CosTable *self) {
         y2 = PyFloat_AsDouble(PyTuple_GET_ITEM(tup2, 1));
 
         steps = y1 - x1;
-        if (steps <= 0)
-            continue;
+        if (steps <= 0) {
+            PySys_WriteStderr("CosTable error: point position smaller than previous one.\n");
+            return;
+        }
+
         for(j=0; j<steps; j++) {
             mu = (MYFLT)j / steps;
             mu2 = (1.0-MYCOS(mu*PI))/2.0;
@@ -2650,6 +2675,11 @@ CosLogTable_generate(CosLogTable *self) {
 
     listsize = PyList_Size(self->pointslist);
 
+    if (listsize < 2) {
+        PySys_WriteStderr("CosLogTable error: There should be at least two points in a CosLogTable.\n");
+        return;
+    }
+
     for(i=0; i<(listsize-1); i++) {
         tup = PyList_GET_ITEM(self->pointslist, i);
         x1 = PyInt_AsLong(PyNumber_Long(PyTuple_GET_ITEM(tup, 0)));
@@ -2671,11 +2701,14 @@ CosLogTable_generate(CosLogTable *self) {
         }
 
         steps = y1 - x1;
+        if (steps <= 0) {
+            PySys_WriteStderr("CosLogTable error: point position smaller than previous one.\n");
+            return;
+        }
+
         range = high - low;
         logrange = MYLOG10(high) - MYLOG10(low);
         logmin = MYLOG10(low);
-        if (steps <= 0)
-            continue;
         if (range == 0) {
             for(j=0; j<steps; j++) {
                 self->data[x1+j] = x2;
@@ -2984,6 +3017,12 @@ CurveTable_generate(CurveTable *self) {
     }
 
     listsize = PyList_Size(self->pointslist);
+
+    if (listsize < 2) {
+        PySys_WriteStderr("CurveTable error: There should be at least two points in a CurveTable.\n");
+        return;
+    }
+
     int times[listsize+2];
     MYFLT values[listsize+2];
 
@@ -3013,8 +3052,11 @@ CurveTable_generate(CurveTable *self) {
         y0 = values[i-1]; y1 = values[i]; y2 = values[i+1]; y3 = values[i+2];
 
         steps = x2 - x1;
-        if (steps <= 0)
-            continue;
+        if (steps <= 0) {
+            PySys_WriteStderr("CurveTable error: point position smaller than previous one.\n");
+            return;
+        }
+
         for(j=0; j<steps; j++) {
             mu = (MYFLT)j / steps;
             mu2 = mu * mu;
@@ -3359,6 +3401,12 @@ ExpTable_generate(ExpTable *self) {
     }
 
     listsize = PyList_Size(self->pointslist);
+
+    if (listsize < 2) {
+        PySys_WriteStderr("ExpTable error: There should be at least two points in a ExpTable.\n");
+        return;
+    }
+
     int times[listsize];
     MYFLT values[listsize];
 
@@ -3377,8 +3425,11 @@ ExpTable_generate(ExpTable *self) {
 
         range = y2 - y1;
         steps = x2 - x1;
-        if (steps <= 0)
-            continue;
+        if (steps <= 0) {
+            PySys_WriteStderr("ExpTable error: point position smaller than previous one.\n");
+            return;
+        }
+
         inc = 1.0 / steps;
         pointer = 0.0;
         if (self->inverse == 1) {

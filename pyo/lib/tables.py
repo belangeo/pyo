@@ -588,7 +588,7 @@ class LinTable(PyoTableObject):
         PyoTableObject.__init__(self, size)
         if size < list[-1][0]:
             print("LinTable warning: size smaller than last point position.")
-            print("                   Increased size to last point position + 1")
+            print("                  Increased size to last point position + 1")
             size = list[-1][0] + 1
             self._size = size
         self._base_objs = [LinTable_base(copy.deepcopy(list), size)]
@@ -721,7 +721,7 @@ class LogTable(PyoTableObject):
         PyoTableObject.__init__(self, size)
         if size < list[-1][0]:
             print("LogTable warning: size smaller than last point position.")
-            print("                   Increased size to last point position + 1")
+            print("                  Increased size to last point position + 1")
             size = list[-1][0] + 1
             self._size = size
         self._base_objs = [LogTable_base(copy.deepcopy(list), size)]
@@ -854,7 +854,7 @@ class CosLogTable(PyoTableObject):
         PyoTableObject.__init__(self, size)
         if size < list[-1][0]:
             print("CosLogTable warning: size smaller than last point position.")
-            print("                   Increased size to last point position + 1")
+            print("                     Increased size to last point position + 1")
             size = list[-1][0] + 1
             self._size = size
         self._base_objs = [CosLogTable_base(copy.deepcopy(list), size)]
@@ -986,7 +986,7 @@ class CosTable(PyoTableObject):
         PyoTableObject.__init__(self, size)
         if size < list[-1][0]:
             print("CosTable warning: size smaller than last point position.")
-            print("                   Increased size to last point position + 1")
+            print("                  Increased size to last point position + 1")
             size = list[-1][0] + 1
             self._size = size
         self._base_objs = [CosTable_base(copy.deepcopy(list), size)]
@@ -1134,7 +1134,7 @@ class CurveTable(PyoTableObject):
         PyoTableObject.__init__(self, size)
         if size < list[-1][0]:
             print("CurveTable warning: size smaller than last point position.")
-            print("                     Increased size to last point position + 1")
+            print("                    Increased size to last point position + 1")
             size = list[-1][0] + 1
             self._size = size
         self._tension = tension
@@ -1322,7 +1322,7 @@ class ExpTable(PyoTableObject):
         PyoTableObject.__init__(self, size)
         if size < list[-1][0]:
             print("ExpTable warning: size smaller than last point position.")
-            print("                   Increased size to last point position + 1")
+            print("                  Increased size to last point position + 1")
             size = list[-1][0] + 1
             self._size = size
         self._exp = exp
