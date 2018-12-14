@@ -782,7 +782,7 @@ static PyObject * Granulator_setDiv(Granulator *self, PyObject *arg) { SET_DIV }
 
 static PyObject * Granulator_play(Granulator *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * Granulator_out(Granulator *self, PyObject *args, PyObject *kwds) { OUT };
-static PyObject * Granulator_stop(Granulator *self) { STOP };
+static PyObject * Granulator_stop(Granulator *self, PyObject *args, PyObject *kwds) { STOP };
 
 static PyObject * Granulator_multiply(Granulator *self, PyObject *arg) { MULTIPLY };
 static PyObject * Granulator_inplace_multiply(Granulator *self, PyObject *arg) { INPLACE_MULTIPLY };
@@ -990,7 +990,7 @@ static PyMethodDef Granulator_methods[] = {
     {"_getStream", (PyCFunction)Granulator_getStream, METH_NOARGS, "Returns stream object."},
     {"play", (PyCFunction)Granulator_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)Granulator_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-    {"stop", (PyCFunction)Granulator_stop, METH_NOARGS, "Stops computing."},
+    {"stop", (PyCFunction)Granulator_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
 	{"setPitch", (PyCFunction)Granulator_setPitch, METH_O, "Sets global pitch factor."},
     {"setPos", (PyCFunction)Granulator_setPos, METH_O, "Sets position in the sound table."},
     {"setDur", (PyCFunction)Granulator_setDur, METH_O, "Sets the grain duration."},
@@ -1945,7 +1945,7 @@ static PyObject * Looper_setDiv(Looper *self, PyObject *arg) { SET_DIV };
 
 static PyObject * Looper_play(Looper *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * Looper_out(Looper *self, PyObject *args, PyObject *kwds) { OUT };
-static PyObject * Looper_stop(Looper *self) { STOP };
+static PyObject * Looper_stop(Looper *self, PyObject *args, PyObject *kwds) { STOP };
 
 static PyObject * Looper_multiply(Looper *self, PyObject *arg) { MULTIPLY };
 static PyObject * Looper_inplace_multiply(Looper *self, PyObject *arg) { INPLACE_MULTIPLY };
@@ -2244,7 +2244,7 @@ static PyMethodDef Looper_methods[] = {
     {"_getTriggerStream", (PyCFunction)Looper_getTriggerStream, METH_NOARGS, "Returns trigger stream object."},
     {"play", (PyCFunction)Looper_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)Looper_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-    {"stop", (PyCFunction)Looper_stop, METH_NOARGS, "Stops computing."},
+    {"stop", (PyCFunction)Looper_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
 	{"setPitch", (PyCFunction)Looper_setPitch, METH_O, "Sets global pitch factor."},
     {"setStart", (PyCFunction)Looper_setStart, METH_O, "Sets position in the sound table."},
     {"setDur", (PyCFunction)Looper_setDur, METH_O, "Sets the grain duration."},
@@ -2476,7 +2476,7 @@ static PyObject * LooperTimeStream_setDiv(LooperTimeStream *self, PyObject *arg)
 
 static PyObject * LooperTimeStream_play(LooperTimeStream *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * LooperTimeStream_out(LooperTimeStream *self, PyObject *args, PyObject *kwds) { OUT };
-static PyObject * LooperTimeStream_stop(LooperTimeStream *self) { STOP };
+static PyObject * LooperTimeStream_stop(LooperTimeStream *self, PyObject *args, PyObject *kwds) { STOP };
 
 static PyObject * LooperTimeStream_multiply(LooperTimeStream *self, PyObject *arg) { MULTIPLY };
 static PyObject * LooperTimeStream_inplace_multiply(LooperTimeStream *self, PyObject *arg) { INPLACE_MULTIPLY };
@@ -2500,7 +2500,7 @@ static PyMethodDef LooperTimeStream_methods[] = {
     {"_getStream", (PyCFunction)LooperTimeStream_getStream, METH_NOARGS, "Returns stream object."},
     {"play", (PyCFunction)LooperTimeStream_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)LooperTimeStream_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-    {"stop", (PyCFunction)LooperTimeStream_stop, METH_NOARGS, "Stops computing."},
+    {"stop", (PyCFunction)LooperTimeStream_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
     {"setMul", (PyCFunction)LooperTimeStream_setMul, METH_O, "Sets oscillator mul factor."},
     {"setAdd", (PyCFunction)LooperTimeStream_setAdd, METH_O, "Sets oscillator add factor."},
     {"setSub", (PyCFunction)LooperTimeStream_setSub, METH_O, "Sets inverse add factor."},
@@ -3015,7 +3015,7 @@ static PyObject * Granule_setDiv(Granule *self, PyObject *arg) { SET_DIV };
 
 static PyObject * Granule_play(Granule *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * Granule_out(Granule *self, PyObject *args, PyObject *kwds) { OUT };
-static PyObject * Granule_stop(Granule *self) { STOP };
+static PyObject * Granule_stop(Granule *self, PyObject *args, PyObject *kwds) { STOP };
 
 static PyObject * Granule_multiply(Granule *self, PyObject *arg) { MULTIPLY };
 static PyObject * Granule_inplace_multiply(Granule *self, PyObject *arg) { INPLACE_MULTIPLY };
@@ -3226,7 +3226,7 @@ static PyMethodDef Granule_methods[] = {
     {"_getStream", (PyCFunction)Granule_getStream, METH_NOARGS, "Returns stream object."},
     {"play", (PyCFunction)Granule_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)Granule_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-    {"stop", (PyCFunction)Granule_stop, METH_NOARGS, "Stops computing."},
+    {"stop", (PyCFunction)Granule_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
 	{"setDens", (PyCFunction)Granule_setDens, METH_O, "Sets the density of grains per second."},
 	{"setPitch", (PyCFunction)Granule_setPitch, METH_O, "Sets global pitch factor."},
     {"setPos", (PyCFunction)Granule_setPos, METH_O, "Sets position in the sound table."},
@@ -4033,7 +4033,7 @@ static PyObject * MainParticle_getServer(MainParticle* self) { GET_SERVER };
 static PyObject * MainParticle_getStream(MainParticle* self) { GET_STREAM };
 
 static PyObject * MainParticle_play(MainParticle *self, PyObject *args, PyObject *kwds) { PLAY };
-static PyObject * MainParticle_stop(MainParticle *self) { STOP };
+static PyObject * MainParticle_stop(MainParticle *self, PyObject *args, PyObject *kwds) { STOP };
 
 static PyObject *
 MainParticle_setDens(MainParticle *self, PyObject *arg)
@@ -4278,7 +4278,7 @@ static PyMethodDef MainParticle_methods[] = {
     {"getServer", (PyCFunction)MainParticle_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)MainParticle_getStream, METH_NOARGS, "Returns stream object."},
     {"play", (PyCFunction)MainParticle_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"stop", (PyCFunction)MainParticle_stop, METH_NOARGS, "Stops computing."},
+    {"stop", (PyCFunction)MainParticle_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
 	{"setDens", (PyCFunction)MainParticle_setDens, METH_O, "Sets the density of grains per second."},
 	{"setPitch", (PyCFunction)MainParticle_setPitch, METH_O, "Sets global pitch factor."},
     {"setPos", (PyCFunction)MainParticle_setPos, METH_O, "Sets position in the sound table."},
@@ -4468,7 +4468,7 @@ static PyObject * Particle_setDiv(Particle *self, PyObject *arg) { SET_DIV };
 
 static PyObject * Particle_play(Particle *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * Particle_out(Particle *self, PyObject *args, PyObject *kwds) { OUT };
-static PyObject * Particle_stop(Particle *self) { STOP };
+static PyObject * Particle_stop(Particle *self, PyObject *args, PyObject *kwds) { STOP };
 
 static PyObject * Particle_multiply(Particle *self, PyObject *arg) { MULTIPLY };
 static PyObject * Particle_inplace_multiply(Particle *self, PyObject *arg) { INPLACE_MULTIPLY };
@@ -4492,7 +4492,7 @@ static PyMethodDef Particle_methods[] = {
 {"_getStream", (PyCFunction)Particle_getStream, METH_NOARGS, "Returns stream object."},
 {"play", (PyCFunction)Particle_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
 {"out", (PyCFunction)Particle_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-{"stop", (PyCFunction)Particle_stop, METH_NOARGS, "Stops computing."},
+{"stop", (PyCFunction)Particle_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
 {"setMul", (PyCFunction)Particle_setMul, METH_O, "Sets Particle mul factor."},
 {"setAdd", (PyCFunction)Particle_setAdd, METH_O, "Sets Particle add factor."},
 {"setSub", (PyCFunction)Particle_setSub, METH_O, "Sets inverse add factor."},
@@ -5665,7 +5665,7 @@ static PyObject * MainParticle2_getServer(MainParticle2* self) { GET_SERVER };
 static PyObject * MainParticle2_getStream(MainParticle2* self) { GET_STREAM };
 
 static PyObject * MainParticle2_play(MainParticle2 *self, PyObject *args, PyObject *kwds) { PLAY };
-static PyObject * MainParticle2_stop(MainParticle2 *self) { STOP };
+static PyObject * MainParticle2_stop(MainParticle2 *self, PyObject *args, PyObject *kwds) { STOP };
 
 static PyObject *
 MainParticle2_setDens(MainParticle2 *self, PyObject *arg)
@@ -6000,7 +6000,7 @@ static PyMethodDef MainParticle2_methods[] = {
     {"getServer", (PyCFunction)MainParticle2_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)MainParticle2_getStream, METH_NOARGS, "Returns stream object."},
     {"play", (PyCFunction)MainParticle2_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"stop", (PyCFunction)MainParticle2_stop, METH_NOARGS, "Stops computing."},
+    {"stop", (PyCFunction)MainParticle2_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
 	{"setDens", (PyCFunction)MainParticle2_setDens, METH_O, "Sets the density of grains per second."},
 	{"setPitch", (PyCFunction)MainParticle2_setPitch, METH_O, "Sets global pitch factor."},
     {"setPos", (PyCFunction)MainParticle2_setPos, METH_O, "Sets position in the sound table."},
@@ -6193,7 +6193,7 @@ static PyObject * Particle2_setDiv(Particle2 *self, PyObject *arg) { SET_DIV };
 
 static PyObject * Particle2_play(Particle2 *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * Particle2_out(Particle2 *self, PyObject *args, PyObject *kwds) { OUT };
-static PyObject * Particle2_stop(Particle2 *self) { STOP };
+static PyObject * Particle2_stop(Particle2 *self, PyObject *args, PyObject *kwds) { STOP };
 
 static PyObject * Particle2_multiply(Particle2 *self, PyObject *arg) { MULTIPLY };
 static PyObject * Particle2_inplace_multiply(Particle2 *self, PyObject *arg) { INPLACE_MULTIPLY };
@@ -6217,7 +6217,7 @@ static PyMethodDef Particle2_methods[] = {
 {"_getStream", (PyCFunction)Particle2_getStream, METH_NOARGS, "Returns stream object."},
 {"play", (PyCFunction)Particle2_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
 {"out", (PyCFunction)Particle2_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-{"stop", (PyCFunction)Particle2_stop, METH_NOARGS, "Stops computing."},
+{"stop", (PyCFunction)Particle2_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
 {"setMul", (PyCFunction)Particle2_setMul, METH_O, "Sets Particle2 mul factor."},
 {"setAdd", (PyCFunction)Particle2_setAdd, METH_O, "Sets Particle2 add factor."},
 {"setSub", (PyCFunction)Particle2_setSub, METH_O, "Sets inverse add factor."},

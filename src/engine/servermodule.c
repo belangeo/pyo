@@ -665,6 +665,7 @@ Server_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->globalDel = 0.0;
     self->startoffset = 0.0;
     self->globalSeed = 0;
+    self->autoStartChildren = 0;
     self->CALLBACK = NULL;
     self->thisServerID = serverID;
     Py_XDECREF(my_server[serverID]);
@@ -2210,6 +2211,21 @@ Server_getCurrentAmp(Server *self)
     return amplist;
 }
 
+static PyObject *
+Server_setAutoStartChildren(Server *self, PyObject *arg)
+{
+    if (PyInt_Check(arg)) {
+        self->autoStartChildren = PyInt_AsLong(arg);
+    }
+    Py_RETURN_NONE;
+}
+
+static PyObject *
+Server_getAutoStartChildren(Server *self)
+{
+    return PyInt_FromLong(self->autoStartChildren);
+}
+
 static PyMethodDef Server_methods[] = {
     {"setInputDevice", (PyCFunction)Server_setInputDevice, METH_O, "Sets audio input device."},
     {"setOutputDevice", (PyCFunction)Server_setOutputDevice, METH_O, "Sets audio output device."},
@@ -2288,6 +2304,8 @@ static PyMethodDef Server_methods[] = {
     {"getEmbedICallbackAddr", (PyCFunction)Server_getEmbedICallbackAddr, METH_NOARGS, "Get the embedded device interleaved callback method memory address"},
     {"getCurrentTime", (PyCFunction)Server_getCurrentTime, METH_NOARGS, "Get the current time as a formatted string."},
     {"getCurrentAmp", (PyCFunction)Server_getCurrentAmp, METH_NOARGS, "Get the current global amplitudes as a list of floats."},
+    {"setAutoStartChildren", (PyCFunction)Server_setAutoStartChildren, METH_O, "Sets autoStartChildren attribute."},
+    {"getAutoStartChildren", (PyCFunction)Server_getAutoStartChildren, METH_NOARGS, "Gets autoStartChildren attribute."},
     {NULL}  /* Sentinel */
 };
 

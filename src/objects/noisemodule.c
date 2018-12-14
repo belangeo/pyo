@@ -185,7 +185,7 @@ static PyObject * Noise_setDiv(Noise *self, PyObject *arg) { SET_DIV };
 
 static PyObject * Noise_play(Noise *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * Noise_out(Noise *self, PyObject *args, PyObject *kwds) { OUT };
-static PyObject * Noise_stop(Noise *self) { STOP };
+static PyObject * Noise_stop(Noise *self, PyObject *args, PyObject *kwds) { STOP };
 
 static PyObject * Noise_multiply(Noise *self, PyObject *arg) { MULTIPLY };
 static PyObject * Noise_inplace_multiply(Noise *self, PyObject *arg) { INPLACE_MULTIPLY };
@@ -225,7 +225,7 @@ static PyMethodDef Noise_methods[] = {
 {"_getStream", (PyCFunction)Noise_getStream, METH_NOARGS, "Returns stream object."},
 {"play", (PyCFunction)Noise_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
 {"out", (PyCFunction)Noise_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-{"stop", (PyCFunction)Noise_stop, METH_NOARGS, "Stops computing."},
+{"stop", (PyCFunction)Noise_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
 {"setType", (PyCFunction)Noise_setType, METH_O, "Sets Noise generation algorithm."},
 {"setMul", (PyCFunction)Noise_setMul, METH_O, "Sets Noise mul factor."},
 {"setAdd", (PyCFunction)Noise_setAdd, METH_O, "Sets Noise add factor."},
@@ -471,7 +471,7 @@ static PyObject * PinkNoise_setDiv(PinkNoise *self, PyObject *arg) { SET_DIV };
 
 static PyObject * PinkNoise_play(PinkNoise *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * PinkNoise_out(PinkNoise *self, PyObject *args, PyObject *kwds) { OUT };
-static PyObject * PinkNoise_stop(PinkNoise *self) { STOP };
+static PyObject * PinkNoise_stop(PinkNoise *self, PyObject *args, PyObject *kwds) { STOP };
 
 static PyObject * PinkNoise_multiply(PinkNoise *self, PyObject *arg) { MULTIPLY };
 static PyObject * PinkNoise_inplace_multiply(PinkNoise *self, PyObject *arg) { INPLACE_MULTIPLY };
@@ -495,7 +495,7 @@ static PyMethodDef PinkNoise_methods[] = {
     {"_getStream", (PyCFunction)PinkNoise_getStream, METH_NOARGS, "Returns stream object."},
     {"play", (PyCFunction)PinkNoise_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)PinkNoise_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-    {"stop", (PyCFunction)PinkNoise_stop, METH_NOARGS, "Stops computing."},
+    {"stop", (PyCFunction)PinkNoise_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
     {"setMul", (PyCFunction)PinkNoise_setMul, METH_O, "Sets PinkNoise mul factor."},
     {"setAdd", (PyCFunction)PinkNoise_setAdd, METH_O, "Sets PinkNoise add factor."},
     {"setSub", (PyCFunction)PinkNoise_setSub, METH_O, "Sets inverse add factor."},
@@ -732,7 +732,7 @@ static PyObject * BrownNoise_setDiv(BrownNoise *self, PyObject *arg) { SET_DIV }
 
 static PyObject * BrownNoise_play(BrownNoise *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * BrownNoise_out(BrownNoise *self, PyObject *args, PyObject *kwds) { OUT };
-static PyObject * BrownNoise_stop(BrownNoise *self) { STOP };
+static PyObject * BrownNoise_stop(BrownNoise *self, PyObject *args, PyObject *kwds) { STOP };
 
 static PyObject * BrownNoise_multiply(BrownNoise *self, PyObject *arg) { MULTIPLY };
 static PyObject * BrownNoise_inplace_multiply(BrownNoise *self, PyObject *arg) { INPLACE_MULTIPLY };
@@ -756,7 +756,7 @@ static PyMethodDef BrownNoise_methods[] = {
     {"_getStream", (PyCFunction)BrownNoise_getStream, METH_NOARGS, "Returns stream object."},
     {"play", (PyCFunction)BrownNoise_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)BrownNoise_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-    {"stop", (PyCFunction)BrownNoise_stop, METH_NOARGS, "Stops computing."},
+    {"stop", (PyCFunction)BrownNoise_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
     {"setMul", (PyCFunction)BrownNoise_setMul, METH_O, "Sets BrownNoise mul factor."},
     {"setAdd", (PyCFunction)BrownNoise_setAdd, METH_O, "Sets BrownNoise add factor."},
     {"setSub", (PyCFunction)BrownNoise_setSub, METH_O, "Sets inverse add factor."},

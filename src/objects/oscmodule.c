@@ -415,7 +415,7 @@ static PyObject * OscReceive_setSub(OscReceive *self, PyObject *arg) { SET_SUB }
 static PyObject * OscReceive_setDiv(OscReceive *self, PyObject *arg) { SET_DIV };
 
 static PyObject * OscReceive_play(OscReceive *self, PyObject *args, PyObject *kwds) { PLAY };
-static PyObject * OscReceive_stop(OscReceive *self) { STOP };
+static PyObject * OscReceive_stop(OscReceive *self, PyObject *args, PyObject *kwds) { STOP };
 
 static PyObject * OscReceive_multiply(OscReceive *self, PyObject *arg) { MULTIPLY };
 static PyObject * OscReceive_inplace_multiply(OscReceive *self, PyObject *arg) { INPLACE_MULTIPLY };
@@ -438,7 +438,7 @@ static PyMethodDef OscReceive_methods[] = {
     {"getServer", (PyCFunction)OscReceive_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)OscReceive_getStream, METH_NOARGS, "Returns stream object."},
     {"play", (PyCFunction)OscReceive_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"stop", (PyCFunction)OscReceive_stop, METH_NOARGS, "Stops computing."},
+    {"stop", (PyCFunction)OscReceive_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
     {"setInterpolation", (PyCFunction)OscReceive_setInterpolation, METH_O, "Sets interpolation on or off."},
     {"setMul", (PyCFunction)OscReceive_setMul, METH_O, "Sets oscillator mul factor."},
     {"setAdd", (PyCFunction)OscReceive_setAdd, METH_O, "Sets oscillator add factor."},
@@ -650,7 +650,7 @@ static PyObject * OscSend_getServer(OscSend* self) { GET_SERVER };
 static PyObject * OscSend_getStream(OscSend* self) { GET_STREAM };
 
 static PyObject * OscSend_play(OscSend *self, PyObject *args, PyObject *kwds) { PLAY };
-static PyObject * OscSend_stop(OscSend *self) { STOP };
+static PyObject * OscSend_stop(OscSend *self, PyObject *args, PyObject *kwds) { STOP };
 
 static PyMemberDef OscSend_members[] = {
 {"server", T_OBJECT_EX, offsetof(OscSend, server), 0, "Pyo server."},
@@ -663,7 +663,7 @@ static PyMethodDef OscSend_methods[] = {
 {"getServer", (PyCFunction)OscSend_getServer, METH_NOARGS, "Returns server object."},
 {"_getStream", (PyCFunction)OscSend_getStream, METH_NOARGS, "Returns stream object."},
 {"play", (PyCFunction)OscSend_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-{"stop", (PyCFunction)OscSend_stop, METH_NOARGS, "Stops computing."},
+{"stop", (PyCFunction)OscSend_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
 {"setBufferRate", (PyCFunction)OscSend_setBufferRate, METH_O, "Set how many buffers to wait before sending a new value."},
 {NULL}  /* Sentinel */
 };
@@ -878,7 +878,7 @@ static PyObject * OscDataSend_getServer(OscDataSend* self) { GET_SERVER };
 static PyObject * OscDataSend_getStream(OscDataSend* self) { GET_STREAM };
 
 static PyObject * OscDataSend_play(OscDataSend *self, PyObject *args, PyObject *kwds) { PLAY };
-static PyObject * OscDataSend_stop(OscDataSend *self) { STOP };
+static PyObject * OscDataSend_stop(OscDataSend *self, PyObject *args, PyObject *kwds) { STOP };
 
 static PyObject *
 OscDataSend_send(OscDataSend *self, PyObject *arg)
@@ -910,7 +910,7 @@ static PyMethodDef OscDataSend_methods[] = {
     {"_getStream", (PyCFunction)OscDataSend_getStream, METH_NOARGS, "Returns stream object."},
     {"send", (PyCFunction)OscDataSend_send, METH_O, "Sets values to be sent."},
     {"play", (PyCFunction)OscDataSend_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"stop", (PyCFunction)OscDataSend_stop, METH_NOARGS, "Stops computing."},
+    {"stop", (PyCFunction)OscDataSend_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
     {NULL}  /* Sentinel */
 };
 
@@ -1133,7 +1133,7 @@ OscDataReceive_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 static PyObject * OscDataReceive_getServer(OscDataReceive* self) { GET_SERVER };
 static PyObject * OscDataReceive_getStream(OscDataReceive* self) { GET_STREAM };
 static PyObject * OscDataReceive_play(OscDataReceive *self, PyObject *args, PyObject *kwds) { PLAY };
-static PyObject * OscDataReceive_stop(OscDataReceive *self) { STOP };
+static PyObject * OscDataReceive_stop(OscDataReceive *self, PyObject *args, PyObject *kwds) { STOP };
 
 static PyObject *
 OscDataReceive_addAddress(OscDataReceive *self, PyObject *arg) {
@@ -1173,7 +1173,7 @@ static PyMethodDef OscDataReceive_methods[] = {
     {"getServer", (PyCFunction)OscDataReceive_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)OscDataReceive_getStream, METH_NOARGS, "Returns stream object."},
     {"play", (PyCFunction)OscDataReceive_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"stop", (PyCFunction)OscDataReceive_stop, METH_NOARGS, "Stops computing."},
+    {"stop", (PyCFunction)OscDataReceive_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
     {"addAddress", (PyCFunction)OscDataReceive_addAddress, METH_O, "Add new paths to the object."},
     {"delAddress", (PyCFunction)OscDataReceive_delAddress, METH_O, "Remove path from the object."},
     {NULL}  /* Sentinel */
@@ -1633,7 +1633,7 @@ static PyObject * OscListReceive_setSub(OscListReceive *self, PyObject *arg) { S
 static PyObject * OscListReceive_setDiv(OscListReceive *self, PyObject *arg) { SET_DIV };
 
 static PyObject * OscListReceive_play(OscListReceive *self, PyObject *args, PyObject *kwds) { PLAY };
-static PyObject * OscListReceive_stop(OscListReceive *self) { STOP };
+static PyObject * OscListReceive_stop(OscListReceive *self, PyObject *args, PyObject *kwds) { STOP };
 
 static PyObject * OscListReceive_multiply(OscListReceive *self, PyObject *arg) { MULTIPLY };
 static PyObject * OscListReceive_inplace_multiply(OscListReceive *self, PyObject *arg) { INPLACE_MULTIPLY };
@@ -1656,7 +1656,7 @@ static PyMethodDef OscListReceive_methods[] = {
     {"getServer", (PyCFunction)OscListReceive_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)OscListReceive_getStream, METH_NOARGS, "Returns stream object."},
     {"play", (PyCFunction)OscListReceive_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"stop", (PyCFunction)OscListReceive_stop, METH_NOARGS, "Stops computing."},
+    {"stop", (PyCFunction)OscListReceive_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
     {"setInterpolation", (PyCFunction)OscListReceive_setInterpolation, METH_O, "Sets interpolation on or off."},
     {"setMul", (PyCFunction)OscListReceive_setMul, METH_O, "Sets oscillator mul factor."},
     {"setAdd", (PyCFunction)OscListReceive_setAdd, METH_O, "Sets oscillator add factor."},

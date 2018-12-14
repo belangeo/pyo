@@ -78,6 +78,9 @@
 // filters
 #define OP_RPOLE 70
 #define OP_RZERO 71
+#define OP_DELAY 72
+#define OP_CPOLE 73
+#define OP_CZERO 74
 
 // random functions
 #define OP_RANDF 80
@@ -91,6 +94,12 @@
 #define OP_PI 100
 #define OP_TWOPI 101
 #define OP_E 102
+#define OP_SR 103
+
+// complex number
+#define OP_COMPLEX 120
+#define OP_REAL 121
+#define OP_IMAG 122
 
 typedef struct t_expr {
     int type_op;
@@ -102,6 +111,7 @@ typedef struct t_expr {
     MYFLT *values;
     MYFLT *previous;
     MYFLT result;
+    MYFLT result2;
 } expr;
 
 typedef struct {
@@ -176,10 +186,19 @@ initexpr(const char *op, int size)
     else if (strcmp(op, "sah") == 0) {value = OP_SAH; num = 2; } // stream, trigger
     else if (strcmp(op, "rpole") == 0) {value = OP_RPOLE; num = 2; }
     else if (strcmp(op, "rzero") == 0) {value = OP_RZERO; num = 2; }
+    else if (strcmp(op, "delay") == 0) {value = OP_DELAY; num = 1; }
+    else if (strcmp(op, "cpole") == 0) {value = OP_CPOLE; num = 2; }
+    else if (strcmp(op, "czero") == 0) {value = OP_CZERO; num = 2; }
+
+    else if (strcmp(op, "complex") == 0) {value = OP_COMPLEX; num = 2; }
+    else if (strcmp(op, "real") == 0) {value = OP_REAL; num = 1; }
+    else if (strcmp(op, "imag") == 0) {value = OP_IMAG; num = 1; }
+
     else if (strcmp(op, "const") == 0) {value = OP_CONST; num = 1; }
     else if (strcmp(op, "pi") == 0) {value = OP_PI; num = 0; }
     else if (strcmp(op, "twopi") == 0) {value = OP_TWOPI; num = 0; }
     else if (strcmp(op, "e") == 0) {value = OP_E; num = 0; }
+    else if (strcmp(op, "sr") == 0) {value = OP_SR; num = 0; }
     else if (size == 1) {value = OP_CONST; num = 1; }
     ex.type_op = value;
     ex.num = num;
@@ -195,6 +214,7 @@ initexpr(const char *op, int size)
         ex.values[i] = ex.previous[i] = 0.0;
     }
     ex.result = 0.0;
+    ex.result2 = 0.0;
     return ex;
 }
 
@@ -220,6 +240,7 @@ static void
 Expr_process(Expr *self) {
     int i, j, k, pos = 0;
     MYFLT tmp = 0.0, result = 0.0;
+    MYFLT nextre = 0.0, lastre = 0.0, nextim = 0.0, lastim = 0.0, coefre = 0.0, coefim = 0.0; 
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
 
     if (self->count == 0) {
@@ -392,6 +413,63 @@ Expr_process(Expr *self) {
                         self->lexp[j].result = self->lexp[j].values[0] - self->lexp[j].previous[0] * self->lexp[j].values[1];
                         self->lexp[j].previous[0] = self->lexp[j].values[0];
                         break;
+                    case OP_DELAY:
+                        self->lexp[j].result = self->lexp[j].previous[0];
+                        self->lexp[j].previous[0] = self->lexp[j].values[0];
+                        break;
+                    case OP_CZERO:
+                        if (self->lexp[j].nodes[0] != -1) {
+                            nextre = self->lexp[self->lexp[j].nodes[0]].result;
+                            nextim = self->lexp[self->lexp[j].nodes[0]].result2;
+                        } else {
+                            nextre = 0.0;
+                            nextim = 0.0;
+                        }
+                        if (self->lexp[j].nodes[1] != -1) {
+                            coefre = self->lexp[self->lexp[j].nodes[1]].result;
+                            coefim = self->lexp[self->lexp[j].nodes[1]].result2;
+                        } else {
+                            coefre = 0.0;
+                            coefim = 0.0;
+                        }
+                        lastre = self->lexp[j].previous[0];
+                        lastim = self->lexp[j].previous[1];
+                        self->lexp[j].result = nextre - lastre * coefre + lastim * coefim;
+                        self->lexp[j].result2 = nextim - lastre * coefim - lastim * coefre;
+                        self->lexp[j].previous[0] = nextre;
+                        self->lexp[j].previous[1] = nextim;
+                        break;
+                    case OP_CPOLE:
+                        if (self->lexp[j].nodes[0] != -1) {
+                            nextre = self->lexp[self->lexp[j].nodes[0]].result;
+                            nextim = self->lexp[self->lexp[j].nodes[0]].result2;
+                        } else {
+                            nextre = 0.0;
+                            nextim = 0.0;
+                        }
+                        if (self->lexp[j].nodes[1] != -1) {
+                            coefre = self->lexp[self->lexp[j].nodes[1]].result;
+                            coefim = self->lexp[self->lexp[j].nodes[1]].result2;
+                        } else {
+                            coefre = 0.0;
+                            coefim = 0.0;
+                        }
+                        lastre = self->lexp[j].previous[0];
+                        lastim = self->lexp[j].previous[1];
+                        tmp = self->lexp[j].result = nextre + lastre * coefre - lastim * coefim;
+                        self->lexp[j].previous[1] = self->lexp[j].result2 = nextim + lastre * coefim + lastim * coefre;
+                        self->lexp[j].previous[0] = tmp;
+                        break;
+                    case OP_COMPLEX:
+                        self->lexp[j].result = self->lexp[j].values[0];
+                        self->lexp[j].result2 = self->lexp[j].values[1];
+                        break;
+                    case OP_REAL:
+                        self->lexp[j].result = self->lexp[self->lexp[j].nodes[0]].result;
+                        break;
+                    case OP_IMAG:
+                        self->lexp[j].result = self->lexp[self->lexp[j].nodes[0]].result2;
+                        break;
                     case OP_CONST:
                         self->lexp[j].result = self->lexp[j].values[0];
                         break;
@@ -403,6 +481,9 @@ Expr_process(Expr *self) {
                         break;
                     case OP_E:
                         self->lexp[j].result = E;
+                        break;
+                    case OP_SR:
+                        self->lexp[j].result = self->sr;
                         break;
                 }
                 result = self->lexp[j].result;
@@ -560,7 +641,7 @@ static PyObject * Expr_setDiv(Expr *self, PyObject *arg) { SET_DIV };
 
 static PyObject * Expr_play(Expr *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * Expr_out(Expr *self, PyObject *args, PyObject *kwds) { OUT };
-static PyObject * Expr_stop(Expr *self) { STOP };
+static PyObject * Expr_stop(Expr *self, PyObject *args, PyObject *kwds) { STOP };
 
 static PyObject * Expr_multiply(Expr *self, PyObject *arg) { MULTIPLY };
 static PyObject * Expr_inplace_multiply(Expr *self, PyObject *arg) { INPLACE_MULTIPLY };
@@ -766,7 +847,7 @@ static PyMethodDef Expr_methods[] = {
     {"_getStream", (PyCFunction)Expr_getStream, METH_NOARGS, "Returns stream object."},
     {"play", (PyCFunction)Expr_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)Expr_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-    {"stop", (PyCFunction)Expr_stop, METH_NOARGS, "Stops computing."},
+    {"stop", (PyCFunction)Expr_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
     {"printNodes", (PyCFunction)Expr_printNodes, METH_NOARGS, "Print the list of nodes."},
 	{"setVar", (PyCFunction)Expr_setVar, METH_VARARGS|METH_KEYWORDS, "Sets a variable value."},
 	{"setExpr", (PyCFunction)Expr_setExpr, METH_O, "Sets a new expression."},

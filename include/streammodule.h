@@ -86,6 +86,7 @@ extern PyTypeObject TriggerStreamType;
 #define Stream_setBufferCountWait(op, v) (((Stream *)(op))->bufferCountWait = (v))
 #define Stream_setDuration(op, v) (((Stream *)(op))->duration = (v))
 #define Stream_setBufferSize(op, v) (((Stream *)(op))->bufsize = (v))
+#define Stream_resetBufferCount(op) (((Stream *)(op))->bufferCount = 0)
 
 #endif
 /* __STREAMMODULE */

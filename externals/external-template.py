@@ -1,8 +1,8 @@
 # minimal imports.
 # _core contains PyoObject, Mix, Dummy and some utility functions.
 # _maps contains all SLMap objects used to set up slider controls.
-from pyolib._core import *
-from pyolib._maps import *
+from pyo.lib._core import *
+from pyo.lib._maps import *
 
 # Objects generating vectors of samples must inherit from PyoObject.
 # Always provide a __doc__ string with the syntax below.

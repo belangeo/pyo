@@ -507,7 +507,7 @@ static PyObject * Chorus_setDiv(Chorus *self, PyObject *arg) { SET_DIV };
 
 static PyObject * Chorus_play(Chorus *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * Chorus_out(Chorus *self, PyObject *args, PyObject *kwds) { OUT };
-static PyObject * Chorus_stop(Chorus *self) { STOP };
+static PyObject * Chorus_stop(Chorus *self, PyObject *args, PyObject *kwds) { STOP };
 
 static PyObject * Chorus_multiply(Chorus *self, PyObject *arg) { MULTIPLY };
 static PyObject * Chorus_inplace_multiply(Chorus *self, PyObject *arg) { INPLACE_MULTIPLY };
@@ -640,7 +640,7 @@ static PyMethodDef Chorus_methods[] = {
 {"_getStream", (PyCFunction)Chorus_getStream, METH_NOARGS, "Returns stream object."},
 {"play", (PyCFunction)Chorus_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
 {"out", (PyCFunction)Chorus_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-{"stop", (PyCFunction)Chorus_stop, METH_NOARGS, "Stops computing."},
+{"stop", (PyCFunction)Chorus_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
 {"reset", (PyCFunction)Chorus_reset, METH_NOARGS, "Reset the delay line."},
 {"setFeedback", (PyCFunction)Chorus_setFeedback, METH_O, "Sets feedback value between 0 -> 1."},
 {"setDepth", (PyCFunction)Chorus_setDepth, METH_O, "Sets chorus depth."},

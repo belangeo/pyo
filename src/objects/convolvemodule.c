@@ -210,7 +210,7 @@ static PyObject * Convolve_setDiv(Convolve *self, PyObject *arg) { SET_DIV };
 
 static PyObject * Convolve_play(Convolve *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * Convolve_out(Convolve *self, PyObject *args, PyObject *kwds) { OUT };
-static PyObject * Convolve_stop(Convolve *self) { STOP };
+static PyObject * Convolve_stop(Convolve *self, PyObject *args, PyObject *kwds) { STOP };
 
 static PyObject * Convolve_multiply(Convolve *self, PyObject *arg) { MULTIPLY };
 static PyObject * Convolve_inplace_multiply(Convolve *self, PyObject *arg) { INPLACE_MULTIPLY };
@@ -258,7 +258,7 @@ static PyMethodDef Convolve_methods[] = {
 {"_getStream", (PyCFunction)Convolve_getStream, METH_NOARGS, "Returns stream object."},
 {"play", (PyCFunction)Convolve_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
 {"out", (PyCFunction)Convolve_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-{"stop", (PyCFunction)Convolve_stop, METH_NOARGS, "Stops computing."},
+{"stop", (PyCFunction)Convolve_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
 {"setTable", (PyCFunction)Convolve_setTable, METH_O, "Sets inpulse response table."},
 {"setMul", (PyCFunction)Convolve_setMul, METH_O, "Sets mul factor."},
 {"setAdd", (PyCFunction)Convolve_setAdd, METH_O, "Sets add factor."},
@@ -686,7 +686,7 @@ static PyObject * IRWinSinc_setDiv(IRWinSinc *self, PyObject *arg) { SET_DIV };
 
 static PyObject * IRWinSinc_play(IRWinSinc *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * IRWinSinc_out(IRWinSinc *self, PyObject *args, PyObject *kwds) { OUT };
-static PyObject * IRWinSinc_stop(IRWinSinc *self) { STOP };
+static PyObject * IRWinSinc_stop(IRWinSinc *self, PyObject *args, PyObject *kwds) { STOP };
 
 static PyObject * IRWinSinc_multiply(IRWinSinc *self, PyObject *arg) { MULTIPLY };
 static PyObject * IRWinSinc_inplace_multiply(IRWinSinc *self, PyObject *arg) { INPLACE_MULTIPLY };
@@ -787,7 +787,7 @@ static PyMethodDef IRWinSinc_methods[] = {
     {"_getStream", (PyCFunction)IRWinSinc_getStream, METH_NOARGS, "Returns stream object."},
     {"play", (PyCFunction)IRWinSinc_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)IRWinSinc_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-    {"stop", (PyCFunction)IRWinSinc_stop, METH_NOARGS, "Stops computing."},
+    {"stop", (PyCFunction)IRWinSinc_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
     {"setFreq", (PyCFunction)IRWinSinc_setFreq, METH_O, "Sets center/cutoff frequency."},
     {"setBandwidth", (PyCFunction)IRWinSinc_setBandwidth, METH_O, "Sets bandwidth in Hz."},
     {"setType", (PyCFunction)IRWinSinc_setType, METH_O, "Sets filter type factor."},
@@ -1076,7 +1076,7 @@ static PyObject * IRAverage_setDiv(IRAverage *self, PyObject *arg) { SET_DIV };
 
 static PyObject * IRAverage_play(IRAverage *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * IRAverage_out(IRAverage *self, PyObject *args, PyObject *kwds) { OUT };
-static PyObject * IRAverage_stop(IRAverage *self) { STOP };
+static PyObject * IRAverage_stop(IRAverage *self, PyObject *args, PyObject *kwds) { STOP };
 
 static PyObject * IRAverage_multiply(IRAverage *self, PyObject *arg) { MULTIPLY };
 static PyObject * IRAverage_inplace_multiply(IRAverage *self, PyObject *arg) { INPLACE_MULTIPLY };
@@ -1101,7 +1101,7 @@ static PyMethodDef IRAverage_methods[] = {
     {"_getStream", (PyCFunction)IRAverage_getStream, METH_NOARGS, "Returns stream object."},
     {"play", (PyCFunction)IRAverage_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)IRAverage_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-    {"stop", (PyCFunction)IRAverage_stop, METH_NOARGS, "Stops computing."},
+    {"stop", (PyCFunction)IRAverage_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
     {"setMul", (PyCFunction)IRAverage_setMul, METH_O, "Sets mul factor."},
     {"setAdd", (PyCFunction)IRAverage_setAdd, METH_O, "Sets add factor."},
     {"setSub", (PyCFunction)IRAverage_setSub, METH_O, "Sets inverse add factor."},
@@ -1547,7 +1547,7 @@ static PyObject * IRPulse_setDiv(IRPulse *self, PyObject *arg) { SET_DIV };
 
 static PyObject * IRPulse_play(IRPulse *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * IRPulse_out(IRPulse *self, PyObject *args, PyObject *kwds) { OUT };
-static PyObject * IRPulse_stop(IRPulse *self) { STOP };
+static PyObject * IRPulse_stop(IRPulse *self, PyObject *args, PyObject *kwds) { STOP };
 
 static PyObject * IRPulse_multiply(IRPulse *self, PyObject *arg) { MULTIPLY };
 static PyObject * IRPulse_inplace_multiply(IRPulse *self, PyObject *arg) { INPLACE_MULTIPLY };
@@ -1649,7 +1649,7 @@ static PyMethodDef IRPulse_methods[] = {
     {"_getStream", (PyCFunction)IRPulse_getStream, METH_NOARGS, "Returns stream object."},
     {"play", (PyCFunction)IRPulse_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)IRPulse_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-    {"stop", (PyCFunction)IRPulse_stop, METH_NOARGS, "Stops computing."},
+    {"stop", (PyCFunction)IRPulse_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
     {"setFreq", (PyCFunction)IRPulse_setFreq, METH_O, "Sets center/cutoff frequency."},
     {"setBandwidth", (PyCFunction)IRPulse_setBandwidth, METH_O, "Sets bandwidth in Hz."},
     {"setType", (PyCFunction)IRPulse_setType, METH_O, "Sets filter type factor."},
@@ -2034,7 +2034,7 @@ static PyObject * IRFM_setDiv(IRFM *self, PyObject *arg) { SET_DIV };
 
 static PyObject * IRFM_play(IRFM *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * IRFM_out(IRFM *self, PyObject *args, PyObject *kwds) { OUT };
-static PyObject * IRFM_stop(IRFM *self) { STOP };
+static PyObject * IRFM_stop(IRFM *self, PyObject *args, PyObject *kwds) { STOP };
 
 static PyObject * IRFM_multiply(IRFM *self, PyObject *arg) { MULTIPLY };
 static PyObject * IRFM_inplace_multiply(IRFM *self, PyObject *arg) { INPLACE_MULTIPLY };
@@ -2149,7 +2149,7 @@ static PyMethodDef IRFM_methods[] = {
     {"_getStream", (PyCFunction)IRFM_getStream, METH_NOARGS, "Returns stream object."},
     {"play", (PyCFunction)IRFM_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)IRFM_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-    {"stop", (PyCFunction)IRFM_stop, METH_NOARGS, "Stops computing."},
+    {"stop", (PyCFunction)IRFM_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
     {"setCarrier", (PyCFunction)IRFM_setCarrier, METH_O, "Sets carrier frequency."},
     {"setRatio", (PyCFunction)IRFM_setRatio, METH_O, "Sets ratio."},
     {"setIndex", (PyCFunction)IRFM_setIndex, METH_O, "Sets the modulation index."},

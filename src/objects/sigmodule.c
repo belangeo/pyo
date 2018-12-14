@@ -206,7 +206,7 @@ static PyObject * Sig_setDiv(Sig *self, PyObject *arg) { SET_DIV };
 
 static PyObject * Sig_play(Sig *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * Sig_out(Sig *self, PyObject *args, PyObject *kwds) { OUT };
-static PyObject * Sig_stop(Sig *self) { STOP };
+static PyObject * Sig_stop(Sig *self, PyObject *args, PyObject *kwds) { STOP };
 
 static PyObject * Sig_multiply(Sig *self, PyObject *arg) { MULTIPLY };
 static PyObject * Sig_inplace_multiply(Sig *self, PyObject *arg) { INPLACE_MULTIPLY };
@@ -231,7 +231,7 @@ static PyMethodDef Sig_methods[] = {
 {"_getStream", (PyCFunction)Sig_getStream, METH_NOARGS, "Returns stream object."},
 {"play", (PyCFunction)Sig_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
 {"out", (PyCFunction)Sig_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-{"stop", (PyCFunction)Sig_stop, METH_NOARGS, "Stops computing."},
+{"stop", (PyCFunction)Sig_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
 {"setValue", (PyCFunction)Sig_setValue, METH_O, "Sets Sig value."},
 {"setMul", (PyCFunction)Sig_setMul, METH_O, "Sets Sig mul factor."},
 {"setAdd", (PyCFunction)Sig_setAdd, METH_O, "Sets Sig add factor."},
@@ -615,7 +615,7 @@ static PyObject * SigTo_setSub(SigTo *self, PyObject *arg) { SET_SUB };
 static PyObject * SigTo_setDiv(SigTo *self, PyObject *arg) { SET_DIV };
 
 static PyObject * SigTo_play(SigTo *self, PyObject *args, PyObject *kwds) { PLAY };
-static PyObject * SigTo_stop(SigTo *self) { STOP };
+static PyObject * SigTo_stop(SigTo *self, PyObject *args, PyObject *kwds) { STOP };
 
 static PyObject * SigTo_multiply(SigTo *self, PyObject *arg) { MULTIPLY };
 static PyObject * SigTo_inplace_multiply(SigTo *self, PyObject *arg) { INPLACE_MULTIPLY };
@@ -640,7 +640,7 @@ static PyMethodDef SigTo_methods[] = {
 {"getServer", (PyCFunction)SigTo_getServer, METH_NOARGS, "Returns server object."},
 {"_getStream", (PyCFunction)SigTo_getStream, METH_NOARGS, "Returns stream object."},
 {"play", (PyCFunction)SigTo_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-{"stop", (PyCFunction)SigTo_stop, METH_NOARGS, "Stops computing."},
+{"stop", (PyCFunction)SigTo_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
 {"setValue", (PyCFunction)SigTo_setValue, METH_O, "Sets SigTo value."},
 {"setTime", (PyCFunction)SigTo_setTime, METH_O, "Sets ramp time in seconds."},
 {"setMul", (PyCFunction)SigTo_setMul, METH_O, "Sets SigTo mul factor."},
@@ -1024,7 +1024,7 @@ static PyObject * VarPort_setSub(VarPort *self, PyObject *arg) { SET_SUB };
 static PyObject * VarPort_setDiv(VarPort *self, PyObject *arg) { SET_DIV };
 
 static PyObject * VarPort_play(VarPort *self, PyObject *args, PyObject *kwds) { PLAY };
-static PyObject * VarPort_stop(VarPort *self) { STOP };
+static PyObject * VarPort_stop(VarPort *self, PyObject *args, PyObject *kwds) { STOP };
 
 static PyObject * VarPort_multiply(VarPort *self, PyObject *arg) { MULTIPLY };
 static PyObject * VarPort_inplace_multiply(VarPort *self, PyObject *arg) { INPLACE_MULTIPLY };
@@ -1047,7 +1047,7 @@ static PyMethodDef VarPort_methods[] = {
     {"getServer", (PyCFunction)VarPort_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)VarPort_getStream, METH_NOARGS, "Returns stream object."},
     {"play", (PyCFunction)VarPort_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"stop", (PyCFunction)VarPort_stop, METH_NOARGS, "Stops computing."},
+    {"stop", (PyCFunction)VarPort_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
     {"setValue", (PyCFunction)VarPort_setValue, METH_O, "Sets VarPort value."},
     {"setTime", (PyCFunction)VarPort_setTime, METH_O, "Sets ramp time in seconds."},
     {"setFunction", (PyCFunction)VarPort_setFunction, METH_O, "Sets function to be called."},

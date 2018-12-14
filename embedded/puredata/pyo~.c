@@ -13,7 +13,7 @@ typedef struct _pyo_tilde {
     int add;
     int chnls;
     float sr;
-    char *file;
+    const char *file;
     t_sample **in;
     t_sample **out;
     int id;                 /* pyo server id */
@@ -150,7 +150,7 @@ void pyo_tilde_set(t_pyo_tilde *x, t_symbol *s, int argc, t_atom *argv) {
 
 void pyo_tilde_create(t_pyo_tilde *x, t_symbol *s, int argc, t_atom *argv) {
     int err;
-    char *varname, *object;
+    const char *varname, *object;
     char fchar[32];
     t_symbol *c = atom_getsymbol(argv);
     varname = c->s_name;

@@ -220,7 +220,7 @@ Pattern_play(Pattern *self, PyObject *args, PyObject *kwds)
     PLAY
 };
 
-static PyObject * Pattern_stop(Pattern *self) { STOP };
+static PyObject * Pattern_stop(Pattern *self, PyObject *args, PyObject *kwds) { STOP };
 
 static PyObject *
 Pattern_setFunction(Pattern *self, PyObject *arg)
@@ -298,7 +298,7 @@ static PyMethodDef Pattern_methods[] = {
 {"getServer", (PyCFunction)Pattern_getServer, METH_NOARGS, "Returns server object."},
 {"_getStream", (PyCFunction)Pattern_getStream, METH_NOARGS, "Returns stream object."},
 {"play", (PyCFunction)Pattern_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-{"stop", (PyCFunction)Pattern_stop, METH_NOARGS, "Stops computing."},
+{"stop", (PyCFunction)Pattern_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
 {"setTime", (PyCFunction)Pattern_setTime, METH_O, "Sets time factor."},
 {"setFunction", (PyCFunction)Pattern_setFunction, METH_O, "Sets the function to be called."},
 {"setArg", (PyCFunction)Pattern_setArg, METH_O, "Sets function's argument."},
@@ -444,7 +444,7 @@ static PyObject * Score_getServer(Score* self) { GET_SERVER };
 static PyObject * Score_getStream(Score* self) { GET_STREAM };
 
 static PyObject * Score_play(Score *self, PyObject *args, PyObject *kwds) { PLAY };
-static PyObject * Score_stop(Score *self) { STOP };
+static PyObject * Score_stop(Score *self, PyObject *args, PyObject *kwds) { STOP };
 
 static PyMemberDef Score_members[] = {
 {"server", T_OBJECT_EX, offsetof(Score, server), 0, "Pyo server."},
@@ -456,7 +456,7 @@ static PyMethodDef Score_methods[] = {
 {"getServer", (PyCFunction)Score_getServer, METH_NOARGS, "Returns server object."},
 {"_getStream", (PyCFunction)Score_getStream, METH_NOARGS, "Returns stream object."},
 {"play", (PyCFunction)Score_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-{"stop", (PyCFunction)Score_stop, METH_NOARGS, "Stops computing."},
+{"stop", (PyCFunction)Score_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
 {NULL}  /* Sentinel */
 };
 
@@ -625,7 +625,7 @@ static PyObject * CallAfter_play(CallAfter *self, PyObject *args, PyObject *kwds
     self->currentTime = 0.;
     PLAY 
 };
-static PyObject * CallAfter_stop(CallAfter *self) { STOP };
+static PyObject * CallAfter_stop(CallAfter *self, PyObject *args, PyObject *kwds) { STOP };
 
 static PyMemberDef CallAfter_members[] = {
 {"server", T_OBJECT_EX, offsetof(CallAfter, server), 0, "Pyo server."},
@@ -637,7 +637,7 @@ static PyMethodDef CallAfter_methods[] = {
 {"getServer", (PyCFunction)CallAfter_getServer, METH_NOARGS, "Returns server object."},
 {"_getStream", (PyCFunction)CallAfter_getStream, METH_NOARGS, "Returns stream object."},
 {"play", (PyCFunction)CallAfter_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-{"stop", (PyCFunction)CallAfter_stop, METH_NOARGS, "Stops computing."},
+{"stop", (PyCFunction)CallAfter_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
 {NULL}  /* Sentinel */
 };
 

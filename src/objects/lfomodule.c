@@ -74,7 +74,10 @@ LFO_generates_ii(LFO *self) {
             if (numh > maxHarms)
                 numh = maxHarms;
             for (i=0; i<self->bufsize; i++) {
-                pointer = self->pointerPos * 2.0 - 1.0;
+                pointer = self->pointerPos + 0.5;
+                if (pointer >= 1.0)
+                    pointer -= 1.0;
+                pointer = pointer * 2.0 - 1.0;
                 val = pointer - MYTANH(numh * pointer) / MYTANH(numh);
                 self->data[i] = val;
                 self->pointerPos += inc;
@@ -90,7 +93,10 @@ LFO_generates_ii(LFO *self) {
             if (numh > maxHarms)
                 numh = maxHarms;
             for (i=0; i<self->bufsize; i++) {
-                pointer = self->pointerPos * 2.0 - 1.0;
+                pointer = self->pointerPos + 0.5;
+                if (pointer >= 1.0)
+                    pointer -= 1.0;
+                pointer = pointer * 2.0 - 1.0;
                 val = -(pointer - MYTANH(numh * pointer) / MYTANH(numh));
                 self->data[i] = val;
                 self->pointerPos += inc;
@@ -244,7 +250,10 @@ LFO_generates_ai(LFO *self) {
                 numh = sharp * 46.0 + 4.0;
                 if (numh > maxHarms)
                     numh = maxHarms;
-                pointer = self->pointerPos * 2.0 - 1.0;
+                pointer = self->pointerPos + 0.5;
+                if (pointer >= 1.0)
+                    pointer -= 1.0;
+                pointer = pointer * 2.0 - 1.0;
                 val = pointer - MYTANH(numh * pointer) / MYTANH(numh);
                 self->data[i] = val;
                 self->pointerPos += inc;
@@ -266,7 +275,10 @@ LFO_generates_ai(LFO *self) {
                 numh = sharp * 46.0 + 4.0;
                 if (numh > maxHarms)
                     numh = maxHarms;
-                pointer = self->pointerPos * 2.0 - 1.0;
+                pointer = self->pointerPos + 0.5;
+                if (pointer >= 1.0)
+                    pointer -= 1.0;
+                pointer = pointer * 2.0 - 1.0;
                 val = -(pointer - MYTANH(numh * pointer) / MYTANH(numh));
                 self->data[i] = val;
                 self->pointerPos += inc;
@@ -457,7 +469,10 @@ LFO_generates_ia(LFO *self) {
                 numh = sharp * 46.0 + 4.0;
                 if (numh > maxHarms)
                     numh = maxHarms;
-                pointer = self->pointerPos * 2.0 - 1.0;
+                pointer = self->pointerPos + 0.5;
+                if (pointer >= 1.0)
+                    pointer -= 1.0;
+                pointer = pointer * 2.0 - 1.0;
                 val = pointer - MYTANH(numh * pointer) / MYTANH(numh);
                 self->data[i] = val;
                 self->pointerPos += inc;
@@ -478,7 +493,10 @@ LFO_generates_ia(LFO *self) {
                 numh = sharp * 46.0 + 4.0;
                 if (numh > maxHarms)
                     numh = maxHarms;
-                pointer = self->pointerPos * 2.0 - 1.0;
+                pointer = self->pointerPos + 0.5;
+                if (pointer >= 1.0)
+                    pointer -= 1.0;
+                pointer = pointer * 2.0 - 1.0;
                 val = -(pointer - MYTANH(numh * pointer) / MYTANH(numh));
                 self->data[i] = val;
                 self->pointerPos += inc;
@@ -663,7 +681,10 @@ LFO_generates_aa(LFO *self) {
                 numh = sharp * 46.0 + 4.0;
                 if (numh > maxHarms)
                     numh = maxHarms;
-                pointer = self->pointerPos * 2.0 - 1.0;
+                pointer = self->pointerPos + 0.5;
+                if (pointer >= 1.0)
+                    pointer -= 1.0;
+                pointer = pointer * 2.0 - 1.0;
                 val = pointer - MYTANH(numh * pointer) / MYTANH(numh);
                 self->data[i] = val;
                 self->pointerPos += inc;
@@ -690,7 +711,10 @@ LFO_generates_aa(LFO *self) {
                 numh = sharp * 46.0 + 4.0;
                 if (numh > maxHarms)
                     numh = maxHarms;
-                pointer = self->pointerPos * 2.0 - 1.0;
+                pointer = self->pointerPos + 0.5;
+                if (pointer >= 1.0)
+                    pointer -= 1.0;
+                pointer = pointer * 2.0 - 1.0;
                 val = -(pointer - MYTANH(numh * pointer) / MYTANH(numh));
                 self->data[i] = val;
                 self->pointerPos += inc;
@@ -1051,7 +1075,7 @@ static PyObject * LFO_setDiv(LFO *self, PyObject *arg) { SET_DIV };
 
 static PyObject * LFO_play(LFO *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * LFO_out(LFO *self, PyObject *args, PyObject *kwds) { OUT };
-static PyObject * LFO_stop(LFO *self) { STOP };
+static PyObject * LFO_stop(LFO *self, PyObject *args, PyObject *kwds) { STOP };
 
 static PyObject * LFO_multiply(LFO *self, PyObject *arg) { MULTIPLY };
 static PyObject * LFO_inplace_multiply(LFO *self, PyObject *arg) { INPLACE_MULTIPLY };
@@ -1170,7 +1194,7 @@ static PyMethodDef LFO_methods[] = {
     {"_getStream", (PyCFunction)LFO_getStream, METH_NOARGS, "Returns stream object."},
     {"play", (PyCFunction)LFO_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)LFO_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-    {"stop", (PyCFunction)LFO_stop, METH_NOARGS, "Stops computing."},
+    {"stop", (PyCFunction)LFO_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
 	{"setFreq", (PyCFunction)LFO_setFreq, METH_O, "Sets oscillator frequency in cycle per second."},
     {"setSharp", (PyCFunction)LFO_setSharp, METH_O, "Sets the sharpness factor."},
     {"setType", (PyCFunction)LFO_setType, METH_O, "Sets waveform type."},

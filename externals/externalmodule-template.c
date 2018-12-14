@@ -305,7 +305,7 @@ static PyObject * Gain_setDiv(Gain *self, PyObject *arg) { SET_DIV };
 
 static PyObject * Gain_play(Gain *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * Gain_out(Gain *self, PyObject *args, PyObject *kwds) { OUT };
-static PyObject * Gain_stop(Gain *self) { STOP };
+static PyObject * Gain_stop(Gain *self, PyObject *args, PyObject *kwds) { STOP };
 
 static PyObject * Gain_multiply(Gain *self, PyObject *arg) { MULTIPLY };
 static PyObject * Gain_inplace_multiply(Gain *self, PyObject *arg) { INPLACE_MULTIPLY };
@@ -383,7 +383,7 @@ static PyMethodDef Gain_methods[] = {
 {"_getStream", (PyCFunction)Gain_getStream, METH_NOARGS, "Returns stream object."},
 {"play", (PyCFunction)Gain_play, METH_VARARGS|METH_KEYWORDS, "Starts dbuting without sending sound to soundcard."},
 {"out", (PyCFunction)Gain_out, METH_VARARGS|METH_KEYWORDS, "Starts dbuting and sends sound to soundcard channel speficied by argument."},
-{"stop", (PyCFunction)Gain_stop, METH_NOARGS, "Stops dbuting."},
+{"stop", (PyCFunction)Gain_stop, METH_VARARGS|METH_KEYWORDS, "Stops dbuting."},
 {"setDB", (PyCFunction)Gain_setDB, METH_O, "Sets gain factor in decibels."},
 {"setMul", (PyCFunction)Gain_setMul, METH_O, "Sets oscillator mul factor."},
 {"setAdd", (PyCFunction)Gain_setAdd, METH_O, "Sets oscillator add factor."},

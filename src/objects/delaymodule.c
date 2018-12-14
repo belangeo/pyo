@@ -379,7 +379,7 @@ static PyObject * Delay_setDiv(Delay *self, PyObject *arg) { SET_DIV };
 
 static PyObject * Delay_play(Delay *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * Delay_out(Delay *self, PyObject *args, PyObject *kwds) { OUT };
-static PyObject * Delay_stop(Delay *self) { STOP };
+static PyObject * Delay_stop(Delay *self, PyObject *args, PyObject *kwds) { STOP };
 
 static PyObject * Delay_multiply(Delay *self, PyObject *arg) { MULTIPLY };
 static PyObject * Delay_inplace_multiply(Delay *self, PyObject *arg) { INPLACE_MULTIPLY };
@@ -479,7 +479,7 @@ static PyMethodDef Delay_methods[] = {
     {"_getStream", (PyCFunction)Delay_getStream, METH_NOARGS, "Returns stream object."},
     {"play", (PyCFunction)Delay_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)Delay_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-    {"stop", (PyCFunction)Delay_stop, METH_NOARGS, "Stops computing."},
+    {"stop", (PyCFunction)Delay_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
 	{"setDelay", (PyCFunction)Delay_setDelay, METH_O, "Sets delay time in seconds."},
     {"setFeedback", (PyCFunction)Delay_setFeedback, METH_O, "Sets feedback value between 0 -> 1."},
     {"reset", (PyCFunction)Delay_reset, METH_NOARGS, "Resets the memory buffer to zeros."},
@@ -810,7 +810,7 @@ static PyObject * SDelay_setDiv(SDelay *self, PyObject *arg) { SET_DIV };
 
 static PyObject * SDelay_play(SDelay *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * SDelay_out(SDelay *self, PyObject *args, PyObject *kwds) { OUT };
-static PyObject * SDelay_stop(SDelay *self) { STOP };
+static PyObject * SDelay_stop(SDelay *self, PyObject *args, PyObject *kwds) { STOP };
 
 static PyObject * SDelay_multiply(SDelay *self, PyObject *arg) { MULTIPLY };
 static PyObject * SDelay_inplace_multiply(SDelay *self, PyObject *arg) { INPLACE_MULTIPLY };
@@ -878,7 +878,7 @@ static PyMethodDef SDelay_methods[] = {
     {"_getStream", (PyCFunction)SDelay_getStream, METH_NOARGS, "Returns stream object."},
     {"play", (PyCFunction)SDelay_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)SDelay_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-    {"stop", (PyCFunction)SDelay_stop, METH_NOARGS, "Stops computing."},
+    {"stop", (PyCFunction)SDelay_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
 	{"setDelay", (PyCFunction)SDelay_setDelay, METH_O, "Sets delay time in seconds."},
 	{"reset", (PyCFunction)SDelay_reset, METH_NOARGS, "Resets the memory buffer to zeros."},
 	{"setMul", (PyCFunction)SDelay_setMul, METH_O, "Sets oscillator mul factor."},
@@ -1512,7 +1512,7 @@ static PyObject * Waveguide_setDiv(Waveguide *self, PyObject *arg) { SET_DIV };
 
 static PyObject * Waveguide_play(Waveguide *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * Waveguide_out(Waveguide *self, PyObject *args, PyObject *kwds) { OUT };
-static PyObject * Waveguide_stop(Waveguide *self) { STOP };
+static PyObject * Waveguide_stop(Waveguide *self, PyObject *args, PyObject *kwds) { STOP };
 
 static PyObject * Waveguide_multiply(Waveguide *self, PyObject *arg) { MULTIPLY };
 static PyObject * Waveguide_inplace_multiply(Waveguide *self, PyObject *arg) { INPLACE_MULTIPLY };
@@ -1619,7 +1619,7 @@ static PyMethodDef Waveguide_methods[] = {
 {"_getStream", (PyCFunction)Waveguide_getStream, METH_NOARGS, "Returns stream object."},
 {"play", (PyCFunction)Waveguide_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
 {"out", (PyCFunction)Waveguide_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-{"stop", (PyCFunction)Waveguide_stop, METH_NOARGS, "Stops computing."},
+{"stop", (PyCFunction)Waveguide_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
 {"reset", (PyCFunction)Waveguide_reset, METH_NOARGS, "Reset the delay line."},
 {"setFreq", (PyCFunction)Waveguide_setFreq, METH_O, "Sets freq time in seconds."},
 {"setDur", (PyCFunction)Waveguide_setDur, METH_O, "Sets dur value between 0 -> 1."},
@@ -2545,7 +2545,7 @@ static PyObject * AllpassWG_setDiv(AllpassWG *self, PyObject *arg) { SET_DIV };
 
 static PyObject * AllpassWG_play(AllpassWG *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * AllpassWG_out(AllpassWG *self, PyObject *args, PyObject *kwds) { OUT };
-static PyObject * AllpassWG_stop(AllpassWG *self) { STOP };
+static PyObject * AllpassWG_stop(AllpassWG *self, PyObject *args, PyObject *kwds) { STOP };
 
 static PyObject * AllpassWG_multiply(AllpassWG *self, PyObject *arg) { MULTIPLY };
 static PyObject * AllpassWG_inplace_multiply(AllpassWG *self, PyObject *arg) { INPLACE_MULTIPLY };
@@ -2684,7 +2684,7 @@ static PyMethodDef AllpassWG_methods[] = {
     {"_getStream", (PyCFunction)AllpassWG_getStream, METH_NOARGS, "Returns stream object."},
     {"play", (PyCFunction)AllpassWG_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)AllpassWG_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-    {"stop", (PyCFunction)AllpassWG_stop, METH_NOARGS, "Stops computing."},
+    {"stop", (PyCFunction)AllpassWG_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
     {"reset", (PyCFunction)AllpassWG_reset, METH_NOARGS, "Reset the delay line."},
     {"setFreq", (PyCFunction)AllpassWG_setFreq, METH_O, "Sets freq time in seconds."},
     {"setFeed", (PyCFunction)AllpassWG_setFeed, METH_O, "Sets feed value between 0 -> 1."},
@@ -2930,7 +2930,7 @@ static PyObject * Delay1_setDiv(Delay1 *self, PyObject *arg) { SET_DIV };
 
 static PyObject * Delay1_play(Delay1 *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * Delay1_out(Delay1 *self, PyObject *args, PyObject *kwds) { OUT };
-static PyObject * Delay1_stop(Delay1 *self) { STOP };
+static PyObject * Delay1_stop(Delay1 *self, PyObject *args, PyObject *kwds) { STOP };
 
 static PyObject * Delay1_multiply(Delay1 *self, PyObject *arg) { MULTIPLY };
 static PyObject * Delay1_inplace_multiply(Delay1 *self, PyObject *arg) { INPLACE_MULTIPLY };
@@ -2955,7 +2955,7 @@ static PyMethodDef Delay1_methods[] = {
 {"_getStream", (PyCFunction)Delay1_getStream, METH_NOARGS, "Returns stream object."},
 {"play", (PyCFunction)Delay1_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
 {"out", (PyCFunction)Delay1_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-{"stop", (PyCFunction)Delay1_stop, METH_NOARGS, "Stops computing."},
+{"stop", (PyCFunction)Delay1_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
 {"setMul", (PyCFunction)Delay1_setMul, METH_O, "Sets oscillator mul factor."},
 {"setAdd", (PyCFunction)Delay1_setAdd, METH_O, "Sets oscillator add factor."},
 {"setSub", (PyCFunction)Delay1_setSub, METH_O, "Sets inverse add factor."},
@@ -3540,7 +3540,7 @@ static PyObject * SmoothDelay_setDiv(SmoothDelay *self, PyObject *arg) { SET_DIV
 
 static PyObject * SmoothDelay_play(SmoothDelay *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * SmoothDelay_out(SmoothDelay *self, PyObject *args, PyObject *kwds) { OUT };
-static PyObject * SmoothDelay_stop(SmoothDelay *self) { STOP };
+static PyObject * SmoothDelay_stop(SmoothDelay *self, PyObject *args, PyObject *kwds) { STOP };
 
 static PyObject * SmoothDelay_multiply(SmoothDelay *self, PyObject *arg) { MULTIPLY };
 static PyObject * SmoothDelay_inplace_multiply(SmoothDelay *self, PyObject *arg) { INPLACE_MULTIPLY };
@@ -3653,7 +3653,7 @@ static PyMethodDef SmoothDelay_methods[] = {
     {"_getStream", (PyCFunction)SmoothDelay_getStream, METH_NOARGS, "Returns stream object."},
     {"play", (PyCFunction)SmoothDelay_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)SmoothDelay_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-    {"stop", (PyCFunction)SmoothDelay_stop, METH_NOARGS, "Stops computing."},
+    {"stop", (PyCFunction)SmoothDelay_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
 	{"setDelay", (PyCFunction)SmoothDelay_setDelay, METH_O, "Sets delay time in seconds."},
     {"setFeedback", (PyCFunction)SmoothDelay_setFeedback, METH_O, "Sets feedback value between 0 -> 1."},
     {"setCrossfade", (PyCFunction)SmoothDelay_setCrossfade, METH_O, "Sets crossfade time."},

@@ -179,7 +179,7 @@ static PyObject * Mix_setDiv(Mix *self, PyObject *arg) { SET_DIV };
 
 static PyObject * Mix_play(Mix *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * Mix_out(Mix *self, PyObject *args, PyObject *kwds) { OUT };
-static PyObject * Mix_stop(Mix *self) { STOP };
+static PyObject * Mix_stop(Mix *self, PyObject *args, PyObject *kwds) { STOP };
 
 static PyObject * Mix_multiply(Mix *self, PyObject *arg) { MULTIPLY };
 static PyObject * Mix_inplace_multiply(Mix *self, PyObject *arg) { INPLACE_MULTIPLY };
@@ -204,7 +204,7 @@ static PyMethodDef Mix_methods[] = {
     {"_getStream", (PyCFunction)Mix_getStream, METH_NOARGS, "Returns stream object."},
     {"play", (PyCFunction)Mix_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)Mix_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-    {"stop", (PyCFunction)Mix_stop, METH_NOARGS, "Stops computing."},
+    {"stop", (PyCFunction)Mix_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
 	{"setMul", (PyCFunction)Mix_setMul, METH_O, "Sets oscillator mul factor."},
 	{"setAdd", (PyCFunction)Mix_setAdd, METH_O, "Sets oscillator add factor."},
     {"setSub", (PyCFunction)Mix_setSub, METH_O, "Sets inverse add factor."},

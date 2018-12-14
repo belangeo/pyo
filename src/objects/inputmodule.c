@@ -159,7 +159,7 @@ static PyObject * Input_setDiv(Input *self, PyObject *arg) { SET_DIV };
 
 static PyObject * Input_play(Input *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * Input_out(Input *self, PyObject *args, PyObject *kwds) { OUT };
-static PyObject * Input_stop(Input *self) { STOP };
+static PyObject * Input_stop(Input *self, PyObject *args, PyObject *kwds) { STOP };
 
 static PyObject * Input_multiply(Input *self, PyObject *arg) { MULTIPLY };
 static PyObject * Input_inplace_multiply(Input *self, PyObject *arg) { INPLACE_MULTIPLY };
@@ -183,7 +183,7 @@ static PyMethodDef Input_methods[] = {
     {"_getStream", (PyCFunction)Input_getStream, METH_NOARGS, "Returns stream object."},
     {"play", (PyCFunction)Input_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)Input_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-    {"stop", (PyCFunction)Input_stop, METH_NOARGS, "Stops computing."},
+    {"stop", (PyCFunction)Input_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
 	{"setMul", (PyCFunction)Input_setMul, METH_O, "Sets oscillator mul factor."},
 	{"setAdd", (PyCFunction)Input_setAdd, METH_O, "Sets oscillator add factor."},
     {"setSub", (PyCFunction)Input_setSub, METH_O, "Sets inverse add factor."},

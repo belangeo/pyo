@@ -170,7 +170,7 @@ static PyObject * HilbertMain_getServer(HilbertMain* self) { GET_SERVER };
 static PyObject * HilbertMain_getStream(HilbertMain* self) { GET_STREAM };
 
 static PyObject * HilbertMain_play(HilbertMain *self, PyObject *args, PyObject *kwds) { PLAY };
-static PyObject * HilbertMain_stop(HilbertMain *self) { STOP };
+static PyObject * HilbertMain_stop(HilbertMain *self, PyObject *args, PyObject *kwds) { STOP };
 
 static PyMemberDef HilbertMain_members[] = {
 {"server", T_OBJECT_EX, offsetof(HilbertMain, server), 0, "Pyo server."},
@@ -183,7 +183,7 @@ static PyMethodDef HilbertMain_methods[] = {
 {"getServer", (PyCFunction)HilbertMain_getServer, METH_NOARGS, "Returns server object."},
 {"_getStream", (PyCFunction)HilbertMain_getStream, METH_NOARGS, "Returns stream object."},
 {"play", (PyCFunction)HilbertMain_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-{"stop", (PyCFunction)HilbertMain_stop, METH_NOARGS, "Stops computing."},
+{"stop", (PyCFunction)HilbertMain_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
 {NULL}  /* Sentinel */
 };
 
@@ -370,7 +370,7 @@ static PyObject * Hilbert_setDiv(Hilbert *self, PyObject *arg) { SET_DIV };
 
 static PyObject * Hilbert_play(Hilbert *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * Hilbert_out(Hilbert *self, PyObject *args, PyObject *kwds) { OUT };
-static PyObject * Hilbert_stop(Hilbert *self) { STOP };
+static PyObject * Hilbert_stop(Hilbert *self, PyObject *args, PyObject *kwds) { STOP };
 
 static PyObject * Hilbert_multiply(Hilbert *self, PyObject *arg) { MULTIPLY };
 static PyObject * Hilbert_inplace_multiply(Hilbert *self, PyObject *arg) { INPLACE_MULTIPLY };
@@ -394,7 +394,7 @@ static PyMethodDef Hilbert_methods[] = {
 {"_getStream", (PyCFunction)Hilbert_getStream, METH_NOARGS, "Returns stream object."},
 {"play", (PyCFunction)Hilbert_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
 {"out", (PyCFunction)Hilbert_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-{"stop", (PyCFunction)Hilbert_stop, METH_NOARGS, "Stops computing."},
+{"stop", (PyCFunction)Hilbert_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
 {"setMul", (PyCFunction)Hilbert_setMul, METH_O, "Sets Hilbert mul factor."},
 {"setAdd", (PyCFunction)Hilbert_setAdd, METH_O, "Sets Hilbert add factor."},
 {"setSub", (PyCFunction)Hilbert_setSub, METH_O, "Sets inverse add factor."},

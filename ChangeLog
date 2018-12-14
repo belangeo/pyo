@@ -1,3 +1,86 @@
+2018-12-14 belangeo <belangeo@gmail.com>
+
+    * Fixed break-point-function tables malloc() corruption.
+
+2018-12-14 belangeo <belangeo@gmail.com>
+
+    * Changed the structure of the source code and the installed dependencies.
+
+2018-12-11 belangeo <belangeo@gmail.com>
+
+    * Added PyoObjectBase.preventAutoStart() method to stop propagation when
+      autoStartChildren is activated in the Server.
+
+2018-12-11 belangeo <belangeo@gmail.com>
+
+    * Fixed bug in OscDataSend.addAddress().
+
+2018-12-11 belangeo <belangeo@gmail.com>
+
+    * Added autoStartChildren feature. For detail, see doc for Server.setAutoStartChildren,
+      PyoObjectBase.useWaitTimeOnStop, PyoObjectBase.addLinkedObject and PyoObject.stop.
+
+2018-11-22 belangeo <belangeo@gmail.com>
+
+    * Added keyboard method to the Notein object (opens a virtual midi keyboard).
+
+2018-11-20 belangeo <belangeo@gmail.com>
+
+    * Added a new object: PyoGuiKeyboard, a virtual MIDI keyboard.
+
+2018-11-06 belangeo <belangeo@gmail.com>
+
+    * Embedded: Added a BPM variable in the embedded interpreter and a function in 
+      PyoClass to change it according to the BPm of a DAW, for instance.
+
+2018-11-02 belangeo <belangeo@gmail.com>
+
+    * Embedded: Remove the wx import before importing pyo to prevent a crash on MacOS.
+
+2018-11-02 belangeo <belangeo@gmail.com>
+
+    * Fixed crash on first load when embedding pyo in a juce plugin.
+
+2018-10-30 belangeo <belangeo@gmail.com>
+
+    * Added complex numbers (and complex one-pole/one-zero filters) to the Expr API
+
+2018-10-23 belangeo <belangeo@gmail.com>
+
+    * Added one-sample delay function and sr constant to the Expr api.
+
+2018-10-23 belangeo <belangeo@gmail.com>
+
+    * Fixed phase of sawtooth and ramp waveform in the LFO object.
+
+2018-10-23 belangeo <belangeo@gmail.com>
+
+    * Epyo: Added multiple views (splitted windows) functionnality.
+
+2018-10-22 belangeo <belangeo@gmail.com>
+
+    * Epyo Doc: Bug fixes and added zoomin/zoomout function.
+
+2018-10-21 belangeo <belangeo@gmail.com>
+
+    * Epyo: Added a 'Reload Current File' menu command.
+
+2018-10-21 belangeo <belangeo@gmail.com>
+
+    * Epyo: Added auto complete for cpp file (from corresponding header file).
+
+2018-10-05 belangeo <belangeo@gmail.com>
+
+    * Merged E-Pyo and PyoDoc in a single file (now in pyolib/editor/EPyo.py).
+
+2018-10-05 belangeo <belangeo@gmail.com>
+
+    * Modified setup.py to be pip compliant.
+
+2018-10-04 belangeo <belangeo@gmail.com>
+
+    * E-Pyo: Fixed crash when trying to read a faulty preferences file.
+
 2018-09-06 belangeo <belangeo@gmail.com>
 
     * Added PYO_SERVER_MIDI and PYO_SERVER_WINHOST environment variables to set

@@ -272,7 +272,7 @@ static PyObject * Fader_play(Fader *self, PyObject *args, PyObject *kwds)
 };
 
 static PyObject *
-Fader_stop(Fader *self)
+Fader_stop(Fader *self, PyObject *args, PyObject *kwds)
 {
     if (self->duration == 0.0) {
         self->fademode = 1;
@@ -340,7 +340,7 @@ static PyMethodDef Fader_methods[] = {
 {"getServer", (PyCFunction)Fader_getServer, METH_NOARGS, "Returns server object."},
 {"_getStream", (PyCFunction)Fader_getStream, METH_NOARGS, "Returns stream object."},
 {"play", (PyCFunction)Fader_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-{"stop", (PyCFunction)Fader_stop, METH_NOARGS, "Starts fadeout and stops computing."},
+{"stop", (PyCFunction)Fader_stop, METH_VARARGS|METH_KEYWORDS, "Starts fadeout and stops computing."},
 {"setMul", (PyCFunction)Fader_setMul, METH_O, "Sets Fader mul factor."},
 {"setAdd", (PyCFunction)Fader_setAdd, METH_O, "Sets Fader add factor."},
 {"setSub", (PyCFunction)Fader_setSub, METH_O, "Sets inverse add factor."},
@@ -694,7 +694,7 @@ static PyObject * Adsr_play(Adsr *self, PyObject *args, PyObject *kwds)
 };
 
 static PyObject *
-Adsr_stop(Adsr *self)
+Adsr_stop(Adsr *self, PyObject *args, PyObject *kwds)
 {
     if (self->duration == 0.0) {
         self->fademode = 1;
@@ -799,7 +799,7 @@ static PyMethodDef Adsr_methods[] = {
 {"getServer", (PyCFunction)Adsr_getServer, METH_NOARGS, "Returns server object."},
 {"_getStream", (PyCFunction)Adsr_getStream, METH_NOARGS, "Returns stream object."},
 {"play", (PyCFunction)Adsr_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-{"stop", (PyCFunction)Adsr_stop, METH_NOARGS, "Starts fadeout and stops computing."},
+{"stop", (PyCFunction)Adsr_stop, METH_VARARGS|METH_KEYWORDS, "Starts fadeout and stops computing."},
 {"setMul", (PyCFunction)Adsr_setMul, METH_O, "Sets Adsr mul factor."},
 {"setAdd", (PyCFunction)Adsr_setAdd, METH_O, "Sets Adsr add factor."},
 {"setSub", (PyCFunction)Adsr_setSub, METH_O, "Sets inverse add factor."},
@@ -1122,7 +1122,7 @@ static PyObject * Linseg_play(Linseg *self, PyObject *args, PyObject *kwds)
     PLAY
 };
 
-static PyObject * Linseg_stop(Linseg *self) 
+static PyObject * Linseg_stop(Linseg *self, PyObject *args, PyObject *kwds) 
 { 
     self->okToPause = 0;
     STOP 
@@ -1193,7 +1193,7 @@ static PyMethodDef Linseg_methods[] = {
 {"getServer", (PyCFunction)Linseg_getServer, METH_NOARGS, "Returns server object."},
 {"_getStream", (PyCFunction)Linseg_getStream, METH_NOARGS, "Returns stream object."},
 {"play", (PyCFunction)Linseg_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-{"stop", (PyCFunction)Linseg_stop, METH_NOARGS, "Starts fadeout and stops computing."},
+{"stop", (PyCFunction)Linseg_stop, METH_VARARGS|METH_KEYWORDS, "Starts fadeout and stops computing."},
 {"pause", (PyCFunction)Linseg_pause, METH_NOARGS, "Toggles between play and stop without reset."},
 {"setList", (PyCFunction)Linseg_setList, METH_O, "Sets target points list."},
 {"setLoop", (PyCFunction)Linseg_setLoop, METH_O, "Sets looping mode."},
@@ -1537,7 +1537,7 @@ static PyObject * Expseg_play(Expseg *self, PyObject *args, PyObject *kwds)
     PLAY
 };
 
-static PyObject * Expseg_stop(Expseg *self)
+static PyObject * Expseg_stop(Expseg *self, PyObject *args, PyObject *kwds)
 { 
     self->okToPause = 0;
     STOP 
@@ -1632,7 +1632,7 @@ static PyMethodDef Expseg_methods[] = {
     {"getServer", (PyCFunction)Expseg_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)Expseg_getStream, METH_NOARGS, "Returns stream object."},
     {"play", (PyCFunction)Expseg_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"stop", (PyCFunction)Expseg_stop, METH_NOARGS, "Starts fadeout and stops computing."},
+    {"stop", (PyCFunction)Expseg_stop, METH_VARARGS|METH_KEYWORDS, "Starts fadeout and stops computing."},
     {"pause", (PyCFunction)Expseg_pause, METH_NOARGS, "Toggles between play and stop without reset."},
     {"setList", (PyCFunction)Expseg_setList, METH_O, "Sets target points list."},
     {"setLoop", (PyCFunction)Expseg_setLoop, METH_O, "Sets looping mode."},

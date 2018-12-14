@@ -215,7 +215,7 @@ static PyObject * FFTMain_getServer(FFTMain* self) { GET_SERVER };
 static PyObject * FFTMain_getStream(FFTMain* self) { GET_STREAM };
 
 static PyObject * FFTMain_play(FFTMain *self, PyObject *args, PyObject *kwds) { PLAY };
-static PyObject * FFTMain_stop(FFTMain *self) { STOP };
+static PyObject * FFTMain_stop(FFTMain *self, PyObject *args, PyObject *kwds) { STOP };
 
 static PyObject *
 FFTMain_setSize(FFTMain *self, PyObject *args, PyObject *kwds)
@@ -263,7 +263,7 @@ static PyMethodDef FFTMain_methods[] = {
 {"getServer", (PyCFunction)FFTMain_getServer, METH_NOARGS, "Returns server object."},
 {"_getStream", (PyCFunction)FFTMain_getStream, METH_NOARGS, "Returns stream object."},
 {"play", (PyCFunction)FFTMain_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-{"stop", (PyCFunction)FFTMain_stop, METH_NOARGS, "Stops computing."},
+{"stop", (PyCFunction)FFTMain_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
 {"setSize", (PyCFunction)FFTMain_setSize, METH_VARARGS|METH_KEYWORDS, "Sets a new FFT size."},
 {"setWinType", (PyCFunction)FFTMain_setWinType, METH_O, "Sets a new window."},
 {NULL}  /* Sentinel */
@@ -451,7 +451,7 @@ static PyObject * FFT_setSub(FFT *self, PyObject *arg) { SET_SUB };
 static PyObject * FFT_setDiv(FFT *self, PyObject *arg) { SET_DIV };
 
 static PyObject * FFT_play(FFT *self, PyObject *args, PyObject *kwds) { PLAY };
-static PyObject * FFT_stop(FFT *self) { STOP };
+static PyObject * FFT_stop(FFT *self, PyObject *args, PyObject *kwds) { STOP };
 
 static PyObject * FFT_multiply(FFT *self, PyObject *arg) { MULTIPLY };
 static PyObject * FFT_inplace_multiply(FFT *self, PyObject *arg) { INPLACE_MULTIPLY };
@@ -474,7 +474,7 @@ static PyMethodDef FFT_methods[] = {
 {"getServer", (PyCFunction)FFT_getServer, METH_NOARGS, "Returns server object."},
 {"_getStream", (PyCFunction)FFT_getStream, METH_NOARGS, "Returns stream object."},
 {"play", (PyCFunction)FFT_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-{"stop", (PyCFunction)FFT_stop, METH_NOARGS, "Stops computing."},
+{"stop", (PyCFunction)FFT_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
 {"setMul", (PyCFunction)FFT_setMul, METH_O, "Sets FFT mul factor."},
 {"setAdd", (PyCFunction)FFT_setAdd, METH_O, "Sets FFT add factor."},
 {"setSub", (PyCFunction)FFT_setSub, METH_O, "Sets inverse add factor."},
@@ -806,7 +806,7 @@ static PyObject * IFFT_setDiv(IFFT *self, PyObject *arg) { SET_DIV };
 
 static PyObject * IFFT_play(IFFT *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * IFFT_out(IFFT *self, PyObject *args, PyObject *kwds) { OUT };
-static PyObject * IFFT_stop(IFFT *self) { STOP };
+static PyObject * IFFT_stop(IFFT *self, PyObject *args, PyObject *kwds) { STOP };
 
 static PyObject * IFFT_multiply(IFFT *self, PyObject *arg) { MULTIPLY };
 static PyObject * IFFT_inplace_multiply(IFFT *self, PyObject *arg) { INPLACE_MULTIPLY };
@@ -867,7 +867,7 @@ static PyMethodDef IFFT_methods[] = {
     {"_getStream", (PyCFunction)IFFT_getStream, METH_NOARGS, "Returns stream object."},
     {"play", (PyCFunction)IFFT_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)IFFT_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-    {"stop", (PyCFunction)IFFT_stop, METH_NOARGS, "Stops computing."},
+    {"stop", (PyCFunction)IFFT_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
     {"setSize", (PyCFunction)IFFT_setSize, METH_VARARGS|METH_KEYWORDS, "Sets a new IFFT size."},
     {"setWinType", (PyCFunction)IFFT_setWinType, METH_O, "Sets a new window."},
     {"setMul", (PyCFunction)IFFT_setMul, METH_O, "Sets oscillator mul factor."},
@@ -1126,7 +1126,7 @@ static PyObject * CarToPol_setSub(CarToPol *self, PyObject *arg) { SET_SUB };
 static PyObject * CarToPol_setDiv(CarToPol *self, PyObject *arg) { SET_DIV };
 
 static PyObject * CarToPol_play(CarToPol *self, PyObject *args, PyObject *kwds) { PLAY };
-static PyObject * CarToPol_stop(CarToPol *self) { STOP };
+static PyObject * CarToPol_stop(CarToPol *self, PyObject *args, PyObject *kwds) { STOP };
 
 static PyObject * CarToPol_multiply(CarToPol *self, PyObject *arg) { MULTIPLY };
 static PyObject * CarToPol_inplace_multiply(CarToPol *self, PyObject *arg) { INPLACE_MULTIPLY };
@@ -1151,7 +1151,7 @@ static PyMethodDef CarToPol_methods[] = {
     {"getServer", (PyCFunction)CarToPol_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)CarToPol_getStream, METH_NOARGS, "Returns stream object."},
     {"play", (PyCFunction)CarToPol_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"stop", (PyCFunction)CarToPol_stop, METH_NOARGS, "Stops computing."},
+    {"stop", (PyCFunction)CarToPol_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
     {"setMul", (PyCFunction)CarToPol_setMul, METH_O, "Sets CarToPol mul factor."},
     {"setAdd", (PyCFunction)CarToPol_setAdd, METH_O, "Sets CarToPol add factor."},
     {"setSub", (PyCFunction)CarToPol_setSub, METH_O, "Sets inverse add factor."},
@@ -1408,7 +1408,7 @@ static PyObject * PolToCar_setSub(PolToCar *self, PyObject *arg) { SET_SUB };
 static PyObject * PolToCar_setDiv(PolToCar *self, PyObject *arg) { SET_DIV };
 
 static PyObject * PolToCar_play(PolToCar *self, PyObject *args, PyObject *kwds) { PLAY };
-static PyObject * PolToCar_stop(PolToCar *self) { STOP };
+static PyObject * PolToCar_stop(PolToCar *self, PyObject *args, PyObject *kwds) { STOP };
 
 static PyObject * PolToCar_multiply(PolToCar *self, PyObject *arg) { MULTIPLY };
 static PyObject * PolToCar_inplace_multiply(PolToCar *self, PyObject *arg) { INPLACE_MULTIPLY };
@@ -1433,7 +1433,7 @@ static PyMethodDef PolToCar_methods[] = {
     {"getServer", (PyCFunction)PolToCar_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)PolToCar_getStream, METH_NOARGS, "Returns stream object."},
     {"play", (PyCFunction)PolToCar_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"stop", (PyCFunction)PolToCar_stop, METH_NOARGS, "Stops computing."},
+    {"stop", (PyCFunction)PolToCar_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
     {"setMul", (PyCFunction)PolToCar_setMul, METH_O, "Sets PolToCar mul factor."},
     {"setAdd", (PyCFunction)PolToCar_setAdd, METH_O, "Sets PolToCar add factor."},
     {"setSub", (PyCFunction)PolToCar_setSub, METH_O, "Sets inverse add factor."},
@@ -1670,7 +1670,7 @@ static PyObject * FrameDeltaMain_getServer(FrameDeltaMain* self) { GET_SERVER };
 static PyObject * FrameDeltaMain_getStream(FrameDeltaMain* self) { GET_STREAM };
 
 static PyObject * FrameDeltaMain_play(FrameDeltaMain *self, PyObject *args, PyObject *kwds) { PLAY };
-static PyObject * FrameDeltaMain_stop(FrameDeltaMain *self) { STOP };
+static PyObject * FrameDeltaMain_stop(FrameDeltaMain *self, PyObject *args, PyObject *kwds) { STOP };
 
 static PyObject *
 FrameDeltaMain_setInput(FrameDeltaMain *self, PyObject *arg)
@@ -1733,7 +1733,7 @@ static PyMethodDef FrameDeltaMain_methods[] = {
     {"getServer", (PyCFunction)FrameDeltaMain_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)FrameDeltaMain_getStream, METH_NOARGS, "Returns stream object."},
     {"play", (PyCFunction)FrameDeltaMain_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"stop", (PyCFunction)FrameDeltaMain_stop, METH_NOARGS, "Stops computing."},
+    {"stop", (PyCFunction)FrameDeltaMain_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
     {"setInput", (PyCFunction)FrameDeltaMain_setInput, METH_O, "Sets list of input streams."},
     {"setFrameSize", (PyCFunction)FrameDeltaMain_setFrameSize, METH_O, "Sets frame size."},
     {NULL}  /* Sentinel */
@@ -1922,7 +1922,7 @@ static PyObject * FrameDelta_setDiv(FrameDelta *self, PyObject *arg) { SET_DIV }
 
 static PyObject * FrameDelta_play(FrameDelta *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * FrameDelta_out(FrameDelta *self, PyObject *args, PyObject *kwds) { OUT };
-static PyObject * FrameDelta_stop(FrameDelta *self) { STOP };
+static PyObject * FrameDelta_stop(FrameDelta *self, PyObject *args, PyObject *kwds) { STOP };
 
 static PyObject * FrameDelta_multiply(FrameDelta *self, PyObject *arg) { MULTIPLY };
 static PyObject * FrameDelta_inplace_multiply(FrameDelta *self, PyObject *arg) { INPLACE_MULTIPLY };
@@ -1946,7 +1946,7 @@ static PyMethodDef FrameDelta_methods[] = {
     {"_getStream", (PyCFunction)FrameDelta_getStream, METH_NOARGS, "Returns stream object."},
     {"play", (PyCFunction)FrameDelta_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)FrameDelta_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-    {"stop", (PyCFunction)FrameDelta_stop, METH_NOARGS, "Stops computing."},
+    {"stop", (PyCFunction)FrameDelta_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
     {"setMul", (PyCFunction)FrameDelta_setMul, METH_O, "Sets FrameDelta mul factor."},
     {"setAdd", (PyCFunction)FrameDelta_setAdd, METH_O, "Sets FrameDelta add factor."},
     {"setSub", (PyCFunction)FrameDelta_setSub, METH_O, "Sets inverse add factor."},
@@ -2177,7 +2177,7 @@ static PyObject * FrameAccumMain_getServer(FrameAccumMain* self) { GET_SERVER };
 static PyObject * FrameAccumMain_getStream(FrameAccumMain* self) { GET_STREAM };
 
 static PyObject * FrameAccumMain_play(FrameAccumMain *self, PyObject *args, PyObject *kwds) { PLAY };
-static PyObject * FrameAccumMain_stop(FrameAccumMain *self) { STOP };
+static PyObject * FrameAccumMain_stop(FrameAccumMain *self, PyObject *args, PyObject *kwds) { STOP };
 
 static PyObject *
 FrameAccumMain_setInput(FrameAccumMain *self, PyObject *arg)
@@ -2240,7 +2240,7 @@ static PyMethodDef FrameAccumMain_methods[] = {
     {"getServer", (PyCFunction)FrameAccumMain_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)FrameAccumMain_getStream, METH_NOARGS, "Returns stream object."},
     {"play", (PyCFunction)FrameAccumMain_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"stop", (PyCFunction)FrameAccumMain_stop, METH_NOARGS, "Stops computing."},
+    {"stop", (PyCFunction)FrameAccumMain_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
     {"setInput", (PyCFunction)FrameAccumMain_setInput, METH_O, "Sets list of input streams."},
     {"setFrameSize", (PyCFunction)FrameAccumMain_setFrameSize, METH_O, "Sets frame size."},
     {NULL}  /* Sentinel */
@@ -2429,7 +2429,7 @@ static PyObject * FrameAccum_setDiv(FrameAccum *self, PyObject *arg) { SET_DIV }
 
 static PyObject * FrameAccum_play(FrameAccum *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * FrameAccum_out(FrameAccum *self, PyObject *args, PyObject *kwds) { OUT };
-static PyObject * FrameAccum_stop(FrameAccum *self) { STOP };
+static PyObject * FrameAccum_stop(FrameAccum *self, PyObject *args, PyObject *kwds) { STOP };
 
 static PyObject * FrameAccum_multiply(FrameAccum *self, PyObject *arg) { MULTIPLY };
 static PyObject * FrameAccum_inplace_multiply(FrameAccum *self, PyObject *arg) { INPLACE_MULTIPLY };
@@ -2453,7 +2453,7 @@ static PyMethodDef FrameAccum_methods[] = {
     {"_getStream", (PyCFunction)FrameAccum_getStream, METH_NOARGS, "Returns stream object."},
     {"play", (PyCFunction)FrameAccum_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)FrameAccum_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-    {"stop", (PyCFunction)FrameAccum_stop, METH_NOARGS, "Stops computing."},
+    {"stop", (PyCFunction)FrameAccum_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
     {"setMul", (PyCFunction)FrameAccum_setMul, METH_O, "Sets FrameAccum mul factor."},
     {"setAdd", (PyCFunction)FrameAccum_setAdd, METH_O, "Sets FrameAccum add factor."},
     {"setSub", (PyCFunction)FrameAccum_setSub, METH_O, "Sets inverse add factor."},
@@ -2762,7 +2762,7 @@ static PyObject * VectralMain_getServer(VectralMain* self) { GET_SERVER };
 static PyObject * VectralMain_getStream(VectralMain* self) { GET_STREAM };
 
 static PyObject * VectralMain_play(VectralMain *self, PyObject *args, PyObject *kwds) { PLAY };
-static PyObject * VectralMain_stop(VectralMain *self) { STOP };
+static PyObject * VectralMain_stop(VectralMain *self, PyObject *args, PyObject *kwds) { STOP };
 
 static PyObject *
 VectralMain_setInput(VectralMain *self, PyObject *arg)
@@ -2912,7 +2912,7 @@ static PyMethodDef VectralMain_methods[] = {
     {"getServer", (PyCFunction)VectralMain_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)VectralMain_getStream, METH_NOARGS, "Returns stream object."},
     {"play", (PyCFunction)VectralMain_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"stop", (PyCFunction)VectralMain_stop, METH_NOARGS, "Stops computing."},
+    {"stop", (PyCFunction)VectralMain_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
     {"setInput", (PyCFunction)VectralMain_setInput, METH_O, "Sets list of input streams."},
     {"setFrameSize", (PyCFunction)VectralMain_setFrameSize, METH_O, "Sets frame size."},
     {"setUp", (PyCFunction)VectralMain_setUp, METH_O, "Sets clipping upward factor."},
@@ -3104,7 +3104,7 @@ static PyObject * Vectral_setDiv(Vectral *self, PyObject *arg) { SET_DIV };
 
 static PyObject * Vectral_play(Vectral *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * Vectral_out(Vectral *self, PyObject *args, PyObject *kwds) { OUT };
-static PyObject * Vectral_stop(Vectral *self) { STOP };
+static PyObject * Vectral_stop(Vectral *self, PyObject *args, PyObject *kwds) { STOP };
 
 static PyObject * Vectral_multiply(Vectral *self, PyObject *arg) { MULTIPLY };
 static PyObject * Vectral_inplace_multiply(Vectral *self, PyObject *arg) { INPLACE_MULTIPLY };
@@ -3128,7 +3128,7 @@ static PyMethodDef Vectral_methods[] = {
     {"_getStream", (PyCFunction)Vectral_getStream, METH_NOARGS, "Returns stream object."},
     {"play", (PyCFunction)Vectral_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)Vectral_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-    {"stop", (PyCFunction)Vectral_stop, METH_NOARGS, "Stops computing."},
+    {"stop", (PyCFunction)Vectral_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
     {"setMul", (PyCFunction)Vectral_setMul, METH_O, "Sets Vectral mul factor."},
     {"setAdd", (PyCFunction)Vectral_setAdd, METH_O, "Sets Vectral add factor."},
     {"setSub", (PyCFunction)Vectral_setSub, METH_O, "Sets inverse add factor."},
@@ -3691,7 +3691,7 @@ static PyObject * CvlVerb_setDiv(CvlVerb *self, PyObject *arg) { SET_DIV };
 
 static PyObject * CvlVerb_play(CvlVerb *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * CvlVerb_out(CvlVerb *self, PyObject *args, PyObject *kwds) { OUT };
-static PyObject * CvlVerb_stop(CvlVerb *self) { STOP };
+static PyObject * CvlVerb_stop(CvlVerb *self, PyObject *args, PyObject *kwds) { STOP };
 
 static PyObject * CvlVerb_multiply(CvlVerb *self, PyObject *arg) { MULTIPLY };
 static PyObject * CvlVerb_inplace_multiply(CvlVerb *self, PyObject *arg) { INPLACE_MULTIPLY };
@@ -3718,7 +3718,7 @@ static PyMethodDef CvlVerb_methods[] = {
 {"_getStream", (PyCFunction)CvlVerb_getStream, METH_NOARGS, "Returns stream object."},
 {"out", (PyCFunction)CvlVerb_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
 {"play", (PyCFunction)CvlVerb_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-{"stop", (PyCFunction)CvlVerb_stop, METH_NOARGS, "Stops computing."},
+{"stop", (PyCFunction)CvlVerb_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
 {"setBal", (PyCFunction)CvlVerb_setBal, METH_O, "Sets wet/dry balance."},
 {"setMul", (PyCFunction)CvlVerb_setMul, METH_O, "Sets CvlVerb mul factor."},
 {"setAdd", (PyCFunction)CvlVerb_setAdd, METH_O, "Sets CvlVerb add factor."},
@@ -4087,7 +4087,7 @@ Spectrum_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 static PyObject * Spectrum_getServer(Spectrum* self) { GET_SERVER };
 static PyObject * Spectrum_getStream(Spectrum* self) { GET_STREAM };
 static PyObject * Spectrum_play(Spectrum *self, PyObject *args, PyObject *kwds) { PLAY };
-static PyObject * Spectrum_stop(Spectrum *self) { STOP };
+static PyObject * Spectrum_stop(Spectrum *self, PyObject *args, PyObject *kwds) { STOP };
 
 static PyObject *
 Spectrum_setSize(Spectrum *self, PyObject *arg)
@@ -4226,7 +4226,7 @@ static PyMethodDef Spectrum_methods[] = {
 {"getServer", (PyCFunction)Spectrum_getServer, METH_NOARGS, "Returns server object."},
 {"_getStream", (PyCFunction)Spectrum_getStream, METH_NOARGS, "Returns stream object."},
 {"play", (PyCFunction)Spectrum_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-{"stop", (PyCFunction)Spectrum_stop, METH_NOARGS, "Stops computing."},
+{"stop", (PyCFunction)Spectrum_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
 {"setSize", (PyCFunction)Spectrum_setSize, METH_O, "Sets a new FFT size."},
 {"setWinType", (PyCFunction)Spectrum_setWinType, METH_O, "Sets a new window."},
 {"setLowbound", (PyCFunction)Spectrum_setLowbound, METH_O, "Sets the first frequency to display."},

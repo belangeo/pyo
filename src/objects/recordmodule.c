@@ -232,10 +232,32 @@ static PyObject * Record_getServer(Record* self) { GET_SERVER };
 static PyObject * Record_getStream(Record* self) { GET_STREAM };
 
 static PyObject * Record_play(Record *self, PyObject *args, PyObject *kwds) { PLAY };
-static PyObject * Record_stop(Record *self)
+static PyObject * Record_stop(Record *self, PyObject *args, PyObject *kwds)
 {
-    sf_close(self->recfile);
-    STOP
+    int i, nearestBuf = 0;
+    float wait = 0.0;
+
+    static char *kwlist[] = {"wait", NULL};
+
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "|f", kwlist, &wait))
+        return PyInt_FromLong(-1);
+
+    if (wait == 0) {
+        sf_close(self->recfile);
+        Stream_setStreamActive(self->stream, 0);
+        Stream_setStreamChnl(self->stream, 0);
+        Stream_setStreamToDac(self->stream, 0);
+        for (i=0; i<self->bufsize; i++) {
+            self->data[i] = 0;
+        }
+    }
+    else {
+        Stream_resetBufferCount(self->stream);
+        nearestBuf = (int)roundf((wait * self->sr) / self->bufsize + 0.5);
+        Stream_setDuration(self->stream, nearestBuf);
+    }
+    Py_INCREF(Py_None);
+    return Py_None;
 };
 
 static PyMemberDef Record_members[] = {
@@ -249,7 +271,7 @@ static PyMethodDef Record_methods[] = {
 {"getServer", (PyCFunction)Record_getServer, METH_NOARGS, "Returns server object."},
 {"_getStream", (PyCFunction)Record_getStream, METH_NOARGS, "Returns stream object."},
 {"play", (PyCFunction)Record_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-{"stop", (PyCFunction)Record_stop, METH_NOARGS, "Stops computing."},
+{"stop", (PyCFunction)Record_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
 {NULL}  /* Sentinel */
 };
 
@@ -428,7 +450,7 @@ static PyObject * ControlRec_play(ControlRec *self, PyObject *args, PyObject *kw
     PLAY
 };
 
-static PyObject * ControlRec_stop(ControlRec *self) { STOP };
+static PyObject * ControlRec_stop(ControlRec *self, PyObject *args, PyObject *kwds) { STOP };
 
 static PyObject *
 ControlRec_getData(ControlRec *self) {
@@ -471,7 +493,7 @@ static PyMethodDef ControlRec_methods[] = {
     {"getServer", (PyCFunction)ControlRec_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)ControlRec_getStream, METH_NOARGS, "Returns stream object."},
     {"play", (PyCFunction)ControlRec_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"stop", (PyCFunction)ControlRec_stop, METH_NOARGS, "Stops computing."},
+    {"stop", (PyCFunction)ControlRec_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
     {"getData", (PyCFunction)ControlRec_getData, METH_NOARGS, "Returns list of sampled points."},
     {NULL}  /* Sentinel */
 };
@@ -725,7 +747,7 @@ static PyObject * ControlRead_play(ControlRead *self, PyObject *args, PyObject *
     PLAY
 };
 
-static PyObject * ControlRead_stop(ControlRead *self)
+static PyObject * ControlRead_stop(ControlRead *self, PyObject *args, PyObject *kwds)
 {
     self->go = 0;
     STOP
@@ -811,7 +833,7 @@ static PyMethodDef ControlRead_methods[] = {
     {"_getStream", (PyCFunction)ControlRead_getStream, METH_NOARGS, "Returns stream object."},
     {"_getTriggerStream", (PyCFunction)ControlRead_getTriggerStream, METH_NOARGS, "Returns trigger stream object."},
     {"play", (PyCFunction)ControlRead_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"stop", (PyCFunction)ControlRead_stop, METH_NOARGS, "Stops computing."},
+    {"stop", (PyCFunction)ControlRead_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
     {"setValues", (PyCFunction)ControlRead_setValues, METH_O, "Fill buffer with values in input."},
     {"setRate", (PyCFunction)ControlRead_setRate, METH_O, "Sets reading rate."},
     {"setLoop", (PyCFunction)ControlRead_setLoop, METH_O, "Sets the looping mode."},
@@ -1044,7 +1066,7 @@ static PyObject * NoteinRec_play(NoteinRec *self, PyObject *args, PyObject *kwds
     PLAY
 };
 
-static PyObject * NoteinRec_stop(NoteinRec *self) { STOP };
+static PyObject * NoteinRec_stop(NoteinRec *self, PyObject *args, PyObject *kwds) { STOP };
 
 static PyObject *
 NoteinRec_getData(NoteinRec *self) {
@@ -1076,7 +1098,7 @@ static PyMethodDef NoteinRec_methods[] = {
     {"getServer", (PyCFunction)NoteinRec_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)NoteinRec_getStream, METH_NOARGS, "Returns stream object."},
     {"play", (PyCFunction)NoteinRec_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"stop", (PyCFunction)NoteinRec_stop, METH_NOARGS, "Stops computing."},
+    {"stop", (PyCFunction)NoteinRec_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
     {"getData", (PyCFunction)NoteinRec_getData, METH_NOARGS, "Returns list of sampled points."},
     {NULL}  /* Sentinel */
 };
@@ -1325,7 +1347,7 @@ static PyObject * NoteinRead_play(NoteinRead *self, PyObject *args, PyObject *kw
     PLAY
 };
 
-static PyObject * NoteinRead_stop(NoteinRead *self)
+static PyObject * NoteinRead_stop(NoteinRead *self, PyObject *args, PyObject *kwds)
 {
     self->go = 0;
     STOP
@@ -1399,7 +1421,7 @@ static PyMethodDef NoteinRead_methods[] = {
     {"_getStream", (PyCFunction)NoteinRead_getStream, METH_NOARGS, "Returns stream object."},
     {"_getTriggerStream", (PyCFunction)NoteinRead_getTriggerStream, METH_NOARGS, "Returns trigger stream object."},
     {"play", (PyCFunction)NoteinRead_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"stop", (PyCFunction)NoteinRead_stop, METH_NOARGS, "Stops computing."},
+    {"stop", (PyCFunction)NoteinRead_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
     {"setValues", (PyCFunction)NoteinRead_setValues, METH_O, "Fill buffer with values in input."},
     {"setTimestamps", (PyCFunction)NoteinRead_setTimestamps, METH_O, "Fill buffer with timestamps in input."},
     {"setLoop", (PyCFunction)NoteinRead_setLoop, METH_O, "Sets the looping mode."},

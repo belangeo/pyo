@@ -197,7 +197,7 @@ static PyObject * MatrixPointer_setDiv(MatrixPointer *self, PyObject *arg) { SET
 
 static PyObject * MatrixPointer_play(MatrixPointer *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * MatrixPointer_out(MatrixPointer *self, PyObject *args, PyObject *kwds) { OUT };
-static PyObject * MatrixPointer_stop(MatrixPointer *self) { STOP };
+static PyObject * MatrixPointer_stop(MatrixPointer *self, PyObject *args, PyObject *kwds) { STOP };
 
 static PyObject * MatrixPointer_multiply(MatrixPointer *self, PyObject *arg) { MULTIPLY };
 static PyObject * MatrixPointer_inplace_multiply(MatrixPointer *self, PyObject *arg) { INPLACE_MULTIPLY };
@@ -306,7 +306,7 @@ static PyMethodDef MatrixPointer_methods[] = {
 {"_getStream", (PyCFunction)MatrixPointer_getStream, METH_NOARGS, "Returns stream object."},
 {"play", (PyCFunction)MatrixPointer_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
 {"out", (PyCFunction)MatrixPointer_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-{"stop", (PyCFunction)MatrixPointer_stop, METH_NOARGS, "Stops computing."},
+{"stop", (PyCFunction)MatrixPointer_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
 {"setMatrix", (PyCFunction)MatrixPointer_setMatrix, METH_O, "Sets oscillator matrix."},
 {"setX", (PyCFunction)MatrixPointer_setX, METH_O, "Sets reader x."},
 {"setY", (PyCFunction)MatrixPointer_setY, METH_O, "Sets reader y."},

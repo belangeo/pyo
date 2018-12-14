@@ -1702,12 +1702,26 @@ extern PyTypeObject MultiBandType;
     return (PyObject *)self;
 
 #define STOP \
-    int i; \
-    Stream_setStreamActive(self->stream, 0); \
-    Stream_setStreamChnl(self->stream, 0); \
-    Stream_setStreamToDac(self->stream, 0); \
-    for (i=0; i<self->bufsize; i++) { \
-        self->data[i] = 0; \
+    int i, nearestBuf = 0; \
+    float wait = 0.0; \
+ \
+    static char *kwlist[] = {"wait", NULL}; \
+ \
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "|f", kwlist, &wait)) \
+        return PyInt_FromLong(-1); \
+ \
+    if (wait == 0) { \
+        Stream_setStreamActive(self->stream, 0); \
+        Stream_setStreamChnl(self->stream, 0); \
+        Stream_setStreamToDac(self->stream, 0); \
+        for (i=0; i<self->bufsize; i++) { \
+            self->data[i] = 0; \
+        } \
+    } \
+    else { \
+        Stream_resetBufferCount(self->stream); \
+        nearestBuf = (int)roundf((wait * self->sr) / self->bufsize + 0.5); \
+        Stream_setDuration(self->stream, nearestBuf); \
     } \
     Py_INCREF(Py_None); \
     return Py_None;

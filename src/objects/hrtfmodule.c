@@ -660,7 +660,7 @@ static PyObject * HRTFSpatter_getServer(HRTFSpatter* self) { GET_SERVER };
 static PyObject * HRTFSpatter_getStream(HRTFSpatter* self) { GET_STREAM };
 
 static PyObject * HRTFSpatter_play(HRTFSpatter *self, PyObject *args, PyObject *kwds) { PLAY };
-static PyObject * HRTFSpatter_stop(HRTFSpatter *self) { STOP };
+static PyObject * HRTFSpatter_stop(HRTFSpatter *self, PyObject *args, PyObject *kwds) { STOP };
 
 static PyObject *
 HRTFSpatter_setAzimuth(HRTFSpatter *self, PyObject *arg)
@@ -738,7 +738,7 @@ static PyMethodDef HRTFSpatter_methods[] = {
 {"getServer", (PyCFunction)HRTFSpatter_getServer, METH_NOARGS, "Returns server object."},
 {"_getStream", (PyCFunction)HRTFSpatter_getStream, METH_NOARGS, "Returns stream object."},
 {"play", (PyCFunction)HRTFSpatter_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-{"stop", (PyCFunction)HRTFSpatter_stop, METH_NOARGS, "Stops computing."},
+{"stop", (PyCFunction)HRTFSpatter_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
 {"setAzimuth", (PyCFunction)HRTFSpatter_setAzimuth, METH_O, "Sets azimuth value between -180 and 180 degrees."},
 {"setElevation", (PyCFunction)HRTFSpatter_setElevation, METH_O, "Sets elevation value between -40 and 90 degrees."},
 {NULL}  /* Sentinel */
@@ -927,7 +927,7 @@ static PyObject * HRTF_setDiv(HRTF *self, PyObject *arg) { SET_DIV };
 
 static PyObject * HRTF_play(HRTF *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * HRTF_out(HRTF *self, PyObject *args, PyObject *kwds) { OUT };
-static PyObject * HRTF_stop(HRTF *self) { STOP };
+static PyObject * HRTF_stop(HRTF *self, PyObject *args, PyObject *kwds) { STOP };
 
 static PyObject * HRTF_multiply(HRTF *self, PyObject *arg) { MULTIPLY };
 static PyObject * HRTF_inplace_multiply(HRTF *self, PyObject *arg) { INPLACE_MULTIPLY };
@@ -951,7 +951,7 @@ static PyMethodDef HRTF_methods[] = {
 {"_getStream", (PyCFunction)HRTF_getStream, METH_NOARGS, "Returns stream object."},
 {"play", (PyCFunction)HRTF_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
 {"out", (PyCFunction)HRTF_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-{"stop", (PyCFunction)HRTF_stop, METH_NOARGS, "Stops computing."},
+{"stop", (PyCFunction)HRTF_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
 {"setMul", (PyCFunction)HRTF_setMul, METH_O, "Sets HRTF mul factor."},
 {"setAdd", (PyCFunction)HRTF_setAdd, METH_O, "Sets HRTF add factor."},
 {"setSub", (PyCFunction)HRTF_setSub, METH_O, "Sets inverse add factor."},

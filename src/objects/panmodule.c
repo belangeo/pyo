@@ -317,7 +317,7 @@ static PyObject * Panner_getServer(Panner* self) { GET_SERVER };
 static PyObject * Panner_getStream(Panner* self) { GET_STREAM };
 
 static PyObject * Panner_play(Panner *self, PyObject *args, PyObject *kwds) { PLAY };
-static PyObject * Panner_stop(Panner *self) { STOP };
+static PyObject * Panner_stop(Panner *self, PyObject *args, PyObject *kwds) { STOP };
 
 static PyObject *
 Panner_setPan(Panner *self, PyObject *arg)
@@ -394,7 +394,7 @@ static PyMethodDef Panner_methods[] = {
 {"getServer", (PyCFunction)Panner_getServer, METH_NOARGS, "Returns server object."},
 {"_getStream", (PyCFunction)Panner_getStream, METH_NOARGS, "Returns stream object."},
 {"play", (PyCFunction)Panner_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-{"stop", (PyCFunction)Panner_stop, METH_NOARGS, "Stops computing."},
+{"stop", (PyCFunction)Panner_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
 {"setPan", (PyCFunction)Panner_setPan, METH_O, "Sets panning value between 0 and 1."},
 {"setSpread", (PyCFunction)Panner_setSpread, METH_O, "Sets spreading value between 0 and 1."},
 {NULL}  /* Sentinel */
@@ -583,7 +583,7 @@ static PyObject * Pan_setDiv(Pan *self, PyObject *arg) { SET_DIV };
 
 static PyObject * Pan_play(Pan *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * Pan_out(Pan *self, PyObject *args, PyObject *kwds) { OUT };
-static PyObject * Pan_stop(Pan *self) { STOP };
+static PyObject * Pan_stop(Pan *self, PyObject *args, PyObject *kwds) { STOP };
 
 static PyObject * Pan_multiply(Pan *self, PyObject *arg) { MULTIPLY };
 static PyObject * Pan_inplace_multiply(Pan *self, PyObject *arg) { INPLACE_MULTIPLY };
@@ -607,7 +607,7 @@ static PyMethodDef Pan_methods[] = {
 {"_getStream", (PyCFunction)Pan_getStream, METH_NOARGS, "Returns stream object."},
 {"play", (PyCFunction)Pan_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
 {"out", (PyCFunction)Pan_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-{"stop", (PyCFunction)Pan_stop, METH_NOARGS, "Stops computing."},
+{"stop", (PyCFunction)Pan_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
 {"setMul", (PyCFunction)Pan_setMul, METH_O, "Sets Pan mul factor."},
 {"setAdd", (PyCFunction)Pan_setAdd, METH_O, "Sets Pan add factor."},
 {"setSub", (PyCFunction)Pan_setSub, METH_O, "Sets inverse add factor."},
@@ -958,7 +958,7 @@ static PyObject * SPanner_getServer(SPanner* self) { GET_SERVER };
 static PyObject * SPanner_getStream(SPanner* self) { GET_STREAM };
 
 static PyObject * SPanner_play(SPanner *self, PyObject *args, PyObject *kwds) { PLAY };
-static PyObject * SPanner_stop(SPanner *self) { STOP };
+static PyObject * SPanner_stop(SPanner *self, PyObject *args, PyObject *kwds) { STOP };
 
 static PyObject *
 SPanner_setPan(SPanner *self, PyObject *arg)
@@ -1003,7 +1003,7 @@ static PyMethodDef SPanner_methods[] = {
 {"getServer", (PyCFunction)SPanner_getServer, METH_NOARGS, "Returns server object."},
 {"_getStream", (PyCFunction)SPanner_getStream, METH_NOARGS, "Returns stream object."},
 {"play", (PyCFunction)SPanner_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-{"stop", (PyCFunction)SPanner_stop, METH_NOARGS, "Stops computing."},
+{"stop", (PyCFunction)SPanner_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
 {"setPan", (PyCFunction)SPanner_setPan, METH_O, "Sets panning value between 0 and 1."},
 {NULL}  /* Sentinel */
 };
@@ -1191,7 +1191,7 @@ static PyObject * SPan_setDiv(SPan *self, PyObject *arg) { SET_DIV };
 
 static PyObject * SPan_play(SPan *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * SPan_out(SPan *self, PyObject *args, PyObject *kwds) { OUT };
-static PyObject * SPan_stop(SPan *self) { STOP };
+static PyObject * SPan_stop(SPan *self, PyObject *args, PyObject *kwds) { STOP };
 
 static PyObject * SPan_multiply(SPan *self, PyObject *arg) { MULTIPLY };
 static PyObject * SPan_inplace_multiply(SPan *self, PyObject *arg) { INPLACE_MULTIPLY };
@@ -1215,7 +1215,7 @@ static PyMethodDef SPan_methods[] = {
 {"_getStream", (PyCFunction)SPan_getStream, METH_NOARGS, "Returns stream object."},
 {"play", (PyCFunction)SPan_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
 {"out", (PyCFunction)SPan_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-{"stop", (PyCFunction)SPan_stop, METH_NOARGS, "Stops computing."},
+{"stop", (PyCFunction)SPan_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
 {"setMul", (PyCFunction)SPan_setMul, METH_O, "Sets SPan mul factor."},
 {"setAdd", (PyCFunction)SPan_setAdd, METH_O, "Sets SPan add factor."},
 {"setSub", (PyCFunction)SPan_setSub, METH_O, "Sets inverse add factor."},
@@ -1500,7 +1500,7 @@ static PyObject * Switcher_getServer(Switcher* self) { GET_SERVER };
 static PyObject * Switcher_getStream(Switcher* self) { GET_STREAM };
 
 static PyObject * Switcher_play(Switcher *self, PyObject *args, PyObject *kwds) { PLAY };
-static PyObject * Switcher_stop(Switcher *self) { STOP };
+static PyObject * Switcher_stop(Switcher *self, PyObject *args, PyObject *kwds) { STOP };
 
 static PyObject *
 Switcher_setVoice(Switcher *self, PyObject *arg)
@@ -1545,7 +1545,7 @@ static PyMethodDef Switcher_methods[] = {
     {"getServer", (PyCFunction)Switcher_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)Switcher_getStream, METH_NOARGS, "Returns stream object."},
     {"play", (PyCFunction)Switcher_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"stop", (PyCFunction)Switcher_stop, METH_NOARGS, "Stops computing."},
+    {"stop", (PyCFunction)Switcher_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
     {"setVoice", (PyCFunction)Switcher_setVoice, METH_O, "Sets voice value between 0 and outs-1."},
     {NULL}  /* Sentinel */
 };
@@ -1733,7 +1733,7 @@ static PyObject * Switch_setDiv(Switch *self, PyObject *arg) { SET_DIV };
 
 static PyObject * Switch_play(Switch *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * Switch_out(Switch *self, PyObject *args, PyObject *kwds) { OUT };
-static PyObject * Switch_stop(Switch *self) { STOP };
+static PyObject * Switch_stop(Switch *self, PyObject *args, PyObject *kwds) { STOP };
 
 static PyObject * Switch_multiply(Switch *self, PyObject *arg) { MULTIPLY };
 static PyObject * Switch_inplace_multiply(Switch *self, PyObject *arg) { INPLACE_MULTIPLY };
@@ -1757,7 +1757,7 @@ static PyMethodDef Switch_methods[] = {
     {"_getStream", (PyCFunction)Switch_getStream, METH_NOARGS, "Returns stream object."},
     {"play", (PyCFunction)Switch_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)Switch_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-    {"stop", (PyCFunction)Switch_stop, METH_NOARGS, "Stops computing."},
+    {"stop", (PyCFunction)Switch_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
     {"setMul", (PyCFunction)Switch_setMul, METH_O, "Sets Switch mul factor."},
     {"setAdd", (PyCFunction)Switch_setAdd, METH_O, "Sets Switch add factor."},
     {"setSub", (PyCFunction)Switch_setSub, METH_O, "Sets inverse add factor."},
@@ -2034,7 +2034,7 @@ static PyObject * VoiceManager_setSub(VoiceManager *self, PyObject *arg) { SET_S
 static PyObject * VoiceManager_setDiv(VoiceManager *self, PyObject *arg) { SET_DIV };
 
 static PyObject * VoiceManager_play(VoiceManager *self, PyObject *args, PyObject *kwds) { PLAY };
-static PyObject * VoiceManager_stop(VoiceManager *self) { STOP };
+static PyObject * VoiceManager_stop(VoiceManager *self, PyObject *args, PyObject *kwds) { STOP };
 
 static PyObject * VoiceManager_multiply(VoiceManager *self, PyObject *arg) { MULTIPLY };
 static PyObject * VoiceManager_inplace_multiply(VoiceManager *self, PyObject *arg) { INPLACE_MULTIPLY };
@@ -2081,7 +2081,7 @@ static PyMethodDef VoiceManager_methods[] = {
 {"getServer", (PyCFunction)VoiceManager_getServer, METH_NOARGS, "Returns server object."},
 {"_getStream", (PyCFunction)VoiceManager_getStream, METH_NOARGS, "Returns stream object."},
 {"play", (PyCFunction)VoiceManager_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-{"stop", (PyCFunction)VoiceManager_stop, METH_NOARGS, "Stops computing."},
+{"stop", (PyCFunction)VoiceManager_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
 {"setTriggers", (PyCFunction)VoiceManager_setTriggers, METH_O, "Sets list of trigger streams."},
 {"setMul", (PyCFunction)VoiceManager_setMul, METH_O, "Sets mul factor."},
 {"setAdd", (PyCFunction)VoiceManager_setAdd, METH_O, "Sets add factor."},
@@ -2340,7 +2340,7 @@ static PyObject * Mixer_getServer(Mixer* self) { GET_SERVER };
 static PyObject * Mixer_getStream(Mixer* self) { GET_STREAM };
 
 static PyObject * Mixer_play(Mixer *self, PyObject *args, PyObject *kwds) { PLAY };
-static PyObject * Mixer_stop(Mixer *self) { STOP };
+static PyObject * Mixer_stop(Mixer *self, PyObject *args, PyObject *kwds) { STOP };
 
 static PyObject *
 Mixer_setTime(Mixer *self, PyObject *arg)
@@ -2477,7 +2477,7 @@ static PyMethodDef Mixer_methods[] = {
     {"getServer", (PyCFunction)Mixer_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)Mixer_getStream, METH_NOARGS, "Returns stream object."},
     {"play", (PyCFunction)Mixer_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"stop", (PyCFunction)Mixer_stop, METH_NOARGS, "Stops computing."},
+    {"stop", (PyCFunction)Mixer_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
     {"setTime", (PyCFunction)Mixer_setTime, METH_O, "Sets ramp time in seconds."},
     {"addInput", (PyCFunction)Mixer_addInput, METH_VARARGS|METH_KEYWORDS, "Adds an input to the mixer."},
     {"delInput", (PyCFunction)Mixer_delInput, METH_O, "Removes an input from the mixer."},
@@ -2666,7 +2666,7 @@ static PyObject * MixerVoice_setDiv(MixerVoice *self, PyObject *arg) { SET_DIV }
 
 static PyObject * MixerVoice_play(MixerVoice *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * MixerVoice_out(MixerVoice *self, PyObject *args, PyObject *kwds) { OUT };
-static PyObject * MixerVoice_stop(MixerVoice *self) { STOP };
+static PyObject * MixerVoice_stop(MixerVoice *self, PyObject *args, PyObject *kwds) { STOP };
 
 static PyObject * MixerVoice_multiply(MixerVoice *self, PyObject *arg) { MULTIPLY };
 static PyObject * MixerVoice_inplace_multiply(MixerVoice *self, PyObject *arg) { INPLACE_MULTIPLY };
@@ -2690,7 +2690,7 @@ static PyMethodDef MixerVoice_methods[] = {
     {"_getStream", (PyCFunction)MixerVoice_getStream, METH_NOARGS, "Returns stream object."},
     {"play", (PyCFunction)MixerVoice_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)MixerVoice_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-    {"stop", (PyCFunction)MixerVoice_stop, METH_NOARGS, "Stops computing."},
+    {"stop", (PyCFunction)MixerVoice_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
     {"setMul", (PyCFunction)MixerVoice_setMul, METH_O, "Sets MixerVoice mul factor."},
     {"setAdd", (PyCFunction)MixerVoice_setAdd, METH_O, "Sets MixerVoice add factor."},
     {"setSub", (PyCFunction)MixerVoice_setSub, METH_O, "Sets inverse add factor."},
@@ -3072,7 +3072,7 @@ static PyObject * Selector_setDiv(Selector *self, PyObject *arg) { SET_DIV };
 
 static PyObject * Selector_play(Selector *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * Selector_out(Selector *self, PyObject *args, PyObject *kwds) { OUT };
-static PyObject * Selector_stop(Selector *self) { STOP };
+static PyObject * Selector_stop(Selector *self, PyObject *args, PyObject *kwds) { STOP };
 
 static PyObject * Selector_multiply(Selector *self, PyObject *arg) { MULTIPLY };
 static PyObject * Selector_inplace_multiply(Selector *self, PyObject *arg) { INPLACE_MULTIPLY };
@@ -3165,7 +3165,7 @@ static PyMethodDef Selector_methods[] = {
 {"_getStream", (PyCFunction)Selector_getStream, METH_NOARGS, "Returns stream object."},
 {"play", (PyCFunction)Selector_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
 {"out", (PyCFunction)Selector_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-{"stop", (PyCFunction)Selector_stop, METH_NOARGS, "Stops computing."},
+{"stop", (PyCFunction)Selector_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
 {"setInputs", (PyCFunction)Selector_setInputs, METH_O, "Sets list of input streams."},
 {"setVoice", (PyCFunction)Selector_setVoice, METH_O, "Sets voice position pointer."},
 {"setMode", (PyCFunction)Selector_setMode, METH_O, "Sets interpolation algorithm."},
