@@ -20,7 +20,7 @@ License along with pyo.  If not, see <http://www.gnu.org/licenses/>.
 """
 from distutils.sysconfig import get_python_lib
 from setuptools import setup, Extension
-import os, sys, py_compile, subprocess
+import os, sys, py_compile, subprocess, platform
 
 if sys.version_info[0] < 3:
     def tobytes(strng, encoding=None):
@@ -56,6 +56,7 @@ def get_hrtf_file_names(folder):
 pyo_version = "0.9.1"
 build_with_jack_support = False
 compile_externals = False
+win_arch = platform.architecture()[0]
 
 macros = []
 extension_names = ['_pyo']
@@ -166,12 +167,21 @@ else:
 
 # Platform-specific build settings for the pyo extension(s).  
 if sys.platform == "win32":
-    include_dirs = ['C:\portaudio\include', 'C:\portmidi\pm_common', 'include',
-                    'C:\Program Files (x86)\Mega-Nerd\libsndfile\include',
-                    'C:\liblo-0.28', 'C:\pthreads\include', 'C:\portmidi\porttime']
-    library_dirs = ['C:\portaudio', 'C:\portmidi', 'C:\liblo-0.28\src\.libs', 'C:\pthreads\lib', 
-                    'C:/Program Files (x86)/Mega-Nerd/libsndfile/bin']
-    libraries += ['libsndfile-1', 'pthreadGC2']
+    if win_arch == "32bit":
+        include_dirs = ['C:\portaudio\include', 'C:\portmidi\pm_common', 'include',
+                        'C:\Program Files (x86)\Mega-Nerd\libsndfile\include',
+                        'C:\liblo-0.28', 'C:\pthreads\include', 'C:\portmidi\porttime']
+        library_dirs = ['C:\portaudio', 'C:\portmidi', 'C:\liblo-0.28\src\.libs', 'C:\pthreads\lib', 
+                        'C:/Program Files (x86)/Mega-Nerd/libsndfile/bin']
+        libraries += ['libsndfile-1', 'pthreadGC2']
+    else:
+        include_dirs = ['C:\portaudio\include', 'C:\portmidi\pm_common', 'include',
+                        'C:\Program Files\Mega-Nerd\libsndfile\include',
+                        'C:\liblo-0.29', 'C:\pthreads\include', 'C:\portmidi\porttime']
+        library_dirs = ['C:\portaudio', 'C:\portmidi', 'C:\liblo-0.29\src\.libs', 'C:\pthreads\lib', 
+                        'C:/Program Files/Mega-Nerd/libsndfile/bin']
+        libraries += ['libsndfile-1', 'pthreadGC2']
+        macros.append(('MS_WIN64', None))
     if 'portmidi' in libraries:
         libraries.append('porttime')
 else:
