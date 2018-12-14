@@ -207,8 +207,8 @@ if sys.platform == "win32":
     else:
         data_files = []
 elif sys.platform == "darwin":
-    if os.path.isdir("temp_libs"):
-        data_files = [("/pyodeps", ["temp_libs/liblo.7.dylib",
+    if 'bdist_wheel' in sys.argv:
+        data_files = [("/pyo", ["temp_libs/liblo.7.dylib",
                                     "temp_libs/libportaudio.2.dylib",
                                     "temp_libs/libportmidi.dylib",
                                     "temp_libs/libsndfile.1.dylib",

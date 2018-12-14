@@ -13,12 +13,12 @@ replace=XXX
 sudo rm -rf build dist
 
 #### Source distribution.
-sudo /usr/local/bin/python3.7 setup.py sdist
+#sudo /usr/local/bin/python3.7 setup.py sdist
 
 #### Prepare support libraries.
 mkdir temp_libs
 
-sudo cp /usr/local/lib/liblo.7.dylib temp_libs/liblo.7.dylib
+sudo cp /usr/local/lib/liblo.dylib temp_libs/liblo.dylib
 sudo cp /usr/local/lib/libportaudio.2.dylib temp_libs/libportaudio.2.dylib
 sudo cp /usr/local/lib/libportmidi.dylib temp_libs/libportmidi.dylib
 sudo cp /usr/local/lib/libsndfile.1.dylib temp_libs/libsndfile.1.dylib
@@ -48,20 +48,22 @@ dist_info=pyo-XXX.dist-info
 
 if cd dist; then
     sudo unzip ${wheel_file/$replace/$version}
-    sudo install_name_tool -change /usr/local/opt/portmidi/lib/libportmidi.dylib @loader_path/pyodeps/libportmidi.dylib _pyo.so
-    sudo install_name_tool -change /usr/local/opt/portmidi/lib/libportmidi.dylib @loader_path/pyodeps/libportmidi.dylib _pyo64.so
-    sudo install_name_tool -change /usr/local/opt/portaudio/lib/libportaudio.2.dylib @loader_path/pyodeps/libportaudio.2.dylib _pyo.so
-    sudo install_name_tool -change /usr/local/opt/portaudio/lib/libportaudio.2.dylib @loader_path/pyodeps/libportaudio.2.dylib _pyo64.so
-    sudo install_name_tool -change /usr/local/opt/liblo/lib/liblo.7.dylib @loader_path/pyodeps/liblo.7.dylib _pyo.so
-    sudo install_name_tool -change /usr/local/opt/liblo/lib/liblo.7.dylib @loader_path/pyodeps/liblo.7.dylib _pyo64.so
-    sudo install_name_tool -change /usr/local/opt/libsndfile/lib/libsndfile.1.dylib @loader_path/pyodeps/libsndfile.1.dylib _pyo.so
-    sudo install_name_tool -change /usr/local/opt/libsndfile/lib/libsndfile.1.dylib @loader_path/pyodeps/libsndfile.1.dylib _pyo64.so
-    sudo zip -r -X ${wheel_file/$replace/$version} _pyo.so _pyo64.so ${dist_info/$replace/$version} pyo.py pyo64.py pyolib pyodeps
-    sudo rm -rf _pyo.so _pyo64.so ${dist_info/$replace/$version} pyo.py pyo64.py pyolib pyodeps
+    sudo install_name_tool -change /usr/local/opt/portmidi/lib/libportmidi.dylib @loader_path/libportmidi.dylib pyo/_pyo.so
+    sudo install_name_tool -change /usr/local/opt/portmidi/lib/libportmidi.dylib @loader_path/libportmidi.dylib pyo/_pyo64.so
+    sudo install_name_tool -change /usr/local/opt/portaudio/lib/libportaudio.2.dylib @loader_path/libportaudio.2.dylib pyo/_pyo.so
+    sudo install_name_tool -change /usr/local/opt/portaudio/lib/libportaudio.2.dylib @loader_path/libportaudio.2.dylib pyo/_pyo64.so
+    sudo install_name_tool -change /usr/local/opt/liblo/lib/liblo.7.dylib @loader_path/liblo.7.dylib pyo/_pyo.so
+    sudo install_name_tool -change /usr/local/opt/liblo/lib/liblo.7.dylib @loader_path/liblo.7.dylib pyo/_pyo64.so
+    sudo install_name_tool -change /usr/local/opt/libsndfile/lib/libsndfile.1.dylib @loader_path/libsndfile.1.dylib pyo/_pyo.so
+    sudo install_name_tool -change /usr/local/opt/libsndfile/lib/libsndfile.1.dylib @loader_path/libsndfile.1.dylib pyo/_pyo64.so
+    sudo zip -r -X ${wheel_file/$replace/$version} ${dist_info/$replace/$version} pyo pyo64
+    sudo rm -rf ${dist_info/$replace/$version} pyo pyo64
     cd ..
 else
     echo "*** Something went wrong when building for python 2.7..."
 fi
+
+exit
 
 ### Build pyo for python 3.5
 sudo /usr/local/bin/python3.5 setup.py bdist_wheel --use-coreaudio --use-double
