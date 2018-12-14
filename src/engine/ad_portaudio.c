@@ -85,7 +85,7 @@ pa_callback_interleaved( const void *inputBuffer, void *outputBuffer,
     }
     server->midi_count = 0;
 
-#ifdef _OSX_
+#ifdef __APPLE__
     if (server->server_stopped == 1)
         return paComplete;
     else
@@ -131,7 +131,7 @@ pa_callback_nonInterleaved( const void *inputBuffer, void *outputBuffer,
     }
     server->midi_count = 0;
 
-#ifdef _OSX_
+#ifdef __APPLE__
     if (server->server_stopped == 1)
         return paComplete;
     else
@@ -377,7 +377,7 @@ Server_pa_stop(Server *self)
     Py_END_ALLOW_THREADS
 
     if (!err) {
-#ifndef _OSX_
+#ifndef __APPLE__
 
         Py_BEGIN_ALLOW_THREADS
         err = Pa_AbortStream(be_data->stream);

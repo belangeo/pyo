@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Copyright 2009-2015 Olivier Belanger
+Copyright 2009-2018 Olivier Belanger
 
 This file is part of pyo, a python module to help digital signal
 processing script creation.
@@ -146,9 +146,6 @@ if '--use-coreaudio' in sys.argv:
     sys.argv.remove('--use-coreaudio') 
     macros.append(('USE_COREAUDIO', None))
     ad_files.append("ad_coreaudio.c")
-
-if sys.platform == "darwin":
-    macros.append(('_OSX_', None))
 
 path = 'src/engine'
 files = ['pyomodule.c', 'streammodule.c', 'servermodule.c', 'pvstreammodule.c', 
