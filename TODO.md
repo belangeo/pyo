@@ -1,12 +1,6 @@
 To do ASAP!
 ===========
 
-- Add VBAP algorithm.
-
-- Add Binaural object (VBAP+HRTF).
-
-- Change the structure of the source code and the installed lib.
-
 - make pip packages.
 
 This is a list of features/fixes to implement for future releases
@@ -36,6 +30,10 @@ Examples
 
 Objects
 -------
+
+- Add VBAP algorithm.
+
+- Add Binaural object (VBAP+HRTF).
 
 Jack
 ----
@@ -76,29 +74,4 @@ E-Pyo
 
 - We need A way to let the user interact with the script via input() 
   and raw_input() functions.
-
-New structure
--------------
-pyo/
-    COPYING.LESSER.txt
-    COPYING.txt
-    ChangeLog
-    README.md
-    TODO.md
-    deprecated/
-    doc/
-    embedded/
-    externals/
-    include/
-    pyo/
-        __init__.py (old pyo.py, should handle double precision somehow)
-        lib/ (old pyolib)
-        editor/
-        examples/
-    release-notes/
-    scripts/
-    setup.py
-    src/
-    tests/
-    work-in-progress/
 

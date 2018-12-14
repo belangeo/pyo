@@ -2,6 +2,10 @@
 
     * Fixed break-point-function tables malloc() corruption.
 
+2018-12-14 belangeo <belangeo@gmail.com>
+
+    * Changed the structure of the source code and the installed dependencies.
+
 2018-12-11 belangeo <belangeo@gmail.com>
 
     * Added PyoObjectBase.preventAutoStart() method to stop propagation when
