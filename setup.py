@@ -182,16 +182,13 @@ if sys.platform == "win32":
         library_dirs = ['C:\portaudio', 'C:\portmidi', 'C:\liblo-0.28\src\.libs', 'C:\pthreads\lib', 
                         'C:/Program Files (x86)/Mega-Nerd/libsndfile/bin']
         libraries += ['libsndfile-1', 'pthreadGC2']
+        if 'portmidi' in libraries:
+            libraries.append('porttime')
     else:
-        include_dirs = ['C:\portaudio\include', 'C:\portmidi\pm_common', 'include',
-                        'C:\Program Files\Mega-Nerd\libsndfile\include',
-                        'C:\liblo-0.29', 'C:\pthreads\include', 'C:\portmidi\porttime']
-        library_dirs = ['C:\portaudio', 'C:\portmidi', 'C:\liblo-0.29\src\.libs', 'C:\pthreads\lib', 
-                        'C:/Program Files/Mega-Nerd/libsndfile/bin']
+        include_dirs = ['C:\msys64\mingw64\include', 'include', 'C:\liblo-0.29', 'C:\pthreads\include']
+        library_dirs = ['C:\msys64\mingw64\\bin', 'C:\liblo-0.29\src\.libs', 'C:\pthreads\lib']
         libraries += ['libsndfile-1', 'pthreadGC2']
         macros.append(('MS_WIN64', None))
-    if 'portmidi' in libraries:
-        libraries.append('porttime')
 else:
     include_dirs = ['include', '/usr/local/include']
     if sys.platform == "darwin":
@@ -207,25 +204,27 @@ if sys.platform == "win32":
         data_files_dest = os.path.join("Lib", "site-packages", "pyo")
     else:
         data_files_dest = "pyo"
-    data_files_common_path = os.path.join("win32dlls", "win32_pyo_data_files_common")
-    data_files_path = os.path.join("win32dlls", "win32_pyo_data_files_py%d" % sys.version_info.major)
-    if os.path.isdir(data_files_path):
+    if win_arch == "32bit":
+        data_files_common_path = os.path.join("win32dlls", "win32_pyo_data_files_common")
+        data_files_path = os.path.join("win32dlls", "win32_pyo_data_files_py%d" % sys.version_info.major)
         data_files = [(data_files_dest,
                        [os.path.join(data_files_common_path, f) for f in os.listdir(data_files_common_path) if f.endswith(".dll")]),
                       (data_files_dest,
                        [os.path.join(data_files_path, f) for f in os.listdir(data_files_path) if f.endswith(".dll")])]
     else:
-        data_files = []
+        data_files_common_path = os.path.join("win64dlls", "win64_pyo_data_files_common")
+        data_files = [(data_files_dest,
+                       [os.path.join(data_files_common_path, f) for f in os.listdir(data_files_common_path) if f.endswith(".dll")])]
 elif sys.platform == "darwin":
     if 'bdist_wheel' in sys.argv:
         data_files = [("/pyo", ["temp_libs/liblo.7.dylib",
-                                    "temp_libs/libportaudio.2.dylib",
-                                    "temp_libs/libportmidi.dylib",
-                                    "temp_libs/libsndfile.1.dylib",
-                                    "temp_libs/libFLAC.8.dylib",
-                                    "temp_libs/libvorbisenc.2.dylib",
-                                    "temp_libs/libvorbis.0.dylib",
-                                    "temp_libs/libogg.0.dylib"])]
+                                "temp_libs/libportaudio.2.dylib",
+                                "temp_libs/libportmidi.dylib",
+                                "temp_libs/libsndfile.1.dylib",
+                                "temp_libs/libFLAC.8.dylib",
+                                "temp_libs/libvorbisenc.2.dylib",
+                                "temp_libs/libvorbis.0.dylib",
+                                "temp_libs/libogg.0.dylib"])]
     else:
         data_files = []
 else:
