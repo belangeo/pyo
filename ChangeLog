@@ -1,5 +1,9 @@
 2018-12-14 belangeo <belangeo@gmail.com>
 
+    * Compiling for python 64-bit on Windows now work.
+
+2018-12-14 belangeo <belangeo@gmail.com>
+
     * Fixed break-point-function tables malloc() corruption.
 
 2018-12-14 belangeo <belangeo@gmail.com>
