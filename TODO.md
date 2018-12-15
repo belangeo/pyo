@@ -3,8 +3,8 @@ To do ASAP!
 
 - script to remove older version files.
 
+- finish the new examples.
 - function to list all examples.
-
 - modify example function to accept example files.
 
 - make pip packages.
