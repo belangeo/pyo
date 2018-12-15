@@ -1,0 +1,53 @@
+from pyo import *
+
+s = Server().boot()
+
+print("=== LinTable - Only one point ===")
+t0 = LinTable(list=[(0, 0.5)], size=1024)
+print("=== LinTable - Point position bigger than size ===")
+t1 = LinTable(list=[(0, 0.0), (200, 1), (1000, 0.5), (1500, 0.0)], size=1024)
+print("=== LinTable - Point position smaller than previous one ===")
+t2 = LinTable(list=[(0, 0.0), (1000, 0.5), (500, 0.1), (1024, 0.0)], size=1024)
+#t0.view(); t1.view(); t2.view()
+
+print("=== CosLogTable - Only one point ===")
+t3 = CosLogTable(list=[(0, 0.5)], size=1024)
+print("=== CosLogTable - Point position bigger than size ===")
+t4 = CosLogTable(list=[(0, 0.0), (200, 1), (1000, 0.5), (1500, 0.0)], size=1024)
+print("=== CosLogTable - Point position smaller than previous one ===")
+t5 = CosLogTable(list=[(0, 0.0), (1000, 0.5), (500, 0.1), (1024, 0.0)], size=1024)
+#t3.view(); t4.view(); t5.view()
+
+print("=== CosTable - Only one point ===")
+t6 = CosTable(list=[(0, 0.5)], size=1024)
+print("=== CosTable - Point position bigger than size ===")
+t7 = CosTable(list=[(0, 0.0), (200, 1), (1000, 0.5), (1500, 0.0)], size=1024)
+print("=== CosTable - Point position smaller than previous one ===")
+t8 = CosTable(list=[(0, 0.0), (1000, 0.5), (500, 0.1), (1024, 0.0)], size=1024)
+#t6.view(); t7.view(); t8.view()
+
+print("=== CurveTable - Only one point ===")
+t9 = CurveTable(list=[(0, 0.5)], size=1024)
+print("=== CurveTable - Point position bigger than size ===")
+t10 = CurveTable(list=[(0, 0.0), (200, 1), (1000, 0.5), (1500, 0.0)], size=1024)
+print("=== CurveTable - Point position smaller than previous one ===")
+t11 = CurveTable(list=[(0, 0.0), (1000, 0.5), (500, 0.1), (1024, 0.0)], size=1024)
+#t9.view(); t10.view(); t11.view()
+
+print("=== ExpTable - Only one point ===")
+t12 = ExpTable(list=[(0, 0.5)], size=1024)
+print("=== ExpTable - Point position bigger than size ===")
+t13 = ExpTable(list=[(0, 0.0), (200, 1), (1000, 0.5), (1500, 0.0)], size=1024)
+print("=== ExpTable - Point position smaller than previous one ===")
+t14 = ExpTable(list=[(0, 0.0), (1000, 0.5), (500, 0.1), (1024, 0.0)], size=1024)
+#t12.view(); t13.view(); t14.view()
+
+print("=== LogTable - Only one point ===")
+t15 = LogTable(list=[(0, 0.5)], size=1024)
+print("=== LogTable - Point position bigger than size ===")
+t16 = LogTable(list=[(0, 0.0), (200, 1), (1000, 0.5), (1500, 0.0)], size=1024)
+print("=== LogTable - Point position smaller than previous one ===")
+t17 = LogTable(list=[(0, 0.0), (1000, 0.5), (500, 0.1), (1024, 0.0)], size=1024)
+t15.view(); t16.view(); t17.view()
+
+s.gui(locals())
