@@ -1,6 +1,12 @@
 To do ASAP!
 ===========
 
+- script to remove older version files.
+
+- function to list all examples.
+
+- modify example function to accept example files.
+
 - make pip packages.
 
 This is a list of features/fixes to implement for future releases
