@@ -869,7 +869,7 @@ STYLES_PREVIEW_TEXT = '''# Comment
 from pyo import *
 class Bidule:
     """
-    Tripe string.
+    Triple string.
     """
     def __init__(self):
         "Single string"

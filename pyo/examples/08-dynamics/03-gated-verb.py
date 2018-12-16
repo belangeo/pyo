@@ -25,6 +25,6 @@ cmp = Compress(rev, thresh=-12, ratio=3, risetime=0.005, falltime=0.05,
                lookahead=4, knee=0.5, mul=gate)
 
 # Balance between the dry and wet (gated-reverb) signals.
-output = Interp(sf2, cmp, interp=0.2).out()
+output = Interp(sf.mix(2), cmp, interp=0.2).out()
 
 s.gui(locals())
