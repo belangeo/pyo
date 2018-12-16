@@ -75,6 +75,8 @@ for dir in folders:
     index.write("="*40)
     index.write("\n\n.. toctree::\n   :maxdepth: 1\n\n")
     for name in sorted(os.listdir(os.path.join(src_example_dir, dir))):
+        if name == "__init__.py":
+            continue
         index.write("   " + name[:-3] + "\n")
         with open(os.path.join(src_example_dir, dir, name), "r") as f:
             text = f.read()
@@ -96,7 +98,6 @@ for dir in folders:
             f.write("\n")
     index.close()
 
-os.system("cp ../utils/E-PyoIcon.png source/")
 
 #os.system("sphinx-build -a -E -j 4 -b %s ./source %s" % (build_format, build_folder))
 os.system("sphinx-build -a -E -b %s ./source %s" % (build_format, build_folder))
@@ -109,5 +110,3 @@ if rep == "y":
         os.system("scp -r build_html/* jeadum1@ajaxsoundstudio.com:/home/jeadum1/ajaxsoundstudio.com/pyodoc")
 
 os.system("rm -r source/examples")
-
-os.system("rm  source/E-PyoIcon.png")
