@@ -2353,11 +2353,11 @@ class Looper(PyoObject):
 
         Looper will send a trigger signal every new playback starting point
         (i.e. when the object is activated and at the beginning of the crossfade
-        of a loop. User can retrieve the trigger streams by calling obj['trig'].
+        of a loop. User can retrieve the trigger stream by calling obj['trig'].
 
         Looper also outputs a time stream, given the current position of the
         reading pointer, normalized between 0.0 and 1.0 (1.0 means the beginning
-        of the crossfade), inside the loop. User can retrieve the trigger streams
+        of the crossfade), inside the loop. User can retrieve the time stream
         by calling obj['time']. New in version 0.8.1.
 
     .. seealso::
