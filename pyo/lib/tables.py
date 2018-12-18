@@ -2187,7 +2187,7 @@ class AtanTable(PyoTableObject):
     """
     Generates an arctangent transfert function.
 
-    This table allow the creation the classic arctangent transfert functions,
+    This table allow the creation of the classic arctangent transfert function,
     useful in distortion design. See Lookup object for a simple table lookup
     process.
 

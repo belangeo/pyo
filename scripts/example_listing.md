@@ -69,14 +69,13 @@ Exemples de scripts audio avec pyo
 1. flanger.py
 2. schroeder-reverb.py
 3. fuzz-disto.py
-4. gated-reverb.py
-5. ping-pong-delay.py
-6. hand-made-chorus.py
-7. hand-made-harmonizer.py
+4. ping-pong-delay.py
+5. hand-made-chorus.py
+6. hand-made-harmonizer.py
 
 08-dynamics
 -----------
-1. dymnamic-range.py
+1. dynamic-range.py
 2. ducking.py
 3. gated-verb.py
 4. rms-tracing.py
@@ -89,11 +88,14 @@ Exemples de scripts audio avec pyo
 
 1. envelopes.py
 2. scrubbing.py
-3. granulation.py
-4. micro-montage.py
-5. table-stutter.py
-6. table-moving-points.py
-7. transfert-function.py (05_fuzz_disto.py)
+3. looping.py
+4. granulation.py
+5. micro-montage.py
+6. table-stutter.py
+7. moving-points.py
+8. table-lookup.py
+
+? NewTable, PartialTable, PadSynthTable ?
 
 10-sequencing
 -------------
