@@ -44,7 +44,7 @@ Examples
    Filtering <examples/06-filters/index>
    Creating sound effects <examples/07-effects/index>
    Dynamic range of audio signals <examples/08-dynamics/index>
-   Calling python functions from the audio thread <examples/09-callbacks/index>
+   Calling python functions from audio objects <examples/09-callbacks/index>
    Using tables <examples/10-tables/index>
    Multicore audio programming <examples/18-multicore/index>
 
