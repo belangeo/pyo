@@ -80,10 +80,14 @@ Exemples de scripts audio avec pyo
 3. gated-verb.py
 4. rms-tracing.py
 
-**All good up to here**
+09-callbacks
+------------
 
+1. periodic-calls.py
+2. score-calls.py
+3. delayed-calls.py
 
-09-tables
+10-tables
 ---------
 
 1. envelopes.py
@@ -95,87 +99,84 @@ Exemples de scripts audio avec pyo
 7. moving-points.py
 8. table-lookup.py
 
+**All good up to here**
+
 ? NewTable, PartialTable, PadSynthTable ?
-
-10-sequencing
--------------
-
-1. periodic-calls.py *
-2. score-calls.py *
-3. periodic-triggers.py *
-4. sequence-triggers.py *
-5. random-triggers.py *
-6. step-sequencer.py *
 
 11-synthesis
 ------------
 
-1. cos-waveshaping.py *
-2. complex-fm.py *
-3. phase-aligned-formant.py *
-4. split-sideband-synthesis.py *
-5. bucket-brigade-device.py *
+1. cos-waveshaping.py
+2. complex-fm.py
+3. phase-aligned-formant.py
+4. split-sideband-synthesis.py
+5. bucket-brigade-device.py
 
 12-triggers
 -----------
 
+1. periodic-triggers.py
+2. sequence-triggers.py
+3. random-triggers.py
+4. step-sequencer.py
+
 13-algorithmic
 --------------
 
-1. melodic-algo.py *
-2. harmonic-algo.py *
-3. drum-machine.py *
-4. complex-algo.py *
-5. table-algorithm.py *
-6. markov.py *
+1. melodic-algo.py
+2. harmonic-algo.py
+3. drum-machine.py
+4. complex-algo.py
+5. table-algorithm.py
+6. markov.py
 
 14-multiband
 ------------
 
-1. band-splitter.py *
+1. band-splitter.py
 2. band-splitter-2.py
-3. four-bands.py *
+3. four-bands.py
 4. four-bands-2.py
 5. multi-bands.py
 
 15-spectral
 -----------
 
-1. fft-filter.py  *
-2. fft-cross-synth.py *
-3. pv-stretch.py *
-4. pv-transpose.py *
-5. pv-playback-speed.py *
-6. pv-bin-modulation.py *
+1. fft-filter.py 
+2. fft-cross-synth.py
+3. pv-stretch.py
+4. pv-transpose.py
+5. pv-playback-speed.py
+6. pv-bin-modulation.py
 
 16-matrices
 -----------
 
-1. matrix-record.py *
-2. matrix-from-image.py *
-3. wave-terrain-synthesis.py *
-4. record-loop-chunks.py *
-5. algo-with-matrix.py *
+1. matrix-record.py
+2. matrix-from-image.py
+3. wave-terrain-synthesis.py
+4. record-loop-chunks.py
+5. algo-with-matrix.py
 
 17-midi
 -------
 
-1. midi-scan.py *
-2. mono-synth.py *
-3. polyphonic-synth.py *
-4. midi-sampler.py *
-5. control-change.py *
-6. midi-out.py *
+1. midi-scan.py
+2. mono-synth.py
+3. polyphonic-synth.py
+4. midi-sampler.py
+5. control-change.py
+6. midi-out.py
 
 18-osc
 ------
 
-1. osc-scan.py *
-2. osc-send-streams.py *
-3. osc-receive-streams.py *
-4. osc-receive-list.py *
-5. osc-send-data.py *
-6. osc-receive-data.py *
+1. osc-scan.py
+2. osc-send-streams.py
+3. osc-receive-streams.py
+4. osc-receive-list.py
+5. osc-send-data.py
+6. osc-receive-data.py
 
 19-multirate
 ------------
@@ -192,14 +193,14 @@ Exemples de scripts audio avec pyo
 21-utilities
 ------------
 
-1. save-audio-file.py *
-2. batch-processing.py *
-3. batch-synthesis.py *
-4. upsamp-processing.py *
-5. multiple-threads.py *
+1. save-audio-file.py
+2. batch-processing.py
+3. batch-synthesis.py
+4. upsamp-processing.py
+5. multiple-threads.py
 
 22-wxgui
 --------
 
-
-
+**handling objects life (start time and duraiton)**
+**autoStartChildren**
