@@ -74,8 +74,6 @@ Matrices
 E-Pyo
 -----
 
-- Check if project tree functions work on MacOS.
-
 - We need A way to let the user interact with the script via input() 
   and raw_input() functions.
 
