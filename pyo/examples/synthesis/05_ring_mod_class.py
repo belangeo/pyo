@@ -5,8 +5,9 @@ Ring modulators used as exciter of a waveguide bank.
 
 """
 from pyo import *
+import random
 
-s = Server(duplex=0).boot()
+s = Server().boot()
 
 tab_m = HarmTable([1,0,0,0,0,.3,0,0,0,0,0,.2,0,0,0,0,0,.1,0,0,0,0,.05]).normalize()
 tab_p = HarmTable([1,0,.33,0,.2,0,.143,0,.111])
