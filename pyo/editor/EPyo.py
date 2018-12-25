@@ -6437,6 +6437,7 @@ class ProjectTree(wx.Panel):
                                       self.fldropenidx, None)
         self.tree.SetItemTextColour(self.root, STYLES['default']['colour'])
 
+        self.tree.Bind(wx.EVT_TREE_BEGIN_LABEL_EDIT, self.OnBeginEdit)
         self.tree.Bind(wx.EVT_TREE_END_LABEL_EDIT, self.OnEndEdit)
         self.tree.Bind(wx.EVT_RIGHT_DOWN, self.OnRightDown)
         self.tree.Bind(wx.EVT_LEFT_DOWN, self.OnLeftClick)
@@ -6585,6 +6586,11 @@ class ProjectTree(wx.Panel):
             self.tree.EditLabel(self.edititem)
         else:
             self.unselect()
+
+    def OnBeginEdit(self, event):
+        if self.edititem is None:
+            self.tree.EndEditLabel(self.tree.GetSelection())
+        event.Skip()
 
     def OnEndEdit(self, event):
         if self.edititem and self.itempath:
