@@ -6618,13 +6618,12 @@ class ProjectTree(wx.Panel):
         self.edititem = self.editfolder = self.itempath = self.scope = None
 
     def OnLeftClick(self, event):
-        if sys.platform != "win32":
-            pt = event.GetPosition()
-            item, flags = self.tree.HitTest(pt)
-            if item:
-                self.select(item)
-            else:
-                self.unselect()
+        pt = event.GetPosition()
+        item, flags = self.tree.HitTest(pt)
+        if item:
+            self.select(item)
+        else:
+            self.unselect()
         event.Skip()
 
     def OnLeftDClick(self, event):
@@ -6644,7 +6643,6 @@ class ProjectTree(wx.Panel):
             self.mainPanel.addPage(path)
 
     def select(self, item):
-        self.tree.SelectItem(item)
         self.selectedItem = item
         self.toolbar.EnableTool(TOOL_ADD_FILE_ID, True)
 
