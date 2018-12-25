@@ -797,7 +797,7 @@ PYO_WORDLIST = getPyoKeywords()
 if wx.Platform == '__WXMSW__':
     FONT_SIZE = 8
     FONT_SIZE2 = 6
-    DEFAULT_FONT_FACE = 'Courier New'
+    DEFAULT_FONT_FACE = 'Consolas'
 elif wx.Platform == '__WXMAC__':
     FONT_SIZE = 12
     FONT_SIZE2 = 9
