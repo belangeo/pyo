@@ -74,9 +74,7 @@ Matrices
 E-Pyo
 -----
 
-- Complete review of E-Pyo on Windows. Lot of features don't seem to work.
-    - Does not seem to save file with utf-8 encoding.
-    - Project tree refresh function doesn't work.
+- Check if project tree functions work on MacOS.
 
 - We need A way to let the user interact with the script via input() 
   and raw_input() functions.

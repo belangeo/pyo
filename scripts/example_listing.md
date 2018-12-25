@@ -103,16 +103,7 @@ Exemples de scripts audio avec pyo
 
 ? NewTable, PartialTable, PadSynthTable ?
 
-11-synthesis
-------------
-
-1. cos-waveshaping.py
-2. complex-fm.py
-3. phase-aligned-formant.py
-4. split-sideband-synthesis.py
-5. bucket-brigade-device.py
-
-12-triggers
+11-triggers
 -----------
 
 1. periodic-triggers.py
@@ -120,7 +111,7 @@ Exemples de scripts audio avec pyo
 3. random-triggers.py
 4. step-sequencer.py
 
-13-algorithmic
+12-algorithmic
 --------------
 
 1. melodic-algo.py
@@ -130,7 +121,7 @@ Exemples de scripts audio avec pyo
 5. table-algorithm.py
 6. markov.py
 
-14-multiband
+13-multiband
 ------------
 
 1. band-splitter.py
@@ -139,7 +130,7 @@ Exemples de scripts audio avec pyo
 4. four-bands-2.py
 5. multi-bands.py
 
-15-spectral
+14-spectral
 -----------
 
 1. fft-filter.py 
@@ -149,7 +140,7 @@ Exemples de scripts audio avec pyo
 5. pv-playback-speed.py
 6. pv-bin-modulation.py
 
-16-matrices
+15-matrices
 -----------
 
 1. matrix-record.py
@@ -158,7 +149,7 @@ Exemples de scripts audio avec pyo
 4. record-loop-chunks.py
 5. algo-with-matrix.py
 
-17-midi
+16-midi
 -------
 
 1. midi-scan.py
@@ -168,7 +159,7 @@ Exemples de scripts audio avec pyo
 5. control-change.py
 6. midi-out.py
 
-18-osc
+17-osc
 ------
 
 1. osc-scan.py
@@ -177,6 +168,16 @@ Exemples de scripts audio avec pyo
 4. osc-receive-list.py
 5. osc-send-data.py
 6. osc-receive-data.py
+
+18-synthesis
+------------
+
+1. voltage-controlled-oscillator.py
+2. band-limited-oscillator.py
+3. complex-fm.py
+4. phase-aligned-formant.py
+5. split-sideband-synthesis.py
+6. bucket-brigade-device.py
 
 19-multirate
 ------------
