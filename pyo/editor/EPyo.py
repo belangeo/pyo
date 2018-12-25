@@ -6405,7 +6405,7 @@ class ProjectTree(wx.Panel):
 
         self.sizer.Add(toolbarbox, 0, wx.EXPAND)
 
-        stls = wx.TR_DEFAULT_STYLE|wx.TR_HIDE_ROOT|wx.SUNKEN_BORDER|wx.EXPAND
+        stls = wx.TR_DEFAULT_STYLE|wx.TR_HIDE_ROOT|wx.SUNKEN_BORDER|wx.EXPAND|wx.TR_EDIT_LABELS
         self.tree = wx.TreeCtrl(self, -1, (0, 26), size, stls)
         self.tree.SetBackgroundColour(STYLES['background']['colour'])
 
@@ -6464,14 +6464,16 @@ class ProjectTree(wx.Panel):
                 it, cookie = self.tree.GetNextChild(item, cookie)
 
     def onRefresh(self, evt):
-        expanded = []
-        self._tree_analyze(self.root, expanded)
-        self.tree.DeleteAllItems()
-        self.root = self.tree.AddRoot("EPyo_Project_tree", self.fldridx,
-                                      self.fldropenidx, None)
-        for folder, path in self.projectDict.items():
-            self.loadFolder(path)
-        self._tree_restore(self.root, expanded)
+            expanded = []
+            if sys.platform != "win32": # TODO: Check if this is OK on MacOS.
+                self._tree_analyze(self.root, expanded)
+            self.tree.DeleteAllItems()
+            self.root = self.tree.AddRoot("EPyo_Project_tree", self.fldridx,
+                                                      self.fldropenidx, None)
+            for folder, path in self.projectDict.items():
+                self.loadFolder(path)
+            if sys.platform != "win32":
+                self._tree_restore(self.root, expanded)
 
     def loadFolder(self, dirPath):
         folderName = os.path.split(dirPath)[1]
@@ -6509,17 +6511,17 @@ class ProjectTree(wx.Panel):
         if self.selectedItem != None:
             selPath = unpackItemData(self.tree.GetItemData(self.selectedItem))
             if os.path.isdir(selPath):
-                self.scope = selPath
+                scope = self.scope = selPath
             elif os.path.isfile(selPath):
                 treeItemId = self.tree.GetItemParent(treeItemId)
-                self.scope = unpackItemData(self.tree.GetItemData(treeItemId))
+                scope = self.scope = unpackItemData(self.tree.GetItemData(treeItemId))
         elif self.selectedItem == None and id == TOOL_ADD_FOLDER_ID:
             dlg = wx.DirDialog(self,
                                "Choose directory where to save your folder:",
                                defaultPath=os.path.expanduser("~"),
                                style=wx.DD_DEFAULT_STYLE)
             if dlg.ShowModal() == wx.ID_OK:
-                self.scope = dlg.GetPath()
+                scope = self.scope = dlg.GetPath()
                 dlg.Destroy()
             else:
                 dlg.Destroy()
@@ -6533,10 +6535,10 @@ class ProjectTree(wx.Panel):
             item = self.tree.AppendItem(treeItemId, "Untitled", self.fldridx,
                                         self.fldropenidx, None)
             self.editfolder = item
-        self.tree.SetItemData(item, packItemData(os.path.join(self.scope, "Untitled")))
+        self.tree.SetItemData(item, packItemData(os.path.join(scope, "Untitled")))
         self.tree.SetItemTextColour(item, STYLES['default']['colour'])
         self.tree.EnsureVisible(item)
-        if PLATFORM == "darwin":
+        if PLATFORM in ["darwin", "win32"]:
             self.tree.ScrollTo(item)
             self.tree.EditLabel(item)
             txtctrl = self.tree.GetEditControl()
@@ -6616,12 +6618,13 @@ class ProjectTree(wx.Panel):
         self.edititem = self.editfolder = self.itempath = self.scope = None
 
     def OnLeftClick(self, event):
-        pt = event.GetPosition()
-        item, flags = self.tree.HitTest(pt)
-        if item:
-            self.select(item)
-        else:
-            self.unselect()
+        if sys.platform != "win32":
+            pt = event.GetPosition()
+            item, flags = self.tree.HitTest(pt)
+            if item:
+                self.select(item)
+            else:
+                self.unselect()
         event.Skip()
 
     def OnLeftDClick(self, event):
