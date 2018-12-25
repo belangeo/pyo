@@ -6405,7 +6405,10 @@ class ProjectTree(wx.Panel):
 
         self.sizer.Add(toolbarbox, 0, wx.EXPAND)
 
-        stls = wx.TR_DEFAULT_STYLE|wx.TR_HIDE_ROOT|wx.SUNKEN_BORDER|wx.EXPAND|wx.TR_EDIT_LABELS
+        stls = wx.TR_DEFAULT_STYLE|wx.TR_HIDE_ROOT|wx.SUNKEN_BORDER|wx.EXPAND
+        if sys.platform == "win32":
+            stls |= wx.TR_EDIT_LABELS
+
         self.tree = wx.TreeCtrl(self, -1, (0, 26), size, stls)
         self.tree.SetBackgroundColour(STYLES['background']['colour'])
 
