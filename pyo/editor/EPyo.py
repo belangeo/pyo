@@ -797,7 +797,7 @@ PYO_WORDLIST = getPyoKeywords()
 if wx.Platform == '__WXMSW__':
     FONT_SIZE = 8
     FONT_SIZE2 = 6
-    DEFAULT_FONT_FACE = 'Verdana'
+    DEFAULT_FONT_FACE = 'Courier New'
 elif wx.Platform == '__WXMAC__':
     FONT_SIZE = 12
     FONT_SIZE2 = 9
@@ -3181,9 +3181,9 @@ class MainFrame(wx.Frame):
         menu1.Append(11600, "Reload Current File\tCtrl+1")
         self.Bind(wx.EVT_MENU, self.reloadCurrentFile, id=11600)
         menu1.AppendSeparator()
-        menu1.Append(3050, "Split Window\tCtrl++")
+        menu1.Append(3050, "Split Window\tCtrl+2")
         self.Bind(wx.EVT_MENU, self.splitWindow, id=3050)
-        menu1.Append(3051, "Unsplit Window\tCtrl+_")
+        menu1.Append(3051, "Unsplit Window\tCtrl+3")
         self.Bind(wx.EVT_MENU, self.unsplitWindow, id=3051)
         menu1.AppendSeparator()
         menu1.Append(wx.ID_CLOSE, "Close\tCtrl+W")
