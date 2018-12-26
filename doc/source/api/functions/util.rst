@@ -28,6 +28,11 @@ Utilities
 
 .. autofunction:: getPyoKeywords
 
+*getPyoExamples*
+---------------------------------
+
+.. autofunction:: getPyoExamples
+
 *withPortaudio*
 ---------------------------------
 

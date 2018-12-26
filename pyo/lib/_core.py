@@ -551,8 +551,10 @@ def example(cls, dur=5, toprint=True, double=False):
 
     :Args:
 
-        cls: PyoObject class
-            Class reference of the desired object example.
+        cls: PyoObject class or string
+            Class reference of the desired object example. If this argument
+            is the string of the full path of an example (as returned by the
+            getPyoExamples() function), it will be executed.
         dur: float, optional
             Duration of the example.
         toprint: boolean, optional
@@ -565,45 +567,51 @@ def example(cls, dur=5, toprint=True, double=False):
     >>> example(Sine)
 
     """
-    doc = cls.__doc__.splitlines()
-    lines = []
-    store = False
-    for line in doc:
-        if not store:
-            if ">>> s = Server" in line:
-                store = True
-        if store:
-            if line.strip() == "":
-                store = False
-            else:
-                lines.append(line)
-
-    if lines == []:
-        print("There is no manual example for %s object." % cls.__name__)
-        return
-
-    ex_lines = [l.lstrip("    ") for l in lines if ">>>" in l or "..." in l]
-    if hasattr(builtins, 'pyo_use_double') or double:
-        ex = "import time\nfrom pyo64 import *\n"
-    else:
-        ex = "import time\nfrom pyo import *\n"
-    for line in ex_lines:
-        if ">>>" in line:
-            line = line.lstrip(">>> ")
-        if "..." in line:
-            line = "    " +  line.lstrip("... ")
-        ex += line + "\n"
-
-    ex += "time.sleep(%f)\ns.stop()\ntime.sleep(0.25)\ns.shutdown()\n" % dur
-    f = tempfile.NamedTemporaryFile(delete=False)
-    if toprint:
-        f.write(tobytes('print("""\n%s\n""")\n' % ex))
-    f.write(tobytes(ex))
-    f.close()
     executable = sys.executable
     if not executable or executable is None:
         executable = "python"
-    call([executable, f.name])
+
+    if type(cls) is str and os.path.isfile(cls):
+        if toprint:
+            print(open(cls, "r").read())
+        call([executable, cls])
+    else:
+        doc = cls.__doc__.splitlines()
+        lines = []
+        store = False
+        for line in doc:
+            if not store:
+                if ">>> s = Server" in line:
+                    store = True
+            if store:
+                if line.strip() == "":
+                    store = False
+                else:
+                    lines.append(line)
+
+        if lines == []:
+            print("There is no manual example for %s object." % cls.__name__)
+            return
+
+        ex_lines = [l.lstrip("    ") for l in lines if ">>>" in l or "..." in l]
+        if hasattr(builtins, 'pyo_use_double') or double:
+            ex = "import time\nfrom pyo64 import *\n"
+        else:
+            ex = "import time\nfrom pyo import *\n"
+        for line in ex_lines:
+            if ">>>" in line:
+                line = line.lstrip(">>> ")
+            if "..." in line:
+                line = "    " +  line.lstrip("... ")
+            ex += line + "\n"
+
+        ex += "time.sleep(%f)\ns.stop()\ntime.sleep(0.25)\ns.shutdown()\n" % dur
+        f = tempfile.NamedTemporaryFile(delete=False)
+        if toprint:
+            f.write(tobytes('print("""\n%s\n""")\n' % ex))
+        f.write(tobytes(ex))
+        f.close()
+        call([executable, f.name])
 
 def removeExtraDecimals(x):
     "Return a floating-point value as a string with only two digits."

@@ -17,6 +17,8 @@ GNU Lesser General Public License for more details.
 You should have received a copy of the GNU Lesser General Public
 License along with pyo.  If not, see <http://www.gnu.org/licenses/>.
 """
+import os
+
 from .lib._maps import *
 from .lib import analysis as analysis
 from .lib.analysis import *
@@ -213,4 +215,32 @@ def getPyoKeywords():
                   "Stream", "TableStream"])
     return _list
 
-OBJECTS_TREE["functions"] = sorted(OBJECTS_TREE["functions"] + ["getPyoKeywords"])
+def getPyoExamples(fullpath=False):
+    """
+    Returns a listing of the examples, as a dictionary, installed with pyo.
+
+    :Args:
+
+        fullpath: boolean
+            If True, the full path of each file is returned. Otherwise, only the
+            filenames are listed.
+
+    >>> examples = getPyoExamples()
+
+    """
+    folder = "examples"
+    filedir = os.path.dirname(os.path.abspath(__file__))
+    subfolders = [f for f in os.listdir(os.path.join(filedir, folder)) if not f.startswith("__") and not f == "snds"]
+    examples = {}
+    for subfolder in sorted(subfolders):
+        path = os.path.join(filedir, folder, subfolder)
+        if fullpath:
+            files = [os.path.join(path, f) for f in os.listdir(path) if not f.startswith("__")]
+        else:
+            files = [f for f in os.listdir(path) if not f.startswith("__")]
+        examples[subfolder] = files
+    return examples
+
+getPyoExamples()
+
+OBJECTS_TREE["functions"] = sorted(OBJECTS_TREE["functions"] + ["getPyoKeywords", "getPyoExamples"])

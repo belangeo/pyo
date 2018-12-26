@@ -1,11 +1,9 @@
 To do ASAP!
 ===========
 
-- script to remove older version files.
+- script to remove older version files. search and ask...
 
 - finish the new examples.
-- function to list all examples.
-- modify example function to accept example files.
 
 - make pip packages.
 
