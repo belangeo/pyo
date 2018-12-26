@@ -1564,8 +1564,14 @@ extern PyTypeObject MultiBandType;
     Dummy *dummy; \
     MAKE_NEW_DUMMY(dummy, &DummyType, NULL); \
     Dummy_initialize(dummy); \
-    PyObject_CallMethod((PyObject *)dummy, "setMul", "O", arg); \
-    PyObject_CallMethod((PyObject *)dummy, "setInput", "O", self); \
+    int isNumber = PyNumber_Check(arg); \
+    if (isNumber == 1) { \
+        PyObject_CallMethod((PyObject *)dummy, "setMul", "O", arg); \
+        PyObject_CallMethod((PyObject *)dummy, "setInput", "O", self); \
+    } else { \
+        PyObject_CallMethod((PyObject *)dummy, "setMul", "O", self); \
+        PyObject_CallMethod((PyObject *)dummy, "setInput", "O", arg); \
+    } \
     return (PyObject *)dummy;
 
 #define INPLACE_MULTIPLY \
@@ -1576,8 +1582,14 @@ extern PyTypeObject MultiBandType;
     Dummy *dummy; \
     MAKE_NEW_DUMMY(dummy, &DummyType, NULL); \
     Dummy_initialize(dummy); \
-    PyObject_CallMethod((PyObject *)dummy, "setAdd", "O", arg); \
-    PyObject_CallMethod((PyObject *)dummy, "setInput", "O", self); \
+    int isNumber = PyNumber_Check(arg); \
+    if (isNumber == 1) { \
+        PyObject_CallMethod((PyObject *)dummy, "setAdd", "O", arg); \
+        PyObject_CallMethod((PyObject *)dummy, "setInput", "O", self); \
+    } else { \
+        PyObject_CallMethod((PyObject *)dummy, "setAdd", "O", self); \
+        PyObject_CallMethod((PyObject *)dummy, "setInput", "O", arg); \
+    } \
     return (PyObject *)dummy;
 
 #define INPLACE_ADD \
@@ -1588,8 +1600,14 @@ extern PyTypeObject MultiBandType;
     Dummy *dummy; \
     MAKE_NEW_DUMMY(dummy, &DummyType, NULL); \
     Dummy_initialize(dummy); \
-    PyObject_CallMethod((PyObject *)dummy, "setSub", "O", arg); \
-    PyObject_CallMethod((PyObject *)dummy, "setInput", "O", self); \
+    int isNumber = PyNumber_Check(arg); \
+    if (isNumber == 1) { \
+        PyObject_CallMethod((PyObject *)dummy, "setSub", "O", arg); \
+        PyObject_CallMethod((PyObject *)dummy, "setInput", "O", self); \
+    } else { \
+        PyObject_CallMethod((PyObject *)dummy, "setSub", "O", self); \
+        PyObject_CallMethod((PyObject *)dummy, "setInput", "O", arg); \
+    } \
     return (PyObject *)dummy;
 
 #define INPLACE_SUB \
@@ -1600,8 +1618,14 @@ extern PyTypeObject MultiBandType;
     Dummy *dummy; \
     MAKE_NEW_DUMMY(dummy, &DummyType, NULL); \
     Dummy_initialize(dummy); \
-    PyObject_CallMethod((PyObject *)dummy, "setDiv", "O", arg); \
-    PyObject_CallMethod((PyObject *)dummy, "setInput", "O", self); \
+    int isNumber = PyNumber_Check(arg); \
+    if (isNumber == 1) { \
+        PyObject_CallMethod((PyObject *)dummy, "setDiv", "O", arg); \
+        PyObject_CallMethod((PyObject *)dummy, "setInput", "O", self); \
+    } else { \
+        PyObject_CallMethod((PyObject *)dummy, "setDiv", "O", self); \
+        PyObject_CallMethod((PyObject *)dummy, "setInput", "O", arg); \
+    } \
     return (PyObject *)dummy;
 
 #define INPLACE_DIV \
