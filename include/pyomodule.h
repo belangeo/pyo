@@ -461,6 +461,7 @@ extern PyTypeObject Delay1Type;
 extern PyTypeObject RCOscType;
 extern PyTypeObject YinType;
 extern PyTypeObject SVFType;
+extern PyTypeObject SVF2Type;
 extern PyTypeObject AverageType;
 extern PyTypeObject CvlVerbType;
 extern PyTypeObject SpectrumType;

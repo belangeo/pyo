@@ -1,3 +1,7 @@
+2018-12-28 belangeo <belangeo@gmail.com>
+
+    * Added a new object: SVF2, a 2-pole state variable filter with many filter types.
+
 2018-12-26 belangeo <belangeo@gmail.com>
 
     * Added a getPyoExamples function and changed example function to be able to

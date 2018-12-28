@@ -2894,6 +2894,243 @@ class SVF(PyoObject):
     @type.setter
     def type(self, x): self.setType(x)
 
+class SVF2(PyoObject):
+    """
+    Second-order state variable filter allowing continuous change of the filter type.
+
+    This 2-pole multimode filter is described in the book "The Art of VA Filter Design"
+    by Vadim Zavalishin (version 2.1.0 when this object was created).
+
+    Several filter types are available with continuous change between them. The default
+    order (controlled with the `type` argument) is:
+
+        - lowpass
+        - bandpass
+        - highpass
+        - highshelf
+        - bandshelf
+        - lowshelf
+        - notch
+        - peak
+        - allpass
+        - unit gain bandpass
+
+    The filter types order can be changed with the `setOrder` method. The first filter type
+    is always copied at the end of the order list so we can create a glitch-free loop of 
+    filter types with a Phasor given as `type` argument. Ex.:
+
+        >>> lfo = Phasor(freq=.5, mul=3)
+        >>> svf2 = SVF2(Noise(.25), freq=2500, q=2, shelf=-6, type=lfo).out()
+        >>> svf2.order = [2, 1, 0] # highpass -> bandpass -> lowpass -> highpass
+
+    :Parent: :py:class:`PyoObject`
+
+    :Args:
+
+        input: PyoObject
+            Input signal to process.
+        freq: float or PyoObject, optional
+            Cutoff or center frequency of the filter. Defaults to 1000.
+        q: float or PyoObject, optional
+            Q of the filter, defined (for bandpass filters) as freq/bandwidth.
+            Should be between 0.5 and 50. Defaults to 1.
+        shelf: float or PyoObject, optional
+            Gain, between -24 dB and 24 dB, used by shelving filters. Defaults to -3.
+        type: float or PyoObject, optional
+            This value, in the range 0 to 10, controls the filter type crossfade
+            on the continuum defined by the filter types order. The default order
+            (which can be changed with the `setOrder` method) is:
+
+            - 0 = lowpass
+            - 1 = bandpass
+            - 2 = highpass
+            - 3 = highshelf
+            - 4 = bandshelf
+            - 5 = lowshelf
+            - 6 = notch
+            - 7 = peak
+            - 8 = allpass
+            - 9 = unit gain bandpass
+
+    >>> s = Server().boot()
+    >>> s.start()
+    >>> n = Noise(0.25).mix(2)
+    >>> tp = Phasor(.25, mul=10)
+    >>> fr = Sine(.3).range(500, 5000)
+    >>> svf2 = SVF2(n, freq=fr, q=3, shelf=-6, type=tp).out()
+
+    """
+    def __init__(self, input, freq=1000, q=1, shelf=-3, type=0, mul=1, add=0):
+        pyoArgsAssert(self, "oOOOOOO", input, freq, q, shelf, type, mul, add)
+        PyoObject.__init__(self, mul, add)
+        self._input = input
+        self._freq = freq
+        self._q = q
+        self._shelf = shelf
+        self._type = type
+        self._order = list(range(10))
+        self._in_fader = InputFader(input)
+        in_fader, freq, q, shelf, type, mul, add, lmax = convertArgsToLists(self._in_fader, freq, q, shelf, type, mul, add)
+        self._base_objs = [SVF2_base(wrap(in_fader,i), wrap(freq,i), wrap(q,i), wrap(shelf,i), wrap(type,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+        self.play()
+
+    def setInput(self, x, fadetime=0.05):
+        """
+        Replace the `input` attribute.
+
+        :Args:
+
+            x: PyoObject
+                New signal to process.
+            fadetime: float, optional
+                Crossfade time between old and new input. Defaults to 0.05.
+
+        """
+        pyoArgsAssert(self, "oN", x, fadetime)
+        self._input = x
+        self._in_fader.setInput(x, fadetime)
+
+    def setFreq(self, x):
+        """
+        Replace the `freq` attribute. 
+
+        :Args:
+
+            x: float or PyoObject
+                New `freq` attribute.
+
+        """
+        pyoArgsAssert(self, "O", x)
+        self._freq = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setFreq(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def setQ(self, x):
+        """
+        Replace the `q` attribute. Should be between 0.5 and 50.
+
+        :Args:
+
+            x: float or PyoObject
+                New `q` attribute.
+
+        """
+        pyoArgsAssert(self, "O", x)
+        self._q = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setQ(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def setShelf(self, x):
+        """
+        Replace the `shelf` attribute. Should be between -24 dB and 24 dB.
+
+        :Args:
+
+            x: float or PyoObject
+                New `shelf` attribute.
+
+        """
+        pyoArgsAssert(self, "O", x)
+        self._shelf = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setShelf(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def setType(self, x):
+        """
+        Replace the `type` attribute. Must be in the range 0 to 10.
+
+        This value allows the filter type to crossfade between several filter types.
+
+        :Args:
+
+            x: float or PyoObject
+                New `type` attribute.
+
+        """
+        pyoArgsAssert(self, "O", x)
+        self._type = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setType(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def setOrder(self, x):
+        """
+        Change the filter types ordering.
+
+        The ordering is a list of one to ten integers indicating the filter
+        types order used by the `type` argument to crossfade between them.
+        Types, as integer, are:
+
+            - 0 = lowpass
+            - 1 = bandpass
+            - 2 = highpass
+            - 3 = highshelf
+            - 4 = bandshelf
+            - 5 = lowshelf
+            - 6 = notch
+            - 7 = peak
+            - 8 = allpass
+            - 9 = unit gain bandpass
+
+        :Args:
+
+            x: list of ints
+                New types ordering.
+
+        """
+        pyoArgsAssert(self, "l", x)
+        self._order = x
+        [obj.setOrder(x) for i, obj in enumerate(self._base_objs)]
+
+    def ctrl(self, map_list=None, title=None, wxnoserver=False):
+        self._map_list = [SLMapFreq(self._freq),
+                          SLMap(0.5, 20, "log", "q", self._q),
+                          SLMap(-24, 24, "lin", "shelf", self._shelf),
+                          SLMap(0, 10, "lin", "type", self._type),
+                          SLMapMul(self._mul)]
+        PyoObject.ctrl(self, map_list, title, wxnoserver)
+
+    @property
+    def input(self):
+        """PyoObject. Input signal to process."""
+        return self._input
+    @input.setter
+    def input(self, x): self.setInput(x)
+
+    @property
+    def freq(self):
+        """float or PyoObject. Cutoff or center frequency of the filter."""
+        return self._freq
+    @freq.setter
+    def freq(self, x): self.setFreq(x)
+
+    @property
+    def q(self):
+        """float or PyoObject. Q of the filter."""
+        return self._q
+    @q.setter
+    def q(self, x): self.setQ(x)
+
+    @property
+    def shelf(self):
+        """float or PyoObject. Shelving gain of the filter."""
+        return self._shelf
+    @shelf.setter
+    def shelf(self, x): self.setShelf(x)
+
+    @property
+    def type(self):
+        """float or PyoObject. Crossfade between filter types."""
+        return self._type
+    @type.setter
+    def type(self, x): self.setType(x)
+
+    @property
+    def order(self):
+        """list of ints. Filter types ordering."""
+        return self._order
+    @order.setter
+    def order(self, x): self.setOrder(x)
+
 class Average(PyoObject):
     """
     Moving average filter.

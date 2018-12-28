@@ -125,7 +125,7 @@ OBJECTS_TREE = {
             'filters': sorted(['Biquad', 'BandSplit', 'Port', 'Hilbert', 'Tone', 
                                'DCBlock', 'EQ', 'Allpass', 'Allpass2', 'Phaser', 
                                'Biquadx', 'IRWinSinc', 'IRAverage', 'IRPulse', 
-                               'IRFM', 'FourBand', 'Biquada', 'Atone', 'SVF', 
+                               'IRFM', 'FourBand', 'Biquada', 'Atone', 'SVF', 'SVF2', 
                                'Average', 'Reson', 'Resonx', 'ButLP', 'ButHP', 
                                'ButBP', 'ButBR', 'ComplexRes', 'MoogLP', 'MultiBand']),
             'generators': sorted(['Noise', 'Phasor', 'Sine', 'Input', 'CrossFM', 

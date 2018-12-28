@@ -144,6 +144,12 @@ sinusoidal component according to its frequency.
 .. autoclass:: SVF
    :members:
 
+*SVF2*
+------------
+
+.. autoclass:: SVF2
+   :members:
+
 *Average*
 ------------
 
