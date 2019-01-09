@@ -240,7 +240,7 @@ in pyo~ inputs).;
 #X text 15 163 For more details about how pyo can be embedded inside
 an host program \, see m_pyo.h in the "embedded" folder of pyo sources.
 ;
-#X text 14 57 Version : 0.9.1;
+#X text 14 57 Version : 0.9.2;
 #X text 14 81 Last update : December 2018;
 #X restore 406 237 pd README;
 #N canvas 182 106 1046 508 MESSAGES 0;

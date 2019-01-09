@@ -3,7 +3,7 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to the pyo 0.9.1 documentation
+Welcome to the pyo 0.9.2 documentation
 ===================================================
 
 .. image:: _static/E-PyoIcon.png
