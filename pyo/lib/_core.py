@@ -1129,19 +1129,11 @@ class PyoObject(PyoObjectBase):
     def __rsub__(self, x):
         x, lmax = convertArgsToLists(x)
         if self.__len__() >= lmax:
-            tmp = []
-            for i, obj in enumerate(self._base_objs):
-                sub_upsamp = Sig(wrap(x, i//self._op_duplicate))
-                self._keep_trace.append(sub_upsamp)
-                tmp.append(sub_upsamp - obj)
-            _add_dummy = Dummy(tmp)
+            _add_dummy = Dummy([wrap(x, i//self._op_duplicate) - obj \
+                                for i, obj in enumerate(self._base_objs)])
         else:
-            tmp = []
-            for i, obj in enumerate(x):
-                sub_upsamp = Sig(obj)
-                self._keep_trace.append(sub_upsamp)
-                tmp.append(sub_upsamp - wrap(self._base_objs, i))
-            _add_dummy = Dummy(tmp)
+            _add_dummy = Dummy([obj - wrap(self._base_objs, i) \
+                                for i, obj in enumerate(x)])
         self._keep_trace.append(_add_dummy)
         return _add_dummy
 
@@ -1205,19 +1197,11 @@ class PyoObject(PyoObjectBase):
     def __rdiv__(self, x):
         x, lmax = convertArgsToLists(x)
         if self.__len__() >= lmax:
-            tmp = []
-            for i, obj in enumerate(self._base_objs):
-                div_upsamp = Sig(wrap(x, i//self._op_duplicate))
-                self._keep_trace.append(div_upsamp)
-                tmp.append(div_upsamp / obj)
-            _mul_dummy = Dummy(tmp)
+            _mul_dummy = Dummy([wrap(x, i//self._op_duplicate) / obj \
+                                for i, obj in enumerate(self._base_objs)])
         else:
-            tmp = []
-            for i, obj in enumerate(x):
-                div_upsamp = Sig(obj)
-                self._keep_trace.append(div_upsamp)
-                tmp.append(div_upsamp / wrap(self._base_objs, i))
-            _mul_dummy = Dummy(tmp)
+            _mul_dummy = Dummy([obj / wrap(self._base_objs, i) \
+                                for i, obj in enumerate(x)])
         self._keep_trace.append(_mul_dummy)
         return _mul_dummy
 

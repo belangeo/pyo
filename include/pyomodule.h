@@ -1452,6 +1452,10 @@ extern PyTypeObject MultiBandType;
     } \
     else { \
         self->mul = tmp; \
+        if (! PyObject_HasAttrString((PyObject *)self->mul, "_getStream")) { \
+            PyErr_SetString(PyExc_ArithmeticError, "Only number or audio internal object can be used in arithmetic with audio internal objects.\n"); \
+            PyErr_Print(); \
+        } \
         streamtmp = PyObject_CallMethod((PyObject *)self->mul, "_getStream", NULL); \
         Py_INCREF(streamtmp); \
         Py_XDECREF(self->mul_stream); \
@@ -1483,6 +1487,10 @@ extern PyTypeObject MultiBandType;
     } \
     else { \
         self->add = tmp; \
+        if (! PyObject_HasAttrString((PyObject *)self->add, "_getStream")) { \
+            PyErr_SetString(PyExc_ArithmeticError, "Only number or audio internal object can be used in arithmetic with audio internal objects.\n"); \
+            PyErr_Print(); \
+        } \
         streamtmp = PyObject_CallMethod((PyObject *)self->add, "_getStream", NULL); \
         Py_INCREF(streamtmp); \
         Py_XDECREF(self->add_stream); \
@@ -1514,6 +1522,10 @@ extern PyTypeObject MultiBandType;
     } \
     else { \
         self->add = tmp; \
+        if (! PyObject_HasAttrString((PyObject *)self->add, "_getStream")) { \
+            PyErr_SetString(PyExc_ArithmeticError, "Only number or audio internal object can be used in arithmetic with audio internal objects.\n"); \
+            PyErr_Print(); \
+        } \
         streamtmp = PyObject_CallMethod((PyObject *)self->add, "_getStream", NULL); \
         Py_INCREF(streamtmp); \
         Py_XDECREF(self->add_stream); \
@@ -1548,6 +1560,10 @@ extern PyTypeObject MultiBandType;
     else { \
         Py_DECREF(self->mul); \
         self->mul = tmp; \
+        if (! PyObject_HasAttrString((PyObject *)self->mul, "_getStream")) { \
+            PyErr_SetString(PyExc_ArithmeticError, "Only number or audio internal object can be used in arithmetic with audio internal objects.\n"); \
+            PyErr_Print(); \
+        } \
         streamtmp = PyObject_CallMethod((PyObject *)self->mul, "_getStream", NULL); \
         Py_INCREF(streamtmp); \
         Py_XDECREF(self->mul_stream); \
@@ -1565,14 +1581,8 @@ extern PyTypeObject MultiBandType;
     Dummy *dummy; \
     MAKE_NEW_DUMMY(dummy, &DummyType, NULL); \
     Dummy_initialize(dummy); \
-    int isNumber = PyNumber_Check(arg); \
-    if (isNumber == 1) { \
-        PyObject_CallMethod((PyObject *)dummy, "setMul", "O", arg); \
-        PyObject_CallMethod((PyObject *)dummy, "setInput", "O", self); \
-    } else { \
-        PyObject_CallMethod((PyObject *)dummy, "setMul", "O", self); \
-        PyObject_CallMethod((PyObject *)dummy, "setInput", "O", arg); \
-    } \
+    PyObject_CallMethod((PyObject *)dummy, "setMul", "O", arg); \
+    PyObject_CallMethod((PyObject *)dummy, "setInput", "O", self); \
     return (PyObject *)dummy;
 
 #define INPLACE_MULTIPLY \
@@ -1583,14 +1593,8 @@ extern PyTypeObject MultiBandType;
     Dummy *dummy; \
     MAKE_NEW_DUMMY(dummy, &DummyType, NULL); \
     Dummy_initialize(dummy); \
-    int isNumber = PyNumber_Check(arg); \
-    if (isNumber == 1) { \
-        PyObject_CallMethod((PyObject *)dummy, "setAdd", "O", arg); \
-        PyObject_CallMethod((PyObject *)dummy, "setInput", "O", self); \
-    } else { \
-        PyObject_CallMethod((PyObject *)dummy, "setAdd", "O", self); \
-        PyObject_CallMethod((PyObject *)dummy, "setInput", "O", arg); \
-    } \
+    PyObject_CallMethod((PyObject *)dummy, "setAdd", "O", arg); \
+    PyObject_CallMethod((PyObject *)dummy, "setInput", "O", self); \
     return (PyObject *)dummy;
 
 #define INPLACE_ADD \
@@ -1601,14 +1605,8 @@ extern PyTypeObject MultiBandType;
     Dummy *dummy; \
     MAKE_NEW_DUMMY(dummy, &DummyType, NULL); \
     Dummy_initialize(dummy); \
-    int isNumber = PyNumber_Check(arg); \
-    if (isNumber == 1) { \
-        PyObject_CallMethod((PyObject *)dummy, "setSub", "O", arg); \
-        PyObject_CallMethod((PyObject *)dummy, "setInput", "O", self); \
-    } else { \
-        PyObject_CallMethod((PyObject *)dummy, "setSub", "O", self); \
-        PyObject_CallMethod((PyObject *)dummy, "setInput", "O", arg); \
-    } \
+    PyObject_CallMethod((PyObject *)dummy, "setSub", "O", arg); \
+    PyObject_CallMethod((PyObject *)dummy, "setInput", "O", self); \
     return (PyObject *)dummy;
 
 #define INPLACE_SUB \
@@ -1619,14 +1617,8 @@ extern PyTypeObject MultiBandType;
     Dummy *dummy; \
     MAKE_NEW_DUMMY(dummy, &DummyType, NULL); \
     Dummy_initialize(dummy); \
-    int isNumber = PyNumber_Check(arg); \
-    if (isNumber == 1) { \
-        PyObject_CallMethod((PyObject *)dummy, "setDiv", "O", arg); \
-        PyObject_CallMethod((PyObject *)dummy, "setInput", "O", self); \
-    } else { \
-        PyObject_CallMethod((PyObject *)dummy, "setDiv", "O", self); \
-        PyObject_CallMethod((PyObject *)dummy, "setInput", "O", arg); \
-    } \
+    PyObject_CallMethod((PyObject *)dummy, "setDiv", "O", arg); \
+    PyObject_CallMethod((PyObject *)dummy, "setInput", "O", self); \
     return (PyObject *)dummy;
 
 #define INPLACE_DIV \

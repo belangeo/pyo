@@ -78,9 +78,16 @@ static void
 Dummy_compute_next_data_frame(Dummy *self)
 {
     int i;
-    MYFLT *in = Stream_getData((Stream *)self->input_stream);
-    for (i=0; i<self->bufsize; i++) {
-        self->data[i] = in[i];
+    if (self->modebuffer[2] == 0) {
+        MYFLT inval = PyFloat_AS_DOUBLE(self->input);
+        for (i=0; i<self->bufsize; i++) {
+            self->data[i] = inval;
+        }
+    } else {
+        MYFLT *in = Stream_getData((Stream *)self->input_stream);
+        for (i=0; i<self->bufsize; i++) {
+            self->data[i] = in[i];
+        }
     }
     (*self->muladd_func_ptr)(self);
 }
@@ -115,8 +122,9 @@ PyObject *
 Dummy_initialize(Dummy *self)
 {
     int i;
-	self->modebuffer[0] = 0;
-	self->modebuffer[1] = 0;
+    self->modebuffer[0] = 0;
+    self->modebuffer[1] = 0;
+    self->modebuffer[2] = 0;
 
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, Dummy_compute_next_data_frame);
@@ -135,14 +143,25 @@ Dummy_setInput(Dummy *self, PyObject *arg)
 {
     PyObject *tmp, *streamtmp;
 
+    ASSERT_ARG_NOT_NULL
+
+    int isNumber = PyNumber_Check(arg);
+
     tmp = arg;
     Py_INCREF(tmp);
     Py_XDECREF(self->input);
-    self->input = tmp;
-    streamtmp = PyObject_CallMethod((PyObject *)self->input, "_getStream", NULL);
-    Py_INCREF(streamtmp);
-    Py_XDECREF(self->input_stream);
-    self->input_stream = (Stream *)streamtmp;
+
+    if (isNumber == 1) {
+        self->input = PyNumber_Float(tmp);
+        self->modebuffer[2] = 0;
+    } else {
+        self->input = tmp;
+        streamtmp = PyObject_CallMethod((PyObject *)self->input, "_getStream", NULL);
+        Py_INCREF(streamtmp);
+        Py_XDECREF(self->input_stream);
+        self->input_stream = (Stream *)streamtmp;
+        self->modebuffer[2] = 1;
+    }
 
     (*self->mode_func_ptr)(self);
 

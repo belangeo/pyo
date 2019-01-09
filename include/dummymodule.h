@@ -25,7 +25,7 @@ typedef struct {
     pyo_audio_HEAD
     PyObject *input;
     Stream *input_stream;
-    int modebuffer[2]; // need at least 2 slots for mul & add
+    int modebuffer[3]; // need at least 2 slots for mul & add
 } Dummy;
 
 extern PyObject * Dummy_initialize(Dummy *self);
