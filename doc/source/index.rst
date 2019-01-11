@@ -47,6 +47,7 @@ Examples
    Calling python functions from audio objects <examples/09-callbacks/index>
    Using tables <examples/10-tables/index>
    Multicore audio programming <examples/18-multicore/index>
+   Multirate audio processing <examples/19-multirate/index>
 
 Much more to come... Stay tuned!
 
