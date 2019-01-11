@@ -824,6 +824,7 @@ class PyoObjectBase(object):
         self._base_objs = []
         self._trig_objs = None
         self.__index = 0
+        self._stop_delay = -1
         self._is_mul_attribute = False
         self._use_wait_time_on_stop = False
         self._allow_auto_start = True
@@ -921,6 +922,18 @@ class PyoObjectBase(object):
         """
         self._linked_objects.append(x)
 
+    def setStopDelay(self, x):
+        """
+        Set a specific waiting time when calling the stop method on this object.
+
+        :Args:
+
+            x: float
+                New waiting time in seconds.
+
+        """
+        self._stop_delay = x
+
     def __iter__(self):
         self.__index = 0
         return self
@@ -971,7 +984,7 @@ class PyoObjectBase(object):
             for obj in children:
                 if isAudioObject(obj) and obj._allow_auto_start:
                     obj.play(dur, delay)
-                elif type(obj) is list:             # Handle list of audio objects.
+                elif type(obj) is list: # Handle list of audio objects.
                     for subobj in obj:
                         if isAudioObject(subobj) and subobj._allow_auto_start:
                             subobj.play(dur, delay)
@@ -1442,12 +1455,14 @@ class PyoObject(PyoObjectBase):
         self._autostop(wait)
         if self._is_mul_attribute and not self._use_wait_time_on_stop:
             wait = 0
+        if self._stop_delay != -1:
+            wait = self._stop_delay
 
         if self._trig_objs is not None:
             if isinstance(self._trig_objs, list):
                 [obj.stop(wait) for obj in self._trig_objs]
             else:
-                self._trig_objs.stop()
+                self._trig_objs.stop(wait)
         if self._base_players is not None:
             [obj.stop(wait) for obj in self._base_players]
         # This is not good for TableRec objects, only for Looper.
@@ -2549,11 +2564,14 @@ class PyoPVObject(PyoObjectBase):
 
         """
         self._autostop(wait)
+        if self._stop_delay != -1:
+            wait = self._stop_delay
+
         if self._trig_objs is not None:
-            self._trig_objs.stop()
+            self._trig_objs.stop(wait)
         if self._base_players is not None:
-            [obj.stop() for obj in self._base_players]
-        [obj.stop() for obj in self._base_objs]
+            [obj.stop(wait) for obj in self._base_players]
+        [obj.stop(wait) for obj in self._base_objs]
         return self
 
     def set(self, attr, value, port=0.025):
@@ -2673,8 +2691,10 @@ class Mix(PyoObject):
         if isinstance(input, list):
             input_objs = []
             input_objs = [obj for pyoObj in input for obj in pyoObj.getBaseObjects()]
+            self._linked_objects = input
         else:
             input_objs = input.getBaseObjects()
+            self._linked_objects = [input]
         input_len = len(input_objs)
         if voices < 1:
             voices = 1

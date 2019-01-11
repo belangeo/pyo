@@ -20,7 +20,7 @@ from pyo import *
 s = Server(sr=44100, nchnls=2, buffersize=512, duplex=1).boot()
 s.setAutoStartChildren(True)
 
-TEST = 7
+TEST = 8
 
 if TEST == 0:
     # Simple oscillator with an amplitude envelope. Call a.stop(1) to fadeout.
@@ -69,5 +69,17 @@ elif TEST == 7:
     lfo.preventAutoStart()
     a = Sine(freq=lfo, mul=Fader(1, 1, mul=.2)).out()
     b = Sine(freq=lfo, mul=Fader(1, 1, mul=.2)).out(1)
+elif TEST == 8:
+    # Test case for deeper propagation. Call rev.stop() to keep the reverb trail.
+    a = Sine(500)
+    a.setStopDelay(1)
+    b = Sine(750)
+    b.setStopDelay(1.5)
+    c = Sine(1000)
+    c.setStopDelay(2)
+    d = Mix([a, b, c], voices=1)
+    d.setStopDelay(2)
+    rev = WGVerb(d, feedback=0.9, mul=0.2).out()
+    rev.setStopDelay(5)
 
 s.gui(locals())

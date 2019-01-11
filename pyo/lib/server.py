@@ -1350,6 +1350,29 @@ class Server(object):
         >>> freq = Linseg([(0,500),(1, 750),(2, 500)], loop=True)
         >>> a = Sine(freq=freq, mul=Fader(1, 1, mul=lf)).out()
 
+        .. Note::
+
+            The waiting time doesn't propagate to objects used in audio
+            arithmetic. Code like this (for which you want to call out.stop()):
+
+            >>> a = Sine(500)
+            >>> a.setStopDelay(1)
+            >>> b = Sine(750)
+            >>> b.setStopDelay(2)
+            >>> out = Freeverb(a+b, size=0.8, mul=0.3).out()
+            >>> out.setStopDelay(4)
+
+            Should be written as:
+
+            >>> a = Sine(500)
+            >>> a.setStopDelay(1)
+            >>> b = Sine(750)
+            >>> b.setStopDelay(2)
+            >>> c = Mix([a, b], voices=1)
+            >>> c.setStopDelay(2)
+            >>> out = Freeverb(c, size=0.8, mul=0.3).out()
+            >>> out.setStopDelay(4)
+
         """
         self._server.setAutoStartChildren(state)
 
