@@ -926,6 +926,9 @@ class PyoObjectBase(object):
         """
         Set a specific waiting time when calling the stop method on this object.
 
+        This method returns `self`, allowing it to be applied at the object
+        creation.
+
         :Args:
 
             x: float
@@ -933,6 +936,7 @@ class PyoObjectBase(object):
 
         """
         self._stop_delay = x
+        return self
 
     def __iter__(self):
         self.__index = 0
