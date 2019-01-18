@@ -7,11 +7,19 @@ Usage:
     python3 -i 04-data-control.py
 
 """
-import time, multiprocessing
+import sys, time, multiprocessing
 from random import uniform
 from pyo import *
 
 VOICES_PER_CORE = 4
+
+if sys.platform.startswith("linux"):
+    audio = "jack"
+elif sys.platform.startswith("darwin"):
+    audio = "portaudio"
+else:
+    print("Multicore examples don't run under Windows... Sorry!")
+    exit()
 
 class Proc(multiprocessing.Process):
     def __init__(self, pipe):
@@ -20,12 +28,12 @@ class Proc(multiprocessing.Process):
         self.pipe = pipe
 
     def run(self):
-        self.server = Server(audio="jack")
+        self.server = Server(audio=audio)
         self.server.deactivateMidi()
         self.server.boot().start()
 
         self.mid = Notein(poly=VOICES_PER_CORE, scale=1, first=0, last=127)
-        self.amp = MidiAdsr(self.mid['velocity'], 0.005, .1, .7, 0.5, mul=.1)
+        self.amp = MidiAdsr(self.mid['velocity'], 0.005, .1, .7, 0.5, mul=.01)
         self.pit = self.mid['pitch'] * [uniform(.99, 1.01) for i in range(40)]
         self.rc1 = RCOsc(self.pit, sharp=0.8, mul=self.amp).mix(1)
         self.rc2 = RCOsc(self.pit*0.99, sharp=0.8, mul=self.amp).mix(1)

@@ -5,8 +5,17 @@ Usage:
     python3 -i 02-sharing-audio.py
 
 """
-import time, random, multiprocessing
+import sys, time, random, multiprocessing
 from pyo import *
+
+if sys.platform.startswith("linux"):
+    audio = "jack"
+elif sys.platform.startswith("darwin"):
+    audio = "portaudio"
+    print("SharedTable does not behave correctly under MacOS... This example doesn't work.")
+else:
+    print("Multicore examples don't run under Windows... Sorry!")
+    exit()
 
 class Proc(multiprocessing.Process):
     def __init__(self, create):
@@ -15,12 +24,12 @@ class Proc(multiprocessing.Process):
         self.create = create
 
     def run(self):
-        self.server = Server(audio="jack")
+        self.server = Server(audio=audio)
         self.server.deactivateMidi()
         self.server.boot().start()
         bufsize = self.server.getBufferSize()
 
-        nbands = 50
+        nbands = 20
         names = ["/f%02d" % i for i in range(nbands)]
 
         if self.create: # 50 bands frequency splitter.

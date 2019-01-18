@@ -5,10 +5,19 @@ Usage:
     python3 -i 03-synchronization.py
 
 """
-import time, random, multiprocessing
+import sys, time, random, multiprocessing
 from pyo import *
 
 RECORD = False
+
+if sys.platform.startswith("linux"):
+    audio = "jack"
+elif sys.platform.startswith("darwin"):
+    audio = "portaudio"
+    print("SharedTable does not behave correctly under MacOS... This example doesn't work.")
+else:
+    print("Multicore examples don't run under Windows... Sorry!")
+    exit()
 
 class Main(multiprocessing.Process):
     def __init__(self):
@@ -16,7 +25,7 @@ class Main(multiprocessing.Process):
         self.daemon = True
 
     def run(self):
-        self.server = Server(audio="jack")
+        self.server = Server(audio=audio)
         self.server.deactivateMidi()
         self.server.boot().start()
         bufsize = self.server.getBufferSize()
@@ -39,7 +48,7 @@ class Proc(multiprocessing.Process):
         self.daemon = True
 
     def run(self):
-        self.server = Server(audio="jack")
+        self.server = Server(audio=audio)
         self.server.deactivateMidi()
         self.server.boot()
         bufsize = self.server.getBufferSize()
@@ -70,7 +79,7 @@ if __name__ == '__main__':
     p1, p2 = Proc(1, child), Proc(2, child)
     main = Main()
     p1.start(); p2.start();
-    time.sleep(.05)
+    time.sleep(.1)
     main.start()
-    time.sleep(.05)
+    time.sleep(.1)
     signal.send(1)
