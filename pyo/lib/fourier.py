@@ -124,6 +124,7 @@ class FFT(PyoObject):
             self._real_objs.append(FFT_base(wrap(self._base_players,j), 0, self._mul, self._add))
             self._imag_objs.append(FFT_base(wrap(self._base_players,j), 1, self._mul, self._add))
             self._bin_objs.append(FFT_base(wrap(self._base_players,j), 2, self._mul, self._add))
+        self._base_objs = [Sig(0)] # Dummy objs to prevent PyoObjectBase methods to fail.
         self.play()
 
     def __len__(self):
