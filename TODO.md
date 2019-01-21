@@ -1,6 +1,8 @@
 To do ASAP!
 ===========
 
+- Try SharedTable on OSX with -lrt flag.
+
 - script to remove older version files. search and ask...
 
 - make pip packages.
@@ -35,7 +37,7 @@ Examples
 Objects
 -------
 
-- Add VBAP algorithm.
+- Add VBAP and LBAP spat algorithms.
 
 - Add Binaural object (VBAP+HRTF).
 
