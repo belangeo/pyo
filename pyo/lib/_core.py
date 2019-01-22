@@ -934,6 +934,15 @@ class PyoObjectBase(object):
             x: float
                 New waiting time in seconds.
 
+        .. note::
+
+            if the method setStopDelay(x) was called before calling stop(wait)
+            with a positive `wait` value, the `wait` value won't overwrite the
+            value given to setStopDelay for the current object, but will be
+            the one propagated to children objects. This allow to set a waiting
+            time for a specific object with setStopDelay whithout changing the
+            global delay time given to the stop method.
+
         """
         self._stop_delay = x
         return self
@@ -1450,6 +1459,13 @@ class PyoObject(PyoObjectBase):
                 is propagated to the children objects. Defaults to 0.
 
         .. note::
+
+            if the method setStopDelay(x) was called before calling stop(wait)
+            with a positive `wait` value, the `wait` value won't overwrite the
+            value given to setStopDelay for the current object, but will be
+            the one propagated to children objects. This allow to set a waiting
+            time for a specific object with setStopDelay whithout changing the
+            global delay time given to the stop method.
 
             Fader and Adsr objects ignore waiting time given to the stop
             method because they already implement a delayed processing
@@ -2565,6 +2581,15 @@ class PyoPVObject(PyoObjectBase):
                 Delay, in seconds, before the process is actually stopped.
                 If autoStartChildren is activated in the Server, this value
                 is propagated to the children objects. Defaults to 0.
+
+        .. note::
+
+            if the method setStopDelay(x) was called before calling stop(wait)
+            with a positive `wait` value, the `wait` value won't overwrite the
+            value given to setStopDelay for the current object, but will be
+            the one propagated to children objects. This allow to set a waiting
+            time for a specific object with setStopDelay whithout changing the
+            global delay time given to the stop method.
 
         """
         self._autostop(wait)
