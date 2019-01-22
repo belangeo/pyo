@@ -882,15 +882,15 @@ class PyoObjectBase(object):
         """
         return self._base_objs[0].getServer().getBufferSize()
 
-    def preventAutoStart(self):
+    def allowAutoStart(self, switch=True):
         """
         When autoStartChildren is activated in the Server, call this method
-        to stop the propagation of play/out/stop methods to this object. This
-        is useful when an object is used at multiple places and you don't want
-        to loose it when you stop one dsp block.
+        with False as argument to stop the propagation of play/out/stop methods
+        to this object. This is useful when an object is used at multiple places
+        and you don't want to loose it when you stop one dsp block.
 
         """
-        self._allow_auto_start = False
+        self._allow_auto_start = switch
 
     def useWaitTimeOnStop(self):
         """

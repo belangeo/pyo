@@ -1,8 +1,6 @@
 To do ASAP!
 ===========
 
-- Try SharedTable on OSX with -lrt flag.
-
 - script to remove older version files. search and ask...
 
 - make pip packages.
