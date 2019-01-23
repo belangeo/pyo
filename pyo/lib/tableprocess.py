@@ -1595,7 +1595,7 @@ class TableRec(PyoObject):
         self._time_dummy = []
         self._input = input
         self._table = table
-        self._in_fader = InputFader(input)
+        self._in_fader = InputFader(input).stop()
         in_fader, table, fadetime, lmax = convertArgsToLists(self._in_fader, table, fadetime)
         self._base_objs = [TableRec_base(wrap(in_fader,i), wrap(table,i), wrap(fadetime,i)) for i in range(len(table))]
         self._trig_objs = Dummy([TriggerDummy_base(obj) for obj in self._base_objs])
@@ -2747,7 +2747,7 @@ class TablePut(PyoObject):
         PyoObject.__init__(self)
         self._input = input
         self._table = table
-        self._in_fader = InputFader(input)
+        self._in_fader = InputFader(input).stop()
         in_fader, table, lmax = convertArgsToLists(self._in_fader, table)
         self._base_objs = [TablePut_base(wrap(in_fader,i), wrap(table,i)) for i in range(len(table))]
         self._trig_objs = Dummy([TriggerDummy_base(obj) for obj in self._base_objs])

@@ -795,7 +795,7 @@ class ControlRec(PyoObject):
         self._path, self._name = os.path.split(filename)
         self._rate = rate
         self._dur = dur
-        self._in_fader = InputFader(input)
+        self._in_fader = InputFader(input).stop()
         in_fader, lmax = convertArgsToLists(self._in_fader)
         self._base_objs = [ControlRec_base(wrap(in_fader,i), rate, dur) for i in range(lmax)]
 

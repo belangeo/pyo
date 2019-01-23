@@ -1386,6 +1386,15 @@ class PyoObject(PyoObjectBase):
                     if (wrap(dur, i) + wrap(delay, i)) > durtmp:
                         durtmp = wrap(dur, i) + wrap(delay, i)
                 self._in_fader.play(durtmp, min(delay))
+        if hasattr(self, "_in_fader2"):
+            if 0 in dur:
+                self._in_fader2.play(0, min(delay))
+            else:
+                durtmp = 0.0
+                for i in range(lmax):
+                    if (wrap(dur, i) + wrap(delay, i)) > durtmp:
+                        durtmp = wrap(dur, i) + wrap(delay, i)
+                self._in_fader2.play(durtmp, min(delay))
 
         [obj.play(wrap(dur, i), wrap(delay, i)) \
          for i, obj in enumerate(self._base_objs)]
@@ -1449,6 +1458,15 @@ class PyoObject(PyoObjectBase):
                     if (wrap(dur, i) + wrap(delay, i)) > durtmp:
                         durtmp = wrap(dur, i) + wrap(delay, i)
                 self._in_fader.play(durtmp, min(delay))
+        if hasattr(self, "_in_fader2"):
+            if 0 in dur:
+                self._in_fader2.play(0, min(delay))
+            else:
+                durtmp = 0.0
+                for i in range(lmax):
+                    if (wrap(dur, i) + wrap(delay, i)) > durtmp:
+                        durtmp = wrap(dur, i) + wrap(delay, i)
+                self._in_fader2.play(durtmp, min(delay))
 
         if isinstance(chnl, list):
             [obj.out(wrap(chnl, i), wrap(dur, i), wrap(delay, i)) \
@@ -1505,6 +1523,8 @@ class PyoObject(PyoObjectBase):
             [obj.stop(wait) for obj in self._base_players]
         if hasattr(self, "_in_fader"):
             self._in_fader.stop(wait)
+        if hasattr(self, "_in_fader2"):
+            self._in_fader2.stop(wait)
         # This is not good for TableRec objects, only for Looper.
         # It's moved locally to the Looper definition.
         #if self._time_objs is not None:

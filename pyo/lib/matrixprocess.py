@@ -91,7 +91,7 @@ class MatrixRec(PyoObject):
         PyoObject.__init__(self)
         self._input = input
         self._matrix = matrix
-        self._in_fader = InputFader(input)
+        self._in_fader = InputFader(input).stop()
         in_fader, matrix, fadetime, delay, lmax = convertArgsToLists(self._in_fader, matrix, fadetime, delay)
         self._base_objs = [MatrixRec_base(wrap(in_fader,i), wrap(matrix,i), wrap(fadetime,i), wrap(delay,i)) for i in range(len(matrix))]
         self._trig_objs = Dummy([TriggerDummy_base(obj) for obj in self._base_objs])

@@ -186,6 +186,7 @@ class FFT(PyoObject):
     def play(self, dur=0, delay=0):
         dur, delay, lmax = convertArgsToLists(dur, delay)
         self._autoplay(dur, delay)
+        self._in_fader.play(dur, delay)
         self._base_players = [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._base_players)]
         self._real_objs = [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._real_objs)]
         self._imag_objs = [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._imag_objs)]
@@ -194,6 +195,7 @@ class FFT(PyoObject):
 
     def stop(self, wait=0):
         self._autostop(wait)
+        self._in_fader.stop(wait)
         [obj.stop(wait) for obj in self._base_players]
         [obj.stop(wait) for obj in self._real_objs]
         [obj.stop(wait) for obj in self._imag_objs]
