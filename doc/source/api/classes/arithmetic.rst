@@ -95,3 +95,14 @@ Tools to perform arithmetic operations on audio signals.
 .. autoclass:: Exp
    :members:
 
+*Div*
+------------
+
+.. autoclass:: Div
+   :members:
+
+*Sub*
+------------
+
+.. autoclass:: Sub
+   :members:

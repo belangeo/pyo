@@ -529,6 +529,8 @@ extern PyTypeObject RMSType;
 extern PyTypeObject MidiLinsegType;
 extern PyTypeObject MultiBandMainType;
 extern PyTypeObject MultiBandType;
+extern PyTypeObject M_DivType;
+extern PyTypeObject M_SubType;
 
 /* Constants */
 #define E M_E

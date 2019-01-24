@@ -822,3 +822,150 @@ class Exp(PyoObject):
         return self._input
     @input.setter
     def input(self, x): self.setInput(x)
+
+class Div(PyoObject):
+    """
+    Divides a by b.
+
+    :Parent: :py:class:`PyoObject`
+
+    :Args:
+
+        a: float or PyoObject, optional
+            Numerator. Defaults to 1.
+        b: float or PyoObject, optional
+            Denominator. Defaults to 1.
+
+    >>> s = Server().boot()
+    >>> s.start()
+    >>> a = Sine(freq=[400, 500])
+    >>> b = Randi(min=1, max=10, freq=5.00)
+    >>> c = Div(a, b, mul=0.3).out()
+
+    """
+    def __init__(self, a=1, b=1, mul=1, add=0):
+        pyoArgsAssert(self, "OOOO", a, b, mul, add)
+        PyoObject.__init__(self, mul, add)
+        self._a = a
+        self._b = b
+        a, b, mul, add, lmax = convertArgsToLists(a, b, mul, add)
+        self._base_objs = [M_Div_base(wrap(a,i), wrap(b,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+        self.play()
+
+    def setA(self, x):
+        """
+        Replace the `a` attribute.
+
+        :Args:
+
+            x: float or PyoObject
+                new `a` attribute.
+
+        """
+        pyoArgsAssert(self, "O", x)
+        self._a = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setA(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def setB(self, x):
+        """
+        Replace the `b` attribute.
+
+        :Args:
+
+            x: float or PyoObject
+                new `b` attribute.
+
+        """
+        pyoArgsAssert(self, "O", x)
+        self._b = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setB(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    @property
+    def a(self):
+        """float or PyoObject. Numerator."""
+        return self._a
+    @a.setter
+    def a(self, x): self.setA(x)
+
+    @property
+    def b(self):
+        """float or PyoObject. Denominator."""
+        return self._b
+    @b.setter
+    def b(self, x): self.setB(x)
+
+class Sub(PyoObject):
+    """
+    Substracts b from a.
+
+    :Parent: :py:class:`PyoObject`
+
+    :Args:
+
+        a: float or PyoObject, optional
+            Left operand. Defaults to 1.
+        b: float or PyoObject, optional
+            Right operand. Defaults to 1.
+
+    >>> s = Server().boot()
+    >>> s.start()
+    >>> a = Sig([400, 500])
+    >>> b = Randi(min=50, max=100, freq=5.00)
+    >>> c = Sub(a, b)
+    >>> d = SineLoop(freq=c, feedback=0.08, mul=0.3).out()
+
+    """
+    def __init__(self, a=1, b=1, mul=1, add=0):
+        pyoArgsAssert(self, "OOOO", a, b, mul, add)
+        PyoObject.__init__(self, mul, add)
+        self._a = a
+        self._b = b
+        a, b, mul, add, lmax = convertArgsToLists(a, b, mul, add)
+        self._base_objs = [M_Sub_base(wrap(a,i), wrap(b,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+        self.play()
+
+    def setA(self, x):
+        """
+        Replace the `a` attribute.
+
+        :Args:
+
+            x: float or PyoObject
+                new `a` attribute.
+
+        """
+        pyoArgsAssert(self, "O", x)
+        self._a = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setA(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def setB(self, x):
+        """
+        Replace the `b` attribute.
+
+        :Args:
+
+            x: float or PyoObject
+                new `b` attribute.
+
+        """
+        pyoArgsAssert(self, "O", x)
+        self._b = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setB(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    @property
+    def a(self):
+        """float or PyoObject. Left operand."""
+        return self._a
+    @a.setter
+    def a(self, x): self.setA(x)
+
+    @property
+    def b(self):
+        """float or PyoObject. Right operand."""
+        return self._b
+    @b.setter
+    def b(self, x): self.setB(x)

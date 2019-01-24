@@ -112,7 +112,7 @@ OBJECTS_TREE = {
                                 'Spectrum', 'PeakAmp', 'RMS']),
             'arithmetic': sorted(['Sin', 'Cos', 'Tan', 'Abs', 'Sqrt', 'Log', 
                                   'Log2', 'Log10', 'Pow', 'Atan2', 'Floor',
-                                  'Round', 'Ceil', 'Tanh', 'Exp']),
+                                  'Round', 'Ceil', 'Tanh', 'Exp', 'Div', 'Sub']),
             'controls': sorted(['Fader', 'Sig', 'SigTo', 'Adsr', 'Linseg', 
                                 'Expseg']),
             'dynamics': sorted(['Clip', 'Compress', 'Degrade', 'Mirror', 
