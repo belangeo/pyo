@@ -1,5 +1,9 @@
 2019-01-24 belangeo <belangeo@gmail.com>
 
+    * Jack audio backend does not ignore duplex value anymore.
+
+2019-01-24 belangeo <belangeo@gmail.com>
+
     * Added two arithmetic objects: Div and Sub.
 
 2019-01-22 belangeo <belangeo@gmail.com>

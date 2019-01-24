@@ -70,9 +70,12 @@ jack_callback(jack_nframes_t nframes, void *arg) {
 
     PyoJackBackendData *be_data = (PyoJackBackendData *) server->audio_be_data;
 
-    for (i = 0; i < server->ichnls; i++) {
-        in_buffers[i] = jack_port_get_buffer(be_data->jack_in_ports[i+server->input_offset], server->bufferSize);
+    if (be_data->jack_in_ports != NULL) {
+        for (i = 0; i < server->ichnls; i++) {
+            in_buffers[i] = jack_port_get_buffer(be_data->jack_in_ports[i+server->input_offset], server->bufferSize);
+        }
     }
+
     for (i = 0; i < server->nchnls; i++) {
         out_buffers[i] = jack_port_get_buffer(be_data->jack_out_ports[i+server->output_offset], server->bufferSize);
 
@@ -123,7 +126,7 @@ jack_callback(jack_nframes_t nframes, void *arg) {
     }
 
     /* jack audio data is not interleaved */
-    if (server->duplex == 1) {
+    if (be_data->jack_in_ports != NULL) {
         for (i=0; i<server->bufferSize; i++) {
             for (j=0; j<server->ichnls; j++) {
                 server->input_buffer[(i*server->ichnls)+j] = (MYFLT) in_buffers[j][i];
@@ -227,7 +230,7 @@ Server_jack_autoconnect(Server *self) {
     int i, j, num, err = 0;
     PyoJackBackendData *be_data = (PyoJackBackendData *) self->audio_be_data;
 
-    if (self->jackautoin) {
+    if (self->jackautoin && be_data->jack_in_ports != NULL) {
 
         Py_BEGIN_ALLOW_THREADS
         ports = jack_get_ports(be_data->jack_client, "system", NULL, JackPortIsOutput);
@@ -277,29 +280,31 @@ Server_jack_autoconnect(Server *self) {
         free(ports);
     }
 
-    num = PyList_Size(self->jackAutoConnectInputPorts);
-    if (num > 0) {
-        if (num != self->ichnls || !PyList_Check(PyList_GetItem(self->jackAutoConnectInputPorts, 0))) {
-            Server_error(self, "Jack auto-connect input ports list size does not match server.ichnls.\n");
-        } 
-        else {
-            for (j=0; j<self->ichnls; j++) {
-                num = PyList_Size(PyList_GetItem(self->jackAutoConnectInputPorts, j));
-                for (i=0; i<num; i++) {
-                    portname = PY_STRING_AS_STRING(PyList_GetItem(PyList_GetItem(self->jackAutoConnectInputPorts, j), i));
+    if (be_data->jack_in_ports != NULL) {
+        num = PyList_Size(self->jackAutoConnectInputPorts);
+        if (num > 0) {
+            if (num != self->ichnls || !PyList_Check(PyList_GetItem(self->jackAutoConnectInputPorts, 0))) {
+                Server_error(self, "Jack auto-connect input ports list size does not match server.ichnls.\n");
+            }
+            else {
+                for (j=0; j<self->ichnls; j++) {
+                    num = PyList_Size(PyList_GetItem(self->jackAutoConnectInputPorts, j));
+                    for (i=0; i<num; i++) {
+                        portname = PY_STRING_AS_STRING(PyList_GetItem(PyList_GetItem(self->jackAutoConnectInputPorts, j), i));
 
-                    if (jack_port_by_name(be_data->jack_client, portname) != NULL) {
+                        if (jack_port_by_name(be_data->jack_client, portname) != NULL) {
 
-                        Py_BEGIN_ALLOW_THREADS
-                        err = jack_connect(be_data->jack_client, portname, jack_port_name(be_data->jack_in_ports[j]));
-                        Py_END_ALLOW_THREADS
+                            Py_BEGIN_ALLOW_THREADS
+                            err = jack_connect(be_data->jack_client, portname, jack_port_name(be_data->jack_in_ports[j]));
+                            Py_END_ALLOW_THREADS
 
-                        if (err) {
-                            Server_error(self, "Jack cannot connect '%s' to input port %d\n", portname, j);
+                            if (err) {
+                                Server_error(self, "Jack cannot connect '%s' to input port %d\n", portname, j);
+                            }
                         }
-                    }
-                    else {
-                        Server_error(self, "Jack cannot find port '%s'\n", portname);
+                        else {
+                            Server_error(self, "Jack cannot find port '%s'\n", portname);
+                        }
                     }
                 }
             }
@@ -400,7 +405,11 @@ Server_jack_init(Server *self) {
 
     Py_BEGIN_ALLOW_THREADS
     be_data->midi_event_count = 0;
-    be_data->jack_in_ports = (jack_port_t **) calloc(self->ichnls + self->input_offset, sizeof(jack_port_t *));
+    if (self->duplex == 1) {
+        be_data->jack_in_ports = (jack_port_t **) calloc(self->ichnls + self->input_offset, sizeof(jack_port_t *));
+    } else {
+        be_data->jack_in_ports = NULL;
+    }
     be_data->jack_out_ports = (jack_port_t **) calloc(self->nchnls + self->output_offset, sizeof(jack_port_t *));
     be_data->jack_client = jack_client_open(client_name, options, &status, server_name);
     if (self->withJackMidi) {
@@ -465,24 +474,26 @@ Server_jack_init(Server *self) {
         Py_END_ALLOW_THREADS
     }
 
-    nchnls = total_nchnls = self->ichnls + self->input_offset;
-    while (nchnls-- > 0) {
-        index = total_nchnls - nchnls - 1;
-        ret = sprintf(name, "input_%i", index + 1);
-        if (ret > 0) {
+    if (self->duplex == 1) {
+        nchnls = total_nchnls = self->ichnls + self->input_offset;
+        while (nchnls-- > 0) {
+            index = total_nchnls - nchnls - 1;
+            ret = sprintf(name, "input_%i", index + 1);
+            if (ret > 0) {
 
-            Py_BEGIN_ALLOW_THREADS
-            be_data->jack_in_ports[index] = jack_port_register(be_data->jack_client,
-                                                               name,
-                                                               JACK_DEFAULT_AUDIO_TYPE,
-                                                               JackPortIsInput, 0);
-            Py_END_ALLOW_THREADS
+                Py_BEGIN_ALLOW_THREADS
+                be_data->jack_in_ports[index] = jack_port_register(be_data->jack_client,
+                                                                   name,
+                                                                   JACK_DEFAULT_AUDIO_TYPE,
+                                                                   JackPortIsInput, 0);
+                Py_END_ALLOW_THREADS
 
-        }
+            }
 
-        if ((be_data->jack_in_ports[index] == NULL)) {
-            Server_error(self, "No more Jack input ports available\n");
-            return -1;
+            if ((be_data->jack_in_ports[index] == NULL)) {
+                Server_error(self, "No more Jack input ports available\n");
+                return -1;
+            }
         }
     }
 
@@ -555,7 +566,9 @@ Server_jack_deinit(Server *self) {
 
     be_data->activated = 0;
 
-    free(be_data->jack_in_ports);
+    if (be_data->jack_in_ports != NULL) {
+        free(be_data->jack_in_ports);
+    }
     free(be_data->jack_out_ports);
     if (self->withJackMidi == 1) {
         free(be_data->midi_events);
@@ -572,6 +585,11 @@ jack_input_port_set_names(Server *self) {
     char *name;
     char result[128];
     PyoJackBackendData *be_data = (PyoJackBackendData *) self->audio_be_data;
+
+    if (be_data->jack_in_ports == NULL) {
+        Server_error(self, "Can not change Jack input port name with duplex=0.\n");
+        return 0;
+    }
 
     if (PyList_Check(self->jackInputPortNames)) {
         lsize = PyList_Size(self->jackInputPortNames);
