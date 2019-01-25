@@ -1404,7 +1404,8 @@ class PyoObject(PyoObjectBase):
         """
         pyoArgsAssert(self, "nn", dur, delay)
         dur, delay, lmax = convertArgsToLists(dur, delay)
-        self._autoplay(dur, delay)
+        if not self.isPlaying():
+            self._autoplay(dur, delay)
         if self._trig_objs is not None:
             if isinstance(self._trig_objs, list):
                 for i in range(lmax):
@@ -1476,7 +1477,8 @@ class PyoObject(PyoObjectBase):
         """
         pyoArgsAssert(self, "iInn", chnl, inc, dur, delay)
         dur, delay, lmax = convertArgsToLists(dur, delay)
-        self._autoplay(dur, delay)
+        if not self.isPlaying():
+            self._autoplay(dur, delay)
         if self._trig_objs is not None:
             if isinstance(self._trig_objs, list):
                 for i in range(lmax):
@@ -1550,7 +1552,8 @@ class PyoObject(PyoObjectBase):
             triggered by the stop call.
 
         """
-        self._autostop(wait)
+        if self.isPlaying():
+            self._autostop(wait)
         if self._is_mul_attribute and not self._use_wait_time_on_stop:
             wait = 0
         if self._stop_delay != -1:
@@ -2640,7 +2643,8 @@ class PyoPVObject(PyoObjectBase):
         """
         pyoArgsAssert(self, "nn", dur, delay)
         dur, delay, _ = convertArgsToLists(dur, delay)
-        self._autoplay(dur, delay)
+        if not self.isPlaying():
+            self._autoplay(dur, delay)
         if self._trig_objs is not None:
             self._trig_objs.play(dur, delay)
         if self._base_players is not None:
@@ -2674,7 +2678,8 @@ class PyoPVObject(PyoObjectBase):
             global delay time given to the stop method.
 
         """
-        self._autostop(wait)
+        if self.isPlaying():
+            self._autostop(wait)
         if self._stop_delay != -1:
             wait = self._stop_delay
 
