@@ -889,6 +889,15 @@ class PyoObjectBase(object):
         to this object. This is useful when an object is used at multiple places
         and you don't want to loose it when you stop one dsp block.
 
+        .. note::
+
+            This flag is ignored if you pass a _base object instead of a PyoObject.
+            In the following code, a[0] will still be stopped by a b.stop(wait) call:
+
+                >>> a = Randi(min=0, max=0.3, freq=[1,2])
+                >>> a.allowAutoStart(False)
+                >>> b = Sine(mul=a[0]).out()
+
         """
         self._allow_auto_start = switch
 
@@ -898,6 +907,15 @@ class PyoObjectBase(object):
         to force an object given to the `mul` attribute of another object to
         use the  wait time from the stop method instead of being stopped
         immediately.
+
+        .. note::
+
+            Use wait time on stop is always "on" for _base objects. In the following
+            code, a[0] will use the wait time given to b.stop(wait) even if it is
+            used as a `mul` attribute:
+
+                >>> a = Randi(min=0, max=0.3, freq=[1,2])
+                >>> b = Sine(mul=a[0]).out()
 
         """
         self._use_wait_time_on_stop = True
@@ -942,6 +960,14 @@ class PyoObjectBase(object):
             the one propagated to children objects. This allow to set a waiting
             time for a specific object with setStopDelay whithout changing the
             global delay time given to the stop method.
+
+            Stop delay value is ignored if you pass a _base object instead of a
+            PyoObject. In the following code, a[0] ignores the a.setStopDelay(1)
+            call:
+
+                >>> a = Randi(min=0, max=0.3, freq=[1,2])
+                >>> a.setStopDelay(1)
+                >>> b = Sine(mul=a[0]).out()
 
         """
         self._stop_delay = x
@@ -995,37 +1021,53 @@ class PyoObjectBase(object):
         if self.getServer().getAutoStartChildren():
             children = [getattr(self, at) for at in dir(self)] + self._linked_objects
             for obj in children:
-                if isAudioObject(obj) and obj._allow_auto_start:
-                    obj.play(dur, delay)
+                if isAudioObject(obj):
+                    if not hasattr(obj, "_allow_auto_start"):
+                        obj.play(dur[0], delay[0])
+                    elif obj._allow_auto_start:
+                        obj.play(dur, delay)
                 elif type(obj) is list: # Handle list of audio objects.
                     for subobj in obj:
-                        if isAudioObject(subobj) and subobj._allow_auto_start:
-                            subobj.play(dur, delay)
+                        if isAudioObject(subobj):
+                            if not hasattr(subobj, "_allow_auto_start"):
+                                subobj.play(dur[0], delay[0])
+                            elif subobj._allow_auto_start:
+                                subobj.play(dur, delay)
 
     def _autostop(self, wait=0):
         if self.getServer().getAutoStartChildren():
             children = [(getattr(self, at), at) for at in dir(self)] + [(obj, "") for obj in self._linked_objects]
             for tup in children:
-                if isAudioObject(tup[0]) and tup[0]._allow_auto_start:
-                    if tup[1] == "mul":
-                        # Start fadeout immediately.
-                        tup[0]._is_mul_attribute = True
+                if isAudioObject(tup[0]):
+                    if not hasattr(tup[0], "_allow_auto_start"):
+                        # XXX_base objects always wait, even for mul attribute.
                         tup[0].stop(wait)
-                        tup[0]._is_mul_attribute = False
-                    else:
-                        # Every other attributes wait.
-                        tup[0].stop(wait)
+                    elif tup[0]._allow_auto_start:
+                        if tup[1] == "mul":
+                            # Start fadeout immediately.
+                            tup[0]._is_mul_attribute = True
+                            tup[0].stop(wait)
+                            tup[0]._is_mul_attribute = False
+                        else:
+                            # Every other attributes wait.
+                            tup[0].stop(wait)
                 # Handle list of audio objects.
                 elif type(tup[0]) is list:
                     ismul = tup[1] == "mul"
                     for subobj in tup[0]:
                         if isAudioObject(subobj) and subobj._allow_auto_start:
-                            if ismul:
-                                subobj._is_mul_attribute = True
+                            if not hasattr(subobj, "_allow_auto_start"):
+                                # XXX_base objects always wait, even for mul attribute.
                                 subobj.stop(wait)
-                                subobj._is_mul_attribute = False
-                            else:
-                                subobj.stop(wait)
+                            elif subobj._allow_auto_start:
+                                if ismul:
+                                    # Start fadeout immediately.
+                                    subobj._is_mul_attribute = True
+                                    subobj.stop(wait)
+                                    subobj._is_mul_attribute = False
+                                else:
+                                    # Every other attributes wait.
+                                    subobj.stop(wait)
 
 ######################################################################
 ### PyoObject -> base class for pyo sound objects
