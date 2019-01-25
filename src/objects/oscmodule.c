@@ -100,7 +100,6 @@ OscReceiver_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, OscReceiver_compute_next_data_frame);
-    Stream_setStreamActive(self->stream, 1);
 
     static char *kwlist[] = {"port", "address", NULL};
 
@@ -184,6 +183,9 @@ OscReceiver_setValue(OscReceiver *self, PyObject *args, PyObject *kwds)
 static PyObject * OscReceiver_getServer(OscReceiver* self) { GET_SERVER };
 static PyObject * OscReceiver_getStream(OscReceiver* self) { GET_STREAM };
 
+static PyObject * OscReceiver_play(OscReceiver *self, PyObject *args, PyObject *kwds) { PLAY };
+static PyObject * OscReceiver_stop(OscReceiver *self, PyObject *args, PyObject *kwds) { STOP };
+
 static PyMemberDef OscReceiver_members[] = {
 {"server", T_OBJECT_EX, offsetof(OscReceiver, server), 0, "Pyo server."},
 {"stream", T_OBJECT_EX, offsetof(OscReceiver, stream), 0, "Stream object."},
@@ -193,6 +195,8 @@ static PyMemberDef OscReceiver_members[] = {
 static PyMethodDef OscReceiver_methods[] = {
 {"getServer", (PyCFunction)OscReceiver_getServer, METH_NOARGS, "Returns server object."},
 {"_getStream", (PyCFunction)OscReceiver_getStream, METH_NOARGS, "Returns stream object."},
+{"play", (PyCFunction)OscReceiver_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+{"stop", (PyCFunction)OscReceiver_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
 {"addAddress", (PyCFunction)OscReceiver_addAddress, METH_O, "Add a new address to the dictionary."},
 {"delAddress", (PyCFunction)OscReceiver_delAddress, METH_O, "Remove an address from the dictionary."},
 {"setValue", (PyCFunction)OscReceiver_setValue, METH_VARARGS|METH_KEYWORDS, "Sets value for a specified address."},
@@ -1299,7 +1303,6 @@ OscListReceiver_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, OscListReceiver_compute_next_data_frame);
-    Stream_setStreamActive(self->stream, 1);
 
     static char *kwlist[] = {"port", "address", "num", NULL};
 
@@ -1398,6 +1401,9 @@ OscListReceiver_setValue(OscListReceiver *self, PyObject *args, PyObject *kwds)
 static PyObject * OscListReceiver_getServer(OscListReceiver* self) { GET_SERVER };
 static PyObject * OscListReceiver_getStream(OscListReceiver* self) { GET_STREAM };
 
+static PyObject * OscListReceiver_play(OscListReceiver *self, PyObject *args, PyObject *kwds) { PLAY };
+static PyObject * OscListReceiver_stop(OscListReceiver *self, PyObject *args, PyObject *kwds) { STOP };
+
 static PyMemberDef OscListReceiver_members[] = {
     {"server", T_OBJECT_EX, offsetof(OscListReceiver, server), 0, "Pyo server."},
     {"stream", T_OBJECT_EX, offsetof(OscListReceiver, stream), 0, "Stream object."},
@@ -1407,6 +1413,8 @@ static PyMemberDef OscListReceiver_members[] = {
 static PyMethodDef OscListReceiver_methods[] = {
     {"getServer", (PyCFunction)OscListReceiver_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)OscListReceiver_getStream, METH_NOARGS, "Returns stream object."},
+    {"play", (PyCFunction)OscListReceiver_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+    {"stop", (PyCFunction)OscListReceiver_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
     {"addAddress", (PyCFunction)OscListReceiver_addAddress, METH_O, "Add a new address to the dictionary."},
     {"delAddress", (PyCFunction)OscListReceiver_delAddress, METH_O, "Remove an address from the dictionary."},
     {"setValue", (PyCFunction)OscListReceiver_setValue, METH_VARARGS|METH_KEYWORDS, "Sets value for a specified address."},

@@ -645,7 +645,7 @@ class Notein(PyoObject):
             return [obj._getStream().getValue() for obj in self.__getitem__(identifier).getBaseObjects()]
 
     def play(self, dur=0, delay=0):
-        self._base_handler.play()
+        self._base_handler.play(dur, delay)
         return PyoObject.play(self, dur, delay)
 
     def out(self, chnl=0, inc=1, dur=0, delay=0):

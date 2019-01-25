@@ -312,8 +312,16 @@ class OscReceive(PyoObject):
         else:
             return [obj._getStream().getValue() for obj in self._base_objs]
 
+    def play(self, dur=0, delay=0):
+        self._mainReceiver.play(dur, delay)
+        return PyoObject.play(self, dur, delay)
+
     def out(self, chnl=0, inc=1, dur=0, delay=0):
         return self.play(dur, delay)
+
+    def stop(self, wait=0):
+        self._mainReceiver.stop(wait)
+        return PyoObject.stop(self, wait)
 
 class OscDataSend(PyoObject):
     """
@@ -800,5 +808,13 @@ class OscListReceive(PyoObject):
                 outlist.append(l)
             return outlist
 
+    def play(self, dur=0, delay=0):
+        self._mainReceiver.play(dur, delay)
+        return PyoObject.play(self, dur, delay)
+
     def out(self, chnl=0, inc=1, dur=0, delay=0):
         return self.play(dur, delay)
+
+    def stop(self, wait=0):
+        self._mainReceiver.stop(wait)
+        return PyoObject.stop(self, wait)
