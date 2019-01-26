@@ -1,8 +1,6 @@
 To do ASAP!
 ===========
 
-- Server should not ignore the duplex flag with jack as audio backend.
-
 - script to remove older version files. search and ask...
 
 - make pip packages.
