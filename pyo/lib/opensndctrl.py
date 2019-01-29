@@ -313,7 +313,15 @@ class OscReceive(PyoObject):
             return [obj._getStream().getValue() for obj in self._base_objs]
 
     def play(self, dur=0, delay=0):
-        self._mainReceiver.play(dur, delay)
+        if type(dur) is list:
+            maindur = dur[0]
+        else:
+            maindur = dur
+        if type(delay) is list:
+            maindelay = delay[0]
+        else:
+            maindelay = delay
+        tmp = self._mainReceiver.play(maindur, maindelay)
         return PyoObject.play(self, dur, delay)
 
     def out(self, chnl=0, inc=1, dur=0, delay=0):
