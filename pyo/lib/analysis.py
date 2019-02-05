@@ -73,7 +73,7 @@ class Follower(PyoObject):
         self._in_fader = InputFader(input)
         in_fader, freq, mul, add, lmax = convertArgsToLists(self._in_fader, freq, mul, add)
         self._base_objs = [Follower_base(wrap(in_fader,i), wrap(freq,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
-        self.play()
+        self._init_play()
 
     def setInput(self, x, fadetime=0.05):
         """
@@ -169,7 +169,7 @@ class Follower2(PyoObject):
         self._in_fader = InputFader(input)
         in_fader, risetime, falltime, mul, add, lmax = convertArgsToLists(self._in_fader, risetime, falltime, mul, add)
         self._base_objs = [Follower2_base(wrap(in_fader,i), wrap(risetime,i), wrap(falltime, i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
-        self.play()
+        self._init_play()
 
     def setInput(self, x, fadetime=0.05):
         """
@@ -282,7 +282,7 @@ class ZCross(PyoObject):
         self._in_fader = InputFader(input)
         in_fader, thresh, mul, add, lmax = convertArgsToLists(self._in_fader, thresh, mul, add)
         self._base_objs = [ZCross_base(wrap(in_fader,i), wrap(thresh,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
-        self.play()
+        self._init_play()
 
     def setInput(self, x, fadetime=0.05):
         """
@@ -396,7 +396,7 @@ class Yin(PyoObject):
         self._in_fader = InputFader(input)
         in_fader, tolerance, minfreq, maxfreq, cutoff, winsize, mul, add, lmax = convertArgsToLists(self._in_fader, tolerance, minfreq, maxfreq, cutoff, winsize, mul, add)
         self._base_objs = [Yin_base(wrap(in_fader,i), wrap(tolerance,i), wrap(minfreq,i), wrap(maxfreq,i), wrap(cutoff,i), wrap(winsize,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
-        self.play()
+        self._init_play()
 
     def setInput(self, x, fadetime=0.05):
         """
@@ -563,7 +563,7 @@ class Centroid(PyoObject):
         self._in_fader = InputFader(input)
         in_fader, size, mul, add, lmax = convertArgsToLists(self._in_fader, size, mul, add)
         self._base_objs = [Centroid_base(wrap(in_fader,i), wrap(size,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
-        self.play()
+        self._init_play()
 
     def setInput(self, x, fadetime=0.05):
         """
@@ -649,7 +649,7 @@ class AttackDetector(PyoObject):
         self._in_fader = InputFader(input)
         in_fader, deltime, cutoff, maxthresh, minthresh, reltime, mul, add, lmax = convertArgsToLists(self._in_fader, deltime, cutoff, maxthresh, minthresh, reltime, mul, add)
         self._base_objs = [AttackDetector_base(wrap(in_fader,i), wrap(deltime,i), wrap(cutoff,i), wrap(maxthresh,i), wrap(minthresh,i), wrap(reltime,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
-        self.play()
+        self._init_play()
 
     def setInput(self, x, fadetime=0.05):
         """
@@ -875,7 +875,7 @@ class Spectrum(PyoObject):
         self._timer = Pattern(self.refreshView, 0.05).play()
         if function is None:
             self.view(wintitle)
-        self.play()
+        self._init_play()
 
     def setInput(self, x, fadetime=0.05):
         """
@@ -1327,7 +1327,7 @@ class Scope(PyoObject):
         self._base_objs[0].setFunc(self.refreshView)
         if function is None:
             self.view(wintitle)
-        self.play()
+        self._init_play()
 
     def setInput(self, x, fadetime=0.05):
         """
@@ -1553,7 +1553,7 @@ class PeakAmp(PyoObject):
         sr = self.getSamplingRate()
         bs = self.getBufferSize()
         self._timer = Pattern(self._buildList, 0.06).play()
-        self.play()
+        self._init_play()
 
     def setInput(self, x, fadetime=0.05):
         """
@@ -1673,7 +1673,7 @@ class RMS(PyoObject):
         sr = self.getSamplingRate()
         bs = self.getBufferSize()
         self._timer = Pattern(self._buildList, 0.06).play()
-        self.play()
+        self._init_play()
 
     def setInput(self, x, fadetime=0.05):
         """

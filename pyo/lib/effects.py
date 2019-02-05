@@ -79,7 +79,7 @@ class Disto(PyoObject):
         self._in_fader = InputFader(input)
         in_fader, drive, slope, mul, add, lmax = convertArgsToLists(self._in_fader, drive, slope, mul, add)
         self._base_objs = [Disto_base(wrap(in_fader,i), wrap(drive,i), wrap(slope,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
-        self.play()
+        self._init_play()
 
     def setInput(self, x, fadetime=0.05):
         """
@@ -200,7 +200,7 @@ class Delay(PyoObject):
         self._in_fader = InputFader(input)
         in_fader, delay, feedback, maxdelay, mul, add, lmax = convertArgsToLists(self._in_fader, delay, feedback, maxdelay, mul, add)
         self._base_objs = [Delay_base(wrap(in_fader,i), wrap(delay,i), wrap(feedback,i), wrap(maxdelay,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
-        self.play()
+        self._init_play()
 
     def setInput(self, x, fadetime=0.05):
         """
@@ -319,7 +319,7 @@ class SDelay(PyoObject):
         self._in_fader = InputFader(input)
         in_fader, delay, maxdelay, mul, add, lmax = convertArgsToLists(self._in_fader, delay, maxdelay, mul, add)
         self._base_objs = [SDelay_base(wrap(in_fader,i), wrap(delay,i), wrap(maxdelay,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
-        self.play()
+        self._init_play()
 
     def setInput(self, x, fadetime=0.05):
         """
@@ -417,7 +417,7 @@ class Waveguide(PyoObject):
         self._in_fader = InputFader(input)
         in_fader, freq, dur, minfreq, mul, add, lmax = convertArgsToLists(self._in_fader, freq, dur, minfreq, mul, add)
         self._base_objs = [Waveguide_base(wrap(in_fader,i), wrap(freq,i), wrap(dur,i), wrap(minfreq,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
-        self.play()
+        self._init_play()
 
     def setInput(self, x, fadetime=0.05):
         """
@@ -544,7 +544,7 @@ class AllpassWG(PyoObject):
         self._in_fader = InputFader(input)
         in_fader, freq, feed, detune, minfreq, mul, add, lmax = convertArgsToLists(self._in_fader, freq, feed, detune, minfreq, mul, add)
         self._base_objs = [AllpassWG_base(wrap(in_fader,i), wrap(freq,i), wrap(feed,i), wrap(detune,i), wrap(minfreq,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
-        self.play()
+        self._init_play()
 
     def setInput(self, x, fadetime=0.05):
         """
@@ -691,7 +691,7 @@ class Freeverb(PyoObject):
         self._in_fader = InputFader(input)
         in_fader, size, damp, bal, mul, add, lmax = convertArgsToLists(self._in_fader, size, damp, bal, mul, add)
         self._base_objs = [Freeverb_base(wrap(in_fader,i), wrap(size,i), wrap(damp,i), wrap(bal,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
-        self.play()
+        self._init_play()
 
     def setInput(self, x, fadetime=0.05):
         """
@@ -848,7 +848,7 @@ class Convolve(PyoObject):
         self._in_fader = InputFader(input)
         in_fader, table, size, mul, add, lmax = convertArgsToLists(self._in_fader, table, size, mul, add)
         self._base_objs = [Convolve_base(wrap(in_fader,i), wrap(table,i), wrap(size,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
-        self.play()
+        self._init_play()
 
     def setInput(self, x, fadetime=0.05):
         """
@@ -938,7 +938,7 @@ class WGVerb(PyoObject):
         self._in_fader = InputFader(input)
         in_fader, feedback, cutoff, bal, mul, add, lmax = convertArgsToLists(self._in_fader, feedback, cutoff, bal, mul, add)
         self._base_objs = [WGVerb_base(wrap(in_fader,i), wrap(feedback,i), wrap(cutoff,i), wrap(bal,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
-        self.play()
+        self._init_play()
 
     def setInput(self, x, fadetime=0.05):
         """
@@ -1081,7 +1081,7 @@ class Chorus(PyoObject):
         self._in_fader = InputFader(input)
         in_fader, depth, feedback, bal, mul, add, lmax = convertArgsToLists(self._in_fader, depth, feedback, bal, mul, add)
         self._base_objs = [Chorus_base(wrap(in_fader,i), wrap(depth,i), wrap(feedback,i), wrap(bal,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
-        self.play()
+        self._init_play()
 
     def setInput(self, x, fadetime=0.05):
         """
@@ -1221,7 +1221,7 @@ class Harmonizer(PyoObject):
         self._in_fader = InputFader(input)
         in_fader, transpo, feedback, winsize, mul, add, lmax = convertArgsToLists(self._in_fader, transpo, feedback, winsize, mul, add)
         self._base_objs = [Harmonizer_base(wrap(in_fader,i), wrap(transpo,i), wrap(feedback,i), wrap(winsize,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
-        self.play()
+        self._init_play()
 
     def setInput(self, x, fadetime=0.05):
         """
@@ -1355,7 +1355,7 @@ class Delay1(PyoObject):
         self._in_fader = InputFader(input)
         in_fader, mul, add, lmax = convertArgsToLists(self._in_fader, mul, add)
         self._base_objs = [Delay1_base(wrap(in_fader,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
-        self.play()
+        self._init_play()
 
     def setInput(self, x, fadetime=0.05):
         """
@@ -1439,7 +1439,7 @@ class STRev(PyoObject):
         in_fader, inpos, revtime, cutoff, bal, roomSize, firstRefGain, mul, add, lmax = convertArgsToLists(self._in_fader, inpos, revtime, cutoff, bal, roomSize, firstRefGain, mul, add)
         self._base_players = [STReverb_base(wrap(in_fader,i), wrap(inpos,i), wrap(revtime,i), wrap(cutoff,i), wrap(bal,i), wrap(roomSize,i), wrap(firstRefGain,i)) for i in range(lmax)]
         self._base_objs = [STRev_base(wrap(self._base_players,i), j, wrap(mul,i), wrap(add,i)) for i in range(lmax) for j in range(2)]
-        self.play()
+        self._init_play()
 
     def setInput(self, x, fadetime=0.05):
         """
@@ -1667,7 +1667,7 @@ class SmoothDelay(PyoObject):
         self._in_fader = InputFader(input)
         in_fader, delay, feedback, crossfade, maxdelay, mul, add, lmax = convertArgsToLists(self._in_fader, delay, feedback, crossfade, maxdelay, mul, add)
         self._base_objs = [SmoothDelay_base(wrap(in_fader,i), wrap(delay,i), wrap(feedback,i), wrap(crossfade,i), wrap(maxdelay,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
-        self.play()
+        self._init_play()
 
     def setInput(self, x, fadetime=0.05):
         """
@@ -1820,7 +1820,7 @@ class FreqShift(PyoObject):
             self._mod_objs.append(Mix(self._hilb_objs[-1]['real'] * self._sin_objs[-1] + self._hilb_objs[-1]['imag'] * self._cos_objs[-1],
                                       mul=wrap(mul,i), add=wrap(add,i)))
             self._base_objs.extend(self._mod_objs[-1].getBaseObjects())
-        self.play()
+        self._init_play()
 
     def play(self, dur=0, delay=0):
         dur, delay, lmax = convertArgsToLists(dur, delay)

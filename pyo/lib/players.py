@@ -113,7 +113,7 @@ class SfPlayer(PyoObject):
                 self._base_objs.append(SfPlay_base(self._base_players[-1], j, wrap(mul,i), wrap(add,i)))
                 _trig_objs_tmp.append(TriggerDummy_base(self._base_players[-1]))
         self._trig_objs = Dummy(_trig_objs_tmp)
-        self.play()
+        self._init_play()
 
     def setPath(self, path):
         """
@@ -341,7 +341,7 @@ class SfMarkerShuffler(PyoObject):
         for i in range(lmax * self._snd_chnls):
             j = i // self._snd_chnls
             self._base_objs.append(SfMarkerShuffle_base(wrap(self._base_players,j), i % self._snd_chnls, wrap(mul,j), wrap(add,j)))
-        self.play()
+        self._init_play()
 
     def setSpeed(self, x):
         """
@@ -525,7 +525,7 @@ class SfMarkerLooper(PyoObject):
         for i in range(lmax * self._snd_chnls):
             j = i // self._snd_chnls
             self._base_objs.append(SfMarkerLoop_base(wrap(self._base_players,j), i % self._snd_chnls, wrap(mul,j), wrap(add,j)))
-        self.play()
+        self._init_play()
 
     def setSpeed(self, x):
         """

@@ -343,7 +343,7 @@ class Expr(PyoObject):
         self._in_fader = InputFader(input)
         in_fader, expr, mul, add, lmax = convertArgsToLists(self._in_fader, expr, mul, add)
         self._base_objs = [Expr_base(wrap(in_fader,i), to_unicode(wrap(expr,i)), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
-        self.play()
+        self._init_play()
 
     def setInput(self, x, fadetime=0.05):
         """

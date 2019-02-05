@@ -120,7 +120,7 @@ class HRTF(PyoObject):
         for i in range(lmax):
             for j in range(2):
                 self._base_objs.append(HRTF_base(wrap(self._base_players,i), j, wrap(mul,i), wrap(add,i)))
-        self.play()
+        self._init_play()
 
     def setInput(self, x, fadetime=0.05):
         """

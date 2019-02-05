@@ -80,7 +80,7 @@ class Biquad(PyoObject):
         self._in_fader = InputFader(input)
         in_fader, freq, q, type, mul, add, lmax = convertArgsToLists(self._in_fader, freq, q, type, mul, add)
         self._base_objs = [Biquad_base(wrap(in_fader,i), wrap(freq,i), wrap(q,i), wrap(type,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
-        self.play()
+        self._init_play()
 
     def setInput(self, x, fadetime=0.05):
         """
@@ -230,7 +230,7 @@ class Biquadx(PyoObject):
         self._in_fader = InputFader(input)
         in_fader, freq, q, type, stages, mul, add, lmax = convertArgsToLists(self._in_fader, freq, q, type, stages, mul, add)
         self._base_objs = [Biquadx_base(wrap(in_fader,i), wrap(freq,i), wrap(q,i), wrap(type,i), wrap(stages,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
-        self.play()
+        self._init_play()
 
     def setInput(self, x, fadetime=0.05):
         """
@@ -410,7 +410,7 @@ class Biquada(PyoObject):
         self._in_fader = InputFader(input)
         in_fader, b0, b1, b2, a0, a1, a2, mul, add, lmax = convertArgsToLists(self._in_fader, self._b0, self._b1, self._b2, self._a0, self._a1, self._a2, mul, add)
         self._base_objs = [Biquada_base(wrap(in_fader,i), wrap(b0,i), wrap(b1,i), wrap(b2,i), wrap(a0,i), wrap(a1,i), wrap(a2,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
-        self.play()
+        self._init_play()
 
     def setInput(self, x, fadetime=0.05):
         """
@@ -635,7 +635,7 @@ class EQ(PyoObject):
         self._in_fader = InputFader(input)
         in_fader, freq, q, boost, type, mul, add, lmax = convertArgsToLists(self._in_fader, freq, q, boost, type, mul, add)
         self._base_objs = [EQ_base(wrap(in_fader,i), wrap(freq,i), wrap(q,i), wrap(boost,i), wrap(type,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
-        self.play()
+        self._init_play()
 
     def setInput(self, x, fadetime=0.05):
         """
@@ -786,7 +786,7 @@ class Tone(PyoObject):
         self._in_fader = InputFader(input)
         in_fader, freq, mul, add, lmax = convertArgsToLists(self._in_fader, freq, mul, add)
         self._base_objs = [Tone_base(wrap(in_fader,i), wrap(freq,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
-        self.play()
+        self._init_play()
 
     def setInput(self, x, fadetime=0.05):
         """
@@ -865,7 +865,7 @@ class Atone(PyoObject):
         self._in_fader = InputFader(input)
         in_fader, freq, mul, add, lmax = convertArgsToLists(self._in_fader, freq, mul, add)
         self._base_objs = [Atone_base(wrap(in_fader,i), wrap(freq,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
-        self.play()
+        self._init_play()
 
     def setInput(self, x, fadetime=0.05):
         """
@@ -957,7 +957,7 @@ class Port(PyoObject):
         self._in_fader = InputFader(input)
         in_fader, risetime, falltime, init, mul, add, lmax = convertArgsToLists(self._in_fader, risetime, falltime, init, mul, add)
         self._base_objs = [Port_base(wrap(in_fader,i), wrap(risetime,i), wrap(falltime,i), wrap(init,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
-        self.play()
+        self._init_play()
 
     def setInput(self, x, fadetime=0.05):
         """
@@ -1056,7 +1056,7 @@ class DCBlock(PyoObject):
         self._in_fader = InputFader(input)
         in_fader, mul, add, lmax = convertArgsToLists(self._in_fader, mul, add)
         self._base_objs = [DCBlock_base(wrap(in_fader,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
-        self.play()
+        self._init_play()
 
     def setInput(self, x, fadetime=0.05):
         """
@@ -1137,7 +1137,7 @@ class BandSplit(PyoObject):
         for j in range(num):
             for i in range(lmax):
                 self._base_objs.append(BandSplit_base(wrap(self._base_players,i), j, wrap(mul,j), wrap(add,j)))
-        self.play()
+        self._init_play()
 
     def setInput(self, x, fadetime=0.05):
         """
@@ -1243,7 +1243,7 @@ class FourBand(PyoObject):
         for j in range(4):
             for i in range(lmax):
                 self._base_objs.append(FourBand_base(wrap(self._base_players,i), j, wrap(mul,j), wrap(add,j)))
-        self.play()
+        self._init_play()
 
     def setInput(self, x, fadetime=0.05):
         """
@@ -1388,7 +1388,7 @@ class MultiBand(PyoObject):
         for j in range(num):
             for i in range(lmax):
                 self._base_objs.append(MultiBand_base(wrap(self._base_players,i), j, wrap(mul,j), wrap(add,j)))
-        self.play()
+        self._init_play()
 
     def setInput(self, x, fadetime=0.05):
         """
@@ -1491,7 +1491,7 @@ class Hilbert(PyoObject):
             for j in range(lmax):
                 self._base_objs.append(Hilbert_base(wrap(self._base_players,j), 0, wrap(mul,i), wrap(add,i)))
                 self._base_objs.append(Hilbert_base(wrap(self._base_players,j), 1, wrap(mul,i), wrap(add,i)))
-        self.play()
+        self._init_play()
 
     def __getitem__(self, str):
         if str == 'real':
@@ -1597,7 +1597,7 @@ class Allpass(PyoObject):
         self._in_fader = InputFader(input)
         in_fader, delay, feedback, maxdelay, mul, add, lmax = convertArgsToLists(self._in_fader, delay, feedback, maxdelay, mul, add)
         self._base_objs = [Allpass_base(wrap(in_fader,i), wrap(delay,i), wrap(feedback,i), wrap(maxdelay,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
-        self.play()
+        self._init_play()
 
     def setInput(self, x, fadetime=0.05):
         """
@@ -1712,7 +1712,7 @@ class Allpass2(PyoObject):
         self._in_fader = InputFader(input)
         in_fader, freq, bw, mul, add, lmax = convertArgsToLists(self._in_fader, freq, bw, mul, add)
         self._base_objs = [Allpass2_base(wrap(in_fader,i), wrap(freq,i), wrap(bw,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
-        self.play()
+        self._init_play()
 
     def setInput(self, x, fadetime=0.05):
         """
@@ -1834,7 +1834,7 @@ class Phaser(PyoObject):
         self._in_fader = InputFader(input)
         in_fader, freq, spread, q, feedback, num, mul, add, lmax = convertArgsToLists(self._in_fader, freq, spread, q, feedback, num, mul, add)
         self._base_objs = [Phaser_base(wrap(in_fader,i), wrap(freq,i), wrap(spread,i), wrap(q,i), wrap(feedback,i), wrap(num,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
-        self.play()
+        self._init_play()
 
     def setInput(self, x, fadetime=0.05):
         """
@@ -2022,7 +2022,7 @@ class Vocoder(PyoObject):
         self._in_fader2 = InputFader(input2)
         in_fader, in_fader2, freq, spread, q, slope, stages, mul, add, lmax = convertArgsToLists(self._in_fader, self._in_fader2, freq, spread, q, slope, stages, mul, add)
         self._base_objs = [Vocoder_base(wrap(in_fader,i), wrap(in_fader2,i), wrap(freq,i), wrap(spread,i), wrap(q,i), wrap(slope,i), wrap(stages,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
-        self.play()
+        self._init_play()
 
     def setInput(self, x, fadetime=0.05):
         """
@@ -2253,7 +2253,7 @@ class IRWinSinc(PyoObject):
         self._in_fader = InputFader(input)
         in_fader, freq, bw, type, order, mul, add, lmax = convertArgsToLists(self._in_fader, freq, bw, type, order, mul, add)
         self._base_objs = [IRWinSinc_base(wrap(in_fader,i), wrap(freq,i), wrap(bw,i), wrap(type,i), wrap(order,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
-        self.play()
+        self._init_play()
 
     def setInput(self, x, fadetime=0.05):
         """
@@ -2402,7 +2402,7 @@ class IRAverage(PyoObject):
         self._in_fader = InputFader(input)
         in_fader, order, mul, add, lmax = convertArgsToLists(self._in_fader, order, mul, add)
         self._base_objs = [IRAverage_base(wrap(in_fader,i), wrap(order,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
-        self.play()
+        self._init_play()
 
     def setInput(self, x, fadetime=0.05):
         """
@@ -2490,7 +2490,7 @@ class IRPulse(PyoObject):
         self._in_fader = InputFader(input)
         in_fader, freq, bw, type, order, mul, add, lmax = convertArgsToLists(self._in_fader, freq, bw, type, order, mul, add)
         self._base_objs = [IRPulse_base(wrap(in_fader,i), wrap(freq,i), wrap(bw,i), wrap(type,i), wrap(order,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
-        self.play()
+        self._init_play()
 
     def setInput(self, x, fadetime=0.05):
         """
@@ -2650,7 +2650,7 @@ class IRFM(PyoObject):
         self._in_fader = InputFader(input)
         in_fader, carrier, ratio, index, order, mul, add, lmax = convertArgsToLists(self._in_fader, carrier, ratio, index, order, mul, add)
         self._base_objs = [IRFM_base(wrap(in_fader,i), wrap(carrier,i), wrap(ratio,i), wrap(index,i), wrap(order,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
-        self.play()
+        self._init_play()
 
     def setInput(self, x, fadetime=0.05):
         """
@@ -2792,7 +2792,7 @@ class SVF(PyoObject):
         self._in_fader = InputFader(input)
         in_fader, freq, q, type, mul, add, lmax = convertArgsToLists(self._in_fader, freq, q, type, mul, add)
         self._base_objs = [SVF_base(wrap(in_fader,i), wrap(freq,i), wrap(q,i), wrap(type,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
-        self.play()
+        self._init_play()
 
     def setInput(self, x, fadetime=0.05):
         """
@@ -2972,7 +2972,7 @@ class SVF2(PyoObject):
         self._in_fader = InputFader(input)
         in_fader, freq, q, shelf, type, mul, add, lmax = convertArgsToLists(self._in_fader, freq, q, shelf, type, mul, add)
         self._base_objs = [SVF2_base(wrap(in_fader,i), wrap(freq,i), wrap(q,i), wrap(shelf,i), wrap(type,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
-        self.play()
+        self._init_play()
 
     def setInput(self, x, fadetime=0.05):
         """
@@ -3165,7 +3165,7 @@ class Average(PyoObject):
         self._in_fader = InputFader(input)
         in_fader, size, mul, add, lmax = convertArgsToLists(self._in_fader, size, mul, add)
         self._base_objs = [Average_base(wrap(in_fader,i), wrap(size,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
-        self.play()
+        self._init_play()
 
     def setInput(self, x, fadetime=0.05):
         """
@@ -3255,7 +3255,7 @@ class Reson(PyoObject):
         self._in_fader = InputFader(input)
         in_fader, freq, q, mul, add, lmax = convertArgsToLists(self._in_fader, freq, q, mul, add)
         self._base_objs = [Reson_base(wrap(in_fader,i), wrap(freq,i), wrap(q,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
-        self.play()
+        self._init_play()
 
     def setInput(self, x, fadetime=0.05):
         """
@@ -3372,7 +3372,7 @@ class Resonx(PyoObject):
         self._in_fader = InputFader(input)
         in_fader, freq, q, stages, mul, add, lmax = convertArgsToLists(self._in_fader, freq, q, stages, mul, add)
         self._base_objs = [Resonx_base(wrap(in_fader,i), wrap(freq,i), wrap(q,i), wrap(stages,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
-        self.play()
+        self._init_play()
 
     def setInput(self, x, fadetime=0.05):
         """
@@ -3499,7 +3499,7 @@ class ButLP(PyoObject):
         self._in_fader = InputFader(input)
         in_fader, freq, mul, add, lmax = convertArgsToLists(self._in_fader, freq, mul, add)
         self._base_objs = [ButLP_base(wrap(in_fader,i), wrap(freq,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
-        self.play()
+        self._init_play()
 
     def setInput(self, x, fadetime=0.05):
         """
@@ -3582,7 +3582,7 @@ class ButHP(PyoObject):
         self._in_fader = InputFader(input)
         in_fader, freq, mul, add, lmax = convertArgsToLists(self._in_fader, freq, mul, add)
         self._base_objs = [ButHP_base(wrap(in_fader,i), wrap(freq,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
-        self.play()
+        self._init_play()
 
     def setInput(self, x, fadetime=0.05):
         """
@@ -3669,7 +3669,7 @@ class ButBP(PyoObject):
         self._in_fader = InputFader(input)
         in_fader, freq, q, mul, add, lmax = convertArgsToLists(self._in_fader, freq, q, mul, add)
         self._base_objs = [ButBP_base(wrap(in_fader,i), wrap(freq,i), wrap(q,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
-        self.play()
+        self._init_play()
 
     def setInput(self, x, fadetime=0.05):
         """
@@ -3779,7 +3779,7 @@ class ButBR(PyoObject):
         self._in_fader = InputFader(input)
         in_fader, freq, q, mul, add, lmax = convertArgsToLists(self._in_fader, freq, q, mul, add)
         self._base_objs = [ButBR_base(wrap(in_fader,i), wrap(freq,i), wrap(q,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
-        self.play()
+        self._init_play()
 
     def setInput(self, x, fadetime=0.05):
         """
@@ -3889,7 +3889,7 @@ class MoogLP(PyoObject):
         self._in_fader = InputFader(input)
         in_fader, freq, res, mul, add, lmax = convertArgsToLists(self._in_fader, freq, res, mul, add)
         self._base_objs = [MoogLP_base(wrap(in_fader,i), wrap(freq,i), wrap(res,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
-        self.play()
+        self._init_play()
 
     def setInput(self, x, fadetime=0.05):
         """
@@ -4001,7 +4001,7 @@ class ComplexRes(PyoObject):
         self._in_fader = InputFader(input)
         in_fader, freq, decay, mul, add, lmax = convertArgsToLists(self._in_fader, freq, decay, mul, add)
         self._base_objs = [ComplexRes_base(wrap(in_fader,i), wrap(freq,i), wrap(decay,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
-        self.play()
+        self._init_play()
 
     def setInput(self, x, fadetime=0.05):
         """

@@ -221,7 +221,7 @@ class Score(PyoObject):
         self._in_fader = InputFader(input)
         in_fader, fname, lmax = convertArgsToLists(self._in_fader, fname)
         self._base_objs = [Score_base(wrap(in_fader,i), wrap(fname,i)) for i in range(lmax)]
-        self.play()
+        self._init_play()
 
     def out(self, chnl=0, inc=1, dur=0, delay=0):
         return self.play(dur, delay)
@@ -305,7 +305,7 @@ class CallAfter(PyoObject):
         self._function = getWeakMethodRef(function)
         function, time, arg, lmax = convertArgsToLists(function, time, arg)
         self._base_objs = [CallAfter_base(WeakMethod(wrap(function,i)), wrap(time,i), wrap(arg,i)) for i in range(lmax)]
-        self.play()
+        self._init_play()
 
     def out(self, x=0, inc=1, dur=0, delay=0):
         return self.play(dur, delay)

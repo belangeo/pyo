@@ -108,7 +108,7 @@ class Print(PyoObject):
         self._in_fader = InputFader(input)
         in_fader, method, interval, message, lmax = convertArgsToLists(self._in_fader, method, interval, message)
         self._base_objs = [Print_base(wrap(in_fader,i), wrap(method,i), wrap(interval,i), wrap(message,i)) for i in range(lmax)]
-        self.play()
+        self._init_play()
 
     def setInput(self, x, fadetime=0.05):
         """
@@ -256,7 +256,7 @@ class Snap(PyoObject):
             choicelen = len(choice)
             lmax = max(choicelen, lmax)
             self._base_objs = [Snap_base(wrap(in_fader,i), wrap(choice,i), wrap(scale,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
-        self.play()
+        self._init_play()
 
     def setInput(self, x, fadetime=0.05):
         """
@@ -364,7 +364,7 @@ class Interp(PyoObject):
         self._in_fader2 = InputFader(input2)
         in_fader, in_fader2, interp, mul, add, lmax = convertArgsToLists(self._in_fader, self._in_fader2, interp, mul, add)
         self._base_objs = [Interp_base(wrap(in_fader,i), wrap(in_fader2,i), wrap(interp,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
-        self.play()
+        self._init_play()
 
     def setInput(self, x, fadetime=0.05):
         """
@@ -475,7 +475,7 @@ class SampHold(PyoObject):
         self._in_fader2 = InputFader(controlsig)
         in_fader, in_fader2, value, mul, add, lmax = convertArgsToLists(self._in_fader, self._in_fader2, value, mul, add)
         self._base_objs = [SampHold_base(wrap(in_fader,i), wrap(in_fader2,i), wrap(value,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
-        self.play()
+        self._init_play()
 
     def setInput(self, x, fadetime=0.05):
         """
@@ -638,7 +638,7 @@ class Record(PyoObject):
         else:
             print('Warning: Filename has no extension. Using fileformat value.')
         self._base_objs = [Record_base(self._in_fader.getBaseObjects(), stringencode(filename), chnls, fileformat, sampletype, buffering, quality)]
-        self.play()
+        self._init_play()
 
     def out(self, chnl=0, inc=1, dur=0, delay=0):
         return self.play(dur, delay)
@@ -696,7 +696,7 @@ class Denorm(PyoObject):
         self._in_fader = InputFader(input)
         in_fader, mul, add, lmax = convertArgsToLists(self._in_fader, mul, add)
         self._base_objs = [Denorm_base(wrap(in_fader,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
-        self.play()
+        self._init_play()
 
     def setInput(self, x, fadetime=0.05):
         """
@@ -886,7 +886,7 @@ class ControlRead(PyoObject):
             f.close()
             self._base_objs.append(ControlRead_base(values, rate, loop, interp, wrap(mul,i), wrap(add,i)))
         self._trig_objs = Dummy([TriggerDummy_base(obj) for obj in self._base_objs])
-        self.play()
+        self._init_play()
 
     def out(self, chnl=0, inc=1, dur=0, delay=0):
         return self.play(dur, delay)
@@ -1105,7 +1105,7 @@ class NoteinRead(PyoObject):
             self._base_objs.append(NoteinRead_base(amps, timestamps, loop, wrap(mul,i), wrap(add,i)))
             _trig_objs_tmp.append(TriggerDummy_base(self._base_objs[-1]))
         self._trig_objs = Dummy(_trig_objs_tmp)
-        self.play()
+        self._init_play()
 
     def __getitem__(self, str):
         if str == 'trig':
@@ -1200,7 +1200,7 @@ class DBToA(PyoObject):
         self._in_fader = InputFader(input)
         in_fader, mul, add, lmax = convertArgsToLists(self._in_fader, mul, add)
         self._base_objs = [DBToA_base(wrap(in_fader,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
-        self.play()
+        self._init_play()
 
     def setInput(self, x, fadetime=0.05):
         """
@@ -1257,7 +1257,7 @@ class AToDB(PyoObject):
         self._in_fader = InputFader(input)
         in_fader, mul, add, lmax = convertArgsToLists(self._in_fader, mul, add)
         self._base_objs = [AToDB_base(wrap(in_fader,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
-        self.play()
+        self._init_play()
 
     def setInput(self, x, fadetime=0.05):
         """
@@ -1330,7 +1330,7 @@ class Scale(PyoObject):
         self._in_fader = InputFader(input)
         in_fader, inmin, inmax, outmin, outmax, exp, mul, add, lmax = convertArgsToLists(self._in_fader, inmin, inmax, outmin, outmax, exp, mul, add)
         self._base_objs = [Scale_base(wrap(in_fader,i), wrap(inmin,i), wrap(inmax,i), wrap(outmin,i), wrap(outmax,i), wrap(exp,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
-        self.play()
+        self._init_play()
 
     def setInput(self, x, fadetime=0.05):
         """
@@ -1503,7 +1503,7 @@ class CentsToTranspo(PyoObject):
         self._in_fader = InputFader(input)
         in_fader, mul, add, lmax = convertArgsToLists(self._in_fader, mul, add)
         self._base_objs = [CentsToTranspo_base(wrap(in_fader,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
-        self.play()
+        self._init_play()
 
     def setInput(self, x, fadetime=0.05):
         """
@@ -1558,7 +1558,7 @@ class TranspoToCents(PyoObject):
         self._in_fader = InputFader(input)
         in_fader, mul, add, lmax = convertArgsToLists(self._in_fader, mul, add)
         self._base_objs = [TranspoToCents_base(wrap(in_fader,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
-        self.play()
+        self._init_play()
 
     def setInput(self, x, fadetime=0.05):
         """
@@ -1613,7 +1613,7 @@ class MToF(PyoObject):
         self._in_fader = InputFader(input)
         in_fader, mul, add, lmax = convertArgsToLists(self._in_fader, mul, add)
         self._base_objs = [MToF_base(wrap(in_fader,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
-        self.play()
+        self._init_play()
 
     def setInput(self, x, fadetime=0.05):
         """
@@ -1671,7 +1671,7 @@ class FToM(PyoObject):
         self._in_fader = InputFader(input)
         in_fader, mul, add, lmax = convertArgsToLists(self._in_fader, mul, add)
         self._base_objs = [FToM_base(wrap(in_fader,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
-        self.play()
+        self._init_play()
 
     def setInput(self, x, fadetime=0.05):
         """
@@ -1733,7 +1733,7 @@ class MToT(PyoObject):
         self._in_fader = InputFader(input)
         in_fader, centralkey, mul, add, lmax = convertArgsToLists(self._in_fader, centralkey, mul, add)
         self._base_objs = [MToT_base(wrap(in_fader,i), wrap(centralkey,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
-        self.play()
+        self._init_play()
 
     def setInput(self, x, fadetime=0.05):
         """
@@ -1814,7 +1814,7 @@ class Between(PyoObject):
         self._in_fader = InputFader(input)
         in_fader, min, max, mul, add, lmax = convertArgsToLists(self._in_fader, min, max, mul, add)
         self._base_objs = [Between_base(wrap(in_fader,i), wrap(min,i), wrap(max,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
-        self.play()
+        self._init_play()
 
     def setInput(self, x, fadetime=0.05):
         """
@@ -1926,7 +1926,7 @@ class TrackHold(PyoObject):
         self._in_fader2 = InputFader(controlsig)
         in_fader, in_fader2, value, mul, add, lmax = convertArgsToLists(self._in_fader, self._in_fader2, value, mul, add)
         self._base_objs = [TrackHold_base(wrap(in_fader,i), wrap(in_fader2,i), wrap(value,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
-        self.play()
+        self._init_play()
 
     def setInput(self, x, fadetime=0.05):
         """
@@ -2054,7 +2054,7 @@ class Resample(PyoObject):
         self._mode = mode
         _input, mode, mul, add, lmax = convertArgsToLists(input, mode, mul, add)
         self._base_objs = [Resample_base(wrap(_input,i), wrap(mode,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
-        self.play()
+        self._init_play()
 
     def setMode(self, x):
         """

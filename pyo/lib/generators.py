@@ -62,7 +62,7 @@ class Sine(PyoObject):
         self._phase = phase
         freq, phase, mul, add, lmax = convertArgsToLists(freq, phase, mul, add)
         self._base_objs = [Sine_base(wrap(freq,i), wrap(phase,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
-        self.play()
+        self._init_play()
 
     def setFreq(self, x):
         """
@@ -162,7 +162,7 @@ class FastSine(PyoObject):
         self._quality = quality
         freq, initphase, quality, mul, add, lmax = convertArgsToLists(freq, initphase, quality, mul, add)
         self._base_objs = [FastSine_base(wrap(freq,i), wrap(initphase,i), wrap(quality,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
-        self.play()
+        self._init_play()
 
     def setFreq(self, x):
         """
@@ -255,7 +255,7 @@ class SineLoop(PyoObject):
         self._feedback = feedback
         freq, feedback, mul, add, lmax = convertArgsToLists(freq, feedback, mul, add)
         self._base_objs = [SineLoop_base(wrap(freq,i), wrap(feedback,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
-        self.play()
+        self._init_play()
 
     def setFreq(self, x):
         """
@@ -338,7 +338,7 @@ class Phasor(PyoObject):
         self._phase = phase
         freq, phase, mul, add, lmax = convertArgsToLists(freq, phase, mul, add)
         self._base_objs = [Phasor_base(wrap(freq,i), wrap(phase,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
-        self.play()
+        self._init_play()
 
     def setFreq(self, x):
         """
@@ -422,7 +422,7 @@ class Input(PyoObject):
         self._chnl = chnl
         chnl, mul, add, lmax = convertArgsToLists(chnl, mul, add)
         self._base_objs = [Input_base(wrap(chnl,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
-        self.play()
+        self._init_play()
 
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
         self._map_list = [SLMapMul(self._mul)]
@@ -445,7 +445,7 @@ class Noise(PyoObject):
         self._type = 0
         mul, add, lmax = convertArgsToLists(mul, add)
         self._base_objs = [Noise_base(wrap(mul,i), wrap(add,i)) for i in range(lmax)]
-        self.play()
+        self._init_play()
 
     def setType(self, x):
         """
@@ -496,7 +496,7 @@ class PinkNoise(PyoObject):
         PyoObject.__init__(self, mul, add)
         mul, add, lmax = convertArgsToLists(mul, add)
         self._base_objs = [PinkNoise_base(wrap(mul,i), wrap(add,i)) for i in range(lmax)]
-        self.play()
+        self._init_play()
 
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
         self._map_list = [SLMapMul(self._mul)]
@@ -521,7 +521,7 @@ class BrownNoise(PyoObject):
         PyoObject.__init__(self, mul, add)
         mul, add, lmax = convertArgsToLists(mul, add)
         self._base_objs = [BrownNoise_base(wrap(mul,i), wrap(add,i)) for i in range(lmax)]
-        self.play()
+        self._init_play()
 
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
         self._map_list = [SLMapMul(self._mul)]
@@ -562,7 +562,7 @@ class FM(PyoObject):
         self._index = index
         carrier, ratio, index, mul, add, lmax = convertArgsToLists(carrier, ratio, index, mul, add)
         self._base_objs = [Fm_base(wrap(carrier,i), wrap(ratio,i), wrap(index,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
-        self.play()
+        self._init_play()
 
     def setCarrier(self, x):
         """
@@ -681,7 +681,7 @@ class CrossFM(PyoObject):
         self._ind2 = ind2
         carrier, ratio, ind1, ind2, mul, add, lmax = convertArgsToLists(carrier, ratio, ind1, ind2, mul, add)
         self._base_objs = [CrossFm_base(wrap(carrier,i), wrap(ratio,i), wrap(ind1,i), wrap(ind2,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
-        self.play()
+        self._init_play()
 
     def setCarrier(self, x):
         """
@@ -809,7 +809,7 @@ class Blit(PyoObject):
         self._harms = harms
         freq, harms, mul, add, lmax = convertArgsToLists(freq, harms, mul, add)
         self._base_objs = [Blit_base(wrap(freq,i), wrap(harms,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
-        self.play()
+        self._init_play()
 
     def setFreq(self, x):
         """
@@ -912,7 +912,7 @@ class Rossler(PyoObject):
             self._base_objs.append(Rossler_base(wrap(pitch,i), wrap(chaos,i), wrap(mul,i), wrap(add,i)))
             if self._stereo:
                 self._base_objs.append(RosslerAlt_base(self._base_objs[-1], wrap(mul,i), wrap(add,i)))
-        self.play()
+        self._init_play()
 
     def setPitch(self, x):
         """
@@ -1020,7 +1020,7 @@ class Lorenz(PyoObject):
             self._base_objs.append(Lorenz_base(wrap(pitch,i), wrap(chaos,i), wrap(mul,i), wrap(add,i)))
             if self._stereo:
                 self._base_objs.append(LorenzAlt_base(self._base_objs[-1], wrap(mul,i), wrap(add,i)))
-        self.play()
+        self._init_play()
 
     def setPitch(self, x):
         """
@@ -1128,7 +1128,7 @@ class ChenLee(PyoObject):
             self._base_objs.append(ChenLee_base(wrap(pitch,i), wrap(chaos,i), wrap(mul,i), wrap(add,i)))
             if self._stereo:
                 self._base_objs.append(ChenLeeAlt_base(self._base_objs[-1], wrap(mul,i), wrap(add,i)))
-        self.play()
+        self._init_play()
 
     def setPitch(self, x):
         """
@@ -1226,7 +1226,7 @@ class LFO(PyoObject):
         self._type = type
         freq, sharp, type, mul, add, lmax = convertArgsToLists(freq, sharp, type, mul, add)
         self._base_objs = [LFO_base(wrap(freq,i), wrap(sharp,i), wrap(type,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
-        self.play()
+        self._init_play()
 
     def setFreq(self, x):
         """
@@ -1367,7 +1367,7 @@ class SumOsc(PyoObject):
         self._index = index
         freq, ratio, index, mul, add, lmax = convertArgsToLists(freq, ratio, index, mul, add)
         self._base_objs = [SumOsc_base(wrap(freq,i), wrap(ratio,i), wrap(index,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
-        self.play()
+        self._init_play()
 
     def setFreq(self, x):
         """
@@ -1485,7 +1485,7 @@ class SuperSaw(PyoObject):
         self._bal = bal
         freq, detune, bal, mul, add, lmax = convertArgsToLists(freq, detune, bal, mul, add)
         self._base_objs = [SuperSaw_base(wrap(freq,i), wrap(detune,i), wrap(bal,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
-        self.play()
+        self._init_play()
 
     def setFreq(self, x):
         """
@@ -1594,7 +1594,7 @@ class RCOsc(PyoObject):
         self._sharp = sharp
         freq, sharp, mul, add, lmax = convertArgsToLists(freq, sharp, mul, add)
         self._base_objs = [RCOsc_base(wrap(freq,i), wrap(sharp,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
-        self.play()
+        self._init_play()
 
     def setFreq(self, x):
         """
