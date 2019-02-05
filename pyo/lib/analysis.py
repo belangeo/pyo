@@ -877,6 +877,17 @@ class Spectrum(PyoObject):
             self.view(wintitle)
         self._init_play()
 
+    def play(self, dur=0, delay=0):
+        self._timer.play(dur, delay)
+        return PyoObject.play(self, dur, delay)
+
+    def out(self, chnl=0, inc=1, dur=0, delay=0):
+        return self.play(dur, delay)
+
+    def stop(self, wait=0):
+        self._timer.stop(wait)
+        return PyoObject.stop(self, wait)
+
     def setInput(self, x, fadetime=0.05):
         """
         Replace the `input` attribute.
@@ -1555,6 +1566,17 @@ class PeakAmp(PyoObject):
         self._timer = Pattern(self._buildList, 0.06).play()
         self._init_play()
 
+    def play(self, dur=0, delay=0):
+        self._timer.play(dur, delay)
+        return PyoObject.play(self, dur, delay)
+
+    def out(self, chnl=0, inc=1, dur=0, delay=0):
+        return self.play(dur, delay)
+
+    def stop(self, wait=0):
+        self._timer.stop(wait)
+        return PyoObject.stop(self, wait)
+
     def setInput(self, x, fadetime=0.05):
         """
         Replace the `input` attribute.
@@ -1674,6 +1696,17 @@ class RMS(PyoObject):
         bs = self.getBufferSize()
         self._timer = Pattern(self._buildList, 0.06).play()
         self._init_play()
+
+    def play(self, dur=0, delay=0):
+        self._timer.play(dur, delay)
+        return PyoObject.play(self, dur, delay)
+
+    def out(self, chnl=0, inc=1, dur=0, delay=0):
+        return self.play(dur, delay)
+
+    def stop(self, wait=0):
+        self._timer.stop(wait)
+        return PyoObject.stop(self, wait)
 
     def setInput(self, x, fadetime=0.05):
         """
