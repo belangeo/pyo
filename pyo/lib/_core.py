@@ -1018,20 +1018,28 @@ class PyoObjectBase(object):
         return args
 
     def _autoplay(self, dur=0, delay=0):
-        if self.getServer().getAutoStartChildren():
+        if self.getServer().getAutoStartChildren() and self._allow_auto_start:
             children = [getattr(self, at) for at in dir(self)] + self._linked_objects
             for obj in children:
                 if isAudioObject(obj):
                     if not hasattr(obj, "_allow_auto_start"):
+                        if obj.getStream().isOutputting(): # if outputting, don't call play().
+                            return
                         obj.play(dur[0], delay[0])
                     elif obj._allow_auto_start:
+                        if obj.isOutputting():
+                            return
                         obj.play(dur, delay)
                 elif type(obj) is list: # Handle list of audio objects.
                     for subobj in obj:
                         if isAudioObject(subobj):
                             if not hasattr(subobj, "_allow_auto_start"):
+                                if subobj.getStream().isOutputting():
+                                    return
                                 subobj.play(dur[0], delay[0])
                             elif subobj._allow_auto_start:
+                                if subobj.isOutputting():
+                                    return
                                 subobj.play(dur, delay)
 
     def _autostop(self, wait=0):
@@ -1404,7 +1412,7 @@ class PyoObject(PyoObjectBase):
         """
         pyoArgsAssert(self, "nn", dur, delay)
         dur, delay, lmax = convertArgsToLists(dur, delay)
-        if not self.isPlaying():
+        if not self.isPlaying() and not self.isOutputting():
             self._autoplay(dur, delay)
         if self._trig_objs is not None:
             if isinstance(self._trig_objs, list):
@@ -1477,7 +1485,7 @@ class PyoObject(PyoObjectBase):
         """
         pyoArgsAssert(self, "iInn", chnl, inc, dur, delay)
         dur, delay, lmax = convertArgsToLists(dur, delay)
-        if not self.isPlaying():
+        if not self.isPlaying() and not self.isOutputting():
             self._autoplay(dur, delay)
         if self._trig_objs is not None:
             if isinstance(self._trig_objs, list):
@@ -1552,7 +1560,7 @@ class PyoObject(PyoObjectBase):
             triggered by the stop call.
 
         """
-        if self.isPlaying():
+        if self.isPlaying() or self.isOutputting():
             self._autostop(wait)
         if self._is_mul_attribute and not self._use_wait_time_on_stop:
             wait = 0
