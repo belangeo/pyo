@@ -788,7 +788,7 @@ KEY_COMMANDS = {
 ALLOWED_EXT = PREFERENCES.get("allowed_ext",
                               ["py", "c5", "txt", "", "c", "h", "cpp", "hpp", "zy", "bat",
                                "sh", "rst", "iss", "sg", "md", "jsfx-inc", "lua", "css",
-                               "plist", "dt", "dtlib", "expr"])
+                               "plist", "dt", "dtlib", "expr", "xml"])
 
 ############## Pyo keywords ##############
 PYO_WORDLIST = getPyoKeywords()
