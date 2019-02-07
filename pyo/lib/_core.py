@@ -1023,7 +1023,7 @@ class PyoObjectBase(object):
             for obj in children:
                 if isAudioObject(obj):
                     if not hasattr(obj, "_allow_auto_start"):
-                        if obj.getStream().isOutputting(): # if outputting, don't call play().
+                        if obj._getStream().isOutputting(): # if outputting, don't call play().
                             return
                         obj.play(dur[0], delay[0])
                     elif obj._allow_auto_start:
@@ -1034,7 +1034,7 @@ class PyoObjectBase(object):
                     for subobj in obj:
                         if isAudioObject(subobj):
                             if not hasattr(subobj, "_allow_auto_start"):
-                                if subobj.getStream().isOutputting():
+                                if subobj._getStream().isOutputting():
                                     return
                                 subobj.play(dur[0], delay[0])
                             elif subobj._allow_auto_start:
