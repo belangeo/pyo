@@ -1552,8 +1552,8 @@ class MidiLinseg(PyoObject):
     """
     Line segments trigger.
 
-    TrigLinseg starts reading a break-points line segments each time it
-    receives a trigger in its `input` parameter.
+    MidiLinseg starts reading a break-points line segments each time it
+    receives a positive value in its `input` parameter.
 
     :Parent: :py:class:`PyoObject`
 

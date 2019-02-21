@@ -39,6 +39,8 @@ Objects
 
 - Add Binaural object (VBAP+HRTF).
 
+- Add a plate reverb.
+
 Jack
 ----
 
