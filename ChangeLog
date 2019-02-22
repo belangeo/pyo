@@ -1,5 +1,9 @@
 2019-02-22 belangeo <belangeo@gmail.com>
 
+    * Fader and Adsr now send a trigger at the end of the envelope.
+
+2019-02-22 belangeo <belangeo@gmail.com>
+
     * CallAfter's time and arg arguments can be changed dynamically.
 
 2019-01-24 belangeo <belangeo@gmail.com>

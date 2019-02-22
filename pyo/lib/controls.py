@@ -71,6 +71,10 @@ class Fader(PyoObject):
         As of version 0.8.0, exponential or logarithmic envelopes can be created
         with the exponent factor (see setExp() method).
 
+        As of version 0.9.2, Fader will send a trigger signal at the end of the playback.
+        User can retreive the trigger streams by calling obj['trig'].
+        Useful to synchronize other processes.
+
     >>> s = Server().boot()
     >>> s.start()
     >>> f = Fader(fadein=0.5, fadeout=0.5, dur=2, mul=.5)
@@ -89,9 +93,26 @@ class Fader(PyoObject):
         self._exp = 1.0
         fadein, fadeout, dur, mul, add, lmax = convertArgsToLists(fadein, fadeout, dur, mul, add)
         self._base_objs = [Fader_base(wrap(fadein,i), wrap(fadeout,i), wrap(dur,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+        self._trig_objs = Dummy([TriggerDummy_base(obj) for obj in self._base_objs])
 
     def out(self, chnl=0, inc=1, dur=0, delay=0):
         return self.play(dur, delay)
+
+    def stop(self, wait=0):
+        if self.isPlaying() or self.isOutputting():
+            self._autostop(wait)
+        if self._is_mul_attribute and not self._use_wait_time_on_stop:
+            wait = 0
+        if self._stop_delay != -1:
+            wait = self._stop_delay
+
+        # Don't call stop on the self._trig_objs because it has to wait
+        # until the fadeout finish to send its trigger. This will leave
+        # a running stream in the server...
+
+        [obj.stop(wait) for obj in self._base_objs]
+
+        return self
 
     def setFadein(self, x):
         """
@@ -231,6 +252,10 @@ class Adsr(PyoObject):
         As of version 0.8.0, exponential or logarithmic envelopes can be created
         with the exponent factor (see setExp() method).
 
+        As of version 0.9.2, Adsr will send a trigger signal at the end of the playback.
+        User can retreive the trigger streams by calling obj['trig'].
+        Useful to synchronize other processes.
+
     >>> s = Server().boot()
     >>> s.start()
     >>> f = Adsr(attack=.01, decay=.2, sustain=.5, release=.1, dur=2, mul=.5)
@@ -251,9 +276,26 @@ class Adsr(PyoObject):
         self._exp = 1.0
         attack, decay, sustain, release, dur, mul, add, lmax = convertArgsToLists(attack, decay, sustain, release, dur, mul, add)
         self._base_objs = [Adsr_base(wrap(attack,i), wrap(decay,i), wrap(sustain,i), wrap(release,i), wrap(dur,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+        self._trig_objs = Dummy([TriggerDummy_base(obj) for obj in self._base_objs])
 
     def out(self, chnl=0, inc=1, dur=0, delay=0):
         return self.play(dur, delay)
+
+    def stop(self, wait=0):
+        if self.isPlaying() or self.isOutputting():
+            self._autostop(wait)
+        if self._is_mul_attribute and not self._use_wait_time_on_stop:
+            wait = 0
+        if self._stop_delay != -1:
+            wait = self._stop_delay
+
+        # Don't call stop on the self._trig_objs because it has to wait
+        # until the fadeout finish to send its trigger. This will leave
+        # a running stream in the server...
+
+        [obj.stop(wait) for obj in self._base_objs]
+
+        return self
 
     def setAttack(self, x):
         """

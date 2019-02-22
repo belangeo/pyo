@@ -40,6 +40,8 @@ typedef struct {
     MYFLT currentVal;
     double currentTime;
     MYFLT sampleToSec;
+    MYFLT *trigsBuffer;
+    TriggerStream *trig_stream;
 } Fader;
 
 static void Fader_internal_stop(Fader *self) {
@@ -49,6 +51,7 @@ static void Fader_internal_stop(Fader *self) {
     Stream_setStreamToDac(self->stream, 0);
     for (i=0; i<self->bufsize; i++) {
         self->data[i] = 0;
+        self->trigsBuffer[i] = 0.0;
     }
 }
 
@@ -66,9 +69,13 @@ Fader_generate_auto(Fader *self) {
     }
 
     for (i=0; i<self->bufsize; i++) {
+        self->trigsBuffer[i] = 0.0;
         if (self->currentTime <= self->attack)
             val = self->currentTime * iatt * (1.0 - self->offset) + self->offset;
         else if (self->currentTime > self->duration) {
+            if (self->ended == 0) {
+                self->trigsBuffer[i] = 1.0;
+            }
             val = 0.;
             self->ended = 1;
         }
@@ -96,12 +103,13 @@ Fader_generate_wait(Fader *self) {
     iatt = 1.0 / self->attack;
     irel = 1.0 / self->release;
 
-    if (self->fademode == 1 && self->currentTime > self->release) {
+    if (self->fademode == 1 && self->ended == 1) {
         Fader_internal_stop((Fader *)self);
         return;
     }
 
     for (i=0; i<self->bufsize; i++) {
+        self->trigsBuffer[i] = 0.0;
         if (self->fademode == 0) {
             if (self->currentTime <= self->attack)
                 val = self->currentTime * iatt * (1.0 - self->offset) + self->offset;
@@ -112,8 +120,13 @@ Fader_generate_wait(Fader *self) {
         else {
             if (self->currentTime <= self->release)
                 val = (1. - self->currentTime * irel) * self->topValue;
-            else
+            else {
+                if (self->ended == 0) {
+                    self->trigsBuffer[i] = 1.0;
+                }
                 val = 0.;
+                self->ended = 1;
+            }
         }
         self->data[i] = self->currentVal = val;
         self->currentTime += self->sampleToSec;
@@ -189,6 +202,7 @@ static int
 Fader_traverse(Fader *self, visitproc visit, void *arg)
 {
     pyo_VISIT
+    Py_VISIT(self->trig_stream);
     return 0;
 }
 
@@ -196,6 +210,7 @@ static int
 Fader_clear(Fader *self)
 {
     pyo_CLEAR
+    Py_CLEAR(self->trig_stream);
     return 0;
 }
 
@@ -203,6 +218,7 @@ static void
 Fader_dealloc(Fader* self)
 {
     pyo_DEALLOC
+    free(self->trigsBuffer);
     Fader_clear(self);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
@@ -249,6 +265,15 @@ Fader_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
+    self->trigsBuffer = (MYFLT *)realloc(self->trigsBuffer, self->bufsize * sizeof(MYFLT));
+
+    for (i=0; i<self->bufsize; i++) {
+        self->trigsBuffer[i] = 0.0;
+    }
+
+    MAKE_NEW_TRIGGER_STREAM(self->trig_stream, &TriggerStreamType, NULL);
+    TriggerStream_setData(self->trig_stream, self->trigsBuffer);
+
     (*self->mode_func_ptr)(self);
 
     return (PyObject *)self;
@@ -256,6 +281,7 @@ Fader_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
 static PyObject * Fader_getServer(Fader* self) { GET_SERVER };
 static PyObject * Fader_getStream(Fader* self) { GET_STREAM };
+static PyObject * Fader_getTriggerStream(Fader* self) { GET_TRIGGER_STREAM };
 static PyObject * Fader_setMul(Fader *self, PyObject *arg) { SET_MUL };
 static PyObject * Fader_setAdd(Fader *self, PyObject *arg) { SET_ADD };
 static PyObject * Fader_setSub(Fader *self, PyObject *arg) { SET_SUB };
@@ -331,6 +357,7 @@ Fader_setExp(Fader *self, PyObject *arg)
 static PyMemberDef Fader_members[] = {
 {"server", T_OBJECT_EX, offsetof(Fader, server), 0, "Pyo server."},
 {"stream", T_OBJECT_EX, offsetof(Fader, stream), 0, "Stream object."},
+{"trig_stream", T_OBJECT_EX, offsetof(Fader, trig_stream), 0, "Trigger Stream object."},
 {"mul", T_OBJECT_EX, offsetof(Fader, mul), 0, "Mul factor."},
 {"add", T_OBJECT_EX, offsetof(Fader, add), 0, "Add factor."},
 {NULL}  /* Sentinel */
@@ -339,6 +366,7 @@ static PyMemberDef Fader_members[] = {
 static PyMethodDef Fader_methods[] = {
 {"getServer", (PyCFunction)Fader_getServer, METH_NOARGS, "Returns server object."},
 {"_getStream", (PyCFunction)Fader_getStream, METH_NOARGS, "Returns stream object."},
+{"_getTriggerStream", (PyCFunction)Fader_getTriggerStream, METH_NOARGS, "Returns trigger stream object."},
 {"play", (PyCFunction)Fader_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
 {"stop", (PyCFunction)Fader_stop, METH_VARARGS|METH_KEYWORDS, "Starts fadeout and stops computing."},
 {"setMul", (PyCFunction)Fader_setMul, METH_O, "Sets Fader mul factor."},
@@ -450,6 +478,9 @@ typedef struct {
     MYFLT currentVal;
     double currentTime;
     MYFLT sampleToSec;
+    int ended;
+    MYFLT *trigsBuffer;
+    TriggerStream *trig_stream;
 } Adsr;
 
 static void Adsr_internal_stop(Adsr *self) {
@@ -459,6 +490,7 @@ static void Adsr_internal_stop(Adsr *self) {
     Stream_setStreamToDac(self->stream, 0);
     for (i=0; i<self->bufsize; i++) {
         self->data[i] = 0;
+        self->trigsBuffer[i] = 0.0;
     }
 }
 
@@ -475,12 +507,18 @@ Adsr_generate_auto(Adsr *self) {
     invrel = 1.0 / self->release;
 
     for (i=0; i<self->bufsize; i++) {
+        self->trigsBuffer[i] = 0.0;
         if (self->currentTime <= self->attack)
             val = self->currentTime * invatt * (1.0 - self->offset) + self->offset;
         else if (self->currentTime <= (self->attack + self->decay))
             val = (self->decay - (self->currentTime - self->attack)) * invdec * (1. - self->sustain) + self->sustain;
-        else if (self->currentTime > self->duration)
+        else if (self->currentTime > self->duration) {
+            if (self->ended == 0) {
+                self->trigsBuffer[i] = 1.0;
+            }
+            self->ended = 1;
             val = 0.;
+        }
         else if (self->currentTime >= (self->duration - self->release))
             val = (self->duration - self->currentTime) * invrel * self->sustain;
         else
@@ -510,6 +548,7 @@ Adsr_generate_wait(Adsr *self) {
     invrel = 1.0 / self->release;
 
     for (i=0; i<self->bufsize; i++) {
+        self->trigsBuffer[i] = 0.0;
         if (self->fademode == 0) {
             if (self->currentTime <= self->attack)
                 val = self->currentTime * invatt * (1.0 - self->offset) + self->offset;
@@ -523,8 +562,13 @@ Adsr_generate_wait(Adsr *self) {
             if (self->currentTime <= self->release) {
                 val = self->topValue * (1. - self->currentTime * invrel);
             }
-            else
+            else {
+                if (self->ended == 0) {
+                    self->trigsBuffer[i] = 1.0;
+                }
+                self->ended = 1;
                 val = 0.;
+            }
         }
         self->data[i] = self->currentVal = val;
         self->currentTime += self->sampleToSec;
@@ -600,6 +644,7 @@ static int
 Adsr_traverse(Adsr *self, visitproc visit, void *arg)
 {
     pyo_VISIT
+    Py_VISIT(self->trig_stream);
     return 0;
 }
 
@@ -607,6 +652,7 @@ static int
 Adsr_clear(Adsr *self)
 {
     pyo_CLEAR
+    Py_CLEAR(self->trig_stream);
     return 0;
 }
 
@@ -614,6 +660,7 @@ static void
 Adsr_dealloc(Adsr* self)
 {
     pyo_DEALLOC
+    free(self->trigsBuffer);
     Adsr_clear(self);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
@@ -639,6 +686,7 @@ Adsr_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->currentTime = 0.0;
     self->offset = 0.0;
     self->currentVal = 0.0;
+    self->ended = 0;
 
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, Adsr_compute_next_data_frame);
@@ -672,6 +720,15 @@ Adsr_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     else if (self->sustain > 1.0)
         self->sustain = 1.0;
 
+    self->trigsBuffer = (MYFLT *)realloc(self->trigsBuffer, self->bufsize * sizeof(MYFLT));
+
+    for (i=0; i<self->bufsize; i++) {
+        self->trigsBuffer[i] = 0.0;
+    }
+
+    MAKE_NEW_TRIGGER_STREAM(self->trig_stream, &TriggerStreamType, NULL);
+    TriggerStream_setData(self->trig_stream, self->trigsBuffer);
+
     (*self->mode_func_ptr)(self);
 
     return (PyObject *)self;
@@ -679,6 +736,7 @@ Adsr_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
 static PyObject * Adsr_getServer(Adsr* self) { GET_SERVER };
 static PyObject * Adsr_getStream(Adsr* self) { GET_STREAM };
+static PyObject * Adsr_getTriggerStream(Adsr* self) { GET_TRIGGER_STREAM };
 static PyObject * Adsr_setMul(Adsr *self, PyObject *arg) { SET_MUL };
 static PyObject * Adsr_setAdd(Adsr *self, PyObject *arg) { SET_ADD };
 static PyObject * Adsr_setSub(Adsr *self, PyObject *arg) { SET_SUB };
@@ -686,6 +744,7 @@ static PyObject * Adsr_setDiv(Adsr *self, PyObject *arg) { SET_DIV };
 
 static PyObject * Adsr_play(Adsr *self, PyObject *args, PyObject *kwds)
 {
+    self->ended = 0;
     self->fademode = 0;
     self->currentTime = 0.0;
     self->offset = self->currentVal;
@@ -790,6 +849,7 @@ Adsr_setExp(Adsr *self, PyObject *arg)
 static PyMemberDef Adsr_members[] = {
 {"server", T_OBJECT_EX, offsetof(Adsr, server), 0, "Pyo server."},
 {"stream", T_OBJECT_EX, offsetof(Adsr, stream), 0, "Stream object."},
+{"trig_stream", T_OBJECT_EX, offsetof(Adsr, trig_stream), 0, "Trigger Stream object."},
 {"mul", T_OBJECT_EX, offsetof(Adsr, mul), 0, "Mul factor."},
 {"add", T_OBJECT_EX, offsetof(Adsr, add), 0, "Add factor."},
 {NULL}  /* Sentinel */
@@ -798,6 +858,7 @@ static PyMemberDef Adsr_members[] = {
 static PyMethodDef Adsr_methods[] = {
 {"getServer", (PyCFunction)Adsr_getServer, METH_NOARGS, "Returns server object."},
 {"_getStream", (PyCFunction)Adsr_getStream, METH_NOARGS, "Returns stream object."},
+{"_getTriggerStream", (PyCFunction)Adsr_getTriggerStream, METH_NOARGS, "Returns trigger stream object."},
 {"play", (PyCFunction)Adsr_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
 {"stop", (PyCFunction)Adsr_stop, METH_VARARGS|METH_KEYWORDS, "Starts fadeout and stops computing."},
 {"setMul", (PyCFunction)Adsr_setMul, METH_O, "Sets Adsr mul factor."},
