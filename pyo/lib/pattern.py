@@ -291,18 +291,22 @@ class CallAfter(PyoObject):
 
     >>> s = Server().boot()
     >>> s.start()
-    >>> # Start an oscillator with a frequency of 250 Hz
+    >>> # Start an oscillator with a frequency of 250 Hz.
     >>> syn = SineLoop(freq=[250,251], feedback=.07, mul=.2).out()
     >>> def callback(arg):
-    ...     # Change the oscillator's frequency to 300 Hz after 2 seconds
-    ...     syn.freq = arg
-    >>> a = CallAfter(callback, 2, [300,301])
+    ...     # Change the oscillator's frequency to 300 Hz after 2 seconds.
+    ...     # Convert the tuple back to a list.
+    ...     syn.freq = list(arg)
+    >>> # Use a tuple for the argument to avoid multi-channel expansion.
+    >>> a = CallAfter(callback, 2, (300,301))
 
     """
     def __init__(self, function, time=1, arg=None):
         pyoArgsAssert(self, "cn", function, time)
         PyoObject.__init__(self)
         self._function = getWeakMethodRef(function)
+        self._time = time
+        self._arg = arg
         function, time, arg, lmax = convertArgsToLists(function, time, arg)
         self._base_objs = [CallAfter_base(WeakMethod(wrap(function,i)), wrap(time,i), wrap(arg,i)) for i in range(lmax)]
         self._init_play()
@@ -321,3 +325,47 @@ class CallAfter(PyoObject):
 
     def setDiv(self, x):
         pass
+
+    def setTime(self, x):
+        """
+        Replace the `time` attribute.
+
+        :Args:
+
+            x: float
+                New `time` attribute.
+
+        """
+        pyoArgsAssert(self, "n", x)
+        self._time = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setTime(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def setArg(self, x):
+        """
+        Replace the `arg` attribute.
+
+        :Args:
+
+            x: Anything
+                new `arg` attribute.
+
+        """
+        self._arg = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setArg(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    @property
+    def time(self):
+        """float. Time, in seconds, before the function call."""
+        return self._time
+    @time.setter
+    def time(self, x): self.setTime(x)
+
+    @property
+    def arg(self):
+        """Anything. Callable's argument."""
+        return self._arg
+    @arg.setter
+    def arg(self, x):
+        self.setArg(x)

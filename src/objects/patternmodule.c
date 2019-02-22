@@ -627,6 +627,31 @@ static PyObject * CallAfter_play(CallAfter *self, PyObject *args, PyObject *kwds
 };
 static PyObject * CallAfter_stop(CallAfter *self, PyObject *args, PyObject *kwds) { STOP };
 
+static PyObject *
+CallAfter_setTime(CallAfter *self, PyObject *arg)
+{
+    if (PyNumber_Check(arg)) {
+        self->time = PyFloat_AsDouble(arg);
+    }
+
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
+static PyObject *
+CallAfter_setArg(CallAfter *self, PyObject *arg)
+{
+	PyObject *tmp;
+
+    tmp = arg;
+    Py_XDECREF(self->arg);
+    Py_INCREF(tmp);
+    self->arg = tmp;
+
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
 static PyMemberDef CallAfter_members[] = {
 {"server", T_OBJECT_EX, offsetof(CallAfter, server), 0, "Pyo server."},
 {"stream", T_OBJECT_EX, offsetof(CallAfter, stream), 0, "Stream object."},
@@ -638,6 +663,8 @@ static PyMethodDef CallAfter_methods[] = {
 {"_getStream", (PyCFunction)CallAfter_getStream, METH_NOARGS, "Returns stream object."},
 {"play", (PyCFunction)CallAfter_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
 {"stop", (PyCFunction)CallAfter_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
+{"setTime", (PyCFunction)CallAfter_setTime, METH_O, "Sets time argument."},
+{"setArg", (PyCFunction)CallAfter_setArg, METH_O, "Sets function's argument."},
 {NULL}  /* Sentinel */
 };
 
