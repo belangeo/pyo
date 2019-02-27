@@ -54,6 +54,8 @@ MIDI
 GUI
 ---
 
+- PyoGuiRangeSlider (instead of importing pyo.lib._widgets.HRangeSlider
+
 - MixerGUI, an interface to control the routing of a Mixer object.
 
 - A graphical representation of a parametric EQ.
@@ -76,4 +78,3 @@ E-Pyo
 
 - We need A way to let the user interact with the script via input() 
   and raw_input() functions.
-

@@ -140,11 +140,7 @@ static PyObject *
 HRTFData_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     int i, j, k, howmany;
-    PyObject *impulses; // list of list of paths
-    char *path;
-    SNDFILE *sf;
-    SF_INFO info;
-    MYFLT *tmp;
+    PyObject *impulses; // list of lists of lists of samples
 
     HRTFData *self;
     self = (HRTFData *)type->tp_alloc(type, 0);
@@ -161,8 +157,6 @@ HRTFData_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|i", kwlist, &impulses, &self->length))
         Py_RETURN_NONE;
 
-    tmp = (MYFLT *)malloc(self->length * 2 * sizeof(MYFLT));
-
     /* Store HRIRs. */
     self->hrtf_left = (MYFLT ***)realloc(self->hrtf_left, 14 * sizeof(MYFLT **));
     self->hrtf_right = (MYFLT ***)realloc(self->hrtf_right, 14 * sizeof(MYFLT **));
@@ -173,19 +167,9 @@ HRTFData_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         for (j=0; j<howmany; j++) {
             self->hrtf_left[i][j] = (MYFLT *)malloc(self->length * sizeof(MYFLT));
             self->hrtf_right[i][j] = (MYFLT *)malloc(self->length * sizeof(MYFLT));
-            path = PY_STRING_AS_STRING(PyList_GetItem(PyList_GetItem(impulses, i), j));
-            info.format = 0;
-            sf = sf_open(path, SFM_READ, &info);
-            if (sf == NULL) {
-                PySys_WriteStdout("HRTFData failed to open the file.\n");
-                Py_RETURN_NONE;
-            }
-            sf_seek(sf, 0, SEEK_SET);
-            SF_READ(sf, tmp, self->length * 2);
-            sf_close(sf);
             for (k=0; k<self->length; k++) {
-                self->hrtf_left[i][j][k] = tmp[k*2];
-                self->hrtf_right[i][j][k] = tmp[k*2+1];
+                self->hrtf_left[i][j][k] = PyFloat_AsDouble(PyList_GET_ITEM(PyList_GET_ITEM(PyList_GET_ITEM(PyList_GET_ITEM(impulses, 0), i), j), k));
+                self->hrtf_right[i][j][k] = PyFloat_AsDouble(PyList_GET_ITEM(PyList_GET_ITEM(PyList_GET_ITEM(PyList_GET_ITEM(impulses, 1), i), j), k));
             }
         }
         for (j=0; j<(howmany-1); j++) {
@@ -197,7 +181,6 @@ HRTFData_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
             }
         }
     }
-    free(tmp);
 
     /* Compute magnitudes and unwrapped phases for each impulse. */
     MYFLT re, im, ma, ph;

@@ -49,11 +49,6 @@ def get_jack_api():
     else:
         return "JACK_NEW_API"
 
-def get_hrtf_file_names(folder):
-    path = os.path.join("pyo", "lib", "snds", "hrtf_compact", folder)
-    files = [f for f in os.listdir(path) if f.endswith(".wav")]
-    return files
-
 pyo_version = "0.9.2"
 build_with_jack_support = False
 compile_externals = False
@@ -62,14 +57,7 @@ win_arch = platform.architecture()[0]
 macros = []
 extension_names = ['pyo._pyo']
 extra_macros_per_extension = [[]]
-packages = ['pyo', 'pyo.lib', 'pyo.lib.snds', 'pyo.lib.snds.hrtf_compact',
-            'pyo.lib.snds.hrtf_compact.elev0', 'pyo.lib.snds.hrtf_compact.elev10',
-            'pyo.lib.snds.hrtf_compact.elev20', 'pyo.lib.snds.hrtf_compact.elev30',
-            'pyo.lib.snds.hrtf_compact.elev40', 'pyo.lib.snds.hrtf_compact.elev50',
-            'pyo.lib.snds.hrtf_compact.elev60', 'pyo.lib.snds.hrtf_compact.elev70',
-            'pyo.lib.snds.hrtf_compact.elev80', 'pyo.lib.snds.hrtf_compact.elev90',
-            'pyo.lib.snds.hrtf_compact.elev-10', 'pyo.lib.snds.hrtf_compact.elev-20',
-            'pyo.lib.snds.hrtf_compact.elev-30', 'pyo.lib.snds.hrtf_compact.elev-40',
+packages = ['pyo', 'pyo.lib', 'pyo.lib.snds',
             'pyo.editor', 'pyo.editor.styles', 'pyo.editor.snippets',
             'pyo.editor.snippets.Audio', 'pyo.editor.snippets.Control',
             'pyo.editor.snippets.Interface', 'pyo.editor.snippets.Utilities',
@@ -314,20 +302,6 @@ setup(  name = "pyo",
         zip_safe = False,
         packages = packages,
         package_data = {'pyo.lib.snds': soundfiles,
-                        'pyo.lib.snds.hrtf_compact.elev0': get_hrtf_file_names("elev0"),
-                        'pyo.lib.snds.hrtf_compact.elev10': get_hrtf_file_names("elev10"),
-                        'pyo.lib.snds.hrtf_compact.elev20': get_hrtf_file_names("elev20"),
-                        'pyo.lib.snds.hrtf_compact.elev30': get_hrtf_file_names("elev30"),
-                        'pyo.lib.snds.hrtf_compact.elev40': get_hrtf_file_names("elev40"),
-                        'pyo.lib.snds.hrtf_compact.elev50': get_hrtf_file_names("elev50"),
-                        'pyo.lib.snds.hrtf_compact.elev60': get_hrtf_file_names("elev60"),
-                        'pyo.lib.snds.hrtf_compact.elev70': get_hrtf_file_names("elev70"),
-                        'pyo.lib.snds.hrtf_compact.elev80': get_hrtf_file_names("elev80"),
-                        'pyo.lib.snds.hrtf_compact.elev90': get_hrtf_file_names("elev90"),
-                        'pyo.lib.snds.hrtf_compact.elev-10': get_hrtf_file_names("elev-10"),
-                        'pyo.lib.snds.hrtf_compact.elev-20': get_hrtf_file_names("elev-20"),
-                        'pyo.lib.snds.hrtf_compact.elev-30': get_hrtf_file_names("elev-30"),
-                        'pyo.lib.snds.hrtf_compact.elev-40': get_hrtf_file_names("elev-40"),
                         'pyo.editor.styles': ["Custom", "Default", "Espresso", "Smooth", "Soft",
                                               "Monokai-Soda", "Solarized (dark)", "Solarized (light)"],
                         'pyo.editor.snippets.Audio': ["SoundPlayer", "TableOsc"],
