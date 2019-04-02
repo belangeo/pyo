@@ -57,7 +57,7 @@ win_arch = platform.architecture()[0]
 macros = []
 extension_names = ['pyo._pyo']
 extra_macros_per_extension = [[]]
-packages = ['pyo', 'pyo.lib', 'pyo.lib.snds',
+packages = ['pyo', 'pyo.lib', 'pyo.lib.snds', 'pyo.util',
             'pyo.editor', 'pyo.editor.styles', 'pyo.editor.snippets',
             'pyo.editor.snippets.Audio', 'pyo.editor.snippets.Control',
             'pyo.editor.snippets.Interface', 'pyo.editor.snippets.Utilities',
@@ -315,7 +315,8 @@ setup(  name = "pyo",
         ext_modules = extensions,
         # To install files outside the package (third-party libs).
         data_files = data_files,
-        entry_points = {'console_scripts' : ["epyo = pyo.editor.EPyo:main"]}
+        entry_points = {'console_scripts' : ["epyo = pyo.editor.EPyo:main", 
+                                             "cleanup_older_pyo_versions = pyo.util.cleanup_older_pyo_versions:main"]}
 )
 
 if compile_externals:
