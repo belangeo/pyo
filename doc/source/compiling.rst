@@ -179,7 +179,7 @@ Second step, if you want to be able to use all of pyo's gui widgets, you will ne
 
 .. code-block:: bash
 
-    sudo pip3 install -U wxpython
+    sudo pip3 install -U wxPython
 
 The third step is to install `Homebrew <http://brew.sh/>`_.
 
