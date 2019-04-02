@@ -7,7 +7,10 @@ See play_snd.py for subprocess sound player.
 """
 import subprocess, time, random
 
-pipe = subprocess.Popen(["python -i play_snd.py"], shell=True, stdin=subprocess.PIPE).stdin
+pipe = subprocess.Popen(["python -i play_snd.py"],
+                        shell=True,
+                        universal_newlines=True,
+                        stdin=subprocess.PIPE).stdin
 
 # Wait for the Server to be ready
 time.sleep(2)
@@ -16,6 +19,7 @@ time.sleep(2)
 for i in range(20):
     snd = "../snds/snd_%d.aif" % random.randrange(1,7)
     pipe.write("sf.path = '%s'\ndump = sf.play()\n" % snd)
+    pipe.flush()
     time.sleep(random.uniform(.2, .5))
 
 # Stop the audio Server before exiting
