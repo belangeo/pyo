@@ -5,12 +5,12 @@ Launch the audio processing in a separated thread and send events.
 See play_snd.py for subprocess sound player.
 
 """
-import subprocess, time, random
+import subprocess, time, random, sys
 
-pipe = subprocess.Popen(["python -i play_snd.py"],
-                        shell=True,
-                        universal_newlines=True,
-                        stdin=subprocess.PIPE).stdin
+PYTHON_EXE = "python%d" % sys.version_info[0]
+
+pipe = subprocess.Popen(["%s -i play_snd.py" % PYTHON_EXE], shell=True,
+                        universal_newlines=True, stdin=subprocess.PIPE).stdin
 
 # Wait for the Server to be ready
 time.sleep(2)

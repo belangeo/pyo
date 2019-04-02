@@ -76,5 +76,4 @@ Matrices
 E-Pyo
 -----
 
-- We need A way to let the user interact with the script via input() 
-  and raw_input() functions.
+- We need A way to let the user interact with the script with input() function.
