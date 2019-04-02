@@ -2,6 +2,9 @@
 
 #  release_wheels_OSX.sh
 #
+# To upload wheels on test.pypi.org:
+#   twine upload --repository-url https://test.pypi.org/legacy/ dist/*
+#
 # To update older pip:
 #   curl https://bootstrap.pypa.io/get-pip.py | python(3)
 #
