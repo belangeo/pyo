@@ -26,7 +26,8 @@ drive = Sig(0.5)
 
 # We give it True to the dataonly argument when opening the sliders window,
 # otherwise the table would be rewrite way too often.
-drive.ctrl([SLMap(0, 1, "lin", "value", 0.5, dataOnly=True)])
+drive.ctrl([SLMap(0, 1, "lin", "value", 0.5, dataOnly=True)],
+           title="Transfer fonction slope")
 
 # Lookup reads a table given an audio index lying between -1 and 1.
 # It is especially designed to scan a transfer function with an audio signal.
