@@ -203,5 +203,8 @@ Exemples de scripts audio avec pyo
 22-wxgui
 --------
 
-**handling objects life (start time and duraiton)**
+misc
+----
+
+**handling objects life (start time and duration)**
 **autoStartChildren**
