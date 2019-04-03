@@ -179,10 +179,10 @@ if sys.platform == "win32":
         libraries += ['libsndfile-1', 'pthreadGC2']
         macros.append(('MS_WIN64', None))
 else:
-    include_dirs = ['include', '/usr/local/include']
+    include_dirs = ['include', '/usr/local/include', '/usr/include']
     if sys.platform == "darwin":
         include_dirs.append('/opt/local/include')
-    library_dirs = ['/usr/local/lib']
+    library_dirs = ['/usr/local/lib', '/usr/lib']
     libraries += ['sndfile']
     if build_with_jack_support:
         libraries.append('jack')
