@@ -1,8 +1,6 @@
 To do ASAP!
 ===========
 
-- script to remove older version files. search and ask...
-
 - make pip packages.
 
 This is a list of features/fixes to implement for future releases
