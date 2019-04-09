@@ -130,6 +130,7 @@ if '--use-jack' in sys.argv:
     build_with_jack_support = True
     macros.append(('USE_JACK', None))
     if '--jack-force-old-api' in sys.argv:
+        sys.argv.remove('--jack-force-old-api') 
         macros.append(("JACK_OLD_API", None))
     else:
         macros.append((get_jack_api(), None))
