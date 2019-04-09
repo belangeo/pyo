@@ -34,7 +34,7 @@ else:
 def get_jack_api():
     try:
         output = subprocess.Popen(["jackd", "-V"], stdout=subprocess.PIPE)
-    except FileNotFoundError:
+    except:
         # jack2-dbus is probably installed instead of jackd.
         # If jack2-dbus version is >= 1.9.11, we need JACK_NEW_API.
         return "JACK_NEW_API"
