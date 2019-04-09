@@ -129,7 +129,10 @@ if '--use-jack' in sys.argv:
     sys.argv.remove('--use-jack') 
     build_with_jack_support = True
     macros.append(('USE_JACK', None))
-    macros.append((get_jack_api(), None))
+    if '--jack-force-old-api' in sys.argv:
+        macros.append(("JACK_OLD_API", None))
+    else:
+        macros.append((get_jack_api(), None))
     ad_files.append("ad_jack.c")
 
 if '--use-coreaudio' in sys.argv: 
