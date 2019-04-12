@@ -188,8 +188,6 @@ else:
         include_dirs.append('/opt/local/include')
     library_dirs = [ '/usr/lib', '/usr/local/lib']
     libraries += ['sndfile']
-    if sys.platform.startswith("linux"):
-        libraries.append('asound')
     if build_with_jack_support:
         libraries.append('jack')
 
