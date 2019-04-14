@@ -74,7 +74,7 @@ fi
 ### Build pyo for python 3.5
 sudo /usr/local/bin/python3.5 setup.py bdist_wheel --use-coreaudio --use-double
 
-wheel_file=pyo-XXX-cp35-cp35m-macosx_10_6_intelß.whl
+wheel_file=pyo-XXX-cp35-cp35m-macosx_10_6_intel.whl
 dist_info=pyo-XXX.dist-info
 
 if cd dist; then
