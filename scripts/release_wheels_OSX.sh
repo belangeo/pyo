@@ -79,14 +79,14 @@ dist_info=pyo-XXX.dist-info
 
 if cd dist; then
     sudo unzip ${wheel_file/$replace/$version}
-    sudo install_name_tool -change /usr/local/opt/portmidi/lib/libportmidi.dylib @loader_path/pyodeps/libportmidi.dylib pyo/_pyo.cpython-35m-darwin.so
-    sudo install_name_tool -change /usr/local/opt/portmidi/lib/libportmidi.dylib @loader_path/pyodeps/libportmidi.dylib pyo/_pyo64.cpython-35m-darwin.so
-    sudo install_name_tool -change /usr/local/opt/portaudio/lib/libportaudio.2.dylib @loader_path/pyodeps/libportaudio.2.dylib pyo/_pyo.cpython-35m-darwin.so
-    sudo install_name_tool -change /usr/local/opt/portaudio/lib/libportaudio.2.dylib @loader_path/pyodeps/libportaudio.2.dylib pyo/_pyo64.cpython-35m-darwin.so
-    sudo install_name_tool -change /usr/local/opt/liblo/lib/liblo.7.dylib @loader_path/pyodeps/liblo.7.dylib pyo/_pyo.cpython-35m-darwin.so
-    sudo install_name_tool -change /usr/local/opt/liblo/lib/liblo.7.dylib @loader_path/pyodeps/liblo.7.dylib pyo/_pyo64.cpython-35m-darwin.so
-    sudo install_name_tool -change /usr/local/opt/libsndfile/lib/libsndfile.1.dylib @loader_path/pyodeps/libsndfile.1.dylib pyo/_pyo.cpython-35m-darwin.so
-    sudo install_name_tool -change /usr/local/opt/libsndfile/lib/libsndfile.1.dylib @loader_path/pyodeps/libsndfile.1.dylib pyo/_pyo64.cpython-35m-darwin.so
+    sudo install_name_tool -change /usr/local/opt/portmidi/lib/libportmidi.dylib @loader_path/libportmidi.dylib pyo/_pyo.cpython-35m-darwin.so
+    sudo install_name_tool -change /usr/local/opt/portmidi/lib/libportmidi.dylib @loader_path/libportmidi.dylib pyo/_pyo64.cpython-35m-darwin.so
+    sudo install_name_tool -change /usr/local/opt/portaudio/lib/libportaudio.2.dylib @loader_path/libportaudio.2.dylib pyo/_pyo.cpython-35m-darwin.so
+    sudo install_name_tool -change /usr/local/opt/portaudio/lib/libportaudio.2.dylib @loader_path/libportaudio.2.dylib pyo/_pyo64.cpython-35m-darwin.so
+    sudo install_name_tool -change /usr/local/opt/liblo/lib/liblo.7.dylib @loader_path/liblo.7.dylib pyo/_pyo.cpython-35m-darwin.so
+    sudo install_name_tool -change /usr/local/opt/liblo/lib/liblo.7.dylib @loader_path/liblo.7.dylib pyo/_pyo64.cpython-35m-darwin.so
+    sudo install_name_tool -change /usr/local/opt/libsndfile/lib/libsndfile.1.dylib @loader_path/libsndfile.1.dylib pyo/_pyo.cpython-35m-darwin.so
+    sudo install_name_tool -change /usr/local/opt/libsndfile/lib/libsndfile.1.dylib @loader_path/libsndfile.1.dylib pyo/_pyo64.cpython-35m-darwin.so
     sudo zip -r -X ${wheel_file/$replace/$version} ${dist_info/$replace/$version} pyo pyo64
     sudo rm -rf ${dist_info/$replace/$version} pyo pyo64
     cd ..
@@ -102,14 +102,14 @@ dist_info=pyo-XXX.dist-info
 
 if cd dist; then
     sudo unzip ${wheel_file/$replace/$version}
-    sudo install_name_tool -change /usr/local/opt/portmidi/lib/libportmidi.dylib @loader_path/pyodeps/libportmidi.dylib pyo/_pyo.cpython-36m-darwin.so
-    sudo install_name_tool -change /usr/local/opt/portmidi/lib/libportmidi.dylib @loader_path/pyodeps/libportmidi.dylib pyo/_pyo64.cpython-36m-darwin.so
-    sudo install_name_tool -change /usr/local/opt/portaudio/lib/libportaudio.2.dylib @loader_path/pyodeps/libportaudio.2.dylib pyo/_pyo.cpython-36m-darwin.so
-    sudo install_name_tool -change /usr/local/opt/portaudio/lib/libportaudio.2.dylib @loader_path/pyodeps/libportaudio.2.dylib pyo/_pyo64.cpython-36m-darwin.so
-    sudo install_name_tool -change /usr/local/opt/liblo/lib/liblo.7.dylib @loader_path/pyodeps/liblo.7.dylib pyo/_pyo.cpython-36m-darwin.so
-    sudo install_name_tool -change /usr/local/opt/liblo/lib/liblo.7.dylib @loader_path/pyodeps/liblo.7.dylib pyo/_pyo64.cpython-36m-darwin.so
-    sudo install_name_tool -change /usr/local/opt/libsndfile/lib/libsndfile.1.dylib @loader_path/pyodeps/libsndfile.1.dylib pyo/_pyo.cpython-36m-darwin.so
-    sudo install_name_tool -change /usr/local/opt/libsndfile/lib/libsndfile.1.dylib @loader_path/pyodeps/libsndfile.1.dylib pyo/_pyo64.cpython-36m-darwin.so
+    sudo install_name_tool -change /usr/local/opt/portmidi/lib/libportmidi.dylib @loader_path/libportmidi.dylib pyo/_pyo.cpython-36m-darwin.so
+    sudo install_name_tool -change /usr/local/opt/portmidi/lib/libportmidi.dylib @loader_path/libportmidi.dylib pyo/_pyo64.cpython-36m-darwin.so
+    sudo install_name_tool -change /usr/local/opt/portaudio/lib/libportaudio.2.dylib @loader_path/libportaudio.2.dylib pyo/_pyo.cpython-36m-darwin.so
+    sudo install_name_tool -change /usr/local/opt/portaudio/lib/libportaudio.2.dylib @loader_path/libportaudio.2.dylib pyo/_pyo64.cpython-36m-darwin.so
+    sudo install_name_tool -change /usr/local/opt/liblo/lib/liblo.7.dylib @loader_path/liblo.7.dylib pyo/_pyo.cpython-36m-darwin.so
+    sudo install_name_tool -change /usr/local/opt/liblo/lib/liblo.7.dylib @loader_path/liblo.7.dylib pyo/_pyo64.cpython-36m-darwin.so
+    sudo install_name_tool -change /usr/local/opt/libsndfile/lib/libsndfile.1.dylib @loader_path/libsndfile.1.dylib pyo/_pyo.cpython-36m-darwin.so
+    sudo install_name_tool -change /usr/local/opt/libsndfile/lib/libsndfile.1.dylib @loader_path/libsndfile.1.dylib pyo/_pyo64.cpython-36m-darwin.so
     sudo zip -r -X ${wheel_file/$replace/$version} ${dist_info/$replace/$version} pyo pyo64
     sudo rm -rf ${dist_info/$replace/$version} pyo pyo64
     cd ..
@@ -125,14 +125,14 @@ dist_info=pyo-XXX.dist-info
 
 if cd dist; then
     sudo unzip ${wheel_file/$replace/$version}
-    sudo install_name_tool -change /usr/local/opt/portmidi/lib/libportmidi.dylib @loader_path/pyodeps/libportmidi.dylib pyo/_pyo.cpython-37m-darwin.so
-    sudo install_name_tool -change /usr/local/opt/portmidi/lib/libportmidi.dylib @loader_path/pyodeps/libportmidi.dylib pyo/_pyo64.cpython-37m-darwin.so
-    sudo install_name_tool -change /usr/local/opt/portaudio/lib/libportaudio.2.dylib @loader_path/pyodeps/libportaudio.2.dylib pyo/_pyo.cpython-37m-darwin.so
-    sudo install_name_tool -change /usr/local/opt/portaudio/lib/libportaudio.2.dylib @loader_path/pyodeps/libportaudio.2.dylib pyo/_pyo64.cpython-37m-darwin.so
-    sudo install_name_tool -change /usr/local/opt/liblo/lib/liblo.7.dylib @loader_path/pyodeps/liblo.7.dylib pyo/_pyo.cpython-37m-darwin.so
-    sudo install_name_tool -change /usr/local/opt/liblo/lib/liblo.7.dylib @loader_path/pyodeps/liblo.7.dylib pyo/_pyo64.cpython-37m-darwin.so
-    sudo install_name_tool -change /usr/local/opt/libsndfile/lib/libsndfile.1.dylib @loader_path/pyodeps/libsndfile.1.dylib pyo/_pyo.cpython-37m-darwin.so
-    sudo install_name_tool -change /usr/local/opt/libsndfile/lib/libsndfile.1.dylib @loader_path/pyodeps/libsndfile.1.dylib pyo/_pyo64.cpython-37m-darwin.so
+    sudo install_name_tool -change /usr/local/opt/portmidi/lib/libportmidi.dylib @loader_path/libportmidi.dylib pyo/_pyo.cpython-37m-darwin.so
+    sudo install_name_tool -change /usr/local/opt/portmidi/lib/libportmidi.dylib @loader_path/libportmidi.dylib pyo/_pyo64.cpython-37m-darwin.so
+    sudo install_name_tool -change /usr/local/opt/portaudio/lib/libportaudio.2.dylib @loader_path/libportaudio.2.dylib pyo/_pyo.cpython-37m-darwin.so
+    sudo install_name_tool -change /usr/local/opt/portaudio/lib/libportaudio.2.dylib @loader_path/libportaudio.2.dylib pyo/_pyo64.cpython-37m-darwin.so
+    sudo install_name_tool -change /usr/local/opt/liblo/lib/liblo.7.dylib @loader_path/liblo.7.dylib pyo/_pyo.cpython-37m-darwin.so
+    sudo install_name_tool -change /usr/local/opt/liblo/lib/liblo.7.dylib @loader_path/liblo.7.dylib pyo/_pyo64.cpython-37m-darwin.so
+    sudo install_name_tool -change /usr/local/opt/libsndfile/lib/libsndfile.1.dylib @loader_path/libsndfile.1.dylib pyo/_pyo.cpython-37m-darwin.so
+    sudo install_name_tool -change /usr/local/opt/libsndfile/lib/libsndfile.1.dylib @loader_path/libsndfile.1.dylib pyo/_pyo64.cpython-37m-darwin.so
     sudo zip -r -X ${wheel_file/$replace/$version} ${dist_info/$replace/$version} pyo pyo64
     sudo rm -rf ${dist_info/$replace/$version} pyo pyo64
     cd ..
