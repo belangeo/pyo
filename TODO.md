@@ -20,6 +20,8 @@ Internal
 Server
 ------
 
+- Updating coreaudio support (lot of deprecated functions).
+
 - A method to retrieve a graph of the internal state of the server 
   (active objects, connections, attribute values, ...).
 

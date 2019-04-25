@@ -1,5 +1,5 @@
 """
-Copyright 2009-2016 Olivier Belanger
+Copyright 2009-2019 Olivier Belanger
 
 This file is part of pyo, a python module to help digital signal
 processing script creation.
@@ -18,6 +18,11 @@ You should have received a copy of the GNU Lesser General Public
 License along with pyo.  If not, see <http://www.gnu.org/licenses/>.
 """
 import os
+import sys
+
+if sys.platform.startswith("linux") and \
+   os.path.isdir(os.path.join(os.path.dirname(__file__), ".libs")):
+    from . import _linux_wheel_fix_symlinks
 
 from .lib._maps import *
 from .lib import analysis as analysis
@@ -240,7 +245,5 @@ def getPyoExamples(fullpath=False):
             files = [f for f in os.listdir(path) if not f.startswith("__")]
         examples[subfolder] = files
     return examples
-
-getPyoExamples()
 
 OBJECTS_TREE["functions"] = sorted(OBJECTS_TREE["functions"] + ["getPyoKeywords", "getPyoExamples"])
