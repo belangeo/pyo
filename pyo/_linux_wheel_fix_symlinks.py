@@ -1,6 +1,28 @@
-# At first run, found and symlink system's libasound and libjack into ~/.pyo/X.X/libs.
-# At runtime, dlopen them before running any other code so that pyo use these libraries
-# instead of those embedded in the wheels (alsa and jack just don't work with embedded ones).
+"""
+Copyright 2009-2019 Olivier Belanger
+
+This file is part of pyo, a python module to help digital signal
+processing script creation.
+
+pyo is free software: you can redistribute it and/or modify
+it under the terms of the GNU Lesser General Public License as
+published by the Free Software Foundation, either version 3 of the
+License, or (at your option) any later version.
+
+pyo is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public
+License along with pyo.  If not, see <http://www.gnu.org/licenses/>.
+"""
+
+# At first run, found and symlink system's libasound and libjack into 
+# ~/.pyo/X.X_ARCH/libs.
+# At runtime, dlopen them before running any other code so that pyo 
+# use these libraries instead of those embedded in the wheels (alsa 
+# and jack just don't work with embedded ones).
 
 import os
 import sys
@@ -35,24 +57,22 @@ if not os.path.islink(libasound):
 if need_symlinks: 
     libasoundfound = libjackfound = False
     libasoundpath = libjackpath = ""
-    for path in ["/usr", "/lib", "/lib%d" % bitdepth]:
+    folders = ["/usr/local/lib", "/usr/local/lib%d" % bitdepth, "/usr/lib",
+               "/usr/lib%d" % bitdepth, "/lib", "/lib%d" % bitdepth]
+    for path in folders:
         for root, dirs, files in os.walk(path):
             for f in files:
                 if libasound:
-                    asound = os.path.split(libasound)[1]
-                    length = len("libasound")
-                    if f == asound[:length] + asound[length+9:]:
+                    if f == "libasound.so":
                         libasoundpath = os.path.join(root, f)
                         libasoundfound = True
                 if libjack:
-                    ajack = os.path.split(libjack)[1]
-                    length = len("libjack")
-                    if f == ajack[:length] + ajack[length+9:]:
+                    if f == "libjack.so":
                         libjackpath = os.path.join(root, f)
                         libjackfound = True
-
                 if withlibasound == libasoundfound and withlibjack == libjackfound:
-                    break; break
+                    break
+                    break
 
     if withlibasound and libasoundfound:
         os.symlink(libasoundpath, libasound)
@@ -60,9 +80,9 @@ if need_symlinks:
     if withlibjack and libjackfound:
         os.symlink(libjackpath, libjack)
 
-# Now, we preload the libs, before importing _pyo.
+# Now, we preload the libraries, before importing _pyo.
 if (withlibasound):
-    libasound = ctypes.CDLL(libasound, mode = ctypes.RTLD_GLOBAL)
+    libasound = ctypes.CDLL(libasound, mode=ctypes.RTLD_GLOBAL)
 
 if (withlibjack and os.path.islink(libjack)):
-    libjack = ctypes.CDLL(libjack, mode = ctypes.RTLD_GLOBAL)
+    libjack = ctypes.CDLL(libjack, mode=ctypes.RTLD_GLOBAL)
