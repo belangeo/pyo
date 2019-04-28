@@ -1,15 +1,8 @@
-To do ASAP!
-===========
-
-- make pip packages.
-
 This is a list of features/fixes to implement for future releases
 =================================================================
 
 Internal
 --------
-
-- Replace malloc/realloc with a custom memory pool allocator.
 
 - Use inheritance (instead of a bunch of macros) at the C level. 
   PyoObject_base or Stream) should handle `mul`, `add` and 
@@ -76,4 +69,4 @@ Matrices
 E-Pyo
 -----
 
-- We need A way to let the user interact with the script with input() function.
+- We need a way to let the user interact with the script with input() function.
