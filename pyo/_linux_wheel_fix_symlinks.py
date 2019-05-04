@@ -63,11 +63,11 @@ if need_symlinks:
         for root, dirs, files in os.walk(path):
             for f in files:
                 if libasound:
-                    if f == "libasound.so":
+                    if not libasoundfound and "libasound.so" in f:
                         libasoundpath = os.path.join(root, f)
                         libasoundfound = True
                 if libjack:
-                    if f == "libjack.so":
+                    if not libjackfound and "libjack.so" in f:
                         libjackpath = os.path.join(root, f)
                         libjackfound = True
                 if withlibasound == libasoundfound and withlibjack == libjackfound:
