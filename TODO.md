@@ -42,6 +42,8 @@ Jack
 MIDI
 ----
 
+- MidiFile & MidiFileReader
+
 - sysex support in MidiListener.
 
 GUI
