@@ -2,7 +2,7 @@
 
 #
 # 1. change version number
-# cd doc; python build.py
+# 2. cd doc; python build.py
 # 3. Execute from pyo folder : ./scripts/release_doc_src.sh
 #
 
