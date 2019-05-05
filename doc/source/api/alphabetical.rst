@@ -66,6 +66,7 @@ Alphabetical class reference
 - :py:class:`Delay` :     Sweepable recursive delay.
 - :py:class:`Denorm` :     Mixes low level noise to an input signal.
 - :py:class:`Disto` :     Kind of Arc tangent distortion.
+- :py:class:`Div` :     Divides a by b.
 - :py:class:`Dummy` :     Dummy object used to perform arithmetics on PyoObject.
 - :py:class:`EQ` :     Equalizer filter.
 - :py:class:`Euclide` :     Euclidean rhythm generator.
@@ -246,6 +247,7 @@ Alphabetical class reference
 - :py:class:`Spectrum` :     Spectrum analyzer and display.
 - :py:class:`Sqrt` :     Performs a square-root function on audio signal.
 - :py:class:`SquareTable` :     Square waveform generator.
+- :py:class:`Sub` :     Substracts b from a.
 - :py:class:`SumOsc` :     Discrete summation formulae to produce complex spectra.
 - :py:class:`SuperSaw` :     Roland JP-8000 Supersaw emulator.
 - :py:class:`Switch` :     Audio switcher.
