@@ -33,7 +33,10 @@ import pyo
 bitdepth = struct.calcsize("P") * 8
 version = "%d.%d_%d" % (sys.version_info[0], sys.version_info[1], bitdepth)
 userlibdir = os.path.join(os.path.expanduser("~"), ".pyo", version, "libs")
-os.makedirs(userlibdir, exist_ok=True)
+try:
+    os.makedirs(userlibdir)
+except:
+    pass
 
 libs = os.listdir(os.path.join(os.path.dirname(pyo.__file__), ".libs"))
 
