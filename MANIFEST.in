@@ -1,2 +1,6 @@
+graft embedded
+graft externals
 graft include
+graft scripts
+graft src
 
