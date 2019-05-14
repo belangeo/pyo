@@ -667,6 +667,14 @@ class Notein(PyoObject):
         """
         Opens a virtual midi keyboard for this object.
 
+        When this window has the keyboard's focus, the user can play chromatic
+        notes, over two octaves, following this layout::
+
+              2   3     5   6   7     9   0
+            q   w   e r   t   y   u i   o   p
+              s   d     g   h   j     l   ;
+            z   x   c v   b   n   m ,   .   /
+
         :Args:
 
             title: string, optional
