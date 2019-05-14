@@ -3037,6 +3037,10 @@ class Keyboard(wx.Panel):
         evt.Skip()
 
     def OnKeyDown(self, evt):
+        if evt.HasAnyModifiers():
+            evt.Skip()
+            return
+
         if evt.GetKeyCode() in self.keymap and evt.GetKeyCode() not in self.keydown:
             self.keydown.append(evt.GetKeyCode())
             pit = self.keymap[evt.GetKeyCode()]
@@ -3089,6 +3093,10 @@ class Keyboard(wx.Panel):
         evt.Skip()
 
     def OnKeyUp(self, evt):
+        if evt.HasAnyModifiers():
+            evt.Skip()
+            return
+
         if evt.GetKeyCode() in self.keydown:
             del self.keydown[self.keydown.index(evt.GetKeyCode())]
 
