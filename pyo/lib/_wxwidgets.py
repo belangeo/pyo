@@ -2954,6 +2954,8 @@ class Keyboard(wx.Panel):
         self.Bind(wx.EVT_LEFT_UP, self.MouseUp)
         self.Bind(wx.EVT_PAINT, self.OnPaint)
         self.Bind(wx.EVT_SIZE, self.OnSize)
+        self.Bind(wx.EVT_KEY_DOWN, self.OnKeyDown)
+        self.Bind(wx.EVT_KEY_UP, self.OnKeyUp)
 
         self.white = (0, 2, 4, 5, 7, 9, 11)
         self.black = (1, 3, 6, 8, 10)
@@ -2964,8 +2966,14 @@ class Keyboard(wx.Panel):
         self.whiteKeys = []
         self.blackKeys = []
 
+        self.keydown = []
+        self.keymap = {90: 36, 83: 37, 88: 38, 68: 39, 67: 40, 86: 41, 71: 42, 66: 43,
+                       72: 44, 78: 45, 74: 46, 77: 47, 44: 48, 76: 49, 46: 50, 59: 51, 47: 52,
+                       81: 60, 50: 61, 87: 62, 51: 63, 69: 64, 82: 65, 53: 66, 84: 67,
+                       54: 68, 89: 69, 55: 70, 85: 71, 73: 72, 57: 73, 79: 74, 48: 75, 80: 76}
+
         wx.CallAfter(self._setRects)
-   
+
     def getCurrentNotes(self):
         "Returns a list of the current notes."
         notes = []
@@ -3026,6 +3034,88 @@ class Keyboard(wx.Panel):
     def OnSize(self, evt):
         self._setRects()
         wx.CallAfter(self.Refresh)
+        evt.Skip()
+
+    def OnKeyDown(self, evt):
+        if evt.GetKeyCode() in self.keymap and evt.GetKeyCode() not in self.keydown:
+            self.keydown.append(evt.GetKeyCode())
+            pit = self.keymap[evt.GetKeyCode()]
+            deg = pit % 12
+
+            total = len(self.blackSelected) + len(self.whiteSelected)
+            note = None
+            if self.hold:
+                if deg in self.black:
+                    which = self.black.index(deg) + int((pit - self.offset) / 12) * 5
+                    if which in self.blackSelected:
+                        self.blackSelected.remove(which)
+                        del self.blackVelocities[which]
+                        note = (pit, 0)
+                    else:
+                        if total < self.poly:
+                            self.blackSelected.append(which)
+                            self.blackVelocities[which] = 100
+                            note = (pit, 100)
+
+                elif deg in self.white:
+                    which = self.white.index(deg) + int((pit - self.offset) / 12) * 7
+                    if which in self.whiteSelected:
+                        self.whiteSelected.remove(which)
+                        del self.whiteVelocities[which]
+                        note = (pit, 0)
+                    else:
+                        if total < self.poly:
+                            self.whiteSelected.append(which)
+                            self.whiteVelocities[which] = 100
+                            note = (pit, 100)
+            else:
+                if deg in self.black:
+                    which = self.black.index(deg) + int((pit - self.offset) / 12) * 5
+                    if which not in self.blackSelected and total < self.poly:
+                        self.blackSelected.append(which)
+                        self.blackVelocities[which] = 100
+                        note = (pit, 100)
+                elif deg in self.white:
+                    which = self.white.index(deg) + int((pit - self.offset) / 12) * 7
+                    if which not in self.whiteSelected and total < self.poly:
+                        self.whiteSelected.append(which)
+                        self.whiteVelocities[which] = 100
+                        note = (pit, 100)
+
+            if note and self.outFunction and total < self.poly:
+                self.outFunction(note)
+
+            wx.CallAfter(self.Refresh)
+        evt.Skip()
+
+    def OnKeyUp(self, evt):
+        if evt.GetKeyCode() in self.keydown:
+            del self.keydown[self.keydown.index(evt.GetKeyCode())]
+
+        if not self.hold and evt.GetKeyCode() in self.keymap:
+            pit = self.keymap[evt.GetKeyCode()]
+            deg = pit % 12
+
+            note = None
+            if deg in self.black:
+                which = self.black.index(deg) + int((pit - self.offset) / 12) * 5
+                if which in self.blackSelected:
+                    self.blackSelected.remove(which)
+                    del self.blackVelocities[which]
+                    note = (pit, 0)
+            elif deg in self.white:
+                which = self.white.index(deg) + int((pit - self.offset) / 12) * 7
+                if which in self.whiteSelected:
+                    self.whiteSelected.remove(which)
+                    del self.whiteVelocities[which]
+                    note = (pit, 0)
+
+            if note and self.outFunction:
+                self.outFunction(note)
+
+            wx.CallAfter(self.Refresh)
+
+        evt.Skip()
 
     def MouseUp(self, evt):
         if not self.hold and self.keyPressed is not None:
@@ -3042,6 +3132,7 @@ class Keyboard(wx.Panel):
                 self.outFunction(note)
             self.keyPressed = None
             wx.CallAfter(self.Refresh)
+        evt.Skip()
 
     def MouseDown(self, evt):
         w,h = self.GetSize()
@@ -3134,6 +3225,7 @@ class Keyboard(wx.Panel):
             if note and self.outFunction and total < self.poly:
                 self.outFunction(note)
         wx.CallAfter(self.Refresh)
+        evt.Skip()
 
     def OnPaint(self, evt):
         w, h = self.GetSize()
@@ -3213,6 +3305,7 @@ class Keyboard(wx.Panel):
             dc.SetTextForeground("#000000")
         for i, c in enumerate("HOLD"):
             dc.DrawText(c, self.holdRec[0] + 8, int(self.holdRec[3] / 6) * i + 15)
+        evt.Skip()
 
 class NoteinKeyboardFrame(wx.Frame):
 
