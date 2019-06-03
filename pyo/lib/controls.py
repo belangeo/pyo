@@ -545,6 +545,13 @@ class Linseg(PyoObject):
         """
         [obj.pause() for obj in self._base_objs]
 
+    def clear(self):
+        """
+        Resets the internal audio buffer to 0.
+
+        """
+        [obj.clear() for obj in self._base_objs]
+
     def graph(self, xlen=None, yrange=None, title=None, wxnoserver=False):
         """
         Opens a grapher window to control the shape of the envelope.
@@ -739,6 +746,13 @@ class Expseg(PyoObject):
 
         """
         [obj.pause() for obj in self._base_objs]
+
+    def clear(self):
+        """
+        Resets the internal audio buffer to 0.
+
+        """
+        [obj.clear() for obj in self._base_objs]
 
     def getPoints(self):
         return self._list

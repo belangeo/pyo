@@ -1241,6 +1241,17 @@ Linseg_setLoop(Linseg *self, PyObject *arg)
     return Py_None;
 }
 
+static PyObject *
+Linseg_clear_data(Linseg *self) {
+    int i;
+    self->currentValue = 0.0;
+    for (i=0; i<self->bufsize; i++) {
+        self->data[i] = 0.0;
+    }
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
 static PyMemberDef Linseg_members[] = {
 {"server", T_OBJECT_EX, offsetof(Linseg, server), 0, "Pyo server."},
 {"stream", T_OBJECT_EX, offsetof(Linseg, stream), 0, "Stream object."},
@@ -1255,6 +1266,7 @@ static PyMethodDef Linseg_methods[] = {
 {"_getStream", (PyCFunction)Linseg_getStream, METH_NOARGS, "Returns stream object."},
 {"play", (PyCFunction)Linseg_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
 {"stop", (PyCFunction)Linseg_stop, METH_VARARGS|METH_KEYWORDS, "Starts fadeout and stops computing."},
+{"clear", (PyCFunction)Linseg_clear_data, METH_NOARGS, "Resets the data buffer to 0."},
 {"pause", (PyCFunction)Linseg_pause, METH_NOARGS, "Toggles between play and stop without reset."},
 {"setList", (PyCFunction)Linseg_setList, METH_O, "Sets target points list."},
 {"setLoop", (PyCFunction)Linseg_setLoop, METH_O, "Sets looping mode."},
@@ -1680,6 +1692,17 @@ Expseg_setInverse(Expseg *self, PyObject *arg)
     return Py_None;
 }
 
+static PyObject *
+Expseg_clear_data(Linseg *self) {
+    int i;
+    self->currentValue = 0.0;
+    for (i=0; i<self->bufsize; i++) {
+        self->data[i] = 0.0;
+    }
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
 static PyMemberDef Expseg_members[] = {
     {"server", T_OBJECT_EX, offsetof(Expseg, server), 0, "Pyo server."},
     {"stream", T_OBJECT_EX, offsetof(Expseg, stream), 0, "Stream object."},
@@ -1699,6 +1722,7 @@ static PyMethodDef Expseg_methods[] = {
     {"setLoop", (PyCFunction)Expseg_setLoop, METH_O, "Sets looping mode."},
     {"setExp", (PyCFunction)Expseg_setExp, METH_O, "Sets exponent factor."},
     {"setInverse", (PyCFunction)Expseg_setInverse, METH_O, "Sets inverse factor."},
+    {"clear", (PyCFunction)Expseg_clear_data, METH_NOARGS, "Resets the data buffer to 0."},
     {"setMul", (PyCFunction)Expseg_setMul, METH_O, "Sets Expseg mul factor."},
     {"setAdd", (PyCFunction)Expseg_setAdd, METH_O, "Sets Expseg add factor."},
     {"setSub", (PyCFunction)Expseg_setSub, METH_O, "Sets inverse add factor."},
