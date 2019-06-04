@@ -46,10 +46,11 @@ Examples
    Dynamic range of audio signals <examples/08-dynamics/index>
    Calling python functions from audio objects <examples/09-callbacks/index>
    Using tables <examples/10-tables/index>
+   How to use MIDI with pyo <examples/16-midi/index>
    Multicore audio programming <examples/18-multicore/index>
    Multirate audio processing <examples/19-multirate/index>
 
-Much more to come... Stay tuned!
+More to come... Stay tuned!
 
 Advanced tutorials
 --------------------------

@@ -153,11 +153,12 @@ Exemples de scripts audio avec pyo
 -------
 
 1. midi-scan.py
-2. mono-synth.py
-3. polyphonic-synth.py
-4. midi-sampler.py
+2. notein-object.py
+3. midi-envelope.py
+4. simple-midi-synth.py
 5. control-change.py
 6. midi-out.py
+7. midifile-with-mido.py
 
 17-osc
 ------
