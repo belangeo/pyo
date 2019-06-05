@@ -83,6 +83,8 @@ class Pyo {
         **   add, int, if positive, the commands in the file will be added to whatever
         **             is already running in the pyo server. If 0, the server will be
         **             cleared before executing the file.
+        **
+        ** returns 0 (no error), 1 (failed to open the file) or 2 (bad code in file).
         */
         int loadfile(const char *file, int add);
         int loadfile(const String &file, int add);
@@ -94,6 +96,8 @@ class Pyo {
         ** arguments:
         **   msg : const char * or const String &
         **         pointer to a string containing the statement to execute.
+        **
+        ** returns 0 (no error) or 1 (bad code in file).
         **
         ** Example (for a Pyo object named `pyo`):
         **

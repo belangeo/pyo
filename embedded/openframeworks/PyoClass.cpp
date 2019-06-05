@@ -67,6 +67,8 @@ void Pyo::process(float *buffer) {
 **   add, int, if positive, the commands in the file will be added to whatever
 **             is already running in the pyo server. If 0, the server will be
 **             cleared before executing the file.
+**
+** returns 0 (no error), 1 (failed to open the file) or 2 (bad code in file).
 */
 int Pyo::loadfile(const char *file, int add) {
     return pyo_exec_file(interpreter, file, pyoMsg, add);
@@ -78,6 +80,8 @@ int Pyo::loadfile(const char *file, int add) {
 ** arguments:
 **   name : const char *, variable name of the object.
 **   value : float, value to be assigned.
+**
+** returns 0 (no error) or 1 (bad code in file).
 **
 ** Example:
 **
@@ -101,6 +105,8 @@ int Pyo::value(const char *name, float value) {
 **   name : const char *, variable name of the object.
 **   value : float *, array of floats.
 **   len : int, number of elements in the array.
+**
+** returns 0 (no error) or 1 (bad code in file).
 **
 ** Example:
 **
@@ -131,6 +137,8 @@ int Pyo::value(const char *name, float *value, int len) {
 **   name : const char *, object name and attribute separated by a dot.
 **   value : float, value to be assigned.
 **
+** returns 0 (no error) or 1 (bad code in file).
+**
 ** Example:
 **
 ** inside the script file:
@@ -153,6 +161,8 @@ int Pyo::set(const char *name, float value) {
 **   name : const char *, object name and attribute separated by a dot.
 **   value : float *, array of floats.
 **   len : int, number of elements in the array.
+**
+** returns 0 (no error) or 1 (bad code in file).
 **
 ** Example:
 **
@@ -182,6 +192,8 @@ int Pyo::set(const char *name, float *value, int len) {
 **
 ** arguments:
 **   msg : const char *, pointer to a string containing the statement to execute.
+**
+** returns 0 (no error) or 1 (bad code in file).
 **
 ** Example (for a Pyo object named `pyo`):
 **

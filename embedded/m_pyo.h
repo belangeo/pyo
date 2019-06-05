@@ -368,29 +368,39 @@ INLINE int pyo_is_server_started(PyThreadState *interp) {
 **  add, int, if positive, the commands in the file will be added to whatever
 **            is already running in the pyo server. If 0, the server will be
 **            shutdown and reboot before executing the file.
+**
+** returns 0 (no error), 1 (failed to open the file) or 2 (bad code in file).
 */
 INLINE int pyo_exec_file(PyThreadState *interp, const char *file, char *msg, int add) {
-    int ok, err = 0;
-    PyObject *module, *obj;
+    int ok, isrel, badcode, err = 0;
+    PyObject *module;
     PyEval_AcquireThread(interp);
-    sprintf(msg, "import os\n_ok_ = os.path.isfile('./%s')", file);
+    sprintf(msg, "import os\n_isrel_ = True\n_ok_ = os.path.isfile('./%s')", file);
     PyRun_SimpleString(msg);
-    sprintf(msg, "if not _ok_:\n    _ok_ = os.path.isfile('%s')", file);
+    sprintf(msg, "if not _ok_:\n    _isrel_ = False\n    _ok_ = os.path.isfile('%s')", file);
     PyRun_SimpleString(msg);
     module = PyImport_AddModule("__main__");
-    obj = PyObject_GetAttrString(module, "_ok_");
-    ok = PyInt_AsLong(obj);
+    ok = PyInt_AsLong(PyObject_GetAttrString(module, "_ok_"));
+    isrel = PyInt_AsLong(PyObject_GetAttrString(module, "_isrel_"));
     if (ok) {
-        sprintf(msg, "try:\n    exec(open('./%s').read())\nexcept:\n    exec(open('%s').read())",
-                file, file);
         if (!add) {
             PyRun_SimpleString("_s_.setServer()\n_s_.stop()\n_s_.shutdown()");
             PyRun_SimpleString("_s_.boot(newBuffer=False).start()");
         }
+        if (isrel) {
+            sprintf(msg, "_badcode_ = False\ntry:\n    exec(open('./%s').read())\nexcept:\n    _badcode_ = True", file);
+        } else {
+            sprintf(msg, "_badcode_ = False\ntry:\n    exec(open('%s').read())\nexcept:\n    _badcode_ = True", file);
+        }
         PyRun_SimpleString(msg);
+        badcode = PyInt_AsLong(PyObject_GetAttrString(module, "_badcode_"));
+        if (badcode) {
+            err = 2; // err = 2 means bad code in the file.
+        }
     }
-    else
-        err = 1;
+    else {
+        err = 1; // err = 1 means problem opening the file.
+    }
     PyEval_ReleaseThread(interp);
     return err;
 }
@@ -411,6 +421,8 @@ INLINE int pyo_exec_file(PyThreadState *interp, const char *file, char *msg, int
 **  debug, int, if positive, the commands will be executed in a try-except
 **              statement. If 0, there will be no error checking, which is
 **              much faster.
+**
+** returns 0 (no error) or 1 (bad code in file).
 */
 INLINE int pyo_exec_statement(PyThreadState *interp, char *msg, int debug) {
     int err = 0;

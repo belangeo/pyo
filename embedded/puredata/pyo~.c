@@ -59,8 +59,11 @@ void pyo_tilde_dsp(t_pyo_tilde *x, t_signal **sp) {
         pyo_set_server_params(x->interp, x->sr, x->bs);
         if (x->file != NULL) {
             err = pyo_exec_file(x->interp, x->file, x->msg, x->add);
-            if (err) {
+            if (err == 1) {
                 post("Unable to open file < %s >", x->file);
+                x->file = NULL;
+            } else if (err == 2) {
+                post("Bad code in file < %s >", x->file);
                 x->file = NULL;
             }
         }
@@ -210,8 +213,11 @@ void pyo_tilde_read(t_pyo_tilde *x, t_symbol *s, int argc, t_atom *argv) {
     }
     if (pyo_is_server_started(x->interp)) { 
         err = pyo_exec_file(x->interp, x->file, x->msg, x->add);
-        if (err) {
+        if (err == 1) {
             post("Unable to open file < %s >", x->file);
+            x->file = NULL;
+        } else if (err == 2) {
+            post("Bad code in file < %s >", x->file);
             x->file = NULL;
         }
     }
