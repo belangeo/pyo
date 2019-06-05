@@ -1016,7 +1016,7 @@ class Spectrum(PyoObject):
         """
         Sets the lower frequency, as multiplier of sr, returned by the analysis.
 
-        Returns the real low frequency en Hz.
+        Returns the real low frequency in Hz.
 
         :Args:
 
@@ -1034,7 +1034,7 @@ class Spectrum(PyoObject):
         """
         Sets the higher frequency, as multiplier of sr, returned by the analysis.
 
-        Returns the real high frequency en Hz.
+        Returns the real high frequency in Hz.
 
         :Args:
 
