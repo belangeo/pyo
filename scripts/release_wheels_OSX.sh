@@ -5,6 +5,9 @@
 # To upload wheels on test.pypi.org:
 #   twine upload --repository-url https://test.pypi.org/legacy/ dist/*
 #
+# To upload wheels on pypi.org:
+#   twine upload dist/*
+#
 # To update older pip:
 #   curl https://bootstrap.pypa.io/get-pip.py | python(3)
 #
