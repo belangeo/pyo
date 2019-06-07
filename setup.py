@@ -313,7 +313,7 @@ setup(  name = "pyo",
                         'pyo.editor.snippets.Control': ["ChorusJit", "Vibrato"],
                         'pyo.editor.snippets.Interface': ["NewFrame", "PaintPanel"],
                         'pyo.editor.snippets.Utilities': ["ChooseAudioDev", "Incrementor"],
-                        'pyo.examples.snds': ["alum1.wav", "alum2.wav", "alum3,wav", "alum4.wav", "baseballmajeur_m.aif",
+                        'pyo.examples.snds': ["alum1.wav", "alum2.wav", "alum3.wav", "alum4.wav", "baseballmajeur_m.aif",
                                               "drumloop.wav", "flute.aif", "ounkmaster.aif", "snd_1.aif", "snd_2.aif",
                                               "snd_3.aif", "snd_4.aif", "snd_5.aif", "snd_6.aif", "mapleleafrag.mid"]
       },
