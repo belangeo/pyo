@@ -27,5 +27,4 @@ For questions and comments, please subscribe to the
 To report a bug or to request a feature, use the 
 `issues tracker <https://github.com/belangeo/pyo/issues>`_ on github.
 
-Sources and binaries can be downloaded at:
-http://ajaxsoundstudio.com/software/pyo/
+More infos at: http://ajaxsoundstudio.com/software/pyo/

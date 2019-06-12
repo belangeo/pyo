@@ -3,16 +3,16 @@ Compiling pyo from sources
 
 Here is how you can compile pyo from sources on Linux and MacOS (if you are
 interested in the adventure of compiling pyo from sources on Windows, you can 
-take a look at my personal notes in `windows-7-build-routine.txt 
-<https://github.com/belangeo/pyo/blob/master/scripts/win/windows-7-build-routine.txt>`_).
+take a look at my personal notes in `windows-10-64bit-build-routine.txt
+<https://github.com/belangeo/pyo/blob/master/scripts/win/windows-10-64bit-build-routine.txt>`_).
 
 Dependencies
 ------------
 
 To compile pyo with all its features, you will need the following dependencies: 
 
-- `Python 2.7 or 3.5 or higher <https://www.python.org/downloads/>`_. On Windows, install the 32-bit version of Python.
-- `WxPython 3.0.2.0 (classic) or 4.0.0 (phoenix, recommended) <http://www.wxpython.org/download.php/>`_
+- `Python 2.7 or 3.5 or higher <https://www.python.org/downloads/>`_.
+- `WxPython 3.0.2.0 (classic) or 4.0.6 (phoenix, recommended) <https://www.wxpython.org/pages/downloads/>`_
 - `Portaudio <http://www.portaudio.com/>`_
 - `Portmidi <http://portmedia.sourceforge.net/portmidi/>`_
 - `libsndfile <http://www.mega-nerd.com/libsndfile/>`_
@@ -173,7 +173,7 @@ MacOS (Homebrew)
 Under macOS, it is very simple to build pyo from sources with the Homebrew 
 package manager.
 
-The first step is to install the official `Python <https://www.python.org/downloads/>`_ from python.org. 
+The first step is to install the official Python from `python.org <https://www.python.org/downloads/>`_.
 
 Second step, if you want to be able to use all of pyo's gui widgets, you will need wxPython Phoenix. Install with pip:
 
