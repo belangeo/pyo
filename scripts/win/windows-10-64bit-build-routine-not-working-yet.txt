@@ -57,9 +57,6 @@ py -X.X -m pip install -U wxPython
     elif msc_ver in ["1900", "1915"]:
         return ['vcruntime140']
 
-[build]
-compiler = mingw32
-
 === STEP 9 ===
 --- create a file PythonXX/Lib/distutils/distutils.cfg with these lines in it:
 
