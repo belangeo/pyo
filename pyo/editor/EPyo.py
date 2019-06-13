@@ -1804,7 +1804,6 @@ class ManualFrame(wx.Frame):
 
         self.toolbar.AddSeparator()
 
-        self.searchTimer = None
         self.searchScope = "Object's Name"
         self.searchMenu = wx.Menu()
         item = self.searchMenu.Append(-1, "Search Scope")
@@ -1819,7 +1818,6 @@ class ManualFrame(wx.Frame):
         self.search.ShowCancelButton(True)
         self.search.SetMenu(self.searchMenu)
         self.toolbar.AddControl(self.search)
-        self.Bind(wx.EVT_TEXT, self.onSearch, id=200)
         self.Bind(wx.EVT_TEXT_ENTER, self.onSearchEnter, id=200)
         self.Bind(wx.EVT_SEARCHCTRL_CANCEL_BTN, self.onSearchCancel, id=200)
 
@@ -1857,14 +1855,6 @@ class ManualFrame(wx.Frame):
         self.search.SetFocus()
 
     def onSearchEnter(self, evt):
-        self.doc_panel.SetFocus()
-
-    def onSearch(self, evt):
-        if self.searchTimer != None:
-            self.searchTimer.Stop()
-        self.searchTimer = wx.CallLater(200, self.doSearch)
-
-    def doSearch(self):
         keyword = self.search.GetValue()
         if keyword == "":
             self.doc_panel.parse()
@@ -1873,10 +1863,11 @@ class ManualFrame(wx.Frame):
                 self.doc_panel.parseOnSearchName(keyword)
             else:
                 self.doc_panel.parseOnSearchPage(keyword)
-        self.searchTimer = None
+        self.doc_panel.SetFocus()
 
     def onSearchCancel(self, evt):
         self.search.SetValue("")
+        self.onSearchEnter(evt)
 
     def onSearchScope(self, evt):
         id = evt.GetId()
