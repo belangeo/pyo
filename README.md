@@ -19,7 +19,7 @@ Systems : macOS (10.10+), linux, Windows (XP, Vista, 7, 8, 10)
 
 Python versions : 2.7, 3.5+
 
-**For more resources, informations and documentation**, visit  
+**For more resources, informations and documentation**, visit 
 [PYO OFFICAL WEB SITE](http://ajaxsoundstudio.com/pyo/)
 
 How to get pyo running from sources on OS X and linux:
