@@ -15,15 +15,12 @@ MIDI protocol, for generating sound events and controlling process parameters.
 pyo allows creation of sophisticated signal processing chains with all the 
 benefits of a mature, and widely used, general programming language.
 
-Systems : macOS (10.6 -> 10.12), linux, Windows (XP, Vista, 7, 8, 10)
+Systems : macOS (10.10+), linux, Windows (XP, Vista, 7, 8, 10)
 
-Python versions : 2.7.x, 3.5.x, 3.6.x (recommended)
+Python versions : 2.7, 3.5+
 
+**For more resources, informations and documentation**, visit  
 [PYO OFFICAL WEB SITE](http://ajaxsoundstudio.com/pyo/)
-
-**Download latest binaries, source release and documentation** 
-[HERE](http://ajaxsoundstudio.com/pyo/)!
-
 
 How to get pyo running from sources on OS X and linux:
 [INSTALL Instructions](http://ajaxsoundstudio.com/pyodoc/compiling.html)
@@ -41,16 +38,11 @@ features on the mailing-list ( pyo-discuss@googlegroups.com ).
 If you want to listen to scripts rendered in real-time, just connect to 
 [Radio Pyo](http://radiopyo.acaia.ca/) !
 
-You want to have your script played on the radio ? Follow the instructions on this
-[post](http://acaia.ca/~tiago/posts/introducing-radio-pyo-live-music-in-python/) !
+You want to have your script played on the radio ? Download the template
+[radiopyo_template.py](https://github.com/tiagovaz/radiopyo/blob/master/utils/radiopyo_template.py),
+follow the rules and post it on the mailing-list !
 
 ## Softwares using pyo as audio engine ##
-
-[Zyne](https://github.com/belangeo/zyne) : A modular soft synthesizer.
-
-[Soundgrain](http://ajaxsoundstudio.com/software/soundgrain/) : 
-A graphical interface where users can draw and edit trajectories to control 
-granular sound synthesis.
 
 [Cecilia 5](http://ajaxsoundstudio.com/software/cecilia/) : An audio signal 
 processing environment.
@@ -58,6 +50,12 @@ processing environment.
 [PsychoPy](http://www.psychopy.org/) : An open-source application to allow the 
 presentation of stimuli and collection of data for a wide range of neuroscience, 
 psychology and psychophysics experiments.
+
+[Soundgrain](http://ajaxsoundstudio.com/software/soundgrain/) : 
+A graphical interface where users can draw and edit trajectories to control 
+granular sound synthesis.
+
+[Zyne](https://github.com/belangeo/zyne) : A modular soft synthesizer.
 
 [Pyo Synth](https://github.com/alexandrepoirier/PyoSynth) : Pyo Synth is an open
 source application that makes the manipulation of pyo scripts easier by letting
