@@ -19,11 +19,14 @@ Systems : macOS (10.10+), linux, Windows (XP, Vista, 7, 8, 10)
 
 Python versions : 2.7, 3.5+
 
-**For more resources, informations and documentation**, visit 
-[PYO OFFICAL WEB SITE](http://ajaxsoundstudio.com/pyo/)
+**For more resources, informations and documentation**, visit the 
+[PYO OFFICAL WEB SITE](http://ajaxsoundstudio.com/pyo/).
 
-How to get pyo running from sources on OS X and linux:
-[INSTALL Instructions](http://ajaxsoundstudio.com/pyodoc/compiling.html)
+How to install pre-built packages on any platform using **pip**: 
+[INSTALL Instructions](http://ajaxsoundstudio.com/pyodoc/download.html).
+    
+How to get pyo running from sources on macOS and linux:
+[COMPILE Instructions](http://ajaxsoundstudio.com/pyodoc/compiling.html).
 
 pyo was awarded **second prize** in the 
 [Lomus 2012](http://concours.afim-asso.org/2012/) Free Software Competition.
