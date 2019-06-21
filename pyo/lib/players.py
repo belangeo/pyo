@@ -62,7 +62,9 @@ class SfPlayer(PyoObject):
             If set to True, sound will play in loop. Defaults to False.
         offset: float, optional
             Time in seconds of input sound to be skipped, assuming speed = 1.
-            Defaults to 0.
+            If the object is already playing (and play() is implicitly called at
+            the object creation), this value will be effective only on the next
+            loop point. Defaults to 0.
         interp: int, optional
             Interpolation type. Defaults to 2.
                 1. no interpolation
