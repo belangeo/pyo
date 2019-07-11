@@ -1,3 +1,19 @@
+2019-06-12 belangeo <belangeo@gmail.com>
+
+    * EPyo: Fix search ctrl behaviour in the documentation window.
+
+2019-06-05 belangeo <belangeo@gmail.com>
+
+    * Better handling of bad code when reading file in enbedded pyo.
+
+2019-06-02 belangeo <belangeo@gmail.com>
+
+    * Added a clear() method to Linseg and Expseg objects.
+
+2019-05-14 belangeo <belangeo@gmail.com>
+
+    * Added computer keyboard bindings when the Notein's keyboard widget has the focus.
+
 2019-02-22 belangeo <belangeo@gmail.com>
 
     * Fader and Adsr now send a trigger at the end of the envelope.
@@ -16,7 +32,7 @@
 
 2019-01-22 belangeo <belangeo@gmail.com>
 
-    * Changed PyoObjectBase's method preventAutoStart() for allCAutoStart(switch).
+    * Changed PyoObjectBase's method preventAutoStart() for all AutoStart(switch).
     
 2019-01-11 belangeo <belangeo@gmail.com>
 
@@ -38,6 +54,10 @@
 
     * Added a getPyoExamples function and changed example function to be able to
       execute one of the example.
+
+2018-12-26 belangeo <belangeo@gmail.com>
+
+    * Fixed SIGSEGV when multiplying a number and a base object.
 
 2018-12-14 belangeo <belangeo@gmail.com>
 
@@ -88,7 +108,11 @@
 
 2018-10-30 belangeo <belangeo@gmail.com>
 
-    * Added complex numbers (and complex one-pole/one-zero filters) to the Expr API
+    * Added complex numbers (and complex one-pole/one-zero filters) to the Expr API.
+
+2018-10-30 belangeo <belangeo@gmail.com>
+
+    * Added sr (returns the current sampling rate) constant to the Expr API.
 
 2018-10-23 belangeo <belangeo@gmail.com>
 
