@@ -78,6 +78,8 @@ class Server(object):
             If 'jack' is selected but jackd is not already started when the program is executed, pyo
             will ask jack to start in the background. Note that pyo never ask jack to close. It is
             the user's responsability to manage the audio configuration of its system.
+
+            User can set an environment variable named PYO_SERVER_AUDIO to set this value globally.
         jackname: string, optional
             Name of jack client. Defaults to 'pyo'
         ichnls: int, optional
@@ -85,12 +87,16 @@ class Server(object):
         winhost: string, optional
             Under Windows, pyo's Server will try to use the default devices of the given host.
             This behaviour can be changed with the SetXXXDevice methods. Defaults to "directsound".
+
+            User can set an environment variable named PYO_SERVER_WINHOST to set this value globally.
         midi: string {'portmidi', 'pm', 'jack'}, optional
             Midi backend to use. 'pm' is equivalent to 'portmidi'. Default is 'portmidi'.
 
             If 'jack' is selected but jackd is not already started when the program is executed, pyo
             will ask jack to start in the background. Note that pyo never ask jack to close. It is
             the user's responsability to manage the audio/midi configuration of its system.
+
+            User can set an environment variable named PYO_SERVER_MIDI to set this value globally.
 
     .. note::
 
