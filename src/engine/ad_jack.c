@@ -70,7 +70,7 @@ jack_callback(jack_nframes_t nframes, void *arg) {
 
     PyoJackBackendData *be_data = (PyoJackBackendData *) server->audio_be_data;
 
-    if (be_data->jack_in_ports != NULL) {
+    if (server->duplex == 1) {
         for (i = 0; i < server->ichnls; i++) {
             in_buffers[i] = jack_port_get_buffer(be_data->jack_in_ports[i+server->input_offset], server->bufferSize);
         }
@@ -126,7 +126,7 @@ jack_callback(jack_nframes_t nframes, void *arg) {
     }
 
     /* jack audio data is not interleaved */
-    if (be_data->jack_in_ports != NULL) {
+    if (server->duplex == 1) {
         for (i=0; i<server->bufferSize; i++) {
             for (j=0; j<server->ichnls; j++) {
                 server->input_buffer[(i*server->ichnls)+j] = (MYFLT) in_buffers[j][i];
@@ -230,7 +230,7 @@ Server_jack_autoconnect(Server *self) {
     int i, j, num, err = 0;
     PyoJackBackendData *be_data = (PyoJackBackendData *) self->audio_be_data;
 
-    if (self->jackautoin && be_data->jack_in_ports != NULL) {
+    if (self->jackautoin && self->duplex == 1) {
 
         Py_BEGIN_ALLOW_THREADS
         ports = jack_get_ports(be_data->jack_client, "system", NULL, JackPortIsOutput);
@@ -280,7 +280,7 @@ Server_jack_autoconnect(Server *self) {
         free(ports);
     }
 
-    if (be_data->jack_in_ports != NULL) {
+    if (self->duplex == 1) {
         num = PyList_Size(self->jackAutoConnectInputPorts);
         if (num > 0) {
             if (num != self->ichnls || !PyList_Check(PyList_GetItem(self->jackAutoConnectInputPorts, 0))) {
@@ -586,7 +586,7 @@ jack_input_port_set_names(Server *self) {
     char result[128];
     PyoJackBackendData *be_data = (PyoJackBackendData *) self->audio_be_data;
 
-    if (be_data->jack_in_ports == NULL) {
+    if (self->duplex == 0) {
         Server_error(self, "Can not change Jack input port name with duplex=0.\n");
         return 0;
     }
