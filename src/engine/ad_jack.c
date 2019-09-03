@@ -237,22 +237,24 @@ Server_jack_autoconnect(Server *self) {
         Py_END_ALLOW_THREADS
 
         if (ports == NULL) {
-            Server_error(self, "Jack cannot find any physical capture ports called 'system'\n");
-        }
+            Server_error(self, "Jack cannot find any physical capture ports called 'system'.\n");
+            Server_error(self, "Server falls back to playback-only mode.\n");
+            self->duplex = 0;
+        } else {
+            i = 0;
+            while(ports[i] != NULL && be_data->jack_in_ports[i] != NULL) {
 
-        i = 0;
-        while(ports[i] != NULL && be_data->jack_in_ports[i] != NULL){
+                Py_BEGIN_ALLOW_THREADS
+                err = jack_connect(be_data->jack_client, ports[i], jack_port_name(be_data->jack_in_ports[i]));
+                Py_END_ALLOW_THREADS
 
-            Py_BEGIN_ALLOW_THREADS
-            err = jack_connect(be_data->jack_client, ports[i], jack_port_name(be_data->jack_in_ports[i]));
-            Py_END_ALLOW_THREADS
-
-            if (err) {
-                Server_error(self, "Jack cannot connect 'system' to input ports\n");
+                if (err) {
+                    Server_error(self, "Jack cannot connect 'system' to input ports.\n");
+                }
+                i++;
             }
-            i++;
+            free(ports);
         }
-        free(ports);
     }
 
     if (self->jackautoout) {
@@ -262,7 +264,7 @@ Server_jack_autoconnect(Server *self) {
         Py_END_ALLOW_THREADS
 
         if (ports == NULL) {
-            Server_error(self, "Jack cannot find any physical playback ports called 'system'\n");
+            Server_error(self, "Jack cannot find any physical playback ports called 'system'.\n");
         }
 
         i = 0;
@@ -273,7 +275,7 @@ Server_jack_autoconnect(Server *self) {
             Py_END_ALLOW_THREADS
 
             if (err) {
-                Server_error(self, "Jack cannot connect output ports to 'system'\n");
+                Server_error(self, "Jack cannot connect output ports to 'system'.\n");
             }
             i++;
         }
@@ -299,11 +301,11 @@ Server_jack_autoconnect(Server *self) {
                             Py_END_ALLOW_THREADS
 
                             if (err) {
-                                Server_error(self, "Jack cannot connect '%s' to input port %d\n", portname, j);
+                                Server_error(self, "Jack cannot connect '%s' to input port %d.\n", portname, j);
                             }
                         }
                         else {
-                            Server_error(self, "Jack cannot find port '%s'\n", portname);
+                            Server_error(self, "Jack cannot find port '%s'.\n", portname);
                         }
                     }
                 }
@@ -327,11 +329,11 @@ Server_jack_autoconnect(Server *self) {
                         Py_END_ALLOW_THREADS
 
                         if (err) {
-                            Server_error(self, "Jack cannot connect output port %d to '%s'\n", j, portname);
+                            Server_error(self, "Jack cannot connect output port %d to '%s'.\n", j, portname);
                         }
                     }
                     else {
-                        Server_error(self, "Jack cannot find port '%s'\n", portname);
+                        Server_error(self, "Jack cannot find port '%s'.\n", portname);
                     }
                 }
             }
@@ -351,11 +353,11 @@ Server_jack_autoconnect(Server *self) {
                     Py_END_ALLOW_THREADS
 
                     if (err) {
-                        Server_error(self, "Jack cannot connect '%s' to midi input port\n", portname);
+                        Server_error(self, "Jack cannot connect '%s' to midi input port.\n", portname);
                     }
                 }
                 else {
-                    Server_error(self, "Jack cannot find port '%s'\n", portname);
+                    Server_error(self, "Jack cannot find port '%s'.\n", portname);
                 }
             }
         }
@@ -372,11 +374,11 @@ Server_jack_autoconnect(Server *self) {
                     Py_END_ALLOW_THREADS
 
                     if (err) {
-                        Server_error(self, "Jack cannot connect '%s' to midi output port\n", portname);
+                        Server_error(self, "Jack cannot connect '%s' to midi output port.\n", portname);
                     }
                 }
                 else {
-                    Server_error(self, "Jack cannot find port '%s'\n", portname);
+                    Server_error(self, "Jack cannot find port '%s'.\n", portname);
                 }
             }
         }
@@ -421,7 +423,7 @@ Server_jack_init(Server *self) {
     Py_END_ALLOW_THREADS
 
     if (be_data->jack_client == NULL) {
-        Server_error(self, "Jack unable to create client\n");
+        Server_error(self, "Jack unable to create client.\n");
         if (status & JackServerFailed) {
             Server_debug(self, "Jack jack_client_open() failed, "
                          "status = 0x%2.0x\n", status);
@@ -439,10 +441,10 @@ Server_jack_init(Server *self) {
     sampleRate = jack_get_sample_rate(be_data->jack_client);
     if (sampleRate != self->samplingRate) {
         self->samplingRate = (double)sampleRate;
-        Server_warning(self, "Sample rate set to Jack engine sample rate: %" PRIu32 "\n", sampleRate);
+        Server_warning(self, "Sample rate set to Jack engine sample rate: %" PRIu32 ".\n", sampleRate);
     }
     else {
-        Server_debug(self, "Jack engine sample rate: %" PRIu32 "\n", sampleRate);
+        Server_debug(self, "Jack engine sample rate: %" PRIu32 ".\n", sampleRate);
     }
     if (sampleRate <= 0) {
         Server_error(self, "Jack invalid engine sample rate.");
@@ -457,10 +459,10 @@ Server_jack_init(Server *self) {
     bufferSize = jack_get_buffer_size(be_data->jack_client);
     if (bufferSize != self->bufferSize) {
         self->bufferSize = bufferSize;
-        Server_warning(self, "Buffer size set to Jack engine buffer size: %" PRIu32 "\n", bufferSize);
+        Server_warning(self, "Buffer size set to Jack engine buffer size: %" PRIu32 ".\n", bufferSize);
     }
     else {
-        Server_debug(self, "Jack engine buffer size: %" PRIu32 "\n", bufferSize);
+        Server_debug(self, "Jack engine buffer size: %" PRIu32 ".\n", bufferSize);
     }
 
     if (self->withJackMidi) {
@@ -491,7 +493,7 @@ Server_jack_init(Server *self) {
             }
 
             if ((be_data->jack_in_ports[index] == NULL)) {
-                Server_error(self, "No more Jack input ports available\n");
+                Server_error(self, "No more Jack input ports available.\n");
                 return -1;
             }
         }
@@ -512,7 +514,7 @@ Server_jack_init(Server *self) {
 
         }
         if ((be_data->jack_out_ports[index] == NULL)) {
-            Server_error(self, "No more Jack output ports available\n");
+            Server_error(self, "No more Jack output ports available.\n");
             return -1;
         }
     }
