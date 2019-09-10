@@ -134,7 +134,7 @@ class ControlSlider(wx.Panel):
         self.Bind(wx.EVT_MOTION, self.MouseMotion)
         self.Bind(wx.EVT_PAINT, self.OnPaint)
         self.Bind(wx.EVT_SIZE, self.OnResize)
-        self.Bind(wx.EVT_KEY_DOWN, self.keyDown)
+        self.Bind(wx.EVT_CHAR, self.onChar)
         self.Bind(wx.EVT_KILL_FOCUS, self.LooseFocus)
 
         if sys.platform == "win32" or sys.platform.startswith("linux"):
@@ -234,20 +234,21 @@ class ControlSlider(wx.Panel):
         self.selected = False
         self.Refresh()
 
-    def keyDown(self, event):
+    def onChar(self, event):
         if self.selected:
             char = ''
-            if event.GetKeyCode() in range(324, 334):
-                char = str(event.GetKeyCode() - 324)
-            elif event.GetKeyCode() == 390:
+            if event.GetKeyCode() in range(wx.WXK_NUMPAD0, wx.WXK_NUMPAD9 + 1):
+                char = str(event.GetKeyCode() - wx.WXK_NUMPAD0)
+            elif event.GetKeyCode() in [wx.WXK_SUBTRACT, wx.WXK_NUMPAD_SUBTRACT]:
                 char = '-'
-            elif event.GetKeyCode() == 391:
+            elif event.GetKeyCode() in [wx.WXK_DECIMAL, wx.WXK_NUMPAD_DECIMAL]:
                 char = '.'
             elif event.GetKeyCode() == wx.WXK_BACK:
                 if self.new != '':
                     self.new = self.new[0:-1]
             elif event.GetKeyCode() < 256:
                 char = chr(event.GetKeyCode())
+
             if char in ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '.', '-']:
                 self.new += char
             elif event.GetKeyCode() in [wx.WXK_RETURN, wx.WXK_NUMPAD_ENTER]:
