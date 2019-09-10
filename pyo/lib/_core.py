@@ -886,8 +886,8 @@ class PyoObjectBase(object):
         """
         When autoStartChildren is activated in the Server, call this method
         with False as argument to stop the propagation of play/out/stop methods
-        to this object. This is useful when an object is used at multiple places
-        and you don't want to loose it when you stop one dsp block.
+        to and from this object. This is useful when an object is used at multiple
+        places and you don't want to loose it when you stop one dsp block.
 
         .. note::
 
