@@ -1489,6 +1489,8 @@ class SndTable(PyoTableObject):
             Stops reading at `stop` seconds into the file. Available at
             initialization time only. The default (None) means the end of
             the file.
+        initchnls: int, optional
+            Number of channels for an empty table (path=None). Defaults to 1.
 
     >>> s = Server().boot()
     >>> s.start()
