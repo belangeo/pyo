@@ -145,7 +145,7 @@ if '--use-coreaudio' in sys.argv:
 path = 'src/engine'
 files = ['pyomodule.c', 'streammodule.c', 'servermodule.c', 'pvstreammodule.c', 
          'dummymodule.c', 'mixmodule.c', 'inputfadermodule.c', 'interpolation.c', 
-         'fft.c', "wind.c", "vbap.c"] + ad_files
+         'fft.c', "wind.c"] + ad_files
 source_files = [os.path.join(path, f) for f in files]
 
 path = 'src/objects'
