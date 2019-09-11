@@ -715,6 +715,15 @@ class Mixer(PyoObject):
             del self._inputs[voice]
             [obj.delInput(str(voice)) for i, obj in enumerate(self._base_players)]
 
+    def clear(self):
+        """
+        Remove all mixer's inputs at once.
+
+        """
+        for voice in list(self._inputs.keys()):
+            del self._inputs[voice]
+            [obj.delInput(str(voice)) for i, obj in enumerate(self._base_players)]
+
     def setAmp(self, vin, vout, amp):
         """
         Sets the amplitude of a mixing channel.

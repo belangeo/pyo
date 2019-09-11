@@ -1,8 +1,6 @@
 This is a list of features/fixes to implement for future releases
 =================================================================
 
-- Mixer object should have a clear() method to delete all inputs at once.
-
 Internal
 --------
 
