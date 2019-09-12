@@ -1,0 +1,233 @@
+[English version follows]
+
+Bonjour à tous,
+
+Après presque un an de travail, je suis très heureux d'annoncer la sortie de pyo 1.0.0!
+
+Pyo est un module Python écrit en C pour faciliter la programmation de traitement 
+de signal audio-numérique. Il fournit un ensemble complet de classes pour développer 
+des logiciels audio, composer des musiques algorithmiques ou simplement explorer 
+le traitement du signal audio. Il est disponible pour Windows, MacOS et Linux. 
+Il est publié sous la licence LGPL 3.
+
+Site web officiel: http://ajaxsoundstudio.com/software/pyo/
+
+La documentation: http://ajaxsoundstudio.com/pyodoc/
+
+Sources et suivi des bugs: https://github.com/belangeo/pyo
+
+Le principal changement dans cette version concerne le processus d'installation. 
+Le module est maintenant hébergé sur pypi.org et peut être installé (en 32-bit ou 
+64-bit) sous MacOS, Windows et Linux avec pip, le gestionnaire de paquet officiel
+de python. Il suffit d'exécuter, en ligne de commande:
+
+     python -m pip installer pyo
+
+Pour tous les détails concernant l'installation et comment désinstaller les versions 
+antérieures à 1.0.0, voir cette page dans la documentation:
+
+http://ajaxsoundstudio.com/pyodoc/download.html
+
+
+Voir plus bas pour le détail des changements apportés dans cette version!
+
+
+Olivier
+
+---
+
+Hello all,
+
+After almost a year of hard work, I'm very glad to announce the release of pyo 1.0.0!
+
+Pyo is a Python module written in C to help real-time digital signal processing
+script creation. It provides a complete set of classes to build audio softwares, 
+compose algorithmic musics or simply explore audio processing.It is available for 
+Windows, macOS and linux. It is released under the LGPL 3 license.
+
+Official web site: http://ajaxsoundstudio.com/software/pyo/
+
+pyo's documentation: http://ajaxsoundstudio.com/pyodoc/
+
+Latest sources and bug tracker: https://github.com/belangeo/pyo
+
+The main change in this release is the installation process. The package is now 
+uploaded to pypi.org and can be installed (for 32-bit or 64-bit) under MacOS, 
+Windows and linux  with pip. Just run the command:
+
+    python -m pip install pyo
+
+For all the details and how to uninstall version prior to 1.0.0, see this page
+in the documentation:
+
+http://ajaxsoundstudio.com/pyodoc/download.html
+
+
+Olivier
+
+
+WHAT CHANGED IN VERSION 1.0.0:
+
+Bug Fixes:
+
+- Fixed phase of sawtooth and ramp waveforms in the LFO object.
+- Embedded: Fixed crash on first load when embedding pyo in a juce plugin.
+- Embedded: Remove the wx import before importing pyo to prevent a crash on MacOS.
+- Embedded: Added a BPM variable in the embedded interpreter and a function in 
+  PyoClass to change it according to the BPM of a DAW, for instance.
+- Embedded: Better handling of bad code when reading file in embedded pyo.
+- Fixed bug in OscDataSend.addAddress().
+- Fixed BPF tables (LinTable, ExpTable, ...) memory allocation corruption.
+- Fixed SIGSEGV when multiplying a plain number and a base object.
+- Jack audio backend does not ignore duplex value anymore.
+
+New features:
+
+- Added PYO_SERVER_MIDI and PYO_SERVER_WINHOST environment variables to set 
+  default values for the audio server (user can also define PYO_SERVER_AUDIO).
+- Added one-sample delay function and sr constant to the Expr api.
+- Added complex numbers (and complex one-pole/one-zero filters) to the Expr API.
+- Added a new object: PyoGuiKeyboard, a virtual MIDI keyboard.
+- Added keyboard() method to the Notein object (opens a virtual midi keyboard).
+- Added computer keyboard bindings when the Notein's keyboard widget has the focus.
+- Added a getPyoExamples() function and changed example function to be able to
+  execute one of the example.
+- Added a new object: SVF2, a 2-pole state variable filter with many filter types.
+- Added two arithmetic objects: Div and Sub.
+- CallAfter's time and arg arguments can be changed dynamically.
+- Fader and Adsr now send a trigger at the end of the envelope.
+- Added a clear() method to Linseg and Expseg objects.
+
+EPyo:
+
+- Fixed crash when trying to read a faulty preferences file.
+- Added auto complete for cpp file (from corresponding header file).
+- Added a 'Reload Current File' menu command.
+- Added zoomin/zoomout function in the documentation window (Ctrl-- and Ctrl-+).
+- Added multiple views (splitted windows) functionnality.
+- Fix search ctrl behaviour in the documentation window.
+
+Auto Start Children (new feature):
+
+These changes offer the possibility to control start/stop calls of all objects 
+in a processing chain at once. See the documentation of the following methods 
+for more details.
+
+- Server.setAutoStartChildren().
+- PyoObjectBase.preventAutoStart().
+- PyoObjectBase.useWaitTimeOnStop().
+- PyoObjectBase.addLinkedObject().
+- PyoObjectBase.setStopDelay().
+- PyoObject.stop().
+- PyoPVObject.stop().
+
+New example categories:
+
+- Dynamic range of audio signals
+- Calling python functions from audio objects
+- Using tables
+- How to use MIDI with pyo
+- Multirate audio processing
+
+
+================================================================================
+
+Hello all,
+
+After almost a year of hard work, I'm very glad to announce the release of pyo 1.0.0, 
+available for python 2.7, 3.5, 3.6 and 3.7.
+
+Pyo is a Python module written in C to help real-time digital signal processing
+script creation. It provides a complete set of classes to build audio softwares, 
+compose algorithmic musics or simply explore audio processing.It is available for 
+Windows, macOS and linux. It is released under the LGPL 3 license.
+
+Official web site: http://ajaxsoundstudio.com/software/pyo/
+
+pyo's documentation: http://ajaxsoundstudio.com/pyodoc/
+
+Latest sources and bug tracker: https://github.com/belangeo/pyo
+
+The main change in this release is the installation process. The package is now 
+uploaded to pypi.org and can be installed (for 32-bit or 64-bit) under MacOS, 
+Windows and linux  with pip. Just run the command:
+
+    python -m pip install pyo
+
+For all the details and how to uninstall version prior to 1.0.0, see this page
+in the documentation:
+
+http://ajaxsoundstudio.com/pyodoc/download.html
+
+
+Bug Fixes:
+
+- Fixed phase of sawtooth and ramp waveforms in the LFO object.
+- Embedded: Fixed crash on first load when embedding pyo in a juce plugin.
+- Embedded: Remove the wx import before importing pyo to prevent a crash on MacOS.
+- Embedded: Added a BPM variable in the embedded interpreter and a function in 
+  PyoClass to change it according to the BPM of a DAW, for instance.
+- Embedded: Better handling of bad code when reading file in embedded pyo.
+- Fixed bug in OscDataSend.addAddress().
+- Fixed BPF tables (LinTable, ExpTable, ...) memory allocation corruption.
+- Fixed SIGSEGV when multiplying a plain number and a base object.
+- Jack audio backend does not ignore duplex value anymore.
+
+New features:
+
+- Added PYO_SERVER_MIDI and PYO_SERVER_WINHOST environment variables to set 
+  default values for the audio server (user can also define PYO_SERVER_AUDIO).
+- Added one-sample delay function and sr constant to the Expr api.
+- Added complex numbers (and complex one-pole/one-zero filters) to the Expr API.
+- Added a new object: PyoGuiKeyboard, a virtual MIDI keyboard.
+- Added keyboard() method to the Notein object (opens a virtual midi keyboard).
+- Added computer keyboard bindings when the Notein's keyboard widget has the focus.
+- Added a getPyoExamples() function and changed example function to be able to
+  execute one of the example.
+- Added a new object: SVF2, a 2-pole state variable filter with many filter types.
+- Added two arithmetic objects: Div and Sub.
+- CallAfter's time and arg arguments can be changed dynamically.
+- Fader and Adsr now send a trigger at the end of the envelope.
+- Added a clear() method to Linseg and Expseg objects.
+
+EPyo:
+
+- Fixed crash when trying to read a faulty preferences file.
+- Added auto complete for cpp file (from corresponding header file).
+- Added a 'Reload Current File' menu command.
+- Added zoomin/zoomout function in the documentation window (Ctrl-- and Ctrl-+).
+- Added multiple views (splitted windows) functionnality.
+- Fix search ctrl behaviour in the documentation window.
+
+Auto Start Children (new feature):
+
+These changes offer the possibility to control start/stop of all objects in a 
+processing chain at once. See the documentation of the following methods for 
+more details.
+
+- Server.setAutoStartChildren().
+- PyoObjectBase.preventAutoStart().
+- PyoObjectBase.useWaitTimeOnStop().
+- PyoObjectBase.addLinkedObject().
+- PyoObjectBase.setStopDelay().
+- PyoObject.stop().
+- PyoPVObject.stop().
+
+New example categories:
+
+- Dynamic range of audio signals
+- Calling python functions from audio objects
+- Using tables
+- How to use MIDI with pyo
+- Multirate audio processing
+
+
+Olivier Belanger
+belangeo@gmail.com
+http://olivier.ajaxsoundstudio.com/
+
+----
+
+<P><A HREF="http://ajaxsoundstudio.com/software/pyo/">Pyo 1.0.0</A> - short
+Python DSP library. (06-Aug-19)
+
