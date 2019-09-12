@@ -144,7 +144,7 @@ OBJECTS_TREE = {
             'opensndctrl': sorted(['OscReceive', 'OscSend', 'OscDataSend', 
                                    'OscDataReceive', 'OscListReceive']),
             'pan': sorted(['Pan', 'SPan', 'Switch', 'Selector', 'Mixer', 
-                           'VoiceManager', 'HRTF']),
+                           'VoiceManager', 'HRTF', 'Binaural']),
             'pattern': sorted(['Pattern', 'Score', 'CallAfter']),
             'randoms': sorted(['Randi', 'Randh', 'Choice', 'RandInt', 'Xnoise', 
                                'XnoiseMidi', 'RandDur', 'XnoiseDur', 'Urn',

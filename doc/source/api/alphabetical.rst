@@ -20,6 +20,7 @@ Alphabetical class reference
 - :py:class:`Beat` :     Generates algorithmic trigger patterns.
 - :py:class:`Bendin` :     Get the current value of the pitch bend controller.
 - :py:class:`Between` :     Informs when an input signal is contained in a specified range.
+- :py:class:`Binaural` :     Binaural 3D spatialization.
 - :py:class:`Biquad` :     A sweepable general purpose biquadratic digital filter.
 - :py:class:`Biquada` :     A general purpose biquadratic digital filter (floating-point arguments).
 - :py:class:`Biquadx` :     A multi-stages sweepable general purpose biquadratic digital filter.

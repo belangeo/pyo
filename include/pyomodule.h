@@ -531,6 +531,8 @@ extern PyTypeObject MultiBandMainType;
 extern PyTypeObject MultiBandType;
 extern PyTypeObject M_DivType;
 extern PyTypeObject M_SubType;
+extern PyTypeObject BinauralerType;
+extern PyTypeObject BinauralType;
 
 /* Constants */
 #define E M_E

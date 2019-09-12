@@ -47,3 +47,9 @@ signal into a stereo or multi-channel sound field.
 
 .. autoclass:: HRTF
    :members:
+
+*Binaural*
+-----------------------------------
+
+.. autoclass:: Binaural
+   :members:

@@ -1,5 +1,9 @@
 2019-09-11 belangeo <belangeo@gmail.com>
 
+    * Added new object: Binaural, 3D stereo spatialization.
+
+2019-09-11 belangeo <belangeo@gmail.com>
+
     * Added a clear() method to Mixer object to delete all inputs at once.
 
 2019-09-09 belangeo <belangeo@gmail.com>

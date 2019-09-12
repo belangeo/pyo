@@ -30,8 +30,6 @@ Objects
 
 - Add VBAP and LBAP spat algorithms.
 
-- Add Binaural object (VBAP+HRTF).
-
 - Add a plate reverb.
 
 Jack

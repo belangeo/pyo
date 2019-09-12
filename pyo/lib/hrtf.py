@@ -870,7 +870,7 @@ class HRTF(PyoObject):
 
     .. seealso::
 
-        :py:class:`SPan`, :py:class:`Pan`
+        :py:class:`Binaural`, :py:class:`SPan`, :py:class:`Pan`
 
     >>> s = Server(nchnls=2).boot()
     >>> s.start()
@@ -971,3 +971,187 @@ class HRTF(PyoObject):
         return self._elevation
     @elevation.setter
     def elevation(self, x): self.setElevation(x)
+
+class Binaural(PyoObject):
+    """
+    Binaural 3D spatialization.
+
+    Binaural object provides a realtime 3D spatialization over two channels
+    by the mean of combining VBAP and HRTF algorithms.
+
+    VBAP is used to move the sound over a sixteen channels speaker setup
+    without artifact and its result signals are then processed with 
+    Head-related Transfert Functions to mix them on a 3D sphere around a
+    virtual head.
+
+    This treatment is better perceived when listened with headphones!
+
+    Binaural generates two outpout streams per input stream.
+
+    :Parent: :py:class:`PyoObject`
+
+    :Args:
+
+        input: PyoObject
+            Input signal to process.
+        azimuth: float or PyoObject
+            Position of the sound on the horizontal plane, between -180
+            and 180 degrees. Defaults to 0.
+        elevation: float or PyoObject
+            Position of the sound on the vertical plane, between 0 and 
+            90 degrees. Defaults to 0.
+        azispan: float or PyoObject
+            Spreading of the sound on the horizontal plane, between 0 and 1.
+            Defaults to 0.
+        elespan: float or PyoObject
+            Spreading of the sound on the vertical plane, between 0 and 1.
+            Defaults to 0.
+
+    .. seealso::
+
+        :py:class:`HRTF`, :py:class:`SPan`, :py:class:`Pan`
+
+    >>> s = Server(nchnls=2).boot()
+    >>> s.start()
+    >>> sf = SfPlayer(SNDS_PATH + "/transparent.aif", loop=True, mul=0.3)
+    >>> azi = Phasor(0.2, mul=360)
+    >>> ele = Sine(0.1).range(0, 90)
+    >>> spn = Sine(0.3).range(0, 1)
+    >>> bin = Binaural(sf, azimuth=azi, elevation=ele, azispan=spn, elespan=spn).out()
+
+    """
+    def __init__(self, input, azimuth=0.0, elevation=0.0, azispan=0.0, elespan=0.0, mul=1, add=0):
+        pyoArgsAssert(self, "oOOOOOO", input, azimuth, elevation, azispan, elespan, mul, add)
+        PyoObject.__init__(self, mul, add)
+        self._input = input
+        self._azimuth = azimuth
+        self._elevation = elevation
+        self._azispan = azispan
+        self._elespan = elespan
+        self._in_fader = InputFader(input)
+        in_fader, azimuth, elevation, azispan, elespan, mul, add, lmax = convertArgsToLists(self._in_fader, azimuth, elevation, azispan, elespan, mul, add)
+        self._base_players = [Binauraler_base(wrap(in_fader,i), wrap(azimuth,i), wrap(elevation,i), wrap(azispan,i), wrap(elespan,i)) for i in range(lmax)]
+        self._base_objs = []
+        for i in range(lmax):
+            for j in range(2):
+                self._base_objs.append(Binaural_base(wrap(self._base_players,i), j, wrap(mul,i), wrap(add,i)))
+        self._init_play()
+
+    def setInput(self, x, fadetime=0.05):
+        """
+        Replace the `input` attribute.
+
+        :Args:
+
+            x: PyoObject
+                New signal to process.
+            fadetime: float, optional
+                Crossfade time between old and new input. Default to 0.05.
+
+        """
+        pyoArgsAssert(self, "oN", x, fadetime)
+        self._input = x
+        self._in_fader.setInput(x, fadetime)
+
+    def setAzimuth(self, x):
+        """
+        Replace the `azimuth` attribute.
+
+        :Args:
+
+            x: float or PyoObject
+                new `azimuth` attribute.
+
+        """
+        pyoArgsAssert(self, "O", x)
+        self._azimuth = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setAzimuth(wrap(x,i)) for i, obj in enumerate(self._base_players)]
+
+    def setElevation(self, x):
+        """
+        Replace the `elevation` attribute.
+
+        :Args:
+
+            x: float or PyoObject
+                new `elevation` attribute.
+
+        """
+        pyoArgsAssert(self, "O", x)
+        self._elevation = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setElevation(wrap(x,i)) for i, obj in enumerate(self._base_players)]
+
+    def setAzispan(self, x):
+        """
+        Replace the `azispan` attribute.
+
+        :Args:
+
+            x: float or PyoObject
+                new `azispan` attribute.
+
+        """
+        pyoArgsAssert(self, "O", x)
+        self._azispan = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setAzispan(wrap(x,i)) for i, obj in enumerate(self._base_players)]
+
+    def setElespan(self, x):
+        """
+        Replace the `elespan` attribute.
+
+        :Args:
+
+            x: float or PyoObject
+                new `elespan` attribute.
+
+        """
+        pyoArgsAssert(self, "O", x)
+        self._elespan = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setElespan(wrap(x,i)) for i, obj in enumerate(self._base_players)]
+
+    def ctrl(self, map_list=None, title=None, wxnoserver=False):
+        self._map_list = [SLMap(-180, 180, "lin", "azimuth", self._azimuth),
+                          SLMap(0, 90, 'lin', 'elevation', self._elevation),
+                          SLMap(0, 1, 'lin', 'azispan', self._azispan),
+                          SLMap(0, 1, 'lin', 'elespan', self._elespan),
+                          SLMapMul(self._mul)]
+        PyoObject.ctrl(self, map_list, title, wxnoserver)
+
+    @property
+    def input(self):
+        """PyoObject. Input signal to process."""
+        return self._input
+    @input.setter
+    def input(self, x): self.setInput(x)
+
+    @property
+    def azimuth(self):
+        """float or PyoObject. Position of the sound on the horizontal plane."""
+        return self._azimuth
+    @azimuth.setter
+    def azimuth(self, x): self.setAzimuth(x)
+
+    @property
+    def elevation(self):
+        """float or PyoObject. Position of the sound on the vertical plane."""
+        return self._elevation
+    @elevation.setter
+    def elevation(self, x): self.setElevation(x)
+
+    @property
+    def azispan(self):
+        """float or PyoObject. Horizontal spanning."""
+        return self._azispan
+    @azispan.setter
+    def azispan(self, x): self.setAzispan(x)
+
+    @property
+    def elespan(self):
+        """float or PyoObject. Vertical spanning."""
+        return self._elespan
+    @elespan.setter
+    def elespan(self, x): self.setElespan(x)

@@ -2110,6 +2110,8 @@ init_pyo64(void)
     module_add_object(m, "MultiBand_base", &MultiBandType);
     module_add_object(m, "M_Div_base", &M_DivType);
     module_add_object(m, "M_Sub_base", &M_SubType);
+    module_add_object(m, "Binauraler_base", &BinauralerType);
+    module_add_object(m, "Binaural_base", &BinauralType);
 
     PyModule_AddStringConstant(m, "PYO_VERSION", PYO_VERSION);
 #ifdef COMPILE_EXTERNALS
