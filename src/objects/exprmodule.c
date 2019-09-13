@@ -668,7 +668,7 @@ Expr_setExpr(Expr *self, PyObject *arg)
         Py_INCREF(arg);
         Py_XDECREF(sentence);
         sentence = arg;
-        len = PyUnicode_GetSize(sentence);
+        len = PY_UNICODE_GET_SIZE(sentence);
         if (len == 0) {
             Py_RETURN_NONE;            
         }
@@ -759,7 +759,7 @@ Expr_setExpr(Expr *self, PyObject *arg)
                     self->lexp[self->count].values[i] = PyFloat_AsDouble(PyFloat_FromString(PyList_GetItem(explist, i+1), NULL));
                 }
             }
-            len = PyUnicode_GetSize(sentence);
+            len = PY_UNICODE_GET_SIZE(sentence);
             self->count++;
         }
 

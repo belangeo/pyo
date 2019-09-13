@@ -550,7 +550,7 @@ typedef struct {
 static void
 OscSend_compute_next_data_frame(OscSend *self)
 {
-    char *path=NULL;
+    const char *path = NULL;
     self->count++;
     if (self->count >= self->bufrate) {
         self->count = 0;
@@ -736,7 +736,7 @@ OscDataSend_compute_next_data_frame(OscDataSend *self)
     char *blobdata = NULL;
     uint8_t midi[4];
     lo_blob *blob = NULL;
-    char *path=NULL;
+    const char *path = NULL;
     lo_message *msg;
 
     while (self->something_to_send) {

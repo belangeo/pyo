@@ -696,7 +696,7 @@ load_speakers_setup_from_file(const char *filename) {
     char *toke;
     char c[10000];
     FILE *fp;
-    SPEAKERS_SETUP *setup;
+    SPEAKERS_SETUP *setup = NULL;
     setup = (SPEAKERS_SETUP *)malloc(sizeof(SPEAKERS_SETUP));
 
     if ((fp = fopen(filename, "r")) == NULL) {
@@ -705,36 +705,38 @@ load_speakers_setup_from_file(const char *filename) {
         exit(-1);
     }
 
-    fgets(c, 10000, fp);
-    toke = (char *)strtok(c, " ");
-    sscanf(toke, "%d", &count);
-    if (count < 3) {
-        fprintf(stderr, "Too few loudspeakers %d\n", count);
-        free(setup);
-        exit(-1);
-    }
-
-    setup->azimuth = (float *)calloc(count, sizeof(float));
-    setup->elevation = (float *)calloc(count, sizeof(float));
-    while (1) {
-        if (fgets(c, 10000, fp) == NULL)
-            break;
+    if ( fgets(c, 10000, fp) != NULL ) {
         toke = (char *)strtok(c, " ");
-        if (sscanf(toke, "%f", &azi) > 0) {
-            toke = (char *)strtok(NULL, " ");
-            sscanf(toke, "%f", &ele);
-        } else {
-            break;
+        sscanf(toke, "%d", &count);
+        if (count < 3) {
+            fprintf(stderr, "Too few loudspeakers %d\n", count);
+            free(setup);
+            exit(-1);
         }
 
-        setup->azimuth[i] = azi;
-        setup->elevation[i] = ele;
-        i++;
-        if (i == count)
-            break;
+        setup->azimuth = (float *)calloc(count, sizeof(float));
+        setup->elevation = (float *)calloc(count, sizeof(float));
+        while (1) {
+            if (fgets(c, 10000, fp) == NULL)
+                break;
+            toke = (char *)strtok(c, " ");
+            if (sscanf(toke, "%f", &azi) > 0) {
+                toke = (char *)strtok(NULL, " ");
+                sscanf(toke, "%f", &ele);
+            } else {
+                break;
+            }
+
+            setup->azimuth[i] = azi;
+            setup->elevation[i] = ele;
+            i++;
+            if (i == count)
+                break;
+        }
+        setup->dimension = 3;
+        setup->count = count;
     }
-    setup->dimension = 3;
-    setup->count = count;
+
     return setup;
 }
 

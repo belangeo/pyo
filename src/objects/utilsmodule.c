@@ -35,7 +35,7 @@ typedef struct {
     pyo_audio_HEAD
     PyObject *input;
     Stream *input_stream;
-    char *message;
+    const char *message;
     int method; // 0 -> interval, 1 -> change
     MYFLT lastValue;
     MYFLT time;

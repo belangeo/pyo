@@ -226,7 +226,7 @@ jack_shutdown_cb(void *arg) {
 static void
 Server_jack_autoconnect(Server *self) {
     const char **ports;
-    char *portname;
+    const char *portname;
     int i, j, num, err = 0;
     PyoJackBackendData *be_data = (PyoJackBackendData *) self->audio_be_data;
 
@@ -293,7 +293,6 @@ Server_jack_autoconnect(Server *self) {
                     num = PyList_Size(PyList_GetItem(self->jackAutoConnectInputPorts, j));
                     for (i=0; i<num; i++) {
                         portname = PY_STRING_AS_STRING(PyList_GetItem(PyList_GetItem(self->jackAutoConnectInputPorts, j), i));
-
                         if (jack_port_by_name(be_data->jack_client, portname) != NULL) {
 
                             Py_BEGIN_ALLOW_THREADS
@@ -584,7 +583,7 @@ Server_jack_deinit(Server *self) {
 int
 jack_input_port_set_names(Server *self) {
     int i, err, lsize;
-    char *name;
+    const char *name;
     char result[128];
     PyoJackBackendData *be_data = (PyoJackBackendData *) self->audio_be_data;
 
@@ -636,7 +635,7 @@ jack_input_port_set_names(Server *self) {
 int
 jack_output_port_set_names(Server *self) {
     int i, err, lsize;
-    char *name;
+    const char *name;
     char result[128];
     PyoJackBackendData *be_data = (PyoJackBackendData *) self->audio_be_data;
 
@@ -683,7 +682,7 @@ jack_output_port_set_names(Server *self) {
 int
 jack_midi_input_port_set_name(Server *self) {
     int err;
-    char *name;
+    const char *name;
     PyoJackBackendData *be_data = (PyoJackBackendData *) self->audio_be_data;
 
     if (PY_STRING_CHECK(self->jackMidiInputPortName)) {
@@ -709,7 +708,7 @@ jack_midi_input_port_set_name(Server *self) {
 int
 jack_midi_output_port_set_name(Server *self) {
     int err;
-    char *name;
+    const char *name;
     PyoJackBackendData *be_data = (PyoJackBackendData *) self->audio_be_data;
 
     if (PY_STRING_CHECK(self->jackMidiOutputPortName)) {

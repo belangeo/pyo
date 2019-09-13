@@ -2174,7 +2174,7 @@ Server_getCurrentTime(Server *self)
     int hours, minutes, seconds, milliseconds;
     float sr = self->samplingRate;
     double sampsToSecs;
-    char curtime[20];
+    char curtime[36];
 
     sampsToSecs = (double)(self->elapsedSamples / sr);
     seconds = (int)sampsToSecs;
