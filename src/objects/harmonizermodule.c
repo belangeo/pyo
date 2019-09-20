@@ -40,6 +40,9 @@ typedef struct {
     Stream *feedback_stream;
     MYFLT winsize;
 	MYFLT pointerPos;
+    // feedback dc blocker
+    MYFLT x1;
+    MYFLT y1;
     int in_count;
     MYFLT *buffer; // samples memory
     int modebuffer[4];
@@ -103,7 +106,10 @@ Harmonizer_transform_ii(Harmonizer *self) {
         else if (self->pointerPos >= 1.0)
             self->pointerPos -= 1.0;
 
-		self->buffer[self->in_count] = in[i]  + (self->data[i] * feed);
+        self->y1 = self->data[i] - self->x1 + 0.995 * self->y1;
+        self->x1 = self->data[i];
+
+		self->buffer[self->in_count] = in[i]  + self->y1 * feed;
         if (self->in_count == 0)
             self->buffer[(int)self->sr] = self->buffer[0];
         self->in_count++;
@@ -172,7 +178,10 @@ Harmonizer_transform_ai(Harmonizer *self) {
         else if (self->pointerPos >= 1)
             self->pointerPos -= 1.0;
 
-		self->buffer[self->in_count] = in[i]  + (self->data[i] * feed);
+        self->y1 = self->data[i] - self->x1 + 0.995 * self->y1;
+        self->x1 = self->data[i];
+
+		self->buffer[self->in_count] = in[i]  + self->y1 * feed;
         if (self->in_count == 0)
             self->buffer[(int)self->sr] = self->buffer[0];
         self->in_count++;
@@ -242,7 +251,10 @@ Harmonizer_transform_ia(Harmonizer *self) {
         else if (self->pointerPos >= 1)
             self->pointerPos -= 1.0;
 
-		self->buffer[self->in_count] = in[i]  + (self->data[i] * feedback);
+        self->y1 = self->data[i] - self->x1 + 0.995 * self->y1;
+        self->x1 = self->data[i];
+
+		self->buffer[self->in_count] = in[i]  + self->y1 * feedback;
         if (self->in_count == 0)
             self->buffer[(int)self->sr] = self->buffer[0];
         self->in_count++;
@@ -314,7 +326,10 @@ Harmonizer_transform_aa(Harmonizer *self) {
         else if (self->pointerPos >= 1)
             self->pointerPos -= 1.0;
 
-		self->buffer[self->in_count] = in[i]  + (self->data[i] * feedback);
+        self->y1 = self->data[i] - self->x1 + 0.995 * self->y1;
+        self->x1 = self->data[i];
+
+		self->buffer[self->in_count] = in[i]  + self->y1 * feedback;
         if (self->in_count == 0)
             self->buffer[(int)self->sr] = self->buffer[0];
         self->in_count++;
@@ -441,6 +456,7 @@ Harmonizer_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->winsize = 0.1;
     self->pointerPos = 1.0;
 	self->in_count = 0;
+    self->x1 = self->y1 = 0.0;
 	self->modebuffer[0] = 0;
 	self->modebuffer[1] = 0;
 	self->modebuffer[2] = 0;

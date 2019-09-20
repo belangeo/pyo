@@ -1,3 +1,7 @@
+2019-09-19 belangeo <belangeo@gmail.com>
+
+    * Added a DC blocker inside the feedback loop of Harmonizer object.
+
 2019-09-11 belangeo <belangeo@gmail.com>
 
     * Added new object: Binaural, 3D stereo spatialization.
