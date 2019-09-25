@@ -441,8 +441,12 @@ class Expr(PyoObject):
                         end = self._get_matching_bracket_pos(x, start)
                     else:
                         end = len(x)
-                    # retrieve args
-                    args = []
+                    # retrieve args #
+                    # function arguments are computed only once at the beginning of the
+                    # function. This fixes a bug wen an argument *must* be of the same
+                    # value for every $x and the arg expression contains random function.
+                    argvars = ""
+                    howmany = 0
                     p1 = pos + len(key)
                     p2 = -1
                     for i in range(numargs):
@@ -461,20 +465,26 @@ class Expr(PyoObject):
                                     if p2 == end:
                                         break
                         if x[p1:p2] != ")":
-                            args.append(x[p1:p2])
+                            # pattern for an arg is #FUNCNAMEargARGNUMBER.
+                            argvars = argvars + "(let #%sarg%d %s)\n" % (key, i+1, x[p1:p2])
+                            howmany += 1
                         if p2 == end:
                             break
                         else:
                             p1 = p2
+                    if howmany > 0:
+                        body2 = body2[0] + "\n" + argvars + body2[1:]
+
                     # discard extra args
                     if p2 != end and p2 != -1:
                         x = x[:p2] + x[end:]
+
                     # replace args
-                    if args != []:
+                    if howmany > 0:
                         newbody = body2
                         for i in range(numargs):
-                            if i < len(args):
-                                arg = args[i]
+                            if i < howmany:
+                                arg = "#%sarg%d" % (key, (i+1))
                             else:
                                 arg = '0.0'
                             newbody = newbody.replace("$%d" % (i+1), arg)
