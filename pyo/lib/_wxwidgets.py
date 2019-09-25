@@ -32,6 +32,11 @@ if "phoenix" in wx.version():
     wx.Image_HSVValue = wx.Image.HSVValue
     wx.Image_HSVtoRGB = wx.Image.HSVtoRGB
 
+if sys.version_info[0] < 3:
+    unicode_t = unicode
+else:
+    unicode_t = str
+
 BACKGROUND_COLOUR = "#EBEBEB"
 
 def interpFloat(t, v1, v2):
@@ -2881,7 +2886,7 @@ class ExprEditor(stc.StyledTextCtrl):
 class ExprEditorFrame(wx.Frame):
 
     def __init__(self, parent=None, obj=None):
-        wx.Frame.__init__(self, parent, size=(500,350))
+        wx.Frame.__init__(self, parent, size=(650,450))
         self.obj = obj
         self.obj._editor = self
         self.editor = ExprEditor(self, -1, self.obj)
@@ -2902,7 +2907,7 @@ class ExprEditorFrame(wx.Frame):
     def open(self, evt):
         dlg = wx.FileDialog(self, message="Choose a file",
                             defaultDir=os.path.expanduser("~"),
-                            defaultFile="", style=wx.OPEN)
+                            defaultFile="", style=wx.FD_OPEN)
         if dlg.ShowModal() == wx.ID_OK:
             path = ensureNFD(dlg.GetPath())
             self.editor.loadfile(path)
@@ -2923,7 +2928,7 @@ class ExprEditorFrame(wx.Frame):
         deffile = os.path.split(self.editor.currentfile)[1]
         dlg = wx.FileDialog(self, message="Save file as ...",
                             defaultDir=os.path.expanduser("~"),
-                            defaultFile=deffile, style=wx.SAVE)
+                            defaultFile=deffile, style=wx.FD_SAVE)
         dlg.SetFilterIndex(0)
         if dlg.ShowModal() == wx.ID_OK:
             path = ensureNFD(dlg.GetPath())
