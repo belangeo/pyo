@@ -183,7 +183,7 @@ Undefined variables are initialized to 0.
 
 A state variable can also contain a complex number:
 
-    (let #v (complex 0.2 0.7)) // #v = (0.2, 0.7)
+    (let #v (complex 0.2 0.7)) // #v = (0.2 0.7)
 
 User variables
 --------------
