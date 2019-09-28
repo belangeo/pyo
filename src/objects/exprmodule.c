@@ -255,9 +255,15 @@ Expr_process(Expr *self) {
                 for (k=0; k<self->lexp[j].num; k++) {
                     if (self->lexp[j].nodes[k] != -1) {
                         self->lexp[j].values[k] = self->lexp[self->lexp[j].nodes[k]].result;
+                        if (self->lexp[j].num == 1) { // in case let statement try to store a complex number, we save the imag part.
+                            self->lexp[j].values[k+1] = self->lexp[self->lexp[j].nodes[k]].result2;
+                        }
                     }
                     else if (self->lexp[j].vars[k] != -1) {
                         self->lexp[j].values[k] = self->lexp[self->lexp[j].vars[k]].result;
+                        if (self->lexp[j].num == 1) { // in case let statement try to store a complex number, we save the imag part.
+                            self->lexp[j].values[k+1] = self->lexp[self->lexp[j].vars[k]].result2;
+                        }
                     }
                     else if (self->lexp[j].input[k] < 1) {
                         pos = i + self->lexp[j].input[k];
@@ -465,13 +471,27 @@ Expr_process(Expr *self) {
                         self->lexp[j].result2 = self->lexp[j].values[1];
                         break;
                     case OP_REAL:
-                        self->lexp[j].result = self->lexp[self->lexp[j].nodes[0]].result;
+                        if (self->lexp[j].nodes[0] != -1) {
+                            self->lexp[j].result = self->lexp[self->lexp[j].nodes[0]].result;
+                        } else if (self->lexp[j].vars[0] != -1) {
+                            self->lexp[j].result = self->lexp[self->lexp[j].vars[0]].result;
+                        } else {
+                            self->lexp[j].result = self->lexp[j].result;
+                        }
                         break;
                     case OP_IMAG:
-                        self->lexp[j].result = self->lexp[self->lexp[j].nodes[0]].result2;
+                        if (self->lexp[j].nodes[0] != -1) {
+                            self->lexp[j].result = self->lexp[self->lexp[j].nodes[0]].result2;
+                        } else if (self->lexp[j].vars[0] != -1) {
+                            self->lexp[j].result = self->lexp[self->lexp[j].vars[0]].result2;
+                        } else {
+                            self->lexp[j].result = self->lexp[j].result2;
+                        }
                         break;
                     case OP_CONST:
                         self->lexp[j].result = self->lexp[j].values[0];
+                        // in case let (which becomes a const) statement try to store a complex number, we save the imag part.
+                        self->lexp[j].result2 = self->lexp[j].values[1];
                         break;
                     case OP_PI:
                         self->lexp[j].result = PI;

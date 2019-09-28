@@ -44,9 +44,9 @@ elif TEST == 1:
     ex = Expr(Sig(0), t).out()
 
     lfo = Sig(0.5)
-    lfo.ctrl([SLMap(0, 1, "lin", "value", 0.5)])
+    lfo.ctrl([SLMap(0, 1, "lin", "value", 0.5)], title="Feedback")
     pit = Sig(200)
-    pit.ctrl([SLMap(100, 1000, "log", "value", 200)])
+    pit.ctrl([SLMap(100, 1000, "log", "value", 200)], title="Frequency")
 
     def change():
         ex.setVar(["#feed", "#pitch"], [lfo.get(), pit.get()])

@@ -11,11 +11,9 @@
 #                                   (imag x) --> returns imaginary value from complex number x.
 #                           ===>    (cpole signal coeff) --> complex one-pole recursive filter (returns a complex number).
 #                           ===>    (czero signal coeff) --> complex one-pole non-recursive filter (returns a complex number).
+#                           ===>    (let #cplx (complex re im)) --> let statement works with complex numbers.
 
 # TODO:
-# letc keyword to create a 
-# complex variable          ===>    (letc #cplx (cpole signal coeff)) --> #cplx holds a complex number 
-#                                   complex numbers don't work with let, var, ==> const has only one value.
 # Multiple input signals to
 # an expression             ===>    (* $x[0] $x1[0]) --> Ring-mod between two input signals ($x is the same as $x0).
 # Multiple output signals to - (need a new argument to the object, `outs=1`)
