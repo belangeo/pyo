@@ -2825,7 +2825,6 @@ class Mix(PyoObject):
         self._input = input
         mul, add, lmax = convertArgsToLists(mul, add)
         if isinstance(input, list):
-            input_objs = []
             input_objs = [obj for pyoObj in input for obj in pyoObj.getBaseObjects()]
             self._linked_objects = input
         else:
