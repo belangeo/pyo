@@ -12,10 +12,10 @@
 #                           ===>    (cpole signal coeff) --> complex one-pole recursive filter (returns a complex number).
 #                           ===>    (czero signal coeff) --> complex one-pole non-recursive filter (returns a complex number).
 #                           ===>    (let #cplx (complex re im)) --> let statement works with complex numbers.
+# Multiple input signals to
+# an expression             ===>    (* $x[0] $x1[0]) --> Ring-modulation between two input signals ($x is the same as $x0).
 
 # TODO:
-# Multiple input signals to
-# an expression             ===>    (* $x[0] $x1[0]) --> Ring-mod between two input signals ($x is the same as $x0).
 # Multiple output signals to - (need a new argument to the object, `outs=1`)
 # an expression             ===>    (let #y0 (sin (* twopi (~ 100)))) --> First output signal is a 100Hz sine wave.
 #                                   (let #y1 (sin (* twopi (~ 200)))) --> Second output signal is a 200Hz sine wave.

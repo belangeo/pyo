@@ -107,6 +107,7 @@ typedef struct t_expr {
     int *nodes;
     int *vars;
     int *input;
+    int *inchnls;
     int *output;
     MYFLT *values;
     MYFLT *previous;
@@ -117,7 +118,6 @@ typedef struct t_expr {
 typedef struct {
     pyo_audio_HEAD
     PyObject *input;
-    Stream *input_stream;
     PyObject *variables;
     int count;
     MYFLT oneOverSr;
@@ -133,6 +133,7 @@ clearexpr(expr ex)
     if (ex.nodes) { free(ex.nodes); }
     if (ex.vars) { free(ex.vars); }
     if (ex.input) { free(ex.input); }
+    if (ex.inchnls) { free(ex.inchnls); }
     if (ex.output) { free(ex.output); }
     if (ex.values) { free(ex.values); }
     if (ex.previous) { free(ex.previous); }
@@ -205,11 +206,12 @@ initexpr(const char *op, int size)
     ex.nodes = (int *)malloc(num);
     ex.vars = (int *)malloc(num);
     ex.input = (int *)malloc(num);
+    ex.inchnls = (int *)malloc(num);
     ex.output = (int *)malloc(num);
     ex.values = (MYFLT *)malloc(num);
     ex.previous = (MYFLT *)malloc(num);
     for (i=0; i<num; i++) {
-        ex.nodes[i] = ex.vars[i] = -1;
+        ex.nodes[i] = ex.vars[i] = ex.inchnls[i] = -1;
         ex.input[i] = ex.output[i] = 1;
         ex.values[i] = ex.previous[i] = 0.0;
     }
@@ -229,6 +231,8 @@ print_expr(expr ex, int node)
     for (i=0; i<ex.num; i++) { PySys_WriteStdout("%d, ", ex.vars[i]); }
     PySys_WriteStdout("\nInputs: ");
     for (i=0; i<ex.num; i++) { PySys_WriteStdout("%d, ", ex.input[i]); }
+    PySys_WriteStdout("\nInput channels: ");
+    for (i=0; i<ex.num; i++) { PySys_WriteStdout("%d, ", ex.inchnls[i]); }
     PySys_WriteStdout("\nOutputs: ");
     for (i=0; i<ex.num; i++) { PySys_WriteStdout("%d, ", ex.output[i]); }
     PySys_WriteStdout("\nValues: ");
@@ -238,19 +242,26 @@ print_expr(expr ex, int node)
 
 static void
 Expr_process(Expr *self) {
-    int i, j, k, pos = 0;
+    int i, j, k, l, pos = 0, chnl = 0;
     MYFLT tmp = 0.0, result = 0.0;
     MYFLT nextre = 0.0, lastre = 0.0, nextim = 0.0, lastim = 0.0, coefre = 0.0, coefim = 0.0; 
-    MYFLT *in = Stream_getData((Stream *)self->input_stream);
+    PyObject *stream;
+    MYFLT *in;
+
+    int inputsize = PyList_Size(self->input);
 
     if (self->count == 0) {
         for (i=0; i<self->bufsize; i++) {
-            self->data[i] = in[i];
+            self->data[i] = 0.0;
         }
     }
     else {
         for (i=0; i<self->bufsize; i++) {
-            self->input_buffer[i] = in[i];
+            for (l=0; l<inputsize; l++) {
+                stream = PyObject_CallMethod((PyObject *)PyList_GET_ITEM(self->input, l), "_getStream", NULL);
+                in = Stream_getData((Stream *)stream);
+                self->input_buffer[l*self->bufsize+i] = in[i];
+            }
             for (j=0; j<self->count; j++) {
                 for (k=0; k<self->lexp[j].num; k++) {
                     if (self->lexp[j].nodes[k] != -1) {
@@ -266,10 +277,11 @@ Expr_process(Expr *self) {
                         }
                     }
                     else if (self->lexp[j].input[k] < 1) {
+                        chnl = self->lexp[j].inchnls[k];
                         pos = i + self->lexp[j].input[k];
                         if (pos < 0)
                             pos += self->bufsize;
-                        self->lexp[j].values[k] = self->input_buffer[pos];
+                        self->lexp[j].values[k] = self->input_buffer[chnl * self->bufsize + pos];
                     }
                     else if (self->lexp[j].output[k] < 0) {
                         pos = i + self->lexp[j].output[k];
@@ -573,7 +585,6 @@ Expr_traverse(Expr *self, visitproc visit, void *arg)
 {
     pyo_VISIT
     Py_VISIT(self->input);
-    Py_VISIT(self->input_stream);
     Py_VISIT(self->variables);
     return 0;
 }
@@ -605,7 +616,7 @@ static PyObject *
 Expr_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     int i;
-    PyObject *inputtmp, *input_streamtmp, *exprtmp=NULL, *multmp=NULL, *addtmp=NULL;
+    PyObject *inputtmp, *exprtmp=NULL, *multmp=NULL, *addtmp=NULL;
     Expr *self;
     self = (Expr *)type->tp_alloc(type, 0);
 
@@ -625,7 +636,9 @@ Expr_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOO", kwlist, &inputtmp, &exprtmp, &multmp, &addtmp))
         Py_RETURN_NONE;
 
-    INIT_INPUT_STREAM
+    Py_INCREF(inputtmp);
+    Py_XDECREF(self->input);
+    self->input = inputtmp;
 
     if (exprtmp) {
         PyObject_CallMethod((PyObject *)self, "setExpr", "O", exprtmp);
@@ -641,10 +654,13 @@ Expr_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
-    self->input_buffer = (MYFLT *)realloc(self->input_buffer, self->bufsize * sizeof(MYFLT));
+    self->input_buffer = (MYFLT *)realloc(self->input_buffer, PyList_Size(self->input) * self->bufsize * sizeof(MYFLT));
     self->output_buffer = (MYFLT *)realloc(self->output_buffer, self->bufsize * sizeof(MYFLT));
+    for (i=0; i<(PyList_Size(self->input) * self->bufsize); i++) {
+        self->input_buffer[i] = 0.0;
+    }
     for (i=0; i<self->bufsize; i++) {
-        self->input_buffer[i] = self->output_buffer[i] = 0.0;
+        self->output_buffer[i] = 0.0;
     }
 
     (*self->mode_func_ptr)(self);
@@ -678,7 +694,7 @@ Expr_setExpr(Expr *self, PyObject *arg)
     int i, j = 0, count = 0;
     PyObject *sentence = NULL, *exp = NULL, *explist = NULL, *tmpstr = NULL;
     PyObject *varDict = NULL, *waitingDict = NULL, *waitingList = NULL;
-    Py_ssize_t len, start, end;
+    Py_ssize_t len, start, end, chpos = 0;
 
     PyDict_Clear(self->variables);
     varDict = PyDict_New();
@@ -765,6 +781,13 @@ Expr_setExpr(Expr *self, PyObject *arg)
                 }
                 else if (PyUnicode_Contains(PyList_GetItem(explist, i+1), PyUnicode_FromString("$x"))) {
                     tmpstr = PyUnicode_Replace(PyList_GetItem(explist, i+1), PyUnicode_FromString("$x"), PyUnicode_FromString(""), -1);
+                    chpos = PyUnicode_Find(tmpstr, PyUnicode_FromString("["), 0, PyUnicode_GetLength(tmpstr), 1);
+                    if (chpos == 0) {
+                        self->lexp[self->count].inchnls[i] = 0;
+                    } else {
+                        self->lexp[self->count].inchnls[i] = PyInt_AsLong(PyInt_FromString(PY_STRING_AS_STRING(PyUnicode_Substring(tmpstr, 0, chpos)), NULL, 0));
+                        tmpstr = PyUnicode_Substring(tmpstr, chpos, PyUnicode_GetLength(tmpstr));
+                    }
                     tmpstr = PyUnicode_Replace(tmpstr, PyUnicode_FromString("["), PyUnicode_FromString(""), -1);
                     tmpstr = PyUnicode_Replace(tmpstr, PyUnicode_FromString("]"), PyUnicode_FromString(""), -1);
                     self->lexp[self->count].input[i] = PyInt_AsLong(PyInt_FromString(PY_STRING_AS_STRING(tmpstr), NULL, 0));
@@ -798,6 +821,13 @@ Expr_setExpr(Expr *self, PyObject *arg)
             }
             else if (PyUnicode_Contains(PyList_GetItem(explist, i+1), PyUnicode_FromString("$x"))) {
                 tmpstr = PyUnicode_Replace(PyList_GetItem(explist, i+1), PyUnicode_FromString("$x"), PyUnicode_FromString(""), -1);
+                chpos = PyUnicode_Find(tmpstr, PyUnicode_FromString("["), 0, PyUnicode_GetLength(tmpstr), 1);
+                if (chpos == 0) {
+                    self->lexp[self->count].inchnls[i] = 0;
+                } else {
+                    self->lexp[self->count].inchnls[i] = PyInt_AsLong(PyInt_FromString(PY_STRING_AS_STRING(PyUnicode_Substring(tmpstr, 0, chpos)), NULL, 0));
+                    tmpstr = PyUnicode_Substring(tmpstr, chpos, PyUnicode_GetLength(tmpstr));
+                }
                 tmpstr = PyUnicode_Replace(tmpstr, PyUnicode_FromString("["), PyUnicode_FromString(""), -1);
                 tmpstr = PyUnicode_Replace(tmpstr, PyUnicode_FromString("]"), PyUnicode_FromString(""), -1);
                 self->lexp[self->count].input[i] = PyInt_AsLong(PyInt_FromString(PY_STRING_AS_STRING(tmpstr), NULL, 0));

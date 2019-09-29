@@ -105,9 +105,13 @@ Input and Output signals
 
 User has access to the last buffer size of input and output samples.
 
-To use samples from past input, use $x[n] notation, where n is the position
-from the current time. $x[0] is the current input, $x[-1] is the previous
-one and $x[-buffersize] is the last available input sample.
+To use samples from past inputs, use $x0[n] notation, where 0 is the first
+audio stream ($x1[0] would retrieve the second audio stream) and n is the
+position from the current time. $x0[0] is the current input sample, $x0[-1]
+is the previous one and $x0[-buffersize] is the last available input sample.
+
+The first audio stream can also simply be named $x[0] ($x[0] is the same as
+$x0[0]).
 
 To use samples from past output, use $y[n] notation, where n is the position
 from the current time. $y[-1] is the previous output and $y[-buffersize] is
@@ -118,6 +122,10 @@ Here an example of a first-order IIR lowpass filter expression:
     // A first-order IIR lowpass filter
     + $x[0] (* (- $y[-1] $x[0]) 0.99)
 
+A simple ring-modulation expression:
+
+    // ring-modulation between the first two input signals
+    * $x[0] $x1[0]
 
 Defining custom functions
 -------------------------
@@ -311,8 +319,10 @@ class Expr(PyoObject):
 
     :Args:
 
-        input: PyoObject
-            Input signal to process.
+        input: PyoObject or list of PyoObjects
+            Input signal(s) to process. If given a multi-stream PyoObject
+            or a list of PyoObjects, each stream ca be retrieved with the
+            syntax $x0[0], $x1[0], $x2[0], etc. $x[0] is the same as $x0[0].
         expr: str, optional
             Expression to evaluate as a string.
 
@@ -335,28 +345,15 @@ class Expr(PyoObject):
         PyoObject.__init__(self, mul, add)
         self._editor = None
         self._input = input
+        if isinstance(input, list):
+            input_objs = [obj for pyoObj in input for obj in pyoObj.getBaseObjects()]
+        else:
+            input_objs = input.getBaseObjects()
         self._expr = expr
         expr = self._preproc(expr)
-        self._in_fader = InputFader(input)
-        in_fader, expr, mul, add, lmax = convertArgsToLists(self._in_fader, expr, mul, add)
-        self._base_objs = [Expr_base(wrap(in_fader,i), to_unicode(wrap(expr,i)), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+        expr, mul, add, lmax = convertArgsToLists(expr, mul, add)
+        self._base_objs = [Expr_base(input_objs, to_unicode(wrap(expr,i)), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
         self._init_play()
-
-    def setInput(self, x, fadetime=0.05):
-        """
-        Replace the `input` attribute.
-
-        :Args:
-
-            x: PyoObject
-                New signal to process.
-            fadetime: float, optional
-                Crossfade time between old and new input. Defaults to 0.05.
-
-        """
-        pyoArgsAssert(self, "oN", x, fadetime)
-        self._input = x
-        self._in_fader.setInput(x, fadetime)
 
     def setExpr(self, x):
         """
