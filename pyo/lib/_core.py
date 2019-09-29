@@ -2816,7 +2816,7 @@ class Mix(PyoObject):
     >>> print(len(a))
     50
     >>> print(len(b))
-    1
+    2
 
     """
     def __init__(self, input, voices=1, mul=1, add=0):
