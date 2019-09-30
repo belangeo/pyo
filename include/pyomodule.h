@@ -42,6 +42,7 @@
 #define TYPE_O_FIFFI "O|fiffi"
 #define TYPE_O_F "O|f"
 #define TYPE_O_FO "O|fO"
+#define TYPE_O_OIF "O|Oif"
 #define TYPE__OF "|Of"
 #define TYPE_O_FOO "O|fOO"
 #define TYPE_O_FIOO "O|fiOO"
@@ -132,6 +133,7 @@
 #define TYPE_O_FIFFI "O|diddi"
 #define TYPE_O_F "O|d"
 #define TYPE_O_FO "O|dO"
+#define TYPE_O_OIF "O|Oid"
 #define TYPE__OF "|Od"
 #define TYPE_O_FOO "O|dOO"
 #define TYPE_O_FIOO "O|diOO"
@@ -515,6 +517,7 @@ extern PyTypeObject Particle2Type;
 extern PyTypeObject AtanTableType;
 extern PyTypeObject RawMidiType;
 extern PyTypeObject ResampleType;
+extern PyTypeObject ExprerType;
 extern PyTypeObject ExprType;
 extern PyTypeObject PadSynthTableType;
 extern PyTypeObject LogiMapType;

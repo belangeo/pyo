@@ -2094,6 +2094,7 @@ init_pyo64(void)
     module_add_object(m, "AtanTable_base", &AtanTableType);
     module_add_object(m, "RawMidi_base", &RawMidiType);
     module_add_object(m, "Resample_base", &ResampleType);
+    module_add_object(m, "Exprer_base", &ExprerType);
     module_add_object(m, "Expr_base", &ExprType);
     module_add_object(m, "PadSynthTable_base", &PadSynthTableType);
     module_add_object(m, "LogiMap_base", &LogiMapType);

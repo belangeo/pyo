@@ -1,5 +1,9 @@
 2019-09-29 belangeo <belangeo@gmail.com>
 
+    * Expr API: Expr now can generate multiple output signals.
+
+2019-09-29 belangeo <belangeo@gmail.com>
+
     * Expr API: Expr now can handle multiple input sources.
 
 2019-09-28 belangeo <belangeo@gmail.com>

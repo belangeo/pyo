@@ -101,6 +101,9 @@
 #define OP_REAL 121
 #define OP_IMAG 122
 
+// multi-output
+#define OP_OUT 200
+
 typedef struct t_expr {
     int type_op;
     int num;
@@ -109,6 +112,7 @@ typedef struct t_expr {
     int *input;
     int *inchnls;
     int *output;
+    int *outchnls;
     MYFLT *values;
     MYFLT *previous;
     MYFLT result;
@@ -120,12 +124,12 @@ typedef struct {
     PyObject *input;
     PyObject *variables;
     int count;
+    int chnls;
     MYFLT oneOverSr;
     MYFLT *input_buffer;
     MYFLT *output_buffer;
     expr lexp[1024];
-    int modebuffer[2];
-} Expr;
+} Exprer;
 
 void 
 clearexpr(expr ex)
@@ -135,6 +139,7 @@ clearexpr(expr ex)
     if (ex.input) { free(ex.input); }
     if (ex.inchnls) { free(ex.inchnls); }
     if (ex.output) { free(ex.output); }
+    if (ex.outchnls) { free(ex.outchnls); }
     if (ex.values) { free(ex.values); }
     if (ex.previous) { free(ex.previous); }
 }
@@ -195,6 +200,8 @@ initexpr(const char *op, int size)
     else if (strcmp(op, "real") == 0) {value = OP_REAL; num = 1; }
     else if (strcmp(op, "imag") == 0) {value = OP_IMAG; num = 1; }
 
+    else if (strcmp(op, "out") == 0) {value = OP_OUT; num = 2; }
+
     else if (strcmp(op, "const") == 0) {value = OP_CONST; num = 1; }
     else if (strcmp(op, "pi") == 0) {value = OP_PI; num = 0; }
     else if (strcmp(op, "twopi") == 0) {value = OP_TWOPI; num = 0; }
@@ -208,10 +215,11 @@ initexpr(const char *op, int size)
     ex.input = (int *)malloc(num);
     ex.inchnls = (int *)malloc(num);
     ex.output = (int *)malloc(num);
+    ex.outchnls = (int *)malloc(num);
     ex.values = (MYFLT *)malloc(num);
     ex.previous = (MYFLT *)malloc(num);
     for (i=0; i<num; i++) {
-        ex.nodes[i] = ex.vars[i] = ex.inchnls[i] = -1;
+        ex.nodes[i] = ex.vars[i] = ex.inchnls[i] = ex.outchnls[i] = -1;
         ex.input[i] = ex.output[i] = 1;
         ex.values[i] = ex.previous[i] = 0.0;
     }
@@ -235,14 +243,16 @@ print_expr(expr ex, int node)
     for (i=0; i<ex.num; i++) { PySys_WriteStdout("%d, ", ex.inchnls[i]); }
     PySys_WriteStdout("\nOutputs: ");
     for (i=0; i<ex.num; i++) { PySys_WriteStdout("%d, ", ex.output[i]); }
+    PySys_WriteStdout("\nOutput channels: ");
+    for (i=0; i<ex.num; i++) { PySys_WriteStdout("%d, ", ex.outchnls[i]); }
     PySys_WriteStdout("\nValues: ");
     for (i=0; i<ex.num; i++) { PySys_WriteStdout("%f, ", ex.values[i]); }
     PySys_WriteStdout("\n\n");
 }
 
 static void
-Expr_process(Expr *self) {
-    int i, j, k, l, pos = 0, chnl = 0;
+Exprer_process(Exprer *self) {
+    int i, j, k, l, pos = 0, chnl = 0, outpos = 0;
     MYFLT tmp = 0.0, result = 0.0;
     MYFLT nextre = 0.0, lastre = 0.0, nextim = 0.0, lastim = 0.0, coefre = 0.0, coefim = 0.0; 
     PyObject *stream;
@@ -284,10 +294,11 @@ Expr_process(Expr *self) {
                         self->lexp[j].values[k] = self->input_buffer[chnl * self->bufsize + pos];
                     }
                     else if (self->lexp[j].output[k] < 0) {
+                        chnl = self->lexp[j].outchnls[k];
                         pos = i + self->lexp[j].output[k];
                         if (pos < 0)
                             pos += self->bufsize;
-                        self->lexp[j].values[k] = self->output_buffer[pos];
+                        self->lexp[j].values[k] = self->output_buffer[chnl * self->bufsize + pos];
                     }
                 }
                 switch (self->lexp[j].type_op) {
@@ -517,71 +528,44 @@ Expr_process(Expr *self) {
                     case OP_SR:
                         self->lexp[j].result = self->sr;
                         break;
+                    case OP_OUT:
+                        if ((int)self->lexp[j].values[0] >= self->chnls) {
+                            outpos = i;
+                        } else {
+                            outpos = (int)self->lexp[j].values[0] * self->bufsize + i;
+                        }
+                        self->output_buffer[outpos] = self->lexp[j].values[1];
+                        break;
                 }
                 result = self->lexp[j].result;
             }
-            self->data[i] = self->output_buffer[i] = result;
+            if (self->chnls == 1) {
+                self->output_buffer[i] = result;
+            }
         }
     }
 }
 
-static void Expr_postprocessing_ii(Expr *self) { POST_PROCESSING_II };
-static void Expr_postprocessing_ai(Expr *self) { POST_PROCESSING_AI };
-static void Expr_postprocessing_ia(Expr *self) { POST_PROCESSING_IA };
-static void Expr_postprocessing_aa(Expr *self) { POST_PROCESSING_AA };
-static void Expr_postprocessing_ireva(Expr *self) { POST_PROCESSING_IREVA };
-static void Expr_postprocessing_areva(Expr *self) { POST_PROCESSING_AREVA };
-static void Expr_postprocessing_revai(Expr *self) { POST_PROCESSING_REVAI };
-static void Expr_postprocessing_revaa(Expr *self) { POST_PROCESSING_REVAA };
-static void Expr_postprocessing_revareva(Expr *self) { POST_PROCESSING_REVAREVA };
-
-static void
-Expr_setProcMode(Expr *self)
+MYFLT *
+Exprer_getSamplesBuffer(Exprer *self)
 {
-    int muladdmode;
-    muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
-    self->proc_func_ptr = Expr_process;
-
-	switch (muladdmode) {
-        case 0:
-            self->muladd_func_ptr = Expr_postprocessing_ii;
-            break;
-        case 1:
-            self->muladd_func_ptr = Expr_postprocessing_ai;
-            break;
-        case 2:
-            self->muladd_func_ptr = Expr_postprocessing_revai;
-            break;
-        case 10:
-            self->muladd_func_ptr = Expr_postprocessing_ia;
-            break;
-        case 11:
-            self->muladd_func_ptr = Expr_postprocessing_aa;
-            break;
-        case 12:
-            self->muladd_func_ptr = Expr_postprocessing_revaa;
-            break;
-        case 20:
-            self->muladd_func_ptr = Expr_postprocessing_ireva;
-            break;
-        case 21:
-            self->muladd_func_ptr = Expr_postprocessing_areva;
-            break;
-        case 22:
-            self->muladd_func_ptr = Expr_postprocessing_revareva;
-            break;
-    }
+    return (MYFLT *)self->output_buffer;
 }
 
 static void
-Expr_compute_next_data_frame(Expr *self)
+Exprer_setProcMode(Exprer *self)
+{
+    self->proc_func_ptr = Exprer_process;
+}
+
+static void
+Exprer_compute_next_data_frame(Exprer *self)
 {
     (*self->proc_func_ptr)(self);
-    (*self->muladd_func_ptr)(self);
 }
 
 static int
-Expr_traverse(Expr *self, visitproc visit, void *arg)
+Exprer_traverse(Exprer *self, visitproc visit, void *arg)
 {
     pyo_VISIT
     Py_VISIT(self->input);
@@ -590,50 +574,48 @@ Expr_traverse(Expr *self, visitproc visit, void *arg)
 }
 
 static int
-Expr_clear(Expr *self)
+Exprer_clear(Exprer *self)
 {
-    int i;
     pyo_CLEAR
-    for (i=0; i<self->count; i++) { 
-        clearexpr(self->lexp[i]); 
-    }
-    free(self->input_buffer);
-    free(self->output_buffer);
     Py_CLEAR(self->input);
     Py_CLEAR(self->variables);
     return 0;
 }
 
 static void
-Expr_dealloc(Expr* self)
+Exprer_dealloc(Exprer* self)
 {
+    int i;
     pyo_DEALLOC
-    Expr_clear(self);
+    for (i=0; i<self->count; i++) {
+        clearexpr(self->lexp[i]);
+    }
+    free(self->input_buffer);
+    free(self->output_buffer);
+    Exprer_clear(self);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
-Expr_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+Exprer_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     int i;
-    PyObject *inputtmp, *exprtmp=NULL, *multmp=NULL, *addtmp=NULL;
-    Expr *self;
-    self = (Expr *)type->tp_alloc(type, 0);
-
-	self->modebuffer[0] = 0;
-	self->modebuffer[1] = 0;
+    MYFLT initout = 0.0;
+    PyObject *inputtmp, *exprtmp=NULL;
+    Exprer *self;
+    self = (Exprer *)type->tp_alloc(type, 0);
 
     INIT_OBJECT_COMMON
-    Stream_setFunctionPtr(self->stream, Expr_compute_next_data_frame);
-    self->mode_func_ptr = Expr_setProcMode;
+    Stream_setFunctionPtr(self->stream, Exprer_compute_next_data_frame);
+    self->mode_func_ptr = Exprer_setProcMode;
 
     self->oneOverSr = 1.0 / self->sr;
     
     self->variables = PyDict_New();
 
-    static char *kwlist[] = {"input", "expr", "mul", "add", NULL};
+    static char *kwlist[] = {"input", "expr", "outs", "initout", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOO", kwlist, &inputtmp, &exprtmp, &multmp, &addtmp))
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_O_OIF, kwlist, &inputtmp, &exprtmp, &self->chnls, &initout))
         Py_RETURN_NONE;
 
     Py_INCREF(inputtmp);
@@ -644,23 +626,18 @@ Expr_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         PyObject_CallMethod((PyObject *)self, "setExpr", "O", exprtmp);
     }
 
-    if (multmp) {
-        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
-    }
-
-    if (addtmp) {
-        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
-    }
-
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
+    if (self->chnls < 1)
+        self->chnls = 1;
+
     self->input_buffer = (MYFLT *)realloc(self->input_buffer, PyList_Size(self->input) * self->bufsize * sizeof(MYFLT));
-    self->output_buffer = (MYFLT *)realloc(self->output_buffer, self->bufsize * sizeof(MYFLT));
+    self->output_buffer = (MYFLT *)realloc(self->output_buffer, self->chnls * self->bufsize * sizeof(MYFLT));
     for (i=0; i<(PyList_Size(self->input) * self->bufsize); i++) {
         self->input_buffer[i] = 0.0;
     }
-    for (i=0; i<self->bufsize; i++) {
-        self->output_buffer[i] = 0.0;
+    for (i=0; i<(self->chnls * self->bufsize); i++) {
+        self->output_buffer[i] = initout;
     }
 
     (*self->mode_func_ptr)(self);
@@ -668,28 +645,14 @@ Expr_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     return (PyObject *)self;
 }
 
-static PyObject * Expr_getServer(Expr* self) { GET_SERVER };
-static PyObject * Expr_getStream(Expr* self) { GET_STREAM };
-static PyObject * Expr_setMul(Expr *self, PyObject *arg) { SET_MUL };
-static PyObject * Expr_setAdd(Expr *self, PyObject *arg) { SET_ADD };
-static PyObject * Expr_setSub(Expr *self, PyObject *arg) { SET_SUB };
-static PyObject * Expr_setDiv(Expr *self, PyObject *arg) { SET_DIV };
+static PyObject * Exprer_getServer(Exprer* self) { GET_SERVER };
+static PyObject * Exprer_getStream(Exprer* self) { GET_STREAM };
 
-static PyObject * Expr_play(Expr *self, PyObject *args, PyObject *kwds) { PLAY };
-static PyObject * Expr_out(Expr *self, PyObject *args, PyObject *kwds) { OUT };
-static PyObject * Expr_stop(Expr *self, PyObject *args, PyObject *kwds) { STOP };
-
-static PyObject * Expr_multiply(Expr *self, PyObject *arg) { MULTIPLY };
-static PyObject * Expr_inplace_multiply(Expr *self, PyObject *arg) { INPLACE_MULTIPLY };
-static PyObject * Expr_add(Expr *self, PyObject *arg) { ADD };
-static PyObject * Expr_inplace_add(Expr *self, PyObject *arg) { INPLACE_ADD };
-static PyObject * Expr_sub(Expr *self, PyObject *arg) { SUB };
-static PyObject * Expr_inplace_sub(Expr *self, PyObject *arg) { INPLACE_SUB };
-static PyObject * Expr_div(Expr *self, PyObject *arg) { DIV };
-static PyObject * Expr_inplace_div(Expr *self, PyObject *arg) { INPLACE_DIV };
+static PyObject * Exprer_play(Exprer *self, PyObject *args, PyObject *kwds) { PLAY };
+static PyObject * Exprer_stop(Exprer *self, PyObject *args, PyObject *kwds) { STOP };
 
 static PyObject *
-Expr_setExpr(Expr *self, PyObject *arg)
+Exprer_setExpr(Exprer *self, PyObject *arg)
 {
     int i, j = 0, count = 0;
     PyObject *sentence = NULL, *exp = NULL, *explist = NULL, *tmpstr = NULL;
@@ -794,6 +757,13 @@ Expr_setExpr(Expr *self, PyObject *arg)
                 }
                 else if (PyUnicode_Contains(PyList_GetItem(explist, i+1), PyUnicode_FromString("$y"))) {
                     tmpstr = PyUnicode_Replace(PyList_GetItem(explist, i+1), PyUnicode_FromString("$y"), PyUnicode_FromString(""), -1);
+                    chpos = PyUnicode_Find(tmpstr, PyUnicode_FromString("["), 0, PyUnicode_GetLength(tmpstr), 1);
+                    if (chpos == 0) {
+                        self->lexp[self->count].outchnls[i] = 0;
+                    } else {
+                        self->lexp[self->count].outchnls[i] = PyInt_AsLong(PyInt_FromString(PY_STRING_AS_STRING(PyUnicode_Substring(tmpstr, 0, chpos)), NULL, 0));
+                        tmpstr = PyUnicode_Substring(tmpstr, chpos, PyUnicode_GetLength(tmpstr));
+                    }
                     tmpstr = PyUnicode_Replace(tmpstr, PyUnicode_FromString("["), PyUnicode_FromString(""), -1);
                     tmpstr = PyUnicode_Replace(tmpstr, PyUnicode_FromString("]"), PyUnicode_FromString(""), -1);
                     self->lexp[self->count].output[i] = PyInt_AsLong(PyInt_FromString(PY_STRING_AS_STRING(tmpstr), NULL, 0));
@@ -834,6 +804,13 @@ Expr_setExpr(Expr *self, PyObject *arg)
             }
             else if (PyUnicode_Contains(PyList_GetItem(explist, i+1), PyUnicode_FromString("$y"))) {
                 tmpstr = PyUnicode_Replace(PyList_GetItem(explist, i+1), PyUnicode_FromString("$y"), PyUnicode_FromString(""), -1);
+                chpos = PyUnicode_Find(tmpstr, PyUnicode_FromString("["), 0, PyUnicode_GetLength(tmpstr), 1);
+                if (chpos == 0) {
+                    self->lexp[self->count].outchnls[i] = 0;
+                } else {
+                    self->lexp[self->count].outchnls[i] = PyInt_AsLong(PyInt_FromString(PY_STRING_AS_STRING(PyUnicode_Substring(tmpstr, 0, chpos)), NULL, 0));
+                    tmpstr = PyUnicode_Substring(tmpstr, chpos, PyUnicode_GetLength(tmpstr));
+                }
                 tmpstr = PyUnicode_Replace(tmpstr, PyUnicode_FromString("["), PyUnicode_FromString(""), -1);
                 tmpstr = PyUnicode_Replace(tmpstr, PyUnicode_FromString("]"), PyUnicode_FromString(""), -1);
                 self->lexp[self->count].output[i] = PyInt_AsLong(PyInt_FromString(PY_STRING_AS_STRING(tmpstr), NULL, 0));
@@ -858,7 +835,7 @@ Expr_setExpr(Expr *self, PyObject *arg)
 }
 
 static PyObject * 
-Expr_setVar(Expr *self, PyObject *args, PyObject *kwds)
+Exprer_setVar(Exprer *self, PyObject *args, PyObject *kwds)
 {
     int index;
     PyObject *varname = NULL, *value = NULL;
@@ -875,7 +852,7 @@ Expr_setVar(Expr *self, PyObject *args, PyObject *kwds)
 }
 
 static PyObject * 
-Expr_printNodes(Expr *self) { 
+Exprer_printNodes(Exprer *self) {
     int i;
     for (i=0; i<self->count; i++) {
         print_expr(self->lexp[i], i);
@@ -883,85 +860,36 @@ Expr_printNodes(Expr *self) {
 	Py_RETURN_NONE;
 };
 
-static PyMemberDef Expr_members[] = {
-    {"server", T_OBJECT_EX, offsetof(Expr, server), 0, "Pyo server."},
-    {"stream", T_OBJECT_EX, offsetof(Expr, stream), 0, "Stream object."},
-    {"input", T_OBJECT_EX, offsetof(Expr, input), 0, "Input sound object."},
-    {"mul", T_OBJECT_EX, offsetof(Expr, mul), 0, "Mul factor."},
-    {"add", T_OBJECT_EX, offsetof(Expr, add), 0, "Add factor."},
+static PyMemberDef Exprer_members[] = {
+    {"server", T_OBJECT_EX, offsetof(Exprer, server), 0, "Pyo server."},
+    {"stream", T_OBJECT_EX, offsetof(Exprer, stream), 0, "Stream object."},
+    {"input", T_OBJECT_EX, offsetof(Exprer, input), 0, "Input sound object."},
     {NULL}  /* Sentinel */
 };
 
-static PyMethodDef Expr_methods[] = {
-    {"getServer", (PyCFunction)Expr_getServer, METH_NOARGS, "Returns server object."},
-    {"_getStream", (PyCFunction)Expr_getStream, METH_NOARGS, "Returns stream object."},
-    {"play", (PyCFunction)Expr_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"out", (PyCFunction)Expr_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-    {"stop", (PyCFunction)Expr_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
-    {"printNodes", (PyCFunction)Expr_printNodes, METH_NOARGS, "Print the list of nodes."},
-	{"setVar", (PyCFunction)Expr_setVar, METH_VARARGS|METH_KEYWORDS, "Sets a variable value."},
-	{"setExpr", (PyCFunction)Expr_setExpr, METH_O, "Sets a new expression."},
-	{"setMul", (PyCFunction)Expr_setMul, METH_O, "Sets oscillator mul factor."},
-	{"setAdd", (PyCFunction)Expr_setAdd, METH_O, "Sets oscillator add factor."},
-    {"setSub", (PyCFunction)Expr_setSub, METH_O, "Sets inverse add factor."},
-    {"setDiv", (PyCFunction)Expr_setDiv, METH_O, "Sets inverse mul factor."},
+static PyMethodDef Exprer_methods[] = {
+    {"getServer", (PyCFunction)Exprer_getServer, METH_NOARGS, "Returns server object."},
+    {"_getStream", (PyCFunction)Exprer_getStream, METH_NOARGS, "Returns stream object."},
+    {"play", (PyCFunction)Exprer_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+    {"stop", (PyCFunction)Exprer_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
+    {"printNodes", (PyCFunction)Exprer_printNodes, METH_NOARGS, "Print the list of nodes."},
+	{"setVar", (PyCFunction)Exprer_setVar, METH_VARARGS|METH_KEYWORDS, "Sets a variable value."},
+	{"setExpr", (PyCFunction)Exprer_setExpr, METH_O, "Sets a new expression."},
     {NULL}  /* Sentinel */
 };
 
-static PyNumberMethods Expr_as_number = {
-    (binaryfunc)Expr_add,                      /*nb_add*/
-    (binaryfunc)Expr_sub,                 /*nb_subtract*/
-    (binaryfunc)Expr_multiply,                 /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
-    0,                /*nb_remainder*/
-    0,                   /*nb_divmod*/
-    0,                   /*nb_power*/
-    0,                  /*nb_neg*/
-    0,                /*nb_pos*/
-    0,                  /*(unaryfunc)array_abs,*/
-    0,                    /*nb_nonzero*/
-    0,                    /*nb_invert*/
-    0,               /*nb_lshift*/
-    0,              /*nb_rshift*/
-    0,              /*nb_and*/
-    0,              /*nb_xor*/
-    0,               /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                   /*nb_coerce*/
-    0,                       /*nb_int*/
-    0,                      /*nb_long*/
-    0,                     /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO   /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
-    (binaryfunc)Expr_inplace_add,              /*inplace_add*/
-    (binaryfunc)Expr_inplace_sub,         /*inplace_subtract*/
-    (binaryfunc)Expr_inplace_multiply,         /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
-    0,        /*inplace_remainder*/
-    0,           /*inplace_power*/
-    0,       /*inplace_lshift*/
-    0,      /*inplace_rshift*/
-    0,      /*inplace_and*/
-    0,      /*inplace_xor*/
-    0,       /*inplace_or*/
-    0,             /*nb_floor_divide*/
-    (binaryfunc)Expr_div,                       /*nb_true_divide*/
-    0,     /*nb_inplace_floor_divide*/
-    (binaryfunc)Expr_inplace_div,                       /*nb_inplace_true_divide*/
-    0,                     /* nb_index */
-};
-
-PyTypeObject ExprType = {
+PyTypeObject ExprerType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    "_pyo.Expr_base",         /*tp_name*/
-    sizeof(Expr),         /*tp_basicsize*/
+    "_pyo.Exprer_base",         /*tp_name*/
+    sizeof(Exprer),         /*tp_basicsize*/
     0,                         /*tp_itemsize*/
-    (destructor)Expr_dealloc, /*tp_dealloc*/
+    (destructor)Exprer_dealloc, /*tp_dealloc*/
     0,                         /*tp_print*/
     0,                         /*tp_getattr*/
     0,                         /*tp_setattr*/
     0,                         /*tp_as_async (tp_compare in Python 2)*/
     0,                         /*tp_repr*/
-    &Expr_as_number,             /*tp_as_number*/
+    0,             /*tp_as_number*/
     0,                         /*tp_as_sequence*/
     0,                         /*tp_as_mapping*/
     0,                         /*tp_hash */
@@ -971,15 +899,15 @@ PyTypeObject ExprType = {
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
-    "Expr objects. Resolve a prefix notation sentence at audio rate.",           /* tp_doc */
-    (traverseproc)Expr_traverse,   /* tp_traverse */
-    (inquiry)Expr_clear,           /* tp_clear */
+    "Exprer objects. Resolve a prefix notation sentence at audio rate.",           /* tp_doc */
+    (traverseproc)Exprer_traverse,   /* tp_traverse */
+    (inquiry)Exprer_clear,           /* tp_clear */
     0,		               /* tp_richcompare */
     0,		               /* tp_weaklistoffset */
     0,		               /* tp_iter */
     0,		               /* tp_iternext */
-    Expr_methods,             /* tp_methods */
-    Expr_members,             /* tp_members */
+    Exprer_methods,             /* tp_methods */
+    Exprer_members,             /* tp_members */
     0,                      /* tp_getset */
     0,                         /* tp_base */
     0,                         /* tp_dict */
@@ -988,5 +916,262 @@ PyTypeObject ExprType = {
     0,                         /* tp_dictoffset */
     0,      /* tp_init */
     0,                         /* tp_alloc */
-    Expr_new,                 /* tp_new */
+    Exprer_new,                 /* tp_new */
+};
+
+/************************************************************************************************/
+/* Expr streamer object */
+/************************************************************************************************/
+typedef struct {
+    pyo_audio_HEAD
+    Exprer *mainSplitter;
+    int modebuffer[2];
+    int chnl; // Exprning order
+} Expr;
+
+static void Expr_postprocessing_ii(Expr *self) { POST_PROCESSING_II };
+static void Expr_postprocessing_ai(Expr *self) { POST_PROCESSING_AI };
+static void Expr_postprocessing_ia(Expr *self) { POST_PROCESSING_IA };
+static void Expr_postprocessing_aa(Expr *self) { POST_PROCESSING_AA };
+static void Expr_postprocessing_ireva(Expr *self) { POST_PROCESSING_IREVA };
+static void Expr_postprocessing_areva(Expr *self) { POST_PROCESSING_AREVA };
+static void Expr_postprocessing_revai(Expr *self) { POST_PROCESSING_REVAI };
+static void Expr_postprocessing_revaa(Expr *self) { POST_PROCESSING_REVAA };
+static void Expr_postprocessing_revareva(Expr *self) { POST_PROCESSING_REVAREVA };
+
+static void
+Expr_setProcMode(Expr *self)
+{
+    int muladdmode;
+    muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
+
+	switch (muladdmode) {
+        case 0:
+            self->muladd_func_ptr = Expr_postprocessing_ii;
+            break;
+        case 1:
+            self->muladd_func_ptr = Expr_postprocessing_ai;
+            break;
+        case 2:
+            self->muladd_func_ptr = Expr_postprocessing_revai;
+            break;
+        case 10:
+            self->muladd_func_ptr = Expr_postprocessing_ia;
+            break;
+        case 11:
+            self->muladd_func_ptr = Expr_postprocessing_aa;
+            break;
+        case 12:
+            self->muladd_func_ptr = Expr_postprocessing_revaa;
+            break;
+        case 20:
+            self->muladd_func_ptr = Expr_postprocessing_ireva;
+            break;
+        case 21:
+            self->muladd_func_ptr = Expr_postprocessing_areva;
+            break;
+        case 22:
+            self->muladd_func_ptr = Expr_postprocessing_revareva;
+            break;
+    }
+}
+
+static void
+Expr_compute_next_data_frame(Expr *self)
+{
+    int i;
+    MYFLT *tmp;
+    int offset = self->chnl * self->bufsize;
+    tmp = Exprer_getSamplesBuffer((Exprer *)self->mainSplitter);
+    for (i=0; i<self->bufsize; i++) {
+        self->data[i] = tmp[i + offset];
+    }
+    (*self->muladd_func_ptr)(self);
+}
+
+static int
+Expr_traverse(Expr *self, visitproc visit, void *arg)
+{
+    pyo_VISIT
+    Py_VISIT(self->mainSplitter);
+    return 0;
+}
+
+static int
+Expr_clear(Expr *self)
+{
+    pyo_CLEAR
+    Py_CLEAR(self->mainSplitter);
+    return 0;
+}
+
+static void
+Expr_dealloc(Expr* self)
+{
+    pyo_DEALLOC
+    Expr_clear(self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
+}
+
+static PyObject *
+Expr_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    int i;
+    PyObject *maintmp=NULL, *multmp=NULL, *addtmp=NULL;
+    Expr *self;
+    self = (Expr *)type->tp_alloc(type, 0);
+
+	self->modebuffer[0] = 0;
+	self->modebuffer[1] = 0;
+
+    INIT_OBJECT_COMMON
+    Stream_setFunctionPtr(self->stream, Expr_compute_next_data_frame);
+    self->mode_func_ptr = Expr_setProcMode;
+
+    static char *kwlist[] = {"mainSplitter", "chnl", "mul", "add", NULL};
+
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "Oi|OO", kwlist, &maintmp, &self->chnl, &multmp, &addtmp))
+        Py_RETURN_NONE;
+
+    Py_XDECREF(self->mainSplitter);
+    Py_INCREF(maintmp);
+    self->mainSplitter = (Exprer *)maintmp;
+
+    if (multmp) {
+        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+    }
+
+    if (addtmp) {
+        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+    }
+
+    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+
+    (*self->mode_func_ptr)(self);
+
+    return (PyObject *)self;
+}
+
+static PyObject * Expr_getServer(Expr* self) { GET_SERVER };
+static PyObject * Expr_getStream(Expr* self) { GET_STREAM };
+static PyObject * Expr_setMul(Expr *self, PyObject *arg) { SET_MUL };
+static PyObject * Expr_setAdd(Expr *self, PyObject *arg) { SET_ADD };
+static PyObject * Expr_setSub(Expr *self, PyObject *arg) { SET_SUB };
+static PyObject * Expr_setDiv(Expr *self, PyObject *arg) { SET_DIV };
+
+static PyObject * Expr_play(Expr *self, PyObject *args, PyObject *kwds) { PLAY };
+static PyObject * Expr_out(Expr *self, PyObject *args, PyObject *kwds) { OUT };
+static PyObject * Expr_stop(Expr *self, PyObject *args, PyObject *kwds) { STOP };
+
+static PyObject * Expr_multiply(Expr *self, PyObject *arg) { MULTIPLY };
+static PyObject * Expr_inplace_multiply(Expr *self, PyObject *arg) { INPLACE_MULTIPLY };
+static PyObject * Expr_add(Expr *self, PyObject *arg) { ADD };
+static PyObject * Expr_inplace_add(Expr *self, PyObject *arg) { INPLACE_ADD };
+static PyObject * Expr_sub(Expr *self, PyObject *arg) { SUB };
+static PyObject * Expr_inplace_sub(Expr *self, PyObject *arg) { INPLACE_SUB };
+static PyObject * Expr_div(Expr *self, PyObject *arg) { DIV };
+static PyObject * Expr_inplace_div(Expr *self, PyObject *arg) { INPLACE_DIV };
+
+static PyMemberDef Expr_members[] = {
+{"server", T_OBJECT_EX, offsetof(Expr, server), 0, "Pyo server."},
+{"stream", T_OBJECT_EX, offsetof(Expr, stream), 0, "Stream object."},
+{"mul", T_OBJECT_EX, offsetof(Expr, mul), 0, "Mul factor."},
+{"add", T_OBJECT_EX, offsetof(Expr, add), 0, "Add factor."},
+{NULL}  /* Sentinel */
+};
+
+static PyMethodDef Expr_methods[] = {
+{"getServer", (PyCFunction)Expr_getServer, METH_NOARGS, "Returns server object."},
+{"_getStream", (PyCFunction)Expr_getStream, METH_NOARGS, "Returns stream object."},
+{"play", (PyCFunction)Expr_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+{"out", (PyCFunction)Expr_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
+{"stop", (PyCFunction)Expr_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
+{"setMul", (PyCFunction)Expr_setMul, METH_O, "Sets Expr mul factor."},
+{"setAdd", (PyCFunction)Expr_setAdd, METH_O, "Sets Expr add factor."},
+{"setSub", (PyCFunction)Expr_setSub, METH_O, "Sets inverse add factor."},
+{"setDiv", (PyCFunction)Expr_setDiv, METH_O, "Sets inverse mul factor."},
+{NULL}  /* Sentinel */
+};
+
+static PyNumberMethods Expr_as_number = {
+(binaryfunc)Expr_add,                      /*nb_add*/
+(binaryfunc)Expr_sub,                 /*nb_subtract*/
+(binaryfunc)Expr_multiply,                 /*nb_multiply*/
+INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
+0,                /*nb_remainder*/
+0,                   /*nb_divmod*/
+0,                   /*nb_power*/
+0,                  /*nb_neg*/
+0,                /*nb_pos*/
+0,                  /*(unaryfunc)array_abs,*/
+0,                    /*nb_nonzero*/
+0,                    /*nb_invert*/
+0,               /*nb_lshift*/
+0,              /*nb_rshift*/
+0,              /*nb_and*/
+0,              /*nb_xor*/
+0,               /*nb_or*/
+INITIALIZE_NB_COERCE_ZERO                   /*nb_coerce*/
+0,                       /*nb_int*/
+0,                      /*nb_long*/
+0,                     /*nb_float*/
+INITIALIZE_NB_OCT_ZERO   /*nb_oct*/
+INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
+(binaryfunc)Expr_inplace_add,              /*inplace_add*/
+(binaryfunc)Expr_inplace_sub,         /*inplace_subtract*/
+(binaryfunc)Expr_inplace_multiply,         /*inplace_multiply*/
+INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
+0,        /*inplace_remainder*/
+0,           /*inplace_power*/
+0,       /*inplace_lshift*/
+0,      /*inplace_rshift*/
+0,      /*inplace_and*/
+0,      /*inplace_xor*/
+0,       /*inplace_or*/
+0,             /*nb_floor_divide*/
+(binaryfunc)Expr_div,                       /*nb_true_divide*/
+0,     /*nb_inplace_floor_divide*/
+(binaryfunc)Expr_inplace_div,                       /*nb_inplace_true_divide*/
+0,                     /* nb_index */
+};
+
+PyTypeObject ExprType = {
+PyVarObject_HEAD_INIT(NULL, 0)
+"_pyo.Expr_base",         /*tp_name*/
+sizeof(Expr),         /*tp_basicsize*/
+0,                         /*tp_itemsize*/
+(destructor)Expr_dealloc, /*tp_dealloc*/
+0,                         /*tp_print*/
+0,                         /*tp_getattr*/
+0,                         /*tp_setattr*/
+0,                         /*tp_as_async (tp_compare in Python 2)*/
+0,                         /*tp_repr*/
+&Expr_as_number,             /*tp_as_number*/
+0,                         /*tp_as_sequence*/
+0,                         /*tp_as_mapping*/
+0,                         /*tp_hash */
+0,                         /*tp_call*/
+0,                         /*tp_str*/
+0,                         /*tp_getattro*/
+0,                         /*tp_setattro*/
+0,                         /*tp_as_buffer*/
+Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES,  /*tp_flags*/
+"Expr objects. Reads one channel from a Exprer.",           /* tp_doc */
+(traverseproc)Expr_traverse,   /* tp_traverse */
+(inquiry)Expr_clear,           /* tp_clear */
+0,		               /* tp_richcompare */
+0,		               /* tp_weaklistoffset */
+0,		               /* tp_iter */
+0,		               /* tp_iternext */
+Expr_methods,             /* tp_methods */
+Expr_members,             /* tp_members */
+0,                      /* tp_getset */
+0,                         /* tp_base */
+0,                         /* tp_dict */
+0,                         /* tp_descr_get */
+0,                         /* tp_descr_set */
+0,                         /* tp_dictoffset */
+0,      /* tp_init */
+0,                         /* tp_alloc */
+Expr_new,                 /* tp_new */
 };

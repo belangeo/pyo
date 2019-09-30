@@ -2685,9 +2685,9 @@ class ExprLexer(object):
         self.digits = "0123456789"
         self.keywords = ["sin", "cos", "tan", "tanh", "atan", "atan2", "sqrt", "log", "sr",
                          "log2", "log10", "pow", "abs", "floor", "ceil", "exp", "round",
-                         "min", "max", "randf", "randi", "sah", "count", "pi", "twopi",
+                         "min", "max", "randf", "randi", "sah", "const", "pi", "twopi",
                          "e", "if", "rpole", "rzero", "neg", "and", "or", "wrap", "delay",
-                         "complex", "real", "imag", "cpole", "czero"]
+                         "complex", "real", "imag", "cpole", "czero", "out"]
         self.keywords2 = ["define", "load", "var", "let"]
 
     def StyleText(self, evt):

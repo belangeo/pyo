@@ -94,6 +94,10 @@ Builtin functions
 - (cpole x y) : complex one-pole recursive filter. x is the complex signal to filter, y is a complex coefficient, it returns a complex signal.
 - (czero x y) : complex one-zero non-recursive filter. x is the complex signal to filter, y is a complex coefficient, it returns a complex signal.
 
+**Multi-output function**
+
+- (out x y) : If using multiple outputs, creates an audio stream where x is the output channel and y the signal to write to the channel.
+
 **Constants**
 
 - (const x) : returns x.
@@ -122,9 +126,17 @@ is the previous one and $x0[-buffersize] is the last available input sample.
 The first audio stream can also simply be named $x[0] ($x[0] is the same as
 $x0[0]).
 
-To use samples from past output, use $y[n] notation, where n is the position
-from the current time. $y[-1] is the previous output and $y[-buffersize] is 
-the last available output sample.
+To use samples from past output, use $y0[n] notation, where 0 is the first
+output audio stream ($y1[0] would retrieve the second output audio stream)
+and n is the position from the current time. $y0[-1] is the previous output
+and $y0[-buffersize] is the last available output sample of the stream.
+
+The first output audio stream can also simply be named $y[-1] ($y[-1] is the
+same as $y0[-1]).
+
+If the object generates only one channel output (the default), the last
+expression in the script is the output signal. Otherwise, output signals must
+be created with the out function.
 
 Here an example of a first-order IIR lowpass filter expression::
 
@@ -135,6 +147,13 @@ A simple ring-modulation expression::
 
     // ring-modulation between the first two input signals
     * $x[0] $x1[0]
+
+Two output channels::
+
+    // First channel
+    (out 0 (sin (* (twopi) (~ 400))))
+    // Second channel
+    (out 1 (sin (* (twopi) (~ 500))))
 
 Defining custom functions
 -------------------------
