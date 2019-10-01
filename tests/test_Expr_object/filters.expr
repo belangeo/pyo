@@ -8,7 +8,7 @@
 // First-order IIR lowpass filter
 // usage: (lp signal cutoff)
 (define lp (
-        (let #coef (exp (/ (* (neg (twopi)) $2) (sr))))
+        (let #coef (exp (/ (* (neg twopi) $2) sr)))
         rpole (* $1 (- 1 #coef)) #coef
     )
 )
@@ -16,7 +16,7 @@
 // First-order IIR highpass filter
 // usage: (hp signal cutoff)
 (define hp (
-        (let #1 (exp (/ (* (* -2 (pi)) $2) (sr))))
+        (let #1 (exp (/ (* (neg twopi) $2) sr)))
         (let #2 (* (+ #1 1) 0.5))
         rpole (rzero (* $1 #2) #2) #1
     )
@@ -25,7 +25,7 @@
 // First-order lowshelf filter
 // usage: (lshelf signal cutoff gain)
 (define lshelf (
-        (let #piOverSr (/ (pi) (sr)))
+        (let #piOverSr (/ pi sr))
         (let #gain (sqrt (pow 10 (* $3 0.05))))
         (let #freq (* $2 #piOverSr))
         rpole (rzero $1 (- 1 (* #freq #gain))) (- 1 (/ #freq #gain))
@@ -36,7 +36,7 @@
 // usage: (peak signal cf res)
 (define peak (
         (let #p (sqrt (max 0 (min $3 0.99))))
-        (let #angle (/ (* (twopi) $2) (sr)))
+        (let #angle (/ (* twopi $2) sr))
         (cpole (complex $1 0) (complex (* #p (cos #angle)) (* #p (sin #angle))))
     )
 )
@@ -44,12 +44,12 @@
 // Notch filter
 // usage: (notch signal cf res)
 (define notch (
-        (let #ny (/ (sr) 2))
+        (let #ny (/ sr 2))
         (let #cf (max 0 (min $2 #ny)))
         (let #res (+ (* (max 0 (min $3 1)) 0.5) 0.5))
-        (let #a (+ (- 0.5 (/ #cf (sr))) 0.5))
-        (let #a1 (cos (* #a (twopi))))
-        (let #a2 (cos (* (- #a 0.25) (twopi))))
+        (let #a (+ (- 0.5 (/ #cf sr)) 0.5))
+        (let #a1 (cos (* #a twopi)))
+        (let #a2 (cos (* (- #a 0.25) twopi)))
         (let #a3 (* #a2 -1))
         (let #b1 (* #a1 #res))
         (let #b2 (* #a3 #res))
@@ -70,8 +70,8 @@
 // usage: (bp signal cf q)
 (define bp (
         (let #bw (/ $2 $3))
-        (let #b2 (pow (e) (* (/ (neg (twopi)) (sr)) #bw)))
-        (let #b1 (* (/ (* -4 #b2) (+ 1 #b2)) (cos (/ (* (twopi) $2) (sr)))))
+        (let #b2 (pow e (* (/ (neg twopi) sr) #bw)))
+        (let #b1 (* (/ (* -4 #b2) (+ 1 #b2)) (cos (/ (* twopi $2) sr))))
         (let #a1 (- 1 (sqrt #b2)))
         (let #y2 (
           (let #y1 (- (- (- (* #a1 $1) (* #a1 (delay (delay $1)))) (* #b1 #y1)) (* #b2 #y2)))

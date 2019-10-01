@@ -15,7 +15,7 @@ if TEST == 0:
 elif TEST == 1:
     t = """
 (define osc (
-    sin (* (twopi) (~ $1))
+    sin (* twopi (~ $1))
     )
 )
 
@@ -31,7 +31,7 @@ tanh (*  (+ (osc 400) (osc 300)) (lfo .25 10))
 elif TEST == 2:
     t = """
 (define osc (
-        sin (* (twopi) (~ $1))
+        sin (* twopi (~ $1))
     )
 )
 
@@ -52,7 +52,7 @@ elif TEST == 2:
 elif TEST == 3:
     t = """
 (define hp (
-        (let #1 (exp (/ (* (* -2 (pi)) $2) 44100)))
+        (let #1 (exp (/ (* (neg twopi) $2) sr)))
         (let #2 (* (+ #1 1) 0.5))
         rpole (rzero (* $1 #2) #2) #1
     )

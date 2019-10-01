@@ -18,7 +18,7 @@ if TEST == 1:
     t = """// Lorenz strange attractor.
 (let #pit 500)      // 1.0 -> 750.0
 (let #chaos 2.0)    // 0.5 -> 3.0
-(let #delta (* (/ 1.0 (sr)) #pit))
+(let #delta (* (/ 1.0 sr) #pit))
 (let #A 10.0)
 (let #B 28.0)
 

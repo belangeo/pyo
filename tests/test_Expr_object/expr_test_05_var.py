@@ -11,7 +11,7 @@ if TEST == 0:
 (var #f1 500)
 (var #f2 750)
 (define osc (
-        sin (* (~ $1) (twopi))
+        sin (* (~ $1) twopi)
     )
 )
 
@@ -33,7 +33,7 @@ elif TEST == 1:
 (var #pitch 200)
 (define oscloop (
         (let #xsin
-            (sin (+ (* (~ $1) (twopi)) (* #xsin $2))) // #xsin used before...
+            (sin (+ (* (~ $1) twopi) (* #xsin $2))) // #xsin used before...
         ) // ... "let" statement finished!
         #xsin // oscloop function outputs #xsin variable
     )

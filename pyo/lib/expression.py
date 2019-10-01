@@ -556,6 +556,15 @@ class Expr(PyoObject):
             end = x.find("\n", start)
             x = x[:start] + x[end:]
 
+        # make sure there are braces around constant keywords
+        constants = ["pi", "twopi", "e", "sr"]
+        for constant in constants:
+            p1 = x.find(constant)
+            while p1 != -1:
+                if x[p1-1] == " ":
+                    x = x[:p1] + "(" + constant + ")" + x[p1+len(constant):]
+                p1 = x.find(constant, p1+len(constant)+2)
+                
         # expand defined functions
         _defined = []
         while "define" in x:

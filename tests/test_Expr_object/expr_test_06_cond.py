@@ -3,12 +3,12 @@ from pyo import *
 s = Server().boot()
 s.amp = 0.1
 
-TEST = 0
+TEST = 1
 
 if TEST == 0:
     t = """
 (define osc (
-    sin (* (twopi) (~ $1))
+    sin (* twopi (~ $1))
     )
 )
 
@@ -25,12 +25,12 @@ if TEST == 0:
 elif TEST == 1:
     t = """
 (define osc (
-        sin (* (twopi) $1)
+        sin (* twopi $1)
     )
 )
 
 (define env (
-        (+ (* (cos (* (twopi) $1)) -0.5) 0.5)
+        (+ (* (cos (* twopi $1)) -0.5) 0.5)
     )
 )
 

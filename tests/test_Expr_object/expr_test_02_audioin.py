@@ -8,7 +8,7 @@ TEST = 0
 if TEST == 0:
     # self-modulated sine wave with running phase given in input.
     ph = Phasor(500)
-    ex = Expr(ph, "(sin (+ (* (* 2 (pi)) $x[0]) (* $y[-1] 0.8)))").out()
+    ex = Expr(ph, "(sin (+ (* twopi $x[0]) (* $y[-1] 0.8)))").out()
 elif TEST == 1:
     # First-order IIR lowpass filter.
     sf = SfPlayer(SNDS_PATH+"/transparent.aif", loop=True)

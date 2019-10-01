@@ -1,7 +1,7 @@
 // Sine wave oscillator
 // usage: (osc freq phase)
 (define osc (
-        sin (* (twopi) (~ $1 $2))
+        sin (* twopi (~ $1 $2))
     )
 )
 

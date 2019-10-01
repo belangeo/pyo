@@ -15,12 +15,11 @@
 # Multiple input signals to
 # an expression             ===>    (* $x[0] $x1[0]) --> Ring-modulation between two input signals ($x is the same as $x0).
 # Multiple output signals to - (need a new argument to the object, `outs=1`)
-# an expression             ===>    (out 0 (sin (* (twopi) (~ 100)))) --> First output signal is a 100Hz sine wave.
-#                                   (out 1 (sin (* (twopi) (~ 200)))) --> Second output signal is a 200Hz sine wave.
+# an expression             ===>    (out 0 (sin (* twopi (~ 100)))) --> First output signal is a 100Hz sine wave.
+#                                   (out 1 (sin (* twopi (~ 200)))) --> Second output signal is a 200Hz sine wave.
 #                                   Output function must be used only when outs > 1.
 
 # TODO:
-# Using a const (sr, pi, twopi, e) without the braces. (* 2 (pi)) --> (* 2 pi)
 # multi-stages function     ===>    (+ 1 2 3 4 5) --> (+ (+ (+ (+ 1 2) 3) 4) 5)
 # recursive function        ===>    (loop (delay x) 10) --> the output of the first call is used as input for the second and so on...
 # Optimization of the processing loop.

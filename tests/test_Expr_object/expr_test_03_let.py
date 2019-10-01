@@ -7,10 +7,10 @@ TEST = 0
 
 if TEST == 0:
     t = """
-(let #freq 100)
+(let #freq 500)
 (let #nz (randf -1 1))
 (let #coeff (
-    ^ (e) (/ (* (* -2 (pi)) #freq) 44100)
+    ^ e (/ (* (neg twopi) #freq) 44100)
     )
 )
 + #nz (* (- $y[-1] #nz) #coeff)
@@ -21,7 +21,7 @@ elif TEST == 1:
 (let #freq 200)
 (let #feed 0.7)
 (let #xsin
-    (sin (+ (* (~ #freq) (twopi)) (* #xsin #feed))) // #xsin used before...
+    (sin (+ (* (~ #freq) twopi) (* #xsin #feed))) // #xsin used before...
 ) // ... "let" statement finished!
 #xsin // outputs #xsin variable
 """
@@ -36,9 +36,9 @@ elif TEST == 2:
 (let #form 600)
 (let #bw (/ #band #fund))
 (let #cf (/ #form #fund))
-(let #ph (* (- (~ #fund) 0.5) (twopi)))
+(let #ph (* (- (~ #fund) 0.5) twopi))
 (let #car (
-    (cos (max (min (* #ph #bw) (pi)) (- 0 (pi))))
+    (cos (max (min (* #ph #bw) pi) (- 0 pi)))
     )
 )
 (let #mod (
@@ -58,13 +58,13 @@ elif TEST == 3:
 (let #coef 500)
 
 (define osc (
-        sin (* (twopi) (~ $1))
+        sin (* twopi (~ $1))
     )
 )
 
 (define lp (
         // local #coef variable
-        (let #coef (exp (/ (* (neg (twopi)) $2) 44100)))
+        (let #coef (exp (/ (* (neg twopi) $2) sr)))
         rpole (* $1 (- 1 #coef)) #coef
     )
 )
@@ -82,7 +82,7 @@ elif TEST == 4:
 (define osc (
         // local #freq variable
         (let #freq (* $2 (^ $1 #spread)))
-        sin (* (twopi) (~ #freq))
+        sin (* twopi (~ #freq))
     )
 )
 
