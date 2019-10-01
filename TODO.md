@@ -70,4 +70,3 @@ E-Pyo
 -----
 
 - We need a way to let the user interact with the script with input() function.
-- Append live command from the interpreter window as comments at the end of the current page...

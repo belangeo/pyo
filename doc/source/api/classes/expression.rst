@@ -104,7 +104,7 @@ Builtin functions
 - (pi) : returns an approximated value of pi.
 - (twopi) : returns a constant with value pi*2.
 - \(e\) : returns an approximated value of e.
-- (sr) : returns the curretn sampling rate.
+- (sr) : returns the current sampling rate.
 
 Comments
 --------
