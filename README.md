@@ -20,7 +20,7 @@ Systems : macOS (10.10+), linux, Windows (XP, Vista, 7, 8, 10)
 Python versions : 2.7, 3.5+
 
 **For more resources, informations and documentation**, visit the 
-[PYO OFFICAL WEB SITE](http://ajaxsoundstudio.com/pyo/).
+[PYO OFFICIAL WEB SITE](http://ajaxsoundstudio.com/pyo/).
 
 How to install pre-built packages on any platform using **pip**: 
 [INSTALL Instructions](http://ajaxsoundstudio.com/pyodoc/download.html).
@@ -45,7 +45,7 @@ You want to have your script played on the radio ? Download the template
 [radiopyo_template.py](https://github.com/tiagovaz/radiopyo/blob/master/utils/radiopyo_template.py),
 follow the rules and post it on the mailing-list !
 
-## Softwares using pyo as audio engine ##
+## Software using Pyo as audio engine ##
 
 [Cecilia 5](http://ajaxsoundstudio.com/software/cecilia/) : An audio signal 
 processing environment.
