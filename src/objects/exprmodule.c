@@ -744,12 +744,12 @@ Exprer_setExpr(Exprer *self, PyObject *arg)
                 }
                 else if (PyUnicode_Contains(PyList_GetItem(explist, i+1), PyUnicode_FromString("$x"))) {
                     tmpstr = PyUnicode_Replace(PyList_GetItem(explist, i+1), PyUnicode_FromString("$x"), PyUnicode_FromString(""), -1);
-                    chpos = PyUnicode_Find(tmpstr, PyUnicode_FromString("["), 0, PyUnicode_GetLength(tmpstr), 1);
+                    chpos = PyUnicode_Find(tmpstr, PyUnicode_FromString("["), 0, PY_UNICODE_GET_SIZE(tmpstr), 1);
                     if (chpos == 0) {
                         self->lexp[self->count].inchnls[i] = 0;
                     } else {
                         self->lexp[self->count].inchnls[i] = PyInt_AsLong(PyInt_FromString(PY_STRING_AS_STRING(PyUnicode_Substring(tmpstr, 0, chpos)), NULL, 0));
-                        tmpstr = PyUnicode_Substring(tmpstr, chpos, PyUnicode_GetLength(tmpstr));
+                        tmpstr = PyUnicode_Substring(tmpstr, chpos, PY_UNICODE_GET_SIZE(tmpstr));
                     }
                     tmpstr = PyUnicode_Replace(tmpstr, PyUnicode_FromString("["), PyUnicode_FromString(""), -1);
                     tmpstr = PyUnicode_Replace(tmpstr, PyUnicode_FromString("]"), PyUnicode_FromString(""), -1);
@@ -757,12 +757,12 @@ Exprer_setExpr(Exprer *self, PyObject *arg)
                 }
                 else if (PyUnicode_Contains(PyList_GetItem(explist, i+1), PyUnicode_FromString("$y"))) {
                     tmpstr = PyUnicode_Replace(PyList_GetItem(explist, i+1), PyUnicode_FromString("$y"), PyUnicode_FromString(""), -1);
-                    chpos = PyUnicode_Find(tmpstr, PyUnicode_FromString("["), 0, PyUnicode_GetLength(tmpstr), 1);
+                    chpos = PyUnicode_Find(tmpstr, PyUnicode_FromString("["), 0, PY_UNICODE_GET_SIZE(tmpstr), 1);
                     if (chpos == 0) {
                         self->lexp[self->count].outchnls[i] = 0;
                     } else {
                         self->lexp[self->count].outchnls[i] = PyInt_AsLong(PyInt_FromString(PY_STRING_AS_STRING(PyUnicode_Substring(tmpstr, 0, chpos)), NULL, 0));
-                        tmpstr = PyUnicode_Substring(tmpstr, chpos, PyUnicode_GetLength(tmpstr));
+                        tmpstr = PyUnicode_Substring(tmpstr, chpos, PY_UNICODE_GET_SIZE(tmpstr));
                     }
                     tmpstr = PyUnicode_Replace(tmpstr, PyUnicode_FromString("["), PyUnicode_FromString(""), -1);
                     tmpstr = PyUnicode_Replace(tmpstr, PyUnicode_FromString("]"), PyUnicode_FromString(""), -1);
@@ -791,12 +791,12 @@ Exprer_setExpr(Exprer *self, PyObject *arg)
             }
             else if (PyUnicode_Contains(PyList_GetItem(explist, i+1), PyUnicode_FromString("$x"))) {
                 tmpstr = PyUnicode_Replace(PyList_GetItem(explist, i+1), PyUnicode_FromString("$x"), PyUnicode_FromString(""), -1);
-                chpos = PyUnicode_Find(tmpstr, PyUnicode_FromString("["), 0, PyUnicode_GetLength(tmpstr), 1);
+                chpos = PyUnicode_Find(tmpstr, PyUnicode_FromString("["), 0, PY_UNICODE_GET_SIZE(tmpstr), 1);
                 if (chpos == 0) {
                     self->lexp[self->count].inchnls[i] = 0;
                 } else {
                     self->lexp[self->count].inchnls[i] = PyInt_AsLong(PyInt_FromString(PY_STRING_AS_STRING(PyUnicode_Substring(tmpstr, 0, chpos)), NULL, 0));
-                    tmpstr = PyUnicode_Substring(tmpstr, chpos, PyUnicode_GetLength(tmpstr));
+                    tmpstr = PyUnicode_Substring(tmpstr, chpos, PY_UNICODE_GET_SIZE(tmpstr));
                 }
                 tmpstr = PyUnicode_Replace(tmpstr, PyUnicode_FromString("["), PyUnicode_FromString(""), -1);
                 tmpstr = PyUnicode_Replace(tmpstr, PyUnicode_FromString("]"), PyUnicode_FromString(""), -1);
@@ -804,12 +804,12 @@ Exprer_setExpr(Exprer *self, PyObject *arg)
             }
             else if (PyUnicode_Contains(PyList_GetItem(explist, i+1), PyUnicode_FromString("$y"))) {
                 tmpstr = PyUnicode_Replace(PyList_GetItem(explist, i+1), PyUnicode_FromString("$y"), PyUnicode_FromString(""), -1);
-                chpos = PyUnicode_Find(tmpstr, PyUnicode_FromString("["), 0, PyUnicode_GetLength(tmpstr), 1);
+                chpos = PyUnicode_Find(tmpstr, PyUnicode_FromString("["), 0, PY_UNICODE_GET_SIZE(tmpstr), 1);
                 if (chpos == 0) {
                     self->lexp[self->count].outchnls[i] = 0;
                 } else {
                     self->lexp[self->count].outchnls[i] = PyInt_AsLong(PyInt_FromString(PY_STRING_AS_STRING(PyUnicode_Substring(tmpstr, 0, chpos)), NULL, 0));
-                    tmpstr = PyUnicode_Substring(tmpstr, chpos, PyUnicode_GetLength(tmpstr));
+                    tmpstr = PyUnicode_Substring(tmpstr, chpos, PY_UNICODE_GET_SIZE(tmpstr));
                 }
                 tmpstr = PyUnicode_Replace(tmpstr, PyUnicode_FromString("["), PyUnicode_FromString(""), -1);
                 tmpstr = PyUnicode_Replace(tmpstr, PyUnicode_FromString("]"), PyUnicode_FromString(""), -1);
