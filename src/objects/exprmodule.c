@@ -655,7 +655,7 @@ static PyObject *
 Exprer_setExpr(Exprer *self, PyObject *arg)
 {
     int i, j = 0, count = 0;
-    PyObject *sentence = NULL, *exp = NULL, *explist = NULL, *tmpstr = NULL;
+    PyObject *sentence = NULL, *exp = NULL, *explist = NULL, *tmpstr = NULL, *tmpchnl = NULL;
     PyObject *varDict = NULL, *waitingDict = NULL, *waitingList = NULL;
     Py_ssize_t len, start, end, chpos = 0;
 
@@ -748,8 +748,12 @@ Exprer_setExpr(Exprer *self, PyObject *arg)
                     if (chpos == 0) {
                         self->lexp[self->count].inchnls[i] = 0;
                     } else {
-                        self->lexp[self->count].inchnls[i] = PyInt_AsLong(PyInt_FromString(PY_STRING_AS_STRING(PyUnicode_Substring(tmpstr, 0, chpos)), NULL, 0));
-                        tmpstr = PyUnicode_Substring(tmpstr, chpos, PY_UNICODE_GET_SIZE(tmpstr));
+                        tmpchnl = PyList_GetItem(PyUnicode_Split(tmpstr, PyUnicode_FromString("["), 1), 0);
+                        self->lexp[self->count].inchnls[i] = PyInt_AsLong(PyInt_FromString(PY_STRING_AS_STRING(tmpchnl), NULL, 0));
+                        tmpstr = PyList_GetItem(PyUnicode_Split(tmpstr, PyUnicode_FromString("["), 1), 1);
+                        // Python 3 only solution.
+                        //self->lexp[self->count].inchnls[i] = PyInt_AsLong(PyInt_FromString(PY_STRING_AS_STRING(PyUnicode_Substring(tmpstr, 0, chpos)), NULL, 0));
+                        //tmpstr = PyUnicode_Substring(tmpstr, chpos, PY_UNICODE_GET_SIZE(tmpstr));
                     }
                     tmpstr = PyUnicode_Replace(tmpstr, PyUnicode_FromString("["), PyUnicode_FromString(""), -1);
                     tmpstr = PyUnicode_Replace(tmpstr, PyUnicode_FromString("]"), PyUnicode_FromString(""), -1);
@@ -761,8 +765,11 @@ Exprer_setExpr(Exprer *self, PyObject *arg)
                     if (chpos == 0) {
                         self->lexp[self->count].outchnls[i] = 0;
                     } else {
-                        self->lexp[self->count].outchnls[i] = PyInt_AsLong(PyInt_FromString(PY_STRING_AS_STRING(PyUnicode_Substring(tmpstr, 0, chpos)), NULL, 0));
-                        tmpstr = PyUnicode_Substring(tmpstr, chpos, PY_UNICODE_GET_SIZE(tmpstr));
+                        tmpchnl = PyList_GetItem(PyUnicode_Split(tmpstr, PyUnicode_FromString("["), 1), 0);
+                        self->lexp[self->count].outchnls[i] = PyInt_AsLong(PyInt_FromString(PY_STRING_AS_STRING(tmpchnl), NULL, 0));
+                        tmpstr = PyList_GetItem(PyUnicode_Split(tmpstr, PyUnicode_FromString("["), 1), 1);
+                        //self->lexp[self->count].outchnls[i] = PyInt_AsLong(PyInt_FromString(PY_STRING_AS_STRING(PyUnicode_Substring(tmpstr, 0, chpos)), NULL, 0));
+                        //tmpstr = PyUnicode_Substring(tmpstr, chpos, PY_UNICODE_GET_SIZE(tmpstr));
                     }
                     tmpstr = PyUnicode_Replace(tmpstr, PyUnicode_FromString("["), PyUnicode_FromString(""), -1);
                     tmpstr = PyUnicode_Replace(tmpstr, PyUnicode_FromString("]"), PyUnicode_FromString(""), -1);
@@ -795,8 +802,11 @@ Exprer_setExpr(Exprer *self, PyObject *arg)
                 if (chpos == 0) {
                     self->lexp[self->count].inchnls[i] = 0;
                 } else {
-                    self->lexp[self->count].inchnls[i] = PyInt_AsLong(PyInt_FromString(PY_STRING_AS_STRING(PyUnicode_Substring(tmpstr, 0, chpos)), NULL, 0));
-                    tmpstr = PyUnicode_Substring(tmpstr, chpos, PY_UNICODE_GET_SIZE(tmpstr));
+                    tmpchnl = PyList_GetItem(PyUnicode_Split(tmpstr, PyUnicode_FromString("["), 1), 0);
+                    self->lexp[self->count].inchnls[i] = PyInt_AsLong(PyInt_FromString(PY_STRING_AS_STRING(tmpchnl), NULL, 0));
+                    tmpstr = PyList_GetItem(PyUnicode_Split(tmpstr, PyUnicode_FromString("["), 1), 1);
+                    //self->lexp[self->count].inchnls[i] = PyInt_AsLong(PyInt_FromString(PY_STRING_AS_STRING(PyUnicode_Substring(tmpstr, 0, chpos)), NULL, 0));
+                    //tmpstr = PyUnicode_Substring(tmpstr, chpos, PY_UNICODE_GET_SIZE(tmpstr));
                 }
                 tmpstr = PyUnicode_Replace(tmpstr, PyUnicode_FromString("["), PyUnicode_FromString(""), -1);
                 tmpstr = PyUnicode_Replace(tmpstr, PyUnicode_FromString("]"), PyUnicode_FromString(""), -1);
@@ -808,8 +818,11 @@ Exprer_setExpr(Exprer *self, PyObject *arg)
                 if (chpos == 0) {
                     self->lexp[self->count].outchnls[i] = 0;
                 } else {
-                    self->lexp[self->count].outchnls[i] = PyInt_AsLong(PyInt_FromString(PY_STRING_AS_STRING(PyUnicode_Substring(tmpstr, 0, chpos)), NULL, 0));
-                    tmpstr = PyUnicode_Substring(tmpstr, chpos, PY_UNICODE_GET_SIZE(tmpstr));
+                    tmpchnl = PyList_GetItem(PyUnicode_Split(tmpstr, PyUnicode_FromString("["), 1), 0);
+                    self->lexp[self->count].outchnls[i] = PyInt_AsLong(PyInt_FromString(PY_STRING_AS_STRING(tmpchnl), NULL, 0));
+                    tmpstr = PyList_GetItem(PyUnicode_Split(tmpstr, PyUnicode_FromString("["), 1), 1);
+                    //self->lexp[self->count].outchnls[i] = PyInt_AsLong(PyInt_FromString(PY_STRING_AS_STRING(PyUnicode_Substring(tmpstr, 0, chpos)), NULL, 0));
+                    //tmpstr = PyUnicode_Substring(tmpstr, chpos, PY_UNICODE_GET_SIZE(tmpstr));
                 }
                 tmpstr = PyUnicode_Replace(tmpstr, PyUnicode_FromString("["), PyUnicode_FromString(""), -1);
                 tmpstr = PyUnicode_Replace(tmpstr, PyUnicode_FromString("]"), PyUnicode_FromString(""), -1);
