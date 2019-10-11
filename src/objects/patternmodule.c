@@ -520,6 +520,8 @@ CallAfter_generate(CallAfter *self) {
 
     for (i=0; i<self->bufsize; i++) {
         if (self->currentTime >= self->time) {
+            if (self->stream != NULL)
+                PyObject_CallMethod((PyObject *)self, "stop", NULL);
             if (self->arg == Py_None)
                 tuple = PyTuple_New(0);
             else {
@@ -529,8 +531,6 @@ CallAfter_generate(CallAfter *self) {
             result = PyObject_Call(self->callable, tuple, NULL);
             if (result == NULL)
                 PyErr_Print();
-            if (self->stream != NULL)
-                PyObject_CallMethod((PyObject *)self, "stop", NULL);
             break;
         }
         self->currentTime += self->sampleToSec;
