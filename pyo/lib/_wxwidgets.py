@@ -1453,9 +1453,11 @@ class SpectrumDisplay(wx.Frame):
         if self.obj is None:
             initgain = 0.0
             self.channelNamesVisible = True
+            self.channelNames = []
         else:
             initgain = self.obj.gain
             self.channelNamesVisible = self.obj.channelNamesVisible
+            self.channelNames = self.obj.channelNames
 
         tw, th = self.GetTextExtent("Start")
         self.activeTog = wx.ToggleButton(self.panel, -1, label="Start", size=(tw+X_OFF, th+10))
@@ -1556,6 +1558,10 @@ class SpectrumDisplay(wx.Frame):
         self.spectrumPanel.showChannelNames(visible)
         self.channelNamesVisible = visible
 
+    def setChannelNames(self, names):
+        self.channelNames = names
+        self.spectrumPanel.setChannelNames(names)
+
     def _destroy(self, evt):
         self.obj._setViewFrame(None)
         self.Destroy()
@@ -1578,6 +1584,10 @@ class SpectrumPanel(wx.Panel):
             self.channelNamesVisible = self.GetParent().GetParent().channelNamesVisible
         except:
             self.channelNamesVisible = True
+        try:
+            self.channelNames = self.GetParent().GetParent().channelNames
+        except:
+            self.channelNames = []
         self.img = None
         self.obj = None
         self.lowfreq = lowfreq
@@ -1639,6 +1649,9 @@ class SpectrumPanel(wx.Panel):
 
     def showChannelNames(self, visible):
         self.channelNamesVisible = visible
+
+    def setChannelNames(self, names):
+        self.channelNames = names
 
     def OnPaint(self, evt):
         w,h = self.GetSize()
@@ -1765,10 +1778,20 @@ class SpectrumPanel(wx.Panel):
             last_tw = tw
             # legend
             if len(self.img) > 1 and self.channelNamesVisible:
-                tw, th = dc.GetTextExtent("chan 8")
-                for i in range(len(self.img)):
-                    dc.SetTextForeground(self.pens[i%self.chnls].GetColour())
-                    dc.DrawText("chan %d" % (i+1), w-tw-20-last_tw, i*th+th+7)
+                if not self.channelNames:
+                    tw, th = dc.GetTextExtent("chan 8")
+                    for i in range(len(self.img)):
+                        dc.SetTextForeground(self.pens[i%self.chnls].GetColour())
+                        dc.DrawText("chan %d" % (i+1), w-tw-20-last_tw, i*th+th+7)
+                else:
+                    numChars = max([len(x) for x in self.channelNames])
+                    tw, th = dc.GetTextExtent("0"*numChars)
+                    for i in range(len(self.img)):
+                        dc.SetTextForeground(self.pens[i%self.chnls].GetColour())
+                        if i < len(self.channelNames):
+                            dc.DrawText(self.channelNames[i], w-tw-20-last_tw, i*th+th+7)
+                        else:
+                            dc.DrawText("chan %d" % (i+1), w-tw-20-last_tw, i*th+th+7)
             # channel spectrums
             for i, samples in enumerate(self.img):
                 gc.SetPen(self.pens[i%self.chnls])
@@ -1842,6 +1865,9 @@ class ScopeDisplay(wx.Frame):
     def showChannelNames(self, visible):
         self.scopePanel.showChannelNames(visible)
 
+    def setChannelNames(self, names):
+        self.scopePanel.setChannelNames(names)
+
     def _destroy(self, evt):
         self.obj._setViewFrame(None)
         self.Destroy()
@@ -1862,11 +1888,13 @@ class ScopePanel(wx.Panel):
             self.length = self.obj.length
             self.chnls = len(self.obj)
             self.channelNamesVisible = self.obj.channelNamesVisible
+            self.channelNames = self.obj.channelNames
         else:
             self.gain = 1
             self.length = 0.05
             self.chnls = 64
             self.channelNamesVisible = True
+            self.channelNamesVisible = []
 
         self.setPens()
 
@@ -1911,6 +1939,9 @@ class ScopePanel(wx.Panel):
 
     def showChannelNames(self, visible=True):
         self.channelNamesVisible = visible
+
+    def setChannelNames(self, names):
+        self.channelNames = names
 
     def OnPaint(self, evt):
         w,h = self.GetSize()
@@ -1964,10 +1995,20 @@ class ScopePanel(wx.Panel):
         # legend
         last_tw = tw
         if len(self.img) > 1 and self.channelNamesVisible:
-            tw, th = dc.GetTextExtent("chan 8")
-            for i in range(len(self.img)):
-                dc.SetTextForeground(self.pens[i % self.chnls].GetColour())
-                dc.DrawText("chan %d" % (i+1), w-tw-20-last_tw, i*th+10)
+            if not self.channelNames:
+                tw, th = dc.GetTextExtent("chan 8")
+                for i in range(len(self.img)):
+                    dc.SetTextForeground(self.pens[i%self.chnls].GetColour())
+                    dc.DrawText("chan %d" % (i+1), w-tw-20-last_tw, i*th+th+7) # 10
+            else:
+                numChars = max([len(x) for x in self.channelNames])
+                tw, th = dc.GetTextExtent("0"*numChars)
+                for i in range(len(self.img)):
+                    dc.SetTextForeground(self.pens[i%self.chnls].GetColour())
+                    if i < len(self.channelNames):
+                        dc.DrawText(self.channelNames[i], w-tw-20-last_tw, i*th+th+7)
+                    else:
+                        dc.DrawText("chan %d" % (i+1), w-tw-20-last_tw, i*th+th+7)
 
 ######################################################################
 ## Grapher window for PyoTableObject control
