@@ -2091,7 +2091,8 @@ class BackgroundServerThread(threading.Thread):
 
     def sendText(self, text):
         for line in text.splitlines():
-            self.proc.stdin.write(line + "\n")
+            if line.strip() != "":
+                self.proc.stdin.write(line + "\n")
         self.proc.stdin.write("\n")
 
     def run(self):
