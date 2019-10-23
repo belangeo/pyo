@@ -89,6 +89,15 @@ def createRootWindow():
     if not PYO_USE_WX:
         if len(WINDOWS) == 0:
             root = tk.Tk()
+
+            screen_width = root.winfo_screenwidth()
+            if sys.platform == "darwin" and screen_width > 1024:
+                # Scale fonts on Hi-res displays.
+                import tkinter.font
+                for name in tkinter.font.names(root):
+                    font = tkinter.font.Font(root=root, name=name, exists=True)
+                    font['size'] *= 2
+
             root.withdraw()
             return None
         else:
