@@ -858,6 +858,7 @@ class Spectrum(PyoObject):
         self.points = None
         self.viewFrame = None
         self.channelNamesVisible = True
+        self.channelNames = []
         self._input = input
         self._size = size
         self._wintype = wintype
@@ -1194,6 +1195,18 @@ class Spectrum(PyoObject):
         if self.viewFrame is not None:
             self.viewFrame.showChannelNames(visible)
 
+    def setChannelNames(self, names):
+        """
+        Change the stream names displayed in the spectrum window.
+
+        If given a list of strings, these will be displayed as the name of the
+        consecutive audio streams instead of the generic 'chan X' names.
+
+        """
+        self.channelNames = names
+        if self.viewFrame is not None:
+            self.viewFrame.setChannelNames(names)
+
     def _setViewFrame(self, frame):
         self.viewFrame = frame
 
@@ -1332,6 +1345,7 @@ class Scope(PyoObject):
         self._width = 500
         self._height = 400
         self.channelNamesVisible = True
+        self.channelNames = []
         self._in_fader = InputFader(input)
         in_fader, lmax = convertArgsToLists(self._in_fader)
         self._base_objs = [Scope_base(wrap(in_fader,i), length) for i in range(lmax)]
@@ -1477,6 +1491,18 @@ class Scope(PyoObject):
         self.channelNamesVisible = visible
         if self.viewFrame is not None:
             self.viewFrame.showChannelNames(visible)
+
+    def setChannelNames(self, names):
+        """
+        Change the stream names displayed in the spectrum window.
+
+        If given a list of strings, these will be displayed as the name of the
+        consecutive audio streams instead of the generic 'chan X' names.
+
+        """
+        self.channelNames = names
+        if self.viewFrame is not None:
+            self.viewFrame.setChannelNames(names)
 
     def _setViewFrame(self, frame):
         self.viewFrame = frame

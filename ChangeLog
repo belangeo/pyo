@@ -1,3 +1,7 @@
+2019-10-14 belangeo <belangeo@gmail.com>
+
+    * Added setChannelNames(names) method to Spectrum and Scope objects.
+
 2019-09-29 belangeo <belangeo@gmail.com>
 
     * Expr API: Expr now can generate multiple output signals.
