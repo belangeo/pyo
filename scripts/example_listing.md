@@ -201,7 +201,36 @@ Exemples de scripts audio avec pyo
 4. upsamp-processing.py
 5. multiple-threads.py
 
-22-wxgui
+22-events
+---------
+
+1. simple-sequence.py
+2. parameters.py
+3. instruments.py
+4. custom-params.py
+5. complex-sequence.py
+6. randoms.py
+7. managing-scales.py
+8. function-calls.py
+9. embedding-generators.py
+10. arithmetic-ops.py
+11. filters.py
+12. sharing-values.py
+13. using-audio-objects.py
+
+23-expression
+-------------
+
+1. simple-expression.py
+2. audio-in.py
+3. let-function.py
+4. define-function.py
+5. var-function.py
+6. condition.py
+7. load-function.py
+8. audio-outs.py
+
+24-wxgui
 --------
 
 misc
