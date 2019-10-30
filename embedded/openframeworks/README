@@ -2,8 +2,9 @@ Introduction on how to use pyo inside an OpenFrameworks project.
 ================================================================ 
 
 To use pyo inside an OpenFrameworks project, first you need a 
-working install of pyo on your system. After installing pyo,
-you can move on and create an OpenFrameworks project.
+working install of pyo for python 2.7 on your system (will switch
+to python 3 as soon as possible). After installing pyo, you can 
+move on and create an OpenFrameworks project.
 
 ------------------------------------------------------------------------
 Step 1 - Create a default project with the project generator. To avoid
@@ -91,7 +92,12 @@ void ofApp::audioOut(float * output, int bufferSize, int nChannels){
 }
 
 ------------------------------------------------------------------------
-Here you go! Compile, Run and Enjoy!
+Step 7 - Compile your project. To compile, cd to your project folder and:
+
+make && cp -r scripts bin/*.app/Contents/Resources
+
+------------------------------------------------------------------------
+Here you go! You should be able to run your app created in the bin folder.
 
 Documentation
 =============
@@ -101,6 +107,6 @@ with the pyo embedded processes, see documentation comments in the file
 PyoClass.cpp.
 
 
-(c) 2015 - belangeo
+(c) 2019 - belangeo
 
 
