@@ -94,6 +94,7 @@ void ofApp::audioOut(float * output, int bufferSize, int nChannels){
 ------------------------------------------------------------------------
 Step 7 - Compile your project. To compile, cd to your project folder and:
 
+# This line is for MacOS, you'll have to adapt it to your system!
 make && cp -r scripts bin/*.app/Contents/Resources
 
 ------------------------------------------------------------------------
