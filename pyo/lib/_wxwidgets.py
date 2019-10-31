@@ -3013,6 +3013,9 @@ class Keyboard(wx.Panel):
         self.whiteKeys = []
         self.blackKeys = []
 
+        self.offRec = wx.Rect(900 - 55, 0, 28, 150)
+        self.holdRec = wx.Rect(900 - 27, 0, 27, 150)
+
         self.keydown = []
         self.keymap = {90: 36, 83: 37, 88: 38, 68: 39, 67: 40, 86: 41, 71: 42, 66: 43,
                        72: 44, 78: 45, 74: 46, 77: 47, 44: 48, 76: 49, 46: 50, 59: 51, 47: 52,
