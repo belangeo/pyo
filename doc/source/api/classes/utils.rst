@@ -2,6 +2,7 @@ Utilities
 ===================================
 
 .. module:: pyo
+   :noindex:
 
 Miscellaneous objects.
 

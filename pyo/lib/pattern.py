@@ -186,8 +186,8 @@ class Score(PyoObject):
             Audio signal. Must contains integer numbers. Integer must change
             before calling its function again.
         fname: string, optional
-            Name of the functions to be called. Defaults to "event_", meaning
-            that the object will call the function "event_0", "event_1", "event_2",
+            Name of the functions to be called. Defaults to 'event_', meaning
+            that the object will call the function 'event_0', 'event_1', 'event_2',
             and so on... Available at initialization time only.
 
     .. note::

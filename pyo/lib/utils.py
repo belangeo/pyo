@@ -30,7 +30,7 @@ import threading, time
 
 class Clean_objects(threading.Thread):
     """
-    Stops and deletes PyoObjects after a given time.
+    Stops and deletes PyoObjects after a given amount of time.
 
     The start() method starts the thread timer (must be called).
 
@@ -39,8 +39,8 @@ class Clean_objects(threading.Thread):
         time: float
             Time, in seconds, to wait before calling stop on the given
             objects and deleting them.
-        *args: PyoObject(s)
-            Objects to delete.
+        args: PyoObject(s)
+            Objects to delete. As much as desired, separated by commas.
 
     >>> s = Server().boot()
     >>> s.start()
@@ -2025,14 +2025,17 @@ class Resample(PyoObject):
         mode: int, optional
             The interpolation/decimation mode. Defaults to 1.
             For the upsampling process, possible values are:
-                0: zero-padding
-                1: sample-and-hold
-                2 or higher: the formula `mode * resampling factor` gives
-                the FIR lowpass kernel length used to interpolate.
+
+            - 0: zero-padding
+            - 1: sample-and-hold
+            - 2 or higher: the formula `mode * resampling factor` gives
+              the FIR lowpass kernel length used to interpolate.
+
             For the downsampling process, possible values are:
-                0 or 1: discard extra samples
-                2 or higher: the formula `mode * abs(resampling factor)`
-                gives the FIR lowpass kernel length used for the decimation.
+
+            - 0 or 1: discard extra samples
+            - 2 or higher: the formula `mode * abs(resampling factor)`
+              gives the FIR lowpass kernel length used for the decimation.
 
     >>> s = Server().boot()
     >>> s.start()

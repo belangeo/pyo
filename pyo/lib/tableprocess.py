@@ -3548,11 +3548,12 @@ class Particle2(PyoObject):
             Each grain samples the current value of this stream at the beginning
             of its envelope and hold it until the end of the grain. Thw value is
             rounded to the nearest integer. Possible values are:
-                0. lowpass (default)
-                1. highpass
-                2. bandpass
-                3. bandstop
-                4. allpass
+
+            0. lowpass (default)
+            1. highpass
+            2. bandpass
+            3. bandstop
+            4. allpass
 
         chnls: integer, optional
             Number of output channels per audio stream (if chnls=2 and a stereo sound

@@ -205,24 +205,26 @@ def savefile(samples, path, sr=44100, channels=1, fileformat=0, sampletype=0,
             Number of channels of the new file. Defaults to 1.
         fileformat: int, optional
             Format type of the new file. Defaults to 0. Supported formats are:
-                0. WAVE - Microsoft WAV format (little endian) {.wav, .wave}
-                1. AIFF - Apple/SGI AIFF format (big endian) {.aif, .aiff}
-                2. AU - Sun/NeXT AU format (big endian) {.au}
-                3. RAW - RAW PCM data {no extension}
-                4. SD2 - Sound Designer 2 {.sd2}
-                5. FLAC - FLAC lossless file format {.flac}
-                6. CAF - Core Audio File format {.caf}
-                7. OGG - Xiph OGG container {.ogg}
+
+            0. WAVE - Microsoft WAV format (little endian) {.wav, .wave}
+            1. AIFF - Apple/SGI AIFF format (big endian) {.aif, .aiff}
+            2. AU - Sun/NeXT AU format (big endian) {.au}
+            3. RAW - RAW PCM data {no extension}
+            4. SD2 - Sound Designer 2 {.sd2}
+            5. FLAC - FLAC lossless file format {.flac}
+            6. CAF - Core Audio File format {.caf}
+            7. OGG - Xiph OGG container {.ogg}
         sampletype ; int, optional
             Bit depth encoding of the audio file. Defaults to 0.
             SD2 and FLAC only support 16 or 24 bit int. Supported types are:
-                0. 16 bit int
-                1. 24 bit int
-                2. 32 bit int
-                3. 32 bit float
-                4. 64 bit float
-                5. U-Law encoded
-                6. A-Law encoded
+
+            0. 16 bit int
+            1. 24 bit int
+            2. 32 bit int
+            3. 32 bit float
+            4. 64 bit float
+            5. U-Law encoded
+            6. A-Law encoded
         quality: float, optional
             The encoding quality value, between 0.0 (lowest quality) and
             1.0 (highest quality). This argument has an effect only with
@@ -251,24 +253,26 @@ def savefileFromTable(table, path, fileformat=0, sampletype=0, quality=0.4):
             Full path (including extension) of the new file.
         fileformat: int, optional
             Format type of the new file. Defaults to 0. Supported formats are:
-                0. WAVE - Microsoft WAV format (little endian) {.wav, .wave}
-                1. AIFF - Apple/SGI AIFF format (big endian) {.aif, .aiff}
-                2. AU - Sun/NeXT AU format (big endian) {.au}
-                3. RAW - RAW PCM data {no extension}
-                4. SD2 - Sound Designer 2 {.sd2}
-                5. FLAC - FLAC lossless file format {.flac}
-                6. CAF - Core Audio File format {.caf}
-                7. OGG - Xiph OGG container {.ogg}
+
+            0. WAVE - Microsoft WAV format (little endian) {.wav, .wave}
+            1. AIFF - Apple/SGI AIFF format (big endian) {.aif, .aiff}
+            2. AU - Sun/NeXT AU format (big endian) {.au}
+            3. RAW - RAW PCM data {no extension}
+            4. SD2 - Sound Designer 2 {.sd2}
+            5. FLAC - FLAC lossless file format {.flac}
+            6. CAF - Core Audio File format {.caf}
+            7. OGG - Xiph OGG container {.ogg}
         sampletype ; int, optional
             Bit depth encoding of the audio file. Defaults to 0.
             SD2 and FLAC only support 16 or 24 bit int. Supported types are:
-                0. 16 bit int
-                1. 24 bit int
-                2. 32 bit int
-                3. 32 bit float
-                4. 64 bit float
-                5. U-Law encoded
-                6. A-Law encoded
+
+            0. 16 bit int
+            1. 24 bit int
+            2. 32 bit int
+            3. 32 bit float
+            4. 64 bit float
+            5. U-Law encoded
+            6. A-Law encoded
         quality: float, optional
             The encoding quality value, between 0.0 (lowest quality) and
             1.0 (highest quality). This argument has an effect only with

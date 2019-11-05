@@ -2,6 +2,7 @@ Signal Generators
 ===================================
 
 .. module:: pyo
+   :noindex:
 
 Set of synthesis generators that can be used as sources of a signal
 processing chain or as parameter's modifiers.

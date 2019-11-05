@@ -1150,12 +1150,13 @@ class Server(object):
             status: int
                 The status byte, indicating the type of event and the
                 MIDI channel. Typical event type are:
-                    128 -> 143: Noteoff
-                    144 -> 159: Noteon
-                    176 -> 191: Control change
-                    192 -> 207: Program change
-                    208 -> 223: After touch
-                    224 -> 239: Pitch bend
+
+                - 128 -> 143: Noteoff
+                - 144 -> 159: Noteon
+                - 176 -> 191: Control change
+                - 192 -> 207: Program change
+                - 208 -> 223: After touch
+                - 224 -> 239: Pitch bend
             data1: int, optional
                 The first data byte (pitch for a midi note, controller
                 number for a control change). Defaults to 0.

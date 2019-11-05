@@ -262,9 +262,9 @@ class OscListener(threading.Thread):
         function: Python function (can't be a list)
             Function that will be called when a new OSC event is available.
             This function is called with the incoming address and values as
-            arguments. The signature of the function must be:
+            arguments. The signature of the function must be::
 
-            def myfunc(address, *args)
+                def myfunc(address, *args)
 
         port: int, optional
             The OSC port on which the values are received. Defaults to 9000.

@@ -65,15 +65,16 @@ class PVAnal(PyoPVObject):
         wintype: int, optional
             Shape of the envelope used to filter each input frame.
             Possible shapes are:
-                0. rectangular (no windowing)
-                1. Hamming
-                2. Hanning (default)
-                3. Bartlett (triangular)
-                4. Blackman 3-term
-                5. Blackman-Harris 4-term
-                6. Blackman-Harris 7-term
-                7. Tuckey (alpha = 0.66)
-                8. Sine (half-sine window)
+
+            0. rectangular (no windowing)
+            1. Hamming
+            2. Hanning (default)
+            3. Bartlett (triangular)
+            4. Blackman 3-term
+            5. Blackman-Harris 4-term
+            6. Blackman-Harris 7-term
+            7. Tuckey (alpha = 0.66)
+            8. Sine (half-sine window)
         callback: callable, optional
             If not None (default), this function will be called with the result
             of the analysis at the end of every overlap. The function will
@@ -227,15 +228,16 @@ class PVSynth(PyoObject):
         wintype: int, optional
             Shape of the envelope used to filter each input frame.
             Possible shapes are:
-                0. rectangular (no windowing)
-                1. Hamming
-                2. Hanning (default)
-                3. Bartlett (triangular)
-                4. Blackman 3-term
-                5. Blackman-Harris 4-term
-                6. Blackman-Harris 7-term
-                7. Tuckey (alpha = 0.66)
-                8. Sine (half-sine window)
+
+            0. rectangular (no windowing)
+            1. Hamming
+            2. Hanning (default)
+            3. Bartlett (triangular)
+            4. Blackman 3-term
+            5. Blackman-Harris 4-term
+            6. Blackman-Harris 7-term
+            7. Tuckey (alpha = 0.66)
+            8. Sine (half-sine window)
 
     >>> s = Server().boot()
     >>> s.start()

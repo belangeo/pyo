@@ -2,6 +2,7 @@ Midi Handling
 ===================================
 
 .. module:: pyo
+   :noindex:
 
 Objects to retrieve Midi informations for a specific Midi port and channel.
 

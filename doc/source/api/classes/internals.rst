@@ -2,6 +2,7 @@ Internal objects
 ===================================
 
 .. module:: pyo
+   :noindex:
 
 These objects are mainly used by pyo itself, inside other objects.
 

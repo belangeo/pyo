@@ -2,6 +2,7 @@ Conversions
 =======================
 
 .. module:: pyo
+   :noindex:
 
 *midiToHz*
 ---------------------------------

@@ -8,6 +8,7 @@ Set of functions to inspect the system's midi configuration.
     These functions are available only if pyo is built with portmidi support.
 
 .. module:: pyo
+   :noindex:
 
 *pm_get_default_output*
 ---------------------------------

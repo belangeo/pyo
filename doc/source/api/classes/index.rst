@@ -12,6 +12,7 @@ Classes by category
    controls
    dynamics
    effects
+   events
    expression
    filters
    fourier

@@ -2,6 +2,7 @@ Routing
 ===================================
 
 .. module:: pyo
+   :noindex:
 
 Set of objects to manage audio voice routing and spread of a sound 
 signal into a stereo or multi-channel sound field.

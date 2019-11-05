@@ -2,6 +2,7 @@ Base Classes
 ======================================
 
 .. module:: pyo
+   :noindex:
 
 Here are defined the base classes implementing common behaviors for 
 the different kinds of objects in the library.

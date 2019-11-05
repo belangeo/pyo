@@ -2,6 +2,7 @@ Special Effects
 ============================
 
 .. module:: pyo
+   :noindex:
 
 Objects to perform specific audio signal processing effects such
 as distortions, delays, chorus and reverbs.

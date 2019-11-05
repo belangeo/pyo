@@ -40,7 +40,7 @@ Alphabetical class reference
 - :py:class:`ChenLee` :     Chaotic attractor for the Chen-Lee system.
 - :py:class:`Choice` :     Periodically choose a new value from a user list.
 - :py:class:`Chorus` :     8 modulated delay lines chorus processor.
-- :py:class:`Clean_objects` :     Stops and deletes PyoObjects after a given time.
+- :py:class:`Clean_objects` :     Stops and deletes PyoObjects after a given amount of time.
 - :py:class:`Clip` :     Clips a signal to a predefined limit.
 - :py:class:`Cloud` :     Generates random triggers.
 - :py:class:`Compare` :     Comparison object.
@@ -62,6 +62,7 @@ Alphabetical class reference
 - :py:class:`DBToA` :     Returns the amplitude equivalent of a decibel value.
 - :py:class:`DCBlock` :     Implements the DC blocking filter.
 - :py:class:`DataTable` :     Create an empty table ready for data recording.
+- :py:class:`DefaultInstrument` :     The default instrument, playing a reverberated RC oscillator, used when
 - :py:class:`Degrade` :     Signal quality reducer.
 - :py:class:`Delay1` :     Delays a signal by one sample.
 - :py:class:`Delay` :     Sweepable recursive delay.
@@ -71,6 +72,22 @@ Alphabetical class reference
 - :py:class:`Dummy` :     Dummy object used to perform arithmetics on PyoObject.
 - :py:class:`EQ` :     Equalizer filter.
 - :py:class:`Euclide` :     Euclidean rhythm generator.
+- :py:class:`EventCall` :     Calls a function, with any number of arguments, and uses its return value.
+- :py:class:`EventChoice` :     Plays values randomly chosen from a list.
+- :py:class:`EventCoditional` : 
+- :py:class:`EventDrunk` :     Performs a random walk over a list of values.
+- :py:class:`EventDummy` : An EventGenerator created internally to handle arithmetic on Events.
+- :py:class:`EventFilter` : An EventGenerator created internally to handle simple filter on Events.
+- :py:class:`EventGenerator` :     Base class for all event generators.
+- :py:class:`EventIndex` :     Plays values from a list based on a position index.
+- :py:class:`EventInstrument` :     Base class for an Events instrument. All attributes given to the Events
+- :py:class:`EventKey` :     An EventGenerator that allow to retrieve the value of another parameter.
+- :py:class:`EventMarkov` :     Applies a Markov algorithm to a list of values.
+- :py:class:`EventNoise` :     Return a random value between -1.0 and 1.0.
+- :py:class:`EventScale` :     Musical scale builder.
+- :py:class:`EventSeq` :     Plays through an entire list of values many times.
+- :py:class:`EventSlide` :     Plays overlapping segments from a list of values.
+- :py:class:`Events` :     Instrument:
 - :py:class:`ExpTable` :     Construct a table from exponential interpolated segments.
 - :py:class:`Exp` :     Calculates the value of e to the power of x.
 - :py:class:`Expand` :     Expand the dynamic range of an audio signal.

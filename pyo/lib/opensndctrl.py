@@ -346,17 +346,18 @@ class OscDataSend(PyoObject):
         types: str
             String specifying the types sequence of the message to be sent.
             Possible values are:
-                - "i": integer
-                - "h": long integer
-                - "f": float
-                - "d": double
-                - "s" ; string
-                - "b": blob (list of chars)
-                - "m": MIDI packet (list of 4 bytes: [midi port, status, data1, data2])
-                - "c": char
-                - "T": True
-                - "F": False
-                - "N": None (nil)
+
+            - "i": integer
+            - "h": long integer
+            - "f": float
+            - "d": double
+            - "s" ; string
+            - "b": blob (list of chars)
+            - "m": MIDI packet (list of 4 bytes: [midi port, status, data1, data2])
+            - "c": char
+            - "T": True
+            - "F": False
+            - "N": None (nil)
 
             The string "ssfi" indicates that the value to send will be a list
             containing two strings followed by a float and an integer.
@@ -533,10 +534,10 @@ class OscDataReceive(PyoObject):
 
     .. note::
 
-        The header of the callable given at `function` argument must be in this form :
+        The header of the callable given at `function` argument must be in this form::
 
-        def my_func(address, *args):
-            ...
+            def my_func(address, *args):
+                ...
 
         The out() method is bypassed. OscDataReceive has no audio signal.
 

@@ -2,6 +2,7 @@ Prefix expression evaluators
 =============================
 
 .. module:: pyo
+   :noindex:
 
 .. highlight:: none
 

@@ -2,6 +2,7 @@ Control Signals
 ============================
 
 .. module:: pyo
+   :noindex:
 
 Objects designed to create parameter's control at audio rate. 
 

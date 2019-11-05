@@ -2,6 +2,7 @@ Dynamic management
 ============================
 
 .. module:: pyo
+   :noindex:
 
 Objects to modify the dynamic range and sample quality of audio signals.
 

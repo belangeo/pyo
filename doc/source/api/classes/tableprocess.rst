@@ -2,6 +2,7 @@ Table Processing
 ===================================
 
 .. module:: pyo
+   :noindex:
 
 Set of objects to perform operations on PyoTableObjects.
 

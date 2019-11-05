@@ -2,6 +2,7 @@ Tables
 ===================================
 
 .. module:: pyo
+   :noindex:
 
 Tables are one-dimension containers to keep samples (sounds, envelopes, algorithmic patterns, etc.)
 in memory and access them quickly.

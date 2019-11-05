@@ -2,6 +2,7 @@ Server Queries
 ======================================
 
 .. module:: pyo
+   :noindex:
 
 *serverCreated*
 ---------------------------------

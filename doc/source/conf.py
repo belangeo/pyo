@@ -42,7 +42,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'Pyo'
-copyright = u'2016, Olivier Bélanger'
+copyright = u'2019, Olivier Bélanger'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -154,7 +154,7 @@ html_domain_indices = False
 #html_show_sphinx = True
 
 # If true, "(C) Copyright ..." is shown in the HTML footer. Default is True.
-#html_show_copyright = True
+html_show_copyright = True
 
 # If true, an OpenSearch description file will be output, and all pages will
 # contain a <link> tag referring to it.  The value of this option must be the
@@ -244,5 +244,5 @@ texinfo_domain_indices = False
 
 autodoc_member_order = 'bysource'
 add_module_names = False
-html_add_permalinks = None
+html_add_permalinks = u'\u00B6'
 html_show_sourcelink = False

@@ -310,12 +310,13 @@ else:
             mode: int, optional
                 The grapher mode definning how line segments will be draw.
                 Possible modes are:
-                    0. linear (default)
-                    1. cosine
-                    2. exponential (uses `exp` and `inverse` arguments)
-                    3. curve       (uses `tension` and `bias` arguments)
-                    4. logarithmic
-                    5. logarithmic cosine
+
+                0. linear (default)
+                1. cosine
+                2. exponential (uses `exp` and `inverse` arguments)
+                3. curve       (uses `tension` and `bias` arguments)
+                4. logarithmic
+                5. logarithmic cosine
             exp: int or float, optional
                 The exponent factor for an exponential graph. Defaults to 10.0.
             inverse: boolean, optional

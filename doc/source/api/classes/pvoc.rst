@@ -2,6 +2,7 @@ Phase Vocoder
 ===================================
 
 .. module:: pyo
+   :noindex:
 
 The phase vocoder is a digital signal processing technique of potentially 
 great musical significance. It can be used to perform very high fidelity 

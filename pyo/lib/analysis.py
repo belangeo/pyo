@@ -56,7 +56,7 @@ class Follower(PyoObject):
 
     .. seealso::
 
-        :py:class:`Follower2`, :py:class: `Balance`
+        :py:class:`Follower2`, :py:class:`Balance`
 
     >>> s = Server().boot()
     >>> s.start()
@@ -151,7 +151,7 @@ class Follower2(PyoObject):
 
     .. seealso::
 
-        :py:class:`Follower`, :py:class: `Balance`
+        :py:class:`Follower`, :py:class:`Balance`
 
     >>> s = Server().boot()
     >>> s.start()
@@ -823,15 +823,16 @@ class Spectrum(PyoObject):
         wintype: int, optional
             Shape of the envelope used to filter each input frame.
             Possible shapes are :
-                0. rectangular (no windowing)
-                1. Hamming
-                2. Hanning
-                3. Bartlett (triangular)
-                4. Blackman 3-term
-                5. Blackman-Harris 4-term
-                6. Blackman-Harris 7-term
-                7. Tuckey (alpha = 0.66)
-                8. Sine (half-sine window)
+
+            0. rectangular (no windowing)
+            1. Hamming
+            2. Hanning
+            3. Bartlett (triangular)
+            4. Blackman 3-term
+            5. Blackman-Harris 4-term
+            6. Blackman-Harris 7-term
+            7. Tuckey (alpha = 0.66)
+            8. Sine (half-sine window)
         function: python callable, optional
             If set, this function will be called with magnitudes (as
             list of lists, one list per channel). Useful if someone

@@ -2,6 +2,7 @@ Fast Fourier Transform
 ===================================
 
 .. module:: pyo
+   :noindex:
 
 A Fast Fourier Transform (FFT) is an efficient algorithm to compute 
 the discrete Fourier transform (DFT) and its inverse (IFFT).

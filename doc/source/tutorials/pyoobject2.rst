@@ -93,7 +93,7 @@ Finally, we have to consider the "multi-channel expansion" feature, allowing lis
 arguments to create multiple instances of our object and managing multiple audio streams. 
 Two functions help us to accomplish this:
 
-convertArgsToLists(*args) : Return arguments converted to lists and the maximum list size.
+`convertArgsToLists(*args)` : Return arguments converted to lists and the maximum list size.
 wrap(list,i) : Return value at position "i" in "list" with wrap around len(list).
 
 .. code-block:: python
