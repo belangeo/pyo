@@ -1,8 +1,7 @@
 Utilities
 ===================================
 
-.. module:: pyo
-   :noindex:
+.. currentmodule:: pyo
 
 Miscellaneous objects.
 

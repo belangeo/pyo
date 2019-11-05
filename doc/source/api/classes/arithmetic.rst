@@ -1,8 +1,7 @@
 Arithmetic
 ============================
 
-.. module:: pyo
-   :noindex:
+.. currentmodule:: pyo
 
 Tools to perform arithmetic operations on audio signals.
 

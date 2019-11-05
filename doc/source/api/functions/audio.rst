@@ -7,8 +7,7 @@ Set of functions to inspect the system's audio configuration.
 
     These functions are available only if pyo is built with portaudio support.
  
-.. module:: pyo
-   :noindex:
+.. currentmodule:: pyo
 
 *pa_get_version*
 ---------------------------------

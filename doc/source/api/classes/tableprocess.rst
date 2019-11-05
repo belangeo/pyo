@@ -1,8 +1,7 @@
 Table Processing
 ===================================
 
-.. module:: pyo
-   :noindex:
+.. currentmodule:: pyo
 
 Set of objects to perform operations on PyoTableObjects.
 

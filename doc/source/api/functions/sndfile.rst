@@ -1,8 +1,7 @@
 Soundfile
 =============================
 
-.. module:: pyo
-   :noindex:
+.. currentmodule:: pyo
 
 *sndinfo*
 ---------------------------------

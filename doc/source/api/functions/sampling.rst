@@ -1,8 +1,7 @@
 Resampling
 =======================
 
-.. module:: pyo
-   :noindex:
+.. currentmodule:: pyo
 
 *upsamp*
 ---------------------------------

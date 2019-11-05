@@ -1,8 +1,7 @@
 Soundfile Players
 ===================================
 
-.. module:: pyo
-   :noindex:
+.. currentmodule:: pyo
 
 Play soundfiles from the disk.
 

@@ -1,8 +1,7 @@
 Open Sound Control
 ===================================
 
-.. module:: pyo
-   :noindex:
+.. currentmodule:: pyo
 
 Objects to manage values on an Open Sound Control port.
 

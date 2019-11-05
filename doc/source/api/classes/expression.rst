@@ -1,8 +1,7 @@
 Prefix expression evaluators
 =============================
 
-.. module:: pyo
-   :noindex:
+.. currentmodule:: pyo
 
 .. highlight:: none
 

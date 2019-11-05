@@ -1,8 +1,7 @@
 Control Signals
 ============================
 
-.. module:: pyo
-   :noindex:
+.. currentmodule:: pyo
 
 Objects designed to create parameter's control at audio rate. 
 

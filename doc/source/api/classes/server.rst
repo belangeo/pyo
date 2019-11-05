@@ -1,8 +1,7 @@
 Audio Server
 ===================================
 
-.. module:: pyo
-   :noindex:
+.. currentmodule:: pyo
 
 *Server*
 -----------------------------------

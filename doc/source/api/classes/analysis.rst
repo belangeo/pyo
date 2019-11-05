@@ -1,8 +1,7 @@
 Audio Signal Analysis
 ============================
 
-.. module:: pyo
-   :noindex:
+.. currentmodule:: pyo
 
 Tools to analyze audio signals.
 

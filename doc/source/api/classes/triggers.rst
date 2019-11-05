@@ -1,8 +1,7 @@
 Sample Accurate Timing (Triggers)
 ===================================
 
-.. module:: pyo
-   :noindex:
+.. currentmodule:: pyo
 
 Set of objects to manage triggers streams.
 

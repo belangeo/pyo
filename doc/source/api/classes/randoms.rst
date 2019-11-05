@@ -1,8 +1,7 @@
 Random generators
 ===================================
 
-.. module:: pyo
-   :noindex:
+.. currentmodule:: pyo
 
 Set of objects that implement different kinds of random noise generators.
 

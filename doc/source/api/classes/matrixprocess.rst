@@ -1,8 +1,7 @@
 Matrix Processing
 ===================================
 
-.. module:: pyo
-   :noindex:
+.. currentmodule:: pyo
 
 PyoObjects to perform operations on PyoMatrixObjects.
 

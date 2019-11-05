@@ -1,8 +1,7 @@
 Filters
 ============================
 
-.. module:: pyo
-   :noindex:
+.. currentmodule:: pyo
 
 Different kinds of audio filtering operations.
 

@@ -1,8 +1,7 @@
 Value Converters (SLMap)
 ===================================
 
-.. module:: pyo
-   :noindex:
+.. currentmodule:: pyo
 
 These objects are used to convert values between different ranges.
 

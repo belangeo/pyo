@@ -1,8 +1,7 @@
 Internal objects
 ===================================
 
-.. module:: pyo
-   :noindex:
+.. currentmodule:: pyo
 
 These objects are mainly used by pyo itself, inside other objects.
 

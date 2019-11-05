@@ -1,8 +1,7 @@
 Additional WxPython widgets 
 ===============================
 
-.. module:: pyo
-   :noindex:
+.. currentmodule:: pyo
 
 The classes in this module are based on internal classes that where 
 originally designed to help the creation of graphical tools for the
