@@ -42,6 +42,10 @@ class Clip(PyoObject):
         max: float or PyoObject, optional
             Maximum possible value. Defaults to 1.
 
+    .. seealso::
+
+        :py:class:`Mirror`, :py:class:`Wrap`
+
     >>> s = Server().boot()
     >>> s.start()
     >>> a = SfPlayer(SNDS_PATH + "/transparent.aif", loop=True)
@@ -156,6 +160,10 @@ class Mirror(PyoObject):
 
         If `min` is higher than `max`, then the output will be the average of the two.
 
+    .. seealso::
+
+        :py:class:`Clip`, :py:class:`Wrap`
+
     >>> s = Server().boot()
     >>> s.start()
     >>> a = Sine(freq=[300,301])
@@ -268,6 +276,10 @@ class Degrade(PyoObject):
         srscale: float or PyoObject, optional
             Sampling rate multiplier. Must be in range 0.0009765625 -> 1.
             Defaults to 1.
+
+    .. seealso::
+
+        :py:class:`Disto`, :py:class:`Clip`
 
     >>> s = Server().boot()
     >>> s.start()
@@ -404,6 +416,10 @@ class Compress(PyoObject):
             same compression slope. Defaults to False.
 
             Available at initialization only.
+
+    .. seealso::
+
+        :py:class:`Gate`, :py:class:`Expand`
 
     >>> s = Server().boot()
     >>> s.start()
@@ -625,6 +641,10 @@ class Gate(PyoObject):
             same gating slope. Defaults to False.
 
             Available at initialization only.
+
+    .. seealso::
+
+        :py:class:`Compress`, :py:class:`Expand`
 
     >>> s = Server().boot()
     >>> s.start()
@@ -1085,6 +1105,10 @@ class Expand(PyoObject):
             same expansion slope. Defaults to False.
 
             Available at initialization only.
+
+    .. seealso::
+
+        :py:class:`Compress`, :py:class:`Gate`
 
     >>> s = Server().boot()
     >>> s.start()

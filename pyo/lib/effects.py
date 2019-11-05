@@ -38,9 +38,7 @@ class Disto(PyoObject):
     by a one pole lowpass filter, to the input signal.
 
     As of version 0.8.0, this object use a simple but very efficient (4x
-    faster than tanh or atan2 functions) waveshaper formula describe here:
-
-    http://musicdsp.org/archive.php?classid=4#46
+    faster than tanh or atan2 functions) waveshaper formula.
 
     The waveshaper algorithm is:
 
@@ -62,6 +60,10 @@ class Disto(PyoObject):
         slope: float or PyoObject, optional
             Slope of the lowpass filter applied after distortion,
             between 0 and 1. Defaults to 0.5.
+
+    .. seealso::
+
+        :py:class:`Degrade`, :py:class:`Clip`
 
     >>> s = Server().boot()
     >>> s.start()
@@ -182,7 +184,7 @@ class Delay(PyoObject):
 
     .. seealso::
 
-        :py:class:`SDelay`, :py:class:`Waveguide`
+        :py:class:`SDelay`, :py:class:`SmoothDelay`, :py:class:`Waveguide`
 
     >>> s = Server().boot()
     >>> s.start()
@@ -401,6 +403,10 @@ class Waveguide(PyoObject):
             Minimum possible frequency, used to initialized delay length.
             Available only at initialization. Defaults to 20.
 
+    .. seealso::
+
+        :py:class:`Delay`, :py:class:`AllpassWG`, :py:class:`WGVerb`
+
     >>> s = Server().boot()
     >>> s.start()
     >>> sf = SfPlayer(SNDS_PATH + '/transparent.aif', speed=[.98,1.02], loop=True)
@@ -524,6 +530,10 @@ class AllpassWG(PyoObject):
         minfreq: float, optional
             Minimum possible frequency, used to initialized delay length.
             Available only at initialization. Defaults to 20.
+
+    .. seealso::
+
+        :py:class:`Delay`, :py:class:`Waveguide`
 
     >>> s = Server().boot()
     >>> s.start()
@@ -674,6 +684,10 @@ class Freeverb(PyoObject):
         bal: float or PyoObject, optional
             Balance between wet and dry signal, between 0 and 1. 0 means no
             reverb. Defaults to 0.5.
+
+    .. seealso::
+
+        :py:class:`WGVerb`, :py:class:`STRev`, :py:class:`CvlVerb`
 
     >>> s = Server().boot()
     >>> s.start()
@@ -921,6 +935,10 @@ class WGVerb(PyoObject):
         bal: float or PyoObject, optional
             Balance between wet and dry signal, between 0 and 1. 0 means no
             reverb. Defaults to 0.5.
+
+    .. seealso::
+
+        :py:class:`Freeverb`, :py:class:`STRev`, :py:class:`CvlVerb`
 
     >>> s = Server().boot()
     >>> s.start()

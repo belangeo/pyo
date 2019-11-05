@@ -3247,6 +3247,10 @@ class Wrap(PyoObject):
         If `min` is higher than `max`, then the output will be the average
         of the two.
 
+    .. seealso::
+
+        :py:class:`Clip`, :py:class:`Mirror`
+
     >>> s = Server().boot()
     >>> s.start()
     >>> # Time-varying overlaping envelopes

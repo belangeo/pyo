@@ -75,6 +75,10 @@ class Fader(PyoObject):
         User can retreive the trigger streams by calling obj['trig'].
         Useful to synchronize other processes.
 
+    .. seealso::
+
+        :py:class:`Adsr`, :py:class:`Linseg`, :py:class:`Expseg`
+
     >>> s = Server().boot()
     >>> s.start()
     >>> f = Fader(fadein=0.5, fadeout=0.5, dur=2, mul=.5)
@@ -255,6 +259,10 @@ class Adsr(PyoObject):
         As of version 0.9.2, Adsr will send a trigger signal at the end of the playback.
         User can retreive the trigger streams by calling obj['trig'].
         Useful to synchronize other processes.
+
+    .. seealso::
+
+        :py:class:`Fader`, :py:class:`Linseg`, :py:class:`Expseg`
 
     >>> s = Server().boot()
     >>> s.start()
@@ -467,6 +475,10 @@ class Linseg(PyoObject):
 
         The out() method is bypassed. Linseg's signal can not be sent to audio outs.
 
+    .. seealso::
+
+        :py:class:`Fader`, :py:class:`Adsr`, :py:class:`Expseg`
+
     >>> s = Server().boot()
     >>> s.start()
     >>> l = Linseg([(0,500),(.03,1000),(.1,700),(1,500),(2,500)], loop=True)
@@ -639,6 +651,10 @@ class Expseg(PyoObject):
     .. note::
 
         The out() method is bypassed. Expseg's signal can not be sent to audio outs.
+
+    .. seealso::
+
+        :py:class:`Fader`, :py:class:`Adsr`, :py:class:`linseg`
 
     >>> s = Server().boot()
     >>> s.start()

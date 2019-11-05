@@ -1211,6 +1211,10 @@ class CvlVerb(PyoObject):
             Balance between wet and dry signal, between 0 and 1. 0 means no
             reverb. Defaults to 0.25.
 
+    .. seealso::
+
+        :py:class:`WGVerb`, :py:class:`STRev`, :py:class:`Freeverb`
+
     >>> s = Server().boot()
     >>> s.start()
     >>> sf = SfPlayer(SNDS_PATH+"/transparent.aif", loop=True, mul=0.5)

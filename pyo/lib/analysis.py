@@ -56,7 +56,7 @@ class Follower(PyoObject):
 
     .. seealso::
 
-        :py:class:`Follower2`, :py:class:`Balance`
+        :py:class:`Follower2`, :py:class:`Balance`, :py:class:`RMS`, :py:class:`PeakAmp`
 
     >>> s = Server().boot()
     >>> s.start()
@@ -151,7 +151,7 @@ class Follower2(PyoObject):
 
     .. seealso::
 
-        :py:class:`Follower`, :py:class:`Balance`
+        :py:class:`Follower`, :py:class:`Balance`, :py:class:`RMS`, :py:class:`PeakAmp`
 
     >>> s = Server().boot()
     >>> s.start()
@@ -1570,6 +1570,10 @@ class PeakAmp(PyoObject):
         The out() method is bypassed. PeakAmp's signal can not be sent to
         audio outs.
 
+    .. seealso::
+
+        :py:class:`Follower`, :py:class:`Follower2`, :py:class:`Balance`, :py:class:`RMS`
+
     >>> s = Server().boot()
     >>> s.start()
     >>> sf = SfPlayer(SNDS_PATH + "/transparent.aif", loop=True, mul=.4).out()
@@ -1700,6 +1704,10 @@ class RMS(PyoObject):
 
         The out() method is bypassed. RMS's signal can not be sent to
         audio outs.
+
+    .. seealso::
+
+        :py:class:`Follower`, :py:class:`Follower2`, :py:class:`Balance`, :py:class:`PeakAmp`
 
     >>> s = Server().boot()
     >>> s.start()
