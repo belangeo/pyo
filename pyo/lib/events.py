@@ -269,7 +269,7 @@ class EventScale:
 
     .. note::
 
-        Here is a table shwoing the relationship between the three unit types that
+        Here is a table showing the relationship between the three unit types that
         EventScale can handle.
 
         ======== ======== ========
@@ -472,8 +472,14 @@ class EventGenerator:
 
     This class contains the common behaviours of all event generators.
 
-    Arithmetic operations are allowed on EventGenerator. The operation is
-    then applied to each value outputted by the generator.
+    Each EventGenerator contains a particular algorithm that can produce a
+    sequence of values triggered by an Events mecanism for one of its arguments.
+
+    The EventGenerator allows very flexible control of the algorithm parameters.
+    It can be a single value, another EventGenerator or an audio signal (PyoObject).
+
+    Arithmetic operations are allowed on EventGenerator. An EventDummy is 
+    then created to apply the operation to each value produced by the generator.
 
     Arithmetic operators are:
 
@@ -571,6 +577,7 @@ class EventGenerator:
         return value
 
     def _checkValueTypeAndIncrementCount(self, value):
+        # Final check of the value produced by the generator in the next() method.
         self.count += 1
         if isinstance(value, EventGenerator):
             self.generator = value
@@ -621,12 +628,12 @@ class EventGenerator:
         return copy.deepcopy(self)
 
     def reset(self):
-        "Reset the generator to its initialization state."
-        pass # Implemented in child objects.
+        # Reset the generator to its init state. Implemented in child objects.
+        pass
 
     def next(self):
-        "Retrieve the next value of the generator."
-        pass # Implemented in child objects.
+        # Internally called to produce the next value. Implemented in child objects.
+        pass
 
     def resetEmbeddedGenerator(self):
         # Recursively resets embedded generators. Used when starting a sequence.
@@ -890,7 +897,7 @@ class EventKey(EventGenerator):
 
     EventKey returns the current value of another parameter of the Events
     object where it is used. From there, other processes can be applied
-    (arithmetics, filters) to transform the value.
+    (arithmetics, filters) to transform this value.
 
     EventKey can also read parameter values from another Events object when
     one is passed as `master` argument.
@@ -906,8 +913,9 @@ class EventKey(EventGenerator):
 
     >>> s = Server().boot()
     >>> s.start()
-    >>> e = Events(midinote=list(range(48,84,2)), beat=1/4, \
-    >>>            db=EventKey("midinote").rescale(48,84,-3,-32,1)).play()
+    >>> # The lower the pitch value, the louder is the note.
+    >>> dbkey = EventKey("midinote").rescale(48,84,-3,-32,1)
+    >>> e = Events(midinote=list(range(48,84,2)), beat=1/4, db=dbkey).play()
 
     """
     def __init__(self, key, master=None):
@@ -917,6 +925,10 @@ class EventKey(EventGenerator):
         self.externalMaster = master
 
     def getKey(self):
+        """
+        Returns the key, as a string, of the parameter to read from.
+
+        """
         return self.key
 
     def reset(self):
@@ -935,6 +947,9 @@ class EventSeq(EventGenerator):
     """
     Plays through an entire list of values many times.
 
+    EventSeq will loop over its list of values a number of times
+    defined by the occurrences argument.
+
     :Args:
 
         values: EventScale or list
@@ -948,6 +963,11 @@ class EventSeq(EventGenerator):
             its end. If False, the Events will ignore this signal and probably
             get None as value for the given parameter. It's the user
             responsability to handle this case correctly. Defaults to True.
+
+    .. note::
+
+        If an Events argument receives a single value or a list, it will be
+        automatically converted to an EventSeq.
 
     >>> s = Server().boot()
     >>> s.start()
@@ -989,6 +1009,10 @@ class EventSeq(EventGenerator):
 class EventSlide(EventGenerator):
     """
     Plays overlapping segments from a list of values.
+
+    EventSlide will play a segment of length `segment` from startpos,
+    then another segment with a start position incremented by `step`,
+    and so on.
 
     :Args:
 
@@ -1222,13 +1246,17 @@ class EventMarkov(EventGenerator):
     """
     Applies a Markov algorithm to a list of values.
 
+    A Markov chain is a stochastic model describing a sequence of possible events
+    in which the probability of each event depends only on the state attained in
+    the previous events.
+
     :Args:
 
         values: EventScale or list
             Original list of values.
         order: int, PyoObject or EventGenerator, optional
-            Order of the Markov chain. Determines how many past values 
-            will be used to build the probability table for the next note.
+            Order of the Markov chain, between 1 and 10. Determines how many past
+            values will be used to build the probability table for the next note.
             Defaults to 2.
         occurrences: int, optional
             Number of values to play. Defaults to inf (infinite).
@@ -1240,9 +1268,9 @@ class EventMarkov(EventGenerator):
 
     >>> s = Server().boot()
     >>> s.start()
-    >>> jesus = [67,69,71,74,72,72,76,74,74,79,78,79,74,71,67,69,71,72,74,76,74,72,71, \
-    >>>          69,71,67,66,67,69,62,66,69,72,71,69,71,67,69,71,74,72,72,76,74,74,79, \
-    >>>          78,79,74,71,67,69,71,64,74,72,71,69,67,62,67,66,67,71,74,79,74,71,67]
+    >>> jesus =  [67,69,71,74,72,72,76,74,74,79,78,79,74,71,67,69,71,72,74,76,74,72,71]
+    >>> jesus += [69,71,67,66,67,69,62,66,69,72,71,69,71,67,69,71,74,72,72,76,74,74,79]
+    >>> jesus += [78,79,74,71,67,69,71,64,74,72,71,69,67,62,67,66,67,71,74,79,74,71,67]
     >>> e = Events(midinote=EventMarkov(jesus, 2), beat=1/4, db=-6).play()
 
     """
@@ -1323,8 +1351,7 @@ class EventChoice(EventGenerator):
     >>> s = Server().boot()
     >>> s.start()
     >>> scl = [5.00, 5.02, 5.03, 5.05, 5.07, 5.08, 5.10, 6.00]
-    >>> arp = EventSeq([0, 2, 4, 2, 1, 3, 5, 3, 1, 6, 4, 1])
-    >>> e = Events(degree = EventIndex(scl, arp), beat = 1/4, db = -6).play()
+    >>> e = Events(degree = EventChoice(scl), beat = 1/4, db = -6).play()
 
     """
     def __init__(self, values, occurrences=inf, stopEventsWhenDone=True):
@@ -1357,6 +1384,9 @@ class EventChoice(EventGenerator):
 class EventDrunk(EventGenerator):
     """
     Performs a random walk over a list of values.
+
+    A random walk is a stochastic process that consists of a succession of
+    random steps, within a distance of +/- `maxStep` from the previous state.
 
     :Args:
 
@@ -1452,14 +1482,18 @@ class EventNoise(EventGenerator):
     """
     Return a random value between -1.0 and 1.0.
 
+    EventNoise returns a random value between -1.0 and 1.0, based on one of 
+    three common noise generators, white, pink (1/f) and brown (1/f^2).
+
     :Args:
 
         type: int, optional
             The type of noise used to generate the random sequence. Available 
             types are:
-                0: white noise (default)
-                1: pink noise
-                2:brown noise
+
+            0: white noise (default)
+            1: pink noise
+            2:brown noise
         occurrences: int, optional
             Number of values to play. Defaults to inf (infinite).
         stopEventsWhenDone: bool, optional
@@ -1542,11 +1576,15 @@ class EventCall(EventGenerator):
     """
     Calls a function, with any number of arguments, and uses its return value.
 
+    EventCall can call any function (built-in, from a module or user-defined)
+    and use its return as the value for the Events's parameter where it is used.
+    The function *must* return a single number.
+
     :Args:
 
         function: callable
             The function to call, which should return the value to use.
-        *args: int, PyoObject or EventGenerator, optional
+        args: int, PyoObject or EventGenerator, optional
             Any number of arguments to pass to the function call. If given a
             PyoObject or an EventGenerator, these will be resolved for each
             event and the result passed, as number, to the function.
@@ -1602,7 +1640,12 @@ class EventCall(EventGenerator):
 ###################
 class EventConditional(EventGenerator):
     """
-    Execute one generator or the other depending on the result of a condition.
+    Executes one generator or the other depending on the result of a condition.
+
+    EventConditional takes three values or generators as arguments and if the
+    value of `condition` is True (anything that python considers True), the
+    `iftrue` argument is used to produce the value for the event, otherwise
+    th `iffalse` argument is used.
 
     :Args:
 
@@ -1720,34 +1763,119 @@ class EventConditional(EventGenerator):
 ##############
 class Events(dict):
     """
-    Instrument:
-        - instr - custom class to be called by the events
-        - signal - name of the attribute in the instrument retrieved as the output signal of the Events object
-    Constants:
-        - bpm - Beat-Per-Minute
-        - outs - Number of output channels in the output signal
-    Duration keys:
-        - dur - duration, in seconds, before the next event
-        - beat - duration, in beat value, before the next event (1 beat = quarter note at BPM)
-        - durmul - duration multiplier (only affect note duration, not time gap before the next event)
-        - tail - duration, in seconds, to wait before deleting the instrument's instance
-    Amplitude keys:
-        - amp - linear gain for the event (1 is nominal gain)
-        - dB - gain, in decibel, for the event (automatically converted to linear gain `amp`)
-        - midivel - midi velocity, between 0 and 127, for the event (automatically converted to linear gain `amp`)
-    Envelope keys:
-        - envelope - user-defined envelope as a PyoTableObject
-        - attack - rising time, in seconds, of an ASR or ADSR envelope 
-        - release - release time, in seconds, of an ASR or ADSR envelope
-        - decay - decay time, in seconds, of an ADSR envelope (if defined, the envelope is an ADSR, if not, it is an ASR)
-        - sustain - sustain linear gain of an ADSR envelope (defaults to 0.7)
-    Pitch keys:
-        - freq - frequency in cycle per seconds
-        - midinote - midi pitch, converted to Hertz and sent to `freq` argument
-        - degree - octave.degree notation, converted to Hertz and sent to `freq` argument (ex.: 6.00, 6.04, 6.07)
-        - transpo - transposition in midi note value (-12 is an octave lower), applied after frequency computation
-    Ending keys:
-        - atend - function called when all events are played.
+    Sequencing user-defined events to form musical phrases.
+
+    The Events object is the primary tool in the events framework. It uses
+    generators (derived from EventGenerator) as value for its arguments to
+    build a sequence of events, each of them with their own parameters.
+
+    Each time Events needs to produce a new event, it collects values from
+    the generators given to its arguments, builds a parameter dictionary
+    and gives it to a new instance of the audio instrument referenced to
+    its 'instr' argument. 
+
+    The object produces new events until one of its generators reaches the
+    end of its sequence.
+
+    Events is a child of the dictionary class, which means that every argument
+    given at its initialization will become a new key (with its associated
+    value) in its memory. These keys will serve to create the parameter
+    dictionary passed to the audio instrument instance playing this event.
+    Inside the instrument instance, the value associated to these keys will
+    be retrieved as instance's attributes, with the syntax self.key_name.
+
+    The user can create as many new keys as needed to control its instrument,
+    but there is already a number of pre-defined keys for which Events will
+    do some processing and build useful parameters. Here is the list, grouped
+    by themes, of pre-defined keys to overwrite:
+
+    **Instrument**
+        - instr: class, optional
+            Reference to a custom class with which the events will be played.
+            Defaults to DefaultInstrument.
+        - signal: string, optional
+            Name of the attribute in the instrument defintion retrieved as the
+            output signal of the Events object. The sig() method returns the
+            sum, as an audio signal, of all active instances. This can be useful
+            to do post-processing on the signal produced by the events. Defaults 
+            to None.
+
+    **Constants**
+        - bpm: int, optional
+            Beat-Per-Minute value used by the `beat` key to compute event's duration.
+            Defaults to 120.
+        - outs: int, optional
+            Number of output channels in the audio signal returned by the sig() method.
+            This value should match the number of audio streams produced by the instrument.
+            Defaulta to 2.
+
+    **Duration keys**
+        - dur: float, PyoObject or EventGenerator, optional
+            Duration, in seconds, before the next event. Defaults to 1.
+        - beat: float, PyoObject or EventGenerator, optional
+            Duration, in beat value, before the next event (1 beat = quarter note at BPM).
+            If defined, this value will be used to compute the duration in seconds for the
+            `dur` key. Defaults to None.
+        - durmul: float, PyoObject or EventGenerator, optional
+            Event duration multiplier (only affects the duration of the event's lifetime,
+            not the time to wait before the next event). Defaults to 1.
+        - tail: float, PyoObject or EventGenerator, optional
+            Duration, in seconds, to wait before deleting the instrument's instance when
+            its envelope has ended. Useful to let a reverb tail to finish before cleaning-up
+            the instance. Defaults to 2. 
+
+    **Amplitude keys**
+        - amp: float, PyoObject or EventGenerator, optional
+            Linear gain for the event (1 is nominal gain). Defaults to 0.7.
+        - dB: float, PyoObject or EventGenerator, optional
+            Gain, in decibels, for the event. If defined, this value will be used to compute
+            the linear gain for the `amp` key. Defaults to None.
+        - midivel: float, PyoObject or EventGenerator, optional
+            Midi velocity, between 0 and 127, for the event. If defined, this value will be
+            used to compute the linear gain for the `amp` key. Defaults to None.
+
+    **Envelope keys**
+        - envelope: PyoTableObject, optional
+            User-defined envelope as a PyoTableObject. If defined, this will be the envelope
+            created for the event. Defaults to None.
+        - attack: float, PyoObject or EventGenerator, optional
+            Rising time, in seconds, of an ASR or ADSR envelope. This envelope is created if
+            `envelope` is None. Defaults to 0.005. 
+        - decay: float, PyoObject or EventGenerator, optional
+            If defined, its the decay time, in seconds, of an ADSR envelope, otherwise the
+            envelope will be an ASR (Attack - Sustain - Release). Defaults to None.
+        - sustain: float, PyoObject or EventGenerator, optional
+            Sustain linear gain of an ADSR or ASR envelope. Defaults to 0.7.
+        - release: float, PyoObject or EventGenerator, optional
+            Release time, in seconds, of an ASR or ADSR envelope. This envelope is created if
+            `envelope` is None. Defaults to 0.05. 
+
+    **Pitch keys**
+        - freq: float, PyoObject or EventGenerator, optional
+            Frequency, in cycle per seconds, for the event. Defaults to 250.
+        - midinote: float, PyoObject or EventGenerator, optional
+            Midi pitch, between 0 and 127, for the event. If defined, this value will be used
+            to compute the frequency in cycles per second for the `freq` key. Defaults to None.
+        - degree: float, PyoObject or EventGenerator, optional
+            Octave.degree pitch notation (ex.: 6.00, 6.04, 6.07). If defined, this value will be
+            used to compute the frequency in cycles per second for the `freq` key. Defaults to None.
+        - transpo: float, PyoObject or EventGenerator, optional
+            Transposition, in midi note value (-12 is an octave lower), automatically computed in
+            the value of the `freq` key. Defaults to 0.
+
+    **Ending keys**
+        - atend: python callable, optional
+            If defined, a function to call when all events are played. This can be useful to sequence
+            multiple Events objects. Defaults to None
+
+    >>> s = Server().boot()
+    >>> s.start()
+    >>> env = CosTable([(0,0.0),(64,1.0),(8191,0.0)])
+    >>> scl = EventScale(root="C", scale="egyptian", first=4, octaves=3)
+    >>> seg = RandInt(max=6, freq=0.5)
+    >>> step = RandInt(max=6, freq=0.75, add=-3)
+    >>> note = EventSlide(scl, seg, step)
+    >>> e = Events(midinote=note, beat=1/4, db=[-3, -9, -9], envelope=env, durmul=1.25).play()
 
     """
     def __init__(self, **args):
@@ -1836,6 +1964,16 @@ class Events(dict):
         return self.currentDict
 
     def sig(self):
+        """
+        Return the audio output signal (sum of all active instances), if defined.
+        
+        The audio output signal of an Events object is the sum of the active
+        instrument instances's attribute whose name is the same as given to
+        the 'signal' key. The number of audio streams in the output signal is
+        determined by the value for the key 'outs', it should match the number
+        of audio streams produced by the instrument.
+
+        """
         return self.output
 
     def _processEvent(self):
@@ -1940,6 +2078,7 @@ class Events(dict):
                 self.output.value = sum([getattr(instr, self["signal"]) for instr in self.actives if hasattr(instr, self["signal"])])
 
     def _remove(self, instr):
+        """ Removes an instrument instance from the active list. """
         self.actives.remove(instr)
         if self["signal"] is not None:
             self.output.value = sum([getattr(instr, self["signal"]) for instr in self.actives if hasattr(instr, self["signal"])])

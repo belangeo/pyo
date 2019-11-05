@@ -1,8 +1,7 @@
 Events framework
 ============================
 
-.. module:: pyo
-   :noindex:
+.. currentmodule:: pyo
 
 Tools to generate sequence of events.
 
@@ -17,4 +16,88 @@ the sequence.
 -------------
 
 .. autoclass:: EventScale
+   :members:
+
+*EventGenerator*
+------------------
+
+.. autoclass:: EventGenerator
+   :members:
+
+*EventDummy*
+------------------
+
+.. autoclass:: EventDummy
+   :members:
+
+*EventFilter*
+------------------
+
+.. autoclass:: EventFilter
+   :members:
+
+*EventKey*
+------------------
+
+.. autoclass:: EventKey
+   :members:
+
+*EventSeq*
+------------------
+
+.. autoclass:: EventSeq
+   :members:
+
+*EventSlide*
+------------------
+
+.. autoclass:: EventSlide
+   :members:
+
+*EventIndex*
+------------------
+
+.. autoclass:: EventIndex
+   :members:
+
+*EventMarkov*
+------------------
+
+.. autoclass:: EventMarkov
+   :members:
+
+*EventChoice*
+------------------
+
+.. autoclass:: EventChoice
+   :members:
+
+*EventDrunk*
+------------------
+
+.. autoclass:: EventDrunk
+   :members:
+
+*EventNoise*
+------------------
+
+.. autoclass:: EventNoise
+   :members:
+
+*EventCall*
+------------------
+
+.. autoclass:: EventCall
+   :members:
+
+*EventConditional*
+------------------
+
+.. autoclass:: EventConditional
+   :members:
+
+*Events*
+------------------
+
+.. autoclass:: Events
    :members:

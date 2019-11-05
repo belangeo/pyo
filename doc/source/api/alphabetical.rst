@@ -87,7 +87,7 @@ Alphabetical class reference
 - :py:class:`EventScale` :     Musical scale builder.
 - :py:class:`EventSeq` :     Plays through an entire list of values many times.
 - :py:class:`EventSlide` :     Plays overlapping segments from a list of values.
-- :py:class:`Events` :     Instrument:
+- :py:class:`Events` :     Sequencing user-defined events to form musical phrases.
 - :py:class:`ExpTable` :     Construct a table from exponential interpolated segments.
 - :py:class:`Exp` :     Calculates the value of e to the power of x.
 - :py:class:`Expand` :     Expand the dynamic range of an audio signal.
