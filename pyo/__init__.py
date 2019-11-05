@@ -74,6 +74,9 @@ from .lib.wxgui import *
 from .lib import wxgui as wxgui
 from .lib.hrtf import *
 from .lib import hrtf as hrtf
+from .lib.events import *
+from .lib import events as events
+
 if WITH_EXTERNALS:
     from .lib import external as external
     from .lib.external import *
@@ -174,7 +177,12 @@ OBJECTS_TREE = {
                              'MToT', 'Resample', 'Expr']),
             'expression': sorted(['Expr']),
             'fourier': sorted(['FFT', 'IFFT', 'CarToPol', 'PolToCar', 
-                               'FrameDelta', 'FrameAccum', 'Vectral', 'CvlVerb'])
+                               'FrameDelta', 'FrameAccum', 'Vectral', 'CvlVerb']),
+            'events': sorted(['EventInstrument', 'DefaultInstrument', 'EventScale',
+                              'EventGenerator', 'EventDummy', 'EventFilter', 'EventKey',
+                              'EventSeq', 'EventSlide', 'EventIndex', 'EventMarkov',
+                              'EventChoice', 'EventDrunk', 'EventNoise', 'EventCall',
+                              'EventCoditional', 'Events'])
             }
         },
         'Map': {'SLMap': sorted(['SLMapFreq', 'SLMapMul', 'SLMapPhase', 
