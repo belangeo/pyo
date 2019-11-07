@@ -66,11 +66,10 @@ packages = ['pyo', 'pyo.lib', 'pyo.lib.snds',
             'pyo.examples.05-envelopes', 'pyo.examples.06-filters', 'pyo.examples.07-effects',
             'pyo.examples.08-dynamics', 'pyo.examples.09-callbacks', 'pyo.examples.10-tables',
             'pyo.examples.16-midi', 'pyo.examples.19-multirate', 'pyo.examples.20-multicore',
-            'pyo.examples.22-events',
-            'pyo.examples.algorithmic', 'pyo.examples.control', 'pyo.examples.effects',
+            'pyo.examples.22-events', 'pyo.examples.algorithmic',
             'pyo.examples.fft', 'pyo.examples.matrix', 'pyo.examples.sampling',
             'pyo.examples.sequencing', 'pyo.examples.snds', 'pyo.examples.synthesis',
-            'pyo.examples.tables', 'pyo.examples.utilities', 'pyo.examples.wxgui']
+            'pyo.examples.utilities', 'pyo.examples.wxgui']
 
 if '--use-double' in sys.argv:
     sys.argv.remove('--use-double') 
