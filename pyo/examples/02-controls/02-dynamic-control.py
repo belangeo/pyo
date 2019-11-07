@@ -20,4 +20,10 @@ b = FM().out(1)
 a.ctrl(title="Frequency modulation left channel")
 b.ctrl(title="Frequency modulation right channel")
 
+# If a list of values is given at a particular argument, the ctrl
+# window will show a multislider to set each value separately.
+
+oscs = Sine([100, 200, 300, 400, 500, 600, 700, 800], mul=0.1).out()
+oscs.ctrl(title="Simple additive synthesis")
+
 s.gui(locals())
