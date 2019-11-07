@@ -67,7 +67,7 @@ f.close()
 # New examples listing
 src_example_dir = "../pyo/examples"
 os.mkdir("source/examples")
-folders = sorted([d for d in os.listdir(src_example_dir) if d[0] in ['0', '1']])
+folders = sorted([d for d in os.listdir(src_example_dir) if d[0] in ['0', '1', '2']])
 for dir in folders:
     os.mkdir("source/examples/%s" % dir)
     index = open("source/examples/%s/index.rst" % dir, "w")
