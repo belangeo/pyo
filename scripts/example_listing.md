@@ -195,7 +195,7 @@ Exemples de scripts audio avec pyo
 21-utilities
 ------------
 
-1. save-audio-file.py
+1. list-to-audio-file.py
 2. get-and-set-methods.py
 3. buffer-interface.py
 4. batch-processing.py

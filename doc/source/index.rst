@@ -49,6 +49,7 @@ Examples
    How to use MIDI with pyo <examples/16-midi/index>
    Multirate audio processing <examples/19-multirate/index>
    Multicore audio programming <examples/20-multicore/index>
+   Utilities <examples/21-utilities/index>
    Events framework <examples/22-events/index>
 
 More to come... Stay tuned!
