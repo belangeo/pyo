@@ -253,7 +253,8 @@ class EventScale:
             The scale name to construct. Possible scales are:
             'major', 'minorH', 'minorM', 'ionian', 'dorian', 'phrygian',
             'lydian', 'mixolydian', 'aeolian', 'locrian', 'wholeTone',
-            'majorPenta', 'minorPenta', 'egyptian', 'majorBlues', 'minorBlues'.
+            'majorPenta', 'minorPenta', 'egyptian', 'majorBlues', 'minorBlues',
+            'minorHungarian'.
             Defaults to 'major'.
         first: int, optional
             The first octave of the generated scale, in multiple of 12. A value
@@ -310,7 +311,8 @@ class EventScale:
                         "minorPenta": [0, 3, 5, 7, 10],
                         "egyptian":   [0, 2, 5, 7, 10],
                         "majorBlues": [0, 2, 5, 7, 9],
-                        "minorBlues": [0, 3, 5, 8, 10]
+                        "minorBlues": [0, 3, 5, 8, 10],
+                        "minorHungarian": [0, 2, 3, 6, 7, 8, 11],
                       }
         self._init = True
         self._length = 0
