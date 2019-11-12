@@ -196,12 +196,13 @@ Exemples de scripts audio avec pyo
 ------------
 
 1. list-to-audio-file.py
-2. get-and-set-methods.py
-3. buffer-interface.py
-4. batch-processing.py
-5. batch-synthesis.py
-6. upsamp-processing.py
-7. multiple-threads.py
+2. get-method.py
+3. set-method.py
+4. buffer-interface.py
+5. batch-processing.py
+6. batch-synthesis.py
+7. upsamp-processing.py
+8. multiple-threads.py
 
 22-events
 ---------

@@ -1,5 +1,5 @@
 """
-Saving list of floats to audio file on disk.
+Saving list of floats to audio file on disk
 
 **01-list-to-audio-file.py**
 
