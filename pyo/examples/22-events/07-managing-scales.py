@@ -12,7 +12,8 @@ elements in the scale.
 The object can generate most common scales, namely: 'major',
 'minorH', 'minorM', 'ionian', 'dorian', 'phrygian', 'lydian',
 'mixolydian', 'aeolian', 'locrian', 'wholeTone', 'majorPenta',
-'minorPenta', 'egyptian', 'majorBlues', 'minorBlues'.
+'minorPenta', 'egyptian', 'majorBlues', 'minorBlues' and
+'minorHungarian'.
 
 The pitches of the scales can be in one of three forms, midi note,
 cycles per second or octave.degree notation, according to the 'type'
