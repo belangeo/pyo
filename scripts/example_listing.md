@@ -203,6 +203,7 @@ Exemples de scripts audio avec pyo
 6. batch-synthesis.py
 7. upsamp-processing.py
 8. multiple-threads.py
+9. audio-mixer.py
 
 22-events
 ---------

@@ -70,7 +70,7 @@ packages = ['pyo', 'pyo.lib', 'pyo.lib.snds',
             'pyo.examples.algorithmic',
             'pyo.examples.fft', 'pyo.examples.matrix', 'pyo.examples.sampling',
             'pyo.examples.sequencing', 'pyo.examples.snds', 'pyo.examples.synthesis',
-            'pyo.examples.utilities', 'pyo.examples.wxgui']
+            'pyo.examples.wxgui']
 
 if '--use-double' in sys.argv:
     sys.argv.remove('--use-double') 
