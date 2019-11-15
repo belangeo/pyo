@@ -1,40 +1,31 @@
-#!/usr/bin/env python
-# encoding: utf-8
-from __future__ import print_function
 """
-Scan Open Sound Control inputs. Launch this script from a terminal.
+Scan Open Sound Control inputs on a specific port
+
+**01-osc-scan.py**
+
+Scan Open Sound Control inputs on a specific port. This program
+can be used to find the address used by a specific device or the
+range of values sent on a given address.
 
 """
 from pyo import *
-import time, sys
 
-if sys.version_info[0] < 3:
-    input = raw_input
-
-port = eval(input("Enter the incoming port number : "))
+# Set the port number.
+port = 9002
 
 s = Server().boot().start()
 
 print("Play with your OSC interface...")
 
-go = True
-def pp(address, *args):
-    if go:
-        print("Address =", address)
-        print("Values =", args)
-        print("---------------")
+# Function called whenever OscDataReceive receives an input.
+def printInputMessage(address, *args):
+    print("Address =", address)
+    print("Values =", args)
+    print("---------------")
 
-scan = OscDataReceive(port, "*", pp)
+# OscDataReceive accepts any kind of OSC message.
+# The wildcard alone ("*") to the address argument means that
+# the object will monitor any address on the port. 
+scan = OscDataReceive(port=port, address="*", function=printInputMessage)
 
-again = "y"
-while again == "y":
-    time.sleep(10)
-    go = False
-    again = input("Do you want to continue ? (y/n) : ")
-    if again == "y":
-        print("Continue...")
-        go = True
-
-s.stop()
-time.sleep(1)
-sys.exit()
+s.gui(locals())

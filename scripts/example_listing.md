@@ -164,11 +164,10 @@ Exemples de scripts audio avec pyo
 ------
 
 1. osc-scan.py
-2. osc-send-streams.py
-3. osc-receive-streams.py
-4. osc-receive-list.py
-5. osc-send-data.py
-6. osc-receive-data.py
+2. receive-streams.py
+3. send-streams.py
+4. receive-list.py
+5. send-receive-data.py
 
 18-synthesis
 ------------
