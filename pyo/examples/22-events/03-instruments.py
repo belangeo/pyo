@@ -13,11 +13,11 @@ signature must be::
         def __init__(self, **args):
             EventInstrument.__init__(self, **args)
 
-The EventInstrument is responsible for the creation of the envelope, accesible
-with the variable self.env, and also for clearing its resources when it's done
+The EventInstrument is responsible for the creation of the envelope, accessible
+through the variable self.env, and also for clearing its resources when it's done
 playing. 
 
-All arguments given to the Events object can be retrieve in our instrument with 
+All arguments given to the Events object can be retrieved in our instrument with 
 the syntax self.argument_name (ex.: self.freq).
 
 """

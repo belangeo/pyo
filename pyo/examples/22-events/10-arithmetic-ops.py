@@ -20,7 +20,7 @@ Available operators are:
 
 `//`: quantizer (returns te nearest multiple of its argument)
 
-Arithmetic ca be done with event generators as both operand and operator.
+Arithmetic can be done with event generators as both operand and operator.
 
 """
 
@@ -29,8 +29,8 @@ from pyo import *
 s = Server().boot()
 
 # Half-semitone scale (the octave is divided in 24 equally-spaced steps).
-# The interger (a semitone in midi note) is divided by 2, which mean that
-# there is two values inside a single integer. 
+# The integer (a semitone in midi note) is divided by 2, which mean that
+# there are two values inside a single integer. 
 e = Events(midinote = EventDrunk(list(range(48)), maxStep=-2) / 2 + 72,
            beat = 1/4, db = -12,
            attack = 0.001, decay = 0.05, sustain = 0.5, release = 0.005).play()

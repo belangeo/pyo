@@ -11,7 +11,7 @@ This example explores two more generators that sequence values.
 EventSlide plays sub-melodies of length 'segment' and then moves by 'step'
 positions from the beginning of the last segment to start another one, and
 so on. The argument 'step' can be negative to move backward and the 'startpos'
-can also be negative to start from the end of the list. If 'wraparound' if True,
+can also be negative to start from the end of the list. If 'wraparound' is True,
 indexing wraps around if goes past beginning or end. If False, the playback
 stops if it goes outside the list bounds.
 
