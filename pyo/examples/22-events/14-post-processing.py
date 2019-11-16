@@ -5,7 +5,7 @@ The Events framework is essentially an audio material generator. The user will
 generally want to have access to the result for future treatments, as in passing
 through some reverb or delay.
 
-There is two built-in arguments that help the user to configure the audio output
+There are two built-in arguments that help the user to configure the audio output
 of the Events object.
 
 - `signal`: A string indicating which attribute of the instrument is its final
