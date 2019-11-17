@@ -1,10 +1,35 @@
+2019-11-15 belangeo <belangeo@gmail.com>
+
+    * Added examples about how to use OSC protocol with pyo.
+
+2019-11-12 belangeo <belangeo@gmail.com>
+
+    * Added utilities examples.
+
+2019-11-11 belangeo <belangeo@gmail.com>
+
+    * Added events examples.
+
 2019-11-05 belangeo <belangeo@gmail.com>
 
     * Added the first version of the Events framework.
 
+2019-10-22 belangeo <belangeo@gmail.com>
+
+    * Fixed tkinter font size on MacOS (fixed issue #163).
+
 2019-10-14 belangeo <belangeo@gmail.com>
 
     * Added setChannelNames(names) method to Spectrum and Scope objects.
+
+2019-10-10 belangeo <belangeo@gmail.com>
+
+    * Fixed segfault when CallAfter's callback results in deleting itself
+      (its stop method was then called on a deallocated object).
+
+2019-09-30 belangeo <belangeo@gmail.com>
+
+    * Expr API: constants (pi, twopi, e, sr) can be used without braces.
 
 2019-09-29 belangeo <belangeo@gmail.com>
 
