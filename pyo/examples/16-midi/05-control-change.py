@@ -9,8 +9,8 @@ The second is a continuous controller used to change the cutoff frequency
 (`lfofreq` argument) of moving notche oscillations in the spectrum. 
 
 """
-from random import random
 from pyo import *
+from random import random
 
 class Synth:
     # Added some arguments that will be controlled with MIDI controllers.
