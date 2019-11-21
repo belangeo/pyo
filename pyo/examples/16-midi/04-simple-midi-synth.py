@@ -6,8 +6,8 @@ makes easier to use it multiple times. In this example, two objects are
 created, one for the played pitch and another playing one octave lower.
 
 """
-from random import random
 from pyo import *
+from random import random
 
 class Synth:
     def __init__(self, transpo=1, mul=1):
