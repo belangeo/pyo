@@ -227,12 +227,13 @@ Exemples de scripts audio avec pyo
 
 1. simple-expression.py
 2. audio-in.py
-3. let-function.py
-4. define-function.py
-5. var-function.py
-6. condition.py
-7. load-function.py
-8. audio-outs.py
+3. multiple-inputs.py
+4. let-function.py
+5. define-function.py
+6. var-function.py
+7. condition.py
+8. load-function.py
+9. multiple-outputs.py
 
 24-wxgui
 --------

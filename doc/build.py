@@ -77,6 +77,8 @@ for dir in folders:
     for name in sorted(os.listdir(os.path.join(src_example_dir, dir))):
         if name == "__init__.py":
             continue
+        if name.endswith(".expr"):
+            continue
         index.write("   " + name[:-3] + "\n")
         with open(os.path.join(src_example_dir, dir, name), "r") as f:
             text = f.read()

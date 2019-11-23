@@ -92,10 +92,10 @@ Multi-output function:
 Constants:
 
 (const x) : returns x.
-(pi) : returns an approximated value of pi.
-(twopi) : returns a constant with value pi*2.
-(e) : returns an approximated value of e.
-(sr) : returns the current sampling rate.
+pi : returns an approximated value of pi.
+twopi : returns a constant with value pi*2.
+e : returns an approximated value of e.
+sr : returns the current sampling rate.
 
 Comments
 --------
@@ -224,6 +224,25 @@ They are computed only at initialization, but can be changed from the python
 script with method calls (varname is a string and value is a float):
 
 obj.setVar(varname, value)
+
+The following example shows how to control the cutoff fequency of a lowpass
+filter with a user variable:
+
+    expression = '''
+    (var #freq 1000)
+    (let #coeff (
+        ^ e (/ (* (neg twopi) #freq) 44100)
+        )
+    )
+    + $x[0] (* (- $y[-1] $x[0]) #coeff)
+    '''
+    ex = Expr(Noise(0.5), expression).out()
+    freq = Sine(0.25).range(250, 10000)
+
+    def update():
+        ex.setVar("#freq", freq.get())
+
+    pat = Pattern(update, 0.02).play()
 
 Library importation
 -------------------

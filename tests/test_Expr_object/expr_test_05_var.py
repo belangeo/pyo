@@ -3,7 +3,7 @@ from pyo import *
 s = Server().boot()
 s.amp = 0.1
 
-TEST = 0
+TEST = 2
 
 if TEST == 0:
     t = """
@@ -11,7 +11,7 @@ if TEST == 0:
 (var #f1 500)
 (var #f2 750)
 (define osc (
-        sin (* (~ $1) twopi)
+        sin (* twopi (~ $1))
     )
 )
 
@@ -52,6 +52,22 @@ elif TEST == 1:
         ex.setVar(["#feed", "#pitch"], [lfo.get(), pit.get()])
 
     pat = Pattern(change, 0.02).play()
+elif TEST == 2:
+    t = """
+(var #freq 1000)
+(let #coeff (
+    ^ e (/ (* (neg twopi) #freq) 44100)
+    )
+)
++ $x[0] (* (- $y[-1] $x[0]) #coeff)
+"""
+    ex = Expr(Noise(0.5), t).out()
+    freq = Sine(0.25).range(250, 10000)
+
+    def update():
+        ex.setVar("#freq", freq.get())
+
+    pat = Pattern(update, 0.02).play()
 
 ex.editor()
 sc = Scope(ex)

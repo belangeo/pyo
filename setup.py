@@ -67,7 +67,7 @@ packages = ['pyo', 'pyo.lib', 'pyo.lib.snds',
             'pyo.examples.08-dynamics', 'pyo.examples.09-callbacks', 'pyo.examples.10-tables',
             'pyo.examples.16-midi', 'pyo.examples.17-osc', 'pyo.examples.19-multirate',
             'pyo.examples.20-multicore', 'pyo.examples.21-utilities', 'pyo.examples.22-events',
-            'pyo.examples.algorithmic',
+            'pyo.examples.23-expression', 'pyo.examples.algorithmic',
             'pyo.examples.fft', 'pyo.examples.matrix', 'pyo.examples.sampling',
             'pyo.examples.sequencing', 'pyo.examples.snds', 'pyo.examples.synthesis',
             'pyo.examples.wxgui']

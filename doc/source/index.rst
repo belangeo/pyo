@@ -52,6 +52,7 @@ Examples
    Multicore audio programming <examples/20-multicore/index>
    Utilities <examples/21-utilities/index>
    Events framework <examples/22-events/index>
+   Evaluating prefix expression <examples/23-expression/index>
 
 More to come... Stay tuned!
 

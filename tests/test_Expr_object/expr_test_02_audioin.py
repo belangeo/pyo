@@ -7,15 +7,15 @@ TEST = 0
 
 if TEST == 0:
     # self-modulated sine wave with running phase given in input.
-    ph = Phasor(500)
+    ph = Phasor(86)
     ex = Expr(ph, "(sin (+ (* twopi $x[0]) (* $y[-1] 0.8)))").out()
 elif TEST == 1:
     # First-order IIR lowpass filter.
-    sf = SfPlayer(SNDS_PATH+"/transparent.aif", loop=True)
-    ex = Expr(sf, "+ $x[0] (* (- $y[-1] $x[0]) 0.95)").out()
+    n = Noise()
+    ex = Expr(n, "+ $x[0] (* (- $y[-1] $x[0]) 0.95)").out()
 elif TEST == 2:
     # Create a triangle wave whose frequency is given in input.
-    fr = SigTo(100)
+    fr = SigTo(86)
     fr.ctrl([SLMap(50, 1000, "log", "value", 100)])
     t = """
 (let #ph (~ $x[0]))

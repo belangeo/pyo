@@ -3,7 +3,7 @@ from pyo import *
 s = Server().boot()
 s.amp = 0.1
 
-TEST = 1
+TEST = 0
 
 if TEST == 0:
     t = """
