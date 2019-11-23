@@ -1932,8 +1932,22 @@ class Events(dict):
                 evts[attr] = self[attr]
         return evts
 
-    def play(self):
-        """ Start playback. """
+    def play(self, dur=0, delay=0):
+        """
+        Start the events playback.
+
+        This method returns `self`, allowing it to be applied at the object
+        creation.
+
+        :Args:
+
+            dur: float, optional
+                Duration, in seconds, of the object's activation. The default
+                is 0 and means infinite duration.
+            delay: float, optional
+                Delay, in seconds, before the object's activation. Defaults to 0.
+
+        """
         if not issubclass(self["instr"], EventInstrument):
             print("`instr` argument must be a sub-class of EventInstrument...")
             print("... Events is using DefaultInstrument!")
@@ -1956,13 +1970,22 @@ class Events(dict):
                 self[key].resetEmbeddedGenerator()
                 self[key].reset()
 
-        self.callNextEvent.play()
+        self.callNextEvent.play(dur=dur, delay=delay)
 
         return self
 
-    def stop(self):
-        """ Stop playback. """
-        self.callNextEvent.stop()
+    def stop(self, wait=0):
+        """
+        Stop the events playback.
+
+        :Args:
+
+            wait: float, optional
+                Delay, in seconds, before the process is actually stopped.
+                Defaults to 0.
+
+        """
+        self.callNextEvent.stop(wait=wait)
 
     def getCurrentDict(self):
         return self.currentDict
