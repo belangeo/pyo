@@ -1811,7 +1811,14 @@ class Events(dict):
         - outs: int, optional
             Number of output channels in the audio signal returned by the sig() method.
             This value should match the number of audio streams produced by the instrument.
-            Defaulta to 2.
+            Defaults to 2.
+        - offset: float, optional
+            Duration, in seconds, before the first event.
+            Defaults to 0.
+        - beatoffset: float, optional
+            Duration, in beat value, before the first event (1 beat = quarter note at BPM).
+            If defined, this value will be used to compute the duration in seconds for the
+            `offset` key. Defaults to None.
 
     **Duration keys**
         - dur: float, PyoObject or EventGenerator, optional
@@ -1889,6 +1896,8 @@ class Events(dict):
         # Constant keys
         self["bpm"] = 120
         self["outs"] = 2
+        self["offset"] = 0
+        self["beatoffset"] = None
         # Duration keys
         self["dur"] = 1
         self["beat"] = None
@@ -1918,6 +1927,8 @@ class Events(dict):
 
         self.callNextEvent = Pattern(self._processEvent).stop()
 
+        self.started = False
+
         self.currentDict = {}
 
         self.output = Sig([0] * self["outs"])
@@ -1945,7 +1956,7 @@ class Events(dict):
         if callable(self["atend"]):
             self.callAtEnd = CallAfter(self["atend"], 0).stop()
 
-        for key in [k for k in self.keys() if k not in ["instr", "signal", "bpm", "outs", "atend"]]:
+        for key in [k for k in self.keys() if k not in ["instr", "signal", "bpm", "outs", "atend", "offset", "beatoffset"]]:
             if self[key] is None or isinstance(self[key], PyoObjectBase):
                 pass
             elif type(self[key]) in [type([]), type(())]:
@@ -1985,6 +1996,18 @@ class Events(dict):
 
         quarterDur = 60.0 / self["bpm"]
 
+        # Compute offset if this is the first event.
+        if not self.started:
+            offsetDur = 0
+            if self["beatoffset"] is not None:
+                offsetDur = quarterDur * self["beatoffset"]
+            elif self["offset"] is not None:
+                offsetDur = self["offset"]
+            self.started = True
+            if offsetDur > 0:
+                self.callNextEvent.time = offsetDur
+                return
+
         self.currentDict = {"removeFunction": self._remove, "bpm": self["bpm"],
                             "outs": self["outs"]}
 
@@ -2014,7 +2037,7 @@ class Events(dict):
 
         # Process event's every other attributes.
         proscribe = ["dur", "beat", "instr", "bpm", "outs", "midinote",
-                     "degree", "db", "midivel", "atend", "signal"]
+                     "degree", "db", "midivel", "atend", "signal", "offset", "beatoffset"]
         for arg in [k for k in self.keys() if k not in proscribe]:
             if arg == "freq":
                 transpo = getValueFromAttribute(self, "transpo", self.currentDict, valueIfNone=0)
