@@ -19,15 +19,13 @@ working directory.
 
 See the content of those files for the function implementations.
 
-`utils.expr`_
+- `utils.expr`_
+- `filters.expr`_
+- `generators.expr`_
 
-`filters.expr`_
-
-`generators.expr`_
-
-.. _utils.expr: http://ajaxsoundstudio.com/pyodoc/api/classes/expression.html
-.. _filters.expr: http://ajaxsoundstudio.com/pyodoc/api/classes/expression.html
-.. _generators.expr: http://ajaxsoundstudio.com/pyodoc/api/classes/expression.html
+.. _utils.expr: https://github.com/belangeo/pyo/blob/master/pyo/examples/23-expression/utils.expr
+.. _filters.expr: https://github.com/belangeo/pyo/blob/master/pyo/examples/23-expression/filters.expr
+.. _generators.expr: https://github.com/belangeo/pyo/blob/master/pyo/examples/23-expression/generators.expr
 
 """
 from pyo import *
