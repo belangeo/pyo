@@ -2792,7 +2792,7 @@ class ExprEditor(stc.StyledTextCtrl):
 
         if sys.platform == "darwin":
             accel_ctrl = wx.ACCEL_CMD
-            self.faces = {'mono' : 'Monospace', 'size' : 16}
+            self.faces = {'mono' : 'Monaco', 'size' : 12}
         else:
             accel_ctrl = wx.ACCEL_CTRL
             self.faces = {'mono' : 'Monospace', 'size' : 10}
