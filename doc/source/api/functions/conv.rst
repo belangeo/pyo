@@ -23,6 +23,11 @@ Conversions
 
 .. autofunction:: secToSamps(x)
 
+*beatToDur*
+---------------------------------
+
+.. autofunction:: beatToDur(beat, bpm=120)
+
 *linToCosCurve*
 ---------------------------------
 
@@ -47,3 +52,4 @@ Conversions
 ---------------------------------
 
 .. autofunction:: reducePoints(pointlist, tolerance=0.02)
+

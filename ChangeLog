@@ -1,3 +1,7 @@
+2019-11-24 belangeo <belangeo@gmail.com>
+
+    * Added beatToDur(beat, bpm) function.
+
 2019-11-15 belangeo <belangeo@gmail.com>
 
     * Added examples about how to use OSC protocol with pyo.

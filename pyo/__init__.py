@@ -99,7 +99,7 @@ OBJECTS_TREE = {
                          'savefileFromTable', 'pa_get_input_max_channels', 
                          'pa_get_output_max_channels', 'pa_get_devices_infos', 
                          'pa_get_version', 'pa_get_version_text', 'floatmap',
-                         'getPrecision']),
+                         'getPrecision', 'beatToDur']),
     'PyoObjectBase': {
         'PyoMatrixObject': sorted(['NewMatrix']),
         'PyoTableObject': sorted(['LinTable', 'NewTable', 'SndTable', 

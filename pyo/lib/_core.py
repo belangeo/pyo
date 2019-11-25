@@ -108,6 +108,7 @@ FUNCTIONS_INIT_LINES = {
     "midiToTranspo": "midiToTranspo(x)",
     "sampsToSec": "sampsToSec(x)",
     "secToSamps": "secToSamps(x)",
+    "beatToDur": "beatToDur(bpm, beat)",
     "linToCosCurve": "linToCosCurve(data, yrange=[0, 1], totaldur=1, "
                      "points=1024, log=False)",
     "rescale": "rescale(data, xmin=0.0, xmax=1.0, ymin=0.0, ymax=1.0, "
@@ -660,6 +661,54 @@ def class_args(cls):
             print("class_args was unable to retrieve the "
                   "init line of the object as an argument.")
         return ""
+
+def beatToDur(beat, bpm=120):
+    """
+    Converts a beat value (multiplier of a quarter note) to a duration in seconds.
+
+    :Args:
+
+        beat: float
+            Beat value, in multiplier of the quarter note, to convert, according
+            to the BPM value, which gives the duration of the quarter note. For 
+            example, to retrieve the duration of the sixteenth note, for a BPM
+            of 90, we would write `beatToDur(1/4, 90)`. `beat` can be a number,
+            a list or a tuple.
+        bpm: float, optional
+            The beat-per-minute value, which gives the duration of the quarter note.
+            Defaults to 120. `bpm` can be a number, a list or a tuple.
+
+    >>> bpm = 90
+    >>> Duration of a sixteenth note.
+    >>> dur = beatToDur(1/4, 90)
+    >>> print(dur)
+    1.666666666666
+    >>> print(beatToDur(1/4, [60, 90, 120]))
+    [0.25, 0.166666666, 0.125]
+    >>> print(beatToDur(1/4, (60, 90, 120)))
+    (0.25, 0.166666666, 0.125)
+
+    """
+    if type(beat) is tuple or type(bpm) is tuple:
+        if type(beat) is not tuple:
+            beat = (beat,)
+        if type(bpm) is not tuple:
+            bpm = (bpm,)
+        lmax = max(len(beat), len(bpm))
+        if lmax == 1:
+            return 60.0 / bpm[0] * beat[0]
+        else:
+            return tuple([60.0 / wrap(bpm, i) * wrap(beat, i) for i in range(lmax)])
+
+    if type(beat) is not list:
+        beat = [beat]
+    if type(bpm) is not list:
+        bpm = [bpm]
+    lmax = max(len(beat), len(bpm))
+    if lmax == 1:
+        return 60.0 / bpm[0] * beat[0]
+    else:
+        return [60.0 / wrap(bpm, i) * wrap(beat, i) for i in range(lmax)]
 
 def getVersion():
     """
