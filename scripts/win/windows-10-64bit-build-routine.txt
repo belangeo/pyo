@@ -4,13 +4,17 @@
 === STEP 2 ===
 --- Install msys2 packages (pacman -S package_name)
 
+* setup.py file assumes that msys2 is installed on the default location. If
+not, you'll have to change the paths in include_dirs and library_dirs to
+reflect your installation.
+
 mingw-w64-x86_64-toolchain
 make
 autoconf
 automake
 libtool
 subversion
-mingw-w64-x86_64-git
+git
 mingw-w64-x86_64-libsndfile
 mingw-w64-x86_64-portaudio
 mingw-w64-x86_64-portmidi
@@ -36,38 +40,43 @@ C:\msys64\mingw64\bin
 C:\msys64\usr\bin  
 
 === STEP 5 ===
+--- Install pthreads (just copy files from ftp):
+ftp://sourceware.org/pub/pthreads-win32/dll-latest/
+C:\pthreads\bin, C:\pthreads\include, C:\pthreads\lib
+
+=== STEP 6 ===
 --- Install Python 2.7 and 3.5+ 64-bit.
 --- Add PythonXX and PythonXX\Scripts paths to environment variables.
 
-=== STEP 6 ===
+=== STEP 7 ===
 --- Install wxPython Phoenix. From a command prompt:
     
 py -X.X -m pip install -U wxPython
 
-=== STEP 7 ===
+=== STEP 8 ===
 --- Copy PythonXX/vcruntime140.dll in PythonXX/libs/
 
-=== STEP 8 ===
+=== STEP 9 ===
 --- Patch PythonXX/Lib/distutils/cygwinccompiler.py to add missing msc_ver:
     
     elif msc_ver == "1700":
         return ['msvcr110']
     elif msc_ver == "1800":
         return ['msvcr120']
-    elif msc_ver in ["1900", "1915"]:
+    elif msc_ver in ["1900", "1915", "1916"]:
         return ['vcruntime140']
 
-=== STEP 9 ===
+=== STEP 10 ===
 --- create a file PythonXX/Lib/distutils/distutils.cfg with these lines in it:
 
 [build]
 compiler = mingw32
 
-=== STEP 10 ===
+=== STEP 11 ===
 --- Install Git
 https://git-scm.com/download/win
 
-=== STEP 11 ===
+=== STEP 12 ===
 --- Download pyo sources from git and build it with (in a standard command prompt):
 
 py -X.X setup.py install --use-double
