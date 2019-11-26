@@ -4457,7 +4457,7 @@ class MainFrame(wx.Frame):
                 time.sleep(0.5)
             except:
                 pass
-        with open(PREFERENCES_PATH, "w") as f:
+        with codecs.open(PREFERENCES_PATH, "w", encoding=encoding_to_add) as f:
             f.write("epyo_prefs = %s" % str(PREFERENCES))
         try:
             self.snippet_frame.Destroy()
