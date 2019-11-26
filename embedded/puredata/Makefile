@@ -1,4 +1,4 @@
-## Pd library template version 1.0.13
+## Pd library template version 1.0.14
 # For instructions on how to use this template, see:
 #  http://puredata.info/docs/developer/MakefileTemplate
 LIBRARY_NAME = pyo~
@@ -22,14 +22,11 @@ MANUAL = manual.txt
 # list them here.  This can be anything from header files, test patches,
 # documentation, etc.  README.txt and LICENSE.txt are required and therefore
 # automatically included
-EXTRA_DIST = m_pyo.h
+EXTRA_DIST =  m_pyo.h
 
 # unit tests and related files here, in the 'unittests' subfolder
 UNITTESTS = 
 
-# added to support the multiple shared source files
-SHARED_SOURCE = 
-SHARED_LIB = lib$(LIBRARY_NAME).$(SHARED_EXTENSION)
 
 
 #------------------------------------------------------------------------------#
@@ -37,33 +34,12 @@ SHARED_LIB = lib$(LIBRARY_NAME).$(SHARED_EXTENSION)
 # things you might need to edit if you are using other C libraries
 #
 #------------------------------------------------------------------------------#
-UNAME := $(shell uname -s)
-ifeq (MINGW,$(findstring MINGW,$(UNAME)))
-    ALL_CFLAGS = -I"$(PD_INCLUDE)" -I.. -Wno-unused-parameter -I/c/Python27/include
-    ALL_LDFLAGS =  -lpython27
-    SHARED_LDFLAGS =
-    ALL_LIBS = -L/c/Python27/libs
-endif
-ifeq ($(UNAME),Darwin)
-    MAC_SDK =                # put the path to your base SDK if you have problem to compile with the one given by python (ex: /Developer/SDKs/MacOSX10.6.sdk)
-    ARCH_TYPE = i386         # can put multiple architectures if they are available with your environment (ex: ppc i386)
-    ifeq ($(MAC_SDK),)
-        PYTHONFLAGS = $(shell python-config --cflags)
-    else
-        PYTHONFLAGS = $(patsubst /%, $(MAC_SDK), $(shell python-config --cflags))
-    endif
-    ALL_CFLAGS = -I"$(PD_INCLUDE)" -I.. -Wno-unused-parameter $(PYTHONFLAGS)
-    ALL_LDFLAGS = $(shell python-config --ldflags)
-    SHARED_LDFLAGS =
-    # ALL_LIBS = $(shell python-config --libs)
-    ALL_LIBS = -ldl -framework CoreFoundation -framework Python
-endif
-ifeq ($(UNAME),Linux)
-    ALL_CFLAGS = -I"$(PD_INCLUDE)" -I.. -Wno-unused-parameter $(shell python-config --cflags)
-    ALL_LDFLAGS =  $(shell python-config --ldflags)
-    SHARED_LDFLAGS =
-    ALL_LIBS = $(shell python-config --libs)
-endif
+
+ALL_CFLAGS = -I"$(PD_INCLUDE)" -I.. -Wno-cast-function-type -Wno-unused-parameter $(shell python-config --cflags)
+ALL_LDFLAGS = $(shell python-config --ldflags)
+SHARED_LDFLAGS =
+ALL_LIBS = $(shell python-config --libs)
+
 
 #------------------------------------------------------------------------------#
 #
@@ -130,13 +106,15 @@ ifeq ($(UNAME),Darwin)
     OPT_CFLAGS = -ftree-vectorize -ftree-vectorizer-verbose=2 -fast
 # build universal 32-bit on 10.4 and 32/64 on newer
     ifeq ($(shell uname -r | sed 's|\([0-9][0-9]*\)\.[0-9][0-9]*\.[0-9][0-9]*|\1|'), 8)
-      # FAT_FLAGS = -arch ppc -arch i386 -mmacosx-version-min=10.5
-      ARCHWITHOUT64 := $(filter-out x86_64,$(ARCH_TYPE))
-      FAT_FLAGS = $(patsubst %,-arch %, $(ARCHWITHOUT64)) -mmacosx-version-min=10.5
+      FAT_FLAGS = -arch ppc -arch i386 -mmacosx-version-min=10.4
     else
-      # FAT_FLAGS = -arch ppc -arch i386 -arch x86_64 -mmacosx-version-min=10.5
-      FAT_FLAGS = $(patsubst %,-arch %, $(ARCH_TYPE)) -mmacosx-version-min=10.5
       SOURCES += $(SOURCES_iphoneos)
+# Starting with Xcode 4.0, the PowerPC compiler is not installed by default
+      ifeq ($(wildcard /usr/llvm-gcc-4.2/libexec/gcc/powerpc*), )
+        FAT_FLAGS = -arch i386 -arch x86_64 -mmacosx-version-min=10.5
+      else
+        FAT_FLAGS = -arch ppc -arch i386 -arch x86_64 -mmacosx-version-min=10.4
+      endif
     endif
     ALL_CFLAGS += $(FAT_FLAGS) -fPIC -I/sw/include
     # if the 'pd' binary exists, check the linking against it to aid with stripping
@@ -157,29 +135,55 @@ endif
 ifeq ($(UNAME),ANDROID)
   CPU := arm
   SOURCES += $(SOURCES_android)
-  EXTENSION = pd_linux
+  EXTENSION = so
   SHARED_EXTENSION = so
   OS = android
   PD_PATH = /usr
   NDK_BASE := /usr/local/android-ndk
-  NDK_PLATFORM_VERSION := 5
-  NDK_SYSROOT=$(NDK_BASE)/platforms/android-$(NDK_PLATFORM_VERSION)/arch-arm
+  NDK_PLATFORM_LEVEL ?= 5
+  NDK_ABI=arm
+  NDK_SYSROOT=$(NDK_BASE)/platforms/android-$(NDK_PLATFORM_LEVEL)/arch-$(NDK_ABI)
   NDK_UNAME := $(shell uname -s | tr '[A-Z]' '[a-z]')
-  NDK_TOOLCHAIN_BASE=$(NDK_BASE)/toolchains/arm-linux-androideabi-4.4.3/prebuilt/$(NDK_UNAME)-x86
-  CC := $(NDK_TOOLCHAIN_BASE)/bin/arm-linux-androideabi-gcc --sysroot=$(NDK_SYSROOT)
+  NDK_COMPILER_VERSION=4.6
+  NDK_TOOLCHAIN=$(wildcard \
+	$(NDK_BASE)/toolchains/$(NDK_ABI)*-$(NDK_COMPILER_VERSION)/prebuilt/$(NDK_UNAME)-x86)
+  CC := $(wildcard $(NDK_TOOLCHAIN)/bin/*-linux-android*-gcc) --sysroot=$(NDK_SYSROOT)
   OPT_CFLAGS = -O6 -funroll-loops -fomit-frame-pointer
   CFLAGS += 
   LDFLAGS += -rdynamic -shared
   SHARED_LDFLAGS += -Wl,-soname,$(SHARED_LIB) -shared
   LIBS += -lc $(LIBS_android)
-  STRIP := $(NDK_TOOLCHAIN_BASE)/bin/arm-linux-androideabi-strip \
+  STRIP := $(wildcard $(NDK_TOOLCHAIN)/bin/$(NDK_ABI)-linux-android*-strip) \
 	--strip-unneeded -R .note -R .comment
   DISTBINDIR=$(DISTDIR)-$(OS)-$(shell uname -m)
 endif
 ifeq ($(UNAME),Linux)
   CPU := $(shell uname -m)
-  SOURCES += $(SOURCES_linux)
   EXTENSION = pd_linux
+  ifeq ($(findstring arm,$(CPU)),arm)
+    EXTENSION = l_arm
+  endif
+  ifeq ($(CPU),i386)
+    EXTENSION = l_i386
+  endif
+  ifeq ($(CPU),i486)
+    EXTENSION = l_i386
+  endif
+  ifeq ($(CPU),i586)
+    EXTENSION = l_i386
+  endif
+  ifeq ($(CPU),i686)
+    EXTENSION = l_i386
+  endif
+  ifeq ($(CPU),amd64)
+    # amd64 and ia64 aren't the same thing, but that's how its done in pd...
+    EXTENSION = l_ia64
+  endif
+  ifeq ($(CPU),x86_64)
+    # x86_64 and ia64 aren't the same thing, but that's how its done in pd...
+    EXTENSION = l_ia64
+  endif
+  SOURCES += $(SOURCES_linux)
   SHARED_EXTENSION = so
   OS = linux
   PD_PATH = /usr
@@ -289,7 +293,7 @@ $(LIBRARY_NAME): $(SOURCES:.c=.o) $(LIBRARY_NAME).o lib$(LIBRARY_NAME).o
 $(SHARED_LIB): $(SHARED_SOURCE:.c=.o)
 	$(CC) $(SHARED_LDFLAGS) -o $(SHARED_LIB) $(SHARED_SOURCE:.c=.o) $(ALL_LIBS)
 
-install: single_install
+install: libdir_install
 
 # The meta and help files are explicitly installed to make sure they are
 # actually there.  Those files are not optional, then need to be there.
@@ -452,6 +456,7 @@ showsetup:
 	@echo "LIBRARY_NAME: $(LIBRARY_NAME)"
 	@echo "LIBRARY_VERSION: $(LIBRARY_VERSION)"
 	@echo "SOURCES: $(SOURCES)"
+	@echo "EXTENSION: $(EXTENSION)"
 	@echo "SHARED_HEADER: $(SHARED_HEADER)"
 	@echo "SHARED_SOURCE: $(SHARED_SOURCE)"
 	@echo "SHARED_LIB: $(SHARED_LIB)"
@@ -464,4 +469,6 @@ showsetup:
 	@echo "pkglibdir: $(pkglibdir)"
 	@echo "DISTDIR: $(DISTDIR)"
 	@echo "ORIGDIR: $(ORIGDIR)"
-
+	@echo "NDK_TOOLCHAIN: $(NDK_TOOLCHAIN)"
+	@echo "NDK_BASE: $(NDK_BASE)"
+	@echo "NDK_SYSROOT: $(NDK_SYSROOT)"
