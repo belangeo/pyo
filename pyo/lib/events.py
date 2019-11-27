@@ -43,7 +43,10 @@ from .controls import Fader, Adsr
 from .generators import RCOsc
 from .effects import STRev
 
-inf = math.inf
+if sys.version_info[0] < 3:
+    inf = float("inf")
+else:
+    inf = math.inf
 
 PYO_EVENT_OPERATOR_ADD = 1000
 PYO_EVENT_OPERATOR_SUB = 1001
@@ -1606,12 +1609,12 @@ class EventCall(EventGenerator):
     >>> e = Events(midinote=EventCall(randrange, 48, 72, 3), beat=1/4, db=-6).play()
 
     """
-    def __init__(self, function, *args, occurrences=inf, stopEventsWhenDone=True):
+    def __init__(self, function, *args, **kwargs):
         EventGenerator.__init__(self)
         self.function = function
         self.args = args
-        self.occurrences = self._inspect_occurrences(occurrences)
-        self.stopEventsWhenDone = stopEventsWhenDone
+        self.occurrences = self._inspect_occurrences(kwargs.pop('occurrences', inf))
+        self.stopEventsWhenDone = kwargs.pop('stopEventsWhenDone', True)
         self.reset()
 
     def __len__(self):
