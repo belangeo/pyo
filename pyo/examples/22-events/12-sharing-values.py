@@ -27,7 +27,7 @@ scl = EventScale(root="C", scale="major", first=4, octaves=3)
 e = Events(midinote = EventDrunk(scl, maxStep=2),
            # The higher the pitch, the lower the amplitude.
            db = EventKey("midinote").rescale(48, 84, -3, -24, 1),
-           beat = 1/4, transpo=12, 
+           beat = 1/4., transpo=12, 
            attack=0.001, decay=0.05, sustain=0.5, release=0.005).play()
 
 e2 = Events(# Define arguments (unused in the instrument) to build phrases.
@@ -37,6 +37,6 @@ e2 = Events(# Define arguments (unused in the instrument) to build phrases.
             midinote = EventIndex(scl, EventSeq([EventKey("line1"), EventKey("line2")])),
             # Use the db amplitude from the previous Events object (`master` argument).
             db = EventKey("db", master=e),
-            beat = 1/4).play()
+            beat = 1/4.).play()
 
 s.gui(locals())

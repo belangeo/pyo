@@ -29,7 +29,7 @@ segment1 = RandInt(max=6, freq=0.5)
 step1 = RandInt(max=6, freq=0.75, add=-3)
 
 e1 = Events(midinote=EventSlide(scl, segment1, step1),
-            beat=1/4, db=[-12, -18, -18], envelope=env,
+            beat=1/4., db=[-12, -18, -18], envelope=env,
             durmul=durmul1).play()
 
 # Out-of-phase LFO on the duration multiplier.
@@ -39,6 +39,6 @@ step2 = RandInt(max=6, freq=0.75, add=-3)
 
 e2 = Events(midinote = EventSlide(scl, segment2, step2),
             db=[-9, -15, -15], envelope=env, durmul=durmul2,
-            beat=1/4, bpm=60, transpo=-12).play()
+            beat=1/4., bpm=60, transpo=-12).play()
 
 s.gui(locals())

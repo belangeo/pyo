@@ -43,7 +43,7 @@ class MyInstrument(EventInstrument):
 # We tell the Events object which instrument to use with the 'instr' argument. 
 e = Events(instr = MyInstrument,
            degree = EventSeq([5.00, 5.04, 5.07, 6.00]),
-           beat = 1/2, db = -12,
+           beat = 1/2., db = -12,
            attack = 0.001, decay = 0.05, sustain = 0.5, release = 0.005).play()
 
 s.gui(locals())

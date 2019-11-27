@@ -21,14 +21,14 @@ e = Events(degree = EventDrunk([EventSeq([5.00, 5.02, 5.03], 1), EventSeq([5.07,
                                 EventSeq([7.00, 7.03, 7.02], 1), EventSeq([7.05, 7.08, 7.07], 1),
                                 EventSeq([7.08, 7.11, 8.00], 1), EventSeq([8.00, 7.07, 7.03], 1)],
                                maxStep=EventSeq([2]*8+[0]*4), occurrences=inf),
-           beat = 1/3, db = [-6, -12, -12],
+           beat = 1/3., db = [-6, -12, -12],
            attack = 0.001, decay = 0.05, sustain = 0.5, release = 0.005).play()
 
 # Chord progression: I - II - I - V.
 e2 = Events(degree = EventSeq([EventSeq([4.00, 4.03, 4.07], 2), EventSeq([4.02, 4.05, 4.08], 2),
                                EventSeq([4.00, 4.03, 4.07], 2), EventSeq([3.11, 4.02, 4.07], 2)],
                               occurrences=inf),
-            beat = 1/3, db = [-6, -12, -12],
+            beat = 1/3., db = [-6, -12, -12],
             attack = 0.001, decay = 0.05, sustain = 0.5, release = 0.005).play()
 
 s.gui(locals())

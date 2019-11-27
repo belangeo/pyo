@@ -220,7 +220,7 @@ class EventInstrument(object):
         self.clearWhenDone.play(delay=self.dur + self.tail, dur=0.25)
 
     def clear(self):
-        self.removeFunction(self)
+        self.removeFunction(self.instanceId)
 
 class DefaultInstrument(EventInstrument):
     """
@@ -336,7 +336,7 @@ class EventScale:
         if self._init:
             return
             
-        self.data.clear()
+        del self.data[:]
         degree = self.rootDegrees.get(self._root, self.rootDegrees["C"])
         currentScale = self.scales.get(self._scale, self.scales["major"])
         length = len(currentScale)
@@ -1915,6 +1915,9 @@ class Events(dict):
         # Ending keys
         self["atend"] = None
 
+        self.instanceId = 0
+        self.maxInstanceId = 2 ** 31
+
         # Add user-supplied arguments as dict attributes.
         for item in args.items():
             self[item[0]] = item[1]
@@ -1956,7 +1959,7 @@ class Events(dict):
             print("... Events is using DefaultInstrument!")
             self["instr"] = DefaultInstrument
 
-        self.actives = []
+        self.actives = {}
 
         self.callAtEnd = None
         if callable(self["atend"]):
@@ -2012,7 +2015,7 @@ class Events(dict):
         quarterDur = 60.0 / self["bpm"]
 
         self.currentDict = {"removeFunction": self._remove, "bpm": self["bpm"],
-                            "outs": self["outs"]}
+                            "outs": self["outs"], "instanceId": self.instanceId}
 
         # Compute time before next event and current event's duration.
         if self["beat"] is not None:
@@ -2103,12 +2106,17 @@ class Events(dict):
                 self.callAtEnd.play()
             self.callNextEvent.stop()
         else:
-            self.actives.append(self["instr"](**self.currentDict))
+            self.actives[self.instanceId] = self["instr"](**self.currentDict)
             if self["signal"] is not None:
-                self.output.value = sum([getattr(instr, self["signal"]) for instr in self.actives if hasattr(instr, self["signal"])])
+                self.output.value = sum([getattr(instr, self["signal"]) for instr in self.actives.values() if hasattr(instr, self["signal"])])
 
-    def _remove(self, instr):
+        self.instanceId += 1
+        if self.instanceId >= self.maxInstanceId:
+            self.instanceId = 0
+
+    def _remove(self, instanceId):
         """ Removes an instrument instance from the active list. """
-        self.actives.remove(instr)
+        if instanceId in self.actives:
+            del self.actives[instanceId]
         if self["signal"] is not None:
-            self.output.value = sum([getattr(instr, self["signal"]) for instr in self.actives if hasattr(instr, self["signal"])])
+            self.output.value = sum([getattr(instr, self["signal"]) for instr in self.actives.values() if hasattr(instr, self["signal"])])

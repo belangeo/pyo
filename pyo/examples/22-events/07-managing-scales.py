@@ -45,7 +45,7 @@ def change():
 # to set a function to call when the sequence finishes. This function
 # will change the scale used and start a new sequence of 24 notes.
 e = Events(degree = EventDrunk(scl, maxStep=-2, occurrences=24),
-           beat = 1/4, db = [-6, -12, -9, -12],
+           beat = 1/4., db = [-6, -12, -9, -12],
            attack=0.001, decay=0.05, sustain=0.5, release=0.005,
            atend = change).play()
 

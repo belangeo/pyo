@@ -36,7 +36,7 @@ scl = EventScale("C", "aeolian", 3, 3, type=2)
 # ... then the sequence of events. We are looking for a 2 streams (`outs`)
 # signal in the self.output attribute (`signal`) of the instrument.
 e = Events(instr=MyInstrument, degree=EventSlide(scl, segment=3, step=1),
-           beat = 1/4, db = -12, signal = "output", outs = 2,
+           beat = 1/4., db = -12, signal = "output", outs = 2,
            attack = 0.001, decay = 0.05, sustain = 0.7, release = 0.05).play()
 
 # We use the sig() method to add post-processing to the events's sound.

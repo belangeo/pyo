@@ -31,7 +31,7 @@ e = Events(instr = MyInstrument,
            degree = EventSeq([5.00, 5.04, 5.07, 6.00]),
            duty = EventSeq([0.02, 0.1, 0.25, 0.5]),     # self.duty in the instrument
            cutoff = EventSeq([5000, 4000, 3000, 2000]), # self.cutoff in the instrument
-           beat = 1/2,
+           beat = 1/2.,
            db = [-6, -9, -9, -12],
            attack = 0.001, decay = 0.05, sustain = 0.5, release = 0.005).play()
 

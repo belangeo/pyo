@@ -32,7 +32,7 @@ def riseFallAmp():
 # Midi notes are chosen randomly with a function from the random module,
 # while the amplitude change according to the riseFallAmp function's output.
 e = Events(midinote = EventCall(random.randrange, 48, 72, 3),
-           beat = 1/4, db = EventCall(riseFallAmp),
+           beat = 1/4., db = EventCall(riseFallAmp),
            attack=0.001, decay=0.05, sustain=0.5, release=0.005).play()
 
 

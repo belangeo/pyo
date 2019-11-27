@@ -115,7 +115,7 @@ s = Server().boot()
 env = CosTable([(0, 0.0), (128, 1.0), (1024, 0.7), (4096, 0.7), (8192, 0.0)])
 
 e8 = Events(degree = EventSeq([5.00, 5.04, 5.07, 6.00]),
-            beat = EventSeq([1/2, 1/4, 1/4, 1], occurrences=4),
+            beat = EventSeq([1/2., 1/4., 1/4., 1], occurrences=4),
             db = EventSeq([-3, -6, -12, -3]),
             envelope = env).play()
 
