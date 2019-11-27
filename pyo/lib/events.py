@@ -294,7 +294,7 @@ class EventScale:
     >>> s = Server().boot()
     >>> s.start()
     >>> scl = EventScale(root="C", scale="major", first=4, octaves=2, type=2)
-    >>> e = Events(degree=EventDrunk(scl, maxStep=-2), beat=1/4, db=-6).play()
+    >>> e = Events(degree=EventDrunk(scl, maxStep=-2), beat=1/4., db=-6).play()
     
     """
     def __init__(self, root="C", scale="major", first=4, octaves=2, type=0):
@@ -922,7 +922,7 @@ class EventKey(EventGenerator):
     >>> s.start()
     >>> # The lower the pitch value, the louder is the note.
     >>> dbkey = EventKey("midinote").rescale(48,84,-3,-32,1)
-    >>> e = Events(midinote=list(range(48,84,2)), beat=1/4, db=dbkey).play()
+    >>> e = Events(midinote=list(range(48,84,2)), beat=1/4., db=dbkey).play()
 
     """
     def __init__(self, key, master=None):
@@ -978,7 +978,7 @@ class EventSeq(EventGenerator):
 
     >>> s = Server().boot()
     >>> s.start()
-    >>> e = Events(freq=EventSeq(midiToHz([60, 64, 67, 72])), beat=1/4).play()
+    >>> e = Events(freq=EventSeq(midiToHz([60, 64, 67, 72])), beat=1/4.).play()
 
     """
     def __init__(self, values, occurrences=inf, stopEventsWhenDone=True):
@@ -1050,7 +1050,7 @@ class EventSlide(EventGenerator):
     >>> s = Server().boot()
     >>> s.start()
     >>> scl = [5.00, 5.02, 5.03, 5.05, 5.07, 5.08, 5.10, 6.00]
-    >>> e = Events(degree=EventSlide(scl, 3, 1, 0), beat = 1/4, db = -6).play()
+    >>> e = Events(degree=EventSlide(scl, 3, 1, 0), beat = 1/4., db = -6).play()
 
     """
 
@@ -1190,7 +1190,7 @@ class EventIndex(EventGenerator):
     >>> s.start()
     >>> scl = [5.00, 5.02, 5.03, 5.05, 5.07, 5.08, 5.10, 6.00]
     >>> arp = EventSeq([0, 2, 4, 2, 1, 3, 5, 3, 1, 6, 4, 1])
-    >>> e = Events(degree = EventIndex(scl, arp), beat = 1/4, db = -6).play()
+    >>> e = Events(degree = EventIndex(scl, arp), beat = 1/4., db = -6).play()
 
     """
     def __init__(self, values, index, occurrences=inf, stopEventsWhenDone=True):
@@ -1278,7 +1278,7 @@ class EventMarkov(EventGenerator):
     >>> jesus =  [67,69,71,74,72,72,76,74,74,79,78,79,74,71,67,69,71,72,74,76,74,72,71]
     >>> jesus += [69,71,67,66,67,69,62,66,69,72,71,69,71,67,69,71,74,72,72,76,74,74,79]
     >>> jesus += [78,79,74,71,67,69,71,64,74,72,71,69,67,62,67,66,67,71,74,79,74,71,67]
-    >>> e = Events(midinote=EventMarkov(jesus, 2), beat=1/4, db=-6).play()
+    >>> e = Events(midinote=EventMarkov(jesus, 2), beat=1/4., db=-6).play()
 
     """
     def __init__(self, values, order=2, occurrences=inf, stopEventsWhenDone=True):
@@ -1358,7 +1358,7 @@ class EventChoice(EventGenerator):
     >>> s = Server().boot()
     >>> s.start()
     >>> scl = [5.00, 5.02, 5.03, 5.05, 5.07, 5.08, 5.10, 6.00]
-    >>> e = Events(degree = EventChoice(scl), beat = 1/4, db = -6).play()
+    >>> e = Events(degree = EventChoice(scl), beat = 1/4., db = -6).play()
 
     """
     def __init__(self, values, occurrences=inf, stopEventsWhenDone=True):
@@ -1415,7 +1415,7 @@ class EventDrunk(EventGenerator):
     >>> s = Server().boot()
     >>> s.start()
     >>> scl = [5.00, 5.02, 5.03, 5.05, 5.07, 5.08, 5.10, 6.00]
-    >>> e = Events(degree=EventDrunk(scl, maxStep=-2), beat=1/4, db=-6).play()
+    >>> e = Events(degree=EventDrunk(scl, maxStep=-2), beat=1/4., db=-6).play()
 
     """
     def __init__(self, values, maxStep=2, occurrences=inf, stopEventsWhenDone=True):
@@ -1513,7 +1513,7 @@ class EventNoise(EventGenerator):
     >>> s.start()
     >>> scl = EventScale("C", "aeolian", 4, 4)
     >>> note = EventNoise(1).rescale(-1,1,48,84,1).snap(scl)
-    >>> e = Events(midinote=note, beat=1/4, db=-6).play()
+    >>> e = Events(midinote=note, beat=1/4., db=-6).play()
 
     """
     def __init__(self, type=0, occurrences=inf, stopEventsWhenDone=True):
@@ -1606,7 +1606,7 @@ class EventCall(EventGenerator):
     >>> from random import randrange
     >>> s = Server().boot()
     >>> s.start()
-    >>> e = Events(midinote=EventCall(randrange, 48, 72, 3), beat=1/4, db=-6).play()
+    >>> e = Events(midinote=EventCall(randrange, 48, 72, 3), beat=1/4., db=-6).play()
 
     """
     def __init__(self, function, *args, **kwargs):
@@ -1679,7 +1679,7 @@ class EventConditional(EventGenerator):
     >>> veltrue = EventDrunk(range(64, 127), maxStep=5)
     >>> pit = EventConditional(bit, pittrue, 0)
     >>> vel = EventConditional(bit, veltrue, 0)
-    >>> e = Events(midinote=pit, beat=1/4, midivel=vel).play()
+    >>> e = Events(midinote=pit, beat=1/4., midivel=vel).play()
 
     """
     def __init__(self, condition, iftrue, iffalse, occurrences=inf, stopEventsWhenDone=True):
@@ -1882,7 +1882,7 @@ class Events(dict):
     >>> seg = RandInt(max=6, freq=0.5)
     >>> step = RandInt(max=6, freq=0.75, add=-3)
     >>> note = EventSlide(scl, seg, step)
-    >>> e = Events(midinote=note, beat=1/4, db=[-3, -9, -9], envelope=env, durmul=1.25).play()
+    >>> e = Events(midinote=note, beat=1/4., db=[-3, -9, -9], envelope=env, durmul=1.25).play()
 
     """
     def __init__(self, **args):
