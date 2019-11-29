@@ -1,3 +1,7 @@
+2019-11-27 belangeo <belangeo@gmail.com>
+
+    * Git tag: 1.0.1.
+
 2019-11-24 belangeo <belangeo@gmail.com>
 
     * Added beatToDur(beat, bpm) function.
