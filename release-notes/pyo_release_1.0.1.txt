@@ -1,0 +1,225 @@
+[English version follows]
+
+Bonjour à tous,
+
+Je suis très heureux d'annoncer la sortie de pyo 1.0.1, disponible pour python 2.7,
+3.5, 3.6, 3.7 et 3.8!
+
+Pyo est un module Python écrit en C pour faciliter la programmation de traitement 
+de signal audio-numérique. Il fournit un ensemble complet de classes pour développer 
+des logiciels audio, composer des musiques algorithmiques ou simplement explorer 
+le traitement du signal audio. Il est disponible pour Windows, MacOS et Linux. 
+Il est publié sous la licence LGPL 3.
+
+Site web officiel: http://ajaxsoundstudio.com/software/pyo/
+
+La documentation: http://ajaxsoundstudio.com/pyodoc/
+
+Sources et suivi des bugs: https://github.com/belangeo/pyo
+
+Le module est maintenant hébergé sur pypi.org et peut être installé (en 32-bit ou 
+64-bit) sous MacOS, Windows et Linux avec pip, le gestionnaire de paquet officiel
+de python. Il suffit d'exécuter, en ligne de commande:
+
+     python -m pip installer pyo
+
+La principale nouveautée de cette version est un ensemble d'outils facilitant la
+gestion et la mise en séquence d'événements audio. Le but de cet ensemble d'outils
+est d'offrir à l'utilisateur flexibilité et efficacité dans la mise en séquence
+d'événements avec le moins de paramètres possibles à spécifier. L'objet Events
+est le coeur de l'ensemble. C'est lui qui calcule les paramètres, généralement
+créés avec les objets générateurs (EventGenerator), construit l'événement et joue
+la séquence avec l'instrument désigné. 
+
+Voir plus bas pour le détail de l'ensemble d'objets et la documentation pour des
+exemples de différents usages possibles de ces nouveaux outils.
+
+Pour tous les détails concernant l'installation et comment désinstaller les versions 
+antérieures à 1.0.0, voir cette page dans la documentation:
+
+http://ajaxsoundstudio.com/pyodoc/download.html
+
+Voir plus bas pour le détail des changements apportés dans cette version!
+
+
+Olivier
+
+---
+
+Hello all,
+
+I'm very happy to announce the release of pyo 1.0.1, available for python 2.7,
+3.5, 3.6, 3.7 and 3.8.
+
+Pyo is a Python module written in C to help real-time digital signal processing
+script creation. It provides a complete set of classes to build audio softwares, 
+compose algorithmic musics or simply explore audio processing.It is available for 
+Windows, macOS and linux. It is released under the LGPL 3 license.
+
+Official web site: http://ajaxsoundstudio.com/software/pyo/
+
+pyo's documentation: http://ajaxsoundstudio.com/pyodoc/
+
+Latest sources and bug tracker: https://github.com/belangeo/pyo
+
+The package is now uploaded to pypi.org and can be installed (for 32-bit or 64-bit)
+under MacOS, Windows and linux  with pip. Just run the command:
+
+    python -m pip install pyo
+
+For all the details and how to uninstall version prior to 1.0.0, see this page
+in the documentation:
+
+http://ajaxsoundstudio.com/pyodoc/download.html
+
+
+Olivier
+
+
+WHAT CHANGED IN VERSION 1.0.1:
+
+Bug Fixes:
+
+- Audio server falls back to playback-only mode if jack server has no input ports.
+- Fixed setting value of ControlSlider from national keyboard layout.
+- Fixed segfault when CallAfter's callback results in deleting itself.
+- Fixed tkinter font size on MacOS (issue #163).
+
+New features:
+
+- Added a clear() method to Mixer object to delete all inputs at once.
+- Added new object: Binaural, 3D stereo spatialization.
+- Added a DC blocker inside the feedback loop of Harmonizer object.
+- Added setChannelNames(names) method to Spectrum and Scope objects.
+- Added beatToDur(beat, bpm) function.
+
+Events framework (new framework to sequence events):
+
+Set of tools to generate sequence of events. The purpose of the Event framework is
+to allow the user to generate a sequence of events with as few as possible parameters
+to specify. The Events object is the heart of the framework. An Events object computes
+parameters, generally designed with event generator objects, builds the events and plays
+the sequence.
+
+See the Events framework examples in the documentation for different use cases.
+
+- EventScale: Constructs a list of pitches according to its arguments.
+- EventGenerator: Base class for all event generators.
+- EventKey: An EventGenerator that allow to retrieve the value of another parameter.
+- EventSeq: Plays through an entire list of values many times.
+- EventSlide: Plays overlapping segments from a list of values.
+- EventIndex: Plays values from a list based on a position index.
+- EventMarkov: Applies a Markov algorithm to a list of values.
+- EventChoice: Plays values randomly chosen from a list.
+- EventDrunk: Performs a random walk over a list of values.
+- EventNoise: White, pink or brown noise generator.
+- EventCall: Calls a function, with any number of arguments, and uses its return value.
+- EventConditional: Executes one generator or the other depending on the result of a condition.
+- Events: Sequencing user-defined events to form musical phrases.
+
+Expr API:
+
+- let statment can now store a complex number.
+- Expr now can handle multiple input sources.
+- Expr now can generate multiple output signals.
+- constants (pi, twopi, e, sr) can be used without braces.
+
+New example categories:
+
+- How to use OSC with pyo
+- Utilities
+- Events framework
+- Evaluating prefix expression
+
+================================================================================
+
+Hello all,
+
+I'm very happy to announce the release of pyo 1.0.1, available for python 2.7,
+3.5, 3.6, 3.7 and 3.8.
+
+Pyo is a Python module written in C to help real-time digital signal processing
+script creation. It provides a complete set of classes to build audio softwares, 
+compose algorithmic musics or simply explore audio processing.It is available for 
+Windows, macOS and linux. It is released under the LGPL 3 license.
+
+Official web site: http://ajaxsoundstudio.com/software/pyo/
+
+pyo's documentation: http://ajaxsoundstudio.com/pyodoc/
+
+Latest sources and bug tracker: https://github.com/belangeo/pyo
+
+The package is now uploaded to pypi.org and can be installed (for 32-bit or 64-bit)
+under MacOS, Windows and linux  with pip. Just run the command:
+
+    python -m pip install pyo
+
+For all the details and how to uninstall version prior to 1.0.0, see this page
+in the documentation:
+
+http://ajaxsoundstudio.com/pyodoc/download.html
+
+
+Bug Fixes:
+
+- Audio server falls back to playback-only mode if jack server has no input ports.
+- Fixed setting value of ControlSlider from national keyboard layout.
+- Fixed segfault when CallAfter's callback results in deleting itself.
+- Fixed tkinter font size on MacOS (issue #163).
+
+New features:
+
+- Added a clear() method to Mixer object to delete all inputs at once.
+- Added new object: Binaural, 3D stereo spatialization.
+- Added a DC blocker inside the feedback loop of Harmonizer object.
+- Added setChannelNames(names) method to Spectrum and Scope objects.
+- Added beatToDur(beat, bpm) function.
+
+Events framework (new framework to sequence events):
+
+Set of tools to generate sequence of events. The purpose of the Event framework is
+to allow the user to generate a sequence of events with as few as possible parameters
+to specify. The Events object is the heart of the framework. An Events object computes
+parameters, generally designed with event generator objects, builds the events and plays
+the sequence.
+
+See the Events framework examples in the documentation for different use cases.
+
+- EventScale: Constructs a list of pitches according to its arguments.
+- EventGenerator: Base class for all event generators.
+- EventKey: An EventGenerator that allow to retrieve the value of another parameter.
+- EventSeq: Plays through an entire list of values many times.
+- EventSlide: Plays overlapping segments from a list of values.
+- EventIndex: Plays values from a list based on a position index.
+- EventMarkov: Applies a Markov algorithm to a list of values.
+- EventChoice: Plays values randomly chosen from a list.
+- EventDrunk: Performs a random walk over a list of values.
+- EventNoise: White, pink or brown noise generator.
+- EventCall: Calls a function, with any number of arguments, and uses its return value.
+- EventConditional: Executes one generator or the other depending on the result of a condition.
+- Events: Sequencing user-defined events to form musical phrases.
+
+Expr API:
+
+- let statment can now store a complex number.
+- Expr now can handle multiple input sources.
+- Expr now can generate multiple output signals.
+- constants (pi, twopi, e, sr) can be used without braces.
+
+New example categories:
+
+- How to use OSC with pyo
+- Utilities
+- Events framework
+- Evaluating prefix expression
+
+
+Olivier Belanger
+belangeo@gmail.com
+http://olivier.ajaxsoundstudio.com/
+
+----
+
+<P><A HREF="http://ajaxsoundstudio.com/software/pyo/">Pyo 1.0.1</A> - short
+Python DSP library. (27-Nov-19)
+
