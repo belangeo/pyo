@@ -76,6 +76,8 @@ from .lib.hrtf import *
 from .lib import hrtf as hrtf
 from .lib.events import *
 from .lib import events as events
+from .lib.mmlmusic import *
+from .lib import mmlmusic as mmlmusic
 
 if WITH_EXTERNALS:
     from .lib import external as external
@@ -168,7 +170,7 @@ OBJECTS_TREE = {
                                 'TrigXnoiseMidi', 'Timer', 'Count', 'Change', 
                                 'TrigLinseg', 'TrigExpseg', 'Percent', 'Seq', 
                                 'TrigTableRec', 'Iter', 'NextTrig', 'TrigVal', 
-                                'Euclide', 'TrigBurst']),
+                                'Euclide', 'TrigBurst', 'MML']),
             'utils': sorted(['Clean_objects', 'Print', 'Snap', 'Interp', 
                              'SampHold', 'Compare', 'Record', 'DBToA', 'AToDB', 
                              'Between', 'Denorm', 'ControlRec', 'ControlRead', 

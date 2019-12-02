@@ -150,8 +150,8 @@ files = ['pyomodule.c', 'streammodule.c', 'servermodule.c', 'pvstreammodule.c',
 source_files = [os.path.join(path, f) for f in files]
 
 path = 'src/objects'
-files = ['hrtfmodule.c', 'filtremodule.c', 'arithmeticmodule.c', 'oscilmodule.c', 
-         'randommodule.c', 'analysismodule.c', 'sfplayermodule.c', 
+files = ['mmlmodule.c', 'hrtfmodule.c', 'filtremodule.c', 'arithmeticmodule.c',
+         'oscilmodule.c', 'randommodule.c', 'analysismodule.c', 'sfplayermodule.c', 
          'oscbankmodule.c', 'lfomodule.c', 'exprmodule.c', 'utilsmodule.c', 
          'granulatormodule.c', 'matrixmodule.c', 'noisemodule.c', 'distomodule.c', 
          'tablemodule.c', 'wgverbmodule.c', 'inputmodule.c', 'fadermodule.c', 

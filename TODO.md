@@ -28,6 +28,8 @@ Examples
 Objects
 -------
 
+- TrigAdsr, to generate envelope from trigger with constant fadein time.
+
 - Add VBAP and LBAP spat algorithms.
 
 - Add a plate reverb.

@@ -536,6 +536,15 @@ extern PyTypeObject M_DivType;
 extern PyTypeObject M_SubType;
 extern PyTypeObject BinauralerType;
 extern PyTypeObject BinauralType;
+extern PyTypeObject MMLMainType;
+extern PyTypeObject MMLType;
+extern PyTypeObject MMLFreqStreamType;
+extern PyTypeObject MMLAmpStreamType;
+extern PyTypeObject MMLDurStreamType;
+extern PyTypeObject MMLEndStreamType;
+extern PyTypeObject MMLXStreamType;
+extern PyTypeObject MMLYStreamType;
+extern PyTypeObject MMLZStreamType;
 
 /* Constants */
 #define E M_E

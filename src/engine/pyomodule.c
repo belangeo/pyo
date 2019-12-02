@@ -2113,6 +2113,15 @@ init_pyo64(void)
     module_add_object(m, "M_Sub_base", &M_SubType);
     module_add_object(m, "Binauraler_base", &BinauralerType);
     module_add_object(m, "Binaural_base", &BinauralType);
+    module_add_object(m, "MMLMain_base", &MMLMainType);
+    module_add_object(m, "MML_base", &MMLType);
+    module_add_object(m, "MMLFreqStream_base", &MMLFreqStreamType);
+    module_add_object(m, "MMLAmpStream_base", &MMLAmpStreamType);
+    module_add_object(m, "MMLDurStream_base", &MMLDurStreamType);
+    module_add_object(m, "MMLEndStream_base", &MMLEndStreamType);
+    module_add_object(m, "MMLXStream_base", &MMLXStreamType);
+    module_add_object(m, "MMLYStream_base", &MMLYStreamType);
+    module_add_object(m, "MMLZStream_base", &MMLZStreamType);
 
     PyModule_AddStringConstant(m, "PYO_VERSION", PYO_VERSION);
 #ifdef COMPILE_EXTERNALS
