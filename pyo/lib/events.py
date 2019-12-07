@@ -42,6 +42,7 @@ from .tableprocess import TableRead
 from .controls import Fader, Adsr
 from .generators import RCOsc
 from .effects import STRev
+from .pan import Pan
 
 if sys.version_info[0] < 3:
     inf = float("inf")
@@ -224,14 +225,14 @@ class EventInstrument(object):
 
 class DefaultInstrument(EventInstrument):
     """
-    The default instrument, playing a reverberated RC oscillator, used when
+    The default instrument, playing a stereo RC oscillator, used when
     'instr' attribute is not defined for an Events object.
 
     """
     def __init__(self, **args):
         EventInstrument.__init__(self, **args)
         self.osc = RCOsc(freq=self.freq, sharp=.5, mul=self.env)
-        self.rev = STRev(self.osc, 0.5, revtime=1.5, cutoff=5000, bal=0.15).out()
+        self.sig = self.osc.mix(2).out()
 
 # Event Scale 
 #############
@@ -1814,7 +1815,7 @@ class Events(dict):
         - outs: int, optional
             Number of output channels in the audio signal returned by the sig() method.
             This value should match the number of audio streams produced by the instrument.
-            Defaulta to 2.
+            Defaults to 2.
 
     **Duration keys**
         - dur: float, PyoObject or EventGenerator, optional

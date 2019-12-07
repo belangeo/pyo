@@ -21,19 +21,19 @@ The first argument that reaches the end of its sequence triggers the end
 of the Events's playback::
 
     e = Events(freq = EventSeq([250, 300, 350, 400]),
-               beat = EventSeq([1/2, 1/4, 1/4, 1], occurrences=4)).play()
+               beat = EventSeq([1/2., 1/4., 1/4., 1], occurrences=4)).play()
 
 The 'durmul' argument allow to change the note duration without changing
 the time gap between successive events::
 
     # Staccato
     e1 = Events(freq = EventSeq([250, 300, 350, 400]),
-                beat = EventSeq([1/2, 1/4, 1/4, 1], occurrences=4),
+                beat = EventSeq([1/2., 1/4., 1/4., 1], occurrences=4),
                 durmul = 0.5).play()
 
     # Overlapping
     e2 = Events(freq = EventSeq([250, 300, 350, 400]),
-                beat = EventSeq([1/2, 1/4, 1/4, 1], occurrences=4),
+                beat = EventSeq([1/2., 1/4., 1/4., 1], occurrences=4),
                 durmul = 1.5).play()
 
 Frequency
@@ -52,20 +52,20 @@ The midinote and degree arguments will automatically convert and store
 the frequency, in Hz, as the 'freq' argument::
 
     e3 = Events(midinote = EventSeq([60, 64, 67, 72]),
-                beat = EventSeq([1/2, 1/4, 1/4, 1], occurrences=4)).play()
+                beat = EventSeq([1/2., 1/4., 1/4., 1], occurrences=4)).play()
 
 The 'degree' argument uses an octave.degree notation. Ex.: 6.07 means
 the perfect fifth (07) of the sixth octave::
 
     e4 = Events(degree = EventSeq([5.00, 5.04, 5.07, 6.00]),
-                beat = EventSeq([1/2, 1/4, 1/4, 1], occurrences=4)).play()
+                beat = EventSeq([1/2., 1/4., 1/4., 1], occurrences=4)).play()
 
 One can transpose an entire sequence (or sequence the transposition
 values) with the 'transpo' argument. Transposition values are relative
 midi note (0 means no transposition, -12 is the lower octave)::
 
     e5 = Events(degree = EventSeq([5.00, 5.04, 5.07, 6.00]),
-                beat = EventSeq([1/2, 1/4, 1/4, 1], occurrences=4),
+                beat = EventSeq([1/2., 1/4., 1/4., 1], occurrences=4),
                 transpo = -12).play()
 
 Amplitude
@@ -78,7 +78,7 @@ as the 'amp' argument::
 
     # Sequence with accented notes.
     e6 = Events(degree = EventSeq([5.00, 5.04, 5.07, 6.00]),
-                beat = EventSeq([1/2, 1/4, 1/4, 1], occurrences=4),
+                beat = EventSeq([1/2., 1/4., 1/4., 1], occurrences=4),
                 db = EventSeq([-3, -6, -12, -3])).play()
 
 Envelope
@@ -97,7 +97,7 @@ will be an ASR, defined with 'attack', 'sustain' and 'release' arguments.
 The following defines an Adsr envelope::
 
     e7 = Events(degree = EventSeq([5.00, 5.04, 5.07, 6.00]),
-                beat = EventSeq([1/2, 1/4, 1/4, 1], occurrences=4),
+                beat = EventSeq([1/2., 1/4., 1/4., 1], occurrences=4),
                 attack = 0.001, decay = 0.05, sustain = 0.5, release = 0.005,
                 db = EventSeq([-3, -6, -12, -3])).play()
 
