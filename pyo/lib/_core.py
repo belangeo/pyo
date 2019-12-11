@@ -766,7 +766,7 @@ def pa_get_default_devices_from_host(host):
     with open(tempfile, "w") as f:
         with f as sys.stdout:
             pa_list_host_apis()
-        sys.stdout = sys.__stdout__
+            sys.stdout = sys.__stdout__
 
     with open(tempfile, "r") as f:
         lines = f.readlines()
