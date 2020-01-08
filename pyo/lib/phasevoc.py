@@ -1441,8 +1441,7 @@ class PVBuffer(PyoPVObject):
         pitch: float or PyoObject, optional
             Transposition factor. Defaults to 1.
         length: float, optional
-            Memory length in seconds. Available at initialization
-            time only. Defaults to 1.0.
+            Memory length in seconds. Defaults to 1.0.
 
     .. note::
 
@@ -1516,6 +1515,21 @@ class PVBuffer(PyoPVObject):
         x, lmax = convertArgsToLists(x)
         [obj.setPitch(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
+    def setLength(self, x):
+        """
+        Replace the `length` attribute.
+
+        :Args:
+
+            x: float
+                new `length` attribute.
+
+        """
+        pyoArgsAssert(self, "n", x)
+        self._length = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setLength(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
         self._map_list = [SLMap(0.25, 4, "lin", "pitch", self._pitch)]
         PyoPVObject.ctrl(self, map_list, title, wxnoserver)
@@ -1540,6 +1554,13 @@ class PVBuffer(PyoPVObject):
         return self._pitch
     @pitch.setter
     def pitch(self, x): self.setPitch(x)
+
+    @property
+    def length(self):
+        """float. Buffer length in seconds."""
+        return self._length
+    @length.setter
+    def length(self, x): self.setLength(x)
 
 class PVShift(PyoPVObject):
     """

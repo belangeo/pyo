@@ -5251,6 +5251,20 @@ PVBuffer_setPitch(PVBuffer *self, PyObject *arg)
 	return Py_None;
 }
 
+static PyObject *
+PVBuffer_setLength(PVBuffer *self, PyObject *arg)
+{
+    ASSERT_ARG_NOT_NULL
+
+	if (PyNumber_Check(arg)) {
+		self->length = PyFloat_AsDouble(PyNumber_Float(arg));
+        PVBuffer_realloc_memories(self);
+	}
+
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
 static PyMemberDef PVBuffer_members[] = {
 {"server", T_OBJECT_EX, offsetof(PVBuffer, server), 0, "Pyo server."},
 {"stream", T_OBJECT_EX, offsetof(PVBuffer, stream), 0, "Stream object."},
@@ -5268,6 +5282,7 @@ static PyMethodDef PVBuffer_methods[] = {
 {"setInput", (PyCFunction)PVBuffer_setInput, METH_O, "Sets a new input object."},
 {"setIndex", (PyCFunction)PVBuffer_setIndex, METH_O, "Sets a new pointer object."},
 {"setPitch", (PyCFunction)PVBuffer_setPitch, METH_O, "Sets a new transposition factor."},
+{"setLength", (PyCFunction)PVBuffer_setLength, METH_O, "Sets a new buffer length."},
 {"play", (PyCFunction)PVBuffer_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
 {"stop", (PyCFunction)PVBuffer_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
 {NULL}  /* Sentinel */
