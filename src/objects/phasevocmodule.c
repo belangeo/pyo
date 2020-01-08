@@ -359,13 +359,13 @@ PVAnal_setWinType(PVAnal *self, PyObject *arg)
 static PyObject *
 PVAnal_setCallback(PVAnal *self, PyObject *arg)
 {
-	PyObject *tmp;
+    PyObject *tmp;
 
-	if (! PyCallable_Check(arg) && arg != Py_None) {
+    if (! PyCallable_Check(arg) && arg != Py_None) {
         PyErr_SetString(PyExc_TypeError, "The callback attribute must be callable.");
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+        Py_INCREF(Py_None);
+        return Py_None;
+    }
 
     tmp = arg;
     Py_XDECREF(self->callback);
@@ -571,7 +571,7 @@ PVSynth_setProcMode(PVSynth *self)
 
     self->proc_func_ptr = PVSynth_process;
 
-	switch (muladdmode) {
+    switch (muladdmode) {
         case 0:
             self->muladd_func_ptr = PVSynth_postprocessing_ii;
             break;
@@ -656,8 +656,8 @@ PVSynth_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PVSynth *self;
     self = (PVSynth *)type->tp_alloc(type, 0);
 
-	self->modebuffer[0] = 0;
-	self->modebuffer[1] = 0;
+    self->modebuffer[0] = 0;
+    self->modebuffer[1] = 0;
 
     self->wintype = 2;
     INIT_OBJECT_COMMON
@@ -704,7 +704,7 @@ PVSynth_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 static PyObject *
 PVSynth_setInput(PVSynth *self, PyObject *arg)
 {
-	PyObject *inputtmp, *input_streamtmp;
+    PyObject *inputtmp, *input_streamtmp;
 
     inputtmp = arg;
     if ( PyObject_HasAttrString((PyObject *)inputtmp, "pv_stream") == 0 ) {
@@ -720,8 +720,8 @@ PVSynth_setInput(PVSynth *self, PyObject *arg)
     Py_XDECREF(self->input_stream);
     self->input_stream = (PVStream *)input_streamtmp;
 
-	Py_INCREF(Py_None);
-	return Py_None;
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
 static PyObject *
@@ -1030,7 +1030,7 @@ PVAddSynth_setProcMode(PVAddSynth *self)
     procmode = self->modebuffer[2];
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
 
-	switch (procmode) {
+    switch (procmode) {
         case 0:
             self->proc_func_ptr = PVAddSynth_process_i;
             break;
@@ -1038,7 +1038,7 @@ PVAddSynth_setProcMode(PVAddSynth *self)
             self->proc_func_ptr = PVAddSynth_process_a;
             break;
     }
-	switch (muladdmode) {
+    switch (muladdmode) {
         case 0:
             self->muladd_func_ptr = PVAddSynth_postprocessing_ii;
             break;
@@ -1124,9 +1124,9 @@ PVAddSynth_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->first = 0;
     self->inc = 1;
     self->update = 0;
-	self->modebuffer[0] = 0;
-	self->modebuffer[1] = 0;
-	self->modebuffer[2] = 0;
+    self->modebuffer[0] = 0;
+    self->modebuffer[1] = 0;
+    self->modebuffer[2] = 0;
 
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, PVAddSynth_compute_next_data_frame);
@@ -1181,7 +1181,7 @@ PVAddSynth_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 static PyObject *
 PVAddSynth_setInput(PVAddSynth *self, PyObject *arg)
 {
-	PyObject *inputtmp, *input_streamtmp;
+    PyObject *inputtmp, *input_streamtmp;
 
     inputtmp = arg;
     if ( PyObject_HasAttrString((PyObject *)inputtmp, "pv_stream") == 0 ) {
@@ -1197,39 +1197,39 @@ PVAddSynth_setInput(PVAddSynth *self, PyObject *arg)
     Py_XDECREF(self->input_stream);
     self->input_stream = (PVStream *)input_streamtmp;
 
-	Py_INCREF(Py_None);
-	return Py_None;
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
 static PyObject *
 PVAddSynth_setPitch(PVAddSynth *self, PyObject *arg)
 {
-	PyObject *tmp, *streamtmp;
+    PyObject *tmp, *streamtmp;
 
     ASSERT_ARG_NOT_NULL
 
-	int isNumber = PyNumber_Check(arg);
+    int isNumber = PyNumber_Check(arg);
 
-	tmp = arg;
-	Py_INCREF(tmp);
-	Py_DECREF(self->pitch);
-	if (isNumber == 1) {
-		self->pitch = PyNumber_Float(tmp);
+    tmp = arg;
+    Py_INCREF(tmp);
+    Py_DECREF(self->pitch);
+    if (isNumber == 1) {
+        self->pitch = PyNumber_Float(tmp);
         self->modebuffer[2] = 0;
-	}
-	else {
-		self->pitch = tmp;
+    }
+    else {
+        self->pitch = tmp;
         streamtmp = PyObject_CallMethod((PyObject *)self->pitch, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->pitch_stream);
         self->pitch_stream = (Stream *)streamtmp;
-		self->modebuffer[2] = 1;
-	}
+        self->modebuffer[2] = 1;
+    }
 
     (*self->mode_func_ptr)(self);
 
-	Py_INCREF(Py_None);
-	return Py_None;
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
 static PyObject *
@@ -1539,7 +1539,7 @@ PVTranspose_setProcMode(PVTranspose *self)
     int procmode;
     procmode = self->modebuffer[0];
 
-	switch (procmode) {
+    switch (procmode) {
         case 0:
             self->proc_func_ptr = PVTranspose_process_i;
             break;
@@ -1657,7 +1657,7 @@ static PyObject * PVTranspose_stop(PVTranspose *self, PyObject *args, PyObject *
 static PyObject *
 PVTranspose_setInput(PVTranspose *self, PyObject *arg)
 {
-	PyObject *inputtmp, *input_streamtmp;
+    PyObject *inputtmp, *input_streamtmp;
 
     inputtmp = arg;
     if ( PyObject_HasAttrString((PyObject *)inputtmp, "pv_stream") == 0 ) {
@@ -1673,39 +1673,39 @@ PVTranspose_setInput(PVTranspose *self, PyObject *arg)
     Py_XDECREF(self->input_stream);
     self->input_stream = (PVStream *)input_streamtmp;
 
-	Py_INCREF(Py_None);
-	return Py_None;
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
 static PyObject *
 PVTranspose_setTranspo(PVTranspose *self, PyObject *arg)
 {
-	PyObject *tmp, *streamtmp;
+    PyObject *tmp, *streamtmp;
 
     ASSERT_ARG_NOT_NULL
 
-	int isNumber = PyNumber_Check(arg);
+    int isNumber = PyNumber_Check(arg);
 
-	tmp = arg;
-	Py_INCREF(tmp);
-	Py_DECREF(self->transpo);
-	if (isNumber == 1) {
-		self->transpo = PyNumber_Float(tmp);
+    tmp = arg;
+    Py_INCREF(tmp);
+    Py_DECREF(self->transpo);
+    if (isNumber == 1) {
+        self->transpo = PyNumber_Float(tmp);
         self->modebuffer[0] = 0;
-	}
-	else {
-		self->transpo = tmp;
+    }
+    else {
+        self->transpo = tmp;
         streamtmp = PyObject_CallMethod((PyObject *)self->transpo, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->transpo_stream);
         self->transpo_stream = (Stream *)streamtmp;
-		self->modebuffer[0] = 1;
-	}
+        self->modebuffer[0] = 1;
+    }
 
     (*self->mode_func_ptr)(self);
 
-	Py_INCREF(Py_None);
-	return Py_None;
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
 static PyMemberDef PVTranspose_members[] = {
@@ -2040,7 +2040,7 @@ PVVerb_setProcMode(PVVerb *self)
     int procmode;
     procmode = self->modebuffer[0] + self->modebuffer[1] * 10;
 
-	switch (procmode) {
+    switch (procmode) {
         case 0:
             self->proc_func_ptr = PVVerb_process_ii;
             break;
@@ -2175,7 +2175,7 @@ static PyObject * PVVerb_stop(PVVerb *self, PyObject *args, PyObject *kwds) { ST
 static PyObject *
 PVVerb_setInput(PVVerb *self, PyObject *arg)
 {
-	PyObject *inputtmp, *input_streamtmp;
+    PyObject *inputtmp, *input_streamtmp;
 
     inputtmp = arg;
     if ( PyObject_HasAttrString((PyObject *)inputtmp, "pv_stream") == 0 ) {
@@ -2191,70 +2191,70 @@ PVVerb_setInput(PVVerb *self, PyObject *arg)
     Py_XDECREF(self->input_stream);
     self->input_stream = (PVStream *)input_streamtmp;
 
-	Py_INCREF(Py_None);
-	return Py_None;
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
 static PyObject *
 PVVerb_setRevtime(PVVerb *self, PyObject *arg)
 {
-	PyObject *tmp, *streamtmp;
+    PyObject *tmp, *streamtmp;
 
     ASSERT_ARG_NOT_NULL
 
-	int isNumber = PyNumber_Check(arg);
+    int isNumber = PyNumber_Check(arg);
 
-	tmp = arg;
-	Py_INCREF(tmp);
-	Py_DECREF(self->revtime);
-	if (isNumber == 1) {
-		self->revtime = PyNumber_Float(tmp);
+    tmp = arg;
+    Py_INCREF(tmp);
+    Py_DECREF(self->revtime);
+    if (isNumber == 1) {
+        self->revtime = PyNumber_Float(tmp);
         self->modebuffer[0] = 0;
-	}
-	else {
-		self->revtime = tmp;
+    }
+    else {
+        self->revtime = tmp;
         streamtmp = PyObject_CallMethod((PyObject *)self->revtime, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->revtime_stream);
         self->revtime_stream = (Stream *)streamtmp;
-		self->modebuffer[0] = 1;
-	}
+        self->modebuffer[0] = 1;
+    }
 
     (*self->mode_func_ptr)(self);
 
-	Py_INCREF(Py_None);
-	return Py_None;
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
 static PyObject *
 PVVerb_setDamp(PVVerb *self, PyObject *arg)
 {
-	PyObject *tmp, *streamtmp;
+    PyObject *tmp, *streamtmp;
 
     ASSERT_ARG_NOT_NULL
 
-	int isNumber = PyNumber_Check(arg);
+    int isNumber = PyNumber_Check(arg);
 
-	tmp = arg;
-	Py_INCREF(tmp);
-	Py_DECREF(self->damp);
-	if (isNumber == 1) {
-		self->damp = PyNumber_Float(tmp);
+    tmp = arg;
+    Py_INCREF(tmp);
+    Py_DECREF(self->damp);
+    if (isNumber == 1) {
+        self->damp = PyNumber_Float(tmp);
         self->modebuffer[1] = 0;
-	}
-	else {
-		self->damp = tmp;
+    }
+    else {
+        self->damp = tmp;
         streamtmp = PyObject_CallMethod((PyObject *)self->damp, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->damp_stream);
         self->damp_stream = (Stream *)streamtmp;
-		self->modebuffer[1] = 1;
-	}
+        self->modebuffer[1] = 1;
+    }
 
     (*self->mode_func_ptr)(self);
 
-	Py_INCREF(Py_None);
-	return Py_None;
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
 static PyMemberDef PVVerb_members[] = {
@@ -2570,7 +2570,7 @@ PVGate_setProcMode(PVGate *self)
     int procmode;
     procmode = self->modebuffer[0] + self->modebuffer[1] * 10;
 
-	switch (procmode) {
+    switch (procmode) {
         case 0:
             self->proc_func_ptr = PVGate_process_ii;
             break;
@@ -2704,7 +2704,7 @@ static PyObject * PVGate_stop(PVGate *self, PyObject *args, PyObject *kwds) { ST
 static PyObject *
 PVGate_setInput(PVGate *self, PyObject *arg)
 {
-	PyObject *inputtmp, *input_streamtmp;
+    PyObject *inputtmp, *input_streamtmp;
 
     inputtmp = arg;
     if ( PyObject_HasAttrString((PyObject *)inputtmp, "pv_stream") == 0 ) {
@@ -2720,70 +2720,70 @@ PVGate_setInput(PVGate *self, PyObject *arg)
     Py_XDECREF(self->input_stream);
     self->input_stream = (PVStream *)input_streamtmp;
 
-	Py_INCREF(Py_None);
-	return Py_None;
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
 static PyObject *
 PVGate_setThresh(PVGate *self, PyObject *arg)
 {
-	PyObject *tmp, *streamtmp;
+    PyObject *tmp, *streamtmp;
 
     ASSERT_ARG_NOT_NULL
 
-	int isNumber = PyNumber_Check(arg);
+    int isNumber = PyNumber_Check(arg);
 
-	tmp = arg;
-	Py_INCREF(tmp);
-	Py_DECREF(self->thresh);
-	if (isNumber == 1) {
-		self->thresh = PyNumber_Float(tmp);
+    tmp = arg;
+    Py_INCREF(tmp);
+    Py_DECREF(self->thresh);
+    if (isNumber == 1) {
+        self->thresh = PyNumber_Float(tmp);
         self->modebuffer[0] = 0;
-	}
-	else {
-		self->thresh = tmp;
+    }
+    else {
+        self->thresh = tmp;
         streamtmp = PyObject_CallMethod((PyObject *)self->thresh, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->thresh_stream);
         self->thresh_stream = (Stream *)streamtmp;
-		self->modebuffer[0] = 1;
-	}
+        self->modebuffer[0] = 1;
+    }
 
     (*self->mode_func_ptr)(self);
 
-	Py_INCREF(Py_None);
-	return Py_None;
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
 static PyObject *
 PVGate_setDamp(PVGate *self, PyObject *arg)
 {
-	PyObject *tmp, *streamtmp;
+    PyObject *tmp, *streamtmp;
 
     ASSERT_ARG_NOT_NULL
 
-	int isNumber = PyNumber_Check(arg);
+    int isNumber = PyNumber_Check(arg);
 
-	tmp = arg;
-	Py_INCREF(tmp);
-	Py_DECREF(self->damp);
-	if (isNumber == 1) {
-		self->damp = PyNumber_Float(tmp);
+    tmp = arg;
+    Py_INCREF(tmp);
+    Py_DECREF(self->damp);
+    if (isNumber == 1) {
+        self->damp = PyNumber_Float(tmp);
         self->modebuffer[1] = 0;
-	}
-	else {
-		self->damp = tmp;
+    }
+    else {
+        self->damp = tmp;
         streamtmp = PyObject_CallMethod((PyObject *)self->damp, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->damp_stream);
         self->damp_stream = (Stream *)streamtmp;
-		self->modebuffer[1] = 1;
-	}
+        self->modebuffer[1] = 1;
+    }
 
     (*self->mode_func_ptr)(self);
 
-	Py_INCREF(Py_None);
-	return Py_None;
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
 static PyObject *
@@ -2791,12 +2791,12 @@ PVGate_setInverse(PVGate *self, PyObject *arg)
 {
     ASSERT_ARG_NOT_NULL
 
-	if (PyInt_Check(arg)) {
+    if (PyInt_Check(arg)) {
         self->inverse = PyInt_AsLong(arg);
     }
 
-	Py_INCREF(Py_None);
-	return Py_None;
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
 static PyMemberDef PVGate_members[] = {
@@ -2981,7 +2981,7 @@ PVCross_setProcMode(PVCross *self)
     int procmode;
     procmode = self->modebuffer[0];
 
-	switch (procmode) {
+    switch (procmode) {
         case 0:
             self->proc_func_ptr = PVCross_process_i;
             break;
@@ -3115,7 +3115,7 @@ static PyObject * PVCross_stop(PVCross *self, PyObject *args, PyObject *kwds) { 
 static PyObject *
 PVCross_setInput(PVCross *self, PyObject *arg)
 {
-	PyObject *inputtmp, *input_streamtmp;
+    PyObject *inputtmp, *input_streamtmp;
 
     inputtmp = arg;
     if ( PyObject_HasAttrString((PyObject *)inputtmp, "pv_stream") == 0 ) {
@@ -3131,14 +3131,14 @@ PVCross_setInput(PVCross *self, PyObject *arg)
     Py_XDECREF(self->input_stream);
     self->input_stream = (PVStream *)input_streamtmp;
 
-	Py_INCREF(Py_None);
-	return Py_None;
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
 static PyObject *
 PVCross_setInput2(PVCross *self, PyObject *arg)
 {
-	PyObject *inputtmp, *input_streamtmp;
+    PyObject *inputtmp, *input_streamtmp;
 
     inputtmp = arg;
     if ( PyObject_HasAttrString((PyObject *)inputtmp, "pv_stream") == 0 ) {
@@ -3154,39 +3154,39 @@ PVCross_setInput2(PVCross *self, PyObject *arg)
     Py_XDECREF(self->input2_stream);
     self->input2_stream = (PVStream *)input_streamtmp;
 
-	Py_INCREF(Py_None);
-	return Py_None;
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
 static PyObject *
 PVCross_setFade(PVCross *self, PyObject *arg)
 {
-	PyObject *tmp, *streamtmp;
+    PyObject *tmp, *streamtmp;
 
     ASSERT_ARG_NOT_NULL
 
-	int isNumber = PyNumber_Check(arg);
+    int isNumber = PyNumber_Check(arg);
 
-	tmp = arg;
-	Py_INCREF(tmp);
-	Py_DECREF(self->fade);
-	if (isNumber == 1) {
-		self->fade = PyNumber_Float(tmp);
+    tmp = arg;
+    Py_INCREF(tmp);
+    Py_DECREF(self->fade);
+    if (isNumber == 1) {
+        self->fade = PyNumber_Float(tmp);
         self->modebuffer[0] = 0;
-	}
-	else {
-		self->fade = tmp;
+    }
+    else {
+        self->fade = tmp;
         streamtmp = PyObject_CallMethod((PyObject *)self->fade, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->fade_stream);
         self->fade_stream = (Stream *)streamtmp;
-		self->modebuffer[0] = 1;
-	}
+        self->modebuffer[0] = 1;
+    }
 
     (*self->mode_func_ptr)(self);
 
-	Py_INCREF(Py_None);
-	return Py_None;
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
 static PyMemberDef PVCross_members[] = {
@@ -3447,7 +3447,7 @@ static PyObject * PVMult_stop(PVMult *self, PyObject *args, PyObject *kwds) { ST
 static PyObject *
 PVMult_setInput(PVMult *self, PyObject *arg)
 {
-	PyObject *inputtmp, *input_streamtmp;
+    PyObject *inputtmp, *input_streamtmp;
 
     inputtmp = arg;
     if ( PyObject_HasAttrString((PyObject *)inputtmp, "pv_stream") == 0 ) {
@@ -3463,14 +3463,14 @@ PVMult_setInput(PVMult *self, PyObject *arg)
     Py_XDECREF(self->input_stream);
     self->input_stream = (PVStream *)input_streamtmp;
 
-	Py_INCREF(Py_None);
-	return Py_None;
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
 static PyObject *
 PVMult_setInput2(PVMult *self, PyObject *arg)
 {
-	PyObject *inputtmp, *input_streamtmp;
+    PyObject *inputtmp, *input_streamtmp;
 
     inputtmp = arg;
     if ( PyObject_HasAttrString((PyObject *)inputtmp, "pv_stream") == 0 ) {
@@ -3486,8 +3486,8 @@ PVMult_setInput2(PVMult *self, PyObject *arg)
     Py_XDECREF(self->input2_stream);
     self->input2_stream = (PVStream *)input_streamtmp;
 
-	Py_INCREF(Py_None);
-	return Py_None;
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
 static PyMemberDef PVMult_members[] = {
@@ -3679,7 +3679,7 @@ PVMorph_setProcMode(PVMorph *self)
     int procmode;
     procmode = self->modebuffer[0];
 
-	switch (procmode) {
+    switch (procmode) {
         case 0:
             self->proc_func_ptr = PVMorph_process_i;
             break;
@@ -3813,7 +3813,7 @@ static PyObject * PVMorph_stop(PVMorph *self, PyObject *args, PyObject *kwds) { 
 static PyObject *
 PVMorph_setInput(PVMorph *self, PyObject *arg)
 {
-	PyObject *inputtmp, *input_streamtmp;
+    PyObject *inputtmp, *input_streamtmp;
 
     inputtmp = arg;
     if ( PyObject_HasAttrString((PyObject *)inputtmp, "pv_stream") == 0 ) {
@@ -3829,14 +3829,14 @@ PVMorph_setInput(PVMorph *self, PyObject *arg)
     Py_XDECREF(self->input_stream);
     self->input_stream = (PVStream *)input_streamtmp;
 
-	Py_INCREF(Py_None);
-	return Py_None;
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
 static PyObject *
 PVMorph_setInput2(PVMorph *self, PyObject *arg)
 {
-	PyObject *inputtmp, *input_streamtmp;
+    PyObject *inputtmp, *input_streamtmp;
 
     inputtmp = arg;
     if ( PyObject_HasAttrString((PyObject *)inputtmp, "pv_stream") == 0 ) {
@@ -3852,39 +3852,39 @@ PVMorph_setInput2(PVMorph *self, PyObject *arg)
     Py_XDECREF(self->input2_stream);
     self->input2_stream = (PVStream *)input_streamtmp;
 
-	Py_INCREF(Py_None);
-	return Py_None;
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
 static PyObject *
 PVMorph_setFade(PVMorph *self, PyObject *arg)
 {
-	PyObject *tmp, *streamtmp;
+    PyObject *tmp, *streamtmp;
 
     ASSERT_ARG_NOT_NULL
 
-	int isNumber = PyNumber_Check(arg);
+    int isNumber = PyNumber_Check(arg);
 
-	tmp = arg;
-	Py_INCREF(tmp);
-	Py_DECREF(self->fade);
-	if (isNumber == 1) {
-		self->fade = PyNumber_Float(tmp);
+    tmp = arg;
+    Py_INCREF(tmp);
+    Py_DECREF(self->fade);
+    if (isNumber == 1) {
+        self->fade = PyNumber_Float(tmp);
         self->modebuffer[0] = 0;
-	}
-	else {
-		self->fade = tmp;
+    }
+    else {
+        self->fade = tmp;
         streamtmp = PyObject_CallMethod((PyObject *)self->fade, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->fade_stream);
         self->fade_stream = (Stream *)streamtmp;
-		self->modebuffer[0] = 1;
-	}
+        self->modebuffer[0] = 1;
+    }
 
     (*self->mode_func_ptr)(self);
 
-	Py_INCREF(Py_None);
-	return Py_None;
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
 static PyMemberDef PVMorph_members[] = {
@@ -4116,7 +4116,7 @@ PVFilter_setProcMode(PVFilter *self)
     int procmode;
     procmode = self->modebuffer[0];
 
-	switch (procmode) {
+    switch (procmode) {
         case 0:
             self->proc_func_ptr = PVFilter_process_i;
             break;
@@ -4241,7 +4241,7 @@ static PyObject * PVFilter_stop(PVFilter *self, PyObject *args, PyObject *kwds) 
 static PyObject *
 PVFilter_setInput(PVFilter *self, PyObject *arg)
 {
-	PyObject *inputtmp, *input_streamtmp;
+    PyObject *inputtmp, *input_streamtmp;
 
     inputtmp = arg;
     if ( PyObject_HasAttrString((PyObject *)inputtmp, "pv_stream") == 0 ) {
@@ -4257,39 +4257,39 @@ PVFilter_setInput(PVFilter *self, PyObject *arg)
     Py_XDECREF(self->input_stream);
     self->input_stream = (PVStream *)input_streamtmp;
 
-	Py_INCREF(Py_None);
-	return Py_None;
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
 static PyObject *
 PVFilter_setGain(PVFilter *self, PyObject *arg)
 {
-	PyObject *tmp, *streamtmp;
+    PyObject *tmp, *streamtmp;
 
     ASSERT_ARG_NOT_NULL
 
-	int isNumber = PyNumber_Check(arg);
+    int isNumber = PyNumber_Check(arg);
 
-	tmp = arg;
-	Py_INCREF(tmp);
-	Py_DECREF(self->gain);
-	if (isNumber == 1) {
-		self->gain = PyNumber_Float(tmp);
+    tmp = arg;
+    Py_INCREF(tmp);
+    Py_DECREF(self->gain);
+    if (isNumber == 1) {
+        self->gain = PyNumber_Float(tmp);
         self->modebuffer[0] = 0;
-	}
-	else {
-		self->gain = tmp;
+    }
+    else {
+        self->gain = tmp;
         streamtmp = PyObject_CallMethod((PyObject *)self->gain, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->gain_stream);
         self->gain_stream = (Stream *)streamtmp;
-		self->modebuffer[0] = 1;
-	}
+        self->modebuffer[0] = 1;
+    }
 
     (*self->mode_func_ptr)(self);
 
-	Py_INCREF(Py_None);
-	return Py_None;
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
 static PyObject *
@@ -4302,22 +4302,22 @@ PVFilter_getTable(PVFilter* self)
 static PyObject *
 PVFilter_setTable(PVFilter *self, PyObject *arg)
 {
-	PyObject *tmp;
+    PyObject *tmp;
 
     ASSERT_ARG_NOT_NULL
 
-	tmp = arg;
-	Py_DECREF(self->table);
+    tmp = arg;
+    Py_DECREF(self->table);
     self->table = PyObject_CallMethod((PyObject *)tmp, "getTableStream", "");
 
-	Py_INCREF(Py_None);
-	return Py_None;
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
 static PyObject *
 PVFilter_setMode(PVFilter *self, PyObject *arg)
 {
-	int tmp;
+    int tmp;
 
     if (PyLong_Check(arg) || PyInt_Check(arg)) {
         tmp = PyInt_AsLong(arg);
@@ -4327,8 +4327,8 @@ PVFilter_setMode(PVFilter *self, PyObject *arg)
             self->mode = 1;
     }
 
-	Py_INCREF(Py_None);
-	return Py_None;
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
 static PyMemberDef PVFilter_members[] = {
@@ -4716,7 +4716,7 @@ static PyObject * PVDelay_stop(PVDelay *self, PyObject *args, PyObject *kwds) { 
 static PyObject *
 PVDelay_setInput(PVDelay *self, PyObject *arg)
 {
-	PyObject *inputtmp, *input_streamtmp;
+    PyObject *inputtmp, *input_streamtmp;
 
     inputtmp = arg;
     if ( PyObject_HasAttrString((PyObject *)inputtmp, "pv_stream") == 0 ) {
@@ -4732,8 +4732,8 @@ PVDelay_setInput(PVDelay *self, PyObject *arg)
     Py_XDECREF(self->input_stream);
     self->input_stream = (PVStream *)input_streamtmp;
 
-	Py_INCREF(Py_None);
-	return Py_None;
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
 static PyObject *
@@ -4746,16 +4746,16 @@ PVDelay_getDeltable(PVDelay* self)
 static PyObject *
 PVDelay_setDeltable(PVDelay *self, PyObject *arg)
 {
-	PyObject *tmp;
+    PyObject *tmp;
 
     ASSERT_ARG_NOT_NULL
 
-	tmp = arg;
-	Py_DECREF(self->deltable);
+    tmp = arg;
+    Py_DECREF(self->deltable);
     self->deltable = PyObject_CallMethod((PyObject *)tmp, "getTableStream", "");
 
-	Py_INCREF(Py_None);
-	return Py_None;
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
 static PyObject *
@@ -4768,22 +4768,22 @@ PVDelay_getFeedtable(PVDelay* self)
 static PyObject *
 PVDelay_setFeedtable(PVDelay *self, PyObject *arg)
 {
-	PyObject *tmp;
+    PyObject *tmp;
 
     ASSERT_ARG_NOT_NULL
 
-	tmp = arg;
-	Py_DECREF(self->feedtable);
+    tmp = arg;
+    Py_DECREF(self->feedtable);
     self->feedtable = PyObject_CallMethod((PyObject *)tmp, "getTableStream", "");
 
-	Py_INCREF(Py_None);
-	return Py_None;
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
 static PyObject *
 PVDelay_setMode(PVDelay *self, PyObject *arg)
 {
-	int tmp;
+    int tmp;
 
     if (PyLong_Check(arg) || PyInt_Check(arg)) {
         tmp = PyInt_AsLong(arg);
@@ -4795,8 +4795,8 @@ PVDelay_setMode(PVDelay *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-	Py_INCREF(Py_None);
-	return Py_None;
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
 static PyMemberDef PVDelay_members[] = {
@@ -5038,7 +5038,7 @@ PVBuffer_setProcMode(PVBuffer *self)
     int procmode;
     procmode = self->modebuffer[0];
 
-	switch (procmode) {
+    switch (procmode) {
         case 0:
             self->proc_func_ptr = PVBuffer_process_i;
             break;
@@ -5174,7 +5174,7 @@ static PyObject * PVBuffer_stop(PVBuffer *self, PyObject *args, PyObject *kwds) 
 static PyObject *
 PVBuffer_setInput(PVBuffer *self, PyObject *arg)
 {
-	PyObject *inputtmp, *input_streamtmp;
+    PyObject *inputtmp, *input_streamtmp;
 
     inputtmp = arg;
     if ( PyObject_HasAttrString((PyObject *)inputtmp, "pv_stream") == 0 ) {
@@ -5190,25 +5190,25 @@ PVBuffer_setInput(PVBuffer *self, PyObject *arg)
     Py_XDECREF(self->input_stream);
     self->input_stream = (PVStream *)input_streamtmp;
 
-	Py_INCREF(Py_None);
-	return Py_None;
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
 static PyObject *
 PVBuffer_setIndex(PVBuffer *self, PyObject *arg)
 {
-	PyObject *tmp, *streamtmp;
+    PyObject *tmp, *streamtmp;
 
     ASSERT_ARG_NOT_NULL
 
-	tmp = arg;
-	if (PyObject_HasAttrString((PyObject *)tmp, "server") == 0) {
+    tmp = arg;
+    if (PyObject_HasAttrString((PyObject *)tmp, "server") == 0) {
         PyErr_SetString(PyExc_TypeError, "\"index\" argument of PVBuffer must be a PyoObject.\n");
         Py_RETURN_NONE;
-	}
+    }
 
-	Py_INCREF(tmp);
-	Py_XDECREF(self->index);
+    Py_INCREF(tmp);
+    Py_XDECREF(self->index);
 
     self->index = tmp;
     streamtmp = PyObject_CallMethod((PyObject *)self->index, "_getStream", NULL);
@@ -5216,39 +5216,39 @@ PVBuffer_setIndex(PVBuffer *self, PyObject *arg)
     Py_XDECREF(self->index_stream);
     self->index_stream = (Stream *)streamtmp;
 
-	Py_INCREF(Py_None);
-	return Py_None;
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
 static PyObject *
 PVBuffer_setPitch(PVBuffer *self, PyObject *arg)
 {
-	PyObject *tmp, *streamtmp;
+    PyObject *tmp, *streamtmp;
 
     ASSERT_ARG_NOT_NULL
 
-	int isNumber = PyNumber_Check(arg);
+    int isNumber = PyNumber_Check(arg);
 
-	tmp = arg;
-	Py_INCREF(tmp);
-	Py_DECREF(self->pitch);
-	if (isNumber == 1) {
-		self->pitch = PyNumber_Float(tmp);
+    tmp = arg;
+    Py_INCREF(tmp);
+    Py_DECREF(self->pitch);
+    if (isNumber == 1) {
+        self->pitch = PyNumber_Float(tmp);
         self->modebuffer[0] = 0;
-	}
-	else {
-		self->pitch = tmp;
+    }
+    else {
+        self->pitch = tmp;
         streamtmp = PyObject_CallMethod((PyObject *)self->pitch, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->pitch_stream);
         self->pitch_stream = (Stream *)streamtmp;
-		self->modebuffer[0] = 1;
-	}
+        self->modebuffer[0] = 1;
+    }
 
     (*self->mode_func_ptr)(self);
 
-	Py_INCREF(Py_None);
-	return Py_None;
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
 static PyObject *
@@ -5256,13 +5256,13 @@ PVBuffer_setLength(PVBuffer *self, PyObject *arg)
 {
     ASSERT_ARG_NOT_NULL
 
-	if (PyNumber_Check(arg)) {
-		self->length = PyFloat_AsDouble(PyNumber_Float(arg));
+    if (PyNumber_Check(arg)) {
+        self->length = PyFloat_AsDouble(PyNumber_Float(arg));
         PVBuffer_realloc_memories(self);
-	}
+    }
 
-	Py_INCREF(Py_None);
-	return Py_None;
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
 static PyMemberDef PVBuffer_members[] = {
@@ -5461,7 +5461,7 @@ PVShift_setProcMode(PVShift *self)
     int procmode;
     procmode = self->modebuffer[0];
 
-	switch (procmode) {
+    switch (procmode) {
         case 0:
             self->proc_func_ptr = PVShift_process_i;
             break;
@@ -5579,7 +5579,7 @@ static PyObject * PVShift_stop(PVShift *self, PyObject *args, PyObject *kwds) { 
 static PyObject *
 PVShift_setInput(PVShift *self, PyObject *arg)
 {
-	PyObject *inputtmp, *input_streamtmp;
+    PyObject *inputtmp, *input_streamtmp;
 
     inputtmp = arg;
     if ( PyObject_HasAttrString((PyObject *)inputtmp, "pv_stream") == 0 ) {
@@ -5595,39 +5595,39 @@ PVShift_setInput(PVShift *self, PyObject *arg)
     Py_XDECREF(self->input_stream);
     self->input_stream = (PVStream *)input_streamtmp;
 
-	Py_INCREF(Py_None);
-	return Py_None;
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
 static PyObject *
 PVShift_setShift(PVShift *self, PyObject *arg)
 {
-	PyObject *tmp, *streamtmp;
+    PyObject *tmp, *streamtmp;
 
     ASSERT_ARG_NOT_NULL
 
-	int isNumber = PyNumber_Check(arg);
+    int isNumber = PyNumber_Check(arg);
 
-	tmp = arg;
-	Py_INCREF(tmp);
-	Py_DECREF(self->shift);
-	if (isNumber == 1) {
-		self->shift = PyNumber_Float(tmp);
+    tmp = arg;
+    Py_INCREF(tmp);
+    Py_DECREF(self->shift);
+    if (isNumber == 1) {
+        self->shift = PyNumber_Float(tmp);
         self->modebuffer[0] = 0;
-	}
-	else {
-		self->shift = tmp;
+    }
+    else {
+        self->shift = tmp;
         streamtmp = PyObject_CallMethod((PyObject *)self->shift, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->shift_stream);
         self->shift_stream = (Stream *)streamtmp;
-		self->modebuffer[0] = 1;
-	}
+        self->modebuffer[0] = 1;
+    }
 
     (*self->mode_func_ptr)(self);
 
-	Py_INCREF(Py_None);
-	return Py_None;
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
 static PyMemberDef PVShift_members[] = {
@@ -5984,7 +5984,7 @@ PVAmpMod_setProcMode(PVAmpMod *self)
     int procmode;
     procmode = self->modebuffer[0] + self->modebuffer[1] * 10;
 
-	switch (procmode) {
+    switch (procmode) {
         case 0:
             self->proc_func_ptr = PVAmpMod_process_ii;
             break;
@@ -6122,7 +6122,7 @@ static PyObject * PVAmpMod_stop(PVAmpMod *self, PyObject *args, PyObject *kwds) 
 static PyObject *
 PVAmpMod_setInput(PVAmpMod *self, PyObject *arg)
 {
-	PyObject *inputtmp, *input_streamtmp;
+    PyObject *inputtmp, *input_streamtmp;
 
     inputtmp = arg;
     if ( PyObject_HasAttrString((PyObject *)inputtmp, "pv_stream") == 0 ) {
@@ -6138,70 +6138,70 @@ PVAmpMod_setInput(PVAmpMod *self, PyObject *arg)
     Py_XDECREF(self->input_stream);
     self->input_stream = (PVStream *)input_streamtmp;
 
-	Py_INCREF(Py_None);
-	return Py_None;
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
 static PyObject *
 PVAmpMod_setBasefreq(PVAmpMod *self, PyObject *arg)
 {
-	PyObject *tmp, *streamtmp;
+    PyObject *tmp, *streamtmp;
 
     ASSERT_ARG_NOT_NULL
 
-	int isNumber = PyNumber_Check(arg);
+    int isNumber = PyNumber_Check(arg);
 
-	tmp = arg;
-	Py_INCREF(tmp);
-	Py_DECREF(self->basefreq);
-	if (isNumber == 1) {
-		self->basefreq = PyNumber_Float(tmp);
+    tmp = arg;
+    Py_INCREF(tmp);
+    Py_DECREF(self->basefreq);
+    if (isNumber == 1) {
+        self->basefreq = PyNumber_Float(tmp);
         self->modebuffer[0] = 0;
-	}
-	else {
-		self->basefreq = tmp;
+    }
+    else {
+        self->basefreq = tmp;
         streamtmp = PyObject_CallMethod((PyObject *)self->basefreq, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->basefreq_stream);
         self->basefreq_stream = (Stream *)streamtmp;
-		self->modebuffer[0] = 1;
-	}
+        self->modebuffer[0] = 1;
+    }
 
     (*self->mode_func_ptr)(self);
 
-	Py_INCREF(Py_None);
-	return Py_None;
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
 static PyObject *
 PVAmpMod_setSpread(PVAmpMod *self, PyObject *arg)
 {
-	PyObject *tmp, *streamtmp;
+    PyObject *tmp, *streamtmp;
 
     ASSERT_ARG_NOT_NULL
 
-	int isNumber = PyNumber_Check(arg);
+    int isNumber = PyNumber_Check(arg);
 
-	tmp = arg;
-	Py_INCREF(tmp);
-	Py_DECREF(self->spread);
-	if (isNumber == 1) {
-		self->spread = PyNumber_Float(tmp);
+    tmp = arg;
+    Py_INCREF(tmp);
+    Py_DECREF(self->spread);
+    if (isNumber == 1) {
+        self->spread = PyNumber_Float(tmp);
         self->modebuffer[1] = 0;
-	}
-	else {
-		self->spread = tmp;
+    }
+    else {
+        self->spread = tmp;
         streamtmp = PyObject_CallMethod((PyObject *)self->spread, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->spread_stream);
         self->spread_stream = (Stream *)streamtmp;
-		self->modebuffer[1] = 1;
-	}
+        self->modebuffer[1] = 1;
+    }
 
     (*self->mode_func_ptr)(self);
 
-	Py_INCREF(Py_None);
-	return Py_None;
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
 static PyObject *
@@ -6209,12 +6209,12 @@ PVAmpMod_setShape(PVAmpMod *self, PyObject *arg)
 {
     ASSERT_ARG_NOT_NULL
 
-	if (PyNumber_Check(arg)) {
+    if (PyNumber_Check(arg)) {
         PVMod_setTable(self->table, PyInt_AsLong(arg));
     }
 
-	Py_INCREF(Py_None);
-	return Py_None;
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
 static PyObject *
@@ -6222,8 +6222,8 @@ PVAmpMod_reset(PVAmpMod *self) {
     int i;
     for (i=0; i<self->hsize; i++)
         self->pointers[i] = 0.0;
-	Py_INCREF(Py_None);
-	return Py_None;
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
 static PyMemberDef PVAmpMod_members[] = {
@@ -6589,7 +6589,7 @@ PVFreqMod_setProcMode(PVFreqMod *self)
     int procmode;
     procmode = self->modebuffer[0] + self->modebuffer[1] * 10;
 
-	switch (procmode) {
+    switch (procmode) {
         case 0:
             self->proc_func_ptr = PVFreqMod_process_ii;
             break;
@@ -6736,7 +6736,7 @@ static PyObject * PVFreqMod_stop(PVFreqMod *self, PyObject *args, PyObject *kwds
 static PyObject *
 PVFreqMod_setInput(PVFreqMod *self, PyObject *arg)
 {
-	PyObject *inputtmp, *input_streamtmp;
+    PyObject *inputtmp, *input_streamtmp;
 
     inputtmp = arg;
     if ( PyObject_HasAttrString((PyObject *)inputtmp, "pv_stream") == 0 ) {
@@ -6752,101 +6752,101 @@ PVFreqMod_setInput(PVFreqMod *self, PyObject *arg)
     Py_XDECREF(self->input_stream);
     self->input_stream = (PVStream *)input_streamtmp;
 
-	Py_INCREF(Py_None);
-	return Py_None;
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
 static PyObject *
 PVFreqMod_setBasefreq(PVFreqMod *self, PyObject *arg)
 {
-	PyObject *tmp, *streamtmp;
+    PyObject *tmp, *streamtmp;
 
     ASSERT_ARG_NOT_NULL
 
-	int isNumber = PyNumber_Check(arg);
+    int isNumber = PyNumber_Check(arg);
 
-	tmp = arg;
-	Py_INCREF(tmp);
-	Py_DECREF(self->basefreq);
-	if (isNumber == 1) {
-		self->basefreq = PyNumber_Float(tmp);
+    tmp = arg;
+    Py_INCREF(tmp);
+    Py_DECREF(self->basefreq);
+    if (isNumber == 1) {
+        self->basefreq = PyNumber_Float(tmp);
         self->modebuffer[0] = 0;
-	}
-	else {
-		self->basefreq = tmp;
+    }
+    else {
+        self->basefreq = tmp;
         streamtmp = PyObject_CallMethod((PyObject *)self->basefreq, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->basefreq_stream);
         self->basefreq_stream = (Stream *)streamtmp;
-		self->modebuffer[0] = 1;
-	}
+        self->modebuffer[0] = 1;
+    }
 
     (*self->mode_func_ptr)(self);
 
-	Py_INCREF(Py_None);
-	return Py_None;
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
 static PyObject *
 PVFreqMod_setSpread(PVFreqMod *self, PyObject *arg)
 {
-	PyObject *tmp, *streamtmp;
+    PyObject *tmp, *streamtmp;
 
     ASSERT_ARG_NOT_NULL
 
-	int isNumber = PyNumber_Check(arg);
+    int isNumber = PyNumber_Check(arg);
 
-	tmp = arg;
-	Py_INCREF(tmp);
-	Py_DECREF(self->spread);
-	if (isNumber == 1) {
-		self->spread = PyNumber_Float(tmp);
+    tmp = arg;
+    Py_INCREF(tmp);
+    Py_DECREF(self->spread);
+    if (isNumber == 1) {
+        self->spread = PyNumber_Float(tmp);
         self->modebuffer[1] = 0;
-	}
-	else {
-		self->spread = tmp;
+    }
+    else {
+        self->spread = tmp;
         streamtmp = PyObject_CallMethod((PyObject *)self->spread, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->spread_stream);
         self->spread_stream = (Stream *)streamtmp;
-		self->modebuffer[1] = 1;
-	}
+        self->modebuffer[1] = 1;
+    }
 
     (*self->mode_func_ptr)(self);
 
-	Py_INCREF(Py_None);
-	return Py_None;
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
 static PyObject *
 PVFreqMod_setDepth(PVFreqMod *self, PyObject *arg)
 {
-	PyObject *tmp, *streamtmp;
+    PyObject *tmp, *streamtmp;
 
     ASSERT_ARG_NOT_NULL
 
-	int isNumber = PyNumber_Check(arg);
+    int isNumber = PyNumber_Check(arg);
 
-	tmp = arg;
-	Py_INCREF(tmp);
-	Py_DECREF(self->depth);
-	if (isNumber == 1) {
-		self->depth = PyNumber_Float(tmp);
+    tmp = arg;
+    Py_INCREF(tmp);
+    Py_DECREF(self->depth);
+    if (isNumber == 1) {
+        self->depth = PyNumber_Float(tmp);
         self->modebuffer[2] = 0;
-	}
-	else {
-		self->depth = tmp;
+    }
+    else {
+        self->depth = tmp;
         streamtmp = PyObject_CallMethod((PyObject *)self->depth, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->depth_stream);
         self->depth_stream = (Stream *)streamtmp;
-		self->modebuffer[2] = 1;
-	}
+        self->modebuffer[2] = 1;
+    }
 
     (*self->mode_func_ptr)(self);
 
-	Py_INCREF(Py_None);
-	return Py_None;
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
 static PyObject *
@@ -6854,12 +6854,12 @@ PVFreqMod_setShape(PVFreqMod *self, PyObject *arg)
 {
     ASSERT_ARG_NOT_NULL
 
-	if (PyNumber_Check(arg)) {
+    if (PyNumber_Check(arg)) {
         PVMod_setTable(self->table, PyInt_AsLong(arg));
     }
 
-	Py_INCREF(Py_None);
-	return Py_None;
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
 static PyObject *
@@ -6867,8 +6867,8 @@ PVFreqMod_reset(PVFreqMod *self) {
     int i;
     for (i=0; i<self->hsize; i++)
         self->pointers[i] = 0.0;
-	Py_INCREF(Py_None);
-	return Py_None;
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
 static PyMemberDef PVFreqMod_members[] = {
@@ -7282,7 +7282,7 @@ static PyObject * PVBufLoops_stop(PVBufLoops *self, PyObject *args, PyObject *kw
 static PyObject *
 PVBufLoops_setInput(PVBufLoops *self, PyObject *arg)
 {
-	PyObject *inputtmp, *input_streamtmp;
+    PyObject *inputtmp, *input_streamtmp;
 
     inputtmp = arg;
     if ( PyObject_HasAttrString((PyObject *)inputtmp, "pv_stream") == 0 ) {
@@ -7298,66 +7298,66 @@ PVBufLoops_setInput(PVBufLoops *self, PyObject *arg)
     Py_XDECREF(self->input_stream);
     self->input_stream = (PVStream *)input_streamtmp;
 
-	Py_INCREF(Py_None);
-	return Py_None;
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
 static PyObject *
 PVBufLoops_setLow(PVBufLoops *self, PyObject *arg)
 {
-	PyObject *tmp, *streamtmp;
+    PyObject *tmp, *streamtmp;
 
     ASSERT_ARG_NOT_NULL
 
-	int isNumber = PyNumber_Check(arg);
+    int isNumber = PyNumber_Check(arg);
 
-	tmp = arg;
-	Py_INCREF(tmp);
-	Py_DECREF(self->low);
-	if (isNumber == 1) {
-		self->low = PyNumber_Float(tmp);
+    tmp = arg;
+    Py_INCREF(tmp);
+    Py_DECREF(self->low);
+    if (isNumber == 1) {
+        self->low = PyNumber_Float(tmp);
         self->modebuffer[0] = 0;
-	}
-	else {
-		self->low = tmp;
+    }
+    else {
+        self->low = tmp;
         streamtmp = PyObject_CallMethod((PyObject *)self->low, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->low_stream);
         self->low_stream = (Stream *)streamtmp;
-		self->modebuffer[0] = 1;
-	}
+        self->modebuffer[0] = 1;
+    }
 
-	Py_INCREF(Py_None);
-	return Py_None;
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
 static PyObject *
 PVBufLoops_setHigh(PVBufLoops *self, PyObject *arg)
 {
-	PyObject *tmp, *streamtmp;
+    PyObject *tmp, *streamtmp;
 
     ASSERT_ARG_NOT_NULL
 
-	int isNumber = PyNumber_Check(arg);
+    int isNumber = PyNumber_Check(arg);
 
-	tmp = arg;
-	Py_INCREF(tmp);
-	Py_DECREF(self->high);
-	if (isNumber == 1) {
-		self->high = PyNumber_Float(tmp);
+    tmp = arg;
+    Py_INCREF(tmp);
+    Py_DECREF(self->high);
+    if (isNumber == 1) {
+        self->high = PyNumber_Float(tmp);
         self->modebuffer[1] = 0;
-	}
-	else {
-		self->high = tmp;
+    }
+    else {
+        self->high = tmp;
         streamtmp = PyObject_CallMethod((PyObject *)self->high, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->high_stream);
         self->high_stream = (Stream *)streamtmp;
-		self->modebuffer[1] = 1;
-	}
+        self->modebuffer[1] = 1;
+    }
 
-	Py_INCREF(Py_None);
-	return Py_None;
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
 static PyObject *
@@ -7367,16 +7367,16 @@ PVBufLoops_setMode(PVBufLoops *self, PyObject *arg)
 
     ASSERT_ARG_NOT_NULL
 
-	int isInt = PyInt_Check(arg);
+    int isInt = PyInt_Check(arg);
 
-	if (isInt == 1) {
-		tmp = PyInt_AsLong(arg);
+    if (isInt == 1) {
+        tmp = PyInt_AsLong(arg);
         if (tmp >= 0 && tmp < 7)
             self->mode = tmp;
-	}
+    }
 
-	Py_INCREF(Py_None);
-	return Py_None;
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
 static PyObject *
@@ -7384,8 +7384,8 @@ PVBufLoops_reset(PVBufLoops *self) {
     int i;
     for (i=0; i<self->hsize; i++)
         self->pointers[i] = 0.0;
-	Py_INCREF(Py_None);
-	return Py_None;
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
 static PyMemberDef PVBufLoops_members[] = {
@@ -7697,7 +7697,7 @@ static PyObject * PVBufTabLoops_stop(PVBufTabLoops *self, PyObject *args, PyObje
 static PyObject *
 PVBufTabLoops_setInput(PVBufTabLoops *self, PyObject *arg)
 {
-	PyObject *inputtmp, *input_streamtmp;
+    PyObject *inputtmp, *input_streamtmp;
 
     inputtmp = arg;
     if ( PyObject_HasAttrString((PyObject *)inputtmp, "pv_stream") == 0 ) {
@@ -7713,23 +7713,23 @@ PVBufTabLoops_setInput(PVBufTabLoops *self, PyObject *arg)
     Py_XDECREF(self->input_stream);
     self->input_stream = (PVStream *)input_streamtmp;
 
-	Py_INCREF(Py_None);
-	return Py_None;
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
 static PyObject *
 PVBufTabLoops_setSpeed(PVBufTabLoops *self, PyObject *arg)
 {
-	PyObject *tmp;
+    PyObject *tmp;
 
     ASSERT_ARG_NOT_NULL
 
-	tmp = arg;
-	Py_DECREF(self->speed);
+    tmp = arg;
+    Py_DECREF(self->speed);
     self->speed = PyObject_CallMethod((PyObject *)tmp, "getTableStream", "");
 
-	Py_INCREF(Py_None);
-	return Py_None;
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
 static PyObject *
@@ -7737,8 +7737,8 @@ PVBufTabLoops_reset(PVBufTabLoops *self) {
     int i;
     for (i=0; i<self->hsize; i++)
         self->pointers[i] = 0.0;
-	Py_INCREF(Py_None);
-	return Py_None;
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
 static PyMemberDef PVBufTabLoops_members[] = {
@@ -8005,7 +8005,7 @@ static PyObject * PVMix_stop(PVMix *self, PyObject *args, PyObject *kwds) { STOP
 static PyObject *
 PVMix_setInput(PVMix *self, PyObject *arg)
 {
-	PyObject *inputtmp, *input_streamtmp;
+    PyObject *inputtmp, *input_streamtmp;
 
     inputtmp = arg;
     if ( PyObject_HasAttrString((PyObject *)inputtmp, "pv_stream") == 0 ) {
@@ -8021,14 +8021,14 @@ PVMix_setInput(PVMix *self, PyObject *arg)
     Py_XDECREF(self->input_stream);
     self->input_stream = (PVStream *)input_streamtmp;
 
-	Py_INCREF(Py_None);
-	return Py_None;
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
 static PyObject *
 PVMix_setInput2(PVMix *self, PyObject *arg)
 {
-	PyObject *inputtmp, *input_streamtmp;
+    PyObject *inputtmp, *input_streamtmp;
 
     inputtmp = arg;
     if ( PyObject_HasAttrString((PyObject *)inputtmp, "pv_stream") == 0 ) {
@@ -8044,8 +8044,8 @@ PVMix_setInput2(PVMix *self, PyObject *arg)
     Py_XDECREF(self->input2_stream);
     self->input2_stream = (PVStream *)input_streamtmp;
 
-	Py_INCREF(Py_None);
-	return Py_None;
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
 static PyMemberDef PVMix_members[] = {
