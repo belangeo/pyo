@@ -28,6 +28,10 @@ Examples
 Objects
 -------
 
+- PVInterp
+
+- Integrator and Differentiator
+
 - TrigAdsr, to generate envelope from trigger with constant fadein time.
 
 - Add VBAP and LBAP spat algorithms.
