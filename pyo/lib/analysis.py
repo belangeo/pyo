@@ -260,7 +260,7 @@ class ZCross(PyoObject):
             Input signal to process.
         thresh: float, optional
             Minimum amplitude difference allowed between adjacent samples
-            to be included in the zeros count.
+            to be included in the zeros count. Defaults to 0.
 
     .. note::
 
