@@ -178,7 +178,7 @@ OBJECTS_TREE = {
                              'CentsToTranspo', 'TranspoToCents', 'MToF', 'FToM', 
                              'MToT', 'Resample', 'Expr']),
             'expression': sorted(['Expr']),
-            'fourier': sorted(['FFT', 'IFFT', 'CarToPol', 'PolToCar', 
+            'fourier': sorted(['FFT', 'IFFT', 'CarToPol', 'PolToCar', 'IFFTMatrix',
                                'FrameDelta', 'FrameAccum', 'Vectral', 'CvlVerb']),
             'events': sorted(['EventInstrument', 'DefaultInstrument', 'EventScale',
                               'EventGenerator', 'EventDummy', 'EventFilter', 'EventKey',

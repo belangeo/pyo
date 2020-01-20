@@ -1287,3 +1287,199 @@ class CvlVerb(PyoObject):
         return self._bal
     @bal.setter
     def bal(self, x): self.setBal(x)
+
+class IFFTMatrix(PyoObject):
+    """
+    Inverse Fast Fourier Transform with a PyoMatrixObject as input.
+
+    IFFTMatrix takes a matrix as input and read it as it is a sonogram.
+    On the current column, given by the `index` argument, the cells
+    at the bottom represent the lower frequencies of the spectrum and
+    the cells at the top, the higher frequencies of the spectrum.
+
+    Because a matrix is usually used to store bipolar signals (with the
+    amplitude between -1 and 1), a cell value of -1 represent a frequency
+    bin with no amplitude and a cell value of 1 represents the maximum
+    amplitude for the given frequency bin.
+
+    The instantaneous angle value (in polar coordinates) of each frequency
+    bin is given by the current sample in the audio signal given to the
+    `phase` argument. Generally speaking, the more noisy this signal is,
+    the more energy a bin with a positive amplitude value will have.
+
+    :Parent: :py:class:`PyoObject`
+
+    :Args:
+
+        matrix: PyoMatrixObject
+            The matrix used like a sonogram.
+        index: PyoObject
+            Normalized horizontal position in the matrix. 0 is the
+            first column and 1 is the last. Positions between two
+            columns are interpolated. If this signal is a Phasor,
+            the matrix is read from left to right.
+        phase: PyoObject
+            Instantaneous angle value used to compute the inverse
+            FFT. Try different signals like white noise or an oscillator
+            with a frequency slightly detuned in relation to the
+            frequency of the FFT (sr / fftsize).
+        size: int {pow-of-two > 4}, optional
+            FFT size. Must be a power of two greater than 4.
+            The FFT size is the number of samples used in each
+            analysis frame. This value must match the `size`
+            attribute of the former FFT object. Defaults to 1024.
+        overlaps: int, optional
+            The number of overlaped analysis block. Must be a
+            positive integer. More overlaps can greatly improved
+            sound quality synthesis but it is also more CPU
+            expensive. This value must match the `overlaps`
+            atribute of the former FFT object. Defaults to 4.
+        wintype: int, optional
+            Shape of the envelope used to filter each output frame.
+            Possible shapes are :
+
+            0. rectangular (no windowing)
+            1. Hamming
+            2. Hanning
+            3. Bartlett (triangular)
+            4. Blackman 3-term
+            5. Blackman-Harris 4-term
+            6. Blackman-Harris 7-term
+            7. Tuckey (alpha = 0.66)
+            8. Sine (half-sine window)
+
+    .. note::
+
+        The output of IFFTMatrix must be mixed to reconstruct the real
+        signal from the overlapped streams. It is left to the user
+        to call the mix(number of channels) method on an IFFTMatrix object.
+
+    >>> s = Server().boot()
+    >>> s.start()
+    >>> m = NewMatrix(512, 512)
+    >>> m.genSineTerrain(1, 0.15)
+    >>> index = Phasor([0.4, 0.5])
+    >>> phase = Noise(0.7)
+    >>> fout = IFFTMatrix(m, index, phase, size=2048, overlaps=16, wintype=2).mix(2).out()
+
+    """
+    def __init__(self, matrix, index, phase, size=1024, overlaps=4, wintype=2, mul=1, add=0):
+        pyoArgsAssert(self, "mooiIiOO", matrix, index, phase, size, overlaps, wintype, mul, add)
+        PyoObject.__init__(self, mul, add)
+        self._matrix = matrix
+        self._index = index
+        self._phase = phase
+        self._size = size
+        self._overlaps = overlaps
+        self._wintype = wintype
+        matrix, index, phase, size, wintype, mul, add, self._lmax = convertArgsToLists(matrix, index, phase, size, wintype, mul, add)
+        self._base_objs = []
+        for j in range(overlaps):
+            for i in range(self._lmax):
+                hopsize = int(wrap(size,i) / overlaps) * j
+                self._base_objs.append(IFFTMatrix_base(wrap(matrix,i), wrap(index,i), wrap(phase,i), wrap(size,i), hopsize, wrap(wintype,i), wrap(mul,i), wrap(add,i)))
+        self._init_play()
+
+    def __len__(self):
+        return int(len(self._base_objs) / self._overlaps)
+
+    def setIndex(self, x):
+        """
+        Replace the `index` attribute.
+
+        :Args:
+
+            x: PyoObject
+                new `index` attribute.
+
+        """
+        pyoArgsAssert(self, "o", x)
+        self._index = x
+        x, lmax = convertArgsToLists(x)
+        for j in range(overlaps):
+            for i in range(self._lmax):
+                self._base_objs[j*self._overlaps+i].setIndex(wrap(x,i))
+
+    def setPhase(self, x):
+        """
+        Replace the `phase` attribute.
+
+        :Args:
+
+            x: PyoObject
+                new `phase` attribute.
+
+        """
+        pyoArgsAssert(self, "o", x)
+        self._phase = x
+        x, lmax = convertArgsToLists(x)
+        for j in range(overlaps):
+            for i in range(self._lmax):
+                self._base_objs[j*self._overlaps+i].setPhase(wrap(x,i))
+
+    def setSize(self, x):
+        """
+        Replace the `size` attribute.
+
+        :Args:
+
+            x: int
+                new `size` attribute.
+
+        """
+        pyoArgsAssert(self, "i", x)
+        self._size = x
+        x, lmax = convertArgsToLists(x)
+        for j in range(overlaps):
+            for i in range(self._lmax):
+                hopsize = int(wrap(x,i) / self._overlaps) * j
+                self._base_objs[j*self._overlaps+i].setSize(wrap(x,i), hopsize)
+
+    def setWinType(self, x):
+        """
+        Replace the `wintype` attribute.
+
+        :Args:
+
+            x: int
+                new `wintype` attribute.
+
+        """
+        pyoArgsAssert(self, "i", x)
+        self._wintype = x
+        x, lmax = convertArgsToLists(x)
+        for j in range(overlaps):
+            for i in range(self._lmax):
+                self._base_objs[j*self._overlaps+i].setWinType(wrap(x,i))
+
+    def ctrl(self, map_list=None, title=None, wxnoserver=False):
+        self._map_list = [SLMapMul(self._mul)]
+        PyoObject.ctrl(self, map_list, title, wxnoserver)
+
+    @property
+    def index(self):
+        """PyoObject. Normalized horizontal position."""
+        return self._index
+    @index.setter
+    def index(self, x): self.setIndex(x)
+
+    @property
+    def phase(self):
+        """PyoObject. Instantaneous bin angle value."""
+        return self._phase
+    @phase.setter
+    def phase(self, x): self.setPhase(x)
+
+    @property
+    def size(self):
+        """int. FFT size."""
+        return self._size
+    @size.setter
+    def size(self, x): self.setSize(x)
+
+    @property
+    def wintype(self):
+        """int. Windowing method."""
+        return self._wintype
+    @wintype.setter
+    def wintype(self, x): self.setWinType(x)

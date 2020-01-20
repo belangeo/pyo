@@ -186,6 +186,15 @@ NewMatrix_recordChunkAllRow(NewMatrix *self, MYFLT *data, long datasize)
 
     for (i=0; i<datasize; i++) {
         self->data[self->y_pointer][self->x_pointer++] = data[i];
+
+        // Guardpoints.
+        if (self->x_pointer == 0 && self->y_pointer == 0)
+            self->data[self->height][self->width] = self->data[self->y_pointer][self->x_pointer];
+        else if (self->x_pointer == 0)
+            self->data[self->y_pointer][self->width] = self->data[self->y_pointer][self->x_pointer];
+        else if (self->y_pointer == 0)
+            self->data[self->height][self->x_pointer] = self->data[self->y_pointer][self->x_pointer];
+
         if (self->x_pointer >= self->width) {
             self->x_pointer = 0;
             self->y_pointer++;

@@ -449,6 +449,7 @@ extern PyTypeObject M_ExpType;
 extern PyTypeObject FFTMainType;
 extern PyTypeObject FFTType;
 extern PyTypeObject IFFTType;
+extern PyTypeObject IFFTMatrixType;
 extern PyTypeObject CarToPolType;
 extern PyTypeObject PolToCarType;
 extern PyTypeObject FrameDeltaMainType;
@@ -1358,6 +1359,13 @@ extern PyTypeObject MMLZStreamType;
     } \
  \
     self->data[y][x] = val; \
+ \
+    if (x == 0 && y == 0) \
+        self->data[self->height][self->width] = self->data[y][x]; \
+    else if (x == 0) \
+        self->data[y][self->width] = self->data[y][x]; \
+    else if (y == 0) \
+        self->data[self->height][x] = self->data[y][x]; \
  \
     Py_INCREF(Py_None); \
     return Py_None; \

@@ -1148,7 +1148,7 @@ linToCosCurve(PyObject *self, PyObject *args, PyObject *kwds)
     log10ymax = log10(ymax);
 
     fdata = PySequence_Fast(data, NULL);
-    datasize = PySequence_Size(fdata);
+    datasize = PySequence_Fast_GET_SIZE(fdata);
     xdata = (double *)malloc(datasize * sizeof(double));
     ydata = (double *)malloc(datasize * sizeof(double));
 
@@ -1208,18 +1208,19 @@ linToCosCurve(PyObject *self, PyObject *args, PyObject *kwds)
     }
 
     /* output Python's list of lists */
-    out = PyList_New(count);
+    out = PyList_New(0);
     for (i=0; i<count; i++) {
-        inout = PyList_New(2);
-        PyList_SET_ITEM(inout, 0, PyFloat_FromDouble(cxdata[i]));
-        PyList_SET_ITEM(inout, 1, PyFloat_FromDouble(cydata[i]));
-        PyList_SET_ITEM(out, i, inout);
+        inout = PyList_New(0);
+        PyList_Append(inout, PyFloat_FromDouble(cxdata[i]));
+        PyList_Append(inout, PyFloat_FromDouble(cydata[i]));
+        PyList_Append(out, inout);
     }
 
     free(xdata);
     free(ydata);
     free(cxdata);
     free(cydata);
+
     return out;
 }
 
@@ -2026,6 +2027,7 @@ init_pyo64(void)
     module_add_object(m, "FFTMain_base", &FFTMainType);
     module_add_object(m, "FFT_base", &FFTType);
     module_add_object(m, "IFFT_base", &IFFTType);
+    module_add_object(m, "IFFTMatrix_base", &IFFTMatrixType);
     module_add_object(m, "CarToPol_base", &CarToPolType);
     module_add_object(m, "PolToCar_base", &PolToCarType);
     module_add_object(m, "FrameDeltaMain_base", &FrameDeltaMainType);

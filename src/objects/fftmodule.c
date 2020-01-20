@@ -29,6 +29,7 @@
 #include "fft.h"
 #include "wind.h"
 #include "sndfile.h"
+#include "matrixmodule.h"
 
 static int
 isPowerOfTwo(int x) {
@@ -48,7 +49,7 @@ typedef struct {
     MYFLT *outframe;
     MYFLT *window;
     MYFLT **twiddle;
-    MYFLT *twiddle2;
+    //MYFLT *twiddle2;
     MYFLT *buffer_streams;
 } FFTMain;
 
@@ -68,8 +69,8 @@ FFTMain_realloc_memories(FFTMain *self) {
     for(i=0; i<4; i++)
         self->twiddle[i] = (MYFLT *)malloc(n8 * sizeof(MYFLT));
     fft_compute_split_twiddle(self->twiddle, self->size);
-    self->twiddle2 = (MYFLT *)realloc(self->twiddle2, self->size * sizeof(MYFLT));
-    fft_compute_radix2_twiddle(self->twiddle2, self->size);
+    //self->twiddle2 = (MYFLT *)realloc(self->twiddle2, self->size * sizeof(MYFLT));
+    //fft_compute_radix2_twiddle(self->twiddle2, self->size);
     self->window = (MYFLT *)realloc(self->window, self->size * sizeof(MYFLT));
     gen_window(self->window, self->size, self->wintype);
     self->incount = -self->hopsize;
@@ -176,7 +177,7 @@ FFTMain_dealloc(FFTMain* self)
         free(self->twiddle[i]);
     }
     free(self->twiddle);
-    free(self->twiddle2);
+    //free(self->twiddle2);
     FFTMain_clear(self);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
@@ -580,7 +581,7 @@ typedef struct {
     MYFLT *outframe;
     MYFLT *window;
     MYFLT **twiddle;
-    MYFLT *twiddle2;
+    //MYFLT *twiddle2;
     int modebuffer[2];
 } IFFT;
 
@@ -597,8 +598,8 @@ IFFT_realloc_memories(IFFT *self) {
     for(i=0; i<4; i++)
         self->twiddle[i] = (MYFLT *)malloc(n8 * sizeof(MYFLT));
     fft_compute_split_twiddle(self->twiddle, self->size);
-    self->twiddle2 = (MYFLT *)realloc(self->twiddle2, self->size * sizeof(MYFLT));
-    fft_compute_radix2_twiddle(self->twiddle2, self->size);
+    //self->twiddle2 = (MYFLT *)realloc(self->twiddle2, self->size * sizeof(MYFLT));
+    //fft_compute_radix2_twiddle(self->twiddle2, self->size);
     self->window = (MYFLT *)realloc(self->window, self->size * sizeof(MYFLT));
     gen_window(self->window, self->size, self->wintype);
     self->incount = -self->hopsize;
@@ -739,7 +740,7 @@ IFFT_dealloc(IFFT* self)
         free(self->twiddle[i]);
     }
     free(self->twiddle);
-    free(self->twiddle2);
+    //free(self->twiddle2);
     IFFT_clear(self);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
@@ -4281,4 +4282,448 @@ Spectrum_members,                                 /* tp_members */
 0,                          /* tp_init */
 0,                                              /* tp_alloc */
 Spectrum_new,                                     /* tp_new */
+};
+
+typedef struct {
+    pyo_audio_HEAD
+    PyObject *matrix;
+    PyObject *index;
+    Stream *index_stream;
+    PyObject *phase;
+    Stream *phase_stream;
+    int size;
+    int hsize;
+    int hopsize;
+    int wintype;
+    int incount;
+    MYFLT *inframe;
+    MYFLT *outframe;
+    MYFLT *window;
+    MYFLT **twiddle;
+    int modebuffer[2];
+} IFFTMatrix;
+
+static void
+IFFTMatrix_realloc_memories(IFFTMatrix *self) {
+    int i, n8;
+    self->hsize = self->size / 2;
+    n8 = self->size >> 3;
+    self->inframe = (MYFLT *)realloc(self->inframe, self->size * sizeof(MYFLT));
+    self->outframe = (MYFLT *)realloc(self->outframe, self->size * sizeof(MYFLT));
+    for (i=0; i<self->size; i++)
+        self->inframe[i] = self->outframe[i] = 0.0;
+    self->twiddle = (MYFLT **)realloc(self->twiddle, 4 * sizeof(MYFLT *));
+    for(i=0; i<4; i++)
+        self->twiddle[i] = (MYFLT *)malloc(n8 * sizeof(MYFLT));
+    fft_compute_split_twiddle(self->twiddle, self->size);
+    self->window = (MYFLT *)realloc(self->window, self->size * sizeof(MYFLT));
+    gen_window(self->window, self->size, self->wintype);
+    self->incount = -self->hopsize;
+}
+
+static void
+IFFTMatrix_filters(IFFTMatrix *self) {
+    int i;
+    MYFLT data, amp, phase, real, imag, pos;
+
+    MYFLT *ind = Stream_getData((Stream *)self->index_stream);
+    MYFLT *ph = Stream_getData((Stream *)self->phase_stream);
+
+    int yWidth = MatrixStream_getHeight(self->matrix);
+    MYFLT yScaling = (MYFLT)yWidth / self->hsize;
+
+    for (i=0; i<self->bufsize; i++) {
+        if (self->incount >= 0) {
+            if (self->incount < self->hsize) {
+                pos = 1.0 - MYSQRT((MYFLT)self->incount * yScaling / yWidth);
+                amp = MatrixStream_getInterpPointFromPos(self->matrix, ind[i], pos) * 0.5 + 0.5;
+                phase = ph[i] * PI;
+                real = amp * MYCOS(phase);
+                imag = amp * MYSIN(phase);
+                self->inframe[self->incount] = real;
+                if (self->incount)
+                    self->inframe[self->size - self->incount] = imag;
+            }
+            else if (self->incount == self->hsize) {
+                self->inframe[self->incount] = self->inframe[0];
+            }
+            data = self->outframe[self->incount] * self->window[self->incount] / self->hsize;
+            self->data[i] = data;
+        }
+        self->incount++;
+        if (self->incount >= self->size) {
+            self->incount -= self->size;
+            irealfft_split(self->inframe, self->outframe, self->size, self->twiddle);
+        }
+    }
+}
+
+static void IFFTMatrix_postprocessing_ii(IFFTMatrix *self) { POST_PROCESSING_II };
+static void IFFTMatrix_postprocessing_ai(IFFTMatrix *self) { POST_PROCESSING_AI };
+static void IFFTMatrix_postprocessing_ia(IFFTMatrix *self) { POST_PROCESSING_IA };
+static void IFFTMatrix_postprocessing_aa(IFFTMatrix *self) { POST_PROCESSING_AA };
+static void IFFTMatrix_postprocessing_ireva(IFFTMatrix *self) { POST_PROCESSING_IREVA };
+static void IFFTMatrix_postprocessing_areva(IFFTMatrix *self) { POST_PROCESSING_AREVA };
+static void IFFTMatrix_postprocessing_revai(IFFTMatrix *self) { POST_PROCESSING_REVAI };
+static void IFFTMatrix_postprocessing_revaa(IFFTMatrix *self) { POST_PROCESSING_REVAA };
+static void IFFTMatrix_postprocessing_revareva(IFFTMatrix *self) { POST_PROCESSING_REVAREVA };
+
+static void
+IFFTMatrix_setProcMode(IFFTMatrix *self)
+{
+    int muladdmode;
+    muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
+
+    self->proc_func_ptr = IFFTMatrix_filters;
+
+    switch (muladdmode) {
+        case 0:
+            self->muladd_func_ptr = IFFTMatrix_postprocessing_ii;
+            break;
+        case 1:
+            self->muladd_func_ptr = IFFTMatrix_postprocessing_ai;
+            break;
+        case 2:
+            self->muladd_func_ptr = IFFTMatrix_postprocessing_revai;
+            break;
+        case 10:
+            self->muladd_func_ptr = IFFTMatrix_postprocessing_ia;
+            break;
+        case 11:
+            self->muladd_func_ptr = IFFTMatrix_postprocessing_aa;
+            break;
+        case 12:
+            self->muladd_func_ptr = IFFTMatrix_postprocessing_revaa;
+            break;
+        case 20:
+            self->muladd_func_ptr = IFFTMatrix_postprocessing_ireva;
+            break;
+        case 21:
+            self->muladd_func_ptr = IFFTMatrix_postprocessing_areva;
+            break;
+        case 22:
+            self->muladd_func_ptr = IFFTMatrix_postprocessing_revareva;
+            break;
+    }
+}
+
+static void
+IFFTMatrix_compute_next_data_frame(IFFTMatrix *self)
+{
+    (*self->proc_func_ptr)(self);
+    (*self->muladd_func_ptr)(self);
+}
+
+static int
+IFFTMatrix_traverse(IFFTMatrix *self, visitproc visit, void *arg)
+{
+    pyo_VISIT
+    Py_VISIT(self->matrix);
+    Py_VISIT(self->index);
+    Py_VISIT(self->index_stream);
+    Py_VISIT(self->phase);
+    Py_VISIT(self->phase_stream);
+    return 0;
+}
+
+static int
+IFFTMatrix_clear(IFFTMatrix *self)
+{
+    pyo_CLEAR
+    Py_CLEAR(self->matrix);
+    Py_CLEAR(self->index);
+    Py_CLEAR(self->index_stream);
+    Py_CLEAR(self->phase);
+    Py_CLEAR(self->phase_stream);
+    return 0;
+}
+
+static void
+IFFTMatrix_dealloc(IFFTMatrix* self)
+{
+    int i;
+    pyo_DEALLOC
+    free(self->inframe);
+    free(self->outframe);
+    free(self->window);
+    for(i=0; i<4; i++) {
+        free(self->twiddle[i]);
+    }
+    free(self->twiddle);
+    IFFTMatrix_clear(self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
+}
+
+static PyObject *
+IFFTMatrix_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    int i;
+    PyObject *matrixtmp, *indextmp, *phasetmp, *multmp=NULL, *addtmp=NULL;
+    IFFTMatrix *self;
+    self = (IFFTMatrix *)type->tp_alloc(type, 0);
+
+    self->size = 1024;
+    self->wintype = 2;
+    self->modebuffer[0] = 0;
+    self->modebuffer[1] = 0;
+
+    INIT_OBJECT_COMMON
+    Stream_setFunctionPtr(self->stream, IFFTMatrix_compute_next_data_frame);
+    self->mode_func_ptr = IFFTMatrix_setProcMode;
+
+    static char *kwlist[] = {"matrix", "index", "phase", "size", "hopsize", "wintype", "mul", "add", NULL};
+
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "OOO|iiiOO", kwlist, &matrixtmp, &indextmp, &phasetmp, &self->size, &self->hopsize, &self->wintype, &multmp, &addtmp))
+        Py_RETURN_NONE;
+
+    if ( PyObject_HasAttrString((PyObject *)matrixtmp, "getMatrixStream") == 0 ) {
+        PyErr_SetString(PyExc_TypeError, "\"matrix\" argument of IFFTMatrix must be a PyoMatrixObject.\n");
+        Py_RETURN_NONE;
+    }
+    Py_XDECREF(self->matrix);
+    self->matrix = PyObject_CallMethod((PyObject *)matrixtmp, "getMatrixStream", "");
+
+    if (indextmp) {
+        PyObject_CallMethod((PyObject *)self, "setIndex", "O", indextmp);
+    }
+
+    if (phasetmp) {
+        PyObject_CallMethod((PyObject *)self, "setPhase", "O", phasetmp);
+    }
+
+    if (multmp) {
+        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+    }
+
+    if (addtmp) {
+        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+    }
+
+    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+
+    IFFTMatrix_realloc_memories(self);
+
+    (*self->mode_func_ptr)(self);
+
+    return (PyObject *)self;
+}
+
+static PyObject * IFFTMatrix_getServer(IFFTMatrix* self) { GET_SERVER };
+static PyObject * IFFTMatrix_getStream(IFFTMatrix* self) { GET_STREAM };
+static PyObject * IFFTMatrix_setMul(IFFTMatrix *self, PyObject *arg) { SET_MUL };
+static PyObject * IFFTMatrix_setAdd(IFFTMatrix *self, PyObject *arg) { SET_ADD };
+static PyObject * IFFTMatrix_setSub(IFFTMatrix *self, PyObject *arg) { SET_SUB };
+static PyObject * IFFTMatrix_setDiv(IFFTMatrix *self, PyObject *arg) { SET_DIV };
+
+static PyObject * IFFTMatrix_play(IFFTMatrix *self, PyObject *args, PyObject *kwds) { PLAY };
+static PyObject * IFFTMatrix_out(IFFTMatrix *self, PyObject *args, PyObject *kwds) { OUT };
+static PyObject * IFFTMatrix_stop(IFFTMatrix *self, PyObject *args, PyObject *kwds) { STOP };
+
+static PyObject * IFFTMatrix_multiply(IFFTMatrix *self, PyObject *arg) { MULTIPLY };
+static PyObject * IFFTMatrix_inplace_multiply(IFFTMatrix *self, PyObject *arg) { INPLACE_MULTIPLY };
+static PyObject * IFFTMatrix_add(IFFTMatrix *self, PyObject *arg) { ADD };
+static PyObject * IFFTMatrix_inplace_add(IFFTMatrix *self, PyObject *arg) { INPLACE_ADD };
+static PyObject * IFFTMatrix_sub(IFFTMatrix *self, PyObject *arg) { SUB };
+static PyObject * IFFTMatrix_inplace_sub(IFFTMatrix *self, PyObject *arg) { INPLACE_SUB };
+static PyObject * IFFTMatrix_div(IFFTMatrix *self, PyObject *arg) { DIV };
+static PyObject * IFFTMatrix_inplace_div(IFFTMatrix *self, PyObject *arg) { INPLACE_DIV };
+
+static PyObject *
+IFFTMatrix_setIndex(IFFTMatrix *self, PyObject *arg)
+{
+	PyObject *tmp, *streamtmp;
+
+    ASSERT_ARG_NOT_NULL
+
+	tmp = arg;
+
+	if (PyObject_HasAttrString((PyObject *)tmp, "server") == 0) {
+        PyErr_SetString(PyExc_TypeError, "\"index\" attribute of IFFTMatrix must be a PyoObject.\n");
+        Py_RETURN_NONE;
+	}
+
+	Py_INCREF(tmp);
+	Py_XDECREF(self->index);
+
+    self->index = tmp;
+    streamtmp = PyObject_CallMethod((PyObject *)self->index, "_getStream", NULL);
+    Py_INCREF(streamtmp);
+    Py_XDECREF(self->index_stream);
+    self->index_stream = (Stream *)streamtmp;
+
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
+static PyObject *
+IFFTMatrix_setPhase(IFFTMatrix *self, PyObject *arg)
+{
+	PyObject *tmp, *streamtmp;
+
+    ASSERT_ARG_NOT_NULL
+
+	tmp = arg;
+
+	if (PyObject_HasAttrString((PyObject *)tmp, "server") == 0) {
+        PyErr_SetString(PyExc_TypeError, "\"phase\" attribute of IFFTMatrix must be a PyoObject.\n");
+        Py_RETURN_NONE;
+	}
+
+	Py_INCREF(tmp);
+	Py_XDECREF(self->phase);
+
+    self->phase = tmp;
+    streamtmp = PyObject_CallMethod((PyObject *)self->phase, "_getStream", NULL);
+    Py_INCREF(streamtmp);
+    Py_XDECREF(self->phase_stream);
+    self->phase_stream = (Stream *)streamtmp;
+
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
+static PyObject *
+IFFTMatrix_setSize(IFFTMatrix *self, PyObject *args, PyObject *kwds)
+{
+    int size, hopsize;
+
+    static char *kwlist[] = {"size", "hopsize", NULL};
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "ii", kwlist, &size, &hopsize)) {
+        Py_INCREF(Py_None);
+        return Py_None;
+    }
+
+    if (isPowerOfTwo(size)) {
+        self->size = size;
+        self->hopsize = hopsize;
+        IFFTMatrix_realloc_memories(self);
+    }
+    else
+        PySys_WriteStdout("IFFTMatrix size must be a power of two!\n");
+
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static PyObject *
+IFFTMatrix_setWinType(IFFTMatrix *self, PyObject *arg)
+{
+    if (PyLong_Check(arg) || PyInt_Check(arg)) {
+        self->wintype = PyLong_AsLong(arg);
+        gen_window(self->window, self->size, self->wintype);
+    }
+
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static PyMemberDef IFFTMatrix_members[] = {
+    {"server", T_OBJECT_EX, offsetof(IFFTMatrix, server), 0, "Pyo server."},
+    {"stream", T_OBJECT_EX, offsetof(IFFTMatrix, stream), 0, "Stream object."},
+    {"matrix", T_OBJECT_EX, offsetof(IFFTMatrix, matrix), 0, "Matrix to read."},
+    {"index", T_OBJECT_EX, offsetof(IFFTMatrix, index), 0, "Reading position."},
+    {"phase", T_OBJECT_EX, offsetof(IFFTMatrix, phase), 0, "Instantaneous phase value."},
+    {"mul", T_OBJECT_EX, offsetof(IFFTMatrix, mul), 0, "Mul factor."},
+    {"add", T_OBJECT_EX, offsetof(IFFTMatrix, add), 0, "Add factor."},
+    {NULL}  /* Sentinel */
+};
+
+static PyMethodDef IFFTMatrix_methods[] = {
+    {"getServer", (PyCFunction)IFFTMatrix_getServer, METH_NOARGS, "Returns server object."},
+    {"_getStream", (PyCFunction)IFFTMatrix_getStream, METH_NOARGS, "Returns stream object."},
+    {"play", (PyCFunction)IFFTMatrix_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+    {"out", (PyCFunction)IFFTMatrix_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
+    {"stop", (PyCFunction)IFFTMatrix_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
+    {"setSize", (PyCFunction)IFFTMatrix_setSize, METH_VARARGS|METH_KEYWORDS, "Sets a new IFFTMatrix size."},
+    {"setWinType", (PyCFunction)IFFTMatrix_setWinType, METH_O, "Sets a new window."},
+    {"setIndex", (PyCFunction)IFFTMatrix_setIndex, METH_O, "Sets reading position."},
+    {"setPhase", (PyCFunction)IFFTMatrix_setPhase, METH_O, "Sets instantaneous phase."},
+    {"setMul", (PyCFunction)IFFTMatrix_setMul, METH_O, "Sets oscillator mul factor."},
+    {"setAdd", (PyCFunction)IFFTMatrix_setAdd, METH_O, "Sets oscillator add factor."},
+    {"setSub", (PyCFunction)IFFTMatrix_setSub, METH_O, "Sets inverse add factor."},
+    {"setDiv", (PyCFunction)IFFTMatrix_setDiv, METH_O, "Sets inverse mul factor."},
+    {NULL}  /* Sentinel */
+};
+
+static PyNumberMethods IFFTMatrix_as_number = {
+    (binaryfunc)IFFTMatrix_add,                      /*nb_add*/
+    (binaryfunc)IFFTMatrix_sub,                 /*nb_subtract*/
+    (binaryfunc)IFFTMatrix_multiply,                 /*nb_multiply*/
+    INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
+    0,                /*nb_remainder*/
+    0,                   /*nb_divmod*/
+    0,                   /*nb_power*/
+    0,                  /*nb_neg*/
+    0,                /*nb_pos*/
+    0,                  /*(unaryfunc)array_abs,*/
+    0,                    /*nb_nonzero*/
+    0,                    /*nb_invert*/
+    0,               /*nb_lshift*/
+    0,              /*nb_rshift*/
+    0,              /*nb_and*/
+    0,              /*nb_xor*/
+    0,               /*nb_or*/
+    INITIALIZE_NB_COERCE_ZERO                   /*nb_coerce*/
+    0,                       /*nb_int*/
+    0,                      /*nb_long*/
+    0,                     /*nb_float*/
+    INITIALIZE_NB_OCT_ZERO   /*nb_oct*/
+    INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
+    (binaryfunc)IFFTMatrix_inplace_add,              /*inplace_add*/
+    (binaryfunc)IFFTMatrix_inplace_sub,         /*inplace_subtract*/
+    (binaryfunc)IFFTMatrix_inplace_multiply,         /*inplace_multiply*/
+    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
+    0,        /*inplace_remainder*/
+    0,           /*inplace_power*/
+    0,       /*inplace_lshift*/
+    0,      /*inplace_rshift*/
+    0,      /*inplace_and*/
+    0,      /*inplace_xor*/
+    0,       /*inplace_or*/
+    0,             /*nb_floor_divide*/
+    (binaryfunc)IFFTMatrix_div,                       /*nb_true_divide*/
+    0,     /*nb_inplace_floor_divide*/
+    (binaryfunc)IFFTMatrix_inplace_div,                       /*nb_inplace_true_divide*/
+    0,                     /* nb_index */
+};
+
+PyTypeObject IFFTMatrixType = {
+    PyVarObject_HEAD_INIT(NULL, 0)
+    "_pyo.IFFTMatrix_base",         /*tp_name*/
+    sizeof(IFFTMatrix),         /*tp_basicsize*/
+    0,                         /*tp_itemsize*/
+    (destructor)IFFTMatrix_dealloc, /*tp_dealloc*/
+    0,                         /*tp_print*/
+    0,                         /*tp_getattr*/
+    0,                         /*tp_setattr*/
+    0,                         /*tp_as_async (tp_compare in Python 2)*/
+    0,                         /*tp_repr*/
+    &IFFTMatrix_as_number,             /*tp_as_number*/
+    0,                         /*tp_as_sequence*/
+    0,                         /*tp_as_mapping*/
+    0,                         /*tp_hash */
+    0,                         /*tp_call*/
+    0,                         /*tp_str*/
+    0,                         /*tp_getattro*/
+    0,                         /*tp_setattro*/
+    0,                         /*tp_as_buffer*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    "IFFTMatrix objects. Synthesize audio from a Matrix object.",           /* tp_doc */
+    (traverseproc)IFFTMatrix_traverse,   /* tp_traverse */
+    (inquiry)IFFTMatrix_clear,           /* tp_clear */
+    0,                       /* tp_richcompare */
+    0,                       /* tp_weaklistoffset */
+    0,                       /* tp_iter */
+    0,                       /* tp_iternext */
+    IFFTMatrix_methods,             /* tp_methods */
+    IFFTMatrix_members,             /* tp_members */
+    0,                      /* tp_getset */
+    0,                         /* tp_base */
+    0,                         /* tp_dict */
+    0,                         /* tp_descr_get */
+    0,                         /* tp_descr_set */
+    0,                         /* tp_dictoffset */
+    0,      /* tp_init */
+    0,                         /* tp_alloc */
+    IFFTMatrix_new,                 /* tp_new */
 };
