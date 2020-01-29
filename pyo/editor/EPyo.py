@@ -4396,13 +4396,19 @@ class MainFrame(wx.Frame):
             end = self.panel.editor.GetSelectionEnd()
         if self.back_server_started:
             self.processes[1000][0].sendText(text)
-        if end != None:
+
+        if self.panel.editor.codeBlockSelectionCurrentPos is not None:
+            self.panel.editor.SetCurrentPos(self.panel.editor.codeBlockSelectionCurrentPos)
+            self.panel.editor.SetSelectionStart(self.panel.editor.codeBlockSelectionCurrentPos)
+            self.panel.editor.SetSelectionEnd(self.panel.editor.codeBlockSelectionCurrentPos)
+            self.panel.editor.codeBlockSelectionCurrentPos = None
+        elif end != None:
             self.panel.editor.SetCurrentPos(end)
-        self.panel.editor.LineDown()
-        line = self.panel.editor.GetCurrentLine()
-        pos = self.panel.editor.PositionFromLine(line)
-        self.panel.editor.SetCurrentPos(pos)
-        self.panel.editor.SetSelectionEnd(pos)
+            self.panel.editor.LineDown()
+            line = self.panel.editor.GetCurrentLine()
+            pos = self.panel.editor.PositionFromLine(line)
+            self.panel.editor.SetCurrentPos(pos)
+            self.panel.editor.SetSelectionEnd(pos)
 
     def buildDoc(self):
         self.doc_frame = ManualFrame(which_python=WHICH_PYTHON)
@@ -4739,6 +4745,8 @@ class Editor(stc.StyledTextCtrl):
         self.auto_comp_cpp = PREFERENCES.get("auto_comp_cpp", 0)
         self.auto_comp_cpp_list = []
 
+        self.codeBlockSelectionCurrentPos = None
+
         self.alphaStr = LOWERCASE + UPPERCASE + '0123456789'
 
         self.Colourise(0, -1)
@@ -5057,7 +5065,49 @@ class Editor(stc.StyledTextCtrl):
             self.InsertText(pos, "\n#<--")
 
     def selectCodeBlock(self):
-        self.OnDoubleClick(None)
+        """
+        Shortcut used to select chunk of code between #--> and #<--
+        """
+        self.codeBlockSelectionCurrentPos = self.GetCurrentPos()
+        if "#-->" in self.GetLine(self.GetCurrentLine()):
+            first = self.GetCurrentLine()
+            last = self.GetLineCount()
+            self.LineDown()
+            while (self.GetCurrentLine() < self.GetLineCount()):
+                if "#<--" in self.GetLine(self.GetCurrentLine()):
+                    last = self.GetCurrentLine() - 1
+                    break
+                self.LineDown()
+            self.SetSelection(self.GetLineEndPosition(first)+1,
+                              self.GetLineEndPosition(last)+1)
+        elif "#<--" in self.GetLine(self.GetCurrentLine()):
+            first = 0
+            last = self.GetCurrentLine() - 1
+            self.LineUp()
+            while (self.GetCurrentLine() > 0):
+                if "#-->" in self.GetLine(self.GetCurrentLine()):
+                    first = self.GetCurrentLine()
+                    break
+                self.LineUp()
+            self.SetSelection(self.GetLineEndPosition(first)+1,
+                              self.GetLineEndPosition(last)+1)
+        else:
+            first = 0
+            current = self.GetLine(self.GetCurrentLine())
+            while (self.GetCurrentLine() > 0):
+                if "#-->" in self.GetLine(self.GetCurrentLine()):
+                    first = self.GetCurrentLine()
+                    break
+                self.LineUp()
+            last = self.GetLineCount()
+            self.LineDown()
+            while (self.GetCurrentLine() < self.GetLineCount()):
+                if "#<--" in self.GetLine(self.GetCurrentLine()):
+                    last = self.GetCurrentLine() - 1
+                    break
+                self.LineDown()
+            self.SetSelection(self.GetLineEndPosition(first)+1,
+                              self.GetLineEndPosition(last)+1)
 
     def OnDoubleClick(self, evt):
         """
