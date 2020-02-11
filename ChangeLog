@@ -1,3 +1,7 @@
+2020-02-10 belangeo <belangeo@gmail.com>
+
+    * Added new object: TriangleTable.
+    
 2020-01-20 belangeo <belangeo@gmail.com>
 
     * Added new object: IFFTMatrix, Inverse Fast Fourier Transform with a PyoMatrixObject as input.

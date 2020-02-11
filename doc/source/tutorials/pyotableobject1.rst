@@ -1,5 +1,5 @@
-Tutorial about creating a custom PyoTableObject (TriTable)
-===========================================================
+Tutorial about recreating a custom PyoTableObject (TriangleTable)
+=================================================================
 
 .. code-block:: python
 
@@ -7,16 +7,16 @@ Tutorial about creating a custom PyoTableObject (TriTable)
 
     class TriTable(PyoTableObject):
         """
-        Square waveform generator.
+        Triangle waveform generator.
 
-        Generates square waveforms made up of fixed number of harmonics.
+        Generates triangle waveforms made up of fixed number of harmonics.
 
         :Parent: :py:class:`PyoTableObject`
 
         :Args:
 
             order : int, optional
-                Number of harmonics square waveform is made of. The waveform will 
+                Number of harmonics triangle waveform is made of. The waveform will 
                 contains `order` odd harmonics. Defaults to 10.
             size : int, optional
                 Table size in samples. Defaults to 8192.
