@@ -105,7 +105,7 @@ OBJECTS_TREE = {
         'PyoTableObject': sorted(['LinTable', 'NewTable', 'SndTable', 
                                   'HannTable', 'HarmTable', 'SawTable', 
                                   'ParaTable', 'LogTable', 'CosLogTable', 
-                                  'SquareTable', 'ChebyTable', 'CosTable', 
+                                  'SquareTable', 'TriangleTable', 'ChebyTable', 'CosTable', 
                                   'CurveTable', 'ExpTable', 'DataTable', 
                                   'WinTable', 'SincTable', 'PartialTable', 
                                   'AtanTable', 'PadSynthTable', 'SharedTable']),

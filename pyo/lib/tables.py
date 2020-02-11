@@ -250,6 +250,68 @@ class SquareTable(PyoTableObject):
     @order.setter
     def order(self, x): self.setOrder(x)
 
+class TriangleTable(PyoTableObject):
+    """
+    Triangle waveform generator.
+
+    Generates triangle waveforms made up of fixed number of harmonics.
+
+    :Parent: :py:class:`PyoTableObject`
+
+    :Args:
+
+        order: int, optional
+            Number of harmonics triangle waveform is made of. The waveform will
+            contains `order` odd harmonics. Defaults to 10.
+        size: int, optional
+            Table size in samples. Defaults to 8192.
+
+    >>> s = Server().boot()
+    >>> s.start()
+    >>> t = TriangleTable(order=15).normalize()
+    >>> a = Osc(table=t, freq=[199,200], mul=.2).out()
+
+    """
+    def __init__(self, order=10, size=8192):
+        pyoArgsAssert(self, "II", order, size)
+        PyoTableObject.__init__(self, size)
+        self._order = order
+        list = []
+        for i in range(1,(order*2)):
+            if i%2 == 1:
+                list.append(1. / pow(i,2))
+            else:
+                list.append(0.)
+        self._base_objs = [HarmTable_base(list, size)]
+
+    def setOrder(self, x):
+        """
+        Change the `order` attribute and redraw the waveform.
+
+        :Args:
+
+            x: int
+                New number of harmonics
+
+        """
+        pyoArgsAssert(self, "I", x)
+        self._order = x
+        list = []
+        for i in range(1,(self._order*2)):
+            if i%2 == 1:
+                list.append(1. / pow(i,2))
+            else:
+                list.append(0.)
+        [obj.replace(list) for obj in self._base_objs]
+        self.refreshView()
+
+    @property
+    def order(self):
+        """int. Number of harmonics triangle waveform is made of."""
+        return self._order
+    @order.setter
+    def order(self, x): self.setOrder(x)
+
 class ChebyTable(PyoTableObject):
     """
     Chebyshev polynomials of the first kind.
