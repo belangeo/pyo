@@ -46,7 +46,9 @@ typedef struct {
     int voiceCount;
     double sampleToSec;
     double currentTime;
+    int currentDurationCode;
     double currentDuration;
+    double defaultDuration;
     int currentVolume;
     double currentAmplitude;
     double currentTempo;
@@ -78,6 +80,7 @@ typedef struct {
 static void
 MMLMain_consume(MMLMain *self, int i) {
     long pos = 0;
+    double duration = 0.0;
     if (self->count == self->num_events) {
         self->count = 0;
         self->end_buffer_streams[i + self->voiceCount * self->bufsize] = 1.0;
@@ -99,8 +102,6 @@ MMLMain_consume(MMLMain *self, int i) {
     PyObject *event = PyList_GetItem(self->sequence, self->count);
 
     self->count++;
-
-    double duration = self->currentDuration;
 
     first = PySequence_GetItem(event, 0);
 
@@ -128,7 +129,7 @@ MMLMain_consume(MMLMain *self, int i) {
         pos2 = PyUnicode_Find(event, PyUnicode_FromString("}"), 0, PySequence_Size(event), 1);
         PyObject *bounds = PyUnicode_Split(PySequence_GetSlice(event, pos1+1, pos2), PyUnicode_FromString(","), -1);
         Py_ssize_t bsize = PyList_Size(bounds);
-        MYFLT value, low = 0.0, high = 1.0;
+        MYFLT value = 0.0, low = 0.0, high = 1.0;
         if (bsize == 1) {
             if (PyUnicode_GET_LENGTH(PyList_GetItem(bounds, 0)) > 0) {
                 high = (MYFLT)PyFloat_AsDouble(PyNumber_Float(PyList_GetItem(bounds, 0)));
@@ -189,6 +190,7 @@ MMLMain_consume(MMLMain *self, int i) {
             self->currentTempo = PyFloat_AsDouble(PyNumber_Float(PySequence_GetSlice(event, 1, eventSize)));
         }
         self->durOfWhole = 4 * 60.0 / self->currentTempo;
+        self->defaultDuration = self->durOfWhole * MML_DURATIONS[1] /  self->currentDivider;
         MMLMain_consume(self, i);
     }
     // volume
@@ -217,19 +219,61 @@ MMLMain_consume(MMLMain *self, int i) {
         self->currentDivider = (MYFLT)PyLong_AsLong(PyLong_FromUnicodeObject(PySequence_GetSlice(event, 1, eventSize), 10));
         MMLMain_consume(self, i);
     }
-    // x
+    // x - TODO: +/-VAL
     else if (PyUnicode_Compare(first, PyUnicode_FromString("x")) == 0) {
-        self->currentX = (MYFLT)PyFloat_AsDouble(PyNumber_Float(PySequence_GetSlice(event, 1, eventSize)));
+        if (PyUnicode_Compare(PySequence_GetItem(event, 1), PyUnicode_FromString("+")) == 0) {
+            if (eventSize > 2) {
+                self->currentX += (MYFLT)PyFloat_AsDouble(PyNumber_Float(PySequence_GetSlice(event, 2, eventSize)));
+            } else {
+                self->currentX += 0.01;
+            }
+        } else if (PyUnicode_Compare(PySequence_GetItem(event, 1), PyUnicode_FromString("-")) == 0) {
+            if (eventSize > 2) {
+                self->currentX -= (MYFLT)PyFloat_AsDouble(PyNumber_Float(PySequence_GetSlice(event, 2, eventSize)));
+            } else {
+                self->currentX -= 0.01;
+            }
+        } else {
+            self->currentX = (MYFLT)PyFloat_AsDouble(PyNumber_Float(PySequence_GetSlice(event, 1, eventSize)));
+        }
         MMLMain_consume(self, i);
     }
     // y
     else if (PyUnicode_Compare(first, PyUnicode_FromString("y")) == 0) {
-        self->currentY = (MYFLT)PyFloat_AsDouble(PyNumber_Float(PySequence_GetSlice(event, 1, eventSize)));
+        if (PyUnicode_Compare(PySequence_GetItem(event, 1), PyUnicode_FromString("+")) == 0) {
+            if (eventSize > 2) {
+                self->currentY += (MYFLT)PyFloat_AsDouble(PyNumber_Float(PySequence_GetSlice(event, 2, eventSize)));
+            } else {
+                self->currentY += 0.01;
+            }
+        } else if (PyUnicode_Compare(PySequence_GetItem(event, 1), PyUnicode_FromString("-")) == 0) {
+            if (eventSize > 2) {
+                self->currentY -= (MYFLT)PyFloat_AsDouble(PyNumber_Float(PySequence_GetSlice(event, 2, eventSize)));
+            } else {
+                self->currentY -= 0.01;
+            }
+        } else {
+            self->currentY = (MYFLT)PyFloat_AsDouble(PyNumber_Float(PySequence_GetSlice(event, 1, eventSize)));
+        }
         MMLMain_consume(self, i);
     }
     // z
     else if (PyUnicode_Compare(first, PyUnicode_FromString("z")) == 0) {
-        self->currentZ = (MYFLT)PyFloat_AsDouble(PyNumber_Float(PySequence_GetSlice(event, 1, eventSize)));
+        if (PyUnicode_Compare(PySequence_GetItem(event, 1), PyUnicode_FromString("+")) == 0) {
+            if (eventSize > 2) {
+                self->currentZ += (MYFLT)PyFloat_AsDouble(PyNumber_Float(PySequence_GetSlice(event, 2, eventSize)));
+            } else {
+                self->currentZ += 0.01;
+            }
+        } else if (PyUnicode_Compare(PySequence_GetItem(event, 1), PyUnicode_FromString("-")) == 0) {
+            if (eventSize > 2) {
+                self->currentZ -= (MYFLT)PyFloat_AsDouble(PyNumber_Float(PySequence_GetSlice(event, 2, eventSize)));
+            } else {
+                self->currentZ -= 0.01;
+            }
+        } else {
+            self->currentZ = (MYFLT)PyFloat_AsDouble(PyNumber_Float(PySequence_GetSlice(event, 1, eventSize)));
+        }
         MMLMain_consume(self, i);
     }
     // Opening repeat bar
@@ -257,9 +301,15 @@ MMLMain_consume(MMLMain *self, int i) {
     }
     // rest
     else if (PyUnicode_Compare(first, PyUnicode_FromString("r")) == 0) {
+        if (self->currentDuration == -1) {
+            duration = self->defaultDuration;
+        } else {
+            duration = self->durOfWhole * MML_DURATIONS[self->currentDurationCode] / self->currentDivider;
+        }
         if (eventSize > 1) {
             pos = PyLong_AsLong(PyLong_FromUnicodeObject(PySequence_GetItem(event, 1), 10));
             pos = pos < 0 ? 0 : pos > 9 ? 9 : pos;
+            self->currentDurationCode = pos;
             duration = self->durOfWhole * MML_DURATIONS[pos] / self->currentDivider;
         }
         self->currentDuration = duration;
@@ -275,6 +325,11 @@ MMLMain_consume(MMLMain *self, int i) {
     }
     // note event.
     else if (PyDict_Contains(self->pitches, PySequence_GetItem(event, 0))) {
+        if (self->currentDuration == -1) {
+            duration = self->defaultDuration;
+        } else {
+            duration = self->durOfWhole * MML_DURATIONS[self->currentDurationCode] / self->currentDivider;
+        }
         long pitch = PyLong_AsLong(PyDict_GetItem(self->pitches, PySequence_GetItem(event, 0))) + self->octave;
         if (eventSize > 2) {
             c = PySequence_GetItem(event, 1);
@@ -285,6 +340,7 @@ MMLMain_consume(MMLMain *self, int i) {
             }
             pos = PyLong_AsLong(PyLong_FromUnicodeObject(PySequence_GetItem(event, 2), 10));
             pos = pos < 0 ? 0 : pos > 9 ? 9 : pos;
+            self->currentDurationCode = pos;
             duration = self->durOfWhole * MML_DURATIONS[pos] / self->currentDivider;
         } else if (eventSize > 1) {
             c = PySequence_GetItem(event, 1);
@@ -295,6 +351,7 @@ MMLMain_consume(MMLMain *self, int i) {
             } else {
                 pos = PyLong_AsLong(PyLong_FromUnicodeObject(PySequence_GetItem(event, 1), 10));
                 pos = pos < 0 ? 0 : pos > 9 ? 9 : pos;
+                self->currentDurationCode = pos;
                 duration = self->durOfWhole * MML_DURATIONS[pos] / self->currentDivider;
             }
         }
@@ -494,12 +551,15 @@ MMLMain_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->num_events = 0;
     self->count = 0;
     self->sampleToSec = 1.0 / self->sr;
-    self->currentTime = 0.0;
     self->currentDuration = -1.0;
+    self->currentDurationCode = 1;
+    self->currentTime = 0.0;
     self->currentTempo = 120.0;
     self->currentVolume = 50;
     self->currentAmplitude = 0.125;
     self->currentDivider = 1.0;
+    self->durOfWhole = 4 * 60.0 / self->currentTempo;
+    self->defaultDuration = self->durOfWhole * MML_DURATIONS[self->currentDurationCode] /  self->currentDivider;
 
     static char *kwlist[] = {"loop", "poly", "updateAtEnd", NULL};
 

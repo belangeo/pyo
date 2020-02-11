@@ -2979,6 +2979,274 @@ class ExprEditorFrame(wx.Frame):
     def update(self, text):
         self.editor.SetText(text)
 
+class MMLLexer(object):
+    """Defines simple interface for custom lexer objects."""
+    STC_MML_DEFAULT, STC_MML_KEYWORD, STC_MML_KEYWORD2, STC_MML_COMMENT, \
+    STC_MML_VARIABLE, STC_MML_VOICE_TOKEN = list(range(6))
+    def __init__(self):
+        super(MMLLexer, self).__init__()
+
+        self.alpha = "abcdefghijklmnopqrstuvwxyz"
+        self.digits = "0123456789"
+        notes = ["a", "b", "c", "d", "e", "f", "g", "r"]
+        self.keywords = notes + ["%s%d" % (n, i) for n in notes for i in range(10)]
+        stmts = ["t", "o", "v"]
+        self.keywords2 = stmts + ["t%d" % i for i in range(256)] + ["o%d" % i for i in range(16)] + ["v%d" % i for i in range(101)]
+
+    def StyleText(self, evt):
+        """Handle the EVT_STC_STYLENEEDED event."""
+        stc = evt.GetEventObject()
+        last_styled_pos = stc.GetEndStyled()
+        line = stc.LineFromPosition(last_styled_pos)
+        start_pos = stc.PositionFromLine(line)
+        end_pos = evt.GetPosition()
+        userXYZ = voiceToken = False
+        while start_pos < end_pos:
+            stc.StartStyling(start_pos, 0x1f)
+            curchar = chr(stc.GetCharAt(start_pos))
+            if curchar in "xyz":
+                userXYZ = True
+            elif userXYZ and curchar in " \t\n":
+                userXYZ = False
+            if curchar == "#":
+                voiceToken = True
+            elif voiceToken and curchar in " \t\n":
+                voiceToken = False
+
+            if userXYZ:
+                style = self.STC_MML_VARIABLE
+                stc.SetStyling(1, style)
+                start_pos += 1
+            elif voiceToken:
+                style = self.STC_MML_VOICE_TOKEN
+                stc.SetStyling(1, style)
+                start_pos += 1
+            elif curchar in self.alpha:
+                start = stc.WordStartPosition(start_pos, True)
+                end = stc.WordEndPosition(start, True)
+                word = stc.GetTextRange(start, end)
+                if word in self.keywords:
+                    style = self.STC_MML_KEYWORD
+                    stc.SetStyling(len(word), style)
+                elif word in self.keywords2:
+                    style = self.STC_MML_KEYWORD2
+                    stc.SetStyling(len(word), style)
+                else:
+                    style = self.STC_MML_DEFAULT
+                    stc.SetStyling(len(word), style)
+                start_pos += len(word)
+            elif curchar == ";":
+                eol = stc.GetLineEndPosition(stc.LineFromPosition(start_pos))
+                style = self.STC_MML_COMMENT
+                stc.SetStyling(eol-start_pos, style)
+                start_pos = eol
+            else:
+                style = self.STC_MML_DEFAULT
+                stc.SetStyling(1, style)
+                start_pos += 1
+
+class MMLEditor(stc.StyledTextCtrl):
+
+    def __init__(self, parent, id=-1, obj=None):
+        stc.StyledTextCtrl.__init__(self, parent, id)
+
+        self.obj = obj
+
+        if sys.platform == "darwin":
+            accel_ctrl = wx.ACCEL_CMD
+            self.faces = {'mono' : 'Monaco', 'size' : 12}
+        else:
+            accel_ctrl = wx.ACCEL_CTRL
+            self.faces = {'mono' : 'Monospace', 'size' : 10}
+
+        atable = wx.AcceleratorTable([(accel_ctrl, wx.WXK_RETURN, 10000),
+                                      (accel_ctrl, ord("z"), wx.ID_UNDO),
+                                      (accel_ctrl|wx.ACCEL_SHIFT, ord("z"), wx.ID_REDO)])
+        self.SetAcceleratorTable(atable)
+
+        self.Bind(wx.EVT_MENU, self.onExecute, id=10000)
+        self.Bind(wx.EVT_MENU, self.undo, id=wx.ID_UNDO)
+        self.Bind(wx.EVT_MENU, self.redo, id=wx.ID_REDO)
+        self.Bind(stc.EVT_STC_UPDATEUI, self.OnUpdateUI)
+
+        self.lexer = MMLLexer()
+
+        self.currentfile = ""
+        self.modified = False
+
+        self.setup()
+        self.setCmdKeys()
+        self.setStyle()
+
+        if os.path.isfile(self.obj.music):
+            with open(self.obj.music, "r") as f:
+                music = f.read()
+        else:
+            music = self.obj.music
+
+        self.SetText(music)
+
+    def undo(self, evt):
+        self.Undo()
+
+    def redo(self, evt):
+        self.Redo()
+
+    def setup(self):
+        self.SetIndent(2)
+        self.SetBackSpaceUnIndents(True)
+        self.SetTabIndents(True)
+        self.SetTabWidth(2)
+        self.SetUseTabs(False)
+        self.SetMargins(2, 2)
+        self.SetMarginWidth(1, 1)
+
+    def setCmdKeys(self):
+        self.CmdKeyAssign(ord('='), stc.STC_SCMOD_CTRL, stc.STC_CMD_ZOOMIN)
+        self.CmdKeyAssign(ord('-'), stc.STC_SCMOD_CTRL, stc.STC_CMD_ZOOMOUT)
+
+    def setStyle(self):
+        self.SetLexer(wx.stc.STC_LEX_CONTAINER)
+        self.SetStyleBits(5)
+        self.Bind(wx.stc.EVT_STC_STYLENEEDED, self.OnStyling)
+
+        self.SetCaretForeground("#000000")
+        self.SetCaretWidth(2)
+        # Global default styles for all languages
+        self.StyleSetSpec(stc.STC_STYLE_DEFAULT, "face:%(mono)s,size:%(size)d" % self.faces)
+        self.StyleClearAll()
+
+        self.StyleSetSpec(stc.STC_STYLE_DEFAULT, "face:%(mono)s,size:%(size)d" % self.faces)
+        self.StyleSetSpec(stc.STC_STYLE_CONTROLCHAR, "face:%(mono)s" % self.faces)
+        self.StyleSetSpec(stc.STC_STYLE_BRACELIGHT, "fore:#FFFFFF,back:#0000FF,bold")
+        self.StyleSetSpec(stc.STC_STYLE_BRACEBAD, "fore:#000000,back:#FF0000,bold")
+
+        # MML specific styles
+        self.StyleSetSpec(self.lexer.STC_MML_DEFAULT, "fore:#000000,face:%(mono)s,size:%(size)d" % self.faces)
+        self.StyleSetSpec(self.lexer.STC_MML_KEYWORD, "fore:#3300DD,face:%(mono)s,size:%(size)d,bold" % self.faces)
+        self.StyleSetSpec(self.lexer.STC_MML_KEYWORD2, "fore:#0033FF,face:%(mono)s,size:%(size)d,bold" % self.faces)
+        self.StyleSetSpec(self.lexer.STC_MML_VARIABLE, "fore:#006600,face:%(mono)s,size:%(size)d,bold" % self.faces)
+        self.StyleSetSpec(self.lexer.STC_MML_VOICE_TOKEN, "fore:#555500,face:%(mono)s,size:%(size)d,bold" % self.faces)
+        self.StyleSetSpec(self.lexer.STC_MML_COMMENT, "fore:#444444,face:%(mono)s,size:%(size)d,italic" % self.faces)
+
+        self.SetSelBackground(1, "#CCCCDD")
+
+    def OnStyling(self, evt):
+        self.lexer.StyleText(evt)
+
+    def loadfile(self, filename):
+        self.LoadFile(filename)
+        self.currentfile = filename
+        self.GetParent().SetTitle(self.currentfile)
+
+    def savefile(self, filename):
+        self.currentfile = filename
+        self.GetParent().SetTitle(self.currentfile)
+        self.SaveFile(filename)
+        self.OnUpdateUI(None)
+
+    def OnUpdateUI(self, evt):
+        # check for matching braces
+        braceAtCaret = -1
+        braceOpposite = -1
+        charBefore = None
+        caretPos = self.GetCurrentPos()
+
+        if caretPos > 0:
+            charBefore = self.GetCharAt(caretPos - 1)
+            styleBefore = self.GetStyleAt(caretPos - 1)
+
+        # check before
+        if charBefore and chr(charBefore) in "[]{}()":
+            braceAtCaret = caretPos - 1
+
+        # check after
+        if braceAtCaret < 0:
+            charAfter = self.GetCharAt(caretPos)
+            styleAfter = self.GetStyleAt(caretPos)
+
+            if charAfter and chr(charAfter) in "[]{}()":
+                braceAtCaret = caretPos
+        if braceAtCaret >= 0:
+            braceOpposite = self.BraceMatch(braceAtCaret)
+
+        if braceAtCaret != -1 and braceOpposite == -1:
+            self.BraceBadLight(braceAtCaret)
+        else:
+            self.BraceHighlight(braceAtCaret, braceOpposite)
+        # Check if horizontal scrollbar is needed
+        self.checkScrollbar()
+
+    def checkScrollbar(self):
+        lineslength = [self.LineLength(i)+1 for i in range(self.GetLineCount())]
+        maxlength = max(lineslength)
+        width = self.GetCharWidth() + (self.GetZoom() * 0.5)
+        if (self.GetSize()[0]) < (maxlength * width):
+            self.SetUseHorizontalScrollBar(True)
+        else:
+            self.SetUseHorizontalScrollBar(False)
+
+    def onExecute(self, evt):
+        pos = self.GetCurrentPos()
+        self.obj.music = self.GetText()
+        self.SetCurrentPos(pos)
+        self.SetSelection(pos, pos)
+
+class MMLEditorFrame(wx.Frame):
+
+    def __init__(self, parent=None, obj=None):
+        wx.Frame.__init__(self, parent, size=(650,450))
+        self.obj = obj
+        self.obj._editor = self
+        self.editor = MMLEditor(self, -1, self.obj)
+        self.menubar = wx.MenuBar()
+        self.fileMenu = wx.Menu()
+        self.fileMenu.Append(wx.ID_OPEN, "Open\tCtrl+O")
+        self.Bind(wx.EVT_MENU, self.open, id=wx.ID_OPEN)
+        self.fileMenu.Append(wx.ID_CLOSE, 'Close\tCtrl+W', kind=wx.ITEM_NORMAL)
+        self.Bind(wx.EVT_MENU, self.close, id=wx.ID_CLOSE)
+        self.fileMenu.AppendSeparator()
+        self.fileMenu.Append(wx.ID_SAVE, "Save\tCtrl+S")
+        self.Bind(wx.EVT_MENU, self.save, id=wx.ID_SAVE)
+        self.fileMenu.Append(wx.ID_SAVEAS, "Save As...\tShift+Ctrl+S")
+        self.Bind(wx.EVT_MENU, self.saveas, id=wx.ID_SAVEAS)
+        self.menubar.Append(self.fileMenu, "&File")
+        self.SetMenuBar(self.menubar)
+
+    def open(self, evt):
+        dlg = wx.FileDialog(self, message="Choose a file",
+                            defaultDir=os.path.expanduser("~"),
+                            defaultFile="", style=wx.FD_OPEN)
+        if dlg.ShowModal() == wx.ID_OK:
+            path = ensureNFD(dlg.GetPath())
+            self.editor.loadfile(path)
+        dlg.Destroy()
+
+    def close(self, evt):
+        self.obj._editor = None
+        self.Destroy()
+
+    def save(self, evt):
+        path = self.editor.currentfile
+        if not path:
+            self.saveas(None)
+        else:
+            self.editor.savefile(path)
+
+    def saveas(self, evt):
+        deffile = os.path.split(self.editor.currentfile)[1]
+        dlg = wx.FileDialog(self, message="Save file as ...",
+                            defaultDir=os.path.expanduser("~"),
+                            defaultFile=deffile, style=wx.FD_SAVE)
+        dlg.SetFilterIndex(0)
+        if dlg.ShowModal() == wx.ID_OK:
+            path = ensureNFD(dlg.GetPath())
+            self.editor.savefile(path)
+        dlg.Destroy()
+
+    def update(self, text):
+        self.editor.SetText(text)
+
 class Keyboard(wx.Panel):
     def __init__(self, parent, id=wx.ID_ANY, pos=wx.DefaultPosition,
                  size=wx.DefaultSize, poly=64, outFunction=None, 
