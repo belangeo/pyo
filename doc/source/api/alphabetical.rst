@@ -286,6 +286,7 @@ Alphabetical class reference
 - :py:class:`Touchin` :     Get the current value of an after-touch Midi controller.
 - :py:class:`TrackHold` :     Performs a track-and-hold operation on its input.
 - :py:class:`TranspoToCents` :     Returns the cents value equivalent of a transposition factor.
+- :py:class:`TriangleTable` :     Triangle waveform generator.
 - :py:class:`TrigBurst` :     Generates a time/amplitude expandable trigger pattern.
 - :py:class:`TrigChoice` :     Random generator from user's defined values.
 - :py:class:`TrigEnv` :     Envelope reader generator.
