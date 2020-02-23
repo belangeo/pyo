@@ -108,6 +108,12 @@ in memory and access them quickly.
 .. autoclass:: SquareTable
    :members:
 
+*TriangleTable*
+-----------------------------------
+
+.. autoclass:: TriangleTable
+   :members:
+
 *WinTable*
 -----------------------------------
 
