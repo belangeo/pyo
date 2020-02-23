@@ -84,6 +84,12 @@ in memory and access them quickly.
 .. autoclass:: PartialTable
    :members:
 
+*PulseTable*
+-----------------------------------
+
+.. autoclass:: PulseTable
+   :members:
+
 *SawTable*
 -----------------------------------
 

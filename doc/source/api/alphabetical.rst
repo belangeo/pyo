@@ -209,6 +209,7 @@ Alphabetical class reference
 - :py:class:`Print` :     Print PyoObject's current value.
 - :py:class:`Programin` :     Get the current value of a program change Midi controller.
 - :py:class:`Pulsar` :     Pulsar synthesis oscillator.
+- :py:class:`PulseTable` :     Pulse waveform generator with fixed width.
 - :py:class:`PyoGuiControlSlider` :         Floating-point control slider.
 - :py:class:`PyoGuiGrapher` :         Multi-modes break-points function editor.
 - :py:class:`PyoGuiKeyboard` :         Virtual MIDI keyboard.

@@ -136,6 +136,60 @@ class HarmTable(PyoTableObject):
     @list.setter
     def list(self, x): self.replace(x)
 
+class PulseTable(PyoTableObject):
+    """
+    Pulse waveform generator.
+
+    Generates pulse waveforms with fixed width.
+
+    :Parent: :py:class:`PyoTableObject`
+
+    :Args:
+
+        width: float, optional
+            Length of duty cycle, between 0 and 1.
+            Defaults to 0.5.
+        size: int, optional
+            Table size in samples. Defaults to 8192.
+
+    >>> s = Server().boot()
+    >>> s.start()
+    >>> t = PulseTable(width=1/4).normalize()
+    >>> a = Osc(table=t, freq=[199,200], mul=.2).out()
+
+    """
+    def __init__(self, width=0.5, size=8192):
+        pyoArgsAssert(self, "NI", width, size)
+        PyoTableObject.__init__(self, size)
+        self._width = width
+        widthInSamples = round(size * width)
+        list = [(0, 0), (size, 0)] if widthInSamples == 0 else [(0, 1), (widthInSamples, 1)]
+        self._base_objs = [LinTable_base(list, size)]
+
+    def setWidth(self, x):
+        """
+        Change the `width` attribute and redraw the waveform.
+
+        :Args:
+
+            x: float
+                New duty cycle length
+
+        """
+        pyoArgsAssert(self, "N", x)
+        self._width = x
+        widthInSamples = round(self.size * self._width)
+        list = [(0, 0), (size, 0)] if widthInSamples == 0 else [(0, 1), (widthInSamples, 1)]
+        [obj.replace(list) for obj in self._base_objs]
+        self.refreshView()
+
+    @property
+    def width(self):
+        """float. Length of duty cycle."""
+        return self._width
+    @width.setter
+    def width(self, x): self.setWidth(x)
+
 class SawTable(PyoTableObject):
     """
     Sawtooth waveform generator.
