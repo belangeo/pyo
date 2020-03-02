@@ -28,6 +28,12 @@ Examples
 Objects
 -------
 
+- PVInterp
+
+- Integrator and Differentiator
+
+- TrigAdsr, to generate envelope from trigger with constant fadein time.
+
 - Add VBAP and LBAP spat algorithms.
 
 - Add a plate reverb.
@@ -70,3 +76,8 @@ E-Pyo
 -----
 
 - We need a way to let the user interact with the script with input() function.
+
+Link
+----
+
+- Added Link integration to the Event Framework.
