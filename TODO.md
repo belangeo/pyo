@@ -76,3 +76,8 @@ E-Pyo
 -----
 
 - We need a way to let the user interact with the script with input() function.
+
+Link
+----
+
+- Added Link integration to the Event Framework.
