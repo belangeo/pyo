@@ -30,6 +30,8 @@ Objects
 
 - PVInterp
 
+- PVGain with controlable gain value over time.
+
 - Integrator and Differentiator
 
 - TrigAdsr, to generate envelope from trigger with constant fadein time.
