@@ -198,7 +198,7 @@ class EventInstrument(object):
     is over. The lifetime of the event is set as self.dur + self.tail ('dur'
     or 'beat' and 'tail' arguments of Events).
 
-    .. notes::
+    .. note::
 
         The user has almost no reason to instantiate an EventInstrument object
         himself. Instead, he should use it as a parent class for its own instruments. 

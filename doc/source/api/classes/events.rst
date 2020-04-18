@@ -98,6 +98,12 @@ See the **Events framework** examples in the documentation for different use cas
 .. autoclass:: EventConditional
    :members:
 
+*EventInstrument*
+------------------
+
+.. autoclass:: EventInstrument
+   :members:
+
 *Events*
 ------------------
 

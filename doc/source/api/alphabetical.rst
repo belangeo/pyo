@@ -62,7 +62,7 @@ Alphabetical class reference
 - :py:class:`DBToA` :     Returns the amplitude equivalent of a decibel value.
 - :py:class:`DCBlock` :     Implements the DC blocking filter.
 - :py:class:`DataTable` :     Create an empty table ready for data recording.
-- :py:class:`DefaultInstrument` :     The default instrument, playing a reverberated RC oscillator, used when
+- :py:class:`DefaultInstrument` :     The default instrument, playing a stereo RC oscillator, used when
 - :py:class:`Degrade` :     Signal quality reducer.
 - :py:class:`Delay1` :     Delays a signal by one sample.
 - :py:class:`Delay` :     Sweepable recursive delay.
@@ -115,6 +115,7 @@ Alphabetical class reference
 - :py:class:`HarmTable` :     Harmonic waveform generator.
 - :py:class:`Harmonizer` :     Generates harmonizing voices in synchrony with its audio input.
 - :py:class:`Hilbert` :     Hilbert transform.
+- :py:class:`IFFTMatrix` :     Inverse Fast Fourier Transform with a PyoMatrixObject as input.
 - :py:class:`IFFT` :     Inverse Fast Fourier Transform.
 - :py:class:`IRAverage` :     Moving average filter using circular convolution.
 - :py:class:`IRFM` :     Filters a signal with a frequency modulation spectrum using circular convolution.
@@ -135,6 +136,7 @@ Alphabetical class reference
 - :py:class:`Lookup` :     Uses table to do waveshaping on an audio signal.
 - :py:class:`Looper` :     Crossfading looper.
 - :py:class:`Lorenz` :     Chaotic attractor for the Lorenz system.
+- :py:class:`MML` :     Generates music sequences based on a custom MML notation.
 - :py:class:`MToF` :     Returns the frequency (Hz) equivalent to a midi note.
 - :py:class:`MToT` :     Returns the transposition factor equivalent to a midi note.
 - :py:class:`MatrixMorph` :     Morphs between multiple PyoMatrixObjects.
