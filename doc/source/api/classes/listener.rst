@@ -12,14 +12,20 @@ need to boot ands start an audio server before receiving messages.
 .. autoclass:: MidiListener
    :members:
 
+   ..autoclasstoc::
+
 *MidiDispatcher*
 -----------------------------------
 
 .. autoclass:: MidiDispatcher
    :members:
 
+   ..autoclasstoc::
+
 *OscListener*
 -----------------------------------
 
 .. autoclass:: OscListener
    :members:
+
+   ..autoclasstoc::

@@ -11,11 +11,15 @@ These objects are mainly used by pyo itself, inside other objects.
 .. autoclass:: Dummy
    :members:
 
+   ..autoclasstoc::
+
 *InputFader*
 -----------------------------------
 
 .. autoclass:: InputFader
    :members:
+
+   ..autoclasstoc::
 
 *Mix*
 -----------------------------------
@@ -23,11 +27,15 @@ These objects are mainly used by pyo itself, inside other objects.
 .. autoclass:: Mix
    :members:
 
+   ..autoclasstoc::
+
 *VarPort*
 -----------------------------------
 
 .. autoclass:: VarPort
    :members:
+
+   ..autoclasstoc::
 
 *Stream*
 -----------------------------------

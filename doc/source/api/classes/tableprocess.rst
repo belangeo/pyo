@@ -14,11 +14,15 @@ store audio samples or algorithmic sequences for future uses.
 .. autoclass:: Granulator
    :members:
 
+   ..autoclasstoc::
+
 *Granule*
 -----------------------------------
 
 .. autoclass:: Granule
    :members:
+
+   ..autoclasstoc::
 
 *Lookup*
 -----------------------------------
@@ -26,11 +30,15 @@ store audio samples or algorithmic sequences for future uses.
 .. autoclass:: Lookup
    :members:
 
+   ..autoclasstoc::
+
 *Looper*
 -----------------------------------
 
 .. autoclass:: Looper
    :members:
+
+   ..autoclasstoc::
 
 *Osc*
 -----------------------------------
@@ -38,11 +46,15 @@ store audio samples or algorithmic sequences for future uses.
 .. autoclass:: Osc
    :members:
 
+   ..autoclasstoc::
+
 *OscBank*
 -----------------------------------
 
 .. autoclass:: OscBank
    :members:
+
+   ..autoclasstoc::
 
 *OscLoop*
 -----------------------------------
@@ -50,11 +62,15 @@ store audio samples or algorithmic sequences for future uses.
 .. autoclass:: OscLoop
    :members:
 
+   ..autoclasstoc::
+
 *OscTrig*
 -----------------------------------
 
 .. autoclass:: OscTrig
    :members:
+
+   ..autoclasstoc::
 
 *Particle*
 -----------------------------------
@@ -62,11 +78,15 @@ store audio samples or algorithmic sequences for future uses.
 .. autoclass:: Particle
    :members:
 
+   ..autoclasstoc::
+
 *Particle2*
 -----------------------------------
 
 .. autoclass:: Particle2
    :members:
+
+   ..autoclasstoc::
 
 *Pointer*
 -----------------------------------
@@ -74,11 +94,15 @@ store audio samples or algorithmic sequences for future uses.
 .. autoclass:: Pointer
    :members:
 
+   ..autoclasstoc::
+
 *Pointer2*
 -----------------------------------
 
 .. autoclass:: Pointer2
    :members:
+
+   ..autoclasstoc::
 
 *Pulsar*
 -----------------------------------
@@ -86,11 +110,15 @@ store audio samples or algorithmic sequences for future uses.
 .. autoclass:: Pulsar
    :members:
 
+   ..autoclasstoc::
+
 *TableIndex*
 -----------------------------------
 
 .. autoclass:: TableIndex
    :members:
+
+   ..autoclasstoc::
 
 *TableMorph*
 -----------------------------------
@@ -98,11 +126,15 @@ store audio samples or algorithmic sequences for future uses.
 .. autoclass:: TableMorph
    :members:
 
+   ..autoclasstoc::
+
 *TablePut*
 -----------------------------------
 
 .. autoclass:: TablePut
    :members:
+
+   ..autoclasstoc::
 
 *TableRead*
 -----------------------------------
@@ -110,11 +142,15 @@ store audio samples or algorithmic sequences for future uses.
 .. autoclass:: TableRead
    :members:
 
+   ..autoclasstoc::
+
 *TableRec*
 -----------------------------------
 
 .. autoclass:: TableRec
    :members:
+
+   ..autoclasstoc::
 
 *TableWrite*
 -----------------------------------
@@ -122,11 +158,15 @@ store audio samples or algorithmic sequences for future uses.
 .. autoclass:: TableWrite
    :members:
 
+   ..autoclasstoc::
+
 *TableScale*
 -----------------------------------
 
 .. autoclass:: TableScale
    :members:
+
+   ..autoclasstoc::
 
 *TableFill*
 -----------------------------------
@@ -134,8 +174,12 @@ store audio samples or algorithmic sequences for future uses.
 .. autoclass:: TableFill
    :members:
 
+   ..autoclasstoc::
+
 *TableScan*
 -----------------------------------
 
 .. autoclass:: TableScan
    :members:
+
+   ..autoclasstoc::

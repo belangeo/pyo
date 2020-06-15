@@ -11,11 +11,15 @@ Set of objects that implement different kinds of random noise generators.
 .. autoclass:: Choice
    :members:
 
+   ..autoclasstoc::
+
 *LogiMap*
 -----------------------------------
 
 .. autoclass:: LogiMap
    :members:
+
+   ..autoclasstoc::
 
 *RandDur*
 -----------------------------------
@@ -23,11 +27,15 @@ Set of objects that implement different kinds of random noise generators.
 .. autoclass:: RandDur
    :members:
 
+   ..autoclasstoc::
+
 *RandInt*
 -----------------------------------
 
 .. autoclass:: RandInt
    :members:
+
+   ..autoclasstoc::
 
 *Randh*
 -----------------------------------
@@ -35,11 +43,15 @@ Set of objects that implement different kinds of random noise generators.
 .. autoclass:: Randh
    :members:
 
+   ..autoclasstoc::
+
 *Randi*
 -----------------------------------
 
 .. autoclass:: Randi
    :members:
+
+   ..autoclasstoc::
 
 *Urn*
 -----------------------------------
@@ -47,11 +59,15 @@ Set of objects that implement different kinds of random noise generators.
 .. autoclass:: Urn
    :members:
 
+   ..autoclasstoc::
+
 *Xnoise*
 -----------------------------------
 
 .. autoclass:: Xnoise
    :members:
+
+   ..autoclasstoc::
 
 *XnoiseDur*
 -----------------------------------
@@ -59,9 +75,13 @@ Set of objects that implement different kinds of random noise generators.
 .. autoclass:: XnoiseDur
    :members:
 
+   ..autoclasstoc::
+
 *XnoiseMidi*
 -----------------------------------
 
 .. autoclass:: XnoiseMidi
    :members:
+
+   ..autoclasstoc::
 

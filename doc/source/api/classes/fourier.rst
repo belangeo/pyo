@@ -15,11 +15,15 @@ spectral domain.
 .. autoclass:: FFT
    :members:
 
+   ..autoclasstoc::
+
 *IFFT*
 -----------------------------------
 
 .. autoclass:: IFFT
    :members:
+
+   ..autoclasstoc::
 
 *PolToCar*
 -----------------------------------
@@ -27,11 +31,15 @@ spectral domain.
 .. autoclass:: PolToCar
    :members:
 
+   ..autoclasstoc::
+
 *CarToPol*
 -----------------------------------
 
 .. autoclass:: CarToPol
    :members:
+
+   ..autoclasstoc::
 
 *FrameAccum*
 -----------------------------------
@@ -39,11 +47,15 @@ spectral domain.
 .. autoclass:: FrameAccum
    :members:
 
+   ..autoclasstoc::
+
 *FrameDelta*
 -----------------------------------
 
 .. autoclass:: FrameDelta
    :members:
+
+   ..autoclasstoc::
 
 *CvlVerb*
 -----------------------------------
@@ -51,9 +63,13 @@ spectral domain.
 .. autoclass:: CvlVerb
    :members:
 
+   ..autoclasstoc::
+
 *Vectral*
 -----------------------------------
 
 .. autoclass:: Vectral
    :members:
+
+   ..autoclasstoc::
 

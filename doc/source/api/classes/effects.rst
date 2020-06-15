@@ -12,11 +12,15 @@ as distortions, delays, chorus and reverbs.
 .. autoclass:: Disto
    :members:
 
+   ..autoclasstoc::
+
 *Delay*
 ------------
 
 .. autoclass:: Delay
    :members:
+
+   ..autoclasstoc::
 
 *SDelay*
 ------------
@@ -24,11 +28,15 @@ as distortions, delays, chorus and reverbs.
 .. autoclass:: SDelay
    :members:
 
+   ..autoclasstoc::
+
 *Delay1*
 ------------
 
 .. autoclass:: Delay1
    :members:
+
+   ..autoclasstoc::
 
 *Waveguide*
 ------------
@@ -36,11 +44,15 @@ as distortions, delays, chorus and reverbs.
 .. autoclass:: Waveguide
    :members:
 
+   ..autoclasstoc::
+
 *AllpassWG*
 ------------
 
 .. autoclass:: AllpassWG
    :members:
+
+   ..autoclasstoc::
 
 *Freeverb*
 ------------
@@ -48,11 +60,15 @@ as distortions, delays, chorus and reverbs.
 .. autoclass:: Freeverb
    :members:
 
+   ..autoclasstoc::
+
 *Convolve*
 ------------
 
 .. autoclass:: Convolve
    :members:
+
+   ..autoclasstoc::
 
 *WGVerb*
 ------------
@@ -60,11 +76,15 @@ as distortions, delays, chorus and reverbs.
 .. autoclass:: WGVerb
    :members:
 
+   ..autoclasstoc::
+
 *Chorus*
 ------------
 
 .. autoclass:: Chorus
    :members:
+
+   ..autoclasstoc::
 
 *Harmonizer*
 ------------
@@ -72,11 +92,15 @@ as distortions, delays, chorus and reverbs.
 .. autoclass:: Harmonizer
    :members:
 
+   ..autoclasstoc::
+
 *FreqShift*
 ------------
 
 .. autoclass:: FreqShift
    :members:
+
+   ..autoclasstoc::
 
 *STRev*
 ------------
@@ -84,9 +108,13 @@ as distortions, delays, chorus and reverbs.
 .. autoclass:: STRev
    :members:
 
+   ..autoclasstoc::
+
 *SmoothDelay*
 ---------------
 
 .. autoclass:: SmoothDelay
    :members:
+
+   ..autoclasstoc::
 

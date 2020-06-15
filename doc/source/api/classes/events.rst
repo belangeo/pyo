@@ -20,11 +20,15 @@ See the **Events framework** examples in the documentation for different use cas
 .. autoclass:: EventScale
    :members:
 
+   ..autoclasstoc::
+
 *EventGenerator*
 ------------------
 
 .. autoclass:: EventGenerator
    :members:
+
+   ..autoclasstoc::
 
 *EventDummy*
 ------------------
@@ -32,11 +36,15 @@ See the **Events framework** examples in the documentation for different use cas
 .. autoclass:: EventDummy
    :members:
 
+   ..autoclasstoc::
+
 *EventFilter*
 ------------------
 
 .. autoclass:: EventFilter
    :members:
+
+   ..autoclasstoc::
 
 *EventKey*
 ------------------
@@ -44,11 +52,15 @@ See the **Events framework** examples in the documentation for different use cas
 .. autoclass:: EventKey
    :members:
 
+   ..autoclasstoc::
+
 *EventSeq*
 ------------------
 
 .. autoclass:: EventSeq
    :members:
+
+   ..autoclasstoc::
 
 *EventSlide*
 ------------------
@@ -56,11 +68,15 @@ See the **Events framework** examples in the documentation for different use cas
 .. autoclass:: EventSlide
    :members:
 
+   ..autoclasstoc::
+
 *EventIndex*
 ------------------
 
 .. autoclass:: EventIndex
    :members:
+
+   ..autoclasstoc::
 
 *EventMarkov*
 ------------------
@@ -68,11 +84,15 @@ See the **Events framework** examples in the documentation for different use cas
 .. autoclass:: EventMarkov
    :members:
 
+   ..autoclasstoc::
+
 *EventChoice*
 ------------------
 
 .. autoclass:: EventChoice
    :members:
+
+   ..autoclasstoc::
 
 *EventDrunk*
 ------------------
@@ -80,11 +100,15 @@ See the **Events framework** examples in the documentation for different use cas
 .. autoclass:: EventDrunk
    :members:
 
+   ..autoclasstoc::
+
 *EventNoise*
 ------------------
 
 .. autoclass:: EventNoise
    :members:
+
+   ..autoclasstoc::
 
 *EventCall*
 ------------------
@@ -92,11 +116,15 @@ See the **Events framework** examples in the documentation for different use cas
 .. autoclass:: EventCall
    :members:
 
+   ..autoclasstoc::
+
 *EventConditional*
 ------------------
 
 .. autoclass:: EventConditional
    :members:
+
+   ..autoclasstoc::
 
 *EventInstrument*
 ------------------
@@ -104,8 +132,12 @@ See the **Events framework** examples in the documentation for different use cas
 .. autoclass:: EventInstrument
    :members:
 
+   ..autoclasstoc::
+
 *Events*
 ------------------
 
 .. autoclass:: Events
    :members:
+
+   ..autoclasstoc::

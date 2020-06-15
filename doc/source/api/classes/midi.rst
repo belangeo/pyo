@@ -16,11 +16,15 @@ used as controls and can't be sent to the output soundcard.
 .. autoclass:: Bendin
    :members:
 
+   ..autoclasstoc::
+
 *CtlScan*
 -----------------------------------
 
 .. autoclass:: CtlScan
    :members:
+
+   ..autoclasstoc::
 
 *CtlScan2*
 -----------------------------------
@@ -28,11 +32,15 @@ used as controls and can't be sent to the output soundcard.
 .. autoclass:: CtlScan2
    :members:
 
+   ..autoclasstoc::
+
 *MidiAdsr*
 -----------------------------------
 
 .. autoclass:: MidiAdsr
    :members:
+
+   ..autoclasstoc::
 
 *MidiDelAdsr*
 -----------------------------------
@@ -40,11 +48,15 @@ used as controls and can't be sent to the output soundcard.
 .. autoclass:: MidiDelAdsr
    :members:
 
+   ..autoclasstoc::
+
 *Midictl*
 -----------------------------------
 
 .. autoclass:: Midictl
    :members:
+
+   ..autoclasstoc::
 
 *Notein*
 -----------------------------------
@@ -52,11 +64,15 @@ used as controls and can't be sent to the output soundcard.
 .. autoclass:: Notein
    :members:
 
+   ..autoclasstoc::
+
 *Programin*
 -----------------------------------
 
 .. autoclass:: Programin
    :members:
+
+   ..autoclasstoc::
 
 *Touchin*
 -----------------------------------
@@ -64,14 +80,20 @@ used as controls and can't be sent to the output soundcard.
 .. autoclass:: Touchin
    :members:
 
+   ..autoclasstoc::
+
 *RawMidi*
 -----------------------------------
 
 .. autoclass:: RawMidi
    :members:
 
+   ..autoclasstoc::
+
 *MidiLinseg*
 -----------------------------------
 
 .. autoclass:: MidiLinseg
    :members:
+
+   ..autoclasstoc::

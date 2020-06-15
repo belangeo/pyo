@@ -13,11 +13,15 @@ time scaling, pitch transposition, and myriad other modifications of sounds.
 .. autoclass:: PVAnal
    :members:
 
+   ..autoclasstoc::
+
 *PVSynth*
 -----------------------------------
 
 .. autoclass:: PVSynth
    :members:
+
+   ..autoclasstoc::
 
 *PVAddSynth*
 -----------------------------------
@@ -25,11 +29,15 @@ time scaling, pitch transposition, and myriad other modifications of sounds.
 .. autoclass:: PVAddSynth
    :members:
 
+   ..autoclasstoc::
+
 *PVTranspose*
 -----------------------------------
 
 .. autoclass:: PVTranspose
    :members:
+
+   ..autoclasstoc::
 
 *PVVerb*
 -----------------------------------
@@ -37,11 +45,15 @@ time scaling, pitch transposition, and myriad other modifications of sounds.
 .. autoclass:: PVVerb
    :members:
 
+   ..autoclasstoc::
+
 *PVGate*
 -----------------------------------
 
 .. autoclass:: PVGate
    :members:
+
+   ..autoclasstoc::
 
 *PVCross*
 -----------------------------------
@@ -49,11 +61,15 @@ time scaling, pitch transposition, and myriad other modifications of sounds.
 .. autoclass:: PVCross
    :members:
 
+   ..autoclasstoc::
+
 *PVMult*
 -----------------------------------
 
 .. autoclass:: PVMult
    :members:
+
+   ..autoclasstoc::
 
 *PVMorph*
 -----------------------------------
@@ -61,11 +77,15 @@ time scaling, pitch transposition, and myriad other modifications of sounds.
 .. autoclass:: PVMorph
    :members:
 
+   ..autoclasstoc::
+
 *PVFilter*
 -----------------------------------
 
 .. autoclass:: PVFilter
    :members:
+
+   ..autoclasstoc::
 
 *PVDelay*
 -----------------------------------
@@ -73,29 +93,39 @@ time scaling, pitch transposition, and myriad other modifications of sounds.
 .. autoclass:: PVDelay
    :members:
 
+   ..autoclasstoc::
+
 *PVBuffer*
 -----------------------------------
 
 .. autoclass:: PVBuffer
    :members:
 
+   ..autoclasstoc::
+
 *PVShift*
 -----------------------------------
 
 .. autoclass:: PVShift
    :members:
+
+   ..autoclasstoc::
        
 *PVAmpMod*
 -----------------------------------
 
 .. autoclass:: PVAmpMod
    :members:
+
+   ..autoclasstoc::
        
 *PVFreqMod*
 -----------------------------------
 
 .. autoclass:: PVFreqMod
    :members:
+
+   ..autoclasstoc::
        
 *PVBufLoops*
 -----------------------------------
@@ -103,14 +133,20 @@ time scaling, pitch transposition, and myriad other modifications of sounds.
 .. autoclass:: PVBufLoops
    :members:
 
+   ..autoclasstoc::
+
 *PVBufTabLoops*
 -----------------------------------
 
 .. autoclass:: PVBufTabLoops
    :members:
 
+   ..autoclasstoc::
+
 *PVMix*
 -----------------------------------
 
 .. autoclass:: PVMix
    :members:
+
+   ..autoclasstoc::

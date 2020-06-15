@@ -15,11 +15,15 @@ can use them for controlling parameters of others objects.
 .. autoclass:: Follower
    :members:
 
+   ..autoclasstoc::
+
 *Follower2*
 ------------
 
 .. autoclass:: Follower2
    :members:
+
+   ..autoclasstoc::
 
 *ZCross*
 ------------
@@ -27,11 +31,15 @@ can use them for controlling parameters of others objects.
 .. autoclass:: ZCross
    :members:
 
+   ..autoclasstoc::
+
 *Yin*
 ------------
 
 .. autoclass:: Yin
    :members:
+
+   ..autoclasstoc::
 
 *Centroid*
 ------------
@@ -39,11 +47,15 @@ can use them for controlling parameters of others objects.
 .. autoclass:: Centroid
    :members:
 
+   ..autoclasstoc::
+
 *AttackDetector*
 -----------------
 
 .. autoclass:: AttackDetector
    :members:
+
+   ..autoclasstoc::
 
 *Spectrum*
 -----------------------------------
@@ -51,11 +63,15 @@ can use them for controlling parameters of others objects.
 .. autoclass:: Spectrum
    :members:
 
+   ..autoclasstoc::
+
 *Scope*
 -----------------------------------
 
 .. autoclass:: Scope
    :members:
+
+   ..autoclasstoc::
 
 *PeakAmp*
 -----------------------------------
@@ -63,8 +79,12 @@ can use them for controlling parameters of others objects.
 .. autoclass:: PeakAmp
    :members:
 
+   ..autoclasstoc::
+
 *RMS*
 -----------------------------------
 
 .. autoclass:: RMS
    :members:
+
+   ..autoclasstoc::

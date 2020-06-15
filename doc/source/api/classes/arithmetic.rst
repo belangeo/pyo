@@ -11,11 +11,15 @@ Tools to perform arithmetic operations on audio signals.
 .. autoclass:: Sin
    :members:
 
+   ..autoclasstoc::
+
 *Cos*
 ------------
 
 .. autoclass:: Cos
    :members:
+
+   ..autoclasstoc::
 
 *Tan*
 ------------
@@ -23,11 +27,15 @@ Tools to perform arithmetic operations on audio signals.
 .. autoclass:: Tan
    :members:
 
+   ..autoclasstoc::
+
 *Tanh*
 ------------
 
 .. autoclass:: Tanh
    :members:
+
+   ..autoclasstoc::
 
 *Abs*
 ------------
@@ -35,11 +43,15 @@ Tools to perform arithmetic operations on audio signals.
 .. autoclass:: Abs
    :members:
 
+   ..autoclasstoc::
+
 *Sqrt*
 ------------
 
 .. autoclass:: Sqrt
    :members:
+
+   ..autoclasstoc::
 
 *Log*
 ------------
@@ -47,11 +59,15 @@ Tools to perform arithmetic operations on audio signals.
 .. autoclass:: Log
    :members:
 
+   ..autoclasstoc::
+
 *Log2*
 ------------
 
 .. autoclass:: Log2
    :members:
+
+   ..autoclasstoc::
 
 *Log10*
 ------------
@@ -59,11 +75,15 @@ Tools to perform arithmetic operations on audio signals.
 .. autoclass:: Log10
    :members:
 
+   ..autoclasstoc::
+
 *Atan2*
 ------------
 
 .. autoclass:: Atan2
    :members:
+
+   ..autoclasstoc::
 
 *Floor*
 ------------
@@ -71,11 +91,15 @@ Tools to perform arithmetic operations on audio signals.
 .. autoclass:: Floor
    :members:
 
+   ..autoclasstoc::
+
 *Ceil*
 ------------
 
 .. autoclass:: Ceil
    :members:
+
+   ..autoclasstoc::
 
 *Round*
 ------------
@@ -83,11 +107,15 @@ Tools to perform arithmetic operations on audio signals.
 .. autoclass:: Round
    :members:
 
+   ..autoclasstoc::
+
 *Pow*
 ------------
 
 .. autoclass:: Pow
    :members:
+
+   ..autoclasstoc::
 
 *Exp*
 ------------
@@ -95,14 +123,20 @@ Tools to perform arithmetic operations on audio signals.
 .. autoclass:: Exp
    :members:
 
+   ..autoclasstoc::
+
 *Div*
 ------------
 
 .. autoclass:: Div
    :members:
 
+   ..autoclasstoc::
+
 *Sub*
 ------------
 
 .. autoclass:: Sub
    :members:
+
+   ..autoclasstoc::

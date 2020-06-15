@@ -17,11 +17,15 @@ soundcard.
 .. autoclass:: Fader
    :members:
 
+   ..autoclasstoc::
+
 *Adsr*
 ------------
 
 .. autoclass:: Adsr
    :members:
+
+   ..autoclasstoc::
 
 *Linseg*
 ------------
@@ -29,11 +33,15 @@ soundcard.
 .. autoclass:: Linseg
    :members:
 
+   ..autoclasstoc::
+
 *Expseg*
 ------------
 
 .. autoclass:: Expseg
    :members:
+
+   ..autoclasstoc::
 
 *Sig*
 ------------
@@ -41,9 +49,13 @@ soundcard.
 .. autoclass:: Sig
    :members:
 
+   ..autoclasstoc::
+
 *SigTo*
 ------------
 
 .. autoclass:: SigTo
    :members:
+
+   ..autoclasstoc::
 

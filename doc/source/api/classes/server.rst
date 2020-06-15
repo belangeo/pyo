@@ -9,3 +9,5 @@ Audio Server
 .. autoclass:: Server
    :members:
 
+   ..autoclasstoc::
+

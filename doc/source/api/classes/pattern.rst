@@ -12,15 +12,21 @@ Useful for event sequencing.
 .. autoclass:: CallAfter
    :members:
 
+   ..autoclasstoc::
+
 *Pattern*
 -----------------------------------
 
 .. autoclass:: Pattern
    :members:
 
+   ..autoclasstoc::
+
 *Score*
 -----------------------------------
 
 .. autoclass:: Score
    :members:
+
+   ..autoclasstoc::
 

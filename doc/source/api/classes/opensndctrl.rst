@@ -25,11 +25,15 @@ controls and can't be sent to the output soundcard.
 .. autoclass:: OscDataReceive
    :members:
 
+   ..autoclasstoc::
+
 *OscDataSend*
 -----------------------------------
 
 .. autoclass:: OscDataSend
    :members:
+
+   ..autoclasstoc::
 
 *OscListReceive*
 -----------------------------------
@@ -37,15 +41,21 @@ controls and can't be sent to the output soundcard.
 .. autoclass:: OscListReceive
    :members:
 
+   ..autoclasstoc::
+
 *OscReceive*
 -----------------------------------
 
 .. autoclass:: OscReceive
    :members:
 
+   ..autoclasstoc::
+
 *OscSend*
 -----------------------------------
 
 .. autoclass:: OscSend
    :members:
+
+   ..autoclasstoc::
 

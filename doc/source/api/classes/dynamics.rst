@@ -11,11 +11,15 @@ Objects to modify the dynamic range and sample quality of audio signals.
 .. autoclass:: Clip
    :members:
 
+   ..autoclasstoc::
+
 *Degrade*
 ----------
 
 .. autoclass:: Degrade
    :members:
+
+   ..autoclasstoc::
 
 *Mirror*
 ------------
@@ -23,11 +27,15 @@ Objects to modify the dynamic range and sample quality of audio signals.
 .. autoclass:: Mirror
    :members:
 
+   ..autoclasstoc::
+
 *Compress*
 ------------
 
 .. autoclass:: Compress
    :members:
+
+   ..autoclasstoc::
 
 *Gate*
 ------------
@@ -35,11 +43,15 @@ Objects to modify the dynamic range and sample quality of audio signals.
 .. autoclass:: Gate
    :members:
 
+   ..autoclasstoc::
+
 *Balance*
 ------------
 
 .. autoclass:: Balance
    :members:
+
+   ..autoclasstoc::
 
 *Min*
 ------------
@@ -47,11 +59,15 @@ Objects to modify the dynamic range and sample quality of audio signals.
 .. autoclass:: Min
    :members:
 
+   ..autoclasstoc::
+
 *Max*
 ------------
 
 .. autoclass:: Max
    :members:
+
+   ..autoclasstoc::
 
 *Wrap*
 ------------
@@ -59,8 +75,12 @@ Objects to modify the dynamic range and sample quality of audio signals.
 .. autoclass:: Wrap
    :members:
 
+   ..autoclasstoc::
+
 *Expand*
 ------------
 
 .. autoclass:: Expand
    :members:
+
+   ..autoclasstoc::

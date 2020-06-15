@@ -14,15 +14,21 @@ an AIFF file to create more specific reading patterns.
 .. autoclass:: SfPlayer
    :members:
 
+   ..autoclasstoc::
+
 *SfMarkerLooper*
 -----------------------------------
 
 .. autoclass:: SfMarkerLooper
    :members:
 
+   ..autoclasstoc::
+
 *SfMarkerShuffler*
 -----------------------------------
 
 .. autoclass:: SfMarkerShuffler
    :members:
+
+   ..autoclasstoc::
 

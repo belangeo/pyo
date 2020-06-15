@@ -12,11 +12,15 @@ signal into a stereo or multi-channel sound field.
 .. autoclass:: Mixer
    :members:
 
+   ..autoclasstoc::
+
 *Pan*
 -----------------------------------
 
 .. autoclass:: Pan
    :members:
+
+   ..autoclasstoc::
 
 *SPan*
 -----------------------------------
@@ -24,11 +28,15 @@ signal into a stereo or multi-channel sound field.
 .. autoclass:: SPan
    :members:
 
+   ..autoclasstoc::
+
 *Selector*
 -----------------------------------
 
 .. autoclass:: Selector
    :members:
+
+   ..autoclasstoc::
 
 *Switch*
 -----------------------------------
@@ -36,11 +44,15 @@ signal into a stereo or multi-channel sound field.
 .. autoclass:: Switch
    :members:
 
+   ..autoclasstoc::
+
 *VoiceManager*
 -----------------------------------
 
 .. autoclass:: VoiceManager
    :members:
+
+   ..autoclasstoc::
 
 *HRTF*
 -----------------------------------
@@ -48,8 +60,12 @@ signal into a stereo or multi-channel sound field.
 .. autoclass:: HRTF
    :members:
 
+   ..autoclasstoc::
+
 *Binaural*
 -----------------------------------
 
 .. autoclass:: Binaural
    :members:
+
+   ..autoclasstoc::
