@@ -104,7 +104,7 @@ from __future__ import print_function
 from __future__ import absolute_import
 
 """
-Copyright 2009-2015 Olivier Belanger
+Copyright 2009-2020 Olivier Belanger
 
 This file is part of pyo, a python module to help digital signal
 processing script creation.
@@ -221,7 +221,6 @@ class MMLParser:
         # Scan the text two times in case a macro uses another macro.
         for i in range(2):
             for macro in sorted(macros, key=len, reverse=True):
-            #for macro in macros:
                 pos = new.find(macro)
                 while pos != -1:
                     if new[pos-1] in MACRO_DELIMITERS and \
