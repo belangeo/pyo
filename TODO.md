@@ -12,6 +12,8 @@ Roadmap 1.0.2
 
 - Add an optional callback on the "stop" event of the PyoObject. 
 
+- Clean up reducePoints function.
+
 Internal
 --------
 

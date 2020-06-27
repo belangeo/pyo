@@ -916,47 +916,47 @@ reducePoints(PyObject *self, PyObject *args, PyObject *kwds)
     MYFLT *pPointsX, *pPointsY;
     int *pnUseFlag;
     MYFLT dTolerance = .02;
-        MYFLT xMax, yMin, yMax;
+    MYFLT xMax, yMin, yMax;
 
-        static char *kwlist[] = {"pointlist", "tolerance", NULL};
+    static char *kwlist[] = {"pointlist", "tolerance", NULL};
 
-        if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_O_F, kwlist, &pointlist, &dTolerance))
-            return PyInt_FromLong(-1);
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_O_F, kwlist, &pointlist, &dTolerance))
+        return PyInt_FromLong(-1);
 
-        nPointsCount = PyList_Size(pointlist);
+    nPointsCount = PyList_Size(pointlist);
 
 	// TODO: these malloc's are never freed.
-        pPointsX = (MYFLT *)malloc(nPointsCount * sizeof(MYFLT));
-        pPointsY = (MYFLT *)malloc(nPointsCount * sizeof(MYFLT));
-        pnUseFlag = (int *)malloc(nPointsCount * sizeof(int));
+    pPointsX = (MYFLT *)malloc(nPointsCount * sizeof(MYFLT));
+    pPointsY = (MYFLT *)malloc(nPointsCount * sizeof(MYFLT));
+    pnUseFlag = (int *)malloc(nPointsCount * sizeof(int));
 
-        tup = PyList_GET_ITEM(pointlist, 0);
-        if (PyTuple_Check(tup) == 1) {
-            for (i=0; i<nPointsCount; i++) {
-                tup = PyList_GET_ITEM(pointlist, i);
-                pPointsX[i] = PyFloat_AsDouble(PyTuple_GET_ITEM(tup, 0));
-                pPointsY[i] = PyFloat_AsDouble(PyTuple_GET_ITEM(tup, 1));
-                pnUseFlag[i] = 0;
-            }
-        }
-        else {
-            for (i=0; i<nPointsCount; i++) {
-                tup = PyList_GET_ITEM(pointlist, i);
-                pPointsX[i] = PyFloat_AsDouble(PyList_GET_ITEM(tup, 0));
-                pPointsY[i] = PyFloat_AsDouble(PyList_GET_ITEM(tup, 1));
-                pnUseFlag[i] = 0;
-            }
-        }
-
-        // rescale points between 0. and 1.
-        xMax = pPointsX[nPointsCount-1];
-        yMin = 9999999999.9; yMax = -999999.9;
+    tup = PyList_GET_ITEM(pointlist, 0);
+    if (PyTuple_Check(tup) == 1) {
         for (i=0; i<nPointsCount; i++) {
-            if (pPointsY[i] < yMin)
-                yMin = pPointsY[i];
-            else if (pPointsY[i] > yMax)
-                yMax = pPointsY[i];
+            tup = PyList_GET_ITEM(pointlist, i);
+            pPointsX[i] = PyFloat_AsDouble(PyTuple_GET_ITEM(tup, 0));
+            pPointsY[i] = PyFloat_AsDouble(PyTuple_GET_ITEM(tup, 1));
+            pnUseFlag[i] = 0;
         }
+    }
+    else {
+        for (i=0; i<nPointsCount; i++) {
+            tup = PyList_GET_ITEM(pointlist, i);
+            pPointsX[i] = PyFloat_AsDouble(PyList_GET_ITEM(tup, 0));
+            pPointsY[i] = PyFloat_AsDouble(PyList_GET_ITEM(tup, 1));
+            pnUseFlag[i] = 0;
+        }
+    }
+
+    // rescale points between 0. and 1.
+    xMax = pPointsX[nPointsCount-1];
+    yMin = 9999999999.9; yMax = -999999.9;
+    for (i=0; i<nPointsCount; i++) {
+        if (pPointsY[i] < yMin)
+            yMin = pPointsY[i];
+        else if (pPointsY[i] > yMax)
+            yMax = pPointsY[i];
+    }
     for (i=0; i<nPointsCount; i++) {
         pPointsX[i] = pPointsX[i] / xMax;
         pPointsY[i] = (pPointsY[i] - yMin) / yMax;
