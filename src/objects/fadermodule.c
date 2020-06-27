@@ -1021,7 +1021,7 @@ Linseg_generate(Linseg *self) {
                     }
                 }
                 else {
-                    if ((self->times[self->which] - self->times[self->which-1]) <= 0)
+                    if ((self->times[self->which] - self->times[self->which-1]) <= self->sampleToSec)
                         self->increment = self->targets[self->which] - self->currentValue;
                     else
                         self->increment = (self->targets[self->which] - self->targets[self->which-1]) / ((self->times[self->which] - self->times[self->which-1]) / self->sampleToSec);
