@@ -1,6 +1,17 @@
 This is a list of features/fixes to implement for future releases
 =================================================================
 
+Roadmap 1.0.2
+-------------
+
+- Finish MML implementation
+
+- Add Midifile object
+
+- Fixed Windows crash related to MIDI devices
+
+- Add an optional callback on the "stop" event of the PyoObject. 
+
 Internal
 --------
 
