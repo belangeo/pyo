@@ -14,6 +14,10 @@ Roadmap 1.0.2
 
 - Clean up reducePoints function.
 
+- Fix compatibility issues with WxPython 4.1.0.
+    - Search ctrl in the documentation frame does not work.
+    - Review Style editor layout.
+
 Internal
 --------
 
