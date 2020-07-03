@@ -1723,8 +1723,8 @@ class ManualPanel(wx.Treebook):
 
     def getExampleScript(self):
         stc = self.GetPage(self.GetSelection()).win
-        start = stc.LineFromPosition(stc.FindText(0, stc.GetLength(), "Examples:")) + 1
-        end = stc.LineFromPosition(stc.FindText(0, stc.GetLength(), "Methods details:")) - 1
+        start = stc.LineFromPosition(stc.FindText(0, stc.GetLength(), "Examples:")[0]) + 1
+        end = stc.LineFromPosition(stc.FindText(0, stc.GetLength(), "Methods details:")[0]) - 1
         if end <= 0:
             end = stc.GetLineCount() - 1
         text = stc.GetTextRange(stc.PositionFromLine(start), stc.PositionFromLine(end))
@@ -2032,7 +2032,10 @@ class RunningThread(threading.Thread):
             log = log + str(line)
             log = log.replace(">>> ", "").replace("... ", "")
             data_event = DataEvent({"log": log, "pid": self.pid, "filename": self.filename, "active": True})
-            wx.QueueEvent(self.event_receiver, data_event)
+            try:
+                wx.QueueEvent(self.event_receiver, data_event)
+            except:
+                pass
             sys.stdout.flush()
             time.sleep(.01)
         stdout, stderr = self.proc.communicate()
@@ -2070,7 +2073,10 @@ class RunningThread(threading.Thread):
             output = output + "\n=== Process killed. ==="
         data_event = DataEvent({"log": output, "pid": self.pid,
                                 "filename": self.filename, "active": False})
-        wx.QueueEvent(self.event_receiver, data_event)
+        try:
+            wx.QueueEvent(self.event_receiver, data_event)
+        except:
+            pass
 
 class BackgroundServerThread(threading.Thread):
     def __init__(self, cwd, event_receiver):
@@ -2315,22 +2321,22 @@ class ComponentPanel(scrolled.ScrolledPanel):
             box.Add(label, 1, wx.EXPAND|wx.TOP|wx.LEFT, 3)
             btog = wx.ToggleButton(self, wx.ID_ANY, label="B", size=(24,20))
             btog.SetValue(STYLES[component]['bold'])
-            box.Add(btog, 0, wx.TOP|wx.ALIGN_RIGHT, 1)
+            box.Add(btog, 0, wx.TOP, 1)
             btog.Bind(wx.EVT_TOGGLEBUTTON, self.OnBToggleButton)
             self.bTogRefs[btog] = component
             itog = wx.ToggleButton(self, wx.ID_ANY, label="I", size=(24,20))
             itog.SetValue(STYLES[component]['italic'])
-            box.Add(itog, 0, wx.TOP|wx.ALIGN_RIGHT, 1)
+            box.Add(itog, 0, wx.TOP, 1)
             itog.Bind(wx.EVT_TOGGLEBUTTON, self.OnIToggleButton)
             self.iTogRefs[itog] = component
             utog = wx.ToggleButton(self, wx.ID_ANY, label="U", size=(24,20))
             utog.SetValue(STYLES[component]['underline'])
-            box.Add(utog, 0, wx.TOP|wx.ALIGN_RIGHT, 1)
+            box.Add(utog, 0, wx.TOP, 1)
             utog.Bind(wx.EVT_TOGGLEBUTTON, self.OnUToggleButton)
             self.uTogRefs[utog] = component
             box.AddSpacer(20)
             selector = csel.ColourSelect(self, -1, "", hex_to_rgb(STYLES[component]['colour']), size=(20,20))
-            box.Add(selector, 0, wx.TOP|wx.ALIGN_RIGHT, 1)
+            box.Add(selector, 0, wx.TOP, 1)
             selector.Bind(csel.EVT_COLOURSELECT, self.OnSelectColour)
             self.buttonRefs[selector] = component
             mainSizer.Add(box, 1, wx.LEFT|wx.RIGHT|wx.EXPAND, 10)
@@ -2341,7 +2347,7 @@ class ComponentPanel(scrolled.ScrolledPanel):
             label = wx.StaticText(self, wx.ID_ANY, label=STYLES_LABELS[component])
             box.Add(label, 1, wx.EXPAND|wx.TOP|wx.LEFT, 3)
             selector = csel.ColourSelect(self, -1, "", hex_to_rgb(STYLES[component]['colour']), size=(20,20))
-            box.Add(selector, 0, wx.TOP|wx.ALIGN_RIGHT, 1)
+            box.Add(selector, 0, wx.TOP, 1)
             selector.Bind(csel.EVT_COLOURSELECT, self.OnSelectColour)
             self.buttonRefs[selector] = component
             mainSizer.Add(box, 1, wx.LEFT|wx.RIGHT|wx.EXPAND, 10)
@@ -2460,7 +2466,7 @@ class ColourEditor(wx.Frame):
             self.buttonRefs[b] = name
             buttonSizer2.AddMany([(wx.StaticText(self.panel, -1, label+":"), 0, wx.ALIGN_RIGHT|wx.ALIGN_CENTER_VERTICAL),
                                 (b, 0, wx.LEFT|wx.RIGHT, 5)])
-        section1Sizer.Add(buttonSizer2, 0, wx.LEFT|wx.RIGHT|wx.TOP|wx.ALIGN_RIGHT, 10)
+        section1Sizer.Add(buttonSizer2, 0, wx.LEFT|wx.RIGHT|wx.TOP, 10)
         mainSizer.Add(section1Sizer, 0, wx.LEFT|wx.RIGHT|wx.TOP, 10)
 
         self.components = ComponentPanel(self.panel, size=(480, 100))
@@ -2866,7 +2872,7 @@ class SnippetFrame(wx.Frame):
         self.Bind(wx.EVT_BUTTON, self.onTagSelection, id=self.tagButton.GetId())
         toolbar2.Realize()
 
-        toolbarBox.Add(toolbar2, 0, wx.ALIGN_RIGHT|wx.RIGHT, 5)
+        toolbarBox.Add(toolbar2, 0, wx.RIGHT, 5)
 
         self.box.Add(toolbarBox, 0, wx.EXPAND|wx.ALL, 5)
 
@@ -3907,7 +3913,7 @@ class MainFrame(wx.Frame):
         id = evt.GetId()
         menu = self.menu7
         item = menu.FindItemById(id)
-        name = item.GetLabel()
+        name = item.GetItemLabelText()
         category = item.GetMenu().GetTitle()
         with codecs.open(os.path.join(ensureNFD(SNIPPETS_PATH), category, name), "r", encoding="utf-8") as f:
             text = f.read()
@@ -3922,7 +3928,7 @@ class MainFrame(wx.Frame):
     def changeStyle(self, evt):
         menu = self.GetMenuBar()
         id = evt.GetId()
-        st = menu.FindItemById(id).GetLabel()
+        st = menu.FindItemById(id).GetItemLabelText()
         self.setStyle(st, fromMenu=True)
         self.style_frame.setCurrentStyle(st)
 
@@ -4079,7 +4085,7 @@ class MainFrame(wx.Frame):
     def openRecent(self, event):
         menu = self.GetMenuBar()
         id = event.GetId()
-        file = menu.FindItemById(id).GetLabel()
+        file = menu.FindItemById(id).GetItemLabelText()
         self.panel.addPage(ensureNFD(file))
 
     def open(self, event, encoding=None):
@@ -4112,7 +4118,7 @@ class MainFrame(wx.Frame):
         id = event.GetId()
         menu = self.menu6
         item = menu.FindItemById(id)
-        filename = item.GetLabel()
+        filename = item.GetItemLabelText()
         folder = item.GetMenu().GetTitle()
         path = os.path.join(ensureNFD(EXAMPLE_PATH), folder, filename)
         self.panel.addPage(ensureNFD(path))
@@ -6265,7 +6271,7 @@ class OutputLogPanel(wx.Panel):
         self.toolbar.AddControl(self.zoomer)
         self.zoomer.Bind(wx.EVT_SPINCTRL, self.onZoom)
         self.toolbar.Realize()
-        toolbarbox.Add(self.toolbar, 1, wx.ALIGN_LEFT | wx.ALIGN_CENTER_VERTICAL | wx.EXPAND, 0)
+        toolbarbox.Add(self.toolbar, 1, wx.ALIGN_LEFT | wx.EXPAND, 0)
 
         tb2 = wx.ToolBar(self, -1)
         if PLATFORM == "darwin":
@@ -6276,7 +6282,7 @@ class OutputLogPanel(wx.Panel):
         else:
             tb2.AddTool(17, "Close Panel", close_panel_bmp, shortHelp="Close Panel")
         tb2.Realize()
-        toolbarbox.Add(tb2, 0, wx.ALIGN_RIGHT, 0)
+        toolbarbox.Add(tb2, 0)
 
         self.Bind(wx.EVT_TOOL, self.onCloseOutputPanel, id=17)
 
@@ -6437,7 +6443,7 @@ class ProjectTree(wx.Panel):
             tb2.AddTool(15, "Close Panel", close_panel_bmp, shortHelp="Close Panel")
 
         tb2.Realize()
-        toolbarbox.Add(tb2, 0, wx.ALIGN_RIGHT, 0)
+        toolbarbox.Add(tb2, 0)
 
         self.Bind(wx.EVT_TOOL, self.onAdd, id=TOOL_ADD_FILE_ID)
         self.Bind(wx.EVT_TOOL, self.onAdd, id=TOOL_ADD_FOLDER_ID)
@@ -6826,7 +6832,7 @@ class MarkersPanel(wx.Panel):
             tb2.AddTool(16, "Close Panel", close_panel_bmp, shortHelp="Close Panel")
 
         tb2.Realize()
-        toolbarbox.Add(tb2, 0, wx.ALIGN_RIGHT, 0)
+        toolbarbox.Add(tb2, 0)
 
         self.Bind(wx.EVT_TOOL, self.onDeleteAll, id=TOOL_DELETE_ALL_MARKERS_ID)
         self.Bind(wx.EVT_TOOL, self.onCloseMarkersPanel, id=16)
