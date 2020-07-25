@@ -1,9 +1,8 @@
 """
 Music Macro Language evaluator.
 
-The MML object implements an MML evaluator to allow simple and efficient
-music composition within pyo. The language implemented is a custom MML
-specifications. The language's rules are explained below.
+The MML object implements acustom MML evaluator to allow simple and efficient
+music composition within pyo. The language's rules are explained below.
 
 The MML object generates triggers on new notes with additional streams to
 handle frequency, amplitude, duration and custom parameters. See the object
@@ -12,7 +11,7 @@ documentation for more details.
 API documentation
 =================
 
-- The space separates the tokens in a sequence (a token can be a note value,
+- The space separates the tokens in a music sequence (a token can be a note value,
   an amplitude control, a tempo statement, etc.).
 
 Pre-Processing on music text
@@ -25,7 +24,7 @@ Pre-Processing on music text
 
 - We can break a long line into multiple short lines with the backslash ( \ ).
 
-- The symbol equal ( = ), preceded by a variable name in upper case, creates a
+- The symbol equal ( = ), preceded by a variable name in UPPER CASE, creates a
   macro. The remaining part of the line is the macro body. Anywhere the 
   pre-processor finds the variable name in the music, it will be replaced by the
   macro's body.
@@ -57,9 +56,10 @@ Realtime Processing of the music
 - The letter `r` corresponds to a rest. The length of the rest is specified in
   the same manner as the length of a note.
 
-- Notes surrounded by brakets ( `(` and `)` ) act as tuplet. Tuplet length must be
-  specified after the closing bracket. Length of each note in tuplet will evenly be 
-  <note length of tuplet> / <count of notes in tuplet>.
+- Notes surrounded by brakets ( `(` and `)` ) act as tuplet. Tuplet length is specified
+  just after the closing bracket using the same values as for a note duration. Length of
+  each note in tuplet will evenly be <note length of tuplet> / <count of notes in tuplet>.
+  If not specified, tuplet duration defaults to 5 (quarter note).
 
 - The letter `o`, followed by a number, selects the octave the instrument will play in.
   If the letter `o` is followed by the symbol `+`, the octave steps up by one. If followed
@@ -87,11 +87,13 @@ Realtime Processing of the music
 
 - Random choice within a set of values can be done with the ? symbol, followed by the
   possible values inside square brackets.
+  Ex. ?[c e g b-] ; the note is a random choice between c e g and b-.
 
 - Random choice between a range can be done with the ? symbol, followed by the range inside
   curly brackets. If two values are presents, they are the minimum and maximum of the range.
   If there is only one value, the range is 0 to this value and if the brackets are empty, the
   range is 0 to 1.
+  Ex. v?{40 70} ; volume is set randomly between 40 and 70.
 
 - The symbol |: starts a looped segment and the symbol :| ends it. A number right after the
   last symbol indicates how many loops to perform. If missing, the number of loops is two (the
@@ -131,6 +133,8 @@ from ._widgets import createMMLEditorWindow
 
 VALID_NOTES = "abcdefgr?"
 VALID_PARAMS = "xyz"
+VALID_DIGITS = "0123456789"
+VALID_SPACES = " \t\n"
 VALID_CHARS = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789?"
 MACRO_DELIMITERS = "0123456789abcdefgrxyz?()[]{}.|: \t\n"
 
@@ -188,7 +192,11 @@ class MMLParser:
                 # missing end brace, just ignore the tuplet.
                 text = text[:pos] + text[pos+1:]
             else:
-                duration = int(text[pos2+1])
+                durchar = text[pos2+1]
+                if durchar in VALID_DIGITS:
+                    duration = int(durchar)
+                else:
+                    duration = 5 # default tuplet duration is the quarter note.
                 tmp_eles = self._split_tuplets(text[pos+1:pos2])
                 elements = []
                 for ele in tmp_eles:
@@ -196,6 +204,7 @@ class MMLParser:
                         elements.append("%s%i" % (ele, duration))
                     else:
                         elements.append(ele)
+                # count only note elements.
                 num_eles = len([e for e in elements if e[0] in VALID_NOTES])
                 ele_text = " ".join(elements)
                 ele_div = " /%i " % num_eles
@@ -594,7 +603,7 @@ class MML(PyoObject):
 
     @property
     def music(self):
-        """string. The music code to parse"""
+        """string. The music code to parse."""
         return self._music
     @music.setter
     def music(self, x): self.setMusic(x)
