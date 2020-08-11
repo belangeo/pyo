@@ -2740,7 +2740,7 @@ class ExprLexer(object):
         end_pos = evt.GetPosition()
         var = letvar = False
         while start_pos < end_pos:
-            stc.StartStyling(start_pos, 0x1f)
+            stc.StartStyling(start_pos)
             curchar = chr(stc.GetCharAt(start_pos))
             if curchar == "$":
                 var = True
@@ -3002,7 +3002,7 @@ class MMLLexer(object):
         end_pos = evt.GetPosition()
         userXYZ = voiceToken = False
         while start_pos < end_pos:
-            stc.StartStyling(start_pos, 0x1f)
+            stc.StartStyling(start_pos)
             curchar = chr(stc.GetCharAt(start_pos))
             if curchar in "xyz":
                 userXYZ = True
