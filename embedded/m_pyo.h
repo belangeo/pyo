@@ -1,5 +1,5 @@
 /**************************************************************************
- * Copyright 2014-2018 Olivier Belanger                                   *
+ * Copyright 2014-2020 Olivier Belanger                                   *
  *                                                                        *
  * This file is part of pyo, a python module to help digital signal       *
  * processing script creation.                                            *
@@ -69,8 +69,6 @@ INLINE PyThreadState * pyo_new_interpreter(float sr, int bufsize, int chnls) {
     PyThreadState *interp;
     if(!Py_IsInitialized()) {
         Py_InitializeEx(0);
-        PyEval_InitThreads();
-        PyEval_ReleaseLock();
     }
 
 #if !defined(_WIN32)
@@ -80,15 +78,16 @@ INLINE PyThreadState * pyo_new_interpreter(float sr, int bufsize, int chnls) {
     */
     if (libpython_handle == NULL) {
 #ifdef __linux__
-        libpython_handle = dlopen("libpython2.7.so", RTLD_LAZY | RTLD_GLOBAL);
+        libpython_handle = dlopen("libpython3.7m.so", RTLD_LAZY | RTLD_GLOBAL);
 #elif __APPLE__
-        libpython_handle = dlopen("libpython2.7.dylib", RTLD_LAZY | RTLD_GLOBAL);
+        libpython_handle = dlopen("libpython3.7.dylib", RTLD_LAZY | RTLD_GLOBAL);
 #endif
     }
 #endif
 
-    PyEval_AcquireLock();              /* get the GIL */
-    interp = Py_NewInterpreter();      /* add a new sub-interpreter */
+    PyGILState_Ensure();            /* get the GIL */
+
+    interp = Py_NewInterpreter();   /* add a new sub-interpreter */
 
     /* On MacOS, trying to import wxPython in embedded python hang the process. */
     PyRun_SimpleString("import os; os.environ['PYO_GUI_WX'] = '0'");
@@ -115,7 +114,9 @@ INLINE PyThreadState * pyo_new_interpreter(float sr, int bufsize, int chnls) {
     PyRun_SimpleString("_out_address_ = _s_.getOutputAddr()");
     PyRun_SimpleString("_emb_callback_ = _s_.getEmbedICallbackAddr()");
 #endif
+
     PyEval_ReleaseThread(interp);
+
     return interp;
 }
 
@@ -130,7 +131,7 @@ INLINE PyThreadState * pyo_new_interpreter(float sr, int bufsize, int chnls) {
 */
 INLINE unsigned long pyo_get_input_buffer_address(PyThreadState *interp) {
     PyObject *module, *obj;
-    char *address;
+    const char *address;
     unsigned long uadd;
     PyEval_AcquireThread(interp);
     module = PyImport_AddModule("__main__");
@@ -152,7 +153,7 @@ INLINE unsigned long pyo_get_input_buffer_address(PyThreadState *interp) {
 */
 INLINE unsigned long long pyo_get_input_buffer_address_64(PyThreadState *interp) {
     PyObject *module, *obj;
-    char *address;
+    const char *address;
     unsigned long long uadd;
     PyEval_AcquireThread(interp);
     module = PyImport_AddModule("__main__");
@@ -174,13 +175,35 @@ INLINE unsigned long long pyo_get_input_buffer_address_64(PyThreadState *interp)
 */
 INLINE unsigned long pyo_get_output_buffer_address(PyThreadState *interp) {
     PyObject *module, *obj;
-    char *address;
+    const char *address;
     unsigned long uadd;
     PyEval_AcquireThread(interp);
     module = PyImport_AddModule("__main__");
     obj = PyObject_GetAttrString(module, "_out_address_");
     address = PY_STRING_AS_STRING(obj);
     uadd = strtoul(address, NULL, 0);
+    PyEval_ReleaseThread(interp);
+    return uadd;
+}
+
+/*
+** Returns the address, as unsigned long long, of the pyo output buffer.
+** Used this function if pyo's audio samples resolution is 64-bit.
+**
+** arguments:
+**  interp : pointer, pointer to the targeted Python thread state.
+**
+** returns an "unsigned long long" that should be recast to a double pointer.
+*/
+INLINE unsigned long long pyo_get_output_buffer_address_64(PyThreadState *interp) {
+    PyObject *module, *obj;
+    const char *address;
+    unsigned long long uadd;
+    PyEval_AcquireThread(interp);
+    module = PyImport_AddModule("__main__");
+    obj = PyObject_GetAttrString(module, "_out_address_");
+    address = PY_STRING_AS_STRING(obj);
+    uadd = strtoull(address, NULL, 0);
     PyEval_ReleaseThread(interp);
     return uadd;
 }
@@ -202,13 +225,41 @@ INLINE unsigned long pyo_get_output_buffer_address(PyThreadState *interp) {
 */
 INLINE unsigned long pyo_get_embedded_callback_address(PyThreadState *interp) {
     PyObject *module, *obj;
-    char *address;
+    const char *address;
     unsigned long uadd;
     PyEval_AcquireThread(interp);
     module = PyImport_AddModule("__main__");
     obj = PyObject_GetAttrString(module, "_emb_callback_");
     address = PY_STRING_AS_STRING(obj);
     uadd = strtoul(address, NULL, 0);
+    PyEval_ReleaseThread(interp);
+    return uadd;
+}
+
+/*
+** Returns the address, as unsigned long long, of the pyo embedded callback.
+** This callback must be called in the host's perform routine whenever
+** pyo has to compute a new buffer of samples.
+**
+** arguments:
+**  interp : pointer, pointer to the targeted Python thread state.
+**
+** returns an "unsigned long long" that should be recast to a void pointer.
+**
+** The callback should be called with the server id (int) as argument.
+**
+** Prototype:
+** void (*callback)(int);
+*/
+INLINE unsigned long long pyo_get_embedded_callback_address_64(PyThreadState *interp) {
+    PyObject *module, *obj;
+    const char *address;
+    unsigned long long uadd;
+    PyEval_AcquireThread(interp);
+    module = PyImport_AddModule("__main__");
+    obj = PyObject_GetAttrString(module, "_emb_callback_");
+    address = PY_STRING_AS_STRING(obj);
+    uadd = strtoull(address, NULL, 0);
     PyEval_ReleaseThread(interp);
     return uadd;
 }
@@ -240,20 +291,15 @@ INLINE int pyo_get_server_id(PyThreadState *interp) {
 **  interp : pointer, pointer to the targeted Python thread state.
 */
 INLINE void pyo_end_interpreter(PyThreadState *interp) {
+    /* Clean up pyo's server. */
     PyEval_AcquireThread(interp);
     PyRun_SimpleString("_s_.setServer()\n_s_.stop()\n_s_.shutdown()");
     PyEval_ReleaseThread(interp);
 
-    /* Old method (causing segfault) */
-    //PyEval_AcquireThread(interp);
-    //Py_EndInterpreter(interp);
-    //PyEval_ReleaseLock();
-
-    /* New method (seems to be ok) */
-    PyThreadState_Swap(interp);
-    PyThreadState_Swap(NULL);
-    PyThreadState_Clear(interp);
-    PyThreadState_Delete(interp);
+    /* End the sub-interpreter. */
+    PyThreadState* _ts = PyThreadState_Swap(interp);
+    Py_EndInterpreter(interp);
+    PyThreadState_Swap(_ts);
 
 #if !defined(_WIN32)
     if (libpython_handle != NULL) {
@@ -298,8 +344,8 @@ INLINE void pyo_set_server_params(PyThreadState *interp, float sr, int bufsize) 
 
 /*
 ** This function can be used to pass the DAW's bpm value to the 
-** python interpreter. Changes the value of the BPM variable 
-** (which defaults to 60).
+** python interpreter. Changes the value of the BPM variable in
+** the interpreter's global scope. (which defaults to 60).
 **
 ** arguments:
 **  interp : pointer, pointer to the targeted Python thread state.

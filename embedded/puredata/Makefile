@@ -35,10 +35,10 @@ UNITTESTS =
 #
 #------------------------------------------------------------------------------#
 
-ALL_CFLAGS = -I"$(PD_INCLUDE)" -I.. -Wno-cast-function-type -Wno-unused-parameter $(shell python-config --cflags)
-ALL_LDFLAGS = $(shell python-config --ldflags)
+ALL_CFLAGS = -I"$(PD_INCLUDE)" -I.. -Wno-cast-function-type -Wno-unused-parameter $(shell python3-config --cflags)
+ALL_LDFLAGS = $(shell python3-config --ldflags)
 SHARED_LDFLAGS =
-ALL_LIBS = $(shell python-config --libs)
+ALL_LIBS = $(shell python3-config --libs)
 
 
 #------------------------------------------------------------------------------#
