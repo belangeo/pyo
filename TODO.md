@@ -6,17 +6,20 @@ Roadmap 1.0.2
 
 - Finish MML implementation
 
-- Add Midifile object
-
 - Fixed Windows crash related to MIDI devices
-
-- Add an optional callback on the "stop" event of the PyoObject. 
 
 - Clean up reducePoints function.
 
 - Fix compatibility issues with WxPython 4.1.0.
     - Search ctrl in the documentation frame does not work.
     - Review Style editor layout.
+
+Roadmap 1.0.3
+-------------
+
+- Add Midifile object
+
+- Add an optional callback on the "stop" event of the PyoObject. 
 
 Internal
 --------
