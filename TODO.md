@@ -4,15 +4,7 @@ This is a list of features/fixes to implement for future releases
 Roadmap 1.0.2
 -------------
 
-- Finish MML implementation
-
 - Fixed Windows crash related to MIDI devices
-
-- Clean up reducePoints function.
-
-- Fix compatibility issues with WxPython 4.1.0.
-    - Search ctrl in the documentation frame does not work.
-    - Review Style editor layout.
 
 Roadmap 1.0.3
 -------------
@@ -21,6 +13,8 @@ Roadmap 1.0.3
 
 - Add an optional callback on the "stop" event of the PyoObject. 
 
+- Install m_pyo.h configured for the target version in pythonlib/pyo/include/.
+ 
 Internal
 --------
 
