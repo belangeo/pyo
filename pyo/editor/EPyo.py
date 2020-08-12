@@ -1818,7 +1818,7 @@ class ManualFrame(wx.Frame):
         self.search.ShowCancelButton(True)
         self.search.SetMenu(self.searchMenu)
         self.toolbar.AddControl(self.search)
-        self.Bind(wx.EVT_TEXT_ENTER, self.onSearchEnter, id=200)
+        self.Bind(wx.EVT_SEARCH, self.onSearchEnter, id=200)
         self.Bind(wx.EVT_SEARCHCTRL_CANCEL_BTN, self.onSearchCancel, id=200)
 
         self.toolbar.Realize()
