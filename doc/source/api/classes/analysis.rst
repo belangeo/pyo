@@ -15,7 +15,7 @@ can use them for controlling parameters of others objects.
 .. autoclass:: Follower
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *Follower2*
 ------------
@@ -23,7 +23,7 @@ can use them for controlling parameters of others objects.
 .. autoclass:: Follower2
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *ZCross*
 ------------
@@ -31,7 +31,7 @@ can use them for controlling parameters of others objects.
 .. autoclass:: ZCross
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *Yin*
 ------------
@@ -39,7 +39,7 @@ can use them for controlling parameters of others objects.
 .. autoclass:: Yin
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *Centroid*
 ------------
@@ -47,7 +47,7 @@ can use them for controlling parameters of others objects.
 .. autoclass:: Centroid
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *AttackDetector*
 -----------------
@@ -55,7 +55,7 @@ can use them for controlling parameters of others objects.
 .. autoclass:: AttackDetector
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *Spectrum*
 -----------------------------------
@@ -63,7 +63,7 @@ can use them for controlling parameters of others objects.
 .. autoclass:: Spectrum
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *Scope*
 -----------------------------------
@@ -71,7 +71,7 @@ can use them for controlling parameters of others objects.
 .. autoclass:: Scope
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *PeakAmp*
 -----------------------------------
@@ -79,7 +79,7 @@ can use them for controlling parameters of others objects.
 .. autoclass:: PeakAmp
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *RMS*
 -----------------------------------
@@ -87,4 +87,4 @@ can use them for controlling parameters of others objects.
 .. autoclass:: RMS
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::

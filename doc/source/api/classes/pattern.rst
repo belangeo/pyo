@@ -12,7 +12,7 @@ Useful for event sequencing.
 .. autoclass:: CallAfter
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *Pattern*
 -----------------------------------
@@ -20,7 +20,7 @@ Useful for event sequencing.
 .. autoclass:: Pattern
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *Score*
 -----------------------------------
@@ -28,5 +28,5 @@ Useful for event sequencing.
 .. autoclass:: Score
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 

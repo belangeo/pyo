@@ -15,7 +15,7 @@ are done by giving row and column positions.
 .. autoclass:: MatrixMorph
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *MatrixPointer*
 -----------------------------------
@@ -23,7 +23,7 @@ are done by giving row and column positions.
 .. autoclass:: MatrixPointer
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *MatrixRec*
 -----------------------------------
@@ -31,7 +31,7 @@ are done by giving row and column positions.
 .. autoclass:: MatrixRec
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *MatrixRecLoop*
 -----------------------------------
@@ -39,5 +39,5 @@ are done by giving row and column positions.
 .. autoclass:: MatrixRecLoop
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 

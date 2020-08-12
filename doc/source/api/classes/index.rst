@@ -21,6 +21,7 @@ Classes by category
    internals
    matrixprocess
    midi
+   mmlmusic
    opensndctrl
    pan
    pattern

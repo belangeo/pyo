@@ -16,7 +16,7 @@ processes with sample rate timing accuracy.
 .. autoclass:: Beat
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *Change*
 -----------------------------------
@@ -24,7 +24,7 @@ processes with sample rate timing accuracy.
 .. autoclass:: Change
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *Cloud*
 -----------------------------------
@@ -32,7 +32,7 @@ processes with sample rate timing accuracy.
 .. autoclass:: Cloud
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *Count*
 -----------------------------------
@@ -40,7 +40,7 @@ processes with sample rate timing accuracy.
 .. autoclass:: Count
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *Counter*
 -----------------------------------
@@ -48,7 +48,7 @@ processes with sample rate timing accuracy.
 .. autoclass:: Counter
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *Euclide*
 -----------------------------------
@@ -56,7 +56,7 @@ processes with sample rate timing accuracy.
 .. autoclass:: Euclide
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *Iter*
 -----------------------------------
@@ -64,7 +64,7 @@ processes with sample rate timing accuracy.
 .. autoclass:: Iter
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *Metro*
 -----------------------------------
@@ -72,7 +72,7 @@ processes with sample rate timing accuracy.
 .. autoclass:: Metro
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *NextTrig*
 -----------------------------------
@@ -80,7 +80,7 @@ processes with sample rate timing accuracy.
 .. autoclass:: NextTrig
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *Percent*
 -----------------------------------
@@ -88,7 +88,7 @@ processes with sample rate timing accuracy.
 .. autoclass:: Percent
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *Select*
 -----------------------------------
@@ -96,7 +96,7 @@ processes with sample rate timing accuracy.
 .. autoclass:: Select
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *Seq*
 -----------------------------------
@@ -104,7 +104,7 @@ processes with sample rate timing accuracy.
 .. autoclass:: Seq
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *Thresh*
 -----------------------------------
@@ -112,7 +112,7 @@ processes with sample rate timing accuracy.
 .. autoclass:: Thresh
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *Timer*
 -----------------------------------
@@ -120,7 +120,7 @@ processes with sample rate timing accuracy.
 .. autoclass:: Timer
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *Trig*
 -----------------------------------
@@ -128,7 +128,7 @@ processes with sample rate timing accuracy.
 .. autoclass:: Trig
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *TrigBurst*
 -----------------------------------
@@ -136,7 +136,7 @@ processes with sample rate timing accuracy.
 .. autoclass:: TrigBurst
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *TrigChoice*
 -----------------------------------
@@ -144,7 +144,7 @@ processes with sample rate timing accuracy.
 .. autoclass:: TrigChoice
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *TrigEnv*
 -----------------------------------
@@ -152,7 +152,7 @@ processes with sample rate timing accuracy.
 .. autoclass:: TrigEnv
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *TrigExpseg*
 -----------------------------------
@@ -160,7 +160,7 @@ processes with sample rate timing accuracy.
 .. autoclass:: TrigExpseg
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *TrigFunc*
 -----------------------------------
@@ -168,7 +168,7 @@ processes with sample rate timing accuracy.
 .. autoclass:: TrigFunc
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *TrigLinseg*
 -----------------------------------
@@ -176,7 +176,7 @@ processes with sample rate timing accuracy.
 .. autoclass:: TrigLinseg
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *TrigRand*
 -----------------------------------
@@ -184,7 +184,7 @@ processes with sample rate timing accuracy.
 .. autoclass:: TrigRand
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *TrigRandInt*
 -----------------------------------
@@ -192,7 +192,7 @@ processes with sample rate timing accuracy.
 .. autoclass:: TrigRandInt
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *TrigTableRec*
 -----------------------------------
@@ -200,7 +200,7 @@ processes with sample rate timing accuracy.
 .. autoclass:: TrigTableRec
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *TrigVal*
 -----------------------------------
@@ -208,7 +208,7 @@ processes with sample rate timing accuracy.
 .. autoclass:: TrigVal
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *TrigXnoise*
 -----------------------------------
@@ -216,7 +216,7 @@ processes with sample rate timing accuracy.
 .. autoclass:: TrigXnoise
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *TrigXnoiseMidi*
 -----------------------------------
@@ -224,5 +224,5 @@ processes with sample rate timing accuracy.
 .. autoclass:: TrigXnoiseMidi
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 

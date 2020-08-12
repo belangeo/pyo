@@ -24,7 +24,7 @@ sinusoidal component according to its frequency.
 .. autoclass:: Biquad
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *Biquadx*
 ------------
@@ -32,7 +32,7 @@ sinusoidal component according to its frequency.
 .. autoclass:: Biquadx
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *Biquada*
 ------------
@@ -40,7 +40,7 @@ sinusoidal component according to its frequency.
 .. autoclass:: Biquada
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *EQ*
 ------------
@@ -48,7 +48,7 @@ sinusoidal component according to its frequency.
 .. autoclass:: EQ
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *Tone*
 ------------
@@ -56,7 +56,7 @@ sinusoidal component according to its frequency.
 .. autoclass:: Tone
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *Atone*
 ------------
@@ -64,7 +64,7 @@ sinusoidal component according to its frequency.
 .. autoclass:: Atone
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *Port*
 ------------
@@ -72,7 +72,7 @@ sinusoidal component according to its frequency.
 .. autoclass:: Port
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *DCBlock*
 ------------
@@ -80,7 +80,7 @@ sinusoidal component according to its frequency.
 .. autoclass:: DCBlock
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *BandSplit*
 ------------
@@ -88,7 +88,7 @@ sinusoidal component according to its frequency.
 .. autoclass:: BandSplit
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *FourBand*
 ------------
@@ -96,7 +96,7 @@ sinusoidal component according to its frequency.
 .. autoclass:: FourBand
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *MultiBand*
 ------------
@@ -104,7 +104,7 @@ sinusoidal component according to its frequency.
 .. autoclass:: MultiBand
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *Hilbert*
 ------------
@@ -112,7 +112,7 @@ sinusoidal component according to its frequency.
 .. autoclass:: Hilbert
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *Allpass*
 ------------
@@ -120,7 +120,7 @@ sinusoidal component according to its frequency.
 .. autoclass:: Allpass
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *Allpass2*
 ------------
@@ -128,7 +128,7 @@ sinusoidal component according to its frequency.
 .. autoclass:: Allpass2
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *Phaser*
 ------------
@@ -136,7 +136,7 @@ sinusoidal component according to its frequency.
 .. autoclass:: Phaser
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *Vocoder*
 ------------
@@ -144,7 +144,7 @@ sinusoidal component according to its frequency.
 .. autoclass:: Vocoder
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *IRWinSinc*
 ------------
@@ -152,7 +152,7 @@ sinusoidal component according to its frequency.
 .. autoclass:: IRWinSinc
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *IRAverage*
 ------------
@@ -160,7 +160,7 @@ sinusoidal component according to its frequency.
 .. autoclass:: IRAverage
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *IRPulse*
 ------------
@@ -168,7 +168,7 @@ sinusoidal component according to its frequency.
 .. autoclass:: IRPulse
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *IRFM*
 ------------
@@ -176,7 +176,7 @@ sinusoidal component according to its frequency.
 .. autoclass:: IRFM
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *SVF*
 ------------
@@ -184,7 +184,7 @@ sinusoidal component according to its frequency.
 .. autoclass:: SVF
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *SVF2*
 ------------
@@ -192,7 +192,7 @@ sinusoidal component according to its frequency.
 .. autoclass:: SVF2
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *Average*
 ------------
@@ -200,7 +200,7 @@ sinusoidal component according to its frequency.
 .. autoclass:: Average
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *Reson*
 ------------
@@ -208,7 +208,7 @@ sinusoidal component according to its frequency.
 .. autoclass:: Reson
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *Resonx*
 ------------
@@ -216,7 +216,7 @@ sinusoidal component according to its frequency.
 .. autoclass:: Resonx
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *ButLP*
 ------------
@@ -224,7 +224,7 @@ sinusoidal component according to its frequency.
 .. autoclass:: ButLP
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *ButHP*
 ------------
@@ -232,7 +232,7 @@ sinusoidal component according to its frequency.
 .. autoclass:: ButHP
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *ButBP*
 ------------
@@ -240,7 +240,7 @@ sinusoidal component according to its frequency.
 .. autoclass:: ButBP
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *ButBR*
 ------------
@@ -248,7 +248,7 @@ sinusoidal component according to its frequency.
 .. autoclass:: ButBR
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *ComplexRes*
 ------------
@@ -256,7 +256,7 @@ sinusoidal component according to its frequency.
 .. autoclass:: ComplexRes
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *MoogLP*
 ------------
@@ -264,4 +264,4 @@ sinusoidal component according to its frequency.
 .. autoclass:: MoogLP
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::

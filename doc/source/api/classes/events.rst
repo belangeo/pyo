@@ -20,7 +20,7 @@ See the **Events framework** examples in the documentation for different use cas
 .. autoclass:: EventScale
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *EventGenerator*
 ------------------
@@ -28,7 +28,7 @@ See the **Events framework** examples in the documentation for different use cas
 .. autoclass:: EventGenerator
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *EventDummy*
 ------------------
@@ -36,7 +36,7 @@ See the **Events framework** examples in the documentation for different use cas
 .. autoclass:: EventDummy
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *EventFilter*
 ------------------
@@ -44,7 +44,7 @@ See the **Events framework** examples in the documentation for different use cas
 .. autoclass:: EventFilter
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *EventKey*
 ------------------
@@ -52,7 +52,7 @@ See the **Events framework** examples in the documentation for different use cas
 .. autoclass:: EventKey
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *EventSeq*
 ------------------
@@ -60,7 +60,7 @@ See the **Events framework** examples in the documentation for different use cas
 .. autoclass:: EventSeq
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *EventSlide*
 ------------------
@@ -68,7 +68,7 @@ See the **Events framework** examples in the documentation for different use cas
 .. autoclass:: EventSlide
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *EventIndex*
 ------------------
@@ -76,7 +76,7 @@ See the **Events framework** examples in the documentation for different use cas
 .. autoclass:: EventIndex
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *EventMarkov*
 ------------------
@@ -84,7 +84,7 @@ See the **Events framework** examples in the documentation for different use cas
 .. autoclass:: EventMarkov
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *EventChoice*
 ------------------
@@ -92,7 +92,7 @@ See the **Events framework** examples in the documentation for different use cas
 .. autoclass:: EventChoice
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *EventDrunk*
 ------------------
@@ -100,7 +100,7 @@ See the **Events framework** examples in the documentation for different use cas
 .. autoclass:: EventDrunk
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *EventNoise*
 ------------------
@@ -108,7 +108,7 @@ See the **Events framework** examples in the documentation for different use cas
 .. autoclass:: EventNoise
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *EventCall*
 ------------------
@@ -116,7 +116,7 @@ See the **Events framework** examples in the documentation for different use cas
 .. autoclass:: EventCall
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *EventConditional*
 ------------------
@@ -124,7 +124,7 @@ See the **Events framework** examples in the documentation for different use cas
 .. autoclass:: EventConditional
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *EventInstrument*
 ------------------
@@ -132,7 +132,7 @@ See the **Events framework** examples in the documentation for different use cas
 .. autoclass:: EventInstrument
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *Events*
 ------------------
@@ -140,4 +140,4 @@ See the **Events framework** examples in the documentation for different use cas
 .. autoclass:: Events
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::

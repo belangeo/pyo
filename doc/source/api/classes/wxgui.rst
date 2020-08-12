@@ -15,7 +15,7 @@ under the current Python distribution to access these classes.
 .. autoclass:: PyoGuiControlSlider
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *PyoGuiVuMeter*
 -----------------------------------
@@ -23,7 +23,7 @@ under the current Python distribution to access these classes.
 .. autoclass:: PyoGuiVuMeter
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *PyoGuiGrapher*
 -----------------------------------
@@ -31,7 +31,7 @@ under the current Python distribution to access these classes.
 .. autoclass:: PyoGuiGrapher
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *PyoGuiMultiSlider*
 -----------------------------------
@@ -39,7 +39,7 @@ under the current Python distribution to access these classes.
 .. autoclass:: PyoGuiMultiSlider
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *PyoGuiSpectrum*
 -----------------------------------
@@ -47,7 +47,7 @@ under the current Python distribution to access these classes.
 .. autoclass:: PyoGuiSpectrum
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *PyoGuiScope*
 -----------------------------------
@@ -55,7 +55,7 @@ under the current Python distribution to access these classes.
 .. autoclass:: PyoGuiScope
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *PyoGuiSndView*
 -----------------------------------
@@ -63,7 +63,7 @@ under the current Python distribution to access these classes.
 .. autoclass:: PyoGuiSndView
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *PyoGuiKeyboard*
 -----------------------------------
@@ -71,4 +71,4 @@ under the current Python distribution to access these classes.
 .. autoclass:: PyoGuiKeyboard
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::

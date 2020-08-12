@@ -12,5 +12,5 @@ in memory and access them quickly.
 .. autoclass:: NewMatrix
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 

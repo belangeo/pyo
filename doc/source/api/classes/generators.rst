@@ -12,7 +12,7 @@ processing chain or as parameter's modifiers.
 .. autoclass:: Blit
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *BrownNoise*
 -----------------------------------
@@ -20,7 +20,7 @@ processing chain or as parameter's modifiers.
 .. autoclass:: BrownNoise
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *ChenLee*
 -----------------------------------
@@ -28,7 +28,7 @@ processing chain or as parameter's modifiers.
 .. autoclass:: ChenLee
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *CrossFM*
 -----------------------------------
@@ -36,7 +36,7 @@ processing chain or as parameter's modifiers.
 .. autoclass:: CrossFM
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *FastSine*
 -----------------------------------
@@ -44,7 +44,7 @@ processing chain or as parameter's modifiers.
 .. autoclass:: FastSine
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *FM*
 -----------------------------------
@@ -52,7 +52,7 @@ processing chain or as parameter's modifiers.
 .. autoclass:: FM
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *Input*
 -----------------------------------
@@ -60,7 +60,7 @@ processing chain or as parameter's modifiers.
 .. autoclass:: Input
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *LFO*
 -----------------------------------
@@ -68,7 +68,7 @@ processing chain or as parameter's modifiers.
 .. autoclass:: LFO
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *Lorenz*
 -----------------------------------
@@ -76,7 +76,7 @@ processing chain or as parameter's modifiers.
 .. autoclass:: Lorenz
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *Noise*
 -----------------------------------
@@ -84,7 +84,7 @@ processing chain or as parameter's modifiers.
 .. autoclass:: Noise
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *Phasor*
 -----------------------------------
@@ -92,7 +92,7 @@ processing chain or as parameter's modifiers.
 .. autoclass:: Phasor
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *PinkNoise*
 -----------------------------------
@@ -100,7 +100,7 @@ processing chain or as parameter's modifiers.
 .. autoclass:: PinkNoise
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *RCOsc*
 -----------------------------------
@@ -108,7 +108,7 @@ processing chain or as parameter's modifiers.
 .. autoclass:: RCOsc
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *Rossler*
 -----------------------------------
@@ -116,7 +116,7 @@ processing chain or as parameter's modifiers.
 .. autoclass:: Rossler
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *Sine*
 -----------------------------------
@@ -124,7 +124,7 @@ processing chain or as parameter's modifiers.
 .. autoclass:: Sine
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *SineLoop*
 -----------------------------------
@@ -132,7 +132,7 @@ processing chain or as parameter's modifiers.
 .. autoclass:: SineLoop
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *SumOsc*
 -----------------------------------
@@ -140,7 +140,7 @@ processing chain or as parameter's modifiers.
 .. autoclass:: SumOsc
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *SuperSaw*
 -----------------------------------
@@ -148,5 +148,5 @@ processing chain or as parameter's modifiers.
 .. autoclass:: SuperSaw
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 

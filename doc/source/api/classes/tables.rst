@@ -12,7 +12,7 @@ in memory and access them quickly.
 .. autoclass:: ChebyTable
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *CosLogTable*
 -----------------------------------
@@ -20,7 +20,7 @@ in memory and access them quickly.
 .. autoclass:: CosLogTable
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *CosTable*
 -----------------------------------
@@ -28,7 +28,7 @@ in memory and access them quickly.
 .. autoclass:: CosTable
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *CurveTable*
 -----------------------------------
@@ -36,7 +36,7 @@ in memory and access them quickly.
 .. autoclass:: CurveTable
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *DataTable*
 -----------------------------------
@@ -44,7 +44,7 @@ in memory and access them quickly.
 .. autoclass:: DataTable
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *ExpTable*
 -----------------------------------
@@ -52,7 +52,7 @@ in memory and access them quickly.
 .. autoclass:: ExpTable
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *HannTable*
 -----------------------------------
@@ -60,7 +60,7 @@ in memory and access them quickly.
 .. autoclass:: HannTable
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *HarmTable*
 -----------------------------------
@@ -68,7 +68,7 @@ in memory and access them quickly.
 .. autoclass:: HarmTable
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *LinTable*
 -----------------------------------
@@ -76,7 +76,7 @@ in memory and access them quickly.
 .. autoclass:: LinTable
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *LogTable*
 -----------------------------------
@@ -84,7 +84,7 @@ in memory and access them quickly.
 .. autoclass:: LogTable
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *NewTable*
 -----------------------------------
@@ -92,7 +92,7 @@ in memory and access them quickly.
 .. autoclass:: NewTable
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *ParaTable*
 -----------------------------------
@@ -100,7 +100,7 @@ in memory and access them quickly.
 .. autoclass:: ParaTable
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *PartialTable*
 -----------------------------------
@@ -108,7 +108,7 @@ in memory and access them quickly.
 .. autoclass:: PartialTable
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *SawTable*
 -----------------------------------
@@ -116,7 +116,7 @@ in memory and access them quickly.
 .. autoclass:: SawTable
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *SincTable*
 -----------------------------------
@@ -124,7 +124,7 @@ in memory and access them quickly.
 .. autoclass:: SincTable
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *SndTable*
 -----------------------------------
@@ -132,7 +132,7 @@ in memory and access them quickly.
 .. autoclass:: SndTable
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *SquareTable*
 -----------------------------------
@@ -140,7 +140,7 @@ in memory and access them quickly.
 .. autoclass:: SquareTable
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *TriangleTable*
 -----------------------------------
@@ -148,7 +148,7 @@ in memory and access them quickly.
 .. autoclass:: TriangleTable
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *WinTable*
 -----------------------------------
@@ -156,7 +156,7 @@ in memory and access them quickly.
 .. autoclass:: WinTable
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *AtanTable*
 -----------------------------------
@@ -164,7 +164,7 @@ in memory and access them quickly.
 .. autoclass:: AtanTable
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *PadSynthTable*
 -----------------------------------
@@ -172,7 +172,7 @@ in memory and access them quickly.
 .. autoclass:: PadSynthTable
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *SharedTable*
 -----------------------------------
@@ -180,4 +180,4 @@ in memory and access them quickly.
 .. autoclass:: SharedTable
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::

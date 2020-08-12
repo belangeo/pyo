@@ -16,7 +16,7 @@ used as controls and can't be sent to the output soundcard.
 .. autoclass:: Bendin
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *CtlScan*
 -----------------------------------
@@ -24,7 +24,7 @@ used as controls and can't be sent to the output soundcard.
 .. autoclass:: CtlScan
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *CtlScan2*
 -----------------------------------
@@ -32,7 +32,7 @@ used as controls and can't be sent to the output soundcard.
 .. autoclass:: CtlScan2
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *MidiAdsr*
 -----------------------------------
@@ -40,7 +40,7 @@ used as controls and can't be sent to the output soundcard.
 .. autoclass:: MidiAdsr
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *MidiDelAdsr*
 -----------------------------------
@@ -48,7 +48,7 @@ used as controls and can't be sent to the output soundcard.
 .. autoclass:: MidiDelAdsr
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *Midictl*
 -----------------------------------
@@ -56,7 +56,7 @@ used as controls and can't be sent to the output soundcard.
 .. autoclass:: Midictl
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *Notein*
 -----------------------------------
@@ -64,7 +64,7 @@ used as controls and can't be sent to the output soundcard.
 .. autoclass:: Notein
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *Programin*
 -----------------------------------
@@ -72,7 +72,7 @@ used as controls and can't be sent to the output soundcard.
 .. autoclass:: Programin
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *Touchin*
 -----------------------------------
@@ -80,7 +80,7 @@ used as controls and can't be sent to the output soundcard.
 .. autoclass:: Touchin
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *RawMidi*
 -----------------------------------
@@ -88,7 +88,7 @@ used as controls and can't be sent to the output soundcard.
 .. autoclass:: RawMidi
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *MidiLinseg*
 -----------------------------------
@@ -96,4 +96,4 @@ used as controls and can't be sent to the output soundcard.
 .. autoclass:: MidiLinseg
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::

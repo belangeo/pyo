@@ -14,7 +14,7 @@ an AIFF file to create more specific reading patterns.
 .. autoclass:: SfPlayer
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *SfMarkerLooper*
 -----------------------------------
@@ -22,7 +22,7 @@ an AIFF file to create more specific reading patterns.
 .. autoclass:: SfMarkerLooper
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *SfMarkerShuffler*
 -----------------------------------
@@ -30,5 +30,5 @@ an AIFF file to create more specific reading patterns.
 .. autoclass:: SfMarkerShuffler
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 

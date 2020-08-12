@@ -12,7 +12,7 @@ the different kinds of objects in the library.
 .. autoclass:: PyoObjectBase
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *PyoObject*
 --------------------------------------
@@ -20,7 +20,7 @@ the different kinds of objects in the library.
 .. autoclass:: PyoObject
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *PyoTableObject*
 --------------------------------------
@@ -28,7 +28,7 @@ the different kinds of objects in the library.
 .. autoclass:: PyoTableObject
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *PyoMatrixObject*
 --------------------------------------
@@ -36,7 +36,7 @@ the different kinds of objects in the library.
 .. autoclass:: PyoMatrixObject
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *PyoPVObject*
 --------------------------------------
@@ -44,5 +44,5 @@ the different kinds of objects in the library.
 .. autoclass:: PyoPVObject
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 

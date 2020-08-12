@@ -11,7 +11,7 @@ Miscellaneous objects.
 .. autoclass:: AToDB
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *Between*
 -----------------------------------
@@ -19,7 +19,7 @@ Miscellaneous objects.
 .. autoclass:: Between
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *CentsToTranspo*
 -----------------------------------
@@ -27,7 +27,7 @@ Miscellaneous objects.
 .. autoclass:: CentsToTranspo
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *Clean_objects*
 -----------------------------------
@@ -35,7 +35,7 @@ Miscellaneous objects.
 .. autoclass:: Clean_objects
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *Compare*
 -----------------------------------
@@ -43,7 +43,7 @@ Miscellaneous objects.
 .. autoclass:: Compare
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *ControlRead*
 -----------------------------------
@@ -51,7 +51,7 @@ Miscellaneous objects.
 .. autoclass:: ControlRead
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *ControlRec*
 -----------------------------------
@@ -59,7 +59,7 @@ Miscellaneous objects.
 .. autoclass:: ControlRec
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *DBToA*
 -----------------------------------
@@ -67,7 +67,7 @@ Miscellaneous objects.
 .. autoclass:: DBToA
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *Denorm*
 -----------------------------------
@@ -75,7 +75,7 @@ Miscellaneous objects.
 .. autoclass:: Denorm
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *FToM*
 -----------------------------------
@@ -83,7 +83,7 @@ Miscellaneous objects.
 .. autoclass:: FToM
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *Interp*
 -----------------------------------
@@ -91,7 +91,7 @@ Miscellaneous objects.
 .. autoclass:: Interp
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *MToF*
 -----------------------------------
@@ -99,7 +99,7 @@ Miscellaneous objects.
 .. autoclass:: MToF
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *MToT*
 -----------------------------------
@@ -107,7 +107,7 @@ Miscellaneous objects.
 .. autoclass:: MToT
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *NoteinRead*
 -----------------------------------
@@ -115,7 +115,7 @@ Miscellaneous objects.
 .. autoclass:: NoteinRead
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *NoteinRec*
 -----------------------------------
@@ -123,7 +123,7 @@ Miscellaneous objects.
 .. autoclass:: NoteinRec
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *Print*
 -----------------------------------
@@ -131,7 +131,7 @@ Miscellaneous objects.
 .. autoclass:: Print
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *Record*
 -----------------------------------
@@ -139,7 +139,7 @@ Miscellaneous objects.
 .. autoclass:: Record
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *SampHold*
 -----------------------------------
@@ -147,7 +147,7 @@ Miscellaneous objects.
 .. autoclass:: SampHold
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *Scale*
 -----------------------------------
@@ -155,7 +155,7 @@ Miscellaneous objects.
 .. autoclass:: Scale
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *Snap*
 -----------------------------------
@@ -163,7 +163,7 @@ Miscellaneous objects.
 .. autoclass:: Snap
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *TranspoToCents*
 -----------------------------------
@@ -171,7 +171,7 @@ Miscellaneous objects.
 .. autoclass:: TranspoToCents
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *TrackHold*
 -----------------------------------
@@ -179,7 +179,7 @@ Miscellaneous objects.
 .. autoclass:: TrackHold
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *Resample*
 -----------------------------------
@@ -187,4 +187,4 @@ Miscellaneous objects.
 .. autoclass:: Resample
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::

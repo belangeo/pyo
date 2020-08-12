@@ -11,7 +11,7 @@ These objects are used to convert values between different ranges.
 .. autoclass:: Map
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *SLMap*
 -----------------------------------
@@ -19,7 +19,7 @@ These objects are used to convert values between different ranges.
 .. autoclass:: SLMap
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *SLMapFreq*
 -----------------------------------
@@ -27,7 +27,7 @@ These objects are used to convert values between different ranges.
 .. autoclass:: SLMapFreq
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *SLMapMul*
 -----------------------------------
@@ -35,7 +35,7 @@ These objects are used to convert values between different ranges.
 .. autoclass:: SLMapMul
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *SLMapPhase*
 -----------------------------------
@@ -43,7 +43,7 @@ These objects are used to convert values between different ranges.
 .. autoclass:: SLMapPhase
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *SLMapQ*
 -----------------------------------
@@ -51,7 +51,7 @@ These objects are used to convert values between different ranges.
 .. autoclass:: SLMapQ
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *SLMapDur*
 -----------------------------------
@@ -59,7 +59,7 @@ These objects are used to convert values between different ranges.
 .. autoclass:: SLMapDur
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *SLMapPan*
 -----------------------------------
@@ -67,6 +67,6 @@ These objects are used to convert values between different ranges.
 .. autoclass:: SLMapPan
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 

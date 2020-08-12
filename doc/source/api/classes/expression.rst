@@ -327,4 +327,4 @@ A triangle waveform generator (use Sig(0) as input argument to bypass input)::
 .. autoclass:: Expr
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::

@@ -11,7 +11,7 @@ Set of objects that implement different kinds of random noise generators.
 .. autoclass:: Choice
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *LogiMap*
 -----------------------------------
@@ -19,7 +19,7 @@ Set of objects that implement different kinds of random noise generators.
 .. autoclass:: LogiMap
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *RandDur*
 -----------------------------------
@@ -27,7 +27,7 @@ Set of objects that implement different kinds of random noise generators.
 .. autoclass:: RandDur
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *RandInt*
 -----------------------------------
@@ -35,7 +35,7 @@ Set of objects that implement different kinds of random noise generators.
 .. autoclass:: RandInt
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *Randh*
 -----------------------------------
@@ -43,7 +43,7 @@ Set of objects that implement different kinds of random noise generators.
 .. autoclass:: Randh
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *Randi*
 -----------------------------------
@@ -51,7 +51,7 @@ Set of objects that implement different kinds of random noise generators.
 .. autoclass:: Randi
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *Urn*
 -----------------------------------
@@ -59,7 +59,7 @@ Set of objects that implement different kinds of random noise generators.
 .. autoclass:: Urn
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *Xnoise*
 -----------------------------------
@@ -67,7 +67,7 @@ Set of objects that implement different kinds of random noise generators.
 .. autoclass:: Xnoise
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *XnoiseDur*
 -----------------------------------
@@ -75,7 +75,7 @@ Set of objects that implement different kinds of random noise generators.
 .. autoclass:: XnoiseDur
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *XnoiseMidi*
 -----------------------------------
@@ -83,5 +83,5 @@ Set of objects that implement different kinds of random noise generators.
 .. autoclass:: XnoiseMidi
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 

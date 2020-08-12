@@ -13,7 +13,7 @@ time scaling, pitch transposition, and myriad other modifications of sounds.
 .. autoclass:: PVAnal
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *PVSynth*
 -----------------------------------
@@ -21,7 +21,7 @@ time scaling, pitch transposition, and myriad other modifications of sounds.
 .. autoclass:: PVSynth
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *PVAddSynth*
 -----------------------------------
@@ -29,7 +29,7 @@ time scaling, pitch transposition, and myriad other modifications of sounds.
 .. autoclass:: PVAddSynth
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *PVTranspose*
 -----------------------------------
@@ -37,7 +37,7 @@ time scaling, pitch transposition, and myriad other modifications of sounds.
 .. autoclass:: PVTranspose
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *PVVerb*
 -----------------------------------
@@ -45,7 +45,7 @@ time scaling, pitch transposition, and myriad other modifications of sounds.
 .. autoclass:: PVVerb
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *PVGate*
 -----------------------------------
@@ -53,7 +53,7 @@ time scaling, pitch transposition, and myriad other modifications of sounds.
 .. autoclass:: PVGate
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *PVCross*
 -----------------------------------
@@ -61,7 +61,7 @@ time scaling, pitch transposition, and myriad other modifications of sounds.
 .. autoclass:: PVCross
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *PVMult*
 -----------------------------------
@@ -69,7 +69,7 @@ time scaling, pitch transposition, and myriad other modifications of sounds.
 .. autoclass:: PVMult
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *PVMorph*
 -----------------------------------
@@ -77,7 +77,7 @@ time scaling, pitch transposition, and myriad other modifications of sounds.
 .. autoclass:: PVMorph
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *PVFilter*
 -----------------------------------
@@ -85,7 +85,7 @@ time scaling, pitch transposition, and myriad other modifications of sounds.
 .. autoclass:: PVFilter
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *PVDelay*
 -----------------------------------
@@ -93,7 +93,7 @@ time scaling, pitch transposition, and myriad other modifications of sounds.
 .. autoclass:: PVDelay
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *PVBuffer*
 -----------------------------------
@@ -101,7 +101,7 @@ time scaling, pitch transposition, and myriad other modifications of sounds.
 .. autoclass:: PVBuffer
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *PVShift*
 -----------------------------------
@@ -109,7 +109,7 @@ time scaling, pitch transposition, and myriad other modifications of sounds.
 .. autoclass:: PVShift
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
        
 *PVAmpMod*
 -----------------------------------
@@ -117,7 +117,7 @@ time scaling, pitch transposition, and myriad other modifications of sounds.
 .. autoclass:: PVAmpMod
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
        
 *PVFreqMod*
 -----------------------------------
@@ -125,7 +125,7 @@ time scaling, pitch transposition, and myriad other modifications of sounds.
 .. autoclass:: PVFreqMod
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
        
 *PVBufLoops*
 -----------------------------------
@@ -133,7 +133,7 @@ time scaling, pitch transposition, and myriad other modifications of sounds.
 .. autoclass:: PVBufLoops
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *PVBufTabLoops*
 -----------------------------------
@@ -141,7 +141,7 @@ time scaling, pitch transposition, and myriad other modifications of sounds.
 .. autoclass:: PVBufTabLoops
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *PVMix*
 -----------------------------------
@@ -149,4 +149,4 @@ time scaling, pitch transposition, and myriad other modifications of sounds.
 .. autoclass:: PVMix
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::

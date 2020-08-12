@@ -12,7 +12,7 @@ need to boot ands start an audio server before receiving messages.
 .. autoclass:: MidiListener
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *MidiDispatcher*
 -----------------------------------
@@ -20,7 +20,7 @@ need to boot ands start an audio server before receiving messages.
 .. autoclass:: MidiDispatcher
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *OscListener*
 -----------------------------------
@@ -28,4 +28,4 @@ need to boot ands start an audio server before receiving messages.
 .. autoclass:: OscListener
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::

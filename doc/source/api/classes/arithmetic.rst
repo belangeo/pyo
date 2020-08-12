@@ -11,7 +11,7 @@ Tools to perform arithmetic operations on audio signals.
 .. autoclass:: Sin
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *Cos*
 ------------
@@ -19,7 +19,7 @@ Tools to perform arithmetic operations on audio signals.
 .. autoclass:: Cos
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *Tan*
 ------------
@@ -27,7 +27,7 @@ Tools to perform arithmetic operations on audio signals.
 .. autoclass:: Tan
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *Tanh*
 ------------
@@ -35,7 +35,7 @@ Tools to perform arithmetic operations on audio signals.
 .. autoclass:: Tanh
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *Abs*
 ------------
@@ -43,7 +43,7 @@ Tools to perform arithmetic operations on audio signals.
 .. autoclass:: Abs
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *Sqrt*
 ------------
@@ -51,7 +51,7 @@ Tools to perform arithmetic operations on audio signals.
 .. autoclass:: Sqrt
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *Log*
 ------------
@@ -59,7 +59,7 @@ Tools to perform arithmetic operations on audio signals.
 .. autoclass:: Log
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *Log2*
 ------------
@@ -67,7 +67,7 @@ Tools to perform arithmetic operations on audio signals.
 .. autoclass:: Log2
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *Log10*
 ------------
@@ -75,7 +75,7 @@ Tools to perform arithmetic operations on audio signals.
 .. autoclass:: Log10
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *Atan2*
 ------------
@@ -83,7 +83,7 @@ Tools to perform arithmetic operations on audio signals.
 .. autoclass:: Atan2
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *Floor*
 ------------
@@ -91,7 +91,7 @@ Tools to perform arithmetic operations on audio signals.
 .. autoclass:: Floor
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *Ceil*
 ------------
@@ -99,7 +99,7 @@ Tools to perform arithmetic operations on audio signals.
 .. autoclass:: Ceil
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *Round*
 ------------
@@ -107,7 +107,7 @@ Tools to perform arithmetic operations on audio signals.
 .. autoclass:: Round
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *Pow*
 ------------
@@ -115,7 +115,7 @@ Tools to perform arithmetic operations on audio signals.
 .. autoclass:: Pow
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *Exp*
 ------------
@@ -123,7 +123,7 @@ Tools to perform arithmetic operations on audio signals.
 .. autoclass:: Exp
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *Div*
 ------------
@@ -131,7 +131,7 @@ Tools to perform arithmetic operations on audio signals.
 .. autoclass:: Div
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
 
 *Sub*
 ------------
@@ -139,4 +139,4 @@ Tools to perform arithmetic operations on audio signals.
 .. autoclass:: Sub
    :members:
 
-   ..autoclasstoc::
+   .. autoclasstoc::
