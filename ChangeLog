@@ -1,7 +1,19 @@
+2020-08-02 belangeo <belangeo@gmail.com>
+
+    * Added new object: MML, Music Macro Language evaluator.
+
+2020-06-27 belangeo <belangeo@gmail.com>
+
+    * Fixed segfault in reducePoints function.
+
+2020-06-27 belangeo <belangeo@gmail.com>
+
+    * Fixed Linseg when time difference between two points is less than 1 sample.
+
 2020-02-10 belangeo <belangeo@gmail.com>
 
     * Added new object: TriangleTable.
-    
+
 2020-01-20 belangeo <belangeo@gmail.com>
 
     * Added new object: IFFTMatrix, Inverse Fast Fourier Transform with a PyoMatrixObject as input.
