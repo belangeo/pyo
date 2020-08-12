@@ -1024,6 +1024,10 @@ reducePoints(PyObject *self, PyObject *args, PyObject *kwds)
         }
     }
 
+    free(pPointsX);
+    free(pPointsY);
+    free(pnUseFlag);
+
     return pPointsOut;
 }
 
