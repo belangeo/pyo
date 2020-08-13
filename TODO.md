@@ -14,6 +14,8 @@ Roadmap 1.0.3
 - Add an optional callback on the "stop" event of the PyoObject. 
 
 - Install m_pyo.h configured for the target version in pythonlib/pyo/include/.
+
+- Update pyo-linux-wheels to use manylinux2010 or manylinux2014 image instead of manylinux1.
  
 Internal
 --------

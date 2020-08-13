@@ -5,7 +5,7 @@ EPyo is a simple text editor especially configured to edit pyo audio programs.
 
 You can do absolutely everything you want with this piece of software.
 
-Olivier Belanger - 2018
+Olivier Belanger - 2020
 
 TODO:
     - auto-search when typing in the doc page.
@@ -4453,7 +4453,7 @@ class MainFrame(wx.Frame):
         info = AboutDialogInfo()
         info.Name = APP_NAME
         info.Version = APP_VERSION
-        info.Copyright = u"(C) 2018 Olivier Belanger"
+        info.Copyright = u"(C) 2020 Olivier Belanger"
         info.Description = "E-Pyo is a text editor especially configured to edit pyo audio programs.\n\n"
         AboutBox(info)
 
