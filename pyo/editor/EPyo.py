@@ -1202,7 +1202,7 @@ class ManualPanel(wx.Treebook):
 
         if self.needToParse:
             dlg = wx.ProgressDialog("Pyo Documentation", "    Building manual...    ",
-                                   maximum = _NUM_PAGES, parent=self, style = wx.PD_APP_MODAL | wx.PD_AUTO_HIDE | wx.PD_SMOOTH)
+                                   maximum = _NUM_PAGES, parent=None, style = wx.PD_APP_MODAL | wx.PD_AUTO_HIDE | wx.PD_SMOOTH)
             if wx.Platform == '__WXMSW__':
                 dlg.SetSize((300, 150))
             else:
