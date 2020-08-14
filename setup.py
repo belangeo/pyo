@@ -180,8 +180,11 @@ if sys.platform == "win32":
         if 'portmidi' in libraries:
             libraries.append('porttime')
     else:
-        include_dirs = ['C:\msys64\mingw64\include', 'include', 'C:\liblo-0.29', 'C:\pthreads\include']
-        library_dirs = ['C:\msys64\mingw64\\bin', 'C:\liblo-0.29\src\.libs', 'C:\pthreads\lib']
+        include_dirs = ['C:/Users/Admin/git/vcpkg/packages/portmidi_x64-windows/include',
+                        'C:\msys64\mingw64\include', 'include', 'C:\liblo-0.29', 'C:\pthreads\include']
+        library_dirs = ['C:/Users/Admin/git/vcpkg/packages/portmidi_x64-windows/bin',
+                        'C:/Users/Admin/git/vcpkg/packages/portmidi_x64-windows/lib',
+                        'C:\msys64\mingw64\\bin', 'C:\liblo-0.29\src\.libs', 'C:\pthreads\lib']
         libraries += ['libsndfile-1', 'pthreadGC2']
         macros.append(('MS_WIN64', None))
 else:
