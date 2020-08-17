@@ -1,11 +1,6 @@
 This is a list of features/fixes to implement for future releases
 =================================================================
 
-Roadmap 1.0.2
--------------
-
-- Fixed Windows crash related to MIDI devices
-
 Roadmap 1.0.3
 -------------
 
