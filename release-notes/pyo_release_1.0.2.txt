@@ -75,6 +75,7 @@ Bug Fixes:
 - Fixed segfault in reducePoints function.
 - Portmidi is now compiled with the latest source, which fixes a crash on Windows 10
   when the server is booted with a MIDI device connected. 
+- Fixed compatibility issues with wxpython 4.1.
 
 New features:
 
@@ -118,6 +119,7 @@ Bug Fixes:
 - Fixed segfault in reducePoints function.
 - Portmidi is now compiled with the latest source, which fixes a crash on Windows 10
   when the server is booted with a MIDI device connected. 
+- Fixed compatibility issues with wxpython 4.1.
 
 New features:
 
