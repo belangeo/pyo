@@ -222,7 +222,8 @@ elif sys.platform == "darwin":
                                 "temp_libs/libFLAC.8.dylib",
                                 "temp_libs/libvorbisenc.2.dylib",
                                 "temp_libs/libvorbis.0.dylib",
-                                "temp_libs/libogg.0.dylib"])]
+                                "temp_libs/libogg.0.dylib",
+                                "temp_libs/libopus.0.dylib"])]
     else:
         data_files = []
 else:
@@ -285,10 +286,7 @@ classifiers = [
 
                 # Specify the Python versions you support here. In particular, ensure
                 # that you indicate whether you support Python 2, Python 3 or both.
-                'Programming Language :: Python :: 2',
-                'Programming Language :: Python :: 2.7',
                 'Programming Language :: Python :: 3',
-                'Programming Language :: Python :: 3.5',
                 'Programming Language :: Python :: 3.6',
                 'Programming Language :: Python :: 3.7',
                 'Programming Language :: Python :: 3.8',
@@ -308,7 +306,7 @@ setup(  name = "pyo",
         classifiers = classifiers,
         keywords = "audio sound dsp synthesis signal-processing music",
         license = "LGPLv3+",
-        python_requires='>=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*, <4',
+        python_requires='>=3.6, <4',
         zip_safe = False,
         packages = packages,
         package_data = {'pyo.lib.snds': soundfiles,

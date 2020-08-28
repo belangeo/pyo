@@ -32,12 +32,14 @@ sudo cp /usr/local/lib/libFLAC.8.dylib temp_libs/libFLAC.8.dylib
 sudo cp /usr/local/lib/libvorbisenc.2.dylib temp_libs/libvorbisenc.2.dylib
 sudo cp /usr/local/lib/libvorbis.0.dylib temp_libs/libvorbis.0.dylib
 sudo cp /usr/local/lib/libogg.0.dylib temp_libs/libogg.0.dylib
+sudo cp /usr/local/lib/libopus.0.dylib temp_libs/libopus.0.dylib
 
 cd temp_libs
 sudo install_name_tool -change /usr/local/opt/flac/lib/libFLAC.8.dylib @loader_path/libFLAC.8.dylib libsndfile.1.dylib
 sudo install_name_tool -change /usr/local/opt/libogg/lib/libogg.0.dylib @loader_path/libogg.0.dylib libsndfile.1.dylib
 sudo install_name_tool -change /usr/local/opt/libvorbis/lib/libvorbis.0.dylib @loader_path/libvorbis.0.dylib libsndfile.1.dylib
 sudo install_name_tool -change /usr/local/opt/libvorbis/lib/libvorbisenc.2.dylib @loader_path/libvorbisenc.2.dylib libsndfile.1.dylib
+sudo install_name_tool -change /usr/local/opt/opus/lib/libopus.0.dylib @loader_path/libopus.0.dylib libsndfile.1.dylib
 sudo install_name_tool -change /usr/local/opt/libogg/lib/libogg.0.dylib @loader_path/libogg.0.dylib libvorbis.0.dylib
 #sudo install_name_tool -change /usr/local/lib/libogg.0.dylib @loader_path/libogg.0.dylib libvorbis.0.dylib
 sudo install_name_tool -change /usr/local/opt/libogg/lib/libogg.0.dylib @loader_path/libogg.0.dylib libvorbisenc.2.dylib
@@ -46,7 +48,7 @@ sudo install_name_tool -change /usr/local/opt/libogg/lib/libogg.0.dylib @loader_
 #sudo install_name_tool -change /usr/local/opt/libogg/lib/libogg.0.dylib @loader_path/libogg.0.dylib libFLAC.8.dylib
 
 ### Make sure libvorbis version is correct in this path!
-sudo install_name_tool -change /usr/local/Cellar/libvorbis/1.3.67/lib/libvorbis.0.dylib @loader_path/libvorbis.0.dylib libvorbisenc.2.dylib
+sudo install_name_tool -change /usr/local/Cellar/libvorbis/1.3.7/lib/libvorbis.0.dylib @loader_path/libvorbis.0.dylib libvorbisenc.2.dylib
 
 cd ..
 
