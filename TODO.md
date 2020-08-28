@@ -1,7 +1,7 @@
 This is a list of features/fixes to implement for future releases
 =================================================================
 
-Roadmap 1.0.3
+Roadmap 1.0.4
 -------------
 
 - Add Midifile object
