@@ -1,4 +1,12 @@
-2019-11-27 belangeo <belangeo@gmail.com>
+2020-08-28 belangeo <belangeo@gmail.com>
+
+    * Git tag: 1.0.3.
+
+2020-08-28 belangeo <belangeo@gmail.com>
+
+    * Fixed missing lib dependency links on MacOS.
+
+2020-08-17 belangeo <belangeo@gmail.com>
 
     * Git tag: 1.0.2.
 
