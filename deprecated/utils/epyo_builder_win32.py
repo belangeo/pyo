@@ -16,7 +16,10 @@ shutil.copytree("styles", "Resources/styles")
 if version[0] < 3:
     os.system('C:\Python%d%d\Scripts\pyinstaller --clean -F -c --icon=Resources\E-PyoIcon.ico "E-Pyo.py"' % version)
 else:
-    os.system('C:\\Users\olivier\AppData\Local\Programs\Python\Python%d%d-32\Scripts\pyinstaller --clean -F -c --icon=Resources\E-PyoIcon.ico "E-Pyo.py"' % version)
+    os.system(
+        'C:\\Users\olivier\AppData\Local\Programs\Python\Python%d%d-32\Scripts\pyinstaller --clean -F -c --icon=Resources\E-PyoIcon.ico "E-Pyo.py"'
+        % version
+    )
 
 os.mkdir("E-Pyo_py%d%d" % version)
 shutil.copytree("Resources", "E-Pyo_py%d%d/Resources" % version)

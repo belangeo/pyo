@@ -18,15 +18,17 @@ twopi = 2 * math.pi
 oneOverTwoPi = 1.0 / twopi
 sinus = HarmTable()
 
-mod = RandInt(max=8, freq=.25, mul=.05, add=29.8)
+mod = RandInt(max=8, freq=0.25, mul=0.05, add=29.8)
 
 index = Sig([12.649, 9], mul=oneOverTwoPi)
 index.ctrl(map_list=[SLMap(0, 20, "lin", "value", [12.649, 9])], title="Indexes")
 car = Sig([150, 484.324])
-car.ctrl(map_list=[SLMap(20, 2000, "log", "value", [150, 484.324])], title="Carrier frequencies")
+car.ctrl(
+    map_list=[SLMap(20, 2000, "log", "value", [150, 484.324])], title="Carrier frequencies",
+)
 
 a1 = Sine(freq=mod, mul=index[0])
-a2 = Pointer(table=sinus, index=a1+0.25)
+a2 = Pointer(table=sinus, index=a1 + 0.25)
 a3 = Pointer(table=sinus, index=a1)
 even = Hilbert(a2)
 odd = Hilbert(a3)
@@ -41,8 +43,8 @@ oddUpper = oddReal + oddImag
 evenLower = evenReal - evenImag
 oddLower = oddReal - oddImag
 
-sa1 = Sine(freq=oddLower*car[0], mul=index[1])
-sa2 = Pointer(table=sinus, index=sa1+0.25)
+sa1 = Sine(freq=oddLower * car[0], mul=index[1])
+sa2 = Pointer(table=sinus, index=sa1 + 0.25)
 sa3 = Pointer(table=sinus, index=sa1)
 seven = Hilbert(sa2)
 sodd = Hilbert(sa3)
@@ -57,6 +59,6 @@ soddUpper = soddReal + soddImag
 sevenLower = sevenReal - sevenImag
 soddLower = soddReal - soddImag
 
-mix = Mix([sevenLower, sevenUpper], voices=2, mul=.2).out()
+mix = Mix([sevenLower, sevenUpper], voices=2, mul=0.2).out()
 
 s.gui(locals())

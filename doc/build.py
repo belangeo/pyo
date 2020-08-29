@@ -10,45 +10,57 @@ elif "--man" in sys.argv:
     build_format = "man"
     build_folder = "./build_man"
 
-f = open(os.getcwd() + '/source/api/alphabetical.rst', 'w')
+f = open(os.getcwd() + "/source/api/alphabetical.rst", "w")
 
 # Header
 f.write("Alphabetical class reference\n")
 f.write("=======================================\n")
 f.write("\n\n.. module:: pyo\n\n")
 
+
 def getDocFirstLine(obj):
     try:
         text = eval(obj).__doc__
         if text == None:
-            text = ''
+            text = ""
     except:
-        text = ''
-        
-    if text != '':
-        spl = text.split('\n')
+        text = ""
+
+    if text != "":
+        spl = text.split("\n")
         if len(spl) == 1:
             f = spl[0]
-        else:    
+        else:
             f = spl[1]
     else:
         f = text
-    return f    
+    return f
+
 
 format = "- :py:class:`%s` : %s\n"
 
 lines = []
-for key in ['Server', 'Stream', 'TableStream', 'PyoObjectBase', 'Map', 
-            'MidiListener', 'OscListener', 'PyoGui']:
+for key in [
+    "Server",
+    "Stream",
+    "TableStream",
+    "PyoObjectBase",
+    "Map",
+    "MidiListener",
+    "OscListener",
+    "PyoGui",
+]:
     if type(OBJECTS_TREE[key]) == list:
-        if key in ['MidiListener', 'OscListener']:
+        if key in ["MidiListener", "OscListener"]:
             lines.append(format % (key, getDocFirstLine(key)))
         else:
             for obj in OBJECTS_TREE[key]:
                 lines.append(format % (obj, getDocFirstLine(obj)))
     else:
-        if key == 'Map': key2list = ['SLMap']
-        else: key2list = ['PyoMatrixObject', 'PyoTableObject', 'PyoObject', 'PyoPVObject']
+        if key == "Map":
+            key2list = ["SLMap"]
+        else:
+            key2list = ["PyoMatrixObject", "PyoTableObject", "PyoObject", "PyoPVObject"]
         for key2 in key2list:
             if type(OBJECTS_TREE[key][key2]) == list:
                 for obj in OBJECTS_TREE[key][key2]:
@@ -67,12 +79,12 @@ f.close()
 # New examples listing
 src_example_dir = "../pyo/examples"
 os.mkdir("source/examples")
-folders = sorted([d for d in os.listdir(src_example_dir) if d[0] in ['0', '1', '2']])
+folders = sorted([d for d in os.listdir(src_example_dir) if d[0] in ["0", "1", "2"]])
 for dir in folders:
     os.mkdir("source/examples/%s" % dir)
     index = open("source/examples/%s/index.rst" % dir, "w")
     index.write(dir + "\n")
-    index.write("="*40)
+    index.write("=" * 40)
     index.write("\n\n.. toctree::\n   :maxdepth: 1\n\n")
     for name in sorted(os.listdir(os.path.join(src_example_dir, dir))):
         if name == "__init__.py":
@@ -84,13 +96,13 @@ for dir in folders:
             text = f.read()
         with open("source/examples/%s/%s.rst" % (dir, name[:-3]), "w") as f:
             pos = text.find('"""')
-            pos = text.find('"""', pos+3)
-            code = text[pos+3:].strip()
-            intro = text[:pos+3].replace('"""', '').strip()
+            pos = text.find('"""', pos + 3)
+            code = text[pos + 3 :].strip()
+            intro = text[: pos + 3].replace('"""', "").strip()
             tpos = intro.find("\n")
             title = intro[:tpos]
             f.write(title + "\n")
-            f.write("="*140)
+            f.write("=" * 140)
             f.write("\n")
             f.write(intro[tpos:])
             f.write("\n\n")
@@ -102,13 +114,13 @@ for dir in folders:
 
 
 os.system("sphinx-build -a -E -j 4 -b %s ./source %s" % (build_format, build_folder))
-#os.system("sphinx-build -a -E -b %s ./source %s" % (build_format, build_folder))
+# os.system("sphinx-build -a -E -b %s ./source %s" % (build_format, build_folder))
 
 if build_format == "latex":
     os.system("cd build_latex; pdflatex -interaction nonstopmode Pyo;  pdflatex -interaction nonstopmode Pyo")
 
 rep = input("Do you want to upload to ajax server (y/n) ? ")
 if rep == "y":
-        os.system("scp -r build_html/* jeadum1@ajaxsoundstudio.com:/home/jeadum1/ajaxsoundstudio.com/pyodoc")
+    os.system("scp -r build_html/* jeadum1@ajaxsoundstudio.com:/home/jeadum1/ajaxsoundstudio.com/pyodoc")
 
 os.system("rm -r source/examples")

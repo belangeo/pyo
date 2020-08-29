@@ -50,9 +50,11 @@ pit.ctrl([SLMap(100, 1000, "log", "value", 200)], title="Frequency")
 feed = Sig(0.5)
 feed.ctrl([SLMap(0, 1, "lin", "value", 0.5)], title="Feedback")
 
+
 def change():
     "Sends new values to user variables in the expression."
     expr.setVar(["#pitch", "#feed"], [pit.get(), feed.get()])
+
 
 # Calls the change() function every 20 ms to update the user variables.
 pat = Pattern(change, 0.025).play()

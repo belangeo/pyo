@@ -14,9 +14,9 @@ time.sleep(2)
 
 # send events to the sub process
 for i in range(20):
-    snd = "../snds/snd_%d.aif" % random.randrange(1,7)
+    snd = "../snds/snd_%d.aif" % random.randrange(1, 7)
     pipe.write("sf.path = '%s'\ndump = sf.play()\n" % snd)
-    time.sleep(random.uniform(.2, .5))
+    time.sleep(random.uniform(0.2, 0.5))
 
 # Stop the audio Server before exiting
 pipe.write("s.stop()\ntime.sleep(0.25)\n")

@@ -16,7 +16,7 @@ after a half-second delay. This gradually introduces beating into the sound.
 from pyo import *
 
 s = Server()
-s.setMidiInputDevice(99) # Open all input devices.
+s.setMidiInputDevice(99)  # Open all input devices.
 s.boot()
 
 # Automatically converts MIDI pitches to frequencies in Hz.
@@ -24,12 +24,10 @@ notes = Notein(scale=1)
 notes.keyboard()
 
 # MIDI-triggered ADSR envelope.
-env1 = MidiAdsr(notes["velocity"], attack=0.005, decay=0.1,
-                sustain=0.7, release=0.5, mul=0.1)
+env1 = MidiAdsr(notes["velocity"], attack=0.005, decay=0.1, sustain=0.7, release=0.5, mul=0.1)
 
-# MIDI-triggered DADSR envelope (a classic ADSR with an adjustable pre-delay). 
-env2 = MidiDelAdsr(notes["velocity"], delay=0.5, attack=1,
-                   decay=0.5, sustain=0.5, release=0.5, mul=0.1)
+# MIDI-triggered DADSR envelope (a classic ADSR with an adjustable pre-delay).
+env2 = MidiDelAdsr(notes["velocity"], delay=0.5, attack=1, decay=0.5, sustain=0.5, release=0.5, mul=0.1)
 
 # Root frequency appears instantly.
 sig1 = RCOsc(freq=notes["pitch"], sharp=0.5, mul=env1).mix().mix(2).out()
@@ -42,6 +40,6 @@ sig3 = RCOsc(freq=notes["pitch"] * 1.008, sharp=0.8, mul=env2).mix()
 stereo = Mix([sig2, sig3], voices=2)
 
 # Sum the signals and apply a global reverberation.
-rev = WGVerb(sig1+stereo, feedback=0.8, cutoff=5000, bal=0.3).out()
+rev = WGVerb(sig1 + stereo, feedback=0.8, cutoff=5000, bal=0.3).out()
 
 s.gui(locals())

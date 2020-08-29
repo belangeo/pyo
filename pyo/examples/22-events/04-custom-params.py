@@ -15,6 +15,7 @@ from pyo import *
 
 s = Server().boot()
 
+
 class MyInstrument(EventInstrument):
     def __init__(self, **args):
         EventInstrument.__init__(self, **args)
@@ -22,17 +23,23 @@ class MyInstrument(EventInstrument):
         # Here, we use two custom parameters, self.duty and self.cutoff. These
         # variables must exist, and therefore should be given as arguments to
         # the Events object that produce the events.
-        
-        self.phase = Phasor([self.freq, self.freq*1.003])
+
+        self.phase = Phasor([self.freq, self.freq * 1.003])
         self.osc = Compare(self.phase, self.duty, mode="<", mul=1, add=-0.5)
         self.filt = ButLP(self.osc, freq=self.cutoff, mul=self.env).out()
 
-e = Events(instr = MyInstrument,
-           degree = EventSeq([5.00, 5.04, 5.07, 6.00]),
-           duty = EventSeq([0.02, 0.1, 0.25, 0.5]),     # self.duty in the instrument
-           cutoff = EventSeq([5000, 4000, 3000, 2000]), # self.cutoff in the instrument
-           beat = 1/2.,
-           db = [-6, -9, -9, -12],
-           attack = 0.001, decay = 0.05, sustain = 0.5, release = 0.005).play()
+
+e = Events(
+    instr=MyInstrument,
+    degree=EventSeq([5.00, 5.04, 5.07, 6.00]),
+    duty=EventSeq([0.02, 0.1, 0.25, 0.5]),  # self.duty in the instrument
+    cutoff=EventSeq([5000, 4000, 3000, 2000]),  # self.cutoff in the instrument
+    beat=1 / 2.0,
+    db=[-6, -9, -9, -12],
+    attack=0.001,
+    decay=0.05,
+    sustain=0.5,
+    release=0.005,
+).play()
 
 s.gui(locals())

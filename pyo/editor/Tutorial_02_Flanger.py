@@ -28,10 +28,11 @@ from pyo import *
 
 # Step 1 - Declaring the class
 
-# We will create a new class called RingMod with PyoObject as its parent class. 
-# Another good habit is to put a __doc__ string at the beginning of our classes. 
-# Doing so will allow other users to retrieve the object's documentation with the 
+# We will create a new class called RingMod with PyoObject as its parent class.
+# Another good habit is to put a __doc__ string at the beginning of our classes.
+# Doing so will allow other users to retrieve the object's documentation with the
 # standard python help() function.
+
 
 class Flanger(PyoObject):
     """
@@ -69,27 +70,27 @@ class Flanger(PyoObject):
 
     """
 
-# Step 2 - The __init__ method
+    # Step 2 - The __init__ method
 
-# This is the place where we have to take care of some of pyo's generic behaviours. 
-# The most important thing to remember is that when a PyoObject receives another 
-# PyoObject in input, it looks for an attribute called self._base_objs. This attribute 
-# is a list of the object's base classes and is considered the audio output signal 
-# of the object (the Sine object uses internally an object called Sine_base). The 
-# getBaseObjects() method returns the list of base classes for a given PyoObject. We 
-# will call the getBaseObjects() method on the objects generating the output signal of 
-# our process. .play(), .out(), .stop() and .mix() methods act on this list.
+    # This is the place where we have to take care of some of pyo's generic behaviours.
+    # The most important thing to remember is that when a PyoObject receives another
+    # PyoObject in input, it looks for an attribute called self._base_objs. This attribute
+    # is a list of the object's base classes and is considered the audio output signal
+    # of the object (the Sine object uses internally an object called Sine_base). The
+    # getBaseObjects() method returns the list of base classes for a given PyoObject. We
+    # will call the getBaseObjects() method on the objects generating the output signal of
+    # our process. .play(), .out(), .stop() and .mix() methods act on this list.
 
-# We also need to add two arguments to the definition of the object: "mul" and "add". 
-# The attributes "self._mul" and "self._add" are handled by the parent class and are 
-# automatically applied to the objects stored in the list "self._base_objs".
+    # We also need to add two arguments to the definition of the object: "mul" and "add".
+    # The attributes "self._mul" and "self._add" are handled by the parent class and are
+    # automatically applied to the objects stored in the list "self._base_objs".
 
-# Finally, we have to consider the "multi-channel expansion" feature, allowing lists given as 
-# arguments to create multiple instances of our object and managing multiple audio streams. 
-# Two functions help us to accomplish this:
+    # Finally, we have to consider the "multi-channel expansion" feature, allowing lists given as
+    # arguments to create multiple instances of our object and managing multiple audio streams.
+    # Two functions help us to accomplish this:
 
-# convertArgsToLists(*args) : Return arguments converted to lists and the maximum list size.
-# wrap(list,i) : Return value at position "i" in "list" with wrap around len(list).
+    # convertArgsToLists(*args) : Return arguments converted to lists and the maximum list size.
+    # wrap(list,i) : Return value at position "i" in "list" with wrap around len(list).
 
     def __init__(self, input, depth=0.75, lfofreq=0.2, feedback=0.5, mul=1, add=0):
         # Properly initialize PyoObject's basic attributes
@@ -105,7 +106,9 @@ class Flanger(PyoObject):
         self._in_fader = InputFader(input)
 
         # Convert all arguments to lists for "multi-channel expansion"
-        in_fader, depth, lfofreq, feedback, mul, add, lmax = convertArgsToLists(self._in_fader, depth, lfofreq, feedback, mul, add)
+        in_fader, depth, lfofreq, feedback, mul, add, lmax = convertArgsToLists(
+            self._in_fader, depth, lfofreq, feedback, mul, add
+        )
 
         # Apply processing
         self._modamp = Sig(depth, mul=0.005)
@@ -116,14 +119,14 @@ class Flanger(PyoObject):
         # self._base_objs is the audio output seen by the outside world!
         self._base_objs = self._flange.getBaseObjects()
 
-# Step 3 - setXXX methods and attributes
+    # Step 3 - setXXX methods and attributes
 
-# Now, we will add methods and attributes getter and setter for all controllable 
-# parameters. It should be noted that we use the setInput() method of the 
-# InputFader object to change an input source. This object implements a cross-fade 
-# between the old source and the new one with a cross-fade duration argument.
-# Here, we need to keep references of raw argument in order to get the
-# real current state when we call the dump() method.
+    # Now, we will add methods and attributes getter and setter for all controllable
+    # parameters. It should be noted that we use the setInput() method of the
+    # InputFader object to change an input source. This object implements a cross-fade
+    # between the old source and the new one with a cross-fade duration argument.
+    # Here, we need to keep references of raw argument in order to get the
+    # real current state when we call the dump() method.
 
     def setInput(self, x, fadetime=0.05):
         """
@@ -139,7 +142,7 @@ class Flanger(PyoObject):
         """
         self._input = x
         self._in_fader.setInput(x, fadetime)
-    
+
     def setDepth(self, x):
         """
         Replace the `depth` attribute.
@@ -180,62 +183,68 @@ class Flanger(PyoObject):
         self._dls.feedback = x
 
     @property
-    def input(self): 
+    def input(self):
         """PyoObject. Input signal to process."""
         return self._input
+
     @input.setter
-    def input(self, x): 
+    def input(self, x):
         self.setInput(x)
 
     @property
-    def depth(self): 
+    def depth(self):
         """float or PyoObject. Amplitude of the delay line modulation."""
         return self._depth
+
     @depth.setter
-    def depth(self, x): 
+    def depth(self, x):
         self.setDepth(x)
 
     @property
-    def lfofreq(self): 
+    def lfofreq(self):
         """float or PyoObject. Frequency of the delay line modulation."""
         return self._lfofreq
+
     @lfofreq.setter
-    def lfofreq(self, x): 
+    def lfofreq(self, x):
         self.setLfoFreq(x)
 
     @property
-    def feedback(self): 
+    def feedback(self):
         """float or PyoObject. Amount of output signal sent back into the delay line."""
         return self._feedback
+
     @feedback.setter
-    def feedback(self, x): 
+    def feedback(self, x):
         self.setFeedback(x)
 
-# Step 4 - The ctrl() method
+    # Step 4 - The ctrl() method
 
-# The ctrl() method of a PyoObject is used to pop-up a GUI to control the parameters 
-# of the object. The initialization of sliders is done with a list of SLMap objects 
-# where we can set the range of the slider, the type of scaling, the name of the 
-# attribute linked to the slider and the initial value. We will define a default 
-# "self._map_list" that will be used if the user doesn't provide one to the parameter
-# "map_list". If the object doesn't have any parameter to control with a GUI, this
-# method can be undefined.
+    # The ctrl() method of a PyoObject is used to pop-up a GUI to control the parameters
+    # of the object. The initialization of sliders is done with a list of SLMap objects
+    # where we can set the range of the slider, the type of scaling, the name of the
+    # attribute linked to the slider and the initial value. We will define a default
+    # "self._map_list" that will be used if the user doesn't provide one to the parameter
+    # "map_list". If the object doesn't have any parameter to control with a GUI, this
+    # method can be undefined.
 
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [SLMap(0., 1., "lin", "depth", self._depth),
-                          SLMap(0.001, 20., "log", "lfofreq", self._lfofreq),
-                          SLMap(0., 1., "lin", "feedback", self._feedback),
-                          SLMapMul(self._mul)]
+        self._map_list = [
+            SLMap(0.0, 1.0, "lin", "depth", self._depth),
+            SLMap(0.001, 20.0, "log", "lfofreq", self._lfofreq),
+            SLMap(0.0, 1.0, "lin", "feedback", self._feedback),
+            SLMapMul(self._mul),
+        ]
         PyoObject.ctrl(self, map_list, title, wxnoserver)
 
-# Step 5 - Overriding the .play(), .stop() and .out() methods
+    # Step 5 - Overriding the .play(), .stop() and .out() methods
 
-# Finally, we might want to override .play(), .stop() and .out() methods to be sure all 
-# our internal PyoObjects are consequently managed instead of only objects in self._base_obj, 
-# as it is in built-in objects. To handle properly the process for self._base_objs, we still 
-# need to call the method that belongs to PyoObject. We return the returned value (self) of 
-# these methods in order to possibly append the method to the object's creation. See the 
-# definition of these methods in the PyoObject man page to understand the meaning of arguments.
+    # Finally, we might want to override .play(), .stop() and .out() methods to be sure all
+    # our internal PyoObjects are consequently managed instead of only objects in self._base_obj,
+    # as it is in built-in objects. To handle properly the process for self._base_objs, we still
+    # need to call the method that belongs to PyoObject. We return the returned value (self) of
+    # these methods in order to possibly append the method to the object's creation. See the
+    # definition of these methods in the PyoObject man page to understand the meaning of arguments.
 
     def play(self, dur=0, delay=0):
         self._modamp.play(dur, delay)
@@ -255,9 +264,10 @@ class Flanger(PyoObject):
         self._dls.play(dur, delay)
         return PyoObject.out(self, chnl, inc, dur, delay)
 
+
 # Run the script to test the Flanger object.
 if __name__ == "__main__":
     s = Server().boot()
-    src = BrownNoise([.2,.2]).out()
-    fl = Flanger(src, depth=.9, lfofreq=.1, feedback=.5, mul=.5).out()
+    src = BrownNoise([0.2, 0.2]).out()
+    fl = Flanger(src, depth=0.9, lfofreq=0.1, feedback=0.5, mul=0.5).out()
     s.gui(locals())

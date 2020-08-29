@@ -14,10 +14,12 @@ VERSION_MINOR = sys.version_info[1]
 PYTHON_DIR = os.path.dirname(sys.executable)
 
 if sys.platform == "darwin":
-    PATHS = ["/Library/Python/%d.%d/site-packages/" % (VERSION_MAJOR, VERSION_MINOR),
-            "/Library/Frameworks/Python.framework/Versions/%d.%d/lib/python%d.%d/site-packages/" %
-            (VERSION_MAJOR, VERSION_MINOR, VERSION_MAJOR, VERSION_MINOR),
-            "~/anaconda/lib/python%d.%d/site-packages/" % (VERSION_MAJOR, VERSION_MINOR)]
+    PATHS = [
+        "/Library/Python/%d.%d/site-packages/" % (VERSION_MAJOR, VERSION_MINOR),
+        "/Library/Frameworks/Python.framework/Versions/%d.%d/lib/python%d.%d/site-packages/"
+        % (VERSION_MAJOR, VERSION_MINOR, VERSION_MAJOR, VERSION_MINOR),
+        "~/anaconda/lib/python%d.%d/site-packages/" % (VERSION_MAJOR, VERSION_MINOR),
+    ]
     for path in PATHS:
         if os.path.isfile(os.path.join(path, "pyo.py")):
             os.remove(os.path.join(path, "pyo.py"))

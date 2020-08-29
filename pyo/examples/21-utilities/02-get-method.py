@@ -28,19 +28,19 @@ from pyo import *
 
 s = Server(duplex=0).boot()
 
-t = CurveTable([(0, 0), (2048,.5), (4096, .2), (6144,.5), (8192,0)],
-               tension=0, bias=20).normalize()
+t = CurveTable([(0, 0), (2048, 0.5), (4096, 0.2), (6144, 0.5), (8192, 0)], tension=0, bias=20).normalize()
 t.view(title="LFO Waveform")
 
 # LFO applied on amplitude value of the synths.
-a = Osc(table=t, freq=2, mul=.1)
+a = Osc(table=t, freq=2, mul=0.1)
 
 # Make some modulated noise...
 synth1 = BrownNoise(a).mix(2).out()
-synth2 = FM(carrier=[100,50], ratio=[.495,1.01], index=10, mul=a).out()
+synth2 = FM(carrier=[100, 50], ratio=[0.495, 1.01], index=10, mul=a).out()
 
 # Oscillator from which to get values to modify the shape of the LFO waveform.
-c = Sine(.1, 0, 10, 10)
+c = Sine(0.1, 0, 10, 10)
+
 
 def change():
     # Get the current value of the oscillator.
@@ -51,7 +51,8 @@ def change():
     t.setBias(val)
     t.normalize()
 
+
 # Call change() function 10 times per second.
-p = Pattern(change, .1).play()
+p = Pattern(change, 0.1).play()
 
 s.gui(locals())

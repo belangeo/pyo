@@ -20,8 +20,10 @@ s.boot().start()
 
 print("Play with your Midi controllers...")
 
-def pp(x): 
+
+def pp(x):
     print("controller number =", x)
+
 
 scan = CtlScan(pp, False)
 

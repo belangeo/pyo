@@ -41,6 +41,7 @@ print("Play with your Midi controllers...")
 def scanner(ctlnum, midichnl):
     print("MIDI channel: %d, controller number: %d" % (midichnl, ctlnum))
 
+
 # Listen to controller input.
 scan = CtlScan2(scanner, toprint=False)
 

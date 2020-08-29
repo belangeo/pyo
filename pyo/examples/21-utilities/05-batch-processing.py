@@ -33,24 +33,33 @@ for sound in sounds:
     path = os.path.join(folder_path, sound)
     info = sndinfo(path)
     dur, sr, chnls = info[1], info[2], info[3]
-    fformat = ['WAVE', 'AIFF', 'AU', 'RAW', 'SD2', 'FLAC', 'CAF', 'OGG'].index(info[4])
-    samptype = ['16 bit int', '24 bit int', '32 bit int', '32 bit float',
-                '64 bits float', 'U-Law encoded', 'A-Law encoded'].index(info[5])
+    fformat = ["WAVE", "AIFF", "AU", "RAW", "SD2", "FLAC", "CAF", "OGG"].index(info[4])
+    samptype = [
+        "16 bit int",
+        "24 bit int",
+        "32 bit int",
+        "32 bit float",
+        "64 bits float",
+        "U-Law encoded",
+        "A-Law encoded",
+    ].index(info[5])
 
     # Set server parameters according to the current sound info.
     s.setSamplingRate(sr)
     s.setNchnls(chnls)
     s.boot()
-    s.recordOptions(dur=dur + 1, # give some room for the reverb trail!
-                    filename=os.path.join(output_folder, sound),
-                    fileformat=fformat,
-                    sampletype=samptype)
+    s.recordOptions(
+        dur=dur + 1,  # give some room for the reverb trail!
+        filename=os.path.join(output_folder, sound),
+        fileformat=fformat,
+        sampletype=samptype,
+    )
 
     # Simple processing applied to the sound.
     source = SfPlayer(path)
     bandpass = ButBP(source, 1000, 5)
     disto = Disto(bandpass, drive=0.9, slope=0.8)
-    output = WGVerb(source+disto, feedback=0.8, cutoff=5000, bal=0.25, mul=0.5).out()
+    output = WGVerb(source + disto, feedback=0.8, cutoff=5000, bal=0.25, mul=0.5).out()
 
     # Start the rendering.
     s.start()

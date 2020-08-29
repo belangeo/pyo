@@ -36,6 +36,8 @@ pitch = Phasor(freq=11, mul=48, add=36)
 
 # Global variable to count the down and up beats.
 count = 0
+
+
 def midi_event():
     global count
     # Retrieve the value of the pitch audio stream and convert it to an int.
@@ -58,6 +60,7 @@ def midi_event():
     # The Server's `makenote` method generates a noteon event immediately
     # and the correponding noteoff event after `duration` milliseconds.
     s.makenote(pitch=pit, velocity=vel, duration=dur)
+
 
 # Generates a MIDI event every 125 milliseconds.
 pat = Pattern(midi_event, 0.125).play()

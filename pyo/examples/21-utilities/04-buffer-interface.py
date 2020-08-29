@@ -33,11 +33,13 @@ osc = TableRead(t, freq=t.getRate(), loop=True, mul=0.1).out()
 # Share the table's memory with a numpy array.
 arr = np.asarray(t.getBuffer())
 
+
 def process():
     "Fill the array (so the table) with white noise."
     arr[:] = np.random.normal(0.0, 0.5, size=bs)
 
-# Register the `process` function to be called at the beginning 
+
+# Register the `process` function to be called at the beginning
 # of every processing loop.
 s.setCallback(process)
 

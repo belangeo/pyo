@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # encoding: utf-8
 from __future__ import print_function
+
 """
 Scan Open Sound Control inputs. Launch this script from a terminal.
 
@@ -18,11 +19,14 @@ s = Server().boot().start()
 print("Play with your OSC interface...")
 
 go = True
+
+
 def pp(address, *args):
     if go:
         print("Address =", address)
         print("Values =", args)
         print("---------------")
+
 
 scan = OscDataReceive(port, "*", pp)
 

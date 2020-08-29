@@ -29,19 +29,19 @@ s = Server().boot()
 freq = 187.5
 
 # Impulse train generator.
-lfo1 = Sine(.1).range(1, 50)
+lfo1 = Sine(0.1).range(1, 50)
 osc1 = Blit(freq=freq, harms=lfo1, mul=0.3)
 
 # RC circuit.
-lfo2 = Sine(.1, mul=0.5, add=0.5)
+lfo2 = Sine(0.1, mul=0.5, add=0.5)
 osc2 = RCOsc(freq=freq, sharp=lfo2, mul=0.3)
 
 # Sine wave oscillator with feedback.
-lfo3 = Sine(.1).range(0, .18)
+lfo3 = Sine(0.1).range(0, 0.18)
 osc3 = SineLoop(freq=freq, feedback=lfo3, mul=0.3)
 
 # Roland JP-8000 Supersaw emulator.
-lfo4 = Sine(.1).range(0.1, 0.75)
+lfo4 = Sine(0.1).range(0.1, 0.75)
 osc4 = SuperSaw(freq=freq, detune=lfo4, mul=0.3)
 
 # Interpolates between input objects to produce a single output

@@ -19,10 +19,10 @@ BALANCE = 1
 src = SfPlayer(SOURCE, loop=True).mix(2)
 
 # Transfert function for signal lower than 0
-table = ExpTable([(0,-.25),(4096,0),(8192,0)], exp=10)
+table = ExpTable([(0, -0.25), (4096, 0), (8192, 0)], exp=10)
 table.view()
 # Transfert function for signal higher than 0
-high_table = CosTable([(0,0),(4096,0),(4598,1),(8192,1)])
+high_table = CosTable([(0, 0), (4096, 0), (4598, 1), (8192, 1)])
 
 table.add(high_table)
 
@@ -34,7 +34,7 @@ boost = Sig(bp, mul=BOOST)
 sig = Lookup(table, boost)
 
 # Lowpass filter on distorted signal
-lp = ButLP(sig, freq=LP_CUTOFF_FREQ, mul=.7)
+lp = ButLP(sig, freq=LP_CUTOFF_FREQ, mul=0.7)
 
 # Balance between dry and wet signals
 out = Interp(src, lp, interp=BALANCE).out()

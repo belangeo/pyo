@@ -46,13 +46,13 @@ SR = sndinfo(IN_SND)[2]
 print("Up sampling the source file %i times..." % SR_FACTOR)
 upsamp(IN_SND, UP_SND, SR_FACTOR, SIZE)
 
-print("Apply distortion at a sampling rate of %i Hz." % (SR*SR_FACTOR))
+print("Apply distortion at a sampling rate of %i Hz." % (SR * SR_FACTOR))
 
 # Initialize the Server in offline mode, at the desired sampling rate.
-s = Server(sr=SR*SR_FACTOR, nchnls=1, duplex=0, audio="offline").boot()
+s = Server(sr=SR * SR_FACTOR, nchnls=1, duplex=0, audio="offline").boot()
 
 # Set the recording parameters.
-s.recordOptions(dur=DUR+.1, filename=PROC_SND, fileformat=0, sampletype=0)
+s.recordOptions(dur=DUR + 0.1, filename=PROC_SND, fileformat=0, sampletype=0)
 
 # Read the upsampled version of the source file.
 sf = SfPlayer(UP_SND, loop=False, interp=4, mul=0.7)

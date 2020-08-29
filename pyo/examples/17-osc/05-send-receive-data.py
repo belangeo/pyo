@@ -32,7 +32,7 @@ rezon = Resonx(source.mix(2), freq=freqs, q=2, stages=2).out()
 def getDataMessage(address, *args):
     if address == "/data/play":
         # Arguments are the sound to play as a string,
-        # speed and gain as floats. 
+        # speed and gain as floats.
         source.path = args[0]
         source.speed = args[1]
         source.mul = args[2]
@@ -41,14 +41,15 @@ def getDataMessage(address, *args):
         # Arguments are 4 frequencies as floats.
         freqs.value = list(args)
 
-# OSC data receiver. 
+
+# OSC data receiver.
 rec = OscDataReceive(port=9900, address="/data/*", function=getDataMessage)
 
 # ----- Sender 1 -----
- 
+
 # Builds and sends messages to load an play a new sound.
-sender1 = OscDataSend(types="sff", port=9900,
-                      address="/data/play", host="127.0.0.1")
+sender1 = OscDataSend(types="sff", port=9900, address="/data/play", host="127.0.0.1")
+
 
 def choose():
     "Chooses new soundfile values and starts playback."
@@ -61,18 +62,20 @@ def choose():
     # Adjusts the timing of the Pattern according to the playback duration.
     pat.time = sndinfo(soundfile)[1] / speed
 
+
 # Call the choose() function to set a new sound playback.
 pat = Pattern(choose).play()
 
 # ----- Sender 2 -----
 
 # Sends new frequencies to the resonator filters.
-sender2 = OscDataSend(types="ffff", port=9900,
-                      address="/data/rezo", host="127.0.0.1")
+sender2 = OscDataSend(types="ffff", port=9900, address="/data/rezo", host="127.0.0.1")
+
 
 def change():
     "Randomly chooses new frequencies and sends them to the filters."
     sender2.send([random.uniform(250, 4000) for i in range(4)])
+
 
 # Call the change() function every 2 seconds.
 pat2 = Pattern(change, time=2).play()

@@ -21,6 +21,7 @@ def set_osc_freqs(notes):
     osc.set(attr="freq", value=midiToHz(list(notes)), port=0.005)
     amp.play()
 
+
 # Initial chord.
 set_osc_freqs([60, 64, 67, 72])
 
@@ -28,11 +29,14 @@ set_osc_freqs([60, 64, 67, 72])
 # it waits to call its function. If we don't keep a reference to it,
 # it will be garbage-collected before doing its job.
 call = None
+
+
 def new_notes(notes):
-    global call     # Use a global variable.
-    amp.stop()      # Start the fadeout of the current notes...
+    global call  # Use a global variable.
+    amp.stop()  # Start the fadeout of the current notes...
     # ... then, 50 ms later, call the function that change the frequencies.
     call = CallAfter(set_osc_freqs, time=0.05, arg=notes)
+
 
 # The sequence of events. We use a tuple for the list of frequencies
 # because PyoObjects spread lists as argument over all their internal

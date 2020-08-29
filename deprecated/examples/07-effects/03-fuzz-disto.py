@@ -13,28 +13,27 @@ from pyo import *
 s = Server(duplex=0).boot()
 
 # The audio source (try with your own sounds).
-SOURCE = '../snds/flute.aif'
+SOURCE = "../snds/flute.aif"
 
 # Distortion parameters
-BP_CENTER_FREQ = 400        # Bandpass filter center frequency.
-BP_Q = 3                    # Bandpass Q (center_freq / Q = bandwidth).
-BOOST = 25                  # Pre-boost (linear gain).
-LP_CUTOFF_FREQ = 3000       # Lowpass filter cutoff frequency.
-BALANCE = 0.7               # Balance dry - wet.
+BP_CENTER_FREQ = 400  # Bandpass filter center frequency.
+BP_Q = 3  # Bandpass Q (center_freq / Q = bandwidth).
+BOOST = 25  # Pre-boost (linear gain).
+LP_CUTOFF_FREQ = 3000  # Lowpass filter cutoff frequency.
+BALANCE = 0.7  # Balance dry - wet.
 
 src = SfPlayer(SOURCE, loop=True).mix(2)
 
 # The transfert function is build in two phases.
 
 # 1. Transfert function for signal lower than 0.
-table = ExpTable([(0,-.25),(4096,0),(8192,0)], exp=30)
+table = ExpTable([(0, -0.25), (4096, 0), (8192, 0)], exp=30)
 
 # 2. Transfert function for signal higher than 0.
 # First, create an exponential function from 1 (at the beginning of the table)
 # to 0 (in the middle of the table).
-high_table = ExpTable([(0,1),(2000,1),(4096,0),(4598,0),(8192,0)],
-                      exp=5, inverse=False)
-# Then, reverse the table’s data in time, to put the shape in the second 
+high_table = ExpTable([(0, 1), (2000, 1), (4096, 0), (4598, 0), (8192, 0)], exp=5, inverse=False)
+# Then, reverse the table’s data in time, to put the shape in the second
 # part of the table.
 high_table.reverse()
 
@@ -52,7 +51,7 @@ boost = Sig(bp, mul=BOOST)
 sig = Lookup(table, boost)
 
 # Lowpass filter on the distorted signal.
-lp = ButLP(sig, freq=LP_CUTOFF_FREQ, mul=.7)
+lp = ButLP(sig, freq=LP_CUTOFF_FREQ, mul=0.7)
 
 # Balance between dry and wet signals.
 mixed = Interp(src, lp, interp=BALANCE)

@@ -29,6 +29,7 @@ s = Server().boot()
 # With type=2, the scale use octave.degree notation.
 scl = EventScale(root="C", scale="major", first=4, octaves=2, type=2)
 
+
 def change():
     "This function asks for a new scale based on new random values."
     scl.root = random.choice(["C", "D", "F"])
@@ -41,12 +42,19 @@ def change():
     # Start a new sequence of events.
     e.play()
 
+
 # This sequence produces 24 events and stop. We use the 'atend' argument
 # to set a function to call when the sequence finishes. This function
 # will change the scale used and start a new sequence of 24 notes.
-e = Events(degree = EventDrunk(scl, maxStep=-2, occurrences=24),
-           beat = 1/4., db = [-6, -12, -9, -12],
-           attack=0.001, decay=0.05, sustain=0.5, release=0.005,
-           atend = change).play()
+e = Events(
+    degree=EventDrunk(scl, maxStep=-2, occurrences=24),
+    beat=1 / 4.0,
+    db=[-6, -12, -9, -12],
+    attack=0.001,
+    decay=0.05,
+    sustain=0.5,
+    release=0.005,
+    atend=change,
+).play()
 
 s.gui(locals())

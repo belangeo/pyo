@@ -54,9 +54,11 @@ threshold.ctrl([SLMap(0.01, 0.5, "lin", "value", 0.5)], title="Duty Cycle")
 rectifier = Sig(1.0)
 rectifier.ctrl([SLMap(0.0, 1.0, "lin", "value", 1.0)], title="Rectifier")
 
+
 def change():
     "Sends new values to user variables in the expression."
     expr.setVar(["#thresh", "#gain"], [threshold.get(), rectifier.get()])
+
 
 # Calls the change() function every 20 ms to update the user variables.
 pat = Pattern(change, 0.025).play()

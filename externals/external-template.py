@@ -39,19 +39,20 @@ class Gain(PyoObject):
     >>> b = Gain(a, db=lfo).out()
 
     """
+
     # Do not forget "mul" and "add" attributes.
     def __init__(self, input, db=-3, mul=1, add=0):
         PyoObject.__init__(self, mul, add)
         # Keep trace of arguments (same name preceded by an underscore)
         self._input = input
         self._db = db
-        # Always use InputFader for the input sound. That allows crossfade on input changes.  
+        # Always use InputFader for the input sound. That allows crossfade on input changes.
         self._in_fader = InputFader(input)
         # Converts every arguments to lists (for multi-channel expansion).
         in_fader, db, mul, add, lmax = convertArgsToLists(self._in_fader, db, mul, add)
         # self._base_objs contains the list of XXX_base objects. Use "wrap" function to prevent "out of range" errors.
-        self._base_objs = [Gain_base(wrap(in_fader,i), wrap(db,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
-    
+        self._base_objs = [Gain_base(wrap(in_fader, i), wrap(db, i), wrap(mul, i), wrap(add, i)) for i in range(lmax)]
+
     # # setInput uses the "setInput" method of InputFader to set the crossfade time.
     def setInput(self, x, fadetime=0.05):
         """
@@ -80,32 +81,36 @@ class Gain(PyoObject):
             New `db` attribute.
 
         """
-        # Keep trace of the new value and convert argument to 
+        # Keep trace of the new value and convert argument to
         # list before the assignment to XXX_base objects.
         self._db = x
         x, lmax = convertArgsToLists(x)
-        [obj.setDB(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setDB(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     # ctrl method shows to slider window of the object.
     # Look the man page of SLMap for the object's configuration.
     # self._map_list is the default list of SLMap objects.
-    # This method must be defined only if the object uses slider controls. 
+    # This method must be defined only if the object uses slider controls.
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [SLMap(-120,18,"lin", "db", self._db), SLMapMul(self._mul)]
+        self._map_list = [SLMap(-120, 18, "lin", "db", self._db), SLMapMul(self._mul)]
         PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     # setter and getter properties. Each modifiable attribute returns its internal
     # state (self._attr) and must be linked with its setXXX method.
     @property
     def input(self):
-        """PyoObject. Input signal to process.""" 
+        """PyoObject. Input signal to process."""
         return self._input
+
     @input.setter
-    def input(self, x): self.setInput(x)
+    def input(self, x):
+        self.setInput(x)
 
     @property
     def db(self):
-        """float or PyoObject. Gain in decibels.""" 
+        """float or PyoObject. Gain in decibels."""
         return self._db
+
     @db.setter
-    def db(self, x): self.setDB(x)
+    def db(self, x):
+        self.setDB(x)

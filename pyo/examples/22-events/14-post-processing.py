@@ -28,16 +28,26 @@ s = Server().boot()
 class MyInstrument(EventInstrument):
     def __init__(self, **args):
         EventInstrument.__init__(self, **args)
-        self.output = LFO(freq=self.freq, sharp=[.5, .6], type=2, mul=self.env)
+        self.output = LFO(freq=self.freq, sharp=[0.5, 0.6], type=2, mul=self.env)
+
 
 # Some notes...
 scl = EventScale("C", "aeolian", 3, 3, type=2)
 
 # ... then the sequence of events. We are looking for a 2 streams (`outs`)
 # signal in the self.output attribute (`signal`) of the instrument.
-e = Events(instr=MyInstrument, degree=EventSlide(scl, segment=3, step=1),
-           beat = 1/4., db = -12, signal = "output", outs = 2,
-           attack = 0.001, decay = 0.05, sustain = 0.7, release = 0.05).play()
+e = Events(
+    instr=MyInstrument,
+    degree=EventSlide(scl, segment=3, step=1),
+    beat=1 / 4.0,
+    db=-12,
+    signal="output",
+    outs=2,
+    attack=0.001,
+    decay=0.05,
+    sustain=0.7,
+    release=0.05,
+).play()
 
 # We use the sig() method to add post-processing to the events's sound.
 chorus = Chorus(e.sig(), depth=1, feedback=0.25)

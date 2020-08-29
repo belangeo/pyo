@@ -16,7 +16,7 @@ MINFREQ = 250
 MAXFREQ = 5000
 
 # Play the drum lopp.
-sf = SfPlayer('../snds/drumloop.wav', loop=True)
+sf = SfPlayer("../snds/drumloop.wav", loop=True)
 
 # Follow the amplitude envelope of the input sound.
 follow = Follower(sf)

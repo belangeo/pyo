@@ -22,10 +22,10 @@ stvoice = voice.mix(2).out()
 
 # Play some music-box style tune!
 freqs = midiToHz([60, 62, 64, 65, 67, 69, 71, 72])
-choice = Choice(choice=freqs, freq=[1,2,3,4])
-port = Port(choice, risetime=.001, falltime=.001)
+choice = Choice(choice=freqs, freq=[1, 2, 3, 4])
+port = Port(choice, risetime=0.001, falltime=0.001)
 sines = SineLoop(port, feedback=0.05)
-music = SPan(sines, pan=[0, 1, .2, .8, .5], mul=.1).mix(2)
+music = SPan(sines, pan=[0, 1, 0.2, 0.8, 0.5], mul=0.1).mix(2)
 
 # Follow voice RMS amplitude.
 follow = Follower(voice, freq=10)

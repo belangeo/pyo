@@ -20,7 +20,7 @@ if sys.platform.startswith("win"):
 else:
     PYTHON_EXE = "python%d.%d" % (sys.version_info[0], sys.version_info[1])
 
-# Path of the python file to run in the subprocess. 
+# Path of the python file to run in the subprocess.
 script_path = os.path.join(os.path.expanduser("~"), "08_multiple_threads_process.py")
 
 # Thread's processing... Soundfile player + delay + reverb.
@@ -43,8 +43,9 @@ f.close()
 
 # Launch an interactive python (-i flag) in a subprocess and store a
 # reference to the standard input to pass message to the running process.
-pipe = subprocess.Popen(["%s -i %s" % (PYTHON_EXE, script_path)], shell=True,
-                        universal_newlines=True, stdin=subprocess.PIPE).stdin
+pipe = subprocess.Popen(
+    ["%s -i %s" % (PYTHON_EXE, script_path)], shell=True, universal_newlines=True, stdin=subprocess.PIPE,
+).stdin
 
 # Wait for the audio server to be ready.
 time.sleep(2)
@@ -52,7 +53,7 @@ time.sleep(2)
 # Send events to the subprocess.
 for i in range(20):
     # Randomly choose a sound (snd_1.aif to snd_6.aif).
-    snd = "../snds/snd_%d.aif" % random.randrange(1,7)
+    snd = "../snds/snd_%d.aif" % random.randrange(1, 7)
 
     # Replace the sound and start the playback.
     pipe.write("sf.path = '%s'\ndump = sf.play()\n" % snd)
@@ -60,7 +61,7 @@ for i in range(20):
     pipe.flush()
 
     # Wait some time before the next event.
-    time.sleep(random.uniform(.5, 1))
+    time.sleep(random.uniform(0.5, 1))
 
 # Stop the audio Server before exiting.
 pipe.write("s.stop()\ntime.sleep(0.25)\n")

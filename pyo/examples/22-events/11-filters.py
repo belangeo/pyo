@@ -46,16 +46,26 @@ scl = EventScale(root="C", scale="wholeTone", first=4, octaves=3)
 # Takes a Weibull distribution, scales the values between 48 and 84, rounds
 # them to the nearest integer, then snaps to the nearest value in the given
 # scale and uses the result as midi note if it's below 84.
-e = Events(midinote=EventCall(weibullvariate, 0.5, 0.5).scale(48, 84, 1)
-                                                       .round()
-                                                       .snap(scl)
-                                                       .iftrue("<", 84),
-           beat = 1/4., db = -6,
-           attack = 0.001, decay = 0.05, sustain = 0.5, release = 0.005).play()
+e = Events(
+    midinote=EventCall(weibullvariate, 0.5, 0.5).scale(48, 84, 1).round().snap(scl).iftrue("<", 84),
+    beat=1 / 4.0,
+    db=-6,
+    attack=0.001,
+    decay=0.05,
+    sustain=0.5,
+    release=0.005,
+).play()
 
 # Rescale values from a pink noise to the range 48 to 72 and snap to the given scale.
-e2 = Events(midinote = EventNoise(type=1).rescale(-1, 1, 48, 72, 1).snap(scl),
-            beat = 1/4., db = -6, transpo = 12,
-            attack = 0.001, decay = 0.05, sustain = 0.5, release = 0.005).play()
+e2 = Events(
+    midinote=EventNoise(type=1).rescale(-1, 1, 48, 72, 1).snap(scl),
+    beat=1 / 4.0,
+    db=-6,
+    transpo=12,
+    attack=0.001,
+    decay=0.05,
+    sustain=0.5,
+    release=0.005,
+).play()
 
 s.gui(locals())

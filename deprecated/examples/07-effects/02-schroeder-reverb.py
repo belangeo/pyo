@@ -23,7 +23,7 @@ soundfile = SndTable(SNDS_PATH + "/transparent.aif")
 src = Looper(soundfile, dur=2, xfade=0, mul=0.3)
 src2 = src.mix(2).out()
 
-# Four parallel stereo comb filters. The delay times are chosen 
+# Four parallel stereo comb filters. The delay times are chosen
 # to be as uncorrelated as possible. Prime numbers are a good
 # choice for delay lengths in samples.
 comb1 = Delay(src, delay=[0.0297, 0.0277], feedback=0.65)
@@ -35,10 +35,10 @@ combsum = src + comb1 + comb2 + comb3 + comb4
 
 # The sum of the original signal and the comb filters
 # feeds two serial allpass filters.
-all1 = Allpass(combsum, delay=[.005, .00507], feedback=0.75)
-all2 = Allpass(all1, delay=[.0117, .0123], feedback=0.61)
+all1 = Allpass(combsum, delay=[0.005, 0.00507], feedback=0.75)
+all2 = Allpass(all1, delay=[0.0117, 0.0123], feedback=0.61)
 
 # Brightness control.
-lowp = Tone(all2, freq=3500, mul=.25).out()
+lowp = Tone(all2, freq=3500, mul=0.25).out()
 
 s.gui(locals())

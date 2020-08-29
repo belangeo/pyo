@@ -10,6 +10,7 @@ from pyo import *
 
 RECORD = False
 
+
 class Main(multiprocessing.Process):
     def __init__(self):
         super(Main, self).__init__()
@@ -31,6 +32,7 @@ class Main(multiprocessing.Process):
         time.sleep(30)
         self.server.stop()
 
+
 class Proc(multiprocessing.Process):
     def __init__(self, voice, conn):
         super(Proc, self).__init__()
@@ -47,14 +49,13 @@ class Proc(multiprocessing.Process):
         name = "/audio-%d" % self.voice
         self.audiotable = SharedTable(name, create=True, size=bufsize)
 
-        onsets = random.sample([5,6,7,8,9], 2)
-        self.tab = CosTable([(0,0), (32,1), (512,0.5), (4096,0.5), (8191,0)])
-        self.ryt = Euclide(time=.125, taps=16, onsets=onsets, poly=1).play()
+        onsets = random.sample([5, 6, 7, 8, 9], 2)
+        self.tab = CosTable([(0, 0), (32, 1), (512, 0.5), (4096, 0.5), (8191, 0)])
+        self.ryt = Euclide(time=0.125, taps=16, onsets=onsets, poly=1).play()
         self.mid = TrigXnoiseMidi(self.ryt, dist=12, mrange=(60, 96))
-        self.frq = Snap(self.mid, choice=[0,2,3,5,7,8,10], scale=1)
-        self.amp = TrigEnv(self.ryt, table=self.tab, dur=self.ryt['dur'], 
-                           mul=self.ryt['amp'])
-        self.sig = SineLoop(freq=self.frq, feedback=0.08, mul=self.amp*0.3)
+        self.frq = Snap(self.mid, choice=[0, 2, 3, 5, 7, 8, 10], scale=1)
+        self.amp = TrigEnv(self.ryt, table=self.tab, dur=self.ryt["dur"], mul=self.ryt["amp"])
+        self.sig = SineLoop(freq=self.frq, feedback=0.08, mul=self.amp * 0.3)
         self.fil = TableFill(self.sig, self.audiotable)
 
         # Wait for an incoming signal before starting the server.
@@ -65,12 +66,14 @@ class Proc(multiprocessing.Process):
         time.sleep(30)
         self.server.stop()
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     signal, child = multiprocessing.Pipe()
     p1, p2 = Proc(1, child), Proc(2, child)
     main = Main()
-    p1.start(); p2.start();
-    time.sleep(.05)
+    p1.start()
+    p2.start()
+    time.sleep(0.05)
     main.start()
-    time.sleep(.05)
+    time.sleep(0.05)
     signal.send(1)
