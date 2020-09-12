@@ -25,7 +25,7 @@ s = Server().boot()
 amp = SigTo(value=0.3, time=2.0, init=0.0)
 
 # Pick a new value four times per second.
-pick = Choice([200,250,300,350,400], freq=4)
+pick = Choice([200, 250, 300, 350, 400], freq=4)
 
 # Print the chosen frequency
 pp = Print(pick, method=1, message="Frequency")

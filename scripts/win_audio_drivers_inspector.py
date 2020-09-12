@@ -17,7 +17,7 @@ else:
 
 print("* Checking for any available audio input... *")
 
-input_names, input_indexes  = pa_get_input_devices()
+input_names, input_indexes = pa_get_input_devices()
 
 print("* Checking audio output hosts... *")
 

@@ -31,11 +31,11 @@ bass = RCOsc(freq=blfo, mul=amp).out()
 
 # Mid voice
 mlfo = Sine(freq=[0.18, 0.19]).range(0.24, 0.26)
-mid = FM(carrier=1600, ratio=mlfo, index=5, mul=amp*0.3).out()
+mid = FM(carrier=1600, ratio=mlfo, index=5, mul=amp * 0.3).out()
 
 # High voice
 hlfo = Sine(freq=[0.1, 0.11, 0.12, 0.13]).range(7000, 8000)
-high = Sine(freq=hlfo, mul=amp*0.1).out()
+high = Sine(freq=hlfo, mul=amp * 0.1).out()
 
 # Creates the recorders
 brec = Record(bass, filename=bname, chnls=2, fileformat=0, sampletype=1)

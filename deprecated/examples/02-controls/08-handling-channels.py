@@ -27,8 +27,8 @@ freq = 100
 high = 20
 
 # Generates lists for frequencies and amplitudes
-harms = [freq * i for i in range(1, high) if i%2 == 1]
-amps = [0.33 / i for i in range(1, high) if i%2 == 1]
+harms = [freq * i for i in range(1, high) if i % 2 == 1]
+amps = [0.33 / i for i in range(1, high) if i % 2 == 1]
 
 # Creates a square wave by additive synthesis.
 a = Sine(freq=harms, mul=amps)

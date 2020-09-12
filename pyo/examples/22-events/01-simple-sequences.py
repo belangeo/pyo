@@ -41,9 +41,9 @@ s = Server().boot()
 s.amp = 0.25
 
 # Simple infinite sequence.
-e = Events(freq = EventSeq([250, 300, 350, 400])).play()
+e = Events(freq=EventSeq([250, 300, 350, 400])).play()
 
 # This will play the same note forever.
-e3 = Events(freq = 200).play()
+e3 = Events(freq=200).play()
 
 s.gui(locals())

@@ -18,17 +18,17 @@ amp = Fader(fadein=0.25, mul=0.5).play()
 src = PinkNoise(amp).mix(2)
 
 # Flanger parameters                        == unit ==
-middelay = 0.005                            # seconds
+middelay = 0.005  # seconds
 
-depth = Sig(0.99)                           # 0 --> 1
+depth = Sig(0.99)  # 0 --> 1
 depth.ctrl(title="Modulation Depth")
-lfospeed = Sig(0.2)                         # Hertz
+lfospeed = Sig(0.2)  # Hertz
 lfospeed.ctrl(title="LFO Frequency in Hz")
-feedback = Sig(0.5, mul=0.95)               # 0 --> 1
+feedback = Sig(0.5, mul=0.95)  # 0 --> 1
 feedback.ctrl(title="Feedback")
 
 # LFO with adjusted output range to control the delay time in seconds.
-lfo = Sine(freq=lfospeed, mul=middelay*depth, add=middelay)
+lfo = Sine(freq=lfospeed, mul=middelay * depth, add=middelay)
 
 # Dynamically delayed signal. The source passes through a DCBlock
 # to ensure there is no DC offset in the signal (with feedback, DC
@@ -37,6 +37,6 @@ flg = Delay(DCBlock(src), delay=lfo, feedback=feedback)
 
 # Mix the original source with its delayed version.
 # Compress the mix to normalize the output signal.
-cmp = Compress(src+flg, thresh=-20, ratio=4).out()
+cmp = Compress(src + flg, thresh=-20, ratio=4).out()
 
 s.gui(locals())

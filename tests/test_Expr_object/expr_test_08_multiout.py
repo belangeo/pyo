@@ -32,7 +32,7 @@ if TEST == 1:
 
 """
     ex = Expr(Sig(0), t, outs=3, initout=1.0, mul=[0.044, 0.0328, 0.0]).out()
-    
+
 ex.editor()
 sc = Scope(ex)
 sp = Spectrum(ex)

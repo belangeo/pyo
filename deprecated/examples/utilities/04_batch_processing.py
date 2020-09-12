@@ -26,16 +26,24 @@ for sound in sounds:
     path = os.path.join(folder_path, sound)
     info = sndinfo(path)
     dur, sr, chnls = info[1], info[2], info[3]
-    fformat = ['WAVE', 'AIFF', 'AU', 'RAW', 'SD2', 'FLAC', 'CAF', 'OGG'].index(info[4])
-    samptype = ['16 bit int', '24 bit int', '32 bit int', '32 bit float',
-                '64 bits float', 'U-Law encoded', 'A-Law encoded'].index(info[5])
+    fformat = ["WAVE", "AIFF", "AU", "RAW", "SD2", "FLAC", "CAF", "OGG"].index(info[4])
+    samptype = [
+        "16 bit int",
+        "24 bit int",
+        "32 bit int",
+        "32 bit float",
+        "64 bits float",
+        "U-Law encoded",
+        "A-Law encoded",
+    ].index(info[5])
 
     # set server parameters
     s.setSamplingRate(sr)
     s.setNchnls(chnls)
     s.boot()
-    s.recordOptions(dur=dur, filename=os.path.join(output_folder, sound),
-                    fileformat=fformat, sampletype=samptype)
+    s.recordOptions(
+        dur=dur, filename=os.path.join(output_folder, sound), fileformat=fformat, sampletype=samptype,
+    )
 
     # processing
     sf = SfPlayer(path)

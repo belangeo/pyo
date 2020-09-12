@@ -8,15 +8,15 @@ from pyo import *
 
 s = Server(duplex=0).boot()
 
-snd1 = SfPlayer("../snds/baseballmajeur_m.aif", loop=True, mul=.3).mix(2)
-lfos = Sine(freq=[.05,.04], mul=.05, add=[1,.5])
-snd2 = FM(carrier=[75,100.03,125.5,149], ratio=lfos, index=20, mul=.1).mix(2)
+snd1 = SfPlayer("../snds/baseballmajeur_m.aif", loop=True, mul=0.3).mix(2)
+lfos = Sine(freq=[0.05, 0.04], mul=0.05, add=[1, 0.5])
+snd2 = FM(carrier=[75, 100.03, 125.5, 149], ratio=lfos, index=20, mul=0.1).mix(2)
 
 size = 1024
 olaps = 4
 
-inter = Sig(1.)
-inter.ctrl([SLMap(0, 2, "lin", "value", 1.)], title="Morphing (0 = snd1, 1 = morph, 2 = snd2)")
+inter = Sig(1.0)
+inter.ctrl([SLMap(0, 2, "lin", "value", 1.0)], title="Morphing (0 = snd1, 1 = morph, 2 = snd2)")
 
 fin1 = FFT(snd1, size=size, overlaps=olaps)
 fin2 = FFT(snd2, size=size, overlaps=olaps)
@@ -39,9 +39,11 @@ car = PolToCar(mag, pha)
 fout = IFFT(car["real"], car["imag"], size=size, overlaps=olaps)
 ffout = fout.mix(2).out()
 
+
 def siz(size=1024):
     fin1.size = size
     fin2.size = size
     fout.size = size
+
 
 s.gui(locals())

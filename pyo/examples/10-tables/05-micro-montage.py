@@ -40,25 +40,27 @@ loop = Looper(table, dur=table.getDur(), xfade=5, mul=fade)
 # Adds some reverb and send the signal to the output.
 rvrb = STRev(loop, inpos=0.50, revtime=1.5, bal=0.15).out()
 
+
 def addsnd():
     # Randomly choose a new starting point and a new duration.
     start = random.uniform(0, snddur * 0.7)
-    duration = random.uniform(.1, .3)
+    duration = random.uniform(0.1, 0.3)
 
     # Randomly choose an insert point in the sound table and a croosfade time.
-    pos = random.uniform(0.05, table.getDur()-0.5)
-    cross = random.uniform(0.04, duration/2)
+    pos = random.uniform(0.05, table.getDur() - 0.5)
+    cross = random.uniform(0.04, duration / 2)
 
     # Insert the new chunk in the current sound table.
-    table.insert(path, pos=pos, crossfade=cross, start=start, stop=start+duration)
+    table.insert(path, pos=pos, crossfade=cross, start=start, stop=start + duration)
+
 
 def delgen():
     # Randomly choose a new starting point and a new duration.
     start = random.uniform(0, snddur * 0.7)
-    duration = random.uniform(.1, .3)
+    duration = random.uniform(0.1, 0.3)
 
     # Load the chosen segment in the sound table.
-    table.setSound(path, start=start, stop=start+duration)
+    table.setSound(path, start=start, stop=start + duration)
 
     # Add 10 more chunks.
     for i in range(10):
@@ -71,13 +73,16 @@ def delgen():
     # Activate the envelope fadein.
     fade.play()
 
+
 # CallAfter calls a function after a given delay time.
 caller = CallAfter(function=delgen, time=0.005).stop()
 
+
 def gen():
     "Create a new mix in the sound table."
-    fade.stop()     # Launch the fadeout...
-    caller.play()   # ... then call the delayed generation.
+    fade.stop()  # Launch the fadeout...
+    caller.play()  # ... then call the delayed generation.
+
 
 # Generate the intial table.
 gen()

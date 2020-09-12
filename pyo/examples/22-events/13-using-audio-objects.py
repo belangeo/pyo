@@ -28,17 +28,23 @@ segment1 = RandInt(max=6, freq=0.5)
 # Random on the distance between segments starting points.
 step1 = RandInt(max=6, freq=0.75, add=-3)
 
-e1 = Events(midinote=EventSlide(scl, segment1, step1),
-            beat=1/4., db=[-12, -18, -18], envelope=env,
-            durmul=durmul1).play()
+e1 = Events(
+    midinote=EventSlide(scl, segment1, step1), beat=1 / 4.0, db=[-12, -18, -18], envelope=env, durmul=durmul1,
+).play()
 
 # Out-of-phase LFO on the duration multiplier.
 durmul2 = Sine(freq=0.1, phase=0.5).range(0.5, 1.5)
 segment2 = RandInt(max=6, freq=0.5)
 step2 = RandInt(max=6, freq=0.75, add=-3)
 
-e2 = Events(midinote = EventSlide(scl, segment2, step2),
-            db=[-9, -15, -15], envelope=env, durmul=durmul2,
-            beat=1/4., bpm=60, transpo=-12).play()
+e2 = Events(
+    midinote=EventSlide(scl, segment2, step2),
+    db=[-9, -15, -15],
+    envelope=env,
+    durmul=durmul2,
+    beat=1 / 4.0,
+    bpm=60,
+    transpo=-12,
+).play()
 
 s.gui(locals())

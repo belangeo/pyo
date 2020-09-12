@@ -6,8 +6,8 @@ Simple scope example.
 """
 from pyo import *
 
-class Scope:
 
+class Scope:
     def __init__(self, input, length=0.05):
         self.input = input
         self.table = NewTable(length=length, chnls=len(input))
@@ -17,11 +17,14 @@ class Scope:
         self.trf = TrigFunc(self.trig, function=self.update)
 
     def start(self, x):
-        if x: self.trig.play()
-        else: self.trig.stop()
+        if x:
+            self.trig.play()
+        else:
+            self.trig.stop()
 
     def update(self):
         self.table.refreshView()
+
 
 s = Server(duplex=1).boot()
 

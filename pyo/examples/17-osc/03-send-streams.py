@@ -29,8 +29,11 @@ dur = Sig(0.5)
 dur.ctrl(title="Grain duration")
 
 # Takes audio signals and sends their current value as OSC messages every buffer size.
-send = OscSend(input=[dens, pos, pit, dur], port=9000,
-               address=['/density', '/position','/pitch_rand', '/duration'],
-               host='127.0.0.1')
+send = OscSend(
+    input=[dens, pos, pit, dur],
+    port=9000,
+    address=["/density", "/position", "/pitch_rand", "/duration"],
+    host="127.0.0.1",
+)
 
 s.gui(locals())

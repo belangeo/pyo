@@ -64,7 +64,7 @@ elif TEST == 3:
 
 """
     ex = Expr(Sig(0), t).out()
-    
+
 ex.editor()
 sc = Scope(ex)
 sp = Spectrum(ex)

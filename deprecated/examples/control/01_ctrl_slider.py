@@ -13,7 +13,7 @@ from pyo import *
 
 s = Server(duplex=0).boot()
 
-a = FM(carrier=150, ratio=.4958, index=10, mul=.2)
+a = FM(carrier=150, ratio=0.4958, index=10, mul=0.2)
 a.ctrl(title="Frequency modulation controls")
 
 b = a.mix(2)

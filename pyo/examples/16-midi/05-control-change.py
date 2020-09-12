@@ -12,6 +12,7 @@ The second is a continuous controller used to change the cutoff frequency
 from pyo import *
 from random import random
 
+
 class Synth:
     # Added some arguments that will be controlled with MIDI controllers.
     def __init__(self, transpo=1, hfdamp=5000, lfofreq=0.2, mul=1):
@@ -21,14 +22,13 @@ class Synth:
         self.note = Notein(poly=10, scale=1, first=0, last=127)
 
         # Handle pitch and velocity (Notein outputs normalized amplitude (0 -> 1)).
-        self.pit = self.note['pitch'] * self.transpo
-        self.amp = MidiAdsr(self.note['velocity'], attack=0.001, 
-                            decay=.1, sustain=.7, release=1, mul=.1)
+        self.pit = self.note["pitch"] * self.transpo
+        self.amp = MidiAdsr(self.note["velocity"], attack=0.001, decay=0.1, sustain=0.7, release=1, mul=0.1,)
 
         # Anti-aliased stereo square waves, mixed from 10 streams to 1 stream
         # to avoid channel alternation on new notes.
         self.osc1 = LFO(self.pit, sharp=0.5, type=2, mul=self.amp).mix(1)
-        self.osc2 = LFO(self.pit*0.997, sharp=0.5, type=2, mul=self.amp).mix(1)
+        self.osc2 = LFO(self.pit * 0.997, sharp=0.5, type=2, mul=self.amp).mix(1)
 
         # Stereo mix.
         self.mix = Mix([self.osc1, self.osc2], voices=2)
@@ -49,15 +49,16 @@ class Synth:
         "Returns the synth's signal for future processing."
         return self.notch
 
+
 s = Server()
-s.setMidiInputDevice(99) # Open all input devices.
+s.setMidiInputDevice(99)  # Open all input devices.
 s.boot()
 
 ### Setup the MIDI controllers.
 
 # Bendin can output MIDI note values or transposition factors (scale=1).
 # A value of 2 to `brange` argument means that the bending range will be
-# 2 semitones above and below the current note. 
+# 2 semitones above and below the current note.
 transpo = Bendin(brange=2, scale=1)
 
 # High frequency damping mapped to controller number 1.
@@ -71,6 +72,6 @@ lfofreq = Midictl(ctlnumber=2, minscale=0.1, maxscale=8, init=0.2)
 a1 = Synth(transpo, hfdamp, lfofreq)
 
 # Send the synth's signal into a reverb processor.
-rev = STRev(a1.sig(), inpos=[0.1, 0.9], revtime=2, cutoff=4000, bal=.15).out()
+rev = STRev(a1.sig(), inpos=[0.1, 0.9], revtime=2, cutoff=4000, bal=0.15).out()
 
 s.gui(locals())

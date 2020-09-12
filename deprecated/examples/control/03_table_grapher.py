@@ -23,8 +23,8 @@ s = Server(duplex=0).boot()
 NOTE_DUR = 2
 
 # Tables intialization
-amp_table = CosTable([(0,0), (100,1), (1024,.3), (8192,0)])
-ind_table = LinTable([(0,20), (1024,3), (8192,0)])
+amp_table = CosTable([(0, 0), (100, 1), (1024, 0.3), (8192, 0)])
+ind_table = LinTable([(0, 20), (1024, 3), (8192, 0)])
 
 # call the graph() method of each table
 amp_table.graph(title="Amplitude envelope")
@@ -36,12 +36,12 @@ met = Metro(NOTE_DUR).play()
 
 # Pick a random frequency
 note = TrigXnoiseMidi(met, dist=12, scale=0, mrange=(36, 60))
-freq = Snap(note, choice=[0,2,4,5,7,9,11], scale=1)
+freq = Snap(note, choice=[0, 2, 4, 5, 7, 9, 11], scale=1)
 
 # Read the tables
-amp = TrigEnv(met, table=amp_table, dur=NOTE_DUR, mul=.3)
+amp = TrigEnv(met, table=amp_table, dur=NOTE_DUR, mul=0.3)
 ind = TrigEnv(met, table=ind_table, dur=NOTE_DUR)
 
-fm = FM(carrier=freq, ratio=[.997, 1.002], index=ind, mul=amp).out()
+fm = FM(carrier=freq, ratio=[0.997, 1.002], index=ind, mul=amp).out()
 
 s.gui(locals())

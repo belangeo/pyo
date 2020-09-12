@@ -19,7 +19,7 @@ from random import random
 s = Server().boot()
 
 # First sound - dynamic spectrum.
-spktrm = SfPlayer("../snds/baseballmajeur_m.aif", speed=[1,1.001], loop=True)
+spktrm = SfPlayer("../snds/baseballmajeur_m.aif", speed=[1, 1.001], loop=True)
 
 # Second sound - rich and stable spectrum.
 excite = Noise(0.2)

@@ -18,10 +18,10 @@ You should have received a copy of the GNU Lesser General Public
 License along with pyo.  If not, see <http://www.gnu.org/licenses/>.
 """
 
-# At first run, found and symlink system's libasound and libjack into 
+# At first run, found and symlink system's libasound and libjack into
 # ~/.pyo/X.X_ARCH/libs.
-# At runtime, dlopen them before running any other code so that pyo 
-# use these libraries instead of those embedded in the wheels (alsa 
+# At runtime, dlopen them before running any other code so that pyo
+# use these libraries instead of those embedded in the wheels (alsa
 # and jack just don't work with embedded ones).
 
 import os
@@ -57,11 +57,17 @@ need_symlinks = False
 if not os.path.islink(libasound):
     need_symlinks = True
 
-if need_symlinks: 
+if need_symlinks:
     libasoundfound = libjackfound = False
     libasoundpath = libjackpath = ""
-    folders = ["/usr/local/lib", "/usr/local/lib%d" % bitdepth, "/usr/lib",
-               "/usr/lib%d" % bitdepth, "/lib", "/lib%d" % bitdepth]
+    folders = [
+        "/usr/local/lib",
+        "/usr/local/lib%d" % bitdepth,
+        "/usr/lib",
+        "/usr/lib%d" % bitdepth,
+        "/lib",
+        "/lib%d" % bitdepth,
+    ]
     for path in folders:
         for root, dirs, files in os.walk(path):
             for f in files:
@@ -84,8 +90,8 @@ if need_symlinks:
         os.symlink(libjackpath, libjack)
 
 # Now, we preload the libraries, before importing _pyo.
-if (withlibasound):
+if withlibasound:
     libasound = ctypes.CDLL(libasound, mode=ctypes.RTLD_GLOBAL)
 
-if (withlibjack and os.path.islink(libjack)):
+if withlibjack and os.path.islink(libjack):
     libjack = ctypes.CDLL(libjack, mode=ctypes.RTLD_GLOBAL)

@@ -25,7 +25,7 @@ path = os.path.join(os.path.expanduser("~"), "Desktop", "synth.wav")
 t = NewTable(length=2, chnls=2, feedback=0.5)
 
 # Retrieves the stereo input
-inp = Input([0,1])
+inp = Input([0, 1])
 
 # Table recorder. Call rec.play() to start a recording, it stops
 # when the table is full. Call it multiple times to overdub.

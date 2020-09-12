@@ -12,7 +12,7 @@ from pyo import *
 s = Server().boot()
 
 # White noise generator
-n = Noise(.5)
+n = Noise(0.5)
 
 # Common cutoff frequency control
 freq = Sig(1000)

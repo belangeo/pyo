@@ -36,10 +36,10 @@ exp = Expand(src, downthresh=-32, upthresh=-12, ratio=3, risetime=0.005, falltim
 gat = Gate(src, thresh=-40, risetime=0.005, falltime=0.05)
 
 # These are labels that are shown as the scope window title.
-labels =    ["Original", "Compressed", "Expanded", "Gated"]
+labels = ["Original", "Compressed", "Expanded", "Gated"]
 
 # List of signals to choose from.
-signals =   [src, cmp, exp, gat]
+signals = [src, cmp, exp, gat]
 
 # Selector is used here to choose which signal to listen to.
 output = Selector(signals)
@@ -54,12 +54,15 @@ sc = Scope(output, wintitle="=== Original ===")
 # and change the selection of the Selector object.
 num_of_sigs = len(signals)
 c = 1
+
+
 def endOfLoop():
     global c
     output.voice = c
     if sc.viewFrame is not None:
         sc.viewFrame.SetTitle("=== %s ===" % labels[c])
     c = (c + 1) % num_of_sigs
+
 
 # endOfLoop is called every time the SfPlayer reaches the end of the sound.
 tf = TrigFunc(src["trig"], endOfLoop)

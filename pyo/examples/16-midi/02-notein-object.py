@@ -8,7 +8,7 @@ processes with events received from a MIDI keyboard (virtual or not).
 from pyo import *
 
 s = Server()
-s.setMidiInputDevice(99) # Open all input devices.
+s.setMidiInputDevice(99)  # Open all input devices.
 s.boot()
 
 # Default arguments of the Notein object.
@@ -22,7 +22,7 @@ s.boot()
 # - channel is the MIDI channel this object will listen to. 0 means all
 #   channels.
 # - The mul argument affects velocities, which are already normalized
-#   between 0 and 1. 
+#   between 0 and 1.
 notes = Notein(poly=10, scale=0, first=0, last=127, channel=0, mul=1)
 
 # User can show a keyboard widget to supply MIDI events.
@@ -38,7 +38,7 @@ amps = Port(notes["velocity"], risetime=0.005, falltime=0.5, mul=0.1)
 
 # Creates two groups of oscillators (10 per channel), slightly detuned.
 sigL = RCOsc(freq=freqs, sharp=0.5, mul=amps)
-sigR = RCOsc(freq=freqs*1.003, sharp=0.5, mul=amps)
+sigR = RCOsc(freq=freqs * 1.003, sharp=0.5, mul=amps)
 
 # Mixes the 10 voices per channel to a single stream and send the
 # signals to the audio output.
@@ -55,11 +55,13 @@ def noteon(voice):
     vel = int(notes["velocity"].get(all=True)[voice] * 127)
     print("Noteon: voice = %d, pitch = %d, velocity = %d" % (voice, pit, vel))
 
+
 def noteoff(voice):
     "Print pitch and velocity for noteoff event."
     pit = int(notes["pitch"].get(all=True)[voice])
     vel = int(notes["velocity"].get(all=True)[voice] * 127)
     print("Noteoff: voice = %d, pitch = %d, velocity = %d" % (voice, pit, vel))
+
 
 # TrigFunc calls a function when it receives a trigger. Because notes["trigon"]
 # contains 10 streams, there will be 10 caller, each one with its own argument,

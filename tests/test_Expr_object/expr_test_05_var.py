@@ -20,7 +20,7 @@ if TEST == 0:
    0.2)
 
 """
-    lfo = Sine([.1,.15], mul=300, add=700)
+    lfo = Sine([0.1, 0.15], mul=300, add=700)
     ex = Expr(Sig(0), t).out()
 
     def change():

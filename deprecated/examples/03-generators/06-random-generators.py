@@ -18,11 +18,11 @@ s = Server().boot()
 # Two streams of midi pitches chosen randomly in a predefined list.
 # The argument `choice` of Choice object can be a list of lists to
 # list-expansion.
-mid = Choice(choice=[60,62,63,65,67,69,71,72], freq=[2,3])
+mid = Choice(choice=[60, 62, 63, 65, 67, 69, 71, 72], freq=[2, 3])
 
 # Two small jitters applied on frequency streams.
 # Randi interpolates between old and new values.
-jit = Randi(min=0.993, max=1.007, freq=[4.3,3.5])
+jit = Randi(min=0.993, max=1.007, freq=[4.3, 3.5])
 
 # Converts midi pitches to frequencies and applies the jitters.
 fr = MToF(mid, mul=jit)

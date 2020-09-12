@@ -10,20 +10,22 @@ from pyo import *
 
 s = Server(duplex=1).boot()
 
-buffer_length = 1 # seconds
+buffer_length = 1  # seconds
 
 objs = []
+
 
 def cp():
     # make a copy of the table.
     t2 = t.copy()
     # start looping the copied table.
-    f = Fader(fadein=.1, mul=0.5).play()
-    pl = Osc(t2, freq=1./buffer_length, interp=4, mul=f).out()
+    f = Fader(fadein=0.1, mul=0.5).play()
+    pl = Osc(t2, freq=1.0 / buffer_length, interp=4, mul=f).out()
     # save a references to these audio objects to keep them alive.
     objs.extend([t2, f, pl])
 
-mic = Input([0,1])
+
+mic = Input([0, 1])
 
 # the table for the recording.
 t = NewTable(length=buffer_length, chnls=2)

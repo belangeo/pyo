@@ -55,6 +55,7 @@ class UpSampFM:
             for details.
         
     """
+
     def __init__(self, fmindex=20, upfactor=8, filtmode=32):
 
         # Convert the modulation index argument to audio signal.
@@ -88,10 +89,10 @@ class UpSampFM:
     def sig(self):
         return self.output
 
+
 # Control for the modulation index parameter of the synthesis.
 index = Sig(20)
-index.ctrl([SLMap(5, 50, "lin", "value", 20)],
-           title="Modulation Index")
+index.ctrl([SLMap(5, 50, "lin", "value", 20)], title="Modulation Index")
 
 # FM synthesis at current sampling rate.
 fm1 = FM(carrier=492, ratio=2, index=index)
@@ -101,8 +102,7 @@ fm2 = UpSampFM(index)
 
 # Interpolator to compare the two processes.
 output = Interp(fm1, fm2.sig(), 0, mul=0.5).out()
-output.ctrl([SLMap(0, 1, "lin", "interp", 0)],
-            title="Up Sampling: without <=> with")
+output.ctrl([SLMap(0, 1, "lin", "interp", 0)], title="Up Sampling: without <=> with")
 
 sp = Spectrum(output)
 

@@ -55,6 +55,7 @@ class UpSampDisto:
             for details.
         
     """
+
     def __init__(self, input, drive=0.5, upfactor=8, filtmode=32):
         # The InputFader object lets change its input signal without clicks.
         self.input = InputFader(input)
@@ -69,7 +70,7 @@ class UpSampDisto:
         server.beginResamplingBlock(upfactor)
 
         # Resample the audio signals. Because the drive signal is only a
-        # control signal, a linear interpolation is enough. The input 
+        # control signal, a linear interpolation is enough. The input
         # signal uses a much better filter to eliminate aliasing artifacts.
         self.inputUp = Resample(self.input, mode=filtmode)
         self.driveUp = Resample(self.drive, mode=1)
@@ -98,6 +99,7 @@ class UpSampDisto:
     def sig(self):
         return self.output
 
+
 ### Usage example ###
 s = Server().boot()
 
@@ -107,8 +109,7 @@ src1.ctrl([SLMapFreq(722)], title="Sine frequency")
 src2 = SfPlayer("../snds/flute.aif", loop=True)
 # Input source interpolation.
 src = Interp(src1, src2, 0)
-src.ctrl([SLMap(0, 1, "lin", "interp", 0)],
-         title="Source: sine <=> flute")
+src.ctrl([SLMap(0, 1, "lin", "interp", 0)], title="Source: sine <=> flute")
 
 # Control for the drive parameter of the distortion.
 drv = Sig(0)
@@ -122,8 +123,7 @@ updist = UpSampDisto(src, drv)
 
 # Interpolator to compare the two processes.
 output = Interp(dist, updist.sig(), 0, mul=0.5).out()
-output.ctrl([SLMap(0, 1, "lin", "interp", 0)],
-            title="Up Sampling: without <=> with")
+output.ctrl([SLMap(0, 1, "lin", "interp", 0)], title="Up Sampling: without <=> with")
 
 sp = Spectrum(output)
 

@@ -15,11 +15,11 @@ import random
 
 s = Server().boot()
 
-STUTTER = 0.025 # Delta time added each time the playback restart. 
-FADETIME = 0.01 # Fadein-fadeout time to avoid clicks.
+STUTTER = 0.025  # Delta time added each time the playback restart.
+FADETIME = 0.01  # Fadein-fadeout time to avoid clicks.
 
-# Load a sound in the table and get its duration. 
-table = SndTable(SNDS_PATH+"/transparent.aif")
+# Load a sound in the table and get its duration.
+table = SndTable(SNDS_PATH + "/transparent.aif")
 tabdur = table.getDur()
 
 # Intialize the line used to read the table.
@@ -36,12 +36,13 @@ read = Pointer(table=table, index=line, mul=amp).mix(2).out()
 start = tabdur - STUTTER
 dur = STUTTER
 
+
 def go():
     "Read a segment of a sound table and set the duration before the next iteration."
     global start, dur
 
     # Create the pointer segment (from normalized start position to the end of the table)
-    line.list = [(0, start/tabdur), (dur, 1)]
+    line.list = [(0, start / tabdur), (dur, 1)]
 
     # Assign duration to the envelope and the function caller (Pattern).
     amp.dur = pat.time = dur
@@ -58,6 +59,7 @@ def go():
     # Activate the pointer's index line and the amplitude envelope.
     line.play()
     amp.play()
+
 
 # Call go() each time the playback reaches the end of the file
 pat = Pattern(function=go, time=STUTTER).play()

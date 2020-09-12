@@ -31,7 +31,7 @@ s = Server().boot()
 freq = 187.5
 
 # LFO applied to the `sharp` attribute
-lfo = Sine(.2, mul=0.5, add=0.5)
+lfo = Sine(0.2, mul=0.5, add=0.5)
 
 # Various band-limited waveforms
 osc = LFO(freq=freq, sharp=lfo, mul=0.4).out()

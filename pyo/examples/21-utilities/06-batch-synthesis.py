@@ -36,16 +36,15 @@ for i in range(NUM):
     noteFreq = midiToHz(note)
 
     # Set recording parameters.
-    s.recordOptions(dur=dur + .1, 
-                    filename=os.path.join(output_folder, "file_%02d.wav" % note),
-                    fileformat=0,
-                    sampletype=0)
+    s.recordOptions(
+        dur=dur + 0.1, filename=os.path.join(output_folder, "file_%02d.wav" % note), fileformat=0, sampletype=0,
+    )
 
     # Synthesis, an exponential envelope modulating a slightly out-of-tune stereo oscillator.
     env = Adsr(attack=0.005, decay=0.15, sustain=0.7, release=1.7, dur=dur).play()
     qenv = Pow(env, 4, mul=0.8)
     osc1 = SineLoop(freq=noteFreq, feedback=0.075, mul=qenv).out()
-    osc2 = SineLoop(freq=noteFreq*1.01, feedback=0.075, mul=qenv).out(1)
+    osc2 = SineLoop(freq=noteFreq * 1.01, feedback=0.075, mul=qenv).out(1)
 
     # Start thw rendering.
     s.start()
@@ -54,4 +53,3 @@ for i in range(NUM):
     s.shutdown()
 
 print("Batch processing done!")
-

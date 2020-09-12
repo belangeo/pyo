@@ -18,6 +18,7 @@ duration {float}: Start time of the event, in seconds.
 # How to automatically use globals() from the __main__ module, I don't
 # want to ask the user to pass globals() to have access to instrument classes.
 
+
 class EventParser:
     def __init__(self, server, score="", globals=None):
         self.server = server
@@ -41,8 +42,8 @@ class EventParser:
             instr, args = line.split("=>")
             instr = instr.strip()
             args, kwargs = self.extractKwArgs(args)
-            args = [float(x) for x in args.split()] # should also eval variable
-                                                    # names, not just numbers
+            args = [float(x) for x in args.split()]  # should also eval variable
+            # names, not just numbers
             if instr not in self._instruments:
                 self._instruments[instr] = [{"args": args, "kwargs": kwargs}]
             else:
@@ -57,7 +58,6 @@ class EventParser:
                 if not event["kwargs"]:
                     self._playing.append(self.globals[instr](*event["args"][1:]))
                 else:
-                    self._playing.append(self.globals[instr](*event["args"][1:], 
-                                                             **event["kwargs"]))
+                    self._playing.append(self.globals[instr](*event["args"][1:], **event["kwargs"]))
         self.server.setGlobalDel(0)
         self.server.setGlobalDur(0)

@@ -28,9 +28,13 @@ from random import uniform
 s = Server(duplex=0).boot()
 
 # 10 frequency modulations with random parameters.
-a = FM(carrier=[uniform(197, 203) for i in range(10)],
-       ratio=[uniform(0.99, 1.01) for i in range(10)],
-       index=[uniform(5, 10) for i in range(10)], mul=.05).out()
+a = FM(
+    carrier=[uniform(197, 203) for i in range(10)],
+    ratio=[uniform(0.99, 1.01) for i in range(10)],
+    index=[uniform(5, 10) for i in range(10)],
+    mul=0.05,
+).out()
+
 
 def go():
     "Linear ramps between the current values and the new ones in 9.5 sec."
@@ -40,11 +44,13 @@ def go():
     # Call the reset() function when portamentos are done.
     a.set("index", [uniform(10, 15) for i in range(10)], 9.5, callback=reset)
 
+
 def reset():
     "Instantaneous jumps to new values."
     a.carrier = [uniform(197, 203) for i in range(10)]
     a.ratio = [uniform(0.99, 1.01) for i in range(10)]
     a.index = [uniform(5, 10) for i in range(10)]
+
 
 # Call the go() function every 10 seconds.
 pat = Pattern(go, time=10).play()
