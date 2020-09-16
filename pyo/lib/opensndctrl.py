@@ -39,9 +39,11 @@ License along with pyo.  If not, see <http://www.gnu.org/licenses/>.
 from ._core import *
 from ._maps import *
 
+
 def assertOSCSupport(obj):
     if not withOSC():
         raise Exception("Pyo built without OSC support! '%s' objects is not available." % obj.__class__.__name__)
+
 
 ### TODO - Know bugs:
 ### OscListReceive.setValue(address, value) make the program segfault on quit (python 2.7 and 3.5).
@@ -88,6 +90,7 @@ class OscSend(PyoObject):
     >>> b = OscSend(a, port=10001, address=['/pitch','/amp'])
 
     """
+
     def __init__(self, input, port, address, host="127.0.0.1"):
         assertOSCSupport(self)
         pyoArgsAssert(self, "oiss", input, port, address, host)
@@ -95,7 +98,9 @@ class OscSend(PyoObject):
         self._input = input
         self._in_fader = InputFader(input)
         in_fader, port, address, host, lmax = convertArgsToLists(self._in_fader, port, address, host)
-        self._base_objs = [OscSend_base(wrap(in_fader,i), wrap(port,i), wrap(address,i), wrap(host,i)) for i in range(lmax)]
+        self._base_objs = [
+            OscSend_base(wrap(in_fader, i), wrap(port, i), wrap(address, i), wrap(host, i)) for i in range(lmax)
+        ]
         self._init_play()
 
     def setInput(self, x, fadetime=0.05):
@@ -141,8 +146,11 @@ class OscSend(PyoObject):
     def input(self):
         """PyoObject. Input signal."""
         return self._input
+
     @input.setter
-    def input(self, x): self.setInput(x)
+    def input(self, x):
+        self.setInput(x)
+
 
 class OscReceive(PyoObject):
     """
@@ -192,7 +200,9 @@ class OscReceive(PyoObject):
         address, mul, add, lmax = convertArgsToLists(address, mul, add)
         self._address = address
         self._mainReceiver = OscReceiver_base(port, address)
-        self._base_objs = [OscReceive_base(self._mainReceiver, wrap(address,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+        self._base_objs = [
+            OscReceive_base(self._mainReceiver, wrap(address, i), wrap(mul, i), wrap(add, i)) for i in range(lmax)
+        ]
         self._init_play()
 
     def __getitem__(self, i):
@@ -231,7 +241,7 @@ class OscReceive(PyoObject):
             if p not in self._address:
                 self._mainReceiver.addAddress(p)
                 self._address.append(p)
-                self._base_objs.append(OscReceive_base(self._mainReceiver, p, wrap(mul,i), wrap(add,i)))
+                self._base_objs.append(OscReceive_base(self._mainReceiver, p, wrap(mul, i), wrap(add, i)))
 
     def delAddress(self, path):
         """
@@ -279,9 +289,9 @@ class OscReceive(PyoObject):
         pyoArgsAssert(self, "sn", path, value)
         path, value, lmax = convertArgsToLists(path, value)
         for i in range(lmax):
-            p = wrap(path,i)
+            p = wrap(path, i)
             if p in self._address:
-                self._mainReceiver.setValue(p, wrap(value,i))
+                self._mainReceiver.setValue(p, wrap(value, i))
             else:
                 print('Error: OscReceive.setValue, Illegal address "%s"' % p)
 
@@ -330,6 +340,7 @@ class OscReceive(PyoObject):
     def stop(self, wait=0):
         self._mainReceiver.stop(wait)
         return PyoObject.stop(self, wait)
+
 
 class OscDataSend(PyoObject):
     """
@@ -397,12 +408,15 @@ class OscDataSend(PyoObject):
     >>> c.send(msg)
 
     """
+
     def __init__(self, types, port, address, host="127.0.0.1"):
         assertOSCSupport(self)
         pyoArgsAssert(self, "siss", types, port, address, host)
         PyoObject.__init__(self)
         types, port, address, host, lmax = convertArgsToLists(types, port, address, host)
-        self._base_objs = [OscDataSend_base(wrap(types,i), wrap(port,i), wrap(address,i), wrap(host,i)) for i in range(lmax)]
+        self._base_objs = [
+            OscDataSend_base(wrap(types, i), wrap(port, i), wrap(address, i), wrap(host, i)) for i in range(lmax)
+        ]
         self._addresses = {}
         for i, adr in enumerate(address):
             self._addresses[adr] = self._base_objs[i]
@@ -460,7 +474,7 @@ class OscDataSend(PyoObject):
         """
         pyoArgsAssert(self, "siss", types, port, address, host)
         types, port, address, host, lmax = convertArgsToLists(types, port, address, host)
-        objs = [OscDataSend_base(wrap(types,i), wrap(port,i), wrap(address,i), wrap(host,i)) for i in range(lmax)]
+        objs = [OscDataSend_base(wrap(types, i), wrap(port, i), wrap(address, i), wrap(host, i)) for i in range(lmax)]
         self._base_objs.extend(objs)
         for i, adr in enumerate(address):
             self._addresses[adr] = objs[i]
@@ -504,6 +518,7 @@ class OscDataSend(PyoObject):
         else:
             pyoArgsAssert(self, "lS", msg, address)
             self._addresses[address].send(msg)
+
 
 class OscDataReceive(PyoObject):
     """
@@ -626,6 +641,7 @@ class OscDataReceive(PyoObject):
                 self._base_objs[0].delAddress(index)
                 self._address.remove(p)
 
+
 class OscListReceive(PyoObject):
     """
     Receives list of values over a network via the Open Sound Control protocol.
@@ -679,16 +695,20 @@ class OscListReceive(PyoObject):
         address, mul, add, lmax = convertArgsToLists(address, mul, add)
         self._address = address
         self._mainReceiver = OscListReceiver_base(port, address, num)
-        self._base_objs = [OscListReceive_base(self._mainReceiver, wrap(address,i), j, wrap(mul,i), wrap(add,i)) for i in range(lmax) for j in range(self._num)]
+        self._base_objs = [
+            OscListReceive_base(self._mainReceiver, wrap(address, i), j, wrap(mul, i), wrap(add, i))
+            for i in range(lmax)
+            for j in range(self._num)
+        ]
         self._init_play()
 
     def __getitem__(self, i):
         if type(i) in [bytes_t, unicode_t]:
             first = self._address.index(i) * self._num
-            return self._base_objs[first:first+self._num]
+            return self._base_objs[first : first + self._num]
         elif i < len(self._base_objs):
             first = i * self._num
-            return self._base_objs[first:first+self._num]
+            return self._base_objs[first : first + self._num]
         else:
             print("'i' too large!")
 
@@ -720,7 +740,12 @@ class OscListReceive(PyoObject):
             if p not in self._address:
                 self._mainReceiver.addAddress(p)
                 self._address.append(p)
-                self._base_objs.extend([OscListReceive_base(self._mainReceiver, p, j, wrap(mul,i), wrap(add,i)) for j in range(self._num)])
+                self._base_objs.extend(
+                    [
+                        OscListReceive_base(self._mainReceiver, p, j, wrap(mul, i), wrap(add, i))
+                        for j in range(self._num)
+                    ]
+                )
         self.play()
 
     def delAddress(self, path):
@@ -740,7 +765,7 @@ class OscListReceive(PyoObject):
         for ind in reversed(indexes):
             self._address.pop(ind)
             first = ind * self._num
-            for i in reversed(list(range(first, first+self._num))):
+            for i in reversed(list(range(first, first + self._num))):
                 obj = self._base_objs.pop(i)
 
     def setInterpolation(self, x):
@@ -771,16 +796,16 @@ class OscListReceive(PyoObject):
         pyoArgsAssert(self, "sl", path, value)
         path, lmax = convertArgsToLists(path)
         for i in range(lmax):
-            p = wrap(path,i)
+            p = wrap(path, i)
             if p in self._address:
                 if type(value[0]) == list:
-                    val = wrap(value,i)
+                    val = wrap(value, i)
                 else:
                     val = value
                 if len(val) == self._num:
                     self._mainReceiver.setValue(p, val)
                 else:
-                    print('Error: OscListReceive.setValue, value must be of the same length as the `num` attribute.')
+                    print("Error: OscListReceive.setValue, value must be of the same length as the `num` attribute.")
             else:
                 print('Error: OscListReceive.setValue, Illegal address "%s"' % p)
 
@@ -808,12 +833,12 @@ class OscListReceive(PyoObject):
         """
         if not all:
             first = self._address.index(identifier) * self._num
-            return [obj._getStream().getValue() for obj in self._base_objs[first:first+self._num]]
+            return [obj._getStream().getValue() for obj in self._base_objs[first : first + self._num]]
         else:
             outlist = []
             for add in self._address:
                 first = self._address.index(add) * self._num
-                l = [obj._getStream().getValue() for obj in self._base_objs[first:first+self._num]]
+                l = [obj._getStream().getValue() for obj in self._base_objs[first : first + self._num]]
                 outlist.append(l)
             return outlist
 

@@ -10,6 +10,7 @@ from ._widgets import PYO_USE_WX
 
 if not PYO_USE_WX:
     NO_WX_MESSAGE = "WxPython must be installed on the system to use pyo's wx widgets."
+
     class PyoGuiControlSlider:
         def __init__(self, *args, **kwargs):
             raise Exception(NO_WX_MESSAGE)
@@ -41,6 +42,8 @@ if not PYO_USE_WX:
     class PyoGuiKeyboard:
         def __init__(self, *args, **kwargs):
             raise Exception(NO_WX_MESSAGE)
+
+
 else:
     import wx
     import wx.lib.newevent
@@ -102,15 +105,34 @@ else:
                 The slider's orientation. Defaults to wx.HORIZONTAL.
 
         """
-        def __init__(self, parent, minvalue, maxvalue, init=None, pos=(0, 0),
-                     size=(200, 16), log=False, integer=False, powoftwo=False,
-                     orient=wx.HORIZONTAL):
-            super(PyoGuiControlSlider, self).__init__(parent, minvalue, maxvalue,
-                                                      init, pos, size, log,
-                                                      self._outFunction, integer,
-                                                      powoftwo,
-                                                      parent.GetBackgroundColour(),
-                                                      orient)
+
+        def __init__(
+            self,
+            parent,
+            minvalue,
+            maxvalue,
+            init=None,
+            pos=(0, 0),
+            size=(200, 16),
+            log=False,
+            integer=False,
+            powoftwo=False,
+            orient=wx.HORIZONTAL,
+        ):
+            super(PyoGuiControlSlider, self).__init__(
+                parent,
+                minvalue,
+                maxvalue,
+                init,
+                pos,
+                size,
+                log,
+                self._outFunction,
+                integer,
+                powoftwo,
+                parent.GetBackgroundColour(),
+                orient,
+            )
 
         def _outFunction(self, value):
             evt = PyoGuiControlSliderEvent(value=value, id=self.GetId(), object=self)
@@ -262,10 +284,9 @@ else:
                 Window style (see wx.Window documentation). Defaults to 0.
 
         """
-        def __init__(self, parent, nchnls=2, pos=(0, 0), size=(200, 11),
-                     orient=wx.HORIZONTAL, style=0):
-            super(PyoGuiVuMeter, self).__init__(parent, size, nchnls, orient,
-                                                pos, style)
+
+        def __init__(self, parent, nchnls=2, pos=(0, 0), size=(200, 11), orient=wx.HORIZONTAL, style=0):
+            super(PyoGuiVuMeter, self).__init__(parent, size, nchnls, orient, pos, style)
 
         def setNchnls(self, nchnls):
             """
@@ -337,12 +358,25 @@ else:
                 Window style (see wx.Window documentation). Defaults to 0.
 
         """
-        def __init__(self, parent, xlen=8192, yrange=(0, 1), init=[(0.0, 0.0), (1.0, 1.0)],
-                     mode=0, exp=10, inverse=True, tension=0, bias=0, pos=(0, 0),
-                     size=(300, 200), style=0):
-            super(PyoGuiGrapher, self).__init__(parent, xlen, yrange, init, mode,
-                                                exp, inverse, tension, bias,
-                                                self._outFunction, pos, size, style)
+
+        def __init__(
+            self,
+            parent,
+            xlen=8192,
+            yrange=(0, 1),
+            init=[(0.0, 0.0), (1.0, 1.0)],
+            mode=0,
+            exp=10,
+            inverse=True,
+            tension=0,
+            bias=0,
+            pos=(0, 0),
+            size=(300, 200),
+            style=0,
+        ):
+            super(PyoGuiGrapher, self).__init__(
+                parent, xlen, yrange, init, mode, exp, inverse, tension, bias, self._outFunction, pos, size, style
+            )
 
         def _outFunction(self, value):
             evt = PyoGuiGrapherEvent(value=value, id=self.GetId(), object=self)
@@ -532,8 +566,8 @@ else:
                 Window style (see wx.Window documentation). Defaults to 0.
 
         """
-        def __init__(self, parent, xlen=16, yrange=(0, 1), init=None,
-                    pos=(0, 0), size=(300, 200), style=0):
+
+        def __init__(self, parent, xlen=16, yrange=(0, 1), init=None, pos=(0, 0), size=(300, 200), style=0):
             if init is None:
                 init = [yrange[0]] * xlen
             else:
@@ -541,9 +575,7 @@ else:
                     init += [yrange[0]] * (xlen - len(init))
                 elif len(init) > xlen:
                     init = init[:xlen]
-            super(PyoGuiMultiSlider, self).__init__(parent, init, yrange,
-                                                    self._outFunction, pos,
-                                                    size, style)
+            super(PyoGuiMultiSlider, self).__init__(parent, init, yrange, self._outFunction, pos, size, style)
 
         def _outFunction(self, value):
             evt = PyoGuiMultiSliderEvent(value=value, id=self.GetId(), object=self)
@@ -628,10 +660,11 @@ else:
                 Window style (see wx.Window documentation). Defaults to 0.
 
         """
-        def __init__(self, parent, lowfreq=0, highfreq=22050, fscaling=0,
-                     mscaling=0, pos=(0, 0), size=(300, 200), style=0):
-            super(PyoGuiSpectrum, self).__init__(parent, 1, lowfreq, highfreq,
-                                                 fscaling, mscaling, pos, size, style)
+
+        def __init__(
+            self, parent, lowfreq=0, highfreq=22050, fscaling=0, mscaling=0, pos=(0, 0), size=(300, 200), style=0
+        ):
+            super(PyoGuiSpectrum, self).__init__(parent, 1, lowfreq, highfreq, fscaling, mscaling, pos, size, style)
 
         def update(self, points):
             """
@@ -768,8 +801,8 @@ else:
                 Window style (see wx.Window documentation). Defaults to 0.
 
         """
-        def __init__(self, parent, length=0.05, gain=0.67, pos=(0, 0),
-                     size=(300, 200), style=0):
+
+        def __init__(self, parent, length=0.05, gain=0.67, pos=(0, 0), size=(300, 200), style=0):
             super(PyoGuiScope, self).__init__(parent, None, pos, size, style)
             super(PyoGuiScope, self).setLength(length)
             super(PyoGuiScope, self).setGain(gain)
@@ -897,18 +930,22 @@ else:
                 Window style (see wx.Window documentation). Defaults to 0.
 
         """
+
         def __init__(self, parent, pos=(0, 0), size=(300, 200), style=0):
             wx.Panel.__init__(self, parent, pos=pos, size=size, style=style)
             box = wx.BoxSizer(wx.VERTICAL)
             self._curzoom = (0.0, 1.0)
-            self.sndview = SndViewTablePanel(self, None,
-                                             self._position_callback,
-                                             self._select_callback)
-            box.Add(self.sndview, 1, wx.EXPAND|wx.LEFT|wx.RIGHT|wx.TOP, 5)
-            self.zoom = HRangeSlider(self, minvalue=0, maxvalue=1,
-                                     valtype='float', function=self._setZoom,
-                                     backColour=parent.GetBackgroundColour())
-            box.Add(self.zoom, 0, wx.EXPAND|wx.LEFT|wx.RIGHT, 5)
+            self.sndview = SndViewTablePanel(self, None, self._position_callback, self._select_callback)
+            box.Add(self.sndview, 1, wx.EXPAND | wx.LEFT | wx.RIGHT | wx.TOP, 5)
+            self.zoom = HRangeSlider(
+                self,
+                minvalue=0,
+                maxvalue=1,
+                valtype="float",
+                function=self._setZoom,
+                backColour=parent.GetBackgroundColour(),
+            )
+            box.Add(self.zoom, 0, wx.EXPAND | wx.LEFT | wx.RIGHT, 5)
             self.SetSizer(box)
 
         def _setZoom(self, values=None):
@@ -1003,9 +1040,9 @@ else:
         :Events:
 
             EVT_PYO_GUI_KEYBOARD
-                Sent whenever a note change on the keyboard. The `value` 
-                attribute of the event will hold a (pitch, velocity) tuple. 
-                The object itself can be retrieve with the `object` 
+                Sent whenever a note change on the keyboard. The `value`
+                attribute of the event will hold a (pitch, velocity) tuple.
+                The object itself can be retrieve with the `object`
                 attribute of the event and the object's id with the `id` attrbute.
 
         :Args:
@@ -1013,7 +1050,7 @@ else:
             parent: wx.Window
                 The parent window.
             poly: int, optional
-                Maximum number of notes that can be held at the same time. 
+                Maximum number of notes that can be held at the same time.
                 Defaults to 64.
             pos: wx.Point, optional
                 Window position in pixels. Defaults to (0, 0).
@@ -1023,9 +1060,9 @@ else:
                 Window style (see wx.Window documentation). Defaults to 0.
 
         """
+
         def __init__(self, parent, poly=64, pos=(0, 0), size=(600, 100), style=0):
-            super(PyoGuiKeyboard, self).__init__(parent, wx.ID_ANY, pos, size, 
-                                                 poly, self._outFunction, style)
+            super(PyoGuiKeyboard, self).__init__(parent, wx.ID_ANY, pos, size, poly, self._outFunction, style)
 
         def _outFunction(self, value):
             evt = PyoGuiKeyboardEvent(value=value, id=self.GetId(), object=self)
@@ -1053,6 +1090,6 @@ else:
 
                 poly: int
                     New maximum number of notes held at once.
-            
+
             """
             super(PyoGuiKeyboard, self).setPoly(poly)

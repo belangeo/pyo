@@ -83,7 +83,7 @@ def degreeToMidiNote(value):
     elif st.count(".") == 1:
         dotPos = st.find(".")
         if len(st) >= (dotPos + 3):
-            st = st[:dotPos+3]
+            st = st[: dotPos + 3]
         try:
             oct, deg = st.split(".")
             if len(deg) == 1:
@@ -94,12 +94,14 @@ def degreeToMidiNote(value):
 
     return oct * 12 + deg
 
+
 def midiNoteToDegree(value):
     "Converts a MIDI note to an octave.degree notation."
     oct = int(value / 12)
     deg = value % 12
     return "%d.%02d" % (oct, deg)
-    
+
+
 def getValueFromAttribute(master, key, currentDict, valueIfNone=None):
     "Retrieve the value of an Events attribute, resolving its type."
     attribute = master[key]
@@ -116,8 +118,7 @@ def getValueFromAttribute(master, key, currentDict, valueIfNone=None):
             if attribute.getKey() in currentDict:
                 returnValue = currentDict[attribute.getKey()]
             else:
-                returnValue = getValueFromAttribute(master, attribute.getKey(),
-                                                    currentDict)
+                returnValue = getValueFromAttribute(master, attribute.getKey(), currentDict)
                 currentDict[attribute.getKey()] = returnValue
         else:
             returnValue = attribute.externalMaster.getCurrentDict().get(attribute.getKey(), None)
@@ -134,6 +135,7 @@ def getValueFromAttribute(master, key, currentDict, valueIfNone=None):
 
     return returnValue
 
+
 # Utility classes
 #################
 class MarkovGen:
@@ -145,21 +147,24 @@ class MarkovGen:
         self.startPlayback()
 
     def startPlayback(self):
-        self.playedNotes = []        
+        self.playedNotes = []
         for val in self.originalList:
             self.temporaryList.append(val)
         for i in range(self.order):
             self.temporaryList.append(self.originalList[i])
-        self.playedNotes = self.originalList[ len( self.originalList ) - self.order:]
+        self.playedNotes = self.originalList[len(self.originalList) - self.order :]
 
     def next(self):
         newValue = 0
         condition = False
         self.probTable = []
-        
-        for i in range(len(self.temporaryList) - self.order):           
+
+        for i in range(len(self.temporaryList) - self.order):
             for iord in range(self.order):
-                if self.playedNotes[len(self.playedNotes) - (iord + 1)] != self.temporaryList[(self.order - 1) + i - iord]:
+                if (
+                    self.playedNotes[len(self.playedNotes) - (iord + 1)]
+                    != self.temporaryList[(self.order - 1) + i - iord]
+                ):
                     condition = False
                     break
                 else:
@@ -168,26 +173,27 @@ class MarkovGen:
             if condition:
                 self.probTable.append(self.temporaryList[i + self.order])
 
-        newValue = self.probTable[random.randint(0, (len(self.probTable) - 1))]    
+        newValue = self.probTable[random.randint(0, (len(self.probTable) - 1))]
         self.playedNotes.append(newValue)
         return newValue
-        
+
     def setOrder(self, order):
         if order != self.order:
             self.order = order
-            self.startPlayback()        
+            self.startPlayback()
+
 
 # Instruments
 #############
 class EventInstrument(object):
     """
     Base class for an Events instrument. All attributes given to the Events
-    object can be accessed as self.attribute_name inside the instrument. 
+    object can be accessed as self.attribute_name inside the instrument.
 
     This base class constructs an envelope, named self.env, according to the
     value given to 'envelope' (ex.: a LinTable object) or to 'attack', 'decay',
     'sustain' and 'release' attributes of the event. The envelope is also
-    scaled by the value of self.amp, defined by 'amp', 'db' or 'midivel' 
+    scaled by the value of self.amp, defined by 'amp', 'db' or 'midivel'
     arguments of the Events object.
 
     This base class also creates a self.freq variable based on 'freq', 'degree'
@@ -201,21 +207,20 @@ class EventInstrument(object):
     .. note::
 
         The user has almost no reason to instantiate an EventInstrument object
-        himself. Instead, he should use it as a parent class for its own instruments. 
+        himself. Instead, he should use it as a parent class for its own instruments.
 
     """
+
     def __init__(self, **args):
         for key, val in args.items():
             setattr(self, key, val)
 
         if self.envelope is not None:
-            self.env = TableRead(self.envelope, 1./self.dur, mul=self.amp).play()
-        elif self.decay is not None: 
-            self.env = Adsr(self.attack, self.decay, self.sustain, self.release,
-                            dur=self.dur, mul=self.amp).play()
+            self.env = TableRead(self.envelope, 1.0 / self.dur, mul=self.amp).play()
+        elif self.decay is not None:
+            self.env = Adsr(self.attack, self.decay, self.sustain, self.release, dur=self.dur, mul=self.amp).play()
         else:
-            self.env = Fader(fadein=self.attack, fadeout=self.release,
-                             dur=self.dur, mul=self.amp).play()
+            self.env = Fader(fadein=self.attack, fadeout=self.release, dur=self.dur, mul=self.amp).play()
 
         self.clearWhenDone = CallAfter(self.clear, time=0)
         self.clearWhenDone.play(delay=self.dur + self.tail, dur=0.25)
@@ -223,18 +228,21 @@ class EventInstrument(object):
     def clear(self):
         self.removeFunction(self.instanceId)
 
+
 class DefaultInstrument(EventInstrument):
     """
     The default instrument, playing a stereo RC oscillator, used when
     'instr' attribute is not defined for an Events object.
 
     """
+
     def __init__(self, **args):
         EventInstrument.__init__(self, **args)
-        self.osc = RCOsc(freq=self.freq, sharp=.5, mul=self.env)
+        self.osc = RCOsc(freq=self.freq, sharp=0.5, mul=self.env)
         self.sig = self.osc.mix(2).out()
 
-# Event Scale 
+
+# Event Scale
 #############
 class EventScale:
     """
@@ -253,7 +261,7 @@ class EventScale:
         root: str, optional
             The base note (fundamental) of the scale. Possible values are:
             'C', 'C#', 'Db', 'D', 'D#', 'Eb', 'E', 'F', 'F#',
-            'Gb', 'G', 'G#', 'Ab', 'A', 'A#', 'Bb', 'B'. 
+            'Gb', 'G', 'G#', 'Ab', 'A', 'A#', 'Bb', 'B'.
             Defaults to 'C'.
         scale: str, optional
             The scale name to construct. Possible scales are:
@@ -264,7 +272,7 @@ class EventScale:
             Defaults to 'major'.
         first: int, optional
             The first octave of the generated scale, in multiple of 12. A value
-            of 4, for a root of 'C' means the first note of the scale will be 48. 
+            of 4, for a root of 'C' means the first note of the scale will be 48.
             Defaults to 4.
         octaves: int, optional
             The number of octaves in the generated scale. Defaults to 2.
@@ -296,30 +304,48 @@ class EventScale:
     >>> s.start()
     >>> scl = EventScale(root="C", scale="major", first=4, octaves=2, type=2)
     >>> e = Events(degree=EventDrunk(scl, maxStep=-2), beat=1/4., db=-6).play()
-    
+
     """
+
     def __init__(self, root="C", scale="major", first=4, octaves=2, type=0):
-        self.rootDegrees = {"C": 0, "C#": 1, "Db": 1, "D": 2, "D#": 3, "Eb": 3,
-                            "E": 4, "F": 5, "F#": 6, "Gb": 6, "G": 7, "G#": 8, 
-                            "Ab": 8, "A": 9, "A#": 10, "Bb": 10, "B": 11}
-        self.scales = { "major":      [0, 2, 4, 5, 7, 9, 11],
-                        "minorH":     [0, 2, 3, 5, 7, 8, 11],
-                        "minorM":     [0, 2, 3, 5, 7, 9, 11],
-                        "ionian":     [0, 2, 4, 5, 7, 9, 11],
-                        "dorian":     [0, 2, 3, 5, 7, 9, 10],
-                        "phrygian":   [0, 1, 3, 5, 7, 8, 10],
-                        "lydian":     [0, 2, 4, 6, 7, 9, 11],
-                        "mixolydian": [0, 2, 4, 5, 7, 9, 10],
-                        "aeolian":    [0, 2, 3, 5, 7, 8, 10],
-                        "locrian":    [0, 1, 3, 5, 6, 8, 10],
-                        "wholeTone":  [0, 2, 4, 6, 8, 10],
-                        "majorPenta": [0, 2, 4, 7, 9],
-                        "minorPenta": [0, 3, 5, 7, 10],
-                        "egyptian":   [0, 2, 5, 7, 10],
-                        "majorBlues": [0, 2, 5, 7, 9],
-                        "minorBlues": [0, 3, 5, 8, 10],
-                        "minorHungarian": [0, 2, 3, 6, 7, 8, 11],
-                      }
+        self.rootDegrees = {
+            "C": 0,
+            "C#": 1,
+            "Db": 1,
+            "D": 2,
+            "D#": 3,
+            "Eb": 3,
+            "E": 4,
+            "F": 5,
+            "F#": 6,
+            "Gb": 6,
+            "G": 7,
+            "G#": 8,
+            "Ab": 8,
+            "A": 9,
+            "A#": 10,
+            "Bb": 10,
+            "B": 11,
+        }
+        self.scales = {
+            "major": [0, 2, 4, 5, 7, 9, 11],
+            "minorH": [0, 2, 3, 5, 7, 8, 11],
+            "minorM": [0, 2, 3, 5, 7, 9, 11],
+            "ionian": [0, 2, 4, 5, 7, 9, 11],
+            "dorian": [0, 2, 3, 5, 7, 9, 10],
+            "phrygian": [0, 1, 3, 5, 7, 8, 10],
+            "lydian": [0, 2, 4, 6, 7, 9, 11],
+            "mixolydian": [0, 2, 4, 5, 7, 9, 10],
+            "aeolian": [0, 2, 3, 5, 7, 8, 10],
+            "locrian": [0, 1, 3, 5, 6, 8, 10],
+            "wholeTone": [0, 2, 4, 6, 8, 10],
+            "majorPenta": [0, 2, 4, 7, 9],
+            "minorPenta": [0, 3, 5, 7, 10],
+            "egyptian": [0, 2, 5, 7, 10],
+            "majorBlues": [0, 2, 5, 7, 9],
+            "minorBlues": [0, 3, 5, 8, 10],
+            "minorHungarian": [0, 2, 3, 6, 7, 8, 11],
+        }
         self._init = True
         self._length = 0
         self._root = "c"
@@ -336,14 +362,14 @@ class EventScale:
     def _populate(self):
         if self._init:
             return
-            
+
         del self.data[:]
         degree = self.rootDegrees.get(self._root, self.rootDegrees["C"])
         currentScale = self.scales.get(self._scale, self.scales["major"])
         length = len(currentScale)
         for i in range(length * self._octaves + 1):
-            octave = (self._first + int(i/length)) * 12
-            self.data.append(currentScale[i%length] + octave + degree)
+            octave = (self._first + int(i / length)) * 12
+            self.data.append(currentScale[i % length] + octave + degree)
         self._length = len(self.data)
         if self._type == 1:
             self.data = midiToHz(self.data)
@@ -441,36 +467,47 @@ class EventScale:
     def root(self):
         """string. Name of the fundamental key."""
         return self._root
+
     @root.setter
-    def root(self, x): self.setRoot(x)
+    def root(self, x):
+        self.setRoot(x)
 
     @property
     def scale(self):
         """string. Name of scale to generate."""
         return self._scale
+
     @scale.setter
-    def scale(self, x): self.setScale(x)
+    def scale(self, x):
+        self.setScale(x)
 
     @property
     def first(self):
         """int. First octave to generate."""
         return self._first
+
     @first.setter
-    def first(self, x): self.setFirst(x)
+    def first(self, x):
+        self.setFirst(x)
 
     @property
     def octaves(self):
         """int. Number of octaves to generate."""
         return self._octaves
+
     @octaves.setter
-    def octaves(self, x): self.setOctaves(x)
+    def octaves(self, x):
+        self.setOctaves(x)
 
     @property
     def type(self):
         """int. Unit in which pitch values are stored."""
         return self._type
+
     @type.setter
-    def type(self, x): self.setType(x)
+    def type(self, x):
+        self.setType(x)
+
 
 # Event Generators
 ##################
@@ -486,7 +523,7 @@ class EventGenerator:
     The EventGenerator allows very flexible control of the algorithm parameters.
     It can be a single value, another EventGenerator or an audio signal (PyoObject).
 
-    Arithmetic operations are allowed on EventGenerator. An EventDummy is 
+    Arithmetic operations are allowed on EventGenerator. An EventDummy is
     then created to apply the operation to each value produced by the generator.
 
     Arithmetic operators are:
@@ -534,8 +571,9 @@ class EventGenerator:
         iftrue:
             Return an EventFilter which compares its input value to a comparison
             value and outputs it if the comparison is True.
-        
+
     """
+
     def __init__(self):
         self.generator = None
         self.master = None
@@ -572,8 +610,7 @@ class EventGenerator:
                         del self.master.getCurrentDict()[self.generator.getKey()]
                 except:
                     pass
-            value = getValueFromAttribute(self.master, self.generator.getKey(),
-                                          self.master.getCurrentDict())
+            value = getValueFromAttribute(self.master, self.generator.getKey(), self.master.getCurrentDict())
         else:
             self.generator.setMaster(self.master)
             value = self.generator.next()
@@ -648,7 +685,7 @@ class EventGenerator:
         if self.generator is not None:
             self.generator.resetEmbeddedGenerator()
             self.generator.reset()
-        
+
     def floor(self):
         """
         Return an EventFilter computing the largest integer less than or
@@ -724,7 +761,7 @@ class EventGenerator:
     def scale(self, mini, maxi, expon):
         """
         Return an EventFilter which maps its input value, in the range 0 to 1,
-        to an output range, with a scaling curve deternimed bu the `expon` value. 
+        to an output range, with a scaling curve deternimed bu the `expon` value.
 
         :Args:
 
@@ -744,7 +781,7 @@ class EventGenerator:
         """
         Return an EventFilter which maps its input value, in the range `inmin`
         to `inmax`, to an output range, `outmin` to `outmax`, with a scaling
-        curve deternimed bu the `expon` value. 
+        curve deternimed bu the `expon` value.
 
         :Args:
 
@@ -762,15 +799,14 @@ class EventGenerator:
                 higher than 1 give an exponential curve.
 
         """
-        return EventFilter(self, PYO_EVENT_FILTER_RESCALE, inmin, inmax,
-                           outmin, outmax, expon)
+        return EventFilter(self, PYO_EVENT_FILTER_RESCALE, inmin, inmax, outmin, outmax, expon)
 
     def iftrue(self, op, comp):
         """
         Return an EventFilter which compares its input value to the value
         given to `comp` argument, using the comparison operator `op`. If
         the result is True, the input value is sent to the output, otherwise,
-        the last valid value is sent again. 
+        the last valid value is sent again.
 
         :Args:
 
@@ -783,8 +819,10 @@ class EventGenerator:
         """
         return EventFilter(self, PYO_EVENT_FILTER_IFTRUE, op, comp)
 
+
 class EventDummy(EventGenerator):
     "An EventGenerator created internally to handle arithmetic on Events."
+
     def __init__(self, generator1, generator2, type):
         EventGenerator.__init__(self)
         self.generator1 = generator1
@@ -819,8 +857,10 @@ class EventDummy(EventGenerator):
             elif self.type == PYO_EVENT_OPERATOR_FLR:
                 return math.floor(v1 / v2 + 0.5) * v2
 
+
 class EventFilter(EventGenerator):
     "An EventGenerator created internally to handle simple filter on Events."
+
     def __init__(self, generator, type, *args):
         EventGenerator.__init__(self)
         self.generator = generator
@@ -854,7 +894,7 @@ class EventFilter(EventGenerator):
         elif self.type == PYO_EVENT_FILTER_ABS:
             return abs(value)
         elif self.type == PYO_EVENT_FILTER_SNAP:
-            return min(args[0], key=lambda x:abs(x - value))
+            return min(args[0], key=lambda x: abs(x - value))
         elif self.type == PYO_EVENT_FILTER_DEVIATE:
             depth = args[0] * 0.01
             return value * random.uniform(1.0 - depth, 1.0 + depth)
@@ -898,6 +938,7 @@ class EventFilter(EventGenerator):
             else:
                 return self.lastValue
 
+
 ###################
 class EventKey(EventGenerator):
     """
@@ -917,7 +958,7 @@ class EventKey(EventGenerator):
         master: Events, optional
             The Events object from which to read the parameter value. If
             None (the default), the current Events object is used.
-            
+
 
     >>> s = Server().boot()
     >>> s.start()
@@ -926,6 +967,7 @@ class EventKey(EventGenerator):
     >>> e = Events(midinote=list(range(48,84,2)), beat=1/4., db=dbkey).play()
 
     """
+
     def __init__(self, key, master=None):
         EventGenerator.__init__(self)
         self.key = key
@@ -944,11 +986,10 @@ class EventKey(EventGenerator):
 
     def next(self):
         if self.externalMaster is None:
-            return getValueFromAttribute(self.master, self.getKey(),
-                                          self.master.getCurrentDict())
+            return getValueFromAttribute(self.master, self.getKey(), self.master.getCurrentDict())
         else:
-            return getValueFromAttribute(self.externalMaster, self.getKey(),
-                                          self.externalMaster.getCurrentDict())
+            return getValueFromAttribute(self.externalMaster, self.getKey(), self.externalMaster.getCurrentDict())
+
 
 ###################
 class EventSeq(EventGenerator):
@@ -982,6 +1023,7 @@ class EventSeq(EventGenerator):
     >>> e = Events(freq=EventSeq(midiToHz([60, 64, 67, 72])), beat=1/4.).play()
 
     """
+
     def __init__(self, values, occurrences=inf, stopEventsWhenDone=True):
         EventGenerator.__init__(self)
         self.values = self._inspect_values(values)
@@ -1013,6 +1055,7 @@ class EventSeq(EventGenerator):
             else:
                 self.count = 0
                 return self.next()
+
 
 class EventSlide(EventGenerator):
     """
@@ -1055,8 +1098,7 @@ class EventSlide(EventGenerator):
 
     """
 
-    def __init__(self, values, segment, step, startpos=0, wraparound=True,
-                 occurrences=inf, stopEventsWhenDone=True):
+    def __init__(self, values, segment, step, startpos=0, wraparound=True, occurrences=inf, stopEventsWhenDone=True):
         EventGenerator.__init__(self)
         self.values = self._inspect_values(values)
         self.occurrences = self._inspect_occurrences(occurrences)
@@ -1168,6 +1210,7 @@ class EventSlide(EventGenerator):
                     self.start -= self.length
                 return self.next()
 
+
 class EventIndex(EventGenerator):
     """
     Plays values from a list based on a position index.
@@ -1194,6 +1237,7 @@ class EventIndex(EventGenerator):
     >>> e = Events(degree = EventIndex(scl, arp), beat = 1/4., db = -6).play()
 
     """
+
     def __init__(self, values, index, occurrences=inf, stopEventsWhenDone=True):
         EventGenerator.__init__(self)
         self.values = self._inspect_values(values)
@@ -1250,6 +1294,7 @@ class EventIndex(EventGenerator):
         else:
             return None
 
+
 class EventMarkov(EventGenerator):
     """
     Applies a Markov algorithm to a list of values.
@@ -1282,6 +1327,7 @@ class EventMarkov(EventGenerator):
     >>> e = Events(midinote=EventMarkov(jesus, 2), beat=1/4., db=-6).play()
 
     """
+
     def __init__(self, values, order=2, occurrences=inf, stopEventsWhenDone=True):
         EventGenerator.__init__(self)
         self.values = self._inspect_values(values)
@@ -1338,6 +1384,7 @@ class EventMarkov(EventGenerator):
         else:
             return None
 
+
 ###################
 class EventChoice(EventGenerator):
     """
@@ -1362,6 +1409,7 @@ class EventChoice(EventGenerator):
     >>> e = Events(degree = EventChoice(scl), beat = 1/4., db = -6).play()
 
     """
+
     def __init__(self, values, occurrences=inf, stopEventsWhenDone=True):
         EventGenerator.__init__(self)
         self.values = self._inspect_values(values)
@@ -1388,6 +1436,7 @@ class EventChoice(EventGenerator):
             return self._checkValueTypeAndIncrementCount(value)
         else:
             return None
+
 
 class EventDrunk(EventGenerator):
     """
@@ -1419,6 +1468,7 @@ class EventDrunk(EventGenerator):
     >>> e = Events(degree=EventDrunk(scl, maxStep=-2), beat=1/4., db=-6).play()
 
     """
+
     def __init__(self, values, maxStep=2, occurrences=inf, stopEventsWhenDone=True):
         EventGenerator.__init__(self)
         self.values = self._inspect_values(values)
@@ -1486,17 +1536,18 @@ class EventDrunk(EventGenerator):
         else:
             return None
 
+
 class EventNoise(EventGenerator):
     """
     Return a random value between -1.0 and 1.0.
 
-    EventNoise returns a random value between -1.0 and 1.0, based on one of 
+    EventNoise returns a random value between -1.0 and 1.0, based on one of
     three common noise generators, white, pink (1/f) and brown (1/f^2).
 
     :Args:
 
         type: int, optional
-            The type of noise used to generate the random sequence. Available 
+            The type of noise used to generate the random sequence. Available
             types are:
 
             0: white noise (default)
@@ -1517,6 +1568,7 @@ class EventNoise(EventGenerator):
     >>> e = Events(midinote=note, beat=1/4., db=-6).play()
 
     """
+
     def __init__(self, type=0, occurrences=inf, stopEventsWhenDone=True):
         EventGenerator.__init__(self)
         self.lastType = self.type = type
@@ -1564,20 +1616,21 @@ class EventNoise(EventGenerator):
             elif type == 1:
                 rnd = random.uniform(-0.99, 0.99)
                 self.c0 = self.c0 * 0.99886 + rnd * 0.0555179
-                self.c1 = self.c1 * 0.99332 + rnd * 0.0750759;
-                self.c2 = self.c2 * 0.96900 + rnd * 0.1538520;
-                self.c3 = self.c3 * 0.86650 + rnd * 0.3104856;
-                self.c4 = self.c4 * 0.55000 + rnd * 0.5329522;
-                self.c5 = self.c5 * -0.7616 - rnd * 0.0168980;
-                val = self.c0 + self.c1 + self.c2 + self.c3 + self.c4 + self.c5 + self.c6 + rnd * 0.5362;
+                self.c1 = self.c1 * 0.99332 + rnd * 0.0750759
+                self.c2 = self.c2 * 0.96900 + rnd * 0.1538520
+                self.c3 = self.c3 * 0.86650 + rnd * 0.3104856
+                self.c4 = self.c4 * 0.55000 + rnd * 0.5329522
+                self.c5 = self.c5 * -0.7616 - rnd * 0.0168980
+                val = self.c0 + self.c1 + self.c2 + self.c3 + self.c4 + self.c5 + self.c6 + rnd * 0.5362
                 self.c6 = rnd * 0.115926
                 return self._checkValueTypeAndIncrementCount(val * 0.2)
             else:
                 rnd = random.uniform(-0.99, 0.99)
-                self.y1 = rnd + (self.y1 - rnd) * 0.996;
+                self.y1 = rnd + (self.y1 - rnd) * 0.996
                 return self._checkValueTypeAndIncrementCount(self.y1 * 20.0)
         else:
             return None
+
 
 ###################
 class EventCall(EventGenerator):
@@ -1610,12 +1663,13 @@ class EventCall(EventGenerator):
     >>> e = Events(midinote=EventCall(randrange, 48, 72, 3), beat=1/4., db=-6).play()
 
     """
+
     def __init__(self, function, *args, **kwargs):
         EventGenerator.__init__(self)
         self.function = function
         self.args = args
-        self.occurrences = self._inspect_occurrences(kwargs.pop('occurrences', inf))
-        self.stopEventsWhenDone = kwargs.pop('stopEventsWhenDone', True)
+        self.occurrences = self._inspect_occurrences(kwargs.pop("occurrences", inf))
+        self.stopEventsWhenDone = kwargs.pop("stopEventsWhenDone", True)
         self.reset()
 
     def __len__(self):
@@ -1644,6 +1698,7 @@ class EventCall(EventGenerator):
             return self._checkValueTypeAndIncrementCount(value)
         else:
             return None
+
 
 ###################
 class EventConditional(EventGenerator):
@@ -1683,6 +1738,7 @@ class EventConditional(EventGenerator):
     >>> e = Events(midinote=pit, beat=1/4., midivel=vel).play()
 
     """
+
     def __init__(self, condition, iftrue, iffalse, occurrences=inf, stopEventsWhenDone=True):
         EventGenerator.__init__(self)
         self.condition = self._inspect_generator(condition)
@@ -1767,6 +1823,7 @@ class EventConditional(EventGenerator):
         else:
             return None
 
+
 # Event Player
 ##############
 class Events(dict):
@@ -1780,7 +1837,7 @@ class Events(dict):
     Each time Events needs to produce a new event, it collects values from
     the generators given to its arguments, builds a parameter dictionary
     and gives it to a new instance of the audio instrument referenced to
-    its 'instr' argument. 
+    its 'instr' argument.
 
     The object produces new events until one of its generators reaches the
     end of its sequence.
@@ -1805,7 +1862,7 @@ class Events(dict):
             Name of the attribute in the instrument defintion retrieved as the
             output signal of the Events object. The sig() method returns the
             sum, as an audio signal, of all active instances. This can be useful
-            to do post-processing on the signal produced by the events. Defaults 
+            to do post-processing on the signal produced by the events. Defaults
             to None.
 
     **Constants**
@@ -1830,7 +1887,7 @@ class Events(dict):
         - tail: float, PyoObject or EventGenerator, optional
             Duration, in seconds, to wait before deleting the instrument's instance when
             its envelope has ended. Useful to let a reverb tail to finish before cleaning-up
-            the instance. Defaults to 2. 
+            the instance. Defaults to 2.
 
     **Amplitude keys**
         - amp: float, PyoObject or EventGenerator, optional
@@ -1848,7 +1905,7 @@ class Events(dict):
             created for the event. Defaults to None.
         - attack: float, PyoObject or EventGenerator, optional
             Rising time, in seconds, of an ASR or ADSR envelope. This envelope is created if
-            `envelope` is None. Defaults to 0.005. 
+            `envelope` is None. Defaults to 0.005.
         - decay: float, PyoObject or EventGenerator, optional
             If defined, its the decay time, in seconds, of an ADSR envelope, otherwise the
             envelope will be an ASR (Attack - Sustain - Release). Defaults to None.
@@ -1856,7 +1913,7 @@ class Events(dict):
             Sustain linear gain of an ADSR or ASR envelope. Defaults to 0.7.
         - release: float, PyoObject or EventGenerator, optional
             Release time, in seconds, of an ASR or ADSR envelope. This envelope is created if
-            `envelope` is None. Defaults to 0.05. 
+            `envelope` is None. Defaults to 0.05.
 
     **Pitch keys**
         - freq: float, PyoObject or EventGenerator, optional
@@ -1886,6 +1943,7 @@ class Events(dict):
     >>> e = Events(midinote=note, beat=1/4., db=[-3, -9, -9], envelope=env, durmul=1.25).play()
 
     """
+
     def __init__(self, **args):
         # Instrument key
         self["instr"] = DefaultInstrument
@@ -1899,15 +1957,15 @@ class Events(dict):
         self["durmul"] = 1
         self["tail"] = 2
         # Amplitude keys
-        self["amp"] = .7
+        self["amp"] = 0.7
         self["db"] = None
         self["midivel"] = None
         # Envelope keys
         self["envelope"] = None
-        self["attack"] = .005
+        self["attack"] = 0.005
         self["decay"] = None
         self["sustain"] = 0.7
-        self["release"] = .05
+        self["release"] = 0.05
         # Pitch keys
         self["freq"] = 250
         self["midinote"] = None
@@ -2000,7 +2058,7 @@ class Events(dict):
     def sig(self):
         """
         Return the audio output signal (sum of all active instances), if defined.
-        
+
         The audio output signal of an Events object is the sum of the active
         instrument instances's attribute whose name is the same as given to
         the 'signal' key. The number of audio streams in the output signal is
@@ -2015,8 +2073,12 @@ class Events(dict):
 
         quarterDur = 60.0 / self["bpm"]
 
-        self.currentDict = {"removeFunction": self._remove, "bpm": self["bpm"],
-                            "outs": self["outs"], "instanceId": self.instanceId}
+        self.currentDict = {
+            "removeFunction": self._remove,
+            "bpm": self["bpm"],
+            "outs": self["outs"],
+            "instanceId": self.instanceId,
+        }
 
         # Compute time before next event and current event's duration.
         if self["beat"] is not None:
@@ -2043,8 +2105,7 @@ class Events(dict):
         ending = False
 
         # Process event's every other attributes.
-        proscribe = ["dur", "beat", "instr", "bpm", "outs", "midinote",
-                     "degree", "db", "midivel", "atend", "signal"]
+        proscribe = ["dur", "beat", "instr", "bpm", "outs", "midinote", "degree", "db", "midivel", "atend", "signal"]
         for arg in [k for k in self.keys() if k not in proscribe]:
             if arg == "freq":
                 transpo = getValueFromAttribute(self, "transpo", self.currentDict, valueIfNone=0)
@@ -2084,7 +2145,7 @@ class Events(dict):
                     if midivel is not None:
                         midivel = max(min(midivel, 127), 0)
                         self.currentDict["midivel"] = midivel
-                        self.currentDict["amp"] = midivel / 127.
+                        self.currentDict["amp"] = midivel / 127.0
                     elif self["midivel"].stopEventsWhenDone:
                         ending = True
                 else:
@@ -2100,7 +2161,7 @@ class Events(dict):
                 if value is not None:
                     self.currentDict[arg] = value
                 elif self[arg].stopEventsWhenDone:
-                    ending = True 
+                    ending = True
 
         if ending:
             if self.callAtEnd is not None:
@@ -2109,7 +2170,13 @@ class Events(dict):
         else:
             self.actives[self.instanceId] = self["instr"](**self.currentDict)
             if self["signal"] is not None:
-                self.output.value = sum([getattr(instr, self["signal"]) for instr in self.actives.values() if hasattr(instr, self["signal"])])
+                self.output.value = sum(
+                    [
+                        getattr(instr, self["signal"])
+                        for instr in self.actives.values()
+                        if hasattr(instr, self["signal"])
+                    ]
+                )
 
         self.instanceId += 1
         if self.instanceId >= self.maxInstanceId:
@@ -2120,4 +2187,6 @@ class Events(dict):
         if instanceId in self.actives:
             del self.actives[instanceId]
         if self["signal"] is not None:
-            self.output.value = sum([getattr(instr, self["signal"]) for instr in self.actives.values() if hasattr(instr, self["signal"])])
+            self.output.value = sum(
+                [getattr(instr, self["signal"]) for instr in self.actives.values() if hasattr(instr, self["signal"])]
+            )

@@ -6,6 +6,7 @@ available GUI toolkits (wxpython of tkinter).
 """
 from __future__ import print_function
 from __future__ import absolute_import
+
 """
 Copyright 2009-2015 Olivier Belanger
 
@@ -35,17 +36,20 @@ if "PYO_GUI_WX" in os.environ:
 if use_wx:
     try:
         import wx
+
         PYO_USE_WX = True
     except:
         PYO_USE_WX = False
-        print("""
+        print(
+            """
 WxPython is not found for the current python version.
 Pyo will use a minimal GUI toolkit written with Tkinter (if available).
 This toolkit has limited functionnalities and is no more
 maintained or updated. If you want to use all of pyo's
 GUI features, you should install WxPython, available here:
 http://www.wxpython.org/
-""")
+"""
+        )
 else:
     PYO_USE_WX = False
 
@@ -62,11 +66,13 @@ if not PYO_USE_WX:
         PYO_USE_TK = True
     except:
         PYO_USE_TK = False
-        print("""
+        print(
+            """
 Neither WxPython nor Tkinter are found for the current python version.
 Pyo's GUI features are disabled. For a complete GUI toolkit, you should
 consider installing WxPython, available here: http://www.wxpython.org/
-""")
+"""
+        )
 
 if PYO_USE_TK:
     from ._tkwidgets import *
@@ -85,6 +91,7 @@ EXPREDITORWINDOWS = []
 MMLEDITORWINDOWS = []
 NOTEINKEYBOARDWINDOWS = []
 
+
 def createRootWindow():
     "Creates the main window (app object)."
     if not PYO_USE_WX:
@@ -95,9 +102,10 @@ def createRootWindow():
             if sys.platform == "darwin" and screen_width > 1024:
                 # Scale fonts on Hi-res displays.
                 import tkinter.font
+
                 for name in tkinter.font.names(root):
                     font = tkinter.font.Font(root=root, name=name, exists=True)
-                    font['size'] *= 2
+                    font["size"] *= 2
 
             root.withdraw()
             return None
@@ -110,11 +118,13 @@ def createRootWindow():
         else:
             return None
 
+
 def tkCloseWindow(win):
     "Closes a tkinter window."
     win.destroy()
     if win in WINDOWS:
         WINDOWS.remove(win)
+
 
 def tkCloseWindowFromKeyboard(event):
     "Closes a tkinter window from a keyboard event."
@@ -124,20 +134,25 @@ def tkCloseWindowFromKeyboard(event):
         if win in WINDOWS:
             WINDOWS.remove(win)
 
+
 def tkCreateToplevelWindow():
     "Creates a tkinter top level window."
     win = tk.Toplevel()
     WINDOWS.append(win)
-    win.protocol('WM_DELETE_WINDOW', lambda win=win: tkCloseWindow(win))
+    win.protocol("WM_DELETE_WINDOW", lambda win=win: tkCloseWindow(win))
     win.bind("<Escape>", tkCloseWindowFromKeyboard)
-    dpi_value = int(win.winfo_fpixels('1i'))
-    win.tk.eval("""
+    dpi_value = int(win.winfo_fpixels("1i"))
+    win.tk.eval(
+        """
         foreach font [font names] {
             set cursize [font configure $font -size]
             font configure $font -size [expr {int($cursize * %d / 96.0)}]
         }
-    """ % dpi_value)
+    """
+        % dpi_value
+    )
     return win
+
 
 def wxDisplayWindow(f, title):
     "Displays a wxpython window on the screen."
@@ -161,6 +176,7 @@ def wxDisplayWindow(f, title):
         wxDisplayWindow(f, title)
     f.Show()
 
+
 def wxShowWindow(f, title, root):
     "Shows a wxpython window on the screen."
     f.SetTitle(title)
@@ -168,14 +184,17 @@ def wxShowWindow(f, title, root):
     if root is not None:
         root.MainLoop()
 
+
 def wxCreateDelayedCtrlWindows():
     "Postponed a wxpython window display."
     for win in CTRLWINDOWS:
         f = PyoObjectControl(None, win[0], win[1])
         if win[2] is None:
             title = win[0].__class__.__name__
-        else: title = win[2]
+        else:
+            title = win[2]
         wxDisplayWindow(f, title)
+
 
 def wxCreateDelayedGraphWindows():
     "Postponed a wxpython window display."
@@ -183,8 +202,10 @@ def wxCreateDelayedGraphWindows():
         f = TableGrapher(None, win[0], win[1], win[2], win[3])
         if win[4] is None:
             title = win[0].__class__.__name__
-        else: title = win[4]
+        else:
+            title = win[4]
         wxDisplayWindow(f, title)
+
 
 def wxCreateDelayedDataGraphWindows():
     "Postponed a wxpython window display."
@@ -193,8 +214,10 @@ def wxCreateDelayedDataGraphWindows():
         win[0]._setGraphFrame(f)
         if win[2] is None:
             title = win[0].__class__.__name__
-        else: title = win[2]
+        else:
+            title = win[2]
         wxDisplayWindow(f, title)
+
 
 def wxCreateDelayedTableWindows():
     "Postponed a wxpython window display."
@@ -205,12 +228,14 @@ def wxCreateDelayedTableWindows():
             object._setViewFrame(f)
         wxDisplayWindow(f, win[2])
 
+
 def wxCreateDelayedSndTableWindows():
     "Postponed a wxpython window display."
     for win in SNDTABLEWINDOWS:
         f = SndViewTable(None, win[0], win[1], win[3])
         win[0]._setViewFrame(f)
         wxDisplayWindow(f, win[2])
+
 
 def wxCreateDelayedMatrixWindows():
     "Postponed a wxpython window display."
@@ -220,6 +245,7 @@ def wxCreateDelayedMatrixWindows():
         if object is not None:
             object._setViewFrame(f)
         wxDisplayWindow(f, win[2])
+
 
 def wxCreateDelayedSpectrumWindows():
     "Postponed a wxpython window display."
@@ -233,6 +259,7 @@ def wxCreateDelayedSpectrumWindows():
             win[0]._setViewFrame(f)
         wxDisplayWindow(f, title)
 
+
 def wxCreateDelayedScopeWindows():
     "Postponed a wxpython window display."
     for win in SCOPEWINDOWS:
@@ -245,6 +272,7 @@ def wxCreateDelayedScopeWindows():
             win[0]._setViewFrame(f)
         wxDisplayWindow(f, title)
 
+
 def wxCreateDelayedExprEditorWindows():
     "Postponed a wxpython window display."
     for win in EXPREDITORWINDOWS:
@@ -254,6 +282,7 @@ def wxCreateDelayedExprEditorWindows():
         else:
             title = win[1]
         wxDisplayWindow(f, title)
+
 
 def wxCreateDelayedMMLEditorWindows():
     "Postponed a wxpython window display."
@@ -265,6 +294,7 @@ def wxCreateDelayedMMLEditorWindows():
             title = win[1]
         wxDisplayWindow(f, title)
 
+
 def wxCreateDelayedNoteinKeyboardWindows():
     "Postponed a wxpython window display."
     for win in NOTEINKEYBOARDWINDOWS:
@@ -274,6 +304,7 @@ def wxCreateDelayedNoteinKeyboardWindows():
         else:
             title = win[1]
         wxDisplayWindow(f, title)
+
 
 def createCtrlWindow(obj, map_list, title, wxnoserver=False):
     "Creates a controller window (from a .ctrl() method."
@@ -295,6 +326,7 @@ def createCtrlWindow(obj, map_list, title, wxnoserver=False):
         else:
             CTRLWINDOWS.append([obj, map_list, title])
 
+
 def createGraphWindow(obj, mode, xlen, yrange, title, wxnoserver=False):
     "Creates a grapher window (from a .graph() method."
     if not PYO_USE_WX:
@@ -308,6 +340,7 @@ def createGraphWindow(obj, mode, xlen, yrange, title, wxnoserver=False):
             wxShowWindow(f, title, root)
         else:
             GRAPHWINDOWS.append([obj, mode, xlen, yrange, title])
+
 
 def createDataGraphWindow(obj, yrange, title, wxnoserver=False):
     "Creates a data table grapher window (from a .graph() method."
@@ -324,8 +357,8 @@ def createDataGraphWindow(obj, yrange, title, wxnoserver=False):
         else:
             DATAGRAPHWINDOWS.append([obj, yrange, title])
 
-def createViewTableWindow(samples, title="Table waveform", wxnoserver=False,
-                          tableclass=None, object=None):
+
+def createViewTableWindow(samples, title="Table waveform", wxnoserver=False, tableclass=None, object=None):
     "Creates a table view window (from a .view() method."
     if not PYO_USE_WX:
         createRootWindow()
@@ -343,8 +376,8 @@ def createViewTableWindow(samples, title="Table waveform", wxnoserver=False,
         else:
             TABLEWINDOWS.append([samples, tableclass, title, object])
 
-def createSndViewTableWindow(obj, title="Table waveform", wxnoserver=False,
-                             tableclass=None, mouse_callback=None):
+
+def createSndViewTableWindow(obj, title="Table waveform", wxnoserver=False, tableclass=None, mouse_callback=None):
     "Creates a snd table view window (from a .view() method."
     if not PYO_USE_WX:
         createRootWindow()
@@ -363,8 +396,8 @@ def createSndViewTableWindow(obj, title="Table waveform", wxnoserver=False,
         else:
             SNDTABLEWINDOWS.append([obj, tableclass, title, mouse_callback])
 
-def createViewMatrixWindow(samples, size, title="Matrix viewer",
-                           wxnoserver=False, object=None):
+
+def createViewMatrixWindow(samples, size, title="Matrix viewer", wxnoserver=False, object=None):
     "Creates a matrix view window (from a .view() method."
     if not PYO_USE_WX:
         createRootWindow()
@@ -382,6 +415,7 @@ def createViewMatrixWindow(samples, size, title="Matrix viewer",
         else:
             MATRIXWINDOWS.append([samples, size, title, object])
 
+
 def createSpectrumWindow(object, title, wxnoserver=False):
     "Creates a spectrum display."
     if not PYO_USE_WX:
@@ -397,6 +431,7 @@ def createSpectrumWindow(object, title, wxnoserver=False):
             wxShowWindow(f, title, root)
         else:
             SPECTRUMWINDOWS.append([object, title])
+
 
 def createScopeWindow(object, title, wxnoserver=False):
     "Creates a scope display."
@@ -414,6 +449,7 @@ def createScopeWindow(object, title, wxnoserver=False):
         else:
             SCOPEWINDOWS.append([object, title])
 
+
 def createExprEditorWindow(object, title, wxnoserver=False):
     "Creates an expression editor window."
     if not PYO_USE_WX:
@@ -427,6 +463,7 @@ def createExprEditorWindow(object, title, wxnoserver=False):
             wxShowWindow(f, title, root)
         else:
             EXPREDITORWINDOWS.append([object, title])
+
 
 def createMMLEditorWindow(object, title, wxnoserver=False):
     "Creates an MML editor window."
@@ -442,6 +479,7 @@ def createMMLEditorWindow(object, title, wxnoserver=False):
         else:
             MMLEDITORWINDOWS.append([object, title])
 
+
 def createNoteinKeyboardWindow(object, title, wxnoserver=False):
     "Creates avirtual midi keyboard window."
     if not PYO_USE_WX:
@@ -456,9 +494,25 @@ def createNoteinKeyboardWindow(object, title, wxnoserver=False):
         else:
             NOTEINKEYBOARDWINDOWS.append([object, title])
 
-def createServerGUI(nchnls, start, stop, recstart, recstop, setAmp, started,
-                    locals, shutdown, meter, timer, amp, exit, title, getIsBooted,
-                    getIsStarted):
+
+def createServerGUI(
+    nchnls,
+    start,
+    stop,
+    recstart,
+    recstop,
+    setAmp,
+    started,
+    locals,
+    shutdown,
+    meter,
+    timer,
+    amp,
+    exit,
+    title,
+    getIsBooted,
+    getIsStarted,
+):
     "Creates the server's GUI."
     global X, Y, MAX_X, NEXT_Y
     if title is None:
@@ -466,25 +520,53 @@ def createServerGUI(nchnls, start, stop, recstart, recstop, setAmp, started,
     if not PYO_USE_WX:
         createRootWindow()
         win = tkCreateToplevelWindow()
-        f = ServerGUI(win, nchnls, start, stop, recstart, recstop, setAmp,
-                      started, locals, shutdown, meter, timer, amp, getIsBooted,
-                      getIsStarted)
+        f = ServerGUI(
+            win,
+            nchnls,
+            start,
+            stop,
+            recstart,
+            recstop,
+            setAmp,
+            started,
+            locals,
+            shutdown,
+            meter,
+            timer,
+            amp,
+            getIsBooted,
+            getIsStarted,
+        )
         f.master.title(title)
         f.focus_set()
     else:
         win = createRootWindow()
-        f = ServerGUI(None, nchnls, start, stop, recstart, recstop, setAmp,
-                      started, locals, shutdown, meter, timer, amp, exit, getIsBooted,
-                      getIsStarted)
+        f = ServerGUI(
+            None,
+            nchnls,
+            start,
+            stop,
+            recstart,
+            recstop,
+            setAmp,
+            started,
+            locals,
+            shutdown,
+            meter,
+            timer,
+            amp,
+            exit,
+            getIsBooted,
+            getIsStarted,
+        )
         f.SetTitle(title)
         f.SetPosition((30, 30))
         f.Show()
-        X, Y = (wx.SystemSettings.GetMetric(wx.SYS_SCREEN_X) - 50,
-                wx.SystemSettings.GetMetric(wx.SYS_SCREEN_Y) - 50)
+        X, Y = (wx.SystemSettings.GetMetric(wx.SYS_SCREEN_X) - 50, wx.SystemSettings.GetMetric(wx.SYS_SCREEN_Y) - 50)
         if sys.platform.startswith("linux"):
-            MAX_X, NEXT_Y = f.GetSize()[0]+30, f.GetSize()[1]+55
+            MAX_X, NEXT_Y = f.GetSize()[0] + 30, f.GetSize()[1] + 55
         else:
-            MAX_X, NEXT_Y = f.GetSize()[0]+30, f.GetSize()[1]+30
+            MAX_X, NEXT_Y = f.GetSize()[0] + 30, f.GetSize()[1] + 30
         wx.CallAfter(wxCreateDelayedTableWindows)
         wx.CallAfter(wxCreateDelayedGraphWindows)
         wx.CallAfter(wxCreateDelayedDataGraphWindows)

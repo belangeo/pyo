@@ -45,6 +45,7 @@ class Map(object):
     0.926050416795
 
     """
+
     def __init__(self, min, max, scale):
         self._min, self._max, self._scale = float(min), float(max), scale
 
@@ -58,7 +59,7 @@ class Map(object):
         elif x > 1:
             x = 1.0
 
-        if self._scale == 'log':
+        if self._scale == "log":
             return pow(10, x * log10(self._max / self._min) + log10(self._min))
         else:
             return (self._max - self._min) * x + self._min
@@ -70,7 +71,7 @@ class Map(object):
 
         """
 
-        if self._scale == 'log':
+        if self._scale == "log":
             return log10(x / self._min) / log10(self._max / self._min)
         else:
             return (x - self._min) / (self._max - self._min)
@@ -115,23 +116,29 @@ class Map(object):
     def min(self):
         """int or float. Lowest value of the range."""
         return self._min
+
     @min.setter
     def min(self, x):
         self.setMin(x)
+
     @property
     def max(self):
         """int or float. Highest value of the range."""
         return self._max
+
     @max.setter
     def max(self, x):
         self.setMax(x)
+
     @property
     def scale(self):
         """string. Method used to scale the input value."""
         return self._scale
+
     @scale.setter
     def scale(self, x):
         self.setScale(x)
+
 
 class SLMap(Map):
     """
@@ -175,8 +182,8 @@ class SLMap(Map):
     >>> a.ctrl(maps)
 
     """
-    def __init__(self, min, max, scale, name, init, res='float', ramp=0.025,
-                 dataOnly=False):
+
+    def __init__(self, min, max, scale, name, init, res="float", ramp=0.025, dataOnly=False):
         Map.__init__(self, min, max, scale)
         self._name = name
         self._init = init
@@ -188,22 +195,27 @@ class SLMap(Map):
     def name(self):
         """string. Name of the parameter to control."""
         return self._name
+
     @property
     def init(self):
         """float. Initial value of the slider."""
         return self._init
+
     @property
     def res(self):
         """string. Slider resolution {int or float}."""
         return self._res
+
     @property
     def ramp(self):
         """float. Ramp time in seconds."""
         return self._ramp
+
     @property
     def dataOnly(self):
         """boolean. True if argument does not accept audio stream."""
         return self._dataOnly
+
 
 class SLMapFreq(SLMap):
     """
@@ -229,8 +241,10 @@ class SLMapFreq(SLMap):
         - ramp = 0.025
 
     """
+
     def __init__(self, init=1000):
-        SLMap.__init__(self, 20., 20000., 'log', 'freq', init, 'float', 0.025)
+        SLMap.__init__(self, 20.0, 20000.0, "log", "freq", init, "float", 0.025)
+
 
 class SLMapMul(SLMap):
     """
@@ -256,8 +270,10 @@ class SLMapMul(SLMap):
         - ramp = 0.025
 
     """
-    def __init__(self, init=1.):
-        SLMap.__init__(self, 0., 2., 'lin', 'mul', init, 'float', 0.025)
+
+    def __init__(self, init=1.0):
+        SLMap.__init__(self, 0.0, 2.0, "lin", "mul", init, "float", 0.025)
+
 
 class SLMapPhase(SLMap):
     """
@@ -283,8 +299,10 @@ class SLMapPhase(SLMap):
         - ramp = 0.025
 
     """
-    def __init__(self, init=0.):
-        SLMap.__init__(self, 0., 1., 'lin', 'phase', init, 'float', 0.025)
+
+    def __init__(self, init=0.0):
+        SLMap.__init__(self, 0.0, 1.0, "lin", "phase", init, "float", 0.025)
+
 
 class SLMapPan(SLMap):
     """
@@ -310,8 +328,10 @@ class SLMapPan(SLMap):
         - ramp = 0.025
 
     """
-    def __init__(self, init=0.):
-        SLMap.__init__(self, 0., 1., 'lin', 'pan', init, 'float', 0.025)
+
+    def __init__(self, init=0.0):
+        SLMap.__init__(self, 0.0, 1.0, "lin", "pan", init, "float", 0.025)
+
 
 class SLMapQ(SLMap):
     """
@@ -337,8 +357,10 @@ class SLMapQ(SLMap):
         - ramp = 0.025
 
     """
-    def __init__(self, init=1.):
-        SLMap.__init__(self, 0.1, 100., 'log', 'q', init, 'float', 0.025)
+
+    def __init__(self, init=1.0):
+        SLMap.__init__(self, 0.1, 100.0, "log", "q", init, "float", 0.025)
+
 
 class SLMapDur(SLMap):
     """
@@ -364,5 +386,6 @@ class SLMapDur(SLMap):
         - ramp = 0.025
 
     """
-    def __init__(self, init=1.):
-        SLMap.__init__(self, 0., 60., 'lin', 'dur', init, 'float', 0.025)
+
+    def __init__(self, init=1.0):
+        SLMap.__init__(self, 0.0, 60.0, "lin", "dur", init, "float", 0.025)

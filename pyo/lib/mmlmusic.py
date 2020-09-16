@@ -138,6 +138,7 @@ VALID_SPACES = " \t\n"
 VALID_CHARS = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789?"
 MACRO_DELIMITERS = "0123456789abcdefgrxyz?()[]{}.|: \t\n"
 
+
 class MMLParser:
     def __init__(self, text, voices=1):
         self.text = text
@@ -146,11 +147,11 @@ class MMLParser:
     def _remove_comments(self, text):
         pos = text.find(";")
         while pos != -1:
-            pos2 = text.find("\n", pos+1)
+            pos2 = text.find("\n", pos + 1)
             if pos2 == -1:
                 text = text[:pos]
             else:
-                text = text[:pos] + text[pos2+1:]
+                text = text[:pos] + text[pos2 + 1 :]
             pos = text.find(";")
         return text
 
@@ -170,9 +171,9 @@ class MMLParser:
                 inside = True
             elif text[i] == "]":
                 inside = False
-                if i == len(text)-1 and text[start:]:
+                if i == len(text) - 1 and text[start:]:
                     l.append(text[start:].strip())
-            elif i == len(text)-1:
+            elif i == len(text) - 1:
                 if text[start:]:
                     l.append(text[start:].strip())
             elif rescan and text[i] != " ":
@@ -183,21 +184,21 @@ class MMLParser:
     def _expand_tuplets(self, text):
         pos = text.find("(")
         while pos != -1:
-            nextpos = text.find("(", pos+1)
-            pos2 = text.find(")", pos+1)
+            nextpos = text.find("(", pos + 1)
+            pos2 = text.find(")", pos + 1)
             if pos2 == -1:
                 # missing end brace, just ignore the tuplet.
-                text = text[:pos] + text[pos+1:]
+                text = text[:pos] + text[pos + 1 :]
             elif nextpos != -1 and nextpos < pos2:
                 # missing end brace, just ignore the tuplet.
-                text = text[:pos] + text[pos+1:]
+                text = text[:pos] + text[pos + 1 :]
             else:
-                durchar = text[pos2+1]
+                durchar = text[pos2 + 1]
                 if durchar in VALID_DIGITS:
                     duration = int(durchar)
                 else:
-                    duration = 5 # default tuplet duration is the quarter note.
-                tmp_eles = self._split_tuplets(text[pos+1:pos2])
+                    duration = 5  # default tuplet duration is the quarter note.
+                tmp_eles = self._split_tuplets(text[pos + 1 : pos2])
                 elements = []
                 for ele in tmp_eles:
                     if ele[0] in VALID_NOTES:
@@ -208,7 +209,7 @@ class MMLParser:
                 num_eles = len([e for e in elements if e[0] in VALID_NOTES])
                 ele_text = " ".join(elements)
                 ele_div = " /%i " % num_eles
-                text = text[:pos] + ele_div + ele_text + " /1 " + text[pos2+2:]
+                text = text[:pos] + ele_div + ele_text + " /1 " + text[pos2 + 2 :]
             pos = text.find("(")
 
         # Remove orphan closing braces.
@@ -232,10 +233,9 @@ class MMLParser:
             for macro in sorted(macros, key=len, reverse=True):
                 pos = new.find(macro)
                 while pos != -1:
-                    if new[pos-1] in MACRO_DELIMITERS and \
-                       new[pos+len(macro)] in MACRO_DELIMITERS:
-                        new = new[:pos] + macros[macro] + new[pos+len(macro):]
-                    pos = new.find(macro, pos+len(macro))
+                    if new[pos - 1] in MACRO_DELIMITERS and new[pos + len(macro)] in MACRO_DELIMITERS:
+                        new = new[:pos] + macros[macro] + new[pos + len(macro) :]
+                    pos = new.find(macro, pos + len(macro))
         return new
 
     def _remove_extra_spaces(self, text):
@@ -246,32 +246,32 @@ class MMLParser:
     def _add_space_around_loops(self, text):
         pos = text.find("|:")
         while pos != -1:
-            if text[pos+2] != " ":
-                text = text[:pos+2] + " " + text[pos+2:]
-            if text[pos-1] != " ":
+            if text[pos + 2] != " ":
+                text = text[: pos + 2] + " " + text[pos + 2 :]
+            if text[pos - 1] != " ":
                 text = text[:pos] + " " + text[pos:]
-            pos = text.find("|:", pos+3)
+            pos = text.find("|:", pos + 3)
         pos = text.find(":|")
         while pos != -1:
-            if text[pos-1] != " ":
+            if text[pos - 1] != " ":
                 text = text[:pos] + " " + text[pos:]
-            pos = text.find(":|", pos+3)
+            pos = text.find(":|", pos + 3)
         return text
 
     def _process_specific_group(self, text, inchar, outchar):
         pos = text.find(inchar)
         while pos != -1:
-            nextpos = text.find(inchar, pos+1)
-            pos2 = text.find(outchar, pos+1)
+            nextpos = text.find(inchar, pos + 1)
+            pos2 = text.find(outchar, pos + 1)
             if pos2 == -1:
                 raise Exception("Missing %s symbol..." % outchar)
             elif nextpos != -1 and nextpos < pos2:
                 raise Exception("Missing %s symbol..." % outchar)
             else:
-                format = text[pos:pos2+1].replace(" ", ",")
+                format = text[pos : pos2 + 1].replace(" ", ",")
                 format = format.replace(" ", "")
-                text = text[:pos] + format + text[pos2+1:]
-            pos = text.find(inchar, pos2+1)
+                text = text[:pos] + format + text[pos2 + 1 :]
+            pos = text.find(inchar, pos2 + 1)
         return text
 
     def _process_groups(self, text):
@@ -283,9 +283,9 @@ class MMLParser:
         text = text.replace("\r", "")
         pos = text.find("\\")
         while pos != -1:
-            pos2 = text.find("\n", pos+1)
-            text = text[:pos] + text[pos2+1:]
-            pos = text.find("\\", pos+1)
+            pos2 = text.find("\n", pos + 1)
+            text = text[:pos] + text[pos2 + 1 :]
+            pos = text.find("\\", pos + 1)
         return text
 
     def _preproc(self, text):
@@ -313,6 +313,7 @@ class MMLParser:
             else:
                 sequences[0] = line
         return sequences
+
 
 class MML(PyoObject):
     """
@@ -393,12 +394,25 @@ class MML(PyoObject):
     >>> output = STRev([a, a2], inpos=[0.2, 0.8], bal=0.2, mul=1.5).out()
 
     """
+
     def __init__(self, music, voices=1, loop=False, poly=1, updateAtEnd=False):
         pyoArgsAssert(self, "SIBIB", music, voices, loop, poly, updateAtEnd)
         PyoObject.__init__(self)
         self._editor = None
-        self._pitches = pitches = {0: "c", 1: "c+", 2: "d", 3: "e-", 4: "e", 5: "f",
-                                   6: "f+", 7: "g", 8: "a-", 9: "a", 10: "b-", 11: "b"}
+        self._pitches = pitches = {
+            0: "c",
+            1: "c+",
+            2: "d",
+            3: "e-",
+            4: "e",
+            5: "f",
+            6: "f+",
+            7: "g",
+            8: "a-",
+            9: "a",
+            10: "b-",
+            11: "b",
+        }
         self._fre_dummy = []
         self._amp_dummy = []
         self._dur_dummy = []
@@ -420,35 +434,37 @@ class MML(PyoObject):
         for i in range(voices):
             if self._sequences[i] is not None:
                 self._base_players[i].setSequence(self._sequences[i])
-        self._base_objs = [MML_base(wrap(self._base_players,j), i) for j in range(voices) for i in range(poly)]
-        self._fre_objs = [MMLFreqStream_base(wrap(self._base_players,j), i) for j in range(voices) for i in range(poly)]
-        self._amp_objs = [MMLAmpStream_base(wrap(self._base_players,j), i) for j in range(voices) for i in range(poly)]
-        self._dur_objs = [MMLDurStream_base(wrap(self._base_players,j), i) for j in range(voices) for i in range(poly)]
-        self._end_objs = [MMLEndStream_base(wrap(self._base_players,j), i) for j in range(voices) for i in range(poly)]
-        self._x_objs = [MMLXStream_base(wrap(self._base_players,j), i) for j in range(voices) for i in range(poly)]
-        self._y_objs = [MMLYStream_base(wrap(self._base_players,j), i) for j in range(voices) for i in range(poly)]
-        self._z_objs = [MMLZStream_base(wrap(self._base_players,j), i) for j in range(voices) for i in range(poly)]
+        self._base_objs = [MML_base(wrap(self._base_players, j), i) for j in range(voices) for i in range(poly)]
+        self._fre_objs = [
+            MMLFreqStream_base(wrap(self._base_players, j), i) for j in range(voices) for i in range(poly)
+        ]
+        self._amp_objs = [MMLAmpStream_base(wrap(self._base_players, j), i) for j in range(voices) for i in range(poly)]
+        self._dur_objs = [MMLDurStream_base(wrap(self._base_players, j), i) for j in range(voices) for i in range(poly)]
+        self._end_objs = [MMLEndStream_base(wrap(self._base_players, j), i) for j in range(voices) for i in range(poly)]
+        self._x_objs = [MMLXStream_base(wrap(self._base_players, j), i) for j in range(voices) for i in range(poly)]
+        self._y_objs = [MMLYStream_base(wrap(self._base_players, j), i) for j in range(voices) for i in range(poly)]
+        self._z_objs = [MMLZStream_base(wrap(self._base_players, j), i) for j in range(voices) for i in range(poly)]
 
     def __getitem__(self, i):
-        if i == 'freq':
+        if i == "freq":
             self._fre_dummy.append(Dummy([obj for obj in self._fre_objs]))
             return self._fre_dummy[-1]
-        if i == 'amp':
+        if i == "amp":
             self._amp_dummy.append(Dummy([obj for obj in self._amp_objs]))
             return self._amp_dummy[-1]
-        if i == 'dur':
+        if i == "dur":
             self._dur_dummy.append(Dummy([obj for obj in self._dur_objs]))
             return self._dur_dummy[-1]
-        if i == 'end':
+        if i == "end":
             self._end_dummy.append(Dummy([obj for obj in self._end_objs]))
             return self._end_dummy[-1]
-        if i == 'x':
+        if i == "x":
             self._x_dummy.append(Dummy([obj for obj in self._x_objs]))
             return self._x_dummy[-1]
-        if i == 'y':
+        if i == "y":
             self._y_dummy.append(Dummy([obj for obj in self._y_objs]))
             return self._y_dummy[-1]
-        if i == 'z':
+        if i == "z":
             self._z_dummy.append(Dummy([obj for obj in self._z_objs]))
             return self._z_dummy[-1]
         if type(i) == slice:
@@ -496,7 +512,6 @@ class MML(PyoObject):
             return self.__getitem__(identifier)[0]._getStream().getValue()
         else:
             return [obj._getStream().getValue() for obj in self.__getitem__(identifier).getBaseObjects()]
-
 
     def setMusic(self, x):
         """
@@ -563,13 +578,13 @@ class MML(PyoObject):
 
     def play(self, dur=0, delay=0):
         dur, delay, lmax = convertArgsToLists(dur, delay)
-        self._fre_objs = [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._fre_objs)]
-        self._amp_objs = [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._amp_objs)]
-        self._dur_objs = [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._dur_objs)]
-        self._end_objs = [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._end_objs)]
-        self._x_objs = [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._x_objs)]
-        self._y_objs = [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._y_objs)]
-        self._z_objs = [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._z_objs)]
+        self._fre_objs = [obj.play(wrap(dur, i), wrap(delay, i)) for i, obj in enumerate(self._fre_objs)]
+        self._amp_objs = [obj.play(wrap(dur, i), wrap(delay, i)) for i, obj in enumerate(self._amp_objs)]
+        self._dur_objs = [obj.play(wrap(dur, i), wrap(delay, i)) for i, obj in enumerate(self._dur_objs)]
+        self._end_objs = [obj.play(wrap(dur, i), wrap(delay, i)) for i, obj in enumerate(self._end_objs)]
+        self._x_objs = [obj.play(wrap(dur, i), wrap(delay, i)) for i, obj in enumerate(self._x_objs)]
+        self._y_objs = [obj.play(wrap(dur, i), wrap(delay, i)) for i, obj in enumerate(self._y_objs)]
+        self._z_objs = [obj.play(wrap(dur, i), wrap(delay, i)) for i, obj in enumerate(self._z_objs)]
         return PyoObject.play(self, dur, delay)
 
     def stop(self, wait=0):
@@ -620,6 +635,7 @@ class MML(PyoObject):
     def music(self):
         """string. The music code to parse."""
         return self._music
-    @music.setter
-    def music(self, x): self.setMusic(x)
 
+    @music.setter
+    def music(self, x):
+        self.setMusic(x)

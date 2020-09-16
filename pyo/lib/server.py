@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import print_function
 from __future__ import absolute_import
+
 """
 Copyright 2009-2015 Olivier Belanger
 
@@ -127,8 +128,19 @@ class Server(object):
     >>> s.start()
 
     """
-    def __init__(self, sr=44100, nchnls=2, buffersize=256, duplex=1, audio='portaudio', 
-                 jackname='pyo', ichnls=None, winhost="directsound", midi="portmidi"):
+
+    def __init__(
+        self,
+        sr=44100,
+        nchnls=2,
+        buffersize=256,
+        duplex=1,
+        audio="portaudio",
+        jackname="pyo",
+        ichnls=None,
+        winhost="directsound",
+        midi="portmidi",
+    ):
         if "PYO_SERVER_AUDIO" in os.environ and "offline" not in audio and "embedded" not in audio:
             audio = os.environ["PYO_SERVER_AUDIO"]
         if "PYO_SERVER_MIDI" in os.environ:
@@ -143,7 +155,7 @@ class Server(object):
         else:
             self._ichnls = ichnls
         self._winhost = winhost
-        self._amp = 1.
+        self._amp = 1.0
         self._verbosity = 7
         self._startoffset = 0
         self._dur = -1
@@ -167,12 +179,22 @@ class Server(object):
         if self.getIsBooted():
             if self.getIsStarted():
                 self.stop()
-                self._time.sleep(.25)
+                self._time.sleep(0.25)
             self.shutdown()
-            self._time.sleep(.25)
+            self._time.sleep(0.25)
 
-    def reinit(self, sr=44100, nchnls=2, buffersize=256, duplex=1, audio='portaudio', 
-               jackname='pyo', ichnls=None, winhost="directsound", midi="portmidi"):
+    def reinit(
+        self,
+        sr=44100,
+        nchnls=2,
+        buffersize=256,
+        duplex=1,
+        audio="portaudio",
+        jackname="pyo",
+        ichnls=None,
+        winhost="directsound",
+        midi="portmidi",
+    ):
         """
         Reinit the server'settings. Useful to alternate between real-time and offline server.
 
@@ -195,7 +217,7 @@ class Server(object):
         else:
             self._ichnls = ichnls
         self._winhost = winhost
-        self._amp = 1.
+        self._amp = 1.0
         self._verbosity = 7
         self._startoffset = 0
         self._dur = -1
@@ -249,11 +271,24 @@ class Server(object):
                 title, "Pyo Server" is used.
 
         """
-        self._gui_frame, win, withWX = createServerGUI(self._nchnls, self.start, self.stop,
-                                               self.recstart, self.recstop, self.setAmp,
-                                               self.getIsStarted(), locals, self.shutdown,
-                                               meter, timer, self._amp, exit, title,
-                                               self.getIsBooted, self.getIsStarted)
+        self._gui_frame, win, withWX = createServerGUI(
+            self._nchnls,
+            self.start,
+            self.stop,
+            self.recstart,
+            self.recstop,
+            self.setAmp,
+            self.getIsStarted(),
+            locals,
+            self.shutdown,
+            meter,
+            timer,
+            self._amp,
+            exit,
+            title,
+            self.getIsBooted,
+            self.getIsStarted,
+        )
         if meter:
             self._server.setAmpCallable(self._gui_frame)
         if timer:
@@ -883,15 +918,15 @@ class Server(object):
         if filename is None:
             filename = os.path.join(os.path.expanduser("~"), "pyo_rec.wav")
         self._filename = filename
-        ext = filename.rsplit('.')
+        ext = filename.rsplit(".")
         if len(ext) >= 2:
             ext = ext[-1].lower()
             if ext in FILE_FORMATS:
                 fileformat = FILE_FORMATS[ext]
             else:
-                print('Warning: Unknown file extension. Using fileformat value.')
+                print("Warning: Unknown file extension. Using fileformat value.")
         else:
-            print('Warning: Filename has no extension. Using fileformat value.')
+            print("Warning: Filename has no extension. Using fileformat value.")
         self._fileformat = fileformat
         self._sampletype = sampletype
         self._server.recordOptions(dur, filename, fileformat, sampletype, quality)
@@ -915,7 +950,7 @@ class Server(object):
                 filename = self._filename
             else:
                 filename = os.path.join(os.path.expanduser("~"), "pyo_rec.wav")
-        ext = filename.rsplit('.')
+        ext = filename.rsplit(".")
         if len(ext) >= 2:
             ext = ext[-1].lower()
             if ext in FILE_FORMATS:
@@ -953,11 +988,14 @@ class Server(object):
                 Defaults to 0.
             timestamp: int, optional
                 The delay time, in milliseconds, before the message
-                is sent to the output midi stream. A value of 0 
+                is sent to the output midi stream. A value of 0
                 means to play the note now. Defaults to 0.
         """
         pitch, velocity, channel, timestamp, lmax = convertArgsToLists(pitch, velocity, channel, timestamp)
-        [self._server.noteout(wrap(pitch,i), wrap(velocity,i), wrap(channel,i), wrap(timestamp,i)) for i in range(lmax)]
+        [
+            self._server.noteout(wrap(pitch, i), wrap(velocity, i), wrap(channel, i), wrap(timestamp, i))
+            for i in range(lmax)
+        ]
 
     def afterout(self, pitch, velocity, channel=0, timestamp=0):
         """
@@ -978,11 +1016,14 @@ class Server(object):
                 Defaults to 0.
             timestamp: int, optional
                 The delay time, in milliseconds, before the message
-                is sent to the output midi stream. A value of 0 
+                is sent to the output midi stream. A value of 0
                 means to play the note now. Defaults to 0.
         """
         pitch, velocity, channel, timestamp, lmax = convertArgsToLists(pitch, velocity, channel, timestamp)
-        [self._server.afterout(wrap(pitch,i), wrap(velocity,i), wrap(channel,i), wrap(timestamp,i)) for i in range(lmax)]
+        [
+            self._server.afterout(wrap(pitch, i), wrap(velocity, i), wrap(channel, i), wrap(timestamp, i))
+            for i in range(lmax)
+        ]
 
     def ctlout(self, ctlnum, value, channel=0, timestamp=0):
         """
@@ -1003,11 +1044,14 @@ class Server(object):
                 Defaults to 0.
             timestamp: int, optional
                 The delay time, in milliseconds, before the message
-                is sent to the output midi stream. A value of 0 
+                is sent to the output midi stream. A value of 0
                 means to play the note now. Defaults to 0.
         """
         ctlnum, value, channel, timestamp, lmax = convertArgsToLists(ctlnum, value, channel, timestamp)
-        [self._server.ctlout(wrap(ctlnum,i), wrap(value,i), wrap(channel,i), wrap(timestamp,i)) for i in range(lmax)]
+        [
+            self._server.ctlout(wrap(ctlnum, i), wrap(value, i), wrap(channel, i), wrap(timestamp, i))
+            for i in range(lmax)
+        ]
 
     def programout(self, value, channel=0, timestamp=0):
         """
@@ -1026,11 +1070,11 @@ class Server(object):
                 Defaults to 0.
             timestamp: int, optional
                 The delay time, in milliseconds, before the message
-                is sent to the output midi stream. A value of 0 
+                is sent to the output midi stream. A value of 0
                 means to play the note now. Defaults to 0.
         """
         value, channel, timestamp, lmax = convertArgsToLists(value, channel, timestamp)
-        [self._server.programout(wrap(value,i), wrap(channel,i), wrap(timestamp,i)) for i in range(lmax)]
+        [self._server.programout(wrap(value, i), wrap(channel, i), wrap(timestamp, i)) for i in range(lmax)]
 
     def pressout(self, value, channel=0, timestamp=0):
         """
@@ -1049,11 +1093,11 @@ class Server(object):
                 Defaults to 0.
             timestamp: int, optional
                 The delay time, in milliseconds, before the message
-                is sent to the output midi stream. A value of 0 
+                is sent to the output midi stream. A value of 0
                 means to play the note now. Defaults to 0.
         """
         value, channel, timestamp, lmax = convertArgsToLists(value, channel, timestamp)
-        [self._server.pressout(wrap(value,i), wrap(channel,i), wrap(timestamp,i)) for i in range(lmax)]
+        [self._server.pressout(wrap(value, i), wrap(channel, i), wrap(timestamp, i)) for i in range(lmax)]
 
     def bendout(self, value, channel=0, timestamp=0):
         """
@@ -1073,11 +1117,11 @@ class Server(object):
                 Defaults to 0.
             timestamp: int, optional
                 The delay time, in milliseconds, before the message
-                is sent to the output midi stream. A value of 0 
+                is sent to the output midi stream. A value of 0
                 means to play the note now. Defaults to 0.
         """
         value, channel, timestamp, lmax = convertArgsToLists(value, channel, timestamp)
-        [self._server.bendout(wrap(value,i), wrap(channel,i), wrap(timestamp,i)) for i in range(lmax)]
+        [self._server.bendout(wrap(value, i), wrap(channel, i), wrap(timestamp, i)) for i in range(lmax)]
 
     def sysexout(self, msg, timestamp=0):
         """
@@ -1098,7 +1142,7 @@ class Server(object):
                 to play the message now. Defaults to 0.
         """
         msg, timestamp, lmax = convertArgsToLists(msg, timestamp)
-        [self._server.sysexout(wrap(msg,i), wrap(timestamp,i)) for i in range(lmax)]
+        [self._server.sysexout(wrap(msg, i), wrap(timestamp, i)) for i in range(lmax)]
 
     def makenote(self, pitch, velocity, duration, channel=0):
         """
@@ -1127,7 +1171,10 @@ class Server(object):
                 Defaults to 0.
         """
         pitch, velocity, duration, channel, lmax = convertArgsToLists(pitch, velocity, duration, channel)
-        [self._server.makenote(wrap(pitch,i), wrap(velocity,i), wrap(duration,i), wrap(channel,i)) for i in range(lmax)]
+        [
+            self._server.makenote(wrap(pitch, i), wrap(velocity, i), wrap(duration, i), wrap(channel, i))
+            for i in range(lmax)
+        ]
 
     def addMidiEvent(self, status, data1=0, data2=0):
         """
@@ -1166,7 +1213,7 @@ class Server(object):
 
         """
         status, data1, data2, lmax = convertArgsToLists(status, data1, data2)
-        [self._server.addMidiEvent(wrap(status,i), wrap(data1,i), wrap(data2,i)) for i in range(lmax)]
+        [self._server.addMidiEvent(wrap(status, i), wrap(data1, i), wrap(data2, i)) for i in range(lmax)]
 
     def getStreams(self):
         """
@@ -1387,23 +1434,28 @@ class Server(object):
     def amp(self):
         """float. Overall amplitude."""
         return self._amp
+
     @amp.setter
-    def amp(self, x): self.setAmp(x)
+    def amp(self, x):
+        self.setAmp(x)
 
     @property
     def startoffset(self):
         """float. Starting time of the real-time processing."""
         return self._startoffset
+
     @startoffset.setter
-    def startoffset(self, x): self.setStartOffset(x)
+    def startoffset(self, x):
+        self.setStartOffset(x)
 
     @property
     def verbosity(self):
         """int. Server verbosity."""
         return self._verbosity
+
     @verbosity.setter
     def verbosity(self, x):
-        if (type(x) == int):
+        if type(x) == int:
             self.setVerbosity(x)
         else:
             raise Exception("verbosity must be an integer")
@@ -1412,9 +1464,10 @@ class Server(object):
     def globalseed(self):
         """int. Server global seed."""
         return self._globalseed
+
     @globalseed.setter
     def globalseed(self, x):
-        if (type(x) == int):
+        if type(x) == int:
             self.setGlobalSeed(x)
         else:
             raise Exception("global seed must be an integer")

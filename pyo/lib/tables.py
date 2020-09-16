@@ -1,6 +1,7 @@
 from __future__ import division
 from __future__ import print_function
 from __future__ import absolute_import
+
 """
 Copyright 2009-2015 Olivier Belanger
 
@@ -53,7 +54,8 @@ class HarmTable(PyoTableObject):
     >>> a = Osc(table=t, freq=[199,200], mul=.2).out()
 
     """
-    def __init__(self, list=[1., 0.], size=8192):
+
+    def __init__(self, list=[1.0, 0.0], size=8192):
         pyoArgsAssert(self, "lI", list, size)
         PyoTableObject.__init__(self, size)
         self._auto_normalize = False
@@ -121,9 +123,9 @@ class HarmTable(PyoTableObject):
         the server GUI before showing the controller window.
 
         .. note::
-            
+
             The number of bars in the graph is initialized to the length
-            of the list of relative strentghs at the time the graph is 
+            of the list of relative strentghs at the time the graph is
             created.
 
         """
@@ -133,8 +135,11 @@ class HarmTable(PyoTableObject):
     def list(self):
         """list. Relative strengths of the fixed harmonic partial numbers."""
         return self._list
+
     @list.setter
-    def list(self, x): self.replace(x)
+    def list(self, x):
+        self.replace(x)
+
 
 class SawTable(PyoTableObject):
     """
@@ -158,11 +163,12 @@ class SawTable(PyoTableObject):
     >>> a = Osc(table=t, freq=[199,200], mul=.2).out()
 
     """
+
     def __init__(self, order=10, size=8192):
         pyoArgsAssert(self, "II", order, size)
         PyoTableObject.__init__(self, size)
         self._order = order
-        list = [1. / i for i in range(1,(order+1))]
+        list = [1.0 / i for i in range(1, (order + 1))]
         self._base_objs = [HarmTable_base(list, size)]
 
     def setOrder(self, x):
@@ -177,7 +183,7 @@ class SawTable(PyoTableObject):
         """
         pyoArgsAssert(self, "I", x)
         self._order = x
-        list = [1. / i for i in range(1,(self._order+1))]
+        list = [1.0 / i for i in range(1, (self._order + 1))]
         [obj.replace(list) for obj in self._base_objs]
         self.refreshView()
 
@@ -185,8 +191,11 @@ class SawTable(PyoTableObject):
     def order(self):
         """int. Number of harmonics sawtooth is made of."""
         return self._order
+
     @order.setter
-    def order(self, x): self.setOrder(x)
+    def order(self, x):
+        self.setOrder(x)
+
 
 class SquareTable(PyoTableObject):
     """
@@ -210,16 +219,17 @@ class SquareTable(PyoTableObject):
     >>> a = Osc(table=t, freq=[199,200], mul=.2).out()
 
     """
+
     def __init__(self, order=10, size=8192):
         pyoArgsAssert(self, "II", order, size)
         PyoTableObject.__init__(self, size)
         self._order = order
         list = []
-        for i in range(1,(order*2)):
-            if i%2 == 1:
-                list.append(1. / i)
+        for i in range(1, (order * 2)):
+            if i % 2 == 1:
+                list.append(1.0 / i)
             else:
-                list.append(0.)
+                list.append(0.0)
         self._base_objs = [HarmTable_base(list, size)]
 
     def setOrder(self, x):
@@ -235,11 +245,11 @@ class SquareTable(PyoTableObject):
         pyoArgsAssert(self, "I", x)
         self._order = x
         list = []
-        for i in range(1,(self._order*2)):
-            if i%2 == 1:
-                list.append(1. / i)
+        for i in range(1, (self._order * 2)):
+            if i % 2 == 1:
+                list.append(1.0 / i)
             else:
-                list.append(0.)
+                list.append(0.0)
         [obj.replace(list) for obj in self._base_objs]
         self.refreshView()
 
@@ -247,8 +257,11 @@ class SquareTable(PyoTableObject):
     def order(self):
         """int. Number of harmonics square waveform is made of."""
         return self._order
+
     @order.setter
-    def order(self, x): self.setOrder(x)
+    def order(self, x):
+        self.setOrder(x)
+
 
 class TriangleTable(PyoTableObject):
     """
@@ -272,16 +285,17 @@ class TriangleTable(PyoTableObject):
     >>> a = Osc(table=t, freq=[199,200], mul=.2).out()
 
     """
+
     def __init__(self, order=10, size=8192):
         pyoArgsAssert(self, "II", order, size)
         PyoTableObject.__init__(self, size)
         self._order = order
         list = []
-        for i in range(1,(order*2)):
-            if i%2 == 1:
-                list.append(1. / pow(i,2))
+        for i in range(1, (order * 2)):
+            if i % 2 == 1:
+                list.append(1.0 / pow(i, 2))
             else:
-                list.append(0.)
+                list.append(0.0)
         self._base_objs = [HarmTable_base(list, size)]
 
     def setOrder(self, x):
@@ -297,11 +311,11 @@ class TriangleTable(PyoTableObject):
         pyoArgsAssert(self, "I", x)
         self._order = x
         list = []
-        for i in range(1,(self._order*2)):
-            if i%2 == 1:
-                list.append(1. / pow(i,2))
+        for i in range(1, (self._order * 2)):
+            if i % 2 == 1:
+                list.append(1.0 / pow(i, 2))
             else:
-                list.append(0.)
+                list.append(0.0)
         [obj.replace(list) for obj in self._base_objs]
         self.refreshView()
 
@@ -309,8 +323,11 @@ class TriangleTable(PyoTableObject):
     def order(self):
         """int. Number of harmonics triangle waveform is made of."""
         return self._order
+
     @order.setter
-    def order(self, x): self.setOrder(x)
+    def order(self, x):
+        self.setOrder(x)
+
 
 class ChebyTable(PyoTableObject):
     """
@@ -339,7 +356,8 @@ class ChebyTable(PyoTableObject):
     >>> b = Lookup(table=t, index=a, mul=1-lfo).out()
 
     """
-    def __init__(self, list=[1., 0.], size=8192):
+
+    def __init__(self, list=[1.0, 0.0], size=8192):
         pyoArgsAssert(self, "lI", list, size)
         PyoTableObject.__init__(self, size)
         self._auto_normalize = False
@@ -420,9 +438,9 @@ class ChebyTable(PyoTableObject):
         the server GUI before showing the controller window.
 
         .. note::
-            
+
             The number of bars in the graph is initialized to the length
-            of the list of relative strentghs at the time the graph is 
+            of the list of relative strentghs at the time the graph is
             created.
 
         """
@@ -432,8 +450,11 @@ class ChebyTable(PyoTableObject):
     def list(self):
         """list. Relative strengths of the fixed harmonic partial numbers."""
         return self._list
+
     @list.setter
-    def list(self, x): self.replace(x)
+    def list(self, x):
+        self.replace(x)
+
 
 class HannTable(PyoTableObject):
     """
@@ -454,10 +475,12 @@ class HannTable(PyoTableObject):
     >>> b = Sine(freq=[299,300], mul=a).out()
 
     """
+
     def __init__(self, size=8192):
         pyoArgsAssert(self, "I", size)
         PyoTableObject.__init__(self, size)
         self._base_objs = [HannTable_base(size)]
+
 
 class SincTable(PyoTableObject):
     """
@@ -481,7 +504,8 @@ class SincTable(PyoTableObject):
     >>> a = Osc(t, freq=[199,200], mul=.2).out()
 
     """
-    def __init__(self, freq=pi*2, windowed=False, size=8192):
+
+    def __init__(self, freq=pi * 2, windowed=False, size=8192):
         pyoArgsAssert(self, "NBI", freq, windowed, size)
         PyoTableObject.__init__(self, size)
         self._freq = freq
@@ -522,14 +546,20 @@ class SincTable(PyoTableObject):
     def freq(self):
         """float. Frequency of the sinc function."""
         return self._freq
+
     @freq.setter
-    def freq(self, x): self.setFreq(x)
+    def freq(self, x):
+        self.setFreq(x)
+
     @property
     def windowed(self):
         """boolean. Windowed flag."""
         return self._windowed
+
     @windowed.setter
-    def windowed(self, x): self.setWindowed(x)
+    def windowed(self, x):
+        self.setWindowed(x)
+
 
 class WinTable(PyoTableObject):
     """
@@ -561,6 +591,7 @@ class WinTable(PyoTableObject):
     >>> b = SineLoop(freq=[199,200], feedback=0.05, mul=a).out()
 
     """
+
     def __init__(self, type=2, size=8192):
         pyoArgsAssert(self, "II", type, size)
         PyoTableObject.__init__(self, size)
@@ -586,8 +617,11 @@ class WinTable(PyoTableObject):
     def type(self):
         """int. Windowing function."""
         return self._type
+
     @type.setter
-    def type(self, x): self.setType(x)
+    def type(self, x):
+        self.setType(x)
+
 
 class ParaTable(PyoTableObject):
     """
@@ -611,10 +645,12 @@ class ParaTable(PyoTableObject):
     >>> b = SineLoop(freq=[299,300], feedback=0.05, mul=a).out()
 
     """
+
     def __init__(self, size=8192):
         pyoArgsAssert(self, "I", size)
         PyoTableObject.__init__(self, size)
         self._base_objs = [ParaTable_base(size)]
+
 
 class LinTable(PyoTableObject):
     """
@@ -645,7 +681,8 @@ class LinTable(PyoTableObject):
     >>> b = SineLoop(freq=[299,300], feedback=0.05, mul=a).out()
 
     """
-    def __init__(self, list=[(0, 0.), (8191, 1.)], size=8192):
+
+    def __init__(self, list=[(0, 0.0), (8191, 1.0)], size=8192):
         pyoArgsAssert(self, "lI", list, size)
         PyoTableObject.__init__(self, size)
         if size < list[-1][0]:
@@ -695,11 +732,11 @@ class LinTable(PyoTableObject):
         # if _name not in files: files.append(_name)
         files = [filename]
         for i, obj in enumerate(self._base_objs):
-            p = os.path.join(_path, wrap(files,i))
+            p = os.path.join(_path, wrap(files, i))
             f = open(p, "r")
             values = [(float(l.split()[0]), float(l.split()[1])) for l in f.readlines()]
             scl = self._size / values[-1][0]
-            values = [(int(v[0]*scl), v[1]) for v in values]
+            values = [(int(v[0] * scl), v[1]) for v in values]
             f.close()
             values = reducePoints(values, tolerance=tolerance)
             self._list = values
@@ -745,8 +782,11 @@ class LinTable(PyoTableObject):
     def list(self):
         """list. List of tuples indicating location and value of each points in the table."""
         return self.getPoints()
+
     @list.setter
-    def list(self, x): self.replace(x)
+    def list(self, x):
+        self.replace(x)
+
 
 class LogTable(PyoTableObject):
     """
@@ -778,7 +818,8 @@ class LogTable(PyoTableObject):
     >>> b = SineLoop(freq=[599,600], feedback=0.05, mul=a).out()
 
     """
-    def __init__(self, list=[(0, 0.), (8191, 1.)], size=8192):
+
+    def __init__(self, list=[(0, 0.0), (8191, 1.0)], size=8192):
         pyoArgsAssert(self, "lI", list, size)
         PyoTableObject.__init__(self, size)
         if size < list[-1][0]:
@@ -828,11 +869,11 @@ class LogTable(PyoTableObject):
         # if _name not in files: files.append(_name)
         files = [filename]
         for i, obj in enumerate(self._base_objs):
-            p = os.path.join(_path, wrap(files,i))
+            p = os.path.join(_path, wrap(files, i))
             f = open(p, "r")
             values = [(float(l.split()[0]), float(l.split()[1])) for l in f.readlines()]
             scl = self._size / values[-1][0]
-            values = [(int(v[0]*scl), v[1]) for v in values]
+            values = [(int(v[0] * scl), v[1]) for v in values]
             f.close()
             values = reducePoints(values, tolerance=tolerance)
             self._list = values
@@ -878,8 +919,11 @@ class LogTable(PyoTableObject):
     def list(self):
         """list. List of tuples indicating location and value of each points in the table."""
         return self.getPoints()
+
     @list.setter
-    def list(self, x): self.replace(x)
+    def list(self, x):
+        self.replace(x)
+
 
 class CosLogTable(PyoTableObject):
     """
@@ -911,7 +955,8 @@ class CosLogTable(PyoTableObject):
     >>> b = SineLoop(freq=[599,600], feedback=0.05, mul=a).out()
 
     """
-    def __init__(self, list=[(0, 0.), (8191, 1.)], size=8192):
+
+    def __init__(self, list=[(0, 0.0), (8191, 1.0)], size=8192):
         pyoArgsAssert(self, "lI", list, size)
         PyoTableObject.__init__(self, size)
         if size < list[-1][0]:
@@ -961,11 +1006,11 @@ class CosLogTable(PyoTableObject):
         # if _name not in files: files.append(_name)
         files = [filename]
         for i, obj in enumerate(self._base_objs):
-            p = os.path.join(_path, wrap(files,i))
+            p = os.path.join(_path, wrap(files, i))
             f = open(p, "r")
             values = [(float(l.split()[0]), float(l.split()[1])) for l in f.readlines()]
             scl = self._size / values[-1][0]
-            values = [(int(v[0]*scl), v[1]) for v in values]
+            values = [(int(v[0] * scl), v[1]) for v in values]
             f.close()
             values = reducePoints(values, tolerance=tolerance)
             self._list = values
@@ -1011,8 +1056,11 @@ class CosLogTable(PyoTableObject):
     def list(self):
         """list. List of tuples indicating location and value of each points in the table."""
         return self.getPoints()
+
     @list.setter
-    def list(self, x): self.replace(x)
+    def list(self, x):
+        self.replace(x)
+
 
 class CosTable(PyoTableObject):
     """
@@ -1043,7 +1091,8 @@ class CosTable(PyoTableObject):
     >>> b = SineLoop(freq=[299,300], feedback=0.05, mul=a).out()
 
     """
-    def __init__(self, list=[(0, 0.), (8191, 1.)], size=8192):
+
+    def __init__(self, list=[(0, 0.0), (8191, 1.0)], size=8192):
         pyoArgsAssert(self, "lI", list, size)
         PyoTableObject.__init__(self, size)
         if size < list[-1][0]:
@@ -1093,11 +1142,11 @@ class CosTable(PyoTableObject):
         # if _name not in files: files.append(_name)
         files = [filename]
         for i, obj in enumerate(self._base_objs):
-            p = os.path.join(_path, wrap(files,i))
+            p = os.path.join(_path, wrap(files, i))
             f = open(p, "r")
             values = [(float(l.split()[0]), float(l.split()[1])) for l in f.readlines()]
             scl = self._size / values[-1][0]
-            values = [(int(v[0]*scl), v[1]) for v in values]
+            values = [(int(v[0] * scl), v[1]) for v in values]
             f.close()
             values = reducePoints(values, tolerance=tolerance)
             self._list = values
@@ -1143,8 +1192,11 @@ class CosTable(PyoTableObject):
     def list(self):
         """list. List of tuples indicating location and value of each points in the table."""
         return self.getPoints()
+
     @list.setter
-    def list(self, x): self.replace(x)
+    def list(self, x):
+        self.replace(x)
+
 
 class CurveTable(PyoTableObject):
     """
@@ -1191,7 +1243,8 @@ class CurveTable(PyoTableObject):
     >>> b = SineLoop(freq=[299,300], feedback=0.05, mul=a).out()
 
     """
-    def __init__(self, list=[(0, 0.), (8191, 1.)], tension=0, bias=0, size=8192):
+
+    def __init__(self, list=[(0, 0.0), (8191, 1.0)], tension=0, bias=0, size=8192):
         pyoArgsAssert(self, "lNNI", list, tension, bias, size)
         PyoTableObject.__init__(self, size)
         if size < list[-1][0]:
@@ -1278,11 +1331,11 @@ class CurveTable(PyoTableObject):
         # if _name not in files: files.append(_name)
         files = [filename]
         for i, obj in enumerate(self._base_objs):
-            p = os.path.join(_path, wrap(files,i))
+            p = os.path.join(_path, wrap(files, i))
             f = open(p, "r")
             values = [(float(l.split()[0]), float(l.split()[1])) for l in f.readlines()]
             scl = self._size / values[-1][0]
-            values = [(int(v[0]*scl), v[1]) for v in values]
+            values = [(int(v[0] * scl), v[1]) for v in values]
             f.close()
             values = reducePoints(values, tolerance=tolerance)
             self._list = values
@@ -1328,22 +1381,29 @@ class CurveTable(PyoTableObject):
     def tension(self):
         """float. Curvature tension."""
         return self._tension
+
     @tension.setter
-    def tension(self, x): self.setTension(x)
+    def tension(self, x):
+        self.setTension(x)
 
     @property
     def bias(self):
         """float. Curve Attraction."""
         return self._bias
+
     @bias.setter
-    def bias(self, x): self.setBias(x)
+    def bias(self, x):
+        self.setBias(x)
 
     @property
     def list(self):
         """list. List of tuples indicating location and value of each points in the table."""
         return self.getPoints()
+
     @list.setter
-    def list(self, x): self.replace(x)
+    def list(self, x):
+        self.replace(x)
+
 
 class ExpTable(PyoTableObject):
     """
@@ -1379,7 +1439,8 @@ class ExpTable(PyoTableObject):
     >>> b = Sine(freq=[299,300], mul=a).out()
 
     """
-    def __init__(self, list=[(0, 0.), (8192, 1.)], exp=10, inverse=True, size=8192):
+
+    def __init__(self, list=[(0, 0.0), (8192, 1.0)], exp=10, inverse=True, size=8192):
         pyoArgsAssert(self, "lNBI", list, exp, inverse, size)
         PyoTableObject.__init__(self, size)
         if size < list[-1][0]:
@@ -1461,11 +1522,11 @@ class ExpTable(PyoTableObject):
         # if _name not in files: files.append(_name)
         files = [filename]
         for i, obj in enumerate(self._base_objs):
-            p = os.path.join(_path, wrap(files,i))
+            p = os.path.join(_path, wrap(files, i))
             f = open(p, "r")
             values = [(float(l.split()[0]), float(l.split()[1])) for l in f.readlines()]
             scl = self._size / values[-1][0]
-            values = [(int(v[0]*scl), v[1]) for v in values]
+            values = [(int(v[0] * scl), v[1]) for v in values]
             f.close()
             values = reducePoints(values, tolerance=tolerance)
             self._list = values
@@ -1511,20 +1572,29 @@ class ExpTable(PyoTableObject):
     def exp(self):
         """float. Exponent factor."""
         return self._exp
+
     @exp.setter
-    def exp(self, x): self.setExp(x)
+    def exp(self, x):
+        self.setExp(x)
+
     @property
     def inverse(self):
         """boolean. Inverse factor."""
         return self._inverse
+
     @inverse.setter
-    def inverse(self, x): self.setInverse(x)
+    def inverse(self, x):
+        self.setInverse(x)
+
     @property
     def list(self):
         """list. List of tuples indicating location and value of each points in the table."""
         return self.getPoints()
+
     @list.setter
-    def list(self, x): self.replace(x)
+    def list(self, x):
+        self.replace(x)
+
 
 class SndTable(PyoTableObject):
     """
@@ -1562,6 +1632,7 @@ class SndTable(PyoTableObject):
     >>> a = Osc(table=t, freq=[freq, freq*.995], mul=.3).out()
 
     """
+
     def __init__(self, path=None, chnl=None, start=0, stop=None, initchnls=1):
         PyoTableObject.__init__(self)
         self._path = path
@@ -1581,7 +1652,9 @@ class SndTable(PyoTableObject):
                     if stop is None:
                         self._base_objs.extend([SndTable_base(stringencode(p), i, start) for i in range(_snd_chnls)])
                     else:
-                        self._base_objs.extend([SndTable_base(stringencode(p), i, start, stop) for i in range(_snd_chnls)])
+                        self._base_objs.extend(
+                            [SndTable_base(stringencode(p), i, start, stop) for i in range(_snd_chnls)]
+                        )
                 else:
                     if stop is None:
                         self._base_objs.append(SndTable_base(stringencode(p), chnl, start))
@@ -1619,7 +1692,7 @@ class SndTable(PyoTableObject):
             self._dur = []
             path, lmax = convertArgsToLists(path)
             for i, obj in enumerate(self._base_objs):
-                p = path[i%lmax]
+                p = path[i % lmax]
                 _size, _dur, _snd_sr, _snd_chnls, _format, _type = sndinfo(p)
                 self._size.append(_size)
                 self._dur.append(_dur)
@@ -1632,9 +1705,12 @@ class SndTable(PyoTableObject):
             self._size = _size
             self._dur = _dur
             if stop is None:
-                [obj.setSound(stringencode(path), (i%_snd_chnls), start) for i, obj in enumerate(self._base_objs)]
+                [obj.setSound(stringencode(path), (i % _snd_chnls), start) for i, obj in enumerate(self._base_objs)]
             else:
-                [obj.setSound(stringencode(path), (i%_snd_chnls), start, stop) for i, obj in enumerate(self._base_objs)]
+                [
+                    obj.setSound(stringencode(path), (i % _snd_chnls), start, stop)
+                    for i, obj in enumerate(self._base_objs)
+                ]
         self.refreshView()
         self._resetView()
 
@@ -1666,7 +1742,7 @@ class SndTable(PyoTableObject):
             self._dur = []
             path, lmax = convertArgsToLists(path)
             for i, obj in enumerate(self._base_objs):
-                p = path[i%lmax]
+                p = path[i % lmax]
                 _size, _dur, _snd_sr, _snd_chnls, _format, _type = sndinfo(p)
                 self._size.append(_size)
                 self._dur.append(_dur)
@@ -1679,9 +1755,15 @@ class SndTable(PyoTableObject):
             self._size = _size
             self._dur = _dur
             if stop is None:
-                [obj.append(stringencode(path), crossfade, (i%_snd_chnls), start) for i, obj in enumerate(self._base_objs)]
+                [
+                    obj.append(stringencode(path), crossfade, (i % _snd_chnls), start)
+                    for i, obj in enumerate(self._base_objs)
+                ]
             else:
-                [obj.append(stringencode(path), crossfade, (i%_snd_chnls), start, stop) for i, obj in enumerate(self._base_objs)]
+                [
+                    obj.append(stringencode(path), crossfade, (i % _snd_chnls), start, stop)
+                    for i, obj in enumerate(self._base_objs)
+                ]
         self.refreshView()
 
     def insert(self, path, pos=0, crossfade=0, start=0, stop=None):
@@ -1718,7 +1800,7 @@ class SndTable(PyoTableObject):
             self._dur = []
             path, lmax = convertArgsToLists(path)
             for i, obj in enumerate(self._base_objs):
-                p = path[i%lmax]
+                p = path[i % lmax]
                 _size, _dur, _snd_sr, _snd_chnls, _format, _type = sndinfo(p)
                 self._size.append(_size)
                 self._dur.append(_dur)
@@ -1731,9 +1813,15 @@ class SndTable(PyoTableObject):
             self._size = _size
             self._dur = _dur
             if stop is None:
-                [obj.insert(stringencode(path), pos, crossfade, (i%_snd_chnls), start) for i, obj in enumerate(self._base_objs)]
+                [
+                    obj.insert(stringencode(path), pos, crossfade, (i % _snd_chnls), start)
+                    for i, obj in enumerate(self._base_objs)
+                ]
             else:
-                [obj.insert(stringencode(path), pos, crossfade, (i%_snd_chnls), start, stop) for i, obj in enumerate(self._base_objs)]
+                [
+                    obj.insert(stringencode(path), pos, crossfade, (i % _snd_chnls), start, stop)
+                    for i, obj in enumerate(self._base_objs)
+                ]
         self.refreshView()
 
     def getRate(self, all=True):
@@ -1775,9 +1863,9 @@ class SndTable(PyoTableObject):
 
         """
         if type(self._path) == list:
-            _dur = [1./obj.getRate() for obj in self._base_objs]
+            _dur = [1.0 / obj.getRate() for obj in self._base_objs]
         else:
-            _dur = 1./self._base_objs[0].getRate()
+            _dur = 1.0 / self._base_objs[0].getRate()
 
         if all:
             return _dur
@@ -1891,42 +1979,55 @@ class SndTable(PyoTableObject):
     def sound(self):
         """string. Full path of the sound."""
         return self._path
+
     @sound.setter
-    def sound(self, x): self.setSound(x)
+    def sound(self, x):
+        self.setSound(x)
 
     @property
     def path(self):
         """string. Full path of the sound."""
         return self._path
+
     @path.setter
-    def path(self, x): self.setSound(x)
+    def path(self, x):
+        self.setSound(x)
 
     @property
     def chnl(self):
         """int. Channel to read in."""
         return self._chnl
+
     @chnl.setter
-    def chnl(self, x): print("'chnl' attribute is read-only.")
+    def chnl(self, x):
+        print("'chnl' attribute is read-only.")
 
     @property
     def start(self):
         """float. Start point, in seconds, to read into the file."""
         return self._start
+
     @start.setter
-    def start(self, x): print("'start' attribute is read-only.")
+    def start(self, x):
+        print("'start' attribute is read-only.")
 
     @property
     def stop(self):
         """float. Stop point, in seconds, to read into the file."""
         return self._stop
+
     @stop.setter
-    def stop(self, x): print("SndTable 'stop' attribute is read-only.")
+    def stop(self, x):
+        print("SndTable 'stop' attribute is read-only.")
 
     @property
     def size(self):
         return self._size
+
     @size.setter
-    def size(self, x): print("SndTable 'size' attribute is read-only.")
+    def size(self, x):
+        print("SndTable 'size' attribute is read-only.")
+
 
 class NewTable(PyoTableObject):
     """
@@ -1966,6 +2067,7 @@ class NewTable(PyoTableObject):
     >>> # b.play()
 
     """
+
     def __init__(self, length, chnls=1, init=None, feedback=0.0):
         pyoArgsAssert(self, "NILN", length, chnls, init, feedback)
         PyoTableObject.__init__(self)
@@ -1978,7 +2080,7 @@ class NewTable(PyoTableObject):
         else:
             if type(init[0]) != list:
                 init = [init]
-            self._base_objs = [NewTable_base(length, wrap(init,i), feedback) for i in range(chnls)]
+            self._base_objs = [NewTable_base(length, wrap(init, i), feedback) for i in range(chnls)]
         self._size = self._base_objs[0].getSize()
 
     def replace(self, x):
@@ -1997,7 +2099,7 @@ class NewTable(PyoTableObject):
         pyoArgsAssert(self, "l", x)
         if type(x[0]) != list:
             x = [x]
-        [obj.setTable(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setTable(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
         self.refreshView()
 
     def setFeedback(self, x):
@@ -2095,35 +2197,46 @@ class NewTable(PyoTableObject):
     def length(self):
         """float. Length of the table in seconds."""
         return self._length
+
     @length.setter
-    def length(self, x): print("'length' attribute is read-only.")
+    def length(self, x):
+        print("'length' attribute is read-only.")
 
     @property
     def chnls(self):
         """int. Number of channels that will be handled by the table."""
         return self._chnls
+
     @chnls.setter
-    def chnls(self, x): print("'chnls' attribute is read-only.")
+    def chnls(self, x):
+        print("'chnls' attribute is read-only.")
 
     @property
     def init(self):
         """list of floats. Initial table."""
         return self._init
+
     @init.setter
-    def init(self, x): print("'init' attribute is read-only.")
+    def init(self, x):
+        print("'init' attribute is read-only.")
 
     @property
     def feedback(self):
         """float. Amount of old data to mix with a new recording."""
         return self._feedback
+
     @feedback.setter
-    def feedback(self, x): self.setFeedback(x)
+    def feedback(self, x):
+        self.setFeedback(x)
 
     @property
     def size(self):
         return self._size
+
     @size.setter
-    def size(self, x): print("NewTable 'size' attribute is read-only.")
+    def size(self, x):
+        print("NewTable 'size' attribute is read-only.")
+
 
 class DataTable(PyoTableObject):
     """
@@ -2158,6 +2271,7 @@ class DataTable(PyoTableObject):
     >>> a = SineLoop(freq=[pit,pit*0.99], feedback = 0.07, mul=.2).out()
 
     """
+
     def __init__(self, size, chnls=1, init=None):
         pyoArgsAssert(self, "IIL", size, chnls, init)
         PyoTableObject.__init__(self, size)
@@ -2168,7 +2282,7 @@ class DataTable(PyoTableObject):
         else:
             if type(init[0]) != list:
                 init = [init]
-            self._base_objs = [DataTable_base(size, wrap(init,i)) for i in range(chnls)]
+            self._base_objs = [DataTable_base(size, wrap(init, i)) for i in range(chnls)]
 
     def replace(self, x):
         """
@@ -2186,7 +2300,7 @@ class DataTable(PyoTableObject):
         pyoArgsAssert(self, "l", x)
         if type(x[0]) != list:
             x = [x]
-        [obj.setTable(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setTable(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
         self.refreshView()
 
     def getRate(self):
@@ -2230,22 +2344,29 @@ class DataTable(PyoTableObject):
     def size(self):
         """int. Length of the table in samples."""
         return self._size
+
     @size.setter
-    def size(self, x): print("DataTable 'size' attribute is read-only.")
+    def size(self, x):
+        print("DataTable 'size' attribute is read-only.")
 
     @property
     def chnls(self):
         """int. Number of channels that will be handled by the table."""
         return self._chnls
+
     @chnls.setter
-    def chnls(self, x): print("'chnls' attribute is read-only.")
+    def chnls(self, x):
+        print("'chnls' attribute is read-only.")
 
     @property
     def init(self):
         """list of floats. Initial table."""
         return self._init
+
     @init.setter
-    def init(self, x): print("'init' attribute is read-only.")
+    def init(self, x):
+        print("'init' attribute is read-only.")
+
 
 class AtanTable(PyoTableObject):
     """
@@ -2272,6 +2393,7 @@ class AtanTable(PyoTableObject):
     >>> l = Lookup(table=t, index=a, mul=0.3).out()
 
     """
+
     def __init__(self, slope=0.5, size=8192):
         pyoArgsAssert(self, "NI", slope, size)
         PyoTableObject.__init__(self, size)
@@ -2297,8 +2419,11 @@ class AtanTable(PyoTableObject):
     def slope(self):
         """float. slope of the arctangent function."""
         return self._slope
+
     @slope.setter
-    def slope(self, x): self.setSlope(x)
+    def slope(self, x):
+        self.setSlope(x)
+
 
 class PartialTable(PyoTableObject):
     """
@@ -2347,7 +2472,8 @@ class PartialTable(PyoTableObject):
     >>> a = Osc(table=t, freq=[1.99,2], mul=.2).out()
 
     """
-    def __init__(self, list=[(1,1), (1.33,0.5),(1.67,0.3)], size=65536):
+
+    def __init__(self, list=[(1, 1), (1.33, 0.5), (1.67, 0.3)], size=65536):
         pyoArgsAssert(self, "lI", list, size)
         PyoTableObject.__init__(self, size)
         self._list = list
@@ -2357,7 +2483,7 @@ class PartialTable(PyoTableObject):
 
     def _create_list(self):
         # internal method used to compute the harmonics's weight
-        hrms = [(int(x*100.), y) for x, y in self._list]
+        hrms = [(int(x * 100.0), y) for x, y in self._list]
         l = []
         ind = 0
         for i in range(10000):
@@ -2392,8 +2518,11 @@ class PartialTable(PyoTableObject):
     def list(self):
         """list. List of partial numbers and strength."""
         return self._list
+
     @list.setter
-    def list(self, x): self.replace(x)
+    def list(self, x):
+        self.replace(x)
+
 
 class PadSynthTable(PyoTableObject):
     """
@@ -2456,6 +2585,7 @@ class PadSynthTable(PyoTableObject):
     >>> a = Osc(table=t, freq=f, phase=[0, 0.5], mul=0.5).out()
 
     """
+
     def __init__(self, basefreq=440, spread=1, bw=50, bwscl=1, nharms=64, damp=0.7, size=262144):
         pyoArgsAssert(self, "NNNNINI", basefreq, spread, bw, bwscl, nharms, damp, size)
         PyoTableObject.__init__(self, size)
@@ -2599,43 +2729,56 @@ class PadSynthTable(PyoTableObject):
     def basefreq(self):
         """float. Base frequency in Hz."""
         return self._basefreq
+
     @basefreq.setter
-    def basefreq(self, x): self.setBaseFreq(x)
+    def basefreq(self, x):
+        self.setBaseFreq(x)
 
     @property
     def spread(self):
         """float. Frequency spreading factor."""
         return self._spread
+
     @spread.setter
-    def spread(self, x): self.setSpread(x)
+    def spread(self, x):
+        self.setSpread(x)
 
     @property
     def bw(self):
         """float. Bandwitdh of the first harmonic in cents."""
         return self._bw
+
     @bw.setter
-    def bw(self, x): self.setBw(x)
+    def bw(self, x):
+        self.setBw(x)
 
     @property
     def bwscl(self):
         """float. Bandwitdh scaling factor."""
         return self._bwscl
+
     @bwscl.setter
-    def bwscl(self, x): self.setBwScl(x)
+    def bwscl(self, x):
+        self.setBwScl(x)
 
     @property
     def nharms(self):
         """int. Number of harmonics."""
         return self._nharms
+
     @nharms.setter
-    def nharms(self, x): self.setNharms(x)
+    def nharms(self, x):
+        self.setNharms(x)
 
     @property
     def damp(self):
         """float. Amplitude damping factor."""
         return self._damp
+
     @damp.setter
-    def damp(self, x): self.setDamp(x)
+    def damp(self, x):
+        self.setDamp(x)
+
 
 class SharedTable(PyoTableObject):
     """
@@ -2682,6 +2825,7 @@ class SharedTable(PyoTableObject):
     >>> record = TableWrite(wave, pos, shared)
 
     """
+
     def __init__(self, name, create, size):
         if sys.platform == "win32":
             raise Exception("SharedTable is not implemented yet for Windows.")
@@ -2690,7 +2834,7 @@ class SharedTable(PyoTableObject):
         self._name = name
         self._create = create
         name, lmax = convertArgsToLists(name)
-        self._base_objs = [SharedTable_base(wrap(name,i), create, size) for i in range(lmax)]
+        self._base_objs = [SharedTable_base(wrap(name, i), create, size) for i in range(lmax)]
 
     def getRate(self):
         """
@@ -2704,5 +2848,7 @@ class SharedTable(PyoTableObject):
     def size(self):
         """int. Length of the table in samples."""
         return self._size
+
     @size.setter
-    def size(self, x): print("SharedTable 'size' attribute is read-only.")
+    def size(self, x):
+        print("SharedTable 'size' attribute is read-only.")

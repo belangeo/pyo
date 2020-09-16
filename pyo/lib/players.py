@@ -32,6 +32,7 @@ from ._core import *
 from ._maps import *
 import aifc
 
+
 class SfPlayer(PyoObject):
     """
     Soundfile player.
@@ -96,6 +97,7 @@ class SfPlayer(PyoObject):
     >>> sf = SfPlayer(snd, speed=[.75,.8], loop=True, mul=.3).out()
 
     """
+
     def __init__(self, path, speed=1, loop=False, offset=0, interp=2, mul=1, add=0):
         pyoArgsAssert(self, "sObniOO", path, speed, loop, offset, interp, mul, add)
         PyoObject.__init__(self, mul, add)
@@ -104,15 +106,21 @@ class SfPlayer(PyoObject):
         self._loop = loop
         self._offset = offset
         self._interp = interp
-        path, speed, loop, offset, interp, mul, add, lmax = convertArgsToLists(path, speed, loop, offset, interp, mul, add)
+        path, speed, loop, offset, interp, mul, add, lmax = convertArgsToLists(
+            path, speed, loop, offset, interp, mul, add
+        )
         self._base_players = []
         self._base_objs = []
         _trig_objs_tmp = []
         for i in range(lmax):
             _snd_size, _dur, _snd_sr, _snd_chnls, _format, _type = sndinfo(path[0])
-            self._base_players.append(SfPlayer_base(stringencode(wrap(path,i)), wrap(speed,i), wrap(loop,i), wrap(offset,i), wrap(interp,i)))
+            self._base_players.append(
+                SfPlayer_base(
+                    stringencode(wrap(path, i)), wrap(speed, i), wrap(loop, i), wrap(offset, i), wrap(interp, i)
+                )
+            )
             for j in range(_snd_chnls):
-                self._base_objs.append(SfPlay_base(self._base_players[-1], j, wrap(mul,i), wrap(add,i)))
+                self._base_objs.append(SfPlay_base(self._base_players[-1], j, wrap(mul, i), wrap(add, i)))
                 _trig_objs_tmp.append(TriggerDummy_base(self._base_players[-1]))
         self._trig_objs = Dummy(_trig_objs_tmp)
         self._init_play()
@@ -149,7 +157,7 @@ class SfPlayer(PyoObject):
 
         self._path = path
         path, lmax = convertArgsToLists(path)
-        [obj.setSound(stringencode(wrap(path,i))) for i, obj in enumerate(self._base_players)]
+        [obj.setSound(stringencode(wrap(path, i))) for i, obj in enumerate(self._base_players)]
 
     def setSound(self, path):
         """
@@ -179,7 +187,7 @@ class SfPlayer(PyoObject):
         pyoArgsAssert(self, "O", x)
         self._speed = x
         x, lmax = convertArgsToLists(x)
-        [obj.setSpeed(wrap(x,i)) for i, obj in enumerate(self._base_players)]
+        [obj.setSpeed(wrap(x, i)) for i, obj in enumerate(self._base_players)]
 
     def setLoop(self, x):
         """
@@ -195,8 +203,10 @@ class SfPlayer(PyoObject):
         self._loop = x
         x, lmax = convertArgsToLists(x)
         for i, obj in enumerate(self._base_players):
-            if wrap(x,i): obj.setLoop(1)
-            else: obj.setLoop(0)
+            if wrap(x, i):
+                obj.setLoop(1)
+            else:
+                obj.setLoop(0)
 
     def setOffset(self, x):
         """
@@ -211,7 +221,7 @@ class SfPlayer(PyoObject):
         pyoArgsAssert(self, "n", x)
         self._offset = x
         x, lmax = convertArgsToLists(x)
-        [obj.setOffset(wrap(x,i)) for i, obj in enumerate(self._base_players)]
+        [obj.setOffset(wrap(x, i)) for i, obj in enumerate(self._base_players)]
 
     def setInterp(self, x):
         """
@@ -226,55 +236,70 @@ class SfPlayer(PyoObject):
         pyoArgsAssert(self, "i", x)
         self._interp = x
         x, lmax = convertArgsToLists(x)
-        [obj.setInterp(wrap(x,i)) for i, obj in enumerate(self._base_players)]
+        [obj.setInterp(wrap(x, i)) for i, obj in enumerate(self._base_players)]
 
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [SLMap(-2., 2., 'lin', 'speed', self._speed),
-                          SLMap(1, 4, 'lin', 'interp', self._interp, res="int", dataOnly=True),
-                          SLMapMul(self._mul)]
+        self._map_list = [
+            SLMap(-2.0, 2.0, "lin", "speed", self._speed),
+            SLMap(1, 4, "lin", "interp", self._interp, res="int", dataOnly=True),
+            SLMapMul(self._mul),
+        ]
         PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
     def path(self):
         """string. Full path of the sound."""
         return self._path
+
     @path.setter
-    def path(self, x): self.setPath(x)
+    def path(self, x):
+        self.setPath(x)
 
     @property
     def sound(self):
         """string. Alias to the `path` attribute."""
         return self._path
+
     @sound.setter
-    def sound(self, x): self.setPath(x)
+    def sound(self, x):
+        self.setPath(x)
 
     @property
     def speed(self):
         """float or PyoObject. Transposition factor."""
         return self._speed
+
     @speed.setter
-    def speed(self, x): self.setSpeed(x)
+    def speed(self, x):
+        self.setSpeed(x)
 
     @property
     def loop(self):
         """bool. Looping mode."""
         return self._loop
+
     @loop.setter
-    def loop(self, x): self.setLoop(x)
+    def loop(self, x):
+        self.setLoop(x)
 
     @property
     def offset(self):
         """float. Time, in seconds, of the first sample to read."""
         return self._offset
+
     @offset.setter
-    def offset(self, x): self.setOffset(x)
+    def offset(self, x):
+        self.setOffset(x)
 
     @property
     def interp(self):
         """int {1, 2, 3, 4}. Interpolation method."""
         return self._interp
+
     @interp.setter
-    def interp(self, x): self.setInterp(x)
+    def interp(self, x):
+        self.setInterp(x)
+
 
 class SfMarkerShuffler(PyoObject):
     """
@@ -322,6 +347,7 @@ class SfMarkerShuffler(PyoObject):
     >>> sf.setRandomType("expon_min", 0.6)
 
     """
+
     def __init__(self, path, speed=1, interp=2, mul=1, add=0):
         pyoArgsAssert(self, "sOiOO", path, speed, interp, mul, add)
         PyoObject.__init__(self, mul, add)
@@ -333,16 +359,20 @@ class SfMarkerShuffler(PyoObject):
         self._snd_size, self._dur, self._snd_sr, self._snd_chnls, _format, _type = sndinfo(path[0])
         for i in range(lmax):
             try:
-                sf = aifc.open(wrap(path,i)) # Do we need stringencode() here?
+                sf = aifc.open(wrap(path, i))  # Do we need stringencode() here?
                 markerstmp = sf.getmarkers()
                 sf.close()
                 self._markers = [m[1] for m in markerstmp]
             except:
                 self._markers = []
-            self._base_players.append(SfMarkerShuffler_base(stringencode(wrap(path,i)), self._markers, wrap(speed,i), wrap(interp,i)))
+            self._base_players.append(
+                SfMarkerShuffler_base(stringencode(wrap(path, i)), self._markers, wrap(speed, i), wrap(interp, i))
+            )
         for i in range(lmax * self._snd_chnls):
             j = i // self._snd_chnls
-            self._base_objs.append(SfMarkerShuffle_base(wrap(self._base_players,j), i % self._snd_chnls, wrap(mul,j), wrap(add,j)))
+            self._base_objs.append(
+                SfMarkerShuffle_base(wrap(self._base_players, j), i % self._snd_chnls, wrap(mul, j), wrap(add, j))
+            )
         self._init_play()
 
     def setSpeed(self, x):
@@ -358,7 +388,7 @@ class SfMarkerShuffler(PyoObject):
         pyoArgsAssert(self, "O", x)
         self._speed = x
         x, lmax = convertArgsToLists(x)
-        [obj.setSpeed(wrap(x,i)) for i, obj in enumerate(self._base_players)]
+        [obj.setSpeed(wrap(x, i)) for i, obj in enumerate(self._base_players)]
 
     def setInterp(self, x):
         """
@@ -373,7 +403,7 @@ class SfMarkerShuffler(PyoObject):
         pyoArgsAssert(self, "i", x)
         self._interp = x
         x, lmax = convertArgsToLists(x)
-        [obj.setInterp(wrap(x,i)) for i, obj in enumerate(self._base_players)]
+        [obj.setInterp(wrap(x, i)) for i, obj in enumerate(self._base_players)]
 
     def setRandomType(self, dist=0, x=0.5):
         """
@@ -429,7 +459,7 @@ class SfMarkerShuffler(PyoObject):
         for i, t in enumerate(dist):
             if type(t) in [bytes_t, unicode_t]:
                 dist[i] = XNOISE_DICT.get(t, 0)
-        [obj.setRandomType(wrap(dist,i), wrap(x,i)) for i, obj in enumerate(self._base_players)]
+        [obj.setRandomType(wrap(dist, i), wrap(x, i)) for i, obj in enumerate(self._base_players)]
 
     def getMarkers(self):
         """
@@ -439,24 +469,31 @@ class SfMarkerShuffler(PyoObject):
         return self._markers
 
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [SLMap(0.01, 2., 'lin', 'speed', self._speed),
-                          SLMap(1, 4, 'lin', 'interp', self._interp, res="int", dataOnly=True),
-                          SLMapMul(self._mul)]
+        self._map_list = [
+            SLMap(0.01, 2.0, "lin", "speed", self._speed),
+            SLMap(1, 4, "lin", "interp", self._interp, res="int", dataOnly=True),
+            SLMapMul(self._mul),
+        ]
         PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
     def speed(self):
         """float or PyoObject. Transposition factor."""
         return self._speed
+
     @speed.setter
-    def speed(self, x): self.setSpeed(x)
+    def speed(self, x):
+        self.setSpeed(x)
 
     @property
     def interp(self):
         """int {1, 2, 3, 4}. Interpolation method."""
         return self._interp
+
     @interp.setter
-    def interp(self, x): self.setInterp(x)
+    def interp(self, x):
+        self.setInterp(x)
+
 
 class SfMarkerLooper(PyoObject):
     """
@@ -505,6 +542,7 @@ class SfMarkerLooper(PyoObject):
     >>> a.mark = rnd
 
     """
+
     def __init__(self, path, speed=1, mark=0, interp=2, mul=1, add=0):
         pyoArgsAssert(self, "sOOiOO", path, speed, mark, interp, mul, add)
         PyoObject.__init__(self, mul, add)
@@ -517,16 +555,22 @@ class SfMarkerLooper(PyoObject):
         self._snd_size, self._dur, self._snd_sr, self._snd_chnls, _format, _type = sndinfo(path[0])
         for i in range(lmax):
             try:
-                sf = aifc.open(wrap(path,i))
+                sf = aifc.open(wrap(path, i))
                 markerstmp = sf.getmarkers()
                 sf.close()
                 self._markers = [m[1] for m in markerstmp]
             except:
                 self._markers = []
-            self._base_players.append(SfMarkerLooper_base(stringencode(wrap(path,i)), self._markers, wrap(speed,i), wrap(mark,i), wrap(interp,i)))
+            self._base_players.append(
+                SfMarkerLooper_base(
+                    stringencode(wrap(path, i)), self._markers, wrap(speed, i), wrap(mark, i), wrap(interp, i)
+                )
+            )
         for i in range(lmax * self._snd_chnls):
             j = i // self._snd_chnls
-            self._base_objs.append(SfMarkerLoop_base(wrap(self._base_players,j), i % self._snd_chnls, wrap(mul,j), wrap(add,j)))
+            self._base_objs.append(
+                SfMarkerLoop_base(wrap(self._base_players, j), i % self._snd_chnls, wrap(mul, j), wrap(add, j))
+            )
         self._init_play()
 
     def setSpeed(self, x):
@@ -542,7 +586,7 @@ class SfMarkerLooper(PyoObject):
         pyoArgsAssert(self, "O", x)
         self._speed = x
         x, lmax = convertArgsToLists(x)
-        [obj.setSpeed(wrap(x,i)) for i, obj in enumerate(self._base_players)]
+        [obj.setSpeed(wrap(x, i)) for i, obj in enumerate(self._base_players)]
 
     def setMark(self, x):
         """
@@ -557,7 +601,7 @@ class SfMarkerLooper(PyoObject):
         pyoArgsAssert(self, "O", x)
         self._mark = x
         x, lmax = convertArgsToLists(x)
-        [obj.setMark(wrap(x,i)) for i, obj in enumerate(self._base_players)]
+        [obj.setMark(wrap(x, i)) for i, obj in enumerate(self._base_players)]
 
     def setInterp(self, x):
         """
@@ -572,7 +616,7 @@ class SfMarkerLooper(PyoObject):
         pyoArgsAssert(self, "i", x)
         self._interp = x
         x, lmax = convertArgsToLists(x)
-        [obj.setInterp(wrap(x,i)) for i, obj in enumerate(self._base_players)]
+        [obj.setInterp(wrap(x, i)) for i, obj in enumerate(self._base_players)]
 
     def getMarkers(self):
         """
@@ -582,29 +626,37 @@ class SfMarkerLooper(PyoObject):
         return self._markers
 
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [SLMap(0.01, 2., 'lin', 'speed', self._speed),
-                          SLMap(0, len(self._markers)-1, 'lin', 'mark', self._mark, 'int'),
-                          SLMap(1, 4, 'lin', 'interp', self._interp, res="int", dataOnly=True),
-                          SLMapMul(self._mul)]
+        self._map_list = [
+            SLMap(0.01, 2.0, "lin", "speed", self._speed),
+            SLMap(0, len(self._markers) - 1, "lin", "mark", self._mark, "int"),
+            SLMap(1, 4, "lin", "interp", self._interp, res="int", dataOnly=True),
+            SLMapMul(self._mul),
+        ]
         PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
     def speed(self):
         """float or PyoObject. Transposition factor."""
         return self._speed
+
     @speed.setter
-    def speed(self, x): self.setSpeed(x)
+    def speed(self, x):
+        self.setSpeed(x)
 
     @property
     def mark(self):
         """float or PyoObject. Marker to loop."""
         return self._marker
+
     @mark.setter
-    def mark(self, x): self.setMark(x)
+    def mark(self, x):
+        self.setMark(x)
 
     @property
     def interp(self):
         """int {1, 2, 3, 4}. Interpolation method."""
         return self._interp
+
     @interp.setter
-    def interp(self, x): self.setInterp(x)
+    def interp(self, x):
+        self.setInterp(x)

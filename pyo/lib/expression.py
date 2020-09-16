@@ -333,15 +333,20 @@ from ._maps import *
 from ._widgets import createExprEditorWindow
 
 if sys.version_info[0] < 3:
+
     def to_unicode(s):
         try:
-            s = unicode(s.replace(r'\\', r'\\\\'), "unicode_escape")
+            s = unicode(s.replace(r"\\", r"\\\\"), "unicode_escape")
         except:
             pass
         return s
+
+
 else:
+
     def to_unicode(s):
         return s
+
 
 class Expr(PyoObject):
     """
@@ -385,7 +390,8 @@ class Expr(PyoObject):
     >>> pat = Pattern(change, 0.02).play()
 
     """
-    def __init__(self, input, expr='', outs=1, initout=0.0, mul=1, add=0):
+
+    def __init__(self, input, expr="", outs=1, initout=0.0, mul=1, add=0):
         pyoArgsAssert(self, "osIFOO", input, expr, outs, initout, mul, add)
         PyoObject.__init__(self, mul, add)
         self._editor = None
@@ -402,7 +408,7 @@ class Expr(PyoObject):
         self._base_players = [Exprer_base(input_objs, to_unicode(expr), outs, initout)]
         self._base_objs = []
         for j in range(outs):
-            self._base_objs.append(Expr_base(self._base_players[0], j, wrap(mul,j), wrap(add,j)))
+            self._base_objs.append(Expr_base(self._base_players[0], j, wrap(mul, j), wrap(add, j)))
         self._init_play()
 
     def setExpr(self, x):
@@ -422,7 +428,7 @@ class Expr(PyoObject):
         x = self._preproc(x)
         x = to_unicode(x)
         x, lmax = convertArgsToLists(x)
-        [obj.setExpr(wrap(x,i)) for i, obj in enumerate(self._base_players)]
+        [obj.setExpr(wrap(x, i)) for i, obj in enumerate(self._base_players)]
 
     def printNodes(self):
         """
@@ -434,7 +440,7 @@ class Expr(PyoObject):
     def setVar(self, varname, value):
         pyoArgsAssert(self, "sn", varname, value)
         varname, value, lmax = convertArgsToLists(varname, value)
-        [obj.setVar(wrap(varname,j), wrap(value,j)) for i, obj in enumerate(self._base_players) for j in range(lmax)]
+        [obj.setVar(wrap(varname, j), wrap(value, j)) for i, obj in enumerate(self._base_players) for j in range(lmax)]
 
     def _get_matching_bracket_pos(self, x, p1):
         count = 1
@@ -461,14 +467,14 @@ class Expr(PyoObject):
             numargs = 0
             doll = body.find("$")
             while doll != -1:
-                arg = int(body[doll+1])
+                arg = int(body[doll + 1])
                 if arg > numargs:
                     numargs = arg
-                doll = body.find("$", doll+1)
+                doll = body.find("$", doll + 1)
             occurences = 0
             pos = x.find(key)
             while pos != -1:
-                if x[pos-1] in " \t\n()" and x[pos+len(key)] in " \t\n()":
+                if x[pos - 1] in " \t\n()" and x[pos + len(key)] in " \t\n()":
                     # replace "#vars" with unique symbol
                     body2 = body.replace("-%s" % key, ".%s.%d" % (key, occurences))
                     occurences += 1
@@ -510,7 +516,7 @@ class Expr(PyoObject):
                                         break
                         if x[p1:p2] != ")":
                             # pattern for an arg is #FUNCNAMEargARGNUMBER.
-                            argvars = argvars + "(let #%sarg%d %s)\n" % (key, i+1, x[p1:p2])
+                            argvars = argvars + "(let #%sarg%d %s)\n" % (key, i + 1, x[p1:p2])
                             howmany += 1
                         if p2 == end:
                             break
@@ -528,14 +534,14 @@ class Expr(PyoObject):
                         newbody = body2
                         for i in range(numargs):
                             if i < howmany:
-                                arg = "#%sarg%d" % (key, (i+1))
+                                arg = "#%sarg%d" % (key, (i + 1))
                             else:
-                                arg = '0.0'
-                            newbody = newbody.replace("$%d" % (i+1), arg)
+                                arg = "0.0"
+                            newbody = newbody.replace("$%d" % (i + 1), arg)
                         x = x[:pos] + newbody + x[p2:]
                     else:
-                        x = x[:pos] + body2 + x[pos+len(key):]
-                pos = x.find(key, pos+1)
+                        x = x[:pos] + body2 + x[pos + len(key) :]
+                pos = x.find(key, pos + 1)
         return x
 
     def _change_var_names(self, funcname, funcbody):
@@ -580,10 +586,10 @@ class Expr(PyoObject):
         for constant in constants:
             p1 = x.find(constant)
             while p1 != -1:
-                if x[p1-1] == " ":
-                    x = x[:p1] + "(" + constant + ")" + x[p1+len(constant):]
-                p1 = x.find(constant, p1+len(constant)+2)
-                
+                if x[p1 - 1] == " ":
+                    x = x[:p1] + "(" + constant + ")" + x[p1 + len(constant) :]
+                p1 = x.find(constant, p1 + len(constant) + 2)
+
         # expand defined functions
         _defined = []
         while "define" in x:
@@ -592,7 +598,7 @@ class Expr(PyoObject):
             # get function name
             while x[p1] in " \t\n":
                 p1 += 1
-            p2 = p1+1
+            p2 = p1 + 1
             while x[p2] not in " \t\n":
                 p2 += 1
             funcname = x[p1:p2]
@@ -614,7 +620,7 @@ class Expr(PyoObject):
             # save in dictionary and remove definition from the string
             funcbody = self._change_var_names(funcname, funcbody)
             _defined.append([funcname, funcbody])
-            x = x[:start] + x[stop+1:]
+            x = x[:start] + x[stop + 1 :]
         # replace calls to function with their function body
         x = self._replace(x, _defined)
         x = x.strip()
@@ -643,12 +649,16 @@ class Expr(PyoObject):
     def input(self):
         """PyoObject. Input signal to process."""
         return self._input
+
     @input.setter
-    def input(self, x): self.setInput(x)
+    def input(self, x):
+        self.setInput(x)
 
     @property
     def expr(self):
         """string. New expression to process."""
         return self._expr
+
     @expr.setter
-    def expr(self, x): self.setExpr(x)
+    def expr(self, x):
+        self.setExpr(x)

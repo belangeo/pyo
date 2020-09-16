@@ -88,6 +88,7 @@ class Fader(PyoObject):
     >>> pat = Pattern(function=repeat, time=2).play()
 
     """
+
     def __init__(self, fadein=0.01, fadeout=0.1, dur=0, mul=1, add=0):
         pyoArgsAssert(self, "nnnOO", fadein, fadeout, dur, mul, add)
         PyoObject.__init__(self, mul, add)
@@ -96,7 +97,9 @@ class Fader(PyoObject):
         self._dur = dur
         self._exp = 1.0
         fadein, fadeout, dur, mul, add, lmax = convertArgsToLists(fadein, fadeout, dur, mul, add)
-        self._base_objs = [Fader_base(wrap(fadein,i), wrap(fadeout,i), wrap(dur,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+        self._base_objs = [
+            Fader_base(wrap(fadein, i), wrap(fadeout, i), wrap(dur, i), wrap(mul, i), wrap(add, i)) for i in range(lmax)
+        ]
         self._trig_objs = Dummy([TriggerDummy_base(obj) for obj in self._base_objs])
 
     def out(self, chnl=0, inc=1, dur=0, delay=0):
@@ -131,7 +134,7 @@ class Fader(PyoObject):
         pyoArgsAssert(self, "n", x)
         self._fadein = x
         x, lmax = convertArgsToLists(x)
-        [obj.setFadein(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setFadein(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def setFadeout(self, x):
         """
@@ -146,7 +149,7 @@ class Fader(PyoObject):
         pyoArgsAssert(self, "n", x)
         self._fadeout = x
         x, lmax = convertArgsToLists(x)
-        [obj.setFadeout(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setFadeout(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def setDur(self, x):
         """
@@ -161,7 +164,7 @@ class Fader(PyoObject):
         pyoArgsAssert(self, "n", x)
         self._dur = x
         x, lmax = convertArgsToLists(x)
-        [obj.setDur(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setDur(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def setExp(self, x):
         """
@@ -180,41 +183,51 @@ class Fader(PyoObject):
         pyoArgsAssert(self, "n", x)
         self._exp = x
         x, lmax = convertArgsToLists(x)
-        [obj.setExp(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setExp(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [SLMap(0, 10., 'lin', 'fadein', self._fadein, dataOnly=True),
-                          SLMap(0, 10., 'lin', 'fadeout', self._fadeout, dataOnly=True),
-                          SLMap(0, 20., 'lin', 'dur', self._dur, dataOnly=True)]
+        self._map_list = [
+            SLMap(0, 10.0, "lin", "fadein", self._fadein, dataOnly=True),
+            SLMap(0, 10.0, "lin", "fadeout", self._fadeout, dataOnly=True),
+            SLMap(0, 20.0, "lin", "dur", self._dur, dataOnly=True),
+        ]
         PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
     def fadein(self):
         """float. Rising time of the envelope in seconds."""
         return self._fadein
+
     @fadein.setter
-    def fadein(self, x): self.setFadein(x)
+    def fadein(self, x):
+        self.setFadein(x)
 
     @property
     def fadeout(self):
         """float. Falling time of the envelope in seconds."""
         return self._fadeout
+
     @fadeout.setter
-    def fadeout(self, x): self.setFadeout(x)
+    def fadeout(self, x):
+        self.setFadeout(x)
 
     @property
     def dur(self):
         """float. Total duration of the envelope."""
         return self._dur
+
     @dur.setter
-    def dur(self, x): self.setDur(x)
+    def dur(self, x):
+        self.setDur(x)
 
     @property
     def exp(self):
         """float. Exponent factor of the envelope."""
         return self._exp
+
     @exp.setter
-    def exp(self, x): self.setExp(x)
+    def exp(self, x):
+        self.setExp(x)
 
 
 class Adsr(PyoObject):
@@ -273,6 +286,7 @@ class Adsr(PyoObject):
     >>> pat = Pattern(function=repeat, time=2).play()
 
     """
+
     def __init__(self, attack=0.01, decay=0.05, sustain=0.707, release=0.1, dur=0, mul=1, add=0):
         pyoArgsAssert(self, "nnnnnOO", attack, decay, sustain, release, dur, mul, add)
         PyoObject.__init__(self, mul, add)
@@ -282,8 +296,21 @@ class Adsr(PyoObject):
         self._release = release
         self._dur = dur
         self._exp = 1.0
-        attack, decay, sustain, release, dur, mul, add, lmax = convertArgsToLists(attack, decay, sustain, release, dur, mul, add)
-        self._base_objs = [Adsr_base(wrap(attack,i), wrap(decay,i), wrap(sustain,i), wrap(release,i), wrap(dur,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+        attack, decay, sustain, release, dur, mul, add, lmax = convertArgsToLists(
+            attack, decay, sustain, release, dur, mul, add
+        )
+        self._base_objs = [
+            Adsr_base(
+                wrap(attack, i),
+                wrap(decay, i),
+                wrap(sustain, i),
+                wrap(release, i),
+                wrap(dur, i),
+                wrap(mul, i),
+                wrap(add, i),
+            )
+            for i in range(lmax)
+        ]
         self._trig_objs = Dummy([TriggerDummy_base(obj) for obj in self._base_objs])
 
     def out(self, chnl=0, inc=1, dur=0, delay=0):
@@ -318,7 +345,7 @@ class Adsr(PyoObject):
         pyoArgsAssert(self, "n", x)
         self._attack = x
         x, lmax = convertArgsToLists(x)
-        [obj.setAttack(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setAttack(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def setDecay(self, x):
         """
@@ -333,7 +360,7 @@ class Adsr(PyoObject):
         pyoArgsAssert(self, "n", x)
         self._decay = x
         x, lmax = convertArgsToLists(x)
-        [obj.setDecay(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setDecay(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def setSustain(self, x):
         """
@@ -348,7 +375,7 @@ class Adsr(PyoObject):
         pyoArgsAssert(self, "n", x)
         self._sustain = x
         x, lmax = convertArgsToLists(x)
-        [obj.setSustain(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setSustain(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def setRelease(self, x):
         """
@@ -363,7 +390,7 @@ class Adsr(PyoObject):
         pyoArgsAssert(self, "n", x)
         self._release = x
         x, lmax = convertArgsToLists(x)
-        [obj.setRelease(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setRelease(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def setDur(self, x):
         """
@@ -378,7 +405,7 @@ class Adsr(PyoObject):
         pyoArgsAssert(self, "n", x)
         self._dur = x
         x, lmax = convertArgsToLists(x)
-        [obj.setDur(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setDur(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def setExp(self, x):
         """
@@ -397,57 +424,72 @@ class Adsr(PyoObject):
         pyoArgsAssert(self, "n", x)
         self._exp = x
         x, lmax = convertArgsToLists(x)
-        [obj.setExp(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setExp(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [SLMap(0, 5, 'lin', 'attack', self._attack, dataOnly=True),
-                          SLMap(0, 5, 'lin', 'decay', self._decay, dataOnly=True),
-                          SLMap(0, 1, 'lin', 'sustain', self._sustain, dataOnly=True),
-                          SLMap(0, 10, 'lin', 'release', self._release, dataOnly=True),
-                          SLMap(0, 20., 'lin', 'dur', self._dur, dataOnly=True)]
+        self._map_list = [
+            SLMap(0, 5, "lin", "attack", self._attack, dataOnly=True),
+            SLMap(0, 5, "lin", "decay", self._decay, dataOnly=True),
+            SLMap(0, 1, "lin", "sustain", self._sustain, dataOnly=True),
+            SLMap(0, 10, "lin", "release", self._release, dataOnly=True),
+            SLMap(0, 20.0, "lin", "dur", self._dur, dataOnly=True),
+        ]
         PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
     def attack(self):
         """float. Duration of the attack phase in seconds."""
         return self._attack
+
     @attack.setter
-    def attack(self, x): self.setAttack(x)
+    def attack(self, x):
+        self.setAttack(x)
 
     @property
     def decay(self):
         """float. Duration of the decay phase in seconds."""
         return self._decay
+
     @decay.setter
-    def decay(self, x): self.setDecay(x)
+    def decay(self, x):
+        self.setDecay(x)
 
     @property
     def sustain(self):
         """float. Amplitude of the sustain phase."""
         return self._sustain
+
     @sustain.setter
-    def sustain(self, x): self.setSustain(x)
+    def sustain(self, x):
+        self.setSustain(x)
 
     @property
     def release(self):
         """float. Duration of the release phase in seconds."""
         return self._release
+
     @release.setter
-    def release(self, x): self.setRelease(x)
+    def release(self, x):
+        self.setRelease(x)
 
     @property
     def dur(self):
         """float. Total duration of the envelope."""
         return self._dur
+
     @dur.setter
-    def dur(self, x): self.setDur(x)
+    def dur(self, x):
+        self.setDur(x)
 
     @property
     def exp(self):
         """float. Exponent factor of the envelope."""
         return self._exp
+
     @exp.setter
-    def exp(self, x): self.setExp(x)
+    def exp(self, x):
+        self.setExp(x)
+
 
 class Linseg(PyoObject):
     """
@@ -487,6 +529,7 @@ class Linseg(PyoObject):
     >>> l.play()
 
     """
+
     def __init__(self, list, loop=False, initToFirstVal=False, mul=1, add=0):
         pyoArgsAssert(self, "lbbOO", list, loop, initToFirstVal, mul, add)
         PyoObject.__init__(self, mul, add)
@@ -494,11 +537,17 @@ class Linseg(PyoObject):
         self._loop = loop
         initToFirstVal, loop, mul, add, lmax = convertArgsToLists(initToFirstVal, loop, mul, add)
         if type(list[0]) != list:
-            self._base_objs = [Linseg_base(list, wrap(loop,i), wrap(initToFirstVal,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+            self._base_objs = [
+                Linseg_base(list, wrap(loop, i), wrap(initToFirstVal, i), wrap(mul, i), wrap(add, i))
+                for i in range(lmax)
+            ]
         else:
             listlen = len(list)
             lmax = max(listlen, lmax)
-            self._base_objs = [Linseg_base(wrap(list,i), wrap(loop,i), wrap(initToFirstVal,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+            self._base_objs = [
+                Linseg_base(wrap(list, i), wrap(loop, i), wrap(initToFirstVal, i), wrap(mul, i), wrap(add, i))
+                for i in range(lmax)
+            ]
 
     def out(self, chnl=0, inc=1, dur=0, delay=0):
         return self.play(dur, delay)
@@ -518,7 +567,7 @@ class Linseg(PyoObject):
         if type(x[0]) != list:
             [obj.setList(x) for i, obj in enumerate(self._base_objs)]
         else:
-            [obj.setList(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+            [obj.setList(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def replace(self, x):
         """
@@ -548,7 +597,7 @@ class Linseg(PyoObject):
         pyoArgsAssert(self, "b", x)
         self._loop = x
         x, lmax = convertArgsToLists(x)
-        [obj.setLoop(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setLoop(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def pause(self):
         """
@@ -610,15 +659,20 @@ class Linseg(PyoObject):
     def list(self):
         """float. List of points (time, value)."""
         return self._list
+
     @list.setter
-    def list(self, x): self.setList(x)
+    def list(self, x):
+        self.setList(x)
 
     @property
     def loop(self):
         """boolean. Looping mode."""
         return self._loop
+
     @loop.setter
-    def loop(self, x): self.setLoop(x)
+    def loop(self, x):
+        self.setLoop(x)
+
 
 class Expseg(PyoObject):
     """
@@ -664,6 +718,7 @@ class Expseg(PyoObject):
     >>> l.play()
 
     """
+
     def __init__(self, list, loop=False, exp=10, inverse=True, initToFirstVal=False, mul=1, add=0):
         pyoArgsAssert(self, "lbnbbOO", list, loop, exp, inverse, initToFirstVal, mul, add)
         PyoObject.__init__(self, mul, add)
@@ -671,13 +726,37 @@ class Expseg(PyoObject):
         self._loop = loop
         self._exp = exp
         self._inverse = inverse
-        loop, exp, inverse, initToFirstVal, mul, add, lmax = convertArgsToLists(loop, exp, inverse, initToFirstVal, mul, add)
+        loop, exp, inverse, initToFirstVal, mul, add, lmax = convertArgsToLists(
+            loop, exp, inverse, initToFirstVal, mul, add
+        )
         if type(list[0]) != list:
-            self._base_objs = [Expseg_base(list, wrap(loop,i), wrap(exp,i), wrap(inverse,i), wrap(initToFirstVal,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+            self._base_objs = [
+                Expseg_base(
+                    list,
+                    wrap(loop, i),
+                    wrap(exp, i),
+                    wrap(inverse, i),
+                    wrap(initToFirstVal, i),
+                    wrap(mul, i),
+                    wrap(add, i),
+                )
+                for i in range(lmax)
+            ]
         else:
             listlen = len(list)
             lmax = max(listlen, lmax)
-            self._base_objs = [Expseg_base(wrap(list,i), wrap(loop,i), wrap(exp,i), wrap(inverse,i), wrap(initToFirstVal,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+            self._base_objs = [
+                Expseg_base(
+                    wrap(list, i),
+                    wrap(loop, i),
+                    wrap(exp, i),
+                    wrap(inverse, i),
+                    wrap(initToFirstVal, i),
+                    wrap(mul, i),
+                    wrap(add, i),
+                )
+                for i in range(lmax)
+            ]
 
     def out(self, chnl=0, inc=1, dur=0, delay=0):
         return self.play(dur, delay)
@@ -697,7 +776,7 @@ class Expseg(PyoObject):
         if type(x[0]) != list:
             [obj.setList(x) for i, obj in enumerate(self._base_objs)]
         else:
-            [obj.setList(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+            [obj.setList(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def setLoop(self, x):
         """
@@ -712,7 +791,7 @@ class Expseg(PyoObject):
         pyoArgsAssert(self, "b", x)
         self._loop = x
         x, lmax = convertArgsToLists(x)
-        [obj.setLoop(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setLoop(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def setExp(self, x):
         """
@@ -727,7 +806,7 @@ class Expseg(PyoObject):
         pyoArgsAssert(self, "n", x)
         self._exp = x
         x, lmax = convertArgsToLists(x)
-        [obj.setExp(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setExp(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def setInverse(self, x):
         """
@@ -742,7 +821,7 @@ class Expseg(PyoObject):
         pyoArgsAssert(self, "b", x)
         self._inverse = x
         x, lmax = convertArgsToLists(x)
-        [obj.setInverse(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setInverse(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def replace(self, x):
         """
@@ -821,29 +900,38 @@ class Expseg(PyoObject):
     def list(self):
         """float. List of points (time, value)."""
         return self._list
+
     @list.setter
-    def list(self, x): self.setList(x)
+    def list(self, x):
+        self.setList(x)
 
     @property
     def loop(self):
         """boolean. Looping mode."""
         return self._loop
+
     @loop.setter
-    def loop(self, x): self.setLoop(x)
+    def loop(self, x):
+        self.setLoop(x)
 
     @property
     def exp(self):
         """float. Exponent factor."""
         return self._exp
+
     @exp.setter
-    def exp(self, x): self.setExp(x)
+    def exp(self, x):
+        self.setExp(x)
 
     @property
     def inverse(self):
         """boolean. Inverse downward slope."""
         return self._inverse
+
     @inverse.setter
-    def inverse(self, x): self.setInverse(x)
+    def inverse(self, x):
+        self.setInverse(x)
+
 
 class SigTo(PyoObject):
     """
@@ -879,13 +967,16 @@ class SigTo(PyoObject):
     >>> pat = Pattern(function=pick_new_freq, time=1).play()
 
     """
+
     def __init__(self, value, time=0.025, init=0.0, mul=1, add=0):
         pyoArgsAssert(self, "OOnOO", value, time, init, mul, add)
         PyoObject.__init__(self, mul, add)
         self._value = value
         self._time = time
-        value, time, init, mul ,add, lmax = convertArgsToLists(value, time, init, mul, add)
-        self._base_objs = [SigTo_base(wrap(value,i), wrap(time,i), wrap(init,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+        value, time, init, mul, add, lmax = convertArgsToLists(value, time, init, mul, add)
+        self._base_objs = [
+            SigTo_base(wrap(value, i), wrap(time, i), wrap(init, i), wrap(mul, i), wrap(add, i)) for i in range(lmax)
+        ]
         self._init_play()
 
     def setValue(self, x):
@@ -901,7 +992,7 @@ class SigTo(PyoObject):
         pyoArgsAssert(self, "O", x)
         self._value = x
         x, lmax = convertArgsToLists(x)
-        [obj.setValue(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setValue(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def setTime(self, x):
         """
@@ -916,22 +1007,26 @@ class SigTo(PyoObject):
         pyoArgsAssert(self, "O", x)
         self._time = x
         x, lmax = convertArgsToLists(x)
-        [obj.setTime(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setTime(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [SLMap(0, 10, 'lin', 'time', self._time)]
+        self._map_list = [SLMap(0, 10, "lin", "time", self._time)]
         PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
     def value(self):
         """float or PyoObject. Numerical value to convert."""
         return self._value
+
     @value.setter
-    def value(self, x): self.setValue(x)
+    def value(self, x):
+        self.setValue(x)
 
     @property
     def time(self):
         """floator PyoObject. Ramp time in seconds."""
         return self._time
+
     @time.setter
-    def time(self, x): self.setTime(x)
+    def time(self, x):
+        self.setTime(x)

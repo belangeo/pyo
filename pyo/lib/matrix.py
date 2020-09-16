@@ -1,4 +1,5 @@
 from __future__ import absolute_import
+
 """
 Copyright 2009-2015 Olivier Belanger
 
@@ -60,6 +61,7 @@ class NewMatrix(PyoMatrixObject):
     >>> c = MatrixPointer(mm, w, h, mul=.2).out()
 
     """
+
     def __init__(self, width, height, init=None):
         pyoArgsAssert(self, "IIL", width, height, init)
         PyoMatrixObject.__init__(self)

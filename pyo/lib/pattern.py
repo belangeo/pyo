@@ -5,6 +5,7 @@ Useful for event sequencing.
 """
 
 from __future__ import absolute_import
+
 """
 Copyright 2009-2015 Olivier Belanger
 
@@ -26,6 +27,7 @@ License along with pyo.  If not, see <http://www.gnu.org/licenses/>.
 """
 from ._core import *
 from ._maps import *
+
 
 class Pattern(PyoObject):
     """
@@ -73,6 +75,7 @@ class Pattern(PyoObject):
     >>> p.play()
 
     """
+
     def __init__(self, function, time=1, arg=None):
         pyoArgsAssert(self, "cO", function, time)
         PyoObject.__init__(self)
@@ -80,7 +83,9 @@ class Pattern(PyoObject):
         self._time = time
         self._arg = arg
         function, time, arg, lmax = convertArgsToLists(function, time, arg)
-        self._base_objs = [Pattern_base(WeakMethod(wrap(function,i)), wrap(time,i), wrap(arg,i)) for i in range(lmax)]
+        self._base_objs = [
+            Pattern_base(WeakMethod(wrap(function, i)), wrap(time, i), wrap(arg, i)) for i in range(lmax)
+        ]
 
     def setFunction(self, x):
         """
@@ -95,7 +100,7 @@ class Pattern(PyoObject):
         pyoArgsAssert(self, "c", x)
         self._function = getWeakMethodRef(x)
         x, lmax = convertArgsToLists(x)
-        [obj.setFunction(WeakMethod(wrap(x,i))) for i, obj in enumerate(self._base_objs)]
+        [obj.setFunction(WeakMethod(wrap(x, i))) for i, obj in enumerate(self._base_objs)]
 
     def setTime(self, x):
         """
@@ -110,7 +115,7 @@ class Pattern(PyoObject):
         pyoArgsAssert(self, "O", x)
         self._time = x
         x, lmax = convertArgsToLists(x)
-        [obj.setTime(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setTime(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def setArg(self, x):
         """
@@ -124,7 +129,7 @@ class Pattern(PyoObject):
         """
         self._arg = x
         x, lmax = convertArgsToLists(x)
-        [obj.setArg(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setArg(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def out(self, x=0, inc=1, dur=0, delay=0):
         return self.play(dur, delay)
@@ -142,29 +147,36 @@ class Pattern(PyoObject):
         pass
 
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [SLMap(0.125, 4., 'lin', 'time', self._time)]
+        self._map_list = [SLMap(0.125, 4.0, "lin", "time", self._time)]
         PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
     def function(self):
         """Python callable. Function to be called."""
         return self._function
+
     @function.setter
     def function(self, x):
         self.setFunction(x)
+
     @property
     def time(self):
         """float or PyoObject. Time, in seconds, between each call."""
         return self._time
+
     @time.setter
-    def time(self, x): self.setTime(x)
+    def time(self, x):
+        self.setTime(x)
+
     @property
     def arg(self):
         """Anything. Callable's argument."""
         return self._arg
+
     @arg.setter
     def arg(self, x):
         self.setArg(x)
+
 
 class Score(PyoObject):
     """
@@ -213,6 +225,7 @@ class Score(PyoObject):
     >>> sc = Score(c)
 
     """
+
     def __init__(self, input, fname="event_"):
         pyoArgsAssert(self, "os", input, fname)
         PyoObject.__init__(self)
@@ -220,7 +233,7 @@ class Score(PyoObject):
         self._fname = fname
         self._in_fader = InputFader(input)
         in_fader, fname, lmax = convertArgsToLists(self._in_fader, fname)
-        self._base_objs = [Score_base(wrap(in_fader,i), wrap(fname,i)) for i in range(lmax)]
+        self._base_objs = [Score_base(wrap(in_fader, i), wrap(fname, i)) for i in range(lmax)]
         self._init_play()
 
     def out(self, chnl=0, inc=1, dur=0, delay=0):
@@ -252,9 +265,11 @@ class Score(PyoObject):
     def input(self):
         """PyoObject. Audio signal sending integer numbers."""
         return self._input
+
     @input.setter
     def input(self, x):
         self.setInput(x)
+
 
 class CallAfter(PyoObject):
     """
@@ -301,6 +316,7 @@ class CallAfter(PyoObject):
     >>> a = CallAfter(callback, 2, (300,301))
 
     """
+
     def __init__(self, function, time=1, arg=None):
         pyoArgsAssert(self, "cn", function, time)
         PyoObject.__init__(self)
@@ -308,7 +324,9 @@ class CallAfter(PyoObject):
         self._time = time
         self._arg = arg
         function, time, arg, lmax = convertArgsToLists(function, time, arg)
-        self._base_objs = [CallAfter_base(WeakMethod(wrap(function,i)), wrap(time,i), wrap(arg,i)) for i in range(lmax)]
+        self._base_objs = [
+            CallAfter_base(WeakMethod(wrap(function, i)), wrap(time, i), wrap(arg, i)) for i in range(lmax)
+        ]
         self._init_play()
 
     def out(self, x=0, inc=1, dur=0, delay=0):
@@ -339,7 +357,7 @@ class CallAfter(PyoObject):
         pyoArgsAssert(self, "n", x)
         self._time = x
         x, lmax = convertArgsToLists(x)
-        [obj.setTime(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setTime(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def setArg(self, x):
         """
@@ -353,19 +371,22 @@ class CallAfter(PyoObject):
         """
         self._arg = x
         x, lmax = convertArgsToLists(x)
-        [obj.setArg(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setArg(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     @property
     def time(self):
         """float. Time, in seconds, before the function call."""
         return self._time
+
     @time.setter
-    def time(self, x): self.setTime(x)
+    def time(self, x):
+        self.setTime(x)
 
     @property
     def arg(self):
         """Anything. Callable's argument."""
         return self._arg
+
     @arg.setter
     def arg(self, x):
         self.setArg(x)

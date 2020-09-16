@@ -7,6 +7,7 @@ store audio samples or algorithmic sequences for future uses.
 """
 
 from __future__ import absolute_import
+
 """
 Copyright 2009-2015 Olivier Belanger
 
@@ -28,6 +29,7 @@ License along with pyo.  If not, see <http://www.gnu.org/licenses/>.
 """
 from ._core import *
 from ._maps import *
+
 
 class Osc(PyoObject):
     """
@@ -61,6 +63,7 @@ class Osc(PyoObject):
     >>> a = Osc(table=t, freq=[100,99.2], mul=.2).out()
 
     """
+
     def __init__(self, table, freq=1000, phase=0, interp=2, mul=1, add=0):
         pyoArgsAssert(self, "tOOiOO", table, freq, phase, interp, mul, add)
         PyoObject.__init__(self, mul, add)
@@ -69,7 +72,10 @@ class Osc(PyoObject):
         self._phase = phase
         self._interp = interp
         table, freq, phase, interp, mul, add, lmax = convertArgsToLists(table, freq, phase, interp, mul, add)
-        self._base_objs = [Osc_base(wrap(table,i), wrap(freq,i), wrap(phase,i), wrap(interp,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+        self._base_objs = [
+            Osc_base(wrap(table, i), wrap(freq, i), wrap(phase, i), wrap(interp, i), wrap(mul, i), wrap(add, i))
+            for i in range(lmax)
+        ]
         self._init_play()
 
     def setTable(self, x):
@@ -85,7 +91,7 @@ class Osc(PyoObject):
         pyoArgsAssert(self, "t", x)
         self._table = x
         x, lmax = convertArgsToLists(x)
-        [obj.setTable(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setTable(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def setFreq(self, x):
         """
@@ -100,7 +106,7 @@ class Osc(PyoObject):
         pyoArgsAssert(self, "O", x)
         self._freq = x
         x, lmax = convertArgsToLists(x)
-        [obj.setFreq(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setFreq(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def setPhase(self, x):
         """
@@ -115,7 +121,7 @@ class Osc(PyoObject):
         pyoArgsAssert(self, "O", x)
         self._phase = x
         x, lmax = convertArgsToLists(x)
-        [obj.setPhase(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setPhase(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def setInterp(self, x):
         """
@@ -130,7 +136,7 @@ class Osc(PyoObject):
         pyoArgsAssert(self, "i", x)
         self._interp = x
         x, lmax = convertArgsToLists(x)
-        [obj.setInterp(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setInterp(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def reset(self):
         """
@@ -140,39 +146,50 @@ class Osc(PyoObject):
         [obj.reset() for i, obj in enumerate(self._base_objs)]
 
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [SLMapFreq(self._freq),
-                          SLMapPhase(self._phase),
-                          SLMap(1, 4, 'lin', 'interp', self._interp, res="int", dataOnly=True),
-                          SLMapMul(self._mul)]
+        self._map_list = [
+            SLMapFreq(self._freq),
+            SLMapPhase(self._phase),
+            SLMap(1, 4, "lin", "interp", self._interp, res="int", dataOnly=True),
+            SLMapMul(self._mul),
+        ]
         PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
     def table(self):
         """PyoTableObject. Table containing the waveform samples."""
         return self._table
+
     @table.setter
-    def table(self, x): self.setTable(x)
+    def table(self, x):
+        self.setTable(x)
 
     @property
     def freq(self):
         """float or PyoObject. Frequency in cycles per second."""
         return self._freq
+
     @freq.setter
-    def freq(self, x): self.setFreq(x)
+    def freq(self, x):
+        self.setFreq(x)
 
     @property
     def phase(self):
         """float or PyoObject. Phase of sampling."""
         return self._phase
+
     @phase.setter
-    def phase(self, x): self.setPhase(x)
+    def phase(self, x):
+        self.setPhase(x)
 
     @property
     def interp(self):
         """int {1, 2, 3, 4}. Interpolation method."""
         return self._interp
+
     @interp.setter
-    def interp(self, x): self.setInterp(x)
+    def interp(self, x):
+        self.setInterp(x)
+
 
 class OscLoop(PyoObject):
     """
@@ -206,6 +223,7 @@ class OscLoop(PyoObject):
     >>> a = OscLoop(table=t, freq=[100,99.3], feedback=lfo, mul=.2).out()
 
     """
+
     def __init__(self, table, freq=1000, feedback=0, mul=1, add=0):
         pyoArgsAssert(self, "tOOOO", table, freq, feedback, mul, add)
         PyoObject.__init__(self, mul, add)
@@ -213,7 +231,10 @@ class OscLoop(PyoObject):
         self._freq = freq
         self._feedback = feedback
         table, freq, feedback, mul, add, lmax = convertArgsToLists(table, freq, feedback, mul, add)
-        self._base_objs = [OscLoop_base(wrap(table,i), wrap(freq,i), wrap(feedback,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+        self._base_objs = [
+            OscLoop_base(wrap(table, i), wrap(freq, i), wrap(feedback, i), wrap(mul, i), wrap(add, i))
+            for i in range(lmax)
+        ]
         self._init_play()
 
     def setTable(self, x):
@@ -229,7 +250,7 @@ class OscLoop(PyoObject):
         pyoArgsAssert(self, "t", x)
         self._table = x
         x, lmax = convertArgsToLists(x)
-        [obj.setTable(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setTable(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def setFreq(self, x):
         """
@@ -244,7 +265,7 @@ class OscLoop(PyoObject):
         pyoArgsAssert(self, "O", x)
         self._freq = x
         x, lmax = convertArgsToLists(x)
-        [obj.setFreq(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setFreq(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def setFeedback(self, x):
         """
@@ -259,34 +280,39 @@ class OscLoop(PyoObject):
         pyoArgsAssert(self, "O", x)
         self._feedback = x
         x, lmax = convertArgsToLists(x)
-        [obj.setFeedback(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setFeedback(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [SLMapFreq(self._freq),
-                          SLMap(0, 1, "lin", "feedback", self._feedback),
-                          SLMapMul(self._mul)]
+        self._map_list = [SLMapFreq(self._freq), SLMap(0, 1, "lin", "feedback", self._feedback), SLMapMul(self._mul)]
         PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
     def table(self):
         """PyoTableObject. Table containing the waveform samples."""
         return self._table
+
     @table.setter
-    def table(self, x): self.setTable(x)
+    def table(self, x):
+        self.setTable(x)
 
     @property
     def freq(self):
         """float or PyoObject. Frequency in cycles per second."""
         return self._freq
+
     @freq.setter
-    def freq(self, x): self.setFreq(x)
+    def freq(self, x):
+        self.setFreq(x)
 
     @property
     def feedback(self):
         """float or PyoObject. Brightness control."""
         return self._feedback
+
     @feedback.setter
-    def feedback(self, x): self.setFeedback(x)
+    def feedback(self, x):
+        self.setFeedback(x)
+
 
 class OscTrig(PyoObject):
     """
@@ -325,6 +351,7 @@ class OscTrig(PyoObject):
     >>> a = OscTrig(tab, rst, freq=tab.getRate(), mul=.4).out()
 
     """
+
     def __init__(self, table, trig, freq=1000, phase=0, interp=2, mul=1, add=0):
         pyoArgsAssert(self, "toOOiOO", table, trig, freq, phase, interp, mul, add)
         PyoObject.__init__(self, mul, add)
@@ -333,8 +360,21 @@ class OscTrig(PyoObject):
         self._freq = freq
         self._phase = phase
         self._interp = interp
-        table, trig, freq, phase, interp, mul, add, lmax = convertArgsToLists(table, trig, freq, phase, interp, mul, add)
-        self._base_objs = [OscTrig_base(wrap(table,i), wrap(trig,i), wrap(freq,i), wrap(phase,i), wrap(interp,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+        table, trig, freq, phase, interp, mul, add, lmax = convertArgsToLists(
+            table, trig, freq, phase, interp, mul, add
+        )
+        self._base_objs = [
+            OscTrig_base(
+                wrap(table, i),
+                wrap(trig, i),
+                wrap(freq, i),
+                wrap(phase, i),
+                wrap(interp, i),
+                wrap(mul, i),
+                wrap(add, i),
+            )
+            for i in range(lmax)
+        ]
         self._init_play()
 
     def setTable(self, x):
@@ -350,7 +390,7 @@ class OscTrig(PyoObject):
         pyoArgsAssert(self, "t", x)
         self._table = x
         x, lmax = convertArgsToLists(x)
-        [obj.setTable(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setTable(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def setTrig(self, x):
         """
@@ -365,7 +405,7 @@ class OscTrig(PyoObject):
         pyoArgsAssert(self, "o", x)
         self._trig = x
         x, lmax = convertArgsToLists(x)
-        [obj.setTrig(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setTrig(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def setFreq(self, x):
         """
@@ -380,7 +420,7 @@ class OscTrig(PyoObject):
         pyoArgsAssert(self, "O", x)
         self._freq = x
         x, lmax = convertArgsToLists(x)
-        [obj.setFreq(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setFreq(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def setPhase(self, x):
         """
@@ -395,7 +435,7 @@ class OscTrig(PyoObject):
         pyoArgsAssert(self, "O", x)
         self._phase = x
         x, lmax = convertArgsToLists(x)
-        [obj.setPhase(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setPhase(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def setInterp(self, x):
         """
@@ -410,7 +450,7 @@ class OscTrig(PyoObject):
         pyoArgsAssert(self, "i", x)
         self._interp = x
         x, lmax = convertArgsToLists(x)
-        [obj.setInterp(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setInterp(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def reset(self):
         """
@@ -420,46 +460,59 @@ class OscTrig(PyoObject):
         [obj.reset() for i, obj in enumerate(self._base_objs)]
 
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [SLMapFreq(self._freq),
-                          SLMapPhase(self._phase),
-                          SLMap(1, 4, 'lin', 'interp', self._interp, res="int", dataOnly=True),
-                          SLMapMul(self._mul)]
+        self._map_list = [
+            SLMapFreq(self._freq),
+            SLMapPhase(self._phase),
+            SLMap(1, 4, "lin", "interp", self._interp, res="int", dataOnly=True),
+            SLMapMul(self._mul),
+        ]
         PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
     def table(self):
         """PyoTableObject. Table containing the waveform samples."""
         return self._table
+
     @table.setter
-    def table(self, x): self.setTable(x)
+    def table(self, x):
+        self.setTable(x)
 
     @property
     def trig(self):
         """PyoObject. Trigger signal. Reset pointer position to zero"""
         return self._trig
+
     @trig.setter
-    def trig(self, x): self.setTrig(x)
+    def trig(self, x):
+        self.setTrig(x)
 
     @property
     def freq(self):
         """float or PyoObject. Frequency in cycles per second."""
         return self._freq
+
     @freq.setter
-    def freq(self, x): self.setFreq(x)
+    def freq(self, x):
+        self.setFreq(x)
 
     @property
     def phase(self):
         """float or PyoObject. Phase of sampling."""
         return self._phase
+
     @phase.setter
-    def phase(self, x): self.setPhase(x)
+    def phase(self, x):
+        self.setPhase(x)
 
     @property
     def interp(self):
         """int {1, 2, 3, 4}. Interpolation method."""
         return self._interp
+
     @interp.setter
-    def interp(self, x): self.setInterp(x)
+    def interp(self, x):
+        self.setInterp(x)
+
 
 class OscBank(PyoObject):
     """
@@ -537,7 +590,10 @@ class OscBank(PyoObject):
     >>> b = OscBank(tb,250,spread=.25,slope=.8,arndf=4,arnda=1,num=[10,10],mul=f*0.4).out()
 
     """
-    def __init__(self, table, freq=100, spread=1, slope=.9, frndf=1, frnda=0, arndf=1, arnda=0, num=24, fjit=False, mul=1, add=0):
+
+    def __init__(
+        self, table, freq=100, spread=1, slope=0.9, frndf=1, frnda=0, arndf=1, arnda=0, num=24, fjit=False, mul=1, add=0
+    ):
         pyoArgsAssert(self, "tOOOOOOOibOO", table, freq, spread, slope, frndf, frnda, arndf, arnda, num, fjit, mul, add)
         PyoObject.__init__(self, mul, add)
         self._table = table
@@ -550,8 +606,26 @@ class OscBank(PyoObject):
         self._arnda = arnda
         self._fjit = fjit
         self._num = num
-        table, freq, spread, slope, frndf, frnda, arndf, arnda, num, fjit, mul, add, lmax = convertArgsToLists(table, freq, spread, slope, frndf, frnda, arndf, arnda, num, fjit, mul, add)
-        self._base_objs = [OscBank_base(wrap(table,i), wrap(freq,i), wrap(spread,i), wrap(slope,i), wrap(frndf,i), wrap(frnda,i), wrap(arndf,i), wrap(arnda,i), wrap(num,i), wrap(fjit,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+        table, freq, spread, slope, frndf, frnda, arndf, arnda, num, fjit, mul, add, lmax = convertArgsToLists(
+            table, freq, spread, slope, frndf, frnda, arndf, arnda, num, fjit, mul, add
+        )
+        self._base_objs = [
+            OscBank_base(
+                wrap(table, i),
+                wrap(freq, i),
+                wrap(spread, i),
+                wrap(slope, i),
+                wrap(frndf, i),
+                wrap(frnda, i),
+                wrap(arndf, i),
+                wrap(arnda, i),
+                wrap(num, i),
+                wrap(fjit, i),
+                wrap(mul, i),
+                wrap(add, i),
+            )
+            for i in range(lmax)
+        ]
         self._init_play()
 
     def setTable(self, x):
@@ -567,7 +641,7 @@ class OscBank(PyoObject):
         pyoArgsAssert(self, "t", x)
         self._table = x
         x, lmax = convertArgsToLists(x)
-        [obj.setTable(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setTable(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def setFreq(self, x):
         """
@@ -582,7 +656,7 @@ class OscBank(PyoObject):
         pyoArgsAssert(self, "O", x)
         self._freq = x
         x, lmax = convertArgsToLists(x)
-        [obj.setFreq(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setFreq(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def setSpread(self, x):
         """
@@ -597,7 +671,7 @@ class OscBank(PyoObject):
         pyoArgsAssert(self, "O", x)
         self._spread = x
         x, lmax = convertArgsToLists(x)
-        [obj.setSpread(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setSpread(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def setSlope(self, x):
         """
@@ -612,7 +686,7 @@ class OscBank(PyoObject):
         pyoArgsAssert(self, "O", x)
         self._slope = x
         x, lmax = convertArgsToLists(x)
-        [obj.setSlope(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setSlope(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def setFrndf(self, x):
         """
@@ -627,7 +701,7 @@ class OscBank(PyoObject):
         pyoArgsAssert(self, "O", x)
         self._frndf = x
         x, lmax = convertArgsToLists(x)
-        [obj.setFrndf(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setFrndf(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def setFrnda(self, x):
         """
@@ -642,7 +716,7 @@ class OscBank(PyoObject):
         pyoArgsAssert(self, "O", x)
         self._frnda = x
         x, lmax = convertArgsToLists(x)
-        [obj.setFrnda(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setFrnda(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def setArndf(self, x):
         """
@@ -657,7 +731,7 @@ class OscBank(PyoObject):
         pyoArgsAssert(self, "O", x)
         self._arndf = x
         x, lmax = convertArgsToLists(x)
-        [obj.setArndf(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setArndf(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def setArnda(self, x):
         """
@@ -672,7 +746,7 @@ class OscBank(PyoObject):
         pyoArgsAssert(self, "O", x)
         self._arnda = x
         x, lmax = convertArgsToLists(x)
-        [obj.setArnda(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setArnda(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def setFjit(self, x):
         """
@@ -687,81 +761,102 @@ class OscBank(PyoObject):
         pyoArgsAssert(self, "b", x)
         self._fjit = x
         x, lmax = convertArgsToLists(x)
-        [obj.setFjit(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setFjit(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [SLMap(0.001, 15000, "log", "freq", self._freq),
-                          SLMap(0.001, 2, "log", "spread", self._spread),
-                          SLMap(0, 1, "lin", "slope", self._slope),
-                          SLMap(0.001, 20, "log", "frndf", self._frndf),
-                          SLMap(0, 1, "lin", "frnda", self._frnda),
-                          SLMap(0.001, 20, "log", "arndf", self._arndf),
-                          SLMap(0, 1, "lin", "arnda", self._arnda),
-                          SLMapMul(self._mul)]
+        self._map_list = [
+            SLMap(0.001, 15000, "log", "freq", self._freq),
+            SLMap(0.001, 2, "log", "spread", self._spread),
+            SLMap(0, 1, "lin", "slope", self._slope),
+            SLMap(0.001, 20, "log", "frndf", self._frndf),
+            SLMap(0, 1, "lin", "frnda", self._frnda),
+            SLMap(0.001, 20, "log", "arndf", self._arndf),
+            SLMap(0, 1, "lin", "arnda", self._arnda),
+            SLMapMul(self._mul),
+        ]
         PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
     def table(self):
         """PyoTableObject. Table containing the waveform samples."""
         return self._table
+
     @table.setter
-    def table(self, x): self.setTable(x)
+    def table(self, x):
+        self.setTable(x)
 
     @property
     def freq(self):
         """float or PyoObject. Frequency in cycles per second."""
         return self._freq
+
     @freq.setter
-    def freq(self, x): self.setFreq(x)
+    def freq(self, x):
+        self.setFreq(x)
 
     @property
     def spread(self):
         """float or PyoObject. Frequency expansion factor."""
         return self._spread
+
     @spread.setter
-    def spread(self, x): self.setSpread(x)
+    def spread(self, x):
+        self.setSpread(x)
 
     @property
     def slope(self):
         """float or PyoObject. Multiplier in the series of amplitudes."""
         return self._slope
+
     @slope.setter
-    def slope(self, x): self.setSlope(x)
+    def slope(self, x):
+        self.setSlope(x)
 
     @property
     def frndf(self):
         """float or PyoObject. Frequency of the frequency modulations."""
         return self._frndf
+
     @frndf.setter
-    def frndf(self, x): self.setFrndf(x)
+    def frndf(self, x):
+        self.setFrndf(x)
 
     @property
     def frnda(self):
         """float or PyoObject. Maximum frequency deviation from 0 to 1."""
         return self._frnda
+
     @frnda.setter
-    def frnda(self, x): self.setFrnda(x)
+    def frnda(self, x):
+        self.setFrnda(x)
 
     @property
     def arndf(self):
         """float or PyoObject. Frequency of the amplitude modulations."""
         return self._arndf
+
     @arndf.setter
-    def arndf(self, x): self.setArndf(x)
+    def arndf(self, x):
+        self.setArndf(x)
 
     @property
     def arnda(self):
         """float or PyoObject. Amount of amplitude deviation from 0 to 1."""
         return self._arnda
+
     @arnda.setter
-    def arnda(self, x): self.setArnda(x)
+    def arnda(self, x):
+        self.setArnda(x)
 
     @property
     def fjit(self):
         """boolean. Jitter added to the parial frequencies."""
         return self._fjit
+
     @fjit.setter
-    def fjit(self, x): self.setFjit(x)
+    def fjit(self, x):
+        self.setFjit(x)
+
 
 class TableRead(PyoObject):
     """
@@ -810,6 +905,7 @@ class TableRead(PyoObject):
     >>> a = TableRead(table=snd, freq=[freq,freq*.99], loop=True, mul=.3).out()
 
     """
+
     def __init__(self, table, freq=1, loop=0, interp=2, mul=1, add=0):
         pyoArgsAssert(self, "tObiOO", table, freq, loop, interp, mul, add)
         PyoObject.__init__(self, mul, add)
@@ -819,7 +915,10 @@ class TableRead(PyoObject):
         self._interp = interp
         self._keeplast = 0
         table, freq, loop, interp, mul, add, lmax = convertArgsToLists(table, freq, loop, interp, mul, add)
-        self._base_objs = [TableRead_base(wrap(table,i), wrap(freq,i), wrap(loop,i), wrap(interp,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+        self._base_objs = [
+            TableRead_base(wrap(table, i), wrap(freq, i), wrap(loop, i), wrap(interp, i), wrap(mul, i), wrap(add, i))
+            for i in range(lmax)
+        ]
         self._trig_objs = Dummy([TriggerDummy_base(obj) for obj in self._base_objs])
 
     def setTable(self, x):
@@ -835,7 +934,7 @@ class TableRead(PyoObject):
         pyoArgsAssert(self, "t", x)
         self._table = x
         x, lmax = convertArgsToLists(x)
-        [obj.setTable(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setTable(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def setFreq(self, x):
         """
@@ -850,7 +949,7 @@ class TableRead(PyoObject):
         pyoArgsAssert(self, "O", x)
         self._freq = x
         x, lmax = convertArgsToLists(x)
-        [obj.setFreq(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setFreq(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def setLoop(self, x):
         """
@@ -865,7 +964,7 @@ class TableRead(PyoObject):
         pyoArgsAssert(self, "b", x)
         self._loop = x
         x, lmax = convertArgsToLists(x)
-        [obj.setLoop(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setLoop(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def setInterp(self, x):
         """
@@ -880,7 +979,7 @@ class TableRead(PyoObject):
         pyoArgsAssert(self, "i", x)
         self._interp = x
         x, lmax = convertArgsToLists(x)
-        [obj.setInterp(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setInterp(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def setKeepLast(self, x):
         """
@@ -896,7 +995,7 @@ class TableRead(PyoObject):
         pyoArgsAssert(self, "b", x)
         self._keeplast = x
         x, lmax = convertArgsToLists(x)
-        [obj.setKeepLast(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setKeepLast(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def reset(self):
         """
@@ -906,39 +1005,50 @@ class TableRead(PyoObject):
         [obj.reset() for i, obj in enumerate(self._base_objs)]
 
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [SLMap(0.0001, 1000, 'log', 'freq', self._freq),
-                          SLMap(0, 1, 'lin', 'loop', self._loop, res="int", dataOnly=True),
-                          SLMap(1, 4, 'lin', 'interp', self._interp, res="int", dataOnly=True),
-                          SLMapMul(self._mul)]
+        self._map_list = [
+            SLMap(0.0001, 1000, "log", "freq", self._freq),
+            SLMap(0, 1, "lin", "loop", self._loop, res="int", dataOnly=True),
+            SLMap(1, 4, "lin", "interp", self._interp, res="int", dataOnly=True),
+            SLMapMul(self._mul),
+        ]
         PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
     def table(self):
         """PyoTableObject. Table containing the waveform samples."""
         return self._table
+
     @table.setter
-    def table(self, x): self.setTable(x)
+    def table(self, x):
+        self.setTable(x)
 
     @property
     def freq(self):
         """float or PyoObject. Frequency in cycles per second."""
         return self._freq
+
     @freq.setter
-    def freq(self, x): self.setFreq(x)
+    def freq(self, x):
+        self.setFreq(x)
 
     @property
     def loop(self):
         """int. Looping mode."""
         return self._loop
+
     @loop.setter
-    def loop(self, x): self.setLoop(x)
+    def loop(self, x):
+        self.setLoop(x)
 
     @property
     def interp(self):
         """int {1, 2, 3, 4}. Interpolation method."""
         return self._interp
+
     @interp.setter
-    def interp(self, x): self.setInterp(x)
+    def interp(self, x):
+        self.setInterp(x)
+
 
 class Pulsar(PyoObject):
     """
@@ -986,6 +1096,7 @@ class Pulsar(PyoObject):
     >>> a = Pulsar(table=w, env=e, freq=80, frac=lfo, mul=.08).out()
 
     """
+
     def __init__(self, table, env, freq=100, frac=0.5, phase=0, interp=2, mul=1, add=0):
         pyoArgsAssert(self, "ttOOOiOO", table, env, freq, frac, phase, interp, mul, add)
         PyoObject.__init__(self, mul, add)
@@ -995,8 +1106,22 @@ class Pulsar(PyoObject):
         self._frac = frac
         self._phase = phase
         self._interp = interp
-        table, env, freq, frac, phase, interp, mul, add, lmax = convertArgsToLists(table, env, freq, frac, phase, interp, mul, add)
-        self._base_objs = [Pulsar_base(wrap(table,i), wrap(env,i), wrap(freq,i), wrap(frac,i), wrap(phase,i), wrap(interp,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+        table, env, freq, frac, phase, interp, mul, add, lmax = convertArgsToLists(
+            table, env, freq, frac, phase, interp, mul, add
+        )
+        self._base_objs = [
+            Pulsar_base(
+                wrap(table, i),
+                wrap(env, i),
+                wrap(freq, i),
+                wrap(frac, i),
+                wrap(phase, i),
+                wrap(interp, i),
+                wrap(mul, i),
+                wrap(add, i),
+            )
+            for i in range(lmax)
+        ]
         self._init_play()
 
     def setTable(self, x):
@@ -1012,7 +1137,7 @@ class Pulsar(PyoObject):
         pyoArgsAssert(self, "t", x)
         self._table = x
         x, lmax = convertArgsToLists(x)
-        [obj.setTable(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setTable(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def setEnv(self, x):
         """
@@ -1027,7 +1152,7 @@ class Pulsar(PyoObject):
         pyoArgsAssert(self, "t", x)
         self._env = x
         x, lmax = convertArgsToLists(x)
-        [obj.setEnv(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setEnv(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def setFreq(self, x):
         """
@@ -1042,7 +1167,7 @@ class Pulsar(PyoObject):
         pyoArgsAssert(self, "O", x)
         self._freq = x
         x, lmax = convertArgsToLists(x)
-        [obj.setFreq(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setFreq(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def setFrac(self, x):
         """
@@ -1057,7 +1182,7 @@ class Pulsar(PyoObject):
         pyoArgsAssert(self, "O", x)
         self._frac = x
         x, lmax = convertArgsToLists(x)
-        [obj.setFrac(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setFrac(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def setPhase(self, x):
         """
@@ -1072,7 +1197,7 @@ class Pulsar(PyoObject):
         pyoArgsAssert(self, "O", x)
         self._phase = x
         x, lmax = convertArgsToLists(x)
-        [obj.setPhase(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setPhase(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def setInterp(self, x):
         """
@@ -1091,57 +1216,72 @@ class Pulsar(PyoObject):
         pyoArgsAssert(self, "i", x)
         self._interp = x
         x, lmax = convertArgsToLists(x)
-        [obj.setInterp(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setInterp(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [SLMapFreq(self._freq),
-                          SLMap(0., 1., 'lin', 'frac', self._frac),
-                          SLMapPhase(self._phase),
-                          SLMap(1, 4, 'lin', 'interp', self._interp, res="int", dataOnly=True),
-                          SLMapMul(self._mul)]
+        self._map_list = [
+            SLMapFreq(self._freq),
+            SLMap(0.0, 1.0, "lin", "frac", self._frac),
+            SLMapPhase(self._phase),
+            SLMap(1, 4, "lin", "interp", self._interp, res="int", dataOnly=True),
+            SLMapMul(self._mul),
+        ]
         PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
     def table(self):
         """PyoTableObject. Table containing the waveform samples."""
         return self._table
+
     @table.setter
-    def table(self, x): self.setTable(x)
+    def table(self, x):
+        self.setTable(x)
 
     @property
     def env(self):
         """PyoTableObject. Table containing the envelope samples."""
         return self._env
+
     @env.setter
-    def env(self, x): self.setEnv(x)
+    def env(self, x):
+        self.setEnv(x)
 
     @property
     def freq(self):
         """float or PyoObject. Frequency in cycles per second."""
         return self._freq
+
     @freq.setter
-    def freq(self, x): self.setFreq(x)
+    def freq(self, x):
+        self.setFreq(x)
 
     @property
     def frac(self):
         """float or PyoObject. Fraction of the period assigned to waveform."""
         return self._frac
+
     @frac.setter
-    def frac(self, x): self.setFrac(x)
+    def frac(self, x):
+        self.setFrac(x)
 
     @property
     def phase(self):
         """float or PyoObject. Phase of sampling."""
         return self._phase
+
     @phase.setter
-    def phase(self, x): self.setPhase(x)
+    def phase(self, x):
+        self.setPhase(x)
 
     @property
     def interp(self):
         """int {1, 2, 3, 4}. Interpolation method."""
         return self._interp
+
     @interp.setter
-    def interp(self, x): self.setInterp(x)
+    def interp(self, x):
+        self.setInterp(x)
+
 
 class Pointer(PyoObject):
     """
@@ -1164,13 +1304,16 @@ class Pointer(PyoObject):
     >>> a = Pointer(table=t, index=p, mul=.3).out()
 
     """
+
     def __init__(self, table, index, mul=1, add=0):
         pyoArgsAssert(self, "toOO", table, index, mul, add)
         PyoObject.__init__(self, mul, add)
         self._table = table
         self._index = index
         table, index, mul, add, lmax = convertArgsToLists(table, index, mul, add)
-        self._base_objs = [Pointer_base(wrap(table,i), wrap(index,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+        self._base_objs = [
+            Pointer_base(wrap(table, i), wrap(index, i), wrap(mul, i), wrap(add, i)) for i in range(lmax)
+        ]
         self._init_play()
 
     def setTable(self, x):
@@ -1186,7 +1329,7 @@ class Pointer(PyoObject):
         pyoArgsAssert(self, "t", x)
         self._table = x
         x, lmax = convertArgsToLists(x)
-        [obj.setTable(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setTable(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def setIndex(self, x):
         """
@@ -1201,7 +1344,7 @@ class Pointer(PyoObject):
         pyoArgsAssert(self, "o", x)
         self._index = x
         x, lmax = convertArgsToLists(x)
-        [obj.setIndex(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setIndex(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
         self._map_list = [SLMapMul(self._mul)]
@@ -1211,15 +1354,20 @@ class Pointer(PyoObject):
     def table(self):
         """PyoTableObject. Table containing the waveform samples."""
         return self._table
+
     @table.setter
-    def table(self, x): self.setTable(x)
+    def table(self, x):
+        self.setTable(x)
 
     @property
     def index(self):
         """PyoObject. Index pointer position in the table."""
         return self._index
+
     @index.setter
-    def index(self, x): self.setIndex(x)
+    def index(self, x):
+        self.setIndex(x)
+
 
 class Pointer2(PyoObject):
     """
@@ -1254,6 +1402,7 @@ class Pointer2(PyoObject):
     >>> a = Pointer2(table=t, index=p, mul=.3).out()
 
     """
+
     def __init__(self, table, index, interp=4, autosmooth=True, mul=1, add=0):
         pyoArgsAssert(self, "toibOO", table, index, interp, autosmooth, mul, add)
         PyoObject.__init__(self, mul, add)
@@ -1261,8 +1410,15 @@ class Pointer2(PyoObject):
         self._index = index
         self._interp = interp
         self._autosmooth = autosmooth
-        table, index, interp, autosmooth, mul, add, lmax = convertArgsToLists(table, index, interp, autosmooth, mul, add)
-        self._base_objs = [Pointer2_base(wrap(table,i), wrap(index,i), wrap(interp,i), wrap(autosmooth,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+        table, index, interp, autosmooth, mul, add, lmax = convertArgsToLists(
+            table, index, interp, autosmooth, mul, add
+        )
+        self._base_objs = [
+            Pointer2_base(
+                wrap(table, i), wrap(index, i), wrap(interp, i), wrap(autosmooth, i), wrap(mul, i), wrap(add, i)
+            )
+            for i in range(lmax)
+        ]
         self._init_play()
 
     def setTable(self, x):
@@ -1278,7 +1434,7 @@ class Pointer2(PyoObject):
         pyoArgsAssert(self, "t", x)
         self._table = x
         x, lmax = convertArgsToLists(x)
-        [obj.setTable(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setTable(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def setIndex(self, x):
         """
@@ -1293,7 +1449,7 @@ class Pointer2(PyoObject):
         pyoArgsAssert(self, "o", x)
         self._index = x
         x, lmax = convertArgsToLists(x)
-        [obj.setIndex(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setIndex(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def setInterp(self, x):
         """
@@ -1312,7 +1468,7 @@ class Pointer2(PyoObject):
         pyoArgsAssert(self, "i", x)
         self._interp = x
         x, lmax = convertArgsToLists(x)
-        [obj.setInterp(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setInterp(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def setAutoSmooth(self, x):
         """
@@ -1331,7 +1487,7 @@ class Pointer2(PyoObject):
         pyoArgsAssert(self, "b", x)
         self._autosmooth = x
         x, lmax = convertArgsToLists(x)
-        [obj.setAutoSmooth(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setAutoSmooth(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
         self._map_list = [SLMapMul(self._mul)]
@@ -1341,29 +1497,38 @@ class Pointer2(PyoObject):
     def table(self):
         """PyoTableObject. Table containing the waveform samples."""
         return self._table
+
     @table.setter
-    def table(self, x): self.setTable(x)
+    def table(self, x):
+        self.setTable(x)
 
     @property
     def index(self):
         """PyoObject. Index pointer position in the table."""
         return self._index
+
     @index.setter
-    def index(self, x): self.setIndex(x)
+    def index(self, x):
+        self.setIndex(x)
 
     @property
     def interp(self):
         """int {1, 2, 3, 4}. Interpolation method."""
         return self._interp
+
     @interp.setter
-    def interp(self, x): self.setInterp(x)
+    def interp(self, x):
+        self.setInterp(x)
 
     @property
     def autosmooth(self):
         """boolean. Quantization noise filter."""
         return self._autosmooth
+
     @autosmooth.setter
-    def autosmooth(self, x): self.setAutoSmooth(x)
+    def autosmooth(self, x):
+        self.setAutoSmooth(x)
+
 
 class TableIndex(PyoObject):
     """
@@ -1389,13 +1554,16 @@ class TableIndex(PyoObject):
     >>> a = SineLoop(freq=pit, feedback = 0.05, mul=.2).out()
 
     """
+
     def __init__(self, table, index, mul=1, add=0):
         pyoArgsAssert(self, "toOO", table, index, mul, add)
         PyoObject.__init__(self, mul, add)
         self._table = table
         self._index = index
         table, index, mul, add, lmax = convertArgsToLists(table, index, mul, add)
-        self._base_objs = [TableIndex_base(wrap(table,i), wrap(index,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+        self._base_objs = [
+            TableIndex_base(wrap(table, i), wrap(index, i), wrap(mul, i), wrap(add, i)) for i in range(lmax)
+        ]
         self._init_play()
 
     def setTable(self, x):
@@ -1411,7 +1579,7 @@ class TableIndex(PyoObject):
         pyoArgsAssert(self, "t", x)
         self._table = x
         x, lmax = convertArgsToLists(x)
-        [obj.setTable(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setTable(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def setIndex(self, x):
         """
@@ -1426,7 +1594,7 @@ class TableIndex(PyoObject):
         pyoArgsAssert(self, "o", x)
         self._index = x
         x, lmax = convertArgsToLists(x)
-        [obj.setIndex(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setIndex(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
         self._map_list = [SLMapMul(self._mul)]
@@ -1436,15 +1604,20 @@ class TableIndex(PyoObject):
     def table(self):
         """PyoTableObject. Table containing the samples."""
         return self._table
+
     @table.setter
-    def table(self, x): self.setTable(x)
+    def table(self, x):
+        self.setTable(x)
 
     @property
     def index(self):
         """PyoObject. Position in the table."""
         return self._index
+
     @index.setter
-    def index(self, x): self.setIndex(x)
+    def index(self, x):
+        self.setIndex(x)
+
 
 class Lookup(PyoObject):
     """
@@ -1473,13 +1646,14 @@ class Lookup(PyoObject):
     >>> b = Lookup(table=t, index=a, mul=.5-lfo).out()
 
     """
+
     def __init__(self, table, index, mul=1, add=0):
         pyoArgsAssert(self, "toOO", table, index, mul, add)
         PyoObject.__init__(self, mul, add)
         self._table = table
         self._index = index
         table, index, mul, add, lmax = convertArgsToLists(table, index, mul, add)
-        self._base_objs = [Lookup_base(wrap(table,i), wrap(index,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+        self._base_objs = [Lookup_base(wrap(table, i), wrap(index, i), wrap(mul, i), wrap(add, i)) for i in range(lmax)]
         self._init_play()
 
     def setTable(self, x):
@@ -1495,7 +1669,7 @@ class Lookup(PyoObject):
         pyoArgsAssert(self, "t", x)
         self._table = x
         x, lmax = convertArgsToLists(x)
-        [obj.setTable(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setTable(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def setIndex(self, x):
         """
@@ -1510,7 +1684,7 @@ class Lookup(PyoObject):
         pyoArgsAssert(self, "o", x)
         self._index = x
         x, lmax = convertArgsToLists(x)
-        [obj.setIndex(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setIndex(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
         self._map_list = [SLMapMul(self._mul)]
@@ -1520,15 +1694,20 @@ class Lookup(PyoObject):
     def table(self):
         """PyoTableObject. Table containing the transfert function."""
         return self._table
+
     @table.setter
-    def table(self, x): self.setTable(x)
+    def table(self, x):
+        self.setTable(x)
 
     @property
     def index(self):
         """PyoObject. Audio input used as the table index."""
         return self._index
+
     @index.setter
-    def index(self, x): self.setIndex(x)
+    def index(self, x):
+        self.setIndex(x)
+
 
 class TableRec(PyoObject):
     """
@@ -1589,6 +1768,7 @@ class TableRec(PyoObject):
     >>> # b.play()
 
     """
+
     def __init__(self, input, table, fadetime=0):
         pyoArgsAssert(self, "otn", input, table, fadetime)
         PyoObject.__init__(self)
@@ -1597,12 +1777,14 @@ class TableRec(PyoObject):
         self._table = table
         self._in_fader = InputFader(input).stop()
         in_fader, table, fadetime, lmax = convertArgsToLists(self._in_fader, table, fadetime)
-        self._base_objs = [TableRec_base(wrap(in_fader,i), wrap(table,i), wrap(fadetime,i)) for i in range(len(table))]
+        self._base_objs = [
+            TableRec_base(wrap(in_fader, i), wrap(table, i), wrap(fadetime, i)) for i in range(len(table))
+        ]
         self._trig_objs = Dummy([TriggerDummy_base(obj) for obj in self._base_objs])
         self._time_objs = [TableRecTimeStream_base(obj) for obj in self._base_objs]
 
     def __getitem__(self, i):
-        if i == 'time':
+        if i == "time":
             self._time_dummy.append(Dummy([obj for obj in self._time_objs]))
             return self._time_dummy[-1]
         return PyoObject.__getitem__(self, i)
@@ -1645,21 +1827,26 @@ class TableRec(PyoObject):
         pyoArgsAssert(self, "t", x)
         self._table = x
         x, lmax = convertArgsToLists(x)
-        [obj.setTable(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setTable(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     @property
     def input(self):
         """PyoObject. Audio signal to write in the table."""
         return self._input
+
     @input.setter
-    def input(self, x): self.setInput(x)
+    def input(self, x):
+        self.setInput(x)
 
     @property
     def table(self):
         """NewTable. The table where to write samples."""
         return self._table
+
     @table.setter
-    def table(self, x): self.setTable(x)
+    def table(self, x):
+        self.setTable(x)
+
 
 class TableWrite(PyoObject):
     """
@@ -1718,6 +1905,7 @@ class TableWrite(PyoObject):
     >>> pat = Pattern(tab.refreshView, 0.05).play()
 
     """
+
     def __init__(self, input, pos, table, mode=0, maxwindow=1024):
         pyoArgsAssert(self, "ootii", input, pos, table, mode, maxwindow)
         PyoObject.__init__(self)
@@ -1728,7 +1916,10 @@ class TableWrite(PyoObject):
         self._maxwindow = maxwindow
         self._in_fader = InputFader(input)
         in_fader, pos, table, mode, maxwindow, lmax = convertArgsToLists(self._in_fader, pos, table, mode, maxwindow)
-        self._base_objs = [TableWrite_base(wrap(in_fader,i), wrap(pos,i), wrap(table,i), wrap(mode,i), wrap(maxwindow,i)) for i in range(len(table))]
+        self._base_objs = [
+            TableWrite_base(wrap(in_fader, i), wrap(pos, i), wrap(table, i), wrap(mode, i), wrap(maxwindow, i))
+            for i in range(len(table))
+        ]
         self._init_play()
 
     def out(self, chnl=0, inc=1, dur=0, delay=0):
@@ -1769,7 +1960,7 @@ class TableWrite(PyoObject):
         pyoArgsAssert(self, "t", x)
         self._table = x
         x, lmax = convertArgsToLists(x)
-        [obj.setTable(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setTable(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def setPos(self, x):
         """
@@ -1784,28 +1975,35 @@ class TableWrite(PyoObject):
         pyoArgsAssert(self, "o", x)
         self._pos = x
         x, lmax = convertArgsToLists(x)
-        [obj.setPos(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setPos(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     @property
     def input(self):
         """PyoObject. Audio signal to write in the table."""
         return self._input
+
     @input.setter
-    def input(self, x): self.setInput(x)
+    def input(self, x):
+        self.setInput(x)
 
     @property
     def table(self):
         """NewTable. The table where to write samples."""
         return self._table
+
     @table.setter
-    def table(self, x): self.setTable(x)
+    def table(self, x):
+        self.setTable(x)
 
     @property
     def pos(self):
         """PyoObject. Normalized position, as audio stream, where to write samples."""
         return self._pos
+
     @pos.setter
-    def pos(self, x): self.setPos(x)
+    def pos(self, x):
+        self.setPos(x)
+
 
 class TableMorph(PyoObject):
     """
@@ -1844,6 +2042,7 @@ class TableMorph(PyoObject):
     >>> osc = Osc(t3, freq=[199.5,200], mul=.08).out()
 
     """
+
     def __init__(self, input, table, sources):
         pyoArgsAssert(self, "otl", input, table, sources)
         PyoObject.__init__(self)
@@ -1853,7 +2052,9 @@ class TableMorph(PyoObject):
         self._in_fader = InputFader(input)
         in_fader, table, lmax = convertArgsToLists(self._in_fader, table)
         self._base_sources = [source[0] for source in sources]
-        self._base_objs = [TableMorph_base(wrap(in_fader,i), wrap(table,i), self._base_sources) for i in range(len(table))]
+        self._base_objs = [
+            TableMorph_base(wrap(in_fader, i), wrap(table, i), self._base_sources) for i in range(len(table))
+        ]
         self._init_play()
 
     def out(self, chnl=0, inc=1, dur=0, delay=0):
@@ -1894,7 +2095,7 @@ class TableMorph(PyoObject):
         pyoArgsAssert(self, "t", x)
         self._table = x
         x, lmax = convertArgsToLists(x)
-        [obj.setTable(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setTable(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def setSources(self, x):
         """
@@ -1915,22 +2116,29 @@ class TableMorph(PyoObject):
     def input(self):
         """PyoObject. Morphing index between 0 and 1."""
         return self._input
+
     @input.setter
-    def input(self, x): self.setInput(x)
+    def input(self, x):
+        self.setInput(x)
 
     @property
     def table(self):
         """NewTable. The table where to write samples."""
         return self._table
+
     @table.setter
-    def table(self, x): self.setTable(x)
+    def table(self, x):
+        self.setTable(x)
 
     @property
     def sources(self):
         """list of PyoTableObject. List of tables to interpolate from."""
         return self._sources
+
     @sources.setter
-    def sources(self, x): self.setSources(x)
+    def sources(self, x):
+        self.setSources(x)
+
 
 class Granulator(PyoObject):
     """
@@ -1973,7 +2181,8 @@ class Granulator(PyoObject):
     >>> g = Granulator(snd, env, [1, 1.001], pos, dur, 24, mul=.1).out()
 
     """
-    def __init__(self, table, env, pitch=1, pos=0, dur=.1, grains=8, basedur=.1, mul=1, add=0):
+
+    def __init__(self, table, env, pitch=1, pos=0, dur=0.1, grains=8, basedur=0.1, mul=1, add=0):
         pyoArgsAssert(self, "ttOOOinOO", table, env, pitch, pos, dur, grains, basedur, mul, add)
         PyoObject.__init__(self, mul, add)
         self._table = table
@@ -1983,10 +2192,23 @@ class Granulator(PyoObject):
         self._dur = dur
         self._grains = grains
         self._basedur = basedur
-        table, env, pitch, pos, dur, grains, basedur, mul, add, lmax = convertArgsToLists(table, env, pitch,
-                                                                        pos, dur, grains, basedur, mul, add)
-        self._base_objs = [Granulator_base(wrap(table,i), wrap(env,i), wrap(pitch,i), wrap(pos,i), wrap(dur,i),
-                          wrap(grains,i), wrap(basedur,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+        table, env, pitch, pos, dur, grains, basedur, mul, add, lmax = convertArgsToLists(
+            table, env, pitch, pos, dur, grains, basedur, mul, add
+        )
+        self._base_objs = [
+            Granulator_base(
+                wrap(table, i),
+                wrap(env, i),
+                wrap(pitch, i),
+                wrap(pos, i),
+                wrap(dur, i),
+                wrap(grains, i),
+                wrap(basedur, i),
+                wrap(mul, i),
+                wrap(add, i),
+            )
+            for i in range(lmax)
+        ]
         self._init_play()
 
     def setTable(self, x):
@@ -2002,7 +2224,7 @@ class Granulator(PyoObject):
         pyoArgsAssert(self, "t", x)
         self._table = x
         x, lmax = convertArgsToLists(x)
-        [obj.setTable(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setTable(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def setEnv(self, x):
         """
@@ -2017,7 +2239,7 @@ class Granulator(PyoObject):
         pyoArgsAssert(self, "t", x)
         self._env = x
         x, lmax = convertArgsToLists(x)
-        [obj.setEnv(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setEnv(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def setPitch(self, x):
         """
@@ -2032,7 +2254,7 @@ class Granulator(PyoObject):
         pyoArgsAssert(self, "O", x)
         self._pitch = x
         x, lmax = convertArgsToLists(x)
-        [obj.setPitch(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setPitch(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def setPos(self, x):
         """
@@ -2047,7 +2269,7 @@ class Granulator(PyoObject):
         pyoArgsAssert(self, "O", x)
         self._pos = x
         x, lmax = convertArgsToLists(x)
-        [obj.setPos(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setPos(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def setDur(self, x):
         """
@@ -2062,7 +2284,7 @@ class Granulator(PyoObject):
         pyoArgsAssert(self, "O", x)
         self._dur = x
         x, lmax = convertArgsToLists(x)
-        [obj.setDur(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setDur(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def setGrains(self, x):
         """
@@ -2077,7 +2299,7 @@ class Granulator(PyoObject):
         pyoArgsAssert(self, "i", x)
         self._grains = x
         x, lmax = convertArgsToLists(x)
-        [obj.setGrains(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setGrains(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def setBaseDur(self, x):
         """
@@ -2092,64 +2314,81 @@ class Granulator(PyoObject):
         pyoArgsAssert(self, "n", x)
         self._basedur = x
         x, lmax = convertArgsToLists(x)
-        [obj.setBaseDur(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setBaseDur(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [SLMap(0.1, 2., 'lin', 'pitch', self._pitch),
-                          SLMap(0.01, 1., 'lin', 'dur', self._dur),
-                          SLMap(1, 256, 'lin', 'grains', self._grains, res="int", dataOnly=True),
-                          SLMap(0.001, 1, 'log', 'basedur', self._basedur, dataOnly=True),
-                          SLMapMul(self._mul)]
+        self._map_list = [
+            SLMap(0.1, 2.0, "lin", "pitch", self._pitch),
+            SLMap(0.01, 1.0, "lin", "dur", self._dur),
+            SLMap(1, 256, "lin", "grains", self._grains, res="int", dataOnly=True),
+            SLMap(0.001, 1, "log", "basedur", self._basedur, dataOnly=True),
+            SLMapMul(self._mul),
+        ]
         PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
     def table(self):
         """PyoTableObject. Table containing the waveform samples."""
         return self._table
+
     @table.setter
-    def table(self, x): self.setTable(x)
+    def table(self, x):
+        self.setTable(x)
 
     @property
     def env(self):
         """PyoTableObject. Table containing the grain envelope."""
         return self._env
+
     @env.setter
-    def env(self, x): self.setEnv(x)
+    def env(self, x):
+        self.setEnv(x)
 
     @property
     def pitch(self):
         """float or PyoObject. Overall pitch of the granulator."""
         return self._pitch
+
     @pitch.setter
-    def pitch(self, x): self.setPitch(x)
+    def pitch(self, x):
+        self.setPitch(x)
 
     @property
     def pos(self):
         """float or PyoObject. Position of the pointer in the sound table."""
         return self._pos
+
     @pos.setter
-    def pos(self, x): self.setPos(x)
+    def pos(self, x):
+        self.setPos(x)
 
     @property
     def dur(self):
         """float or PyoObject. Duration, in seconds, of the grain."""
         return self._dur
+
     @dur.setter
-    def dur(self, x): self.setDur(x)
+    def dur(self, x):
+        self.setDur(x)
 
     @property
     def grains(self):
         """int. Number of grains."""
         return self._grains
+
     @grains.setter
-    def grains(self, x): self.setGrains(x)
+    def grains(self, x):
+        self.setGrains(x)
 
     @property
     def basedur(self):
         """float. Duration to read the grain at its original pitch."""
         return self._basedur
+
     @basedur.setter
-    def basedur(self, x): self.setBaseDur(x)
+    def basedur(self, x):
+        self.setBaseDur(x)
+
 
 class TrigTableRec(PyoObject):
     """
@@ -2200,6 +2439,7 @@ class TrigTableRec(PyoObject):
     >>> rep = TrigEnv(trec["trig"], table=t, dur=dur).out(1)
 
     """
+
     def __init__(self, input, trig, table, fadetime=0):
         pyoArgsAssert(self, "ootn", input, trig, table, fadetime)
         PyoObject.__init__(self)
@@ -2209,14 +2449,19 @@ class TrigTableRec(PyoObject):
         self._table = table
         self._in_fader = InputFader(input)
         self._in_fader2 = InputFader(trig)
-        in_fader, in_fader2, table, fadetime, lmax = convertArgsToLists(self._in_fader, self._in_fader2, table, fadetime)
-        self._base_objs = [TrigTableRec_base(wrap(in_fader,i), wrap(in_fader2,i), wrap(table,i), wrap(fadetime,i)) for i in range(len(table))]
+        in_fader, in_fader2, table, fadetime, lmax = convertArgsToLists(
+            self._in_fader, self._in_fader2, table, fadetime
+        )
+        self._base_objs = [
+            TrigTableRec_base(wrap(in_fader, i), wrap(in_fader2, i), wrap(table, i), wrap(fadetime, i))
+            for i in range(len(table))
+        ]
         self._trig_objs = Dummy([TriggerDummy_base(obj) for obj in self._base_objs])
         self._time_objs = [TrigTableRecTimeStream_base(obj) for obj in self._base_objs]
         self._init_play()
 
     def __getitem__(self, i):
-        if i == 'time':
+        if i == "time":
             self._time_dummy.append(Dummy([obj for obj in self._time_objs]))
             return self._time_dummy[-1]
         return PyoObject.__getitem__(self, i)
@@ -2275,28 +2520,35 @@ class TrigTableRec(PyoObject):
         pyoArgsAssert(self, "t", x)
         self._table = x
         x, lmax = convertArgsToLists(x)
-        [obj.setTable(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setTable(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     @property
     def input(self):
         """PyoObject. Audio signal to write in the table."""
         return self._input
+
     @input.setter
-    def input(self, x): self.setInput(x)
+    def input(self, x):
+        self.setInput(x)
 
     @property
     def trig(self):
         """PyoObject. Audio signal sending triggers."""
         return self._trig
+
     @trig.setter
-    def trig(self, x): self.setTrig(x)
+    def trig(self, x):
+        self.setTrig(x)
 
     @property
     def table(self):
         """NewTable. The table where to write samples."""
         return self._table
+
     @table.setter
-    def table(self, x): self.setTable(x)
+    def table(self, x):
+        self.setTable(x)
+
 
 class Looper(PyoObject):
     """
@@ -2373,8 +2625,38 @@ class Looper(PyoObject):
     >>> a = Looper(table=tab, pitch=pit, start=start, dur=dur, startfromloop=True, mul=.25).out()
 
     """
-    def __init__(self, table, pitch=1, start=0, dur=1., xfade=20, mode=1, xfadeshape=0, startfromloop=False, interp=2, autosmooth=False, mul=1, add=0):
-        pyoArgsAssert(self, "tOOOOiibibOO", table, pitch, start, dur, xfade, mode, xfadeshape, startfromloop, interp, autosmooth, mul, add)
+
+    def __init__(
+        self,
+        table,
+        pitch=1,
+        start=0,
+        dur=1.0,
+        xfade=20,
+        mode=1,
+        xfadeshape=0,
+        startfromloop=False,
+        interp=2,
+        autosmooth=False,
+        mul=1,
+        add=0,
+    ):
+        pyoArgsAssert(
+            self,
+            "tOOOOiibibOO",
+            table,
+            pitch,
+            start,
+            dur,
+            xfade,
+            mode,
+            xfadeshape,
+            startfromloop,
+            interp,
+            autosmooth,
+            mul,
+            add,
+        )
         PyoObject.__init__(self, mul, add)
         self._time_dummy = []
         self._appendfade = 0
@@ -2389,16 +2671,46 @@ class Looper(PyoObject):
         self._startfromloop = startfromloop
         self._interp = interp
         self._autosmooth = autosmooth
-        table, pitch, start, dur, xfade, mode, xfadeshape, startfromloop, interp, autosmooth, mul, add, lmax = convertArgsToLists(
-                                        table, pitch, start, dur, xfade, mode, xfadeshape, startfromloop, interp, autosmooth, mul, add)
-        self._base_objs = [Looper_base(wrap(table,i), wrap(pitch,i), wrap(start,i), wrap(dur,i), wrap(xfade,i), wrap(mode,i),
-            wrap(xfadeshape,i), wrap(startfromloop,i), wrap(interp,i), wrap(autosmooth,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+        (
+            table,
+            pitch,
+            start,
+            dur,
+            xfade,
+            mode,
+            xfadeshape,
+            startfromloop,
+            interp,
+            autosmooth,
+            mul,
+            add,
+            lmax,
+        ) = convertArgsToLists(
+            table, pitch, start, dur, xfade, mode, xfadeshape, startfromloop, interp, autosmooth, mul, add
+        )
+        self._base_objs = [
+            Looper_base(
+                wrap(table, i),
+                wrap(pitch, i),
+                wrap(start, i),
+                wrap(dur, i),
+                wrap(xfade, i),
+                wrap(mode, i),
+                wrap(xfadeshape, i),
+                wrap(startfromloop, i),
+                wrap(interp, i),
+                wrap(autosmooth, i),
+                wrap(mul, i),
+                wrap(add, i),
+            )
+            for i in range(lmax)
+        ]
         self._trig_objs = Dummy([TriggerDummy_base(obj) for obj in self._base_objs])
         self._time_objs = [LooperTimeStream_base(obj) for obj in self._base_objs]
         self._init_play()
 
     def __getitem__(self, i):
-        if i == 'time':
+        if i == "time":
             self._time_dummy.append(Dummy([obj for obj in self._time_objs]))
             return self._time_dummy[-1]
         return PyoObject.__getitem__(self, i)
@@ -2421,7 +2733,7 @@ class Looper(PyoObject):
         pyoArgsAssert(self, "t", x)
         self._table = x
         x, lmax = convertArgsToLists(x)
-        [obj.setTable(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setTable(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def setPitch(self, x):
         """
@@ -2436,7 +2748,7 @@ class Looper(PyoObject):
         pyoArgsAssert(self, "O", x)
         self._pitch = x
         x, lmax = convertArgsToLists(x)
-        [obj.setPitch(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setPitch(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def setStart(self, x):
         """
@@ -2451,7 +2763,7 @@ class Looper(PyoObject):
         pyoArgsAssert(self, "O", x)
         self._start = x
         x, lmax = convertArgsToLists(x)
-        [obj.setStart(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setStart(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def setDur(self, x):
         """
@@ -2466,7 +2778,7 @@ class Looper(PyoObject):
         pyoArgsAssert(self, "O", x)
         self._dur = x
         x, lmax = convertArgsToLists(x)
-        [obj.setDur(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setDur(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def setXfade(self, x):
         """
@@ -2481,7 +2793,7 @@ class Looper(PyoObject):
         pyoArgsAssert(self, "O", x)
         self._xfade = x
         x, lmax = convertArgsToLists(x)
-        [obj.setXfade(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setXfade(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def setXfadeShape(self, x):
         """
@@ -2496,7 +2808,7 @@ class Looper(PyoObject):
         pyoArgsAssert(self, "i", x)
         self._xfadeshape = x
         x, lmax = convertArgsToLists(x)
-        [obj.setXfadeShape(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setXfadeShape(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def setStartFromLoop(self, x):
         """
@@ -2511,7 +2823,7 @@ class Looper(PyoObject):
         pyoArgsAssert(self, "b", x)
         self._startfromloop = x
         x, lmax = convertArgsToLists(x)
-        [obj.setStartFromLoop(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setStartFromLoop(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def setMode(self, x):
         """
@@ -2526,7 +2838,7 @@ class Looper(PyoObject):
         pyoArgsAssert(self, "i", x)
         self._mode = x
         x, lmax = convertArgsToLists(x)
-        [obj.setMode(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setMode(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def setInterp(self, x):
         """
@@ -2541,7 +2853,7 @@ class Looper(PyoObject):
         pyoArgsAssert(self, "i", x)
         self._interp = x
         x, lmax = convertArgsToLists(x)
-        [obj.setInterp(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setInterp(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def setAutoSmooth(self, x):
         """
@@ -2556,7 +2868,7 @@ class Looper(PyoObject):
         pyoArgsAssert(self, "b", x)
         self._autosmooth = x
         x, lmax = convertArgsToLists(x)
-        [obj.setAutoSmooth(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setAutoSmooth(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def reset(self):
         """
@@ -2591,7 +2903,7 @@ class Looper(PyoObject):
         pyoArgsAssert(self, "b", x)
         self._appendfade = x
         x, lmax = convertArgsToLists(x)
-        [obj.appendFadeTime(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.appendFadeTime(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def fadeInSeconds(self, x):
         """
@@ -2610,88 +2922,111 @@ class Looper(PyoObject):
         pyoArgsAssert(self, "b", x)
         self._fadeinseconds = x
         x, lmax = convertArgsToLists(x)
-        [obj.fadeInSeconds(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.fadeInSeconds(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [SLMap(0.1, 2., 'lin', 'pitch', self._pitch),
-                          SLMap(0., self._table.getDur(), 'lin', 'start', self._start),
-                          SLMap(0.01, self._table.getDur(), 'lin', 'dur', self._dur),
-                          SLMap(1, 50, 'lin', 'xfade', self._xfade),
-                          SLMap(0, 3, 'lin', 'mode', self._mode, res="int", dataOnly=True),
-                          SLMap(0, 2, 'lin', 'xfadeshape', self._xfadeshape, res="int", dataOnly=True),
-                          SLMap(1, 4, 'lin', 'interp', self._interp, res="int", dataOnly=True),
-                          SLMapMul(self._mul)]
+        self._map_list = [
+            SLMap(0.1, 2.0, "lin", "pitch", self._pitch),
+            SLMap(0.0, self._table.getDur(), "lin", "start", self._start),
+            SLMap(0.01, self._table.getDur(), "lin", "dur", self._dur),
+            SLMap(1, 50, "lin", "xfade", self._xfade),
+            SLMap(0, 3, "lin", "mode", self._mode, res="int", dataOnly=True),
+            SLMap(0, 2, "lin", "xfadeshape", self._xfadeshape, res="int", dataOnly=True),
+            SLMap(1, 4, "lin", "interp", self._interp, res="int", dataOnly=True),
+            SLMapMul(self._mul),
+        ]
         PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
     def table(self):
         """PyoTableObject. Table containing the waveform samples."""
         return self._table
+
     @table.setter
-    def table(self, x): self.setTable(x)
+    def table(self, x):
+        self.setTable(x)
 
     @property
     def pitch(self):
         """float or PyoObject. Transposition factor."""
         return self._pitch
+
     @pitch.setter
-    def pitch(self, x): self.setPitch(x)
+    def pitch(self, x):
+        self.setPitch(x)
 
     @property
     def start(self):
         """float or PyoObject. Loop start position in seconds."""
         return self._start
+
     @start.setter
-    def start(self, x): self.setStart(x)
+    def start(self, x):
+        self.setStart(x)
 
     @property
     def dur(self):
         """float or PyoObject. Loop duration in seconds."""
         return self._dur
+
     @dur.setter
-    def dur(self, x): self.setDur(x)
+    def dur(self, x):
+        self.setDur(x)
 
     @property
     def xfade(self):
         """float or PyoObject. Crossfade duration in percent."""
         return self._xfade
+
     @xfade.setter
-    def xfade(self, x): self.setXfade(x)
+    def xfade(self, x):
+        self.setXfade(x)
 
     @property
     def xfadeshape(self):
         """int. Crossfade envelope."""
         return self._xfadeshape
+
     @xfadeshape.setter
-    def xfadeshape(self, x): self.setXfadeShape(x)
+    def xfadeshape(self, x):
+        self.setXfadeShape(x)
 
     @property
     def startfromloop(self):
         """boolean. Starts from loop point if True, otherwise starts from beginning of the sound."""
         return self._startfromloop
+
     @startfromloop.setter
-    def startfromloop(self, x): self.setStartFromLoop(x)
+    def startfromloop(self, x):
+        self.setStartFromLoop(x)
 
     @property
     def mode(self):
         """int. Looping mode."""
         return self._mode
+
     @mode.setter
-    def mode(self, x): self.setMode(x)
+    def mode(self, x):
+        self.setMode(x)
 
     @property
     def interp(self):
         """int. Interpolation method."""
         return self._interp
+
     @interp.setter
-    def interp(self, x): self.setInterp(x)
+    def interp(self, x):
+        self.setInterp(x)
 
     @property
     def autosmooth(self):
         """boolean. Activates a lowpass filter applied on output signal."""
         return self._autosmooth
+
     @autosmooth.setter
-    def autosmooth(self, x): self.setAutoSmooth(x)
+    def autosmooth(self, x):
+        self.setAutoSmooth(x)
+
 
 class TablePut(PyoObject):
     """
@@ -2742,6 +3077,7 @@ class TablePut(PyoObject):
     >>> osc = SineLoop(fr, feedback=.08, mul=.3).out()
 
     """
+
     def __init__(self, input, table):
         pyoArgsAssert(self, "ot", input, table)
         PyoObject.__init__(self)
@@ -2749,7 +3085,7 @@ class TablePut(PyoObject):
         self._table = table
         self._in_fader = InputFader(input).stop()
         in_fader, table, lmax = convertArgsToLists(self._in_fader, table)
-        self._base_objs = [TablePut_base(wrap(in_fader,i), wrap(table,i)) for i in range(len(table))]
+        self._base_objs = [TablePut_base(wrap(in_fader, i), wrap(table, i)) for i in range(len(table))]
         self._trig_objs = Dummy([TriggerDummy_base(obj) for obj in self._base_objs])
 
     def out(self, chnl=0, inc=1, dur=0, delay=0):
@@ -2790,21 +3126,26 @@ class TablePut(PyoObject):
         pyoArgsAssert(self, "t", x)
         self._table = x
         x, lmax = convertArgsToLists(x)
-        [obj.setTable(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setTable(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     @property
     def input(self):
         """PyoObject. Audio signal to write in the table."""
         return self._input
+
     @input.setter
-    def input(self, x): self.setInput(x)
+    def input(self, x):
+        self.setInput(x)
 
     @property
     def table(self):
         """DataTable. The table where to write values."""
         return self._table
+
     @table.setter
-    def table(self, x): self.setTable(x)
+    def table(self, x):
+        self.setTable(x)
+
 
 class TableFill(PyoObject):
     """
@@ -2845,6 +3186,7 @@ class TableFill(PyoObject):
     >>> read = TableRead(table, table.getRate(), loop=True).out()
 
     """
+
     def __init__(self, input, table):
         pyoArgsAssert(self, "ot", input, table)
         PyoObject.__init__(self)
@@ -2852,7 +3194,7 @@ class TableFill(PyoObject):
         self._table = table
         self._in_fader = InputFader(input)
         in_fader, table, lmax = convertArgsToLists(self._in_fader, table)
-        self._base_objs = [TableFill_base(wrap(in_fader,i), wrap(table,i)) for i in range(len(table))]
+        self._base_objs = [TableFill_base(wrap(in_fader, i), wrap(table, i)) for i in range(len(table))]
         self._init_play()
 
     def out(self, chnl=0, inc=1, dur=0, delay=0):
@@ -2893,7 +3235,7 @@ class TableFill(PyoObject):
         pyoArgsAssert(self, "t", x)
         self._table = x
         x, lmax = convertArgsToLists(x)
-        [obj.setTable(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setTable(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def getCurrentPos(self, all=False):
         """
@@ -2905,7 +3247,7 @@ class TableFill(PyoObject):
                 If True, returns the current position of all
                 internal objects as a list.
 
-                If False, only the current position of the first object's 
+                If False, only the current position of the first object's
                 stream will be returned as a float.
 
         """
@@ -2919,15 +3261,20 @@ class TableFill(PyoObject):
     def input(self):
         """PyoObject. Audio signal to write in the table."""
         return self._input
+
     @input.setter
-    def input(self, x): self.setInput(x)
+    def input(self, x):
+        self.setInput(x)
 
     @property
     def table(self):
         """PyoTableObject. The table where to write values."""
         return self._table
+
     @table.setter
-    def table(self, x): self.setTable(x)
+    def table(self, x):
+        self.setTable(x)
+
 
 class Granule(PyoObject):
     """
@@ -2970,7 +3317,8 @@ class Granule(PyoObject):
     >>> grn = Granule(snd, env, dens=dns, pitch=pit, pos=pos, dur=.2, mul=.1).out()
 
     """
-    def __init__(self, table, env, dens=50, pitch=1, pos=0, dur=.1, mul=1, add=0):
+
+    def __init__(self, table, env, dens=50, pitch=1, pos=0, dur=0.1, mul=1, add=0):
         pyoArgsAssert(self, "ttOOOOOO", table, env, dens, pitch, pos, dur, mul, add)
         PyoObject.__init__(self, mul, add)
         self._table = table
@@ -2980,9 +3328,22 @@ class Granule(PyoObject):
         self._pos = pos
         self._dur = dur
         self._sync = 1
-        table, env, dens, pitch, pos, dur, mul, add, lmax = convertArgsToLists(table, env, dens, pitch, pos, dur, mul, add)
-        self._base_objs = [Granule_base(wrap(table,i), wrap(env,i), wrap(dens,i), wrap(pitch,i), wrap(pos,i), wrap(dur,i),
-                                           wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+        table, env, dens, pitch, pos, dur, mul, add, lmax = convertArgsToLists(
+            table, env, dens, pitch, pos, dur, mul, add
+        )
+        self._base_objs = [
+            Granule_base(
+                wrap(table, i),
+                wrap(env, i),
+                wrap(dens, i),
+                wrap(pitch, i),
+                wrap(pos, i),
+                wrap(dur, i),
+                wrap(mul, i),
+                wrap(add, i),
+            )
+            for i in range(lmax)
+        ]
         self._init_play()
 
     def setTable(self, x):
@@ -2998,7 +3359,7 @@ class Granule(PyoObject):
         pyoArgsAssert(self, "t", x)
         self._table = x
         x, lmax = convertArgsToLists(x)
-        [obj.setTable(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setTable(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def setEnv(self, x):
         """
@@ -3013,7 +3374,7 @@ class Granule(PyoObject):
         pyoArgsAssert(self, "t", x)
         self._env = x
         x, lmax = convertArgsToLists(x)
-        [obj.setEnv(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setEnv(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def setDens(self, x):
         """
@@ -3028,7 +3389,7 @@ class Granule(PyoObject):
         pyoArgsAssert(self, "O", x)
         self._dens = x
         x, lmax = convertArgsToLists(x)
-        [obj.setDens(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setDens(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def setPitch(self, x):
         """
@@ -3043,7 +3404,7 @@ class Granule(PyoObject):
         pyoArgsAssert(self, "O", x)
         self._pitch = x
         x, lmax = convertArgsToLists(x)
-        [obj.setPitch(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setPitch(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def setPos(self, x):
         """
@@ -3058,7 +3419,7 @@ class Granule(PyoObject):
         pyoArgsAssert(self, "O", x)
         self._pos = x
         x, lmax = convertArgsToLists(x)
-        [obj.setPos(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setPos(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def setDur(self, x):
         """
@@ -3073,7 +3434,7 @@ class Granule(PyoObject):
         pyoArgsAssert(self, "O", x)
         self._dur = x
         x, lmax = convertArgsToLists(x)
-        [obj.setDur(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setDur(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def setSync(self, x):
         """
@@ -3089,56 +3450,71 @@ class Granule(PyoObject):
         pyoArgsAssert(self, "b", x)
         self._sync = x
         x, lmax = convertArgsToLists(x)
-        [obj.setSync(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setSync(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [SLMap(1, 250, 'lin', 'dens', self._dens),
-                          SLMap(0.25, 2., 'lin', 'pitch', self._pitch),
-                          SLMap(0.001, 2., 'lin', 'dur', self._dur),
-                          SLMapMul(self._mul)]
+        self._map_list = [
+            SLMap(1, 250, "lin", "dens", self._dens),
+            SLMap(0.25, 2.0, "lin", "pitch", self._pitch),
+            SLMap(0.001, 2.0, "lin", "dur", self._dur),
+            SLMapMul(self._mul),
+        ]
         PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
     def table(self):
         """PyoTableObject. Table containing the waveform samples."""
         return self._table
+
     @table.setter
-    def table(self, x): self.setTable(x)
+    def table(self, x):
+        self.setTable(x)
 
     @property
     def env(self):
         """PyoTableObject. Table containing the grain envelope."""
         return self._env
+
     @env.setter
-    def env(self, x): self.setEnv(x)
+    def env(self, x):
+        self.setEnv(x)
 
     @property
     def dens(self):
         """float or PyoObject. Density of grains per second."""
         return self._dens
+
     @dens.setter
-    def dens(self, x): self.setDens(x)
+    def dens(self, x):
+        self.setDens(x)
 
     @property
     def pitch(self):
         """float or PyoObject. Transposition factor of the grain."""
         return self._pitch
+
     @pitch.setter
-    def pitch(self, x): self.setPitch(x)
+    def pitch(self, x):
+        self.setPitch(x)
 
     @property
     def pos(self):
         """float or PyoObject. Position of the pointer in the sound table."""
         return self._pos
+
     @pos.setter
-    def pos(self, x): self.setPos(x)
+    def pos(self, x):
+        self.setPos(x)
 
     @property
     def dur(self):
         """float or PyoObject. Duration, in seconds, of the grain."""
         return self._dur
+
     @dur.setter
-    def dur(self, x): self.setDur(x)
+    def dur(self, x):
+        self.setDur(x)
+
 
 class TableScale(PyoObject):
     """
@@ -3170,13 +3546,16 @@ class TableScale(PyoObject):
     >>> syn2 = SineLoop(f2, feedback=0.08, mul=0.3).out(1)
 
     """
+
     def __init__(self, table, outtable, mul=1, add=0):
         pyoArgsAssert(self, "ttOO", table, outtable, mul, add)
         PyoObject.__init__(self, mul, add)
         self._table = table
         self._outtable = outtable
         table, outtable, mul, add, lmax = convertArgsToLists(table, outtable, mul, add)
-        self._base_objs = [TableScale_base(wrap(table,i), wrap(outtable,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+        self._base_objs = [
+            TableScale_base(wrap(table, i), wrap(outtable, i), wrap(mul, i), wrap(add, i)) for i in range(lmax)
+        ]
         self._init_play()
 
     def setTable(self, x):
@@ -3192,7 +3571,7 @@ class TableScale(PyoObject):
         pyoArgsAssert(self, "t", x)
         self._table = x
         x, lmax = convertArgsToLists(x)
-        [obj.setTable(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setTable(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def setOuttable(self, x):
         """
@@ -3207,7 +3586,7 @@ class TableScale(PyoObject):
         pyoArgsAssert(self, "t", x)
         self._outtable = x
         x, lmax = convertArgsToLists(x)
-        [obj.setOuttable(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setOuttable(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
         self._map_list = [SLMapMul(self._mul), SLMap(0, 1, "lin", "add", self._add)]
@@ -3217,15 +3596,20 @@ class TableScale(PyoObject):
     def table(self):
         """PyoTableObject. Table containing the original values."""
         return self._table
+
     @table.setter
-    def table(self, x): self.setTable(x)
+    def table(self, x):
+        self.setTable(x)
 
     @property
     def outtable(self):
         """PyoTableObject. Scaled output table."""
         return self._outtable
+
     @outtable.setter
-    def outtable(self, x): self.setOuttable(x)
+    def outtable(self, x):
+        self.setOuttable(x)
+
 
 class Particle(PyoObject):
     """
@@ -3287,7 +3671,8 @@ class Particle(PyoObject):
     >>> grn = Particle(snd, env, dns, pit, pos, dur, dev, pan, chnls=2, mul=.2).out()
 
     """
-    def __init__(self, table, env, dens=50, pitch=1, pos=0, dur=.1, dev=0.01, pan=0.5, chnls=1, mul=1, add=0):
+
+    def __init__(self, table, env, dens=50, pitch=1, pos=0, dur=0.1, dev=0.01, pan=0.5, chnls=1, mul=1, add=0):
         pyoArgsAssert(self, "ttOOOOOOIOO", table, env, dens, pitch, pos, dur, dev, pan, chnls, mul, add)
         PyoObject.__init__(self, mul, add)
         self._table = table
@@ -3299,12 +3684,27 @@ class Particle(PyoObject):
         self._dev = dev
         self._pan = pan
         self._chnls = chnls
-        table, env, dens, pitch, pos, dur, dev, pan, mul, add, lmax = convertArgsToLists(table, env, dens, pitch, pos, dur, dev, pan, mul, add)
-        self._base_players = [MainParticle_base(wrap(table,i), wrap(env,i), wrap(dens,i), wrap(pitch,i), wrap(pos,i), wrap(dur,i), wrap(dev,i), wrap(pan,i), chnls) for i in range(lmax)]
+        table, env, dens, pitch, pos, dur, dev, pan, mul, add, lmax = convertArgsToLists(
+            table, env, dens, pitch, pos, dur, dev, pan, mul, add
+        )
+        self._base_players = [
+            MainParticle_base(
+                wrap(table, i),
+                wrap(env, i),
+                wrap(dens, i),
+                wrap(pitch, i),
+                wrap(pos, i),
+                wrap(dur, i),
+                wrap(dev, i),
+                wrap(pan, i),
+                chnls,
+            )
+            for i in range(lmax)
+        ]
         self._base_objs = []
         for i in range(lmax):
             for j in range(chnls):
-                self._base_objs.append(Particle_base(wrap(self._base_players,i), j, wrap(mul,i), wrap(add,i)))
+                self._base_objs.append(Particle_base(wrap(self._base_players, i), j, wrap(mul, i), wrap(add, i)))
         self._init_play()
 
     def setTable(self, x):
@@ -3320,7 +3720,7 @@ class Particle(PyoObject):
         pyoArgsAssert(self, "t", x)
         self._table = x
         x, lmax = convertArgsToLists(x)
-        [obj.setTable(wrap(x,i)) for i, obj in enumerate(self._base_players)]
+        [obj.setTable(wrap(x, i)) for i, obj in enumerate(self._base_players)]
 
     def setEnv(self, x):
         """
@@ -3335,7 +3735,7 @@ class Particle(PyoObject):
         pyoArgsAssert(self, "t", x)
         self._env = x
         x, lmax = convertArgsToLists(x)
-        [obj.setEnv(wrap(x,i)) for i, obj in enumerate(self._base_players)]
+        [obj.setEnv(wrap(x, i)) for i, obj in enumerate(self._base_players)]
 
     def setDens(self, x):
         """
@@ -3350,7 +3750,7 @@ class Particle(PyoObject):
         pyoArgsAssert(self, "O", x)
         self._dens = x
         x, lmax = convertArgsToLists(x)
-        [obj.setDens(wrap(x,i)) for i, obj in enumerate(self._base_players)]
+        [obj.setDens(wrap(x, i)) for i, obj in enumerate(self._base_players)]
 
     def setPitch(self, x):
         """
@@ -3365,7 +3765,7 @@ class Particle(PyoObject):
         pyoArgsAssert(self, "O", x)
         self._pitch = x
         x, lmax = convertArgsToLists(x)
-        [obj.setPitch(wrap(x,i)) for i, obj in enumerate(self._base_players)]
+        [obj.setPitch(wrap(x, i)) for i, obj in enumerate(self._base_players)]
 
     def setPos(self, x):
         """
@@ -3380,7 +3780,7 @@ class Particle(PyoObject):
         pyoArgsAssert(self, "O", x)
         self._pos = x
         x, lmax = convertArgsToLists(x)
-        [obj.setPos(wrap(x,i)) for i, obj in enumerate(self._base_players)]
+        [obj.setPos(wrap(x, i)) for i, obj in enumerate(self._base_players)]
 
     def setDur(self, x):
         """
@@ -3395,7 +3795,7 @@ class Particle(PyoObject):
         pyoArgsAssert(self, "O", x)
         self._dur = x
         x, lmax = convertArgsToLists(x)
-        [obj.setDur(wrap(x,i)) for i, obj in enumerate(self._base_players)]
+        [obj.setDur(wrap(x, i)) for i, obj in enumerate(self._base_players)]
 
     def setDev(self, x):
         """
@@ -3410,7 +3810,7 @@ class Particle(PyoObject):
         pyoArgsAssert(self, "O", x)
         self._dev = x
         x, lmax = convertArgsToLists(x)
-        [obj.setDev(wrap(x,i)) for i, obj in enumerate(self._base_players)]
+        [obj.setDev(wrap(x, i)) for i, obj in enumerate(self._base_players)]
 
     def setPan(self, x):
         """
@@ -3425,81 +3825,100 @@ class Particle(PyoObject):
         pyoArgsAssert(self, "O", x)
         self._pan = x
         x, lmax = convertArgsToLists(x)
-        [obj.setPan(wrap(x,i)) for i, obj in enumerate(self._base_players)]
+        [obj.setPan(wrap(x, i)) for i, obj in enumerate(self._base_players)]
 
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
         tablesize = self._table.getSize(False)
-        self._map_list = [SLMap(1, 250, 'lin', 'dens', self._dens),
-                          SLMap(0.25, 2., 'lin', 'pitch', self._pitch),
-                          SLMap(0, tablesize, 'lin', 'pos', self._pos, res="int"),
-                          SLMap(0.001, 1., 'lin', 'dur', self._dur),
-                          SLMap(0., 1., 'lin', 'dev', self._dev),
-                          SLMap(0., 1., 'lin', 'pan', self._pan),
-                          SLMapMul(self._mul)]
+        self._map_list = [
+            SLMap(1, 250, "lin", "dens", self._dens),
+            SLMap(0.25, 2.0, "lin", "pitch", self._pitch),
+            SLMap(0, tablesize, "lin", "pos", self._pos, res="int"),
+            SLMap(0.001, 1.0, "lin", "dur", self._dur),
+            SLMap(0.0, 1.0, "lin", "dev", self._dev),
+            SLMap(0.0, 1.0, "lin", "pan", self._pan),
+            SLMapMul(self._mul),
+        ]
         PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
     def table(self):
         """PyoTableObject. Table containing the waveform samples."""
         return self._table
+
     @table.setter
-    def table(self, x): self.setTable(x)
+    def table(self, x):
+        self.setTable(x)
 
     @property
     def env(self):
         """PyoTableObject. Table containing the grain envelope."""
         return self._env
+
     @env.setter
-    def env(self, x): self.setEnv(x)
+    def env(self, x):
+        self.setEnv(x)
 
     @property
     def dens(self):
         """float or PyoObject. Density of grains per second."""
         return self._dens
+
     @dens.setter
-    def dens(self, x): self.setDens(x)
+    def dens(self, x):
+        self.setDens(x)
 
     @property
     def pitch(self):
         """float or PyoObject. Transposition factor of the grain."""
         return self._pitch
+
     @pitch.setter
-    def pitch(self, x): self.setPitch(x)
+    def pitch(self, x):
+        self.setPitch(x)
 
     @property
     def pos(self):
         """float or PyoObject. Position of the pointer in the sound table."""
         return self._pos
+
     @pos.setter
-    def pos(self, x): self.setPos(x)
+    def pos(self, x):
+        self.setPos(x)
 
     @property
     def dur(self):
         """float or PyoObject. Duration, in seconds, of the grain."""
         return self._dur
+
     @dur.setter
-    def dur(self, x): self.setDur(x)
+    def dur(self, x):
+        self.setDur(x)
 
     @property
     def dev(self):
         """float or PyoObject. Deviation of the starting point of the grain in the table."""
         return self._dev
+
     @dev.setter
-    def dev(self, x): self.setDev(x)
+    def dev(self, x):
+        self.setDev(x)
 
     @property
     def pan(self):
         """float or PyoObject.Panning of the grain."""
         return self._pan
+
     @pan.setter
-    def pan(self, x): self.setPan(x)
+    def pan(self, x):
+        self.setPan(x)
+
 
 class Particle2(PyoObject):
     """
     An even more full control granular synthesis generator.
 
     This granulator object offers all the same controls as the
-    Particle object with additionally an independently controllable 
+    Particle object with additionally an independently controllable
     filter per grain. The filters use the same implementation as the
     Biquad object.
 
@@ -3582,8 +4001,42 @@ class Particle2(PyoObject):
     >>> grn.out()
 
     """
-    def __init__(self, table, env, dens=50, pitch=1, pos=0, dur=.1, dev=0.01, pan=0.5, filterfreq=18000, filterq=0.7, filtertype=0, chnls=1, mul=1, add=0):
-        pyoArgsAssert(self, "ttOOOOOOOOOIOO", table, env, dens, pitch, pos, dur, dev, pan, filterfreq, filterq, filtertype, chnls, mul, add)
+
+    def __init__(
+        self,
+        table,
+        env,
+        dens=50,
+        pitch=1,
+        pos=0,
+        dur=0.1,
+        dev=0.01,
+        pan=0.5,
+        filterfreq=18000,
+        filterq=0.7,
+        filtertype=0,
+        chnls=1,
+        mul=1,
+        add=0,
+    ):
+        pyoArgsAssert(
+            self,
+            "ttOOOOOOOOOIOO",
+            table,
+            env,
+            dens,
+            pitch,
+            pos,
+            dur,
+            dev,
+            pan,
+            filterfreq,
+            filterq,
+            filtertype,
+            chnls,
+            mul,
+            add,
+        )
         PyoObject.__init__(self, mul, add)
         self._table = table
         self._env = env
@@ -3597,12 +4050,43 @@ class Particle2(PyoObject):
         self._filterq = filterq
         self._filtertype = filtertype
         self._chnls = chnls
-        table, env, dens, pitch, pos, dur, dev, pan, filterfreq, filterq, filtertype, mul, add, lmax = convertArgsToLists(table, env, dens, pitch, pos, dur, dev, pan, filterfreq, filterq, filtertype, mul, add)
-        self._base_players = [MainParticle2_base(wrap(table,i), wrap(env,i), wrap(dens,i), wrap(pitch,i), wrap(pos,i), wrap(dur,i), wrap(dev,i), wrap(pan,i), wrap(filterfreq,i), wrap(filterq,i), wrap(filtertype,i), chnls) for i in range(lmax)]
+        (
+            table,
+            env,
+            dens,
+            pitch,
+            pos,
+            dur,
+            dev,
+            pan,
+            filterfreq,
+            filterq,
+            filtertype,
+            mul,
+            add,
+            lmax,
+        ) = convertArgsToLists(table, env, dens, pitch, pos, dur, dev, pan, filterfreq, filterq, filtertype, mul, add)
+        self._base_players = [
+            MainParticle2_base(
+                wrap(table, i),
+                wrap(env, i),
+                wrap(dens, i),
+                wrap(pitch, i),
+                wrap(pos, i),
+                wrap(dur, i),
+                wrap(dev, i),
+                wrap(pan, i),
+                wrap(filterfreq, i),
+                wrap(filterq, i),
+                wrap(filtertype, i),
+                chnls,
+            )
+            for i in range(lmax)
+        ]
         self._base_objs = []
         for i in range(lmax):
             for j in range(chnls):
-                self._base_objs.append(Particle2_base(wrap(self._base_players,i), j, wrap(mul,i), wrap(add,i)))
+                self._base_objs.append(Particle2_base(wrap(self._base_players, i), j, wrap(mul, i), wrap(add, i)))
         self._init_play()
 
     def setTable(self, x):
@@ -3618,7 +4102,7 @@ class Particle2(PyoObject):
         pyoArgsAssert(self, "t", x)
         self._table = x
         x, lmax = convertArgsToLists(x)
-        [obj.setTable(wrap(x,i)) for i, obj in enumerate(self._base_players)]
+        [obj.setTable(wrap(x, i)) for i, obj in enumerate(self._base_players)]
 
     def setEnv(self, x):
         """
@@ -3633,7 +4117,7 @@ class Particle2(PyoObject):
         pyoArgsAssert(self, "t", x)
         self._env = x
         x, lmax = convertArgsToLists(x)
-        [obj.setEnv(wrap(x,i)) for i, obj in enumerate(self._base_players)]
+        [obj.setEnv(wrap(x, i)) for i, obj in enumerate(self._base_players)]
 
     def setDens(self, x):
         """
@@ -3648,7 +4132,7 @@ class Particle2(PyoObject):
         pyoArgsAssert(self, "O", x)
         self._dens = x
         x, lmax = convertArgsToLists(x)
-        [obj.setDens(wrap(x,i)) for i, obj in enumerate(self._base_players)]
+        [obj.setDens(wrap(x, i)) for i, obj in enumerate(self._base_players)]
 
     def setPitch(self, x):
         """
@@ -3663,7 +4147,7 @@ class Particle2(PyoObject):
         pyoArgsAssert(self, "O", x)
         self._pitch = x
         x, lmax = convertArgsToLists(x)
-        [obj.setPitch(wrap(x,i)) for i, obj in enumerate(self._base_players)]
+        [obj.setPitch(wrap(x, i)) for i, obj in enumerate(self._base_players)]
 
     def setPos(self, x):
         """
@@ -3678,7 +4162,7 @@ class Particle2(PyoObject):
         pyoArgsAssert(self, "O", x)
         self._pos = x
         x, lmax = convertArgsToLists(x)
-        [obj.setPos(wrap(x,i)) for i, obj in enumerate(self._base_players)]
+        [obj.setPos(wrap(x, i)) for i, obj in enumerate(self._base_players)]
 
     def setDur(self, x):
         """
@@ -3693,7 +4177,7 @@ class Particle2(PyoObject):
         pyoArgsAssert(self, "O", x)
         self._dur = x
         x, lmax = convertArgsToLists(x)
-        [obj.setDur(wrap(x,i)) for i, obj in enumerate(self._base_players)]
+        [obj.setDur(wrap(x, i)) for i, obj in enumerate(self._base_players)]
 
     def setDev(self, x):
         """
@@ -3708,7 +4192,7 @@ class Particle2(PyoObject):
         pyoArgsAssert(self, "O", x)
         self._dev = x
         x, lmax = convertArgsToLists(x)
-        [obj.setDev(wrap(x,i)) for i, obj in enumerate(self._base_players)]
+        [obj.setDev(wrap(x, i)) for i, obj in enumerate(self._base_players)]
 
     def setPan(self, x):
         """
@@ -3723,7 +4207,7 @@ class Particle2(PyoObject):
         pyoArgsAssert(self, "O", x)
         self._pan = x
         x, lmax = convertArgsToLists(x)
-        [obj.setPan(wrap(x,i)) for i, obj in enumerate(self._base_players)]
+        [obj.setPan(wrap(x, i)) for i, obj in enumerate(self._base_players)]
 
     def setFilterfreq(self, x):
         """
@@ -3738,7 +4222,7 @@ class Particle2(PyoObject):
         pyoArgsAssert(self, "O", x)
         self._filterfreq = x
         x, lmax = convertArgsToLists(x)
-        [obj.setFilterfreq(wrap(x,i)) for i, obj in enumerate(self._base_players)]
+        [obj.setFilterfreq(wrap(x, i)) for i, obj in enumerate(self._base_players)]
 
     def setFilterq(self, x):
         """
@@ -3753,7 +4237,7 @@ class Particle2(PyoObject):
         pyoArgsAssert(self, "O", x)
         self._filterq = x
         x, lmax = convertArgsToLists(x)
-        [obj.setFilterq(wrap(x,i)) for i, obj in enumerate(self._base_players)]
+        [obj.setFilterq(wrap(x, i)) for i, obj in enumerate(self._base_players)]
 
     def setFiltertype(self, x):
         """
@@ -3768,98 +4252,123 @@ class Particle2(PyoObject):
         pyoArgsAssert(self, "O", x)
         self._filtertype = x
         x, lmax = convertArgsToLists(x)
-        [obj.setFiltertype(wrap(x,i)) for i, obj in enumerate(self._base_players)]
+        [obj.setFiltertype(wrap(x, i)) for i, obj in enumerate(self._base_players)]
 
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
         tablesize = self._table.getSize(False)
-        self._map_list = [SLMap(1, 250, 'lin', 'dens', self._dens),
-                          SLMap(0.25, 2., 'lin', 'pitch', self._pitch),
-                          SLMap(0, tablesize, 'lin', 'pos', self._pos, res="int"),
-                          SLMap(0.001, 1., 'lin', 'dur', self._dur),
-                          SLMap(0., 1., 'lin', 'dev', self._dev),
-                          SLMap(0., 1., 'lin', 'pan', self._pan),
-                          SLMap(50., 18000., 'log', 'filterfreq', self._filterfreq),
-                          SLMap(0.25, 100., 'log', 'filterq', self._filterq),
-                          SLMap(0, 4., 'lin', 'filtertype', self._filtertype, res="int"),
-                          SLMapMul(self._mul)]
+        self._map_list = [
+            SLMap(1, 250, "lin", "dens", self._dens),
+            SLMap(0.25, 2.0, "lin", "pitch", self._pitch),
+            SLMap(0, tablesize, "lin", "pos", self._pos, res="int"),
+            SLMap(0.001, 1.0, "lin", "dur", self._dur),
+            SLMap(0.0, 1.0, "lin", "dev", self._dev),
+            SLMap(0.0, 1.0, "lin", "pan", self._pan),
+            SLMap(50.0, 18000.0, "log", "filterfreq", self._filterfreq),
+            SLMap(0.25, 100.0, "log", "filterq", self._filterq),
+            SLMap(0, 4.0, "lin", "filtertype", self._filtertype, res="int"),
+            SLMapMul(self._mul),
+        ]
         PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
     def table(self):
         """PyoTableObject. Table containing the waveform samples."""
         return self._table
+
     @table.setter
-    def table(self, x): self.setTable(x)
+    def table(self, x):
+        self.setTable(x)
 
     @property
     def env(self):
         """PyoTableObject. Table containing the grain envelope."""
         return self._env
+
     @env.setter
-    def env(self, x): self.setEnv(x)
+    def env(self, x):
+        self.setEnv(x)
 
     @property
     def dens(self):
         """float or PyoObject. Density of grains per second."""
         return self._dens
+
     @dens.setter
-    def dens(self, x): self.setDens(x)
+    def dens(self, x):
+        self.setDens(x)
 
     @property
     def pitch(self):
         """float or PyoObject. Transposition factor of the grain."""
         return self._pitch
+
     @pitch.setter
-    def pitch(self, x): self.setPitch(x)
+    def pitch(self, x):
+        self.setPitch(x)
 
     @property
     def pos(self):
         """float or PyoObject. Position of the pointer in the sound table."""
         return self._pos
+
     @pos.setter
-    def pos(self, x): self.setPos(x)
+    def pos(self, x):
+        self.setPos(x)
 
     @property
     def dur(self):
         """float or PyoObject. Duration, in seconds, of the grain."""
         return self._dur
+
     @dur.setter
-    def dur(self, x): self.setDur(x)
+    def dur(self, x):
+        self.setDur(x)
 
     @property
     def dev(self):
         """float or PyoObject. Deviation of the starting point of the grain in the table."""
         return self._dev
+
     @dev.setter
-    def dev(self, x): self.setDev(x)
+    def dev(self, x):
+        self.setDev(x)
 
     @property
     def pan(self):
         """float or PyoObject.Panning of the grain."""
         return self._pan
+
     @pan.setter
-    def pan(self, x): self.setPan(x)
+    def pan(self, x):
+        self.setPan(x)
 
     @property
     def filterfreq(self):
         """float or PyoObject.Grain's filter center/cutoff frequency."""
         return self._filterfreq
+
     @filterfreq.setter
-    def filterfreq(self, x): self.setFilterfreq(x)
+    def filterfreq(self, x):
+        self.setFilterfreq(x)
 
     @property
     def filterq(self):
         """float or PyoObject.Grain's filter Q."""
         return self._filterq
+
     @filterq.setter
-    def filterq(self, x): self.setFilterq(x)
+    def filterq(self, x):
+        self.setFilterq(x)
 
     @property
     def filtertype(self):
         """float or PyoObject.Grain's filter type."""
         return self._filtertype
+
     @filtertype.setter
-    def filtertype(self, x): self.setFiltertype(x)
+    def filtertype(self, x):
+        self.setFiltertype(x)
+
 
 class TableScan(PyoObject):
     """
@@ -3887,12 +4396,13 @@ class TableScan(PyoObject):
     >>> scan = TableScan(tab).out()
 
     """
+
     def __init__(self, table, mul=1, add=0):
         pyoArgsAssert(self, "tOO", table, mul, add)
         PyoObject.__init__(self, mul, add)
         self._table = table
         table, mul, add, lmax = convertArgsToLists(table, mul, add)
-        self._base_objs = [TableScan_base(wrap(table,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+        self._base_objs = [TableScan_base(wrap(table, i), wrap(mul, i), wrap(add, i)) for i in range(lmax)]
         self._init_play()
 
     def setTable(self, x):
@@ -3908,7 +4418,7 @@ class TableScan(PyoObject):
         pyoArgsAssert(self, "t", x)
         self._table = x
         x, lmax = convertArgsToLists(x)
-        [obj.setTable(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setTable(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def reset(self):
         """
@@ -3921,5 +4431,7 @@ class TableScan(PyoObject):
     def table(self):
         """PyoTableObject. Table containing the waveform samples."""
         return self._table
+
     @table.setter
-    def table(self, x): self.setTable(x)
+    def table(self, x):
+        self.setTable(x)

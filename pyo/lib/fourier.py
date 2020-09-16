@@ -11,6 +11,7 @@ spectral domain.
 
 from __future__ import division
 from __future__ import absolute_import
+
 """
 Copyright 2009-2015 Olivier Belanger
 
@@ -33,6 +34,7 @@ License along with pyo.  If not, see <http://www.gnu.org/licenses/>.
 
 from ._core import *
 from ._maps import *
+
 
 class FFT(PyoObject):
     """
@@ -101,6 +103,7 @@ class FFT(PyoObject):
     >>> fout = IFFT(re, im, size=1024, overlaps=4, wintype=2).mix(2).out()
 
     """
+
     def __init__(self, input, size=1024, overlaps=4, wintype=2):
         pyoArgsAssert(self, "oiIi", input, size, overlaps, wintype)
         PyoObject.__init__(self)
@@ -116,29 +119,29 @@ class FFT(PyoObject):
         self._base_players = []
         for j in range(overlaps):
             for i in range(lmax):
-                hopsize = wrap(size,i) * j // overlaps
-                self._base_players.append(FFTMain_base(wrap(in_fader,i), wrap(size,i), hopsize, wrap(wintype,i)))
+                hopsize = wrap(size, i) * j // overlaps
+                self._base_players.append(FFTMain_base(wrap(in_fader, i), wrap(size, i), hopsize, wrap(wintype, i)))
         self._real_objs = []
         self._imag_objs = []
         self._bin_objs = []
         for j in range(len(self._base_players)):
-            self._real_objs.append(FFT_base(wrap(self._base_players,j), 0, self._mul, self._add))
-            self._imag_objs.append(FFT_base(wrap(self._base_players,j), 1, self._mul, self._add))
-            self._bin_objs.append(FFT_base(wrap(self._base_players,j), 2, self._mul, self._add))
-        self._base_objs = [Sig(0)] # Dummy objs to prevent PyoObjectBase methods to fail.
+            self._real_objs.append(FFT_base(wrap(self._base_players, j), 0, self._mul, self._add))
+            self._imag_objs.append(FFT_base(wrap(self._base_players, j), 1, self._mul, self._add))
+            self._bin_objs.append(FFT_base(wrap(self._base_players, j), 2, self._mul, self._add))
+        self._base_objs = [Sig(0)]  # Dummy objs to prevent PyoObjectBase methods to fail.
         self._init_play()
 
     def __len__(self):
         return len(self._real_objs)
 
     def __getitem__(self, str):
-        if str == 'real':
+        if str == "real":
             self._real_dummy.append(Dummy([obj for i, obj in enumerate(self._real_objs)]))
             return self._real_dummy[-1]
-        if str == 'imag':
+        if str == "imag":
             self._imag_dummy.append(Dummy([obj for i, obj in enumerate(self._imag_objs)]))
             return self._imag_dummy[-1]
-        if str == 'bin':
+        if str == "bin":
             self._bin_dummy.append(Dummy([obj for i, obj in enumerate(self._bin_objs)]))
             return self._bin_dummy[-1]
 
@@ -188,10 +191,10 @@ class FFT(PyoObject):
         dur, delay, lmax = convertArgsToLists(dur, delay)
         self._autoplay(dur, delay)
         self._in_fader.play(dur, delay)
-        self._base_players = [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._base_players)]
-        self._real_objs = [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._real_objs)]
-        self._imag_objs = [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._imag_objs)]
-        self._bin_objs = [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._bin_objs)]
+        self._base_players = [obj.play(wrap(dur, i), wrap(delay, i)) for i, obj in enumerate(self._base_players)]
+        self._real_objs = [obj.play(wrap(dur, i), wrap(delay, i)) for i, obj in enumerate(self._real_objs)]
+        self._imag_objs = [obj.play(wrap(dur, i), wrap(delay, i)) for i, obj in enumerate(self._imag_objs)]
+        self._bin_objs = [obj.play(wrap(dur, i), wrap(delay, i)) for i, obj in enumerate(self._bin_objs)]
         return self
 
     def stop(self, wait=0):
@@ -222,8 +225,8 @@ class FFT(PyoObject):
         poly = len(self._base_players) // self._overlaps
         for j in range(self._overlaps):
             for i in range(poly):
-                hopsize = wrap(x,i) * j // self._overlaps
-                self._base_players[j*poly+i].setSize(wrap(x,i), hopsize)
+                hopsize = wrap(x, i) * j // self._overlaps
+                self._base_players[j * poly + i].setSize(wrap(x, i), hopsize)
 
     def setWinType(self, x):
         """
@@ -238,28 +241,35 @@ class FFT(PyoObject):
         pyoArgsAssert(self, "i", x)
         self._wintype = x
         x, lmax = convertArgsToLists(x)
-        [obj.setWinType(wrap(x,i)) for i, obj in enumerate(self._base_players)]
+        [obj.setWinType(wrap(x, i)) for i, obj in enumerate(self._base_players)]
 
     @property
     def input(self):
         """PyoObject. Input signal to process."""
         return self._input
+
     @input.setter
-    def input(self, x): self.setInput(x)
+    def input(self, x):
+        self.setInput(x)
 
     @property
     def size(self):
         """int. FFT size."""
         return self._size
+
     @size.setter
-    def size(self, x): self.setSize(x)
+    def size(self, x):
+        self.setSize(x)
 
     @property
     def wintype(self):
         """int. Windowing method."""
         return self._wintype
+
     @wintype.setter
-    def wintype(self, x): self.setWinType(x)
+    def wintype(self, x):
+        self.setWinType(x)
+
 
 class IFFT(PyoObject):
     """
@@ -327,6 +337,7 @@ class IFFT(PyoObject):
     >>> fout = IFFT(re, im, size=1024, overlaps=4, wintype=2).mix(2).out()
 
     """
+
     def __init__(self, inreal, inimag, size=1024, overlaps=4, wintype=2, mul=1, add=0):
         pyoArgsAssert(self, "ooiIiOO", inreal, inimag, size, overlaps, wintype, mul, add)
         PyoObject.__init__(self, mul, add)
@@ -337,12 +348,24 @@ class IFFT(PyoObject):
         self._wintype = wintype
         self._in_fader = InputFader(inreal)
         self._in_fader2 = InputFader(inimag)
-        in_fader, in_fader2, size, wintype, mul, add, lmax = convertArgsToLists(self._in_fader, self._in_fader2, size, wintype, mul, add)
+        in_fader, in_fader2, size, wintype, mul, add, lmax = convertArgsToLists(
+            self._in_fader, self._in_fader2, size, wintype, mul, add
+        )
         self._base_objs = []
         ratio = lmax // overlaps
         for i in range(lmax):
-            hopsize = wrap(size,i) * ((i // ratio) % overlaps) // overlaps
-            self._base_objs.append(IFFT_base(wrap(in_fader,i), wrap(in_fader2,i), wrap(size,i), hopsize, wrap(wintype,i), wrap(mul,i), wrap(add,i)))
+            hopsize = wrap(size, i) * ((i // ratio) % overlaps) // overlaps
+            self._base_objs.append(
+                IFFT_base(
+                    wrap(in_fader, i),
+                    wrap(in_fader2, i),
+                    wrap(size, i),
+                    hopsize,
+                    wrap(wintype, i),
+                    wrap(mul, i),
+                    wrap(add, i),
+                )
+            )
         self._init_play()
 
     def __len__(self):
@@ -395,8 +418,8 @@ class IFFT(PyoObject):
         x, lmax = convertArgsToLists(x)
         ratio = len(self._base_objs) // self._overlaps
         for i, obj in enumerate(self._base_objs):
-            hopsize = wrap(x,i) * ((i // ratio) % self._overlaps) // self._overlaps
-            self._base_objs[i].setSize(wrap(x,i), hopsize)
+            hopsize = wrap(x, i) * ((i // ratio) % self._overlaps) // self._overlaps
+            self._base_objs[i].setSize(wrap(x, i), hopsize)
 
     def setWinType(self, x):
         """
@@ -411,7 +434,7 @@ class IFFT(PyoObject):
         pyoArgsAssert(self, "i", x)
         self._wintype = x
         x, lmax = convertArgsToLists(x)
-        [obj.setWinType(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setWinType(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
         self._map_list = [SLMapMul(self._mul)]
@@ -421,29 +444,38 @@ class IFFT(PyoObject):
     def inreal(self):
         """PyoObject. Real input signal."""
         return self._inreal
+
     @inreal.setter
-    def inreal(self, x): self.setInReal(x)
+    def inreal(self, x):
+        self.setInReal(x)
 
     @property
     def inimag(self):
         """PyoObject. Imaginary input signal."""
         return self._inimag
+
     @inimag.setter
-    def inimag(self, x): self.setInImag(x)
+    def inimag(self, x):
+        self.setInImag(x)
 
     @property
     def size(self):
         """int. FFT size."""
         return self._size
+
     @size.setter
-    def size(self, x): self.setSize(x)
+    def size(self, x):
+        self.setSize(x)
 
     @property
     def wintype(self):
         """int. Windowing method."""
         return self._wintype
+
     @wintype.setter
-    def wintype(self, x): self.setWinType(x)
+    def wintype(self, x):
+        self.setWinType(x)
+
 
 class CarToPol(PyoObject):
     """
@@ -493,6 +525,7 @@ class CarToPol(PyoObject):
     >>> s.start()
 
     """
+
     def __init__(self, inreal, inimag, mul=1, add=0):
         pyoArgsAssert(self, "ooOO", inreal, inimag, mul, add)
         PyoObject.__init__(self, mul, add)
@@ -505,19 +538,19 @@ class CarToPol(PyoObject):
         in_fader, in_fader2, mul, add, lmax = convertArgsToLists(self._in_fader, self._in_fader2, mul, add)
         self._base_objs = []
         for i in range(lmax):
-            self._base_objs.append(CarToPol_base(wrap(in_fader,i), wrap(in_fader2,i), 0, wrap(mul,i), wrap(add,i)))
-            self._base_objs.append(CarToPol_base(wrap(in_fader,i), wrap(in_fader2,i), 1, wrap(mul,i), wrap(add,i)))
+            self._base_objs.append(CarToPol_base(wrap(in_fader, i), wrap(in_fader2, i), 0, wrap(mul, i), wrap(add, i)))
+            self._base_objs.append(CarToPol_base(wrap(in_fader, i), wrap(in_fader2, i), 1, wrap(mul, i), wrap(add, i)))
         self._init_play()
 
     def __len__(self):
         return len(self._inreal)
 
     def __getitem__(self, str):
-        if str == 'mag':
-            self._mag_dummy.append(Dummy([obj for i, obj in enumerate(self._base_objs) if i%2 == 0]))
+        if str == "mag":
+            self._mag_dummy.append(Dummy([obj for i, obj in enumerate(self._base_objs) if i % 2 == 0]))
             return self._mag_dummy[-1]
-        if str == 'ang':
-            self._ang_dummy.append(Dummy([obj for i, obj in enumerate(self._base_objs) if i%2 == 1]))
+        if str == "ang":
+            self._ang_dummy.append(Dummy([obj for i, obj in enumerate(self._base_objs) if i % 2 == 1]))
             return self._ang_dummy[-1]
 
     def get(self, identifier="mag", all=False):
@@ -582,15 +615,20 @@ class CarToPol(PyoObject):
     def inreal(self):
         """PyoObject. Real input signal."""
         return self._inreal
+
     @inreal.setter
-    def inreal(self, x): self.setInReal(x)
+    def inreal(self, x):
+        self.setInReal(x)
 
     @property
     def inimag(self):
         """PyoObject. Imaginary input signal."""
         return self._inimag
+
     @inimag.setter
-    def inimag(self, x): self.setInImag(x)
+    def inimag(self, x):
+        self.setInImag(x)
+
 
 class PolToCar(PyoObject):
     """
@@ -640,6 +678,7 @@ class PolToCar(PyoObject):
     >>> s.start()
 
     """
+
     def __init__(self, inmag, inang, mul=1, add=0):
         pyoArgsAssert(self, "ooOO", inmag, inang, mul, add)
         PyoObject.__init__(self, mul, add)
@@ -652,19 +691,19 @@ class PolToCar(PyoObject):
         in_fader, in_fader2, mul, add, lmax = convertArgsToLists(self._in_fader, self._in_fader2, mul, add)
         self._base_objs = []
         for i in range(lmax):
-            self._base_objs.append(PolToCar_base(wrap(in_fader,i), wrap(in_fader2,i), 0, wrap(mul,i), wrap(add,i)))
-            self._base_objs.append(PolToCar_base(wrap(in_fader,i), wrap(in_fader2,i), 1, wrap(mul,i), wrap(add,i)))
+            self._base_objs.append(PolToCar_base(wrap(in_fader, i), wrap(in_fader2, i), 0, wrap(mul, i), wrap(add, i)))
+            self._base_objs.append(PolToCar_base(wrap(in_fader, i), wrap(in_fader2, i), 1, wrap(mul, i), wrap(add, i)))
         self._init_play()
 
     def __len__(self):
         return len(self._inmag)
 
     def __getitem__(self, str):
-        if str == 'real':
-            self._real_dummy.append(Dummy([obj for i, obj in enumerate(self._base_objs) if i%2 == 0]))
+        if str == "real":
+            self._real_dummy.append(Dummy([obj for i, obj in enumerate(self._base_objs) if i % 2 == 0]))
             return self._real_dummy[-1]
-        if str == 'imag':
-            self._imag_dummy.append(Dummy([obj for i, obj in enumerate(self._base_objs) if i%2 == 1]))
+        if str == "imag":
+            self._imag_dummy.append(Dummy([obj for i, obj in enumerate(self._base_objs) if i % 2 == 1]))
             return self._imag_dummy[-1]
 
     def get(self, identifier="real", all=False):
@@ -729,15 +768,20 @@ class PolToCar(PyoObject):
     def inmag(self):
         """PyoObject. Magnitude input signal."""
         return self._inmag
+
     @inmag.setter
-    def inmag(self, x): self.setInMag(x)
+    def inmag(self, x):
+        self.setInMag(x)
 
     @property
     def inang(self):
         """PyoObject. Angle input signal."""
         return self._inang
+
     @inang.setter
-    def inang(self, x): self.setInAng(x)
+    def inang(self, x):
+        self.setInAng(x)
+
 
 class FrameDelta(PyoObject):
     """
@@ -792,6 +836,7 @@ class FrameDelta(PyoObject):
     >>> right = Delay(fout, delay=0.013).out(1)
 
     """
+
     def __init__(self, input, framesize=1024, overlaps=4, mul=1, add=0):
         pyoArgsAssert(self, "oiiOO", input, framesize, overlaps, mul, add)
         PyoObject.__init__(self, mul, add)
@@ -799,7 +844,9 @@ class FrameDelta(PyoObject):
         self._framesize = framesize
         self._overlaps = overlaps
         self._in_fader = InputFader(input)
-        in_fader, framesize, overlaps, mul, add, lmax = convertArgsToLists(self._in_fader, framesize, overlaps, mul, add)
+        in_fader, framesize, overlaps, mul, add, lmax = convertArgsToLists(
+            self._in_fader, framesize, overlaps, mul, add
+        )
         num_of_mains = len(self._in_fader) // self._overlaps
         self._base_players = []
         for j in range(num_of_mains):
@@ -807,12 +854,14 @@ class FrameDelta(PyoObject):
             for i in range(len(self._in_fader)):
                 if (i % num_of_mains) == j:
                     objs_list.append(self._in_fader[i])
-            self._base_players.append(FrameDeltaMain_base(objs_list, wrap(framesize,j), wrap(overlaps,j)))
+            self._base_players.append(FrameDeltaMain_base(objs_list, wrap(framesize, j), wrap(overlaps, j)))
         self._base_objs = []
         for i in range(lmax):
             base_player = i % num_of_mains
             overlap = i // num_of_mains
-            self._base_objs.append(FrameDelta_base(self._base_players[base_player], overlap, wrap(mul,i), wrap(add,i)))
+            self._base_objs.append(
+                FrameDelta_base(self._base_players[base_player], overlap, wrap(mul, i), wrap(add, i))
+            )
         self._init_play()
 
     def out(self, chnl=0, inc=1, dur=0, delay=0):
@@ -847,21 +896,26 @@ class FrameDelta(PyoObject):
         pyoArgsAssert(self, "i", x)
         self._framesize = x
         x, lmax = convertArgsToLists(x)
-        [obj.setFrameSize(wrap(x,i)) for i, obj in enumerate(self._base_players)]
+        [obj.setFrameSize(wrap(x, i)) for i, obj in enumerate(self._base_players)]
 
     @property
     def input(self):
         """PyoObject. Phase input signal."""
         return self._input
+
     @input.setter
-    def input(self, x): self.setInput(x)
+    def input(self, x):
+        self.setInput(x)
 
     @property
     def framesize(self):
         """PyoObject. Frame size in samples."""
         return self._framesize
+
     @framesize.setter
-    def framesize(self, x): self.setFrameSize(x)
+    def framesize(self, x):
+        self.setFrameSize(x)
+
 
 class FrameAccum(PyoObject):
     """
@@ -916,6 +970,7 @@ class FrameAccum(PyoObject):
     >>> right = Delay(fout, delay=0.013).out(1)
 
     """
+
     def __init__(self, input, framesize=1024, overlaps=4, mul=1, add=0):
         pyoArgsAssert(self, "oiiOO", input, framesize, overlaps, mul, add)
         PyoObject.__init__(self, mul, add)
@@ -923,20 +978,24 @@ class FrameAccum(PyoObject):
         self._framesize = framesize
         self._overlaps = overlaps
         self._in_fader = InputFader(input)
-        in_fader, framesize, overlaps, mul, add, lmax = convertArgsToLists(self._in_fader, framesize, overlaps, mul, add)
+        in_fader, framesize, overlaps, mul, add, lmax = convertArgsToLists(
+            self._in_fader, framesize, overlaps, mul, add
+        )
         num_of_mains = len(self._in_fader) // self._overlaps
         self._base_players = []
         for j in range(num_of_mains):
             objs_list = []
             for i in range(len(self._in_fader)):
-                if (i%num_of_mains) == j:
+                if (i % num_of_mains) == j:
                     objs_list.append(self._in_fader[i])
-            self._base_players.append(FrameAccumMain_base(objs_list, wrap(framesize,j), wrap(overlaps,j)))
+            self._base_players.append(FrameAccumMain_base(objs_list, wrap(framesize, j), wrap(overlaps, j)))
         self._base_objs = []
         for i in range(lmax):
             base_player = i % num_of_mains
             overlap = i // num_of_mains
-            self._base_objs.append(FrameAccum_base(self._base_players[base_player], overlap, wrap(mul,i), wrap(add,i)))
+            self._base_objs.append(
+                FrameAccum_base(self._base_players[base_player], overlap, wrap(mul, i), wrap(add, i))
+            )
         self._init_play()
 
     def out(self, chnl=0, inc=1, dur=0, delay=0):
@@ -971,21 +1030,26 @@ class FrameAccum(PyoObject):
         pyoArgsAssert(self, "i", x)
         self._framesize = x
         x, lmax = convertArgsToLists(x)
-        [obj.setFrameSize(wrap(x,i)) for i, obj in enumerate(self._base_players)]
+        [obj.setFrameSize(wrap(x, i)) for i, obj in enumerate(self._base_players)]
 
     @property
     def input(self):
         """PyoObject. Phase input signal."""
         return self._input
+
     @input.setter
-    def input(self, x): self.setInput(x)
+    def input(self, x):
+        self.setInput(x)
 
     @property
     def framesize(self):
         """PyoObject. Frame size in samples."""
         return self._framesize
+
     @framesize.setter
-    def framesize(self, x): self.setFrameSize(x)
+    def framesize(self, x):
+        self.setFrameSize(x)
+
 
 class Vectral(PyoObject):
     """
@@ -1035,6 +1099,7 @@ class Vectral(PyoObject):
     >>> s.start()
 
     """
+
     def __init__(self, input, framesize=1024, overlaps=4, up=1.0, down=0.7, damp=0.9, mul=1, add=0):
         pyoArgsAssert(self, "oiiOOOOO", input, framesize, overlaps, up, down, damp, mul, add)
         PyoObject.__init__(self, mul, add)
@@ -1045,7 +1110,9 @@ class Vectral(PyoObject):
         self._down = down
         self._damp = damp
         self._in_fader = InputFader(input)
-        in_fader, framesize, overlaps, up, down, damp, mul, add, lmax = convertArgsToLists(self._in_fader, framesize, overlaps, up, down, damp, mul, add)
+        in_fader, framesize, overlaps, up, down, damp, mul, add, lmax = convertArgsToLists(
+            self._in_fader, framesize, overlaps, up, down, damp, mul, add
+        )
         num_of_mains = len(self._in_fader) // self._overlaps
         self._base_players = []
         for j in range(num_of_mains):
@@ -1053,12 +1120,16 @@ class Vectral(PyoObject):
             for i in range(len(self._in_fader)):
                 if (i % num_of_mains) == j:
                     objs_list.append(self._in_fader[i])
-            self._base_players.append(VectralMain_base(objs_list, wrap(framesize,j), wrap(overlaps,j), wrap(up,j), wrap(down,j), wrap(damp,j)))
+            self._base_players.append(
+                VectralMain_base(
+                    objs_list, wrap(framesize, j), wrap(overlaps, j), wrap(up, j), wrap(down, j), wrap(damp, j)
+                )
+            )
         self._base_objs = []
         for i in range(lmax):
             base_player = i % num_of_mains
             overlap = i // num_of_mains
-            self._base_objs.append(Vectral_base(self._base_players[base_player], overlap, wrap(mul,i), wrap(add,i)))
+            self._base_objs.append(Vectral_base(self._base_players[base_player], overlap, wrap(mul, i), wrap(add, i)))
         self._init_play()
 
     def out(self, chnl=0, inc=1, dur=0, delay=0):
@@ -1093,7 +1164,7 @@ class Vectral(PyoObject):
         pyoArgsAssert(self, "i", x)
         self._framesize = x
         x, lmax = convertArgsToLists(x)
-        [obj.setFrameSize(wrap(x,i)) for i, obj in enumerate(self._base_players)]
+        [obj.setFrameSize(wrap(x, i)) for i, obj in enumerate(self._base_players)]
 
     def setUp(self, x):
         """
@@ -1108,7 +1179,7 @@ class Vectral(PyoObject):
         pyoArgsAssert(self, "O", x)
         self._up = x
         x, lmax = convertArgsToLists(x)
-        [obj.setUp(wrap(x,i)) for i, obj in enumerate(self._base_players)]
+        [obj.setUp(wrap(x, i)) for i, obj in enumerate(self._base_players)]
 
     def setDown(self, x):
         """
@@ -1123,7 +1194,7 @@ class Vectral(PyoObject):
         pyoArgsAssert(self, "O", x)
         self._down = x
         x, lmax = convertArgsToLists(x)
-        [obj.setDown(wrap(x,i)) for i, obj in enumerate(self._base_players)]
+        [obj.setDown(wrap(x, i)) for i, obj in enumerate(self._base_players)]
 
     def setDamp(self, x):
         """
@@ -1138,49 +1209,62 @@ class Vectral(PyoObject):
         pyoArgsAssert(self, "O", x)
         self._damp = x
         x, lmax = convertArgsToLists(x)
-        [obj.setDamp(wrap(x,i)) for i, obj in enumerate(self._base_players)]
+        [obj.setDamp(wrap(x, i)) for i, obj in enumerate(self._base_players)]
 
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [SLMap(0., 1., "lin", "up", self._up),
-                          SLMap(0., 1., "lin", "down", self._down),
-                          SLMap(0., 1., "lin", "damp", self._damp),
-                          SLMapMul(self._mul)]
+        self._map_list = [
+            SLMap(0.0, 1.0, "lin", "up", self._up),
+            SLMap(0.0, 1.0, "lin", "down", self._down),
+            SLMap(0.0, 1.0, "lin", "damp", self._damp),
+            SLMapMul(self._mul),
+        ]
         PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
     def input(self):
         """PyoObject. Magnitude input signal."""
         return self._input
+
     @input.setter
-    def input(self, x): self.setInput(x)
+    def input(self, x):
+        self.setInput(x)
 
     @property
     def framesize(self):
         """int. Frame size in samples."""
         return self._framesize
+
     @framesize.setter
-    def framesize(self, x): self.setFrameSize(x)
+    def framesize(self, x):
+        self.setFrameSize(x)
 
     @property
     def up(self):
         """float or PyoObject. Filter coefficient for increasing bins."""
         return self._up
+
     @up.setter
-    def up(self, x): self.setUp(x)
+    def up(self, x):
+        self.setUp(x)
 
     @property
     def down(self):
         """float or PyoObject. Filter coefficient for decreasing bins."""
         return self._down
+
     @down.setter
-    def down(self, x): self.setDown(x)
+    def down(self, x):
+        self.setDown(x)
 
     @property
     def damp(self):
         """float or PyoObject. High frequencies damping factor."""
         return self._damp
+
     @damp.setter
-    def damp(self, x): self.setDamp(x)
+    def damp(self, x):
+        self.setDamp(x)
+
 
 class CvlVerb(PyoObject):
     """
@@ -1221,7 +1305,8 @@ class CvlVerb(PyoObject):
     >>> cv = CvlVerb(sf, SNDS_PATH+"/IRMediumHallStereo.wav", size=1024, bal=0.4).out()
 
     """
-    def __init__(self, input, impulse=SNDS_PATH+"/IRMediumHallStereo.wav", bal=0.25, size=1024, mul=1, add=0):
+
+    def __init__(self, input, impulse=SNDS_PATH + "/IRMediumHallStereo.wav", bal=0.25, size=1024, mul=1, add=0):
         pyoArgsAssert(self, "osOiOO", input, impulse, bal, size, mul, add)
         PyoObject.__init__(self, mul, add)
         self._input = input
@@ -1235,7 +1320,20 @@ class CvlVerb(PyoObject):
         for file in impulse:
             _size, _dur, _snd_sr, _snd_chnls, _format, _type = sndinfo(file)
             lmax3 = max(lmax, _snd_chnls)
-            self._base_objs.extend([CvlVerb_base(wrap(in_fader,i), stringencode(file), wrap(bal,i), wrap(size,i), i%_snd_chnls, wrap(mul,i), wrap(add,i)) for i in range(lmax3)])
+            self._base_objs.extend(
+                [
+                    CvlVerb_base(
+                        wrap(in_fader, i),
+                        stringencode(file),
+                        wrap(bal, i),
+                        wrap(size, i),
+                        i % _snd_chnls,
+                        wrap(mul, i),
+                        wrap(add, i),
+                    )
+                    for i in range(lmax3)
+                ]
+            )
         self._init_play()
 
     def setInput(self, x, fadetime=0.05):
@@ -1267,26 +1365,30 @@ class CvlVerb(PyoObject):
         pyoArgsAssert(self, "O", x)
         self._bal = x
         x, lmax = convertArgsToLists(x)
-        [obj.setBal(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setBal(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [SLMap(0., 1., "lin", "bal", self._bal),
-                          SLMapMul(self._mul)]
+        self._map_list = [SLMap(0.0, 1.0, "lin", "bal", self._bal), SLMapMul(self._mul)]
         PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
     def input(self):
         """PyoObject. Input signal to process."""
         return self._input
+
     @input.setter
-    def input(self, x): self.setInput(x)
+    def input(self, x):
+        self.setInput(x)
 
     @property
     def bal(self):
         """float or PyoObject. Wet / dry balance."""
         return self._bal
+
     @bal.setter
-    def bal(self, x): self.setBal(x)
+    def bal(self, x):
+        self.setBal(x)
+
 
 class IFFTMatrix(PyoObject):
     """
@@ -1363,6 +1465,7 @@ class IFFTMatrix(PyoObject):
     >>> fout = IFFTMatrix(m, index, phase, size=2048, overlaps=16, wintype=2).mix(2).out()
 
     """
+
     def __init__(self, matrix, index, phase, size=1024, overlaps=4, wintype=2, mul=1, add=0):
         pyoArgsAssert(self, "mooiIiOO", matrix, index, phase, size, overlaps, wintype, mul, add)
         PyoObject.__init__(self, mul, add)
@@ -1372,12 +1475,25 @@ class IFFTMatrix(PyoObject):
         self._size = size
         self._overlaps = overlaps
         self._wintype = wintype
-        matrix, index, phase, size, wintype, mul, add, self._lmax = convertArgsToLists(matrix, index, phase, size, wintype, mul, add)
+        matrix, index, phase, size, wintype, mul, add, self._lmax = convertArgsToLists(
+            matrix, index, phase, size, wintype, mul, add
+        )
         self._base_objs = []
         for j in range(overlaps):
             for i in range(self._lmax):
-                hopsize = int(wrap(size,i) / overlaps) * j
-                self._base_objs.append(IFFTMatrix_base(wrap(matrix,i), wrap(index,i), wrap(phase,i), wrap(size,i), hopsize, wrap(wintype,i), wrap(mul,i), wrap(add,i)))
+                hopsize = int(wrap(size, i) / overlaps) * j
+                self._base_objs.append(
+                    IFFTMatrix_base(
+                        wrap(matrix, i),
+                        wrap(index, i),
+                        wrap(phase, i),
+                        wrap(size, i),
+                        hopsize,
+                        wrap(wintype, i),
+                        wrap(mul, i),
+                        wrap(add, i),
+                    )
+                )
         self._init_play()
 
     def __len__(self):
@@ -1398,7 +1514,7 @@ class IFFTMatrix(PyoObject):
         x, lmax = convertArgsToLists(x)
         for j in range(overlaps):
             for i in range(self._lmax):
-                self._base_objs[j*self._overlaps+i].setIndex(wrap(x,i))
+                self._base_objs[j * self._overlaps + i].setIndex(wrap(x, i))
 
     def setPhase(self, x):
         """
@@ -1415,7 +1531,7 @@ class IFFTMatrix(PyoObject):
         x, lmax = convertArgsToLists(x)
         for j in range(overlaps):
             for i in range(self._lmax):
-                self._base_objs[j*self._overlaps+i].setPhase(wrap(x,i))
+                self._base_objs[j * self._overlaps + i].setPhase(wrap(x, i))
 
     def setSize(self, x):
         """
@@ -1432,8 +1548,8 @@ class IFFTMatrix(PyoObject):
         x, lmax = convertArgsToLists(x)
         for j in range(overlaps):
             for i in range(self._lmax):
-                hopsize = int(wrap(x,i) / self._overlaps) * j
-                self._base_objs[j*self._overlaps+i].setSize(wrap(x,i), hopsize)
+                hopsize = int(wrap(x, i) / self._overlaps) * j
+                self._base_objs[j * self._overlaps + i].setSize(wrap(x, i), hopsize)
 
     def setWinType(self, x):
         """
@@ -1450,7 +1566,7 @@ class IFFTMatrix(PyoObject):
         x, lmax = convertArgsToLists(x)
         for j in range(overlaps):
             for i in range(self._lmax):
-                self._base_objs[j*self._overlaps+i].setWinType(wrap(x,i))
+                self._base_objs[j * self._overlaps + i].setWinType(wrap(x, i))
 
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
         self._map_list = [SLMapMul(self._mul)]
@@ -1460,26 +1576,34 @@ class IFFTMatrix(PyoObject):
     def index(self):
         """PyoObject. Normalized horizontal position."""
         return self._index
+
     @index.setter
-    def index(self, x): self.setIndex(x)
+    def index(self, x):
+        self.setIndex(x)
 
     @property
     def phase(self):
         """PyoObject. Instantaneous bin angle value."""
         return self._phase
+
     @phase.setter
-    def phase(self, x): self.setPhase(x)
+    def phase(self, x):
+        self.setPhase(x)
 
     @property
     def size(self):
         """int. FFT size."""
         return self._size
+
     @size.setter
-    def size(self, x): self.setSize(x)
+    def size(self, x):
+        self.setSize(x)
 
     @property
     def wintype(self):
         """int. Windowing method."""
         return self._wintype
+
     @wintype.setter
-    def wintype(self, x): self.setWinType(x)
+    def wintype(self, x):
+        self.setWinType(x)

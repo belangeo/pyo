@@ -27,6 +27,7 @@ License along with pyo.  If not, see <http://www.gnu.org/licenses/>.
 from ._core import *
 from ._maps import *
 
+
 class Sin(PyoObject):
     """
     Performs a sine function on audio signal.
@@ -54,7 +55,7 @@ class Sin(PyoObject):
         self._input = input
         self._in_fader = InputFader(input)
         in_fader, mul, add, lmax = convertArgsToLists(self._in_fader, mul, add)
-        self._base_objs = [M_Sin_base(wrap(in_fader,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+        self._base_objs = [M_Sin_base(wrap(in_fader, i), wrap(mul, i), wrap(add, i)) for i in range(lmax)]
         self._init_play()
 
     def setInput(self, x, fadetime=0.05):
@@ -77,8 +78,11 @@ class Sin(PyoObject):
     def input(self):
         """PyoObject. Input signal to process."""
         return self._input
+
     @input.setter
-    def input(self, x): self.setInput(x)
+    def input(self, x):
+        self.setInput(x)
+
 
 class Cos(PyoObject):
     """
@@ -100,13 +104,14 @@ class Cos(PyoObject):
     >>> b = Cos(a, mul=.3).mix(2).out()
 
     """
+
     def __init__(self, input, mul=1, add=0):
         pyoArgsAssert(self, "oOO", input, mul, add)
         PyoObject.__init__(self, mul, add)
         self._input = input
         self._in_fader = InputFader(input)
         in_fader, mul, add, lmax = convertArgsToLists(self._in_fader, mul, add)
-        self._base_objs = [M_Cos_base(wrap(in_fader,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+        self._base_objs = [M_Cos_base(wrap(in_fader, i), wrap(mul, i), wrap(add, i)) for i in range(lmax)]
         self._init_play()
 
     def setInput(self, x, fadetime=0.05):
@@ -129,8 +134,11 @@ class Cos(PyoObject):
     def input(self):
         """PyoObject. Input signal to process."""
         return self._input
+
     @input.setter
-    def input(self, x): self.setInput(x)
+    def input(self, x):
+        self.setInput(x)
+
 
 class Tan(PyoObject):
     """
@@ -159,13 +167,14 @@ class Tan(PyoObject):
     >>> oR.out(1)
 
     """
+
     def __init__(self, input, mul=1, add=0):
         pyoArgsAssert(self, "oOO", input, mul, add)
         PyoObject.__init__(self, mul, add)
         self._input = input
         self._in_fader = InputFader(input)
         in_fader, mul, add, lmax = convertArgsToLists(self._in_fader, mul, add)
-        self._base_objs = [M_Tan_base(wrap(in_fader,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+        self._base_objs = [M_Tan_base(wrap(in_fader, i), wrap(mul, i), wrap(add, i)) for i in range(lmax)]
         self._init_play()
 
     def setInput(self, x, fadetime=0.05):
@@ -188,8 +197,11 @@ class Tan(PyoObject):
     def input(self):
         """PyoObject. Input signal to process."""
         return self._input
+
     @input.setter
-    def input(self, x): self.setInput(x)
+    def input(self, x):
+        self.setInput(x)
+
 
 class Abs(PyoObject):
     """
@@ -219,7 +231,7 @@ class Abs(PyoObject):
         self._input = input
         self._in_fader = InputFader(input)
         in_fader, mul, add, lmax = convertArgsToLists(self._in_fader, mul, add)
-        self._base_objs = [M_Abs_base(wrap(in_fader,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+        self._base_objs = [M_Abs_base(wrap(in_fader, i), wrap(mul, i), wrap(add, i)) for i in range(lmax)]
         self._init_play()
 
     def setInput(self, x, fadetime=0.05):
@@ -242,8 +254,11 @@ class Abs(PyoObject):
     def input(self):
         """PyoObject. Input signal to process."""
         return self._input
+
     @input.setter
-    def input(self, x): self.setInput(x)
+    def input(self, x):
+        self.setInput(x)
+
 
 class Sqrt(PyoObject):
     """
@@ -278,7 +293,7 @@ class Sqrt(PyoObject):
         self._input = input
         self._in_fader = InputFader(input)
         in_fader, mul, add, lmax = convertArgsToLists(self._in_fader, mul, add)
-        self._base_objs = [M_Sqrt_base(wrap(in_fader,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+        self._base_objs = [M_Sqrt_base(wrap(in_fader, i), wrap(mul, i), wrap(add, i)) for i in range(lmax)]
         self._init_play()
 
     def setInput(self, x, fadetime=0.05):
@@ -301,8 +316,11 @@ class Sqrt(PyoObject):
     def input(self):
         """PyoObject. Input signal to process."""
         return self._input
+
     @input.setter
-    def input(self, x): self.setInput(x)
+    def input(self, x):
+        self.setInput(x)
+
 
 class Log(PyoObject):
     """
@@ -333,7 +351,7 @@ class Log(PyoObject):
         self._input = input
         self._in_fader = InputFader(input)
         in_fader, mul, add, lmax = convertArgsToLists(self._in_fader, mul, add)
-        self._base_objs = [M_Log_base(wrap(in_fader,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+        self._base_objs = [M_Log_base(wrap(in_fader, i), wrap(mul, i), wrap(add, i)) for i in range(lmax)]
         self._init_play()
 
     def setInput(self, x, fadetime=0.05):
@@ -356,8 +374,11 @@ class Log(PyoObject):
     def input(self):
         """PyoObject. Input signal to process."""
         return self._input
+
     @input.setter
-    def input(self, x): self.setInput(x)
+    def input(self, x):
+        self.setInput(x)
+
 
 class Log2(PyoObject):
     """
@@ -388,7 +409,7 @@ class Log2(PyoObject):
         self._input = input
         self._in_fader = InputFader(input)
         in_fader, mul, add, lmax = convertArgsToLists(self._in_fader, mul, add)
-        self._base_objs = [M_Log2_base(wrap(in_fader,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+        self._base_objs = [M_Log2_base(wrap(in_fader, i), wrap(mul, i), wrap(add, i)) for i in range(lmax)]
         self._init_play()
 
     def setInput(self, x, fadetime=0.05):
@@ -411,8 +432,11 @@ class Log2(PyoObject):
     def input(self):
         """PyoObject. Input signal to process."""
         return self._input
+
     @input.setter
-    def input(self, x): self.setInput(x)
+    def input(self, x):
+        self.setInput(x)
+
 
 class Log10(PyoObject):
     """
@@ -443,7 +467,7 @@ class Log10(PyoObject):
         self._input = input
         self._in_fader = InputFader(input)
         in_fader, mul, add, lmax = convertArgsToLists(self._in_fader, mul, add)
-        self._base_objs = [M_Log10_base(wrap(in_fader,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+        self._base_objs = [M_Log10_base(wrap(in_fader, i), wrap(mul, i), wrap(add, i)) for i in range(lmax)]
         self._init_play()
 
     def setInput(self, x, fadetime=0.05):
@@ -466,8 +490,11 @@ class Log10(PyoObject):
     def input(self):
         """PyoObject. Input signal to process."""
         return self._input
+
     @input.setter
-    def input(self, x): self.setInput(x)
+    def input(self, x):
+        self.setInput(x)
+
 
 class Atan2(PyoObject):
     """
@@ -495,13 +522,14 @@ class Atan2(PyoObject):
     >>> lp = Tone(dist, freq=2000, mul=.1).out()
 
     """
+
     def __init__(self, b=1, a=1, mul=1, add=0):
         pyoArgsAssert(self, "OOOO", b, a, mul, add)
         PyoObject.__init__(self, mul, add)
         self._b = b
         self._a = a
         b, a, mul, add, lmax = convertArgsToLists(b, a, mul, add)
-        self._base_objs = [M_Atan2_base(wrap(b,i), wrap(a,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+        self._base_objs = [M_Atan2_base(wrap(b, i), wrap(a, i), wrap(mul, i), wrap(add, i)) for i in range(lmax)]
         self._init_play()
 
     def setB(self, x):
@@ -517,7 +545,7 @@ class Atan2(PyoObject):
         pyoArgsAssert(self, "O", x)
         self._b = x
         x, lmax = convertArgsToLists(x)
-        [obj.setB(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setB(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def setA(self, x):
         """
@@ -532,21 +560,26 @@ class Atan2(PyoObject):
         pyoArgsAssert(self, "O", x)
         self._a = x
         x, lmax = convertArgsToLists(x)
-        [obj.setA(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setA(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     @property
     def b(self):
         """float or PyoObject. Numerator."""
         return self._b
+
     @b.setter
-    def b(self, x): self.setB(x)
+    def b(self, x):
+        self.setB(x)
 
     @property
     def a(self):
         """float or PyoObject. Denominator."""
         return self._a
+
     @a.setter
-    def a(self, x): self.setA(x)
+    def a(self, x):
+        self.setA(x)
+
 
 class Floor(PyoObject):
     """
@@ -577,7 +610,7 @@ class Floor(PyoObject):
         self._input = input
         self._in_fader = InputFader(input)
         in_fader, mul, add, lmax = convertArgsToLists(self._in_fader, mul, add)
-        self._base_objs = [M_Floor_base(wrap(in_fader,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+        self._base_objs = [M_Floor_base(wrap(in_fader, i), wrap(mul, i), wrap(add, i)) for i in range(lmax)]
         self._init_play()
 
     def setInput(self, x, fadetime=0.05):
@@ -600,8 +633,11 @@ class Floor(PyoObject):
     def input(self):
         """PyoObject. Input signal to process."""
         return self._input
+
     @input.setter
-    def input(self, x): self.setInput(x)
+    def input(self, x):
+        self.setInput(x)
+
 
 class Ceil(PyoObject):
     """
@@ -632,7 +668,7 @@ class Ceil(PyoObject):
         self._input = input
         self._in_fader = InputFader(input)
         in_fader, mul, add, lmax = convertArgsToLists(self._in_fader, mul, add)
-        self._base_objs = [M_Ceil_base(wrap(in_fader,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+        self._base_objs = [M_Ceil_base(wrap(in_fader, i), wrap(mul, i), wrap(add, i)) for i in range(lmax)]
         self._init_play()
 
     def setInput(self, x, fadetime=0.05):
@@ -655,8 +691,11 @@ class Ceil(PyoObject):
     def input(self):
         """PyoObject. Input signal to process."""
         return self._input
+
     @input.setter
-    def input(self, x): self.setInput(x)
+    def input(self, x):
+        self.setInput(x)
+
 
 class Round(PyoObject):
     """
@@ -687,7 +726,7 @@ class Round(PyoObject):
         self._input = input
         self._in_fader = InputFader(input)
         in_fader, mul, add, lmax = convertArgsToLists(self._in_fader, mul, add)
-        self._base_objs = [M_Round_base(wrap(in_fader,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+        self._base_objs = [M_Round_base(wrap(in_fader, i), wrap(mul, i), wrap(add, i)) for i in range(lmax)]
         self._init_play()
 
     def setInput(self, x, fadetime=0.05):
@@ -710,8 +749,11 @@ class Round(PyoObject):
     def input(self):
         """PyoObject. Input signal to process."""
         return self._input
+
     @input.setter
-    def input(self, x): self.setInput(x)
+    def input(self, x):
+        self.setInput(x)
+
 
 class Tanh(PyoObject):
     """
@@ -740,7 +782,7 @@ class Tanh(PyoObject):
         self._input = input
         self._in_fader = InputFader(input)
         in_fader, mul, add, lmax = convertArgsToLists(self._in_fader, mul, add)
-        self._base_objs = [M_Tanh_base(wrap(in_fader,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+        self._base_objs = [M_Tanh_base(wrap(in_fader, i), wrap(mul, i), wrap(add, i)) for i in range(lmax)]
         self._init_play()
 
     def setInput(self, x, fadetime=0.05):
@@ -763,8 +805,11 @@ class Tanh(PyoObject):
     def input(self):
         """PyoObject. Input signal to process."""
         return self._input
+
     @input.setter
-    def input(self, x): self.setInput(x)
+    def input(self, x):
+        self.setInput(x)
+
 
 class Exp(PyoObject):
     """
@@ -797,7 +842,7 @@ class Exp(PyoObject):
         self._input = input
         self._in_fader = InputFader(input)
         in_fader, mul, add, lmax = convertArgsToLists(self._in_fader, mul, add)
-        self._base_objs = [M_Exp_base(wrap(in_fader,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+        self._base_objs = [M_Exp_base(wrap(in_fader, i), wrap(mul, i), wrap(add, i)) for i in range(lmax)]
         self._init_play()
 
     def setInput(self, x, fadetime=0.05):
@@ -820,8 +865,11 @@ class Exp(PyoObject):
     def input(self):
         """PyoObject. Input signal to process."""
         return self._input
+
     @input.setter
-    def input(self, x): self.setInput(x)
+    def input(self, x):
+        self.setInput(x)
+
 
 class Div(PyoObject):
     """
@@ -843,13 +891,14 @@ class Div(PyoObject):
     >>> c = Div(a, b, mul=0.3).out()
 
     """
+
     def __init__(self, a=1, b=1, mul=1, add=0):
         pyoArgsAssert(self, "OOOO", a, b, mul, add)
         PyoObject.__init__(self, mul, add)
         self._a = a
         self._b = b
         a, b, mul, add, lmax = convertArgsToLists(a, b, mul, add)
-        self._base_objs = [M_Div_base(wrap(a,i), wrap(b,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+        self._base_objs = [M_Div_base(wrap(a, i), wrap(b, i), wrap(mul, i), wrap(add, i)) for i in range(lmax)]
         self._init_play()
 
     def setA(self, x):
@@ -865,7 +914,7 @@ class Div(PyoObject):
         pyoArgsAssert(self, "O", x)
         self._a = x
         x, lmax = convertArgsToLists(x)
-        [obj.setA(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setA(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def setB(self, x):
         """
@@ -880,21 +929,26 @@ class Div(PyoObject):
         pyoArgsAssert(self, "O", x)
         self._b = x
         x, lmax = convertArgsToLists(x)
-        [obj.setB(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setB(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     @property
     def a(self):
         """float or PyoObject. Numerator."""
         return self._a
+
     @a.setter
-    def a(self, x): self.setA(x)
+    def a(self, x):
+        self.setA(x)
 
     @property
     def b(self):
         """float or PyoObject. Denominator."""
         return self._b
+
     @b.setter
-    def b(self, x): self.setB(x)
+    def b(self, x):
+        self.setB(x)
+
 
 class Sub(PyoObject):
     """
@@ -917,13 +971,14 @@ class Sub(PyoObject):
     >>> d = SineLoop(freq=c, feedback=0.08, mul=0.3).out()
 
     """
+
     def __init__(self, a=1, b=1, mul=1, add=0):
         pyoArgsAssert(self, "OOOO", a, b, mul, add)
         PyoObject.__init__(self, mul, add)
         self._a = a
         self._b = b
         a, b, mul, add, lmax = convertArgsToLists(a, b, mul, add)
-        self._base_objs = [M_Sub_base(wrap(a,i), wrap(b,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+        self._base_objs = [M_Sub_base(wrap(a, i), wrap(b, i), wrap(mul, i), wrap(add, i)) for i in range(lmax)]
         self._init_play()
 
     def setA(self, x):
@@ -939,7 +994,7 @@ class Sub(PyoObject):
         pyoArgsAssert(self, "O", x)
         self._a = x
         x, lmax = convertArgsToLists(x)
-        [obj.setA(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setA(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def setB(self, x):
         """
@@ -954,18 +1009,22 @@ class Sub(PyoObject):
         pyoArgsAssert(self, "O", x)
         self._b = x
         x, lmax = convertArgsToLists(x)
-        [obj.setB(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setB(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     @property
     def a(self):
         """float or PyoObject. Left operand."""
         return self._a
+
     @a.setter
-    def a(self, x): self.setA(x)
+    def a(self, x):
+        self.setA(x)
 
     @property
     def b(self):
         """float or PyoObject. Right operand."""
         return self._b
+
     @b.setter
-    def b(self, x): self.setB(x)
+    def b(self, x):
+        self.setB(x)

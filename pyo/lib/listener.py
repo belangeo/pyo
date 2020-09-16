@@ -3,6 +3,7 @@ from ._core import *
 import time
 import threading
 
+
 class MidiListener(threading.Thread):
     """
     Self-contained midi listener thread.
@@ -54,6 +55,7 @@ class MidiListener(threading.Thread):
     >>> listen.start()
 
     """
+
     def __init__(self, function, mididev=-1, reportdevice=False):
         threading.Thread.__init__(self)
         self.daemon = True
@@ -108,6 +110,7 @@ class MidiListener(threading.Thread):
             return lst
         return []
 
+
 class MidiDispatcher(threading.Thread):
     """
     Self-contained midi dispatcher thread.
@@ -147,6 +150,7 @@ class MidiDispatcher(threading.Thread):
     >>> dispatch.send(144, 60, 127)
 
     """
+
     def __init__(self, mididev=-1):
         threading.Thread.__init__(self)
         self.daemon = True
@@ -193,7 +197,10 @@ class MidiDispatcher(threading.Thread):
 
         """
         status, data1, data2, timestamp, device, lmax = convertArgsToLists(status, data1, data2, timestamp, device)
-        [self._dispatcher.send(wrap(status,i), wrap(data1,i), wrap(data2,i), wrap(timestamp,i), wrap(device,i)) for i in range(lmax)]
+        [
+            self._dispatcher.send(wrap(status, i), wrap(data1, i), wrap(data2, i), wrap(timestamp, i), wrap(device, i))
+            for i in range(lmax)
+        ]
 
     def sendx(self, msg, timestamp=0, device=-1):
         """
@@ -218,7 +225,7 @@ class MidiDispatcher(threading.Thread):
 
         """
         msg, timestamp, device, lmax = convertArgsToLists(msg, timestamp, device)
-        [self._dispatcher.sendx(wrap(msg,i), wrap(timestamp,i), wrap(device,i)) for i in range(lmax)]
+        [self._dispatcher.sendx(wrap(msg, i), wrap(timestamp, i), wrap(device, i)) for i in range(lmax)]
 
     def getDeviceInfos(self):
         """
@@ -245,7 +252,9 @@ class MidiDispatcher(threading.Thread):
             return lst
         return []
 
+
 OscListenerLock = threading.Lock()
+
 
 class OscListener(threading.Thread):
     """
@@ -276,6 +285,7 @@ class OscListener(threading.Thread):
     >>> listen.start()
 
     """
+
     def __init__(self, function, port=9000):
         threading.Thread.__init__(self)
         self.daemon = True

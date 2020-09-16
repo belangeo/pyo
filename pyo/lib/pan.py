@@ -30,6 +30,7 @@ import sys
 from ._core import *
 from ._maps import *
 
+
 class Pan(PyoObject):
     """
     Cosinus panner with control on the spread factor.
@@ -67,6 +68,7 @@ class Pan(PyoObject):
     >>> p = Pan(a, outs=2, pan=lfo).out()
 
     """
+
     def __init__(self, input, outs=2, pan=0.5, spread=0.5, mul=1, add=0):
         pyoArgsAssert(self, "oIOOOO", input, outs, pan, spread, mul, add)
         PyoObject.__init__(self, mul, add)
@@ -76,11 +78,11 @@ class Pan(PyoObject):
         self._spread = spread
         self._in_fader = InputFader(input)
         in_fader, pan, spread, mul, add, lmax = convertArgsToLists(self._in_fader, pan, spread, mul, add)
-        self._base_players = [Panner_base(wrap(in_fader,i), outs, wrap(pan,i), wrap(spread,i)) for i in range(lmax)]
+        self._base_players = [Panner_base(wrap(in_fader, i), outs, wrap(pan, i), wrap(spread, i)) for i in range(lmax)]
         self._base_objs = []
         for i in range(lmax):
             for j in range(outs):
-                self._base_objs.append(Pan_base(wrap(self._base_players,i), j, wrap(mul,i), wrap(add,i)))
+                self._base_objs.append(Pan_base(wrap(self._base_players, i), j, wrap(mul, i), wrap(add, i)))
         self._init_play()
 
     def setInput(self, x, fadetime=0.05):
@@ -112,7 +114,7 @@ class Pan(PyoObject):
         pyoArgsAssert(self, "O", x)
         self._pan = x
         x, lmax = convertArgsToLists(x)
-        [obj.setPan(wrap(x,i)) for i, obj in enumerate(self._base_players)]
+        [obj.setPan(wrap(x, i)) for i, obj in enumerate(self._base_players)]
 
     def setSpread(self, x):
         """
@@ -127,34 +129,39 @@ class Pan(PyoObject):
         pyoArgsAssert(self, "O", x)
         self._spread = x
         x, lmax = convertArgsToLists(x)
-        [obj.setSpread(wrap(x,i)) for i, obj in enumerate(self._base_players)]
+        [obj.setSpread(wrap(x, i)) for i, obj in enumerate(self._base_players)]
 
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [SLMapPan(self._pan),
-                        SLMap(0., 1., 'lin', 'spread', self._spread),
-                        SLMapMul(self._mul)]
+        self._map_list = [SLMapPan(self._pan), SLMap(0.0, 1.0, "lin", "spread", self._spread), SLMapMul(self._mul)]
         PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
     def input(self):
         """PyoObject. Input signal to process."""
         return self._input
+
     @input.setter
-    def input(self, x): self.setInput(x)
+    def input(self, x):
+        self.setInput(x)
 
     @property
     def pan(self):
         """float or PyoObject. Position of the sound on the panning circle."""
         return self._pan
+
     @pan.setter
-    def pan(self, x): self.setPan(x)
+    def pan(self, x):
+        self.setPan(x)
 
     @property
     def spread(self):
         """float or PyoObject. Amount of sound leaking to the surrounding channels."""
         return self._spread
+
     @spread.setter
-    def spread(self, x): self.setSpread(x)
+    def spread(self, x):
+        self.setSpread(x)
+
 
 class SPan(PyoObject):
     """
@@ -190,6 +197,7 @@ class SPan(PyoObject):
     >>> p = SPan(a, outs=2, pan=lfo).out()
 
     """
+
     def __init__(self, input, outs=2, pan=0.5, mul=1, add=0):
         pyoArgsAssert(self, "oIOOO", input, outs, pan, mul, add)
         PyoObject.__init__(self, mul, add)
@@ -198,11 +206,11 @@ class SPan(PyoObject):
         self._pan = pan
         self._in_fader = InputFader(input)
         in_fader, pan, mul, add, lmax = convertArgsToLists(self._in_fader, pan, mul, add)
-        self._base_players = [SPanner_base(wrap(in_fader,i), outs, wrap(pan,i)) for i in range(lmax)]
+        self._base_players = [SPanner_base(wrap(in_fader, i), outs, wrap(pan, i)) for i in range(lmax)]
         self._base_objs = []
         for i in range(lmax):
             for j in range(outs):
-                self._base_objs.append(SPan_base(wrap(self._base_players,i), j, wrap(mul,i), wrap(add,i)))
+                self._base_objs.append(SPan_base(wrap(self._base_players, i), j, wrap(mul, i), wrap(add, i)))
         self._init_play()
 
     def setInput(self, x, fadetime=0.05):
@@ -234,7 +242,7 @@ class SPan(PyoObject):
         pyoArgsAssert(self, "O", x)
         self._pan = x
         x, lmax = convertArgsToLists(x)
-        [obj.setPan(wrap(x,i)) for i, obj in enumerate(self._base_players)]
+        [obj.setPan(wrap(x, i)) for i, obj in enumerate(self._base_players)]
 
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
         self._map_list = [SLMapPan(self._pan), SLMapMul(self._mul)]
@@ -244,15 +252,20 @@ class SPan(PyoObject):
     def input(self):
         """PyoObject. Input signal to process."""
         return self._input
+
     @input.setter
-    def input(self, x): self.setInput(x)
+    def input(self, x):
+        self.setInput(x)
 
     @property
     def pan(self):
         """float or PyoObject. Position of the sound on the panning circle."""
         return self._pan
+
     @pan.setter
-    def pan(self, x): self.setPan(x)
+    def pan(self, x):
+        self.setPan(x)
+
 
 class Switch(PyoObject):
     """
@@ -287,7 +300,8 @@ class Switch(PyoObject):
     >>> e = Delay(b[4:6], delay=.2, feedback=.6).out()
 
     """
-    def __init__(self, input, outs=2, voice=0., mul=1, add=0):
+
+    def __init__(self, input, outs=2, voice=0.0, mul=1, add=0):
         pyoArgsAssert(self, "oIOOO", input, outs, voice, mul, add)
         PyoObject.__init__(self, mul, add)
         self._input = input
@@ -295,11 +309,11 @@ class Switch(PyoObject):
         self._voice = voice
         self._in_fader = InputFader(input)
         in_fader, voice, mul, add, lmax = convertArgsToLists(self._in_fader, voice, mul, add)
-        self._base_players = [Switcher_base(wrap(in_fader,i), outs, wrap(voice,i)) for i in range(lmax)]
+        self._base_players = [Switcher_base(wrap(in_fader, i), outs, wrap(voice, i)) for i in range(lmax)]
         self._base_objs = []
         for j in range(outs):
             for i in range(lmax):
-                self._base_objs.append(Switch_base(wrap(self._base_players,i), j, wrap(mul,i), wrap(add,i)))
+                self._base_objs.append(Switch_base(wrap(self._base_players, i), j, wrap(mul, i), wrap(add, i)))
         self._init_play()
 
     def setInput(self, x, fadetime=0.05):
@@ -331,25 +345,30 @@ class Switch(PyoObject):
         pyoArgsAssert(self, "O", x)
         self._voice = x
         x, lmax = convertArgsToLists(x)
-        [obj.setVoice(wrap(x,i)) for i, obj in enumerate(self._base_players)]
+        [obj.setVoice(wrap(x, i)) for i, obj in enumerate(self._base_players)]
 
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [SLMap(0, self._outs-1, "lin", "voice", self._voice), SLMapMul(self._mul)]
+        self._map_list = [SLMap(0, self._outs - 1, "lin", "voice", self._voice), SLMapMul(self._mul)]
         PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
     def input(self):
         """PyoObject. Input signal to process."""
         return self._input
+
     @input.setter
-    def input(self, x): self.setInput(x)
+    def input(self, x):
+        self.setInput(x)
 
     @property
     def voice(self):
         """float or PyoObject. Voice position pointer."""
         return self._voice
+
     @voice.setter
-    def voice(self, x): self.setVoice(x)
+    def voice(self, x):
+        self.setVoice(x)
+
 
 class Selector(PyoObject):
     """
@@ -377,7 +396,8 @@ class Selector(PyoObject):
     >>> d = Selector(inputs=[a,b,c], voice=lf).out()
 
     """
-    def __init__(self, inputs, voice=0., mul=1, add=0):
+
+    def __init__(self, inputs, voice=0.0, mul=1, add=0):
         pyoArgsAssert(self, "lOOO", inputs, voice, mul, add)
         PyoObject.__init__(self, mul, add)
         self._inputs = inputs
@@ -387,7 +407,8 @@ class Selector(PyoObject):
         self._length = 1
         for obj in self._inputs:
             try:
-                if len(obj) > self._length: self._length = len(obj)
+                if len(obj) > self._length:
+                    self._length = len(obj)
             except:
                 pass
         self._base_objs = []
@@ -396,10 +417,10 @@ class Selector(PyoObject):
                 choice = []
                 for obj in self._inputs:
                     try:
-                        choice.append(obj[j%len(obj)])
+                        choice.append(obj[j % len(obj)])
                     except:
                         choice.append(obj)
-                self._base_objs.append(Selector_base(choice, wrap(voice,i), wrap(mul,i), wrap(add,i)))
+                self._base_objs.append(Selector_base(choice, wrap(voice, i), wrap(mul, i), wrap(add, i)))
         self._init_play()
 
     def setInputs(self, x):
@@ -419,10 +440,10 @@ class Selector(PyoObject):
                 choice = []
                 for obj in self._inputs:
                     try:
-                        choice.append(obj[j%len(obj)])
+                        choice.append(obj[j % len(obj)])
                     except:
                         choice.append(obj)
-                self._base_objs[i+j*self._lmax].setInputs(choice)
+                self._base_objs[i + j * self._lmax].setInputs(choice)
 
     def setVoice(self, x):
         """
@@ -444,7 +465,7 @@ class Selector(PyoObject):
         """
         Change the algorithm used to interpolate between inputs.
 
-        if inputs are phase correlated you should use a linear fade. 
+        if inputs are phase correlated you should use a linear fade.
 
         :Args:
 
@@ -459,23 +480,27 @@ class Selector(PyoObject):
         [obj.setMode(x) for obj in self._base_objs]
 
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [SLMap(0, len(self._inputs)-1, "lin", "voice", self._voice), SLMapMul(self._mul)]
+        self._map_list = [SLMap(0, len(self._inputs) - 1, "lin", "voice", self._voice), SLMapMul(self._mul)]
         PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
     def inputs(self):
         """List of PyoObjects. Audio objects to interpolate from."""
         return self._inputs
+
     @inputs.setter
     def inputs(self, x):
         self.setInputs(x)
+
     @property
     def voice(self):
         """float or PyoObject. Voice position pointer."""
         return self._voice
+
     @voice.setter
     def voice(self, x):
         self.setVoice(x)
+
 
 class VoiceManager(PyoObject):
     """
@@ -517,8 +542,9 @@ class VoiceManager(PyoObject):
     >>> vm.setTriggers(amp["trig"])
 
     """
+
     def __init__(self, input, triggers=None, mul=1, add=0):
-        #pyoArgsAssert(self, "ooOO", input, triggers, mul, add)
+        # pyoArgsAssert(self, "ooOO", input, triggers, mul, add)
         PyoObject.__init__(self, mul, add)
         self._input = input
         self._triggers = triggers
@@ -536,7 +562,9 @@ class VoiceManager(PyoObject):
                 t_streams = None
         else:
             t_streams = None
-        self._base_objs = [VoiceManager_base(wrap(in_fader,i), t_streams, wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+        self._base_objs = [
+            VoiceManager_base(wrap(in_fader, i), t_streams, wrap(mul, i), wrap(add, i)) for i in range(lmax)
+        ]
         self._init_play()
 
     def setInput(self, x, fadetime=0.05):
@@ -565,7 +593,7 @@ class VoiceManager(PyoObject):
                 New `triggers` attribute.
 
         """
-        #pyoArgsAssert(self, "o", x)
+        # pyoArgsAssert(self, "o", x)
         self._triggers = x
         if x is not None:
             if type(x) == list:
@@ -583,16 +611,20 @@ class VoiceManager(PyoObject):
     def input(self):
         """PyoObject. Trigger stream asking for new voice numbers."""
         return self._input
+
     @input.setter
     def input(self, x):
         self.setInput(x)
+
     @property
     def triggers(self):
         """list of PyoObject. Trigger streams enabling voices."""
         return self._triggers
+
     @triggers.setter
     def triggers(self, x):
         self.setTriggers(x)
+
 
 class Mixer(PyoObject):
     """
@@ -638,6 +670,7 @@ class Mixer(PyoObject):
     >>> mm.setAmp(1,1,.5)
 
     """
+
     def __init__(self, outs=2, chnls=1, time=0.025, mul=1, add=0):
         pyoArgsAssert(self, "IInOO", outs, chnls, time, mul, add)
         PyoObject.__init__(self, mul, add)
@@ -646,15 +679,23 @@ class Mixer(PyoObject):
         self._time = time
         self._inputs = {}
         time, mul, add, lmax = convertArgsToLists(time, mul, add)
-        self._base_players = [Mixer_base(outs, wrap(time,i)) for i in range(chnls)]
-        self._base_objs = [MixerVoice_base(self._base_players[j], i, wrap(mul,i), wrap(add,i)) for i in range(outs) for j in range(chnls)]
+        self._base_players = [Mixer_base(outs, wrap(time, i)) for i in range(chnls)]
+        self._base_objs = [
+            MixerVoice_base(self._base_players[j], i, wrap(mul, i), wrap(add, i))
+            for i in range(outs)
+            for j in range(chnls)
+        ]
         self._init_play()
 
     def __getitem__(self, x):
         if type(x) == slice:
-            return [self._base_objs[j*self._chnls+i] for j in range(x.start or 0, x.stop or sys.maxsize, x.step or 1) for i in range(self._chnls)]
+            return [
+                self._base_objs[j * self._chnls + i]
+                for j in range(x.start or 0, x.stop or sys.maxsize, x.step or 1)
+                for i in range(self._chnls)
+            ]
         elif x < len(self._base_objs):
-            return [self._base_objs[x*self._chnls+i] for i in range(self._chnls)]
+            return [self._base_objs[x * self._chnls + i] for i in range(self._chnls)]
         else:
             print("'x' too large!")
 
@@ -671,7 +712,7 @@ class Mixer(PyoObject):
         pyoArgsAssert(self, "n", x)
         self._time = x
         x, lmax = convertArgsToLists(x)
-        [obj.setTime(wrap(x,i)) for i, obj in enumerate(self._base_players)]
+        [obj.setTime(wrap(x, i)) for i, obj in enumerate(self._base_players)]
 
     def addInput(self, voice, input):
         """
@@ -698,7 +739,7 @@ class Mixer(PyoObject):
             return
         self._inputs[voice] = input
         input, lmax = convertArgsToLists(input)
-        [obj.addInput(str(voice), wrap(input,i)) for i, obj in enumerate(self._base_players)]
+        [obj.addInput(str(voice), wrap(input, i)) for i, obj in enumerate(self._base_players)]
         return voice
 
     def delInput(self, voice):
@@ -756,13 +797,14 @@ class Mixer(PyoObject):
         return list(self._inputs.keys())
 
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [SLMap(0, 10, 'lin', 'time', self._time, dataOnly=True),
-                          SLMapMul(self._mul)]
+        self._map_list = [SLMap(0, 10, "lin", "time", self._time, dataOnly=True), SLMapMul(self._mul)]
         PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
     def time(self):
         """float. Portamento."""
         return self._time
+
     @time.setter
-    def time(self, x): self.setTime(x)
+    def time(self, x):
+        self.setTime(x)

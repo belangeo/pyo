@@ -35,6 +35,7 @@ from ._maps import *
 from ._widgets import createGraphWindow
 import weakref
 
+
 class Trig(PyoObject):
     """
     Sends one trigger.
@@ -59,6 +60,7 @@ class Trig(PyoObject):
     >>> n = Noise(tenv).out()
 
     """
+
     def __init__(self):
         PyoObject.__init__(self)
         self._base_objs = [Trig_base()]
@@ -78,6 +80,7 @@ class Trig(PyoObject):
 
     def setDiv(self, x):
         pass
+
 
 class Metro(PyoObject):
     """
@@ -115,13 +118,16 @@ class Metro(PyoObject):
     >>> a = Sine(freq=freq, mul=amp).out()
 
     """
+
     def __init__(self, time=1, poly=1):
         pyoArgsAssert(self, "OI", time, poly)
         PyoObject.__init__(self)
         self._time = time
         self._poly = poly
         time, lmax = convertArgsToLists(time)
-        self._base_objs = [Metro_base(wrap(time,i)*poly, (float(j) / poly)) for i in range(lmax) for j in range(poly)]
+        self._base_objs = [
+            Metro_base(wrap(time, i) * poly, (float(j) / poly)) for i in range(lmax) for j in range(poly)
+        ]
 
     def setTime(self, x):
         """
@@ -136,7 +142,7 @@ class Metro(PyoObject):
         pyoArgsAssert(self, "O", x)
         self._time = x
         x, lmax = convertArgsToLists(x)
-        [obj.setTime(wrap(x,i)*self._poly) for i, obj in enumerate(self._base_objs)]
+        [obj.setTime(wrap(x, i) * self._poly) for i, obj in enumerate(self._base_objs)]
 
     def out(self, chnl=0, inc=1, dur=0, delay=0):
         return self.play(dur, delay)
@@ -154,15 +160,18 @@ class Metro(PyoObject):
         pass
 
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [SLMap(0.001, 1., 'log', 'time', self._time)]
+        self._map_list = [SLMap(0.001, 1.0, "log", "time", self._time)]
         PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
     def time(self):
         """float or PyoObject. Time between each trigger in seconds."""
         return self._time
+
     @time.setter
-    def time(self, x): self.setTime(x)
+    def time(self, x):
+        self.setTime(x)
+
 
 class Seq(PyoObject):
     """
@@ -209,6 +218,7 @@ class Seq(PyoObject):
     >>> a = SineLoop(tr, feedback=0.07, mul=amp).out()
 
     """
+
     def __init__(self, time=1, seq=[1], poly=1, onlyonce=False, speed=1):
         pyoArgsAssert(self, "OlIBO", time, seq, poly, onlyonce, speed)
         PyoObject.__init__(self)
@@ -219,12 +229,14 @@ class Seq(PyoObject):
         self._speed = speed
         time, speed, lmax = convertArgsToLists(time, speed)
         if type(seq[0]) != list:
-            self._base_players = [Seqer_base(wrap(time,i), seq, poly, onlyonce, wrap(speed,i)) for i in range(lmax)]
+            self._base_players = [Seqer_base(wrap(time, i), seq, poly, onlyonce, wrap(speed, i)) for i in range(lmax)]
         else:
             seqlen = len(seq)
             lmax = max(seqlen, lmax)
-            self._base_players = [Seqer_base(wrap(time,i), wrap(seq,i), poly, onlyonce, wrap(speed,i)) for i in range(lmax)]
-        self._base_objs = [Seq_base(wrap(self._base_players,j), i) for i in range(poly) for j in range(lmax)]
+            self._base_players = [
+                Seqer_base(wrap(time, i), wrap(seq, i), poly, onlyonce, wrap(speed, i)) for i in range(lmax)
+            ]
+        self._base_objs = [Seq_base(wrap(self._base_players, j), i) for i in range(poly) for j in range(lmax)]
 
     def setTime(self, x):
         """
@@ -239,7 +251,7 @@ class Seq(PyoObject):
         pyoArgsAssert(self, "O", x)
         self._time = x
         x, lmax = convertArgsToLists(x)
-        [obj.setTime(wrap(x,i)) for i, obj in enumerate(self._base_players)]
+        [obj.setTime(wrap(x, i)) for i, obj in enumerate(self._base_players)]
 
     def setSpeed(self, x):
         """
@@ -254,7 +266,7 @@ class Seq(PyoObject):
         pyoArgsAssert(self, "O", x)
         self._speed = x
         x, lmax = convertArgsToLists(x)
-        [obj.setSpeed(wrap(x,i)) for i, obj in enumerate(self._base_players)]
+        [obj.setSpeed(wrap(x, i)) for i, obj in enumerate(self._base_players)]
 
     def setSeq(self, x):
         """
@@ -271,7 +283,7 @@ class Seq(PyoObject):
         if type(x[0]) != list:
             [obj.setSeq(x) for i, obj in enumerate(self._base_players)]
         else:
-            [obj.setSeq(wrap(x,i)) for i, obj in enumerate(self._base_players)]
+            [obj.setSeq(wrap(x, i)) for i, obj in enumerate(self._base_players)]
 
     def setOnlyonce(self, x):
         """
@@ -303,36 +315,45 @@ class Seq(PyoObject):
         pass
 
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [SLMap(0.001, 10., 'log', 'time', self._time)]
+        self._map_list = [SLMap(0.001, 10.0, "log", "time", self._time)]
         PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
     def time(self):
         """float or PyoObject. Base time between each trigger in seconds."""
         return self._time
+
     @time.setter
-    def time(self, x): self.setTime(x)
+    def time(self, x):
+        self.setTime(x)
 
     @property
     def speed(self):
         """float or PyoObject. Continuous speed factor."""
         return self._speed
+
     @speed.setter
-    def speed(self, x): self.setSpeed(x)
+    def speed(self, x):
+        self.setSpeed(x)
 
     @property
     def seq(self):
         """List of floats. Sequence of beat durations in time's unit."""
         return self._seq
+
     @seq.setter
-    def seq(self, x): self.setSeq(x)
+    def seq(self, x):
+        self.setSeq(x)
 
     @property
     def onlyonce(self):
         """boolean. Trigger the sequence only once."""
         return self._onlyonce
+
     @onlyonce.setter
-    def onlyonce(self, x): self.setOnlyonce(x)
+    def onlyonce(self, x):
+        self.setOnlyonce(x)
+
 
 class Cloud(PyoObject):
     """
@@ -372,14 +393,15 @@ class Cloud(PyoObject):
     >>> a = Sine(freq=tr, mul=0.2).out()
 
     """
+
     def __init__(self, density=10, poly=1):
         pyoArgsAssert(self, "OI", density, poly)
         PyoObject.__init__(self)
         self._density = density
         self._poly = poly
         density, lmax = convertArgsToLists(density)
-        self._base_players = [Clouder_base(wrap(density,i), poly) for i in range(lmax)]
-        self._base_objs = [Cloud_base(wrap(self._base_players,j), i) for i in range(poly) for j in range(lmax)]
+        self._base_players = [Clouder_base(wrap(density, i), poly) for i in range(lmax)]
+        self._base_objs = [Cloud_base(wrap(self._base_players, j), i) for i in range(poly) for j in range(lmax)]
 
     def setDensity(self, x):
         """
@@ -394,7 +416,7 @@ class Cloud(PyoObject):
         pyoArgsAssert(self, "O", x)
         self._density = x
         x, lmax = convertArgsToLists(x)
-        [obj.setDensity(wrap(x,i)) for i, obj in enumerate(self._base_players)]
+        [obj.setDensity(wrap(x, i)) for i, obj in enumerate(self._base_players)]
 
     def out(self, chnl=0, inc=1, dur=0, delay=0):
         return self.play(dur, delay)
@@ -412,15 +434,18 @@ class Cloud(PyoObject):
         pass
 
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [SLMap(0, 100., 'lin', 'density', self._density)]
+        self._map_list = [SLMap(0, 100.0, "lin", "density", self._density)]
         PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
     def density(self):
         """float or PyoObject. Average density of triggers generation."""
         return self._density
+
     @density.setter
-    def density(self, x): self.setDensity(x)
+    def density(self, x):
+        self.setDensity(x)
+
 
 class Beat(PyoObject):
     """
@@ -491,7 +516,8 @@ class Beat(PyoObject):
     >>> a = Sine(freq=trhz, mul=tr2*0.3).out()
 
     """
-    def __init__(self, time=.125, taps=16, w1=80, w2=50, w3=30, poly=1, onlyonce=False):
+
+    def __init__(self, time=0.125, taps=16, w1=80, w2=50, w3=30, poly=1, onlyonce=False):
         pyoArgsAssert(self, "OinnnIB", time, taps, w1, w2, w3, poly, onlyonce)
         PyoObject.__init__(self)
         self._tap_dummy = []
@@ -506,24 +532,27 @@ class Beat(PyoObject):
         self._poly = poly
         self._onlyonce = onlyonce
         time, taps, w1, w2, w3, lmax = convertArgsToLists(time, taps, w1, w2, w3)
-        self._base_players = [Beater_base(wrap(time,i), wrap(taps,i), wrap(w1,i), wrap(w2,i), wrap(w3,i), poly, onlyonce) for i in range(lmax)]
-        self._base_objs = [Beat_base(wrap(self._base_players,j), i) for i in range(poly) for j in range(lmax)]
-        self._tap_objs = [BeatTapStream_base(wrap(self._base_players,j), i) for i in range(poly) for j in range(lmax)]
-        self._amp_objs = [BeatAmpStream_base(wrap(self._base_players,j), i) for i in range(poly) for j in range(lmax)]
-        self._dur_objs = [BeatDurStream_base(wrap(self._base_players,j), i) for i in range(poly) for j in range(lmax)]
-        self._end_objs = [BeatEndStream_base(wrap(self._base_players,j), i) for i in range(poly) for j in range(lmax)]
+        self._base_players = [
+            Beater_base(wrap(time, i), wrap(taps, i), wrap(w1, i), wrap(w2, i), wrap(w3, i), poly, onlyonce)
+            for i in range(lmax)
+        ]
+        self._base_objs = [Beat_base(wrap(self._base_players, j), i) for i in range(poly) for j in range(lmax)]
+        self._tap_objs = [BeatTapStream_base(wrap(self._base_players, j), i) for i in range(poly) for j in range(lmax)]
+        self._amp_objs = [BeatAmpStream_base(wrap(self._base_players, j), i) for i in range(poly) for j in range(lmax)]
+        self._dur_objs = [BeatDurStream_base(wrap(self._base_players, j), i) for i in range(poly) for j in range(lmax)]
+        self._end_objs = [BeatEndStream_base(wrap(self._base_players, j), i) for i in range(poly) for j in range(lmax)]
 
     def __getitem__(self, i):
-        if i == 'tap':
+        if i == "tap":
             self._tap_dummy.append(Dummy([obj for obj in self._tap_objs]))
             return self._tap_dummy[-1]
-        if i == 'amp':
+        if i == "amp":
             self._amp_dummy.append(Dummy([obj for obj in self._amp_objs]))
             return self._amp_dummy[-1]
-        if i == 'dur':
+        if i == "dur":
             self._dur_dummy.append(Dummy([obj for obj in self._dur_objs]))
             return self._dur_dummy[-1]
-        if i == 'end':
+        if i == "end":
             self._end_dummy.append(Dummy([obj for obj in self._end_objs]))
             return self._end_dummy[-1]
         if type(i) == slice:
@@ -653,7 +682,7 @@ class Beat(PyoObject):
         pyoArgsAssert(self, "O", x)
         self._time = x
         x, lmax = convertArgsToLists(x)
-        [obj.setTime(wrap(x,i)) for i, obj in enumerate(self._base_players)]
+        [obj.setTime(wrap(x, i)) for i, obj in enumerate(self._base_players)]
 
     def setTaps(self, x):
         """
@@ -668,7 +697,7 @@ class Beat(PyoObject):
         pyoArgsAssert(self, "I", x)
         self._taps = x
         x, lmax = convertArgsToLists(x)
-        [obj.setTaps(wrap(x,i)) for i, obj in enumerate(self._base_players)]
+        [obj.setTaps(wrap(x, i)) for i, obj in enumerate(self._base_players)]
 
     def setW1(self, x):
         """
@@ -725,11 +754,14 @@ class Beat(PyoObject):
                 New `w3` attribute. Defaults to None.
 
         """
-        if w1 is not None: self._w1 = w1
-        if w2 is not None: self._w2 = w2
-        if w3 is not None: self._w3 = w3
+        if w1 is not None:
+            self._w1 = w1
+        if w2 is not None:
+            self._w2 = w2
+        if w3 is not None:
+            self._w3 = w3
         w1, w2, w3, lmax = convertArgsToLists(w1, w2, w3)
-        [obj.setWeights(wrap(w1,i), wrap(w2,i), wrap(w3,i)) for i, obj in enumerate(self._base_players)]
+        [obj.setWeights(wrap(w1, i), wrap(w2, i), wrap(w3, i)) for i, obj in enumerate(self._base_players)]
 
     def setOnlyonce(self, x):
         """
@@ -747,10 +779,10 @@ class Beat(PyoObject):
 
     def play(self, dur=0, delay=0):
         dur, delay, lmax = convertArgsToLists(dur, delay)
-        self._tap_objs = [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._tap_objs)]
-        self._amp_objs = [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._amp_objs)]
-        self._dur_objs = [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._dur_objs)]
-        self._end_objs = [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._end_objs)]
+        self._tap_objs = [obj.play(wrap(dur, i), wrap(delay, i)) for i, obj in enumerate(self._tap_objs)]
+        self._amp_objs = [obj.play(wrap(dur, i), wrap(delay, i)) for i, obj in enumerate(self._amp_objs)]
+        self._dur_objs = [obj.play(wrap(dur, i), wrap(delay, i)) for i, obj in enumerate(self._dur_objs)]
+        self._end_objs = [obj.play(wrap(dur, i), wrap(delay, i)) for i, obj in enumerate(self._end_objs)]
         return PyoObject.play(self, dur, delay)
 
     def stop(self, wait=0):
@@ -776,54 +808,69 @@ class Beat(PyoObject):
         pass
 
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [SLMap(0.001, 1., 'lin', 'time', self._time),
-                          SLMap(2, 64, 'lin', 'taps', self._taps, res="int", dataOnly=True),
-                          SLMap(0, 100, 'lin', 'w1', self._w1, res="int", dataOnly=True),
-                          SLMap(0, 100, 'lin', 'w2', self._w2, res="int", dataOnly=True),
-                          SLMap(0, 100, 'lin', 'w3', self._w3, res="int", dataOnly=True)]
+        self._map_list = [
+            SLMap(0.001, 1.0, "lin", "time", self._time),
+            SLMap(2, 64, "lin", "taps", self._taps, res="int", dataOnly=True),
+            SLMap(0, 100, "lin", "w1", self._w1, res="int", dataOnly=True),
+            SLMap(0, 100, "lin", "w2", self._w2, res="int", dataOnly=True),
+            SLMap(0, 100, "lin", "w3", self._w3, res="int", dataOnly=True),
+        ]
         PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
     def time(self):
         """float or PyoObject. Time, in seconds, between each beat."""
         return self._time
+
     @time.setter
-    def time(self, x): self.setTime(x)
+    def time(self, x):
+        self.setTime(x)
 
     @property
     def taps(self):
         """int. Number of beats in the generated pattern."""
         return self._taps
+
     @taps.setter
-    def taps(self, x): self.setTaps(x)
+    def taps(self, x):
+        self.setTaps(x)
 
     @property
     def w1(self):
         """int. Probability for down beats."""
         return self._w1
+
     @w1.setter
-    def w1(self, x): self.setW1(x)
+    def w1(self, x):
+        self.setW1(x)
 
     @property
     def w2(self):
         """int. Probability for up beats."""
         return self._w2
+
     @w2.setter
-    def w2(self, x): self.setW2(x)
+    def w2(self, x):
+        self.setW2(x)
 
     @property
     def w3(self):
         """int. Probability for other beats."""
         return self._w3
+
     @w3.setter
-    def w3(self, x): self.setW3(x)
+    def w3(self, x):
+        self.setW3(x)
 
     @property
     def onlyonce(self):
         """boolean. Trigger the sequence only once."""
         return self._onlyonce
+
     @onlyonce.setter
-    def onlyonce(self, x): self.setOnlyonce(x)
+    def onlyonce(self, x):
+        self.setOnlyonce(x)
+
 
 class TrigRandInt(PyoObject):
     """
@@ -856,14 +903,17 @@ class TrigRandInt(PyoObject):
     >>> a = Sine(tr, mul=amp).out()
 
     """
-    def __init__(self, input, max=100., mul=1, add=0):
+
+    def __init__(self, input, max=100.0, mul=1, add=0):
         pyoArgsAssert(self, "oOOO", input, max, mul, add)
         PyoObject.__init__(self, mul, add)
         self._input = input
         self._max = max
         self._in_fader = InputFader(input)
         in_fader, max, mul, add, lmax = convertArgsToLists(self._in_fader, max, mul, add)
-        self._base_objs = [TrigRandInt_base(wrap(in_fader,i), wrap(max,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+        self._base_objs = [
+            TrigRandInt_base(wrap(in_fader, i), wrap(max, i), wrap(mul, i), wrap(add, i)) for i in range(lmax)
+        ]
         self._init_play()
 
     def setInput(self, x, fadetime=0.05):
@@ -895,30 +945,33 @@ class TrigRandInt(PyoObject):
         pyoArgsAssert(self, "O", x)
         self._max = x
         x, lmax = convertArgsToLists(x)
-        [obj.setMax(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setMax(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def out(self, chnl=0, inc=1, dur=0, delay=0):
         return self.play(dur, delay)
 
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [SLMap(1., 200., 'lin', 'max', self._max),
-                          SLMapMul(self._mul)]
+        self._map_list = [SLMap(1.0, 200.0, "lin", "max", self._max), SLMapMul(self._mul)]
         PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
     def input(self):
         """PyoObject. Audio trigger signal."""
         return self._input
+
     @input.setter
     def input(self, x):
         self.setInput(x)
+
     @property
     def max(self):
         """float or PyoObject. Maximum value."""
         return self._max
+
     @max.setter
     def max(self, x):
         self.setMax(x)
+
 
 class TrigRand(PyoObject):
     """
@@ -953,7 +1006,8 @@ class TrigRand(PyoObject):
     >>> a = Sine(tr, mul=amp).out()
 
     """
-    def __init__(self, input, min=0., max=1., port=0., init=0., mul=1, add=0):
+
+    def __init__(self, input, min=0.0, max=1.0, port=0.0, init=0.0, mul=1, add=0):
         pyoArgsAssert(self, "oOOnnOO", input, min, max, port, init, mul, add)
         PyoObject.__init__(self, mul, add)
         self._input = input
@@ -961,8 +1015,15 @@ class TrigRand(PyoObject):
         self._max = max
         self._port = port
         self._in_fader = InputFader(input)
-        in_fader, min, max, port, init, mul, add, lmax = convertArgsToLists(self._in_fader, min, max, port, init, mul, add)
-        self._base_objs = [TrigRand_base(wrap(in_fader,i), wrap(min,i), wrap(max,i), wrap(port,i), wrap(init,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+        in_fader, min, max, port, init, mul, add, lmax = convertArgsToLists(
+            self._in_fader, min, max, port, init, mul, add
+        )
+        self._base_objs = [
+            TrigRand_base(
+                wrap(in_fader, i), wrap(min, i), wrap(max, i), wrap(port, i), wrap(init, i), wrap(mul, i), wrap(add, i)
+            )
+            for i in range(lmax)
+        ]
         self._init_play()
 
     def setInput(self, x, fadetime=0.05):
@@ -994,7 +1055,7 @@ class TrigRand(PyoObject):
         pyoArgsAssert(self, "O", x)
         self._min = x
         x, lmax = convertArgsToLists(x)
-        [obj.setMin(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setMin(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def setMax(self, x):
         """
@@ -1009,7 +1070,7 @@ class TrigRand(PyoObject):
         pyoArgsAssert(self, "O", x)
         self._max = x
         x, lmax = convertArgsToLists(x)
-        [obj.setMax(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setMax(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def setPort(self, x):
         """
@@ -1024,42 +1085,52 @@ class TrigRand(PyoObject):
         pyoArgsAssert(self, "n", x)
         self._port = x
         x, lmax = convertArgsToLists(x)
-        [obj.setPort(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setPort(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [SLMap(0., 1., 'lin', 'min', self._min),
-                          SLMap(1., 2., 'lin', 'max', self._max),
-                          SLMapMul(self._mul)]
+        self._map_list = [
+            SLMap(0.0, 1.0, "lin", "min", self._min),
+            SLMap(1.0, 2.0, "lin", "max", self._max),
+            SLMapMul(self._mul),
+        ]
         PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
     def input(self):
         """PyoObject. Audio trigger signal."""
         return self._input
+
     @input.setter
     def input(self, x):
         self.setInput(x)
+
     @property
     def min(self):
         """float or PyoObject. Minimum value."""
         return self._min
+
     @min.setter
     def min(self, x):
         self.setMin(x)
+
     @property
     def max(self):
         """float or PyoObject. Maximum value."""
         return self._max
+
     @max.setter
     def max(self, x):
         self.setMax(x)
+
     @property
     def port(self):
         """float. Ramp time."""
         return self._port
+
     @port.setter
     def port(self, x):
         self.setPort(x)
+
 
 class TrigChoice(PyoObject):
     """
@@ -1092,7 +1163,8 @@ class TrigChoice(PyoObject):
     >>> a = Sine(freq=freq, mul=amp).out()
 
     """
-    def __init__(self, input, choice, port=0., init=0., mul=1, add=0):
+
+    def __init__(self, input, choice, port=0.0, init=0.0, mul=1, add=0):
         pyoArgsAssert(self, "olnnOO", input, choice, port, init, mul, add)
         PyoObject.__init__(self, mul, add)
         self._input = input
@@ -1101,11 +1173,19 @@ class TrigChoice(PyoObject):
         self._in_fader = InputFader(input)
         in_fader, port, init, mul, add, lmax = convertArgsToLists(self._in_fader, port, init, mul, add)
         if type(choice[0]) != list:
-            self._base_objs = [TrigChoice_base(wrap(in_fader,i), choice, wrap(port,i), wrap(init,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+            self._base_objs = [
+                TrigChoice_base(wrap(in_fader, i), choice, wrap(port, i), wrap(init, i), wrap(mul, i), wrap(add, i))
+                for i in range(lmax)
+            ]
         else:
             choicelen = len(choice)
             lmax = max(choicelen, lmax)
-            self._base_objs = [TrigChoice_base(wrap(in_fader,i), wrap(choice,i), wrap(port,i), wrap(init,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+            self._base_objs = [
+                TrigChoice_base(
+                    wrap(in_fader, i), wrap(choice, i), wrap(port, i), wrap(init, i), wrap(mul, i), wrap(add, i)
+                )
+                for i in range(lmax)
+            ]
         self._init_play()
 
     def setInput(self, x, fadetime=0.05):
@@ -1139,7 +1219,7 @@ class TrigChoice(PyoObject):
         if type(x[0]) != list:
             [obj.setChoice(self._choice) for i, obj in enumerate(self._base_objs)]
         else:
-            [obj.setChoice(wrap(self._choice,i)) for i, obj in enumerate(self._base_objs)]
+            [obj.setChoice(wrap(self._choice, i)) for i, obj in enumerate(self._base_objs)]
 
     def setPort(self, x):
         """
@@ -1154,29 +1234,35 @@ class TrigChoice(PyoObject):
         pyoArgsAssert(self, "n", x)
         self._port = x
         x, lmax = convertArgsToLists(x)
-        [obj.setPort(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setPort(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     @property
     def input(self):
         """PyoObject. Audio trigger signal."""
         return self._input
+
     @input.setter
     def input(self, x):
         self.setInput(x)
+
     @property
     def choice(self):
         """list of floats. Possible values."""
         return self._choice
+
     @choice.setter
     def choice(self, x):
         self.setChoice(x)
+
     @property
     def port(self):
         """float. Ramp time."""
         return self._port
+
     @port.setter
     def port(self, x):
         self.setPort(x)
+
 
 class TrigFunc(PyoObject):
     """
@@ -1220,6 +1306,7 @@ class TrigFunc(PyoObject):
     >>> tf = TrigFunc(m, count)
 
     """
+
     def __init__(self, input, function, arg=None):
         pyoArgsAssert(self, "oc", input, function)
         PyoObject.__init__(self)
@@ -1228,7 +1315,9 @@ class TrigFunc(PyoObject):
         self._arg = arg
         self._in_fader = InputFader(input)
         in_fader, function, arg, lmax = convertArgsToLists(self._in_fader, function, arg)
-        self._base_objs = [TrigFunc_base(wrap(in_fader,i), WeakMethod(wrap(function,i)), wrap(arg,i)) for i in range(lmax)]
+        self._base_objs = [
+            TrigFunc_base(wrap(in_fader, i), WeakMethod(wrap(function, i)), wrap(arg, i)) for i in range(lmax)
+        ]
         self._init_play()
 
     def out(self, chnl=0, inc=1, dur=0, delay=0):
@@ -1269,7 +1358,7 @@ class TrigFunc(PyoObject):
         pyoArgsAssert(self, "c", x)
         self._function = getWeakMethodRef(x)
         x, lmax = convertArgsToLists(x)
-        [obj.setFunction(WeakMethod(wrap(x,i))) for i, obj in enumerate(self._base_objs)]
+        [obj.setFunction(WeakMethod(wrap(x, i))) for i, obj in enumerate(self._base_objs)]
 
     def setArg(self, x):
         """
@@ -1283,29 +1372,35 @@ class TrigFunc(PyoObject):
         """
         self._arg = x
         x, lmax = convertArgsToLists(x)
-        [obj.setArg(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setArg(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     @property
     def input(self):
         """PyoObject. Audio trigger signal."""
         return self._input
+
     @input.setter
     def input(self, x):
         self.setInput(x)
+
     @property
     def function(self):
         """Python callable. Function to be called."""
         return self._function
+
     @function.setter
     def function(self, x):
         self.setFunction(x)
+
     @property
     def arg(self):
         """Anything. Callable's argument."""
         return self._arg
+
     @arg.setter
     def arg(self, x):
         self.setArg(x)
+
 
 class TrigEnv(PyoObject):
     """
@@ -1346,6 +1441,7 @@ class TrigEnv(PyoObject):
     >>> a = Sine(tr, mul=te).out()
 
     """
+
     def __init__(self, input, table, dur=1, interp=2, mul=1, add=0):
         pyoArgsAssert(self, "otOiOO", input, table, dur, interp, mul, add)
         PyoObject.__init__(self, mul, add)
@@ -1355,7 +1451,10 @@ class TrigEnv(PyoObject):
         self._interp = interp
         self._in_fader = InputFader(input)
         in_fader, table, dur, interp, mul, add, lmax = convertArgsToLists(self._in_fader, table, dur, interp, mul, add)
-        self._base_objs = [TrigEnv_base(wrap(in_fader,i), wrap(table,i), wrap(dur,i), wrap(interp,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+        self._base_objs = [
+            TrigEnv_base(wrap(in_fader, i), wrap(table, i), wrap(dur, i), wrap(interp, i), wrap(mul, i), wrap(add, i))
+            for i in range(lmax)
+        ]
         self._trig_objs = Dummy([TriggerDummy_base(obj) for obj in self._base_objs])
         self._init_play()
 
@@ -1388,7 +1487,7 @@ class TrigEnv(PyoObject):
         pyoArgsAssert(self, "t", x)
         self._table = x
         x, lmax = convertArgsToLists(x)
-        [obj.setTable(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setTable(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def setDur(self, x):
         """
@@ -1403,7 +1502,7 @@ class TrigEnv(PyoObject):
         pyoArgsAssert(self, "O", x)
         self._dur = x
         x, lmax = convertArgsToLists(x)
-        [obj.setDur(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setDur(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def setInterp(self, x):
         """
@@ -1418,40 +1517,48 @@ class TrigEnv(PyoObject):
         pyoArgsAssert(self, "i", x)
         self._interp = x
         x, lmax = convertArgsToLists(x)
-        [obj.setInterp(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setInterp(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [SLMap(0.01, 10., 'lin', 'dur', self._dur), SLMapMul(self._mul)]
+        self._map_list = [SLMap(0.01, 10.0, "lin", "dur", self._dur), SLMapMul(self._mul)]
         PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
     def input(self):
         """PyoObject. Audio trigger signal."""
         return self._input
+
     @input.setter
     def input(self, x):
         self.setInput(x)
+
     @property
     def table(self):
         """PyoTableObject. Envelope table."""
         return self._table
+
     @table.setter
     def table(self, x):
         self.setTable(x)
+
     @property
     def dur(self):
         """float or PyoObject. Duration in seconds."""
         return self._dur
+
     @dur.setter
     def dur(self, x):
         self.setDur(x)
+
     @property
     def interp(self):
         """int {1, 2, 3, 4}, Interpolation method."""
         return self._interp
+
     @interp.setter
     def interp(self, x):
         self.setInterp(x)
+
 
 class TrigLinseg(PyoObject):
     """
@@ -1488,6 +1595,7 @@ class TrigLinseg(PyoObject):
     >>> a = Sine(pit, mul=.2).out()
 
     """
+
     def __init__(self, input, list, mul=1, add=0):
         pyoArgsAssert(self, "olOO", input, list, mul, add)
         PyoObject.__init__(self, mul, add)
@@ -1495,7 +1603,7 @@ class TrigLinseg(PyoObject):
         self._list = list
         self._in_fader = InputFader(input)
         in_fader, mul, add, lmax = convertArgsToLists(self._in_fader, mul, add)
-        self._base_objs = [TrigLinseg_base(wrap(in_fader,i), list, wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+        self._base_objs = [TrigLinseg_base(wrap(in_fader, i), list, wrap(mul, i), wrap(add, i)) for i in range(lmax)]
         self._trig_objs = Dummy([TriggerDummy_base(obj) for obj in self._base_objs])
         self._init_play()
 
@@ -1599,16 +1707,20 @@ class TrigLinseg(PyoObject):
     def input(self):
         """PyoObject. Audio trigger signal."""
         return self._input
+
     @input.setter
     def input(self, x):
         self.setInput(x)
+
     @property
     def list(self):
         """list of tuples. Points used to construct the line segments."""
         return self._list
+
     @list.setter
     def list(self, x):
         self.setList(x)
+
 
 class TrigExpseg(PyoObject):
     """
@@ -1651,6 +1763,7 @@ class TrigExpseg(PyoObject):
     >>> a = Sine(pit, mul=.2).out()
 
     """
+
     def __init__(self, input, list, exp=10, inverse=True, mul=1, add=0):
         pyoArgsAssert(self, "olnbOO", input, list, exp, inverse, mul, add)
         PyoObject.__init__(self, mul, add)
@@ -1660,7 +1773,10 @@ class TrigExpseg(PyoObject):
         self._inverse = inverse
         self._in_fader = InputFader(input)
         in_fader, exp, inverse, mul, add, lmax = convertArgsToLists(self._in_fader, exp, inverse, mul, add)
-        self._base_objs = [TrigExpseg_base(wrap(in_fader,i), list, wrap(exp,i), wrap(inverse,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+        self._base_objs = [
+            TrigExpseg_base(wrap(in_fader, i), list, wrap(exp, i), wrap(inverse, i), wrap(mul, i), wrap(add, i))
+            for i in range(lmax)
+        ]
         self._trig_objs = Dummy([TriggerDummy_base(obj) for obj in self._base_objs])
         self._init_play()
 
@@ -1710,7 +1826,7 @@ class TrigExpseg(PyoObject):
         pyoArgsAssert(self, "n", x)
         self._exp = x
         x, lmax = convertArgsToLists(x)
-        [obj.setExp(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setExp(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def setInverse(self, x):
         """
@@ -1725,7 +1841,7 @@ class TrigExpseg(PyoObject):
         pyoArgsAssert(self, "b", x)
         self._inverse = x
         x, lmax = convertArgsToLists(x)
-        [obj.setInverse(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setInverse(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def replace(self, x):
         """
@@ -1794,30 +1910,38 @@ class TrigExpseg(PyoObject):
     def input(self):
         """PyoObject. Audio trigger signal."""
         return self._input
+
     @input.setter
     def input(self, x):
         self.setInput(x)
+
     @property
     def list(self):
         """list of tuples. Points used to construct the line segments."""
         return self._list
+
     @list.setter
     def list(self, x):
         self.setList(x)
+
     @property
     def exp(self):
         """float. Exponent factor."""
         return self._exp
+
     @exp.setter
     def exp(self, x):
         self.setExp(x)
+
     @property
     def inverse(self):
         """boolean. Inversion of downward slope."""
         return self._inverse
+
     @inverse.setter
     def inverse(self, x):
         self.setInverse(x)
+
 
 class TrigXnoise(PyoObject):
     """
@@ -1911,6 +2035,7 @@ class TrigXnoise(PyoObject):
     >>> a = Osc(table=wav, freq=pit, mul=amp).out()
 
     """
+
     def __init__(self, input, dist=0, x1=0.5, x2=0.5, mul=1, add=0):
         pyoArgsAssert(self, "oOOOO", input, x1, x2, mul, add)
         PyoObject.__init__(self, mul, add)
@@ -1921,8 +2046,12 @@ class TrigXnoise(PyoObject):
         self._in_fader = InputFader(input)
         in_fader, dist, x1, x2, mul, add, lmax = convertArgsToLists(self._in_fader, dist, x1, x2, mul, add)
         for i, t in enumerate(dist):
-            if type(t) in [bytes_t, unicode_t]: dist[i] = XNOISE_DICT.get(t, 0)
-        self._base_objs = [TrigXnoise_base(wrap(in_fader,i), wrap(dist,i), wrap(x1,i), wrap(x2,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+            if type(t) in [bytes_t, unicode_t]:
+                dist[i] = XNOISE_DICT.get(t, 0)
+        self._base_objs = [
+            TrigXnoise_base(wrap(in_fader, i), wrap(dist, i), wrap(x1, i), wrap(x2, i), wrap(mul, i), wrap(add, i))
+            for i in range(lmax)
+        ]
         self._init_play()
 
     def setInput(self, x, fadetime=0.05):
@@ -1954,8 +2083,9 @@ class TrigXnoise(PyoObject):
         self._dist = x
         x, lmax = convertArgsToLists(x)
         for i, t in enumerate(x):
-            if type(t) in [bytes_t, unicode_t]: x[i] = XNOISE_DICT.get(t, 0)
-        [obj.setType(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+            if type(t) in [bytes_t, unicode_t]:
+                x[i] = XNOISE_DICT.get(t, 0)
+        [obj.setType(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def setX1(self, x):
         """
@@ -1970,7 +2100,7 @@ class TrigXnoise(PyoObject):
         pyoArgsAssert(self, "O", x)
         self._x1 = x
         x, lmax = convertArgsToLists(x)
-        [obj.setX1(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setX1(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def setX2(self, x):
         """
@@ -1985,43 +2115,53 @@ class TrigXnoise(PyoObject):
         pyoArgsAssert(self, "O", x)
         self._x2 = x
         x, lmax = convertArgsToLists(x)
-        [obj.setX2(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setX2(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [SLMap(0, 12, "lin", "dist", self._dist, res="int", dataOnly=True),
-                          SLMap(0.01, 10.0, "log", "x1", self._x1, dataOnly=True),
-                          SLMap(0.01, 10.0, "log", "x2", self._x2, dataOnly=True),
-                          SLMapMul(self._mul)]
+        self._map_list = [
+            SLMap(0, 12, "lin", "dist", self._dist, res="int", dataOnly=True),
+            SLMap(0.01, 10.0, "log", "x1", self._x1, dataOnly=True),
+            SLMap(0.01, 10.0, "log", "x2", self._x2, dataOnly=True),
+            SLMapMul(self._mul),
+        ]
         PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
     def input(self):
         """PyoObject. Audio trigger signal."""
         return self._input
+
     @input.setter
     def input(self, x):
         self.setInput(x)
+
     @property
     def dist(self):
         """string or int. Distribution type."""
         return self._dist
+
     @dist.setter
     def dist(self, x):
         self.setDist(x)
+
     @property
     def x1(self):
         """float or PyoObject. First parameter."""
         return self._x1
+
     @x1.setter
     def x1(self, x):
         self.setX1(x)
+
     @property
     def x2(self):
         """float or PyoObject. Second parameter."""
         return self._x2
+
     @x2.setter
     def x2(self, x):
         self.setX2(x)
+
 
 class TrigXnoiseMidi(PyoObject):
     """
@@ -2126,7 +2266,8 @@ class TrigXnoiseMidi(PyoObject):
     >>> a = Osc(table=wav, freq=pit, mul=amp).out()
 
     """
-    def __init__(self, input, dist=0, x1=0.5, x2=0.5, scale=0, mrange=(0,127), mul=1, add=0):
+
+    def __init__(self, input, dist=0, x1=0.5, x2=0.5, scale=0, mrange=(0, 127), mul=1, add=0):
         pyoArgsAssert(self, "oOOixOO", input, x1, x2, scale, mrange, mul, add)
         PyoObject.__init__(self, mul, add)
         self._input = input
@@ -2136,10 +2277,25 @@ class TrigXnoiseMidi(PyoObject):
         self._scale = scale
         self._mrange = mrange
         self._in_fader = InputFader(input)
-        in_fader, dist, x1, x2, scale, mrange, mul, add, lmax = convertArgsToLists(self._in_fader, dist, x1, x2, scale, mrange, mul, add)
+        in_fader, dist, x1, x2, scale, mrange, mul, add, lmax = convertArgsToLists(
+            self._in_fader, dist, x1, x2, scale, mrange, mul, add
+        )
         for i, t in enumerate(dist):
-            if type(t) in [bytes_t, unicode_t]: dist[i] = XNOISE_DICT.get(t, 0)
-        self._base_objs = [TrigXnoiseMidi_base(wrap(in_fader,i), wrap(dist,i), wrap(x1,i), wrap(x2,i), wrap(scale,i), wrap(mrange,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+            if type(t) in [bytes_t, unicode_t]:
+                dist[i] = XNOISE_DICT.get(t, 0)
+        self._base_objs = [
+            TrigXnoiseMidi_base(
+                wrap(in_fader, i),
+                wrap(dist, i),
+                wrap(x1, i),
+                wrap(x2, i),
+                wrap(scale, i),
+                wrap(mrange, i),
+                wrap(mul, i),
+                wrap(add, i),
+            )
+            for i in range(lmax)
+        ]
         self._init_play()
 
     def setInput(self, x, fadetime=0.05):
@@ -2171,8 +2327,9 @@ class TrigXnoiseMidi(PyoObject):
         self._dist = x
         x, lmax = convertArgsToLists(x)
         for i, t in enumerate(x):
-            if type(t) in [bytes_t, unicode_t]: x[i] = XNOISE_DICT.get(t, 0)
-        [obj.setType(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+            if type(t) in [bytes_t, unicode_t]:
+                x[i] = XNOISE_DICT.get(t, 0)
+        [obj.setType(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def setScale(self, x):
         """
@@ -2192,7 +2349,7 @@ class TrigXnoiseMidi(PyoObject):
         pyoArgsAssert(self, "i", x)
         self._scale = x
         x, lmax = convertArgsToLists(x)
-        [obj.setScale(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setScale(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def setRange(self, mini, maxi):
         """
@@ -2209,7 +2366,7 @@ class TrigXnoiseMidi(PyoObject):
         pyoArgsAssert(self, "ii", mini, maxi)
         self._mrange = (mini, maxi)
         mini, maxi, lmax = convertArgsToLists(mini, maxi)
-        [obj.setRange(wrap(mini,i), wrap(maxi,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setRange(wrap(mini, i), wrap(maxi, i)) for i, obj in enumerate(self._base_objs)]
 
     def setX1(self, x):
         """
@@ -2224,7 +2381,7 @@ class TrigXnoiseMidi(PyoObject):
         pyoArgsAssert(self, "O", x)
         self._x1 = x
         x, lmax = convertArgsToLists(x)
-        [obj.setX1(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setX1(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def setX2(self, x):
         """
@@ -2239,50 +2396,62 @@ class TrigXnoiseMidi(PyoObject):
         pyoArgsAssert(self, "O", x)
         self._x2 = x
         x, lmax = convertArgsToLists(x)
-        [obj.setX2(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setX2(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [SLMap(0, 12, "lin", "dist", self._dist, res="int", dataOnly=True),
-                          SLMap(0.01, 10.0, "log", "x1", self._x1, dataOnly=True),
-                          SLMap(0.01, 10.0, "log", "x2", self._x2, dataOnly=True),
-                          SLMapMul(self._mul)]
+        self._map_list = [
+            SLMap(0, 12, "lin", "dist", self._dist, res="int", dataOnly=True),
+            SLMap(0.01, 10.0, "log", "x1", self._x1, dataOnly=True),
+            SLMap(0.01, 10.0, "log", "x2", self._x2, dataOnly=True),
+            SLMapMul(self._mul),
+        ]
         PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
     def input(self):
         """PyoObject. Audio trigger signal."""
         return self._input
+
     @input.setter
     def input(self, x):
         self.setInput(x)
+
     @property
     def dist(self):
         """string or int. Distribution type."""
         return self._dist
+
     @dist.setter
     def dist(self, x):
         self.setDist(x)
+
     @property
     def x1(self):
         """float or PyoObject. First parameter."""
         return self._x1
+
     @x1.setter
     def x1(self, x):
         self.setX1(x)
+
     @property
     def x2(self):
         """float or PyoObject. Second parameter."""
         return self._x2
+
     @x2.setter
     def x2(self, x):
         self.setX2(x)
+
     @property
     def scale(self):
         """int. Output format."""
         return self._scale
+
     @scale.setter
     def scale(self, x):
         self.setScale(x)
+
 
 class Counter(PyoObject):
     """
@@ -2326,6 +2495,7 @@ class Counter(PyoObject):
     >>> a = Sine(freq=c, mul=.2).mix(2).out()
 
     """
+
     def __init__(self, input, min=0, max=100, dir=0, mul=1, add=0):
         pyoArgsAssert(self, "oiiiOO", input, min, max, dir, mul, add)
         PyoObject.__init__(self, mul, add)
@@ -2335,7 +2505,10 @@ class Counter(PyoObject):
         self._dir = dir
         self._in_fader = InputFader(input)
         in_fader, min, max, dir, mul, add, lmax = convertArgsToLists(self._in_fader, min, max, dir, mul, add)
-        self._base_objs = [Counter_base(wrap(in_fader,i), wrap(min,i), wrap(max,i), wrap(dir,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+        self._base_objs = [
+            Counter_base(wrap(in_fader, i), wrap(min, i), wrap(max, i), wrap(dir, i), wrap(mul, i), wrap(add, i))
+            for i in range(lmax)
+        ]
         self._init_play()
 
     def out(self, chnl=0, inc=1, dur=0, delay=0):
@@ -2370,7 +2543,7 @@ class Counter(PyoObject):
         pyoArgsAssert(self, "i", x)
         self._min = x
         x, lmax = convertArgsToLists(x)
-        [obj.setMin(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setMin(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def setMax(self, x):
         """
@@ -2385,7 +2558,7 @@ class Counter(PyoObject):
         pyoArgsAssert(self, "i", x)
         self._max = x
         x, lmax = convertArgsToLists(x)
-        [obj.setMax(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setMax(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def setDir(self, x):
         """
@@ -2400,7 +2573,7 @@ class Counter(PyoObject):
         pyoArgsAssert(self, "i", x)
         self._dir = x
         x, lmax = convertArgsToLists(x)
-        [obj.setDir(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setDir(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def reset(self, value=None):
         """
@@ -2416,44 +2589,54 @@ class Counter(PyoObject):
         if value is not None:
             pyoArgsAssert(self, "i", value)
         value, lmax = convertArgsToLists(value)
-        [obj.reset(wrap(value,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.reset(wrap(value, i)) for i, obj in enumerate(self._base_objs)]
 
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [SLMap(0, 100, 'lin', 'min', self._min, res="int", dataOnly=True),
-                          SLMap(0, 1000, 'lin', 'max', self._max, res="int", dataOnly=True),
-                          SLMap(0, 2, 'lin', 'dir', self._dir, res="int", dataOnly=True),
-                          SLMap(0, 1000, 'lin', 'mul', self._mul),
-                          SLMap(0, 1000, 'lin', 'add', self._add)]
+        self._map_list = [
+            SLMap(0, 100, "lin", "min", self._min, res="int", dataOnly=True),
+            SLMap(0, 1000, "lin", "max", self._max, res="int", dataOnly=True),
+            SLMap(0, 2, "lin", "dir", self._dir, res="int", dataOnly=True),
+            SLMap(0, 1000, "lin", "mul", self._mul),
+            SLMap(0, 1000, "lin", "add", self._add),
+        ]
         PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
     def input(self):
         """PyoObject. Audio trigger signal."""
         return self._input
+
     @input.setter
     def input(self, x):
         self.setInput(x)
+
     @property
     def min(self):
         """int. Minimum value."""
         return self._min
+
     @min.setter
     def min(self, x):
         self.setMin(x)
+
     @property
     def max(self):
         """int. Maximum value."""
         return self._max
+
     @max.setter
     def max(self, x):
         self.setMax(x)
+
     @property
     def dir(self):
         """int. Direction of the count."""
         return self._dir
+
     @dir.setter
     def dir(self, x):
         self.setDir(x)
+
 
 class Select(PyoObject):
     """
@@ -2492,6 +2675,7 @@ class Select(PyoObject):
     >>> a = Sine(freq=tr, mul=te).out()
 
     """
+
     def __init__(self, input, value=0, mul=1, add=0):
         pyoArgsAssert(self, "oiOO", input, value, mul, add)
         PyoObject.__init__(self, mul, add)
@@ -2499,7 +2683,9 @@ class Select(PyoObject):
         self._value = value
         self._in_fader = InputFader(input)
         in_fader, value, mul, add, lmax = convertArgsToLists(self._in_fader, value, mul, add)
-        self._base_objs = [Select_base(wrap(in_fader,i), wrap(value,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+        self._base_objs = [
+            Select_base(wrap(in_fader, i), wrap(value, i), wrap(mul, i), wrap(add, i)) for i in range(lmax)
+        ]
         self._init_play()
 
     def out(self, chnl=0, inc=1, dur=0, delay=0):
@@ -2534,26 +2720,30 @@ class Select(PyoObject):
         pyoArgsAssert(self, "i", x)
         self._value = x
         x, lmax = convertArgsToLists(x)
-        [obj.setValue(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setValue(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [SLMap(0, 100, 'lin', 'value', self._value, res="int", dataOnly=True)]
+        self._map_list = [SLMap(0, 100, "lin", "value", self._value, res="int", dataOnly=True)]
         PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
     def input(self):
         """PyoObject. Audio signal."""
         return self._input
+
     @input.setter
     def input(self, x):
         self.setInput(x)
+
     @property
     def value(self):
         """int. Matching value."""
         return self._value
+
     @value.setter
     def value(self, x):
         self.setValue(x)
+
 
 class Change(PyoObject):
     """
@@ -2580,13 +2770,14 @@ class Change(PyoObject):
     >>> out = SineLoop(freq=a, feedback=.05, mul=amp).out()
 
     """
+
     def __init__(self, input, mul=1, add=0):
         pyoArgsAssert(self, "oOO", input, mul, add)
         PyoObject.__init__(self, mul, add)
         self._input = input
         self._in_fader = InputFader(input)
         in_fader, mul, add, lmax = convertArgsToLists(self._in_fader, mul, add)
-        self._base_objs = [Change_base(wrap(in_fader,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+        self._base_objs = [Change_base(wrap(in_fader, i), wrap(mul, i), wrap(add, i)) for i in range(lmax)]
         self._init_play()
 
     def out(self, chnl=0, inc=1, dur=0, delay=0):
@@ -2612,9 +2803,11 @@ class Change(PyoObject):
     def input(self):
         """PyoObject. Audio signal."""
         return self._input
+
     @input.setter
     def input(self, x):
         self.setInput(x)
+
 
 class Thresh(PyoObject):
     """
@@ -2659,7 +2852,8 @@ class Thresh(PyoObject):
     >>> sine = Sine(freq=[500,600,700], mul=env).out()
 
     """
-    def __init__(self, input, threshold=0., dir=0, mul=1, add=0):
+
+    def __init__(self, input, threshold=0.0, dir=0, mul=1, add=0):
         pyoArgsAssert(self, "oOiOO", input, threshold, dir, mul, add)
         PyoObject.__init__(self, mul, add)
         self._input = input
@@ -2667,7 +2861,10 @@ class Thresh(PyoObject):
         self._dir = dir
         self._in_fader = InputFader(input)
         in_fader, threshold, dir, mul, add, lmax = convertArgsToLists(self._in_fader, threshold, dir, mul, add)
-        self._base_objs = [Thresh_base(wrap(in_fader,i), wrap(threshold,i), wrap(dir,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+        self._base_objs = [
+            Thresh_base(wrap(in_fader, i), wrap(threshold, i), wrap(dir, i), wrap(mul, i), wrap(add, i))
+            for i in range(lmax)
+        ]
         self._init_play()
 
     def out(self, chnl=0, inc=1, dur=0, delay=0):
@@ -2702,7 +2899,7 @@ class Thresh(PyoObject):
         pyoArgsAssert(self, "O", x)
         self._threshold = x
         x, lmax = convertArgsToLists(x)
-        [obj.setThreshold(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setThreshold(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def setDir(self, x):
         """
@@ -2717,29 +2914,35 @@ class Thresh(PyoObject):
         pyoArgsAssert(self, "i", x)
         self._dir = x
         x, lmax = convertArgsToLists(x)
-        [obj.setDir(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setDir(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     @property
     def input(self):
         """PyoObject. Audio signal."""
         return self._input
+
     @input.setter
     def input(self, x):
         self.setInput(x)
+
     @property
     def threshold(self):
         """float or PyoObject. Threshold value."""
         return self._threshold
+
     @threshold.setter
     def threshold(self, x):
         self.setThreshold(x)
+
     @property
     def dir(self):
         """int. User mode."""
         return self._dir
+
     @dir.setter
     def dir(self, x):
         self.setDir(x)
+
 
 class Percent(PyoObject):
     """
@@ -2774,14 +2977,17 @@ class Percent(PyoObject):
     >>> a = Sine(freq=freq, mul=amp).out()
 
     """
-    def __init__(self, input, percent=50., mul=1, add=0):
+
+    def __init__(self, input, percent=50.0, mul=1, add=0):
         pyoArgsAssert(self, "oOOO", input, percent, mul, add)
         PyoObject.__init__(self, mul, add)
         self._input = input
         self._percent = percent
         self._in_fader = InputFader(input)
         in_fader, percent, mul, add, lmax = convertArgsToLists(self._in_fader, percent, mul, add)
-        self._base_objs = [Percent_base(wrap(in_fader,i), wrap(percent,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+        self._base_objs = [
+            Percent_base(wrap(in_fader, i), wrap(percent, i), wrap(mul, i), wrap(add, i)) for i in range(lmax)
+        ]
         self._init_play()
 
     def out(self, chnl=0, inc=1, dur=0, delay=0):
@@ -2816,26 +3022,30 @@ class Percent(PyoObject):
         pyoArgsAssert(self, "O", x)
         self._percent = x
         x, lmax = convertArgsToLists(x)
-        [obj.setPercent(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setPercent(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [SLMap(0., 100., 'lin', 'percent', self._percent)]
+        self._map_list = [SLMap(0.0, 100.0, "lin", "percent", self._percent)]
         PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
     def input(self):
         """PyoObject. Audio signal."""
         return self._input
+
     @input.setter
     def input(self, x):
         self.setInput(x)
+
     @property
     def percent(self):
         """float or PyoObject. Percentage value."""
         return self._percent
+
     @percent.setter
     def percent(self, x):
         self.setPercent(x)
+
 
 class Timer(PyoObject):
     """
@@ -2871,6 +3081,7 @@ class Timer(PyoObject):
     >>> a = LFO(freq=freq, type=2, mul=amp).out()
 
     """
+
     def __init__(self, input, input2, mul=1, add=0):
         pyoArgsAssert(self, "ooOO", input, input2, mul, add)
         PyoObject.__init__(self, mul, add)
@@ -2879,7 +3090,9 @@ class Timer(PyoObject):
         self._in_fader = InputFader(input)
         self._in_fader2 = InputFader(input2)
         in_fader, in_fader2, mul, add, lmax = convertArgsToLists(self._in_fader, self._in_fader2, mul, add)
-        self._base_objs = [Timer_base(wrap(in_fader,i), wrap(in_fader2,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+        self._base_objs = [
+            Timer_base(wrap(in_fader, i), wrap(in_fader2, i), wrap(mul, i), wrap(add, i)) for i in range(lmax)
+        ]
         self._init_play()
 
     def setInput(self, x, fadetime=0.05):
@@ -2918,15 +3131,20 @@ class Timer(PyoObject):
     def input(self):
         """PyoObject. Timer stop signal."""
         return self._input
+
     @input.setter
-    def input(self, x): self.setInput(x)
+    def input(self, x):
+        self.setInput(x)
 
     @property
     def input2(self):
         """PyoObject. Timer start signal."""
         return self._input2
+
     @input2.setter
-    def input2(self, x): self.setInput2(x)
+    def input2(self, x):
+        self.setInput2(x)
+
 
 class Iter(PyoObject):
     """
@@ -2943,7 +3161,7 @@ class Iter(PyoObject):
             Audio signal sending triggers.
         choice: list of floats or PyoObjects
             Sequence of values over which to iterate. If a PyoObject with
-            more than one audio streams is given, the streams will be 
+            more than one audio streams is given, the streams will be
             flattened and inserted in the main list. See setChoice method
             for more details.
         init: float, optional
@@ -2953,8 +3171,8 @@ class Iter(PyoObject):
     .. note::
 
         Iter will send a trigger signal when the iterator hits the
-        last value of the list `choice`. User can retreive the trigger 
-        streams by calling obj['trig']. Useful to synchronize other 
+        last value of the list `choice`. User can retreive the trigger
+        streams by calling obj['trig']. Useful to synchronize other
         processes.
 
     >>> s = Server().boot()
@@ -2968,7 +3186,8 @@ class Iter(PyoObject):
     >>> si = Sine(freq=it, mul=amp).out()
 
     """
-    def __init__(self, input, choice, init=0., mul=1, add=0):
+
+    def __init__(self, input, choice, init=0.0, mul=1, add=0):
         pyoArgsAssert(self, "olnOO", input, choice, init, mul, add)
         PyoObject.__init__(self, mul, add)
         self._input = input
@@ -2977,11 +3196,15 @@ class Iter(PyoObject):
         in_fader, init, mul, add, lmax = convertArgsToLists(self._in_fader, init, mul, add)
         x = self._flatten(choice)
         if type(x[0]) != list:
-            self._base_objs = [Iter_base(wrap(in_fader,i), x, wrap(init,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+            self._base_objs = [
+                Iter_base(wrap(in_fader, i), x, wrap(init, i), wrap(mul, i), wrap(add, i)) for i in range(lmax)
+            ]
         else:
             choicelen = len(x)
             lmax = max(choicelen, lmax)
-            self._base_objs = [Iter_base(wrap(in_fader,i), wrap(x,i), wrap(init,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+            self._base_objs = [
+                Iter_base(wrap(in_fader, i), wrap(x, i), wrap(init, i), wrap(mul, i), wrap(add, i)) for i in range(lmax)
+            ]
         self._trig_objs = Dummy([TriggerDummy_base(obj) for obj in self._base_objs])
         self._init_play()
 
@@ -3025,14 +3248,14 @@ class Iter(PyoObject):
         """
         Replace the `choice` attribute.
 
-        `x` is a sequence of values over which to iterate. If a PyoObject 
-        with more than one audio streams is given, the streams will be 
+        `x` is a sequence of values over which to iterate. If a PyoObject
+        with more than one audio streams is given, the streams will be
         flattened and inserted in the main list. For example, the choices:
 
             [100, Randi(100,200,4), 200, Sig(250, mul=[1, 2])]
 
         will expand to:
-            
+
             [100, rand_val, 200, 250, 500] # the last two are audio streams.
 
         :Args:
@@ -3066,16 +3289,20 @@ class Iter(PyoObject):
     def input(self):
         """PyoObject. Audio trigger signal."""
         return self._input
+
     @input.setter
     def input(self, x):
         self.setInput(x)
+
     @property
     def choice(self):
         """list of floats or PyoObjects. Possible values."""
         return self._choice
+
     @choice.setter
     def choice(self, x):
         self.setChoice(x)
+
 
 class Count(PyoObject):
     """
@@ -3105,6 +3332,7 @@ class Count(PyoObject):
     >>> read = TableIndex(t, ind).out()
 
     """
+
     def __init__(self, input, min=0, max=0, mul=1, add=0):
         pyoArgsAssert(self, "oiiOO", input, min, max, mul, add)
         PyoObject.__init__(self, mul, add)
@@ -3113,7 +3341,9 @@ class Count(PyoObject):
         self._max = max
         self._in_fader = InputFader(input)
         in_fader, min, max, mul, add, lmax = convertArgsToLists(self._in_fader, min, max, mul, add)
-        self._base_objs = [Count_base(wrap(in_fader,i), wrap(min,i), wrap(max,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+        self._base_objs = [
+            Count_base(wrap(in_fader, i), wrap(min, i), wrap(max, i), wrap(mul, i), wrap(add, i)) for i in range(lmax)
+        ]
         self._init_play()
 
     def setInput(self, x, fadetime=0.05):
@@ -3145,7 +3375,7 @@ class Count(PyoObject):
         pyoArgsAssert(self, "i", x)
         self._min = x
         x, lmax = convertArgsToLists(x)
-        [obj.setMin(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setMin(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def setMax(self, x):
         """
@@ -3160,35 +3390,43 @@ class Count(PyoObject):
         pyoArgsAssert(self, "i", x)
         self._max = x
         x, lmax = convertArgsToLists(x)
-        [obj.setMax(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setMax(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [SLMap(0, 10000, 'lin', 'min', self._min, res="int", dataOnly=True),
-                          SLMap(10000, 1000000, 'lin', 'max', self._max, res="int", dataOnly=True),
-                          SLMapMul(self._mul)]
+        self._map_list = [
+            SLMap(0, 10000, "lin", "min", self._min, res="int", dataOnly=True),
+            SLMap(10000, 1000000, "lin", "max", self._max, res="int", dataOnly=True),
+            SLMapMul(self._mul),
+        ]
         PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
     def input(self):
         """PyoObject. Trigger signal. Start/Restart the count."""
         return self._input
+
     @input.setter
     def input(self, x):
         self.setInput(x)
+
     @property
     def min(self):
         """int. Minimum value."""
         return self._min
+
     @min.setter
     def min(self, x):
         self.setMin(x)
+
     @property
     def max(self):
         """int. Maximum value."""
         return self._max
+
     @max.setter
     def max(self, x):
         self.setMax(x)
+
 
 class NextTrig(PyoObject):
     """
@@ -3221,6 +3459,7 @@ class NextTrig(PyoObject):
     >>> sigR = SineLoop(midiToHz(84), feedback=0.05, mul=amp).out(1)
 
     """
+
     def __init__(self, input, input2, mul=1, add=0):
         pyoArgsAssert(self, "ooOO", input, input2, mul, add)
         PyoObject.__init__(self, mul, add)
@@ -3229,7 +3468,9 @@ class NextTrig(PyoObject):
         self._in_fader = InputFader(input)
         self._in_fader2 = InputFader(input2)
         in_fader, in_fader2, mul, add, lmax = convertArgsToLists(self._in_fader, self._in_fader2, mul, add)
-        self._base_objs = [NextTrig_base(wrap(in_fader,i), wrap(in_fader2,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+        self._base_objs = [
+            NextTrig_base(wrap(in_fader, i), wrap(in_fader2, i), wrap(mul, i), wrap(add, i)) for i in range(lmax)
+        ]
         self._init_play()
 
     def setInput(self, x, fadetime=0.05):
@@ -3268,16 +3509,20 @@ class NextTrig(PyoObject):
     def input(self):
         """PyoObject. Incoming trigger stream signal."""
         return self._input
+
     @input.setter
     def input(self, x):
         self.setInput(x)
+
     @property
     def input2(self):
         """PyoObject. Trigger stream opening the gate."""
         return self._input2
+
     @input2.setter
     def input2(self, x):
         self.setInput2(x)
+
 
 class TrigVal(PyoObject):
     """
@@ -3312,14 +3557,18 @@ class TrigVal(PyoObject):
     >>> trfunc = TrigFunc(tr, newfreq)
 
     """
-    def __init__(self, input, value=0., init=0., mul=1, add=0):
+
+    def __init__(self, input, value=0.0, init=0.0, mul=1, add=0):
         pyoArgsAssert(self, "oOnOO", input, value, init, mul, add)
         PyoObject.__init__(self, mul, add)
         self._input = input
         self._value = value
         self._in_fader = InputFader(input)
         in_fader, value, init, mul, add, lmax = convertArgsToLists(self._in_fader, value, init, mul, add)
-        self._base_objs = [TrigVal_base(wrap(in_fader,i), wrap(value,i), wrap(init,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+        self._base_objs = [
+            TrigVal_base(wrap(in_fader, i), wrap(value, i), wrap(init, i), wrap(mul, i), wrap(add, i))
+            for i in range(lmax)
+        ]
         self._init_play()
 
     def setInput(self, x, fadetime=0.05):
@@ -3351,30 +3600,33 @@ class TrigVal(PyoObject):
         pyoArgsAssert(self, "O", x)
         self._value = x
         x, lmax = convertArgsToLists(x)
-        [obj.setValue(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setValue(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def out(self, chnl=0, inc=1, dur=0, delay=0):
         return self.play(dur, delay)
 
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [SLMap(0., 1., 'lin', 'value', self._value),
-                          SLMapMul(self._mul)]
+        self._map_list = [SLMap(0.0, 1.0, "lin", "value", self._value), SLMapMul(self._mul)]
         PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
     def input(self):
         """PyoObject. Audio trigger signal."""
         return self._input
+
     @input.setter
     def input(self, x):
         self.setInput(x)
+
     @property
     def value(self):
         """float or PyoObject. Next value."""
         return self._value
+
     @value.setter
     def value(self, x):
         self.setValue(x)
+
 
 class Euclide(PyoObject):
     """
@@ -3431,7 +3683,8 @@ class Euclide(PyoObject):
     >>> a = Sine(freq=trhz, mul=tr2*0.3).out()
 
     """
-    def __init__(self, time=.125, taps=16, onsets=10, poly=1):
+
+    def __init__(self, time=0.125, taps=16, onsets=10, poly=1):
         pyoArgsAssert(self, "OiiI", time, taps, onsets, poly)
         PyoObject.__init__(self)
         self._tap_dummy = []
@@ -3443,14 +3696,16 @@ class Euclide(PyoObject):
         self._onsets = onsets
         self._poly = poly
         time, taps, onsets, lmax = convertArgsToLists(time, taps, onsets)
-        self._base_players = [Beater_base(wrap(time,i), wrap(taps,i), wrap([100]*lmax,i), poly) for i in range(lmax)]
-        self._base_objs = [Beat_base(wrap(self._base_players,j), i) for i in range(poly) for j in range(lmax)]
-        self._tap_objs = [BeatTapStream_base(wrap(self._base_players,j), i) for i in range(poly) for j in range(lmax)]
-        self._amp_objs = [BeatAmpStream_base(wrap(self._base_players,j), i) for i in range(poly) for j in range(lmax)]
-        self._dur_objs = [BeatDurStream_base(wrap(self._base_players,j), i) for i in range(poly) for j in range(lmax)]
-        self._end_objs = [BeatEndStream_base(wrap(self._base_players,j), i) for i in range(poly) for j in range(lmax)]
+        self._base_players = [
+            Beater_base(wrap(time, i), wrap(taps, i), wrap([100] * lmax, i), poly) for i in range(lmax)
+        ]
+        self._base_objs = [Beat_base(wrap(self._base_players, j), i) for i in range(poly) for j in range(lmax)]
+        self._tap_objs = [BeatTapStream_base(wrap(self._base_players, j), i) for i in range(poly) for j in range(lmax)]
+        self._amp_objs = [BeatAmpStream_base(wrap(self._base_players, j), i) for i in range(poly) for j in range(lmax)]
+        self._dur_objs = [BeatDurStream_base(wrap(self._base_players, j), i) for i in range(poly) for j in range(lmax)]
+        self._end_objs = [BeatEndStream_base(wrap(self._base_players, j), i) for i in range(poly) for j in range(lmax)]
         for i in range(lmax):
-            preset = [wrap(taps,i)] + self.__generate__(wrap(onsets,i), wrap(taps,i))
+            preset = [wrap(taps, i)] + self.__generate__(wrap(onsets, i), wrap(taps, i))
             self._base_players[i].setPresets([preset])
             self._base_players[i].recall(0)
 
@@ -3460,31 +3715,34 @@ class Euclide(PyoObject):
         in a measure of length `k` (number of taps).
         Looping implementation, faster than recursive.
         """
-        if m < 1: m = 1
-        if k < 1: k = 1
-        if m > k: m = k
+        if m < 1:
+            m = 1
+        if k < 1:
+            k = 1
+        if m > k:
+            m = k
         k -= m
         mv, kv = [1], [0]
         while k > 1:
             if m > k:
-                m, k = k, m-k
-                mv, kv = mv+kv, mv
+                m, k = k, m - k
+                mv, kv = mv + kv, mv
             else:
-                m, k = m, k-m
-                mv, kv = mv+kv, kv
+                m, k = m, k - m
+                mv, kv = mv + kv, kv
         return mv * m + kv * k
 
     def __getitem__(self, i):
-        if i == 'tap':
+        if i == "tap":
             self._tap_dummy.append(Dummy([obj for obj in self._tap_objs]))
             return self._tap_dummy[-1]
-        if i == 'amp':
+        if i == "amp":
             self._amp_dummy.append(Dummy([obj for obj in self._amp_objs]))
             return self._amp_dummy[-1]
-        if i == 'dur':
+        if i == "dur":
             self._dur_dummy.append(Dummy([obj for obj in self._dur_objs]))
             return self._dur_dummy[-1]
-        if i == 'end':
+        if i == "end":
             self._end_dummy.append(Dummy([obj for obj in self._end_objs]))
             return self._end_dummy[-1]
         if type(i) == slice:
@@ -3534,7 +3792,7 @@ class Euclide(PyoObject):
         pyoArgsAssert(self, "O", x)
         self._time = x
         x, lmax = convertArgsToLists(x)
-        [obj.setTime(wrap(x,i)) for i, obj in enumerate(self._base_players)]
+        [obj.setTime(wrap(x, i)) for i, obj in enumerate(self._base_players)]
 
     def setTaps(self, x):
         """
@@ -3550,7 +3808,7 @@ class Euclide(PyoObject):
         self._taps = x
         x, onsets, lmax = convertArgsToLists(x, self._onsets)
         for i in range(len(self._base_players)):
-            preset = [wrap(x,i)] + self.__generate__(wrap(onsets,i), wrap(x,i))
+            preset = [wrap(x, i)] + self.__generate__(wrap(onsets, i), wrap(x, i))
             self._base_players[i].setPresets([preset])
             self._base_players[i].recall(0)
 
@@ -3568,7 +3826,7 @@ class Euclide(PyoObject):
         self._onsets = x
         x, taps, lmax = convertArgsToLists(x, self._taps)
         for i in range(len(self._base_players)):
-            preset = [wrap(taps,i)] + self.__generate__(wrap(x,i), wrap(taps,i))
+            preset = [wrap(taps, i)] + self.__generate__(wrap(x, i), wrap(taps, i))
             self._base_players[i].setPresets([preset])
             self._base_players[i].recall(0)
 
@@ -3581,10 +3839,10 @@ class Euclide(PyoObject):
 
     def play(self, dur=0, delay=0):
         dur, delay, lmax = convertArgsToLists(dur, delay)
-        self._tap_objs = [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._tap_objs)]
-        self._amp_objs = [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._amp_objs)]
-        self._dur_objs = [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._dur_objs)]
-        self._end_objs = [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._end_objs)]
+        self._tap_objs = [obj.play(wrap(dur, i), wrap(delay, i)) for i, obj in enumerate(self._tap_objs)]
+        self._amp_objs = [obj.play(wrap(dur, i), wrap(delay, i)) for i, obj in enumerate(self._amp_objs)]
+        self._dur_objs = [obj.play(wrap(dur, i), wrap(delay, i)) for i, obj in enumerate(self._dur_objs)]
+        self._end_objs = [obj.play(wrap(dur, i), wrap(delay, i)) for i, obj in enumerate(self._end_objs)]
         return PyoObject.play(self, dur, delay)
 
     def stop(self, wait=0):
@@ -3610,31 +3868,40 @@ class Euclide(PyoObject):
         pass
 
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [SLMap(0.01, 1., 'lin', 'time', self._time),
-                          SLMap(2, 64, 'lin', 'taps', self._taps, res="int", dataOnly=True),
-                          SLMap(0, 64, 'lin', 'onsets', self._onsets, res="int", dataOnly=True)]
+        self._map_list = [
+            SLMap(0.01, 1.0, "lin", "time", self._time),
+            SLMap(2, 64, "lin", "taps", self._taps, res="int", dataOnly=True),
+            SLMap(0, 64, "lin", "onsets", self._onsets, res="int", dataOnly=True),
+        ]
         PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
     def time(self):
         """float or PyoObject. Time, in seconds, between each beat."""
         return self._time
+
     @time.setter
-    def time(self, x): self.setTime(x)
+    def time(self, x):
+        self.setTime(x)
 
     @property
     def taps(self):
         """int. Number of beats in the generated pattern."""
         return self._taps
+
     @taps.setter
-    def taps(self, x): self.setTaps(x)
+    def taps(self, x):
+        self.setTaps(x)
 
     @property
     def onsets(self):
         """int. Number of onsets in the generated pattern."""
         return self._onsets
+
     @onsets.setter
-    def onsets(self, x): self.setOnsets(x)
+    def onsets(self, x):
+        self.setOnsets(x)
+
 
 class TrigBurst(PyoObject):
     """
@@ -3694,7 +3961,8 @@ class TrigBurst(PyoObject):
     >>> rev = STRev(a, inpos=[0,1], revtime=1.5, cutoff=5000, bal=0.1).out()
 
     """
-    def __init__(self, input, time=.25, count=10, expand=1.0, ampfade=1.0, poly=1):
+
+    def __init__(self, input, time=0.25, count=10, expand=1.0, ampfade=1.0, poly=1):
         pyoArgsAssert(self, "oOinnI", input, time, count, expand, ampfade, poly)
         PyoObject.__init__(self)
         self._tap_dummy = []
@@ -3709,25 +3977,36 @@ class TrigBurst(PyoObject):
         self._poly = poly
         self._in_fader = InputFader(input)
         in_fader, time, count, expand, ampfade, lmax = convertArgsToLists(self._in_fader, time, count, expand, ampfade)
-        self._base_players = [TrigBurster_base(wrap(in_fader,i), wrap(time,i), wrap(count,i), wrap(expand,i), wrap(ampfade,i), poly) for i in range(lmax)]
-        self._base_objs = [TrigBurst_base(wrap(self._base_players,j), i) for i in range(poly) for j in range(lmax)]
-        self._tap_objs = [TrigBurstTapStream_base(wrap(self._base_players,j), i) for i in range(poly) for j in range(lmax)]
-        self._amp_objs = [TrigBurstAmpStream_base(wrap(self._base_players,j), i) for i in range(poly) for j in range(lmax)]
-        self._dur_objs = [TrigBurstDurStream_base(wrap(self._base_players,j), i) for i in range(poly) for j in range(lmax)]
-        self._end_objs = [TrigBurstEndStream_base(wrap(self._base_players,j), i) for i in range(poly) for j in range(lmax)]
+        self._base_players = [
+            TrigBurster_base(wrap(in_fader, i), wrap(time, i), wrap(count, i), wrap(expand, i), wrap(ampfade, i), poly)
+            for i in range(lmax)
+        ]
+        self._base_objs = [TrigBurst_base(wrap(self._base_players, j), i) for i in range(poly) for j in range(lmax)]
+        self._tap_objs = [
+            TrigBurstTapStream_base(wrap(self._base_players, j), i) for i in range(poly) for j in range(lmax)
+        ]
+        self._amp_objs = [
+            TrigBurstAmpStream_base(wrap(self._base_players, j), i) for i in range(poly) for j in range(lmax)
+        ]
+        self._dur_objs = [
+            TrigBurstDurStream_base(wrap(self._base_players, j), i) for i in range(poly) for j in range(lmax)
+        ]
+        self._end_objs = [
+            TrigBurstEndStream_base(wrap(self._base_players, j), i) for i in range(poly) for j in range(lmax)
+        ]
         self._init_play()
 
     def __getitem__(self, i):
-        if i == 'tap':
+        if i == "tap":
             self._tap_dummy.append(Dummy([obj for obj in self._tap_objs]))
             return self._tap_dummy[-1]
-        if i == 'amp':
+        if i == "amp":
             self._amp_dummy.append(Dummy([obj for obj in self._amp_objs]))
             return self._amp_dummy[-1]
-        if i == 'dur':
+        if i == "dur":
             self._dur_dummy.append(Dummy([obj for obj in self._dur_objs]))
             return self._dur_dummy[-1]
-        if i == 'end':
+        if i == "end":
             self._end_dummy.append(Dummy([obj for obj in self._end_objs]))
             return self._end_dummy[-1]
         if type(i) == slice:
@@ -3793,7 +4072,7 @@ class TrigBurst(PyoObject):
         pyoArgsAssert(self, "O", x)
         self._time = x
         x, lmax = convertArgsToLists(x)
-        [obj.setTime(wrap(x,i)) for i, obj in enumerate(self._base_players)]
+        [obj.setTime(wrap(x, i)) for i, obj in enumerate(self._base_players)]
 
     def setCount(self, x):
         """
@@ -3808,7 +4087,7 @@ class TrigBurst(PyoObject):
         pyoArgsAssert(self, "i", x)
         self._count = x
         x, lmax = convertArgsToLists(x)
-        [obj.setCount(wrap(x,i)) for i, obj in enumerate(self._base_players)]
+        [obj.setCount(wrap(x, i)) for i, obj in enumerate(self._base_players)]
 
     def setExpand(self, x):
         """
@@ -3823,7 +4102,7 @@ class TrigBurst(PyoObject):
         pyoArgsAssert(self, "n", x)
         self._expand = x
         x, lmax = convertArgsToLists(x)
-        [obj.setExpand(wrap(x,i)) for i, obj in enumerate(self._base_players)]
+        [obj.setExpand(wrap(x, i)) for i, obj in enumerate(self._base_players)]
 
     def setAmpfade(self, x):
         """
@@ -3838,14 +4117,14 @@ class TrigBurst(PyoObject):
         pyoArgsAssert(self, "n", x)
         self._ampfade = x
         x, lmax = convertArgsToLists(x)
-        [obj.setAmpfade(wrap(x,i)) for i, obj in enumerate(self._base_players)]
+        [obj.setAmpfade(wrap(x, i)) for i, obj in enumerate(self._base_players)]
 
     def play(self, dur=0, delay=0):
         dur, delay, lmax = convertArgsToLists(dur, delay)
-        self._tap_objs = [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._tap_objs)]
-        self._amp_objs = [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._amp_objs)]
-        self._dur_objs = [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._dur_objs)]
-        self._end_objs = [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._end_objs)]
+        self._tap_objs = [obj.play(wrap(dur, i), wrap(delay, i)) for i, obj in enumerate(self._tap_objs)]
+        self._amp_objs = [obj.play(wrap(dur, i), wrap(delay, i)) for i, obj in enumerate(self._amp_objs)]
+        self._dur_objs = [obj.play(wrap(dur, i), wrap(delay, i)) for i, obj in enumerate(self._dur_objs)]
+        self._end_objs = [obj.play(wrap(dur, i), wrap(delay, i)) for i, obj in enumerate(self._end_objs)]
         return PyoObject.play(self, dur, delay)
 
     def stop(self, wait=0):
@@ -3871,43 +4150,55 @@ class TrigBurst(PyoObject):
         pass
 
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [SLMap(0.1, 1., 'lin', 'time', self._time, dataOnly=True),
-                          SLMap(2, 128, 'lin', 'count', self._count, res="int", dataOnly=True),
-                          SLMap(0.5, 2.0, 'lin', 'expand', self._expand, dataOnly=True),
-                          SLMap(0.5, 1.0, 'lin', 'ampfade', self._ampfade, dataOnly=True)]
+        self._map_list = [
+            SLMap(0.1, 1.0, "lin", "time", self._time, dataOnly=True),
+            SLMap(2, 128, "lin", "count", self._count, res="int", dataOnly=True),
+            SLMap(0.5, 2.0, "lin", "expand", self._expand, dataOnly=True),
+            SLMap(0.5, 1.0, "lin", "ampfade", self._ampfade, dataOnly=True),
+        ]
         PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
     def input(self):
         """PyoObject. Audio trigger signal."""
         return self._input
+
     @input.setter
-    def input(self, x): self.setInput(x)
+    def input(self, x):
+        self.setInput(x)
 
     @property
     def time(self):
         """float or PyoObject. Base time, in seconds, between each trig."""
         return self._time
+
     @time.setter
-    def time(self, x): self.setTime(x)
+    def time(self, x):
+        self.setTime(x)
 
     @property
     def count(self):
         """int. Number of triggers in the generated serie."""
         return self._count
+
     @count.setter
-    def count(self, x): self.setCount(x)
+    def count(self, x):
+        self.setCount(x)
 
     @property
     def expand(self):
         """float. Time's power expansion factor."""
         return self._expand
+
     @expand.setter
-    def expand(self, x): self.setExpand(x)
+    def expand(self, x):
+        self.setExpand(x)
 
     @property
     def ampfade(self):
         """float. Amplitude's power expansion factor."""
         return self._ampfade
+
     @ampfade.setter
-    def ampfade(self, x): self.setAmpfade(x)
+    def ampfade(self, x):
+        self.setAmpfade(x)

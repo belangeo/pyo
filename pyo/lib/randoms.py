@@ -3,6 +3,7 @@ Set of objects that implement different kinds of random noise generators.
 
 """
 from __future__ import absolute_import
+
 """
 Copyright 2009-2015 Olivier Belanger
 
@@ -24,6 +25,7 @@ License along with pyo.  If not, see <http://www.gnu.org/licenses/>.
 """
 from ._core import *
 from ._maps import *
+
 
 class Randi(PyoObject):
     """
@@ -51,14 +53,17 @@ class Randi(PyoObject):
     >>> a = Biquad(noze, freq=freq, q=5, type=2, mul=.5).out()
 
     """
-    def __init__(self, min=0., max=1., freq=1., mul=1, add=0):
+
+    def __init__(self, min=0.0, max=1.0, freq=1.0, mul=1, add=0):
         pyoArgsAssert(self, "OOOOO", min, max, freq, mul, add)
         PyoObject.__init__(self, mul, add)
         self._min = min
         self._max = max
         self._freq = freq
         min, max, freq, mul, add, lmax = convertArgsToLists(min, max, freq, mul, add)
-        self._base_objs = [Randi_base(wrap(min,i), wrap(max,i), wrap(freq,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+        self._base_objs = [
+            Randi_base(wrap(min, i), wrap(max, i), wrap(freq, i), wrap(mul, i), wrap(add, i)) for i in range(lmax)
+        ]
         self._init_play()
 
     def setMin(self, x):
@@ -74,7 +79,7 @@ class Randi(PyoObject):
         pyoArgsAssert(self, "O", x)
         self._min = x
         x, lmax = convertArgsToLists(x)
-        [obj.setMin(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setMin(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def setMax(self, x):
         """
@@ -89,7 +94,7 @@ class Randi(PyoObject):
         pyoArgsAssert(self, "O", x)
         self._max = x
         x, lmax = convertArgsToLists(x)
-        [obj.setMax(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setMax(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def setFreq(self, x):
         """
@@ -104,36 +109,44 @@ class Randi(PyoObject):
         pyoArgsAssert(self, "O", x)
         self._freq = x
         x, lmax = convertArgsToLists(x)
-        [obj.setFreq(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setFreq(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [SLMap(0., 1., 'lin', 'min', self._min),
-                          SLMap(1., 2., 'lin', 'max', self._max),
-                          SLMap(0.1, 20., 'lin', 'freq', self._freq),
-                          SLMapMul(self._mul)]
+        self._map_list = [
+            SLMap(0.0, 1.0, "lin", "min", self._min),
+            SLMap(1.0, 2.0, "lin", "max", self._max),
+            SLMap(0.1, 20.0, "lin", "freq", self._freq),
+            SLMapMul(self._mul),
+        ]
         PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
     def min(self):
         """float or PyoObject. Minimum value."""
         return self._min
+
     @min.setter
     def min(self, x):
         self.setMin(x)
+
     @property
     def max(self):
         """float or PyoObject. Maximum value."""
         return self._max
+
     @max.setter
     def max(self, x):
         self.setMax(x)
+
     @property
     def freq(self):
         """float or PyoObject. Polling frequency."""
         return self._freq
+
     @freq.setter
     def freq(self, x):
         self.setFreq(x)
+
 
 class Randh(PyoObject):
     """
@@ -161,14 +174,17 @@ class Randh(PyoObject):
     >>> a = Biquad(noze, freq=freq, q=5, type=2, mul=.5).out()
 
     """
-    def __init__(self, min=0., max=1., freq=1., mul=1, add=0):
+
+    def __init__(self, min=0.0, max=1.0, freq=1.0, mul=1, add=0):
         pyoArgsAssert(self, "OOOOO", min, max, freq, mul, add)
         PyoObject.__init__(self, mul, add)
         self._min = min
         self._max = max
         self._freq = freq
         min, max, freq, mul, add, lmax = convertArgsToLists(min, max, freq, mul, add)
-        self._base_objs = [Randh_base(wrap(min,i), wrap(max,i), wrap(freq,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+        self._base_objs = [
+            Randh_base(wrap(min, i), wrap(max, i), wrap(freq, i), wrap(mul, i), wrap(add, i)) for i in range(lmax)
+        ]
         self._init_play()
 
     def setMin(self, x):
@@ -184,7 +200,7 @@ class Randh(PyoObject):
         pyoArgsAssert(self, "O", x)
         self._min = x
         x, lmax = convertArgsToLists(x)
-        [obj.setMin(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setMin(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def setMax(self, x):
         """
@@ -199,7 +215,7 @@ class Randh(PyoObject):
         pyoArgsAssert(self, "O", x)
         self._max = x
         x, lmax = convertArgsToLists(x)
-        [obj.setMax(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setMax(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def setFreq(self, x):
         """
@@ -214,36 +230,44 @@ class Randh(PyoObject):
         pyoArgsAssert(self, "O", x)
         self._freq = x
         x, lmax = convertArgsToLists(x)
-        [obj.setFreq(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setFreq(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [SLMap(0., 1., 'lin', 'min', self._min),
-                          SLMap(1., 2., 'lin', 'max', self._max),
-                          SLMap(0.1, 20., 'lin', 'freq', self._freq),
-                          SLMapMul(self._mul)]
+        self._map_list = [
+            SLMap(0.0, 1.0, "lin", "min", self._min),
+            SLMap(1.0, 2.0, "lin", "max", self._max),
+            SLMap(0.1, 20.0, "lin", "freq", self._freq),
+            SLMapMul(self._mul),
+        ]
         PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
     def min(self):
         """float or PyoObject. Minimum value."""
         return self._min
+
     @min.setter
     def min(self, x):
         self.setMin(x)
+
     @property
     def max(self):
         """float or PyoObject. Maximum value."""
         return self._max
+
     @max.setter
     def max(self, x):
         self.setMax(x)
+
     @property
     def freq(self):
         """float or PyoObject. Polling frequency."""
         return self._freq
+
     @freq.setter
     def freq(self, x):
         self.setFreq(x)
+
 
 class Choice(PyoObject):
     """
@@ -269,18 +293,21 @@ class Choice(PyoObject):
     >>> a = SineLoop(rnd, feedback=0.05, mul=.2).out()
 
     """
-    def __init__(self, choice, freq=1., mul=1, add=0):
+
+    def __init__(self, choice, freq=1.0, mul=1, add=0):
         pyoArgsAssert(self, "lOOO", choice, freq, mul, add)
         PyoObject.__init__(self, mul, add)
         self._choice = choice
         self._freq = freq
         freq, mul, add, lmax = convertArgsToLists(freq, mul, add)
         if type(choice[0]) != list:
-            self._base_objs = [Choice_base(choice, wrap(freq,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+            self._base_objs = [Choice_base(choice, wrap(freq, i), wrap(mul, i), wrap(add, i)) for i in range(lmax)]
         else:
             choicelen = len(choice)
             lmax = max(choicelen, lmax)
-            self._base_objs = [Choice_base(wrap(choice,i), wrap(freq,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+            self._base_objs = [
+                Choice_base(wrap(choice, i), wrap(freq, i), wrap(mul, i), wrap(add, i)) for i in range(lmax)
+            ]
         self._init_play()
 
     def setChoice(self, x):
@@ -298,7 +325,7 @@ class Choice(PyoObject):
         if type(x[0]) != list:
             [obj.setChoice(self._choice) for i, obj in enumerate(self._base_objs)]
         else:
-            [obj.setChoice(wrap(self._choice,i)) for i, obj in enumerate(self._base_objs)]
+            [obj.setChoice(wrap(self._choice, i)) for i, obj in enumerate(self._base_objs)]
 
     def setFreq(self, x):
         """
@@ -313,26 +340,30 @@ class Choice(PyoObject):
         pyoArgsAssert(self, "O", x)
         self._freq = x
         x, lmax = convertArgsToLists(x)
-        [obj.setFreq(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setFreq(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [SLMap(0.1, 20., 'lin', 'freq', self._freq), SLMapMul(self._mul)]
+        self._map_list = [SLMap(0.1, 20.0, "lin", "freq", self._freq), SLMapMul(self._mul)]
         PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
     def choice(self):
         """list of floats or list of lists of floats. Possible choices."""
         return self._choice
+
     @choice.setter
     def choice(self, x):
         self.setChoice(x)
+
     @property
     def freq(self):
         """float or PyoObject. Polling frequency."""
         return self._freq
+
     @freq.setter
     def freq(self, x):
         self.setFreq(x)
+
 
 class RandInt(PyoObject):
     """
@@ -358,13 +389,14 @@ class RandInt(PyoObject):
     >>> a = SineLoop(freq*jit, feedback=0.03, mul=.2).out()
 
     """
-    def __init__(self, max=100, freq=1., mul=1, add=0):
+
+    def __init__(self, max=100, freq=1.0, mul=1, add=0):
         pyoArgsAssert(self, "OOOO", max, freq, mul, add)
         PyoObject.__init__(self, mul, add)
         self._max = max
         self._freq = freq
         max, freq, mul, add, lmax = convertArgsToLists(max, freq, mul, add)
-        self._base_objs = [RandInt_base(wrap(max,i), wrap(freq,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+        self._base_objs = [RandInt_base(wrap(max, i), wrap(freq, i), wrap(mul, i), wrap(add, i)) for i in range(lmax)]
         self._init_play()
 
     def setMax(self, x):
@@ -380,7 +412,7 @@ class RandInt(PyoObject):
         pyoArgsAssert(self, "O", x)
         self._max = x
         x, lmax = convertArgsToLists(x)
-        [obj.setMax(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setMax(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def setFreq(self, x):
         """
@@ -395,28 +427,34 @@ class RandInt(PyoObject):
         pyoArgsAssert(self, "O", x)
         self._freq = x
         x, lmax = convertArgsToLists(x)
-        [obj.setFreq(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setFreq(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [SLMap(1., 2., 'lin', 'max', self._max),
-                          SLMap(0.1, 20., 'lin', 'freq', self._freq),
-                          SLMapMul(self._mul)]
+        self._map_list = [
+            SLMap(1.0, 2.0, "lin", "max", self._max),
+            SLMap(0.1, 20.0, "lin", "freq", self._freq),
+            SLMapMul(self._mul),
+        ]
         PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
     def max(self):
         """float or PyoObject. Maximum value."""
         return self._max
+
     @max.setter
     def max(self, x):
         self.setMax(x)
+
     @property
     def freq(self):
         """float or PyoObject. Polling frequency."""
         return self._freq
+
     @freq.setter
     def freq(self, x):
         self.setFreq(x)
+
 
 class RandDur(PyoObject):
     """
@@ -445,13 +483,14 @@ class RandDur(PyoObject):
     >>> a = LFO(freq=freq, type=2, mul=amp).out()
 
     """
-    def __init__(self, min=0., max=1., mul=1, add=0):
+
+    def __init__(self, min=0.0, max=1.0, mul=1, add=0):
         pyoArgsAssert(self, "OOOO", min, max, mul, add)
         PyoObject.__init__(self, mul, add)
         self._min = min
         self._max = max
         min, max, mul, add, lmax = convertArgsToLists(min, max, mul, add)
-        self._base_objs = [RandDur_base(wrap(min,i), wrap(max,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+        self._base_objs = [RandDur_base(wrap(min, i), wrap(max, i), wrap(mul, i), wrap(add, i)) for i in range(lmax)]
         self._init_play()
 
     def setMin(self, x):
@@ -467,7 +506,7 @@ class RandDur(PyoObject):
         pyoArgsAssert(self, "O", x)
         self._min = x
         x, lmax = convertArgsToLists(x)
-        [obj.setMin(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setMin(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def setMax(self, x):
         """
@@ -482,28 +521,34 @@ class RandDur(PyoObject):
         pyoArgsAssert(self, "O", x)
         self._max = x
         x, lmax = convertArgsToLists(x)
-        [obj.setMax(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setMax(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [SLMap(0., 1., 'lin', 'min', self._min),
-                          SLMap(1., 2., 'lin', 'max', self._max),
-                          SLMapMul(self._mul)]
+        self._map_list = [
+            SLMap(0.0, 1.0, "lin", "min", self._min),
+            SLMap(1.0, 2.0, "lin", "max", self._max),
+            SLMapMul(self._mul),
+        ]
         PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
     def min(self):
         """float or PyoObject. Minimum value."""
         return self._min
+
     @min.setter
     def min(self, x):
         self.setMin(x)
+
     @property
     def max(self):
         """float or PyoObject. Maximum value."""
         return self._max
+
     @max.setter
     def max(self, x):
         self.setMax(x)
+
 
 class Xnoise(PyoObject):
     """
@@ -594,7 +639,8 @@ class Xnoise(PyoObject):
     >>> a = SineLoop(freq*jit, feedback=0.03, mul=.2).out()
 
     """
-    def __init__(self, dist=0, freq=1., x1=0.5, x2=0.5, mul=1, add=0):
+
+    def __init__(self, dist=0, freq=1.0, x1=0.5, x2=0.5, mul=1, add=0):
         pyoArgsAssert(self, "OOOOO", freq, x1, x2, mul, add)
         PyoObject.__init__(self, mul, add)
         self._dist = dist
@@ -603,8 +649,12 @@ class Xnoise(PyoObject):
         self._x2 = x2
         dist, freq, x1, x2, mul, add, lmax = convertArgsToLists(dist, freq, x1, x2, mul, add)
         for i, t in enumerate(dist):
-            if type(t) in [bytes_t, unicode_t]: dist[i] = XNOISE_DICT.get(t, 0)
-        self._base_objs = [Xnoise_base(wrap(dist,i), wrap(freq,i), wrap(x1,i), wrap(x2,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+            if type(t) in [bytes_t, unicode_t]:
+                dist[i] = XNOISE_DICT.get(t, 0)
+        self._base_objs = [
+            Xnoise_base(wrap(dist, i), wrap(freq, i), wrap(x1, i), wrap(x2, i), wrap(mul, i), wrap(add, i))
+            for i in range(lmax)
+        ]
         self._init_play()
 
     def setDist(self, x):
@@ -620,8 +670,9 @@ class Xnoise(PyoObject):
         self._dist = x
         x, lmax = convertArgsToLists(x)
         for i, t in enumerate(x):
-            if type(t) in [bytes_t, unicode_t]: x[i] = XNOISE_DICT.get(t, 0)
-        [obj.setType(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+            if type(t) in [bytes_t, unicode_t]:
+                x[i] = XNOISE_DICT.get(t, 0)
+        [obj.setType(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def setX1(self, x):
         """
@@ -636,7 +687,7 @@ class Xnoise(PyoObject):
         pyoArgsAssert(self, "O", x)
         self._x1 = x
         x, lmax = convertArgsToLists(x)
-        [obj.setX1(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setX1(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def setX2(self, x):
         """
@@ -651,7 +702,7 @@ class Xnoise(PyoObject):
         pyoArgsAssert(self, "O", x)
         self._x2 = x
         x, lmax = convertArgsToLists(x)
-        [obj.setX2(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setX2(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def setFreq(self, x):
         """
@@ -666,45 +717,55 @@ class Xnoise(PyoObject):
         pyoArgsAssert(self, "O", x)
         self._freq = x
         x, lmax = convertArgsToLists(x)
-        [obj.setFreq(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setFreq(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [SLMap(0, 12, 'lin', 'dist', self._dist, res="int", dataOnly=True),
-                          SLMap(0.001, 200., 'log', 'freq', self._freq),
-                          SLMap(0, 1, 'lin', 'x1', self._x1),
-                          SLMap(0, 1, 'lin', 'x2', self._x2),
-                          SLMap(0, 2500, 'lin', 'mul', self._mul),
-                          SLMap(0, 2500, 'lin', 'add', self._add)]
+        self._map_list = [
+            SLMap(0, 12, "lin", "dist", self._dist, res="int", dataOnly=True),
+            SLMap(0.001, 200.0, "log", "freq", self._freq),
+            SLMap(0, 1, "lin", "x1", self._x1),
+            SLMap(0, 1, "lin", "x2", self._x2),
+            SLMap(0, 2500, "lin", "mul", self._mul),
+            SLMap(0, 2500, "lin", "add", self._add),
+        ]
         PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
     def dist(self):
         """string or int. Distribution type."""
         return self._dist
+
     @dist.setter
     def dist(self, x):
         self.setDist(x)
+
     @property
     def freq(self):
         """float or PyoObject. Polling frequency."""
         return self._freq
+
     @freq.setter
     def freq(self, x):
         self.setFreq(x)
+
     @property
     def x1(self):
         """float or PyoObject. First parameter."""
         return self._x1
+
     @x1.setter
     def x1(self, x):
         self.setX1(x)
+
     @property
     def x2(self):
         """float or PyoObject. Second parameter."""
         return self._x2
+
     @x2.setter
     def x2(self, x):
         self.setX2(x)
+
 
 class XnoiseMidi(PyoObject):
     """
@@ -806,7 +867,8 @@ class XnoiseMidi(PyoObject):
     >>> a = SineLoop(freq*jit, feedback=0.03, mul=.2).out()
 
     """
-    def __init__(self, dist=0, freq=1., x1=0.5, x2=0.5, scale=0, mrange=(0,127), mul=1, add=0):
+
+    def __init__(self, dist=0, freq=1.0, x1=0.5, x2=0.5, scale=0, mrange=(0, 127), mul=1, add=0):
         pyoArgsAssert(self, "OOOixOO", freq, x1, x2, scale, mrange, mul, add)
         PyoObject.__init__(self, mul, add)
         self._dist = dist
@@ -815,10 +877,25 @@ class XnoiseMidi(PyoObject):
         self._x2 = x2
         self._scale = scale
         self._mrange = mrange
-        dist, freq, x1, x2, scale, mrange, mul, add, lmax = convertArgsToLists(dist, freq, x1, x2, scale, mrange, mul, add)
+        dist, freq, x1, x2, scale, mrange, mul, add, lmax = convertArgsToLists(
+            dist, freq, x1, x2, scale, mrange, mul, add
+        )
         for i, t in enumerate(dist):
-            if type(t) in [bytes_t, unicode_t]: dist[i] = XNOISE_DICT.get(t, 0)
-        self._base_objs = [XnoiseMidi_base(wrap(dist,i), wrap(freq,i), wrap(x1,i), wrap(x2,i), wrap(scale,i), wrap(mrange,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+            if type(t) in [bytes_t, unicode_t]:
+                dist[i] = XNOISE_DICT.get(t, 0)
+        self._base_objs = [
+            XnoiseMidi_base(
+                wrap(dist, i),
+                wrap(freq, i),
+                wrap(x1, i),
+                wrap(x2, i),
+                wrap(scale, i),
+                wrap(mrange, i),
+                wrap(mul, i),
+                wrap(add, i),
+            )
+            for i in range(lmax)
+        ]
         self._init_play()
 
     def setDist(self, x):
@@ -834,8 +911,9 @@ class XnoiseMidi(PyoObject):
         self._dist = x
         x, lmax = convertArgsToLists(x)
         for i, t in enumerate(x):
-            if type(t) in [bytes_t, unicode_t]: x[i] = XNOISE_DICT.get(t, 0)
-        [obj.setType(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+            if type(t) in [bytes_t, unicode_t]:
+                x[i] = XNOISE_DICT.get(t, 0)
+        [obj.setType(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def setScale(self, x):
         """
@@ -855,7 +933,7 @@ class XnoiseMidi(PyoObject):
         pyoArgsAssert(self, "i", x)
         self._scale = x
         x, lmax = convertArgsToLists(x)
-        [obj.setScale(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setScale(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def setRange(self, mini, maxi):
         """
@@ -872,7 +950,7 @@ class XnoiseMidi(PyoObject):
         pyoArgsAssert(self, "ii", mini, maxi)
         self._mrange = (mini, maxi)
         mini, maxi, lmax = convertArgsToLists(mini, maxi)
-        [obj.setRange(wrap(mini,i), wrap(maxi,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setRange(wrap(mini, i), wrap(maxi, i)) for i, obj in enumerate(self._base_objs)]
 
     def setX1(self, x):
         """
@@ -887,7 +965,7 @@ class XnoiseMidi(PyoObject):
         pyoArgsAssert(self, "O", x)
         self._x1 = x
         x, lmax = convertArgsToLists(x)
-        [obj.setX1(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setX1(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def setX2(self, x):
         """
@@ -902,7 +980,7 @@ class XnoiseMidi(PyoObject):
         pyoArgsAssert(self, "O", x)
         self._x2 = x
         x, lmax = convertArgsToLists(x)
-        [obj.setX2(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setX2(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def setFreq(self, x):
         """
@@ -917,51 +995,63 @@ class XnoiseMidi(PyoObject):
         pyoArgsAssert(self, "O", x)
         self._freq = x
         x, lmax = convertArgsToLists(x)
-        [obj.setFreq(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setFreq(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [SLMap(0, 12, 'lin', 'dist', self._dist, res="int", dataOnly=True),
-                          SLMap(0.001, 200., 'log', 'freq', self._freq),
-                          SLMap(0, 1, 'lin', 'x1', self._x1),
-                          SLMap(0, 1, 'lin', 'x2', self._x2),
-                          SLMap(0, 2, 'lin', 'scale', self._scale, res="int", dataOnly=True)]
+        self._map_list = [
+            SLMap(0, 12, "lin", "dist", self._dist, res="int", dataOnly=True),
+            SLMap(0.001, 200.0, "log", "freq", self._freq),
+            SLMap(0, 1, "lin", "x1", self._x1),
+            SLMap(0, 1, "lin", "x2", self._x2),
+            SLMap(0, 2, "lin", "scale", self._scale, res="int", dataOnly=True),
+        ]
         PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
     def dist(self):
         """string or int. Distribution type."""
         return self._dist
+
     @dist.setter
     def dist(self, x):
         self.setDist(x)
+
     @property
     def freq(self):
         """float or PyoObject. Polling frequency."""
         return self._freq
+
     @freq.setter
     def freq(self, x):
         self.setFreq(x)
+
     @property
     def x1(self):
         """float or PyoObject. First parameter."""
         return self._x1
+
     @x1.setter
     def x1(self, x):
         self.setX1(x)
+
     @property
     def x2(self):
         """float or PyoObject. Second parameter."""
         return self._x2
+
     @x2.setter
     def x2(self, x):
         self.setX2(x)
+
     @property
     def scale(self):
         """int. Output format."""
         return self._scale
+
     @scale.setter
     def scale(self, x):
         self.setScale(x)
+
 
 class XnoiseDur(PyoObject):
     """
@@ -1060,7 +1150,8 @@ class XnoiseDur(PyoObject):
     >>> a = LFO(freq=freq, type=2, mul=amp).out()
 
     """
-    def __init__(self, dist=0, min=0., max=1., x1=0.5, x2=0.5, mul=1, add=0):
+
+    def __init__(self, dist=0, min=0.0, max=1.0, x1=0.5, x2=0.5, mul=1, add=0):
         pyoArgsAssert(self, "OOOOOO", min, max, x1, x2, mul, add)
         PyoObject.__init__(self, mul, add)
         self._dist = dist
@@ -1070,8 +1161,14 @@ class XnoiseDur(PyoObject):
         self._x2 = x2
         dist, min, max, x1, x2, mul, add, lmax = convertArgsToLists(dist, min, max, x1, x2, mul, add)
         for i, t in enumerate(dist):
-            if type(t) in [bytes_t, unicode_t]: dist[i] = XNOISE_DICT.get(t, 0)
-        self._base_objs = [XnoiseDur_base(wrap(dist,i), wrap(min,i), wrap(max,i), wrap(x1,i), wrap(x2,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+            if type(t) in [bytes_t, unicode_t]:
+                dist[i] = XNOISE_DICT.get(t, 0)
+        self._base_objs = [
+            XnoiseDur_base(
+                wrap(dist, i), wrap(min, i), wrap(max, i), wrap(x1, i), wrap(x2, i), wrap(mul, i), wrap(add, i)
+            )
+            for i in range(lmax)
+        ]
         self._init_play()
 
     def setDist(self, x):
@@ -1087,8 +1184,9 @@ class XnoiseDur(PyoObject):
         self._dist = x
         x, lmax = convertArgsToLists(x)
         for i, t in enumerate(x):
-            if type(t) in [bytes_t, unicode_t]: x[i] = XNOISE_DICT.get(t, 0)
-        [obj.setType(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+            if type(t) in [bytes_t, unicode_t]:
+                x[i] = XNOISE_DICT.get(t, 0)
+        [obj.setType(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def setMin(self, x):
         """
@@ -1103,7 +1201,7 @@ class XnoiseDur(PyoObject):
         pyoArgsAssert(self, "O", x)
         self._min = x
         x, lmax = convertArgsToLists(x)
-        [obj.setMin(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setMin(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def setMax(self, x):
         """
@@ -1118,7 +1216,7 @@ class XnoiseDur(PyoObject):
         pyoArgsAssert(self, "O", x)
         self._max = x
         x, lmax = convertArgsToLists(x)
-        [obj.setMax(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setMax(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def setX1(self, x):
         """
@@ -1133,7 +1231,7 @@ class XnoiseDur(PyoObject):
         pyoArgsAssert(self, "O", x)
         self._x1 = x
         x, lmax = convertArgsToLists(x)
-        [obj.setX1(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setX1(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def setX2(self, x):
         """
@@ -1148,51 +1246,63 @@ class XnoiseDur(PyoObject):
         pyoArgsAssert(self, "O", x)
         self._x2 = x
         x, lmax = convertArgsToLists(x)
-        [obj.setX2(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setX2(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [SLMap(0, 12, 'lin', 'dist', self._dist, res="int", dataOnly=True),
-                          SLMap(0, 20, 'lin', 'min', self._min),
-                          SLMap(0, 20, 'lin', 'max', self._max),
-                          SLMap(0, 1, 'lin', 'x1', self._x1),
-                          SLMap(0, 1, 'lin', 'x2', self._x2)]
+        self._map_list = [
+            SLMap(0, 12, "lin", "dist", self._dist, res="int", dataOnly=True),
+            SLMap(0, 20, "lin", "min", self._min),
+            SLMap(0, 20, "lin", "max", self._max),
+            SLMap(0, 1, "lin", "x1", self._x1),
+            SLMap(0, 1, "lin", "x2", self._x2),
+        ]
         PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
     def dist(self):
         """string or int. Distribution type."""
         return self._dist
+
     @dist.setter
     def dist(self, x):
         self.setDist(x)
+
     @property
     def min(self):
         """float or PyoObject. Minimum value."""
         return self._min
+
     @min.setter
     def min(self, x):
         self.setMin(x)
+
     @property
     def max(self):
         """float or PyoObject. Maximum value."""
         return self._max
+
     @max.setter
     def max(self, x):
         self.setMax(x)
+
     @property
     def x1(self):
         """float or PyoObject. First parameter."""
         return self._x1
+
     @x1.setter
     def x1(self, x):
         self.setX1(x)
+
     @property
     def x2(self):
         """float or PyoObject. Second parameter."""
         return self._x2
+
     @x2.setter
     def x2(self, x):
         self.setX2(x)
+
 
 class Urn(PyoObject):
     """
@@ -1229,13 +1339,14 @@ class Urn(PyoObject):
     >>> sigR = SineLoop(midiToHz(84), feedback=0.05, mul=amp).out(1)
 
     """
-    def __init__(self, max=100, freq=1., mul=1, add=0):
+
+    def __init__(self, max=100, freq=1.0, mul=1, add=0):
         pyoArgsAssert(self, "iOOO", max, freq, mul, add)
         PyoObject.__init__(self, mul, add)
         self._max = max
         self._freq = freq
         max, freq, mul, add, lmax = convertArgsToLists(max, freq, mul, add)
-        self._base_objs = [Urn_base(wrap(max,i), wrap(freq,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+        self._base_objs = [Urn_base(wrap(max, i), wrap(freq, i), wrap(mul, i), wrap(add, i)) for i in range(lmax)]
         self._trig_objs = Dummy([TriggerDummy_base(obj) for obj in self._base_objs])
         self._init_play()
 
@@ -1255,7 +1366,7 @@ class Urn(PyoObject):
         pyoArgsAssert(self, "i", x)
         self._max = x
         x, lmax = convertArgsToLists(x)
-        [obj.setMax(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setMax(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def setFreq(self, x):
         """
@@ -1270,28 +1381,34 @@ class Urn(PyoObject):
         pyoArgsAssert(self, "O", x)
         self._freq = x
         x, lmax = convertArgsToLists(x)
-        [obj.setFreq(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setFreq(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [SLMap(1, 1000, 'lin', 'max', self._max, res="int", dataOnly=True),
-                          SLMap(0.1, 20., 'lin', 'freq', self._freq),
-                          SLMapMul(self._mul)]
+        self._map_list = [
+            SLMap(1, 1000, "lin", "max", self._max, res="int", dataOnly=True),
+            SLMap(0.1, 20.0, "lin", "freq", self._freq),
+            SLMapMul(self._mul),
+        ]
         PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
     def max(self):
         """int. Maximum value."""
         return self._max
+
     @max.setter
     def max(self, x):
         self.setMax(x)
+
     @property
     def freq(self):
         """float or PyoObject. Polling frequency."""
         return self._freq
+
     @freq.setter
     def freq(self, x):
         self.setFreq(x)
+
 
 class LogiMap(PyoObject):
     """
@@ -1333,13 +1450,16 @@ class LogiMap(PyoObject):
     >>> osc = RCOsc(hz, mul=amp).out()
 
     """
+
     def __init__(self, chaos=0.6, freq=1.0, init=0.5, mul=1, add=0):
         pyoArgsAssert(self, "OOnOO", chaos, freq, init, mul, add)
         PyoObject.__init__(self, mul, add)
         self._chaos = chaos
         self._freq = freq
         chaos, freq, init, mul, add, lmax = convertArgsToLists(chaos, freq, init, mul, add)
-        self._base_objs = [LogiMap_base(wrap(chaos,i), wrap(freq,i), wrap(init,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+        self._base_objs = [
+            LogiMap_base(wrap(chaos, i), wrap(freq, i), wrap(init, i), wrap(mul, i), wrap(add, i)) for i in range(lmax)
+        ]
         self._init_play()
 
     def out(self, chnl=0, inc=1, dur=0, delay=0):
@@ -1358,7 +1478,7 @@ class LogiMap(PyoObject):
         pyoArgsAssert(self, "O", x)
         self._chaos = x
         x, lmax = convertArgsToLists(x)
-        [obj.setChaos(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setChaos(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def setFreq(self, x):
         """
@@ -1373,25 +1493,30 @@ class LogiMap(PyoObject):
         pyoArgsAssert(self, "O", x)
         self._freq = x
         x, lmax = convertArgsToLists(x)
-        [obj.setFreq(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setFreq(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [SLMap(0.001, 0.999, 'lin', 'chaos', self._chaos),
-                          SLMap(0.1, 20., 'lin', 'freq', self._freq),
-                          SLMapMul(self._mul)]
+        self._map_list = [
+            SLMap(0.001, 0.999, "lin", "chaos", self._chaos),
+            SLMap(0.1, 20.0, "lin", "freq", self._freq),
+            SLMapMul(self._mul),
+        ]
         PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
     def chaos(self):
         """float or PyoObject. Randomization factor."""
         return self._chaos
+
     @chaos.setter
     def chaos(self, x):
         self.setChaos(x)
+
     @property
     def freq(self):
         """float or PyoObject. Polling frequency."""
         return self._freq
+
     @freq.setter
     def freq(self, x):
         self.setFreq(x)

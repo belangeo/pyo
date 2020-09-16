@@ -8,6 +8,7 @@ are done by giving row and column positions.
 """
 
 from __future__ import absolute_import
+
 """
 Copyright 2009-2015 Olivier Belanger
 
@@ -29,6 +30,7 @@ License along with pyo.  If not, see <http://www.gnu.org/licenses/>.
 """
 from ._core import *
 from ._maps import *
+
 
 class MatrixRec(PyoObject):
     """
@@ -86,6 +88,7 @@ class MatrixRec(PyoObject):
     >>> c = MatrixPointer(mm, x, y, .2).out()
 
     """
+
     def __init__(self, input, matrix, fadetime=0, delay=0):
         pyoArgsAssert(self, "omni", input, matrix, fadetime, delay)
         PyoObject.__init__(self)
@@ -93,7 +96,10 @@ class MatrixRec(PyoObject):
         self._matrix = matrix
         self._in_fader = InputFader(input).stop()
         in_fader, matrix, fadetime, delay, lmax = convertArgsToLists(self._in_fader, matrix, fadetime, delay)
-        self._base_objs = [MatrixRec_base(wrap(in_fader,i), wrap(matrix,i), wrap(fadetime,i), wrap(delay,i)) for i in range(len(matrix))]
+        self._base_objs = [
+            MatrixRec_base(wrap(in_fader, i), wrap(matrix, i), wrap(fadetime, i), wrap(delay, i))
+            for i in range(len(matrix))
+        ]
         self._trig_objs = Dummy([TriggerDummy_base(obj) for obj in self._base_objs])
 
     def out(self, chnl=0, inc=1, dur=0, delay=0):
@@ -134,21 +140,26 @@ class MatrixRec(PyoObject):
         pyoArgsAssert(self, "m", x)
         self._matrix = x
         x, lmax = convertArgsToLists(x)
-        [obj.setMatrix(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setMatrix(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     @property
     def input(self):
         """PyoObject. Audio signal to record in the matrix."""
         return self._input
+
     @input.setter
-    def input(self, x): self.setInput(x)
+    def input(self, x):
+        self.setInput(x)
 
     @property
     def matrix(self):
         """PyoMatrixObject. The matrix where to write samples."""
         return self._matrix
+
     @matrix.setter
-    def matrix(self, x): self.setMatrix(x)
+    def matrix(self, x):
+        self.setMatrix(x)
+
 
 class MatrixRecLoop(PyoObject):
     """
@@ -196,6 +207,7 @@ class MatrixRecLoop(PyoObject):
     >>> out = MatrixPointer(matrix, x, y, amp).out()
 
     """
+
     def __init__(self, input, matrix):
         pyoArgsAssert(self, "om", input, matrix)
         PyoObject.__init__(self)
@@ -203,7 +215,7 @@ class MatrixRecLoop(PyoObject):
         self._matrix = matrix
         self._in_fader = InputFader(input)
         in_fader, matrix, lmax = convertArgsToLists(self._in_fader, matrix)
-        self._base_objs = [MatrixRecLoop_base(wrap(in_fader,i), wrap(matrix,i)) for i in range(len(matrix))]
+        self._base_objs = [MatrixRecLoop_base(wrap(in_fader, i), wrap(matrix, i)) for i in range(len(matrix))]
         self._trig_objs = Dummy([TriggerDummy_base(obj) for obj in self._base_objs])
         self._init_play()
 
@@ -245,21 +257,26 @@ class MatrixRecLoop(PyoObject):
         pyoArgsAssert(self, "m", x)
         self._matrix = x
         x, lmax = convertArgsToLists(x)
-        [obj.setMatrix(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setMatrix(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     @property
     def input(self):
         """PyoObject. Audio signal to record in the matrix."""
         return self._input
+
     @input.setter
-    def input(self, x): self.setInput(x)
+    def input(self, x):
+        self.setInput(x)
 
     @property
     def matrix(self):
         """PyoMatrixObject. The matrix where to write samples."""
         return self._matrix
+
     @matrix.setter
-    def matrix(self, x): self.setMatrix(x)
+    def matrix(self, x):
+        self.setMatrix(x)
+
 
 class MatrixPointer(PyoObject):
     """
@@ -291,6 +308,7 @@ class MatrixPointer(PyoObject):
     >>> c = MatrixPointer(mm, x, y, .2).out()
 
     """
+
     def __init__(self, matrix, x, y, mul=1, add=0):
         pyoArgsAssert(self, "mooOO", matrix, x, y, mul, add)
         PyoObject.__init__(self, mul, add)
@@ -298,7 +316,9 @@ class MatrixPointer(PyoObject):
         self._x = x
         self._y = y
         matrix, x, y, mul, add, lmax = convertArgsToLists(matrix, x, y, mul, add)
-        self._base_objs = [MatrixPointer_base(wrap(matrix,i), wrap(x,i), wrap(y,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+        self._base_objs = [
+            MatrixPointer_base(wrap(matrix, i), wrap(x, i), wrap(y, i), wrap(mul, i), wrap(add, i)) for i in range(lmax)
+        ]
         self._init_play()
 
     def setMatrix(self, x):
@@ -314,7 +334,7 @@ class MatrixPointer(PyoObject):
         pyoArgsAssert(self, "m", x)
         self._matrix = x
         x, lmax = convertArgsToLists(x)
-        [obj.setMatrix(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setMatrix(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def setX(self, x):
         """
@@ -329,7 +349,7 @@ class MatrixPointer(PyoObject):
         pyoArgsAssert(self, "o", x)
         self._x = x
         x, lmax = convertArgsToLists(x)
-        [obj.setX(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setX(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def setY(self, x):
         """
@@ -344,7 +364,7 @@ class MatrixPointer(PyoObject):
         pyoArgsAssert(self, "o", x)
         self._y = x
         x, lmax = convertArgsToLists(x)
-        [obj.setY(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setY(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
         self._map_list = [SLMapMul(self._mul)]
@@ -354,22 +374,29 @@ class MatrixPointer(PyoObject):
     def matrix(self):
         """PyoMatrixObject. Matrix containing the samples."""
         return self._matrix
+
     @matrix.setter
-    def matrix(self, x): self.setMatrix(x)
+    def matrix(self, x):
+        self.setMatrix(x)
 
     @property
     def x(self):
         """PyoObject. Normalized X position in the matrix."""
         return self._x
+
     @x.setter
-    def x(self, x): self.setX(x)
+    def x(self, x):
+        self.setX(x)
 
     @property
     def y(self):
         """PyoObject. Normalized Y position in the matrix."""
         return self._y
+
     @y.setter
-    def y(self, x): self.setY(x)
+    def y(self, x):
+        self.setY(x)
+
 
 class MatrixMorph(PyoObject):
     """
@@ -412,6 +439,7 @@ class MatrixMorph(PyoObject):
     >>> c = MatrixPointer(mm, x, y, .2).out()
 
     """
+
     def __init__(self, input, matrix, sources):
         pyoArgsAssert(self, "oml", input, matrix, sources)
         PyoObject.__init__(self)
@@ -421,7 +449,9 @@ class MatrixMorph(PyoObject):
         self._in_fader = InputFader(input)
         in_fader, matrix, lmax = convertArgsToLists(self._in_fader, matrix)
         self._base_sources = [source[0] for source in sources]
-        self._base_objs = [MatrixMorph_base(wrap(in_fader,i), wrap(matrix,i), self._base_sources) for i in range(len(matrix))]
+        self._base_objs = [
+            MatrixMorph_base(wrap(in_fader, i), wrap(matrix, i), self._base_sources) for i in range(len(matrix))
+        ]
         self._init_play()
 
     def out(self, chnl=0, inc=1, dur=0, delay=0):
@@ -462,7 +492,7 @@ class MatrixMorph(PyoObject):
         pyoArgsAssert(self, "m", x)
         self._matrix = x
         x, lmax = convertArgsToLists(x)
-        [obj.setMatrix(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setMatrix(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def setSources(self, x):
         """
@@ -483,19 +513,25 @@ class MatrixMorph(PyoObject):
     def input(self):
         """PyoObject. Morphing index between 0 and 1."""
         return self._input
+
     @input.setter
-    def input(self, x): self.setInput(x)
+    def input(self, x):
+        self.setInput(x)
 
     @property
     def matrix(self):
         """NewMatrix. The matrix where to write samples."""
         return self._matrix
+
     @matrix.setter
-    def matrix(self, x): self.setMatrix(x)
+    def matrix(self, x):
+        self.setMatrix(x)
 
     @property
     def sources(self):
         """list of PyoMatrixObject. List of matrices to interpolate from."""
         return self._sources
+
     @sources.setter
-    def sources(self, x): self.setSources(x)
+    def sources(self, x):
+        self.setSources(x)

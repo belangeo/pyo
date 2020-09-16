@@ -34,6 +34,7 @@ from ._maps import *
 from ._widgets import createSpectrumWindow, createScopeWindow
 from .pattern import Pattern
 
+
 class Follower(PyoObject):
     """
     Envelope follower.
@@ -65,6 +66,7 @@ class Follower(PyoObject):
     >>> n = Noise(mul=fol).out(1)
 
     """
+
     def __init__(self, input, freq=20, mul=1, add=0):
         pyoArgsAssert(self, "oOOO", input, freq, mul, add)
         PyoObject.__init__(self, mul, add)
@@ -72,7 +74,9 @@ class Follower(PyoObject):
         self._freq = freq
         self._in_fader = InputFader(input)
         in_fader, freq, mul, add, lmax = convertArgsToLists(self._in_fader, freq, mul, add)
-        self._base_objs = [Follower_base(wrap(in_fader,i), wrap(freq,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+        self._base_objs = [
+            Follower_base(wrap(in_fader, i), wrap(freq, i), wrap(mul, i), wrap(add, i)) for i in range(lmax)
+        ]
         self._init_play()
 
     def setInput(self, x, fadetime=0.05):
@@ -104,28 +108,33 @@ class Follower(PyoObject):
         pyoArgsAssert(self, "O", x)
         self._freq = x
         x, lmax = convertArgsToLists(x)
-        [obj.setFreq(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setFreq(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def out(self, chnl=0, inc=1, dur=0, delay=0):
         return self.play(dur, delay)
 
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [SLMap(1., 500., 'log', 'freq', self._freq)]
+        self._map_list = [SLMap(1.0, 500.0, "log", "freq", self._freq)]
         PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
     def input(self):
         """PyoObject. Input signal to process."""
         return self._input
+
     @input.setter
-    def input(self, x): self.setInput(x)
+    def input(self, x):
+        self.setInput(x)
 
     @property
     def freq(self):
         """float or PyoObject. Cutoff frequency of the filter."""
         return self._freq
+
     @freq.setter
-    def freq(self, x): self.setFreq(x)
+    def freq(self, x):
+        self.setFreq(x)
+
 
 class Follower2(PyoObject):
     """
@@ -160,6 +169,7 @@ class Follower2(PyoObject):
     >>> n = Noise(fol2).out(1)
 
     """
+
     def __init__(self, input, risetime=0.01, falltime=0.1, mul=1, add=0):
         pyoArgsAssert(self, "oOOOO", input, risetime, falltime, mul, add)
         PyoObject.__init__(self, mul, add)
@@ -168,7 +178,10 @@ class Follower2(PyoObject):
         self._falltime = falltime
         self._in_fader = InputFader(input)
         in_fader, risetime, falltime, mul, add, lmax = convertArgsToLists(self._in_fader, risetime, falltime, mul, add)
-        self._base_objs = [Follower2_base(wrap(in_fader,i), wrap(risetime,i), wrap(falltime, i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+        self._base_objs = [
+            Follower2_base(wrap(in_fader, i), wrap(risetime, i), wrap(falltime, i), wrap(mul, i), wrap(add, i))
+            for i in range(lmax)
+        ]
         self._init_play()
 
     def setInput(self, x, fadetime=0.05):
@@ -200,7 +213,7 @@ class Follower2(PyoObject):
         pyoArgsAssert(self, "O", x)
         self._risetime = x
         x, lmax = convertArgsToLists(x)
-        [obj.setRisetime(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setRisetime(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def setFalltime(self, x):
         """
@@ -215,35 +228,42 @@ class Follower2(PyoObject):
         pyoArgsAssert(self, "O", x)
         self._falltime = x
         x, lmax = convertArgsToLists(x)
-        [obj.setFalltime(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setFalltime(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def out(self, chnl=0, inc=1, dur=0, delay=0):
         return self.play(dur, delay)
 
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [SLMap(0.001, 1., 'log', 'risetime', self._risetime)]
+        self._map_list = [SLMap(0.001, 1.0, "log", "risetime", self._risetime)]
         PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
     def input(self):
         """PyoObject. Input signal to process."""
         return self._input
+
     @input.setter
-    def input(self, x): self.setInput(x)
+    def input(self, x):
+        self.setInput(x)
 
     @property
     def risetime(self):
         """float or PyoObject. Time to reach upward value in seconds."""
         return self._risetime
+
     @risetime.setter
-    def risetime(self, x): self.setRisetime(x)
+    def risetime(self, x):
+        self.setRisetime(x)
 
     @property
     def falltime(self):
         """float or PyoObject. Time to reach downward value in seconds."""
         return self._falltime
+
     @falltime.setter
-    def falltime(self, x): self.setFalltime(x)
+    def falltime(self, x):
+        self.setFalltime(x)
+
 
 class ZCross(PyoObject):
     """
@@ -274,14 +294,17 @@ class ZCross(PyoObject):
     >>> n = Noise(b).out(1)
 
     """
-    def __init__(self, input, thresh=0., mul=1, add=0):
+
+    def __init__(self, input, thresh=0.0, mul=1, add=0):
         pyoArgsAssert(self, "onOO", input, thresh, mul, add)
         PyoObject.__init__(self, mul, add)
         self._input = input
         self._thresh = thresh
         self._in_fader = InputFader(input)
         in_fader, thresh, mul, add, lmax = convertArgsToLists(self._in_fader, thresh, mul, add)
-        self._base_objs = [ZCross_base(wrap(in_fader,i), wrap(thresh,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+        self._base_objs = [
+            ZCross_base(wrap(in_fader, i), wrap(thresh, i), wrap(mul, i), wrap(add, i)) for i in range(lmax)
+        ]
         self._init_play()
 
     def setInput(self, x, fadetime=0.05):
@@ -313,28 +336,33 @@ class ZCross(PyoObject):
         pyoArgsAssert(self, "n", x)
         self._thresh = x
         x, lmax = convertArgsToLists(x)
-        [obj.setThresh(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setThresh(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def out(self, chnl=0, inc=1, dur=0, delay=0):
         return self.play(dur, delay)
 
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [SLMap(0., 0.5, 'lin', 'thresh', self._thresh)]
+        self._map_list = [SLMap(0.0, 0.5, "lin", "thresh", self._thresh)]
         PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
     def input(self):
         """PyoObject. Input signal to process."""
         return self._input
+
     @input.setter
-    def input(self, x): self.setInput(x)
+    def input(self, x):
+        self.setInput(x)
 
     @property
     def thresh(self):
         """float. Amplitude difference threshold."""
         return self._thresh
+
     @thresh.setter
-    def thresh(self, x): self.setThresh(x)
+    def thresh(self, x):
+        self.setThresh(x)
+
 
 class Yin(PyoObject):
     """
@@ -385,6 +413,7 @@ class Yin(PyoObject):
     >>> a = LFO(freq*1.5, type=2, mul=0.2).out(1)
 
     """
+
     def __init__(self, input, tolerance=0.2, minfreq=40, maxfreq=1000, cutoff=1000, winsize=1024, mul=1, add=0):
         pyoArgsAssert(self, "onnnniOO", input, tolerance, minfreq, maxfreq, cutoff, winsize, mul, add)
         PyoObject.__init__(self, mul, add)
@@ -394,8 +423,22 @@ class Yin(PyoObject):
         self._maxfreq = maxfreq
         self._cutoff = cutoff
         self._in_fader = InputFader(input)
-        in_fader, tolerance, minfreq, maxfreq, cutoff, winsize, mul, add, lmax = convertArgsToLists(self._in_fader, tolerance, minfreq, maxfreq, cutoff, winsize, mul, add)
-        self._base_objs = [Yin_base(wrap(in_fader,i), wrap(tolerance,i), wrap(minfreq,i), wrap(maxfreq,i), wrap(cutoff,i), wrap(winsize,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+        in_fader, tolerance, minfreq, maxfreq, cutoff, winsize, mul, add, lmax = convertArgsToLists(
+            self._in_fader, tolerance, minfreq, maxfreq, cutoff, winsize, mul, add
+        )
+        self._base_objs = [
+            Yin_base(
+                wrap(in_fader, i),
+                wrap(tolerance, i),
+                wrap(minfreq, i),
+                wrap(maxfreq, i),
+                wrap(cutoff, i),
+                wrap(winsize, i),
+                wrap(mul, i),
+                wrap(add, i),
+            )
+            for i in range(lmax)
+        ]
         self._init_play()
 
     def setInput(self, x, fadetime=0.05):
@@ -427,7 +470,7 @@ class Yin(PyoObject):
         pyoArgsAssert(self, "n", x)
         self._tolerance = x
         x, lmax = convertArgsToLists(x)
-        [obj.setTolerance(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setTolerance(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def setMinfreq(self, x):
         """
@@ -442,7 +485,7 @@ class Yin(PyoObject):
         pyoArgsAssert(self, "n", x)
         self._minfreq = x
         x, lmax = convertArgsToLists(x)
-        [obj.setMinfreq(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setMinfreq(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def setMaxfreq(self, x):
         """
@@ -457,7 +500,7 @@ class Yin(PyoObject):
         pyoArgsAssert(self, "n", x)
         self._maxfreq = x
         x, lmax = convertArgsToLists(x)
-        [obj.setMaxfreq(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setMaxfreq(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def setCutoff(self, x):
         """
@@ -472,52 +515,65 @@ class Yin(PyoObject):
         pyoArgsAssert(self, "n", x)
         self._cutoff = x
         x, lmax = convertArgsToLists(x)
-        [obj.setCutoff(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setCutoff(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def out(self, chnl=0, inc=1, dur=0, delay=0):
         return self.play(dur, delay)
 
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [SLMap(0, 1, 'lin', 'tolerance', self._tolerance, dataOnly=True),
-                          SLMap(20, 400, 'log', 'minfreq', self._minfreq, dataOnly=True),
-                          SLMap(500, 5000, 'log', 'maxfreq', self._maxfreq, dataOnly=True),
-                          SLMap(200, 15000, 'log', 'cutoff', self._cutoff, dataOnly=True)]
+        self._map_list = [
+            SLMap(0, 1, "lin", "tolerance", self._tolerance, dataOnly=True),
+            SLMap(20, 400, "log", "minfreq", self._minfreq, dataOnly=True),
+            SLMap(500, 5000, "log", "maxfreq", self._maxfreq, dataOnly=True),
+            SLMap(200, 15000, "log", "cutoff", self._cutoff, dataOnly=True),
+        ]
         PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
     def input(self):
         """PyoObject. Input signal to process."""
         return self._input
+
     @input.setter
-    def input(self, x): self.setInput(x)
+    def input(self, x):
+        self.setInput(x)
 
     @property
     def tolerance(self):
         """float. Parameter for minima selection."""
         return self._tolerance
+
     @tolerance.setter
-    def tolerance(self, x): self.setTolerance(x)
+    def tolerance(self, x):
+        self.setTolerance(x)
 
     @property
     def minfreq(self):
         """float. Minimum frequency detected."""
         return self._minfreq
+
     @minfreq.setter
-    def minfreq(self, x): self.setMinfreq(x)
+    def minfreq(self, x):
+        self.setMinfreq(x)
 
     @property
     def maxfreq(self):
         """float. Maximum frequency detected."""
         return self._maxfreq
+
     @maxfreq.setter
-    def maxfreq(self, x): self.setMaxfreq(x)
+    def maxfreq(self, x):
+        self.setMaxfreq(x)
 
     @property
     def cutoff(self):
         """float. Input lowpass filter cutoff frequency."""
         return self._cutoff
+
     @cutoff.setter
-    def cutoff(self, x): self.setCutoff(x)
+    def cutoff(self, x):
+        self.setCutoff(x)
+
 
 class Centroid(PyoObject):
     """
@@ -555,6 +611,7 @@ class Centroid(PyoObject):
     >>> d = ButBP(Noise(0.2), freq=c, q=5).out(1)
 
     """
+
     def __init__(self, input, size=1024, mul=1, add=0):
         pyoArgsAssert(self, "oiOO", input, size, mul, add)
         PyoObject.__init__(self, mul, add)
@@ -562,7 +619,9 @@ class Centroid(PyoObject):
         self._size = size
         self._in_fader = InputFader(input)
         in_fader, size, mul, add, lmax = convertArgsToLists(self._in_fader, size, mul, add)
-        self._base_objs = [Centroid_base(wrap(in_fader,i), wrap(size,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+        self._base_objs = [
+            Centroid_base(wrap(in_fader, i), wrap(size, i), wrap(mul, i), wrap(add, i)) for i in range(lmax)
+        ]
         self._init_play()
 
     def setInput(self, x, fadetime=0.05):
@@ -592,8 +651,11 @@ class Centroid(PyoObject):
     def input(self):
         """PyoObject. Input signal to process."""
         return self._input
+
     @input.setter
-    def input(self, x): self.setInput(x)
+    def input(self, x):
+        self.setInput(x)
+
 
 class AttackDetector(PyoObject):
     """
@@ -637,6 +699,7 @@ class AttackDetector(PyoObject):
     >>> wgs = Waveguide(exc, freq=[100,200.1,300.3,400.5], dur=30).out()
 
     """
+
     def __init__(self, input, deltime=0.005, cutoff=10, maxthresh=3, minthresh=-30, reltime=0.1, mul=1, add=0):
         pyoArgsAssert(self, "onnnnnOO", input, deltime, cutoff, maxthresh, minthresh, reltime, mul, add)
         PyoObject.__init__(self, mul, add)
@@ -647,8 +710,22 @@ class AttackDetector(PyoObject):
         self._minthresh = minthresh
         self._reltime = reltime
         self._in_fader = InputFader(input)
-        in_fader, deltime, cutoff, maxthresh, minthresh, reltime, mul, add, lmax = convertArgsToLists(self._in_fader, deltime, cutoff, maxthresh, minthresh, reltime, mul, add)
-        self._base_objs = [AttackDetector_base(wrap(in_fader,i), wrap(deltime,i), wrap(cutoff,i), wrap(maxthresh,i), wrap(minthresh,i), wrap(reltime,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+        in_fader, deltime, cutoff, maxthresh, minthresh, reltime, mul, add, lmax = convertArgsToLists(
+            self._in_fader, deltime, cutoff, maxthresh, minthresh, reltime, mul, add
+        )
+        self._base_objs = [
+            AttackDetector_base(
+                wrap(in_fader, i),
+                wrap(deltime, i),
+                wrap(cutoff, i),
+                wrap(maxthresh, i),
+                wrap(minthresh, i),
+                wrap(reltime, i),
+                wrap(mul, i),
+                wrap(add, i),
+            )
+            for i in range(lmax)
+        ]
         self._init_play()
 
     def setInput(self, x, fadetime=0.05):
@@ -680,7 +757,7 @@ class AttackDetector(PyoObject):
         pyoArgsAssert(self, "n", x)
         self._deltime = x
         x, lmax = convertArgsToLists(x)
-        [obj.setDeltime(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setDeltime(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def setCutoff(self, x):
         """
@@ -695,7 +772,7 @@ class AttackDetector(PyoObject):
         pyoArgsAssert(self, "n", x)
         self._cutoff = x
         x, lmax = convertArgsToLists(x)
-        [obj.setCutoff(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setCutoff(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def setMaxthresh(self, x):
         """
@@ -710,7 +787,7 @@ class AttackDetector(PyoObject):
         pyoArgsAssert(self, "n", x)
         self._maxthresh = x
         x, lmax = convertArgsToLists(x)
-        [obj.setMaxthresh(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setMaxthresh(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def setMinthresh(self, x):
         """
@@ -725,7 +802,7 @@ class AttackDetector(PyoObject):
         pyoArgsAssert(self, "n", x)
         self._minthresh = x
         x, lmax = convertArgsToLists(x)
-        [obj.setMinthresh(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setMinthresh(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def setReltime(self, x):
         """
@@ -740,7 +817,7 @@ class AttackDetector(PyoObject):
         pyoArgsAssert(self, "n", x)
         self._reltime = x
         x, lmax = convertArgsToLists(x)
-        [obj.setReltime(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setReltime(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def readyToDetect(self):
         """
@@ -753,54 +830,69 @@ class AttackDetector(PyoObject):
         return self.play(dur, delay)
 
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [SLMap(0.001, 0.05, 'lin', 'deltime', self._deltime, dataOnly=True),
-                          SLMap(1.0, 1000.0, 'log', 'cutoff', self._cutoff, dataOnly=True),
-                          SLMap(0.0, 18.0, 'lin', 'maxthresh', self._maxthresh, dataOnly=True),
-                          SLMap(-90.0, 0.0, 'lin', 'minthresh', self._minthresh, dataOnly=True),
-                          SLMap(0.001, 1.0, 'log', 'reltime', self._reltime, dataOnly=True)]
+        self._map_list = [
+            SLMap(0.001, 0.05, "lin", "deltime", self._deltime, dataOnly=True),
+            SLMap(1.0, 1000.0, "log", "cutoff", self._cutoff, dataOnly=True),
+            SLMap(0.0, 18.0, "lin", "maxthresh", self._maxthresh, dataOnly=True),
+            SLMap(-90.0, 0.0, "lin", "minthresh", self._minthresh, dataOnly=True),
+            SLMap(0.001, 1.0, "log", "reltime", self._reltime, dataOnly=True),
+        ]
         PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
     def input(self):
         """PyoObject. Input signal to process."""
         return self._input
+
     @input.setter
-    def input(self, x): self.setInput(x)
+    def input(self, x):
+        self.setInput(x)
 
     @property
     def deltime(self):
         """float. Delay between rms analysis."""
         return self._deltime
+
     @deltime.setter
-    def deltime(self, x): self.setDeltime(x)
+    def deltime(self, x):
+        self.setDeltime(x)
 
     @property
     def cutoff(self):
         """float. Cutoff for the follower lowpass filter."""
         return self._cutoff
+
     @cutoff.setter
-    def cutoff(self, x): self.setCutoff(x)
+    def cutoff(self, x):
+        self.setCutoff(x)
 
     @property
     def maxthresh(self):
         """float. Attack threshold in dB."""
         return self._maxthresh
+
     @maxthresh.setter
-    def maxthresh(self, x): self.setMaxthresh(x)
+    def maxthresh(self, x):
+        self.setMaxthresh(x)
 
     @property
     def minthresh(self):
         """float. Minimum threshold in dB."""
         return self._minthresh
+
     @minthresh.setter
-    def minthresh(self, x): self.setMinthresh(x)
+    def minthresh(self, x):
+        self.setMinthresh(x)
 
     @property
     def reltime(self):
         """float. Time to wait before reporting a new attack."""
         return self._reltime
+
     @reltime.setter
-    def reltime(self, x): self.setReltime(x)
+    def reltime(self, x):
+        self.setReltime(x)
+
 
 class Spectrum(PyoObject):
     """
@@ -853,6 +945,7 @@ class Spectrum(PyoObject):
     >>> spec = Spectrum(a, size=1024)
 
     """
+
     def __init__(self, input, size=1024, wintype=2, function=None, wintitle="Spectrum"):
         pyoArgsAssert(self, "oiiCS", input, size, wintype, function, wintitle)
         PyoObject.__init__(self)
@@ -873,7 +966,7 @@ class Spectrum(PyoObject):
         self._gain = 1
         self._in_fader = InputFader(input)
         in_fader, size, wintype, lmax = convertArgsToLists(self._in_fader, size, wintype)
-        self._base_objs = [Spectrum_base(wrap(in_fader,i), wrap(size,i), wrap(wintype,i)) for i in range(lmax)]
+        self._base_objs = [Spectrum_base(wrap(in_fader, i), wrap(size, i), wrap(wintype, i)) for i in range(lmax)]
         self._timer = Pattern(self.refreshView, 0.05).play()
         if function is None:
             self.view(wintitle)
@@ -919,7 +1012,7 @@ class Spectrum(PyoObject):
         pyoArgsAssert(self, "i", x)
         self._size = x
         x, lmax = convertArgsToLists(x)
-        [obj.setSize(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setSize(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def setWinType(self, x):
         """
@@ -934,7 +1027,7 @@ class Spectrum(PyoObject):
         pyoArgsAssert(self, "i", x)
         self._wintype = x
         x, lmax = convertArgsToLists(x)
-        [obj.setWinType(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setWinType(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def setFunction(self, function):
         """
@@ -996,7 +1089,7 @@ class Spectrum(PyoObject):
         x /= self.getServer().getSamplingRate()
         self._lowbound = x
         x, lmax = convertArgsToLists(x)
-        tmp = [obj.setLowbound(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        tmp = [obj.setLowbound(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def setHighFreq(self, x):
         """
@@ -1012,7 +1105,7 @@ class Spectrum(PyoObject):
         x /= self.getServer().getSamplingRate()
         self._highbound = x
         x, lmax = convertArgsToLists(x)
-        tmp = [obj.setHighbound(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        tmp = [obj.setHighbound(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def setLowbound(self, x):
         """
@@ -1029,7 +1122,7 @@ class Spectrum(PyoObject):
         pyoArgsAssert(self, "n", x)
         self._lowbound = x
         x, lmax = convertArgsToLists(x)
-        tmp = [obj.setLowbound(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        tmp = [obj.setLowbound(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
         return tmp[0]
 
     def setHighbound(self, x):
@@ -1047,7 +1140,7 @@ class Spectrum(PyoObject):
         pyoArgsAssert(self, "n", x)
         self._highbound = x
         x, lmax = convertArgsToLists(x)
-        tmp = [obj.setHighbound(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        tmp = [obj.setHighbound(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
         return tmp[0]
 
     def getLowfreq(self):
@@ -1080,7 +1173,7 @@ class Spectrum(PyoObject):
         pyoArgsAssert(self, "i", x)
         self._width = x
         x, lmax = convertArgsToLists(x)
-        [obj.setWidth(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setWidth(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def setHeight(self, x):
         """
@@ -1097,7 +1190,7 @@ class Spectrum(PyoObject):
         pyoArgsAssert(self, "i", x)
         self._height = x
         x, lmax = convertArgsToLists(x)
-        [obj.setHeight(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setHeight(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def setFscaling(self, x):
         """
@@ -1113,7 +1206,7 @@ class Spectrum(PyoObject):
         pyoArgsAssert(self, "b", x)
         self._fscaling = x
         x, lmax = convertArgsToLists(x)
-        [obj.setFscaling(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setFscaling(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
         if self.viewFrame is not None:
             self.viewFrame.setFscaling(self._fscaling)
 
@@ -1131,7 +1224,7 @@ class Spectrum(PyoObject):
         pyoArgsAssert(self, "b", x)
         self._mscaling = x
         x, lmax = convertArgsToLists(x)
-        [obj.setMscaling(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setMscaling(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
         if self.viewFrame is not None:
             self.viewFrame.setMscaling(self._mscaling)
 
@@ -1166,7 +1259,7 @@ class Spectrum(PyoObject):
         pyoArgsAssert(self, "n", x)
         self._gain = x
         x, lmax = convertArgsToLists(x)
-        [obj.setGain(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setGain(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def view(self, title="Spectrum", wxnoserver=False):
         """
@@ -1228,71 +1321,92 @@ class Spectrum(PyoObject):
     def input(self):
         """PyoObject. Input signal to process."""
         return self._input
+
     @input.setter
-    def input(self, x): self.setInput(x)
+    def input(self, x):
+        self.setInput(x)
 
     @property
     def size(self):
         """int. FFT size."""
         return self._size
+
     @size.setter
-    def size(self, x): self.setSize(x)
+    def size(self, x):
+        self.setSize(x)
 
     @property
     def wintype(self):
         """int. Windowing method."""
         return self._wintype
+
     @wintype.setter
-    def wintype(self, x): self.setWinType(x)
+    def wintype(self, x):
+        self.setWinType(x)
 
     @property
     def gain(self):
         """float. Sets the gain of the analysis data."""
         return self._gain
+
     @gain.setter
-    def gain(self, x): self.setGain(x)
+    def gain(self, x):
+        self.setGain(x)
 
     @property
     def lowbound(self):
         """float. Lowest frequency (multiplier of sr) to output."""
         return self._lowbound
+
     @lowbound.setter
-    def lowbound(self, x): self.setLowbound(x)
+    def lowbound(self, x):
+        self.setLowbound(x)
 
     @property
     def highbound(self):
         """float. Highest frequency (multiplier of sr) to output."""
         return self._highbound
+
     @highbound.setter
-    def highbound(self, x): self.setHighbound(x)
+    def highbound(self, x):
+        self.setHighbound(x)
 
     @property
     def width(self):
         """int. Width, in pixels, of the current display."""
         return self._width
+
     @width.setter
-    def width(self, x): self.setWidth(x)
+    def width(self, x):
+        self.setWidth(x)
 
     @property
     def height(self):
         """int. Height, in pixels, of the current display."""
         return self._height
+
     @height.setter
-    def height(self, x): self.setHeight(x)
+    def height(self, x):
+        self.setHeight(x)
 
     @property
     def fscaling(self):
         """boolean. Scaling of the frequency display."""
         return self._fscaling
+
     @fscaling.setter
-    def fscaling(self, x): self.setFscaling(x)
+    def fscaling(self, x):
+        self.setFscaling(x)
 
     @property
     def mscaling(self):
         """boolean. Scaling of the magnitude display."""
         return self._mscaling
+
     @mscaling.setter
-    def mscaling(self, x): self.setMscaling(x)
+    def mscaling(self, x):
+        self.setMscaling(x)
+
 
 class Scope(PyoObject):
     """
@@ -1334,6 +1448,7 @@ class Scope(PyoObject):
     >>> scope = Scope(a+b)
 
     """
+
     def __init__(self, input, length=0.05, gain=0.67, function=None, wintitle="Scope"):
         pyoArgsAssert(self, "oNNCS", input, length, gain, function, wintitle)
         PyoObject.__init__(self)
@@ -1349,7 +1464,7 @@ class Scope(PyoObject):
         self.channelNames = []
         self._in_fader = InputFader(input)
         in_fader, lmax = convertArgsToLists(self._in_fader)
-        self._base_objs = [Scope_base(wrap(in_fader,i), length) for i in range(lmax)]
+        self._base_objs = [Scope_base(wrap(in_fader, i), length) for i in range(lmax)]
         self._base_objs[0].setFunc(self.refreshView)
         if function is None:
             self.view(wintitle)
@@ -1398,7 +1513,7 @@ class Scope(PyoObject):
         pyoArgsAssert(self, "n", x)
         self._gain = x
         x, lmax = convertArgsToLists(x)
-        [obj.setGain(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setGain(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def poll(self, active):
         """
@@ -1525,22 +1640,29 @@ class Scope(PyoObject):
     def input(self):
         """PyoObject. Input signal to process."""
         return self._input
+
     @input.setter
-    def input(self, x): self.setInput(x)
+    def input(self, x):
+        self.setInput(x)
 
     @property
     def length(self):
         """float. Window length."""
         return self._length
+
     @length.setter
-    def length(self, x): self.setLength(x)
+    def length(self, x):
+        self.setLength(x)
 
     @property
     def gain(self):
         """float. Sets the gain of the analysis data."""
         return self._gain
+
     @gain.setter
-    def gain(self, x): self.setGain(x)
+    def gain(self, x):
+        self.setGain(x)
+
 
 class PeakAmp(PyoObject):
     """
@@ -1581,6 +1703,7 @@ class PeakAmp(PyoObject):
     >>> n = Noise(mul=Port(amp)).out(1)
 
     """
+
     def __init__(self, input, function=None, mul=1, add=0):
         pyoArgsAssert(self, "oCOO", input, function, mul, add)
         PyoObject.__init__(self, mul, add)
@@ -1591,7 +1714,7 @@ class PeakAmp(PyoObject):
             self._function = None
         self._in_fader = InputFader(input)
         in_fader, mul, add, lmax = convertArgsToLists(self._in_fader, mul, add)
-        self._base_objs = [PeakAmp_base(wrap(in_fader,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+        self._base_objs = [PeakAmp_base(wrap(in_fader, i), wrap(mul, i), wrap(add, i)) for i in range(lmax)]
         sr = self.getSamplingRate()
         bs = self.getBufferSize()
         self._timer = Pattern(self._buildList, 0.06).play()
@@ -1667,25 +1790,30 @@ class PeakAmp(PyoObject):
     def input(self):
         """PyoObject. Input signal to process."""
         return self._input
+
     @input.setter
-    def input(self, x): self.setInput(x)
+    def input(self, x):
+        self.setInput(x)
 
     @property
     def function(self):
         """PyoObject. function signal to process."""
         return self._function
+
     @function.setter
-    def function(self, x): self.setFunction(x)
+    def function(self, x):
+        self.setFunction(x)
+
 
 class RMS(PyoObject):
     """
     Returns the RMS (Root-Mean-Square) value of a signal.
 
-    Output signal is the continuous rms of an input signal. A new rms 
-    value is computed every buffer size. If `function` argument is not 
-    None, it should be a function that will be called periodically 
-    with a variable-length argument list containing the rms values 
-    of all object's streams. Useful for meter drawing. Function 
+    Output signal is the continuous rms of an input signal. A new rms
+    value is computed every buffer size. If `function` argument is not
+    None, it should be a function that will be called periodically
+    with a variable-length argument list containing the rms values
+    of all object's streams. Useful for meter drawing. Function
     definition must look like this:
 
     >>> def getValues(*args)
@@ -1716,6 +1844,7 @@ class RMS(PyoObject):
     >>> n = Noise(mul=Port(amp)).out(1)
 
     """
+
     def __init__(self, input, function=None, mul=1, add=0):
         pyoArgsAssert(self, "oCOO", input, function, mul, add)
         PyoObject.__init__(self, mul, add)
@@ -1726,7 +1855,7 @@ class RMS(PyoObject):
             self._function = None
         self._in_fader = InputFader(input)
         in_fader, mul, add, lmax = convertArgsToLists(self._in_fader, mul, add)
-        self._base_objs = [RMS_base(wrap(in_fader,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+        self._base_objs = [RMS_base(wrap(in_fader, i), wrap(mul, i), wrap(add, i)) for i in range(lmax)]
         sr = self.getSamplingRate()
         bs = self.getBufferSize()
         self._timer = Pattern(self._buildList, 0.06).play()
@@ -1802,12 +1931,16 @@ class RMS(PyoObject):
     def input(self):
         """PyoObject. Input signal to process."""
         return self._input
+
     @input.setter
-    def input(self, x): self.setInput(x)
+    def input(self, x):
+        self.setInput(x)
 
     @property
     def function(self):
         """PyoObject. function signal to process."""
         return self._function
+
     @function.setter
-    def function(self, x): self.setFunction(x)
+    def function(self, x):
+        self.setFunction(x)
